@@ -835,7 +835,7 @@ void ShowObjects() {
     for (int i = 0; i < MaxBackgrounds2D; i++) {
       ImGui::PushID(i);
       if (ImGui::TreeNode("Background", "Background %d", i)) {
-        if (Backgrounds[i].Status == LS_Loaded) {
+        if (Backgrounds[i].Status == LoadStatus::Loaded) {
           float texWidth = Backgrounds[i].BgSprite.Sheet.DesignWidth * 0.4f;
           float texHeight = Backgrounds[i].BgSprite.Sheet.DesignHeight * 0.4f;
           // Only OpenGL for now
@@ -886,7 +886,7 @@ void ShowObjects() {
     for (int i = 0; i < MaxCharacters2D; i++) {
       ImGui::PushID(i);
       if (ImGui::TreeNode("Character", "Character %d", i)) {
-        if (Characters2D[i].Status == LS_Loaded) {
+        if (Characters2D[i].Status == LoadStatus::Loaded) {
           float texWidth = Characters2D[i].CharaSprite.Sheet.DesignWidth * 0.4f;
           float texHeight =
               Characters2D[i].CharaSprite.Sheet.DesignHeight * 0.4f;

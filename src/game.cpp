@@ -360,14 +360,14 @@ static void RenderMain() {
     if (Profile::UseScreenCapEffects) {
       if (ScrWork[SW_EFF_CAP_BUF] && ScrWork[SW_EFF_CAP_PRI] == layer) {
         int bufId = (int)std::log2(ScrWork[SW_EFF_CAP_BUF]);
-        if (Backgrounds2D[bufId]->Status == LS_Loaded) {
+        if (Backgrounds2D[bufId]->Status == LoadStatus::Loaded) {
           Renderer->CaptureScreencap(Backgrounds2D[bufId]->BgSprite);
         }
       }
 
       if (ScrWork[SW_EFF_CAP_BUF2] && ScrWork[SW_EFF_CAP_PRI2] == layer) {
         int bufId = (int)std::log2(ScrWork[SW_EFF_CAP_BUF2]);
-        if (Backgrounds2D[bufId]->Status == LS_Loaded) {
+        if (Backgrounds2D[bufId]->Status == LoadStatus::Loaded) {
           Renderer->CaptureScreencap(Backgrounds2D[bufId]->BgSprite);
         }
       }
@@ -539,13 +539,13 @@ void Render() {
   }
 
   if (Profile::GameFeatures & GameFeature::CharacterViewer) {
-    if (Backgrounds2D[0]->Status == LS_Loaded) {
+    if (Backgrounds2D[0]->Status == LoadStatus::Loaded) {
       Renderer->DrawSprite(
           Backgrounds2D[0]->BgSprite,
           RectF(0.0f, 0.0f, Backgrounds2D[0]->BgSprite.ScaledWidth(),
                 Backgrounds2D[0]->BgSprite.ScaledHeight()));
     }
-    if (Characters2D[0].Status == LS_Loaded) {
+    if (Characters2D[0].Status == LoadStatus::Loaded) {
       Characters2D[0].Layers[0] = 0;
       ScrWork[SW_CHA1ALPHA] = 256;
       Characters2D[0].Render(0);

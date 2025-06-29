@@ -161,7 +161,7 @@ void Character2D::UnloadSync() {
   StatesToDraw.clear();
 }
 
-void Character2D::MainThreadOnLoad() {
+void Character2D::MainThreadOnLoad(bool result) {
   CharaSpriteSheet.Texture = CharaTexture.Submit();
   CharaSpriteSheet.DesignWidth = (float)CharaTexture.Width;
   CharaSpriteSheet.DesignHeight = (float)CharaTexture.Height;
@@ -210,7 +210,7 @@ void Character2D::Update(float dt) {
 }
 
 void Character2D::Render(int layer) {
-  if (Status != LS_Loaded || !OnLayer(layer) || !Show) return;
+  if (Status != LoadStatus::Loaded || !OnLayer(layer) || !Show) return;
 
   if (Profile::CharaIsMvl) {
     const glm::mat4 transformation = TransformationMatrix(

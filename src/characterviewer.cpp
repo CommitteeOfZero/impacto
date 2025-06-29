@@ -122,7 +122,7 @@ void Update(float dt) {
       }
 
       if (LastBackground != CurrentBackground ||
-          Characters2D[0].Status == LS_Unloaded) {
+          Characters2D[0].Status == LoadStatus::Unloaded) {
         Backgrounds2D[0]->LoadAsync(BackgroundIds[CurrentBackground]);
       }
     }
@@ -146,10 +146,11 @@ void Update(float dt) {
       }
 
       if (LastCharacter != CurrentCharacter ||
-          Characters2D[0].Status == LS_Unloaded) {
+          Characters2D[0].Status == LoadStatus::Unloaded) {
         Characters2D[0].LoadAsync(CharacterIds[CurrentCharacter] | 0x10000);
       }
-      if (Characters2D[0].Status == LS_Loaded) Characters2D[0].Show = true;
+      if (Characters2D[0].Status == LoadStatus::Loaded)
+        Characters2D[0].Show = true;
 
       ImGui::Spacing();
       ImGui::Text("Character X");

@@ -297,10 +297,10 @@ VmInstruction(InstSaveIconLoad) {
 VmInstruction(InstVoiceTableLoadMaybe) {
   StartInstruction;
   PopExpression(fileId);
-  if (VoiceTableData.Status == LS_Loading) {
+  if (VoiceTableData.Status == LoadStatus::Loading) {
     ResetInstruction;
     BlockThread;
-  } else if (VoiceTableData.Status == LS_Unloaded) {
+  } else if (VoiceTableData.Status == LoadStatus::Unloaded) {
     VoiceTableData.LoadAsync(fileId);
     ResetInstruction;
     BlockThread;

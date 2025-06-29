@@ -18,6 +18,7 @@
 
 namespace Impacto {
 namespace WorkQueue {
+
 struct WorkItem {
   void* Data;
   WorkProc Perform;

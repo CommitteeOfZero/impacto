@@ -79,7 +79,7 @@ static void UpdateRenderablePos(int charId) {
 
 static void UpdateRenderables() {
   for (int i = 0; i < Profile::Scene3D::MaxRenderables; i++) {
-    if (Renderer->Scene->Renderables[i]->Status == LS_Loaded) {
+    if (Renderer->Scene->Renderables[i]->Status == LoadStatus::Loaded) {
       UpdateRenderableRot(i);
       UpdateRenderablePos(i);
       if (GetFlag(SF_IRUOENABLE) && GetFlag(SF_Pokecon_Open)) {

@@ -65,7 +65,7 @@ void Scene3D::Shutdown() {
 
 void Scene3D::Update(float dt) {
   for (int i = 0; i < Profile::Scene3D::MaxRenderables; i++) {
-    if (Renderables[i]->Status == LS_Loaded) {
+    if (Renderables[i]->Status == LoadStatus::Loaded) {
       Renderables[i]->Update(dt);
     }
   }
@@ -78,7 +78,7 @@ void Scene3D::Render() {
   Renderable3D::BeginFrame(this, &MainCamera);
 
   for (int i = 0; i < Profile::Scene3D::MaxRenderables; i++) {
-    if (Renderables[i]->Status == LS_Loaded &&
+    if (Renderables[i]->Status == LoadStatus::Loaded &&
         Renderables[i]->StaticModel->Type == ModelType_Background) {
       Renderables[i]->Render();
     }
@@ -89,7 +89,7 @@ void Scene3D::Render() {
   SetupFramebufferState();
 
   for (int i = 0; i < Profile::Scene3D::MaxRenderables; i++) {
-    if (Renderables[i]->Status == LS_Loaded &&
+    if (Renderables[i]->Status == LoadStatus::Loaded &&
         Renderables[i]->StaticModel->Type == ModelType_Character) {
       Renderables[i]->Render();
     }

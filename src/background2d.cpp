@@ -27,7 +27,7 @@ void Background2D::Init() {
     Screencaptures[i].BgSprite.Sheet.IsScreenCap = true;
     Screencaptures[i].LoadSolidColor(0xFF000000, Window->WindowWidth,
                                      Window->WindowHeight);
-    Screencaptures[i].Status = LS_Loaded;
+    Screencaptures[i].Status = LoadStatus::Loaded;
   }
 
   ShaderScreencapture.BgSprite.Sheet.IsScreenCap = true;
@@ -39,13 +39,13 @@ void Background2D::Init() {
     Framebuffers[i].BgSprite.Sheet.Texture =
         Renderer->GetFramebufferTexture(i + 1);
 
-    Framebuffers[i].Status = LS_Loaded;
+    Framebuffers[i].Status = LoadStatus::Loaded;
     Framebuffers[i].BgSprite.Sheet.IsScreenCap = true;
   }
 
   ShaderScreencapture.LoadSolidColor(0xFF000000, Window->WindowWidth,
                                      Window->WindowHeight);
-  ShaderScreencapture.Status = LS_Loaded;
+  ShaderScreencapture.Status = LoadStatus::Loaded;
 }
 
 bool Background2D::LoadSync(uint32_t bgId) {
@@ -64,7 +64,7 @@ bool Background2D::LoadSync(uint32_t bgId) {
 
 void Background2D::LoadSolidColor(uint32_t color, int width, int height) {
   BgTexture.LoadSolidColor(width, height, color);
-  MainThreadOnLoad();
+  MainThreadOnLoad(true);
 }
 
 void Background2D::UnloadSync() {
@@ -77,7 +77,7 @@ void Background2D::UnloadSync() {
   std::fill(Layers.begin(), Layers.end(), -1);
 }
 
-void Background2D::MainThreadOnLoad() {
+void Background2D::MainThreadOnLoad(bool result) {
   BgSprite.Sheet.Texture = BgTexture.Submit();
   if ((BgTexture.Width == 1) && (BgTexture.Height == 1)) {
     BgSprite.Sheet.DesignWidth = Profile::DesignWidth;
@@ -94,7 +94,7 @@ void Background2D::MainThreadOnLoad() {
 }
 
 void Background2D::Render(int bgId, int layer) {
-  if (Status != LS_Loaded || !OnLayer(layer) || !Show) return;
+  if (Status != LoadStatus::Loaded || !OnLayer(layer) || !Show) return;
 
   MaskNumber = ScrWork[SW_BG1MASKNO + ScrWorkBgStructSize * bgId];
   FadeCount = ScrWork[SW_BG1FADECT + ScrWorkBgStructSize * bgId];
@@ -135,7 +135,7 @@ void Background2D::Render(int bgId, int layer) {
 }
 
 void Background2D::RenderCapture(int capId, int layer) {
-  if (Status != LS_Loaded || !OnLayer(layer) || !Show) return;
+  if (Status != LoadStatus::Loaded || !OnLayer(layer) || !Show) return;
 
   MaskNumber = ScrWork[SW_CAP1MASKNO + ScrWorkCaptureStructSize * capId];
   FadeCount = ScrWork[SW_CAP1FADECT + ScrWorkCaptureStructSize * capId];
@@ -162,7 +162,7 @@ void Background2D::RenderCapture(int capId, int layer) {
 }
 
 void Background2D::RenderBgEff(int bgId, int layer) {
-  if (Status != LS_Loaded) return;
+  if (Status != LoadStatus::Loaded) return;
 
   const int structOffset = ScrWorkBgEffStructSize * bgId;
   const int structOfsOffset = ScrWorkBgEffOffsetStructSize * bgId;
