@@ -170,25 +170,35 @@ VmInstruction(InstCHAload) {
   PopExpression(bufferId);
   PopExpression(characterId);
 
-  int actualBufId = Interface::GetBufferId(bufferId);
-  int chaBufId = ScrWork[SW_CHA1SURF + actualBufId];
-  if (((characterId & 0xFFFF0000) >> 16) == 0) {
-    characterId =
-        (ScrWork[SW_CHA1FACE + ScrWorkChaStructSize * actualBufId] << 16) |
-        characterId;
-  }
-  if (Characters2D[chaBufId].Status == LoadStatus::Loading) {
-    ResetInstruction;
-    BlockThread;
-  } else if (ScrWork[SW_CHA1NO + ScrWorkChaStructSize * actualBufId] !=
-             (characterId & 0xFFFF)) {
-    ScrWork[SW_CHA1NO + ScrWorkChaStructSize * actualBufId] =
-        characterId & 0xFFFF;
-    ScrWork[SW_CHA1FACE + ScrWorkChaStructSize * actualBufId] =
-        characterId >> 16;
-    Characters2D[chaBufId].LoadAsync(characterId);
-    ResetInstruction;
-    BlockThread;
+  const int actualBufId = Interface::GetBufferId(bufferId);
+  const size_t chaStructOffset = ScrWorkChaStructSize * actualBufId;
+
+  const int chaBufId = ScrWork[SW_CHA1SURF + actualBufId];
+
+  switch (Characters2D[chaBufId].Status) {
+    case LoadStatus::Unloaded:
+    case LoadStatus::Loaded: {
+      if (characterId >> 16 != 0) {
+        ScrWork[SW_CHA1FACE + chaStructOffset] = characterId >> 16;
+      }
+
+      if (ScrWork[SW_CHA1NO + chaStructOffset] != (characterId & 0xFFFF)) {
+        ScrWork[SW_CHA1NO + chaStructOffset] = characterId & 0xFFFF;
+
+        Characters2D[chaBufId].LoadAsync(characterId);
+
+        ResetInstruction;
+        BlockThread;
+      }
+
+      return;
+    }
+
+    case LoadStatus::Loading: {
+      ResetInstruction;
+      BlockThread;
+      return;
+    }
   }
 }
 VmInstruction(InstCHAswap) {

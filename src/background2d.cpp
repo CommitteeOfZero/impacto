@@ -47,6 +47,17 @@ void Background2D::Init() {
   ShaderScreencapture.BgSprite.Sheet.IsScreenCap = true;
   InitFrameBuffers();
 
+  for (size_t i = 0; i < Framebuffers.max_size(); i++) {
+    Framebuffers[i].BgSprite =
+        Sprite(SpriteSheet(Profile::DesignWidth, Profile::DesignHeight), 0.0f,
+               0.0f, Profile::DesignWidth, Profile::DesignHeight);
+    Framebuffers[i].BgSprite.Sheet.Texture =
+        Renderer->GetFramebufferTexture(i + 1);
+
+    Framebuffers[i].Status = LoadStatus::Loaded;
+    Framebuffers[i].BgSprite.Sheet.IsScreenCap = true;
+  }
+
   ShaderScreencapture.LoadSolidColor(0xFF000000, Window->WindowWidth,
                                      Window->WindowHeight);
   ShaderScreencapture.Status = LoadStatus::Loaded;

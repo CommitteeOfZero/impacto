@@ -225,8 +225,7 @@ void Update(float dt) {
     Characters2D[0].LoadAsync(CharacterIds[0] | 0x10000);
   }
 
-  if (Characters2D[0].Status == LoadStatus::Unloaded)
-    Characters2D[0].Show = true;
+  if (Characters2D[0].Status == LoadStatus::Loaded) Characters2D[0].Show = true;
 #endif
 
   if (BgmChangeQueued &&
