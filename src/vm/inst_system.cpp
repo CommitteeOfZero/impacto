@@ -233,6 +233,18 @@ VmInstruction(InstSave) {
       break;
     case 4: {
     } break;
+    case 16:
+      SaveSystem::FlushWorkingSaveEntry(SaveSystem::SaveType::SaveFull,
+                                        ScrWork[SW_SAVEFILENO]);
+      SaveSystem::WriteSaveFile();
+      break;
+    case 30:
+      break;
+    case 31:
+      if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
+        ScrWork[SW_SAVEERRORCODE] = CreateSaveFile();
+      }
+      break;
     case 32: {
       if (Profile::Vm::GameInstructionSet == +InstructionSet::MO6TW ||
           Profile::Vm::GameInstructionSet == +InstructionSet::CHLCC) {
@@ -249,11 +261,6 @@ VmInstruction(InstSave) {
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction Save(type: {:d})\n", type);
       break;
-    case 16:
-      SaveSystem::FlushWorkingSaveEntry(SaveSystem::SaveType::SaveFull,
-                                        ScrWork[SW_SAVEFILENO]);
-      SaveSystem::WriteSaveFile();
-      break;
     case 50:
       if (Profile::Vm::GameInstructionSet == +InstructionSet::CHLCC) {
         AchievementSystem::MountAchievementFile();
@@ -268,13 +275,6 @@ VmInstruction(InstSave) {
       if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
         LoadSaveFile();
       }
-    case 30:
-      break;
-    case 31:
-      if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
-        ScrWork[SW_SAVEERRORCODE] = CreateSaveFile();
-      }
-      break;
     case 80:
       break;
     case 81: {  // SystemDataCheck
