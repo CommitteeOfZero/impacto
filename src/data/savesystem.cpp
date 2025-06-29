@@ -16,22 +16,22 @@ SaveError CreateSaveFile() {
   if (Implementation)
     return Implementation->CreateSaveFile();
   else
-    return SaveOK;  // Just so we don't get stuck
+    return SaveError::OK;  // Just so we don't get stuck
 }
 
 SaveError CheckSaveFile() {
   if (Implementation)
     return Implementation->CheckSaveFile();
   else
-    return SaveOK;
+    return SaveError::OK;
 }
 
 SaveError MountSaveFile() {
   if (Implementation)
     return Implementation->MountSaveFile();
   else
-    return SaveOK;  // Just so we don't get stuck at loading save data in
-                    // script.
+    return SaveError::OK;  // Just so we don't get stuck at loading save data in
+                           // script.
 }
 
 void SaveMemory() {

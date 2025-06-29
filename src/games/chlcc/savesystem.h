@@ -17,8 +17,8 @@ class SaveFileEntry : public SaveFileEntryBase {
 
 class SaveSystem : public SaveSystemBase {
  public:
-  SaveError CreateSaveFile() override { return SaveOK; }  // Todo
-  SaveError CheckSaveFile() override { return SaveOK; }   // Todo
+  SaveError CreateSaveFile() override { return SaveError::OK; }  // Todo
+  SaveError CheckSaveFile() override { return SaveError::OK; }   // Todo
   SaveError MountSaveFile() override;
   void SaveMemory() override;
   void LoadEntry(SaveType type, int id) override;

@@ -25,12 +25,12 @@ Widget* EntryGrid[Pages][RowsPerPage][EntriesPerRow];
 void SaveMenu::MenuButtonOnClick(Widgets::Button* target) {
   Impacto::SaveSystem::SaveType saveType =
       *ActiveMenuType == +SaveMenuPageType::QuickLoad
-          ? SaveSystem::SaveType::SaveQuick
-          : SaveSystem::SaveType::SaveFull;
+          ? SaveSystem::SaveType::Quick
+          : SaveSystem::SaveType::Full;
   int SaveStatus = SaveSystem::GetSaveStatus(saveType, target->Id);
   if (SaveStatus == 1 || *ActiveMenuType == +SaveMenuPageType::Save) {
     ScrWork[SW_SAVEFILENO] = target->Id;
-    ScrWork[SW_SAVEFILETYPE] = saveType;
+    ScrWork[SW_SAVEFILETYPE] = (int)saveType;
     ScrWork[SW_SAVEFILESTATUS] =
         SaveSystem::GetSaveStatus(saveType, ScrWork[SW_SAVEFILENO]);
 
@@ -62,14 +62,14 @@ void SaveMenu::Show() {
     int id = 0;
     Impacto::SaveSystem::SaveType saveType =
         *ActiveMenuType == +SaveMenuPageType::QuickLoad
-            ? SaveSystem::SaveType::SaveQuick
-            : SaveSystem::SaveType::SaveFull;
+            ? SaveSystem::SaveType::Quick
+            : SaveSystem::SaveType::Full;
 
     std::array<int, SaveSystem::MaxSaveEntries> saveEntryIds;
     for (int i = 0; i < SaveSystem::MaxSaveEntries; i++) {
       saveEntryIds[i] = i;
     }
-    if (saveType == SaveSystem::SaveType::SaveQuick) {
+    if (saveType == SaveSystem::SaveType::Quick) {
       // quick saves are sorted by time and status
       std::sort(saveEntryIds.begin(), saveEntryIds.end(),
                 [saveType](int a, int b) {

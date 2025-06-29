@@ -214,8 +214,8 @@ VmInstruction(InstCopyThreadWork) {
 }
 
 inline void LoadSaveFile() {
-  ScrWork[SW_SAVEERRORCODE] = SaveSystem::MountSaveFile();
-  if (ScrWork[SW_SAVEERRORCODE] == SaveOK) {
+  ScrWork[SW_SAVEERRORCODE] = (int)SaveSystem::MountSaveFile();
+  if (ScrWork[SW_SAVEERRORCODE] == (int)SaveError::OK) {
     UpdateTipRecords();
   }
 }
@@ -234,7 +234,7 @@ VmInstruction(InstSave) {
     case 4: {
     } break;
     case 16:
-      SaveSystem::FlushWorkingSaveEntry(SaveSystem::SaveType::SaveFull,
+      SaveSystem::FlushWorkingSaveEntry(SaveSystem::SaveType::Full,
                                         ScrWork[SW_SAVEFILENO]);
       SaveSystem::WriteSaveFile();
       break;
@@ -242,7 +242,7 @@ VmInstruction(InstSave) {
       break;
     case 31:
       if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
-        ScrWork[SW_SAVEERRORCODE] = CreateSaveFile();
+        ScrWork[SW_SAVEERRORCODE] = (int)CreateSaveFile();
       }
       break;
     case 32: {
@@ -279,7 +279,7 @@ VmInstruction(InstSave) {
       break;
     case 81: {  // SystemDataCheck
       if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
-        ScrWork[SW_SAVEERRORCODE] = CheckSaveFile();
+        ScrWork[SW_SAVEERRORCODE] = (int)CheckSaveFile();
       }
     } break;
     default:
@@ -735,7 +735,7 @@ VmInstruction(InstAutoSave) {
       int quicksaveEntries = SaveSystem::GetQuickSaveOpenSlot();
       if (quicksaveEntries != -1) {
         SaveIconDisplay::ShowFor(2.4f);
-        SaveSystem::FlushWorkingSaveEntry(SaveSystem::SaveType::SaveQuick,
+        SaveSystem::FlushWorkingSaveEntry(SaveSystem::SaveType::Quick,
                                           quicksaveEntries, saveType);
       }
     }
@@ -769,7 +769,7 @@ VmInstruction(InstAutoSave) {
       int quicksaveEntries = SaveSystem::GetQuickSaveOpenSlot();
       if (quicksaveEntries != -1) {
         SaveIconDisplay::ShowFor(2.4f);
-        SaveSystem::FlushWorkingSaveEntry(SaveSystem::SaveType::SaveQuick,
+        SaveSystem::FlushWorkingSaveEntry(SaveSystem::SaveType::Quick,
                                           quicksaveEntries, 0);
       }
 

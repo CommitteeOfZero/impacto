@@ -216,15 +216,16 @@ void Update(float dt) {
 
   ImGui::End();
 #else
-  if (Characters2D[0].Status == LS_Unloaded) {
+  if (Characters2D[0].Status == LoadStatus::Unloaded) {
     Backgrounds2D[0]->LoadAsync(BackgroundIds[0]);
   }
 
-  if (Characters2D[0].Status == LS_Unloaded) {
+  if (Characters2D[0].Status == LoadStatus::Unloaded) {
     Characters2D[0].LoadAsync(CharacterIds[0] | 0x10000);
   }
 
-  if (Characters2D[0].Status == LS_Loaded) Characters2D[0].Show = true;
+  if (Characters2D[0].Status == LoadStatus::Unloaded)
+    Characters2D[0].Show = true;
 #endif
 
   if (BgmChangeQueued &&

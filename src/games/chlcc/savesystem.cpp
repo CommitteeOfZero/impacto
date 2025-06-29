@@ -24,10 +24,10 @@ SaveError SaveSystem::MountSaveFile() {
   IoError err = Io::PhysicalFileStream::Create(SaveFilePath, &stream);
   switch (err) {
     case IoError_NotFound:
-      return SaveNotFound;
+      return SaveError::NotFound;
     case IoError_Fail:
     case IoError_Eof:
-      return SaveCorrupted;
+      return SaveError::Corrupted;
     case IoError_OK:
       break;
   };
@@ -125,7 +125,7 @@ SaveError SaveSystem::MountSaveFile() {
     }
   }
   delete stream;
-  return SaveOK;
+  return SaveError::OK;
 }
 
 // uint16_t CalculateChecksum(int id) {
@@ -136,10 +136,10 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
                                        int autoSaveType) {
   SaveFileEntry* entry = 0;
   switch (type) {
-    case SaveQuick:
+    case SaveType::Quick:
       entry = (SaveFileEntry*)QuickSaveEntries[id];
       break;
-    case SaveFull:
+    case SaveType::Full:
       entry = (SaveFileEntry*)FullSaveEntries[id];
       break;
   }
@@ -147,7 +147,7 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
   if (WorkingSaveEntry != 0) {
     if (entry != 0 && !(GetSaveFlags(type, id) & WriteProtect)) {
       *entry = *WorkingSaveEntry;
-      if (type == SaveQuick) {
+      if (type == SaveType::Quick) {
         entry->SaveType = autoSaveType;
       }
       time_t rawtime;
@@ -250,9 +250,9 @@ void SaveSystem::WriteSaveFile() {
 
 uint32_t SaveSystem::GetSavePlayTime(SaveType type, int id) {
   switch (type) {
-    case SaveFull:
+    case SaveType::Full:
       return ((SaveFileEntry*)FullSaveEntries[id])->PlayTime;
-    case SaveQuick:
+    case SaveType::Quick:
       return ((SaveFileEntry*)QuickSaveEntries[id])->PlayTime;
     default:
       ImpLog(LogLevel::Error, LogChannel::IO,
@@ -263,9 +263,9 @@ uint32_t SaveSystem::GetSavePlayTime(SaveType type, int id) {
 
 uint8_t SaveSystem::GetSaveFlags(SaveType type, int id) {
   switch (type) {
-    case SaveFull:
+    case SaveType::Full:
       return ((SaveFileEntry*)FullSaveEntries[id])->Flags;
-    case SaveQuick:
+    case SaveType::Quick:
       return ((SaveFileEntry*)QuickSaveEntries[id])->Flags;
     default:
       ImpLog(LogLevel::Error, LogChannel::IO,
@@ -286,9 +286,9 @@ tm const& SaveSystem::GetSaveDate(SaveType type, int id) {
     return t;
   }();
   switch (type) {
-    case SaveFull:
+    case SaveType::Full:
       return ((SaveFileEntry*)FullSaveEntries[id])->SaveDate;
-    case SaveQuick:
+    case SaveType::Quick:
       return ((SaveFileEntry*)QuickSaveEntries[id])->SaveDate;
     default:
       ImpLog(LogLevel::Error, LogChannel::IO,
@@ -340,10 +340,10 @@ void SaveSystem::SaveMemory() {
 void SaveSystem::LoadEntry(SaveType type, int id) {
   SaveFileEntry* entry = 0;
   switch (type) {
-    case SaveQuick:
+    case SaveType::Quick:
       entry = (SaveFileEntry*)QuickSaveEntries[id];
       break;
-    case SaveFull:
+    case SaveType::Full:
       entry = (SaveFileEntry*)FullSaveEntries[id];
       break;
     default:
@@ -462,11 +462,11 @@ void SaveSystem::LoadEntry(SaveType type, int id) {
 
 uint8_t SaveSystem::GetSaveStatus(SaveType type, int id) {
   switch (type) {
-    case SaveQuick:
+    case SaveType::Quick:
       return QuickSaveEntries[id] != nullptr
                  ? ((SaveFileEntry*)QuickSaveEntries[id])->Status
                  : 0;
-    case SaveFull:
+    case SaveType::Full:
       return FullSaveEntries[id] != nullptr
                  ? ((SaveFileEntry*)FullSaveEntries[id])->Status
                  : 0;
@@ -479,9 +479,9 @@ uint8_t SaveSystem::GetSaveStatus(SaveType type, int id) {
 
 int SaveSystem::GetSaveTitle(SaveType type, int id) {
   switch (type) {
-    case SaveQuick:
+    case SaveType::Quick:
       return ((SaveFileEntry*)QuickSaveEntries[id])->SwTitle;
-    case SaveFull:
+    case SaveType::Full:
       return ((SaveFileEntry*)FullSaveEntries[id])->SwTitle;
     default:
       ImpLog(LogLevel::Error, LogChannel::IO,
@@ -587,9 +587,9 @@ bool SaveSystem::GetBgmFlag(int id) { return BGMFlags[id]; }
 
 Sprite& SaveSystem::GetSaveThumbnail(SaveType type, int id) {
   switch (type) {
-    case SaveQuick:
+    case SaveType::Quick:
       return QuickSaveEntries[id]->SaveThumbnail;
-    case SaveFull:
+    case SaveType::Full:
       return FullSaveEntries[id]->SaveThumbnail;
   }
 }

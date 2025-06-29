@@ -401,11 +401,11 @@ void Update(float dt) {
 
   ImGui::End();
 #else
-  if (Renderer->Scene->Renderables[0]->Status == LS_Loaded) {
+  if (Renderer->Scene->Renderables[0]->Status == LoadStatus::Loaded) {
     Renderer->Scene->Renderables[0]->IsVisible = true;
   }
 
-  if (Renderer->Scene->Renderables[1]->Status == LS_Loaded) {
+  if (Renderer->Scene->Renderables[1]->Status == LoadStatus::Loaded) {
     Renderer->Scene->Renderables[1]->IsVisible = true;
   }
 #endif

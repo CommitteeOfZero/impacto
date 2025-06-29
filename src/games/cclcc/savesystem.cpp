@@ -53,20 +53,20 @@ SaveError SaveSystem::CheckSaveFile() {
   std::error_code ec;
   IoError existsState = Io::PathExists(SaveFilePath);
   if (existsState == IoError_NotFound) {
-    return SaveNotFound;
+    return SaveError::NotFound;
   } else if (existsState == IoError_Fail) {
     ImpLog(LogLevel::Error, LogChannel::IO,
            "Failed to check if save file exists, error: \"{:s}\"\n",
            ec.message());
-    return SaveFailed;
+    return SaveError::Failed;
   }
   auto saveFileSize = Io::GetFileSize(SaveFilePath);
   if (saveFileSize == IoError_Fail) {
     ImpLog(LogLevel::Error, LogChannel::IO,
            "Failed to get save file size, error: \"{:s}\"\n", ec.message());
-    return SaveFailed;
+    return SaveError::Failed;
   } else if (saveFileSize != SaveFileSize) {
-    return SaveCorrupted;
+    return SaveError::Corrupted;
   }
   auto checkPermsBit = [](Io::FilePermissionsFlags perms,
                           Io::FilePermissionsFlags flag) {
@@ -79,12 +79,12 @@ SaveError SaveSystem::CheckSaveFile() {
     ImpLog(LogLevel::Error, LogChannel::IO,
            "Failed to get save file permissions, error: \"{:s}\"\n",
            ec.message());
-    return SaveFailed;
+    return SaveError::Failed;
   } else if ((!checkPermsBit(perms, Io::FilePermissionsFlags::owner_read) ||
               !checkPermsBit(perms, Io::FilePermissionsFlags::owner_write))) {
-    return SaveWrongUser;
+    return SaveError::WrongUser;
   }
-  return SaveOK;
+  return SaveError::OK;
 }
 
 SaveError SaveSystem::CreateSaveFile() {
@@ -94,7 +94,7 @@ SaveError SaveSystem::CreateSaveFile() {
       SaveFilePath, &stream,
       CF::CREATE_IF_NOT_EXISTS | CF::CREATE_DIRS | CF::WRITE);
   if (err != IoError_OK) {
-    return SaveFailed;
+    return SaveError::Failed;
   }
 
   assert(stream->Meta.Size == 0);
@@ -142,7 +142,7 @@ void SaveSystem::LoadEntryBuffer(Io::MemoryStream& stream, SaveFileEntry& entry,
                                  SaveType saveType) {
   entry.Status = Io::ReadLE<uint8_t>(&stream);
   Io::ReadLE<uint8_t>(&stream);
-  if (entry.Status == 1 && saveType == SaveType::SaveQuick) {
+  if (entry.Status == 1 && saveType == SaveType::Quick) {
     QuickSaveCount++;
   }
   uint16_t checksumSum = Io::ReadLE<uint16_t>(&stream);
@@ -242,10 +242,10 @@ SaveError SaveSystem::MountSaveFile() {
   IoError err = Io::PhysicalFileStream::Create(SaveFilePath, &stream);
   switch (err) {
     case IoError_NotFound:
-      return SaveNotFound;
+      return SaveError::NotFound;
     case IoError_Fail:
     case IoError_Eof:
-      return SaveCorrupted;
+      return SaveError::Corrupted;
     case IoError_OK:
       break;
   };
@@ -268,8 +268,8 @@ SaveError SaveSystem::MountSaveFile() {
       CalculateChecksum(std::span(systemSaveBuf).subspan(4));
 
   for (auto& entryArray : {FullSaveEntries, QuickSaveEntries}) {
-    SaveType saveType = (entryArray == QuickSaveEntries) ? SaveType::SaveQuick
-                                                         : SaveType::SaveFull;
+    SaveType saveType =
+        (entryArray == QuickSaveEntries) ? SaveType::Quick : SaveType::Full;
     int64_t saveDataPos = stream->Position;
     for (int i = 0; i < MaxSaveEntries; i++) {
       assert(stream->Position - saveDataPos == 0x1b110 * i);
@@ -290,17 +290,17 @@ SaveError SaveSystem::MountSaveFile() {
     }
   }
   delete stream;
-  return SaveOK;
+  return SaveError::OK;
 }
 
 void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
                                        int autoSaveType) {
   SaveFileEntry* entry = 0;
   switch (type) {
-    case SaveQuick:
+    case SaveType::Quick:
       entry = (SaveFileEntry*)QuickSaveEntries[id];
       break;
-    case SaveFull:
+    case SaveType::Full:
       entry = (SaveFileEntry*)FullSaveEntries[id];
       break;
   }
@@ -308,7 +308,7 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
   if (entry != 0 && !(GetSaveFlags(type, id) & WriteProtect)) {
     Renderer->FreeTexture(entry->SaveThumbnail.Sheet.Texture);
     *entry = *WorkingSaveEntry;
-    if (type == SaveQuick) {
+    if (type == SaveType::Quick) {
       entry->SaveType = autoSaveType;
     }
     time_t rawtime;
@@ -573,8 +573,8 @@ void SaveSystem::WriteSaveFile() {
   Io::WriteArrayLE<uint8_t>(systemSaveBuf.data(), stream, systemSaveBuf.size());
   // End system data
   for (auto* entryArray : {FullSaveEntries, QuickSaveEntries}) {
-    SaveType saveType = (entryArray == QuickSaveEntries) ? SaveType::SaveQuick
-                                                         : SaveType::SaveFull;
+    SaveType saveType =
+        (entryArray == QuickSaveEntries) ? SaveType::Quick : SaveType::Full;
     int64_t saveDataPos = stream->Position;
     for (int i = 0; i < MaxSaveEntries; i++) {
       SaveFileEntry* entry = (SaveFileEntry*)entryArray[i];
@@ -601,9 +601,9 @@ void SaveSystem::WriteSaveFile() {
 
 uint32_t SaveSystem::GetSavePlayTime(SaveType type, int id) {
   switch (type) {
-    case SaveFull:
+    case SaveType::Full:
       return ((SaveFileEntry*)FullSaveEntries[id])->PlayTime;
-    case SaveQuick:
+    case SaveType::Quick:
       return ((SaveFileEntry*)QuickSaveEntries[id])->PlayTime;
     default:
       ImpLog(LogLevel::Error, LogChannel::IO,
@@ -614,9 +614,9 @@ uint32_t SaveSystem::GetSavePlayTime(SaveType type, int id) {
 
 uint8_t SaveSystem::GetSaveFlags(SaveType type, int id) {
   switch (type) {
-    case SaveFull:
+    case SaveType::Full:
       return ((SaveFileEntry*)FullSaveEntries[id])->Flags;
-    case SaveQuick:
+    case SaveType::Quick:
       return ((SaveFileEntry*)QuickSaveEntries[id])->Flags;
     default:
       ImpLog(LogLevel::Error, LogChannel::IO,
@@ -637,9 +637,9 @@ tm const& SaveSystem::GetSaveDate(SaveType type, int id) {
     return t;
   }();
   switch (type) {
-    case SaveFull:
+    case SaveType::Full:
       return ((SaveFileEntry*)FullSaveEntries[id])->SaveDate;
-    case SaveQuick:
+    case SaveType::Quick:
       return ((SaveFileEntry*)QuickSaveEntries[id])->SaveDate;
     default:
       ImpLog(LogLevel::Error, LogChannel::IO,
@@ -695,10 +695,10 @@ void SaveSystem::LoadEntry(SaveType type, int id) {
     return;
   }
   switch (type) {
-    case SaveQuick:
+    case SaveType::Quick:
       WorkingSaveEntry = *static_cast<SaveFileEntry*>(QuickSaveEntries[id]);
       break;
-    case SaveFull:
+    case SaveType::Full:
       WorkingSaveEntry = *static_cast<SaveFileEntry*>(FullSaveEntries[id]);
       break;
     default:
@@ -714,7 +714,7 @@ void SaveSystem::LoadMemoryNew(LoadProcess load) {
            "Failed to load entry: save is empty\n");
     return;
   }
-  if (load == LoadProcess::LoadVars) {
+  if (load == LoadProcess::Vars) {
     ScrWork[SW_PLAYTIME] = WorkingSaveEntry->PlayTime;
     ScrWork[SW_TITLE] = WorkingSaveEntry->SwTitle;
     ScrWork[SW_AUTOSAVERESTART] = WorkingSaveEntry->SaveType;
@@ -768,11 +768,11 @@ void SaveSystem::LoadMemoryNew(LoadProcess load) {
 
 uint8_t SaveSystem::GetSaveStatus(SaveType type, int id) {
   switch (type) {
-    case SaveQuick:
+    case SaveType::Quick:
       return QuickSaveEntries[id] != nullptr
                  ? ((SaveFileEntry*)QuickSaveEntries[id])->Status
                  : 0;
-    case SaveFull:
+    case SaveType::Full:
       return FullSaveEntries[id] != nullptr
                  ? ((SaveFileEntry*)FullSaveEntries[id])->Status
                  : 0;
@@ -785,9 +785,9 @@ uint8_t SaveSystem::GetSaveStatus(SaveType type, int id) {
 
 int SaveSystem::GetSaveTitle(SaveType type, int id) {
   switch (type) {
-    case SaveQuick:
+    case SaveType::Quick:
       return ((SaveFileEntry*)QuickSaveEntries[id])->SwTitle;
-    case SaveFull:
+    case SaveType::Full:
       return ((SaveFileEntry*)FullSaveEntries[id])->SwTitle;
     default:
       ImpLog(LogLevel::Error, LogChannel::IO,
@@ -896,9 +896,9 @@ void SaveSystem::SetCheckpointId(int id) {
 
 Sprite& SaveSystem::GetSaveThumbnail(SaveType type, int id) {
   switch (type) {
-    case SaveQuick:
+    case SaveType::Quick:
       return ((SaveFileEntry*)QuickSaveEntries[id])->SaveThumbnail;
-    case SaveFull:
+    case SaveType::Full:
       return ((SaveFileEntry*)FullSaveEntries[id])->SaveThumbnail;
   }
 }

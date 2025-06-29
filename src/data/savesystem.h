@@ -14,20 +14,21 @@ BETTER_ENUM(SaveDataType, int, None, CHLCC, CCLCC, MO6TW)
 
 enum SaveFlagsMode { WriteProtect = 1 };
 
-enum SaveError {
-  SaveOK = 0,
-  SaveNotFound = 2,
-  SaveWrongUser = 3,
-  SaveRestart = 4,
-  SaveCorruptedFixing = 5,
-  SaveRestart10 = 10,
-  SaveFailed = 100,
-  SaveCorrupted = 255
+enum class SaveError {
+  OK = 0,
+  InProgress = 1,
+  NotFound = 2,
+  WrongUser = 3,
+  Restart = 4,
+  CorruptedFixing = 5,
+  Restart10 = 10,
+  Failed = 100,
+  Corrupted = 255
 };
 
-enum SaveType { SaveFull = 0, SaveQuick = 1 };
+enum class SaveType { Full = 0, Quick = 1 };
 
-enum LoadProcess { LoadVars = 0, LoadThread = 1 };
+enum class LoadProcess { Vars = 0, Thread = 1 };
 
 int constexpr MaxSaveEntries = 48;
 
@@ -101,7 +102,7 @@ class SaveSystemBase {
       if (QuickSaveEntries[i]->Status == 0) return i;
     }
     for (int i = 0; i < MaxSaveEntries; i++) {
-      if (!(GetSaveFlags(SaveQuick, i) & WriteProtect)) return i;
+      if (!(GetSaveFlags(SaveType::Quick, i) & WriteProtect)) return i;
     }
     return -1;
   }
