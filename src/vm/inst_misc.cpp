@@ -363,7 +363,8 @@ VmInstruction(InstSaveMenu) {
   switch (type) {
     case 0: {  // SaveMenuInit
       PopUint8(arg1);
-      ScrWork[SW_SAVEMENUMODE] = arg1;
+      UI::SaveMenuPtr->ActiveMenuType =
+          UI::SaveMenuPageType::_from_integral_nothrow(arg1);
       ScrWork[SW_SAVEFILESTATUS] = 0;
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction SaveMenu(type: SaveMenuInit)\n");
@@ -414,7 +415,8 @@ VmInstruction(InstSaveMenuOld) {
   switch (type) {
     case 0: {
       PopUint8(arg1);
-      ScrWork[SW_SAVEMENUMODE] = arg1;
+      UI::SaveMenuPtr->ActiveMenuType =
+          UI::SaveMenuPageType::_from_integral_nothrow(arg1);
       ScrWork[SW_SAVEFILESTATUS] = 0;
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction SaveMenu(type: {:d}, arg1: {:d})\n", type,
@@ -473,7 +475,13 @@ VmInstruction(InstLoadData) {
 VmInstruction(InstLoadDataOld) {
   StartInstruction;
   PopExpression(arg1);
-  SaveSystem::LoadEntry(SaveSystem::SaveFull, arg1);
+  SaveSystem::SaveType saveType;
+  if (*UI::SaveMenuPtr->ActiveMenuType == +UI::SaveMenuPageType::QuickLoad) {
+    saveType = SaveSystem::SaveType::SaveQuick;
+  } else {
+    saveType = SaveSystem::SaveType::SaveFull;
+  }
+  SaveSystem::LoadEntry(saveType, arg1);
   if (ScrWork[SW_MESWINDOW_COLOR] == 0) ScrWork[SW_MESWINDOW_COLOR] = 0xFFFFFF;
 }
 VmInstruction(InstTitleMenu) {

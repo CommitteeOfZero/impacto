@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../ui/menu.h"
+#include "../../ui/savemenu.h"
 #include "../../ui/widgets/group.h"
 #include "../../ui/widgets/button.h"
 #include "../../data/savesystem.h"
@@ -12,7 +13,7 @@ namespace CHLCC {
 
 using namespace Impacto::UI::Widgets::CHLCC;
 
-class SaveMenu : public Menu {
+class SaveMenu : public UI::SaveMenu {
  public:
   SaveMenu();
 

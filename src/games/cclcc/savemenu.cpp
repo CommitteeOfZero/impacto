@@ -24,11 +24,11 @@ Widget* EntryGrid[Pages][RowsPerPage][EntriesPerRow];
 
 void SaveMenu::MenuButtonOnClick(Widgets::Button* target) {
   Impacto::SaveSystem::SaveType saveType =
-      ScrWork[SW_SAVEMENUMODE] == SaveMenuPageType::QuickLoad
+      *ActiveMenuType == +SaveMenuPageType::QuickLoad
           ? SaveSystem::SaveType::SaveQuick
           : SaveSystem::SaveType::SaveFull;
   int SaveStatus = SaveSystem::GetSaveStatus(saveType, target->Id);
-  if (SaveStatus == 1 || ScrWork[SW_SAVEMENUMODE] == SaveMenuPageType::Save) {
+  if (SaveStatus == 1 || *ActiveMenuType == +SaveMenuPageType::Save) {
     ScrWork[SW_SAVEFILENO] = target->Id;
     ScrWork[SW_SAVEFILETYPE] = saveType;
     ScrWork[SW_SAVEFILESTATUS] =
@@ -38,8 +38,8 @@ void SaveMenu::MenuButtonOnClick(Widgets::Button* target) {
     SetFlag(1245,
             SaveSystem::GetSaveFlags(saveType, ScrWork[SW_SAVEFILENO]) & 1);
   }
-  if (SaveStatus == 0 || ScrWork[SW_SAVEMENUMODE] == SaveMenuPageType::Load ||
-      ScrWork[SW_SAVEMENUMODE] == SaveMenuPageType::QuickLoad) {
+  if (SaveStatus == 0 || *ActiveMenuType == +SaveMenuPageType::Load ||
+      *ActiveMenuType == +SaveMenuPageType::QuickLoad) {
     Audio::Channels[Audio::AC_SSE]->Play("sysse", 4, false, 0);
     return;
   }
@@ -61,7 +61,7 @@ void SaveMenu::Show() {
     FadeAnimation.StartIn();
     int id = 0;
     Impacto::SaveSystem::SaveType saveType =
-        ScrWork[SW_SAVEMENUMODE] == SaveMenuPageType::QuickLoad
+        *ActiveMenuType == +SaveMenuPageType::QuickLoad
             ? SaveSystem::SaveType::SaveQuick
             : SaveSystem::SaveType::SaveFull;
 
@@ -103,12 +103,10 @@ void SaveMenu::Show() {
                   ? glm::vec2{EntryStartXL, EntryStartYL + (i * EntryYPadding)}
                   : glm::vec2{EntryStartXR, EntryStartYR + (i * EntryYPadding)};
           SaveEntryButton* saveEntryButton = new SaveEntryButton(
-              saveEntryIds[id], id,
-              EntryHighlightedBoxSprite[ScrWork[SW_SAVEMENUMODE]],
-              EntryHighlightedTextSprite[ScrWork[SW_SAVEMENUMODE]], p,
-              buttonPos, SlotLockedSprite[ScrWork[SW_SAVEMENUMODE]], saveType,
-              NoDataSprite[ScrWork[SW_SAVEMENUMODE]],
-              BrokenDataSprite[ScrWork[SW_SAVEMENUMODE]]);
+              saveEntryIds[id], id, EntryHighlightedBoxSprite[ActiveMenuType],
+              EntryHighlightedTextSprite[ActiveMenuType], p, buttonPos,
+              SlotLockedSprite[ActiveMenuType], saveType,
+              NoDataSprite[ActiveMenuType], BrokenDataSprite[ActiveMenuType]);
 
           saveEntryButton->OnClickHandler = onClick;
           id++;
@@ -287,23 +285,20 @@ void SaveMenu::Render() {
   if (State != Hidden) {
     glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
     glm::vec4 maskTint = glm::vec4(1.0f);
-    Renderer->DrawSprite(MenuTextSprite[ScrWork[SW_SAVEMENUMODE]], {11, 10},
-                         col);
-    Renderer->DrawSprite(EntrySlotsSprite[ScrWork[SW_SAVEMENUMODE]], {135, 0},
-                         col);
+    Renderer->DrawSprite(MenuTextSprite[ActiveMenuType], {11, 10}, col);
+    Renderer->DrawSprite(EntrySlotsSprite[ActiveMenuType], {135, 0}, col);
 
     MainItems[CurrentPage]->Tint = col;
     MainItems[CurrentPage]->Render();
     glm::vec2 pageNumPos = {
         (ScrWork[SW_SYSSUBMENUCT] * 200 * 0.0625 - 400) + 1313 + 1, 866 + 1};
-    Renderer->DrawSprite(PageNumSprite[ScrWork[SW_SAVEMENUMODE]][CurrentPage],
-                         pageNumPos, col);
+    Renderer->DrawSprite(PageNumSprite[ActiveMenuType][CurrentPage], pageNumPos,
+                         col);
     Renderer->DrawSprite(
         SaveMenuMaskSprite,
         RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
         maskTint);
-    Renderer->DrawSprite(ButtonGuideSprite[ScrWork[SW_SAVEMENUMODE]], {0, 989},
-                         col);
+    Renderer->DrawSprite(ButtonGuideSprite[ActiveMenuType], {0, 989}, col);
   }
 }
 
