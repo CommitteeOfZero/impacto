@@ -298,36 +298,10 @@ void Update(float dt) {
   }
 }
 
-static bool ShouldRender(const int layer) {
-  using namespace Impacto::Profile::Vm;
-
-  for (int bgId = 0; bgId < MaxBackgrounds2D; bgId++) {
-    if (GetFlag(SF_BG1DISP + bgId) && !GetFlag(SF_BG1LOADEXEC + bgId) &&
-        (ScrWork[SW_BG1PRI + ScrWorkBgStructSize * bgId] == layer ||
-         ScrWork[SW_BG1PRI2 + ScrWorkBgStructSize * bgId] == layer))
-      return true;
-
-    if (GetFlag(SF_BGEFF1DISP + bgId) &&
-        (ScrWork[SW_BGEFF1_PRI + ScrWorkBgEffStructSize * bgId] == layer ||
-         ScrWork[SW_BGEFF1_PRI2 + ScrWorkBgEffStructSize * bgId] == layer))
-      return true;
-  }
-
-  for (int capId = 0; capId < MaxScreencaptures; capId++) {
-    if (GetFlag(SF_CAP1DISP + capId) &&
-        (ScrWork[SW_CAP1PRI + ScrWorkCaptureStructSize * capId] == layer ||
-         ScrWork[SW_CAP1PRI2 + ScrWorkCaptureStructSize * capId] == layer))
-      return true;
-  }
-
-  return false;
-}
-
 static void RenderMain() {
   for (uint32_t layer = 0; layer <= Profile::LayerCount; layer++) {
     const int renderTarget = ScrWork[SW_RENDERTARGET + layer];
-    if (0 <= renderTarget && renderTarget <= MaxFramebuffers &&
-        ShouldRender(layer)) {
+    if (0 <= renderTarget && renderTarget <= MaxFramebuffers) {
       Renderer->SetFramebuffer(renderTarget);
     }
 
@@ -356,22 +330,20 @@ static void RenderMain() {
       UI::MapSystem::Render();
     }
     if (ScrWork[SW_MASK1PRI] == static_cast<int>(layer)) {
-      int maskAlpha = ScrWork[SW_MASK1ALPHA_OFS] + ScrWork[SW_MASK1ALPHA];
-      if (maskAlpha) {
-        float maskPosX = (float)ScrWork[SW_MASK1POSX];
-        float maskPosY = (float)ScrWork[SW_MASK1POSY];
-        float maskSizeX = (float)ScrWork[SW_MASK1SIZEX];
-        float maskSizeY = (float)ScrWork[SW_MASK1SIZEY];
-        if (!maskSizeX || !maskSizeY) {
-          maskPosX = 0.0f;
-          maskPosY = 0.0f;
-          maskSizeX = Profile::DesignWidth;
-          maskSizeY = Profile::DesignHeight;
+      const int maskAlpha = ScrWork[SW_MASK1ALPHA_OFS] + ScrWork[SW_MASK1ALPHA];
+
+      if (maskAlpha > 0) {
+        RectF maskRect = {
+            (float)ScrWork[SW_MASK1POSX], (float)ScrWork[SW_MASK1POSY],
+            (float)ScrWork[SW_MASK1SIZEX], (float)ScrWork[SW_MASK1SIZEY]};
+        if (maskRect.GetSize() == glm::vec2(0.0f)) {
+          maskRect = {0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight};
         }
+
         glm::vec4 col = ScrWorkGetColor(SW_MASK1COLOR);
-        col.a = glm::min(maskAlpha / 255.0f, 1.0f);
-        Renderer->DrawQuad(RectF(maskPosX, maskPosY, maskSizeX, maskSizeY),
-                           col);
+        col.a = glm::min(maskAlpha / 256.0f, 1.0f);
+
+        Renderer->DrawQuad(maskRect, col);
       }
     }
 

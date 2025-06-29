@@ -109,6 +109,9 @@ class Renderer : public BaseRenderer {
   void SetScissorRect(RectF const& rect) override;
   void DisableScissor() override;
 
+  void SetStencilMode(StencilBufferMode mode) override {};  // TODO: implement
+  void ClearStencilBuffer() override {};                    // TODO: implement
+
   void SetBlendMode(RendererBlendMode blendMode) override {
   };  // TODO: Implement
 

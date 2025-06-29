@@ -10,6 +10,7 @@ namespace GLC {
 
 inline std::array<GLuint, MaxFramebuffers> Framebuffers;
 inline std::array<GLuint, MaxFramebuffers> FramebufferTextures;
+inline std::array<GLuint, MaxFramebuffers> StencilBuffers;
 
 void InitializeFramebuffers();
 

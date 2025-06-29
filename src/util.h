@@ -382,8 +382,8 @@ inline float NormalizeRad(float rad) {
   if (rad < 0) rad += 2.0f * (float)M_PI;
   return rad - (float)M_PI;
 }
-constexpr float ScrWorkAngleToRad(float angle) {
-  return angle * (float)(2.0f * M_PI / (float)(1 << 16));
+constexpr float ScrWorkAngleToRad(int angle) {
+  return ((float)angle * 2.0f * (float)M_PI) / (float)(1 << 16);
 }
 
 inline glm::quat ScrWorkAnglesToQuaternion(int x, int y, int z) {
