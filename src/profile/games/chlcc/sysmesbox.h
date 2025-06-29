@@ -15,6 +15,7 @@ inline Sprite BoxDecoration;
 inline Sprite SelectionLeftPart;
 inline Sprite SelectionRightPart;
 inline Sprite SelectionMiddlePart;
+inline Sprite LoadingStar;
 
 inline float BoxX;
 inline float BoxY;
@@ -29,6 +30,8 @@ inline float HighlightYOffset;
 inline float HighlightXOffset;
 inline float HighlightXBase;
 inline float HighlightXStep;
+inline float LoadingStarsFadeDuration;
+inline glm::vec2 LoadingStarsPosition;
 
 }  // namespace SysMesBox
 }  // namespace CHLCC
