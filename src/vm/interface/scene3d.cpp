@@ -15,12 +15,10 @@ namespace Interface {
 
 using namespace Impacto::Profile::ScriptVars;
 
-static void UpdateScrWorkAnimations() {
+static void UpdateScrWorkAnimations(float dt) {
   for (size_t i = 0; i < CurrentScrWorkAnimations.size(); i++) {
     int id = CurrentScrWorkAnimations[i];
-    ScrWorkAnimations[id].MainAnimation.Update(
-        1 /
-        60.0f);  // TODO: Nice hack you have here (get the proper dt in there)
+    ScrWorkAnimations[id].MainAnimation.Update(dt);
     for (size_t i = 0; i < ScrWorkAnimations[id].AnimationData.size(); i++) {
       ScrWork[ScrWorkAnimations[id].AnimationData[i].Target] = glm::mix(
           ScrWorkAnimations[id].AnimationData[i].From,
@@ -195,8 +193,8 @@ static void UpdateCamera() {
   }
 }
 
-void UpdateScene3D() {
-  UpdateScrWorkAnimations();
+void UpdateScene3D(float dt) {
+  UpdateScrWorkAnimations(dt);
   UpdateRenderables();
   UpdateCamera();
 }

@@ -248,7 +248,7 @@ void UpdateSystem(float dt) {
         CCLCC::YesNoTrigger::YesNoTriggerPtr->Update(UpdateSecondCounter);
     }
 
-    Vm::Update();
+    Vm::Update(dt);
   }
   UpdateSecondCounter = 0.0f;
 }

@@ -40,7 +40,7 @@ void GLWindow::UpdateDimensions() {
   SDL_GetWindowSize(SDLWindow, &osWindowWidth, &osWindowHeight);
   DpiScaleX = (float)WindowWidth / (float)osWindowWidth;
   DpiScaleY = (float)WindowHeight / (float)osWindowHeight;
-  SDL_SetWindowInputFocus(SDLWindow);
+  // SDL_SetWindowInputFocus(SDLWindow);
 }
 
 RectF GLWindow::GetViewport() {
