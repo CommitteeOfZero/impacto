@@ -41,7 +41,7 @@ VmInstruction(InstCHAload3D) {
       break;
   }
   PopExpression(modelId);
-  if (Renderer->Scene->Renderables[bufferId]->Status == LS_Loading) {
+  if (Renderer->Scene->Renderables[bufferId]->Status == LoadStatus::Loading) {
     ResetInstruction;
     BlockThread;
   } else if (ScrWork[SW_MDL1FILENO + 30 * bufferId] != modelId) {
@@ -96,7 +96,7 @@ VmInstruction(InstCHAplayAnim3DMaybe) {
       PopUint8(unk01);
     } break;
   }
-  if (Renderer->Scene->Renderables[bufferId]->Status == LS_Loaded &&
+  if (Renderer->Scene->Renderables[bufferId]->Status == LoadStatus::Loaded &&
       animationId != 0) {
     // TODO shouldn't this wait for that renderable to be loaded?
     if (Profile::Vm::GameInstructionSet == +InstructionSet::Dash &&
@@ -138,7 +138,7 @@ VmInstruction(InstCHAUnk02073D_Dash) {
     PopLocalLabel(arg3);
     uint16_t* dataArray = (uint16_t*)arg3;
     uint16_t testNum = dataArray[1];
-    if (Renderer->Scene->Renderables[arg2]->Status == LS_Loaded &&
+    if (Renderer->Scene->Renderables[arg2]->Status == LoadStatus::Loaded &&
         testNum != 0) {
       // TODO shouldn't this wait for that renderable to be loaded?
       if (Renderer->Scene->Renderables[arg2]->Animator.IsPlaying &&

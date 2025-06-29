@@ -41,24 +41,24 @@ class IRenderable3D {
 
   virtual void SwitchAnimation(int16_t animId, float transitionTime) = 0;
 
-  LoadStatus Status = LS_Unloaded;
+  LoadStatus Status = LoadStatus::Unloaded;
 
   bool LoadAsync(uint32_t id) {
-    if (Status == LS_Loading) {
+    if (Status == LoadStatus::Loading) {
       // cannot currently cancel a load
       return false;
     }
     Unload();
     NextLoadId = id;
-    Status = LS_Loading;
+    Status = LoadStatus::Loading;
     WorkQueue::Push(this, &LoadWorker, &OnLoaded);
     return true;
   }
 
   void Unload() {
-    if (Status == LS_Loaded) {
+    if (Status == LoadStatus::Loaded) {
       UnloadSync();
-      Status = LS_Unloaded;
+      Status = LoadStatus::Unloaded;
     }
   }
 
@@ -90,7 +90,7 @@ class IRenderable3D {
   static void OnLoaded(void* ptr) {
     auto renderable = static_cast<IRenderable3D*>(ptr);
     renderable->MainThreadOnLoad();
-    renderable->Status = LS_Loaded;
+    renderable->Status = LoadStatus::Loaded;
   }
 };
 

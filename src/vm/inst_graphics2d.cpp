@@ -36,7 +36,7 @@ VmInstruction(InstReleaseSurf) {
   ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
              "STUB instruction ReleaseSurf(surfaceId: {:d})\n", surfaceId);
   if (surfaceId < 8) {
-    if (Backgrounds2D[surfaceId]->Status == LS_Loaded) {
+    if (Backgrounds2D[surfaceId]->Status == LoadStatus::Loaded) {
       Backgrounds2D[surfaceId]->Unload();
     }
   }
@@ -53,7 +53,7 @@ VmInstruction(InstLoadPic) {
   if (surfaceId < 8) {
     switch (archiveId) {
       case 0: {  // bg archive
-        if (Backgrounds2D[surfaceId]->Status == LS_Loading) {
+        if (Backgrounds2D[surfaceId]->Status == LoadStatus::Loading) {
           ResetInstruction;
           BlockThread;
         } else if (ScrWork[SW_BG1NO + ScrWorkBgStructSize * surfaceId] !=
@@ -92,7 +92,7 @@ VmInstruction(InstBGload) {
   PopExpression(backgroundId);
   int actualBufId = Interface::GetBufferId(bufferId);
   int bgBufId = ScrWork[SW_BG1SURF + actualBufId];
-  if (Backgrounds2D[bgBufId]->Status == LS_Loading) {
+  if (Backgrounds2D[bgBufId]->Status == LoadStatus::Loading) {
     ResetInstruction;
     BlockThread;
   } else if (ScrWork[SW_BG1NO + ScrWorkBgStructSize * actualBufId] !=
@@ -177,7 +177,7 @@ VmInstruction(InstCHAload) {
         (ScrWork[SW_CHA1FACE + ScrWorkChaStructSize * actualBufId] << 16) |
         characterId;
   }
-  if (Characters2D[chaBufId].Status == LS_Loading) {
+  if (Characters2D[chaBufId].Status == LoadStatus::Loading) {
     ResetInstruction;
     BlockThread;
   } else if (ScrWork[SW_CHA1NO + ScrWorkChaStructSize * actualBufId] !=
@@ -225,7 +225,7 @@ VmInstruction(InstBGrelease) {
   bufferId = Interface::GetBufferId(bufferId);
   int surfId = ScrWork[SW_BG1SURF + bufferId];
   ScrWork[SW_BG1NO + ScrWorkBgStructSize * bufferId] = 0xFFFF;
-  if (Backgrounds2D[surfId]->Status == LS_Loaded) {
+  if (Backgrounds2D[surfId]->Status == LoadStatus::Loaded) {
     Backgrounds2D[surfId]->Unload();
   }
 }
@@ -240,7 +240,7 @@ VmInstruction(InstBGcopy) {
   int bgId = ScrWork[SW_BG1NO + ScrWorkBgStructSize * srcBufferId];
   int dstSurfId = ScrWork[SW_BG1SURF + dstBufferId];
 
-  if (Backgrounds2D[dstSurfId]->Status == LS_Loading) {
+  if (Backgrounds2D[dstSurfId]->Status == LoadStatus::Loading) {
     ResetInstruction;
     BlockThread;
   } else if (ScrWork[SW_BG1NO + ScrWorkBgStructSize * dstBufferId] != bgId) {
@@ -262,7 +262,7 @@ VmInstruction(InstCHAcopy) {
               ScrWork[SW_CHA1NO + ScrWorkBgStructSize * srcBufferId];
   int dstSurfId = ScrWork[SW_CHA1SURF + dstBufferId];
 
-  if (Characters2D[dstSurfId].Status == LS_Loading) {
+  if (Characters2D[dstSurfId].Status == LoadStatus::Loading) {
     ResetInstruction;
     BlockThread;
   } else if (ScrWork[SW_CHA1NO + ScrWorkChaStructSize * dstBufferId] !=
@@ -337,7 +337,7 @@ VmInstruction(InstCHArelease) {
   bufferId = Interface::GetBufferId(bufferId);
   int surfId = ScrWork[SW_CHA1SURF + bufferId];
   ScrWork[SW_CHA1NO + ScrWorkChaStructSize * bufferId] = 0xFFFF;
-  if (Characters2D[surfId].Status == LS_Loaded) {
+  if (Characters2D[surfId].Status == LoadStatus::Loaded) {
     Characters2D[surfId].Unload();
   }
 }
@@ -496,7 +496,7 @@ VmInstruction(InstFACEload) {
       if (((faceId & 0xFFFF0000) >> 16) == 0) {
         faceId = (ScrWork[SW_FACEEX1FACE + 5 * actualBufId] << 16) | faceId;
       }
-      if (SpeakerPortraits[chaBufId].Status == LS_Loading) {
+      if (SpeakerPortraits[chaBufId].Status == LoadStatus::Loading) {
         ResetInstruction;
         BlockThread;
       } else if (ScrWork[SW_FACEEX1NO + 5 * actualBufId] != (faceId & 0xFFFF)) {
@@ -518,7 +518,7 @@ VmInstruction(InstFACErelease) {
              Profile::Vm::SpeakerPortraitsScrWorkOffset;
   int surfId = ScrWork[SW_FACE1SURF + bufferId];
   ScrWork[SW_FACEEX1NO + 5 * bufferId] = 0xFFFF;
-  if (SpeakerPortraits[surfId].Status == LS_Loaded) {
+  if (SpeakerPortraits[surfId].Status == LoadStatus::Loaded) {
     SpeakerPortraits[surfId].Unload();
   }
 }

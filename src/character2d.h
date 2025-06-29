@@ -45,8 +45,8 @@ struct Character2DState {
   }
 };
 
-class Character2D : public Loadable<Character2D> {
-  friend class Loadable<Character2D>;
+class Character2D : public Loadable<Character2D, bool, uint32_t> {
+  friend Loadable<Character2D, bool, uint32_t>;
 
  public:
   Sprite CharaSprite;
@@ -71,7 +71,7 @@ class Character2D : public Loadable<Character2D> {
  protected:
   bool LoadSync(uint32_t charaId);
   void UnloadSync();
-  void MainThreadOnLoad();
+  void MainThreadOnLoad(bool result);
 
   bool OnLayer(int layer) {
     return std::find(Layers.begin(), Layers.end(), layer) != Layers.end();
