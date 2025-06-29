@@ -1,4 +1,4 @@
-root.Input = {
+--[[root.Input = {
   -- Keyboard
   KB_PAD1A={40},             -- Return
   KB_PAD1B={42},             -- Backspace
@@ -89,4 +89,4 @@ root.PADcustomA = {
   root.PADinput.PAD1DOWN_RS,
   root.PADinput.PAD1LEFT_RS,
   root.PADinput.PAD1RIGHT_RS,
-}
+}]]
