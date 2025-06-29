@@ -460,16 +460,11 @@ void SaveSystem::LoadEntry(SaveType type, int id) {
         thd->ScriptParam = entry->MainThreadScriptParam;
         thd->GroupId = entry->MainThreadGroupId >> 16;
         thd->ScriptBufferId = entry->MainThreadGroupId & 0xFFFF;
-        LoadScript(thd->ScriptBufferId, ScrWork[2004 + thd->ScriptBufferId]);
-        ScrWork[2004 + thd->ScriptBufferId] = 65535;
         thd->IpOffset = entry->MainThreadIp;
         thd->CallStackDepth = entry->MainThreadCallStackDepth;
 
         for (size_t i = 0; i < thd->CallStackDepth; i++) {
           thd->ReturnScriptBufferIds[i] = entry->MainThreadReturnBufIds[i];
-          LoadScript(entry->MainThreadReturnBufIds[i],
-                     ScrWork[2004 + entry->MainThreadReturnBufIds[i]]);
-          ScrWork[2004 + entry->MainThreadReturnBufIds[i]] = 65535;
           thd->ReturnAddresses[i] = entry->MainThreadReturnAddresses[i];
         }
 
