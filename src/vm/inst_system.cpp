@@ -226,13 +226,13 @@ VmInstruction(InstSave) {
   switch (type) {  // TODO: Types 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
                    // 16, 20, 21, 72, 30, 31, 32, 33, 34, 35, 41, 50, 51, 66,
                    // 67, 70, 71, 74, 76
-    case 0: {
+    case 0:
       // TODO, System Save only
-    } break;
+      break;
     case 3:
       break;
-    case 4: {
-    } break;
+    case 4:
+      break;
     case 16:
       SaveSystem::FlushWorkingSaveEntry(SaveSystem::SaveType::Full,
                                         ScrWork[SW_SAVEFILENO]);
@@ -245,12 +245,12 @@ VmInstruction(InstSave) {
         ScrWork[SW_SAVEERRORCODE] = (int)CreateSaveFile();
       }
       break;
-    case 32: {
+    case 32:
       if (Profile::Vm::GameInstructionSet == +InstructionSet::MO6TW ||
           Profile::Vm::GameInstructionSet == +InstructionSet::CHLCC) {
         LoadSaveFile();
       }
-    } break;
+      break;
     case 40:  // SystemDataCheck
       if (Profile::Vm::GameInstructionSet == +InstructionSet::RNE) {
         PopExpression(unused1);
@@ -263,10 +263,20 @@ VmInstruction(InstSave) {
       break;
     case 50:
       if (Profile::Vm::GameInstructionSet == +InstructionSet::CHLCC) {
+        SetFlag(SF_SYSMESLOADING, true);
         AchievementSystem::MountAchievementFile();
       }
       break;
     case 51:
+      if (Profile::Vm::GameInstructionSet == +InstructionSet::CHLCC) {
+        if (ScrWork[SW_SAVEERRORCODE] ==
+            (int)AchievementSystem::AchievementError::InProgress) {
+          ResetInstruction;
+          BlockThread;
+        } else {
+          SetFlag(SF_SYSMESLOADING, false);
+        }
+      }
       break;
     case 60:
       SaveSystem::WriteSaveFile();
@@ -277,11 +287,11 @@ VmInstruction(InstSave) {
       }
     case 80:
       break;
-    case 81: {  // SystemDataCheck
+    case 81:  // SystemDataCheck
       if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
         ScrWork[SW_SAVEERRORCODE] = (int)CheckSaveFile();
       }
-    } break;
+      break;
     default:
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction Save(type: {:d})\n", type);
