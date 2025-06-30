@@ -749,9 +749,9 @@ void SaveSystem::LoadMemoryNew(LoadProcess load) {
       thd->ScriptParam = WorkingSaveEntry->MainThreadScriptParam;
       thd->GroupId = WorkingSaveEntry->MainThreadGroupId;
       thd->ScriptBufferId = WorkingSaveEntry->MainThreadScriptBufferId;
-      thd->Ip = ScriptGetRetAddress(
-          ScriptBuffers[WorkingSaveEntry->MainThreadScriptBufferId],
-          WorkingSaveEntry->MainThreadIp);
+      thd->IpOffset =
+          ScriptGetRetAddress(WorkingSaveEntry->MainThreadScriptBufferId,
+                              WorkingSaveEntry->MainThreadIp);
       thd->CallStackDepth = WorkingSaveEntry->MainThreadCallStackDepth;
 
       for (int i = 0; i < thd->CallStackDepth; i++) {
