@@ -48,7 +48,7 @@ class Trophy : public Achievement {
 
 class AchievementSystemPS3 : public AchievementSystemBase {
  public:
-  bool MountAchievementFile() override;
+  AchievementError MountAchievementFile() override;
   const Achievement *GetAchievement(int id) override;
   size_t GetAchievementCount() const override;
 
