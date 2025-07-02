@@ -169,9 +169,8 @@ class BaseRenderer {
                                glm::vec4 tint = glm::vec4(1.0f),
                                bool isInverted = false,
                                bool useMaskAlpha = true) {
-    DrawMaskedSpriteOverlay(sprite, mask, spriteDest, mask.ScaledBounds(),
-                            alpha, fadeRange, spriteTransformation,
-                            glm::mat4(1.0f),
+    DrawMaskedSpriteOverlay(sprite, mask, spriteDest, spriteDest, alpha,
+                            fadeRange, spriteTransformation, glm::mat4(1.0f),
                             std::array<glm::vec4, 4>{tint, tint, tint, tint},
                             isInverted, useMaskAlpha);
   }
