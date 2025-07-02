@@ -48,7 +48,7 @@ void BacklogMenu::Hide() {
       FadeAnimation.DurationOut = FadeOutDirectDuration;
     }
   }
-
+  Audio::Channels[Audio::AC_REV]->Stop(0.0f);
   UI::BacklogMenu::Hide();
 }
 
