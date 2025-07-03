@@ -28,8 +28,7 @@ bool Character2D::LoadSync(uint32_t charaId) {
     err = Io::VfsOpen(MountPoint, fileId + 1, &stream);
     if (err != IoError_OK) return false;
 
-    OffsetX = Profile::DesignWidth / 2.0f;
-    OffsetY = Profile::DesignHeight / 2.0f;
+    Offset = glm::vec2(Profile::DesignWidth, Profile::DesignHeight) / 2.0f;
 
     Io::ReadLE<int>(stream);
     int stateCount = Io::ReadLE<int>(stream);
@@ -99,8 +98,7 @@ bool Character2D::LoadSync(uint32_t charaId) {
 
     Face = charaId;
 
-    OffsetX = Profile::DesignWidth / 2.0f;
-    OffsetY = Profile::DesignHeight / 2.0f;
+    Offset = glm::vec2(Profile::DesignWidth, Profile::DesignHeight) / 2.0f;
 
     using StreamReadInt_t = auto (*)(Io::Stream*)->int;
     using StreamReadFloat_t = auto (*)(Io::Stream*)->float;
@@ -213,8 +211,8 @@ void Character2D::Render(int layer) {
   if (Status != LoadStatus::Loaded || !OnLayer(layer) || !Show) return;
 
   if (Profile::CharaIsMvl) {
-    const glm::mat4 transformation = TransformationMatrix(
-        {0.0f, 0.0f}, {ScaleX, ScaleY}, {0.0f, 0.0f}, 0.0f, {OffsetX, OffsetY});
+    const glm::mat4 transformation =
+        TransformationMatrix({0.0f, 0.0f}, Scale, {0.0f, 0.0f}, 0.0f, Offset);
     Renderer->DrawVertices(CharaSpriteSheet, MvlVertices, MvlIndices,
                            transformation);
   } else {
@@ -226,9 +224,7 @@ void Character2D::Render(int layer) {
         for (int i = 0; i < state.Count; i++) {
           CharaSprite.Bounds = RectF(layData.TextureCoords[i].x,
                                      layData.TextureCoords[i].y, 30.0f, 30.0f);
-          Renderer->DrawSprite(CharaSprite,
-                               glm::vec2(layData.ScreenCoords[i].x + OffsetX,
-                                         layData.ScreenCoords[i].y + OffsetY),
+          Renderer->DrawSprite(CharaSprite, layData.ScreenCoords[i] + Offset,
                                Tint);
         }
       }
