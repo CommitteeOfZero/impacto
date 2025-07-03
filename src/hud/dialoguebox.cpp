@@ -66,7 +66,7 @@ void DialogueBox::Render(DialoguePageMode mode, bool hasName, float nameWidth,
   if (mode == DPM_ADV && hasName) {
     if (HasSpeakerPortraits) {
       // Draw Face
-      for (int i = 0; i < MaxSpeakerPortraits; i++) {
+      for (int i = 0; i < SpeakerPortraits.size(); i++) {
         int bufId = ScrWork[SW_FACE1SURF + i];
         SpeakerPortraits[bufId].Tint = col;
         SpeakerPortraits[bufId].Offset +=

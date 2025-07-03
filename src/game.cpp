@@ -287,11 +287,11 @@ void Update(float dt) {
 
   if ((Profile::GameFeatures & GameFeature::Renderer2D) &&
       !(Profile::GameFeatures & GameFeature::Scene3D)) {
-    for (int i = 0; i < MaxCharacters2D; i++) {
+    for (int i = 0; i < Characters2D.size(); i++) {
       if (Characters2D[i].Show) Characters2D[i].Update(dt);
     }
     if (Profile::Dialogue::HasSpeakerPortraits) {
-      for (int i = 0; i < MaxSpeakerPortraits; i++) {
+      for (int i = 0; i < SpeakerPortraits.size(); i++) {
         if (SpeakerPortraits[i].Show) SpeakerPortraits[i].Update(dt);
       }
     }
@@ -310,7 +310,7 @@ static void RenderMain() {
       Backgrounds2D[bufId]->Render(i, layer);
     }
 
-    for (int i = 0; i < MaxCharacters2D; i++) {
+    for (int i = 0; i < Characters2D.size(); i++) {
       int bufId = ScrWork[SW_CHA1SURF + i];
       Characters2D[bufId].Render(layer);
     }
