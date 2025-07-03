@@ -45,7 +45,7 @@ struct Character2DState {
   }
 };
 
-int constexpr MaxCharacters2D = 16;
+constexpr size_t MaxCharacters2D = 16;
 
 class Character2D : public Loadable<Character2D, bool, uint32_t> {
   friend Loadable<Character2D, bool, uint32_t>;
@@ -107,10 +107,7 @@ class CharacterPortrait2D : public Character2D {
   void UpdateState(size_t chaId) override;
 };
 
-inline Character2D Characters2D[MaxCharacters2D];
-
-int constexpr MaxSpeakerPortraits = 2;
-
-inline CharacterPortrait2D SpeakerPortraits[MaxSpeakerPortraits];
+inline std::array<Character2D, MaxCharacters2D> Characters2D;
+inline std::array<CharacterPortrait2D, 2> SpeakerPortraits;
 
 }  // namespace Impacto

@@ -725,13 +725,13 @@ VmInstruction(InstMSinit) {
     ScrWork[SW_BG1NO + Profile::Vm::ScrWorkBgStructSize * i] = 0xFFFF;
     ScrWork[SW_BG1FILTER + Profile::Vm::ScrWorkBgStructSize * i] = 0xFFFFFF;
   }
-  for (int i = 0; i < MaxCharacters2D; i++) {
+  for (int i = 0; i < Characters2D.size(); i++) {
     ScrWork[SW_CHA1SURF + i] = i;
     ScrWork[SW_CHA1ALPHA + Profile::Vm::ScrWorkChaStructSize * i] = 256;
   }
 
   if (Profile::Dialogue::HasSpeakerPortraits) {
-    for (int i = 0; i < MaxSpeakerPortraits; i++) {
+    for (int i = 0; i < SpeakerPortraits.size(); i++) {
       ScrWork[SW_FACE1SURF + i] = i;
     }
   }

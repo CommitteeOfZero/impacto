@@ -883,7 +883,7 @@ void ShowObjects() {
   }
 
   if (ImGui::TreeNode("Characters")) {
-    for (int i = 0; i < MaxCharacters2D; i++) {
+    for (int i = 0; i < Characters2D.size(); i++) {
       ImGui::PushID(i);
       if (ImGui::TreeNode("Character", "Character %d", i)) {
         if (Characters2D[i].Status == LoadStatus::Loaded) {
