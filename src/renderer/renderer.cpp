@@ -12,6 +12,8 @@
 #include "dx9/renderer.h"
 #endif
 
+#include <numeric>
+
 namespace Impacto {
 
 void InitRenderer() {
@@ -77,6 +79,56 @@ void BaseRenderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
   const RectF dest =
       sprite.ScaledBounds().Scale(scale, {0.0f, 0.0f}).Translate(topLeft);
   DrawCCMessageBox(sprite, mask, dest, tint, alpha, fadeRange, effectCt);
+}
+
+void BaseRenderer::DrawConvexShape(const std::span<const glm::vec2> vertices,
+                                   const glm::mat4 transformation,
+                                   const glm::vec4 color) {
+  assert(vertices.size() >= 3);
+
+  if (vertices.size() == 4) {
+    CornersQuad quad = {vertices[0], vertices[1], vertices[2], vertices[3]};
+    quad.Transform(transformation);
+    DrawQuad(quad, color);
+
+    return;
+  }
+
+  std::vector<VertexBufferSprites> vertexAttributes;
+  vertexAttributes.reserve(vertices.size());
+  std::transform(
+      vertices.begin(), vertices.end(), std::back_inserter(vertexAttributes),
+      [color, transformation](const glm::vec2 pos) {
+        return VertexBufferSprites{
+            .Position = glm::vec2(transformation * glm::vec4(pos, 0.0f, 1.0f)),
+            .Tint = color,
+        };
+      });
+
+  if (vertices.size() == 3) {
+    DrawVertices(RectSprite.Sheet, vertexAttributes,
+                 std::array<uint16_t, 3>{0, 1, 2});
+    return;
+  }
+
+  std::vector<uint16_t> indices;
+  indices.reserve(vertices.size() * 3);
+
+  const glm::vec2 centerOfMass =
+      std::reduce(vertices.begin(), vertices.end()) / (float)vertices.size();
+
+  const uint16_t centerOfMassIndex = (uint16_t)vertices.size();
+  vertexAttributes.emplace_back(VertexBufferSprites{
+      .Position = centerOfMass,
+      .Tint = color,
+  });
+
+  for (uint16_t i = 0; i < centerOfMassIndex; i++) {
+    const uint16_t nextIndex = (i != centerOfMassIndex - 1) ? i + 1 : 0;
+    indices.insert(indices.end(), {centerOfMassIndex, i, nextIndex});
+  }
+
+  DrawVertices(RectSprite.Sheet, vertexAttributes, indices);
 }
 
 void BaseRenderer::DrawQuad(const CornersQuad& dest, const glm::vec4 color) {

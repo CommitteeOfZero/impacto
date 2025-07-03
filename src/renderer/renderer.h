@@ -15,6 +15,8 @@ inline GraphicsApi ActualGraphicsApi;
 
 enum class RendererOutlineMode { None, BottomRight, Full };
 
+enum class StencilBufferMode { Off, Test, Write };
+
 constexpr inline int MaxFramebuffers = 10;
 
 struct VertexBufferSprites {
@@ -253,6 +255,12 @@ class BaseRenderer {
                  inverted);
   }
 
+  void DrawConvexShape(std::span<const glm::vec2> vertices,
+                       glm::mat4 transformation, glm::vec4 color);
+  void DrawConvexShape(std::span<const glm::vec2> vertices, glm::vec4 color) {
+    DrawConvexShape(vertices, glm::mat4(1.0f), color);
+  }
+
   void DrawQuad(const CornersQuad& dest, glm::vec4 color);
 
   void DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
@@ -301,6 +309,9 @@ class BaseRenderer {
   virtual void EnableScissor() = 0;
   virtual void SetScissorRect(RectF const& rect) = 0;
   virtual void DisableScissor() = 0;
+
+  virtual void SetStencilMode(StencilBufferMode mode) = 0;
+  virtual void ClearStencilBuffer() = 0;
 
   virtual void SetBlendMode(RendererBlendMode blendMode) = 0;
 
