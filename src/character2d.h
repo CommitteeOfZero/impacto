@@ -45,10 +45,14 @@ struct Character2DState {
   }
 };
 
+int constexpr MaxCharacters2D = 16;
+
 class Character2D : public Loadable<Character2D, bool, uint32_t> {
   friend Loadable<Character2D, bool, uint32_t>;
 
  public:
+  std::string MountPoint = "chara";
+
   bool Show;
   std::array<int, 2> Layers;
 
@@ -64,9 +68,10 @@ class Character2D : public Loadable<Character2D, bool, uint32_t> {
   glm::vec4 Tint = glm::vec4(1.0f);
 
   void Update(float dt);
-  void Render(int layer);
+  virtual void UpdateState(size_t chaId);
+  static void UpdateEyeMouth();
 
-  std::string MountPoint = "chara";
+  void Render(int layer);
 
  protected:
   bool LoadSync(uint32_t charaId);
@@ -77,7 +82,16 @@ class Character2D : public Loadable<Character2D, bool, uint32_t> {
     return std::find(Layers.begin(), Layers.end(), layer) != Layers.end();
   }
 
- private:
+  static inline std::array<int, MaxCharacters2D> CurEyeFrame{};
+  static inline std::array<int, 3> CurMouthIndex{19, 19, 19};
+  constexpr static std::array<std::pair<int, int>, 20> AnimeTable = {
+      std::pair{1, 10}, std::pair{2, 5}, std::pair{1, 10}, std::pair{2, 4},
+      std::pair{1, 7},  std::pair{2, 6}, std::pair{1, 9},  std::pair{2, 8},
+      std::pair{1, 15}, std::pair{0, 2}, std::pair{1, 9},  std::pair{2, 3},
+      std::pair{1, 7},  std::pair{0, 2}, std::pair{1, 10}, std::pair{2, 5},
+      std::pair{1, 7},  std::pair{2, 5}, std::pair{1, 7},  std::pair{2, 3},
+  };
+
   Texture CharaTexture;
   SpriteSheet CharaSpriteSheet;
 
@@ -88,12 +102,15 @@ class Character2D : public Loadable<Character2D, bool, uint32_t> {
   std::vector<uint16_t> MvlIndices;
 };
 
-int constexpr MaxCharacters2D = 16;
+class CharacterPortrait2D : public Character2D {
+ public:
+  void UpdateState(size_t chaId) override;
+};
 
 inline Character2D Characters2D[MaxCharacters2D];
 
 int constexpr MaxSpeakerPortraits = 2;
 
-inline Character2D SpeakerPortraits[MaxSpeakerPortraits];
+inline CharacterPortrait2D SpeakerPortraits[MaxSpeakerPortraits];
 
 }  // namespace Impacto

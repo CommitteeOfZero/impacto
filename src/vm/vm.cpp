@@ -303,11 +303,18 @@ void Update(float dt) {
   if (Profile::GameFeatures & GameFeature::Scene3D) {
     Interface::UpdateScene3D(dt);
   } else {
-    Interface::UpdateEyeMouth2D();
-    Interface::UpdateCharacter2D();
+    Character2D::UpdateEyeMouth();
+
+    for (size_t chaId = 0; chaId < MaxCharacters2D; chaId++) {
+      const int bufId = ScrWork[SW_CHA1SURF + chaId];
+      Characters2D[bufId].UpdateState(chaId);
+    }
   }
   if (Profile::Dialogue::HasSpeakerPortraits) {
-    Interface::UpdateSpeakerPortraits();
+    for (size_t chaId = 0; chaId < MaxSpeakerPortraits; chaId++) {
+      const int bufId = ScrWork[SW_FACE1SURF + chaId];
+      SpeakerPortraits[bufId].UpdateState(chaId);
+    }
   }
   Interface::UpdateBackground2D();
 }
