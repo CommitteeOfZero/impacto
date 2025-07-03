@@ -2,6 +2,7 @@
 
 #include <enum.h>
 #include "../spritesheet.h"
+#include "../loadable.h"
 
 namespace Impacto {
 namespace AchievementSystem {
@@ -48,7 +49,8 @@ inline AchievementSystemBase *Implementation = nullptr;
 
 void Init();
 
-AchievementError MountAchievementFile();
+LoadStatus GetLoadStatus();
+void MountAchievementFile();
 const Achievement *GetAchievement(int id);
 size_t GetAchievementCount();
 

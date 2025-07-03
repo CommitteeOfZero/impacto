@@ -1,6 +1,6 @@
 #include "achievementsystem.h"
+
 #include "../mem.h"
-#include "../loadable.h"
 #include "../profile/data/achievementsystem.h"
 #include "../profile/scriptvars.h"
 
@@ -9,6 +9,8 @@ namespace AchievementSystem {
 
 using namespace Impacto::Profile::AchievementSystem;
 using namespace Impacto::Profile::ScriptVars;
+
+void Init() { Impacto::Profile::AchievementSystem::Configure(); }
 
 class AchievementFileLoader
     : public Loadable<AchievementFileLoader, AchievementError> {
@@ -26,19 +28,15 @@ class AchievementFileLoader
   }
 };
 
-inline AchievementFileLoader Loader;
+static AchievementFileLoader Loader;
 
-void Init() { Impacto::Profile::AchievementSystem::Configure(); }
+LoadStatus GetLoadStatus() { return Loader.Status; }
 
-AchievementError MountAchievementFile() {
-  AchievementError result = AchievementError::InProgress;
-
-  if (!Loader.LoadAsync()) {
-    result = AchievementError::Failed;
-  }
+void MountAchievementFile() {
+  AchievementError result = Loader.LoadAsync() ? AchievementError::InProgress
+                                               : AchievementError::Failed;
 
   ScrWork[SW_SAVEERRORCODE] = (int)result;
-  return result;
 }
 
 const Achievement* GetAchievement(int id) {
