@@ -174,7 +174,7 @@ void Character2D::MainThreadOnLoad(bool result) {
 }
 
 void Character2D::Update(float dt) {
-  if (Status != LS_Loaded) return;
+  if (Status != LoadStatus::Loaded) return;
 
   if (Profile::CharaIsMvl) {
     MvlIndices.clear();

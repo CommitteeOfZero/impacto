@@ -6,6 +6,8 @@
 #include <ctime>
 #include "../log.h"
 #include "../spritesheet.h"
+#include "../texture/texture.h"
+#include "../loadable.h"
 
 namespace Impacto {
 namespace SaveSystem {
@@ -20,6 +22,7 @@ enum class SaveError {
   NotFound = 2,
   WrongUser = 3,
   Restart = 4,
+  OutOfDiskSpace = 4,
   CorruptedFixing = 5,
   Restart10 = 10,
   Failed = 100,
@@ -37,6 +40,12 @@ uint8_t const Flbit[] = {1, 2, 4, 8, 0x10, 0x20, 0x40, 0x80};
 struct ScriptMessageDataPair {
   uint32_t LineCount;
   uint32_t SaveDataOffset;
+};
+
+// A delayed Texture::Submit() operation to be executed on the main thread
+struct QueuedTexture {
+  std::reference_wrapper<uint32_t> Id;
+  Texture Tex;
 };
 
 class SaveFileEntryBase {
@@ -69,15 +78,23 @@ class SaveFileEntryBase {
 
 class SaveSystemBase {
  public:
-  virtual SaveError CreateSaveFile() = 0;
+  virtual void CreateSaveFile() = 0;
   virtual SaveError CheckSaveFile() = 0;
-  virtual SaveError MountSaveFile() = 0;
+  virtual SaveError MountSaveFile(std::vector<QueuedTexture>& textures) = 0;
+
   virtual void SaveMemory() = 0;
   virtual void LoadEntry(SaveType type, int id) = 0;
   virtual void LoadMemoryNew(LoadProcess){};
   virtual void FlushWorkingSaveEntry(SaveType type, int id,
                                      int autoSaveType) = 0;
-  virtual void WriteSaveFile() = 0;
+
+  // Reads and writes to system data are only safe if no other VM threads are
+  // executing. This data should be copied to a buffer so that
+  // flushing can happen without blocking other VM threads.
+  virtual void SaveSystemData() = 0;
+  virtual SaveError LoadSystemData() = 0;
+
+  virtual SaveError WriteSaveFile() = 0;
   virtual uint32_t GetSavePlayTime(SaveType type, int id) = 0;
   virtual uint8_t GetSaveFlags(SaveType type, int id) = 0;
   virtual tm const& GetSaveDate(SaveType type, int id) = 0;
@@ -119,10 +136,13 @@ inline SaveSystemBase* Implementation = nullptr;
 
 void Init();
 
-SaveError CreateSaveFile();
-SaveError CheckSaveFile();
-SaveError MountSaveFile();
+LoadStatus GetLoadStatus();
+void CreateSaveFile();
+void CheckSaveFile();
+void MountSaveFile();
 void SaveMemory();
+void SaveSystemData();
+SaveError LoadSystemData();
 void LoadEntry(SaveType type, int id);
 void LoadMemoryNew(LoadProcess process);
 void FlushWorkingSaveEntry(SaveType type, int id, int autoSaveType = 0);

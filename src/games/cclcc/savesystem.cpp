@@ -87,14 +87,16 @@ SaveError SaveSystem::CheckSaveFile() {
   return SaveError::OK;
 }
 
-SaveError SaveSystem::CreateSaveFile() {
+void SaveSystem::CreateSaveFile() {
   using CF = Io::PhysicalFileStream::CreateFlagsMode;
   Io::Stream* stream;
   IoError err = Io::PhysicalFileStream::Create(
       SaveFilePath, &stream,
       CF::CREATE_IF_NOT_EXISTS | CF::CREATE_DIRS | CF::WRITE);
   if (err != IoError_OK) {
-    return SaveError::Failed;
+    ImpLog(LogLevel::Error, LogChannel::IO,
+           "Failed to open save file for writing\n");
+    return;
   }
 
   assert(stream->Meta.Size == 0);
@@ -134,12 +136,10 @@ SaveError SaveSystem::CreateSaveFile() {
   Io::WriteLE(stream, Default::TriggerStopSkip);
 
   delete stream;
-
-  return MountSaveFile();
 }
 
 void SaveSystem::LoadEntryBuffer(Io::MemoryStream& stream, SaveFileEntry& entry,
-                                 SaveType saveType) {
+                                 SaveType saveType, Texture& tex) {
   entry.Status = Io::ReadLE<uint8_t>(&stream);
   Io::ReadLE<uint8_t>(&stream);
   if (entry.Status == 1 && saveType == SaveType::Quick) {
@@ -209,11 +209,10 @@ void SaveSystem::LoadEntryBuffer(Io::MemoryStream& stream, SaveFileEntry& entry,
   Io::ReadArrayLE<uint8_t>(entry.MapLoadData, &stream, 0x6ac8);
   Io::ReadArrayLE<uint8_t>(entry.YesNoData, &stream, 0x54);
 
-  auto& thumbnail = entry.SaveThumbnail;
+  Sprite& thumbnail = entry.SaveThumbnail;
   thumbnail.Sheet = SpriteSheet(SaveThumbnailWidth, SaveThumbnailHeight);
   thumbnail.Bounds = RectF(0.0f, 0.0f, SaveThumbnailWidth, SaveThumbnailHeight);
 
-  Texture tex;
   tex.Init(TexFmt_RGB, SaveThumbnailWidth, SaveThumbnailHeight);
 
   // CCLCC PS4 Save thumbnails are 240x135 RGB16
@@ -233,11 +232,9 @@ void SaveSystem::LoadEntryBuffer(Io::MemoryStream& stream, SaveFileEntry& entry,
     tex.Buffer[3 * i + 1] = g;
     tex.Buffer[3 * i + 2] = b;
   }
-
-  thumbnail.Sheet.Texture = tex.Submit();
 }
 
-SaveError SaveSystem::MountSaveFile() {
+SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
   Io::Stream* stream;
   IoError err = Io::PhysicalFileStream::Create(SaveFilePath, &stream);
   switch (err) {
@@ -254,19 +251,19 @@ SaveError SaveSystem::MountSaveFile() {
       SpriteSheet(Window->WindowWidth, Window->WindowHeight);
   WorkingSaveThumbnail.Bounds =
       RectF(0.0f, 0.0f, Window->WindowWidth, Window->WindowHeight);
-  Texture txt;
-  txt.LoadSolidColor(WorkingSaveThumbnail.Bounds.Width,
-                     WorkingSaveThumbnail.Bounds.Height, 0x000000);
-  WorkingSaveThumbnail.Sheet.Texture = txt.Submit();
 
-  std::array<uint8_t, 0x387c> systemSaveBuf;
-  Io::ReadArrayLE<uint8_t>(systemSaveBuf.data(), stream, 0x387c);
-  Io::MemoryStream systemSaveStream(systemSaveBuf.data(), systemSaveBuf.size(),
-                                    false);
-  LoadSystemBuffer(systemSaveStream);
+  QueuedTexture txt{
+      .Id = std::ref(WorkingSaveThumbnail.Sheet.Texture),
+  };
+  txt.Tex.LoadSolidColor(WorkingSaveThumbnail.Bounds.Width,
+                         WorkingSaveThumbnail.Bounds.Height, 0x000000);
+  textures.push_back(txt);
+
+  Io::ReadArrayLE<uint8_t>(SystemData.data(), stream, SystemData.size());
   uint32_t systemSaveChecksum =
-      CalculateChecksum(std::span(systemSaveBuf).subspan(4));
+      CalculateChecksum(std::span(SystemData).subspan(4));
 
+  textures.reserve(MaxSaveEntries * 2);
   for (auto& entryArray : {FullSaveEntries, QuickSaveEntries}) {
     SaveType saveType =
         (entryArray == QuickSaveEntries) ? SaveType::Quick : SaveType::Full;
@@ -282,8 +279,14 @@ SaveError SaveSystem::MountSaveFile() {
       Io::MemoryStream saveEntryDataStream(entrySlotBuf.data(),
                                            entrySlotBuf.size(), false);
 
+      QueuedTexture tex{
+          .Id = std::ref(entryArray[i]->SaveThumbnail.Sheet.Texture),
+      };
       LoadEntryBuffer(saveEntryDataStream,
-                      static_cast<SaveFileEntry&>(*entryArray[i]), saveType);
+                      static_cast<SaveFileEntry&>(*entryArray[i]), saveType,
+                      tex.Tex);
+      textures.push_back(tex);
+
       // Todo, validate checksum?
       uint32_t entryChecksum = CalculateChecksum(
           std::span(entrySlotBuf).subspan(6, 23029 * 2), 18198, 5250, false);
@@ -295,7 +298,7 @@ SaveError SaveSystem::MountSaveFile() {
 
 void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
                                        int autoSaveType) {
-  SaveFileEntry* entry = 0;
+  SaveFileEntry* entry = nullptr;
   switch (type) {
     case SaveType::Quick:
       entry = (SaveFileEntry*)QuickSaveEntries[id];
@@ -305,7 +308,7 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
       break;
   }
 
-  if (entry != 0 && !(GetSaveFlags(type, id) & WriteProtect)) {
+  if (entry != nullptr && !(GetSaveFlags(type, id) & WriteProtect)) {
     Renderer->FreeTexture(entry->SaveThumbnail.Sheet.Texture);
     *entry = *WorkingSaveEntry;
     if (type == SaveType::Quick) {
@@ -414,7 +417,10 @@ void SaveSystem::SaveEntryBuffer(Io::MemoryStream& memoryStream,
                             thumbnailData.size() / 2);
 }
 
-void SaveSystem::LoadSystemBuffer(Io::MemoryStream& stream) {
+SaveError SaveSystem::LoadSystemData() {
+  Io::MemoryStream stream =
+      Io::MemoryStream(SystemData.data(), SystemData.size(), false);
+
   uint16_t systemSum = Io::ReadLE<uint16_t>(&stream);
   uint16_t systemXor = Io::ReadLE<uint16_t>(&stream);
   stream.Seek(0x14, SEEK_SET);
@@ -477,9 +483,14 @@ void SaveSystem::LoadSystemBuffer(Io::MemoryStream& stream) {
 
   stream.Seek(0x347c, SEEK_SET);
   Io::ReadArrayLE<uint8_t>(GameExtraData, &stream, 1024);
+
+  return SaveError::OK;
 }
 
-void SaveSystem::SaveSystemBuffer(Io::MemoryStream& systemSaveStream) {
+void SaveSystem::SaveSystemData() {
+  Io::MemoryStream systemSaveStream =
+      Io::MemoryStream(SystemData.data(), SystemData.size(), false);
+
   systemSaveStream.Seek(0x14, SEEK_SET);
 
   systemSaveStream.Seek(0x80, SEEK_SET);
@@ -550,7 +561,7 @@ void SaveSystem::SaveSystemBuffer(Io::MemoryStream& systemSaveStream) {
   Io::WriteArrayLE<uint8_t>(GameExtraData, &systemSaveStream, 1024);
 }
 
-void SaveSystem::WriteSaveFile() {
+SaveError SaveSystem::WriteSaveFile() {
   using CF = Io::PhysicalFileStream::CreateFlagsMode;
   Io::Stream* stream;
   IoError err = Io::PhysicalFileStream::Create(SaveFilePath, &stream,
@@ -558,19 +569,16 @@ void SaveSystem::WriteSaveFile() {
   if (err != IoError_OK) {
     ImpLog(LogLevel::Error, LogChannel::IO,
            "Failed to open save file for writing\n");
-    return;
+    return SaveError::Failed;
   }
 
-  std::array<uint8_t, 0x387c> systemSaveBuf{};
-  auto systemSaveStream =
-      Io::MemoryStream(systemSaveBuf.data(), systemSaveBuf.size(), false);
-  SaveSystemBuffer(systemSaveStream);
-  uint32_t systemChecksum =
-      CalculateChecksum(std::span(systemSaveBuf).subspan(4));
+  Io::MemoryStream systemSaveStream =
+      Io::MemoryStream(SystemData.data(), SystemData.size(), false);
+  uint32_t systemChecksum = CalculateChecksum(std::span(SystemData).subspan(4));
   systemSaveStream.Seek(0, SEEK_SET);
   Io::WriteLE<uint16_t>(&systemSaveStream, systemChecksum >> 16);
   Io::WriteLE<uint16_t>(&systemSaveStream, systemChecksum & 0xFFFF);
-  Io::WriteArrayLE<uint8_t>(systemSaveBuf.data(), stream, systemSaveBuf.size());
+  Io::WriteArrayLE<uint8_t>(SystemData.data(), stream, SystemData.size());
   // End system data
   for (auto* entryArray : {FullSaveEntries, QuickSaveEntries}) {
     SaveType saveType =
@@ -597,6 +605,7 @@ void SaveSystem::WriteSaveFile() {
     }
   }
   delete stream;
+  return SaveError::OK;
 }
 
 uint32_t SaveSystem::GetSavePlayTime(SaveType type, int id) {

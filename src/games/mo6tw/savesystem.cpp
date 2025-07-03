@@ -1,6 +1,7 @@
 #include "savesystem.h"
 
 #include <time.h>
+#include "../../io/memorystream.h"
 #include "../../io/physicalfilestream.h"
 #include "../../mem.h"
 #include "../../vm/vm.h"
@@ -17,7 +18,60 @@ using namespace Impacto::Profile::ScriptVars;
 
 SaveFileEntry* WorkingSaveEntry = 0;
 
-SaveError SaveSystem::MountSaveFile() {
+SaveError SaveSystem::LoadSystemData() {
+  Io::MemoryStream stream =
+      Io::MemoryStream(SystemData.data(), SystemData.size(), false);
+
+  stream.Seek(0x14, SEEK_SET);
+
+  Io::ReadArrayLE<uint8_t>(&FlagWork[100], &stream, 50);
+  Io::ReadArrayLE<uint8_t>(&FlagWork[460], &stream, 40);
+  Io::ReadArrayLE<uint8_t>((uint8_t*)&ScrWork[600], &stream, 1600);
+
+  stream.Seek(0x7DA, SEEK_SET);
+  for (int i = 0; i < 150; i++) {
+    auto val = Io::ReadU8(&stream);
+    EVFlags[8 * i] = val & 1;
+    EVFlags[8 * i + 1] = (val & 2) != 0;
+    EVFlags[8 * i + 2] = (val & 4) != 0;
+    EVFlags[8 * i + 3] = (val & 8) != 0;
+    EVFlags[8 * i + 4] = (val & 0x10) != 0;
+    EVFlags[8 * i + 5] = (val & 0x20) != 0;
+    EVFlags[8 * i + 6] = (val & 0x40) != 0;
+    EVFlags[8 * i + 7] = val >> 7;
+  }
+
+  stream.Seek(0xbc2, SEEK_SET);
+  Io::ReadArrayLE<uint8_t>(BGMFlags, &stream, 100);
+
+  stream.Seek(0xc26, SEEK_SET);
+  Io::ReadArrayLE<uint8_t>(MessageFlags, &stream, 10000);
+
+  stream.Seek(0x3336, SEEK_SET);
+  Io::ReadArrayLE<uint8_t>(GameExtraData, &stream, 1024);
+
+  stream.Seek(0x3b06, SEEK_SET);  // TODO: Actually load system data
+
+  return SaveError::OK;
+}
+
+void SaveSystem::SaveSystemData() {
+  Io::MemoryStream stream =
+      Io::MemoryStream(SystemData.data(), SystemData.size(), false);
+
+  stream.Seek(0xbc2, SEEK_SET);
+  stream.Write(&BGMFlags, sizeof(uint8_t), 100);
+
+  stream.Seek(0xc26, SEEK_SET);
+  stream.Write(&MessageFlags, sizeof(uint8_t), 10000);
+
+  stream.Seek(0x3336, SEEK_SET);
+  stream.Write(&GameExtraData, sizeof(uint8_t), 1024);
+
+  stream.Seek(0x3b06, SEEK_SET);  // TODO: Actually save system data
+}
+
+SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
   Io::PhysicalFileStream* stream;
   Io::Stream* instream;
   IoError err = Io::PhysicalFileStream::Create(SaveFilePath, &instream);
@@ -37,40 +91,15 @@ SaveError SaveSystem::MountSaveFile() {
       SpriteSheet(Window->WindowWidth, Window->WindowHeight);
   WorkingSaveThumbnail.Bounds =
       RectF(0.0f, 0.0f, Window->WindowWidth, Window->WindowHeight);
-  Texture txt;
-  txt.LoadSolidColor(WorkingSaveThumbnail.Bounds.Width,
-                     WorkingSaveThumbnail.Bounds.Height, 0x000000);
-  WorkingSaveThumbnail.Sheet.Texture = txt.Submit();
 
-  stream->Seek(0x14, SEEK_SET);
+  QueuedTexture txt = {
+      .Id = std::ref(WorkingSaveThumbnail.Sheet.Texture),
+  };
+  txt.Tex.LoadSolidColor(WorkingSaveThumbnail.Bounds.Width,
+                         WorkingSaveThumbnail.Bounds.Height, 0x000000);
+  textures.push_back(txt);
 
-  Io::ReadArrayLE<uint8_t>(&FlagWork[100], stream, 50);
-  Io::ReadArrayLE<uint8_t>(&FlagWork[460], stream, 40);
-  Io::ReadArrayLE<uint8_t>((uint8_t*)&ScrWork[600], stream, 1600);
-
-  stream->Seek(0x7DA, SEEK_SET);
-  for (int i = 0; i < 150; i++) {
-    auto val = Io::ReadU8(stream);
-    EVFlags[8 * i] = val & 1;
-    EVFlags[8 * i + 1] = (val & 2) != 0;
-    EVFlags[8 * i + 2] = (val & 4) != 0;
-    EVFlags[8 * i + 3] = (val & 8) != 0;
-    EVFlags[8 * i + 4] = (val & 0x10) != 0;
-    EVFlags[8 * i + 5] = (val & 0x20) != 0;
-    EVFlags[8 * i + 6] = (val & 0x40) != 0;
-    EVFlags[8 * i + 7] = val >> 7;
-  }
-
-  stream->Seek(0xbc2, SEEK_SET);
-  Io::ReadArrayLE<uint8_t>(BGMFlags, stream, 100);
-
-  stream->Seek(0xc26, SEEK_SET);
-  Io::ReadArrayLE<uint8_t>(MessageFlags, stream, 10000);
-
-  stream->Seek(0x3336, SEEK_SET);
-  Io::ReadArrayLE<uint8_t>(GameExtraData, stream, 1024);
-
-  stream->Seek(0x3b06, SEEK_SET);  // TODO: Actually load system data
+  Io::ReadArrayLE<uint8_t>(SystemData.data(), stream, SystemData.size());
 
   for (int i = 0; i < MaxSaveEntries; i++) {
     QuickSaveEntries[i] = new SaveFileEntry();
@@ -244,7 +273,7 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
   }
 }
 
-void SaveSystem::WriteSaveFile() {
+SaveError SaveSystem::WriteSaveFile() {
   Io::PhysicalFileStream* stream;
   Io::Stream* instream;
   IoError err = Io::PhysicalFileStream::Create(SaveFilePath, &instream);
@@ -252,20 +281,11 @@ void SaveSystem::WriteSaveFile() {
   if (err != IoError_OK) {
     ImpLog(LogLevel::Error, LogChannel::IO,
            "Failed to create save file, SDL error: {:s}\n", err1);
-    return;
+    return SaveError::Failed;
   }
   stream = (Io::PhysicalFileStream*)instream;
 
-  stream->Seek(0xbc2, SEEK_SET);
-  stream->Write(&BGMFlags, sizeof(uint8_t), 100);
-
-  stream->Seek(0xc26, SEEK_SET);
-  stream->Write(&MessageFlags, sizeof(uint8_t), 10000);
-
-  stream->Seek(0x3336, SEEK_SET);
-  stream->Write(&GameExtraData, sizeof(uint8_t), 1024);
-
-  stream->Seek(0x3b06, SEEK_SET);  // TODO: Actually save system data
+  Io::WriteArrayLE<uint8_t>(SystemData.data(), stream, SystemData.size());
 
   for (int i = 0; i < MaxSaveEntries; i++) {
     if (QuickSaveEntries[i]->Status == 0) {
@@ -279,7 +299,7 @@ void SaveSystem::WriteSaveFile() {
       if (err != IoError_OK) {
         ImpLog(LogLevel::Error, LogChannel::IO,
                "Failed to write save entry to file, SDL error: {:s}\n", err1);
-        return;
+        return SaveError::Failed;
       }
       // TODO: Add error checking
       stream->Write(&QuickSaveEntries[i]->Checksum, sizeof(uint16_t), 1);
@@ -390,6 +410,7 @@ void SaveSystem::WriteSaveFile() {
   }
 
   stream->~PhysicalFileStream();
+  return SaveError::OK;
 }
 
 void SaveSystem::SaveMemory() {
