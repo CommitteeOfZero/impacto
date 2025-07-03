@@ -22,7 +22,7 @@ class Loadable {
     Unload();
     NextLoadArgs = std::make_tuple(args...);
     Status = LoadStatus::Loading;
-    WorkQueue::Push(this, &LoadWorker, &OnLoaded);
+    WorkQueue::Push(static_cast<T*>(this), &LoadWorker, &OnLoaded);
     return true;
   }
 
