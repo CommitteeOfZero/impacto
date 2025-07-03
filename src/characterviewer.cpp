@@ -154,11 +154,11 @@ void Update(float dt) {
 
       ImGui::Spacing();
       ImGui::Text("Character X");
-      ImGui::SliderFloat("##characterX", &Characters2D[0].OffsetX, -5000.0f,
+      ImGui::SliderFloat("##characterX", &Characters2D[0].Offset.x, -5000.0f,
                          5000.0f);
       ImGui::Spacing();
       ImGui::Text("Character Y");
-      ImGui::SliderFloat("##characterY", &Characters2D[0].OffsetY, -5000.0f,
+      ImGui::SliderFloat("##characterY", &Characters2D[0].Offset.y, -5000.0f,
                          5000.0f);
       ImGui::Spacing();
       Characters2D[0].Face >>= 16;

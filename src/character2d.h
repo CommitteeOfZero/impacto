@@ -49,20 +49,20 @@ class Character2D : public Loadable<Character2D, bool, uint32_t> {
   friend Loadable<Character2D, bool, uint32_t>;
 
  public:
+  bool Show;
+  std::array<int, 2> Layers;
+
   Sprite CharaSprite;
-  float OffsetX;
-  float OffsetY;
-  float ScaleX = 1.0f;
-  float ScaleY = 1.0f;
-  float RotationX = 0.0f;
-  float RotationY = 0.0f;
-  float RotationZ = 0.0f;
   int Face;
   int LipFrame;
   int EyeFrame;
-  bool Show;
-  std::array<int, 2> Layers;
+
+  glm::vec2 Offset = {0.0f, 0.0f};
+  glm::vec2 Scale = {1.0f, 1.0f};
+  glm::quat Rotation = glm::quat();
+
   glm::vec4 Tint = glm::vec4(1.0f);
+
   void Update(float dt);
   void Render(int layer);
 

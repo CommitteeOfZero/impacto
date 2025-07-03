@@ -254,6 +254,9 @@ void UpdateCharacter2D() {
     const size_t structOffset = ScrWorkChaStructSize * i;
     const size_t structOfsOffset = ScrWorkChaOffsetStructSize * i;
 
+    const glm::vec2 resolutionScale = {Profile::DesignWidth / 1280.0f,
+                                       Profile::DesignHeight / 720.0f};
+
     if (Profile::Vm::GameInstructionSet == +InstructionSet::MO6TW) {
       // If I don't do this it tries to access a label with an index of 65535,
       // which is... not good. I have no idea why this happens, the script code
@@ -262,36 +265,37 @@ void UpdateCharacter2D() {
         ScrWork[SW_CHA1NO + structOffset] = 0;
     }
     int bufId = ScrWork[SW_CHA1SURF + i];
+
     Characters2D[bufId].Layers = {ScrWork[SW_CHA1PRI + structOffset],
                                   ScrWork[SW_CHA1PRI2 + structOffset]};
     Characters2D[bufId].Show = GetFlag(SF_CHA1DISP + i);
-    Characters2D[bufId].OffsetX = (ScrWork[SW_CHA1POSX + structOffset] +
-                                   ScrWork[SW_CHA1POSX_OFS + structOfsOffset]) *
-                                  (Profile::DesignWidth / 1280.0f);
-    Characters2D[bufId].OffsetY = (ScrWork[SW_CHA1POSY + structOffset] +
-                                   ScrWork[SW_CHA1POSY_OFS + structOfsOffset]) *
-                                  (Profile::DesignHeight / 720.0f);
+
+    Characters2D[bufId].Offset =
+        glm::vec2(ScrWork[SW_CHA1POSX + structOffset] +
+                      ScrWork[SW_CHA1POSX_OFS + structOfsOffset],
+                  ScrWork[SW_CHA1POSY + structOffset] +
+                      ScrWork[SW_CHA1POSY_OFS + structOfsOffset]) *
+        resolutionScale;
+
     if (Profile::Vm::GameInstructionSet == +InstructionSet::MO8) {
       float baseScale = 1.0f;
       if (ScrWork[SW_CHA1BASESIZE + structOffset] < 7) {
         baseScale = BaseScaleValues[ScrWork[SW_CHA1BASESIZE + structOffset]];
       }
-      Characters2D[bufId].ScaleX =
-          baseScale * (ScrWork[SW_CHA1SIZEX + structOffset] / 1000.0f);
-      Characters2D[bufId].ScaleY =
-          baseScale * (ScrWork[SW_CHA1SIZEY + structOffset] / 1000.0f);
+      Characters2D[bufId].Scale =
+          baseScale *
+          glm::vec2(ScrWork[SW_CHA1SIZEX + structOffset],
+                    ScrWork[SW_CHA1SIZEY + structOffset]) /
+          1000.0f;
 
       // ScrWork magic
-      Characters2D[bufId].RotationX =
-          ScrWork[SW_CHA1ROTX + structOffset] * (float)M_PI * (0.000030517578f);
-      Characters2D[bufId].RotationY =
-          ScrWork[SW_CHA1ROTY + structOffset] * (float)M_PI * (0.000030517578f);
-      Characters2D[bufId].RotationZ =
-          ScrWork[SW_CHA1ROTZ + structOffset] * (float)M_PI * (0.000030517578f);
+      Characters2D[bufId].Rotation =
+          ScrWorkAnglesToQuaternion(ScrWork[SW_CHA1ROTX + structOffset],
+                                    ScrWork[SW_CHA1ROTY + structOffset],
+                                    ScrWork[SW_CHA1ROTZ + structOffset]);
 
       // More magic, wouldn't be Mage... I'll excuse myself
-      Characters2D[bufId].OffsetY =
-          Characters2D[bufId].OffsetY - 228.0f - (baseScale * 1030.0f);
+      Characters2D[bufId].Offset.y -= 228.0f + (baseScale * 1030.0f);
     }
     Characters2D[bufId].Face = ScrWork[SW_CHA1FACE + structOffset] << 16;
 
@@ -335,16 +339,16 @@ void UpdateCharacter2D() {
 }
 
 void UpdateSpeakerPortraits() {
+  const glm::vec2 resolutionScale = {Profile::DesignWidth / 1280.0f,
+                                     Profile::DesignHeight / 720.0f};
+
   for (int i = 0; i < MaxSpeakerPortraits; i++) {
     int bufId = ScrWork[SW_FACE1SURF + i];
 
     SpeakerPortraits[bufId].Show = GetFlag(SF_FACEEX1DISP + i);
-    SpeakerPortraits[bufId].OffsetX =
-        ScrWork[SW_FACEPOSX] * (Profile::DesignWidth / 1280.0f);
-    SpeakerPortraits[bufId].OffsetY =
-        ScrWork[SW_FACEPOSY] * (Profile::DesignHeight / 720.0f);
-    SpeakerPortraits[bufId].ScaleX = 1.0f;
-    SpeakerPortraits[bufId].ScaleY = 1.0f;
+    SpeakerPortraits[bufId].Offset =
+        glm::vec2(ScrWork[SW_FACEPOSX], ScrWork[SW_FACEPOSY]) * resolutionScale;
+    SpeakerPortraits[bufId].Scale = {1.0f, 1.0f};
     SpeakerPortraits[bufId].Face = ScrWork[SW_FACEEX1FACE + 5 * i] << 16;
   }
 }

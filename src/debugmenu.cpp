@@ -914,10 +914,10 @@ void ShowObjects() {
                           Characters2D[i].Layers[1]);
         ImGui::Spacing();
         ImGui::BulletText("Display coords: (x: %f, y: %f)",
-                          Characters2D[i].OffsetX, Characters2D[i].OffsetY);
+                          Characters2D[i].Offset.x, Characters2D[i].Offset.y);
         ImGui::Spacing();
-        ImGui::BulletText("Scale: (x: %f, y: %f)", Characters2D[i].ScaleX,
-                          Characters2D[i].ScaleY);
+        ImGui::BulletText("Scale: (x: %f, y: %f)", Characters2D[i].Scale.x,
+                          Characters2D[i].Scale.y);
         ImGui::Spacing();
         ImGui::BulletText("Face: %d", Characters2D[i].Face);
         ImGui::Spacing();
