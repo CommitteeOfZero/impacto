@@ -51,13 +51,13 @@ class Background2D : public Loadable<Background2D, bool, uint32_t> {
   std::array<int, 2> Layers;
   LinkState Links[MaxLinks];
 
-  void Render(int bgId, int layer);
-  void RenderCapture(int capId, int layer);
-  void RenderBgEff(int bgId, int layer);
+  virtual void Render(int bgId, int layer);
 
   void LoadSolidColor(uint32_t color, int width, int height);
 
  protected:
+  Texture BgTexture;
+
   bool LoadSync(uint32_t bgId);
   void UnloadSync();
   void MainThreadOnLoad(bool result);
@@ -65,9 +65,6 @@ class Background2D : public Loadable<Background2D, bool, uint32_t> {
   bool OnLayer(int layer) {
     return std::find(Layers.begin(), Layers.end(), layer) != Layers.end();
   }
-
- private:
-  Texture BgTexture;
 
   using BackgroundRenderProc = auto (Background2D::*)() -> void;
 
@@ -111,12 +108,22 @@ class Background2D : public Loadable<Background2D, bool, uint32_t> {
       };
 };
 
+class Capture2D : public Background2D {
+ public:
+  void Render(int capId, int layer) override;
+};
+
+class BackgroundEffect2D : public Background2D {
+ public:
+  void Render(int bgId, int layer) override;
+};
+
 int constexpr MaxBackgrounds2D = 8;
 int constexpr MaxScreencaptures = 2;
 
 inline std::array<Background2D, MaxBackgrounds2D> Backgrounds;
-inline std::array<Background2D, MaxScreencaptures> Screencaptures;
-inline std::array<Background2D, MaxFramebuffers> Framebuffers;
+inline std::array<Capture2D, MaxScreencaptures> Screencaptures;
+inline std::array<BackgroundEffect2D, MaxFramebuffers> Framebuffers;
 inline Background2D ShaderScreencapture;
 
 inline ankerl::unordered_dense::map<int, Background2D*> Backgrounds2D;
