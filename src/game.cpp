@@ -321,7 +321,7 @@ static void RenderMain() {
                    Profile::Vm::ScrWorkBgEffStructSize * bgId] == layer ||
            ScrWork[SW_BGEFF1_PRI2 +
                    Profile::Vm::ScrWorkBgEffStructSize * bgId] == layer)) {
-        Framebuffers[0].RenderBgEff(bgId, layer);
+        Framebuffers[0].Render(bgId, layer);
       }
     }
 
@@ -352,7 +352,7 @@ static void RenderMain() {
 
       for (size_t capLayer = 0; capLayer < MaxScreencaptures; capLayer++) {
         if (ScrWork[SW_CAP1PRI + capId * 20 + capLayer * 8] == layer) {
-          Screencaptures[capId].RenderCapture(capId, layer);
+          Screencaptures[capId].Render(capId, layer);
         }
       }
     }

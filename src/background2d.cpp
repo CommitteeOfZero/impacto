@@ -93,7 +93,7 @@ void Background2D::MainThreadOnLoad() {
   std::fill(Layers.begin(), Layers.end(), -1);
 }
 
-void Background2D::Render(int bgId, int layer) {
+void Background2D::Render(const int bgId, const int layer) {
   if (Status != LoadStatus::Loaded || !OnLayer(layer) || !Show) return;
 
   MaskNumber = ScrWork[SW_BG1MASKNO + ScrWorkBgStructSize * bgId];
@@ -134,7 +134,7 @@ void Background2D::Render(int bgId, int layer) {
   std::invoke(BackgroundRenderTable[renderType], this);
 }
 
-void Background2D::RenderCapture(int capId, int layer) {
+void Capture2D::Render(const int capId, const int layer) {
   if (Status != LoadStatus::Loaded || !OnLayer(layer) || !Show) return;
 
   MaskNumber = ScrWork[SW_CAP1MASKNO + ScrWorkCaptureStructSize * capId];
@@ -161,7 +161,7 @@ void Background2D::RenderCapture(int capId, int layer) {
   std::invoke(BackgroundRenderTable[renderType], this);
 }
 
-void Background2D::RenderBgEff(int bgId, int layer) {
+void BackgroundEffect2D::Render(const int bgId, const int layer) {
   if (Status != LoadStatus::Loaded) return;
 
   const int structOffset = ScrWorkBgEffStructSize * bgId;
