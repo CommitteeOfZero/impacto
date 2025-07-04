@@ -832,7 +832,7 @@ void ShowObjects() {
       "These values are read-only as everything here is controlled by "
       "scripts.");
   if (ImGui::TreeNode("Backgrounds")) {
-    for (int i = 0; i < MaxBackgrounds2D; i++) {
+    for (int i = 0; i < Backgrounds.size(); i++) {
       ImGui::PushID(i);
       if (ImGui::TreeNode("Background", "Background %d", i)) {
         if (Backgrounds[i].Status == LoadStatus::Loaded) {
