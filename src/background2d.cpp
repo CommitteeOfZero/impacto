@@ -12,6 +12,7 @@
 #include "profile/vm.h"
 // #include "window.h"
 #include "renderer/renderer.h"
+#include "vm/interface/scene2d.h"
 
 namespace Impacto {
 
@@ -106,6 +107,91 @@ void Background2D::MainThreadOnLoad(bool result) {
                           BgSprite.Sheet.DesignHeight);
   Show = false;
   std::fill(Layers.begin(), Layers.end(), -1);
+}
+
+void Background2D::UpdateState(const int bgId) {
+  const size_t structOffset = ScrWorkBgStructSize * bgId;
+  const size_t structOfsOffset = ScrWorkBgOffsetStructSize * bgId;
+
+  const glm::vec2 resolutionScale = {Profile::DesignWidth / 1280.0f,
+                                     Profile::DesignHeight / 720.0f};
+
+  Layers = {ScrWork[SW_BG1PRI + structOffset],
+            ScrWork[SW_BG1PRI2 + structOffset]};
+  Show = GetFlag(SF_BG1DISP + bgId);
+
+  const int dispMode = ScrWork[SW_BG1DISPMODE + structOffset];
+  switch (dispMode) {
+    case 0: {
+      Position = -glm::vec2(ScrWork[SW_BG1POSX + structOffset] +
+                                ScrWork[SW_BG1POSX_OFS + structOfsOffset],
+                            ScrWork[SW_BG1POSY + structOffset] +
+                                ScrWork[SW_BG1POSY_OFS + structOfsOffset]) *
+                 resolutionScale;
+
+      if (GameInstructionSet == +Vm::InstructionSet::MO8) {
+        Position -= (BgSprite.Bounds.GetSize() -
+                     glm::vec2(Profile::DesignWidth, Profile::DesignHeight)) *
+                    0.5f;
+      }
+
+      Scale = {1.0f, 1.0f};
+    } break;
+
+    case 1: {
+      Position = -glm::vec2(ScrWork[SW_BG1SX + structOffset] +
+                                ScrWork[SW_BG1SX_OFS + structOfsOffset],
+                            ScrWork[SW_BG1SY + structOffset] +
+                                ScrWork[SW_BG1SY_OFS + structOfsOffset]) *
+                 resolutionScale;
+
+      Scale = glm::vec2(1280.0f, 720.0f) /
+              glm::vec2(ScrWork[SW_BG1LX + structOffset] +
+                            ScrWork[SW_BG1LX_OFS + structOfsOffset],
+                        ScrWork[SW_BG1LY + structOffset] +
+                            ScrWork[SW_BG1LY_OFS + structOfsOffset]);
+    } break;
+
+    case 2: {
+      Position = glm::vec2(ScrWork[SW_BG1POSX + structOffset] +
+                               ScrWork[SW_BG1POSX_OFS + structOfsOffset],
+                           ScrWork[SW_BG1POSY + structOffset] +
+                               ScrWork[SW_BG1POSY_OFS + structOfsOffset]) *
+                 resolutionScale;
+      Position -= BgSprite.ScaledBounds().GetSize() / 2.0f;
+
+      Scale = glm::vec2(ScrWork[SW_BG1SIZE + structOffset] +
+                        ScrWork[SW_BG1SIZE_OFS + structOfsOffset]) /
+              1000.0f;
+    } break;
+
+    case 4: {
+      Position = -glm::vec2(ScrWork[SW_BG1POSX + structOffset] +
+                                ScrWork[SW_BG1POSX_OFS + structOfsOffset],
+                            ScrWork[SW_BG1POSY + structOffset] +
+                                ScrWork[SW_BG1POSY_OFS + structOfsOffset]) *
+                 resolutionScale / 1000.0f;
+
+      Scale = {1.0f, 1.0f};
+    } break;
+  }
+
+  if (ScrWork[SW_BGLINK]) {
+    Vm::Interface::LinkBuffers(ScrWork[SW_BGLINK], bgId, this);
+  } else if (ScrWork[SW_BGLINK2]) {
+    Vm::Interface::LinkBuffers(ScrWork[SW_BGLINK2], bgId, this);
+  } else {
+    for (size_t i = 0; i < MaxLinkedBgBuffers; i++) {
+      Links[i].Direction = LinkDirection::Off;
+      Links[i].LinkedBuffer = nullptr;
+    }
+  }
+
+  if (BgSprite.Sheet.IsScreenCap) {
+    BgSprite.BaseScale *=
+        glm::vec2(Profile::DesignWidth / Window->WindowWidth,
+                  Profile::DesignHeight / Window->WindowHeight);
+  }
 }
 
 void Background2D::Render(const int bgId, const int layer) {
@@ -242,7 +328,7 @@ void BackgroundEffect2D::Render(const int bgId, const int layer) {
                     ScrWork[SW_BGEFF1_OFSY + structOfsOffset]) *
       resolutionScale;
 
-  DisplayCoords = pos - backgroundOffset;
+  Position = pos - backgroundOffset;
   const glm::vec2 stencilOffset = pos - vertices[0];
 
   // Origin is the center of mass
@@ -270,8 +356,8 @@ void BackgroundEffect2D::Render(const int bgId, const int layer) {
 }
 
 void Background2D::RenderRegular() {
-  const glm::mat4 transformation = TransformationMatrix(
-      Origin, Scale, {Origin, 0.0f}, Rotation, DisplayCoords);
+  const glm::mat4 transformation =
+      TransformationMatrix(Origin, Scale, {Origin, 0.0f}, Rotation, Position);
   Renderer->DrawSprite(BgSprite, transformation, Tint, false);
 
   for (int i = 0; i < MaxLinkedBgBuffers; i++) {
@@ -288,8 +374,8 @@ void Background2D::RenderRegular() {
 }
 
 void Background2D::RenderMasked() {
-  const glm::mat4 transformation = TransformationMatrix(
-      Origin, Scale, {Origin, 0.0f}, Rotation, DisplayCoords);
+  const glm::mat4 transformation =
+      TransformationMatrix(Origin, Scale, {Origin, 0.0f}, Rotation, Position);
 
   Renderer->DrawMaskedSprite(BgSprite, Masks2D[MaskNumber].MaskSprite,
                              FadeCount, FadeRange, transformation, Tint, false,
@@ -297,8 +383,8 @@ void Background2D::RenderMasked() {
 }
 
 void Background2D::RenderMaskedInverted() {
-  const glm::mat4 transformation = TransformationMatrix(
-      Origin, Scale, {Origin, 0.0f}, Rotation, DisplayCoords);
+  const glm::mat4 transformation =
+      TransformationMatrix(Origin, Scale, {Origin, 0.0f}, Rotation, Position);
   Renderer->DrawMaskedSprite(BgSprite, Masks2D[MaskNumber].MaskSprite,
                              FadeCount, FadeRange, transformation, Tint, true,
                              false);

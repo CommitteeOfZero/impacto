@@ -862,8 +862,7 @@ void ShowObjects() {
                           Backgrounds[i].Layers[1]);
         ImGui::Spacing();
         ImGui::BulletText("Display coords: (x: %f, y: %f)",
-                          Backgrounds[i].DisplayCoords.x,
-                          Backgrounds[i].DisplayCoords.y);
+                          Backgrounds[i].Position.x, Backgrounds[i].Position.y);
         ImGui::Spacing();
         ImGui::BulletText("Sprite: (x: %f, y: %f, width: %f, height: %f)",
                           Backgrounds[i].BgSprite.Bounds.X,

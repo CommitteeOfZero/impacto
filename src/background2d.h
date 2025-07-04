@@ -27,7 +27,7 @@ class Background2D : public Loadable<Background2D, bool, uint32_t> {
 
   Sprite BgSprite;
 
-  glm::vec2 DisplayCoords;
+  glm::vec2 Position;
   glm::vec2 Origin = {0.0f, 0.0f};
   glm::vec2 Scale = {1.0f, 1.0f};
   glm::quat Rotation = glm::quat();
@@ -42,6 +42,7 @@ class Background2D : public Loadable<Background2D, bool, uint32_t> {
   std::array<LinkState, 2> Links;
 
   virtual void Render(int bgId, int layer);
+  virtual void UpdateState(int bgId);
 
   void LoadSolidColor(uint32_t color, int width, int height);
 

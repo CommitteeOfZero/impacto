@@ -18,8 +18,8 @@ inline int GetScriptBufferId(int bufIdBySurf) {
 }
 
 // Meh
-inline void LinkBuffers(int linkCode, int currentBufferId,
-                        Background2D* currentBuffer);
+void LinkBuffers(int linkCode, int currentBufferId,
+                 Background2D* currentBuffer);
 
 }  // namespace Interface
 }  // namespace Vm
