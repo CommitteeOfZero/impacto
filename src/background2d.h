@@ -52,6 +52,8 @@ class Background2D : public Loadable<Background2D> {
   void UnloadSync();
   void MainThreadOnLoad();
 
+  void LinkBuffers(int linkCode, int currentBufferId);
+
   bool OnLayer(int layer) {
     return std::find(Layers.begin(), Layers.end(), layer) != Layers.end();
   }
