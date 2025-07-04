@@ -29,7 +29,7 @@ bool Character2D::LoadSync(uint32_t charaId) {
     err = Io::VfsOpen(MountPoint, fileId + 1, &stream);
     if (err != IoError_OK) return false;
 
-    Offset = glm::vec2(Profile::DesignWidth, Profile::DesignHeight) / 2.0f;
+    Position = glm::vec2(Profile::DesignWidth, Profile::DesignHeight) / 2.0f;
 
     Io::ReadLE<int>(stream);
     int stateCount = Io::ReadLE<int>(stream);
@@ -99,7 +99,7 @@ bool Character2D::LoadSync(uint32_t charaId) {
 
     Face = charaId;
 
-    Offset = glm::vec2(Profile::DesignWidth, Profile::DesignHeight) / 2.0f;
+    Position = glm::vec2(Profile::DesignWidth, Profile::DesignHeight) / 2.0f;
 
     using StreamReadInt_t = auto (*)(Io::Stream*)->int;
     using StreamReadFloat_t = auto (*)(Io::Stream*)->float;
@@ -281,11 +281,11 @@ void Character2D::UpdateState(const size_t chaId) {
             ScrWork[SW_CHA1PRI2 + structOffset]};
   Show = GetFlag(SF_CHA1DISP + chaId);
 
-  Offset = glm::vec2(ScrWork[SW_CHA1POSX + structOffset] +
-                         ScrWork[SW_CHA1POSX_OFS + structOfsOffset],
-                     ScrWork[SW_CHA1POSY + structOffset] +
-                         ScrWork[SW_CHA1POSY_OFS + structOfsOffset]) *
-           resolutionScale;
+  Position = glm::vec2(ScrWork[SW_CHA1POSX + structOffset] +
+                           ScrWork[SW_CHA1POSX_OFS + structOfsOffset],
+                       ScrWork[SW_CHA1POSY + structOffset] +
+                           ScrWork[SW_CHA1POSY_OFS + structOfsOffset]) *
+             resolutionScale;
 
   if (Profile::Vm::GameInstructionSet == +Vm::InstructionSet::MO8) {
     constexpr std::array<float, 7> BaseScaleValues = {
@@ -307,16 +307,32 @@ void Character2D::UpdateState(const size_t chaId) {
                                          ScrWork[SW_CHA1ROTZ + structOffset]);
 
     // More magic, wouldn't be Mage... I'll excuse myself
-    Offset.y -= 228.0f + (baseScale * 1030.0f);
+    Position.y -= 228.0f + (baseScale * 1030.0f);
+
+  } else {
+    Scale = glm::vec2(ScrWork[SW_CHA1SIZEX + structOffset] +
+                          ScrWork[SW_CHA1SIZEX_OFS + structOfsOffset],
+                      ScrWork[SW_CHA1SIZEY + structOffset] +
+                          ScrWork[SW_CHA1SIZEY_OFS + structOfsOffset]) /
+            1000.0f;
+
+    Rotation = ScrWorkAnglesToQuaternion(
+        ScrWork[SW_CHA1ROTX + structOffset] +
+            ScrWork[SW_CHA1ROTX_OFS + structOfsOffset],
+        ScrWork[SW_CHA1ROTY + structOffset] +
+            ScrWork[SW_CHA1ROTY_OFS + structOfsOffset],
+        ScrWork[SW_CHA1ROTZ + structOffset] +
+            ScrWork[SW_CHA1ROTZ_OFS + structOfsOffset]);
   }
 
   Face = ScrWork[SW_CHA1FACE + structOffset] << 16;
 
+  Tint = ScrWorkGetColor(SW_CHA1FILTER + structOffset);
   Tint.a = (ScrWork[SW_CHA1ALPHA + structOffset] +
             ScrWork[SW_CHA1ALPHA_OFS + structOfsOffset]) /
            256.0f;
   if (ScrWork[SW_CHA1FADETYPE + structOffset] == 1) {
-    Tint.a = ScrWork[SW_CHA1FADECT + structOffset] / 256.0f;
+    Tint.a *= ScrWork[SW_CHA1FADECT + structOffset] / 256.0f;
   }
 
   if (ScrWork[SW_CHA1ANIME_EYE + structOffset] == 0xFF) {
@@ -351,10 +367,11 @@ void Character2D::Render(int layer) {
   if (Status != LoadStatus::Loaded || !OnLayer(layer) || !Show) return;
 
   if (Profile::CharaIsMvl) {
-    const glm::mat4 transformation =
-        TransformationMatrix({0.0f, 0.0f}, Scale, {0.0f, 0.0f}, 0.0f, Offset);
+    const glm::mat4 transformation = TransformationMatrix(
+        {0.0f, 0.0f}, Scale, glm::vec3(0.0f), Rotation, Position);
     Renderer->DrawVertices(CharaSpriteSheet, MvlVertices, MvlIndices,
                            transformation);
+
   } else {
     for (auto id : StatesToDraw) {
       if (auto stateItr = States.find(id); stateItr != States.end()) {
@@ -364,8 +381,10 @@ void Character2D::Render(int layer) {
         for (int i = 0; i < state.Count; i++) {
           CharaSprite.Bounds = RectF(layData.TextureCoords[i].x,
                                      layData.TextureCoords[i].y, 30.0f, 30.0f);
-          Renderer->DrawSprite(CharaSprite, layData.ScreenCoords[i] + Offset,
-                               Tint);
+          const glm::mat4 transformation = TransformationMatrix(
+              {0.0f, 0.0f}, Scale, glm::vec3(0.0f), Rotation,
+              layData.ScreenCoords[i] + Position);
+          Renderer->DrawSprite(CharaSprite, transformation, Tint);
         }
       }
     }
@@ -377,10 +396,12 @@ void CharacterPortrait2D::UpdateState(const size_t chaId) {
                                      Profile::DesignHeight / 720.0f};
 
   Show = GetFlag(SF_FACEEX1DISP + chaId);
-  Offset =
-      glm::vec2(ScrWork[SW_FACEPOSX], ScrWork[SW_FACEPOSY]) * resolutionScale;
-  Scale = {1.0f, 1.0f};
   Face = ScrWork[SW_FACEEX1FACE + 5 * chaId] << 16;
+  Position =
+      glm::vec2(ScrWork[SW_FACEPOSX], ScrWork[SW_FACEPOSY]) * resolutionScale;
+
+  Scale = {1.0f, 1.0f};
+  Rotation = glm::quat();
 }
 
 }  // namespace Impacto

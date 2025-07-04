@@ -914,7 +914,8 @@ void ShowObjects() {
                           Characters2D[i].Layers[1]);
         ImGui::Spacing();
         ImGui::BulletText("Display coords: (x: %f, y: %f)",
-                          Characters2D[i].Offset.x, Characters2D[i].Offset.y);
+                          Characters2D[i].Position.x,
+                          Characters2D[i].Position.y);
         ImGui::Spacing();
         ImGui::BulletText("Scale: (x: %f, y: %f)", Characters2D[i].Scale.x,
                           Characters2D[i].Scale.y);

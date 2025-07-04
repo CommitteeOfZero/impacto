@@ -57,13 +57,14 @@ class Character2D : public Loadable<Character2D, bool, uint32_t> {
   std::array<int, 2> Layers;
 
   Sprite CharaSprite;
+
   int Face;
   int LipFrame;
   int EyeFrame;
 
-  glm::vec2 Offset = {0.0f, 0.0f};
-  glm::vec2 Scale = {1.0f, 1.0f};
+  glm::vec2 Position = {0.0f, 0.0f};
   glm::quat Rotation = glm::quat();
+  glm::vec2 Scale = {1.0f, 1.0f};
 
   glm::vec4 Tint = glm::vec4(1.0f);
 
