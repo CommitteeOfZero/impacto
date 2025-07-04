@@ -18,8 +18,6 @@ enum LinkDirection {
   LD_Down3
 };
 
-int constexpr MaxLinks = 2;
-
 class Background2D;
 
 struct LinkState {
@@ -49,7 +47,7 @@ class Background2D : public Loadable<Background2D, bool, uint32_t> {
 
   bool Show;
   std::array<int, 2> Layers;
-  LinkState Links[MaxLinks];
+  std::array<LinkState, 2> Links;
 
   virtual void Render(int bgId, int layer);
 
@@ -118,11 +116,8 @@ class BackgroundEffect2D : public Background2D {
   void Render(int bgId, int layer) override;
 };
 
-int constexpr MaxBackgrounds2D = 8;
-int constexpr MaxScreencaptures = 2;
-
-inline std::array<Background2D, MaxBackgrounds2D> Backgrounds;
-inline std::array<Capture2D, MaxScreencaptures> Screencaptures;
+inline std::array<Background2D, 8> Backgrounds;
+inline std::array<Capture2D, 2> Screencaptures;
 inline std::array<BackgroundEffect2D, MaxFramebuffers> Framebuffers;
 inline Background2D ShaderScreencapture;
 

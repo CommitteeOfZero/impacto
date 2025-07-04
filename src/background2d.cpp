@@ -33,15 +33,15 @@ void Background2D::InitFrameBuffers() {
 }
 
 void Background2D::Init() {
-  for (int i = 0; i < MaxBackgrounds2D; i++) {
+  for (int i = 0; i < Backgrounds.size(); i++) {
     Backgrounds2D[i] = &Backgrounds[i];
   }
 
-  for (int i = 0; i < MaxScreencaptures; i++) {
-    Screencaptures[i].BgSprite.Sheet.IsScreenCap = true;
-    Screencaptures[i].LoadSolidColor(0xFF000000, Window->WindowWidth,
-                                     Window->WindowHeight);
-    Screencaptures[i].Status = LoadStatus::Loaded;
+  for (Capture2D& capture : Screencaptures) {
+    capture.BgSprite.Sheet.IsScreenCap = true;
+    capture.LoadSolidColor(0xFF000000, Window->WindowWidth,
+                           Window->WindowHeight);
+    capture.Status = LoadStatus::Loaded;
   }
 
   ShaderScreencapture.BgSprite.Sheet.IsScreenCap = true;

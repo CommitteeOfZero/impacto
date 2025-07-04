@@ -719,7 +719,7 @@ VmInstruction(InstMSinit) {
     }
   }
 
-  for (int i = 0; i < MaxBackgrounds2D; i++) {
+  for (int i = 0; i < Backgrounds.size(); i++) {
     ScrWork[SW_BG1SURF + i] = i;
     ScrWork[SW_BG1ALPHA + Profile::Vm::ScrWorkBgStructSize * i] = 256;
     ScrWork[SW_BG1NO + Profile::Vm::ScrWorkBgStructSize * i] = 0xFFFF;

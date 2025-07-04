@@ -16,7 +16,7 @@ using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::Vm;
 
 void UpdateBackground2D() {
-  for (int i = 0; i < MaxBackgrounds2D; i++) {
+  for (int i = 0; i < Backgrounds.size(); i++) {
     int bufId = ScrWork[SW_BG1SURF + i];
 
     if (Profile::UseScreenCapEffects) {

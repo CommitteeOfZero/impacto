@@ -305,7 +305,7 @@ static void RenderMain() {
       Renderer->SetFramebuffer(renderTarget);
     }
 
-    for (int i = 0; i < MaxBackgrounds2D; i++) {
+    for (int i = 0; i < Backgrounds.size(); i++) {
       int bufId = ScrWork[SW_BG1SURF + i];
       Backgrounds2D[bufId]->Render(i, layer);
     }
@@ -315,7 +315,7 @@ static void RenderMain() {
       Characters2D[bufId].Render(layer);
     }
 
-    for (int bgId = 0; bgId < MaxBackgrounds2D; bgId++) {
+    for (int bgId = 0; bgId < Backgrounds.size(); bgId++) {
       if (GetFlag(SF_BGEFF1DISP + bgId) &&
           (ScrWork[SW_BGEFF1_PRI +
                    Profile::Vm::ScrWorkBgEffStructSize * bgId] == layer ||
@@ -347,10 +347,10 @@ static void RenderMain() {
       }
     }
 
-    for (size_t capId = 0; capId < MaxScreencaptures; capId++) {
+    for (size_t capId = 0; capId < Screencaptures.size(); capId++) {
       if (!GetFlag(SF_CAP1DISP + capId)) continue;
 
-      for (size_t capLayer = 0; capLayer < MaxScreencaptures; capLayer++) {
+      for (size_t capLayer = 0; capLayer < Screencaptures.size(); capLayer++) {
         if (ScrWork[SW_CAP1PRI + capId * 20 + capLayer * 8] == layer) {
           Screencaptures[capId].Render(capId, layer);
         }
