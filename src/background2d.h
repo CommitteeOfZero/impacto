@@ -8,15 +8,7 @@
 
 namespace Impacto {
 
-enum LinkDirection {
-  LD_Off,
-  LD_Up,
-  LD_Down,
-  LD_Left,
-  LD_Right,
-  LD_Up3,
-  LD_Down3
-};
+enum class LinkDirection { Off, Up, Down, Left, Right, Up3, Down3 };
 
 class Background2D;
 
