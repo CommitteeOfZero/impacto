@@ -313,7 +313,7 @@ void TitleMenu::Update(float dt) {
   SmokeAnimation.Update(dt);
   TitleAnimation.Update(dt);
   TitleAnimationSprite.Update(dt);
-  TitleAnimationSprite.Offset = {0.0f, 0.0f};
+  TitleAnimationSprite.Position = {0.0f, 0.0f};
   SlideItemsAnimation.Update(dt);
 
   if (!IsFocused) {
