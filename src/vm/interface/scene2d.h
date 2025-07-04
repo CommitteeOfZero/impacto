@@ -17,10 +17,6 @@ inline int GetScriptBufferId(int bufIdBySurf) {
   return (int)std::pow(2, bufIdBySurf);
 }
 
-// Meh
-void LinkBuffers(int linkCode, int currentBufferId,
-                 Background2D* currentBuffer);
-
 }  // namespace Interface
 }  // namespace Vm
 }  // namespace Impacto

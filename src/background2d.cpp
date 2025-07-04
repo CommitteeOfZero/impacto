@@ -109,6 +109,65 @@ void Background2D::MainThreadOnLoad(bool result) {
   std::fill(Layers.begin(), Layers.end(), -1);
 }
 
+void Background2D::LinkBuffers(const int linkCode, const int currentBufferId) {
+  const int srcBufId = (linkCode >> 8) & 0xFF;
+  if (srcBufId == Vm::Interface::GetScriptBufferId(currentBufferId)) {
+    const LinkDirection dir = (LinkDirection)((linkCode >> 16) & 0xFF);
+
+    for (size_t i = 0; i < MaxLinkedBgBuffers; i++) {
+      int childBufId = (linkCode >> (i * 24)) & 0xFF;
+      if (childBufId != 0) {
+        childBufId = Vm::Interface::GetBufferId(childBufId);
+        Background2D* const childBuf =
+            Backgrounds2D[ScrWork[SW_BG1SURF + childBufId]];
+
+        childBuf->BgSprite.BaseScale = BgSprite.BaseScale;
+
+        Links[i].LinkedBuffer = childBuf;
+        Links[i].Direction = dir;
+
+        switch (dir) {
+          case LinkDirection::Up3: {
+            float offset =
+                i == 0 ? 0.0f
+                       : Links[i - 1].LinkedBuffer->BgSprite.ScaledHeight();
+            Links[i].DisplayCoords = {
+                Position.x, Position.y - BgSprite.ScaledHeight() - offset};
+          } break;
+
+          case LinkDirection::Up: {
+            Links[i].DisplayCoords = {Position.x,
+                                      Position.y - BgSprite.ScaledHeight()};
+          } break;
+
+          case LinkDirection::Down3: {
+            float offset =
+                i == 0 ? 0.0f
+                       : Links[i - 1].LinkedBuffer->BgSprite.ScaledHeight();
+            Links[i].DisplayCoords = {
+                Position.x, Position.y + BgSprite.ScaledHeight() + offset};
+          } break;
+
+          case LinkDirection::Down: {
+            Links[i].DisplayCoords = {Position.x,
+                                      Position.y + BgSprite.ScaledHeight()};
+          } break;
+
+          case LinkDirection::Left: {
+            Links[i].DisplayCoords = {Position.x - BgSprite.ScaledWidth(),
+                                      Position.y};
+          } break;
+
+          case LinkDirection::Right: {
+            Links[i].DisplayCoords = {Position.x + BgSprite.ScaledWidth(),
+                                      Position.y};
+          } break;
+        }
+      }
+    }
+  }
+}
+
 void Background2D::UpdateState(const int bgId) {
   const size_t structOffset = ScrWorkBgStructSize * bgId;
   const size_t structOfsOffset = ScrWorkBgOffsetStructSize * bgId;
@@ -177,9 +236,9 @@ void Background2D::UpdateState(const int bgId) {
   }
 
   if (ScrWork[SW_BGLINK]) {
-    Vm::Interface::LinkBuffers(ScrWork[SW_BGLINK], bgId, this);
+    LinkBuffers(ScrWork[SW_BGLINK], bgId);
   } else if (ScrWork[SW_BGLINK2]) {
-    Vm::Interface::LinkBuffers(ScrWork[SW_BGLINK2], bgId, this);
+    LinkBuffers(ScrWork[SW_BGLINK2], bgId);
   } else {
     for (size_t i = 0; i < MaxLinkedBgBuffers; i++) {
       Links[i].Direction = LinkDirection::Off;
