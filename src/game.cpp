@@ -305,14 +305,14 @@ static void RenderMain() {
       Renderer->SetFramebuffer(renderTarget);
     }
 
-    for (int i = 0; i < Backgrounds.size(); i++) {
-      int bufId = ScrWork[SW_BG1SURF + i];
-      Backgrounds2D[bufId]->Render(i, layer);
+    for (int bgId = 0; bgId < Backgrounds.size(); bgId++) {
+      int bufId = ScrWork[SW_BG1SURF + bgId];
+      Backgrounds2D[bufId]->Render(bgId, layer);
     }
 
-    for (int i = 0; i < Characters2D.size(); i++) {
-      int bufId = ScrWork[SW_CHA1SURF + i];
-      Characters2D[bufId].Render(layer);
+    for (int chaId = 0; chaId < Characters2D.size(); chaId++) {
+      int bufId = ScrWork[SW_CHA1SURF + chaId];
+      Characters2D[bufId].Render(chaId, layer);
     }
 
     for (int bgId = 0; bgId < Backgrounds.size(); bgId++) {
@@ -342,12 +342,8 @@ static void RenderMain() {
     }
 
     for (size_t capId = 0; capId < Screencaptures.size(); capId++) {
-      if (!GetFlag(SF_CAP1DISP + capId)) continue;
-
       for (size_t capLayer = 0; capLayer < Screencaptures.size(); capLayer++) {
-        if (ScrWork[SW_CAP1PRI + capId * 20 + capLayer * 8] == layer) {
-          Screencaptures[capId].Render(capId, layer);
-        }
+        Screencaptures[capId].Render(capId, layer);
       }
     }
 
@@ -545,7 +541,7 @@ void Render() {
     if (Characters2D[0].Status == LoadStatus::Loaded) {
       Characters2D[0].Layers[0] = 0;
       ScrWork[SW_CHA1ALPHA] = 256;
-      Characters2D[0].Render(0);
+      Characters2D[0].Render(0, 0);
     }
   }
   Renderer->EndFrame();

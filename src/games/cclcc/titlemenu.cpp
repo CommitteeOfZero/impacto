@@ -536,7 +536,7 @@ void TitleMenu::Render() {
       case 2: {  // Transition between Press to start and menus
         DrawMainMenuBackGraphics();
         DrawStartButton();
-        TitleAnimationSprite.Render(-1);
+        TitleAnimationSprite.Render(0, -1);
         DrawSmoke(SmokeOpacityNormal);
       } break;
       case 3: {  // MenuItems Fade In

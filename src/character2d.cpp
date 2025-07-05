@@ -262,7 +262,7 @@ static uint8_t GetSoundLevel() {
   return result;
 }
 
-void Character2D::UpdateState(const size_t chaId) {
+void Character2D::UpdateState(const int chaId) {
   const size_t structOffset = ScrWorkChaStructSize * chaId;
   const size_t structOfsOffset = ScrWorkChaOffsetStructSize * chaId;
 
@@ -363,10 +363,18 @@ void Character2D::UpdateState(const size_t chaId) {
   }
 }
 
-void Character2D::Render(int layer) {
+void Character2D::Render(const int chaId, const int layer) {
+  UpdateState(chaId);
+
   if (Status != LoadStatus::Loaded || !OnLayer(layer) || !Show) return;
 
   if (Profile::CharaIsMvl) {
+    std::transform(MvlVertices.begin(), MvlVertices.end(), MvlVertices.begin(),
+                   [this](VertexBufferSprites vertex) {
+                     vertex.Tint = Tint;
+                     return vertex;
+                   });
+
     const glm::mat4 transformation = TransformationMatrix(
         {0.0f, 0.0f}, Scale, glm::vec3(0.0f), Rotation, Position);
     Renderer->DrawVertices(CharaSpriteSheet, MvlVertices, MvlIndices,
@@ -391,7 +399,7 @@ void Character2D::Render(int layer) {
   }
 }
 
-void CharacterPortrait2D::UpdateState(const size_t chaId) {
+void CharacterPortrait2D::UpdateState(const int chaId) {
   const glm::vec2 resolutionScale = {Profile::DesignWidth / 1280.0f,
                                      Profile::DesignHeight / 720.0f};
 

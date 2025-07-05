@@ -69,10 +69,10 @@ class Character2D : public Loadable<Character2D, bool, uint32_t> {
   glm::vec4 Tint = glm::vec4(1.0f);
 
   void Update(float dt);
-  virtual void UpdateState(size_t chaId);
+  virtual void UpdateState(int chaId);
   static void UpdateEyeMouth();
 
-  void Render(int layer);
+  void Render(int chaId, int layer);
 
  protected:
   bool LoadSync(uint32_t charaId);
@@ -105,7 +105,7 @@ class Character2D : public Loadable<Character2D, bool, uint32_t> {
 
 class CharacterPortrait2D : public Character2D {
  public:
-  void UpdateState(size_t chaId) override;
+  void UpdateState(int chaId) override;
 };
 
 inline std::array<Character2D, MaxCharacters2D> Characters2D;

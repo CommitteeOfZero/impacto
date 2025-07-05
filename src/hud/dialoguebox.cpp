@@ -71,7 +71,7 @@ void DialogueBox::Render(DialoguePageMode mode, bool hasName, float nameWidth,
         SpeakerPortraits[bufId].Tint = col;
         SpeakerPortraits[bufId].Position +=
             glm::vec2(SpeakerPortraitBaseOffsetX, SpeakerPortraitBaseOffsetY);
-        SpeakerPortraits[bufId].Render(-1);
+        SpeakerPortraits[bufId].Render(i, -1);
       }
     }
 
