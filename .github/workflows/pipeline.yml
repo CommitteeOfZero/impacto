@@ -173,14 +173,20 @@ jobs:
       run: |
         cp THIRDPARTY.md README.md LICENSE "${{ github.workspace }}/release/${{ env.PresetName }}"
       shell: bash
+    - name: Decode signing/prod.properties file
+      if: github.event.pull_request.head.repo.full_name == github.repository && matrix.os_name == 'android'
+      env:
+        PROD_PROPERTIES: ${{ secrets.ANDROID_PROD_PROPERTIES }}
+        PROD_JKS: ${{ secrets.ANDROID_PROD_JKS }}
+      run: |
+        echo "$PROD_PROPERTIES" > ${{ github.workspace }}/android/app/signing/prod.properties
+        echo "$PROD_JKS" | base64 -d > ${{ github.workspace }}/android/app/signing/prod.jks
     - name: Build Android
       if: matrix.os_name == 'android'
       run: |
         pushd "${{ github.workspace }}/android/"
         ./gradlew assemble
-        find "${{ github.workspace }}/android" -name "*.apk"
-        cp "${{ github.workspace }}/android/distribution/android/app/outputs/apk/debug/app-debug.apk" "${{ github.workspace }}/release/${{ env.PresetName }}/impacto-debug.apk"
-        cp "${{ github.workspace }}/android/distribution/android/app/outputs/apk/release/app-release-unsigned.apk" "${{ github.workspace }}/release/${{ env.PresetName }}/impacto-unsigned.apk"
+        cp "${{ github.workspace }}/android/distribution/android/app/outputs/apk/release/app-release.apk" "${{ github.workspace }}/release/${{ env.PresetName }}/impacto-release.apk"
       shell: bash
     - name: Archive Artifacts
       run: |
