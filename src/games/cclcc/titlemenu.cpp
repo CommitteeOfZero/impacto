@@ -313,8 +313,7 @@ void TitleMenu::Update(float dt) {
   SmokeAnimation.Update(dt);
   TitleAnimation.Update(dt);
   TitleAnimationSprite.Update(dt);
-  TitleAnimationSprite.OffsetX = 0.0f;
-  TitleAnimationSprite.OffsetY = 0.0f;
+  TitleAnimationSprite.Position = {0.0f, 0.0f};
   SlideItemsAnimation.Update(dt);
 
   if (!IsFocused) {
@@ -537,7 +536,7 @@ void TitleMenu::Render() {
       case 2: {  // Transition between Press to start and menus
         DrawMainMenuBackGraphics();
         DrawStartButton();
-        TitleAnimationSprite.Render(-1);
+        TitleAnimationSprite.Render(0, -1);
         DrawSmoke(SmokeOpacityNormal);
       } break;
       case 3: {  // MenuItems Fade In

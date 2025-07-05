@@ -6,6 +6,7 @@
 #include "util.h"
 #include "profile/scriptvars.h"
 #include "profile/vm.h"
+#include "voicetable.h"
 
 namespace Impacto {
 
@@ -28,8 +29,7 @@ bool Character2D::LoadSync(uint32_t charaId) {
     err = Io::VfsOpen(MountPoint, fileId + 1, &stream);
     if (err != IoError_OK) return false;
 
-    OffsetX = Profile::DesignWidth / 2.0f;
-    OffsetY = Profile::DesignHeight / 2.0f;
+    Position = glm::vec2(Profile::DesignWidth, Profile::DesignHeight) / 2.0f;
 
     Io::ReadLE<int>(stream);
     int stateCount = Io::ReadLE<int>(stream);
@@ -99,8 +99,7 @@ bool Character2D::LoadSync(uint32_t charaId) {
 
     Face = charaId;
 
-    OffsetX = Profile::DesignWidth / 2.0f;
-    OffsetY = Profile::DesignHeight / 2.0f;
+    Position = glm::vec2(Profile::DesignWidth, Profile::DesignHeight) / 2.0f;
 
     using StreamReadInt_t = auto (*)(Io::Stream*)->int;
     using StreamReadFloat_t = auto (*)(Io::Stream*)->float;
@@ -174,7 +173,7 @@ void Character2D::MainThreadOnLoad() {
 }
 
 void Character2D::Update(float dt) {
-  if (Status != LS_Loaded) return;
+  if (Status != LoadStatus::Loaded) return;
 
   if (Profile::CharaIsMvl) {
     MvlIndices.clear();
@@ -209,14 +208,178 @@ void Character2D::Update(float dt) {
   }
 }
 
-void Character2D::Render(int layer) {
-  if (Status != LS_Loaded || !OnLayer(layer) || !Show) return;
+void Character2D::UpdateEyeMouth() {
+  // Pause check
+  if ((ScrWork[SW_GAMESTATE] & 0b100) != 0) return;
+
+  static std::array<int, CurEyeFrame.size()> eyeCounter{};
+  static std::array<int, CurMouthIndex.size()> mouthCounter{};
+
+  for (size_t i = 0; i < eyeCounter.size(); i++) {
+    if (eyeCounter[i] == 0) {
+      if (++CurEyeFrame[i] == 3) {
+        CurEyeFrame[i] = 0;
+        eyeCounter[i] = CALCrnd(230) + 200;
+      } else {
+        eyeCounter[i] = 4;
+      }
+    } else {
+      eyeCounter[i]--;
+    }
+  }
+
+  for (size_t i = 0; i < mouthCounter.size(); i++) {
+    /* TODO: Add the reset flags for the counters from scrcommessync once it's
+     * implemented*/
+
+    if (mouthCounter[i] == 0) {
+      if (++CurMouthIndex[i] == 20) {
+        CurMouthIndex[i] = 0;
+      }
+      mouthCounter[i] = AnimeTable[CurMouthIndex[i]].second;
+    } else {
+      mouthCounter[i]--;
+    }
+  }
+}
+
+static uint8_t GetSoundLevel() {
+  if (Audio::Channels[Audio::AC_VOICE0]->GetState() != Audio::ACS_Playing ||
+      Audio::Channels[Audio::AC_VOICE0]->DurationInSeconds() -
+              Audio::Channels[Audio::AC_VOICE0]->PositionInSeconds() <
+          FLT_EPSILON) {
+    return 0;
+  }
+
+  const int audioPos =
+      Audio::Channels[Audio::AC_VOICE0]->PositionInSeconds() * 6;
+
+  const int fileId =
+      Audio::Channels[Audio::AC_VOICE0]->GetStream()->GetBaseStream()->Meta.Id;
+  const uint8_t voiceData = VoiceTableData.GetVoiceData(fileId, audioPos / 4);
+
+  const uint8_t result = (voiceData >> ((audioPos << 1) & 0b110)) & 0b11;
+  return result;
+}
+
+void Character2D::UpdateState(const int chaId) {
+  const size_t structOffset = ScrWorkChaStructSize * chaId;
+  const size_t structOfsOffset = ScrWorkChaOffsetStructSize * chaId;
+
+  const glm::vec2 resolutionScale = {Profile::DesignWidth / 1280.0f,
+                                     Profile::DesignHeight / 720.0f};
+
+  if (Profile::Vm::GameInstructionSet == +Vm::InstructionSet::MO6TW) {
+    // If I don't do this it tries to access a label with an index of 65535,
+    // which is... not good. I have no idea why this happens, the script code
+    // does actually seem to do this on purpose, so... HACK (for now)
+    if (ScrWork[SW_CHA1NO + structOffset] == 65535)
+      ScrWork[SW_CHA1NO + structOffset] = 0;
+  }
+
+  Layers = {ScrWork[SW_CHA1PRI + structOffset],
+            ScrWork[SW_CHA1PRI2 + structOffset]};
+  Show = GetFlag(SF_CHA1DISP + chaId);
+
+  Position = glm::vec2(ScrWork[SW_CHA1POSX + structOffset] +
+                           ScrWork[SW_CHA1POSX_OFS + structOfsOffset],
+                       ScrWork[SW_CHA1POSY + structOffset] +
+                           ScrWork[SW_CHA1POSY_OFS + structOfsOffset]) *
+             resolutionScale;
+
+  if (Profile::Vm::GameInstructionSet == +Vm::InstructionSet::MO8) {
+    constexpr std::array<float, 7> BaseScaleValues = {
+        1.3f, 1.0f, 0.6f, 0.4f, 0.13f, 0.8f, 0.7f,
+    };
+
+    const size_t baseScaleIndex = ScrWork[SW_CHA1BASESIZE + structOffset];
+    const float baseScale = baseScaleIndex < BaseScaleValues.size()
+                                ? BaseScaleValues[baseScaleIndex]
+                                : 1.0f;
+
+    Scale = baseScale *
+            glm::vec2(ScrWork[SW_CHA1SIZEX + structOffset],
+                      ScrWork[SW_CHA1SIZEY + structOffset]) /
+            1000.0f;
+
+    Rotation = ScrWorkAnglesToQuaternion(ScrWork[SW_CHA1ROTX + structOffset],
+                                         ScrWork[SW_CHA1ROTY + structOffset],
+                                         ScrWork[SW_CHA1ROTZ + structOffset]);
+
+    // More magic, wouldn't be Mage... I'll excuse myself
+    Position.y -= 228.0f + (baseScale * 1030.0f);
+
+  } else {
+    Scale = glm::vec2(ScrWork[SW_CHA1SIZEX + structOffset] +
+                          ScrWork[SW_CHA1SIZEX_OFS + structOfsOffset],
+                      ScrWork[SW_CHA1SIZEY + structOffset] +
+                          ScrWork[SW_CHA1SIZEY_OFS + structOfsOffset]) /
+            1000.0f;
+
+    Rotation = ScrWorkAnglesToQuaternion(
+        ScrWork[SW_CHA1ROTX + structOffset] +
+            ScrWork[SW_CHA1ROTX_OFS + structOfsOffset],
+        ScrWork[SW_CHA1ROTY + structOffset] +
+            ScrWork[SW_CHA1ROTY_OFS + structOfsOffset],
+        ScrWork[SW_CHA1ROTZ + structOffset] +
+            ScrWork[SW_CHA1ROTZ_OFS + structOfsOffset]);
+  }
+
+  Face = ScrWork[SW_CHA1FACE + structOffset] << 16;
+
+  Tint = ScrWorkGetColor(SW_CHA1FILTER + structOffset);
+  Tint.a = (ScrWork[SW_CHA1ALPHA + structOffset] +
+            ScrWork[SW_CHA1ALPHA_OFS + structOfsOffset]) /
+           256.0f;
+  if (ScrWork[SW_CHA1FADETYPE + structOffset] == 1) {
+    Tint.a *= ScrWork[SW_CHA1FADECT + structOffset] / 256.0f;
+  }
+
+  if (ScrWork[SW_CHA1ANIME_EYE + structOffset] == 0xFF) {
+    EyeFrame = CurEyeFrame[chaId];
+  } else {
+    EyeFrame = ScrWork[SW_CHA1ANIME_EYE + structOffset];
+  }
+
+  if (ScrWork[SW_CHA1ANIME_MOUTH + structOffset] != 0xFF) {
+    LipFrame = ScrWork[SW_CHA1ANIME_MOUTH + structOffset];
+    return;
+  } else {
+    bool charSpeaking = false;
+    const uint32_t chaIndexMask = 1 << chaId & 0x1F;
+
+    for (size_t dialoguePageId = 0; dialoguePageId < DialoguePageCount;
+         dialoguePageId++) {
+      if (chaIndexMask & DialoguePages[dialoguePageId].AnimationId) {
+        LipFrame = GetSoundLevel() > 0
+                       ? AnimeTable[CurMouthIndex[dialoguePageId]].first
+                       : 0;
+        charSpeaking = true;
+        break;
+      }
+    }
+
+    if (!charSpeaking) LipFrame = 0;
+  }
+}
+
+void Character2D::Render(const int chaId, const int layer) {
+  UpdateState(chaId);
+
+  if (Status != LoadStatus::Loaded || !OnLayer(layer) || !Show) return;
+
+  std::transform(MvlVertices.begin(), MvlVertices.end(), MvlVertices.begin(),
+                 [this](VertexBufferSprites vertex) {
+                   vertex.Tint = Tint;
+                   return vertex;
+                 });
 
   if (Profile::CharaIsMvl) {
     const glm::mat4 transformation = TransformationMatrix(
-        {0.0f, 0.0f}, {ScaleX, ScaleY}, {0.0f, 0.0f}, 0.0f, {OffsetX, OffsetY});
+        {0.0f, 0.0f}, Scale, glm::vec3(0.0f), Rotation, Position);
     Renderer->DrawVertices(CharaSpriteSheet, MvlVertices, MvlIndices,
                            transformation);
+
   } else {
     for (auto id : StatesToDraw) {
       if (auto stateItr = States.find(id); stateItr != States.end()) {
@@ -226,14 +389,27 @@ void Character2D::Render(int layer) {
         for (int i = 0; i < state.Count; i++) {
           CharaSprite.Bounds = RectF(layData.TextureCoords[i].x,
                                      layData.TextureCoords[i].y, 30.0f, 30.0f);
-          Renderer->DrawSprite(CharaSprite,
-                               glm::vec2(layData.ScreenCoords[i].x + OffsetX,
-                                         layData.ScreenCoords[i].y + OffsetY),
-                               Tint);
+          const glm::mat4 transformation = TransformationMatrix(
+              {0.0f, 0.0f}, Scale, glm::vec3(0.0f), Rotation,
+              layData.ScreenCoords[i] + Position);
+          Renderer->DrawSprite(CharaSprite, transformation, Tint);
         }
       }
     }
   }
+}
+
+void CharacterPortrait2D::UpdateState(const int chaId) {
+  const glm::vec2 resolutionScale = {Profile::DesignWidth / 1280.0f,
+                                     Profile::DesignHeight / 720.0f};
+
+  Show = GetFlag(SF_FACEEX1DISP + chaId);
+  Face = ScrWork[SW_FACEEX1FACE + 5 * chaId] << 16;
+  Position =
+      glm::vec2(ScrWork[SW_FACEPOSX], ScrWork[SW_FACEPOSY]) * resolutionScale;
+
+  Scale = {1.0f, 1.0f};
+  Rotation = glm::quat();
 }
 
 }  // namespace Impacto

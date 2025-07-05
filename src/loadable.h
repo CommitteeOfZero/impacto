@@ -7,29 +7,29 @@ namespace Impacto {
 // If you're looking for IRenderable3D loading, it's inside that class itself...
 // I'm so sorry
 
-enum LoadStatus { LS_Unloaded, LS_Loading, LS_Loaded };
+enum class LoadStatus { Unloaded, Loading, Loaded };
 
 template <typename T>
 class Loadable {
  public:
-  LoadStatus Status = LS_Unloaded;
+  LoadStatus Status = LoadStatus::Unloaded;
 
   bool LoadAsync(uint32_t id) {
-    if (Status == LS_Loading) {
+    if (Status == LoadStatus::Loading) {
       // cannot currently cancel a load
       return false;
     }
     Unload();
     NextLoadId = id;
-    Status = LS_Loading;
-    WorkQueue::Push(this, &LoadWorker, &OnLoaded);
+    Status = LoadStatus::Loading;
+    WorkQueue::Push(static_cast<T*>(this), &LoadWorker, &OnLoaded);
     return true;
   }
 
   void Unload() {
-    if (Status == LS_Loaded) {
+    if (Status == LoadStatus::Loaded) {
       static_cast<T*>(this)->UnloadSync();
-      Status = LS_Unloaded;
+      Status = LoadStatus::Unloaded;
     }
   }
 
@@ -48,7 +48,7 @@ class Loadable {
   static void OnLoaded(void* ptr) {
     T* loadable = (T*)ptr;
     loadable->MainThreadOnLoad();
-    loadable->Status = LS_Loaded;
+    loadable->Status = LoadStatus::Loaded;
   }
 };
 

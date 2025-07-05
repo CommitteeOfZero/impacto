@@ -303,11 +303,7 @@ void Update(float dt) {
   if (Profile::GameFeatures & GameFeature::Scene3D) {
     Interface::UpdateScene3D(dt);
   } else {
-    Interface::UpdateEyeMouth2D();
-    Interface::UpdateCharacter2D();
-  }
-  if (Profile::Dialogue::HasSpeakerPortraits) {
-    Interface::UpdateSpeakerPortraits();
+    Character2D::UpdateEyeMouth();
   }
   Interface::UpdateBackground2D();
 }

@@ -287,11 +287,11 @@ void Update(float dt) {
 
   if ((Profile::GameFeatures & GameFeature::Renderer2D) &&
       !(Profile::GameFeatures & GameFeature::Scene3D)) {
-    for (int i = 0; i < MaxCharacters2D; i++) {
+    for (int i = 0; i < Characters2D.size(); i++) {
       if (Characters2D[i].Show) Characters2D[i].Update(dt);
     }
     if (Profile::Dialogue::HasSpeakerPortraits) {
-      for (int i = 0; i < MaxSpeakerPortraits; i++) {
+      for (int i = 0; i < SpeakerPortraits.size(); i++) {
         if (SpeakerPortraits[i].Show) SpeakerPortraits[i].Update(dt);
       }
     }
@@ -305,24 +305,18 @@ static void RenderMain() {
       Renderer->SetFramebuffer(renderTarget);
     }
 
-    for (int i = 0; i < MaxBackgrounds2D; i++) {
-      int bufId = ScrWork[SW_BG1SURF + i];
-      Backgrounds2D[bufId]->Render(i, layer);
+    for (int bgId = 0; bgId < Backgrounds.size(); bgId++) {
+      int bufId = ScrWork[SW_BG1SURF + bgId];
+      Backgrounds2D[bufId]->Render(bgId, layer);
     }
 
-    for (int i = 0; i < MaxCharacters2D; i++) {
-      int bufId = ScrWork[SW_CHA1SURF + i];
-      Characters2D[bufId].Render(layer);
+    for (int chaId = 0; chaId < Characters2D.size(); chaId++) {
+      int bufId = ScrWork[SW_CHA1SURF + chaId];
+      Characters2D[bufId].Render(chaId, layer);
     }
 
-    for (int bgId = 0; bgId < MaxBackgrounds2D; bgId++) {
-      if (GetFlag(SF_BGEFF1DISP + bgId) &&
-          (ScrWork[SW_BGEFF1_PRI +
-                   Profile::Vm::ScrWorkBgEffStructSize * bgId] == layer ||
-           ScrWork[SW_BGEFF1_PRI2 +
-                   Profile::Vm::ScrWorkBgEffStructSize * bgId] == layer)) {
-        Framebuffers[0].RenderBgEff(bgId, layer);
-      }
+    for (int bgId = 0; bgId < Backgrounds.size(); bgId++) {
+      Framebuffers[0].Render(bgId, layer);
     }
 
     if (ScrWork[SW_MAP_PRI] == static_cast<int>(layer) &&
@@ -347,27 +341,23 @@ static void RenderMain() {
       }
     }
 
-    for (size_t capId = 0; capId < MaxScreencaptures; capId++) {
-      if (!GetFlag(SF_CAP1DISP + capId)) continue;
-
-      for (size_t capLayer = 0; capLayer < MaxScreencaptures; capLayer++) {
-        if (ScrWork[SW_CAP1PRI + capId * 20 + capLayer * 8] == layer) {
-          Screencaptures[capId].RenderCapture(capId, layer);
-        }
+    for (size_t capId = 0; capId < Screencaptures.size(); capId++) {
+      for (size_t capLayer = 0; capLayer < Screencaptures.size(); capLayer++) {
+        Screencaptures[capId].Render(capId, layer);
       }
     }
 
     if (Profile::UseScreenCapEffects) {
       if (ScrWork[SW_EFF_CAP_BUF] && ScrWork[SW_EFF_CAP_PRI] == layer) {
         int bufId = (int)std::log2(ScrWork[SW_EFF_CAP_BUF]);
-        if (Backgrounds2D[bufId]->Status == LS_Loaded) {
+        if (Backgrounds2D[bufId]->Status == LoadStatus::Loaded) {
           Renderer->CaptureScreencap(Backgrounds2D[bufId]->BgSprite);
         }
       }
 
       if (ScrWork[SW_EFF_CAP_BUF2] && ScrWork[SW_EFF_CAP_PRI2] == layer) {
         int bufId = (int)std::log2(ScrWork[SW_EFF_CAP_BUF2]);
-        if (Backgrounds2D[bufId]->Status == LS_Loaded) {
+        if (Backgrounds2D[bufId]->Status == LoadStatus::Loaded) {
           Renderer->CaptureScreencap(Backgrounds2D[bufId]->BgSprite);
         }
       }
@@ -539,16 +529,16 @@ void Render() {
   }
 
   if (Profile::GameFeatures & GameFeature::CharacterViewer) {
-    if (Backgrounds2D[0]->Status == LS_Loaded) {
+    if (Backgrounds2D[0]->Status == LoadStatus::Loaded) {
       Renderer->DrawSprite(
           Backgrounds2D[0]->BgSprite,
           RectF(0.0f, 0.0f, Backgrounds2D[0]->BgSprite.ScaledWidth(),
                 Backgrounds2D[0]->BgSprite.ScaledHeight()));
     }
-    if (Characters2D[0].Status == LS_Loaded) {
+    if (Characters2D[0].Status == LoadStatus::Loaded) {
       Characters2D[0].Layers[0] = 0;
       ScrWork[SW_CHA1ALPHA] = 256;
-      Characters2D[0].Render(0);
+      Characters2D[0].Render(0, 0);
     }
   }
   Renderer->EndFrame();
