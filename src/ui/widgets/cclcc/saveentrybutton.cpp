@@ -43,6 +43,11 @@ SaveEntryButton::SaveEntryButton(int id, int index, Sprite const& focusedBox,
                        glm::vec2(Bounds.X, Bounds.Y) +
                            glm::vec2(211.0f, 20.0f + 1.0f - 12.0f)) {
   DisabledSprite = NormalSprite;
+
+  glm::vec4 relativeThumbnailRect = {20, 20, 30, 17};
+  Thumbnail.Bounds.X = Bounds.X + relativeThumbnailRect.x;
+  Thumbnail.Bounds.Y = Bounds.Y + relativeThumbnailRect.y;
+
   glm::vec2 relativeTitlePosition = {310, 39};
   CharacterRouteLabel.Bounds.X = Bounds.X + relativeTitlePosition.x;
   CharacterRouteLabel.Bounds.Y = Bounds.Y + relativeTitlePosition.y;
@@ -100,11 +105,9 @@ void SaveEntryButton::Render() {
       LockedSymbol.Render();
     }
 
-    Renderer->DrawSprite(
-        Thumbnail,
-        RectF{Bounds.X + 20, Bounds.Y + 22, Thumbnail.Bounds.Width + 30,
-              Thumbnail.Bounds.Height + 17},
-        Tint);
+    Thumbnail.Bounds.Width = 270;
+    Thumbnail.Bounds.Height = 152;
+    Thumbnail.Render();
 
     CharacterRouteLabel.Render();
     SceneTitleLabel.Render();
@@ -125,8 +128,21 @@ void SaveEntryButton::Move(glm::vec2 relativePosition) {
   NormalSpriteLabel.Move(relativePosition);
   FocusedSpriteLabel.Move(relativePosition);
   LockedSymbol.Move(relativePosition);
-  Thumbnail.Bounds.X += relativePosition.x;
-  Thumbnail.Bounds.Y += relativePosition.y;
+  CharacterRouteLabel.Move(relativePosition);
+  SceneTitleLabel.Move(relativePosition);
+  SaveDateLabel.Move(relativePosition);
+  Thumbnail.Move(relativePosition);
+}
+
+void SaveEntryButton::MoveTo(glm::vec2 position) {
+  Button::MoveTo(position);
+  NormalSpriteLabel.MoveTo(position);
+  FocusedSpriteLabel.MoveTo(position);
+  LockedSymbol.MoveTo(position);
+  CharacterRouteLabel.MoveTo(position);
+  SceneTitleLabel.MoveTo(position);
+  SaveDateLabel.MoveTo(position);
+  Thumbnail.MoveTo(position);
 }
 
 void SaveEntryButton::FocusedAlphaFadeStart() {
@@ -189,7 +205,7 @@ void SaveEntryButton::Update(float dt) {
     RefreshCharacterRouteText(strIndex * 2);
     RefreshSceneTitleText(strIndex * 2);
     RefreshSaveDateText();
-    Thumbnail = SaveSystem::GetSaveThumbnail(Type, Id);
+    Thumbnail.SetSprite(SaveSystem::GetSaveThumbnail(Type, Id));
   }
 }
 }  // namespace CCLCC

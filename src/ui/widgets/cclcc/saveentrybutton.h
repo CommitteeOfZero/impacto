@@ -26,6 +26,7 @@ class SaveEntryButton : public Widgets::Button {
   void RefreshCharacterRouteText(int strIndex);
   void AddThumbnail(Sprite thumbnail, glm::vec2 pos);
   void Move(glm::vec2 pos) override;
+  void MoveTo(glm::vec2 pos) override;
   void Update(float dt) override;
 
   static void FocusedAlphaFadeStart();
@@ -40,7 +41,7 @@ class SaveEntryButton : public Widgets::Button {
   Label LockedSymbol;
   static glm::vec4 FocusedAlpha;
   static Animation FocusedAlphaFade;
-  Sprite Thumbnail;
+  Label Thumbnail;
   SaveSystem::SaveType Type;
   Label NoDataSymbol;
   Label BrokenDataSymbol;
