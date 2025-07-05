@@ -254,6 +254,8 @@ void Background2D::UpdateState(const int bgId) {
 }
 
 void Background2D::Render(const int bgId, const int layer) {
+  UpdateState(bgId);
+
   if (Status != LoadStatus::Loaded || !OnLayer(layer) || !Show) return;
 
   MaskNumber = ScrWork[SW_BG1MASKNO + ScrWorkBgStructSize * bgId];
@@ -280,9 +282,8 @@ void Background2D::Render(const int bgId, const int layer) {
       break;
 
     case Vm::InstructionSet::CC:
-      if (ScrWork[SW_BGEFF1_MODE + ScrWorkBgEffStructSize * bgId] == 1) {
-        Tint.a =
-            ScrWork[SW_BGEFF1_ALPHA + ScrWorkBgEffStructSize * bgId] / 256.0f;
+      if (ScrWork[SW_BG1FADETYPE + ScrWorkBgStructSize * bgId] == 1) {
+        Tint.a = ScrWork[SW_BG1ALPHA + ScrWorkBgStructSize * bgId] / 256.0f;
       }
       break;
 
@@ -294,8 +295,10 @@ void Background2D::Render(const int bgId, const int layer) {
   std::invoke(BackgroundRenderTable[renderType], this);
 }
 
-void Capture2D::Render(const int capId, const int layer) {
-  if (Status != LoadStatus::Loaded || !OnLayer(layer) || !Show) return;
+void Capture2D::UpdateState(const int capId) {
+  Show = GetFlag(SF_CAP1DISP + capId);
+  Layers = {ScrWork[SW_CAP1PRI + ScrWorkCaptureStructSize * capId],
+            ScrWork[SW_CAP1PRI2 + ScrWorkCaptureStructSize * capId]};
 
   MaskNumber = ScrWork[SW_CAP1MASKNO + ScrWorkCaptureStructSize * capId];
   FadeCount = ScrWork[SW_CAP1FADECT + ScrWorkCaptureStructSize * capId];
@@ -316,16 +319,24 @@ void Capture2D::Render(const int capId, const int layer) {
        ScrWork[SW_CAP1ALPHA_OFS + ScrWorkCaptureOffsetStructSize * capId]) /
       256.0f;
 
-  const int renderType =
-      ScrWork[SW_CAP1FADETYPE + ScrWorkCaptureStructSize * capId];
-  std::invoke(BackgroundRenderTable[renderType], this);
+  RenderType = ScrWork[SW_CAP1FADETYPE + ScrWorkCaptureStructSize * capId];
 }
 
-void BackgroundEffect2D::Render(const int bgId, const int layer) {
-  if (Status != LoadStatus::Loaded) return;
+void Capture2D::Render(const int capId, const int layer) {
+  UpdateState(capId);
 
+  if (Status != LoadStatus::Loaded || !OnLayer(layer) || !Show) return;
+
+  std::invoke(BackgroundRenderTable[RenderType], this);
+}
+
+void BackgroundEffect2D::UpdateState(const int bgId) {
   const int structOffset = ScrWorkBgEffStructSize * bgId;
   const int structOfsOffset = ScrWorkBgEffOffsetStructSize * bgId;
+
+  Show = GetFlag(SF_BGEFF1DISP + bgId);
+  Layers = {ScrWork[SW_BGEFF1_PRI + structOffset],
+            ScrWork[SW_BGEFF1_PRI2 + structOffset]};
 
   MaskNumber = ScrWork[SW_BGEFF1_MASKNO + structOffset];
   FadeCount = ScrWork[SW_BGEFF1_FADECT + structOffset];
@@ -362,18 +373,17 @@ void BackgroundEffect2D::Render(const int bgId, const int layer) {
   const glm::vec2 resolutionScale = {Profile::DesignWidth / 1280.0f,
                                      Profile::DesignHeight / 720.0f};
 
-  const size_t vertexCount = maskType == 0 ? 4 : 3;
-  std::array<glm::vec2, 4> vertices;
-  for (size_t i = 0; i < vertexCount; i++) {
+  VertexCount = maskType == 0 ? 4 : 3;
+  for (size_t i = 0; i < VertexCount; i++) {
     const int x =
         ScrWork[SW_BGEFF1_MASK_VERTEX1_X + structOffset + i * 2] +
         ScrWork[SW_BGEFF1_MASK_VERTEX1_OFSX + structOfsOffset + i * 2];
     const int y =
         ScrWork[SW_BGEFF1_MASK_VERTEX1_Y + structOffset + i * 2] +
         ScrWork[SW_BGEFF1_MASK_VERTEX1_OFSY + structOfsOffset + i * 2];
-    vertices[i] = glm::vec2((float)x, (float)y) * resolutionScale;
+    Vertices[i] = glm::vec2((float)x, (float)y) * resolutionScale;
   }
-  if (vertexCount == 4) std::swap(vertices[1], vertices[2]);
+  if (VertexCount == 4) std::swap(Vertices[1], Vertices[2]);
 
   const glm::vec2 backgroundOffset =
       glm::vec2(ScrWork[SW_BGEFF1_SX + structOffset],
@@ -388,28 +398,33 @@ void BackgroundEffect2D::Render(const int bgId, const int layer) {
       resolutionScale;
 
   Position = pos - backgroundOffset;
-  const glm::vec2 stencilOffset = pos - vertices[0];
+  StencilOffset = pos - Vertices[0];
 
   // Origin is the center of mass
-  Origin = std::reduce(vertices.begin(), vertices.begin() + vertexCount) /
-           (float)vertexCount;
+  Origin = std::reduce(Vertices.begin(), Vertices.begin() + VertexCount) /
+           (float)VertexCount;
+}
+
+void BackgroundEffect2D::Render(const int bgId, const int layer) {
+  UpdateState(bgId);
+
+  if (Status != LoadStatus::Loaded || !OnLayer(layer) || !Show) return;
 
   // Transform vertices
   const glm::mat4 stencilTransformation = TransformationMatrix(
-      Origin, Scale, {Origin, 0.0f}, Rotation, stencilOffset);
+      Origin, Scale, {Origin, 0.0f}, Rotation, StencilOffset);
 
   // Draw
   Renderer->SetStencilMode(StencilBufferMode::Write);
   Renderer->ClearStencilBuffer();
 
   Renderer->DrawConvexShape(
-      std::span(vertices.begin(), vertices.begin() + vertexCount),
+      std::span(Vertices.begin(), Vertices.begin() + VertexCount),
       stencilTransformation, glm::vec4(1.0f));
 
   Renderer->SetStencilMode(StencilBufferMode::Test);
 
-  const int renderType = ScrWork[SW_BGEFF1_MODE + structOffset];
-  std::invoke(BackgroundRenderTable[renderType], this);
+  std::invoke(BackgroundRenderTable[RenderType], this);
 
   Renderer->SetStencilMode(StencilBufferMode::Off);
 }

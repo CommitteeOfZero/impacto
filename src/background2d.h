@@ -27,17 +27,18 @@ class Background2D : public Loadable<Background2D, bool, uint32_t> {
 
   Sprite BgSprite;
 
-  glm::vec2 Position;
+  glm::vec2 Position = {0.0f, 0.0f};
   glm::vec2 Origin = {0.0f, 0.0f};
   glm::vec2 Scale = {1.0f, 1.0f};
   glm::quat Rotation = glm::quat();
   glm::vec4 Tint = glm::vec4(1.0f);
-  int MaskNumber;
+  int MaskNumber = 0;
 
-  int FadeCount;
-  int FadeRange;
+  int FadeCount = 0;
+  int FadeRange = 0;
 
-  bool Show;
+  bool Show = false;
+  int RenderType = 0;
   std::array<int, 2> Layers;
   std::array<LinkState, 2> Links;
 
@@ -104,11 +105,19 @@ class Background2D : public Loadable<Background2D, bool, uint32_t> {
 class Capture2D : public Background2D {
  public:
   void Render(int capId, int layer) override;
+  void UpdateState(int capId) override;
 };
 
 class BackgroundEffect2D : public Background2D {
  public:
   void Render(int bgId, int layer) override;
+  void UpdateState(int bgId) override;
+
+ private:
+  size_t VertexCount = 4;
+  std::array<glm::vec2, 4> Vertices;
+
+  glm::vec2 StencilOffset;
 };
 
 inline std::array<Background2D, 8> Backgrounds;
