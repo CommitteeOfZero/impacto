@@ -176,14 +176,6 @@ jobs:
     - name: Build Android
       if: matrix.os_name == 'android'
       run: |
-        pushd "${{ github.workspace }}/release/${{ env.PresetName }}"
-        ls
-        mkdir -p "${{ github.workspace }}/android/app/src/main/assets/"
-        mv profiles "${{ github.workspace }}/android/app/src/main/assets/"
-        mv games "${{ github.workspace }}/android/app/src/main/assets/"
-        mv shaders "${{ github.workspace }}/android/app/src/main/assets/"
-        mkdir -p  "${{ github.workspace }}/android/app/src/main/jniLibs/$ABI/"
-        popd
         pushd "${{ github.workspace }}/android/"
         ./gradlew assemble
         find "${{ github.workspace }}/android" -name "*.apk"
