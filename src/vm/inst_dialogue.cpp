@@ -415,7 +415,7 @@ VmInstruction(InstSelect) {
         int quicksaveEntries = SaveSystem::GetQuickSaveOpenSlot();
         if (!flag && quicksaveEntries != -1) {
           SaveIconDisplay::ShowFor(2.4f);
-          SaveSystem::FlushWorkingSaveEntry(SaveSystem::SaveType::SaveQuick,
+          SaveSystem::FlushWorkingSaveEntry(SaveSystem::SaveType::Quick,
                                             quicksaveEntries, 2);
         }
         ScrWork[SW_AUTOSAVERESTART] = 0;

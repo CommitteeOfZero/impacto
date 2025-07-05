@@ -7,48 +7,52 @@ namespace Impacto {
 // If you're looking for IRenderable3D loading, it's inside that class itself...
 // I'm so sorry
 
-enum LoadStatus { LS_Unloaded, LS_Loading, LS_Loaded };
+enum class LoadStatus { Unloaded, Loading, Loaded };
 
-template <typename T>
+template <typename T, typename LoadResult, typename... LoadArgs>
 class Loadable {
  public:
-  LoadStatus Status = LS_Unloaded;
+  LoadStatus Status = LoadStatus::Unloaded;
 
-  bool LoadAsync(uint32_t id) {
-    if (Status == LS_Loading) {
+  bool LoadAsync(LoadArgs... args) {
+    if (Status == LoadStatus::Loading) {
       // cannot currently cancel a load
       return false;
     }
     Unload();
-    NextLoadId = id;
-    Status = LS_Loading;
+    NextLoadArgs = std::make_tuple(args...);
+    Status = LoadStatus::Loading;
     WorkQueue::Push(this, &LoadWorker, &OnLoaded);
     return true;
   }
 
   void Unload() {
-    if (Status == LS_Loaded) {
+    if (Status == LoadStatus::Loaded) {
       static_cast<T*>(this)->UnloadSync();
-      Status = LS_Unloaded;
+      Status = LoadStatus::Unloaded;
     }
   }
 
  protected:
-  bool LoadSync(uint32_t id);
+  LoadResult LoadSync(LoadArgs... args);
   void UnloadSync();
-  void MainThreadOnLoad();
+  void MainThreadOnLoad(LoadResult result);
 
-  uint32_t NextLoadId;
+ private:
+  std::tuple<LoadArgs...> NextLoadArgs;
+  LoadResult LastLoadResult;
 
   static void LoadWorker(void* ptr) {
     T* loadable = (T*)ptr;
-    loadable->LoadSync(loadable->NextLoadId);
+    loadable->LastLoadResult = std::apply(
+        &T::LoadSync,
+        std::tuple_cat(std::make_tuple(loadable), loadable->NextLoadArgs));
   }
 
   static void OnLoaded(void* ptr) {
     T* loadable = (T*)ptr;
-    loadable->MainThreadOnLoad();
-    loadable->Status = LS_Loaded;
+    loadable->MainThreadOnLoad(loadable->LastLoadResult);
+    loadable->Status = LoadStatus::Loaded;
   }
 };
 

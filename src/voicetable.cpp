@@ -31,6 +31,6 @@ void VoiceTable::UnloadSync() {
   lipSyncData.resize(0);
 }
 
-void VoiceTable::MainThreadOnLoad() {}
+void VoiceTable::MainThreadOnLoad(bool result) {}
 
 }  // namespace Impacto

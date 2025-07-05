@@ -433,7 +433,7 @@ VmInstruction(InstSaveMenuOld) {
         UI::SaveMenuPtr->ChoiceMade = false;
         Interface::PADinputButtonWentDown |= Interface::PAD1A;
         ScrWork[SW_SAVEFILESTATUS] = SaveSystem::GetSaveStatus(
-            SaveSystem::SaveType::SaveFull, ScrWork[SW_SAVEFILENO]);
+            SaveSystem::SaveType::Full, ScrWork[SW_SAVEFILENO]);
       }
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction SaveMenu(type: {:d})\n", type);
@@ -477,9 +477,9 @@ VmInstruction(InstLoadDataOld) {
   PopExpression(arg1);
   SaveSystem::SaveType saveType;
   if (*UI::SaveMenuPtr->ActiveMenuType == +UI::SaveMenuPageType::QuickLoad) {
-    saveType = SaveSystem::SaveType::SaveQuick;
+    saveType = SaveSystem::SaveType::Quick;
   } else {
-    saveType = SaveSystem::SaveType::SaveFull;
+    saveType = SaveSystem::SaveType::Full;
   }
   SaveSystem::LoadEntry(saveType, arg1);
   if (ScrWork[SW_MESWINDOW_COLOR] == 0) ScrWork[SW_MESWINDOW_COLOR] = 0xFFFFFF;

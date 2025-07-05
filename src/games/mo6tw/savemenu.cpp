@@ -24,7 +24,7 @@ using namespace Impacto::UI::Widgets::MO6TW;
 Widget* EntryGrid[RowsPerPage][EntriesPerRow];
 
 void SaveMenu::MenuButtonOnClick(Widgets::Button* target) {
-  if ((SaveSystem::GetSaveStatus(SaveSystem::SaveType::SaveFull, target->Id) !=
+  if ((SaveSystem::GetSaveStatus(SaveSystem::SaveType::Full, target->Id) !=
        0) ||
       *ActiveMenuType == +SaveMenuPageType::Save) {
     ScrWork[SW_SAVEFILENO] = target->Id;
@@ -75,13 +75,11 @@ void SaveMenu::Show() {
 
         saveEntryButton->OnClickHandler = onClick;
         saveEntryButton->DisabledSprite = entrySprite;
-        if (SaveSystem::GetSaveStatus(SaveSystem::SaveType::SaveFull, id) !=
-            0) {
+        if (SaveSystem::GetSaveStatus(SaveSystem::SaveType::Full, id) != 0) {
           saveEntryButton->EntryActive = true;
           saveEntryButton->AddSceneTitleText(
               Vm::ScriptGetTextTableStrAddress(
-                  1,
-                  SaveSystem::GetSaveTitle(SaveSystem::SaveType::SaveFull, id)),
+                  1, SaveSystem::GetSaveTitle(SaveSystem::SaveType::Full, id)),
               20, true);
           saveEntryButton->AddPlayTimeHintText(
               Vm::ScriptGetTextTableStrAddress(0, 2), 16, true);

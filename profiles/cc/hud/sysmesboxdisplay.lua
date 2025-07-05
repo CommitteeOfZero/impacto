@@ -34,7 +34,7 @@ root.SysMesBoxDisplay = {
     ButtonOKScaleMultiplier = 0.03125,
     ButtonScaleMax = 1.5,
     FadeInDuration = 0.4,
-    FadeOutDuration = 0.4
+    FadeOutDuration = 0.4,
 
     ButtonYesHoverBounds = {
         X = 1128,

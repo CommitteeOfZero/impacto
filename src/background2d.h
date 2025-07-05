@@ -28,8 +28,8 @@ struct LinkState {
   glm::vec2 DisplayCoords;
 };
 
-class Background2D : public Loadable<Background2D> {
-  friend class Loadable<Background2D>;
+class Background2D : public Loadable<Background2D, bool, uint32_t> {
+  friend class Loadable<Background2D, bool, uint32_t>;
 
  public:
   static void Init();
@@ -59,7 +59,7 @@ class Background2D : public Loadable<Background2D> {
  protected:
   bool LoadSync(uint32_t bgId);
   void UnloadSync();
-  void MainThreadOnLoad();
+  void MainThreadOnLoad(bool result);
 
   bool OnLayer(int layer) {
     return std::find(Layers.begin(), Layers.end(), layer) != Layers.end();

@@ -13,8 +13,8 @@ struct VoiceMeta {
   uint16_t voiceLengthSecTimes6;
 };
 
-class VoiceTable : public Loadable<VoiceTable> {
-  friend class Loadable<VoiceTable>;
+class VoiceTable : public Loadable<VoiceTable, bool, uint32_t> {
+  friend class Loadable<VoiceTable, bool, uint32_t>;
 
  public:
   uint8_t GetVoiceData(uint32_t id, size_t index) {
@@ -24,7 +24,7 @@ class VoiceTable : public Loadable<VoiceTable> {
  protected:
   bool LoadSync(uint32_t id);
   void UnloadSync();
-  void MainThreadOnLoad();
+  void MainThreadOnLoad(bool result);
 
  private:
   int voiceFileCount = 0;
