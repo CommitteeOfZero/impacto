@@ -1281,6 +1281,7 @@ if (NOT ANDROID)
 else()
     install(DIRECTORY src/shaders DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/assets)
     install(DIRECTORY profiles DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/assets)
-    install(DIRECTORY games DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/assets)
+    install(DIRECTORY games DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/assets PATTERN "*/gamedata/*" EXCLUDE)
 endif()
+
 
