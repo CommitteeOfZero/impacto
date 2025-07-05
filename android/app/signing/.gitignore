@@ -1,0 +1,4 @@
+prod.properties
+prod.jks
+!external.jks
+!external.properties
