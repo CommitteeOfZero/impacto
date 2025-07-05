@@ -8,11 +8,9 @@ using namespace Impacto::Profile::AchievementSystem;
 
 void Init() { Configure(); }
 
-bool MountAchievementFile() {
-  if (Implementation)
-    return Implementation->MountAchievementFile();
-  else
-    return false;
+AchievementError MountAchievementFile() {
+  if (!Implementation) return AchievementError::Failed;
+  return Implementation->MountAchievementFile();
 }
 
 const Achievement* GetAchievement(int id) {

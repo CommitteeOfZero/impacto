@@ -2,6 +2,7 @@
 
 #include <cstdint>
 
+#include "../loadable.h"
 #include "achievementsystem.h"
 #include <vector>
 #include <memory>
@@ -46,15 +47,25 @@ class Trophy : public Achievement {
         ttype(ttype) {}
 };
 
-class AchievementSystemPS3 : public AchievementSystemBase {
+class AchievementSystemPS3 : public AchievementSystemBase,
+                             protected Loadable<AchievementSystemPS3> {
+  friend class Loadable<AchievementSystemPS3>;
+
  public:
-  bool MountAchievementFile() override;
-  const Achievement *GetAchievement(int id) override;
+  AchievementError MountAchievementFile() override;
+  const Achievement* GetAchievement(int id) override;
   size_t GetAchievementCount() const override;
+
+ protected:
+  bool LoadSync(uint32_t id);
+  bool UnloadSync();
+  void MainThreadOnLoad();
 
  private:
   std::vector<TrophyDataEntry> TrophyDataEntries;
   std::vector<std::unique_ptr<Trophy>> Trophies;
+
+  AchievementError LoadingError;
 };
 
 }  // namespace AchievementSystem

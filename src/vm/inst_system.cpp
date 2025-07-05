@@ -256,10 +256,21 @@ VmInstruction(InstSave) {
       break;
     case 50:
       if (Profile::Vm::GameInstructionSet == +InstructionSet::CHLCC) {
-        AchievementSystem::MountAchievementFile();
+        SetFlag(SF_SYSMESLOADING, 1);
+        ScrWork[SW_SAVEERRORCODE] =
+            (int)AchievementSystem::MountAchievementFile();
       }
       break;
     case 51:
+      if (Profile::Vm::GameInstructionSet == +InstructionSet::CHLCC) {
+        if (ScrWork[SW_SAVEERRORCODE] ==
+            (int)AchievementSystem::AchievementError::InProgress) {
+          ResetInstruction;
+          BlockThread;
+        } else {
+          SetFlag(SF_SYSMESLOADING, 0);
+        }
+      }
       break;
     case 60:
       SaveSystem::WriteSaveFile();
