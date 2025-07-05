@@ -166,11 +166,9 @@ jobs:
       with:
         path: "${{ github.workspace }}/.vcpkg_cache"
         key: ${{ steps.vcpkgcache.outputs.cache-primary-key }}
-    - name: Copy Shaders
-      run: cp -r src/shaders "${{ github.workspace }}/release/${{ env.PresetName }}"
-      shell: bash
     - name: Copy docs
       run: |
+        mkdir -p "${{ github.workspace }}/release/${{ env.PresetName }}"
         cp THIRDPARTY.md README.md LICENSE "${{ github.workspace }}/release/${{ env.PresetName }}"
       shell: bash
     - name: Decode signing/prod.properties file
