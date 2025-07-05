@@ -15,9 +15,14 @@ cmake --build --preset ci-release-android
 ```
 libimpacto.so will automatically be copied to impacto/android/app/src/main/jniLibs/<ABI>/libimpacto.so
 
-# Copy Assets
+# Packaging
+To avoid issues with packaging the .apk, avoid bundling game assets as .apk files have a maximum file size limit.
 run ./gradlew assemble in impacto/android
 apks will be created in impacto/android/distribution/android/app/outputs/apk
+
+# Preparing impacto
+Game assets should be copied to the `/sdcard/Android/data/com.committeeofzero.impacto/files/games` folder, see [Getting Started](/doc/getting_started.md).
+Upon running the application for the first time, bundled files will be copied to the `/sdcard/Android/data/com.committeeofzero.impacto/files/` folder. This will also occur when impacto detects a .reset file in the same directory.
 
 # Debugging
 Override the CMake preset and set CMAKE_BUILD_TYPE to DEBUG (-DCMAKE_BUILD_TYPE=DEBUG in command line or override with user preset) 
