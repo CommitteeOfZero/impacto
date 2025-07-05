@@ -304,17 +304,6 @@ void Update(float dt) {
     Interface::UpdateScene3D(dt);
   } else {
     Character2D::UpdateEyeMouth();
-
-    for (size_t chaId = 0; chaId < Characters2D.size(); chaId++) {
-      const int bufId = ScrWork[SW_CHA1SURF + chaId];
-      Characters2D[bufId].UpdateState(chaId);
-    }
-  }
-  if (Profile::Dialogue::HasSpeakerPortraits) {
-    for (size_t chaId = 0; chaId < SpeakerPortraits.size(); chaId++) {
-      const int bufId = ScrWork[SW_FACE1SURF + chaId];
-      SpeakerPortraits[bufId].UpdateState(chaId);
-    }
   }
   Interface::UpdateBackground2D();
 }
