@@ -172,7 +172,7 @@ jobs:
         cp THIRDPARTY.md README.md LICENSE "${{ github.workspace }}/release/${{ env.PresetName }}"
       shell: bash
     - name: Decode signing/prod.properties file
-      if: github.event.pull_request.head.repo.full_name == github.repository && matrix.os_name == 'android'
+      if: matrix.os_name == 'android' && (github.event_name != 'pull_request_target' || github.event.pull_request.head.repo.full_name == github.repository)
       env:
         PROD_PROPERTIES: ${{ secrets.ANDROID_PROD_PROPERTIES }}
         PROD_JKS: ${{ secrets.ANDROID_PROD_JKS }}
