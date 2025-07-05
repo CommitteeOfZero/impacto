@@ -18,9 +18,6 @@ using namespace Impacto::Profile::CCLCC::SaveMenu;
 using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::SaveSystem;
 
-glm::vec4 SaveEntryButton::FocusedAlpha = glm::vec4(1.0f);
-Animation SaveEntryButton::FocusedAlphaFade;
-
 SaveEntryButton::SaveEntryButton(int id, int index, Sprite const& focusedBox,
                                  Sprite const& focusedText, int page,
                                  glm::vec2 pos, Sprite lockedSymbol,
@@ -42,7 +39,10 @@ SaveEntryButton::SaveEntryButton(int id, int index, Sprite const& focusedBox,
       BrokenDataSymbol(BrokenDataSprite,
                        glm::vec2(Bounds.X, Bounds.Y) +
                            glm::vec2(211.0f, 20.0f + 1.0f - 12.0f)) {
-  DisabledSprite = NormalSprite;
+  glm::vec2 relativeThumbnailPosition = {20, 20};
+  Thumbnail.Bounds.X = Bounds.X + relativeThumbnailPosition.x;
+  Thumbnail.Bounds.Y = Bounds.Y + relativeThumbnailPosition.y;
+
   glm::vec2 relativeTitlePosition = {310, 39};
   CharacterRouteLabel.Bounds.X = Bounds.X + relativeTitlePosition.x;
   CharacterRouteLabel.Bounds.Y = Bounds.Y + relativeTitlePosition.y;
@@ -54,15 +54,16 @@ SaveEntryButton::SaveEntryButton(int id, int index, Sprite const& focusedBox,
   SaveDateLabel.Bounds.X = Bounds.X + relativeTimePosition.x;
   SaveDateLabel.Bounds.Y = Bounds.Y + relativeTimePosition.y;
 
-  Update(0);
+  SaveEntryButton::Update(0);
 }
 
 void SaveEntryButton::Render() {
   const glm::vec2 scale = {Bounds.Width / HighlightSprite.ScaledWidth(), 1.0f};
 
+  NormalSpriteLabel.Tint = Tint;
   NormalSpriteLabel.Render();
   if (HasFocus) {
-    FocusedSpriteLabel.Tint = FocusedAlpha;
+    FocusedSpriteLabel.Tint = Tint;
     FocusedSpriteLabel.Render();
 
     const RectF highlightDest =
@@ -96,24 +97,30 @@ void SaveEntryButton::Render() {
         separationLineDest, Tint);
 
     if (IsLocked) {
+      SceneTitleLabel.Tint = Tint;
       SceneTitleLabel.Render();
+      LockedSymbol.Tint = Tint;
       LockedSymbol.Render();
     }
 
-    Renderer->DrawSprite(
-        Thumbnail,
-        RectF{Bounds.X + 20, Bounds.Y + 22, Thumbnail.Bounds.Width + 30,
-              Thumbnail.Bounds.Height + 17},
-        Tint);
+    Thumbnail.Bounds.Width = 270;
+    Thumbnail.Bounds.Height = 152;
+    Thumbnail.Tint = Tint;
+    Thumbnail.Render();
 
+    CharacterRouteLabel.Tint = Tint;
     CharacterRouteLabel.Render();
+    SceneTitleLabel.Tint = Tint;
     SceneTitleLabel.Render();
+    SaveDateLabel.Tint = Tint;
     SaveDateLabel.Render();
 
   } else if (SaveStatus == 0) {
+    NoDataSymbol.Tint = Tint;
     NoDataSymbol.Render();
 
   } else {
+    BrokenDataSymbol.Tint = Tint;
     BrokenDataSymbol.Render();
   }
 }
@@ -125,28 +132,25 @@ void SaveEntryButton::Move(glm::vec2 relativePosition) {
   NormalSpriteLabel.Move(relativePosition);
   FocusedSpriteLabel.Move(relativePosition);
   LockedSymbol.Move(relativePosition);
-  Thumbnail.Bounds.X += relativePosition.x;
-  Thumbnail.Bounds.Y += relativePosition.y;
+  CharacterRouteLabel.Move(relativePosition);
+  SceneTitleLabel.Move(relativePosition);
+  SaveDateLabel.Move(relativePosition);
+  Thumbnail.Move(relativePosition);
+  NoDataSymbol.Move(relativePosition);
+  BrokenDataSymbol.Move(relativePosition);
 }
 
-void SaveEntryButton::FocusedAlphaFadeStart() {
-  if (FocusedAlphaFade.State == +AnimationState::Stopped) {
-    FocusedAlphaFade.Direction = AnimationDirection::In;
-    FocusedAlphaFade.SetDuration(0.5f);
-    FocusedAlphaFade.LoopMode = AnimationLoopMode::ReverseDirection;
-    FocusedAlphaFade.StartIn();
-  }
-}
-
-void SaveEntryButton::FocusedAlphaFadeReset() {
-  FocusedAlphaFade.State = AnimationState::Stopped;
-  FocusedAlphaFade.Progress = 0.0f;
-}
-
-void SaveEntryButton::UpdateFocusedAlphaFade(float dt) {
-  FocusedAlphaFade.Update(dt);
-  FocusedAlpha =
-      glm::vec4(glm::vec3(1.0f), ((FocusedAlphaFade.Progress * 30) + 1) / 85);
+void SaveEntryButton::MoveTo(glm::vec2 position) {
+  Button::MoveTo(position);
+  NormalSpriteLabel.MoveTo(position);
+  FocusedSpriteLabel.MoveTo(position);
+  LockedSymbol.MoveTo(position);
+  CharacterRouteLabel.MoveTo(position);
+  SceneTitleLabel.MoveTo(position);
+  SaveDateLabel.MoveTo(position);
+  Thumbnail.MoveTo(position);
+  NoDataSymbol.MoveTo(position);
+  BrokenDataSymbol.MoveTo(position);
 }
 
 void SaveEntryButton::RefreshCharacterRouteText(int strIndex) {
@@ -189,7 +193,7 @@ void SaveEntryButton::Update(float dt) {
     RefreshCharacterRouteText(strIndex * 2);
     RefreshSceneTitleText(strIndex * 2);
     RefreshSaveDateText();
-    Thumbnail = SaveSystem::GetSaveThumbnail(Type, Id);
+    Thumbnail.SetSprite(SaveSystem::GetSaveThumbnail(Type, Id));
   }
 }
 }  // namespace CCLCC

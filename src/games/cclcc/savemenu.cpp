@@ -8,7 +8,6 @@
 #include "../../ui/widgets/button.h"
 #include "../../ui/widgets/cclcc/saveentrybutton.h"
 #include "../../data/savesystem.h"
-#include "../../vm/vm.h"
 #include "../../profile/game.h"
 
 namespace Impacto {
@@ -199,7 +198,6 @@ void SaveMenu::Hide() {
   if (State != Hiding) {
     State = Hiding;
     FadeAnimation.StartOut();
-    MainItems[CurrentPage]->Hide();
     if (LastFocusedMenu != 0) {
       UI::FocusedMenu = LastFocusedMenu;
       LastFocusedMenu->IsFocused = true;
@@ -261,7 +259,7 @@ void SaveMenu::Update(float dt) {
     int oldPage = CurrentPage;
     MainItems[CurrentPage]->Update(dt);
     CurrentPage =
-        static_cast<SaveEntryButton*>(CurrentlyFocusedElement)->GetPage();
+        dynamic_cast<SaveEntryButton*>(CurrentlyFocusedElement)->GetPage();
     if (CurrentPage != oldPage) {
       auto focusedElem = CurrentlyFocusedElement;
       MainItems[oldPage]->Hide();
@@ -284,16 +282,21 @@ void SaveMenu::Update(float dt) {
 void SaveMenu::Render() {
   if (State != Hidden) {
     glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
+    double transitionOffsetX =
+        (FadeAnimation.Progress * 32 * 200 * 0.0625 - 400);
     glm::vec4 maskTint = glm::vec4(1.0f);
-    Renderer->DrawSprite(MenuTextSprite[ActiveMenuType], {11, 10}, col);
-    Renderer->DrawSprite(EntrySlotsSprite[ActiveMenuType], {135, 0}, col);
+
+    Renderer->DrawSprite(MenuTextSprite[ActiveMenuType],
+                         {transitionOffsetX + 11, 10}, col);
+    Renderer->DrawSprite(EntrySlotsSprite[ActiveMenuType],
+                         {transitionOffsetX + 135, 0}, col);
 
     MainItems[CurrentPage]->Tint = col;
+    MainItems[CurrentPage]->MoveTo({transitionOffsetX, 0});
     MainItems[CurrentPage]->Render();
-    glm::vec2 pageNumPos = {
-        (ScrWork[SW_SYSSUBMENUCT] * 200 * 0.0625 - 400) + 1313 + 1, 866 + 1};
-    Renderer->DrawSprite(PageNumSprite[ActiveMenuType][CurrentPage], pageNumPos,
-                         col);
+    Renderer->DrawSprite(PageNumSprite[ActiveMenuType][CurrentPage],
+                         {transitionOffsetX + 1314, 867}, col);
+
     Renderer->DrawSprite(
         SaveMenuMaskSprite,
         RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
