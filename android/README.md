@@ -16,8 +16,6 @@ cmake --build --preset ci-release-android
 libimpacto.so will automatically be copied to impacto/android/app/src/main/jniLibs/<ABI>/libimpacto.so
 
 # Copy Assets
-Copy profiles, shaders, games into impacto/android/app/src/main/assets
-
 run ./gradlew assemble in impacto/android
 apks will be created in impacto/android/distribution/android/app/outputs/apk
 
