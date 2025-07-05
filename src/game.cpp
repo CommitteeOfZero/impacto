@@ -316,13 +316,7 @@ static void RenderMain() {
     }
 
     for (int bgId = 0; bgId < Backgrounds.size(); bgId++) {
-      if (GetFlag(SF_BGEFF1DISP + bgId) &&
-          (ScrWork[SW_BGEFF1_PRI +
-                   Profile::Vm::ScrWorkBgEffStructSize * bgId] == layer ||
-           ScrWork[SW_BGEFF1_PRI2 +
-                   Profile::Vm::ScrWorkBgEffStructSize * bgId] == layer)) {
-        Framebuffers[0].Render(bgId, layer);
-      }
+      Framebuffers[0].Render(bgId, layer);
     }
 
     if (ScrWork[SW_MAP_PRI] == static_cast<int>(layer) &&

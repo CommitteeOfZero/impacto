@@ -28,8 +28,6 @@ void UpdateBackground2D() {
         Backgrounds2D[bufId] = &Backgrounds[bufId];
       }
     }
-
-    Backgrounds2D[bufId]->UpdateState(bgId);
   }
 }
 
