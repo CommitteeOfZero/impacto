@@ -29,8 +29,10 @@ class Background2D : public Loadable<Background2D, bool, uint32_t> {
 
   glm::vec2 Position = {0.0f, 0.0f};
   glm::vec2 Origin = {0.0f, 0.0f};
+
   glm::vec2 Scale = {1.0f, 1.0f};
   glm::quat Rotation = glm::quat();
+
   glm::vec4 Tint = glm::vec4(1.0f);
   int MaskNumber = 0;
 
