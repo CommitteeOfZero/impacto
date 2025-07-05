@@ -392,6 +392,10 @@ inline glm::quat ScrWorkAnglesToQuaternion(int x, int y, int z) {
       {ScrWorkAngleToRad(x), ScrWorkAngleToRad(y), ScrWorkAngleToRad(z)});
 }
 
+inline glm::quat ScrWorkAngleZToQuaternion(int angle) {
+  return ScrWorkAnglesToQuaternion(0, 0, angle);
+}
+
 inline glm::quat AxisAngleToQuaternion(glm::vec3 axis, float angle) {
   return glm::quat(cos(angle / 2.0f), sin(angle / 2.0f) * axis);
 }
