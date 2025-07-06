@@ -243,7 +243,7 @@ VmInstruction(InstSave) {
     case 30:
       if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
         SetFlag(SF_SYSMESLOADING, true);
-        SaveSystem::CreateSaveFile();
+        ScrWork[SW_SAVEERRORCODE] = (int)SaveSystem::CreateSaveFile();
         SaveSystem::MountSaveFile();
       }
       break;

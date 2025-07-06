@@ -87,7 +87,7 @@ SaveError SaveSystem::CheckSaveFile() {
   return SaveError::OK;
 }
 
-void SaveSystem::CreateSaveFile() {
+SaveError SaveSystem::CreateSaveFile() {
   using CF = Io::PhysicalFileStream::CreateFlagsMode;
   Io::Stream* stream;
   IoError err = Io::PhysicalFileStream::Create(
@@ -96,7 +96,7 @@ void SaveSystem::CreateSaveFile() {
   if (err != IoError_OK) {
     ImpLog(LogLevel::Error, LogChannel::IO,
            "Failed to open save file for writing\n");
-    return;
+    return SaveError::Failed;
   }
 
   assert(stream->Meta.Size == 0);
@@ -136,6 +136,8 @@ void SaveSystem::CreateSaveFile() {
   Io::WriteLE(stream, Default::TriggerStopSkip);
 
   delete stream;
+
+  return SaveError::OK;
 }
 
 void SaveSystem::LoadEntryBuffer(Io::MemoryStream& stream, SaveFileEntry& entry,

@@ -17,7 +17,7 @@ class SaveFileEntry : public SaveFileEntryBase {
 
 class SaveSystem : public SaveSystemBase {
  public:
-  void CreateSaveFile() override {}                             // Todo
+  SaveError CreateSaveFile() override { return SaveError::OK; }  // Todo
   SaveError CheckSaveFile() override { return SaveError::OK; }  // Todo
   SaveError MountSaveFile(std::vector<QueuedTexture>& textures) override;
 

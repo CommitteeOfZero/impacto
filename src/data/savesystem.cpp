@@ -88,8 +88,8 @@ void WriteSaveFile() {
   if (Implementation) Implementation->WriteSaveFile();
 }
 
-void CreateSaveFile() {
-  if (Implementation) Implementation->CreateSaveFile();
+SaveError CreateSaveFile() {
+  return Implementation ? Implementation->CreateSaveFile() : SaveError::Failed;
 }
 
 void SaveSystemData() {

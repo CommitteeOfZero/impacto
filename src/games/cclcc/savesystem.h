@@ -27,7 +27,7 @@ class SaveFileEntry : public SaveFileEntryBase {
 
 class SaveSystem : public SaveSystemBase {
  public:
-  void CreateSaveFile() override;
+  SaveError CreateSaveFile() override;
   SaveError CheckSaveFile() override;
   SaveError MountSaveFile(std::vector<QueuedTexture>& textures) override;
   SaveError LoadSystemData() override;

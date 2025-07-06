@@ -78,7 +78,7 @@ class SaveFileEntryBase {
 
 class SaveSystemBase {
  public:
-  virtual void CreateSaveFile() = 0;
+  virtual SaveError CreateSaveFile() = 0;
   virtual SaveError CheckSaveFile() = 0;
   virtual SaveError MountSaveFile(std::vector<QueuedTexture>& textures) = 0;
 
@@ -137,7 +137,7 @@ inline SaveSystemBase* Implementation = nullptr;
 void Init();
 
 LoadStatus GetLoadStatus();
-void CreateSaveFile();
+SaveError CreateSaveFile();
 void CheckSaveFile();
 void MountSaveFile();
 void SaveMemory();
