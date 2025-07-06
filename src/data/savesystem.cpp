@@ -65,7 +65,26 @@ class SaveFileChecker : public Loadable<SaveFileChecker, SaveError> {
   }
 };
 
-static std::variant<SaveFileLoader, SaveFileChecker> Loader;
+class SaveFileWriter : public Loadable<SaveFileWriter, SaveError> {
+  friend Loadable<SaveFileWriter, SaveError>;
+
+ protected:
+  void UnloadSync() {}
+  SaveError LoadSync() {
+    return Implementation ? Implementation->WriteSaveFile() : SaveError::Failed;
+  }
+
+  void MainThreadOnLoad(SaveError result) {
+    // Let's not report errors until we finalize the implementation
+    if (Profile::Vm::GameInstructionSet != +Vm::InstructionSet::CC) {
+      result = SaveError::OK;
+    }
+
+    ScrWork[SW_SAVEERRORCODE] = (int)result;
+  }
+};
+
+static std::variant<SaveFileLoader, SaveFileChecker, SaveFileWriter> Loader;
 
 template <typename TLoader>
 void ExecuteLoader() {
@@ -83,10 +102,7 @@ LoadStatus GetLoadStatus() {
 
 void MountSaveFile() { ExecuteLoader<SaveFileLoader>(); }
 void CheckSaveFile() { ExecuteLoader<SaveFileChecker>(); }
-
-void WriteSaveFile() {
-  if (Implementation) Implementation->WriteSaveFile();
-}
+void WriteSaveFile() { ExecuteLoader<SaveFileWriter>(); }
 
 SaveError CreateSaveFile() {
   return Implementation ? Implementation->CreateSaveFile() : SaveError::Failed;
@@ -98,6 +114,10 @@ void SaveSystemData() {
 
 SaveError LoadSystemData() {
   return Implementation ? Implementation->LoadSystemData() : SaveError::Failed;
+}
+
+void SaveThumbnailData() {
+  if (Implementation) Implementation->SaveThumbnailData();
 }
 
 void SaveMemory() {

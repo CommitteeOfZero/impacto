@@ -398,25 +398,41 @@ void SaveSystem::SaveEntryBuffer(Io::MemoryStream& memoryStream,
   Io::WriteArrayLE<uint8_t>(entry.MapLoadData, &memoryStream, 0x6ac8);
   Io::WriteArrayLE<uint8_t>(entry.YesNoData, &memoryStream, 0x54);
 
-  // CCLCC PS4 Save thumbnails are 240x135 RGB16
-  std::vector<uint8_t> thumbnailData(SaveThumbnailWidth * SaveThumbnailHeight *
-                                     4);
-  Renderer->GetSpriteSheetImage(entry.SaveThumbnail.Sheet, thumbnailData);
-
   int thumbnailPadding = 0xA14;
   memoryStream.Seek(thumbnailPadding, SEEK_CUR);
 
-  for (int i = 0; i < thumbnailData.size(); i += 4) {
-    uint8_t r = thumbnailData[i];
-    uint8_t g = thumbnailData[i + 1];
-    uint8_t b = thumbnailData[i + 2];
-    uint16_t pixel = ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3);
-    pixel = SDL_SwapBE16(pixel);
-    thumbnailData[i / 2] = pixel >> 8;
-    thumbnailData[i / 2 + 1] = pixel & 0xFF;
+  Io::WriteArrayLE<uint8_t>(entry.ThumbnailData.data(), &memoryStream,
+                            entry.ThumbnailData.size());
+}
+
+void SaveSystem::SaveThumbnailData() {
+  std::vector<uint8_t> thumbnailBuffer(SaveThumbnailSize * 2);
+
+  for (auto* entryArray : {FullSaveEntries, QuickSaveEntries}) {
+    SaveType saveType =
+        (entryArray == QuickSaveEntries) ? SaveType::Quick : SaveType::Full;
+
+    for (int i = 0; i < MaxSaveEntries; i++) {
+      SaveFileEntry* entry = (SaveFileEntry*)entryArray[i];
+      if (entry->Status == 0) continue;
+
+      Renderer->GetSpriteSheetImage(entry->SaveThumbnail.Sheet,
+                                    thumbnailBuffer);
+
+      std::array<uint8_t, SaveThumbnailSize>& thumbnailData =
+          entry->ThumbnailData;
+
+      for (int i = 0; i < thumbnailBuffer.size(); i += 4) {
+        uint8_t r = thumbnailBuffer[i];
+        uint8_t g = thumbnailBuffer[i + 1];
+        uint8_t b = thumbnailBuffer[i + 2];
+        uint16_t pixel = ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3);
+        pixel = SDL_SwapBE16(pixel);
+        thumbnailData[i / 2] = pixel >> 8;
+        thumbnailData[i / 2 + 1] = pixel & 0xFF;
+      }
+    }
   }
-  Io::WriteArrayLE<uint8_t>(thumbnailData.data(), &memoryStream,
-                            thumbnailData.size() / 2);
 }
 
 SaveError SaveSystem::LoadSystemData() {
@@ -506,10 +522,12 @@ void SaveSystem::SaveSystemData() {
   systemSaveStream.Seek(0x8AC, SEEK_SET);
   Io::WriteLE(&systemSaveStream, (Uint16)(TextSpeed * 60));
   Io::WriteLE(&systemSaveStream, (Uint16)(AutoSpeed * 60));
-  Io::WriteLE(&systemSaveStream, (Uint8)(Audio::GroupVolumes[Audio::ACG_Voice] *
-                                         128));  // VOICE2vol
-  Io::WriteLE(&systemSaveStream, (Uint8)(Audio::GroupVolumes[Audio::ACG_Voice] *
-                                         128));  // VOICEvol
+  Io::WriteLE(
+      &systemSaveStream,
+      (Uint8)(Audio::GroupVolumes[Audio::ACG_Voice] * 128));  // VOICE2vol
+  Io::WriteLE(
+      &systemSaveStream,
+      (Uint8)(Audio::GroupVolumes[Audio::ACG_Voice] * 128));  // VOICEvol
   Io::WriteLE(&systemSaveStream,
               (Uint8)(Audio::GroupVolumes[Audio::ACG_BGM] * 256));
   Io::WriteLE(&systemSaveStream,

@@ -15,6 +15,10 @@ constexpr int SaveFileSize = 0x1b110 * MaxSaveEntries * 2 + 0x387c;
 constexpr int SaveThumbnailWidth = 240;
 constexpr int SaveThumbnailHeight = 135;
 
+// CCLCC PS4 Save thumbnails are 240x135 RGB16
+constexpr int SaveThumbnailSize =
+    SaveThumbnailWidth * SaveThumbnailHeight * 4 / 2;
+
 class SaveFileEntry : public SaveFileEntryBase {
  public:
   uint8_t FlagWorkScript1[50];   // 50 bytes from &FlagWork[50]
@@ -23,6 +27,7 @@ class SaveFileEntry : public SaveFileEntryBase {
   int ScrWorkScript2[3000];      // 12000 bytes from &ScrWork[4300]
   uint8_t MapLoadData[0x6ac8];
   uint8_t YesNoData[0x54];
+  std::array<uint8_t, SaveThumbnailSize> ThumbnailData;
 };
 
 class SaveSystem : public SaveSystemBase {
@@ -32,6 +37,7 @@ class SaveSystem : public SaveSystemBase {
   SaveError MountSaveFile(std::vector<QueuedTexture>& textures) override;
   SaveError LoadSystemData() override;
   void SaveSystemData() override;
+  void SaveThumbnailData() override;
   void LoadEntryBuffer(Io::MemoryStream& memoryStream, SaveFileEntry& entry,
                        SaveType saveType, Texture& tex);
   void SaveEntryBuffer(Io::MemoryStream& memoryStream, SaveFileEntry& entry,

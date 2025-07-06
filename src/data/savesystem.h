@@ -94,6 +94,7 @@ class SaveSystemBase {
   virtual void SaveSystemData() = 0;
   virtual SaveError LoadSystemData() = 0;
 
+  virtual void SaveThumbnailData() = 0;
   virtual SaveError WriteSaveFile() = 0;
   virtual uint32_t GetSavePlayTime(SaveType type, int id) = 0;
   virtual uint8_t GetSaveFlags(SaveType type, int id) = 0;
@@ -141,6 +142,7 @@ SaveError CreateSaveFile();
 void CheckSaveFile();
 void MountSaveFile();
 void SaveMemory();
+void SaveThumbnailData();
 void SaveSystemData();
 SaveError LoadSystemData();
 void LoadEntry(SaveType type, int id);

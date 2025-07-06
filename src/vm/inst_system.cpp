@@ -239,6 +239,7 @@ VmInstruction(InstSave) {
     case 16:
       SaveSystem::FlushWorkingSaveEntry(SaveSystem::SaveType::Full,
                                         ScrWork[SW_SAVEFILENO]);
+      SaveSystem::SaveThumbnailData();
       break;
     case 30:
       if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
