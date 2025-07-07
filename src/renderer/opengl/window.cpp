@@ -279,7 +279,13 @@ void GLWindow::CleanFBOs() {
   if (DrawRT) GLC::DeleteFramebuffers(1, &DrawRT);
   if (ReadRT) GLC::DeleteFramebuffers(1, &ReadRT);
   if (StencilBuffer) glDeleteRenderbuffers(1, &StencilBuffer);
-
+  glDeleteTextures(GLC::FramebufferTextures.size(),
+                   GLC::FramebufferTextures.data());
+  GLC::FramebufferTextures.fill(0);
+  GLC::DeleteFramebuffers(GLC::Framebuffers.size(), GLC::Framebuffers.data());
+  GLC::Framebuffers.fill(0);
+  glDeleteRenderbuffers(GLC::StencilBuffers.size(), GLC::StencilBuffers.data());
+  GLC::StencilBuffers.fill(0);
   drawRenderTexture = ReadRenderTexture = DrawRT = ReadRT = 0;
 }
 
@@ -306,37 +312,28 @@ void GLWindow::Update() {
   if (WindowDimensionsChanged) {
     CleanFBOs();
 
-    glGenFramebuffers(1, &ReadRT);
-    GLC::BindFramebuffer(GL_READ_FRAMEBUFFER, ReadRT);
-    glGenTextures(1, &ReadRenderTexture);
+    auto createFBO = [&](GLuint& frameBufId, GLuint& texture, int bufferType) {
+      glGenFramebuffers(1, &frameBufId);
+      GLC::BindFramebuffer(bufferType, frameBufId);
+      glGenTextures(1, &texture);
 
-    glBindTexture(GL_TEXTURE_2D, ReadRenderTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, viewport.Width, viewport.Height, 0,
-                 GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+      glBindTexture(GL_TEXTURE_2D, texture);
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, viewport.Width, viewport.Height,
+                   0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 
-    glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-                           GL_TEXTURE_2D, ReadRenderTexture, 0);
+      glFramebufferTexture2D(bufferType, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
+                             texture, 0);
+      glFramebufferRenderbuffer(bufferType, GL_STENCIL_ATTACHMENT,
+                                GL_RENDERBUFFER, StencilBuffer);
+    };
 
     glGenRenderbuffers(1, &StencilBuffer);
     glBindRenderbuffer(GL_RENDERBUFFER, StencilBuffer);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_STENCIL_INDEX8, WindowWidth,
-                          WindowHeight);
-    glFramebufferRenderbuffer(GL_READ_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,
-                              GL_RENDERBUFFER, StencilBuffer);
-
-    glGenFramebuffers(1, &DrawRT);
-    GLC::BindFramebuffer(GL_DRAW_FRAMEBUFFER, DrawRT);
-    glGenTextures(1, &drawRenderTexture);
-
-    glBindTexture(GL_TEXTURE_2D, drawRenderTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, viewport.Width, viewport.Height, 0,
-                 GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-
-    glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-                           GL_TEXTURE_2D, drawRenderTexture, 0);
-
-    glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,
-                              GL_RENDERBUFFER, StencilBuffer);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_STENCIL_INDEX8, viewport.Width,
+                          viewport.Height);
+    createFBO(ReadRT, ReadRenderTexture, GL_READ_FRAMEBUFFER);
+    createFBO(DrawRT, drawRenderTexture, GL_DRAW_FRAMEBUFFER);
+    GLC::InitializeFramebuffers();
   }
 
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);

@@ -33,6 +33,7 @@ class Background2D : public Loadable<Background2D, bool, uint32_t> {
 
  public:
   static void Init();
+  static void InitFrameBuffers();
 
   Sprite BgSprite;
 

@@ -1722,6 +1722,8 @@ void Renderer::CaptureScreencap(Sprite& sprite) {
   sprite.Sheet.IsScreenCap = true;
   sprite.Sheet.DesignWidth = Window->WindowWidth;
   sprite.Sheet.DesignHeight = Window->WindowHeight;
+  sprite.Bounds.Width = sprite.Sheet.DesignWidth;
+  sprite.Bounds.Height = sprite.Sheet.DesignHeight;
 
   // Here we go...
   Flush();

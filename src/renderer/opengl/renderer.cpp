@@ -287,7 +287,8 @@ void Renderer::UseTextures(
   for (const auto [textureId, unitIndex] : textureUnitPairs) {
     TextureUnit& textureUnit = TextureUnits[unitIndex];
 
-    glBindTextureUnit(unitIndex, textureId);
+    glActiveTexture(GL_TEXTURE0 + unitIndex);
+    glBindTexture(GL_TEXTURE_2D, textureId);
 
     textureUnit.TextureId = textureId;
     textureUnit.InUse = true;
@@ -666,6 +667,8 @@ void Renderer::CaptureScreencap(Sprite& sprite) {
   sprite.Sheet.IsScreenCap = true;
   sprite.Sheet.DesignWidth = Window->WindowWidth;
   sprite.Sheet.DesignHeight = Window->WindowHeight;
+  sprite.Bounds.Width = sprite.Sheet.DesignWidth;
+  sprite.Bounds.Height = sprite.Sheet.DesignHeight;
 
   Window->SwapRTs();
   int prevTextureBinding;

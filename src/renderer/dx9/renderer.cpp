@@ -716,6 +716,8 @@ void Renderer::CaptureScreencap(Sprite& sprite) {
   sprite.Sheet.IsScreenCap = true;
   sprite.Sheet.DesignWidth = static_cast<float>(Window->WindowWidth);
   sprite.Sheet.DesignHeight = static_cast<float>(Window->WindowHeight);
+  sprite.Bounds.Width = sprite.Sheet.DesignWidth;
+  sprite.Bounds.Height = sprite.Sheet.DesignHeight;
 
   IDirect3DSurface9* sourceSurface = nullptr;
   Device->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &sourceSurface);

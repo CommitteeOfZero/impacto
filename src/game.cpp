@@ -458,6 +458,9 @@ void Render() {
 #endif
 
   if (Profile::GameFeatures & GameFeature::Renderer2D) {
+    if (Window->WindowDimensionsChanged) {
+      Background2D::InitFrameBuffers();
+    }
     for (int i = 0; i < Vm::MaxThreads; i++) {
       if (DrawComponents[i] == +DrawComponentType::None) break;
 

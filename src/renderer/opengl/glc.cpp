@@ -13,6 +13,7 @@ void InitializeFramebuffers() {
   glGenTextures(FramebufferTextures.max_size(), FramebufferTextures.data());
   glGenRenderbuffers(StencilBuffers.max_size(), StencilBuffers.data());
 
+  RectF viewport = Window->GetViewport();
   for (size_t buffer = 0; buffer < FramebufferTextures.size(); buffer++) {
     const GLuint framebufferId = Framebuffers[buffer];
     const GLuint textureId = FramebufferTextures[buffer];
@@ -20,8 +21,8 @@ void InitializeFramebuffers() {
 
     glBindFramebuffer(GL_FRAMEBUFFER, framebufferId);
     glBindTexture(GL_TEXTURE_2D, textureId);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, Window->WindowWidth,
-                 Window->WindowHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, viewport.Width, viewport.Height, 0,
+                 GL_RGB, GL_UNSIGNED_BYTE, nullptr);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -30,8 +31,8 @@ void InitializeFramebuffers() {
                            textureId, 0);
 
     glBindRenderbuffer(GL_RENDERBUFFER, stencilBufferId);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_STENCIL_INDEX8,
-                          Window->WindowWidth, Window->WindowHeight);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_STENCIL_INDEX8, viewport.Width,
+                          viewport.Height);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,
                               GL_RENDERBUFFER, stencilBufferId);
   }

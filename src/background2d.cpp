@@ -18,6 +18,20 @@ namespace Impacto {
 using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::Vm;
 
+void Background2D::InitFrameBuffers() {
+  RectF viewPort = Window->GetViewport();
+  for (size_t i = 0; i < Framebuffers.max_size(); i++) {
+    Framebuffers[i].BgSprite =
+        Sprite(SpriteSheet(Profile::DesignWidth, Profile::DesignHeight), 0.0f,
+               0.0f, Profile::DesignWidth, Profile::DesignHeight);
+    Framebuffers[i].BgSprite.Sheet.Texture =
+        Renderer->GetFramebufferTexture(i + 1);
+
+    Framebuffers[i].Status = LoadStatus::Loaded;
+    Framebuffers[i].BgSprite.Sheet.IsScreenCap = true;
+  }
+}
+
 void Background2D::Init() {
   for (int i = 0; i < MaxBackgrounds2D; i++) {
     Backgrounds2D[i] = &Backgrounds[i];
@@ -31,17 +45,7 @@ void Background2D::Init() {
   }
 
   ShaderScreencapture.BgSprite.Sheet.IsScreenCap = true;
-
-  for (size_t i = 0; i < Framebuffers.max_size(); i++) {
-    Framebuffers[i].BgSprite =
-        Sprite(SpriteSheet(Profile::DesignWidth, Profile::DesignHeight), 0.0f,
-               0.0f, Profile::DesignWidth, Profile::DesignHeight);
-    Framebuffers[i].BgSprite.Sheet.Texture =
-        Renderer->GetFramebufferTexture(i + 1);
-
-    Framebuffers[i].Status = LoadStatus::Loaded;
-    Framebuffers[i].BgSprite.Sheet.IsScreenCap = true;
-  }
+  InitFrameBuffers();
 
   ShaderScreencapture.LoadSolidColor(0xFF000000, Window->WindowWidth,
                                      Window->WindowHeight);
