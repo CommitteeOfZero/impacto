@@ -312,7 +312,6 @@ void TitleMenu::Update(float dt) {
   SecondaryFadeAnimation.Update(dt);
   SmokeAnimation.Update(dt);
   TitleAnimation.Update(dt);
-  TitleAnimationSprite.Update(dt);
   TitleAnimationSprite.Position = {0.0f, 0.0f};
   SlideItemsAnimation.Update(dt);
 
@@ -406,6 +405,7 @@ void TitleMenu::ExplodeScreenUpdate() {
       (TitleAnimationStartFrame +
        (TitleAnimationFrameCount * TitleAnimation.Progress)) *
       65536;
+  TitleAnimationSprite.UpdateStatesToDraw();
 }
 
 void TitleMenu::ReturnToMenuUpdate() {
@@ -536,7 +536,7 @@ void TitleMenu::Render() {
       case 2: {  // Transition between Press to start and menus
         DrawMainMenuBackGraphics();
         DrawStartButton();
-        TitleAnimationSprite.Render(0, -1);
+        TitleAnimationSprite.Render(-1);
         DrawSmoke(SmokeOpacityNormal);
       } break;
       case 3: {  // MenuItems Fade In

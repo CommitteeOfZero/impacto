@@ -68,11 +68,11 @@ class Character2D : public Loadable<Character2D, bool, uint32_t> {
 
   glm::vec4 Tint = glm::vec4(1.0f);
 
-  void Update(float dt);
   virtual void UpdateState(int chaId);
   static void UpdateEyeMouth();
+  void UpdateStatesToDraw();
 
-  void Render(int chaId, int layer);
+  void Render(int layer);
 
  protected:
   bool LoadSync(uint32_t charaId);

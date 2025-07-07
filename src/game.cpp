@@ -284,18 +284,6 @@ void Update(float dt) {
     for (int i = 0; i < Profile::Dialogue::PageCount; i++)
       DialoguePages[i].Update(dt);
   }
-
-  if ((Profile::GameFeatures & GameFeature::Renderer2D) &&
-      !(Profile::GameFeatures & GameFeature::Scene3D)) {
-    for (int i = 0; i < Characters2D.size(); i++) {
-      if (Characters2D[i].Show) Characters2D[i].Update(dt);
-    }
-    if (Profile::Dialogue::HasSpeakerPortraits) {
-      for (int i = 0; i < SpeakerPortraits.size(); i++) {
-        if (SpeakerPortraits[i].Show) SpeakerPortraits[i].Update(dt);
-      }
-    }
-  }
 }
 
 static void RenderMain() {
@@ -311,9 +299,13 @@ static void RenderMain() {
       Backgrounds2D[bufId]->Render(layer);
     }
 
-    for (int chaId = 0; chaId < Characters2D.size(); chaId++) {
-      int bufId = ScrWork[SW_CHA1SURF + chaId];
-      Characters2D[bufId].Render(chaId, layer);
+    if ((Profile::GameFeatures & GameFeature::Renderer2D) &&
+        !(Profile::GameFeatures & GameFeature::Scene3D)) {
+      for (int chaId = 0; chaId < Characters2D.size(); chaId++) {
+        int bufId = ScrWork[SW_CHA1SURF + chaId];
+        Characters2D[bufId].UpdateState(chaId);
+        Characters2D[bufId].Render(layer);
+      }
     }
 
     for (int bgId = 0; bgId < Backgrounds.size(); bgId++) {
@@ -537,7 +529,9 @@ void Render() {
     if (Characters2D[0].Status == LoadStatus::Loaded) {
       Characters2D[0].Layers[0] = 0;
       ScrWork[SW_CHA1ALPHA] = 256;
-      Characters2D[0].Render(0, 0);
+
+      Characters2D[0].UpdateState(0);
+      Characters2D[0].Render(0);
     }
   }
   Renderer->EndFrame();

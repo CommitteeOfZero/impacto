@@ -68,10 +68,13 @@ void DialogueBox::Render(DialoguePageMode mode, bool hasName, float nameWidth,
       // Draw Face
       for (int i = 0; i < SpeakerPortraits.size(); i++) {
         int bufId = ScrWork[SW_FACE1SURF + i];
+        SpeakerPortraits[bufId].UpdateState(i);
+
         SpeakerPortraits[bufId].Tint = col;
         SpeakerPortraits[bufId].Position +=
             glm::vec2(SpeakerPortraitBaseOffsetX, SpeakerPortraitBaseOffsetY);
-        SpeakerPortraits[bufId].Render(i, -1);
+
+        SpeakerPortraits[bufId].Render(-1);
       }
     }
 

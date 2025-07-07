@@ -172,7 +172,7 @@ void Character2D::MainThreadOnLoad(bool result) {
   std::fill(Layers.begin(), Layers.end(), -1);
 }
 
-void Character2D::Update(float dt) {
+void Character2D::UpdateStatesToDraw() {
   if (Status != LoadStatus::Loaded) return;
 
   if (Profile::CharaIsMvl) {
@@ -193,6 +193,7 @@ void Character2D::Update(float dt) {
                           stateIndices.get() + state.Count);
       }
     }
+
   } else {
     StatesToDraw.clear();
     StatesToDraw.push_back(1);
@@ -279,7 +280,8 @@ void Character2D::UpdateState(const int chaId) {
 
   Layers = {ScrWork[SW_CHA1PRI + structOffset],
             ScrWork[SW_CHA1PRI2 + structOffset]};
-  Show = GetFlag(SF_CHA1DISP + chaId);
+  Show = GetFlag(SF_CHA1DISP + chaId) &&
+         ScrWork[SW_CHA1NO + structOffset] != 0xFFFFFF;
 
   Position = glm::vec2(ScrWork[SW_CHA1POSX + structOffset] +
                            ScrWork[SW_CHA1POSX_OFS + structOfsOffset],
@@ -325,15 +327,20 @@ void Character2D::UpdateState(const int chaId) {
             ScrWork[SW_CHA1ROTZ_OFS + structOfsOffset]);
   }
 
-  Face = ScrWork[SW_CHA1FACE + structOffset] << 16;
+  if (Profile::Vm::GameInstructionSet == +Vm::InstructionSet::CC) {
+    Tint = ScrWorkGetColor(SW_CHA1FILTER + structOffset);
+  } else {
+    Tint = glm::vec4(1.0f);
+  }
 
-  Tint = ScrWorkGetColor(SW_CHA1FILTER + structOffset);
   Tint.a = (ScrWork[SW_CHA1ALPHA + structOffset] +
             ScrWork[SW_CHA1ALPHA_OFS + structOfsOffset]) /
            256.0f;
   if (ScrWork[SW_CHA1FADETYPE + structOffset] == 1) {
     Tint.a *= ScrWork[SW_CHA1FADECT + structOffset] / 256.0f;
   }
+
+  Face = ScrWork[SW_CHA1FACE + structOffset] << 16;
 
   if (ScrWork[SW_CHA1ANIME_EYE + structOffset] == 0xFF) {
     EyeFrame = CurEyeFrame[chaId];
@@ -343,7 +350,6 @@ void Character2D::UpdateState(const int chaId) {
 
   if (ScrWork[SW_CHA1ANIME_MOUTH + structOffset] != 0xFF) {
     LipFrame = ScrWork[SW_CHA1ANIME_MOUTH + structOffset];
-    return;
   } else {
     bool charSpeaking = false;
     const uint32_t chaIndexMask = 1 << chaId & 0x1F;
@@ -361,11 +367,11 @@ void Character2D::UpdateState(const int chaId) {
 
     if (!charSpeaking) LipFrame = 0;
   }
+
+  UpdateStatesToDraw();
 }
 
-void Character2D::Render(const int chaId, const int layer) {
-  UpdateState(chaId);
-
+void Character2D::Render(const int layer) {
   if (Status != LoadStatus::Loaded || !OnLayer(layer) || !Show) return;
 
   if (Profile::CharaIsMvl) {
