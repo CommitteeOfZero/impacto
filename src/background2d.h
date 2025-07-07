@@ -44,7 +44,7 @@ class Background2D : public Loadable<Background2D, bool, uint32_t> {
   std::array<int, 2> Layers;
   std::array<LinkState, 2> Links;
 
-  virtual void Render(int bgId, int layer);
+  virtual void Render(int layer);
   virtual void UpdateState(int bgId);
 
   void LoadSolidColor(uint32_t color, int width, int height);
@@ -106,13 +106,13 @@ class Background2D : public Loadable<Background2D, bool, uint32_t> {
 
 class Capture2D : public Background2D {
  public:
-  void Render(int capId, int layer) override;
+  void Render(int layer) override;
   void UpdateState(int capId) override;
 };
 
 class BackgroundEffect2D : public Background2D {
  public:
-  void Render(int bgId, int layer) override;
+  void Render(int layer) override;
   void UpdateState(int bgId) override;
 
  private:

@@ -307,7 +307,8 @@ static void RenderMain() {
 
     for (int bgId = 0; bgId < Backgrounds.size(); bgId++) {
       int bufId = ScrWork[SW_BG1SURF + bgId];
-      Backgrounds2D[bufId]->Render(bgId, layer);
+      Backgrounds2D[bufId]->UpdateState(bgId);
+      Backgrounds2D[bufId]->Render(layer);
     }
 
     for (int chaId = 0; chaId < Characters2D.size(); chaId++) {
@@ -316,7 +317,8 @@ static void RenderMain() {
     }
 
     for (int bgId = 0; bgId < Backgrounds.size(); bgId++) {
-      Framebuffers[0].Render(bgId, layer);
+      Framebuffers[0].UpdateState(bgId);
+      Framebuffers[0].Render(layer);
     }
 
     if (ScrWork[SW_MAP_PRI] == static_cast<int>(layer) &&
@@ -338,12 +340,6 @@ static void RenderMain() {
         col.a = glm::min(maskAlpha / 256.0f, 1.0f);
 
         Renderer->DrawQuad(maskRect, col);
-      }
-    }
-
-    for (size_t capId = 0; capId < Screencaptures.size(); capId++) {
-      for (size_t capLayer = 0; capLayer < Screencaptures.size(); capLayer++) {
-        Screencaptures[capId].Render(capId, layer);
       }
     }
 

@@ -286,9 +286,7 @@ void Background2D::UpdateState(const int bgId) {
   }
 }
 
-void Background2D::Render(const int bgId, const int layer) {
-  UpdateState(bgId);
-
+void Background2D::Render(const int layer) {
   if (Status != LoadStatus::Loaded || !OnLayer(layer) || !Show) return;
 
   std::invoke(BackgroundRenderTable[RenderType], this);
@@ -401,9 +399,7 @@ void Capture2D::UpdateState(const int capId) {
   }
 }
 
-void Capture2D::Render(const int capId, const int layer) {
-  UpdateState(capId);
-
+void Capture2D::Render(const int layer) {
   if (Status != LoadStatus::Loaded || !OnLayer(layer) || !Show) return;
 
   std::invoke(BackgroundRenderTable[RenderType], this);
@@ -485,9 +481,7 @@ void BackgroundEffect2D::UpdateState(const int bgId) {
            (float)VertexCount;
 }
 
-void BackgroundEffect2D::Render(const int bgId, const int layer) {
-  UpdateState(bgId);
-
+void BackgroundEffect2D::Render(const int layer) {
   if (Status != LoadStatus::Loaded || !OnLayer(layer) || !Show) return;
 
   // Transform vertices
