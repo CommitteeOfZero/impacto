@@ -243,7 +243,7 @@ VmInstruction(InstSave) {
       break;
     case 30:
       if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
-        SetFlag(SF_SYSMESLOADING, true);
+        SetFlag(SF_SAVEICON, true);
         ScrWork[SW_SAVEERRORCODE] = (int)SaveSystem::CreateSaveFile();
         SaveSystem::MountSaveFile();
       }
@@ -254,14 +254,14 @@ VmInstruction(InstSave) {
           ResetInstruction;
           BlockThread;
         } else {
-          SetFlag(SF_SYSMESLOADING, false);
+          SetFlag(SF_SAVEICON, false);
         }
       }
       break;
     case 32:
       if (Profile::Vm::GameInstructionSet == +InstructionSet::MO6TW ||
           Profile::Vm::GameInstructionSet == +InstructionSet::CHLCC) {
-        SetFlag(SF_SYSMESLOADING, true);
+        SetFlag(SF_SAVEICON, true);
         SaveSystem::MountSaveFile();
       }
       break;
@@ -276,7 +276,7 @@ VmInstruction(InstSave) {
           TipsSystem::UpdateTipRecords();
         }
 
-        SetFlag(SF_SYSMESLOADING, false);
+        SetFlag(SF_SAVEICON, false);
       }
       break;
     case 40:  // SystemDataCheck
@@ -291,7 +291,7 @@ VmInstruction(InstSave) {
       break;
     case 50:
       if (Profile::Vm::GameInstructionSet == +InstructionSet::CHLCC) {
-        SetFlag(SF_SYSMESLOADING, true);
+        SetFlag(SF_SAVEICON, true);
         AchievementSystem::MountAchievementFile();
       }
       break;
@@ -301,12 +301,12 @@ VmInstruction(InstSave) {
           ResetInstruction;
           BlockThread;
         } else {
-          SetFlag(SF_SYSMESLOADING, false);
+          SetFlag(SF_SAVEICON, false);
         }
       }
       break;
     case 60:
-      SetFlag(SF_SYSMESLOADING, true);
+      SetFlag(SF_SAVEICON, true);
       SaveSystem::WriteSaveFile();
       break;
     case 61:
@@ -314,12 +314,12 @@ VmInstruction(InstSave) {
         ResetInstruction;
         BlockThread;
       } else {
-        SetFlag(SF_SYSMESLOADING, false);
+        SetFlag(SF_SAVEICON, false);
       }
       break;
     case 70:
       if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
-        SetFlag(SF_SYSMESLOADING, true);
+        SetFlag(SF_SAVEICON, true);
         SaveSystem::MountSaveFile();
       }
       break;
@@ -335,12 +335,12 @@ VmInstruction(InstSave) {
           TipsSystem::UpdateTipRecords();
         }
 
-        SetFlag(SF_SYSMESLOADING, false);
+        SetFlag(SF_SAVEICON, false);
       }
       break;
     case 80:
       if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
-        SetFlag(SF_SYSMESLOADING, true);
+        SetFlag(SF_SAVEICON, true);
         SaveSystem::CheckSaveFile();
       }
       break;
@@ -350,7 +350,7 @@ VmInstruction(InstSave) {
           ResetInstruction;
           BlockThread;
         } else {
-          SetFlag(SF_SYSMESLOADING, false);
+          SetFlag(SF_SAVEICON, false);
         }
       }
       break;
