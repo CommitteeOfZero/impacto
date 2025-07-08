@@ -31,9 +31,8 @@ namespace Impacto {
 
 namespace Vm {
 
-using namespace Impacto::SaveSystem;
-using namespace Impacto::TipsSystem;
 using namespace Impacto::Profile::ScriptVars;
+using Impacto::SaveSystem::SaveError;
 
 VmInstruction(InstDummy) {}
 
@@ -213,32 +212,73 @@ VmInstruction(InstCopyThreadWork) {
   }
 }
 
-inline void LoadSaveFile() {
-  ScrWork[SW_SAVEERRORCODE] = SaveSystem::MountSaveFile();
-  if (ScrWork[SW_SAVEERRORCODE] == SaveOK) {
-    UpdateTipRecords();
-  }
-}
-
 VmInstruction(InstSave) {
   StartInstruction;
   PopUint8(type);
   switch (type) {  // TODO: Types 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
                    // 16, 20, 21, 72, 30, 31, 32, 33, 34, 35, 41, 50, 51, 66,
                    // 67, 70, 71, 74, 76
-    case 0: {
-      // TODO, System Save only
-    } break;
+    case 0:
+      SaveSystem::SaveSystemData();
+      break;
+    case 1:
+      break;
+    case 2:
+      if (Profile::Vm::GameInstructionSet == +InstructionSet::CHLCC ||
+          Profile::Vm::GameInstructionSet == +InstructionSet::MO6TW) {
+        ScrWork[SW_SAVEERRORCODE] = (int)SaveSystem::LoadSystemData();
+      }
+      break;
     case 3:
       break;
-    case 4: {
-    } break;
-    case 32: {
+    case 4:
+      if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
+        ScrWork[SW_SAVEERRORCODE] = (int)SaveSystem::LoadSystemData();
+      }
+      break;
+    case 16:
+      SaveSystem::FlushWorkingSaveEntry(SaveSystem::SaveType::Full,
+                                        ScrWork[SW_SAVEFILENO]);
+      SaveSystem::SaveThumbnailData();
+      break;
+    case 30:
+      if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
+        SetFlag(SF_SAVEICON, true);
+        ScrWork[SW_SAVEERRORCODE] = (int)SaveSystem::CreateSaveFile();
+        SaveSystem::MountSaveFile();
+      }
+      break;
+    case 31:
+      if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
+        if (SaveSystem::GetLoadStatus() == LoadStatus::Loading) {
+          ResetInstruction;
+          BlockThread;
+        } else {
+          SetFlag(SF_SAVEICON, false);
+        }
+      }
+      break;
+    case 32:
       if (Profile::Vm::GameInstructionSet == +InstructionSet::MO6TW ||
           Profile::Vm::GameInstructionSet == +InstructionSet::CHLCC) {
-        LoadSaveFile();
+        SetFlag(SF_SAVEICON, true);
+        SaveSystem::MountSaveFile();
       }
-    } break;
+      break;
+    case 33:
+      if (Profile::Vm::GameInstructionSet == +InstructionSet::MO6TW ||
+          Profile::Vm::GameInstructionSet == +InstructionSet::CHLCC) {
+        if (SaveSystem::GetLoadStatus() == LoadStatus::Loading) {
+          ResetInstruction;
+          BlockThread;
+          break;
+        } else if (ScrWork[SW_SAVEERRORCODE] == (int)SaveError::OK) {
+          TipsSystem::UpdateTipRecords();
+        }
+
+        SetFlag(SF_SAVEICON, false);
+      }
+      break;
     case 40:  // SystemDataCheck
       if (Profile::Vm::GameInstructionSet == +InstructionSet::RNE) {
         PopExpression(unused1);
@@ -249,39 +289,71 @@ VmInstruction(InstSave) {
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction Save(type: {:d})\n", type);
       break;
-    case 16:
-      SaveSystem::FlushWorkingSaveEntry(SaveSystem::SaveType::SaveFull,
-                                        ScrWork[SW_SAVEFILENO]);
-      SaveSystem::WriteSaveFile();
-      break;
     case 50:
       if (Profile::Vm::GameInstructionSet == +InstructionSet::CHLCC) {
+        SetFlag(SF_SAVEICON, true);
         AchievementSystem::MountAchievementFile();
       }
       break;
     case 51:
+      if (Profile::Vm::GameInstructionSet == +InstructionSet::CHLCC) {
+        if (AchievementSystem::GetLoadStatus() == LoadStatus::Loading) {
+          ResetInstruction;
+          BlockThread;
+        } else {
+          SetFlag(SF_SAVEICON, false);
+        }
+      }
       break;
     case 60:
+      SetFlag(SF_SAVEICON, true);
       SaveSystem::WriteSaveFile();
+      break;
+    case 61:
+      if (SaveSystem::GetLoadStatus() == LoadStatus::Loading) {
+        ResetInstruction;
+        BlockThread;
+      } else {
+        SetFlag(SF_SAVEICON, false);
+      }
       break;
     case 70:
       if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
-        LoadSaveFile();
+        SetFlag(SF_SAVEICON, true);
+        SaveSystem::MountSaveFile();
       }
-    case 30:
       break;
-    case 31:
+    case 71:
       if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
-        ScrWork[SW_SAVEERRORCODE] = CreateSaveFile();
+        if (SaveSystem::GetLoadStatus() == LoadStatus::Loading) {
+          ResetInstruction;
+          BlockThread;
+          break;
+        }
+
+        if (ScrWork[SW_SAVEERRORCODE] == (int)SaveError::OK) {
+          TipsSystem::UpdateTipRecords();
+        }
+
+        SetFlag(SF_SAVEICON, false);
       }
       break;
     case 80:
-      break;
-    case 81: {  // SystemDataCheck
       if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
-        ScrWork[SW_SAVEERRORCODE] = CheckSaveFile();
+        SetFlag(SF_SAVEICON, true);
+        SaveSystem::CheckSaveFile();
       }
-    } break;
+      break;
+    case 81:  // SystemDataCheck
+      if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
+        if (SaveSystem::GetLoadStatus() == LoadStatus::Loading) {
+          ResetInstruction;
+          BlockThread;
+        } else {
+          SetFlag(SF_SAVEICON, false);
+        }
+      }
+      break;
     default:
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction Save(type: {:d})\n", type);
@@ -297,10 +369,10 @@ VmInstruction(InstSaveIconLoad) {
 VmInstruction(InstVoiceTableLoadMaybe) {
   StartInstruction;
   PopExpression(fileId);
-  if (VoiceTableData.Status == LS_Loading) {
+  if (VoiceTableData.Status == LoadStatus::Loading) {
     ResetInstruction;
     BlockThread;
-  } else if (VoiceTableData.Status == LS_Unloaded) {
+  } else if (VoiceTableData.Status == LoadStatus::Unloaded) {
     VoiceTableData.LoadAsync(fileId);
     ResetInstruction;
     BlockThread;
@@ -735,7 +807,7 @@ VmInstruction(InstAutoSave) {
       int quicksaveEntries = SaveSystem::GetQuickSaveOpenSlot();
       if (quicksaveEntries != -1) {
         SaveIconDisplay::ShowFor(2.4f);
-        SaveSystem::FlushWorkingSaveEntry(SaveSystem::SaveType::SaveQuick,
+        SaveSystem::FlushWorkingSaveEntry(SaveSystem::SaveType::Quick,
                                           quicksaveEntries, saveType);
       }
     }
@@ -769,7 +841,7 @@ VmInstruction(InstAutoSave) {
       int quicksaveEntries = SaveSystem::GetQuickSaveOpenSlot();
       if (quicksaveEntries != -1) {
         SaveIconDisplay::ShowFor(2.4f);
-        SaveSystem::FlushWorkingSaveEntry(SaveSystem::SaveType::SaveQuick,
+        SaveSystem::FlushWorkingSaveEntry(SaveSystem::SaveType::Quick,
                                           quicksaveEntries, 0);
       }
 

@@ -240,7 +240,7 @@ void SaveMenu::Show() {
   if (State != Shown) {
     switch (*ActiveMenuType) {
       case SaveMenuPageType::QuickLoad:
-        EntryType = SaveSystem::SaveQuick;
+        EntryType = SaveSystem::SaveType::Quick;
         SavePages = &QuickSavePages;
         BackgroundColor = QuickLoadBackgroundColor;
         CircleSprite = QuickLoadCircle;
@@ -248,7 +248,7 @@ void SaveMenu::Show() {
         CurrentPage = &CurrentQuickSavePage;
         break;
       case SaveMenuPageType::Save:
-        EntryType = SaveSystem::SaveFull;
+        EntryType = SaveSystem::SaveType::Full;
         SavePages = &FullSavePages;
         BackgroundColor = SaveBackgroundColor;
         CircleSprite = SaveCircle;
@@ -256,7 +256,7 @@ void SaveMenu::Show() {
         CurrentPage = &CurrentFullSavePage;
         break;
       case SaveMenuPageType::Load:
-        EntryType = SaveSystem::SaveFull;
+        EntryType = SaveSystem::SaveType::Full;
         SavePages = &FullSavePages;
         BackgroundColor = LoadBackgroundColor;
         CircleSprite = LoadCircle;

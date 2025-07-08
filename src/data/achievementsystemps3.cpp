@@ -22,14 +22,14 @@ size_t AchievementSystemPS3::GetAchievementCount() const {
   return Trophies.size();
 }
 
-bool AchievementSystemPS3::MountAchievementFile() {
+AchievementError AchievementSystemPS3::MountAchievementFile() {
   Io::Stream* baseStream;
   IoError err =
       Io::PhysicalFileStream::Create(AchievementDataPath, &baseStream);
 
   if (err != IoError_OK) {
     ImpLog(LogLevel::Error, LogChannel::IO, "Couldn't open TROPHY.TRP\n");
-    return false;
+    return AchievementError::Failed;
   }
 
   TrophyDataHeader tdh = {0};
@@ -43,7 +43,7 @@ bool AchievementSystemPS3::MountAchievementFile() {
   if (tdh.magic != PS3_MAGIC) {
     ImpLog(LogLevel::Error, LogChannel::IO, "Wrong magic in TROPHY.TRP\n");
     delete baseStream;
-    return false;
+    return AchievementError::Failed;
   }
   TrophyDataEntries.resize(tdh.file_count);
 
@@ -66,7 +66,7 @@ bool AchievementSystemPS3::MountAchievementFile() {
     ImpLog(LogLevel::Error, LogChannel::IO,
            "TROP.SFM entry not found in TROPHY.TRP\n");
     delete baseStream;
-    return false;
+    return AchievementError::Failed;
   }
 
   baseStream->Seek(tropEntry->offset, RW_SEEK_SET);
@@ -83,7 +83,7 @@ bool AchievementSystemPS3::MountAchievementFile() {
   if (!result) {
     ImpLog(LogLevel::Error, LogChannel::IO, "Unable to load TROP.SFM\n");
     delete baseStream;
-    return false;
+    return AchievementError::Failed;
   }
 
   for (pugi::xml_node trophy = trop.first_child().child("trophy"); trophy;
@@ -98,7 +98,7 @@ bool AchievementSystemPS3::MountAchievementFile() {
       ImpLog(LogLevel::Error, LogChannel::IO,
              "Missing trophy type in TROP.SFM\n");
       delete baseStream;
-      return false;
+      return AchievementError::Failed;
     }
 
     const char ttype = ttypeStr[0];
@@ -106,7 +106,7 @@ bool AchievementSystemPS3::MountAchievementFile() {
       ImpLog(LogLevel::Error, LogChannel::IO,
              "Invalid trophy type in TROP.SFM\n");
       delete baseStream;
-      return false;
+      return AchievementError::Failed;
     }
 
     auto& entry = TrophyDataEntries[id + ICON_START];
@@ -119,7 +119,7 @@ bool AchievementSystemPS3::MountAchievementFile() {
       ImpLog(LogLevel::Error, LogChannel::IO,
              "Couldn't open icon for TROP{:03d}\n", id);
       delete baseStream;
-      return false;
+      return AchievementError::Failed;
     }
 
     Texture texture;
@@ -130,7 +130,7 @@ bool AchievementSystemPS3::MountAchievementFile() {
              "Unable to load texture for TROP{:03d}.PNG\n", id);
       delete iconStream;
       delete baseStream;
-      return false;
+      return AchievementError::Failed;
     }
     delete iconStream;
 
@@ -149,7 +149,7 @@ bool AchievementSystemPS3::MountAchievementFile() {
   }
 
   delete baseStream;
-  return true;
+  return AchievementError::OK;
 }
 
 const Achievement* AchievementSystemPS3::GetAchievement(int id) {

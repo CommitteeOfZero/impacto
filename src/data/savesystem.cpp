@@ -1,6 +1,9 @@
 #include "savesystem.h"
 
 #include "../profile/data/savesystem.h"
+#include "../profile/scriptvars.h"
+#include "../profile/vm.h"
+#include "../mem.h"
 
 #include <cstdint>
 #include <ctime>
@@ -9,29 +12,112 @@ namespace Impacto {
 namespace SaveSystem {
 
 using namespace Impacto::Profile::SaveSystem;
+using namespace Impacto::Profile::ScriptVars;
 
-void Init() { Configure(); }
+void Init() { Impacto::Profile::SaveSystem::Configure(); }
+
+class SaveFileLoader : public Loadable<SaveFileLoader, SaveError> {
+  friend Loadable<SaveFileLoader, SaveError>;
+
+ protected:
+  void UnloadSync() {}
+  SaveError LoadSync() {
+    return Implementation ? Implementation->MountSaveFile(QueuedTextures)
+                          : SaveError::Failed;
+  }
+
+  void MainThreadOnLoad(SaveError result) {
+    // Texture submission has to happen on the main thread
+    for (QueuedTexture& texture : QueuedTextures) {
+      texture.Id.get() = texture.Tex.Submit();
+    }
+
+    QueuedTextures.clear();
+
+    // Let's not report errors until we finalize the implementation
+    if (Profile::Vm::GameInstructionSet != +Vm::InstructionSet::CC) {
+      result = SaveError::OK;
+    }
+
+    ScrWork[SW_SAVEERRORCODE] = (int)result;
+  }
+
+ private:
+  std::vector<QueuedTexture> QueuedTextures;
+};
+
+class SaveFileChecker : public Loadable<SaveFileChecker, SaveError> {
+  friend Loadable<SaveFileChecker, SaveError>;
+
+ protected:
+  void UnloadSync() {}
+  SaveError LoadSync() {
+    return Implementation ? Implementation->CheckSaveFile() : SaveError::Failed;
+  }
+
+  void MainThreadOnLoad(SaveError result) {
+    // Let's not report errors until we finalize the implementation
+    if (Profile::Vm::GameInstructionSet != +Vm::InstructionSet::CC) {
+      result = SaveError::OK;
+    }
+
+    ScrWork[SW_SAVEERRORCODE] = (int)result;
+  }
+};
+
+class SaveFileWriter : public Loadable<SaveFileWriter, SaveError> {
+  friend Loadable<SaveFileWriter, SaveError>;
+
+ protected:
+  void UnloadSync() {}
+  SaveError LoadSync() {
+    return Implementation ? Implementation->WriteSaveFile() : SaveError::Failed;
+  }
+
+  void MainThreadOnLoad(SaveError result) {
+    // Let's not report errors until we finalize the implementation
+    if (Profile::Vm::GameInstructionSet != +Vm::InstructionSet::CC) {
+      result = SaveError::OK;
+    }
+
+    ScrWork[SW_SAVEERRORCODE] = (int)result;
+  }
+};
+
+static std::variant<SaveFileLoader, SaveFileChecker, SaveFileWriter> Loader;
+
+template <typename TLoader>
+void ExecuteLoader() {
+  SaveError result = Loader.emplace<TLoader>().LoadAsync()
+                         ? SaveError::InProgress
+                         : SaveError::Failed;
+
+  ScrWork[SW_SAVEERRORCODE] = (int)result;
+}
+
+LoadStatus GetLoadStatus() {
+  return std::visit([](auto& loader) -> LoadStatus { return loader.Status; },
+                    Loader);
+}
+
+void MountSaveFile() { ExecuteLoader<SaveFileLoader>(); }
+void CheckSaveFile() { ExecuteLoader<SaveFileChecker>(); }
+void WriteSaveFile() { ExecuteLoader<SaveFileWriter>(); }
 
 SaveError CreateSaveFile() {
-  if (Implementation)
-    return Implementation->CreateSaveFile();
-  else
-    return SaveOK;  // Just so we don't get stuck
+  return Implementation ? Implementation->CreateSaveFile() : SaveError::Failed;
 }
 
-SaveError CheckSaveFile() {
-  if (Implementation)
-    return Implementation->CheckSaveFile();
-  else
-    return SaveOK;
+void SaveSystemData() {
+  if (Implementation) Implementation->SaveSystemData();
 }
 
-SaveError MountSaveFile() {
-  if (Implementation)
-    return Implementation->MountSaveFile();
-  else
-    return SaveOK;  // Just so we don't get stuck at loading save data in
-                    // script.
+SaveError LoadSystemData() {
+  return Implementation ? Implementation->LoadSystemData() : SaveError::Failed;
+}
+
+void SaveThumbnailData() {
+  if (Implementation) Implementation->SaveThumbnailData();
 }
 
 void SaveMemory() {
@@ -49,10 +135,6 @@ void LoadMemoryNew(LoadProcess load) {
 void FlushWorkingSaveEntry(SaveType type, int id, int autoSaveType) {
   if (Implementation)
     Implementation->FlushWorkingSaveEntry(type, id, autoSaveType);
-}
-
-void WriteSaveFile() {
-  if (Implementation) Implementation->WriteSaveFile();
 }
 
 uint32_t GetSavePlayTime(SaveType type, int id) {

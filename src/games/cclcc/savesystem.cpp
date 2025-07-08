@@ -53,20 +53,20 @@ SaveError SaveSystem::CheckSaveFile() {
   std::error_code ec;
   IoError existsState = Io::PathExists(SaveFilePath);
   if (existsState == IoError_NotFound) {
-    return SaveNotFound;
+    return SaveError::NotFound;
   } else if (existsState == IoError_Fail) {
     ImpLog(LogLevel::Error, LogChannel::IO,
            "Failed to check if save file exists, error: \"{:s}\"\n",
            ec.message());
-    return SaveFailed;
+    return SaveError::Failed;
   }
   auto saveFileSize = Io::GetFileSize(SaveFilePath);
   if (saveFileSize == IoError_Fail) {
     ImpLog(LogLevel::Error, LogChannel::IO,
            "Failed to get save file size, error: \"{:s}\"\n", ec.message());
-    return SaveFailed;
+    return SaveError::Failed;
   } else if (saveFileSize != SaveFileSize) {
-    return SaveCorrupted;
+    return SaveError::Corrupted;
   }
   auto checkPermsBit = [](Io::FilePermissionsFlags perms,
                           Io::FilePermissionsFlags flag) {
@@ -79,12 +79,12 @@ SaveError SaveSystem::CheckSaveFile() {
     ImpLog(LogLevel::Error, LogChannel::IO,
            "Failed to get save file permissions, error: \"{:s}\"\n",
            ec.message());
-    return SaveFailed;
+    return SaveError::Failed;
   } else if ((!checkPermsBit(perms, Io::FilePermissionsFlags::owner_read) ||
               !checkPermsBit(perms, Io::FilePermissionsFlags::owner_write))) {
-    return SaveWrongUser;
+    return SaveError::WrongUser;
   }
-  return SaveOK;
+  return SaveError::OK;
 }
 
 SaveError SaveSystem::CreateSaveFile() {
@@ -94,7 +94,9 @@ SaveError SaveSystem::CreateSaveFile() {
       SaveFilePath, &stream,
       CF::CREATE_IF_NOT_EXISTS | CF::CREATE_DIRS | CF::WRITE);
   if (err != IoError_OK) {
-    return SaveFailed;
+    ImpLog(LogLevel::Error, LogChannel::IO,
+           "Failed to open save file for writing\n");
+    return SaveError::Failed;
   }
 
   assert(stream->Meta.Size == 0);
@@ -135,14 +137,14 @@ SaveError SaveSystem::CreateSaveFile() {
 
   delete stream;
 
-  return MountSaveFile();
+  return SaveError::OK;
 }
 
 void SaveSystem::LoadEntryBuffer(Io::MemoryStream& stream, SaveFileEntry& entry,
-                                 SaveType saveType) {
+                                 SaveType saveType, Texture& tex) {
   entry.Status = Io::ReadLE<uint8_t>(&stream);
   Io::ReadLE<uint8_t>(&stream);
-  if (entry.Status == 1 && saveType == SaveType::SaveQuick) {
+  if (entry.Status == 1 && saveType == SaveType::Quick) {
     QuickSaveCount++;
   }
   uint16_t checksumSum = Io::ReadLE<uint16_t>(&stream);
@@ -209,11 +211,10 @@ void SaveSystem::LoadEntryBuffer(Io::MemoryStream& stream, SaveFileEntry& entry,
   Io::ReadArrayLE<uint8_t>(entry.MapLoadData, &stream, 0x6ac8);
   Io::ReadArrayLE<uint8_t>(entry.YesNoData, &stream, 0x54);
 
-  auto& thumbnail = entry.SaveThumbnail;
+  Sprite& thumbnail = entry.SaveThumbnail;
   thumbnail.Sheet = SpriteSheet(SaveThumbnailWidth, SaveThumbnailHeight);
   thumbnail.Bounds = RectF(0.0f, 0.0f, SaveThumbnailWidth, SaveThumbnailHeight);
 
-  Texture tex;
   tex.Init(TexFmt_RGB, SaveThumbnailWidth, SaveThumbnailHeight);
 
   // CCLCC PS4 Save thumbnails are 240x135 RGB16
@@ -233,19 +234,17 @@ void SaveSystem::LoadEntryBuffer(Io::MemoryStream& stream, SaveFileEntry& entry,
     tex.Buffer[3 * i + 1] = g;
     tex.Buffer[3 * i + 2] = b;
   }
-
-  thumbnail.Sheet.Texture = tex.Submit();
 }
 
-SaveError SaveSystem::MountSaveFile() {
+SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
   Io::Stream* stream;
   IoError err = Io::PhysicalFileStream::Create(SaveFilePath, &stream);
   switch (err) {
     case IoError_NotFound:
-      return SaveNotFound;
+      return SaveError::NotFound;
     case IoError_Fail:
     case IoError_Eof:
-      return SaveCorrupted;
+      return SaveError::Corrupted;
     case IoError_OK:
       break;
   };
@@ -254,22 +253,22 @@ SaveError SaveSystem::MountSaveFile() {
       SpriteSheet(Window->WindowWidth, Window->WindowHeight);
   WorkingSaveThumbnail.Bounds =
       RectF(0.0f, 0.0f, Window->WindowWidth, Window->WindowHeight);
-  Texture txt;
-  txt.LoadSolidColor(WorkingSaveThumbnail.Bounds.Width,
-                     WorkingSaveThumbnail.Bounds.Height, 0x000000);
-  WorkingSaveThumbnail.Sheet.Texture = txt.Submit();
 
-  std::array<uint8_t, 0x387c> systemSaveBuf;
-  Io::ReadArrayLE<uint8_t>(systemSaveBuf.data(), stream, 0x387c);
-  Io::MemoryStream systemSaveStream(systemSaveBuf.data(), systemSaveBuf.size(),
-                                    false);
-  LoadSystemBuffer(systemSaveStream);
+  QueuedTexture txt{
+      .Id = std::ref(WorkingSaveThumbnail.Sheet.Texture),
+  };
+  txt.Tex.LoadSolidColor(WorkingSaveThumbnail.Bounds.Width,
+                         WorkingSaveThumbnail.Bounds.Height, 0x000000);
+  textures.push_back(txt);
+
+  Io::ReadArrayLE<uint8_t>(SystemData.data(), stream, SystemData.size());
   uint32_t systemSaveChecksum =
-      CalculateChecksum(std::span(systemSaveBuf).subspan(4));
+      CalculateChecksum(std::span(SystemData).subspan(4));
 
+  textures.reserve(MaxSaveEntries * 2);
   for (auto& entryArray : {FullSaveEntries, QuickSaveEntries}) {
-    SaveType saveType = (entryArray == QuickSaveEntries) ? SaveType::SaveQuick
-                                                         : SaveType::SaveFull;
+    SaveType saveType =
+        (entryArray == QuickSaveEntries) ? SaveType::Quick : SaveType::Full;
     int64_t saveDataPos = stream->Position;
     for (int i = 0; i < MaxSaveEntries; i++) {
       assert(stream->Position - saveDataPos == 0x1b110 * i);
@@ -282,33 +281,39 @@ SaveError SaveSystem::MountSaveFile() {
       Io::MemoryStream saveEntryDataStream(entrySlotBuf.data(),
                                            entrySlotBuf.size(), false);
 
+      QueuedTexture tex{
+          .Id = std::ref(entryArray[i]->SaveThumbnail.Sheet.Texture),
+      };
       LoadEntryBuffer(saveEntryDataStream,
-                      static_cast<SaveFileEntry&>(*entryArray[i]), saveType);
+                      static_cast<SaveFileEntry&>(*entryArray[i]), saveType,
+                      tex.Tex);
+      textures.push_back(tex);
+
       // Todo, validate checksum?
       uint32_t entryChecksum = CalculateChecksum(
           std::span(entrySlotBuf).subspan(6, 23029 * 2), 18198, 5250, false);
     }
   }
   delete stream;
-  return SaveOK;
+  return SaveError::OK;
 }
 
 void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
                                        int autoSaveType) {
-  SaveFileEntry* entry = 0;
+  SaveFileEntry* entry = nullptr;
   switch (type) {
-    case SaveQuick:
+    case SaveType::Quick:
       entry = (SaveFileEntry*)QuickSaveEntries[id];
       break;
-    case SaveFull:
+    case SaveType::Full:
       entry = (SaveFileEntry*)FullSaveEntries[id];
       break;
   }
 
-  if (entry != 0 && !(GetSaveFlags(type, id) & WriteProtect)) {
+  if (entry != nullptr && !(GetSaveFlags(type, id) & WriteProtect)) {
     Renderer->FreeTexture(entry->SaveThumbnail.Sheet.Texture);
     *entry = *WorkingSaveEntry;
-    if (type == SaveQuick) {
+    if (type == SaveType::Quick) {
       entry->SaveType = autoSaveType;
     }
     time_t rawtime;
@@ -393,28 +398,47 @@ void SaveSystem::SaveEntryBuffer(Io::MemoryStream& memoryStream,
   Io::WriteArrayLE<uint8_t>(entry.MapLoadData, &memoryStream, 0x6ac8);
   Io::WriteArrayLE<uint8_t>(entry.YesNoData, &memoryStream, 0x54);
 
-  // CCLCC PS4 Save thumbnails are 240x135 RGB16
-  std::vector<uint8_t> thumbnailData(SaveThumbnailWidth * SaveThumbnailHeight *
-                                     4);
-  Renderer->GetSpriteSheetImage(entry.SaveThumbnail.Sheet, thumbnailData);
-
   int thumbnailPadding = 0xA14;
   memoryStream.Seek(thumbnailPadding, SEEK_CUR);
 
-  for (int i = 0; i < thumbnailData.size(); i += 4) {
-    uint8_t r = thumbnailData[i];
-    uint8_t g = thumbnailData[i + 1];
-    uint8_t b = thumbnailData[i + 2];
-    uint16_t pixel = ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3);
-    pixel = SDL_SwapBE16(pixel);
-    thumbnailData[i / 2] = pixel >> 8;
-    thumbnailData[i / 2 + 1] = pixel & 0xFF;
-  }
-  Io::WriteArrayLE<uint8_t>(thumbnailData.data(), &memoryStream,
-                            thumbnailData.size() / 2);
+  Io::WriteArrayLE<uint8_t>(entry.ThumbnailData.data(), &memoryStream,
+                            entry.ThumbnailData.size());
 }
 
-void SaveSystem::LoadSystemBuffer(Io::MemoryStream& stream) {
+void SaveSystem::SaveThumbnailData() {
+  std::vector<uint8_t> thumbnailBuffer(SaveThumbnailSize * 2);
+
+  for (auto* entryArray : {FullSaveEntries, QuickSaveEntries}) {
+    SaveType saveType =
+        (entryArray == QuickSaveEntries) ? SaveType::Quick : SaveType::Full;
+
+    for (int i = 0; i < MaxSaveEntries; i++) {
+      SaveFileEntry* entry = (SaveFileEntry*)entryArray[i];
+      if (entry->Status == 0) continue;
+
+      Renderer->GetSpriteSheetImage(entry->SaveThumbnail.Sheet,
+                                    thumbnailBuffer);
+
+      std::array<uint8_t, SaveThumbnailSize>& thumbnailData =
+          entry->ThumbnailData;
+
+      for (int i = 0; i < thumbnailBuffer.size(); i += 4) {
+        uint8_t r = thumbnailBuffer[i];
+        uint8_t g = thumbnailBuffer[i + 1];
+        uint8_t b = thumbnailBuffer[i + 2];
+        uint16_t pixel = ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3);
+        pixel = SDL_SwapBE16(pixel);
+        thumbnailData[i / 2] = pixel >> 8;
+        thumbnailData[i / 2 + 1] = pixel & 0xFF;
+      }
+    }
+  }
+}
+
+SaveError SaveSystem::LoadSystemData() {
+  Io::MemoryStream stream =
+      Io::MemoryStream(SystemData.data(), SystemData.size(), false);
+
   uint16_t systemSum = Io::ReadLE<uint16_t>(&stream);
   uint16_t systemXor = Io::ReadLE<uint16_t>(&stream);
   stream.Seek(0x14, SEEK_SET);
@@ -477,9 +501,14 @@ void SaveSystem::LoadSystemBuffer(Io::MemoryStream& stream) {
 
   stream.Seek(0x347c, SEEK_SET);
   Io::ReadArrayLE<uint8_t>(GameExtraData, &stream, 1024);
+
+  return SaveError::OK;
 }
 
-void SaveSystem::SaveSystemBuffer(Io::MemoryStream& systemSaveStream) {
+void SaveSystem::SaveSystemData() {
+  Io::MemoryStream systemSaveStream =
+      Io::MemoryStream(SystemData.data(), SystemData.size(), false);
+
   systemSaveStream.Seek(0x14, SEEK_SET);
 
   systemSaveStream.Seek(0x80, SEEK_SET);
@@ -493,10 +522,12 @@ void SaveSystem::SaveSystemBuffer(Io::MemoryStream& systemSaveStream) {
   systemSaveStream.Seek(0x8AC, SEEK_SET);
   Io::WriteLE(&systemSaveStream, (Uint16)(TextSpeed * 60));
   Io::WriteLE(&systemSaveStream, (Uint16)(AutoSpeed * 60));
-  Io::WriteLE(&systemSaveStream, (Uint8)(Audio::GroupVolumes[Audio::ACG_Voice] *
-                                         128));  // VOICE2vol
-  Io::WriteLE(&systemSaveStream, (Uint8)(Audio::GroupVolumes[Audio::ACG_Voice] *
-                                         128));  // VOICEvol
+  Io::WriteLE(
+      &systemSaveStream,
+      (Uint8)(Audio::GroupVolumes[Audio::ACG_Voice] * 128));  // VOICE2vol
+  Io::WriteLE(
+      &systemSaveStream,
+      (Uint8)(Audio::GroupVolumes[Audio::ACG_Voice] * 128));  // VOICEvol
   Io::WriteLE(&systemSaveStream,
               (Uint8)(Audio::GroupVolumes[Audio::ACG_BGM] * 256));
   Io::WriteLE(&systemSaveStream,
@@ -550,7 +581,7 @@ void SaveSystem::SaveSystemBuffer(Io::MemoryStream& systemSaveStream) {
   Io::WriteArrayLE<uint8_t>(GameExtraData, &systemSaveStream, 1024);
 }
 
-void SaveSystem::WriteSaveFile() {
+SaveError SaveSystem::WriteSaveFile() {
   using CF = Io::PhysicalFileStream::CreateFlagsMode;
   Io::Stream* stream;
   IoError err = Io::PhysicalFileStream::Create(SaveFilePath, &stream,
@@ -558,23 +589,20 @@ void SaveSystem::WriteSaveFile() {
   if (err != IoError_OK) {
     ImpLog(LogLevel::Error, LogChannel::IO,
            "Failed to open save file for writing\n");
-    return;
+    return SaveError::Failed;
   }
 
-  std::array<uint8_t, 0x387c> systemSaveBuf{};
-  auto systemSaveStream =
-      Io::MemoryStream(systemSaveBuf.data(), systemSaveBuf.size(), false);
-  SaveSystemBuffer(systemSaveStream);
-  uint32_t systemChecksum =
-      CalculateChecksum(std::span(systemSaveBuf).subspan(4));
+  Io::MemoryStream systemSaveStream =
+      Io::MemoryStream(SystemData.data(), SystemData.size(), false);
+  uint32_t systemChecksum = CalculateChecksum(std::span(SystemData).subspan(4));
   systemSaveStream.Seek(0, SEEK_SET);
   Io::WriteLE<uint16_t>(&systemSaveStream, systemChecksum >> 16);
   Io::WriteLE<uint16_t>(&systemSaveStream, systemChecksum & 0xFFFF);
-  Io::WriteArrayLE<uint8_t>(systemSaveBuf.data(), stream, systemSaveBuf.size());
+  Io::WriteArrayLE<uint8_t>(SystemData.data(), stream, SystemData.size());
   // End system data
   for (auto* entryArray : {FullSaveEntries, QuickSaveEntries}) {
-    SaveType saveType = (entryArray == QuickSaveEntries) ? SaveType::SaveQuick
-                                                         : SaveType::SaveFull;
+    SaveType saveType =
+        (entryArray == QuickSaveEntries) ? SaveType::Quick : SaveType::Full;
     int64_t saveDataPos = stream->Position;
     for (int i = 0; i < MaxSaveEntries; i++) {
       SaveFileEntry* entry = (SaveFileEntry*)entryArray[i];
@@ -597,13 +625,14 @@ void SaveSystem::WriteSaveFile() {
     }
   }
   delete stream;
+  return SaveError::OK;
 }
 
 uint32_t SaveSystem::GetSavePlayTime(SaveType type, int id) {
   switch (type) {
-    case SaveFull:
+    case SaveType::Full:
       return ((SaveFileEntry*)FullSaveEntries[id])->PlayTime;
-    case SaveQuick:
+    case SaveType::Quick:
       return ((SaveFileEntry*)QuickSaveEntries[id])->PlayTime;
     default:
       ImpLog(LogLevel::Error, LogChannel::IO,
@@ -614,9 +643,9 @@ uint32_t SaveSystem::GetSavePlayTime(SaveType type, int id) {
 
 uint8_t SaveSystem::GetSaveFlags(SaveType type, int id) {
   switch (type) {
-    case SaveFull:
+    case SaveType::Full:
       return ((SaveFileEntry*)FullSaveEntries[id])->Flags;
-    case SaveQuick:
+    case SaveType::Quick:
       return ((SaveFileEntry*)QuickSaveEntries[id])->Flags;
     default:
       ImpLog(LogLevel::Error, LogChannel::IO,
@@ -637,9 +666,9 @@ tm const& SaveSystem::GetSaveDate(SaveType type, int id) {
     return t;
   }();
   switch (type) {
-    case SaveFull:
+    case SaveType::Full:
       return ((SaveFileEntry*)FullSaveEntries[id])->SaveDate;
-    case SaveQuick:
+    case SaveType::Quick:
       return ((SaveFileEntry*)QuickSaveEntries[id])->SaveDate;
     default:
       ImpLog(LogLevel::Error, LogChannel::IO,
@@ -695,10 +724,10 @@ void SaveSystem::LoadEntry(SaveType type, int id) {
     return;
   }
   switch (type) {
-    case SaveQuick:
+    case SaveType::Quick:
       WorkingSaveEntry = *static_cast<SaveFileEntry*>(QuickSaveEntries[id]);
       break;
-    case SaveFull:
+    case SaveType::Full:
       WorkingSaveEntry = *static_cast<SaveFileEntry*>(FullSaveEntries[id]);
       break;
     default:
@@ -714,7 +743,7 @@ void SaveSystem::LoadMemoryNew(LoadProcess load) {
            "Failed to load entry: save is empty\n");
     return;
   }
-  if (load == LoadProcess::LoadVars) {
+  if (load == LoadProcess::Vars) {
     ScrWork[SW_PLAYTIME] = WorkingSaveEntry->PlayTime;
     ScrWork[SW_TITLE] = WorkingSaveEntry->SwTitle;
     ScrWork[SW_AUTOSAVERESTART] = WorkingSaveEntry->SaveType;
@@ -768,11 +797,11 @@ void SaveSystem::LoadMemoryNew(LoadProcess load) {
 
 uint8_t SaveSystem::GetSaveStatus(SaveType type, int id) {
   switch (type) {
-    case SaveQuick:
+    case SaveType::Quick:
       return QuickSaveEntries[id] != nullptr
                  ? ((SaveFileEntry*)QuickSaveEntries[id])->Status
                  : 0;
-    case SaveFull:
+    case SaveType::Full:
       return FullSaveEntries[id] != nullptr
                  ? ((SaveFileEntry*)FullSaveEntries[id])->Status
                  : 0;
@@ -785,9 +814,9 @@ uint8_t SaveSystem::GetSaveStatus(SaveType type, int id) {
 
 int SaveSystem::GetSaveTitle(SaveType type, int id) {
   switch (type) {
-    case SaveQuick:
+    case SaveType::Quick:
       return ((SaveFileEntry*)QuickSaveEntries[id])->SwTitle;
-    case SaveFull:
+    case SaveType::Full:
       return ((SaveFileEntry*)FullSaveEntries[id])->SwTitle;
     default:
       ImpLog(LogLevel::Error, LogChannel::IO,
@@ -896,9 +925,9 @@ void SaveSystem::SetCheckpointId(int id) {
 
 Sprite& SaveSystem::GetSaveThumbnail(SaveType type, int id) {
   switch (type) {
-    case SaveQuick:
+    case SaveType::Quick:
       return ((SaveFileEntry*)QuickSaveEntries[id])->SaveThumbnail;
-    case SaveFull:
+    case SaveType::Full:
       return ((SaveFileEntry*)FullSaveEntries[id])->SaveThumbnail;
   }
 }

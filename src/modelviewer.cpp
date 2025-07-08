@@ -75,7 +75,7 @@ void Update(float dt) {
     UiMsaaCount = Window->MsaaCount;
   }
 
-  if (Renderer->Scene->Renderables[0]->Status == LS_Loaded) {
+  if (Renderer->Scene->Renderables[0]->Status == LoadStatus::Loaded) {
     if (g_BackgroundModelIds[CurrentBackground] !=
         Renderer->Scene->Renderables[0]->StaticModel->Id) {
       Renderer->Scene->Renderables[0]->LoadAsync(
@@ -191,7 +191,7 @@ void Update(float dt) {
       Renderer->Scene->Tint.a = UiTintColor.a;
     }
 
-    if (Renderer->Scene->Renderables[0]->Status == LS_Loaded) {
+    if (Renderer->Scene->Renderables[0]->Status == LoadStatus::Loaded) {
       Renderer->Scene->Renderables[0]->IsVisible = true;
 
       if (ImGui::CollapsingHeader("Background",
@@ -222,7 +222,7 @@ void Update(float dt) {
 
     ImGui::Spacing();
 
-    if (Renderer->Scene->Renderables[1]->Status == LS_Loaded) {
+    if (Renderer->Scene->Renderables[1]->Status == LoadStatus::Loaded) {
       Renderer->Scene->Renderables[1]->IsVisible = true;
 
       if (ImGui::CollapsingHeader("Model", ImGuiTreeNodeFlags_DefaultOpen)) {
@@ -401,11 +401,11 @@ void Update(float dt) {
 
   ImGui::End();
 #else
-  if (Renderer->Scene->Renderables[0]->Status == LS_Loaded) {
+  if (Renderer->Scene->Renderables[0]->Status == LoadStatus::Loaded) {
     Renderer->Scene->Renderables[0]->IsVisible = true;
   }
 
-  if (Renderer->Scene->Renderables[1]->Status == LS_Loaded) {
+  if (Renderer->Scene->Renderables[1]->Status == LoadStatus::Loaded) {
     Renderer->Scene->Renderables[1]->IsVisible = true;
   }
 #endif

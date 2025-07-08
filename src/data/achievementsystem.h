@@ -2,11 +2,19 @@
 
 #include <enum.h>
 #include "../spritesheet.h"
+#include "../loadable.h"
 
 namespace Impacto {
 namespace AchievementSystem {
 
 BETTER_ENUM(AchievementDataType, int, None, PS3)
+
+enum class AchievementError {
+  OK = 0,
+  InProgress = 1,
+  OutOfDiskSpace = 4,
+  Failed = 100,
+};
 
 class Achievement {
  public:
@@ -31,7 +39,7 @@ class Achievement {
 
 class AchievementSystemBase {
  public:
-  virtual bool MountAchievementFile() = 0;
+  virtual AchievementError MountAchievementFile() = 0;
   //  virtual bool UnlockAchievement(int id) = 0;
   virtual const Achievement *GetAchievement(int id) = 0;
   virtual size_t GetAchievementCount() const = 0;
@@ -41,7 +49,8 @@ inline AchievementSystemBase *Implementation = nullptr;
 
 void Init();
 
-bool MountAchievementFile();
+LoadStatus GetLoadStatus();
+void MountAchievementFile();
 const Achievement *GetAchievement(int id);
 size_t GetAchievementCount();
 
