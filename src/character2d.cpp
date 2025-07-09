@@ -395,10 +395,13 @@ void Character2D::Render(const int layer) {
         for (int i = 0; i < state.Count; i++) {
           CharaSprite.Bounds = RectF(layData.TextureCoords[i].x,
                                      layData.TextureCoords[i].y, 30.0f, 30.0f);
+
           const glm::mat4 transformation = TransformationMatrix(
-              {0.0f, 0.0f}, Scale, glm::vec3(0.0f), Rotation,
-              layData.ScreenCoords[i] + Position);
-          Renderer->DrawSprite(CharaSprite, transformation, Tint);
+              {0.0f, 0.0f}, Scale, glm::vec3(0.0f), Rotation);
+          const glm::vec2 pos = layData.ScreenCoords[i] + Position;
+          const RectF dest(pos.x, pos.y, 30.0f, 30.0f);
+
+          Renderer->DrawSprite(CharaSprite, dest, transformation, Tint);
         }
       }
     }
