@@ -49,7 +49,7 @@ class FFmpegPlayer : public VideoPlayer {
   void Decode();
   void ProcessAudio();
 
-  bool AbortRequest;
+  std::atomic<bool> AbortRequest;
   bool SeekRequest;
   std::thread ReadThread;
   std::optional<FFmpegStream<AVMEDIA_TYPE_VIDEO>> VideoStream;

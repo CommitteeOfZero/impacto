@@ -318,6 +318,7 @@ void FFmpegPlayer::Decode() {
           if (stream->PacketQueueSerial == stream->CurrentPacketSerial) {
             break;
           }
+          if (AbortRequest) return AVPacketItem{};
         }
         AVPacketItem packet;
         auto& packetQueue = stream->PacketQueue;
@@ -361,7 +362,7 @@ void FFmpegPlayer::Decode() {
     } else {
       // Flush decoder since packets are finished
       bool decode = true;
-      while (decode) {
+      while (decode && !AbortRequest) {
         if (ec) {
           ImpLog(LogLevel::Error, LogChannel::Video, "Failed to decode {:s}",
                  ec.message());
