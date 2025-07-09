@@ -5,18 +5,6 @@ Download the Android NDK
 Set $ANDROID_NDK_HOME to point to NDK path
 Set $MINSDKVERSION to point to desired minimum Android API level (currently 28 in pipeline)
 
-
-# Build LibAtrac9 using NDK toolchain
-```shell
-pushd vendor
-git clone https://github.com/Thealexbarney/LibAtrac9.git --depth 1
-cd LibAtrac9/C && make CC=ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/clang --target=aarch64-linux-android$MINSDKVERSION -fPIC"
-mkdir -p ../include/libatrac9
-mkdir -p ../libs
-cp bin/libatrac9.a ../libs/
-cp src/libatrac9.h ../include/libatrac9/
-popd
-```
 # Build impacto
 Run cmake with the ci-release-android preset or customize with your own in CMakeUserPresets.json
 VCPKG will automatically build dependencies for Android ARM64 target defined in the custom triplet.
@@ -27,11 +15,14 @@ cmake --build --preset ci-release-android
 ```
 libimpacto.so will automatically be copied to impacto/android/app/src/main/jniLibs/<ABI>/libimpacto.so
 
-# Copy Assets
-Copy profiles, shaders, games into impacto/android/app/src/main/assets
-
+# Packaging
+To avoid issues with packaging the .apk, avoid bundling game assets as .apk files have a maximum file size limit.
 run ./gradlew assemble in impacto/android
 apks will be created in impacto/android/distribution/android/app/outputs/apk
+
+# Preparing impacto
+Game assets should be copied to the `/sdcard/Android/data/com.committeeofzero.impacto/files/games` folder, see [Getting Started](/doc/getting_started.md).
+Upon running the application for the first time, bundled files will be copied to the `/sdcard/Android/data/com.committeeofzero.impacto/files/` folder. This will also occur when impacto detects a .reset file in the same directory.
 
 # Debugging
 Override the CMake preset and set CMAKE_BUILD_TYPE to DEBUG (-DCMAKE_BUILD_TYPE=DEBUG in command line or override with user preset) 

@@ -1239,7 +1239,7 @@ target_precompile_headers(impacto PRIVATE
 # binary install
 
 if (ANDROID)
-    install(TARGETS impacto LIBRARY DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/jniLibs/${CMAKE_ANDROID_ARCH_ABI}/)
+    install(TARGETS impacto LIBRARY DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/jniLibs/${CMAKE_ANDROID_ARCH_ABI})
 elseif (NX)
     install(TARGETS impacto RUNTIME DESTINATION .)
 elseif (WIN32)
@@ -1274,6 +1274,14 @@ endif ()
 
 # asset install
 
-install(DIRECTORY src/shaders DESTINATION .)
-install(DIRECTORY profiles DESTINATION .)
-install(DIRECTORY games DESTINATION .)
+if (NOT ANDROID)
+    install(DIRECTORY src/shaders DESTINATION .)
+    install(DIRECTORY profiles DESTINATION .)
+    install(DIRECTORY games DESTINATION .)
+else()
+    install(DIRECTORY src/shaders DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/assets)
+    install(DIRECTORY profiles DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/assets)
+    install(DIRECTORY games DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/assets PATTERN "*/gamedata/*" EXCLUDE)
+endif()
+
+

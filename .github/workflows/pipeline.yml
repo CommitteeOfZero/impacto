@@ -166,29 +166,25 @@ jobs:
       with:
         path: "${{ github.workspace }}/.vcpkg_cache"
         key: ${{ steps.vcpkgcache.outputs.cache-primary-key }}
-    - name: Copy Shaders
-      run: cp -r src/shaders "${{ github.workspace }}/release/${{ env.PresetName }}"
-      shell: bash
     - name: Copy docs
       run: |
+        mkdir -p "${{ github.workspace }}/release/${{ env.PresetName }}"
         cp THIRDPARTY.md README.md LICENSE "${{ github.workspace }}/release/${{ env.PresetName }}"
       shell: bash
+    - name: Decode signing/prod.properties file
+      if: matrix.os_name == 'android' && (github.event_name != 'pull_request_target' || github.event.pull_request.head.repo.full_name == github.repository)
+      env:
+        PROD_PROPERTIES: ${{ secrets.ANDROID_PROD_PROPERTIES }}
+        PROD_JKS: ${{ secrets.ANDROID_PROD_JKS }}
+      run: |
+        echo "$PROD_PROPERTIES" > ${{ github.workspace }}/android/app/signing/prod.properties
+        echo "$PROD_JKS" | base64 -d > ${{ github.workspace }}/android/app/signing/prod.jks
     - name: Build Android
       if: matrix.os_name == 'android'
       run: |
-        pushd "${{ github.workspace }}/release/${{ env.PresetName }}"
-        ls
-        mkdir -p "${{ github.workspace }}/android/app/src/main/assets/"
-        mv profiles "${{ github.workspace }}/android/app/src/main/assets/"
-        mv games "${{ github.workspace }}/android/app/src/main/assets/"
-        mv shaders "${{ github.workspace }}/android/app/src/main/assets/"
-        mkdir -p  "${{ github.workspace }}/android/app/src/main/jniLibs/$ABI/"
-        popd
         pushd "${{ github.workspace }}/android/"
         ./gradlew assemble
-        find "${{ github.workspace }}/android" -name "*.apk"
-        cp "${{ github.workspace }}/android/distribution/android/app/outputs/apk/debug/app-debug.apk" "${{ github.workspace }}/release/${{ env.PresetName }}/impacto-debug.apk"
-        cp "${{ github.workspace }}/android/distribution/android/app/outputs/apk/release/app-release-unsigned.apk" "${{ github.workspace }}/release/${{ env.PresetName }}/impacto-unsigned.apk"
+        cp "${{ github.workspace }}/android/distribution/android/app/outputs/apk/release/app-release.apk" "${{ github.workspace }}/release/${{ env.PresetName }}/impacto-release.apk"
       shell: bash
     - name: Archive Artifacts
       run: |

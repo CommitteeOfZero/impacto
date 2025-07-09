@@ -1,9 +1,8 @@
 apply plugin: 'com.android.application'
-
+apply from: 'signing.gradle'
 android {
-    compileSdkVersion 34
-    buildToolsVersion "28.0.3"
     defaultConfig {
+        compileSdk 33
         applicationId "com.committeeofzero.impacto"
         minSdkVersion 28
         targetSdkVersion 34
@@ -16,20 +15,29 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled false
+            signingConfig signingConfigs.release
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            applicationIdSuffix ".debug"
+            debuggable true
+            packaging {
+                jniLibs {
+                    keepDebugSymbols += "**/*.so"
+                }
+            }
         }
     }
     namespace 'com.committeeofzero.impacto'
     aaptOptions {
        noCompress 'mp4', 'mpk'
     }
-    packagingOptions {
-        // By default .so libraries are striped from debug information when creating APK
-        // To prevent this make sure your .so files are matching that doNotStrip pattern
-        // See Gradle pattern document for details:
-        // https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/util/PatternFilterable.html
-        doNotStrip "**"
+    applicationVariants.all { variant ->
+        def mergeTaskName = "merge${variant.name.capitalize()}NativeLibs"
+        tasks.named(mergeTaskName).configure {
+            outputs.upToDateWhen { false }
+        }
     }
 }
 
