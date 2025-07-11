@@ -10,6 +10,7 @@ root.WindowName = "CHAOS;CHILD Love Chu☆Chu!!";
 
 root.CharaIsMvl = true;
 root.UseMoviePriority = true;
+root.UseBgEffects = true;
 
 root.Vm = {
     StartScript = 1,

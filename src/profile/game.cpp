@@ -36,6 +36,7 @@ void LoadGameFromLua() {
   res = TryGetMember<bool>("UseScreenCapEffects", UseScreenCapEffects);
   if (!res) UseScreenCapEffects = true;
   TryGetMember<bool>("UseMoviePriority", UseMoviePriority);
+  TryGetMember<bool>("UseBgEffects", UseBgEffects);
   int audioBackendType = -1;
   res = TryGetMember<int>("AudioBackendType", audioBackendType);
   if (!res)
