@@ -292,7 +292,7 @@ void BaseRenderer::DrawProcessedText_BasicFont(
     }
   }
 
-  DrawVertices(font->Sheet, maskedSheet, vertices, indices);
+  DrawVertices(font->Sheet, maskedSheet, false, vertices, indices);
 }
 
 void BaseRenderer::DrawProcessedText_LBFont(
@@ -365,7 +365,7 @@ void BaseRenderer::DrawProcessedText_LBFont(
                  dest, destUV, color, maskUV);
     }
 
-    DrawVertices(font->OutlineSheet, maskedSheet, vertices, indices);
+    DrawVertices(font->OutlineSheet, maskedSheet, false, vertices, indices);
   }
 
   for (size_t i = 0; i < text.size(); i++) {
@@ -392,7 +392,7 @@ void BaseRenderer::DrawProcessedText_LBFont(
                dest, destUV, color, maskUV);
   }
 
-  DrawVertices(font->ForegroundSheet, maskedSheet, vertices, indices);
+  DrawVertices(font->ForegroundSheet, maskedSheet, false, vertices, indices);
 }
 
 void BaseRenderer::QuadSetPosition(CornersQuad quad, glm::vec2* const pos,
