@@ -377,6 +377,8 @@ void Background2D::UpdateState(const int bgId) {
 void Background2D::Render(const int layer) {
   if (Status != LoadStatus::Loaded || !OnLayer(layer) || !Show) return;
 
+  LastRenderedBackground = this;
+
   std::invoke(BackgroundRenderTable[RenderType], this);
 }
 

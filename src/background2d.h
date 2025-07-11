@@ -139,4 +139,6 @@ inline Background2D ShaderScreencapture;
 
 inline ankerl::unordered_dense::map<int, Background2D*> Backgrounds2D;
 
+inline Background2D* LastRenderedBackground = nullptr;
+
 }  // namespace Impacto

@@ -287,6 +287,8 @@ void Update(float dt) {
 }
 
 static void RenderMain() {
+  LastRenderedBackground = nullptr;
+
   for (uint32_t layer = 0; layer <= Profile::LayerCount; layer++) {
     const int renderTarget = ScrWork[SW_RENDERTARGET + layer];
     if (0 <= renderTarget && renderTarget <= MaxFramebuffers) {
