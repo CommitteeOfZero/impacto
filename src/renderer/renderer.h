@@ -223,6 +223,7 @@ class BaseRenderer {
   }
 
   virtual void DrawVertices(const SpriteSheet& sheet, const SpriteSheet* mask,
+                            bool maskHasAlpha,
                             std::span<const VertexBufferSprites> vertices,
                             std::span<const uint16_t> indices,
                             glm::mat4 transformation = glm::mat4(1.0f),
@@ -233,14 +234,16 @@ class BaseRenderer {
                             std::span<const uint16_t> indices,
                             glm::mat4 transformation = glm::mat4(1.0f),
                             bool inverted = false) {
-    DrawVertices(sheet, nullptr, vertices, indices, transformation, inverted);
+    DrawVertices(sheet, nullptr, false, vertices, indices, transformation,
+                 inverted);
   }
 
   void DrawVertices(const SpriteSheet& sheet, const SpriteSheet* mask,
+                    bool maskHasAlpha,
                     std::span<const VertexBufferSprites> vertices,
                     std::span<const uint16_t> indices, glm::vec2 offset,
                     bool inverted = false) {
-    DrawVertices(sheet, mask, vertices, indices,
+    DrawVertices(sheet, mask, maskHasAlpha, vertices, indices,
                  glm::translate(glm::mat4(1.0f), glm::vec3(offset, 0.0f)),
                  inverted);
   }
