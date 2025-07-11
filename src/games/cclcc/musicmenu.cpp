@@ -147,10 +147,7 @@ MusicMenu::MusicMenu()
 }
 
 void MusicMenu::Show() {
-  if (State == MenuState::Hidden) {
-    Audio::Channels[Audio::AC_BGM0]->Stop(0.0f);
-  }
-
+  Audio::Channels[Audio::AC_BGM0]->Stop(0.0f);
   LibrarySubmenu::Show();
 }
 
@@ -186,18 +183,19 @@ void MusicMenu::Init() {
   ResetShuffle();
 }
 
-void MusicMenu::Update(float dt) {
-  LibrarySubmenu::Update(dt);
-  BGWidget.Update(dt);
-  NowPlayingFadeAnimation.Update(dt);
-  NowPlayingTrackName.Update(dt);
-  const int alpha = ((ScrWork[SW_SYSSUBMENUCT] * 32 - 768) * 224) >> 8;
-  const auto tint =
-      glm::vec4(1.0f, 1.0f, 1.0f, alpha / 255.0f * FadeAnimation.Progress);
-  MainItems.Tint = tint;
-  BGWidget.Tint = tint;
-  NowPlayingTrackName.Tint = tint;
+void MusicMenu::StopMusic(bool playTitle) {
+  if (CurrentlyPlayingBtn) {
+    Audio::Channels[Audio::AC_BGM0]->Stop(0.0f);
+    CurrentlyPlayingBtn->Selected = false;
+    CurrentlyPlayingBtn = nullptr;
+    NowPlayingFadeAnimation.StartOut();
+    NowPlayingTrackName.ClearText();
+    if (playTitle)
+      Audio::Channels[Audio::AC_BGM0]->Play("bgm", 101, true, 0.0f);
+  }
+}
 
+void MusicMenu::Update(float dt) {
   const auto getNextUnlockedTrack =
       [this](size_t current) -> std::optional<size_t> {
     size_t next = (current + 1) % MusicPlayIds.size();
@@ -206,8 +204,12 @@ void MusicMenu::Update(float dt) {
     }
     return next == current ? std::nullopt : std::make_optional(next);
   };
-  if (CurrentlyPlayingBtn && Audio::Channels[Audio::AC_BGM0]->GetState() ==
-                                 Audio::AudioChannelState::ACS_Stopped) {
+  if (!IsFocused) {
+    StopMusic(true);
+  }
+  if (IsFocused && CurrentlyPlayingBtn &&
+      Audio::Channels[Audio::AC_BGM0]->GetState() ==
+          Audio::AudioChannelState::ACS_Stopped) {
     switch (PlayMode) {
       case MusicMenuPlayingMode::RepeatOne:
         PlayTrack(CurrentlyPlayingBtn->Id);
@@ -220,10 +222,7 @@ void MusicMenu::Update(float dt) {
             break;
           }
         }
-        CurrentlyPlayingBtn->Selected = false;
-        CurrentlyPlayingBtn = nullptr;
-        NowPlayingFadeAnimation.StartOut();
-        NowPlayingTrackName.ClearText();
+        StopMusic();
       } break;
       case MusicMenuPlayingMode::RepeatAll: {
         auto nextTrack = getNextUnlockedTrack(CurrentlyPlayingBtn->Id);
@@ -238,33 +237,31 @@ void MusicMenu::Update(float dt) {
       } break;
     }
   }
+  LibrarySubmenu::Update(dt);
+  BGWidget.Update(dt);
+  NowPlayingFadeAnimation.Update(dt);
+  NowPlayingTrackName.Update(dt);
+  const int alpha = ((ScrWork[SW_SYSSUBMENUCT] * 32 - 768) * 224) >> 8;
+  const auto tint =
+      glm::vec4(1.0f, 1.0f, 1.0f, alpha / 255.0f * FadeAnimation.Progress);
+  MainItems.Tint = tint;
+  BGWidget.Tint = tint;
+  NowPlayingTrackName.Tint = tint;
 }
 
 void MusicMenu::Hide() {
-  if (CurrentlyPlayingBtn) {
-    CurrentlyPlayingBtn->Selected = false;
-    CurrentlyPlayingBtn = nullptr;
-  }
   if (CurrentlyFocusedElement) CurrentlyFocusedElement = nullptr;
-  NowPlayingFadeAnimation.StartOut();
+  StopMusic(true);
   Audio::Channels[Audio::AC_SSE]->Play("sysse", 3, false, 0);
-  Audio::Channels[Audio::AC_BGM0]->Play("bgm", 101, true, 0.0f);
-  NowPlayingTrackName.ClearText();
   MainItems.MoveTo(glm::vec2(0, 0));
   LibrarySubmenu::Hide();
 }
 
 void MusicMenu::UpdateInput(float dt) {
   using namespace Vm::Interface;
-  if (State == Shown) {
+  if (State == Shown && IsFocused) {
     if (PADinputButtonWentDown & PADcustom[17]) {
-      Audio::Channels[Audio::AC_BGM0]->Stop(0.0f);
-      if (CurrentlyPlayingBtn) {
-        CurrentlyPlayingBtn->Selected = false;
-        CurrentlyPlayingBtn = nullptr;
-      }
-      NowPlayingFadeAnimation.StartOut();
-      NowPlayingTrackName.ClearText();
+      StopMusic();
     }
 
     if (PADinputButtonWentDown & PADcustom[18]) {

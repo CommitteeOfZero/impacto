@@ -24,23 +24,27 @@ void LibrarySubmenu::Show() {
   if (State != Shown) {
     State = Showing;
     FadeAnimation.StartIn();
-    if (UI::FocusedMenu != 0) {
-      LastFocusedMenu = UI::FocusedMenu;
-      LastFocusedMenu->IsFocused = false;
-    }
-    IsFocused = true;
-    UI::FocusedMenu = this;
     MainItems.Show();
   }
+  if (UI::FocusedMenu != 0 && UI::FocusedMenu != this) {
+    LastFocusedMenu = UI::FocusedMenu;
+    LastFocusedMenu->IsFocused = false;
+  }
+  if (State == Shown) {
+    IsFocused = true;
+  }
+  UI::FocusedMenu = this;
 }
 void LibrarySubmenu::Hide() {
   if (State != Hidden) {
     State = Hiding;
     FadeAnimation.StartOut();
-    if (LastFocusedMenu != 0) {
-      UI::FocusedMenu = LastFocusedMenu;
-    } else {
-      UI::FocusedMenu = 0;
+    if (UI::FocusedMenu == this) {
+      if (LastFocusedMenu != 0) {
+        UI::FocusedMenu = LastFocusedMenu;
+      } else {
+        UI::FocusedMenu = 0;
+      }
     }
     IsFocused = false;
   }
@@ -48,6 +52,7 @@ void LibrarySubmenu::Hide() {
 
 void LibrarySubmenu::Update(float dt) {
   FadeAnimation.Update(dt);
+  MainItems.HasFocus = IsFocused;
   MainItems.Update(dt);
   UpdateInput(dt);
   if (CurrentlyFocusedElement) {
