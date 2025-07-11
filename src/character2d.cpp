@@ -7,6 +7,7 @@
 #include "profile/scriptvars.h"
 #include "profile/vm.h"
 #include "voicetable.h"
+#include "background2d.h"
 
 namespace Impacto {
 
@@ -383,8 +384,16 @@ void Character2D::Render(const int layer) {
 
     const glm::mat4 transformation = TransformationMatrix(
         {0.0f, 0.0f}, Scale, glm::vec3(0.0f), Rotation, Position);
-    Renderer->DrawVertices(CharaSpriteSheet, MvlVertices, MvlIndices,
-                           transformation);
+
+    if (!Profile::UseBgEffects || !LastRenderedBackground ||
+        !LastRenderedBackground->BgEffChaLoaded) {
+      Renderer->DrawVertices(CharaSpriteSheet, MvlVertices, MvlIndices,
+                             transformation);
+    } else {
+      Renderer->DrawVertices(CharaSpriteSheet,
+                             &LastRenderedBackground->BgEffChaSprite.Sheet,
+                             true, MvlVertices, MvlIndices, transformation);
+    }
 
   } else {
     for (auto id : StatesToDraw) {
