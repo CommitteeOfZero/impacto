@@ -472,6 +472,7 @@ void Renderer::DrawMaskedSpriteOverlay(
 
 void Renderer::DrawVertices(const SpriteSheet& sheet,
                             const SpriteSheet* const mask,
+                            const bool maskHasAlpha,
                             const std::span<const VertexBufferSprites> vertices,
                             const std::span<const uint16_t> indices,
                             glm::mat4 transformation, const bool inverted) {
@@ -483,18 +484,30 @@ void Renderer::DrawVertices(const SpriteSheet& sheet,
 
   // Set uniform variables
   if (mask != nullptr) {
-    MaskedSpriteNoAlphaUniforms uniforms{
-        .Projection = Projection,
-        .SpriteTransformation = transformation,
-        .MaskTransformation = glm::mat4(1.0f),
-        .ColorMap = 0,
-        .Mask = 2,
-        .Alpha = {1.0f, 0.0f},
-        .IsInverted = inverted,
-    };
+    if (maskHasAlpha) {
+      ColorMaskedSpriteUniforms uniforms{
+          .Projection = Projection,
+          .SpriteTransformation = transformation,
+          .MaskTransformation = glm::mat4(1.0f),
+          .ColorMap = 0,
+          .Mask = 2,
+      };
 
-    UseShader(*MaskedSpriteNoAlphaShaderProgram, uniforms);
+      UseShader(*ColorMaskedSpriteShaderProgram, uniforms);
 
+    } else {
+      MaskedSpriteNoAlphaUniforms uniforms{
+          .Projection = Projection,
+          .SpriteTransformation = transformation,
+          .MaskTransformation = glm::mat4(1.0f),
+          .ColorMap = 0,
+          .Mask = 2,
+          .Alpha = {1.0f, 0.0f},
+          .IsInverted = inverted,
+      };
+
+      UseShader(*MaskedSpriteNoAlphaShaderProgram, uniforms);
+    }
   } else {
     if (inverted) {
       SpriteInvertedUniforms uniforms{
