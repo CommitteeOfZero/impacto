@@ -74,7 +74,51 @@ bool Background2D::LoadSync(uint32_t bgId) {
     if (err != IoError_OK) return false;
     BgTexture.Load(stream);
     delete stream;
+
+    if (Profile::UseBgEffects) {
+      Io::FileMeta meta;
+      err = Io::VfsGetMeta("bg", bgId, &meta);
+      if (err != IoError_OK) return false;
+
+      const std::string baseName =
+          meta.FileName.substr(0, meta.FileName.find('.'));
+
+      LoadedBgEffCount = 0;
+      for (size_t i = 0; i < BgEffTextures.size(); i++) {
+        const std::string filename = fmt::format("FT_{}{}.png", baseName, i);
+
+        Io::Stream* bgEffStream;
+        int64_t err = Io::VfsOpen("bgeffect", filename, &bgEffStream);
+
+        if (err == IoError_NotFound) {
+          // No more background effects
+          break;
+        } else if (err != IoError::IoError_OK) {
+          return false;
+        }
+
+        BgEffTextures[i].Load(bgEffStream);
+        LoadedBgEffCount++;
+
+        delete bgEffStream;
+      }
+
+      BgEffChaLoaded = false;
+      const std::string filename = fmt::format("FT_{}CH.png", baseName);
+
+      Io::Stream* bgEffStream;
+      int64_t err = Io::VfsOpen("bgeffect", filename, &bgEffStream);
+
+      if (err != IoError_NotFound) {
+        if (err != IoError_OK) return false;
+
+        BgEffChaTexture.Load(bgEffStream);
+        BgEffChaLoaded = true;
+        delete bgEffStream;
+      }
+    }
   }
+
   return true;
 }
 
@@ -89,12 +133,29 @@ void Background2D::UnloadSync() {
   BgSprite.Sheet.DesignWidth = 0.0f;
   BgSprite.Sheet.Texture = 0;
   BgSprite.Sheet.IsScreenCap = false;
+
+  LoadedBgEffCount = 0;
+  for (Sprite& bgEff : BgEffSprites) {
+    Renderer->FreeTexture(bgEff.Sheet.Texture);
+    bgEff.Sheet.DesignHeight = 0.0f;
+    bgEff.Sheet.DesignWidth = 0.0f;
+    bgEff.Sheet.Texture = 0;
+  }
+
+  BgEffChaLoaded = false;
+  Renderer->FreeTexture(BgEffChaSprite.Sheet.Texture);
+  BgEffChaSprite.Sheet.DesignHeight = 0.0f;
+  BgEffChaSprite.Sheet.DesignWidth = 0.0f;
+  BgEffChaSprite.Sheet.Texture = 0;
+
   Show = false;
+
   std::fill(Layers.begin(), Layers.end(), -1);
 }
 
 void Background2D::MainThreadOnLoad(bool result) {
   BgSprite.Sheet.Texture = BgTexture.Submit();
+
   if ((BgTexture.Width == 1) && (BgTexture.Height == 1)) {
     BgSprite.Sheet.DesignWidth = Profile::DesignWidth;
     BgSprite.Sheet.DesignHeight = Profile::DesignHeight;
@@ -102,10 +163,37 @@ void Background2D::MainThreadOnLoad(bool result) {
     BgSprite.Sheet.DesignWidth = (float)BgTexture.Width;
     BgSprite.Sheet.DesignHeight = (float)BgTexture.Height;
   }
+
   BgSprite.BaseScale = glm::vec2(1.0f);
   BgSprite.Bounds = RectF(0.0f, 0.0f, BgSprite.Sheet.DesignWidth,
                           BgSprite.Sheet.DesignHeight);
+
+  if (Profile::UseBgEffects) {
+    for (size_t i = 0; i < LoadedBgEffCount; i++) {
+      BgEffSprites[i].Sheet.Texture = BgEffTextures[i].Submit();
+
+      BgEffSprites[i].Sheet.DesignWidth = (float)BgEffTextures[i].Width;
+      BgEffSprites[i].Sheet.DesignHeight = (float)BgEffTextures[i].Height;
+
+      BgEffSprites[i].Bounds =
+          RectF(0.0f, 0.0f, BgEffSprites[i].Sheet.DesignWidth,
+                BgEffSprites[i].Sheet.DesignHeight);
+    }
+
+    if (BgEffChaLoaded) {
+      BgEffChaSprite.Sheet.Texture = BgEffChaTexture.Submit();
+
+      BgEffChaSprite.Sheet.DesignWidth = (float)BgEffChaTexture.Width;
+      BgEffChaSprite.Sheet.DesignHeight = (float)BgEffChaTexture.Height;
+
+      BgEffChaSprite.Bounds =
+          RectF(0.0f, 0.0f, BgEffChaSprite.Sheet.DesignWidth,
+                BgEffChaSprite.Sheet.DesignHeight);
+    }
+  }
+
   Show = false;
+
   std::fill(Layers.begin(), Layers.end(), -1);
 }
 
