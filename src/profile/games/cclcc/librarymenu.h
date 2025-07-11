@@ -8,6 +8,13 @@ namespace Profile {
 namespace CCLCC {
 namespace LibraryMenu {
 
+struct AlbumDataEntry {
+  std::vector<Sprite> ThumbnailSprites;
+  glm::vec2 Position;
+  uint8_t IndexInPage;
+  uint8_t PageNumber;
+};
+
 BETTER_ENUM(LibraryMenuPageType, int, Album, Sound, Movie)
 BETTER_ENUM(MusicMenuPlayingMode, int, RepeatOne, PlayAll, RepeatAll, Shuffle)
 
@@ -29,6 +36,11 @@ inline glm::vec2 HitSongsPos;
 inline Sprite LoveMovieSpriteHover;
 inline Sprite LoveMovieSpriteSelect;
 inline glm::vec2 LoveMoviePos;
+
+inline std::vector<glm::vec2> AlbumThumbDispPos;
+inline std::vector<AlbumDataEntry> AlbumData;
+inline std::vector<Sprite> AlbumThumbnailPinSprites;
+inline Sprite AlbumThumbnailThumbSprite;
 
 inline int MusicItemsBackgroundRepeatHeight;
 inline Sprite MusicItemsBackgroundSprite;
