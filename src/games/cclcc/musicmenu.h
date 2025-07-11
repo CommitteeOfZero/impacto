@@ -59,7 +59,9 @@ class MusicMenu : public LibrarySubmenu {
   Animation NowPlayingFadeAnimation;
   Widgets::Label NowPlayingTrackName;
   void PlayTrack(size_t index);
+  void StopMusic(bool playTitle = false);
   void ResetShuffle();
+
 };
 
 }  // namespace CCLCC

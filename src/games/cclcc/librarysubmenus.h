@@ -25,11 +25,6 @@ class LibrarySubmenu : public Menu {
   Widgets::Group MainItems{this};
 };
 
-class AlbumMenu : public LibrarySubmenu {
- public:
-  AlbumMenu() = default;
-};
-
 }  // namespace CCLCC
 }  // namespace UI
 }  // namespace Impacto

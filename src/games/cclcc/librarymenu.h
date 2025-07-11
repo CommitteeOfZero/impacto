@@ -7,6 +7,7 @@
 #include "librarysubmenus.h"
 #include "musicmenu.h"
 #include "moviemenu.h"
+#include "albummenu.h"
 
 namespace Impacto {
 namespace UI {
@@ -29,10 +30,12 @@ class LibraryMenu : public Menu {
 
  private:
   using LibraryMenuPageType = Profile::CCLCC::LibraryMenu::LibraryMenuPageType;
-  LibrarySubmenu& GetMenuFromType(LibraryMenuPageType menuType);
+  LibrarySubmenu& GetMenuFromType(LibraryMenuPageType menuType) const;
+  LibraryMenuPageType GetMenuTypeFromButton(Widget* btn) const;
 
   Widgets::Group MainItems;
-  std::optional<LibraryMenuPageType> CurrentLibraryMenu;
+
+  LibraryMenuPageType CurrentLibraryMenu = LibraryMenuPageType::Album;
 };
 
 }  // namespace CCLCC

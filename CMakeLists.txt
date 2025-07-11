@@ -178,6 +178,7 @@ set(Impacto_Src
         src/games/cclcc/clearlistmenu.cpp
         src/games/cclcc/librarymenu.cpp
         src/games/cclcc/librarysubmenus.cpp
+        src/games/cclcc/albummenu.cpp
         src/games/cclcc/musicmenu.cpp
         src/games/cclcc/moviemenu.cpp
         src/games/cclcc/tipsnotification.cpp
@@ -510,6 +511,7 @@ set(Impacto_Header
         src/games/cclcc/clearlistmenu.h
         src/games/cclcc/librarymenu.h
         src/games/cclcc/librarysubmenus.h
+        src/games/cclcc/albummenu.h
         src/games/cclcc/musicmenu.h
         src/games/cclcc/moviemenu.h
         src/games/cclcc/mapsystem.h
