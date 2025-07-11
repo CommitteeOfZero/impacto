@@ -10,6 +10,61 @@ namespace Profile {
 namespace CCLCC {
 namespace LibraryMenu {
 
+std::vector<AlbumDataEntry> GetAlbumTbl() {
+  const auto forEachLua = [](std::invocable<uint32_t> auto func) {
+    AssertIs(LUA_TTABLE);
+    PushInitialIndex();
+    while (PushNextTableElement() != 0) {
+      auto index = EnsureGetKey<uint32_t>() - 1;
+      func(index);
+      Pop();
+    }
+  };
+  std::vector<AlbumDataEntry> albumData;
+
+  EnsurePushMemberOfType("AlbumTbl", LUA_TTABLE);
+  forEachLua([&](uint32_t rowIndex) {
+    AssertIs(LUA_TTABLE);
+    AlbumDataEntry entry;
+    forEachLua([&](uint32_t innerRowIndex) {
+      switch (innerRowIndex) {
+        case 0: {
+          entry.PageNumber = EnsureGetArrayElement<uint8_t>();
+        } break;
+        case 1: {
+          entry.IndexInPage = EnsureGetArrayElement<uint8_t>();
+        } break;
+        case 2: {
+          forEachLua([&](uint32_t variantIndex) {
+            Sprite thumbnail;
+            thumbnail.Sheet = SpriteSheets.at("Album");
+            forEachLua([&](uint32_t variantSpriteDataIndex) {
+              switch (variantSpriteDataIndex) {
+                case 0:
+                  thumbnail.Bounds.X = EnsureGetArrayElement<float>() * 340 + 1;
+                  break;
+                case 1:
+                  thumbnail.Bounds.Y = EnsureGetArrayElement<float>() * 197 + 1;
+                  break;
+                case 2:
+                  thumbnail.Bounds.Width = EnsureGetArrayElement<float>();
+                  break;
+                case 3:
+                  thumbnail.Bounds.Height = EnsureGetArrayElement<float>();
+                  break;
+              }
+            });
+            entry.ThumbnailSprites.push_back(thumbnail);
+          });
+        } break;
+      }
+    });
+    albumData.push_back(entry);
+  });
+  Pop();
+  return albumData;
+}
+
 void Configure() {
   FadeInDuration = EnsureGetMember<float>("FadeInDuration");
   FadeOutDuration = EnsureGetMember<float>("FadeOutDuration");
@@ -41,6 +96,13 @@ void Configure() {
   LoveMovieSpriteHover = EnsureGetMember<Sprite>("LoveMovieSpriteHover");
   LoveMovieSpriteSelect = EnsureGetMember<Sprite>("LoveMovieSpriteSelect");
   LoveMoviePos = EnsureGetMember<glm::vec2>("LoveMoviePos");
+
+  AlbumThumbDispPos = GetMemberVector<glm::vec2>("AlbumThumbDispPos");
+  AlbumData = GetAlbumTbl();
+  AlbumThumbnailPinSprites =
+      GetMemberVector<Sprite>("AlbumThumbnailPinSprites");
+  AlbumThumbnailThumbSprite =
+      EnsureGetMember<Sprite>("AlbumThumbnailThumbSprite");
 
   MusicItemsBackgroundRepeatHeight =
       EnsureGetMember<int>("MusicItemsBackgroundRepeatHeight");
@@ -111,10 +173,12 @@ void Configure() {
   MusicMenuGuideSprite = EnsureGetMember<Sprite>("MusicMenuGuideSprite");
   MovieMenuGuideSprite = EnsureGetMember<Sprite>("MovieMenuGuideSprite");
 
+  GetAlbumTbl();
+
   UI::LibraryMenuPtr = new UI::CCLCC::LibraryMenu();
   UI::Menus[drawType].push_back(UI::LibraryMenuPtr);
-  // Don't push library submenus to the main menus list, let library menu handle
-  // it
+  // Don't push library submenus to the main menus list, let library menu
+  // handle it
   UI::AlbumMenuPtr = new UI::CCLCC::AlbumMenu();
   UI::MusicMenuPtr = new UI::CCLCC::MusicMenu();
   UI::MovieMenuPtr = new UI::CCLCC::MovieMenu();
