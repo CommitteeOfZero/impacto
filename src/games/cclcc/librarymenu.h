@@ -3,6 +3,11 @@
 #include "../../ui/menu.h"
 #include "../../ui/widgets/button.h"
 #include "../../ui/widgets/group.h"
+#include "../../profile/games/cclcc/librarymenu.h"
+#include "librarysubmenus.h"
+#include "musicmenu.h"
+#include "moviemenu.h"
+#include "albummenu.h"
 
 namespace Impacto {
 namespace UI {
@@ -12,22 +17,25 @@ class LibraryMenu : public Menu {
  public:
   LibraryMenu();
 
-  void Show();
-  void Hide();
-  void Update(float dt);
-  void Render();
+  void Init() override;
+  void Show() override;
+  void Hide() override;
+  void Update(float dt) override;
+  void Render() override;
 
   Animation FadeAnimation;
+  Animation ButtonBlinkAnimation;
 
   void LibraryMenuButtonOnClick(Widgets::Button* target);
 
  private:
-  Widgets::Group* MainItems;
-  // Widgets::CCLCC::TitleButton* Album;
-  // Widgets::CCLCC::TitleButton* Sound;
-  // Widgets::CCLCC::TitleButton* Movie;
+  using LibraryMenuPageType = Profile::CCLCC::LibraryMenu::LibraryMenuPageType;
+  LibrarySubmenu& GetMenuFromType(LibraryMenuPageType menuType) const;
+  LibraryMenuPageType GetMenuTypeFromButton(Widget* btn) const;
 
-  int CurrentLibraryMenu = 0;
+  Widgets::Group MainItems;
+
+  LibraryMenuPageType CurrentLibraryMenu = LibraryMenuPageType::Album;
 };
 
 }  // namespace CCLCC

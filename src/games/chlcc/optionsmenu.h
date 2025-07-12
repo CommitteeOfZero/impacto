@@ -14,8 +14,6 @@ class OptionsMenu : public UI::OptionsMenu {
  public:
   OptionsMenu();
 
-  void Init();
-
   void Update(float dt) override;
   void Render() override;
 

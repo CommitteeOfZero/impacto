@@ -253,6 +253,15 @@ bool GetBgmFlag(int id) {
   return false;
 }
 
+void SetBgmFlag(int id, bool flag) {
+  if (Implementation) {
+    Implementation->SetBgmFlag(id, flag);
+    return;
+  }
+  ImpLog(LogLevel::Warning, LogChannel::VMStub,
+         "{:s}: save system not implemented\n", __func__);
+}
+
 void SetCheckpointId(int id) {
   if (Implementation) Implementation->SetCheckpointId(id);
 }

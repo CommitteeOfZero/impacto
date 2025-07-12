@@ -26,8 +26,16 @@ class Button : public Widget {
 
   void SetText(uint8_t* str, float fontSize, RendererOutlineMode outlineMode,
                int colorIndex = 10);
+  void SetText(uint8_t* str, float fontSize, RendererOutlineMode outlineMode,
+               DialogueColorPair colorPair);
   void SetText(std::vector<ProcessedTextGlyph> text, float textWidth,
                float fontSize, RendererOutlineMode outlineMode);
+  void ClearText() {
+    Text.clear();
+    Bounds = {};
+    HoverBounds = {};
+    HasText = false;
+  }
 
   int Id;
   Sprite NormalSprite;

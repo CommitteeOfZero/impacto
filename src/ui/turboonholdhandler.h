@@ -14,6 +14,7 @@ class TurboOnHoldHandler {
   int Held() const;
 
   int PADinputButtonHoldMask;
+  bool IsTurbo = false;
 
  private:
   const float HoldTime;

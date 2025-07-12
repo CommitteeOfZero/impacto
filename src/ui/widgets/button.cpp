@@ -72,13 +72,13 @@ void Button::Render() {
 }
 
 void Button::SetText(uint8_t* str, float fontSize,
-                     RendererOutlineMode outlineMode, int colorIndex) {
+                     RendererOutlineMode outlineMode,
+                     DialogueColorPair colorPair) {
   HasText = true;
   Impacto::Vm::Sc3VmThread dummy;
   dummy.Ip = str;
   Text = TextLayoutPlainLine(
-      &dummy, 255, Profile::Dialogue::DialogueFont, fontSize,
-      Profile::Dialogue::ColorTable[colorIndex], 1.0f,
+      &dummy, 255, Profile::Dialogue::DialogueFont, fontSize, colorPair, 1.0f,
       glm::vec2(Bounds.X, Bounds.Y), TextAlignment::Left);
   OutlineMode = outlineMode;
   for (int i = 0; i < Text.size(); i++) {
@@ -86,6 +86,12 @@ void Button::SetText(uint8_t* str, float fontSize,
   }
   Bounds = RectF(Text[0].DestRect.X, Text[0].DestRect.Y, TextWidth, fontSize);
   HoverBounds = Bounds;
+}
+
+void Button::SetText(uint8_t* str, float fontSize,
+                     RendererOutlineMode outlineMode, int colorIndex) {
+  SetText(str, fontSize, outlineMode,
+          Profile::Dialogue::ColorTable[colorIndex]);
 }
 
 void Button::SetText(std::vector<ProcessedTextGlyph> text, float textWidth,

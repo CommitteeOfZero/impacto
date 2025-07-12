@@ -46,6 +46,7 @@ BacklogMenu::BacklogMenu()
                                   PAD1LEFT | PAD1RIGHT) {
   MainItems = new Widgets::Group(this, EntriesStart);
   MainItems->RenderingBounds = RenderingBounds;
+  MainItems->HoverBounds = HoverBounds;
   MainItems->WrapFocus = false;
 
   MainScrollbar =

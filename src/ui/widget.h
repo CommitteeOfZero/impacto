@@ -20,7 +20,7 @@ class Widget {
 
   glm::vec4 Tint = glm::vec4(1.0f);
 
-  virtual ~Widget();
+  virtual ~Widget() = default;
 
   virtual void Update(float dt);
   virtual void UpdateInput() = 0;
@@ -44,7 +44,6 @@ class Widget {
 
   glm::vec2 MoveTarget;
   glm::vec2 MoveOrigin;
-  bool Moving = false;
   Animation MoveAnimation;
 
  private:

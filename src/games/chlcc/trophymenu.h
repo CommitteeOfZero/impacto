@@ -16,8 +16,6 @@ class TrophyMenu : public UI::Menu {
  public:
   TrophyMenu();
 
-  void Init();
-
   void Show();
   void Hide();
   void UpdateInput();
