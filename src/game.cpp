@@ -284,18 +284,6 @@ void Update(float dt) {
     for (int i = 0; i < Profile::Dialogue::PageCount; i++)
       DialoguePages[i].Update(dt);
   }
-
-  if ((Profile::GameFeatures & GameFeature::Renderer2D) &&
-      !(Profile::GameFeatures & GameFeature::Scene3D)) {
-    for (int i = 0; i < MaxCharacters2D; i++) {
-      if (Characters2D[i].Show) Characters2D[i].Update(dt);
-    }
-    if (Profile::Dialogue::HasSpeakerPortraits) {
-      for (int i = 0; i < MaxSpeakerPortraits; i++) {
-        if (SpeakerPortraits[i].Show) SpeakerPortraits[i].Update(dt);
-      }
-    }
-  }
 }
 
 static void RenderMain() {
@@ -305,24 +293,24 @@ static void RenderMain() {
       Renderer->SetFramebuffer(renderTarget);
     }
 
-    for (int i = 0; i < MaxBackgrounds2D; i++) {
-      int bufId = ScrWork[SW_BG1SURF + i];
-      Backgrounds2D[bufId]->Render(i, layer);
+    for (int bgId = 0; bgId < Backgrounds.size(); bgId++) {
+      int bufId = ScrWork[SW_BG1SURF + bgId];
+      Backgrounds2D[bufId]->UpdateState(bgId);
+      Backgrounds2D[bufId]->Render(layer);
     }
 
-    for (int i = 0; i < MaxCharacters2D; i++) {
-      int bufId = ScrWork[SW_CHA1SURF + i];
-      Characters2D[bufId].Render(layer);
-    }
-
-    for (int bgId = 0; bgId < MaxBackgrounds2D; bgId++) {
-      if (GetFlag(SF_BGEFF1DISP + bgId) &&
-          (ScrWork[SW_BGEFF1_PRI +
-                   Profile::Vm::ScrWorkBgEffStructSize * bgId] == layer ||
-           ScrWork[SW_BGEFF1_PRI2 +
-                   Profile::Vm::ScrWorkBgEffStructSize * bgId] == layer)) {
-        Framebuffers[0].RenderBgEff(bgId, layer);
+    if ((Profile::GameFeatures & GameFeature::Renderer2D) &&
+        !(Profile::GameFeatures & GameFeature::Scene3D)) {
+      for (int chaId = 0; chaId < Characters2D.size(); chaId++) {
+        int bufId = ScrWork[SW_CHA1SURF + chaId];
+        Characters2D[bufId].UpdateState(chaId);
+        Characters2D[bufId].Render(layer);
       }
+    }
+
+    for (int bgId = 0; bgId < Backgrounds.size(); bgId++) {
+      Framebuffers[0].UpdateState(bgId);
+      Framebuffers[0].Render(layer);
     }
 
     if (ScrWork[SW_MAP_PRI] == static_cast<int>(layer) &&
@@ -344,16 +332,6 @@ static void RenderMain() {
         col.a = glm::min(maskAlpha / 256.0f, 1.0f);
 
         Renderer->DrawQuad(maskRect, col);
-      }
-    }
-
-    for (size_t capId = 0; capId < MaxScreencaptures; capId++) {
-      if (!GetFlag(SF_CAP1DISP + capId)) continue;
-
-      for (size_t capLayer = 0; capLayer < MaxScreencaptures; capLayer++) {
-        if (ScrWork[SW_CAP1PRI + capId * 20 + capLayer * 8] == layer) {
-          Screencaptures[capId].RenderCapture(capId, layer);
-        }
       }
     }
 
@@ -551,6 +529,8 @@ void Render() {
     if (Characters2D[0].Status == LoadStatus::Loaded) {
       Characters2D[0].Layers[0] = 0;
       ScrWork[SW_CHA1ALPHA] = 256;
+
+      Characters2D[0].UpdateState(0);
       Characters2D[0].Render(0);
     }
   }

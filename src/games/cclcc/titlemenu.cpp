@@ -312,9 +312,7 @@ void TitleMenu::Update(float dt) {
   SecondaryFadeAnimation.Update(dt);
   SmokeAnimation.Update(dt);
   TitleAnimation.Update(dt);
-  TitleAnimationSprite.Update(dt);
-  TitleAnimationSprite.OffsetX = 0.0f;
-  TitleAnimationSprite.OffsetY = 0.0f;
+  TitleAnimationSprite.Position = {0.0f, 0.0f};
   SlideItemsAnimation.Update(dt);
 
   if (!IsFocused) {
@@ -407,6 +405,7 @@ void TitleMenu::ExplodeScreenUpdate() {
       (TitleAnimationStartFrame +
        (TitleAnimationFrameCount * TitleAnimation.Progress)) *
       65536;
+  TitleAnimationSprite.UpdateStatesToDraw();
 }
 
 void TitleMenu::ReturnToMenuUpdate() {

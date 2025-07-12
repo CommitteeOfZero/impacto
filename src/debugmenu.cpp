@@ -832,7 +832,7 @@ void ShowObjects() {
       "These values are read-only as everything here is controlled by "
       "scripts.");
   if (ImGui::TreeNode("Backgrounds")) {
-    for (int i = 0; i < MaxBackgrounds2D; i++) {
+    for (int i = 0; i < Backgrounds.size(); i++) {
       ImGui::PushID(i);
       if (ImGui::TreeNode("Background", "Background %d", i)) {
         if (Backgrounds[i].Status == LoadStatus::Loaded) {
@@ -862,8 +862,7 @@ void ShowObjects() {
                           Backgrounds[i].Layers[1]);
         ImGui::Spacing();
         ImGui::BulletText("Display coords: (x: %f, y: %f)",
-                          Backgrounds[i].DisplayCoords.x,
-                          Backgrounds[i].DisplayCoords.y);
+                          Backgrounds[i].Position.x, Backgrounds[i].Position.y);
         ImGui::Spacing();
         ImGui::BulletText("Sprite: (x: %f, y: %f, width: %f, height: %f)",
                           Backgrounds[i].BgSprite.Bounds.X,
@@ -883,7 +882,7 @@ void ShowObjects() {
   }
 
   if (ImGui::TreeNode("Characters")) {
-    for (int i = 0; i < MaxCharacters2D; i++) {
+    for (int i = 0; i < Characters2D.size(); i++) {
       ImGui::PushID(i);
       if (ImGui::TreeNode("Character", "Character %d", i)) {
         if (Characters2D[i].Status == LoadStatus::Loaded) {
@@ -914,10 +913,11 @@ void ShowObjects() {
                           Characters2D[i].Layers[1]);
         ImGui::Spacing();
         ImGui::BulletText("Display coords: (x: %f, y: %f)",
-                          Characters2D[i].OffsetX, Characters2D[i].OffsetY);
+                          Characters2D[i].Position.x,
+                          Characters2D[i].Position.y);
         ImGui::Spacing();
-        ImGui::BulletText("Scale: (x: %f, y: %f)", Characters2D[i].ScaleX,
-                          Characters2D[i].ScaleY);
+        ImGui::BulletText("Scale: (x: %f, y: %f)", Characters2D[i].Scale.x,
+                          Characters2D[i].Scale.y);
         ImGui::Spacing();
         ImGui::BulletText("Face: %d", Characters2D[i].Face);
         ImGui::Spacing();

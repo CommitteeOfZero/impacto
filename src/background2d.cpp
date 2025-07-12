@@ -12,6 +12,7 @@
 #include "profile/vm.h"
 // #include "window.h"
 #include "renderer/renderer.h"
+#include "vm/interface/scene2d.h"
 
 namespace Impacto {
 
@@ -33,19 +34,30 @@ void Background2D::InitFrameBuffers() {
 }
 
 void Background2D::Init() {
-  for (int i = 0; i < MaxBackgrounds2D; i++) {
+  for (int i = 0; i < Backgrounds.size(); i++) {
     Backgrounds2D[i] = &Backgrounds[i];
   }
 
-  for (int i = 0; i < MaxScreencaptures; i++) {
-    Screencaptures[i].BgSprite.Sheet.IsScreenCap = true;
-    Screencaptures[i].LoadSolidColor(0xFF000000, Window->WindowWidth,
-                                     Window->WindowHeight);
-    Screencaptures[i].Status = LoadStatus::Loaded;
+  for (Capture2D& capture : Screencaptures) {
+    capture.BgSprite.Sheet.IsScreenCap = true;
+    capture.LoadSolidColor(0xFF000000, Window->WindowWidth,
+                           Window->WindowHeight);
+    capture.Status = LoadStatus::Loaded;
   }
 
   ShaderScreencapture.BgSprite.Sheet.IsScreenCap = true;
   InitFrameBuffers();
+
+  for (size_t i = 0; i < Framebuffers.max_size(); i++) {
+    Framebuffers[i].BgSprite =
+        Sprite(SpriteSheet(Profile::DesignWidth, Profile::DesignHeight), 0.0f,
+               0.0f, Profile::DesignWidth, Profile::DesignHeight);
+    Framebuffers[i].BgSprite.Sheet.Texture =
+        Renderer->GetFramebufferTexture(i + 1);
+
+    Framebuffers[i].Status = LoadStatus::Loaded;
+    Framebuffers[i].BgSprite.Sheet.IsScreenCap = true;
+  }
 
   ShaderScreencapture.LoadSolidColor(0xFF000000, Window->WindowWidth,
                                      Window->WindowHeight);
@@ -97,83 +109,314 @@ void Background2D::MainThreadOnLoad(bool result) {
   std::fill(Layers.begin(), Layers.end(), -1);
 }
 
-void Background2D::Render(int bgId, int layer) {
-  if (Status != LoadStatus::Loaded || !OnLayer(layer) || !Show) return;
+void Background2D::LinkBuffers(const int linkCode, const int currentBufferId) {
+  const int srcBufId = (linkCode >> 8) & 0xFF;
+  if (srcBufId == Vm::Interface::GetScriptBufferId(currentBufferId)) {
+    const LinkDirection dir = (LinkDirection)((linkCode >> 16) & 0xFF);
 
-  MaskNumber = ScrWork[SW_BG1MASKNO + ScrWorkBgStructSize * bgId];
-  FadeCount = ScrWork[SW_BG1FADECT + ScrWorkBgStructSize * bgId];
-  FadeRange = ScrWork[SW_BG1MASKFADERANGE + ScrWorkBgStructSize * bgId];
+    for (size_t i = 0; i < MaxLinkedBgBuffers; i++) {
+      int childBufId = (linkCode >> (i * 24)) & 0xFF;
+      if (childBufId != 0) {
+        childBufId = Vm::Interface::GetBufferId(childBufId);
+        Background2D* const childBuf =
+            Backgrounds2D[ScrWork[SW_BG1SURF + childBufId]];
 
-  // Set tint
+        childBuf->BgSprite.BaseScale = BgSprite.BaseScale;
+
+        Links[i].LinkedBuffer = childBuf;
+        Links[i].Direction = dir;
+
+        switch (dir) {
+          case LinkDirection::Up3: {
+            float offset =
+                i == 0 ? 0.0f
+                       : Links[i - 1].LinkedBuffer->BgSprite.ScaledHeight();
+            Links[i].DisplayCoords = {
+                Position.x, Position.y - BgSprite.ScaledHeight() - offset};
+          } break;
+
+          case LinkDirection::Up: {
+            Links[i].DisplayCoords = {Position.x,
+                                      Position.y - BgSprite.ScaledHeight()};
+          } break;
+
+          case LinkDirection::Down3: {
+            float offset =
+                i == 0 ? 0.0f
+                       : Links[i - 1].LinkedBuffer->BgSprite.ScaledHeight();
+            Links[i].DisplayCoords = {
+                Position.x, Position.y + BgSprite.ScaledHeight() + offset};
+          } break;
+
+          case LinkDirection::Down: {
+            Links[i].DisplayCoords = {Position.x,
+                                      Position.y + BgSprite.ScaledHeight()};
+          } break;
+
+          case LinkDirection::Left: {
+            Links[i].DisplayCoords = {Position.x - BgSprite.ScaledWidth(),
+                                      Position.y};
+          } break;
+
+          case LinkDirection::Right: {
+            Links[i].DisplayCoords = {Position.x + BgSprite.ScaledWidth(),
+                                      Position.y};
+          } break;
+        }
+      }
+    }
+  }
+}
+
+void Background2D::UpdateState(const int bgId) {
+  const size_t structOffset = ScrWorkBgStructSize * bgId;
+  const size_t structOfsOffset = ScrWorkBgOffsetStructSize * bgId;
+
+  const glm::vec2 resolutionScale = {Profile::DesignWidth / 1280.0f,
+                                     Profile::DesignHeight / 720.0f};
+
+  Layers = {ScrWork[SW_BG1PRI + structOffset],
+            ScrWork[SW_BG1PRI2 + structOffset]};
+  Show = GetFlag(SF_BG1DISP + bgId);
+  RenderType = ScrWork[SW_BG1FADETYPE + structOffset];
+
+  MaskNumber = ScrWork[SW_BG1MASKNO + structOffset];
+  FadeRange = ScrWork[SW_BG1MASKFADERANGE + structOffset];
+  FadeCount = ScrWork[SW_BG1FADECT + structOffset];
+
+  const int dispMode = ScrWork[SW_BG1DISPMODE + structOffset];
+  switch (dispMode) {
+    case 0: {
+      Position = -glm::vec2(ScrWork[SW_BG1POSX + structOffset] +
+                                ScrWork[SW_BG1POSX_OFS + structOfsOffset],
+                            ScrWork[SW_BG1POSY + structOffset] +
+                                ScrWork[SW_BG1POSY_OFS + structOfsOffset]) *
+                 resolutionScale;
+
+      if (GameInstructionSet == +Vm::InstructionSet::MO8) {
+        Position -= (BgSprite.Bounds.GetSize() -
+                     glm::vec2(Profile::DesignWidth, Profile::DesignHeight)) *
+                    0.5f;
+      }
+
+      Scale = {1.0f, 1.0f};
+    } break;
+
+    case 1: {
+      Position = -glm::vec2(ScrWork[SW_BG1SX + structOffset] +
+                                ScrWork[SW_BG1SX_OFS + structOfsOffset],
+                            ScrWork[SW_BG1SY + structOffset] +
+                                ScrWork[SW_BG1SY_OFS + structOfsOffset]) *
+                 resolutionScale;
+
+      Scale = glm::vec2(1280.0f, 720.0f) /
+              glm::vec2(ScrWork[SW_BG1LX + structOffset] +
+                            ScrWork[SW_BG1LX_OFS + structOfsOffset],
+                        ScrWork[SW_BG1LY + structOffset] +
+                            ScrWork[SW_BG1LY_OFS + structOfsOffset]);
+    } break;
+
+    case 2: {
+      Position = glm::vec2(ScrWork[SW_BG1POSX + structOffset] +
+                               ScrWork[SW_BG1POSX_OFS + structOfsOffset],
+                           ScrWork[SW_BG1POSY + structOffset] +
+                               ScrWork[SW_BG1POSY_OFS + structOfsOffset]) *
+                 resolutionScale;
+      Position -= BgSprite.ScaledBounds().GetSize() / 2.0f;
+
+      Scale = glm::vec2(ScrWork[SW_BG1SIZE + structOffset] +
+                        ScrWork[SW_BG1SIZE_OFS + structOfsOffset]) /
+              1000.0f;
+    } break;
+
+    case 4: {
+      Position = -glm::vec2(ScrWork[SW_BG1POSX + structOffset] +
+                                ScrWork[SW_BG1POSX_OFS + structOfsOffset],
+                            ScrWork[SW_BG1POSY + structOffset] +
+                                ScrWork[SW_BG1POSY_OFS + structOfsOffset]) *
+                 resolutionScale / 1000.0f;
+
+      Scale = {1.0f, 1.0f};
+    } break;
+  }
+
+  Origin = BgSprite.ScaledBounds().Center();
+
+  switch (GameInstructionSet) {
+    case Vm::InstructionSet::CHLCC:
+      Rotation = ScrWorkAngleZToQuaternion(ScrWork[SW_BG1ROTZ + structOffset]);
+      break;
+
+    case Vm::InstructionSet::CC:
+    default:
+      Rotation =
+          ScrWorkAngleZToQuaternion(ScrWork[SW_BG1ROTZ + structOffset] +
+                                    ScrWork[SW_BG1ROTZ_OFS + structOfsOffset]);
+      break;
+  }
+
   switch (GameInstructionSet) {
     case Vm::InstructionSet::CC:
-      Tint = ScrWorkGetColor(SW_BG1FILTER + ScrWorkBgStructSize * bgId);
+      Tint = ScrWorkGetColor(SW_BG1FILTER + structOffset);
       break;
 
     default:
       Tint = glm::vec4(1.0f);
       break;
   }
-  Tint.a = (ScrWork[SW_BG1ALPHA + ScrWorkBgStructSize * bgId] +
-            ScrWork[SW_BG1ALPHA_OFS + ScrWorkBgOffsetStructSize * bgId]) /
+  Tint.a = (ScrWork[SW_BG1ALPHA + structOffset] +
+            ScrWork[SW_BG1ALPHA_OFS + structOfsOffset]) /
            256.0f;
 
+  if (ScrWork[SW_BGLINK]) {
+    LinkBuffers(ScrWork[SW_BGLINK], bgId);
+  } else if (ScrWork[SW_BGLINK2]) {
+    LinkBuffers(ScrWork[SW_BGLINK2], bgId);
+  } else {
+    for (size_t i = 0; i < MaxLinkedBgBuffers; i++) {
+      Links[i].Direction = LinkDirection::Off;
+      Links[i].LinkedBuffer = nullptr;
+    }
+  }
+
+  if (BgSprite.Sheet.IsScreenCap) {
+    BgSprite.BaseScale *=
+        glm::vec2(Profile::DesignWidth / Window->WindowWidth,
+                  Profile::DesignHeight / Window->WindowHeight);
+  }
+}
+
+void Background2D::Render(const int layer) {
+  if (Status != LoadStatus::Loaded || !OnLayer(layer) || !Show) return;
+
+  std::invoke(BackgroundRenderTable[RenderType], this);
+}
+
+void Capture2D::UpdateState(const int capId) {
+  const size_t structOffset = ScrWorkCaptureStructSize * capId;
+  const size_t structOfsOffset = ScrWorkCaptureOffsetStructSize * capId;
+
+  const glm::vec2 resolutionScale = {Profile::DesignWidth / 1280.0f,
+                                     Profile::DesignHeight / 720.0f};
+
+  Layers = {ScrWork[SW_CAP1PRI + structOffset],
+            ScrWork[SW_CAP1PRI2 + structOffset]};
+  Show = GetFlag(SF_CAP1DISP + capId);
+  RenderType = ScrWork[SW_CAP1FADETYPE + structOffset];
+
+  MaskNumber = ScrWork[SW_CAP1MASKNO + structOffset];
+  FadeRange = ScrWork[SW_CAP1MASKFADERANGE + structOffset];
+  FadeCount = ScrWork[SW_CAP1FADECT + structOffset];
+
+  const int dispMode = ScrWork[SW_CAP1DISPMODE + structOffset];
+  switch (dispMode) {
+    case 0: {
+      Position = -glm::vec2(ScrWork[SW_CAP1POSX + structOffset] +
+                                ScrWork[SW_CAP1POSX_OFS + structOfsOffset],
+                            ScrWork[SW_CAP1POSY + structOffset] +
+                                ScrWork[SW_CAP1POSY_OFS + structOfsOffset]) *
+                 resolutionScale;
+
+      if (GameInstructionSet == +Vm::InstructionSet::MO8) {
+        Position -= (BgSprite.Bounds.GetSize() -
+                     glm::vec2(Profile::DesignWidth, Profile::DesignHeight)) *
+                    0.5f;
+      }
+
+      Scale = {1.0f, 1.0f};
+    } break;
+
+    case 1: {
+      Position = -glm::vec2(ScrWork[SW_CAP1SX + structOffset] +
+                                ScrWork[SW_CAP1SX_OFS + structOfsOffset],
+                            ScrWork[SW_CAP1SY + structOffset] +
+                                ScrWork[SW_CAP1SY_OFS + structOfsOffset]) *
+                 resolutionScale;
+
+      Scale = glm::vec2(1280.0f, 720.0f) /
+              glm::vec2(ScrWork[SW_CAP1LX + structOffset] +
+                            ScrWork[SW_CAP1LX_OFS + structOfsOffset],
+                        ScrWork[SW_CAP1LY + structOffset] +
+                            ScrWork[SW_CAP1LY_OFS + structOfsOffset]);
+    } break;
+
+    case 2: {
+      Position = glm::vec2(ScrWork[SW_CAP1POSX + structOffset] +
+                               ScrWork[SW_CAP1POSX_OFS + structOfsOffset],
+                           ScrWork[SW_CAP1POSY + structOffset] +
+                               ScrWork[SW_CAP1POSY_OFS + structOfsOffset]) *
+                 resolutionScale;
+      Position -= BgSprite.ScaledBounds().GetSize() / 2.0f;
+
+      Scale = glm::vec2(ScrWork[SW_CAP1SIZE + structOffset] +
+                        ScrWork[SW_CAP1SIZE_OFS + structOfsOffset]) /
+              1000.0f;
+    } break;
+
+    case 4: {
+      Position = -glm::vec2(ScrWork[SW_CAP1POSX + structOffset] +
+                                ScrWork[SW_CAP1POSX_OFS + structOfsOffset],
+                            ScrWork[SW_CAP1POSY + structOffset] +
+                                ScrWork[SW_CAP1POSY_OFS + structOfsOffset]) *
+                 resolutionScale / 1000.0f;
+
+      Scale = {1.0f, 1.0f};
+    } break;
+  }
+
+  Origin = BgSprite.ScaledBounds().Center();
+
   switch (GameInstructionSet) {
-    case Vm::InstructionSet::Dash:
-      Tint.a = ScrWork[SW_BG1ALPHA + ScrWorkBgStructSize * bgId] / 256.0f;
+    case Vm::InstructionSet::CHLCC:
+      Rotation = ScrWorkAngleZToQuaternion(ScrWork[SW_CAP1ROTZ + structOffset]);
       break;
 
     case Vm::InstructionSet::CC:
-      if (ScrWork[SW_BGEFF1_MODE + ScrWorkBgEffStructSize * bgId] == 1) {
-        Tint.a =
-            ScrWork[SW_BGEFF1_ALPHA + ScrWorkBgEffStructSize * bgId] / 256.0f;
-      }
-      break;
-
     default:
+      Rotation =
+          ScrWorkAngleZToQuaternion(ScrWork[SW_CAP1ROTZ + structOffset] +
+                                    ScrWork[SW_CAP1ROTZ_OFS + structOfsOffset]);
       break;
   }
 
-  const int renderType = ScrWork[SW_BG1FADETYPE + ScrWorkBgStructSize * bgId];
-  std::invoke(BackgroundRenderTable[renderType], this);
-}
-
-void Background2D::RenderCapture(int capId, int layer) {
-  if (Status != LoadStatus::Loaded || !OnLayer(layer) || !Show) return;
-
-  MaskNumber = ScrWork[SW_CAP1MASKNO + ScrWorkCaptureStructSize * capId];
-  FadeCount = ScrWork[SW_CAP1FADECT + ScrWorkCaptureStructSize * capId];
-  FadeRange = ScrWork[SW_CAP1MASKFADERANGE + ScrWorkCaptureStructSize * capId];
-
-  // Set tint
   switch (GameInstructionSet) {
     case Vm::InstructionSet::CC:
-      Tint = ScrWorkGetColor(SW_CAP1FILTER + ScrWorkCaptureStructSize * capId);
+      Tint = ScrWorkGetColor(SW_CAP1FILTER + structOffset);
       break;
 
     default:
       Tint = glm::vec4(1.0f);
       break;
   }
-  Tint.a =
-      (ScrWork[SW_CAP1ALPHA + ScrWorkCaptureStructSize * capId] +
-       ScrWork[SW_CAP1ALPHA_OFS + ScrWorkCaptureOffsetStructSize * capId]) /
-      256.0f;
+  Tint.a = (ScrWork[SW_CAP1ALPHA + structOffset] +
+            ScrWork[SW_CAP1ALPHA_OFS + structOfsOffset]) /
+           256.0f;
 
-  const int renderType =
-      ScrWork[SW_CAP1FADETYPE + ScrWorkCaptureStructSize * capId];
-  std::invoke(BackgroundRenderTable[renderType], this);
+  if (BgSprite.Sheet.IsScreenCap) {
+    BgSprite.BaseScale *=
+        glm::vec2(Profile::DesignWidth / Window->WindowWidth,
+                  Profile::DesignHeight / Window->WindowHeight);
+  }
 }
 
-void Background2D::RenderBgEff(int bgId, int layer) {
-  if (Status != LoadStatus::Loaded) return;
+void Capture2D::Render(const int layer) {
+  if (Status != LoadStatus::Loaded || !OnLayer(layer) || !Show) return;
 
+  std::invoke(BackgroundRenderTable[RenderType], this);
+}
+
+void BackgroundEffect2D::UpdateState(const int bgId) {
   const int structOffset = ScrWorkBgEffStructSize * bgId;
   const int structOfsOffset = ScrWorkBgEffOffsetStructSize * bgId;
 
+  Show = GetFlag(SF_BGEFF1DISP + bgId);
+  Layers = {ScrWork[SW_BGEFF1_PRI + structOffset],
+            ScrWork[SW_BGEFF1_PRI2 + structOffset]};
+  RenderType = ScrWork[SW_BGEFF1_MODE + structOffset];
+
   MaskNumber = ScrWork[SW_BGEFF1_MASKNO + structOffset];
-  FadeCount = ScrWork[SW_BGEFF1_FADECT + structOffset];
   FadeRange = ScrWork[SW_BGEFF1_MASKFADERANGE + structOffset];
+  FadeCount = ScrWork[SW_BGEFF1_FADECT + structOffset];
 
   Rotation = ScrWorkAnglesToQuaternion(
       ScrWork[SW_BGEFF1_ROTX + structOffset] +
@@ -206,18 +449,17 @@ void Background2D::RenderBgEff(int bgId, int layer) {
   const glm::vec2 resolutionScale = {Profile::DesignWidth / 1280.0f,
                                      Profile::DesignHeight / 720.0f};
 
-  const size_t vertexCount = maskType == 0 ? 4 : 3;
-  std::array<glm::vec2, 4> vertices;
-  for (size_t i = 0; i < vertexCount; i++) {
+  VertexCount = maskType == 0 ? 4 : 3;
+  for (size_t i = 0; i < VertexCount; i++) {
     const int x =
         ScrWork[SW_BGEFF1_MASK_VERTEX1_X + structOffset + i * 2] +
         ScrWork[SW_BGEFF1_MASK_VERTEX1_OFSX + structOfsOffset + i * 2];
     const int y =
         ScrWork[SW_BGEFF1_MASK_VERTEX1_Y + structOffset + i * 2] +
         ScrWork[SW_BGEFF1_MASK_VERTEX1_OFSY + structOfsOffset + i * 2];
-    vertices[i] = glm::vec2((float)x, (float)y) * resolutionScale;
+    Vertices[i] = glm::vec2((float)x, (float)y) * resolutionScale;
   }
-  if (vertexCount == 4) std::swap(vertices[1], vertices[2]);
+  if (VertexCount == 4) std::swap(Vertices[1], Vertices[2]);
 
   const glm::vec2 backgroundOffset =
       glm::vec2(ScrWork[SW_BGEFF1_SX + structOffset],
@@ -231,40 +473,44 @@ void Background2D::RenderBgEff(int bgId, int layer) {
                     ScrWork[SW_BGEFF1_OFSY + structOfsOffset]) *
       resolutionScale;
 
-  DisplayCoords = pos - backgroundOffset;
-  const glm::vec2 stencilOffset = pos - vertices[0];
+  Position = pos - backgroundOffset;
+  StencilOffset = pos - Vertices[0];
 
   // Origin is the center of mass
-  Origin = std::reduce(vertices.begin(), vertices.begin() + vertexCount) /
-           (float)vertexCount;
+  Origin = std::reduce(Vertices.begin(), Vertices.begin() + VertexCount) /
+           (float)VertexCount;
+}
+
+void BackgroundEffect2D::Render(const int layer) {
+  if (Status != LoadStatus::Loaded || !OnLayer(layer) || !Show) return;
 
   // Transform vertices
   const glm::mat4 stencilTransformation = TransformationMatrix(
-      Origin, Scale, {Origin, 0.0f}, Rotation, stencilOffset);
+      Origin, Scale, {Origin, 0.0f}, Rotation, StencilOffset);
 
   // Draw
   Renderer->SetStencilMode(StencilBufferMode::Write);
   Renderer->ClearStencilBuffer();
 
   Renderer->DrawConvexShape(
-      std::span(vertices.begin(), vertices.begin() + vertexCount),
+      std::span(Vertices.begin(), Vertices.begin() + VertexCount),
       stencilTransformation, glm::vec4(1.0f));
 
   Renderer->SetStencilMode(StencilBufferMode::Test);
 
-  const int renderType = ScrWork[SW_BGEFF1_MODE + structOffset];
-  std::invoke(BackgroundRenderTable[renderType], this);
+  std::invoke(BackgroundRenderTable[RenderType], this);
 
   Renderer->SetStencilMode(StencilBufferMode::Off);
 }
 
 void Background2D::RenderRegular() {
-  const glm::mat4 transformation = TransformationMatrix(
-      Origin, Scale, {Origin, 0.0f}, Rotation, DisplayCoords);
+  const glm::mat4 transformation =
+      TransformationMatrix(Origin, Scale, {Origin, 0.0f}, Rotation, Position);
   Renderer->DrawSprite(BgSprite, transformation, Tint, false);
 
   for (int i = 0; i < MaxLinkedBgBuffers; i++) {
-    if (Links[i].Direction != LD_Off && Links[i].LinkedBuffer != NULL) {
+    if (Links[i].Direction != LinkDirection::Off &&
+        Links[i].LinkedBuffer != NULL) {
       const glm::mat4 linkTransformation =
           transformation *
           glm::translate(glm::mat4(1.0f), {Links[i].DisplayCoords, 0.0f});
@@ -276,8 +522,8 @@ void Background2D::RenderRegular() {
 }
 
 void Background2D::RenderMasked() {
-  const glm::mat4 transformation = TransformationMatrix(
-      Origin, Scale, {Origin, 0.0f}, Rotation, DisplayCoords);
+  const glm::mat4 transformation =
+      TransformationMatrix(Origin, Scale, {Origin, 0.0f}, Rotation, Position);
 
   Renderer->DrawMaskedSprite(BgSprite, Masks2D[MaskNumber].MaskSprite,
                              FadeCount, FadeRange, transformation, Tint, false,
@@ -285,8 +531,9 @@ void Background2D::RenderMasked() {
 }
 
 void Background2D::RenderMaskedInverted() {
-  const glm::mat4 transformation = TransformationMatrix(
-      Origin, Scale, {Origin, 0.0f}, Rotation, DisplayCoords);
+  const glm::mat4 transformation =
+      TransformationMatrix(Origin, Scale, {Origin, 0.0f}, Rotation, Position);
+
   Renderer->DrawMaskedSprite(BgSprite, Masks2D[MaskNumber].MaskSprite,
                              FadeCount, FadeRange, transformation, Tint, true,
                              false);

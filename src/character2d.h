@@ -45,28 +45,34 @@ struct Character2DState {
   }
 };
 
+constexpr size_t MaxCharacters2D = 16;
+
 class Character2D : public Loadable<Character2D, bool, uint32_t> {
   friend Loadable<Character2D, bool, uint32_t>;
 
  public:
+  std::string MountPoint = "chara";
+
+  bool Show;
+  std::array<int, 2> Layers;
+
   Sprite CharaSprite;
-  float OffsetX;
-  float OffsetY;
-  float ScaleX = 1.0f;
-  float ScaleY = 1.0f;
-  float RotationX = 0.0f;
-  float RotationY = 0.0f;
-  float RotationZ = 0.0f;
+
   int Face;
   int LipFrame;
   int EyeFrame;
-  bool Show;
-  std::array<int, 2> Layers;
-  glm::vec4 Tint = glm::vec4(1.0f);
-  void Update(float dt);
-  void Render(int layer);
 
-  std::string MountPoint = "chara";
+  glm::vec2 Position = {0.0f, 0.0f};
+  glm::quat Rotation = glm::quat();
+  glm::vec2 Scale = {1.0f, 1.0f};
+
+  glm::vec4 Tint = glm::vec4(1.0f);
+
+  virtual void UpdateState(int chaId);
+  static void UpdateEyeMouth();
+  void UpdateStatesToDraw();
+
+  void Render(int layer);
 
  protected:
   bool LoadSync(uint32_t charaId);
@@ -77,7 +83,16 @@ class Character2D : public Loadable<Character2D, bool, uint32_t> {
     return std::find(Layers.begin(), Layers.end(), layer) != Layers.end();
   }
 
- private:
+  static inline std::array<int, MaxCharacters2D> CurEyeFrame{};
+  static inline std::array<int, 3> CurMouthIndex{19, 19, 19};
+  constexpr static std::array<std::pair<int, int>, 20> AnimeTable = {
+      std::pair{1, 10}, std::pair{2, 5}, std::pair{1, 10}, std::pair{2, 4},
+      std::pair{1, 7},  std::pair{2, 6}, std::pair{1, 9},  std::pair{2, 8},
+      std::pair{1, 15}, std::pair{0, 2}, std::pair{1, 9},  std::pair{2, 3},
+      std::pair{1, 7},  std::pair{0, 2}, std::pair{1, 10}, std::pair{2, 5},
+      std::pair{1, 7},  std::pair{2, 5}, std::pair{1, 7},  std::pair{2, 3},
+  };
+
   Texture CharaTexture;
   SpriteSheet CharaSpriteSheet;
 
@@ -88,12 +103,12 @@ class Character2D : public Loadable<Character2D, bool, uint32_t> {
   std::vector<uint16_t> MvlIndices;
 };
 
-int constexpr MaxCharacters2D = 16;
+class CharacterPortrait2D : public Character2D {
+ public:
+  void UpdateState(int chaId) override;
+};
 
-inline Character2D Characters2D[MaxCharacters2D];
-
-int constexpr MaxSpeakerPortraits = 2;
-
-inline Character2D SpeakerPortraits[MaxSpeakerPortraits];
+inline std::array<Character2D, MaxCharacters2D> Characters2D;
+inline std::array<CharacterPortrait2D, 2> SpeakerPortraits;
 
 }  // namespace Impacto

@@ -8,17 +8,7 @@
 
 namespace Impacto {
 
-enum LinkDirection {
-  LD_Off,
-  LD_Up,
-  LD_Down,
-  LD_Left,
-  LD_Right,
-  LD_Up3,
-  LD_Down3
-};
-
-int constexpr MaxLinks = 2;
+enum class LinkDirection { Off, Up, Down, Left, Right, Up3, Down3 };
 
 class Background2D;
 
@@ -37,37 +27,40 @@ class Background2D : public Loadable<Background2D, bool, uint32_t> {
 
   Sprite BgSprite;
 
-  glm::vec2 DisplayCoords;
+  glm::vec2 Position = {0.0f, 0.0f};
   glm::vec2 Origin = {0.0f, 0.0f};
+
   glm::vec2 Scale = {1.0f, 1.0f};
   glm::quat Rotation = glm::quat();
+
   glm::vec4 Tint = glm::vec4(1.0f);
-  int MaskNumber;
+  int MaskNumber = 0;
 
-  int FadeCount;
-  int FadeRange;
+  int FadeCount = 0;
+  int FadeRange = 0;
 
-  bool Show;
+  bool Show = false;
+  int RenderType = 0;
   std::array<int, 2> Layers;
-  LinkState Links[MaxLinks];
+  std::array<LinkState, 2> Links;
 
-  void Render(int bgId, int layer);
-  void RenderCapture(int capId, int layer);
-  void RenderBgEff(int bgId, int layer);
+  virtual void Render(int layer);
+  virtual void UpdateState(int bgId);
 
   void LoadSolidColor(uint32_t color, int width, int height);
 
  protected:
+  Texture BgTexture;
+
   bool LoadSync(uint32_t bgId);
   void UnloadSync();
   void MainThreadOnLoad(bool result);
 
+  void LinkBuffers(int linkCode, int currentBufferId);
+
   bool OnLayer(int layer) {
     return std::find(Layers.begin(), Layers.end(), layer) != Layers.end();
   }
-
- private:
-  Texture BgTexture;
 
   using BackgroundRenderProc = auto (Background2D::*)() -> void;
 
@@ -111,12 +104,27 @@ class Background2D : public Loadable<Background2D, bool, uint32_t> {
       };
 };
 
-int constexpr MaxBackgrounds2D = 8;
-int constexpr MaxScreencaptures = 2;
+class Capture2D : public Background2D {
+ public:
+  void Render(int layer) override;
+  void UpdateState(int capId) override;
+};
 
-inline std::array<Background2D, MaxBackgrounds2D> Backgrounds;
-inline std::array<Background2D, MaxScreencaptures> Screencaptures;
-inline std::array<Background2D, MaxFramebuffers> Framebuffers;
+class BackgroundEffect2D : public Background2D {
+ public:
+  void Render(int layer) override;
+  void UpdateState(int bgId) override;
+
+ private:
+  size_t VertexCount = 4;
+  std::array<glm::vec2, 4> Vertices;
+
+  glm::vec2 StencilOffset;
+};
+
+inline std::array<Background2D, 8> Backgrounds;
+inline std::array<Capture2D, 2> Screencaptures;
+inline std::array<BackgroundEffect2D, MaxFramebuffers> Framebuffers;
 inline Background2D ShaderScreencapture;
 
 inline ankerl::unordered_dense::map<int, Background2D*> Backgrounds2D;

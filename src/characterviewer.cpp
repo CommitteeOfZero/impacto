@@ -154,11 +154,11 @@ void Update(float dt) {
 
       ImGui::Spacing();
       ImGui::Text("Character X");
-      ImGui::SliderFloat("##characterX", &Characters2D[0].OffsetX, -5000.0f,
+      ImGui::SliderFloat("##characterX", &Characters2D[0].Position.x, -5000.0f,
                          5000.0f);
       ImGui::Spacing();
       ImGui::Text("Character Y");
-      ImGui::SliderFloat("##characterY", &Characters2D[0].OffsetY, -5000.0f,
+      ImGui::SliderFloat("##characterY", &Characters2D[0].Position.y, -5000.0f,
                          5000.0f);
       ImGui::Spacing();
       Characters2D[0].Face >>= 16;
@@ -225,8 +225,7 @@ void Update(float dt) {
     Characters2D[0].LoadAsync(CharacterIds[0] | 0x10000);
   }
 
-  if (Characters2D[0].Status == LoadStatus::Unloaded)
-    Characters2D[0].Show = true;
+  if (Characters2D[0].Status == LoadStatus::Loaded) Characters2D[0].Show = true;
 #endif
 
   if (BgmChangeQueued &&
