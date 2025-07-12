@@ -65,6 +65,7 @@ AlbumMenu::AlbumMenu() {
   SecondaryItems->FocusLock = false;
   ImageGrid = new Group(this);
   ImageGrid->RenderingBounds = ThumbnailGridBounds;
+  ImageGrid->HoverBounds = ThumbnailGridBounds;
   ImageGrid->WrapFocus = false;
   auto pos = InitialButtonPosition;
   int idx = 0;

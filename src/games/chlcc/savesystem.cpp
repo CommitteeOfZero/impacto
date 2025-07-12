@@ -608,6 +608,7 @@ bool SaveSystem::GetEVVariationIsUnlocked(int evId, int variationIdx) {
 }
 
 bool SaveSystem::GetBgmFlag(int id) { return BGMFlags[id]; }
+void SaveSystem::SetBgmFlag(int id, bool flag) { BGMFlags[id] = flag; }
 
 Sprite& SaveSystem::GetSaveThumbnail(SaveType type, int id) {
   switch (type) {

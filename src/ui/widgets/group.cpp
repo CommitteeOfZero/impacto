@@ -14,6 +14,7 @@ Group::Group(Menu* ctx) {
   Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
   RenderingBounds =
       RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight);
+  HoverBounds = RenderingBounds;
 }
 
 Group::Group(Menu* ctx, glm::vec2 pos) : Group(ctx) {
@@ -67,8 +68,7 @@ void Group::UpdateInput() {
   for (const auto& el : Children) {
     if (el->GetType() == WT_NORMAL) {
       el->UpdateInput();
-      if (el->Enabled && el->Hovered &&
-          el->Bounds.Intersects(RenderingBounds) &&
+      if (el->Enabled && el->Hovered && el->Bounds.Intersects(HoverBounds) &&
           (Input::CurrentInputDevice == Input::Device::Mouse ||
            Input::CurrentInputDevice == Input::Device::Touch)) {
         if (MenuContext->CurrentlyFocusedElement &&

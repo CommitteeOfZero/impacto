@@ -17,7 +17,7 @@ void TurboOnHoldHandler::Update(float dt) {
   if (!(PADinputButtonIsDown & PADinputButtonHoldMask)) {
     CurrentHeldTime = 0.0f;
     EventFired = false;
-
+    IsTurbo = false;
     return;
   }
 
@@ -28,6 +28,7 @@ void TurboOnHoldHandler::Update(float dt) {
   const bool surpassedFireInterval = CurrentHeldTime >= HoldTime + FireInterval;
   if (!EventFired && (justSurpassedHoldTime || surpassedFireInterval)) {
     EventFired = true;
+    IsTurbo = true;
     CurrentHeldTime = HoldTime;
 
     return;

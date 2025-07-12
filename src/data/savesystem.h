@@ -113,6 +113,7 @@ class SaveSystemBase {
                            int* viewedVariations) = 0;
   virtual bool GetEVVariationIsUnlocked(int evId, int variationIdx) = 0;
   virtual bool GetBgmFlag(int id) = 0;
+  virtual void SetBgmFlag(int id, bool flag) = 0;
   virtual void SetCheckpointId(int id) = 0;
   virtual Sprite& GetSaveThumbnail(SaveType type, int id) = 0;
   int GetQuickSaveOpenSlot() {
@@ -163,6 +164,7 @@ void GetViewedEVsCount(int* totalEVCount, int* viewedEVCount);
 void GetEVStatus(int evId, int* totalVariations, int* viewedVariations);
 bool GetEVVariationIsUnlocked(int evId, int variationIdx);
 bool GetBgmFlag(int id);
+void SetBgmFlag(int id, bool setFlag);
 void SetCheckpointId(int id);
 int GetQuickSaveOpenSlot();
 Sprite& GetSaveThumbnail(SaveType type, int id);

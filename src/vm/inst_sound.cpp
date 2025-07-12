@@ -13,6 +13,7 @@
 #include "../audio/audiochannel.h"
 #include "../profile/scriptvars.h"
 #include "../profile/vm.h"
+#include "../data/savesystem.h"
 
 namespace Impacto {
 
@@ -30,7 +31,7 @@ VmInstruction(InstBGMplay) {
 
   if (ScrWork[SW_BGMREQNO] != track) {
     ScrWork[SW_BGMREQNO] = track;
-
+    SaveSystem::SetBgmFlag(track, true);
     Audio::Channels[Audio::AC_BGM0]->Play("bgm", track, (bool)loop, 0.0f);
   }
 }
@@ -98,6 +99,7 @@ VmInstruction(InstSSEstop) {
 VmInstruction(InstBGMflag) {
   StartInstruction;
   PopExpression(arg1);
+  SaveSystem::SetBgmFlag(arg1, true);
   ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
              "STUB instruction BGMflag(arg1: {:d})\n", arg1);
 }

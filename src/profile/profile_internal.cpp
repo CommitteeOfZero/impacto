@@ -54,8 +54,7 @@ bool TryPushMember(char const* name) {
 void EnsurePushMember(char const* name) {
   bool success = TryPushMember(name);
   if (!success) {
-    ImpLog(LogLevel::Fatal, LogChannel::Profile,
-           "Expected {:s} to have member {:s}\n", lua_tostring(LuaState, -1),
+    ImpLog(LogLevel::Fatal, LogChannel::Profile, "Expected member {:s}\n",
            name);
     exit(1);
   }
