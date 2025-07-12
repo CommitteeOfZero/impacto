@@ -1,5 +1,6 @@
 #pragma once
 #include "../impacto.h"
+#include "../vm/vm.h"
 
 #include <string>
 #include <enum.h>

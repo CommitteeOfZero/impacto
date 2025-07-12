@@ -559,7 +559,7 @@ VmInstruction(InstMapSystem) {
           arg3 != ScrWork[6362]) {
         Impacto::UI::MapSystem::MapZoomInit(arg1, arg2, arg3);
       } else {
-        thread->Ip += 3;
+        thread->IpOffset += 3;
       }
     } break;
     case 0x17:
@@ -582,7 +582,7 @@ VmInstruction(InstMapSystem) {
           arg3 != ScrWork[6362]) {
         Impacto::UI::MapSystem::MapZoomInit2(arg1, arg2);
       } else {
-        thread->Ip += 3;
+        thread->IpOffset += 3;
       }
     } break;
     case 0x19:
@@ -598,10 +598,10 @@ VmInstruction(InstMapSystem) {
       if (arg1 != ScrWork[6363] || arg2 != ScrWork[6364] ||
           arg3 != ScrWork[6362]) {
         if (!Impacto::UI::MapSystem::MapZoomInit3(arg1, arg2, arg3)) {
-          thread->Ip += 3;
+          thread->IpOffset += 3;
         }
       } else {
-        thread->Ip += 3;
+        thread->IpOffset += 3;
       }
     } break;
     case 0x1B: {
@@ -611,10 +611,10 @@ VmInstruction(InstMapSystem) {
       if (arg1 != ScrWork[6363] || arg2 != ScrWork[6364] ||
           arg3 != ScrWork[6362]) {
         if (!Impacto::UI::MapSystem::MapMoveAnimeInit2(arg1, arg2, arg3)) {
-          thread->Ip += 3;
+          thread->IpOffset += 3;
         }
       } else {
-        thread->Ip += 3;
+        thread->IpOffset += 3;
       }
     } break;
     case 0x1C:
@@ -1075,7 +1075,7 @@ VmInstruction(InstYesNoTriggerCCLCC) {
         ResetInstruction;
         BlockThread;
       } else if (YesNoTrigger::YesNoTriggerPtr->State != YesNoState::Complete) {
-        thread->Ip = branchAddress;
+        thread->IpOffset = branchAddress;
         BlockThread;
       }
 

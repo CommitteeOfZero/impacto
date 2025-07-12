@@ -154,8 +154,7 @@ void SaveEntryButton::MoveTo(glm::vec2 position) {
 }
 
 void SaveEntryButton::RefreshCharacterRouteText(int strIndex) {
-  // TODO actually make this look correct
-  uint8_t* strAddr = Vm::ScriptGetTextTableStrAddress(1, strIndex);
+  auto strAddr = Vm::ScriptGetTextTableStrAddress(1, strIndex);
   float fontSize = 28;
   RendererOutlineMode outlineMode = RendererOutlineMode::Full;
   CharacterRouteLabel.SetText(strAddr, fontSize, outlineMode,
@@ -163,8 +162,7 @@ void SaveEntryButton::RefreshCharacterRouteText(int strIndex) {
 }
 
 void SaveEntryButton::RefreshSceneTitleText(int strIndex) {
-  // TODO actually make this look correct
-  uint8_t* strAddr = Vm::ScriptGetTextTableStrAddress(1, strIndex + 1);
+  auto strAddr = Vm::ScriptGetTextTableStrAddress(1, strIndex + 1);
   float fontSize = 28;
   RendererOutlineMode outlineMode = RendererOutlineMode::Full;
   SceneTitleLabel.SetText(strAddr, fontSize, outlineMode,

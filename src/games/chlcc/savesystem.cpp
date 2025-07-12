@@ -343,14 +343,12 @@ void SaveSystem::SaveMemory() {
       WorkingSaveEntry->MainThreadScriptParam = thd->ScriptParam;
       WorkingSaveEntry->MainThreadGroupId = thd->GroupId << 16;
       WorkingSaveEntry->MainThreadGroupId |= thd->ScriptBufferId;
-      WorkingSaveEntry->MainThreadIp =
-          static_cast<uint32_t>(thd->Ip - ScriptBuffers[thd->ScriptBufferId]);
+      WorkingSaveEntry->MainThreadIp = thd->IpOffset;
       WorkingSaveEntry->MainThreadCallStackDepth = thd->CallStackDepth;
 
       for (uint32_t j = 0; j < thd->CallStackDepth; j++) {
         WorkingSaveEntry->MainThreadReturnAddresses[j] =
-            static_cast<uint32_t>(thd->ReturnAddresses[j] -
-                                  ScriptBuffers[thd->ReturnScriptBufferIds[j]]);
+            thd->ReturnAddresses[j];
         WorkingSaveEntry->MainThreadReturnBufIds[j] =
             thd->ReturnScriptBufferIds[j];
       }
@@ -463,19 +461,12 @@ void SaveSystem::LoadEntry(SaveType type, int id) {
         thd->ScriptParam = entry->MainThreadScriptParam;
         thd->GroupId = entry->MainThreadGroupId >> 16;
         thd->ScriptBufferId = entry->MainThreadGroupId & 0xFFFF;
-        LoadScript(thd->ScriptBufferId, ScrWork[2004 + thd->ScriptBufferId]);
-        ScrWork[2004 + thd->ScriptBufferId] = 65535;
-        thd->Ip = ScriptBuffers[thd->ScriptBufferId] + entry->MainThreadIp;
+        thd->IpOffset = entry->MainThreadIp;
         thd->CallStackDepth = entry->MainThreadCallStackDepth;
 
         for (int i = 0; i < thd->CallStackDepth; i++) {
           thd->ReturnScriptBufferIds[i] = entry->MainThreadReturnBufIds[i];
-          LoadScript(entry->MainThreadReturnBufIds[i],
-                     ScrWork[2004 + entry->MainThreadReturnBufIds[i]]);
-          ScrWork[2004 + entry->MainThreadReturnBufIds[i]] = 65535;
-          thd->ReturnAddresses[i] =
-              ScriptBuffers[entry->MainThreadReturnBufIds[i]] +
-              entry->MainThreadReturnAddresses[i];
+          thd->ReturnAddresses[i] = entry->MainThreadReturnAddresses[i];
         }
 
         memcpy(thd->Variables, entry->MainThreadVariables, 64);
