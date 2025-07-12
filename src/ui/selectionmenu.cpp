@@ -30,9 +30,10 @@ void SelectionMenu::Init(bool isPlain) {
   FadeAnimation.LoopMode = AnimationLoopMode::Stop;
 }
 
-void SelectionMenu::AddChoice(uint8_t* str) {
+void SelectionMenu::AddChoice(Vm::BufferOffsetContext ctx) {
   Impacto::Vm::Sc3VmThread dummy;
-  dummy.Ip = str;
+  dummy.IpOffset = ctx.IpOffset;
+  dummy.ScriptBufferId = ctx.ScriptBufferId;
   Choices[ChoiceCount] = TextLayoutPlainLine(
       &dummy, 255, Profile::Dialogue::DialogueFont,
       Profile::Dialogue::DefaultFontSize, Profile::Dialogue::ColorTable[0],

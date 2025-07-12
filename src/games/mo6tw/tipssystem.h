@@ -11,7 +11,7 @@ class TipsSystem : public TipsSystemBase {
  public:
   TipsSystem(int maxTipsCount) : TipsSystemBase(maxTipsCount) {};
 
-  void DataInit(int scriptBufferId, uint8_t* tipsData,
+  void DataInit(uint32_t scriptBufferId, uint32_t tipsDataAdr,
                 uint32_t tipsDataSize) override;
   void UpdateTipRecords() override;
   void SetTipLockedState(int id, bool state) override;

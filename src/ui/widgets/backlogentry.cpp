@@ -14,8 +14,9 @@ namespace Widgets {
 
 using namespace Impacto::Profile::BacklogMenu;
 
-BacklogEntry::BacklogEntry(int id, uint8_t* str, int audioId, int characterId,
-                           glm::vec2 pos, const RectF& hoverBounds)
+BacklogEntry::BacklogEntry(int id, Vm::BufferOffsetContext scrCtx, int audioId,
+                           int characterId, glm::vec2 pos,
+                           const RectF& hoverBounds)
     : Id(id),
       AudioId(audioId),
       CharacterId(characterId),
@@ -29,7 +30,8 @@ BacklogEntry::BacklogEntry(int id, uint8_t* str, int audioId, int characterId,
   BacklogPage->Mode = DPM_REV;
 
   Impacto::Vm::Sc3VmThread dummy;
-  dummy.Ip = str;
+  dummy.IpOffset = scrCtx.IpOffset;
+  dummy.ScriptBufferId = scrCtx.ScriptBufferId;
   // CHLCC uses DPM_REV for the Erin DialogueBox
   if (Profile::Dialogue::DialogueBoxCurrentType != +DialogueBoxType::CHLCC) {
     Profile::Dialogue::REVBounds.X = pos.x;

@@ -71,13 +71,11 @@ void Button::Render() {
   }
 }
 
-void Button::SetText(uint8_t* str, float fontSize,
+void Button::SetText(Vm::Sc3Stream& stream, float fontSize,
                      RendererOutlineMode outlineMode, int colorIndex) {
   HasText = true;
-  Impacto::Vm::Sc3VmThread dummy;
-  dummy.Ip = str;
   Text = TextLayoutPlainLine(
-      &dummy, 255, Profile::Dialogue::DialogueFont, fontSize,
+      stream, 255, Profile::Dialogue::DialogueFont, fontSize,
       Profile::Dialogue::ColorTable[colorIndex], 1.0f,
       glm::vec2(Bounds.X, Bounds.Y), TextAlignment::Left);
   OutlineMode = outlineMode;
