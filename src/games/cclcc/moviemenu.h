@@ -10,4 +10,4 @@ class MovieMenu : public LibrarySubmenu {
   void Init() override;
 };
 
-}
+}  // namespace Impacto::UI::CCLCC

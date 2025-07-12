@@ -61,7 +61,6 @@ class MusicMenu : public LibrarySubmenu {
   void PlayTrack(size_t index);
   void StopMusic(bool playTitle = false);
   void ResetShuffle();
-
 };
 
 }  // namespace CCLCC
