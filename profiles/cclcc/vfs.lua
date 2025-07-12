@@ -1,6 +1,7 @@
 root.Vfs = {
     Mounts = {
         ["bg"] = {"games/cclcc/gamedata/bg.mpk"},
+        ["bgeffect"] = {"games/cclcc/gamedata/bgeffect.mpk"},
         ["bgm"] = {"games/cclcc/gamedata/bgm.mpk"},
         ["chara"] = {"games/cclcc/gamedata/chara.mpk"},
         ["manual"] = {"games/cclcc/gamedata/manual.mpk"},
