@@ -253,6 +253,32 @@ class MaskedSpriteShader : public Shader<MaskedSpriteUniforms> {
   const GLint IsSameTextureLocation;
 };
 
+struct ColorMaskedSpriteUniforms {
+  bool operator==(const ColorMaskedSpriteUniforms& other) const = default;
+
+  glm::mat4 Projection{};
+  glm::mat4 SpriteTransformation{};
+  glm::mat4 MaskTransformation{};
+
+  GLint ColorMap;
+  GLint Mask;
+};
+
+class ColorMaskedSpriteShader : public Shader<ColorMaskedSpriteUniforms> {
+ public:
+  ColorMaskedSpriteShader(GLint programId);
+
+  void UploadUniforms(ColorMaskedSpriteUniforms uniforms) override;
+
+ private:
+  const GLint ProjectionLocation;
+  const GLint SpriteTransformationLocation;
+  const GLint MaskTransformationLocation;
+
+  const GLint ColorMapLocation;
+  const GLint MaskLocation;
+};
+
 struct CCMessageBoxUniforms {
   bool operator==(const CCMessageBoxUniforms& other) const = default;
 

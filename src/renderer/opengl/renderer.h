@@ -102,6 +102,7 @@ class Renderer : public BaseRenderer {
   std::optional<SpriteInvertedShader> SpriteInvertedShaderProgram;
   std::optional<MaskedSpriteShader> MaskedSpriteShaderProgram;
   std::optional<MaskedSpriteNoAlphaShader> MaskedSpriteNoAlphaShaderProgram;
+  std::optional<ColorMaskedSpriteShader> ColorMaskedSpriteShaderProgram;
   std::optional<YUVFrameShader> YUVFrameShaderProgram;
   std::optional<CCMessageBoxShader> CCMessageBoxShaderProgram;
   std::optional<CHLCCMenuBackgroundShader> CHLCCMenuBackgroundShaderProgram;

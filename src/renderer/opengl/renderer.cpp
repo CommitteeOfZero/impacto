@@ -64,6 +64,7 @@ void Renderer::Init() {
   MaskedSpriteShaderProgram.emplace(Shaders.Compile("MaskedSprite"));
   MaskedSpriteNoAlphaShaderProgram.emplace(
       Shaders.Compile("MaskedSpriteNoAlpha"));
+  ColorMaskedSpriteShaderProgram.emplace(Shaders.Compile("ColorMaskedSprite"));
   YUVFrameShaderProgram.emplace(Shaders.Compile("YUVFrame"));
   CCMessageBoxShaderProgram.emplace(Shaders.Compile("CCMessageBoxSprite"));
   CHLCCMenuBackgroundShaderProgram.emplace(
