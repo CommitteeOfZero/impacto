@@ -369,6 +369,34 @@ void MaskedSpriteShader::UploadUniforms(MaskedSpriteUniforms newUniforms) {
             IsSameTextureLocation);
 }
 
+ColorMaskedSpriteShader::ColorMaskedSpriteShader(GLint programId)
+    : Shader(programId),
+      ProjectionLocation(glGetUniformLocation(programId, "Projection")),
+      SpriteTransformationLocation(
+          glGetUniformLocation(programId, "SpriteTransformation")),
+      MaskTransformationLocation(
+          glGetUniformLocation(programId, "MaskTransformation")),
+      ColorMapLocation(glGetUniformLocation(programId, "ColorMap")),
+      MaskLocation(glGetUniformLocation(programId, "Mask")) {
+  UploadVar(Uniforms.Projection, ProjectionLocation);
+  UploadVar(Uniforms.SpriteTransformation, SpriteTransformationLocation);
+  UploadVar(Uniforms.MaskTransformation, MaskTransformationLocation);
+  UploadVar(Uniforms.ColorMap, ColorMapLocation);
+  UploadVar(Uniforms.Mask, MaskLocation);
+}
+
+void ColorMaskedSpriteShader::UploadUniforms(
+    ColorMaskedSpriteUniforms newUniforms) {
+  UpdateVar(newUniforms.Projection, Uniforms.Projection, ProjectionLocation);
+  UpdateVar(newUniforms.SpriteTransformation, Uniforms.SpriteTransformation,
+            SpriteTransformationLocation);
+  UpdateVar(newUniforms.MaskTransformation, Uniforms.MaskTransformation,
+            MaskTransformationLocation);
+
+  UpdateVar(newUniforms.ColorMap, Uniforms.ColorMap, ColorMapLocation);
+  UpdateVar(newUniforms.Mask, Uniforms.Mask, MaskLocation);
+}
+
 CCMessageBoxShader::CCMessageBoxShader(GLint programId)
     : Shader(programId),
       ProjectionLocation(glGetUniformLocation(programId, "Projection")),
