@@ -157,21 +157,24 @@ void LibraryMenu::Update(float dt) {
     Show();
   }
   if (State == Shown && ScrWork[SW_SYSSUBMENUNO] == 8) {
-    UpdateInput();
-    if ((Vm::Interface::PADinputButtonWentDown & Vm::Interface::PAD1B) ||
-        (Vm::Interface::PADinputMouseWentDown & Vm::Interface::PAD1B)) {
-      Audio::Channels[Audio::AC_SSE]->Play("sysse", 3, false, 0);
-      if (!IsFocused) {  // unfocus submenu
-        auto* activeButton = static_cast<LibraryMenuButton*>(
-            MainItems.Children.at(CurrentLibraryMenu));
-        auto& submenu = GetMenuFromType(CurrentLibraryMenu);
-        submenu.IsFocused = false;
-        UI::FocusedMenu = this;
-        IsFocused = true;
-        activeButton->Selected = false;
-        activeButton->HasFocus = true;
-      } else {
-        SetFlag(SF_ALBUMEND, 1);
+    if (!(CurrentLibraryMenu == +LibraryMenuPageType::Movie &&
+          Video::Players[0]->IsPlaying)) {
+      UpdateInput();
+      if ((Vm::Interface::PADinputButtonWentDown & Vm::Interface::PAD1B) ||
+          (Vm::Interface::PADinputMouseWentDown & Vm::Interface::PAD1B)) {
+        Audio::Channels[Audio::AC_SSE]->Play("sysse", 3, false, 0);
+        if (!IsFocused) {  // unfocus submenu
+          auto* activeButton = static_cast<LibraryMenuButton*>(
+              MainItems.Children.at(CurrentLibraryMenu));
+          auto& submenu = GetMenuFromType(CurrentLibraryMenu);
+          submenu.IsFocused = false;
+          UI::FocusedMenu = this;
+          IsFocused = true;
+          activeButton->Selected = false;
+          activeButton->HasFocus = true;
+        } else {
+          SetFlag(SF_ALBUMEND, 1);
+        }
       }
     }
   }
