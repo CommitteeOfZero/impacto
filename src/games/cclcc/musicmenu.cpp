@@ -135,11 +135,30 @@ void MusicTrackButton::Render() {
   }
 }
 
+MusicModeButton::MusicModeButton(
+    Profile::CCLCC::LibraryMenu::MusicMenuPlayingMode& mode)
+    : Widgets::Button(), PlayMode(mode) {
+  OnClickHandler = [](Widgets::Button* btn) {
+    auto* modeBtn = static_cast<MusicModeButton*>(btn);
+    modeBtn->PlayMode = MusicMenuPlayingMode::_from_integral(
+        (modeBtn->PlayMode._to_integral() + 1) % MusicMenuPlayingMode::_size());
+    Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0);
+  };
+}
+
+void MusicModeButton::Update(float dt) {
+  Widgets::Button::Update(dt);
+  NormalSprite = MusicPlayingModeSprites[PlayMode._to_integral()];
+  FocusedSprite = NormalSprite;
+  Bounds = MusicPlayingModeDisplayBounds[PlayMode._to_integral()];
+}
+
 MusicMenu::MusicMenu()
     : LibrarySubmenu(),
       DirectionButtonHoldHandler(
           MusicDirectionalHoldTime, MusicDirectionalFocusTimeInterval,
-          Vm::Interface::PAD1UP | Vm::Interface::PAD1DOWN) {
+          Vm::Interface::PAD1UP | Vm::Interface::PAD1DOWN),
+      ModeButton(PlayMode) {
   MainItems.RenderingBounds = MusicRenderingBounds;
   MainItems.HoverBounds = MusicHoverBounds;
   NowPlayingFadeAnimation.DurationIn = MusicNowPlayingNotificationFadeIn;
@@ -154,7 +173,7 @@ void MusicMenu::Show() {
 void MusicMenu::Init() {
   const auto musicOnclick = [this](Widgets::Button* target) {
     auto* musicBtn = static_cast<MusicTrackButton*>(target);
-    if (target->IsLocked) return;
+    if (target->IsLocked || ModeButton.Hovered) return;
     if (CurrentlyPlayingBtn) CurrentlyPlayingBtn->Selected = false;
     PlayTrack(musicBtn->Id);
     if (PlayMode == +MusicMenuPlayingMode::Shuffle) {
@@ -238,15 +257,18 @@ void MusicMenu::Update(float dt) {
     }
   }
   LibrarySubmenu::Update(dt);
+  ModeButton.HasFocus = ModeButton.Hovered;
   BGWidget.Update(dt);
   NowPlayingFadeAnimation.Update(dt);
   NowPlayingTrackName.Update(dt);
+  ModeButton.Update(dt);
   const int alpha = ((ScrWork[SW_SYSSUBMENUCT] * 32 - 768) * 224) >> 8;
   const auto tint =
       glm::vec4(1.0f, 1.0f, 1.0f, alpha / 255.0f * FadeAnimation.Progress);
   MainItems.Tint = tint;
   BGWidget.Tint = tint;
   NowPlayingTrackName.Tint = tint;
+  ModeButton.Tint = tint;
 }
 
 void MusicMenu::Hide() {
@@ -268,13 +290,14 @@ void MusicMenu::UpdateInput(float dt) {
       PlayMode = MusicMenuPlayingMode::_from_integral(
           (PlayMode._to_integral() + 1) % MusicMenuPlayingMode::_size());
     }
+    ModeButton.UpdateInput();
 
     const uint32_t btnUp = PADcustom[0];
     const uint32_t btnDown = PADcustom[1];
     const bool upScroll = Input::MouseWheelDeltaY > 0;
     const bool downScroll = Input::MouseWheelDeltaY < 0;
 
-        DirectionButtonHoldHandler.Update(dt);
+    DirectionButtonHoldHandler.Update(dt);
     const int directionShouldFire = DirectionButtonHoldHandler.ShouldFire();
     const bool directionMovement =
         (bool)(directionShouldFire & btnUp || upScroll) ^
@@ -345,9 +368,7 @@ void MusicMenu::Render() {
         MusicNowPlayingNotificationSprite, MusicNowPlayingNotificationPos,
         glm::vec4{glm::vec3{1.0f}, NowPlayingFadeAnimation.Progress});
     NowPlayingTrackName.Render();
-    Renderer->DrawSprite(MusicPlayingModeSprites[PlayMode._to_integral()],
-                         MusicPlayingModePositions[PlayMode._to_integral()],
-                         glm::vec4{glm::vec3{1.0f}, FadeAnimation.Progress});
+    ModeButton.Render();
   }
 }
 

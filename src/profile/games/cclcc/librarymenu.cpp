@@ -94,9 +94,9 @@ void Configure() {
   GetMemberArray<Sprite>(MusicPlayingModeSprites.data(),
                          MusicMenuPlayingMode::_size(),
                          "MusicPlayingModeSprites");
-  GetMemberArray<glm::vec2>(MusicPlayingModePositions.data(),
-                            MusicMenuPlayingMode::_size(),
-                            "MusicPlayingModePositions");
+  GetMemberArray<RectF>(MusicPlayingModeDisplayBounds.data(),
+                        MusicMenuPlayingMode::_size(),
+                        "MusicPlayingModeDisplayBounds");
 
   MovieDiskSprites = GetMemberVector<Sprite>("MovieDiskSprites");
   MovieDiskHighlightSprites =

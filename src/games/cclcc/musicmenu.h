@@ -38,6 +38,16 @@ class MusicTrackButton : public Widgets::Button {
   int Position = 0;
 };
 
+class MusicModeButton : public Widgets::Button {
+ public:
+  MusicModeButton(Profile::CCLCC::LibraryMenu::MusicMenuPlayingMode& mode);
+
+  void Update(float dt) override;
+
+ private:
+  Profile::CCLCC::LibraryMenu::MusicMenuPlayingMode& PlayMode;
+};
+
 class MusicMenu : public LibrarySubmenu {
  public:
   MusicMenu();
