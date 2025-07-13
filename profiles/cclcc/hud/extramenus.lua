@@ -153,7 +153,7 @@ root.Sprites["ClearListMask"] = {
 
 root.Sprites["ItouBadEnd"] = {
     Sheet = "ClearList",
-    Bounds = { X = 1022, Y = 1660, Width = 262, Height = 276 }
+    Bounds = { X = 1022, Y = 1660, Width = 260, Height = 287 }
 };
 
 root.Sprites["NonoNormalEnd"] = {
@@ -163,7 +163,7 @@ root.Sprites["NonoNormalEnd"] = {
 
 root.Sprites["NonoGoodEnd"] = {
     Sheet = "ClearList",
-    Bounds = { X = 312, Y = 1182, Width = 176, Height = 422 }
+    Bounds = { X = 306, Y = 1182, Width = 184, Height = 458 }
 };
 
 root.Sprites["HinaeNormalEnd"] = {
@@ -173,7 +173,7 @@ root.Sprites["HinaeNormalEnd"] = {
 
 root.Sprites["HinaeGoodEnd"] = {
     Sheet = "ClearList",
-    Bounds = { X = 677, Y = 1182, Width = 176, Height = 422 }
+    Bounds = { X = 674, Y = 1182, Width = 184, Height = 465 }
 };
 
 root.Sprites["YuiYutoNormalEnd"] = {
@@ -183,12 +183,12 @@ root.Sprites["YuiYutoNormalEnd"] = {
 
 root.Sprites["YuiYutoGoodEnd"] = {
     Sheet = "ClearList",
-    Bounds = { X = 129, Y = 1182, Width = 176, Height = 422 }
+    Bounds = { X = 123, Y = 1182, Width = 184, Height = 458 }
 };
 
 root.Sprites["HanaNormalEnd"] = {
     Sheet = "ClearList",
-    Bounds = { X = 494, Y = 1182, Width = 176, Height = 422 }
+    Bounds = { X = 490, Y = 1182, Width = 184, Height = 465 }
 };
 
 root.Sprites["SerikaNormalEnd"] = {
@@ -198,7 +198,7 @@ root.Sprites["SerikaNormalEnd"] = {
 
 root.Sprites["SerikaTrueEnd"] = {
     Sheet = "ClearList",
-    Bounds = { X = 1026, Y = 1182, Width = 629, Height = 425 }
+    Bounds = { X = 1026, Y = 1182, Width = 723, Height = 425 }
 };
 
 -- LibraryMenu

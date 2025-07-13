@@ -126,8 +126,10 @@ void ClearListMenu::DrawEndingSprites(const glm::vec4& transition) {
           glm::vec2(
               EndingSprites[i].Bounds.X,
               EndingSprites[i].Bounds.Y - EndingSpriteOffsetY + MenuOffsetY),
-          glm::vec4{glm::vec3{transition},
-                    transition.a * alphas[mappedAlphas[i]] / 256.0f});
+          glm::vec4{
+              glm::vec3{transition},
+              transition.a *
+                  (State != Hiding ? alphas[mappedAlphas[i]] / 256.0f : 1.0f)});
     }
   }
 }
