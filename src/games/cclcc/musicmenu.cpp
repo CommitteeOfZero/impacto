@@ -274,8 +274,7 @@ void MusicMenu::UpdateInput(float dt) {
     const bool upScroll = Input::MouseWheelDeltaY > 0;
     const bool downScroll = Input::MouseWheelDeltaY < 0;
 
-    const bool wasTurbo = DirectionButtonHoldHandler.IsTurbo;
-    DirectionButtonHoldHandler.Update(dt);
+        DirectionButtonHoldHandler.Update(dt);
     const int directionShouldFire = DirectionButtonHoldHandler.ShouldFire();
     const bool directionMovement =
         (bool)(directionShouldFire & btnUp || upScroll) ^
@@ -285,7 +284,7 @@ void MusicMenu::UpdateInput(float dt) {
       const bool dirDown = directionShouldFire & btnDown || downScroll;
       QueuedMove =
           (dirDown ? FocusDirection::FDIR_DOWN : FocusDirection::FDIR_UP);
-    } else if (wasTurbo) {
+    } else if (TurboMoved) {
       QueuedMove.reset();
     }
 
@@ -295,9 +294,9 @@ void MusicMenu::UpdateInput(float dt) {
       float deltaY = 0;
       const bool dirDown = *QueuedMove == FocusDirection::FDIR_DOWN;
       deltaY += dirDown ? MusicButtonBounds.Height : -MusicButtonBounds.Height;
-      const float animationSpeed = DirectionButtonHoldHandler.IsTurbo
-                                       ? MusicDirectionalFocusTimeInterval
-                                       : 0.3f;
+      TurboMoved = DirectionButtonHoldHandler.IsTurbo || upScroll || downScroll;
+      const float animationSpeed =
+          TurboMoved ? MusicDirectionalFocusTimeInterval : 0.3f;
 
       MainItems.Move({0.0f, -deltaY}, animationSpeed);
       BGWidget.Move({0.0f, -deltaY}, animationSpeed);

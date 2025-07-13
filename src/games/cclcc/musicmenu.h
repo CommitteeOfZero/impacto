@@ -58,6 +58,8 @@ class MusicMenu : public LibrarySubmenu {
   TurboOnHoldHandler DirectionButtonHoldHandler;
   Animation NowPlayingFadeAnimation;
   Widgets::Label NowPlayingTrackName;
+  MusicModeButton ModeButton;
+  bool TurboMoved = false;
   void PlayTrack(size_t index);
   void StopMusic(bool playTitle = false);
   void ResetShuffle();
