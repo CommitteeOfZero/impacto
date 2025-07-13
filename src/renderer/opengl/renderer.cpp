@@ -287,12 +287,12 @@ void Renderer::UseTextures(
   for (const auto [textureId, unitIndex] : textureUnitPairs) {
     TextureUnit& textureUnit = TextureUnits[unitIndex];
 
-    if (textureUnit.TextureId != textureId) {
-      glActiveTexture(GL_TEXTURE0 + unitIndex);
-      glBindTexture(GL_TEXTURE_2D, textureId);
-      textureUnit.TextureId = textureId;
-    }
+    // Always update the active texture in case the texture contents of the same
+    // index changes, like in videos
+    glActiveTexture(GL_TEXTURE0 + unitIndex);
+    glBindTexture(GL_TEXTURE_2D, textureId);
 
+    textureUnit.TextureId = textureId;
     textureUnit.InUse = true;
   }
 }
