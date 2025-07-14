@@ -39,14 +39,7 @@ void LibrarySubmenu::Hide() {
   if (State != Hidden) {
     State = Hiding;
     FadeAnimation.StartOut();
-    if (UI::FocusedMenu == this) {
-      if (LastFocusedMenu != 0) {
-        UI::FocusedMenu = LastFocusedMenu;
-      } else {
-        UI::FocusedMenu = 0;
-      }
-    }
-    IsFocused = false;
+    Unfocus();
   }
 }
 
@@ -74,6 +67,19 @@ void LibrarySubmenu::Render() {
     MainItems.Tint = glm::vec4(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
     MainItems.Render();
   }
+}
+
+void LibrarySubmenu::Unfocus() {
+  if (!IsFocused) return;
+
+  if (UI::FocusedMenu == this) {
+    if (LastFocusedMenu != 0) {
+      UI::FocusedMenu = LastFocusedMenu;
+    } else {
+      UI::FocusedMenu = 0;
+    }
+  }
+  IsFocused = false;
 }
 }  // namespace CCLCC
 }  // namespace UI

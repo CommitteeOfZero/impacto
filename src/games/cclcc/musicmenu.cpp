@@ -202,15 +202,13 @@ void MusicMenu::Init() {
   ResetShuffle();
 }
 
-void MusicMenu::StopMusic(bool playTitle) {
+void MusicMenu::StopMusic() {
   if (CurrentlyPlayingBtn) {
     Audio::Channels[Audio::AC_BGM0]->Stop(0.0f);
     CurrentlyPlayingBtn->Selected = false;
     CurrentlyPlayingBtn = nullptr;
     NowPlayingFadeAnimation.StartOut();
     NowPlayingTrackName.ClearText();
-    if (playTitle)
-      Audio::Channels[Audio::AC_BGM0]->Play("bgm", 101, true, 0.0f);
   }
 }
 
@@ -223,9 +221,6 @@ void MusicMenu::Update(float dt) {
     }
     return next == current ? std::nullopt : std::make_optional(next);
   };
-  if (!IsFocused) {
-    StopMusic(true);
-  }
   if (IsFocused && CurrentlyPlayingBtn &&
       Audio::Channels[Audio::AC_BGM0]->GetState() ==
           Audio::AudioChannelState::ACS_Stopped) {
@@ -271,10 +266,16 @@ void MusicMenu::Update(float dt) {
   ModeButton.Tint = tint;
 }
 
+void MusicMenu::Unfocus() {
+  if (!IsFocused) return;
+  StopMusic();
+  Audio::Channels[Audio::AC_BGM0]->Play("bgm", 101, true, 0.0f);
+  Audio::Channels[Audio::AC_SSE]->Play("sysse", 3, false, 0);
+  LibrarySubmenu::Unfocus();
+}
+
 void MusicMenu::Hide() {
   if (CurrentlyFocusedElement) CurrentlyFocusedElement = nullptr;
-  StopMusic(true);
-  Audio::Channels[Audio::AC_SSE]->Play("sysse", 3, false, 0);
   MainItems.MoveTo(glm::vec2(0, 0));
   LibrarySubmenu::Hide();
 }

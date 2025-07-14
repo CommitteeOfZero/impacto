@@ -20,7 +20,7 @@ class LibrarySubmenu : public Menu {
   void Render() override;
   // void Move(glm::vec2 offset);
   // void MoveTo(glm::vec2 pos);
-
+  virtual void Unfocus();
   Animation FadeAnimation;
   Widgets::Group MainItems{this};
 };

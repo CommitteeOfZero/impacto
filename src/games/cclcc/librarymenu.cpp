@@ -112,6 +112,7 @@ void LibraryMenu::Show() {
       LastFocusedMenu = UI::FocusedMenu;
       LastFocusedMenu->IsFocused = false;
     }
+    UI::FocusedMenu = this;
     MainItems.Show();
     MainItems.Move({LibraryTransitionPositionOffset, 0.0f},
                    FadeAnimation.DurationIn);
@@ -167,8 +168,7 @@ void LibraryMenu::Update(float dt) {
           auto* activeButton = static_cast<LibraryMenuButton*>(
               MainItems.Children.at(CurrentLibraryMenu));
           auto& submenu = GetMenuFromType(CurrentLibraryMenu);
-          submenu.IsFocused = false;
-          UI::FocusedMenu = this;
+          submenu.Unfocus();
           IsFocused = true;
           activeButton->Selected = false;
           activeButton->HasFocus = true;
@@ -193,7 +193,8 @@ void LibraryMenu::Update(float dt) {
       ButtonBlinkAnimation.Stop();
     else if (ButtonBlinkAnimation.State == +AnimationState::Stopped)
       ButtonBlinkAnimation.StartIn();
-    if (!activeBtn->Hovered && wasHovered) {  // Stop blink when mouse out
+    if (!IsFocused && !activeBtn->Hovered &&
+        wasHovered) {  // Stop blink when mouse out on submenu
       ButtonBlinkAnimation.Stop();
       ButtonBlinkAnimation.Progress = 0.0f;
       CurrentlyFocusedElement->HasFocus = false;

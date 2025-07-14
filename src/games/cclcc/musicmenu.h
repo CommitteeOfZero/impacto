@@ -57,6 +57,7 @@ class MusicMenu : public LibrarySubmenu {
   void Render() override;
   void Show() override;
   void Hide() override;
+  void Unfocus() override;
 
  private:
   Profile::CCLCC::LibraryMenu::MusicMenuPlayingMode PlayMode =
@@ -71,7 +72,7 @@ class MusicMenu : public LibrarySubmenu {
   MusicModeButton ModeButton;
   bool TurboMoved = false;
   void PlayTrack(size_t index);
-  void StopMusic(bool playTitle = false);
+  void StopMusic();
   void ResetShuffle();
 };
 
