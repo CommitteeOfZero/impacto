@@ -115,7 +115,7 @@ root.ExtraMenus = {
         MusicNowPlayingTextColor = 0xffffff,
         MusicNowPlayingTextOutlineColor = 0xffffff,
         MusicPlayingModeSprites = {},
-        MusicPlayingModePositions = {},
+        MusicPlayingModeDisplayBounds = {},
 
         MovieDiskSprites = {},
         MovieDiskHighlightSprites = {},
@@ -362,8 +362,10 @@ for i = 0, 3 do
         Bounds = MusicNowPlayingModeBounds[index]
     };
     root.ExtraMenus.LibraryMenu.MusicPlayingModeSprites[index] = "MusicNowPlayingMode" .. i;
-    root.ExtraMenus.LibraryMenu.MusicPlayingModePositions[index] = {
+    root.ExtraMenus.LibraryMenu.MusicPlayingModeDisplayBounds[index] = {
         X = 1854 - MusicNowPlayingModeBounds[index].Width + 1;
-        Y = 42
+        Y = 42;
+        Width = MusicNowPlayingModeBounds[index].Width;
+        Height = MusicNowPlayingModeBounds[index].Height;
     };
 end

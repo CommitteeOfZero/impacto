@@ -66,8 +66,8 @@ inline uint32_t MusicNowPlayingTextColor;
 inline uint32_t MusicNowPlayingTextOutlineColor;
 inline std::array<Sprite, MusicMenuPlayingMode::_size()>
     MusicPlayingModeSprites;
-inline std::array<glm::vec2, MusicMenuPlayingMode::_size()>
-    MusicPlayingModePositions;
+inline std::array<RectF, MusicMenuPlayingMode::_size()>
+    MusicPlayingModeDisplayBounds;
 
 inline std::vector<Sprite> MovieDiskSprites;
 inline std::vector<Sprite> MovieDiskHighlightSprites;
