@@ -178,13 +178,13 @@ void LibraryMenu::Update(float dt) {
       }
     }
   }
+  if (State == Hidden) return;
 
   FadeAnimation.Update(dt);
   UI::AlbumMenuPtr->Update(dt);
   UI::MusicMenuPtr->Update(dt);
   UI::MovieMenuPtr->Update(dt);
   ButtonBlinkAnimation.Update(dt);
-  MainItems.HasFocus = IsFocused;
   MainItems.Update(dt);
 
   if (CurrentlyFocusedElement) {
