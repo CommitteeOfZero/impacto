@@ -488,7 +488,7 @@ void Renderer::DrawMaskedSpriteOverlay(
 
 void Renderer::DrawVertices(const SpriteSheet& sheet,
                             const SpriteSheet* const mask,
-                            const bool maskHasAlpha,
+                            const ShaderProgramType shaderType,
                             const std::span<const VertexBufferSprites> vertices,
                             const std::span<const uint16_t> indices,
                             glm::mat4 transformation, const bool inverted) {
@@ -499,8 +499,45 @@ void Renderer::DrawVertices(const SpriteSheet& sheet,
   }
 
   // Set uniform variables
-  if (mask != nullptr) {
-    if (maskHasAlpha) {
+  // PringlesGang: I promise I'll clean all of this up with the bgfx refactor!!
+  switch (shaderType) {
+    case ShaderProgramType::AdditiveMaskedSprite: {
+      AdditiveMaskedSpriteUniforms uniforms{
+          .Projection = Projection,
+          .SpriteTransformation = transformation,
+          .MaskTransformation = glm::mat4(1.0f),
+          .ColorMap = 0,
+          .Mask = 2,
+      };
+
+      UseShader(*AdditiveMaskedSpriteShaderProgram, uniforms);
+    } break;
+
+    case ShaderProgramType::ColorBurnMaskedSprite: {
+      ColorBurnMaskedSpriteUniforms uniforms{
+          .Projection = Projection,
+          .SpriteTransformation = transformation,
+          .MaskTransformation = glm::mat4(1.0f),
+          .ColorMap = 0,
+          .Mask = 2,
+      };
+
+      UseShader(*ColorBurnMaskedSpriteShaderProgram, uniforms);
+    } break;
+
+    case ShaderProgramType::ColorDodgeMaskedSprite: {
+      ColorDodgeMaskedSpriteUniforms uniforms{
+          .Projection = Projection,
+          .SpriteTransformation = transformation,
+          .MaskTransformation = glm::mat4(1.0f),
+          .ColorMap = 0,
+          .Mask = 2,
+      };
+
+      UseShader(*ColorDodgeMaskedSpriteShaderProgram, uniforms);
+    } break;
+
+    case ShaderProgramType::ColorMaskedSprite: {
       ColorMaskedSpriteUniforms uniforms{
           .Projection = Projection,
           .SpriteTransformation = transformation,
@@ -510,8 +547,48 @@ void Renderer::DrawVertices(const SpriteSheet& sheet,
       };
 
       UseShader(*ColorMaskedSpriteShaderProgram, uniforms);
+    } break;
 
-    } else {
+    case ShaderProgramType::HardLightMaskedSprite: {
+      HardLightMaskedSpriteUniforms uniforms{
+          .Projection = Projection,
+          .SpriteTransformation = transformation,
+          .MaskTransformation = glm::mat4(1.0f),
+          .ColorMap = 0,
+          .Mask = 2,
+      };
+
+      UseShader(*HardLightMaskedSpriteShaderProgram, uniforms);
+    } break;
+
+    case ShaderProgramType::LinearBurnMaskedSprite: {
+      LinearBurnMaskedSpriteUniforms uniforms{
+          .Projection = Projection,
+          .SpriteTransformation = transformation,
+          .MaskTransformation = glm::mat4(1.0f),
+          .ColorMap = 0,
+          .Mask = 2,
+      };
+
+      UseShader(*LinearBurnMaskedSpriteShaderProgram, uniforms);
+    } break;
+
+    case ShaderProgramType::MaskedSprite: {
+      MaskedSpriteUniforms uniforms{
+          .Projection = Projection,
+          .SpriteTransformation = transformation,
+          .MaskTransformation = glm::mat4(1.0f),
+          .ColorMap = 0,
+          .Mask = 2,
+          .Alpha = {1.0f, 0.0f},
+          .IsInverted = inverted,
+          .IsSameTexture = false,
+      };
+
+      UseShader(*MaskedSpriteShaderProgram, uniforms);
+    } break;
+
+    case ShaderProgramType::MaskedSpriteNoAlpha: {
       MaskedSpriteNoAlphaUniforms uniforms{
           .Projection = Projection,
           .SpriteTransformation = transformation,
@@ -523,9 +600,56 @@ void Renderer::DrawVertices(const SpriteSheet& sheet,
       };
 
       UseShader(*MaskedSpriteNoAlphaShaderProgram, uniforms);
-    }
-  } else {
-    if (inverted) {
+    } break;
+
+    case ShaderProgramType::OverlayMaskedSprite: {
+      OverlayMaskedSpriteUniforms uniforms{
+          .Projection = Projection,
+          .SpriteTransformation = transformation,
+          .MaskTransformation = glm::mat4(1.0f),
+          .ColorMap = 0,
+          .Mask = 2,
+      };
+
+      UseShader(*OverlayMaskedSpriteShaderProgram, uniforms);
+    } break;
+
+    case ShaderProgramType::ScreenMaskedSprite: {
+      ScreenMaskedSpriteUniforms uniforms{
+          .Projection = Projection,
+          .SpriteTransformation = transformation,
+          .MaskTransformation = glm::mat4(1.0f),
+          .ColorMap = 0,
+          .Mask = 2,
+      };
+
+      UseShader(*ScreenMaskedSpriteShaderProgram, uniforms);
+    } break;
+
+    case ShaderProgramType::SoftLightMaskedSprite: {
+      SoftLightMaskedSpriteUniforms uniforms{
+          .Projection = Projection,
+          .SpriteTransformation = transformation,
+          .MaskTransformation = glm::mat4(1.0f),
+          .ColorMap = 0,
+          .Mask = 2,
+      };
+
+      UseShader(*SoftLightMaskedSpriteShaderProgram, uniforms);
+    } break;
+
+    case ShaderProgramType::Sprite: {
+      SpriteUniforms uniforms{
+          .Projection = Projection,
+          .Transformation = transformation,
+          .ColorMap = 0,
+          .ColorShift = glm::vec3(0.0f),
+      };
+
+      UseShader(*SpriteShaderProgram, uniforms);
+    } break;
+
+    case ShaderProgramType::SpriteInverted: {
       SpriteInvertedUniforms uniforms{
           .Projection = Projection,
           .Transformation = transformation,
@@ -533,16 +657,13 @@ void Renderer::DrawVertices(const SpriteSheet& sheet,
       };
 
       UseShader(*SpriteInvertedShaderProgram, uniforms);
+    } break;
 
-    } else {
-      SpriteUniforms uniforms{
-          .Projection = Projection,
-          .Transformation = transformation,
-          .ColorMap = 0,
-      };
-
-      UseShader(*SpriteShaderProgram, uniforms);
-    }
+    default:
+      ImpLog(LogLevel::Error, LogChannel::Render,
+             "Attempted to render vertices using unsupported shader type {}",
+             (int)shaderType);
+      return;
   }
 
   if (mask == nullptr) {

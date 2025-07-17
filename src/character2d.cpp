@@ -387,12 +387,13 @@ void Character2D::Render(const int layer) {
 
     if (!Profile::UseBgEffects || !LastRenderedBackground ||
         !LastRenderedBackground->BgEffChaLoaded) {
-      Renderer->DrawVertices(CharaSpriteSheet, MvlVertices, MvlIndices,
-                             transformation);
+      Renderer->DrawVertices(CharaSpriteSheet, ShaderProgramType::Sprite,
+                             MvlVertices, MvlIndices, transformation);
     } else {
       Renderer->DrawVertices(CharaSpriteSheet,
                              &LastRenderedBackground->BgEffChaSprite.Sheet,
-                             true, MvlVertices, MvlIndices, transformation);
+                             ShaderProgramType::ColorMaskedSprite, MvlVertices,
+                             MvlIndices, transformation);
     }
 
   } else {
