@@ -65,6 +65,22 @@ void Renderer::Init() {
   MaskedSpriteNoAlphaShaderProgram.emplace(
       Shaders.Compile("MaskedSpriteNoAlpha"));
   ColorMaskedSpriteShaderProgram.emplace(Shaders.Compile("ColorMaskedSprite"));
+  AdditiveMaskedSpriteShaderProgram.emplace(
+      Shaders.Compile("AdditiveMaskedSprite"));
+  ColorBurnMaskedSpriteShaderProgram.emplace(
+      Shaders.Compile("ColorBurnMaskedSprite"));
+  ColorDodgeMaskedSpriteShaderProgram.emplace(
+      Shaders.Compile("ColorDodgeMaskedSprite"));
+  HardLightMaskedSpriteShaderProgram.emplace(
+      Shaders.Compile("HardLightMaskedSprite"));
+  LinearBurnMaskedSpriteShaderProgram.emplace(
+      Shaders.Compile("LinearBurnMaskedSprite"));
+  OverlayMaskedSpriteShaderProgram.emplace(
+      Shaders.Compile("OverlayMaskedSprite"));
+  ScreenMaskedSpriteShaderProgram.emplace(
+      Shaders.Compile("ScreenMaskedSprite"));
+  SoftLightMaskedSpriteShaderProgram.emplace(
+      Shaders.Compile("SoftLightMaskedSprite"));
   YUVFrameShaderProgram.emplace(Shaders.Compile("YUVFrame"));
   CCMessageBoxShaderProgram.emplace(Shaders.Compile("CCMessageBoxSprite"));
   CHLCCMenuBackgroundShaderProgram.emplace(
