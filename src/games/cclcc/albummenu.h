@@ -6,6 +6,12 @@ namespace Impacto {
 namespace UI {
 namespace CCLCC {
 
+struct AlbumThumbnailSpriteInfo {
+  std::reference_wrapper<const Sprite> ThumbnailSprite;
+  glm::vec2 Origin;
+  int Angle;
+};
+
 struct AlbumThumbnail : public Widgets::Button {
   enum class DisplayState : uint8_t {
     Hidden,
@@ -14,7 +20,8 @@ struct AlbumThumbnail : public Widgets::Button {
     Shown,
   };
 
-  AlbumThumbnail(int id, uint8_t const& activePage);
+  AlbumThumbnail(int id, int indexInPage, glm::vec2 gridPos,
+                 uint8_t const& activePage);
   void UpdateInput() override;
   void Render() override;
   void Show() override {
@@ -30,9 +37,12 @@ struct AlbumThumbnail : public Widgets::Button {
   }
 
   DisplayState State = DisplayState::Hidden;
+  glm::vec2 GridPos;
   uint8_t Page;
+  uint8_t IdInPage;
   uint8_t IndexInPage;
   uint8_t const& ActivePage;
+  std::vector<AlbumThumbnailSpriteInfo> Variants;
 };
 
 class AlbumMenu : public LibrarySubmenu {
