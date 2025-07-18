@@ -30,6 +30,9 @@ class Background2D : public Loadable<Background2D, bool, uint32_t> {
 
   bool BgEffChaLoaded = false;
   Sprite BgEffChaSprite;
+  std::array<ShaderProgramType, 4> BgEffShaders = {
+      ShaderProgramType::Sprite, ShaderProgramType::Sprite,
+      ShaderProgramType::Sprite, ShaderProgramType::Sprite};
 
   glm::vec2 Position = {0.0f, 0.0f};
   glm::vec2 Origin = {0.0f, 0.0f};

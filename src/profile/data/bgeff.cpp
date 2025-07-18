@@ -25,8 +25,8 @@ const static std::map<uint8_t, ShaderProgramType> ShaderIdToShaderType{
 void Load() {
   EnsurePushMemberOfType("BgEffData", LUA_TTABLE);
 
-  if (TryPushMember("BgEffShaderData")) {
-    AssertIs(LUA_TTABLE);
+  {
+    EnsurePushMemberOfType("BgEffShaderData", LUA_TTABLE);
 
     PushInitialIndex();
     while (PushNextTableElement() != 0) {

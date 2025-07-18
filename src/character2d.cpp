@@ -390,10 +390,11 @@ void Character2D::Render(const int layer) {
       Renderer->DrawVertices(CharaSpriteSheet, ShaderProgramType::Sprite,
                              MvlVertices, MvlIndices, transformation);
     } else {
+      const ShaderProgramType shader = LastRenderedBackground->BgEffShaders[3];
+
       Renderer->DrawVertices(CharaSpriteSheet,
                              &LastRenderedBackground->BgEffChaSprite.Sheet,
-                             ShaderProgramType::ColorMaskedSprite, MvlVertices,
-                             MvlIndices, transformation);
+                             shader, MvlVertices, MvlIndices, transformation);
     }
 
   } else {
