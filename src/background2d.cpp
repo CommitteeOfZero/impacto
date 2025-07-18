@@ -367,6 +367,10 @@ void Background2D::UpdateState(const int bgId) {
     }
   }
 
+  if (Profile::UseBgEffects) {
+    BgEffShaders = GetBgEffShaders(ScrWork[SW_BG1NO + structOffset]);
+  }
+
   if (BgSprite.Sheet.IsScreenCap) {
     BgSprite.BaseScale *=
         glm::vec2(Profile::DesignWidth / Window->WindowWidth,
