@@ -217,16 +217,14 @@ void SaveSystem::LoadEntryBuffer(Io::MemoryStream& stream, SaveFileEntry& entry,
 
   tex.Init(TexFmt_RGB, SaveThumbnailWidth, SaveThumbnailHeight);
 
-  // CCLCC PS4 Save thumbnails are 240x135 RGB16
-  std::vector<uint16_t> thumbnailData(SaveThumbnailWidth * SaveThumbnailHeight);
-
   int thumbnailPadding = 0xA14;
   stream.Seek(thumbnailPadding, SEEK_CUR);
-  Io::ReadArrayLE<uint16_t>(thumbnailData.data(), &stream,
-                            thumbnailData.size());
+  Io::ReadArrayLE<uint8_t>(entry.ThumbnailData.data(), &stream,
+                           entry.ThumbnailData.size());
 
-  for (int i = 0; i < thumbnailData.size(); i++) {
-    uint16_t pixel = thumbnailData[i];
+  for (int i = 0; i < entry.ThumbnailData.size() / 2; i++) {
+    uint16_t pixel =
+        entry.ThumbnailData[i * 2] | (entry.ThumbnailData[i * 2 + 1] << 8);
     uint8_t r = (pixel & 0xF800) >> 8;
     uint8_t g = (pixel & 0x07E0) >> 3;
     uint8_t b = (pixel & 0x001F) << 3;
