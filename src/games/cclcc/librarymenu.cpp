@@ -117,12 +117,10 @@ void LibraryMenu::Show() {
     MainItems.Move({LibraryTransitionPositionOffset, 0.0f},
                    FadeAnimation.DurationIn);
     if (!CurrentlyFocusedElement) {
-      CurrentlyFocusedElement = MainItems.Children[1];
+      AdvanceFocus(FDIR_DOWN);
       auto* btn = static_cast<LibraryMenuButton*>(CurrentlyFocusedElement);
-      const auto menuType = GetMenuTypeFromButton(btn);
-      GetMenuFromType(menuType).Show();
+      GetMenuFromType(CurrentLibraryMenu).Show();
       btn->Selected = true;
-      CurrentLibraryMenu = menuType;
     };
   }
 }
