@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ankerl/unordered_dense.h>
+#include <map>
 #include "texture/texture.h"
 #include "spritesheet.h"
 #include "loadable.h"
@@ -140,5 +141,15 @@ inline Background2D ShaderScreencapture;
 inline ankerl::unordered_dense::map<int, Background2D*> Backgrounds2D;
 
 inline Background2D* LastRenderedBackground = nullptr;
+
+inline std::map<int, std::array<ShaderProgramType, 4>> BgEffShaders;
+inline std::array<ShaderProgramType, 4> GetBgEffShaders(int bgId) {
+  // Unmapped means sprite
+  return BgEffShaders.contains(bgId)
+             ? BgEffShaders[bgId]
+             : std::array<ShaderProgramType, 4>{
+                   ShaderProgramType::Sprite, ShaderProgramType::Sprite,
+                   ShaderProgramType::Sprite, ShaderProgramType::Sprite};
+}
 
 }  // namespace Impacto
