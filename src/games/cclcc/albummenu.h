@@ -5,6 +5,7 @@
 namespace Impacto {
 namespace UI {
 namespace CCLCC {
+class AlbumMenu;
 
 struct AlbumThumbnailSpriteInfo {
   std::reference_wrapper<const Sprite> ThumbnailSprite;
@@ -21,27 +22,18 @@ struct AlbumThumbnail : public Widgets::Button {
   };
 
   AlbumThumbnail(int id, int indexInPage, glm::vec2 gridPos,
-                 uint8_t const& activePage);
+                 AlbumMenu const& albumMenu);
   void UpdateInput() override;
   void Render() override;
-  void Show() override {
-    if (State == DisplayState::Hidden && ActivePage == Page) {
-      State = DisplayState::Shown;
-    }
-  }
-
-  void Hide() override {
-    if (State == DisplayState::Shown) {
-      State = DisplayState::Hidden;
-    }
-  }
+  void Show() override;
+  void Hide() override;
 
   DisplayState State = DisplayState::Hidden;
   glm::vec2 GridPos;
   uint8_t Page;
   uint8_t IdInPage;
   uint8_t IndexInPage;
-  uint8_t const& ActivePage;
+  AlbumMenu const& Menu;
   std::vector<AlbumThumbnailSpriteInfo> Variants;
 };
 
@@ -49,7 +41,6 @@ class AlbumMenu : public LibrarySubmenu {
  public:
   AlbumMenu() = default;
   void Init() override;
-  void Render() override;
   void Update(float dt) override;
 
   std::vector<std::vector<AlbumThumbnail*>> ThumbnailPages;

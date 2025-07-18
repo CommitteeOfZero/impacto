@@ -6,29 +6,43 @@
 using namespace Impacto::Profile::CCLCC::LibraryMenu;
 namespace Impacto::UI::CCLCC {
 AlbumThumbnail::AlbumThumbnail(int id, int indexInPage, glm::vec2 gridPos,
-                               uint8_t const& activePage)
+                               AlbumMenu const& albumMenu)
     : Widgets::Button(),
       IndexInPage(IndexInPage),
       GridPos(gridPos),
-      ActivePage(activePage) {
+      Menu(albumMenu) {
   Id = id;
   IdInPage = AlbumData[id].IdInPage;
   Page = AlbumData[id].PageNumber;
 };
 
 void AlbumThumbnail::UpdateInput() {
-  if (ActivePage == Page) {
+  if (Menu.ActivePage == Page) {
     Button::UpdateInput();
+  }
+}
+
+void AlbumThumbnail::Show() {
+  if (State == DisplayState::Hidden && Menu.ActivePage == Page) {
+    State = DisplayState::Shown;
+  }
+}
+
+void AlbumThumbnail::Hide() {
+  if (State == DisplayState::Shown) {
+    State = DisplayState::Hidden;
   }
 }
 
 void AlbumThumbnail::Render() {
   if (!Enabled || State == DisplayState::Hidden) return;
-
+  const glm::vec2 offset{
+      (1.0f - Menu.FadeAnimation.Progress) * LibraryTransitionPositionOffset,
+      0.0f};
   for (const auto& spriteInfo : Variants) {
     const Sprite& thumbnailSprite = spriteInfo.ThumbnailSprite;
     const glm::vec2 picTopLeft =
-        GridPos - glm::vec2(thumbnailSprite.Bounds.Width / 2, 0);
+        GridPos - glm::vec2(thumbnailSprite.Bounds.Width / 2, 0) + offset;
     const auto matrix =
         TransformationMatrix(spriteInfo.Origin, {1.0f, 1.0f}, spriteInfo.Origin,
                              ScrWorkAngleToRad(spriteInfo.Angle), picTopLeft);
@@ -36,12 +50,13 @@ void AlbumThumbnail::Render() {
   }
   if (HasFocus) {
     const glm::vec2 thumbTopLeft =
-        GridPos - glm::vec2(AlbumThumbnailThumbSprite.Bounds.Width / 2, 0);
+        GridPos - glm::vec2(AlbumThumbnailThumbSprite.Bounds.Width / 2, 0) +
+        offset;
     Renderer->DrawSprite(AlbumThumbnailThumbSprite, thumbTopLeft);
   }
   const auto& pinSprite = AlbumThumbnailPinSprites[IdInPage];
   const glm::vec2 pinTopLeft =
-      GridPos - glm::vec2(pinSprite.Bounds.Width / 2, 0);
+      GridPos - glm::vec2(pinSprite.Bounds.Width / 2, 0) + offset;
   Renderer->DrawSprite(pinSprite, pinTopLeft);
 }
 
@@ -79,7 +94,7 @@ void AlbumMenu::Init() {
     const size_t itemCountInPage =
         ThumbnailPages[thumbnailEntry.PageNumber].size();
     auto* thumbnailWidget =
-        new AlbumThumbnail(i++, itemCountInPage, gridPos, ActivePage);
+        new AlbumThumbnail(i++, itemCountInPage, gridPos, *this);
     const int mainAngle = getMainAngle(itemCountInPage);
     int variantAngleOffset = 0;
     RectF maxBounds;
@@ -127,9 +142,4 @@ void AlbumMenu::Update(float dt) {
   LibrarySubmenu::Update(dt);
 }
 
-void AlbumMenu::Render() {
-  if (State != Hidden) {
-    MainItems.Render();
-  }
-}
 }  // namespace Impacto::UI::CCLCC
