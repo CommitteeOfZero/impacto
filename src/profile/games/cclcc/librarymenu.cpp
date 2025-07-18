@@ -32,7 +32,7 @@ std::vector<AlbumDataEntry> GetAlbumTbl() {
           entry.PageNumber = EnsureGetArrayElement<uint8_t>();
         } break;
         case 1: {
-          entry.IndexInPage = EnsureGetArrayElement<uint8_t>();
+          entry.IdInPage = EnsureGetArrayElement<uint8_t>();
         } break;
         case 2: {
           forEachLua([&](uint32_t variantIndex) {

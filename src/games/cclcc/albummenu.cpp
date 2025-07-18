@@ -1,19 +1,19 @@
 #include "albummenu.h"
 #include "../../profile/games/cclcc/librarymenu.h"
 #include "../../data/savesystem.h"
+#include <ranges>
 
 using namespace Impacto::Profile::CCLCC::LibraryMenu;
 namespace Impacto::UI::CCLCC {
-AlbumThumbnail::AlbumThumbnail(int id, uint8_t const& activePage)
-    : Widgets::Button(), ActivePage(activePage) {
+AlbumThumbnail::AlbumThumbnail(int id, int indexInPage, glm::vec2 gridPos,
+                               uint8_t const& activePage)
+    : Widgets::Button(),
+      IndexInPage(IndexInPage),
+      GridPos(gridPos),
+      ActivePage(activePage) {
   Id = id;
-  IndexInPage = AlbumData[id].IndexInPage;
+  IdInPage = AlbumData[id].IdInPage;
   Page = AlbumData[id].PageNumber;
-  const glm::vec2 gridPos = AlbumThumbDispPos[IndexInPage];
-  NormalSprite =
-      AlbumData[id].ThumbnailSprites.at(0);  // use first sprite for now
-  Bounds = RectF{gridPos.x, gridPos.y, NormalSprite.Bounds.Width,
-                 NormalSprite.Bounds.Height};
 };
 
 void AlbumThumbnail::UpdateInput() {
@@ -25,33 +25,86 @@ void AlbumThumbnail::UpdateInput() {
 void AlbumThumbnail::Render() {
   if (!Enabled || State == DisplayState::Hidden) return;
 
-  const glm::vec2 picTopLeft =
-      glm::vec2(Bounds.X, Bounds.Y) - glm::vec2(Bounds.Width / 2, 0);
-  Renderer->DrawSprite(NormalSprite, picTopLeft, Tint);
+  for (const auto& spriteInfo : Variants) {
+    const Sprite& thumbnailSprite = spriteInfo.ThumbnailSprite;
+    const glm::vec2 picTopLeft =
+        GridPos - glm::vec2(thumbnailSprite.Bounds.Width / 2, 0);
+    const auto matrix =
+        TransformationMatrix(spriteInfo.Origin, {1.0f, 1.0f}, spriteInfo.Origin,
+                             ScrWorkAngleToRad(spriteInfo.Angle), picTopLeft);
+    Renderer->DrawSprite(thumbnailSprite, matrix, Tint);
+  }
   if (HasFocus) {
     const glm::vec2 thumbTopLeft =
-        glm::vec2(Bounds.X, Bounds.Y) -
-        glm::vec2(AlbumThumbnailThumbSprite.Bounds.Width / 2, 0);
+        GridPos - glm::vec2(AlbumThumbnailThumbSprite.Bounds.Width / 2, 0);
     Renderer->DrawSprite(AlbumThumbnailThumbSprite, thumbTopLeft);
   }
-  const auto& pinSprite = AlbumThumbnailPinSprites[IndexInPage];
+  const auto& pinSprite = AlbumThumbnailPinSprites[IdInPage];
   const glm::vec2 pinTopLeft =
-      glm::vec2(Bounds.X, Bounds.Y) - glm::vec2(pinSprite.Bounds.Width / 2, 0);
+      GridPos - glm::vec2(pinSprite.Bounds.Width / 2, 0);
   Renderer->DrawSprite(pinSprite, pinTopLeft);
 }
 
 void AlbumMenu::Init() {
-  if (MainItems.Children.empty()) {
-    int i = 0;
-    for (const auto& thumbnailEntry : AlbumData) {
-      if (ThumbnailPages.size() <= thumbnailEntry.PageNumber) {
-        ThumbnailPages.resize(thumbnailEntry.PageNumber + 1, {});
-      }
-      auto* thumbnailWidget = new AlbumThumbnail(i++, ActivePage);
-      ThumbnailPages[thumbnailEntry.PageNumber].push_back(thumbnailWidget);
-      MainItems.Add(thumbnailWidget,
-                    FocusDirection::FDIR_DOWN);  // fix directions
+  MainItems.Clear();
+  ThumbnailPages.clear();
+  int i = 0;
+  const auto getMainAngle = [](int itemIndex) {
+    switch (itemIndex) {
+      case 0:
+      case 6:
+      case 7:
+        return CALCrnd(910);
+
+      case 1:
+      case 2:
+      case 4:
+      case 8:
+      case 9:
+      case 10:
+        return CALCrnd(1820) - 910;
+      case 3:
+      case 5:
+        return 65536 - CALCrnd(910);
+      default:  // yes, the 12th item will always have no angle
+        return 0;
     }
+  };
+  for (const auto& thumbnailEntry : AlbumData) {
+    if (ThumbnailPages.size() <= thumbnailEntry.PageNumber) {
+      ThumbnailPages.resize(thumbnailEntry.PageNumber + 1, {});
+    }
+
+    const glm::vec2 gridPos = AlbumThumbDispPos[thumbnailEntry.IdInPage];
+    const size_t itemCountInPage =
+        ThumbnailPages[thumbnailEntry.PageNumber].size();
+    auto* thumbnailWidget =
+        new AlbumThumbnail(i++, itemCountInPage, gridPos, ActivePage);
+    const int mainAngle = getMainAngle(itemCountInPage);
+    int variantAngleOffset = 0;
+    RectF maxBounds;
+    for (const auto& sprite :
+         thumbnailEntry.ThumbnailSprites | std::views::reverse) {
+      variantAngleOffset += 546 + CALCrnd(182);
+      const glm::vec2 origin = {(sprite.Bounds.Width - 10.0) / 2.0f + 2.0f,
+                                15.0f};
+      const int variantAngle = mainAngle - variantAngleOffset / 2;
+      thumbnailWidget->Variants.push_back(AlbumThumbnailSpriteInfo{
+          .ThumbnailSprite = sprite, .Origin = origin, .Angle = variantAngle});
+      CornersQuad variantBounds =
+          RectF{gridPos.x - sprite.Bounds.Width / 2, gridPos.y,
+                sprite.Bounds.Width, sprite.Bounds.Height};
+      if (maxBounds.Width == 0 || maxBounds.Height == 0) {
+        maxBounds.X = variantBounds.Center().x;
+        maxBounds.Y = variantBounds.Center().y;
+      }
+      variantBounds.Rotate(ScrWorkAngleToRad(variantAngle), gridPos + origin);
+      maxBounds = RectF::Coalesce(variantBounds, maxBounds);
+    }
+    thumbnailWidget->Bounds = maxBounds;
+    ThumbnailPages[thumbnailEntry.PageNumber].push_back(thumbnailWidget);
+    MainItems.Add(thumbnailWidget,
+                  FocusDirection::FDIR_DOWN);  // fix directions
   }
 }
 
