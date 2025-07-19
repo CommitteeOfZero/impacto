@@ -1,18 +1,95 @@
+#include <ranges>
+
 #include "albummenu.h"
 #include "../../profile/games/cclcc/librarymenu.h"
 #include "../../data/savesystem.h"
-#include <ranges>
+#include "../../vm/interface/input.h"
+#include "../../profile/scriptvars.h"
 
 using namespace Impacto::Profile::CCLCC::LibraryMenu;
+using namespace Impacto::Profile::ScriptVars;
 namespace Impacto::UI::CCLCC {
-AlbumThumbnail::AlbumThumbnail(int id, int indexInPage, glm::vec2 gridPos,
+
+void AlbumMenu::SetThumbnailDirections() {
+  static constexpr int grid[] = {
+      0x09, 0x0B, 0x63, 0x63, 0x04, 0x05, 0x06, 0x63, 0x03, 0x07, 0x63, 0x63,
+      0x01, 0x05, 0x0A, 0x63, 0x0A, 0x09, 0x0B, 0x63, 0x05, 0x04, 0x06, 0x63,
+      0x00, 0x04, 0x08, 0x09, 0x02, 0x06, 0x0B, 0x63, 0x0B, 0x09, 0x63, 0x63,
+      0x06, 0x05, 0x04, 0x63, 0x01, 0x05, 0x0A, 0x63, 0x03, 0x07, 0x63, 0x63,
+      0x0B, 0x09, 0x63, 0x63, 0x06, 0x05, 0x04, 0x63, 0x02, 0x06, 0x0B, 0x63,
+      0x00, 0x04, 0x08, 0x09, 0x00, 0x01, 0x02, 0x03, 0x08, 0x0A, 0x07, 0x63,
+      0x03, 0x07, 0x63, 0x63, 0x05, 0x01, 0x0A, 0x63, 0x01, 0x00, 0x02, 0x03,
+      0x0A, 0x08, 0x07, 0x63, 0x04, 0x08, 0x00, 0x09, 0x06, 0x02, 0x0B, 0x63,
+      0x02, 0x03, 0x01, 0x00, 0x07, 0x0A, 0x08, 0x63, 0x05, 0x01, 0x0A, 0x63,
+      0x03, 0x07, 0x63, 0x63, 0x06, 0x05, 0x04, 0x63, 0x0B, 0x09, 0x63, 0x63,
+      0x0B, 0x06, 0x02, 0x63, 0x08, 0x09, 0x04, 0x00, 0x04, 0x05, 0x06, 0x63,
+      0x09, 0x0B, 0x63, 0x63, 0x07, 0x03, 0x63, 0x63, 0x0A, 0x05, 0x01, 0x63,
+      0x08, 0x0A, 0x07, 0x63, 0x00, 0x01, 0x02, 0x03, 0x07, 0x03, 0x63, 0x63,
+      0x0A, 0x05, 0x01, 0x63, 0x05, 0x01, 0x63, 0x63, 0x01, 0x05, 0x63, 0x63,
+      0x08, 0x09, 0x04, 0x00, 0x0B, 0x06, 0x02, 0x63, 0x07, 0x0A, 0x08, 0x63,
+      0x02, 0x03, 0x01, 0x00, 0x0A, 0x05, 0x01, 0x63, 0x07, 0x03, 0x63, 0x63,
+  };
+  enum GridDirection {
+    UP = 0,
+    DOWN = 1,
+    LEFT = 2,
+    RIGHT = 3,
+  };
+  const auto convertDirection = [](FocusDirection dir) {
+    switch (dir) {
+      case FDIR_UP:
+        return UP;
+      case FDIR_DOWN:
+        return DOWN;
+      case FDIR_LEFT:
+        return LEFT;
+      case FDIR_RIGHT:
+        return RIGHT;
+    }
+  };
+
+  for (auto& page : ThumbnailPages) {
+    for (auto& thumbnail : page) {
+      if (!thumbnail) continue;
+      auto nextGridIndex = thumbnail->GridId << 4;
+      const auto setFocusDirection = [&](FocusDirection dir) {
+        int i = 0;
+        int compareId = thumbnail->GridId;
+        for (int i = 0; i < 4; i++) {
+          const auto* nextId = &grid[nextGridIndex + convertDirection(dir) * 4];
+          uint8_t nextGridId = 0;
+          for (int j = 0; j < 4; j++) {
+            if (*nextId == 99) break;
+            if (page.size() <= *nextId || !page[*nextId]) break;
+            nextGridId = page[*nextId]->GridId;
+            if (nextGridId == compareId) break;
+            if (!page[nextGridId]->Variants.empty()) {
+              thumbnail->SetFocus(page[nextGridId], dir);
+              return;
+            }
+            nextId++;
+          }
+          compareId = grid[nextGridIndex + convertDirection(dir) * 4];
+          nextGridIndex = compareId << 4;
+        }
+      };
+      setFocusDirection(FDIR_UP);
+      setFocusDirection(FDIR_DOWN);
+      setFocusDirection(FDIR_LEFT);
+      setFocusDirection(FDIR_RIGHT);
+    }
+  }
+}
+
+AlbumThumbnail::AlbumThumbnail(int id, uint8_t indexInPage, uint8_t gridId,
+                               glm::vec2 gridDispPosition,
                                AlbumMenu const& albumMenu)
     : Widgets::Button(),
-      IndexInPage(IndexInPage),
-      GridPos(gridPos),
+      GridId(gridId),
+      GridPos(gridDispPosition),
       Menu(albumMenu) {
   Id = id;
-  IdInPage = AlbumData[id].IdInPage;
+  IndexInPage = AlbumData[id].IndexInPage;
   Page = AlbumData[id].PageNumber;
 };
 
@@ -37,7 +114,7 @@ void AlbumThumbnail::Hide() {
 void AlbumThumbnail::Render() {
   if (!Enabled || State == DisplayState::Hidden) return;
   const glm::vec2 offset{
-      (1.0f - Menu.FadeAnimation.Progress) * LibraryTransitionPositionOffset,
+      (32 - ScrWork[SW_SYSSUBMENUCT]) / 32.0f * LibraryTransitionPositionOffset,
       0.0f};
   for (const auto& spriteInfo : Variants) {
     const Sprite& thumbnailSprite = spriteInfo.ThumbnailSprite;
@@ -54,7 +131,7 @@ void AlbumThumbnail::Render() {
         offset;
     Renderer->DrawSprite(AlbumThumbnailThumbSprite, thumbTopLeft);
   }
-  const auto& pinSprite = AlbumThumbnailPinSprites[IdInPage];
+  const auto& pinSprite = AlbumThumbnailPinSprites[IndexInPage];
   const glm::vec2 pinTopLeft =
       GridPos - glm::vec2(pinSprite.Bounds.Width / 2, 0) + offset;
   Renderer->DrawSprite(pinSprite, pinTopLeft);
@@ -85,16 +162,19 @@ void AlbumMenu::Init() {
         return 0;
     }
   };
+
   for (const auto& thumbnailEntry : AlbumData) {
+    int itemCountInPage = 0;
     if (ThumbnailPages.size() <= thumbnailEntry.PageNumber) {
       ThumbnailPages.resize(thumbnailEntry.PageNumber + 1, {});
+      itemCountInPage = 0;
     }
-
-    const glm::vec2 gridPos = AlbumThumbDispPos[thumbnailEntry.IdInPage];
-    const size_t itemCountInPage =
-        ThumbnailPages[thumbnailEntry.PageNumber].size();
+    auto& page = ThumbnailPages[thumbnailEntry.PageNumber];
+    const glm::vec2 gridDispPosition =
+        AlbumThumbDispPos[thumbnailEntry.IndexInPage];
     auto* thumbnailWidget =
-        new AlbumThumbnail(i++, itemCountInPage, gridPos, *this);
+        new AlbumThumbnail(i++, itemCountInPage, thumbnailEntry.IndexInPage,
+                           gridDispPosition, *this);
     const int mainAngle = getMainAngle(itemCountInPage);
     int variantAngleOffset = 0;
     RectF maxBounds;
@@ -107,39 +187,80 @@ void AlbumMenu::Init() {
       thumbnailWidget->Variants.push_back(AlbumThumbnailSpriteInfo{
           .ThumbnailSprite = sprite, .Origin = origin, .Angle = variantAngle});
       CornersQuad variantBounds =
-          RectF{gridPos.x - sprite.Bounds.Width / 2, gridPos.y,
-                sprite.Bounds.Width, sprite.Bounds.Height};
+          RectF{gridDispPosition.x - sprite.Bounds.Width / 2,
+                gridDispPosition.y, sprite.Bounds.Width, sprite.Bounds.Height};
       if (maxBounds.Width == 0 || maxBounds.Height == 0) {
         maxBounds.X = variantBounds.Center().x;
         maxBounds.Y = variantBounds.Center().y;
       }
-      variantBounds.Rotate(ScrWorkAngleToRad(variantAngle), gridPos + origin);
+      variantBounds.Rotate(ScrWorkAngleToRad(variantAngle),
+                           gridDispPosition + origin);
       maxBounds = RectF::Coalesce(variantBounds, maxBounds);
     }
     thumbnailWidget->Bounds = maxBounds;
-    ThumbnailPages[thumbnailEntry.PageNumber].push_back(thumbnailWidget);
-    MainItems.Add(thumbnailWidget,
-                  FocusDirection::FDIR_DOWN);  // fix directions
+    if (page.size() <= thumbnailEntry.IndexInPage) {
+      page.resize(thumbnailEntry.IndexInPage + 1, nullptr);
+    }
+    page[thumbnailEntry.IndexInPage] = thumbnailWidget;
+    MainItems.Add(thumbnailWidget);
+    itemCountInPage++;
   }
+  for (const auto& thum : ThumbnailPages[ActivePage]) {
+    if (!thum) continue;
+    thum->Show();
+    if (!CurrentlyFocusedElement) {
+      CurrentlyFocusedElement = thum;
+      CurrentlyFocusedElement->HasFocus = true;
+    }
+  }
+  SetThumbnailDirections();
 }
 
 void AlbumMenu::Update(float dt) {
-  if (CurrentlyFocusedElement) {
-    auto& thumbnail = static_cast<AlbumThumbnail&>(*CurrentlyFocusedElement);
-    auto prevPage = ActivePage;
-    ActivePage = thumbnail.Page;
-    if (prevPage != ActivePage) {
-      const auto& prevPageThumbnails = ThumbnailPages[prevPage];
-      for (const auto& thum : prevPageThumbnails) {
-        thum->Hide();
+  using namespace Vm::Interface;
+  LibrarySubmenu::Update(dt);
+  if (IsFocused) {
+    const auto updatePages = [this](uint8_t prevPg, uint8_t nextPg) {
+      if (prevPg != nextPg) {
+        if (CurrentlyFocusedElement) {
+          CurrentlyFocusedElement->HasFocus = false;
+          CurrentlyFocusedElement = nullptr;
+        }
+        const auto& prevPageThumbnails = ThumbnailPages[prevPg];
+        for (const auto& thum : prevPageThumbnails) {
+          if (!thum) continue;
+          thum->Hide();
+        }
+        const auto& curPage = ThumbnailPages[nextPg];
+        for (const auto& thum : curPage) {
+          if (!thum) continue;
+          thum->Show();
+          if (!CurrentlyFocusedElement) {
+            CurrentlyFocusedElement = thum;
+            CurrentlyFocusedElement->HasFocus = true;
+          }
+        }
       }
-      const auto& curPage = ThumbnailPages[thumbnail.Page];
-      for (const auto& thum : curPage) {
-        thum->Show();
+    };
+    auto prevPage = ActivePage;
+    if (PADinputButtonWentDown & PADcustom[7]) {
+      ActivePage =
+          (ActivePage == 0) ? ThumbnailPages.size() - 1 : ActivePage - 1;
+      updatePages(prevPage, ActivePage);
+    } else if (PADinputButtonWentDown & PADcustom[8]) {
+      ActivePage = (ActivePage + 1) % ThumbnailPages.size();
+      updatePages(prevPage, ActivePage);
+    }
+    if (!CurrentlyFocusedElement) {
+      auto thumItr = std::find_if(ThumbnailPages[ActivePage].begin(),
+                                  ThumbnailPages[ActivePage].end(),
+                                  [this](const auto& btn) { return btn; });
+      if (thumItr != ThumbnailPages[ActivePage].end()) {
+        CurrentlyFocusedElement = *thumItr;
+        CurrentlyFocusedElement->HasFocus = true;
       }
     }
   }
-  LibrarySubmenu::Update(dt);
 }
 
 }  // namespace Impacto::UI::CCLCC

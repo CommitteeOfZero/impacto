@@ -11,7 +11,7 @@ namespace LibraryMenu {
 struct AlbumDataEntry {
   std::vector<Sprite> ThumbnailSprites;
   glm::vec2 Position;
-  uint8_t IdInPage;
+  uint8_t IndexInPage;
   uint8_t PageNumber;
 };
 

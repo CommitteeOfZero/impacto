@@ -21,7 +21,7 @@ struct AlbumThumbnail : public Widgets::Button {
     Shown,
   };
 
-  AlbumThumbnail(int id, int indexInPage, glm::vec2 gridPos,
+  AlbumThumbnail(int id, uint8_t indexInPage, uint8_t gridId, glm::vec2 gridPos,
                  AlbumMenu const& albumMenu);
   void UpdateInput() override;
   void Render() override;
@@ -31,8 +31,8 @@ struct AlbumThumbnail : public Widgets::Button {
   DisplayState State = DisplayState::Hidden;
   glm::vec2 GridPos;
   uint8_t Page;
-  uint8_t IdInPage;
   uint8_t IndexInPage;
+  uint8_t GridId;
   AlbumMenu const& Menu;
   std::vector<AlbumThumbnailSpriteInfo> Variants;
 };
@@ -45,6 +45,10 @@ class AlbumMenu : public LibrarySubmenu {
 
   std::vector<std::vector<AlbumThumbnail*>> ThumbnailPages;
   uint8_t ActivePage = 0;
+  Animation PageSwapAnimation;
+
+ private:
+  void SetThumbnailDirections();
 };
 }  // namespace CCLCC
 }  // namespace UI
