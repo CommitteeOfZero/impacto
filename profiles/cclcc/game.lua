@@ -10,6 +10,7 @@ root.WindowName = "CHAOS;CHILD Love Chu☆Chu!!";
 
 root.CharaIsMvl = true;
 root.UseMoviePriority = true;
+root.UseBgEffects = true;
 
 root.Vm = {
     StartScript = 1,
@@ -50,6 +51,7 @@ include('cclcc/charset.lua');
 include('cclcc/font-lb-italic.lua');
 include('cclcc/dialogue.lua');
 include('cclcc/configsystem.lua');
+include('cclcc/bgeff.lua');
 include('cclcc/hud/saveicon.lua');
 include('cclcc/hud/loadingdisplay.lua');
 include('cclcc/hud/datedisplay.lua');

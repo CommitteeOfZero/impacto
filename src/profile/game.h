@@ -20,6 +20,7 @@ inline bool LayFileBigEndian;
 inline bool CharaIsMvl;
 inline bool UseScreenCapEffects;
 inline bool UseMoviePriority = false;
+inline bool UseBgEffects = false;
 inline float LayFileTexXMultiplier;
 inline float LayFileTexYMultiplier;
 

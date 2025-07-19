@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ankerl/unordered_dense.h>
+#include <map>
 #include "texture/texture.h"
 #include "spritesheet.h"
 #include "loadable.h"
@@ -27,6 +28,12 @@ class Background2D : public Loadable<Background2D, bool, uint32_t> {
 
   Sprite BgSprite;
 
+  bool BgEffChaLoaded = false;
+  Sprite BgEffChaSprite;
+  std::array<ShaderProgramType, 4> BgEffShaders = {
+      ShaderProgramType::Sprite, ShaderProgramType::Sprite,
+      ShaderProgramType::Sprite, ShaderProgramType::Sprite};
+
   glm::vec2 Position = {0.0f, 0.0f};
   glm::vec2 Origin = {0.0f, 0.0f};
 
@@ -51,6 +58,13 @@ class Background2D : public Loadable<Background2D, bool, uint32_t> {
 
  protected:
   Texture BgTexture;
+
+  constexpr static size_t MaxBgEffCount = 3;
+  size_t LoadedBgEffCount = 0;
+  std::array<Texture, MaxBgEffCount> BgEffTextures;
+  std::array<Sprite, MaxBgEffCount> BgEffSprites;
+
+  Texture BgEffChaTexture;
 
   bool LoadSync(uint32_t bgId);
   void UnloadSync();
@@ -128,5 +142,17 @@ inline std::array<BackgroundEffect2D, MaxFramebuffers> Framebuffers;
 inline Background2D ShaderScreencapture;
 
 inline ankerl::unordered_dense::map<int, Background2D*> Backgrounds2D;
+
+inline Background2D* LastRenderedBackground = nullptr;
+
+inline std::map<int, std::array<ShaderProgramType, 4>> BgEffShaders;
+inline std::array<ShaderProgramType, 4> GetBgEffShaders(int bgId) {
+  // Unmapped means sprite
+  return BgEffShaders.contains(bgId)
+             ? BgEffShaders[bgId]
+             : std::array<ShaderProgramType, 4>{
+                   ShaderProgramType::Sprite, ShaderProgramType::Sprite,
+                   ShaderProgramType::Sprite, ShaderProgramType::Sprite};
+}
 
 }  // namespace Impacto

@@ -55,6 +55,7 @@ set(Impacto_Src
         src/profile/scriptinput.cpp
         src/profile/configsystem.cpp
 
+        src/profile/data/bgeff.cpp
         src/profile/data/savesystem.cpp
         src/profile/data/tipssystem.cpp
         src/profile/data/achievementsystem.cpp
@@ -393,6 +394,7 @@ set(Impacto_Header
         src/profile/scriptinput.h
         src/profile/configsystem.h
 
+        src/profile/data/bgeff.h
         src/profile/data/savesystem.h
         src/profile/data/tipssystem.h
         src/profile/data/achievementsystem.h
