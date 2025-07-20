@@ -116,12 +116,6 @@ void LibraryMenu::Show() {
     MainItems.Show();
     MainItems.Move({LibraryTransitionPositionOffset, 0.0f},
                    FadeAnimation.DurationIn);
-    if (!CurrentlyFocusedElement) {
-      AdvanceFocus(FDIR_DOWN);
-      auto* btn = static_cast<LibraryMenuButton*>(CurrentlyFocusedElement);
-      GetMenuFromType(CurrentLibraryMenu).Show();
-      btn->Selected = true;
-    };
   }
 }
 
@@ -136,9 +130,6 @@ void LibraryMenu::Hide() {
       UI::FocusedMenu = 0;
     }
     MainItems.Hide();
-    UI::AlbumMenuPtr->Hide();
-    UI::MusicMenuPtr->Hide();
-    UI::MovieMenuPtr->Hide();
     MainItems.IsShown = true;
     MainItems.Move({-LibraryTransitionPositionOffset, 0.0f},
                    FadeAnimation.DurationOut);
@@ -171,6 +162,9 @@ void LibraryMenu::Update(float dt) {
           activeButton->Selected = false;
           activeButton->HasFocus = true;
         } else {
+          UI::AlbumMenuPtr->Hide();
+          UI::MusicMenuPtr->Hide();
+          UI::MovieMenuPtr->Hide();
           SetFlag(SF_ALBUMEND, 1);
         }
       }
@@ -205,6 +199,12 @@ void LibraryMenu::Update(float dt) {
   if (State == Showing && FadeAnimation.Progress == 1.0f &&
       ScrWork[SW_SYSSUBMENUCT] == 32) {
     State = Shown;
+    if (!CurrentlyFocusedElement) {
+      AdvanceFocus(FDIR_DOWN);
+      auto* btn = static_cast<LibraryMenuButton*>(CurrentlyFocusedElement);
+      GetMenuFromType(CurrentLibraryMenu).Show();
+      btn->Selected = true;
+    };
   } else if (State == Hiding && FadeAnimation.Progress == 0.0f &&
              ScrWork[SW_SYSSUBMENUCT] == 0) {
     State = Hidden;

@@ -114,8 +114,8 @@ root.ExtraMenus = {
         HitSongsPos = {X=0, Y=382},
         LoveMoviePos = {X=0, Y=684},
 
-        SubMenuFadeInDuration = 0.4,
-        SubMenuFadeOutDuration = 0.4,
+        SubMenuFadeInDuration = 0.2,
+        SubMenuFadeOutDuration = 0.2,
 
         AlbumMaxThumbnailsPerPage = 12,
         AlbumMaxPageCount = 6,

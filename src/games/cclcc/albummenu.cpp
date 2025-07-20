@@ -115,13 +115,10 @@ void AlbumThumbnail::Hide() {
 
 void AlbumThumbnail::Render() {
   if (!Enabled || State == DisplayState::Hidden) return;
-  const glm::vec2 offset{
-      (32 - ScrWork[SW_SYSSUBMENUCT]) / 32.0f * LibraryTransitionPositionOffset,
-      0.0f};
   for (const auto& spriteInfo : Variants) {
     const Sprite& thumbnailSprite = spriteInfo.ThumbnailSprite;
     const glm::vec2 picTopLeft =
-        GridPos - glm::vec2(thumbnailSprite.Bounds.Width / 2, 0) + offset;
+        GridPos - glm::vec2(thumbnailSprite.Bounds.Width / 2, 0);
     const auto matrix =
         TransformationMatrix(spriteInfo.Origin, {1.0f, 1.0f}, spriteInfo.Origin,
                              ScrWorkAngleToRad(spriteInfo.Angle), picTopLeft);
@@ -129,13 +126,12 @@ void AlbumThumbnail::Render() {
   }
   if (HasFocus) {
     const glm::vec2 thumbTopLeft =
-        GridPos - glm::vec2(AlbumThumbnailThumbSprite.Bounds.Width / 2, 0) +
-        offset;
+        GridPos - glm::vec2(AlbumThumbnailThumbSprite.Bounds.Width / 2, 0);
     Renderer->DrawSprite(AlbumThumbnailThumbSprite, thumbTopLeft);
   }
   const auto& pinSprite = AlbumThumbnailPinSprites[IndexInPage];
   const glm::vec2 pinTopLeft =
-      GridPos - glm::vec2(pinSprite.Bounds.Width / 2, 0) + offset;
+      GridPos - glm::vec2(pinSprite.Bounds.Width / 2, 0);
   Renderer->DrawSprite(pinSprite, pinTopLeft);
 }
 
@@ -220,6 +216,7 @@ void AlbumMenu::Init() {
 
 void AlbumMenu::Update(float dt) {
   using namespace Vm::Interface;
+  MainItems.Tint.a = FadeAnimation.Progress;
   LibrarySubmenu::Update(dt);
   if (IsFocused) {
     const auto updatePages = [this](uint8_t prevPg, uint8_t nextPg) {
