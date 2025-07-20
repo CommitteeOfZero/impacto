@@ -261,10 +261,6 @@ void LibraryMenu::Render() {
           *submenuGuideSprite, LibraryButtonGuidePosition + leftSpritesOffset,
           col * glm::vec4{glm::vec3(1.0f), submenuFadeProgress});
     }
-    Renderer->DrawSprite(
-        LibraryButtonGuideSprite,
-        LibraryButtonGuidePosition + leftSpritesOffset,
-        col * glm::vec4{glm::vec3(1.0f), 1 - submenuFadeProgress});
 
     // This is technically a double render but menus always render after videos
     // so what can you do.
