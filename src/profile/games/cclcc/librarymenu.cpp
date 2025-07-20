@@ -78,8 +78,6 @@ void Configure() {
       EnsureGetMember<glm::vec2>("LibraryBackgroundPosition");
   LibraryIndexSprite = EnsureGetMember<Sprite>("LibraryIndexSprite");
   LibraryIndexPosition = EnsureGetMember<glm::vec2>("LibraryIndexPosition");
-  LibraryButtonGuideSprite =
-      EnsureGetMember<Sprite>("LibraryButtonGuideSprite");
   LibraryButtonGuidePosition =
       EnsureGetMember<glm::vec2>("LibraryButtonGuidePosition");
   LibraryMaskSprite = EnsureGetMember<Sprite>("LibraryMaskSprite");
@@ -170,6 +168,8 @@ void Configure() {
   MovieDiskPlayIds = GetMemberVector<int>("MovieDiskPlayIds");
 
   AlbumMenuGuideSprite = EnsureGetMember<Sprite>("AlbumMenuGuideSprite");
+  AlbumMenuCGViewerGuideSprite =
+      EnsureGetMember<Sprite>("AlbumMenuCGViewerGuideSprite");
   MusicMenuGuideSprite = EnsureGetMember<Sprite>("MusicMenuGuideSprite");
   MovieMenuGuideSprite = EnsureGetMember<Sprite>("MovieMenuGuideSprite");
 

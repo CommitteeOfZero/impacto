@@ -94,8 +94,7 @@ root.ExtraMenus = {
         LibraryBackgroundSprite = "LibraryBackground",
         LibraryBackgroundPosition = { X = 291, Y = 0 },
         LibraryIndexSprite = "LibraryIndex",
-        LibraryIndexPosition = { X = 0, Y = 31 },
-        LibraryButtonGuideSprite = "LibraryButtonGuide",
+        LibraryIndexPosition = { X = 0, Y = 31 },    
         LibraryButtonGuidePosition = { X = 0, Y = 989 },
         LibraryMaskSprite = "LibraryMask",
         
@@ -107,6 +106,7 @@ root.ExtraMenus = {
         LoveMovieSpriteSelect = "LoveMovieSelect",
 
         AlbumMenuGuideSprite = "AlbumMenuGuide",
+        AlbumMenuCGViewerGuideSprite = "AlbumMenuCGViewerGuide",
         MusicMenuGuideSprite = "MusicMenuGuide",
         MovieMenuGuideSprite = "MovieMenuGuide",
         
@@ -303,16 +303,6 @@ root.Sprites["LibraryIndex"] = {
     Bounds = { X = 1658, Y = 0, Width = 381, Height = 1049 },
 };
 
-root.Sprites["LibraryButtonGuide"] = {
-    Sheet = "LibraryMenu",
-    Bounds = { X = 0, Y = 1783, Width = 1926, Height = 57 },
-};
-
-root.Sprites["AlbumButtonGuide"] = {
-    Sheet = "LibraryMenu",
-    Bounds = { X = 0, Y = 1878, Width = 1926, Height = 57 },
-};
-
 root.Sprites["SnapPhotoHover"] = {
     Sheet = "LibraryMenu",
     Bounds = { X = 0, Y = 0, Width = 256, Height = 300 },
@@ -345,9 +335,14 @@ root.Sprites["LoveMovieSelect"] = {
 
 
 -- Album Menu
-root.Sprites["AlbumMenuGuide"] = {
+root.Sprites["AlbumMenuCGViewerGuide"] = {
     Sheet = "LibraryMenu",
     Bounds = { X = 0, Y = 1880, Width = 1920, Height = 59 },
+};
+
+root.Sprites["AlbumMenuGuide"] = {
+    Sheet = "LibraryMenu",
+    Bounds = { X = 0, Y = 1783, Width = 1926, Height = 57 },
 };
 
 -- Movie Menu
