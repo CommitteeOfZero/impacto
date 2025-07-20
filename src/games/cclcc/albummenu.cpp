@@ -108,6 +108,8 @@ void AlbumThumbnail::Show() {
 void AlbumThumbnail::Hide() {
   if (State == DisplayState::Shown) {
     State = DisplayState::Hidden;
+    HasFocus = false;
+    Hovered = false;
   }
 }
 
@@ -223,7 +225,6 @@ void AlbumMenu::Update(float dt) {
     const auto updatePages = [this](uint8_t prevPg, uint8_t nextPg) {
       if (prevPg != nextPg) {
         if (CurrentlyFocusedElement) {
-          CurrentlyFocusedElement->HasFocus = false;
           CurrentlyFocusedElement = nullptr;
         }
         const auto& prevPageThumbnails = ThumbnailPages[prevPg];
