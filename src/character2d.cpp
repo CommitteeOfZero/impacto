@@ -283,6 +283,7 @@ void Character2D::UpdateState(const int chaId) {
             ScrWork[SW_CHA1PRI2 + structOffset]};
   Show = GetFlag(SF_CHA1DISP + chaId) &&
          ScrWork[SW_CHA1NO + structOffset] != 0xFFFFFF;
+  UseBgEffect = GetFlag(SF_CHA1BGEFFECT + chaId);
 
   Position = glm::vec2(ScrWork[SW_CHA1POSX + structOffset] +
                            ScrWork[SW_CHA1POSX_OFS + structOfsOffset],
@@ -386,7 +387,7 @@ void Character2D::Render(const int layer) {
         {0.0f, 0.0f}, Scale, glm::vec3(0.0f), Rotation, Position);
 
     if (!Profile::UseBgEffects || !LastRenderedBackground ||
-        !LastRenderedBackground->BgEffChaLoaded) {
+        !LastRenderedBackground->BgEffChaLoaded || !UseBgEffect) {
       Renderer->DrawVertices(CharaSpriteSheet, ShaderProgramType::Sprite,
                              MvlVertices, MvlIndices, transformation);
     } else {
