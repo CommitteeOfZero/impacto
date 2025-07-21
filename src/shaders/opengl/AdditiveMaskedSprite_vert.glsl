@@ -16,5 +16,7 @@ void main() {
 
   uv = UV;
   tint = Tint;
+
   maskUV = vec2(MaskTransformation * vec4(MaskUV, 0.0, 1.0));
+  maskUV.y = 1.0 - maskUV.y;
 }

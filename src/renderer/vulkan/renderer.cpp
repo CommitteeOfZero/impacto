@@ -1359,7 +1359,8 @@ void Renderer::DrawVertices(const SpriteSheet& sheet,
                             const ShaderProgramType shaderType,
                             const std::span<const VertexBufferSprites> vertices,
                             const std::span<const uint16_t> indices,
-                            const glm::mat4 transformation,
+                            const glm::mat4 spriteTransformation,
+                            const glm::mat4 maskTransformation,
                             const bool inverted) {
   if (!Drawing) {
     ImpLog(LogLevel::Error, LogChannel::Render,
@@ -1428,10 +1429,12 @@ void Renderer::DrawVertices(const SpriteSheet& sheet,
                              VertexBufferFill);
   VertexBufferFill += vertices.size_bytes();
 
-  const auto vertexInfoToNDC = [this,
-                                transformation](VertexBufferSprites info) {
+  const auto vertexInfoToNDC = [this, spriteTransformation,
+                                maskTransformation](VertexBufferSprites info) {
     info.Position = DesignToNDC(
-        glm::vec2(transformation * glm::vec4(info.Position, 0.0f, 1.0f)));
+        glm::vec2(spriteTransformation * glm::vec4(info.Position, 0.0f, 1.0f)));
+    info.MaskUV =
+        glm::vec2(maskTransformation * glm::vec4(info.MaskUV, 0.0f, 1.0f));
     return info;
   };
   std::transform(vertices.begin(), vertices.end(), vertexBuffer,

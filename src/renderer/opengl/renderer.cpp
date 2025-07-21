@@ -491,7 +491,9 @@ void Renderer::DrawVertices(const SpriteSheet& sheet,
                             const ShaderProgramType shaderType,
                             const std::span<const VertexBufferSprites> vertices,
                             const std::span<const uint16_t> indices,
-                            glm::mat4 transformation, const bool inverted) {
+                            const glm::mat4 spriteTransformation,
+                            const glm::mat4 maskTransformation,
+                            const bool inverted) {
   if (!Drawing) {
     ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawVertices() called before BeginFrame()\n");
@@ -504,8 +506,8 @@ void Renderer::DrawVertices(const SpriteSheet& sheet,
     case ShaderProgramType::AdditiveMaskedSprite: {
       AdditiveMaskedSpriteUniforms uniforms{
           .Projection = Projection,
-          .SpriteTransformation = transformation,
-          .MaskTransformation = glm::mat4(1.0f),
+          .SpriteTransformation = spriteTransformation,
+          .MaskTransformation = maskTransformation,
           .ColorMap = 0,
           .Mask = 2,
       };
@@ -516,8 +518,8 @@ void Renderer::DrawVertices(const SpriteSheet& sheet,
     case ShaderProgramType::ColorBurnMaskedSprite: {
       ColorBurnMaskedSpriteUniforms uniforms{
           .Projection = Projection,
-          .SpriteTransformation = transformation,
-          .MaskTransformation = glm::mat4(1.0f),
+          .SpriteTransformation = spriteTransformation,
+          .MaskTransformation = maskTransformation,
           .ColorMap = 0,
           .Mask = 2,
       };
@@ -528,8 +530,8 @@ void Renderer::DrawVertices(const SpriteSheet& sheet,
     case ShaderProgramType::ColorDodgeMaskedSprite: {
       ColorDodgeMaskedSpriteUniforms uniforms{
           .Projection = Projection,
-          .SpriteTransformation = transformation,
-          .MaskTransformation = glm::mat4(1.0f),
+          .SpriteTransformation = spriteTransformation,
+          .MaskTransformation = maskTransformation,
           .ColorMap = 0,
           .Mask = 2,
       };
@@ -540,8 +542,8 @@ void Renderer::DrawVertices(const SpriteSheet& sheet,
     case ShaderProgramType::ColorMaskedSprite: {
       ColorMaskedSpriteUniforms uniforms{
           .Projection = Projection,
-          .SpriteTransformation = transformation,
-          .MaskTransformation = glm::mat4(1.0f),
+          .SpriteTransformation = spriteTransformation,
+          .MaskTransformation = maskTransformation,
           .ColorMap = 0,
           .Mask = 2,
       };
@@ -552,8 +554,8 @@ void Renderer::DrawVertices(const SpriteSheet& sheet,
     case ShaderProgramType::HardLightMaskedSprite: {
       HardLightMaskedSpriteUniforms uniforms{
           .Projection = Projection,
-          .SpriteTransformation = transformation,
-          .MaskTransformation = glm::mat4(1.0f),
+          .SpriteTransformation = spriteTransformation,
+          .MaskTransformation = maskTransformation,
           .ColorMap = 0,
           .Mask = 2,
       };
@@ -564,8 +566,8 @@ void Renderer::DrawVertices(const SpriteSheet& sheet,
     case ShaderProgramType::LinearBurnMaskedSprite: {
       LinearBurnMaskedSpriteUniforms uniforms{
           .Projection = Projection,
-          .SpriteTransformation = transformation,
-          .MaskTransformation = glm::mat4(1.0f),
+          .SpriteTransformation = spriteTransformation,
+          .MaskTransformation = maskTransformation,
           .ColorMap = 0,
           .Mask = 2,
       };
@@ -576,8 +578,8 @@ void Renderer::DrawVertices(const SpriteSheet& sheet,
     case ShaderProgramType::MaskedSprite: {
       MaskedSpriteUniforms uniforms{
           .Projection = Projection,
-          .SpriteTransformation = transformation,
-          .MaskTransformation = glm::mat4(1.0f),
+          .SpriteTransformation = spriteTransformation,
+          .MaskTransformation = maskTransformation,
           .ColorMap = 0,
           .Mask = 2,
           .Alpha = {1.0f, 0.0f},
@@ -591,8 +593,8 @@ void Renderer::DrawVertices(const SpriteSheet& sheet,
     case ShaderProgramType::MaskedSpriteNoAlpha: {
       MaskedSpriteNoAlphaUniforms uniforms{
           .Projection = Projection,
-          .SpriteTransformation = transformation,
-          .MaskTransformation = glm::mat4(1.0f),
+          .SpriteTransformation = spriteTransformation,
+          .MaskTransformation = maskTransformation,
           .ColorMap = 0,
           .Mask = 2,
           .Alpha = {1.0f, 0.0f},
@@ -605,8 +607,8 @@ void Renderer::DrawVertices(const SpriteSheet& sheet,
     case ShaderProgramType::OverlayMaskedSprite: {
       OverlayMaskedSpriteUniforms uniforms{
           .Projection = Projection,
-          .SpriteTransformation = transformation,
-          .MaskTransformation = glm::mat4(1.0f),
+          .SpriteTransformation = spriteTransformation,
+          .MaskTransformation = maskTransformation,
           .ColorMap = 0,
           .Mask = 2,
       };
@@ -617,8 +619,8 @@ void Renderer::DrawVertices(const SpriteSheet& sheet,
     case ShaderProgramType::ScreenMaskedSprite: {
       ScreenMaskedSpriteUniforms uniforms{
           .Projection = Projection,
-          .SpriteTransformation = transformation,
-          .MaskTransformation = glm::mat4(1.0f),
+          .SpriteTransformation = spriteTransformation,
+          .MaskTransformation = maskTransformation,
           .ColorMap = 0,
           .Mask = 2,
       };
@@ -629,8 +631,8 @@ void Renderer::DrawVertices(const SpriteSheet& sheet,
     case ShaderProgramType::SoftLightMaskedSprite: {
       SoftLightMaskedSpriteUniforms uniforms{
           .Projection = Projection,
-          .SpriteTransformation = transformation,
-          .MaskTransformation = glm::mat4(1.0f),
+          .SpriteTransformation = spriteTransformation,
+          .MaskTransformation = maskTransformation,
           .ColorMap = 0,
           .Mask = 2,
       };
@@ -641,7 +643,7 @@ void Renderer::DrawVertices(const SpriteSheet& sheet,
     case ShaderProgramType::Sprite: {
       SpriteUniforms uniforms{
           .Projection = Projection,
-          .Transformation = transformation,
+          .Transformation = spriteTransformation,
           .ColorMap = 0,
           .ColorShift = glm::vec3(0.0f),
       };
@@ -652,7 +654,7 @@ void Renderer::DrawVertices(const SpriteSheet& sheet,
     case ShaderProgramType::SpriteInverted: {
       SpriteInvertedUniforms uniforms{
           .Projection = Projection,
-          .Transformation = transformation,
+          .Transformation = spriteTransformation,
           .ColorMap = 0,
       };
 
