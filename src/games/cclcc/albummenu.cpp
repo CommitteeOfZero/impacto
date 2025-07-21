@@ -217,6 +217,7 @@ void AlbumMenu::Init() {
 void AlbumMenu::Update(float dt) {
   using namespace Vm::Interface;
   MainItems.Tint.a = FadeAnimation.Progress;
+const auto* prevBtn = CurrentlyFocusedElement;
   LibrarySubmenu::Update(dt);
   if (IsFocused) {
     const auto updatePages = [this](uint8_t prevPg, uint8_t nextPg) {
@@ -257,6 +258,9 @@ void AlbumMenu::Update(float dt) {
         CurrentlyFocusedElement = *thumItr;
         CurrentlyFocusedElement->HasFocus = true;
       }
+    }
+if (CurrentlyFocusedElement != prevBtn) {
+      Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0);
     }
   }
 }
