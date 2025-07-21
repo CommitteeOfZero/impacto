@@ -139,6 +139,8 @@ root.ExtraMenus = {
         },
         AlbumThumbnailThumbSprite = "AlbumThumbnailThumb", 
         AlbumTbl = AlbumTbl,
+        AlbumPageSwapAnimationDuration = 0.3,
+        AlbumThumbnailPinRemoveOffset = { X = 20, Y = 20 },
 
         MusicItemsBackgroundSprite = "MusicItemsBackground",
         MusicItemsBackgroundPosition = {X=293, Y=-93},

@@ -99,15 +99,28 @@ void AlbumThumbnail::UpdateInput() {
   }
 }
 
+void AlbumThumbnail::Update(float dt) {
+  Button::Update(dt);
+  if (State == DisplayState::Showing) {
+    if (Menu.PageSwapAnimation.IsOut()) {
+      State = DisplayState::Shown;
+    }
+  } else if (State == DisplayState::Hiding) {
+    if (Menu.PageSwapAnimation.IsIn()) {
+      State = DisplayState::Hidden;
+    }
+  }
+}
+
 void AlbumThumbnail::Show() {
   if (State == DisplayState::Hidden && Menu.ActivePage == Page) {
-    State = DisplayState::Shown;
+    State = DisplayState::Showing;
   }
 }
 
 void AlbumThumbnail::Hide() {
   if (State == DisplayState::Shown) {
-    State = DisplayState::Hidden;
+    State = DisplayState::Hiding;
     HasFocus = false;
     Hovered = false;
   }
@@ -115,24 +128,34 @@ void AlbumThumbnail::Hide() {
 
 void AlbumThumbnail::Render() {
   if (!Enabled || State == DisplayState::Hidden) return;
+  const float pgSwapDur = Menu.PageSwapAnimation.Progress;
+  const glm::vec4 tint = Tint * glm::vec4(1.0f, 1.0f, 1.0f, 1 - pgSwapDur);
+  ImpLog(LogLevel::Trace, LogChannel::General, "Page swap alpha: og:{}, adj:{}",
+         Menu.PageSwapAnimation.Progress, pgSwapDur);
   for (const auto& spriteInfo : Variants) {
     const Sprite& thumbnailSprite = spriteInfo.ThumbnailSprite;
     const glm::vec2 picTopLeft =
         GridPos - glm::vec2(thumbnailSprite.Bounds.Width / 2, 0);
-    const auto matrix =
-        TransformationMatrix(spriteInfo.Origin, {1.0f, 1.0f}, spriteInfo.Origin,
-                             ScrWorkAngleToRad(spriteInfo.Angle), picTopLeft);
-    Renderer->DrawSprite(thumbnailSprite, matrix, Tint);
+    const float scaleFactor = 1.5f * pgSwapDur + 1.0f;
+    const auto matrix = TransformationMatrix(
+        spriteInfo.Origin, {scaleFactor, scaleFactor}, spriteInfo.Origin,
+        ScrWorkAngleToRad(spriteInfo.Angle), picTopLeft);
+    Renderer->DrawSprite(thumbnailSprite, matrix, tint);
   }
-  if (HasFocus) {
+  if (HasFocus && Menu.PageSwapAnimation.IsOut()) {
     const glm::vec2 thumbTopLeft =
         GridPos - glm::vec2(AlbumThumbnailThumbSprite.Bounds.Width / 2, 0);
-    Renderer->DrawSprite(AlbumThumbnailThumbSprite, thumbTopLeft);
+    Renderer->DrawSprite(AlbumThumbnailThumbSprite, thumbTopLeft, Tint);
   }
   const auto& pinSprite = AlbumThumbnailPinSprites[IndexInPage];
+  const glm::vec2 pinOffset = pgSwapDur * AlbumThumbnailPinRemoveOffset;
   const glm::vec2 pinTopLeft =
-      GridPos - glm::vec2(pinSprite.Bounds.Width / 2, 0);
-  Renderer->DrawSprite(pinSprite, pinTopLeft);
+      GridPos - glm::vec2(pinSprite.Bounds.Width / 2, 0) - pinOffset;
+  Renderer->DrawSprite(pinSprite, pinTopLeft, tint);
+}
+
+AlbumMenu::AlbumMenu() : LibrarySubmenu() {
+  PageSwapAnimation.SetDuration(AlbumPageSwapAnimationDuration);
 }
 
 void AlbumMenu::Init() {
@@ -217,7 +240,8 @@ void AlbumMenu::Init() {
 void AlbumMenu::Update(float dt) {
   using namespace Vm::Interface;
   MainItems.Tint.a = FadeAnimation.Progress;
-const auto* prevBtn = CurrentlyFocusedElement;
+  const auto* prevBtn = CurrentlyFocusedElement;
+  PageSwapAnimation.Update(dt);
   LibrarySubmenu::Update(dt);
   if (IsFocused) {
     const auto updatePages = [this](uint8_t prevPg, uint8_t nextPg) {
@@ -230,15 +254,7 @@ const auto* prevBtn = CurrentlyFocusedElement;
           if (!thum) continue;
           thum->Hide();
         }
-        const auto& curPage = ThumbnailPages[nextPg];
-        for (const auto& thum : curPage) {
-          if (!thum) continue;
-          thum->Show();
-          if (!CurrentlyFocusedElement) {
-            CurrentlyFocusedElement = thum;
-            CurrentlyFocusedElement->HasFocus = true;
-          }
-        }
+        PageSwapAnimation.StartIn();
       }
     };
     auto prevPage = ActivePage;
@@ -250,6 +266,19 @@ const auto* prevBtn = CurrentlyFocusedElement;
       ActivePage = (ActivePage + 1) % ThumbnailPages.size();
       updatePages(prevPage, ActivePage);
     }
+
+    if (PageSwapAnimation.IsIn()) {
+      const auto& curPage = ThumbnailPages[ActivePage];
+      for (const auto& thum : curPage) {
+        if (!thum) continue;
+        thum->Show();
+        if (!CurrentlyFocusedElement) {
+          CurrentlyFocusedElement = thum;
+          CurrentlyFocusedElement->HasFocus = true;
+        }
+      }
+      PageSwapAnimation.StartOut();
+    }
     if (!CurrentlyFocusedElement) {
       auto thumItr = std::find_if(ThumbnailPages[ActivePage].begin(),
                                   ThumbnailPages[ActivePage].end(),
@@ -259,7 +288,7 @@ const auto* prevBtn = CurrentlyFocusedElement;
         CurrentlyFocusedElement->HasFocus = true;
       }
     }
-if (CurrentlyFocusedElement != prevBtn) {
+    if (CurrentlyFocusedElement != prevBtn) {
       Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0);
     }
   }

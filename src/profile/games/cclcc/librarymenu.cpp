@@ -101,6 +101,10 @@ void Configure() {
       GetMemberVector<Sprite>("AlbumThumbnailPinSprites");
   AlbumThumbnailThumbSprite =
       EnsureGetMember<Sprite>("AlbumThumbnailThumbSprite");
+  AlbumPageSwapAnimationDuration =
+      EnsureGetMember<float>("AlbumPageSwapAnimationDuration");
+  AlbumThumbnailPinRemoveOffset =
+      EnsureGetMember<glm::vec2>("AlbumThumbnailPinRemoveOffset");
 
   MusicItemsBackgroundRepeatHeight =
       EnsureGetMember<int>("MusicItemsBackgroundRepeatHeight");
@@ -172,7 +176,6 @@ void Configure() {
       EnsureGetMember<Sprite>("AlbumMenuCGViewerGuideSprite");
   MusicMenuGuideSprite = EnsureGetMember<Sprite>("MusicMenuGuideSprite");
   MovieMenuGuideSprite = EnsureGetMember<Sprite>("MovieMenuGuideSprite");
-
   GetAlbumTbl();
 
   UI::LibraryMenuPtr = new UI::CCLCC::LibraryMenu();
