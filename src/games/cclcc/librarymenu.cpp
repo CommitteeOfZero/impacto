@@ -153,14 +153,18 @@ void LibraryMenu::Update(float dt) {
       if ((Vm::Interface::PADinputButtonWentDown & Vm::Interface::PAD1B) ||
           (Vm::Interface::PADinputMouseWentDown & Vm::Interface::PAD1B)) {
         Audio::Channels[Audio::AC_SSE]->Play("sysse", 3, false, 0);
+        const auto* albumMenuPtr = static_cast<AlbumMenu*>(UI::AlbumMenuPtr);
         if (!IsFocused) {  // unfocus submenu
-          auto* activeButton = static_cast<LibraryMenuButton*>(
-              MainItems.Children.at(CurrentLibraryMenu));
-          auto& submenu = GetMenuFromType(CurrentLibraryMenu);
-          submenu.Unfocus();
-          IsFocused = true;
-          activeButton->Selected = false;
-          activeButton->HasFocus = true;
+          if (CurrentLibraryMenu != +LibraryMenuPageType::Album ||
+              !albumMenuPtr->CGViewer) {
+            auto* activeButton = static_cast<LibraryMenuButton*>(
+                MainItems.Children.at(CurrentLibraryMenu));
+            auto& submenu = GetMenuFromType(CurrentLibraryMenu);
+            submenu.Unfocus();
+            IsFocused = true;
+            activeButton->Selected = false;
+            activeButton->HasFocus = true;
+          }
         } else {
           UI::AlbumMenuPtr->Hide();
           UI::MusicMenuPtr->Hide();
@@ -239,17 +243,24 @@ void LibraryMenu::Render() {
     GetMenuFromType(LibraryMenuPageType::Album).Render();
     GetMenuFromType(LibraryMenuPageType::Sound).Render();
     GetMenuFromType(LibraryMenuPageType::Movie).Render();
-    Renderer->DrawSprite(LibraryIndexSprite,
-                         LibraryIndexPosition + leftSpritesOffset, col);
-    MainItems.Render();
+    if (CurrentLibraryMenu != +LibraryMenuPageType::Album ||
+        !static_cast<AlbumMenu*>(UI::AlbumMenuPtr)->CGViewer) {
+      Renderer->DrawSprite(LibraryIndexSprite,
+                           LibraryIndexPosition + leftSpritesOffset, col);
+      MainItems.Render();
+    }
     Renderer->DrawSprite(
         LibraryMaskSprite,
         RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
         glm::vec4(1.0f));
 
     const Sprite* submenuGuideSprite =
-        (CurrentLibraryMenu == +LibraryMenuPageType::Album)
+        (CurrentLibraryMenu == +LibraryMenuPageType::Album &&
+         !static_cast<AlbumMenu*>(UI::AlbumMenuPtr)->CGViewer)
             ? &AlbumMenuGuideSprite
+        : (CurrentLibraryMenu == +LibraryMenuPageType::Album &&
+           static_cast<AlbumMenu*>(UI::AlbumMenuPtr)->CGViewer)
+            ? &AlbumMenuCGViewerGuideSprite
         : (CurrentLibraryMenu == +LibraryMenuPageType::Sound)
             ? &MusicMenuGuideSprite
         : (CurrentLibraryMenu == +LibraryMenuPageType::Movie)
