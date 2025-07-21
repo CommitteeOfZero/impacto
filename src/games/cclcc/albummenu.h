@@ -23,6 +23,7 @@ struct AlbumThumbnail : public Widgets::Button {
 
   AlbumThumbnail(int id, uint8_t indexInPage, uint8_t gridId, glm::vec2 gridPos,
                  AlbumMenu const& albumMenu);
+  void Update(float dt) override;
   void UpdateInput() override;
   void Render() override;
   void Show() override;
@@ -39,7 +40,7 @@ struct AlbumThumbnail : public Widgets::Button {
 
 class AlbumMenu : public LibrarySubmenu {
  public:
-  AlbumMenu() = default;
+  AlbumMenu();
   void Init() override;
   void Update(float dt) override;
 
