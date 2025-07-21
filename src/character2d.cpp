@@ -380,6 +380,7 @@ void Character2D::Render(const int layer) {
     std::transform(MvlVertices.begin(), MvlVertices.end(), MvlVertices.begin(),
                    [this](VertexBufferSprites vertex) {
                      vertex.Tint = Tint;
+                     vertex.MaskUV = vertex.Position;
                      return vertex;
                    });
 
@@ -392,10 +393,14 @@ void Character2D::Render(const int layer) {
                              MvlVertices, MvlIndices, transformation);
     } else {
       const ShaderProgramType shader = LastRenderedBackground->BgEffShaders[3];
+      const glm::mat4 maskTransformation =
+          glm::scale(glm::mat4(1.0f), {1.0f / Profile::DesignWidth,
+                                       1.0f / Profile::DesignHeight, 1.0f}) *
+          transformation;
 
-      Renderer->DrawVertices(CharaSpriteSheet,
-                             &LastRenderedBackground->BgEffChaSprite.Sheet,
-                             shader, MvlVertices, MvlIndices, transformation);
+      Renderer->DrawVertices(
+          CharaSpriteSheet, &LastRenderedBackground->BgEffChaSprite.Sheet,
+          shader, MvlVertices, MvlIndices, transformation, maskTransformation);
     }
 
   } else {
