@@ -4,7 +4,11 @@
 #include "../../profile/games/cclcc/librarymenu.h"
 #include "../../data/savesystem.h"
 #include "../../vm/interface/input.h"
+#include "../../inputsystem.h"
 #include "../../profile/scriptvars.h"
+#include "../../profile/data/savesystem.h"
+#include "../../profile/game.h"
+#include "../../background2d.h"
 
 using namespace Impacto::Profile::CCLCC::LibraryMenu;
 using namespace Impacto::Profile::ScriptVars;
@@ -178,12 +182,13 @@ void AlbumMenu::Init() {
         return CALCrnd(1820) - 910;
       case 3:
       case 5:
+
         return 65536 - CALCrnd(910);
       default:  // yes, the 12th item will always have no angle
         return 0;
     }
   };
-
+  size_t index = 0;
   for (const auto& thumbnailEntry : AlbumData) {
     int itemCountInPage = 0;
     if (ThumbnailPages.size() <= thumbnailEntry.PageNumber) {
@@ -196,6 +201,17 @@ void AlbumMenu::Init() {
     auto* thumbnailWidget =
         new AlbumThumbnail(i++, itemCountInPage, thumbnailEntry.IndexInPage,
                            gridDispPosition, *this);
+    thumbnailWidget->OnClickHandler = [this, thumbnailWidget,
+                                       index](Widgets::Button* btn) {
+      auto* thumbnailPtr = static_cast<AlbumThumbnail*>(btn);
+      ScrWork[SW_ALBUM_LOADFILE] = Profile::SaveSystem::AlbumData[index][0][0];
+      ScrWork[SW_ALBUM_LOADBUF] = 1;
+      SetFlag(SF_ALBUMLOAD, 1);
+      SetFlag(SF_ALBUMLOAD_COMPLETE, 0);
+      CGViewer = std::make_optional<AlbumCGViewer>(*thumbnailWidget);
+      CGViewer->ActiveThumbnailIndex = index;
+      CGViewer->ActiveVariantIndex = 0;
+    };
     const int mainAngle = getMainAngle(itemCountInPage);
     int variantAngleOffset = 0;
     RectF maxBounds;
@@ -225,6 +241,7 @@ void AlbumMenu::Init() {
     page[thumbnailEntry.IndexInPage] = thumbnailWidget;
     MainItems.Add(thumbnailWidget);
     itemCountInPage++;
+    index++;
   }
   for (const auto& thum : ThumbnailPages[ActivePage]) {
     if (!thum) continue;
@@ -237,9 +254,48 @@ void AlbumMenu::Init() {
   SetThumbnailDirections();
 }
 
-void AlbumMenu::Update(float dt) {
+void AlbumMenu::UpdateCGViewer(float dt) {
   using namespace Vm::Interface;
-  MainItems.Tint.a = FadeAnimation.Progress;
+  if (GetFlag(SF_ALBUMLOAD) && GetFlag(SF_ALBUMLOAD_COMPLETE)) {
+    SetFlag(SF_ALBUMLOAD, 0);
+    SetFlag(SF_ALBUMLOAD_COMPLETE, 0);
+    int bufId = ScrWork[SW_BG1SURF];
+    CGViewer->CGSprite = Backgrounds2D[bufId]->BgSprite;
+    // Fit to height
+    const auto heightRatio =
+        Profile::DesignHeight / Backgrounds2D[bufId]->BgSprite.ScaledHeight();
+
+    CGViewer->DestRect.Height =
+        Backgrounds2D[bufId]->BgSprite.ScaledHeight() * heightRatio;
+    CGViewer->DestRect.Width =
+        Backgrounds2D[bufId]->BgSprite.ScaledWidth() * heightRatio;
+    CGViewer->DestRect.X =
+        (Profile::DesignWidth - CGViewer->DestRect.Width) / 2;
+    CGViewer->DestRect.Y =
+        (Profile::DesignHeight - CGViewer->DestRect.Height) / 2;
+  }
+  if (Vm::Interface::PADinputButtonWentDown & Vm::Interface::PAD1A ||
+      Vm::Interface::PADinputMouseWentDown & Vm::Interface::PAD1A) {
+    const auto& variants = CGViewer->ClickedThumbnail.get().Variants;
+    CGViewer->ActiveVariantIndex++;
+    if (CGViewer->ActiveVariantIndex < variants.size()) {
+      ScrWork[SW_ALBUM_LOADFILE] =
+          Profile::SaveSystem::AlbumData[CGViewer->ActiveThumbnailIndex]
+                                        [CGViewer->ActiveVariantIndex][0];
+      ScrWork[SW_ALBUM_LOADBUF] = 1;
+      SetFlag(SF_ALBUMLOAD, 1);
+      SetFlag(SF_ALBUMLOAD_COMPLETE, 0);
+    } else {
+      CGViewer = std::nullopt;
+    }
+  } else if (Vm::Interface::PADinputButtonWentDown & Vm::Interface::PAD1B ||
+             Vm::Interface::PADinputMouseWentDown & Vm::Interface::PAD1B) {
+    CGViewer = std::nullopt;
+  }
+}
+
+void AlbumMenu::UpdateThumbnail(float dt) {
+  using namespace Vm::Interface;
   const auto* prevBtn = CurrentlyFocusedElement;
   PageSwapAnimation.Update(dt);
   LibrarySubmenu::Update(dt);
@@ -258,11 +314,12 @@ void AlbumMenu::Update(float dt) {
       }
     };
     auto prevPage = ActivePage;
-    if (PADinputButtonWentDown & PADcustom[7]) {
+    if (PADinputButtonWentDown & PADcustom[7] || Input::MouseWheelDeltaY > 0) {
       ActivePage =
           (ActivePage == 0) ? ThumbnailPages.size() - 1 : ActivePage - 1;
       updatePages(prevPage, ActivePage);
-    } else if (PADinputButtonWentDown & PADcustom[8]) {
+    } else if (PADinputButtonWentDown & PADcustom[8] ||
+               Input::MouseWheelDeltaY < 0) {
       ActivePage = (ActivePage + 1) % ThumbnailPages.size();
       updatePages(prevPage, ActivePage);
     }
@@ -294,4 +351,21 @@ void AlbumMenu::Update(float dt) {
   }
 }
 
+void AlbumMenu::Update(float dt) {
+  MainItems.Tint.a = FadeAnimation.Progress;
+  if (!CGViewer) {
+    UpdateThumbnail(dt);
+  } else {
+    UpdateCGViewer(dt);
+  }
+}
+
+void AlbumMenu::Render() {
+  LibrarySubmenu::Render();
+  if (CGViewer) {
+    Renderer->DrawSprite(
+        Sprite{}, RectF{0, 0, Profile::DesignWidth, Profile::DesignHeight});
+    Renderer->DrawSprite(CGViewer->CGSprite, CGViewer->DestRect);
+  }
+}
 }  // namespace Impacto::UI::CCLCC

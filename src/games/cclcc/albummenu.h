@@ -38,18 +38,33 @@ struct AlbumThumbnail : public Widgets::Button {
   std::vector<AlbumThumbnailSpriteInfo> Variants;
 };
 
+struct AlbumCGViewer {
+  Sprite CGSprite;
+  RectF DestRect;
+  int ActiveThumbnailIndex{};
+  int ActiveVariantIndex{};
+  std::reference_wrapper<AlbumThumbnail> ClickedThumbnail;
+  AlbumCGViewer(AlbumThumbnail& thumbnail) : ClickedThumbnail(thumbnail) {}
+  int ViewBufId[2]{};
+};
+
 class AlbumMenu : public LibrarySubmenu {
  public:
   AlbumMenu();
   void Init() override;
   void Update(float dt) override;
+  void Render() override;
 
   std::vector<std::vector<AlbumThumbnail*>> ThumbnailPages;
   uint8_t ActivePage = 0;
   Animation PageSwapAnimation;
 
+  std::optional<AlbumCGViewer> CGViewer;
+
  private:
   void SetThumbnailDirections();
+  void UpdateThumbnail(float dt);
+  void UpdateCGViewer(float dt);
 };
 }  // namespace CCLCC
 }  // namespace UI
