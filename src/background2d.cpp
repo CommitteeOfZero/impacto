@@ -83,6 +83,13 @@ bool Background2D::LoadSync(uint32_t bgId) {
       const std::string baseName =
           meta.FileName.substr(0, meta.FileName.find('.'));
 
+      const size_t fallbackBaseNameEnd =
+          baseName.find_last_not_of("0123456789");
+      const std::optional<std::string> fallbackBaseName =
+          (fallbackBaseNameEnd != std::string::npos)
+              ? std::optional(baseName.substr(0, fallbackBaseNameEnd + 1))
+              : std::nullopt;
+
       LoadedBgEffCount = 0;
       for (size_t i = 0; i < BgEffTextures.size(); i++) {
         const std::string filename = fmt::format("FT_{}{}.png", baseName, i);
@@ -91,11 +98,13 @@ bool Background2D::LoadSync(uint32_t bgId) {
         int64_t err = Io::VfsOpen("bgeffect", filename, &bgEffStream);
 
         if (err == IoError_NotFound) {
-          // No more background effects
-          break;
-        } else if (err != IoError::IoError_OK) {
-          return false;
+          if (!fallbackBaseName.has_value()) break;
+
+          err = Io::VfsOpen("bgeffect", *fallbackBaseName, &bgEffStream);
+          if (err == IoError::IoError_NotFound) break;
         }
+
+        if (err != IoError::IoError_OK) return false;
 
         BgEffTextures[i].Load(bgEffStream);
         LoadedBgEffCount++;
@@ -109,13 +118,21 @@ bool Background2D::LoadSync(uint32_t bgId) {
       Io::Stream* bgEffStream;
       int64_t err = Io::VfsOpen("bgeffect", filename, &bgEffStream);
 
-      if (err != IoError_NotFound) {
-        if (err != IoError_OK) return false;
+      if (err == IoError_NotFound) {
+        if (!fallbackBaseName.has_value()) return true;
 
-        BgEffChaTexture.Load(bgEffStream);
-        BgEffChaLoaded = true;
-        delete bgEffStream;
+        const std::string fallbackFilename =
+            fmt::format("FT_{}CH.png", *fallbackBaseName);
+        err = Io::VfsOpen("bgeffect", fallbackFilename, &bgEffStream);
+
+        if (err == IoError::IoError_NotFound) return true;
       }
+
+      if (err != IoError_OK) return false;
+
+      BgEffChaTexture.Load(bgEffStream);
+      BgEffChaLoaded = true;
+      delete bgEffStream;
     }
   }
 
