@@ -146,14 +146,18 @@ void LibraryMenu::Update(float dt) {
              (ScrWork[SW_SYSSUBMENUNO] == 8)) {
     Show();
   }
+  const auto* albumMenuPtr = static_cast<AlbumMenu*>(UI::AlbumMenuPtr);
+  const bool moviePlaying = CurrentLibraryMenu == +LibraryMenuPageType::Movie &&
+                            Video::Players[0]->IsPlaying;
+  const bool cgViewerActive =
+      CurrentLibraryMenu == +LibraryMenuPageType::Album &&
+      albumMenuPtr->CGViewer;
   if (State == Shown && ScrWork[SW_SYSSUBMENUNO] == 8) {
-    if (!(CurrentLibraryMenu == +LibraryMenuPageType::Movie &&
-          Video::Players[0]->IsPlaying)) {
+    if (!moviePlaying && !cgViewerActive) {
       UpdateInput();
       if ((Vm::Interface::PADinputButtonWentDown & Vm::Interface::PAD1B) ||
           (Vm::Interface::PADinputMouseWentDown & Vm::Interface::PAD1B)) {
         Audio::Channels[Audio::AC_SSE]->Play("sysse", 3, false, 0);
-        const auto* albumMenuPtr = static_cast<AlbumMenu*>(UI::AlbumMenuPtr);
         if (!IsFocused) {  // unfocus submenu
           if (CurrentLibraryMenu != +LibraryMenuPageType::Album ||
               !albumMenuPtr->CGViewer) {
@@ -181,7 +185,7 @@ void LibraryMenu::Update(float dt) {
   UI::MusicMenuPtr->Update(dt);
   UI::MovieMenuPtr->Update(dt);
   ButtonBlinkAnimation.Update(dt);
-  MainItems.Update(dt);
+  if (!moviePlaying && !cgViewerActive) MainItems.Update(dt);
 
   if (CurrentlyFocusedElement) {
     auto* activeBtn = static_cast<LibraryMenuButton*>(CurrentlyFocusedElement);
