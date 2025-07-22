@@ -155,4 +155,6 @@ inline std::array<ShaderProgramType, 4> GetBgEffShaders(int bgId) {
                    ShaderProgramType::Sprite, ShaderProgramType::Sprite};
 }
 
+inline std::map<int, std::array<int, 4>> BgEffTextureIds;
+
 }  // namespace Impacto

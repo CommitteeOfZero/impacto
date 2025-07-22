@@ -71,38 +71,19 @@ bool Background2D::LoadSync(uint32_t bgId) {
   } else {
     Io::Stream* stream;
     int64_t err = Io::VfsOpen("bg", bgId, &stream);
+
     if (err != IoError_OK) return false;
+
     BgTexture.Load(stream);
     delete stream;
 
-    if (Profile::UseBgEffects) {
-      Io::FileMeta meta;
-      err = Io::VfsGetMeta("bg", bgId, &meta);
-      if (err != IoError_OK) return false;
-
-      const std::string baseName =
-          meta.FileName.substr(0, meta.FileName.find('.'));
-
-      const size_t fallbackBaseNameEnd =
-          baseName.find_last_not_of("0123456789");
-      const std::optional<std::string> fallbackBaseName =
-          (fallbackBaseNameEnd != std::string::npos)
-              ? std::optional(baseName.substr(0, fallbackBaseNameEnd + 1))
-              : std::nullopt;
+    if (Profile::UseBgEffects && BgEffTextureIds.contains(bgId)) {
+      const std::array<int, 4>& textureIds = BgEffTextureIds[bgId];
 
       LoadedBgEffCount = 0;
       for (size_t i = 0; i < BgEffTextures.size(); i++) {
-        const std::string filename = fmt::format("FT_{}{}.png", baseName, i);
-
         Io::Stream* bgEffStream;
-        int64_t err = Io::VfsOpen("bgeffect", filename, &bgEffStream);
-
-        if (err == IoError_NotFound) {
-          if (!fallbackBaseName.has_value()) break;
-
-          err = Io::VfsOpen("bgeffect", *fallbackBaseName, &bgEffStream);
-          if (err == IoError::IoError_NotFound) break;
-        }
+        err = Io::VfsOpen("bgeffect", textureIds[i], &bgEffStream);
 
         if (err != IoError::IoError_OK) return false;
 
@@ -112,23 +93,13 @@ bool Background2D::LoadSync(uint32_t bgId) {
         delete bgEffStream;
       }
 
-      BgEffChaLoaded = false;
-      const std::string filename = fmt::format("FT_{}CH.png", baseName);
-
       Io::Stream* bgEffStream;
-      int64_t err = Io::VfsOpen("bgeffect", filename, &bgEffStream);
+      err = Io::VfsOpen("bgeffect", textureIds[3], &bgEffStream);
 
-      if (err == IoError_NotFound) {
-        if (!fallbackBaseName.has_value()) return true;
-
-        const std::string fallbackFilename =
-            fmt::format("FT_{}CH.png", *fallbackBaseName);
-        err = Io::VfsOpen("bgeffect", fallbackFilename, &bgEffStream);
-
-        if (err == IoError::IoError_NotFound) return true;
+      if (err != IoError_OK) {
+        BgEffChaLoaded = false;
+        return false;
       }
-
-      if (err != IoError_OK) return false;
 
       BgEffChaTexture.Load(bgEffStream);
       BgEffChaLoaded = true;
