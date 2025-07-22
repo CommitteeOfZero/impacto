@@ -203,15 +203,18 @@ void AlbumMenu::Init() {
                            gridDispPosition, *this);
     thumbnailWidget->OnClickHandler = [this, thumbnailWidget,
                                        index](Widgets::Button* btn) {
-      auto* thumbnailPtr = static_cast<AlbumThumbnail*>(btn);
+      const auto* const thumbnailPtr = static_cast<AlbumThumbnail*>(btn);
+      CGViewer.emplace(*thumbnailWidget);
+
+      const int bufId = CGViewer->ViewBufId[1] ? 2 : 1;
       ScrWork[SW_ALBUM_LOADFILE] = Profile::SaveSystem::AlbumData[index][0][0];
-      ScrWork[SW_ALBUM_LOADBUF] = 1;
+      ScrWork[SW_ALBUM_LOADBUF] = bufId;
       SetFlag(SF_ALBUMLOAD, 1);
       SetFlag(SF_ALBUMLOAD_COMPLETE, 0);
-      CGViewer = std::make_optional<AlbumCGViewer>(*thumbnailWidget);
       CGViewer->ActiveThumbnailIndex = index;
       CGViewer->ActiveVariantIndex = 0;
-IsFocused = false;
+      CGViewer->PageSwapAnimation.SetDuration(AlbumCGPageSwapAnimationDuration);
+      IsFocused = false;
       ThumbnailZoomAnimation.StartIn();
     };
     const int mainAngle = getMainAngle(itemCountInPage);
@@ -261,23 +264,32 @@ void AlbumMenu::UpdateCGViewer(float dt) {
   if (GetFlag(SF_ALBUMLOAD) && GetFlag(SF_ALBUMLOAD_COMPLETE)) {
     SetFlag(SF_ALBUMLOAD, 0);
     SetFlag(SF_ALBUMLOAD_COMPLETE, 0);
-    int bufId = ScrWork[SW_BG1SURF];
-    CGViewer->CGSprite = Backgrounds2D[bufId]->BgSprite;
+
+    const int activeSurface = CGViewer->ViewBufId[1];
+    const int bufId = ScrWork[SW_BG1SURF + activeSurface];
     // Fit to height
     const auto heightRatio =
         Profile::DesignHeight / Backgrounds2D[bufId]->BgSprite.ScaledHeight();
 
-    CGViewer->DestRect.Height =
+    CGViewer->DestRect[1].Height =
         Backgrounds2D[bufId]->BgSprite.ScaledHeight() * heightRatio;
-    CGViewer->DestRect.Width =
+    CGViewer->DestRect[1].Width =
         Backgrounds2D[bufId]->BgSprite.ScaledWidth() * heightRatio;
-    CGViewer->DestRect.X =
-        (Profile::DesignWidth - CGViewer->DestRect.Width) / 2;
-    CGViewer->DestRect.Y =
-        (Profile::DesignHeight - CGViewer->DestRect.Height) / 2;
-return;
+    CGViewer->DestRect[1].X =
+        (Profile::DesignWidth - CGViewer->DestRect[1].Width) / 2;
+    CGViewer->DestRect[1].Y =
+        (Profile::DesignHeight - CGViewer->DestRect[1].Height) / 2;
+
+    return;
   }
-if (!ThumbnailZoomAnimation.IsIn()) return;
+  if (!ThumbnailZoomAnimation.IsIn() ||
+      CGViewer->PageSwapAnimation.State == +AnimationState::Playing)
+    return;
+  if (CGViewer->PageSwapAnimation.IsIn()) {
+    CGViewer->DestRect[0] = RectF{};
+    CGViewer->PageSwapAnimation.Progress = 0.0f;
+  }
+  const int prevVariantIndex = CGViewer->ActiveVariantIndex;
   if (Vm::Interface::PADinputButtonWentDown & Vm::Interface::PAD1A ||
       Vm::Interface::PADinputMouseWentDown & Vm::Interface::PAD1A) {
     const auto& variants = CGViewer->ClickedThumbnail.get().Variants;
@@ -286,25 +298,29 @@ if (!ThumbnailZoomAnimation.IsIn()) return;
       ScrWork[SW_ALBUM_LOADFILE] =
           Profile::SaveSystem::AlbumData[CGViewer->ActiveThumbnailIndex]
                                         [CGViewer->ActiveVariantIndex][0];
-      ScrWork[SW_ALBUM_LOADBUF] = 1;
+      std::swap(CGViewer->ViewBufId[0], CGViewer->ViewBufId[1]);
+      std::swap(CGViewer->DestRect[0], CGViewer->DestRect[1]);
+      const int bufId = CGViewer->ViewBufId[1] ? 2 : 1;
+      ScrWork[SW_ALBUM_LOADBUF] = bufId;
       SetFlag(SF_ALBUMLOAD, 1);
       SetFlag(SF_ALBUMLOAD_COMPLETE, 0);
+      CGViewer->PageSwapAnimation.StartIn();
     } else {
       CGViewer = std::nullopt;
-IsFocused = true;
+      IsFocused = true;
       ThumbnailZoomAnimation.StartOut();
     }
   } else if (Vm::Interface::PADinputButtonWentDown & Vm::Interface::PAD1B ||
              Vm::Interface::PADinputMouseWentDown & Vm::Interface::PAD1B) {
     CGViewer = std::nullopt;
-IsFocused = true;
+    IsFocused = true;
     ThumbnailZoomAnimation.StartOut();
   }
 }
 
 void AlbumMenu::UpdateThumbnail(float dt) {
   using namespace Vm::Interface;
-    if (IsFocused) {
+  if (IsFocused) {
     const auto updatePages = [this](uint8_t prevPg, uint8_t nextPg) {
       if (prevPg != nextPg) {
         if (CurrentlyFocusedElement) {
@@ -319,18 +335,18 @@ void AlbumMenu::UpdateThumbnail(float dt) {
       }
     };
     auto prevPage = ActivePage;
-if (ThumbnailZoomAnimation.IsOut()) {
-    if (PADinputButtonWentDown & PADcustom[7] ||
-Input::MouseWheelDeltaY > 0) {
-      ActivePage =
-          (ActivePage == 0) ? ThumbnailPages.size() - 1 : ActivePage - 1;
-      updatePages(prevPage, ActivePage);
-    } else if (PADinputButtonWentDown & PADcustom[8] ||
-               Input::MouseWheelDeltaY < 0) {
-      ActivePage = (ActivePage + 1) % ThumbnailPages.size();
-      updatePages(prevPage, ActivePage);
-    }
-} else if (ThumbnailZoomAnimation.IsIn()) {
+    if (ThumbnailZoomAnimation.IsOut()) {
+      if (PADinputButtonWentDown & PADcustom[7] ||
+          Input::MouseWheelDeltaY > 0) {
+        ActivePage =
+            (ActivePage == 0) ? ThumbnailPages.size() - 1 : ActivePage - 1;
+        updatePages(prevPage, ActivePage);
+      } else if (PADinputButtonWentDown & PADcustom[8] ||
+                 Input::MouseWheelDeltaY < 0) {
+        ActivePage = (ActivePage + 1) % ThumbnailPages.size();
+        updatePages(prevPage, ActivePage);
+      }
+    } else if (ThumbnailZoomAnimation.IsIn()) {
       const auto& curPage = ThumbnailPages[ActivePage];
       for (const auto& thum : curPage) {
         if (!thum) continue;
@@ -351,20 +367,21 @@ Input::MouseWheelDeltaY > 0) {
         CurrentlyFocusedElement->HasFocus = true;
       }
     }
-      }
+  }
 }
 
 void AlbumMenu::Update(float dt) {
   MainItems.Tint.a = FadeAnimation.Progress;
-const auto* prevBtn = CurrentlyFocusedElement;
+  const auto* prevBtn = CurrentlyFocusedElement;
   ThumbnailZoomAnimation.Update(dt);
   if (!CGViewer) {
-LibrarySubmenu::Update(dt);
+    LibrarySubmenu::Update(dt);
     UpdateThumbnail(dt);
-if (CurrentlyFocusedElement != prevBtn) {
+    if (CurrentlyFocusedElement != prevBtn) {
       Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0);
     }
   } else {
+    CGViewer->PageSwapAnimation.Update(dt);
     UpdateCGViewer(dt);
   }
 }
@@ -372,11 +389,25 @@ if (CurrentlyFocusedElement != prevBtn) {
 void AlbumMenu::Render() {
   LibrarySubmenu::Render();
   if (CGViewer) {
-const glm::vec4 tint(1.0f, 1.0f, 1.0f, ThumbnailZoomAnimation.Progress);
+    const glm::vec4 tint(1.0f, 1.0f, 1.0f, ThumbnailZoomAnimation.Progress);
     Renderer->DrawSprite(
         Sprite{}, RectF{0, 0, Profile::DesignWidth, Profile::DesignHeight},
         tint);
-    Renderer->DrawSprite(CGViewer->CGSprite, CGViewer->DestRect, tint);
+    const int fadingSurface = CGViewer->ViewBufId[0];
+    const int activeSurface = CGViewer->ViewBufId[1];
+    if (CGViewer->PageSwapAnimation.State == +AnimationState::Playing) {
+      const float swapTint = CGViewer->PageSwapAnimation.Progress;
+      Renderer->DrawSprite(
+          Backgrounds2D[ScrWork[SW_BG1SURF + fadingSurface]]->BgSprite,
+          CGViewer->DestRect[0], tint * (1 - swapTint));
+      Renderer->DrawSprite(
+          Backgrounds2D[ScrWork[SW_BG1SURF + activeSurface]]->BgSprite,
+          CGViewer->DestRect[1], tint * swapTint);
+    } else {
+      Renderer->DrawSprite(
+          Backgrounds2D[ScrWork[SW_BG1SURF + activeSurface]]->BgSprite,
+          CGViewer->DestRect[1], tint);
+    }
   }
 }
 }  // namespace Impacto::UI::CCLCC

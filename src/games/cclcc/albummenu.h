@@ -39,13 +39,13 @@ struct AlbumThumbnail : public Widgets::Button {
 };
 
 struct AlbumCGViewer {
-  Sprite CGSprite;
-  RectF DestRect;
+  RectF DestRect[2];
+  int ViewBufId[2]{0, 1};
   int ActiveThumbnailIndex{};
   int ActiveVariantIndex{};
   std::reference_wrapper<AlbumThumbnail> ClickedThumbnail;
   AlbumCGViewer(AlbumThumbnail& thumbnail) : ClickedThumbnail(thumbnail) {}
-  int ViewBufId[2]{};
+  Animation PageSwapAnimation;
 };
 
 class AlbumMenu : public LibrarySubmenu {

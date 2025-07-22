@@ -141,7 +141,8 @@ root.ExtraMenus = {
         AlbumTbl = AlbumTbl,
         AlbumThumbZoomAnimationDuration = 0.3,
         AlbumThumbnailPinRemoveOffset = { X = 20, Y = 20 },
-
+        AlbumCGPageSwapAnimationDuration = 16/60,
+        
         MusicItemsBackgroundSprite = "MusicItemsBackground",
         MusicItemsBackgroundPosition = {X=293, Y=-93},
         MusicItemsBackgroundRepeatHeight = 1200,

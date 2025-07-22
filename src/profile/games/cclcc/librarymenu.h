@@ -42,6 +42,7 @@ inline std::vector<Sprite> AlbumThumbnailPinSprites;
 inline Sprite AlbumThumbnailThumbSprite;
 inline float AlbumThumbZoomAnimationDuration;
 inline glm::vec2 AlbumThumbnailPinRemoveOffset;
+inline float AlbumCGPageSwapAnimationDuration;
 
 inline int MusicItemsBackgroundRepeatHeight;
 inline Sprite MusicItemsBackgroundSprite;
