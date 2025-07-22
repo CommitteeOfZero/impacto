@@ -77,33 +77,22 @@ bool Background2D::LoadSync(uint32_t bgId) {
     BgTexture.Load(stream);
     delete stream;
 
+    BgEffsLoaded = false;
     if (Profile::UseBgEffects && BgEffTextureIds.contains(bgId)) {
       const std::array<int, 4>& textureIds = BgEffTextureIds[bgId];
 
-      LoadedBgEffCount = 0;
-      for (size_t i = 0; i < BgEffTextures.size(); i++) {
+      for (size_t i = 0; i < MaxBgEffCount; i++) {
         Io::Stream* bgEffStream;
         err = Io::VfsOpen("bgeffect", textureIds[i], &bgEffStream);
 
         if (err != IoError::IoError_OK) return false;
 
         BgEffTextures[i].Load(bgEffStream);
-        LoadedBgEffCount++;
 
         delete bgEffStream;
       }
 
-      Io::Stream* bgEffStream;
-      err = Io::VfsOpen("bgeffect", textureIds[3], &bgEffStream);
-
-      if (err != IoError_OK) {
-        BgEffChaLoaded = false;
-        return false;
-      }
-
-      BgEffChaTexture.Load(bgEffStream);
-      BgEffChaLoaded = true;
-      delete bgEffStream;
+      BgEffsLoaded = true;
     }
   }
 
@@ -122,19 +111,13 @@ void Background2D::UnloadSync() {
   BgSprite.Sheet.Texture = 0;
   BgSprite.Sheet.IsScreenCap = false;
 
-  LoadedBgEffCount = 0;
+  BgEffsLoaded = false;
   for (Sprite& bgEff : BgEffSprites) {
     Renderer->FreeTexture(bgEff.Sheet.Texture);
     bgEff.Sheet.DesignHeight = 0.0f;
     bgEff.Sheet.DesignWidth = 0.0f;
     bgEff.Sheet.Texture = 0;
   }
-
-  BgEffChaLoaded = false;
-  Renderer->FreeTexture(BgEffChaSprite.Sheet.Texture);
-  BgEffChaSprite.Sheet.DesignHeight = 0.0f;
-  BgEffChaSprite.Sheet.DesignWidth = 0.0f;
-  BgEffChaSprite.Sheet.Texture = 0;
 
   Show = false;
 
@@ -156,8 +139,8 @@ void Background2D::MainThreadOnLoad(bool result) {
   BgSprite.Bounds = RectF(0.0f, 0.0f, BgSprite.Sheet.DesignWidth,
                           BgSprite.Sheet.DesignHeight);
 
-  if (Profile::UseBgEffects) {
-    for (size_t i = 0; i < LoadedBgEffCount; i++) {
+  if (Profile::UseBgEffects && BgEffsLoaded) {
+    for (size_t i = 0; i < MaxBgEffCount; i++) {
       BgEffSprites[i].Sheet.Texture = BgEffTextures[i].Submit();
 
       BgEffSprites[i].Sheet.DesignWidth = (float)BgEffTextures[i].Width;
@@ -166,17 +149,6 @@ void Background2D::MainThreadOnLoad(bool result) {
       BgEffSprites[i].Bounds =
           RectF(0.0f, 0.0f, BgEffSprites[i].Sheet.DesignWidth,
                 BgEffSprites[i].Sheet.DesignHeight);
-    }
-
-    if (BgEffChaLoaded) {
-      BgEffChaSprite.Sheet.Texture = BgEffChaTexture.Submit();
-
-      BgEffChaSprite.Sheet.DesignWidth = (float)BgEffChaTexture.Width;
-      BgEffChaSprite.Sheet.DesignHeight = (float)BgEffChaTexture.Height;
-
-      BgEffChaSprite.Bounds =
-          RectF(0.0f, 0.0f, BgEffChaSprite.Sheet.DesignWidth,
-                BgEffChaSprite.Sheet.DesignHeight);
     }
   }
 

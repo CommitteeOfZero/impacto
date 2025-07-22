@@ -388,7 +388,7 @@ void Character2D::Render(const int layer) {
         {0.0f, 0.0f}, Scale, glm::vec3(0.0f), Rotation, Position);
 
     if (!Profile::UseBgEffects || !LastRenderedBackground ||
-        !LastRenderedBackground->BgEffChaLoaded || !UseBgEffect) {
+        !LastRenderedBackground->BgEffsLoaded || !UseBgEffect) {
       Renderer->DrawVertices(CharaSpriteSheet, ShaderProgramType::Sprite,
                              MvlVertices, MvlIndices, transformation);
     } else {
@@ -399,7 +399,7 @@ void Character2D::Render(const int layer) {
           transformation;
 
       Renderer->DrawVertices(
-          CharaSpriteSheet, &LastRenderedBackground->BgEffChaSprite.Sheet,
+          CharaSpriteSheet, &LastRenderedBackground->BgEffSprites[3].Sheet,
           shader, MvlVertices, MvlIndices, transformation, maskTransformation);
     }
 

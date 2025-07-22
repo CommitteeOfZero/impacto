@@ -28,9 +28,11 @@ class Background2D : public Loadable<Background2D, bool, uint32_t> {
 
   Sprite BgSprite;
 
-  bool BgEffChaLoaded = false;
-  Sprite BgEffChaSprite;
-  std::array<ShaderProgramType, 4> BgEffShaders = {
+  bool BgEffsLoaded = false;
+  constexpr static size_t MaxBgEffCount = 4;
+  std::array<Texture, MaxBgEffCount> BgEffTextures;
+  std::array<Sprite, MaxBgEffCount> BgEffSprites;
+  std::array<ShaderProgramType, MaxBgEffCount> BgEffShaders = {
       ShaderProgramType::Sprite, ShaderProgramType::Sprite,
       ShaderProgramType::Sprite, ShaderProgramType::Sprite};
 
@@ -58,13 +60,6 @@ class Background2D : public Loadable<Background2D, bool, uint32_t> {
 
  protected:
   Texture BgTexture;
-
-  constexpr static size_t MaxBgEffCount = 3;
-  size_t LoadedBgEffCount = 0;
-  std::array<Texture, MaxBgEffCount> BgEffTextures;
-  std::array<Sprite, MaxBgEffCount> BgEffSprites;
-
-  Texture BgEffChaTexture;
 
   bool LoadSync(uint32_t bgId);
   void UnloadSync();
