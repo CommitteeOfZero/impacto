@@ -40,7 +40,7 @@ inline std::vector<glm::vec2> AlbumThumbDispPos;
 inline std::vector<AlbumDataEntry> AlbumData;
 inline std::vector<Sprite> AlbumThumbnailPinSprites;
 inline Sprite AlbumThumbnailThumbSprite;
-inline float AlbumPageSwapAnimationDuration;
+inline float AlbumThumbZoomAnimationDuration;
 inline glm::vec2 AlbumThumbnailPinRemoveOffset;
 
 inline int MusicItemsBackgroundRepeatHeight;

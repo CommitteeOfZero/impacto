@@ -101,8 +101,8 @@ void Configure() {
       GetMemberVector<Sprite>("AlbumThumbnailPinSprites");
   AlbumThumbnailThumbSprite =
       EnsureGetMember<Sprite>("AlbumThumbnailThumbSprite");
-  AlbumPageSwapAnimationDuration =
-      EnsureGetMember<float>("AlbumPageSwapAnimationDuration");
+  AlbumThumbZoomAnimationDuration =
+      EnsureGetMember<float>("AlbumThumbZoomAnimationDuration");
   AlbumThumbnailPinRemoveOffset =
       EnsureGetMember<glm::vec2>("AlbumThumbnailPinRemoveOffset");
 
