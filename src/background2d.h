@@ -55,7 +55,9 @@ class Background2D : public Loadable<Background2D, bool, uint32_t> {
 
   inline static Background2D* LastRenderedBackground = nullptr;
 
-  inline static std::map<int, std::array<ShaderProgramType, 4>> BgEffShaderMap;
+  inline static ankerl::unordered_dense::map<int,
+                                             std::array<ShaderProgramType, 4>>
+      BgEffShaderMap;
   static std::array<ShaderProgramType, 4> GetBgEffShaders(int bgId) {
     // Unmapped means sprite
     return BgEffShaderMap.contains(bgId)
@@ -65,7 +67,8 @@ class Background2D : public Loadable<Background2D, bool, uint32_t> {
                      ShaderProgramType::Sprite, ShaderProgramType::Sprite};
   }
 
-  inline static std::map<int, std::array<int, 4>> BgEffTextureIdMap;
+  inline static ankerl::unordered_dense::map<int, std::array<int, 4>>
+      BgEffTextureIdMap;
 
   virtual void Render(int layer);
   virtual void UpdateState(int bgId);
