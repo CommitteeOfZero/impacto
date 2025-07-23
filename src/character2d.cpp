@@ -387,20 +387,24 @@ void Character2D::Render(const int layer) {
     const glm::mat4 transformation = TransformationMatrix(
         {0.0f, 0.0f}, Scale, glm::vec3(0.0f), Rotation, Position);
 
-    if (!Profile::UseBgEffects || !LastRenderedBackground ||
-        !LastRenderedBackground->BgEffsLoaded || !UseBgEffect) {
+    const bool renderWithBgEffect =
+        Profile::UseBgEffects && Background2D::LastRenderedBackground &&
+        Background2D::LastRenderedBackground->BgEffsLoaded && UseBgEffect;
+    if (!renderWithBgEffect) {
       Renderer->DrawVertices(CharaSpriteSheet, ShaderProgramType::Sprite,
                              MvlVertices, MvlIndices, transformation);
     } else {
-      const ShaderProgramType shader = LastRenderedBackground->BgEffShaders[3];
+      const ShaderProgramType shader =
+          Background2D::LastRenderedBackground->BgEffShaders[3];
       const glm::mat4 maskTransformation =
           glm::scale(glm::mat4(1.0f), {1.0f / Profile::DesignWidth,
                                        1.0f / Profile::DesignHeight, 1.0f}) *
           transformation;
 
       Renderer->DrawVertices(
-          CharaSpriteSheet, &LastRenderedBackground->BgEffSprites[3].Sheet,
-          shader, MvlVertices, MvlIndices, transformation, maskTransformation);
+          CharaSpriteSheet,
+          &Background2D::LastRenderedBackground->BgEffSprites[3].Sheet, shader,
+          MvlVertices, MvlIndices, transformation, maskTransformation);
     }
 
   } else {

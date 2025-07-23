@@ -53,6 +53,20 @@ class Background2D : public Loadable<Background2D, bool, uint32_t> {
   std::array<int, 2> Layers;
   std::array<LinkState, 2> Links;
 
+  inline static Background2D* LastRenderedBackground = nullptr;
+
+  inline static std::map<int, std::array<ShaderProgramType, 4>> BgEffShaderMap;
+  static std::array<ShaderProgramType, 4> GetBgEffShaders(int bgId) {
+    // Unmapped means sprite
+    return BgEffShaderMap.contains(bgId)
+               ? BgEffShaderMap[bgId]
+               : std::array<ShaderProgramType, 4>{
+                     ShaderProgramType::Sprite, ShaderProgramType::Sprite,
+                     ShaderProgramType::Sprite, ShaderProgramType::Sprite};
+  }
+
+  inline static std::map<int, std::array<int, 4>> BgEffTextureIdMap;
+
   virtual void Render(int layer);
   virtual void UpdateState(int bgId);
 
@@ -137,19 +151,5 @@ inline std::array<BackgroundEffect2D, MaxFramebuffers> Framebuffers;
 inline Background2D ShaderScreencapture;
 
 inline ankerl::unordered_dense::map<int, Background2D*> Backgrounds2D;
-
-inline Background2D* LastRenderedBackground = nullptr;
-
-inline std::map<int, std::array<ShaderProgramType, 4>> BgEffShaders;
-inline std::array<ShaderProgramType, 4> GetBgEffShaders(int bgId) {
-  // Unmapped means sprite
-  return BgEffShaders.contains(bgId)
-             ? BgEffShaders[bgId]
-             : std::array<ShaderProgramType, 4>{
-                   ShaderProgramType::Sprite, ShaderProgramType::Sprite,
-                   ShaderProgramType::Sprite, ShaderProgramType::Sprite};
-}
-
-inline std::map<int, std::array<int, 4>> BgEffTextureIds;
 
 }  // namespace Impacto
