@@ -54,6 +54,7 @@ class Character2D : public Loadable<Character2D, bool, uint32_t> {
   std::string MountPoint = "chara";
 
   bool Show;
+  bool UseBgEffect = false;
   std::array<int, 2> Layers;
 
   Sprite CharaSprite;

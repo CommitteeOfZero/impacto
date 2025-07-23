@@ -7,6 +7,7 @@
 #include "profile/scriptvars.h"
 #include "profile/vm.h"
 #include "voicetable.h"
+#include "background2d.h"
 
 namespace Impacto {
 
@@ -282,6 +283,7 @@ void Character2D::UpdateState(const int chaId) {
             ScrWork[SW_CHA1PRI2 + structOffset]};
   Show = GetFlag(SF_CHA1DISP + chaId) &&
          ScrWork[SW_CHA1NO + structOffset] != 0xFFFFFF;
+  UseBgEffect = GetFlag(SF_CHA1BGEFFECT + chaId);
 
   Position = glm::vec2(ScrWork[SW_CHA1POSX + structOffset] +
                            ScrWork[SW_CHA1POSX_OFS + structOfsOffset],
@@ -378,13 +380,32 @@ void Character2D::Render(const int layer) {
     std::transform(MvlVertices.begin(), MvlVertices.end(), MvlVertices.begin(),
                    [this](VertexBufferSprites vertex) {
                      vertex.Tint = Tint;
+                     vertex.MaskUV = vertex.Position;
                      return vertex;
                    });
 
     const glm::mat4 transformation = TransformationMatrix(
         {0.0f, 0.0f}, Scale, glm::vec3(0.0f), Rotation, Position);
-    Renderer->DrawVertices(CharaSpriteSheet, MvlVertices, MvlIndices,
-                           transformation);
+
+    const bool renderWithBgEffect =
+        Profile::UseBgEffects && Background2D::LastRenderedBackground &&
+        Background2D::LastRenderedBackground->BgEffsLoaded && UseBgEffect;
+    if (!renderWithBgEffect) {
+      Renderer->DrawVertices(CharaSpriteSheet, ShaderProgramType::Sprite,
+                             MvlVertices, MvlIndices, transformation);
+    } else {
+      const ShaderProgramType shader =
+          Background2D::LastRenderedBackground->BgEffShaders[3];
+      const glm::mat4 maskTransformation =
+          glm::scale(glm::mat4(1.0f), {1.0f / Profile::DesignWidth,
+                                       1.0f / Profile::DesignHeight, 1.0f}) *
+          transformation;
+
+      Renderer->DrawVertices(
+          CharaSpriteSheet,
+          &Background2D::LastRenderedBackground->BgEffSprites[3].Sheet, shader,
+          MvlVertices, MvlIndices, transformation, maskTransformation);
+    }
 
   } else {
     for (auto id : StatesToDraw) {

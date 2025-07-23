@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ankerl/unordered_dense.h>
+#include <map>
 #include "texture/texture.h"
 #include "spritesheet.h"
 #include "loadable.h"
@@ -27,6 +28,14 @@ class Background2D : public Loadable<Background2D, bool, uint32_t> {
 
   Sprite BgSprite;
 
+  bool BgEffsLoaded = false;
+  constexpr static size_t MaxBgEffCount = 4;
+  std::array<Texture, MaxBgEffCount> BgEffTextures;
+  std::array<Sprite, MaxBgEffCount> BgEffSprites;
+  std::array<ShaderProgramType, MaxBgEffCount> BgEffShaders = {
+      ShaderProgramType::Sprite, ShaderProgramType::Sprite,
+      ShaderProgramType::Sprite, ShaderProgramType::Sprite};
+
   glm::vec2 Position = {0.0f, 0.0f};
   glm::vec2 Origin = {0.0f, 0.0f};
 
@@ -43,6 +52,25 @@ class Background2D : public Loadable<Background2D, bool, uint32_t> {
   int RenderType = 0;
   std::array<int, 2> Layers;
   std::array<LinkState, 2> Links;
+
+  inline static Background2D* LastRenderedBackground = nullptr;
+
+  inline static ankerl::unordered_dense::map<int,
+                                             std::array<ShaderProgramType, 4>>
+      BgEffShaderMap;
+  static std::array<ShaderProgramType, 4> GetBgEffShaders(int bgId) {
+    const auto found = BgEffShaderMap.find(bgId);
+
+    // Unmapped means sprite
+    return found != BgEffShaderMap.end()
+               ? found->second
+               : std::array<ShaderProgramType, 4>{
+                     ShaderProgramType::Sprite, ShaderProgramType::Sprite,
+                     ShaderProgramType::Sprite, ShaderProgramType::Sprite};
+  }
+
+  inline static ankerl::unordered_dense::map<int, std::array<int, 4>>
+      BgEffTextureIdMap;
 
   virtual void Render(int layer);
   virtual void UpdateState(int bgId);

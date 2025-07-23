@@ -119,6 +119,32 @@ class Shader {
   }
 };
 
+struct AdditiveMaskedSpriteUniforms {
+  bool operator==(const AdditiveMaskedSpriteUniforms& other) const = default;
+
+  glm::mat4 Projection{};
+  glm::mat4 SpriteTransformation{};
+  glm::mat4 MaskTransformation{};
+
+  GLint ColorMap;
+  GLint Mask;
+};
+
+class AdditiveMaskedSpriteShader : public Shader<AdditiveMaskedSpriteUniforms> {
+ public:
+  AdditiveMaskedSpriteShader(GLint programId);
+
+  void UploadUniforms(AdditiveMaskedSpriteUniforms uniforms) override;
+
+ private:
+  const GLint ProjectionLocation;
+  const GLint SpriteTransformationLocation;
+  const GLint MaskTransformationLocation;
+
+  const GLint ColorMapLocation;
+  const GLint MaskLocation;
+};
+
 struct SpriteUniforms {
   bool operator==(const SpriteUniforms& other) const = default;
 
@@ -251,6 +277,219 @@ class MaskedSpriteShader : public Shader<MaskedSpriteUniforms> {
   const GLint AlphaLocation;
   const GLint IsInvertedLocation;
   const GLint IsSameTextureLocation;
+};
+
+struct ColorBurnMaskedSpriteUniforms {
+  bool operator==(const ColorBurnMaskedSpriteUniforms& other) const = default;
+
+  glm::mat4 Projection{};
+  glm::mat4 SpriteTransformation{};
+  glm::mat4 MaskTransformation{};
+
+  GLint ColorMap;
+  GLint Mask;
+};
+
+class ColorBurnMaskedSpriteShader
+    : public Shader<ColorBurnMaskedSpriteUniforms> {
+ public:
+  ColorBurnMaskedSpriteShader(GLint programId);
+
+  void UploadUniforms(ColorBurnMaskedSpriteUniforms uniforms) override;
+
+ private:
+  const GLint ProjectionLocation;
+  const GLint SpriteTransformationLocation;
+  const GLint MaskTransformationLocation;
+
+  const GLint ColorMapLocation;
+  const GLint MaskLocation;
+};
+
+struct ColorDodgeMaskedSpriteUniforms {
+  bool operator==(const ColorDodgeMaskedSpriteUniforms& other) const = default;
+
+  glm::mat4 Projection{};
+  glm::mat4 SpriteTransformation{};
+  glm::mat4 MaskTransformation{};
+
+  GLint ColorMap;
+  GLint Mask;
+};
+
+class ColorDodgeMaskedSpriteShader
+    : public Shader<ColorDodgeMaskedSpriteUniforms> {
+ public:
+  ColorDodgeMaskedSpriteShader(GLint programId);
+
+  void UploadUniforms(ColorDodgeMaskedSpriteUniforms uniforms) override;
+
+ private:
+  const GLint ProjectionLocation;
+  const GLint SpriteTransformationLocation;
+  const GLint MaskTransformationLocation;
+
+  const GLint ColorMapLocation;
+  const GLint MaskLocation;
+};
+
+struct ColorMaskedSpriteUniforms {
+  bool operator==(const ColorMaskedSpriteUniforms& other) const = default;
+
+  glm::mat4 Projection{};
+  glm::mat4 SpriteTransformation{};
+  glm::mat4 MaskTransformation{};
+
+  GLint ColorMap;
+  GLint Mask;
+};
+
+class ColorMaskedSpriteShader : public Shader<ColorMaskedSpriteUniforms> {
+ public:
+  ColorMaskedSpriteShader(GLint programId);
+
+  void UploadUniforms(ColorMaskedSpriteUniforms uniforms) override;
+
+ private:
+  const GLint ProjectionLocation;
+  const GLint SpriteTransformationLocation;
+  const GLint MaskTransformationLocation;
+
+  const GLint ColorMapLocation;
+  const GLint MaskLocation;
+};
+
+struct HardLightMaskedSpriteUniforms {
+  bool operator==(const HardLightMaskedSpriteUniforms& other) const = default;
+
+  glm::mat4 Projection{};
+  glm::mat4 SpriteTransformation{};
+  glm::mat4 MaskTransformation{};
+
+  GLint ColorMap;
+  GLint Mask;
+};
+
+class HardLightMaskedSpriteShader
+    : public Shader<HardLightMaskedSpriteUniforms> {
+ public:
+  HardLightMaskedSpriteShader(GLint programId);
+
+  void UploadUniforms(HardLightMaskedSpriteUniforms uniforms) override;
+
+ private:
+  const GLint ProjectionLocation;
+  const GLint SpriteTransformationLocation;
+  const GLint MaskTransformationLocation;
+
+  const GLint ColorMapLocation;
+  const GLint MaskLocation;
+};
+
+struct LinearBurnMaskedSpriteUniforms {
+  bool operator==(const LinearBurnMaskedSpriteUniforms& other) const = default;
+
+  glm::mat4 Projection{};
+  glm::mat4 SpriteTransformation{};
+  glm::mat4 MaskTransformation{};
+
+  GLint ColorMap;
+  GLint Mask;
+};
+
+class LinearBurnMaskedSpriteShader
+    : public Shader<LinearBurnMaskedSpriteUniforms> {
+ public:
+  LinearBurnMaskedSpriteShader(GLint programId);
+
+  void UploadUniforms(LinearBurnMaskedSpriteUniforms uniforms) override;
+
+ private:
+  const GLint ProjectionLocation;
+  const GLint SpriteTransformationLocation;
+  const GLint MaskTransformationLocation;
+
+  const GLint ColorMapLocation;
+  const GLint MaskLocation;
+};
+
+struct OverlayMaskedSpriteUniforms {
+  bool operator==(const OverlayMaskedSpriteUniforms& other) const = default;
+
+  glm::mat4 Projection{};
+  glm::mat4 SpriteTransformation{};
+  glm::mat4 MaskTransformation{};
+
+  GLint ColorMap;
+  GLint Mask;
+};
+
+class OverlayMaskedSpriteShader : public Shader<OverlayMaskedSpriteUniforms> {
+ public:
+  OverlayMaskedSpriteShader(GLint programId);
+
+  void UploadUniforms(OverlayMaskedSpriteUniforms uniforms) override;
+
+ private:
+  const GLint ProjectionLocation;
+  const GLint SpriteTransformationLocation;
+  const GLint MaskTransformationLocation;
+
+  const GLint ColorMapLocation;
+  const GLint MaskLocation;
+};
+
+struct ScreenMaskedSpriteUniforms {
+  bool operator==(const ScreenMaskedSpriteUniforms& other) const = default;
+
+  glm::mat4 Projection{};
+  glm::mat4 SpriteTransformation{};
+  glm::mat4 MaskTransformation{};
+
+  GLint ColorMap;
+  GLint Mask;
+};
+
+class ScreenMaskedSpriteShader : public Shader<ScreenMaskedSpriteUniforms> {
+ public:
+  ScreenMaskedSpriteShader(GLint programId);
+
+  void UploadUniforms(ScreenMaskedSpriteUniforms uniforms) override;
+
+ private:
+  const GLint ProjectionLocation;
+  const GLint SpriteTransformationLocation;
+  const GLint MaskTransformationLocation;
+
+  const GLint ColorMapLocation;
+  const GLint MaskLocation;
+};
+
+struct SoftLightMaskedSpriteUniforms {
+  bool operator==(const SoftLightMaskedSpriteUniforms& other) const = default;
+
+  glm::mat4 Projection{};
+  glm::mat4 SpriteTransformation{};
+  glm::mat4 MaskTransformation{};
+
+  GLint ColorMap;
+  GLint Mask;
+};
+
+class SoftLightMaskedSpriteShader
+    : public Shader<SoftLightMaskedSpriteUniforms> {
+ public:
+  SoftLightMaskedSpriteShader(GLint programId);
+
+  void UploadUniforms(SoftLightMaskedSpriteUniforms uniforms) override;
+
+ private:
+  const GLint ProjectionLocation;
+  const GLint SpriteTransformationLocation;
+  const GLint MaskTransformationLocation;
+
+  const GLint ColorMapLocation;
+  const GLint MaskLocation;
 };
 
 struct CCMessageBoxUniforms {

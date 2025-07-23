@@ -26,6 +26,13 @@ struct VertexBufferSprites {
   glm::vec2 MaskUV = {0.0f, 0.0f};
 };
 
+BETTER_ENUM(ShaderProgramType, int, AdditiveMaskedSprite, CCMessageBoxSprite,
+            CHLCCMenuBackground, ColorBurnMaskedSprite, ColorDodgeMaskedSprite,
+            ColorMaskedSprite, HardLightMaskedSprite, LinearBurnMaskedSprite,
+            MaskedSprite, MaskedSpriteNoAlpha, OverlayMaskedSprite,
+            ScreenMaskedSprite, SoftLightMaskedSprite, Sprite, SpriteInverted,
+            YUVFrame);
+
 enum class RendererBlendMode { Normal, Additive };
 
 class BaseRenderer {
@@ -223,33 +230,38 @@ class BaseRenderer {
   }
 
   virtual void DrawVertices(const SpriteSheet& sheet, const SpriteSheet* mask,
+                            ShaderProgramType shaderType,
                             std::span<const VertexBufferSprites> vertices,
                             std::span<const uint16_t> indices,
-                            glm::mat4 transformation = glm::mat4(1.0f),
+                            glm::mat4 spriteTransformation = glm::mat4(1.0f),
+                            glm::mat4 maskTransformation = glm::mat4(1.0f),
                             bool inverted = false) = 0;
 
   virtual void DrawVertices(const SpriteSheet& sheet,
+                            ShaderProgramType shaderType,
                             std::span<const VertexBufferSprites> vertices,
                             std::span<const uint16_t> indices,
                             glm::mat4 transformation = glm::mat4(1.0f),
                             bool inverted = false) {
-    DrawVertices(sheet, nullptr, vertices, indices, transformation, inverted);
+    DrawVertices(sheet, nullptr, shaderType, vertices, indices, transformation,
+                 glm::mat4(1.0f), inverted);
   }
 
   void DrawVertices(const SpriteSheet& sheet, const SpriteSheet* mask,
+                    ShaderProgramType shaderType,
                     std::span<const VertexBufferSprites> vertices,
                     std::span<const uint16_t> indices, glm::vec2 offset,
                     bool inverted = false) {
-    DrawVertices(sheet, mask, vertices, indices,
+    DrawVertices(sheet, mask, shaderType, vertices, indices,
                  glm::translate(glm::mat4(1.0f), glm::vec3(offset, 0.0f)),
-                 inverted);
+                 glm::mat4(1.0f), inverted);
   }
 
-  void DrawVertices(const SpriteSheet& sheet,
+  void DrawVertices(const SpriteSheet& sheet, ShaderProgramType shaderType,
                     std::span<const VertexBufferSprites> vertices,
                     std::span<const uint16_t> indices, glm::vec2 offset,
                     bool inverted = false) {
-    DrawVertices(sheet, vertices, indices,
+    DrawVertices(sheet, shaderType, vertices, indices,
                  glm::translate(glm::mat4(1.0f), glm::vec3(offset, 0.0f)),
                  inverted);
   }

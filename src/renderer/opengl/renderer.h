@@ -58,9 +58,11 @@ class Renderer : public BaseRenderer {
                                bool isInverted, bool useMaskAlpha) override;
 
   void DrawVertices(const SpriteSheet& sheet, const SpriteSheet* mask,
+                    ShaderProgramType shaderType,
                     std::span<const VertexBufferSprites> vertices,
-                    std::span<const uint16_t> indices, glm::mat4 transformation,
-                    bool inverted) override;
+                    std::span<const uint16_t> indices,
+                    glm::mat4 spriteTransformation,
+                    glm::mat4 maskTransformation, bool inverted) override;
 
   void DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
                         RectF const& dest, glm::vec4 tint, int alpha,
@@ -102,6 +104,17 @@ class Renderer : public BaseRenderer {
   std::optional<SpriteInvertedShader> SpriteInvertedShaderProgram;
   std::optional<MaskedSpriteShader> MaskedSpriteShaderProgram;
   std::optional<MaskedSpriteNoAlphaShader> MaskedSpriteNoAlphaShaderProgram;
+  std::optional<ColorMaskedSpriteShader> ColorMaskedSpriteShaderProgram;
+  std::optional<AdditiveMaskedSpriteShader> AdditiveMaskedSpriteShaderProgram;
+  std::optional<ColorBurnMaskedSpriteShader> ColorBurnMaskedSpriteShaderProgram;
+  std::optional<ColorDodgeMaskedSpriteShader>
+      ColorDodgeMaskedSpriteShaderProgram;
+  std::optional<HardLightMaskedSpriteShader> HardLightMaskedSpriteShaderProgram;
+  std::optional<LinearBurnMaskedSpriteShader>
+      LinearBurnMaskedSpriteShaderProgram;
+  std::optional<OverlayMaskedSpriteShader> OverlayMaskedSpriteShaderProgram;
+  std::optional<ScreenMaskedSpriteShader> ScreenMaskedSpriteShaderProgram;
+  std::optional<SoftLightMaskedSpriteShader> SoftLightMaskedSpriteShaderProgram;
   std::optional<YUVFrameShader> YUVFrameShaderProgram;
   std::optional<CCMessageBoxShader> CCMessageBoxShaderProgram;
   std::optional<CHLCCMenuBackgroundShader> CHLCCMenuBackgroundShaderProgram;

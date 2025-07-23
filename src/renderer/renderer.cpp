@@ -106,7 +106,7 @@ void BaseRenderer::DrawConvexShape(const std::span<const glm::vec2> vertices,
       });
 
   if (vertices.size() == 3) {
-    DrawVertices(RectSprite.Sheet, vertexAttributes,
+    DrawVertices(RectSprite.Sheet, ShaderProgramType::Sprite, vertexAttributes,
                  std::array<uint16_t, 3>{0, 1, 2});
     return;
   }
@@ -128,7 +128,8 @@ void BaseRenderer::DrawConvexShape(const std::span<const glm::vec2> vertices,
     indices.insert(indices.end(), {centerOfMassIndex, i, nextIndex});
   }
 
-  DrawVertices(RectSprite.Sheet, vertexAttributes, indices);
+  DrawVertices(RectSprite.Sheet, ShaderProgramType::Sprite, vertexAttributes,
+               indices);
 }
 
 void BaseRenderer::DrawQuad(const CornersQuad& dest, const glm::vec4 color) {
@@ -292,13 +293,20 @@ void BaseRenderer::DrawProcessedText_BasicFont(
     }
   }
 
-  DrawVertices(font->Sheet, maskedSheet, vertices, indices);
+  const ShaderProgramType shader = maskedSheet == nullptr
+                                       ? ShaderProgramType::Sprite
+                                       : ShaderProgramType::MaskedSpriteNoAlpha;
+  DrawVertices(font->Sheet, maskedSheet, shader, vertices, indices);
 }
 
 void BaseRenderer::DrawProcessedText_LBFont(
     std::span<const ProcessedTextGlyph> text, LBFont* font, float opacity,
     RendererOutlineMode outlineMode, bool smoothstepGlyphOpacity,
     float outlineOpacity, SpriteSheet* maskedSheet) {
+  const ShaderProgramType shader = maskedSheet == nullptr
+                                       ? ShaderProgramType::Sprite
+                                       : ShaderProgramType::MaskedSpriteNoAlpha;
+
   const size_t vertexCount = text.size() * 4;
   const size_t indexCount = text.size() * 6;
   std::vector<VertexBufferSprites> vertices(vertexCount);
@@ -365,7 +373,7 @@ void BaseRenderer::DrawProcessedText_LBFont(
                  dest, destUV, color, maskUV);
     }
 
-    DrawVertices(font->OutlineSheet, maskedSheet, vertices, indices);
+    DrawVertices(font->OutlineSheet, maskedSheet, shader, vertices, indices);
   }
 
   for (size_t i = 0; i < text.size(); i++) {
@@ -392,7 +400,7 @@ void BaseRenderer::DrawProcessedText_LBFont(
                dest, destUV, color, maskUV);
   }
 
-  DrawVertices(font->ForegroundSheet, maskedSheet, vertices, indices);
+  DrawVertices(font->ForegroundSheet, maskedSheet, shader, vertices, indices);
 }
 
 void BaseRenderer::QuadSetPosition(CornersQuad quad, glm::vec2* const pos,

@@ -53,6 +53,7 @@
 #include "profile/ui/trophymenu.h"
 #include "profile/ui/mapsystem.h"
 #include "profile/ui/helpmenu.h"
+#include "profile/data/bgeff.h"
 
 namespace Impacto {
 
@@ -107,6 +108,8 @@ static void Init() {
 
     Background2D::Init();
     Mask2D::Init();
+
+    if (Profile::UseBgEffects) Profile::BgEff::Load();
   }
 
   if (Profile::GameFeatures & GameFeature::ModelViewer) {
@@ -287,6 +290,8 @@ void Update(float dt) {
 }
 
 static void RenderMain() {
+  Background2D::LastRenderedBackground = nullptr;
+
   for (uint32_t layer = 0; layer <= Profile::LayerCount; layer++) {
     const int renderTarget = ScrWork[SW_RENDERTARGET + layer];
     if (0 <= renderTarget && renderTarget <= MaxFramebuffers) {
