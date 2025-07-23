@@ -26,24 +26,12 @@ struct VertexBufferSprites {
   glm::vec2 MaskUV = {0.0f, 0.0f};
 };
 
-enum class ShaderProgramType {
-  AdditiveMaskedSprite,
-  CCMessageBoxSprite,
-  CHLCCMenuBackground,
-  ColorBurnMaskedSprite,
-  ColorDodgeMaskedSprite,
-  ColorMaskedSprite,
-  HardLightMaskedSprite,
-  LinearBurnMaskedSprite,
-  MaskedSprite,
-  MaskedSpriteNoAlpha,
-  OverlayMaskedSprite,
-  ScreenMaskedSprite,
-  SoftLightMaskedSprite,
-  Sprite,
-  SpriteInverted,
-  YUVFrame,
-};
+BETTER_ENUM(ShaderProgramType, int, AdditiveMaskedSprite, CCMessageBoxSprite,
+            CHLCCMenuBackground, ColorBurnMaskedSprite, ColorDodgeMaskedSprite,
+            ColorMaskedSprite, HardLightMaskedSprite, LinearBurnMaskedSprite,
+            MaskedSprite, MaskedSpriteNoAlpha, OverlayMaskedSprite,
+            ScreenMaskedSprite, SoftLightMaskedSprite, Sprite, SpriteInverted,
+            YUVFrame);
 
 enum class RendererBlendMode { Normal, Additive };
 

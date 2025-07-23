@@ -59,9 +59,11 @@ class Background2D : public Loadable<Background2D, bool, uint32_t> {
                                              std::array<ShaderProgramType, 4>>
       BgEffShaderMap;
   static std::array<ShaderProgramType, 4> GetBgEffShaders(int bgId) {
+    const auto found = BgEffShaderMap.find(bgId);
+
     // Unmapped means sprite
-    return BgEffShaderMap.contains(bgId)
-               ? BgEffShaderMap[bgId]
+    return found != BgEffShaderMap.end()
+               ? found->second
                : std::array<ShaderProgramType, 4>{
                      ShaderProgramType::Sprite, ShaderProgramType::Sprite,
                      ShaderProgramType::Sprite, ShaderProgramType::Sprite};
