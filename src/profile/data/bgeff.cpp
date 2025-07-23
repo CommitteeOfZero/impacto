@@ -63,7 +63,7 @@ void Load() {
           ShaderIdToShaderType.at(shaders[3]),
       };
 
-      BgEffShaders.insert(std::pair{bgId, shaderTypes});
+      Background2D::BgEffShaderMap.insert(std::pair{bgId, shaderTypes});
 
       Pop();
     }
@@ -88,12 +88,13 @@ void Load() {
       }
 
       const int bgId = EnsureGetArrayElementByIndex<int>(0);
-      BgEffTextureIds.insert({bgId, std::array<int, 4>{
-                                        EnsureGetArrayElementByIndex<int>(1),
-                                        EnsureGetArrayElementByIndex<int>(2),
-                                        EnsureGetArrayElementByIndex<int>(3),
-                                        EnsureGetArrayElementByIndex<int>(4),
-                                    }});
+      Background2D::BgEffTextureIdMap.insert(
+          {bgId, std::array<int, 4>{
+                     EnsureGetArrayElementByIndex<int>(1),
+                     EnsureGetArrayElementByIndex<int>(2),
+                     EnsureGetArrayElementByIndex<int>(3),
+                     EnsureGetArrayElementByIndex<int>(4),
+                 }});
 
       Pop();
     }

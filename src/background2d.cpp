@@ -78,8 +78,8 @@ bool Background2D::LoadSync(uint32_t bgId) {
     delete stream;
 
     BgEffsLoaded = false;
-    if (Profile::UseBgEffects && BgEffTextureIds.contains(bgId)) {
-      const std::array<int, 4>& textureIds = BgEffTextureIds[bgId];
+    if (Profile::UseBgEffects && BgEffTextureIdMap.contains(bgId)) {
+      const std::array<int, 4>& textureIds = BgEffTextureIdMap[bgId];
 
       for (size_t i = 0; i < MaxBgEffCount; i++) {
         Io::Stream* bgEffStream;

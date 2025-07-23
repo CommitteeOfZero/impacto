@@ -290,7 +290,7 @@ void Update(float dt) {
 }
 
 static void RenderMain() {
-  LastRenderedBackground = nullptr;
+  Background2D::LastRenderedBackground = nullptr;
 
   for (uint32_t layer = 0; layer <= Profile::LayerCount; layer++) {
     const int renderTarget = ScrWork[SW_RENDERTARGET + layer];
