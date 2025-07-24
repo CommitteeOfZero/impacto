@@ -261,16 +261,16 @@ void AlbumMenu::Init() {
 
 void AlbumMenu::UpdateCGViewer(float dt) {
   using namespace Vm::Interface;
+  const int activeSurface = CGViewer->ViewBufId[1];
+  const int bufId = ScrWork[SW_BG1SURF + activeSurface];
+  const auto* background2D = Backgrounds2D[bufId];
+  const auto heightRatio =
+      Profile::DesignHeight / background2D->BgSprite.Sheet.DesignHeight;
   if (GetFlag(SF_ALBUMLOAD) && GetFlag(SF_ALBUMLOAD_COMPLETE)) {
     SetFlag(SF_ALBUMLOAD, 0);
     SetFlag(SF_ALBUMLOAD_COMPLETE, 0);
 
-    const int activeSurface = CGViewer->ViewBufId[1];
-    const int bufId = ScrWork[SW_BG1SURF + activeSurface];
     // Fit to height
-    const auto heightRatio =
-        Profile::DesignHeight / Backgrounds2D[bufId]->BgSprite.ScaledHeight();
-
     CGViewer->DestRect[1].Height =
         Backgrounds2D[bufId]->BgSprite.ScaledHeight() * heightRatio;
     CGViewer->DestRect[1].Width =
@@ -285,13 +285,19 @@ void AlbumMenu::UpdateCGViewer(float dt) {
   if (!ThumbnailZoomAnimation.IsIn() ||
       CGViewer->PageSwapAnimation.State == +AnimationState::Playing)
     return;
+
+  CGViewer->CGViewerPanZoom(dt);
+
   if (CGViewer->PageSwapAnimation.IsIn()) {
     CGViewer->DestRect[0] = RectF{};
     CGViewer->PageSwapAnimation.Progress = 0.0f;
   }
-  const int prevVariantIndex = CGViewer->ActiveVariantIndex;
-  if (Vm::Interface::PADinputButtonWentDown & Vm::Interface::PAD1A ||
-      Vm::Interface::PADinputMouseWentDown & Vm::Interface::PAD1A) {
+  const bool controllerADown = PADinputButtonWentDown & PAD1A;
+  const bool mouseWentUp =
+      (Vm::Interface::PADinputMouseWentDown & PAD1A) == 0 &&
+      (Vm::Interface::PADinputMouseIsDown & PAD1A) == 0 && CGViewer->WasClicked;
+
+  if (controllerADown || (mouseWentUp && CGViewer->ClickHoldTime < 0.1)) {
     const auto& variants = CGViewer->ClickedThumbnail.get().Variants;
     CGViewer->ActiveVariantIndex++;
     if (CGViewer->ActiveVariantIndex < variants.size()) {
@@ -300,8 +306,7 @@ void AlbumMenu::UpdateCGViewer(float dt) {
                                         [CGViewer->ActiveVariantIndex][0];
       std::swap(CGViewer->ViewBufId[0], CGViewer->ViewBufId[1]);
       std::swap(CGViewer->DestRect[0], CGViewer->DestRect[1]);
-      const int bufId = CGViewer->ViewBufId[1] ? 2 : 1;
-      ScrWork[SW_ALBUM_LOADBUF] = bufId;
+      ScrWork[SW_ALBUM_LOADBUF] = CGViewer->ViewBufId[1] ? 2 : 1;
       SetFlag(SF_ALBUMLOAD, 1);
       SetFlag(SF_ALBUMLOAD_COMPLETE, 0);
       CGViewer->PageSwapAnimation.StartIn();
@@ -309,12 +314,156 @@ void AlbumMenu::UpdateCGViewer(float dt) {
       CGViewer = std::nullopt;
       IsFocused = true;
       ThumbnailZoomAnimation.StartOut();
+      return;
     }
   } else if (Vm::Interface::PADinputButtonWentDown & Vm::Interface::PAD1B ||
              Vm::Interface::PADinputMouseWentDown & Vm::Interface::PAD1B) {
     CGViewer = std::nullopt;
     IsFocused = true;
     ThumbnailZoomAnimation.StartOut();
+    return;
+  }
+  // Click release delay handling
+  if ((Vm::Interface::PADinputMouseWentDown & PAD1A) && !CGViewer->WasClicked) {
+    CGViewer->WasClicked = true;
+  }
+  if (Vm::Interface::PADinputMouseIsDown & Vm::Interface::PAD1A) {
+    CGViewer->ClickHoldTime += dt;
+  }
+  if (mouseWentUp) {
+    CGViewer->ClickHoldTime = 0.0f;
+    CGViewer->WasClicked = false;
+  }
+}
+
+void AlbumCGViewer::CGViewerPanZoom(float dt) {
+  using namespace Vm::Interface;
+  const int activeSurface = ViewBufId[1];
+  const int bufId = ScrWork[SW_BG1SURF + activeSurface];
+
+  const glm::vec2 screenCenter = {Profile::DesignWidth / 2.0f,
+                                  Profile::DesignHeight / 2.0f};
+
+  float& x = DestRect[1].X;
+  float& y = DestRect[1].Y;
+  float& w = DestRect[1].Width;
+  float& h = DestRect[1].Height;
+
+  glm::vec2 scaleOrigin = screenCenter;
+
+  const bool touchingLeft = w > Profile::DesignWidth && x >= 0;
+  const bool touchingRight =
+      w > Profile::DesignWidth && x + w <= Profile::DesignWidth;
+  const bool touchingTop = h > Profile::DesignHeight && y >= 0;
+  const bool touchingBottom =
+      h > Profile::DesignHeight && y + h <= Profile::DesignHeight;
+
+  const bool scrollUp =
+      (PADinputButtonIsDown & PADcustom[34]) || (Input::MouseWheelDeltaY > 0);
+  const bool scrollDown =
+      (PADinputButtonIsDown & PADcustom[35]) || (Input::MouseWheelDeltaY < 0);
+
+  const bool zoomingOut = (PADinputButtonIsDown & PADcustom[36]) || scrollUp;
+  const bool zoomingIn = (PADinputButtonIsDown & PADcustom[37]) || scrollDown;
+
+  if (zoomingOut) {
+    if (touchingLeft && touchingTop && touchingRight && touchingLeft &&
+        touchingBottom)
+      scaleOrigin = screenCenter;
+    else if (((touchingLeft && touchingTop) || (touchingRight && touchingTop) ||
+              (touchingLeft && touchingBottom) ||
+              (touchingRight && touchingBottom)))
+      scaleOrigin = {x, y};
+    if (touchingLeft)
+      scaleOrigin = glm::vec2(x, scaleOrigin.y);
+    else if (touchingRight)
+      scaleOrigin = glm::vec2(x + w, scaleOrigin.y);
+    else if (touchingTop)
+      scaleOrigin = glm::vec2(scaleOrigin.x, y);
+    else if (touchingBottom)
+      scaleOrigin = glm::vec2(scaleOrigin.x, y + DestRect[1].Height);
+  }
+
+  const bool isWidthSnapped = std::abs(Profile::DesignWidth - w) < 5;
+  const bool waitSnappedWidth =
+      isWidthSnapped && (PADinputButtonIsDown & PADcustom[36] ||
+                         PADinputButtonIsDown & PADcustom[37]);
+  if (waitSnappedWidth) {  // Width match snap delay
+    SnapWidthHoldTime += dt;
+  } else {
+    SnapWidthHoldTime = 0.0f;
+  }
+
+  const float initScaleFactorOut =
+      (scrollUp || w < Profile::DesignWidth) ? 0.97f : 0.99f;
+  const float initScaleFactorIn =
+      (scrollDown || w < Profile::DesignWidth) ? 1.03f : 1.01f;
+  // Scaling controls
+  if (zoomingOut) {  // Zoom out
+    if (h > Profile::DesignHeight &&
+        !(waitSnappedWidth && SnapWidthHoldTime < 0.2f)) {
+      float scaleFactor = initScaleFactorOut;
+      const float nextHeight = h * scaleFactor;
+      const float nextWidth = w * scaleFactor;
+      if (nextHeight < Profile::DesignHeight) {  // Max height
+        scaleFactor = Profile::DesignHeight / h;
+      }
+      if (w > Profile::DesignWidth && nextWidth < Profile::DesignWidth) {
+        scaleFactor = Profile::DesignWidth / w;  // Snap to width
+      }
+      DestRect[1].Scale({scaleFactor, scaleFactor}, scaleOrigin);
+    }
+  } else if (zoomingIn) {  // Zoom in
+    const float maxScale = 2.0f;
+    const float currentScale = w / Backgrounds2D[bufId]->BgSprite.Bounds.Width;
+    if (currentScale < maxScale &&
+        !(waitSnappedWidth && SnapWidthHoldTime < 0.2f)) {
+      float scaleFactor = initScaleFactorIn;
+      float nextScale = currentScale * scaleFactor;
+      const float nextWidth = w * scaleFactor;
+      if (nextScale > maxScale) {  // Max width scaling
+        scaleFactor = maxScale / currentScale;
+      }
+      if (w < Profile::DesignWidth && nextWidth > Profile::DesignWidth) {
+        scaleFactor = Profile::DesignWidth / w;  // Snap to width
+      }
+      DestRect[1].Scale({scaleFactor, scaleFactor}, scaleOrigin);
+    }
+  }
+
+  // Pan controls
+  if (PADinputButtonIsDown & PADcustom[0]) y += 30.0f;  // UP
+  if (PADinputButtonIsDown & PADcustom[1]) y -= 30.0f;  // DOWN
+  if (PADinputButtonIsDown & PADcustom[2]) x += 30.0f;  // LEFT
+  if (PADinputButtonIsDown & PADcustom[3]) x -= 30.0f;  // RIGHT
+
+  if ((ClickHoldTime > 0.1 && PADinputMouseIsDown & PAD1A) &&
+      Input::PrevMousePos != Input::CurMousePos) {
+    const glm::vec2 mouseDelta = Input::CurMousePos - Input::PrevMousePos;
+    x += mouseDelta.x;
+    y += mouseDelta.y;
+  }
+
+  // --- Clamp or center after zoom and pan ---
+
+  // Horizontal adjustment
+  if (w <= Profile::DesignWidth) {
+    // Center if smaller
+    x = (Profile::DesignWidth - w) * 0.5f;
+  } else {
+    // Clamp if larger
+    if (x > 0) x = 0;
+    if (x + w < Profile::DesignWidth) x = Profile::DesignWidth - w;
+  }
+
+  // Vertical adjustment
+  if (h <= Profile::DesignHeight) {
+    // Center if smaller
+    y = (Profile::DesignHeight - h) * 0.5f;
+  } else {
+    // Clamp if larger
+    if (y > 0) y = 0;
+    if (y + h < Profile::DesignHeight) y = Profile::DesignHeight - h;
   }
 }
 
