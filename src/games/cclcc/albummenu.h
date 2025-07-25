@@ -39,6 +39,7 @@ struct AlbumThumbnail : public Widgets::Button {
 };
 
 struct AlbumCGViewer {
+  bool EnableGuide = true;
   RectF DestRect[2];
   int ViewBufId[2]{0, 1};
   int ActiveThumbnailIndex{};

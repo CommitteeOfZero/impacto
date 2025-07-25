@@ -288,7 +288,9 @@ void AlbumMenu::UpdateCGViewer(float dt) {
   if (!ThumbnailZoomAnimation.IsIn() ||
       CGViewer->PageSwapAnimation.State == +AnimationState::Playing)
     return;
-
+  if (Vm::Interface::PADinputButtonWentDown & Vm::Interface::PAD1X) {
+    CGViewer->EnableGuide = !CGViewer->EnableGuide;
+  }
   CGViewer->CGViewerPanZoom(dt);
 
   if (CGViewer->PageSwapAnimation.IsIn()) {
