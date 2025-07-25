@@ -252,11 +252,11 @@ void LibraryMenu::Render() {
       Renderer->DrawSprite(LibraryIndexSprite,
                            LibraryIndexPosition + leftSpritesOffset, col);
       MainItems.Render();
+      Renderer->DrawSprite(
+          LibraryMaskSprite,
+          RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+          glm::vec4(1.0f));
     }
-    Renderer->DrawSprite(
-        LibraryMaskSprite,
-        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-        glm::vec4(1.0f));
 
     const Sprite* submenuGuideSprite =
         (CurrentLibraryMenu == +LibraryMenuPageType::Album &&
