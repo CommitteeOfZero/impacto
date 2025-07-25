@@ -64,6 +64,7 @@ class AlbumMenu : public LibrarySubmenu {
   std::vector<std::vector<AlbumThumbnail*>> ThumbnailPages;
   uint8_t ActivePage = 0;
   Animation ThumbnailZoomAnimation;
+  Animation ThumbnailThumbBlink;
 
   std::optional<AlbumCGViewer> CGViewer;
 

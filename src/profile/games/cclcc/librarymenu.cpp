@@ -107,6 +107,8 @@ void Configure() {
       EnsureGetMember<glm::vec2>("AlbumThumbnailPinRemoveOffset");
   AlbumCGPageSwapAnimationDuration =
       EnsureGetMember<float>("AlbumCGPageSwapAnimationDuration");
+  AlbumThumbnailThumbBlinkDuration =
+      EnsureGetMember<float>("AlbumThumbnailThumbBlinkDuration");
 
   MusicItemsBackgroundRepeatHeight =
       EnsureGetMember<int>("MusicItemsBackgroundRepeatHeight");

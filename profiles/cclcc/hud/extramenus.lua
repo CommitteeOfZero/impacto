@@ -117,6 +117,7 @@ root.ExtraMenus = {
         SubMenuFadeInDuration = 0.2,
         SubMenuFadeOutDuration = 0.2,
 
+        AlbumThumbnailThumbBlinkDuration = 0.5,
         AlbumMaxThumbnailsPerPage = 12,
         AlbumMaxPageCount = 6,
         AlbumCameraPageIconSprite = "AlbumCameraPageIcon",
