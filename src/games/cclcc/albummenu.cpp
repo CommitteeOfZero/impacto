@@ -219,6 +219,7 @@ void AlbumMenu::Init() {
       CGViewer->PageSwapAnimation.SetDuration(AlbumCGPageSwapAnimationDuration);
       IsFocused = false;
       ThumbnailZoomAnimation.StartIn();
+      Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0);
     };
     const int mainAngle = getMainAngle(itemCountInPage);
     int variantAngleOffset = 0;
