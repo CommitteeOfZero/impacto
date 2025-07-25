@@ -208,10 +208,9 @@ void LibraryMenu::Update(float dt) {
       ScrWork[SW_SYSSUBMENUCT] == 32) {
     State = Shown;
     if (!CurrentlyFocusedElement) {
-      AdvanceFocus(FDIR_DOWN);
-      auto* btn = static_cast<LibraryMenuButton*>(CurrentlyFocusedElement);
+      CurrentlyFocusedElement = MainItems.Children.at(CurrentLibraryMenu);
       GetMenuFromType(CurrentLibraryMenu).Show();
-      btn->Selected = true;
+      static_cast<LibraryMenuButton*>(CurrentlyFocusedElement)->Selected = true;
     };
   } else if (State == Hiding && FadeAnimation.Progress == 0.0f &&
              ScrWork[SW_SYSSUBMENUCT] == 0) {
