@@ -51,8 +51,9 @@ LibraryMenuPageType LibraryMenu::GetMenuTypeFromButton(Widget* btn) const {
 }
 
 LibraryMenu::LibraryMenu() : MainItems(this) {
-  auto readyExistingMenu = [this](LibraryMenuPageType clickedType) -> bool {
-    if (CurrentLibraryMenu == clickedType) return true;
+  auto readyExistingMenu = [this](LibraryMenuPageType clickedType,
+                                  LibraryMenuButton* btn) -> bool {
+    if (CurrentLibraryMenu == clickedType) return !btn->Selected;
     auto& submenu = GetMenuFromType(CurrentLibraryMenu);
     if (submenu.State != UI::MenuState::Shown) return false;
     submenu.Hide();
@@ -61,9 +62,9 @@ LibraryMenu::LibraryMenu() : MainItems(this) {
   auto libraryMenuOnClickCommon = [this,
                                    readyExistingMenu](Widgets::Button* target) {
     auto clickedType = LibraryMenuPageType::_from_integral(target->Id);
-    if (!readyExistingMenu(clickedType)) return;
-    GetMenuFromType(clickedType).Show();
     auto* button = static_cast<LibraryMenuButton*>(target);
+    if (!readyExistingMenu(clickedType, button)) return;
+    GetMenuFromType(clickedType).Show();
     auto* prevButton = static_cast<LibraryMenuButton*>(
         MainItems.Children.at(CurrentLibraryMenu));
     prevButton->Selected = false;
@@ -167,7 +168,7 @@ void LibraryMenu::Update(float dt) {
             submenu.Unfocus();
             IsFocused = true;
             activeButton->Selected = false;
-            activeButton->HasFocus = true;
+            if (!CurrentlyFocusedElement) activeButton->HasFocus = true;
           }
         } else {
           UI::AlbumMenuPtr->Hide();
