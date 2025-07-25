@@ -140,7 +140,10 @@ void AlbumThumbnail::Render() {
     const Sprite& thumbnailSprite = spriteInfo.ThumbnailSprite;
     const glm::vec2 picTopLeft =
         GridPos - glm::vec2(thumbnailSprite.Bounds.Width / 2, 0);
-    const float scaleFactor = 1.5f * pgSwapDur + 1.0f;
+    const float scaleFactor =
+        (!Menu.CGViewer || &Menu.CGViewer->ClickedThumbnail.get() == this)
+            ? 1.5f * pgSwapDur + 1.0f
+            : 1.0f;
     const auto matrix = TransformationMatrix(
         spriteInfo.Origin, {scaleFactor, scaleFactor}, spriteInfo.Origin,
         ScrWorkAngleToRad(spriteInfo.Angle), picTopLeft);
