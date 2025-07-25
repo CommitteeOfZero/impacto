@@ -602,6 +602,8 @@ void SaveSystem::GetEVStatus(int evId, int* totalVariations,
   }
 }
 
+void SaveSystem::SetEVStatus(int id) { EVFlags[id] = true; }
+
 bool SaveSystem::GetEVVariationIsUnlocked(int evId, int variationIdx) {
   if (AlbumEvData[evId][variationIdx] == 0xFFFF) return false;
   return EVFlags[AlbumEvData[evId][variationIdx]];

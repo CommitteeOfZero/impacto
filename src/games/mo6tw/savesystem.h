@@ -44,6 +44,7 @@ class SaveSystem : public SaveSystemBase {
   void GetViewedEVsCount(int* totalEVCount, int* viewedEVCount) override;
   void GetEVStatus(int evId, int* totalVariations,
                    int* viewedVariations) override;
+  void SetEVStatus(int evId) override;
   bool GetEVVariationIsUnlocked(int evId, int variationIdx) override;
   bool GetBgmFlag(int id) override;
   void SetBgmFlag(int id, bool flag) override;
