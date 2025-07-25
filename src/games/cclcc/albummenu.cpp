@@ -50,6 +50,9 @@ void AlbumMenu::SetThumbnailDirections() {
       case FDIR_RIGHT:
         return RIGHT;
     }
+    ImpLog(LogLevel::Fatal, LogChannel::General,
+           "Invalid FocusDirection value: {}", static_cast<int>(dir));
+    exit(1);
   };
 
   for (auto& page : ThumbnailPages) {
@@ -57,7 +60,6 @@ void AlbumMenu::SetThumbnailDirections() {
       if (!thumbnail) continue;
       auto nextGridIndex = thumbnail->GridId << 4;
       const auto setFocusDirection = [&](FocusDirection dir) {
-        int i = 0;
         int compareId = thumbnail->GridId;
         for (int i = 0; i < 4; i++) {
           const auto* nextId = &grid[nextGridIndex + convertDirection(dir) * 4];
@@ -85,7 +87,7 @@ void AlbumMenu::SetThumbnailDirections() {
   }
 }
 
-AlbumThumbnail::AlbumThumbnail(int id, uint8_t indexInPage, uint8_t gridId,
+AlbumThumbnail::AlbumThumbnail(int id, uint8_t gridId,
                                glm::vec2 gridDispPosition,
                                AlbumMenu const& albumMenu)
     : Widgets::Button(),
@@ -193,7 +195,7 @@ void AlbumMenu::Init() {
   };
   size_t index = 0;
   for (const auto& thumbnailEntry : AlbumData) {
-    int itemCountInPage = 0;
+    uint8_t itemCountInPage = 0;
     if (ThumbnailPages.size() <= thumbnailEntry.PageNumber) {
       ThumbnailPages.resize(thumbnailEntry.PageNumber + 1, {});
       itemCountInPage = 0;
@@ -201,12 +203,10 @@ void AlbumMenu::Init() {
     auto& page = ThumbnailPages[thumbnailEntry.PageNumber];
     const glm::vec2 gridDispPosition =
         AlbumThumbDispPos[thumbnailEntry.IndexInPage];
-    auto* thumbnailWidget =
-        new AlbumThumbnail(i++, itemCountInPage, thumbnailEntry.IndexInPage,
-                           gridDispPosition, *this);
+    auto* thumbnailWidget = new AlbumThumbnail(i++, thumbnailEntry.IndexInPage,
+                                               gridDispPosition, *this);
     thumbnailWidget->OnClickHandler = [this, thumbnailWidget,
-                                       index](Widgets::Button* btn) {
-      const auto* const thumbnailPtr = static_cast<AlbumThumbnail*>(btn);
+                                       index](Widgets::Button*) {
       CGViewer.emplace(*thumbnailWidget);
 
       const int bufId = CGViewer->ViewBufId[1] ? 2 : 1;
@@ -214,7 +214,7 @@ void AlbumMenu::Init() {
       ScrWork[SW_ALBUM_LOADBUF] = bufId;
       SetFlag(SF_ALBUMLOAD, 1);
       SetFlag(SF_ALBUMLOAD_COMPLETE, 0);
-      CGViewer->ActiveThumbnailIndex = index;
+      CGViewer->ActiveThumbnailIndex = static_cast<int>(index);
       CGViewer->ActiveVariantIndex = 0;
       CGViewer->PageSwapAnimation.SetDuration(AlbumCGPageSwapAnimationDuration);
       IsFocused = false;
@@ -472,44 +472,45 @@ void AlbumCGViewer::CGViewerPanZoom(float dt) {
 
 void AlbumMenu::UpdateThumbnail(float dt) {
   using namespace Vm::Interface;
-  if (IsFocused) {
-    const auto updatePages = [this](uint8_t prevPg, uint8_t nextPg) {
-      if (prevPg != nextPg) {
-        if (CurrentlyFocusedElement) {
-          CurrentlyFocusedElement = nullptr;
-        }
-        const auto& prevPageThumbnails = ThumbnailPages[prevPg];
-        for (const auto& thum : prevPageThumbnails) {
-          if (!thum) continue;
-          thum->Hide();
-        }
-        ThumbnailZoomAnimation.StartIn();
+  LibrarySubmenu::Update(dt);
+  if (!IsFocused) return;
+  const auto updatePages = [this](uint8_t prevPg, uint8_t nextPg) {
+    if (prevPg != nextPg) {
+      if (CurrentlyFocusedElement) {
+        CurrentlyFocusedElement = nullptr;
       }
-    };
-    auto prevPage = ActivePage;
-    if (ThumbnailZoomAnimation.IsOut()) {
-      if (PADinputButtonWentDown & PADcustom[7] ||
-          Input::MouseWheelDeltaY > 0) {
-        ActivePage =
-            (ActivePage == 0) ? ThumbnailPages.size() - 1 : ActivePage - 1;
-        updatePages(prevPage, ActivePage);
-      } else if (PADinputButtonWentDown & PADcustom[8] ||
-                 Input::MouseWheelDeltaY < 0) {
-        ActivePage = (ActivePage + 1) % ThumbnailPages.size();
-        updatePages(prevPage, ActivePage);
-      }
-    } else if (ThumbnailZoomAnimation.IsIn()) {
-      const auto& curPage = ThumbnailPages[ActivePage];
-      for (const auto& thum : curPage) {
+      const auto& prevPageThumbnails = ThumbnailPages[prevPg];
+      for (const auto& thum : prevPageThumbnails) {
         if (!thum) continue;
-        thum->Show();
-        if (!CurrentlyFocusedElement) {
-          CurrentlyFocusedElement = thum;
-          CurrentlyFocusedElement->HasFocus = true;
-        }
+        thum->Hide();
       }
-      ThumbnailZoomAnimation.StartOut();
+      ThumbnailZoomAnimation.StartIn();
     }
+  };
+  auto prevPage = ActivePage;
+  if (ThumbnailZoomAnimation.IsOut()) {
+    if (PADinputButtonWentDown & PADcustom[7] || Input::MouseWheelDeltaY > 0) {
+      ActivePage = (ActivePage == 0)
+                       ? static_cast<uint8_t>(ThumbnailPages.size()) - 1
+                       : ActivePage - 1;
+      updatePages(prevPage, ActivePage);
+    } else if (PADinputButtonWentDown & PADcustom[8] ||
+               Input::MouseWheelDeltaY < 0) {
+      ActivePage = (ActivePage + 1) % ThumbnailPages.size();
+      updatePages(prevPage, ActivePage);
+    }
+  } else if (ThumbnailZoomAnimation.IsIn()) {
+    const auto& curPage = ThumbnailPages[ActivePage];
+    for (const auto& thum : curPage) {
+      if (!thum) continue;
+      thum->Show();
+      if (!CurrentlyFocusedElement) {
+        CurrentlyFocusedElement = thum;
+        CurrentlyFocusedElement->HasFocus = true;
+      }
+    }
+    ThumbnailZoomAnimation.StartOut();
+  }
     if (!CurrentlyFocusedElement) {
       auto thumItr = std::find_if(ThumbnailPages[ActivePage].begin(),
                                   ThumbnailPages[ActivePage].end(),
@@ -519,7 +520,6 @@ void AlbumMenu::UpdateThumbnail(float dt) {
         CurrentlyFocusedElement->HasFocus = true;
       }
     }
-  }
 }
 
 void AlbumMenu::Update(float dt) {
@@ -527,7 +527,6 @@ void AlbumMenu::Update(float dt) {
   const auto* prevBtn = CurrentlyFocusedElement;
   ThumbnailZoomAnimation.Update(dt);
   if (!CGViewer) {
-    LibrarySubmenu::Update(dt);
     UpdateThumbnail(dt);
     if (CurrentlyFocusedElement != prevBtn) {
       Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0);
