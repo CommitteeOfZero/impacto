@@ -43,6 +43,7 @@ inline Sprite AlbumThumbnailThumbSprite;
 inline float AlbumThumbZoomAnimationDuration;
 inline glm::vec2 AlbumThumbnailPinRemoveOffset;
 inline float AlbumCGPageSwapAnimationDuration;
+inline float AlbumThumbnailThumbBlinkDuration;
 
 inline int MusicItemsBackgroundRepeatHeight;
 inline Sprite MusicItemsBackgroundSprite;

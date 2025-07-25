@@ -154,7 +154,10 @@ void AlbumThumbnail::Render() {
   if (HasFocus && Menu.ThumbnailZoomAnimation.IsOut()) {
     const glm::vec2 thumbTopLeft =
         GridPos - glm::vec2(AlbumThumbnailThumbSprite.Bounds.Width / 2, 0);
-    Renderer->DrawSprite(AlbumThumbnailThumbSprite, thumbTopLeft, Tint);
+    glm::vec4 thumbTint = Tint;
+    thumbTint = glm::vec4{
+        Menu.ThumbnailThumbBlink.Progress * glm::vec3(thumbTint), Tint.a};
+    Renderer->DrawSprite(AlbumThumbnailThumbSprite, thumbTopLeft, thumbTint);
   }
   const auto& pinSprite = AlbumThumbnailPinSprites[IndexInPage];
   const glm::vec2 pinOffset = pgSwapDur * AlbumThumbnailPinRemoveOffset;
@@ -165,6 +168,8 @@ void AlbumThumbnail::Render() {
 
 AlbumMenu::AlbumMenu() : LibrarySubmenu() {
   ThumbnailZoomAnimation.SetDuration(AlbumThumbZoomAnimationDuration);
+  ThumbnailThumbBlink.SetDuration(AlbumThumbnailThumbBlinkDuration);
+  ThumbnailThumbBlink.LoopMode = AnimationLoopMode::ReverseDirection;
 }
 
 void AlbumMenu::Init() {
@@ -474,6 +479,7 @@ void AlbumCGViewer::CGViewerPanZoom(float dt) {
 void AlbumMenu::UpdateThumbnail(float dt) {
   using namespace Vm::Interface;
   LibrarySubmenu::Update(dt);
+  ThumbnailThumbBlink.Update(dt);
   if (!IsFocused) return;
   const auto updatePages = [this](uint8_t prevPg, uint8_t nextPg) {
     if (prevPg != nextPg) {
@@ -531,6 +537,7 @@ void AlbumMenu::Update(float dt) {
     UpdateThumbnail(dt);
     if (CurrentlyFocusedElement != prevBtn) {
       Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0);
+      ThumbnailThumbBlink.StartIn();
     }
   } else {
     CGViewer->PageSwapAnimation.Update(dt);
