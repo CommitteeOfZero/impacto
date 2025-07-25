@@ -141,9 +141,10 @@ root.ExtraMenus = {
             {X = 1356.0, Y = 794.0},
         },
         AlbumTbl = AlbumTbl,
-        AlbumThumbZoomAnimationDuration = 0.3,
+        AlbumThumbZoomClickDuration = 24/60,
+        AlbumThumbZoomPgChangeDuration = 12/60,
         AlbumThumbnailPinRemoveOffset = { X = 20, Y = 20 },
-        AlbumCGPageSwapAnimationDuration = 48/60,
+        AlbumCGPageSwapAnimationDuration = 12/60,
         AlbumPageNumberPositions = {
             { X = 1787.0, Y = 887.0 },
             { X = 1826.0, Y = 887.0 },

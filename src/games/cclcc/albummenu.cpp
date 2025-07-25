@@ -171,7 +171,7 @@ void AlbumThumbnail::Render() {
 }
 
 AlbumMenu::AlbumMenu() : LibrarySubmenu() {
-  ThumbnailZoomAnimation.SetDuration(AlbumThumbZoomAnimationDuration);
+  ThumbnailZoomAnimation.SetDuration(AlbumThumbZoomPgChangeDuration);
   ThumbnailThumbBlink.SetDuration(AlbumThumbnailThumbBlinkDuration);
   ThumbnailThumbBlink.LoopMode = AnimationLoopMode::ReverseDirection;
 }
@@ -227,6 +227,7 @@ void AlbumMenu::Init() {
       CGViewer->ActiveVariantIndex = 0;
       CGViewer->PageSwapAnimation.SetDuration(AlbumCGPageSwapAnimationDuration);
       IsFocused = false;
+      ThumbnailZoomAnimation.SetDuration(AlbumThumbZoomClickDuration);
       ThumbnailZoomAnimation.StartIn();
       Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0);
     };
@@ -303,9 +304,14 @@ void AlbumMenu::UpdateCGViewer(float dt) {
 
     return;
   }
-  if (!ThumbnailZoomAnimation.IsIn() ||
-      CGViewer->PageSwapAnimation.State == +AnimationState::Playing)
+  if (!GetFlag(SF_ALBUMLOAD) && ThumbnailZoomAnimation.IsOut()) {
+    CGViewer = std::nullopt;
+    ThumbnailZoomAnimation.SetDuration(AlbumThumbZoomPgChangeDuration);
+    IsFocused = true;
     return;
+  }
+  if (CGViewer->PageSwapAnimation.State == +AnimationState::Playing) return;
+
   if (Vm::Interface::PADinputButtonWentDown & Vm::Interface::PAD1X) {
     CGViewer->EnableGuide = !CGViewer->EnableGuide;
   }
@@ -334,15 +340,11 @@ void AlbumMenu::UpdateCGViewer(float dt) {
       SetFlag(SF_ALBUMLOAD_COMPLETE, 0);
       CGViewer->PageSwapAnimation.StartIn();
     } else {
-      CGViewer = std::nullopt;
-      IsFocused = true;
       ThumbnailZoomAnimation.StartOut();
       return;
     }
   } else if (Vm::Interface::PADinputButtonWentDown & Vm::Interface::PAD1B ||
              Vm::Interface::PADinputMouseWentDown & Vm::Interface::PAD1B) {
-    CGViewer = std::nullopt;
-    IsFocused = true;
     ThumbnailZoomAnimation.StartOut();
     return;
   }
@@ -558,6 +560,28 @@ void AlbumMenu::Update(float dt) {
   }
 }
 
+void AlbumMenu::RenderCGViewer() {
+  if (!CGViewer) return;
+  const glm::vec4 tint(1.0f, 1.0f, 1.0f, ThumbnailZoomAnimation.Progress);
+  Renderer->DrawSprite(
+      Sprite{}, RectF{0, 0, Profile::DesignWidth, Profile::DesignHeight}, tint);
+  const int fadingSurface = CGViewer->ViewBufId[0];
+  const int activeSurface = CGViewer->ViewBufId[1];
+  if (CGViewer->PageSwapAnimation.State == +AnimationState::Playing) {
+    const float swapTint = CGViewer->PageSwapAnimation.Progress;
+    Renderer->DrawSprite(
+        Backgrounds2D[ScrWork[SW_BG1SURF + fadingSurface]]->BgSprite,
+        CGViewer->DestRect[0], tint * (1 - swapTint));
+    Renderer->DrawSprite(
+        Backgrounds2D[ScrWork[SW_BG1SURF + activeSurface]]->BgSprite,
+        CGViewer->DestRect[1], tint * swapTint);
+  } else {
+    Renderer->DrawSprite(
+        Backgrounds2D[ScrWork[SW_BG1SURF + activeSurface]]->BgSprite,
+        CGViewer->DestRect[1], tint);
+  }
+}
+
 void AlbumMenu::Render() {
   LibrarySubmenu::Render();
   const glm::vec4 pgBtnTint =
@@ -570,7 +594,7 @@ void AlbumMenu::Render() {
     const float totalProgress =
         ThumbnailZoomAnimation.Direction + AnimationDirection::In
             ? ThumbnailZoomAnimation.Progress / 2.0f
-            : 1.0f + ThumbnailZoomAnimation.Progress / 2.0f;
+            : (1.0f + (1.0f - ThumbnailZoomAnimation.Progress)) / 2.0f;
     const float alpha = pgBtnTint.a * totalProgress;
     const float prevAlpha = 1.0f - alpha;
     Renderer->DrawSprite(AlbumPageNumberSprites[dispPrevPg % 10],
@@ -586,27 +610,5 @@ void AlbumMenu::Render() {
   }
   Renderer->DrawSprite(AlbumCameraPageIconSprite, AlbumCameraPageIconPosition,
                        pgBtnTint);
-
-  if (CGViewer) {
-    const glm::vec4 tint(1.0f, 1.0f, 1.0f, ThumbnailZoomAnimation.Progress);
-    Renderer->DrawSprite(
-        Sprite{}, RectF{0, 0, Profile::DesignWidth, Profile::DesignHeight},
-        tint);
-    const int fadingSurface = CGViewer->ViewBufId[0];
-    const int activeSurface = CGViewer->ViewBufId[1];
-    if (CGViewer->PageSwapAnimation.State == +AnimationState::Playing) {
-      const float swapTint = CGViewer->PageSwapAnimation.Progress;
-      Renderer->DrawSprite(
-          Backgrounds2D[ScrWork[SW_BG1SURF + fadingSurface]]->BgSprite,
-          CGViewer->DestRect[0], tint * (1 - swapTint));
-      Renderer->DrawSprite(
-          Backgrounds2D[ScrWork[SW_BG1SURF + activeSurface]]->BgSprite,
-          CGViewer->DestRect[1], tint * swapTint);
-    } else {
-      Renderer->DrawSprite(
-          Backgrounds2D[ScrWork[SW_BG1SURF + activeSurface]]->BgSprite,
-          CGViewer->DestRect[1], tint);
-    }
-  }
 }
 }  // namespace Impacto::UI::CCLCC

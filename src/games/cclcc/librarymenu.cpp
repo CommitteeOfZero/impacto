@@ -247,31 +247,32 @@ void LibraryMenu::Render() {
     GetMenuFromType(LibraryMenuPageType::Album).Render();
     GetMenuFromType(LibraryMenuPageType::Sound).Render();
     GetMenuFromType(LibraryMenuPageType::Movie).Render();
-    if (CurrentLibraryMenu != +LibraryMenuPageType::Album ||
-        !static_cast<AlbumMenu*>(UI::AlbumMenuPtr)->CGViewer) {
-      Renderer->DrawSprite(LibraryIndexSprite,
-                           LibraryIndexPosition + leftSpritesOffset, col);
-      MainItems.Render();
-      Renderer->DrawSprite(
-          LibraryMaskSprite,
-          RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-          glm::vec4(1.0f, 1.0f, 1.0f,
-                    FadeAnimation.Progress * LibraryMaskAlpha));
-    }
+    auto* albumMenuPtr = static_cast<AlbumMenu*>(UI::AlbumMenuPtr);
+    const bool cgViewerActive =
+        CurrentLibraryMenu == +LibraryMenuPageType::Album &&
+        albumMenuPtr->CGViewer;
+    Renderer->DrawSprite(LibraryIndexSprite,
+                         LibraryIndexPosition + leftSpritesOffset, col);
+    MainItems.Render();
+    Renderer->DrawSprite(
+        LibraryMaskSprite,
+        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+        glm::vec4(1.0f, 1.0f, 1.0f, FadeAnimation.Progress * LibraryMaskAlpha));
 
     const Sprite* submenuGuideSprite =
         (CurrentLibraryMenu == +LibraryMenuPageType::Album &&
-         !static_cast<AlbumMenu*>(UI::AlbumMenuPtr)->CGViewer)
+         !albumMenuPtr->CGViewer)
             ? &AlbumMenuGuideSprite
-        : (CurrentLibraryMenu == +LibraryMenuPageType::Album &&
-           static_cast<AlbumMenu*>(UI::AlbumMenuPtr)->CGViewer &&
-           static_cast<AlbumMenu*>(UI::AlbumMenuPtr)->CGViewer->EnableGuide)
+        : (cgViewerActive && albumMenuPtr->CGViewer->EnableGuide)
             ? &AlbumMenuCGViewerGuideSprite
         : (CurrentLibraryMenu == +LibraryMenuPageType::Sound)
             ? &MusicMenuGuideSprite
         : (CurrentLibraryMenu == +LibraryMenuPageType::Movie)
             ? &MovieMenuGuideSprite
             : nullptr;
+    if (cgViewerActive) {
+      albumMenuPtr->RenderCGViewer();
+    }
 
     if (submenuGuideSprite) {
       Renderer->DrawSprite(
