@@ -49,6 +49,7 @@ struct AlbumCGViewer {
   bool WasClicked = false;
   float ClickHoldTime = 0.0f;
   float SnapWidthHoldTime = 0.0f;
+  bool WasZoomHeld = false;
   AlbumCGViewer(AlbumThumbnail& thumbnail) : ClickedThumbnail(thumbnail) {}
   void CGViewerPanZoom(float dt);
 };

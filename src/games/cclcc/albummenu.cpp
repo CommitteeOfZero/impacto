@@ -363,10 +363,8 @@ void AlbumCGViewer::CGViewerPanZoom(float dt) {
   const bool touchingBottom =
       h > Profile::DesignHeight && y + h <= Profile::DesignHeight;
 
-  const bool scrollUp =
-      (PADinputButtonIsDown & PADcustom[34]) || (Input::MouseWheelDeltaY > 0);
-  const bool scrollDown =
-      (PADinputButtonIsDown & PADcustom[35]) || (Input::MouseWheelDeltaY < 0);
+  const bool scrollUp = Input::MouseWheelDeltaY > 0;
+  const bool scrollDown = Input::MouseWheelDeltaY < 0;
 
   const bool zoomingOut = (PADinputButtonIsDown & PADcustom[36]) || scrollUp;
   const bool zoomingIn = (PADinputButtonIsDown & PADcustom[37]) || scrollDown;
@@ -395,7 +393,7 @@ void AlbumCGViewer::CGViewerPanZoom(float dt) {
                          PADinputButtonIsDown & PADcustom[37]);
   if (waitSnappedWidth) {  // Width match snap delay
     SnapWidthHoldTime += dt;
-  } else {
+  } else if (WasZoomHeld) {
     SnapWidthHoldTime = 0.0f;
   }
 
@@ -406,7 +404,7 @@ void AlbumCGViewer::CGViewerPanZoom(float dt) {
   // Scaling controls
   if (zoomingOut) {  // Zoom out
     if (h > Profile::DesignHeight &&
-        !(waitSnappedWidth && SnapWidthHoldTime < 0.2f)) {
+        !(WasZoomHeld && waitSnappedWidth && SnapWidthHoldTime < 0.2f)) {
       float scaleFactor = initScaleFactorOut;
       const float nextHeight = h * scaleFactor;
       const float nextWidth = w * scaleFactor;
@@ -422,7 +420,7 @@ void AlbumCGViewer::CGViewerPanZoom(float dt) {
     const float maxScale = 2.0f;
     const float currentScale = w / Backgrounds2D[bufId]->BgSprite.Bounds.Width;
     if (currentScale < maxScale &&
-        !(waitSnappedWidth && SnapWidthHoldTime < 0.2f)) {
+        !(WasZoomHeld && waitSnappedWidth && SnapWidthHoldTime < 0.2f)) {
       float scaleFactor = initScaleFactorIn;
       float nextScale = currentScale * scaleFactor;
       const float nextWidth = w * scaleFactor;
@@ -435,7 +433,7 @@ void AlbumCGViewer::CGViewerPanZoom(float dt) {
       DestRect[1].Scale({scaleFactor, scaleFactor}, scaleOrigin);
     }
   }
-
+  WasZoomHeld = zoomingOut || zoomingIn;
   // Pan controls
   if (PADinputButtonIsDown & PADcustom[0]) y += 30.0f;  // UP
   if (PADinputButtonIsDown & PADcustom[1]) y -= 30.0f;  // DOWN
@@ -513,15 +511,15 @@ void AlbumMenu::UpdateThumbnail(float dt) {
     }
     ThumbnailZoomAnimation.StartOut();
   }
-    if (!CurrentlyFocusedElement) {
-      auto thumItr = std::find_if(ThumbnailPages[ActivePage].begin(),
-                                  ThumbnailPages[ActivePage].end(),
-                                  [this](const auto& btn) { return btn; });
-      if (thumItr != ThumbnailPages[ActivePage].end()) {
-        CurrentlyFocusedElement = *thumItr;
-        CurrentlyFocusedElement->HasFocus = true;
-      }
+  if (!CurrentlyFocusedElement) {
+    auto thumItr = std::find_if(ThumbnailPages[ActivePage].begin(),
+                                ThumbnailPages[ActivePage].end(),
+                                [this](const auto& btn) { return btn; });
+    if (thumItr != ThumbnailPages[ActivePage].end()) {
+      CurrentlyFocusedElement = *thumItr;
+      CurrentlyFocusedElement->HasFocus = true;
     }
+  }
 }
 
 void AlbumMenu::Update(float dt) {
