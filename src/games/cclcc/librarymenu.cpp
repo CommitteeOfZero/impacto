@@ -263,7 +263,8 @@ void LibraryMenu::Render() {
          !static_cast<AlbumMenu*>(UI::AlbumMenuPtr)->CGViewer)
             ? &AlbumMenuGuideSprite
         : (CurrentLibraryMenu == +LibraryMenuPageType::Album &&
-           static_cast<AlbumMenu*>(UI::AlbumMenuPtr)->CGViewer)
+           static_cast<AlbumMenu*>(UI::AlbumMenuPtr)->CGViewer &&
+           static_cast<AlbumMenu*>(UI::AlbumMenuPtr)->CGViewer->EnableGuide)
             ? &AlbumMenuCGViewerGuideSprite
         : (CurrentLibraryMenu == +LibraryMenuPageType::Sound)
             ? &MusicMenuGuideSprite
