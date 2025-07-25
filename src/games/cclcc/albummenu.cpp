@@ -134,12 +134,13 @@ void AlbumThumbnail::Hide() {
 
 void AlbumThumbnail::Render() {
   if (State == DisplayState::Hidden) return;
-  const float pgSwapDur = Menu.ThumbnailZoomAnimation.Progress;
+  // Stagger pgSwapDur based on GridPos.x // 4 (column index)
+  int staggerIndex = GridId / 4;
+  float staggerDelay = staggerIndex / 4.0f;
+  const float pgSwapDur = std::clamp(
+      Menu.ThumbnailZoomAnimation.Progress - staggerDelay, 0.0f, 1.0f);
   const glm::vec4 tint = Tint * glm::vec4(1.0f, 1.0f, 1.0f, 1 - pgSwapDur);
   if (Enabled) {
-    ImpLog(LogLevel::Trace, LogChannel::General,
-           "Page swap alpha: og:{}, adj:{}",
-           Menu.ThumbnailZoomAnimation.Progress, pgSwapDur);
     for (const auto& spriteInfo : Variants) {
       const Sprite& thumbnailSprite = spriteInfo.ThumbnailSprite;
       const glm::vec2 picTopLeft =
