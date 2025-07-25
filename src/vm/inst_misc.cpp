@@ -607,6 +607,7 @@ VmInstruction(InstSetEVflag) {
     PopUint8(unk01);
   }
   PopExpression(arg1);
+  SaveSystem::SetEVStatus(arg1);
   ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
              "STUB instruction SetEVflag(arg1: {:d})\n", arg1);
 }

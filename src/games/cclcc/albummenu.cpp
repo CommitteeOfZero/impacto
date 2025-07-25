@@ -133,31 +133,34 @@ void AlbumThumbnail::Hide() {
 }
 
 void AlbumThumbnail::Render() {
-  if (!Enabled || State == DisplayState::Hidden) return;
+  if (State == DisplayState::Hidden) return;
   const float pgSwapDur = Menu.ThumbnailZoomAnimation.Progress;
   const glm::vec4 tint = Tint * glm::vec4(1.0f, 1.0f, 1.0f, 1 - pgSwapDur);
-  ImpLog(LogLevel::Trace, LogChannel::General, "Page swap alpha: og:{}, adj:{}",
-         Menu.ThumbnailZoomAnimation.Progress, pgSwapDur);
-  for (const auto& spriteInfo : Variants) {
-    const Sprite& thumbnailSprite = spriteInfo.ThumbnailSprite;
-    const glm::vec2 picTopLeft =
-        GridPos - glm::vec2(thumbnailSprite.Bounds.Width / 2, 0);
-    const float scaleFactor =
-        (!Menu.CGViewer || &Menu.CGViewer->ClickedThumbnail.get() == this)
-            ? 1.5f * pgSwapDur + 1.0f
-            : 1.0f;
-    const auto matrix = TransformationMatrix(
-        spriteInfo.Origin, {scaleFactor, scaleFactor}, spriteInfo.Origin,
-        ScrWorkAngleToRad(spriteInfo.Angle), picTopLeft);
-    Renderer->DrawSprite(thumbnailSprite, matrix, tint);
-  }
-  if (HasFocus && Menu.ThumbnailZoomAnimation.IsOut()) {
-    const glm::vec2 thumbTopLeft =
-        GridPos - glm::vec2(AlbumThumbnailThumbSprite.Bounds.Width / 2, 0);
-    glm::vec4 thumbTint = Tint;
-    thumbTint = glm::vec4{
-        Menu.ThumbnailThumbBlink.Progress * glm::vec3(thumbTint), Tint.a};
-    Renderer->DrawSprite(AlbumThumbnailThumbSprite, thumbTopLeft, thumbTint);
+  if (Enabled) {
+    ImpLog(LogLevel::Trace, LogChannel::General,
+           "Page swap alpha: og:{}, adj:{}",
+           Menu.ThumbnailZoomAnimation.Progress, pgSwapDur);
+    for (const auto& spriteInfo : Variants) {
+      const Sprite& thumbnailSprite = spriteInfo.ThumbnailSprite;
+      const glm::vec2 picTopLeft =
+          GridPos - glm::vec2(thumbnailSprite.Bounds.Width / 2, 0);
+      const float scaleFactor =
+          (!Menu.CGViewer || &Menu.CGViewer->ClickedThumbnail.get() == this)
+              ? 1.5f * pgSwapDur + 1.0f
+              : 1.0f;
+      const auto matrix = TransformationMatrix(
+          spriteInfo.Origin, {scaleFactor, scaleFactor}, spriteInfo.Origin,
+          ScrWorkAngleToRad(spriteInfo.Angle), picTopLeft);
+      Renderer->DrawSprite(thumbnailSprite, matrix, tint);
+    }
+    if (HasFocus && Menu.ThumbnailZoomAnimation.IsOut()) {
+      const glm::vec2 thumbTopLeft =
+          GridPos - glm::vec2(AlbumThumbnailThumbSprite.Bounds.Width / 2, 0);
+      glm::vec4 thumbTint = Tint;
+      thumbTint = glm::vec4{
+          Menu.ThumbnailThumbBlink.Progress * glm::vec3(thumbTint), Tint.a};
+      Renderer->DrawSprite(AlbumThumbnailThumbSprite, thumbTopLeft, thumbTint);
+    }
   }
   const auto& pinSprite = AlbumThumbnailPinSprites[IndexInPage];
   const glm::vec2 pinOffset = pgSwapDur * AlbumThumbnailPinRemoveOffset;
@@ -229,8 +232,15 @@ void AlbumMenu::Init() {
     const int mainAngle = getMainAngle(itemCountInPage);
     int variantAngleOffset = 0;
     RectF maxBounds;
+    thumbnailWidget->IsLocked = true;
+    size_t variantIndex = 0;
     for (const auto& sprite :
          thumbnailEntry.ThumbnailSprites | std::views::reverse) {
+      if (SaveSystem::GetEVVariationIsUnlocked(index, variantIndex++))
+        thumbnailWidget->IsLocked = false;
+      else
+        continue;
+
       variantAngleOffset += 546 + CALCrnd(182);
       const glm::vec2 origin = {(sprite.Bounds.Width - 10.0) / 2.0f + 2.0f,
                                 15.0f};
@@ -248,6 +258,7 @@ void AlbumMenu::Init() {
                            gridDispPosition + origin);
       maxBounds = RectF::Coalesce(variantBounds, maxBounds);
     }
+    thumbnailWidget->Enabled = !thumbnailWidget->IsLocked;
     thumbnailWidget->Bounds = maxBounds;
     if (page.size() <= thumbnailEntry.IndexInPage) {
       page.resize(thumbnailEntry.IndexInPage + 1, nullptr);

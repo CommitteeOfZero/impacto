@@ -238,6 +238,12 @@ void GetEVStatus(int evId, int* totalVariations, int* viewedVariations) {
   *viewedVariations = 0;
 }
 
+void SetEVStatus(int id) {
+  if (Implementation) return Implementation->SetEVStatus(id);
+  ImpLog(LogLevel::Warning, LogChannel::VMStub,
+         "{:s}: save system not implemented\n", __func__);
+}
+
 bool GetEVVariationIsUnlocked(int evId, int variationIdx) {
   if (Implementation)
     return Implementation->GetEVVariationIsUnlocked(evId, variationIdx);
