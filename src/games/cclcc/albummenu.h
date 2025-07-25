@@ -60,6 +60,7 @@ class AlbumMenu : public LibrarySubmenu {
   void Init() override;
   void Update(float dt) override;
   void Render() override;
+  void RenderCGViewer();
 
   std::vector<std::vector<AlbumThumbnail*>> ThumbnailPages;
   uint8_t PrevPage = 0;
