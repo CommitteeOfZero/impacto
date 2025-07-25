@@ -215,8 +215,8 @@ root.ExtraMenus = {
         MovieDiskHighlightSprites = {},
         MovieDiskDisplayPositions = {
             {X = 388, Y= 138},
-            {X = 830, Y= 578},
             {X = 956, Y= -64},
+            {X = 830, Y= 578},
             {X = 1422, Y= 412},
         },
         MovieDiskPlayIds = {54, 53, 52, 51},
@@ -356,7 +356,7 @@ for i = 0, 3 do
     };
     root.Sprites["MovieDiskHighlightSprites" .. i] = {
         Sheet = "MovMenu",
-        Bounds = { X = i * 575, Y = 575, Width = 575, Height = 575 }
+        Bounds = { X = i * 575, Y = 575 + 15, Width = 575, Height = 575 }
     };
     root.ExtraMenus.LibraryMenu.MovieDiskSprites[#root.ExtraMenus.LibraryMenu.MovieDiskSprites + 1] = "MovieDiskSprites" .. i;
     root.ExtraMenus.LibraryMenu.MovieDiskHighlightSprites[#root.ExtraMenus.LibraryMenu.MovieDiskHighlightSprites + 1] = "MovieDiskHighlightSprites" .. i;

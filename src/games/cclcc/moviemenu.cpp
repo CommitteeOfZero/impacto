@@ -20,9 +20,35 @@ MovieMenu::MovieMenu() : LibrarySubmenu() {
     auto disk =
         new Widgets::Button(i, diskSprite, Sprite(), diskHighlightSprite,
                             MovieDiskDisplayPositions[i]);
+    disk->HighlightOffset.y = 6.0f;
     disk->OnClickHandler = movieOnclick;
     MainItems.Add(disk, FDIR_RIGHT);
   }
+
+  auto setFocus = [](Widget* btn, Widget* btn2, FocusDirection dir) {
+    FocusDirection oppositeDir = [dir] {
+      switch (dir) {
+        case FDIR_LEFT:
+          return FDIR_RIGHT;
+        case FDIR_RIGHT:
+          return FDIR_LEFT;
+        case FDIR_UP:
+          return FDIR_DOWN;
+        case FDIR_DOWN:
+          return FDIR_UP;
+      }
+      return FDIR_LEFT;  // unreachable
+    }();
+    btn->SetFocus(btn2, dir);
+    btn2->SetFocus(btn, oppositeDir);
+  };
+
+  setFocus(MainItems.Children[0], MainItems.Children[2], FDIR_RIGHT);
+  setFocus(MainItems.Children[2], MainItems.Children[1], FDIR_RIGHT);
+  setFocus(MainItems.Children[1], MainItems.Children[3], FDIR_RIGHT);
+  setFocus(MainItems.Children[3], MainItems.Children[0], FDIR_RIGHT);
+  setFocus(MainItems.Children[2], MainItems.Children[1], FDIR_UP);
+  setFocus(MainItems.Children[2], MainItems.Children[1], FDIR_DOWN);
 }
 
 void MovieMenu::Init() {
