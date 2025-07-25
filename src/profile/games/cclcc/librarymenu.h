@@ -25,6 +25,7 @@ inline glm::vec2 LibraryIndexPosition;
 inline glm::vec2 LibraryButtonGuidePosition;
 inline Sprite LibraryMaskSprite;
 inline float LibraryTransitionPositionOffset;
+inline float LibraryMaskAlpha;
 
 inline Sprite SnapPhotoSpriteHover;
 inline Sprite SnapPhotoSpriteSelect;
@@ -44,6 +45,10 @@ inline float AlbumThumbZoomAnimationDuration;
 inline glm::vec2 AlbumThumbnailPinRemoveOffset;
 inline float AlbumCGPageSwapAnimationDuration;
 inline float AlbumThumbnailThumbBlinkDuration;
+inline std::vector<glm::vec2> AlbumPageNumberPositions;
+inline std::vector<Sprite> AlbumPageNumberSprites;
+inline Sprite AlbumCameraPageIconSprite;
+inline glm::vec2 AlbumCameraPageIconPosition;
 
 inline int MusicItemsBackgroundRepeatHeight;
 inline Sprite MusicItemsBackgroundSprite;

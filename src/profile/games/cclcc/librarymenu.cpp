@@ -81,6 +81,7 @@ void Configure() {
   LibraryButtonGuidePosition =
       EnsureGetMember<glm::vec2>("LibraryButtonGuidePosition");
   LibraryMaskSprite = EnsureGetMember<Sprite>("LibraryMaskSprite");
+  LibraryMaskAlpha = EnsureGetMember<float>("LibraryMaskAlpha");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMember<int>("DrawType"));
@@ -109,6 +110,13 @@ void Configure() {
       EnsureGetMember<float>("AlbumCGPageSwapAnimationDuration");
   AlbumThumbnailThumbBlinkDuration =
       EnsureGetMember<float>("AlbumThumbnailThumbBlinkDuration");
+  AlbumPageNumberPositions =
+      GetMemberVector<glm::vec2>("AlbumPageNumberPositions");
+  AlbumPageNumberSprites = GetMemberVector<Sprite>("AlbumPageNumberSprites");
+  AlbumCameraPageIconSprite =
+      EnsureGetMember<Sprite>("AlbumCameraPageIconSprite");
+  AlbumCameraPageIconPosition =
+      EnsureGetMember<glm::vec2>("AlbumCameraPageIconPosition");
 
   MusicItemsBackgroundRepeatHeight =
       EnsureGetMember<int>("MusicItemsBackgroundRepeatHeight");

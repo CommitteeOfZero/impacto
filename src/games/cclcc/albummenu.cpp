@@ -494,17 +494,18 @@ void AlbumMenu::UpdateThumbnail(float dt) {
       ThumbnailZoomAnimation.StartIn();
     }
   };
-  auto prevPage = ActivePage;
+  const uint8_t prevPg = ActivePage;
   if (ThumbnailZoomAnimation.IsOut()) {
+    PrevPage = prevPg;
     if (PADinputButtonWentDown & PADcustom[7] || Input::MouseWheelDeltaY > 0) {
       ActivePage = (ActivePage == 0)
                        ? static_cast<uint8_t>(ThumbnailPages.size()) - 1
                        : ActivePage - 1;
-      updatePages(prevPage, ActivePage);
+      updatePages(PrevPage, ActivePage);
     } else if (PADinputButtonWentDown & PADcustom[8] ||
                Input::MouseWheelDeltaY < 0) {
       ActivePage = (ActivePage + 1) % ThumbnailPages.size();
-      updatePages(prevPage, ActivePage);
+      updatePages(PrevPage, ActivePage);
     }
   } else if (ThumbnailZoomAnimation.IsIn()) {
     const auto& curPage = ThumbnailPages[ActivePage];
@@ -547,6 +548,33 @@ void AlbumMenu::Update(float dt) {
 
 void AlbumMenu::Render() {
   LibrarySubmenu::Render();
+  const glm::vec4 pgBtnTint =
+      glm::vec4{1.0f, 1.0f, 1.0f, FadeAnimation.Progress};
+  const uint8_t dispPrevPg = PrevPage + 1;
+  const uint8_t dispActivePg = ActivePage + 1;
+  Renderer->DrawSprite(AlbumPageNumberSprites[dispActivePg / 10],
+                       AlbumPageNumberPositions[0], pgBtnTint);
+  if (dispActivePg != dispPrevPg) {
+    const float totalProgress =
+        ThumbnailZoomAnimation.Direction + AnimationDirection::In
+            ? ThumbnailZoomAnimation.Progress / 2.0f
+            : 1.0f + ThumbnailZoomAnimation.Progress / 2.0f;
+    const float alpha = pgBtnTint.a * totalProgress;
+    const float prevAlpha = 1.0f - alpha;
+    Renderer->DrawSprite(AlbumPageNumberSprites[dispPrevPg % 10],
+                         AlbumPageNumberPositions[1],
+                         pgBtnTint * glm::vec4{1.0f, 1.0f, 1.0f, prevAlpha});
+    Renderer->DrawSprite(AlbumPageNumberSprites[dispActivePg % 10],
+                         AlbumPageNumberPositions[1],
+                         pgBtnTint * glm::vec4{1.0f, 1.0f, 1.0f, alpha});
+
+  } else {
+    Renderer->DrawSprite(AlbumPageNumberSprites[dispActivePg % 10],
+                         AlbumPageNumberPositions[1], pgBtnTint);
+  }
+  Renderer->DrawSprite(AlbumCameraPageIconSprite, AlbumCameraPageIconPosition,
+                       pgBtnTint);
+
   if (CGViewer) {
     const glm::vec4 tint(1.0f, 1.0f, 1.0f, ThumbnailZoomAnimation.Progress);
     Renderer->DrawSprite(

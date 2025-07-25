@@ -62,6 +62,7 @@ class AlbumMenu : public LibrarySubmenu {
   void Render() override;
 
   std::vector<std::vector<AlbumThumbnail*>> ThumbnailPages;
+  uint8_t PrevPage = 0;
   uint8_t ActivePage = 0;
   Animation ThumbnailZoomAnimation;
   Animation ThumbnailThumbBlink;

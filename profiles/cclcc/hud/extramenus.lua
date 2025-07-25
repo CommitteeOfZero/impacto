@@ -97,7 +97,8 @@ root.ExtraMenus = {
         LibraryIndexPosition = { X = 0, Y = 31 },    
         LibraryButtonGuidePosition = { X = 0, Y = 989 },
         LibraryMaskSprite = "LibraryMask",
-        
+        LibraryMaskAlpha = 0.8,
+
         SnapPhotoSpriteHover = "SnapPhotoHover",
         SnapPhotoSpriteSelect = "SnapPhotoSelect",
         HitSongsSpriteHover = "HitSongsHover",
@@ -121,9 +122,10 @@ root.ExtraMenus = {
         AlbumMaxThumbnailsPerPage = 12,
         AlbumMaxPageCount = 6,
         AlbumCameraPageIconSprite = "AlbumCameraPageIcon",
+        AlbumCameraPageIconPosition = { X = 1731.0, Y = 886.0 },
         AlbumPageNumberSprites = {},
         AlbumThumbnailPinSprites = {},
-
+        AlbumThumbnailThumbSprite = "AlbumThumbnailThumb", 
         AlbumThumbDispPos = {
             {X = 656.0, Y = 167.0},
             {X = 971.0, Y = 247.0},
@@ -138,11 +140,14 @@ root.ExtraMenus = {
             {X = 1089.0, Y = 694.0},
             {X = 1356.0, Y = 794.0},
         },
-        AlbumThumbnailThumbSprite = "AlbumThumbnailThumb", 
         AlbumTbl = AlbumTbl,
         AlbumThumbZoomAnimationDuration = 0.3,
         AlbumThumbnailPinRemoveOffset = { X = 20, Y = 20 },
         AlbumCGPageSwapAnimationDuration = 16/60,
+        AlbumPageNumberPositions = {
+            { X = 1787.0, Y = 887.0 },
+            { X = 1826.0, Y = 887.0 },
+        },
         
         MusicItemsBackgroundSprite = "MusicItemsBackground",
         MusicItemsBackgroundPosition = {X=293, Y=-93},
@@ -486,7 +491,7 @@ for i = 0, 9 do
             X = 873.0 + 53 * i,
             Y = 80.0,
             Width = 51.0,
-            Height = 60.0
+            Height = 76.0
         },
     };
     root.ExtraMenus.LibraryMenu.AlbumPageNumberSprites[i + 1] = "AlbumPageNumber" .. i;
