@@ -46,7 +46,8 @@ void MovieMenuEntryButton::Render() {
     Renderer->DrawSprite(NormalSprite, glm::vec2(Bounds.X + 20, Bounds.Y + 16),
                          Tint);
   } else {
-    Renderer->DrawSprite(DisabledSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
+    Renderer->DrawSprite(DisabledSprite,
+                         glm::vec2(Bounds.X + 20, Bounds.Y + 16), Tint);
   }
 }
 
