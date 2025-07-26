@@ -556,10 +556,14 @@ void SaveSystem::SaveSystemData() {
   // EV Flags
   systemSaveStream.Seek(0xC0E, SEEK_SET);
   for (int i = 0; i < 150; i++) {
-    uint8_t evByte = (EVFlags[8 * i]) | (EVFlags[8 * i + 1] << 1) |
-                     (EVFlags[8 * i + 2] << 2) | (EVFlags[8 * i + 3] << 3) |
-                     (EVFlags[8 * i + 4] << 4) | (EVFlags[8 * i + 5] << 5) |
-                     (EVFlags[8 * i + 6] << 6) | (EVFlags[8 * i + 7] << 7);
+    const uint8_t evByte = (static_cast<uint8_t>(EVFlags[8 * i])) |
+                           (static_cast<uint8_t>(EVFlags[8 * i + 1]) << 1) |
+                           (static_cast<uint8_t>(EVFlags[8 * i + 2]) << 2) |
+                           (static_cast<uint8_t>(EVFlags[8 * i + 3]) << 3) |
+                           (static_cast<uint8_t>(EVFlags[8 * i + 4]) << 4) |
+                           (static_cast<uint8_t>(EVFlags[8 * i + 5]) << 5) |
+                           (static_cast<uint8_t>(EVFlags[8 * i + 6]) << 6) |
+                           (static_cast<uint8_t>(EVFlags[8 * i + 7]) << 7);
     Io::WriteLE<uint8_t>(&systemSaveStream, evByte);
   }
 
