@@ -74,7 +74,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: windows-latest
+          - os: windows-2025
             os_name: windows
             triplet: x64-windows-release
             host_triplet: x64-windows-release
@@ -82,7 +82,7 @@ jobs:
             os_name: linux
             triplet: x64-linux-ci
             host_triplet: x64-linux-ci
-          - os: macos-latest
+          - os: macos-14
             os_name: macos-arm64
             triplet: arm64-osx-ci
             host_triplet: arm64-osx-ci
@@ -127,12 +127,11 @@ jobs:
 
     - uses: lukka/get-cmake@latest
 
-    - name: 'Restore vcpkg cache'
-      uses: actions/cache/restore@v4
-      id: vcpkgcache
+    - name: 'VCPKG Cache'
+      uses: actions/cache@v4
       with:
         path: "${{ github.workspace }}/.vcpkg_cache"
-        key: vcpkg-${{ matrix.triplet }}-${{ hashFiles('**/vcpkg.json', 'vcpkg-configuration.json', 'triplets/**', 'portfiles/**') }}
+        key: vcpkg-${{ matrix.triplet }}-${{ env.vcpkgCommitId }}-${{ matrix.os }}-${{ hashFiles('**/vcpkg.json', 'vcpkg-configuration.json', 'triplets/**', 'portfiles/**') }}
 
     - name: Setup vcpkg
       uses: lukka/run-vcpkg@v11
@@ -161,11 +160,6 @@ jobs:
             '-DVCPKG_HOST_TRIPLET=${{ matrix.host_triplet }}',
           ]
         buildPreset: ${{ env.PresetName }}
-    - name: Save vcpkg cache
-      uses: actions/cache/save@v4
-      with:
-        path: "${{ github.workspace }}/.vcpkg_cache"
-        key: ${{ steps.vcpkgcache.outputs.cache-primary-key }}
     - name: Copy docs
       run: |
         mkdir -p "${{ github.workspace }}/release/${{ env.PresetName }}"
