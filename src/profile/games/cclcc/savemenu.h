@@ -16,6 +16,11 @@ inline float EntryStartXR;
 inline float EntryStartYL;
 inline float EntryStartYR;
 inline float EntryYPadding;
+inline float PageSwapDuration;
+inline glm::vec2 GuidePosition;
+inline glm::vec2 MenuTextPosition;
+inline glm::vec2 SlotsBackgroundPosition;
+inline glm::vec2 PageNumberPosition;
 
 int constexpr EntriesPerRow = 2;
 int constexpr RowsPerPage = 4;

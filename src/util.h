@@ -151,8 +151,12 @@ struct RectF {
   }
 
   constexpr bool operator==(RectF const& other) const {
-    return X == other.X && Y == other.Y && Width == other.Width &&
-           Height == other.Height;
+    constexpr auto fltCmp = [](float a, float b) {
+      const auto absDiff = (a - b) < 0 ? b - a : a - b;
+      return absDiff < std::numeric_limits<float>::epsilon();
+    };
+    return fltCmp(X, other.X) && fltCmp(Y, other.Y) &&
+           fltCmp(Width, other.Width) && fltCmp(Height, other.Height);
   }
   constexpr bool operator!=(RectF const& other) const {
     return !(*this == other);

@@ -5,6 +5,7 @@
 #include "../../mem.h"
 #include "../../profile/scriptvars.h"
 #include "../../inputsystem.h"
+#include "../../vm/interface/input.h"
 #include "../../ui/widgets/button.h"
 #include "../../ui/widgets/cclcc/saveentrybutton.h"
 #include "../../data/savesystem.h"
@@ -49,6 +50,8 @@ SaveMenu::SaveMenu() {
   FadeAnimation.LoopMode = AnimationLoopMode::Stop;
   FadeAnimation.DurationIn = FadeInDuration;
   FadeAnimation.DurationOut = FadeOutDuration;
+  PageAnimation.LoopMode = AnimationLoopMode::Stop;
+  PageAnimation.DurationIn = PageSwapDuration;
 }
 
 void SaveMenu::Show() {
@@ -93,6 +96,7 @@ void SaveMenu::Show() {
     for (int p = 0; p < Pages; ++p) {
       MainItems[p] = new Widgets::Group(this);
       MainItems[p]->WrapFocus = false;
+      MainItems[p]->FocusLock = false;
 
       for (int i = 0; i < RowsPerPage; i++) {
         // Start on right col
@@ -102,10 +106,10 @@ void SaveMenu::Show() {
                   ? glm::vec2{EntryStartXL, EntryStartYL + (i * EntryYPadding)}
                   : glm::vec2{EntryStartXR, EntryStartYR + (i * EntryYPadding)};
           SaveEntryButton* saveEntryButton = new SaveEntryButton(
-              saveEntryIds[id], id, EntryHighlightedBoxSprite[ActiveMenuType],
-              EntryHighlightedTextSprite[ActiveMenuType], p, buttonPos,
+              saveEntryIds[id], id, EntryHighlightedBoxSprite[*ActiveMenuType],
+              EntryHighlightedTextSprite[*ActiveMenuType], p, buttonPos,
               SlotLockedSprite[ActiveMenuType], saveType,
-              NoDataSprite[ActiveMenuType], BrokenDataSprite[ActiveMenuType]);
+              NoDataSprite[*ActiveMenuType], BrokenDataSprite[*ActiveMenuType]);
 
           saveEntryButton->OnClickHandler = onClick;
           id++;
@@ -205,22 +209,34 @@ void SaveMenu::Hide() {
       UI::FocusedMenu = 0;
     }
     IsFocused = false;
+    Audio::Channels[Audio::AC_SSE]->Play("sysse", 3, false, 0);
   }
 }
 
 void SaveMenu::UpdateInput() {
+  using namespace Vm::Interface;
   Menu::UpdateInput();
+  const auto updatePage = [&](int nextPage) {
+    PrevPage = CurrentPage;
+    if (CurrentlyFocusedElement) {
+      CurrentlyFocusedElement->HasFocus = false;
+      CurrentlyFocusedElement->Hovered = false;
+    }
+    CurrentPage = nextPage;
+    MainItems[CurrentPage]->Show();
+    PageAnimation.StartIn();
+    Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0);
+  };
   if (IsFocused) {
-    if (Input::MouseWheelDeltaY < 0) {
-      MainItems[CurrentPage]->Hide();
-      CurrentPage = (CurrentPage + 1) % Pages;
-      MainItems[CurrentPage]->Show();
+    if (Input::MouseWheelDeltaY < 0 || PADinputButtonWentDown & PADcustom[8]) {
+      updatePage((CurrentPage + 1) % Pages);
       CurrentlyFocusedElement = MainItems[CurrentPage]->GetFocus(FDIR_UP);
-    } else if (Input::MouseWheelDeltaY > 0) {
-      MainItems[CurrentPage]->Hide();
-      CurrentPage = (CurrentPage - 1 + Pages) % Pages;
-      MainItems[CurrentPage]->Show();
+      IsFocused = false;
+    } else if (Input::MouseWheelDeltaY > 0 ||
+               PADinputButtonWentDown & PADcustom[7]) {
+      updatePage((CurrentPage - 1 + Pages) % Pages);
       CurrentlyFocusedElement = MainItems[CurrentPage]->GetFocus(FDIR_DOWN);
+      IsFocused = false;
     }
   }
 }
@@ -236,8 +252,10 @@ void SaveMenu::Update(float dt) {
 
   if (State != Hidden) {
     FadeAnimation.Update(dt);
+    PageAnimation.Update(dt);
   }
 
+  static_cast<SaveEntryButton*>(CurrentlyFocusedElement);
   if (State == Shown &&
       (ScrWork[SW_SYSSUBMENUNO] == 0 || ScrWork[SW_SYSSUBMENUNO] == 3 ||
        ScrWork[SW_SYSSUBMENUNO] == 4)) {
@@ -262,10 +280,12 @@ void SaveMenu::Update(float dt) {
         dynamic_cast<SaveEntryButton*>(CurrentlyFocusedElement)->GetPage();
     if (CurrentPage != oldPage) {
       auto focusedElem = CurrentlyFocusedElement;
-      MainItems[oldPage]->Hide();
+      PageAnimation.StartIn();
       MainItems[CurrentPage]->Show();
       CurrentlyFocusedElement = focusedElem;
       CurrentlyFocusedElement->HasFocus = true;
+      IsFocused = false;
+      Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0);
     }
   }
   if (State == Hidden && !HasCleared) {
@@ -277,31 +297,69 @@ void SaveMenu::Update(float dt) {
     CurrentlyFocusedElement = nullptr;
     HasCleared = true;
   }
+  if (PageAnimation.IsIn()) {
+    MainItems[PrevPage]->MoveTo({0, 0});
+    MainItems[PrevPage]->Hide();
+    PageAnimation.Progress = 0.0f;
+    PrevPage = CurrentPage;
+    IsFocused = true;
+    if (CurrentlyFocusedElement) CurrentlyFocusedElement->HasFocus = true;
+  }
 }
 
 void SaveMenu::Render() {
   if (State != Hidden) {
-    glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
-    double transitionOffsetX =
-        (FadeAnimation.Progress * 32 * 200 * 0.0625 - 400);
-    glm::vec4 maskTint = glm::vec4(1.0f);
+    const glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
+    const glm::vec2 transitionOffset = {
+        FadeAnimation.Progress * 32 * 200 * 0.0625 - 400, 0};
+    const glm::vec4 maskTint = glm::vec4(1.0f);
 
-    Renderer->DrawSprite(MenuTextSprite[ActiveMenuType],
-                         {transitionOffsetX + 11, 10}, col);
-    Renderer->DrawSprite(EntrySlotsSprite[ActiveMenuType],
-                         {transitionOffsetX + 135, 0}, col);
-
+    Renderer->DrawSprite(MenuTextSprite[*ActiveMenuType],
+                         MenuTextPosition + transitionOffset, col);
     MainItems[CurrentPage]->Tint = col;
-    MainItems[CurrentPage]->MoveTo({transitionOffsetX, 0});
-    MainItems[CurrentPage]->Render();
-    Renderer->DrawSprite(PageNumSprite[ActiveMenuType][CurrentPage],
-                         {transitionOffsetX + 1314, 867}, col);
+    if (PageAnimation.State == +AnimationState::Playing) {
+      bool isNextBelow = ((PrevPage + 1) % Pages) == CurrentPage;
+      const float currentYPos =
+          (1.0f - PageAnimation.Progress) *
+          (isNextBelow ? Profile::DesignHeight : -Profile::DesignHeight);
+      const float prevYPos = isNextBelow ? currentYPos - Profile::DesignHeight
+                                         : currentYPos + Profile::DesignHeight;
+      const glm::vec2 currentOffset{0, currentYPos};
+      const glm::vec2 prevOffset{0, prevYPos};
+
+      Renderer->DrawSprite(
+          EntrySlotsSprite[*ActiveMenuType],
+          SlotsBackgroundPosition + transitionOffset + prevOffset, col);
+      Renderer->DrawSprite(
+          EntrySlotsSprite[*ActiveMenuType],
+          SlotsBackgroundPosition + transitionOffset + currentOffset, col);
+      MainItems[PrevPage]->MoveTo(transitionOffset + prevOffset);
+      MainItems[CurrentPage]->MoveTo(transitionOffset + currentOffset);
+      MainItems[PrevPage]->Render();
+      MainItems[CurrentPage]->Render();
+
+      const glm::vec2 prevPgNumPos =
+          PageNumberPosition + transitionOffset + prevOffset;
+      const glm::vec2 curPgNumPos =
+          PageNumberPosition + transitionOffset + currentOffset;
+      Renderer->DrawSprite(PageNumSprite[*ActiveMenuType][PrevPage],
+                           prevPgNumPos, col);
+      Renderer->DrawSprite(PageNumSprite[*ActiveMenuType][CurrentPage],
+                           curPgNumPos, col);
+    } else {
+      Renderer->DrawSprite(EntrySlotsSprite[*ActiveMenuType],
+                           SlotsBackgroundPosition + transitionOffset, col);
+      MainItems[CurrentPage]->MoveTo(transitionOffset);
+      MainItems[CurrentPage]->Render();
+      Renderer->DrawSprite(PageNumSprite[*ActiveMenuType][CurrentPage],
+                           PageNumberPosition + transitionOffset, col);
+    }
 
     Renderer->DrawSprite(
         SaveMenuMaskSprite,
         RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
         maskTint);
-    Renderer->DrawSprite(ButtonGuideSprite[ActiveMenuType], {0, 989}, col);
+    Renderer->DrawSprite(ButtonGuideSprite[*ActiveMenuType], {0, 989}, col);
   }
 }
 
