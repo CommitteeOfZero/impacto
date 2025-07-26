@@ -95,7 +95,7 @@ void SystemMenu::Hide() {
 void SystemMenu::Update(float dt) {
   UpdateInput();
   MainItems->UpdateInput();
-  if (ScrWork[SW_SYSMENUCT] < 10000 && State == Shown) {
+  if (ScrWork[SW_SYSMENUCT] < 32 && State == Shown) {
     Hide();
   } else if (GetFlag(SF_SYSTEMMENU) && ScrWork[SW_SYSMENUCT] > 0 &&
              State == Hidden) {

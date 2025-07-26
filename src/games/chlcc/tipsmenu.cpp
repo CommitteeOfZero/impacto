@@ -114,7 +114,7 @@ void TipsMenu::Render() {
 }
 
 void TipsMenu::Update(float dt) {
-  if (ScrWork[SW_SYSMENUCT] < 10000 && State == Shown) {
+  if (ScrWork[SW_SYSMENUCT] < 32 && State == Shown) {
     Hide();
   } else if (GetFlag(SF_TIPSMENU) && ScrWork[SW_SYSMENUCT] > 0 &&
              State == Hidden) {
