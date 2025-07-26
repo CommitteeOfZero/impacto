@@ -106,10 +106,10 @@ void SaveMenu::Show() {
                   ? glm::vec2{EntryStartXL, EntryStartYL + (i * EntryYPadding)}
                   : glm::vec2{EntryStartXR, EntryStartYR + (i * EntryYPadding)};
           SaveEntryButton* saveEntryButton = new SaveEntryButton(
-              saveEntryIds[id], id, EntryHighlightedBoxSprite[ActiveMenuType],
-              EntryHighlightedTextSprite[ActiveMenuType], p, buttonPos,
+              saveEntryIds[id], id, EntryHighlightedBoxSprite[*ActiveMenuType],
+              EntryHighlightedTextSprite[*ActiveMenuType], p, buttonPos,
               SlotLockedSprite[ActiveMenuType], saveType,
-              NoDataSprite[ActiveMenuType], BrokenDataSprite[ActiveMenuType]);
+              NoDataSprite[*ActiveMenuType], BrokenDataSprite[*ActiveMenuType]);
 
           saveEntryButton->OnClickHandler = onClick;
           id++;
@@ -310,7 +310,7 @@ void SaveMenu::Render() {
         FadeAnimation.Progress * 32 * 200 * 0.0625 - 400, 0};
     const glm::vec4 maskTint = glm::vec4(1.0f);
 
-    Renderer->DrawSprite(MenuTextSprite[ActiveMenuType],
+    Renderer->DrawSprite(MenuTextSprite[*ActiveMenuType],
                          MenuTextPosition + transitionOffset, col);
     MainItems[CurrentPage]->Tint = col;
     if (PageAnimation.State == +AnimationState::Playing) {
@@ -324,10 +324,10 @@ void SaveMenu::Render() {
       const glm::vec2 prevOffset{0, prevYPos};
 
       Renderer->DrawSprite(
-          EntrySlotsSprite[ActiveMenuType],
+          EntrySlotsSprite[*ActiveMenuType],
           SlotsBackgroundPosition + transitionOffset + prevOffset, col);
       Renderer->DrawSprite(
-          EntrySlotsSprite[ActiveMenuType],
+          EntrySlotsSprite[*ActiveMenuType],
           SlotsBackgroundPosition + transitionOffset + currentOffset, col);
       MainItems[PrevPage]->MoveTo(transitionOffset + prevOffset);
       MainItems[CurrentPage]->MoveTo(transitionOffset + currentOffset);
@@ -338,16 +338,16 @@ void SaveMenu::Render() {
           PageNumberPosition + transitionOffset + prevOffset;
       const glm::vec2 curPgNumPos =
           PageNumberPosition + transitionOffset + currentOffset;
-      Renderer->DrawSprite(PageNumSprite[ActiveMenuType][PrevPage],
+      Renderer->DrawSprite(PageNumSprite[*ActiveMenuType][PrevPage],
                            prevPgNumPos, col);
-      Renderer->DrawSprite(PageNumSprite[ActiveMenuType][CurrentPage],
+      Renderer->DrawSprite(PageNumSprite[*ActiveMenuType][CurrentPage],
                            curPgNumPos, col);
     } else {
-      Renderer->DrawSprite(EntrySlotsSprite[ActiveMenuType],
+      Renderer->DrawSprite(EntrySlotsSprite[*ActiveMenuType],
                            SlotsBackgroundPosition + transitionOffset, col);
       MainItems[CurrentPage]->MoveTo(transitionOffset);
       MainItems[CurrentPage]->Render();
-      Renderer->DrawSprite(PageNumSprite[ActiveMenuType][CurrentPage],
+      Renderer->DrawSprite(PageNumSprite[*ActiveMenuType][CurrentPage],
                            PageNumberPosition + transitionOffset, col);
     }
 
@@ -355,7 +355,7 @@ void SaveMenu::Render() {
         SaveMenuMaskSprite,
         RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
         maskTint);
-    Renderer->DrawSprite(ButtonGuideSprite[ActiveMenuType], {0, 989}, col);
+    Renderer->DrawSprite(ButtonGuideSprite[*ActiveMenuType], {0, 989}, col);
   }
 }
 
