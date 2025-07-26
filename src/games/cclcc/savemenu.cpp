@@ -209,6 +209,7 @@ void SaveMenu::Hide() {
       UI::FocusedMenu = 0;
     }
     IsFocused = false;
+    Audio::Channels[Audio::AC_SSE]->Play("sysse", 3, false, 0);
   }
 }
 
@@ -224,6 +225,7 @@ void SaveMenu::UpdateInput() {
     CurrentPage = nextPage;
     MainItems[CurrentPage]->Show();
     PageAnimation.StartIn();
+    Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0);
   };
   if (IsFocused) {
     if (Input::MouseWheelDeltaY < 0 || PADinputButtonWentDown & PADcustom[8]) {
@@ -253,6 +255,7 @@ void SaveMenu::Update(float dt) {
     PageAnimation.Update(dt);
   }
 
+  static_cast<SaveEntryButton*>(CurrentlyFocusedElement);
   if (State == Shown &&
       (ScrWork[SW_SYSSUBMENUNO] == 0 || ScrWork[SW_SYSSUBMENUNO] == 3 ||
        ScrWork[SW_SYSSUBMENUNO] == 4)) {
@@ -282,6 +285,7 @@ void SaveMenu::Update(float dt) {
       CurrentlyFocusedElement = focusedElem;
       CurrentlyFocusedElement->HasFocus = true;
       IsFocused = false;
+      Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0);
     }
   }
   if (State == Hidden && !HasCleared) {
