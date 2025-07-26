@@ -23,7 +23,10 @@ class AchievementFileLoader
   }
 
   void MainThreadOnLoad(AchievementError result) {
-    if (MainThreadCallback) MainThreadCallback();
+    if (MainThreadCallback) {
+      MainThreadCallback();
+      MainThreadCallback = nullptr;
+    }
 
     // Let's not report errors until we finalize the implementation
     result = AchievementError::OK;
