@@ -3,6 +3,7 @@
 #include <cstdint>
 
 #include "achievementsystem.h"
+#include "../texture/texture.h"
 #include <vector>
 #include <memory>
 
@@ -35,6 +36,16 @@ struct TrophyDataEntry {
   uint64_t size;
 };
 
+// A trophy to be created on the main thread
+struct QueuedTrophy {
+  int id;
+  std::string name;
+  std::string description;
+  bool hidden;
+  TrophyType ttype;
+  Texture texture;
+};
+
 class Trophy : public Achievement {
  private:
   TrophyType ttype;
@@ -48,8 +59,9 @@ class Trophy : public Achievement {
 
 class AchievementSystemPS3 : public AchievementSystemBase {
  public:
-  AchievementError MountAchievementFile() override;
-  const Achievement *GetAchievement(int id) override;
+  AchievementError MountAchievementFile(
+      std::function<void(void)>& mainThreadCallback) override;
+  const Achievement* GetAchievement(int id) override;
   size_t GetAchievementCount() const override;
 
  private:
