@@ -328,7 +328,7 @@ RectF RectF::Coalesce(const RectF& first, const RectF& second) {
   return rect;
 }
 
-RectF RectF::Coalesce(const RectF& first, const CornersQuad& second) {
+RectF RectF::BoundingBox(const RectF& first, const CornersQuad& second) {
   RectF rect;
   rect.X = std::min({first.X, second.TopLeft.x, second.BottomLeft.x,
                      second.TopRight.x, second.BottomRight.x});
@@ -346,8 +346,8 @@ RectF RectF::Coalesce(const RectF& first, const CornersQuad& second) {
   return rect;
 }
 
-RectF RectF::Coalesce(const CornersQuad& first, const RectF& second) {
-  return Coalesce(second, first);
+RectF RectF::BoundingBox(const CornersQuad& first, const RectF& second) {
+  return BoundingBox(second, first);
 }
 
 }  // namespace Impacto

@@ -166,8 +166,8 @@ struct RectF {
   constexpr glm::vec2 GetSize() const { return glm::vec2(Width, Height); }
 
   static RectF Coalesce(const RectF& first, const RectF& second);
-  static RectF Coalesce(const RectF& first, const CornersQuad& second);
-  static RectF Coalesce(const CornersQuad& first, const RectF& second);
+  static RectF BoundingBox(const RectF& first, const CornersQuad& second);
+  static RectF BoundingBox(const CornersQuad& first, const RectF& second);
 
   CornersQuad Transform(glm::mat4 transformation) const;
   CornersQuad Transform(
