@@ -37,7 +37,7 @@ void MovieMenu::MovieButtonOnClick(Widgets::Button* target) {
       } break;
       default: {
         ScrWork[SW_MOVIEMODE_CUR] = movieButton->Id - 1;
-      }
+      } break;
     }
   }
 }
