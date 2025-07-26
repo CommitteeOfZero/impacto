@@ -112,7 +112,7 @@ void Button::Move(glm::vec2 relativePosition) {
     }
   }
   Widget::Move(relativePosition);
-  HoverBounds += relativePosition;
+  if (HoverBounds != RectF{}) HoverBounds += relativePosition;
 }
 
 void Button::Move(glm::vec2 relativePosition, float duration) {
