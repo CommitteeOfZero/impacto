@@ -259,17 +259,21 @@ void LibraryMenu::Render() {
         RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
         glm::vec4(1.0f, 1.0f, 1.0f, FadeAnimation.Progress * LibraryMaskAlpha));
 
-    const Sprite* submenuGuideSprite =
-        (CurrentLibraryMenu == +LibraryMenuPageType::Album &&
-         !albumMenuPtr->CGViewer)
-            ? &AlbumMenuGuideSprite
-        : (cgViewerActive && albumMenuPtr->CGViewer->EnableGuide)
-            ? &AlbumMenuCGViewerGuideSprite
-        : (CurrentLibraryMenu == +LibraryMenuPageType::Sound)
-            ? &MusicMenuGuideSprite
-        : (CurrentLibraryMenu == +LibraryMenuPageType::Movie)
-            ? &MovieMenuGuideSprite
-            : nullptr;
+    const auto* const submenuGuideSprite = [&]() -> Sprite* {
+      switch (CurrentLibraryMenu) {
+        case LibraryMenuPageType::Album:
+          if (cgViewerActive && albumMenuPtr->CGViewer->EnableGuide)
+            return &AlbumMenuCGViewerGuideSprite;
+          else
+            return &AlbumMenuGuideSprite;
+        case LibraryMenuPageType::Sound:
+          return &MusicMenuGuideSprite;
+        case LibraryMenuPageType::Movie:
+          return &MovieMenuGuideSprite;
+        default:
+          return nullptr;
+      }
+    }();
     if (cgViewerActive) {
       albumMenuPtr->RenderCGViewer();
     }
