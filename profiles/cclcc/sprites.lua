@@ -1,4 +1,9 @@
 root.SpriteSheets = {
+    ["Album"] = {
+        Path = { Mount = "system", Id = 0 },
+        DesignWidth = 4096,
+        DesignHeight = 4096
+    },
     ["Backlog"] = {
         Path = { Mount = "system", Id = 1 },
         DesignWidth = 2048,

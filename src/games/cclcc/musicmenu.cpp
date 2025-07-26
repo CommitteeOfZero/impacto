@@ -173,13 +173,18 @@ void MusicMenu::Show() {
 void MusicMenu::Init() {
   const auto musicOnclick = [this](Widgets::Button* target) {
     auto* musicBtn = static_cast<MusicTrackButton*>(target);
-    if (target->IsLocked || ModeButton.Hovered) return;
+    if (musicBtn->IsLocked) {
+      Audio::Channels[Audio::AC_SSE]->Play("sysse", 4, false, 0);
+      return;
+    }
+    if (ModeButton.Hovered) return;
     if (CurrentlyPlayingBtn) CurrentlyPlayingBtn->Selected = false;
     PlayTrack(musicBtn->Id);
     if (PlayMode == +MusicMenuPlayingMode::Shuffle) {
       ResetShuffle();
     }
     musicBtn->Selected = true;
+    Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0);
   };
   const float maxY = MusicPlayIds.size() * MusicButtonBounds.Height;
 

@@ -556,15 +556,15 @@ void SaveSystem::SaveSystemData() {
   // EV Flags
   systemSaveStream.Seek(0xC0E, SEEK_SET);
   for (int i = 0; i < 150; i++) {
-    auto val = Io::ReadU8(&systemSaveStream);
-    EVFlags[8 * i] = val & 1;
-    EVFlags[8 * i + 1] = (val & 2) != 0;
-    EVFlags[8 * i + 2] = (val & 4) != 0;
-    EVFlags[8 * i + 3] = (val & 8) != 0;
-    EVFlags[8 * i + 4] = (val & 0x10) != 0;
-    EVFlags[8 * i + 5] = (val & 0x20) != 0;
-    EVFlags[8 * i + 6] = (val & 0x40) != 0;
-    EVFlags[8 * i + 7] = val >> 7;
+    const uint8_t evByte = (static_cast<uint8_t>(EVFlags[8 * i])) |
+                           (static_cast<uint8_t>(EVFlags[8 * i + 1]) << 1) |
+                           (static_cast<uint8_t>(EVFlags[8 * i + 2]) << 2) |
+                           (static_cast<uint8_t>(EVFlags[8 * i + 3]) << 3) |
+                           (static_cast<uint8_t>(EVFlags[8 * i + 4]) << 4) |
+                           (static_cast<uint8_t>(EVFlags[8 * i + 5]) << 5) |
+                           (static_cast<uint8_t>(EVFlags[8 * i + 6]) << 6) |
+                           (static_cast<uint8_t>(EVFlags[8 * i + 7]) << 7);
+    Io::WriteLE<uint8_t>(&systemSaveStream, evByte);
   }
 
   systemSaveStream.Seek(0xCA4, SEEK_SET);
@@ -909,6 +909,8 @@ void SaveSystem::GetEVStatus(int evId, int* totalVariations,
     *viewedVariations += EVFlags[AlbumEvData[evId][i]];
   }
 }
+
+void SaveSystem::SetEVStatus(int id) { EVFlags[id] = true; }
 
 bool SaveSystem::GetEVVariationIsUnlocked(int evId, int variationIdx) {
   if (AlbumEvData[evId][variationIdx] == 0xFFFF) return false;

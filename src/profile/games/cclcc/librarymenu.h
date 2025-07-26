@@ -8,6 +8,13 @@ namespace Profile {
 namespace CCLCC {
 namespace LibraryMenu {
 
+struct AlbumDataEntry {
+  std::vector<Sprite> ThumbnailSprites;
+  glm::vec2 Position;
+  uint8_t IndexInPage;
+  uint8_t PageNumber;
+};
+
 BETTER_ENUM(LibraryMenuPageType, int, Album, Sound, Movie)
 BETTER_ENUM(MusicMenuPlayingMode, int, RepeatOne, PlayAll, RepeatAll, Shuffle)
 
@@ -15,10 +22,10 @@ inline Sprite LibraryBackgroundSprite;
 inline glm::vec2 LibraryBackgroundPosition;
 inline Sprite LibraryIndexSprite;
 inline glm::vec2 LibraryIndexPosition;
-inline Sprite LibraryButtonGuideSprite;
 inline glm::vec2 LibraryButtonGuidePosition;
 inline Sprite LibraryMaskSprite;
 inline float LibraryTransitionPositionOffset;
+inline float LibraryMaskAlpha;
 
 inline Sprite SnapPhotoSpriteHover;
 inline Sprite SnapPhotoSpriteSelect;
@@ -29,6 +36,20 @@ inline glm::vec2 HitSongsPos;
 inline Sprite LoveMovieSpriteHover;
 inline Sprite LoveMovieSpriteSelect;
 inline glm::vec2 LoveMoviePos;
+
+inline std::vector<glm::vec2> AlbumThumbDispPos;
+inline std::vector<AlbumDataEntry> AlbumData;
+inline std::vector<Sprite> AlbumThumbnailPinSprites;
+inline Sprite AlbumThumbnailThumbSprite;
+inline float AlbumThumbZoomClickDuration;
+inline float AlbumThumbZoomPgChangeDuration;
+inline glm::vec2 AlbumThumbnailPinRemoveOffset;
+inline float AlbumCGPageSwapAnimationDuration;
+inline float AlbumThumbnailThumbBlinkDuration;
+inline std::vector<glm::vec2> AlbumPageNumberPositions;
+inline std::vector<Sprite> AlbumPageNumberSprites;
+inline Sprite AlbumCameraPageIconSprite;
+inline glm::vec2 AlbumCameraPageIconPosition;
 
 inline int MusicItemsBackgroundRepeatHeight;
 inline Sprite MusicItemsBackgroundSprite;
@@ -75,6 +96,7 @@ inline std::vector<glm::vec2> MovieDiskDisplayPositions;
 inline std::vector<int> MovieDiskPlayIds;
 
 inline Sprite AlbumMenuGuideSprite;
+inline Sprite AlbumMenuCGViewerGuideSprite;
 inline Sprite MusicMenuGuideSprite;
 inline Sprite MovieMenuGuideSprite;
 

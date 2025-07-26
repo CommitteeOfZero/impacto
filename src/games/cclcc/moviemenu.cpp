@@ -15,13 +15,39 @@ MovieMenu::MovieMenu() : LibrarySubmenu() {
     auto movieOnclick = [](Widgets::Button* target) {
       ScrWork[SW_MOVIEMODE_CUR] = MovieDiskPlayIds[target->Id];
       LibraryMenuPtr->AllowsScriptInput = true;
+      Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0);
+      Audio::Channels[Audio::AC_BGM0]->Stop(0.0f);
     };
-    auto disk =
-        new Widgets::Button(i, diskSprite, Sprite(), diskHighlightSprite,
-                            MovieDiskDisplayPositions[i]);
+    auto disk = new Widgets::Button(i, diskSprite, diskHighlightSprite,
+                                    Sprite(), MovieDiskDisplayPositions[i]);
     disk->OnClickHandler = movieOnclick;
     MainItems.Add(disk, FDIR_RIGHT);
   }
+
+  auto setFocus = [](Widget* btn, Widget* btn2, FocusDirection dir) {
+    FocusDirection oppositeDir = [dir] {
+      switch (dir) {
+        case FDIR_LEFT:
+          return FDIR_RIGHT;
+        case FDIR_RIGHT:
+          return FDIR_LEFT;
+        case FDIR_UP:
+          return FDIR_DOWN;
+        case FDIR_DOWN:
+          return FDIR_UP;
+      }
+      return FDIR_LEFT;  // unreachable
+    }();
+    btn->SetFocus(btn2, dir);
+    btn2->SetFocus(btn, oppositeDir);
+  };
+
+  setFocus(MainItems.Children[0], MainItems.Children[2], FDIR_RIGHT);
+  setFocus(MainItems.Children[2], MainItems.Children[1], FDIR_RIGHT);
+  setFocus(MainItems.Children[1], MainItems.Children[3], FDIR_RIGHT);
+  setFocus(MainItems.Children[3], MainItems.Children[0], FDIR_RIGHT);
+  setFocus(MainItems.Children[2], MainItems.Children[1], FDIR_UP);
+  setFocus(MainItems.Children[2], MainItems.Children[1], FDIR_DOWN);
 }
 
 void MovieMenu::Init() {

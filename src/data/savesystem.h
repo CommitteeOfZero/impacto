@@ -111,6 +111,7 @@ class SaveSystemBase {
   virtual void GetViewedEVsCount(int* totalEVCount, int* viewedEVCount) = 0;
   virtual void GetEVStatus(int evId, int* totalVariations,
                            int* viewedVariations) = 0;
+  virtual void SetEVStatus(int id) = 0;
   virtual bool GetEVVariationIsUnlocked(int evId, int variationIdx) = 0;
   virtual bool GetBgmFlag(int id) = 0;
   virtual void SetBgmFlag(int id, bool flag) = 0;
@@ -162,6 +163,7 @@ bool IsLineRead(int scriptId, int lineId);
 void GetReadMessagesCount(int* totalMessageCount, int* readMessageCount);
 void GetViewedEVsCount(int* totalEVCount, int* viewedEVCount);
 void GetEVStatus(int evId, int* totalVariations, int* viewedVariations);
+void SetEVStatus(int id);
 bool GetEVVariationIsUnlocked(int evId, int variationIdx);
 bool GetBgmFlag(int id);
 void SetBgmFlag(int id, bool setFlag);

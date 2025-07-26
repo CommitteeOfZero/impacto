@@ -51,8 +51,9 @@ LibraryMenuPageType LibraryMenu::GetMenuTypeFromButton(Widget* btn) const {
 }
 
 LibraryMenu::LibraryMenu() : MainItems(this) {
-  auto readyExistingMenu = [this](LibraryMenuPageType clickedType) -> bool {
-    if (CurrentLibraryMenu == clickedType) return true;
+  auto readyExistingMenu = [this](LibraryMenuPageType clickedType,
+                                  LibraryMenuButton* btn) -> bool {
+    if (CurrentLibraryMenu == clickedType) return !btn->Selected;
     auto& submenu = GetMenuFromType(CurrentLibraryMenu);
     if (submenu.State != UI::MenuState::Shown) return false;
     submenu.Hide();
@@ -61,9 +62,9 @@ LibraryMenu::LibraryMenu() : MainItems(this) {
   auto libraryMenuOnClickCommon = [this,
                                    readyExistingMenu](Widgets::Button* target) {
     auto clickedType = LibraryMenuPageType::_from_integral(target->Id);
-    if (!readyExistingMenu(clickedType)) return;
-    GetMenuFromType(clickedType).Show();
     auto* button = static_cast<LibraryMenuButton*>(target);
+    if (!readyExistingMenu(clickedType, button)) return;
+    GetMenuFromType(clickedType).Show();
     auto* prevButton = static_cast<LibraryMenuButton*>(
         MainItems.Children.at(CurrentLibraryMenu));
     prevButton->Selected = false;
@@ -116,14 +117,6 @@ void LibraryMenu::Show() {
     MainItems.Show();
     MainItems.Move({LibraryTransitionPositionOffset, 0.0f},
                    FadeAnimation.DurationIn);
-    if (!CurrentlyFocusedElement) {
-      CurrentlyFocusedElement = MainItems.Children[1];
-      auto* btn = static_cast<LibraryMenuButton*>(CurrentlyFocusedElement);
-      const auto menuType = GetMenuTypeFromButton(btn);
-      GetMenuFromType(menuType).Show();
-      btn->Selected = true;
-      CurrentLibraryMenu = menuType;
-    };
   }
 }
 
@@ -138,9 +131,6 @@ void LibraryMenu::Hide() {
       UI::FocusedMenu = 0;
     }
     MainItems.Hide();
-    UI::AlbumMenuPtr->Hide();
-    UI::MusicMenuPtr->Hide();
-    UI::MovieMenuPtr->Hide();
     MainItems.IsShown = true;
     MainItems.Move({-LibraryTransitionPositionOffset, 0.0f},
                    FadeAnimation.DurationOut);
@@ -157,35 +147,46 @@ void LibraryMenu::Update(float dt) {
              (ScrWork[SW_SYSSUBMENUNO] == 8)) {
     Show();
   }
+  const auto* albumMenuPtr = static_cast<AlbumMenu*>(UI::AlbumMenuPtr);
+  const bool moviePlaying = CurrentLibraryMenu == +LibraryMenuPageType::Movie &&
+                            Video::Players[0]->IsPlaying;
+  const bool cgViewerActive =
+      CurrentLibraryMenu == +LibraryMenuPageType::Album &&
+      albumMenuPtr->CGViewer;
   if (State == Shown && ScrWork[SW_SYSSUBMENUNO] == 8) {
-    if (!(CurrentLibraryMenu == +LibraryMenuPageType::Movie &&
-          Video::Players[0]->IsPlaying)) {
+    if (!moviePlaying && !cgViewerActive) {
       UpdateInput();
       if ((Vm::Interface::PADinputButtonWentDown & Vm::Interface::PAD1B) ||
           (Vm::Interface::PADinputMouseWentDown & Vm::Interface::PAD1B)) {
         Audio::Channels[Audio::AC_SSE]->Play("sysse", 3, false, 0);
         if (!IsFocused) {  // unfocus submenu
-          auto* activeButton = static_cast<LibraryMenuButton*>(
-              MainItems.Children.at(CurrentLibraryMenu));
-          auto& submenu = GetMenuFromType(CurrentLibraryMenu);
-          submenu.Unfocus();
-          IsFocused = true;
-          activeButton->Selected = false;
-          activeButton->HasFocus = true;
+          if (CurrentLibraryMenu != +LibraryMenuPageType::Album ||
+              !albumMenuPtr->CGViewer) {
+            auto* activeButton = static_cast<LibraryMenuButton*>(
+                MainItems.Children.at(CurrentLibraryMenu));
+            auto& submenu = GetMenuFromType(CurrentLibraryMenu);
+            submenu.Unfocus();
+            IsFocused = true;
+            activeButton->Selected = false;
+            if (!CurrentlyFocusedElement) activeButton->HasFocus = true;
+          }
         } else {
+          UI::AlbumMenuPtr->Hide();
+          UI::MusicMenuPtr->Hide();
+          UI::MovieMenuPtr->Hide();
           SetFlag(SF_ALBUMEND, 1);
         }
       }
     }
   }
+  if (State == Hidden) return;
 
   FadeAnimation.Update(dt);
   UI::AlbumMenuPtr->Update(dt);
   UI::MusicMenuPtr->Update(dt);
   UI::MovieMenuPtr->Update(dt);
   ButtonBlinkAnimation.Update(dt);
-  MainItems.HasFocus = IsFocused;
-  MainItems.Update(dt);
+  if (!moviePlaying && !cgViewerActive) MainItems.Update(dt);
 
   if (CurrentlyFocusedElement) {
     auto* activeBtn = static_cast<LibraryMenuButton*>(CurrentlyFocusedElement);
@@ -207,6 +208,11 @@ void LibraryMenu::Update(float dt) {
   if (State == Showing && FadeAnimation.Progress == 1.0f &&
       ScrWork[SW_SYSSUBMENUCT] == 32) {
     State = Shown;
+    if (!CurrentlyFocusedElement) {
+      CurrentlyFocusedElement = MainItems.Children.at(CurrentLibraryMenu);
+      GetMenuFromType(CurrentLibraryMenu).Show();
+      static_cast<LibraryMenuButton*>(CurrentlyFocusedElement)->Selected = true;
+    };
   } else if (State == Hiding && FadeAnimation.Progress == 0.0f &&
              ScrWork[SW_SYSSUBMENUCT] == 0) {
     State = Hidden;
@@ -241,32 +247,42 @@ void LibraryMenu::Render() {
     GetMenuFromType(LibraryMenuPageType::Album).Render();
     GetMenuFromType(LibraryMenuPageType::Sound).Render();
     GetMenuFromType(LibraryMenuPageType::Movie).Render();
+    auto* albumMenuPtr = static_cast<AlbumMenu*>(UI::AlbumMenuPtr);
+    const bool cgViewerActive =
+        CurrentLibraryMenu == +LibraryMenuPageType::Album &&
+        albumMenuPtr->CGViewer;
     Renderer->DrawSprite(LibraryIndexSprite,
                          LibraryIndexPosition + leftSpritesOffset, col);
     MainItems.Render();
     Renderer->DrawSprite(
         LibraryMaskSprite,
         RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-        glm::vec4(1.0f));
+        glm::vec4(1.0f, 1.0f, 1.0f, FadeAnimation.Progress * LibraryMaskAlpha));
 
-    const Sprite* submenuGuideSprite =
-        (CurrentLibraryMenu == +LibraryMenuPageType::Album)
-            ? &AlbumMenuGuideSprite
-        : (CurrentLibraryMenu == +LibraryMenuPageType::Sound)
-            ? &MusicMenuGuideSprite
-        : (CurrentLibraryMenu == +LibraryMenuPageType::Movie)
-            ? &MovieMenuGuideSprite
-            : nullptr;
+    const auto* const submenuGuideSprite = [&]() -> Sprite* {
+      switch (CurrentLibraryMenu) {
+        case LibraryMenuPageType::Album:
+          if (cgViewerActive && albumMenuPtr->CGViewer->EnableGuide)
+            return &AlbumMenuCGViewerGuideSprite;
+          else
+            return &AlbumMenuGuideSprite;
+        case LibraryMenuPageType::Sound:
+          return &MusicMenuGuideSprite;
+        case LibraryMenuPageType::Movie:
+          return &MovieMenuGuideSprite;
+        default:
+          return nullptr;
+      }
+    }();
+    if (cgViewerActive) {
+      albumMenuPtr->RenderCGViewer();
+    }
 
     if (submenuGuideSprite) {
       Renderer->DrawSprite(
           *submenuGuideSprite, LibraryButtonGuidePosition + leftSpritesOffset,
           col * glm::vec4{glm::vec3(1.0f), submenuFadeProgress});
     }
-    Renderer->DrawSprite(
-        LibraryButtonGuideSprite,
-        LibraryButtonGuidePosition + leftSpritesOffset,
-        col * glm::vec4{glm::vec3(1.0f), 1 - submenuFadeProgress});
 
     // This is technically a double render but menus always render after videos
     // so what can you do.

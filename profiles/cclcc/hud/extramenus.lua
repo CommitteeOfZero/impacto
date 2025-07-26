@@ -1,3 +1,72 @@
+-- PgNumber, GridThumbnailPos, {X, Y, Width, Height} in album sheet for each variant
+local AlbumTbl = {
+    { 0, 0, {{0x0, 0x0, 0x154, 0xC5}}},
+    { 0, 1, {{0x1, 0x0, 0x154, 0xC5}, {0x2, 0x0, 0x154, 0xC5}}},
+    { 0, 2, {{0x6, 0x0, 0x154, 0xC5}}},
+    { 0, 3, {{0x7, 0x0, 0x154, 0xC5}}},
+    { 0, 4, {{0x3, 0x0, 0x154, 0x174}, {0x4, 0x0, 0x154, 0x174}, {0x5, 0x0, 0x154, 0x174}}},
+    { 0, 5, {{0x8, 0x0, 0x154, 0xC5}}},
+    { 0, 6, {{0x9, 0x0, 0x154, 0xC5}}},
+    { 0, 7, {{0xA, 0x0, 0x154, 0xC5}}},
+    { 0, 9, {{0xB, 0x0, 0x154, 0xC5}, {0x0, 0x1, 0x154, 0xC5}}},
+    { 0, 10, {{0x1, 0x1, 0x154, 0xC5}}},
+    { 0, 11, {{0x6, 0x1, 0x154, 0xC5}, {0x7, 0x1, 0x154, 0xC5}}},
+    { 1, 0, {{0x8, 0x1, 0x154, 0xC5}}},
+    { 1, 1, {{0x9, 0x1, 0x154, 0xC5}}},
+    { 1, 2, {{0xA, 0x1, 0x154, 0xC5}, {0xB, 0x1, 0x154, 0xC5}}},
+    { 1, 3, {{0x0, 0x2, 0x154, 0xC5}}},
+    { 1, 4, {{0x4, 0x2, 0x154, 0xC5}}},
+    { 1, 5, {{0x5, 0x2, 0x154, 0xC5}, {0x6, 0x2, 0x154, 0xC5}}},
+    { 1, 6, {{0x7, 0x2, 0x154, 0xC5}}},
+    { 1, 7, {{0x0, 0xA, 0x1B8, 0x1F0}, {0x4, 0xA, 0x1B8, 0x1F0}}},
+    { 1, 8, {{0x8, 0x2, 0x154, 0xC5}}},
+    { 1, 9, {{0x9, 0x2, 0x154, 0xC5}, {0x1, 0x2, 0x154, 0xC5}}},
+    { 1, 10, {{0x2, 0x3, 0x154, 0xC5}}},
+    { 2, 0, {{0x2, 0x1, 0x154, 0x174}}},
+    { 2, 1, {{0x5, 0x3, 0x154, 0xC5}}},
+    { 2, 2, {{0x4, 0x3, 0x154, 0xC5}}},
+    { 2, 3, {{0x8, 0x9, 0x1B8, 0xF8}}},
+    { 2, 5, {{0x6, 0x3, 0x154, 0xC5}, {0x7, 0x3, 0x154, 0xC5}, {0x8, 0x3, 0x154, 0xC5}}},
+    { 2, 6, {{0x9, 0x3, 0x154, 0xC5}}},
+    { 2, 7, {{0xB, 0x3, 0x154, 0x174}, {0x0, 0x4, 0x154, 0xC5}}},
+    { 2, 8, {{0x1, 0x4, 0x154, 0xC5}, {0x3, 0x4, 0x154, 0xC5}, {0x4, 0x4, 0x154, 0xC5}, {0x5, 0x4, 0x154, 0xC5}}},
+    { 2, 9, {{0xA, 0x3, 0x154, 0xC5}, {0x0, 0x3, 0x154, 0xC5}}},
+    { 2, 10, {{0x7, 0x4, 0x154, 0xC5}, {0x8, 0x4, 0x154, 0xC5}, {0x9, 0x4, 0x154, 0xC5}}},
+    { 3, 0, {{0xA, 0x2, 0x154, 0xC5}, {0xB, 0x2, 0x154, 0xC5}, {0x3, 0x2, 0x154, 0xC5}, {0x1, 0x3, 0x154, 0xC5}}},
+    { 3, 1, {{0xA, 0x4, 0x154, 0xC5}, {0x0, 0x5, 0x154, 0xC5}}},
+    { 3, 2, {{0x1, 0x5, 0x154, 0xC5}}},
+    { 3, 3, {{0x9, 0x5, 0x154, 0xC5}, {0xA, 0x5, 0x154, 0xC5}}},
+    { 3, 4, {{0x3, 0x5, 0x154, 0x174}}},
+    { 3, 5, {{0x4, 0x5, 0x154, 0xC5}, {0x5, 0x5, 0x154, 0xC5}, {0x6, 0x5, 0x154, 0xC5}, {0x7, 0x5, 0x154, 0xC5}}},
+    { 3, 6, {{0x8, 0x5, 0x154, 0xC5}}},
+    { 3, 7, {{0x2, 0x5, 0x154, 0x118}}},
+    { 3, 9, {{0x5, 0x6, 0x154, 0xC5}, {0x6, 0x6, 0x154, 0xC5}}},
+    { 3, 10, {{0x7, 0x6, 0x154, 0xC5}}},
+    { 3, 11, {{0x8, 0x6, 0x154, 0xC5}}},
+    { 4, 0, {{0xB, 0x5, 0x154, 0xC5}, {0x0, 0x6, 0x154, 0xC5}, {0x1, 0x6, 0x154, 0xC5}, {0x4, 0x6, 0x154, 0xC5}}},
+    { 4, 1, {{0x9, 0x6, 0x154, 0xC5}}},
+    { 4, 2, {{0xA, 0x6, 0x154, 0xC5}, {0xB, 0x6, 0x154, 0xC5}}},
+    { 4, 3, {{0x0, 0x7, 0x154, 0xC5}}},
+    { 4, 4, {{0x1, 0x7, 0x154, 0xC5}}},
+    { 4, 5, {{0x2, 0x7, 0x154, 0xC5}}},
+    { 4, 6, {{0x3, 0x7, 0x154, 0xC5}, {0x4, 0x7, 0x154, 0xC5}}},
+    { 4, 7, {{0x5, 0x7, 0x154, 0xC5}, {0x6, 0x7, 0x154, 0xC5}}},
+    { 4, 8, {{0x7, 0x7, 0x154, 0xC5}, {0x8, 0x7, 0x154, 0xC5}}},
+    { 4, 9, {{0x9, 0x7, 0x154, 0xC5}}},
+    { 4, 10, {{0xA, 0x7, 0x154, 0xC5}}},
+    { 4, 11, {{0xB, 0x7, 0x154, 0xC5}, {0x0, 0x8, 0x154, 0xC5}}},
+    { 5, 0, {{0x1, 0x8, 0x154, 0xC5}}},
+    { 5, 1, {{0x2, 0x8, 0x154, 0xC5}}},
+    { 5, 2, {{0x3, 0x8, 0x154, 0xC5}}},
+    { 5, 3, {{0x4, 0x8, 0x154, 0xC5}}},
+    { 5, 4, {{0x5, 0x8, 0x154, 0xC5}}},
+    { 5, 5, {{0x6, 0x8, 0x154, 0xC5}, {0x7, 0x8, 0x154, 0xC5}}},
+    { 5, 6, {{0x8, 0x8, 0x154, 0xC5}, {0x9, 0x8, 0x154, 0xC5}, {0xA, 0x8, 0x154, 0xC5}, {0xB, 0x8, 0x154, 0xC5}}},
+    { 5, 7, {{0x0, 0x9, 0x154, 0xC5}, {0x1, 0x9, 0x154, 0xC5}, {0x2, 0x9, 0x154, 0xC5}}},
+    { 5, 8, {{0x3, 0x9, 0x154, 0x174}}},
+    { 5, 10, {{0x4, 0x9, 0x154, 0xC5}}},
+};
+
 root.ExtraMenus = {
     ClearListMenu = {
         DrawType = DrawComponentType.SystemMenu,
@@ -26,11 +95,11 @@ root.ExtraMenus = {
         LibraryBackgroundSprite = "LibraryBackground",
         LibraryBackgroundPosition = { X = 291, Y = 0 },
         LibraryIndexSprite = "LibraryIndex",
-        LibraryIndexPosition = { X = 0, Y = 31 },
-        LibraryButtonGuideSprite = "LibraryButtonGuide",
+        LibraryIndexPosition = { X = 0, Y = 31 },    
         LibraryButtonGuidePosition = { X = 0, Y = 989 },
         LibraryMaskSprite = "LibraryMask",
-        
+        LibraryMaskAlpha = 0.8,
+
         SnapPhotoSpriteHover = "SnapPhotoHover",
         SnapPhotoSpriteSelect = "SnapPhotoSelect",
         HitSongsSpriteHover = "HitSongsHover",
@@ -39,6 +108,7 @@ root.ExtraMenus = {
         LoveMovieSpriteSelect = "LoveMovieSelect",
 
         AlbumMenuGuideSprite = "AlbumMenuGuide",
+        AlbumMenuCGViewerGuideSprite = "AlbumMenuCGViewerGuide",
         MusicMenuGuideSprite = "MusicMenuGuide",
         MovieMenuGuideSprite = "MovieMenuGuide",
         
@@ -46,9 +116,41 @@ root.ExtraMenus = {
         HitSongsPos = {X=0, Y=382},
         LoveMoviePos = {X=0, Y=684},
 
-        SubMenuFadeInDuration = 0.4,
-        SubMenuFadeOutDuration = 0.4,
+        SubMenuFadeInDuration = 0.2,
+        SubMenuFadeOutDuration = 0.2,
 
+        AlbumThumbnailThumbBlinkDuration = 0.5,
+        AlbumMaxThumbnailsPerPage = 12,
+        AlbumMaxPageCount = 6,
+        AlbumCameraPageIconSprite = "AlbumCameraPageIcon",
+        AlbumCameraPageIconPosition = { X = 1731.0, Y = 886.0 },
+        AlbumPageNumberSprites = {},
+        AlbumThumbnailPinSprites = {},
+        AlbumThumbnailThumbSprite = "AlbumThumbnailThumb", 
+        AlbumThumbDispPos = {
+            {X = 656.0, Y = 167.0},
+            {X = 971.0, Y = 247.0},
+            {X = 1234.0, Y = 120.0},
+            {X = 1556.0, Y = 231.0},
+            {X = 682.0, Y = 390.0},
+            {X = 1009.0, Y = 485.0},
+            {X = 1328.0, Y = 366.0},
+            {X = 1496.0, Y = 553.0},
+            {X = 598.0, Y = 610.0},
+            {X = 763.0, Y = 795.0},
+            {X = 1089.0, Y = 694.0},
+            {X = 1356.0, Y = 794.0},
+        },
+        AlbumTbl = AlbumTbl,
+        AlbumThumbZoomClickDuration = 24/60,
+        AlbumThumbZoomPgChangeDuration = 12/60,
+        AlbumThumbnailPinRemoveOffset = { X = 20, Y = 20 },
+        AlbumCGPageSwapAnimationDuration = 12/60,
+        AlbumPageNumberPositions = {
+            { X = 1787.0, Y = 887.0 },
+            { X = 1826.0, Y = 887.0 },
+        },
+        
         MusicItemsBackgroundSprite = "MusicItemsBackground",
         MusicItemsBackgroundPosition = {X=293, Y=-93},
         MusicItemsBackgroundRepeatHeight = 1200,
@@ -121,13 +223,13 @@ root.ExtraMenus = {
         MovieDiskHighlightSprites = {},
         MovieDiskDisplayPositions = {
             {X = 388, Y= 138},
-            {X = 830, Y= 578},
             {X = 956, Y= -64},
+            {X = 830, Y= 578},
             {X = 1422, Y= 412},
         },
         MovieDiskPlayIds = {54, 53, 52, 51},
     }
-}
+};
 
 -- Common
 root.Sprites["LibraryMask"] = {
@@ -212,16 +314,6 @@ root.Sprites["LibraryIndex"] = {
     Bounds = { X = 1658, Y = 0, Width = 381, Height = 1049 },
 };
 
-root.Sprites["LibraryButtonGuide"] = {
-    Sheet = "LibraryMenu",
-    Bounds = { X = 0, Y = 1783, Width = 1926, Height = 57 },
-};
-
-root.Sprites["AlbumButtonGuide"] = {
-    Sheet = "LibraryMenu",
-    Bounds = { X = 0, Y = 1878, Width = 1926, Height = 57 },
-};
-
 root.Sprites["SnapPhotoHover"] = {
     Sheet = "LibraryMenu",
     Bounds = { X = 0, Y = 0, Width = 256, Height = 300 },
@@ -254,9 +346,14 @@ root.Sprites["LoveMovieSelect"] = {
 
 
 -- Album Menu
-root.Sprites["AlbumMenuGuide"] = {
+root.Sprites["AlbumMenuCGViewerGuide"] = {
     Sheet = "LibraryMenu",
     Bounds = { X = 0, Y = 1880, Width = 1920, Height = 59 },
+};
+
+root.Sprites["AlbumMenuGuide"] = {
+    Sheet = "LibraryMenu",
+    Bounds = { X = 0, Y = 1783, Width = 1926, Height = 57 },
 };
 
 -- Movie Menu
@@ -267,7 +364,7 @@ for i = 0, 3 do
     };
     root.Sprites["MovieDiskHighlightSprites" .. i] = {
         Sheet = "MovMenu",
-        Bounds = { X = i * 575, Y = 575, Width = 575, Height = 575 }
+        Bounds = { X = i * 575, Y = 575 + 9, Width = 575, Height = 575 }
     };
     root.ExtraMenus.LibraryMenu.MovieDiskSprites[#root.ExtraMenus.LibraryMenu.MovieDiskSprites + 1] = "MovieDiskSprites" .. i;
     root.ExtraMenus.LibraryMenu.MovieDiskHighlightSprites[#root.ExtraMenus.LibraryMenu.MovieDiskHighlightSprites + 1] = "MovieDiskHighlightSprites" .. i;
@@ -368,4 +465,48 @@ for i = 0, 3 do
         Width = MusicNowPlayingModeBounds[index].Width;
         Height = MusicNowPlayingModeBounds[index].Height;
     };
+end
+
+-- AlbumMenu
+root.Sprites["AlbumCameraPageIcon"] = {
+    Sheet = "LibraryMenu",
+    Bounds = { 
+        X = 1403.0,
+        Y = 80.0,
+        Width = 65.0,
+        Height = 76.0
+    },
+};
+root.Sprites["AlbumThumbnailThumb"] = {
+    Sheet = "LibraryMenu",
+    Bounds = { 
+        X = 1476.0,
+        Y = 1.0,
+        Width = 170.0,
+        Height = 198.0
+    },
+};
+for i = 0, 9 do
+    root.Sprites["AlbumPageNumber" .. i] = {
+        Sheet = "LibraryMenu",
+        Bounds = { 
+            X = 873.0 + 53 * i,
+            Y = 80.0,
+            Width = 51.0,
+            Height = 76.0
+        },
+    };
+    root.ExtraMenus.LibraryMenu.AlbumPageNumberSprites[i + 1] = "AlbumPageNumber" .. i;
+end
+for i = 0, 11 do
+    root.Sprites["AlbumThumbnailPin" .. i] = {
+        Sheet = "LibraryMenu",
+        Bounds = { 
+            X = (i % 6) * 64 + 868.0 + 1,
+            Y = (i // 6) * 78 + 194,
+            Width = 62.0,
+            Height = 76.0
+        },
+    };
+    root.ExtraMenus.LibraryMenu.AlbumThumbnailPinSprites[i + 1] = "AlbumThumbnailPin" .. i;
 end
