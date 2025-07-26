@@ -22,14 +22,18 @@ void Configure() {
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMember<int>("DrawType"));
 
-  UI::SaveMenuPtr = new UI::CCLCC::SaveMenu();
-  UI::Menus[drawType].push_back(UI::SaveMenuPtr);
-
   EntryStartXL = EnsureGetMember<float>("EntryStartXL");
   EntryStartXR = EnsureGetMember<float>("EntryStartXR");
   EntryStartYL = EnsureGetMember<float>("EntryStartYL");
   EntryStartYR = EnsureGetMember<float>("EntryStartYR");
   EntryYPadding = EnsureGetMember<float>("EntryYPadding");
+  PageSwapDuration = EnsureGetMember<float>("PageSwapDuration");
+
+  GuidePosition = EnsureGetMember<glm::vec2>("GuidePosition");
+  MenuTextPosition = EnsureGetMember<glm::vec2>("MenuTextPosition");
+  SlotsBackgroundPosition =
+      EnsureGetMember<glm::vec2>("SlotsBackgroundPosition");
+  PageNumberPosition = EnsureGetMember<glm::vec2>("PageNumberPosition");
 
   SaveMenuMaskSprite = EnsureGetMember<Sprite>("SaveMenuMaskSprite");
   SaveEntryPrimaryColor = EnsureGetMember<uint32_t>("SaveEntryPrimaryColor");
@@ -70,6 +74,9 @@ void Configure() {
     SaveTimeSprite[menuType] =
         EnsureGetMember<Sprite>((menuName + "SaveTimeSprite").c_str());
   }
+
+  UI::SaveMenuPtr = new UI::CCLCC::SaveMenu();
+  UI::Menus[drawType].push_back(UI::SaveMenuPtr);
 }
 }  // namespace SaveMenu
 }  // namespace CCLCC

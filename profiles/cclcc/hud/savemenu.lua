@@ -9,9 +9,14 @@ root.SaveMenu = {
     EntryYPadding = 201,
     FadeInDuration = 28 / 60,
     FadeOutDuration = 28 / 60,
+    PageSwapDuration = 28 / 60,
     SaveMenuMaskSprite = "SaveMenuMask",
     SaveEntryPrimaryColor = 0x43B7EA,
     SaveEntrySecondaryColor = 0x5E357C,
+    GuidePosition = {X = 1314, Y = 867},
+    MenuTextPosition = {X = 11, Y = 10}, 
+    SlotsBackgroundPosition = {X = 135, Y = 0}, 
+    PageNumberPosition = {X = 1314, Y = 867},
 };
 
 root.Sprites["EmptyThumbnail"] = {
