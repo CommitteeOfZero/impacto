@@ -18,14 +18,21 @@ class AchievementFileLoader
 
  protected:
   void UnloadSync() {}
-  AchievementError LoadSync() { return Implementation->MountAchievementFile(); }
+  AchievementError LoadSync() {
+    return Implementation->MountAchievementFile(MainThreadCallback);
+  }
 
   void MainThreadOnLoad(AchievementError result) {
+    if (MainThreadCallback) MainThreadCallback();
+
     // Let's not report errors until we finalize the implementation
     result = AchievementError::OK;
 
     ScrWork[SW_SAVEERRORCODE] = (int)result;
   }
+
+ private:
+  std::function<void(void)> MainThreadCallback;
 };
 
 static AchievementFileLoader Loader;

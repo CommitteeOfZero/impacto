@@ -8,7 +8,6 @@
 #include "../io/uncompressedstream.h"
 #include "../profile/data/achievementsystem.h"
 #include "../log.h"
-#include "../texture/texture.h"
 
 int constexpr ICON_START = 3;
 int constexpr ICON_SIZE = 240;
@@ -22,7 +21,8 @@ size_t AchievementSystemPS3::GetAchievementCount() const {
   return Trophies.size();
 }
 
-AchievementError AchievementSystemPS3::MountAchievementFile() {
+AchievementError AchievementSystemPS3::MountAchievementFile(
+    std::function<void(void)>& mainThreadCallback) {
   Io::Stream* baseStream;
   IoError err =
       Io::PhysicalFileStream::Create(AchievementDataPath, &baseStream);
@@ -86,12 +86,15 @@ AchievementError AchievementSystemPS3::MountAchievementFile() {
     return AchievementError::Failed;
   }
 
+  std::vector<QueuedTrophy> queuedTrophies;
+
   for (pugi::xml_node trophy = trop.first_child().child("trophy"); trophy;
        trophy = trophy.next_sibling()) {
-    int id = trophy.attribute("id").as_int();
-    bool hidden = trophy.attribute("hidden").as_bool();
-    std::string name = trophy.child("name").text().as_string();
-    std::string description = trophy.child("detail").text().as_string();
+    QueuedTrophy queuedTrophy;
+    queuedTrophy.id = trophy.attribute("id").as_int();
+    queuedTrophy.hidden = trophy.attribute("hidden").as_bool();
+    queuedTrophy.name = trophy.child("name").text().as_string();
+    queuedTrophy.description = trophy.child("detail").text().as_string();
     const char* ttypeStr = trophy.attribute("ttype").as_string();
 
     if (strlen(ttypeStr) == 0) {
@@ -109,7 +112,9 @@ AchievementError AchievementSystemPS3::MountAchievementFile() {
       return AchievementError::Failed;
     }
 
-    auto& entry = TrophyDataEntries[id + ICON_START];
+    queuedTrophy.ttype = (TrophyType)ttype;
+
+    auto& entry = TrophyDataEntries[queuedTrophy.id + ICON_START];
 
     Io::Stream* iconStream;
     err = Io::UncompressedStream::Create(baseStream, entry.offset, entry.size,
@@ -117,38 +122,45 @@ AchievementError AchievementSystemPS3::MountAchievementFile() {
 
     if (err != IoError_OK) {
       ImpLog(LogLevel::Error, LogChannel::IO,
-             "Couldn't open icon for TROP{:03d}\n", id);
+             "Couldn't open icon for TROP{:03d}\n", queuedTrophy.id);
       delete baseStream;
       return AchievementError::Failed;
     }
 
-    Texture texture;
-    texture.Init(TexFmt_RGBA, ICON_SIZE, ICON_SIZE);
+    queuedTrophy.texture.Init(TexFmt_RGBA, ICON_SIZE, ICON_SIZE);
 
-    if (!texture.Load(iconStream)) {
+    if (!queuedTrophy.texture.Load(iconStream)) {
       ImpLog(LogLevel::Error, LogChannel::IO,
-             "Unable to load texture for TROP{:03d}.PNG\n", id);
+             "Unable to load texture for TROP{:03d}.PNG\n", queuedTrophy.id);
       delete iconStream;
       delete baseStream;
       return AchievementError::Failed;
     }
     delete iconStream;
 
-    SpriteSheet sheet;
-    sheet.DesignWidth = sheet.DesignHeight = ICON_SIZE;
-    sheet.Texture = texture.Submit();
-
-    Sprite icon = Sprite(sheet, 0, 0, ICON_SIZE, ICON_SIZE);
-    // Ensure the vector is large enough
-    if (Trophies.size() <= id) {
-      Trophies.resize(id + 1);
-    }
-    Trophies[id] =
-        std::make_unique<Trophy>(std::move(name), std::move(description),
-                                 hidden, (TrophyType)ttype, icon);
+    queuedTrophies.push_back(std::move(queuedTrophy));
   }
 
   delete baseStream;
+
+  mainThreadCallback = [this,
+                        queuedTrophies = std::move(queuedTrophies)]() mutable {
+    for (QueuedTrophy& trophy : queuedTrophies) {
+      SpriteSheet sheet;
+      sheet.DesignWidth = sheet.DesignHeight = ICON_SIZE;
+      sheet.Texture = trophy.texture.Submit();
+
+      Sprite icon = Sprite(sheet, 0, 0, ICON_SIZE, ICON_SIZE);
+      // Ensure the vector is large enough
+      if (Trophies.size() <= trophy.id) {
+        Trophies.resize(trophy.id + 1);
+      }
+      Trophies[trophy.id] = std::make_unique<Trophy>(
+          std::move(trophy.name), std::move(trophy.description), trophy.hidden,
+          trophy.ttype, icon);
+    }
+  };
+
   return AchievementError::OK;
 }
 

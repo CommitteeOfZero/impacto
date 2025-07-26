@@ -39,7 +39,8 @@ class Achievement {
 
 class AchievementSystemBase {
  public:
-  virtual AchievementError MountAchievementFile() = 0;
+  virtual AchievementError MountAchievementFile(
+      std::function<void(void)> &mainThreadCallback) = 0;
   //  virtual bool UnlockAchievement(int id) = 0;
   virtual const Achievement *GetAchievement(int id) = 0;
   virtual size_t GetAchievementCount() const = 0;
