@@ -162,7 +162,7 @@ void SysMesBox::Render() {
     ChoiceItems->Render();
 
     if (GetFlag(SF_SAVEICON)) {
-      for (size_t i = 0; i < LoadingStarCount; i++) {
+      for (size_t i = 0; i < LoadingStars.size(); i++) {
         const SysMesBoxStar& star = LoadingStars[i];
         glm::vec2 position = LoadingStarsPosition +
                              glm::vec2(LoadingStar.ScaledWidth() * i, 0.0f);
