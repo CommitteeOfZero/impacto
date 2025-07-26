@@ -279,6 +279,24 @@ VmInstruction(InstSave) {
         SetFlag(SF_SAVEICON, false);
       }
       break;
+    case 34:
+      if (Profile::Vm::GameInstructionSet == +InstructionSet::MO6TW ||
+          Profile::Vm::GameInstructionSet == +InstructionSet::CHLCC) {
+        SetFlag(SF_SAVEICON, true);
+        SaveSystem::CheckSaveFile();
+      }
+      break;
+    case 35:
+      if (Profile::Vm::GameInstructionSet == +InstructionSet::MO6TW ||
+          Profile::Vm::GameInstructionSet == +InstructionSet::CHLCC) {
+        if (SaveSystem::GetLoadStatus() == LoadStatus::Loading) {
+          ResetInstruction;
+          BlockThread;
+        } else {
+          SetFlag(SF_SAVEICON, false);
+        }
+      }
+      break;
     case 40:  // SystemDataCheck
       if (Profile::Vm::GameInstructionSet == +InstructionSet::RNE) {
         PopExpression(unused1);

@@ -24,7 +24,9 @@ root.SysMesBoxDisplay = {
     HighlightRightPartSpriteWidth = 24,
     AnimationSpeed = 55,
     FadeInDuration = 0.33,
-    FadeOutDuration = 0.25
+    FadeOutDuration = 0.25,
+    LoadingStarsPosition = { X = 580, Y = 357 },
+    LoadingStarsFadeDuration = 0.533
 };
 
 root.Sprites[name .. "Box"] = {
@@ -81,3 +83,14 @@ root.Sprites[name .. "SelectionMiddlePart"] = {
     }
 };
 root.SysMesBoxDisplay.SelectionMiddlePart = name .. "SelectionMiddlePart";
+
+root.Sprites[name .. "LoadingStar"] = {
+    Sheet = sheet,
+    Bounds = {
+        X = 1,
+        Y = 97,
+        Width = 32,
+        Height = 32
+    }
+}
+root.SysMesBoxDisplay.LoadingStar = name .. "LoadingStar"
