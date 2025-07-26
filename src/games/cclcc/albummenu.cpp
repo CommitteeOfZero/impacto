@@ -420,8 +420,7 @@ void AlbumCGViewer::CGViewerPanZoom(float dt) {
   const bool zoomingIn = (PADinputButtonIsDown & PADcustom[37]) || scrollDown;
 
   if (zoomingOut) {
-    if (touchingLeft && touchingTop && touchingRight && touchingLeft &&
-        touchingBottom)
+    if (touchingLeft && touchingTop && touchingRight && touchingBottom)
       scaleOrigin = screenCenter;
     else if (((touchingLeft && touchingTop) || (touchingRight && touchingTop) ||
               (touchingLeft && touchingBottom) ||
