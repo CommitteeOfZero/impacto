@@ -179,9 +179,13 @@ void AlbumThumbnail::Render() {
           (!Menu.CGViewer || &Menu.CGViewer->ClickedThumbnail.get() == this)
               ? 1.5f * pgSwapDur + 1.0f
               : 1.0f;
-      const auto matrix = TransformationMatrix(
-          spriteInfo.Origin, {scaleFactor, scaleFactor}, spriteInfo.Origin,
-          ScrWorkAngleToRad(spriteInfo.Angle), picTopLeft);
+
+      float angle = ScrWorkAngleToRad(spriteInfo.Angle);
+      if (Menu.CGViewer && &Menu.CGViewer->ClickedThumbnail.get() == this)
+        angle *= (1.0f - pgSwapDur);
+      const auto matrix =
+          TransformationMatrix(spriteInfo.Origin, {scaleFactor, scaleFactor},
+                               spriteInfo.Origin, angle, picTopLeft);
       Renderer->DrawSprite(thumbnailSprite, matrix, tint);
     }
     if (HasFocus && Menu.ThumbnailZoomAnimation.IsOut()) {
