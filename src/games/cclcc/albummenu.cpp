@@ -258,7 +258,7 @@ void AlbumMenu::Init() {
       }
       variantBounds.Rotate(ScrWorkAngleToRad(variantAngle),
                            gridDispPosition + origin);
-      maxBounds = RectF::Coalesce(variantBounds, maxBounds);
+      maxBounds = RectF::BoundingBox(variantBounds, maxBounds);
     }
     thumbnailWidget->Enabled = !thumbnailWidget->IsLocked;
     thumbnailWidget->Bounds = maxBounds;
