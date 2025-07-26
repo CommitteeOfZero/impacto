@@ -23,9 +23,11 @@ class SaveMenu : public UI::SaveMenu {
   void MenuButtonOnClick(Widgets::Button* target);
 
  private:
+  int PrevPage = 0;
   int CurrentPage = 0;
   Widgets::Group* MainItems[Profile::CCLCC::SaveMenu::Pages]{};
   Animation FadeAnimation;
+  Animation PageAnimation;
   bool HasCleared = true;
 };
 
