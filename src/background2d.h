@@ -28,8 +28,9 @@ class Background2D : public Loadable<Background2D, bool, uint32_t> {
 
   Sprite BgSprite;
 
-  bool BgEffsLoaded = false;
+  int BgEffsLayer = -1;
   constexpr static size_t MaxBgEffCount = 4;
+  std::array<bool, MaxBgEffCount> BgEffsLoaded = {false, false, false, false};
   std::array<Texture, MaxBgEffCount> BgEffTextures;
   std::array<Sprite, MaxBgEffCount> BgEffSprites;
   std::array<ShaderProgramType, MaxBgEffCount> BgEffShaders = {
@@ -73,6 +74,7 @@ class Background2D : public Loadable<Background2D, bool, uint32_t> {
       BgEffTextureIdMap;
 
   virtual void Render(int layer);
+  void RenderBgEff(int layer);
   virtual void UpdateState(int bgId);
 
   void LoadSolidColor(uint32_t color, int width, int height);

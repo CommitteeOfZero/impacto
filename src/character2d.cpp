@@ -387,15 +387,17 @@ void Character2D::Render(const int layer) {
     const glm::mat4 transformation = TransformationMatrix(
         {0.0f, 0.0f}, Scale, glm::vec3(0.0f), Rotation, Position);
 
+    constexpr size_t chaBgEffId = 3;
     const bool renderWithBgEffect =
         Profile::UseBgEffects && Background2D::LastRenderedBackground &&
-        Background2D::LastRenderedBackground->BgEffsLoaded && UseBgEffect;
+        Background2D::LastRenderedBackground->BgEffsLoaded[chaBgEffId] &&
+        UseBgEffect;
     if (!renderWithBgEffect) {
       Renderer->DrawVertices(CharaSpriteSheet, ShaderProgramType::Sprite,
                              MvlVertices, MvlIndices, transformation);
     } else {
       const ShaderProgramType shader =
-          Background2D::LastRenderedBackground->BgEffShaders[3];
+          Background2D::LastRenderedBackground->BgEffShaders[chaBgEffId];
       const glm::mat4 maskTransformation =
           glm::scale(glm::mat4(1.0f), {1.0f / Profile::DesignWidth,
                                        1.0f / Profile::DesignHeight, 1.0f}) *
@@ -403,8 +405,8 @@ void Character2D::Render(const int layer) {
 
       Renderer->DrawVertices(
           CharaSpriteSheet,
-          &Background2D::LastRenderedBackground->BgEffSprites[3].Sheet, shader,
-          MvlVertices, MvlIndices, transformation, maskTransformation);
+          &Background2D::LastRenderedBackground->BgEffSprites[chaBgEffId].Sheet,
+          shader, MvlVertices, MvlIndices, transformation, maskTransformation);
     }
 
   } else {

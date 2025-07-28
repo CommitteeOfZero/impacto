@@ -77,22 +77,23 @@ bool Background2D::LoadSync(uint32_t bgId) {
     BgTexture.Load(stream);
     delete stream;
 
-    BgEffsLoaded = false;
+    std::fill(BgEffsLoaded.begin(), BgEffsLoaded.end(), false);
     if (Profile::UseBgEffects && BgEffTextureIdMap.contains(bgId)) {
       const std::array<int, 4>& textureIds = BgEffTextureIdMap[bgId];
 
       for (size_t i = 0; i < MaxBgEffCount; i++) {
+        if (textureIds[i] == 0) continue;
+
         Io::Stream* bgEffStream;
         err = Io::VfsOpen("bgeffect", textureIds[i], &bgEffStream);
 
         if (err != IoError::IoError_OK) return false;
 
         BgEffTextures[i].Load(bgEffStream);
+        BgEffsLoaded[i] = true;
 
         delete bgEffStream;
       }
-
-      BgEffsLoaded = true;
     }
   }
 
@@ -111,7 +112,7 @@ void Background2D::UnloadSync() {
   BgSprite.Sheet.Texture = 0;
   BgSprite.Sheet.IsScreenCap = false;
 
-  BgEffsLoaded = false;
+  std::fill(BgEffsLoaded.begin(), BgEffsLoaded.end(), false);
   for (Sprite& bgEff : BgEffSprites) {
     Renderer->FreeTexture(bgEff.Sheet.Texture);
     bgEff.Sheet.DesignHeight = 0.0f;
@@ -139,8 +140,10 @@ void Background2D::MainThreadOnLoad(bool result) {
   BgSprite.Bounds = RectF(0.0f, 0.0f, BgSprite.Sheet.DesignWidth,
                           BgSprite.Sheet.DesignHeight);
 
-  if (Profile::UseBgEffects && BgEffsLoaded) {
+  if (Profile::UseBgEffects) {
     for (size_t i = 0; i < MaxBgEffCount; i++) {
+      if (!BgEffsLoaded[i]) continue;
+
       BgEffSprites[i].Sheet.Texture = BgEffTextures[i].Submit();
 
       BgEffSprites[i].Sheet.DesignWidth = (float)BgEffTextures[i].Width;
@@ -230,6 +233,10 @@ void Background2D::UpdateState(const int bgId) {
             ScrWork[SW_BG1PRI2 + structOffset]};
   Show = GetFlag(SF_BG1DISP + bgId);
   RenderType = ScrWork[SW_BG1FADETYPE + structOffset];
+
+  if (Profile::UseBgEffects) {
+    BgEffsLayer = ScrWork[SW_BG1EFFPRI + structOffset];
+  }
 
   MaskNumber = ScrWork[SW_BG1MASKNO + structOffset];
   FadeRange = ScrWork[SW_BG1MASKFADERANGE + structOffset];
@@ -347,6 +354,56 @@ void Background2D::Render(const int layer) {
   LastRenderedBackground = this;
 
   std::invoke(BackgroundRenderTable[RenderType], this);
+}
+
+void Background2D::RenderBgEff(const int layer) {
+  if (layer != BgEffsLayer) return;
+
+  static Sprite frameSprite{};
+  if (frameSprite.Sheet.Texture == 0) {
+    Texture frameTexture{};
+    frameTexture.LoadSolidColor(Window->WindowWidth, Window->WindowHeight,
+                                0x00000000);
+    frameSprite.Sheet.Texture = frameTexture.Submit();
+    // I am aware this leaks a texture at shutdown
+  }
+
+  const std::array<VertexBufferSprites, 4> vertices{
+      VertexBufferSprites{
+          .Position = {0.0f, Profile::DesignHeight},
+          .UV = {0.0f, 1.0f},
+          .MaskUV = {0.0f, 0.0f},
+      },
+      VertexBufferSprites{
+          .Position = {0.0f, 0.0f},
+          .UV = {0.0f, 0.0f},
+          .MaskUV = {0.0f, 1.0f},
+      },
+      VertexBufferSprites{
+          .Position = {Profile::DesignWidth, 0.0f},
+          .UV = {1.0f, 0.0f},
+          .MaskUV = {1.0f, 1.0f},
+      },
+      VertexBufferSprites{
+          .Position = {Profile::DesignWidth, Profile::DesignHeight},
+          .UV = {1.0f, 1.0f},
+          .MaskUV = {1.0f, 0.0f},
+      },
+  };
+  constexpr std::array<uint16_t, 6> indices = {0, 1, 2, 0, 2, 3};
+
+  // Last index is CHA effect; start with penultimate entry
+  for (int bgEffId = BgEffSprites.size() - 2; bgEffId >= 0; bgEffId--) {
+    if (!BgEffsLoaded[bgEffId]) continue;
+
+    const ShaderProgramType shader = BgEffShaders[bgEffId];
+    Renderer->CaptureScreencap(frameSprite);
+
+    Renderer->DrawVertices(frameSprite.Sheet, &BgEffSprites[bgEffId].Sheet,
+                           shader, vertices, indices);
+  }
+
+  LastRenderedBackground = nullptr;
 }
 
 void Capture2D::UpdateState(const int capId) {
