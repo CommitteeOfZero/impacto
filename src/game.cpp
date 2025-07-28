@@ -304,6 +304,11 @@ static void RenderMain() {
       Backgrounds2D[bufId]->Render(layer);
     }
 
+    if (Profile::UseBgEffects &&
+        Background2D::LastRenderedBackground != nullptr) {
+      Background2D::LastRenderedBackground->RenderBgEff(layer);
+    }
+
     if ((Profile::GameFeatures & GameFeature::Renderer2D) &&
         !(Profile::GameFeatures & GameFeature::Scene3D)) {
       for (int chaId = 0; chaId < Characters2D.size(); chaId++) {
