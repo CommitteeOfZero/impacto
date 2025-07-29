@@ -234,10 +234,6 @@ void Background2D::UpdateState(const int bgId) {
   Show = GetFlag(SF_BG1DISP + bgId);
   RenderType = ScrWork[SW_BG1FADETYPE + structOffset];
 
-  if (Profile::UseBgEffects) {
-    BgEffsLayer = ScrWork[SW_BG1EFFPRI + structOffset];
-  }
-
   MaskNumber = ScrWork[SW_BG1MASKNO + structOffset];
   FadeRange = ScrWork[SW_BG1MASKFADERANGE + structOffset];
   FadeCount = ScrWork[SW_BG1FADECT + structOffset];
@@ -338,6 +334,8 @@ void Background2D::UpdateState(const int bgId) {
   }
 
   if (Profile::UseBgEffects) {
+    BgEffsLayers = {ScrWork[SW_BG1EFFPRI + structOffset],
+                    ScrWork[SW_BG1EFFPRI2 + structOffset]};
     BgEffShaders = GetBgEffShaders(ScrWork[SW_BG1NO + structOffset]);
   }
 
@@ -351,13 +349,28 @@ void Background2D::UpdateState(const int bgId) {
 void Background2D::Render(const int layer) {
   if (Status != LoadStatus::Loaded || !OnLayer(layer) || !Show) return;
 
-  LastRenderedBackground = this;
+  if (Profile::UseBgEffects) {
+    bool renderBgEffs = false;
+
+    for (size_t i = 0; i < BgEffsLayers.size(); i++) {
+      renderBgEffs |= BgEffsLayers[i] != 0 && BgEffsLayers[i] > Layers[i] &&
+                      std::any_of(BgEffShaders.begin(), BgEffShaders.end() - 1,
+                                  [](const auto shader) {
+                                    return shader != +ShaderProgramType::Sprite;
+                                  });
+    }
+
+    LastRenderedBackground = renderBgEffs ? this : nullptr;
+  }
 
   std::invoke(BackgroundRenderTable[RenderType], this);
 }
 
 void Background2D::RenderBgEff(const int layer) {
-  if (layer != BgEffsLayer) return;
+  if (layer == 0 || std::find(BgEffsLayers.begin(), BgEffsLayers.end(),
+                              layer) == BgEffsLayers.end()) {
+    return;
+  }
 
   static Sprite frameSprite{};
   if (frameSprite.Sheet.Texture == 0) {
