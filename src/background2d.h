@@ -28,7 +28,7 @@ class Background2D : public Loadable<Background2D, bool, uint32_t> {
 
   Sprite BgSprite;
 
-  int BgEffsLayer = -1;
+  std::array<int, 2> BgEffsLayers = {0, 0};
   constexpr static size_t MaxBgEffCount = 4;
   std::array<bool, MaxBgEffCount> BgEffsLoaded = {false, false, false, false};
   std::array<Texture, MaxBgEffCount> BgEffTextures;
