@@ -199,12 +199,12 @@ void Update(float dt) {
         ImGui::Spacing();
 
         const char* comboPreviewValue =
-            g_BackgroundModelNames[CurrentBackground];
+            g_BackgroundModelNames[CurrentBackground].data();
         if (ImGui::BeginCombo("##backgroundCombo", comboPreviewValue)) {
           for (uint32_t i = 0; i < g_BackgroundModelCount; i++) {
             ImGui::PushID(i);
             const bool isSelected = (CurrentBackground == i);
-            if (ImGui::Selectable(g_BackgroundModelNames[i], isSelected))
+            if (ImGui::Selectable(g_BackgroundModelNames[i].data(), isSelected))
               CurrentBackground = i;
             if (isSelected) ImGui::SetItemDefaultFocus();
             ImGui::PopID();
@@ -260,12 +260,12 @@ void Update(float dt) {
 
         ImGui::Spacing();
 
-        const char* comboPreviewValue = g_ModelNames[CurrentModel];
+        const char* comboPreviewValue = g_ModelNames[CurrentModel].data();
         if (ImGui::BeginCombo("##modelCombo", comboPreviewValue)) {
           for (uint32_t i = 0; i < g_ModelCount; i++) {
             ImGui::PushID(i);
             const bool isSelected = (CurrentModel == i);
-            if (ImGui::Selectable(g_ModelNames[i], isSelected))
+            if (ImGui::Selectable(g_ModelNames[i].data(), isSelected))
               CurrentModel = i;
             if (isSelected) ImGui::SetItemDefaultFocus();
             ImGui::PopID();
@@ -326,7 +326,8 @@ void Update(float dt) {
           ImGui::Spacing();
           const char* comboPreviewValue =
               Renderer->Scene->Renderables[1]
-                  ->StaticModel->AnimationNames[CurrentAnim];
+                  ->StaticModel->AnimationNames[CurrentAnim]
+                  .data();
           if (ImGui::BeginCombo("##animationCombo", comboPreviewValue)) {
             for (uint32_t i = 0;
                  i <
@@ -335,7 +336,8 @@ void Update(float dt) {
               ImGui::PushID(i);
               const bool isSelected = (CurrentAnim == i);
               if (ImGui::Selectable(Renderer->Scene->Renderables[1]
-                                        ->StaticModel->AnimationNames[i],
+                                        ->StaticModel->AnimationNames[i]
+                                        .data(),
                                     isSelected))
                 CurrentAnim = i;
               if (isSelected) ImGui::SetItemDefaultFocus();

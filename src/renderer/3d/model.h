@@ -44,11 +44,11 @@ int constexpr ModelMaxRootBones = 32;
 int constexpr ModelMaxTexturesPerModel = 64;
 
 inline uint32_t* g_ModelIds;
-inline char** g_ModelNames;
+inline std::vector<std::string_view> g_ModelNames;
 inline uint32_t g_ModelCount;
 
 inline uint32_t* g_BackgroundModelIds;
-inline char** g_BackgroundModelNames;
+inline std::vector<std::string_view> g_BackgroundModelNames;
 inline uint32_t g_BackgroundModelCount;
 
 struct VertexBuffer {
@@ -235,7 +235,7 @@ class Model {
   int16_t IdleAnimation = -1;
 
   int32_t* AnimationIds = 0;
-  char** AnimationNames = 0;
+  std::vector<std::string_view> AnimationNames;
   uint32_t AnimationCount = 0;
 };
 

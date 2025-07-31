@@ -62,21 +62,19 @@ void Model::EnumerateModels() {
   uint32_t currentBackgroundModel = 0;
 
   g_ModelIds = (uint32_t*)malloc(g_ModelCount * sizeof(uint32_t));
-  g_ModelNames = (char**)malloc(g_ModelCount * sizeof(char*));
+  g_ModelNames.reserve(g_ModelCount);
   g_BackgroundModelIds =
       (uint32_t*)malloc(g_BackgroundModelCount * sizeof(uint32_t));
-  g_BackgroundModelNames =
-      (char**)malloc(g_BackgroundModelCount * sizeof(char*));
+  g_BackgroundModelNames.reserve(g_BackgroundModelCount);
 
   for (auto const& file : listing) {
     if (Profile::Scene3D::ModelsToCharacters.count(file.first) != 0) {
       g_ModelIds[currentModel] = file.first;
-      g_ModelNames[currentModel] = strdup(file.second.c_str());
+      g_ModelNames[currentModel] = file.second;
       currentModel++;
     } else {
       g_BackgroundModelIds[currentBackgroundModel] = file.first;
-      g_BackgroundModelNames[currentBackgroundModel] =
-          strdup(file.second.c_str());
+      g_BackgroundModelNames[currentBackgroundModel] = file.second;
       currentBackgroundModel++;
     }
   }
@@ -91,12 +89,6 @@ Model::~Model() {
   }
   if (AnimationIds) {
     free(AnimationIds);
-  }
-  if (AnimationNames) {
-    for (size_t i = 0; i < AnimationCount; i++) {
-      if (AnimationNames[i]) free(AnimationNames[i]);
-    }
-    free(AnimationNames);
   }
 }
 
@@ -627,13 +619,12 @@ Model* Model::Load(uint32_t modelId) {
 
     result->AnimationIds =
         (int32_t*)malloc(sizeof(int32_t) * result->AnimationCount);
-    result->AnimationNames =
-        (char**)malloc(sizeof(char*) * result->AnimationCount);
+    result->AnimationNames.reserve(result->AnimationCount);
 
     int i = 0;
     for (auto const& anim : result->Animations) {
       result->AnimationIds[i] = anim.first;
-      result->AnimationNames[i] = strdup(anim.second->Name.c_str());
+      result->AnimationNames[i] = anim.second->Name;
       i++;
     }
   }
