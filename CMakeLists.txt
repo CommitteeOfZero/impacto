@@ -1159,6 +1159,8 @@ if (NOT DEFINED IMPACTO_DISABLE_DX9)
     )
 endif ()
 
+set(CMAKE_COMPILE_WARNING_AS_ERROR TRUE)
+
 if(ANDROID)
     add_library(impacto SHARED ${Impacto_Src} ${Impacto_Header})
     target_link_options(impacto PRIVATE "LINKER:--build-id=sha1")
