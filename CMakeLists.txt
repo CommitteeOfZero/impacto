@@ -1166,6 +1166,8 @@ else()
     add_executable(impacto ${Impacto_Src} ${Impacto_Header})
 endif()
 
+set_property(TARGET impacto PROPERTY COMPILE_WARNING_AS_ERROR ON)
+
 if(MSVC)
     set_property(TARGET impacto PROPERTY WIN32_EXECUTABLE TRUE)
 endIf()
