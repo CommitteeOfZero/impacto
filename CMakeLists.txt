@@ -29,7 +29,6 @@ set(Impacto_Src
         src/character2d.cpp
         src/text.cpp
         src/inputsystem.cpp
-        src/minilua_impl.c
         src/voicetable.cpp
         src/animation.cpp
 
@@ -331,20 +330,6 @@ set(Impacto_Src
         src/video/videosystem.cpp
         src/video/videoplayer.cpp
         src/video/clock.cpp
-
-        vendor/clHCA/clHCA.c
-
-        vendor/pcg/src/pcg_basic.c
-
-        vendor/squish/alpha.cpp
-        vendor/squish/clusterfit.cpp
-        vendor/squish/colourblock.cpp
-        vendor/squish/colourfit.cpp
-        vendor/squish/colourset.cpp
-        vendor/squish/maths.cpp
-        vendor/squish/rangefit.cpp
-        vendor/squish/singlecolourfit.cpp
-        vendor/squish/squish.cpp
 )
 
 set(Impacto_Header
@@ -368,7 +353,6 @@ set(Impacto_Header
         src/inputsystem.h
         src/rng.h
         src/animation.h
-        src/minilua_impl.h
 
         src/renderer/renderer.h
         src/renderer/window.h
@@ -666,6 +650,35 @@ if (WIN32)
     )
 endif ()
 
+add_library(clHCA STATIC vendor/clHCA/clHCA.c)
+target_include_directories(clHCA PUBLIC vendor/clHCA)
+
+add_library(minilua STATIC vendor/minilua/minilua_impl.c)
+target_include_directories(minilua PUBLIC vendor)
+
+add_library(pcg STATIC vendor/pcg/src/pcg_basic.c)
+target_include_directories(pcg PUBLIC vendor/pcg/include)
+
+add_library(squish STATIC
+    vendor/squish/alpha.cpp
+    vendor/squish/clusterfit.cpp
+    vendor/squish/colourblock.cpp
+    vendor/squish/colourfit.cpp
+    vendor/squish/colourset.cpp
+    vendor/squish/maths.cpp
+    vendor/squish/rangefit.cpp
+    vendor/squish/singlecolourfit.cpp
+    vendor/squish/squish.cpp
+)
+target_include_directories(squish PUBLIC vendor/squish)
+
+set(Impacto_Libs
+    clHCA
+    minilua
+    pcg
+    squish
+)
+
 if (NX OR EMSCRIPTEN)
     set(IMPACTO_DISABLE_VULKAN ON)
     set(IMPACTO_DISABLE_DX9 ON)
@@ -791,7 +804,9 @@ if (NOT DEFINED IMPACTO_DISABLE_MMAP)
     )
     list(APPEND Impacto_Header
         src/io/memorymappedfilestream.h
-        vendor/mio/mio.hpp
+    )
+    list(APPEND Impacto_Include_Dirs
+        vendor/mio
     )
 endif ()
 
@@ -814,17 +829,17 @@ if (WIN32)
 endif ()
 
 if (NOT NX) # avoid CMAKE_DL_LIBS for NX
-    set(Impacto_Libs
+    list(APPEND Impacto_Libs
         ${CMAKE_DL_LIBS}
     )
 endif ()
 
 list(APPEND Impacto_Include_Dirs ${CMAKE_CURRENT_SOURCE_DIR}/vendor)
 list(APPEND Impacto_Include_Dirs ${CMAKE_CURRENT_SOURCE_DIR}/vendor/include)
-list(APPEND Impacto_Include_Dirs ${CMAKE_CURRENT_SOURCE_DIR}/vendor/pcg/include)
-if(NOT DEFINED IMPACTO_DISABLE_OPENGL)
+
+if (NOT DEFINED IMPACTO_DISABLE_OPENGL)
     list(APPEND Impacto_Include_Dirs ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glad/include)
-endif()
+endif ()
 
 if(ANDROID)
     set(SDL2_LIBRARIES SDL2::SDL2-static SDL2::SDL2main)
@@ -959,59 +974,51 @@ list(APPEND Impacto_Libs
 )
 
 if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
-    list(APPEND Impacto_Src
-            src/debugmenu.cpp
-
-            ${imgui_SOURCE_DIR}/imgui.cpp
-            ${imgui_SOURCE_DIR}/imgui_demo.cpp
-            ${imgui_SOURCE_DIR}/imgui_draw.cpp
-            ${imgui_SOURCE_DIR}/imgui_tables.cpp
-            ${imgui_SOURCE_DIR}/imgui_widgets.cpp
-            ${imgui_SOURCE_DIR}/misc/cpp/imgui_stdlib.cpp
-            ${imgui_SOURCE_DIR}/backends/imgui_impl_sdl2.cpp
+    set(imgui_src
+        ${imgui_SOURCE_DIR}/imgui.cpp
+        ${imgui_SOURCE_DIR}/imgui_demo.cpp
+        ${imgui_SOURCE_DIR}/imgui_draw.cpp
+        ${imgui_SOURCE_DIR}/imgui_tables.cpp
+        ${imgui_SOURCE_DIR}/imgui_widgets.cpp
+        ${imgui_SOURCE_DIR}/misc/cpp/imgui_stdlib.cpp
+        ${imgui_SOURCE_DIR}/backends/imgui_impl_sdl2.cpp
     )
-    list(APPEND Impacto_Header
-            src/debugmenu.h
-
-            ${imgui_SOURCE_DIR}/imconfig.h
-            ${imgui_SOURCE_DIR}/imgui.h
-            ${imgui_SOURCE_DIR}/imgui_internal.h
-            ${imgui_SOURCE_DIR}/imstb_rectpack.h
-            ${imgui_SOURCE_DIR}/imstb_textedit.h
-            ${imgui_SOURCE_DIR}/imstb_truetype.h
-            ${imgui_SOURCE_DIR}/misc/cpp/imgui_stdlib.h
-            ${imgui_SOURCE_DIR}/backends/imgui_impl_sdl2.h
+    set(imgui_Include_Dirs
+        ${imgui_SOURCE_DIR}
+        ${imgui_SOURCE_DIR}/backends
     )
+
+    list(APPEND Impacto_Src src/debugmenu.cpp)
+    list(APPEND Impacto_Header src/debugmenu.h)
 
     if (NOT DEFINED IMPACTO_DISABLE_OPENGL)
-        list(APPEND Impacto_Src
+        list(APPEND imgui_src
                 vendor/imgui_custom/backends/imgui_impl_opengl3.cpp
         )
-        list(APPEND Impacto_Header
-                vendor/imgui_custom/backends/imgui_impl_opengl3.h
+        list(APPEND imgui_Include_Dirs
+                vendor/imgui_custom/backends
         )
     endif ()
 
     if (NOT DEFINED IMPACTO_DISABLE_VULKAN)
-        list(APPEND Impacto_Src
+        list(APPEND imgui_src
                 ${imgui_SOURCE_DIR}/backends/imgui_impl_vulkan.cpp
-        )
-        list(APPEND Impacto_Header
-                ${imgui_SOURCE_DIR}/backends/imgui_impl_vulkan.h
         )
     endif ()
 
     if (NOT DEFINED IMPACTO_DISABLE_DX9)
-        list(APPEND Impacto_Src
+        list(APPEND imgui_src
                 ${imgui_SOURCE_DIR}/backends/imgui_impl_dx9.cpp
-        )
-        list(APPEND Impacto_Header
-                ${imgui_SOURCE_DIR}/backends/imgui_impl_dx9.h
         )
     endif ()
 
-    list(APPEND Impacto_Include_Dirs ${imgui_SOURCE_DIR})
-    list(APPEND Impacto_Include_Dirs ${imgui_SOURCE_DIR}/backends)
+    add_library(imgui STATIC ${imgui_src})
+    target_include_directories(imgui
+        PUBLIC ${imgui_Include_Dirs}
+        PRIVATE ${SDL2_INCLUDE_DIRS}
+    )
+    target_link_libraries(imgui PRIVATE ${SDL2_LIBRARIES})
+    list(APPEND Impacto_Libs imgui)
 endif ()
 
 if (NOT DEFINED IMPACTO_DISABLE_OPENGL)
@@ -1088,16 +1095,15 @@ if (NOT DEFINED IMPACTO_DISABLE_FFMPEG)
 endif ()
 
 if (NOT DEFINED IMPACTO_DISABLE_MSPACK)
-    list(APPEND Impacto_Src
-            src/io/lzxstream.cpp
+    add_library(mspack STATIC
+        vendor/mspack/lzxd.c
+        vendor/mspack/system.c
+    )
+    target_include_directories(mspack PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/vendor/mspack)
+    list(APPEND Impacto_Libs mspack)
 
-            vendor/mspack/lzxd.c
-            vendor/mspack/system.c
-    )
-    list(APPEND Impacto_Header
-            src/io/lzxstream.h
-    )
-    list(APPEND Impacto_Include_Dirs ${CMAKE_CURRENT_SOURCE_DIR}/vendor/mspack)
+    list(APPEND Impacto_Src src/io/lzxstream.cpp)
+    list(APPEND Impacto_Header src/io/lzxstream.h)
 endif ()
 
 if (NOT DEFINED IMPACTO_DISABLE_VULKAN)

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../minilua_impl.h"
+#include <minilua/minilua.h>
 #include <initializer_list>
 #include <optional>
 #include <charconv>
