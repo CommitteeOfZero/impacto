@@ -819,6 +819,13 @@ if (NOT NX) # avoid CMAKE_DL_LIBS for NX
     )
 endif ()
 
+list(APPEND Impacto_Include_Dirs ${CMAKE_CURRENT_SOURCE_DIR}/vendor)
+list(APPEND Impacto_Include_Dirs ${CMAKE_CURRENT_SOURCE_DIR}/vendor/include)
+list(APPEND Impacto_Include_Dirs ${CMAKE_CURRENT_SOURCE_DIR}/vendor/pcg/include)
+if(NOT DEFINED IMPACTO_DISABLE_OPENGL)
+    list(APPEND Impacto_Include_Dirs ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glad/include)
+endif()
+
 if(ANDROID)
     set(SDL2_LIBRARIES SDL2::SDL2-static SDL2::SDL2main)
 
@@ -939,9 +946,6 @@ if (NOT DEFINED IMPACTO_DISABLE_OPENAL)
 endif ()
 list(APPEND Impacto_Include_Dirs ${SDL2_INCLUDE_DIRS})
 list(APPEND Impacto_Include_Dirs ${WebP_INCLUDE_DIRS})
-list(APPEND Impacto_Include_Dirs ${CMAKE_CURRENT_SOURCE_DIR}/vendor)
-list(APPEND Impacto_Include_Dirs ${CMAKE_CURRENT_SOURCE_DIR}/vendor/include)
-list(APPEND Impacto_Include_Dirs ${CMAKE_CURRENT_SOURCE_DIR}/vendor/pcg/include)
 
 list(APPEND Impacto_Libs
         fmt::fmt
@@ -1032,7 +1036,6 @@ if (NOT DEFINED IMPACTO_DISABLE_OPENGL)
             src/renderer/opengl/3d/scene.h
     )
 
-    list(APPEND Impacto_Include_Dirs ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glad/include)
 endif ()
 
 if (NOT DEFINED IMPACTO_DISABLE_FFMPEG)
@@ -1169,7 +1172,7 @@ if (IMPACTO_WARNINGS)
         target_compile_options(impacto PRIVATE -Wall -Wextra -Wno-unused-parameter -Wno-nullability-completeness)
     elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
         message(STATUS "Enabling warnings for GCC")
-        target_compile_options(impacto PRIVATE -Wall -Wextra -Wno-unused-parameter -Wno-nullability-completeness)
+        target_compile_options(impacto PRIVATE -Wall -Wextra -Wno-unused-parameter)
     elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
         message(STATUS "Enabling warnings for MSVC")
         target_compile_options(impacto PRIVATE /W4 /external:anglebrackets /external:W0 /wd4100)
@@ -1195,7 +1198,6 @@ if (EMSCRIPTEN)
 endif ()
 
 if (NX)
-    set_property(TARGET impacto PROPERTY NO_SYSTEM_FROM_IMPORTED ON) # to avoid -isystem
     add_definitions(-DENV64BIT)
 else ()
     if (CMAKE_SIZEOF_VOID_P EQUAL 8)
@@ -1239,7 +1241,7 @@ if (POLICY CMP0141)
 endif()
 
 configure_file(src/config.h.in ${PROJECT_BINARY_DIR}/include/config.h)
-target_include_directories(impacto SYSTEM PRIVATE ${Impacto_Include_Dirs})
+target_include_directories(impacto SYSTEM BEFORE PRIVATE ${Impacto_Include_Dirs})
 target_include_directories(impacto PRIVATE ${PROJECT_BINARY_DIR}/include)
 
 target_precompile_headers(impacto PRIVATE 
