@@ -37,8 +37,10 @@ int8_t CreateDirectories(std::string const& path, bool createParent) {
   using Path = std::filesystem::path;
   std::error_code ec;
   const std::string& filePath = GetSystemDependentPath(path);
-  bool result = std::filesystem::create_directories(
-      (createParent) ? Path(filePath).parent_path() : Path(filePath), ec);
+  const auto parentPath = Path(filePath).parent_path();
+  if (createParent && parentPath.empty()) return IoError_OK;
+  const auto dirPath = createParent ? parentPath : Path(filePath);
+  bool result = std::filesystem::create_directories(dirPath, ec);
   if (ec) {
     ImpLog(LogLevel::Error, LogChannel::IO,
            "Error creating directories for file \"{:s}\", error: \"{:s}\"\n",
