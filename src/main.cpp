@@ -103,6 +103,12 @@ int main(int argc, char* argv[]) {
     handleArgs(arguments);
   }
 
+#if __SWITCH__
+  LogSetFile("sdmc:/Impacto_Log.txt");
+  g_LogLevelFile = LogLevel::Trace;
+  g_LogChannelsFile = LogChannel::All;
+#endif
+
   TrimString(profileName);
   MakeLowerCase(profileName);
 
