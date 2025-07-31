@@ -672,7 +672,7 @@ add_library(squish STATIC
 )
 target_include_directories(squish PUBLIC vendor/squish)
 
-set(Impacto_Libs
+set(Impacto_Lib_Targets
     clHCA
     minilua
     pcg
@@ -1018,7 +1018,7 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
         PRIVATE ${SDL2_INCLUDE_DIRS}
     )
     target_link_libraries(imgui PRIVATE ${SDL2_LIBRARIES})
-    list(APPEND Impacto_Libs imgui)
+    list(APPEND Impacto_Lib_Targets imgui)
 endif ()
 
 if (NOT DEFINED IMPACTO_DISABLE_OPENGL)
@@ -1100,7 +1100,7 @@ if (NOT DEFINED IMPACTO_DISABLE_MSPACK)
         vendor/mspack/system.c
     )
     target_include_directories(mspack PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/vendor/mspack)
-    list(APPEND Impacto_Libs mspack)
+    list(APPEND Impacto_Lib_Targets mspack)
 
     list(APPEND Impacto_Src src/io/lzxstream.cpp)
     list(APPEND Impacto_Header src/io/lzxstream.h)
@@ -1170,6 +1170,7 @@ if(MSVC)
     set_property(TARGET impacto PROPERTY WIN32_EXECUTABLE TRUE)
 endIf()
 
+list(APPEND Impacto_Libs ${Impacto_Lib_Targets})
 target_link_libraries(impacto PRIVATE ${Impacto_Libs})
 
 if (IMPACTO_WARNINGS)
@@ -1191,7 +1192,7 @@ endif ()
 
 # compiler/dependency configuration
 
-set_property(TARGET impacto PROPERTY CXX_STANDARD 20)
+set_property(TARGET impacto ${Impacto_Lib_Targets} PROPERTY CXX_STANDARD 20)
 set_property(TARGET impacto PROPERTY CXX_SCAN_FOR_MODULES OFF)
 
 # Hot reload for MSVC
