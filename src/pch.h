@@ -11,6 +11,7 @@
 #include <utility>
 #include <vector>
 #include <random>
+#include <ranges>
 
 #include <cstdio>
 #include <cassert>
