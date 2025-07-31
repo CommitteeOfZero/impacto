@@ -327,6 +327,15 @@ void TitleMenu::Update(float dt) {
           LoadItems->Hide();
         }
       } break;
+      case 1: {
+        if (PressToStartAnimation.State == +AnimationState::Stopped) {
+          PressToStartAnimation.StartIn();
+        }
+
+        if (!IntroSequence.IntroAnimation.IsOut()) {
+          IntroSequence.Reset();
+        }
+      } break;
       case 3: {  // Main Menu Fade In
         if (!MainItems->IsShown && ScrWork[SW_TITLECT] == 0) {
           MainItems->Show();
@@ -396,15 +405,6 @@ void TitleMenu::Update(float dt) {
           MainItems->HasFocus = true;
         }
       } break;
-      case 1: {
-        if (PressToStartAnimation.State == +AnimationState::Stopped) {
-          PressToStartAnimation.StartIn();
-        }
-
-        if (!IntroSequence.IntroAnimation.IsOut()) {
-          IntroSequence.Reset();
-        }
-      } break;
     }
   }
 }
@@ -448,12 +448,8 @@ void TitleMenu::Render() {
           MainItems->Render();
         } break;
         case 7: {  // Secondary menu LOAD Fade In
-          if (SecondaryItemsFadeInAnimation.IsOut() &&
-              SecondaryItemsFadeInAnimation.State != +AnimationState::Playing)
-            SecondaryItemsFadeInAnimation.StartIn();
-          else if (SecondaryItemsFadeInAnimation.State !=
-                   +AnimationState::Playing)
-            SecondaryItemsFadeInAnimation.StartOut();
+          DrawTitleMenuBackGraphics();
+          MainItems->Render();
         } break;
         case 8: {  // Secondary menu LOAD
           DrawTitleMenuBackGraphics();
