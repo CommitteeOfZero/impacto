@@ -1,5 +1,7 @@
 #include "impacto.h"
 
+#include <ranges>
+
 #ifdef EMSCRIPTEN
 #include <emscripten.h>
 #endif
@@ -47,33 +49,41 @@ int main(int argc, char* argv[]) {
 #endif
 
   std::string profileName;
+  LogInit();
   LogSetConsole(true);
   g_LogLevelConsole = LogLevel::Fatal;
   g_LogChannelsConsole = LogChannel::All;
-  for (int i = 1; i < argc; ++i) {
-    std::string_view arg = argv[i];
-    if (arg == "-lc" || arg == "--logchannel") {
-      if (i++ < argc) {
-        std::string_view input = argv[i];
-        g_LogChannelsConsole = StringToChannel(input);
+
+  std::vector<std::string_view> arguments(argv + 1, argv + argc);
+  ;
+
+  auto handleArgs = [&profileName](std::vector<std::string_view> args) {
+    for (int i = 0; i < args.size(); ++i) {
+      std::string_view arg = args[i];
+      if (arg == "-lc" || arg == "--logchannel") {
+        if (i++ < args.size()) {
+          std::string_view input = args[i];
+          g_LogChannelsConsole = StringToChannel(input);
+        } else {
+          ImpLog(LogLevel::Fatal, LogChannel::General,
+                 "Invalid number of arguments");
+          exit(1);
+        }
+      } else if (arg == "-ll" || arg == "--loglevel") {
+        if (i++ < args.size()) {
+          std::string_view input = args[i];
+          g_LogLevelConsole = StringToLevel(input);
+        } else {
+          ImpLog(LogLevel::Fatal, LogChannel::General,
+                 "Invalid number of arguments");
+          exit(1);
+        }
       } else {
-        ImpLog(LogLevel::Fatal, LogChannel::General,
-               "Invalid number of arguments");
-        exit(1);
+        profileName = arg;
       }
-    } else if (arg == "-ll" || arg == "--loglevel") {
-      if (i++ < argc) {
-        std::string_view input = argv[i];
-        g_LogLevelConsole = StringToLevel(input);
-      } else {
-        ImpLog(LogLevel::Fatal, LogChannel::General,
-               "Invalid number of arguments");
-        exit(1);
-      }
-    } else {
-      profileName = arg;
     }
-  }
+  };
+  handleArgs(arguments);
   if (profileName.empty()) {
     Io::Stream* stream;
     IoError err = Io::PhysicalFileStream::Create("profile.txt", &stream);
@@ -82,8 +92,15 @@ int main(int argc, char* argv[]) {
              "Couldn't open profile.txt\n");
       exit(1);
     }
-    profileName.resize(stream->Meta.Size, '\0');
-    profileName.resize(stream->Read(&profileName[0], stream->Meta.Size));
+    std::string fileContents;
+    fileContents.resize(stream->Meta.Size, '\0');
+    stream->Read(&fileContents[0], stream->Meta.Size);
+    arguments.clear();
+    for (auto&& part : std::views::split(fileContents, ' ')) {
+      arguments.emplace_back(
+          std::string_view(&*part.begin(), std::ranges::distance(part)));
+    }
+    handleArgs(arguments);
   }
 
   TrimString(profileName);
