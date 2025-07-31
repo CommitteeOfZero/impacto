@@ -5,14 +5,15 @@
 #include <SDL_log.h>
 #include "log.h"
 #include "util.h"
-
+#include "io/physicalfilestream.h"
 namespace Impacto {
 
 // TODO Color output in console?
 
-// TODO configurable stream/file logging
+static SDL_LogOutputFunction DefaultLoggingFunction = nullptr;
 static bool LoggingToConsole = false;
 static bool LoggingToFile = false;
+static Io::Stream* FileLogStream = nullptr;
 
 bool CheckLogConfig(LogLevel level, LogChannel channel) {
   bool any = false;
@@ -73,16 +74,62 @@ void ImpLogImpl(LogLevel level, LogChannel channel, fmt::string_view format,
   *tailFormat.out = '\0';
 
   ConsoleWrite(level, line);
-
-  // TODO file
 }
 
-void LogSetFile(char* path) {
-  assert(false);  // TODO
+void LogToFile(void* userdata, [[maybe_unused]] int category,
+               SDL_LogPriority priority, const char* message) {
+  if (!FileLogStream) return;
+  static constexpr const char* SDL_priority_prefixes[] = {
+      NULL, "VERBOSE", "DEBUG", "INFO", "WARN", "ERROR", "CRITICAL"};
+
+  std::string logBuf =
+      fmt::format("{:s}: {:s}\n", SDL_priority_prefixes[priority], message);
+  FileLogStream->Write(logBuf.data(), logBuf.size());
 }
 
-void LogSetConsole(bool enabled) {
-  LoggingToConsole = enabled;
+void SDLLogger(void* userdata, [[maybe_unused]] int category,
+               SDL_LogPriority priority, const char* message) {
+  if (LoggingToFile) {
+    LogToFile(userdata, category, priority, message);
+  }
+  if (LoggingToConsole) {
+    DefaultLoggingFunction(userdata, category, priority, message);
+  }
+}
+
+void SetSDLLogger(SDL_LogOutputFunction loggingFunction) {
+  [[maybe_unused]] static const bool fetchDefaultLogger = [] {
+    if (!DefaultLoggingFunction) {
+      SDL_LogGetOutputFunction(&DefaultLoggingFunction, nullptr);
+    }
+    return true;
+  }();
+
+  if (loggingFunction) {
+    SDL_LogSetOutputFunction(loggingFunction, nullptr);
+  } else {
+    SDL_LogSetOutputFunction(DefaultLoggingFunction, nullptr);
+  }
+}
+
+void LogSetFile(const char* path) {
+  using CF = Io::PhysicalFileStream::CreateFlagsMode;
+  Io::Stream* stream;
+  IoError err = Io::PhysicalFileStream::Create(
+      path, &stream, CF::CREATE_IF_NOT_EXISTS | CF::CREATE_DIRS | CF::WRITE);
+  if (err != IoError_OK) {
+    ImpLog(LogLevel::Error, LogChannel::IO,
+           "Failed to open save file for writing\n");
+    return;
+  }
+  FileLogStream = stream;
+  LoggingToFile = true;
+}
+
+void LogSetConsole(bool enabled) { LoggingToConsole = enabled; }
+
+void LogInit() {
+  SetSDLLogger(SDLLogger);
   SDL_LogSetPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_VERBOSE);
 }
 

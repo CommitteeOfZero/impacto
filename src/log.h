@@ -166,8 +166,9 @@ inline LogLevel g_LogLevelConsole = LogLevel::Off;
 inline LogChannel g_LogChannelsFile = LogChannel::None;
 inline LogChannel g_LogChannelsConsole = LogChannel::None;
 
-void LogSetFile(char* path);
+void LogSetFile(const char* path);
 void LogSetConsole(bool enabled);
+void LogInit();
 bool CheckLogConfig(LogLevel level, LogChannel channel);
 
 void ImpLogImpl(LogLevel level, LogChannel channel, fmt::string_view format,
