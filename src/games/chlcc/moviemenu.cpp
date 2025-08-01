@@ -40,6 +40,7 @@ void MovieMenu::MovieButtonOnClick(Widgets::Button* target) {
       } break;
     }
   }
+  Audio::Channels[Audio::AC_BGM0]->Stop(0.0f);
 }
 
 MovieMenu::MovieMenu() {
