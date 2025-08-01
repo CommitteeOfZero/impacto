@@ -56,7 +56,7 @@ void Configure() {
   HighlightAnimation.DurationOut = HighlightDurationOut;
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMember<int>("DrawType"));
+      EnsureGetMember<uint8_t>("DrawType"));
 
   UI::SystemMenuPtr = new UI::RNE::SystemMenu();
   UI::Menus[drawType].push_back(UI::SystemMenuPtr);

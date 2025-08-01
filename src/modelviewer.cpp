@@ -199,12 +199,12 @@ void Update(float dt) {
         ImGui::Spacing();
 
         const char* comboPreviewValue =
-            g_BackgroundModelNames[CurrentBackground];
+            g_BackgroundModelNames[CurrentBackground].data();
         if (ImGui::BeginCombo("##backgroundCombo", comboPreviewValue)) {
           for (uint32_t i = 0; i < g_BackgroundModelCount; i++) {
             ImGui::PushID(i);
             const bool isSelected = (CurrentBackground == i);
-            if (ImGui::Selectable(g_BackgroundModelNames[i], isSelected))
+            if (ImGui::Selectable(g_BackgroundModelNames[i].data(), isSelected))
               CurrentBackground = i;
             if (isSelected) ImGui::SetItemDefaultFocus();
             ImGui::PopID();
@@ -260,12 +260,12 @@ void Update(float dt) {
 
         ImGui::Spacing();
 
-        const char* comboPreviewValue = g_ModelNames[CurrentModel];
+        const char* comboPreviewValue = g_ModelNames[CurrentModel].data();
         if (ImGui::BeginCombo("##modelCombo", comboPreviewValue)) {
           for (uint32_t i = 0; i < g_ModelCount; i++) {
             ImGui::PushID(i);
             const bool isSelected = (CurrentModel == i);
-            if (ImGui::Selectable(g_ModelNames[i], isSelected))
+            if (ImGui::Selectable(g_ModelNames[i].data(), isSelected))
               CurrentModel = i;
             if (isSelected) ImGui::SetItemDefaultFocus();
             ImGui::PopID();
@@ -326,7 +326,8 @@ void Update(float dt) {
           ImGui::Spacing();
           const char* comboPreviewValue =
               Renderer->Scene->Renderables[1]
-                  ->StaticModel->AnimationNames[CurrentAnim];
+                  ->StaticModel->AnimationNames[CurrentAnim]
+                  .data();
           if (ImGui::BeginCombo("##animationCombo", comboPreviewValue)) {
             for (uint32_t i = 0;
                  i <
@@ -335,7 +336,8 @@ void Update(float dt) {
               ImGui::PushID(i);
               const bool isSelected = (CurrentAnim == i);
               if (ImGui::Selectable(Renderer->Scene->Renderables[1]
-                                        ->StaticModel->AnimationNames[i],
+                                        ->StaticModel->AnimationNames[i]
+                                        .data(),
                                     isSelected))
                 CurrentAnim = i;
               if (isSelected) ImGui::SetItemDefaultFocus();
@@ -346,7 +348,7 @@ void Update(float dt) {
           ImGui::Spacing();
           if (ImGui::Button("Switch")) {
             Renderer->Scene->Renderables[1]->SwitchAnimation(
-                Renderer->Scene->Renderables[1]
+                (int16_t)Renderer->Scene->Renderables[1]
                     ->StaticModel->AnimationIds[CurrentAnim],
                 0.66f);
           }
@@ -363,9 +365,11 @@ void Update(float dt) {
       if (ImGui::BeginCombo("##bgmCombo", comboPreviewValue.c_str())) {
         size_t i = 0;
         for (const auto& name : BgmNames) {
-          ImGui::PushID(i);
+          ImGui::PushID((int)i);
           const bool isSelected = (CurrentBgm == i);
-          if (ImGui::Selectable(name.c_str(), isSelected)) CurrentBgm = i;
+          if (ImGui::Selectable(name.c_str(), isSelected)) {
+            CurrentBgm = (uint32_t)i;
+          }
           if (isSelected) ImGui::SetItemDefaultFocus();
           ImGui::PopID();
           i++;
@@ -435,7 +439,6 @@ static void EnumerateBgm() {
   BgmNames.reserve(bgmCount);
   BgmIds.reserve(bgmCount);
 
-  uint32_t i = 0;
   for (auto const& file : listing) {
     BgmIds.push_back(file.first);
     BgmNames.push_back(std::move(file.second));

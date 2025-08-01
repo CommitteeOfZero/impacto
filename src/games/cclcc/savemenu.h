@@ -14,11 +14,11 @@ class SaveMenu : public UI::SaveMenu {
  public:
   SaveMenu();
 
-  void Show();
-  void Hide();
-  void Update(float dt);
+  void Show() override;
+  void Hide() override;
+  void Update(float dt) override;
   void UpdateInput() override;
-  void Render();
+  void Render() override;
 
   void MenuButtonOnClick(Widgets::Button* target);
 

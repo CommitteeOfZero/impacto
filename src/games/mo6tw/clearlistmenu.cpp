@@ -325,7 +325,6 @@ void ClearListMenu::InitMainPage() {
 
 void ClearListMenu::UpdateEndingCount() {
   Vm::Sc3VmThread dummy;
-  char temp[10];
   uint16_t sc3StringBuffer[10];
 
   int unlockedEndingCount = 0;

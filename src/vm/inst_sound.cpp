@@ -127,7 +127,7 @@ VmInstruction(InstVoiceStopNew) {
   StartInstruction;
   PopUint8(channel);
   PopExpression(fade);
-  Audio::Channels[Audio::AC_VOICE0 + channel]->Stop(fade);
+  Audio::Channels[Audio::AC_VOICE0 + channel]->Stop((float)fade);
 }
 VmInstruction(InstVoicePlayWait) {
   StartInstruction;

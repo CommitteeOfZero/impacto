@@ -60,7 +60,7 @@ Target GetTarget(Stream* stream, Model* model) {
       result.Id = model->NamedBones[nameStr];
     } else if (model->NamedMeshGroups.count(nameStr) != 0) {
       result.Type = TargetType_MeshGroup;
-      result.Id = model->NamedMeshGroups[nameStr];
+      result.Id = (uint16_t)model->NamedMeshGroups[nameStr];
     }
   } else {
     memset(result.Name, 0, sizeof(result.Name));
@@ -228,7 +228,7 @@ ModelAnimation* ModelAnimation::Load(Stream* stream, Model* model,
         Mesh* mesh = meshes[j];
         MeshTrack* track = &result->MeshTracks[result->MeshTrackCount + j];
         memcpy(track->Name, target.Name, sizeof(target.Name));
-        track->Mesh = mesh->Id;
+        track->Mesh = (uint16_t)mesh->Id;
         ImpLogSlow(LogLevel::Trace, LogChannel::ModelLoad,
                    "Mesh group {:d} <= mesh {:d}\n", target.Id, mesh->Id);
 
@@ -481,7 +481,7 @@ ModelAnimation* ModelAnimation::Load(Stream* stream, Model* model,
     } else if (target.Type == TargetType_MeshGroup) {
       // Mesh group track
 
-      uint32_t seekPos = tracksOffset + trackSize * i;
+      seekPos = tracksOffset + trackSize * i;
       // Skip id, targetType, unknown ushort
       seekPos += trackCountsOffset;
       stream->Seek(seekPos, RW_SEEK_SET);

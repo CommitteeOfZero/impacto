@@ -210,6 +210,9 @@ void Background2D::LinkBuffers(const int linkCode, const int currentBufferId) {
             Links[i].DisplayCoords = {Position.x + BgSprite.ScaledWidth(),
                                       Position.y};
           } break;
+
+          case LinkDirection::Off:
+            break;
         }
       }
     }
@@ -272,8 +275,8 @@ void Background2D::UpdateState(const int bgId) {
                  resolutionScale;
       Position -= BgSprite.ScaledBounds().GetSize() / 2.0f;
 
-      Scale = glm::vec2(ScrWork[SW_BG1SIZE + structOffset] +
-                        ScrWork[SW_BG1SIZE_OFS + structOfsOffset]) /
+      Scale = glm::vec2((float)ScrWork[SW_BG1SIZE + structOffset] +
+                        (float)ScrWork[SW_BG1SIZE_OFS + structOfsOffset]) /
               1000.0f;
     } break;
 
@@ -402,8 +405,8 @@ void Capture2D::UpdateState(const int capId) {
                  resolutionScale;
       Position -= BgSprite.ScaledBounds().GetSize() / 2.0f;
 
-      Scale = glm::vec2(ScrWork[SW_CAP1SIZE + structOffset] +
-                        ScrWork[SW_CAP1SIZE_OFS + structOfsOffset]) /
+      Scale = glm::vec2((float)ScrWork[SW_CAP1SIZE + structOffset] +
+                        (float)ScrWork[SW_CAP1SIZE_OFS + structOfsOffset]) /
               1000.0f;
     } break;
 

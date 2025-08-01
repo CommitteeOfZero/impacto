@@ -62,21 +62,19 @@ void Model::EnumerateModels() {
   uint32_t currentBackgroundModel = 0;
 
   g_ModelIds = (uint32_t*)malloc(g_ModelCount * sizeof(uint32_t));
-  g_ModelNames = (char**)malloc(g_ModelCount * sizeof(char*));
+  g_ModelNames.reserve(g_ModelCount);
   g_BackgroundModelIds =
       (uint32_t*)malloc(g_BackgroundModelCount * sizeof(uint32_t));
-  g_BackgroundModelNames =
-      (char**)malloc(g_BackgroundModelCount * sizeof(char*));
+  g_BackgroundModelNames.reserve(g_BackgroundModelCount);
 
   for (auto const& file : listing) {
     if (Profile::Scene3D::ModelsToCharacters.count(file.first) != 0) {
       g_ModelIds[currentModel] = file.first;
-      g_ModelNames[currentModel] = strdup(file.second.c_str());
+      g_ModelNames[currentModel] = file.second;
       currentModel++;
     } else {
       g_BackgroundModelIds[currentBackgroundModel] = file.first;
-      g_BackgroundModelNames[currentBackgroundModel] =
-          strdup(file.second.c_str());
+      g_BackgroundModelNames[currentBackgroundModel] = file.second;
       currentBackgroundModel++;
     }
   }
@@ -91,12 +89,6 @@ Model::~Model() {
   }
   if (AnimationIds) {
     free(AnimationIds);
-  }
-  if (AnimationNames) {
-    for (size_t i = 0; i < AnimationCount; i++) {
-      if (AnimationNames[i]) free(AnimationNames[i]);
-    }
-    free(AnimationNames);
   }
 }
 
@@ -493,7 +485,7 @@ Model* Model::Load(uint32_t modelId) {
     stream->Seek(2, RW_SEEK_CUR);
     bone->Parent = ReadLE<int16_t>(stream);
     if (bone->Parent < 0) {
-      result->RootBones[result->RootBoneCount] = i;
+      result->RootBones[result->RootBoneCount] = (int16_t)i;
       result->RootBoneCount++;
       assert(result->RootBoneCount < ModelMaxRootBones);
     }
@@ -610,29 +602,29 @@ Model* Model::Load(uint32_t modelId) {
 
         Stream* animStream = new MemoryStream(animData, animSize, true);
         animStream->Meta.FileName = animName;
-        ModelAnimation* anim = ModelAnimation::Load(animStream, result, animId);
+        ModelAnimation* modelAnim =
+            ModelAnimation::Load(animStream, result, animId);
         delete animStream;
-        if (anim == 0) {
+        if (modelAnim == nullptr) {
           ImpLog(LogLevel::Error, LogChannel::ModelLoad,
                  "Could not parse animation %h for model {:d}\n", animId,
                  modelId);
           continue;
         }
         assert(result->Animations.count(animId) == 0);
-        result->Animations[animId] = anim;
+        result->Animations[animId] = modelAnim;
         result->AnimationCount++;
       }
     }
 
     result->AnimationIds =
         (int32_t*)malloc(sizeof(int32_t) * result->AnimationCount);
-    result->AnimationNames =
-        (char**)malloc(sizeof(char*) * result->AnimationCount);
+    result->AnimationNames.reserve(result->AnimationCount);
 
     int i = 0;
     for (auto const& anim : result->Animations) {
       result->AnimationIds[i] = anim.first;
-      result->AnimationNames[i] = strdup(anim.second->Name.c_str());
+      result->AnimationNames[i] = anim.second->Name;
       i++;
     }
   }
@@ -645,7 +637,7 @@ Model* Model::Load(uint32_t modelId) {
 // WARNING: Breaks with DaSH
 Model* Model::MakePlane() {
   Model* result = new Model;
-  result->Id = -1;
+  result->Id = std::numeric_limits<uint32_t>::max();
   result->Type = ModelType_Character;
   result->MeshCount = 1;
   result->VertexCount = 4;

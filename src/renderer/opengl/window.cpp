@@ -279,12 +279,14 @@ void GLWindow::CleanFBOs() {
   if (DrawRT) GLC::DeleteFramebuffers(1, &DrawRT);
   if (ReadRT) GLC::DeleteFramebuffers(1, &ReadRT);
   if (StencilBuffer) glDeleteRenderbuffers(1, &StencilBuffer);
-  glDeleteTextures(GLC::FramebufferTextures.size(),
+  glDeleteTextures((GLsizei)GLC::FramebufferTextures.size(),
                    GLC::FramebufferTextures.data());
   GLC::FramebufferTextures.fill(0);
-  GLC::DeleteFramebuffers(GLC::Framebuffers.size(), GLC::Framebuffers.data());
+  GLC::DeleteFramebuffers((GLsizei)GLC::Framebuffers.size(),
+                          GLC::Framebuffers.data());
   GLC::Framebuffers.fill(0);
-  glDeleteRenderbuffers(GLC::StencilBuffers.size(), GLC::StencilBuffers.data());
+  glDeleteRenderbuffers((GLsizei)GLC::StencilBuffers.size(),
+                        GLC::StencilBuffers.data());
   GLC::StencilBuffers.fill(0);
   drawRenderTexture = ReadRenderTexture = DrawRT = ReadRT = 0;
 }

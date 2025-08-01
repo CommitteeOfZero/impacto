@@ -134,7 +134,7 @@ void CgViewer::Render() {
 }
 
 void CgViewer::LoadCgSprites(
-    int evId, std::string mountPoint,
+    size_t evId, std::string mountPoint,
     uint16_t loadIds[][Profile::SaveSystem::MaxCGSprites]) {
   Clear();
 

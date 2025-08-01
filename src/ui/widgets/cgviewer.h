@@ -25,7 +25,7 @@ class CgViewer : public Widget {
   void UpdateInput() override;
   void Render() override;
 
-  void LoadCgSprites(int evId, std::string mountPoint,
+  void LoadCgSprites(size_t evId, std::string mountPoint,
                      uint16_t loadIds[][Profile::SaveSystem::MaxCGSprites]);
 
   bool isOnLastVariation() const;
@@ -36,14 +36,14 @@ class CgViewer : public Widget {
   Sprite CgSprites[MaxCgViewerVariations][MaxCgViewerCgs];
   SpriteSheet CgSpriteSheets[MaxCgViewerVariations][MaxCgViewerCgs];
 
-  int EvId;
+  size_t EvId;
 
   int CgCount[MaxCgViewerVariations];
   bool HorizontalRendering[MaxCgViewerVariations];
   glm::vec2 Position[MaxCgViewerVariations];
   float Scale = 1.0f;
   float MinScale[MaxCgViewerVariations];
-  int CurrentVariation = 0;
+  size_t CurrentVariation = 0;
   int VariationCount = 0;
 
   float MouseDownTime = 0.0f;

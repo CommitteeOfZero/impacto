@@ -49,7 +49,7 @@ TipsNotification::TipsNotification() {
 void TipsNotification::Update(float dt) {
   FadeAnimation.Update(dt);
   Timer.Update(dt);
-  PositionY = static_cast<int>(FadeAnimation.Progress * 255 * 96) >> 8;
+  PositionY = (float)(static_cast<int>(FadeAnimation.Progress * 255 * 96) >> 8);
 
   auto UpdateNotificationDisplay = [&]() {
     auto tipName = NotificationQueue.front();

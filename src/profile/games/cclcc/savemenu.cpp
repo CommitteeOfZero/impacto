@@ -20,7 +20,7 @@ constexpr char const* SaveMenuTypeNames[] = {
 
 void Configure() {
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMember<int>("DrawType"));
+      EnsureGetMember<uint8_t>("DrawType"));
 
   EntryStartXL = EnsureGetMember<float>("EntryStartXL");
   EntryStartXR = EnsureGetMember<float>("EntryStartXR");

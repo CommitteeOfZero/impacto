@@ -60,7 +60,7 @@ void Configure() {
   TotalPagesBounds = EnsureGetMember<RectF>("TotalPagesBounds");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMember<int>("DrawType"));
+      EnsureGetMember<uint8_t>("DrawType"));
 
   UI::TipsMenuPtr = new UI::MO6TW::TipsMenu();
   UI::Menus[drawType].push_back(UI::TipsMenuPtr);

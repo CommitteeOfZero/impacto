@@ -16,7 +16,7 @@ namespace Impacto::UI::CCLCC {
 
 void AlbumMenu::SetThumbnailDirections() {
   // Next
-  static constexpr int grid[][4][4] = {
+  static constexpr uint8_t grid[][4][4] = {
       {{0x09, 0x0B, 0x63, 0x63},
        {0x04, 0x05, 0x06, 0x63},
        {0x03, 0x07, 0x63, 0x63},
@@ -91,9 +91,8 @@ void AlbumMenu::SetThumbnailDirections() {
   for (auto& page : ThumbnailPages) {
     for (auto& thumbnail : page) {
       if (!thumbnail) continue;
-      int gridIndex = thumbnail->GridId;
       const auto setFocusDirection = [&](FocusDirection dir) {
-        int compareId = thumbnail->GridId;
+        uint8_t compareId = thumbnail->GridId;
         for (int i = 0; i < 4; ++i) {
           const int directionIndex = convertDirection(dir);
           for (int j = 0; j < 4; ++j) {
