@@ -206,7 +206,7 @@ root.ExtraMenus = {
         TrackButtonPosTemplate = { X = 94, Y = 170 },
         TrackNameOffset = { X = 95, Y = 5 },
         ArtistOffset = { X = 411, Y = 5 },
-        TrackOffset = { X = 0, Y = 28 },
+        TrackOffset = { X = 0, Y = 27 },
         TrackHighlight = "TrackHighlight",
         TrackNumRelativePos = { X = 25, Y = 5 },
         PlaymodeRepeatPos = { X = 718, Y = 146 },
@@ -245,6 +245,8 @@ root.ExtraMenus = {
             { X = 220, Y = 51 },
             { X = 234, Y = 52 },
         },
+        MusicDirectionalHoldTime = 0.2,
+        MusicDirectionalFocusTimeInterval = 0.05,
     }
 }
 
