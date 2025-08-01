@@ -43,6 +43,8 @@ inline Sprite PlaymodeRepeat;
 inline Sprite PlaymodeAll;
 inline Sprite PlaymodeRepeatHighlight;
 inline Sprite PlaymodeAllHighlight;
+inline float MusicDirectionalHoldTime;
+inline float MusicDirectionalFocusTimeInterval;
 inline Sprite NowPlaying;
 inline glm::vec2 NowPlayingPos;
 inline float NowPlayingAnimationDuration;
