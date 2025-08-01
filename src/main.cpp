@@ -104,7 +104,7 @@ int main(int argc, char* argv[]) {
   }
 
 #if __SWITCH__
-  LogSetFile("sdmc:/Impacto_Log.txt");
+  LogSetFile("Impacto_Log.txt");
   g_LogLevelFile = LogLevel::Trace;
   g_LogChannelsFile = LogChannel::All;
 #endif
