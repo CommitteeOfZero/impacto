@@ -7,6 +7,7 @@
 #include "../../data/savesystem.h"
 #include "../../background2d.h"
 #include "../../vm/interface/input.h"
+#include "../../inputsystem.h"
 
 #include "../../ui/widgets/chlcc/trackselectbutton.h"
 
@@ -27,7 +28,10 @@ void MusicMenu::MusicButtonOnClick(Button* target) {
   SwitchToTrack(target->Id);
 }
 
-MusicMenu::MusicMenu() {
+MusicMenu::MusicMenu()
+    : DirectionButtonHoldHandler(
+          MusicDirectionalHoldTime, MusicDirectionalFocusTimeInterval,
+          Vm::Interface::PAD1UP | Vm::Interface::PAD1DOWN) {
   MenuTransition.Direction = AnimationDirection::In;
   MenuTransition.LoopMode = AnimationLoopMode::Stop;
   MenuTransition.SetDuration(MenuTransitionDuration);
@@ -185,8 +189,8 @@ void MusicMenu::Render() {
 }
 
 void MusicMenu::Update(float dt) {
-  UpdateInput();
-  if (ScrWork[SW_SYSMENUCT] < 32 && State == Shown) {
+  UpdateInput(dt);
+  if (ScrWork[SW_SYSMENUCT] < 10000 && State == Shown) {
     Hide();
   } else if (GetFlag(SF_SOUNDMENU) && ScrWork[SW_SYSMENUCT] > 0 &&
              State == Hidden) {
@@ -251,8 +255,8 @@ void MusicMenu::Update(float dt) {
   }
 }
 
-void MusicMenu::UpdateInput() {
-  Menu::UpdateInput();
+void MusicMenu::UpdateInput(float dt) {
+  using namespace Vm::Interface;
   if (State == Shown) {
     MainItems->UpdateInput();
 
@@ -274,6 +278,42 @@ void MusicMenu::UpdateInput() {
       SwitchToTrack(-1);
     }
 
+    const uint32_t btnUp = PAD1R1;
+    const uint32_t btnDown = PAD1L1;
+    const bool upScroll = Input::MouseWheelDeltaY > 0;
+    const bool downScroll = Input::MouseWheelDeltaY < 0;
+
+    DirectionButtonHoldHandler.Update(dt);
+    const int directionShouldFire = DirectionButtonHoldHandler.ShouldFire();
+    const bool directionMovement =
+        (bool)(directionShouldFire & btnUp || upScroll) ^
+        (bool)(directionShouldFire & btnDown || downScroll);
+
+    if (directionMovement) {
+      const bool dirDown = directionShouldFire & btnDown || downScroll;
+      QueuedMove =
+          (dirDown ? FocusDirection::FDIR_DOWN : FocusDirection::FDIR_UP);
+    } else if (TurboMoved) {
+      QueuedMove.reset();
+    }
+
+    if (QueuedMove.has_value() &&
+        (MainItems->MoveAnimation.State != +AnimationState::Playing)) {
+      float deltaY = 0;
+      const bool dirDown = *QueuedMove == FocusDirection::FDIR_DOWN;
+      deltaY += dirDown ? TrackOffset.y : -TrackOffset.y;
+      TurboMoved = DirectionButtonHoldHandler.IsTurbo || upScroll || downScroll;
+      const float animationSpeed =
+          TurboMoved ? MusicDirectionalFocusTimeInterval : 0.3f;
+
+      MainItems->Move({0.0f, -deltaY}, animationSpeed);
+      if (dirDown)
+        AdvanceFocus(FocusDirection::FDIR_DOWN);
+      else
+        AdvanceFocus(FocusDirection::FDIR_UP);
+      QueuedMove.reset();
+    }
+
     auto button = static_cast<Widgets::CHLCC::TrackSelectButton*>(
         CurrentlyFocusedElement);
     if (button == nullptr) return;
@@ -285,8 +325,8 @@ void MusicMenu::UpdateInput() {
     } else if (CurrentUpperBound - button->Id >= 16) {
       CurrentLowerBound = button->Id;
       CurrentUpperBound = button->Id + 15;
-    } else
-      return;
+    }  // else
+       //  return;
 
     glm::vec2 offset(0.0f, -(float)CurrentLowerBound * TrackOffset.y);
     MainItems->MoveTo(offset);
