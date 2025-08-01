@@ -14,7 +14,8 @@ class PhysicalFileStream : public Stream {
     CREATE_IF_NOT_EXISTS = WRITE << 1,
     TRUNCATE = CREATE_IF_NOT_EXISTS << 1,
     APPEND = TRUNCATE << 1,
-    CREATE_DIRS = CREATE_IF_NOT_EXISTS << 1
+    CREATE_DIRS = APPEND << 1,
+    UNBUFFERED = CREATE_DIRS << 1
   };
   using CreateFlags = int;
   static IoError Create(std::string const& fileName, Stream** out,
@@ -31,6 +32,9 @@ class PhysicalFileStream : public Stream {
       : Flags(flags),
         SourceFileName(std::move(filePath)),
         FileStream(SourceFileName, PrepareFileOpenMode(flags)) {
+    if (flags & UNBUFFERED) {
+      FileStream.rdbuf()->pubsetbuf(nullptr, 0);
+    }
     Meta.FileName = SourceFileName;
   }
 
@@ -41,6 +45,9 @@ class PhysicalFileStream : public Stream {
       : Flags(other.Flags),
         SourceFileName(other.SourceFileName),
         FileStream(other.SourceFileName, PrepareFileOpenMode(Flags)) {
+    if (Flags & UNBUFFERED) {
+      FileStream.rdbuf()->pubsetbuf(nullptr, 0);
+    }
     Meta.FileName = SourceFileName;
   }
   IoError ErrorCode = IoError_OK;
