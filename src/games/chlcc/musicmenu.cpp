@@ -8,7 +8,7 @@
 #include "../../background2d.h"
 #include "../../vm/interface/input.h"
 #include "../../profile/game.h"
-
+#include "../../inputsystem.h"
 #include "../../ui/widgets/chlcc/trackselectbutton.h"
 
 namespace Impacto {
@@ -28,7 +28,10 @@ void MusicMenu::MusicButtonOnClick(Button* target) {
   SwitchToTrack(target->Id);
 }
 
-MusicMenu::MusicMenu() {
+MusicMenu::MusicMenu()
+    : DirectionButtonHoldHandler(
+          MusicDirectionalHoldTime, MusicDirectionalFocusTimeInterval,
+          Vm::Interface::PAD1UP | Vm::Interface::PAD1DOWN) {
   MenuTransition.Direction = AnimationDirection::In;
   MenuTransition.LoopMode = AnimationLoopMode::Stop;
   MenuTransition.SetDuration(MenuTransitionDuration);
@@ -196,33 +199,7 @@ void MusicMenu::Render() {
                     MainItems->Children[CurrentlyPlayingTrackId]->Bounds.Y) +
               HighlightStarRelativePos);
     }
-  }
-}
-      Renderer->DrawSprite(TrackTree, TrackTreePos + offset);
-      Renderer->DrawSprite(PlaymodeRepeatSprite, PlaymodeRepeatPos + offset);
-      Renderer->DrawSprite(PlaymodeAllSprite, PlaymodeAllPos + offset);
-      glm::vec2 temp =
-          glm::vec2(15 * 16 * (1 - NowPlayingAnimation.Progress), offset.y) +
-          NowPlayingPos;
-      glm::vec4 tint(glm::vec3(1.0f), NowPlayingAnimation.Progress);
-      CurrentlyPlayingTrackName.MoveTo(temp + PlayingTrackOffset);
-      CurrentlyPlayingTrackName.Tint = tint;
-      CurrentlyPlayingTrackName.Render();
-      CurrentlyPlayingTrackArtist.MoveTo(temp + PlayingTrackArtistOffset);
-      CurrentlyPlayingTrackArtist.Tint = tint;
-      CurrentlyPlayingTrackArtist.Render();
-      Renderer->DrawSprite(NowPlaying, temp, tint);
-      if (CurrentlyPlayingTrackId != -1 &&
-          CurrentlyPlayingTrackId >= CurrentLowerBound &&
-          CurrentlyPlayingTrackId <= CurrentUpperBound) {
-        Renderer->DrawSprite(
-            HighlightStar,
-            glm::vec2(MainItems->Children[CurrentlyPlayingTrackId]->Bounds.X,
-                      MainItems->Children[CurrentlyPlayingTrackId]->Bounds.Y) +
-                HighlightStarRelativePos);
-      }
-      DrawButtonPrompt();
-    }
+    DrawButtonPrompt();
   }
 }
 
@@ -302,7 +279,6 @@ void MusicMenu::Update(float dt) {
 }
 
 void MusicMenu::UpdateInput(float dt) {
-  Menu::UpdateInput(dt);
   if (State == Shown) {
     MainItems->UpdateInput(dt);
 
@@ -324,19 +300,59 @@ void MusicMenu::UpdateInput(float dt) {
       SwitchToTrack(-1);
     }
 
-    auto button = static_cast<Widgets::CHLCC::TrackSelectButton*>(
-        CurrentlyFocusedElement);
-    if (button == nullptr) return;
+    if ((Input::MouseWheelDeltaY > 0 && CurrentLowerBound > 0)) {
+      CurrentLowerBound--;
+      CurrentUpperBound--;
+    } else if ((Input::MouseWheelDeltaY < 0) && CurrentUpperBound < 44) {
+      CurrentLowerBound++;
+      CurrentUpperBound++;
+    }
 
-    // Opposite of scroll direction
-    if (button->Id - CurrentLowerBound >= 16) {
-      CurrentLowerBound = button->Id - 15;
-      CurrentUpperBound = button->Id;
-    } else if (CurrentUpperBound - button->Id >= 16) {
-      CurrentLowerBound = button->Id;
-      CurrentUpperBound = button->Id + 15;
-    } else
-      return;
+    auto buttonid = (static_cast<Widgets::CHLCC::TrackSelectButton*>(
+                         CurrentlyFocusedElement)
+                         ->Id);
+
+    if ((PADinputButtonWentDown & PAD1DOWN) && buttonid != 44) {
+      AdvanceFocus(FDIR_DOWN);
+      if (buttonid + 1 > CurrentUpperBound) {
+        CurrentLowerBound++;
+        CurrentUpperBound++;
+      }
+    } else if ((PADinputButtonWentDown & PAD1UP) && buttonid != 0) {
+      AdvanceFocus(FDIR_UP);
+      if (buttonid - 1 < CurrentLowerBound) {
+        CurrentLowerBound--;
+        CurrentUpperBound--;
+      }
+    } else if (PADinputButtonWentDown & PAD1LEFT) {
+      if (CurrentLowerBound - 16 > 0) {
+        CurrentLowerBound -= 16;
+        CurrentUpperBound -= 16;
+        for (int i = 0; i < 16; i++) {
+          AdvanceFocus(FDIR_UP);
+        }
+      } else {
+        CurrentLowerBound = 0;
+        CurrentUpperBound = 15;
+        for (int i = 0; i < buttonid; i++) {
+          AdvanceFocus(FDIR_UP);
+        }
+      }
+    } else if (PADinputButtonWentDown & PAD1RIGHT) {
+      if (CurrentUpperBound + 16 < 44) {
+        CurrentLowerBound += 16;
+        CurrentUpperBound += 16;
+        for (int i = 0; i < 16; i++) {
+          AdvanceFocus(FDIR_DOWN);
+        }
+      } else {
+        CurrentLowerBound = 29;
+        CurrentUpperBound = 44;
+        for (int i = 0; i < 44 - buttonid; i++) {
+          AdvanceFocus(FDIR_DOWN);
+        }
+      }
+    }
 
     glm::vec2 offset(0.0f, -(float)CurrentLowerBound * TrackOffset.y);
     MainItems->MoveTo(offset);
