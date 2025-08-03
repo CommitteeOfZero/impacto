@@ -116,8 +116,7 @@ void LogSetFile(const char* path) {
   using CF = Io::PhysicalFileStream::CreateFlagsMode;
   Io::Stream* stream;
   IoError err = Io::PhysicalFileStream::Create(
-      path, &stream,
-      CF::CREATE_IF_NOT_EXISTS | CF::CREATE_DIRS | CF::WRITE | CF::UNBUFFERED);
+      path, &stream, CF::CREATE | CF::CREATE_DIRS | CF::WRITE | CF::UNBUFFERED);
   if (err != IoError_OK) {
     ImpLog(LogLevel::Error, LogChannel::IO,
            "Failed to open save file for writing\n");
