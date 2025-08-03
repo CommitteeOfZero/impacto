@@ -202,7 +202,7 @@ VmInstruction(InstPositionObject) {
 
     if (parentObjId != 1 && parentObjId != 2) {
       // I don't even know
-      theta += (float)M_PI;
+      theta += std::numbers::pi_v<float>;
     }
 
     theta = NormalizeRad(theta);

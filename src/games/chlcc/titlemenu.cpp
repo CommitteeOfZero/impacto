@@ -489,7 +489,7 @@ void TitleMenu::DrawSpinningCircle(float alpha) const {
       SpinningCircleSprite.ScaledBounds()
           .Scale({2.0f, 2.0f}, {0.0f, 0.0f})
           .RotateAroundCenter(-SpinningCircleAnimation.Progress * 2.0f *
-                              (float)std::numbers::pi)
+                              std::numbers::pi_v<float>)
           .Translate(SpinningCirclePosition);
 
   glm::vec4 tint = {1.0f, 1.0f, 1.0f, alpha};

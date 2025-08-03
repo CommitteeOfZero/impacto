@@ -127,7 +127,7 @@ void YesNoTrigger::UpdateYesNoPos(float startX, float startY, float startScale,
                        : (targetScale > 3.0) ? 3.0f
                                              : targetScale;
 
-  float smoothTransition = cos(transition * static_cast<float>(M_PI));
+  float smoothTransition = cos(transition * std::numbers::pi_v<float>);
   smoothTransition = (1.0f - smoothTransition) * 0.5f;
 
   BgSpritePos.x = startX + smoothTransition * (targetX - startX);

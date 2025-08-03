@@ -1411,7 +1411,8 @@ void MapSystemCCLCC::MapDispPhoto(int id, int photoGroupId) {
   if (MapPosX <= xOffset + displayedSprite.Bounds.Width &&
       MapPosY <= yOffset + displayedSprite.Bounds.Height &&
       xOffset <= xMapEdge && yOffset <= yMapEdge) {
-    float angle = toFlt(MapPartsDisp[id].angle * 2.0f * M_PI / 65536.0f);
+    float angle =
+        toFlt(MapPartsDisp[id].angle * 2.0 * std::numbers::pi / 65536.0);
 
     xOffset = xOffset - MapPosX;
     yOffset = yOffset - MapPosY;
@@ -1487,7 +1488,8 @@ void MapSystemCCLCC::MapPoolDispPhoto(int poolId) {
   if (MapPosX <= xOffset + displayedSprite.Bounds.Width &&
       MapPosY <= yOffset + displayedSprite.Bounds.Height &&
       xOffset <= xMapEdge && yOffset <= yMapEdge) {
-    float angle = toFlt(MapPoolDisp[poolId * 2].angle * 2.0f * M_PI / 65536.0f);
+    float angle =
+        toFlt(MapPoolDisp[poolId * 2].angle * 2.0 * std::numbers::pi / 65536.0);
 
     xOffset = xOffset - MapPosX;
     yOffset = yOffset - MapPosY;
@@ -1685,7 +1687,8 @@ void MapSystemCCLCC::MapDispArticle(int id) {
 
   if (MapPosX <= xPartOffset + 354.0 && MapPosY <= yPartOffset + 247.0) {
     float scaledFactor = 1080.0f / MapBGHeight;
-    float angle = toFlt(MapPartsDisp[id].angle * 2 * M_PI / 65536.0f);
+    float angle =
+        toFlt(MapPartsDisp[id].angle * 2 * std::numbers::pi / 65536.0);
 
     xPartOffset = xPartOffset - MapPosX;
     yPartOffset = yPartOffset - MapPosY;
@@ -1747,7 +1750,8 @@ void MapSystemCCLCC::MapDispTag(int id) {
       xOffset <= xMapEdge && yOffset <= yMapEdge) {
     xOffset = xOffset - MapPosX;
     yOffset = yOffset - MapPosY;
-    float angle = toFlt(MapPartsDisp[id].angle * 2 * M_PI / 65536.0f);
+    float angle =
+        toFlt(MapPartsDisp[id].angle * 2 * std::numbers::pi / 65536.0);
 
     float shadowScaledPosOffsetX = (xOffset + 2.0f + 46.0f) * scaledFactor;
     float shadowScaledPosOffsetY = (yOffset + 2.0f + 16.0f) * scaledFactor;

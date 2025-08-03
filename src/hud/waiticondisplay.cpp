@@ -105,7 +105,8 @@ static void RenderRotateZ(glm::vec2 pos, glm::vec4 opacityTint) {
   if (!GetFlag(Profile::ScriptVars::SF_SHOWWAITICON)) return;
 
   // TODO: MO6TW only for now
-  glm::vec3 euler(SimpleAnim.Progress * 2.0f * M_PI, 0, 0.6f);
+  glm::vec3 euler(SimpleAnim.Progress * 2.0f * std::numbers::pi_v<float>, 0,
+                  0.6f);
   glm::quat quat;
   eulerZYXToQuat(&euler, &quat);
 
@@ -149,7 +150,8 @@ void Render(glm::vec2 pos, glm::vec4 opacityTint, DialoguePageMode mode) {
 
       const CornersQuad dest =
           WaitIconSprite.ScaledBounds()
-              .RotateAroundCenter(SimpleAnim.Progress * 2.0f * (float)M_PI)
+              .RotateAroundCenter(SimpleAnim.Progress * 2.0f *
+                                  std::numbers::pi_v<float>)
               .Translate(pos + WaitIconOffset);
       Renderer->DrawSprite(WaitIconSprite, dest, opacityTint);
 

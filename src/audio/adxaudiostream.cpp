@@ -53,10 +53,10 @@ void AdxAudioStream::SetCoefficients(double cutoff, double sample_rate) {
   /* temps to keep the calculation simple */
   double z, a, b, c;
 
-  z = cos(2.0 * M_PI * cutoff / sample_rate);
+  z = cos(2.0 * std::numbers::pi * cutoff / sample_rate);
 
-  a = M_SQRT2 - z;
-  b = M_SQRT2 - 1.0;
+  a = std::numbers::sqrt2 - z;
+  b = std::numbers::sqrt2 - 1.0;
   c = (a - sqrt((a + b) * (a - b))) / b;
 
   /* compute the coefficients as fixed point values, with 12 fractional bits */

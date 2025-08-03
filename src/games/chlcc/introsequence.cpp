@@ -29,7 +29,7 @@ IntroSequence::IntroSequence() {
     origin.x = (float)(-120 + i * 110 + (random + 10) * 10);
     origin.y = float((random + 10) * -10);
 
-    angle = (float)CALCrnd(8192) / 8192.0f * (float)std::numbers::pi * 2.0f;
+    angle = (float)CALCrnd(8192) / 8192.0f * std::numbers::pi_v<float> * 2.0f;
   }
 
   PanningAnimation.SetDuration(IntroPanningAnimationDuration);
@@ -180,7 +180,7 @@ void IntroSequence::Render() {
 
 void IntroSequence::DrawBackground() const {
   float progress =
-      std::sin(PanningAnimation.Progress * (float)std::numbers::pi / 2.0f);
+      std::sin(PanningAnimation.Progress * std::numbers::pi_v<float> / 2.0f);
   glm::vec2 designDimensions(DesignWidth, DesignHeight);
 
   Renderer->DrawQuad(RectF{0, 0, DesignWidth, DesignHeight}, glm::vec4(1.0f));
@@ -230,18 +230,18 @@ void IntroSequence::DrawBouncingStar() const {
   float y = DesignHeight / 2 + IntroBouncingStarSprite.Bounds.Height;
   if (StarBounceAnimation.Progress < 0.357f) {
     float progress = StarBounceAnimation.Progress / 0.357f;
-    y -= std::sin(progress * (float)std::numbers::pi) * 0.664f * DesignHeight;
+    y -= std::sin(progress * std::numbers::pi_v<float>) * 0.664f * DesignHeight;
   } else if (StarBounceAnimation.Progress < 0.536f) {
     float progress =
         (StarBounceAnimation.Progress - 0.357f) / (0.536f - 0.357f);
-    y -= std::sin(progress * (float)std::numbers::pi) * 0.094f * DesignHeight;
+    y -= std::sin(progress * std::numbers::pi_v<float>) * 0.094f * DesignHeight;
   } else if (StarBounceAnimation.Progress < 0.714f) {
     float progress =
         (StarBounceAnimation.Progress - 0.536f) / (0.714f - 0.536f);
-    y -= std::sin(progress * (float)std::numbers::pi) * 0.094f * DesignHeight;
+    y -= std::sin(progress * std::numbers::pi_v<float>) * 0.094f * DesignHeight;
   } else {
     float progress = (StarBounceAnimation.Progress - 0.714f) / (1.0f - 0.714f);
-    y -= std::sin(progress * 0.8f * (float)std::numbers::pi) * 0.475f *
+    y -= std::sin(progress * 0.8f * std::numbers::pi_v<float>) * 0.475f *
          DesignHeight;
   }
 
@@ -256,8 +256,8 @@ void IntroSequence::DrawExplodingStars() const {
 
   constexpr size_t numStars = 5;
   for (size_t i = 0; i < numStars; i++) {
-    float rayAngle = (float)std::numbers::pi / 2.0f -
-                     (float)std::numbers::pi * 2.0f / (float)(numStars * i);
+    float rayAngle = std::numbers::pi_v<float> / 2.0f -
+                     std::numbers::pi_v<float> * 2.0f / (float)(numStars * i);
     glm::vec2 directionVector(std::cos(rayAngle), -std::sin(rayAngle));
     glm::vec2 displacement = directionVector * ExplodingStarAnimation.Progress *
                              IntroExplodingStarAnimationDistance;
@@ -265,7 +265,7 @@ void IntroSequence::DrawExplodingStars() const {
 
     float opacity =
         std::min(2.0f - ExplodingStarAnimation.Progress * 2.0f, 1.0f);
-    float angle = (float)std::numbers::pi * 2.0f *
+    float angle = std::numbers::pi_v<float> * 2.0f *
                   ExplodingStarRotationAnimation.Progress;
     if (i >= 3) angle = -angle;
 
@@ -287,7 +287,7 @@ void IntroSequence::DrawFallingStars() const {
                              FallingStarsAnimation.Progress;
 
     glm::vec2 position = origin + displacement;
-    float angle = initialAngle + (float)std::numbers::pi * 2.0f *
+    float angle = initialAngle + std::numbers::pi_v<float> * 2.0f *
                                      FallingStarsRotationAnimation.Progress;
 
     CornersQuad dest = IntroFallingStarSprite.ScaledBounds()
@@ -313,7 +313,7 @@ void IntroSequence::DrawCHLogo() const {
 
   y = CHLogoPosition.y + dy * LogoFadeAnimation.Progress;
   opacity =
-      std::sin(LogoFadeAnimation.Progress * (float)std::numbers::pi) / 2.0f;
+      std::sin(LogoFadeAnimation.Progress * std::numbers::pi_v<float>) / 2.0f;
   Renderer->DrawSprite(CHLogoSprite, {CHLogoPosition.x, y},
                        {1.0f, 1.0f, 1.0f, opacity});
 }

@@ -335,7 +335,7 @@ inline glm::vec3 LookAtEulerZYX(glm::vec3 from, glm::vec3 to,
 
   result.x =
       atan2f(forward.y, sqrtf(forward.x * forward.x + forward.z * forward.z));
-  result.y = atan2f(forward.x, forward.z) - (float)M_PI;
+  result.y = atan2f(forward.x, forward.z) - std::numbers::pi_v<float>;
 
   return result;
 }
@@ -377,20 +377,25 @@ inline void eulerZYXToQuat(glm::vec3 const* zyx, glm::quat* quat) {
 #endif
 }
 
-constexpr float DegToRad(float deg) { return deg * (float)M_PI / 180.0f; }
-constexpr float RadToDeg(float rad) { return rad * 180.0f / (float)M_PI; }
+constexpr float DegToRad(float deg) {
+  return deg * std::numbers::pi_v<float> / 180.0f;
+}
+constexpr float RadToDeg(float rad) {
+  return rad * 180.0f / std::numbers::pi_v<float>;
+}
 inline float NormalizeDeg(float deg) {
   deg = fmodf(deg + 180, 360);
   if (deg < 0) deg += 360;
   return deg - 180;
 }
 inline float NormalizeRad(float rad) {
-  rad = fmodf(rad + (float)M_PI, 2.0f * (float)M_PI);
-  if (rad < 0) rad += 2.0f * (float)M_PI;
-  return rad - (float)M_PI;
+  rad =
+      fmodf(rad + std::numbers::pi_v<float>, 2.0f * std::numbers::pi_v<float>);
+  if (rad < 0) rad += 2.0f * std::numbers::pi_v<float>;
+  return rad - std::numbers::pi_v<float>;
 }
 constexpr float ScrWorkAngleToRad(int angle) {
-  return ((float)angle * 2.0f * (float)std::numbers::pi) / (float)(1 << 16);
+  return ((float)angle * 2.0f * std::numbers::pi_v<float>) / (float)(1 << 16);
 }
 
 inline glm::quat ScrWorkAnglesToQuaternion(int x, int y, int z) {
