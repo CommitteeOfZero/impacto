@@ -33,7 +33,7 @@ std::ios_base::openmode PhysicalFileStream::PrepareFileOpenMode(
   }
 
   bool writeExistNoOverwrite =
-      (flags & WRITE) && fileExists && !(flags & TRUNCATE) && !(flags & APPEND);
+      (flags & WRITE) && (fileExists != IoError_NotFound) && !(flags & TRUNCATE) && !(flags & APPEND);
   if (writeExistNoOverwrite) {
     // avoid truncating when in write only mode without truncate flag to
     // preserve file size
