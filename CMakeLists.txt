@@ -1053,8 +1053,8 @@ if (NOT DEFINED IMPACTO_DISABLE_FFMPEG)
 
     if (NOT VCPKG_TOOLCHAIN)
         set(AVCPP_PATCH git apply ${CMAKE_CURRENT_SOURCE_DIR}/vendor/patches/avcpp.patch)
-        if(NX)
-            set(AV_ENABLE_SHARED OFF)
+        if(NOT BUILD_SHARED_LIBS)
+            set(AV_ENABLE_SHARED OFF CACHE BOOL "Enable shared library build (Off)" FORCE)            
         endif()
         FetchContent_Declare(
             avcpp
