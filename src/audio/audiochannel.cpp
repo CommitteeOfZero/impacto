@@ -1,6 +1,9 @@
 #include "audiochannel.h"
 #include "audiostream.h"
+
+#ifndef IMPACTO_DISABLE_OPENAL
 #include "openal/openalaudiochannel.h"
+#endif
 
 #include "../io/stream.h"
 #include "../io/vfs.h"
@@ -19,6 +22,7 @@ std::unique_ptr<AudioChannel> AudioChannel::Create(
                                                           channelGroup);
     } break;
 #endif
+    case AudioBackendType::None:
     default:
       return std::make_unique<EmptyAudioChannel>(channelId, channelGroup);
   }

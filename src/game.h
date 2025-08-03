@@ -19,9 +19,9 @@ BETTER_ENUM(GameFeature, int, DebugMenu = (1 << 0), Scene3D = (1 << 1),
             CharacterViewer = (1 << 7), Video = (1 << 8),
             DebugMenuMultiViewport = (1 << 9))
 
-BETTER_ENUM(VideoPlayerType, int, FFmpeg);
+BETTER_ENUM(VideoPlayerType, int, None, FFmpeg);
 
-BETTER_ENUM(AudioBackendType, int, OpenAL);
+BETTER_ENUM(AudioBackendType, int, None, OpenAL);
 
 namespace Game {
 

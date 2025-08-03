@@ -1,12 +1,7 @@
 #pragma once
 
-#if IMPACTO_OPENAL_INCLUDE_SUBDIR
 #include <AL/al.h>
 #include <AL/alc.h>
-#else
-#include "al.h"
-#include "alc.h"
-#endif
 
 #if IMPACTO_OPENAL_HAVE_ALEXT
 #include "alext.h"

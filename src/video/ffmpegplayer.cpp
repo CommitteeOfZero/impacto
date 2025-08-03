@@ -67,6 +67,7 @@ void FFmpegPlayer::Init() {
       AudioPlayer.reset(new Audio::OpenAL::FFmpegAudioPlayer(this));
     } break;
 #endif
+    case AudioBackendType::None:
     default: {
       AudioPlayer.reset(new Audio::FFmpegAudioPlayer(this));
       NoAudio = true;
@@ -171,7 +172,7 @@ void FFmpegPlayer::Play(Io::Stream* stream, bool looping, bool alpha) {
     if (st.isVideo()) {
       videoStreamId = (int)i;
       videoStream = st;
-    } else if (st.isAudio()) {
+    } else if (st.isAudio() && !NoAudio) {
       audioStreamId = (int)i;
       audioStream = st;
     } else {

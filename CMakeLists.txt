@@ -911,8 +911,6 @@ if (EMSCRIPTEN)
     string(REPLACE "-O2" "" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
     string(REPLACE "-O2" "" CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
     string(REPLACE "-O2" "" CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE}")
-
-    add_definitions(-DIMPACTO_OPENAL_INCLUDE_SUBDIR)
 else ()
     find_package(SDL2 REQUIRED)
     find_package(ZLIB REQUIRED)
@@ -937,8 +935,6 @@ else ()
         )
 
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--start-group") # workaround for SDL2 being last in the linker list
-
-        add_definitions(-DIMPACTO_OPENAL_INCLUDE_SUBDIR)
     else ()
         # Add this because apparently find_package(SDL2 REQUIRED) doesn't work right on Arch?
         if ("${SDL2_LIBRARIES}" STREQUAL "")

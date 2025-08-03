@@ -39,16 +39,24 @@ void LoadGameFromLua() {
   TryGetMember<bool>("UseBgEffects", UseBgEffects);
   int audioBackendType = -1;
   res = TryGetMember<int>("AudioBackendType", audioBackendType);
-  if (!res)
+  if (!res) {
+#ifndef IMPACTO_DISABLE_OPENAL
     ActiveAudioBackend = AudioBackendType::OpenAL;
-  else
+#else
+    ActiveAudioBackend = AudioBackendType::None;
+#endif
+  } else
     ActiveAudioBackend =
         AudioBackendType::_from_integral_unchecked(audioBackendType);
   int videoPlayerType = -1;
   res = TryGetMember<int>("VideoPlayerType", videoPlayerType);
-  if (!res)
+  if (!res) {
+#ifndef IMPACTO_DISABLE_FFMPEG
     VideoPlayer = VideoPlayerType::FFmpeg;
-  else
+#else
+    VideoPlayer = VideoPlayerType::None;
+#endif
+  } else
     VideoPlayer = VideoPlayerType::_from_integral_unchecked(videoPlayerType);
 
   TryGetMember<int>("PlatformId", PlatformId);
