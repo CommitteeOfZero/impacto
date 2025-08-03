@@ -54,8 +54,10 @@ int main(int argc, char* argv[]) {
   g_LogLevelConsole = LogLevel::Fatal;
   g_LogChannelsConsole = LogChannel::All;
 
-  std::vector<std::string_view> arguments(argv + 1, argv + argc);
-  ;
+  std::vector<std::string_view> arguments;
+  for (int i = 1; i < argc; ++i) {
+    arguments.push_back(argv[i]);
+  }
 
   auto handleArgs = [&profileName](std::vector<std::string_view> args) {
     for (int i = 0; i < args.size(); ++i) {
