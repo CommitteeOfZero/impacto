@@ -36,11 +36,9 @@ static void UpdateFromPADCode(int PADcode, PADInputType type) {
   const auto& axisDownLightArr = type == PADInputType::WentDown
                                      ? Input::ControllerAxisWentDownLight
                                      : Input::ControllerAxisIsDownLight;
-  /*
-  const auto& axisDownHeavyArr = type == PADInputType::WentDown
-                                     ? Input::ControllerAxisWentDownHeavy
+  [[maybe_unused]] const auto& axisDownHeavyArr =
+      type == PADInputType::WentDown ? Input::ControllerAxisWentDownHeavy
                                      : Input::ControllerAxisIsDownHeavy;
-  */
   const auto& mouseDownArr = type == PADInputType::WentDown
                                  ? Input::MouseButtonWentDown
                                  : Input::MouseButtonIsDown;
