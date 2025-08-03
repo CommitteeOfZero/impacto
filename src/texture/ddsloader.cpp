@@ -103,14 +103,14 @@ typedef struct {
   dds_caps caps;      ///< DirectDraw Surface caps
 } dds_header;
 
-std::vector<unsigned char> m_buf;  ///< Buffer the image pixels
-int m_nchans;                      ///< Number of colour channels in image
-int m_nfaces;                      ///< Number of cube map sides in image
-int m_Bpp;                         ///< Number of bytes per pixel
-int m_redL, m_redR;                ///< Bit shifts to extract red channel
-int m_greenL, m_greenR;            ///< Bit shifts to extract green channel
-int m_blueL, m_blueR;              ///< Bit shifts to extract blue channel
-int m_alphaL, m_alphaR;            ///< Bit shifts to extract alpha channel
+std::vector<uint8_t> m_buf;  ///< Buffer the image pixels
+int m_nchans;                ///< Number of colour channels in image
+int m_nfaces;                ///< Number of cube map sides in image
+int m_Bpp;                   ///< Number of bytes per pixel
+int m_redL, m_redR;          ///< Bit shifts to extract red channel
+int m_greenL, m_greenR;      ///< Bit shifts to extract green channel
+int m_blueL, m_blueR;        ///< Bit shifts to extract blue channel
+int m_alphaL, m_alphaR;      ///< Bit shifts to extract alpha channel
 dds_header m_dds;
 
 inline void calc_shifts(int mask, int& left, int& right) {
@@ -131,7 +131,7 @@ inline void calc_shifts(int mask, int& left, int& right) {
   left = 8 - i;
 }
 
-bool internal_readimg(Stream* stream, unsigned char* dst, int w, int h, int d) {
+bool internal_readimg(Stream* stream, uint8_t* dst, int w, int h, int d) {
   if (m_dds.fmt.flags & DDS_PF_FOURCC) {
     // compressed image
     int flags = 0;
@@ -163,9 +163,9 @@ bool internal_readimg(Stream* stream, unsigned char* dst, int w, int h, int d) {
       for (int y = 0; y < h; y++) {
         for (int x = 0; x < w; x++) {
           k = (y * w + x) * 4;
-          dst[k + 0] = (unsigned char)((int)dst[k + 0] * 255 / (int)dst[k + 3]);
-          dst[k + 1] = (unsigned char)((int)dst[k + 1] * 255 / (int)dst[k + 3]);
-          dst[k + 2] = (unsigned char)((int)dst[k + 2] * 255 / (int)dst[k + 3]);
+          dst[k + 0] = (uint8_t)((int)dst[k + 0] * 255 / (int)dst[k + 3]);
+          dst[k + 1] = (uint8_t)((int)dst[k + 1] * 255 / (int)dst[k + 3]);
+          dst[k + 2] = (uint8_t)((int)dst[k + 2] * 255 / (int)dst[k + 3]);
         }
       }
     }
@@ -184,14 +184,14 @@ bool internal_readimg(Stream* stream, unsigned char* dst, int w, int h, int d) {
           if (!stream->Read(&pixel, m_Bpp)) return false;
           k = (z * h * w + y * w + x) * m_nchans;
           dst[k + 0] =
-              (unsigned char)(((pixel & m_dds.fmt.rmask) >> m_redR) << m_redL);
-          dst[k + 1] = (unsigned char)(((pixel & m_dds.fmt.gmask) >> m_greenR)
-                                       << m_greenL);
-          dst[k + 2] = (unsigned char)(((pixel & m_dds.fmt.bmask) >> m_blueR)
-                                       << m_blueL);
+              (uint8_t)(((pixel & m_dds.fmt.rmask) >> m_redR) << m_redL);
+          dst[k + 1] =
+              (uint8_t)(((pixel & m_dds.fmt.gmask) >> m_greenR) << m_greenL);
+          dst[k + 2] =
+              (uint8_t)(((pixel & m_dds.fmt.bmask) >> m_blueR) << m_blueL);
           if (m_dds.fmt.flags & DDS_PF_ALPHA)
-            dst[k + 3] = (unsigned char)(((pixel & m_dds.fmt.amask) >> m_alphaR)
-                                         << m_alphaL);
+            dst[k + 3] =
+                (uint8_t)(((pixel & m_dds.fmt.amask) >> m_alphaR) << m_alphaL);
         }
       }
     }
