@@ -186,7 +186,7 @@ IoError PhysicalFileStream::Duplicate(Stream** outStream) {
 }
 
 int64_t PhysicalFileStream::Write(void* buffer, int64_t sz, size_t cnt) {
-  if (!(Flags & WRITE)) {
+  if (!(Flags & (WRITE | APPEND))) {
     return IoError_Fail;
   }
   FileStream.write((char*)buffer, sz * cnt);

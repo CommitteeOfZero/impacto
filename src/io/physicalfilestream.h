@@ -29,12 +29,11 @@ class PhysicalFileStream : public Stream {
   std::ios_base::openmode PrepareFileOpenMode(CreateFlags flags);
 
   PhysicalFileStream(std::string filePath, CreateFlags flags)
-      : Flags(flags),
-        SourceFileName(std::move(filePath)),
-        FileStream(SourceFileName, PrepareFileOpenMode(flags)) {
+      : Flags(flags), SourceFileName(std::move(filePath)) {
     if (flags & UNBUFFERED) {
       FileStream.rdbuf()->pubsetbuf(nullptr, 0);
     }
+    FileStream.open(SourceFileName, PrepareFileOpenMode(flags));
     Meta.FileName = SourceFileName;
   }
 
@@ -42,12 +41,11 @@ class PhysicalFileStream : public Stream {
       : PhysicalFileStream(std::move(filePath), CreateFlagsMode::READ) {}
 
   PhysicalFileStream(PhysicalFileStream const& other)
-      : Flags(other.Flags),
-        SourceFileName(other.SourceFileName),
-        FileStream(other.SourceFileName, PrepareFileOpenMode(Flags)) {
+      : Flags(other.Flags), SourceFileName(other.SourceFileName) {
     if (Flags & UNBUFFERED) {
       FileStream.rdbuf()->pubsetbuf(nullptr, 0);
     }
+    FileStream.open(other.SourceFileName, PrepareFileOpenMode(Flags));
     Meta.FileName = SourceFileName;
   }
   IoError ErrorCode = IoError_OK;
