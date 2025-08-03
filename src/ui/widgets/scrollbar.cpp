@@ -137,10 +137,8 @@ void Scrollbar::UpdateInput() {
           break;
 
         default:
-          ImpLog(LogLevel::Error, LogChannel::IO,
-                 "Unexpected scrollbar direction {}", (int)Direction);
-          mouseP = trackP1 = trackP2 = 0.0f;
-          break;
+          throw std::runtime_error(
+              fmt::format("Unexpected scrollbar direction {}", (int)Direction));
       }
 
       float thumbNormalizedLength =

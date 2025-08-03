@@ -256,9 +256,8 @@ bool GXTLoadSubtexture(Stream* stream, Texture* outTexture,
         outTexture->Init(TexFmt_RGBA, stx->Width, stx->Height);
         bytesPerPixel = 4;
       } else {
-        ImpLogSlow(LogLevel::Warning, LogChannel::TextureLoad,
-                   "Unimplemented channel order {} requested!", channelOrder);
-        return false;
+        throw std::invalid_argument(fmt::format(
+            "Unimplemented channel order {} requested", channelOrder));
       }
 
       uint8_t* inBuffer = (uint8_t*)malloc(stx->Width * stx->Height);

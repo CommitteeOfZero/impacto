@@ -41,9 +41,8 @@ void Group::Add(Widget* widget, FocusDirection dir) {
         return FDIR_UP;
 
       default:
-        ImpLog(LogLevel::Error, LogChannel::General,
-               "Unknown focus direction {}", (int)dir);
-        return FDIR_DOWN;
+        throw std::invalid_argument(
+            fmt::format("Unknown focus direction {}", (int)dir));
     }
   }();
 

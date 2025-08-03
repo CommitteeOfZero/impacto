@@ -189,9 +189,8 @@ uint32_t Renderer::SubmitTexture(TexFmt format, uint8_t* buffer, int width,
         return GL_RED;
 
       default:
-        ImpLog(LogLevel::Error, LogChannel::GL,
-               "Unimplemented texture format {}", (int)format);
-        return 0;
+        throw std::invalid_argument(
+            fmt::format("Unimplemented texture format {}", (int)format));
     }
   }();
   glTexImage2D(GL_TEXTURE_2D, 0, texFormat, width, height, 0, texFormat,

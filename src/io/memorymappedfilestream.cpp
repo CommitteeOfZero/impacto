@@ -65,8 +65,7 @@ int64_t MemoryMappedFileStream<M>::Seek(int64_t offset, int origin) {
         return Meta.Size - offset;
 
       default:
-        ImpLog(LogLevel::Error, LogChannel::IO, "Unknown origin {}", origin);
-        return (int64_t)0;
+        throw std::invalid_argument(fmt::format("Unknown origin {}", origin));
     }
   }();
 

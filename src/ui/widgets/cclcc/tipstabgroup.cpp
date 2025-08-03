@@ -222,9 +222,8 @@ void TipsTabGroup::UpdateTipsEntries(std::vector<int> const& SortedTipIds) {
         return record.IsNew && !record.IsLocked;
     }
 
-    ImpLog(LogLevel::Error, LogChannel::General,
-           "Tried to update unimplemented tips tab type {}", (int)Type);
-    return false;
+    throw std::runtime_error(fmt::format(
+        "Tried to update unimplemented tips tab type {}", (int)Type));
   };
 
   int sortIndex = 1;

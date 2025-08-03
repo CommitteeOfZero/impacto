@@ -761,10 +761,8 @@ Sprite& SaveSystem::GetSaveThumbnail(SaveType type, int id) {
       return ((SaveFileEntry*)FullSaveEntries[id])->SaveThumbnail;
   }
 
-  ImpLog(LogLevel::Error, LogChannel::General,
-         "Tried to get thumbnail of unimplemented save entry type {}",
-         (int)type);
-  return ((SaveFileEntry*)FullSaveEntries[id])->SaveThumbnail;
+  throw std::invalid_argument(fmt::format(
+      "Tried to get thumbnail of unimplemented save entry type {}", (int)type));
 }
 
 }  // namespace MO6TW

@@ -14,10 +14,9 @@ static ALenum ToALFormat(int channels, int bitdepth) {
   if (channels == 2 && bitdepth == 8) return AL_FORMAT_STEREO8;
   if (channels == 1 && bitdepth == 8) return AL_FORMAT_MONO8;
 
-  ImpLog(LogLevel::Error, LogChannel::Audio,
-         "Unimplemented AL format with {} channels and a bit depth of {}",
-         channels, bitdepth);
-  return AL_FORMAT_MONO8;
+  throw std::invalid_argument(fmt::format(
+      "Unimplemented AL format with {} channels and a bit depth of {}",
+      channels, bitdepth));
 }
 
 OpenALAudioChannel::OpenALAudioChannel(AudioChannelId id,
