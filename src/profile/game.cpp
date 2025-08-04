@@ -33,10 +33,13 @@ void LoadGameFromLua() {
   if (!res) LayFileTexXMultiplier = 1.0f;
   res = TryGetMember<float>("LayFileTexYMultiplier", LayFileTexYMultiplier);
   if (!res) LayFileTexYMultiplier = 1.0f;
+
   res = TryGetMember<bool>("UseScreenCapEffects", UseScreenCapEffects);
   if (!res) UseScreenCapEffects = true;
   TryGetMember<bool>("UseMoviePriority", UseMoviePriority);
-  TryGetMember<bool>("UseBgEffects", UseBgEffects);
+  TryGetMember<bool>("UseBgChaEffects", UseBgChaEffects);
+  TryGetMember<bool>("UseBgFrameEffects", UseBgFrameEffects);
+
   int audioBackendType = -1;
   res = TryGetMember<int>("AudioBackendType", audioBackendType);
   if (!res) {

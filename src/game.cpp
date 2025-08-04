@@ -109,7 +109,9 @@ static void Init() {
     Background2D::Init();
     Mask2D::Init();
 
-    if (Profile::UseBgEffects) Profile::BgEff::Load();
+    if (Profile::UseBgChaEffects || Profile::UseBgFrameEffects) {
+      Profile::BgEff::Load();
+    }
   }
 
   if (Profile::GameFeatures & GameFeature::ModelViewer) {
@@ -304,8 +306,7 @@ static void RenderMain() {
       Backgrounds2D[bufId]->Render(layer);
     }
 
-    if (Profile::UseBgEffects &&
-        Background2D::LastRenderedBackground != nullptr) {
+    if (Background2D::LastRenderedBackground != nullptr) {
       Background2D::LastRenderedBackground->RenderBgEff(layer);
     }
 

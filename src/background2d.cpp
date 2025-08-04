@@ -77,11 +77,13 @@ bool Background2D::LoadSync(uint32_t bgId) {
     BgTexture.Load(stream);
     delete stream;
 
-    std::fill(BgEffsLoaded.begin(), BgEffsLoaded.end(), false);
-    if (Profile::UseBgEffects && BgEffTextureIdMap.contains(bgId)) {
+    if (Profile::UseBgFrameEffects && BgEffTextureIdMap.contains(bgId)) {
+      std::for_each(FrameBgEffs.begin(), FrameBgEffs.end(),
+                    [](auto bgEff) { bgEff.Loaded = false; });
+
       const std::array<int, 4>& textureIds = BgEffTextureIdMap[bgId];
 
-      for (size_t i = 0; i < MaxBgEffCount; i++) {
+      for (size_t i = 0; i < FrameBgEffs.size(); i++) {
         if (textureIds[i] == 0) continue;
 
         Io::Stream* bgEffStream;
@@ -89,8 +91,25 @@ bool Background2D::LoadSync(uint32_t bgId) {
 
         if (err != IoError::IoError_OK) return false;
 
-        BgEffTextures[i].Load(bgEffStream);
-        BgEffsLoaded[i] = true;
+        FrameBgEffs[i].BgEffTexture.Load(bgEffStream);
+        FrameBgEffs[i].Loaded = true;
+
+        delete bgEffStream;
+      }
+    }
+
+    if (Profile::UseBgChaEffects && BgEffTextureIdMap.contains(bgId)) {
+      ChaBgEff.Loaded = false;
+
+      const int textureId = BgEffTextureIdMap[bgId][3];
+      if (textureId != 0) {
+        Io::Stream* bgEffStream;
+        err = Io::VfsOpen("bgeffect", textureId, &bgEffStream);
+
+        if (err != IoError::IoError_OK) return false;
+
+        ChaBgEff.BgEffTexture.Load(bgEffStream);
+        ChaBgEff.Loaded = true;
 
         delete bgEffStream;
       }
@@ -112,12 +131,24 @@ void Background2D::UnloadSync() {
   BgSprite.Sheet.Texture = 0;
   BgSprite.Sheet.IsScreenCap = false;
 
-  std::fill(BgEffsLoaded.begin(), BgEffsLoaded.end(), false);
-  for (Sprite& bgEff : BgEffSprites) {
-    Renderer->FreeTexture(bgEff.Sheet.Texture);
-    bgEff.Sheet.DesignHeight = 0.0f;
-    bgEff.Sheet.DesignWidth = 0.0f;
-    bgEff.Sheet.Texture = 0;
+  if (Profile::UseBgFrameEffects) {
+    for (BgEff& bgEff : FrameBgEffs) {
+      bgEff.Loaded = false;
+
+      Renderer->FreeTexture(bgEff.BgEffSprite.Sheet.Texture);
+      bgEff.BgEffSprite.Sheet.DesignHeight = 0.0f;
+      bgEff.BgEffSprite.Sheet.DesignWidth = 0.0f;
+      bgEff.BgEffSprite.Sheet.Texture = 0;
+    }
+  }
+
+  if (Profile::UseBgChaEffects) {
+    ChaBgEff.Loaded = false;
+
+    Renderer->FreeTexture(ChaBgEff.BgEffSprite.Sheet.Texture);
+    ChaBgEff.BgEffSprite.Sheet.DesignHeight = 0.0f;
+    ChaBgEff.BgEffSprite.Sheet.DesignWidth = 0.0f;
+    ChaBgEff.BgEffSprite.Sheet.Texture = 0;
   }
 
   Show = false;
@@ -140,19 +171,31 @@ void Background2D::MainThreadOnLoad(bool result) {
   BgSprite.Bounds = RectF(0.0f, 0.0f, BgSprite.Sheet.DesignWidth,
                           BgSprite.Sheet.DesignHeight);
 
-  if (Profile::UseBgEffects) {
-    for (size_t i = 0; i < MaxBgEffCount; i++) {
-      if (!BgEffsLoaded[i]) continue;
+  if (Profile::UseBgFrameEffects) {
+    for (BgEff& bgEff : FrameBgEffs) {
+      if (!bgEff.Loaded) continue;
 
-      BgEffSprites[i].Sheet.Texture = BgEffTextures[i].Submit();
+      bgEff.BgEffSprite.Sheet.Texture = bgEff.BgEffTexture.Submit();
 
-      BgEffSprites[i].Sheet.DesignWidth = (float)BgEffTextures[i].Width;
-      BgEffSprites[i].Sheet.DesignHeight = (float)BgEffTextures[i].Height;
+      bgEff.BgEffSprite.Sheet.DesignWidth = (float)bgEff.BgEffTexture.Width;
+      bgEff.BgEffSprite.Sheet.DesignHeight = (float)bgEff.BgEffTexture.Height;
 
-      BgEffSprites[i].Bounds =
-          RectF(0.0f, 0.0f, BgEffSprites[i].Sheet.DesignWidth,
-                BgEffSprites[i].Sheet.DesignHeight);
+      bgEff.BgEffSprite.Bounds =
+          RectF(0.0f, 0.0f, bgEff.BgEffSprite.Sheet.DesignWidth,
+                bgEff.BgEffSprite.Sheet.DesignHeight);
     }
+  }
+
+  if (Profile::UseBgChaEffects && ChaBgEff.Loaded) {
+    ChaBgEff.BgEffSprite.Sheet.Texture = ChaBgEff.BgEffTexture.Submit();
+
+    ChaBgEff.BgEffSprite.Sheet.DesignWidth = (float)ChaBgEff.BgEffTexture.Width;
+    ChaBgEff.BgEffSprite.Sheet.DesignHeight =
+        (float)ChaBgEff.BgEffTexture.Height;
+
+    ChaBgEff.BgEffSprite.Bounds =
+        RectF(0.0f, 0.0f, ChaBgEff.BgEffSprite.Sheet.DesignWidth,
+              ChaBgEff.BgEffSprite.Sheet.DesignHeight);
   }
 
   Show = false;
@@ -333,10 +376,20 @@ void Background2D::UpdateState(const int bgId) {
     }
   }
 
-  if (Profile::UseBgEffects) {
+  if (Profile::UseBgChaEffects || Profile::UseBgFrameEffects) {
     BgEffsLayers = {ScrWork[SW_BG1EFFPRI + structOffset],
                     ScrWork[SW_BG1EFFPRI2 + structOffset]};
-    BgEffShaders = GetBgEffShaders(ScrWork[SW_BG1NO + structOffset]);
+  }
+
+  if (Profile::UseBgFrameEffects) {
+    const int bgNo = ScrWork[SW_BG1NO + structOffset];
+    for (size_t bgEffId = 0; bgEffId < FrameBgEffs.size(); bgEffId++) {
+      FrameBgEffs[bgEffId].Shader = GetBgEffShader(bgNo, bgEffId);
+    }
+  }
+
+  if (Profile::UseBgChaEffects) {
+    ChaBgEff.Shader = GetBgEffShader(ScrWork[SW_BG1NO + structOffset], 3);
   }
 
   if (BgSprite.Sheet.IsScreenCap) {
@@ -349,15 +402,28 @@ void Background2D::UpdateState(const int bgId) {
 void Background2D::Render(const int layer) {
   if (Status != LoadStatus::Loaded || !OnLayer(layer) || !Show) return;
 
-  if (Profile::UseBgEffects) {
+  if (Profile::UseBgChaEffects || Profile::UseBgFrameEffects) {
     bool renderBgEffs = false;
 
     for (size_t i = 0; i < BgEffsLayers.size(); i++) {
-      renderBgEffs |= BgEffsLayers[i] != 0 && BgEffsLayers[i] > Layers[i] &&
-                      std::any_of(BgEffShaders.begin(), BgEffShaders.end() - 1,
-                                  [](const auto shader) {
-                                    return shader != +ShaderProgramType::Sprite;
-                                  });
+      renderBgEffs |= BgEffsLayers[i] != 0 && BgEffsLayers[i] > Layers[i];
+    }
+
+    if (renderBgEffs) {
+      bool nonSpriteShader = false;
+
+      if (Profile::UseBgFrameEffects) {
+        nonSpriteShader |= std::any_of(
+            FrameBgEffs.begin(), FrameBgEffs.end() - 1, [](const auto bgEff) {
+              return bgEff.Shader != +ShaderProgramType::Sprite;
+            });
+      }
+
+      if (Profile::UseBgChaEffects) {
+        nonSpriteShader |= ChaBgEff.Shader != +ShaderProgramType::Sprite;
+      }
+
+      renderBgEffs &= nonSpriteShader;
     }
 
     LastRenderedBackground = renderBgEffs ? this : nullptr;
@@ -367,8 +433,9 @@ void Background2D::Render(const int layer) {
 }
 
 void Background2D::RenderBgEff(const int layer) {
-  if (layer == 0 || std::find(BgEffsLayers.begin(), BgEffsLayers.end(),
-                              layer) == BgEffsLayers.end()) {
+  if (!Profile::UseBgFrameEffects || layer == 0 ||
+      std::find(BgEffsLayers.begin(), BgEffsLayers.end(), layer) ==
+          BgEffsLayers.end()) {
     return;
   }
 
@@ -405,15 +472,14 @@ void Background2D::RenderBgEff(const int layer) {
   };
   constexpr std::array<uint16_t, 6> indices = {0, 1, 2, 0, 2, 3};
 
-  // Last index is CHA effect; start with penultimate entry
-  for (int bgEffId = BgEffSprites.size() - 2; bgEffId >= 0; bgEffId--) {
-    if (!BgEffsLoaded[bgEffId]) continue;
+  // Render in reverse order
+  for (auto bgEff = FrameBgEffs.crbegin(); bgEff != FrameBgEffs.crend();
+       bgEff++) {
+    if (!bgEff->Loaded) continue;
 
-    const ShaderProgramType shader = BgEffShaders[bgEffId];
     Renderer->CaptureScreencap(frameSprite);
-
-    Renderer->DrawVertices(frameSprite.Sheet, &BgEffSprites[bgEffId].Sheet,
-                           shader, vertices, indices);
+    Renderer->DrawVertices(frameSprite.Sheet, &bgEff->BgEffSprite.Sheet,
+                           bgEff->Shader, vertices, indices);
   }
 
   LastRenderedBackground = nullptr;
