@@ -51,6 +51,7 @@ uint32_t CalculateChecksum(std::span<const uint8_t> bufferData,
 
 SaveError SaveSystem::CheckSaveFile() {
   std::error_code ec;
+
   IoError existsState = Io::PathExists(SaveFilePath);
   if (existsState == IoError_NotFound) {
     return SaveError::NotFound;
@@ -60,6 +61,7 @@ SaveError SaveSystem::CheckSaveFile() {
            ec.message());
     return SaveError::Failed;
   }
+
   auto saveFileSize = Io::GetFileSize(SaveFilePath);
   if (saveFileSize == IoError_Fail) {
     ImpLog(LogLevel::Error, LogChannel::IO,
@@ -68,6 +70,7 @@ SaveError SaveSystem::CheckSaveFile() {
   } else if (saveFileSize != SaveFileSize) {
     return SaveError::Corrupted;
   }
+
   auto checkPermsBit = [](Io::FilePermissionsFlags perms,
                           Io::FilePermissionsFlags flag) {
     return to_underlying(perms) & to_underlying(flag);
@@ -80,10 +83,11 @@ SaveError SaveSystem::CheckSaveFile() {
            "Failed to get save file permissions, error: \"{:s}\"\n",
            ec.message());
     return SaveError::Failed;
-  } else if ((!checkPermsBit(perms, Io::FilePermissionsFlags::owner_read) ||
-              !checkPermsBit(perms, Io::FilePermissionsFlags::owner_write))) {
+  } else if (!checkPermsBit(perms, Io::FilePermissionsFlags::owner_read) ||
+             !checkPermsBit(perms, Io::FilePermissionsFlags::owner_write)) {
     return SaveError::WrongUser;
   }
+
   return SaveError::OK;
 }
 
