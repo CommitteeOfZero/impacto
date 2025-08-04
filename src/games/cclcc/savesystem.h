@@ -21,12 +21,12 @@ constexpr int SaveThumbnailSize =
 
 class SaveFileEntry : public SaveFileEntryBase {
  public:
-  uint8_t FlagWorkScript1[50];   // 50 bytes from &FlagWork[50]
-  uint8_t FlagWorkScript2[100];  // 100 bytes from &FlagWork[300]
-  int ScrWorkScript1[600];       // 2400 bytes from &ScrWork[1000]
-  int ScrWorkScript2[3000];      // 12000 bytes from &ScrWork[4300]
-  uint8_t MapLoadData[0x6ac8];
-  uint8_t YesNoData[0x54];
+  std::array<uint8_t, 50> FlagWorkScript1;   // 50 bytes from &FlagWork[50]
+  std::array<uint8_t, 100> FlagWorkScript2;  // 100 bytes from &FlagWork[300]
+  std::array<int, 600> ScrWorkScript1;       // 2400 bytes from &ScrWork[1000]
+  std::array<int, 3000> ScrWorkScript2;      // 12000 bytes from &ScrWork[4300]
+  std::array<uint8_t, 0x6ac8> MapLoadData;
+  std::array<uint8_t, 0x54> YesNoData;
   std::array<uint8_t, SaveThumbnailSize> ThumbnailData;
 };
 

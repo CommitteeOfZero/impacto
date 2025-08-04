@@ -175,14 +175,18 @@ void SaveSystem::LoadEntryBuffer(Io::MemoryStream& stream, SaveFileEntry& entry,
   entry.SaveType = Io::ReadLE<uint32_t>(&stream);
   assert(stream.Position == 0x28);
   stream.Seek(0x58, SEEK_CUR);
-  Io::ReadArrayLE<uint8_t>(entry.FlagWorkScript1, &stream, 50);
+  Io::ReadArrayLE<uint8_t>(entry.FlagWorkScript1.data(), &stream,
+                           entry.FlagWorkScript1.size());
   assert(stream.Position == 178);
-  Io::ReadArrayLE<uint8_t>(entry.FlagWorkScript2, &stream, 100);
+  Io::ReadArrayLE<uint8_t>(entry.FlagWorkScript2.data(), &stream,
+                           entry.FlagWorkScript2.size());
   Io::ReadLE<uint16_t>(&stream);
   assert(stream.Position == 280);
-  Io::ReadArrayLE<int>(entry.ScrWorkScript1, &stream, 600);
+  Io::ReadArrayLE<int>(entry.ScrWorkScript1.data(), &stream,
+                       entry.ScrWorkScript1.size());
   assert(stream.Position == 2680);
-  Io::ReadArrayLE<int>(entry.ScrWorkScript2, &stream, 3000);
+  Io::ReadArrayLE<int>(entry.ScrWorkScript2.data(), &stream,
+                       entry.ScrWorkScript2.size());
 
   assert(stream.Position == 0x3958);
   entry.MainThreadExecPriority = Io::ReadLE<uint32_t>(&stream);
@@ -207,8 +211,10 @@ void SaveSystem::LoadEntryBuffer(Io::MemoryStream& stream, SaveFileEntry& entry,
   assert(stream.Position == 0x3a04);
   stream.Seek(1212, SEEK_CUR);
   assert(stream.Position == 0x3ec0);
-  Io::ReadArrayLE<uint8_t>(entry.MapLoadData, &stream, 0x6ac8);
-  Io::ReadArrayLE<uint8_t>(entry.YesNoData, &stream, 0x54);
+  Io::ReadArrayLE<uint8_t>(entry.MapLoadData.data(), &stream,
+                           entry.MapLoadData.size());
+  Io::ReadArrayLE<uint8_t>(entry.YesNoData.data(), &stream,
+                           entry.YesNoData.size());
 
   Sprite& thumbnail = entry.SaveThumbnail;
   thumbnail.Sheet = SpriteSheet(SaveThumbnailWidth, SaveThumbnailHeight);
@@ -360,14 +366,18 @@ void SaveSystem::SaveEntryBuffer(Io::MemoryStream& memoryStream,
   Io::WriteLE<uint32_t>(&memoryStream, entry.SaveType);
   assert(memoryStream.Position == 0x28);
   memoryStream.Seek(0x58, SEEK_CUR);
-  Io::WriteArrayLE<uint8_t>(entry.FlagWorkScript1, &memoryStream, 50);
+  Io::WriteArrayLE<uint8_t>(entry.FlagWorkScript1.data(), &memoryStream,
+                            entry.FlagWorkScript1.size());
   assert(memoryStream.Position == 178);
-  Io::WriteArrayLE<uint8_t>(entry.FlagWorkScript2, &memoryStream, 100);
+  Io::WriteArrayLE<uint8_t>(entry.FlagWorkScript2.data(), &memoryStream,
+                            entry.FlagWorkScript2.size());
   Io::WriteLE<uint16_t>(&memoryStream, 0);
   assert(memoryStream.Position == 280);
-  Io::WriteArrayLE<int>(entry.ScrWorkScript1, &memoryStream, 600);
+  Io::WriteArrayLE<int>(entry.ScrWorkScript1.data(), &memoryStream,
+                        entry.ScrWorkScript1.size());
   assert(memoryStream.Position == 2680);
-  Io::WriteArrayLE<int>(entry.ScrWorkScript2, &memoryStream, 3000);
+  Io::WriteArrayLE<int>(entry.ScrWorkScript2.data(), &memoryStream,
+                        entry.ScrWorkScript2.size());
 
   assert(memoryStream.Position == 0x3958);
   Io::WriteLE<uint32_t>(&memoryStream, entry.MainThreadExecPriority);
@@ -392,8 +402,10 @@ void SaveSystem::SaveEntryBuffer(Io::MemoryStream& memoryStream,
   assert(memoryStream.Position == 0x3a04);
   memoryStream.Seek(1212, SEEK_CUR);
   assert(memoryStream.Position == 0x3ec0);
-  Io::WriteArrayLE<uint8_t>(entry.MapLoadData, &memoryStream, 0x6ac8);
-  Io::WriteArrayLE<uint8_t>(entry.YesNoData, &memoryStream, 0x54);
+  Io::WriteArrayLE<uint8_t>(entry.MapLoadData.data(), &memoryStream,
+                            entry.MapLoadData.size());
+  Io::WriteArrayLE<uint8_t>(entry.YesNoData.data(), &memoryStream,
+                            entry.YesNoData.size());
 
   int thumbnailPadding = 0xA14;
   memoryStream.Seek(thumbnailPadding, SEEK_CUR);
@@ -681,10 +693,19 @@ void SaveSystem::SaveMemory() {
     WorkingSaveEntry->PlayTime = ScrWork[SW_PLAYTIME];
     WorkingSaveEntry->SwTitle = ScrWork[SW_TITLE];
 
-    memcpy(WorkingSaveEntry->FlagWorkScript1, &FlagWork[50], 50);
-    memcpy(WorkingSaveEntry->FlagWorkScript2, &FlagWork[300], 100);
-    memcpy(WorkingSaveEntry->ScrWorkScript1, &ScrWork[1000], 2400);
-    memcpy(WorkingSaveEntry->ScrWorkScript2, &ScrWork[4300], 12000);
+    std::copy(FlagWork.begin() + 50,
+              FlagWork.begin() + 50 + WorkingSaveEntry->FlagWorkScript1.size(),
+              WorkingSaveEntry->FlagWorkScript1.begin());
+    std::copy(FlagWork.begin() + 300,
+              FlagWork.begin() + 300 + WorkingSaveEntry->FlagWorkScript2.size(),
+              WorkingSaveEntry->FlagWorkScript2.begin());
+    std::copy(ScrWork.begin() + 1000,
+              ScrWork.begin() + 1000 + WorkingSaveEntry->ScrWorkScript1.size(),
+              WorkingSaveEntry->ScrWorkScript1.begin());
+    std::copy(ScrWork.begin() + 4300,
+              ScrWork.begin() + 4300 + WorkingSaveEntry->ScrWorkScript2.size(),
+              WorkingSaveEntry->ScrWorkScript2.begin());
+
     int threadId = ScrWork[SW_MAINTHDP];
     Sc3VmThread* thd = &ThreadPool[threadId & 0x7FFFFFFF];
     if (thd->GroupId - 5 < 3) {
@@ -703,8 +724,9 @@ void SaveSystem::SaveMemory() {
       memcpy(WorkingSaveEntry->MainThreadVariables, thd->Variables, 64);
       WorkingSaveEntry->MainThreadDialoguePageId = thd->DialoguePageId;
     }
-    UI::MapSystem::MapSave(WorkingSaveEntry->MapLoadData);
-    CCLCC::YesNoTrigger::YesNoTriggerPtr->Save(WorkingSaveEntry->YesNoData);
+    UI::MapSystem::MapSave(WorkingSaveEntry->MapLoadData.data());
+    CCLCC::YesNoTrigger::YesNoTriggerPtr->Save(
+        WorkingSaveEntry->YesNoData.data());
   }
 }
 
@@ -739,12 +761,19 @@ void SaveSystem::LoadMemoryNew(LoadProcess load) {
     ScrWork[SW_TITLE] = WorkingSaveEntry->SwTitle;
     ScrWork[SW_AUTOSAVERESTART] = WorkingSaveEntry->SaveType;
 
-    memcpy(&FlagWork[50], WorkingSaveEntry->FlagWorkScript1, 50);
-    memcpy(&FlagWork[300], WorkingSaveEntry->FlagWorkScript2, 100);
-    memcpy(&ScrWork[1000], WorkingSaveEntry->ScrWorkScript1, 2400);
-    memcpy(&ScrWork[4300], WorkingSaveEntry->ScrWorkScript2, 12000);
-    UI::MapSystem::MapLoad(WorkingSaveEntry->MapLoadData);
-    CCLCC::YesNoTrigger::YesNoTriggerPtr->Load(WorkingSaveEntry->YesNoData);
+    std::copy(WorkingSaveEntry->FlagWorkScript1.begin(),
+              WorkingSaveEntry->FlagWorkScript1.end(), FlagWork.begin() + 50);
+    std::copy(WorkingSaveEntry->FlagWorkScript2.begin(),
+              WorkingSaveEntry->FlagWorkScript2.end(), FlagWork.begin() + 300);
+    std::copy(WorkingSaveEntry->ScrWorkScript1.begin(),
+              WorkingSaveEntry->ScrWorkScript1.end(), ScrWork.begin() + 1000);
+    std::copy(WorkingSaveEntry->ScrWorkScript2.begin(),
+              WorkingSaveEntry->ScrWorkScript2.end(), ScrWork.begin() + 4300);
+
+    UI::MapSystem::MapLoad(WorkingSaveEntry->MapLoadData.data());
+    CCLCC::YesNoTrigger::YesNoTriggerPtr->Load(
+        WorkingSaveEntry->YesNoData.data());
+
     // TODO: What to do about this mess I wonder...
     ScrWork[SW_SVSENO] = ScrWork[SW_SEREQNO];
     ScrWork[SW_SVSENO + 1] = ScrWork[SW_SEREQNO + 1];
