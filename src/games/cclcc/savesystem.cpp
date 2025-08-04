@@ -675,8 +675,7 @@ void SaveSystem::SaveMemory() {
 
   if (WorkingSaveEntry) {
     WorkingSaveEntry->Status = 1;
-    time_t rawtime;
-    time(&rawtime);
+
     const tm timeinfo = CurrentDateTime();
     WorkingSaveEntry->SaveDate = timeinfo;
     WorkingSaveEntry->PlayTime = ScrWork[SW_PLAYTIME];
