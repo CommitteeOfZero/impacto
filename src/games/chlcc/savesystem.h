@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../data/savesystem.h"
+#include "../../io/memorystream.h"
 
 namespace Impacto {
 namespace CHLCC {
@@ -27,6 +28,8 @@ class SaveSystem : public SaveSystemBase {
   void SaveThumbnailData() override {};  // Todo
   Sprite& GetSaveThumbnail(SaveType type, int id) override;
 
+  void LoadEntryBuffer(Io::MemoryStream& memoryStream, SaveFileEntry& entry);
+  void SaveEntryBuffer(Io::MemoryStream& memoryStream, SaveFileEntry& entry);
   void LoadEntry(SaveType type, int id) override;
   void FlushWorkingSaveEntry(SaveType type, int id, int autoSaveType) override;
 

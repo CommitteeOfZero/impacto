@@ -18,7 +18,7 @@ using namespace Impacto::Vm;
 using namespace Impacto::Profile::SaveSystem;
 using namespace Impacto::Profile::ScriptVars;
 
-SaveFileEntry* WorkingSaveEntry = 0;
+SaveFileEntry* WorkingSaveEntry = nullptr;
 
 void SaveSystem::SaveSystemData() {
   Io::MemoryStream stream =
@@ -53,6 +53,106 @@ void SaveSystem::SaveSystemData() {
   Io::WriteArrayLE<uint8_t>(GameExtraData, &stream, 1024);
 
   stream.Seek(0x3b06, SEEK_SET);  // TODO: Actually write system data
+}
+
+void SaveSystem::LoadEntryBuffer(Io::MemoryStream& memoryStream,
+                                 SaveFileEntry& entry) {
+  entry.Status = Io::ReadLE<uint8_t>(&memoryStream);
+  entry.Checksum = Io::ReadLE<uint16_t>(&memoryStream);
+  Io::ReadLE<uint8_t>(&memoryStream);
+
+  const uint8_t saveMonth = Io::ReadLE<uint8_t>(&memoryStream);
+  const uint8_t saveDay = Io::ReadLE<uint8_t>(&memoryStream);
+  const uint8_t saveHour = Io::ReadLE<uint8_t>(&memoryStream);
+  const uint8_t saveMinute = Io::ReadLE<uint8_t>(&memoryStream);
+  const uint8_t saveYear = Io::ReadLE<uint8_t>(&memoryStream);
+  const uint8_t saveSecond = Io::ReadLE<uint8_t>(&memoryStream);
+  entry.SaveDate = tm{};
+  entry.SaveDate.tm_sec = saveSecond;
+  entry.SaveDate.tm_min = saveMinute;
+  entry.SaveDate.tm_hour = saveHour;
+  entry.SaveDate.tm_mday = saveDay;
+  entry.SaveDate.tm_mon = saveMonth - 1;
+  entry.SaveDate.tm_year = saveYear + 2000 - 1900;
+
+  Io::ReadLE<uint16_t>(&memoryStream);
+  entry.PlayTime = Io::ReadLE<uint32_t>(&memoryStream);
+  entry.SwTitle = Io::ReadLE<uint16_t>(&memoryStream);
+
+  Io::ReadLE<uint8_t>(&memoryStream);
+  entry.Flags = Io::ReadLE<uint8_t>(&memoryStream);
+
+  memoryStream.Seek(30, SEEK_CUR);
+  Io::ReadArrayLE<uint8_t>(entry.FlagWorkScript1, &memoryStream, 50);
+  Io::ReadArrayLE<uint8_t>(entry.FlagWorkScript2, &memoryStream, 100);
+  Io::ReadArrayBE<int>(entry.ScrWorkScript1, &memoryStream, 300);
+  Io::ReadArrayBE<int>(entry.ScrWorkScript2, &memoryStream, 1300);
+
+  entry.MainThreadExecPriority = Io::ReadBE<uint32_t>(&memoryStream);
+  entry.MainThreadGroupId = Io::ReadBE<uint32_t>(&memoryStream);
+  entry.MainThreadWaitCounter = Io::ReadBE<uint32_t>(&memoryStream);
+  entry.MainThreadScriptParam = Io::ReadBE<uint32_t>(&memoryStream);
+  entry.MainThreadIp = Io::ReadBE<uint32_t>(&memoryStream);
+  entry.MainThreadLoopCounter = Io::ReadBE<uint32_t>(&memoryStream);
+  entry.MainThreadLoopAdr = Io::ReadBE<uint32_t>(&memoryStream);
+  entry.MainThreadCallStackDepth = Io::ReadBE<uint32_t>(&memoryStream);
+
+  for (int j = 0; j < 8; j++) {
+    entry.MainThreadReturnAddresses[j] = Io::ReadBE<uint32_t>(&memoryStream);
+    entry.MainThreadReturnBufIds[j] = Io::ReadBE<uint32_t>(&memoryStream);
+  }
+
+  Io::ReadArrayBE<int>(entry.MainThreadVariables, &memoryStream, 16);
+  entry.MainThreadDialoguePageId = Io::ReadBE<uint32_t>(&memoryStream);
+
+  memoryStream.Seek(1428, SEEK_CUR);
+}
+
+void SaveSystem::SaveEntryBuffer(Io::MemoryStream& memoryStream,
+                                 SaveFileEntry& entry) {
+  Io::WriteLE<uint8_t>(&memoryStream, entry.Status);
+  Io::WriteLE<uint16_t>(&memoryStream, (uint16_t)entry.Checksum);
+
+  Io::WriteLE<uint8_t>(&memoryStream, 0);
+  Io::WriteLE<uint8_t>(&memoryStream, (uint8_t)(entry.SaveDate.tm_mon + 1));
+  Io::WriteLE<uint8_t>(&memoryStream, (uint8_t)entry.SaveDate.tm_mday);
+  Io::WriteLE<uint8_t>(&memoryStream, (uint8_t)entry.SaveDate.tm_hour);
+  Io::WriteLE<uint8_t>(&memoryStream, (uint8_t)entry.SaveDate.tm_min);
+  Io::WriteLE<uint8_t>(&memoryStream,
+                       (uint8_t)(entry.SaveDate.tm_year + 1900 - 2000));
+  Io::WriteLE<uint8_t>(&memoryStream, (uint8_t)entry.SaveDate.tm_sec);
+
+  Io::WriteLE<uint16_t>(&memoryStream, 0);
+  Io::WriteLE<uint32_t>(&memoryStream, entry.PlayTime);
+  Io::WriteLE<uint16_t>(&memoryStream, (uint16_t)entry.SwTitle);
+
+  Io::WriteLE<uint8_t>(&memoryStream, 0);
+  Io::WriteLE<uint8_t>(&memoryStream, entry.Flags);
+
+  memoryStream.Seek(30, SEEK_CUR);
+  Io::WriteArrayLE<uint8_t>(entry.FlagWorkScript1, &memoryStream, 50);
+  Io::WriteArrayLE<uint8_t>(entry.FlagWorkScript2, &memoryStream, 100);
+  Io::WriteArrayBE<int>(entry.ScrWorkScript1, &memoryStream, 300);
+  Io::WriteArrayBE<int>(entry.ScrWorkScript2, &memoryStream, 1300);
+
+  Io::WriteBE<uint32_t>(&memoryStream, entry.MainThreadExecPriority);
+  Io::WriteBE<uint32_t>(&memoryStream, entry.MainThreadGroupId);
+  Io::WriteBE<uint32_t>(&memoryStream, entry.MainThreadWaitCounter);
+  Io::WriteBE<uint32_t>(&memoryStream, entry.MainThreadScriptParam);
+  Io::WriteBE<uint32_t>(&memoryStream, entry.MainThreadIp);
+  Io::WriteBE<uint32_t>(&memoryStream, entry.MainThreadLoopCounter);
+  Io::WriteBE<uint32_t>(&memoryStream, entry.MainThreadLoopAdr);
+  Io::WriteBE<uint32_t>(&memoryStream, entry.MainThreadCallStackDepth);
+
+  for (int j = 0; j < 8; j++) {
+    Io::WriteBE<uint32_t>(&memoryStream, entry.MainThreadReturnAddresses[j]);
+    Io::WriteBE<uint32_t>(&memoryStream, entry.MainThreadReturnBufIds[j]);
+  }
+
+  Io::WriteArrayBE<int>(entry.MainThreadVariables, &memoryStream, 16);
+  Io::WriteBE<uint32_t>(&memoryStream, entry.MainThreadDialoguePageId);
+
+  memoryStream.Seek(1428, SEEK_CUR);
 }
 
 SaveError SaveSystem::LoadSystemData() {
@@ -124,54 +224,14 @@ SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
     for (int i = 0; i < MaxSaveEntries; i++) {
       entryArray[i] = new SaveFileEntry();
 
-      entryArray[i]->Status = Io::ReadLE<uint8_t>(stream);
-      entryArray[i]->Checksum = Io::ReadLE<uint16_t>(stream);
-      Io::ReadLE<uint8_t>(stream);
-      uint8_t saveMonth = Io::ReadLE<uint8_t>(stream);
-      uint8_t saveDay = Io::ReadLE<uint8_t>(stream);
-      uint8_t saveHour = Io::ReadLE<uint8_t>(stream);
-      uint8_t saveMinute = Io::ReadLE<uint8_t>(stream);
-      uint8_t saveYear = Io::ReadLE<uint8_t>(stream);
-      uint8_t saveSecond = Io::ReadLE<uint8_t>(stream);
-      std::tm t{};
-      t.tm_sec = saveSecond;
-      t.tm_min = saveMinute;
-      t.tm_hour = saveHour;
-      t.tm_mday = saveDay;
-      t.tm_mon = saveMonth - 1;
-      t.tm_year = saveYear + 2000 - 1900;
-      entryArray[i]->SaveDate = t;
+      std::array<uint8_t, 0x2000> entrySlotBuf;
+      Io::ReadArrayLE<uint8_t>(entrySlotBuf.data(), stream,
+                               entrySlotBuf.size());
+      Io::MemoryStream saveEntryDataStream(entrySlotBuf.data(),
+                                           entrySlotBuf.size(), false);
 
-      Io::ReadLE<uint16_t>(stream);
-      entryArray[i]->PlayTime = Io::ReadLE<uint32_t>(stream);
-      entryArray[i]->SwTitle = Io::ReadLE<uint16_t>(stream);
-      Io::ReadLE<uint8_t>(stream);
-      entryArray[i]->Flags = Io::ReadLE<uint8_t>(stream);
-      stream->Seek(30, SEEK_CUR);
-      Io::ReadArrayLE<uint8_t>(((SaveFileEntry*)entryArray[i])->FlagWorkScript1,
-                               stream, 50);
-      Io::ReadArrayLE<uint8_t>(((SaveFileEntry*)entryArray[i])->FlagWorkScript2,
-                               stream, 100);
-      Io::ReadArrayBE<int>(((SaveFileEntry*)entryArray[i])->ScrWorkScript1,
-                           stream, 300);
-      Io::ReadArrayBE<int>(((SaveFileEntry*)entryArray[i])->ScrWorkScript2,
-                           stream, 1300);
-      entryArray[i]->MainThreadExecPriority = Io::ReadBE<uint32_t>(stream);
-      entryArray[i]->MainThreadGroupId = Io::ReadBE<uint32_t>(stream);
-      entryArray[i]->MainThreadWaitCounter = Io::ReadBE<uint32_t>(stream);
-      entryArray[i]->MainThreadScriptParam = Io::ReadBE<uint32_t>(stream);
-      entryArray[i]->MainThreadIp = Io::ReadBE<uint32_t>(stream);
-      entryArray[i]->MainThreadLoopCounter = Io::ReadBE<uint32_t>(stream);
-      entryArray[i]->MainThreadLoopAdr = Io::ReadBE<uint32_t>(stream);
-      entryArray[i]->MainThreadCallStackDepth = Io::ReadBE<uint32_t>(stream);
-      for (int j = 0; j < 8; j++) {
-        entryArray[i]->MainThreadReturnAddresses[j] =
-            Io::ReadBE<uint32_t>(stream);
-        entryArray[i]->MainThreadReturnBufIds[j] = Io::ReadBE<uint32_t>(stream);
-      }
-      Io::ReadArrayBE<int>(entryArray[i]->MainThreadVariables, stream, 16);
-      entryArray[i]->MainThreadDialoguePageId = Io::ReadBE<uint32_t>(stream);
-      stream->Seek(1428, SEEK_CUR);
+      LoadEntryBuffer(saveEntryDataStream,
+                      static_cast<SaveFileEntry&>(*entryArray[i]));
     }
   }
   delete stream;
@@ -194,8 +254,8 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
       break;
   }
 
-  if (WorkingSaveEntry != 0) {
-    if (entry != 0 && !(GetSaveFlags(type, id) & WriteProtect)) {
+  if (WorkingSaveEntry != nullptr) {
+    if (entry != nullptr && !(GetSaveFlags(type, id) & WriteProtect)) {
       *entry = *WorkingSaveEntry;
       if (type == SaveType::Quick) {
         entry->SaveType = autoSaveType;
@@ -229,43 +289,10 @@ SaveError SaveSystem::WriteSaveFile() {
       if (entry->Status == 0) {
         stream->Seek(0x2000, SEEK_CUR);
       } else {
-        Io::WriteLE<uint8_t>(stream, entry->Status);
-        Io::WriteLE<uint16_t>(stream, (uint16_t)entry->Checksum);
-        Io::WriteLE<uint8_t>(stream, 0);
-
-        Io::WriteLE<uint8_t>(stream, (uint8_t)(entry->SaveDate.tm_mon + 1));
-        Io::WriteLE<uint8_t>(stream, (uint8_t)entry->SaveDate.tm_mday);
-        Io::WriteLE<uint8_t>(stream, (uint8_t)entry->SaveDate.tm_hour);
-        Io::WriteLE<uint8_t>(stream, (uint8_t)entry->SaveDate.tm_min);
-        Io::WriteLE<uint8_t>(stream,
-                             (uint8_t)(entry->SaveDate.tm_year + 1900 - 2000));
-        Io::WriteLE<uint8_t>(stream, (uint8_t)entry->SaveDate.tm_sec);
-
-        Io::WriteLE<uint16_t>(stream, 0);
-        Io::WriteLE<uint32_t>(stream, entry->PlayTime);
-        Io::WriteLE<uint16_t>(stream, (uint16_t)entry->SwTitle);
-        Io::WriteLE<uint8_t>(stream, 0);
-        Io::WriteLE<uint8_t>(stream, entry->Flags);
-        stream->Seek(30, SEEK_CUR);
-        Io::WriteArrayLE<uint8_t>(entry->FlagWorkScript1, stream, 50);
-        Io::WriteArrayLE<uint8_t>(entry->FlagWorkScript2, stream, 100);
-        Io::WriteArrayBE<int>(entry->ScrWorkScript1, stream, 300);
-        Io::WriteArrayBE<int>(entry->ScrWorkScript2, stream, 1300);
-        Io::WriteBE<uint32_t>(stream, entry->MainThreadExecPriority);
-        Io::WriteBE<uint32_t>(stream, entry->MainThreadGroupId);
-        Io::WriteBE<uint32_t>(stream, entry->MainThreadWaitCounter);
-        Io::WriteBE<uint32_t>(stream, entry->MainThreadScriptParam);
-        Io::WriteBE<uint32_t>(stream, entry->MainThreadIp);
-        Io::WriteBE<uint32_t>(stream, entry->MainThreadLoopCounter);
-        Io::WriteBE<uint32_t>(stream, entry->MainThreadLoopAdr);
-        Io::WriteBE<uint32_t>(stream, entry->MainThreadCallStackDepth);
-        for (int j = 0; j < 8; j++) {
-          Io::WriteBE<uint32_t>(stream, entry->MainThreadReturnAddresses[j]);
-          Io::WriteBE<uint32_t>(stream, entry->MainThreadReturnBufIds[j]);
-        }
-        Io::WriteArrayBE<int>(entry->MainThreadVariables, stream, 16);
-        Io::WriteBE<uint32_t>(stream, entry->MainThreadDialoguePageId);
-        stream->Seek(1428, SEEK_CUR);
+        std::array<uint8_t, 0x2000> entrySlotBuf{};
+        Io::MemoryStream saveEntryMemoryStream(entrySlotBuf.data(),
+                                               entrySlotBuf.size(), false);
+        SaveEntryBuffer(saveEntryMemoryStream, *entry);
       }
     }
   }
@@ -320,39 +347,39 @@ tm const& SaveSystem::GetSaveDate(SaveType type, int id) {
 }
 
 void SaveSystem::SaveMemory() {
-  if (WorkingSaveEntry != 0) {
-    WorkingSaveEntry->Status = 1;
+  if (WorkingSaveEntry == nullptr) return;
 
-    WorkingSaveEntry->PlayTime = ScrWork[SW_PLAYTIME];
-    WorkingSaveEntry->SwTitle = ScrWork[SW_TITLE];
+  WorkingSaveEntry->Status = 1;
 
-    memcpy(WorkingSaveEntry->FlagWorkScript1, &FlagWork[50], 50);
-    memcpy(WorkingSaveEntry->FlagWorkScript2, &FlagWork[300], 100);
-    memcpy(WorkingSaveEntry->ScrWorkScript1, &ScrWork[300], 1200);
-    memcpy(WorkingSaveEntry->ScrWorkScript2, &ScrWork[2300], 5200);
+  const tm timeInfo = CurrentDateTime();
+  WorkingSaveEntry->SaveDate = timeInfo;
+  WorkingSaveEntry->PlayTime = ScrWork[SW_PLAYTIME];
+  WorkingSaveEntry->SwTitle = ScrWork[SW_TITLE];
 
-    int threadId = ScrWork[SW_MAINTHDP];
-    Sc3VmThread* thd = &ThreadPool[threadId & 0x7FFFFFFF];
-    if (thd != 0 &&
-        (thd->GroupId == 4 || thd->GroupId == 5 || thd->GroupId == 6)) {
-      WorkingSaveEntry->MainThreadExecPriority = thd->ExecPriority;
-      WorkingSaveEntry->MainThreadWaitCounter = thd->WaitCounter;
-      WorkingSaveEntry->MainThreadScriptParam = thd->ScriptParam;
-      WorkingSaveEntry->MainThreadGroupId = thd->GroupId << 16;
-      WorkingSaveEntry->MainThreadGroupId |= thd->ScriptBufferId;
-      WorkingSaveEntry->MainThreadIp = thd->IpOffset;
-      WorkingSaveEntry->MainThreadCallStackDepth = thd->CallStackDepth;
+  memcpy(WorkingSaveEntry->FlagWorkScript1, &FlagWork[50], 50);
+  memcpy(WorkingSaveEntry->FlagWorkScript2, &FlagWork[300], 100);
+  memcpy(WorkingSaveEntry->ScrWorkScript1, &ScrWork[300], 300 * sizeof(int));
+  memcpy(WorkingSaveEntry->ScrWorkScript2, &ScrWork[2300], 1300 * sizeof(int));
 
-      for (uint32_t j = 0; j < thd->CallStackDepth; j++) {
-        WorkingSaveEntry->MainThreadReturnAddresses[j] =
-            thd->ReturnAddresses[j];
-        WorkingSaveEntry->MainThreadReturnBufIds[j] =
-            thd->ReturnScriptBufferIds[j];
-      }
+  int threadId = ScrWork[SW_MAINTHDP];
+  Sc3VmThread* thd = &ThreadPool[threadId & 0x7FFFFFFF];
+  if (thd != nullptr && 4 <= thd->GroupId && thd->GroupId <= 6) {
+    WorkingSaveEntry->MainThreadExecPriority = thd->ExecPriority;
+    WorkingSaveEntry->MainThreadWaitCounter = thd->WaitCounter;
+    WorkingSaveEntry->MainThreadScriptParam = thd->ScriptParam;
+    WorkingSaveEntry->MainThreadGroupId = thd->GroupId << 16;
+    WorkingSaveEntry->MainThreadGroupId |= thd->ScriptBufferId;
+    WorkingSaveEntry->MainThreadIp = thd->IpOffset;
+    WorkingSaveEntry->MainThreadCallStackDepth = thd->CallStackDepth;
 
-      memcpy(WorkingSaveEntry->MainThreadVariables, thd->Variables, 64);
-      WorkingSaveEntry->MainThreadDialoguePageId = thd->DialoguePageId;
+    for (uint32_t i = 0; i < thd->CallStackDepth; i++) {
+      WorkingSaveEntry->MainThreadReturnAddresses[i] = thd->ReturnAddresses[i];
+      WorkingSaveEntry->MainThreadReturnBufIds[i] =
+          thd->ReturnScriptBufferIds[i];
     }
+
+    memcpy(WorkingSaveEntry->MainThreadVariables, thd->Variables, 64);
+    WorkingSaveEntry->MainThreadDialoguePageId = thd->DialoguePageId;
   }
 }
 
@@ -371,7 +398,7 @@ void SaveSystem::LoadEntry(SaveType type, int id) {
       return;
   }
 
-  if (entry != 0)
+  if (entry != nullptr)
     if (entry->Status) {
       ScrWork[SW_PLAYTIME] = entry->PlayTime;
       ScrWork[SW_TITLE] = entry->SwTitle;
@@ -451,7 +478,7 @@ void SaveSystem::LoadEntry(SaveType type, int id) {
 
       int threadId = ScrWork[SW_MAINTHDP];
       Sc3VmThread* thd = &ThreadPool[threadId & 0x7FFFFFFF];
-      if (thd != 0 &&
+      if (thd != nullptr &&
           (thd->GroupId == 4 || thd->GroupId == 5 || thd->GroupId == 6)) {
         thd->ExecPriority = entry->MainThreadExecPriority;
         thd->WaitCounter = entry->MainThreadWaitCounter;
