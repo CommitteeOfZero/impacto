@@ -226,7 +226,7 @@ void SaveSystem::LoadEntryBuffer(Io::MemoryStream& stream, SaveFileEntry& entry,
     uint16_t pixel =
         entry.ThumbnailData[i * 2] | (entry.ThumbnailData[i * 2 + 1] << 8);
     uint8_t r = (pixel & 0xF800) >> 8;
-    uint8_t g = (pixel & 0x07E0) >> 3;
+    uint8_t g = (uint8_t)((pixel & 0x07E0) >> 3);
     uint8_t b = (pixel & 0x001F) << 3;
     tex.Buffer[3 * i] = r;
     tex.Buffer[3 * i + 1] = g;
@@ -248,20 +248,22 @@ SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
   };
   WorkingSaveEntry = std::optional<SaveFileEntry>(SaveFileEntry());
   WorkingSaveThumbnail.Sheet =
-      SpriteSheet(Window->WindowWidth, Window->WindowHeight);
-  WorkingSaveThumbnail.Bounds =
-      RectF(0.0f, 0.0f, Window->WindowWidth, Window->WindowHeight);
+      SpriteSheet((float)Window->WindowWidth, (float)Window->WindowHeight);
+  WorkingSaveThumbnail.Bounds = RectF(0.0f, 0.0f, (float)Window->WindowWidth,
+                                      (float)Window->WindowHeight);
 
   QueuedTexture txt{
       .Id = std::ref(WorkingSaveThumbnail.Sheet.Texture),
   };
-  txt.Tex.LoadSolidColor(WorkingSaveThumbnail.Bounds.Width,
-                         WorkingSaveThumbnail.Bounds.Height, 0x000000);
+  txt.Tex.LoadSolidColor((int)WorkingSaveThumbnail.Bounds.Width,
+                         (int)WorkingSaveThumbnail.Bounds.Height, 0x000000);
   textures.push_back(txt);
 
   Io::ReadArrayLE<uint8_t>(SystemData.data(), stream, SystemData.size());
+  /*
   uint32_t systemSaveChecksum =
       CalculateChecksum(std::span(SystemData).subspan(4));
+  */
 
   textures.reserve(MaxSaveEntries * 2);
   for (auto& entryArray : {FullSaveEntries, QuickSaveEntries}) {
@@ -273,7 +275,6 @@ SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
       entryArray[i] = new SaveFileEntry();
 
       std::array<uint8_t, 0x1b110> entrySlotBuf;
-      auto pos = stream->Position;
       Io::ReadArrayLE<uint8_t>(entrySlotBuf.data(), stream,
                                entrySlotBuf.size());
       Io::MemoryStream saveEntryDataStream(entrySlotBuf.data(),
@@ -288,8 +289,6 @@ SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
       textures.push_back(tex);
 
       // Todo, validate checksum?
-      uint32_t entryChecksum = CalculateChecksum(
-          std::span(entrySlotBuf).subspan(6, 23029 * 2), 18198, 5250, false);
     }
   }
   delete stream;
@@ -316,7 +315,7 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
     }
     time_t rawtime;
     time(&rawtime);
-    entry->SaveDate = *localtime(&rawtime);
+    entry->SaveDate = CurrentDateTime();
     auto captureBuffer =
         Renderer->GetSpriteSheetImage(WorkingSaveThumbnail.Sheet);
 
@@ -345,12 +344,13 @@ void SaveSystem::SaveEntryBuffer(Io::MemoryStream& memoryStream,
   Io::WriteLE<uint32_t>(&memoryStream, entry.Checksum);
   Io::WriteLE<uint16_t>(&memoryStream, 0);
 
-  Io::WriteLE<uint16_t>(&memoryStream, entry.SaveDate.tm_year + 1900);
-  Io::WriteLE<uint8_t>(&memoryStream, entry.SaveDate.tm_mday);
-  Io::WriteLE<uint8_t>(&memoryStream, entry.SaveDate.tm_mon + 1);
-  Io::WriteLE<uint8_t>(&memoryStream, entry.SaveDate.tm_sec);
-  Io::WriteLE<uint8_t>(&memoryStream, entry.SaveDate.tm_min);
-  Io::WriteLE<uint8_t>(&memoryStream, entry.SaveDate.tm_hour);
+  Io::WriteLE<uint16_t>(&memoryStream,
+                        (uint16_t)(entry.SaveDate.tm_year + 1900));
+  Io::WriteLE<uint8_t>(&memoryStream, (uint8_t)entry.SaveDate.tm_mday);
+  Io::WriteLE<uint8_t>(&memoryStream, (uint8_t)(entry.SaveDate.tm_mon + 1));
+  Io::WriteLE<uint8_t>(&memoryStream, (uint8_t)entry.SaveDate.tm_sec);
+  Io::WriteLE<uint8_t>(&memoryStream, (uint8_t)entry.SaveDate.tm_min);
+  Io::WriteLE<uint8_t>(&memoryStream, (uint8_t)entry.SaveDate.tm_hour);
   Io::WriteLE<uint8_t>(&memoryStream, 0);
 
   Io::WriteLE<uint32_t>(&memoryStream, entry.PlayTime);
@@ -407,9 +407,6 @@ void SaveSystem::SaveThumbnailData() {
   std::vector<uint8_t> thumbnailBuffer(SaveThumbnailSize * 2);
 
   for (auto* entryArray : {FullSaveEntries, QuickSaveEntries}) {
-    SaveType saveType =
-        (entryArray == QuickSaveEntries) ? SaveType::Quick : SaveType::Full;
-
     for (int i = 0; i < MaxSaveEntries; i++) {
       SaveFileEntry* entry = (SaveFileEntry*)entryArray[i];
       if (entry->Status == 0) continue;
@@ -420,14 +417,14 @@ void SaveSystem::SaveThumbnailData() {
       std::array<uint8_t, SaveThumbnailSize>& thumbnailData =
           entry->ThumbnailData;
 
-      for (int i = 0; i < thumbnailBuffer.size(); i += 4) {
-        uint8_t r = thumbnailBuffer[i];
-        uint8_t g = thumbnailBuffer[i + 1];
-        uint8_t b = thumbnailBuffer[i + 2];
+      for (int j = 0; j < thumbnailBuffer.size(); j += 4) {
+        uint8_t r = thumbnailBuffer[j];
+        uint8_t g = thumbnailBuffer[j + 1];
+        uint8_t b = thumbnailBuffer[j + 2];
         uint16_t pixel = ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3);
         pixel = SDL_SwapBE16(pixel);
-        thumbnailData[i / 2] = pixel >> 8;
-        thumbnailData[i / 2 + 1] = pixel & 0xFF;
+        thumbnailData[j / 2] = pixel >> 8;
+        thumbnailData[j / 2 + 1] = pixel & 0xFF;
       }
     }
   }
@@ -437,8 +434,10 @@ SaveError SaveSystem::LoadSystemData() {
   Io::MemoryStream stream =
       Io::MemoryStream(SystemData.data(), SystemData.size(), false);
 
+  /*
   uint16_t systemSum = Io::ReadLE<uint16_t>(&stream);
   uint16_t systemXor = Io::ReadLE<uint16_t>(&stream);
+  */
   stream.Seek(0x14, SEEK_SET);
 
   stream.Seek(0x80, SEEK_SET);
@@ -653,16 +652,14 @@ uint8_t SaveSystem::GetSaveFlags(SaveType type, int id) {
 }
 
 tm const& SaveSystem::GetSaveDate(SaveType type, int id) {
-  static const tm t = []() {
-    tm t;
-    t.tm_sec = 0;
-    t.tm_min = 0;
-    t.tm_hour = 0;
-    t.tm_mday = 1;
-    t.tm_mon = 0;
-    t.tm_year = 0;
-    return t;
-  }();
+  static const tm t{
+      .tm_sec = 0,
+      .tm_min = 0,
+      .tm_hour = 0,
+      .tm_mday = 1,
+      .tm_mon = 0,
+      .tm_year = 0,
+  };
   switch (type) {
     case SaveType::Full:
       return ((SaveFileEntry*)FullSaveEntries[id])->SaveDate;
@@ -683,8 +680,8 @@ void SaveSystem::SaveMemory() {
     WorkingSaveEntry->Status = 1;
     time_t rawtime;
     time(&rawtime);
-    tm* timeinfo = localtime(&rawtime);
-    WorkingSaveEntry->SaveDate = *timeinfo;
+    const tm timeinfo = CurrentDateTime();
+    WorkingSaveEntry->SaveDate = timeinfo;
     WorkingSaveEntry->PlayTime = ScrWork[SW_PLAYTIME];
     WorkingSaveEntry->SwTitle = ScrWork[SW_TITLE];
 
@@ -702,7 +699,7 @@ void SaveSystem::SaveMemory() {
       WorkingSaveEntry->MainThreadScriptBufferId = thd->ScriptBufferId;
       // Checkpoint id should already be set by SetCheckpointId
       WorkingSaveEntry->MainThreadCallStackDepth = thd->CallStackDepth;
-      for (int i = 0; i < thd->CallStackDepth; i++) {
+      for (size_t i = 0; i < thd->CallStackDepth; i++) {
         WorkingSaveEntry->MainThreadReturnBufIds[i] =
             thd->ReturnScriptBufferIds[i];
         WorkingSaveEntry->MainThreadReturnIds[i] = thd->ReturnIds[i];
@@ -781,10 +778,10 @@ void SaveSystem::LoadMemoryNew(LoadProcess load) {
           WorkingSaveEntry->MainThreadIp);
       thd->CallStackDepth = WorkingSaveEntry->MainThreadCallStackDepth;
 
-      for (int i = 0; i < thd->CallStackDepth; i++) {
+      for (size_t i = 0; i < thd->CallStackDepth; i++) {
         thd->ReturnScriptBufferIds[i] =
             WorkingSaveEntry->MainThreadReturnBufIds[i];
-        thd->ReturnIds[i] = WorkingSaveEntry->MainThreadReturnIds[i];
+        thd->ReturnIds[i] = (uint16_t)WorkingSaveEntry->MainThreadReturnIds[i];
       }
 
       memcpy(thd->Variables, WorkingSaveEntry->MainThreadVariables, 64);
@@ -883,8 +880,8 @@ void SaveSystem::GetReadMessagesCount(int* totalMessageCount,
     ScriptMessageDataPair script = ScriptMessageData[scriptId];
     *totalMessageCount += script.LineCount;
 
-    for (int lineId = 0; lineId < script.LineCount; lineId++) {
-      *readMessageCount += IsLineRead(scriptId, lineId);
+    for (size_t lineId = 0; lineId < script.LineCount; lineId++) {
+      *readMessageCount += IsLineRead(scriptId, (int)lineId);
     }
   }
 }
@@ -912,7 +909,7 @@ void SaveSystem::GetEVStatus(int evId, int* totalVariations,
 
 void SaveSystem::SetEVStatus(int id) { EVFlags[id] = true; }
 
-bool SaveSystem::GetEVVariationIsUnlocked(int evId, int variationIdx) {
+bool SaveSystem::GetEVVariationIsUnlocked(size_t evId, size_t variationIdx) {
   if (AlbumEvData[evId][variationIdx] == 0xFFFF) return false;
   return EVFlags[AlbumEvData[evId][variationIdx]];
 }
@@ -931,6 +928,10 @@ Sprite& SaveSystem::GetSaveThumbnail(SaveType type, int id) {
     case SaveType::Full:
       return ((SaveFileEntry*)FullSaveEntries[id])->SaveThumbnail;
   }
+
+  throw std::invalid_argument(fmt::format(
+      "Tried to get thumbnail of unimplemented save entry type {}", (int)type));
 }
+
 }  // namespace CCLCC
 }  // namespace Impacto

@@ -62,7 +62,7 @@ void Configure() {
   TrophyCountHintLabelPos =
       EnsureGetMember<glm::vec2>("TrophyCountHintLabelPos");
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMember<int>("DrawType"));
+      EnsureGetMember<uint8_t>("DrawType"));
 
   UI::TrophyMenuPtr = new UI::CHLCC::TrophyMenu();
   UI::Menus[drawType].push_back(UI::TrophyMenuPtr);

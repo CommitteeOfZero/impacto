@@ -99,7 +99,7 @@ int64_t PhysicalFileStream::Read(void* buffer, int64_t sz) {
   if (sz < 0 || !(Flags & READ)) return IoError_Fail;
   if (Position >= Meta.Size) return IoError_Eof;
 
-  int bytesToRead = std::min(sz, Meta.Size - Position);
+  size_t bytesToRead = std::min(sz, Meta.Size - Position);
   FileStream.read((char*)buffer, bytesToRead);
   auto read = FileStream.gcount();
 
@@ -122,18 +122,21 @@ int64_t PhysicalFileStream::Seek(int64_t offset, int origin) {
     // seeking is useless in readless append mode
     return IoError_Fail;
   }
-  int64_t absPos;
-  switch (origin) {
-    case RW_SEEK_SET:
-      absPos = offset;
-      break;
-    case RW_SEEK_CUR:
-      absPos = Position + offset;
-      break;
-    case RW_SEEK_END:
-      absPos = Meta.Size - offset;
-      break;
-  }
+  const int64_t absPos = [&]() {
+    switch (origin) {
+      case RW_SEEK_SET:
+        return offset;
+
+      case RW_SEEK_CUR:
+        return Position + offset;
+
+      case RW_SEEK_END:
+        return Meta.Size - offset;
+
+      default:
+        throw std::invalid_argument(fmt::format("Unknown origin {}", origin));
+    }
+  }();
 
   // seeking past EOF is a legal operation, after write past EOF, the gap
   // between prev file size and write pos is zero padded
@@ -182,7 +185,7 @@ IoError PhysicalFileStream::Duplicate(Stream** outStream) {
   return IoError_OK;
 }
 
-int64_t PhysicalFileStream::Write(void* buffer, int64_t sz, int cnt) {
+int64_t PhysicalFileStream::Write(void* buffer, int64_t sz, size_t cnt) {
   if (!(Flags & WRITE)) {
     return IoError_Fail;
   }
@@ -195,7 +198,7 @@ int64_t PhysicalFileStream::Write(void* buffer, int64_t sz, int cnt) {
                      ~std::ios::eofbit);  // Clear only failbit and eofbit
     return IoError_Fail;
   }
-  int64_t written = sz * cnt;
+  int64_t written = sz * (int64_t)cnt;
   Position += written;
   Meta.Size = std::max(Position, Meta.Size);
   return written;

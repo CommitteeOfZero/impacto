@@ -998,7 +998,7 @@ uint32_t Renderer::SubmitTexture(TexFmt format, uint8_t* buffer, int width,
                                  int height) {
   VkDeviceSize imageSize = 0;
   VkFormat imageFormat = VK_FORMAT_R8G8B8A8_SRGB;
-  uint8_t* newBuffer;
+  uint8_t* newBuffer = nullptr;
 
   switch (format) {
     case TexFmt_RGBA:
@@ -1442,7 +1442,7 @@ void Renderer::DrawVertices(const SpriteSheet& sheet,
 
   // Push indices
   IndexBufferFill += indices.size();
-  int indexBufferOffset = IndexBufferOffset / sizeof(uint16_t);
+  size_t indexBufferOffset = IndexBufferOffset / sizeof(uint16_t);
   std::copy(indices.begin(), indices.end(), IndexBuffer + indexBufferOffset);
 
   // Flush again and bind back our buffer
@@ -1576,21 +1576,22 @@ void Renderer::DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
 }
 
 inline void Renderer::MakeQuad() {
-  int indexBufferOffset = IndexBufferOffset / sizeof(uint16_t);
+  size_t indexBufferOffset = IndexBufferOffset / sizeof(uint16_t);
   if (IndexBufferFill + 6 <= IndexBufferCount) {
     // bottom-left -> top-left -> top-right
-    IndexBuffer[indexBufferOffset + IndexBufferFill] = VertexBufferCount + 0;
+    IndexBuffer[indexBufferOffset + IndexBufferFill] =
+        (uint16_t)VertexBufferCount + 0;
     IndexBuffer[indexBufferOffset + IndexBufferFill + 1] =
-        VertexBufferCount + 1;
+        (uint16_t)VertexBufferCount + 1;
     IndexBuffer[indexBufferOffset + IndexBufferFill + 2] =
-        VertexBufferCount + 2;
+        (uint16_t)VertexBufferCount + 2;
     // bottom-left -> top-right -> bottom-right
     IndexBuffer[indexBufferOffset + IndexBufferFill + 3] =
-        VertexBufferCount + 0;
+        (uint16_t)VertexBufferCount + 0;
     IndexBuffer[indexBufferOffset + IndexBufferFill + 4] =
-        VertexBufferCount + 2;
+        (uint16_t)VertexBufferCount + 2;
     IndexBuffer[indexBufferOffset + IndexBufferFill + 5] =
-        VertexBufferCount + 3;
+        (uint16_t)VertexBufferCount + 3;
     IndexBufferFill += 6;
     VertexBufferCount += 4;
   }
@@ -1654,8 +1655,8 @@ void Renderer::Flush() {
                          IndexBufferAlloc.Buffer, IndexBufferOffset,
                          VK_INDEX_TYPE_UINT16);
 
-    vkCmdDrawIndexed(CommandBuffers[CurrentFrameIndex], IndexBufferFill, 1, 0,
-                     0, 0);
+    vkCmdDrawIndexed(CommandBuffers[CurrentFrameIndex],
+                     (uint32_t)IndexBufferFill, 1, 0, 0, 0);
   }
   IndexBufferOffset += IndexBufferFill * sizeof(uint16_t);
   IndexBufferFill = 0;
@@ -1724,8 +1725,8 @@ void Renderer::DrawVideoTexture(const YUVFrame& frame, const RectF& dest,
 void Renderer::CaptureScreencap(Sprite& sprite) {
   if (Textures.count(sprite.Sheet.Texture) == 0) return;
   sprite.Sheet.IsScreenCap = true;
-  sprite.Sheet.DesignWidth = Window->WindowWidth;
-  sprite.Sheet.DesignHeight = Window->WindowHeight;
+  sprite.Sheet.DesignWidth = (float)Window->WindowWidth;
+  sprite.Sheet.DesignHeight = (float)Window->WindowHeight;
   sprite.Bounds.Width = sprite.Sheet.DesignWidth;
   sprite.Bounds.Height = sprite.Sheet.DesignHeight;
 
@@ -1812,7 +1813,7 @@ void Renderer::CaptureScreencap(Sprite& sprite) {
 
 int Renderer::GetSpriteSheetImage(SpriteSheet const& sheet,
                                   std::span<uint8_t> outBuffer) {
-  const int bufferSize = sheet.DesignWidth * sheet.DesignHeight * 4;
+  const int bufferSize = (int)(sheet.DesignWidth * sheet.DesignHeight * 4);
   assert(outBuffer.size() >= bufferSize);
 
   // Create a staging buffer to copy the image data to

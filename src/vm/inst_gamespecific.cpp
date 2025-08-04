@@ -1409,7 +1409,7 @@ VmInstruction(InstMtrg) {
       PopExpression(arg1);
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction MtrgSetEvent(type: {:d})\n", type);
-      [[fallthrough]];
+      return;
     };
     default:
       return;

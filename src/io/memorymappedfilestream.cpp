@@ -37,7 +37,7 @@ int64_t MemoryMappedFileStream<M>::Read(void* buffer, int64_t sz) {
   if (sz < 0) return IoError_Fail;
   if (Position >= Meta.Size) return IoError_Eof;
 
-  int bytesToRead = std::min(sz, Meta.Size - Position);
+  size_t bytesToRead = std::min(sz, Meta.Size - Position);
   assert(mmapFile.data());
   // Lock only if we are in read/write mode
   if constexpr (M == AccessMode::write) {
@@ -53,18 +53,21 @@ int64_t MemoryMappedFileStream<M>::Read(void* buffer, int64_t sz) {
 
 template <AccessMode M>
 int64_t MemoryMappedFileStream<M>::Seek(int64_t offset, int origin) {
-  int64_t absPos;
-  switch (origin) {
-    case RW_SEEK_SET:
-      absPos = offset;
-      break;
-    case RW_SEEK_CUR:
-      absPos = Position + offset;
-      break;
-    case RW_SEEK_END:
-      absPos = Meta.Size - offset;
-      break;
-  }
+  const int64_t absPos = [&]() {
+    switch (origin) {
+      case RW_SEEK_SET:
+        return offset;
+
+      case RW_SEEK_CUR:
+        return Position + offset;
+
+      case RW_SEEK_END:
+        return Meta.Size - offset;
+
+      default:
+        throw std::invalid_argument(fmt::format("Unknown origin {}", origin));
+    }
+  }();
 
   if (absPos < 0 || absPos > Meta.Size) return IoError_Fail;
   Position = absPos;
@@ -85,7 +88,7 @@ IoError MemoryMappedFileStream<M>::Duplicate(Stream** outStream) {
 }
 
 template <AccessMode M>
-int64_t MemoryMappedFileStream<M>::Write(void* buffer, int64_t sz, int cnt) {
+int64_t MemoryMappedFileStream<M>::Write(void* buffer, int64_t sz, size_t cnt) {
   if constexpr (M == AccessMode::read) {
     assert(false);
     return 0;

@@ -2,6 +2,7 @@
 
 #include "profile/game.h"
 #include <memory>
+#include <ctime>
 
 namespace Impacto {
 
@@ -348,6 +349,17 @@ RectF RectF::BoundingBox(const RectF& first, const CornersQuad& second) {
 
 RectF RectF::BoundingBox(const CornersQuad& first, const RectF& second) {
   return BoundingBox(second, first);
+}
+
+tm CurrentDateTime() {
+  std::time_t now = std::time(nullptr);
+  tm result;
+#if defined(_WIN32)
+  localtime_s(&result, &now);
+#else
+  localtime_r(&now, &result);
+#endif
+  return result;
 }
 
 }  // namespace Impacto

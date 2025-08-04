@@ -19,6 +19,9 @@ void Configure() {
       case AchievementDataType::PS3:
         Implementation = new Impacto::AchievementSystem::AchievementSystemPS3();
         break;
+
+      case AchievementDataType::None:
+        break;
     }
 
     AchievementDataPath = EnsureGetMember<std::string>("AchievementDataPath");

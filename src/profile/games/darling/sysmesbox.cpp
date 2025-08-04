@@ -31,7 +31,7 @@ void Configure() {
   BoxRightRemainPad = EnsureGetMember<float>("BoxRightRemainPad");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMember<int>("DrawType"));
+      EnsureGetMember<uint8_t>("DrawType"));
 
   UI::SysMesBoxPtr = new UI::Darling::SysMesBox();
   UI::Menus[drawType].push_back(UI::SysMesBoxPtr);

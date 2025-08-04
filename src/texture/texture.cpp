@@ -114,7 +114,7 @@ void Texture::LoadPoliticalCompass() {
 uint32_t Texture::Submit() {
   ImpLog(LogLevel::Debug, LogChannel::Render, "Submitting texture\n");
 
-  if (Buffer == NULL) return -1;
+  if (Buffer == NULL) return std::numeric_limits<uint32_t>::max();
 
   uint32_t result = Renderer->SubmitTexture(Format, Buffer, Width, Height);
 

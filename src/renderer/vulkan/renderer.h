@@ -214,11 +214,11 @@ class Renderer : public BaseRenderer {
   uint8_t* VertexBuffer;
   uint16_t* IndexBuffer;
 
-  int VertexBufferFill = 0;
-  int VertexBufferOffset = 0;
-  int VertexBufferCount = 0;
-  int IndexBufferFill = 0;
-  int IndexBufferOffset = 0;
+  size_t VertexBufferFill = 0;
+  size_t VertexBufferOffset = 0;
+  size_t VertexBufferCount = 0;
+  size_t IndexBufferFill = 0;
+  size_t IndexBufferOffset = 0;
 
   RectF PreviousScissorRect;
 

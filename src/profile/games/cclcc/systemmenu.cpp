@@ -46,7 +46,7 @@ void Configure() {
   BGTranslationOffset = EnsureGetMember<glm::vec2>("BGTranslationOffset");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMember<int>("DrawType"));
+      EnsureGetMember<uint8_t>("DrawType"));
 
   UI::SystemMenuPtr = new UI::CCLCC::SystemMenu();
   UI::Menus[drawType].push_back(UI::SystemMenuPtr);

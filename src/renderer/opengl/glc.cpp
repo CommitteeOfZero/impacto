@@ -9,9 +9,10 @@ static GLuint CurrentDrawFramebuffer = 0, CurrentReadFramebuffer = 0,
               CurrentFramebuffer = 0;
 
 void InitializeFramebuffers() {
-  glGenFramebuffers(Framebuffers.max_size(), Framebuffers.data());
-  glGenTextures(FramebufferTextures.max_size(), FramebufferTextures.data());
-  glGenRenderbuffers(StencilBuffers.max_size(), StencilBuffers.data());
+  glGenFramebuffers((GLsizei)Framebuffers.max_size(), Framebuffers.data());
+  glGenTextures((GLsizei)FramebufferTextures.max_size(),
+                FramebufferTextures.data());
+  glGenRenderbuffers((GLsizei)StencilBuffers.max_size(), StencilBuffers.data());
 
   RectF viewport = Window->GetViewport();
   for (size_t buffer = 0; buffer < FramebufferTextures.size(); buffer++) {
@@ -21,8 +22,9 @@ void InitializeFramebuffers() {
 
     glBindFramebuffer(GL_FRAMEBUFFER, framebufferId);
     glBindTexture(GL_TEXTURE_2D, textureId);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, viewport.Width, viewport.Height, 0,
-                 GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, (GLsizei)viewport.Width,
+                 (GLsizei)viewport.Height, 0, GL_RGB, GL_UNSIGNED_BYTE,
+                 nullptr);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -31,8 +33,8 @@ void InitializeFramebuffers() {
                            textureId, 0);
 
     glBindRenderbuffer(GL_RENDERBUFFER, stencilBufferId);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_STENCIL_INDEX8, viewport.Width,
-                          viewport.Height);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_STENCIL_INDEX8,
+                          (GLsizei)viewport.Width, (GLsizei)viewport.Height);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,
                               GL_RENDERBUFFER, stencilBufferId);
   }

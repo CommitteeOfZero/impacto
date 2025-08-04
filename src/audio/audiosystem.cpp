@@ -35,6 +35,7 @@ void AudioInit() {
       Backend = new OpenAL::AudioBackend();
     } break;
 #endif
+    case AudioBackendType::None:
     default: {
       ImpLog(LogLevel::Warning, LogChannel::Audio,
              "Unknown or unsupported audio backend selected! You will not hear "

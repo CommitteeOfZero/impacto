@@ -26,6 +26,7 @@ void VideoInit() {
       }
     } break;
 #endif
+    case VideoPlayerType::None:
     default: {
       ImpLog(LogLevel::Warning, LogChannel::Video,
              "No suitable video player found! Using a null one, which means "

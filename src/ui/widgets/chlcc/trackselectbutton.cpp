@@ -14,10 +14,8 @@ TrackSelectButton::TrackSelectButton(int id, Sprite const &focused,
       TrackNumPos(pos + numOffset),
       TrackTextPos(pos + trackOffset),
       ArtistTextPos(pos + artistOffset) {
-  char buffer[3];
-  snprintf(buffer, 3, "%02d", id + 1);
-  TrackNum =
-      Label(std::string(buffer), TrackNumPos, 20, RendererOutlineMode::None, 0);
+  const std::string label = fmt::sprintf("%02d", id + 1);
+  TrackNum = Label(label, TrackNumPos, 20, RendererOutlineMode::None, 0);
   HasText = true;
   Bounds = RectF(pos.x, pos.y, FocusedSprite.Bounds.Width - pos.x,
                  FocusedSprite.Bounds.Height);

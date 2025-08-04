@@ -106,8 +106,8 @@ VmInstruction(InstCHAplayAnim3DMaybe) {
       ResetInstruction;
       BlockThread;
     } else {
-      Renderer->Scene->Renderables[bufferId]->SwitchAnimation(animationId,
-                                                              0.66f);
+      Renderer->Scene->Renderables[bufferId]->SwitchAnimation(
+          (int16_t)animationId, 0.66f);
       BlockThread;
     }
   }
@@ -202,7 +202,7 @@ VmInstruction(InstPositionObject) {
 
     if (parentObjId != 1 && parentObjId != 2) {
       // I don't even know
-      theta += (float)M_PI;
+      theta += std::numbers::pi_v<float>;
     }
 
     theta = NormalizeRad(theta);

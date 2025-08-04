@@ -23,7 +23,7 @@ MusicTrackButton::MusicTrackButton(int id, int position, glm::vec2 pos)
   Bounds = RectF(pos.x, pos.y + MusicButtonTextYOffset, MusicButtonBounds.Width,
                  MusicButtonBounds.Height);
   IsLocked = !SaveSystem::GetBgmFlag(MusicBGMFlagIds[Id]);
-  size_t trackTextIndex = 2 * Id;
+  uint32_t trackTextIndex = 2 * Id;
   SetText(
       Vm::ScriptGetTextTableStrAddress(MusicStringTableId, trackTextIndex + 6),
       MusicTrackNameSize, RendererOutlineMode::None,
@@ -50,7 +50,7 @@ MusicTrackButton::MusicTrackButton(int id, int position, glm::vec2 pos)
       Vm::ScriptGetTextTableStrAddress(MusicStringTableId, trackTextIndex + 7),
       glm::vec2(Bounds.X + MusicTrackArtistOffsetX,
                 Bounds.Y + MusicButtonTextYOffset),
-      MusicTrackArtistSize, RendererOutlineMode::None,
+      (float)MusicTrackArtistSize, RendererOutlineMode::None,
       {MusicButtonTextColor, MusicButtonTextOutlineColor});
   TextLayoutPlainString(fmt::format("{:02}", position), NumberText,
                         Profile::Dialogue::DialogueFont, MusicTrackNameSize,
@@ -394,8 +394,10 @@ void MusicMenu::PlayTrack(size_t index) {
   NowPlayingTrackName.Bounds.X = playingNamePos.x;
   NowPlayingTrackName.Bounds.Y = playingNamePos.y;
   NowPlayingTrackName.SetText(
-      Vm::ScriptGetTextTableStrAddress(MusicStringTableId, 2 * index + 6),
-      MusicNowPlayingNotificationTrackFontSize, RendererOutlineMode::None,
+      Vm::ScriptGetTextTableStrAddress(MusicStringTableId,
+                                       (uint32_t)(2 * index + 6)),
+      (float)MusicNowPlayingNotificationTrackFontSize,
+      RendererOutlineMode::None,
       {MusicNowPlayingTextColor, MusicNowPlayingTextOutlineColor});
   NowPlayingTrackName.Show();
   Audio::Channels[Audio::AC_BGM0]->Play("bgm", MusicPlayIds[index], false,

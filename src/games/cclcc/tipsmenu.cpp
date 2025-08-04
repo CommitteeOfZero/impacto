@@ -220,11 +220,11 @@ void TipsMenu::UpdateInput() {
       bool upScroll = PADinputButtonIsDown & PADcustom[32];
       bool downScroll = PADinputButtonIsDown & PADcustom[33];
 
-      int remainingScroll = TipsScrollbar->EndValue - TipPageY;
+      int remainingScroll = (int)(TipsScrollbar->EndValue - TipPageY);
       if (upScroll && downScroll) {
       } else if (upScroll && TipPageY > 0) {
         if (scrollDistance > TipPageY) {
-          scrollDistance = TipPageY;
+          scrollDistance = (int)TipPageY;
         }
         TipPageY -= scrollDistance;
 
@@ -374,11 +374,11 @@ void TipsMenu::SwitchToTipId(int id) {
   CurrentlyDisplayedTipId = id - 1;
 
   TipsSystem::SetTipUnreadState(actualId, false);
-  Category->SetText(record->StringPtrs[0], CategoryFontSize,
+  Category->SetText(record->StringPtrs[0], (float)CategoryFontSize,
                     RendererOutlineMode::None, {TipsMenuDarkTextColor, 0});
-  Name->SetText(record->StringPtrs[1], NameFontSize, RendererOutlineMode::None,
-                {TipsMenuDarkTextColor, 0});
-  Pronounciation->SetText(record->StringPtrs[2], PronounciationFontSize,
+  Name->SetText(record->StringPtrs[1], (float)NameFontSize,
+                RendererOutlineMode::None, {TipsMenuDarkTextColor, 0});
+  Pronounciation->SetText(record->StringPtrs[2], (float)PronounciationFontSize,
                           RendererOutlineMode::None, 0);
 
   {
@@ -387,10 +387,10 @@ void TipsMenu::SwitchToTipId(int id) {
     TextGetSc3String(fmt::format("{:3d}", id), sc3StringBuffer);
     dummy.Ip = (uint8_t*)sc3StringBuffer;
     float numberWidth = TextGetPlainLineWidth(
-        &dummy, Profile::Dialogue::DialogueFont, NumberFontSize);
+        &dummy, Profile::Dialogue::DialogueFont, (float)NumberFontSize);
     Number->Bounds.X = NumberPos.x - numberWidth;
     Number->Bounds.Y = NumberPos.y;
-    Number->SetText((uint8_t*)sc3StringBuffer, NumberFontSize,
+    Number->SetText((uint8_t*)sc3StringBuffer, (float)NumberFontSize,
                     RendererOutlineMode::None, 0);
   }
 
@@ -401,14 +401,15 @@ void TipsMenu::SwitchToTipId(int id) {
   TipViewItems.HasFocus = true;
 
   auto& lastGlyph = TextPage.Glyphs.back();
-  int scrollDistance = lastGlyph.DestRect.Y + lastGlyph.DestRect.Height -
-                       (TextPage.BoxBounds.Y + TextPage.BoxBounds.Height) +
-                       lastGlyph.DestRect.Height;
+  int scrollDistance =
+      (int)(lastGlyph.DestRect.Y + lastGlyph.DestRect.Height -
+            (TextPage.BoxBounds.Y + TextPage.BoxBounds.Height) +
+            lastGlyph.DestRect.Height);
 
   TipPageY = 0;
   TipsScrollbar = std::make_unique<Widgets::Scrollbar>(
-      0, TipsScrollStartPos, 0, std::max(0, scrollDistance), &TipPageY,
-      SBDIR_VERTICAL, TipsScrollThumbSprite, TipsScrollTrackBounds,
+      0, TipsScrollStartPos, 0.0f, std::max(0.0f, (float)scrollDistance),
+      &TipPageY, SBDIR_VERTICAL, TipsScrollThumbSprite, TipsScrollTrackBounds,
       TipsScrollThumbLength, TextPage.BoxBounds, 5.0f);
   TipsScrollbar->HasFocus = false;  // We want to manually control kb/pad input
 

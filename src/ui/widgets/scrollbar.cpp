@@ -129,11 +129,16 @@ void Scrollbar::UpdateInput() {
           trackP1 = TrackBounds.Y;
           trackP2 = TrackBounds.Height;
           break;
+
         case SBDIR_HORIZONTAL:
           mouseP = Input::CurMousePos.x;
           trackP1 = TrackBounds.X;
           trackP2 = TrackBounds.Width;
           break;
+
+        default:
+          throw std::runtime_error(
+              fmt::format("Unexpected scrollbar direction {}", (int)Direction));
       }
 
       float thumbNormalizedLength =

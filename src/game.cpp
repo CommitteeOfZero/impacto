@@ -341,14 +341,16 @@ static void RenderMain() {
     }
 
     if (Profile::UseScreenCapEffects) {
-      if (ScrWork[SW_EFF_CAP_BUF] && ScrWork[SW_EFF_CAP_PRI] == layer) {
+      if (ScrWork[SW_EFF_CAP_BUF] &&
+          static_cast<uint32_t>(ScrWork[SW_EFF_CAP_PRI]) == layer) {
         int bufId = (int)std::log2(ScrWork[SW_EFF_CAP_BUF]);
         if (Backgrounds2D[bufId]->Status == LoadStatus::Loaded) {
           Renderer->CaptureScreencap(Backgrounds2D[bufId]->BgSprite);
         }
       }
 
-      if (ScrWork[SW_EFF_CAP_BUF2] && ScrWork[SW_EFF_CAP_PRI2] == layer) {
+      if (ScrWork[SW_EFF_CAP_BUF2] &&
+          static_cast<uint32_t>(ScrWork[SW_EFF_CAP_PRI2]) == layer) {
         int bufId = (int)std::log2(ScrWork[SW_EFF_CAP_BUF2]);
         if (Backgrounds2D[bufId]->Status == LoadStatus::Loaded) {
           Renderer->CaptureScreencap(Backgrounds2D[bufId]->BgSprite);
@@ -382,9 +384,10 @@ static void RenderMain() {
         Video::VideoRender(videoAlpha / 256.0f);
       }
     }
-    if (ScrWork[SW_DELUSION_PRI] == layer) DelusionTrigger::Render();
+    if (static_cast<uint32_t>(ScrWork[SW_DELUSION_PRI]) == layer)
+      DelusionTrigger::Render();
     if (CCLCC::YesNoTrigger::YesNoTriggerPtr &&
-        ScrWork[SW_YESNO_PRI] == layer) {
+        static_cast<uint32_t>(ScrWork[SW_YESNO_PRI]) == layer) {
       CCLCC::YesNoTrigger::YesNoTriggerPtr->Render();
     }
   }

@@ -53,10 +53,10 @@ void AdxAudioStream::SetCoefficients(double cutoff, double sample_rate) {
   /* temps to keep the calculation simple */
   double z, a, b, c;
 
-  z = cos(2.0 * M_PI * cutoff / sample_rate);
+  z = cos(2.0 * std::numbers::pi * cutoff / sample_rate);
 
-  a = M_SQRT2 - z;
-  b = M_SQRT2 - 1.0;
+  a = std::numbers::sqrt2 - z;
+  b = std::numbers::sqrt2 - 1.0;
   c = (a - sqrt((a + b) * (a - b))) / b;
 
   /* compute the coefficients as fixed point values, with 12 fractional bits */
@@ -76,13 +76,13 @@ bool AdxAudioStream::DecodeBuffer() {
 
     for (int i = 0; i < SamplesPerBuffer; i++) {
       /* this byte contains nibbles for two samples */
-      int sample_byte = input[i / 2];
+      uint8_t sample_byte = input[i / 2];
 
-      output[i * ChannelCount + c] =
-          clamp16((i & 1 ? get_low_nibble_signed(sample_byte)
-                         : get_high_nibble_signed(sample_byte)) *
-                      scale +
-                  (Coef1 * Hist1[c] >> 12) + (Coef2 * Hist2[c] >> 12));
+      output[i * ChannelCount + c] = (int16_t)(clamp16(
+          (i & 1 ? get_low_nibble_signed(sample_byte)
+                 : get_high_nibble_signed(sample_byte)) *
+              scale +
+          (Coef1 * Hist1[c] >> 12) + (Coef2 * Hist2[c] >> 12)));
 
       Hist2[c] = Hist1[c];
       Hist1[c] = output[i * ChannelCount + c];

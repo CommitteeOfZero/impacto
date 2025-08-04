@@ -100,7 +100,8 @@ void HelpMenu::UpdateInput(float dt) {
       Input::MouseWheelDeltaY < 0;
   if (State == Shown && prevBtnPressed && FadeAnimation.Progress == 1.0f) {
     PreviousPage = CurrentPage;
-    CurrentPage = (CurrentPage - 1 + ManualPages.size()) % ManualPages.size();
+    CurrentPage =
+        (int)((CurrentPage - 1 + ManualPages.size()) % ManualPages.size());
     FadeAnimation.StartIn(true);
     NextPageAnimation.StartIn(true);
     IsGoingNext = false;
@@ -135,7 +136,7 @@ void HelpMenu::Render() {
           ManualPages[CurrentPage], glm::vec2(topLeftX, 0.0f),
           glm::vec4{glm::vec3{transition}, transition.a * alpha / 256.0f});
     } else {
-      topLeftX = FadeAnimation.Progress * 32 * 200 * 0.0625 - 400;
+      topLeftX = FadeAnimation.Progress * 32 * 200 * 0.0625f - 400.0f;
       Renderer->DrawSprite(
           ManualPages[CurrentPage], glm::vec2(topLeftX, 0.0f),
           glm::vec4{glm::vec3{transition}, transition.a * alpha / 256.0f});

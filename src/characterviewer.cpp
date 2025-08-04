@@ -268,7 +268,6 @@ static void EnumerateCharacters() {
   CharacterNames.reserve(listing.size() / 2);
   CharacterIds.reserve(listing.size() / 2);
 
-  uint32_t i = 0;
   for (auto const& file : listing) {
     if (file.first % 2 == 0) {
       CharacterIds.push_back(file.first);

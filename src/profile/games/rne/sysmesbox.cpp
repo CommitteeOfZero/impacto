@@ -60,7 +60,7 @@ void Configure() {
       EnsureGetMember<float>("TextDecorationBottomYOffset");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMember<int>("DrawType"));
+      EnsureGetMember<uint8_t>("DrawType"));
 
   UI::SysMesBoxPtr = new UI::RNE::SysMesBox();
   UI::Menus[drawType].push_back(UI::SysMesBoxPtr);

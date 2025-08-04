@@ -30,14 +30,20 @@ void Configure() {
       case OptionsMenuType::MO6TW:
         MO6TW::OptionsMenu::Configure();
         break;
+
       case OptionsMenuType::MO8:
         MO8::OptionsMenu::Configure();
         break;
+
       case OptionsMenuType::CHLCC:
         CHLCC::OptionsMenu::Configure();
         break;
+
       case OptionsMenuType::CCLCC:
         CCLCC::OptionsMenu::Configure();
+        break;
+
+      case OptionsMenuType::None:
         break;
     }
 

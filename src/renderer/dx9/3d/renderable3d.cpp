@@ -671,8 +671,6 @@ void Renderable3D::MainThreadOnLoad() {
          "Submitting data to GPU for model ID {:d}\n", StaticModel->Id);
 
   for (uint32_t i = 0; i < StaticModel->MeshCount; i++) {
-    uint32_t vertexCopySize = 0;
-
     if (StaticModel->Type == ModelType_Character) {
       if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
         Device->CreateVertexBuffer(

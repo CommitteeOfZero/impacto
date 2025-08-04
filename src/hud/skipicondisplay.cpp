@@ -29,6 +29,11 @@ void Init() {
       FixedSpriteAnim.Def->FixSpriteId = SkipIconFixedSpriteId;
       FixedSpriteAnim.StartIn();
       break;
+
+    case SkipIconType::None:
+    case SkipIconType::Fixed:
+    case SkipIconType::CHLCC:
+      break;
   }
 }
 
@@ -60,6 +65,10 @@ void Update(float dt) {
       Progress += dt * SkipIconRotationSpeed;
       Progress -= (int)Progress;  // Progress %= 1.0f
       break;
+
+    case SkipIconType::None:
+    case SkipIconType::Fixed:
+      break;
   }
 }
 
@@ -90,7 +99,7 @@ void Render(glm::vec4 opacityTint) {
       if (MesSkipMode & (SkipModeFlags::SkipRead | SkipModeFlags::SkipAll)) {
         const CornersQuad arrowsDest =
             AutoSkipArrowsSprite.ScaledBounds()
-                .RotateAroundCenter(Progress * 2.0f * (float)M_PI)
+                .RotateAroundCenter(Progress * 2.0f * std::numbers::pi_v<float>)
                 .Translate(SkipIconOffset);
         Renderer->DrawSprite(AutoSkipArrowsSprite, arrowsDest, opacityTint);
 
@@ -98,6 +107,10 @@ void Render(glm::vec4 opacityTint) {
                              glm::vec2(SkipIconOffset.x, SkipIconOffset.y),
                              opacityTint);
       }
+      break;
+
+    case SkipIconType::None:
+    case SkipIconType::Fixed:
       break;
   }
 }

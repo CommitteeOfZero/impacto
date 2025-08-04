@@ -127,7 +127,7 @@ void YesNoTrigger::UpdateYesNoPos(float startX, float startY, float startScale,
                        : (targetScale > 3.0) ? 3.0f
                                              : targetScale;
 
-  float smoothTransition = cos(transition * static_cast<float>(M_PI));
+  float smoothTransition = cos(transition * std::numbers::pi_v<float>);
   smoothTransition = (1.0f - smoothTransition) * 0.5f;
 
   BgSpritePos.x = startX + smoothTransition * (targetX - startX);
@@ -243,7 +243,7 @@ void YesNoTrigger::Render() {
     alpha = 0;
   }
   glm::vec4 bgtint = glm::vec4(1.0f, 1.0f, 1.0f, alpha / 255.0f);
-  glm::vec2 starPos;
+  glm::vec2 starPos{};
   ActiveBackground.Bounds =
       Rect(static_cast<int>(BgSpritePos.x + bgXOffset),
            static_cast<int>(BgSpritePos.y + bgYOffset),
@@ -281,7 +281,7 @@ void YesNoTrigger::Render() {
         starPos = {chipNoX - 132, chipNoY - 166};
       }
 
-    } else if (BgType == BGType::BG2 || BgType == BGType::BG3) {
+    } else /* if (BgType == BGType::BG2 || BgType == BGType::BG3) */ {
       ActiveYesChip =
           (Selection == YesNoSelect::YES) ? &YN2YesChipLarge : &YN2YesChipSmall;
       ActiveNoChip =
@@ -303,11 +303,11 @@ void YesNoTrigger::Render() {
                                    .Translate(starPos);
       Renderer->DrawSprite(StarChip, dest, chipTint);
     }
-    Renderer->DrawSprite(*ActiveYesChip,
-                         Rect(chipYesX, chipYesY, yesChipWidthX, yesChipWidthY),
-                         chipTint);
+    Renderer->DrawSprite(
+        *ActiveYesChip, RectF(chipYesX, chipYesY, yesChipWidthX, yesChipWidthY),
+        chipTint);
     Renderer->DrawSprite(*ActiveNoChip,
-                         Rect(chipNoX, chipNoY, noChipWidthX, noChipWidthY),
+                         RectF(chipNoX, chipNoY, noChipWidthX, noChipWidthY),
                          chipTint);
   }
   glm::vec4 maskTint = glm::vec4(1.0f, 1.0f, 1.0f, 160 / 256.0f);

@@ -248,13 +248,16 @@ bool GXTLoadSubtexture(Stream* stream, Texture* outTexture,
       // and P8 separate
       uint8_t* palette = p8Palettes + 4 * 256 * (stx->PaletteIdx - p4count);
 
-      int bytesPerPixel;
+      int bytesPerPixel = 0;
       if (channelOrder == Gxm::_1RGB) {
         outTexture->Init(TexFmt_RGB, stx->Width, stx->Height);
         bytesPerPixel = 3;
       } else if (channelOrder == Gxm::ARGB) {
         outTexture->Init(TexFmt_RGBA, stx->Width, stx->Height);
         bytesPerPixel = 4;
+      } else {
+        throw std::invalid_argument(fmt::format(
+            "Unimplemented channel order {} requested", channelOrder));
       }
 
       uint8_t* inBuffer = (uint8_t*)malloc(stx->Width * stx->Height);

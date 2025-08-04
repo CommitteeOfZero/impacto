@@ -1,5 +1,7 @@
 #include "zlibstream.h"
 
+#include "../log.h"
+
 namespace Impacto {
 namespace Io {
 
@@ -51,18 +53,21 @@ int64_t ZlibStream::Read(void* buffer, int64_t sz) {
 }
 
 int64_t ZlibStream::Seek(int64_t offset, int origin) {
-  int64_t absPos;
-  switch (origin) {
-    case RW_SEEK_SET:
-      absPos = offset;
-      break;
-    case RW_SEEK_CUR:
-      absPos = Position + offset;
-      break;
-    case RW_SEEK_END:
-      absPos = Meta.Size - offset;
-      break;
-  }
+  const int64_t absPos = [&]() {
+    switch (origin) {
+      case RW_SEEK_SET:
+        return offset;
+
+      case RW_SEEK_CUR:
+        return Position + offset;
+
+      case RW_SEEK_END:
+        return Meta.Size - offset;
+
+      default:
+        throw std::invalid_argument(fmt::format("Unknown origin {}", origin));
+    }
+  }();
   if (absPos < 0 || absPos > Meta.Size) return IoError_Fail;
 
   int64_t err = SeekBuffered(absPos);

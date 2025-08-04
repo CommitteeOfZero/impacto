@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../minilua_impl.h"
+#include <minilua/minilua.h>
 #include <initializer_list>
 #include <optional>
 #include <charconv>
@@ -35,6 +35,7 @@ int PushNextTableElement();
 template <typename T>
 bool TryGet(T& out) {
   static_assert(sizeof(T*) == 0, "Invalid Type");
+  return true;
 }
 
 template <typename T>
@@ -141,7 +142,7 @@ T EnsureGetKey() {
   if constexpr (is_any_of<T, char const*, std::string_view, std::string>)
     return lua_tostring(LuaState, -2);
   if constexpr (std::is_integral_v<T> && !std::is_same_v<T, bool>)
-    return lua_tointeger(LuaState, -2);
+    return (T)lua_tointeger(LuaState, -2);
 }
 
 void ClearProfileInternal();

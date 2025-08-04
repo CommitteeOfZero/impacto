@@ -70,7 +70,7 @@ void Configure() {
       EnsureGetMember<glm::vec2>("SelectionMarkerRelativePos");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMember<int>("DrawType"));
+      EnsureGetMember<uint8_t>("DrawType"));
 
   UI::Menus[drawType].push_back(new UI::CHLCC::AlbumMenu());
 }

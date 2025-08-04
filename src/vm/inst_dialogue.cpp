@@ -558,16 +558,16 @@ VmInstruction(InstTips) {
   PopUint8(type);
   switch (type) {
     case 0: {  // TipsDataInit
-      PopUint16(labelNum);
+      PopUint16(tipsLabelNum);
       uint8_t* tipsDataAdr = ScriptGetLabelAddress(
-          ScriptBuffers[thread->ScriptBufferId], labelNum);
+          ScriptBuffers[thread->ScriptBufferId], tipsLabelNum);
       if (Profile::Vm::GameInstructionSet == +InstructionSet::MO8 ||
           Profile::Vm::GameInstructionSet == +InstructionSet::CHN) {
         PopLocalLabel(tipsDataAdr1);
         (void)tipsDataAdr1;
       }
-      uint32_t tipsDataSize =
-          ScriptGetLabelSize(ScriptBuffers[thread->ScriptBufferId], labelNum);
+      uint32_t tipsDataSize = ScriptGetLabelSize(
+          ScriptBuffers[thread->ScriptBufferId], tipsLabelNum);
       TipsSystem::DataInit(thread->ScriptBufferId, tipsDataAdr, tipsDataSize);
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction Tips(type: TipsDataInit)\n");
@@ -648,18 +648,21 @@ void ChkMesSkip() {
         (bool)(Interface::PADinputButtonIsDown & Interface::PADcustom[7]);
 
     // Skip
-    if (Interface::PADinputButtonWentDown & Interface::PADcustom[8])
-      if (MesSkipMode & (SkipModeFlags::SkipRead | SkipModeFlags::SkipAll))
+    if (Interface::PADinputButtonWentDown & Interface::PADcustom[8]) {
+      if (MesSkipMode & (SkipModeFlags::SkipRead | SkipModeFlags::SkipAll)) {
         // Turn off all skip modes (leaving auto)
         MesSkipMode &= SkipModeFlags::Auto;
-      else
+      } else {
         MesSkipMode |=
             (Profile::ConfigSystem::SkipRead ? SkipModeFlags::SkipRead
                                              : SkipModeFlags::SkipAll);
+      }
+    }
 
     // Auto
-    if (Interface::PADinputButtonWentDown & Interface::PADcustom[9])
+    if (Interface::PADinputButtonWentDown & Interface::PADcustom[9]) {
       MesSkipMode ^= SkipModeFlags::Auto;
+    }
   }
 
   mesSkip |= (bool)(MesSkipMode & SkipModeFlags::SkipAll);

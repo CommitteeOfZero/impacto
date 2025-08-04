@@ -34,7 +34,7 @@ class TipsTabGroup : public Menu {
   void UpdatePageInput(float dt);
   void Render() override;
   void UpdateTipsEntries(std::vector<int> const& SortedTipIds);
-  int GetTipEntriesCount() { return TipsEntryButtons.size(); }
+  size_t GetTipEntriesCount() { return TipsEntryButtons.size(); }
   void Move(glm::vec2 offset);
   void MoveTo(glm::vec2 pos);
 

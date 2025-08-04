@@ -36,8 +36,8 @@ static void UpdateFromPADCode(int PADcode, PADInputType type) {
   const auto& axisDownLightArr = type == PADInputType::WentDown
                                      ? Input::ControllerAxisWentDownLight
                                      : Input::ControllerAxisIsDownLight;
-  const auto& axisDownHeavyArr = type == PADInputType::WentDown
-                                     ? Input::ControllerAxisWentDownHeavy
+  [[maybe_unused]] const auto& axisDownHeavyArr =
+      type == PADInputType::WentDown ? Input::ControllerAxisWentDownHeavy
                                      : Input::ControllerAxisIsDownHeavy;
   const auto& mouseDownArr = type == PADInputType::WentDown
                                  ? Input::MouseButtonWentDown
@@ -61,8 +61,8 @@ static void UpdateFromPADCode(int PADcode, PADInputType type) {
     if (GPAcode != PADToControllerAxis.end()) {
       if (axisDownArr[GPAcode->second.first] &&
           Input::ControllerAxis[GPAcode->second.first] *
-                  GPAcode->second.second >
-              0)
+                  (float)GPAcode->second.second >
+              0.0f)
         return true;
     }
     return false;
@@ -89,7 +89,7 @@ static void UpdateFromPADCode(int PADcode, PADInputType type) {
       MScode != PADToMouse.end() && mouseDownArr[MScode->second];
   if (isGPAxisDown &&
       Input::ControllerAxis[GPAcode->second.first] >
-          GPAcode->second.second * Input::ControllerAxisLightThreshold)
+          (float)GPAcode->second.second * Input::ControllerAxisLightThreshold)
     padInputButton |= PADcode;
   if (isKbDown || isGpDown || isGPAxisDown) {
     padInputButton |= checkPadDirectional(PADcode);

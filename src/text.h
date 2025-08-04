@@ -123,11 +123,11 @@ struct DialoguePage {
   void EndRubyBase(int lastBaseCharacter);
 
   bool BuildingRubyBase;
-  int FirstRubyChunkOnLine;
+  size_t FirstRubyChunkOnLine;
 
   float CurrentLineTop;
   float CurrentLineTopMargin;
-  int LastLineStart;
+  size_t LastLineStart;
   DialoguePageMode PrevMode = DPM_ADV;
 };
 
@@ -135,7 +135,7 @@ inline DialoguePage* DialoguePages;
 inline int DialoguePageCount = 0;
 
 int TextGetStringLength(Vm::Sc3VmThread* ctx);
-int TextGetMainCharacterCount(Vm::Sc3VmThread* ctx);
+[[maybe_unused]] int TextGetMainCharacterCount(Vm::Sc3VmThread* ctx);
 int TextLayoutPlainLine(Vm::Sc3VmThread* ctx, int stringLength,
                         std::span<ProcessedTextGlyph> outGlyphs, Font* font,
                         float fontSize, DialogueColorPair colors, float opacity,

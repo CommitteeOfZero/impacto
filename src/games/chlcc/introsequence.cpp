@@ -13,7 +13,8 @@ namespace CHLCC {
 
 IntroSequence::IntroSequence() {
   Texture fallingStarsMaskTexture{};
-  fallingStarsMaskTexture.LoadSolidColor(DesignWidth, DesignHeight, 0);
+  fallingStarsMaskTexture.LoadSolidColor((int)DesignWidth, (int)DesignHeight,
+                                         0);
   SpriteSheet fallingStarsMaskSheet(DesignWidth, DesignHeight);
   fallingStarsMaskSheet.Texture = fallingStarsMaskTexture.Submit();
   fallingStarsMaskSheet.IsScreenCap = true;
@@ -25,10 +26,10 @@ IntroSequence::IntroSequence() {
     auto& [origin, angle] = FallingStarSeeds[i];
 
     int random = CALCrnd(100);
-    origin.x = -120 + i * 110 + (random + 10) * 10;
-    origin.y = (random + 10) * -10;
+    origin.x = (float)(-120 + i * 110 + (random + 10) * 10);
+    origin.y = float((random + 10) * -10);
 
-    angle = CALCrnd(8192) / 8192.0f * M_PI * 2;
+    angle = (float)CALCrnd(8192) / 8192.0f * std::numbers::pi_v<float> * 2.0f;
   }
 
   PanningAnimation.SetDuration(IntroPanningAnimationDuration);
@@ -102,7 +103,8 @@ void IntroSequence::Reset() {
   Renderer->FreeTexture(FallingStarsMask.Sheet.Texture);
 
   Texture fallingStarsMaskTexture{};
-  fallingStarsMaskTexture.LoadSolidColor(DesignWidth, DesignHeight, 0);
+  fallingStarsMaskTexture.LoadSolidColor((int)DesignWidth, (int)DesignHeight,
+                                         0);
   FallingStarsMask.Sheet.Texture = fallingStarsMaskTexture.Submit();
 
   IntroAnimation.StartIn(true);
@@ -177,7 +179,8 @@ void IntroSequence::Render() {
 }
 
 void IntroSequence::DrawBackground() const {
-  float progress = std::sin(PanningAnimation.Progress * M_PI_2);
+  float progress =
+      std::sin(PanningAnimation.Progress * std::numbers::pi_v<float> / 2.0f);
   glm::vec2 designDimensions(DesignWidth, DesignHeight);
 
   Renderer->DrawQuad(RectF{0, 0, DesignWidth, DesignHeight}, glm::vec4(1.0f));
@@ -221,24 +224,25 @@ void IntroSequence::DrawBackground() const {
 
 void IntroSequence::DrawBouncingStar() const {
   // These are the normalized frame timings & positions
-  float x = DesignWidth / 2 - IntroBouncingStarSprite.Bounds.Width / 2 +
-            (1.0f - StarBounceAnimation.Progress) * 0.61 * DesignWidth;
+  float x = DesignWidth / 2.0f - IntroBouncingStarSprite.Bounds.Width / 2.0f +
+            (1.0f - StarBounceAnimation.Progress) * 0.61f * DesignWidth;
 
   float y = DesignHeight / 2 + IntroBouncingStarSprite.Bounds.Height;
   if (StarBounceAnimation.Progress < 0.357f) {
     float progress = StarBounceAnimation.Progress / 0.357f;
-    y -= std::sin(progress * M_PI) * 0.664f * DesignHeight;
+    y -= std::sin(progress * std::numbers::pi_v<float>) * 0.664f * DesignHeight;
   } else if (StarBounceAnimation.Progress < 0.536f) {
     float progress =
         (StarBounceAnimation.Progress - 0.357f) / (0.536f - 0.357f);
-    y -= std::sin(progress * M_PI) * 0.094f * DesignHeight;
+    y -= std::sin(progress * std::numbers::pi_v<float>) * 0.094f * DesignHeight;
   } else if (StarBounceAnimation.Progress < 0.714f) {
     float progress =
         (StarBounceAnimation.Progress - 0.536f) / (0.714f - 0.536f);
-    y -= std::sin(progress * M_PI) * 0.094f * DesignHeight;
+    y -= std::sin(progress * std::numbers::pi_v<float>) * 0.094f * DesignHeight;
   } else {
     float progress = (StarBounceAnimation.Progress - 0.714f) / (1.0f - 0.714f);
-    y -= std::sin(progress * 0.8f * M_PI) * 0.475f * DesignHeight;
+    y -= std::sin(progress * 0.8f * std::numbers::pi_v<float>) * 0.475f *
+         DesignHeight;
   }
 
   Renderer->DrawSprite(StarLogoSprite, glm::vec2(x, y));
@@ -252,14 +256,17 @@ void IntroSequence::DrawExplodingStars() const {
 
   constexpr size_t numStars = 5;
   for (size_t i = 0; i < numStars; i++) {
-    float rayAngle = M_PI_2 - M_PI * 2 / numStars * i;
+    float rayAngle = std::numbers::pi_v<float> / 2.0f -
+                     std::numbers::pi_v<float> * 2.0f / (float)(numStars * i);
     glm::vec2 directionVector(std::cos(rayAngle), -std::sin(rayAngle));
     glm::vec2 displacement = directionVector * ExplodingStarAnimation.Progress *
                              IntroExplodingStarAnimationDistance;
     glm::vec2 position = origin + displacement;
 
-    float opacity = std::min(2 - ExplodingStarAnimation.Progress * 2, 1.0f);
-    float angle = M_PI * 2 * ExplodingStarRotationAnimation.Progress;
+    float opacity =
+        std::min(2.0f - ExplodingStarAnimation.Progress * 2.0f, 1.0f);
+    float angle = std::numbers::pi_v<float> * 2.0f *
+                  ExplodingStarRotationAnimation.Progress;
     if (i >= 3) angle = -angle;
 
     CornersQuad dest = IntroExplodingStarSprite.ScaledBounds()
@@ -280,8 +287,8 @@ void IntroSequence::DrawFallingStars() const {
                              FallingStarsAnimation.Progress;
 
     glm::vec2 position = origin + displacement;
-    float angle =
-        initialAngle + M_PI * 2 * FallingStarsRotationAnimation.Progress;
+    float angle = initialAngle + std::numbers::pi_v<float> * 2.0f *
+                                     FallingStarsRotationAnimation.Progress;
 
     CornersQuad dest = IntroFallingStarSprite.ScaledBounds()
                            .RotateAroundCenter(angle)
@@ -305,7 +312,8 @@ void IntroSequence::DrawCHLogo() const {
                        {1.0f, 1.0f, 1.0f, opacity});
 
   y = CHLogoPosition.y + dy * LogoFadeAnimation.Progress;
-  opacity = std::sin(LogoFadeAnimation.Progress * M_PI) / 2.0f;
+  opacity =
+      std::sin(LogoFadeAnimation.Progress * std::numbers::pi_v<float>) / 2.0f;
   Renderer->DrawSprite(CHLogoSprite, {CHLogoPosition.x, y},
                        {1.0f, 1.0f, 1.0f, opacity});
 }
@@ -321,8 +329,6 @@ void IntroSequence::DrawLCCLogo() const {
   float animationStep;
   float progress =
       std::modf(LCCLogoAnimation.Progress * LCCLogoSpriteCount, &animationStep);
-  size_t animatedSprite =
-      std::min((size_t)animationStep, LCCLogoSpriteCount - 1);
 
   for (size_t index : LCCLogoDrawOrder) {
     if (index > animationStep) continue;

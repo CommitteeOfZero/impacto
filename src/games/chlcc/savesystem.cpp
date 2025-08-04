@@ -107,15 +107,15 @@ SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
 
   WorkingSaveEntry = new SaveFileEntry();
   WorkingSaveThumbnail.Sheet =
-      SpriteSheet(Window->WindowWidth, Window->WindowHeight);
-  WorkingSaveThumbnail.Bounds =
-      RectF(0.0f, 0.0f, Window->WindowWidth, Window->WindowHeight);
+      SpriteSheet((float)Window->WindowWidth, (float)Window->WindowHeight);
+  WorkingSaveThumbnail.Bounds = RectF(0.0f, 0.0f, (float)Window->WindowWidth,
+                                      (float)Window->WindowHeight);
 
   QueuedTexture txt{
       .Id = std::ref(WorkingSaveThumbnail.Sheet.Texture),
   };
-  txt.Tex.LoadSolidColor(WorkingSaveThumbnail.Bounds.Width,
-                         WorkingSaveThumbnail.Bounds.Height, 0x000000);
+  txt.Tex.LoadSolidColor((int)WorkingSaveThumbnail.Bounds.Width,
+                         (int)WorkingSaveThumbnail.Bounds.Height, 0x000000);
   textures.push_back(txt);
 
   Io::ReadArrayLE<uint8_t>(SystemData.data(), stream, SystemData.size());
@@ -202,7 +202,7 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
       }
       time_t rawtime;
       time(&rawtime);
-      entry->SaveDate = *localtime(&rawtime);
+      entry->SaveDate = CurrentDateTime();
     }
   }
 }
@@ -230,19 +230,20 @@ SaveError SaveSystem::WriteSaveFile() {
         stream->Seek(0x2000, SEEK_CUR);
       } else {
         Io::WriteLE<uint8_t>(stream, entry->Status);
-        Io::WriteLE<uint16_t>(stream, entry->Checksum);
+        Io::WriteLE<uint16_t>(stream, (uint16_t)entry->Checksum);
         Io::WriteLE<uint8_t>(stream, 0);
 
-        Io::WriteLE<uint8_t>(stream, entry->SaveDate.tm_mon + 1);
-        Io::WriteLE<uint8_t>(stream, entry->SaveDate.tm_mday);
-        Io::WriteLE<uint8_t>(stream, entry->SaveDate.tm_hour);
-        Io::WriteLE<uint8_t>(stream, entry->SaveDate.tm_min);
-        Io::WriteLE<uint8_t>(stream, entry->SaveDate.tm_year + 1900 - 2000);
-        Io::WriteLE<uint8_t>(stream, entry->SaveDate.tm_sec);
+        Io::WriteLE<uint8_t>(stream, (uint8_t)(entry->SaveDate.tm_mon + 1));
+        Io::WriteLE<uint8_t>(stream, (uint8_t)entry->SaveDate.tm_mday);
+        Io::WriteLE<uint8_t>(stream, (uint8_t)entry->SaveDate.tm_hour);
+        Io::WriteLE<uint8_t>(stream, (uint8_t)entry->SaveDate.tm_min);
+        Io::WriteLE<uint8_t>(stream,
+                             (uint8_t)(entry->SaveDate.tm_year + 1900 - 2000));
+        Io::WriteLE<uint8_t>(stream, (uint8_t)entry->SaveDate.tm_sec);
 
         Io::WriteLE<uint16_t>(stream, 0);
         Io::WriteLE<uint32_t>(stream, entry->PlayTime);
-        Io::WriteLE<uint16_t>(stream, entry->SwTitle);
+        Io::WriteLE<uint16_t>(stream, (uint16_t)entry->SwTitle);
         Io::WriteLE<uint8_t>(stream, 0);
         Io::WriteLE<uint8_t>(stream, entry->Flags);
         stream->Seek(30, SEEK_CUR);
@@ -299,16 +300,14 @@ uint8_t SaveSystem::GetSaveFlags(SaveType type, int id) {
 }
 
 tm const& SaveSystem::GetSaveDate(SaveType type, int id) {
-  static const tm t = []() {
-    tm t;
-    t.tm_sec = 0;
-    t.tm_min = 0;
-    t.tm_hour = 0;
-    t.tm_mday = 1;
-    t.tm_mon = 0;
-    t.tm_year = 0;
-    return t;
-  }();
+  static const tm t{
+      .tm_sec = 0,
+      .tm_min = 0,
+      .tm_hour = 0,
+      .tm_mday = 1,
+      .tm_mon = 0,
+      .tm_year = 0,
+  };
   switch (type) {
     case SaveType::Full:
       return ((SaveFileEntry*)FullSaveEntries[id])->SaveDate;
@@ -468,7 +467,7 @@ void SaveSystem::LoadEntry(SaveType type, int id) {
         thd->Ip = ScriptBuffers[thd->ScriptBufferId] + entry->MainThreadIp;
         thd->CallStackDepth = entry->MainThreadCallStackDepth;
 
-        for (int i = 0; i < thd->CallStackDepth; i++) {
+        for (size_t i = 0; i < thd->CallStackDepth; i++) {
           thd->ReturnScriptBufferIds[i] = entry->MainThreadReturnBufIds[i];
           LoadScript(entry->MainThreadReturnBufIds[i],
                      ScrWork[2004 + entry->MainThreadReturnBufIds[i]]);
@@ -575,8 +574,8 @@ void SaveSystem::GetReadMessagesCount(int* totalMessageCount,
     ScriptMessageDataPair script = ScriptMessageData[scriptId];
     *totalMessageCount += script.LineCount;
 
-    for (int lineId = 0; lineId < script.LineCount; lineId++) {
-      *readMessageCount += IsLineRead(scriptId, lineId);
+    for (size_t lineId = 0; lineId < script.LineCount; lineId++) {
+      *readMessageCount += IsLineRead(scriptId, (int)lineId);
     }
   }
 }
@@ -604,7 +603,7 @@ void SaveSystem::GetEVStatus(int evId, int* totalVariations,
 
 void SaveSystem::SetEVStatus(int id) { EVFlags[id] = true; }
 
-bool SaveSystem::GetEVVariationIsUnlocked(int evId, int variationIdx) {
+bool SaveSystem::GetEVVariationIsUnlocked(size_t evId, size_t variationIdx) {
   if (AlbumEvData[evId][variationIdx] == 0xFFFF) return false;
   return EVFlags[AlbumEvData[evId][variationIdx]];
 }
@@ -619,6 +618,10 @@ Sprite& SaveSystem::GetSaveThumbnail(SaveType type, int id) {
     case SaveType::Full:
       return FullSaveEntries[id]->SaveThumbnail;
   }
+
+  throw std::invalid_argument(fmt::format(
+      "Tried to get thumbnail of unimplemented save entry type {}", (int)type));
 }
+
 }  // namespace CHLCC
 }  // namespace Impacto

@@ -35,6 +35,9 @@ LibrarySubmenu& LibraryMenu::GetMenuFromType(
     case LibraryMenuPageType::Movie:
       return static_cast<LibrarySubmenu&>(*UI::MovieMenuPtr);
   }
+
+  throw std::invalid_argument(
+      fmt::format("Unknown library submenu type {}", (int)menuType));
 }
 
 LibraryMenuPageType LibraryMenu::GetMenuTypeFromButton(Widget* btn) const {
@@ -48,6 +51,8 @@ LibraryMenuPageType LibraryMenu::GetMenuTypeFromButton(Widget* btn) const {
   } else if (btn == btnArr[LibraryMenuPageType::Movie]) {
     return LibraryMenuPageType::Movie;
   }
+
+  throw std::invalid_argument("Unknown library menu button type");
 }
 
 LibraryMenu::LibraryMenu() : MainItems(this) {

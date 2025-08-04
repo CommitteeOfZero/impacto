@@ -523,15 +523,14 @@ VmInstruction(InstSystemMes) {
 }
 VmInstruction(InstGetNowTime) {
   StartInstruction;
-  std::time_t t = std::time(0);
-  std::tm* now = std::localtime(&t);
-  ScrWork[SW_TIMEYEAR] = now->tm_year + 1900;
-  ScrWork[SW_TIMEMONTH] = now->tm_mon + 1;
-  ScrWork[SW_TIMEDAY] = now->tm_mday;
-  ScrWork[SW_TIMEHOUR] = now->tm_hour;
-  ScrWork[SW_TIMEMINUTE] = now->tm_min;
-  ScrWork[SW_TIMESECOND] = now->tm_sec;
-  ScrWork[SW_TIMEWEEK] = now->tm_wday;
+  const tm dateTime = CurrentDateTime();
+  ScrWork[SW_TIMEYEAR] = dateTime.tm_year + 1900;
+  ScrWork[SW_TIMEMONTH] = dateTime.tm_mon + 1;
+  ScrWork[SW_TIMEDAY] = dateTime.tm_mday;
+  ScrWork[SW_TIMEHOUR] = dateTime.tm_hour;
+  ScrWork[SW_TIMEMINUTE] = dateTime.tm_min;
+  ScrWork[SW_TIMESECOND] = dateTime.tm_sec;
+  ScrWork[SW_TIMEWEEK] = dateTime.tm_wday;
 }
 VmInstruction(InstGetSystemStatus) {
   StartInstruction;
@@ -628,12 +627,14 @@ VmInstruction(InstCalc) {
     case 0: {  // CalcSin
       PopExpression(dest);
       PopExpression(angle);
-      ScrWork[dest] = (int)(std::sin(angle / (65536 / (2 * M_PI))) * 65536);
+      ScrWork[dest] =
+          (int)(std::sin(angle / (65536 / (2 * std::numbers::pi))) * 65536);
     } break;
     case 1: {  // CalcCos
       PopExpression(dest);
       PopExpression(angle);
-      ScrWork[dest] = (int)(std::cos(angle / (65536 / (2 * M_PI))) * 65536);
+      ScrWork[dest] =
+          (int)(std::cos(angle / (65536 / (2 * std::numbers::pi))) * 65536);
     } break;
     case 2: {  // CalcAtan2
       PopExpression(dest);
@@ -647,7 +648,9 @@ VmInstruction(InstCalc) {
       PopExpression(angle);
       PopExpression(offset);
       ScrWork[dest] =
-          offset + (int)(base * std::sin(angle / (65536 / (2 * M_PI))) * 65536);
+          offset +
+          (int)(base * std::sin(angle / (65536 / (2 * std::numbers::pi))) *
+                65536);
     } break;
     case 4: {  // CalcCosL
       PopExpression(dest);
@@ -655,7 +658,9 @@ VmInstruction(InstCalc) {
       PopExpression(angle);
       PopExpression(offset);
       ScrWork[dest] =
-          offset + (int)(base * std::cos(angle / (65536 / (2 * M_PI))) * 65536);
+          offset +
+          (int)(base * std::cos(angle / (65536 / (2 * std::numbers::pi))) *
+                65536);
     } break;
     case 5: {  // CalcRound
       PopExpression(dest);

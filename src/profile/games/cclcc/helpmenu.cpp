@@ -19,7 +19,7 @@ void Configure() {
   HelpMaskSprite = EnsureGetMember<Sprite>("HelpMaskSprite");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMember<int>("DrawType"));
+      EnsureGetMember<uint8_t>("DrawType"));
 
   UI::HelpMenuPtr = new UI::CCLCC::HelpMenu();
   UI::Menus[drawType].push_back(UI::HelpMenuPtr);

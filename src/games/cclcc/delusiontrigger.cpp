@@ -369,7 +369,7 @@ void DelusionTrigger::Render() {
     Renderer->DrawSprite(BgOverlaySprite, RectF{0, 0, 1920, 1080});
   }
 
-  float spinAngle = MtrgAng / 65535.0f * 2.0f * float(M_PI);
+  float spinAngle = MtrgAng / 65535.0f * 2.0f * std::numbers::pi_v<float>;
 
   int spinAlpha = (MtrgAlphaCt < 16) ? MtrgAlphaCt : 32 - MtrgAlphaCt;
   spinAlpha = (spinAlpha * 192 >> 4) + 64;
