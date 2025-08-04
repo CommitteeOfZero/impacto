@@ -1,6 +1,6 @@
 local sv = root.ScriptVars;
 
-sv.SW_PLAYTIME = 990;
+sv.SW_PLAYTIME = 2304;
 sv.SW_GAMESTATE = 1012;
 sv.SW_TITLEDISPCT = 1014;
 sv.SW_TITLEMASKALPHA = 1033;
