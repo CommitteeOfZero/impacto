@@ -8,6 +8,9 @@ namespace CHLCC {
 
 using namespace Impacto::SaveSystem;
 
+constexpr size_t SaveEntrySize = 0x2000;
+constexpr size_t SaveFileSize = SaveEntrySize * MaxSaveEntries * 2 + 0x3b06;
+
 class SaveFileEntry : public SaveFileEntryBase {
  public:
   std::array<uint8_t, 50> FlagWorkScript1;   // 50 bytes from &FlagWork[50]
@@ -18,8 +21,8 @@ class SaveFileEntry : public SaveFileEntryBase {
 
 class SaveSystem : public SaveSystemBase {
  public:
-  SaveError CreateSaveFile() override { return SaveError::OK; }  // Todo
-  SaveError CheckSaveFile() override { return SaveError::OK; }   // Todo
+  SaveError CreateSaveFile() override;
+  SaveError CheckSaveFile() override;
   SaveError MountSaveFile(std::vector<QueuedTexture>& textures) override;
 
   SaveError LoadSystemData() override;
