@@ -10,10 +10,10 @@ using namespace Impacto::SaveSystem;
 
 class SaveFileEntry : public SaveFileEntryBase {
  public:
-  uint8_t FlagWorkScript1[50];   // 50 bytes from &FlagWork[50]
-  uint8_t FlagWorkScript2[100];  // 100 bytes from &FlagWork[300]
-  int ScrWorkScript1[300];       // 1200 bytes from &ScrWork[300]
-  int ScrWorkScript2[1300];      // 5200 bytes from &ScrWork[2300]
+  std::array<uint8_t, 50> FlagWorkScript1;   // 50 bytes from &FlagWork[50]
+  std::array<uint8_t, 100> FlagWorkScript2;  // 100 bytes from &FlagWork[300]
+  std::array<int, 300> ScrWorkScript1;       // 1200 bytes from &ScrWork[300]
+  std::array<int, 1300> ScrWorkScript2;      // 5200 bytes from &ScrWork[2300]
 };
 
 class SaveSystem : public SaveSystemBase {
