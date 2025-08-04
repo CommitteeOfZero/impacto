@@ -20,6 +20,72 @@ using namespace Impacto::Profile::ScriptVars;
 
 SaveFileEntry* WorkingSaveEntry = nullptr;
 
+SaveError SaveSystem::CreateSaveFile() {
+  using CF = Io::PhysicalFileStream::CreateFlagsMode;
+  Io::Stream* stream;
+  IoError err = Io::PhysicalFileStream::Create(
+      SaveFilePath, &stream,
+      CF::CREATE_IF_NOT_EXISTS | CF::CREATE_DIRS | CF::WRITE);
+  if (err != IoError_OK) {
+    ImpLog(LogLevel::Error, LogChannel::IO,
+           "Failed to open save file for writing\n");
+    return SaveError::Failed;
+  }
+
+  assert(stream->Meta.Size == 0);
+  std::vector<uint8_t> emptyData(SaveFileSize, 0);
+  Io::WriteArrayBE<uint8_t>(emptyData.data(), stream, SaveFileSize);
+  assert(stream->Position == SaveFileSize);
+
+  // TODO: Write default state
+
+  delete stream;
+
+  return SaveError::OK;
+}
+
+SaveError SaveSystem::CheckSaveFile() {
+  std::error_code ec;
+
+  IoError existsState = Io::PathExists(SaveFilePath);
+  if (existsState == IoError_NotFound) {
+    return SaveError::NotFound;
+  } else if (existsState == IoError_Fail) {
+    ImpLog(LogLevel::Error, LogChannel::IO,
+           "Failed to check if save file exists, error: \"{:s}\"\n",
+           ec.message());
+    return SaveError::Failed;
+  }
+
+  auto saveFileSize = Io::GetFileSize(SaveFilePath);
+  if (saveFileSize == IoError_Fail) {
+    ImpLog(LogLevel::Error, LogChannel::IO,
+           "Failed to get save file size, error: \"{:s}\"\n", ec.message());
+    return SaveError::Failed;
+  } else if (saveFileSize != SaveFileSize) {
+    return SaveError::Corrupted;
+  }
+
+  auto checkPermsBit = [](Io::FilePermissionsFlags perms,
+                          Io::FilePermissionsFlags flag) {
+    return to_underlying(perms) & to_underlying(flag);
+  };
+
+  Io::FilePermissionsFlags perms;
+  IoError permsState = Io::GetFilePermissions(SaveFilePath, perms);
+  if (permsState == IoError_Fail) {
+    ImpLog(LogLevel::Error, LogChannel::IO,
+           "Failed to get save file permissions, error: \"{:s}\"\n",
+           ec.message());
+    return SaveError::Failed;
+  } else if (!checkPermsBit(perms, Io::FilePermissionsFlags::owner_read) ||
+             !checkPermsBit(perms, Io::FilePermissionsFlags::owner_write)) {
+    return SaveError::WrongUser;
+  }
+
+  return SaveError::OK;
+}
+
 void SaveSystem::SaveSystemData() {
   Io::MemoryStream stream =
       Io::MemoryStream(SystemData.data(), SystemData.size(), false);
@@ -232,7 +298,7 @@ SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
     for (int i = 0; i < MaxSaveEntries; i++) {
       entryArray[i] = new SaveFileEntry();
 
-      std::array<uint8_t, 0x2000> entrySlotBuf;
+      std::array<uint8_t, SaveEntrySize> entrySlotBuf;
       Io::ReadArrayLE<uint8_t>(entrySlotBuf.data(), stream,
                                entrySlotBuf.size());
       Io::MemoryStream saveEntryDataStream(entrySlotBuf.data(),
@@ -290,14 +356,14 @@ SaveError SaveSystem::WriteSaveFile() {
 
   for (auto& entryArray : {QuickSaveEntries, FullSaveEntries}) {
     [[maybe_unused]] int64_t saveDataPos = stream->Position;
-    for (int i = 0; i < MaxSaveEntries; i++) {
-      assert(stream->Position - saveDataPos == i * 0x2000);
+    for (size_t i = 0; i < MaxSaveEntries; i++) {
+      assert(stream->Position - saveDataPos == (int64_t)(i * SaveEntrySize));
       SaveFileEntry* entry = (SaveFileEntry*)entryArray[i];
 
       if (entry->Status == 0) {
-        stream->Seek(0x2000, SEEK_CUR);
+        stream->Seek(SaveEntrySize, SEEK_CUR);
       } else {
-        std::array<uint8_t, 0x2000> entrySlotBuf{};
+        std::array<uint8_t, SaveEntrySize> entrySlotBuf{};
         Io::MemoryStream saveEntryMemoryStream(entrySlotBuf.data(),
                                                entrySlotBuf.size(), false);
         SaveEntryBuffer(saveEntryMemoryStream, *entry);

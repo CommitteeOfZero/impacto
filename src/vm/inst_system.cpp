@@ -242,14 +242,16 @@ VmInstruction(InstSave) {
       SaveSystem::SaveThumbnailData();
       break;
     case 30:
-      if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
+      if (Profile::Vm::GameInstructionSet == +InstructionSet::CC ||
+          Profile::Vm::GameInstructionSet == +InstructionSet::CHLCC) {
         SetFlag(SF_SAVEICON, true);
         ScrWork[SW_SAVEERRORCODE] = (int)SaveSystem::CreateSaveFile();
         SaveSystem::MountSaveFile();
       }
       break;
     case 31:
-      if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
+      if (Profile::Vm::GameInstructionSet == +InstructionSet::CC ||
+          Profile::Vm::GameInstructionSet == +InstructionSet::CHLCC) {
         if (SaveSystem::GetLoadStatus() == LoadStatus::Loading) {
           ResetInstruction;
           BlockThread;
