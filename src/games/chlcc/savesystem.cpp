@@ -83,10 +83,14 @@ void SaveSystem::LoadEntryBuffer(Io::MemoryStream& memoryStream,
   entry.Flags = Io::ReadLE<uint8_t>(&memoryStream);
 
   memoryStream.Seek(30, SEEK_CUR);
-  Io::ReadArrayLE<uint8_t>(entry.FlagWorkScript1, &memoryStream, 50);
-  Io::ReadArrayLE<uint8_t>(entry.FlagWorkScript2, &memoryStream, 100);
-  Io::ReadArrayBE<int>(entry.ScrWorkScript1, &memoryStream, 300);
-  Io::ReadArrayBE<int>(entry.ScrWorkScript2, &memoryStream, 1300);
+  Io::ReadArrayLE<uint8_t>(entry.FlagWorkScript1.data(), &memoryStream,
+                           entry.FlagWorkScript1.size());
+  Io::ReadArrayLE<uint8_t>(entry.FlagWorkScript2.data(), &memoryStream,
+                           entry.FlagWorkScript2.size());
+  Io::ReadArrayBE<int>(entry.ScrWorkScript1.data(), &memoryStream,
+                       entry.ScrWorkScript1.size());
+  Io::ReadArrayBE<int>(entry.ScrWorkScript2.data(), &memoryStream,
+                       entry.ScrWorkScript2.size());
 
   entry.MainThreadExecPriority = Io::ReadBE<uint32_t>(&memoryStream);
   entry.MainThreadGroupId = Io::ReadBE<uint32_t>(&memoryStream);
@@ -130,10 +134,14 @@ void SaveSystem::SaveEntryBuffer(Io::MemoryStream& memoryStream,
   Io::WriteLE<uint8_t>(&memoryStream, entry.Flags);
 
   memoryStream.Seek(30, SEEK_CUR);
-  Io::WriteArrayLE<uint8_t>(entry.FlagWorkScript1, &memoryStream, 50);
-  Io::WriteArrayLE<uint8_t>(entry.FlagWorkScript2, &memoryStream, 100);
-  Io::WriteArrayBE<int>(entry.ScrWorkScript1, &memoryStream, 300);
-  Io::WriteArrayBE<int>(entry.ScrWorkScript2, &memoryStream, 1300);
+  Io::WriteArrayLE<uint8_t>(entry.FlagWorkScript1.data(), &memoryStream,
+                            entry.FlagWorkScript1.size());
+  Io::WriteArrayLE<uint8_t>(entry.FlagWorkScript2.data(), &memoryStream,
+                            entry.FlagWorkScript2.size());
+  Io::WriteArrayBE<int>(entry.ScrWorkScript1.data(), &memoryStream,
+                        entry.ScrWorkScript1.size());
+  Io::WriteArrayBE<int>(entry.ScrWorkScript2.data(), &memoryStream,
+                        entry.ScrWorkScript2.size());
 
   Io::WriteBE<uint32_t>(&memoryStream, entry.MainThreadExecPriority);
   Io::WriteBE<uint32_t>(&memoryStream, entry.MainThreadGroupId);
@@ -356,10 +364,18 @@ void SaveSystem::SaveMemory() {
   WorkingSaveEntry->PlayTime = ScrWork[SW_PLAYTIME];
   WorkingSaveEntry->SwTitle = ScrWork[SW_TITLE];
 
-  memcpy(WorkingSaveEntry->FlagWorkScript1, &FlagWork[50], 50);
-  memcpy(WorkingSaveEntry->FlagWorkScript2, &FlagWork[300], 100);
-  memcpy(WorkingSaveEntry->ScrWorkScript1, &ScrWork[300], 300 * sizeof(int));
-  memcpy(WorkingSaveEntry->ScrWorkScript2, &ScrWork[2300], 1300 * sizeof(int));
+  std::copy(FlagWork.begin() + 50,
+            FlagWork.begin() + 50 + WorkingSaveEntry->FlagWorkScript1.size(),
+            WorkingSaveEntry->FlagWorkScript1.begin());
+  std::copy(FlagWork.begin() + 300,
+            FlagWork.begin() + 300 + WorkingSaveEntry->FlagWorkScript2.size(),
+            WorkingSaveEntry->FlagWorkScript2.begin());
+  std::copy(ScrWork.begin() + 300,
+            ScrWork.begin() + 300 + WorkingSaveEntry->ScrWorkScript1.size(),
+            WorkingSaveEntry->ScrWorkScript1.begin());
+  std::copy(ScrWork.begin() + 2300,
+            ScrWork.begin() + 2300 + WorkingSaveEntry->ScrWorkScript2.size(),
+            WorkingSaveEntry->ScrWorkScript2.begin());
 
   int threadId = ScrWork[SW_MAINTHDP];
   Sc3VmThread* thd = &ThreadPool[threadId & 0x7FFFFFFF];
@@ -403,10 +419,14 @@ void SaveSystem::LoadEntry(SaveType type, int id) {
       ScrWork[SW_PLAYTIME] = entry->PlayTime;
       ScrWork[SW_TITLE] = entry->SwTitle;
 
-      memcpy(&FlagWork[50], entry->FlagWorkScript1, 50);
-      memcpy(&FlagWork[300], entry->FlagWorkScript2, 100);
-      memcpy(&ScrWork[300], entry->ScrWorkScript1, 1200);
-      memcpy(&ScrWork[2300], entry->ScrWorkScript2, 5200);
+      std::copy(entry->FlagWorkScript1.begin(), entry->FlagWorkScript1.end(),
+                FlagWork.begin() + 50);
+      std::copy(entry->FlagWorkScript2.begin(), entry->FlagWorkScript2.end(),
+                FlagWork.begin() + 300);
+      std::copy(entry->ScrWorkScript1.begin(), entry->ScrWorkScript1.end(),
+                ScrWork.begin() + 300);
+      std::copy(entry->ScrWorkScript2.begin(), entry->ScrWorkScript2.end(),
+                ScrWork.begin() + 2300);
 
       // TODO: What to do about this mess I wonder...
       ScrWork[SW_SVSENO] = ScrWork[SW_SEREQNO];
