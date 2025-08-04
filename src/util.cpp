@@ -351,15 +351,14 @@ RectF RectF::BoundingBox(const CornersQuad& first, const RectF& second) {
 }
 
 tm CurrentDateTime() {
-  const auto now = std::chrono::system_clock::now();
-  const auto tp = std::chrono::time_point_cast<std::chrono::days>(now);
-  const auto date = std::chrono::year_month_day(tp);
-  const auto weekday = std::chrono::year_month_weekday(tp).weekday_indexed();
-  const auto time =
-      std::chrono::hh_mm_ss(now - std::chrono::floor<std::chrono::days>(now));
-  const int yday = std::chrono::duration_cast<std::chrono::days>(
-                       now - std::chrono::floor<std::chrono::years>(now))
-                       .count();
+  using namespace std::chrono;
+  const auto zonedTime = zoned_time(current_zone(), system_clock::now());
+  const auto now = zonedTime.get_local_time();
+  const auto tp = time_point_cast<days>(now);
+  const auto date = year_month_day(tp);
+  const auto weekday = year_month_weekday(tp).weekday_indexed();
+  const auto time = hh_mm_ss(now - floor<days>(now));
+  const int yday = duration_cast<days>(now - floor<years>(now)).count();
 
   return tm{
       .tm_sec = (int)time.seconds().count(),
