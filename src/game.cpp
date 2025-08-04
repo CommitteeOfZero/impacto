@@ -180,7 +180,12 @@ void UpdateGameState(float dt) {
   static float UpdateSecondCounter = 0.0f;
   UpdateSecondCounter += dt;
   if (UpdateSecondCounter >= 1) {
-    ScrWork[SW_PLAYTIME]++;
+    constexpr int maxPlayTime = (999 * 60 + 59) * 60 + 59;
+    constexpr int maxTotalPlayTime = (99999 * 60 + 59) * 60 + 59;
+    ScrWork[SW_PLAYTIME] = std::min(ScrWork[SW_PLAYTIME] + 1, maxPlayTime);
+    ScrWork[SW_TOTALPLAYTIME] =
+        std::min(ScrWork[SW_TOTALPLAYTIME] + 1, maxTotalPlayTime);
+
     UpdateSecondCounter -= 1.0f;
   }
 
