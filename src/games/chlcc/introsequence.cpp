@@ -257,7 +257,7 @@ void IntroSequence::DrawExplodingStars() const {
   constexpr size_t numStars = 5;
   for (size_t i = 0; i < numStars; i++) {
     float rayAngle = std::numbers::pi_v<float> / 2.0f -
-                     std::numbers::pi_v<float> * 2.0f / (float)(numStars * i);
+                     (std::numbers::pi_v<float> * 2.0f / numStars) * i;
     glm::vec2 directionVector(std::cos(rayAngle), -std::sin(rayAngle));
     glm::vec2 displacement = directionVector * ExplodingStarAnimation.Progress *
                              IntroExplodingStarAnimationDistance;
