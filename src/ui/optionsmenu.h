@@ -13,7 +13,7 @@ class OptionsMenu : public Menu {
   virtual void Show() override;
   virtual void Hide() override;
   virtual void Update(float dt) override;
-  virtual void UpdateInput(float dt);
+  virtual void UpdateInput(float dt) override;
   virtual void ResetToDefault() { Profile::ConfigSystem::ResetToDefault(); };
 
  protected:

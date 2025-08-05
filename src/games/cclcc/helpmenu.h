@@ -11,11 +11,11 @@ class HelpMenu : public Menu {
  public:
   HelpMenu();
 
-  void Show();
-  void Hide();
-  void Update(float dt);
-  void UpdateInput(float dt);
-  void Render();
+  void Show() override;
+  void Hide() override;
+  void Update(float dt) override;
+  void UpdateInput(float dt) override;
+  void Render() override;
 
   Animation FadeAnimation;
   Animation NextPageAnimation;

@@ -10,10 +10,10 @@ namespace UI {
 
 class SelectionMenu : public Menu {
  public:
-  void Show();
-  void Hide();
-  void Update(float dt);
-  void Render();
+  void Show() override;
+  void Hide() override;
+  void Update(float dt) override;
+  void Render() override;
 
   void Init(bool isPlain);
   void AddChoice(Vm::BufferOffsetContext ctx);

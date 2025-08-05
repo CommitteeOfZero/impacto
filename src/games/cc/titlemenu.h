@@ -14,11 +14,11 @@ class TitleMenu : public Menu {
  public:
   TitleMenu();
 
-  void Show();
-  void Hide();
-  void UpdateInput(float dt);
-  void Update(float dt);
-  void Render();
+  void Show() override;
+  void Hide() override;
+  void UpdateInput(float dt) override;
+  void Update(float dt) override;
+  void Render() override;
 
   Animation PressToStartAnimation;
   Animation ItemsFadeInAnimation;
