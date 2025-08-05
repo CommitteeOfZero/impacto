@@ -1045,7 +1045,7 @@ void TextGetSc3String(std::string_view str, std::span<uint16_t> out) {
   std::string_view::iterator strIt = str.begin();
   std::string_view::iterator strEnd = str.end();
 
-  int sc3StrLength = (int)utf8::distance(strIt, strEnd) + 1;
+  [[maybe_unused]] int sc3StrLength = (int)utf8::distance(strIt, strEnd) + 1;
   assert(sc3StrLength <= out.size());
   int sc3Idx = 0;
   while (strIt != strEnd) {

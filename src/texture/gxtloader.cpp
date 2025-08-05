@@ -366,7 +366,7 @@ bool TextureLoadGXT(Stream* stream, Texture* outTexture) {
 
   uint32_t version = ReadLE<uint32_t>(stream);
   (void)version;
-  uint32_t subtextureCount = ReadLE<uint32_t>(stream);
+  [[maybe_unused]] uint32_t subtextureCount = ReadLE<uint32_t>(stream);
   assert(subtextureCount == 1);
   uint32_t subtexturesOffset = ReadLE<uint32_t>(stream);
   (void)subtexturesOffset;

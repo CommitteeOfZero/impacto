@@ -45,7 +45,7 @@ void Configure() {
   {
     EnsurePushMemberOfType("Playlist", LUA_TTABLE);
 
-    auto size = lua_rawlen(LuaState, -1);
+    [[maybe_unused]] auto size = lua_rawlen(LuaState, -1);
     assert(size == MusicTrackCount);
     PushInitialIndex();
     while (PushNextTableElement() != 0) {

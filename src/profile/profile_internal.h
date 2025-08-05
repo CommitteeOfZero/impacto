@@ -241,7 +241,7 @@ std::vector<T> GetMemberVector(char const* name) {
   EnsurePushMemberOfType(name, LUA_TTABLE);
   PushInitialIndex();
   while (PushNextTableElement()) {
-    size_t i = EnsureGetKey<size_t>() - 1;
+    [[maybe_unused]] size_t i = EnsureGetKey<size_t>() - 1;
     assert(i == result.size());
     result.push_back(EnsureGetArrayElement<T>());
     Pop();

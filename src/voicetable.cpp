@@ -17,7 +17,7 @@ bool VoiceTable::LoadSync(uint32_t id) {
     VoiceMeta voiceMeta{dataIndex, voiceLengthSecTimes6};
     TableOfContents[i] = voiceMeta;
   }
-  const size_t endToc = 4 * VoiceFileCount + 4;
+  [[maybe_unused]] const size_t endToc = 4 * VoiceFileCount + 4;
   assert((size_t)stream->Position == endToc);
   LipSyncData.resize(stream->Meta.Size - stream->Position);
   stream->Read(LipSyncData.data(), LipSyncData.size());

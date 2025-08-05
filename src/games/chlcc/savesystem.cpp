@@ -221,7 +221,7 @@ SaveError SaveSystem::WriteSaveFile() {
   Io::WriteArrayLE<uint8_t>(SystemData.data(), stream, SystemData.size());
 
   for (auto& entryArray : {QuickSaveEntries, FullSaveEntries}) {
-    int64_t saveDataPos = stream->Position;
+    [[maybe_unused]] int64_t saveDataPos = stream->Position;
     for (int i = 0; i < MaxSaveEntries; i++) {
       assert(stream->Position - saveDataPos == i * 0x2000);
       SaveFileEntry* entry = (SaveFileEntry*)entryArray[i];
