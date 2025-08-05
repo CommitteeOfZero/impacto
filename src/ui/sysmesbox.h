@@ -10,12 +10,12 @@ namespace UI {
 
 class SysMesBox : public Menu {
  public:
-  virtual void Show();
-  virtual void Hide();
-  virtual void Update(float dt);
-  virtual void Render();
+  virtual void Show() override;
+  virtual void Hide() override;
+  virtual void Update(float dt) override;
+  virtual void Render() override;
 
-  virtual void Init();
+  virtual void Init() override;
   virtual void AddMessage(Vm::BufferOffsetContext str);
   virtual void AddChoice(Vm::BufferOffsetContext str);
 
