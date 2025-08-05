@@ -66,7 +66,7 @@ void ClearListMenu::Update(float dt) {
   }
 
   if (State == Shown && ScrWork[SW_SYSSUBMENUNO] == 7) {
-    UpdateInput();
+    UpdateInput(dt);
   }
 
   if (State == Showing && FadeAnimation.Progress == 1.0f &&

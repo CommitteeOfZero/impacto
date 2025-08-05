@@ -40,7 +40,7 @@ glm::vec2 SystemMenuEntryButton::RotatePoint(const glm::vec2& point,
 
   return glm::vec2{xnew, ynew} + center;
 }
-void SystemMenuEntryButton::UpdateInput() {
+void SystemMenuEntryButton::UpdateInput(float dt) {
   if (Enabled) {
     float rotationAngle = -0.2618f;
     const RectF& bounds = (HoverBounds != RectF{}) ? HoverBounds : Bounds;

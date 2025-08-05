@@ -73,9 +73,9 @@ void TipsEntryButton::Update(float dt) {
   }
 }
 
-void TipsEntryButton::UpdateInput() {
+void TipsEntryButton::UpdateInput(float dt) {
   if (TipsTabBounds.Intersects(Bounds) || TipsTabBounds.Contains(Bounds)) {
-    Button::UpdateInput();
+    Button::UpdateInput(dt);
   }
 }
 

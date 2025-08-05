@@ -60,12 +60,12 @@ void OptionsBinaryButton::Update(float dt) {
   FalseButton.Update(dt);
 }
 
-void OptionsBinaryButton::UpdateInput() {
+void OptionsBinaryButton::UpdateInput(float dt) {
   // Handle mouse/touch input
-  TrueButton.UpdateInput();
-  FalseButton.UpdateInput();
+  TrueButton.UpdateInput(dt);
+  FalseButton.UpdateInput(dt);
 
-  OptionsEntry::UpdateInput();
+  OptionsEntry::UpdateInput(dt);
 
   if (!Selected) return;
 

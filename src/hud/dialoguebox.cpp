@@ -101,7 +101,7 @@ void DialogueBox::Render(DialoguePageMode mode, bool hasName, float nameWidth,
 
 void DialogueBox::UpdateControlButtons(float dt) {
   for (auto button : ControlButtons) {
-    button->UpdateInput();
+    button->UpdateInput(dt);
     button->Update(dt);
   }
 }

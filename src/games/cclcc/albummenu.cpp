@@ -128,9 +128,9 @@ AlbumThumbnail::AlbumThumbnail(int id, uint8_t gridId,
   Page = AlbumData[id].PageNumber;
 };
 
-void AlbumThumbnail::UpdateInput() {
+void AlbumThumbnail::UpdateInput(float dt) {
   if (Menu.ActivePage == Page) {
-    Button::UpdateInput();
+    Button::UpdateInput(dt);
   }
 }
 

@@ -18,7 +18,7 @@ class Menu {
   virtual void Update(float dt) = 0;
   virtual void Render() = 0;
 
-  virtual void UpdateInput();
+  virtual void UpdateInput(float dt);
 
   MenuState State = Hidden;
 

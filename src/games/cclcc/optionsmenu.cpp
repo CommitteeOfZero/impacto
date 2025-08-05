@@ -276,7 +276,7 @@ void OptionsMenu::UpdatePageInput(float dt) {
   // Mouse input
   for (ClickArea& button : PageButtons) {
     const bool wasHovered = button.Hovered;
-    button.UpdateInput();
+    button.UpdateInput(dt);
     if (!wasHovered && button.Hovered) PageButtonOnHover(button.Id);
   }
 

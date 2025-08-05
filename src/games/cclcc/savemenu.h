@@ -17,7 +17,7 @@ class SaveMenu : public UI::SaveMenu {
   void Show() override;
   void Hide() override;
   void Update(float dt) override;
-  void UpdateInput() override;
+  void UpdateInput(float dt) override;
   void Render() override;
 
   void MenuButtonOnClick(Widgets::Button* target);

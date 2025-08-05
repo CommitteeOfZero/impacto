@@ -68,7 +68,7 @@ BacklogEntry::BacklogEntry(int id, Vm::BufferOffsetContext scrCtx, int audioId,
 
 BacklogEntry::~BacklogEntry() { delete BacklogPage; }
 
-void BacklogEntry::UpdateInput() {
+void BacklogEntry::UpdateInput(float dt) {
   if (Enabled) {
     RectF entryHoverBounds =
         RectF(HoverBounds.X, Bounds.Y, HoverBounds.Width, Bounds.Height);

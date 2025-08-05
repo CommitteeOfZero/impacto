@@ -296,7 +296,7 @@ void MusicMenu::UpdateInput(float dt) {
       PlayMode = MusicMenuPlayingMode::_from_integral(
           (PlayMode._to_integral() + 1) % MusicMenuPlayingMode::_size());
     }
-    ModeButton.UpdateInput();
+    ModeButton.UpdateInput(dt);
 
     const uint32_t btnUp = PADcustom[0];
     const uint32_t btnDown = PADcustom[1];

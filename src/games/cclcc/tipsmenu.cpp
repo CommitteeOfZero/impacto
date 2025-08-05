@@ -191,8 +191,8 @@ void TipsMenu::Hide() {
   }
 }
 
-void TipsMenu::UpdateInput() {
-  Menu::UpdateInput();
+void TipsMenu::UpdateInput(float dt) {
+  Menu::UpdateInput(dt);
   if (State == Shown) {
     if (PADinputButtonWentDown & PAD1R1) {
       TipsTabType type =
@@ -257,9 +257,9 @@ void TipsMenu::Update(float dt) {
 
   if (State == Shown && ScrWork[SW_SYSSUBMENUNO] == 2) {
     float oldPageY = TipPageY;
-    UpdateInput();
+    UpdateInput(dt);
     if (TipsScrollbar) {
-      TipsScrollbar->UpdateInput();
+      TipsScrollbar->UpdateInput(dt);
       TipsScrollbar->Update(dt);
       if (oldPageY != TipPageY) {
         TextPage.Move({0, oldPageY - TipPageY});

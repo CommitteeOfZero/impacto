@@ -17,7 +17,7 @@ class Button : public Widget {
   Button(int id, Sprite const& norm, Sprite const& focused,
          Sprite const& highlight, glm::vec2 pos, RectF hoverBounds = RectF{});
 
-  virtual void UpdateInput() override;
+  virtual void UpdateInput(float dt) override;
   virtual void Render() override;
   virtual void Move(glm::vec2 relativePosition) override;
   virtual void Move(glm::vec2 relativePosition, float duration) override;

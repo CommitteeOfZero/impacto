@@ -57,11 +57,11 @@ void OptionsSlider::Update(float dt) {
   Slider.Update(dt);
 }
 
-void OptionsSlider::UpdateInput() {
-  OptionsEntry::UpdateInput();
+void OptionsSlider::UpdateInput(float dt) {
+  OptionsEntry::UpdateInput(dt);
 
   Slider.HasFocus = Selected;
-  Slider.UpdateInput();
+  Slider.UpdateInput(dt);
   Slider.ClampValue();
 }
 

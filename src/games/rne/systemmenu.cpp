@@ -77,7 +77,7 @@ void SystemMenu::Hide() {
 }
 
 void SystemMenu::Update(float dt) {
-  UpdateInput();
+  UpdateInput(dt);
 
   if (ScrWork[SW_SYSMENUALPHA] < 256 && State == Shown) {
     Hide();

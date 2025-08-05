@@ -40,7 +40,7 @@ Toggle::Toggle(int id, bool* value, Sprite const& enabled,
   LabelOffset = labelOfs;
 }
 
-void Toggle::UpdateInput() {
+void Toggle::UpdateInput(float dt) {
   if (Enabled) {
     if (Input::CurrentInputDevice == Input::Device::Mouse &&
         Input::PrevMousePos != Input::CurMousePos) {

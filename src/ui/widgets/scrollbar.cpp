@@ -92,7 +92,7 @@ Scrollbar::Scrollbar(int id, glm::vec2 pos, float start, float end,
   UpdatePosition();
 }
 
-void Scrollbar::UpdateInput() {
+void Scrollbar::UpdateInput(float dt) {
   if (Enabled) {
     if (HasFocus) {
       switch (Direction) {

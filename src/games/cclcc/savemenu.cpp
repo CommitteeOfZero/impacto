@@ -212,9 +212,9 @@ void SaveMenu::Hide() {
   }
 }
 
-void SaveMenu::UpdateInput() {
+void SaveMenu::UpdateInput(float dt) {
   using namespace Vm::Interface;
-  Menu::UpdateInput();
+  Menu::UpdateInput(dt);
   const auto updatePage = [&](int nextPage) {
     PrevPage = CurrentPage;
     if (CurrentlyFocusedElement) {
@@ -257,7 +257,7 @@ void SaveMenu::Update(float dt) {
   if (State == Shown &&
       (ScrWork[SW_SYSSUBMENUNO] == 0 || ScrWork[SW_SYSSUBMENUNO] == 3 ||
        ScrWork[SW_SYSSUBMENUNO] == 4)) {
-    UpdateInput();
+    UpdateInput(dt);
   }
 
   if (State == Showing && FadeAnimation.Progress == 1.0f &&

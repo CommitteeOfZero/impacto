@@ -144,7 +144,7 @@ void SelectionMenu::Hide() {
 }
 
 void SelectionMenu::Update(float dt) {
-  UpdateInput();
+  UpdateInput(dt);
   FadeAnimation.Update(dt);
   if (State != Hidden) {
     if (FadeAnimation.IsIn()) State = Shown;

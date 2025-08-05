@@ -914,7 +914,7 @@ bool MapSystemCCLCC::MapPlayerPhotoSelect(int unused) {
     if (PhotoSelClick) {
       for (size_t i = 0; i < MapPool.size(); i++) {
         if (MapPool[i].id != 0xff && MapPool[i].button.Enabled) {
-          MapPool[i].button.UpdateInput();
+          MapPool[i].button.UpdateInput(0.0f);
           if (MapPool[i].button.Hovered) {
             HoverMapPoolIdx = (int)i;
           }

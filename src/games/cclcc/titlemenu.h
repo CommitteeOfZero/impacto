@@ -18,7 +18,7 @@ class TitleMenu : public Menu {
 
   void Show();
   void Hide();
-  void UpdateInput();
+  void UpdateInput(float dt);
   void Update(float dt);
   void Render();
 
