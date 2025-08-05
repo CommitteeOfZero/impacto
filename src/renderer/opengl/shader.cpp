@@ -305,10 +305,10 @@ MaskedSpriteNoAlphaShader::MaskedSpriteNoAlphaShader(GLint programId)
           glGetUniformLocation(programId, "SpriteTransformation")),
       MaskTransformationLocation(
           glGetUniformLocation(programId, "MaskTransformation")),
-      AlphaLocation(glGetUniformLocation(programId, "Alpha")),
-      IsInvertedLocation(glGetUniformLocation(programId, "IsInverted")),
       ColorMapLocation(glGetUniformLocation(programId, "ColorMap")),
-      MaskLocation(glGetUniformLocation(programId, "Mask")) {
+      MaskLocation(glGetUniformLocation(programId, "Mask")),
+      AlphaLocation(glGetUniformLocation(programId, "Alpha")),
+      IsInvertedLocation(glGetUniformLocation(programId, "IsInverted")) {
   UploadVar(Uniforms.Projection, ProjectionLocation);
   UploadVar(Uniforms.SpriteTransformation, SpriteTransformationLocation);
   UploadVar(Uniforms.MaskTransformation, MaskTransformationLocation);
@@ -339,11 +339,11 @@ MaskedSpriteShader::MaskedSpriteShader(GLint programId)
           glGetUniformLocation(programId, "SpriteTransformation")),
       MaskTransformationLocation(
           glGetUniformLocation(programId, "MaskTransformation")),
+      ColorMapLocation(glGetUniformLocation(programId, "ColorMap")),
+      MaskLocation(glGetUniformLocation(programId, "Mask")),
       AlphaLocation(glGetUniformLocation(programId, "Alpha")),
       IsInvertedLocation(glGetUniformLocation(programId, "IsInverted")),
-      IsSameTextureLocation(glGetUniformLocation(programId, "IsSameTexture")),
-      ColorMapLocation(glGetUniformLocation(programId, "ColorMap")),
-      MaskLocation(glGetUniformLocation(programId, "Mask")) {
+      IsSameTextureLocation(glGetUniformLocation(programId, "IsSameTexture")) {
   UploadVar(Uniforms.Projection, ProjectionLocation);
   UploadVar(Uniforms.SpriteTransformation, SpriteTransformationLocation);
   UploadVar(Uniforms.MaskTransformation, MaskTransformationLocation);
@@ -624,9 +624,9 @@ void AdditiveMaskedSpriteShader::UploadUniforms(
 CCMessageBoxShader::CCMessageBoxShader(GLint programId)
     : Shader(programId),
       ProjectionLocation(glGetUniformLocation(programId, "Projection")),
-      AlphaLocation(glGetUniformLocation(programId, "Alpha")),
       ColorMapLocation(glGetUniformLocation(programId, "ColorMap")),
-      MaskLocation(glGetUniformLocation(programId, "Mask")) {
+      MaskLocation(glGetUniformLocation(programId, "Mask")),
+      AlphaLocation(glGetUniformLocation(programId, "Alpha")) {
   UploadVar(Uniforms.Projection, ProjectionLocation);
   UploadVar(Uniforms.ColorMap, ColorMapLocation);
   UploadVar(Uniforms.Mask, MaskLocation);
@@ -644,9 +644,9 @@ void CCMessageBoxShader::UploadUniforms(CCMessageBoxUniforms newUniforms) {
 CHLCCMenuBackgroundShader::CHLCCMenuBackgroundShader(GLint programId)
     : Shader(programId),
       ProjectionLocation(glGetUniformLocation(programId, "Projection")),
-      AlphaLocation(glGetUniformLocation(programId, "Alpha")),
       ColorMapLocation(glGetUniformLocation(programId, "ColorMap")),
-      MaskLocation(glGetUniformLocation(programId, "Mask")) {
+      MaskLocation(glGetUniformLocation(programId, "Mask")),
+      AlphaLocation(glGetUniformLocation(programId, "Alpha")) {
   UploadVar(Uniforms.Projection, ProjectionLocation);
   UploadVar(Uniforms.ColorMap, ColorMapLocation);
   UploadVar(Uniforms.Mask, MaskLocation);

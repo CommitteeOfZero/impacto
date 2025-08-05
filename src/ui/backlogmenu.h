@@ -13,8 +13,8 @@ class BacklogMenu : public Menu {
  public:
   BacklogMenu();
 
-  virtual void Show();
-  virtual void Hide();
+  virtual void Show() override;
+  virtual void Hide() override;
   virtual void Update(float dt);
   virtual void UpdateInput(float dt);
   virtual void Render();

@@ -206,7 +206,8 @@ uint32_t Renderer::SubmitTexture(TexFmt format, uint8_t* buffer, int width,
 
 int Renderer::GetSpriteSheetImage(SpriteSheet const& sheet,
                                   std::span<uint8_t> outBuffer) {
-  const int bufferSize = (int)sheet.DesignWidth * (int)sheet.DesignHeight * 4;
+  const size_t bufferSize =
+      (size_t)sheet.DesignWidth * (size_t)sheet.DesignHeight * 4;
   assert(outBuffer.size() >= bufferSize);
   glBindTexture(GL_TEXTURE_2D, sheet.Texture);
 
@@ -300,14 +301,14 @@ void Renderer::InsertVerticesQuad(const CornersQuad pos, const CornersQuad uv,
 
 void Renderer::UseTextures(
     const std::span<const std::pair<uint32_t, size_t>> textureUnitPairs) {
-  for (const auto [textureId, unitIndex] : textureUnitPairs) {
+  for (const auto& [textureId, unitIndex] : textureUnitPairs) {
     if (TextureUnits[unitIndex].TextureId != textureId &&
         TextureUnits[unitIndex].InUse) {
       Flush();
     }
   }
 
-  for (const auto [textureId, unitIndex] : textureUnitPairs) {
+  for (const auto& [textureId, unitIndex] : textureUnitPairs) {
     TextureUnit& textureUnit = TextureUnits[unitIndex];
 
     // Always update the active texture in case the texture contents of the same

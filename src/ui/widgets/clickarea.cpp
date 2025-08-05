@@ -13,7 +13,7 @@ ClickArea::ClickArea(int id, RectF bounds) : Id(id), Clickable(false) {
 
 ClickArea::ClickArea(int id, RectF bounds,
                      std::function<void(ClickArea*)> onClickHandler)
-    : Id(id), OnClickHandler(onClickHandler), Clickable(true) {
+    : Id(id), Clickable(true), OnClickHandler(onClickHandler) {
   Bounds = bounds;
 }
 
@@ -21,8 +21,8 @@ void ClickArea::UpdateInput() {
   if (!Enabled) return;
 
   if (Input::CurrentInputDevice == Input::Device::Mouse &&
-      (Input::PrevMousePos != Input::CurMousePos &&
-           !(Vm::Interface::PADinputMouseIsDown & Vm::Interface::PAD1A) ||
+      ((Input::PrevMousePos != Input::CurMousePos &&
+        !(Vm::Interface::PADinputMouseIsDown & Vm::Interface::PAD1A)) ||
        Vm::Interface::PADinputMouseWentDown)) {
     Hovered = Bounds.ContainsPoint(Input::CurMousePos);
   } else if (Input::CurrentInputDevice == Input::Device::Touch &&

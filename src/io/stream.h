@@ -89,13 +89,13 @@ inline T ReadSwap(Stream* stream) {
 template <size_t count, typename T>
 inline void ReadArraySwap(T* dest, Stream* stream) {
   ReadArrayWithoutSwap<count, T>(dest, stream);
-  for (int i = 0; i < count; i++) dest[i] = SwapHelper<T>(dest[i]);
+  for (size_t i = 0; i < count; i++) dest[i] = SwapHelper<T>(dest[i]);
 }
 
 template <typename T>
 inline void ReadArraySwap(T* dest, Stream* stream, size_t count) {
   ReadArrayWithoutSwap<T>(dest, stream, count);
-  for (int i = 0; i < count; i++) dest[i] = SwapHelper<T>(dest[i]);
+  for (size_t i = 0; i < count; i++) dest[i] = SwapHelper<T>(dest[i]);
 }
 
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
@@ -225,14 +225,14 @@ inline void WriteSwap(Stream* stream, T value) {
 template <size_t count, typename T>
 inline void WriteArraySwap(T* src, Stream* stream) {
   std::array<T, count> swapped;
-  for (int i = 0; i < count; i++) swapped[i] = SwapHelper<T>(src[i]);
+  for (size_t i = 0; i < count; i++) swapped[i] = SwapHelper<T>(src[i]);
   WriteArrayWithoutSwap<count, T>(swapped.data(), stream);
 }
 
 template <typename T>
 inline void WriteArraySwap(T* src, Stream* stream, size_t count) {
   std::vector<T> swapped(src, src + count);
-  for (int i = 0; i < count; i++) swapped[i] = SwapHelper(src[i]);
+  for (size_t i = 0; i < count; i++) swapped[i] = SwapHelper(src[i]);
   WriteArrayWithoutSwap<T>(swapped.data(), stream, count);
 }
 

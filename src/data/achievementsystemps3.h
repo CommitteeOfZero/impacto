@@ -22,12 +22,12 @@ typedef enum {
 
 // From: https://www.psdevwiki.com/ps3/TROPHY.TRP
 struct TrophyDataHeader {
-  uint32_t magic;
-  uint32_t version;  // 1
-  uint64_t file_size;
-  uint32_t file_count;
-  uint32_t entry_size;
-  uint32_t dev_flag;  // 1: dev
+  uint32_t magic = 0;
+  uint32_t version = 0;  // 1
+  uint64_t file_size = 0;
+  uint32_t file_count = 0;
+  uint32_t entry_size = 0;
+  uint32_t dev_flag = 0;  // 1: dev
 };
 
 struct TrophyDataEntry {

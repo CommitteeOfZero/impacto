@@ -280,7 +280,8 @@ int ResizeImage(Rect const& srcRect, Rect const& dstRect,
   const uint32_t sdlFormat = SDL_PIXELFORMAT_RGBA32;
   const int bytesPerPixel = 4;
 
-  assert(src.size() >= srcRect.Width * srcRect.Height * bytesPerPixel);
+  assert(src.size() >=
+         (size_t)(srcRect.Width * srcRect.Height * bytesPerPixel));
   SurfacePtr srcSurface(
       SDL_CreateRGBSurfaceWithFormatFrom(
           src.data(), srcRect.Width, srcRect.Height, bytesPerPixel * 8,
@@ -292,7 +293,7 @@ int ResizeImage(Rect const& srcRect, Rect const& dstRect,
            "SDL_CreateRGBSurfaceWithFormatFrom failed: {:s}\n", SDL_GetError());
     return -1;
   }
-  assert(dst.size() >= dstRect.Width * dstRect.Height * 4);
+  assert(dst.size() >= (size_t)(dstRect.Width * dstRect.Height * 4));
   SurfacePtr dstSurface(
       SDL_CreateRGBSurfaceWithFormatFrom(
           dst.data(), dstRect.Width, dstRect.Height, bytesPerPixel * 8,

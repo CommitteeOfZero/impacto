@@ -1813,7 +1813,8 @@ void Renderer::CaptureScreencap(Sprite& sprite) {
 
 int Renderer::GetSpriteSheetImage(SpriteSheet const& sheet,
                                   std::span<uint8_t> outBuffer) {
-  const int bufferSize = (int)(sheet.DesignWidth * sheet.DesignHeight * 4);
+  const size_t bufferSize =
+      (size_t)(sheet.DesignWidth * sheet.DesignHeight * 4);
   assert(outBuffer.size() >= bufferSize);
 
   // Create a staging buffer to copy the image data to

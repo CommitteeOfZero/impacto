@@ -211,8 +211,6 @@ void TipsMenu::UpdateInput() {
     }
 
     if (CurrentlyDisplayedTipId != -1) {
-      RectF lastCharDest = TextPage.Glyphs.back().DestRect;
-
       int scrollDistance = 10;
       if (Input::CurMousePos != Input::PrevMousePos) {
         MouseInTextBounds =

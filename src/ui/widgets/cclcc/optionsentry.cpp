@@ -16,10 +16,10 @@ OptionsEntry::OptionsEntry(const Sprite& label, glm::vec2 pos,
                            glm::vec4 highlightTint,
                            std::function<void(OptionsEntry*)> select,
                            std::function<void(Widget*)> highlight)
-    : LabelSprite(label),
-      HighlightTint(highlightTint),
-      Select(select),
-      Highlight(highlight) {
+    : Select(select),
+      Highlight(highlight),
+      LabelSprite(label),
+      HighlightTint(highlightTint) {
   Bounds = RectF(pos.x, pos.y, LabelOffset.x + LabelSprite.ScaledWidth(),
                  LabelOffset.y + LabelSprite.ScaledHeight());
 

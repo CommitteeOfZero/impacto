@@ -120,8 +120,8 @@ AlbumThumbnail::AlbumThumbnail(int id, uint8_t gridId,
                                glm::vec2 gridDispPosition,
                                AlbumMenu const& albumMenu)
     : Widgets::Button(),
-      GridId(gridId),
       GridPos(gridDispPosition),
+      GridId(gridId),
       Menu(albumMenu) {
   Id = id;
   IndexInPage = AlbumData[id].IndexInPage;
@@ -362,7 +362,7 @@ void AlbumMenu::UpdateCGViewer(float dt) {
   if (controllerADown || (mouseWentUp && CGViewer->ClickHoldTime < 0.1)) {
     const auto& variants = CGViewer->ClickedThumbnail.get().Variants;
     CGViewer->ActiveVariantIndex++;
-    if (CGViewer->ActiveVariantIndex < variants.size()) {
+    if (CGViewer->ActiveVariantIndex < (int)variants.size()) {
       ScrWork[SW_ALBUM_LOADFILE] =
           Profile::SaveSystem::AlbumData[CGViewer->ActiveThumbnailIndex]
                                         [CGViewer->ActiveVariantIndex][0];

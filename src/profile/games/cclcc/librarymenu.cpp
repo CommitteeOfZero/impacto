@@ -125,8 +125,6 @@ void Configure() {
   MusicItemsBackgroundSprite =
       EnsureGetMember<Sprite>("MusicItemsBackgroundSprite");
   MusicItemsOverlaySprite = EnsureGetMember<Sprite>("MusicItemsOverlaySprite");
-  MusicItemsBackgroundPosition =
-      EnsureGetMember<glm::vec2>("MusicItemsBackgroundPosition");
   MusicRenderingBounds = EnsureGetMember<RectF>("MusicRenderingBounds");
   MusicHoverBounds = EnsureGetMember<RectF>("MusicHoverBounds");
   MusicPlayIds = GetMemberVector<uint8_t>("MusicPlayIds");

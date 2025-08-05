@@ -28,8 +28,7 @@ void TipsSystem::DataInit(uint32_t scriptBufferId, uint32_t tipsDataAdr,
   auto unk01 = ReadLE<uint16_t>(stream);
   while (unk01 != 255) {
     // Read tip entry from the data array
-    TipsDataRecord record;
-    memset(&record, 0, sizeof(TipsDataRecord));
+    TipsDataRecord record{.IsLocked = false, .IsUnread = false, .IsNew = false};
     record.Id = (uint16_t)idx;
     // I don't know, I don't care, this is not my magic
     record.SortLetterIndex = (unk01 - 5 * ((unk01 + 1) / 10) - 6);

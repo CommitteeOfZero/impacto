@@ -344,7 +344,7 @@ void TitleMenu::Update(float dt) {
         if (MemoriesItems->IsShown && !MainItems->IsShown) {
           MainItems->IsShown = true;
         }
-      }
+      } break;
       case 11: {  // Secondary menu System Fade In
         if (!SystemItems->IsShown && ScrWork[SW_TITLECT] == 0) {
           ShowSystemItems();

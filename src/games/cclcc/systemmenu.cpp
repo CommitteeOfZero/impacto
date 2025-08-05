@@ -75,7 +75,7 @@ void SystemMenu::Show() {
     MenuFade.StartIn();
     // If the function was called due to a submenu opening directly,
     // then don't take over focus
-    if (!(ScrWork[SW_SYSMENUCT] == 32 && ScrWork[SW_SYSSUBMENUCT] ||
+    if (!((ScrWork[SW_SYSMENUCT] == 32 && ScrWork[SW_SYSSUBMENUCT]) ||
           ScrWork[SW_CLRALPHA])) {
       if (UI::FocusedMenu != 0) {
         LastFocusedMenu = UI::FocusedMenu;
