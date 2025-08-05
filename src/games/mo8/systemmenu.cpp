@@ -83,7 +83,7 @@ void SystemMenu::Hide() {
 }
 
 void SystemMenu::Update(float dt) {
-  UpdateInput();
+  UpdateInput(dt);
 
   FadeAnimation.Update(dt);
   if (ScrWork[SW_SYSMENUCT] < 32 && State == Shown) {

@@ -270,7 +270,7 @@ void TitleMenu::Hide() {
 }
 
 void TitleMenu::Update(float dt) {
-  UpdateInput();
+  UpdateInput(dt);
   PressToStartAnimation.Update(dt);
   SpinningCircleAnimation.Update(dt);
   SpinningCircleFlashingAnimation.Update(dt);

@@ -63,7 +63,7 @@ Label::Label(std::string_view str, glm::vec2 pos, float fontSize,
   SetText(str, fontSize, outlineMode, colorPair);
 }
 
-void Label::UpdateInput() {}
+void Label::UpdateInput(float dt) {}
 
 void Label::Update(float dt) { Widget::Update(dt); }
 

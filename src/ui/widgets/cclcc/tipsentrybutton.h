@@ -16,7 +16,7 @@ class TipsEntryButton : public Widgets::Button {
   TipsEntryButton(int tipId, int dispId, RectF const& dest,
                   Sprite const& highlight, bool isNew);
   void Update(float dt) override;
-  void UpdateInput() override;
+  void UpdateInput(float dt) override;
   void Render() override;
   void Move(glm::vec2 pos) override;
   void MoveTo(glm::vec2 pos) override;

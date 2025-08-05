@@ -27,7 +27,7 @@ class Scrollbar : public Widget {
             Sprite const& fill, glm::vec2 thumbOffset = glm::vec2(0.0f, 0.0f),
             float thumbLength = 0.0f, RectF wheelBounds = RectF(),
             float wheelSpeedMultiplier = 1.0f);
-  virtual void UpdateInput() override;
+  virtual void UpdateInput(float dt) override;
   virtual void Update(float dt) override;
   virtual void Render() override;
 

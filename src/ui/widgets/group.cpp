@@ -68,10 +68,10 @@ void Group::Add(Widget* widget, FocusDirection dir) {
 
 WidgetType Group::GetType() { return WT_GROUP; }
 
-void Group::UpdateInput() {
+void Group::UpdateInput(float dt) {
   for (const auto& el : Children) {
     if (el->GetType() == WT_NORMAL) {
-      el->UpdateInput();
+      el->UpdateInput(dt);
       if (el->Enabled && el->Hovered && el->Bounds.Intersects(HoverBounds) &&
           (Input::CurrentInputDevice == Input::Device::Mouse ||
            Input::CurrentInputDevice == Input::Device::Touch)) {
@@ -89,7 +89,7 @@ void Group::Update(float dt) {
   if (IsShown) {
     Widget::Update(dt);
     if ((FocusLock && HasFocus) || !FocusLock) {
-      UpdateInput();
+      UpdateInput(dt);
     }
     bool isFocused = false;
     for (const auto& el : Children) {

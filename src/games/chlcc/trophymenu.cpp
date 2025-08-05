@@ -147,7 +147,7 @@ void TrophyMenu::Render() {
   MainItems[CurrentPage].Render();
 }
 
-void TrophyMenu::UpdateInput() {
+void TrophyMenu::UpdateInput(float dt) {
   if (IsFocused) {
     if (PADinputButtonWentDown & PAD1DOWN) {
       if (CurrentPage < 8) {
@@ -164,7 +164,7 @@ void TrophyMenu::UpdateInput() {
 }
 
 void TrophyMenu::Update(float dt) {
-  UpdateInput();
+  UpdateInput(dt);
 
   if (ScrWork[SW_SYSMENUCT] < 32 && State == Shown) {
     Hide();

@@ -17,7 +17,7 @@ ClickArea::ClickArea(int id, RectF bounds,
   Bounds = bounds;
 }
 
-void ClickArea::UpdateInput() {
+void ClickArea::UpdateInput(float dt) {
   if (!Enabled) return;
 
   if (Input::CurrentInputDevice == Input::Device::Mouse &&

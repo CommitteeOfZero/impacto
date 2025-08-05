@@ -214,7 +214,7 @@ void TitleMenu::Hide() {
 }
 
 void TitleMenu::Update(float dt) {
-  UpdateInput();
+  UpdateInput(dt);
 
   PrimaryFadeAnimation.Update(dt);
   MainItemsHideAnimation.Update(dt);

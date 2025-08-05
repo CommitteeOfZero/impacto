@@ -141,7 +141,7 @@ void SaveMenu::Hide() {
 }
 
 void SaveMenu::Update(float dt) {
-  UpdateInput();
+  UpdateInput(dt);
 
   FadeAnimation.Update(dt);
   if (ScrWork[SW_FILEALPHA] < 256 && State == Shown) {

@@ -71,9 +71,9 @@ void OptionsVoiceSlider::Update(float dt) {
   MuteButton.Update(dt);
 }
 
-void OptionsVoiceSlider::UpdateInput() {
-  OptionsSlider::UpdateInput();
-  MuteButton.UpdateInput();
+void OptionsVoiceSlider::UpdateInput(float dt) {
+  OptionsSlider::UpdateInput(dt);
+  MuteButton.UpdateInput(dt);
 
   if (!HasFocus) return;
 

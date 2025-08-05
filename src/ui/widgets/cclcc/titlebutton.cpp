@@ -19,11 +19,11 @@ TitleButton::TitleButton(int id, Sprite const& norm, Sprite const& focused,
   ChoiceBlinkAnimation.DurationOut = 0;
 }
 
-void TitleButton::UpdateInput() {
+void TitleButton::UpdateInput(float dt) {
   if (Enabled &&
       (IsSubButton || HighlightAnimation.State == +AnimationState::Stopped) &&
       ChoiceBlinkAnimation.IsOut()) {
-    Button::UpdateInput();
+    Button::UpdateInput(dt);
   }
 }
 

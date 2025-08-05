@@ -32,7 +32,7 @@ void CgViewer::Hide() {
   Widget::Hide();
 }
 
-void CgViewer::UpdateInput() {
+void CgViewer::UpdateInput(float dt) {
   if (PADinputMouseIsDown & PAD1A) {
     Position[CurrentVariation] += Input::CurMousePos - Input::PrevMousePos;
   }

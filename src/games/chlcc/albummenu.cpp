@@ -162,8 +162,8 @@ void AlbumMenu::Render() {
   }
 }
 
-void AlbumMenu::UpdateInput() {
-  Menu::UpdateInput();
+void AlbumMenu::UpdateInput(float dt) {
+  Menu::UpdateInput(dt);
   if (State == Shown) {
     if (PADinputButtonWentDown & PAD1B || PADinputMouseWentDown & PAD1B) {
       if (CgViewerGroup->IsShown) {
@@ -177,7 +177,7 @@ void AlbumMenu::UpdateInput() {
 }
 
 void AlbumMenu::Update(float dt) {
-  UpdateInput();
+  UpdateInput(dt);
   if (ScrWork[SW_SYSMENUCT] < 32 && State == Shown) {
     Hide();
   } else if (GetFlag(SF_ALBUMMENU) && ScrWork[SW_SYSMENUCT] > 0 &&

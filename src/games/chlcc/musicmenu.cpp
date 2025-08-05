@@ -185,7 +185,7 @@ void MusicMenu::Render() {
 }
 
 void MusicMenu::Update(float dt) {
-  UpdateInput();
+  UpdateInput(dt);
   if (ScrWork[SW_SYSMENUCT] < 32 && State == Shown) {
     Hide();
   } else if (GetFlag(SF_SOUNDMENU) && ScrWork[SW_SYSMENUCT] > 0 &&
@@ -251,10 +251,10 @@ void MusicMenu::Update(float dt) {
   }
 }
 
-void MusicMenu::UpdateInput() {
-  Menu::UpdateInput();
+void MusicMenu::UpdateInput(float dt) {
+  Menu::UpdateInput(dt);
   if (State == Shown) {
-    MainItems->UpdateInput();
+    MainItems->UpdateInput(dt);
 
     if (PADinputButtonWentDown & PAD1Y) {
       auto mode = (int)PlaybackMode + 1;

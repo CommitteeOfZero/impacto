@@ -23,7 +23,7 @@ class Widget {
   virtual ~Widget() = default;
 
   virtual void Update(float dt);
-  virtual void UpdateInput() = 0;
+  virtual void UpdateInput(float dt) = 0;
   virtual void Render() = 0;
 
   virtual void Show();

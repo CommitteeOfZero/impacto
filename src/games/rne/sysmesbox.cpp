@@ -106,7 +106,7 @@ void SysMesBox::Hide() {
 }
 
 void SysMesBox::Update(float dt) {
-  UpdateInput();
+  UpdateInput(dt);
 
   FadeAnimation.Update(dt);
 

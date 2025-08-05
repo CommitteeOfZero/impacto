@@ -205,7 +205,7 @@ void BacklogMenu::UpdateScrollingInput(float dt) {
 }
 
 void BacklogMenu::UpdateInput(float dt) {
-  MainScrollbar->UpdateInput();
+  MainScrollbar->UpdateInput(dt);
   UpdatePageUpDownInput(dt);
   UpdateScrollingInput(dt);
 }

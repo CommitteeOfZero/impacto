@@ -106,7 +106,7 @@ void SystemMenu::Hide() {
 }
 
 void SystemMenu::Update(float dt) {
-  UpdateInput();
+  UpdateInput(dt);
 
   if (State == Shown &&
       ((GetFlag(SF_TITLEMODE) || ScrWork[SW_SYSMENUCT] < 32) ||

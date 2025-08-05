@@ -35,7 +35,7 @@ void TipsTabButton::Reset() {
   Bounds.Y = TipsTabNameDisplay.y;
 }
 
-void TipsTabButton::UpdateInput() {
+void TipsTabButton::UpdateInput(float dt) {
   if (Enabled) {
     if (Input::CurrentInputDevice == Input::Device::Mouse &&
         Input::PrevMousePos != Input::CurMousePos) {
@@ -80,7 +80,7 @@ void TipsTabGroup::UpdatePageInput(float dt) {
   using namespace Vm::Interface;
   if (IsFocused) {
     auto prevEntry = CurrentlyFocusedElement;
-    TipsEntriesScrollbar->UpdateInput();
+    TipsEntriesScrollbar->UpdateInput(dt);
 
     auto checkScrollBounds = [&]() {
       return !TipsTabBounds.Contains(CurrentlyFocusedElement->Bounds);
@@ -175,7 +175,7 @@ void TipsTabGroup::UpdatePageInput(float dt) {
 void TipsTabGroup::Update(float dt) {
   TabName.Enabled = true;
   TabName.Update(dt);
-  TabName.UpdateInput();
+  TabName.UpdateInput(dt);
   if (State == Hidden) {
     TipsEntriesGroup.Enabled = false;
     // Inverting since we want buttons to be clickable when the tab is not
@@ -190,7 +190,7 @@ void TipsTabGroup::Update(float dt) {
     UpdatePageInput(dt);
     if (TipsEntriesScrollbar) {
       TipsEntriesScrollbar->Update(dt);
-      TipsEntriesScrollbar->UpdateInput();
+      TipsEntriesScrollbar->UpdateInput(dt);
       if (oldScrollPosY != ScrollPosY) {
         TipsEntriesGroup.Move({0, oldScrollPosY - ScrollPosY});
       }

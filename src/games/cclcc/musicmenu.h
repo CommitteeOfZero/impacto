@@ -13,7 +13,7 @@ namespace CCLCC {
 struct MusicBGs : public UI::Widget {
   using UI::Widget::Move;
   using UI::Widget::MoveTo;
-  void UpdateInput() override {};
+  void UpdateInput(float dt) override {};
   void Move(glm::vec2 relativePos) override;
   void MoveTo(glm::vec2 pos) override { Move(pos - Bounds.GetPos()); }
   void Render() override;

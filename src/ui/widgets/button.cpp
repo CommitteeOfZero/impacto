@@ -25,7 +25,7 @@ Button::Button(int id, Sprite const& norm, Sprite const& focused,
   HoverBounds = hoverBounds;
 }
 
-void Button::UpdateInput() {
+void Button::UpdateInput(float dt) {
   if (Enabled) {
     const RectF& bounds = (HoverBounds != RectF{}) ? HoverBounds : Bounds;
     if (Input::CurrentInputDevice == Input::Device::Mouse &&

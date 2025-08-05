@@ -236,7 +236,7 @@ void TitleMenu::Hide() {
   }
 }
 
-void TitleMenu::UpdateInput() {
+void TitleMenu::UpdateInput(float dt) {
   if (ScrWork[SW_TITLEMODE] == 5 || ScrWork[SW_TITLEMODE] == 13 ||
       ScrWork[SW_TITLEMODE] == 3) {
     if (!InputLocked && !PrevInputLocked) {
@@ -284,7 +284,7 @@ void TitleMenu::UpdateInput() {
   }
   if (CurrentSubMenu && !CurrentSubMenu->HasFocus) return;
   if (CurrentSubMenu || MainItems->HasFocus) {
-    Menu::UpdateInput();
+    Menu::UpdateInput(dt);
   }
 
   if (CurrentSubMenu && SecondaryFadeAnimation.IsIn()) {
@@ -306,7 +306,7 @@ void TitleMenu::UpdateInput() {
 }
 
 void TitleMenu::Update(float dt) {
-  UpdateInput();
+  UpdateInput(dt);
   PressToStartAnimation.Update(dt);
   PrimaryFadeAnimation.Update(dt);
   SecondaryFadeAnimation.Update(dt);
