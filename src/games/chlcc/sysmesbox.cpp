@@ -44,10 +44,10 @@ void SysMesBox::Show() {
 
   for (int i = 0; i < MessageCount; i++) {
     diff = Messages[i][0].DestRect.X - (TextX - (maxWidth / 2.0f));
-    for (int j = 0; j < Messages[i].size(); j++) {
-      Messages[i][j].Colors = Profile::Dialogue::ColorTable[0];
-      Messages[i][j].DestRect.X -= diff;
-      Messages[i][j].DestRect.Y = TextMiddleY + (i * TextLineHeight);
+    for (ProcessedTextGlyph& glyph : Messages[i]) {
+      glyph.Colors = Profile::Dialogue::ColorTable[0];
+      glyph.DestRect.X -= diff;
+      glyph.DestRect.Y = TextMiddleY + (i * TextLineHeight);
     }
 
     Label* message = new Label(Messages[i], MessageWidths[i], TextFontSize,
@@ -69,10 +69,10 @@ void SysMesBox::Show() {
 
   for (int i = 0; i < ChoiceCount; i++) {
     diff = Choices[i][0].DestRect.X - tempChoiceX;
-    for (int j = 0; j < Choices[i].size(); j++) {
-      Choices[i][j].Colors = Profile::Dialogue::ColorTable[0];
-      Choices[i][j].DestRect.X -= diff;
-      Choices[i][j].DestRect.Y = ChoiceY;
+    for (ProcessedTextGlyph& choice : Choices[i]) {
+      choice.Colors = Profile::Dialogue::ColorTable[0];
+      choice.DestRect.X -= diff;
+      choice.DestRect.Y = ChoiceY;
     }
 
     Button* choice = new Button(
@@ -198,7 +198,7 @@ void SysMesBox::AddMessage(Vm::BufferOffsetContext ctx) {
                           TextFontSize, Profile::Dialogue::ColorTable[10], 1.0f,
                           glm::vec2(TextX, 0.0f), TextAlignment::Left);
   float mesLen = 0.0f;
-  for (int i = 0; i < Messages[MessageCount].size(); i++) {
+  for (size_t i = 0; i < Messages[MessageCount].size(); i++) {
     mesLen += Messages[MessageCount][i].DestRect.Width;
   }
   MessageWidths[MessageCount] = mesLen;
@@ -214,7 +214,7 @@ void SysMesBox::AddChoice(Vm::BufferOffsetContext ctx) {
                           TextFontSize, Profile::Dialogue::ColorTable[10], 1.0f,
                           glm::vec2(TextX, 0.0f), TextAlignment::Left);
   float mesLen = 0.0f;
-  for (int i = 0; i < Choices[ChoiceCount].size(); i++) {
+  for (size_t i = 0; i < Choices[ChoiceCount].size(); i++) {
     mesLen += Choices[ChoiceCount][i].DestRect.Width;
   }
   ChoiceWidths[ChoiceCount] = mesLen;

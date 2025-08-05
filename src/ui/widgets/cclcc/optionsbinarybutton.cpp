@@ -19,10 +19,10 @@ OptionsBinaryButton::OptionsBinaryButton(
     glm::vec4 highlightTint, std::function<void(OptionsEntry*)> select,
     std::function<void(Widget*)> highlight)
     : OptionsEntry(label, pos, highlightTint, select, highlight),
-      State(value),
-      BoxSprite(box),
       TrueSprite(trueLabel),
-      FalseSprite(falseLabel) {
+      FalseSprite(falseLabel),
+      BoxSprite(box),
+      State(value) {
   Bounds.Width = BinaryBoxOffset.x + BoxSprite.ScaledWidth();
   EntryButton.Bounds.Width = Bounds.Width;
 

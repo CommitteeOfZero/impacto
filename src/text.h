@@ -51,9 +51,9 @@ int constexpr DialogueMaxRubyChunks = 32;
 int constexpr DialogueMaxRubyChunkLength = 32;
 
 struct RubyChunk {
-  int FirstBaseCharacter;
-  int Length;
-  int BaseLength;
+  size_t FirstBaseCharacter;
+  size_t Length;
+  size_t BaseLength;
   bool CenterPerCharacter;
   ProcessedTextGlyph Text[DialogueMaxRubyChunkLength];
   uint16_t RawText[DialogueMaxRubyChunkLength];
@@ -89,14 +89,14 @@ struct DialoguePage {
   glm::vec2 Dimensions;
   float FontSize;
 
-  int NameLength;
+  size_t NameLength;
   int NameId;
   bool HasName;
   std::vector<ProcessedTextGlyph> Name;
 
-  int RubyChunkCount;
+  size_t RubyChunkCount;
   int CurrentRubyChunk;
-  RubyChunk RubyChunks[DialogueMaxRubyChunks];
+  std::array<RubyChunk, DialogueMaxRubyChunks> RubyChunks;
 
   std::vector<ProcessedTextGlyph> Glyphs;
 
@@ -119,7 +119,7 @@ struct DialoguePage {
   void Render();
 
  private:
-  void FinishLine(Vm::Sc3VmThread* ctx, int nextLineStart,
+  void FinishLine(Vm::Sc3VmThread* ctx, size_t nextLineStart,
                   const RectF& boxBounds, TextAlignment alignment);
   void EndRubyBase(int lastBaseCharacter);
 

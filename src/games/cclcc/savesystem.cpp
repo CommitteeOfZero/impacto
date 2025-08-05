@@ -35,7 +35,7 @@ uint32_t CalculateChecksum(std::span<const uint8_t> bufferData,
 
   uint32_t checksumXor = initXor;
 
-  for (int i = 0; i < bufferData.size() - 1; i += 2) {
+  for (size_t i = 0; i < bufferData.size() - 1; i += 2) {
     uint16_t dataShort;
     memcpy(&dataShort, &bufferData[i], 2);
     if (swapSrcBytes) {
@@ -45,7 +45,7 @@ uint32_t CalculateChecksum(std::span<const uint8_t> bufferData,
     checksumXor = checksumXor ^ dataShort;
   }
 
-  uint32_t result = (checksumSum << 16) | checksumXor & 0xFFFF;
+  uint32_t result = (checksumSum << 16) | (checksumXor & 0xFFFF);
   return result;
 }
 
@@ -222,7 +222,7 @@ void SaveSystem::LoadEntryBuffer(Io::MemoryStream& stream, SaveFileEntry& entry,
   Io::ReadArrayLE<uint8_t>(entry.ThumbnailData.data(), &stream,
                            entry.ThumbnailData.size());
 
-  for (int i = 0; i < entry.ThumbnailData.size() / 2; i++) {
+  for (size_t i = 0; i < entry.ThumbnailData.size() / 2; i++) {
     uint16_t pixel =
         entry.ThumbnailData[i * 2] | (entry.ThumbnailData[i * 2 + 1] << 8);
     uint8_t r = (pixel & 0xF800) >> 8;
@@ -417,7 +417,7 @@ void SaveSystem::SaveThumbnailData() {
       std::array<uint8_t, SaveThumbnailSize>& thumbnailData =
           entry->ThumbnailData;
 
-      for (int j = 0; j < thumbnailBuffer.size(); j += 4) {
+      for (size_t j = 0; j < thumbnailBuffer.size(); j += 4) {
         uint8_t r = thumbnailBuffer[j];
         uint8_t g = thumbnailBuffer[j + 1];
         uint8_t b = thumbnailBuffer[j + 2];
@@ -652,14 +652,12 @@ uint8_t SaveSystem::GetSaveFlags(SaveType type, int id) {
 }
 
 tm const& SaveSystem::GetSaveDate(SaveType type, int id) {
-  static const tm t{
-      .tm_sec = 0,
-      .tm_min = 0,
-      .tm_hour = 0,
-      .tm_mday = 1,
-      .tm_mon = 0,
-      .tm_year = 0,
-  };
+  const static tm t = [] {
+    tm tmStruct{};
+    tmStruct.tm_mday = 1;
+    return tmStruct;
+  }();
+
   switch (type) {
     case SaveType::Full:
       return ((SaveFileEntry*)FullSaveEntries[id])->SaveDate;
@@ -853,7 +851,7 @@ void SaveSystem::SetTipStatus(int tipId, bool isLocked, bool isUnread,
 void SaveSystem::SetLineRead(int scriptId, int lineId) {
   if (scriptId >= 255) return;
 
-  int offset = ScriptMessageData[scriptId].SaveDataOffset + lineId;
+  uint32_t offset = ScriptMessageData[scriptId].SaveDataOffset + lineId;
   if (offset == 0xFFFFFFFF) return;
 
   // TODO: update some ScrWorks (2003, 2005 & 2006)

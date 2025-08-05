@@ -179,7 +179,7 @@ int MapSystemCCLCC::MapLoad(uint8_t* data) {
   int dataSize = 0;
   memmove(&MapGroup, data, sizeof(MapGroup));
   dataSize += sizeof(MapGroup);
-  for (int i = 0; i < MapPartsDisp.size(); i++) {
+  for (size_t i = 0; i < MapPartsDisp.size(); i++) {
     MapPartsDisp[i].partId = data[dataSize];
     dataSize += 4;
     MapPartsDisp[i].type = data[dataSize];
@@ -218,7 +218,7 @@ int MapSystemCCLCC::MapLoad(uint8_t* data) {
   }
   dataSize += (int)(800 - MapPartsDisp.size()) * 32;
   assert(dataSize == 0x65e0);
-  for (int i = 0; i < MapPoolDisp.size(); i++) {
+  for (size_t i = 0; i < MapPoolDisp.size(); i++) {
     int show = data[dataSize];
     dataSize += 4;
     int inOrOut = data[dataSize];
@@ -251,7 +251,7 @@ int MapSystemCCLCC::MapLoad(uint8_t* data) {
     dataSize += 4;  // padding?
   }
   assert(dataSize == 0x69a0);
-  for (int i = 0; i < MapPool.size(); i++) {
+  for (size_t i = 0; i < MapPool.size(); i++) {
     MapPool[i].id = data[dataSize];
     dataSize += 4;
     MapPool[i].type = data[dataSize];
@@ -281,7 +281,7 @@ int MapSystemCCLCC::MapSave(uint8_t* data) {
   int dataSize = 0;
   memmove(data, &MapGroup, sizeof(MapGroup));
   dataSize += sizeof(MapGroup);
-  for (int i = 0; i < MapPartsDisp.size(); i++) {
+  for (size_t i = 0; i < MapPartsDisp.size(); i++) {
     data[dataSize] = (uint8_t)MapPartsDisp[i].partId;
     dataSize += 4;
     data[dataSize] = (uint8_t)MapPartsDisp[i].type;
@@ -327,7 +327,7 @@ int MapSystemCCLCC::MapSave(uint8_t* data) {
   }
   dataSize += (int)(800 - MapPartsDisp.size()) * 32;
   assert(dataSize == 0x65e0);
-  for (int i = 0; i < MapPoolDisp.size(); i++) {
+  for (size_t i = 0; i < MapPoolDisp.size(); i++) {
     switch (MapPoolDisp[i].state) {
       case Shown:
         data[dataSize] = 1;
@@ -367,7 +367,7 @@ int MapSystemCCLCC::MapSave(uint8_t* data) {
     dataSize += 4;  // padding?
   }
   assert(dataSize == 0x69a0);
-  for (int i = 0; i < MapPool.size(); i++) {
+  for (size_t i = 0; i < MapPool.size(); i++) {
     data[dataSize] = (uint8_t)MapPool[i].id;
     dataSize += 4;
     data[dataSize] = (uint8_t)MapPool[i].type;

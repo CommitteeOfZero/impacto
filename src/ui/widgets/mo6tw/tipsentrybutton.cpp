@@ -59,8 +59,8 @@ void TipsEntryButton::Update(float dt) {
     if (TipEntryRecord->IsUnread) {
       colorIndex = UnreadColorIndex;
     }
-    for (int i = 0; i < Text.size(); i++) {
-      Text[i].Colors = Profile::Dialogue::ColorTable[colorIndex];
+    for (ProcessedTextGlyph& glyph : Text) {
+      glyph.Colors = Profile::Dialogue::ColorTable[colorIndex];
     }
     PrevUnreadState = TipEntryRecord->IsUnread;
   }

@@ -27,8 +27,8 @@ void FixedSpriteAnimation::UpdateImpl(float dt) {
   float fixedSpriteProgress = GetFixedSpriteProgress();
   AnimationDirection animationRequest = Direction;
 
-  if (Progress == 1.0f && Direction == -1 ||
-      Progress == 0.0f && Direction == 1) {
+  if ((Progress == 1.0f && Direction == -1) ||
+      (Progress == 0.0f && Direction == 1)) {
     Progress = fixedSpriteProgress;
   }
 

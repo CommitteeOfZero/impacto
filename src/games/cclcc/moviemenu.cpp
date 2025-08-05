@@ -9,7 +9,7 @@ using namespace Impacto::Profile::CCLCC::LibraryMenu;
 using namespace Impacto::Profile::ScriptVars;
 
 MovieMenu::MovieMenu() : LibrarySubmenu() {
-  for (int i = 0; i < MovieDiskSprites.size(); ++i) {
+  for (size_t i = 0; i < MovieDiskSprites.size(); ++i) {
     const auto& diskSprite = MovieDiskSprites[i];
     const auto& diskHighlightSprite = MovieDiskHighlightSprites[i];
     auto movieOnclick = [](Widgets::Button* target) {

@@ -152,14 +152,11 @@ uint8_t GetSaveFlags(SaveType type, int id) {
 }
 
 tm const& GetSaveDate(SaveType type, int id) {
-  static tm t{
-      .tm_sec = 0,
-      .tm_min = 0,
-      .tm_hour = 0,
-      .tm_mday = 1,
-      .tm_mon = 0,
-      .tm_year = 0,
-  };
+  const static tm t = [] {
+    tm tmStruct{};
+    tmStruct.tm_mday = 1;
+    return tmStruct;
+  }();
 
   if (Implementation) return Implementation->GetSaveDate(type, id);
   ImpLog(LogLevel::Warning, LogChannel::VMStub,

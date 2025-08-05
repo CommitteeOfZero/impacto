@@ -55,9 +55,9 @@ void TrophyMenu::Show() {
     IsFocused = true;
     UI::FocusedMenu = this;
 
-    for (int i = 0; i < MaxTrophyPages; i++) {
-      for (int j = 0; j < 6; j++) {
-        int const index = i * 6 + j;
+    for (size_t i = 0; i < MaxTrophyPages; i++) {
+      for (size_t j = 0; j < 6; j++) {
+        const size_t index = i * 6 + j;
         if (index >= AchievementSystem::GetAchievementCount()) break;
         TrophyMenuEntry* entry = new TrophyMenuEntry(index);
         MainItems[i].Add(entry);

@@ -33,7 +33,7 @@ MusicTrackButton::MusicTrackButton(int id, int position, glm::vec2 pos)
   HighlightSprite = MusicButtonHoverSprite;
   FocusedSprite = MusicButtonSelectSprite;
   HoverBounds = Bounds;
-  for (int i = 0; i < Text.size(); i++) {
+  for (size_t i = 0; i < Text.size(); i++) {
     Text[i].DestRect.X += MusicTrackNameOffsetX;
   }
   auto const lockedSc3Text = Vm::ScriptGetTextTableStrAddress(
@@ -234,7 +234,7 @@ void MusicMenu::Update(float dt) {
         PlayTrack(CurrentlyPlayingBtn->Id);
         break;
       case MusicMenuPlayingMode::PlayAll: {
-        if (CurrentlyPlayingBtn->Id != MusicPlayIds.size() - 1) {
+        if (CurrentlyPlayingBtn->Id != (int)MusicPlayIds.size() - 1) {
           auto nextTrack = getNextUnlockedTrack(CurrentlyPlayingBtn->Id);
           if (nextTrack) {
             PlayTrack(*nextTrack);
@@ -353,7 +353,6 @@ void MusicBGs::Move(glm::vec2 relativePos) {
 }
 
 void MusicBGs::Render() {
-  glm::vec2 backgroundPos = MusicItemsBackgroundPosition;
   glm::vec2 topSplitPos{
       MusicRenderingBounds.X,
       MusicRenderingBounds.Y + Bounds.Y - MusicItemsBackgroundRepeatHeight};

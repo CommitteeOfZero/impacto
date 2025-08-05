@@ -27,7 +27,7 @@ class VoiceTable : public Loadable<VoiceTable, bool, uint32_t> {
   void MainThreadOnLoad(bool result);
 
  private:
-  int VoiceFileCount = 0;
+  size_t VoiceFileCount = 0;
   std::map<size_t, VoiceMeta> TableOfContents;
   std::vector<uint8_t> LipSyncData;
 };

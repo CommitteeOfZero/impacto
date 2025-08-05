@@ -92,8 +92,8 @@ void Toggle::SetText(Vm::Sc3Stream& stream, float fontSize,
                               TextAlignment::Left);
   OutlineMode = outlineMode;
   FontSize = fontSize;
-  for (int i = 0; i < Label.size(); i++) {
-    TextWidth += Label[i].DestRect.Width;
+  for (const ProcessedTextGlyph& glyph : Label) {
+    TextWidth += glyph.DestRect.Width;
   }
 }
 

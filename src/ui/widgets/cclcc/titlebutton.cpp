@@ -65,7 +65,7 @@ void TitleButton::Render() {
     BlinkTint.a = blinkAlpha;
   }
   if (HasFocus ||
-      !IsSubButton && HighlightAnimation.State == +AnimationState::Playing ||
+      (!IsSubButton && HighlightAnimation.State == +AnimationState::Playing) ||
       ChoiceBlinkAnimation.State == +AnimationState::Playing) {
     if (!IsSubButton) {  // Main buttons
       Sprite newHighlightSprite = HighlightSprite;
