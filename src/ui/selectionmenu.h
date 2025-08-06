@@ -15,7 +15,7 @@ class SelectionMenu : public Menu {
   void Update(float dt) override;
   void Render() override;
 
-  void Init(bool isPlain);
+  void InitSelectionMenu(bool isPlain);
   void AddChoice(Vm::BufferOffsetContext ctx);
 
   void ChoiceItemOnClick(Widgets::Button* target);

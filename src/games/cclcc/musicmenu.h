@@ -35,7 +35,7 @@ class MusicTrackButton : public Widgets::Button {
   std::array<ProcessedTextGlyph, 6> LockedText;
   std::array<ProcessedTextGlyph, 4> NumberText;
   Widgets::Label ArtistName;
-  int Position = 0;
+  [[maybe_unused]] int Position = 0;
 };
 
 class MusicModeButton : public Widgets::Button {

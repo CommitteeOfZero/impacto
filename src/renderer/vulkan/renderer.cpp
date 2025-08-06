@@ -1942,7 +1942,11 @@ void Renderer::Clear(glm::vec4 color) {
   VkClearAttachment clearAttachment = {
       .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
       .colorAttachment = 0,
-      .clearValue = {.color = {color.r, color.g, color.b, color.a}}};
+      .clearValue =
+          {
+              .color = {{color.r, color.g, color.b, color.a}},
+          },
+  };
 
   VkClearRect clearRect = {
       .rect = {.offset = {0, 0}, .extent = SwapChainExtent},

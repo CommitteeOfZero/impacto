@@ -48,7 +48,7 @@ struct QueuedTrophy {
 
 class Trophy : public Achievement {
  private:
-  TrophyType ttype;
+  [[maybe_unused]] TrophyType ttype;
 
  public:
   Trophy(std::string name, std::string description, bool hidden,

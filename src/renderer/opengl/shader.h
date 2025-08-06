@@ -79,7 +79,7 @@ class Shader {
  public:
   Shader(GLuint programId) : ProgramId(programId) { Bind(); }
 
-  ~Shader() { glDeleteProgram(ProgramId); }
+  virtual ~Shader() { glDeleteProgram(ProgramId); }
 
   void Bind() { glUseProgram(ProgramId); }
 

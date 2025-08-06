@@ -689,7 +689,7 @@ void Renderer::DrawVertices(const SpriteSheet& sheet,
   std::vector<VertexBufferSprites> transformedVertices;
   transformedVertices.resize(vertices.size());
 
-  const auto transformVertex = [this, sheet](VertexBufferSprites info) {
+  const auto transformVertex = [sheet](VertexBufferSprites info) {
     if (sheet.IsScreenCap) info.UV.y = 1.0f - info.UV.y;
     return info;
   };

@@ -219,7 +219,7 @@ void MusicMenu::StopMusic() {
 
 void MusicMenu::Update(float dt) {
   const auto getNextUnlockedTrack =
-      [this](size_t current) -> std::optional<size_t> {
+      [](size_t current) -> std::optional<size_t> {
     size_t next = (current + 1) % MusicPlayIds.size();
     while (!SaveSystem::GetBgmFlag(MusicBGMFlagIds[next]) && next != current) {
       next = (next + 1) % MusicPlayIds.size();

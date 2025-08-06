@@ -248,11 +248,9 @@ static void EnumerateBackgrounds() {
   BackgroundNames.reserve(listing.size());
   BackgroundIds.reserve(listing.size());
 
-  uint32_t i = 0;
   for (auto const& file : listing) {
     BackgroundIds.push_back(file.first);
     BackgroundNames.push_back(std::move(file.second));
-    i++;
   }
 }
 

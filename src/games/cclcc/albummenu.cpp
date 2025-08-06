@@ -568,7 +568,7 @@ void AlbumMenu::UpdateThumbnail(float dt) {
   if (!CurrentlyFocusedElement) {
     auto thumItr = std::find_if(ThumbnailPages[ActivePage].begin(),
                                 ThumbnailPages[ActivePage].end(),
-                                [this](const auto& btn) { return btn; });
+                                [](const auto& btn) { return btn; });
     if (thumItr != ThumbnailPages[ActivePage].end()) {
       CurrentlyFocusedElement = *thumItr;
       CurrentlyFocusedElement->HasFocus = true;

@@ -829,8 +829,8 @@ int TextGetMainCharacterCount(Vm::Sc3VmThread* ctx) {
 
 template <typename T>
 concept Sc3Type =
-    std::is_lvalue_reference_v<T> &&
-        std::is_base_of_v<Vm::Sc3Stream, std::remove_reference_t<T>> ||
+    (std::is_lvalue_reference_v<T> &&
+     std::is_base_of_v<Vm::Sc3Stream, std::remove_reference_t<T>>) ||
     std::is_same_v<std::decay_t<T>, Vm::Sc3VmThread*>;
 
 std::pair<int, float> TextLayoutPlainLineHelper(
