@@ -152,7 +152,7 @@ AchievementError AchievementSystemPS3::MountAchievementFile(
 
       Sprite icon = Sprite(sheet, 0, 0, ICON_SIZE, ICON_SIZE);
       // Ensure the vector is large enough
-      if ((int)Trophies.size() <= trophy.id) {
+      if (static_cast<int>(Trophies.size()) <= trophy.id) {
         Trophies.resize(trophy.id + 1);
       }
       Trophies[trophy.id] = std::make_unique<Trophy>(
@@ -165,7 +165,7 @@ AchievementError AchievementSystemPS3::MountAchievementFile(
 }
 
 const Achievement* AchievementSystemPS3::GetAchievement(int id) {
-  if (id < 0 || (size_t)id >= Trophies.size()) return nullptr;
+  if (id < 0 || static_cast<size_t>(id) >= Trophies.size()) return nullptr;
   return Trophies[id].get();
 }
 }  // namespace AchievementSystem

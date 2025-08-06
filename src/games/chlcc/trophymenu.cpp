@@ -59,7 +59,7 @@ void TrophyMenu::Show() {
       for (size_t j = 0; j < 6; j++) {
         const size_t index = i * 6 + j;
         if (index >= AchievementSystem::GetAchievementCount()) break;
-        TrophyMenuEntry* entry = new TrophyMenuEntry(index);
+        TrophyMenuEntry* entry = new TrophyMenuEntry(static_cast<int>(index));
         MainItems[i].Add(entry);
       }
     }

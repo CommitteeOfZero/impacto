@@ -302,7 +302,7 @@ static void RenderMain() {
 
     for (size_t bgId = 0; bgId < Backgrounds.size(); bgId++) {
       int bufId = ScrWork[SW_BG1SURF + bgId];
-      Backgrounds2D[bufId]->UpdateState((int)bgId);
+      Backgrounds2D[bufId]->UpdateState(static_cast<int>(bgId));
       Backgrounds2D[bufId]->Render(layer);
     }
 
@@ -314,13 +314,13 @@ static void RenderMain() {
         !(Profile::GameFeatures & GameFeature::Scene3D)) {
       for (size_t chaId = 0; chaId < Characters2D.size(); chaId++) {
         int bufId = ScrWork[SW_CHA1SURF + chaId];
-        Characters2D[bufId].UpdateState((int)chaId);
+        Characters2D[bufId].UpdateState(static_cast<int>(chaId));
         Characters2D[bufId].Render(layer);
       }
     }
 
     for (size_t bgId = 0; bgId < Backgrounds.size(); bgId++) {
-      Framebuffers[0].UpdateState((int)bgId);
+      Framebuffers[0].UpdateState(static_cast<int>(bgId));
       Framebuffers[0].Render(layer);
     }
 

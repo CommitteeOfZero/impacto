@@ -35,7 +35,7 @@ void Background2D::InitFrameBuffers() {
 
 void Background2D::Init() {
   for (size_t i = 0; i < Backgrounds.size(); i++) {
-    Backgrounds2D[i] = &Backgrounds[i];
+    Backgrounds2D[static_cast<int>(i)] = &Backgrounds[i];
   }
 
   for (Capture2D& capture : Screencaptures) {

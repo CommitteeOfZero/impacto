@@ -18,8 +18,9 @@ MovieMenu::MovieMenu() : LibrarySubmenu() {
       Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0);
       Audio::Channels[Audio::AC_BGM0]->Stop(0.0f);
     };
-    auto disk = new Widgets::Button(i, diskSprite, diskHighlightSprite,
-                                    Sprite(), MovieDiskDisplayPositions[i]);
+    auto disk = new Widgets::Button(static_cast<int>(i), diskSprite,
+                                    diskHighlightSprite, Sprite(),
+                                    MovieDiskDisplayPositions[i]);
     disk->OnClickHandler = movieOnclick;
     MainItems.Add(disk, FDIR_RIGHT);
   }

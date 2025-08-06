@@ -747,19 +747,19 @@ VmInstruction(InstMSinit) {
   }
 
   for (size_t i = 0; i < Backgrounds.size(); i++) {
-    ScrWork[SW_BG1SURF + i] = i;
+    ScrWork[SW_BG1SURF + i] = static_cast<int>(i);
     ScrWork[SW_BG1ALPHA + Profile::Vm::ScrWorkBgStructSize * i] = 256;
     ScrWork[SW_BG1NO + Profile::Vm::ScrWorkBgStructSize * i] = 0xFFFF;
     ScrWork[SW_BG1FILTER + Profile::Vm::ScrWorkBgStructSize * i] = 0xFFFFFF;
   }
   for (size_t i = 0; i < Characters2D.size(); i++) {
-    ScrWork[SW_CHA1SURF + i] = i;
+    ScrWork[SW_CHA1SURF + i] = static_cast<int>(i);
     ScrWork[SW_CHA1ALPHA + Profile::Vm::ScrWorkChaStructSize * i] = 256;
   }
 
   if (Profile::Dialogue::HasSpeakerPortraits) {
     for (size_t i = 0; i < SpeakerPortraits.size(); i++) {
-      ScrWork[SW_FACE1SURF + i] = i;
+      ScrWork[SW_FACE1SURF + i] = static_cast<int>(i);
     }
   }
 

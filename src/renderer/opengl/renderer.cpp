@@ -207,7 +207,7 @@ uint32_t Renderer::SubmitTexture(TexFmt format, uint8_t* buffer, int width,
 int Renderer::GetSpriteSheetImage(SpriteSheet const& sheet,
                                   std::span<uint8_t> outBuffer) {
   const size_t bufferSize =
-      (size_t)sheet.DesignWidth * (size_t)sheet.DesignHeight * 4;
+      static_cast<size_t>(sheet.DesignWidth * sheet.DesignHeight * 4);
   assert(outBuffer.size() >= bufferSize);
   glBindTexture(GL_TEXTURE_2D, sheet.Texture);
 
@@ -233,7 +233,7 @@ int Renderer::GetSpriteSheetImage(SpriteSheet const& sheet,
     }
   }
 
-  return bufferSize;
+  return static_cast<int>(bufferSize);
 }
 
 void Renderer::FreeTexture(uint32_t id) { glDeleteTextures(1, &id); }
