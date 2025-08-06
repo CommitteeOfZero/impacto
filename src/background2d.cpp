@@ -65,6 +65,8 @@ void Background2D::Init() {
 }
 
 bool Background2D::LoadSync(uint32_t bgId) {
+  bool error = false;
+
   if (bgId & 0xFF000000) {
     BgTexture.Load1x1((bgId >> 16) & 0xFF, (bgId >> 8) & 0xFF, bgId & 0xFF,
                       0xFF);
@@ -72,10 +74,12 @@ bool Background2D::LoadSync(uint32_t bgId) {
     Io::Stream* stream;
     int64_t err = Io::VfsOpen("bg", bgId, &stream);
 
-    if (err != IoError_OK) return false;
-
-    BgTexture.Load(stream);
-    delete stream;
+    if (err != IoError_OK) {
+      error = true;
+    } else {
+      BgTexture.Load(stream);
+      delete stream;
+    }
 
     if (Profile::UseBgFrameEffects && BgEffTextureIdMap.contains(bgId)) {
       std::for_each(FrameBgEffs.begin(), FrameBgEffs.end(),
@@ -89,12 +93,14 @@ bool Background2D::LoadSync(uint32_t bgId) {
         Io::Stream* bgEffStream;
         err = Io::VfsOpen("bgeffect", textureIds[i], &bgEffStream);
 
-        if (err != IoError::IoError_OK) return false;
+        if (err != IoError::IoError_OK) {
+          error = true;
+        } else {
+          FrameBgEffs[i].BgEffTexture.Load(bgEffStream);
+          FrameBgEffs[i].Loaded = true;
 
-        FrameBgEffs[i].BgEffTexture.Load(bgEffStream);
-        FrameBgEffs[i].Loaded = true;
-
-        delete bgEffStream;
+          delete bgEffStream;
+        }
       }
     }
 
@@ -106,17 +112,19 @@ bool Background2D::LoadSync(uint32_t bgId) {
         Io::Stream* bgEffStream;
         err = Io::VfsOpen("bgeffect", textureId, &bgEffStream);
 
-        if (err != IoError::IoError_OK) return false;
+        if (err != IoError::IoError_OK) {
+          error = true;
+        } else {
+          ChaBgEff.BgEffTexture.Load(bgEffStream);
+          ChaBgEff.Loaded = true;
 
-        ChaBgEff.BgEffTexture.Load(bgEffStream);
-        ChaBgEff.Loaded = true;
-
-        delete bgEffStream;
+          delete bgEffStream;
+        }
       }
     }
   }
 
-  return true;
+  return !error;
 }
 
 void Background2D::LoadSolidColor(uint32_t color, int width, int height) {
