@@ -146,9 +146,8 @@ VmInstruction(InstMes) {
   PopExpression(characterId);
   if (characterId >= 32) characterId = 0;
   PopUint16(lineId);
-  uint8_t* line =
-      MSB ? MsbGetStrAddress(MsbBuffers[thread->ScriptBufferId], lineId)
-          : ScriptGetStrAddress(ScriptBuffers[thread->ScriptBufferId], lineId);
+  uint32_t line = MSB ? MsbGetStrAddress(thread->ScriptBufferId, lineId)
+                      : ScriptGetStrAddress(thread->ScriptBufferId, lineId);
 
   if (!(ScrWork[10 * thread->DialoguePageId + SW_MESWIN0TYPE] & (1 << 6))) {
     SetFlag(SF_MESREAD, SaveSystem::IsLineRead(scriptId, lineId));
@@ -168,8 +167,8 @@ VmInstruction(InstMes) {
     if (playAudio) audioStream = Audio::AudioStream::Create(stream);
   }
 
-  uint8_t* oldIp = thread->Ip;
-  thread->Ip = line;
+  uint32_t oldIp = thread->IpOffset;
+  thread->IpOffset = line;
   dialoguePage.AddString(thread, audioStream, animationId);
   ResetInstruction;
   if (!GetFlag(SF_MESSAVEPOINT_SSP + thread->DialoguePageId)) {
@@ -183,8 +182,10 @@ VmInstruction(InstMes) {
     SetFlag(SF_MESSAVEPOINT_SSP + thread->DialoguePageId, 0);
   }
 
-  thread->Ip = oldIp;
-  UI::BacklogMenuPtr->AddMessage(line, audioId, characterId);
+  thread->IpOffset = oldIp;
+  UI::BacklogMenuPtr->AddMessage(
+      {.ScriptBufferId = thread->ScriptBufferId, .IpOffset = line}, audioId,
+      characterId);
 
   dialoguePage.AutoWaitTime = (float)dialoguePage.Glyphs.size();
 }
@@ -377,25 +378,29 @@ VmInstruction(InstSel) {
     }
     case 1: {
       PopUint16(selStrNum);
-      UI::SelectionMenuPtr->AddChoice(ScriptGetStrAddress(
-          ScriptBuffers[thread->ScriptBufferId], selStrNum));
+      auto offset = ScriptGetStrAddress(thread->ScriptBufferId, selStrNum);
+      UI::SelectionMenuPtr->AddChoice(
+          {.ScriptBufferId = thread->ScriptBufferId, .IpOffset = offset});
       break;
     }
     case 0x81: {
       PopMsbString(line);
-      UI::SelectionMenuPtr->AddChoice(line);
+      UI::SelectionMenuPtr->AddChoice(
+          {.ScriptBufferId = thread->ScriptBufferId, .IpOffset = line});
     } break;
     case 2: {
       PopUint16(selStrNum);
-      UI::SelectionMenuPtr->AddChoice(ScriptGetStrAddress(
-          ScriptBuffers[thread->ScriptBufferId], selStrNum));
+      auto offset = ScriptGetStrAddress(thread->ScriptBufferId, selStrNum);
+      UI::SelectionMenuPtr->AddChoice(
+          {.ScriptBufferId = thread->ScriptBufferId, .IpOffset = offset});
       PopExpression(arg2);
       break;
     }
     case 0x82: {
       PopMsbString(line);
       PopExpression(arg2);
-      UI::SelectionMenuPtr->AddChoice(line);
+      UI::SelectionMenuPtr->AddChoice(
+          {.ScriptBufferId = thread->ScriptBufferId, .IpOffset = line});
     } break;
   }
 }
@@ -408,7 +413,7 @@ VmInstruction(InstSelect) {
       bool flag = GetFlag(SF_SAVEDISABLE);
       SetFlag(thread->DialoguePageId + 1213, 0);
       if (ScrWork[SW_AUTOSAVERESTART] == 2) {
-        thread->Ip += 12;
+        thread->IpOffset += 12;
         return;
       } else {
         SaveSystem::SaveMemory();
@@ -420,7 +425,7 @@ VmInstruction(InstSelect) {
         }
         ScrWork[SW_AUTOSAVERESTART] = 0;
         if (quicksaveEntries == -1) {
-          thread->Ip += 12;
+          thread->IpOffset += 12;
         }
       }
       SetFlag(SF_SYSMENUDISABLE, 0);
@@ -481,7 +486,7 @@ VmInstruction(InstSetTextTable) {
   StartInstruction;
   PopExpression(id);
   PopLocalLabel(tableDataAdr);
-  TextTable[id].scriptBufferAdr = ScriptBuffers[thread->ScriptBufferId];
+  TextTable[id].scriptBufferId = static_cast<uint8_t>(thread->ScriptBufferId);
   TextTable[id].labelAdr = tableDataAdr;
   ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
              "STUB instruction SetTextTable(id: {:d})\n", id);
@@ -531,8 +536,9 @@ VmInstruction(InstNameID) {
           Profile::Vm::GameInstructionSet == +InstructionSet::MO8 ||
           Profile::Vm::GameInstructionSet == +InstructionSet::CHN) {
         PopLocalLabel(namePlateDataBlock);
-        if (!Profile::Vm::UseMsbStrings)
-          InitNamePlateData((uint16_t*)namePlateDataBlock);
+        Sc3Stream namePlateData(
+            &ScriptBuffers[thread->ScriptBufferId][namePlateDataBlock]);
+        if (!Profile::Vm::UseMsbStrings) InitNamePlateData(namePlateData);
       } else if (Profile::Vm::GameInstructionSet == +InstructionSet::MO6TW) {
         PopExpression(arg1);
         PopExpression(arg2);
@@ -559,15 +565,15 @@ VmInstruction(InstTips) {
   switch (type) {
     case 0: {  // TipsDataInit
       PopUint16(tipsLabelNum);
-      uint8_t* tipsDataAdr = ScriptGetLabelAddress(
-          ScriptBuffers[thread->ScriptBufferId], tipsLabelNum);
+      uint32_t tipsDataAdr =
+          ScriptGetLabelAddress(thread->ScriptBufferId, tipsLabelNum);
       if (Profile::Vm::GameInstructionSet == +InstructionSet::MO8 ||
           Profile::Vm::GameInstructionSet == +InstructionSet::CHN) {
         PopLocalLabel(tipsDataAdr1);
         (void)tipsDataAdr1;
       }
-      uint32_t tipsDataSize = ScriptGetLabelSize(
-          ScriptBuffers[thread->ScriptBufferId], tipsLabelNum);
+      uint32_t tipsDataSize =
+          ScriptGetLabelSize(thread->ScriptBufferId, tipsLabelNum);
       TipsSystem::DataInit(thread->ScriptBufferId, tipsDataAdr, tipsDataSize);
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction Tips(type: TipsDataInit)\n");
@@ -628,13 +634,14 @@ VmInstruction(InstSetRevMes) {
     PopUint16(lineIdTemp);
     lineId = lineIdTemp;
   }
-  uint8_t* line =
-      ScriptGetStrAddress(ScriptBuffers[thread->ScriptBufferId], lineId);
+  uint32_t line = ScriptGetStrAddress(thread->ScriptBufferId, lineId);
 
   uint32_t scriptId = LoadedScriptMetas[thread->ScriptBufferId].Id;
 
   SaveSystem::SetLineRead(scriptId, lineId);
-  UI::BacklogMenuPtr->AddMessage(line, audioId, animationId);
+  UI::BacklogMenuPtr->AddMessage(
+      {.ScriptBufferId = thread->ScriptBufferId, .IpOffset = line}, audioId,
+      animationId);
 }
 
 void ChkMesSkip() {

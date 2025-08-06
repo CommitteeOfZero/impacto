@@ -13,14 +13,15 @@ using namespace Impacto::Vm;
 using namespace Impacto::Profile::TipsSystem;
 using namespace Impacto::Io;
 
-void TipsSystem::DataInit(int scriptBufferId, uint8_t *tipsData,
+void TipsSystem::DataInit(uint32_t scriptBufferId, uint32_t tipsDataAdr,
                           uint32_t tipsDataSize) {
   ScriptBufferId = (uint8_t)scriptBufferId;
   auto scriptBuffer = ScriptBuffers[scriptBufferId];
 
   int idx = 0;
   // Read tips data from the script and create UI elements for each tip
-  MemoryStream *stream = new MemoryStream(tipsData, tipsDataSize);
+  MemoryStream *stream =
+      new MemoryStream(&scriptBuffer[tipsDataAdr], tipsDataSize);
   auto numberOfContentStrings = ReadLE<uint16_t>(stream);
   while (numberOfContentStrings != 255) {
     // Read tip entry from the data array
@@ -30,8 +31,8 @@ void TipsSystem::DataInit(int scriptBufferId, uint8_t *tipsData,
     // TODO: record.SortLetterIndex
     record.NumberOfContentStrings = numberOfContentStrings;
     for (int i = 0; i < record.NumberOfContentStrings + 4; i++) {
-      record.StringPtrs[i] =
-          ScriptGetStrAddress(scriptBuffer, ReadLE<uint16_t>(stream));
+      record.StringAdr[i] =
+          ScriptGetStrAddress(scriptBufferId, ReadLE<uint16_t>(stream));
     }
     Records[idx] = record;
 

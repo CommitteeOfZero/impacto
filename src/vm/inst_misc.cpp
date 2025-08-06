@@ -183,7 +183,7 @@ VmInstruction(InstPressStartNew) {
   PopUint8(type);
   if (type == 0 || type == 3) {
     PopLocalLabel(labelAdr);
-    thread->Ip = labelAdr;
+    thread->IpOffset = labelAdr;
   }
 }
 VmInstruction(InstClearFlagChk) {

@@ -4,6 +4,7 @@
 
 #include "../widget.h"
 #include "../../text.h"
+#include "../../vm/vm.h"
 
 namespace Impacto {
 namespace UI {
@@ -11,8 +12,8 @@ namespace Widgets {
 
 class BacklogEntry : public Widget {
  public:
-  BacklogEntry(int id, uint8_t* str, int audioId, int characterId,
-               glm::vec2 pos, const RectF& hoverBounds);
+  BacklogEntry(int id, Vm::BufferOffsetContext scrCtx, int audioId,
+               int characterId, glm::vec2 pos, const RectF& hoverBounds);
   ~BacklogEntry();
 
   void UpdateInput() override;

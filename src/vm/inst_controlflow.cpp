@@ -17,19 +17,20 @@ VmInstruction(InstJump) {
   StartInstruction;
   PopLocalLabel(labelAdr);
 
-  thread->Ip = labelAdr;
+  thread->IpOffset = labelAdr;
 }
 VmInstruction(InstJumpTable) {
   StartInstruction;
   PopExpression(labelNumIndex);
   PopUint16(dataLabelNum);
-  uint8_t* dataAdr = ScriptGetLabelAddress(
-      ScriptBuffers[thread->ScriptBufferId], dataLabelNum);
-  uint8_t* labelAdr = ScriptGetLabelAddress(
-      ScriptBuffers[thread->ScriptBufferId],
-      SDL_SwapLE16(UnalignedRead<uint16_t>(dataAdr + 2 * labelNumIndex)));
+  uint32_t dataAdr =
+      ScriptGetLabelAddress(thread->ScriptBufferId, dataLabelNum);
+  uint8_t* dataPtr =
+      &ScriptBuffers[thread->ScriptBufferId][dataAdr + 2 * labelNumIndex];
+  uint32_t labelAdr = ScriptGetLabelAddress(
+      thread->ScriptBufferId, SDL_SwapLE16(UnalignedRead<uint16_t>(dataPtr)));
 
-  thread->Ip = labelAdr;
+  thread->IpOffset = labelAdr;
 }
 VmInstruction(InstIf) {
   StartInstruction;
@@ -37,18 +38,17 @@ VmInstruction(InstIf) {
   PopExpression(condition);
 
   PopUint16(labelNum);
-  uint8_t* labelAdr =
-      ScriptGetLabelAddress(ScriptBuffers[thread->ScriptBufferId], labelNum);
+  uint32_t labelAdr = ScriptGetLabelAddress(thread->ScriptBufferId, labelNum);
 
   if ((bool)check == (bool)condition) {
-    thread->Ip = labelAdr;
+    thread->IpOffset = labelAdr;
   }
 
   // Hack: Pokecom infinite recursion in DaSH macrosys2
   if (thread->Variables[0] == 1 && labelNum == 107 &&
       thread->ScriptBufferId == 7) {
     thread->Variables[0] = 0;
-    thread->Ip = labelAdr;
+    thread->IpOffset = labelAdr;
   }
 }
 VmInstruction(InstCall) {
@@ -60,11 +60,11 @@ VmInstruction(InstCall) {
       PopUint16(retNum);
       thread->ReturnIds[thread->CallStackDepth] = retNum;
     } else {
-      thread->ReturnAddresses[thread->CallStackDepth] = thread->Ip;
+      thread->ReturnAddresses[thread->CallStackDepth] = thread->IpOffset;
     }
     thread->ReturnScriptBufferIds[thread->CallStackDepth++] =
         thread->ScriptBufferId;
-    thread->Ip = labelAdr;
+    thread->IpOffset = labelAdr;
   } else {
     ImpLog(LogLevel::Error, LogChannel::VM,
            "Call error, call stack overflow.\n");
@@ -76,7 +76,7 @@ VmInstruction(InstJumpFar) {
   PopFarLabel(labelAdr, scriptBufferId);
 
   thread->ScriptBufferId = scriptBufferId;
-  thread->Ip = labelAdr;
+  thread->IpOffset = labelAdr;
 }
 VmInstruction(InstCallFar) {
   StartInstruction;
@@ -88,11 +88,11 @@ VmInstruction(InstCallFar) {
       PopUint16(retNum);
       thread->ReturnIds[thread->CallStackDepth] = retNum;
     } else {
-      thread->ReturnAddresses[thread->CallStackDepth] = thread->Ip;
+      thread->ReturnAddresses[thread->CallStackDepth] = thread->IpOffset;
     }
     thread->ReturnScriptBufferIds[thread->CallStackDepth++] =
         thread->ScriptBufferId;
-    thread->Ip = labelAdr;
+    thread->IpOffset = labelAdr;
     thread->ScriptBufferId = scriptBufferId;
   } else {
     ImpLog(LogLevel::Error, LogChannel::VM,
@@ -106,11 +106,10 @@ VmInstruction(InstReturn) {
     uint32_t retBufferId =
         thread->ReturnScriptBufferIds[thread->CallStackDepth];
     if (Profile::Vm::UseReturnIds) {
-      thread->Ip =
-          ScriptGetRetAddress(ScriptBuffers[retBufferId],
-                              thread->ReturnIds[thread->CallStackDepth]);
+      thread->IpOffset = ScriptGetRetAddress(
+          retBufferId, thread->ReturnIds[thread->CallStackDepth]);
     } else {
-      thread->Ip = thread->ReturnAddresses[thread->CallStackDepth];
+      thread->IpOffset = thread->ReturnAddresses[thread->CallStackDepth];
     }
     thread->ScriptBufferId = retBufferId;
   } else {
@@ -128,11 +127,10 @@ VmInstruction(InstReturnIfFlag) {
       uint32_t retBufferId =
           thread->ReturnScriptBufferIds[thread->CallStackDepth];
       if (Profile::Vm::UseReturnIds) {
-        thread->Ip =
-            ScriptGetRetAddress(ScriptBuffers[retBufferId],
-                                thread->ReturnIds[thread->CallStackDepth]);
+        thread->IpOffset = ScriptGetRetAddress(
+            retBufferId, thread->ReturnIds[thread->CallStackDepth]);
       } else {
-        thread->Ip = thread->ReturnAddresses[thread->CallStackDepth];
+        thread->IpOffset = thread->ReturnAddresses[thread->CallStackDepth];
       }
       thread->ScriptBufferId = retBufferId;
     }
@@ -146,8 +144,7 @@ VmInstruction(InstLoop) {
   PopUint16(labelNum);
   PopExpression(loopCount);
 
-  uint8_t* labelAdr =
-      ScriptGetLabelAddress(ScriptBuffers[thread->ScriptBufferId], labelNum);
+  uint32_t labelAdr = ScriptGetLabelAddress(thread->ScriptBufferId, labelNum);
 
   if (thread->LoopLabelNum == labelNum) {
     loopCount = thread->LoopCounter;
@@ -157,7 +154,7 @@ VmInstruction(InstLoop) {
   }
   thread->LoopCounter--;
   if (thread->LoopCounter) {
-    thread->Ip = labelAdr;
+    thread->IpOffset = labelAdr;
   } else {
     thread->LoopLabelNum = 0xFFFF;
   }
@@ -169,7 +166,7 @@ VmInstruction(InstFlagOnJump) {
   PopLocalLabel(labelAdr);
 
   if (GetFlag(flagId) == (bool)value) {
-    thread->Ip = labelAdr;
+    thread->IpOffset = labelAdr;
   }
 }
 VmInstruction(InstKeyOnJump) {
@@ -178,15 +175,14 @@ VmInstruction(InstKeyOnJump) {
   PopExpression(arg2);
   PopExpression(arg3);
   PopUint16(labelNum);
-  uint8_t* labelAdr =
-      ScriptGetLabelAddress(ScriptBuffers[thread->ScriptBufferId], labelNum);
+  uint32_t labelAdr = ScriptGetLabelAddress(thread->ScriptBufferId, labelNum);
 
   if (arg1 & 2) {
     arg2 = Interface::PADcustom[arg2];
   }
   if (arg2 & Interface::PADinputButtonWentDown ||
       arg2 & Interface::PADinputMouseWentDown) {
-    thread->Ip = labelAdr;
+    thread->IpOffset = labelAdr;
     Interface::PADinputButtonWentDown = 0;
     Interface::PADinputMouseWentDown = 0;
   }
@@ -204,14 +200,13 @@ VmInstruction(InstKeyOnJump_Dash) {
     PopExpression(arg3);
   }
   PopUint16(labelNum);
-  uint8_t* labelAdr =
-      ScriptGetLabelAddress(ScriptBuffers[thread->ScriptBufferId], labelNum);
+  uint32_t labelAdr = ScriptGetLabelAddress(thread->ScriptBufferId, labelNum);
   if (arg1 & 2) {
     arg2 = Interface::PADcustom[arg2];
   }
   if (arg2 & Interface::PADinputButtonWentDown ||
       arg2 & Interface::PADinputMouseWentDown) {
-    thread->Ip = labelAdr;
+    thread->IpOffset = labelAdr;
     Interface::PADinputButtonWentDown = 0;
     Interface::PADinputMouseWentDown = 0;
   }
@@ -231,10 +226,9 @@ VmInstruction(InstClickOnJump) {
   }
   PopExpression(arg2);
   PopUint16(labelNum);
-  uint8_t* labelAdr =
-      ScriptGetLabelAddress(ScriptBuffers[thread->ScriptBufferId], labelNum);
+  uint32_t labelAdr = ScriptGetLabelAddress(thread->ScriptBufferId, labelNum);
   if (Input::KeyboardButtonWentDown[SDL_SCANCODE_D]) {
-    thread->Ip = labelAdr;
+    thread->IpOffset = labelAdr;
   }
   ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
              "STUB instruction ClickOnJump(arg1: {:d}, arg2: {:d}, "
@@ -251,8 +245,8 @@ VmInstruction(InstKeyboardOnJump) {
   ImpLogSlow(
       LogLevel::Warning, LogChannel::VMStub,
       "STUB instruction KeyboardOnJump(arg1: {:d}, arg2: {:d}, arg3: {:d}, "
-      "arg4: {:p})\n",
-      arg1, arg2, arg3, (void*)arg4);
+      "arg4: {:d})\n",
+      arg1, arg2, arg3, arg4);
 }
 VmInstruction(InstControlOnJump) {
   StartInstruction;
@@ -260,7 +254,7 @@ VmInstruction(InstControlOnJump) {
   PopExpression(controlId);
   PopLocalLabel(labelAdr);
   if ((bool)controlStateTarget == Interface::GetControlState(controlId)) {
-    thread->Ip = labelAdr;
+    thread->IpOffset = labelAdr;
   }
 }
 VmInstruction(InstGetControl) { StartInstruction; }
@@ -274,9 +268,8 @@ VmInstruction(InstLoadJump) {
     if (!Profile::Vm::UseSeparateMsbArchive) scriptId += 1;
   }
   LoadScript(thread->ScriptBufferId, scriptId);
-  uint8_t* labelAdr =
-      ScriptGetLabelAddress(ScriptBuffers[thread->ScriptBufferId], labelNum);
-  thread->Ip = labelAdr;
+  uint32_t labelAdr = ScriptGetLabelAddress(thread->ScriptBufferId, labelNum);
+  thread->IpOffset = labelAdr;
 }
 VmInstruction(InstSwitch) {
   StartInstruction;
@@ -289,7 +282,7 @@ VmInstruction(InstCase) {
   PopLocalLabel(labelAdr);
 
   if (static_cast<int>(SwitchValue) == caseVal) {
-    thread->Ip = labelAdr;
+    thread->IpOffset = labelAdr;
   }
 }
 
@@ -303,11 +296,10 @@ VmInstruction(InstFlagOffReturn) {
       uint32_t retBufferId =
           thread->ReturnScriptBufferIds[thread->CallStackDepth];
       if (Profile::Vm::UseReturnIds) {
-        thread->Ip =
-            ScriptGetRetAddress(ScriptBuffers[retBufferId],
-                                thread->ReturnIds[thread->CallStackDepth]);
+        thread->IpOffset = ScriptGetRetAddress(
+            retBufferId, thread->ReturnIds[thread->CallStackDepth]);
       } else {
-        thread->Ip = thread->ReturnAddresses[thread->CallStackDepth];
+        thread->IpOffset = thread->ReturnAddresses[thread->CallStackDepth];
       }
       thread->ScriptBufferId = retBufferId;
     } else {

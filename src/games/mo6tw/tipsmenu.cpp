@@ -149,9 +149,9 @@ void TipsMenu::Init() {
   Group *pageItems = new Group(this);
 
   // String of characters by which tips are sorted, taken from _system script
-  auto sortString =
+  auto [scriptBufId, sortStrAddr] =
       Vm::ScriptGetTextTableStrAddress(SortStringTable, SortStringIndex);
-
+  uint8_t *sortString = &Vm::ScriptBuffers[scriptBufId][sortStrAddr];
   auto recordCount = TipsSystem::GetTipCount();
 
   float currentY = TipListInitialY;
@@ -183,7 +183,9 @@ void TipsMenu::Init() {
       Label *categoryLabel = new Label();
       categoryLabel->Bounds.X = TipListEntryBounds.X;
       categoryLabel->Bounds.Y = currentY;
-      categoryLabel->SetText((uint8_t *)CategoryString, TipListEntryFontSize,
+      Vm::Sc3Stream categoryStrStream(
+          reinterpret_cast<uint8_t *>(CategoryString));
+      categoryLabel->SetText(categoryStrStream, TipListEntryFontSize,
                              RendererOutlineMode::Full, 0);
       pageItems->Add(categoryLabel);
       currentY += TipListYPadding;
@@ -234,20 +236,27 @@ void TipsMenu::SwitchToTipId(int id) {
   CurrentTipPage = 1;
   TipsSystem::SetTipUnreadState(id, false);
   TipsSystem::SetTipNewState(id, false);
+  auto tipsScriptBufferId = TipsSystem::GetTipsScriptBufferId();
 
   auto tipRecord = TipsSystem::GetTipRecord(id);
-  Name->SetText(tipRecord->StringPtrs[0], NameFontSize,
-                RendererOutlineMode::Full, DefaultColorIndex);
-  Pronounciation->SetText(tipRecord->StringPtrs[1], PronounciationFontSize,
-                          RendererOutlineMode::Full, DefaultColorIndex);
+  Name->SetText({.ScriptBufferId = tipsScriptBufferId,
+                 .IpOffset = tipRecord->StringAdr[0]},
+                NameFontSize, RendererOutlineMode::Full, DefaultColorIndex);
+  Pronounciation->SetText({.ScriptBufferId = tipsScriptBufferId,
+                           .IpOffset = tipRecord->StringAdr[1]},
+                          PronounciationFontSize, RendererOutlineMode::Full,
+                          DefaultColorIndex);
 
   Vm::Sc3VmThread dummy;
-  dummy.Ip = tipRecord->StringPtrs[2];
+  dummy.IpOffset = tipRecord->StringAdr[2];
+  dummy.ScriptBufferId = tipsScriptBufferId;
   float categoryWidth = TextGetPlainLineWidth(
       &dummy, Profile::Dialogue::DialogueFont, CategoryFontSize);
   Category->Bounds.X = CategoryEndX - categoryWidth;
-  Category->SetText(tipRecord->StringPtrs[2], CategoryFontSize,
-                    RendererOutlineMode::Full, DefaultColorIndex);
+  Category->SetText({.ScriptBufferId = tipsScriptBufferId,
+                     .IpOffset = tipRecord->StringAdr[2]},
+                    CategoryFontSize, RendererOutlineMode::Full,
+                    DefaultColorIndex);
   if (tipRecord->ThumbnailIndex != 0xFFFF)
     ThumbnailSprite = &TipThumbnails[tipRecord->ThumbnailIndex];
   else
@@ -264,7 +273,8 @@ void TipsMenu::SwitchToTipId(int id) {
                       DefaultColorIndex);
 
   TextPage.Clear();
-  dummy.Ip = tipRecord->StringPtrs[3];
+  dummy.IpOffset = tipRecord->StringAdr[3];
+  dummy.ScriptBufferId = tipsScriptBufferId;
   TextPage.AddString(&dummy);
 }
 
@@ -276,7 +286,8 @@ void TipsMenu::NextTipPage() {
 
   TextPage.Clear();
   Vm::Sc3VmThread dummy;
-  dummy.Ip = currentRecord->StringPtrs[2 + CurrentTipPage];
+  dummy.IpOffset = currentRecord->StringAdr[2 + CurrentTipPage];
+  dummy.ScriptBufferId = TipsSystem::GetTipsScriptBufferId();
   TextPage.AddString(&dummy);
   CurrentPage->SetText(fmt::to_string(CurrentTipPage), PageSeparatorFontSize,
                        RendererOutlineMode::Full, DefaultColorIndex);

@@ -433,14 +433,11 @@ void SaveSystem::SaveMemory() {
       WorkingSaveEntry->MainThreadScriptParam = thd->ScriptParam;
       WorkingSaveEntry->MainThreadGroupId = thd->GroupId << 16;
       WorkingSaveEntry->MainThreadGroupId |= thd->ScriptBufferId;
-      WorkingSaveEntry->MainThreadIp =
-          (uint32_t)(thd->Ip - ScriptBuffers[thd->ScriptBufferId]);
+      WorkingSaveEntry->MainThreadIp = thd->IpOffset;
       WorkingSaveEntry->MainThreadCallStackDepth = thd->CallStackDepth;
 
       for (size_t j = 0; j < thd->CallStackDepth; j++) {
-        WorkingSaveEntry->MainThreadReturnIds[j] =
-            (uint32_t)(thd->ReturnAddresses[j] -
-                       ScriptBuffers[thd->ReturnScriptBufferIds[j]]);
+        WorkingSaveEntry->MainThreadReturnIds[j] = thd->ReturnAddresses[j];
         WorkingSaveEntry->MainThreadReturnBufIds[j] =
             thd->ReturnScriptBufferIds[j];
       }
@@ -549,28 +546,15 @@ void SaveSystem::LoadEntry(SaveType type, int id) {
         thd->ScriptParam = entry->MainThreadScriptParam;
         thd->GroupId = entry->MainThreadGroupId >> 16;
         thd->ScriptBufferId = entry->MainThreadGroupId & 0xFFFF;
-        LoadScript(thd->ScriptBufferId, ScrWork[2004 + thd->ScriptBufferId]);
-        thd->Ip = ScriptBuffers[thd->ScriptBufferId] + entry->MainThreadIp;
+        thd->IpOffset = entry->MainThreadIp;
         // thd->CallStackDepth = entry->MainThreadCallStackDepth;
 
-        LoadScript(entry->MainThreadReturnBufIds[0],
-                   ScrWork[2004 + entry->MainThreadReturnBufIds[0]]);
         thd->CallStackDepth++;
         thd->ReturnScriptBufferIds[0] = entry->MainThreadReturnBufIds[0];
-        thd->ReturnAddresses[0] =
-            ScriptBuffers[entry->MainThreadReturnBufIds[0]] +
-            entry->MainThreadReturnIds[0];
+        thd->ReturnAddresses[0] = entry->MainThreadReturnIds[0];
 
         memcpy(thd->Variables, entry->MainThreadVariables, 64);
         thd->DialoguePageId = entry->MainThreadDialoguePageId;
-
-        // Tell the script side of save loading that we already loaded the
-        // needed scripts ourselves
-        // TODO: Figure out a better way of loading in general
-        ScrWork[SW_SVSCRNO1] = 65535;
-        ScrWork[SW_SVSCRNO2] = 65535;
-        ScrWork[SW_SVSCRNO3] = 65535;
-        ScrWork[SW_SVSCRNO4] = 65535;
       }
     }
 }

@@ -1,3 +1,4 @@
+#include <memory>
 #include "text.h"
 #include "vm/expression.h"
 #include "log.h"
@@ -26,10 +27,9 @@
 
 #include <utf8.h>
 #include "vm/interface/input.h"
-#include <memory>
+#include "vm/sc3stream.h"
 
 namespace Impacto {
-
 using namespace Impacto::Profile::Dialogue;
 using namespace Impacto::Profile::ScriptVars;
 
@@ -72,13 +72,14 @@ struct StringToken {
   int Val_Expr;
 
   int Read(Vm::Sc3VmThread* ctx);
+  int Read(Vm::Sc3Stream& stream);
 };
 
 int StringToken::Read(Vm::Sc3VmThread* ctx) {
   int bytesRead = 0;
 
-  uint8_t c = *ctx->Ip;
-  ctx->Ip++;
+  uint8_t c = *ctx->GetIp();
+  ctx->IpOffset++;
   bytesRead++;
   switch (c) {
     case STT_LineBreak:
@@ -107,8 +108,8 @@ int StringToken::Read(Vm::Sc3VmThread* ctx) {
     case STT_GetHardcodedValue:
     case STT_UnlockTip: {
       Type = (StringTokenType)c;
-      Val_Uint16 = (*ctx->Ip << 8) | *(ctx->Ip + 1);
-      ctx->Ip += 2;
+      Val_Uint16 = (*ctx->GetIp() << 8) | *(ctx->GetIp() + 1);
+      ctx->IpOffset += 2;
       bytesRead += 2;
       break;
     }
@@ -116,24 +117,24 @@ int StringToken::Read(Vm::Sc3VmThread* ctx) {
     case STT_SetColor: {
       Type = (StringTokenType)c;
       if (ColorTagIsUint8) {
-        Val_Expr = (*(uint8_t*)(ctx->Ip));
-        ctx->Ip += 1;
+        Val_Expr = (*(uint8_t*)(ctx->GetIp()));
+        ctx->IpOffset += 1;
         bytesRead += 1;
       } else {
-        uint8_t* oldIp = ctx->Ip;
+        uint32_t oldIp = ctx->IpOffset;
         // TODO is this really okay to do in parsing code?
         Vm::ExpressionEval(ctx, &Val_Expr);
-        bytesRead += (int)(ctx->Ip - oldIp);
+        bytesRead += (int)(ctx->IpOffset - oldIp);
       }
       break;
     }
 
     case STT_EvaluateExpression: {
       Type = (StringTokenType)c;
-      uint8_t* oldIp = ctx->Ip;
+      uint32_t oldIp = ctx->IpOffset;
       // TODO is this really okay to do in parsing code?
       Vm::ExpressionEval(ctx, &Val_Expr);
-      bytesRead += (int)(ctx->Ip - oldIp);
+      bytesRead += (int)(ctx->IpOffset - oldIp);
       break;
     }
 
@@ -147,8 +148,8 @@ int StringToken::Read(Vm::Sc3VmThread* ctx) {
                "Encountered unrecognized token 0x{:02x} in string\n", c);
         Type = STT_EndOfString;
       } else {
-        uint16_t glyphId = (((uint16_t)c & 0x7F) << 8) | *ctx->Ip;
-        ctx->Ip++;
+        uint16_t glyphId = (((uint16_t)c & 0x7F) << 8) | *ctx->GetIp();
+        ctx->IpOffset++;
 
         Type = STT_Character;
         Val_Uint16 = glyphId;
@@ -158,6 +159,26 @@ int StringToken::Read(Vm::Sc3VmThread* ctx) {
   }
 
   return bytesRead;
+}
+
+int StringToken::Read(Vm::Sc3Stream& stream) {
+  uint8_t c = stream.ReadU8();
+  if (c == STT_Character) {
+    ImpLog(LogLevel::Error, LogChannel::VM,
+           "STT_Character encountered, uh oh...");
+  } else if (c < 0x80) {
+    ImpLog(LogLevel::Error, LogChannel::VM,
+           "Encountered non-character token 0x{:02x} in string\n", c);
+    Type = STT_EndOfString;
+  } else if (c == STT_EndOfString) {
+    Type = STT_EndOfString;
+  } else {
+    uint16_t glyphId = (((uint16_t)c & 0x7F) << 8) | stream.ReadU8();
+    Type = STT_Character;
+    Val_Uint16 = glyphId;
+    return 2;
+  }
+  return 1;
 }
 
 uint8_t ProcessedTextGlyph::Flags() const {
@@ -285,8 +306,7 @@ void DialoguePage::FinishLine(Vm::Sc3VmThread* ctx, int nextLineStart,
   for (size_t i = FirstRubyChunkOnLine; i < RubyChunkCount; i++) {
     if (RubyChunks[i].FirstBaseCharacter >= nextLineStart) break;
 
-    uint8_t* oldIp = ctx->Ip;
-    ctx->Ip = (uint8_t*)RubyChunks[i].RawText;
+    Vm::Sc3Stream rubyText(RubyChunks[i].RawText);
 
     glm::vec2 pos =
         glm::vec2(0, CurrentLineTop + CurrentLineTopMargin + RubyYOffset);
@@ -294,8 +314,8 @@ void DialoguePage::FinishLine(Vm::Sc3VmThread* ctx, int nextLineStart,
     // ruby base length > ruby text length: block align
     // ruby base length > ruby text length and 0x1E: center per character
     // ruby base length == ruby text length: center per character
-    // ruby base length < ruby text length: center over block (handled by block
-    // align)
+    // ruby base length < ruby text length: center over block (handled by
+    // block align)
 
     if (RubyChunks[i].Length == RubyChunks[i].BaseLength ||
         (RubyChunks[i].CenterPerCharacter &&
@@ -305,7 +325,7 @@ void DialoguePage::FinishLine(Vm::Sc3VmThread* ctx, int nextLineStart,
         RectF const& baseGlyphRect =
             Glyphs[RubyChunks[i].FirstBaseCharacter + j].DestRect;
         pos.x = baseGlyphRect.Center().x;
-        TextLayoutPlainLine(ctx, 1, std::span(RubyChunks[i].Text + j, 1),
+        TextLayoutPlainLine(rubyText, 1, std::span(RubyChunks[i].Text + j, 1),
                             DialogueFont, RubyFontSize, ColorTable[0], 1.0f,
                             pos, TextAlignment::Center);
       }
@@ -329,9 +349,6 @@ void DialoguePage::FinishLine(Vm::Sc3VmThread* ctx, int nextLineStart,
                             pos, TextAlignment::Block, blockWidth);
     */
     }
-
-    ctx->Ip = oldIp;
-
     FirstRubyChunkOnLine++;
   }
 
@@ -407,8 +424,8 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
   size_t typewriterStart = Glyphs.size();
 
   // TODO should we reset HasName here?
-  // It shouldn't really matter since names are an ADV thing and we clear before
-  // every add on ADV anyway...
+  // It shouldn't really matter since names are an ADV thing and we clear
+  // before every add on ADV anyway...
 
   AutoForward = false;
 
@@ -479,8 +496,8 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
         break;
       }
       case STT_RubyTextEnd: {
-        // At least S;G uses [ruby-base]link text[ruby-text-end] for mails, with
-        // no ruby-text-start
+        // At least S;G uses [ruby-base]link text[ruby-text-end] for mails,
+        // with no ruby-text-start
         EndRubyBase((int)Glyphs.size() - 1);
         State = TPS_Normal;
         break;
@@ -639,9 +656,6 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
   }
 
   if (HasName) {
-    uint8_t* oldIp = ctx->Ip;
-    ctx->Ip = (uint8_t*)name;
-
     NameId = GetNameId((uint8_t*)name, NameLength * 2);
 
     float fontSize = ADVNameFontSize;
@@ -664,11 +678,10 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
           break;
       }
     }
-
-    Name = TextLayoutPlainLine(ctx, NameLength, DialogueFont, fontSize,
+    Vm::Sc3Stream nameStream(name);
+    Name = TextLayoutPlainLine(nameStream, NameLength, DialogueFont, fontSize,
                                ColorTable[colorIndex], 1.0f, pos, alignment);
     assert(NameLength == Name.size());
-    ctx->Ip = oldIp;
   }
 
   if (voice != 0) {
@@ -767,6 +780,14 @@ void DialoguePage::MoveTo(glm::vec2 pos) {
   Move(relativePos);
 }
 
+int TextGetStringLength(Vm::Sc3Stream& stream) {
+  int result = 0;
+  StringToken token;
+  do {
+    result += token.Read(stream);
+  } while (token.Type != STT_EndOfString);
+  return result;
+}
 int TextGetStringLength(Vm::Sc3VmThread* ctx) {
   int result = 0;
   StringToken token;
@@ -775,12 +796,13 @@ int TextGetStringLength(Vm::Sc3VmThread* ctx) {
   } while (token.Type != STT_EndOfString);
   return result;
 }
-/*
+
 int TextGetMainCharacterCount(Vm::Sc3VmThread* ctx) {
   int result = 0;
-  StringToken token;  // FIXME: Initialize token
+  StringToken token;
   bool isMain = true;
   do {
+    token.Read(ctx);
     switch (token.Type) {
       case STT_CharacterNameStart:
       case STT_RubyTextStart: {
@@ -802,60 +824,28 @@ int TextGetMainCharacterCount(Vm::Sc3VmThread* ctx) {
   } while (token.Type != STT_EndOfString);
   return result;
 }
-*/
 
-int TextLayoutPlainLine(Vm::Sc3VmThread* ctx, int stringLength,
-                        std::span<ProcessedTextGlyph> outGlyphs, Font* font,
-                        float fontSize, DialogueColorPair colors, float opacity,
-                        glm::vec2 pos, TextAlignment alignment,
-                        float blockWidth) {
-  int characterCount = 0;
-  StringToken token;
+template <typename T>
+concept Sc3Type =
+    std::is_lvalue_reference_v<T> &&
+        std::is_base_of_v<Vm::Sc3Stream, std::remove_reference_t<T>> ||
+    std::is_same_v<std::decay_t<T>, Vm::Sc3VmThread*>;
 
-  float currentX = 0;
-  for (int i = 0; i < stringLength; i++) {
-    token.Read(ctx);
-    if (token.Type == STT_EndOfString) break;
-    if (token.Type != STT_Character) continue;
-
-    ProcessedTextGlyph& ptg = outGlyphs[characterCount];
-    ptg.CharId = token.Val_Uint16;
-    ptg.Colors = colors;
-    ptg.Opacity = opacity;
-
-    ptg.DestRect.X = currentX;
-    ptg.DestRect.Y = pos.y;
-    ptg.DestRect.Width = std::floor((fontSize / font->BitmapEmWidth) *
-                                    font->AdvanceWidths[ptg.CharId]);
-    ptg.DestRect.Height = fontSize;
-
-    currentX += ptg.DestRect.Width;
-
-    characterCount++;
-  }
-  assert(outGlyphs.size() >= characterCount);
-  // currentX is now line width
-  return TextLayoutAlignment(alignment, blockWidth, currentX, pos,
-                             characterCount, outGlyphs);
-}
-
-std::vector<ProcessedTextGlyph> TextLayoutPlainLine(
-    Vm::Sc3VmThread* ctx, int maxLength, Font* font, float fontSize,
-    DialogueColorPair colors, float opacity, glm::vec2 pos,
+std::pair<int, float> TextLayoutPlainLineHelper(
+    Sc3Type auto&& sc3, int stringLength,
+    std::output_iterator<ProcessedTextGlyph> auto outIt, Font* font,
+    float fontSize, DialogueColorPair colors, float opacity, glm::vec2 pos,
     TextAlignment alignment, float blockWidth) {
   int characterCount = 0;
   StringToken token;
 
   float currentX = 0;
-  std::vector<ProcessedTextGlyph> outGlyphs;
-  outGlyphs.reserve(maxLength);
-  for (int i = 0; i < maxLength; i++) {
-    token.Read(ctx);
+  for (int i = 0; i < stringLength; i++) {
+    token.Read(sc3);
     if (token.Type == STT_EndOfString) break;
     if (token.Type != STT_Character) continue;
 
-    outGlyphs.push_back(ProcessedTextGlyph());
-    ProcessedTextGlyph& ptg = outGlyphs.back();
+    ProcessedTextGlyph ptg;
     ptg.CharId = token.Val_Uint16;
     ptg.Colors = colors;
     ptg.Opacity = opacity;
@@ -868,12 +858,64 @@ std::vector<ProcessedTextGlyph> TextLayoutPlainLine(
 
     currentX += ptg.DestRect.Width;
 
+    *outIt++ = ptg;
     characterCount++;
   }
-
   // currentX is now line width
-  TextLayoutAlignment(alignment, blockWidth, currentX, pos, characterCount,
-                      outGlyphs);
+  // If you want to align, you can pass a span or vector to the alignment
+  // function
+  return {characterCount, currentX};
+}
+
+int TextLayoutPlainLine(Vm::Sc3Stream& stream, int stringLength,
+                        std::span<ProcessedTextGlyph> outGlyphs, Font* font,
+                        float fontSize, DialogueColorPair colors, float opacity,
+                        glm::vec2 pos, TextAlignment alignment,
+                        float blockWidth) {
+  auto [count, currentX] = TextLayoutPlainLineHelper(
+      stream, stringLength, outGlyphs.begin(), font, fontSize, colors, opacity,
+      pos, alignment, blockWidth);
+  assert(outGlyphs.size() >= count);
+  TextLayoutAlignment(alignment, blockWidth, currentX, pos, count, outGlyphs);
+  return count;
+}
+
+std::vector<ProcessedTextGlyph> TextLayoutPlainLine(
+    Vm::Sc3Stream& stream, int maxLength, Font* font, float fontSize,
+    DialogueColorPair colors, float opacity, glm::vec2 pos,
+    TextAlignment alignment, float blockWidth) {
+  std::vector<ProcessedTextGlyph> outGlyphs;
+  outGlyphs.reserve(maxLength);
+  auto [count, currentX] = TextLayoutPlainLineHelper(
+      stream, maxLength, std::back_inserter(outGlyphs), font, fontSize, colors,
+      opacity, pos, alignment, blockWidth);
+  TextLayoutAlignment(alignment, blockWidth, currentX, pos, count, outGlyphs);
+  return outGlyphs;
+}
+
+int TextLayoutPlainLine(Vm::Sc3VmThread* thd, int stringLength,
+                        std::span<ProcessedTextGlyph> outGlyphs, Font* font,
+                        float fontSize, DialogueColorPair colors, float opacity,
+                        glm::vec2 pos, TextAlignment alignment,
+                        float blockWidth) {
+  auto [count, currentX] = TextLayoutPlainLineHelper(
+      thd, stringLength, outGlyphs.begin(), font, fontSize, colors, opacity,
+      pos, alignment, blockWidth);
+  assert(outGlyphs.size() >= count);
+  TextLayoutAlignment(alignment, blockWidth, currentX, pos, count, outGlyphs);
+  return count;
+}
+
+std::vector<ProcessedTextGlyph> TextLayoutPlainLine(
+    Vm::Sc3VmThread* thd, int maxLength, Font* font, float fontSize,
+    DialogueColorPair colors, float opacity, glm::vec2 pos,
+    TextAlignment alignment, float blockWidth) {
+  std::vector<ProcessedTextGlyph> outGlyphs;
+  outGlyphs.reserve(maxLength);
+  auto [count, currentX] = TextLayoutPlainLineHelper(
+      thd, maxLength, std::back_inserter(outGlyphs), font, fontSize, colors,
+      opacity, pos, alignment, blockWidth);
+  TextLayoutAlignment(alignment, blockWidth, currentX, pos, count, outGlyphs);
   return outGlyphs;
 }
 
@@ -947,6 +989,22 @@ float TextGetPlainLineWidth(Vm::Sc3VmThread* ctx, Font* font, float fontSize) {
   return width;
 }
 
+float TextGetPlainLineWidth(Vm::Sc3Stream& stream, Font* font, float fontSize) {
+  StringToken token;
+
+  float width = 0.0f;
+  while (true) {
+    token.Read(stream);
+    if (token.Type == STT_EndOfString) break;
+    if (token.Type != STT_Character) continue;
+
+    width += std::floor((fontSize / font->BitmapEmWidth) *
+                        font->AdvanceWidths[token.Val_Uint16]);
+  }
+
+  return width;
+}
+
 int TextLayoutPlainString(std::string_view str,
                           std::span<ProcessedTextGlyph> outGlyphs, Font* font,
                           float fontSize, DialogueColorPair colors,
@@ -961,9 +1019,8 @@ int TextLayoutPlainString(std::string_view str,
   TextGetSc3String(str,
                    std::span(sc3StrPtr.get(), sc3StrPtr.get() + sc3StrLength));
 
-  Vm::Sc3VmThread dummy;
-  dummy.Ip = reinterpret_cast<uint8_t*>(sc3StrPtr.get());
-  return TextLayoutPlainLine(&dummy, sc3StrLength, outGlyphs, font, fontSize,
+  Vm::Sc3Stream stream(sc3StrPtr.get());
+  return TextLayoutPlainLine(stream, sc3StrLength, outGlyphs, font, fontSize,
                              colors, opacity, pos, alignment, blockWidth);
 }
 
@@ -979,9 +1036,8 @@ std::vector<ProcessedTextGlyph> TextLayoutPlainString(
   TextGetSc3String(str,
                    std::span(sc3StrPtr.get(), sc3StrPtr.get() + sc3StrLength));
 
-  Vm::Sc3VmThread dummy;
-  dummy.Ip = reinterpret_cast<uint8_t*>(sc3StrPtr.get());
-  return TextLayoutPlainLine(&dummy, sc3StrLength, font, fontSize, colors,
+  Vm::Sc3Stream stream(sc3StrPtr.get());
+  return TextLayoutPlainLine(stream, sc3StrLength, font, fontSize, colors,
                              opacity, pos, alignment, blockWidth);
 }
 
@@ -989,7 +1045,7 @@ void TextGetSc3String(std::string_view str, std::span<uint16_t> out) {
   std::string_view::iterator strIt = str.begin();
   std::string_view::iterator strEnd = str.end();
 
-  int sc3StrLength = (int)utf8::distance(strIt, strEnd) + 1;
+  [[maybe_unused]] int sc3StrLength = (int)utf8::distance(strIt, strEnd) + 1;
   assert(sc3StrLength <= out.size());
   int sc3Idx = 0;
   while (strIt != strEnd) {
@@ -1003,20 +1059,20 @@ void TextGetSc3String(std::string_view str, std::span<uint16_t> out) {
   assert(sc3Idx == sc3StrLength);
 }
 
-void InitNamePlateData(uint16_t* data) {
-  int idx = 0;
+void InitNamePlateData(Vm::Sc3Stream& stream) {
   do {
-    uint16_t id = data[idx];
-    uint16_t stringId = data[idx + 1];
-    idx += 2;
-    uint8_t* name = Vm::ScriptGetStrAddress(
-        Vm::ScriptBuffers[Profile::Vm::SystemScriptBuffer], stringId);
+    uint16_t id = stream.ReadU16();
+    uint16_t stringId = stream.ReadU16();
+    uint32_t nameAddr =
+        Vm::ScriptGetStrAddress(Profile::Vm::SystemScriptBuffer, stringId);
     Vm::Sc3VmThread dummy;
-    dummy.Ip = name;
+    dummy.IpOffset = nameAddr;
+    dummy.ScriptBufferId = Profile::Vm::SystemScriptBuffer;
     int nameLength = (TextGetStringLength(&dummy) - 1) * 2;
-    uint32_t nameHash = GetHashCode(name, nameLength);
+    dummy.IpOffset = nameAddr;
+    uint32_t nameHash = GetHashCode(dummy.GetIp(), nameLength);
     NamePlateData[nameHash] = id;
-  } while (data[idx] != 0xFFFF);
+  } while (stream.PeekU16() != 0xFFFF);
 }
 
 uint32_t GetNameId(uint8_t* name, int nameLength) {

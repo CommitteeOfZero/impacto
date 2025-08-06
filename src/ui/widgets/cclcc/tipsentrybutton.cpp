@@ -33,8 +33,9 @@ TipsEntryButton::TipsEntryButton(int tipId, int dispId, RectF const& dest,
                         glm::vec2(Bounds.X, Bounds.Y) + TipsEntryNumberOffset,
                         TextAlignment::Left);
   Vm::Sc3VmThread dummy;
+  dummy.ScriptBufferId = TipsSystem::GetTipsScriptBufferId();
   glm::vec2 nameDest = glm::vec2(Bounds.X, Bounds.Y) + TipsEntryNameOffset;
-  dummy.Ip = TipEntryRecord->StringPtrs[1];
+  dummy.IpOffset = TipEntryRecord->StringAdr[1];
   HasText = true;
 
   uint32_t initColorName =
@@ -43,9 +44,8 @@ TipsEntryButton::TipsEntryButton(int tipId, int dispId, RectF const& dest,
                              (float)TipsEntryNameFontSize, {initColorName, 0},
                              1.0f, nameDest, TextAlignment::Left);
 
-  dummy.Ip = Vm::ScriptGetStrAddress(
-      Impacto::Vm::ScriptBuffers[TipsSystem::GetTipsScriptBufferId()],
-      TipsTextEntryLockedIndex);
+  dummy.IpOffset = Vm::ScriptGetStrAddress(TipsSystem::GetTipsScriptBufferId(),
+                                           TipsTextEntryLockedIndex);
   TextLayoutPlainLine(&dummy, TipLockedTextLength, TipLockedText,
                       Profile::Dialogue::DialogueFont,
                       (float)TipsEntryNameFontSize, {initColorName, 0}, 1.0f,

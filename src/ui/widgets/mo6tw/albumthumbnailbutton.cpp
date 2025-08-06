@@ -21,7 +21,6 @@ AlbumThumbnailButton::AlbumThumbnailButton(
                            focusedBottomLeft, focusedBottomRight, pos) {
   TotalVariations = totalVariations;
   UnlockedVariations = unlockedVariations;
-  Vm::Sc3VmThread dummy;
   uint16_t sc3StringBuffer[10];
 
   std::string variationsCount =
@@ -29,11 +28,13 @@ AlbumThumbnailButton::AlbumThumbnailButton(
           ? fmt::format("{:d}/{:d}", unlockedVariations, totalVariations)
           : "\?\?/\?\?";
   TextGetSc3String(variationsCount, sc3StringBuffer);
-  dummy.Ip = (uint8_t*)sc3StringBuffer;
-  InfoTextWidth = TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont,
+  Vm::Sc3Stream stream(sc3StringBuffer);
+
+  InfoTextWidth = TextGetPlainLineWidth(stream, Profile::Dialogue::DialogueFont,
                                         ThumbnailButtonTextFontSize);
+  stream = Vm::Sc3Stream(sc3StringBuffer);
   InfoText = new Label(
-      (uint8_t*)sc3StringBuffer,
+      stream,
       pos +
           glm::vec2(norm.Bounds.Width - InfoTextWidth,
                     norm.Bounds.Height - ThumbnailButtonTextFontSize) +

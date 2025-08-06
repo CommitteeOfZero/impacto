@@ -10,9 +10,10 @@ using namespace Impacto::Profile::TipsSystem;
 
 void Init() { Configure(); }
 
-void DataInit(int scriptBufferId, uint8_t* tipsData, uint32_t tipsDataSize) {
+void DataInit(uint32_t scriptBufferId, uint32_t tipsDataAdr,
+              uint32_t tipsDataSize) {
   if (Implementation)
-    return Implementation->DataInit(scriptBufferId, tipsData, tipsDataSize);
+    return Implementation->DataInit(scriptBufferId, tipsDataAdr, tipsDataSize);
 
   ImpLog(LogLevel::Warning, LogChannel::VMStub,
          "{:s}: tips system not implemented, doing nothing\n", __func__);

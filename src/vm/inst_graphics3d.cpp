@@ -132,12 +132,12 @@ VmInstruction(InstCHAUnk02073D_Dash) {
     ImpLogSlow(
         LogLevel::Warning, LogChannel::VMStub,
         "STUB instruction CHAUnk02073D_Dash(arg1: {:d}, arg2: {:d}, arg3: "
-        "{:d}, arg4: {:d}, arg5: {:p})\n",
-        arg1, arg2, arg3, arg4, (void*)arg5);
+        "{:d}, arg4: {:d}, arg5: {:d})\n",
+        arg1, arg2, arg3, arg4, arg5);
   } else {
     PopLocalLabel(arg3);
-    uint16_t* dataArray = (uint16_t*)arg3;
-    uint16_t testNum = dataArray[1];
+    auto dataIp = arg3;
+    uint16_t testNum = ScriptBuffers[thread->ScriptBufferId][dataIp + 1];
     if (Renderer->Scene->Renderables[arg2]->Status == LoadStatus::Loaded &&
         testNum != 0) {
       // TODO shouldn't this wait for that renderable to be loaded?

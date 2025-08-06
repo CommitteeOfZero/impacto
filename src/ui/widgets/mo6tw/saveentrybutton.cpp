@@ -39,10 +39,10 @@ void SaveEntryButton::Render() {
                        Tint);
 }
 
-void SaveEntryButton::AddSceneTitleText(uint8_t* str, float fontSize,
-                                        bool outline) {
-  Impacto::Vm::Sc3VmThread dummy;
-  dummy.Ip = str;
+void SaveEntryButton::AddSceneTitleText(Vm::BufferOffsetContext strAdr,
+                                        float fontSize, bool outline) {
+  Vm::Sc3VmThread dummy;
+  dummy.SetIp(strAdr);
   if (EntryActive) {
     SceneTitle = TextLayoutPlainLine(
         &dummy, 255, Profile::Dialogue::DialogueFont, fontSize,
@@ -56,40 +56,40 @@ void SaveEntryButton::AddSceneTitleText(uint8_t* str, float fontSize,
   }
 }
 
-void SaveEntryButton::AddPlayTimeHintText(uint8_t* str, float fontSize,
-                                          bool outline) {
-  Impacto::Vm::Sc3VmThread dummy;
-  dummy.Ip = str;
+void SaveEntryButton::AddPlayTimeHintText(Vm::BufferOffsetContext strAdr,
+                                          float fontSize, bool outline) {
+  Vm::Sc3VmThread dummy;
+  dummy.SetIp(strAdr);
   PlayTimeHint = TextLayoutPlainLine(
       &dummy, 255, Profile::Dialogue::DialogueFont, fontSize,
       Profile::Dialogue::ColorTable[0], 1.0f,
       glm::vec2(Bounds.X + 238.0f, Bounds.Y + 45.0f), TextAlignment::Left);
 }
 
-void SaveEntryButton::AddPlayTimeText(uint8_t* str, float fontSize,
-                                      bool outline) {
-  Impacto::Vm::Sc3VmThread dummy;
-  dummy.Ip = str;
+void SaveEntryButton::AddPlayTimeText(Vm::BufferOffsetContext strAdr,
+                                      float fontSize, bool outline) {
+  Vm::Sc3VmThread dummy;
+  dummy.SetIp(strAdr);
   PlayTime = TextLayoutPlainLine(
       &dummy, 255, Profile::Dialogue::DialogueFont, fontSize,
       Profile::Dialogue::ColorTable[0], 1.0f,
       glm::vec2(Bounds.X + 372.0f, Bounds.Y + 61.0f), TextAlignment::Left);
 }
 
-void SaveEntryButton::AddSaveDateHintText(uint8_t* str, float fontSize,
-                                          bool outline) {
-  Impacto::Vm::Sc3VmThread dummy;
-  dummy.Ip = str;
+void SaveEntryButton::AddSaveDateHintText(Vm::BufferOffsetContext strAdr,
+                                          float fontSize, bool outline) {
+  Vm::Sc3VmThread dummy;
+  dummy.SetIp(strAdr);
   SaveDateHint = TextLayoutPlainLine(
       &dummy, 255, Profile::Dialogue::DialogueFont, fontSize,
       Profile::Dialogue::ColorTable[0], 1.0f,
       glm::vec2(Bounds.X + 238.0f, Bounds.Y + 75.0f), TextAlignment::Left);
 }
 
-void SaveEntryButton::AddSaveDateText(uint8_t* str, float fontSize,
-                                      bool outline) {
-  Impacto::Vm::Sc3VmThread dummy;
-  dummy.Ip = str;
+void SaveEntryButton::AddSaveDateText(Vm::BufferOffsetContext strAdr,
+                                      float fontSize, bool outline) {
+  Vm::Sc3VmThread dummy;
+  dummy.SetIp(strAdr);
   SaveDate = TextLayoutPlainLine(
       &dummy, 255, Profile::Dialogue::DialogueFont, fontSize,
       Profile::Dialogue::ColorTable[0], 1.0f,

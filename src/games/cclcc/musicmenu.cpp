@@ -24,10 +24,10 @@ MusicTrackButton::MusicTrackButton(int id, int position, glm::vec2 pos)
                  MusicButtonBounds.Height);
   IsLocked = !SaveSystem::GetBgmFlag(MusicBGMFlagIds[Id]);
   uint32_t trackTextIndex = 2 * Id;
-  SetText(
-      Vm::ScriptGetTextTableStrAddress(MusicStringTableId, trackTextIndex + 6),
-      MusicTrackNameSize, RendererOutlineMode::None,
-      {MusicButtonTextColor, MusicButtonTextOutlineColor});
+  auto const trackText =
+      Vm::ScriptGetTextTableStrAddress(MusicStringTableId, trackTextIndex + 6);
+  SetText(trackText, MusicTrackNameSize, RendererOutlineMode::None,
+          {MusicButtonTextColor, MusicButtonTextOutlineColor});
   Bounds =
       RectF(pos.x, pos.y, MusicButtonBounds.Width, MusicButtonBounds.Height);
   HighlightSprite = MusicButtonHoverSprite;
@@ -36,10 +36,10 @@ MusicTrackButton::MusicTrackButton(int id, int position, glm::vec2 pos)
   for (int i = 0; i < Text.size(); i++) {
     Text[i].DestRect.X += MusicTrackNameOffsetX;
   }
-  auto* const lockedSc3Text = Vm::ScriptGetTextTableStrAddress(
+  auto const lockedSc3Text = Vm::ScriptGetTextTableStrAddress(
       MusicStringTableId, MusicStringLockedIndex);
   Vm::Sc3VmThread dummy;
-  dummy.Ip = lockedSc3Text;
+  dummy.SetIp(lockedSc3Text);
   TextLayoutPlainLine(&dummy, 6, LockedText, Profile::Dialogue::DialogueFont,
                       MusicTrackNameSize,
                       {MusicButtonTextColor, MusicButtonTextOutlineColor}, 1.0f,

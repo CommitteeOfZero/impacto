@@ -226,9 +226,11 @@ void SysMesBox::Init() {
   FadeAnimation.LoopMode = AnimationLoopMode::Stop;
 }
 
-void SysMesBox::AddMessage(uint8_t* str) {
+void SysMesBox::AddMessage(Vm::BufferOffsetContext ctx) {
   Impacto::Vm::Sc3VmThread dummy;
-  dummy.Ip = str;
+  dummy.IpOffset = ctx.IpOffset;
+  dummy.ScriptBufferId = ctx.ScriptBufferId;
+
   Messages[MessageCount] =
       TextLayoutPlainLine(&dummy, 255, Profile::Dialogue::DialogueFont,
                           TextFontSize, Profile::Dialogue::ColorTable[0], 1.0f,
@@ -243,9 +245,10 @@ void SysMesBox::AddMessage(uint8_t* str) {
   }
 }
 
-void SysMesBox::AddChoice(uint8_t* str) {
+void SysMesBox::AddChoice(Vm::BufferOffsetContext ctx) {
   Impacto::Vm::Sc3VmThread dummy;
-  dummy.Ip = str;
+  dummy.IpOffset = ctx.IpOffset;
+  dummy.ScriptBufferId = ctx.ScriptBufferId;
   Choices[ChoiceCount] =
       TextLayoutPlainLine(&dummy, 255, Profile::Dialogue::DialogueFont,
                           TextFontSize, Profile::Dialogue::ColorTable[0], 1.0f,

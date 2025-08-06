@@ -49,7 +49,7 @@ VmInstruction(InstCreateThread) {
   Sc3VmThread* newThread = CreateThread(groupId);
   newThread->GroupId = groupId;
   newThread->ScriptBufferId = scriptBufferId;
-  newThread->Ip = labelAdr;
+  newThread->IpOffset = labelAdr;
   thread->ScriptParam = newThread->Id;
   newThread->ScriptParam = thread->Id;
   RunThread(newThread);
@@ -152,10 +152,10 @@ VmInstruction(InstMemberWrite) {
   if (noExpressions) {
     PopUint8(index);
     void* thdElement = thread->GetMemberPointer(index);
-    uint8_t* immValue = thread->Ip;
+    uint8_t* immValue = thread->GetIp();
     int value = immValue[0] + (immValue[1] << 8) + (immValue[2] << 16) +
                 (immValue[3] << 24);
-    thread->Ip += 4;
+    thread->IpOffset += 4;
     UnalignedWrite<uint32_t>(thdElement, value);
   } else {
     PopExpression(index);
@@ -459,13 +459,15 @@ VmInstruction(InstSystemMes) {
     } break;
     case 3: {  // SystemMesSetMes
       PopUint16(sysMesStrNum);
-      UI::SysMesBoxPtr->AddMessage(ScriptGetStrAddress(
-          ScriptBuffers[thread->ScriptBufferId], sysMesStrNum));
+      auto message = ScriptGetStrAddress(thread->ScriptBufferId, sysMesStrNum);
+      UI::SysMesBoxPtr->AddMessage(
+          {.ScriptBufferId = thread->ScriptBufferId, .IpOffset = message});
     } break;
     case 4: {  // SystemMesSetSel
       PopUint16(sysSelStrNum);
-      UI::SysMesBoxPtr->AddChoice(ScriptGetStrAddress(
-          ScriptBuffers[thread->ScriptBufferId], sysSelStrNum));
+      auto message = ScriptGetStrAddress(thread->ScriptBufferId, sysSelStrNum);
+      UI::SysMesBoxPtr->AddChoice(
+          {.ScriptBufferId = thread->ScriptBufferId, .IpOffset = message});
     } break;
     case 5:  // SystemMesMain
       if (!UI::SysMesBoxPtr->ChoiceMade &&
@@ -509,11 +511,13 @@ VmInstruction(InstSystemMes) {
       break;
     case 0x83: {
       PopMsbString(message);
-      UI::SysMesBoxPtr->AddMessage(message);
+      UI::SysMesBoxPtr->AddMessage(
+          {.ScriptBufferId = thread->ScriptBufferId, .IpOffset = message});
     } break;
     case 0x84: {  // SystemMesSetSel
       PopMsbString(message);
-      UI::SysMesBoxPtr->AddChoice(message);
+      UI::SysMesBoxPtr->AddChoice(
+          {.ScriptBufferId = thread->ScriptBufferId, .IpOffset = message});
     } break;
     default:
       ImpLog(LogLevel::Warning, LogChannel::VMStub,

@@ -15,8 +15,8 @@ class SysMesBox : public UI::SysMesBox {
   virtual void Render() override;
 
   virtual void Init() override;
-  virtual void AddMessage(uint8_t* str) override;
-  virtual void AddChoice(uint8_t* str) override;
+  virtual void AddMessage(Vm::BufferOffsetContext ctx) override;
+  virtual void AddChoice(Vm::BufferOffsetContext ctx) override;
 
  private:
   void ChoiceItemOnClick(UI::Widgets::Button* target);

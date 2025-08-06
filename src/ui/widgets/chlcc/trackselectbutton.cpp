@@ -21,12 +21,12 @@ TrackSelectButton::TrackSelectButton(int id, Sprite const &focused,
                  FocusedSprite.Bounds.Height);
 }
 
-void TrackSelectButton::SetTrackText(uint8_t *str) {
-  TrackName = Label(str, TrackTextPos, 20, RendererOutlineMode::None, 0);
+void TrackSelectButton::SetTrackText(Vm::BufferOffsetContext strAdr) {
+  TrackName = Label(strAdr, TrackTextPos, 20, RendererOutlineMode::None, 0);
 }
 
-void TrackSelectButton::SetArtistText(uint8_t *str) {
-  Artist = Label(str, ArtistTextPos, 20, RendererOutlineMode::None, 0);
+void TrackSelectButton::SetArtistText(Vm::BufferOffsetContext strAdr) {
+  Artist = Label(strAdr, ArtistTextPos, 20, RendererOutlineMode::None, 0);
 }
 
 void TrackSelectButton::Render() {

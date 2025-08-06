@@ -52,9 +52,10 @@ void TipsNotification::Update(float dt) {
   PositionY = (float)(static_cast<int>(FadeAnimation.Progress * 255 * 96) >> 8);
 
   auto UpdateNotificationDisplay = [&]() {
-    auto tipName = NotificationQueue.front();
-    TipName.SetText(tipName, FontSize, RendererOutlineMode::BottomRight,
-                    TipNameColor);
+    auto tipNameAdr = NotificationQueue.front();
+    auto tipsScrBufId = TipsSystem::GetTipsScriptBufferId();
+    TipName.SetText({.ScriptBufferId = tipsScrBufId, .IpOffset = tipNameAdr},
+                    FontSize, RendererOutlineMode::BottomRight, TipNameColor);
     Timer.DurationIn = TimerDuration + TipName.GetTextLength() * 0.1f;
     NotificationQueue.pop();
   };
@@ -100,7 +101,7 @@ void TipsNotification::Render() {
 
 void TipsNotification::AddTip(int tipId) {
   auto record = TipsSystem::GetTipRecord(tipId);
-  NotificationQueue.push(record->StringPtrs[1]);
+  NotificationQueue.push(record->StringAdr[1]);
 }
 
 }  // namespace CCLCC

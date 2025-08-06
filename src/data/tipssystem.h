@@ -18,7 +18,7 @@ struct TipsDataRecord {
   uint16_t SortLetterIndex = 0;
   uint16_t ThumbnailIndex = 0;
   uint16_t NumberOfContentStrings = 0;
-  std::array<uint8_t*, MaxTipStrings> StringPtrs = {};
+  std::array<uint32_t, MaxTipStrings> StringAdr = {};
   bool IsLocked = true;
   bool IsUnread = true;
   bool IsNew = true;
@@ -28,7 +28,7 @@ class TipsSystemBase {
  public:
   TipsSystemBase(int maxTipsCount) : Records(maxTipsCount) {}
   virtual ~TipsSystemBase() {}
-  virtual void DataInit(int scriptBufferId, uint8_t* tipsData,
+  virtual void DataInit(uint32_t scriptBufferId, uint32_t tipsDataAdr,
                         uint32_t tipsDataSize) = 0;
   virtual void UpdateTipRecords() = 0;
   virtual void SetTipLockedState(int id, bool state) = 0;
@@ -45,7 +45,8 @@ class TipsSystemBase {
 inline TipsSystemBase* Implementation = nullptr;
 
 void Init();
-void DataInit(int scriptBufferId, uint8_t* tipsData, uint32_t tipsDataSize);
+void DataInit(uint32_t scriptBufferId, uint32_t tipsDataAdr,
+              uint32_t tipsDataSize);
 void UpdateTipRecords();
 void SetTipLockedState(int id, bool state);
 void SetTipUnreadState(int id, bool state);

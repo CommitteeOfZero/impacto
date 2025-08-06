@@ -269,7 +269,7 @@ SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
   for (auto& entryArray : {FullSaveEntries, QuickSaveEntries}) {
     SaveType saveType =
         (entryArray == QuickSaveEntries) ? SaveType::Quick : SaveType::Full;
-    int64_t saveDataPos = stream->Position;
+    [[maybe_unused]] int64_t saveDataPos = stream->Position;
     for (int i = 0; i < MaxSaveEntries; i++) {
       assert(stream->Position - saveDataPos == 0x1b110 * i);
       entryArray[i] = new SaveFileEntry();
@@ -600,7 +600,7 @@ SaveError SaveSystem::WriteSaveFile() {
   for (auto* entryArray : {FullSaveEntries, QuickSaveEntries}) {
     SaveType saveType =
         (entryArray == QuickSaveEntries) ? SaveType::Quick : SaveType::Full;
-    int64_t saveDataPos = stream->Position;
+    [[maybe_unused]] int64_t saveDataPos = stream->Position;
     for (int i = 0; i < MaxSaveEntries; i++) {
       SaveFileEntry* entry = (SaveFileEntry*)entryArray[i];
       if (entry->Status == 0) {
@@ -773,9 +773,9 @@ void SaveSystem::LoadMemoryNew(LoadProcess load) {
       thd->ScriptParam = WorkingSaveEntry->MainThreadScriptParam;
       thd->GroupId = WorkingSaveEntry->MainThreadGroupId;
       thd->ScriptBufferId = WorkingSaveEntry->MainThreadScriptBufferId;
-      thd->Ip = ScriptGetRetAddress(
-          ScriptBuffers[WorkingSaveEntry->MainThreadScriptBufferId],
-          WorkingSaveEntry->MainThreadIp);
+      thd->IpOffset =
+          ScriptGetRetAddress(WorkingSaveEntry->MainThreadScriptBufferId,
+                              WorkingSaveEntry->MainThreadIp);
       thd->CallStackDepth = WorkingSaveEntry->MainThreadCallStackDepth;
 
       for (size_t i = 0; i < thd->CallStackDepth; i++) {

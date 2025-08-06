@@ -30,8 +30,9 @@ using namespace Impacto::UI::Widgets::CCLCC;
 
 struct SortByTipName {
   SortByTipName() {
-    SortString = Vm::ScriptGetTextTableStrAddress(TipsTextTableIndex,
-                                                  TipsTextSortStringIndex);
+    auto [scrBufId, offset] = Vm::ScriptGetTextTableStrAddress(
+        TipsTextTableIndex, TipsTextSortStringIndex);
+    SortString = &Vm::ScriptBuffers[scrBufId][offset];
     int i = 0;
     int distance = 0;
     while (SortString[i] != 0xFF) {
@@ -51,8 +52,9 @@ struct SortByTipName {
   bool operator()(int a, int b) const {
     auto* aRecord = TipsSystem::GetTipRecord(a);
     auto* bRecord = TipsSystem::GetTipRecord(b);
-    uint8_t* aString = aRecord->StringPtrs[3];
-    uint8_t* bString = bRecord->StringPtrs[3];
+    uint32_t tipsScrBufId = TipsSystem::GetTipsScriptBufferId();
+    uint8_t* aString = &Vm::ScriptBuffers[tipsScrBufId][aRecord->StringAdr[3]];
+    uint8_t* bString = &Vm::ScriptBuffers[tipsScrBufId][bRecord->StringAdr[3]];
 
     int aIndex = 0;
     int bIndex = 0;
@@ -366,6 +368,7 @@ void TipsMenu::SwitchToTipId(int id) {
   if (id - 1 == CurrentlyDisplayedTipId) return;
   int actualId = SortedTipIds[id - 1];
   auto* record = TipsSystem::GetTipRecord(actualId);
+  uint32_t tipsScrBufId = TipsSystem::GetTipsScriptBufferId();
 
   if (record->IsLocked) {
     Audio::Channels[Audio::AC_SSE]->Play("sysse", 4, false, 0);
@@ -374,28 +377,34 @@ void TipsMenu::SwitchToTipId(int id) {
   CurrentlyDisplayedTipId = id - 1;
 
   TipsSystem::SetTipUnreadState(actualId, false);
-  Category->SetText(record->StringPtrs[0], (float)CategoryFontSize,
-                    RendererOutlineMode::None, {TipsMenuDarkTextColor, 0});
-  Name->SetText(record->StringPtrs[1], (float)NameFontSize,
-                RendererOutlineMode::None, {TipsMenuDarkTextColor, 0});
-  Pronounciation->SetText(record->StringPtrs[2], (float)PronounciationFontSize,
-                          RendererOutlineMode::None, 0);
+  Category->SetText(
+      {.ScriptBufferId = tipsScrBufId, .IpOffset = record->StringAdr[0]},
+      (float)CategoryFontSize, RendererOutlineMode::None,
+      {TipsMenuDarkTextColor, 0});
+  Name->SetText(
+      {.ScriptBufferId = tipsScrBufId, .IpOffset = record->StringAdr[1]},
+      (float)NameFontSize, RendererOutlineMode::None,
+      {TipsMenuDarkTextColor, 0});
+  Pronounciation->SetText(
+      {.ScriptBufferId = tipsScrBufId, .IpOffset = record->StringAdr[2]},
+      (float)PronounciationFontSize, RendererOutlineMode::None, 0);
 
   {
     uint16_t sc3StringBuffer[5];
-    Vm::Sc3VmThread dummy;
     TextGetSc3String(fmt::format("{:3d}", id), sc3StringBuffer);
-    dummy.Ip = (uint8_t*)sc3StringBuffer;
+    Vm::Sc3Stream stream(sc3StringBuffer);
     float numberWidth = TextGetPlainLineWidth(
-        &dummy, Profile::Dialogue::DialogueFont, (float)NumberFontSize);
+        stream, Profile::Dialogue::DialogueFont, (float)NumberFontSize);
     Number->Bounds.X = NumberPos.x - numberWidth;
     Number->Bounds.Y = NumberPos.y;
-    Number->SetText((uint8_t*)sc3StringBuffer, (float)NumberFontSize,
-                    RendererOutlineMode::None, 0);
+    stream = Vm::Sc3Stream(sc3StringBuffer);
+    Number->SetText(stream, (float)NumberFontSize, RendererOutlineMode::None,
+                    0);
   }
 
   Vm::Sc3VmThread dummy;
-  dummy.Ip = record->StringPtrs[4];
+  dummy.IpOffset = record->StringAdr[4];
+  dummy.ScriptBufferId = tipsScrBufId;
   TextPage.Clear();
   TextPage.AddString(&dummy);
   TipViewItems.HasFocus = true;

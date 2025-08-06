@@ -1,5 +1,8 @@
 #pragma once
 
+#include <span>
+#include "../../vm/vm.h"
+#include "../../vm/sc3stream.h"
 #include "../widget.h"
 #include "../../text.h"
 #include "../../renderer/renderer.h"
@@ -16,12 +19,16 @@ class Label : public Widget {
         RendererOutlineMode outlineMode);
   Label(std::span<ProcessedTextGlyph> str, float textWidth, float fontSize,
         RendererOutlineMode outlineMode);
-  Label(uint8_t* str, glm::vec2 pos, float fontSize,
+  Label(Vm::BufferOffsetContext scrCtx, glm::vec2 pos, float fontSize,
         RendererOutlineMode outlineMode, int colorIndex = 10);
+  Label(Vm::BufferOffsetContext scrCtx, glm::vec2 pos, float fontSize,
+        RendererOutlineMode outlineMode, DialogueColorPair colorPair);
+  Label(Vm::Sc3Stream& stream, glm::vec2 pos, float fontSize,
+        RendererOutlineMode outlineMode, int colorIndex = 10);
+  Label(Vm::Sc3Stream& stream, glm::vec2 pos, float fontSize,
+        RendererOutlineMode outlineMode, DialogueColorPair colorPair);
   Label(std::string_view str, glm::vec2 pos, float fontSize,
         RendererOutlineMode outlineMode, int colorIndex = 10);
-  Label(uint8_t* str, glm::vec2 pos, float fontSize,
-        RendererOutlineMode outlineMode, DialogueColorPair colorPair);
   Label(std::string_view str, glm::vec2 pos, float fontSize,
         RendererOutlineMode outlineMode, DialogueColorPair colorPair);
 
@@ -36,12 +43,12 @@ class Label : public Widget {
                float fontSize, RendererOutlineMode outlineMode);
   void SetText(std::span<ProcessedTextGlyph> str, float textWidth,
                float fontSize, RendererOutlineMode outlineMode);
-  void SetText(uint8_t* str, float fontSize, RendererOutlineMode outlineMode,
-               int colorIndex = 10);
+  void SetText(Vm::BufferOffsetContext scrCtx, float fontSize,
+               RendererOutlineMode outlineMode, int colorIndex = 10);
+  void SetText(Vm::BufferOffsetContext scrCtx, float fontSize,
+               RendererOutlineMode outlineMode, DialogueColorPair colorPair);
   void SetText(std::string_view str, float fontSize,
                RendererOutlineMode outlineMode, int colorIndex = 10);
-  void SetText(uint8_t* str, float fontSize, RendererOutlineMode outlineMode,
-               DialogueColorPair colorPair);
   void SetText(std::string_view str, float fontSize,
                RendererOutlineMode outlineMode, DialogueColorPair colorPair);
   void ClearText() {
@@ -49,6 +56,10 @@ class Label : public Widget {
     IsText = false;
     Bounds = {};
   }
+  void SetText(Vm::Sc3Stream& stream, float fontSize,
+               RendererOutlineMode outlineMode, int colorIndex = 10);
+  void SetText(Vm::Sc3Stream& stream, float fontSize,
+               RendererOutlineMode outlineMode, DialogueColorPair colorPair);
 
   size_t GetTextLength() { return Text.size(); }
   float GetFontSize() { return FontSize; }

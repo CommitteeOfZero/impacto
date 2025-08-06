@@ -19,7 +19,7 @@ class TipsNotificationBase {
   Animation FadeAnimation;
 
  protected:
-  std::queue<uint8_t*> NotificationQueue;
+  std::queue<uint32_t> NotificationQueue;
 };
 
 inline TipsNotificationBase* Implementation = nullptr;
