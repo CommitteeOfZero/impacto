@@ -36,6 +36,7 @@ class MusicMenu : public Menu {
   void DrawCircles();
   void DrawErin();
   void DrawRedBar();
+  void DrawButtonPrompt();
 
   void UpdateEntries();
   void UpdateTitles();
