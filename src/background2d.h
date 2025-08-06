@@ -19,6 +19,13 @@ struct LinkState {
   glm::vec2 DisplayCoords;
 };
 
+struct BgEff {
+  bool Loaded = false;
+  Texture BgEffTexture;
+  Sprite BgEffSprite;
+  ShaderProgramType Shader = ShaderProgramType::Sprite;
+};
+
 class Background2D : public Loadable<Background2D, bool, uint32_t> {
   friend class Loadable<Background2D, bool, uint32_t>;
 
@@ -28,13 +35,9 @@ class Background2D : public Loadable<Background2D, bool, uint32_t> {
 
   Sprite BgSprite;
 
-  bool BgEffsLoaded = false;
-  constexpr static size_t MaxBgEffCount = 4;
-  std::array<Texture, MaxBgEffCount> BgEffTextures;
-  std::array<Sprite, MaxBgEffCount> BgEffSprites;
-  std::array<ShaderProgramType, MaxBgEffCount> BgEffShaders = {
-      ShaderProgramType::Sprite, ShaderProgramType::Sprite,
-      ShaderProgramType::Sprite, ShaderProgramType::Sprite};
+  std::array<int, 2> BgEffsLayers = {0, 0};
+  std::array<BgEff, 3> FrameBgEffs;
+  BgEff ChaBgEff;
 
   glm::vec2 Position = {0.0f, 0.0f};
   glm::vec2 Origin = {0.0f, 0.0f};
@@ -58,21 +61,20 @@ class Background2D : public Loadable<Background2D, bool, uint32_t> {
   inline static ankerl::unordered_dense::map<int,
                                              std::array<ShaderProgramType, 4>>
       BgEffShaderMap;
-  static std::array<ShaderProgramType, 4> GetBgEffShaders(int bgId) {
+  static ShaderProgramType GetBgEffShader(int bgId, size_t bgEffId) {
     const auto found = BgEffShaderMap.find(bgId);
+    assert(found == BgEffShaderMap.end() || bgEffId < found->second.size());
 
     // Unmapped means sprite
-    return found != BgEffShaderMap.end()
-               ? found->second
-               : std::array<ShaderProgramType, 4>{
-                     ShaderProgramType::Sprite, ShaderProgramType::Sprite,
-                     ShaderProgramType::Sprite, ShaderProgramType::Sprite};
+    return found != BgEffShaderMap.end() ? found->second[bgEffId]
+                                         : +ShaderProgramType::Sprite;
   }
 
   inline static ankerl::unordered_dense::map<int, std::array<int, 4>>
       BgEffTextureIdMap;
 
   virtual void Render(int layer);
+  void RenderBgEff(int layer);
   virtual void UpdateState(int bgId);
 
   void LoadSolidColor(uint32_t color, int width, int height);

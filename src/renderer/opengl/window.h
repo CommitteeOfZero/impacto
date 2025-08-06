@@ -34,7 +34,7 @@ class GLWindow : public BaseWindow {
   void CleanFBOs();
 
   bool GLDebug = false;
-  GLuint drawRenderTexture = 0;
+  GLuint DrawRenderTexture = 0;
 };
 
 }  // namespace OpenGL

@@ -832,14 +832,22 @@ void Renderer::CaptureScreencap(Sprite& sprite) {
   sprite.Bounds.Width = sprite.Sheet.DesignWidth;
   sprite.Bounds.Height = sprite.Sheet.DesignHeight;
 
-  Window->SwapRTs();
+  int prevReadBuffer;
+  int drawBuffer;
   int prevTextureBinding;
+
+  glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &prevReadBuffer);
+  glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &drawBuffer);
   glGetIntegerv(GL_TEXTURE_BINDING_2D, &prevTextureBinding);
+
+  GLC::BindFramebuffer(GL_READ_FRAMEBUFFER, drawBuffer);
   glBindTexture(GL_TEXTURE_2D, sprite.Sheet.Texture);
+
   glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, Window->WindowWidth,
                    Window->WindowHeight, 0);
+
   glBindTexture(GL_TEXTURE_2D, prevTextureBinding);
-  Window->SwapRTs();
+  GLC::BindFramebuffer(GL_READ_FRAMEBUFFER, prevReadBuffer);
 }
 
 void Renderer::EnableScissor() {
