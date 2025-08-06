@@ -57,6 +57,8 @@ inline glm::vec2 HighlightStarRelativePos;
 inline int Playlist[MusicTrackCount];
 inline Sprite SelectSound[11];
 inline glm::vec2 SelectSoundPos[11];
+inline glm::vec2 ButtonPromptPosition;
+inline Sprite ButtonPromptSprite;
 
 void Configure();
 

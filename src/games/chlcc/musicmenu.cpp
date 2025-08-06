@@ -198,6 +198,33 @@ void MusicMenu::Render() {
     }
   }
 }
+      Renderer->DrawSprite(TrackTree, TrackTreePos + offset);
+      Renderer->DrawSprite(PlaymodeRepeatSprite, PlaymodeRepeatPos + offset);
+      Renderer->DrawSprite(PlaymodeAllSprite, PlaymodeAllPos + offset);
+      glm::vec2 temp =
+          glm::vec2(15 * 16 * (1 - NowPlayingAnimation.Progress), offset.y) +
+          NowPlayingPos;
+      glm::vec4 tint(glm::vec3(1.0f), NowPlayingAnimation.Progress);
+      CurrentlyPlayingTrackName.MoveTo(temp + PlayingTrackOffset);
+      CurrentlyPlayingTrackName.Tint = tint;
+      CurrentlyPlayingTrackName.Render();
+      CurrentlyPlayingTrackArtist.MoveTo(temp + PlayingTrackArtistOffset);
+      CurrentlyPlayingTrackArtist.Tint = tint;
+      CurrentlyPlayingTrackArtist.Render();
+      Renderer->DrawSprite(NowPlaying, temp, tint);
+      if (CurrentlyPlayingTrackId != -1 &&
+          CurrentlyPlayingTrackId >= CurrentLowerBound &&
+          CurrentlyPlayingTrackId <= CurrentUpperBound) {
+        Renderer->DrawSprite(
+            HighlightStar,
+            glm::vec2(MainItems->Children[CurrentlyPlayingTrackId]->Bounds.X,
+                      MainItems->Children[CurrentlyPlayingTrackId]->Bounds.Y) +
+                HighlightStarRelativePos);
+      }
+      DrawButtonPrompt();
+    }
+  }
+}
 
 void MusicMenu::Update(float dt) {
   if ((!GetFlag(SF_SOUNDMENU) || ScrWork[SW_SYSMENUCT] < 10000) &&
@@ -380,6 +407,16 @@ inline void MusicMenu::DrawRedBar() {
     RedBarSprite.Bounds.Width = pixelPerAdvanceRight;
     RedBarPosition = RightRedBarPosition;
     Renderer->DrawSprite(RedBarSprite, RedBarPosition);
+  }
+}
+
+inline void MusicMenu::DrawButtonPrompt() {
+  if (MenuTransition.IsIn()) {
+    Renderer->DrawSprite(ButtonPromptSprite, ButtonPromptPosition);
+  } else if (MenuTransition.Progress > 0.734f) {
+    float x = ButtonPromptPosition.x - 2560.0f * (MenuTransition.Progress - 1);
+    Renderer->DrawSprite(ButtonPromptSprite,
+                         glm::vec2(x, ButtonPromptPosition.y));
   }
 }
 

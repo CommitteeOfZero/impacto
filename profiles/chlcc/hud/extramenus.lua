@@ -209,6 +209,8 @@ root.ExtraMenus = {
         TrackOffset = { X = 0, Y = 28 },
         TrackHighlight = "TrackHighlight",
         TrackNumRelativePos = { X = 25, Y = 5 },
+        ButtonPromptPosition = { X = 738, Y = 651 },
+        ButtonPromptSprite = "MusicButtonPrompt",
         PlaymodeRepeatPos = { X = 718, Y = 146 },
         PlaymodeAllPos = { X = 771, Y = 146 },
         PlaymodeRepeat = "PlaymodeRepeat",
@@ -552,6 +554,12 @@ root.Sprites["NowPlaying"] = {
     Sheet = "Sound",
     Bounds = { X = 1, Y = 611, Width = 656, Height = 19 }
 }
+
+root.Sprites["MusicButtonPrompt"] = {
+    Sheet = "Sound",
+    Bounds = { X = 1, Y = 724, Width = 552, Height = 28}
+}
+
 
 root.Sprites["SoundLibraryTitle"] = {
     Sheet = "Sound",
