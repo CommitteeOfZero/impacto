@@ -431,7 +431,7 @@ void Background2D::Render(const int layer) {
         nonSpriteShader |= ChaBgEff.Shader != +ShaderProgramType::Sprite;
       }
 
-      renderBgEffs &= nonSpriteShader;
+      if (!nonSpriteShader) renderBgEffs = false;
     }
 
     LastRenderedBackground = renderBgEffs ? this : nullptr;
