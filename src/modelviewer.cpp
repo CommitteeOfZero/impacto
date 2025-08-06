@@ -19,7 +19,7 @@ static void EnumerateBgm();
 
 static glm::vec3 CameraPosition;
 static glm::vec3 CameraTarget;
-static bool TrackCamera;
+[[maybe_unused]] static bool TrackCamera;
 static glm::vec4 UiTintColor;
 static uint32_t CurrentModel;
 static uint32_t CurrentAnim;
