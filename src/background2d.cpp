@@ -79,7 +79,7 @@ bool Background2D::LoadSync(uint32_t bgId) {
 
     if (Profile::UseBgFrameEffects && BgEffTextureIdMap.contains(bgId)) {
       std::for_each(FrameBgEffs.begin(), FrameBgEffs.end(),
-                    [](auto bgEff) { bgEff.Loaded = false; });
+                    [](auto& bgEff) { bgEff.Loaded = false; });
 
       const std::array<int, 4>& textureIds = BgEffTextureIdMap[bgId];
 
