@@ -196,9 +196,9 @@ void MusicMenu::Render() {
                     MainItems->Children[CurrentlyPlayingTrackId]->Bounds.Y) +
               HighlightStarRelativePos);
     }
+    DrawButtonPrompt();
   }
 }
-
 void MusicMenu::Update(float dt) {
   if ((!GetFlag(SF_SOUNDMENU) || ScrWork[SW_SYSMENUCT] < 10000) &&
       State == Shown) {
@@ -380,6 +380,16 @@ inline void MusicMenu::DrawRedBar() {
     RedBarSprite.Bounds.Width = pixelPerAdvanceRight;
     RedBarPosition = RightRedBarPosition;
     Renderer->DrawSprite(RedBarSprite, RedBarPosition);
+  }
+}
+
+inline void MusicMenu::DrawButtonPrompt() {
+  if (MenuTransition.IsIn()) {
+    Renderer->DrawSprite(ButtonPromptSprite, ButtonPromptPosition);
+  } else if (MenuTransition.Progress > 0.734f) {
+    float x = ButtonPromptPosition.x - 2560.0f * (MenuTransition.Progress - 1);
+    Renderer->DrawSprite(ButtonPromptSprite,
+                         glm::vec2(x, ButtonPromptPosition.y));
   }
 }
 
