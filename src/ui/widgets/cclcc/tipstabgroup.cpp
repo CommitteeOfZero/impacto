@@ -229,7 +229,6 @@ void TipsTabGroup::UpdateTipsEntries(std::vector<int> const& SortedTipIds) {
   int sortIndex = 1;
   TipsEntriesGroup.Clear();
   TipsEntryButtons.clear();
-  int shownEntryCount = 0;
   for (auto& tipId : SortedTipIds) {
     auto& record = *TipsSystem::GetTipRecord(tipId);
     if (!tipsFilterPredicate(record)) {
@@ -247,7 +246,6 @@ void TipsTabGroup::UpdateTipsEntries(std::vector<int> const& SortedTipIds) {
     if (Type == TipsTabType::NewTips) {
       TipsSystem::SetTipNewState(tipId, false);
     }
-    shownEntryCount++;
   }
 
   for (int i = 0;

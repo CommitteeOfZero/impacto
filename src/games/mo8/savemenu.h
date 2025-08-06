@@ -22,7 +22,7 @@ class SaveMenu : public UI::SaveMenu {
 
  private:
   Widgets::Group* PageControls;
-  Widgets::Group* MainItems;
+  [[maybe_unused]] Widgets::Group* MainItems;
   Animation FadeAnimation;
 };
 

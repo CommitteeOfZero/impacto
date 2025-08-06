@@ -16,7 +16,7 @@ void SelectionMenu::ChoiceItemOnClick(Button* target) {
   ChoiceMade = true;
 }
 
-void SelectionMenu::Init(bool isPlain) {
+void SelectionMenu::InitSelectionMenu(bool isPlain) {
   IsPlain = isPlain;
   ChoiceCount = 0;
   ChoiceMade = false;
