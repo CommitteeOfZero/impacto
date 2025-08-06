@@ -38,8 +38,8 @@ bool Character2D::LoadSync(uint32_t charaId) {
     // Skip to state data
     stream->Seek(0x68, SEEK_CUR);
 
-    size_t vertexCount = (size_t)Io::ReadLE<int>(stream);
-    size_t vertexOffset = (size_t)Io::ReadLE<int>(stream);
+    size_t vertexCount = static_cast<size_t>(Io::ReadLE<int>(stream));
+    size_t vertexOffset = static_cast<size_t>(Io::ReadLE<int>(stream));
 
     for (int i = 0; i < stateCount; i++) {
       int count = Io::ReadLE<int>(stream);

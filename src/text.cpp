@@ -300,7 +300,7 @@ enum TextParseState { TPS_Normal, TPS_Name, TPS_Ruby };
 
 void DialoguePage::FinishLine(Vm::Sc3VmThread* ctx, size_t nextLineStart,
                               const RectF& boxBounds, TextAlignment alignment) {
-  EndRubyBase(nextLineStart - 1);
+  EndRubyBase(static_cast<int>(nextLineStart) - 1);
 
   // Lay out all ruby chunks on this line (before we change CurrentLineTop and
   // thus can't find where to put them)
@@ -535,7 +535,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
         break;
       }
       case STT_RubyBaseStart: {
-        CurrentRubyChunk = RubyChunkCount;
+        CurrentRubyChunk = static_cast<int>(RubyChunkCount);
         RubyChunkCount++;
         RubyChunks[CurrentRubyChunk].FirstBaseCharacter = Glyphs.size();
         LastWordStart = Glyphs.size();
@@ -657,7 +657,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
   }
 
   if (HasName) {
-    NameId = GetNameId((uint8_t*)name, NameLength * 2);
+    NameId = GetNameId((uint8_t*)name, static_cast<int>(NameLength * 2));
 
     float fontSize = ADVNameFontSize;
     glm::vec2 pos = ADVNamePos;
@@ -680,8 +680,9 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
       }
     }
     Vm::Sc3Stream nameStream(name);
-    Name = TextLayoutPlainLine(nameStream, NameLength, DialogueFont, fontSize,
-                               ColorTable[colorIndex], 1.0f, pos, alignment);
+    Name = TextLayoutPlainLine(nameStream, static_cast<int>(NameLength),
+                               DialogueFont, fontSize, ColorTable[colorIndex],
+                               1.0f, pos, alignment);
     assert(NameLength == Name.size());
   }
 
@@ -704,9 +705,9 @@ void DialoguePage::Update(float dt) {
   Typewriter.Update(dt);
 
   for (size_t i = 0; i < Glyphs.size(); i++) {
-    Glyphs[i].Opacity = Typewriter.CalcOpacity(i);
+    Glyphs[i].Opacity = Typewriter.CalcOpacity(static_cast<int>(i));
     if (Glyphs[i].Opacity == 0.0f) {
-      Typewriter.LastOpaqueCharacter = i;
+      Typewriter.LastOpaqueCharacter = static_cast<int>(i);
     }
   }
 
@@ -865,7 +866,7 @@ std::pair<int, float> TextLayoutPlainLineHelper(
   // currentX is now line width
   // If you want to align, you can pass a span or vector to the alignment
   // function
-  return {characterCount, currentX};
+  return {static_cast<int>(characterCount), currentX};
 }
 
 int TextLayoutPlainLine(Vm::Sc3Stream& stream, int stringLength,

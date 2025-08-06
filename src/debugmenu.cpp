@@ -826,7 +826,7 @@ void ShowObjects() {
       "scripts.");
   if (ImGui::TreeNode("Backgrounds")) {
     for (size_t i = 0; i < Backgrounds.size(); i++) {
-      ImGui::PushID(i);
+      ImGui::PushID(static_cast<int>(i));
       if (ImGui::TreeNode("Background", "Background %zu", i)) {
         if (Backgrounds[i].Status == LoadStatus::Loaded) {
           float texWidth = Backgrounds[i].BgSprite.Sheet.DesignWidth * 0.4f;
@@ -878,7 +878,7 @@ void ShowObjects() {
 
   if (ImGui::TreeNode("Characters")) {
     for (size_t i = 0; i < Characters2D.size(); i++) {
-      ImGui::PushID(i);
+      ImGui::PushID(static_cast<int>(i));
       if (ImGui::TreeNode("Character", "Character %zu", i)) {
         if (Characters2D[i].Status == LoadStatus::Loaded) {
           float texWidth = Characters2D[i].CharaSprite.Sheet.DesignWidth * 0.4f;

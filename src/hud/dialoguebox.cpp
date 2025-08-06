@@ -68,7 +68,7 @@ void DialogueBox::Render(DialoguePageMode mode, bool hasName, float nameWidth,
       // Draw Face
       for (size_t i = 0; i < SpeakerPortraits.size(); i++) {
         int bufId = ScrWork[SW_FACE1SURF + i];
-        SpeakerPortraits[bufId].UpdateState(i);
+        SpeakerPortraits[bufId].UpdateState(static_cast<int>(i));
 
         SpeakerPortraits[bufId].Tint = col;
         SpeakerPortraits[bufId].Position +=
