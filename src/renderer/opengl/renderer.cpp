@@ -836,7 +836,7 @@ void Renderer::CaptureScreencap(Sprite& sprite) {
   int drawBuffer;
   int prevTextureBinding;
 
-  glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &prevReadBuffer);
+  glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &prevReadBuffer);
   glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &drawBuffer);
   glGetIntegerv(GL_TEXTURE_BINDING_2D, &prevTextureBinding);
 
