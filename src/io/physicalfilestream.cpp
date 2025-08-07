@@ -32,8 +32,9 @@ std::ios_base::openmode PhysicalFileStream::PrepareFileOpenMode(
     return {};
   }
 
-  bool writeExistNoOverwrite =
-      (flags & WRITE) && (fileExists != IoError_NotFound) && !(flags & TRUNCATE) && !(flags & APPEND);
+  bool writeExistNoOverwrite = (flags & WRITE) &&
+                               (fileExists != IoError_NotFound) &&
+                               !(flags & TRUNCATE) && !(flags & APPEND);
   if (writeExistNoOverwrite) {
     // avoid truncating when in write only mode without truncate flag to
     // preserve file size
@@ -48,7 +49,7 @@ std::ios_base::openmode PhysicalFileStream::PrepareFileOpenMode(
 
   // truncate is only needed when creating nonexistent if also reading
   bool truncFlag = (flags & TRUNCATE) ||
-                   ((flags & READ) && !fileExists &&
+                   ((flags & READ) && (fileExists == IoError_NotFound) &&
                     (flags & CREATE_IF_NOT_EXISTS) && !(flags & APPEND));
 
   // trunc and append are mutually exclusive
@@ -83,11 +84,6 @@ IoError PhysicalFileStream::Create(std::string const& fileName, Stream** out,
     ImpLog(LogLevel::Error, LogChannel::IO,
            "Failed to open file \"{:s}\", error: \"{:s}\"\n",
            result->SourceFileName, std::generic_category().message(errno));
-    delete result;
-    return IoError_Fail;
-  }
-  result->Meta.Size = GetFileSize(result->SourceFileName);
-  if (result->Meta.Size == IoError_Fail) {
     delete result;
     return IoError_Fail;
   }
@@ -169,11 +165,6 @@ IoError PhysicalFileStream::Duplicate(Stream** outStream) {
     delete result;
     return IoError_Fail;
   }
-  result->Meta.Size = GetFileSize(result->SourceFileName);
-  if (result->Meta.Size == IoError_Fail) {
-    delete result;
-    return IoError_Fail;
-  }
   if (result->Seek(Position, RW_SEEK_SET) < 0) {
     ImpLog(LogLevel::Error, LogChannel::IO,
            "Seek failed for file \"{:s}\" with error: \"{:s}\"\n",
@@ -187,6 +178,9 @@ IoError PhysicalFileStream::Duplicate(Stream** outStream) {
 
 int64_t PhysicalFileStream::Write(void* buffer, int64_t sz, size_t cnt) {
   if (!(Flags & (WRITE | APPEND))) {
+    ImpLog(LogLevel::Error, LogChannel::IO,
+           "Write failed for file \"{:s}\" with error: \"{:s}\"\n",
+           SourceFileName, std::generic_category().message(errno));
     return IoError_Fail;
   }
   FileStream.write((char*)buffer, sz * cnt);

@@ -30,11 +30,7 @@ class PhysicalFileStream : public Stream {
 
   PhysicalFileStream(std::string filePath, CreateFlags flags)
       : Flags(flags), SourceFileName(std::move(filePath)) {
-    if (flags & UNBUFFERED) {
-      FileStream.rdbuf()->pubsetbuf(nullptr, 0);
-    }
-    FileStream.open(SourceFileName, PrepareFileOpenMode(flags));
-    Meta.FileName = SourceFileName;
+    Init();
   }
 
   PhysicalFileStream(std::string filePath)
@@ -42,16 +38,27 @@ class PhysicalFileStream : public Stream {
 
   PhysicalFileStream(PhysicalFileStream const& other)
       : Flags(other.Flags), SourceFileName(other.SourceFileName) {
-    if (Flags & UNBUFFERED) {
-      FileStream.rdbuf()->pubsetbuf(nullptr, 0);
-    }
-    FileStream.open(other.SourceFileName, PrepareFileOpenMode(Flags));
-    Meta.FileName = SourceFileName;
+    Init();
   }
   IoError ErrorCode = IoError_OK;
   CreateFlags Flags;
   std::string SourceFileName;
   std::fstream FileStream;
+
+ private:
+  void Init() {
+    Meta.FileName = SourceFileName;
+    if (Flags & UNBUFFERED) {
+      FileStream.rdbuf()->pubsetbuf(nullptr, 0);
+    }
+    auto fstreamFlags = PrepareFileOpenMode(Flags);
+    Meta.Size = GetFileSize(SourceFileName);
+    if (Meta.Size == IoError_Fail) {
+      ErrorCode = IoError_Fail;
+      return;
+    }
+    FileStream.open(SourceFileName, fstreamFlags);
+  }
 };
 
 }  // namespace Io
