@@ -326,6 +326,7 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
     time_t rawtime;
     time(&rawtime);
     entry->SaveDate = CurrentDateTime();
+
     auto captureBuffer =
         Renderer->GetSpriteSheetImage(WorkingSaveThumbnail.Sheet);
 
