@@ -11,8 +11,8 @@ class PhysicalFileStream : public Stream {
   enum CreateFlagsMode {
     READ = 1,
     WRITE = READ << 1,
-    CREATE_IF_NOT_EXISTS = WRITE << 1,
-    TRUNCATE = CREATE_IF_NOT_EXISTS << 1,
+    CREATE = WRITE << 1,
+    TRUNCATE = CREATE << 1,
     APPEND = TRUNCATE << 1,
     CREATE_DIRS = APPEND << 1,
     UNBUFFERED = CREATE_DIRS << 1
@@ -52,9 +52,16 @@ class PhysicalFileStream : public Stream {
       FileStream.rdbuf()->pubsetbuf(nullptr, 0);
     }
     auto fstreamFlags = PrepareFileOpenMode(Flags);
-    Meta.Size = GetFileSize(SourceFileName);
-    if (Meta.Size == IoError_Fail) {
-      ErrorCode = IoError_Fail;
+    if (ErrorCode == IoError_NotFound) {
+      Meta.Size = 0;
+      ErrorCode = IoError_OK;
+    } else if (ErrorCode != IoError_Fail) {
+      Meta.Size = GetFileSize(SourceFileName);
+      if (Meta.Size == IoError_Fail) {
+        ErrorCode = IoError_Fail;
+        return;
+      }
+    } else {
       return;
     }
     FileStream.open(SourceFileName, fstreamFlags);
