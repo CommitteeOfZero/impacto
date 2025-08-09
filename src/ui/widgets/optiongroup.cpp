@@ -28,7 +28,7 @@ void OptionGroup::Update(float dt) {
   }
 }
 
-void OptionGroup::UpdateInput() {
+void OptionGroup::UpdateInput(float dt) {
   if (Enabled) {
     bool mouseInput = Input::CurrentInputDevice == Input::Device::Mouse ||
                       Input::CurrentInputDevice == Input::Device::Touch;
@@ -41,7 +41,7 @@ void OptionGroup::UpdateInput() {
           item->HasFocus = true;
           MenuContext->CurrentlyFocusedElement = item;
         }
-        item->UpdateInput();
+        item->UpdateInput(dt);
       }
 
       if (!mouseInput && (GetControlState(CT_OK) || GetControlState(CT_Back))) {

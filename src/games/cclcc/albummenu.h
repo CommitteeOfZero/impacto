@@ -24,7 +24,7 @@ struct AlbumThumbnail : public Widgets::Button {
   AlbumThumbnail(int id, uint8_t gridId, glm::vec2 gridPos,
                  AlbumMenu const& albumMenu);
   void Update(float dt) override;
-  void UpdateInput() override;
+  void UpdateInput(float dt) override;
   void Render() override;
   void Show() override;
   void Hide() override;

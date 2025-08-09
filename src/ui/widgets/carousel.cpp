@@ -34,7 +34,7 @@ void Carousel::Update(float dt) {
   }
 }
 
-void Carousel::UpdateInput() {
+void Carousel::UpdateInput(float dt) {
   if (!Children.empty()) {
     auto buttonAdvance = Direction == CDIR_HORIZONTAL ? PAD1RIGHT : PAD1DOWN;
     auto buttonBack = Direction == CDIR_HORIZONTAL ? PAD1LEFT : PAD1UP;

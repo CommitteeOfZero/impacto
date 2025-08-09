@@ -22,7 +22,7 @@ class CgViewer : public Widget {
   void Hide() override;
 
   void Update(float dt) override;
-  void UpdateInput() override;
+  void UpdateInput(float dt) override;
   void Render() override;
 
   void LoadCgSprites(size_t evId, std::string mountPoint,

@@ -25,8 +25,7 @@ void TipsSystem::DataInit(uint32_t scriptBufferId, uint32_t tipsDataAdr,
   auto numberOfContentStrings = ReadLE<uint16_t>(stream);
   while (numberOfContentStrings != 255) {
     // Read tip entry from the data array
-    TipsDataRecord record;
-    memset(&record, 0, sizeof(TipsDataRecord));
+    TipsDataRecord record{.IsLocked = false, .IsUnread = false, .IsNew = false};
     record.Id = (uint16_t)idx;
     // TODO: record.SortLetterIndex
     record.NumberOfContentStrings = numberOfContentStrings;

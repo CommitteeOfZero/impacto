@@ -76,17 +76,17 @@ void ActorsVoiceMenu::Hide() {
   }
 }
 
-void ActorsVoiceMenu::UpdateInput() {
-  Menu::UpdateInput();
+void ActorsVoiceMenu::UpdateInput(float dt) {
+  Menu::UpdateInput(dt);
   if (State == Shown) {
     if (ScrWork[SW_ACTORVOICE_CUR] == 255) {
-      MainItems->UpdateInput();
+      MainItems->UpdateInput(dt);
     }
   }
 }
 
 void ActorsVoiceMenu::Update(float dt) {
-  UpdateInput();
+  UpdateInput(dt);
 
   FadeAnimation.Update(dt);
   if (ScrWork[SW_ACTORVOICE_ALPHA] < 256 && State == Shown) {

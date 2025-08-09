@@ -18,7 +18,7 @@ class OptionGroup : public Widget {
               glm::vec2 pos, glm::vec2 itemsOffset);
 
   void Update(float dt) override;
-  void UpdateInput() override;
+  void UpdateInput(float dt) override;
   void Render() override;
 
   float ItemPadding = 0.0f;

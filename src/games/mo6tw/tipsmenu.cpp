@@ -85,10 +85,10 @@ void TipsMenu::Hide() {
   }
 }
 
-void TipsMenu::UpdateInput() {
-  Menu::UpdateInput();
+void TipsMenu::UpdateInput(float dt) {
+  Menu::UpdateInput(dt);
   if (State == Shown) {
-    ItemsList.UpdateInput();
+    ItemsList.UpdateInput(dt);
     if (CurrentlyDisplayedTipId != -1) {
       if (PADinputButtonWentDown & PAD1X) {
         NextTipPage();
@@ -98,7 +98,7 @@ void TipsMenu::UpdateInput() {
 }
 
 void TipsMenu::Update(float dt) {
-  UpdateInput();
+  UpdateInput(dt);
 
   FadeAnimation.Update(dt);
   if (ScrWork[SW_TIPSALPHA] < 256 && State == Shown) {

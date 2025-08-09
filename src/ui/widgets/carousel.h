@@ -18,7 +18,7 @@ class Carousel : public Widget {
            std::function<void(Widget*, Widget*)> onBackHandler);
 
   void Update(float dt) override;
-  void UpdateInput() override;
+  void UpdateInput(float dt) override;
   void Render() override;
 
   void Add(Widget* widget);

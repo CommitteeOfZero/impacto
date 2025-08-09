@@ -127,15 +127,15 @@ void MovieMenu::Hide() {
   }
 }
 
-void MovieMenu::UpdateInput() {
-  Menu::UpdateInput();
+void MovieMenu::UpdateInput(float dt) {
+  Menu::UpdateInput(dt);
   if (State == Shown) {
-    MainItems->UpdateInput();
+    MainItems->UpdateInput(dt);
   }
 }
 
 void MovieMenu::Update(float dt) {
-  UpdateInput();
+  UpdateInput(dt);
 
   FadeAnimation.Update(dt);
   if (ScrWork[SW_MOVIEMODE_ALPHA] < 256 && State == Shown) {

@@ -19,7 +19,6 @@ using namespace Impacto::Vm::Interface;
 using namespace Impacto::UI::Widgets;
 
 static bool FalseValue = false;
-static float Test = 0.5f;
 
 void OptionsMenu::NextPageOnClick(Widgets::Button* target) {
   GoToPage((CurrentPage + 1) % Pages.size());

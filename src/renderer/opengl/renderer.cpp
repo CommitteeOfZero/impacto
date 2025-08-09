@@ -206,7 +206,8 @@ uint32_t Renderer::SubmitTexture(TexFmt format, uint8_t* buffer, int width,
 
 int Renderer::GetSpriteSheetImage(SpriteSheet const& sheet,
                                   std::span<uint8_t> outBuffer) {
-  const int bufferSize = (int)sheet.DesignWidth * (int)sheet.DesignHeight * 4;
+  const size_t bufferSize =
+      static_cast<size_t>(sheet.DesignWidth * sheet.DesignHeight * 4);
   assert(outBuffer.size() >= bufferSize);
   glBindTexture(GL_TEXTURE_2D, sheet.Texture);
 
@@ -232,7 +233,7 @@ int Renderer::GetSpriteSheetImage(SpriteSheet const& sheet,
     }
   }
 
-  return bufferSize;
+  return static_cast<int>(bufferSize);
 }
 
 void Renderer::FreeTexture(uint32_t id) { glDeleteTextures(1, &id); }
@@ -300,14 +301,14 @@ void Renderer::InsertVerticesQuad(const CornersQuad pos, const CornersQuad uv,
 
 void Renderer::UseTextures(
     const std::span<const std::pair<uint32_t, size_t>> textureUnitPairs) {
-  for (const auto [textureId, unitIndex] : textureUnitPairs) {
+  for (const auto& [textureId, unitIndex] : textureUnitPairs) {
     if (TextureUnits[unitIndex].TextureId != textureId &&
         TextureUnits[unitIndex].InUse) {
       Flush();
     }
   }
 
-  for (const auto [textureId, unitIndex] : textureUnitPairs) {
+  for (const auto& [textureId, unitIndex] : textureUnitPairs) {
     TextureUnit& textureUnit = TextureUnits[unitIndex];
 
     // Always update the active texture in case the texture contents of the same
@@ -688,7 +689,7 @@ void Renderer::DrawVertices(const SpriteSheet& sheet,
   std::vector<VertexBufferSprites> transformedVertices;
   transformedVertices.resize(vertices.size());
 
-  const auto transformVertex = [this, sheet](VertexBufferSprites info) {
+  const auto transformVertex = [sheet](VertexBufferSprites info) {
     if (sheet.IsScreenCap) info.UV.y = 1.0f - info.UV.y;
     return info;
   };

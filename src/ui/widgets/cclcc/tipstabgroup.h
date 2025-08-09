@@ -18,7 +18,7 @@ class TipsTabButton : public Widgets::Button {
  public:
   TipsTabButton(Impacto::UI::CCLCC::TipsTabType type,
                 std::function<void(Widgets::Button*)> onClickHandler);
-  void UpdateInput() override;
+  void UpdateInput(float dt) override;
   void Reset();
 };
 

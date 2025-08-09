@@ -14,13 +14,13 @@ Scrollbar::Scrollbar(int id, glm::vec2 pos, float start, float end,
                      float* value, ScrollbarDirection dir,
                      glm::vec2 trackBounds)
     : Id(id),
+      Direction(dir),
+      Length(dir == SBDIR_VERTICAL ? trackBounds.y : trackBounds.x),
       StartValue(start),
       EndValue(end),
       Value(value),
-      Direction(dir),
-      TrackBounds(pos.x, pos.y, trackBounds.x, trackBounds.y),
       Step((end - start) * 0.01f),
-      Length(dir == SBDIR_VERTICAL ? trackBounds.y : trackBounds.x),
+      TrackBounds(pos.x, pos.y, trackBounds.x, trackBounds.y),
       ThumbBounds(0.0f, 0.0f, 0.0f, 0.0f),
       ThumbLength(0.0f) {
   UpdatePosition();
@@ -31,14 +31,14 @@ Scrollbar::Scrollbar(int id, glm::vec2 pos, float start, float end,
                      glm::vec2 trackBounds, float thumbLength,
                      RectF wheelBounds, float wheelSpeedMultiplier)
     : Id(id),
+      Direction(dir),
+      ThumbSprite(thumb),
       StartValue(start),
       EndValue(end),
       Value(value),
-      Direction(dir),
-      ThumbSprite(thumb),
       TrackBounds(pos.x, pos.y, trackBounds.x, trackBounds.y),
-      ThumbLength(thumbLength),
       ScrollWheelBounds(wheelBounds == RectF() ? TrackBounds : wheelBounds),
+      ThumbLength(thumbLength),
       WheelSpeedMultiplier(wheelSpeedMultiplier) {
   Enabled = true;
   Step = (EndValue - StartValue) * 0.01f;
@@ -52,18 +52,18 @@ Scrollbar::Scrollbar(int id, glm::vec2 pos, float start, float end,
                      float thumbLength, RectF wheelBounds,
                      float wheelSpeedMultiplier)
     : Id(id),
+      Direction(dir),
+      ThumbSprite(thumb),
+      TrackSprite(track),
       StartValue(start),
       EndValue(end),
       Value(value),
-      Direction(dir),
-      TrackSprite(track),
-      ThumbSprite(thumb),
+      Step((EndValue - StartValue) * 0.01f),
       ThumbSpriteOffset(thumbOffset),
-      ThumbLength(thumbLength),
       TrackBounds(pos.x, pos.y, track.ScaledWidth(), track.ScaledHeight()),
       ScrollWheelBounds(wheelBounds == RectF() ? TrackBounds : wheelBounds),
-      WheelSpeedMultiplier(wheelSpeedMultiplier),
-      Step((EndValue - StartValue) * 0.01f) {
+      ThumbLength(thumbLength),
+      WheelSpeedMultiplier(wheelSpeedMultiplier) {
   Enabled = true;
   Length = Direction == SBDIR_VERTICAL ? TrackSprite->Bounds.Height
                                        : TrackSprite->Bounds.Width;
@@ -92,7 +92,7 @@ Scrollbar::Scrollbar(int id, glm::vec2 pos, float start, float end,
   UpdatePosition();
 }
 
-void Scrollbar::UpdateInput() {
+void Scrollbar::UpdateInput(float dt) {
   if (Enabled) {
     if (HasFocus) {
       switch (Direction) {

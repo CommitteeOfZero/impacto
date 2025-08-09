@@ -46,7 +46,7 @@ void TitleMenu::Hide() {
   }
 }
 void TitleMenu::Update(float dt) {
-  UpdateInput();
+  UpdateInput(dt);
 
   if (BackgroundAnimation) BackgroundAnimation->Update(dt);
   PreTitleItemsAnimation.Update(dt);

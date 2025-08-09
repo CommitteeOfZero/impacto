@@ -80,7 +80,7 @@ void SaveMenu::Hide() {
 }
 
 void SaveMenu::Update(float dt) {
-  UpdateInput();
+  UpdateInput(dt);
 
   FadeAnimation.Update(dt);
   bool subMenuSave = ScrWork[SW_SYSSUBMENUNO] == 0 ||

@@ -55,11 +55,11 @@ void TrophyMenu::Show() {
     IsFocused = true;
     UI::FocusedMenu = this;
 
-    for (int i = 0; i < MaxTrophyPages; i++) {
-      for (int j = 0; j < 6; j++) {
-        int const index = i * 6 + j;
+    for (size_t i = 0; i < MaxTrophyPages; i++) {
+      for (size_t j = 0; j < 6; j++) {
+        const size_t index = i * 6 + j;
         if (index >= AchievementSystem::GetAchievementCount()) break;
-        TrophyMenuEntry* entry = new TrophyMenuEntry(index);
+        TrophyMenuEntry* entry = new TrophyMenuEntry(static_cast<int>(index));
         MainItems[i].Add(entry);
       }
     }
@@ -147,7 +147,7 @@ void TrophyMenu::Render() {
   MainItems[CurrentPage].Render();
 }
 
-void TrophyMenu::UpdateInput() {
+void TrophyMenu::UpdateInput(float dt) {
   if (IsFocused) {
     if (PADinputButtonWentDown & PAD1DOWN) {
       if (CurrentPage < 8) {
@@ -164,7 +164,7 @@ void TrophyMenu::UpdateInput() {
 }
 
 void TrophyMenu::Update(float dt) {
-  UpdateInput();
+  UpdateInput(dt);
 
   if (ScrWork[SW_SYSMENUCT] < 32 && State == Shown) {
     Hide();

@@ -19,7 +19,7 @@ class OptionsBinaryButton : public OptionsEntry {
 
   void Render() override;
   void Update(float dt) override;
-  void UpdateInput() override;
+  void UpdateInput(float dt) override;
 
   void Show() override;
   void Hide() override;

@@ -110,10 +110,10 @@ void ClearListMenu::Hide() {
   }
 }
 
-void ClearListMenu::UpdateInput() {
-  Menu::UpdateInput();
+void ClearListMenu::UpdateInput(float dt) {
+  Menu::UpdateInput(dt);
   if (State == Shown) {
-    MainItems->UpdateInput();
+    MainItems->UpdateInput(dt);
     if ((PADinputButtonWentDown & PAD1DOWN ||
          PADinputButtonWentDown & PAD1UP) &&
         SceneTitleItems->HasFocus) {
@@ -130,7 +130,7 @@ void ClearListMenu::UpdateInput() {
 }
 
 void ClearListMenu::Update(float dt) {
-  UpdateInput();
+  UpdateInput(dt);
 
   FadeAnimation.Update(dt);
   if (ScrWork[SW_PLAYDATA_ALPHA] < 256 && State == Shown) {

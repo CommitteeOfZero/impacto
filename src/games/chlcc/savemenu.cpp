@@ -303,7 +303,7 @@ void SaveMenu::Hide() {
 }
 
 void SaveMenu::Update(float dt) {
-  UpdateInput();
+  UpdateInput(dt);
   if (ScrWork[SW_SYSMENUCT] < 32 && State == Shown) {
     Hide();
   } else if (GetFlag(SF_SAVEMENU) && ScrWork[SW_SYSMENUCT] > 0 &&

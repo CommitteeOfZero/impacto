@@ -23,9 +23,9 @@ OptionsVoiceSlider::OptionsVoiceSlider(
           RectF(pos.x + VoiceSliderOffset.x, pos.y + VoiceSliderOffset.y,
                 box.ScaledWidth(), box.ScaledHeight()),
           sliderSpeed, select, highlight),
-      Muted(muted),
       Portrait(portrait),
-      MutedPortrait(mutedPortrait) {
+      MutedPortrait(mutedPortrait),
+      Muted(muted) {
   Bounds =
       RectF(Bounds.X, Bounds.Y, VoiceEntryDimensions.x, VoiceEntryDimensions.y);
   EntryButton.Bounds = Bounds;
@@ -71,9 +71,9 @@ void OptionsVoiceSlider::Update(float dt) {
   MuteButton.Update(dt);
 }
 
-void OptionsVoiceSlider::UpdateInput() {
-  OptionsSlider::UpdateInput();
-  MuteButton.UpdateInput();
+void OptionsVoiceSlider::UpdateInput(float dt) {
+  OptionsSlider::UpdateInput(dt);
+  MuteButton.UpdateInput(dt);
 
   if (!HasFocus) return;
 

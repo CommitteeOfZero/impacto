@@ -61,8 +61,8 @@ void TipsEntryButton::Update(float dt) {
   if (PrevUnreadState != curUnreadState) {
     uint32_t colorName =
         curUnreadState ? TipsEntryNameUnreadColor : TipsMenuDarkTextColor;
-    for (int i = 0; i < Text.size(); i++) {
-      Text[i].Colors = {colorName, 0};
+    for (ProcessedTextGlyph& glyph : Text) {
+      glyph.Colors = {colorName, 0};
     }
     PrevUnreadState = curUnreadState;
   }
@@ -73,9 +73,9 @@ void TipsEntryButton::Update(float dt) {
   }
 }
 
-void TipsEntryButton::UpdateInput() {
+void TipsEntryButton::UpdateInput(float dt) {
   if (TipsTabBounds.Intersects(Bounds) || TipsTabBounds.Contains(Bounds)) {
-    Button::UpdateInput();
+    Button::UpdateInput(dt);
   }
 }
 

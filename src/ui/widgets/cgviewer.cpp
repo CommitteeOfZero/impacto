@@ -32,7 +32,7 @@ void CgViewer::Hide() {
   Widget::Hide();
 }
 
-void CgViewer::UpdateInput() {
+void CgViewer::UpdateInput(float dt) {
   if (PADinputMouseIsDown & PAD1A) {
     Position[CurrentVariation] += Input::CurMousePos - Input::PrevMousePos;
   }
@@ -80,7 +80,7 @@ void CgViewer::UpdateInput() {
   if (PADinputButtonWentDown & PAD1A || mouseAdvance) {
     while (true) {
       CurrentVariation += 1;
-      if (CurrentVariation == VariationCount) {
+      if (static_cast<int>(CurrentVariation) == VariationCount) {
         if (OnVariationEndHandler) OnVariationEndHandler(this);
         CurrentVariation = 0;
       }
@@ -194,7 +194,7 @@ void CgViewer::LoadCgSprites(
 }
 
 bool CgViewer::isOnLastVariation() const {
-  return CurrentVariation == VariationCount - 1;
+  return static_cast<int>(CurrentVariation) == VariationCount - 1;
 }
 
 void CgViewer::Clear() {

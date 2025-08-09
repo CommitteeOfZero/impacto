@@ -19,10 +19,10 @@ OptionsSlider::OptionsSlider(float& value, float min, float max,
                              std::function<void(OptionsEntry*)> select,
                              std::function<void(Widget*)> highlight)
     : OptionsEntry(label, pos, highlightTint, select, highlight),
-      Progress(value),
       BoxSprite(box),
       Slider(0, pos + SliderTrackOffset, min, max, &value, SBDIR_HORIZONTAL,
-             glm::vec2(BoxSprite.ScaledWidth(), BoxSprite.ScaledHeight())) {
+             glm::vec2(BoxSprite.ScaledWidth(), BoxSprite.ScaledHeight())),
+      Progress(value) {
   Bounds.Width = SliderTrackOffset.x + BoxSprite.ScaledWidth();
   EntryButton.Bounds.Width = Bounds.Width;
 }
@@ -34,10 +34,10 @@ OptionsSlider::OptionsSlider(float& value, float min, float max,
                              std::function<void(OptionsEntry*)> select,
                              std::function<void(Widget*)> highlight)
     : OptionsEntry(label, pos, highlightTint, select, highlight),
-      Progress(value),
       BoxSprite(box),
       Slider(0, sliderBounds.GetPos(), min, max, &value, SBDIR_HORIZONTAL,
-             sliderBounds.GetSize()) {}
+             sliderBounds.GetSize()),
+      Progress(value) {}
 
 void OptionsSlider::Render() {
   OptionsEntry::Render();
@@ -57,11 +57,11 @@ void OptionsSlider::Update(float dt) {
   Slider.Update(dt);
 }
 
-void OptionsSlider::UpdateInput() {
-  OptionsEntry::UpdateInput();
+void OptionsSlider::UpdateInput(float dt) {
+  OptionsEntry::UpdateInput(dt);
 
   Slider.HasFocus = Selected;
-  Slider.UpdateInput();
+  Slider.UpdateInput(dt);
   Slider.ClampValue();
 }
 

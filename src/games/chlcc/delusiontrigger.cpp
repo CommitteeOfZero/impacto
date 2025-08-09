@@ -308,7 +308,7 @@ void DelusionTrigger::Update(float dt) {
     for (; 29999 < UnderlayerXOffset;
          UnderlayerXOffset = UnderlayerXOffset + -10000) {
     }
-    spinAngle = (spinAngle + spinRate & 0xffff);
+    spinAngle = ((spinAngle + spinRate) & 0xffff);
   }
 }
 

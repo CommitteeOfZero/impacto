@@ -9,9 +9,9 @@ using namespace Impacto::Vm::Interface;
 
 TurboOnHoldHandler::TurboOnHoldHandler(float holdTime, float fireInterval,
                                        int buttonMask)
-    : HoldTime(holdTime),
-      FireInterval(fireInterval),
-      PADinputButtonHoldMask(buttonMask) {}
+    : PADinputButtonHoldMask(buttonMask),
+      HoldTime(holdTime),
+      FireInterval(fireInterval) {}
 
 void TurboOnHoldHandler::Update(float dt) {
   if (!(PADinputButtonIsDown & PADinputButtonHoldMask)) {

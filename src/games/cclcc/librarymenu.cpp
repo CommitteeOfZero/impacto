@@ -160,7 +160,7 @@ void LibraryMenu::Update(float dt) {
       albumMenuPtr->CGViewer;
   if (State == Shown && ScrWork[SW_SYSSUBMENUNO] == 8) {
     if (!moviePlaying && !cgViewerActive) {
-      UpdateInput();
+      UpdateInput(dt);
       if ((Vm::Interface::PADinputButtonWentDown & Vm::Interface::PAD1B) ||
           (Vm::Interface::PADinputMouseWentDown & Vm::Interface::PAD1B)) {
         Audio::Channels[Audio::AC_SSE]->Play("sysse", 3, false, 0);

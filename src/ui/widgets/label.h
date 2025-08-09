@@ -33,7 +33,7 @@ class Label : public Widget {
         RendererOutlineMode outlineMode, DialogueColorPair colorPair);
 
   void Update(float dt) override;
-  void UpdateInput() override;
+  void UpdateInput(float dt) override;
   void Render() override;
   void Move(glm::vec2 relativePosition) override;
   void MoveTo(glm::vec2 pos) override;

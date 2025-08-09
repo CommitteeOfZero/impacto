@@ -39,10 +39,10 @@ void Configure() {
   SaveEntryPrimaryColor = EnsureGetMember<uint32_t>("SaveEntryPrimaryColor");
   SaveEntrySecondaryColor =
       EnsureGetMember<uint32_t>("SaveEntrySecondaryColor");
-  for (int i = 0; i < sizeof(SaveMenuTypeNames) / sizeof(*SaveMenuTypeNames);
+  for (size_t i = 0; i < sizeof(SaveMenuTypeNames) / sizeof(*SaveMenuTypeNames);
        i++) {
     UI::SaveMenuPageType menuType =
-        UI::SaveMenuPageType::_from_integral_unchecked(i);
+        UI::SaveMenuPageType::_from_integral_unchecked(static_cast<int>(i));
     std::string menuName = menuType._to_string();
 
     MenuTextSprite[menuType] =

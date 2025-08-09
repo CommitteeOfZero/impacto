@@ -20,7 +20,7 @@ using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::Vm;
 
 void Background2D::InitFrameBuffers() {
-  RectF viewPort = Window->GetViewport();
+  [[maybe_unused]] RectF viewPort = Window->GetViewport();
   for (size_t i = 0; i < Framebuffers.max_size(); i++) {
     Framebuffers[i].BgSprite =
         Sprite(SpriteSheet(Profile::DesignWidth, Profile::DesignHeight), 0.0f,
@@ -34,8 +34,8 @@ void Background2D::InitFrameBuffers() {
 }
 
 void Background2D::Init() {
-  for (int i = 0; i < Backgrounds.size(); i++) {
-    Backgrounds2D[i] = &Backgrounds[i];
+  for (size_t i = 0; i < Backgrounds.size(); i++) {
+    Backgrounds2D[static_cast<int>(i)] = &Backgrounds[i];
   }
 
   for (Capture2D& capture : Screencaptures) {
@@ -162,7 +162,7 @@ void Background2D::LinkBuffers(const int linkCode, const int currentBufferId) {
   if (srcBufId == Vm::Interface::GetScriptBufferId(currentBufferId)) {
     const LinkDirection dir = (LinkDirection)((linkCode >> 16) & 0xFF);
 
-    for (size_t i = 0; i < MaxLinkedBgBuffers; i++) {
+    for (int i = 0; i < MaxLinkedBgBuffers; i++) {
       int childBufId = (linkCode >> (i * 24)) & 0xFF;
       if (childBufId != 0) {
         childBufId = Vm::Interface::GetBufferId(childBufId);
@@ -324,7 +324,7 @@ void Background2D::UpdateState(const int bgId) {
   } else if (ScrWork[SW_BGLINK2]) {
     LinkBuffers(ScrWork[SW_BGLINK2], bgId);
   } else {
-    for (size_t i = 0; i < MaxLinkedBgBuffers; i++) {
+    for (int i = 0; i < MaxLinkedBgBuffers; i++) {
       Links[i].Direction = LinkDirection::Off;
       Links[i].LinkedBuffer = nullptr;
     }
@@ -572,7 +572,7 @@ void Background2D::RenderRegular() {
           transformation *
           glm::translate(glm::mat4(1.0f), {Links[i].DisplayCoords, 0.0f});
 
-      Renderer->DrawSprite(Links[i].LinkedBuffer->BgSprite, transformation,
+      Renderer->DrawSprite(Links[i].LinkedBuffer->BgSprite, linkTransformation,
                            Tint, false);
     }
   }

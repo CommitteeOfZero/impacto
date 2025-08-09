@@ -148,23 +148,24 @@ T EnsureGetKey() {
 void ClearProfileInternal();
 
 template <typename T>
-T EnsureGet() {
-  T result;
-  bool success = TryGet(result);
-  if (!success) {
-    ImpLog(Impacto::LogLevel::Fatal, Impacto::LogChannel::Profile,
-           "Unexpected type\n");
-    Game::Shutdown();
-  }
-  return result;
-}
-
-template <typename T>
 inline std::optional<T> TryGet() {
   if (T v; TryGet<T>(v)) {
     return std::optional<T>{std::in_place, std::move(v)};
   }
   return std::nullopt;
+}
+
+template <typename T>
+T EnsureGet() {
+  std::optional<T> result = TryGet<T>();
+
+  if (!result.has_value()) {
+    ImpLog(Impacto::LogLevel::Fatal, Impacto::LogChannel::Profile,
+           "Unexpected type\n");
+    Game::Shutdown();
+  }
+
+  return result.value();
 }
 
 template <typename T>

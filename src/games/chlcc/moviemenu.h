@@ -13,11 +13,11 @@ class MovieMenu : public Menu {
  public:
   MovieMenu();
 
-  void Show();
-  void Hide();
-  void UpdateInput();
-  void Update(float dt);
-  void Render();
+  void Show() override;
+  void Hide() override;
+  void UpdateInput(float dt) override;
+  void Update(float dt) override;
+  void Render() override;
 
   void MovieButtonOnClick(Widgets::Button* target);
 

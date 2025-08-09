@@ -51,7 +51,7 @@ void TitleMenu::Hide() {
 }
 
 void TitleMenu::Update(float dt) {
-  UpdateInput();
+  UpdateInput(dt);
 
   PressToStartAnimation.Update(dt);
   if (GetFlag(SF_TITLEMODE) && ScrWork[SW_TITLEDISPCT] == 2) {

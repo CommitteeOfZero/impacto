@@ -372,7 +372,7 @@ VmInstruction(InstSel) {
         // }
       }
       PopExpression(arg1);
-      UI::SelectionMenuPtr->Init((bool)arg1);
+      UI::SelectionMenuPtr->InitSelectionMenu((bool)arg1);
       // SaveIconDisplay::Show();
       break;
     }

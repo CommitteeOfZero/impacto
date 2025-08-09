@@ -16,10 +16,10 @@ OptionsEntry::OptionsEntry(const Sprite& label, glm::vec2 pos,
                            glm::vec4 highlightTint,
                            std::function<void(OptionsEntry*)> select,
                            std::function<void(Widget*)> highlight)
-    : LabelSprite(label),
-      HighlightTint(highlightTint),
-      Select(select),
-      Highlight(highlight) {
+    : Select(select),
+      Highlight(highlight),
+      LabelSprite(label),
+      HighlightTint(highlightTint) {
   Bounds = RectF(pos.x, pos.y, LabelOffset.x + LabelSprite.ScaledWidth(),
                  LabelOffset.y + LabelSprite.ScaledHeight());
 
@@ -54,9 +54,9 @@ void OptionsEntry::Update(float dt) {
   EntryButton.Update(dt);
 }
 
-void OptionsEntry::UpdateInput() {
+void OptionsEntry::UpdateInput(float dt) {
   const bool wasHovered = EntryButton.Hovered;
-  EntryButton.UpdateInput();
+  EntryButton.UpdateInput(dt);
   if (!HasFocus && !wasHovered && EntryButton.Hovered) {
     Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0.0f);
     Highlight(this);

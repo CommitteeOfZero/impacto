@@ -44,9 +44,9 @@ void SysMesBox::Show() {
 
   float textBeginY = TextMiddleY - (TextMarginY * (4 + MessageCount));
   for (int i = 0; i < MessageCount; i++) {
-    for (int j = 0; j < Messages[i].size(); j++) {
-      if (Messages[i][j].CharId == 0) break;
-      Messages[i][j].DestRect.Y = textBeginY + (i * TextLineHeight);
+    for (ProcessedTextGlyph& glyph : Messages[i]) {
+      if (glyph.CharId == 0) break;
+      glyph.DestRect.Y = textBeginY + (i * TextLineHeight);
     }
 
     Label* message = new Label(Messages[i], MessageWidths[i], TextFontSize,
@@ -106,7 +106,7 @@ void SysMesBox::Hide() {
 }
 
 void SysMesBox::Update(float dt) {
-  UpdateInput();
+  UpdateInput(dt);
 
   FadeAnimation.Update(dt);
 
@@ -291,8 +291,8 @@ void SysMesBox::AddMessage(Vm::BufferOffsetContext ctx) {
                           TextFontSize, Profile::Dialogue::ColorTable[10], 1.0f,
                           glm::vec2(TextX, 0.0f), TextAlignment::Left);
   float mesLen = 0.0f;
-  for (int i = 0; i < Messages[MessageCount].size(); i++) {
-    mesLen += Messages[MessageCount][i].DestRect.Width;
+  for (const ProcessedTextGlyph& glyph : Messages[MessageCount]) {
+    mesLen += glyph.DestRect.Width;
   }
   MessageWidths[MessageCount] = mesLen;
   MessageCount++;

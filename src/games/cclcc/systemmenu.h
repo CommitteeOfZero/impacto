@@ -19,11 +19,11 @@ class SystemMenu : public Menu {
 
   SystemMenu();
 
-  void Init();
-  void Show();
-  void Hide();
-  void Update(float dt);
-  void Render();
+  void Init() override;
+  void Show() override;
+  void Hide() override;
+  void Update(float dt) override;
+  void Render() override;
 
   void MenuButtonOnClick(Widgets::Button* target);
   Sprite ScreenCap;
