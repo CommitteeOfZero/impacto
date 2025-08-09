@@ -216,8 +216,10 @@ void MovieMenu::Update(float dt) {
       }
       TitleFade.StartIn();
     }
+    if (State == Shown) {
+      MovieItems->Update(dt);
+    }
     TitleFade.Update(dt);
-    MovieItems->Update(dt);
     UpdateTitles();
   }
 }
