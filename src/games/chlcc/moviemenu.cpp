@@ -22,6 +22,8 @@ void MovieMenu::MovieButtonOnClick(Widgets::Button* target) {
   auto movieButton = static_cast<MovieMenuEntryButton*>(target);
   ChoiceMade = true;
   IsChoiceMadeOnce = true;
+  // TODO Add PSP OP as 11, PSP Normal ED as 12, PSP Ayase ED as 13
+  // Reordering IDs (note: ScrWork[SW_MOVIEMODE_CUR] = 9 is the smoke VFX video)
   if (!movieButton->IsLocked) {
     switch (movieButton->Id) {
       case 0: {
@@ -74,8 +76,42 @@ MovieMenu::MovieMenu() {
         new MovieMenuEntryButton(i, MoviesThumbnails[i], LockedThumbnail,
                                  thumbnailPosition, boxPosition);
     movieMenuEntryButton->OnClickHandler = onClick;
-    MovieItems->Add(movieMenuEntryButton);
+    MovieItems->Add(movieMenuEntryButton, FDIR_DOWN);
   }
+
+  auto setFocus = [](Widget* btn, Widget* btn2, FocusDirection dir) {
+    FocusDirection oppositeDir = [dir] {
+      switch (dir) {
+        case FDIR_LEFT:
+          return FDIR_RIGHT;
+        case FDIR_RIGHT:
+          return FDIR_LEFT;
+        case FDIR_UP:
+          return FDIR_DOWN;
+        case FDIR_DOWN:
+          return FDIR_UP;
+      }
+      return FDIR_LEFT;  // unreachable
+    }();
+    btn->SetFocus(btn2, dir);
+    btn2->SetFocus(btn, oppositeDir);
+  };
+  // Vertical
+  setFocus(MovieItems->Children[3], MovieItems->Children[0], FDIR_DOWN);
+  setFocus(MovieItems->Children[6], MovieItems->Children[4], FDIR_DOWN);
+  setFocus(MovieItems->Children[9], MovieItems->Children[7], FDIR_DOWN);
+  // Horizontal
+  setFocus(MovieItems->Children[0], MovieItems->Children[4], FDIR_RIGHT);
+  setFocus(MovieItems->Children[4], MovieItems->Children[7], FDIR_RIGHT);
+  setFocus(MovieItems->Children[7], MovieItems->Children[0], FDIR_RIGHT);
+
+  setFocus(MovieItems->Children[1], MovieItems->Children[5], FDIR_RIGHT);
+  setFocus(MovieItems->Children[5], MovieItems->Children[8], FDIR_RIGHT);
+  setFocus(MovieItems->Children[8], MovieItems->Children[1], FDIR_RIGHT);
+
+  setFocus(MovieItems->Children[2], MovieItems->Children[6], FDIR_RIGHT);
+  setFocus(MovieItems->Children[6], MovieItems->Children[9], FDIR_RIGHT);
+  setFocus(MovieItems->Children[9], MovieItems->Children[2], FDIR_RIGHT);
 }
 
 void MovieMenu::Show() {
@@ -216,8 +252,10 @@ void MovieMenu::Update(float dt) {
       }
       TitleFade.StartIn();
     }
+    if (State == Shown) {
+      MovieItems->Update(dt);
+    }
     TitleFade.Update(dt);
-    MovieItems->Update(dt);
     UpdateTitles();
   }
 }
