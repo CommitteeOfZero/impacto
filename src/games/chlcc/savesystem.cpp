@@ -7,6 +7,7 @@
 #include "../../profile/data/savesystem.h"
 #include "../../profile/scriptvars.h"
 #include "../../renderer/renderer.h"
+#include "../../profile/configsystem.h"
 
 #include <cstdint>
 #include <ctime>
@@ -17,8 +18,33 @@ namespace CHLCC {
 using namespace Impacto::Vm;
 using namespace Impacto::Profile::SaveSystem;
 using namespace Impacto::Profile::ScriptVars;
+using namespace Impacto::Profile::ConfigSystem;
 
 SaveFileEntry* WorkingSaveEntry = nullptr;
+
+constexpr uint8_t WaitSpeedToSettingIndex(const float speed) {
+  constexpr std::array<uint32_t, 4> speeds = {0x100, 0x300, 0x600, 0xfff0000};
+
+  for (uint8_t i = 0; i < std::ssize(speeds) - 1; i++) {
+    const float average =
+        static_cast<float>(speeds[i] + speeds[i + 1]) / 2.0f / 60.0f;
+    if (speed <= average) return i;
+  }
+
+  return std::ssize(speeds) - 1;
+}
+
+constexpr uint8_t AutoSpeedToSettingIndex(const float speed) {
+  constexpr std::array<uint32_t, 3> speeds = {0x100, 0x300, 0x600};
+
+  for (uint8_t i = 0; i < std::ssize(speeds) - 1; i++) {
+    const float average =
+        static_cast<float>(speeds[i] + speeds[i + 1]) / 2.0f / 60.0f;
+    if (speed <= average) return i;
+  }
+
+  return std::ssize(speeds) - 1;
+}
 
 SaveError SaveSystem::CreateSaveFile() {
   using CF = Io::PhysicalFileStream::CreateFlagsMode;
@@ -36,6 +62,38 @@ SaveError SaveSystem::CreateSaveFile() {
   std::vector<uint8_t> emptyData(SaveFileSize, 0);
   Io::WriteArrayBE<uint8_t>(emptyData.data(), stream, SaveFileSize);
   assert(stream->Position == SaveFileSize);
+
+  stream->Seek(0x776, SEEK_SET);
+  Io::WriteLE(stream, (Uint8)(Default::GroupVolumes[Audio::ACG_Voice] * 128));
+  Io::WriteLE(stream, (Uint8)(Default::GroupVolumes[Audio::ACG_Voice] * 128));
+  Io::WriteLE(stream, (Uint8)(Default::GroupVolumes[Audio::ACG_BGM] * 256));
+  Io::WriteLE(stream,
+              (Uint8)(Default::GroupVolumes[Audio::ACG_SE] * 128));  // SEvol
+  Io::WriteLE(stream, (Uint8)(Default::GroupVolumes[Audio::ACG_SE] * 0.6f *
+                              128));  // SYSSEvol
+  Io::WriteLE(stream, (Uint8)(Default::GroupVolumes[Audio::ACG_Movie] * 128));
+  Io::WriteLE(stream, WaitSpeedToSettingIndex(Default::TextSpeed));
+  Io::WriteLE(stream, AutoSpeedToSettingIndex(Default::AutoSpeed));
+  Io::WriteLE(stream, Default::SyncVoice);
+  Io::WriteLE(stream, !Default::SkipRead);
+  Io::WriteLE<Uint8>(stream, 0x02);  // QSave
+
+  stream->Seek(0x786, SEEK_SET);
+  Io::WriteLE(stream, Default::SkipVoice);
+  Io::WriteLE(stream, Default::ShowTipsNotification);
+  Io::WriteLE<Uint8>(stream, 0x00);  // Pad type
+  Io::WriteLE(stream, Default::TriggerStopSkip);
+
+  stream->Seek(0x79e, SEEK_SET);
+  assert(Default::VoiceMuted.size() >= 32);
+  for (size_t i = 0; i < 32; i++) {
+    Io::WriteLE(stream, !Default::VoiceMuted[i]);
+  }
+
+  assert(Default::VoiceVolume.size() >= 20);
+  for (size_t i = 0; i < 20; i++) {
+    Io::WriteLE(stream, (Uint8)(Default::VoiceVolume[i] * 128));
+  }
 
   // TODO: Write default state
 
