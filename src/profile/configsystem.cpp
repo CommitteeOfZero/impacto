@@ -7,9 +7,9 @@ namespace Profile {
 namespace ConfigSystem {
 
 void Configure() {
-  std::fill_n(Default::VoiceMuted, VoiceCount, false);
-  std::fill_n(Default::VoiceVolume, VoiceCount, 1.0f);
-  std::fill_n(Default::GroupVolumes, Audio::ACG_Count, 0.5f);
+  std::fill(Default::VoiceMuted.begin(), Default::VoiceMuted.end(), false);
+  std::fill(Default::VoiceVolume.begin(), Default::VoiceVolume.end(), 1.0f);
+  std::fill(Default::GroupVolumes.begin(), Default::GroupVolumes.end(), 0.5f);
 
   Default::GroupVolumes[Audio::ACG_BGM] = 0.25f;
 
@@ -50,8 +50,8 @@ void Configure() {
       uint32_t voiceCount = optionalVoiceCount.value();
       assert(voiceCount <= VoiceCount);
 
-      GetMemberArray(Default::VoiceMuted, voiceCount, "VoiceMuted");
-      GetMemberArray(Default::VoiceVolume, voiceCount, "VoiceVolume");
+      GetMemberArray(Default::VoiceMuted.data(), voiceCount, "VoiceMuted");
+      GetMemberArray(Default::VoiceVolume.data(), voiceCount, "VoiceVolume");
     }
 
     Pop();
@@ -73,12 +73,12 @@ void ResetToDefault() {
   SyncVoice = Default::SyncVoice;
   SkipVoice = Default::SkipVoice;
 
-  std::copy(std::begin(Default::VoiceMuted), std::end(Default::VoiceMuted),
-            VoiceMuted);
-  std::copy(std::begin(Default::VoiceVolume), std::end(Default::VoiceVolume),
-            VoiceVolume);
-  std::copy(std::begin(Default::GroupVolumes), std::end(Default::GroupVolumes),
-            Audio::GroupVolumes);
+  std::copy(Default::VoiceMuted.begin(), Default::VoiceMuted.end(),
+            VoiceMuted.begin());
+  std::copy(Default::VoiceVolume.begin(), Default::VoiceVolume.end(),
+            VoiceVolume.begin());
+  std::copy(Default::GroupVolumes.begin(), Default::GroupVolumes.end(),
+            Audio::GroupVolumes.begin());
 }
 
 }  // namespace ConfigSystem

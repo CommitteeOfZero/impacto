@@ -15,8 +15,8 @@ void AudioShutdown();
 inline AudioBackend* Backend = nullptr;
 
 inline float MasterVolume = 1.0f;
-inline float GroupVolumes[ACG_Count];
-inline std::unique_ptr<AudioChannel> Channels[AC_Count];
+inline std::array<float, ACG_Count> GroupVolumes;
+inline std::array<std::unique_ptr<AudioChannel>, AC_Count> Channels;
 
 }  // namespace Audio
 }  // namespace Impacto
