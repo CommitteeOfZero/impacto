@@ -12,7 +12,7 @@ namespace Profile {
 namespace CCLCC {
 namespace SaveMenu {
 
-constexpr char const* SaveMenuTypeNames[] = {
+constexpr std::array<std::string_view, 3> SaveMenuTypeNames = {
     "QuickLoad",
     "Load",
     "Save",
@@ -39,8 +39,7 @@ void Configure() {
   SaveEntryPrimaryColor = EnsureGetMember<uint32_t>("SaveEntryPrimaryColor");
   SaveEntrySecondaryColor =
       EnsureGetMember<uint32_t>("SaveEntrySecondaryColor");
-  for (int i = 0; i < sizeof(SaveMenuTypeNames) / sizeof(*SaveMenuTypeNames);
-       i++) {
+  for (size_t i = 0; i < SaveMenuTypeNames.size(); i++) {
     UI::SaveMenuPageType menuType =
         UI::SaveMenuPageType::_from_integral_unchecked(i);
     std::string menuName = menuType._to_string();
