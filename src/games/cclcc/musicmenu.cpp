@@ -18,7 +18,7 @@ using namespace Impacto::Profile::CCLCC::LibraryMenu;
 using namespace Impacto::Profile::ScriptVars;
 
 MusicTrackButton::MusicTrackButton(int id, int position, glm::vec2 pos)
-    : Button(), Position(position) {
+    : Button() {
   Id = id;
   Bounds = RectF(pos.x, pos.y + MusicButtonTextYOffset, MusicButtonBounds.Width,
                  MusicButtonBounds.Height);
