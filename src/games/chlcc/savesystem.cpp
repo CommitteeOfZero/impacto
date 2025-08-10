@@ -61,25 +61,28 @@ SaveError SaveSystem::CreateSaveFile() {
   Io::WriteArrayBE<uint8_t>(emptyData.data(), stream, SaveFileSize);
   assert(stream->Position == SaveFileSize);
 
+  // Config settings
   stream->Seek(0x776, SEEK_SET);
-  Io::WriteLE(stream, (Uint8)(Default::GroupVolumes[Audio::ACG_Voice] * 128));
-  Io::WriteLE(stream, (Uint8)(Default::GroupVolumes[Audio::ACG_Voice] * 128));
+  Io::WriteLE(stream, (Uint8)(Default::GroupVolumes[Audio::ACG_Voice] *
+                              128));  // VOICE2vol
+  Io::WriteLE(stream, (Uint8)(Default::GroupVolumes[Audio::ACG_Voice] *
+                              128));  // VOICEvol
   Io::WriteLE(stream, (Uint8)(Default::GroupVolumes[Audio::ACG_BGM] * 256));
   Io::WriteLE(stream,
               (Uint8)(Default::GroupVolumes[Audio::ACG_SE] * 128));  // SEvol
-  Io::WriteLE(stream, (Uint8)(Default::GroupVolumes[Audio::ACG_SE] * 0.6f *
+  Io::WriteLE(stream, (Uint8)(Default::GroupVolumes[Audio::ACG_SE] * 0.75f *
                               128));  // SYSSEvol
   Io::WriteLE(stream, (Uint8)(Default::GroupVolumes[Audio::ACG_Movie] * 128));
   Io::WriteLE(stream, TextSpeedToSettingIndex(Default::TextSpeed));
   Io::WriteLE(stream, AutoSpeedToSettingIndex(Default::AutoSpeed));
   Io::WriteLE(stream, Default::SyncVoice);
   Io::WriteLE(stream, !Default::SkipRead);
-  Io::WriteLE<Uint8>(stream, 0x02);  // QSave
+  Io::WriteLE<Uint8>(stream, 0x02);  // TODO: QSave
 
   stream->Seek(0x786, SEEK_SET);
   Io::WriteLE(stream, Default::SkipVoice);
   Io::WriteLE(stream, Default::ShowTipsNotification);
-  Io::WriteLE<Uint8>(stream, 0x00);  // Pad type
+  Io::WriteLE<Uint8>(stream, 0x00);  // TODO: Pad type
   Io::WriteLE(stream, Default::TriggerStopSkip);
 
   stream->Seek(0x79e, SEEK_SET);
@@ -152,8 +155,43 @@ void SaveSystem::SaveSystemData() {
   Io::WriteArrayLE<uint8_t>(&FlagWork[460], &stream, 40);
   Io::WriteArrayBE<int>(&ScrWork[600], &stream, 400);
 
-  stream.Seek(0x7DA, SEEK_SET);
+  // Config settings
+  stream.Seek(0x776, SEEK_SET);
+  Io::WriteLE(&stream, (Uint8)(Audio::GroupVolumes[Audio::ACG_Voice] *
+                               128));  // VOICE2vol
+  Io::WriteLE(&stream, (Uint8)(Audio::GroupVolumes[Audio::ACG_Voice] *
+                               128));  // VOICEvol
+  Io::WriteLE(&stream, (Uint8)(Audio::GroupVolumes[Audio::ACG_BGM] * 256));
+  Io::WriteLE(&stream,
+              (Uint8)(Audio::GroupVolumes[Audio::ACG_SE] * 128));  // SEvol
+  Io::WriteLE(&stream, (Uint8)(Audio::GroupVolumes[Audio::ACG_SE] * 0.75f *
+                               128));  // SYSSEvol
+  Io::WriteLE(&stream, (Uint8)(Audio::GroupVolumes[Audio::ACG_Movie] * 128));
+  Io::WriteLE(&stream, TextSpeedToSettingIndex(TextSpeed));
+  Io::WriteLE(&stream, AutoSpeedToSettingIndex(AutoSpeed));
+  Io::WriteLE(&stream, SyncVoice);
+  Io::WriteLE(&stream, !SkipRead);
+  Io::WriteLE<Uint8>(&stream, 0x02);  // TODO: QSave
 
+  stream.Seek(0x786, SEEK_SET);
+  Io::WriteLE(&stream, SkipVoice);
+  Io::WriteLE(&stream, ShowTipsNotification);
+  Io::WriteLE<Uint8>(&stream, 0x00);  // TODO: Pad type
+  Io::WriteLE(&stream, TriggerStopSkip);
+
+  stream.Seek(0x79e, SEEK_SET);
+  assert(VoiceMuted.size() >= 32);
+  for (size_t i = 0; i < 32; i++) {
+    Io::WriteLE(&stream, !VoiceMuted[i]);
+  }
+
+  assert(VoiceVolume.size() >= 20);
+  for (size_t i = 0; i < 20; i++) {
+    Io::WriteLE(&stream, (Uint8)(VoiceVolume[i] * 128));
+  }
+
+  // EV Flags
+  stream.Seek(0x7DA, SEEK_SET);
   for (int i = 0; i < 150; i++) {
     uint8_t val = (EVFlags[8 * i] & 1) | ((EVFlags[8 * i + 1] ? 1 : 0) << 1) |
                   ((EVFlags[8 * i + 2] ? 1 : 0) << 2) |
@@ -295,6 +333,7 @@ SaveError SaveSystem::LoadSystemData() {
   Io::ReadArrayLE<uint8_t>(&FlagWork[460], &stream, 40);
   Io::ReadArrayBE<int>(&ScrWork[600], &stream, 400);
 
+  // Config settings
   stream.Seek(0x776, SEEK_SET);
   stream.Seek(1, SEEK_CUR);  // VOICE2vol
   Audio::GroupVolumes[Audio::ACG_Voice] = Io::ReadLE<Uint8>(&stream) / 128.0f;
@@ -325,6 +364,7 @@ SaveError SaveSystem::LoadSystemData() {
     VoiceVolume[i] = Io::ReadLE<Uint8>(&stream) / 128.0f;
   }
 
+  // EV Flags
   stream.Seek(0x7DA, SEEK_SET);
   for (int i = 0; i < 150; i++) {
     auto val = Io::ReadU8(&stream);
