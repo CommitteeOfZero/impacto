@@ -236,6 +236,11 @@ VmInstruction(InstSave) {
         ScrWork[SW_SAVEERRORCODE] = (int)SaveSystem::LoadSystemData();
       }
       break;
+    case 13:
+      if (Profile::Vm::GameInstructionSet == +InstructionSet::CHLCC) {
+        SaveSystem::SaveSystemData();
+      }
+      break;
     case 16:
       SaveSystem::FlushWorkingSaveEntry(SaveSystem::SaveType::Full,
                                         ScrWork[SW_SAVEFILENO]);
