@@ -16,15 +16,13 @@ using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::Vm;
 
 void UpdateBackground2D() {
-  for (size_t bgId = 0; bgId < Backgrounds.size(); bgId++) {
+  for (int bgId = 0; bgId < std::ssize(Backgrounds); bgId++) {
     int bufId = ScrWork[SW_BG1SURF + bgId];
 
     if (Profile::UseScreenCapEffects) {
-      if (GetScriptBufferId(static_cast<int>(bgId)) ==
-          ScrWork[SW_EFF_CAP_BUF]) {
+      if (GetScriptBufferId(bgId) == ScrWork[SW_EFF_CAP_BUF]) {
         Backgrounds2D[bufId] = &Screencaptures[0];
-      } else if (GetScriptBufferId(static_cast<int>(bgId)) ==
-                 ScrWork[SW_EFF_CAP_BUF2]) {
+      } else if (GetScriptBufferId(bgId) == ScrWork[SW_EFF_CAP_BUF2]) {
         Backgrounds2D[bufId] = &Screencaptures[1];
       } else if (Backgrounds2D[bufId]->BgSprite.Sheet.IsScreenCap) {
         Backgrounds2D[bufId] = &Backgrounds[bufId];

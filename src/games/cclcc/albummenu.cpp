@@ -362,7 +362,7 @@ void AlbumMenu::UpdateCGViewer(float dt) {
   if (controllerADown || (mouseWentUp && CGViewer->ClickHoldTime < 0.1)) {
     const auto& variants = CGViewer->ClickedThumbnail.get().Variants;
     CGViewer->ActiveVariantIndex++;
-    if (CGViewer->ActiveVariantIndex < static_cast<int>(variants.size())) {
+    if (CGViewer->ActiveVariantIndex < std::ssize(variants)) {
       ScrWork[SW_ALBUM_LOADFILE] =
           Profile::SaveSystem::AlbumData[CGViewer->ActiveThumbnailIndex]
                                         [CGViewer->ActiveVariantIndex][0];

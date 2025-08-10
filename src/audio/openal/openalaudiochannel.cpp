@@ -202,7 +202,7 @@ bool OpenALAudioChannel::CanQueueBuffer() {
   ALint queuedBuffers;
   alGetSourcei(Source, AL_BUFFERS_QUEUED, &queuedBuffers);
 
-  if (static_cast<size_t>(queuedBuffers) >= AudioBuffers.size()) return false;
+  if (queuedBuffers >= std::ssize(AudioBuffers)) return false;
 
   return Looping || Stream->ReadPosition < Stream->Duration;
 }

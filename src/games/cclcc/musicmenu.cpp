@@ -234,8 +234,7 @@ void MusicMenu::Update(float dt) {
         PlayTrack(CurrentlyPlayingBtn->Id);
         break;
       case MusicMenuPlayingMode::PlayAll: {
-        if (CurrentlyPlayingBtn->Id !=
-            static_cast<int>(MusicPlayIds.size()) - 1) {
+        if (CurrentlyPlayingBtn->Id != std::ssize(MusicPlayIds) - 1) {
           auto nextTrack = getNextUnlockedTrack(CurrentlyPlayingBtn->Id);
           if (nextTrack) {
             PlayTrack(*nextTrack);
