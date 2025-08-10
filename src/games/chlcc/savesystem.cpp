@@ -22,28 +22,26 @@ using namespace Impacto::Profile::ConfigSystem;
 
 SaveFileEntry* WorkingSaveEntry = nullptr;
 
-constexpr uint8_t WaitSpeedToSettingIndex(const float speed) {
-  constexpr std::array<uint32_t, 4> speeds = {0x100, 0x300, 0x600, 0xfff0000};
-
-  for (uint8_t i = 0; i < std::ssize(speeds) - 1; i++) {
-    const float average =
-        static_cast<float>(speeds[i] + speeds[i + 1]) / 2.0f / 60.0f;
+constexpr std::array<float, 4> TextSpeeds = {0x100 / 60.0f, 0x300 / 60.0f,
+                                             0x600 / 60.0f, 0xfff0000 / 60.0f};
+constexpr uint8_t TextSpeedToSettingIndex(const float speed) {
+  for (uint8_t i = 0; i < std::ssize(TextSpeeds) - 1; i++) {
+    const float average = (TextSpeeds[i] + TextSpeeds[i + 1]) / 2.0f;
     if (speed <= average) return i;
   }
 
-  return std::ssize(speeds) - 1;
+  return std::ssize(TextSpeeds) - 1;
 }
 
+constexpr std::array<float, 3> AutoSpeeds = {0x100 / 60.0f, 0x300 / 60.0f,
+                                             0x600 / 60.0f};
 constexpr uint8_t AutoSpeedToSettingIndex(const float speed) {
-  constexpr std::array<uint32_t, 3> speeds = {0x100, 0x300, 0x600};
-
-  for (uint8_t i = 0; i < std::ssize(speeds) - 1; i++) {
-    const float average =
-        static_cast<float>(speeds[i] + speeds[i + 1]) / 2.0f / 60.0f;
+  for (uint8_t i = 0; i < std::ssize(AutoSpeeds) - 1; i++) {
+    const float average = (AutoSpeeds[i] + AutoSpeeds[i + 1]) / 2.0f;
     if (speed <= average) return i;
   }
 
-  return std::ssize(speeds) - 1;
+  return std::ssize(AutoSpeeds) - 1;
 }
 
 SaveError SaveSystem::CreateSaveFile() {
@@ -72,7 +70,7 @@ SaveError SaveSystem::CreateSaveFile() {
   Io::WriteLE(stream, (Uint8)(Default::GroupVolumes[Audio::ACG_SE] * 0.6f *
                               128));  // SYSSEvol
   Io::WriteLE(stream, (Uint8)(Default::GroupVolumes[Audio::ACG_Movie] * 128));
-  Io::WriteLE(stream, WaitSpeedToSettingIndex(Default::TextSpeed));
+  Io::WriteLE(stream, TextSpeedToSettingIndex(Default::TextSpeed));
   Io::WriteLE(stream, AutoSpeedToSettingIndex(Default::AutoSpeed));
   Io::WriteLE(stream, Default::SyncVoice);
   Io::WriteLE(stream, !Default::SkipRead);
@@ -296,6 +294,36 @@ SaveError SaveSystem::LoadSystemData() {
   Io::ReadArrayLE<uint8_t>(&FlagWork[100], &stream, 50);
   Io::ReadArrayLE<uint8_t>(&FlagWork[460], &stream, 40);
   Io::ReadArrayBE<int>(&ScrWork[600], &stream, 400);
+
+  stream.Seek(0x776, SEEK_SET);
+  stream.Seek(1, SEEK_CUR);  // VOICE2vol
+  Audio::GroupVolumes[Audio::ACG_Voice] = Io::ReadLE<Uint8>(&stream) / 128.0f;
+  Audio::GroupVolumes[Audio::ACG_BGM] = Io::ReadLE<Uint8>(&stream) / 256.0f;
+  Audio::GroupVolumes[Audio::ACG_SE] = Io::ReadLE<Uint8>(&stream) / 128.0f;
+  stream.Seek(1, SEEK_CUR);  // SYSSEvol
+  Audio::GroupVolumes[Audio::ACG_Movie] = Io::ReadLE<Uint8>(&stream) / 128.0f;
+  TextSpeed = TextSpeeds[Io::ReadLE<Uint8>(&stream)];
+  AutoSpeed = AutoSpeeds[Io::ReadLE<Uint8>(&stream)];
+  SyncVoice = Io::ReadLE<bool>(&stream);
+  SkipRead = !Io::ReadLE<bool>(&stream);
+  stream.Seek(1, SEEK_CUR);  // TODO: QSave
+
+  stream.Seek(0x786, SEEK_SET);
+  SkipVoice = Io::ReadLE<bool>(&stream);
+  ShowTipsNotification = Io::ReadLE<bool>(&stream);
+  stream.Seek(1, SEEK_CUR);  // TODO: Pad type
+  TriggerStopSkip = Io::ReadLE<bool>(&stream);
+
+  stream.Seek(0x79e, SEEK_SET);
+  assert(VoiceMuted.size() >= 32);
+  for (size_t i = 0; i < 32; i++) {
+    VoiceMuted[i] = !Io::ReadLE<bool>(&stream);
+  }
+
+  assert(VoiceVolume.size() >= 20);
+  for (size_t i = 0; i < 20; i++) {
+    VoiceVolume[i] = Io::ReadLE<Uint8>(&stream) / 128.0f;
+  }
 
   stream.Seek(0x7DA, SEEK_SET);
   for (int i = 0; i < 150; i++) {
