@@ -11,18 +11,12 @@ namespace Impacto {
 // TODO Color output in console?
 
 static SDL_LogOutputFunction DefaultLoggingFunction = nullptr;
-static bool LoggingToConsole = false;
-static bool LoggingToFile = false;
-static Io::Stream* FileLogStream = nullptr;
+static std::unique_ptr<Io::Stream> FileLogStream = nullptr;
 
 bool CheckLogConfig(LogLevel level, LogChannel channel) {
   bool any = false;
-  if (LoggingToConsole && (level <= g_LogLevelConsole) &&
-      (g_LogChannelsConsole & channel) != LogChannel::None) {
-    any = true;
-  }
-  if (LoggingToFile && (level <= g_LogLevelFile) &&
-      (g_LogChannelsFile & channel) != LogChannel::None) {
+  if ((LoggingToConsole || LoggingToFile) && (level <= g_LogLevel) &&
+      (g_LogChannels & channel) != LogChannel::None) {
     any = true;
   }
   return any;
@@ -112,7 +106,7 @@ void SetSDLLogger(SDL_LogOutputFunction loggingFunction) {
   }
 }
 
-void LogSetFile(const char* path) {
+void LogSetFile(std::string const& path) {
   using CF = Io::PhysicalFileStream::CreateFlagsMode;
   Io::Stream* stream;
   IoError err = Io::PhysicalFileStream::Create(
@@ -122,7 +116,7 @@ void LogSetFile(const char* path) {
            "Failed to open save file for writing\n");
     return;
   }
-  FileLogStream = stream;
+  FileLogStream.reset(stream);
   LoggingToFile = true;
 }
 

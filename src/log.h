@@ -161,12 +161,12 @@ constexpr auto StringToLevel(std::string_view level) {
     return Off;
 }
 
-inline LogLevel g_LogLevelFile = LogLevel::Off;
-inline LogLevel g_LogLevelConsole = LogLevel::Off;
-inline LogChannel g_LogChannelsFile = LogChannel::None;
-inline LogChannel g_LogChannelsConsole = LogChannel::None;
+inline LogLevel g_LogLevel = LogLevel::Off;
+inline LogChannel g_LogChannels = LogChannel::None;
+inline bool LoggingToConsole = false;
+inline bool LoggingToFile = false;
 
-void LogSetFile(const char* path);
+void LogSetFile(std::string const& path);
 void LogSetConsole(bool enabled);
 void LogInit();
 bool CheckLogConfig(LogLevel level, LogChannel channel);
