@@ -35,6 +35,57 @@ extern "C" void EMSCRIPTEN_KEEPALIVE StartGame() {
 }
 #endif
 
+static std::string handleArguments(std::vector<std::string_view> args) {
+  std::string profileName;
+  for (int i = 0; i < args.size(); ++i) {
+    std::string_view arg = args[i];
+    auto handleArgInput = [&](std::ranges::range auto supportedArgs,
+                              std::invocable<std::string_view> auto action) {
+      if (std::find(std::begin(supportedArgs), std::end(supportedArgs), arg) !=
+          std::end(supportedArgs)) {
+        if (i++ < args.size()) {
+          std::string_view input = args[i];
+          action(input);
+          return true;
+        } else {
+          ImpLog(LogLevel::Fatal, LogChannel::General,
+                 "Invalid number of arguments");
+          exit(1);
+        }
+      }
+      return false;
+    };
+    using std::literals::string_view_literals::operator""sv;
+    constexpr auto make_handler =
+        [](std::invocable<std::string_view> auto fn,
+           std::convertible_to<std::string_view> auto... strs) {
+          return std::pair{std::to_array<std::string_view>({strs...}), fn};
+        };
+
+    const auto argHandlers = std::tuple{
+        make_handler(
+            [&](std::string_view input) { LogSetFile(std::string(input)); },
+            "-lf", "--logfile"),
+        make_handler(
+            [&](std::string_view input) {
+              g_LogChannels = StringToChannel(input);
+            },
+            "-lc", "--logchannel"),
+        make_handler(
+            [&](std::string_view input) { g_LogLevel = StringToLevel(input); },
+            "-ll", "--loglevel"),
+    };
+
+    const bool matched = std::apply(
+        [&](auto&&... h) {
+          return ((handleArgInput(h.first, h.second)) || ...);
+        },
+        argHandlers);
+    if (!matched) profileName = arg;
+  }
+  return profileName;
+};
+
 int main(int argc, char* argv[]) {
 #ifdef EMSCRIPTEN
   EM_ASM(OnGameLoadStart(););
@@ -50,40 +101,20 @@ int main(int argc, char* argv[]) {
 
   std::string profileName;
   LogInit();
+  g_LogChannels = LogChannel::All;
+  g_LogLevel = LogLevel::Fatal;
+#if __SWITCH__
+  LogSetFile("Impacto_Log.txt");
+#else
   LogSetConsole(true);
-  g_LogLevelConsole = LogLevel::Fatal;
-  g_LogChannelsConsole = LogChannel::All;
+#endif
 
-  std::vector<std::string_view> arguments(argv + 1, argv + argc);
-  ;
+  std::vector<std::string_view> arguments;
+  for (int i = 1; i < argc; ++i) {
+    arguments.push_back(argv[i]);
+  }
 
-  auto handleArgs = [&profileName](std::vector<std::string_view> args) {
-    for (int i = 0; i < args.size(); ++i) {
-      std::string_view arg = args[i];
-      if (arg == "-lc" || arg == "--logchannel") {
-        if (i++ < args.size()) {
-          std::string_view input = args[i];
-          g_LogChannelsConsole = StringToChannel(input);
-        } else {
-          ImpLog(LogLevel::Fatal, LogChannel::General,
-                 "Invalid number of arguments");
-          exit(1);
-        }
-      } else if (arg == "-ll" || arg == "--loglevel") {
-        if (i++ < args.size()) {
-          std::string_view input = args[i];
-          g_LogLevelConsole = StringToLevel(input);
-        } else {
-          ImpLog(LogLevel::Fatal, LogChannel::General,
-                 "Invalid number of arguments");
-          exit(1);
-        }
-      } else {
-        profileName = arg;
-      }
-    }
-  };
-  handleArgs(arguments);
+  profileName = handleArguments(arguments);
   if (profileName.empty()) {
     Io::Stream* stream;
     IoError err = Io::PhysicalFileStream::Create("profile.txt", &stream);
@@ -100,7 +131,7 @@ int main(int argc, char* argv[]) {
       arguments.emplace_back(
           std::string_view(&*part.begin(), std::ranges::distance(part)));
     }
-    handleArgs(arguments);
+    profileName = handleArguments(arguments);
   }
 
   TrimString(profileName);
