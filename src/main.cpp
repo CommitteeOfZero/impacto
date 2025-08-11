@@ -37,6 +37,7 @@ extern "C" void EMSCRIPTEN_KEEPALIVE StartGame() {
 
 static std::string handleArguments(std::vector<std::string_view> args) {
   std::string profileName;
+  bool hasSetChannel = false;
   for (int i = 0; i < args.size(); ++i) {
     std::string_view arg = args[i];
     auto handleArgInput = [&](std::ranges::range auto supportedArgs,
@@ -68,7 +69,16 @@ static std::string handleArguments(std::vector<std::string_view> args) {
             "-lf", "--logfile"),
         make_handler(
             [&](std::string_view input) {
-              g_LogChannels = StringToChannel(input);
+              auto inputChannel = StringToChannel(input);
+              if (!hasSetChannel) {
+                g_LogChannels = {};
+                hasSetChannel = true;
+              }
+              if (inputChannel == LogChannel::None) {
+                g_LogChannels = inputChannel;
+              } else {
+                g_LogChannels |= inputChannel;
+              }
             },
             "-lc", "--logchannel"),
         make_handler(
