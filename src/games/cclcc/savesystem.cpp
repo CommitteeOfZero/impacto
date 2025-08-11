@@ -91,8 +91,7 @@ SaveError SaveSystem::CreateSaveFile() {
   using CF = Io::PhysicalFileStream::CreateFlagsMode;
   Io::Stream* stream;
   IoError err = Io::PhysicalFileStream::Create(
-      SaveFilePath, &stream,
-      CF::CREATE | CF::CREATE_DIRS | CF::WRITE);
+      SaveFilePath, &stream, CF::CREATE | CF::CREATE_DIRS | CF::WRITE);
   if (err != IoError_OK) {
     ImpLog(LogLevel::Error, LogChannel::IO,
            "Failed to open save file for writing\n");
