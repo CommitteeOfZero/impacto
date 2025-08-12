@@ -17,8 +17,8 @@ class AlbumThumbnailButton : public Button {
                        Sprite locked, Sprite SelectionMarker,
                        glm::vec2 SelectionMarkerOffset)
       : Button(id, norm, focused, highlight, pos),
-        totalVariations(totalVariations),
-        viewedVariations(viewedVariations),
+        TotalVariations(totalVariations),
+        ViewedVariations(viewedVariations),
         VariationUnlocked(unlockedVariation),
         VariationLocked(lockedVariation),
         VariationTemplateOffset(variationOffset),
@@ -36,8 +36,8 @@ class AlbumThumbnailButton : public Button {
   static void UpdateFocusedAlphaFade(float dt);
 
  private:
-  int totalVariations;
-  int viewedVariations;
+  int TotalVariations;
+  int ViewedVariations;
   Sprite VariationUnlocked;
   Sprite VariationLocked;
   glm::vec2 VariationTemplateOffset;
