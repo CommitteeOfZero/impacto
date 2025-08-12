@@ -20,6 +20,8 @@ class SaveMenu : public UI::SaveMenu {
   void UpdateInput(float dt) override;
   void Render() override;
 
+  void RefreshCurrentEntryInfo() override;
+
   void MenuButtonOnClick(Widgets::Button* target);
 
  private:

@@ -22,10 +22,11 @@ class SaveMenu : public UI::SaveMenu {
   void Update(float dt);
   void Render();
 
+  void RefreshCurrentEntryInfo() override;
+
   void MenuButtonOnClick(Widgets::Button* target);
 
  private:
-  void UpdateEntry(SaveEntryButton* saveEntryButton);
   void DrawCircles();
   void DrawErin();
   void DrawRedBar();

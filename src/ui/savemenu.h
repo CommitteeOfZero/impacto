@@ -14,6 +14,8 @@ class SaveMenu : public Menu {
   virtual void Update(float dt) override {};
   virtual void Render() override {};
 
+  virtual void RefreshCurrentEntryInfo() {};
+
   uint8_t ActivePage = 0;
   better_enums::optional<SaveMenuPageType> ActiveMenuType;
 };

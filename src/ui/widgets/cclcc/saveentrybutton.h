@@ -18,16 +18,20 @@ class SaveEntryButton : public Widgets::Button {
                   Sprite const& focusedText, int page, glm::vec2 pos,
                   Sprite lockedSymbol, SaveSystem::SaveType saveType,
                   Sprite noDataSprite, Sprite brokenDataSprite);
+
   void Render() override;
+  void Move(glm::vec2 pos) override;
+  void MoveTo(glm::vec2 pos) override;
+
   int GetPage() const;
+
+  void AddThumbnail(Sprite thumbnail, glm::vec2 pos);
+  void RefreshInfo();
+
   void AddNormalSpriteLabel(Sprite norm, glm::vec2 pos);
   void RefreshSaveDateText();
   void RefreshSceneTitleText(int strIndex);
   void RefreshCharacterRouteText(int strIndex);
-  void AddThumbnail(Sprite thumbnail, glm::vec2 pos);
-  void Move(glm::vec2 pos) override;
-  void MoveTo(glm::vec2 pos) override;
-  void Update(float dt) override;
 
  private:
   int Index;

@@ -380,6 +380,7 @@ VmInstruction(InstSaveMenu) {
                  "STUB instruction SaveMenu(type: SaveMenuMain)\n");
       break;
     case 2:  // SaveResetThumnail
+      if (UI::SaveMenuPtr) UI::SaveMenuPtr->RefreshCurrentEntryInfo();
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction SaveMenu(type: SaveResetThumnail)\n");
       break;
@@ -435,6 +436,7 @@ VmInstruction(InstSaveMenuOld) {
                  "STUB instruction SaveMenu(type: {:d})\n", type);
       break;
     case 2: {
+      if (UI::SaveMenuPtr) UI::SaveMenuPtr->RefreshCurrentEntryInfo();
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction SaveMenu(type: {:d})\n", type);
     } break;
