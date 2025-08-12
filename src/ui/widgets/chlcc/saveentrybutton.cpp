@@ -193,6 +193,8 @@ void SaveEntryButton::RefreshInfo(const SaveSystem::SaveType entryType) {
   AddThumbnail(EmptyThumbnailSprite,
                EntryPositions[Id % 6] + ThumbnailRelativePos);
 
+  FocusedSpriteLabel.MoveTo(EntryPositions[Id % 6]);
+
   if (SaveSystem::GetSaveStatus(entryType, Id) != 0) {
     EntryActive = true;
     AddSceneTitleText(Vm::ScriptGetTextTableStrAddress(
