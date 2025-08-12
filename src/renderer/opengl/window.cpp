@@ -274,7 +274,7 @@ void GLWindow::SetDimensions(int width, int height, int msaa,
 }
 
 void GLWindow::CleanFBOs() {
-  if (drawRenderTexture) glDeleteTextures(1, &drawRenderTexture);
+  if (DrawRenderTexture) glDeleteTextures(1, &DrawRenderTexture);
   if (ReadRenderTexture) glDeleteTextures(1, &ReadRenderTexture);
   if (DrawRT) GLC::DeleteFramebuffers(1, &DrawRT);
   if (ReadRT) GLC::DeleteFramebuffers(1, &ReadRT);
@@ -288,19 +288,12 @@ void GLWindow::CleanFBOs() {
   glDeleteRenderbuffers((GLsizei)GLC::StencilBuffers.size(),
                         GLC::StencilBuffers.data());
   GLC::StencilBuffers.fill(0);
-  drawRenderTexture = ReadRenderTexture = DrawRT = ReadRT = 0;
+  DrawRenderTexture = ReadRenderTexture = DrawRT = ReadRT = 0;
 }
 
 void GLWindow::SwapRTs() {
-  GLuint temp;
-
-  temp = DrawRT;
-  DrawRT = ReadRT;
-  ReadRT = temp;
-
-  temp = drawRenderTexture;
-  drawRenderTexture = ReadRenderTexture;
-  ReadRenderTexture = temp;
+  std::swap(DrawRT, ReadRT);
+  std::swap(DrawRenderTexture, ReadRenderTexture);
 
   GLC::BindFramebuffer(GL_DRAW_FRAMEBUFFER, DrawRT);
   GLC::BindFramebuffer(GL_READ_FRAMEBUFFER, ReadRT);
@@ -334,7 +327,7 @@ void GLWindow::Update() {
     glRenderbufferStorage(GL_RENDERBUFFER, GL_STENCIL_INDEX8, viewport.Width,
                           viewport.Height);
     createFBO(ReadRT, ReadRenderTexture, GL_READ_FRAMEBUFFER);
-    createFBO(DrawRT, drawRenderTexture, GL_DRAW_FRAMEBUFFER);
+    createFBO(DrawRT, DrawRenderTexture, GL_DRAW_FRAMEBUFFER);
     GLC::InitializeFramebuffers();
   }
 
