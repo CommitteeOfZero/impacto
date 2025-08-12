@@ -32,12 +32,12 @@ class SaveFileEntry : public SaveFileEntryBase {
 
 class SaveSystem : public SaveSystemBase {
  public:
-  SaveError CreateSaveFile() override;
   SaveError CheckSaveFile() override;
   SaveError MountSaveFile(std::vector<QueuedTexture>& textures) override;
 
   SaveError LoadSystemData() override;
   void SaveSystemData() override;
+  void InitializeSystemData() override;
 
   void SaveThumbnailData() override;
   Sprite& GetSaveThumbnail(SaveType type, int id) override;

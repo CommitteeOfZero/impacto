@@ -150,7 +150,8 @@ SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
       QuickSaveEntries[i]->MainThreadReturnBufIds[j] =
           Io::ReadLE<uint32_t>(stream);
     }
-    Io::ReadArrayLE<int>(QuickSaveEntries[i]->MainThreadVariables, stream, 16);
+    Io::ReadArrayLE<int>(QuickSaveEntries[i]->MainThreadVariables.data(),
+                         stream, 16);
     // QuickSaveEntries[i]->MainThreadDialoguePageId =
     //    Io::ReadLE<uint32_t>(stream);
     stream->Seek(204, SEEK_CUR);
@@ -204,7 +205,8 @@ SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
       FullSaveEntries[i]->MainThreadReturnBufIds[j] =
           Io::ReadLE<uint32_t>(stream);
     }
-    Io::ReadArrayLE<int>(FullSaveEntries[i]->MainThreadVariables, stream, 16);
+    Io::ReadArrayLE<int>(FullSaveEntries[i]->MainThreadVariables.data(), stream,
+                         16);
     // FullSaveEntries[i]->MainThreadDialoguePageId =
     // Io::ReadLE<uint32_t>(stream);
     stream->Seek(204, SEEK_CUR);
@@ -264,8 +266,9 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
             WorkingSaveEntry->MainThreadReturnBufIds[j];
       }
 
-      memcpy(entry->MainThreadVariables, WorkingSaveEntry->MainThreadVariables,
-             64);
+      std::copy(WorkingSaveEntry->MainThreadVariables.begin(),
+                WorkingSaveEntry->MainThreadVariables.end(),
+                entry->MainThreadVariables.begin());
       entry->MainThreadDialoguePageId =
           WorkingSaveEntry->MainThreadDialoguePageId;
     }
@@ -273,9 +276,11 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
 }
 
 SaveError SaveSystem::WriteSaveFile() {
+  using CF = Io::PhysicalFileStream::CreateFlagsMode;
   Io::PhysicalFileStream* stream;
   Io::Stream* instream;
-  IoError err = Io::PhysicalFileStream::Create(SaveFilePath, &instream);
+  IoError err = Io::PhysicalFileStream::Create(
+      SaveFilePath, &instream, CF::CREATE | CF::CREATE_DIRS | CF::WRITE);
   auto err1 = SDL_GetError();
   if (err != IoError_OK) {
     ImpLog(LogLevel::Error, LogChannel::IO,
@@ -287,7 +292,7 @@ SaveError SaveSystem::WriteSaveFile() {
   Io::WriteArrayLE<uint8_t>(SystemData.data(), stream, SystemData.size());
 
   for (int i = 0; i < MaxSaveEntries; i++) {
-    if (QuickSaveEntries[i]->Status == 0) {
+    if (QuickSaveEntries[i] == nullptr || QuickSaveEntries[i]->Status == 0) {
       stream->Seek(0x1814, SEEK_CUR);
     } else {
       // TODO: We don't have writing to file...
@@ -442,7 +447,8 @@ void SaveSystem::SaveMemory() {
             thd->ReturnScriptBufferIds[j];
       }
 
-      memcpy(WorkingSaveEntry->MainThreadVariables, thd->Variables, 64);
+      memcpy(WorkingSaveEntry->MainThreadVariables.data(), thd->Variables,
+             16 * sizeof(int));
       WorkingSaveEntry->MainThreadDialoguePageId = thd->DialoguePageId;
     }
   }
@@ -553,7 +559,8 @@ void SaveSystem::LoadEntry(SaveType type, int id) {
         thd->ReturnScriptBufferIds[0] = entry->MainThreadReturnBufIds[0];
         thd->ReturnAddresses[0] = entry->MainThreadReturnIds[0];
 
-        memcpy(thd->Variables, entry->MainThreadVariables, 64);
+        memcpy(thd->Variables, entry->MainThreadVariables.data(),
+               16 * sizeof(int));
         thd->DialoguePageId = entry->MainThreadDialoguePageId;
       }
     }

@@ -150,6 +150,8 @@ static void Init() {
 
     // Default controls
     Vm::Interface::UpdatePADcustomType(0);
+
+    SaveSystem::InitializeSystemData();
   }
 
   Profile::ClearProfile();

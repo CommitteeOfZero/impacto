@@ -43,63 +43,65 @@ constexpr uint8_t AutoSpeedToSettingIndex(const float speed) {
   return std::ssize(AutoSpeeds) - 1;
 }
 
-SaveError SaveSystem::CreateSaveFile() {
-  using CF = Io::PhysicalFileStream::CreateFlagsMode;
-  Io::Stream* stream;
-  IoError err = Io::PhysicalFileStream::Create(
-      SaveFilePath, &stream,
-      CF::CREATE_IF_NOT_EXISTS | CF::CREATE_DIRS | CF::WRITE);
-  if (err != IoError_OK) {
-    ImpLog(LogLevel::Error, LogChannel::IO,
-           "Failed to open save file for writing\n");
-    return SaveError::Failed;
-  }
+void SaveSystem::InitializeSystemData() {
+  std::fill(SystemData.begin(), SystemData.end(), 0x00);
 
-  assert(stream->Meta.Size == 0);
-  std::vector<uint8_t> emptyData(SaveFileSize, 0);
-  Io::WriteArrayBE<uint8_t>(emptyData.data(), stream, SaveFileSize);
-  assert(stream->Position == SaveFileSize);
+  Io::MemoryStream stream =
+      Io::MemoryStream(SystemData.data(), SystemData.size(), false);
 
   // Config settings
-  stream->Seek(0x776, SEEK_SET);
-  Io::WriteLE(stream, (Uint8)(Default::GroupVolumes[Audio::ACG_Voice] *
-                              128));  // VOICE2vol
-  Io::WriteLE(stream, (Uint8)(Default::GroupVolumes[Audio::ACG_Voice] *
-                              128));  // VOICEvol
-  Io::WriteLE(stream, (Uint8)(Default::GroupVolumes[Audio::ACG_BGM] * 256));
-  Io::WriteLE(stream,
+  stream.Seek(0x776, SEEK_SET);
+  Io::WriteLE(&stream, (Uint8)(Default::GroupVolumes[Audio::ACG_Voice] *
+                               128));  // VOICE2vol
+  Io::WriteLE(&stream, (Uint8)(Default::GroupVolumes[Audio::ACG_Voice] *
+                               128));  // VOICEvol
+  Io::WriteLE(&stream, (Uint8)(Default::GroupVolumes[Audio::ACG_BGM] * 256));
+  Io::WriteLE(&stream,
               (Uint8)(Default::GroupVolumes[Audio::ACG_SE] * 128));  // SEvol
-  Io::WriteLE(stream, (Uint8)(Default::GroupVolumes[Audio::ACG_SE] * 0.75f *
-                              128));  // SYSSEvol
-  Io::WriteLE(stream, (Uint8)(Default::GroupVolumes[Audio::ACG_Movie] * 128));
-  Io::WriteLE(stream, TextSpeedToSettingIndex(Default::TextSpeed));
-  Io::WriteLE(stream, AutoSpeedToSettingIndex(Default::AutoSpeed));
-  Io::WriteLE(stream, Default::SyncVoice);
-  Io::WriteLE(stream, !Default::SkipRead);
-  Io::WriteLE<Uint8>(stream, 0x02);  // TODO: QSave
+  Io::WriteLE(&stream, (Uint8)(Default::GroupVolumes[Audio::ACG_SE] * 0.75f *
+                               128));  // SYSSEvol
+  Io::WriteLE(&stream, (Uint8)(Default::GroupVolumes[Audio::ACG_Movie] * 128));
+  Io::WriteLE(&stream, TextSpeedToSettingIndex(Default::TextSpeed));
+  Io::WriteLE(&stream, AutoSpeedToSettingIndex(Default::AutoSpeed));
+  Io::WriteLE(&stream, Default::SyncVoice);
+  Io::WriteLE(&stream, !Default::SkipRead);
+  Io::WriteLE<Uint8>(&stream, 0x02);  // TODO: QSave
 
-  stream->Seek(0x786, SEEK_SET);
-  Io::WriteLE(stream, Default::SkipVoice);
-  Io::WriteLE(stream, Default::ShowTipsNotification);
-  Io::WriteLE<Uint8>(stream, 0x00);  // TODO: Pad type
-  Io::WriteLE(stream, Default::TriggerStopSkip);
+  stream.Seek(0x786, SEEK_SET);
+  Io::WriteLE(&stream, Default::SkipVoice);
+  Io::WriteLE(&stream, Default::ShowTipsNotification);
+  Io::WriteLE<Uint8>(&stream, 0x00);  // TODO: Pad type
+  Io::WriteLE(&stream, Default::TriggerStopSkip);
 
-  stream->Seek(0x79e, SEEK_SET);
+  stream.Seek(0x79e, SEEK_SET);
   assert(Default::VoiceMuted.size() >= 32);
   for (size_t i = 0; i < 32; i++) {
-    Io::WriteLE(stream, !Default::VoiceMuted[i]);
+    Io::WriteLE(&stream, !Default::VoiceMuted[i]);
   }
 
   assert(Default::VoiceVolume.size() >= 20);
   for (size_t i = 0; i < 20; i++) {
-    Io::WriteLE(stream, (Uint8)(Default::VoiceVolume[i] * 128));
+    Io::WriteLE(&stream, (Uint8)(Default::VoiceVolume[i] * 128));
   }
 
-  // TODO: Write default state
+  std::for_each_n(QuickSaveEntries, MaxSaveEntries,
+                  [](auto& ptr) { ptr = new SaveFileEntry(); });
+  std::for_each_n(FullSaveEntries, MaxSaveEntries,
+                  [](auto& ptr) { ptr = new SaveFileEntry(); });
+  WorkingSaveEntry = new SaveFileEntry();
 
-  delete stream;
+  WorkingSaveThumbnail.Sheet =
+      SpriteSheet(static_cast<float>(Window->WindowWidth),
+                  static_cast<float>(Window->WindowHeight));
+  WorkingSaveThumbnail.Bounds =
+      RectF(0.0f, 0.0f, static_cast<float>(Window->WindowWidth),
+            static_cast<float>(Window->WindowHeight));
 
-  return SaveError::OK;
+  Texture workingSaveTexture = Texture();
+  workingSaveTexture.LoadSolidColor(
+      static_cast<int>(WorkingSaveThumbnail.Bounds.Width),
+      static_cast<int>(WorkingSaveThumbnail.Bounds.Height), 0x000000);
+  WorkingSaveThumbnail.Sheet.Texture = workingSaveTexture.Submit();
 }
 
 SaveError SaveSystem::CheckSaveFile() {
@@ -263,7 +265,7 @@ void SaveSystem::LoadEntryBuffer(Io::MemoryStream& memoryStream,
     entry.MainThreadReturnBufIds[j] = Io::ReadBE<uint32_t>(&memoryStream);
   }
 
-  Io::ReadArrayBE<int>(entry.MainThreadVariables, &memoryStream, 16);
+  Io::ReadArrayBE<int>(entry.MainThreadVariables.data(), &memoryStream, 16);
   entry.MainThreadDialoguePageId = Io::ReadBE<uint32_t>(&memoryStream);
 
   memoryStream.Seek(1428, SEEK_CUR);
@@ -314,7 +316,7 @@ void SaveSystem::SaveEntryBuffer(Io::MemoryStream& memoryStream,
     Io::WriteBE<uint32_t>(&memoryStream, entry.MainThreadReturnBufIds[j]);
   }
 
-  Io::WriteArrayBE<int>(entry.MainThreadVariables, &memoryStream, 16);
+  Io::WriteArrayBE<int>(entry.MainThreadVariables.data(), &memoryStream, 16);
   Io::WriteBE<uint32_t>(&memoryStream, entry.MainThreadDialoguePageId);
 
   memoryStream.Seek(1428, SEEK_CUR);
@@ -465,14 +467,18 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
 SaveError SaveSystem::WriteSaveFile() {
   using CF = Io::PhysicalFileStream::CreateFlagsMode;
   Io::Stream* stream;
-  IoError err = Io::PhysicalFileStream::Create(SaveFilePath, &stream,
-                                               CF::WRITE | CF::READ);
+  IoError err = Io::PhysicalFileStream::Create(
+      SaveFilePath, &stream, CF::CREATE | CF::CREATE_DIRS | CF::WRITE);
   if (err != IoError_OK) {
     ImpLog(LogLevel::Error, LogChannel::IO,
            "Failed to open save file for writing\n");
     return SaveError::Failed;
   }
 
+  std::vector<uint8_t> emptyData(SaveFileSize, 0x00);
+  Io::WriteArrayLE<uint8_t>(emptyData.data(), stream, emptyData.size());
+
+  stream->Seek(0, SEEK_SET);
   Io::WriteArrayLE<uint8_t>(SystemData.data(), stream, SystemData.size());
 
   for (auto& entryArray : {QuickSaveEntries, FullSaveEntries}) {
@@ -481,16 +487,19 @@ SaveError SaveSystem::WriteSaveFile() {
       assert(stream->Position - saveDataPos == (int64_t)(i * SaveEntrySize));
       SaveFileEntry* entry = (SaveFileEntry*)entryArray[i];
 
-      if (entry->Status == 0) {
+      if (entry == nullptr || entry->Status == 0) {
         stream->Seek(SaveEntrySize, SEEK_CUR);
       } else {
         std::array<uint8_t, SaveEntrySize> entrySlotBuf{};
         Io::MemoryStream saveEntryMemoryStream(entrySlotBuf.data(),
                                                entrySlotBuf.size(), false);
         SaveEntryBuffer(saveEntryMemoryStream, *entry);
+        Io::WriteArrayLE<uint8_t>(entrySlotBuf.data(), stream,
+                                  entrySlotBuf.size());
       }
     }
   }
+
   delete stream;
   return SaveError::OK;
 }
@@ -581,7 +590,7 @@ void SaveSystem::SaveMemory() {
           thd->ReturnScriptBufferIds[i];
     }
 
-    memcpy(WorkingSaveEntry->MainThreadVariables, thd->Variables, 64);
+    memcpy(WorkingSaveEntry->MainThreadVariables.data(), thd->Variables, 64);
     WorkingSaveEntry->MainThreadDialoguePageId = thd->DialoguePageId;
   }
 }
@@ -700,7 +709,8 @@ void SaveSystem::LoadEntry(SaveType type, int id) {
           thd->ReturnAddresses[i] = entry->MainThreadReturnAddresses[i];
         }
 
-        memcpy(thd->Variables, entry->MainThreadVariables, 64);
+        memcpy(thd->Variables, entry->MainThreadVariables.data(),
+               16 * sizeof(int));
         thd->DialoguePageId = entry->MainThreadDialoguePageId;
       }
     }
