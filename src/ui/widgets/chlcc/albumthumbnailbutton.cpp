@@ -13,10 +13,9 @@ void AlbumThumbnailButton::Render() {
   Renderer->DrawSprite((IsLocked ? LockedSprite : NormalSprite),
                        glm::vec2(Bounds.X, Bounds.Y));
   if (!IsLocked) {
-    for (int variations = 0; variations < totalVariations; variations++) {
+    for (int variations = 0; variations < TotalVariations; variations++) {
       Renderer->DrawSprite(
-          (viewedVariations - variations > 0 ? VariationUnlocked
-                                             : VariationLocked),
+          (ViewedVariations > variations ? VariationUnlocked : VariationLocked),
           glm::vec2(Bounds.X + VariationTemplateOffset.x -
                         VariationUnlocked.Bounds.Width * (float)variations,
                     Bounds.Y + VariationTemplateOffset.y));
@@ -51,9 +50,9 @@ void AlbumThumbnailButton::UpdateFocusedAlphaFade(float dt) {
 }
 
 void AlbumThumbnailButton::UpdateVariations(int total, int viewed) {
-  totalVariations = total;
-  viewedVariations = viewed;
-  IsLocked = (viewedVariations < totalVariations);
+  TotalVariations = total;
+  ViewedVariations = viewed;
+  IsLocked = (ViewedVariations < TotalVariations);
 }
 
 }  // namespace CHLCC
