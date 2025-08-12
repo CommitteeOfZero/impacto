@@ -175,67 +175,6 @@ SaveMenu::SaveMenu() {
   }
 }
 
-void SaveMenu::UpdateEntry(SaveEntryButton* saveEntryButton) {
-  Sprite entrySprite;
-  switch (*UI::SaveMenuPtr->ActiveMenuType) {
-    case SaveMenuPageType::QuickLoad:
-      entrySprite = QuickLoadEntrySprite;
-      break;
-    case SaveMenuPageType::Save:
-      entrySprite = SaveEntrySprite;
-      break;
-    case SaveMenuPageType::Load:
-      entrySprite = LoadEntrySprite;
-      break;
-  }
-  int idx = saveEntryButton->Id;
-  uint8_t lock = SaveSystem::GetSaveFlags(EntryType, idx);
-  saveEntryButton->IsLocked = lock == 1;
-  saveEntryButton->AddNormalSpriteLabel(entrySprite, EntryPositions[idx % 6]);
-  saveEntryButton->AddEntryNumberHintText(
-      Vm::ScriptGetTextTableStrAddress(0, 6), 18,
-      RendererOutlineMode::BottomRight, EntryNumberHintTextRelativePos);
-  saveEntryButton->AddEntryNumberText(fmt::format("{:02}", idx + 1), 18,
-                                      RendererOutlineMode::BottomRight,
-                                      EntryNumberTextRelativePos);
-  saveEntryButton->AddThumbnail(EmptyThumbnailSprite,
-                                EntryPositions[idx % 6] + ThumbnailRelativePos);
-  if (SaveSystem::GetSaveStatus(EntryType, idx) != 0) {
-    saveEntryButton->EntryActive = true;
-    saveEntryButton->AddSceneTitleText(
-        Vm::ScriptGetTextTableStrAddress(
-            1, SaveSystem::GetSaveTitle(EntryType, idx)),
-        24, RendererOutlineMode::BottomRight, SceneTitleTextRelativePos,
-        NoDataTextRelativePos);
-    saveEntryButton->AddPlayTimeHintText(Vm::ScriptGetTextTableStrAddress(0, 2),
-                                         18, RendererOutlineMode::BottomRight,
-                                         PlayTimeHintTextRelativePos);
-    uint32_t time = SaveSystem::GetSavePlayTime(EntryType, idx);
-    uint32_t hours = time / 3600;
-    uint32_t minutes = (time % 3600) / 60;
-    uint32_t seconds = (time % 3600) % 60;
-    saveEntryButton->AddPlayTimeText(
-        fmt::format("{:3}:{:02}:{:02}", hours, minutes, seconds), 18,
-        RendererOutlineMode::BottomRight,
-        {PlayTimeTextRelativePos.x + (float)((hours < 10) * 10),
-         PlayTimeTextRelativePos.y});
-    saveEntryButton->AddSaveDateHintText(Vm::ScriptGetTextTableStrAddress(0, 3),
-                                         18, RendererOutlineMode::BottomRight,
-                                         SaveDateHintTextRelativePos);
-    std::stringstream dateStr;
-    tm const& date = SaveSystem::GetSaveDate(EntryType, idx);
-    dateStr << std::put_time(&date, "  %y/%m/%d %H:%M:%S");
-    saveEntryButton->AddSaveDateText(dateStr.str(), 18,
-                                     RendererOutlineMode::BottomRight,
-                                     SaveDateTextRelativePos);
-  } else {
-    saveEntryButton->AddSceneTitleText(Vm::ScriptGetTextTableStrAddress(0, 1),
-                                       24, RendererOutlineMode::BottomRight,
-                                       SceneTitleTextRelativePos,
-                                       NoDataTextRelativePos);
-  }
-}
-
 void SaveMenu::Show() {
   if (State != Shown) {
     switch (*ActiveMenuType) {
@@ -268,8 +207,7 @@ void SaveMenu::Show() {
     for (auto mainItems : *SavePages) {
       mainItems->Bounds = RectF(0.0f, 0.0f, 1280.0f, 720.0f);
       for (auto widget : mainItems->Children) {
-        auto saveEntryButton = static_cast<SaveEntryButton*>(widget);
-        UpdateEntry(saveEntryButton);
+        static_cast<SaveEntryButton*>(widget)->RefreshInfo(EntryType);
       }
     }
 
@@ -525,6 +463,12 @@ void SaveMenu::UpdateTitles() {
   RightTitlePos +=
       glm::vec2(-572.0f * (MenuTransition.Progress * 4.0f - 3.0f),
                 460.0f * (MenuTransition.Progress * 4.0f - 3.0f) / 3.0f);
+}
+
+void SaveMenu::RefreshCurrentEntryInfo() {
+  if (!CurrentlyFocusedElement) return;
+  static_cast<SaveEntryButton*>(CurrentlyFocusedElement)
+      ->RefreshInfo(EntryType);
 }
 
 }  // namespace CHLCC

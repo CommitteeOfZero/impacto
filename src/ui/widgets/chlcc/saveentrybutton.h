@@ -5,6 +5,7 @@
 #include "../button.h"
 #include "../label.h"
 #include "../../../renderer/renderer.h"
+#include "../../../data/savesystem.h"
 
 namespace Impacto {
 namespace UI {
@@ -47,6 +48,8 @@ class SaveEntryButton : public Widgets::Button {
   static void FocusedAlphaFadeStart();
   static void FocusedAlphaFadeReset();
   static void UpdateFocusedAlphaFade(float dt);
+
+  void RefreshInfo(SaveSystem::SaveType entryType);
 
   bool EntryActive = false;
 

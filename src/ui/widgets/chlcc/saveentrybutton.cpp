@@ -2,11 +2,17 @@
 
 #include "../../../renderer/renderer.h"
 #include "../../../profile/dialogue.h"
+#include "../../../profile/ui/savemenu.h"
+#include "../../../profile/games/chlcc/savemenu.h"
+#include "../../../games/chlcc/savesystem.h"
 
 namespace Impacto {
 namespace UI {
 namespace Widgets {
 namespace CHLCC {
+
+using namespace Impacto::Profile::SaveMenu;
+using namespace Impacto::Profile::CHLCC::SaveMenu;
 
 glm::vec4 SaveEntryButton::FocusedAlpha = glm::vec4(1.0f);
 Animation SaveEntryButton::FocusedAlphaFade;
@@ -152,6 +158,73 @@ void SaveEntryButton::UpdateFocusedAlphaFade(float dt) {
   FocusedAlphaFade.Update(dt);
   FocusedAlpha =
       glm::vec4(glm::vec3(1.0f), ((FocusedAlphaFade.Progress * 30) + 1) / 85);
+}
+
+void SaveEntryButton::RefreshInfo(const SaveSystem::SaveType entryType) {
+  const Sprite entrySprite = [] {
+    switch (*UI::SaveMenuPtr->ActiveMenuType) {
+      case SaveMenuPageType::QuickLoad:
+        return QuickLoadEntrySprite;
+        break;
+      case SaveMenuPageType::Save:
+        return SaveEntrySprite;
+        break;
+      case SaveMenuPageType::Load:
+        return LoadEntrySprite;
+        break;
+
+      default:
+        throw std::runtime_error(
+            fmt::format("Unexpected SaveMenuPageType: %d",
+                        static_cast<int>(*UI::SaveMenuPtr->ActiveMenuType)));
+    }
+  }();
+
+  const uint8_t lock = SaveSystem::GetSaveFlags(entryType, Id);
+
+  IsLocked = lock == 1;
+  AddNormalSpriteLabel(entrySprite, EntryPositions[Id % 6]);
+  AddEntryNumberHintText(Vm::ScriptGetTextTableStrAddress(0, 6), 18,
+                         RendererOutlineMode::BottomRight,
+                         EntryNumberHintTextRelativePos);
+  AddEntryNumberText(fmt::format("{:02}", Id + 1), 18,
+                     RendererOutlineMode::BottomRight,
+                     EntryNumberTextRelativePos);
+  AddThumbnail(EmptyThumbnailSprite,
+               EntryPositions[Id % 6] + ThumbnailRelativePos);
+
+  if (SaveSystem::GetSaveStatus(entryType, Id) != 0) {
+    EntryActive = true;
+    AddSceneTitleText(Vm::ScriptGetTextTableStrAddress(
+                          1, SaveSystem::GetSaveTitle(entryType, Id)),
+                      24, RendererOutlineMode::BottomRight,
+                      SceneTitleTextRelativePos, NoDataTextRelativePos);
+    AddPlayTimeHintText(Vm::ScriptGetTextTableStrAddress(0, 2), 18,
+                        RendererOutlineMode::BottomRight,
+                        PlayTimeHintTextRelativePos);
+
+    const uint32_t time = SaveSystem::GetSavePlayTime(entryType, Id);
+    const uint32_t hours = time / 3600;
+    const uint32_t minutes = (time % 3600) / 60;
+    const uint32_t seconds = (time % 3600) % 60;
+    AddPlayTimeText(fmt::format("{:3}:{:02}:{:02}", hours, minutes, seconds),
+                    18, RendererOutlineMode::BottomRight,
+                    {PlayTimeTextRelativePos.x + (float)((hours < 10) * 10),
+                     PlayTimeTextRelativePos.y});
+
+    AddSaveDateHintText(Vm::ScriptGetTextTableStrAddress(0, 3), 18,
+                        RendererOutlineMode::BottomRight,
+                        SaveDateHintTextRelativePos);
+    std::stringstream dateStr;
+    const tm& date = SaveSystem::GetSaveDate(entryType, Id);
+    dateStr << std::put_time(&date, "  %y/%m/%d %H:%M:%S");
+    AddSaveDateText(dateStr.str(), 18, RendererOutlineMode::BottomRight,
+                    SaveDateTextRelativePos);
+  } else {
+    AddSceneTitleText(Vm::ScriptGetTextTableStrAddress(0, 1), 24,
+                      RendererOutlineMode::BottomRight,
+                      SceneTitleTextRelativePos, NoDataTextRelativePos);
+  }
 }
 
 }  // namespace CHLCC

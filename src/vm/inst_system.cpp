@@ -245,6 +245,10 @@ VmInstruction(InstSave) {
       SaveSystem::FlushWorkingSaveEntry(SaveSystem::SaveType::Full,
                                         ScrWork[SW_SAVEFILENO]);
       SaveSystem::SaveThumbnailData();
+
+      if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
+        if (UI::SaveMenuPtr) UI::SaveMenuPtr->RefreshCurrentEntryInfo();
+      }
       break;
     case 30:
       if (Profile::Vm::GameInstructionSet == +InstructionSet::CC ||
