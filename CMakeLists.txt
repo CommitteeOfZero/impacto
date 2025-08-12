@@ -1172,7 +1172,7 @@ list(APPEND Impacto_Libs ${Impacto_Lib_Targets})
 target_link_libraries(impacto PRIVATE ${Impacto_Libs})
 
 if (IMPACTO_WARNINGS)
-    if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
         message(STATUS "Enabling warnings for clang")
         target_compile_options(impacto PRIVATE -Wall -Wextra -Wno-unused-parameter -Wno-nullability-completeness)
     elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
