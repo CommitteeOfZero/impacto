@@ -250,8 +250,7 @@ VmInstruction(InstSave) {
       if (Profile::Vm::GameInstructionSet == +InstructionSet::CC ||
           Profile::Vm::GameInstructionSet == +InstructionSet::CHLCC) {
         SetFlag(SF_SAVEICON, true);
-        ScrWork[SW_SAVEERRORCODE] = (int)SaveSystem::CreateSaveFile();
-        SaveSystem::MountSaveFile();
+        SaveSystem::WriteSaveFile();
       }
       break;
     case 31:

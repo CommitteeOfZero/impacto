@@ -107,8 +107,8 @@ void MountSaveFile() { ExecuteLoader<SaveFileLoader>(); }
 void CheckSaveFile() { ExecuteLoader<SaveFileChecker>(); }
 void WriteSaveFile() { ExecuteLoader<SaveFileWriter>(); }
 
-SaveError CreateSaveFile() {
-  return Implementation ? Implementation->CreateSaveFile() : SaveError::Failed;
+void InitializeSystemData() {
+  if (Implementation) Implementation->InitializeSystemData();
 }
 
 void SaveSystemData() {

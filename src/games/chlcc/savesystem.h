@@ -13,20 +13,20 @@ constexpr size_t SaveFileSize = SaveEntrySize * MaxSaveEntries * 2 + 0x3b06;
 
 class SaveFileEntry : public SaveFileEntryBase {
  public:
-  std::array<uint8_t, 50> FlagWorkScript1;   // 50 bytes from &FlagWork[50]
-  std::array<uint8_t, 100> FlagWorkScript2;  // 100 bytes from &FlagWork[300]
-  std::array<int, 300> ScrWorkScript1;       // 1200 bytes from &ScrWork[300]
-  std::array<int, 1300> ScrWorkScript2;      // 5200 bytes from &ScrWork[2300]
+  std::array<uint8_t, 50> FlagWorkScript1{};   // 50 bytes from &FlagWork[50]
+  std::array<uint8_t, 100> FlagWorkScript2{};  // 100 bytes from &FlagWork[300]
+  std::array<int, 300> ScrWorkScript1{};       // 1200 bytes from &ScrWork[300]
+  std::array<int, 1300> ScrWorkScript2{};      // 5200 bytes from &ScrWork[2300]
 };
 
 class SaveSystem : public SaveSystemBase {
  public:
-  SaveError CreateSaveFile() override;
   SaveError CheckSaveFile() override;
   SaveError MountSaveFile(std::vector<QueuedTexture>& textures) override;
 
   SaveError LoadSystemData() override;
   void SaveSystemData() override;
+  void InitializeSystemData() override;
 
   void SaveThumbnailData() override {};  // Todo
   Sprite& GetSaveThumbnail(SaveType type, int id) override;
