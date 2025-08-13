@@ -31,6 +31,7 @@ VmInstruction(InstThreadControlStore);
 VmInstruction(InstPadAct);
 VmInstruction(InstCopyThreadWork);
 VmInstruction(InstSave);
+VmInstruction(InstSaveOld);
 VmInstruction(InstSaveIconLoad);
 VmInstruction(InstVoiceTableLoadMaybe);
 VmInstruction(InstSetPadCustom);
