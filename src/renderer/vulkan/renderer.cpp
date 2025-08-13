@@ -1813,7 +1813,8 @@ void Renderer::CaptureScreencap(Sprite& sprite) {
 
 int Renderer::GetSpriteSheetImage(SpriteSheet const& sheet,
                                   std::span<uint8_t> outBuffer) {
-  const int bufferSize = (int)(sheet.DesignWidth * sheet.DesignHeight * 4);
+  const size_t bufferSize =
+      static_cast<size_t>(sheet.DesignWidth * sheet.DesignHeight * 4);
   assert(outBuffer.size() >= bufferSize);
 
   // Create a staging buffer to copy the image data to
@@ -1881,7 +1882,7 @@ int Renderer::GetSpriteSheetImage(SpriteSheet const& sheet,
 
   // Clean up the staging buffer
   vmaDestroyBuffer(Allocator, stagingBuffer.Buffer, stagingBuffer.Allocation);
-  return bufferSize;
+  return static_cast<int>(bufferSize);
 }
 
 void Renderer::EnableScissor() {}
@@ -1941,7 +1942,11 @@ void Renderer::Clear(glm::vec4 color) {
   VkClearAttachment clearAttachment = {
       .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
       .colorAttachment = 0,
-      .clearValue = {.color = {color.r, color.g, color.b, color.a}}};
+      .clearValue =
+          {
+              .color = {{color.r, color.g, color.b, color.a}},
+          },
+  };
 
   VkClearRect clearRect = {
       .rect = {.offset = {0, 0}, .extent = SwapChainExtent},

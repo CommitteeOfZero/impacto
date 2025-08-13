@@ -10,11 +10,11 @@ namespace UI {
 
 class TipsMenu : public Menu {
  public:
-  virtual void Init();
-  virtual void Show();
-  virtual void Hide();
-  virtual void Update(float dt);
-  virtual void Render();
+  virtual void Init() override;
+  virtual void Show() override;
+  virtual void Hide() override;
+  virtual void Update(float dt) override;
+  virtual void Render() override;
 
  protected:
   virtual void SwitchToTipId(int id);

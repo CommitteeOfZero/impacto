@@ -208,18 +208,18 @@ void MovieMenu::Render() {
   }
 }
 
-void MovieMenu::UpdateInput() {
-  Menu::UpdateInput();
+void MovieMenu::UpdateInput(float dt) {
+  Menu::UpdateInput(dt);
   if (State == Shown) {
     if (PADinputButtonWentDown & PAD1B || PADinputMouseWentDown & PAD1B) {
       IsChoiceMadeOnce = false;
     }
-    MovieItems->UpdateInput();
+    MovieItems->UpdateInput(dt);
   }
 }
 
 void MovieMenu::Update(float dt) {
-  UpdateInput();
+  UpdateInput(dt);
   if (ScrWork[SW_SYSMENUCT] < 32 && State == Shown) {
     Hide();
   } else if (GetFlag(SF_MOVIEMENU) && ScrWork[SW_SYSMENUCT] > 0 &&

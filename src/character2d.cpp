@@ -38,8 +38,8 @@ bool Character2D::LoadSync(uint32_t charaId) {
     // Skip to state data
     stream->Seek(0x68, SEEK_CUR);
 
-    int vertexCount = Io::ReadLE<int>(stream);
-    int vertexOffset = Io::ReadLE<int>(stream);
+    size_t vertexCount = static_cast<size_t>(Io::ReadLE<int>(stream));
+    size_t vertexOffset = static_cast<size_t>(Io::ReadLE<int>(stream));
 
     for (int i = 0; i < stateCount; i++) {
       int count = Io::ReadLE<int>(stream);
@@ -202,10 +202,10 @@ void Character2D::UpdateStatesToDraw() {
                            ((Face & 0xFFFF0000) >> 16));  // Just face
     StatesToDraw.push_back(0x40000000 | ((Face & 0xFFFF0000) >> 8) |
                            LipFrame);  // Just mouth
-    StatesToDraw.push_back(0x60000000 | ((Face & 0xFFFF0000) >> 8) |
-                           3 * EyeFrame +
-                               LipFrame);  // Both eyes and mouth (3 frames of
-                                           // mouth with each frame of the eyes)
+    StatesToDraw.push_back(
+        0x60000000 | ((Face & 0xFFFF0000) >> 8) |
+        (3 * EyeFrame + LipFrame));  // Both eyes and mouth (3 frames of
+                                     // mouth with each frame of the eyes)
     StatesToDraw.push_back(0x30000000 | ((Face & 0xFFFF0000) >> 8));
   }
 }
@@ -356,7 +356,7 @@ void Character2D::UpdateState(const int chaId) {
     bool charSpeaking = false;
     const uint32_t chaIndexMask = 1 << chaId & 0x1F;
 
-    for (size_t dialoguePageId = 0; dialoguePageId < DialoguePageCount;
+    for (int dialoguePageId = 0; dialoguePageId < DialoguePageCount;
          dialoguePageId++) {
       if (chaIndexMask & DialoguePages[dialoguePageId].AnimationId) {
         LipFrame = GetSoundLevel() > 0

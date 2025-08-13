@@ -300,14 +300,12 @@ uint8_t SaveSystem::GetSaveFlags(SaveType type, int id) {
 }
 
 tm const& SaveSystem::GetSaveDate(SaveType type, int id) {
-  static const tm t{
-      .tm_sec = 0,
-      .tm_min = 0,
-      .tm_hour = 0,
-      .tm_mday = 1,
-      .tm_mon = 0,
-      .tm_year = 0,
-  };
+  const static tm t = [] {
+    tm tmStruct{};
+    tmStruct.tm_mday = 1;
+    return tmStruct;
+  }();
+
   switch (type) {
     case SaveType::Full:
       return ((SaveFileEntry*)FullSaveEntries[id])->SaveDate;
@@ -536,8 +534,8 @@ void SaveSystem::SetTipStatus(int tipId, bool isLocked, bool isUnread,
 
 void SaveSystem::SetLineRead(int scriptId, int lineId) {
   if (scriptId >= 255) return;
-  if (ScriptMessageData.size() <= scriptId) return;
-  int offset = ScriptMessageData[scriptId].SaveDataOffset + lineId;
+  if (std::ssize(ScriptMessageData) <= scriptId) return;
+  uint32_t offset = ScriptMessageData[scriptId].SaveDataOffset + lineId;
   if (offset == 0xFFFFFFFF) return;
 
   // TODO: update some ScrWorks (2003, 2005 & 2006)
@@ -547,7 +545,7 @@ void SaveSystem::SetLineRead(int scriptId, int lineId) {
 
 bool SaveSystem::IsLineRead(int scriptId, int lineId) {
   if (scriptId >= StoryScriptCount) return false;
-  if (ScriptMessageData.size() <= scriptId) return false;
+  if (std::ssize(ScriptMessageData) <= scriptId) return false;
 
   uint32_t offset = ScriptMessageData[scriptId].SaveDataOffset + lineId;
   uint8_t flbit = Flbit[offset & 0b111];

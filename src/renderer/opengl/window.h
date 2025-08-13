@@ -33,7 +33,7 @@ class GLWindow : public BaseWindow {
   void TryCreateGL(GraphicsApi api);
   void CleanFBOs();
 
-  bool GLDebug = false;
+  [[maybe_unused]] bool GLDebug = false;
   GLuint DrawRenderTexture = 0;
 };
 

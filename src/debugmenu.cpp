@@ -169,21 +169,21 @@ void ShowDockableArea() {
 
   if (ScriptVariablesEditorShown) {
     if (ImGui::Begin("\"Debug Editer\"##ScriptVarEditorWindow"),
-        &ScriptVariablesEditorShown) {
+        ScriptVariablesEditorShown) {
       ShowScriptVariablesEditor();
     }
     ImGui::End();
   }
 
   if (ObjectViewerShown) {
-    if (ImGui::Begin("Objects##ObjectViewerWindow"), &ObjectViewerShown) {
+    if (ImGui::Begin("Objects##ObjectViewerWindow"), ObjectViewerShown) {
       ShowObjects();
     }
     ImGui::End();
   }
 
   if (UiViewerShown) {
-    if (ImGui::Begin("UI##UIViewerWindow"), &UiViewerShown) {
+    if (ImGui::Begin("UI##UIViewerWindow"), UiViewerShown) {
       ImGui::Text("Not available");
     }
     ImGui::End();
@@ -191,7 +191,7 @@ void ShowDockableArea() {
 
   if (ScriptDebuggerShown) {
     if (ImGui::Begin("Script Debugger##ScriptDebuggerWindow"),
-        &ScriptDebuggerShown) {
+        ScriptDebuggerShown) {
       ShowScriptDebugger();
     }
     ImGui::End();
@@ -825,9 +825,9 @@ void ShowObjects() {
       "These values are read-only as everything here is controlled by "
       "scripts.");
   if (ImGui::TreeNode("Backgrounds")) {
-    for (int i = 0; i < Backgrounds.size(); i++) {
-      ImGui::PushID(i);
-      if (ImGui::TreeNode("Background", "Background %d", i)) {
+    for (size_t i = 0; i < Backgrounds.size(); i++) {
+      ImGui::PushID(static_cast<int>(i));
+      if (ImGui::TreeNode("Background", "Background %zu", i)) {
         if (Backgrounds[i].Status == LoadStatus::Loaded) {
           float texWidth = Backgrounds[i].BgSprite.Sheet.DesignWidth * 0.4f;
           float texHeight = Backgrounds[i].BgSprite.Sheet.DesignHeight * 0.4f;
@@ -877,9 +877,9 @@ void ShowObjects() {
   }
 
   if (ImGui::TreeNode("Characters")) {
-    for (int i = 0; i < Characters2D.size(); i++) {
-      ImGui::PushID(i);
-      if (ImGui::TreeNode("Character", "Character %d", i)) {
+    for (size_t i = 0; i < Characters2D.size(); i++) {
+      ImGui::PushID(static_cast<int>(i));
+      if (ImGui::TreeNode("Character", "Character %zu", i)) {
         if (Characters2D[i].Status == LoadStatus::Loaded) {
           float texWidth = Characters2D[i].CharaSprite.Sheet.DesignWidth * 0.4f;
           float texHeight =

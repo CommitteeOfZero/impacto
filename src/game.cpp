@@ -300,7 +300,7 @@ static void RenderMain() {
       Renderer->SetFramebuffer(renderTarget);
     }
 
-    for (int bgId = 0; bgId < Backgrounds.size(); bgId++) {
+    for (int bgId = 0; bgId < std::ssize(Backgrounds); bgId++) {
       int bufId = ScrWork[SW_BG1SURF + bgId];
       Backgrounds2D[bufId]->UpdateState(bgId);
       Backgrounds2D[bufId]->Render(layer);
@@ -312,14 +312,14 @@ static void RenderMain() {
 
     if ((Profile::GameFeatures & GameFeature::Renderer2D) &&
         !(Profile::GameFeatures & GameFeature::Scene3D)) {
-      for (int chaId = 0; chaId < Characters2D.size(); chaId++) {
+      for (int chaId = 0; chaId < std::ssize(Characters2D); chaId++) {
         int bufId = ScrWork[SW_CHA1SURF + chaId];
         Characters2D[bufId].UpdateState(chaId);
         Characters2D[bufId].Render(layer);
       }
     }
 
-    for (int bgId = 0; bgId < Backgrounds.size(); bgId++) {
+    for (int bgId = 0; bgId < std::ssize(Backgrounds); bgId++) {
       Framebuffers[0].UpdateState(bgId);
       Framebuffers[0].Render(layer);
     }

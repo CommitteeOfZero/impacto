@@ -118,11 +118,11 @@ void MusicMenu::Hide() {
   }
 }
 
-void MusicMenu::UpdateInput() {
-  Menu::UpdateInput();
+void MusicMenu::UpdateInput(float dt) {
+  Menu::UpdateInput(dt);
   if (State == Shown) {
-    MainItems->UpdateInput();
-    BackgroundItems->UpdateInput();
+    MainItems->UpdateInput(dt);
+    BackgroundItems->UpdateInput(dt);
     if ((PADinputButtonWentDown & PAD1DOWN ||
          PADinputButtonWentDown & PAD1UP) &&
         MainItems->HasFocus) {
@@ -155,7 +155,7 @@ void MusicMenu::UpdateInput() {
 }
 
 void MusicMenu::Update(float dt) {
-  UpdateInput();
+  UpdateInput(dt);
 
   FadeAnimation.Update(dt);
   if (ScrWork[SW_MUSICMODE_ALPHA] < 256 && State == Shown) {

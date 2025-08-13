@@ -29,7 +29,7 @@ class Group : public Widget {
 
   void Update(float dt) override;
   void Render() override;
-  void UpdateInput() override;
+  void UpdateInput(float dt) override;
 
   Widget* GetFocus(FocusDirection dir) override;
 

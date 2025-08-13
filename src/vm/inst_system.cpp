@@ -551,7 +551,7 @@ VmInstruction(InstGetSystemStatus) {
     } break;
     case 10: {  // Auto mode bit
       thread->ScriptParam = (MesSkipMode & SkipModeFlags::Auto) >> 2;
-    }
+    } break;
     case 11: {
       thread->ScriptParam = 1;
       break;
@@ -746,19 +746,19 @@ VmInstruction(InstMSinit) {
     }
   }
 
-  for (int i = 0; i < Backgrounds.size(); i++) {
+  for (int i = 0; i < std::ssize(Backgrounds); i++) {
     ScrWork[SW_BG1SURF + i] = i;
     ScrWork[SW_BG1ALPHA + Profile::Vm::ScrWorkBgStructSize * i] = 256;
     ScrWork[SW_BG1NO + Profile::Vm::ScrWorkBgStructSize * i] = 0xFFFF;
     ScrWork[SW_BG1FILTER + Profile::Vm::ScrWorkBgStructSize * i] = 0xFFFFFF;
   }
-  for (int i = 0; i < Characters2D.size(); i++) {
+  for (int i = 0; i < std::ssize(Characters2D); i++) {
     ScrWork[SW_CHA1SURF + i] = i;
     ScrWork[SW_CHA1ALPHA + Profile::Vm::ScrWorkChaStructSize * i] = 256;
   }
 
   if (Profile::Dialogue::HasSpeakerPortraits) {
-    for (int i = 0; i < SpeakerPortraits.size(); i++) {
+    for (int i = 0; i < std::ssize(SpeakerPortraits); i++) {
       ScrWork[SW_FACE1SURF + i] = i;
     }
   }

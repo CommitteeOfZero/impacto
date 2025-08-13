@@ -15,7 +15,7 @@ class ClickArea : public Widget {
   ClickArea(int id, RectF bounds,
             std::function<void(ClickArea*)> onClickHandler);
 
-  virtual void UpdateInput() override;
+  virtual void UpdateInput(float dt) override;
 
   virtual void Show() override;
   virtual void Hide() override;

@@ -63,7 +63,7 @@ Label::Label(std::string_view str, glm::vec2 pos, float fontSize,
   SetText(str, fontSize, outlineMode, colorPair);
 }
 
-void Label::UpdateInput() {}
+void Label::UpdateInput(float dt) {}
 
 void Label::Update(float dt) { Widget::Update(dt); }
 
@@ -82,9 +82,9 @@ void Label::Render() {
 }
 
 void Label::Move(glm::vec2 relativePosition) {
-  for (int i = 0; i < Text.size(); i++) {
-    Text[i].DestRect.X += relativePosition.x;
-    Text[i].DestRect.Y += relativePosition.y;
+  for (ProcessedTextGlyph& glyph : Text) {
+    glyph.DestRect.X += relativePosition.x;
+    glyph.DestRect.Y += relativePosition.y;
   }
   Widget::Move(relativePosition);
 }
@@ -144,8 +144,8 @@ void Label::SetText(Vm::Sc3Stream& stream, float fontSize,
       glm::vec2(Bounds.X, Bounds.Y), TextAlignment::Left);
   OutlineMode = outlineMode;
   TextWidth = 0.0f;
-  for (int i = 0; i < Text.size(); i++) {
-    TextWidth += Text[i].DestRect.Width;
+  for (const ProcessedTextGlyph& glyph : Text) {
+    TextWidth += glyph.DestRect.Width;
   }
   Bounds = RectF(Text[0].DestRect.X, Text[0].DestRect.Y, TextWidth, fontSize);
 }
@@ -163,8 +163,8 @@ void Label::SetText(Vm::BufferOffsetContext scrCtx, float fontSize,
       glm::vec2(Bounds.X, Bounds.Y), TextAlignment::Left);
   OutlineMode = outlineMode;
   TextWidth = 0.0f;
-  for (int i = 0; i < Text.size(); i++) {
-    TextWidth += Text[i].DestRect.Width;
+  for (const ProcessedTextGlyph& glyph : Text) {
+    TextWidth += glyph.DestRect.Width;
   }
   Bounds = RectF(Text[0].DestRect.X, Text[0].DestRect.Y, TextWidth, fontSize);
 }
@@ -178,8 +178,8 @@ void Label::SetText(std::string_view str, float fontSize,
                                TextAlignment::Left);
   OutlineMode = outlineMode;
   TextWidth = 0.0f;
-  for (int i = 0; i < Text.size(); i++) {
-    TextWidth += Text[i].DestRect.Width;
+  for (const ProcessedTextGlyph& glyph : Text) {
+    TextWidth += glyph.DestRect.Width;
   }
   if (Text.size() > 0) {
     Bounds = RectF(Text[0].DestRect.X, Text[0].DestRect.Y, TextWidth, fontSize);

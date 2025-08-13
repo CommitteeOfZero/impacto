@@ -42,7 +42,7 @@ void SysMesBox::Show() {
 
   for (int i = 0; i < MessageCount; i++) {
     diff = Messages[i][0].DestRect.X - ((TextX - maxWidth) / 2.0f);
-    for (int j = 0; j < Messages[i].size(); j++) {
+    for (size_t j = 0; j < Messages[i].size(); j++) {
       if (Messages[i][j].CharId == 0) break;
       Messages[i][j].DestRect.X -= diff;
       Messages[i][j].DestRect.Y = textBeginY + (TextLineHeight * i);
@@ -107,7 +107,7 @@ void SysMesBox::Hide() {
 }
 
 void SysMesBox::Update(float dt) {
-  UpdateInput();
+  UpdateInput(dt);
 
   FadeAnimation.Update(dt);
 
@@ -237,7 +237,7 @@ void SysMesBox::AddMessage(Vm::BufferOffsetContext ctx) {
                           glm::vec2(TextX, 0.0f), TextAlignment::Left);
   if (!Messages[MessageCount].empty()) {
     float mesLen = 0.0f;
-    for (int i = 0; i < Messages[MessageCount].size(); i++) {
+    for (size_t i = 0; i < Messages[MessageCount].size(); i++) {
       mesLen += Messages[MessageCount][i].DestRect.Width;
     }
     MessageWidths[MessageCount] = mesLen;
@@ -255,7 +255,7 @@ void SysMesBox::AddChoice(Vm::BufferOffsetContext ctx) {
                           glm::vec2(TextX, 0.0f), TextAlignment::Left);
   if (!Choices[ChoiceCount].empty()) {
     float mesLen = 0.0f;
-    for (int i = 0; i < Choices[ChoiceCount].size(); i++) {
+    for (size_t i = 0; i < Choices[ChoiceCount].size(); i++) {
       mesLen += Choices[ChoiceCount][i].DestRect.Width;
     }
     ChoiceWidths[ChoiceCount] = mesLen;

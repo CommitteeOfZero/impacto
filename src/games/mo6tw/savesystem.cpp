@@ -586,14 +586,12 @@ uint8_t SaveSystem::GetSaveFlags(SaveType type, int id) {
 }
 
 tm const& SaveSystem::GetSaveDate(SaveType type, int id) {
-  static const tm t{
-      .tm_sec = 0,
-      .tm_min = 0,
-      .tm_hour = 0,
-      .tm_mday = 1,
-      .tm_mon = 0,
-      .tm_year = 0,
-  };
+  const static tm t = [] {
+    tm tmStruct{};
+    tmStruct.tm_mday = 1;
+    return tmStruct;
+  }();
+
   switch (type) {
     case SaveType::Full:
       return ((SaveFileEntry*)FullSaveEntries[id])->SaveDate;
@@ -670,7 +668,7 @@ void SaveSystem::SetTipStatus(int tipId, bool isLocked, bool isUnread,
 void SaveSystem::SetLineRead(int scriptId, int lineId) {
   if (scriptId >= StoryScriptCount.value()) return;
 
-  int offset =
+  uint32_t offset =
       ScriptMessageData[StoryScriptIDs[scriptId]].SaveDataOffset + lineId;
   if (offset == 0xFFFFFFFF) return;
 

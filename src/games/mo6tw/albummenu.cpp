@@ -170,8 +170,8 @@ void AlbumMenu::Hide() {
   }
 }
 
-void AlbumMenu::UpdateInput() {
-  Menu::UpdateInput();
+void AlbumMenu::UpdateInput(float dt) {
+  Menu::UpdateInput(dt);
   if (State == Shown) {
     if (SelectedCharacterId != -1 && !ShowCgViewer) {
       if ((PADinputButtonWentDown & PAD1DOWN ||
@@ -194,7 +194,7 @@ void AlbumMenu::UpdateInput() {
 }
 
 void AlbumMenu::Update(float dt) {
-  UpdateInput();
+  UpdateInput(dt);
 
   FadeAnimation.Update(dt);
   if (ScrWork[SW_ALBUM_ALPHA] < 256 && State == Shown) {

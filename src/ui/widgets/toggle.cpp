@@ -40,7 +40,7 @@ Toggle::Toggle(int id, bool* value, Sprite const& enabled,
   LabelOffset = labelOfs;
 }
 
-void Toggle::UpdateInput() {
+void Toggle::UpdateInput(float dt) {
   if (Enabled) {
     if (Input::CurrentInputDevice == Input::Device::Mouse &&
         Input::PrevMousePos != Input::CurMousePos) {
@@ -92,8 +92,8 @@ void Toggle::SetText(Vm::Sc3Stream& stream, float fontSize,
                               TextAlignment::Left);
   OutlineMode = outlineMode;
   FontSize = fontSize;
-  for (int i = 0; i < Label.size(); i++) {
-    TextWidth += Label[i].DestRect.Width;
+  for (const ProcessedTextGlyph& glyph : Label) {
+    TextWidth += glyph.DestRect.Width;
   }
 }
 

@@ -18,7 +18,7 @@ class OptionsSlider : public OptionsEntry {
 
   void Render() override;
   void Update(float dt) override;
-  void UpdateInput() override;
+  void UpdateInput(float dt) override;
 
   void Move(glm::vec2 relativePos) override;
   void MoveTo(glm::vec2 pos) override;

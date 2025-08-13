@@ -185,8 +185,8 @@ void TitleMenu::Hide() {
   }
 }
 
-void TitleMenu::UpdateInput() {
-  Menu::UpdateInput();
+void TitleMenu::UpdateInput(float dt) {
+  Menu::UpdateInput(dt);
   if (CurrentSubMenu) {
     if ((PADinputButtonWentDown & PAD1B || PADinputMouseWentDown & PAD1B) &&
         CurrentSubMenu->IsShown) {
@@ -202,7 +202,7 @@ void TitleMenu::UpdateInput() {
 }
 
 void TitleMenu::Update(float dt) {
-  UpdateInput();
+  UpdateInput(dt);
 
   PressToStartAnimation.Update(dt);
   SmokeAnimation.Update(dt);

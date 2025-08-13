@@ -19,11 +19,11 @@ TitleButton::TitleButton(int id, Sprite const& norm, Sprite const& focused,
   ChoiceBlinkAnimation.DurationOut = 0;
 }
 
-void TitleButton::UpdateInput() {
+void TitleButton::UpdateInput(float dt) {
   if (Enabled &&
       (IsSubButton || HighlightAnimation.State == +AnimationState::Stopped) &&
       ChoiceBlinkAnimation.IsOut()) {
-    Button::UpdateInput();
+    Button::UpdateInput(dt);
   }
 }
 
@@ -65,7 +65,7 @@ void TitleButton::Render() {
     BlinkTint.a = blinkAlpha;
   }
   if (HasFocus ||
-      !IsSubButton && HighlightAnimation.State == +AnimationState::Playing ||
+      (!IsSubButton && HighlightAnimation.State == +AnimationState::Playing) ||
       ChoiceBlinkAnimation.State == +AnimationState::Playing) {
     if (!IsSubButton) {  // Main buttons
       Sprite newHighlightSprite = HighlightSprite;

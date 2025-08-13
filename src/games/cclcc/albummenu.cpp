@@ -120,17 +120,17 @@ AlbumThumbnail::AlbumThumbnail(int id, uint8_t gridId,
                                glm::vec2 gridDispPosition,
                                AlbumMenu const& albumMenu)
     : Widgets::Button(),
-      GridId(gridId),
       GridPos(gridDispPosition),
+      GridId(gridId),
       Menu(albumMenu) {
   Id = id;
   IndexInPage = AlbumData[id].IndexInPage;
   Page = AlbumData[id].PageNumber;
 };
 
-void AlbumThumbnail::UpdateInput() {
+void AlbumThumbnail::UpdateInput(float dt) {
   if (Menu.ActivePage == Page) {
-    Button::UpdateInput();
+    Button::UpdateInput(dt);
   }
 }
 
@@ -362,7 +362,7 @@ void AlbumMenu::UpdateCGViewer(float dt) {
   if (controllerADown || (mouseWentUp && CGViewer->ClickHoldTime < 0.1)) {
     const auto& variants = CGViewer->ClickedThumbnail.get().Variants;
     CGViewer->ActiveVariantIndex++;
-    if (CGViewer->ActiveVariantIndex < variants.size()) {
+    if (CGViewer->ActiveVariantIndex < std::ssize(variants)) {
       ScrWork[SW_ALBUM_LOADFILE] =
           Profile::SaveSystem::AlbumData[CGViewer->ActiveThumbnailIndex]
                                         [CGViewer->ActiveVariantIndex][0];
@@ -568,7 +568,7 @@ void AlbumMenu::UpdateThumbnail(float dt) {
   if (!CurrentlyFocusedElement) {
     auto thumItr = std::find_if(ThumbnailPages[ActivePage].begin(),
                                 ThumbnailPages[ActivePage].end(),
-                                [this](const auto& btn) { return btn; });
+                                [](const auto& btn) { return btn; });
     if (thumItr != ThumbnailPages[ActivePage].end()) {
       CurrentlyFocusedElement = *thumItr;
       CurrentlyFocusedElement->HasFocus = true;

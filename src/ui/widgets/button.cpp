@@ -25,7 +25,7 @@ Button::Button(int id, Sprite const& norm, Sprite const& focused,
   HoverBounds = hoverBounds;
 }
 
-void Button::UpdateInput() {
+void Button::UpdateInput(float dt) {
   if (Enabled) {
     const RectF& bounds = (HoverBounds != RectF{}) ? HoverBounds : Bounds;
     if (Input::CurrentInputDevice == Input::Device::Mouse &&
@@ -83,8 +83,8 @@ void Button::SetText(Vm::BufferOffsetContext scrCtx, float fontSize,
       glm::vec2(Bounds.X, Bounds.Y), TextAlignment::Left);
   OutlineMode = outlineMode;
   TextWidth = 0.0f;
-  for (int i = 0; i < Text.size(); i++) {
-    TextWidth += Text[i].DestRect.Width;
+  for (const ProcessedTextGlyph& glyph : Text) {
+    TextWidth += glyph.DestRect.Width;
   }
   Bounds = RectF(Text[0].DestRect.X, Text[0].DestRect.Y, TextWidth, fontSize);
   HoverBounds = Bounds;
@@ -103,8 +103,8 @@ void Button::SetText(Vm::Sc3Stream& stream, float fontSize,
       stream, 255, Profile::Dialogue::DialogueFont, fontSize, colorPair, 1.0f,
       glm::vec2(Bounds.X, Bounds.Y), TextAlignment::Left);
   OutlineMode = outlineMode;
-  for (int i = 0; i < Text.size(); i++) {
-    TextWidth += Text[i].DestRect.Width;
+  for (const ProcessedTextGlyph& glyph : Text) {
+    TextWidth += glyph.DestRect.Width;
   }
   Bounds = RectF(Text[0].DestRect.X, Text[0].DestRect.Y, TextWidth, fontSize);
   HoverBounds = Bounds;
@@ -128,9 +128,9 @@ void Button::SetText(std::vector<ProcessedTextGlyph> text, float textWidth,
 
 void Button::Move(glm::vec2 relativePosition) {
   if (HasText) {
-    for (int i = 0; i < Text.size(); i++) {
-      Text[i].DestRect.X += relativePosition.x;
-      Text[i].DestRect.Y += relativePosition.y;
+    for (ProcessedTextGlyph& glyph : Text) {
+      glyph.DestRect.X += relativePosition.x;
+      glyph.DestRect.Y += relativePosition.y;
     }
   }
   Widget::Move(relativePosition);

@@ -17,7 +17,8 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "YES",
-        "VCPKG_OVERLAY_PORTS": "${sourceDir}/portfiles"
+        "VCPKG_OVERLAY_PORTS": "${sourceDir}/portfiles",
+        "IMPACTO_WARNINGS": "ON"
       }
     },
     {
@@ -52,7 +53,8 @@
       "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
-        "VCPKG_OVERLAY_TRIPLETS": "${sourceDir}/triplets"
+        "VCPKG_OVERLAY_TRIPLETS": "${sourceDir}/triplets",
+        "IMPACTO_WARNINGS": "ON"
       }
     },
     {

@@ -18,7 +18,7 @@ using namespace Impacto::Profile::CCLCC::LibraryMenu;
 using namespace Impacto::Profile::ScriptVars;
 
 MusicTrackButton::MusicTrackButton(int id, int position, glm::vec2 pos)
-    : Button(), Position(position) {
+    : Button() {
   Id = id;
   Bounds = RectF(pos.x, pos.y + MusicButtonTextYOffset, MusicButtonBounds.Width,
                  MusicButtonBounds.Height);
@@ -33,7 +33,7 @@ MusicTrackButton::MusicTrackButton(int id, int position, glm::vec2 pos)
   HighlightSprite = MusicButtonHoverSprite;
   FocusedSprite = MusicButtonSelectSprite;
   HoverBounds = Bounds;
-  for (int i = 0; i < Text.size(); i++) {
+  for (size_t i = 0; i < Text.size(); i++) {
     Text[i].DestRect.X += MusicTrackNameOffsetX;
   }
   auto const lockedSc3Text = Vm::ScriptGetTextTableStrAddress(
@@ -219,7 +219,7 @@ void MusicMenu::StopMusic() {
 
 void MusicMenu::Update(float dt) {
   const auto getNextUnlockedTrack =
-      [this](size_t current) -> std::optional<size_t> {
+      [](size_t current) -> std::optional<size_t> {
     size_t next = (current + 1) % MusicPlayIds.size();
     while (!SaveSystem::GetBgmFlag(MusicBGMFlagIds[next]) && next != current) {
       next = (next + 1) % MusicPlayIds.size();
@@ -234,7 +234,7 @@ void MusicMenu::Update(float dt) {
         PlayTrack(CurrentlyPlayingBtn->Id);
         break;
       case MusicMenuPlayingMode::PlayAll: {
-        if (CurrentlyPlayingBtn->Id != MusicPlayIds.size() - 1) {
+        if (CurrentlyPlayingBtn->Id != std::ssize(MusicPlayIds) - 1) {
           auto nextTrack = getNextUnlockedTrack(CurrentlyPlayingBtn->Id);
           if (nextTrack) {
             PlayTrack(*nextTrack);
@@ -296,7 +296,7 @@ void MusicMenu::UpdateInput(float dt) {
       PlayMode = MusicMenuPlayingMode::_from_integral(
           (PlayMode._to_integral() + 1) % MusicMenuPlayingMode::_size());
     }
-    ModeButton.UpdateInput();
+    ModeButton.UpdateInput(dt);
 
     const uint32_t btnUp = PADcustom[0];
     const uint32_t btnDown = PADcustom[1];
@@ -353,7 +353,6 @@ void MusicBGs::Move(glm::vec2 relativePos) {
 }
 
 void MusicBGs::Render() {
-  glm::vec2 backgroundPos = MusicItemsBackgroundPosition;
   glm::vec2 topSplitPos{
       MusicRenderingBounds.X,
       MusicRenderingBounds.Y + Bounds.Y - MusicItemsBackgroundRepeatHeight};

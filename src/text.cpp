@@ -166,6 +166,7 @@ int StringToken::Read(Vm::Sc3Stream& stream) {
   if (c == STT_Character) {
     ImpLog(LogLevel::Error, LogChannel::VM,
            "STT_Character encountered, uh oh...");
+    Type = STT_EndOfString;
   } else if (c < 0x80) {
     ImpLog(LogLevel::Error, LogChannel::VM,
            "Encountered non-character token 0x{:02x} in string\n", c);
@@ -278,7 +279,7 @@ void DialoguePage::Clear() {
   NameLength = 0;
   Name.clear();
   HasName = false;
-  memset(RubyChunks, 0, sizeof(RubyChunk) * DialogueMaxRubyChunks);
+  std::fill(RubyChunks.begin(), RubyChunks.end(), RubyChunk{});
   RubyChunkCount = 0;
   CurrentRubyChunk = 0;
   FirstRubyChunkOnLine = 0;
@@ -297,9 +298,9 @@ void DialoguePage::Clear() {
 
 enum TextParseState { TPS_Normal, TPS_Name, TPS_Ruby };
 
-void DialoguePage::FinishLine(Vm::Sc3VmThread* ctx, int nextLineStart,
+void DialoguePage::FinishLine(Vm::Sc3VmThread* ctx, size_t nextLineStart,
                               const RectF& boxBounds, TextAlignment alignment) {
-  EndRubyBase(nextLineStart - 1);
+  EndRubyBase(static_cast<int>(nextLineStart) - 1);
 
   // Lay out all ruby chunks on this line (before we change CurrentLineTop and
   // thus can't find where to put them)
@@ -321,7 +322,7 @@ void DialoguePage::FinishLine(Vm::Sc3VmThread* ctx, int nextLineStart,
         (RubyChunks[i].CenterPerCharacter &&
          RubyChunks[i].BaseLength > RubyChunks[i].Length)) {
       // center every ruby character over the base character below it
-      for (int j = 0; j < RubyChunks[i].Length; j++) {
+      for (size_t j = 0; j < RubyChunks[i].Length; j++) {
         RectF const& baseGlyphRect =
             Glyphs[RubyChunks[i].FirstBaseCharacter + j].DestRect;
         pos.x = baseGlyphRect.Center().x;
@@ -466,7 +467,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
     switch (token.Type) {
       case STT_LineBreak:
       case STT_AltLineBreak: {
-        FinishLine(ctx, (int)Glyphs.size(), BoxBounds, Alignment);
+        FinishLine(ctx, Glyphs.size(), BoxBounds, Alignment);
         LastWordStart = Glyphs.size();
         CurrentX = 0.0f;
         break;
@@ -513,13 +514,13 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
       case STT_SetLeftMargin: {
         float addX = token.Val_Uint16;
         if (CurrentX + addX > BoxBounds.Width) {
-          FinishLine(ctx, (int)Glyphs.size(), BoxBounds, Alignment);
+          FinishLine(ctx, Glyphs.size(), BoxBounds, Alignment);
           LastWordStart = Glyphs.size();
           addX -= (BoxBounds.Width - CurrentX);
           CurrentX = 0.0f;
         }
         while (addX > BoxBounds.Width) {
-          FinishLine(ctx, (int)Glyphs.size(), BoxBounds, Alignment);
+          FinishLine(ctx, Glyphs.size(), BoxBounds, Alignment);
           addX -= BoxBounds.Width;
         }
         CurrentX += addX;
@@ -534,9 +535,9 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
         break;
       }
       case STT_RubyBaseStart: {
-        CurrentRubyChunk = RubyChunkCount;
+        CurrentRubyChunk = static_cast<int>(RubyChunkCount);
         RubyChunkCount++;
-        RubyChunks[CurrentRubyChunk].FirstBaseCharacter = (int)Glyphs.size();
+        RubyChunks[CurrentRubyChunk].FirstBaseCharacter = Glyphs.size();
         LastWordStart = Glyphs.size();
         break;
       }
@@ -602,7 +603,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
               // Word doesn't fit on a line, gotta break in the middle of it
               ptg.DestRect.X = BoxBounds.X;
               CurrentX = ptg.DestRect.Width;
-              FinishLine(ctx, (int)Glyphs.size() - 1, BoxBounds, Alignment);
+              FinishLine(ctx, Glyphs.size() - 1, BoxBounds, Alignment);
               LastWordStart = Glyphs.size() - 1;
             } else {
               size_t firstNonSpace = LastWordStart;
@@ -611,7 +612,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
                 if (!(Glyphs[i].Flags() & CharacterTypeFlags::Space)) break;
                 firstNonSpace = i + 1;
               }
-              FinishLine(ctx, (int)firstNonSpace, BoxBounds, Alignment);
+              FinishLine(ctx, firstNonSpace, BoxBounds, Alignment);
               LastWordStart = firstNonSpace;
               CurrentX = 0.0f;
               for (size_t i = firstNonSpace; i < Glyphs.size(); i++) {
@@ -634,7 +635,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
     }
   } while (token.Type != STT_EndOfString);
 
-  FinishLine(ctx, (int)Glyphs.size(), BoxBounds, Alignment);
+  FinishLine(ctx, Glyphs.size(), BoxBounds, Alignment);
   CurrentX = 0.0f;
 
   RectF boundingBox = Glyphs.empty() ? RectF() : Glyphs.begin()->DestRect;
@@ -656,7 +657,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
   }
 
   if (HasName) {
-    NameId = GetNameId((uint8_t*)name, NameLength * 2);
+    NameId = GetNameId((uint8_t*)name, static_cast<int>(NameLength * 2));
 
     float fontSize = ADVNameFontSize;
     glm::vec2 pos = ADVNamePos;
@@ -679,8 +680,9 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
       }
     }
     Vm::Sc3Stream nameStream(name);
-    Name = TextLayoutPlainLine(nameStream, NameLength, DialogueFont, fontSize,
-                               ColorTable[colorIndex], 1.0f, pos, alignment);
+    Name = TextLayoutPlainLine(nameStream, static_cast<int>(NameLength),
+                               DialogueFont, fontSize, ColorTable[colorIndex],
+                               1.0f, pos, alignment);
     assert(NameLength == Name.size());
   }
 
@@ -702,10 +704,10 @@ void DialoguePage::Update(float dt) {
   if ((ScrWork[SW_GAMESTATE] & 4) != 0) return;
   Typewriter.Update(dt);
 
-  for (int i = 0; i < Glyphs.size(); i++) {
-    Glyphs[i].Opacity = Typewriter.CalcOpacity(i);
+  for (size_t i = 0; i < Glyphs.size(); i++) {
+    Glyphs[i].Opacity = Typewriter.CalcOpacity(static_cast<int>(i));
     if (Glyphs[i].Opacity == 0.0f) {
-      Typewriter.LastOpaqueCharacter = i;
+      Typewriter.LastOpaqueCharacter = static_cast<int>(i);
     }
   }
 
@@ -732,7 +734,7 @@ void DialoguePage::Render() {
   // Textbox
   float width = 0.0f;
   if (HasName) {
-    for (int i = 0; i < NameLength; i++) {
+    for (size_t i = 0; i < NameLength; i++) {
       width += Name[i].DestRect.Width;
     }
   }
@@ -762,12 +764,12 @@ void DialoguePage::Render() {
 }
 
 void DialoguePage::Move(glm::vec2 relativePos) {
-  for (int i = 0; i < Glyphs.size(); i++) {
-    Glyphs[i].DestRect.X += relativePos.x;
-    Glyphs[i].DestRect.Y += relativePos.y;
+  for (ProcessedTextGlyph& glyph : Glyphs) {
+    glyph.DestRect.X += relativePos.x;
+    glyph.DestRect.Y += relativePos.y;
   }
   if (HasName) {
-    for (int i = 0; i < NameLength; i++) {
+    for (size_t i = 0; i < NameLength; i++) {
       Name[i].DestRect.X += relativePos.x;
       Name[i].DestRect.Y += relativePos.y;
     }
@@ -827,8 +829,8 @@ int TextGetMainCharacterCount(Vm::Sc3VmThread* ctx) {
 
 template <typename T>
 concept Sc3Type =
-    std::is_lvalue_reference_v<T> &&
-        std::is_base_of_v<Vm::Sc3Stream, std::remove_reference_t<T>> ||
+    (std::is_lvalue_reference_v<T> &&
+     std::is_base_of_v<Vm::Sc3Stream, std::remove_reference_t<T>>) ||
     std::is_same_v<std::decay_t<T>, Vm::Sc3VmThread*>;
 
 std::pair<int, float> TextLayoutPlainLineHelper(
@@ -836,7 +838,7 @@ std::pair<int, float> TextLayoutPlainLineHelper(
     std::output_iterator<ProcessedTextGlyph> auto outIt, Font* font,
     float fontSize, DialogueColorPair colors, float opacity, glm::vec2 pos,
     TextAlignment alignment, float blockWidth) {
-  int characterCount = 0;
+  size_t characterCount = 0;
   StringToken token;
 
   float currentX = 0;
@@ -864,7 +866,7 @@ std::pair<int, float> TextLayoutPlainLineHelper(
   // currentX is now line width
   // If you want to align, you can pass a span or vector to the alignment
   // function
-  return {characterCount, currentX};
+  return {static_cast<int>(characterCount), currentX};
 }
 
 int TextLayoutPlainLine(Vm::Sc3Stream& stream, int stringLength,
@@ -875,7 +877,7 @@ int TextLayoutPlainLine(Vm::Sc3Stream& stream, int stringLength,
   auto [count, currentX] = TextLayoutPlainLineHelper(
       stream, stringLength, outGlyphs.begin(), font, fontSize, colors, opacity,
       pos, alignment, blockWidth);
-  assert(outGlyphs.size() >= count);
+  assert(outGlyphs.size() >= static_cast<size_t>(count));
   TextLayoutAlignment(alignment, blockWidth, currentX, pos, count, outGlyphs);
   return count;
 }
@@ -901,7 +903,7 @@ int TextLayoutPlainLine(Vm::Sc3VmThread* thd, int stringLength,
   auto [count, currentX] = TextLayoutPlainLineHelper(
       thd, stringLength, outGlyphs.begin(), font, fontSize, colors, opacity,
       pos, alignment, blockWidth);
-  assert(outGlyphs.size() >= count);
+  assert(outGlyphs.size() >= static_cast<size_t>(count));
   TextLayoutAlignment(alignment, blockWidth, currentX, pos, count, outGlyphs);
   return count;
 }
@@ -1045,9 +1047,9 @@ void TextGetSc3String(std::string_view str, std::span<uint16_t> out) {
   std::string_view::iterator strIt = str.begin();
   std::string_view::iterator strEnd = str.end();
 
-  [[maybe_unused]] int sc3StrLength = (int)utf8::distance(strIt, strEnd) + 1;
+  [[maybe_unused]] size_t sc3StrLength = (int)utf8::distance(strIt, strEnd) + 1;
   assert(sc3StrLength <= out.size());
-  int sc3Idx = 0;
+  size_t sc3Idx = 0;
   while (strIt != strEnd) {
     auto codePoint = utf8::next(strIt, strEnd);
 

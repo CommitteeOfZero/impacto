@@ -677,8 +677,7 @@ void Renderable3D::LoadMeshUniforms(int id) {
         glm::mat4* outBone =
             (glm::mat4*)(MeshUniformBuffer + MeshUniformOffsets[MSU_Bones]);
         for (uint32_t j = 0; j < mesh.UsedBones; j++) {
-          memcpy(outBone, glm::value_ptr(CurrentPose[mesh.BoneMap[j]].Offset),
-                 sizeof(glm::mat4));
+          *outBone = CurrentPose[mesh.BoneMap[j]].Offset;
           outBone++;
         }
       } else {

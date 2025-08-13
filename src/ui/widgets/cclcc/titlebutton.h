@@ -14,7 +14,7 @@ class TitleButton : public Widgets::Button {
               Sprite const& highlight, glm::vec2 pos);
   void Render() override;
   void Update(float dt) override;
-  void UpdateInput() override;
+  void UpdateInput(float dt) override;
   void Hide() override;
   bool IsSubButton = false;
   Animation HighlightAnimation;

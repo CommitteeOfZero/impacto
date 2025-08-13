@@ -9,7 +9,7 @@ using namespace Impacto::Profile::CCLCC::LibraryMenu;
 using namespace Impacto::Profile::ScriptVars;
 
 MovieMenu::MovieMenu() : LibrarySubmenu() {
-  for (int i = 0; i < MovieDiskSprites.size(); ++i) {
+  for (size_t i = 0; i < MovieDiskSprites.size(); ++i) {
     const auto& diskSprite = MovieDiskSprites[i];
     const auto& diskHighlightSprite = MovieDiskHighlightSprites[i];
     auto movieOnclick = [](Widgets::Button* target) {
@@ -18,8 +18,9 @@ MovieMenu::MovieMenu() : LibrarySubmenu() {
       Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0);
       Audio::Channels[Audio::AC_BGM0]->Stop(0.0f);
     };
-    auto disk = new Widgets::Button(i, diskSprite, diskHighlightSprite,
-                                    Sprite(), MovieDiskDisplayPositions[i]);
+    auto disk = new Widgets::Button(static_cast<int>(i), diskSprite,
+                                    diskHighlightSprite, Sprite(),
+                                    MovieDiskDisplayPositions[i]);
     disk->OnClickHandler = movieOnclick;
     MainItems.Add(disk, FDIR_RIGHT);
   }

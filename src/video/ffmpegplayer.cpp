@@ -245,7 +245,6 @@ void FFmpegPlayer::HandleSeekRequest() {
 }
 
 void FFmpegPlayer::Read() {
-  std::mutex waitMutex;
   while (!AbortRequest) {
     if (SeekRequest) {
       HandleSeekRequest();
@@ -295,7 +294,6 @@ void FFmpegPlayer::Read() {
 
 template <AVMediaType MediaType>
 void FFmpegPlayer::Decode() {
-  std::mutex waitMutex;
   FFmpegStream<MediaType>* stream;
   if constexpr (MediaType == AVMEDIA_TYPE_VIDEO)
     stream = std::addressof(*VideoStream);

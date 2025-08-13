@@ -16,7 +16,7 @@ void SelectionMenu::ChoiceItemOnClick(Button* target) {
   ChoiceMade = true;
 }
 
-void SelectionMenu::Init(bool isPlain) {
+void SelectionMenu::InitSelectionMenu(bool isPlain) {
   IsPlain = isPlain;
   ChoiceCount = 0;
   ChoiceMade = false;
@@ -40,8 +40,8 @@ void SelectionMenu::AddChoice(Vm::BufferOffsetContext ctx) {
       1.0f, glm::vec2(0.0f, 0.0f), TextAlignment::Left);
 
   float mesLen = 0.0f;
-  for (int i = 0; i < Choices[ChoiceCount].size(); i++) {
-    mesLen += Choices[ChoiceCount][i].DestRect.Width;
+  for (const ProcessedTextGlyph& glyph : Choices[ChoiceCount]) {
+    mesLen += glyph.DestRect.Width;
   }
 
   ChoiceWidths[ChoiceCount] = mesLen;
@@ -67,9 +67,9 @@ void SelectionMenu::Show() {
       if (ChoiceWidths[i] > ChoiceWidthMax) ChoiceWidthMax = ChoiceWidths[i];
 
       diff = (Profile::DesignWidth - ChoiceWidths[i]) / 2.0f;
-      for (int j = 0; j < Choices[i].size(); j++) {
-        Choices[i][j].DestRect.X += diff;
-        Choices[i][j].DestRect.Y = choiceY;
+      for (ProcessedTextGlyph& glyph : Choices[i]) {
+        glyph.DestRect.X += diff;
+        glyph.DestRect.Y = choiceY;
       }
 
       if (Choices[i][0].DestRect.X < ChoiceXMin)
@@ -103,9 +103,9 @@ void SelectionMenu::Show() {
 
     for (int i = 0; i < ChoiceCount; i++) {
       diff = (Profile::DesignWidth - ChoiceWidths[i]) / 2.0f;
-      for (int j = 0; j < Choices[i].size(); j++) {
-        Choices[i][j].DestRect.X += diff;
-        Choices[i][j].DestRect.Y = choiceY;
+      for (ProcessedTextGlyph& glyph : Choices[i]) {
+        glyph.DestRect.X += diff;
+        glyph.DestRect.Y = choiceY;
       }
       choiceY += SelectionYSpacing;
 
@@ -144,7 +144,7 @@ void SelectionMenu::Hide() {
 }
 
 void SelectionMenu::Update(float dt) {
-  UpdateInput();
+  UpdateInput(dt);
   FadeAnimation.Update(dt);
   if (State != Hidden) {
     if (FadeAnimation.IsIn()) State = Shown;

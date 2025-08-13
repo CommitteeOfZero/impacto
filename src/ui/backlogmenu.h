@@ -13,11 +13,11 @@ class BacklogMenu : public Menu {
  public:
   BacklogMenu();
 
-  virtual void Show();
-  virtual void Hide();
-  virtual void Update(float dt);
-  virtual void UpdateInput(float dt);
-  virtual void Render();
+  virtual void Show() override;
+  virtual void Hide() override;
+  virtual void Update(float dt) override;
+  virtual void UpdateInput(float dt) override;
+  virtual void Render() override;
 
   virtual Widgets::BacklogEntry* CreateBacklogEntry(
       int id, Vm::BufferOffsetContext scrCtx, int audioId, int characterId,

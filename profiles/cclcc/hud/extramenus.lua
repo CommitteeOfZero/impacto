@@ -152,7 +152,6 @@ root.ExtraMenus = {
         },
         
         MusicItemsBackgroundSprite = "MusicItemsBackground",
-        MusicItemsBackgroundPosition = {X=293, Y=-93},
         MusicItemsBackgroundRepeatHeight = 1200,
         MusicItemsOverlaySprite = "MusicItemsOverlay",
         MusicItemsCount = 61,

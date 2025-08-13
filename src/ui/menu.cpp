@@ -32,7 +32,7 @@ void Menu::Hide() {
   }
 }
 
-void Menu::UpdateInput() {
+void Menu::UpdateInput(float dt) {
   if (IsFocused) {
     if (PADinputButtonWentDown & PAD1DOWN) {
       AdvanceFocus(FDIR_DOWN);

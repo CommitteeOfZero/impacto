@@ -10,7 +10,7 @@ namespace LibraryMenu {
 
 struct AlbumDataEntry {
   std::vector<Sprite> ThumbnailSprites;
-  glm::vec2 Position;
+  glm::vec2 Position{};
   uint8_t IndexInPage;
   uint8_t PageNumber;
 };
@@ -53,7 +53,6 @@ inline glm::vec2 AlbumCameraPageIconPosition;
 
 inline int MusicItemsBackgroundRepeatHeight;
 inline Sprite MusicItemsBackgroundSprite;
-inline glm::vec2 MusicItemsBackgroundPosition;
 inline Sprite MusicItemsOverlaySprite;
 inline glm::vec2 MusicItemsOverlayPosition;
 inline std::vector<uint8_t> MusicPlayIds;
