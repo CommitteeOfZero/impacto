@@ -728,6 +728,10 @@ VmInstruction(InstMSinit) {
     }
   }
 
+  if (initType == 1) {
+    Profile::DelusionTrigger::CreateInstance();
+  }
+
   if (initType == 5) {
     UI::BacklogMenuPtr->Clear();
   }
