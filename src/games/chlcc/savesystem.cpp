@@ -8,6 +8,7 @@
 #include "../../profile/scriptvars.h"
 #include "../../renderer/renderer.h"
 #include "../../profile/configsystem.h"
+#include "../../profile/hud/delusiontrigger.h"
 
 #include <cstdint>
 #include <ctime>
@@ -719,6 +720,9 @@ void SaveSystem::LoadEntry(SaveType type, int id) {
                16 * sizeof(int));
         thd->DialoguePageId = entry->MainThreadDialoguePageId;
       }
+
+      // Reset delusion trigger state
+      Impacto::Profile::DelusionTrigger::CreateInstance();
     }
 }
 
