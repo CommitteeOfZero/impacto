@@ -1279,7 +1279,8 @@ else()
             "$ORIGIN/lib"
             )  
     endif()
-    LIST(APPEND post_exclude_regexes "^/lib" "^/usr" "^/bin")
+
+    LIST(APPEND post_exclude_regexes "^/lib" "^/usr" "^/bin" "libvulkan\\.so(\\..*)?")
     install(TARGETS impacto atrac9
         RUNTIME_DEPENDENCIES
         POST_EXCLUDE_REGEXES ${post_exclude_regexes}
