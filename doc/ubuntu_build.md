@@ -16,8 +16,8 @@ sudo apt -y install git cmake ninja-build build-essential libstdc++6 nasm curl z
 # Clone vcpkg
 git clone https://github.com/microsoft/vcpkg.git
 ./vcpkg/bootstrap-vcpkg.sh
-# Set VCPKG_ROOT env var on user startup, needed for cmake to find the vcpkg toolchain
-echo 'export VCPKG_ROOT="$(pwd)/vcpkg"' >> ~/.profile
+# Set VCPKG_ROOT env var on user startup, needed for cmake to find the vcpkg toolchain, change .bashrc to match whatever shell is your default
+echo "export VCPKG_ROOT=\"$(pwd)/vcpkg\"" >> ~/.bashrc
 source ~/.profile
 
 # Clone impacto 
