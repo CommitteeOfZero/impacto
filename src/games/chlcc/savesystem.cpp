@@ -432,7 +432,57 @@ SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
                       static_cast<SaveFileEntry&>(*entryArray[i]));
     }
   }
+
   delete stream;
+
+  // Load thumbnails
+
+  err = Io::PhysicalFileStream::Create(*ThumbnailFilePath, &stream);
+  switch (err) {
+    case IoError_NotFound:
+      return SaveError::NotFound;
+    case IoError_Fail:
+    case IoError_Eof:
+      return SaveError::Corrupted;
+    case IoError_OK:
+      break;
+  };
+
+  constexpr size_t thumbnailPaddingSize =
+      SaveThumbnailWidth * SaveThumbnailHeight;
+
+  for (auto& entryArray : {QuickSaveEntries, FullSaveEntries}) {
+    for (int i = 0; i < MaxSaveEntries; i++) {
+      SaveFileEntry* const entry = static_cast<SaveFileEntry*>(entryArray[i]);
+
+      if (entry->Status == 0) {
+        stream->Seek(SaveThumbnailSize + thumbnailPaddingSize, SEEK_CUR);
+        continue;
+      }
+
+      QueuedTexture texture{
+          .Id = std::ref(entry->SaveThumbnail.Sheet.Texture),
+      };
+      texture.Tex.Init(TexFmt_RGB, SaveThumbnailWidth, SaveThumbnailHeight);
+
+      Sprite& thumbnail = entry->SaveThumbnail;
+      thumbnail.Sheet = SpriteSheet(SaveThumbnailWidth, SaveThumbnailHeight);
+      thumbnail.Bounds =
+          RectF(0.0f, 0.0f, SaveThumbnailWidth, SaveThumbnailHeight);
+
+      Io::ReadArrayLE<uint8_t>(entry->ThumbnailData.data(), stream,
+                               entry->ThumbnailData.size());
+      stream->Seek(thumbnailPaddingSize, SEEK_CUR);
+
+      std::copy(entry->ThumbnailData.begin(), entry->ThumbnailData.end(),
+                texture.Tex.Buffer);
+
+      textures.push_back(texture);
+    }
+  }
+
+  delete stream;
+
   return SaveError::OK;
 }
 
@@ -457,8 +507,6 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
     *entry = *WorkingSaveEntry;
     if (type == SaveType::Quick) entry->SaveType = autoSaveType;
 
-    time_t rawtime;
-    time(&rawtime);
     entry->SaveDate = CurrentDateTime();
 
     std::vector<uint8_t> captureBuffer =
@@ -471,10 +519,8 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
     entry->SaveThumbnail.Bounds =
         RectF(0.0f, 0.0f, SaveThumbnailWidth, SaveThumbnailHeight);
 
-    if (ResizeImage(
-            WorkingSaveThumbnail.Bounds, entry->SaveThumbnail.Bounds,
-            captureBuffer,
-            std::span(tex.Buffer, static_cast<size_t>(tex.BufferSize))) < 0) {
+    if (ResizeImage(WorkingSaveThumbnail.Bounds, entry->SaveThumbnail.Bounds,
+                    captureBuffer, std::span(tex.Buffer, tex.BufferSize)) < 0) {
       ImpLog(LogLevel::Error, LogChannel::General,
              "Failed to resize save thumbnail\n");
     }
@@ -519,6 +565,39 @@ SaveError SaveSystem::WriteSaveFile() {
   }
 
   delete stream;
+
+  // Write thumbnails
+
+  err = Io::PhysicalFileStream::Create(
+      *ThumbnailFilePath, &stream, CF::CREATE | CF::CREATE_DIRS | CF::WRITE);
+  if (err != IoError_OK) {
+    ImpLog(LogLevel::Error, LogChannel::IO,
+           "Failed to open thumbnail file for writing\n");
+    return SaveError::Failed;
+  }
+
+  emptyData.resize(SaveThumbnailWidth * SaveThumbnailHeight * 4, 0x00);
+  constexpr size_t thumbnailPaddingSize =
+      SaveThumbnailWidth * SaveThumbnailHeight;
+  assert(thumbnailPaddingSize <= emptyData.size());
+
+  for (auto& entryArray : {QuickSaveEntries, FullSaveEntries}) {
+    for (size_t i = 0; i < MaxSaveEntries; i++) {
+      SaveFileEntry* entry = static_cast<SaveFileEntry*>(entryArray[i]);
+
+      if (entry == nullptr || entry->Status == 0) {
+        Io::WriteArrayLE<uint8_t>(emptyData.data(), stream, emptyData.size());
+      } else {
+        Io::WriteArrayLE<uint8_t>(entry->ThumbnailData.data(), stream,
+                                  entry->ThumbnailData.size());
+        Io::WriteArrayLE<uint8_t>(emptyData.data(), stream,
+                                  thumbnailPaddingSize);
+      }
+    }
+  }
+
+  delete stream;
+
   return SaveError::OK;
 }
 
@@ -878,15 +957,11 @@ void SaveSystem::SaveThumbnailData() {
       std::array<uint8_t, SaveThumbnailSize>& thumbnailData =
           entry->ThumbnailData;
 
-      for (size_t j = 0; j < thumbnailBuffer.size(); j += 4) {
-        const uint8_t r = thumbnailBuffer[j];
-        const uint8_t g = thumbnailBuffer[j + 1];
-        const uint8_t b = thumbnailBuffer[j + 2];
-        uint16_t pixel =
-            ((r & 0b11111000) << 8) | ((g & 0b11111100) << 3) | (b >> 3);
-        pixel = SDL_SwapBE16(pixel);
-        thumbnailData[j / 2] = pixel >> 8;
-        thumbnailData[j / 2 + 1] = pixel & 0xFF;
+      for (size_t pixelId = 0; pixelId < thumbnailBuffer.size() / 4;
+           pixelId++) {
+        thumbnailData[pixelId * 3 + 0] = thumbnailBuffer[pixelId * 4 + 0];  // r
+        thumbnailData[pixelId * 3 + 1] = thumbnailBuffer[pixelId * 4 + 1];  // g
+        thumbnailData[pixelId * 3 + 2] = thumbnailBuffer[pixelId * 4 + 2];  // b
       }
     }
   }

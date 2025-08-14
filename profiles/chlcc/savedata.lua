@@ -1,6 +1,7 @@
 root.SaveData = {
     Type = SaveDataType.CHLCC,
     SaveFilePath = "games/chlcc/savedata/SYSTEM.DAT",
+    ThumbnailFilePath = "games/chlcc/savedata/THUMNAIL.DAT",
 
     -- IDs in the save data EVflag array for all event CGs (+variants)
     AlbumEvData = {
