@@ -124,6 +124,8 @@ void SaveEntryButton::AddSaveDateText(std::string_view str, float fontSize,
 
 void SaveEntryButton::AddThumbnail(Sprite thumbnail, glm::vec2 pos) {
   ThumbnailLabel = Label(thumbnail, pos);
+  ThumbnailLabel.Bounds.Width = EmptyThumbnailSprite.ScaledWidth();
+  ThumbnailLabel.Bounds.Height = EmptyThumbnailSprite.ScaledHeight();
 }
 
 void SaveEntryButton::Move(glm::vec2 relativePosition) {
@@ -190,8 +192,6 @@ void SaveEntryButton::RefreshInfo(const SaveSystem::SaveType entryType) {
   AddEntryNumberText(fmt::format("{:02}", Id + 1), 18,
                      RendererOutlineMode::BottomRight,
                      EntryNumberTextRelativePos);
-  AddThumbnail(EmptyThumbnailSprite,
-               EntryPositions[Id % 6] + ThumbnailRelativePos);
 
   FocusedSpriteLabel.MoveTo(EntryPositions[Id % 6]);
 
@@ -222,10 +222,15 @@ void SaveEntryButton::RefreshInfo(const SaveSystem::SaveType entryType) {
     dateStr << std::put_time(&date, "  %y/%m/%d %H:%M:%S");
     AddSaveDateText(dateStr.str(), 18, RendererOutlineMode::BottomRight,
                     SaveDateTextRelativePos);
+
+    AddThumbnail(SaveSystem::GetSaveThumbnail(entryType, Id),
+                 EntryPositions[Id % 6] + ThumbnailRelativePos);
   } else {
     AddSceneTitleText(Vm::ScriptGetTextTableStrAddress(0, 1), 24,
                       RendererOutlineMode::BottomRight,
                       SceneTitleTextRelativePos, NoDataTextRelativePos);
+    AddThumbnail(EmptyThumbnailSprite,
+                 EntryPositions[Id % 6] + ThumbnailRelativePos);
   }
 }
 

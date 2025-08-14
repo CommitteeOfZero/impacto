@@ -11,12 +11,19 @@ using namespace Impacto::SaveSystem;
 constexpr size_t SaveEntrySize = 0x2000;
 constexpr size_t SaveFileSize = SaveEntrySize * MaxSaveEntries * 2 + 0x3b06;
 
+// CHLCC PS3 Save thumbnails are 160x90 RGB16
+constexpr size_t SaveThumbnailWidth = 160;
+constexpr size_t SaveThumbnailHeight = 90;
+constexpr size_t SaveThumbnailSize =
+    SaveThumbnailWidth * SaveThumbnailHeight * 2;
+
 class SaveFileEntry : public SaveFileEntryBase {
  public:
   std::array<uint8_t, 50> FlagWorkScript1{};   // 50 bytes from &FlagWork[50]
   std::array<uint8_t, 100> FlagWorkScript2{};  // 100 bytes from &FlagWork[300]
   std::array<int, 300> ScrWorkScript1{};       // 1200 bytes from &ScrWork[300]
   std::array<int, 1300> ScrWorkScript2{};      // 5200 bytes from &ScrWork[2300]
+  std::array<uint8_t, SaveThumbnailSize> ThumbnailData;
 };
 
 class SaveSystem : public SaveSystemBase {
@@ -28,7 +35,7 @@ class SaveSystem : public SaveSystemBase {
   void SaveSystemData() override;
   void InitializeSystemData() override;
 
-  void SaveThumbnailData() override {};  // Todo
+  void SaveThumbnailData() override;
   Sprite& GetSaveThumbnail(SaveType type, int id) override;
 
   void LoadEntryBuffer(Io::MemoryStream& memoryStream, SaveFileEntry& entry);
