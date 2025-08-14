@@ -452,16 +452,33 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
       break;
   }
 
-  if (WorkingSaveEntry != nullptr) {
-    if (entry != nullptr && !(GetSaveFlags(type, id) & WriteProtect)) {
-      *entry = *WorkingSaveEntry;
-      if (type == SaveType::Quick) {
-        entry->SaveType = autoSaveType;
-      }
-      time_t rawtime;
-      time(&rawtime);
-      entry->SaveDate = CurrentDateTime();
+  if (WorkingSaveEntry != nullptr && entry != nullptr &&
+      !(GetSaveFlags(type, id) & WriteProtect)) {
+    *entry = *WorkingSaveEntry;
+    if (type == SaveType::Quick) entry->SaveType = autoSaveType;
+
+    time_t rawtime;
+    time(&rawtime);
+    entry->SaveDate = CurrentDateTime();
+
+    std::vector<uint8_t> captureBuffer =
+        Renderer->GetSpriteSheetImage(WorkingSaveThumbnail.Sheet);
+    Texture tex;
+    tex.Init(TexFmt_RGBA, SaveThumbnailWidth, SaveThumbnailHeight);
+
+    entry->SaveThumbnail.Sheet =
+        SpriteSheet(SaveThumbnailWidth, SaveThumbnailHeight);
+    entry->SaveThumbnail.Bounds =
+        RectF(0.0f, 0.0f, SaveThumbnailWidth, SaveThumbnailHeight);
+
+    if (ResizeImage(
+            WorkingSaveThumbnail.Bounds, entry->SaveThumbnail.Bounds,
+            captureBuffer,
+            std::span(tex.Buffer, static_cast<size_t>(tex.BufferSize))) < 0) {
+      ImpLog(LogLevel::Error, LogChannel::General,
+             "Failed to resize save thumbnail\n");
     }
+    entry->SaveThumbnail.Sheet.Texture = tex.Submit();
   }
 }
 
@@ -844,6 +861,36 @@ bool SaveSystem::GetEVVariationIsUnlocked(size_t evId, size_t variationIdx) {
 
 bool SaveSystem::GetBgmFlag(int id) { return BGMFlags[id]; }
 void SaveSystem::SetBgmFlag(int id, bool flag) { BGMFlags[id] = flag; }
+
+void SaveSystem::SaveThumbnailData() {
+  // Renderer expects RGB32
+  std::vector<uint8_t> thumbnailBuffer(SaveThumbnailWidth *
+                                       SaveThumbnailHeight * 4);
+
+  for (auto* entryArray : {FullSaveEntries, QuickSaveEntries}) {
+    for (int i = 0; i < MaxSaveEntries; i++) {
+      SaveFileEntry* const entry = static_cast<SaveFileEntry*>(entryArray[i]);
+      if (entry->Status == 0) continue;
+
+      Renderer->GetSpriteSheetImage(entry->SaveThumbnail.Sheet,
+                                    thumbnailBuffer);
+
+      std::array<uint8_t, SaveThumbnailSize>& thumbnailData =
+          entry->ThumbnailData;
+
+      for (size_t j = 0; j < thumbnailBuffer.size(); j += 4) {
+        const uint8_t r = thumbnailBuffer[j];
+        const uint8_t g = thumbnailBuffer[j + 1];
+        const uint8_t b = thumbnailBuffer[j + 2];
+        uint16_t pixel =
+            ((r & 0b11111000) << 8) | ((g & 0b11111100) << 3) | (b >> 3);
+        pixel = SDL_SwapBE16(pixel);
+        thumbnailData[j / 2] = pixel >> 8;
+        thumbnailData[j / 2 + 1] = pixel & 0xFF;
+      }
+    }
+  }
+}
 
 Sprite& SaveSystem::GetSaveThumbnail(SaveType type, int id) {
   switch (type) {
