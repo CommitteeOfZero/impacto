@@ -186,19 +186,20 @@ void MusicMenu::Render() {
 
 void MusicMenu::Update(float dt) {
   UpdateInput(dt);
-  if (ScrWork[SW_SYSMENUCT] < 32 && State == Shown) {
+  if (ScrWork[SW_SYSMENUCT] < 10000 && State == Shown) {
     Hide();
   } else if (GetFlag(SF_SOUNDMENU) && ScrWork[SW_SYSMENUCT] > 0 &&
              State == Hidden) {
     Show();
   }
 
-  if (MenuTransition.IsOut() && State == Hiding) {
+  if (MenuTransition.IsOut() && ScrWork[SW_SYSMENUCT] == 0 && State == Hiding) {
     MainItems->Hide();
     CurrentlyPlayingTrackName.Hide();
     CurrentlyPlayingTrackArtist.Hide();
     State = Hidden;
-  } else if (MenuTransition.IsIn() && State == Showing) {
+  } else if (MenuTransition.IsIn() && ScrWork[SW_SYSMENUCT] == 10000 &&
+             State == Showing) {
     State = Shown;
     MainItems->RenderingBounds =
         RectF(0.0f, TrackButtonPosTemplate.y, 1280.0f, 16 * TrackOffset.y + 1);

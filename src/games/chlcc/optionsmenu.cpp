@@ -84,16 +84,17 @@ void OptionsMenu::Render() {
 }
 
 void OptionsMenu::UpdateVisibility() {
-  if (ScrWork[SW_SYSMENUCT] < 32 && State == Shown) {
+  if (ScrWork[SW_SYSMENUCT] < 10000 && State == Shown) {
     Hide();
   } else if (GetFlag(SF_OPTIONMENU) && ScrWork[SW_SYSMENUCT] > 0 &&
              State == Hidden) {
     Show();
   }
 
-  if (FadeAnimation.IsOut() && State == Hiding)
+  if (FadeAnimation.IsOut() && ScrWork[SW_SYSMENUCT] == 0 && State == Hiding)
     State = Hidden;
-  else if (FadeAnimation.IsIn() && State == Showing) {
+  else if (FadeAnimation.IsIn() && ScrWork[SW_SYSMENUCT] == 10000 &&
+           State == Showing) {
     State = Shown;
   }
 }

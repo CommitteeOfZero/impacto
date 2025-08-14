@@ -166,19 +166,20 @@ void TrophyMenu::UpdateInput(float dt) {
 void TrophyMenu::Update(float dt) {
   UpdateInput(dt);
 
-  if (ScrWork[SW_SYSMENUCT] < 32 && State == Shown) {
+  if (ScrWork[SW_SYSMENUCT] < 10000 && State == Shown) {
     Hide();
   } else if (GetFlag(SF_ACHIEVEMENTMENU) && ScrWork[SW_SYSMENUCT] > 0 &&
              State == Hidden) {
     Show();
   }
 
-  if (MenuTransition.IsOut() && State == Hiding) {
+  if (MenuTransition.IsOut() && ScrWork[SW_SYSMENUCT] == 0 && State == Hiding) {
     State = Hidden;
     for (int i = 0; i < 9; i++) {
       MainItems[i].Clear();
     }
-  } else if (MenuTransition.IsIn() && State == Showing) {
+  } else if (MenuTransition.IsIn() && ScrWork[SW_SYSMENUCT] == 10000 &&
+             State == Showing) {
     State = Shown;
   }
 

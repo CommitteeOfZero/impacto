@@ -246,17 +246,18 @@ void SaveMenu::Hide() {
 
 void SaveMenu::Update(float dt) {
   UpdateInput(dt);
-  if (ScrWork[SW_SYSMENUCT] < 32 && State == Shown) {
+  if (ScrWork[SW_SYSMENUCT] < 10000 && State == Shown) {
     Hide();
   } else if (GetFlag(SF_SAVEMENU) && ScrWork[SW_SYSMENUCT] > 0 &&
              State == Hidden) {
     Show();
   }
 
-  if (ScrWork[SW_SYSMENUCT] == 0 && State == Hiding) {
+  if (MenuTransition.IsOut() && ScrWork[SW_SYSMENUCT] == 0 && State == Hiding) {
     State = Hidden;
     SavePages->at(*CurrentPage)->Hide();
-  } else if (ScrWork[SW_SYSMENUCT] == 10000 && State == Showing) {
+  } else if (MenuTransition.IsIn() && ScrWork[SW_SYSMENUCT] == 10000 &&
+             State == Showing) {
     State = Shown;
     SaveEntryButton::FocusedAlphaFadeStart();
   }
