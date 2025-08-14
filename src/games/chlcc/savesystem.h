@@ -16,6 +16,10 @@ constexpr size_t SaveThumbnailWidth = 160;
 constexpr size_t SaveThumbnailHeight = 90;
 constexpr size_t SaveThumbnailSize =
     SaveThumbnailWidth * SaveThumbnailHeight * 3;
+// Each entry has padding of Width * Height for some reason
+constexpr size_t ThumbnailFileSize =
+    (SaveThumbnailSize + SaveThumbnailWidth * SaveThumbnailHeight) *
+    MaxSaveEntries * 2;
 
 class SaveFileEntry : public SaveFileEntryBase {
  public:
