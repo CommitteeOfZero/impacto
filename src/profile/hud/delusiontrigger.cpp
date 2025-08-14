@@ -33,19 +33,17 @@ void Configure() {
   Pop();
 }
 void CreateInstance() {
-  if (!Impacto::DelusionTrigger::Implementation) {
-    switch (Type) {
-      case DelusionTriggerType::CHLCC:
-        Impacto::DelusionTrigger::Implementation =
-            new Impacto::CHLCC::DelusionTrigger;
-        break;
-      case DelusionTriggerType::CCLCC:
-        Impacto::DelusionTrigger::Implementation =
-            new Impacto::CCLCC::DelusionTrigger;
-        break;
-      default:
-        return;
-    }
+  switch (Type) {
+    case DelusionTriggerType::CHLCC:
+      Impacto::DelusionTrigger::Implementation =
+          std::make_unique<Impacto::CHLCC::DelusionTrigger>();
+      break;
+    case DelusionTriggerType::CCLCC:
+      Impacto::DelusionTrigger::Implementation =
+          std::make_unique<Impacto::CCLCC::DelusionTrigger>();
+      break;
+    default:
+      return;
   }
 }
 

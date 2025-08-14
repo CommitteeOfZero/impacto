@@ -205,7 +205,7 @@ inline void ClearListMenu::DrawRedBar() {
 }
 
 inline void ClearListMenu::DrawPlayTime(float yOffset) {
-  int totalSeconds = ScrWork[SW_PLAYTIME];
+  int totalSeconds = ScrWork[SW_TOTALPLAYTIME];
   int hours = totalSeconds / 3600;
   int minutes = (totalSeconds % 3600) / 60;
   int seconds = (totalSeconds % 3600) % 60;

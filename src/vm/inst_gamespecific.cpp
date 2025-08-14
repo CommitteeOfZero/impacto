@@ -977,6 +977,11 @@ VmInstruction(InstDelusionTriggerCHLCC) {
   StartInstruction;
   PopUint8(type);
   switch (type) {
+    case 0: {
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction DelusionTriggerCHLCC(type: {:d})\n", type);
+      DelusionTrigger::Hide();
+    } break;
     case 1: {
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction DelusionTriggerCHLCC(type: {:d})\n", type);
@@ -985,7 +990,13 @@ VmInstruction(InstDelusionTriggerCHLCC) {
     case 2: {
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction DelusionTriggerCHLCC(type: {:d})\n", type);
+      DelusionTrigger::Show();
       BlockThread;
+    } break;
+    case 3: {
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction DelusionTriggerCHLCC(type: {:d})\n", type);
+      DelusionTrigger::Show();
     } break;
     case 4: {
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
@@ -994,15 +1005,16 @@ VmInstruction(InstDelusionTriggerCHLCC) {
     case 5: {
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction DelusionTriggerCHLCC(type: {:d})\n", type);
+      DelusionTrigger::Show();
     } break;
     case 6: {
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction DelusionTriggerCHLCC(type: {:d})\n", type);
-      DelusionTrigger::Hide();
     } break;
     case 7: {
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction DelusionTriggerCHLCC(type: {:d})\n", type);
+      DelusionTrigger::Hide();
       BlockThread;
     } break;
   }

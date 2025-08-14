@@ -17,15 +17,16 @@ class SaveMenu : public UI::SaveMenu {
  public:
   SaveMenu();
 
-  void Show();
-  void Hide();
-  void Update(float dt);
-  void Render();
+  void Show() override;
+  void Hide() override;
+  void Update(float dt) override;
+  void Render() override;
+
+  void RefreshCurrentEntryInfo() override;
 
   void MenuButtonOnClick(Widgets::Button* target);
 
  private:
-  void UpdateEntry(SaveEntryButton* saveEntryButton);
   void DrawCircles();
   void DrawErin();
   void DrawRedBar();

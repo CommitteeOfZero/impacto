@@ -17,12 +17,12 @@ class SaveFileEntry : public SaveFileEntryBase {
 
 class SaveSystem : public SaveSystemBase {
  public:
-  SaveError CreateSaveFile() override { return SaveError::OK; }  // Todo
-  SaveError CheckSaveFile() override { return SaveError::OK; }   // Todo
+  SaveError CheckSaveFile() override { return SaveError::OK; }  // Todo
   SaveError MountSaveFile(std::vector<QueuedTexture>& textures) override;
 
   SaveError LoadSystemData() override;
   void SaveSystemData() override;
+  void InitializeSystemData() override {}  // Todo
 
   void SaveThumbnailData() override {};  // Todo
   void SaveMemory() override;

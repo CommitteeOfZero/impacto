@@ -18,6 +18,8 @@ class SaveMenu : public UI::SaveMenu {
   void Update(float dt);
   void Render();
 
+  void RefreshCurrentEntryInfo() {}  // Todo
+
   void MenuButtonOnClick(Widgets::Button* target);
 
  private:

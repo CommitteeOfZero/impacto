@@ -22,9 +22,9 @@ inline bool SkipRead = true;
 inline bool SyncVoice = true;
 inline bool SkipVoice = false;
 
-inline bool VoiceMuted[VoiceCount];
-inline float VoiceVolume[VoiceCount];
-inline float GroupVolumes[Audio::ACG_Count];
+inline std::array<bool, VoiceCount> VoiceMuted;
+inline std::array<float, VoiceCount> VoiceVolume;
+inline std::array<float, Audio::ACG_Count> GroupVolumes;
 }  // namespace Default
 
 // Add new tips to the tips notification rendering queue
@@ -61,8 +61,8 @@ inline bool SyncVoice = Default::SyncVoice;
 inline bool SkipVoice = Default::SkipVoice;
 
 // Individual character mute/volume settings
-inline bool VoiceMuted[VoiceCount];
-inline float VoiceVolume[VoiceCount];
+inline std::array<bool, VoiceCount> VoiceMuted;
+inline std::array<float, VoiceCount> VoiceVolume;
 
 void Configure();
 void ResetToDefault();

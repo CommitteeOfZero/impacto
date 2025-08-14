@@ -215,89 +215,63 @@ VmInstruction(InstCopyThreadWork) {
 VmInstruction(InstSave) {
   StartInstruction;
   PopUint8(type);
-  switch (type) {  // TODO: Types 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
-                   // 16, 20, 21, 72, 30, 31, 32, 33, 34, 35, 41, 50, 51, 66,
-                   // 67, 70, 71, 74, 76
-    case 0:
+  switch (type) {  // TODO: Types 1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 19, 40,
+                   // 41, 45, 46, 47, 50, 51, 52, 53, 88, 89, 150, 151
+    case 0: {
       SaveSystem::SaveSystemData();
       break;
+    }
     case 1:
       break;
     case 2:
-      if (Profile::Vm::GameInstructionSet == +InstructionSet::CHLCC ||
-          Profile::Vm::GameInstructionSet == +InstructionSet::MO6TW) {
-        ScrWork[SW_SAVEERRORCODE] = (int)SaveSystem::LoadSystemData();
-      }
       break;
     case 3:
       break;
-    case 4:
-      if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
-        ScrWork[SW_SAVEERRORCODE] = (int)SaveSystem::LoadSystemData();
-      }
+    case 4: {
+      ScrWork[SW_SAVEERRORCODE] = (int)SaveSystem::LoadSystemData();
       break;
-    case 16:
+    }
+    case 5:
+      break;
+    case 6:
+      break;
+    case 7:
+      break;
+    case 8:
+      break;
+    case 9:
+      break;
+    case 10:
+      break;
+    case 11:
+      break;
+    case 12:
+      break;
+    case 16: {
       SaveSystem::FlushWorkingSaveEntry(SaveSystem::SaveType::Full,
                                         ScrWork[SW_SAVEFILENO]);
       SaveSystem::SaveThumbnailData();
-      break;
-    case 30:
-      if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
-        SetFlag(SF_SAVEICON, true);
-        ScrWork[SW_SAVEERRORCODE] = (int)SaveSystem::CreateSaveFile();
-        SaveSystem::MountSaveFile();
-      }
-      break;
-    case 31:
-      if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
-        if (SaveSystem::GetLoadStatus() == LoadStatus::Loading) {
-          ResetInstruction;
-          BlockThread;
-        } else {
-          SetFlag(SF_SAVEICON, false);
-        }
-      }
-      break;
-    case 32:
-      if (Profile::Vm::GameInstructionSet == +InstructionSet::MO6TW ||
-          Profile::Vm::GameInstructionSet == +InstructionSet::CHLCC) {
-        SetFlag(SF_SAVEICON, true);
-        SaveSystem::MountSaveFile();
-      }
-      break;
-    case 33:
-      if (Profile::Vm::GameInstructionSet == +InstructionSet::MO6TW ||
-          Profile::Vm::GameInstructionSet == +InstructionSet::CHLCC) {
-        if (SaveSystem::GetLoadStatus() == LoadStatus::Loading) {
-          ResetInstruction;
-          BlockThread;
-          break;
-        } else if (ScrWork[SW_SAVEERRORCODE] == (int)SaveError::OK) {
-          TipsSystem::UpdateTipRecords();
-        }
 
+      if (UI::SaveMenuPtr) UI::SaveMenuPtr->RefreshCurrentEntryInfo();
+      break;
+    }
+    case 19:
+      break;
+    case 30: {
+      SetFlag(SF_SAVEICON, true);
+      SaveSystem::WriteSaveFile();
+      break;
+    }
+    case 31: {
+      if (SaveSystem::GetLoadStatus() == LoadStatus::Loading) {
+        ResetInstruction;
+        BlockThread;
+      } else {
         SetFlag(SF_SAVEICON, false);
       }
       break;
-    case 34:
-      if (Profile::Vm::GameInstructionSet == +InstructionSet::MO6TW ||
-          Profile::Vm::GameInstructionSet == +InstructionSet::CHLCC) {
-        SetFlag(SF_SAVEICON, true);
-        SaveSystem::CheckSaveFile();
-      }
-      break;
-    case 35:
-      if (Profile::Vm::GameInstructionSet == +InstructionSet::MO6TW ||
-          Profile::Vm::GameInstructionSet == +InstructionSet::CHLCC) {
-        if (SaveSystem::GetLoadStatus() == LoadStatus::Loading) {
-          ResetInstruction;
-          BlockThread;
-        } else {
-          SetFlag(SF_SAVEICON, false);
-        }
-      }
-      break;
-    case 40:  // SystemDataCheck
+    }
+    case 40: {  // SystemDataCheck
       if (Profile::Vm::GameInstructionSet == +InstructionSet::RNE) {
         PopExpression(unused1);
         PopExpression(unused2);
@@ -307,27 +281,29 @@ VmInstruction(InstSave) {
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction Save(type: {:d})\n", type);
       break;
+    }
+    case 41:
+      break;
+    case 45:
+      break;
+    case 46:
+      break;
+    case 47:
+      break;
     case 50:
-      if (Profile::Vm::GameInstructionSet == +InstructionSet::CHLCC) {
-        SetFlag(SF_SAVEICON, true);
-        AchievementSystem::MountAchievementFile();
-      }
       break;
     case 51:
-      if (Profile::Vm::GameInstructionSet == +InstructionSet::CHLCC) {
-        if (AchievementSystem::GetLoadStatus() == LoadStatus::Loading) {
-          ResetInstruction;
-          BlockThread;
-        } else {
-          SetFlag(SF_SAVEICON, false);
-        }
-      }
       break;
-    case 60:
+    case 52:
+      break;
+    case 53:
+      break;
+    case 60: {
       SetFlag(SF_SAVEICON, true);
       SaveSystem::WriteSaveFile();
       break;
-    case 61:
+    }
+    case 61: {
       if (SaveSystem::GetLoadStatus() == LoadStatus::Loading) {
         ResetInstruction;
         BlockThread;
@@ -335,47 +311,171 @@ VmInstruction(InstSave) {
         SetFlag(SF_SAVEICON, false);
       }
       break;
-    case 70:
-      if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
-        SetFlag(SF_SAVEICON, true);
-        SaveSystem::MountSaveFile();
-      }
+    }
+    case 70: {
+      SetFlag(SF_SAVEICON, true);
+      SaveSystem::MountSaveFile();
       break;
-    case 71:
-      if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
-        if (SaveSystem::GetLoadStatus() == LoadStatus::Loading) {
-          ResetInstruction;
-          BlockThread;
-          break;
-        }
+    }
+    case 71: {
+      if (SaveSystem::GetLoadStatus() == LoadStatus::Loading) {
+        ResetInstruction;
+        BlockThread;
+        break;
+      }
 
-        if (ScrWork[SW_SAVEERRORCODE] == (int)SaveError::OK) {
-          TipsSystem::UpdateTipRecords();
-        }
+      if (ScrWork[SW_SAVEERRORCODE] == (int)SaveError::OK) {
+        TipsSystem::UpdateTipRecords();
+      }
 
+      SetFlag(SF_SAVEICON, false);
+      break;
+    }
+    case 80: {
+      SetFlag(SF_SAVEICON, true);
+      SaveSystem::CheckSaveFile();
+      break;
+    }
+    case 81: {  // SystemDataCheck
+      if (SaveSystem::GetLoadStatus() == LoadStatus::Loading) {
+        ResetInstruction;
+        BlockThread;
+      } else {
         SetFlag(SF_SAVEICON, false);
       }
       break;
-    case 80:
-      if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
-        SetFlag(SF_SAVEICON, true);
-        SaveSystem::CheckSaveFile();
-      }
+    }
+    case 86:
       break;
-    case 81:  // SystemDataCheck
-      if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
-        if (SaveSystem::GetLoadStatus() == LoadStatus::Loading) {
-          ResetInstruction;
-          BlockThread;
-        } else {
-          SetFlag(SF_SAVEICON, false);
-        }
-      }
+    case 87:
       break;
-    default:
+    case 88:
+      break;
+    case 89:
+      break;
+    case 150:
+      break;
+    case 151:
+      break;
+    default: {
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction Save(type: {:d})\n", type);
       break;
+    }
+  }
+}
+VmInstruction(InstSaveOld) {
+  StartInstruction;
+  PopUint8(type);
+  switch (type) {  // TODO: Types 1, 3, 4, 5, 10, 11, 12, 20, 21, 36, 37, 52, 53
+    case 0: {
+      SaveSystem::SaveSystemData();
+      break;
+    }
+    case 1:
+      break;
+    case 2: {
+      ScrWork[SW_SAVEERRORCODE] = (int)SaveSystem::LoadSystemData();
+      break;
+    }
+    case 3:
+      break;
+    case 4:
+      break;
+    case 5:
+      break;
+    case 10:
+      break;
+    case 11:
+      break;
+    case 12:
+      break;
+    case 13: {
+      SaveSystem::SaveSystemData();
+      break;
+    }
+    case 16: {
+      SaveSystem::FlushWorkingSaveEntry(SaveSystem::SaveType::Full,
+                                        ScrWork[SW_SAVEFILENO]);
+      SaveSystem::SaveThumbnailData();
+      break;
+    }
+    case 20:
+      break;
+    case 21:
+      break;
+    case 30: {
+      SetFlag(SF_SAVEICON, true);
+      SaveSystem::WriteSaveFile();
+      break;
+    }
+    case 31: {
+      if (SaveSystem::GetLoadStatus() == LoadStatus::Loading) {
+        ResetInstruction;
+        BlockThread;
+      } else {
+        SetFlag(SF_SAVEICON, false);
+      }
+      break;
+    }
+    case 32: {
+      SetFlag(SF_SAVEICON, true);
+      SaveSystem::MountSaveFile();
+      break;
+    }
+    case 33: {
+      if (SaveSystem::GetLoadStatus() == LoadStatus::Loading) {
+        ResetInstruction;
+        BlockThread;
+        break;
+      } else if (ScrWork[SW_SAVEERRORCODE] == (int)SaveError::OK) {
+        TipsSystem::UpdateTipRecords();
+      }
+
+      SetFlag(SF_SAVEICON, false);
+      break;
+    }
+    case 34: {
+      SetFlag(SF_SAVEICON, true);
+      SaveSystem::CheckSaveFile();
+      break;
+    }
+    case 35: {
+      if (SaveSystem::GetLoadStatus() == LoadStatus::Loading) {
+        ResetInstruction;
+        BlockThread;
+      } else {
+        SetFlag(SF_SAVEICON, false);
+      }
+      break;
+    }
+    case 36:
+      break;
+    case 37:
+      break;
+    case 50: {
+      SetFlag(SF_SAVEICON, true);
+      AchievementSystem::MountAchievementFile();
+      break;
+    }
+    case 51: {
+      if (AchievementSystem::GetLoadStatus() == LoadStatus::Loading) {
+        ResetInstruction;
+        BlockThread;
+      } else {
+        SetFlag(SF_SAVEICON, false);
+      }
+      break;
+    }
+    case 52:
+      break;
+    case 53:
+      break;
+    default: {
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction SaveOld(type: {:d})\n", type);
+      break;
+    }
   }
 }
 VmInstruction(InstSaveIconLoad) {
@@ -847,12 +947,19 @@ VmInstruction(InstAutoSave) {
     case 0:  // QuickSave
       if (ScrWork[SW_TITLE] == 0xffff) break;
       SaveSystem::SaveMemory();
-      [[fallthrough]];
-    case 20:
-      if (ScrWork[SW_TITLE] == 0xffff) break;
       quickSave(1, 1);
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction AutoSave(type: QuickSave)\n");
+      break;
+    case 20:
+      if (Profile::Vm::GameInstructionSet == +InstructionSet::CHLCC) {
+        BlockThread;
+      } else {
+        if (ScrWork[SW_TITLE] == 0xffff) break;
+        quickSave(1, 1);
+        ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                   "STUB instruction AutoSave(type: QuickSave)\n");
+      }
       break;
     case 1:  // AutoSaveRestart (?)
       if (ScrWork[SW_TITLE] == 0xffff) break;

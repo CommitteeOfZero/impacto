@@ -179,10 +179,10 @@ void SaveEntryButton::RefreshSaveDateText() {
                         {SaveEntrySecondaryColor, SaveEntrySecondaryColor});
 }
 
-// TODO: Make this only refresh when saved
-void SaveEntryButton::Update(float dt) {
+void SaveEntryButton::RefreshInfo() {
   SaveStatus = SaveSystem::GetSaveStatus(Type, Id);
   IsLocked = SaveSystem::GetSaveFlags(Type, Id) & WriteProtect;
+
   if (SaveStatus == 1) {
     auto strIndex = SaveSystem::GetSaveTitle(Type, Id);
     if (strIndex > 21) {
