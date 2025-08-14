@@ -106,45 +106,56 @@ void SaveSystem::InitializeSystemData() {
 }
 
 SaveError SaveSystem::CheckSaveFile() {
-  std::error_code ec;
+  const static auto checkFile = [](const std::string& filePath, size_t fileSize,
+                                   std::string_view logName) {
+    std::error_code ec;
 
-  IoError existsState = Io::PathExists(SaveFilePath);
-  if (existsState == IoError_NotFound) {
-    return SaveError::NotFound;
-  } else if (existsState == IoError_Fail) {
-    ImpLog(LogLevel::Error, LogChannel::IO,
-           "Failed to check if save file exists, error: \"{:s}\"\n",
-           ec.message());
-    return SaveError::Failed;
-  }
+    IoError existsState = Io::PathExists(filePath);
+    if (existsState == IoError_NotFound) {
+      return SaveError::NotFound;
+    } else if (existsState == IoError_Fail) {
+      ImpLog(LogLevel::Error, LogChannel::IO,
+             "Failed to check if {:s} exists, error: \"{:s}\"\n", logName,
+             ec.message());
+      return SaveError::Failed;
+    }
 
-  auto saveFileSize = Io::GetFileSize(SaveFilePath);
-  if (saveFileSize == IoError_Fail) {
-    ImpLog(LogLevel::Error, LogChannel::IO,
-           "Failed to get save file size, error: \"{:s}\"\n", ec.message());
-    return SaveError::Failed;
-  } else if (saveFileSize != SaveFileSize) {
-    return SaveError::Corrupted;
-  }
+    auto saveFileSize = Io::GetFileSize(filePath);
+    if (saveFileSize == IoError_Fail) {
+      ImpLog(LogLevel::Error, LogChannel::IO,
+             "Failed to get {:s} size, error: \"{:s}\"\n", logName,
+             ec.message());
+      return SaveError::Failed;
+    } else if (static_cast<size_t>(saveFileSize) != fileSize) {
+      return SaveError::Corrupted;
+    }
 
-  auto checkPermsBit = [](Io::FilePermissionsFlags perms,
-                          Io::FilePermissionsFlags flag) {
-    return to_underlying(perms) & to_underlying(flag);
+    auto checkPermsBit = [](Io::FilePermissionsFlags perms,
+                            Io::FilePermissionsFlags flag) {
+      return to_underlying(perms) & to_underlying(flag);
+    };
+
+    Io::FilePermissionsFlags perms;
+    IoError permsState = Io::GetFilePermissions(filePath, perms);
+    if (permsState == IoError_Fail) {
+      ImpLog(LogLevel::Error, LogChannel::IO,
+             "Failed to get {:s} permissions, error: \"{:s}\"\n", logName,
+             ec.message());
+      return SaveError::Failed;
+    } else if (!checkPermsBit(perms, Io::FilePermissionsFlags::owner_read) ||
+               !checkPermsBit(perms, Io::FilePermissionsFlags::owner_write)) {
+      return SaveError::WrongUser;
+    }
+
+    return SaveError::OK;
   };
 
-  Io::FilePermissionsFlags perms;
-  IoError permsState = Io::GetFilePermissions(SaveFilePath, perms);
-  if (permsState == IoError_Fail) {
-    ImpLog(LogLevel::Error, LogChannel::IO,
-           "Failed to get save file permissions, error: \"{:s}\"\n",
-           ec.message());
-    return SaveError::Failed;
-  } else if (!checkPermsBit(perms, Io::FilePermissionsFlags::owner_read) ||
-             !checkPermsBit(perms, Io::FilePermissionsFlags::owner_write)) {
-    return SaveError::WrongUser;
-  }
+  SaveError error = checkFile(SaveFilePath, SaveFileSize, "save file");
+  if (error != SaveError::OK) return error;
 
-  return SaveError::OK;
+  error = checkFile(*ThumbnailFilePath, ThumbnailFileSize, "thumbnail file");
+
+  return error;
 }
 
 void SaveSystem::SaveSystemData() {
