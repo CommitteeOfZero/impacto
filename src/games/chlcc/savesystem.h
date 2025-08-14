@@ -11,11 +11,11 @@ using namespace Impacto::SaveSystem;
 constexpr size_t SaveEntrySize = 0x2000;
 constexpr size_t SaveFileSize = SaveEntrySize * MaxSaveEntries * 2 + 0x3b06;
 
-// CHLCC PS3 Save thumbnails are 160x90 RGB16
+// CHLCC PS3 Save thumbnails are 160x90 RGB24
 constexpr size_t SaveThumbnailWidth = 160;
 constexpr size_t SaveThumbnailHeight = 90;
 constexpr size_t SaveThumbnailSize =
-    SaveThumbnailWidth * SaveThumbnailHeight * 2;
+    SaveThumbnailWidth * SaveThumbnailHeight * 3;
 
 class SaveFileEntry : public SaveFileEntryBase {
  public:

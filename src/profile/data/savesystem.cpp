@@ -20,6 +20,9 @@ void Configure() {
   switch (Type) {
     case SaveDataType::CHLCC:
       Implementation = new Impacto::CHLCC::SaveSystem();
+
+      ThumbnailFilePath = EnsureGetMember<std::string>("ThumbnailFilePath");
+
       break;
     case SaveDataType::MO6TW:
       Implementation = new Impacto::MO6TW::SaveSystem();

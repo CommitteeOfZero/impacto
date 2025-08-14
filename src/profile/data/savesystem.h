@@ -16,6 +16,7 @@ inline Impacto::SaveSystem::SaveDataType Type =
     Impacto::SaveSystem::SaveDataType::None;
 
 inline std::string SaveFilePath;
+inline std::optional<std::string> ThumbnailFilePath;
 inline std::vector<uint32_t> StoryScriptIDs;
 inline std::optional<int> StoryScriptCount;
 inline std::vector<Impacto::SaveSystem::ScriptMessageDataPair>

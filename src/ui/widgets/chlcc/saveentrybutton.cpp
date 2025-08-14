@@ -124,8 +124,6 @@ void SaveEntryButton::AddSaveDateText(std::string_view str, float fontSize,
 
 void SaveEntryButton::AddThumbnail(Sprite thumbnail, glm::vec2 pos) {
   ThumbnailLabel = Label(thumbnail, pos);
-  ThumbnailLabel.Bounds.Width = EmptyThumbnailSprite.ScaledWidth();
-  ThumbnailLabel.Bounds.Height = EmptyThumbnailSprite.ScaledHeight();
 }
 
 void SaveEntryButton::Move(glm::vec2 relativePosition) {
