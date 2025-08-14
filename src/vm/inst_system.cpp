@@ -916,12 +916,19 @@ VmInstruction(InstAutoSave) {
     case 0:  // QuickSave
       if (ScrWork[SW_TITLE] == 0xffff) break;
       SaveSystem::SaveMemory();
-      [[fallthrough]];
-    case 20:
-      if (ScrWork[SW_TITLE] == 0xffff) break;
       quickSave(1, 1);
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction AutoSave(type: QuickSave)\n");
+      break;
+    case 20:
+      if (Profile::Vm::GameInstructionSet == +InstructionSet::CHLCC) {
+        BlockThread;
+      } else {
+        if (ScrWork[SW_TITLE] == 0xffff) break;
+        quickSave(1, 1);
+        ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                   "STUB instruction AutoSave(type: QuickSave)\n");
+      }
       break;
     case 1:  // AutoSaveRestart (?)
       if (ScrWork[SW_TITLE] == 0xffff) break;
