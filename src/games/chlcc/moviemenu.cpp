@@ -220,7 +220,8 @@ void MovieMenu::UpdateInput(float dt) {
 
 void MovieMenu::Update(float dt) {
   UpdateInput(dt);
-  if (ScrWork[SW_SYSMENUCT] < 10000 && State == Shown) {
+  if ((!GetFlag(SF_MOVIEMENU) || ScrWork[SW_SYSMENUCT] < 10000) &&
+      State == Shown) {
     Hide();
   } else if (GetFlag(SF_MOVIEMENU) && ScrWork[SW_SYSMENUCT] > 0 &&
              State == Hidden) {
