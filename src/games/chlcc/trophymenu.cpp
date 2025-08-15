@@ -166,7 +166,8 @@ void TrophyMenu::UpdateInput(float dt) {
 void TrophyMenu::Update(float dt) {
   UpdateInput(dt);
 
-  if (ScrWork[SW_SYSMENUCT] < 10000 && State == Shown) {
+  if ((!GetFlag(SF_ACHIEVEMENTMENU) || ScrWork[SW_SYSMENUCT] < 10000) &&
+      State == Shown) {
     Hide();
   } else if (GetFlag(SF_ACHIEVEMENTMENU) && ScrWork[SW_SYSMENUCT] > 0 &&
              State == Hidden) {
