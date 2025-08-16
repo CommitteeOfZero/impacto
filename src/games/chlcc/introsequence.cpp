@@ -13,13 +13,13 @@ namespace CHLCC {
 
 IntroSequence::IntroSequence() {
   Texture fallingStarsMaskTexture{};
-  fallingStarsMaskTexture.LoadSolidColor((int)DesignWidth, (int)DesignHeight,
-                                         0);
-  SpriteSheet fallingStarsMaskSheet(DesignWidth, DesignHeight);
+  fallingStarsMaskTexture.LoadSolidColor((int)ResolutionWidth,
+                                         (int)ResolutionHeight, 0);
+  SpriteSheet fallingStarsMaskSheet(ResolutionWidth, ResolutionHeight);
   fallingStarsMaskSheet.Texture = fallingStarsMaskTexture.Submit();
   fallingStarsMaskSheet.IsScreenCap = true;
   FallingStarsMask =
-      Sprite(fallingStarsMaskSheet, 0, 0, DesignWidth, DesignHeight);
+      Sprite(fallingStarsMaskSheet, 0, 0, ResolutionWidth, ResolutionHeight);
 
   // Randomize falling stars
   for (size_t i = 0; i < FallingStarSeeds.size(); i++) {
@@ -103,8 +103,8 @@ void IntroSequence::Reset() {
   Renderer->FreeTexture(FallingStarsMask.Sheet.Texture);
 
   Texture fallingStarsMaskTexture{};
-  fallingStarsMaskTexture.LoadSolidColor((int)DesignWidth, (int)DesignHeight,
-                                         0);
+  fallingStarsMaskTexture.LoadSolidColor((int)ResolutionWidth,
+                                         (int)ResolutionHeight, 0);
   FallingStarsMask.Sheet.Texture = fallingStarsMaskTexture.Submit();
 
   IntroAnimation.StartIn(true);
@@ -133,7 +133,8 @@ void IntroSequence::Render() {
   } else if (FallingStarsAnimation.State == +AnimationState::Playing) {
     // Make sure the mask is the only thing in the color buffer
     Renderer->Clear(glm::vec4(0.0f));
-    Renderer->DrawSprite(FallingStarsMask, glm::vec2(0.0f));
+    Renderer->DrawSprite(FallingStarsMask,
+                         RectF{0.0f, 0.0f, DesignWidth, DesignHeight});
 
     // Draw the stars over the mask
     // effectively obtaining the union
