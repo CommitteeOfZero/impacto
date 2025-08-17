@@ -15,11 +15,13 @@ IntroSequence::IntroSequence() {
   Texture fallingStarsMaskTexture{};
   fallingStarsMaskTexture.LoadSolidColor((int)ResolutionWidth,
                                          (int)ResolutionHeight, 0);
-  SpriteSheet fallingStarsMaskSheet(ResolutionWidth, ResolutionHeight);
+  SpriteSheet fallingStarsMaskSheet(static_cast<float>(ResolutionWidth),
+                                    static_cast<float>(ResolutionHeight));
   fallingStarsMaskSheet.Texture = fallingStarsMaskTexture.Submit();
   fallingStarsMaskSheet.IsScreenCap = true;
   FallingStarsMask =
-      Sprite(fallingStarsMaskSheet, 0, 0, ResolutionWidth, ResolutionHeight);
+      Sprite(fallingStarsMaskSheet, 0, 0, static_cast<float>(ResolutionWidth),
+             static_cast<float>(ResolutionHeight));
 
   // Randomize falling stars
   for (size_t i = 0; i < FallingStarSeeds.size(); i++) {
@@ -217,7 +219,9 @@ void IntroSequence::DrawBackground() const {
 
   float scale = 4 / (progress * 3 + 1);
   RectF dest = ShaderScreencapture.BgSprite.ScaledBounds().Scale(
-      glm::vec2(scale), glm::vec2(0.0f));
+      glm::vec2(scale) * designDimensions /
+          glm::vec2(ResolutionWidth, ResolutionHeight),
+      glm::vec2(0.0f));
 
   Renderer->DrawSprite(ShaderScreencapture.BgSprite, dest,
                        {1.0f, 1.0f, 1.0f, progress});
