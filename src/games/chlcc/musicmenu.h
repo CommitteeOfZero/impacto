@@ -6,7 +6,6 @@
 #include "../../ui/widgets/button.h"
 #include "../../ui/widgets/label.h"
 
-
 namespace Impacto {
 namespace UI {
 namespace CHLCC {
@@ -63,7 +62,7 @@ class MusicMenu : public Menu {
   glm::vec2 RedTitleLabelPos;
   glm::vec2 RightTitlePos;
   glm::vec2 LeftTitlePos;
-  
+
   std::optional<FocusDirection> QueuedMove;
   TurboOnHoldHandler DirectionButtonHoldHandler;
   bool TurboMoved = false;
