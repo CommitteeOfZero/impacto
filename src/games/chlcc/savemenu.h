@@ -17,10 +17,11 @@ class SaveMenu : public UI::SaveMenu {
  public:
   SaveMenu();
 
-  void Show();
-  void Hide();
-  void Update(float dt);
-  void Render();
+  void Show() override;
+  void Hide() override;
+  void Update(float dt) override;
+  void UpdateInput(float dt) override;
+  void Render() override;
 
   void MenuButtonOnClick(Widgets::Button* target);
 
@@ -38,6 +39,7 @@ class SaveMenu : public UI::SaveMenu {
   int CurrentFullSavePage = 0;
   int CurrentQuickSavePage = 0;
   int* CurrentPage;
+  int PrevPage = 0;
 
   std::vector<Widgets::Group*> FullSavePages;
   std::vector<Widgets::Group*> QuickSavePages;

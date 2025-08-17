@@ -9,6 +9,7 @@
 #include "../../mem.h"
 #include "../../profile/scriptvars.h"
 #include "../../inputsystem.h"
+#include "../../vm/interface/input.h"
 #include "../../ui/widgets/button.h"
 #include "../../ui/widgets/chlcc/saveentrybutton.h"
 #include "../../data/savesystem.h"
@@ -302,8 +303,32 @@ void SaveMenu::Hide() {
   }
 }
 
+void SaveMenu::UpdateInput(float dt) {
+  using namespace Vm::Interface;
+  Menu::UpdateInput(dt);
+  const auto updatePage = [&](int nextPage) {
+    PrevPage = *CurrentPage;
+    if (CurrentlyFocusedElement) {
+      CurrentlyFocusedElement->HasFocus = false;
+      CurrentlyFocusedElement->Hovered = false;
+    }
+    *CurrentPage = nextPage;
+    SavePages->at(*CurrentPage)->Show();
+  };
+  if (IsFocused) {
+    if (Input::MouseWheelDeltaY < 0 || PADinputButtonWentDown & PADcustom[8]) {
+      updatePage((*CurrentPage + 1) % Pages);
+      CurrentlyFocusedElement = SavePages->at(*CurrentPage)->GetFocus(FDIR_UP);
+    } else if (Input::MouseWheelDeltaY > 0 ||
+               PADinputButtonWentDown & PADcustom[7]) {
+      updatePage((*CurrentPage - 1 + Pages) % Pages);
+      CurrentlyFocusedElement =
+          SavePages->at(*CurrentPage)->GetFocus(FDIR_DOWN);
+    }
+  }
+}
+
 void SaveMenu::Update(float dt) {
-  UpdateInput(dt);
   if ((!GetFlag(SF_SAVEMENU) || ScrWork[SW_SYSMENUCT] < 10000) &&
       State == Shown) {
     Hide();
@@ -322,6 +347,7 @@ void SaveMenu::Update(float dt) {
   }
 
   if (State != Hidden) {
+    UpdateInput(dt);
     MenuTransition.Update(dt);
     SelectDataTextFade.Update(dt);
     if (MenuTransition.Direction == +AnimationDirection::Out &&
