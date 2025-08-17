@@ -5,6 +5,7 @@
 #include "../../profile/profile_internal.h"
 #include "../../renderer/renderer.h"
 #include "../../ui/ui.h"
+#include "../../inputsystem.h"
 #include "../../data/savesystem.h"
 #include "../../ui/widgets/chlcc/albumthumbnailbutton.h"
 #include "../../ui/widgets/group.h"
@@ -59,7 +60,7 @@ AlbumMenu::AlbumMenu() {
 
   auto cgOnClick = [this](auto* btn) { return CgOnClick(btn); };
 
-  for (int k = 0; k < AlbumPages; k++) {
+  for (int k = 0; k <= AlbumPages; k++) {
     auto page = new Group(this);
     for (int i = 0; i < 3; i++) {
       for (int j = 0; j < 3; j++) {
@@ -152,8 +153,8 @@ void AlbumMenu::Render() {
       }
       DrawPage(offset);
 
-      for (int idx = 0; idx < 10; idx++) {
-        Renderer->DrawSprite(SelectData[idx], SelectDataPos[idx] + offset);
+      for (int i = 0; i <= EntriesPerPage; i++) {
+        Renderer->DrawSprite(SelectData[i], SelectDataPos[i] + offset);
       }
 
       CgViewerGroup->Render();
@@ -163,6 +164,7 @@ void AlbumMenu::Render() {
 }
 
 void AlbumMenu::UpdateInput(float dt) {
+  using namespace Vm::Interface;
   Menu::UpdateInput(dt);
   if (State == Shown) {
     if (PADinputButtonWentDown & PAD1B || PADinputMouseWentDown & PAD1B) {
@@ -173,11 +175,30 @@ void AlbumMenu::UpdateInput(float dt) {
         SetFlag(SF_ALBUMEND, true);
       }
     }
+    const auto updatePage = [&](int nextPage) {
+      PrevPage = CurrentPage;
+      if (CurrentlyFocusedElement) {
+        CurrentlyFocusedElement->HasFocus = false;
+        CurrentlyFocusedElement->Hovered = false;
+      }
+      CurrentPage = nextPage;
+      Pages[CurrentPage]->Show();
+    };
+    if (IsFocused) {
+      if (Input::MouseWheelDeltaY < 0 ||
+          PADinputButtonWentDown & PADcustom[8]) {
+        updatePage((CurrentPage + 1) % AlbumPages);
+        CurrentlyFocusedElement = Pages[CurrentPage]->GetFocus(FDIR_UP);
+      } else if (Input::MouseWheelDeltaY > 0 ||
+                 PADinputButtonWentDown & PADcustom[7]) {
+        updatePage((CurrentPage - 1 + AlbumPages) % AlbumPages);
+        CurrentlyFocusedElement = Pages[CurrentPage]->GetFocus(FDIR_DOWN);
+      }
+    }
   }
 }
 
 void AlbumMenu::Update(float dt) {
-  UpdateInput(dt);
   if (ScrWork[SW_SYSMENUCT] < 10000 && State == Shown) {
     Hide();
   } else if (GetFlag(SF_ALBUMMENU) && ScrWork[SW_SYSMENUCT] > 0 &&
@@ -195,6 +216,7 @@ void AlbumMenu::Update(float dt) {
   }
 
   if (State != Hidden) {
+    UpdateInput(dt);
     MenuTransition.Update(dt);
     if (MenuTransition.Direction == +AnimationDirection::Out &&
         MenuTransition.Progress <= 0.72f) {
@@ -292,41 +314,41 @@ void AlbumMenu::UpdatePages() {
   int viewedVariations = 0;
   int lastNonEmptyPage = 0;
   bool pageLocked = true;
-  for (int idx = 0; idx < AlbumPages * EntriesPerPage; idx++) {
-    SaveSystem::GetEVStatus(idx, &totalVariations, &viewedVariations);
+  for (int i = 0; i <= AlbumPages * EntriesPerPage; i++) {
+    SaveSystem::GetEVStatus(i, &totalVariations, &viewedVariations);
     static_cast<AlbumThumbnailButton*>(
-        Pages[idx / EntriesPerPage]->Children[idx % EntriesPerPage])
+        Pages[i / EntriesPerPage]->Children[i % EntriesPerPage])
         ->UpdateVariations(totalVariations, viewedVariations);
 
     if (viewedVariations > 0) pageLocked = false;
-    if (idx % 9 == 0 && pageLocked == false) lastNonEmptyPage = idx / 9;
+    if (i % 9 == 0 && pageLocked == false) lastNonEmptyPage = i / 9;
   }
   MaxReachablePage = lastNonEmptyPage;
 
-  for (int idx = 0; idx < EntriesPerPage * MaxReachablePage; idx++) {
-    int nextChild = ((idx + 1) + ((idx + 1) % 3 == 0) * 6) %
+  for (int i = 0; i < EntriesPerPage * MaxReachablePage; i++) {
+    int nextChild = ((i + 1) + ((i + 1) % 3 == 0) * 6) %
                     (EntriesPerPage * MaxReachablePage);
-    Pages[idx / EntriesPerPage]->Children[idx % EntriesPerPage]->SetFocus(
+    Pages[i / EntriesPerPage]->Children[i % EntriesPerPage]->SetFocus(
         Pages[nextChild / EntriesPerPage]->Children[nextChild % EntriesPerPage],
         FDIR_RIGHT);
 
-    nextChild = (idx - 1) - (idx % 3 == 0) * 6;
+    nextChild = (i - 1) - (i % 3 == 0) * 6;
     nextChild = (nextChild < 0) * EntriesPerPage * MaxReachablePage + nextChild;
-    Pages[idx / EntriesPerPage]->Children[idx % EntriesPerPage]->SetFocus(
+    Pages[i / EntriesPerPage]->Children[i % EntriesPerPage]->SetFocus(
         Pages[nextChild / EntriesPerPage]->Children[nextChild % EntriesPerPage],
         FDIR_LEFT);
 
     nextChild =
-        (idx + 3) % EntriesPerPage + (idx / EntriesPerPage) * EntriesPerPage;
-    Pages[idx / EntriesPerPage]->Children[idx % EntriesPerPage]->SetFocus(
-        Pages[idx / EntriesPerPage]->Children[nextChild % EntriesPerPage],
+        (i + 3) % EntriesPerPage + (i / EntriesPerPage) * EntriesPerPage;
+    Pages[i / EntriesPerPage]->Children[i % EntriesPerPage]->SetFocus(
+        Pages[i / EntriesPerPage]->Children[nextChild % EntriesPerPage],
         FDIR_DOWN);
 
     nextChild =
-        (idx - 3 < EntriesPerPage * (idx / EntriesPerPage)) * EntriesPerPage +
-        idx - 3;
-    Pages[idx / EntriesPerPage]->Children[idx % EntriesPerPage]->SetFocus(
-        Pages[idx / EntriesPerPage]->Children[nextChild % EntriesPerPage],
+        (i - 3 < EntriesPerPage * (i / EntriesPerPage)) * EntriesPerPage + i -
+        3;
+    Pages[i / EntriesPerPage]->Children[i % EntriesPerPage]->SetFocus(
+        Pages[i / EntriesPerPage]->Children[nextChild % EntriesPerPage],
         FDIR_UP);
   }
 }

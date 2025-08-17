@@ -7,8 +7,6 @@ namespace Profile {
 namespace CHLCC {
 namespace AlbumMenu {
 
-int constexpr Endings = 8;
-
 inline float MenuTransitionDuration;
 inline uint32_t BackgroundColor;
 inline Sprite CircleSprite;
