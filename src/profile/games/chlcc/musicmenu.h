@@ -43,6 +43,8 @@ inline Sprite PlaymodeRepeat;
 inline Sprite PlaymodeAll;
 inline Sprite PlaymodeRepeatHighlight;
 inline Sprite PlaymodeAllHighlight;
+inline float MusicDirectionalHoldTime;
+inline float MusicDirectionalFocusTimeInterval;
 inline Sprite NowPlaying;
 inline glm::vec2 NowPlayingPos;
 inline float NowPlayingAnimationDuration;
@@ -57,6 +59,8 @@ inline glm::vec2 HighlightStarRelativePos;
 inline int Playlist[MusicTrackCount];
 inline Sprite SelectSound[11];
 inline glm::vec2 SelectSoundPos[11];
+inline glm::vec2 ButtonPromptPosition;
+inline Sprite ButtonPromptSprite;
 
 void Configure();
 
