@@ -11,10 +11,11 @@ class PhysicalFileStream : public Stream {
   enum CreateFlagsMode {
     READ = 1,
     WRITE = READ << 1,
-    CREATE_IF_NOT_EXISTS = WRITE << 1,
-    TRUNCATE = CREATE_IF_NOT_EXISTS << 1,
+    CREATE = WRITE << 1,
+    TRUNCATE = CREATE << 1,
     APPEND = TRUNCATE << 1,
-    CREATE_DIRS = CREATE_IF_NOT_EXISTS << 1
+    CREATE_DIRS = APPEND << 1,
+    UNBUFFERED = CREATE_DIRS << 1
   };
   using CreateFlags = int;
   static IoError Create(std::string const& fileName, Stream** out,
@@ -28,25 +29,43 @@ class PhysicalFileStream : public Stream {
   std::ios_base::openmode PrepareFileOpenMode(CreateFlags flags);
 
   PhysicalFileStream(std::string filePath, CreateFlags flags)
-      : Flags(flags),
-        SourceFileName(std::move(filePath)),
-        FileStream(SourceFileName, PrepareFileOpenMode(flags)) {
-    Meta.FileName = SourceFileName;
+      : Flags(flags), SourceFileName(std::move(filePath)) {
+    Init();
   }
 
   PhysicalFileStream(std::string filePath)
       : PhysicalFileStream(std::move(filePath), CreateFlagsMode::READ) {}
 
   PhysicalFileStream(PhysicalFileStream const& other)
-      : Flags(other.Flags),
-        SourceFileName(other.SourceFileName),
-        FileStream(other.SourceFileName, PrepareFileOpenMode(Flags)) {
-    Meta.FileName = SourceFileName;
+      : Flags(other.Flags), SourceFileName(other.SourceFileName) {
+    Init();
   }
   IoError ErrorCode = IoError_OK;
   CreateFlags Flags;
   std::string SourceFileName;
   std::fstream FileStream;
+
+ private:
+  void Init() {
+    Meta.FileName = SourceFileName;
+    if (Flags & UNBUFFERED) {
+      FileStream.rdbuf()->pubsetbuf(nullptr, 0);
+    }
+    auto fstreamFlags = PrepareFileOpenMode(Flags);
+    if (ErrorCode == IoError_NotFound) {
+      Meta.Size = 0;
+      ErrorCode = IoError_OK;
+    } else if (ErrorCode != IoError_Fail) {
+      Meta.Size = GetFileSize(SourceFileName);
+      if (Meta.Size == IoError_Fail) {
+        ErrorCode = IoError_Fail;
+        return;
+      }
+    } else {
+      return;
+    }
+    FileStream.open(SourceFileName, fstreamFlags);
+  }
 };
 
 }  // namespace Io
