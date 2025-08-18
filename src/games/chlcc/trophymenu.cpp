@@ -5,13 +5,11 @@
 #include "../../vm/vm.h"
 #include "../../profile/scriptvars.h"
 #include "../../profile/dialogue.h"
-#include "../../profile/ui/backlogmenu.h"
 #include "../../profile/ui/trophymenu.h"
 #include "../../profile/games/chlcc/trophymenu.h"
-#include "../../io/memorystream.h"
-#include "../../data/tipssystem.h"
+#include "../../inputsystem.h"
 #include "../../vm/interface/input.h"
-#include "../../profile/game.h"
+#include "../../data/tipssystem.h"
 #include "../../data/achievementsystem.h"
 #include "trophymenuentry.h"
 
@@ -149,12 +147,14 @@ void TrophyMenu::Render() {
 
 void TrophyMenu::UpdateInput(float dt) {
   if (IsFocused) {
-    if (PADinputButtonWentDown & PAD1DOWN) {
+    if (PADinputButtonWentDown & PAD1DOWN || Input::MouseWheelDeltaY < 0 ||
+        PADinputButtonWentDown & PADcustom[8]) {
       if (CurrentPage < 8) {
         MainItems[CurrentPage++].Hide();
         MainItems[CurrentPage].Show();
       }
-    } else if (PADinputButtonWentDown & PAD1UP) {
+    } else if (PADinputButtonWentDown & PAD1UP || Input::MouseWheelDeltaY > 0 ||
+               PADinputButtonWentDown & PADcustom[7]) {
       if (CurrentPage > 0) {
         MainItems[CurrentPage--].Hide();
         MainItems[CurrentPage].Show();
