@@ -38,6 +38,7 @@ class AlbumMenu : public Menu {
 
   Animation MenuTransition;
   Animation TitleFade;
+  Animation FromSystemMenuTransition;
 
   int PrevPage = 0;
   int CurrentPage;

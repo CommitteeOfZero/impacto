@@ -299,10 +299,10 @@ inline constexpr RectF::RectF(Rect const& rect)
     : RectF((float)rect.X, (float)rect.Y, (float)rect.Width,
             (float)rect.Height) {}
 
-constexpr glm::vec4 RgbIntToFloat(uint32_t rgb) {
+constexpr glm::vec4 RgbIntToFloat(uint32_t rgb, float opacity = 1.0f) {
   return glm::vec4{(float)((rgb >> 16) & 0xFF) / 255.0f,
                    (float)((rgb >> 8) & 0xFF) / 255.0f,
-                   (float)((rgb >> 0) & 0xFF) / 255.0f, 1.0f};
+                   (float)((rgb >> 0) & 0xFF) / 255.0f, opacity};
 }
 
 uint32_t GetHashCode(uint8_t* data, int length);

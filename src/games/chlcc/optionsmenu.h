@@ -27,6 +27,7 @@ class OptionsMenu : public UI::OptionsMenu {
   void UpdateVisibility() override;
 
   Animation TitleFade;
+  Animation FromSystemMenuTransition;
 
   glm::vec2 RedTitleLabelPos;
   glm::vec2 RightTitlePos;

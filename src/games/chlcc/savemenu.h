@@ -50,6 +50,7 @@ class SaveMenu : public UI::SaveMenu {
   Animation MenuTransition;
   Animation TitleFade;
   Animation SelectDataTextFade;
+  Animation FromSystemMenuTransition;
   SaveSystem::SaveType EntryType;
 
   glm::vec2 RedTitleLabelPos;
