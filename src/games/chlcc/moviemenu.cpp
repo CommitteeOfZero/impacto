@@ -228,7 +228,9 @@ void MovieMenu::Update(float dt) {
     Show();
   }
 
-  if (MenuTransition.IsOut() && ScrWork[SW_SYSMENUCT] == 0 && State == Hiding) {
+  if (MenuTransition.IsOut() &&
+      (ScrWork[SW_SYSMENUCT] == 0 || GetFlag(SF_SYSTEMMENU)) &&
+      State == Hiding) {
     State = Hidden;
     MovieItems->Hide();
   } else if (MenuTransition.IsIn() && ScrWork[SW_SYSMENUCT] == 10000 &&
