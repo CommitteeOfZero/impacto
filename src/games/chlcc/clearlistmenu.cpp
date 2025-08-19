@@ -36,7 +36,10 @@ ClearListMenu::ClearListMenu() {
 
 void ClearListMenu::Show() {
   if (State != Shown) {
-    if (State != Showing) MenuTransition.StartIn();
+    if (State != Showing) {
+      MenuTransition.StartIn();
+      FromSystemMenuTransition.StartIn();
+    }
     State = Showing;
     if (UI::FocusedMenu != 0) {
       LastFocusedMenu = UI::FocusedMenu;
@@ -49,7 +52,10 @@ void ClearListMenu::Show() {
 
 void ClearListMenu::Hide() {
   if (State != Hidden) {
-    MenuTransition.StartOut();
+    if (State != Hiding) {
+      MenuTransition.StartOut();
+      FromSystemMenuTransition.StartOut();
+    }
     State = Hiding;
     if (LastFocusedMenu != 0) {
       UI::FocusedMenu = LastFocusedMenu;
@@ -66,6 +72,10 @@ void ClearListMenu::Render() {
     if (MenuTransition.IsIn()) {
       Renderer->DrawQuad(RectF(0.0f, 0.0f, 1280.0f, 720.0f),
                          RgbIntToFloat(BackgroundColor));
+    } else if (GetFlag(SF_SYSTEMMENU)) {
+      Renderer->DrawQuad(
+          RectF(0.0f, 0.0f, 1280.0f, 720.0f),
+          RgbIntToFloat(BackgroundColor, FromSystemMenuTransition.Progress));
     } else {
       DrawCircles();
     }
@@ -132,6 +142,7 @@ void ClearListMenu::Update(float dt) {
 
   if (State != Hidden) {
     MenuTransition.Update(dt);
+    FromSystemMenuTransition.Update(dt);
     if (MenuTransition.Direction == +AnimationDirection::Out &&
         MenuTransition.Progress <= 0.72f) {
       TitleFade.StartOut();

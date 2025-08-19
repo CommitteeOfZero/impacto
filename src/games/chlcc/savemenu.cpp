@@ -51,6 +51,11 @@ SaveMenu::SaveMenu() {
   SelectDataTextFade.LoopMode = AnimationLoopMode::Loop;
   SelectDataTextFade.DurationIn = SelectDataFadeDuration;
 
+  FromSystemMenuTransition.Direction = AnimationDirection::In;
+  FromSystemMenuTransition.LoopMode = AnimationLoopMode::Stop;
+  FromSystemMenuTransition.DurationIn = TitleFadeInDuration;
+  FromSystemMenuTransition.DurationOut = TitleFadeOutDuration;
+
   RedBarSprite = InitialRedBarSprite;
   RedBarPosition = InitialRedBarPosition;
 
@@ -273,13 +278,15 @@ void SaveMenu::Show() {
         UpdateEntry(saveEntryButton);
       }
     }
-
+    if (State != Showing) {
+      MenuTransition.StartIn();
+      FromSystemMenuTransition.StartIn();
+      SelectDataTextFade.StartIn();
+      SavePages->at(*CurrentPage)->Show();
+      CurrentlyFocusedElement = SavePages->at(*CurrentPage)->Children[0];
+      SavePages->at(0)->Children[0]->HasFocus = true;
+    }
     State = Showing;
-    MenuTransition.StartIn();
-    SelectDataTextFade.StartIn();
-    SavePages->at(*CurrentPage)->Show();
-    CurrentlyFocusedElement = SavePages->at(*CurrentPage)->Children[0];
-    SavePages->at(0)->Children[0]->HasFocus = true;
     if (UI::FocusedMenu != 0) {
       LastFocusedMenu = UI::FocusedMenu;
       LastFocusedMenu->IsFocused = false;
@@ -290,9 +297,12 @@ void SaveMenu::Show() {
 }
 void SaveMenu::Hide() {
   if (State != Hidden) {
+    if (State != Hiding) {
+      SaveEntryButton::FocusedAlphaFadeReset();
+      MenuTransition.StartOut();
+      FromSystemMenuTransition.StartOut();
+    }
     State = Hiding;
-    SaveEntryButton::FocusedAlphaFadeReset();
-    MenuTransition.StartOut();
     if (LastFocusedMenu != 0) {
       UI::FocusedMenu = LastFocusedMenu;
       LastFocusedMenu->IsFocused = true;
@@ -352,6 +362,7 @@ void SaveMenu::Update(float dt) {
     UpdateInput(dt);
     MenuTransition.Update(dt);
     SelectDataTextFade.Update(dt);
+    FromSystemMenuTransition.Update(dt);
     if (MenuTransition.Direction == +AnimationDirection::Out &&
         MenuTransition.Progress <= 0.72f) {
       TitleFade.StartOut();
@@ -389,6 +400,10 @@ void SaveMenu::Render() {
     if (MenuTransition.IsIn()) {
       Renderer->DrawQuad(RectF(0.0f, 0.0f, 1280.0f, 720.0f),
                          RgbIntToFloat(BackgroundColor));
+    } else if (GetFlag(SF_SYSTEMMENU)) {
+      Renderer->DrawQuad(
+          RectF(0.0f, 0.0f, 1280.0f, 720.0f),
+          RgbIntToFloat(BackgroundColor, FromSystemMenuTransition.Progress));
     } else {
       DrawCircles();
     }

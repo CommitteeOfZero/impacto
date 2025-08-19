@@ -59,6 +59,11 @@ MovieMenu::MovieMenu() {
   SelectMovieTextFade.LoopMode = AnimationLoopMode::Loop;
   SelectMovieTextFade.DurationIn = SelectMovieFadeDuration;
 
+  FromSystemMenuTransition.Direction = AnimationDirection::In;
+  FromSystemMenuTransition.LoopMode = AnimationLoopMode::Stop;
+  FromSystemMenuTransition.DurationIn = TitleFadeInDuration;
+  FromSystemMenuTransition.DurationOut = TitleFadeOutDuration;
+
   RedBarSprite = InitialRedBarSprite;
   RedBarPosition = InitialRedBarPosition;
 
@@ -123,6 +128,7 @@ void MovieMenu::Show() {
       }
       MenuTransition.StartIn();
       SelectMovieTextFade.StartIn();
+      FromSystemMenuTransition.StartIn();
     }
     MovieItems->Show();
     State = Showing;
@@ -147,6 +153,7 @@ void MovieMenu::Hide() {
       }
       MenuTransition.StartOut();
       SelectMovieTextFade.StartOut();
+      FromSystemMenuTransition.StartOut();
     }
     State = Hiding;
     if (LastFocusedMenu != 0) {
@@ -164,6 +171,10 @@ void MovieMenu::Render() {
     if (MenuTransition.IsIn()) {
       Renderer->DrawQuad(RectF(0.0f, 0.0f, 1280.0f, 720.0f),
                          RgbIntToFloat(BackgroundColor));
+    } else if (GetFlag(SF_SYSTEMMENU)) {
+      Renderer->DrawQuad(
+          RectF(0.0f, 0.0f, 1280.0f, 720.0f),
+          RgbIntToFloat(BackgroundColor, FromSystemMenuTransition.Progress));
     } else {
       DrawCircles();
     }
@@ -242,6 +253,7 @@ void MovieMenu::Update(float dt) {
   if (State != Hidden) {
     MenuTransition.Update(dt);
     SelectMovieTextFade.Update(dt);
+    FromSystemMenuTransition.Update(dt);
     if (MenuTransition.Direction == +AnimationDirection::Out &&
         MenuTransition.Progress <= 0.72f) {
       if (IsChoiceMadeOnce) {
