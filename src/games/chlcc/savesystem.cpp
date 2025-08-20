@@ -75,12 +75,12 @@ void SaveSystem::InitializeSystemData() {
   Io::WriteLE(&stream, Default::TriggerStopSkip);
 
   stream.Seek(0x79e, SEEK_SET);
-  assert(Default::VoiceMuted.size() >= 32);
+  static_assert(Default::VoiceMuted.size() >= 32);
   for (size_t i = 0; i < 32; i++) {
     Io::WriteLE(&stream, !Default::VoiceMuted[i]);
   }
 
-  assert(Default::VoiceVolume.size() >= 20);
+  static_assert(Default::VoiceVolume.size() >= 20);
   for (size_t i = 0; i < 20; i++) {
     Io::WriteLE(&stream, (Uint8)(Default::VoiceVolume[i] * 128));
   }
@@ -193,12 +193,12 @@ void SaveSystem::SaveSystemData() {
   Io::WriteLE(&stream, TriggerStopSkip);
 
   stream.Seek(0x79e, SEEK_SET);
-  assert(VoiceMuted.size() >= 32);
+  static_assert(VoiceMuted.size() >= 32);
   for (size_t i = 0; i < 32; i++) {
     Io::WriteLE(&stream, !VoiceMuted[i]);
   }
 
-  assert(VoiceVolume.size() >= 20);
+  static_assert(VoiceVolume.size() >= 20);
   for (size_t i = 0; i < 20; i++) {
     Io::WriteLE(&stream, (Uint8)(VoiceVolume[i] * 128));
   }
@@ -365,12 +365,12 @@ SaveError SaveSystem::LoadSystemData() {
   TriggerStopSkip = Io::ReadLE<bool>(&stream);
 
   stream.Seek(0x79e, SEEK_SET);
-  assert(VoiceMuted.size() >= 32);
+  static_assert(VoiceMuted.size() >= 32);
   for (size_t i = 0; i < 32; i++) {
     VoiceMuted[i] = !Io::ReadLE<bool>(&stream);
   }
 
-  assert(VoiceVolume.size() >= 20);
+  static_assert(VoiceVolume.size() >= 20);
   for (size_t i = 0; i < 20; i++) {
     VoiceVolume[i] = Io::ReadLE<Uint8>(&stream) / 128.0f;
   }
@@ -550,8 +550,12 @@ SaveError SaveSystem::WriteSaveFile() {
     return SaveError::Failed;
   }
 
-  std::vector<uint8_t> emptyData(SaveFileSize, 0x00);
-  Io::WriteArrayLE<uint8_t>(emptyData.data(), stream, emptyData.size());
+  constexpr static std::array<
+      uint8_t, std::max(SaveFileSize, SaveThumbnailSize + ThumbnailPaddingSize)>
+      emptyData{};
+
+  static_assert(emptyData.size() >= SaveFileSize);
+  Io::WriteArrayLE<uint8_t>(emptyData.data(), stream, SaveFileSize);
 
   stream->Seek(0, SEEK_SET);
   Io::WriteArrayLE<uint8_t>(SystemData.data(), stream, SystemData.size());
@@ -587,22 +591,19 @@ SaveError SaveSystem::WriteSaveFile() {
     return SaveError::Failed;
   }
 
-  emptyData.resize(SaveThumbnailWidth * SaveThumbnailHeight * 4, 0x00);
-  constexpr size_t thumbnailPaddingSize =
-      SaveThumbnailWidth * SaveThumbnailHeight;
-  assert(thumbnailPaddingSize <= emptyData.size());
-
+  static_assert(emptyData.size() >= SaveThumbnailSize + ThumbnailPaddingSize);
   for (auto& entryArray : {QuickSaveEntries, FullSaveEntries}) {
     for (size_t i = 0; i < MaxSaveEntries; i++) {
       SaveFileEntry* entry = static_cast<SaveFileEntry*>(entryArray[i]);
 
       if (entry == nullptr || entry->Status == 0) {
-        Io::WriteArrayLE<uint8_t>(emptyData.data(), stream, emptyData.size());
+        Io::WriteArrayLE<uint8_t>(emptyData.data(), stream,
+                                  SaveThumbnailSize + ThumbnailPaddingSize);
       } else {
         Io::WriteArrayLE<uint8_t>(entry->ThumbnailData.data(), stream,
                                   entry->ThumbnailData.size());
         Io::WriteArrayLE<uint8_t>(emptyData.data(), stream,
-                                  thumbnailPaddingSize);
+                                  ThumbnailPaddingSize);
       }
     }
   }
