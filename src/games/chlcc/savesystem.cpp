@@ -130,20 +130,15 @@ SaveError SaveSystem::CheckSaveFile() {
       return SaveError::Corrupted;
     }
 
-    auto checkPermsBit = [](Io::FilePermissionsFlags perms,
-                            Io::FilePermissionsFlags flag) {
-      return to_underlying(perms) & to_underlying(flag);
-    };
-
     Io::FilePermissionsFlags perms;
     IoError permsState = Io::GetFilePermissions(filePath, perms);
+    using enum Io::FilePermissionsFlags;
     if (permsState == IoError_Fail) {
       ImpLog(LogLevel::Error, LogChannel::IO,
              "Failed to get {:s} permissions, error: \"{:s}\"\n", logName,
              ec.message());
       return SaveError::Failed;
-    } else if (!checkPermsBit(perms, Io::FilePermissionsFlags::owner_read) ||
-               !checkPermsBit(perms, Io::FilePermissionsFlags::owner_write)) {
+    } else if ((perms & owner_read) == none || (perms & owner_write) == none) {
       return SaveError::WrongUser;
     }
 
