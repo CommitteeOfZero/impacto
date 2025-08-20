@@ -37,7 +37,6 @@ class MovieMenu : public Menu {
   Animation TitleFade;
   Animation SelectMovieTextFade;
   Animation FromSystemMenuTransition;
-  ;
 
   glm::vec2 RedTitleLabelPos;
   glm::vec2 RightTitlePos;
