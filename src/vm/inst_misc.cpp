@@ -415,9 +415,7 @@ VmInstruction(InstSaveMenuOld) {
       UI::SaveMenuPtr->ActiveMenuType =
           UI::SaveMenuPageType::_from_integral_nothrow(arg1);
       ScrWork[SW_SAVEFILESTATUS] = 0;
-      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-                 "STUB instruction SaveMenu(type: {:d}, arg1: {:d})\n", type,
-                 arg1);
+      if (UI::SaveMenuPtr) UI::SaveMenuPtr->Init();
     } break;
     case 1:
       if (!UI::SaveMenuPtr->ChoiceMade) {
@@ -442,9 +440,7 @@ VmInstruction(InstSaveMenuOld) {
     } break;
     case 10: {
       PopUint8(arg1);
-      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-                 "STUB instruction SaveMenu(type: {:d}, arg1: {:d})\n", type,
-                 arg1);
+      if (UI::SaveMenuPtr) UI::SaveMenuPtr->Init();
     } break;
   }
 }

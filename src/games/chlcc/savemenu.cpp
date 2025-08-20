@@ -175,42 +175,44 @@ SaveMenu::SaveMenu() {
   }
 }
 
+void SaveMenu::Init() {
+  switch (*ActiveMenuType) {
+    case SaveMenuPageType::QuickLoad:
+      EntryType = SaveSystem::SaveType::Quick;
+      SavePages = &QuickSavePages;
+      BackgroundColor = QuickLoadBackgroundColor;
+      CircleSprite = QuickLoadCircle;
+      MenuTitleTextSprite = QuickLoadTextSprite;
+      CurrentPage = &CurrentQuickSavePage;
+      break;
+    case SaveMenuPageType::Save:
+      EntryType = SaveSystem::SaveType::Full;
+      SavePages = &FullSavePages;
+      BackgroundColor = SaveBackgroundColor;
+      CircleSprite = SaveCircle;
+      MenuTitleTextSprite = SaveTextSprite;
+      CurrentPage = &CurrentFullSavePage;
+      break;
+    case SaveMenuPageType::Load:
+      EntryType = SaveSystem::SaveType::Full;
+      SavePages = &FullSavePages;
+      BackgroundColor = LoadBackgroundColor;
+      CircleSprite = LoadCircle;
+      MenuTitleTextSprite = LoadTextSprite;
+      CurrentPage = &CurrentFullSavePage;
+      break;
+  }
+
+  for (auto mainItems : *SavePages) {
+    mainItems->Bounds = RectF(0.0f, 0.0f, 1280.0f, 720.0f);
+    for (auto widget : mainItems->Children) {
+      static_cast<SaveEntryButton*>(widget)->RefreshInfo(EntryType);
+    }
+  }
+}
+
 void SaveMenu::Show() {
   if (State != Shown) {
-    switch (*ActiveMenuType) {
-      case SaveMenuPageType::QuickLoad:
-        EntryType = SaveSystem::SaveType::Quick;
-        SavePages = &QuickSavePages;
-        BackgroundColor = QuickLoadBackgroundColor;
-        CircleSprite = QuickLoadCircle;
-        MenuTitleTextSprite = QuickLoadTextSprite;
-        CurrentPage = &CurrentQuickSavePage;
-        break;
-      case SaveMenuPageType::Save:
-        EntryType = SaveSystem::SaveType::Full;
-        SavePages = &FullSavePages;
-        BackgroundColor = SaveBackgroundColor;
-        CircleSprite = SaveCircle;
-        MenuTitleTextSprite = SaveTextSprite;
-        CurrentPage = &CurrentFullSavePage;
-        break;
-      case SaveMenuPageType::Load:
-        EntryType = SaveSystem::SaveType::Full;
-        SavePages = &FullSavePages;
-        BackgroundColor = LoadBackgroundColor;
-        CircleSprite = LoadCircle;
-        MenuTitleTextSprite = LoadTextSprite;
-        CurrentPage = &CurrentFullSavePage;
-        break;
-    }
-
-    for (auto mainItems : *SavePages) {
-      mainItems->Bounds = RectF(0.0f, 0.0f, 1280.0f, 720.0f);
-      for (auto widget : mainItems->Children) {
-        static_cast<SaveEntryButton*>(widget)->RefreshInfo(EntryType);
-      }
-    }
-
     State = Showing;
     MenuTransition.StartIn();
     SelectDataTextFade.StartIn();

@@ -17,6 +17,7 @@ class SaveMenu : public UI::SaveMenu {
  public:
   SaveMenu();
 
+  void Init() override;
   void Show() override;
   void Hide() override;
   void Update(float dt) override;
