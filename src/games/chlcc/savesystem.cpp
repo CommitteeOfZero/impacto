@@ -485,8 +485,7 @@ SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
                                entry->ThumbnailData.size());
       stream->Seek(thumbnailPaddingSize, SEEK_CUR);
 
-      std::copy(entry->ThumbnailData.begin(), entry->ThumbnailData.end(),
-                texture.Tex.Buffer);
+      std::ranges::copy(entry->ThumbnailData, texture.Tex.Buffer);
 
       textures.push_back(texture);
     }
@@ -724,14 +723,10 @@ void SaveSystem::LoadEntry(SaveType type, int id) {
       ScrWork[SW_PLAYTIME] = entry->PlayTime;
       ScrWork[SW_TITLE] = entry->SwTitle;
 
-      std::copy(entry->FlagWorkScript1.begin(), entry->FlagWorkScript1.end(),
-                FlagWork.begin() + 50);
-      std::copy(entry->FlagWorkScript2.begin(), entry->FlagWorkScript2.end(),
-                FlagWork.begin() + 300);
-      std::copy(entry->ScrWorkScript1.begin(), entry->ScrWorkScript1.end(),
-                ScrWork.begin() + 300);
-      std::copy(entry->ScrWorkScript2.begin(), entry->ScrWorkScript2.end(),
-                ScrWork.begin() + 2300);
+      std::ranges::copy(entry->FlagWorkScript1, FlagWork.begin() + 50);
+      std::ranges::copy(entry->FlagWorkScript2, FlagWork.begin() + 300);
+      std::ranges::copy(entry->ScrWorkScript1, ScrWork.begin() + 300);
+      std::ranges::copy(entry->ScrWorkScript2, ScrWork.begin() + 2300);
 
       // TODO: What to do about this mess I wonder...
       ScrWork[SW_SVSENO] = ScrWork[SW_SEREQNO];

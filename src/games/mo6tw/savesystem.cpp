@@ -266,9 +266,8 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
             WorkingSaveEntry->MainThreadReturnBufIds[j];
       }
 
-      std::copy(WorkingSaveEntry->MainThreadVariables.begin(),
-                WorkingSaveEntry->MainThreadVariables.end(),
-                entry->MainThreadVariables.begin());
+      std::ranges::copy(WorkingSaveEntry->MainThreadVariables,
+                        entry->MainThreadVariables.begin());
       entry->MainThreadDialoguePageId =
           WorkingSaveEntry->MainThreadDialoguePageId;
     }

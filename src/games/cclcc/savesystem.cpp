@@ -775,14 +775,11 @@ void SaveSystem::LoadMemoryNew(LoadProcess load) {
     ScrWork[SW_TITLE] = WorkingSaveEntry->SwTitle;
     ScrWork[SW_AUTOSAVERESTART] = WorkingSaveEntry->SaveType;
 
-    std::copy(WorkingSaveEntry->FlagWorkScript1.begin(),
-              WorkingSaveEntry->FlagWorkScript1.end(), FlagWork.begin() + 50);
-    std::copy(WorkingSaveEntry->FlagWorkScript2.begin(),
-              WorkingSaveEntry->FlagWorkScript2.end(), FlagWork.begin() + 300);
-    std::copy(WorkingSaveEntry->ScrWorkScript1.begin(),
-              WorkingSaveEntry->ScrWorkScript1.end(), ScrWork.begin() + 1000);
-    std::copy(WorkingSaveEntry->ScrWorkScript2.begin(),
-              WorkingSaveEntry->ScrWorkScript2.end(), ScrWork.begin() + 4300);
+    std::ranges::copy(WorkingSaveEntry->FlagWorkScript1, FlagWork.begin() + 50);
+    std::ranges::copy(WorkingSaveEntry->FlagWorkScript2,
+                      FlagWork.begin() + 300);
+    std::ranges::copy(WorkingSaveEntry->ScrWorkScript1, ScrWork.begin() + 1000);
+    std::ranges::copy(WorkingSaveEntry->ScrWorkScript2, ScrWork.begin() + 4300);
 
     UI::MapSystem::MapLoad(WorkingSaveEntry->MapLoadData.data());
     CCLCC::YesNoTrigger::YesNoTriggerPtr->Load(
