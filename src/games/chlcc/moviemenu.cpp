@@ -71,7 +71,7 @@ MovieMenu::MovieMenu() {
 
   // Movie Buttons initialization
   MovieItems = new Widgets::Group(this);
-  MovieItems->WrapFocus = false;
+  MovieItems->FocusLock = false;
 
   for (int i = 0; i < 10; i++) {
     glm::vec2 thumbnailPosition(ThumbnailPositions[i].x,
@@ -114,6 +114,7 @@ MovieMenu::MovieMenu() {
   setFocus(MovieItems->Children[5], MovieItems->Children[8], FDIR_RIGHT);
   setFocus(MovieItems->Children[8], MovieItems->Children[1], FDIR_RIGHT);
 
+  setFocus(MovieItems->Children[3], MovieItems->Children[6], FDIR_RIGHT);
   setFocus(MovieItems->Children[2], MovieItems->Children[6], FDIR_RIGHT);
   setFocus(MovieItems->Children[6], MovieItems->Children[9], FDIR_RIGHT);
   setFocus(MovieItems->Children[9], MovieItems->Children[2], FDIR_RIGHT);
@@ -141,6 +142,8 @@ void MovieMenu::Show() {
     }
     IsFocused = true;
     UI::FocusedMenu = this;
+    MovieItems->Children.front()->HasFocus = true;
+    CurrentlyFocusedElement = MovieItems->Children.front();
   }
 }
 
@@ -268,9 +271,7 @@ void MovieMenu::Update(float dt) {
       }
       TitleFade.StartIn();
     }
-    if (State == Shown) {
-      MovieItems->Update(dt);
-    }
+    MovieItems->Update(dt);
     TitleFade.Update(dt);
     UpdateTitles();
   }
