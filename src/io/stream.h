@@ -22,7 +22,7 @@ class Stream {
 
   virtual int64_t Read(void* buffer, int64_t sz) = 0;
   virtual int64_t Seek(int64_t offset, int origin) = 0;
-  virtual int64_t Write(void* buffer, int64_t sz, size_t cnt = 1) {
+  virtual int64_t Write(const void* buffer, int64_t sz, size_t cnt = 1) {
     assert(false && "Write not implemented for this stream");
     return IoError_Fail;
   }
@@ -208,11 +208,11 @@ inline void WriteWithoutSwap(Stream* stream, T value) {
 }
 
 template <size_t count, typename T>
-inline void WriteArrayWithoutSwap(T* src, Stream* stream) {
+inline void WriteArrayWithoutSwap(const T* src, Stream* stream) {
   stream->Write(src, sizeof(T), count);
 }
 template <typename T>
-inline void WriteArrayWithoutSwap(T* src, Stream* stream, size_t count) {
+inline void WriteArrayWithoutSwap(const T* src, Stream* stream, size_t count) {
   stream->Write(src, sizeof(T), count);
 }
 
@@ -267,11 +267,11 @@ inline void WriteLE(Stream* stream, T value) {
   return WriteWithoutSwap<T>(stream, value);
 }
 template <size_t count, typename T>
-inline void WriteArrayLE(T* src, Stream* stream) {
+inline void WriteArrayLE(const T* src, Stream* stream) {
   WriteArrayWithoutSwap<count, T>(src, stream);
 }
 template <typename T>
-inline void WriteArrayLE(T* src, Stream* stream, size_t count) {
+inline void WriteArrayLE(const T* src, Stream* stream, size_t count) {
   WriteArrayWithoutSwap<T>(src, stream, count);
 }
 template <typename T>

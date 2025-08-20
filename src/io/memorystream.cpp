@@ -24,7 +24,7 @@ int64_t MemoryStream::Read(void* buffer, int64_t sz) {
   return sz;
 }
 
-int64_t MemoryStream::Write(void* buffer, int64_t sz, size_t cnt) {
+int64_t MemoryStream::Write(const void* buffer, int64_t sz, size_t cnt) {
   if (sz < 0) return IoError_Fail;
   if (Position == Meta.Size) return IoError_Eof;
   int64_t bytesToWrite = std::min(Meta.Size - Position, sz * (int64_t)cnt);

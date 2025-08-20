@@ -88,7 +88,8 @@ IoError MemoryMappedFileStream<M>::Duplicate(Stream** outStream) {
 }
 
 template <AccessMode M>
-int64_t MemoryMappedFileStream<M>::Write(void* buffer, int64_t sz, size_t cnt) {
+int64_t MemoryMappedFileStream<M>::Write(const void* buffer, int64_t sz,
+                                         size_t cnt) {
   if constexpr (M == AccessMode::read) {
     assert(false);
     return 0;

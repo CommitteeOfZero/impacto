@@ -172,7 +172,7 @@ IoError PhysicalFileStream::Duplicate(Stream** outStream) {
   return IoError_OK;
 }
 
-int64_t PhysicalFileStream::Write(void* buffer, int64_t sz, size_t cnt) {
+int64_t PhysicalFileStream::Write(const void* buffer, int64_t sz, size_t cnt) {
   if (!(Flags & (WRITE | APPEND))) {
     ImpLog(LogLevel::Error, LogChannel::IO,
            "Write failed for file \"{:s}\" with error: \"{:s}\"\n",
