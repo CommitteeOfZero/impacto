@@ -215,11 +215,9 @@ void SaveEntryButton::RefreshInfo(const SaveSystem::SaveType entryType) {
     AddSaveDateHintText(Vm::ScriptGetTextTableStrAddress(0, 3), 18,
                         RendererOutlineMode::BottomRight,
                         SaveDateHintTextRelativePos);
-    std::stringstream dateStr;
     const tm& date = SaveSystem::GetSaveDate(entryType, Id);
-    dateStr << std::put_time(&date, "  %y/%m/%d %H:%M:%S");
-    AddSaveDateText(dateStr.str(), 18, RendererOutlineMode::BottomRight,
-                    SaveDateTextRelativePos);
+    AddSaveDateText(fmt::format("  {:%y/%m/%d %H:%M:%S}", date), 18,
+                    RendererOutlineMode::BottomRight, SaveDateTextRelativePos);
 
     AddThumbnail(SaveSystem::GetSaveThumbnail(entryType, Id),
                  EntryPositions[Id % 6] + ThumbnailRelativePos);
