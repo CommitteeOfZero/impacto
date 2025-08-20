@@ -100,6 +100,8 @@ void AlbumMenu::Show() {
     }
     IsFocused = true;
     UI::FocusedMenu = this;
+    Pages[CurrentPage]->Children.front()->HasFocus = true;
+    CurrentlyFocusedElement = Pages[CurrentPage]->Children.front();
   }
 }
 
@@ -198,16 +200,16 @@ void AlbumMenu::UpdateInput(float dt) {
       }
       CurrentPage = nextPage;
       Pages[CurrentPage]->Show();
+      Pages[CurrentPage]->Children.front()->HasFocus = true;
+      CurrentlyFocusedElement = Pages[CurrentPage]->Children.front();
     };
     if (IsFocused) {
       if (Input::MouseWheelDeltaY < 0 ||
           PADinputButtonWentDown & PADcustom[8]) {
         updatePage((CurrentPage + 1) % AlbumPages);
-        CurrentlyFocusedElement = Pages[CurrentPage]->GetFocus(FDIR_UP);
       } else if (Input::MouseWheelDeltaY > 0 ||
                  PADinputButtonWentDown & PADcustom[7]) {
         updatePage((CurrentPage - 1 + AlbumPages) % AlbumPages);
-        CurrentlyFocusedElement = Pages[CurrentPage]->GetFocus(FDIR_DOWN);
       }
     }
   }
