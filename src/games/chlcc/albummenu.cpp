@@ -235,7 +235,6 @@ void AlbumMenu::Update(float dt) {
   }
 
   if (State != Hidden) {
-    UpdateInput(dt);
     MenuTransition.Update(dt);
     FromSystemMenuTransition.Update(dt);
     if (MenuTransition.Direction == +AnimationDirection::Out &&
@@ -246,7 +245,9 @@ void AlbumMenu::Update(float dt) {
                 TitleFade.IsOut())) {
       TitleFade.StartIn();
     }
-
+    if (State == Shown) {
+      UpdateInput(dt);
+    }
     TitleFade.Update(dt);
     UpdateTitles();
     AlbumThumbnailButton::UpdateFocusedAlphaFade(dt);
