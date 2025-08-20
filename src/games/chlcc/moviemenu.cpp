@@ -233,7 +233,6 @@ void MovieMenu::UpdateInput(float dt) {
 }
 
 void MovieMenu::Update(float dt) {
-  UpdateInput(dt);
   if ((!GetFlag(SF_MOVIEMENU) || ScrWork[SW_SYSMENUCT] < 10000) &&
       State == Shown) {
     Hide();
@@ -270,6 +269,9 @@ void MovieMenu::Update(float dt) {
         TitleFade.Progress = 1.0f;
       }
       TitleFade.StartIn();
+    }
+    if (State == Shown) {
+      UpdateInput(dt);
     }
     MovieItems->Update(dt);
     TitleFade.Update(dt);

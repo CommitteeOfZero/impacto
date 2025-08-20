@@ -198,7 +198,6 @@ void MusicMenu::Render() {
 }
 
 void MusicMenu::Update(float dt) {
-  UpdateInput(dt);
   if ((!GetFlag(SF_SOUNDMENU) || ScrWork[SW_SYSMENUCT] < 10000) &&
       State == Shown) {
     Hide();
@@ -236,6 +235,9 @@ void MusicMenu::Update(float dt) {
                (TitleFade.Direction == +AnimationDirection::In ||
                 TitleFade.IsOut())) {
       TitleFade.StartIn();
+    }
+    if (State == Shown) {
+      UpdateInput(dt);
     }
     TitleFade.Update(dt);
     NowPlayingAnimation.Update(dt);
