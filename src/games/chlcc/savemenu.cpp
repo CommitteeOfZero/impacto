@@ -302,7 +302,6 @@ void SaveMenu::Update(float dt) {
   }
 
   if (State != Hidden) {
-    UpdateInput(dt);
     MenuTransition.Update(dt);
     SelectDataTextFade.Update(dt);
     FromSystemMenuTransition.Update(dt);
@@ -335,6 +334,9 @@ void SaveMenu::Update(float dt) {
       // We want to keep the fade even when the confirmation prompt appears
       SaveEntryButton::UpdateFocusedAlphaFade(dt);
     }
+  }
+  if (State == Shown) {
+    UpdateInput(dt);
   }
 }
 
