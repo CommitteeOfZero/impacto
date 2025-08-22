@@ -80,7 +80,7 @@ class SaveSystem : public SaveSystemBase {
  private:
   uint8_t GameExtraData[1024];
   uint8_t MessageFlags[10000];
-  std::array<uint8_t, 0x3b06> SystemData;
+  std::array<uint8_t, 0x3afc> SystemData;
   bool EVFlags[1200];
   uint8_t BGMFlags[100];
 };

@@ -44,6 +44,49 @@ constexpr uint8_t AutoSpeedToSettingIndex(const float speed) {
   return std::ssize(AutoSpeeds) - 1;
 }
 
+std::pair<uint8_t, uint8_t> CalculateFileChecksum(
+    std::span<const uint8_t> bufferData, uint8_t initSum = 0,
+    uint8_t initXor = 0) {
+  uint8_t checksumSum = initSum;
+  uint8_t checksumXor = initXor;
+
+  for (uint8_t byte : bufferData) {
+    checksumSum += byte;
+    checksumXor ^= byte;
+  }
+
+  return {checksumSum, checksumXor};
+}
+
+std::pair<uint8_t, uint8_t> CalculateEntryChecksum(
+    std::span<const uint8_t> bufferData, uint16_t initSum = 0,
+    uint8_t initXor = 0) {
+  uint16_t checksumSum = initSum;
+  uint8_t checksumXor = initXor;
+
+  for (uint8_t byte : bufferData) {
+    checksumSum += byte;
+    checksumXor ^= byte;
+  }
+
+  return {(checksumSum >> 4) & 0xFF, checksumXor};
+}
+
+std::pair<uint16_t, uint16_t> CalculateSystemChecksum(
+    std::span<const uint8_t> bufferData, uint16_t initSum = 0,
+    uint16_t initXor = 0) {
+  uint32_t checksumSum = initSum;
+  uint16_t checksumXor = initXor;
+
+  for (size_t i = 0; i < bufferData.size() - 1; i += 2) {
+    const uint16_t dataShort = (bufferData[i] << 8) | bufferData[i + 1];
+    checksumSum += dataShort;
+    checksumXor ^= dataShort;
+  }
+
+  return {checksumSum & 0xFFFF, checksumXor};
+}
+
 void SaveSystem::InitializeSystemData() {
   std::fill(SystemData.begin(), SystemData.end(), 0x00);
 
@@ -51,7 +94,7 @@ void SaveSystem::InitializeSystemData() {
       Io::MemoryStream(SystemData.data(), SystemData.size(), false);
 
   // Config settings
-  stream.Seek(0x776, SEEK_SET);
+  stream.Seek(0x76c, SEEK_SET);
   Io::WriteLE(&stream, (Uint8)(Default::GroupVolumes[Audio::ACG_Voice] *
                                128));  // VOICE2vol
   Io::WriteLE(&stream, (Uint8)(Default::GroupVolumes[Audio::ACG_Voice] *
@@ -68,13 +111,13 @@ void SaveSystem::InitializeSystemData() {
   Io::WriteLE(&stream, !Default::SkipRead);
   Io::WriteLE<Uint8>(&stream, 0x02);  // TODO: QSave
 
-  stream.Seek(0x786, SEEK_SET);
+  stream.Seek(0x77c, SEEK_SET);
   Io::WriteLE(&stream, Default::SkipVoice);
   Io::WriteLE(&stream, Default::ShowTipsNotification);
   Io::WriteLE<Uint8>(&stream, 0x00);  // TODO: Pad type
   Io::WriteLE(&stream, Default::TriggerStopSkip);
 
-  stream.Seek(0x79e, SEEK_SET);
+  stream.Seek(0x794, SEEK_SET);
   static_assert(Default::VoiceMuted.size() >= 32);
   for (size_t i = 0; i < 32; i++) {
     Io::WriteLE(&stream, !Default::VoiceMuted[i]);
@@ -157,14 +200,14 @@ void SaveSystem::SaveSystemData() {
   Io::MemoryStream stream =
       Io::MemoryStream(SystemData.data(), SystemData.size(), false);
 
-  stream.Seek(0x14, SEEK_SET);
+  stream.Seek(0xa, SEEK_SET);
 
   Io::WriteArrayLE<uint8_t>(&FlagWork[100], &stream, 50);
   Io::WriteArrayLE<uint8_t>(&FlagWork[460], &stream, 40);
   Io::WriteArrayBE<int>(&ScrWork[600], &stream, 400);
 
   // Config settings
-  stream.Seek(0x776, SEEK_SET);
+  stream.Seek(0x76c, SEEK_SET);
   Io::WriteLE(&stream, (Uint8)(Audio::GroupVolumes[Audio::ACG_Voice] *
                                128));  // VOICE2vol
   Io::WriteLE(&stream, (Uint8)(Audio::GroupVolumes[Audio::ACG_Voice] *
@@ -181,13 +224,13 @@ void SaveSystem::SaveSystemData() {
   Io::WriteLE(&stream, !SkipRead);
   Io::WriteLE<Uint8>(&stream, 0x02);  // TODO: QSave
 
-  stream.Seek(0x786, SEEK_SET);
+  stream.Seek(0x77c, SEEK_SET);
   Io::WriteLE(&stream, SkipVoice);
   Io::WriteLE(&stream, ShowTipsNotification);
   Io::WriteLE<Uint8>(&stream, 0x00);  // TODO: Pad type
   Io::WriteLE(&stream, TriggerStopSkip);
 
-  stream.Seek(0x79e, SEEK_SET);
+  stream.Seek(0x794, SEEK_SET);
   static_assert(VoiceMuted.size() >= 32);
   for (size_t i = 0; i < 32; i++) {
     Io::WriteLE(&stream, !VoiceMuted[i]);
@@ -199,7 +242,7 @@ void SaveSystem::SaveSystemData() {
   }
 
   // EV Flags
-  stream.Seek(0x7DA, SEEK_SET);
+  stream.Seek(0x7d0, SEEK_SET);
   for (int i = 0; i < 150; i++) {
     uint8_t val = (EVFlags[8 * i] & 1) | ((EVFlags[8 * i + 1] ? 1 : 0) << 1) |
                   ((EVFlags[8 * i + 2] ? 1 : 0) << 2) |
@@ -211,13 +254,13 @@ void SaveSystem::SaveSystemData() {
     Io::WriteU8(&stream, val);
   }
 
-  stream.Seek(0xbc2, SEEK_SET);
+  stream.Seek(0xbb8, SEEK_SET);
   Io::WriteArrayLE<uint8_t>(BGMFlags, &stream, 100);
 
-  stream.Seek(0xc26, SEEK_SET);
+  stream.Seek(0xc1c, SEEK_SET);
   Io::WriteArrayLE<uint8_t>(MessageFlags, &stream, 10000);
 
-  stream.Seek(0x358E, SEEK_SET);
+  stream.Seek(0x3584, SEEK_SET);
   Io::WriteArrayLE<uint8_t>(GameExtraData, &stream, 1024);
 }
 
@@ -333,14 +376,14 @@ SaveError SaveSystem::LoadSystemData() {
   Io::MemoryStream stream =
       Io::MemoryStream(SystemData.data(), SystemData.size(), false);
 
-  stream.Seek(0x14, SEEK_SET);
+  stream.Seek(0xa, SEEK_SET);
 
   Io::ReadArrayLE<uint8_t>(&FlagWork[100], &stream, 50);
   Io::ReadArrayLE<uint8_t>(&FlagWork[460], &stream, 40);
   Io::ReadArrayBE<int>(&ScrWork[600], &stream, 400);
 
   // Config settings
-  stream.Seek(0x776, SEEK_SET);
+  stream.Seek(0x76c, SEEK_SET);
   stream.Seek(1, SEEK_CUR);  // VOICE2vol
   Audio::GroupVolumes[Audio::ACG_Voice] = Io::ReadLE<Uint8>(&stream) / 128.0f;
   Audio::GroupVolumes[Audio::ACG_BGM] = Io::ReadLE<Uint8>(&stream) / 256.0f;
@@ -353,13 +396,13 @@ SaveError SaveSystem::LoadSystemData() {
   SkipRead = !Io::ReadLE<bool>(&stream);
   stream.Seek(1, SEEK_CUR);  // TODO: QSave
 
-  stream.Seek(0x786, SEEK_SET);
+  stream.Seek(0x77c, SEEK_SET);
   SkipVoice = Io::ReadLE<bool>(&stream);
   ShowTipsNotification = Io::ReadLE<bool>(&stream);
   stream.Seek(1, SEEK_CUR);  // TODO: Pad type
   TriggerStopSkip = Io::ReadLE<bool>(&stream);
 
-  stream.Seek(0x79e, SEEK_SET);
+  stream.Seek(0x794, SEEK_SET);
   static_assert(VoiceMuted.size() >= 32);
   for (size_t i = 0; i < 32; i++) {
     VoiceMuted[i] = !Io::ReadLE<bool>(&stream);
@@ -371,7 +414,7 @@ SaveError SaveSystem::LoadSystemData() {
   }
 
   // EV Flags
-  stream.Seek(0x7DA, SEEK_SET);
+  stream.Seek(0x7d0, SEEK_SET);
   for (int i = 0; i < 150; i++) {
     auto val = Io::ReadU8(&stream);
     EVFlags[8 * i] = val & 1;
@@ -384,13 +427,13 @@ SaveError SaveSystem::LoadSystemData() {
     EVFlags[8 * i + 7] = val >> 7;
   }
 
-  stream.Seek(0xbc2, SEEK_SET);
+  stream.Seek(0xbb8, SEEK_SET);
   Io::ReadArrayLE<uint8_t>(BGMFlags, &stream, 100);
 
-  stream.Seek(0xc26, SEEK_SET);
+  stream.Seek(0xc1c, SEEK_SET);
   Io::ReadArrayLE<uint8_t>(MessageFlags, &stream, 10000);
 
-  stream.Seek(0x358E, SEEK_SET);
+  stream.Seek(0x3584, SEEK_SET);
   Io::ReadArrayLE<uint8_t>(GameExtraData, &stream, 1024);
 
   return SaveError::OK;
@@ -422,7 +465,39 @@ SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
                          (int)WorkingSaveThumbnail.Bounds.Height, 0x000000);
   textures.push_back(txt);
 
+  stream->Seek(0x0, SEEK_SET);
+  const uint8_t readFileSystemChecksumSum = Io::ReadU8(stream);
+  const uint8_t readFileSystemChecksumXor = Io::ReadU8(stream);
+  const uint8_t readFileEntriesChecksumSum = Io::ReadU8(stream);
+  const uint8_t readFileEntriesChecksumXor = Io::ReadU8(stream);
+  const uint8_t readFileThumbnailsChecksumSum = Io::ReadU8(stream);
+  const uint8_t readFileThumbnailsChecksumXor = Io::ReadU8(stream);
+
+  stream->Seek(0xa, SEEK_SET);
   Io::ReadArrayLE<uint8_t>(SystemData.data(), stream, SystemData.size());
+
+  const auto [calcFileSystemChecksumSum, calcFileSystemChecksumXor] =
+      CalculateFileChecksum(SystemData);
+  if (readFileSystemChecksumSum != calcFileSystemChecksumSum ||
+      readFileSystemChecksumXor != calcFileSystemChecksumXor) {
+    ImpLog(LogLevel::Error, LogChannel::IO,
+           "Save file system data checksum doesn't match\n");
+  }
+
+  const uint16_t readSystemChecksumSum = (SystemData[1] << 8) | SystemData[0];
+  const uint16_t readSystemChecksumXor = (SystemData[3] << 8) | SystemData[2];
+  const auto [calcSystemChecksumSum, calcSystemChecksumXor] =
+      CalculateSystemChecksum(
+          std::span(SystemData).subspan(10, 0x1cbd * sizeof(uint16_t)));
+
+  if (readSystemChecksumSum != calcSystemChecksumSum ||
+      readSystemChecksumXor != calcSystemChecksumXor) {
+    ImpLog(LogLevel::Error, LogChannel::IO,
+           "System data checksum doesn't match\n");
+  }
+
+  uint8_t calcFileEntriesChecksumSum = 0;
+  uint8_t calcFileEntriesChecksumXor = 0;
 
   for (auto& entryArray : {QuickSaveEntries, FullSaveEntries}) {
     for (int i = 0; i < MaxSaveEntries; i++) {
@@ -431,12 +506,36 @@ SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
       std::array<uint8_t, SaveEntrySize> entrySlotBuf;
       Io::ReadArrayLE<uint8_t>(entrySlotBuf.data(), stream,
                                entrySlotBuf.size());
+
+      std::tie(calcFileEntriesChecksumSum, calcFileEntriesChecksumXor) =
+          CalculateFileChecksum(entrySlotBuf, calcFileEntriesChecksumSum,
+                                calcFileEntriesChecksumXor);
+
+      const uint8_t readEntryChecksumSum = entrySlotBuf[1];
+      const uint8_t readEntryChecksumXor = entrySlotBuf[2];
+      if (readEntryChecksumSum != 0 || readEntryChecksumXor != 0) {
+        const auto [calcEntryChecksumSum, calcEntryChecksumXor] =
+            CalculateEntryChecksum(std::span(entrySlotBuf).subspan(4), 0x76,
+                                   0x12);
+
+        const bool entryChecksumOk =
+            readEntryChecksumSum == calcEntryChecksumSum &&
+            readEntryChecksumXor == calcEntryChecksumXor;
+        entrySlotBuf[0] = entryChecksumOk ? 1 : 2;
+      }
+
       Io::MemoryStream saveEntryDataStream(entrySlotBuf.data(),
                                            entrySlotBuf.size(), false);
 
       LoadEntryBuffer(saveEntryDataStream,
                       static_cast<SaveFileEntry&>(*entryArray[i]));
     }
+  }
+
+  if (readFileEntriesChecksumSum != calcFileEntriesChecksumSum ||
+      readFileEntriesChecksumXor != calcFileEntriesChecksumXor) {
+    ImpLog(LogLevel::Error, LogChannel::IO,
+           "Save file entries checksum doesn't match\n");
   }
 
   delete stream;
@@ -456,6 +555,9 @@ SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
 
   constexpr size_t thumbnailPaddingSize =
       SaveThumbnailWidth * SaveThumbnailHeight;
+
+  uint8_t calcFileThumbnailsChecksumSum = 0;
+  uint8_t calcFileThumbnailsChecksumXor = 0;
 
   for (auto& entryArray : {QuickSaveEntries, FullSaveEntries}) {
     for (int i = 0; i < MaxSaveEntries; i++) {
@@ -483,17 +585,24 @@ SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
       std::ranges::copy(entry->ThumbnailData, texture.Tex.Buffer);
 
       textures.push_back(texture);
+
+      std::tie(calcFileThumbnailsChecksumSum, calcFileThumbnailsChecksumXor) =
+          CalculateFileChecksum(entry->ThumbnailData,
+                                calcFileThumbnailsChecksumSum,
+                                calcFileThumbnailsChecksumXor);
     }
   }
 
   delete stream;
 
+  if (readFileThumbnailsChecksumSum != calcFileThumbnailsChecksumSum ||
+      readFileThumbnailsChecksumXor != calcFileThumbnailsChecksumXor) {
+    ImpLog(LogLevel::Error, LogChannel::IO,
+           "Save file thumbnails checksum doesn't match\n");
+  }
+
   return SaveError::OK;
 }
-
-// uint16_t CalculateChecksum(int id) {
-//  return 0;
-//}
 
 void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
                                        int autoSaveType) {
@@ -551,9 +660,25 @@ SaveError SaveSystem::WriteSaveFile() {
   static_assert(emptyData.size() >= SaveFileSize);
   Io::WriteArrayLE<uint8_t>(emptyData.data(), stream, SaveFileSize);
 
-  stream->Seek(0, SEEK_SET);
+  const auto [systemChecksumSum, systemChecksumXor] = CalculateSystemChecksum(
+      std::span(SystemData).subspan(10, 0x1cbd * sizeof(uint16_t)));
+  SystemData[0] = systemChecksumSum & 0xFF;
+  SystemData[1] = systemChecksumSum >> 8;
+  SystemData[2] = systemChecksumXor & 0xFF;
+  SystemData[3] = systemChecksumXor >> 8;
+
+  const auto [fileSystemChecksumSum, fileSystemChecksumXor] =
+      CalculateFileChecksum(SystemData);
+
+  stream->Seek(0x0, SEEK_SET);
+  Io::WriteU8(stream, fileSystemChecksumSum);
+  Io::WriteU8(stream, fileSystemChecksumXor);
+
+  stream->Seek(0xa, SEEK_SET);
   Io::WriteArrayLE<uint8_t>(SystemData.data(), stream, SystemData.size());
 
+  uint8_t fileEntriesChecksumSum = 0;
+  uint8_t fileEntriesChecksumXor = 0;
   for (auto& entryArray : {QuickSaveEntries, FullSaveEntries}) {
     [[maybe_unused]] int64_t saveDataPos = stream->Position;
     for (size_t i = 0; i < MaxSaveEntries; i++) {
@@ -567,23 +692,42 @@ SaveError SaveSystem::WriteSaveFile() {
         Io::MemoryStream saveEntryMemoryStream(entrySlotBuf.data(),
                                                entrySlotBuf.size(), false);
         SaveEntryBuffer(saveEntryMemoryStream, *entry);
+
+        const auto [entryChecksumSum, entryChecksumXor] =
+            CalculateEntryChecksum(std::span(entrySlotBuf).subspan(4), 0x76,
+                                   0x12);
+        entrySlotBuf[0] = 1;
+        entrySlotBuf[1] = entryChecksumSum;
+        entrySlotBuf[2] = entryChecksumXor;
+
+        std::tie(fileEntriesChecksumSum, fileEntriesChecksumXor) =
+            CalculateFileChecksum(entrySlotBuf, fileEntriesChecksumSum,
+                                  fileEntriesChecksumXor);
+
         Io::WriteArrayLE<uint8_t>(entrySlotBuf.data(), stream,
                                   entrySlotBuf.size());
       }
     }
   }
 
-  delete stream;
+  stream->Seek(0x2, SEEK_SET);
+  Io::WriteU8(stream, fileEntriesChecksumSum);
+  Io::WriteU8(stream, fileEntriesChecksumXor);
 
   // Write thumbnails
 
-  err = Io::PhysicalFileStream::Create(
-      *ThumbnailFilePath, &stream, CF::CREATE | CF::CREATE_DIRS | CF::WRITE);
+  Io::Stream* thumbnailsStream;
+  err =
+      Io::PhysicalFileStream::Create(*ThumbnailFilePath, &thumbnailsStream,
+                                     CF::CREATE | CF::CREATE_DIRS | CF::WRITE);
   if (err != IoError_OK) {
     ImpLog(LogLevel::Error, LogChannel::IO,
            "Failed to open thumbnail file for writing\n");
     return SaveError::Failed;
   }
+
+  uint8_t fileThumbnailsChecksumSum = 0;
+  uint8_t fileThumbnailsChecksumXor = 0;
 
   static_assert(emptyData.size() >= SaveThumbnailSize + ThumbnailPaddingSize);
   for (auto& entryArray : {QuickSaveEntries, FullSaveEntries}) {
@@ -591,18 +735,28 @@ SaveError SaveSystem::WriteSaveFile() {
       SaveFileEntry* entry = static_cast<SaveFileEntry*>(entryArray[i]);
 
       if (entry == nullptr || entry->Status == 0) {
-        Io::WriteArrayLE<uint8_t>(emptyData.data(), stream,
+        Io::WriteArrayLE<uint8_t>(emptyData.data(), thumbnailsStream,
                                   SaveThumbnailSize + ThumbnailPaddingSize);
       } else {
-        Io::WriteArrayLE<uint8_t>(entry->ThumbnailData.data(), stream,
+        Io::WriteArrayLE<uint8_t>(entry->ThumbnailData.data(), thumbnailsStream,
                                   entry->ThumbnailData.size());
-        Io::WriteArrayLE<uint8_t>(emptyData.data(), stream,
+        Io::WriteArrayLE<uint8_t>(emptyData.data(), thumbnailsStream,
                                   ThumbnailPaddingSize);
+
+        std::tie(fileThumbnailsChecksumSum, fileThumbnailsChecksumXor) =
+            CalculateFileChecksum(entry->ThumbnailData,
+                                  fileThumbnailsChecksumSum,
+                                  fileThumbnailsChecksumXor);
       }
     }
   }
 
+  stream->Seek(0x4, SEEK_SET);
+  Io::WriteU8(stream, fileThumbnailsChecksumSum);
+  Io::WriteU8(stream, fileThumbnailsChecksumXor);
+
   delete stream;
+  delete thumbnailsStream;
 
   return SaveError::OK;
 }
