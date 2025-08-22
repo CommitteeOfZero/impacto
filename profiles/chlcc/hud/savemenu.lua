@@ -69,7 +69,7 @@ root.SaveMenu = {
     EntryNumberHintTextRelativePos = {X = 209, Y = 10},
     EntryNumberTextRelativePos = {X = 249, Y = 10},
     SceneTitleTextRelativePos = {X = 209, Y = 35},
-    NoDataTextRelativePos = {X = 294, Y = 45},
+    NoDataTextRelativePos = {X = 299, Y = 45},
     PlayTimeHintTextRelativePos = {X = 259, Y = 67},
     PlayTimeTextRelativePos = {X = 419, Y = 67},
     SaveDateHintTextRelativePos = {X = 259, Y = 84},
