@@ -422,6 +422,7 @@ VmInstruction(InstSelect) {
           SaveIconDisplay::ShowFor(2.4f);
           SaveSystem::FlushWorkingSaveEntry(SaveSystem::SaveType::Quick,
                                             quicksaveEntries, 2);
+          SaveSystem::SaveThumbnailData();
         }
         ScrWork[SW_AUTOSAVERESTART] = 0;
         if (quicksaveEntries == -1) {

@@ -905,6 +905,7 @@ VmInstruction(InstAutoSave) {
         SaveIconDisplay::ShowFor(2.4f);
         SaveSystem::FlushWorkingSaveEntry(SaveSystem::SaveType::Quick,
                                           quicksaveEntries, saveType);
+        SaveSystem::SaveThumbnailData();
       }
     }
     SetFlag(SF_AUTOSAVEENABLE, 1);
@@ -946,6 +947,7 @@ VmInstruction(InstAutoSave) {
         SaveIconDisplay::ShowFor(2.4f);
         SaveSystem::FlushWorkingSaveEntry(SaveSystem::SaveType::Quick,
                                           quicksaveEntries, 0);
+        SaveSystem::SaveThumbnailData();
       }
 
       SetFlag(SF_AUTOSAVEENABLE, 0);
