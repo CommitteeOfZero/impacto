@@ -11,10 +11,11 @@ namespace CCLCC {
 
 using namespace Impacto::SaveSystem;
 
-constexpr int SaveFileSize = 0x1b110 * MaxSaveEntries * 2 + 0x387c;
+constexpr size_t SaveEntrySize = 0x1b110;
+constexpr int SaveFileSize = SaveEntrySize * MaxSaveEntries * 2 + 0x387c;
+
 constexpr int SaveThumbnailWidth = 240;
 constexpr int SaveThumbnailHeight = 135;
-
 // CCLCC PS4 Save thumbnails are 240x135 RGB16
 constexpr int SaveThumbnailSize =
     SaveThumbnailWidth * SaveThumbnailHeight * 4 / 2;

@@ -88,7 +88,7 @@ std::pair<uint16_t, uint16_t> CalculateSystemChecksum(
 }
 
 void SaveSystem::InitializeSystemData() {
-  std::fill(SystemData.begin(), SystemData.end(), 0x00);
+  std::ranges::fill(SystemData, 0x00);
 
   Io::MemoryStream stream =
       Io::MemoryStream(SystemData.data(), SystemData.size(), false);
@@ -653,8 +653,6 @@ SaveError SaveSystem::WriteSaveFile() {
     return SaveError::Failed;
   }
 
-  Io::WriteLE<uint8_t>(stream, 0, SaveFileSize);
-
   const auto [systemChecksumSum, systemChecksumXor] = CalculateSystemChecksum(
       std::span(SystemData).subspan(10, 0x1cbd * sizeof(uint16_t)));
   SystemData[0] = systemChecksumSum & 0xFF;
@@ -681,7 +679,7 @@ SaveError SaveSystem::WriteSaveFile() {
       SaveFileEntry* entry = (SaveFileEntry*)entryArray[i];
 
       if (entry == nullptr || entry->Status == 0) {
-        stream->Seek(SaveEntrySize, SEEK_CUR);
+        Io::WriteLE<uint8_t>(stream, 0, SaveEntrySize);
       } else {
         std::array<uint8_t, SaveEntrySize> entrySlotBuf{};
         Io::MemoryStream saveEntryMemoryStream(entrySlotBuf.data(),
@@ -747,6 +745,9 @@ SaveError SaveSystem::WriteSaveFile() {
   stream->Seek(0x4, SEEK_SET);
   Io::WriteU8(stream, fileThumbnailsChecksumSum);
   Io::WriteU8(stream, fileThumbnailsChecksumXor);
+
+  // Four empty bytes between the end of checksums and the start of SystemData
+  Io::WriteLE<uint8_t>(stream, 0x00, 4);
 
   delete stream;
   delete thumbnailsStream;

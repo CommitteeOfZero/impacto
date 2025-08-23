@@ -280,10 +280,11 @@ SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
         (entryArray == QuickSaveEntries) ? SaveType::Quick : SaveType::Full;
     [[maybe_unused]] int64_t saveDataPos = stream->Position;
     for (int i = 0; i < MaxSaveEntries; i++) {
-      assert(stream->Position - saveDataPos == 0x1b110 * i);
+      assert(stream->Position - saveDataPos ==
+             static_cast<int>(SaveEntrySize) * i);
       entryArray[i] = new SaveFileEntry();
 
-      std::array<uint8_t, 0x1b110> entrySlotBuf;
+      std::array<uint8_t, SaveEntrySize> entrySlotBuf;
       Io::ReadArrayLE<uint8_t>(entrySlotBuf.data(), stream,
                                entrySlotBuf.size());
       Io::MemoryStream saveEntryDataStream(entrySlotBuf.data(),
@@ -604,8 +605,6 @@ SaveError SaveSystem::WriteSaveFile() {
     return SaveError::Failed;
   }
 
-  Io::WriteLE<uint8_t>(stream, 0, SaveFileSize);
-
   stream->Seek(0, SEEK_SET);
   Io::MemoryStream systemSaveStream =
       Io::MemoryStream(SystemData.data(), SystemData.size(), false);
@@ -622,10 +621,11 @@ SaveError SaveSystem::WriteSaveFile() {
     for (int i = 0; i < MaxSaveEntries; i++) {
       SaveFileEntry* entry = (SaveFileEntry*)entryArray[i];
       if (entry == nullptr || entry->Status == 0) {
-        stream->Seek(0x1b110, SEEK_CUR);
+        Io::WriteLE<uint8_t>(stream, 0, SaveEntrySize);
       } else {
-        assert(stream->Position - saveDataPos == 0x1b110 * i);
-        std::array<uint8_t, 0x1b110> entrySlotBuf{};
+        assert(stream->Position - saveDataPos ==
+               static_cast<int>(SaveEntrySize) * i);
+        std::array<uint8_t, SaveEntrySize> entrySlotBuf{};
         Io::MemoryStream saveEntryMemoryStream(entrySlotBuf.data(),
                                                entrySlotBuf.size(), false);
         SaveEntryBuffer(saveEntryMemoryStream, *entry, saveType);
