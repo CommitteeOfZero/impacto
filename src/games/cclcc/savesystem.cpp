@@ -604,8 +604,7 @@ SaveError SaveSystem::WriteSaveFile() {
     return SaveError::Failed;
   }
 
-  std::vector<uint8_t> emptyData(SaveFileSize, 0x00);
-  Io::WriteArrayLE<uint8_t>(emptyData.data(), stream, emptyData.size());
+  Io::WriteLE<uint8_t>(stream, 0, SaveFileSize);
 
   stream->Seek(0, SEEK_SET);
   Io::MemoryStream systemSaveStream =

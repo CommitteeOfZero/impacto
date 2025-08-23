@@ -653,12 +653,7 @@ SaveError SaveSystem::WriteSaveFile() {
     return SaveError::Failed;
   }
 
-  constexpr static std::array<
-      uint8_t, std::max(SaveFileSize, SaveThumbnailSize + ThumbnailPaddingSize)>
-      emptyData{};
-
-  static_assert(emptyData.size() >= SaveFileSize);
-  Io::WriteArrayLE<uint8_t>(emptyData.data(), stream, SaveFileSize);
+  Io::WriteLE<uint8_t>(stream, 0, SaveFileSize);
 
   const auto [systemChecksumSum, systemChecksumXor] = CalculateSystemChecksum(
       std::span(SystemData).subspan(10, 0x1cbd * sizeof(uint16_t)));
@@ -729,19 +724,17 @@ SaveError SaveSystem::WriteSaveFile() {
   uint8_t fileThumbnailsChecksumSum = 0;
   uint8_t fileThumbnailsChecksumXor = 0;
 
-  static_assert(emptyData.size() >= SaveThumbnailSize + ThumbnailPaddingSize);
   for (auto& entryArray : {QuickSaveEntries, FullSaveEntries}) {
     for (size_t i = 0; i < MaxSaveEntries; i++) {
       SaveFileEntry* entry = static_cast<SaveFileEntry*>(entryArray[i]);
 
       if (entry == nullptr || entry->Status == 0) {
-        Io::WriteArrayLE<uint8_t>(emptyData.data(), thumbnailsStream,
-                                  SaveThumbnailSize + ThumbnailPaddingSize);
+        Io::WriteLE<uint8_t>(thumbnailsStream, 0,
+                             SaveThumbnailSize + ThumbnailPaddingSize);
       } else {
         Io::WriteArrayLE<uint8_t>(entry->ThumbnailData.data(), thumbnailsStream,
                                   entry->ThumbnailData.size());
-        Io::WriteArrayLE<uint8_t>(emptyData.data(), thumbnailsStream,
-                                  ThumbnailPaddingSize);
+        Io::WriteLE<uint8_t>(thumbnailsStream, 0, ThumbnailPaddingSize);
 
         std::tie(fileThumbnailsChecksumSum, fileThumbnailsChecksumXor) =
             CalculateFileChecksum(entry->ThumbnailData,
