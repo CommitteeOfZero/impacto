@@ -31,6 +31,8 @@ void SaveMenu::MenuButtonOnClick(Widgets::Button* target) {
   if ((SaveSystem::GetSaveStatus(EntryType, target->Id) == 1) ||
       *ActiveMenuType == +SaveMenuPageType::Save) {
     ScrWork[SW_SAVEFILENO] = target->Id;
+    ScrWork[SW_SAVEFILESTATUS] =
+        SaveSystem::GetSaveStatus(EntryType, ScrWork[SW_SAVEFILENO]);
     ChoiceMade = true;
   }
 }

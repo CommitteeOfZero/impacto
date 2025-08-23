@@ -427,8 +427,6 @@ VmInstruction(InstSaveMenuOld) {
       } else {
         UI::SaveMenuPtr->ChoiceMade = false;
         Interface::PADinputButtonWentDown |= Interface::PAD1A;
-        ScrWork[SW_SAVEFILESTATUS] = SaveSystem::GetSaveStatus(
-            SaveSystem::SaveType::Full, ScrWork[SW_SAVEFILENO]);
       }
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction SaveMenu(type: {:d})\n", type);

@@ -24,10 +24,16 @@ using namespace Impacto::UI::Widgets::MO6TW;
 Widget* EntryGrid[RowsPerPage][EntriesPerRow];
 
 void SaveMenu::MenuButtonOnClick(Widgets::Button* target) {
-  if ((SaveSystem::GetSaveStatus(SaveSystem::SaveType::Full, target->Id) !=
-       0) ||
+  const SaveSystem::SaveType saveType =
+      *ActiveMenuType == +SaveMenuPageType::QuickLoad
+          ? SaveSystem::SaveType::Quick
+          : SaveSystem::SaveType::Full;
+
+  if ((SaveSystem::GetSaveStatus(saveType, target->Id) != 0) ||
       *ActiveMenuType == +SaveMenuPageType::Save) {
     ScrWork[SW_SAVEFILENO] = target->Id;
+    ScrWork[SW_SAVEFILESTATUS] =
+        SaveSystem::GetSaveStatus(saveType, ScrWork[SW_SAVEFILENO]);
     ChoiceMade = true;
   }
 }

@@ -19,7 +19,11 @@ class AchievementFileLoader
  protected:
   void UnloadSync() {}
   AchievementError LoadSync() {
-    return Implementation->MountAchievementFile(MainThreadCallback);
+    if (Implementation) {
+      return Implementation->MountAchievementFile(MainThreadCallback);
+    }
+
+    return AchievementError::Failed;
   }
 
   void MainThreadOnLoad(AchievementError result) {
