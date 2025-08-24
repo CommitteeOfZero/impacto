@@ -15,6 +15,7 @@ class MovieMenuEntryButton : public Widgets::Button {
                        Sprite const& lockedMovieThumbnail,
                        glm::vec2 thumbnailPos, glm::vec2 boxPos);
 
+  void UpdateInput(float dt) override;
   void Update(float dt) override;
   void Render() override;
 

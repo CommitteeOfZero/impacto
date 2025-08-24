@@ -71,7 +71,6 @@ MovieMenu::MovieMenu() {
 
   // Movie Buttons initialization
   MovieItems = new Widgets::Group(this);
-  MovieItems->FocusLock = false;
 
   for (int i = 0; i < 10; i++) {
     glm::vec2 thumbnailPosition(ThumbnailPositions[i].x,
@@ -132,6 +131,7 @@ void MovieMenu::Show() {
       FromSystemMenuTransition.StartIn();
     }
     MovieItems->Show();
+    MovieItems->HasFocus = false;
     State = Showing;
     ChoiceMade = false;
     UpdateMovieEntries();
@@ -142,8 +142,10 @@ void MovieMenu::Show() {
     }
     IsFocused = true;
     UI::FocusedMenu = this;
-    MovieItems->Children.front()->HasFocus = true;
-    CurrentlyFocusedElement = MovieItems->Children.front();
+    if (!CurrentlyFocusedElement) {
+      MovieItems->Children.front()->HasFocus = true;
+      CurrentlyFocusedElement = MovieItems->Children.front();
+    }
   }
 }
 
@@ -228,7 +230,6 @@ void MovieMenu::UpdateInput(float dt) {
     if (PADinputButtonWentDown & PAD1B || PADinputMouseWentDown & PAD1B) {
       IsChoiceMadeOnce = false;
     }
-    MovieItems->UpdateInput(dt);
   }
 }
 
@@ -245,11 +246,11 @@ void MovieMenu::Update(float dt) {
       (ScrWork[SW_SYSMENUCT] == 0 || GetFlag(SF_SYSTEMMENU)) &&
       State == Hiding) {
     State = Hidden;
-    MovieItems->Hide();
+    MovieItems->HasFocus = true;
   } else if (MenuTransition.IsIn() && ScrWork[SW_SYSMENUCT] == 10000 &&
              State == Showing) {
     State = Shown;
-    MovieItems->Show();
+    MovieItems->HasFocus = true;
   }
 
   if (State != Hidden) {
