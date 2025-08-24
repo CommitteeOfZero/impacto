@@ -35,13 +35,21 @@ TipsMenu::TipsMenu() {
   TitleFade.DurationIn = TitleFadeInDuration;
   TitleFade.DurationOut = TitleFadeOutDuration;
 
+  FromSystemMenuTransition.Direction = AnimationDirection::In;
+  FromSystemMenuTransition.LoopMode = AnimationLoopMode::Stop;
+  FromSystemMenuTransition.DurationIn = TitleFadeInDuration;
+  FromSystemMenuTransition.DurationOut = TitleFadeOutDuration;
+
   RedBarSprite = InitialRedBarSprite;
   RedBarPosition = InitialRedBarPosition;
 }
 
 void TipsMenu::Show() {
   if (State != Shown) {
-    if (State != Showing) MenuTransition.StartIn();
+    if (State != Showing) {
+      MenuTransition.StartIn();
+      FromSystemMenuTransition.StartIn();
+    }
     State = Showing;
     if (UI::FocusedMenu != 0) {
       LastFocusedMenu = UI::FocusedMenu;
@@ -55,6 +63,7 @@ void TipsMenu::Hide() {
   if (State != Hidden) {
     if (State != Hiding) {
       MenuTransition.StartOut();
+      FromSystemMenuTransition.StartOut();
     }
     State = Hiding;
     if (LastFocusedMenu != 0) {
@@ -72,6 +81,10 @@ void TipsMenu::Render() {
     if (MenuTransition.IsIn()) {
       Renderer->DrawQuad(RectF(0.0f, 0.0f, 1280.0f, 720.0f),
                          RgbIntToFloat(BackgroundColor));
+    } else if (GetFlag(SF_SYSTEMMENU)) {
+      Renderer->DrawQuad(
+          RectF(0.0f, 0.0f, 1280.0f, 720.0f),
+          RgbIntToFloat(BackgroundColor, FromSystemMenuTransition.Progress));
     } else {
       DrawCircles();
     }
@@ -114,21 +127,25 @@ void TipsMenu::Render() {
 }
 
 void TipsMenu::Update(float dt) {
-  if (ScrWork[SW_SYSMENUCT] < 32 && State == Shown) {
+  if ((!GetFlag(SF_TIPSMENU) || ScrWork[SW_SYSMENUCT] < 10000) &&
+      State == Shown) {
     Hide();
   } else if (GetFlag(SF_TIPSMENU) && ScrWork[SW_SYSMENUCT] > 0 &&
              State == Hidden) {
     Show();
   }
 
-  if (MenuTransition.IsOut() && State == Hiding)
+  if (MenuTransition.IsOut() &&
+      (ScrWork[SW_SYSMENUCT] == 0 || GetFlag(SF_SYSTEMMENU)) && State == Hiding)
     State = Hidden;
-  else if (MenuTransition.IsIn() && State == Showing) {
+  else if (MenuTransition.IsIn() && ScrWork[SW_SYSMENUCT] == 10000 &&
+           State == Showing) {
     State = Shown;
   }
 
   if (State != Hidden) {
     MenuTransition.Update(dt);
+    FromSystemMenuTransition.Update(dt);
     if (MenuTransition.Direction == +AnimationDirection::Out &&
         MenuTransition.Progress <= 0.72f) {
       TitleFade.StartOut();

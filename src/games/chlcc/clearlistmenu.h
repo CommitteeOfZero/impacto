@@ -35,6 +35,7 @@ class ClearListMenu : public Menu {
 
   Animation MenuTransition;
   Animation TitleFade;
+  Animation FromSystemMenuTransition;
 
   glm::vec2 RedTitleLabelPos;
   glm::vec2 RightTitlePos;

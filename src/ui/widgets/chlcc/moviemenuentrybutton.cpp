@@ -29,6 +29,8 @@ MovieMenuEntryButton::MovieMenuEntryButton(int id, Sprite const& movieThumbnail,
   MovieBoxAnim.StartIn();
 }
 
+void MovieMenuEntryButton::UpdateInput(float dt) { Button::UpdateInput(dt); }
+
 void MovieMenuEntryButton::Update(float dt) {
   Button::Update(dt);
   MovieBoxAnim.Update(dt);

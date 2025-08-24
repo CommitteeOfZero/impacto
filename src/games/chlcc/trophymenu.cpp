@@ -5,13 +5,11 @@
 #include "../../vm/vm.h"
 #include "../../profile/scriptvars.h"
 #include "../../profile/dialogue.h"
-#include "../../profile/ui/backlogmenu.h"
 #include "../../profile/ui/trophymenu.h"
 #include "../../profile/games/chlcc/trophymenu.h"
-#include "../../io/memorystream.h"
-#include "../../data/tipssystem.h"
+#include "../../inputsystem.h"
 #include "../../vm/interface/input.h"
-#include "../../profile/game.h"
+#include "../../data/tipssystem.h"
 #include "../../data/achievementsystem.h"
 #include "trophymenuentry.h"
 
@@ -38,6 +36,11 @@ TrophyMenu::TrophyMenu() {
   TitleFade.DurationIn = TitleFadeInDuration;
   TitleFade.DurationOut = TitleFadeOutDuration;
 
+  FromSystemMenuTransition.Direction = AnimationDirection::In;
+  FromSystemMenuTransition.LoopMode = AnimationLoopMode::Stop;
+  FromSystemMenuTransition.DurationIn = TitleFadeInDuration;
+  FromSystemMenuTransition.DurationOut = TitleFadeOutDuration;
+
   RedBarSprite = InitialRedBarSprite;
   RedBarPosition = InitialRedBarPosition;
 
@@ -46,7 +49,10 @@ TrophyMenu::TrophyMenu() {
 
 void TrophyMenu::Show() {
   if (State != Shown) {
-    if (State != Showing) MenuTransition.StartIn();
+    if (State != Showing) {
+      MenuTransition.StartIn();
+      FromSystemMenuTransition.StartIn();
+    }
     State = Showing;
     if (UI::FocusedMenu != 0) {
       LastFocusedMenu = UI::FocusedMenu;
@@ -76,6 +82,7 @@ void TrophyMenu::Hide() {
   if (State != Hidden) {
     if (State != Hiding) {
       MenuTransition.StartOut();
+      FromSystemMenuTransition.StartOut();
     }
     State = Hiding;
     if (LastFocusedMenu != 0) {
@@ -94,6 +101,10 @@ void TrophyMenu::Render() {
     if (MenuTransition.IsIn()) {
       Renderer->DrawQuad(RectF(0.0f, 0.0f, 1280.0f, 720.0f),
                          RgbIntToFloat(BackgroundColor));
+    } else if (GetFlag(SF_SYSTEMMENU)) {
+      Renderer->DrawQuad(
+          RectF(0.0f, 0.0f, 1280.0f, 720.0f),
+          RgbIntToFloat(BackgroundColor, FromSystemMenuTransition.Progress));
     } else {
       DrawCircles();
     }
@@ -149,12 +160,14 @@ void TrophyMenu::Render() {
 
 void TrophyMenu::UpdateInput(float dt) {
   if (IsFocused) {
-    if (PADinputButtonWentDown & PAD1DOWN) {
+    if (PADinputButtonWentDown & PAD1DOWN || Input::MouseWheelDeltaY < 0 ||
+        PADinputButtonWentDown & PADcustom[8]) {
       if (CurrentPage < 8) {
         MainItems[CurrentPage++].Hide();
         MainItems[CurrentPage].Show();
       }
-    } else if (PADinputButtonWentDown & PAD1UP) {
+    } else if (PADinputButtonWentDown & PAD1UP || Input::MouseWheelDeltaY > 0 ||
+               PADinputButtonWentDown & PADcustom[7]) {
       if (CurrentPage > 0) {
         MainItems[CurrentPage--].Hide();
         MainItems[CurrentPage].Show();
@@ -166,24 +179,29 @@ void TrophyMenu::UpdateInput(float dt) {
 void TrophyMenu::Update(float dt) {
   UpdateInput(dt);
 
-  if (ScrWork[SW_SYSMENUCT] < 32 && State == Shown) {
+  if ((!GetFlag(SF_ACHIEVEMENTMENU) || ScrWork[SW_SYSMENUCT] < 10000) &&
+      State == Shown) {
     Hide();
   } else if (GetFlag(SF_ACHIEVEMENTMENU) && ScrWork[SW_SYSMENUCT] > 0 &&
              State == Hidden) {
     Show();
   }
 
-  if (MenuTransition.IsOut() && State == Hiding) {
+  if (MenuTransition.IsOut() &&
+      (ScrWork[SW_SYSMENUCT] == 0 || GetFlag(SF_SYSTEMMENU)) &&
+      State == Hiding) {
     State = Hidden;
     for (int i = 0; i < 9; i++) {
       MainItems[i].Clear();
     }
-  } else if (MenuTransition.IsIn() && State == Showing) {
+  } else if (MenuTransition.IsIn() && ScrWork[SW_SYSMENUCT] == 10000 &&
+             State == Showing) {
     State = Shown;
   }
 
   if (State != Hidden) {
     MenuTransition.Update(dt);
+    FromSystemMenuTransition.Update(dt);
     if (MenuTransition.Direction == +AnimationDirection::Out &&
         MenuTransition.Progress <= 0.72f) {
       TitleFade.StartOut();

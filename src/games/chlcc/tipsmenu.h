@@ -38,6 +38,7 @@ class TipsMenu : public UI::TipsMenu {
 
   Animation MenuTransition;
   Animation TitleFade;
+  Animation FromSystemMenuTransition;
 
   glm::vec2 RedTitleLabelPos;
   glm::vec2 RightTitlePos;

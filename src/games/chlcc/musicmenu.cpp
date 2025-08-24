@@ -41,6 +41,11 @@ MusicMenu::MusicMenu() {
   NowPlayingAnimation.LoopMode = AnimationLoopMode::Stop;
   NowPlayingAnimation.SetDuration(NowPlayingAnimationDuration);
 
+  FromSystemMenuTransition.Direction = AnimationDirection::In;
+  FromSystemMenuTransition.LoopMode = AnimationLoopMode::Stop;
+  FromSystemMenuTransition.DurationIn = TitleFadeInDuration;
+  FromSystemMenuTransition.DurationOut = TitleFadeOutDuration;
+
   RedBarSprite = InitialRedBarSprite;
   RedBarPosition = InitialRedBarPosition;
 
@@ -62,7 +67,10 @@ MusicMenu::MusicMenu() {
 
 void MusicMenu::Show() {
   if (State != Shown) {
-    if (State != Showing) MenuTransition.StartIn();
+    if (State != Showing) {
+      MenuTransition.StartIn();
+      FromSystemMenuTransition.StartIn();
+    }
     State = Showing;
     UpdateEntries();
     MainItems->Show();
@@ -83,6 +91,7 @@ void MusicMenu::Hide() {
   if (State != Hidden) {
     if (State != Hiding) {
       MenuTransition.StartOut();
+      FromSystemMenuTransition.StartOut();
     }
     CurrentlyPlayingTrackId = -1;
     NowPlayingAnimation.StartOut();
@@ -104,6 +113,10 @@ void MusicMenu::Render() {
     if (MenuTransition.IsIn()) {
       Renderer->DrawQuad(RectF(0.0f, 0.0f, 1280.0f, 720.0f),
                          RgbIntToFloat(BackgroundColor));
+    } else if (GetFlag(SF_SYSTEMMENU)) {
+      Renderer->DrawQuad(
+          RectF(0.0f, 0.0f, 1280.0f, 720.0f),
+          RgbIntToFloat(BackgroundColor, FromSystemMenuTransition.Progress));
     } else {
       DrawCircles();
     }
@@ -185,20 +198,23 @@ void MusicMenu::Render() {
 }
 
 void MusicMenu::Update(float dt) {
-  UpdateInput(dt);
-  if (ScrWork[SW_SYSMENUCT] < 32 && State == Shown) {
+  if ((!GetFlag(SF_SOUNDMENU) || ScrWork[SW_SYSMENUCT] < 10000) &&
+      State == Shown) {
     Hide();
   } else if (GetFlag(SF_SOUNDMENU) && ScrWork[SW_SYSMENUCT] > 0 &&
              State == Hidden) {
     Show();
   }
 
-  if (MenuTransition.IsOut() && State == Hiding) {
+  if (MenuTransition.IsOut() &&
+      (ScrWork[SW_SYSMENUCT] == 0 || GetFlag(SF_SYSTEMMENU)) &&
+      State == Hiding) {
     MainItems->Hide();
     CurrentlyPlayingTrackName.Hide();
     CurrentlyPlayingTrackArtist.Hide();
     State = Hidden;
-  } else if (MenuTransition.IsIn() && State == Showing) {
+  } else if (MenuTransition.IsIn() && ScrWork[SW_SYSMENUCT] == 10000 &&
+             State == Showing) {
     State = Shown;
     MainItems->RenderingBounds =
         RectF(0.0f, TrackButtonPosTemplate.y, 1280.0f, 16 * TrackOffset.y + 1);
@@ -211,6 +227,7 @@ void MusicMenu::Update(float dt) {
 
   if (State != Hidden) {
     MenuTransition.Update(dt);
+    FromSystemMenuTransition.Update(dt);
     if (MenuTransition.Direction == +AnimationDirection::Out &&
         MenuTransition.Progress <= 0.72f) {
       TitleFade.StartOut();
@@ -218,6 +235,9 @@ void MusicMenu::Update(float dt) {
                (TitleFade.Direction == +AnimationDirection::In ||
                 TitleFade.IsOut())) {
       TitleFade.StartIn();
+    }
+    if (State == Shown) {
+      UpdateInput(dt);
     }
     TitleFade.Update(dt);
     NowPlayingAnimation.Update(dt);

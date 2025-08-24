@@ -31,6 +31,11 @@ OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
   TitleFade.DurationIn = TitleFadeInDuration;
   TitleFade.DurationOut = TitleFadeOutDuration;
 
+  FromSystemMenuTransition.Direction = AnimationDirection::In;
+  FromSystemMenuTransition.LoopMode = AnimationLoopMode::Stop;
+  FromSystemMenuTransition.DurationIn = TitleFadeInDuration;
+  FromSystemMenuTransition.DurationOut = TitleFadeOutDuration;
+
   RedBarSprite = InitialRedBarSprite;
   RedBarPosition = InitialRedBarPosition;
 
@@ -46,6 +51,10 @@ void OptionsMenu::Render() {
     if (FadeAnimation.IsIn()) {
       Renderer->DrawQuad(RectF(0.0f, 0.0f, 1280.0f, 720.0f),
                          RgbIntToFloat(BackgroundColor));
+    } else if (GetFlag(SF_SYSTEMMENU)) {
+      Renderer->DrawQuad(
+          RectF(0.0f, 0.0f, 1280.0f, 720.0f),
+          RgbIntToFloat(BackgroundColor, FromSystemMenuTransition.Progress));
     } else {
       DrawCircles();
     }
@@ -84,16 +93,19 @@ void OptionsMenu::Render() {
 }
 
 void OptionsMenu::UpdateVisibility() {
-  if (ScrWork[SW_SYSMENUCT] < 32 && State == Shown) {
+  if ((!GetFlag(SF_OPTIONMENU) || ScrWork[SW_SYSMENUCT] < 10000) &&
+      State == Shown) {
     Hide();
   } else if (GetFlag(SF_OPTIONMENU) && ScrWork[SW_SYSMENUCT] > 0 &&
              State == Hidden) {
     Show();
   }
 
-  if (FadeAnimation.IsOut() && State == Hiding)
+  if (FadeAnimation.IsOut() &&
+      (ScrWork[SW_SYSMENUCT] == 0 || GetFlag(SF_SYSTEMMENU)) && State == Hiding)
     State = Hidden;
-  else if (FadeAnimation.IsIn() && State == Showing) {
+  else if (FadeAnimation.IsIn() && ScrWork[SW_SYSMENUCT] == 10000 &&
+           State == Showing) {
     State = Shown;
   }
 }
@@ -103,13 +115,16 @@ void OptionsMenu::Update(float dt) {
 
   if (State != Hidden) {
     FadeAnimation.Update(dt);
+    FromSystemMenuTransition.Update(dt);
     if (FadeAnimation.Direction == +AnimationDirection::Out &&
         FadeAnimation.Progress <= 0.72f) {
       TitleFade.StartOut();
+      FromSystemMenuTransition.StartOut();
     } else if (FadeAnimation.IsIn() &&
                (TitleFade.Direction == +AnimationDirection::In ||
                 TitleFade.IsOut())) {
       TitleFade.StartIn();
+      FromSystemMenuTransition.StartIn();
     }
     TitleFade.Update(dt);
     UpdateTitles();

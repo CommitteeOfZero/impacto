@@ -44,6 +44,7 @@ class MusicMenu : public Menu {
   Animation MenuTransition;
   Animation TitleFade;
   Animation NowPlayingAnimation;
+  Animation FromSystemMenuTransition;
 
   bool InputEnabled = false;
 

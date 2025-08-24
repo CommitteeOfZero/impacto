@@ -148,7 +148,7 @@ root.ExtraMenus = {
         LockedCG = "LockedCG",
         ThumbnailOffset = { X = 264, Y = 152 },
         ThumbnailHighlight = "ThumbnailHighlight",
-        AlbumPages = 7,
+        AlbumPages = 6,
         EntriesPerPage = 9,
         PageNums = {},
         CurrentPageNumPos = { X = 1133, Y = 65 },
@@ -227,9 +227,9 @@ root.ExtraMenus = {
         HighlightStar = "HighlightStar",
         HighlightStarRelativePos = { X = 1, Y = 1 },
         Playlist = {
-                8, 14, 26, 10, 28, 12, 20, 16, 18, 24, 22, 80, 76, 32, 34,
-                36, 38, 77, 41, 43, 78, 46, 49, 79, 51, 53, 56, 81, 59, 61,
-                63, 65, 82, 83, 84, 0, 1, 2, 4, 6, 85, 72, 74, 75, 71
+            8, 14, 26, 10, 28, 12, 20, 16, 18, 24, 22, 80, 76, 32, 34,
+            36, 38, 77, 41, 43, 78, 46, 49, 79, 51, 53, 56, 81, 59, 61,
+            63, 65, 82, 83, 84, 0, 1, 2, 4, 6, 85, 72, 74, 75, 71
         },
         SelectSound = {},
         SelectSoundPos = {
@@ -381,7 +381,6 @@ for i = 1, #bp do
         Y = bp[i].Y + thumbnailYOffset
     };
 end
-
 
 root.Sprites["MovieLabel"] = {
     Sheet = "Movie",
