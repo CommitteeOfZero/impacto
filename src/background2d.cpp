@@ -213,62 +213,61 @@ void Background2D::MainThreadOnLoad(bool result) {
 
 void Background2D::LinkBuffers(const int linkCode, const int currentBufferId) {
   const int srcBufId = (linkCode >> 8) & 0xFF;
-  if (srcBufId == Vm::Interface::GetScriptBufferId(currentBufferId)) {
-    const LinkDirection dir = (LinkDirection)((linkCode >> 16) & 0xFF);
+  if (srcBufId != Vm::Interface::GetScriptBufferId(currentBufferId)) return;
 
-    for (int i = 0; i < MaxLinkedBgBuffers; i++) {
-      int childBufId = (linkCode >> (i * 24)) & 0xFF;
-      if (childBufId != 0) {
-        childBufId = Vm::Interface::GetBufferId(childBufId);
-        Background2D* const childBuf =
-            Backgrounds2D[ScrWork[SW_BG1SURF + childBufId]];
+  const LinkDirection dir = static_cast<LinkDirection>((linkCode >> 16) & 0xFF);
 
-        childBuf->BgSprite.BaseScale = BgSprite.BaseScale;
+  for (int i = 0; i < MaxLinkedBgBuffers; i++) {
+    int childBufId = (linkCode >> (i * 24)) & 0xFF;
+    if (childBufId == 0) continue;
 
-        Links[i].LinkedBuffer = childBuf;
-        Links[i].Direction = dir;
+    childBufId = Vm::Interface::GetBufferId(childBufId);
+    Background2D* const childBuf =
+        Backgrounds2D[ScrWork[SW_BG1SURF + childBufId]];
 
-        switch (dir) {
-          case LinkDirection::Up3: {
-            float offset =
-                i == 0 ? 0.0f
-                       : Links[i - 1].LinkedBuffer->BgSprite.ScaledHeight();
-            Links[i].DisplayCoords = {
-                Position.x, Position.y - BgSprite.ScaledHeight() - offset};
-          } break;
+    childBuf->BgSprite.BaseScale = BgSprite.BaseScale;
 
-          case LinkDirection::Up: {
-            Links[i].DisplayCoords = {Position.x,
-                                      Position.y - BgSprite.ScaledHeight()};
-          } break;
+    Links[i].LinkedBuffer = childBuf;
+    Links[i].Direction = dir;
 
-          case LinkDirection::Down3: {
-            float offset =
-                i == 0 ? 0.0f
-                       : Links[i - 1].LinkedBuffer->BgSprite.ScaledHeight();
-            Links[i].DisplayCoords = {
-                Position.x, Position.y + BgSprite.ScaledHeight() + offset};
-          } break;
+    constexpr size_t overlapPixelCt = 2;
+    switch (dir) {
+      case LinkDirection::Up3: {
+        float offset =
+            i == 0 ? 0.0f : Links[i - 1].LinkedBuffer->BgSprite.ScaledHeight();
+        Links[i].DisplayCoords = {
+            Position.x, Position.y - BgSprite.ScaledHeight() - offset};
+      } break;
 
-          case LinkDirection::Down: {
-            Links[i].DisplayCoords = {Position.x,
-                                      Position.y + BgSprite.ScaledHeight()};
-          } break;
+      case LinkDirection::Up: {
+        Links[i].DisplayCoords = {
+            Position.x, Position.y - BgSprite.ScaledHeight() + overlapPixelCt};
+      } break;
 
-          case LinkDirection::Left: {
-            Links[i].DisplayCoords = {Position.x - BgSprite.ScaledWidth(),
-                                      Position.y};
-          } break;
+      case LinkDirection::Down3: {
+        float offset =
+            i == 0 ? 0.0f : Links[i - 1].LinkedBuffer->BgSprite.ScaledHeight();
+        Links[i].DisplayCoords = {
+            Position.x, Position.y + BgSprite.ScaledHeight() + offset};
+      } break;
 
-          case LinkDirection::Right: {
-            Links[i].DisplayCoords = {Position.x + BgSprite.ScaledWidth(),
-                                      Position.y};
-          } break;
+      case LinkDirection::Down: {
+        Links[i].DisplayCoords = {
+            Position.x, Position.y + BgSprite.ScaledHeight() - overlapPixelCt};
+      } break;
 
-          case LinkDirection::Off:
-            break;
-        }
-      }
+      case LinkDirection::Left: {
+        Links[i].DisplayCoords = {
+            Position.x - BgSprite.ScaledWidth() + overlapPixelCt, Position.y};
+      } break;
+
+      case LinkDirection::Right: {
+        Links[i].DisplayCoords = {
+            Position.x + BgSprite.ScaledWidth() - overlapPixelCt, Position.y};
+      } break;
+
+      case LinkDirection::Off:
+        break;
     }
   }
 }
@@ -711,11 +710,9 @@ void Background2D::RenderRegular() {
 
   for (int i = 0; i < MaxLinkedBgBuffers; i++) {
     if (Links[i].Direction != LinkDirection::Off &&
-        Links[i].LinkedBuffer != NULL) {
-      const glm::mat4 linkTransformation =
-          transformation *
-          glm::translate(glm::mat4(1.0f), {Links[i].DisplayCoords, 0.0f});
-
+        Links[i].LinkedBuffer != nullptr) {
+      const glm::mat4 linkTransformation = TransformationMatrix(
+          Origin, Scale, {Origin, 0.0f}, Rotation, Links[i].DisplayCoords);
       Renderer->DrawSprite(Links[i].LinkedBuffer->BgSprite, linkTransformation,
                            Tint, false);
     }
