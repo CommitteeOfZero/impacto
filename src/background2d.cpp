@@ -711,11 +711,9 @@ void Background2D::RenderRegular() {
 
   for (int i = 0; i < MaxLinkedBgBuffers; i++) {
     if (Links[i].Direction != LinkDirection::Off &&
-        Links[i].LinkedBuffer != NULL) {
-      const glm::mat4 linkTransformation =
-          transformation *
-          glm::translate(glm::mat4(1.0f), {Links[i].DisplayCoords, 0.0f});
-
+        Links[i].LinkedBuffer != nullptr) {
+      const glm::mat4 linkTransformation = TransformationMatrix(
+          Origin, Scale, {Origin, 0.0f}, Rotation, Links[i].DisplayCoords);
       Renderer->DrawSprite(Links[i].LinkedBuffer->BgSprite, linkTransformation,
                            Tint, false);
     }
