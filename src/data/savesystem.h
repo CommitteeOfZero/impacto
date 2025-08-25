@@ -51,35 +51,34 @@ struct QueuedTexture {
 
 class SaveFileEntryBase {
  public:
-  uint8_t Status;
-  uint32_t Checksum;
-  std::tm SaveDate;
-  uint32_t PlayTime;
-  uint32_t SwTitle;
-  uint8_t Flags;
-  uint32_t SaveType;
-  uint32_t MainThreadExecPriority;
-  uint32_t MainThreadGroupId;
-  uint32_t MainThreadWaitCounter;
-  uint32_t MainThreadScriptParam;
-  uint32_t MainThreadIp;
-  uint32_t MainThreadLoopCounter;
-  uint32_t MainThreadLoopAdr;
-  uint32_t MainThreadCallStackDepth;
+  uint8_t Status = 0;
+  uint32_t Checksum = 0;
+  std::tm SaveDate{};
+  uint32_t PlayTime = 0;
+  uint32_t SwTitle = 0;
+  uint8_t Flags = 0;
+  uint32_t SaveType = 0;
+  uint32_t MainThreadExecPriority = 0;
+  uint32_t MainThreadGroupId = 0;
+  uint32_t MainThreadWaitCounter = 0;
+  uint32_t MainThreadScriptParam = 0;
+  uint32_t MainThreadIp = 0;
+  uint32_t MainThreadLoopCounter = 0;
+  uint32_t MainThreadLoopAdr = 0;
+  uint32_t MainThreadCallStackDepth = 0;
   union {
-    uint32_t MainThreadReturnAddresses[8];
-    uint32_t MainThreadReturnIds[8];
+    std::array<uint32_t, 8> MainThreadReturnAddresses{};
+    std::array<uint32_t, 8> MainThreadReturnIds;
   };
-  uint32_t MainThreadReturnBufIds[8];
-  uint32_t MainThreadScriptBufferId;
-  int MainThreadVariables[16];
-  uint32_t MainThreadDialoguePageId;
-  Sprite SaveThumbnail;
+  std::array<uint32_t, 8> MainThreadReturnBufIds{};
+  uint32_t MainThreadScriptBufferId = 0;
+  std::array<int, 16> MainThreadVariables{};
+  uint32_t MainThreadDialoguePageId = 0;
+  Sprite SaveThumbnail{};
 };
 
 class SaveSystemBase {
  public:
-  virtual SaveError CreateSaveFile() = 0;
   virtual SaveError CheckSaveFile() = 0;
   virtual SaveError MountSaveFile(std::vector<QueuedTexture>& textures) = 0;
 
@@ -94,6 +93,7 @@ class SaveSystemBase {
   // flushing can happen without blocking other VM threads.
   virtual void SaveSystemData() = 0;
   virtual SaveError LoadSystemData() = 0;
+  virtual void InitializeSystemData() = 0;
 
   virtual void SaveThumbnailData() = 0;
   virtual SaveError WriteSaveFile() = 0;
@@ -141,13 +141,13 @@ inline SaveSystemBase* Implementation = nullptr;
 void Init();
 
 LoadStatus GetLoadStatus();
-SaveError CreateSaveFile();
 void CheckSaveFile();
 void MountSaveFile();
 void SaveMemory();
 void SaveThumbnailData();
 void SaveSystemData();
 SaveError LoadSystemData();
+void InitializeSystemData();
 void LoadEntry(SaveType type, int id);
 void LoadMemoryNew(LoadProcess process);
 void FlushWorkingSaveEntry(SaveType type, int id, int autoSaveType = 0);

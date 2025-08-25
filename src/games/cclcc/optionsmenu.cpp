@@ -393,17 +393,14 @@ void OptionsMenu::ResetToDefault() {
       break;
     }
     case PageType::Sound: {
-      std::copy(std::begin(Default::GroupVolumes),
-                std::end(Default::GroupVolumes), Audio::GroupVolumes);
+      std::ranges::copy(Default::GroupVolumes, Audio::GroupVolumes.begin());
       SyncVoice = Default::SyncVoice;
       SkipVoice = Default::SkipVoice;
       break;
     }
     case PageType::Voice: {
-      std::copy(std::begin(Default::VoiceMuted), std::end(Default::VoiceMuted),
-                VoiceMuted);
-      std::copy(std::begin(Default::VoiceVolume),
-                std::end(Default::VoiceVolume), VoiceVolume);
+      std::ranges::copy(Default::VoiceMuted, VoiceMuted.begin());
+      std::ranges::copy(Default::VoiceVolume, VoiceVolume.begin());
       break;
     }
     default:

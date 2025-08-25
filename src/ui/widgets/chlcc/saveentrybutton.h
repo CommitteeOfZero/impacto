@@ -5,6 +5,7 @@
 #include "../button.h"
 #include "../label.h"
 #include "../../../renderer/renderer.h"
+#include "../../../data/savesystem.h"
 
 namespace Impacto {
 namespace UI {
@@ -39,14 +40,15 @@ class SaveEntryButton : public Widgets::Button {
                        glm::vec2 relativePosition);
   void AddSceneTitleText(Vm::BufferOffsetContext strAdr, float fontSize,
                          RendererOutlineMode outlineMode,
-                         glm::vec2 relativeTitlePosition,
-                         glm::vec2 relativeNoDataPosition);
+                         glm::vec2 relativeTitlePosition, int colorIndex);
   void AddThumbnail(Sprite thumbnail, glm::vec2 pos);
   void Move(glm::vec2 pos) override;
 
   static void FocusedAlphaFadeStart();
   static void FocusedAlphaFadeReset();
   static void UpdateFocusedAlphaFade(float dt);
+
+  void RefreshInfo(SaveSystem::SaveType entryType);
 
   bool EntryActive = false;
 

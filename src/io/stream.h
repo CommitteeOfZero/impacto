@@ -22,7 +22,7 @@ class Stream {
 
   virtual int64_t Read(void* buffer, int64_t sz) = 0;
   virtual int64_t Seek(int64_t offset, int origin) = 0;
-  virtual int64_t Write(void* buffer, int64_t sz, size_t cnt = 1) {
+  virtual int64_t Write(const void* buffer, int64_t sz, size_t cnt = 1) {
     assert(false && "Write not implemented for this stream");
     return IoError_Fail;
   }
@@ -203,23 +203,28 @@ inline void ReadMat4BE(glm::mat4* dest, Stream* stream) {
 inline void WriteU8(Stream* stream, uint8_t value) { stream->Write(&value, 1); }
 
 template <typename T>
-inline void WriteWithoutSwap(Stream* stream, T value) {
-  stream->Write(&value, sizeof(T));
+inline void WriteWithoutSwap(Stream* stream, T value, size_t count = 1) {
+  for (size_t i = 0; i < count; i++) {
+    stream->Write(&value, sizeof(T));
+  }
 }
 
 template <size_t count, typename T>
-inline void WriteArrayWithoutSwap(T* src, Stream* stream) {
+inline void WriteArrayWithoutSwap(const T* src, Stream* stream) {
   stream->Write(src, sizeof(T), count);
 }
 template <typename T>
-inline void WriteArrayWithoutSwap(T* src, Stream* stream, size_t count) {
+inline void WriteArrayWithoutSwap(const T* src, Stream* stream, size_t count) {
   stream->Write(src, sizeof(T), count);
 }
 
 template <typename T>
-inline void WriteSwap(Stream* stream, T value) {
+inline void WriteSwap(Stream* stream, T value, size_t count = 1) {
   T result = SwapHelper<T>(value);
-  stream->Write(&result, sizeof(T));
+
+  for (size_t i = 0; i < count; i++) {
+    stream->Write(&result, sizeof(T));
+  }
 }
 
 template <size_t count, typename T>
@@ -238,8 +243,8 @@ inline void WriteArraySwap(T* src, Stream* stream, size_t count) {
 
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 template <typename T>
-inline T WriteLE(InputStream* stream, T value) {
-  return WriteSwap<T>(stream, value);
+inline T WriteLE(InputStream* stream, T value, size_t count = 1) {
+  return WriteSwap<T>(stream, value, count);
 }
 template <size_t count, typename T>
 inline void WriteArrayLE(T* src, InputStream* stream) {
@@ -250,8 +255,8 @@ inline void WriteArrayLE(T* src, InputStream* stream, size_t count) {
   WriteArraySwap<T>(src, stream, count);
 }
 template <typename T>
-inline T WriteBE(InputStream* stream, T value) {
-  return WriteWithoutSwap<T>(stream, value);
+inline T WriteBE(InputStream* stream, T value, size_t count = 1) {
+  return WriteWithoutSwap<T>(stream, value, count);
 }
 template <size_t count, typename T>
 inline void WriteArrayBE(T* src, InputStream* stream) {
@@ -263,20 +268,20 @@ inline void WriteArrayBE(T* src, InputStream* stream, size_t count) {
 }
 #else
 template <typename T>
-inline void WriteLE(Stream* stream, T value) {
-  return WriteWithoutSwap<T>(stream, value);
+inline void WriteLE(Stream* stream, T value, size_t count = 1) {
+  return WriteWithoutSwap<T>(stream, value, count);
 }
 template <size_t count, typename T>
-inline void WriteArrayLE(T* src, Stream* stream) {
+inline void WriteArrayLE(const T* src, Stream* stream) {
   WriteArrayWithoutSwap<count, T>(src, stream);
 }
 template <typename T>
-inline void WriteArrayLE(T* src, Stream* stream, size_t count) {
+inline void WriteArrayLE(const T* src, Stream* stream, size_t count) {
   WriteArrayWithoutSwap<T>(src, stream, count);
 }
 template <typename T>
-inline void WriteBE(Stream* stream, T value) {
-  return WriteSwap<T>(stream, value);
+inline void WriteBE(Stream* stream, T value, size_t count = 1) {
+  return WriteSwap<T>(stream, value, count);
 }
 template <size_t count, typename T>
 inline void WriteArrayBE(T* src, Stream* stream) {

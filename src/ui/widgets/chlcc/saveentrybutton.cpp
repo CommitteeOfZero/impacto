@@ -2,11 +2,17 @@
 
 #include "../../../renderer/renderer.h"
 #include "../../../profile/dialogue.h"
+#include "../../../profile/ui/savemenu.h"
+#include "../../../profile/games/chlcc/savemenu.h"
+#include "../../../games/chlcc/savesystem.h"
 
 namespace Impacto {
 namespace UI {
 namespace Widgets {
 namespace CHLCC {
+
+using namespace Impacto::Profile::SaveMenu;
+using namespace Impacto::Profile::CHLCC::SaveMenu;
 
 glm::vec4 SaveEntryButton::FocusedAlpha = glm::vec4(1.0f);
 Animation SaveEntryButton::FocusedAlphaFade;
@@ -72,16 +78,10 @@ void SaveEntryButton::AddSceneTitleText(Vm::BufferOffsetContext strAdr,
                                         float fontSize,
                                         RendererOutlineMode outlineMode,
                                         glm::vec2 relativeTitlePosition,
-                                        glm::vec2 relativeNoDataPosition) {
-  if (EntryActive) {
-    SceneTitle =
-        Label(strAdr, glm::vec2(Bounds.X, Bounds.Y) + relativeTitlePosition,
-              fontSize, outlineMode, IsLocked ? 69 : 0);
-  } else {
-    SceneTitle =
-        Label(strAdr, glm::vec2(Bounds.X, Bounds.Y) + relativeNoDataPosition,
-              fontSize, outlineMode, 0);
-  }
+                                        int colorIndex) {
+  SceneTitle =
+      Label(strAdr, glm::vec2(Bounds.X, Bounds.Y) + relativeTitlePosition,
+            fontSize, outlineMode, colorIndex);
 }
 
 void SaveEntryButton::AddPlayTimeHintText(Vm::BufferOffsetContext strAdr,
@@ -152,6 +152,98 @@ void SaveEntryButton::UpdateFocusedAlphaFade(float dt) {
   FocusedAlphaFade.Update(dt);
   FocusedAlpha =
       glm::vec4(glm::vec3(1.0f), ((FocusedAlphaFade.Progress * 30) + 1) / 85);
+}
+
+void SaveEntryButton::RefreshInfo(const SaveSystem::SaveType entryType) {
+  const Sprite entrySprite = [] {
+    switch (*UI::SaveMenuPtr->ActiveMenuType) {
+      case SaveMenuPageType::QuickLoad:
+        return QuickLoadEntrySprite;
+        break;
+      case SaveMenuPageType::Save:
+        return SaveEntrySprite;
+        break;
+      case SaveMenuPageType::Load:
+        return LoadEntrySprite;
+        break;
+
+      default:
+        throw std::runtime_error(
+            fmt::format("Unexpected SaveMenuPageType: %d",
+                        static_cast<int>(*UI::SaveMenuPtr->ActiveMenuType)));
+    }
+  }();
+
+  const uint8_t lock = SaveSystem::GetSaveFlags(entryType, Id);
+
+  IsLocked = lock == 1;
+  AddNormalSpriteLabel(entrySprite, EntryPositions[Id % 6]);
+  AddEntryNumberHintText(Vm::ScriptGetTextTableStrAddress(0, 6), 18,
+                         RendererOutlineMode::BottomRight,
+                         EntryNumberHintTextRelativePos);
+  AddEntryNumberText(fmt::format("{:02}", Id + 1), 18,
+                     RendererOutlineMode::BottomRight,
+                     EntryNumberTextRelativePos);
+
+  FocusedSpriteLabel.MoveTo(EntryPositions[Id % 6]);
+
+  switch (SaveSystem::GetSaveStatus(entryType, Id)) {
+    case 0: {  // No data
+      EntryActive = false;
+
+      AddSceneTitleText(Vm::ScriptGetTextTableStrAddress(0, 1), 24,
+                        RendererOutlineMode::BottomRight, NoDataTextRelativePos,
+                        0);
+      AddThumbnail(EmptyThumbnailSprite,
+                   EntryPositions[Id % 6] + ThumbnailRelativePos);
+    } break;
+
+    case 1: {  // Filled
+      EntryActive = true;
+
+      AddSceneTitleText(Vm::ScriptGetTextTableStrAddress(
+                            1, SaveSystem::GetSaveTitle(entryType, Id)),
+                        24, RendererOutlineMode::BottomRight,
+                        SceneTitleTextRelativePos, IsLocked ? 69 : 0);
+      AddPlayTimeHintText(Vm::ScriptGetTextTableStrAddress(0, 2), 18,
+                          RendererOutlineMode::BottomRight,
+                          PlayTimeHintTextRelativePos);
+
+      const uint32_t time = SaveSystem::GetSavePlayTime(entryType, Id);
+      const uint32_t hours = time / 3600;
+      const uint32_t minutes = (time % 3600) / 60;
+      const uint32_t seconds = (time % 3600) % 60;
+      AddPlayTimeText(fmt::format("{:3}:{:02}:{:02}", hours, minutes, seconds),
+                      18, RendererOutlineMode::BottomRight,
+                      {PlayTimeTextRelativePos.x + (float)((hours < 10) * 10),
+                       PlayTimeTextRelativePos.y});
+
+      AddSaveDateHintText(Vm::ScriptGetTextTableStrAddress(0, 3), 18,
+                          RendererOutlineMode::BottomRight,
+                          SaveDateHintTextRelativePos);
+      const tm& date = SaveSystem::GetSaveDate(entryType, Id);
+      AddSaveDateText(fmt::format("  {:%y/%m/%d %H:%M:%S}", date), 18,
+                      RendererOutlineMode::BottomRight,
+                      SaveDateTextRelativePos);
+
+      AddThumbnail(SaveSystem::GetSaveThumbnail(entryType, Id),
+                   EntryPositions[Id % 6] + ThumbnailRelativePos);
+    } break;
+
+    default:
+      ImpLogSlow(LogLevel::Error, LogChannel::General,
+                 "Unexpected entry status");
+      [[fallthrough]];
+    case 2: {  // Corrupted
+      EntryActive = false;
+
+      AddSceneTitleText(Vm::ScriptGetTextTableStrAddress(0, 0), 24,
+                        RendererOutlineMode::BottomRight, NoDataTextRelativePos,
+                        53);
+      AddThumbnail(EmptyThumbnailSprite,
+                   EntryPositions[Id % 6] + ThumbnailRelativePos);
+    } break;
+  }
 }
 
 }  // namespace CHLCC

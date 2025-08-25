@@ -116,6 +116,8 @@ void SaveMenu::Show() {
 
           EntryGrid[p][i][j] = saveEntryButton;
           MainItems[p]->Add(saveEntryButton);
+
+          saveEntryButton->RefreshInfo();
         }
       }
     }
@@ -359,6 +361,11 @@ void SaveMenu::Render() {
         maskTint);
     Renderer->DrawSprite(ButtonGuideSprite[*ActiveMenuType], {0, 989}, col);
   }
+}
+
+void SaveMenu::RefreshCurrentEntryInfo() {
+  if (!CurrentlyFocusedElement) return;
+  static_cast<SaveEntryButton*>(CurrentlyFocusedElement)->RefreshInfo();
 }
 
 }  // namespace CCLCC

@@ -57,7 +57,7 @@ InstructionProc inline constexpr OpcodeTableSystem_SGPS3[256] = {
     InstSSEstop,              // 00 27
     InstCopyThreadWork,       // 00 28
     InstUPLmenuUI,            // 00 29
-    InstSave,                 // 00 2A
+    InstSaveOld,              // 00 2A
     InstSaveIconLoad,         // 00 2B
     InstBGMflag,              // 00 2C
     InstUPLxTitle,            // 00 2D

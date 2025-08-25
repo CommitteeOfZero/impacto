@@ -380,6 +380,7 @@ VmInstruction(InstSaveMenu) {
                  "STUB instruction SaveMenu(type: SaveMenuMain)\n");
       break;
     case 2:  // SaveResetThumnail
+      if (UI::SaveMenuPtr) UI::SaveMenuPtr->RefreshCurrentEntryInfo();
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction SaveMenu(type: SaveResetThumnail)\n");
       break;
@@ -414,9 +415,7 @@ VmInstruction(InstSaveMenuOld) {
       UI::SaveMenuPtr->ActiveMenuType =
           UI::SaveMenuPageType::_from_integral_nothrow(arg1);
       ScrWork[SW_SAVEFILESTATUS] = 0;
-      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-                 "STUB instruction SaveMenu(type: {:d}, arg1: {:d})\n", type,
-                 arg1);
+      if (UI::SaveMenuPtr) UI::SaveMenuPtr->Init();
     } break;
     case 1:
       if (!UI::SaveMenuPtr->ChoiceMade) {
@@ -428,21 +427,18 @@ VmInstruction(InstSaveMenuOld) {
       } else {
         UI::SaveMenuPtr->ChoiceMade = false;
         Interface::PADinputButtonWentDown |= Interface::PAD1A;
-        ScrWork[SW_SAVEFILESTATUS] = SaveSystem::GetSaveStatus(
-            SaveSystem::SaveType::Full, ScrWork[SW_SAVEFILENO]);
       }
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction SaveMenu(type: {:d})\n", type);
       break;
     case 2: {
+      if (UI::SaveMenuPtr) UI::SaveMenuPtr->RefreshCurrentEntryInfo();
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction SaveMenu(type: {:d})\n", type);
     } break;
     case 10: {
       PopUint8(arg1);
-      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-                 "STUB instruction SaveMenu(type: {:d}, arg1: {:d})\n", type,
-                 arg1);
+      if (UI::SaveMenuPtr) UI::SaveMenuPtr->Init();
     } break;
   }
 }

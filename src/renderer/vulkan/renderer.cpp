@@ -1443,7 +1443,7 @@ void Renderer::DrawVertices(const SpriteSheet& sheet,
   // Push indices
   IndexBufferFill += indices.size();
   size_t indexBufferOffset = IndexBufferOffset / sizeof(uint16_t);
-  std::copy(indices.begin(), indices.end(), IndexBuffer + indexBufferOffset);
+  std::ranges::copy(indices, IndexBuffer + indexBufferOffset);
 
   // Flush again and bind back our buffer
   Flush();

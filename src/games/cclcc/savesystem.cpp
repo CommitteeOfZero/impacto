@@ -51,6 +51,7 @@ uint32_t CalculateChecksum(std::span<const uint8_t> bufferData,
 
 SaveError SaveSystem::CheckSaveFile() {
   std::error_code ec;
+
   IoError existsState = Io::PathExists(SaveFilePath);
   if (existsState == IoError_NotFound) {
     return SaveError::NotFound;
@@ -60,6 +61,7 @@ SaveError SaveSystem::CheckSaveFile() {
            ec.message());
     return SaveError::Failed;
   }
+
   auto saveFileSize = Io::GetFileSize(SaveFilePath);
   if (saveFileSize == IoError_Fail) {
     ImpLog(LogLevel::Error, LogChannel::IO,
@@ -68,75 +70,77 @@ SaveError SaveSystem::CheckSaveFile() {
   } else if (saveFileSize != SaveFileSize) {
     return SaveError::Corrupted;
   }
-  auto checkPermsBit = [](Io::FilePermissionsFlags perms,
-                          Io::FilePermissionsFlags flag) {
-    return to_underlying(perms) & to_underlying(flag);
-  };
 
   Io::FilePermissionsFlags perms;
   IoError permsState = Io::GetFilePermissions(SaveFilePath, perms);
+  using enum Io::FilePermissionsFlags;
   if (permsState == IoError_Fail) {
     ImpLog(LogLevel::Error, LogChannel::IO,
            "Failed to get save file permissions, error: \"{:s}\"\n",
            ec.message());
     return SaveError::Failed;
-  } else if ((!checkPermsBit(perms, Io::FilePermissionsFlags::owner_read) ||
-              !checkPermsBit(perms, Io::FilePermissionsFlags::owner_write))) {
+  } else if ((perms & owner_read) == none || (perms & owner_write) == none) {
     return SaveError::WrongUser;
   }
+
   return SaveError::OK;
 }
 
-SaveError SaveSystem::CreateSaveFile() {
-  using CF = Io::PhysicalFileStream::CreateFlagsMode;
-  Io::Stream* stream;
-  IoError err = Io::PhysicalFileStream::Create(
-      SaveFilePath, &stream, CF::CREATE | CF::CREATE_DIRS | CF::WRITE);
-  if (err != IoError_OK) {
-    ImpLog(LogLevel::Error, LogChannel::IO,
-           "Failed to open save file for writing\n");
-    return SaveError::Failed;
-  }
+void SaveSystem::InitializeSystemData() {
+  std::fill(SystemData.begin(), SystemData.end(), 0x00);
 
-  assert(stream->Meta.Size == 0);
-  std::vector<uint8_t> emptyData(SaveFileSize, 0);
-  Io::WriteArrayBE<uint8_t>(emptyData.data(), stream, SaveFileSize);
-  assert(stream->Position == SaveFileSize);
+  Io::MemoryStream stream =
+      Io::MemoryStream(SystemData.data(), SystemData.size(), false);
 
-  stream->Seek(0x8AC, SEEK_SET);
-  Io::WriteLE(stream, (Uint16)(Default::TextSpeed * 60));
-  Io::WriteLE(stream, (Uint16)(Default::AutoSpeed * 60));
-  Io::WriteLE(stream, (Uint8)(Default::GroupVolumes[Audio::ACG_Voice] *
-                              128));  // VOICE2vol
-  Io::WriteLE(stream, (Uint8)(Default::GroupVolumes[Audio::ACG_Voice] *
-                              128));  // VOICEvol
-  Io::WriteLE(stream, (Uint8)(Default::GroupVolumes[Audio::ACG_BGM] * 256));
-  Io::WriteLE(stream,
+  stream.Seek(0x8AC, SEEK_SET);
+  Io::WriteLE(&stream, (Uint16)(Default::TextSpeed * 60));
+  Io::WriteLE(&stream, (Uint16)(Default::AutoSpeed * 60));
+  Io::WriteLE(&stream, (Uint8)(Default::GroupVolumes[Audio::ACG_Voice] *
+                               128));  // VOICE2vol
+  Io::WriteLE(&stream, (Uint8)(Default::GroupVolumes[Audio::ACG_Voice] *
+                               128));  // VOICEvol
+  Io::WriteLE(&stream, (Uint8)(Default::GroupVolumes[Audio::ACG_BGM] * 256));
+  Io::WriteLE(&stream,
               (Uint8)(Default::GroupVolumes[Audio::ACG_SE] * 128));  // SEvol
   Io::WriteLE(
-      stream,
+      &stream,
       (Uint8)(Default::GroupVolumes[Audio::ACG_SE] * 0.6 * 128));  // SYSSEvol
-  Io::WriteLE(stream, (Uint8)(Default::GroupVolumes[Audio::ACG_Movie] * 128));
-  Io::WriteLE(stream, Default::SyncVoice);
-  Io::WriteLE(stream, !Default::SkipRead);
+  Io::WriteLE(&stream, (Uint8)(Default::GroupVolumes[Audio::ACG_Movie] * 128));
+  Io::WriteLE(&stream, Default::SyncVoice);
+  Io::WriteLE(&stream, !Default::SkipRead);
 
-  stream->Seek(0x8BE, SEEK_SET);
-  for (size_t i = 0; i < 33; i++) Io::WriteLE(stream, !Default::VoiceMuted[i]);
+  stream.Seek(0x8BE, SEEK_SET);
+  for (size_t i = 0; i < 33; i++) Io::WriteLE(&stream, !Default::VoiceMuted[i]);
   for (size_t i = 0; i < 33; i++)
-    Io::WriteLE(stream, (Uint8)(Default::VoiceVolume[i] * 128));
+    Io::WriteLE(&stream, (Uint8)(Default::VoiceVolume[i] * 128));
 
-  stream->Seek(0x901, SEEK_SET);
-  Io::WriteLE(stream, Default::SkipVoice);
-  Io::WriteLE(stream, Default::ShowTipsNotification);
+  stream.Seek(0x901, SEEK_SET);
+  Io::WriteLE(&stream, Default::SkipVoice);
+  Io::WriteLE(&stream, Default::ShowTipsNotification);
 
-  stream->Seek(0x905, SEEK_SET);
-  Io::WriteLE(stream, Default::AdvanceTextOnDirectionalInput);
-  Io::WriteLE(stream, Default::DirectionalInputForTrigger);
-  Io::WriteLE(stream, Default::TriggerStopSkip);
+  stream.Seek(0x905, SEEK_SET);
+  Io::WriteLE(&stream, Default::AdvanceTextOnDirectionalInput);
+  Io::WriteLE(&stream, Default::DirectionalInputForTrigger);
+  Io::WriteLE(&stream, Default::TriggerStopSkip);
 
-  delete stream;
+  std::for_each_n(QuickSaveEntries, MaxSaveEntries,
+                  [](auto& ptr) { ptr = new SaveFileEntry(); });
+  std::for_each_n(FullSaveEntries, MaxSaveEntries,
+                  [](auto& ptr) { ptr = new SaveFileEntry(); });
+  WorkingSaveEntry = SaveFileEntry();
 
-  return SaveError::OK;
+  WorkingSaveThumbnail.Sheet =
+      SpriteSheet(static_cast<float>(Window->WindowWidth),
+                  static_cast<float>(Window->WindowHeight));
+  WorkingSaveThumbnail.Bounds =
+      RectF(0.0f, 0.0f, static_cast<float>(Window->WindowWidth),
+            static_cast<float>(Window->WindowHeight));
+
+  Texture workingSaveTexture = Texture();
+  workingSaveTexture.LoadSolidColor(
+      static_cast<int>(WorkingSaveThumbnail.Bounds.Width),
+      static_cast<int>(WorkingSaveThumbnail.Bounds.Height), 0x000000);
+  WorkingSaveThumbnail.Sheet.Texture = workingSaveTexture.Submit();
 }
 
 void SaveSystem::LoadEntryBuffer(Io::MemoryStream& stream, SaveFileEntry& entry,
@@ -175,14 +179,18 @@ void SaveSystem::LoadEntryBuffer(Io::MemoryStream& stream, SaveFileEntry& entry,
   entry.SaveType = Io::ReadLE<uint32_t>(&stream);
   assert(stream.Position == 0x28);
   stream.Seek(0x58, SEEK_CUR);
-  Io::ReadArrayLE<uint8_t>(entry.FlagWorkScript1, &stream, 50);
+  Io::ReadArrayLE<uint8_t>(entry.FlagWorkScript1.data(), &stream,
+                           entry.FlagWorkScript1.size());
   assert(stream.Position == 178);
-  Io::ReadArrayLE<uint8_t>(entry.FlagWorkScript2, &stream, 100);
+  Io::ReadArrayLE<uint8_t>(entry.FlagWorkScript2.data(), &stream,
+                           entry.FlagWorkScript2.size());
   Io::ReadLE<uint16_t>(&stream);
   assert(stream.Position == 280);
-  Io::ReadArrayLE<int>(entry.ScrWorkScript1, &stream, 600);
+  Io::ReadArrayLE<int>(entry.ScrWorkScript1.data(), &stream,
+                       entry.ScrWorkScript1.size());
   assert(stream.Position == 2680);
-  Io::ReadArrayLE<int>(entry.ScrWorkScript2, &stream, 3000);
+  Io::ReadArrayLE<int>(entry.ScrWorkScript2.data(), &stream,
+                       entry.ScrWorkScript2.size());
 
   assert(stream.Position == 0x3958);
   entry.MainThreadExecPriority = Io::ReadLE<uint32_t>(&stream);
@@ -202,13 +210,15 @@ void SaveSystem::LoadEntryBuffer(Io::MemoryStream& stream, SaveFileEntry& entry,
   Io::ReadLE<uint32_t>(&stream);
   assert(stream.Position == 0x39bc);
   entry.MainThreadScriptBufferId = Io::ReadLE<uint32_t>(&stream);
-  Io::ReadArrayBE<int>(entry.MainThreadVariables, &stream, 16);
+  Io::ReadArrayBE<int>(entry.MainThreadVariables.data(), &stream, 16);
   entry.MainThreadDialoguePageId = Io::ReadLE<uint32_t>(&stream);
   assert(stream.Position == 0x3a04);
   stream.Seek(1212, SEEK_CUR);
   assert(stream.Position == 0x3ec0);
-  Io::ReadArrayLE<uint8_t>(entry.MapLoadData, &stream, 0x6ac8);
-  Io::ReadArrayLE<uint8_t>(entry.YesNoData, &stream, 0x54);
+  Io::ReadArrayLE<uint8_t>(entry.MapLoadData.data(), &stream,
+                           entry.MapLoadData.size());
+  Io::ReadArrayLE<uint8_t>(entry.YesNoData.data(), &stream,
+                           entry.YesNoData.size());
 
   Sprite& thumbnail = entry.SaveThumbnail;
   thumbnail.Sheet = SpriteSheet(SaveThumbnailWidth, SaveThumbnailHeight);
@@ -270,10 +280,11 @@ SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
         (entryArray == QuickSaveEntries) ? SaveType::Quick : SaveType::Full;
     [[maybe_unused]] int64_t saveDataPos = stream->Position;
     for (int i = 0; i < MaxSaveEntries; i++) {
-      assert(stream->Position - saveDataPos == 0x1b110 * i);
+      assert(stream->Position - saveDataPos ==
+             static_cast<int>(SaveEntrySize) * i);
       entryArray[i] = new SaveFileEntry();
 
-      std::array<uint8_t, 0x1b110> entrySlotBuf;
+      std::array<uint8_t, SaveEntrySize> entrySlotBuf;
       Io::ReadArrayLE<uint8_t>(entrySlotBuf.data(), stream,
                                entrySlotBuf.size());
       Io::MemoryStream saveEntryDataStream(entrySlotBuf.data(),
@@ -360,14 +371,18 @@ void SaveSystem::SaveEntryBuffer(Io::MemoryStream& memoryStream,
   Io::WriteLE<uint32_t>(&memoryStream, entry.SaveType);
   assert(memoryStream.Position == 0x28);
   memoryStream.Seek(0x58, SEEK_CUR);
-  Io::WriteArrayLE<uint8_t>(entry.FlagWorkScript1, &memoryStream, 50);
+  Io::WriteArrayLE<uint8_t>(entry.FlagWorkScript1.data(), &memoryStream,
+                            entry.FlagWorkScript1.size());
   assert(memoryStream.Position == 178);
-  Io::WriteArrayLE<uint8_t>(entry.FlagWorkScript2, &memoryStream, 100);
+  Io::WriteArrayLE<uint8_t>(entry.FlagWorkScript2.data(), &memoryStream,
+                            entry.FlagWorkScript2.size());
   Io::WriteLE<uint16_t>(&memoryStream, 0);
   assert(memoryStream.Position == 280);
-  Io::WriteArrayLE<int>(entry.ScrWorkScript1, &memoryStream, 600);
+  Io::WriteArrayLE<int>(entry.ScrWorkScript1.data(), &memoryStream,
+                        entry.ScrWorkScript1.size());
   assert(memoryStream.Position == 2680);
-  Io::WriteArrayLE<int>(entry.ScrWorkScript2, &memoryStream, 3000);
+  Io::WriteArrayLE<int>(entry.ScrWorkScript2.data(), &memoryStream,
+                        entry.ScrWorkScript2.size());
 
   assert(memoryStream.Position == 0x3958);
   Io::WriteLE<uint32_t>(&memoryStream, entry.MainThreadExecPriority);
@@ -387,13 +402,15 @@ void SaveSystem::SaveEntryBuffer(Io::MemoryStream& memoryStream,
   Io::WriteLE<uint32_t>(&memoryStream, 0);
   assert(memoryStream.Position == 0x39bc);
   Io::WriteLE<uint32_t>(&memoryStream, entry.MainThreadScriptBufferId);
-  Io::WriteArrayBE<int>(entry.MainThreadVariables, &memoryStream, 16);
+  Io::WriteArrayBE<int>(entry.MainThreadVariables.data(), &memoryStream, 16);
   Io::WriteLE<uint32_t>(&memoryStream, entry.MainThreadDialoguePageId);
   assert(memoryStream.Position == 0x3a04);
   memoryStream.Seek(1212, SEEK_CUR);
   assert(memoryStream.Position == 0x3ec0);
-  Io::WriteArrayLE<uint8_t>(entry.MapLoadData, &memoryStream, 0x6ac8);
-  Io::WriteArrayLE<uint8_t>(entry.YesNoData, &memoryStream, 0x54);
+  Io::WriteArrayLE<uint8_t>(entry.MapLoadData.data(), &memoryStream,
+                            entry.MapLoadData.size());
+  Io::WriteArrayLE<uint8_t>(entry.YesNoData.data(), &memoryStream,
+                            entry.YesNoData.size());
 
   int thumbnailPadding = 0xA14;
   memoryStream.Seek(thumbnailPadding, SEEK_CUR);
@@ -580,14 +597,15 @@ void SaveSystem::SaveSystemData() {
 SaveError SaveSystem::WriteSaveFile() {
   using CF = Io::PhysicalFileStream::CreateFlagsMode;
   Io::Stream* stream;
-  IoError err = Io::PhysicalFileStream::Create(SaveFilePath, &stream,
-                                               CF::WRITE | CF::READ);
+  IoError err = Io::PhysicalFileStream::Create(
+      SaveFilePath, &stream, CF::CREATE | CF::CREATE_DIRS | CF::WRITE);
   if (err != IoError_OK) {
     ImpLog(LogLevel::Error, LogChannel::IO,
            "Failed to open save file for writing\n");
     return SaveError::Failed;
   }
 
+  stream->Seek(0, SEEK_SET);
   Io::MemoryStream systemSaveStream =
       Io::MemoryStream(SystemData.data(), SystemData.size(), false);
   uint32_t systemChecksum = CalculateChecksum(std::span(SystemData).subspan(4));
@@ -602,11 +620,12 @@ SaveError SaveSystem::WriteSaveFile() {
     [[maybe_unused]] int64_t saveDataPos = stream->Position;
     for (int i = 0; i < MaxSaveEntries; i++) {
       SaveFileEntry* entry = (SaveFileEntry*)entryArray[i];
-      if (entry->Status == 0) {
-        stream->Seek(0x1b110, SEEK_CUR);
+      if (entry == nullptr || entry->Status == 0) {
+        Io::WriteLE<uint8_t>(stream, 0, SaveEntrySize);
       } else {
-        assert(stream->Position - saveDataPos == 0x1b110 * i);
-        std::array<uint8_t, 0x1b110> entrySlotBuf{};
+        assert(stream->Position - saveDataPos ==
+               static_cast<int>(SaveEntrySize) * i);
+        std::array<uint8_t, SaveEntrySize> entrySlotBuf{};
         Io::MemoryStream saveEntryMemoryStream(entrySlotBuf.data(),
                                                entrySlotBuf.size(), false);
         SaveEntryBuffer(saveEntryMemoryStream, *entry, saveType);
@@ -675,17 +694,25 @@ void SaveSystem::SaveMemory() {
 
   if (WorkingSaveEntry) {
     WorkingSaveEntry->Status = 1;
-    time_t rawtime;
-    time(&rawtime);
+
     const tm timeinfo = CurrentDateTime();
     WorkingSaveEntry->SaveDate = timeinfo;
     WorkingSaveEntry->PlayTime = ScrWork[SW_PLAYTIME];
     WorkingSaveEntry->SwTitle = ScrWork[SW_TITLE];
 
-    memcpy(WorkingSaveEntry->FlagWorkScript1, &FlagWork[50], 50);
-    memcpy(WorkingSaveEntry->FlagWorkScript2, &FlagWork[300], 100);
-    memcpy(WorkingSaveEntry->ScrWorkScript1, &ScrWork[1000], 2400);
-    memcpy(WorkingSaveEntry->ScrWorkScript2, &ScrWork[4300], 12000);
+    std::copy(FlagWork.begin() + 50,
+              FlagWork.begin() + 50 + WorkingSaveEntry->FlagWorkScript1.size(),
+              WorkingSaveEntry->FlagWorkScript1.begin());
+    std::copy(FlagWork.begin() + 300,
+              FlagWork.begin() + 300 + WorkingSaveEntry->FlagWorkScript2.size(),
+              WorkingSaveEntry->FlagWorkScript2.begin());
+    std::copy(ScrWork.begin() + 1000,
+              ScrWork.begin() + 1000 + WorkingSaveEntry->ScrWorkScript1.size(),
+              WorkingSaveEntry->ScrWorkScript1.begin());
+    std::copy(ScrWork.begin() + 4300,
+              ScrWork.begin() + 4300 + WorkingSaveEntry->ScrWorkScript2.size(),
+              WorkingSaveEntry->ScrWorkScript2.begin());
+
     int threadId = ScrWork[SW_MAINTHDP];
     Sc3VmThread* thd = &ThreadPool[threadId & 0x7FFFFFFF];
     if (thd->GroupId - 5 < 3) {
@@ -701,11 +728,13 @@ void SaveSystem::SaveMemory() {
             thd->ReturnScriptBufferIds[i];
         WorkingSaveEntry->MainThreadReturnIds[i] = thd->ReturnIds[i];
       }
-      memcpy(WorkingSaveEntry->MainThreadVariables, thd->Variables, 64);
+      memcpy(WorkingSaveEntry->MainThreadVariables.data(), thd->Variables,
+             16 * sizeof(int));
       WorkingSaveEntry->MainThreadDialoguePageId = thd->DialoguePageId;
     }
-    UI::MapSystem::MapSave(WorkingSaveEntry->MapLoadData);
-    CCLCC::YesNoTrigger::YesNoTriggerPtr->Save(WorkingSaveEntry->YesNoData);
+    UI::MapSystem::MapSave(WorkingSaveEntry->MapLoadData.data());
+    CCLCC::YesNoTrigger::YesNoTriggerPtr->Save(
+        WorkingSaveEntry->YesNoData.data());
   }
 }
 
@@ -740,12 +769,16 @@ void SaveSystem::LoadMemoryNew(LoadProcess load) {
     ScrWork[SW_TITLE] = WorkingSaveEntry->SwTitle;
     ScrWork[SW_AUTOSAVERESTART] = WorkingSaveEntry->SaveType;
 
-    memcpy(&FlagWork[50], WorkingSaveEntry->FlagWorkScript1, 50);
-    memcpy(&FlagWork[300], WorkingSaveEntry->FlagWorkScript2, 100);
-    memcpy(&ScrWork[1000], WorkingSaveEntry->ScrWorkScript1, 2400);
-    memcpy(&ScrWork[4300], WorkingSaveEntry->ScrWorkScript2, 12000);
-    UI::MapSystem::MapLoad(WorkingSaveEntry->MapLoadData);
-    CCLCC::YesNoTrigger::YesNoTriggerPtr->Load(WorkingSaveEntry->YesNoData);
+    std::ranges::copy(WorkingSaveEntry->FlagWorkScript1, FlagWork.begin() + 50);
+    std::ranges::copy(WorkingSaveEntry->FlagWorkScript2,
+                      FlagWork.begin() + 300);
+    std::ranges::copy(WorkingSaveEntry->ScrWorkScript1, ScrWork.begin() + 1000);
+    std::ranges::copy(WorkingSaveEntry->ScrWorkScript2, ScrWork.begin() + 4300);
+
+    UI::MapSystem::MapLoad(WorkingSaveEntry->MapLoadData.data());
+    CCLCC::YesNoTrigger::YesNoTriggerPtr->Load(
+        WorkingSaveEntry->YesNoData.data());
+
     // TODO: What to do about this mess I wonder...
     ScrWork[SW_SVSENO] = ScrWork[SW_SEREQNO];
     ScrWork[SW_SVSENO + 1] = ScrWork[SW_SEREQNO + 1];
@@ -781,7 +814,8 @@ void SaveSystem::LoadMemoryNew(LoadProcess load) {
         thd->ReturnIds[i] = (uint16_t)WorkingSaveEntry->MainThreadReturnIds[i];
       }
 
-      memcpy(thd->Variables, WorkingSaveEntry->MainThreadVariables, 64);
+      memcpy(thd->Variables, WorkingSaveEntry->MainThreadVariables.data(),
+             16 * sizeof(int));
       thd->DialoguePageId = WorkingSaveEntry->MainThreadDialoguePageId;
     }
   }
