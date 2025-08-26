@@ -53,6 +53,8 @@ inline glm::vec2 EntryPositions[EntriesPerPage];
 inline Sprite QuickLoadEntrySprite;
 inline Sprite SaveEntrySprite;
 inline Sprite LoadEntrySprite;
+inline Sprite SelectionMarkerSprite;
+inline glm::vec2 SelectionMarkerOffset;
 inline Sprite EntryHighlightedSprite;
 inline Sprite LockedSymbolSprite;
 inline glm::vec2 ThumbnailRelativePos;
