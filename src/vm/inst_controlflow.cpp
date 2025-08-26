@@ -180,11 +180,25 @@ VmInstruction(InstKeyOnJump) {
   if (arg1 & 2) {
     arg2 = Interface::PADcustom[arg2];
   }
-  if (arg2 & Interface::PADinputButtonWentDown ||
-      arg2 & Interface::PADinputMouseWentDown) {
+  const bool inputResult = [&]() -> bool {
+    switch (arg3) {
+      case 0:
+        return (arg2 & Interface::PADinputButtonIsDown) ||
+               (arg2 & Interface::PADinputMouseIsDown);
+      case 1:
+        return (arg2 & Interface::PADinputButtonWentDown) ||
+               (arg2 & Interface::PADinputMouseWentDown);
+      case 2:
+        return arg2 & Interface::PADinputButtonRepeatDown;
+      case 3:
+        return arg2 & Interface::PADinputButtonRepeatAccelDown;
+      default:
+        return false;
+    }
+  }();
+
+  if (inputResult) {
     thread->IpOffset = labelAdr;
-    Interface::PADinputButtonWentDown = 0;
-    Interface::PADinputMouseWentDown = 0;
   }
 
   ImpLogSlow(LogLevel::Trace, LogChannel::VM,
