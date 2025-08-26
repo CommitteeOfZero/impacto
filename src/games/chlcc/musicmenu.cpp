@@ -329,7 +329,6 @@ void MusicMenu::UpdateInput(float dt) {
       const float animationSpeed =
           TurboMoved ? MusicDirectionalFocusTimeInterval : 0.3f;
 
-      MainItems->Move({0.0f, -deltaY}, animationSpeed);
       if (dirDown)
         AdvanceFocus(FocusDirection::FDIR_DOWN);
       else
