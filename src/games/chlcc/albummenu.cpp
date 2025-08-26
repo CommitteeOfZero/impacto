@@ -93,6 +93,7 @@ void AlbumMenu::Show() {
     };
     UpdatePages();
     Pages[CurrentPage]->Show();
+    Pages[CurrentPage]->HasFocus = false;
     State = Showing;
     if (UI::FocusedMenu != 0) {
       LastFocusedMenu = UI::FocusedMenu;
@@ -112,6 +113,7 @@ void AlbumMenu::Hide() {
       MenuTransition.StartOut();
       FromSystemMenuTransition.StartOut();
     }
+    Pages[CurrentPage]->HasFocus = false;
     State = Hiding;
     if (LastFocusedMenu != 0) {
       UI::FocusedMenu = LastFocusedMenu;
@@ -226,11 +228,12 @@ void AlbumMenu::Update(float dt) {
   if (MenuTransition.IsOut() &&
       (ScrWork[SW_SYSMENUCT] == 0 || GetFlag(SF_SYSTEMMENU)) &&
       State == Hiding) {
-    Pages[CurrentPage]->Hide();
     State = Hidden;
+    Pages[CurrentPage]->Hide();
   } else if (MenuTransition.IsIn() && ScrWork[SW_SYSMENUCT] == 10000 &&
              State == Showing) {
     State = Shown;
+    Pages[CurrentPage]->HasFocus = true;
     AlbumThumbnailButton::FocusedAlphaFadeStart();
   }
 

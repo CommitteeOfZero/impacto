@@ -71,7 +71,6 @@ MovieMenu::MovieMenu() {
 
   // Movie Buttons initialization
   MovieItems = new Widgets::Group(this);
-  MovieItems->FocusLock = false;
 
   for (int i = 0; i < 10; i++) {
     glm::vec2 thumbnailPosition(ThumbnailPositions[i].x,
@@ -132,6 +131,7 @@ void MovieMenu::Show() {
       FromSystemMenuTransition.StartIn();
     }
     MovieItems->Show();
+    MovieItems->HasFocus = false;
     State = Showing;
     ChoiceMade = false;
     UpdateMovieEntries();
@@ -158,6 +158,7 @@ void MovieMenu::Hide() {
       SelectMovieTextFade.StartOut();
       FromSystemMenuTransition.StartOut();
     }
+    MovieItems->HasFocus = false;
     State = Hiding;
     if (LastFocusedMenu != 0) {
       UI::FocusedMenu = LastFocusedMenu;
@@ -228,7 +229,6 @@ void MovieMenu::UpdateInput(float dt) {
     if (PADinputButtonWentDown & PAD1B || PADinputMouseWentDown & PAD1B) {
       IsChoiceMadeOnce = false;
     }
-    MovieItems->UpdateInput(dt);
   }
 }
 
@@ -249,7 +249,7 @@ void MovieMenu::Update(float dt) {
   } else if (MenuTransition.IsIn() && ScrWork[SW_SYSMENUCT] == 10000 &&
              State == Showing) {
     State = Shown;
-    MovieItems->Show();
+    MovieItems->HasFocus = true;
   }
 
   if (State != Hidden) {

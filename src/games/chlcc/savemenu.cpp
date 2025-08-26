@@ -225,10 +225,9 @@ void SaveMenu::Show() {
       MenuTransition.StartIn();
       FromSystemMenuTransition.StartIn();
       SelectDataTextFade.StartIn();
-      SavePages->at(*CurrentPage)->Show();
-      CurrentlyFocusedElement = SavePages->at(*CurrentPage)->Children[0];
-      SavePages->at(0)->Children[0]->HasFocus = true;
     }
+    SavePages->at(*CurrentPage)->Show();
+    SavePages->at(*CurrentPage)->HasFocus = false;
     State = Showing;
     if (UI::FocusedMenu != 0) {
       LastFocusedMenu = UI::FocusedMenu;
@@ -236,6 +235,8 @@ void SaveMenu::Show() {
     }
     IsFocused = true;
     UI::FocusedMenu = this;
+    SavePages->at(*CurrentPage)->Children.front()->HasFocus = true;
+    CurrentlyFocusedElement = SavePages->at(*CurrentPage)->Children.front();
   }
 }
 void SaveMenu::Hide() {
@@ -245,6 +246,7 @@ void SaveMenu::Hide() {
       MenuTransition.StartOut();
       FromSystemMenuTransition.StartOut();
     }
+    SavePages->at(*CurrentPage)->HasFocus = false;
     State = Hiding;
     if (LastFocusedMenu != 0) {
       UI::FocusedMenu = LastFocusedMenu;
@@ -267,16 +269,15 @@ void SaveMenu::UpdateInput(float dt) {
     }
     *CurrentPage = nextPage;
     SavePages->at(*CurrentPage)->Show();
+    SavePages->at(*CurrentPage)->Children.front()->HasFocus = true;
+    CurrentlyFocusedElement = SavePages->at(*CurrentPage)->Children.front();
   };
   if (IsFocused) {
     if (Input::MouseWheelDeltaY < 0 || PADinputButtonWentDown & PADcustom[8]) {
       updatePage((*CurrentPage + 1) % Pages);
-      CurrentlyFocusedElement = SavePages->at(*CurrentPage)->GetFocus(FDIR_UP);
     } else if (Input::MouseWheelDeltaY > 0 ||
                PADinputButtonWentDown & PADcustom[7]) {
       updatePage((*CurrentPage - 1 + Pages) % Pages);
-      CurrentlyFocusedElement =
-          SavePages->at(*CurrentPage)->GetFocus(FDIR_DOWN);
     }
   }
 }
@@ -298,6 +299,7 @@ void SaveMenu::Update(float dt) {
   } else if (MenuTransition.IsIn() && ScrWork[SW_SYSMENUCT] == 10000 &&
              State == Showing) {
     State = Shown;
+    SavePages->at(*CurrentPage)->HasFocus = true;
     SaveEntryButton::FocusedAlphaFadeStart();
   }
 
