@@ -383,7 +383,8 @@ void DialoguePage::FinishLine(Vm::Sc3VmThread* ctx, size_t nextLineStart,
                        Glyphs[nextLineStart - 1].DestRect.Width;
     switch (alignment) {
       case TextAlignment::Center:
-        Glyphs[i].DestRect.X += (boxBounds.Width - lastGlyphX) / 2.0f;
+        Glyphs[i].DestRect.X +=
+            (boxBounds.Width - (lastGlyphX - boxBounds.X)) / 2.0f;
         break;
       case TextAlignment::Right:
         Glyphs[i].DestRect.X += boxBounds.Width - lastGlyphX - marginXOffset;
