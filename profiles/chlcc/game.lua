@@ -41,6 +41,7 @@ include('chlcc/vfs.lua');
 include('chlcc/sprites.lua');
 include('common/animation.lua');
 include('chlcc/charset.lua');
+include('common/charset.lua');
 include('chlcc/font.lua');
 --include('chlcc/font-lb.lua');
 include('chlcc/dialogue.lua');
