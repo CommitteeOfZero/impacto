@@ -47,6 +47,7 @@ include('cclcc/mapsystem.lua');
 include('cclcc/yesnotrigger.lua');
 include('common/animation.lua');
 include('cclcc/charset.lua');
+include('common/charset.lua');
 --include('cclcc/font.lua');
 --include('cclcc/font-lb.lua');
 include('cclcc/font-lb-italic.lua');
