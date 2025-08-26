@@ -32,6 +32,7 @@ SaveEntryButton::SaveEntryButton(int id, Sprite const& norm,
 void SaveEntryButton::Render() {
   NormalSpriteLabel.Render();
   if (HasFocus) {
+    SelectionMarkerLabel.Render();
     FocusedSpriteLabel.Tint = FocusedAlpha;
     FocusedSpriteLabel.Render();
   }
@@ -56,6 +57,10 @@ int SaveEntryButton::GetPage() const { return Page; }
 
 void SaveEntryButton::AddNormalSpriteLabel(Sprite norm, glm::vec2 pos) {
   NormalSpriteLabel = Label(norm, pos);
+}
+
+void SaveEntryButton::AddSelectionMarkerLabel(Sprite norm, glm::vec2 pos) {
+  SelectionMarkerLabel = Label(norm, pos);
 }
 
 void SaveEntryButton::AddEntryNumberHintText(Vm::BufferOffsetContext strAdr,
@@ -122,6 +127,7 @@ void SaveEntryButton::AddThumbnail(Sprite thumbnail, glm::vec2 pos) {
 
 void SaveEntryButton::Move(glm::vec2 relativePosition) {
   NormalSpriteLabel.Move(relativePosition);
+  SelectionMarkerLabel.Move(relativePosition);
   FocusedSpriteLabel.Move(relativePosition);
   LockedSymbol.Move(relativePosition);
   ThumbnailLabel.Move(relativePosition);
@@ -178,6 +184,9 @@ void SaveEntryButton::RefreshInfo(const SaveSystem::SaveType entryType) {
 
   IsLocked = lock == 1;
   AddNormalSpriteLabel(entrySprite, EntryPositions[Id % 6]);
+  AddSelectionMarkerLabel(SelectionMarkerSprite,
+                          {EntryPositions[Id % 6].x - SelectionMarkerOffset.x,
+                           EntryPositions[Id % 6].y + SelectionMarkerOffset.y});
   AddEntryNumberHintText(Vm::ScriptGetTextTableStrAddress(0, 6), 18,
                          RendererOutlineMode::BottomRight,
                          EntryNumberHintTextRelativePos);

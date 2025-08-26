@@ -42,6 +42,8 @@ root.SaveMenu = {
     QuickLoadEntrySprite = "QuickLoadEntry",
     SaveEntrySprite = "SaveEntry",
     LoadEntrySprite = "LoadEntry",
+    SelectionMarkerSprite = "SelectionMarker",
+    SelectionMarkerOffset = {X = 5, Y = 49},
     EntryHighlightedSprite = "EntryHighlighted",
     LockedSymbolSprite = "LockedSymbol",
     ThumbnailRelativePos = {X = 21, Y = 12},
@@ -152,6 +154,11 @@ root.Sprites["SaveEntry"] = {
 root.Sprites["LoadEntry"] = {
     Sheet = "Save",
     Bounds = {X = 1077, Y = 117, Width = 532, Height = 116}
+};
+
+root.Sprites["SelectionMarker"] = {
+    Sheet = "Save",
+    Bounds = {X = 440, Y = 589, Width = 14, Height = 14}
 };
 
 root.Sprites["EntryHighlighted"] = {

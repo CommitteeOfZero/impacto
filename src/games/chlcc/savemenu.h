@@ -21,6 +21,7 @@ class SaveMenu : public UI::SaveMenu {
   void Show() override;
   void Hide() override;
   void Update(float dt) override;
+  void UpdateInput(float dt) override;
   void Render() override;
 
   void RefreshCurrentEntryInfo() override;
@@ -40,6 +41,7 @@ class SaveMenu : public UI::SaveMenu {
   int CurrentFullSavePage = 0;
   int CurrentQuickSavePage = 0;
   int* CurrentPage;
+  int PrevPage = 0;
 
   std::vector<Widgets::Group*> FullSavePages;
   std::vector<Widgets::Group*> QuickSavePages;
@@ -48,6 +50,7 @@ class SaveMenu : public UI::SaveMenu {
   Animation MenuTransition;
   Animation TitleFade;
   Animation SelectDataTextFade;
+  Animation FromSystemMenuTransition;
   SaveSystem::SaveType EntryType;
 
   glm::vec2 RedTitleLabelPos;

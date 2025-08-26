@@ -20,6 +20,7 @@ class SaveEntryButton : public Widgets::Button {
   void Render() override;
   int GetPage() const;
   void AddNormalSpriteLabel(Sprite norm, glm::vec2 pos);
+  void AddSelectionMarkerLabel(Sprite norm, glm::vec2 pos);
   void AddEntryNumberHintText(Vm::BufferOffsetContext strAdr, float fontSize,
                               RendererOutlineMode outlineMode,
                               glm::vec2 relativePosition);
@@ -55,6 +56,7 @@ class SaveEntryButton : public Widgets::Button {
  private:
   int Page;
   Label NormalSpriteLabel;
+  Label SelectionMarkerLabel;
   Label FocusedSpriteLabel;
   Label LockedSymbol;
   static glm::vec4 FocusedAlpha;

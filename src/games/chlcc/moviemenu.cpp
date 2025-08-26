@@ -59,6 +59,11 @@ MovieMenu::MovieMenu() {
   SelectMovieTextFade.LoopMode = AnimationLoopMode::Loop;
   SelectMovieTextFade.DurationIn = SelectMovieFadeDuration;
 
+  FromSystemMenuTransition.Direction = AnimationDirection::In;
+  FromSystemMenuTransition.LoopMode = AnimationLoopMode::Stop;
+  FromSystemMenuTransition.DurationIn = TitleFadeInDuration;
+  FromSystemMenuTransition.DurationOut = TitleFadeOutDuration;
+
   RedBarSprite = InitialRedBarSprite;
   RedBarPosition = InitialRedBarPosition;
 
@@ -66,7 +71,6 @@ MovieMenu::MovieMenu() {
 
   // Movie Buttons initialization
   MovieItems = new Widgets::Group(this);
-  MovieItems->WrapFocus = false;
 
   for (int i = 0; i < 10; i++) {
     glm::vec2 thumbnailPosition(ThumbnailPositions[i].x,
@@ -109,6 +113,7 @@ MovieMenu::MovieMenu() {
   setFocus(MovieItems->Children[5], MovieItems->Children[8], FDIR_RIGHT);
   setFocus(MovieItems->Children[8], MovieItems->Children[1], FDIR_RIGHT);
 
+  setFocus(MovieItems->Children[3], MovieItems->Children[6], FDIR_RIGHT);
   setFocus(MovieItems->Children[2], MovieItems->Children[6], FDIR_RIGHT);
   setFocus(MovieItems->Children[6], MovieItems->Children[9], FDIR_RIGHT);
   setFocus(MovieItems->Children[9], MovieItems->Children[2], FDIR_RIGHT);
@@ -123,8 +128,10 @@ void MovieMenu::Show() {
       }
       MenuTransition.StartIn();
       SelectMovieTextFade.StartIn();
+      FromSystemMenuTransition.StartIn();
     }
     MovieItems->Show();
+    MovieItems->HasFocus = false;
     State = Showing;
     ChoiceMade = false;
     UpdateMovieEntries();
@@ -135,6 +142,8 @@ void MovieMenu::Show() {
     }
     IsFocused = true;
     UI::FocusedMenu = this;
+    MovieItems->Children.front()->HasFocus = true;
+    CurrentlyFocusedElement = MovieItems->Children.front();
   }
 }
 
@@ -147,7 +156,9 @@ void MovieMenu::Hide() {
       }
       MenuTransition.StartOut();
       SelectMovieTextFade.StartOut();
+      FromSystemMenuTransition.StartOut();
     }
+    MovieItems->HasFocus = false;
     State = Hiding;
     if (LastFocusedMenu != 0) {
       UI::FocusedMenu = LastFocusedMenu;
@@ -164,6 +175,10 @@ void MovieMenu::Render() {
     if (MenuTransition.IsIn()) {
       Renderer->DrawQuad(RectF(0.0f, 0.0f, 1280.0f, 720.0f),
                          RgbIntToFloat(BackgroundColor));
+    } else if (GetFlag(SF_SYSTEMMENU)) {
+      Renderer->DrawQuad(
+          RectF(0.0f, 0.0f, 1280.0f, 720.0f),
+          RgbIntToFloat(BackgroundColor, FromSystemMenuTransition.Progress));
     } else {
       DrawCircles();
     }
@@ -214,30 +229,33 @@ void MovieMenu::UpdateInput(float dt) {
     if (PADinputButtonWentDown & PAD1B || PADinputMouseWentDown & PAD1B) {
       IsChoiceMadeOnce = false;
     }
-    MovieItems->UpdateInput(dt);
   }
 }
 
 void MovieMenu::Update(float dt) {
-  UpdateInput(dt);
-  if (ScrWork[SW_SYSMENUCT] < 32 && State == Shown) {
+  if ((!GetFlag(SF_MOVIEMENU) || ScrWork[SW_SYSMENUCT] < 10000) &&
+      State == Shown) {
     Hide();
   } else if (GetFlag(SF_MOVIEMENU) && ScrWork[SW_SYSMENUCT] > 0 &&
              State == Hidden) {
     Show();
   }
 
-  if (MenuTransition.IsOut() && State == Hiding) {
+  if (MenuTransition.IsOut() &&
+      (ScrWork[SW_SYSMENUCT] == 0 || GetFlag(SF_SYSTEMMENU)) &&
+      State == Hiding) {
     State = Hidden;
     MovieItems->Hide();
-  } else if (MenuTransition.IsIn() && State == Showing) {
+  } else if (MenuTransition.IsIn() && ScrWork[SW_SYSMENUCT] == 10000 &&
+             State == Showing) {
     State = Shown;
-    MovieItems->Show();
+    MovieItems->HasFocus = true;
   }
 
   if (State != Hidden) {
     MenuTransition.Update(dt);
     SelectMovieTextFade.Update(dt);
+    FromSystemMenuTransition.Update(dt);
     if (MenuTransition.Direction == +AnimationDirection::Out &&
         MenuTransition.Progress <= 0.72f) {
       if (IsChoiceMadeOnce) {
@@ -253,8 +271,9 @@ void MovieMenu::Update(float dt) {
       TitleFade.StartIn();
     }
     if (State == Shown) {
-      MovieItems->Update(dt);
+      UpdateInput(dt);
     }
+    MovieItems->Update(dt);
     TitleFade.Update(dt);
     UpdateTitles();
   }

@@ -7,6 +7,8 @@
 #include "../../../ui/ui.h"
 #include "../../../games/chlcc/savemenu.h"
 
+#include "albummenu.h"
+
 namespace Impacto {
 namespace Profile {
 namespace CHLCC {
@@ -51,6 +53,8 @@ void Configure() {
   QuickLoadEntrySprite = EnsureGetMember<Sprite>("QuickLoadEntrySprite");
   SaveEntrySprite = EnsureGetMember<Sprite>("SaveEntrySprite");
   LoadEntrySprite = EnsureGetMember<Sprite>("LoadEntrySprite");
+  SelectionMarkerSprite = EnsureGetMember<Sprite>("SelectionMarkerSprite");
+  SelectionMarkerOffset = EnsureGetMember<glm::vec2>("SelectionMarkerOffset");
   EntryHighlightedSprite = EnsureGetMember<Sprite>("EntryHighlightedSprite");
   LockedSymbolSprite = EnsureGetMember<Sprite>("LockedSymbolSprite");
   ThumbnailRelativePos = EnsureGetMember<glm::vec2>("ThumbnailRelativePos");

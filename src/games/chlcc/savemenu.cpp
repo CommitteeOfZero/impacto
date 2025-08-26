@@ -9,6 +9,7 @@
 #include "../../mem.h"
 #include "../../profile/scriptvars.h"
 #include "../../inputsystem.h"
+#include "../../vm/interface/input.h"
 #include "../../ui/widgets/button.h"
 #include "../../ui/widgets/chlcc/saveentrybutton.h"
 #include "../../data/savesystem.h"
@@ -51,6 +52,11 @@ SaveMenu::SaveMenu() {
   SelectDataTextFade.Direction = AnimationDirection::In;
   SelectDataTextFade.LoopMode = AnimationLoopMode::Loop;
   SelectDataTextFade.DurationIn = SelectDataFadeDuration;
+
+  FromSystemMenuTransition.Direction = AnimationDirection::In;
+  FromSystemMenuTransition.LoopMode = AnimationLoopMode::Stop;
+  FromSystemMenuTransition.DurationIn = TitleFadeInDuration;
+  FromSystemMenuTransition.DurationOut = TitleFadeOutDuration;
 
   RedBarSprite = InitialRedBarSprite;
   RedBarPosition = InitialRedBarPosition;
@@ -215,25 +221,33 @@ void SaveMenu::Init() {
 
 void SaveMenu::Show() {
   if (State != Shown) {
-    State = Showing;
-    MenuTransition.StartIn();
-    SelectDataTextFade.StartIn();
+    if (State != Showing) {
+      MenuTransition.StartIn();
+      FromSystemMenuTransition.StartIn();
+      SelectDataTextFade.StartIn();
+    }
     SavePages->at(*CurrentPage)->Show();
-    CurrentlyFocusedElement = SavePages->at(*CurrentPage)->Children[0];
-    SavePages->at(0)->Children[0]->HasFocus = true;
+    SavePages->at(*CurrentPage)->HasFocus = false;
+    State = Showing;
     if (UI::FocusedMenu != 0) {
       LastFocusedMenu = UI::FocusedMenu;
       LastFocusedMenu->IsFocused = false;
     }
     IsFocused = true;
     UI::FocusedMenu = this;
+    SavePages->at(*CurrentPage)->Children.front()->HasFocus = true;
+    CurrentlyFocusedElement = SavePages->at(*CurrentPage)->Children.front();
   }
 }
 void SaveMenu::Hide() {
   if (State != Hidden) {
+    if (State != Hiding) {
+      SaveEntryButton::FocusedAlphaFadeReset();
+      MenuTransition.StartOut();
+      FromSystemMenuTransition.StartOut();
+    }
+    SavePages->at(*CurrentPage)->HasFocus = false;
     State = Hiding;
-    SaveEntryButton::FocusedAlphaFadeReset();
-    MenuTransition.StartOut();
     if (LastFocusedMenu != 0) {
       UI::FocusedMenu = LastFocusedMenu;
       LastFocusedMenu->IsFocused = true;
@@ -244,26 +258,55 @@ void SaveMenu::Hide() {
   }
 }
 
+void SaveMenu::UpdateInput(float dt) {
+  using namespace Vm::Interface;
+  Menu::UpdateInput(dt);
+  const auto updatePage = [&](int nextPage) {
+    PrevPage = *CurrentPage;
+    if (CurrentlyFocusedElement) {
+      CurrentlyFocusedElement->HasFocus = false;
+      CurrentlyFocusedElement->Hovered = false;
+    }
+    *CurrentPage = nextPage;
+    SavePages->at(*CurrentPage)->Show();
+    SavePages->at(*CurrentPage)->Children.front()->HasFocus = true;
+    CurrentlyFocusedElement = SavePages->at(*CurrentPage)->Children.front();
+  };
+  if (IsFocused) {
+    if (Input::MouseWheelDeltaY < 0 || PADinputButtonWentDown & PADcustom[8]) {
+      updatePage((*CurrentPage + 1) % Pages);
+    } else if (Input::MouseWheelDeltaY > 0 ||
+               PADinputButtonWentDown & PADcustom[7]) {
+      updatePage((*CurrentPage - 1 + Pages) % Pages);
+    }
+  }
+}
+
 void SaveMenu::Update(float dt) {
-  UpdateInput(dt);
-  if (ScrWork[SW_SYSMENUCT] < 32 && State == Shown) {
+  if ((!GetFlag(SF_SAVEMENU) || ScrWork[SW_SYSMENUCT] < 10000) &&
+      State == Shown) {
     Hide();
   } else if (GetFlag(SF_SAVEMENU) && ScrWork[SW_SYSMENUCT] > 0 &&
              State == Hidden) {
     Show();
   }
 
-  if (ScrWork[SW_SYSMENUCT] == 0 && State == Hiding) {
+  if (MenuTransition.IsOut() &&
+      (ScrWork[SW_SYSMENUCT] == 0 || GetFlag(SF_SYSTEMMENU)) &&
+      State == Hiding) {
     State = Hidden;
     SavePages->at(*CurrentPage)->Hide();
-  } else if (ScrWork[SW_SYSMENUCT] == 10000 && State == Showing) {
+  } else if (MenuTransition.IsIn() && ScrWork[SW_SYSMENUCT] == 10000 &&
+             State == Showing) {
     State = Shown;
+    SavePages->at(*CurrentPage)->HasFocus = true;
     SaveEntryButton::FocusedAlphaFadeStart();
   }
 
   if (State != Hidden) {
     MenuTransition.Update(dt);
     SelectDataTextFade.Update(dt);
+    FromSystemMenuTransition.Update(dt);
     if (MenuTransition.Direction == +AnimationDirection::Out &&
         MenuTransition.Progress <= 0.72f) {
       TitleFade.StartOut();
@@ -294,6 +337,9 @@ void SaveMenu::Update(float dt) {
       SaveEntryButton::UpdateFocusedAlphaFade(dt);
     }
   }
+  if (State == Shown) {
+    UpdateInput(dt);
+  }
 }
 
 void SaveMenu::Render() {
@@ -301,6 +347,10 @@ void SaveMenu::Render() {
     if (MenuTransition.IsIn()) {
       Renderer->DrawQuad(RectF(0.0f, 0.0f, 1280.0f, 720.0f),
                          RgbIntToFloat(BackgroundColor));
+    } else if (GetFlag(SF_SYSTEMMENU)) {
+      Renderer->DrawQuad(
+          RectF(0.0f, 0.0f, 1280.0f, 720.0f),
+          RgbIntToFloat(BackgroundColor, FromSystemMenuTransition.Progress));
     } else {
       DrawCircles();
     }

@@ -94,23 +94,23 @@ void SystemMenu::Hide() {
 
 void SystemMenu::Update(float dt) {
   UpdateInput(dt);
-  MainItems->UpdateInput(dt);
-  if (ScrWork[SW_SYSMENUCT] < 32 && State == Shown) {
+  if ((!GetFlag(SF_SYSTEMMENU) || ScrWork[SW_SYSMENUCT] < 10000) &&
+      State == Shown) {
     Hide();
   } else if (GetFlag(SF_SYSTEMMENU) && ScrWork[SW_SYSMENUCT] > 0 &&
              State == Hidden) {
     Show();
   }
 
-  if (MenuTransition.IsOut() && State == Hiding && ScrWork[SW_SYSMENUCT] == 0) {
+  if (MenuTransition.IsOut() && ScrWork[SW_SYSMENUCT] == 0 && State == Hiding) {
     MainItems->Hide();
     State = Hidden;
     if (CurrentlyFocusedElement) {
       CurrentlyFocusedElement->HasFocus = false;
       CurrentlyFocusedElement = nullptr;
     }
-  } else if (MenuTransition.IsIn() && State == Showing &&
-             ScrWork[SW_SYSMENUCT] == 10000) {
+  } else if (MenuTransition.IsIn() && ScrWork[SW_SYSMENUCT] == 10000 &&
+             State == Showing) {
     State = Shown;
   }
 
@@ -138,6 +138,7 @@ void SystemMenu::Update(float dt) {
     UpdateSmoothSelection(dt);
     MenuLoop.Update(dt);
     UpdateRunningSelectedLabel(dt);
+    MainItems->UpdateInput(dt);
     MainItems->Update(dt);
   }
 }
