@@ -186,13 +186,16 @@ uint8_t ProcessedTextGlyph::Flags() const {
   return Profile::Charset::Flags[CharId];
 }
 
-void TypewriterEffect::Start(int firstGlyph, int glyphCount, float duration) {
+void TypewriterEffect::Start(size_t firstGlyph, size_t glyphCount,
+                             float duration,
+                             const std::set<size_t>& parallelStartGlyphs) {
   DurationIn = duration;
   FirstGlyph = firstGlyph;
   GlyphCount = glyphCount;
-  LastOpaqueCharacter = 0;
+  FadingGlyphs.clear();
   IsCancelled = false;
   SkipOnSkipMode = true;
+  ParallelStartGlyphs = parallelStartGlyphs;
   StartIn(true);
 }
 
@@ -207,7 +210,7 @@ void TypewriterEffect::Update(float dt) {
   UpdateImpl(dt);
 }
 
-float TypewriterEffect::CalcOpacity(int glyph) {
+float TypewriterEffect::CalcOpacity(size_t glyph) {
   if (glyph < FirstGlyph) return 1.0f;
   if (glyph >= FirstGlyph + GlyphCount) return 0.0f;
 
@@ -217,25 +220,60 @@ float TypewriterEffect::CalcOpacity(int glyph) {
   // => Time per glyph given glyph count n and total time t:
   //        d = (4 * t) / (n + 3)
 
+  size_t ParallelBlockFirstGlyph;
+  size_t ParallelBlockGlyphCount;
+  if (ParallelStartGlyphs.empty()) {  // No parallel blocks
+    ParallelBlockFirstGlyph = FirstGlyph;
+    ParallelBlockGlyphCount = GlyphCount;
+
+  } else if (glyph < *ParallelStartGlyphs.begin()) {  // First parallel block
+    ParallelBlockFirstGlyph = FirstGlyph;
+    ParallelBlockGlyphCount =
+        *ParallelStartGlyphs.begin() - ParallelBlockFirstGlyph;
+
+  } else if (glyph >= *ParallelStartGlyphs.rbegin()) {  // Last parallel block
+    ParallelBlockFirstGlyph = *ParallelStartGlyphs.rbegin();
+    ParallelBlockGlyphCount =
+        (FirstGlyph + GlyphCount) - *ParallelStartGlyphs.rbegin();
+
+  } else {
+    ParallelBlockFirstGlyph = *std::max_element(
+        ParallelStartGlyphs.begin(), ParallelStartGlyphs.upper_bound(glyph));
+    ParallelBlockGlyphCount =
+        *ParallelStartGlyphs.upper_bound(glyph) - ParallelBlockFirstGlyph;
+  }
+
   float currentTime = Progress * DurationIn;
-  float timePerGlyph = (4.0f * DurationIn) / ((float)GlyphCount + 3.0f);
+  float timePerGlyph = (4.0f * DurationIn) /
+                       (static_cast<float>(ParallelBlockGlyphCount) + 3.0f);
+
+  const auto lastFadingCharacterIt =
+      FadingGlyphs.lower_bound(ParallelBlockFirstGlyph);
+  const bool forceStartFade = IsCancelled &&
+                              lastFadingCharacterIt != FadingGlyphs.end() &&
+                              *lastFadingCharacterIt < glyph;
 
   // We animate only [FirstGlyph, FirstGlyph + GlyphCount],
   // shift to [0, GlyphCount]
-  int glyphInSeries = glyph - FirstGlyph;
+  size_t glyphInSeries = glyph - ParallelBlockFirstGlyph;
   float glyphStartTime;
   float glyphEndTime;
-  if (IsCancelled && glyph >= LastOpaqueCharacter) {
+  if (forceStartFade) {
     glyphStartTime = CancelStartTime;
     glyphEndTime = DurationIn;
     timePerGlyph = DurationIn;
   } else {
-    glyphStartTime = (float)glyphInSeries * timePerGlyph * 0.25f;
+    glyphStartTime = static_cast<float>(glyphInSeries) * timePerGlyph * 0.25f;
     glyphEndTime = glyphStartTime + timePerGlyph;
   }
 
   if (currentTime < glyphStartTime) return 0.0f;
-  if (currentTime >= glyphEndTime) return 1.0f;
+  if (currentTime >= glyphEndTime) {
+    FadingGlyphs.erase(glyph);
+    return 1.0f;
+  }
+
+  FadingGlyphs.insert(glyph);
   return (currentTime - glyphStartTime) / timePerGlyph;
 }
 
@@ -426,6 +464,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
   PrevMode = Mode;
 
   size_t typewriterStart = Glyphs.size();
+  std::set<size_t> parallelStartGlyphs;
 
   // TODO should we reset HasName here?
   // It shouldn't really matter since names are an ADV thing and we clear
@@ -629,9 +668,12 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
             LastWordStart = Glyphs.size();  // now after this character
           }
         }
-      }
+      } break;
 
-      // TODO print in parallel
+      case STT_PrintInParallel:
+        parallelStartGlyphs.insert(Glyphs.size());
+        break;
+
       default: {
         break;
       }
@@ -699,7 +741,8 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
       (Profile::ConfigSystem::SyncVoice && voice != nullptr)
           ? Audio::Channels[Audio::AC_VOICE0]->DurationInSeconds()
           : (float)typewriterCt / Profile::ConfigSystem::TextSpeed;
-  Typewriter.Start((int)typewriterStart, (int)typewriterCt, typewriterDur);
+  Typewriter.Start(typewriterStart, typewriterCt, typewriterDur,
+                   parallelStartGlyphs);
 }
 
 void DialoguePage::Update(float dt) {
@@ -708,10 +751,7 @@ void DialoguePage::Update(float dt) {
   Typewriter.Update(dt);
 
   for (size_t i = 0; i < Glyphs.size(); i++) {
-    Glyphs[i].Opacity = Typewriter.CalcOpacity(static_cast<int>(i));
-    if (Glyphs[i].Opacity == 0.0f) {
-      Typewriter.LastOpaqueCharacter = static_cast<int>(i);
-    }
+    Glyphs[i].Opacity = Typewriter.CalcOpacity(i);
   }
 
   if (TextIsFullyOpaque() && MesSkipMode & SkipModeFlags::Auto)

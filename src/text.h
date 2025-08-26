@@ -1,5 +1,6 @@
 #pragma once
 
+#include <set>
 #include <span>
 #include <enum.h>
 #include <ankerl/unordered_dense.h>
@@ -61,17 +62,20 @@ struct RubyChunk {
 
 struct TypewriterEffect : public Animation {
  public:
-  void Start(int firstGlyph, int glyphCount, float duration);
-  float CalcOpacity(int glyph);
+  void Start(size_t firstGlyph, size_t glyphCount, float duration,
+             const std::set<size_t>& parallelStartGlyphs);
+  float CalcOpacity(size_t glyph);
   void Update(float dt);
-  int LastOpaqueCharacter;
   bool CancelRequested = false;
   bool IsCancelled = false;
 
  private:
-  int FirstGlyph;
-  int GlyphCount;
+  size_t FirstGlyph;
+  size_t GlyphCount;
   float CancelStartTime;
+
+  std::set<size_t> ParallelStartGlyphs;
+  std::set<size_t> FadingGlyphs;
 };
 
 struct DialoguePage {
