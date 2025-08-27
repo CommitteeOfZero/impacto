@@ -43,9 +43,6 @@ class BacklogMenu : public Menu {
   Animation FadeAnimation;
   Widgets::Scrollbar* MainScrollbar;
 
-  TurboOnHoldHandler DirectionButtonHeldHandler;
-  TurboOnHoldHandler PageUpDownButtonHeldHandler;
-
   void RenderHighlight() const;
 
   void UpdatePageUpDownInput(float dt);
