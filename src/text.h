@@ -62,20 +62,21 @@ struct RubyChunk {
 
 struct TypewriterEffect : public Animation {
  public:
-  void Start(size_t firstGlyph, size_t glyphCount, float duration,
-             const std::set<size_t>& parallelStartGlyphs);
+  void Start(size_t firstGlyph, size_t glyphCount,
+             const std::set<size_t>& parallelStartGlyphs, bool voiced);
   float CalcOpacity(size_t glyph);
   void Update(float dt);
   bool CancelRequested = false;
   bool IsCancelled = false;
 
  private:
-  size_t FirstGlyph;
-  size_t GlyphCount;
-  float CancelStartTime;
+  size_t FirstGlyph = 0;
+  size_t GlyphCount = 0;
+
+  bool Voiced = false;
 
   std::set<size_t> ParallelStartGlyphs;
-  std::set<size_t> FadingGlyphs;
+  float ProgressOnCancel;
 };
 
 struct DialoguePage {
