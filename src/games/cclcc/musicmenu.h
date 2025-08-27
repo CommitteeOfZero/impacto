@@ -65,10 +65,10 @@ class MusicMenu : public LibrarySubmenu {
   std::optional<FocusDirection> QueuedMove;
   std::vector<size_t> ShuffleTrackIndices;
   MusicBGs BGWidget;
-  TurboOnHoldHandler DirectionButtonHoldHandler;
   Animation NowPlayingFadeAnimation;
   Widgets::Label NowPlayingTrackName;
   MusicModeButton ModeButton;
+  float HoldTimer = false;
   bool TurboMoved = false;
   void PlayTrack(size_t index);
   void StopMusic();
