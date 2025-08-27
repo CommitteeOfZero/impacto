@@ -25,6 +25,11 @@ void UpdatePADcustomType(int type) {
   }
 }
 
+static std::array<float, 32> PADIsDownTime{};
+static float PADRepeatClock = 0.0f;
+static float PADAccel1Clock = 0.0f;
+static float PADAccel2Clock = 0.0f;
+
 enum class PADInputType { WentDown, IsDown };
 
 static void UpdateFromPADCode(uint32_t PADcode, PADInputType type) {
@@ -101,52 +106,69 @@ static void UpdateFromPADCode(uint32_t PADcode, PADInputType type) {
 }
 
 void UpdatePADHoldInput(float dt) {
-  static std::array<float, 32> PADIsDownTime{};
-  static std::array<float, 32> PADRepeatTime{};
-  static std::array<float, 32> PADAccel1Time{};
-  static std::array<float, 32> PADAccel2Time{};
+  constexpr float frameTime = 1 / 60.0f;
+
   PADinputButtonRepeatDown = 0;
   PADinputButtonRepeatAccelDown = 0;
-  constexpr float frameTime = 1 / 60.0f;
+
+  PADRepeatClock += dt;
+  PADAccel1Clock += dt;
+  PADAccel2Clock += dt;
+
+  bool repeatCycle = false;
+  bool accel1Cycle = false;
+  bool accel2Cycle = false;
+
+  // Reset clocks at intervals so all buttons sync
+  if (PADRepeatClock >= 4 * frameTime) {
+    repeatCycle = true;
+    PADRepeatClock = 0.0f;
+  }
+  if (PADAccel1Clock >= 2 * frameTime) {
+    accel1Cycle = true;
+    PADAccel1Clock = 0.0f;
+  }
+  if (PADAccel2Clock >= 1 * frameTime) {
+    accel2Cycle = true;
+    PADAccel2Clock = 0.0f;
+  }
+
   for (int i = 0; i < 32; i++) {
     uint32_t PADcode = 1 << (uint8_t)i;
     if ((PADinputButtonIsDown & PADcode) == 0) {
       PADIsDownTime[i] = 0.0f;
-      PADRepeatTime[i] = 0.0f;
-      PADAccel1Time[i] = 0.0f;
-      PADAccel2Time[i] = 0.0f;
-    } else {
-      PADIsDownTime[i] += dt;
-      if (0 < PADIsDownTime[i] && PADIsDownTime[i] < 2 * frameTime) {
+      continue;
+    }
+
+    if (PADinputButtonWentDown & PADcode) {
+      PADinputButtonRepeatDown |= PADcode;
+      PADinputButtonRepeatAccelDown |= PADcode;
+    }
+
+    PADIsDownTime[i] += dt;
+    if (PADIsDownTime[i] >= 90 * frameTime) {
+      if (PADIsDownTime[i] < 180) {
+        if (accel1Cycle) PADinputButtonRepeatAccelDown |= PADcode;
+
+      } else {
+        if (accel2Cycle) PADinputButtonRepeatAccelDown |= PADcode;
+      }
+    }
+
+    if (PADIsDownTime[i] >= 30 * frameTime) {
+      if (repeatCycle) {
         PADinputButtonRepeatDown |= PADcode;
-        PADinputButtonRepeatAccelDown |= PADcode;
-      }
-      if (PADIsDownTime[i] > 90 * frameTime) {
-        if (PADIsDownTime[i] < 180) {
-          PADAccel1Time[i] += dt;
-          if (2 * frameTime <= PADAccel1Time[i]) {
-            PADinputButtonRepeatAccelDown |= PADcode;
-            PADAccel1Time[i] = 0;
-          }
-        } else {
-          PADAccel2Time[i] += dt;
-          if (1 * frameTime <= PADAccel2Time[i]) {
-            PADinputButtonRepeatAccelDown |= PADcode;
-            PADAccel1Time[i] = 0;
-          }
-        }
-      }
-      if (PADIsDownTime[i] >= 30 * frameTime) {
-        PADRepeatTime[i] += dt;
-        if (PADRepeatTime[i] >= 4 * frameTime) {
-          PADinputButtonRepeatDown |= PADcode;
-          if (PADIsDownTime[i] < 90 * frameTime) {
-            PADinputButtonRepeatAccelDown |= PADcode;
-          }
-          PADRepeatTime[i] = 0;
+        if (PADIsDownTime[i] < 90 * frameTime) {
+          PADinputButtonRepeatAccelDown |= PADcode;
         }
       }
     }
+  }
+}
+
+void ResetPADHoldTimer(uint32_t PADcode) {
+  for (uint8_t i = 0; i < 32; ++i) {
+    if (PADcode & (1 << i)) PADIsDownTime[i] = 0.0f;
   }
 }
 
