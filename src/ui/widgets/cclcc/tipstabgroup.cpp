@@ -59,13 +59,7 @@ TipsTabGroup::TipsTabGroup(
     : TipsEntriesGroup(this),
       TabName(type, tabClickHandler),
       Type(type),
-      TipClickHandler(tipClickHandler),
-      DirectionButtonHoldHandler(
-          MinHoldTime, AdvanceFocusTimeInterval,
-          Vm::Interface::PADcustom[28] | Vm::Interface::PADcustom[29]),
-      PageUpDownButtonHoldHandler(
-          MinHoldTime, AdvanceFocusTimeInterval,
-          Vm::Interface::PADcustom[30] | Vm::Interface::PADcustom[31]) {
+      TipClickHandler(tipClickHandler) {
   TipsEntriesGroup.WrapFocus = true;
 
   TipsScrollStartPos = {TipsScrollEntriesX, TipsScrollYStart};
@@ -91,11 +85,12 @@ void TipsTabGroup::UpdatePageInput(float dt) {
     const uint32_t btnLeft = PADcustom[30];
     const uint32_t btnRight = PADcustom[31];
 
-    DirectionButtonHoldHandler.Update(dt);
-    const int directionShouldFire = DirectionButtonHoldHandler.ShouldFire();
-    const bool directionMovement = !PageUpDownButtonHoldHandler.Held() &&
-                                   ((bool)(directionShouldFire & btnUp) ^
-                                    (bool)(directionShouldFire & btnDown));
+    const uint32_t directionShouldFire =
+        PADinputButtonRepeatDown & (btnUp | btnDown);
+    const bool pageButtonDown = PADinputButtonIsDown & (btnLeft | btnRight);
+    const bool directionMovement =
+        !pageButtonDown && ((bool)(directionShouldFire & btnUp) ^
+                            (bool)(directionShouldFire & btnDown));
 
     if (directionMovement) {
       if (directionShouldFire & btnDown) {
@@ -119,8 +114,8 @@ void TipsTabGroup::UpdatePageInput(float dt) {
       }
     }
 
-    PageUpDownButtonHoldHandler.Update(dt);
-    const int pageUpDownShouldFire = PageUpDownButtonHoldHandler.ShouldFire();
+    const uint32_t pageUpDownShouldFire =
+        PADinputButtonRepeatDown & (btnLeft | btnRight);
     const bool pageMovement = (bool)(pageUpDownShouldFire & btnRight) ^
                               (bool)(pageUpDownShouldFire & btnLeft);
 
@@ -274,14 +269,15 @@ void TipsTabGroup::UpdateTipsEntries(std::vector<int> const& SortedTipIds) {
 }
 
 void TipsTabGroup::Show() {
+  using namespace Vm::Interface;
   if (State != Shown) {
     State = Shown;
     IsFocused = true;
     TipsEntriesGroup.Show();
     CurrentlyFocusedElement = TipsEntriesGroup.GetFocus(FDIR_DOWN);
 
-    DirectionButtonHoldHandler.Reset();
-    PageUpDownButtonHoldHandler.Reset();
+    ResetPADHoldTimer(PADcustom[28] | PADcustom[29] | PADcustom[30] |
+                      PADcustom[31]);
 
     if (CurrentlyFocusedElement) {
       static_cast<TipsEntryButton*>(CurrentlyFocusedElement)->PrevFocusState =

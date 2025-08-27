@@ -2,7 +2,6 @@
 
 #include "../button.h"
 #include "../group.h"
-#include "../../turboonholdhandler.h"
 #include "../../../data/tipssystem.h"
 #include "../../../games/cclcc/tipsmenu.h"
 #include "tipsentrybutton.h"
@@ -50,10 +49,6 @@ class TipsTabGroup : public Menu {
   float ScrollPosY = 0.0f;
   glm::vec2 TipsScrollStartPos;
   glm::vec2 TipsScrollTrackBounds;
-
-  TurboOnHoldHandler DirectionButtonHoldHandler;
-  TurboOnHoldHandler PageUpDownButtonHoldHandler;
-
   int EntriesPerPage;
 };
 
