@@ -187,26 +187,57 @@ uint8_t ProcessedTextGlyph::Flags() const {
 }
 
 void TypewriterEffect::Start(size_t firstGlyph, size_t glyphCount,
-                             float duration,
-                             const std::set<size_t>& parallelStartGlyphs) {
-  DurationIn = duration;
+                             const std::set<size_t>& parallelStartGlyphs,
+                             const bool voiced) {
+  DurationIn = 1.0f;
   FirstGlyph = firstGlyph;
   GlyphCount = glyphCount;
-  FadingGlyphs.clear();
+  Voiced = voiced;
   IsCancelled = false;
   SkipOnSkipMode = true;
+  ProgressOnCancel = 0.0f;
   ParallelStartGlyphs = parallelStartGlyphs;
   StartIn(true);
 }
 
 void TypewriterEffect::Update(float dt) {
   if (State == AnimationState::Stopped) return;
-  if (CancelRequested) {
-    CancelRequested = false;
+
+  if (CancelRequested && !IsCancelled) {
     IsCancelled = true;
+    CancelRequested = false;
+    ProgressOnCancel = Progress;
     DurationIn = 0.25f;
-    CancelStartTime = Progress * DurationIn;
   }
+
+  if (!IsCancelled) {
+    if (Voiced && Profile::ConfigSystem::SyncVoice) {
+      // Effectively progress at the constant pace such that the line ends
+      // the moment the voice line ends
+      const float remainingAudioDuration =
+          Audio::Channels[Audio::AC_VOICE0]->DurationInSeconds() -
+          Audio::Channels[Audio::AC_VOICE0]->PositionInSeconds();
+      const float progressLeft = DurationIn - Progress;
+      const float remainingAudioCompletionFraction =
+          remainingAudioDuration > 0.0f ? dt / remainingAudioDuration : 1.0f;
+      const float progressAdded =
+          progressLeft * remainingAudioCompletionFraction;
+      dt = progressAdded;
+    } else {
+      // Progress at the characters-per-second speed defined by TextSpeed
+      const float progressLeft = 1.0f - Progress;
+      const float glyphsLeft = static_cast<float>(GlyphCount) * progressLeft;
+      const float secondsLeft =
+          Profile::ConfigSystem::TextSpeed > 0.0f
+              ? glyphsLeft / Profile::ConfigSystem::TextSpeed
+              : 0.0f;
+      const float secondsLeftFractionCompleted =
+          secondsLeft > 0.0f ? dt / secondsLeft : 1.0f;
+      const float progressAdded = progressLeft * secondsLeftFractionCompleted;
+      dt = progressAdded;
+    }
+  }
+
   UpdateImpl(dt);
 }
 
@@ -214,67 +245,60 @@ float TypewriterEffect::CalcOpacity(size_t glyph) {
   if (glyph < FirstGlyph) return 1.0f;
   if (glyph >= FirstGlyph + GlyphCount) return 0.0f;
 
-  // We start displaying a glyph after the previous one is 25% opaque
-  // => Total time t given glyph count n and time per glyph d:
-  //        t = ((n - 1) * (0.25 * d)) + d
-  // => Time per glyph given glyph count n and total time t:
-  //        d = (4 * t) / (n + 3)
-
-  size_t ParallelBlockFirstGlyph;
-  size_t ParallelBlockGlyphCount;
+  size_t parallelBlockFirstGlyph;
+  size_t parallelBlockGlyphCount;
   if (ParallelStartGlyphs.empty()) {  // No parallel blocks
-    ParallelBlockFirstGlyph = FirstGlyph;
-    ParallelBlockGlyphCount = GlyphCount;
+    parallelBlockFirstGlyph = FirstGlyph;
+    parallelBlockGlyphCount = GlyphCount;
 
   } else if (glyph < *ParallelStartGlyphs.begin()) {  // First parallel block
-    ParallelBlockFirstGlyph = FirstGlyph;
-    ParallelBlockGlyphCount =
-        *ParallelStartGlyphs.begin() - ParallelBlockFirstGlyph;
+    parallelBlockFirstGlyph = FirstGlyph;
+    parallelBlockGlyphCount =
+        *ParallelStartGlyphs.begin() - parallelBlockFirstGlyph;
 
   } else if (glyph >= *ParallelStartGlyphs.rbegin()) {  // Last parallel block
-    ParallelBlockFirstGlyph = *ParallelStartGlyphs.rbegin();
-    ParallelBlockGlyphCount =
+    parallelBlockFirstGlyph = *ParallelStartGlyphs.rbegin();
+    parallelBlockGlyphCount =
         (FirstGlyph + GlyphCount) - *ParallelStartGlyphs.rbegin();
 
   } else {
-    ParallelBlockFirstGlyph = *std::max_element(
+    parallelBlockFirstGlyph = *std::max_element(
         ParallelStartGlyphs.begin(), ParallelStartGlyphs.upper_bound(glyph));
-    ParallelBlockGlyphCount =
-        *ParallelStartGlyphs.upper_bound(glyph) - ParallelBlockFirstGlyph;
+    parallelBlockGlyphCount =
+        *ParallelStartGlyphs.upper_bound(glyph) - parallelBlockFirstGlyph;
   }
 
-  float currentTime = Progress * DurationIn;
-  float timePerGlyph = (4.0f * DurationIn) /
-                       (static_cast<float>(ParallelBlockGlyphCount) + 3.0f);
+  const size_t parallelBlockGlyphNo = glyph - parallelBlockFirstGlyph;
+  const float nonCancelledProgress = IsCancelled ? ProgressOnCancel : Progress;
 
-  const auto lastFadingCharacterIt =
-      FadingGlyphs.lower_bound(ParallelBlockFirstGlyph);
-  const bool forceStartFade = IsCancelled &&
-                              lastFadingCharacterIt != FadingGlyphs.end() &&
-                              *lastFadingCharacterIt < glyph;
+  // We start displaying a glyph after the previous one is 25% opaque, hence
+  // totalDisplayTime = glyphCount * (0.25 * glyphDisplayTime) +
+  //                    glyphDisplayTime * 0.75
 
-  // We animate only [FirstGlyph, FirstGlyph + GlyphCount],
-  // shift to [0, GlyphCount]
-  size_t glyphInSeries = glyph - ParallelBlockFirstGlyph;
-  float glyphStartTime;
-  float glyphEndTime;
-  if (forceStartFade) {
-    glyphStartTime = CancelStartTime;
-    glyphEndTime = DurationIn;
-    timePerGlyph = DurationIn;
-  } else {
-    glyphStartTime = static_cast<float>(glyphInSeries) * timePerGlyph * 0.25f;
-    glyphEndTime = glyphStartTime + timePerGlyph;
+  constexpr float singleGlyphDuration = 1.0f;
+  constexpr float glyphPropagateDuration = singleGlyphDuration * 0.25f;
+  const float totalDuration = parallelBlockGlyphCount * glyphPropagateDuration +
+                              0.75f * singleGlyphDuration;
+  const float normalizedProgress = nonCancelledProgress * totalDuration;
+
+  const float currentGlyphStart = glyphPropagateDuration * parallelBlockGlyphNo;
+  const float currentGlyphEnd = currentGlyphStart + singleGlyphDuration;
+  if (currentGlyphEnd <= normalizedProgress) return 1.0f;
+
+  if (IsCancelled) {
+    const float cancelProgress =
+        (Progress - ProgressOnCancel) / (1.0f - ProgressOnCancel);
+    if (normalizedProgress <= currentGlyphStart) return cancelProgress;
+
+    const float nonCancelledGlyphProgress =
+        (normalizedProgress - currentGlyphStart) / singleGlyphDuration;
+    return nonCancelledGlyphProgress +
+           cancelProgress * (1.0f - nonCancelledGlyphProgress);
   }
 
-  if (currentTime < glyphStartTime) return 0.0f;
-  if (currentTime >= glyphEndTime) {
-    FadingGlyphs.erase(glyph);
-    return 1.0f;
-  }
+  if (normalizedProgress <= currentGlyphStart) return 0.0f;
 
-  FadingGlyphs.insert(glyph);
-  return (currentTime - glyphStartTime) / timePerGlyph;
+  return (normalizedProgress - currentGlyphStart) / singleGlyphDuration;
 }
 
 bool DialoguePage::TextIsFullyOpaque() { return Typewriter.Progress == 1.0f; }
@@ -736,13 +760,8 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
         std::unique_ptr<Audio::AudioStream>(voice), false, 0.0f);
   }
 
-  size_t typewriterCt = Glyphs.size() - typewriterStart;
-  float typewriterDur =
-      (Profile::ConfigSystem::SyncVoice && voice != nullptr)
-          ? Audio::Channels[Audio::AC_VOICE0]->DurationInSeconds()
-          : (float)typewriterCt / Profile::ConfigSystem::TextSpeed;
-  Typewriter.Start(typewriterStart, typewriterCt, typewriterDur,
-                   parallelStartGlyphs);
+  Typewriter.Start(typewriterStart, Glyphs.size() - typewriterStart,
+                   parallelStartGlyphs, voice != nullptr);
 }
 
 void DialoguePage::Update(float dt) {
