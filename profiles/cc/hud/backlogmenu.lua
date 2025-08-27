@@ -34,8 +34,6 @@ root.BacklogMenu = {
     FadeOutDirectDuration = 0.25,
 
     ScrollingSpeed = 900,
-    MinHoldTime = 0.5,
-    AdvanceFocusTimeInterval = 0.05,
     PageUpDownHeight = 765,
 
     MenuMask = "MenuMask",

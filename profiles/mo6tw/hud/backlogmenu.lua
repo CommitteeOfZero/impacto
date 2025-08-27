@@ -27,8 +27,6 @@ root.BacklogMenu = {
     FadeOutDuration = 0.2,
 
     ScrollingSpeed = 600,
-    MinHoldTime = 0.5,
-    AdvanceFocusTimeInterval = 0.05,
     PageUpDownHeight = 520
 };
 
