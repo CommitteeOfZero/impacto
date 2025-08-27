@@ -56,8 +56,6 @@ inline SpriteSheet TipsMaskSheet;
 inline float TransitionInDuration;
 inline float TransitionOutDuration;
 
-inline float MinHoldTime;
-inline float AdvanceFocusTimeInterval;
 void Configure();
 
 }  // namespace TipsMenu
