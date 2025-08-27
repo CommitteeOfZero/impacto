@@ -64,6 +64,7 @@ enum ControlType {
 
 void UpdatePADInput();
 void UpdatePADHoldInput(float dt);
+void ResetPADHoldTimer(uint32_t PADcode);
 void UpdatePADcustomType(int type);
 bool GetControlState(int controlId);
 
