@@ -156,12 +156,7 @@ void MusicModeButton::Update(float dt) {
   Bounds = MusicPlayingModeDisplayBounds[PlayMode._to_integral()];
 }
 
-MusicMenu::MusicMenu()
-    : LibrarySubmenu(),
-      DirectionButtonHoldHandler(
-          MusicDirectionalHoldTime, MusicDirectionalFocusTimeInterval,
-          Vm::Interface::PAD1UP | Vm::Interface::PAD1DOWN),
-      ModeButton(PlayMode) {
+MusicMenu::MusicMenu() : LibrarySubmenu(), ModeButton(PlayMode) {
   MainItems.RenderingBounds = MusicRenderingBounds;
   MainItems.HoverBounds = MusicHoverBounds;
   NowPlayingFadeAnimation.DurationIn = MusicNowPlayingNotificationFadeIn;
@@ -306,11 +301,14 @@ void MusicMenu::UpdateInput(float dt) {
     const bool upScroll = Input::MouseWheelDeltaY > 0;
     const bool downScroll = Input::MouseWheelDeltaY < 0;
 
-    DirectionButtonHoldHandler.Update(dt);
-    const int directionShouldFire = DirectionButtonHoldHandler.ShouldFire();
+    const uint32_t directionShouldFire =
+        PADinputButtonRepeatDown & (btnUp | btnDown);
     const bool directionMovement =
         (bool)(directionShouldFire & btnUp || upScroll) ^
         (bool)(directionShouldFire & btnDown || downScroll);
+
+    if ((PADinputButtonWentDown & (btnUp | btnDown)) != 0) HoldTimer = 0.0f;
+    if (directionShouldFire) HoldTimer += dt;
 
     if (directionMovement) {
       const bool dirDown = directionShouldFire & btnDown || downScroll;
@@ -326,7 +324,8 @@ void MusicMenu::UpdateInput(float dt) {
       float deltaY = 0;
       const bool dirDown = *QueuedMove == FocusDirection::FDIR_DOWN;
       deltaY += dirDown ? MusicButtonBounds.Height : -MusicButtonBounds.Height;
-      TurboMoved = DirectionButtonHoldHandler.IsTurbo || upScroll || downScroll;
+      TurboMoved =
+          (HoldTimer > MusicDirectionalHoldTime) || upScroll || downScroll;
       const float animationSpeed =
           TurboMoved ? MusicDirectionalFocusTimeInterval : 0.3f;
 
