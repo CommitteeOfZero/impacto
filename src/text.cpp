@@ -494,7 +494,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
   // It shouldn't really matter since names are an ADV thing and we clear
   // before every add on ADV anyway...
 
-  AutoForward = false;
+  AutoForward = AutoForwardType::Off;
 
   TextParseState State = TPS_Normal;
   // TODO respect alignment
@@ -607,9 +607,12 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
         LastWordStart = Glyphs.size();
         break;
       }
-      case STT_AutoForward:
+      case STT_AutoForward: {
+        AutoForward = AutoForwardType::SyncVoice;
+        break;
+      }
       case STT_AutoForward_1A: {
-        AutoForward = true;
+        AutoForward = AutoForwardType::Normal;
         break;
       }
       case STT_SetColor: {
@@ -755,13 +758,17 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
     assert(NameLength == Name.size());
   }
 
-  if (voice != 0) {
+  if (voice != nullptr) {
     Audio::Channels[Audio::AC_VOICE0]->Play(
         std::unique_ptr<Audio::AudioStream>(voice), false, 0.0f);
   }
 
-  Typewriter.Start(typewriterStart, Glyphs.size() - typewriterStart,
-                   parallelStartGlyphs, voice != nullptr);
+  const size_t typewriterCt = Glyphs.size() - typewriterStart;
+  Typewriter.Start(typewriterStart, typewriterCt, parallelStartGlyphs,
+                   voice != nullptr);
+
+  AutoWaitTime = static_cast<float>(typewriterCt);
+  if (AutoForward == AutoForwardType::SyncVoice) AutoWaitTime *= 2.0f;
 }
 
 void DialoguePage::Update(float dt) {
@@ -773,9 +780,16 @@ void DialoguePage::Update(float dt) {
     Glyphs[i].Opacity = Typewriter.CalcOpacity(i);
   }
 
-  if (TextIsFullyOpaque() && MesSkipMode & SkipModeFlags::Auto)
+  if (AutoForward == AutoForwardType::SyncVoice) {
+    const float speed = AutoWaitTime > Typewriter.GetGlyphCount()
+                            ? Profile::ConfigSystem::TextSpeed
+                            : Profile::ConfigSystem::AutoSpeed;
+    AutoWaitTime = std::max(0.0f, AutoWaitTime - speed * dt);
+  } else if (TextIsFullyOpaque() && (AutoForward == AutoForwardType::Normal ||
+                                     (MesSkipMode & SkipModeFlags::Auto))) {
     AutoWaitTime =
         std::max(0.0f, AutoWaitTime - Profile::ConfigSystem::AutoSpeed * dt);
+  }
 
   TextBox->Update(dt);
   FadeAnimation.Update(dt);
