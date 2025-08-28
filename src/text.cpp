@@ -241,64 +241,146 @@ void TypewriterEffect::Update(float dt) {
   UpdateImpl(dt);
 }
 
-float TypewriterEffect::CalcOpacity(size_t glyph) {
-  if (glyph < FirstGlyph) return 1.0f;
-  if (glyph >= FirstGlyph + GlyphCount) return 0.0f;
-
-  size_t parallelBlockFirstGlyph;
-  size_t parallelBlockGlyphCount;
+TypewriterEffect::ParallelBlock TypewriterEffect::GetParallelBlock(
+    const size_t glyph) {
   if (ParallelStartGlyphs.empty()) {  // No parallel blocks
-    parallelBlockFirstGlyph = FirstGlyph;
-    parallelBlockGlyphCount = GlyphCount;
+    return {FirstGlyph, GlyphCount};
 
   } else if (glyph < *ParallelStartGlyphs.begin()) {  // First parallel block
-    parallelBlockFirstGlyph = FirstGlyph;
-    parallelBlockGlyphCount =
-        *ParallelStartGlyphs.begin() - parallelBlockFirstGlyph;
+    return {FirstGlyph, *ParallelStartGlyphs.begin() - FirstGlyph};
 
   } else if (glyph >= *ParallelStartGlyphs.rbegin()) {  // Last parallel block
-    parallelBlockFirstGlyph = *ParallelStartGlyphs.rbegin();
-    parallelBlockGlyphCount =
-        (FirstGlyph + GlyphCount) - *ParallelStartGlyphs.rbegin();
+    return {*ParallelStartGlyphs.rbegin(),
+            (FirstGlyph + GlyphCount) - *ParallelStartGlyphs.rbegin()};
 
   } else {
-    parallelBlockFirstGlyph = *std::max_element(
+    const size_t firstGlyphOfBlock = *std::max_element(
         ParallelStartGlyphs.begin(), ParallelStartGlyphs.upper_bound(glyph));
-    parallelBlockGlyphCount =
-        *ParallelStartGlyphs.upper_bound(glyph) - parallelBlockFirstGlyph;
+    return {firstGlyphOfBlock,
+            *ParallelStartGlyphs.upper_bound(glyph) - firstGlyphOfBlock};
   }
+}
 
-  const size_t parallelBlockGlyphNo = glyph - parallelBlockFirstGlyph;
-  const float nonCancelledProgress = IsCancelled ? ProgressOnCancel : Progress;
+std::pair<float, float> TypewriterEffect::GetGlyphWritingProgresses(
+    const size_t glyph) {
+  const ParallelBlock block = GetParallelBlock(glyph);
+
+  const size_t parallelBlockGlyphNo = glyph - block.Start;
 
   // We start displaying a glyph after the previous one is 25% opaque, hence
   // totalDisplayTime = glyphCount * (0.25 * glyphDisplayTime) +
   //                    glyphDisplayTime * 0.75
 
   constexpr float singleGlyphDuration = 1.0f;
-  constexpr float glyphPropagateDuration = singleGlyphDuration * 0.25f;
-  const float totalDuration = parallelBlockGlyphCount * glyphPropagateDuration +
-                              0.75f * singleGlyphDuration;
-  const float normalizedProgress = nonCancelledProgress * totalDuration;
+  constexpr float glyphPropagateProgress = 0.25f;
+  constexpr float glyphPropagateDuration =
+      singleGlyphDuration * glyphPropagateProgress;
+  const float totalDuration =
+      block.Size * glyphPropagateDuration +
+      (1.0f - glyphPropagateProgress) * singleGlyphDuration;
 
-  const float currentGlyphStart = glyphPropagateDuration * parallelBlockGlyphNo;
-  const float currentGlyphEnd = currentGlyphStart + singleGlyphDuration;
-  if (currentGlyphEnd <= normalizedProgress) return 1.0f;
+  const float startTime = glyphPropagateDuration * parallelBlockGlyphNo;
+  const float endTime = startTime + singleGlyphDuration;
+
+  return {startTime / totalDuration, endTime / totalDuration};
+}
+
+float TypewriterEffect::CalcOpacity(size_t glyph) {
+  if (glyph < FirstGlyph) return 1.0f;
+  if (glyph >= FirstGlyph + GlyphCount) return 0.0f;
+
+  const auto [startProgress, endProgress] = GetGlyphWritingProgresses(glyph);
 
   if (IsCancelled) {
+    // On cancellation, all non-opaque glyphs start appearing simultaneously
+
+    // Opaque glyphs remain opaque
+    if (ProgressOnCancel >= endProgress) return 1.0f;
+
+    // Transparent glyphs fade in according to the progress made
+    // since cancelling
     const float cancelProgress =
         (Progress - ProgressOnCancel) / (1.0f - ProgressOnCancel);
-    if (normalizedProgress <= currentGlyphStart) return cancelProgress;
+    if (ProgressOnCancel <= startProgress) return cancelProgress;
 
-    const float nonCancelledGlyphProgress =
-        (normalizedProgress - currentGlyphStart) / singleGlyphDuration;
-    return nonCancelledGlyphProgress +
-           cancelProgress * (1.0f - nonCancelledGlyphProgress);
+    // Translucent glyphs fade in further, in addition to the opacity they
+    // already had
+    const float glyphProgressBeforeCancellation =
+        (ProgressOnCancel - startProgress) / (endProgress - startProgress);
+    return glyphProgressBeforeCancellation +
+           cancelProgress * (1.0f - glyphProgressBeforeCancellation);
   }
 
-  if (normalizedProgress <= currentGlyphStart) return 0.0f;
+  return std::clamp((Progress - startProgress) / (endProgress - startProgress),
+                    0.0f, 1.0f);
+}
 
-  return (normalizedProgress - currentGlyphStart) / singleGlyphDuration;
+float TypewriterEffect::CalcRubyOpacity(const size_t rubyGlyphId,
+                                        const RubyChunk& chunk) {
+  // Ruby fade as a regular textbox would, with the start and end times of
+  // the animation being the start and end fade times of the ruby chunk's base
+  //
+  // On cancellation, the ruby all fade in simultaneously, like regular text
+
+  const size_t baseStart = chunk.FirstBaseCharacter;
+  const size_t baseEnd = chunk.FirstBaseCharacter + chunk.BaseLength;
+
+  // Base is already fully opaque / still fully transparent
+  if (baseEnd <= FirstGlyph) return 1.0f;
+  if (baseStart > FirstGlyph + GlyphCount) return 0.0f;
+
+  const float baseStartProgress = GetGlyphWritingProgresses(baseStart).first;
+  const float baseEndProgress = GetGlyphWritingProgresses(baseEnd - 1).second;
+
+  if (IsCancelled) {
+    if (ProgressOnCancel >= baseEndProgress) return 1.0f;
+
+    const float cancelProgress =
+        (Progress - ProgressOnCancel) / (1.0f - ProgressOnCancel);
+    if (ProgressOnCancel <= baseStartProgress) return cancelProgress;
+  } else {
+    if (Progress >= baseEndProgress) return 1.0f;
+    if (Progress <= baseStartProgress) return 0.0f;
+  }
+
+  const float baseProgressLength = baseEndProgress - baseStartProgress;
+
+  // We start displaying a glyph after the previous one is 25% opaque, hence
+  // totalDisplayTime = glyphCount * (0.25 * glyphDisplayTime) +
+  //                    glyphDisplayTime * 0.75
+
+  constexpr float singleGlyphDuration = 1.0f;
+  constexpr float glyphPropagateProgress = 0.25f;
+  constexpr float glyphPropagateDuration =
+      singleGlyphDuration * glyphPropagateProgress;
+  const float totalDuration =
+      chunk.Length * glyphPropagateDuration +
+      (1.0f - glyphPropagateProgress) * singleGlyphDuration;
+
+  const float glyphStartTime = glyphPropagateDuration * rubyGlyphId;
+  const float glyphEndTime = glyphStartTime + singleGlyphDuration;
+
+  // Convert back to progress-space
+  const float startProgress =
+      baseStartProgress + (glyphStartTime / totalDuration) * baseProgressLength;
+  const float endProgress =
+      baseStartProgress + (glyphEndTime / totalDuration) * baseProgressLength;
+
+  if (IsCancelled) {
+    if (ProgressOnCancel >= endProgress) return 1.0f;
+
+    const float cancelProgress =
+        (Progress - ProgressOnCancel) / (1.0f - ProgressOnCancel);
+    if (ProgressOnCancel <= startProgress) return cancelProgress;
+
+    const float glyphProgressBeforeCancellation =
+        (ProgressOnCancel - startProgress) / (endProgress - startProgress);
+    return glyphProgressBeforeCancellation +
+           cancelProgress * (1.0f - glyphProgressBeforeCancellation);
+  }
+
+  return std::clamp((Progress - startProgress) / (endProgress - startProgress),
+                    0.0f, 1.0f);
 }
 
 bool DialoguePage::TextIsFullyOpaque() { return Typewriter.Progress == 1.0f; }
@@ -795,6 +877,14 @@ void DialoguePage::Update(float dt) {
 
   for (size_t i = 0; i < Glyphs.size(); i++) {
     Glyphs[i].Opacity = Typewriter.CalcOpacity(i);
+  }
+
+  for (size_t rubyChunkId = 0; rubyChunkId < RubyChunkCount; rubyChunkId++) {
+    for (size_t rubyGlyphId = 0; rubyGlyphId < RubyChunks[rubyChunkId].Length;
+         rubyGlyphId++) {
+      RubyChunks[rubyChunkId].Text[rubyGlyphId].Opacity =
+          Typewriter.CalcRubyOpacity(rubyGlyphId, RubyChunks[rubyChunkId]);
+    }
   }
 
   if (AutoForward == AutoForwardType::SyncVoice) {
