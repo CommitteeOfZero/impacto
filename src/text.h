@@ -66,6 +66,9 @@ struct TypewriterEffect : public Animation {
              const std::set<size_t>& parallelStartGlyphs, bool voiced);
   float CalcOpacity(size_t glyph);
   void Update(float dt);
+
+  size_t GetGlyphCount() const { return GlyphCount; }
+
   bool CancelRequested = false;
   bool IsCancelled = false;
 
@@ -109,9 +112,10 @@ struct DialoguePage {
   TextAlignment Alignment = TextAlignment::Left;
 
   bool NVLResetBeforeAdd;
-  bool AutoForward;
 
-  float AutoWaitTime;
+  enum class AutoForwardType { Off, Normal, SyncVoice };
+  AutoForwardType AutoForward = AutoForwardType::Off;
+  float AutoWaitTime = 0.0f;
 
   RectF BoxBounds;
 
