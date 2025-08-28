@@ -30,7 +30,7 @@ root.Dialogue = {
     SetFontSizeRatio = 1000.0,
     DefaultFontSize = 48,
     RubyFontSize = 21,
-    RubyYOffset = -27,
+    RubyYOffset = -21,
     ColorTable = {
         {0xFFFFFF, 0x000000}, {0x5080FF, 0x000000},
         {0xFF7080, 0x000000}, {0xFFA0F8, 0x000000},

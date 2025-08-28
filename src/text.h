@@ -56,8 +56,8 @@ struct RubyChunk {
   size_t Length;
   size_t BaseLength;
   bool CenterPerCharacter;
-  ProcessedTextGlyph Text[DialogueMaxRubyChunkLength];
-  uint16_t RawText[DialogueMaxRubyChunkLength];
+  std::array<ProcessedTextGlyph, DialogueMaxRubyChunkLength> Text;
+  std::array<uint16_t, DialogueMaxRubyChunkLength> RawText;
 };
 
 struct TypewriterEffect : public Animation {

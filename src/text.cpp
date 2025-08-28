@@ -364,17 +364,18 @@ enum TextParseState { TPS_Normal, TPS_Name, TPS_Ruby };
 
 void DialoguePage::FinishLine(Vm::Sc3VmThread* ctx, size_t nextLineStart,
                               const RectF& boxBounds, TextAlignment alignment) {
-  EndRubyBase(static_cast<int>(nextLineStart) - 1);
-
   // Lay out all ruby chunks on this line (before we change CurrentLineTop and
   // thus can't find where to put them)
   for (size_t i = FirstRubyChunkOnLine; i < RubyChunkCount; i++) {
-    if (RubyChunks[i].FirstBaseCharacter >= nextLineStart) break;
+    RubyChunk& chunk = RubyChunks[i];
 
-    Vm::Sc3Stream rubyText(RubyChunks[i].RawText);
+    if (chunk.FirstBaseCharacter >= nextLineStart) break;
+
+    Vm::Sc3Stream rubyText(chunk.RawText.data());
 
     glm::vec2 pos =
-        glm::vec2(0, CurrentLineTop + CurrentLineTopMargin + RubyYOffset);
+        glm::vec2(Glyphs[chunk.FirstBaseCharacter].DestRect.X,
+                  CurrentLineTop + CurrentLineTopMargin + RubyYOffset);
 
     // ruby base length > ruby text length: block align
     // ruby base length > ruby text length and 0x1E: center per character
@@ -382,37 +383,52 @@ void DialoguePage::FinishLine(Vm::Sc3VmThread* ctx, size_t nextLineStart,
     // ruby base length < ruby text length: center over block (handled by
     // block align)
 
-    if (RubyChunks[i].Length == RubyChunks[i].BaseLength ||
-        (RubyChunks[i].CenterPerCharacter &&
-         RubyChunks[i].BaseLength > RubyChunks[i].Length)) {
+    if (chunk.Length == chunk.BaseLength ||
+        (chunk.CenterPerCharacter && chunk.BaseLength > chunk.Length)) {
       // center every ruby character over the base character below it
-      for (size_t j = 0; j < RubyChunks[i].Length; j++) {
+      for (size_t j = 0; j < chunk.Length; j++) {
         RectF const& baseGlyphRect =
-            Glyphs[RubyChunks[i].FirstBaseCharacter + j].DestRect;
+            Glyphs[chunk.FirstBaseCharacter + j].DestRect;
         pos.x = baseGlyphRect.Center().x;
-        TextLayoutPlainLine(rubyText, 1, std::span(RubyChunks[i].Text + j, 1),
+        TextLayoutPlainLine(rubyText, 1, std::span(chunk.Text.begin() + j, 1),
                             DialogueFont, RubyFontSize, ColorTable[0], 1.0f,
                             pos, TextAlignment::Center);
       }
     } else {
-      // evenly space out all ruby characters over the block of base text
-      // TODO is this really the right behaviour for CenterPerCharacter(0x1E)
-      // and ruby base length < ruby text length?
-      RectF const& baseGlyphRect =
-          Glyphs[RubyChunks[i].FirstBaseCharacter].DestRect;
-      pos.x = baseGlyphRect.X;
-      /*
-       * This seems unused right now
-      float blockWidth = 0.0f;
-      for (int j = 0; j < RubyChunks[i].BaseLength; j++) {
-        blockWidth +=
-            Glyphs[RubyChunks[i].FirstBaseCharacter + j].DestRect.Width;
+      TextLayoutPlainLine(rubyText, static_cast<int>(chunk.Length), chunk.Text,
+                          DialogueFont, RubyFontSize, ColorTable[0], 1.0f, pos,
+                          TextAlignment::Left);
+      const float baseWidth =
+          (Glyphs[chunk.FirstBaseCharacter + chunk.BaseLength - 1].DestRect.X +
+           Glyphs[chunk.FirstBaseCharacter + chunk.BaseLength - 1]
+               .DestRect.Width) -
+          Glyphs[chunk.FirstBaseCharacter].DestRect.X;
+      const float nonSpacedWidth =
+          (chunk.Text[chunk.Length - 1].DestRect.X +
+           chunk.Text[chunk.Length - 1].DestRect.Width) -
+          chunk.Text[0].DestRect.X;
+      const float excessWidth = baseWidth - nonSpacedWidth;
+
+      if (chunk.Length == 1) {
+        chunk.Text[0].DestRect.X += baseWidth / 2.0f;
+      } else if (excessWidth <= 0.0f) {
+        // Ruby overflows => center over base with normal spacing
+        const float offsetX = (baseWidth - nonSpacedWidth) / 2.0f;
+        for (size_t rubyGlyphId = 0; rubyGlyphId < chunk.Length;
+             rubyGlyphId++) {
+          chunk.Text[rubyGlyphId].DestRect.X += offsetX;
+        }
+      } else {
+        // Evenly space out all ruby characters over the block of base text
+        const float extraSpacing = excessWidth / (chunk.Length - 1);
+        for (size_t rubyGlyphId = 0; rubyGlyphId < chunk.Length;
+             rubyGlyphId++) {
+          chunk.Text[rubyGlyphId].DestRect.X += extraSpacing * rubyGlyphId;
+        }
       }
-    int rubyLength =
-        TextLayoutPlainLine(ctx, RubyChunks[i].Length, RubyChunks[i].Text,
-                            DialogueFont, RubyFontSize, ColorTable[0], 1.0f,
-                            pos, TextAlignment::Block, blockWidth);
-    */
+
+      // TODO is this really the right behaviour for
+      // CenterPerCharacter(0x1E) and ruby base length < ruby text length?
     }
     FirstRubyChunkOnLine++;
   }
@@ -605,6 +621,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
         RubyChunkCount++;
         RubyChunks[CurrentRubyChunk].FirstBaseCharacter = Glyphs.size();
         LastWordStart = Glyphs.size();
+        BuildingRubyBase = true;
         break;
       }
       case STT_AutoForward: {
@@ -823,6 +840,10 @@ void DialoguePage::Render() {
 
   Renderer->DrawProcessedText(Glyphs, DialogueFont, opacityTint.a,
                               RendererOutlineMode::Full);
+  for (size_t rubyChunkId = 0; rubyChunkId < RubyChunkCount; rubyChunkId++) {
+    Renderer->DrawProcessedText(RubyChunks[rubyChunkId].Text, DialogueFont,
+                                opacityTint.a, RendererOutlineMode::Full);
+  }
 
   if (HasName && ADVBoxShowName) {
     Renderer->DrawProcessedText(Name, DialogueFont, opacityTint.a,
@@ -848,6 +869,12 @@ void DialoguePage::Move(glm::vec2 relativePos) {
     for (size_t i = 0; i < NameLength; i++) {
       Name[i].DestRect.X += relativePos.x;
       Name[i].DestRect.Y += relativePos.y;
+    }
+  }
+  for (RubyChunk rubyChunk : std::span(RubyChunks.begin(), RubyChunkCount)) {
+    for (auto glyph : std::span(rubyChunk.Text.begin(), rubyChunk.Length)) {
+      glyph.DestRect.X += relativePos.x;
+      glyph.DestRect.Y += relativePos.y;
     }
   }
 }
