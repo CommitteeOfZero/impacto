@@ -918,26 +918,42 @@ std::pair<int, float> TextLayoutPlainLineHelper(
   StringToken token;
 
   float currentX = 0;
+  DialogueColorPair currentColors = colors;
   for (int i = 0; i < stringLength; i++) {
     token.Read(sc3);
     if (token.Type == STT_EndOfString) break;
-    if (token.Type != STT_Character) continue;
 
-    ProcessedTextGlyph ptg;
-    ptg.CharId = token.Val_Uint16;
-    ptg.Colors = colors;
-    ptg.Opacity = opacity;
+    switch (token.Type) {
+      default:
+        break;
 
-    ptg.DestRect.X = currentX;
-    ptg.DestRect.Y = pos.y;
-    ptg.DestRect.Width = std::floor((fontSize / font->BitmapEmWidth) *
-                                    font->AdvanceWidths[ptg.CharId]);
-    ptg.DestRect.Height = fontSize;
+      case STT_SetColor: {
+        if (253 <= token.Val_Expr && token.Val_Expr <= 255) {
+          token.Val_Expr = ScrWork[SW_SYSMESCOL1 + (255 - token.Val_Expr)];
+        }
 
-    currentX += ptg.DestRect.Width;
+        assert(token.Val_Expr < ColorCount);
+        currentColors = ColorTable[token.Val_Expr];
+      } break;
 
-    *outIt++ = ptg;
-    characterCount++;
+      case STT_Character: {
+        ProcessedTextGlyph ptg;
+        ptg.CharId = token.Val_Uint16;
+        ptg.Colors = currentColors;
+        ptg.Opacity = opacity;
+
+        ptg.DestRect.X = currentX;
+        ptg.DestRect.Y = pos.y;
+        ptg.DestRect.Width = std::floor((fontSize / font->BitmapEmWidth) *
+                                        font->AdvanceWidths[ptg.CharId]);
+        ptg.DestRect.Height = fontSize;
+
+        currentX += ptg.DestRect.Width;
+
+        *outIt++ = ptg;
+        characterCount++;
+      } break;
+    }
   }
   // currentX is now line width
   // If you want to align, you can pass a span or vector to the alignment

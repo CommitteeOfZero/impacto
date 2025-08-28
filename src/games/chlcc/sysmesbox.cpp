@@ -45,7 +45,6 @@ void SysMesBox::Show() {
   for (int i = 0; i < MessageCount; i++) {
     diff = Messages[i][0].DestRect.X - (TextX - (maxWidth / 2.0f));
     for (ProcessedTextGlyph& glyph : Messages[i]) {
-      glyph.Colors = Profile::Dialogue::ColorTable[0];
       glyph.DestRect.X -= diff;
       glyph.DestRect.Y = TextMiddleY + (i * TextLineHeight);
     }
@@ -70,7 +69,6 @@ void SysMesBox::Show() {
   for (int i = 0; i < ChoiceCount; i++) {
     diff = Choices[i][0].DestRect.X - tempChoiceX;
     for (ProcessedTextGlyph& choice : Choices[i]) {
-      choice.Colors = Profile::Dialogue::ColorTable[0];
       choice.DestRect.X -= diff;
       choice.DestRect.Y = ChoiceY;
     }
@@ -195,7 +193,7 @@ void SysMesBox::AddMessage(Vm::BufferOffsetContext ctx) {
   dummy.ScriptBufferId = ctx.ScriptBufferId;
   Messages[MessageCount] =
       TextLayoutPlainLine(&dummy, 255, Profile::Dialogue::DialogueFont,
-                          TextFontSize, Profile::Dialogue::ColorTable[10], 1.0f,
+                          TextFontSize, Profile::Dialogue::ColorTable[0], 1.0f,
                           glm::vec2(TextX, 0.0f), TextAlignment::Left);
   float mesLen = 0.0f;
   for (size_t i = 0; i < Messages[MessageCount].size(); i++) {
@@ -211,7 +209,7 @@ void SysMesBox::AddChoice(Vm::BufferOffsetContext ctx) {
   dummy.ScriptBufferId = ctx.ScriptBufferId;
   Choices[ChoiceCount] =
       TextLayoutPlainLine(&dummy, 255, Profile::Dialogue::DialogueFont,
-                          TextFontSize, Profile::Dialogue::ColorTable[10], 1.0f,
+                          TextFontSize, Profile::Dialogue::ColorTable[0], 1.0f,
                           glm::vec2(TextX, 0.0f), TextAlignment::Left);
   float mesLen = 0.0f;
   for (size_t i = 0; i < Choices[ChoiceCount].size(); i++) {
