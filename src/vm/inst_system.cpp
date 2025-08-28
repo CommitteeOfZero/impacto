@@ -524,7 +524,8 @@ VmInstruction(InstSystemMes) {
     } break;
     case 3: {  // SystemMesSetMes
       PopUint16(sysMesStrNum);
-      auto message = ScriptGetStrAddress(thread->ScriptBufferId, sysMesStrNum);
+      const uint32_t message =
+          ScriptGetStrAddress(thread->ScriptBufferId, sysMesStrNum);
       UI::SysMesBoxPtr->AddMessage(
           {.ScriptBufferId = thread->ScriptBufferId, .IpOffset = message});
     } break;
