@@ -64,8 +64,10 @@ struct TypewriterEffect : public Animation {
  public:
   void Start(size_t firstGlyph, size_t glyphCount,
              const std::set<size_t>& parallelStartGlyphs, bool voiced);
-  float CalcOpacity(size_t glyph);
   void Update(float dt);
+
+  float CalcOpacity(size_t glyph);
+  float CalcRubyOpacity(size_t rubyGlyphId, const RubyChunk& chunk);
 
   size_t GetGlyphCount() const { return GlyphCount; }
 
@@ -80,6 +82,12 @@ struct TypewriterEffect : public Animation {
 
   std::set<size_t> ParallelStartGlyphs;
   float ProgressOnCancel;
+
+  // {ParallelBlockStart, ParallelBlockSize}
+  std::pair<size_t, size_t> GetParallelBlock(size_t glyph);
+
+  // {startProgress, endProgress}
+  std::pair<float, float> GetGlyphWritingProgresses(size_t glyph);
 };
 
 struct DialoguePage {
