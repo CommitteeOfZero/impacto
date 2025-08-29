@@ -20,8 +20,8 @@ inline Sprite RightSprite;
 inline float BaseLineWidth;
 }  // namespace SecondaryADVNameTag
 
-inline Sprite REVBoxSprite;
-inline glm::vec2 REVBoxPos;
+inline Sprite ErinBoxSprite;
+inline glm::vec2 ErinBoxPos;
 inline glm::vec2 REVWaitIconOffset;
 inline uint8_t REVLineSpacing;
 inline uint8_t REVLineHeight;

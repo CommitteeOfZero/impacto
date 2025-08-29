@@ -7,6 +7,7 @@
 #include "../../ui/widgets/backlogentry.h"
 
 #include "../games/mo6tw/backlogmenu.h"
+#include "../games/chlcc/backlogmenu.h"
 #include "../games/cc/backlogmenu.h"
 
 namespace Impacto {
@@ -61,6 +62,10 @@ void Configure() {
     switch (Type) {
       case BacklogMenuType::MO6TW:
         MO6TW::BacklogMenu::Configure();
+        break;
+
+      case BacklogMenuType::CHLCC:
+        CHLCC::BacklogMenu::Configure();
         break;
 
       case BacklogMenuType::CC:

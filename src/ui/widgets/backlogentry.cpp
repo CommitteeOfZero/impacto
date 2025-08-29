@@ -13,6 +13,7 @@ namespace UI {
 namespace Widgets {
 
 using namespace Impacto::Profile::BacklogMenu;
+using namespace Impacto::Profile::ScriptVars;
 
 BacklogEntry::BacklogEntry(int id, Vm::BufferOffsetContext scrCtx, int audioId,
                            int characterId, glm::vec2 pos,
@@ -33,7 +34,7 @@ BacklogEntry::BacklogEntry(int id, Vm::BufferOffsetContext scrCtx, int audioId,
   dummy.IpOffset = scrCtx.IpOffset;
   dummy.ScriptBufferId = scrCtx.ScriptBufferId;
   // CHLCC uses DPM_REV for the Erin DialogueBox
-  if (Profile::Dialogue::DialogueBoxCurrentType != +DialogueBoxType::CHLCC) {
+  if (ScrWork[SW_MESWIN0TYPE] == 0) {
     Profile::Dialogue::REVBounds.X = pos.x;
     Profile::Dialogue::REVBounds.Y = pos.y;
   }
