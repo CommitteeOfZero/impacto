@@ -37,9 +37,9 @@ void DialogueBox::Render(DialoguePageMode mode, bool hasName, float nameWidth,
     Renderer->DrawSprite(*advBoxSprite, ADVBoxPos, col);
   }
 
-  if (mode == DPM_REV) {
+  if (mode == DPM_REV && ScrWork[SW_MESWIN0TYPE] == 1) {
     glm::vec4 col = glm::vec4(1.0f);
-    Renderer->DrawSprite(REVBoxSprite, REVBoxPos, col);
+    Renderer->DrawSprite(ErinBoxSprite, ErinBoxPos, col);
   }
 
   if (mode == DPM_ADV && hasName) {

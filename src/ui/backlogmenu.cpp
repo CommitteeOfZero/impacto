@@ -274,6 +274,10 @@ void BacklogMenu::RenderHighlight() const {
       pos = RectF(0.0f, el.Bounds.Y, EntryHighlight.ScaledWidth(),
                   EntryHighlight.ScaledHeight());
       break;
+    case EntryHighlightLocationType::AllLinesLeftOfScreen:
+      pos = RectF(0.0f, el.Bounds.Y, EntryHighlight.ScaledWidth(),
+                  el.Bounds.Height);
+      break;
   }
 
   pos.X += EntryHighlightOffset.x;

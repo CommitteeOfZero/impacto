@@ -2,6 +2,8 @@
 #include "../../vm/thread.h"
 #include "../../profile/dialogue.h"
 
+#include <numeric>
+
 namespace Impacto {
 namespace UI {
 namespace Widgets {
@@ -107,6 +109,21 @@ void Label::SetText(std::vector<ProcessedTextGlyph> str, float textWidth,
   OutlineMode = outlineMode;
   Text = std::move(str);
   Bounds = RectF(Text[0].DestRect.X, Text[0].DestRect.Y, TextWidth, fontSize);
+}
+
+void Label::SetText(std::span<ProcessedTextGlyph> str,
+                    RendererOutlineMode outlineMode) {
+  IsText = true;
+  OutlineMode = outlineMode;
+  Text = std::vector<ProcessedTextGlyph>(str.begin(), str.end());
+
+  Bounds = std::reduce(str.begin() + 1, str.end(), str[0],
+                       [](auto lhs, const auto& rhs) {
+                         lhs.DestRect =
+                             RectF::Coalesce(lhs.DestRect, rhs.DestRect);
+                         return lhs;
+                       })
+               .DestRect;
 }
 
 void Label::SetText(std::span<ProcessedTextGlyph> str, float textWidth,

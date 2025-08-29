@@ -43,6 +43,8 @@ class Label : public Widget {
                float fontSize, RendererOutlineMode outlineMode);
   void SetText(std::span<ProcessedTextGlyph> str, float textWidth,
                float fontSize, RendererOutlineMode outlineMode);
+  void SetText(std::span<ProcessedTextGlyph> str,
+               RendererOutlineMode outlineMode);
   void SetText(Vm::BufferOffsetContext scrCtx, float fontSize,
                RendererOutlineMode outlineMode, int colorIndex = 10);
   void SetText(Vm::BufferOffsetContext scrCtx, float fontSize,
