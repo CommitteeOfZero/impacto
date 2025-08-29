@@ -14,6 +14,11 @@ root.SpriteSheets = {
         DesignWidth = 2048,
         DesignHeight = 1024
     },
+    ["Backlog"] = {
+        Path = { Mount = "system", Id = 3 },
+        DesignWidth = 2048,
+        DesignHeight = 1024
+    },
     ["ClearList"] = {
         Path = { Mount = "system", Id = 4 },
         DesignWidth = 2048,
@@ -23,11 +28,6 @@ root.SpriteSheets = {
         Path = { Mount = "system", Id = 5 },
         DesignWidth = 2048,
         DesignHeight = 1024
-    },
-    ["Backlog"] = {
-        Path = { Mount = "system", Id = 6 },
-        DesignWidth = 2048,
-        DesignHeight = 720
     },
     ["Highlights"] = {
         Path = { Mount = "system", Id = 7 },

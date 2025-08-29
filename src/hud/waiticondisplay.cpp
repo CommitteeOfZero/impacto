@@ -15,6 +15,7 @@ static SpriteAnimation SpriteAnim;
 static FixedSpriteAnimation FixedSpriteAnim;
 
 using namespace Impacto::Profile::Dialogue;
+using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::CHLCC;
 
 void Init() {
@@ -86,7 +87,7 @@ static void RenderSpriteAnim(glm::vec2 pos, glm::vec4 opacityTint,
     opacityTint = glm::vec4(1.0f, 1.0f, 1.0f, opacityTint.a);
 
     // Erin DialogueBox
-    if (mode == DPM_REV)
+    if (mode == DPM_REV && ScrWork[SW_MESWIN0TYPE] == 1)
       offset = Impacto::Profile::CHLCC::DialogueBox::REVWaitIconOffset;
   }
 

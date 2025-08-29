@@ -6,7 +6,7 @@ root.Sprites["SecondaryADVBox"] = {
     Sheet = "Data",
     Bounds = { X = 768, Y = 427, Width = 1280, Height = 206 },
 };
-root.Sprites["REVBox"] = {
+root.Sprites["ErinBox"] = {
     Sheet = "Data",
     Bounds = { X = 36, Y = 143, Width = 541, Height = 168 },
 };
@@ -24,10 +24,11 @@ root.Sprites["SkipIconSprite"] = {
 };
 
 root.Dialogue = {
-    REVBounds = { X = 339, Y = 192, Width = 478, Height = 106 },
-    REVBoxSprite = "REVBox",
-    REVBoxPos = { X = 314, Y = 156 },
-    REVNameFontSize = 24,
+    REVBounds = { X = 337, Y = 159, Width = 952, Height = 555 },
+    SecondaryREVBounds = {X = 338, Y = 159, Width = 480, Height = 106},
+    ErinBoxSprite = "ErinBox",
+    ErinBoxPos = { X = 314, Y = 156 },
+    REVNameFontSize = 32,
     REVColor = 0,
     REVNameColor = 24,
     REVNameOffset = 34,
