@@ -43,7 +43,6 @@ void SysMesBox::Show() {
   for (int i = 0; i < MessageCount; i++) {
     diff = Messages[i][0].DestRect.X - ((TextX - maxWidth) / 2.0f);
     for (size_t j = 0; j < Messages[i].size(); j++) {
-      if (Messages[i][j].CharId == 0) break;
       Messages[i][j].DestRect.X -= diff;
       Messages[i][j].DestRect.Y = textBeginY + (TextLineHeight * i);
     }
