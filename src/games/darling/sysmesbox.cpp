@@ -38,6 +38,8 @@ void SysMesBox::Show() {
   if (maxWidth < BoxMinimumWidth) maxWidth = BoxMinimumWidth;
 
   for (int i = 0; i < MessageCount; i++) {
+    if (Messages[i].empty()) continue;
+
     diff = Messages[i][0].DestRect.X - (TextX - (maxWidth / 2.0f));
     for (ProcessedTextGlyph& glyph : Messages[i]) {
       glyph.DestRect.X -= diff;
