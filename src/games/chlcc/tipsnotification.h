@@ -29,6 +29,9 @@ class TipsNotification : public TipsNotificationBase {
   Animation FadeOutAnimation;
   Animation SlideAnimation;
   Animation HoldAnimation;
+
+  bool FirstInQueue = true;
+  bool FirstIsRendering = false;
 };
 
 }  // namespace CHLCC

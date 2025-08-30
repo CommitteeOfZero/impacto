@@ -59,6 +59,8 @@ TipsNotification::TipsNotification() {
 }
 
 void TipsNotification::Update(const float dt) {
+  TipsAnimation.Update(dt);
+
   if (TipsAnimation.State == +AnimationState::Stopped &&
       !NotificationQueue.empty()) {
     // Start display animation
@@ -70,9 +72,11 @@ void TipsNotification::Update(const float dt) {
     NotificationQueue.pop();
 
     TipsAnimation.StartIn(true);
-  }
+    TipsAnimation.Update(dt);
 
-  TipsAnimation.Update(dt);
+    FirstIsRendering = FirstInQueue;
+    FirstInQueue = false;
+  }
 
   if (TipsAnimation.State != +AnimationState::Stopped) {
     // Update labels
@@ -85,9 +89,14 @@ void TipsNotification::Update(const float dt) {
     TextPartAfter.MoveTo(TipName.Bounds.GetPos() +
                          glm::vec2(TipName.Bounds.Width, 0.0f));
 
-    const float alpha = FadeOutAnimation.State == +AnimationState::Playing
-                            ? FadeOutAnimation.Progress
-                            : FadeAnimation.Progress;
+    // Don't fade out if not the last entry in the queue,
+    // and don't fade in if not the first
+    float alpha = 1.0f;
+    if (FadeOutAnimation.State == +AnimationState::Playing) {  // Fading out
+      if (NotificationQueue.empty()) alpha = FadeOutAnimation.Progress;
+    } else if (FirstIsRendering) {  // Fading in
+      alpha = FadeAnimation.Progress;
+    }
 
     Header.Tint.a = alpha;
     TextPartBefore.Tint.a = alpha;
@@ -116,6 +125,9 @@ void TipsNotification::Render() {
 }
 
 void TipsNotification::AddTip(const int tipId) {
+  FirstInQueue |= TipsAnimation.State == +AnimationState::Stopped &&
+                  NotificationQueue.empty();
+
   auto record = TipsSystem::GetTipRecord(tipId);
   NotificationQueue.push(record->StringAdr[1]);
 }
