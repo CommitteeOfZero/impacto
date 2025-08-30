@@ -40,9 +40,11 @@ void Init() {
 void Update(float dt) {
   switch (AutoIconCurrentType) {
     case AutoIconType::SpriteAnim:
-      if ((MesSkipMode & SkipModeFlags::Auto) && SpriteAnim.Direction == -1)
+      if ((MesSkipMode & SkipModeFlags::Auto) &&
+          SpriteAnim.Direction == AnimationDirection::Out)
         SpriteAnim.StartIn();
-      if (!(MesSkipMode & SkipModeFlags::Auto) && SpriteAnim.Direction == 1)
+      if (!(MesSkipMode & SkipModeFlags::Auto) &&
+          SpriteAnim.Direction == AnimationDirection::In)
         SpriteAnim.StartOut();
 
       SpriteAnim.Update(dt);
@@ -50,10 +52,10 @@ void Update(float dt) {
 
     case AutoIconType::SpriteAnimFixed:
       if ((MesSkipMode & SkipModeFlags::Auto) &&
-          FixedSpriteAnim.Direction == -1)
+          FixedSpriteAnim.Direction == AnimationDirection::Out)
         FixedSpriteAnim.StartIn();
       if (!(MesSkipMode & SkipModeFlags::Auto) &&
-          FixedSpriteAnim.Direction == 1)
+          FixedSpriteAnim.Direction == AnimationDirection::In)
         FixedSpriteAnim.StartOut();
 
       FixedSpriteAnim.Update(dt);
@@ -84,7 +86,7 @@ void Render(glm::vec4 opacityTint) {
 
     case AutoIconType::SpriteAnimFixed:
       if (!FixedSpriteAnim.IsOut() &&
-          !(FixedSpriteAnim.Direction == -1 &&
+          !(FixedSpriteAnim.Direction == AnimationDirection::Out &&
             FixedSpriteAnim.Progress ==
                 FixedSpriteAnim.GetFixedSpriteProgress())) {
         Renderer->DrawSprite(FixedSpriteAnim.CurrentSprite(),

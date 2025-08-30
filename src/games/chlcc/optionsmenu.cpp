@@ -116,12 +116,12 @@ void OptionsMenu::Update(float dt) {
   if (State != Hidden) {
     FadeAnimation.Update(dt);
     FromSystemMenuTransition.Update(dt);
-    if (FadeAnimation.Direction == +AnimationDirection::Out &&
+    if (FadeAnimation.Direction == AnimationDirection::Out &&
         FadeAnimation.Progress <= 0.72f) {
       TitleFade.StartOut();
       FromSystemMenuTransition.StartOut();
     } else if (FadeAnimation.IsIn() &&
-               (TitleFade.Direction == +AnimationDirection::In ||
+               (TitleFade.Direction == AnimationDirection::In ||
                 TitleFade.IsOut())) {
       TitleFade.StartIn();
       FromSystemMenuTransition.StartIn();

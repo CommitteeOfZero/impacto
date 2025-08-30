@@ -228,11 +228,11 @@ void MusicMenu::Update(float dt) {
   if (State != Hidden) {
     MenuTransition.Update(dt);
     FromSystemMenuTransition.Update(dt);
-    if (MenuTransition.Direction == +AnimationDirection::Out &&
+    if (MenuTransition.Direction == AnimationDirection::Out &&
         MenuTransition.Progress <= 0.72f) {
       TitleFade.StartOut();
     } else if (MenuTransition.IsIn() &&
-               (TitleFade.Direction == +AnimationDirection::In ||
+               (TitleFade.Direction == AnimationDirection::In ||
                 TitleFade.IsOut())) {
       TitleFade.StartIn();
     }

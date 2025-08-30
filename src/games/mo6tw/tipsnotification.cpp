@@ -99,7 +99,7 @@ void TipsNotification::Render() {
     AlertTitle->Tint.a = smoothedFade;
     AlertTitle->Render();
     if (Timer.State == +AnimationState::Playing ||
-        FadeAnimation.Direction == -1) {
+        FadeAnimation.Direction == AnimationDirection::Out) {
       Notification->Tint.a = smoothedFade;
       Notification->Render();
     }

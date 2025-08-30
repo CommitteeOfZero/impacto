@@ -41,10 +41,10 @@ void Update(float dt) {
   switch (SkipIconCurrentType) {
     case SkipIconType::SpriteAnim:
       if ((MesSkipMode & (SkipModeFlags::SkipRead | SkipModeFlags::SkipAll)) &&
-          SpriteAnim.Direction == -1)
+          SpriteAnim.Direction == AnimationDirection::Out)
         SpriteAnim.StartIn();
       if (!(MesSkipMode & (SkipModeFlags::SkipRead | SkipModeFlags::SkipAll)) &&
-          SpriteAnim.Direction == 1)
+          SpriteAnim.Direction == AnimationDirection::In)
         SpriteAnim.StartOut();
 
       SpriteAnim.Update(dt);
@@ -52,10 +52,10 @@ void Update(float dt) {
 
     case SkipIconType::SpriteAnimFixed:
       if ((MesSkipMode & (SkipModeFlags::SkipRead | SkipModeFlags::SkipAll)) &&
-          FixedSpriteAnim.Direction == -1)
+          FixedSpriteAnim.Direction == AnimationDirection::Out)
         FixedSpriteAnim.StartIn();
       if (!(MesSkipMode & (SkipModeFlags::SkipRead | SkipModeFlags::SkipAll)) &&
-          FixedSpriteAnim.Direction == 1)
+          FixedSpriteAnim.Direction == AnimationDirection::In)
         FixedSpriteAnim.StartOut();
 
       FixedSpriteAnim.Update(dt);
@@ -86,7 +86,7 @@ void Render(glm::vec4 opacityTint) {
 
     case SkipIconType::SpriteAnimFixed:
       if (!FixedSpriteAnim.IsOut() &&
-          !(FixedSpriteAnim.Direction == -1 &&
+          !(FixedSpriteAnim.Direction == AnimationDirection::Out &&
             FixedSpriteAnim.Progress ==
                 FixedSpriteAnim.GetFixedSpriteProgress())) {
         Renderer->DrawSprite(FixedSpriteAnim.CurrentSprite(),

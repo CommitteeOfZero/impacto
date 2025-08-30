@@ -256,14 +256,14 @@ void MovieMenu::Update(float dt) {
     MenuTransition.Update(dt);
     SelectMovieTextFade.Update(dt);
     FromSystemMenuTransition.Update(dt);
-    if (MenuTransition.Direction == +AnimationDirection::Out &&
+    if (MenuTransition.Direction == AnimationDirection::Out &&
         MenuTransition.Progress <= 0.72f) {
       if (IsChoiceMadeOnce) {
         TitleFade.Progress = 0.0f;
       }
       TitleFade.StartOut();
     } else if (MenuTransition.IsIn() &&
-               (TitleFade.Direction == +AnimationDirection::In ||
+               (TitleFade.Direction == AnimationDirection::In ||
                 TitleFade.IsOut())) {
       if (IsChoiceMadeOnce) {
         TitleFade.Progress = 1.0f;
