@@ -98,6 +98,7 @@ set(Impacto_Src
         src/profile/games/chlcc/systemmenu.cpp
         src/profile/games/chlcc/trophymenu.cpp
         src/profile/games/chlcc/delusiontrigger.cpp
+        src/profile/games/chlcc/tipsnotification.cpp
 
         src/profile/games/cc/backlogmenu.cpp
         src/profile/games/cc/dialoguebox.cpp
@@ -164,6 +165,7 @@ set(Impacto_Src
         src/games/chlcc/trophymenuentry.cpp
         src/games/chlcc/delusiontrigger.cpp
         src/games/chlcc/introsequence.cpp
+        src/games/chlcc/tipsnotification.cpp
 
         src/games/cc/backlogmenu.cpp
         src/games/cc/dialoguebox.cpp
@@ -422,6 +424,7 @@ set(Impacto_Header
         src/profile/games/chlcc/systemmenu.h
         src/profile/games/chlcc/trophymenu.h
         src/profile/games/chlcc/delusiontrigger.h
+        src/profile/games/chlcc/tipsnotification.h
 
         src/profile/games/cc/backlogmenu.h
         src/profile/games/cc/dialoguebox.h
@@ -485,6 +488,7 @@ set(Impacto_Header
         src/games/chlcc/trophymenu.h
         src/games/chlcc/delusiontrigger.h
         src/games/chlcc/introsequence.h
+        src/games/chlcc/tipsnotification.h
 
         src/games/cc/dialoguebox.h
         src/games/cc/titlemenu.h

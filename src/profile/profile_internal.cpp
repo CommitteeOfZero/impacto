@@ -119,6 +119,14 @@ bool TryGet<glm::vec2>(glm::vec2& outVec2) {
 }
 
 template <>
+bool TryGet<DialogueColorPair>(DialogueColorPair& outColor) {
+  if (!lua_istable(LuaState, -1)) return false;
+
+  return TryGetMember("TextColor", outColor.TextColor) &&
+         TryGetMember("OutlineColor", outColor.OutlineColor);
+}
+
+template <>
 bool TryGet<bool>(bool& outBool) {
   if (lua_isboolean(LuaState, -1)) {
     outBool = lua_toboolean(LuaState, -1);

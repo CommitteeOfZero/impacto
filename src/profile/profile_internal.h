@@ -136,6 +136,8 @@ template <>
 bool TryGet<glm::vec2>(glm::vec2& outVec2);
 template <>
 bool TryGet<bool>(bool& outBool);
+template <>
+bool TryGet<DialogueColorPair>(DialogueColorPair& outColor);
 
 template <typename T>
 T EnsureGetKey() {

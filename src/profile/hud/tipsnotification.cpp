@@ -2,8 +2,10 @@
 #include "../profile_internal.h"
 #include "../games/mo6tw/tipsnotification.h"
 #include "../games/cclcc/tipsnotification.h"
+#include "../games/chlcc/tipsnotification.h"
 #include "../../games/mo6tw/tipsnotification.h"
 #include "../../games/cclcc/tipsnotification.h"
+#include "../../games/chlcc/tipsnotification.h"
 
 namespace Impacto {
 namespace Profile {
@@ -25,6 +27,9 @@ void Configure() {
       break;
     case TipsNotificationType::CCLCC:
       CCLCC::TipsNotification::Configure();
+      break;
+    case TipsNotificationType::CHLCC:
+      CHLCC::TipsNotification::Configure();
       break;
     default:
       Pop();
@@ -53,6 +58,10 @@ void CreateInstance() {
       case TipsNotificationType::CCLCC:
         Impacto::TipsNotification::Implementation =
             new Impacto::CCLCC::TipsNotification;
+        break;
+      case TipsNotificationType::CHLCC:
+        Impacto::TipsNotification::Implementation =
+            new Impacto::CHLCC::TipsNotification;
         break;
       default:
         return;
