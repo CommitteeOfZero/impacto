@@ -54,7 +54,7 @@ void TipsSystem::DataInit(uint32_t scriptBufferId, uint32_t tipsDataAdr,
 
 void TipsSystem::UpdateTipRecords() {
   if (TipEntryCount != 0) {
-    for (int i = 0; i < TipEntryCount; i++) {
+    for (size_t i = 0; i < TipEntryCount; i++) {
       auto record = &Records[i];
       auto tipStatus = SaveSystem::GetTipStatus(record->Id);
       record->IsLocked = (tipStatus & 1) == 0;

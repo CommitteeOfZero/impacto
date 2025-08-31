@@ -38,7 +38,7 @@ class TipsSystemBase {
   virtual bool GetTipLockedState(int id) = 0;
 
   std::vector<TipsDataRecord> Records;
-  int TipEntryCount = 0;
+  size_t TipEntryCount = 0;
   uint8_t ScriptBufferId = 0;
 };
 
