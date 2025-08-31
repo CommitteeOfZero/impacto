@@ -49,23 +49,21 @@ void Configure() {
 }
 
 void CreateInstance() {
-  if (!Impacto::TipsNotification::Implementation) {
-    switch (Type) {
-      case TipsNotificationType::MO6TW:
-        Impacto::TipsNotification::Implementation =
-            new Impacto::MO6TW::TipsNotification;
-        break;
-      case TipsNotificationType::CCLCC:
-        Impacto::TipsNotification::Implementation =
-            new Impacto::CCLCC::TipsNotification;
-        break;
-      case TipsNotificationType::CHLCC:
-        Impacto::TipsNotification::Implementation =
-            new Impacto::CHLCC::TipsNotification;
-        break;
-      default:
-        return;
-    }
+  switch (Type) {
+    case TipsNotificationType::MO6TW:
+      Impacto::TipsNotification::Implementation =
+          std::make_unique<Impacto::MO6TW::TipsNotification>();
+      break;
+    case TipsNotificationType::CCLCC:
+      Impacto::TipsNotification::Implementation =
+          std::make_unique<Impacto::CCLCC::TipsNotification>();
+      break;
+    case TipsNotificationType::CHLCC:
+      Impacto::TipsNotification::Implementation =
+          std::make_unique<Impacto::CHLCC::TipsNotification>();
+      break;
+    default:
+      return;
   }
 }
 

@@ -791,6 +791,7 @@ VmInstruction(InstMSinit) {
   }
 
   if (initType == 1) {
+    Profile::TipsNotification::CreateInstance();
     Profile::DelusionTrigger::CreateInstance();
   }
 
@@ -799,8 +800,11 @@ VmInstruction(InstMSinit) {
   }
 
   if (initType == 10) {
-    Profile::TipsNotification::CreateInstance();
     Profile::DelusionTrigger::CreateInstance();
+
+    // Technically not done here in the MAGES. engine, but we have to do it
+    // *somewhere* on boot...
+    Profile::TipsNotification::CreateInstance();
   }
 
   if (initType == 2) {

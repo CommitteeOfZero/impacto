@@ -21,13 +21,16 @@ void Configure() {
 
     switch (Type) {
       case TipsSystemType::MO6TW:
-        Implementation = new Impacto::MO6TW::TipsSystem(MaxTipsCount);
+        Implementation =
+            std::make_unique<Impacto::MO6TW::TipsSystem>(MaxTipsCount);
         break;
       case TipsSystemType::CHLCC:
-        Implementation = new Impacto::CHLCC::TipsSystem(MaxTipsCount);
+        Implementation =
+            std::make_unique<Impacto::CHLCC::TipsSystem>(MaxTipsCount);
         break;
       case TipsSystemType::CCLCC:
-        Implementation = new Impacto::CCLCC::TipsSystem(MaxTipsCount);
+        Implementation =
+            std::make_unique<Impacto::CCLCC::TipsSystem>(MaxTipsCount);
         break;
       case TipsSystemType::None:
         ImpLog(LogLevel::Warning, LogChannel::Profile,

@@ -42,7 +42,7 @@ class TipsSystemBase {
   uint8_t ScriptBufferId = 0;
 };
 
-inline TipsSystemBase* Implementation = nullptr;
+inline std::unique_ptr<TipsSystemBase> Implementation;
 
 void Init();
 void DataInit(uint32_t scriptBufferId, uint32_t tipsDataAdr,
