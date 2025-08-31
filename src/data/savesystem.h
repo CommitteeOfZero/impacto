@@ -36,7 +36,7 @@ enum class LoadProcess { Vars = 0, Thread = 1 };
 
 int constexpr MaxSaveEntries = 48;
 
-uint8_t const Flbit[] = {1, 2, 4, 8, 0x10, 0x20, 0x40, 0x80};
+constexpr std::array<uint8_t, 8> Flbit = {1, 2, 4, 8, 0x10, 0x20, 0x40, 0x80};
 
 struct ScriptMessageDataPair {
   uint32_t LineCount;

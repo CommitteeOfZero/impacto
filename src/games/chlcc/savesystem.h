@@ -78,11 +78,11 @@ class SaveSystem : public SaveSystemBase {
   void SetCheckpointId(int id) override {}
 
  private:
-  uint8_t GameExtraData[1024];
-  uint8_t MessageFlags[10000];
+  std::array<uint8_t, 1024> GameExtraData;
+  std::array<uint8_t, 10000> MessageFlags;
   std::array<uint8_t, 0x3afc> SystemData;
-  bool EVFlags[1200];
-  uint8_t BGMFlags[100];
+  std::array<bool, 1200> EVFlags;
+  std::array<uint8_t, 100> BGMFlags;
 };
 
 }  // namespace CHLCC
