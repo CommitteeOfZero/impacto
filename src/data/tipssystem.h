@@ -26,16 +26,16 @@ struct TipsDataRecord {
 
 class TipsSystemBase {
  public:
-  TipsSystemBase(int maxTipsCount) : Records(maxTipsCount) {}
+  TipsSystemBase(size_t maxTipsCount) : Records(maxTipsCount) {}
   virtual ~TipsSystemBase() {}
   virtual void DataInit(uint32_t scriptBufferId, uint32_t tipsDataAdr,
                         uint32_t tipsDataSize) = 0;
   virtual void UpdateTipRecords() = 0;
-  virtual void SetTipLockedState(int id, bool state) = 0;
-  virtual void SetTipUnreadState(int id, bool state) = 0;
-  virtual void SetTipNewState(int id, bool state) = 0;
+  virtual void SetTipLockedState(size_t id, bool state) = 0;
+  virtual void SetTipUnreadState(size_t id, bool state) = 0;
+  virtual void SetTipNewState(size_t id, bool state) = 0;
 
-  virtual bool GetTipLockedState(int id) = 0;
+  virtual bool GetTipLockedState(size_t id) = 0;
 
   std::vector<TipsDataRecord> Records;
   size_t TipEntryCount = 0;
@@ -48,15 +48,15 @@ void Init();
 void DataInit(uint32_t scriptBufferId, uint32_t tipsDataAdr,
               uint32_t tipsDataSize);
 void UpdateTipRecords();
-void SetTipLockedState(int id, bool state);
-void SetTipUnreadState(int id, bool state);
-void SetTipNewState(int id, bool state);
+void SetTipLockedState(size_t id, bool state);
+void SetTipUnreadState(size_t id, bool state);
+void SetTipNewState(size_t id, bool state);
 uint8_t GetTipsScriptBufferId();
-bool GetTipLockedState(int id);
+bool GetTipLockedState(size_t id);
 
 std::vector<TipsDataRecord>* GetTipRecords();
-TipsDataRecord* GetTipRecord(int id);
-int GetTipCount();
+TipsDataRecord* GetTipRecord(size_t id);
+size_t GetTipCount();
 
 }  // namespace TipsSystem
 }  // namespace Impacto

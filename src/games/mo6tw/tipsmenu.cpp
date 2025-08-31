@@ -156,7 +156,7 @@ void TipsMenu::Init() {
 
   float currentY = TipListInitialY;
 
-  for (int i = 0; i < recordCount; i++) {
+  for (size_t i = 0; i < recordCount; i++) {
     auto record = TipsSystem::GetTipRecord(i);
 
     // In this case the tips are split into pages in UI with maximum of 5

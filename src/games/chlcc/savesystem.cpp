@@ -994,7 +994,7 @@ int SaveSystem::GetSaveTitle(SaveType type, int id) {
   }
 }
 
-uint32_t SaveSystem::GetTipStatus(int tipId) {
+uint32_t SaveSystem::GetTipStatus(size_t tipId) {
   tipId *= 3;
   uint8_t lockStatus = (GameExtraData[tipId >> 3] & Flbit[tipId & 7]) != 0;
   uint8_t newStatus =
@@ -1004,7 +1004,7 @@ uint32_t SaveSystem::GetTipStatus(int tipId) {
   return (lockStatus | (unreadStatus << 1)) | (newStatus << 2);
 }
 
-void SaveSystem::SetTipStatus(int tipId, bool isLocked, bool isUnread,
+void SaveSystem::SetTipStatus(size_t tipId, bool isLocked, bool isUnread,
                               bool isNew) {
   tipId *= 3;
   if (isLocked) {

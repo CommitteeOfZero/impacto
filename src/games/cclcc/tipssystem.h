@@ -9,16 +9,16 @@ using namespace Impacto::TipsSystem;
 
 class TipsSystem : public TipsSystemBase {
  public:
-  TipsSystem(int maxTipsCount) : TipsSystemBase(maxTipsCount) {};
+  TipsSystem(size_t maxTipsCount) : TipsSystemBase(maxTipsCount) {};
 
   void DataInit(uint32_t scriptBufferId, uint32_t tipsData,
                 uint32_t tipsDataSize) override;
   void UpdateTipRecords() override;
-  void SetTipLockedState(int id, bool state) override;
-  void SetTipUnreadState(int id, bool state) override;
-  void SetTipNewState(int id, bool state) override;
+  void SetTipLockedState(size_t id, bool state) override;
+  void SetTipUnreadState(size_t id, bool state) override;
+  void SetTipNewState(size_t id, bool state) override;
 
-  bool GetTipLockedState(int id) override;
+  bool GetTipLockedState(size_t id) override;
 };
 
 }  // namespace CCLCC

@@ -102,8 +102,8 @@ class SaveSystemBase {
   virtual tm const& GetSaveDate(SaveType type, int id) = 0;
   virtual uint8_t GetSaveStatus(SaveType type, int id) = 0;
   virtual int GetSaveTitle(SaveType type, int id) = 0;
-  virtual uint32_t GetTipStatus(int tipId) = 0;
-  virtual void SetTipStatus(int tipId, bool isLocked, bool isUnread,
+  virtual uint32_t GetTipStatus(size_t tipId) = 0;
+  virtual void SetTipStatus(size_t tipId, bool isLocked, bool isUnread,
                             bool isNew) = 0;
   virtual void SetLineRead(int scriptId, int lineId) = 0;
   virtual bool IsLineRead(int scriptId, int MessageId) = 0;
@@ -157,8 +157,8 @@ uint8_t GetSaveFlags(SaveType type, int id);
 tm const& GetSaveDate(SaveType type, int id);
 uint8_t GetSaveStatus(SaveType type, int id);
 int GetSaveTitle(SaveType type, int id);
-uint32_t GetTipStatus(int tipId);
-void SetTipStatus(int tipId, bool isLocked, bool isUnread, bool isNew);
+uint32_t GetTipStatus(size_t tipId);
+void SetTipStatus(size_t tipId, bool isLocked, bool isUnread, bool isNew);
 void SetLineRead(int scriptId, int lineId);
 bool IsLineRead(int scriptId, int lineId);
 void GetReadMessagesCount(int* totalMessageCount, int* readMessageCount);

@@ -17,7 +17,7 @@ void Configure() {
   Type = TipsSystemType::_from_integral_unchecked(EnsureGetMember<int>("Type"));
 
   if (Type != +TipsSystemType::None) {
-    MaxTipsCount = EnsureGetMember<int>("MaxTipsCount");
+    MaxTipsCount = EnsureGetMember<size_t>("MaxTipsCount");
 
     switch (Type) {
       case TipsSystemType::MO6TW:

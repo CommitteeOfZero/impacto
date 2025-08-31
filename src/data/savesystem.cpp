@@ -181,14 +181,14 @@ int GetSaveTitle(SaveType type, int id) {
   return 0;
 }
 
-uint32_t GetTipStatus(int tipId) {
+uint32_t GetTipStatus(size_t tipId) {
   if (Implementation) return Implementation->GetTipStatus(tipId);
   ImpLog(LogLevel::Warning, LogChannel::VMStub,
          "{:s}: save system not implemented, returning 0\n", __func__);
   return 0;
 }
 
-void SetTipStatus(int tipId, bool isLocked, bool isUnread, bool isNew) {
+void SetTipStatus(size_t tipId, bool isLocked, bool isUnread, bool isNew) {
   if (Implementation)
     return Implementation->SetTipStatus(tipId, isLocked, isUnread, isNew);
   ImpLog(LogLevel::Warning, LogChannel::VMStub,

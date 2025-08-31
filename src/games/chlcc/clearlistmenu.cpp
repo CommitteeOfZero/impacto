@@ -251,8 +251,8 @@ inline void ClearListMenu::DrawEndingCount(float yOffset) {
 
 inline void ClearListMenu::DrawTIPSCount(float yOffset) {
   int unlockedTipsCount = 0;
-  int totalTips = GetTipCount();
-  for (int idx = 0; idx < totalTips; idx++) {
+  size_t totalTips = GetTipCount();
+  for (size_t idx = 0; idx < totalTips; idx++) {
     unlockedTipsCount += GetTipLockedState(idx) ? 0 : 1;
   }
   if (unlockedTipsCount / 10 != 0) {

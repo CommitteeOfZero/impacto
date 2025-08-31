@@ -34,8 +34,8 @@ class SaveSystem : public SaveSystemBase {
   tm const& GetSaveDate(SaveType type, int id) override;
   uint8_t GetSaveStatus(SaveType type, int id) override;
   int GetSaveTitle(SaveType type, int id) override;
-  uint32_t GetTipStatus(int tipId) override;
-  void SetTipStatus(int tipId, bool isLocked, bool isUnread,
+  uint32_t GetTipStatus(size_t tipId) override;
+  void SetTipStatus(size_t tipId, bool isLocked, bool isUnread,
                     bool isNew) override;
   void SetLineRead(int scriptId, int lineId) override;
   bool IsLineRead(int scriptId, int lineId) override;
