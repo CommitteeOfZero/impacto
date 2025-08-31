@@ -330,6 +330,8 @@ void MusicMenu::UpdateInput(float dt) {
           TurboMoved ? MusicDirectionalFocusTimeInterval : 0.3f;
 
       if (dirDown)
+    } else if ((Input::MouseWheelDeltaY < 0 || directionShouldFire & PAD1L1) &&
+    } else if ((Input::MouseWheelDeltaY < 0 || directionShouldFire & bPAD1L1) &&
         AdvanceFocus(FocusDirection::FDIR_DOWN);
       else
         AdvanceFocus(FocusDirection::FDIR_UP);
