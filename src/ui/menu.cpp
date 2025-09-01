@@ -33,14 +33,28 @@ void Menu::Hide() {
 }
 
 void Menu::UpdateInput(float dt) {
+  const auto& padBtn = [this] {
+    switch (InputConfig) {
+      case InputRate::SingleTap:
+        return PADinputButtonWentDown;
+      case InputRate::RepeatSlow:
+        return PADinputButtonRepeatDown;
+      case InputRate::RepeatFast:
+        return PADinputButtonRepeatAccelDown;
+      case InputRate::Hold:
+        return PADinputButtonIsDown;
+    }
+    throw std::invalid_argument("Invalid InputRate");
+  }();
+
   if (IsFocused) {
-    if (PADinputButtonWentDown & PAD1DOWN) {
+    if (padBtn & PAD1DOWN) {
       AdvanceFocus(FDIR_DOWN);
-    } else if (PADinputButtonWentDown & PAD1UP) {
+    } else if (padBtn & PAD1UP) {
       AdvanceFocus(FDIR_UP);
-    } else if (PADinputButtonWentDown & PAD1RIGHT) {
+    } else if (padBtn & PAD1RIGHT) {
       AdvanceFocus(FDIR_RIGHT);
-    } else if (PADinputButtonWentDown & PAD1LEFT) {
+    } else if (padBtn & PAD1LEFT) {
       AdvanceFocus(FDIR_LEFT);
     }
   }

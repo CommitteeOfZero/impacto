@@ -9,6 +9,7 @@ namespace Impacto {
 namespace UI {
 
 enum MenuState { Hidden, Hiding, Showing, Shown };
+enum class InputRate { SingleTap, RepeatSlow, RepeatFast, Hold };
 
 class Menu {
  public:
@@ -29,6 +30,7 @@ class Menu {
   Menu* LastFocusedMenu = 0;
   Widget* FocusStart[4] = {0, 0, 0, 0};
   Widget* CurrentlyFocusedElement = 0;
+  InputRate InputConfig = InputRate::RepeatSlow;
 
   uint8_t DrawType = Game::DrawComponentType::Main;
 
