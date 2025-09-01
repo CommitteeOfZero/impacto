@@ -58,16 +58,9 @@ class Animation {
       StartOut(reset);
   }
 
-  constexpr static float GetInitialProgress(AnimationDirection direction) {
-    return direction == AnimationDirection::In ? 0.0f : 1.0f;
-  }
-  constexpr static float GetFinishedProgress(AnimationDirection direction) {
-    return 1.0f - GetInitialProgress(direction);
-  }
-
   void Finish() {
     State = AnimationState::Stopped;
-    Progress = GetFinishedProgress(Direction);
+    Progress = Direction == AnimationDirection::In ? 1.0f : 0.0f;
     FinishImpl();
   }
 

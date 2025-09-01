@@ -19,7 +19,8 @@ void SequencedAnimation::StartInImpl(bool reset) {
     Animation& childAnimation = child.ChildAnimation.get();
     if (reset) {
       childAnimation.Stop();
-      childAnimation.Progress = Animation::GetInitialProgress(child.Direction);
+      childAnimation.Progress =
+          child.Direction == AnimationDirection::In ? 0.0f : 1.0f;
     }
 
     float time = Progress * DurationIn;
@@ -35,7 +36,8 @@ void SequencedAnimation::StartOutImpl(bool reset) {
 
     if (reset) {
       childAnimation.Stop();
-      childAnimation.Progress = Animation::GetFinishedProgress(child.Direction);
+      childAnimation.Progress =
+          child.Direction == AnimationDirection::In ? 1.0f : 0.0f;
     }
 
     float time = Progress * DurationOut;
