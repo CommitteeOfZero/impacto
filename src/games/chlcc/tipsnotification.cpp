@@ -128,7 +128,7 @@ void TipsNotification::AddTip(const int tipId) {
   FirstInQueue |= TipsAnimation.State == +AnimationState::Stopped &&
                   NotificationQueue.empty();
 
-  auto record = TipsSystem::GetTipRecord(tipId);
+  const auto* const record = TipsSystem::GetTipRecord(tipId);
   NotificationQueue.push(record->StringAdr[1]);
 }
 

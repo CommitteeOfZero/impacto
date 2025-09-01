@@ -107,7 +107,7 @@ void TipsNotification::Render() {
 }
 
 void TipsNotification::AddTip(int tipId) {
-  auto record = TipsSystem::GetTipRecord(tipId);
+  const auto* const record = TipsSystem::GetTipRecord(tipId);
   NotificationQueue.push(record->StringAdr[0]);
 }
 
