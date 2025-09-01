@@ -72,7 +72,6 @@ void TipsNotification::Update(const float dt) {
     NotificationQueue.pop();
 
     TipsAnimation.StartIn(true);
-    TipsAnimation.Update(dt);
 
     FirstIsRendering = FirstInQueue;
     FirstInQueue = false;
