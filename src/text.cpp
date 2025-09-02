@@ -1039,7 +1039,7 @@ std::pair<int, float> TextLayoutPlainLineHelper(
 
       case STT_SetColor: {
         if (253 <= token.Val_Expr && token.Val_Expr <= 255) {
-          token.Val_Expr = ScrWork[2161 + (255 - token.Val_Expr)];
+          token.Val_Expr = ScrWork[SW_SYSMESCOL1 + (255 - token.Val_Expr)];
         }
 
         assert(token.Val_Expr < ColorCount);
