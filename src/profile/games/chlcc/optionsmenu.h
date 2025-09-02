@@ -43,9 +43,13 @@ inline Sprite SelectedDotSprite;
 inline Sprite VoiceMutedSprite;
 
 inline Sprite BasicSettingsSprite;
+inline glm::vec2 BasicSettingsPos;
 inline Sprite TextSettingsSprite;
+inline glm::vec2 TextSettingsPos;
 inline Sprite SoundSettingsSprite;
+inline glm::vec2 SoundSettingsPos;
 inline Sprite VoiceSettingsSprite;
+inline glm::vec2 VoiceSettingsPos;
 
 inline Sprite SliderBarBaseSprite;
 inline Sprite SliderBarFillSprite;
