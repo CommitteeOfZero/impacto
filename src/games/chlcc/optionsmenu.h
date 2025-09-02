@@ -14,6 +14,7 @@ class OptionsMenu : public UI::OptionsMenu {
  public:
   OptionsMenu();
 
+  void Hide() override;
   void Update(float dt) override;
   void Render() override;
 
@@ -31,6 +32,8 @@ class OptionsMenu : public UI::OptionsMenu {
 
   glm::vec2 RedTitleLabelPos;
   glm::vec2 RightTitlePos;
+
+  enum class PageType { Text = 0, Sound = 1, Voice = 2 };
 };
 
 }  // namespace CHLCC
