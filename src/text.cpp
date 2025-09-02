@@ -54,8 +54,8 @@ enum StringTokenType : uint8_t {
   STT_EvaluateExpression = 0x15,
   STT_UnlockTip = 0x16,
   STT_Present_0x18 = 0x18,
-  STT_AutoForward = 0x19,
-  STT_AutoForward_1A = 0x1A,
+  STT_AutoForward_SyncVoice = 0x19,
+  STT_AutoForward = 0x1A,
   STT_RubyCenterPerCharacter = 0x1E,
   STT_AltLineBreak = 0x1F,
 
@@ -93,8 +93,8 @@ int StringToken::Read(Vm::Sc3VmThread* ctx) {
     case STT_PrintInParallel:
     case STT_CenterText:
     case STT_Present_0x18:
+    case STT_AutoForward_SyncVoice:
     case STT_AutoForward:
-    case STT_AutoForward_1A:
     case STT_RubyCenterPerCharacter:
     case STT_AltLineBreak:
     case STT_EndOfString: {
@@ -706,11 +706,11 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
         BuildingRubyBase = true;
         break;
       }
-      case STT_AutoForward: {
+      case STT_AutoForward_SyncVoice: {
         AutoForward = AutoForwardType::SyncVoice;
         break;
       }
-      case STT_AutoForward_1A: {
+      case STT_AutoForward: {
         AutoForward = AutoForwardType::Normal;
         break;
       }
