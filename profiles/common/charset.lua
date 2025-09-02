@@ -11,6 +11,7 @@ function AddCharsetFlag(characterString, flag)
         for targetBytePos, targetCodePoint in utf8.codes(root.CharsetInternal.CharsetStr) do
             if sourceCodePoint == targetCodePoint then
                 root.Charset.Flags[charsetIndex] = root.Charset.Flags[charsetIndex] | flag;
+                break;
             end
             
             charsetIndex = charsetIndex + 1;
