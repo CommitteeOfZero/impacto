@@ -49,9 +49,13 @@ void Configure() {
   VoiceMutedSprite = EnsureGetMember<Sprite>("VoiceMutedSprite");
 
   BasicSettingsSprite = EnsureGetMember<Sprite>("BasicSettingsSprite");
+  BasicSettingsPos = EnsureGetMember<glm::vec2>("BasicSettingsPos");
   TextSettingsSprite = EnsureGetMember<Sprite>("TextSettingsSprite");
+  TextSettingsPos = EnsureGetMember<glm::vec2>("TextSettingsPos");
   SoundSettingsSprite = EnsureGetMember<Sprite>("SoundSettingsSprite");
+  SoundSettingsPos = EnsureGetMember<glm::vec2>("SoundSettingsPos");
   VoiceSettingsSprite = EnsureGetMember<Sprite>("VoiceSettingsSprite");
+  VoiceSettingsPos = EnsureGetMember<glm::vec2>("VoiceSettingsPos");
 
   SliderBarBaseSprite = EnsureGetMember<Sprite>("SliderBarBaseSprite");
   SliderBarFillSprite = EnsureGetMember<Sprite>("SliderBarFillSprite");

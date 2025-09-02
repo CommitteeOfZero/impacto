@@ -41,9 +41,25 @@ OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
 
   // Push dummy group so Show and Hide don't access garbage
   // Will be replaced when actually implemented
-  auto dummyPage = std::make_unique<Group>(this);
-  dummyPage->Add(new Label(), FDIR_DOWN);
-  Pages.push_back(std::move(dummyPage));
+  auto textPage = std::make_unique<Group>(this);
+  textPage->Add(new Label(), FDIR_DOWN);
+  Pages.push_back(std::move(textPage));
+
+  auto soundPage = std::make_unique<Group>(this);
+  soundPage->Add(new Label(), FDIR_DOWN);
+  Pages.push_back(std::move(soundPage));
+
+  auto voicePage = std::make_unique<Group>(this);
+  voicePage->Add(new Label(), FDIR_DOWN);
+  Pages.push_back(std::move(voicePage));
+}
+
+void OptionsMenu::Hide() {
+  if (State == Shown) {
+    SetFlag(SF_SUBMENUEXIT, true);
+  }
+
+  UI::OptionsMenu::Hide();
 }
 
 void OptionsMenu::Render() {
@@ -71,27 +87,33 @@ void OptionsMenu::Render() {
     Renderer->DrawSprite(MenuTitleText, titleDest);
   }
 
-  glm::vec3 tint = {1.0f, 1.0f, 1.0f};
   // Alpha goes from 0 to 1 in half the time
   float alpha =
       FadeAnimation.Progress < 0.5f ? FadeAnimation.Progress * 2.0f : 1.0f;
   Renderer->DrawSprite(
       BackgroundFilter,
       RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-      glm::vec4(tint, alpha));
+      {1.0f, 1.0f, 1.0f, alpha});
 
-  glm::vec2 offset(0.0f, 0.0f);
   if (FadeAnimation.Progress > 0.22f) {
-    if (FadeAnimation.Progress < 0.72f) {
-      // Approximated function from the original, another mess
-      offset = glm::vec2(
-          0.0f,
-          glm::mix(-Profile::DesignHeight, 0.0f,
-                   1.00397f * std::sin(3.97161f -
-                                       3.26438f * FadeAnimation.Progress) -
-                       0.00295643f));
-    }
     DrawButtonPrompt();
+  }
+
+  switch (CurrentPage) {
+    case static_cast<int>(PageType::Text):
+      Renderer->DrawSprite(BasicSettingsSprite, BasicSettingsPos);
+      Renderer->DrawSprite(TextSettingsSprite, TextSettingsPos);
+      break;
+    case static_cast<int>(PageType::Sound):
+      Renderer->DrawSprite(SoundSettingsSprite, SoundSettingsPos);
+      break;
+    case static_cast<int>(PageType::Voice):
+      Renderer->DrawSprite(VoiceSettingsSprite, VoiceSettingsPos);
+      break;
+    default:
+      ImpLogSlow(LogLevel::Warning, LogChannel::General,
+                 "Unexpected options menu page {:d}", CurrentPage);
+      break;
   }
 }
 
@@ -114,10 +136,9 @@ void OptionsMenu::UpdateVisibility() {
 }
 
 void OptionsMenu::Update(float dt) {
-  UpdateVisibility();
+  UI::OptionsMenu::Update(dt);
 
   if (State != Hidden) {
-    FadeAnimation.Update(dt);
     FromSystemMenuTransition.Update(dt);
     if (FadeAnimation.Direction == AnimationDirection::Out &&
         FadeAnimation.Progress <= 0.72f) {
@@ -131,10 +152,6 @@ void OptionsMenu::Update(float dt) {
     }
     TitleFade.Update(dt);
     UpdateTitles();
-  }
-
-  if (GetControlState(CT_Back)) {
-    SetFlag(SF_SUBMENUEXIT, true);
   }
 }
 

@@ -42,9 +42,13 @@ root.OptionsMenu = {
     VoiceMutedSprite = "VoiceMutedSprite",
 
     BasicSettingsSprite = "BasicSettingsSprite",
+    BasicSettingsPos = { X = 0, Y = 46 },
     TextSettingsSprite = "TextSettingsSprite",
+    TextSettingsPos = { X = 0, Y = 359 },
     SoundSettingsSprite = "SoundSettingsSprite",
+    SoundSettingsPos = { X = 0, Y = 44 },
     VoiceSettingsSprite = "VoiceSettingsSprite",
+    VoiceSettingsPos = { X = 0, Y = 47 },
 
     SliderBarBaseSprite = "SliderBarBaseSprite",
     SliderBarFillSprite = "SliderBarFillSprite",
