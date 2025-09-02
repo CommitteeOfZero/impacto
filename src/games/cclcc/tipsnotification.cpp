@@ -20,9 +20,11 @@ using namespace Impacto::UI::Widgets;
 TipsNotification::TipsNotification() {
   FadeAnimation.DurationIn = FadeInDuration;
   FadeAnimation.DurationOut = FadeOutDuration;
+  FadeAnimation.SkipOnSkipMode = false;
 
   Timer.DurationIn = TimerDuration;
   Timer.LoopMode = AnimationLoopMode::Stop;
+  Timer.SkipOnSkipMode = false;
 
   auto textBefore = Vm::ScriptGetTextTableStrAddress(
       TextTableId, NotificationTextPart1MessageId);
@@ -100,7 +102,7 @@ void TipsNotification::Render() {
 }
 
 void TipsNotification::AddTip(int tipId) {
-  auto record = TipsSystem::GetTipRecord(tipId);
+  const auto* const record = TipsSystem::GetTipRecord(tipId);
   NotificationQueue.push(record->StringAdr[1]);
 }
 

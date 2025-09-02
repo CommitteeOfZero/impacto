@@ -8,7 +8,11 @@ namespace Impacto {
 
 BETTER_ENUM(AnimationState, int, Stopped, Playing)
 BETTER_ENUM(AnimationLoopMode, int, Stop, ReverseDirection, Loop)
-BETTER_ENUM(AnimationDirection, int, In = 1, Out = -1)
+
+enum class AnimationDirection { In = 1, Out = -1 };
+constexpr AnimationDirection operator-(AnimationDirection direction) {
+  return static_cast<AnimationDirection>(static_cast<int>(direction) * -1);
+}
 
 class Animation {
  public:
@@ -27,26 +31,36 @@ class Animation {
     DurationIn = duration;
     DurationOut = duration;
   }
+  float GetDuration(AnimationDirection direction) const {
+    return direction == AnimationDirection::In ? DurationIn : DurationOut;
+  }
 
   void Stop() { State = AnimationState::Stopped; }
 
   void StartIn(bool reset = false) {
-    if (reset) Progress = 0;
+    if (reset) Progress = 0.0f;
     Direction = AnimationDirection::In;
     State = AnimationState::Playing;
     StartInImpl(reset);
   }
 
   void StartOut(bool reset = false) {
-    if (reset) Progress = 1;
+    if (reset) Progress = 1.0f;
     Direction = AnimationDirection::Out;
     State = AnimationState::Playing;
     StartOutImpl(reset);
   }
 
+  void Start(AnimationDirection direction, bool reset = false) {
+    if (direction == AnimationDirection::In)
+      StartIn(reset);
+    else
+      StartOut(reset);
+  }
+
   void Finish() {
     State = AnimationState::Stopped;
-    Progress = Direction == +AnimationDirection::In ? 1.0f : 0.0f;
+    Progress = Direction == AnimationDirection::In ? 1.0f : 0.0f;
     FinishImpl();
   }
 
@@ -58,10 +72,13 @@ class Animation {
   virtual void Render() {}
 
   bool IsOut() const {
-    return Progress == 0 && State == +AnimationState::Stopped;
+    return Progress == 0.0f && State == +AnimationState::Stopped;
   }
   bool IsIn() const {
-    return Progress == 1 && State == +AnimationState::Stopped;
+    return Progress == 1.0f && State == +AnimationState::Stopped;
+  }
+  bool IsFinished(AnimationDirection direction) const {
+    return direction == AnimationDirection::In ? IsIn() : IsOut();
   }
 
  protected:
@@ -72,7 +89,7 @@ class Animation {
   virtual void UpdateImpl(float dt) {
     if (SkipOnSkipMode && GetFlag(Profile::ScriptVars::SF_MESALLSKIP) &&
         State != +AnimationState::Stopped) {
-      Progress = Direction == +AnimationDirection::In ? 1.0f : 0.0f;
+      Progress = Direction == AnimationDirection::In ? 1.0f : 0.0f;
     }
     AddDelta(dt);
   }

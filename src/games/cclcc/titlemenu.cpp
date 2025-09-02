@@ -385,7 +385,7 @@ void TitleMenu::ExplodeScreenUpdate() {
     SecondaryFadeAnimation.Progress = 0.0f;
   }
 
-  if (PressToStartAnimation.Direction != +AnimationDirection::Out ||
+  if (PressToStartAnimation.Direction != AnimationDirection::Out ||
       PressToStartAnimation.LoopMode != +AnimationLoopMode::Stop) {
     PressToStartAnimation.Direction = AnimationDirection::Out;
     PressToStartAnimation.LoopMode = AnimationLoopMode::Stop;

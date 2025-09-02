@@ -2,8 +2,10 @@
 #include "../profile_internal.h"
 #include "../games/mo6tw/tipsnotification.h"
 #include "../games/cclcc/tipsnotification.h"
+#include "../games/chlcc/tipsnotification.h"
 #include "../../games/mo6tw/tipsnotification.h"
 #include "../../games/cclcc/tipsnotification.h"
+#include "../../games/chlcc/tipsnotification.h"
 
 namespace Impacto {
 namespace Profile {
@@ -26,6 +28,9 @@ void Configure() {
     case TipsNotificationType::CCLCC:
       CCLCC::TipsNotification::Configure();
       break;
+    case TipsNotificationType::CHLCC:
+      CHLCC::TipsNotification::Configure();
+      break;
     default:
       Pop();
       return;
@@ -44,19 +49,21 @@ void Configure() {
 }
 
 void CreateInstance() {
-  if (!Impacto::TipsNotification::Implementation) {
-    switch (Type) {
-      case TipsNotificationType::MO6TW:
-        Impacto::TipsNotification::Implementation =
-            new Impacto::MO6TW::TipsNotification;
-        break;
-      case TipsNotificationType::CCLCC:
-        Impacto::TipsNotification::Implementation =
-            new Impacto::CCLCC::TipsNotification;
-        break;
-      default:
-        return;
-    }
+  switch (Type) {
+    case TipsNotificationType::MO6TW:
+      Impacto::TipsNotification::Implementation =
+          std::make_unique<Impacto::MO6TW::TipsNotification>();
+      break;
+    case TipsNotificationType::CCLCC:
+      Impacto::TipsNotification::Implementation =
+          std::make_unique<Impacto::CCLCC::TipsNotification>();
+      break;
+    case TipsNotificationType::CHLCC:
+      Impacto::TipsNotification::Implementation =
+          std::make_unique<Impacto::CHLCC::TipsNotification>();
+      break;
+    default:
+      return;
   }
 }
 

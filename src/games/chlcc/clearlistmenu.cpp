@@ -143,11 +143,11 @@ void ClearListMenu::Update(float dt) {
   if (State != Hidden) {
     MenuTransition.Update(dt);
     FromSystemMenuTransition.Update(dt);
-    if (MenuTransition.Direction == +AnimationDirection::Out &&
+    if (MenuTransition.Direction == AnimationDirection::Out &&
         MenuTransition.Progress <= 0.72f) {
       TitleFade.StartOut();
     } else if (MenuTransition.IsIn() &&
-               (TitleFade.Direction == +AnimationDirection::In ||
+               (TitleFade.Direction == AnimationDirection::In ||
                 TitleFade.IsOut())) {
       TitleFade.StartIn();
     }
@@ -251,8 +251,8 @@ inline void ClearListMenu::DrawEndingCount(float yOffset) {
 
 inline void ClearListMenu::DrawTIPSCount(float yOffset) {
   int unlockedTipsCount = 0;
-  int totalTips = GetTipCount();
-  for (int idx = 0; idx < totalTips; idx++) {
+  size_t totalTips = GetTipCount();
+  for (size_t idx = 0; idx < totalTips; idx++) {
     unlockedTipsCount += GetTipLockedState(idx) ? 0 : 1;
   }
   if (unlockedTipsCount / 10 != 0) {

@@ -50,7 +50,7 @@ void TipsSystem::DataInit(uint32_t scriptBufferId, uint32_t tipsDataAdr,
 
 void TipsSystem::UpdateTipRecords() {
   if (TipEntryCount != 0) {
-    for (int i = 0; i < TipEntryCount; i++) {
+    for (size_t i = 0; i < TipEntryCount; i++) {
       auto &record = Records[i];
       auto tipStatus = SaveSystem::GetTipStatus(record.Id);
       record.IsLocked = (tipStatus & 1) == 0;
@@ -60,25 +60,25 @@ void TipsSystem::UpdateTipRecords() {
   }
 }
 
-void TipsSystem::SetTipLockedState(int id, bool state) {
+void TipsSystem::SetTipLockedState(size_t id, bool state) {
   Records[id].IsLocked = state;
   SaveSystem::SetTipStatus(id, Records[id].IsLocked, Records[id].IsUnread,
                            Records[id].IsNew);
 }
 
-void TipsSystem::SetTipUnreadState(int id, bool state) {
+void TipsSystem::SetTipUnreadState(size_t id, bool state) {
   Records[id].IsUnread = state;
   SaveSystem::SetTipStatus(id, Records[id].IsLocked, Records[id].IsUnread,
                            Records[id].IsNew);
 }
 
-void TipsSystem::SetTipNewState(int id, bool state) {
+void TipsSystem::SetTipNewState(size_t id, bool state) {
   Records[id].IsNew = state;
   SaveSystem::SetTipStatus(id, Records[id].IsLocked, Records[id].IsUnread,
                            Records[id].IsNew);
 }
 
-bool TipsSystem::GetTipLockedState(int id) { return Records[id].IsLocked; }
+bool TipsSystem::GetTipLockedState(size_t id) { return Records[id].IsLocked; }
 
 }  // namespace CCLCC
 }  // namespace Impacto

@@ -253,11 +253,14 @@ void UpdateSystem(float dt) {
     DateDisplay::Update(UpdateSecondCounter);
     if (ScrWork[SW_GAMESTATE] & 5 && !GetFlag(SF_GAMEPAUSE) &&
         !GetFlag(SF_SYSMENUDISABLE)) {
-      TipsNotification::Update(UpdateSecondCounter);
       DelusionTrigger::Update(UpdateSecondCounter);
       UI::MapSystem::Update(UpdateSecondCounter);
       if (CCLCC::YesNoTrigger::YesNoTriggerPtr)
         CCLCC::YesNoTrigger::YesNoTriggerPtr->Update(UpdateSecondCounter);
+
+      if (!GetFlag(SF_MOVIEPLAY)) {
+        TipsNotification::Update(UpdateSecondCounter);
+      }
     }
 
     Vm::Update(dt);
@@ -428,7 +431,11 @@ static void RenderMain() {
     //////////////////////////////
   }
   DateDisplay::Render();
-  TipsNotification::Render();
+
+  if (!GetFlag(SF_UIHIDDEN) && !GetFlag(SF_MOVIEPLAY)) {
+    TipsNotification::Render();
+  }
+
   // MO8 uses those huge layer indexes for movie menu, it doesn't
   // actually have 4000 layers
   if ((Profile::GameFeatures & GameFeature::Video) &&

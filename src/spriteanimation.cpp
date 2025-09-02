@@ -27,8 +27,8 @@ void FixedSpriteAnimation::UpdateImpl(float dt) {
   float fixedSpriteProgress = GetFixedSpriteProgress();
   AnimationDirection animationRequest = Direction;
 
-  if ((Progress == 1.0f && Direction == -1) ||
-      (Progress == 0.0f && Direction == 1)) {
+  if ((Progress == 1.0f && Direction == AnimationDirection::Out) ||
+      (Progress == 0.0f && Direction == AnimationDirection::In)) {
     Progress = fixedSpriteProgress;
   }
 
@@ -42,7 +42,7 @@ void FixedSpriteAnimation::UpdateImpl(float dt) {
   }
 
   // Coordinate transformation and normalization for AddDelta
-  if (Direction == 1) {
+  if (Direction == AnimationDirection::In) {
     Progress = (Progress - fixedSpriteProgress) / (1.0f - fixedSpriteProgress);
     dt /= 1.0f - fixedSpriteProgress;
   } else {
@@ -53,7 +53,7 @@ void FixedSpriteAnimation::UpdateImpl(float dt) {
   SpriteAnimation::UpdateImpl(dt);
 
   // Revert coordinate transformation and normalization
-  if (Direction == 1)
+  if (Direction == AnimationDirection::In)
     Progress = Progress * (1.0f - fixedSpriteProgress) + fixedSpriteProgress;
   else
     Progress *= fixedSpriteProgress;
@@ -77,7 +77,7 @@ Sprite FixedSpriteAnimation::CurrentSprite() {
     frame = (int)((1.0f - Progress) * (float)Def->FrameCount);
   else {  // Progress = fixedSpriteProgress
     frame = Def->FixSpriteId;
-    if (Direction == -1) frame++;
+    if (Direction == AnimationDirection::Out) frame++;
   }
 
   if (frame >= Def->FrameCount)

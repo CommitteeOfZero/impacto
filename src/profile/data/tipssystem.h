@@ -9,7 +9,7 @@ namespace TipsSystem {
 inline Impacto::TipsSystem::TipsSystemType Type =
     Impacto::TipsSystem::TipsSystemType::None;
 
-inline int MaxTipsCount;
+inline size_t MaxTipsCount;
 
 void Configure();
 

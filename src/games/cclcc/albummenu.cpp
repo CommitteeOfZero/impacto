@@ -624,7 +624,8 @@ void AlbumMenu::Render() {
                        AlbumPageNumberPositions[0], pgBtnTint);
   if (dispActivePg != dispPrevPg) {
     const float totalProgress =
-        ThumbnailZoomAnimation.Direction + AnimationDirection::In
+        static_cast<int>(ThumbnailZoomAnimation.Direction) +
+                static_cast<int>(AnimationDirection::In)
             ? ThumbnailZoomAnimation.Progress / 2.0f
             : (1.0f + (1.0f - ThumbnailZoomAnimation.Progress)) / 2.0f;
     const float alpha = pgBtnTint.a * totalProgress;

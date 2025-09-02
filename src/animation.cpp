@@ -4,11 +4,11 @@ namespace Impacto {
 
 void Animation::AddDelta(float dt) {
   float duration =
-      Direction == +AnimationDirection::In ? DurationIn : DurationOut;
+      Direction == AnimationDirection::In ? DurationIn : DurationOut;
 
   switch (LoopMode) {
     case AnimationLoopMode::Stop: {
-      float endProgress = Direction == +AnimationDirection::In ? 1.0f : 0.0f;
+      float endProgress = Direction == AnimationDirection::In ? 1.0f : 0.0f;
 
       Progress = std::clamp(
           Progress + static_cast<float>(Direction) * dt / duration, 0.0f, 1.0f);
@@ -26,7 +26,7 @@ void Animation::AddDelta(float dt) {
       float cycleDuration = DurationIn + DurationOut;
 
       float time = Progress * duration;
-      if (Direction == +AnimationDirection::Out) {
+      if (Direction == AnimationDirection::Out) {
         time = cycleDuration - time;
       }
 

@@ -3,9 +3,10 @@
 namespace Impacto {
 
 void SequencedAnimation::AddAnimation(Animation& animation, float startTime,
-                                      float duration) {
+                                      float duration,
+                                      AnimationDirection direction) {
   float endTime = startTime + duration;
-  Children.push_back({std::ref(animation), startTime, endTime});
+  Children.push_back({std::ref(animation), startTime, endTime, direction});
 
   // There are multiple conflicting ways to interpret playing a sequenced
   // animation in reverse, therefore doing so is currently undefined
@@ -18,12 +19,13 @@ void SequencedAnimation::StartInImpl(bool reset) {
     Animation& childAnimation = child.ChildAnimation.get();
     if (reset) {
       childAnimation.Stop();
-      childAnimation.Progress = 0;
+      childAnimation.Progress =
+          child.Direction == AnimationDirection::In ? 0.0f : 1.0f;
     }
 
     float time = Progress * DurationIn;
     if (child.StartTime <= time && time <= child.EndTime) {
-      childAnimation.StartIn();
+      childAnimation.Start(child.Direction);
     }
   }
 }
@@ -34,12 +36,13 @@ void SequencedAnimation::StartOutImpl(bool reset) {
 
     if (reset) {
       childAnimation.Stop();
-      childAnimation.Progress = 1;
+      childAnimation.Progress =
+          child.Direction == AnimationDirection::In ? 1.0f : 0.0f;
     }
 
     float time = Progress * DurationOut;
     if (child.StartTime <= time && time <= child.EndTime) {
-      childAnimation.StartOut();
+      childAnimation.Start(-child.Direction);
     }
   }
 }
@@ -51,13 +54,12 @@ void SequencedAnimation::FinishImpl() {
 }
 
 void SequencedAnimation::UpdateImpl(float dt) {
-  float duration =
-      Direction == +AnimationDirection::In ? DurationIn : DurationOut;
+  float duration = GetDuration(Direction);
   float previousTime = Progress * duration;
 
   AddDelta(dt);
 
-  duration = Direction == +AnimationDirection::In ? DurationIn : DurationOut;
+  duration = GetDuration(Direction);
   float time = Progress * duration;
 
   for (ChildAnimation& child : Children) {
@@ -67,18 +69,22 @@ void SequencedAnimation::UpdateImpl(float dt) {
       if (childAnimation.State == +AnimationState::Playing) {
         childAnimation.Stop();
         childAnimation.Progress = time > child.StartTime;
+
+        if (childAnimation.Direction == AnimationDirection::Out) {
+          childAnimation.Progress = 1.0f - childAnimation.Progress;
+        }
       }
 
       continue;
     }
 
-    if (Direction == +AnimationDirection::In) {
+    if (Direction == AnimationDirection::In) {
       float delta = time - previousTime;
       bool shouldStart = delta < 0 || (previousTime <= child.StartTime &&
                                        time >= child.StartTime);
 
       if (shouldStart) {
-        childAnimation.StartIn(true);
+        childAnimation.Start(child.Direction, true);
         childAnimation.Update(time - child.StartTime);
         continue;
       }
@@ -90,7 +96,7 @@ void SequencedAnimation::UpdateImpl(float dt) {
           delta < 0 || (previousTime >= child.EndTime && time <= child.EndTime);
 
       if (shouldStart) {
-        childAnimation.StartOut(true);
+        childAnimation.Start(-child.Direction, true);
         childAnimation.Update(child.EndTime - time);
         continue;
       }

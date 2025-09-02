@@ -216,13 +216,19 @@ VmInstruction(InstSave) {
   StartInstruction;
   PopUint8(type);
   switch (type) {  // TODO: Types 1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 19, 40,
-                   // 41, 45, 46, 47, 50, 51, 52, 53, 88, 89, 150, 151
+                   // 41, 45, 46, 47, 50, 51, 52, 53, 71, 88, 89, 150, 151
     case 0: {
       SaveSystem::SaveSystemData();
       break;
     }
     case 4: {
-      ScrWork[SW_SAVEERRORCODE] = (int)SaveSystem::LoadSystemData();
+      ScrWork[SW_SAVEERRORCODE] =
+          static_cast<int>(SaveSystem::LoadSystemData());
+
+      if (ScrWork[SW_SAVEERRORCODE] == static_cast<int>(SaveError::OK)) {
+        TipsSystem::UpdateTipRecords();
+      }
+
       break;
     }
     case 5:  // NOOP by design
@@ -286,10 +292,6 @@ VmInstruction(InstSave) {
         break;
       }
 
-      if (ScrWork[SW_SAVEERRORCODE] == (int)SaveError::OK) {
-        TipsSystem::UpdateTipRecords();
-      }
-
       SetFlag(SF_SAVEICON, false);
       break;
     }
@@ -344,13 +346,20 @@ VmInstruction(InstSave) {
 VmInstruction(InstSaveOld) {
   StartInstruction;
   PopUint8(type);
-  switch (type) {  // TODO: Types 1, 3, 4, 5, 10, 11, 12, 20, 21, 36, 37, 52, 53
+  switch (type) {
+    // TODO: Types 1, 3, 4, 5, 10, 11, 12, 20, 21, 33, 36, 37, 52, 53
     case 0: {
       SaveSystem::SaveSystemData();
       break;
     }
     case 2: {
-      ScrWork[SW_SAVEERRORCODE] = (int)SaveSystem::LoadSystemData();
+      ScrWork[SW_SAVEERRORCODE] =
+          static_cast<int>(SaveSystem::LoadSystemData());
+
+      if (ScrWork[SW_SAVEERRORCODE] == static_cast<int>(SaveError::OK)) {
+        TipsSystem::UpdateTipRecords();
+      }
+
       break;
     }
     case 13: {
@@ -387,8 +396,6 @@ VmInstruction(InstSaveOld) {
         ResetInstruction;
         BlockThread;
         break;
-      } else if (ScrWork[SW_SAVEERRORCODE] == (int)SaveError::OK) {
-        TipsSystem::UpdateTipRecords();
       }
 
       SetFlag(SF_SAVEICON, false);
@@ -784,6 +791,7 @@ VmInstruction(InstMSinit) {
   }
 
   if (initType == 1) {
+    Profile::TipsNotification::CreateInstance();
     Profile::DelusionTrigger::CreateInstance();
   }
 
@@ -792,8 +800,11 @@ VmInstruction(InstMSinit) {
   }
 
   if (initType == 10) {
-    Profile::TipsNotification::CreateInstance();
     Profile::DelusionTrigger::CreateInstance();
+
+    // Technically not done here in the MAGES. engine, but we have to do it
+    // *somewhere* on boot...
+    Profile::TipsNotification::CreateInstance();
   }
 
   if (initType == 2) {

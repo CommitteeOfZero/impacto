@@ -255,13 +255,14 @@ void SaveSystem::SaveSystemData() {
   }
 
   stream.Seek(0xbb8, SEEK_SET);
-  Io::WriteArrayLE<uint8_t>(BGMFlags, &stream, 100);
+  Io::WriteArrayLE<uint8_t>(BGMFlags.data(), &stream, BGMFlags.size());
 
   stream.Seek(0xc1c, SEEK_SET);
-  Io::WriteArrayLE<uint8_t>(MessageFlags, &stream, 10000);
+  Io::WriteArrayLE<uint8_t>(MessageFlags.data(), &stream, MessageFlags.size());
 
   stream.Seek(0x3584, SEEK_SET);
-  Io::WriteArrayLE<uint8_t>(GameExtraData, &stream, 1024);
+  Io::WriteArrayLE<uint8_t>(GameExtraData.data(), &stream,
+                            GameExtraData.size());
 }
 
 void SaveSystem::LoadEntryBuffer(Io::MemoryStream& memoryStream,
@@ -428,13 +429,13 @@ SaveError SaveSystem::LoadSystemData() {
   }
 
   stream.Seek(0xbb8, SEEK_SET);
-  Io::ReadArrayLE<uint8_t>(BGMFlags, &stream, 100);
+  Io::ReadArrayLE<uint8_t>(BGMFlags.data(), &stream, BGMFlags.size());
 
   stream.Seek(0xc1c, SEEK_SET);
-  Io::ReadArrayLE<uint8_t>(MessageFlags, &stream, 10000);
+  Io::ReadArrayLE<uint8_t>(MessageFlags.data(), &stream, MessageFlags.size());
 
   stream.Seek(0x3584, SEEK_SET);
-  Io::ReadArrayLE<uint8_t>(GameExtraData, &stream, 1024);
+  Io::ReadArrayLE<uint8_t>(GameExtraData.data(), &stream, GameExtraData.size());
 
   return SaveError::OK;
 }
@@ -993,7 +994,7 @@ int SaveSystem::GetSaveTitle(SaveType type, int id) {
   }
 }
 
-uint32_t SaveSystem::GetTipStatus(int tipId) {
+uint32_t SaveSystem::GetTipStatus(size_t tipId) {
   tipId *= 3;
   uint8_t lockStatus = (GameExtraData[tipId >> 3] & Flbit[tipId & 7]) != 0;
   uint8_t newStatus =
@@ -1003,7 +1004,7 @@ uint32_t SaveSystem::GetTipStatus(int tipId) {
   return (lockStatus | (unreadStatus << 1)) | (newStatus << 2);
 }
 
-void SaveSystem::SetTipStatus(int tipId, bool isLocked, bool isUnread,
+void SaveSystem::SetTipStatus(size_t tipId, bool isLocked, bool isUnread,
                               bool isNew) {
   tipId *= 3;
   if (isLocked) {
