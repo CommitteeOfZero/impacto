@@ -93,7 +93,8 @@ void OptionsMenu::UpdatePageInput(float dt) {
     return;
   }
 
-  GoToPage((CurrentPage + direction) % Pages.size());
+  GoToPage(static_cast<int>((CurrentPage + direction + Pages.size()) %
+                            Pages.size()));
 }
 
 void OptionsMenu::UpdateEntryMovementInput(float dt) {
