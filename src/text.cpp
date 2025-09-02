@@ -240,7 +240,7 @@ void TypewriterEffect::Update(float dt) {
   UpdateImpl(dt);
 }
 
-std::pair<size_t, size_t> TypewriterEffect::GetParallelBlock(
+TypewriterEffect::ParallelBlock TypewriterEffect::GetParallelBlock(
     const size_t glyph) {
   if (ParallelStartGlyphs.empty()) {  // No parallel blocks
     return {FirstGlyph, GlyphCount};
@@ -262,10 +262,9 @@ std::pair<size_t, size_t> TypewriterEffect::GetParallelBlock(
 
 std::pair<float, float> TypewriterEffect::GetGlyphWritingProgresses(
     const size_t glyph) {
-  const auto [parallelBlockFirstGlyph, parallelBlockGlyphCount] =
-      GetParallelBlock(glyph);
+  const ParallelBlock block = GetParallelBlock(glyph);
 
-  const size_t parallelBlockGlyphNo = glyph - parallelBlockFirstGlyph;
+  const size_t parallelBlockGlyphNo = glyph - block.Start;
 
   // We start displaying a glyph after the previous one is 25% opaque, hence
   // totalDisplayTime = glyphCount * (0.25 * glyphDisplayTime) +
@@ -273,8 +272,8 @@ std::pair<float, float> TypewriterEffect::GetGlyphWritingProgresses(
 
   constexpr float singleGlyphDuration = 1.0f;
   constexpr float glyphPropagateDuration = singleGlyphDuration * 0.25f;
-  const float totalDuration = parallelBlockGlyphCount * glyphPropagateDuration +
-                              0.75f * singleGlyphDuration;
+  const float totalDuration =
+      block.Size * glyphPropagateDuration + 0.75f * singleGlyphDuration;
 
   const float startTime = glyphPropagateDuration * parallelBlockGlyphNo;
   const float endTime = startTime + 1.0f;

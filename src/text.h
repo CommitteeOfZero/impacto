@@ -83,8 +83,11 @@ struct TypewriterEffect : public Animation {
   std::set<size_t> ParallelStartGlyphs;
   float ProgressOnCancel;
 
-  // {ParallelBlockStart, ParallelBlockSize}
-  std::pair<size_t, size_t> GetParallelBlock(size_t glyph);
+  struct ParallelBlock {
+    size_t Start;
+    size_t Size;
+  };
+  ParallelBlock GetParallelBlock(size_t glyph);
 
   // {startProgress, endProgress}
   std::pair<float, float> GetGlyphWritingProgresses(size_t glyph);
