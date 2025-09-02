@@ -953,11 +953,10 @@ void DialoguePage::Move(glm::vec2 relativePos) {
       Name[i].DestRect.Y += relativePos.y;
     }
   }
-  for (size_t rubyChunkId = 0; rubyChunkId < RubyChunkCount; rubyChunkId++) {
-    for (size_t rubyGlyphId = 0; rubyGlyphId < RubyChunks[rubyChunkId].Length;
-         rubyGlyphId++) {
-      RubyChunks[rubyChunkId].Text[rubyGlyphId].DestRect.X += relativePos.x;
-      RubyChunks[rubyChunkId].Text[rubyGlyphId].DestRect.X += relativePos.y;
+  for (RubyChunk rubyChunk : std::span(RubyChunks.begin(), RubyChunkCount)) {
+    for (auto glyph : std::span(rubyChunk.Text.begin(), rubyChunk.Length)) {
+      glyph.DestRect.X += relativePos.x;
+      glyph.DestRect.Y += relativePos.y;
     }
   }
 }
