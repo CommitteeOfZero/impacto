@@ -296,7 +296,7 @@ float TypewriterEffect::CalcOpacity(size_t glyph) {
     // Opaque glyphs remain opaque
     if (ProgressOnCancel >= endProgress) return 1.0f;
 
-    // Transparant glyphs fade in according to the progress made
+    // Transparent glyphs fade in according to the progress made
     // since cancelling
     const float cancelProgress =
         (Progress - ProgressOnCancel) / (1.0f - ProgressOnCancel);
@@ -324,7 +324,7 @@ float TypewriterEffect::CalcRubyOpacity(const size_t rubyGlyphId,
   const size_t baseStart = chunk.FirstBaseCharacter;
   const size_t baseEnd = chunk.FirstBaseCharacter + chunk.BaseLength;
 
-  // Base is already fully opaque / still fully transparant
+  // Base is already fully opaque / still fully transparent
   if (baseEnd <= FirstGlyph) return 1.0f;
   if (baseStart > FirstGlyph + GlyphCount) return 0.0f;
 
