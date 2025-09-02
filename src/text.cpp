@@ -271,12 +271,15 @@ std::pair<float, float> TypewriterEffect::GetGlyphWritingProgresses(
   //                    glyphDisplayTime * 0.75
 
   constexpr float singleGlyphDuration = 1.0f;
-  constexpr float glyphPropagateDuration = singleGlyphDuration * 0.25f;
+  constexpr float glyphPropagateProgress = 0.25f;
+  constexpr float glyphPropagateDuration =
+      singleGlyphDuration * glyphPropagateProgress;
   const float totalDuration =
-      block.Size * glyphPropagateDuration + 0.75f * singleGlyphDuration;
+      block.Size * glyphPropagateDuration +
+      (1.0f - glyphPropagateProgress) * singleGlyphDuration;
 
   const float startTime = glyphPropagateDuration * parallelBlockGlyphNo;
-  const float endTime = startTime + 1.0f;
+  const float endTime = startTime + singleGlyphDuration;
 
   return {startTime / totalDuration, endTime / totalDuration};
 }
@@ -346,12 +349,15 @@ float TypewriterEffect::CalcRubyOpacity(const size_t rubyGlyphId,
   //                    glyphDisplayTime * 0.75
 
   constexpr float singleGlyphDuration = 1.0f;
-  constexpr float glyphPropagateDuration = singleGlyphDuration * 0.25f;
+  constexpr float glyphPropagateProgress = 0.25f;
+  constexpr float glyphPropagateDuration =
+      singleGlyphDuration * glyphPropagateProgress;
   const float totalDuration =
-      chunk.Length * glyphPropagateDuration + 0.75f * singleGlyphDuration;
+      chunk.Length * glyphPropagateDuration +
+      (1.0f - glyphPropagateProgress) * singleGlyphDuration;
 
   const float glyphStartTime = glyphPropagateDuration * rubyGlyphId;
-  const float glyphEndTime = glyphStartTime + 1.0f;
+  const float glyphEndTime = glyphStartTime + singleGlyphDuration;
 
   // Convert back to progress-space
   const float startProgress =
