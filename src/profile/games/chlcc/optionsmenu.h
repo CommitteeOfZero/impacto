@@ -38,8 +38,12 @@ inline Sprite ButtonPromptSprite;
 inline glm::vec2 ButtonPromptPosition;
 
 inline Sprite SelectedSprite;
+inline float SelectedSlideDuration;
 inline Sprite SelectedLabelSprite;
+inline glm::vec2 SelectedLabelOffset;
 inline Sprite SelectedDotSprite;
+inline glm::vec2 SelectedDotOffset;
+inline glm::vec2 SelectedDotVoicesOffset;
 inline Sprite VoiceMutedSprite;
 
 inline Sprite BasicSettingsSprite;
@@ -53,6 +57,9 @@ inline glm::vec2 VoiceSettingsPos;
 
 inline Sprite SliderBarBaseSprite;
 inline Sprite SliderBarFillSprite;
+inline float SliderBarFadeDuration;
+inline glm::vec2 SliderBarTopRightOffset;
+inline glm::vec2 SliderBarFillOffset;
 
 inline Sprite SettingInstantSprite;
 inline Sprite SettingFastSprite;
@@ -71,6 +78,11 @@ inline Sprite SettingOnSceneSprite;
 inline Sprite SettingOnTriggerAndSceneSprite;
 inline Sprite SettingTypeASprite;
 inline Sprite SettingTypeBSprite;
+inline glm::vec2 SettingButtonTopRightOffset;
+
+inline std::array<glm::vec2, 8> TextPageEntryPositions;
+inline std::array<glm::vec2, 6> SoundPageEntryPositions;
+inline std::array<glm::vec2, 11> VoicePageEntryPositions;
 
 void Configure();
 
