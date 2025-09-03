@@ -44,8 +44,13 @@ void Configure() {
   ButtonPromptPosition = EnsureGetMember<glm::vec2>("ButtonPromptPosition");
 
   SelectedSprite = EnsureGetMember<Sprite>("SelectedSprite");
+  SelectedSlideDuration = EnsureGetMember<float>("SelectedSlideDuration");
   SelectedLabelSprite = EnsureGetMember<Sprite>("SelectedLabelSprite");
+  SelectedLabelOffset = EnsureGetMember<glm::vec2>("SelectedLabelOffset");
   SelectedDotSprite = EnsureGetMember<Sprite>("SelectedDotSprite");
+  SelectedDotOffset = EnsureGetMember<glm::vec2>("SelectedDotOffset");
+  SelectedDotVoicesOffset =
+      EnsureGetMember<glm::vec2>("SelectedDotVoicesOffset");
   VoiceMutedSprite = EnsureGetMember<Sprite>("VoiceMutedSprite");
 
   BasicSettingsSprite = EnsureGetMember<Sprite>("BasicSettingsSprite");
@@ -59,6 +64,10 @@ void Configure() {
 
   SliderBarBaseSprite = EnsureGetMember<Sprite>("SliderBarBaseSprite");
   SliderBarFillSprite = EnsureGetMember<Sprite>("SliderBarFillSprite");
+  SliderBarFadeDuration = EnsureGetMember<float>("SliderBarFadeDuration");
+  SliderBarTopRightOffset =
+      EnsureGetMember<glm::vec2>("SliderBarTopRightOffset");
+  SliderBarFillOffset = EnsureGetMember<glm::vec2>("SliderBarFillOffset");
 
   SettingInstantSprite = EnsureGetMember<Sprite>("SettingInstantSprite");
   SettingFastSprite = EnsureGetMember<Sprite>("SettingFastSprite");
@@ -78,6 +87,18 @@ void Configure() {
       EnsureGetMember<Sprite>("SettingOnTriggerAndSceneSprite");
   SettingTypeASprite = EnsureGetMember<Sprite>("SettingTypeASprite");
   SettingTypeBSprite = EnsureGetMember<Sprite>("SettingTypeBSprite");
+  SettingButtonTopRightOffset =
+      EnsureGetMember<glm::vec2>("SettingButtonTopRightOffset");
+
+  GetMemberArray<glm::vec2>(TextPageEntryPositions.data(),
+                            TextPageEntryPositions.size(),
+                            "TextPageEntryPositions");
+  GetMemberArray<glm::vec2>(SoundPageEntryPositions.data(),
+                            SoundPageEntryPositions.size(),
+                            "SoundPageEntryPositions");
+  GetMemberArray<glm::vec2>(VoicePageEntryPositions.data(),
+                            VoicePageEntryPositions.size(),
+                            "VoicePageEntryPositions");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMember<uint8_t>("DrawType"));

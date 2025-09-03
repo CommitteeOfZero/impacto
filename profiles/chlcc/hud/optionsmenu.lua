@@ -37,21 +37,28 @@ root.OptionsMenu = {
     ButtonHoldFireInterval = 0.07,
 
     SelectedSprite = "SelectedSprite",
+    SelectedSlideDuration = 32 / 60;
     SelectedLabelSprite = "SelectedLabelSprite",
+    SelectedLabelOffset = { X = 104, Y = 1 },
     SelectedDotSprite = "SelectedDotSprite",
+    SelectedDotOffset = { X = -9, Y = 10 },
+    SelectedDotVoicesOffset = { X = -10, Y = 10 },
     VoiceMutedSprite = "VoiceMutedSprite",
 
     BasicSettingsSprite = "BasicSettingsSprite",
     BasicSettingsPos = { X = 0, Y = 46 },
     TextSettingsSprite = "TextSettingsSprite",
-    TextSettingsPos = { X = 0, Y = 359 },
+    TextSettingsPos = { X = 0, Y = 360 },
     SoundSettingsSprite = "SoundSettingsSprite",
-    SoundSettingsPos = { X = 0, Y = 44 },
+    SoundSettingsPos = { X = 0, Y = 45 },
     VoiceSettingsSprite = "VoiceSettingsSprite",
     VoiceSettingsPos = { X = 0, Y = 47 },
 
     SliderBarBaseSprite = "SliderBarBaseSprite",
     SliderBarFillSprite = "SliderBarFillSprite",
+    SliderBarFadeDuration = 32 / 60 / 2;
+    SliderBarTopRightOffset = { X = -14, Y = 6 },
+    SliderBarFillOffset = { X = 7, Y = 0 },
 
     SettingInstantSprite = "SettingInstantSprite",
     SettingFastSprite = "SettingFastSprite",
@@ -70,6 +77,41 @@ root.OptionsMenu = {
     SettingOnTriggerAndSceneSprite = "SettingOnTriggerAndSceneSprite",
     SettingTypeASprite = "SettingTypeASprite",
     SettingTypeBSprite = "SettingTypeBSprite",
+    SettingButtonTopRightOffset = { X = -13, Y = 6 },
+
+    TextPageEntryPositions = {
+        -- Basic settings
+        { X = 104, Y = 123 },
+        { X = 104, Y = 172 },
+        { X = 104, Y = 221 },
+        { X = 104, Y = 270 },
+        { X = 104, Y = 319 },
+        -- Text settings
+        { X = 104, Y = 444 },
+        { X = 104, Y = 493 },
+        { X = 104, Y = 542 },
+    },
+    SoundPageEntryPositions = {
+        { X = 104, Y = 123 },
+        { X = 104, Y = 172 },
+        { X = 104, Y = 221 },
+        { X = 104, Y = 270 },
+        { X = 104, Y = 319 },
+        { X = 104, Y = 368 },
+    },
+    VoicePageEntryPositions = {
+        { X = 104, Y = 123 },
+        { X = 104, Y = 169 },
+        { X = 104, Y = 215 },
+        { X = 104, Y = 261 },
+        { X = 104, Y = 307 },
+        { X = 104, Y = 353 },
+        { X = 104, Y = 399 },
+        { X = 104, Y = 445 },
+        { X = 104, Y = 491 },
+        { X = 104, Y = 537 },
+        { X = 104, Y = 583 },
+    },
 };
 
 root.Sprites["CircleConfig"] = {
@@ -155,7 +197,7 @@ root.Sprites["SliderBarBaseSprite"] = {
 
 root.Sprites["SliderBarFillSprite"] = {
     Sheet = "Options",
-    Bounds = { X = 486, Y = 795, Width = 225, Height = 27 }
+    Bounds = { X = 487, Y = 795, Width = 225, Height = 27 }
 }
 
 -- Setting sprites

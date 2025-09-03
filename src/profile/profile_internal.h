@@ -218,10 +218,10 @@ T EnsureGetArrayElementByIndex(uint32_t index) {
 }
 
 template <typename T>
-void GetMemberArray(T* arr, uint32_t count, char const* name) {
+void GetMemberArray(T* arr, size_t count, char const* name) {
   EnsurePushMemberOfType(name, LUA_TTABLE);
 
-  uint32_t actualCount = static_cast<uint32_t>(lua_rawlen(LuaState, -1));
+  size_t actualCount = static_cast<size_t>(lua_rawlen(LuaState, -1));
   if (actualCount != count) {
     ImpLog(LogLevel::Fatal, LogChannel::Profile,
            "Expected to have {:d} values for {:s}, got {:d}\n", count, name,

@@ -259,6 +259,9 @@ set(Impacto_Src
         src/ui/widgets/chlcc/moviemenuentrybutton.cpp
         src/ui/widgets/chlcc/albumthumbnailbutton.cpp
         src/ui/widgets/chlcc/trackselectbutton.cpp
+        src/ui/widgets/chlcc/optionsentry.cpp
+        src/ui/widgets/chlcc/optionsbutton.cpp
+        src/ui/widgets/chlcc/optionsslider.cpp
         src/ui/widgets/rne/sysmenubutton.cpp
         src/ui/widgets/cc/backlogentry.cpp
         src/ui/widgets/cc/titlebutton.cpp
@@ -576,6 +579,9 @@ set(Impacto_Header
         src/ui/widgets/chlcc/moviemenuentrybutton.h
         src/ui/widgets/chlcc/albumthumbnailbutton.h
         src/ui/widgets/chlcc/trackselectbutton.h
+        src/ui/widgets/chlcc/optionsentry.h
+        src/ui/widgets/chlcc/optionsbutton.h
+        src/ui/widgets/chlcc/optionsslider.h
         src/ui/widgets/rne/sysmenubutton.h
         src/ui/widgets/cc/backlogentry.h
         src/ui/widgets/cc/titlebutton.h
