@@ -39,6 +39,8 @@ class Scrollbar : public Widget {
     return (*Value - StartValue) / (EndValue - StartValue);
   };
 
+  RectF GetTrackBounds() const { return TrackBounds; }
+
   int Id;
   ScrollbarDirection Direction;
   Sprite ThumbSprite;

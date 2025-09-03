@@ -1,5 +1,8 @@
 #include "optionsmenu.h"
 
+#include "../../ui/widgets/chlcc/optionsbutton.h"
+#include "../../ui/widgets/chlcc/optionsslider.h"
+
 #include "../../renderer/renderer.h"
 #include "../../mem.h"
 #include "../../vm/vm.h"
@@ -13,6 +16,9 @@
 #include "../../vm/interface/input.h"
 #include "../../profile/game.h"
 
+#include "../../profile/configsystem.h"
+#include "../../audio/audiosystem.h"
+
 namespace Impacto {
 namespace UI {
 namespace CHLCC {
@@ -24,6 +30,7 @@ using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Vm::Interface;
 
 using namespace Impacto::UI::Widgets;
+using namespace Impacto::UI::Widgets::CHLCC;
 
 OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
   TitleFade.Direction = AnimationDirection::In;
@@ -39,19 +46,150 @@ OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
   RedBarSprite = InitialRedBarSprite;
   RedBarPosition = InitialRedBarPosition;
 
-  // Push dummy group so Show and Hide don't access garbage
-  // Will be replaced when actually implemented
-  auto textPage = std::make_unique<Group>(this);
-  textPage->Add(new Label(), FDIR_DOWN);
-  Pages.push_back(std::move(textPage));
+  SelectedAnimation.DurationIn = SelectedSlideDuration;
+  SelectedAnimation.LoopMode = AnimationLoopMode::Loop;
+  SelectedAnimation.StartIn();
 
-  auto soundPage = std::make_unique<Group>(this);
-  soundPage->Add(new Label(), FDIR_DOWN);
-  Pages.push_back(std::move(soundPage));
+  std::function<void(OptionsEntry*)> highlight = [this](auto* entry) {
+    return Highlight(entry);
+  };
 
-  auto voicePage = std::make_unique<Group>(this);
-  voicePage->Add(new Label(), FDIR_DOWN);
-  Pages.push_back(std::move(voicePage));
+  Pages.reserve(3);
+  Pages.emplace_back(CreateTextPage(highlight));
+  Pages.emplace_back(CreateSoundPage(highlight));
+  Pages.emplace_back(CreateVoicePage(highlight));
+
+  Highlight(Pages[CurrentPage]->GetFirstFocusableChild());
+}
+
+std::unique_ptr<Widgets::Group> OptionsMenu::CreateTextPage(
+    const std::function<void(OptionsEntry*)>& highlight) {
+  std::unique_ptr<Group> textPage = std::make_unique<Group>(this);
+  RectF highlightBounds(0.0f, 0.0f, SelectedLabelSprite.ScaledWidth(),
+                        SelectedLabelSprite.ScaledHeight());
+
+  const auto addButton = [&](size_t id, std::span<const Sprite*> sprites) {
+    highlightBounds.X = TextPageEntryPositions[id].x;
+    highlightBounds.Y = TextPageEntryPositions[id].y;
+    textPage->Add(new OptionsButton(sprites,
+                                    highlightBounds.GetPos() +
+                                        glm::vec2(highlightBounds.Width, 0.0f),
+                                    highlightBounds, highlight),
+                  FDIR_DOWN);
+  };
+
+  // Basic settings
+  {
+    std::array<const Sprite*, 2> sprites{&SettingDoSprite, &SettingDontSprite};
+    addButton(0, sprites);
+  }
+  {
+    std::array<const Sprite*, 2> sprites{&SettingDoSprite, &SettingDontSprite};
+    addButton(1, sprites);
+  }
+  {
+    std::array<const Sprite*, 4> sprites{
+        &SettingOnTriggerAndSceneSprite, &SettingDontSprite,
+        &SettingOnTriggerSprite, &SettingOnSceneSprite};
+    addButton(2, sprites);
+  }
+  {
+    std::array<const Sprite*, 2> sprites{&SettingTypeASprite,
+                                         &SettingTypeBSprite};
+    addButton(3, sprites);
+  }
+
+  highlightBounds.X = TextPageEntryPositions[4].x;
+  highlightBounds.Y = TextPageEntryPositions[4].y;
+  textPage->Add(
+      new OptionsSlider(
+          ImageSize, 0.0f, 1.0f, SliderBarBaseSprite, SliderBarFillSprite,
+          highlightBounds.GetPos() + glm::vec2(highlightBounds.Width, 0.0f),
+          highlightBounds, highlight),
+      FDIR_DOWN);
+
+  // Text settings
+  {
+    std::array<const Sprite*, 4> sprites{
+        &SettingNormalSprite, &SettingFastSprite, &SettingInstantSprite,
+        &SettingSlowSprite};
+    addButton(5, sprites);
+  }
+  {
+    std::array<const Sprite*, 3> sprites{
+        &SettingNormalSprite, &SettingFastSprite, &SettingSlowSprite};
+    addButton(6, sprites);
+  }
+  {
+    std::array<const Sprite*, 2> sprites{&SettingReadSprite, &SettingAllSprite};
+    addButton(7, sprites);
+  }
+
+  return textPage;
+}
+
+std::unique_ptr<Widgets::Group> OptionsMenu::CreateSoundPage(
+    const std::function<void(OptionsEntry*)>& highlight) {
+  std::unique_ptr<Group> soundPage = std::make_unique<Group>(this);
+  RectF highlightBounds(0.0f, 0.0f, SelectedLabelSprite.ScaledWidth(),
+                        SelectedLabelSprite.ScaledHeight());
+
+  const auto addButton = [&](size_t id, std::span<const Sprite*> sprites) {
+    highlightBounds.X = SoundPageEntryPositions[id].x;
+    highlightBounds.Y = SoundPageEntryPositions[id].y;
+    const glm::vec2 topRight =
+        highlightBounds.GetPos() + glm::vec2(highlightBounds.Width, 0.0f);
+    soundPage->Add(
+        new OptionsButton(sprites, topRight, highlightBounds, highlight),
+        FDIR_DOWN);
+  };
+  const auto addSlider = [&](size_t id, float& value, float min, float max) {
+    highlightBounds.X = SoundPageEntryPositions[id].x;
+    highlightBounds.Y = SoundPageEntryPositions[id].y;
+    const glm::vec2 topRight =
+        highlightBounds.GetPos() + glm::vec2(highlightBounds.Width, 0.0f);
+    soundPage->Add(new OptionsSlider(value, min, max, SliderBarBaseSprite,
+                                     SliderBarFillSprite, topRight,
+                                     highlightBounds, highlight),
+                   FDIR_DOWN);
+  };
+
+  addSlider(0, Audio::GroupVolumes[Audio::ACG_Voice], 0.0f, 1.0f);
+  addSlider(1, Audio::GroupVolumes[Audio::ACG_BGM], 0.0f, 0.5f);
+  addSlider(2, Audio::GroupVolumes[Audio::ACG_SE], 0.0f, 1.0f);
+  addSlider(3, Audio::GroupVolumes[Audio::ACG_Movie], 0.0f, 1.0f);
+  {
+    std::array<const Sprite*, 2> sprites{&SettingDoSprite, &SettingDontSprite};
+    addButton(4, sprites);
+  }
+  {
+    std::array<const Sprite*, 2> sprites{&SettingDontSprite, &SettingDoSprite};
+    addButton(5, sprites);
+  }
+
+  return soundPage;
+}
+
+std::unique_ptr<Widgets::Group> OptionsMenu::CreateVoicePage(
+    const std::function<void(OptionsEntry*)>& highlight) {
+  std::unique_ptr<Group> voicePage = std::make_unique<Group>(this);
+  RectF highlightBounds(0.0f, 0.0f, SelectedLabelSprite.ScaledWidth(),
+                        SelectedLabelSprite.ScaledHeight());
+
+  for (size_t i = 0; i < VoicePageEntryPositions.size(); i++) {
+    highlightBounds.X = VoicePageEntryPositions[i].x;
+    highlightBounds.Y = VoicePageEntryPositions[i].y;
+    const glm::vec2 topRight =
+        highlightBounds.GetPos() + glm::vec2(highlightBounds.Width, 0.0f);
+
+    voicePage->Add(
+        new OptionsSlider(Profile::ConfigSystem::VoiceVolume[i], 0.0f, 1.0f,
+                          SliderBarBaseSprite, SliderBarFillSprite, topRight,
+                          highlightBounds, highlight),
+        FDIR_DOWN);
+  }
+
+  return voicePage;
 }
 
 void OptionsMenu::Hide() {
@@ -97,6 +235,23 @@ void OptionsMenu::Render() {
     DrawButtonPrompt();
   }
 
+  if (CurrentlyFocusedElement != nullptr) {
+    const float y = CurrentlyFocusedElement->Bounds.Y;
+    for (float x = SelectedSprite.ScaledWidth() * -SelectedAnimation.Progress;
+         x < Profile::DesignWidth; x += SelectedSprite.ScaledWidth()) {
+      Renderer->DrawSprite(SelectedSprite, {x, y});
+    }
+
+    Renderer->DrawSprite(SelectedLabelSprite,
+                         CurrentlyFocusedElement->Bounds.GetPos());
+    const glm::vec2 dotOffset =
+        CurrentPage == static_cast<size_t>(PageType::Voice)
+            ? SelectedDotVoicesOffset
+            : SelectedDotOffset;
+    Renderer->DrawSprite(SelectedDotSprite,
+                         CurrentlyFocusedElement->Bounds.GetPos() + dotOffset);
+  }
+
   switch (CurrentPage) {
     case static_cast<int>(PageType::Text):
       Renderer->DrawSprite(BasicSettingsSprite, BasicSettingsPos);
@@ -113,6 +268,8 @@ void OptionsMenu::Render() {
                  "Unexpected options menu page {:d}", CurrentPage);
       break;
   }
+
+  Pages[CurrentPage]->Render();
 }
 
 void OptionsMenu::UpdateVisibility() {
@@ -150,6 +307,8 @@ void OptionsMenu::Update(float dt) {
     }
     TitleFade.Update(dt);
     UpdateTitles();
+
+    SelectedAnimation.Update(dt);
   }
 }
 
