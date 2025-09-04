@@ -84,6 +84,16 @@ inline std::array<glm::vec2, 8> TextPageEntryPositions;
 inline std::array<glm::vec2, 6> SoundPageEntryPositions;
 inline std::array<glm::vec2, 11> VoicePageEntryPositions;
 
+inline std::array<bool, 2> TriggerStopSkipValues;
+inline std::array<bool, 2> ShowTipsNotificationValues;
+inline std::array<uint8_t, 4> AutoQuickSaveValues;
+inline std::array<uint8_t, 2> ControllerTypeValues;
+inline std::array<float, 4> TextSpeedValues;
+inline std::array<float, 3> AutoSpeedValues;
+inline std::array<bool, 2> SkipReadValues;
+inline std::array<bool, 2> SyncVoiceValues;
+inline std::array<bool, 2> SkipVoiceValues;
+
 void Configure();
 
 }  // namespace OptionsMenu
