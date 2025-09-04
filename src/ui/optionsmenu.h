@@ -29,6 +29,7 @@ class OptionsMenu : public Menu {
   Animation FadeAnimation;
 
   int CurrentPage = 0;
+  int PreviousPage = 0;
   std::vector<std::unique_ptr<Widgets::Group>> Pages;
 
   TurboOnHoldHandler DirectionButtonHeldHandler;

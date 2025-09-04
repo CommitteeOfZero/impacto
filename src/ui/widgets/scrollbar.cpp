@@ -174,6 +174,8 @@ void Scrollbar::Render() {
 }
 
 void Scrollbar::Move(glm::vec2 relativePosition) {
+  Widget::Move(relativePosition);
+
   TrackBounds += relativePosition;
   ThumbBounds += relativePosition;
 }
