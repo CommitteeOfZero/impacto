@@ -100,6 +100,26 @@ void Configure() {
                             VoicePageEntryPositions.size(),
                             "VoicePageEntryPositions");
 
+  GetMemberArray<bool>(TriggerStopSkipValues.data(),
+                       TriggerStopSkipValues.size(), "TriggerStopSkipValues");
+  GetMemberArray<bool>(ShowTipsNotificationValues.data(),
+                       ShowTipsNotificationValues.size(),
+                       "ShowTipsNotificationValues");
+  GetMemberArray<uint8_t>(AutoQuickSaveValues.data(),
+                          AutoQuickSaveValues.size(), "AutoQuickSaveValues");
+  GetMemberArray<uint8_t>(ControllerTypeValues.data(),
+                          ControllerTypeValues.size(), "ControllerTypeValues");
+  GetMemberArray<float>(TextSpeedValues.data(), TextSpeedValues.size(),
+                        "TextSpeedValues");
+  GetMemberArray<float>(AutoSpeedValues.data(), AutoSpeedValues.size(),
+                        "AutoSpeedValues");
+  GetMemberArray<bool>(SkipReadValues.data(), SkipReadValues.size(),
+                       "SkipReadValues");
+  GetMemberArray<bool>(SyncVoiceValues.data(), SyncVoiceValues.size(),
+                       "SyncVoiceValues");
+  GetMemberArray<bool>(SkipVoiceValues.data(), SkipVoiceValues.size(),
+                       "SkipVoiceValues");
+
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMember<uint8_t>("DrawType"));
 
