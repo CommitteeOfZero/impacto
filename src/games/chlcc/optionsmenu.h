@@ -22,6 +22,8 @@ class OptionsMenu : public UI::OptionsMenu {
   void Render() override;
 
  private:
+  void UpdateSelectedLabel(float dt);
+
   void DrawCircles();
   void DrawErin();
   void DrawRedBar();
@@ -41,6 +43,7 @@ class OptionsMenu : public UI::OptionsMenu {
   Animation FromSystemMenuTransition;
 
   Animation SelectedAnimation;
+  glm::vec2 SelectedLabelPos;
 
   glm::vec2 RedTitleLabelPos;
   glm::vec2 RightTitlePos;
