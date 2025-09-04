@@ -9,8 +9,14 @@ namespace ConfigSystem {
 
 constexpr int VoiceCount = 33;
 
+BETTER_ENUM(AutoQuickSaveType, uint8_t, Never = 0, OnTrigger = (1 << 0),
+            OnScene = (1 << 1))
+
 namespace Default {
 inline bool ShowTipsNotification = true;
+inline uint8_t AutoQuickSave =
+    AutoQuickSaveType::OnTrigger | AutoQuickSaveType::OnScene;
+inline uint8_t ControllerType = 0;
 inline bool AdvanceTextOnDirectionalInput = false;
 inline bool DirectionalInputForTrigger = false;
 inline bool TriggerStopSkip = true;
@@ -29,6 +35,12 @@ inline std::array<float, Audio::ACG_Count> GroupVolumes;
 
 // Add new tips to the tips notification rendering queue
 inline bool ShowTipsNotification = Default::ShowTipsNotification;
+
+// When should the game automatically quick save
+inline uint8_t AutoQuickSave = Default::AutoQuickSave;
+
+// What controller scheme to use
+inline uint8_t ControllerType = Default::ControllerType;
 
 // Advance text on L/R stick, arrow keys, etc.
 inline bool AdvanceTextOnDirectionalInput =
