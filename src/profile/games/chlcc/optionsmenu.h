@@ -46,6 +46,9 @@ inline glm::vec2 SelectedDotOffset;
 inline glm::vec2 SelectedDotVoicesOffset;
 inline Sprite VoiceMutedSprite;
 
+inline float SelectedLabelBaseSpeed;
+inline float SelectedLabelModalDistancePerEntry;
+
 inline Sprite BasicSettingsSprite;
 inline glm::vec2 BasicSettingsPos;
 inline Sprite TextSettingsSprite;
