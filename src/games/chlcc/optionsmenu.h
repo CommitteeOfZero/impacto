@@ -19,10 +19,14 @@ class OptionsMenu : public UI::OptionsMenu {
 
   void Hide() override;
   void Update(float dt) override;
+  void UpdateInput(float dt) override;
   void Render() override;
 
  private:
   void UpdateSelectedLabel(float dt);
+
+  void RenderPage(size_t pageId, glm::vec2 offset);
+  void GoToPage(int pageNumber) override;
 
   void DrawCircles();
   void DrawErin();
@@ -41,6 +45,10 @@ class OptionsMenu : public UI::OptionsMenu {
 
   Animation TitleFade;
   Animation FromSystemMenuTransition;
+
+  Animation PageTransitionAnimation;
+  glm::vec2 PageTransitionComingOffset{0.0f, 0.0f};
+  glm::vec2 PageTransitionGoingOffset{0.0f, 0.0f};
 
   Animation SelectedAnimation;
   glm::vec2 SelectedLabelPos;
