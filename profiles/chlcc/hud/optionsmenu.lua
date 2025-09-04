@@ -45,6 +45,9 @@ root.OptionsMenu = {
     SelectedDotVoicesOffset = { X = -10, Y = 10 },
     VoiceMutedSprite = "VoiceMutedSprite",
 
+    SelectedLabelBaseSpeed = 49 / (4 / 60),
+    SelectedLabelModalDistancePerEntry = 49,
+
     BasicSettingsSprite = "BasicSettingsSprite",
     BasicSettingsPos = { X = 0, Y = 46 },
     TextSettingsSprite = "TextSettingsSprite",

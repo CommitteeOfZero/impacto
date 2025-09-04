@@ -61,6 +61,8 @@ OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
   Pages.emplace_back(CreateVoicePage(highlight));
 
   Highlight(Pages[CurrentPage]->GetFirstFocusableChild());
+  SelectedLabelPos =
+      Pages[CurrentPage]->GetFirstFocusableChild()->Bounds.GetPos();
 }
 
 std::unique_ptr<Widgets::Group> OptionsMenu::CreateTextPage(
@@ -255,20 +257,17 @@ void OptionsMenu::Render() {
   }
 
   if (CurrentlyFocusedElement != nullptr) {
-    const float y = CurrentlyFocusedElement->Bounds.Y;
     for (float x = SelectedSprite.ScaledWidth() * -SelectedAnimation.Progress;
          x < Profile::DesignWidth; x += SelectedSprite.ScaledWidth()) {
-      Renderer->DrawSprite(SelectedSprite, {x, y});
+      Renderer->DrawSprite(SelectedSprite, {x, SelectedLabelPos.y});
     }
 
-    Renderer->DrawSprite(SelectedLabelSprite,
-                         CurrentlyFocusedElement->Bounds.GetPos());
+    Renderer->DrawSprite(SelectedLabelSprite, SelectedLabelPos);
     const glm::vec2 dotOffset =
         CurrentPage == static_cast<size_t>(PageType::Voice)
             ? SelectedDotVoicesOffset
             : SelectedDotOffset;
-    Renderer->DrawSprite(SelectedDotSprite,
-                         CurrentlyFocusedElement->Bounds.GetPos() + dotOffset);
+    Renderer->DrawSprite(SelectedDotSprite, SelectedLabelPos + dotOffset);
   }
 
   switch (CurrentPage) {
@@ -310,6 +309,30 @@ void OptionsMenu::UpdateVisibility() {
   }
 }
 
+void OptionsMenu::UpdateSelectedLabel(float dt) {
+  if (CurrentlyFocusedElement == nullptr ||
+      SelectedLabelPos.y == CurrentlyFocusedElement->Bounds.Y)
+    return;
+
+  const float currentY = SelectedLabelPos.y;
+  const float targetY = CurrentlyFocusedElement->Bounds.Y;
+
+  // Not exactly how the binary does it, but this is smoother
+  const float entriesLeft =
+      std::abs(currentY - targetY) / SelectedLabelModalDistancePerEntry;
+  const float speedMultiplier =
+      1.0f + 3.0f * glm::smoothstep(0.0f, 4.0f, entriesLeft);
+  const float pixelsMoved = SelectedLabelBaseSpeed * speedMultiplier * dt;
+
+  if (SelectedLabelPos.y < CurrentlyFocusedElement->Bounds.Y) {
+    SelectedLabelPos.y = std::min(SelectedLabelPos.y + pixelsMoved,
+                                  CurrentlyFocusedElement->Bounds.Y);
+  } else {
+    SelectedLabelPos.y = std::max(SelectedLabelPos.y - pixelsMoved,
+                                  CurrentlyFocusedElement->Bounds.Y);
+  }
+}
+
 void OptionsMenu::Update(float dt) {
   UI::OptionsMenu::Update(dt);
 
@@ -329,6 +352,8 @@ void OptionsMenu::Update(float dt) {
     UpdateTitles();
 
     SelectedAnimation.Update(dt);
+
+    UpdateSelectedLabel(dt);
   }
 }
 
