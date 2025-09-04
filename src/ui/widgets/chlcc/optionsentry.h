@@ -22,7 +22,6 @@ class OptionsEntry : public Widget {
   virtual void Hide() override;
 
   virtual void Move(glm::vec2 relativePos) override;
-  virtual void MoveTo(glm::vec2 pos) override;
 
  protected:
   bool Enabled = false;

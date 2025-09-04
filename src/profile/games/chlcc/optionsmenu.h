@@ -34,6 +34,9 @@ inline float TitleFadeInDuration;
 inline float TitleFadeOutDuration;
 inline Sprite MenuTitleText;
 
+inline float PageRotationAngle;
+inline float PageTransitionDuration;
+
 inline Sprite ButtonPromptSprite;
 inline glm::vec2 ButtonPromptPosition;
 

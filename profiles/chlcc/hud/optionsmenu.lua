@@ -30,6 +30,12 @@ root.OptionsMenu = {
     TitleFadeOutDuration = 28 / 60,
     MenuTitleText = "MenuTitleTextConfig",
 
+    -- (π / 2) * 0.56 in the binary, but the voice page blips out too early lol
+    -- Does mean the rotation is slightly faster than in the original,
+    -- but I'd rather preserve the rotation's duration over its angular velocity
+    PageRotationAngle = (3.14159 / 2) * 0.56 * 1.25,
+    PageTransitionDuration = 32 / 60;
+
     ButtonPromptSprite = "ButtonPromptConfig",
     ButtonPromptPosition = { X = 685, Y = 651 },
 

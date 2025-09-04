@@ -40,6 +40,9 @@ void Configure() {
   TitleFadeOutDuration = EnsureGetMember<float>("TitleFadeOutDuration");
   MenuTitleText = EnsureGetMember<Sprite>("MenuTitleText");
 
+  PageRotationAngle = EnsureGetMember<float>("PageRotationAngle");
+  PageTransitionDuration = EnsureGetMember<float>("PageTransitionDuration");
+
   ButtonPromptSprite = EnsureGetMember<Sprite>("ButtonPromptSprite");
   ButtonPromptPosition = EnsureGetMember<glm::vec2>("ButtonPromptPosition");
 

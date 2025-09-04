@@ -35,7 +35,7 @@ class Widget {
   virtual void Move(glm::vec2 relativePosition, float duration);
   virtual void Move(glm::vec2 relativePosition);
   virtual void MoveTo(glm::vec2 pos, float duration);
-  virtual void MoveTo(glm::vec2 pos);
+  virtual void MoveTo(glm::vec2 pos) { Move(pos - Bounds.GetPos()); }
 
   virtual Widget* GetFocus(FocusDirection dir);
   virtual void SetFocus(Widget* widget, FocusDirection dir);

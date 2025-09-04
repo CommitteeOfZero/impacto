@@ -95,11 +95,6 @@ void OptionsSlider::Move(glm::vec2 relativePos) {
   Slider.Move(relativePos);
 }
 
-void OptionsSlider::MoveTo(glm::vec2 pos) {
-  OptionsEntry::MoveTo(pos);
-  Slider.MoveTo(pos);
-}
-
 }  // namespace CHLCC
 }  // namespace Widgets
 }  // namespace UI

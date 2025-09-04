@@ -40,11 +40,6 @@ void OptionsEntry::Move(glm::vec2 relativePos) {
   EntryButton.Move(relativePos);
 }
 
-void OptionsEntry::MoveTo(glm::vec2 pos) {
-  Widget::MoveTo(pos);
-  EntryButton.MoveTo(pos);
-}
-
 }  // namespace CHLCC
 }  // namespace Widgets
 }  // namespace UI

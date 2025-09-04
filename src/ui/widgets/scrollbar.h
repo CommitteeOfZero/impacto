@@ -32,7 +32,6 @@ class Scrollbar : public Widget {
   virtual void Render() override;
 
   void Move(glm::vec2 relativePosition) override;
-  void MoveTo(glm::vec2 pos) override;
 
   void ClampValue();
   float GetNormalizedValue() const {
