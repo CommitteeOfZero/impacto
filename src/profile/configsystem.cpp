@@ -58,6 +58,9 @@ void Configure() {
       GetMemberArray(Default::VoiceVolume.data(), voiceCount, "VoiceVolume");
     }
 
+    Default::ImageSize =
+        TryGetMember<float>("ImageSize").value_or(Default::ImageSize);
+
     Pop();
   }
 
@@ -82,6 +85,8 @@ void ResetToDefault() {
   std::ranges::copy(Default::VoiceMuted, VoiceMuted.begin());
   std::ranges::copy(Default::VoiceVolume, VoiceVolume.begin());
   std::ranges::copy(Default::GroupVolumes, Audio::GroupVolumes.begin());
+
+  ImageSize = Default::ImageSize;
 }
 
 }  // namespace ConfigSystem
