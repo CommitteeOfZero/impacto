@@ -7,9 +7,11 @@ namespace UI {
 namespace Widgets {
 namespace CHLCC {
 
+template <typename T>
 class OptionsButton : public OptionsEntry {
  public:
-  OptionsButton(std::span<const Sprite*> optionsSprites, glm::vec2 topRight,
+  OptionsButton(T& value, std::span<const T> optionsValues,
+                std::span<const Sprite*> optionsSprites, glm::vec2 topRight,
                 RectF hoverBounds,
                 std::function<void(OptionsEntry*)> highlight);
 
@@ -17,13 +19,16 @@ class OptionsButton : public OptionsEntry {
   void UpdateInput(float dt) override;
 
  private:
-  void SetOption(int optionId);
+  size_t GetCurrentOptionId();
 
+  T& Value;
+
+  std::vector<T> OptionsValues;
   std::vector<const Sprite*> OptionsSprites;
   ClickArea OptionClickArea;
 
-  size_t OptionId = 0;
   size_t OptionCount;
+  size_t OptionId;
 
   glm::vec2 TopRight;
 };

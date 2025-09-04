@@ -112,6 +112,21 @@ root.OptionsMenu = {
         { X = 104, Y = 537 },
         { X = 104, Y = 583 },
     },
+
+    TriggerStopSkipValues = { true, false },
+    ShowTipsNotificationValues = { true, false },
+    AutoQuickSaveValues = {
+        AutoQuickSaveType.OnTrigger | AutoQuickSaveType.OnScene,
+        AutoQuickSaveType.Never,
+        AutoQuickSaveType.OnTrigger,
+        AutoQuickSaveType.OnScene
+    },
+    ControllerTypeValues = { 0, 1 },
+    TextSpeedValues = { 0x300 / 60, 0x600 / 60, 0xfff0000 / 60, 0x100 / 60 },
+    AutoSpeedValues = { 0x300 / 60, 0x600 / 60, 0x100 / 60 },
+    SkipReadValues = { true, false },
+    SyncVoiceValues = { true, false },
+    SkipVoiceValues = { false, true },
 };
 
 root.Sprites["CircleConfig"] = {
