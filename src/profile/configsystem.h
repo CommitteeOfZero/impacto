@@ -31,6 +31,8 @@ inline bool SkipVoice = false;
 inline std::array<bool, VoiceCount> VoiceMuted;
 inline std::array<float, VoiceCount> VoiceVolume;
 inline std::array<float, Audio::ACG_Count> GroupVolumes;
+
+inline float ImageSize = 1.0f;
 }  // namespace Default
 
 // Add new tips to the tips notification rendering queue
@@ -75,6 +77,9 @@ inline bool SkipVoice = Default::SkipVoice;
 // Individual character mute/volume settings
 inline std::array<bool, VoiceCount> VoiceMuted;
 inline std::array<float, VoiceCount> VoiceVolume;
+
+// Scalar for the the viewport to render onto the window
+inline float ImageSize;
 
 void Configure();
 void ResetToDefault();
