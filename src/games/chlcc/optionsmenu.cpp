@@ -47,6 +47,8 @@ OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
   RedBarSprite = InitialRedBarSprite;
   RedBarPosition = InitialRedBarPosition;
 
+  PageTransitionAnimation.SetDuration(PageTransitionDuration);
+
   SelectedAnimation.DurationIn = SelectedSlideDuration;
   SelectedAnimation.LoopMode = AnimationLoopMode::Loop;
   SelectedAnimation.StartIn();
@@ -219,6 +221,29 @@ void OptionsMenu::Hide() {
   UI::OptionsMenu::Hide();
 }
 
+void OptionsMenu::RenderPage(const size_t pageId, const glm::vec2 offset) {
+  switch (pageId) {
+    case static_cast<int>(PageType::Text):
+      Renderer->DrawSprite(BasicSettingsSprite, BasicSettingsPos + offset);
+      Renderer->DrawSprite(TextSettingsSprite, TextSettingsPos + offset);
+      break;
+    case static_cast<int>(PageType::Sound):
+      Renderer->DrawSprite(SoundSettingsSprite, SoundSettingsPos + offset);
+      break;
+    case static_cast<int>(PageType::Voice):
+      Renderer->DrawSprite(VoiceSettingsSprite, VoiceSettingsPos + offset);
+      break;
+    default:
+      ImpLogSlow(LogLevel::Warning, LogChannel::General,
+                 "Unexpected options menu page {:d}", pageId);
+      break;
+  }
+
+  Pages[pageId]->Move(offset);
+  Pages[pageId]->Render();
+  Pages[pageId]->Move(-offset);
+}
+
 void OptionsMenu::Render() {
   if (State == Hidden) return;
 
@@ -256,7 +281,8 @@ void OptionsMenu::Render() {
     DrawButtonPrompt();
   }
 
-  if (CurrentlyFocusedElement != nullptr) {
+  if (CurrentlyFocusedElement != nullptr &&
+      PageTransitionAnimation.State == +AnimationState::Stopped) {
     for (float x = SelectedSprite.ScaledWidth() * -SelectedAnimation.Progress;
          x < Profile::DesignWidth; x += SelectedSprite.ScaledWidth()) {
       Renderer->DrawSprite(SelectedSprite, {x, SelectedLabelPos.y});
@@ -270,24 +296,13 @@ void OptionsMenu::Render() {
     Renderer->DrawSprite(SelectedDotSprite, SelectedLabelPos + dotOffset);
   }
 
-  switch (CurrentPage) {
-    case static_cast<int>(PageType::Text):
-      Renderer->DrawSprite(BasicSettingsSprite, BasicSettingsPos);
-      Renderer->DrawSprite(TextSettingsSprite, TextSettingsPos);
-      break;
-    case static_cast<int>(PageType::Sound):
-      Renderer->DrawSprite(SoundSettingsSprite, SoundSettingsPos);
-      break;
-    case static_cast<int>(PageType::Voice):
-      Renderer->DrawSprite(VoiceSettingsSprite, VoiceSettingsPos);
-      break;
-    default:
-      ImpLogSlow(LogLevel::Warning, LogChannel::General,
-                 "Unexpected options menu page {:d}", CurrentPage);
-      break;
+  if (PageTransitionAnimation.State == +AnimationState::Stopped) {
+    RenderPage(CurrentPage, {0.0f, 0.0f});
+  } else {
+    Pages[PreviousPage]->IsShown = true;
+    RenderPage(PreviousPage, PageTransitionGoingOffset);
+    RenderPage(CurrentPage, PageTransitionComingOffset);
   }
-
-  Pages[CurrentPage]->Render();
 }
 
 void OptionsMenu::UpdateVisibility() {
@@ -353,8 +368,53 @@ void OptionsMenu::Update(float dt) {
 
     SelectedAnimation.Update(dt);
 
+    PageTransitionAnimation.Update(dt);
+    if (PageTransitionAnimation.State != +AnimationState::Stopped) {
+      constexpr glm::vec2 anchor = {1.0f, 0.0f};
+
+      float angle =
+          (1.0f - PageTransitionAnimation.Progress) * PageRotationAngle;
+      PageTransitionComingOffset =
+          (glm::vec2(std::cos(angle), std::sin(angle)) - anchor) * 720.0f;
+
+      angle = -PageTransitionAnimation.Progress * PageRotationAngle;
+      PageTransitionGoingOffset =
+          (glm::vec2(std::cos(angle), std::sin(angle)) - anchor) * 720.0f;
+
+      if (PageTransitionAnimation.Direction == AnimationDirection::Out) {
+        std::swap(PageTransitionGoingOffset, PageTransitionComingOffset);
+      }
+    }
+
     UpdateSelectedLabel(dt);
   }
+}
+
+void OptionsMenu::UpdateInput(float dt) {
+  if (State != Shown ||
+      PageTransitionAnimation.State == +AnimationState::Playing)
+    return;
+
+  UI::OptionsMenu::UpdateInput(dt);
+}
+
+void OptionsMenu::GoToPage(int pageNumber) {
+  if (pageNumber == CurrentPage ||
+      PageTransitionAnimation.State != +AnimationState::Stopped)
+    return;
+
+  PreviousPage = CurrentPage;
+  UI::OptionsMenu::GoToPage(pageNumber);
+
+  AnimationDirection direction = PreviousPage > CurrentPage
+                                     ? AnimationDirection::In
+                                     : AnimationDirection::Out;
+  if (PreviousPage == Pages.size() - 1 && CurrentPage == 0)
+    direction = AnimationDirection::Out;
+  else if (PreviousPage == 0 && CurrentPage == Pages.size() - 1)
+    direction = AnimationDirection::In;
+
+  PageTransitionAnimation.Start(direction, true);
 }
 
 inline void OptionsMenu::DrawCircles() {

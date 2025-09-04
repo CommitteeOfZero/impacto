@@ -19,6 +19,8 @@ class OptionsButton : public OptionsEntry {
   void Render() override;
   void UpdateInput(float dt) override;
 
+  void Move(glm::vec2 relativePos) override;
+
  private:
   size_t GetCurrentOptionId();
 

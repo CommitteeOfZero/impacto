@@ -63,6 +63,14 @@ void OptionsButton<T>::UpdateInput(float dt) {
 }
 
 template <typename T>
+void OptionsButton<T>::Move(glm::vec2 relativePos) {
+  OptionsEntry::Move(relativePos);
+
+  TopRight += relativePos;
+  EntryButton.Move(relativePos);
+}
+
+template <typename T>
 size_t OptionsButton<T>::GetCurrentOptionId() {
   const auto found = std::ranges::find(OptionsValues, Value);
 
