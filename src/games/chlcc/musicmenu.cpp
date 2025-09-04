@@ -307,13 +307,13 @@ void MusicMenu::UpdateInput(float dt) {
     const bool downScroll = Input::MouseWheelDeltaY < 0;
 
     DirectionButtonHoldHandler.Update(dt);
+
     const int directionShouldFire = DirectionButtonHoldHandler.ShouldFire();
-    const bool directionMovement =
-        (bool)(directionShouldFire & btnUp || upScroll) ^
-        (bool)(directionShouldFire & btnDown || downScroll);
+    const bool directionMovement = (bool)(directionShouldFire & btnDown) ^
+                                   (bool)(directionShouldFire & btnUp);
 
     if (directionMovement) {
-      const bool dirDown = directionShouldFire & btnDown || downScroll;
+      const bool dirDown = directionShouldFire & btnDown;
       QueuedMove =
           (dirDown ? FocusDirection::FDIR_DOWN : FocusDirection::FDIR_UP);
     } else if (TurboMoved) {
@@ -325,17 +325,14 @@ void MusicMenu::UpdateInput(float dt) {
       float deltaY = 0;
       const bool dirDown = *QueuedMove == FocusDirection::FDIR_DOWN;
       deltaY += dirDown ? TrackOffset.y : -TrackOffset.y;
-      TurboMoved = DirectionButtonHoldHandler.IsTurbo || upScroll || downScroll;
-      const float animationSpeed =
-          TurboMoved ? MusicDirectionalFocusTimeInterval : 0.3f;
+    }
 
-      if (dirDown)
-    } else if ((Input::MouseWheelDeltaY < 0 || directionShouldFire & PAD1L1) &&
-    } else if ((Input::MouseWheelDeltaY < 0 || directionShouldFire & bPAD1L1) &&
-        AdvanceFocus(FocusDirection::FDIR_DOWN);
-      else
-        AdvanceFocus(FocusDirection::FDIR_UP);
-      QueuedMove.reset();
+    if ((Input::MouseWheelDeltaY > 0 || directionShouldFire & btnDown) &&
+        CurrentLowerBound > 0) {
+      AdvanceFocus(FocusDirection::FDIR_UP);
+    } else if ((Input::MouseWheelDeltaY < 0 || directionShouldFire & btnUp) &&
+               CurrentUpperBound < 44) {
+      AdvanceFocus(FocusDirection::FDIR_DOWN);
     }
 
     auto button = static_cast<Widgets::CHLCC::TrackSelectButton*>(
@@ -349,13 +346,13 @@ void MusicMenu::UpdateInput(float dt) {
     } else if (CurrentUpperBound - button->Id >= 16) {
       CurrentLowerBound = button->Id;
       CurrentUpperBound = button->Id + 15;
-    }  // else
-       //  return;
+    }
 
     glm::vec2 offset(0.0f, -(float)CurrentLowerBound * TrackOffset.y);
     MainItems->MoveTo(offset);
     for (auto el : MainItems->Children) {
       auto b = static_cast<Widgets::CHLCC::TrackSelectButton*>(el);
+      b->Hovered = false;
       b->MoveTracks(offset);
     }
   }
