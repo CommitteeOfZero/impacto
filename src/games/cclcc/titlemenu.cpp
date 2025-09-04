@@ -534,7 +534,11 @@ void TitleMenu::Render() {
                       1.0f - ScrWork[SW_TITLEDISPCT] / 60.0f));
       } break;
       case 2: {  // Transition between Press to start and menus
-        DrawMainMenuBackGraphics();
+        if (IsExploding) {
+          DrawMainMenuBackGraphics();
+        } else {
+          DrawDISwordBackground();
+        }
         DrawStartButton();
         TitleAnimationSprite.Render(-1);
         DrawSmoke(SmokeOpacityNormal);
