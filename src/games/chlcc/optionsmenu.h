@@ -46,9 +46,6 @@ class OptionsMenu : public UI::OptionsMenu {
   glm::vec2 RightTitlePos;
 
   enum class PageType { Text = 0, Sound = 1, Voice = 2 };
-
-  // Temp
-  float ImageSize;
 };
 
 }  // namespace CHLCC
