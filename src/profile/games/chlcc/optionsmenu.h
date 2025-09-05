@@ -28,6 +28,11 @@ inline glm::vec2 RedBarPosition;
 inline glm::vec2 RedBarLabelPosition;
 inline Sprite RedBarLabel;
 
+inline float ShowAnimationDuration;
+
+inline float ShowPageAnimationStartTime;
+inline float ShowPageAnimationDuration;
+
 inline glm::vec2 MenuTitleTextRightPosition;
 inline float MenuTitleTextAngle;
 inline float TitleFadeInDuration;

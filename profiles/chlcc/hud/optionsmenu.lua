@@ -24,6 +24,11 @@ root.OptionsMenu = {
     RedBarLabelPosition = { X = 1067, Y = 573 },
     RedBarLabel = "RedBarLabel",
 
+    ShowAnimationDuration = 64 / 60,
+
+    ShowPageAnimationStartTime = 16 / 60,
+    ShowPageAnimationDuration = (48 - 16) / 60,
+
     MenuTitleTextRightPos = { X = 550, Y = 525 },
     MenuTitleTextAngle = 6.02,
     TitleFadeInDuration = 40 / 60,
@@ -31,7 +36,7 @@ root.OptionsMenu = {
     MenuTitleText = "MenuTitleTextConfig",
 
     -- (π / 2) * 0.56 in the binary, but the voice page blips out too early lol
-    -- Does mean the rotation is slightly faster than in the original,
+    -- This does mean the rotation is slightly faster than in the original,
     -- but I'd rather preserve the rotation's duration over its angular velocity
     PageRotationAngle = (3.14159 / 2) * 0.56 * 1.25,
     PageTransitionDuration = 32 / 60;
