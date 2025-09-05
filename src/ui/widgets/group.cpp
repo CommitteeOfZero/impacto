@@ -134,7 +134,7 @@ void Group::Show() {
     HasFocus = true;
     if (!Children.empty()) {
       PreviousFocusElement = MenuContext->CurrentlyFocusedElement;
-      MenuContext->CurrentlyFocusedElement = 0;
+      MenuContext->CurrentlyFocusedElement = nullptr;
       memcpy(PreviousFocusStart, MenuContext->FocusStart,
              sizeof(MenuContext->FocusStart));
       memcpy(MenuContext->FocusStart, FocusStart,
