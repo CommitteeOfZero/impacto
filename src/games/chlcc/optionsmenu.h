@@ -17,14 +17,13 @@ class OptionsMenu : public UI::OptionsMenu {
  public:
   OptionsMenu();
 
+  void Show() override;
   void Hide() override;
   void Update(float dt) override;
   void UpdateInput(float dt) override;
   void Render() override;
 
  private:
-  void UpdateSelectedLabel(float dt);
-
   void RenderPage(size_t pageId, glm::vec2 offset);
   void GoToPage(size_t pageNumber) override;
 
@@ -34,6 +33,9 @@ class OptionsMenu : public UI::OptionsMenu {
   void DrawButtonPrompt();
 
   void UpdateTitles();
+  void UpdatePageShowAnimation(float dt);
+  void UpdateSelectedLabel(float dt);
+
   void UpdateVisibility() override;
 
   std::unique_ptr<Widgets::Group> CreateTextPage(
@@ -45,6 +47,9 @@ class OptionsMenu : public UI::OptionsMenu {
 
   Animation TitleFade;
   Animation FromSystemMenuTransition;
+
+  Animation ShowPageAnimation;
+  glm::vec2 ShowPageOffset{0.0f, 0.0f};
 
   size_t PreviousPage = 0;
 
