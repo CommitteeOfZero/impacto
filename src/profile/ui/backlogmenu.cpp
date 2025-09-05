@@ -53,9 +53,6 @@ void Configure() {
     FadeOutDuration = EnsureGetMember<float>("FadeOutDuration");
 
     ScrollingSpeed = EnsureGetMember<float>("ScrollingSpeed");
-    MinHoldTime = EnsureGetMember<float>("MinHoldTime");
-    AdvanceFocusTimeInterval =
-        EnsureGetMember<float>("AdvanceFocusTimeInterval");
     PageUpDownHeight = EnsureGetMember<float>("PageUpDownHeight");
 
     switch (Type) {
