@@ -55,6 +55,7 @@ root.OptionsMenu = {
     SelectedDotOffset = { X = -9, Y = 10 },
     SelectedDotVoicesOffset = { X = -10, Y = 10 },
     VoiceMutedSprite = "VoiceMutedSprite",
+    VoiceMutedOffset = { X = 23, Y = 0 },
 
     SelectedLabelBaseSpeed = 49 / (4 / 60),
     SelectedLabelModalDistancePerEntry = 49,
@@ -196,7 +197,8 @@ root.Sprites["SelectedDotSprite"] = {
 
 root.Sprites["VoiceMutedSprite"] = {
     Sheet = "Options",
-    Bounds = { X = 1, Y = 602, Width = 39, Height = 39 }
+    Bounds = { X = 1, Y = 602, Width = 39, Height = 39 },
+    BaseScale = { X = 40 / 39, Y = 40 / 39 }
 }
 
 root.Sprites["BasicSettingsSprite"] = {

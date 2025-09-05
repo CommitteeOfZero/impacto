@@ -203,7 +203,7 @@ std::unique_ptr<Widgets::Group> OptionsMenu::CreateVoicePage(
     voicePage->Add(
         new OptionsSlider(Profile::ConfigSystem::VoiceVolume[i], 0.0f, 1.0f,
                           SliderBarBaseSprite, SliderBarFillSprite, topRight,
-                          highlightBounds, highlight),
+                          highlightBounds, highlight, VoiceMutedSprite),
         FDIR_DOWN);
   }
 

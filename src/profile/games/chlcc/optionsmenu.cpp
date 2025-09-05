@@ -62,6 +62,7 @@ void Configure() {
   SelectedDotVoicesOffset =
       EnsureGetMember<glm::vec2>("SelectedDotVoicesOffset");
   VoiceMutedSprite = EnsureGetMember<Sprite>("VoiceMutedSprite");
+  VoiceMutedOffset = EnsureGetMember<glm::vec2>("VoiceMutedOffset");
 
   SelectedLabelBaseSpeed = EnsureGetMember<float>("SelectedLabelBaseSpeed");
   SelectedLabelModalDistancePerEntry =
