@@ -33,6 +33,13 @@ void Configure() {
   RedBarLabelPosition = EnsureGetMember<glm::vec2>("RedBarLabelPosition");
   RedBarLabel = EnsureGetMember<Sprite>("RedBarLabel");
 
+  ShowAnimationDuration = EnsureGetMember<float>("ShowAnimationDuration");
+
+  ShowPageAnimationStartTime =
+      EnsureGetMember<float>("ShowPageAnimationStartTime");
+  ShowPageAnimationDuration =
+      EnsureGetMember<float>("ShowPageAnimationDuration");
+
   MenuTitleTextRightPosition =
       EnsureGetMember<glm::vec2>("MenuTitleTextRightPos");
   MenuTitleTextAngle = EnsureGetMember<float>("MenuTitleTextAngle");

@@ -47,6 +47,8 @@ OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
   RedBarSprite = InitialRedBarSprite;
   RedBarPosition = InitialRedBarPosition;
 
+  ShowPageAnimation.SetDuration(ShowAnimationDuration);
+
   PageTransitionAnimation.SetDuration(PageTransitionDuration);
 
   SelectedAnimation.DurationIn = SelectedSlideDuration;
@@ -208,12 +210,25 @@ std::unique_ptr<Widgets::Group> OptionsMenu::CreateVoicePage(
   return voicePage;
 }
 
+void OptionsMenu::Show() {
+  if (State == Hidden) {
+    ShowPageAnimation.StartIn();
+  }
+
+  UI::OptionsMenu::Show();
+}
+
 void OptionsMenu::Hide() {
   if (State == Shown) {
     SetFlag(SF_SUBMENUEXIT, true);
+    ShowPageAnimation.StartOut();
   }
 
   UI::OptionsMenu::Hide();
+
+  if (State == Hiding) {
+    Pages[CurrentPage]->IsShown = true;
+  }
 }
 
 void OptionsMenu::RenderPage(const size_t pageId, const glm::vec2 offset) {
@@ -274,27 +289,30 @@ void OptionsMenu::Render() {
     DrawButtonPrompt();
   }
 
-  if (CurrentlyFocusedElement != nullptr &&
+  if ((CurrentlyFocusedElement != nullptr || !ShowPageAnimation.IsIn()) &&
       PageTransitionAnimation.State == +AnimationState::Stopped) {
     for (float x = SelectedSprite.ScaledWidth() * -SelectedAnimation.Progress;
          x < Profile::DesignWidth; x += SelectedSprite.ScaledWidth()) {
-      Renderer->DrawSprite(SelectedSprite, {x, SelectedLabelPos.y});
+      Renderer->DrawSprite(SelectedSprite,
+                           glm::vec2(x, SelectedLabelPos.y) + ShowPageOffset);
     }
 
-    Renderer->DrawSprite(SelectedLabelSprite, SelectedLabelPos);
+    Renderer->DrawSprite(SelectedLabelSprite,
+                         SelectedLabelPos + ShowPageOffset);
     const glm::vec2 dotOffset =
         CurrentPage == static_cast<size_t>(PageType::Voice)
             ? SelectedDotVoicesOffset
             : SelectedDotOffset;
-    Renderer->DrawSprite(SelectedDotSprite, SelectedLabelPos + dotOffset);
+    Renderer->DrawSprite(SelectedDotSprite,
+                         SelectedLabelPos + dotOffset + ShowPageOffset);
   }
 
   if (PageTransitionAnimation.State == +AnimationState::Stopped) {
-    RenderPage(CurrentPage, {0.0f, 0.0f});
+    RenderPage(CurrentPage, ShowPageOffset);
   } else {
     Pages[PreviousPage]->IsShown = true;
-    RenderPage(PreviousPage, PageTransitionGoingOffset);
-    RenderPage(CurrentPage, PageTransitionComingOffset);
+    RenderPage(PreviousPage, PageTransitionGoingOffset + ShowPageOffset);
+    RenderPage(CurrentPage, PageTransitionComingOffset + ShowPageOffset);
   }
 }
 
@@ -314,6 +332,30 @@ void OptionsMenu::UpdateVisibility() {
   } else if (FadeAnimation.IsIn() && ScrWork[SW_SYSMENUCT] == 10000 &&
              GetFlag(SF_OPTIONMENU) && State == Showing) {
     State = Shown;
+  }
+}
+
+void OptionsMenu::UpdatePageShowAnimation(float dt) {
+  ShowPageAnimation.Update(dt);
+  ShowPageOffset = {0.0f, 0.0f};
+
+  if (ShowPageAnimation.IsIn()) return;
+
+  const float startProgress =
+      ShowPageAnimationStartTime / ShowAnimationDuration;
+  const float endProgress =
+      startProgress + ShowPageAnimationDuration / ShowAnimationDuration;
+
+  if (startProgress < ShowPageAnimation.Progress &&
+      ShowPageAnimation.Progress < endProgress) {
+    const float progress = (ShowPageAnimation.Progress - startProgress) /
+                           (endProgress - startProgress);
+    const float angle = progress * std::numbers::pi_v<float> * 0.5f;
+
+    ShowPageOffset = {0.0f, (std::sin(angle) - 1.0f) * Profile::DesignHeight};
+
+  } else if (ShowPageAnimation.Progress <= startProgress) {
+    ShowPageOffset = {0.0f, -Profile::DesignHeight};
   }
 }
 
@@ -358,6 +400,8 @@ void OptionsMenu::Update(float dt) {
     }
     TitleFade.Update(dt);
     UpdateTitles();
+
+    UpdatePageShowAnimation(dt);
 
     SelectedAnimation.Update(dt);
 
