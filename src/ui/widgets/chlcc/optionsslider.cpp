@@ -92,11 +92,15 @@ void OptionsSlider::UpdateInput(float dt) {
 void OptionsSlider::Show() {
   OptionsEntry::Show();
   Slider.Show();
+
+  OldProgress = *Slider.Value;
 }
 
 void OptionsSlider::Hide() {
-  Slider.Hide();
+  Changing = false;
+  *Slider.Value = OldProgress;
 
+  Slider.Hide();
   OptionsEntry::Hide();
 }
 
