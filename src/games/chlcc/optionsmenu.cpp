@@ -360,6 +360,8 @@ void OptionsMenu::UpdatePageShowAnimation(float dt) {
 }
 
 void OptionsMenu::UpdateSelectedLabel(float dt) {
+  SelectedAnimation.Update(dt);
+
   if (CurrentlyFocusedElement == nullptr ||
       SelectedLabelPos.y == CurrentlyFocusedElement->Bounds.Y)
     return;
@@ -383,6 +385,26 @@ void OptionsMenu::UpdateSelectedLabel(float dt) {
   }
 }
 
+void OptionsMenu::UpdatePageTransitionAnimation(float dt) {
+  PageTransitionAnimation.Update(dt);
+
+  if (PageTransitionAnimation.State == +AnimationState::Stopped) return;
+
+  constexpr glm::vec2 anchor = {1.0f, 0.0f};
+
+  float angle = (1.0f - PageTransitionAnimation.Progress) * PageRotationAngle;
+  PageTransitionComingOffset =
+      (glm::vec2(std::cos(angle), std::sin(angle)) - anchor) * 720.0f;
+
+  angle = -PageTransitionAnimation.Progress * PageRotationAngle;
+  PageTransitionGoingOffset =
+      (glm::vec2(std::cos(angle), std::sin(angle)) - anchor) * 720.0f;
+
+  if (PageTransitionAnimation.Direction == AnimationDirection::Out) {
+    std::swap(PageTransitionGoingOffset, PageTransitionComingOffset);
+  }
+}
+
 void OptionsMenu::Update(float dt) {
   UI::OptionsMenu::Update(dt);
 
@@ -399,30 +421,10 @@ void OptionsMenu::Update(float dt) {
       FromSystemMenuTransition.StartIn();
     }
     TitleFade.Update(dt);
+
     UpdateTitles();
-
     UpdatePageShowAnimation(dt);
-
-    SelectedAnimation.Update(dt);
-
-    PageTransitionAnimation.Update(dt);
-    if (PageTransitionAnimation.State != +AnimationState::Stopped) {
-      constexpr glm::vec2 anchor = {1.0f, 0.0f};
-
-      float angle =
-          (1.0f - PageTransitionAnimation.Progress) * PageRotationAngle;
-      PageTransitionComingOffset =
-          (glm::vec2(std::cos(angle), std::sin(angle)) - anchor) * 720.0f;
-
-      angle = -PageTransitionAnimation.Progress * PageRotationAngle;
-      PageTransitionGoingOffset =
-          (glm::vec2(std::cos(angle), std::sin(angle)) - anchor) * 720.0f;
-
-      if (PageTransitionAnimation.Direction == AnimationDirection::Out) {
-        std::swap(PageTransitionGoingOffset, PageTransitionComingOffset);
-      }
-    }
-
+    UpdatePageTransitionAnimation(dt);
     UpdateSelectedLabel(dt);
   }
 }
