@@ -93,8 +93,10 @@ void OptionsMenu::UpdatePageInput(float dt) {
     return;
   }
 
-  GoToPage(static_cast<int>((CurrentPage + direction + Pages.size()) %
-                            Pages.size()));
+  const auto nextPage =
+      (static_cast<int>(CurrentPage) + direction + std::ssize(Pages)) %
+      std::ssize(Pages);
+  GoToPage(static_cast<size_t>(nextPage));
 }
 
 void OptionsMenu::UpdateEntryMovementInput(float dt) {
@@ -134,7 +136,7 @@ void OptionsMenu::UpdateInput(float dt) {
   UpdateEntryMovementInput(dt);
 }
 
-void OptionsMenu::GoToPage(int pageNumber) {
+void OptionsMenu::GoToPage(size_t pageNumber) {
   if (CurrentPage == pageNumber) return;
 
   Pages[CurrentPage]->Hide();

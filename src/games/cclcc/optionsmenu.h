@@ -39,7 +39,7 @@ class OptionsMenu : public UI::OptionsMenu {
       const std::function<void(OptionsEntry*)>& select,
       const std::function<void(Widget*)>& highlight);
 
-  void PageButtonOnHover(int pageNumber);
+  void PageButtonOnHover(size_t pageNumber);
 
   void Select(OptionsEntry* entry);
   void Highlight(Widget* entry) override;

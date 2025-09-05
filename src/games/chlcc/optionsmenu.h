@@ -26,7 +26,7 @@ class OptionsMenu : public UI::OptionsMenu {
   void UpdateSelectedLabel(float dt);
 
   void RenderPage(size_t pageId, glm::vec2 offset);
-  void GoToPage(int pageNumber) override;
+  void GoToPage(size_t pageNumber) override;
 
   void DrawCircles();
   void DrawErin();
@@ -45,6 +45,8 @@ class OptionsMenu : public UI::OptionsMenu {
 
   Animation TitleFade;
   Animation FromSystemMenuTransition;
+
+  size_t PreviousPage = 0;
 
   Animation PageTransitionAnimation;
   glm::vec2 PageTransitionComingOffset{0.0f, 0.0f};
