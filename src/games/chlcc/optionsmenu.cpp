@@ -398,7 +398,7 @@ void OptionsMenu::UpdateInput(float dt) {
   UI::OptionsMenu::UpdateInput(dt);
 }
 
-void OptionsMenu::GoToPage(int pageNumber) {
+void OptionsMenu::GoToPage(size_t pageNumber) {
   if (pageNumber == CurrentPage ||
       PageTransitionAnimation.State != +AnimationState::Stopped)
     return;
