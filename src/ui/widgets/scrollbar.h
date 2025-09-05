@@ -31,6 +31,8 @@ class Scrollbar : public Widget {
   virtual void Update(float dt) override;
   virtual void Render() override;
 
+  void Hide() override;
+
   void Move(glm::vec2 relativePosition) override;
 
   void ClampValue();
