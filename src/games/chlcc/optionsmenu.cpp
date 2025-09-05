@@ -35,6 +35,9 @@ using namespace Impacto::UI::Widgets;
 using namespace Impacto::UI::Widgets::CHLCC;
 
 OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
+  RememberLastPage = true;
+  RememberHighlightedEntries = true;
+
   TitleFade.Direction = AnimationDirection::In;
   TitleFade.LoopMode = AnimationLoopMode::Stop;
   TitleFade.DurationIn = TitleFadeInDuration;
@@ -65,9 +68,12 @@ OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
   Pages.emplace_back(CreateSoundPage(highlight));
   Pages.emplace_back(CreateVoicePage(highlight));
 
-  Highlight(Pages[CurrentPage]->GetFirstFocusableChild());
-  SelectedLabelPos =
-      Pages[CurrentPage]->GetFirstFocusableChild()->Bounds.GetPos();
+  HighlightedEntriesPerPage.reserve(Pages.size());
+  for (std::unique_ptr<Group>& page : Pages) {
+    HighlightedEntriesPerPage.push_back(page->GetFirstFocusableChild());
+  }
+
+  SelectedLabelPos = HighlightedEntriesPerPage[CurrentPage]->Bounds.GetPos();
 }
 
 std::unique_ptr<Widgets::Group> OptionsMenu::CreateTextPage(

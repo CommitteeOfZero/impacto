@@ -26,6 +26,10 @@ class OptionsMenu : public Menu {
 
   virtual void Highlight(Widget* toHighlight);
 
+  bool RememberLastPage = false;
+  bool RememberHighlightedEntries = false;
+  std::vector<Widget*> HighlightedEntriesPerPage;
+
   Animation FadeAnimation;
 
   size_t CurrentPage = 0;

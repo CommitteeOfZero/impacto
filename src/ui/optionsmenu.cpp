@@ -29,10 +29,13 @@ void OptionsMenu::Show() {
     if (State != Showing) {
       FadeAnimation.StartIn();
 
-      CurrentPage = 0;
-      Pages[0]->HasFocus = true;
-      Pages[0]->Show();
-      Highlight(Pages[0]->GetFirstFocusableChild());
+      if (!RememberLastPage) CurrentPage = 0;
+      Pages[CurrentPage]->HasFocus = true;
+      Pages[CurrentPage]->Show();
+
+      Highlight(RememberHighlightedEntries
+                    ? HighlightedEntriesPerPage[CurrentPage]
+                    : Pages[CurrentPage]->GetFirstFocusableChild());
 
       DirectionButtonHeldHandler.Reset();
       PageButtonHeldHandler.Reset();
@@ -146,12 +149,12 @@ void OptionsMenu::GoToPage(size_t pageNumber) {
 
   page->HasFocus = true;
   page->Show();
-  Highlight(page->GetFirstFocusableChild());
+
+  Highlight(RememberHighlightedEntries ? HighlightedEntriesPerPage[CurrentPage]
+                                       : page->GetFirstFocusableChild());
 }
 
 void OptionsMenu::Highlight(Widget* toHighlight) {
-  if (CurrentlyFocusedElement == toHighlight) return;
-
   for (Widget* entry : Pages[CurrentPage]->Children) {
     entry->HasFocus = false;
   }
@@ -166,6 +169,7 @@ void OptionsMenu::Highlight(Widget* toHighlight) {
         (PAD1RIGHT * (bool)toHighlight->GetFocus(FDIR_RIGHT));
   }
   CurrentlyFocusedElement = toHighlight;
+  HighlightedEntriesPerPage[CurrentPage] = CurrentlyFocusedElement;
 }
 
 }  // namespace UI
