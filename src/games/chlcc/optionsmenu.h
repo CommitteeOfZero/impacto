@@ -32,6 +32,8 @@ class OptionsMenu : public UI::OptionsMenu {
   void DrawRedBar();
   void DrawButtonPrompt();
 
+  void UpdatePageInput(float dt) override;
+
   void UpdateTitles();
   void UpdatePageShowAnimation(float dt);
   void UpdatePageTransitionAnimation(float dt);

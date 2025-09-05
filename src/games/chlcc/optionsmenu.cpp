@@ -14,6 +14,7 @@
 #include "../../io/memorystream.h"
 #include "../../data/tipssystem.h"
 #include "../../vm/interface/input.h"
+#include "../../inputsystem.h"
 #include "../../profile/game.h"
 
 #include "../../profile/configsystem.h"
@@ -320,6 +321,18 @@ void OptionsMenu::Render() {
     Pages[PreviousPage]->IsShown = true;
     RenderPage(PreviousPage, PageTransitionGoingOffset + ShowPageOffset);
     RenderPage(CurrentPage, PageTransitionComingOffset + ShowPageOffset);
+  }
+}
+
+void OptionsMenu::UpdatePageInput(float dt) {
+  UI::OptionsMenu::UpdatePageInput(dt);
+
+  if (PageTransitionAnimation.State == +AnimationState::Playing) return;
+
+  if (Input::MouseWheelDeltaY > 0.0f) {
+    GoToPage((CurrentPage + Pages.size() - 1) % Pages.size());
+  } else if (Input::MouseWheelDeltaY < 0.0f) {
+    GoToPage((CurrentPage + 1) % Pages.size());
   }
 }
 
