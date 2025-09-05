@@ -173,6 +173,11 @@ void Scrollbar::Render() {
                        Tint);
 }
 
+void Scrollbar::Hide() {
+  Widget::Hide();
+  ScrollHeld = false;
+}
+
 void Scrollbar::Move(glm::vec2 relativePosition) {
   Widget::Move(relativePosition);
 
