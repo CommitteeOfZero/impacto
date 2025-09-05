@@ -34,6 +34,7 @@ class OptionsMenu : public UI::OptionsMenu {
 
   void UpdateTitles();
   void UpdatePageShowAnimation(float dt);
+  void UpdatePageTransitionAnimation(float dt);
   void UpdateSelectedLabel(float dt);
 
   void UpdateVisibility() override;
