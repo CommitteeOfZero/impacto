@@ -911,6 +911,12 @@ VmInstruction(InstDebugData) {
 VmInstruction(InstAutoSave) {
   StartInstruction;
   auto quickSave = [&](int autosaveRestartCheck, int saveType) {
+    using namespace Profile::ConfigSystem;
+    if (!(AutoQuickSave & AutoQuickSaveType::OnScene) ||
+        GetFlag(SF_SAVEDISABLE)) {
+      return;
+    }
+
     if (ScrWork[SW_AUTOSAVERESTART] != autosaveRestartCheck) {
       int quicksaveEntries = SaveSystem::GetQuickSaveOpenSlot();
       if (quicksaveEntries != -1) {
