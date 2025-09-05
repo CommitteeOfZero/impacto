@@ -95,6 +95,8 @@ void OpenALAudioChannel::Resume() {
 }
 
 float OpenALAudioChannel::PositionInSeconds() const {
+  if (Stream == nullptr) return 0.0f;
+
   int offset;
   alGetSourcei(Source, AL_SAMPLE_OFFSET, &offset);
 
