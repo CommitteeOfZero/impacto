@@ -25,7 +25,9 @@ void OptionsMenu::NextPageOnClick(Widgets::Button* target) {
 }
 
 void OptionsMenu::PreviousPageOnClick(Widgets::Button* target) {
-  GoToPage((CurrentPage - 1) % Pages.size());
+  GoToPage(static_cast<size_t>(
+      (static_cast<int>(CurrentPage) - 1 + std::ssize(Pages)) %
+      std::ssize(Pages)));
 }
 
 void OptionsMenu::MessageSpeedToggleOnClick(Widgets::Toggle* target) {
@@ -266,7 +268,7 @@ void OptionsMenu::UpdatePageInput(float dt) {
 
 void OptionsMenu::Show() {
   if (State != Showing) {
-    PreviousPage = -1;
+    PreviousPage.reset();
   }
 
   UI::OptionsMenu::Show();
@@ -302,9 +304,9 @@ void OptionsMenu::Update(float dt) {
 
   if (State != Hidden) {
     if (PageFadeAnimation.State == AnimationState::Playing) {
-      Pages[PreviousPage]->Update(dt);
-    } else if (PreviousPage != -1 && Pages[PreviousPage]->IsShown) {
-      Pages[PreviousPage]->Hide();
+      Pages[*PreviousPage]->Update(dt);
+    } else if (PreviousPage.has_value() && Pages[*PreviousPage]->IsShown) {
+      Pages[*PreviousPage]->Hide();
       Pages[CurrentPage]->Show();
     }
   }
@@ -318,7 +320,7 @@ void OptionsMenu::Render() {
 
     std::unique_ptr<Group>& currentPage = Pages[CurrentPage];
     if (PageFadeAnimation.State == AnimationState::Playing) {
-      std::unique_ptr<Group>& previousPage = Pages[PreviousPage];
+      std::unique_ptr<Group>& previousPage = Pages[*PreviousPage];
 
       currentPage->Tint = col;
       previousPage->Tint = col;
@@ -339,7 +341,7 @@ void OptionsMenu::Render() {
   }
 }
 
-void OptionsMenu::GoToPage(int pageNumber) {
+void OptionsMenu::GoToPage(size_t pageNumber) {
   if (CurrentPage == pageNumber) return;
 
   PreviousPage = CurrentPage;

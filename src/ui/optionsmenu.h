@@ -19,7 +19,7 @@ class OptionsMenu : public Menu {
  protected:
   OptionsMenu();
 
-  virtual void GoToPage(int pageNumber);
+  virtual void GoToPage(size_t pageNumber);
   virtual void UpdatePageInput(float dt);
   virtual void UpdateEntryMovementInput(float dt);
   virtual void UpdateVisibility() = 0;
@@ -28,8 +28,7 @@ class OptionsMenu : public Menu {
 
   Animation FadeAnimation;
 
-  int CurrentPage = 0;
-  int PreviousPage = 0;
+  size_t CurrentPage = 0;
   std::vector<std::unique_ptr<Widgets::Group>> Pages;
 
   TurboOnHoldHandler DirectionButtonHeldHandler;
