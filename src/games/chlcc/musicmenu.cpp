@@ -7,6 +7,7 @@
 #include "../../data/savesystem.h"
 #include "../../background2d.h"
 #include "../../vm/interface/input.h"
+#include "../../inputsystem.h"
 
 #include "../../ui/widgets/chlcc/trackselectbutton.h"
 
@@ -27,7 +28,10 @@ void MusicMenu::MusicButtonOnClick(Button* target) {
   SwitchToTrack(target->Id);
 }
 
-MusicMenu::MusicMenu() {
+MusicMenu::MusicMenu()
+    : DirectionButtonHoldHandler(
+          MusicDirectionalHoldTime, MusicDirectionalFocusTimeInterval,
+          Vm::Interface::PAD1UP | Vm::Interface::PAD1DOWN) {
   MenuTransition.Direction = AnimationDirection::In;
   MenuTransition.LoopMode = AnimationLoopMode::Stop;
   MenuTransition.SetDuration(MenuTransitionDuration);
@@ -193,271 +197,320 @@ void MusicMenu::Render() {
                       MainItems->Children[CurrentlyPlayingTrackId]->Bounds.Y) +
                 HighlightStarRelativePos);
       }
+      DrawButtonPrompt();
     }
   }
 }
 
 void MusicMenu::Update(float dt) {
-  if ((!GetFlag(SF_SOUNDMENU) || ScrWork[SW_SYSMENUCT] < 10000) &&
-      State == Shown) {
-    Hide();
-  } else if (GetFlag(SF_SOUNDMENU) && ScrWork[SW_SYSMENUCT] > 0 &&
-             State == Hidden) {
-    Show();
-  }
+  UpdateInput(dt);
+  if (ScrWork[SW_SYSMENUCT] < 10000 && State == Shown) {
+    if ((!GetFlag(SF_SOUNDMENU) || ScrWork[SW_SYSMENUCT] < 10000) &&
+        State == Shown) {
+      Hide();
+    } else if (GetFlag(SF_SOUNDMENU) && ScrWork[SW_SYSMENUCT] > 0 &&
+               State == Hidden) {
+      Show();
+    }
 
-  if (MenuTransition.IsOut() &&
-      (ScrWork[SW_SYSMENUCT] == 0 || GetFlag(SF_SYSTEMMENU)) &&
-      State == Hiding) {
-    MainItems->Hide();
-    CurrentlyPlayingTrackName.Hide();
-    CurrentlyPlayingTrackArtist.Hide();
-    State = Hidden;
-  } else if (MenuTransition.IsIn() && ScrWork[SW_SYSMENUCT] == 10000 &&
-             State == Showing) {
-    State = Shown;
-    MainItems->RenderingBounds =
-        RectF(0.0f, TrackButtonPosTemplate.y, 1280.0f, 16 * TrackOffset.y + 1);
-    MainItems->MoveTo({0.0f, 0.0f});
-    for (auto el : MainItems->Children)
-      static_cast<Widgets::CHLCC::TrackSelectButton*>(el)->MoveTracks(
-          {0.0f, 0.0f});
-    InputEnabled = true;
-  }
+    if (MenuTransition.IsOut() &&
+        (ScrWork[SW_SYSMENUCT] == 0 || GetFlag(SF_SYSTEMMENU)) &&
+        State == Hiding) {
+      MainItems->Hide();
+      CurrentlyPlayingTrackName.Hide();
+      CurrentlyPlayingTrackArtist.Hide();
+      State = Hidden;
+    } else if (MenuTransition.IsIn() && ScrWork[SW_SYSMENUCT] == 10000 &&
+               State == Showing) {
+      State = Shown;
+      MainItems->RenderingBounds = RectF(0.0f, TrackButtonPosTemplate.y,
+                                         1280.0f, 16 * TrackOffset.y + 1);
+      MainItems->MoveTo({0.0f, 0.0f});
+      for (auto el : MainItems->Children)
+        static_cast<Widgets::CHLCC::TrackSelectButton*>(el)->MoveTracks(
+            {0.0f, 0.0f});
+      InputEnabled = true;
+    }
 
-  if (State != Hidden) {
-    MenuTransition.Update(dt);
-    FromSystemMenuTransition.Update(dt);
-    if (MenuTransition.Direction == AnimationDirection::Out &&
-        MenuTransition.Progress <= 0.72f) {
-      TitleFade.StartOut();
-    } else if (MenuTransition.IsIn() &&
-               (TitleFade.Direction == AnimationDirection::In ||
-                TitleFade.IsOut())) {
-      TitleFade.StartIn();
-    }
-    if (State == Shown) {
-      UpdateInput(dt);
-    }
-    TitleFade.Update(dt);
-    NowPlayingAnimation.Update(dt);
-    UpdateTitles();
-    if (InputEnabled) MainItems->Update(dt);
-    if (CurrentlyPlayingTrackId == -1) return;
-    if (PlaybackMode != MPM_RepeatOne && CurrentlyPlayingTrackId < 40 &&
-        abs(Audio::Channels[Audio::AC_BGM0]->PositionInSeconds() -
-            PreviousPosition) > 1.0f) {
-      CurrentlyPlayingTrackId = -1;
-      NowPlayingAnimation.StartOut();
-      Audio::Channels[Audio::AC_BGM0]->Stop(2.0f);
-    }
-    if (Audio::Channels[Audio::AC_BGM0]->GetState() == Audio::ACS_Stopped) {
-      int trackId;
-      if (PlaybackMode == MPM_One) {
-        trackId = -1;
-      } else {
-        trackId = GetNextTrackId(CurrentlyPlayingTrackId + 1);
-        if (trackId == MusicTrackCount) {
-          if (PlaybackMode == MPM_RepeatPlaylist) {
-            trackId = GetNextTrackId(0);
-          } else if (PlaybackMode == MPM_Playlist) {
-            trackId = -1;
+    if (State != Hidden) {
+      MenuTransition.Update(dt);
+      FromSystemMenuTransition.Update(dt);
+      if (MenuTransition.Direction == AnimationDirection::Out &&
+          MenuTransition.Progress <= 0.72f) {
+        TitleFade.StartOut();
+      } else if (MenuTransition.IsIn() &&
+                 (TitleFade.Direction == AnimationDirection::In ||
+                  TitleFade.IsOut())) {
+        TitleFade.StartIn();
+      }
+      if (State == Shown) {
+        UpdateInput(dt);
+      }
+      TitleFade.Update(dt);
+      NowPlayingAnimation.Update(dt);
+      UpdateTitles();
+      if (InputEnabled) MainItems->Update(dt);
+      if (CurrentlyPlayingTrackId == -1) return;
+      if (PlaybackMode != MPM_RepeatOne && CurrentlyPlayingTrackId < 40 &&
+          abs(Audio::Channels[Audio::AC_BGM0]->PositionInSeconds() -
+              PreviousPosition) > 1.0f) {
+        CurrentlyPlayingTrackId = -1;
+        NowPlayingAnimation.StartOut();
+        Audio::Channels[Audio::AC_BGM0]->Stop(2.0f);
+      }
+      if (Audio::Channels[Audio::AC_BGM0]->GetState() == Audio::ACS_Stopped) {
+        int trackId;
+        if (PlaybackMode == MPM_One) {
+          trackId = -1;
+        } else {
+          trackId = GetNextTrackId(CurrentlyPlayingTrackId + 1);
+          if (trackId == MusicTrackCount) {
+            if (PlaybackMode == MPM_RepeatPlaylist) {
+              trackId = GetNextTrackId(0);
+            } else if (PlaybackMode == MPM_Playlist) {
+              trackId = -1;
+            }
           }
         }
+        SwitchToTrack(trackId);
       }
-      SwitchToTrack(trackId);
+      PreviousPosition = Audio::Channels[Audio::AC_BGM0]->PositionInSeconds();
     }
-    PreviousPosition = Audio::Channels[Audio::AC_BGM0]->PositionInSeconds();
   }
-}
 
-void MusicMenu::UpdateInput(float dt) {
-  Menu::UpdateInput(dt);
-  if (State == Shown) {
-    MainItems->UpdateInput(dt);
+  void MusicMenu::UpdateInput(float dt) {
+    using namespace Vm::Interface;
+    if (State == Shown) {
+      MainItems->UpdateInput(dt);
 
-    if (PADinputButtonWentDown & PAD1Y) {
-      auto mode = (int)PlaybackMode + 1;
-      if (mode > 3) mode = 0;
-      PlaybackMode = (MusicPlaybackMode)mode;
-      PlaymodeAllSprite = mode & 1 ? PlaymodeAllHighlight : PlaymodeAll;
-      PlaymodeRepeatSprite =
-          mode & 2 ? PlaymodeRepeatHighlight : PlaymodeRepeat;
-      if (PlaybackMode == MPM_RepeatOne) {
-        Audio::Channels[Audio::AC_BGM0]->SetLooping(true);
-      } else {
-        Audio::Channels[Audio::AC_BGM0]->SetLooping(false);
+      if (PADinputButtonWentDown & PAD1Y) {
+        auto mode = (int)PlaybackMode + 1;
+        if (mode > 3) mode = 0;
+        PlaybackMode = (MusicPlaybackMode)mode;
+        PlaymodeAllSprite = mode & 1 ? PlaymodeAllHighlight : PlaymodeAll;
+        PlaymodeRepeatSprite =
+            mode & 2 ? PlaymodeRepeatHighlight : PlaymodeRepeat;
+        if (PlaybackMode == MPM_RepeatOne) {
+          Audio::Channels[Audio::AC_BGM0]->SetLooping(true);
+        } else {
+          Audio::Channels[Audio::AC_BGM0]->SetLooping(false);
+        }
+      }
+
+      if (PADinputButtonWentDown & PAD1X) {
+        SwitchToTrack(-1);
+      }
+
+      const uint32_t btnUp = PAD1R1;
+      const uint32_t btnDown = PAD1L1;
+      const bool upScroll = Input::MouseWheelDeltaY > 0;
+      const bool downScroll = Input::MouseWheelDeltaY < 0;
+
+      DirectionButtonHoldHandler.Update(dt);
+
+      const int directionShouldFire = DirectionButtonHoldHandler.ShouldFire();
+      const bool directionMovement = (bool)(directionShouldFire & btnDown) ^
+                                     (bool)(directionShouldFire & btnUp);
+
+      if (directionMovement) {
+        const bool dirDown = directionShouldFire & btnDown;
+        QueuedMove =
+            (dirDown ? FocusDirection::FDIR_DOWN : FocusDirection::FDIR_UP);
+      } else if (TurboMoved) {
+        QueuedMove.reset();
+      }
+
+      if (QueuedMove.has_value() &&
+          (MainItems->MoveAnimation.State != +AnimationState::Playing)) {
+        float deltaY = 0;
+        const bool dirDown = *QueuedMove == FocusDirection::FDIR_DOWN;
+        deltaY += dirDown ? TrackOffset.y : -TrackOffset.y;
+      }
+
+      if ((Input::MouseWheelDeltaY > 0 || directionShouldFire & btnDown) &&
+          CurrentLowerBound > 0) {
+        AdvanceFocus(FocusDirection::FDIR_UP);
+      } else if ((Input::MouseWheelDeltaY < 0 || directionShouldFire & btnUp) &&
+                 CurrentUpperBound < 44) {
+        AdvanceFocus(FocusDirection::FDIR_DOWN);
+      }
+
+      auto button = static_cast<Widgets::CHLCC::TrackSelectButton*>(
+          CurrentlyFocusedElement);
+      if (button == nullptr) return;
+
+      // Opposite of scroll direction
+      if (button->Id - CurrentLowerBound >= 16) {
+        CurrentLowerBound = button->Id - 15;
+        CurrentUpperBound = button->Id;
+      } else if (CurrentUpperBound - button->Id >= 16) {
+        CurrentLowerBound = button->Id;
+        CurrentUpperBound = button->Id + 15;
+      }
+
+      glm::vec2 offset(0.0f, -(float)CurrentLowerBound * TrackOffset.y);
+      MainItems->MoveTo(offset);
+      for (auto el : MainItems->Children) {
+        auto b = static_cast<Widgets::CHLCC::TrackSelectButton*>(el);
+        b->Hovered = false;
+        b->MoveTracks(offset);
       }
     }
-
-    if (PADinputButtonWentDown & PAD1X) {
-      SwitchToTrack(-1);
-    }
-
-    auto button = static_cast<Widgets::CHLCC::TrackSelectButton*>(
-        CurrentlyFocusedElement);
-    if (button == nullptr) return;
-
-    // Opposite of scroll direction
-    if (button->Id - CurrentLowerBound >= 16) {
-      CurrentLowerBound = button->Id - 15;
-      CurrentUpperBound = button->Id;
-    } else if (CurrentUpperBound - button->Id >= 16) {
-      CurrentLowerBound = button->Id;
-      CurrentUpperBound = button->Id + 15;
-    } else
-      return;
-
-    glm::vec2 offset(0.0f, -(float)CurrentLowerBound * TrackOffset.y);
-    MainItems->MoveTo(offset);
-    for (auto el : MainItems->Children) {
-      auto b = static_cast<Widgets::CHLCC::TrackSelectButton*>(el);
-      b->MoveTracks(offset);
-    }
   }
-}
 
-inline void MusicMenu::DrawCircles() {
-  float y = CircleStartPosition.y;
-  int resetCounter = 0;
-  // Give the whole range that mimics ScrWork[SW_SYSMENUCT] given that the
-  // duration is totalframes/60
-  float progress = MenuTransition.Progress * MenuTransitionDuration * 60.0f;
-  for (int line = 0; line < 4; line++) {
-    int counter = resetCounter;
-    float x = CircleStartPosition.x;
-    for (int col = 0; col < 7; col++) {
-      if (counter + 1 <= (progress)) {
-        float scale = ((progress) - (counter + 1.0f)) * 16.0f;
-        scale = scale <= 320.0f ? scale : 320.0f;
-        scale *= CircleSprite.Bounds.Height / 106.0f;
-        Renderer->DrawSprite(
-            CircleSprite, RectF(x + (CircleSprite.Bounds.Width - scale) / 2.0f,
-                                y + (CircleSprite.Bounds.Height - scale) / 2.0f,
-                                scale, scale));
-        x += CircleOffset;
-      }
-      counter += 2;
-    }
-    y += CircleOffset;
-    resetCounter += 2;
-  }
-}
-
-inline void MusicMenu::DrawErin() {
-  float y = ErinPosition.y;
-  if (MenuTransition.Progress < 0.78f) {
-    y = 801.0f;
-    if (MenuTransition.Progress > 0.22f) {
-      // Approximation from the original function, which was a bigger
-      // mess
-      y = glm::mix(
-          -19.0f, 721.0f,
-          0.998938f -
-              0.998267f * sin(3.97835f - 3.27549f * MenuTransition.Progress));
-    }
-  }
-  Renderer->DrawSprite(ErinSprite, glm::vec2(ErinPosition.x, y));
-}
-
-inline void MusicMenu::DrawRedBar() {
-  if (MenuTransition.IsIn()) {
-    Renderer->DrawSprite(InitialRedBarSprite, InitialRedBarPosition);
-  } else if (MenuTransition.Progress > 0.70f) {
+  inline void MusicMenu::DrawCircles() {
+    float y = CircleStartPosition.y;
+    int resetCounter = 0;
     // Give the whole range that mimics ScrWork[SW_SYSMENUCT] given that the
     // duration is totalframes/60
     float progress = MenuTransition.Progress * MenuTransitionDuration * 60.0f;
-    float pixelPerAdvanceLeft = RedBarBaseX * (progress - 47.0f) / 17.0f;
-    RedBarSprite.Bounds.X = RedBarDivision - pixelPerAdvanceLeft;
-    RedBarSprite.Bounds.Width = pixelPerAdvanceLeft;
-    RedBarPosition.x = RedBarBaseX - pixelPerAdvanceLeft;
-    Renderer->DrawSprite(RedBarSprite, RedBarPosition);
-    float pixelPerAdvanceRight = 13.0f * (progress - 47.0f);
-    RedBarSprite.Bounds.X = RedBarDivision;
-    RedBarSprite.Bounds.Width = pixelPerAdvanceRight;
-    RedBarPosition = RightRedBarPosition;
-    Renderer->DrawSprite(RedBarSprite, RedBarPosition);
-  }
-}
-
-void MusicMenu::UpdateEntries() {
-  auto onClick = [this](auto* btn) { return MusicButtonOnClick(btn); };
-
-  for (size_t idx = 0; idx < MainItems->Children.size(); idx++) {
-    auto button = static_cast<Widgets::CHLCC::TrackSelectButton*>(
-        MainItems->Children[idx]);
-
-    if (!SaveSystem::GetBgmFlag((int)idx)) {
-      button->SetTrackText(Vm::ScriptGetTextTableStrAddress(0, 15));
-      continue;
+    for (int line = 0; line < 4; line++) {
+      int counter = resetCounter;
+      float x = CircleStartPosition.x;
+      for (int col = 0; col < 7; col++) {
+        if (counter + 1 <= (progress)) {
+          float scale = ((progress) - (counter + 1.0f)) * 16.0f;
+          scale = scale <= 320.0f ? scale : 320.0f;
+          scale *= CircleSprite.Bounds.Height / 106.0f;
+          Renderer->DrawSprite(
+              CircleSprite,
+              RectF(x + (CircleSprite.Bounds.Width - scale) / 2.0f,
+                    y + (CircleSprite.Bounds.Height - scale) / 2.0f, scale,
+                    scale));
+          x += CircleOffset;
+        }
+        counter += 2;
+      }
+      y += CircleOffset;
+      resetCounter += 2;
     }
-
-    button->OnClickHandler = onClick;
-    button->SetTrackText(Vm::ScriptGetTextTableStrAddress(4, (int)idx * 3));
-    button->SetArtistText(
-        Vm::ScriptGetTextTableStrAddress(4, (int)idx * 3 + 1));
   }
-}
 
-void MusicMenu::SwitchToTrack(int id) {
-  CurrentlyPlayingTrackId = id;
-  if (id == -1) {
-    NowPlayingAnimation.StartOut();
-    Audio::Channels[Audio::AC_BGM0]->Stop(0.5f);
-    return;
-  }
-  if (!NowPlayingAnimation.IsIn()) NowPlayingAnimation.StartIn();
-  CurrentlyPlayingTrackName = Label(
-      Vm::ScriptGetTextTableStrAddress(4, CurrentlyPlayingTrackId * 3),
-      NowPlayingPos + PlayingTrackOffset, 32, RendererOutlineMode::None, 0);
-  CurrentlyPlayingTrackArtist = Label(
-      Vm::ScriptGetTextTableStrAddress(4, CurrentlyPlayingTrackId * 3 + 2),
-      NowPlayingPos + PlayingTrackArtistOffset, 20, RendererOutlineMode::None,
-      0);
-  PreviousPosition = 0.0f;
-  Audio::Channels[Audio::AC_BGM0]->Play(
-      "bgm", Playlist[id], id >= 40 ? (PlaybackMode == MPM_RepeatOne) : true,
-      0.5f);
-}
-
-inline int MusicMenu::GetNextTrackId(int id) {
-  while (!SaveSystem::GetBgmFlag(Playlist[id])) {
-    id += 1;
-    if (id == MusicTrackCount) {
-      if (PlaybackMode == MPM_RepeatPlaylist) {
-        id = 0;
-      } else if (PlaybackMode == MPM_Playlist) {
-        id = -1;
-        break;
+  inline void MusicMenu::DrawErin() {
+    float y = ErinPosition.y;
+    if (MenuTransition.Progress < 0.78f) {
+      y = 801.0f;
+      if (MenuTransition.Progress > 0.22f) {
+        // Approximation from the original function, which was a bigger
+        // mess
+        y = glm::mix(
+            -19.0f, 721.0f,
+            0.998938f -
+                0.998267f * sin(3.97835f - 3.27549f * MenuTransition.Progress));
       }
     }
+    Renderer->DrawSprite(ErinSprite, glm::vec2(ErinPosition.x, y));
   }
-  return id;
-}
 
-void MusicMenu::UpdateTitles() {
-  if (MenuTransition.Progress <= 0.34f) return;
+  inline void MusicMenu::DrawRedBar() {
+    if (MenuTransition.IsIn()) {
+      Renderer->DrawSprite(InitialRedBarSprite, InitialRedBarPosition);
+    } else if (MenuTransition.Progress > 0.70f) {
+      // Give the whole range that mimics ScrWork[SW_SYSMENUCT] given that the
+      // duration is totalframes/60
+      float progress = MenuTransition.Progress * MenuTransitionDuration * 60.0f;
+      float pixelPerAdvanceLeft = RedBarBaseX * (progress - 47.0f) / 17.0f;
+      RedBarSprite.Bounds.X = RedBarDivision - pixelPerAdvanceLeft;
+      RedBarSprite.Bounds.Width = pixelPerAdvanceLeft;
+      RedBarPosition.x = RedBarBaseX - pixelPerAdvanceLeft;
+      Renderer->DrawSprite(RedBarSprite, RedBarPosition);
+      float pixelPerAdvanceRight = 13.0f * (progress - 47.0f);
+      RedBarSprite.Bounds.X = RedBarDivision;
+      RedBarSprite.Bounds.Width = pixelPerAdvanceRight;
+      RedBarPosition = RightRedBarPosition;
+      Renderer->DrawSprite(RedBarSprite, RedBarPosition);
+    }
+  }
 
-  RedTitleLabelPos = RedBarLabelPosition;
-  RightTitlePos = SoundLibraryTitleRightPos;
-  LeftTitlePos = glm::vec2(
-      SoundLibraryTitleLeftPos.x,
-      TitleFade.IsIn()
-          ? SoundLibraryTitleLeftPos.y
-          : glm::mix(
-                1.0f, 721.0f,
-                1.01011f * std::sin(1.62223f * TitleFade.Progress + 3.152f) +
-                    1.01012f));
+  inline void MusicMenu::DrawButtonPrompt() {
+    if (MenuTransition.IsIn()) {
+      Renderer->DrawSprite(ButtonPromptSprite, ButtonPromptPosition);
+    } else if (MenuTransition.Progress > 0.734f) {
+      float x =
+          ButtonPromptPosition.x - 2560.0f * (MenuTransition.Progress - 1);
+      Renderer->DrawSprite(ButtonPromptSprite,
+                           glm::vec2(x, ButtonPromptPosition.y));
+    }
+  }
 
-  if (MenuTransition.Progress >= 0.73f) return;
+  void MusicMenu::UpdateEntries() {
+    auto onClick = [this](auto* btn) { return MusicButtonOnClick(btn); };
 
-  RedTitleLabelPos +=
-      glm::vec2(-572.0f * (MenuTransition.Progress * 4.0f - 3.0f),
-                460.0f * (MenuTransition.Progress * 4.0f - 3.0f) / 3.0f);
-  RightTitlePos +=
-      glm::vec2(-572.0f * (MenuTransition.Progress * 4.0f - 3.0f),
-                460.0f * (MenuTransition.Progress * 4.0f - 3.0f) / 3.0f);
-}
+    for (size_t idx = 0; idx < MainItems->Children.size(); idx++) {
+      auto button = static_cast<Widgets::CHLCC::TrackSelectButton*>(
+          MainItems->Children[idx]);
+
+      if (!SaveSystem::GetBgmFlag((int)idx)) {
+        button->SetTrackText(Vm::ScriptGetTextTableStrAddress(0, 15));
+        continue;
+      }
+
+      button->OnClickHandler = onClick;
+      button->SetTrackText(Vm::ScriptGetTextTableStrAddress(4, (int)idx * 3));
+      button->SetArtistText(
+          Vm::ScriptGetTextTableStrAddress(4, (int)idx * 3 + 1));
+    }
+  }
+
+  void MusicMenu::SwitchToTrack(int id) {
+    CurrentlyPlayingTrackId = id;
+    if (id == -1) {
+      NowPlayingAnimation.StartOut();
+      Audio::Channels[Audio::AC_BGM0]->Stop(0.5f);
+      return;
+    }
+    if (!NowPlayingAnimation.IsIn()) NowPlayingAnimation.StartIn();
+    CurrentlyPlayingTrackName = Label(
+        Vm::ScriptGetTextTableStrAddress(4, CurrentlyPlayingTrackId * 3),
+        NowPlayingPos + PlayingTrackOffset, 32, RendererOutlineMode::None, 0);
+    CurrentlyPlayingTrackArtist = Label(
+        Vm::ScriptGetTextTableStrAddress(4, CurrentlyPlayingTrackId * 3 + 2),
+        NowPlayingPos + PlayingTrackArtistOffset, 20, RendererOutlineMode::None,
+        0);
+    PreviousPosition = 0.0f;
+    Audio::Channels[Audio::AC_BGM0]->Play(
+        "bgm", Playlist[id], id >= 40 ? (PlaybackMode == MPM_RepeatOne) : true,
+        0.5f);
+  }
+
+  inline int MusicMenu::GetNextTrackId(int id) {
+    while (!SaveSystem::GetBgmFlag(Playlist[id])) {
+      id += 1;
+      if (id == MusicTrackCount) {
+        if (PlaybackMode == MPM_RepeatPlaylist) {
+          id = 0;
+        } else if (PlaybackMode == MPM_Playlist) {
+          id = -1;
+          break;
+        }
+      }
+    }
+    return id;
+  }
+
+  void MusicMenu::UpdateTitles() {
+    if (MenuTransition.Progress <= 0.34f) return;
+
+    RedTitleLabelPos = RedBarLabelPosition;
+    RightTitlePos = SoundLibraryTitleRightPos;
+    LeftTitlePos = glm::vec2(
+        SoundLibraryTitleLeftPos.x,
+        TitleFade.IsIn()
+            ? SoundLibraryTitleLeftPos.y
+            : glm::mix(
+                  1.0f, 721.0f,
+                  1.01011f * std::sin(1.62223f * TitleFade.Progress + 3.152f) +
+                      1.01012f));
+
+    if (MenuTransition.Progress >= 0.73f) return;
+
+    RedTitleLabelPos +=
+        glm::vec2(-572.0f * (MenuTransition.Progress * 4.0f - 3.0f),
+                  460.0f * (MenuTransition.Progress * 4.0f - 3.0f) / 3.0f);
+    RightTitlePos +=
+        glm::vec2(-572.0f * (MenuTransition.Progress * 4.0f - 3.0f),
+                  460.0f * (MenuTransition.Progress * 4.0f - 3.0f) / 3.0f);
+  }
 
 }  // namespace CHLCC
 }  // namespace UI

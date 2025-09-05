@@ -1,16 +1,16 @@
---[[root.Input = {
+root.Input = {
   -- Keyboard
   KB_PAD1A={40},             -- Return
   KB_PAD1B={42},             -- Backspace
-  KB_PAD1X={60},             -- F3
-  KB_PAD1Y={59},             -- F2
-  KB_PAD1SELECT={61},        -- F4
-  KB_PAD1START={30},         -- 1
+  KB_PAD1X={30},             -- 1 (Menu)
+  KB_PAD1Y={59},             -- F2 (Backlog)
+  KB_PAD1SELECT={61},        -- F4 (Auto)
+  KB_PAD1START={60},         -- F3 (Skip)
   KB_PAD1UP={82},            -- Up
   KB_PAD1DOWN={81},          -- Down
   KB_PAD1LEFT={80},          -- Left
   KB_PAD1RIGHT={79},         -- Right
-  KB_PAD1L1={20, 224},     -- Q, LCTRL
+  KB_PAD1L1={20, 224},     -- Q, LCTRL (Tips Menu)
   KB_PAD1L2={29},            -- Z
   KB_PAD1L3={32},            -- 3
   KB_PAD1R1={8},             -- E
@@ -89,4 +89,4 @@ root.PADcustomA = {
   root.PADinput.PAD1DOWN_RS,
   root.PADinput.PAD1LEFT_RS,
   root.PADinput.PAD1RIGHT_RS,
-}]]
+}
