@@ -14,9 +14,10 @@ using namespace Impacto::Vm::Interface;
 using namespace Impacto::Profile::CHLCC::OptionsMenu;
 
 OptionsSlider::OptionsSlider(float& value, const float min, const float max,
-                             const Sprite& bar, const Sprite& fill,
+                             const Sprite bar, const Sprite fill,
                              const glm::vec2 topRight, const RectF hoverBounds,
-                             const std::function<void(OptionsEntry*)> highlight)
+                             const std::function<void(OptionsEntry*)> highlight,
+                             const std::optional<Sprite> mutedSprite)
     : OptionsEntry(hoverBounds, highlight),
       OldProgress(value),
       Slider(0,
@@ -26,7 +27,8 @@ OptionsSlider::OptionsSlider(float& value, const float min, const float max,
              fill.Bounds.GetSize()),
       BarSprite(bar),
       FillSprite(fill),
-      FillSpriteWidth(fill.Bounds.Width) {
+      FillSpriteWidth(fill.Bounds.Width),
+      MutedSprite(mutedSprite) {
   ChangingFadeAnimation.SetDuration(SliderBarFadeDuration);
   ChangingFadeAnimation.LoopMode = AnimationLoopMode::ReverseDirection;
   ChangingFadeAnimation.StartIn();
@@ -41,6 +43,14 @@ void OptionsSlider::Render() {
   FillSprite.Bounds.Width = FillSpriteWidth * Slider.GetNormalizedValue();
   Renderer->DrawSprite(FillSprite, Slider.GetTrackBounds().GetPos(),
                        {1.0f, 1.0f, 1.0f, fillAlpha});
+
+  if (MutedSprite.has_value() && *Slider.Value <= Slider.StartValue) {
+    const float mutedAlpha =
+        (Changing && OldProgress > Slider.StartValue) ? fillAlpha : 1.0f;
+
+    Renderer->DrawSprite(*MutedSprite, Bounds.GetPos() + VoiceMutedOffset,
+                         {1.0f, 1.0f, 1.0f, mutedAlpha});
+  }
 }
 
 void OptionsSlider::Update(float dt) {

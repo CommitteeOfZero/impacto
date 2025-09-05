@@ -10,9 +10,10 @@ namespace CHLCC {
 
 class OptionsSlider : public OptionsEntry {
  public:
-  OptionsSlider(float& value, float min, float max, const Sprite& bar,
-                const Sprite& fill, glm::vec2 topRight, RectF hoverBounds,
-                std::function<void(OptionsEntry*)> highlight);
+  OptionsSlider(float& value, float min, float max, Sprite bar, Sprite fill,
+                glm::vec2 topRight, RectF hoverBounds,
+                std::function<void(OptionsEntry*)> highlight,
+                std::optional<Sprite> mutedSprite = std::nullopt);
 
   void Render() override;
   void Update(float dt) override;
@@ -32,6 +33,8 @@ class OptionsSlider : public OptionsEntry {
   Sprite BarSprite;
   Sprite FillSprite;
   float FillSpriteWidth;
+
+  std::optional<Sprite> MutedSprite;
 };
 
 }  // namespace CHLCC
