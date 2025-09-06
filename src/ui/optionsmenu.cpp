@@ -22,6 +22,7 @@ OptionsMenu::OptionsMenu()
   FadeAnimation.LoopMode = AnimationLoopMode::Stop;
   FadeAnimation.DurationIn = FadeInDuration;
   FadeAnimation.DurationOut = FadeOutDuration;
+  FadeAnimation.SkipOnSkipMode = false;
 }
 
 void OptionsMenu::Show() {
