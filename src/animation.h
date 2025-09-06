@@ -25,7 +25,7 @@ class Animation {
   AnimationState State = AnimationState::Stopped;
   AnimationLoopMode LoopMode = AnimationLoopMode::Stop;
   // Animation skips to the end when skip mode is enabled
-  bool SkipOnSkipMode = true;
+  bool SkipOnSkipMode = false;
 
   void SetDuration(float duration) {
     DurationIn = duration;

@@ -41,17 +41,13 @@ TipsNotification::TipsNotification() {
 
   FadeAnimation.DurationIn = FadeInDuration;
   FadeAnimation.DurationOut = FadeOutDuration;
-  FadeAnimation.SkipOnSkipMode = false;
 
   FadeOutAnimation = FadeAnimation;
 
   SlideAnimation.DurationIn = SlideTime;
-  SlideAnimation.SkipOnSkipMode = false;
 
   HoldAnimation.DurationIn = HoldTime;
-  SlideAnimation.SkipOnSkipMode = false;
 
-  TipsAnimation.SkipOnSkipMode = false;
   TipsAnimation.AddAnimation(FadeAnimation, 0.0f);
   TipsAnimation.AddAnimation(SlideAnimation, 0.0f);
   TipsAnimation.AddAnimation(HoldAnimation);
