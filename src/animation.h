@@ -81,6 +81,9 @@ class Animation {
     return direction == AnimationDirection::In ? IsIn() : IsOut();
   }
 
+  bool IsPlaying() const { return State == AnimationState::Playing; }
+  bool IsStopped() const { return State == AnimationState::Stopped; }
+
  protected:
   void AddDelta(float dt);
   virtual void StartInImpl(bool reset = false) {}
