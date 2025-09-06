@@ -567,7 +567,7 @@ InstructionProc inline constexpr OpcodeTableUser1_CHLCC[256] = {
     InstAlbum,             // 10 1F
     InstMovieMode,         // 10 20
     InstClistInit,         // 10 21
-    InstAutoSave,          // 10 22
+    InstAutoSaveOld,       // 10 22
     InstSaveMenuOld,       // 10 23
     InstLoadDataOld,       // 10 24
     InstDummy,             // 10 25

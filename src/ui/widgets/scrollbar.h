@@ -31,13 +31,16 @@ class Scrollbar : public Widget {
   virtual void Update(float dt) override;
   virtual void Render() override;
 
+  void Hide() override;
+
   void Move(glm::vec2 relativePosition) override;
-  void MoveTo(glm::vec2 pos) override;
 
   void ClampValue();
   float GetNormalizedValue() const {
     return (*Value - StartValue) / (EndValue - StartValue);
   };
+
+  RectF GetTrackBounds() const { return TrackBounds; }
 
   int Id;
   ScrollbarDirection Direction;

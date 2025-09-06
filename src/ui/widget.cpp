@@ -41,11 +41,6 @@ void Widget::MoveTo(glm::vec2 pos, float duration) {
   MoveAnimation.StartIn();
 }
 
-void Widget::MoveTo(glm::vec2 pos) {
-  Bounds.X = pos.x;
-  Bounds.Y = pos.y;
-}
-
 Widget* Widget::GetFocus(FocusDirection dir) {
   Widget* nextFocus = FocusElements[dir];
   while (nextFocus && !nextFocus->Enabled) {

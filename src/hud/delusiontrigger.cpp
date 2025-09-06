@@ -11,13 +11,19 @@ DelusionTriggerBase::DelusionTriggerBase(int& delusionState, UiState showState)
 void Init() { Profile::DelusionTrigger::Configure(); }
 
 void Show() {
-  if (Implementation) Implementation->Show();
+  if (Implementation) {
+    if (Profile::ConfigSystem::TriggerStopSkip)
+      MesSkipMode &= SkipModeFlags::Auto;
+
+    Implementation->Show();
+  }
 }
 
 bool Show(int bgMtrgSelBufferId, int bgMtrgNegaPosiBufferId, int param3) {
   if (Implementation) {
     if (Profile::ConfigSystem::TriggerStopSkip)
       MesSkipMode &= SkipModeFlags::Auto;
+
     return Implementation->Show(bgMtrgSelBufferId, bgMtrgNegaPosiBufferId,
                                 param3);
   }
