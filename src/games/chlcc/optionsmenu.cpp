@@ -553,12 +553,20 @@ inline void OptionsMenu::DrawRedBar() {
 }
 
 inline void OptionsMenu::DrawButtonPrompt() {
-  if (FadeAnimation.IsIn()) {
+  const float startProgress =
+      ButtonPromptAnimationStartTime / ShowAnimationDuration;
+  const float endProgress =
+      startProgress + ButtonPromptAnimationDuration / ShowAnimationDuration;
+
+  if (ShowPageAnimation.Progress >= endProgress) {
     Renderer->DrawSprite(ButtonPromptSprite, ButtonPromptPosition);
-  } else if (FadeAnimation.Progress > 0.734f) {
-    float x = ButtonPromptPosition.x - 2560.0f * (FadeAnimation.Progress - 1);
-    Renderer->DrawSprite(ButtonPromptSprite,
-                         glm::vec2(x, ButtonPromptPosition.y));
+
+  } else if (ShowPageAnimation.Progress >= startProgress) {
+    const float progress = (ShowPageAnimation.Progress - startProgress) /
+                           (endProgress - startProgress);
+    Renderer->DrawSprite(
+        ButtonPromptSprite,
+        glm::mix(ButtonPromptStartPosition, ButtonPromptPosition, progress));
   }
 }
 
