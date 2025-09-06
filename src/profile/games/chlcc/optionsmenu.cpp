@@ -52,6 +52,12 @@ void Configure() {
 
   ButtonPromptSprite = EnsureGetMember<Sprite>("ButtonPromptSprite");
   ButtonPromptPosition = EnsureGetMember<glm::vec2>("ButtonPromptPosition");
+  ButtonPromptStartPosition =
+      EnsureGetMember<glm::vec2>("ButtonPromptStartPosition");
+  ButtonPromptAnimationStartTime =
+      EnsureGetMember<float>("ButtonPromptAnimationStartTime");
+  ButtonPromptAnimationDuration =
+      EnsureGetMember<float>("ButtonPromptAnimationDuration");
 
   SelectedSprite = EnsureGetMember<Sprite>("SelectedSprite");
   SelectedSlideDuration = EnsureGetMember<float>("SelectedSlideDuration");
