@@ -44,6 +44,9 @@ inline float PageTransitionDuration;
 
 inline Sprite ButtonPromptSprite;
 inline glm::vec2 ButtonPromptPosition;
+inline glm::vec2 ButtonPromptStartPosition;
+inline float ButtonPromptAnimationStartTime;
+inline float ButtonPromptAnimationDuration;
 
 inline Sprite SelectedSprite;
 inline float SelectedSlideDuration;
