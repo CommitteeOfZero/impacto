@@ -42,21 +42,26 @@ OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
   TitleFade.LoopMode = AnimationLoopMode::Stop;
   TitleFade.DurationIn = TitleFadeInDuration;
   TitleFade.DurationOut = TitleFadeOutDuration;
+  TitleFade.SkipOnSkipMode = false;
 
   FromSystemMenuTransition.Direction = AnimationDirection::In;
   FromSystemMenuTransition.LoopMode = AnimationLoopMode::Stop;
   FromSystemMenuTransition.DurationIn = TitleFadeInDuration;
   FromSystemMenuTransition.DurationOut = TitleFadeOutDuration;
+  FromSystemMenuTransition.SkipOnSkipMode = false;
 
   RedBarSprite = InitialRedBarSprite;
   RedBarPosition = InitialRedBarPosition;
 
   ShowPageAnimation.SetDuration(ShowAnimationDuration);
+  ShowPageAnimation.SkipOnSkipMode = false;
 
   PageTransitionAnimation.SetDuration(PageTransitionDuration);
+  PageTransitionAnimation.SkipOnSkipMode = false;
 
   SelectedAnimation.DurationIn = SelectedSlideDuration;
   SelectedAnimation.LoopMode = AnimationLoopMode::Loop;
+  SelectedAnimation.SkipOnSkipMode = false;
   SelectedAnimation.StartIn();
 
   std::function<void(OptionsEntry*)> highlight = [this](auto* entry) {
