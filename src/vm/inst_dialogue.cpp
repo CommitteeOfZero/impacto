@@ -175,7 +175,7 @@ VmInstruction(InstMes) {
     if ((ScrWork[thread->DialoguePageId * 10 + SW_MESWIN0TYPE] & 4) == 0 &&
         ScrWork[SW_TITLE] != 0xffff) {
       SaveSystem::SaveMemory();
-      SetFlag(1206, 1);
+      SetFlag(SF_SAVECAPTURE, 1);
       SetFlag(SF_AUTOSAVEENABLE, 1);
     }
   } else {
@@ -363,7 +363,7 @@ VmInstruction(InstSel) {
         if (ScrWork[SW_TITLE] != 0xffff) {
           SaveSystem::SetCheckpointId(savepointid);
           SaveSystem::SaveMemory();
-          SetFlag(1206, 1);
+          SetFlag(SF_SAVECAPTURE, 1);
           SetFlag(SF_AUTOSAVEENABLE, 1);
           BlockThread;
         }

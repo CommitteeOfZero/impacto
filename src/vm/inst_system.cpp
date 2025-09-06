@@ -909,56 +909,52 @@ VmInstruction(InstDebugData) {
              "STUB instruction DebugData(arg1: {:d})\n", arg1);
 }
 VmInstruction(InstAutoSave) {
-  StartInstruction;
-  auto quickSave = [&](int autosaveRestartCheck, int saveType) {
-    using namespace Profile::ConfigSystem;
-    if (!(AutoQuickSave & AutoQuickSaveType::OnScene) ||
-        GetFlag(SF_SAVEDISABLE)) {
-      return;
+  using namespace Profile::ConfigSystem;
+  const auto quickSave = [](const int saveType) {
+    int quicksaveEntries = SaveSystem::GetQuickSaveOpenSlot();
+    if (quicksaveEntries != -1) {
+      SaveIconDisplay::ShowFor(2.4f);
+      SaveSystem::FlushWorkingSaveEntry(SaveSystem::SaveType::Quick,
+                                        quicksaveEntries, saveType);
+      SaveSystem::SaveThumbnailData();
     }
-
-    if (ScrWork[SW_AUTOSAVERESTART] != autosaveRestartCheck) {
-      int quicksaveEntries = SaveSystem::GetQuickSaveOpenSlot();
-      if (quicksaveEntries != -1) {
-        SaveIconDisplay::ShowFor(2.4f);
-        SaveSystem::FlushWorkingSaveEntry(SaveSystem::SaveType::Quick,
-                                          quicksaveEntries, saveType);
-        SaveSystem::SaveThumbnailData();
-      }
-    }
-    SetFlag(SF_AUTOSAVEENABLE, 1);
-    ScrWork[SW_AUTOSAVERESTART] = 0;
   };
+
+  StartInstruction;
+
+  uint8_t autoQuickSave = AutoQuickSave;
+  if (GetFlag(SF_SAVEDISABLE)) autoQuickSave = 0;
 
   PopUint8(type);
   switch (type) {
-    case 0:  // QuickSave
+    case 0: {  // QuickSave
       if (ScrWork[SW_TITLE] == 0xffff) break;
+
       SaveSystem::SaveMemory();
-      quickSave(1, 1);
-      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-                 "STUB instruction AutoSave(type: QuickSave)\n");
-      break;
-    case 20:
-      if (Profile::Vm::GameInstructionSet == +InstructionSet::CHLCC) {
-        BlockThread;
-      } else {
-        if (ScrWork[SW_TITLE] == 0xffff) break;
-        quickSave(1, 1);
-        ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-                   "STUB instruction AutoSave(type: QuickSave)\n");
+
+      if (ScrWork[SW_AUTOSAVERESTART] != 1 &&
+          (autoQuickSave & AutoQuickSaveType::OnScene)) {
+        quickSave(1);
       }
-      break;
-    case 1:  // AutoSaveRestart (?)
+
+      SetFlag(SF_AUTOSAVEENABLE, 1);
+      ScrWork[SW_AUTOSAVERESTART] = 0;
+    } break;
+
+    case 1: {  // AutoSaveRestart (?)
       if (ScrWork[SW_TITLE] == 0xffff) break;
+
       SaveSystem::SaveMemory();
-      [[fallthrough]];
-    case 21:
-      if (ScrWork[SW_TITLE] == 0xffff) break;
-      quickSave(3, 3);
-      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-                 "STUB instruction AutoSave(type: {:d})\n", type);
-      break;
+
+      if (ScrWork[SW_AUTOSAVERESTART] != 3 &&
+          (autoQuickSave & AutoQuickSaveType::OnTrigger)) {
+        quickSave(3);
+      }
+
+      SetFlag(SF_AUTOSAVEENABLE, 1);
+      ScrWork[SW_AUTOSAVERESTART] = 0;
+    } break;
+
     case 3: {  // DisableAutoSave
       int quicksaveEntries = SaveSystem::GetQuickSaveOpenSlot();
       if (quicksaveEntries != -1) {
@@ -969,18 +965,29 @@ VmInstruction(InstAutoSave) {
       }
 
       SetFlag(SF_AUTOSAVEENABLE, 0);
-      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-                 "STUB instruction AutoSave(type: {:d})\n", type);
     } break;
-    case 5: {  // EnableAutoSave
-      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-                 "STUB instruction AutoSave(type: {:d})\n", type);
-      if (ScrWork[SW_TITLE] != 0xffff) {
-        SaveSystem::SaveMemory();
-        SetFlag(SF_AUTOSAVEENABLE, 1);
-        ScrWork[SW_AUTOSAVERESTART] = 0;
+
+    case 4: {
+      SaveSystem::SaveMemory();
+
+      if (ScrWork[SW_AUTOSAVERESTART] != 4 &&
+          (autoQuickSave & AutoQuickSaveType::OnTrigger)) {
+        quickSave(4);
       }
+
+      SetFlag(SF_AUTOSAVEENABLE, 1);
+      ScrWork[SW_AUTOSAVERESTART] = 0;
     } break;
+
+    case 5: {  // EnableAutoSave
+      if (ScrWork[SW_TITLE] == 0xffff) break;
+
+      SaveSystem::SaveMemory();
+
+      SetFlag(SF_AUTOSAVEENABLE, 1);
+      ScrWork[SW_AUTOSAVERESTART] = 0;
+    } break;
+
     case 10: {  // SetCheckpointId
       if (Profile::Vm::UseReturnIds) {
         PopUint16(checkpointId);
@@ -994,20 +1001,116 @@ VmInstruction(InstAutoSave) {
                    "STUB instruction AutoSave(type: {:d})\n", type);
       }
     } break;
+
+    case 20: {
+      if (ScrWork[SW_TITLE] == 0xffff) break;
+
+      if (ScrWork[SW_AUTOSAVERESTART] != 1 &&
+          (autoQuickSave & AutoQuickSaveType::OnScene)) {
+        quickSave(1);
+      }
+
+      ScrWork[SW_AUTOSAVERESTART] = 0;
+    } break;
+
+    case 21: {
+      if (ScrWork[SW_TITLE] == 0xffff) break;
+
+      if (ScrWork[SW_AUTOSAVERESTART] != 3 &&
+          (autoQuickSave & AutoQuickSaveType::OnTrigger)) {
+        quickSave(3);
+      }
+
+      ScrWork[SW_AUTOSAVERESTART] = 0;
+    } break;
+
+    case 0xff: {
+      SetFlag(SF_SAVECAPTURE, 1);
+      BlockThread;
+    } break;
+
     case 2:
-    case 4:
-    case 6:
-    case 7:
-    case 8:
-    case 9:
-      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-                 "STUB instruction AutoSave(arg1: {:d})\n", type);
+    default:
+      ImpLog(LogLevel::Warning, LogChannel::VM,
+             "Unimplemented InstAutoSave type {:d}\n", type);
       break;
+  }
+}
+VmInstruction(InstAutoSaveOld) {
+  using namespace Impacto::Profile::ConfigSystem;
+  const auto quickSave = [](const int saveType) {
+    int quicksaveEntries = SaveSystem::GetQuickSaveOpenSlot();
+    if (quicksaveEntries != -1) {
+      SaveIconDisplay::ShowFor(2.4f);
+      SaveSystem::FlushWorkingSaveEntry(SaveSystem::SaveType::Quick,
+                                        quicksaveEntries, saveType);
+      SaveSystem::SaveThumbnailData();
+    }
+  };
+
+  StartInstruction;
+
+  uint8_t autoQuickSave = AutoQuickSave;
+  if (GetFlag(SF_SAVEDISABLE)) autoQuickSave = 0;
+
+  PopUint8(type);
+  switch (type) {
+    case 0: {  // QuickSave
+      SaveSystem::SaveMemory();
+
+      if ((autoQuickSave & AutoQuickSaveType::OnScene) &&
+          ScrWork[SW_AUTOSAVERESTART] != 1) {
+        quickSave(1);
+      }
+
+      SetFlag(SF_AUTOSAVEENABLE, 1);
+      ScrWork[SW_AUTOSAVERESTART] = 0;
+    } break;
+
+    case 1: {  // QuickSaveTrigger
+      SaveSystem::SaveMemory();
+
+      if ((autoQuickSave & AutoQuickSaveType::OnTrigger) &&
+          ScrWork[SW_AUTOSAVERESTART] != 3) {
+        quickSave(3);
+      }
+
+      SetFlag(SF_AUTOSAVEENABLE, 1);
+      ScrWork[SW_AUTOSAVERESTART] = 0;
+    } break;
+
+    case 3: {  // DisableAutoSave
+      int quicksaveEntries = SaveSystem::GetQuickSaveOpenSlot();
+      if (quicksaveEntries != -1) {
+        SaveIconDisplay::ShowFor(2.4f);
+        SaveSystem::FlushWorkingSaveEntry(SaveSystem::SaveType::Quick,
+                                          quicksaveEntries, 0);
+        SaveSystem::SaveThumbnailData();
+      }
+
+      SetFlag(SF_AUTOSAVEENABLE, 0);
+    } break;
+
+    case 5: {  // EnableAutoSave
+      SaveSystem::SaveMemory();
+
+      SetFlag(SF_AUTOSAVEENABLE, 1);
+      ScrWork[SW_AUTOSAVERESTART] = 0;
+    } break;
+
+    case 10: {  // SetCheckpointId
+      BlockThread;
+      SetFlag(SF_SAVECAPTURE, 1);
+    } break;
+
+    case 20:
     case 0xff: {
       BlockThread;
     } break;
+
     default:
-      // More quicksave cases here
+      ImpLog(LogLevel::Warning, LogChannel::VM,
+             "Unimplemented InstAutoSaveOld type {:d}\n", type);
       break;
   }
 }
