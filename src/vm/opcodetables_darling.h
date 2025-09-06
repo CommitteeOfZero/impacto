@@ -567,7 +567,7 @@ InstructionProc inline constexpr OpcodeTableUser1_Darling[256] = {
     InstAlbum,             // 10 1F
     InstMovieMode,         // 10 20
     InstClistInit,         // 10 21
-    InstAutoSave,          // 10 22
+    InstAutoSaveOld,       // 10 22
     InstSaveMenu,          // 10 23
     InstLoadData,          // 10 24
     InstDummy,             // 10 25
