@@ -29,7 +29,7 @@ root.OptionsMenu = {
     ShowPageAnimationStartTime = 16 / 60,
     ShowPageAnimationDuration = (48 - 16) / 60,
 
-    MenuTitleTextRightPos = { X = 550, Y = 525 },
+    MenuTitleTextRightPos = { X = 551, Y = 525 },
     MenuTitleTextAngle = 6.02,
     TitleFadeInDuration = 40 / 60,
     TitleFadeOutDuration = 28 / 60,
@@ -302,7 +302,7 @@ root.Sprites["SettingOnTriggerSprite"] = {
 
 root.Sprites["SettingOnSceneSprite"] = {
     Sheet = "Options",
-    Bounds = { X = 1068, Y = 391, Width = 108, Height = 28 }
+    Bounds = { X = 1068, Y = 391, Width = 109, Height = 28 }
 }
 
 root.Sprites["SettingOnTriggerAndSceneSprite"] = {
@@ -312,10 +312,10 @@ root.Sprites["SettingOnTriggerAndSceneSprite"] = {
 
 root.Sprites["SettingTypeASprite"] = {
     Sheet = "Options",
-    Bounds = { X = 1068, Y = 451, Width = 108, Height = 28 }
+    Bounds = { X = 1068, Y = 451, Width = 109, Height = 28 }
 }
 
 root.Sprites["SettingTypeBSprite"] = {
     Sheet = "Options",
-    Bounds = { X = 1068, Y = 481, Width = 108, Height = 28 }
+    Bounds = { X = 1068, Y = 481, Width = 109, Height = 28 }
 }
