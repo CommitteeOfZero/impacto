@@ -29,8 +29,8 @@ void Configure() {
     Pop();
   }
 
-  REVBoxSprite = EnsureGetMember<Sprite>("REVBoxSprite");
-  REVBoxPos = EnsureGetMember<glm::vec2>("REVBoxPos");
+  ErinBoxSprite = EnsureGetMember<Sprite>("ErinBoxSprite");
+  ErinBoxPos = EnsureGetMember<glm::vec2>("ErinBoxPos");
   REVWaitIconOffset = EnsureGetMember<glm::vec2>("REVWaitIconOffset");
   REVLineHeight = EnsureGetMember<uint8_t>("REVLineHeight");
   REVLineSpacing = EnsureGetMember<uint8_t>("REVLineSpacing");

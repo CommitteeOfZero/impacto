@@ -355,7 +355,8 @@ void DialoguePage::FinishLine(Vm::Sc3VmThread* ctx, size_t nextLineStart,
 
   float lineHeight = FontSize;
   // Erin DialogueBox
-  if (DialogueBoxCurrentType == +DialogueBoxType::CHLCC && Mode == DPM_REV) {
+  if (DialogueBoxCurrentType == +DialogueBoxType::CHLCC && Mode == DPM_REV &&
+      ScrWork[SW_MESWIN0TYPE] == 1) {
     lineHeight = Impacto::Profile::CHLCC::DialogueBox::REVLineHeight;
   }
   // Glyphs of different font sizes are bottom-aligned within the line
@@ -394,7 +395,8 @@ void DialoguePage::FinishLine(Vm::Sc3VmThread* ctx, size_t nextLineStart,
   }
   float lineSpacing = DialogueFont->LineSpacing;
   // Erin DialogueBox
-  if (DialogueBoxCurrentType == +DialogueBoxType::CHLCC && Mode == DPM_REV) {
+  if (DialogueBoxCurrentType == +DialogueBoxType::CHLCC && Mode == DPM_REV &&
+      ScrWork[SW_MESWIN0TYPE] == 1) {
     lineSpacing = Impacto::Profile::CHLCC::DialogueBox::REVLineSpacing;
   }
   if (Mode == DPM_TIPS) lineSpacing = TipsLineSpacing;
@@ -440,14 +442,21 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
 
   FontSize = DefaultFontSize;
   // Erin DialogueBox
-  if (DialogueBoxCurrentType == +DialogueBoxType::CHLCC && Mode == DPM_REV) {
+  if (DialogueBoxCurrentType == +DialogueBoxType::CHLCC && Mode == DPM_REV &&
+      ScrWork[SW_MESWIN0TYPE] == 1) {
     FontSize = Impacto::Profile::CHLCC::DialogueBox::REVFontSize;
+  } else {
+    FontSize = DefaultFontSize;
   }
 
   if (Mode == DPM_ADV) {
     BoxBounds = ADVBounds;
   } else if (Mode == DPM_REV) {
-    BoxBounds = REVBounds;
+    if (ScrWork[SW_MESWIN0TYPE] == 0) {
+      BoxBounds = REVBounds;
+    } else {
+      BoxBounds = Rect(339, 192, 478, 106);
+    }
   } else if (Mode == DPM_TIPS) {
     BoxBounds = TipsBounds;
     CurrentColors = ColorTable[TipsColorIndex];
@@ -476,8 +485,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
         HasName = true;
         Name.reserve(DialogueMaxNameLength);
         State = TPS_Name;
-        if (DialogueBoxCurrentType != +DialogueBoxType::CHLCC &&
-            Mode == DPM_REV &&
+        if (Mode == DPM_REV &&
             REVNameLocation != +REVNameLocationType::LeftTop) {
           CurrentLineTop += REVNameOffset;
         }
@@ -555,8 +563,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
       }
       case STT_UnlockTip: {
         if ((Mode == DPM_ADV ||
-             (DialogueBoxCurrentType == +DialogueBoxType::CHLCC &&
-              Mode == DPM_REV) ||
+             (ScrWork[SW_MESWIN0TYPE] == 1 && Mode == DPM_REV) ||
              Mode == DPM_NVL) &&
             TipsSystem::GetTipLockedState(token.Val_Uint16)) {
           TipsSystem::SetTipLockedState(token.Val_Uint16, false);
@@ -651,7 +658,8 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
     NameLength = 0;
   }
 
-  if (DialogueBoxCurrentType == +DialogueBoxType::CHLCC && Mode == DPM_REV) {
+  if (DialogueBoxCurrentType == +DialogueBoxType::CHLCC && Mode == DPM_REV &&
+      ScrWork[SW_MESWIN0TYPE] == 1) {
     HasName = false;
     NameLength = 0;
   }

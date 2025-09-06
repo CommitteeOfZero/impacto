@@ -8,9 +8,9 @@ namespace Impacto {
 namespace Profile {
 namespace BacklogMenu {
 
-BETTER_ENUM(BacklogMenuType, int, None, MO6TW, CC)
+BETTER_ENUM(BacklogMenuType, int, None, MO6TW, CHLCC, CC)
 BETTER_ENUM(EntryHighlightLocationType, int, None, BottomLeftOfEntry,
-            TopLineLeftOfScreen)
+            TopLineLeftOfScreen, AllLinesLeftOfScreen)
 
 inline BacklogMenuType Type = BacklogMenuType::None;
 inline EntryHighlightLocationType EntryHighlightLocation =
