@@ -317,7 +317,7 @@ void SaveMenu::Render() {
     Renderer->DrawSprite(MenuTextSprite[*ActiveMenuType],
                          MenuTextPosition + transitionOffset, col);
     MainItems[CurrentPage]->Tint = col;
-    if (PageAnimation.State == +AnimationState::Playing) {
+    if (PageAnimation.State == AnimationState::Playing) {
       bool isNextBelow = ((PrevPage + 1) % Pages) == CurrentPage;
       const float currentYPos =
           (1.0f - PageAnimation.Progress) *

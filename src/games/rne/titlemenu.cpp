@@ -61,7 +61,7 @@ void TitleMenu::Update(float dt) {
     if (BackgroundAnimation->IsIn()) {
       if (PreTitleItemsAnimation.IsOut()) PreTitleItemsAnimation.StartIn();
       if (PreTitleItemsAnimation.IsIn() &&
-          PressToStartAnimation.State == +AnimationState::Stopped)
+          PressToStartAnimation.State == AnimationState::Stopped)
         PressToStartAnimation.StartIn();
     }
     if (PreTitleItemsAnimation.IsIn()) State = Shown;

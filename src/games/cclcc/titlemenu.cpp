@@ -191,7 +191,7 @@ void TitleMenu::Show() {
     IsFocused = true;
     UI::FocusedMenu = this;
     AllowsScriptInput = true;
-    if (PressToStartAnimation.State == +AnimationState::Stopped) {
+    if (PressToStartAnimation.State == AnimationState::Stopped) {
       PressToStartAnimation.StartIn(true);
       SmokeAnimation.StartIn();
     }
@@ -240,28 +240,28 @@ void TitleMenu::UpdateInput(float dt) {
   if (ScrWork[SW_TITLEMODE] == 5 || ScrWork[SW_TITLEMODE] == 13 ||
       ScrWork[SW_TITLEMODE] == 3) {
     if (!InputLocked && !PrevInputLocked) {
-      if (SlideItemsAnimation.State == +AnimationState::Playing ||
-          SecondaryFadeAnimation.State == +AnimationState::Playing ||
-          PrimaryFadeAnimation.State == +AnimationState::Playing ||
-          TitleAnimation.State == +AnimationState::Playing ||
+      if (SlideItemsAnimation.State == AnimationState::Playing ||
+          SecondaryFadeAnimation.State == AnimationState::Playing ||
+          PrimaryFadeAnimation.State == AnimationState::Playing ||
+          TitleAnimation.State == AnimationState::Playing ||
           (CurrentlyFocusedElement != nullptr &&
            (static_cast<TitleButton*>(CurrentlyFocusedElement)
-                    ->ChoiceBlinkAnimation.State == +AnimationState::Playing ||
+                    ->ChoiceBlinkAnimation.State == AnimationState::Playing ||
             static_cast<TitleButton*>(CurrentlyFocusedElement)
-                    ->HighlightAnimation.State == +AnimationState::Playing)) ||
+                    ->HighlightAnimation.State == AnimationState::Playing)) ||
           SubMenuState != Hidden) {
         InputLocked = true;
       }
     } else if (InputLocked && PrevInputLocked) {
-      if (SlideItemsAnimation.State == +AnimationState::Stopped &&
-          SecondaryFadeAnimation.State == +AnimationState::Stopped &&
-          PrimaryFadeAnimation.State == +AnimationState::Stopped &&
-          TitleAnimation.State == +AnimationState::Stopped &&
+      if (SlideItemsAnimation.State == AnimationState::Stopped &&
+          SecondaryFadeAnimation.State == AnimationState::Stopped &&
+          PrimaryFadeAnimation.State == AnimationState::Stopped &&
+          TitleAnimation.State == AnimationState::Stopped &&
           (CurrentlyFocusedElement != nullptr &&
            (static_cast<TitleButton*>(CurrentlyFocusedElement)
-                    ->ChoiceBlinkAnimation.State == +AnimationState::Stopped &&
+                    ->ChoiceBlinkAnimation.State == AnimationState::Stopped &&
             static_cast<TitleButton*>(CurrentlyFocusedElement)
-                    ->HighlightAnimation.State == +AnimationState::Stopped)) &&
+                    ->HighlightAnimation.State == AnimationState::Stopped)) &&
           SubMenuState == Hidden) {
         InputLocked = false;
       }
@@ -336,8 +336,8 @@ void TitleMenu::Update(float dt) {
     switch (ScrWork[SW_TITLEMODE]) {
       case 1: {
         if (PressToStartAnimation.LoopMode !=
-            +AnimationLoopMode::ReverseDirection) {
-          PressToStartAnimation.LoopMode = +AnimationLoopMode::ReverseDirection;
+            AnimationLoopMode::ReverseDirection) {
+          PressToStartAnimation.LoopMode = AnimationLoopMode::ReverseDirection;
           PressToStartAnimation.StartOut();
         }
       } break;
@@ -386,7 +386,7 @@ void TitleMenu::ExplodeScreenUpdate() {
   }
 
   if (PressToStartAnimation.Direction != AnimationDirection::Out ||
-      PressToStartAnimation.LoopMode != +AnimationLoopMode::Stop) {
+      PressToStartAnimation.LoopMode != AnimationLoopMode::Stop) {
     PressToStartAnimation.Direction = AnimationDirection::Out;
     PressToStartAnimation.LoopMode = AnimationLoopMode::Stop;
     PressToStartAnimation.StartOut();

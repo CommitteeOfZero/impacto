@@ -66,7 +66,7 @@ void SequencedAnimation::UpdateImpl(float dt) {
     Animation& childAnimation = child.ChildAnimation.get();
 
     if (time < child.StartTime || child.EndTime < time) {
-      if (childAnimation.State == +AnimationState::Playing) {
+      if (childAnimation.State == AnimationState::Playing) {
         childAnimation.Stop();
         childAnimation.Progress = time > child.StartTime;
 

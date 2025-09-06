@@ -197,7 +197,7 @@ void TypewriterEffect::Start(int firstGlyph, int glyphCount, float duration) {
 }
 
 void TypewriterEffect::Update(float dt) {
-  if (State == +AnimationState::Stopped) return;
+  if (State == AnimationState::Stopped) return;
   if (CancelRequested) {
     CancelRequested = false;
     IsCancelled = true;

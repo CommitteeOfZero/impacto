@@ -309,13 +309,13 @@ VmInstruction(InstMessWindow) {
       }
       break;
     case 2:  // AwaitShowCurrent
-      if (currentPage->FadeAnimation.State == +AnimationState::Playing) {
+      if (currentPage->FadeAnimation.State == AnimationState::Playing) {
         ResetInstruction;
         BlockThread;
       }
       break;
     case 3:  // AwaitHideCurrent
-      if (currentPage->FadeAnimation.State == +AnimationState::Playing) {
+      if (currentPage->FadeAnimation.State == AnimationState::Playing) {
         ResetInstruction;
         BlockThread;
       } else if (currentPage->FadeAnimation.IsOut()) {

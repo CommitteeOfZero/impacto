@@ -245,11 +245,11 @@ void TitleMenu::Show() {
     }
     IsFocused = true;
     UI::FocusedMenu = this;
-    if (PressToStartAnimation.State == +AnimationState::Stopped) {
+    if (PressToStartAnimation.State == AnimationState::Stopped) {
       PressToStartAnimation.StartIn();
     }
 
-    if (SpinningCircleAnimation.State == +AnimationState::Stopped) {
+    if (SpinningCircleAnimation.State == AnimationState::Stopped) {
       SpinningCircleAnimation.StartIn();
       SpinningCircleFlashingAnimation.StartIn();
     }
@@ -307,12 +307,12 @@ void TitleMenu::Update(float dt) {
 
         // Skip the animation if requested
         if (ScrWork[SW_TITLECT] >= 934 &&
-            IntroSequence.IntroAnimation.State == +AnimationState::Playing) {
+            IntroSequence.IntroAnimation.State == AnimationState::Playing) {
           IntroSequence.IntroAnimation.Finish();
         }
 
         if (!IntroSequence.SeiraAnimation.IsOut() &&
-            SpinningCircleAnimation.State == +AnimationState::Stopped) {
+            SpinningCircleAnimation.State == AnimationState::Stopped) {
           SpinningCircleAnimation.StartIn();
           SpinningCircleFlashingAnimation.StartIn();
         }
@@ -328,7 +328,7 @@ void TitleMenu::Update(float dt) {
         }
       } break;
       case 1: {
-        if (PressToStartAnimation.State == +AnimationState::Stopped) {
+        if (PressToStartAnimation.State == AnimationState::Stopped) {
           PressToStartAnimation.StartIn();
         }
 
@@ -418,7 +418,7 @@ void TitleMenu::Render() {
             Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f));
           }
 
-          if (SpinningCircleAnimation.State == +AnimationState::Playing) {
+          if (SpinningCircleAnimation.State == AnimationState::Playing) {
             DrawSpinningCircle(IntroSequence.SeiraAnimation.Progress);
           }
 
@@ -436,9 +436,9 @@ void TitleMenu::Render() {
         } break;
         case 3: {  // MenuItems Fade In
           if (ItemsFadeInAnimation.IsOut() &&
-              ItemsFadeInAnimation.State != +AnimationState::Playing)
+              ItemsFadeInAnimation.State != AnimationState::Playing)
             ItemsFadeInAnimation.StartIn();
-          else if (ItemsFadeInAnimation.State != +AnimationState::Playing)
+          else if (ItemsFadeInAnimation.State != AnimationState::Playing)
             ItemsFadeInAnimation.StartOut();
           DrawTitleMenuBackGraphics();
           MainItems->Render();

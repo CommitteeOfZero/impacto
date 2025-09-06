@@ -343,7 +343,7 @@ void AlbumMenu::UpdateCGViewer(float dt) {
     IsFocused = true;
     return;
   }
-  if (CGViewer->PageSwapAnimation.State == +AnimationState::Playing) return;
+  if (CGViewer->PageSwapAnimation.State == AnimationState::Playing) return;
 
   if (Vm::Interface::PADinputButtonWentDown & Vm::Interface::PAD1X) {
     CGViewer->EnableGuide = !CGViewer->EnableGuide;
@@ -599,7 +599,7 @@ void AlbumMenu::RenderCGViewer() {
       Sprite{}, RectF{0, 0, Profile::DesignWidth, Profile::DesignHeight}, tint);
   const int fadingSurface = CGViewer->ViewBufId[0];
   const int activeSurface = CGViewer->ViewBufId[1];
-  if (CGViewer->PageSwapAnimation.State == +AnimationState::Playing) {
+  if (CGViewer->PageSwapAnimation.State == AnimationState::Playing) {
     const float swapTint = CGViewer->PageSwapAnimation.Progress;
     Renderer->DrawSprite(
         Backgrounds2D[ScrWork[SW_BG1SURF + fadingSurface]]->BgSprite,

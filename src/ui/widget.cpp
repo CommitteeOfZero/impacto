@@ -3,7 +3,7 @@
 namespace Impacto {
 namespace UI {
 void Widget::Update(float dt) {
-  if (MoveAnimation.State == +AnimationState::Playing) {
+  if (MoveAnimation.State == AnimationState::Playing) {
     MoveAnimation.Update(dt);
     auto move = glm::mix(MoveOrigin, MoveTarget, MoveAnimation.Progress);
     MoveTo(move);

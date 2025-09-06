@@ -301,7 +301,7 @@ void OptionsMenu::Update(float dt) {
   UI::OptionsMenu::Update(dt);
 
   if (State != Hidden) {
-    if (PageFadeAnimation.State == +AnimationState::Playing) {
+    if (PageFadeAnimation.State == AnimationState::Playing) {
       Pages[PreviousPage]->Update(dt);
     } else if (PreviousPage != -1 && Pages[PreviousPage]->IsShown) {
       Pages[PreviousPage]->Hide();
@@ -317,7 +317,7 @@ void OptionsMenu::Render() {
     Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f, 0.0f), col);
 
     std::unique_ptr<Group>& currentPage = Pages[CurrentPage];
-    if (PageFadeAnimation.State == +AnimationState::Playing) {
+    if (PageFadeAnimation.State == AnimationState::Playing) {
       std::unique_ptr<Group>& previousPage = Pages[PreviousPage];
 
       currentPage->Tint = col;
