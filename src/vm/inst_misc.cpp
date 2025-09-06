@@ -237,6 +237,10 @@ VmInstruction(InstOption) {
                  "STUB instruction Option(type: V2toV1vol)\n");
       break;
     case 4:
+      if (Profile::Vm::GameInstructionSet == +InstructionSet::CHLCC) {
+        PopExpression(unusedPageNo);
+      }
+
       UI::OptionsMenuPtr->ResetToDefault();
       break;
   }

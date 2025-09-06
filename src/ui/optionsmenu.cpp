@@ -36,6 +36,7 @@ void OptionsMenu::Show() {
       Highlight(RememberHighlightedEntries
                     ? HighlightedEntriesPerPage[CurrentPage]
                     : Pages[CurrentPage]->GetFirstFocusableChild());
+      UpdateValues();
 
       DirectionButtonHeldHandler.Reset();
       PageButtonHeldHandler.Reset();
