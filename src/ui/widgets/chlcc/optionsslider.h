@@ -37,6 +37,8 @@ class OptionsSlider : public OptionsEntry {
   float FillSpriteWidth;
 
   std::optional<Sprite> MutedSprite;
+  std::optional<ClickArea> MuteClickArea;
+  float BeforeMutedProgress;
 };
 
 }  // namespace CHLCC
