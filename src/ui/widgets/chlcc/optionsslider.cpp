@@ -84,9 +84,13 @@ void OptionsSlider::UpdateInput(float dt) {
 
   Changing |= *Slider.Value != OldProgress;
   if (Changing && (PADinputButtonWentDown & PAD1A || slidingByMouse)) {
-    OldProgress = *Slider.Value;
-    Changing = false;
+    UpdateValue();
   }
+}
+
+void OptionsSlider::UpdateValue() {
+  OldProgress = *Slider.Value;
+  Changing = false;
 }
 
 void OptionsSlider::Show() {

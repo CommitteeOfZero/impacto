@@ -22,6 +22,7 @@ class OptionsMenu : public UI::OptionsMenu {
   void Update(float dt) override;
   void UpdateInput(float dt) override;
   void Render() override;
+  void ResetToDefault() override;
 
  private:
   void RenderPage(size_t pageId, glm::vec2 offset);
@@ -33,6 +34,7 @@ class OptionsMenu : public UI::OptionsMenu {
   void DrawButtonPrompt();
 
   void UpdatePageInput(float dt) override;
+  void UpdateValues() override;
 
   void UpdateTitles();
   void UpdatePageShowAnimation(float dt);

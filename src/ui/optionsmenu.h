@@ -14,10 +14,15 @@ class OptionsMenu : public Menu {
   virtual void Hide() override;
   virtual void Update(float dt) override;
   virtual void UpdateInput(float dt) override;
-  virtual void ResetToDefault() { Profile::ConfigSystem::ResetToDefault(); };
+  virtual void ResetToDefault() {
+    Profile::ConfigSystem::ResetToDefault();
+    UpdateValues();
+  }
 
  protected:
   OptionsMenu();
+
+  virtual void UpdateValues() {}
 
   virtual void GoToPage(size_t pageNumber);
   virtual void UpdatePageInput(float dt);
