@@ -448,6 +448,14 @@ void OptionsMenu::Update(float dt) {
   }
 }
 
+void OptionsMenu::UpdateValues() {
+  for (std::unique_ptr<Group>& page : Pages) {
+    for (Widget* entry : page->Children) {
+      static_cast<OptionsEntry*>(entry)->UpdateValue();
+    }
+  }
+}
+
 void OptionsMenu::UpdateInput(float dt) {
   if (State != Shown ||
       PageTransitionAnimation.State == +AnimationState::Playing)
@@ -561,6 +569,37 @@ void OptionsMenu::UpdateTitles() {
   RightTitlePos +=
       glm::vec2(-572.0f * (FadeAnimation.Progress * 4.0f - 3.0f),
                 460.0f * (FadeAnimation.Progress * 4.0f - 3.0f) / 3.0f);
+}
+
+void OptionsMenu::ResetToDefault() {
+  switch (CurrentPage) {
+    case static_cast<size_t>(PageType::Text): {
+      TriggerStopSkip = Default::TriggerStopSkip;
+      ShowTipsNotification = Default::ShowTipsNotification;
+      AutoQuickSave = Default::AutoQuickSave;
+      ControllerType = Default::ControllerType;
+      ImageSize = Default::ImageSize;
+
+      TextSpeed = Default::TextSpeed;
+      AutoSpeed = Default::AutoSpeed;
+      SkipRead = Default::SkipRead;
+    } break;
+
+    case static_cast<size_t>(PageType::Sound): {
+      std::ranges::copy(Default::GroupVolumes, Audio::GroupVolumes.begin());
+      SyncVoice = Default::SyncVoice;
+      SkipVoice = Default::SkipVoice;
+    } break;
+
+    case static_cast<size_t>(PageType::Voice): {
+      std::ranges::copy(Default::VoiceVolume, VoiceVolume.begin());
+    } break;
+
+    default:
+      break;
+  }
+
+  UpdateValues();
 }
 
 }  // namespace CHLCC

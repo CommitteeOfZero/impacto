@@ -56,10 +56,7 @@ void OptionsSlider::Render() {
 void OptionsSlider::Update(float dt) {
   OptionsEntry::Update(dt);
 
-  if (!HasFocus && Changing) {
-    *Slider.Value = OldProgress;
-    Changing = false;
-  }
+  if (!HasFocus && Changing) UpdateValue();
 
   ChangingFadeAnimation.Update(dt);
   Slider.Update(dt);
@@ -84,9 +81,13 @@ void OptionsSlider::UpdateInput(float dt) {
 
   Changing |= *Slider.Value != OldProgress;
   if (Changing && (PADinputButtonWentDown & PAD1A || slidingByMouse)) {
-    OldProgress = *Slider.Value;
-    Changing = false;
+    UpdateValue();
   }
+}
+
+void OptionsSlider::UpdateValue() {
+  OldProgress = *Slider.Value;
+  Changing = false;
 }
 
 void OptionsSlider::Show() {
@@ -97,8 +98,7 @@ void OptionsSlider::Show() {
 }
 
 void OptionsSlider::Hide() {
-  Changing = false;
-  *Slider.Value = OldProgress;
+  UpdateValue();
 
   Slider.Hide();
   OptionsEntry::Hide();

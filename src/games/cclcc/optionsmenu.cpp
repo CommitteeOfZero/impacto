@@ -406,6 +406,8 @@ void OptionsMenu::ResetToDefault() {
     default:
       break;
   }
+
+  UpdateValues();
 }
 
 }  // namespace CCLCC

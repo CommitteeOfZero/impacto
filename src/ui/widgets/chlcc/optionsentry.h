@@ -18,6 +18,8 @@ class OptionsEntry : public Widget {
   virtual void Update(float dt) override;
   virtual void UpdateInput(float dt) override;
 
+  virtual void UpdateValue() = 0;
+
   virtual void Show() override;
   virtual void Hide() override;
 
