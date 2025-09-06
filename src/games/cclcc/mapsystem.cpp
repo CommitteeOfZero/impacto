@@ -163,6 +163,7 @@ void MapSystemCCLCC::MapInit() {
     *itr = MapPartsDispStruct{0xff, 0, Animation{}, Hidden, 0, 0, 0};
     itr->fadeAnim.DurationIn = FadeAnimationDuration;
     itr->fadeAnim.DurationOut = FadeAnimationDuration;
+    itr->fadeAnim.SkipOnSkipMode = true;
   }
   for (size_t i = 0; i < MapGroup.size(); i++) {
     int i_i = static_cast<int>(i);
@@ -701,6 +702,7 @@ void MapSystemCCLCC::MapResetPoolAll(int arg1) {
     MapPoolDisp[i].state = Hidden;
     MapPoolDisp[i].fadeAnim.DurationIn = FadeAnimationDuration;
     MapPoolDisp[i].fadeAnim.DurationOut = FadeAnimationDuration;
+    MapPoolDisp[i].fadeAnim.SkipOnSkipMode = true;
     MapPoolDisp[i].angle = 0;
   }
 }
