@@ -42,7 +42,10 @@ root.OptionsMenu = {
     PageTransitionDuration = 32 / 60;
 
     ButtonPromptSprite = "ButtonPromptConfig",
-    ButtonPromptPosition = { X = 685, Y = 651 },
+    ButtonPromptPosition = { X = 603, Y = 651 },
+    ButtonPromptStartPosition = { X = 603 + (64 - 48) * 40, Y = 651 },
+    ButtonPromptAnimationStartTime = 48 / 60,
+    ButtonPromptAnimationDuration = (64 - 48) / 60,
 
     MinButtonHoldTime = 0.5,
     ButtonHoldFireInterval = 0.07,
@@ -176,7 +179,7 @@ root.Sprites["MenuTitleTextConfig"] = {
 
 root.Sprites["ButtonPromptConfig"] = {
     Sheet = "Options",
-    Bounds = { X = 481, Y = 824, Width = 676, Height = 28 }
+    Bounds = { X = 480, Y = 824, Width = 677, Height = 28 }
 }
 
 root.Sprites["SelectedSprite"] = {
