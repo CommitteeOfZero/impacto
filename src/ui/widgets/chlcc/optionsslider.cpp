@@ -28,10 +28,31 @@ OptionsSlider::OptionsSlider(float& value, const float min, const float max,
       BarSprite(bar),
       FillSprite(fill),
       FillSpriteWidth(fill.Bounds.Width),
-      MutedSprite(mutedSprite) {
+      MutedSprite(mutedSprite),
+      BeforeMutedProgress(min) {
   ChangingFadeAnimation.SetDuration(SliderBarFadeDuration);
   ChangingFadeAnimation.LoopMode = AnimationLoopMode::ReverseDirection;
   ChangingFadeAnimation.StartIn();
+
+  if (MutedSprite.has_value()) {
+    const glm::vec2 clickAreaPos = Bounds.GetPos() + VoiceMutedOffset;
+    const RectF clickRect(clickAreaPos.x, clickAreaPos.y,
+                          MutedSprite->ScaledWidth(),
+                          MutedSprite->ScaledHeight());
+    const auto onClick = [this](const auto* clickArea) {
+      if (*this->Slider.Value == this->Slider.StartValue) {
+        *this->Slider.Value = this->BeforeMutedProgress;
+      } else {
+        this->BeforeMutedProgress = *this->Slider.Value;
+        *this->Slider.Value = this->Slider.StartValue;
+      }
+
+      this->OldProgress = *this->Slider.Value;
+      this->Changing = false;
+    };
+
+    MuteClickArea = ClickArea(0, clickRect, onClick);
+  }
 }
 
 void OptionsSlider::Render() {
@@ -63,6 +84,7 @@ void OptionsSlider::Update(float dt) {
 
   ChangingFadeAnimation.Update(dt);
   Slider.Update(dt);
+  if (MuteClickArea) MuteClickArea->Update(dt);
 }
 
 void OptionsSlider::UpdateInput(float dt) {
@@ -82,6 +104,8 @@ void OptionsSlider::UpdateInput(float dt) {
   Slider.UpdateInput(dt);
   Slider.ClampValue();
 
+  if (MuteClickArea) MuteClickArea->UpdateInput(dt);
+
   Changing |= *Slider.Value != OldProgress;
   if (Changing && (PADinputButtonWentDown & PAD1A || slidingByMouse)) {
     UpdateValue();
@@ -96,6 +120,7 @@ void OptionsSlider::UpdateValue() {
 void OptionsSlider::Show() {
   OptionsEntry::Show();
   Slider.Show();
+  if (MuteClickArea) MuteClickArea->Show();
 
   OldProgress = *Slider.Value;
 }
@@ -105,12 +130,14 @@ void OptionsSlider::Hide() {
   *Slider.Value = OldProgress;
 
   Slider.Hide();
+  if (MuteClickArea) MuteClickArea->Hide();
   OptionsEntry::Hide();
 }
 
 void OptionsSlider::Move(glm::vec2 relativePos) {
   OptionsEntry::Move(relativePos);
   Slider.Move(relativePos);
+  if (MuteClickArea) MuteClickArea->Move(relativePos);
 }
 
 }  // namespace CHLCC
