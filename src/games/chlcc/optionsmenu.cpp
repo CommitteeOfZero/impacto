@@ -297,7 +297,7 @@ void OptionsMenu::Render() {
   }
 
   // Alpha goes from 0 to 1 in half the time
-  float alpha =
+  const float alpha =
       FadeAnimation.Progress < 0.5f ? FadeAnimation.Progress * 2.0f : 1.0f;
   Renderer->DrawSprite(
       BackgroundFilter,
@@ -309,7 +309,7 @@ void OptionsMenu::Render() {
   }
 
   if ((CurrentlyFocusedElement != nullptr || !ShowPageAnimation.IsIn()) &&
-      PageTransitionAnimation.State == +AnimationState::Stopped) {
+      PageTransitionAnimation.IsStopped()) {
     for (float x = SelectedSprite.ScaledWidth() * -SelectedAnimation.Progress;
          x < Profile::DesignWidth; x += SelectedSprite.ScaledWidth()) {
       Renderer->DrawSprite(SelectedSprite,
@@ -326,7 +326,7 @@ void OptionsMenu::Render() {
                          SelectedLabelPos + dotOffset + ShowPageOffset);
   }
 
-  if (PageTransitionAnimation.State == +AnimationState::Stopped) {
+  if (PageTransitionAnimation.IsStopped()) {
     RenderPage(CurrentPage, ShowPageOffset);
   } else {
     Pages[PreviousPage]->IsShown = true;
@@ -338,7 +338,7 @@ void OptionsMenu::Render() {
 void OptionsMenu::UpdatePageInput(float dt) {
   UI::OptionsMenu::UpdatePageInput(dt);
 
-  if (PageTransitionAnimation.State == +AnimationState::Playing) return;
+  if (PageTransitionAnimation.IsPlaying()) return;
 
   if (Input::MouseWheelDeltaY > 0.0f) {
     GoToPage((CurrentPage + Pages.size() - 1) % Pages.size());
@@ -419,17 +419,19 @@ void OptionsMenu::UpdateSelectedLabel(float dt) {
 void OptionsMenu::UpdatePageTransitionAnimation(float dt) {
   PageTransitionAnimation.Update(dt);
 
-  if (PageTransitionAnimation.State == +AnimationState::Stopped) return;
+  if (PageTransitionAnimation.IsStopped()) return;
 
   constexpr glm::vec2 anchor = {1.0f, 0.0f};
 
   float angle = (1.0f - PageTransitionAnimation.Progress) * PageRotationAngle;
   PageTransitionComingOffset =
-      (glm::vec2(std::cos(angle), std::sin(angle)) - anchor) * 720.0f;
+      (glm::vec2(std::cos(angle), std::sin(angle)) - anchor) *
+      Profile::DesignHeight;
 
   angle = -PageTransitionAnimation.Progress * PageRotationAngle;
   PageTransitionGoingOffset =
-      (glm::vec2(std::cos(angle), std::sin(angle)) - anchor) * 720.0f;
+      (glm::vec2(std::cos(angle), std::sin(angle)) - anchor) *
+      Profile::DesignHeight;
 
   if (PageTransitionAnimation.Direction == AnimationDirection::Out) {
     std::swap(PageTransitionGoingOffset, PageTransitionComingOffset);
@@ -469,17 +471,13 @@ void OptionsMenu::UpdateValues() {
 }
 
 void OptionsMenu::UpdateInput(float dt) {
-  if (State != Shown ||
-      PageTransitionAnimation.State == +AnimationState::Playing)
-    return;
+  if (State != Shown || PageTransitionAnimation.IsPlaying()) return;
 
   UI::OptionsMenu::UpdateInput(dt);
 }
 
 void OptionsMenu::GoToPage(size_t pageNumber) {
-  if (pageNumber == CurrentPage ||
-      PageTransitionAnimation.State != +AnimationState::Stopped)
-    return;
+  if (pageNumber == CurrentPage || PageTransitionAnimation.IsPlaying()) return;
 
   PreviousPage = CurrentPage;
   UI::OptionsMenu::GoToPage(pageNumber);
