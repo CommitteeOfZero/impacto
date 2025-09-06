@@ -56,6 +56,7 @@ VmInstruction(InstGameInfoInit);
 VmInstruction(InstSystemDataReset);
 VmInstruction(InstDebugData);
 VmInstruction(InstAutoSave);
+VmInstruction(InstAutoSaveOld);
 VmInstruction(InstLoadFontWidths);
 
 }  // namespace Vm
