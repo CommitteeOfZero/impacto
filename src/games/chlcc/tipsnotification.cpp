@@ -41,17 +41,13 @@ TipsNotification::TipsNotification() {
 
   FadeAnimation.DurationIn = FadeInDuration;
   FadeAnimation.DurationOut = FadeOutDuration;
-  FadeAnimation.SkipOnSkipMode = false;
 
   FadeOutAnimation = FadeAnimation;
 
   SlideAnimation.DurationIn = SlideTime;
-  SlideAnimation.SkipOnSkipMode = false;
 
   HoldAnimation.DurationIn = HoldTime;
-  SlideAnimation.SkipOnSkipMode = false;
 
-  TipsAnimation.SkipOnSkipMode = false;
   TipsAnimation.AddAnimation(FadeAnimation, 0.0f);
   TipsAnimation.AddAnimation(SlideAnimation, 0.0f);
   TipsAnimation.AddAnimation(HoldAnimation);
@@ -61,7 +57,7 @@ TipsNotification::TipsNotification() {
 void TipsNotification::Update(const float dt) {
   TipsAnimation.Update(dt);
 
-  if (TipsAnimation.State == +AnimationState::Stopped &&
+  if (TipsAnimation.State == AnimationState::Stopped &&
       !NotificationQueue.empty()) {
     // Start display animation
     const auto tipNameAdr = NotificationQueue.front();
@@ -77,7 +73,7 @@ void TipsNotification::Update(const float dt) {
     FirstInQueue = false;
   }
 
-  if (TipsAnimation.State != +AnimationState::Stopped) {
+  if (TipsAnimation.State != AnimationState::Stopped) {
     // Update labels
     const float slideProgress =
         std::sin(SlideAnimation.Progress * std::numbers::pi_v<float> / 2.0f);
@@ -91,7 +87,7 @@ void TipsNotification::Update(const float dt) {
     // Don't fade out if not the last entry in the queue,
     // and don't fade in if not the first
     float alpha = 1.0f;
-    if (FadeOutAnimation.State == +AnimationState::Playing) {  // Fading out
+    if (FadeOutAnimation.State == AnimationState::Playing) {  // Fading out
       if (NotificationQueue.empty()) alpha = FadeOutAnimation.Progress;
     } else if (FirstIsRendering) {  // Fading in
       alpha = FadeAnimation.Progress;
@@ -110,7 +106,7 @@ void TipsNotification::Update(const float dt) {
 }
 
 void TipsNotification::Render() {
-  if (TipsAnimation.State == +AnimationState::Stopped) return;
+  if (TipsAnimation.State == AnimationState::Stopped) return;
 
   Renderer->EnableScissor();
   Renderer->SetScissorRect(RenderBounds);
@@ -124,7 +120,7 @@ void TipsNotification::Render() {
 }
 
 void TipsNotification::AddTip(const int tipId) {
-  FirstInQueue |= TipsAnimation.State == +AnimationState::Stopped &&
+  FirstInQueue |= TipsAnimation.State == AnimationState::Stopped &&
                   NotificationQueue.empty();
 
   const auto* const record = TipsSystem::GetTipRecord(tipId);

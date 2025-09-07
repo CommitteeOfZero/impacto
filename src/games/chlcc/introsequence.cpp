@@ -128,11 +128,11 @@ void IntroSequence::Render() {
     DrawBackground();
   }
 
-  if (StarBounceAnimation.State == +AnimationState::Playing) {
+  if (StarBounceAnimation.State == AnimationState::Playing) {
     DrawBouncingStar();
-  } else if (ExplodingStarAnimation.State == +AnimationState::Playing) {
+  } else if (ExplodingStarAnimation.State == AnimationState::Playing) {
     DrawExplodingStars();
-  } else if (FallingStarsAnimation.State == +AnimationState::Playing) {
+  } else if (FallingStarsAnimation.State == AnimationState::Playing) {
     // Make sure the mask is the only thing in the color buffer
     Renderer->Clear(glm::vec4(0.0f));
     Renderer->DrawSprite(FallingStarsMask,
@@ -354,7 +354,7 @@ void IntroSequence::DrawLCCLogo() const {
     Renderer->DrawSprite(StarLogoSprite, StarLogoPosition + popOutOffset);
   }
 
-  if (LogoStarHighlightAnimation.State == +AnimationState::Playing) {
+  if (LogoStarHighlightAnimation.State == AnimationState::Playing) {
     float opacity = 1 - std::abs(1 - 2 * LogoStarHighlightAnimation.Progress);
     Renderer->DrawSprite(IntroLogoStarHighlightSprite,
                          IntroLogoStarHighlightPosition,
@@ -385,7 +385,7 @@ void IntroSequence::DrawDelusionADVText() const {
       dest.Scale(glm::vec2(scale), glm::vec2(0.0f)).Translate(position);
       Renderer->DrawSprite(sprite, dest, {1.0f, 1.0f, 1.0f, opacity});
     }
-  } else if (DelusionADVHighlightAnimation.State == +AnimationState::Playing) {
+  } else if (DelusionADVHighlightAnimation.State == AnimationState::Playing) {
     float intensity =
         1 - std::abs(1 - 2 * DelusionADVHighlightAnimation.Progress);
     glm::vec3 colorShift(intensity);

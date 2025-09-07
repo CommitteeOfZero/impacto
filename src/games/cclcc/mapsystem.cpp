@@ -163,6 +163,7 @@ void MapSystemCCLCC::MapInit() {
     *itr = MapPartsDispStruct{0xff, 0, Animation{}, Hidden, 0, 0, 0};
     itr->fadeAnim.DurationIn = FadeAnimationDuration;
     itr->fadeAnim.DurationOut = FadeAnimationDuration;
+    itr->fadeAnim.SkipOnSkipMode = true;
   }
   for (size_t i = 0; i < MapGroup.size(); i++) {
     int i_i = static_cast<int>(i);
@@ -701,6 +702,7 @@ void MapSystemCCLCC::MapResetPoolAll(int arg1) {
     MapPoolDisp[i].state = Hidden;
     MapPoolDisp[i].fadeAnim.DurationIn = FadeAnimationDuration;
     MapPoolDisp[i].fadeAnim.DurationOut = FadeAnimationDuration;
+    MapPoolDisp[i].fadeAnim.SkipOnSkipMode = true;
     MapPoolDisp[i].angle = 0;
   }
 }
@@ -1905,7 +1907,7 @@ void MapSystemCCLCC::MapFadeMain(float dt) {
       if (partsDispElem.state == Showing) {
         if (partsDispElem.fadeAnim.IsIn()) {
           partsDispElem.state = Shown;
-        } else if (partsDispElem.fadeAnim.State == +AnimationState::Stopped) {
+        } else if (partsDispElem.fadeAnim.State == AnimationState::Stopped) {
           if (partsDispElem.type == 0 ||
               (partsDispElem.type >= 8 && partsDispElem.type <= 11)) {
             Audio::Channels[Audio::AC_SSE]->Play("sysse", 7, false, 0.0f);
@@ -1915,7 +1917,7 @@ void MapSystemCCLCC::MapFadeMain(float dt) {
       } else if (partsDispElem.state == Hiding) {
         if (partsDispElem.fadeAnim.IsOut()) {
           partsDispElem.state = Hidden;
-        } else if (partsDispElem.fadeAnim.State == +AnimationState::Stopped) {
+        } else if (partsDispElem.fadeAnim.State == AnimationState::Stopped) {
           if (partsDispElem.type == 0 ||
               (partsDispElem.type >= 8 && partsDispElem.type <= 11)) {
             Audio::Channels[Audio::AC_SSE]->Play("sysse", 9, false, 0.0f);
@@ -1947,7 +1949,7 @@ void MapSystemCCLCC::MapFadeMain(float dt) {
       if (poolDispElem.state == Showing) {
         if (poolDispElem.fadeAnim.IsIn()) {
           poolDispElem.state = Shown;
-        } else if (poolDispElem.fadeAnim.State == +AnimationState::Stopped) {
+        } else if (poolDispElem.fadeAnim.State == AnimationState::Stopped) {
           if (i % 2 == 1) {
             Audio::Channels[Audio::AC_SSE]->Play("sysse", 7, false, 0.0f);
           }
@@ -1957,7 +1959,7 @@ void MapSystemCCLCC::MapFadeMain(float dt) {
       } else if (poolDispElem.state == Hiding) {
         if (poolDispElem.fadeAnim.IsOut()) {
           poolDispElem.state = Hidden;
-        } else if (poolDispElem.fadeAnim.State == +AnimationState::Stopped) {
+        } else if (poolDispElem.fadeAnim.State == AnimationState::Stopped) {
           if (i % 2 == 1) {
             Audio::Channels[Audio::AC_SSE]->Play("sysse", 9, false, 0.0f);
           }

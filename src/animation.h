@@ -6,8 +6,8 @@
 
 namespace Impacto {
 
-BETTER_ENUM(AnimationState, int, Stopped, Playing)
-BETTER_ENUM(AnimationLoopMode, int, Stop, ReverseDirection, Loop)
+enum class AnimationState { Stopped = 0, Playing = 1 };
+enum class AnimationLoopMode { Stop = 0, ReverseDirection = 1, Loop = 2 };
 
 enum class AnimationDirection { In = 1, Out = -1 };
 constexpr AnimationDirection operator-(AnimationDirection direction) {
@@ -25,7 +25,7 @@ class Animation {
   AnimationState State = AnimationState::Stopped;
   AnimationLoopMode LoopMode = AnimationLoopMode::Stop;
   // Animation skips to the end when skip mode is enabled
-  bool SkipOnSkipMode = true;
+  bool SkipOnSkipMode = false;
 
   void SetDuration(float duration) {
     DurationIn = duration;
@@ -65,17 +65,17 @@ class Animation {
   }
 
   void Update(float dt) {
-    if (State == +AnimationState::Stopped) return;
+    if (State == AnimationState::Stopped) return;
     UpdateImpl(dt);
   }
 
   virtual void Render() {}
 
   bool IsOut() const {
-    return Progress == 0.0f && State == +AnimationState::Stopped;
+    return Progress == 0.0f && State == AnimationState::Stopped;
   }
   bool IsIn() const {
-    return Progress == 1.0f && State == +AnimationState::Stopped;
+    return Progress == 1.0f && State == AnimationState::Stopped;
   }
   bool IsFinished(AnimationDirection direction) const {
     return direction == AnimationDirection::In ? IsIn() : IsOut();
@@ -88,7 +88,7 @@ class Animation {
   virtual void FinishImpl() {};
   virtual void UpdateImpl(float dt) {
     if (SkipOnSkipMode && GetFlag(Profile::ScriptVars::SF_MESALLSKIP) &&
-        State != +AnimationState::Stopped) {
+        State != AnimationState::Stopped) {
       Progress = Direction == AnimationDirection::In ? 1.0f : 0.0f;
     }
     AddDelta(dt);

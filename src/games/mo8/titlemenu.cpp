@@ -195,7 +195,7 @@ void TitleMenu::Show() {
     IsFocused = true;
     UI::FocusedMenu = this;
     if (PressToStartAnimated &&
-        PressToStartAnimation.State == +AnimationState::Stopped) {
+        PressToStartAnimation.State == AnimationState::Stopped) {
       PressToStartAnimation.StartIn();
     }
   }
@@ -240,7 +240,7 @@ void TitleMenu::Update(float dt) {
     switch (ScrWork[SW_TITLEMODE]) {
       case 0:
       case 2: {
-        if (PrimaryFadeAnimation.State == +AnimationState::Stopped &&
+        if (PrimaryFadeAnimation.State == AnimationState::Stopped &&
             ScrWork[SW_TITLEDISPCT] == 0)
           PrimaryFadeAnimation.StartOut(true);
       } break;
@@ -256,7 +256,7 @@ void TitleMenu::Update(float dt) {
         }
       } break;
       case 6: {
-        if (PrimaryFadeAnimation.State == +AnimationState::Stopped &&
+        if (PrimaryFadeAnimation.State == AnimationState::Stopped &&
             ScrWork[SW_TITLEDISPCT] == 0)
           PrimaryFadeAnimation.StartIn(true);
       } break;

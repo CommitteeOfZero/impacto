@@ -192,11 +192,12 @@ void TypewriterEffect::Start(int firstGlyph, int glyphCount, float duration) {
   GlyphCount = glyphCount;
   LastOpaqueCharacter = 0;
   IsCancelled = false;
+  SkipOnSkipMode = true;
   StartIn(true);
 }
 
 void TypewriterEffect::Update(float dt) {
-  if (State == +AnimationState::Stopped) return;
+  if (State == AnimationState::Stopped) return;
   if (CancelRequested) {
     CancelRequested = false;
     IsCancelled = true;
@@ -271,6 +272,7 @@ void DialoguePage::Init() {
     DialoguePages[i].AnimationId = 0;
     DialoguePages[i].FadeAnimation.DurationIn = FadeInDuration;
     DialoguePages[i].FadeAnimation.DurationOut = FadeOutDuration;
+    DialoguePages[i].FadeAnimation.SkipOnSkipMode = true;
   }
 }
 

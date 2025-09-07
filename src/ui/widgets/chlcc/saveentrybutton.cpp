@@ -141,7 +141,7 @@ void SaveEntryButton::Move(glm::vec2 relativePosition) {
 }
 
 void SaveEntryButton::FocusedAlphaFadeStart() {
-  if (FocusedAlphaFade.State == +AnimationState::Stopped) {
+  if (FocusedAlphaFade.State == AnimationState::Stopped) {
     FocusedAlphaFade.Direction = AnimationDirection::In;
     FocusedAlphaFade.SetDuration(0.5f);
     FocusedAlphaFade.LoopMode = AnimationLoopMode::ReverseDirection;

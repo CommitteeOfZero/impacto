@@ -30,7 +30,7 @@ void AlbumThumbnailButton::Render() {
 }
 
 void AlbumThumbnailButton::FocusedAlphaFadeStart() {
-  if (FocusedAlphaFade.State == +AnimationState::Stopped) {
+  if (FocusedAlphaFade.State == AnimationState::Stopped) {
     FocusedAlphaFade.Direction = AnimationDirection::In;
     FocusedAlphaFade.SetDuration(0.5f);
     FocusedAlphaFade.LoopMode = AnimationLoopMode::ReverseDirection;

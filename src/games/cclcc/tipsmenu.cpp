@@ -293,7 +293,7 @@ void TipsMenu::Update(float dt) {
     }
   };
 
-  if (TransitionAnimation.State == +AnimationState::Playing) {
+  if (TransitionAnimation.State == AnimationState::Playing) {
     float move = glm::mix(0.0f, Profile::DesignHeight / 2,
                           TransitionAnimation.Progress) -
                  LastYPos;

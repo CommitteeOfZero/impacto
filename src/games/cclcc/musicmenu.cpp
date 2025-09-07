@@ -318,8 +318,8 @@ void MusicMenu::UpdateInput(float dt) {
     }
 
     if (QueuedMove.has_value() &&
-        (MainItems.MoveAnimation.State != +AnimationState::Playing &&
-         BGWidget.MoveAnimation.State != +AnimationState::Playing)) {
+        (MainItems.MoveAnimation.State != AnimationState::Playing &&
+         BGWidget.MoveAnimation.State != AnimationState::Playing)) {
       float deltaY = 0;
       const bool dirDown = *QueuedMove == FocusDirection::FDIR_DOWN;
       deltaY += dirDown ? MusicButtonBounds.Height : -MusicButtonBounds.Height;

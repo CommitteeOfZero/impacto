@@ -197,7 +197,7 @@ void LibraryMenu::Update(float dt) {
     auto* activeBtn = static_cast<LibraryMenuButton*>(CurrentlyFocusedElement);
     if (activeBtn->Selected)
       ButtonBlinkAnimation.Stop();
-    else if (ButtonBlinkAnimation.State == +AnimationState::Stopped)
+    else if (ButtonBlinkAnimation.State == AnimationState::Stopped)
       ButtonBlinkAnimation.StartIn();
     if (!IsFocused && !activeBtn->Hovered &&
         wasHovered) {  // Stop blink when mouse out on submenu
