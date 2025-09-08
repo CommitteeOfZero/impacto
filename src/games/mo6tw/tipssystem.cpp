@@ -47,8 +47,6 @@ void TipsSystem::DataInit(uint32_t scriptBufferId, uint32_t tipsDataAdr,
   }
   Records.resize(TipEntryCount);
 
-  UI::TipsMenuPtr->Init();
-
   delete stream;
 }
 
