@@ -164,7 +164,7 @@ void TipsMenu::Init() {
     // categories per page, with each category being a character from
     // the sort string and containing all tips the names of which begin with
     // that character
-    auto page = record->SortLetterIndex / TipListCategoriesPerPage;
+    auto page = record->CategoryLetterIndex / TipListCategoriesPerPage;
     if (page != currentPage) {
       if (currentPage == 0) pageItems->Show();
       currentPage = page;
@@ -176,8 +176,8 @@ void TipsMenu::Init() {
     // Start new category
     // We take a character from the sort string and use that as the category
     // name inside a predefined template
-    if (record->SortLetterIndex != currentCategoryId) {
-      currentCategoryId = record->SortLetterIndex;
+    if (record->CategoryLetterIndex != currentCategoryId) {
+      currentCategoryId = record->CategoryLetterIndex;
       CategoryString[1] = UnalignedRead<uint16_t>(
           &sortString[currentCategoryId * sizeof(uint16_t)]);
 
