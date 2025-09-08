@@ -73,6 +73,11 @@ void OptionsEntry::UpdateInput(float dt) {
   if (Selected && PADinputButtonWentDown & PAD1B) {
     Selected = false;
     Audio::Channels[Audio::AC_SSE]->Play("sysse", 3, false, 0.0f);
+
+    // Hack to prevent closing the menu entirely
+    PADinputButtonWentDown &= ~PAD1B;
+    PADinputButtonIsDown &= ~PAD1B;
+
     return;
   }
 }
