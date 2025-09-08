@@ -27,11 +27,9 @@ void TipsSystem::DataInit(uint32_t scriptBufferId, uint32_t tipsDataAdr,
       ImpLog(LogLevel::Error, LogChannel::VM, "Too many tips in tips data\n");
       break;
     }
-
     // Read tip entry from the data array
     TipsDataRecord record{
         .Id = static_cast<uint16_t>(TipEntryCount),
-        // TODO: .SortLetterIndex
         .NumberOfContentStrings = numberOfContentStrings,
         .IsLocked = true,
         .IsUnread = true,
