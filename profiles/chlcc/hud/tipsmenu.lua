@@ -51,12 +51,14 @@ root.TipsMenu = {
     LockedTipsIndex = 7, 
     NumberLabelStrIndex = 8, 
     PageSeparatorIndex = 9, 
+    NewLabelStrIndex = 11,
+    UnreadLabelStrIndex = 12,
     TipListEntryBounds = { X = 74, Y = 130, Width = 286, Height = 24 },
     TipListEntryTextOffsetX = 20;
     TipListEntryFontSize = 20,
     TipListYPadding = 24,
     TipsListBounds = { X = 74, Y = 130, Width = 286, Height = 500 },
-    TipsListRenderBounds = { X = 64, Y = 130, Width = 316, Height = 500 },
+    TipsListRenderBounds = { X = 30, Y = 130, Width = 380, Height = 500 },
     NumberLabelPosition = { X = 396, Y = 54 },
     NumberLabelFontSize = 22,
     NumberBounds = { X = 456, Y = 54, Width = 0, Height = 0 },
@@ -73,6 +75,7 @@ root.TipsMenu = {
     NameInitialBounds = { X = 1210, Y = 77, Width = 0, Height = 0 },
     PronounciationInitialBounds = { X = 1210, Y = 107, Width = 0, Height = 0 },
     TipsListEntryDotOffset = { X = -17, Y = -4},
+    TipsListNewDotOffset= { X = -40, Y = -4},
 
     TipsEntryHighlightBarSprite = "TipsEntryHighlightBar",
     TipsEntryHighlightDotSprite = "TipsEntryHighlightDot",

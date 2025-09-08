@@ -38,6 +38,7 @@ class TipsMenu : public UI::TipsMenu {
   void DrawTipsTree();
   void DrawButtonPrompt();
   void UpdateTitles();
+  void HandlePageChange(Widget* cur, Widget* next);
 
   Animation TitleFade;
   Animation FromSystemMenuTransition;

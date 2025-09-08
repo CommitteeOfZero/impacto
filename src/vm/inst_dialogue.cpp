@@ -574,15 +574,16 @@ VmInstruction(InstTips) {
       uint32_t tipsDataSize =
           ScriptGetLabelSize(thread->ScriptBufferId, tipsLabelNum);
       TipsSystem::DataInit(thread->ScriptBufferId, tipsDataAdr, tipsDataSize);
-      if (UI::TipsMenuPtr) {
+      if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
         UI::TipsMenuPtr->Init();
       }
-
     } break;
     case 1:  // TipsInit
       TipsSystem::UpdateTipRecords();
-      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-                 "STUB instruction Tips(type: TipsInit)\n");
+      if (Profile::Vm::GameInstructionSet != +InstructionSet::CC &&
+          UI::TipsMenuPtr) {
+        UI::TipsMenuPtr->Init();
+      }
       break;
     case 2:  // TipsMain
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
@@ -593,9 +594,14 @@ VmInstruction(InstTips) {
                  "STUB instruction Tips(type: TipsEnd)\n");
       break;
     case 4:  // TipsSet
-      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-                 "STUB instruction Tips(type: TipsSet)\n");
       TipsSystem::UpdateTipRecords();
+      break;
+    case 5:
+      TipsSystem::UpdateTipRecords();
+      if (Profile::Vm::GameInstructionSet != +InstructionSet::CC &&
+          UI::TipsMenuPtr) {
+        UI::TipsMenuPtr->Init();
+      }
       break;
     case 10:  // Tips_ProfSetXboxEvent
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
