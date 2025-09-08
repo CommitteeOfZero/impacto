@@ -4,6 +4,8 @@
 #include "../../vm/vm.h"
 #include "../../io/memorystream.h"
 #include "../../profile/data/tipssystem.h"
+#include "../../profile/games/chlcc/tipsmenu.h"
+#include "../../profile/charset.h"
 #include "../../ui/ui.h"
 
 namespace Impacto {
@@ -11,12 +13,37 @@ namespace CHLCC {
 
 using namespace Impacto::Vm;
 using namespace Impacto::Profile::TipsSystem;
+using namespace Impacto::Profile::CHLCC::TipsMenu;
 using namespace Impacto::Io;
 
 void TipsSystem::DataInit(uint32_t scriptBufferId, uint32_t tipsDataAdr,
                           uint32_t tipsDataSize) {
   ScriptBufferId = (uint8_t)scriptBufferId;
   const auto scriptBuffer = ScriptBuffers[scriptBufferId];
+
+  const std::unordered_map<uint16_t, int> strIndicesMap = [&] {
+    std::unordered_map<uint16_t, int> sc3Map;
+    auto [scrBufId, offset] =
+        ScriptGetTextTableStrAddress(TipsStringTable, CategoryStringIndex);
+
+    auto categoryStr = &ScriptBuffers[scrBufId][offset];
+    size_t i = 0;
+    int distance = 0;
+    while (categoryStr[i] != 0xFF) {
+      if (categoryStr[i] & 0x80) {
+        uint16_t currentSc3Char =
+            SDL_SwapBE16(UnalignedRead<uint16_t>(categoryStr + i));
+        i += 2;
+        sc3Map.try_emplace(currentSc3Char, distance++);
+      } else {
+        ImpLogSlow(LogLevel::Error, LogChannel::VM,
+                   "TipsSorter: SC3 Tag Found in Sort String\n",
+                   categoryStr[i]);
+        i++;
+      }
+    }
+    return sc3Map;
+  }();
 
   // Read tips data from the script and create UI elements for each tip
   MemoryStream stream =
@@ -35,10 +62,21 @@ void TipsSystem::DataInit(uint32_t scriptBufferId, uint32_t tipsDataAdr,
         .IsUnread = true,
         .IsNew = true,
     };
-    for (uint16_t i = 0; i < record.NumberOfContentStrings + 4; i++) {
+
+    ReadLE<uint16_t>(&stream);  // Reads in a padding space string
+    for (uint16_t i = 0; i < record.NumberOfContentStrings + 3; i++) {
       record.StringAdr[i] =
           ScriptGetStrAddress(scriptBufferId, ReadLE<uint16_t>(&stream));
     }
+
+    auto categoryStrIndex = record.StringAdr[2];
+    auto firstChar = SDL_SwapBE16(UnalignedRead<uint16_t>(
+        &ScriptBuffers[scriptBufferId][categoryStrIndex]));
+    auto categoryIndexItr = strIndicesMap.find(firstChar);
+    record.CategoryLetterIndex =
+        categoryIndexItr != strIndicesMap.end()
+            ? static_cast<uint16_t>(categoryIndexItr->second)
+            : std::numeric_limits<uint16_t>::max();
     Records[TipEntryCount] = std::move(record);
 
     // Next tip entry from the data array

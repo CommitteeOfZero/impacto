@@ -49,6 +49,58 @@ void Configure() {
   ButtonPromptPosition = EnsureGetMember<glm::vec2>("ButtonPromptPosition");
   ButtonPromptSprite = EnsureGetMember<Sprite>("ButtonPromptSprite");
 
+  TipsStringTable = EnsureGetMember<int>("TipsStringTable");
+  CategoryStringIndex = EnsureGetMember<int>("CategoryStringIndex");
+  SortStringIndex = EnsureGetMember<int>("SortStringIndex");
+  PageSeparatorIndex = EnsureGetMember<int>("PageSeparatorIndex");
+  LockedTipsIndex = EnsureGetMember<int>("LockedTipsIndex");
+  NumberLabelStrIndex = EnsureGetMember<int>("NumberLabelStrIndex");
+  auto str = EnsureGetMember<char const*>("CategoryString");
+  TextGetSc3String(str, CategoryString);
+
+  NumberLabelPosition = EnsureGetMember<glm::vec2>("NumberLabelPosition");
+  NumberLabelFontSize = EnsureGetMember<float>("NumberLabelFontSize");
+  NumberBounds = EnsureGetMember<RectF>("NumberBounds");
+  NumberFontSize = EnsureGetMember<float>("NumberFontSize");
+  CurrentPageBounds = EnsureGetMember<RectF>("CurrentPageBounds");
+  TotalPagesBounds = EnsureGetMember<RectF>("TotalPagesBounds");
+  DefaultColorIndex = EnsureGetMember<int>("DefaultColorIndex");
+  UnreadColorIndex = EnsureGetMember<int>("UnreadColorIndex");
+
+  PageSeparatorPosition = EnsureGetMember<glm::vec2>("PageSeparatorPosition");
+  PageSeparatorFontSize = EnsureGetMember<float>("PageSeparatorFontSize");
+  TipListEntryBounds = EnsureGetMember<RectF>("TipListEntryBounds");
+  TipListEntryFontSize = EnsureGetMember<float>("TipListEntryFontSize");
+  TipListYPadding = EnsureGetMember<float>("TipListYPadding");
+  TipListEntryTextOffsetX = EnsureGetMember<float>("TipListEntryTextOffsetX");
+
+  PronounciationFontSize = EnsureGetMember<float>("PronounciationFontSize");
+  NameFontSize = EnsureGetMember<float>("NameFontSize");
+
+  TipListEntryNameXOffset = EnsureGetMember<float>("TipListEntryNameXOffset");
+
+  NameInitialBounds = EnsureGetMember<RectF>("NameInitialBounds");
+  PronounciationInitialBounds =
+      EnsureGetMember<RectF>("PronounciationInitialBounds");
+
+  TipsListBounds = EnsureGetMember<RectF>("TipsListBounds");
+  TipsListRenderBounds = EnsureGetMember<RectF>("TipsListRenderBounds");
+
+  TipsEntryHighlightBar =
+      EnsureGetMember<Sprite>("TipsEntryHighlightBarSprite");
+  TipsEntryHighlightDot =
+      EnsureGetMember<Sprite>("TipsEntryHighlightDotSprite");
+  TipsEntryNewDot = EnsureGetMember<Sprite>("TipsEntryNewDotSprite");
+  TipsLeftLine = EnsureGetMember<Sprite>("TipsLeftLineSprite");
+  TipsLeftLineHole = EnsureGetMember<Sprite>("TipsLeftLineHoleSprite");
+  TipsLeftLineEnd = EnsureGetMember<Sprite>("TipsLeftLineEndSprite");
+  TipsLeftLineHoleEnd = EnsureGetMember<Sprite>("TipsLeftLineHoleEndSprite");
+  TipsListBgBar = EnsureGetMember<Sprite>("TipsListBgBarSprite");
+  TipsListBgBarHole = EnsureGetMember<Sprite>("TipsListBgBarHoleSprite");
+
+  TipsListEntryDotOffset = EnsureGetMember<glm::vec2>("TipsListEntryDotOffset");
+  TipsScrollThumb = EnsureGetMember<Sprite>("TipsScrollThumbSprite");
+  TipsScrollTrack = EnsureGetMember<Sprite>("TipsScrollTrackSprite");
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMember<uint8_t>("DrawType"));
 
