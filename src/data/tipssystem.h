@@ -42,6 +42,14 @@ class TipsSystemBase {
   uint8_t ScriptBufferId = 0;
 };
 
+struct TipsSorter {
+  TipsSorter(uint32_t tipsTableId, uint32_t sortStringIndex, int tipIdStrIndex);
+  bool operator()(int a, int b) const;
+  uint8_t* SortString;
+  int TipIdStrIndex;
+  ankerl::unordered_dense::map<uint16_t, int> Sc3SortMap;
+};
+
 inline std::unique_ptr<TipsSystemBase> Implementation;
 
 void Init();
