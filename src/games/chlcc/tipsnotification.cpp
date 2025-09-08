@@ -124,7 +124,7 @@ void TipsNotification::AddTip(const int tipId) {
                   NotificationQueue.empty();
 
   const auto* const record = TipsSystem::GetTipRecord(tipId);
-  NotificationQueue.push(record->StringAdr[1]);
+  NotificationQueue.push(record->StringAdr[0]);
 }
 
 }  // namespace CHLCC

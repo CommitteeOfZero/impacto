@@ -23,7 +23,7 @@ root.TipsMenu = {
     TitleFadeOutDuration = 28 / 60,
     MenuTitleText = "MenuTitleTextTips",
     TipsTree = "TipsTree",
-    TreePosition = { X = 49, Y = 0 },
+    TreePosition = { X = 52, Y = 0 },
     TipsGradient = "TipsGradient",
     GradientPosition = { X = 73, Y = 0 },
     EndOfGradientColor = 0x2691ff,
@@ -31,7 +31,7 @@ root.TipsMenu = {
     ButtonPromptPosition = { X = 685, Y = 651 },
     CurrentTipBackgroundSprite = "CurrentTipBackgroundSprite",
     CurrentTipBackgroundPosition = { X = 381, Y = 42 },
-    SelectWord = {},
+    SelectWordSprite = "SelectWord",
     SelectWordPos = {
         { X = 94, Y = 51 },
         { X = 109, Y = 51 },
@@ -44,7 +44,49 @@ root.TipsMenu = {
         { X = 213, Y = 51 },
         { X = 228, Y = 51 }
     },
-};
+    CategoryString = "【 】",
+    TipsStringTable = 2,
+    CategoryStringIndex = 5, 
+    SortStringIndex = 10, 
+    LockedTipsIndex = 7, 
+    NumberLabelStrIndex = 8, 
+    PageSeparatorIndex = 9, 
+    TipListEntryBounds = { X = 74, Y = 130, Width = 286, Height = 24 },
+    TipListEntryTextOffsetX = 20;
+    TipListEntryFontSize = 20,
+    TipListYPadding = 24,
+    TipsListBounds = { X = 74, Y = 130, Width = 286, Height = 500 },
+    TipsListRenderBounds = { X = 64, Y = 130, Width = 316, Height = 500 },
+    NumberLabelPosition = { X = 396, Y = 54 },
+    NumberLabelFontSize = 22,
+    NumberBounds = { X = 456, Y = 54, Width = 0, Height = 0 },
+    NumberFontSize = 22,
+    CurrentPageBounds = { X = 1130, Y = 645, Width = 0, Height = 0 },
+    TotalPagesBounds = { X = 1184, Y = 645, Width = 0, Height = 0 },
+    DefaultColorIndex = 0,
+    UnreadColorIndex = 70,
+    PageSeparatorPosition = { X = 1154, Y = 645 },
+    PageSeparatorFontSize = 32,
+    PronounciationFontSize = 20,
+    NameFontSize = 32,
+    TipListEntryNameXOffset = 50,
+    NameInitialBounds = { X = 1210, Y = 77, Width = 0, Height = 0 },
+    PronounciationInitialBounds = { X = 1210, Y = 107, Width = 0, Height = 0 },
+    TipsListEntryDotOffset = { X = -17, Y = -4},
+
+    TipsEntryHighlightBarSprite = "TipsEntryHighlightBar",
+    TipsEntryHighlightDotSprite = "TipsEntryHighlightDot",
+    TipsEntryNewDotSprite = "TipsEntryNewDot",
+    TipsLeftLineSprite = "TipsLeftLine",
+    TipsLeftLineEndSprite = "TipsLeftLineEnd",
+    TipsLeftLineHoleSprite = "TipsLeftLineHole",
+    TipsLeftLineHoleEndSprite = "TipsLeftLineHoleEnd",
+    TipsListBgBarSprite = "TipsListBgBar",
+    TipsListBgBarHoleSprite = "TipsListBgBarHole",
+    TipsScrollThumbSprite = "TipsScrollThumb",
+    TipsScrollTrackSprite = "TipsScrollTrack",
+
+}
 
 root.Sprites["CircleTips"] = {
     Sheet = "Tips",
@@ -78,7 +120,7 @@ root.Sprites["MenuTitleTextTips"] = {
 
 root.Sprites["TipsTree"] = {
     Sheet = "Tips",
-    Bounds = { X = 848, Y = 273, Width = 300, Height = 150 }
+    Bounds = { X = 851, Y = 273, Width = 182, Height = 131 }
 }
 
 --Purposefully cut the texture to create smaller Rect below
@@ -95,4 +137,54 @@ root.Sprites["ButtonPromptTips"] = {
 root.Sprites["CurrentTipBackgroundSprite"] = {
     Sheet = "Tips",
     Bounds = { X = 1, Y = 1, Width = 846, Height = 605 }
+}
+
+root.Sprites["SelectWord"] = {
+    Sheet = "Tips",
+    Bounds = { X = 1, Y = 643, Width = 200, Height = 57 }
+}
+
+root.Sprites["TipsEntryHighlightBar"] = {
+    Sheet = "Tips",
+    Bounds = { X = 851, Y = 510, Width = 296, Height = 24 }
+}
+root.Sprites["TipsEntryHighlightDot"] = {
+    Sheet = "Tips",
+    Bounds = { X = 636, Y = 609, Width = 32, Height = 32 }
+}
+root.Sprites["TipsEntryNewDot"] = {
+    Sheet = "Tips",
+    Bounds = { X = 602, Y = 609, Width = 32, Height = 32 }
+}
+root.Sprites["TipsLeftLine"] = {
+    Sheet = "Tips",
+    Bounds = { X = 851, Y = 406, Width = 32, Height = 24 }
+}
+root.Sprites["TipsLeftLineHole"] = {
+    Sheet = "Tips",
+    Bounds = { X = 851, Y = 432, Width = 32, Height = 24 }
+}
+root.Sprites["TipsLeftLineHoleEnd"] = {
+    Sheet = "Tips",
+    Bounds = { X = 851, Y = 458, Width = 32, Height = 24 }
+}
+root.Sprites["TipsLeftLineEnd"] = {
+    Sheet = "Tips",
+    Bounds = { X = 851, Y = 484, Width = 316, Height = 8 }
+}
+root.Sprites["TipsListBgBar"] = {
+    Sheet = "Tips",
+    Bounds = { X = 851, Y = 134, Width = 286, Height = 24 }
+}
+root.Sprites["TipsListBgBarHole"] = {
+    Sheet = "Tips",
+    Bounds = { X = 851, Y = 160, Width = 286, Height = 24 }
+}
+root.Sprites["TipsScrollThumb"] = {
+    Sheet = "Tips",
+    Bounds = { X = 1274, Y = 511, Width = 16, Height = 61 }
+}
+root.Sprites["TipsScrollTrack"] = {
+    Sheet = "Tips",
+    Bounds = { X = 1280, Y = 0, Width = 3, Height = 500 }
 }

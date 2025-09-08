@@ -24,6 +24,8 @@ root.Sprites["SkipIconSprite"] = {
 };
 
 root.Dialogue = {
+    TipsBounds = { X = 404, Y = 150, Width = 800, Height = 420 },
+    TipsColorIndex = 0,
     REVBounds = { X = 339, Y = 192, Width = 478, Height = 106 },
     REVBoxSprite = "REVBox",
     REVBoxPos = { X = 314, Y = 156 },
