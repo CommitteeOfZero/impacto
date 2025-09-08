@@ -271,12 +271,14 @@ void BacklogMenu::RenderHighlight() const {
           Profile::Dialogue::REVBounds.Width, EntryHighlight.ScaledHeight());
       break;
     case EntryHighlightLocationType::TopLineLeftOfScreen:
-      pos = RectF(0.0f, el.Bounds.Y, EntryHighlight.ScaledWidth(),
-                  EntryHighlight.ScaledHeight());
+      pos = RectF(0.0f, el.Bounds.Y - EntryHighlightPadding,
+                  EntryHighlight.ScaledWidth(),
+                  EntryHighlight.ScaledHeight() + EntryHighlightPadding * 2);
       break;
     case EntryHighlightLocationType::AllLinesLeftOfScreen:
-      pos = RectF(0.0f, el.Bounds.Y, EntryHighlight.ScaledWidth(),
-                  el.Bounds.Height);
+      pos = RectF(0.0f, el.Bounds.Y - EntryHighlightPadding,
+                  EntryHighlight.ScaledWidth(),
+                  el.Bounds.Height + EntryHighlightPadding * 2);
       break;
   }
 

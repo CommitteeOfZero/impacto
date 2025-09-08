@@ -28,6 +28,7 @@ root.BacklogMenu = {
     EntryHighlightSprite = "EntryHighlight",
     EntryHighlightLocation = EntryHighlightLocationType.AllLinesLeftOfScreen,
     EntryHighlightOffset = { X = 75, Y = 0 },
+    EntryHighlightPadding = 2.0,
     VoiceIconSprite = "VoiceIcon",
     VoiceIconOffset = { X = 0, Y = 0 },
     ScrollbarThumbSprite = "ScrollbarThumb",

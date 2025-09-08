@@ -44,6 +44,7 @@ void Configure() {
     EntryYPadding = EnsureGetMember<float>("EntryYPadding");
     EntriesStart = EnsureGetMember<glm::vec2>("EntriesStart");
     EntryHighlightOffset = EnsureGetMember<glm::vec2>("EntryHighlightOffset");
+    EntryHighlightPadding = EnsureGetMember<float>("EntryHighlightPadding");
     VoiceIconOffset = EnsureGetMember<glm::vec2>("VoiceIconOffset");
     ScrollbarPosition = EnsureGetMember<glm::vec2>("ScrollbarPosition");
     ScrollbarThumbLength = EnsureGetMember<float>("ScrollbarThumbLength");
