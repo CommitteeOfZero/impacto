@@ -970,6 +970,7 @@ void DialoguePage::Move(glm::vec2 relativePos) {
 }
 
 void DialoguePage::MoveTo(glm::vec2 pos) {
+  if (Glyphs.empty()) return;
   glm::vec2 relativePos =
       pos - glm::vec2(Glyphs[0].DestRect.X, Glyphs[0].DestRect.Y);
   Move(relativePos);
