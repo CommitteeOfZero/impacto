@@ -100,13 +100,6 @@ void OptionsBinaryButton::Move(glm::vec2 relativePos) {
   FalseButton.Move(relativePos);
 }
 
-void OptionsBinaryButton::MoveTo(glm::vec2 pos) {
-  const glm::vec2 relativePosition = pos - Bounds.GetPos();
-  OptionsEntry::MoveTo(pos);
-  TrueButton.Move(relativePosition);
-  FalseButton.Move(relativePosition);
-}
-
 void OptionsBinaryButton::TrueOnClick(ClickArea* target) {
   if (Selected && State != true)
     Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0.0f);

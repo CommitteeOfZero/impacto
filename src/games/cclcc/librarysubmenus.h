@@ -18,8 +18,6 @@ class LibrarySubmenu : public Menu {
   void Update(float dt) override;
   virtual void UpdateInput(float dt) override { Menu::UpdateInput(dt); };
   void Render() override;
-  // void Move(glm::vec2 offset);
-  // void MoveTo(glm::vec2 pos);
   virtual void Unfocus();
   Animation FadeAnimation;
   Widgets::Group MainItems{this};

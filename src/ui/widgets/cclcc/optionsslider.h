@@ -21,7 +21,6 @@ class OptionsSlider : public OptionsEntry {
   void UpdateInput(float dt) override;
 
   void Move(glm::vec2 relativePos) override;
-  void MoveTo(glm::vec2 pos) override;
 
  protected:
   OptionsSlider(float& value, float min, float max, const Sprite& box,

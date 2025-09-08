@@ -120,8 +120,8 @@ void LibraryMenu::Show() {
     }
     UI::FocusedMenu = this;
     MainItems.Show();
-    MainItems.Move({LibraryTransitionPositionOffset, 0.0f},
-                   FadeAnimation.DurationIn);
+    MainItems.MoveTimed({LibraryTransitionPositionOffset, 0.0f},
+                        FadeAnimation.DurationIn);
   }
 }
 
@@ -137,8 +137,8 @@ void LibraryMenu::Hide() {
     }
     MainItems.Hide();
     MainItems.IsShown = true;
-    MainItems.Move({-LibraryTransitionPositionOffset, 0.0f},
-                   FadeAnimation.DurationOut);
+    MainItems.MoveTimed({-LibraryTransitionPositionOffset, 0.0f},
+                        FadeAnimation.DurationOut);
     IsFocused = false;
   }
 }

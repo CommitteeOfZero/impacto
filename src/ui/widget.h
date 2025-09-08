@@ -32,10 +32,12 @@ class Widget {
   virtual WidgetType GetType();
 
   // TODO: Text movement in widgets with text
-  virtual void Move(glm::vec2 relativePosition, float duration);
-  virtual void Move(glm::vec2 relativePosition);
-  virtual void MoveTo(glm::vec2 pos, float duration);
-  virtual void MoveTo(glm::vec2 pos) { Move(pos - Bounds.GetPos()); }
+  virtual void Move(glm::vec2 relativePosition) { Bounds += relativePosition; }
+  void MoveTimed(glm::vec2 relativePosition, float duration);
+  void MoveTo(glm::vec2 pos) { Move(pos - Bounds.GetPos()); }
+  void MoveToTimed(glm::vec2 pos, float duration) {
+    MoveTimed(pos - Bounds.GetPos(), duration);
+  }
 
   virtual Widget* GetFocus(FocusDirection dir);
   virtual void SetFocus(Widget* widget, FocusDirection dir);

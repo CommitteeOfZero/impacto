@@ -84,7 +84,7 @@ void TipsNotification::Update(float dt) {
     NotificationQueue.pop();
 
     Notification->MoveTo(InitialNotificationPosition);
-    Notification->MoveTo(FinalNotificationPosition, MoveAnimationDuration);
+    Notification->MoveToTimed(FinalNotificationPosition, MoveAnimationDuration);
   }
   if (NotificationQueue.empty() && FadeAnimation.IsIn() && Timer.IsIn()) {
     FadeAnimation.StartOut();

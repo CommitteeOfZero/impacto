@@ -70,12 +70,6 @@ void OptionsSlider::Move(glm::vec2 relativePos) {
   Slider.Move(relativePos);
 }
 
-void OptionsSlider::MoveTo(glm::vec2 pos) {
-  const glm::vec2 relativePosition = pos - Bounds.GetPos();
-  OptionsEntry::MoveTo(pos);
-  Slider.Move(relativePosition);
-}
-
 }  // namespace CCLCC
 }  // namespace Widgets
 }  // namespace UI

@@ -89,11 +89,6 @@ void Label::Move(glm::vec2 relativePosition) {
   Widget::Move(relativePosition);
 }
 
-void Label::MoveTo(glm::vec2 pos) {
-  auto relativePosition = pos - glm::vec2(Bounds.X, Bounds.Y);
-  Move(relativePosition);
-}
-
 void Label::SetSprite(Sprite const& label) {
   IsText = false;
   LabelSprite = label;

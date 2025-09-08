@@ -57,11 +57,6 @@ void AlbumThumbnailButton::Move(glm::vec2 relativePosition) {
   Widget::Move(relativePosition);
 }
 
-void AlbumThumbnailButton::MoveTo(glm::vec2 pos) {
-  InfoText->MoveTo(pos);
-  Widget::MoveTo(pos);
-}
-
 }  // namespace MO6TW
 }  // namespace Widgets
 }  // namespace UI

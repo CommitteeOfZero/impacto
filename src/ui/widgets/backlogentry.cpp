@@ -101,11 +101,6 @@ void BacklogEntry::Move(glm::vec2 relativePosition) {
   BacklogPage->Move(relativePosition);
 }
 
-void BacklogEntry::MoveTo(glm::vec2 position) {
-  glm::vec2 relativePosition = position - Position;
-  Move(relativePosition);
-}
-
 void BacklogEntry::Render() {
   if (AudioId != -1) {
     Renderer->DrawSprite(

@@ -490,61 +490,61 @@ void TitleMenu::ShowExtraStoryItems() {
 
   SecondaryFadeAnimation.StartIn();
 
-  Prologue->Move(SecondaryMenuAnimTarget, SecondaryMenuAnimDuration);
-  OtomeJudgeShin->Move(
+  Prologue->MoveTimed(SecondaryMenuAnimTarget, SecondaryMenuAnimDuration);
+  OtomeJudgeShin->MoveTimed(
       glm::vec2(SecondaryMenuAnimTarget.x + SecondaryMenuPadding,
                 SecondaryMenuAnimTarget.y),
       SecondaryMenuAnimDuration);
-  Warning->Move(
+  Warning->MoveTimed(
       glm::vec2(SecondaryMenuAnimTarget.x + (2 * SecondaryMenuPadding),
                 SecondaryMenuAnimTarget.y),
       SecondaryMenuAnimDuration);
 
-  Continue->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                           ExtraStoryItemCount * MenuEntriesYPadding),
-                 SecondaryMenuAnimDuration);
-  Memories->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                           ExtraStoryItemCount * MenuEntriesYPadding),
-                 SecondaryMenuAnimDuration);
-  Encyclopedia->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                               ExtraStoryItemCount * MenuEntriesYPadding),
-                     SecondaryMenuAnimDuration);
-  System->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                         ExtraStoryItemCount * MenuEntriesYPadding),
-               SecondaryMenuAnimDuration);
-  Exit->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                       ExtraStoryItemCount * MenuEntriesYPadding),
-             SecondaryMenuAnimDuration);
+  Continue->MoveTimed(glm::vec2(SecondaryMenuAnimUnderX,
+                                ExtraStoryItemCount * MenuEntriesYPadding),
+                      SecondaryMenuAnimDuration);
+  Memories->MoveTimed(glm::vec2(SecondaryMenuAnimUnderX,
+                                ExtraStoryItemCount * MenuEntriesYPadding),
+                      SecondaryMenuAnimDuration);
+  Encyclopedia->MoveTimed(glm::vec2(SecondaryMenuAnimUnderX,
+                                    ExtraStoryItemCount * MenuEntriesYPadding),
+                          SecondaryMenuAnimDuration);
+  System->MoveTimed(glm::vec2(SecondaryMenuAnimUnderX,
+                              ExtraStoryItemCount * MenuEntriesYPadding),
+                    SecondaryMenuAnimDuration);
+  Exit->MoveTimed(glm::vec2(SecondaryMenuAnimUnderX,
+                            ExtraStoryItemCount * MenuEntriesYPadding),
+                  SecondaryMenuAnimDuration);
 }
 
 void TitleMenu::HideExtraStoryItems() {
   SecondaryFadeAnimation.StartOut();
 
-  Prologue->Move(-SecondaryMenuAnimTarget, SecondaryMenuAnimDuration);
-  OtomeJudgeShin->Move(
+  Prologue->MoveTimed(-SecondaryMenuAnimTarget, SecondaryMenuAnimDuration);
+  OtomeJudgeShin->MoveTimed(
       glm::vec2(-(SecondaryMenuAnimTarget.x + SecondaryMenuPadding),
                 SecondaryMenuAnimTarget.y),
       SecondaryMenuAnimDuration);
-  Warning->Move(
+  Warning->MoveTimed(
       glm::vec2(-(SecondaryMenuAnimTarget.x + (2 * SecondaryMenuPadding)),
                 SecondaryMenuAnimTarget.y),
       SecondaryMenuAnimDuration);
 
-  Continue->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                           -ExtraStoryItemCount * MenuEntriesYPadding),
-                 SecondaryMenuAnimDuration);
-  Memories->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                           -ExtraStoryItemCount * MenuEntriesYPadding),
-                 SecondaryMenuAnimDuration);
-  Encyclopedia->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                               -ExtraStoryItemCount * MenuEntriesYPadding),
-                     SecondaryMenuAnimDuration);
-  System->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                         -ExtraStoryItemCount * MenuEntriesYPadding),
-               SecondaryMenuAnimDuration);
-  Exit->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                       -ExtraStoryItemCount * MenuEntriesYPadding),
-             SecondaryMenuAnimDuration);
+  Continue->MoveTimed(glm::vec2(SecondaryMenuAnimUnderX,
+                                -ExtraStoryItemCount * MenuEntriesYPadding),
+                      SecondaryMenuAnimDuration);
+  Memories->MoveTimed(glm::vec2(SecondaryMenuAnimUnderX,
+                                -ExtraStoryItemCount * MenuEntriesYPadding),
+                      SecondaryMenuAnimDuration);
+  Encyclopedia->MoveTimed(glm::vec2(SecondaryMenuAnimUnderX,
+                                    -ExtraStoryItemCount * MenuEntriesYPadding),
+                          SecondaryMenuAnimDuration);
+  System->MoveTimed(glm::vec2(SecondaryMenuAnimUnderX,
+                              -ExtraStoryItemCount * MenuEntriesYPadding),
+                    SecondaryMenuAnimDuration);
+  Exit->MoveTimed(glm::vec2(SecondaryMenuAnimUnderX,
+                            -ExtraStoryItemCount * MenuEntriesYPadding),
+                  SecondaryMenuAnimDuration);
 }
 
 void TitleMenu::ShowContinueItems() {
@@ -554,45 +554,47 @@ void TitleMenu::ShowContinueItems() {
 
   SecondaryFadeAnimation.StartIn();
 
-  Load->Move(SecondaryMenuAnimTarget, SecondaryMenuAnimDuration);
-  QuickLoad->Move(glm::vec2(SecondaryMenuAnimTarget.x + SecondaryMenuPadding,
-                            SecondaryMenuAnimTarget.y),
-                  SecondaryMenuAnimDuration);
+  Load->MoveTimed(SecondaryMenuAnimTarget, SecondaryMenuAnimDuration);
+  QuickLoad->MoveTimed(
+      glm::vec2(SecondaryMenuAnimTarget.x + SecondaryMenuPadding,
+                SecondaryMenuAnimTarget.y),
+      SecondaryMenuAnimDuration);
 
-  Memories->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                           ContinueItemCount * MenuEntriesYPadding),
-                 SecondaryMenuAnimDuration);
-  Encyclopedia->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                               ContinueItemCount * MenuEntriesYPadding),
-                     SecondaryMenuAnimDuration);
-  System->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                         ContinueItemCount * MenuEntriesYPadding),
-               SecondaryMenuAnimDuration);
-  Exit->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                       ContinueItemCount * MenuEntriesYPadding),
-             SecondaryMenuAnimDuration);
+  Memories->MoveTimed(glm::vec2(SecondaryMenuAnimUnderX,
+                                ContinueItemCount * MenuEntriesYPadding),
+                      SecondaryMenuAnimDuration);
+  Encyclopedia->MoveTimed(glm::vec2(SecondaryMenuAnimUnderX,
+                                    ContinueItemCount * MenuEntriesYPadding),
+                          SecondaryMenuAnimDuration);
+  System->MoveTimed(glm::vec2(SecondaryMenuAnimUnderX,
+                              ContinueItemCount * MenuEntriesYPadding),
+                    SecondaryMenuAnimDuration);
+  Exit->MoveTimed(glm::vec2(SecondaryMenuAnimUnderX,
+                            ContinueItemCount * MenuEntriesYPadding),
+                  SecondaryMenuAnimDuration);
 }
 
 void TitleMenu::HideContinueItems() {
   SecondaryFadeAnimation.StartOut();
 
-  Load->Move(-SecondaryMenuAnimTarget, SecondaryMenuAnimDuration);
-  QuickLoad->Move(glm::vec2(-(SecondaryMenuAnimTarget.x + SecondaryMenuPadding),
-                            SecondaryMenuAnimTarget.y),
-                  SecondaryMenuAnimDuration);
+  Load->MoveTimed(-SecondaryMenuAnimTarget, SecondaryMenuAnimDuration);
+  QuickLoad->MoveTimed(
+      glm::vec2(-(SecondaryMenuAnimTarget.x + SecondaryMenuPadding),
+                SecondaryMenuAnimTarget.y),
+      SecondaryMenuAnimDuration);
 
-  Memories->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                           -ContinueItemCount * MenuEntriesYPadding),
-                 SecondaryMenuAnimDuration);
-  Encyclopedia->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                               -ContinueItemCount * MenuEntriesYPadding),
-                     SecondaryMenuAnimDuration);
-  System->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                         -ContinueItemCount * MenuEntriesYPadding),
-               SecondaryMenuAnimDuration);
-  Exit->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                       -ContinueItemCount * MenuEntriesYPadding),
-             SecondaryMenuAnimDuration);
+  Memories->MoveTimed(glm::vec2(SecondaryMenuAnimUnderX,
+                                -ContinueItemCount * MenuEntriesYPadding),
+                      SecondaryMenuAnimDuration);
+  Encyclopedia->MoveTimed(glm::vec2(SecondaryMenuAnimUnderX,
+                                    -ContinueItemCount * MenuEntriesYPadding),
+                          SecondaryMenuAnimDuration);
+  System->MoveTimed(glm::vec2(SecondaryMenuAnimUnderX,
+                              -ContinueItemCount * MenuEntriesYPadding),
+                    SecondaryMenuAnimDuration);
+  Exit->MoveTimed(glm::vec2(SecondaryMenuAnimUnderX,
+                            -ContinueItemCount * MenuEntriesYPadding),
+                  SecondaryMenuAnimDuration);
 }
 
 void TitleMenu::ShowMemoriesItems() {
@@ -602,61 +604,64 @@ void TitleMenu::ShowMemoriesItems() {
 
   SecondaryFadeAnimation.StartIn();
 
-  ClearList->Move(SecondaryMenuAnimTarget, SecondaryMenuAnimDuration);
-  Album->Move(glm::vec2(SecondaryMenuAnimTarget.x + SecondaryMenuPadding,
-                        SecondaryMenuAnimTarget.y),
-              SecondaryMenuAnimDuration);
-  Music->Move(glm::vec2(SecondaryMenuAnimTarget.x + (2 * SecondaryMenuPadding),
-                        SecondaryMenuAnimTarget.y),
-              SecondaryMenuAnimDuration);
-  Movie->Move(glm::vec2(SecondaryMenuAnimTarget.x + (3 * SecondaryMenuPadding),
-                        SecondaryMenuAnimTarget.y),
-              SecondaryMenuAnimDuration);
-  ActorsVoice->Move(
+  ClearList->MoveTimed(SecondaryMenuAnimTarget, SecondaryMenuAnimDuration);
+  Album->MoveTimed(glm::vec2(SecondaryMenuAnimTarget.x + SecondaryMenuPadding,
+                             SecondaryMenuAnimTarget.y),
+                   SecondaryMenuAnimDuration);
+  Music->MoveTimed(
+      glm::vec2(SecondaryMenuAnimTarget.x + (2 * SecondaryMenuPadding),
+                SecondaryMenuAnimTarget.y),
+      SecondaryMenuAnimDuration);
+  Movie->MoveTimed(
+      glm::vec2(SecondaryMenuAnimTarget.x + (3 * SecondaryMenuPadding),
+                SecondaryMenuAnimTarget.y),
+      SecondaryMenuAnimDuration);
+  ActorsVoice->MoveTimed(
       glm::vec2(SecondaryMenuAnimTarget.x + (4 * SecondaryMenuPadding),
                 SecondaryMenuAnimTarget.y),
       SecondaryMenuAnimDuration);
 
-  Encyclopedia->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                               MemoriesItemCount * MenuEntriesYPadding),
-                     SecondaryMenuAnimDuration);
-  System->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                         MemoriesItemCount * MenuEntriesYPadding),
-               SecondaryMenuAnimDuration);
-  Exit->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                       MemoriesItemCount * MenuEntriesYPadding),
-             SecondaryMenuAnimDuration);
+  Encyclopedia->MoveTimed(glm::vec2(SecondaryMenuAnimUnderX,
+                                    MemoriesItemCount * MenuEntriesYPadding),
+                          SecondaryMenuAnimDuration);
+  System->MoveTimed(glm::vec2(SecondaryMenuAnimUnderX,
+                              MemoriesItemCount * MenuEntriesYPadding),
+                    SecondaryMenuAnimDuration);
+  Exit->MoveTimed(glm::vec2(SecondaryMenuAnimUnderX,
+                            MemoriesItemCount * MenuEntriesYPadding),
+                  SecondaryMenuAnimDuration);
 }
 
 void TitleMenu::HideMemoriesItems() {
   SecondaryFadeAnimation.StartOut();
 
-  ClearList->Move(-SecondaryMenuAnimTarget, SecondaryMenuAnimDuration);
-  Album->Move(glm::vec2(-(SecondaryMenuAnimTarget.x + SecondaryMenuPadding),
-                        SecondaryMenuAnimTarget.y),
-              SecondaryMenuAnimDuration);
-  Music->Move(
+  ClearList->MoveTimed(-SecondaryMenuAnimTarget, SecondaryMenuAnimDuration);
+  Album->MoveTimed(
+      glm::vec2(-(SecondaryMenuAnimTarget.x + SecondaryMenuPadding),
+                SecondaryMenuAnimTarget.y),
+      SecondaryMenuAnimDuration);
+  Music->MoveTimed(
       glm::vec2(-(SecondaryMenuAnimTarget.x + (2 * SecondaryMenuPadding)),
                 SecondaryMenuAnimTarget.y),
       SecondaryMenuAnimDuration);
-  Movie->Move(
+  Movie->MoveTimed(
       glm::vec2(-(SecondaryMenuAnimTarget.x + (3 * SecondaryMenuPadding)),
                 SecondaryMenuAnimTarget.y),
       SecondaryMenuAnimDuration);
-  ActorsVoice->Move(
+  ActorsVoice->MoveTimed(
       glm::vec2(-(SecondaryMenuAnimTarget.x + (4 * SecondaryMenuPadding)),
                 SecondaryMenuAnimTarget.y),
       SecondaryMenuAnimDuration);
 
-  Encyclopedia->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                               -MemoriesItemCount * MenuEntriesYPadding),
-                     SecondaryMenuAnimDuration);
-  System->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                         -MemoriesItemCount * MenuEntriesYPadding),
-               SecondaryMenuAnimDuration);
-  Exit->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                       -MemoriesItemCount * MenuEntriesYPadding),
-             SecondaryMenuAnimDuration);
+  Encyclopedia->MoveTimed(glm::vec2(SecondaryMenuAnimUnderX,
+                                    -MemoriesItemCount * MenuEntriesYPadding),
+                          SecondaryMenuAnimDuration);
+  System->MoveTimed(glm::vec2(SecondaryMenuAnimUnderX,
+                              -MemoriesItemCount * MenuEntriesYPadding),
+                    SecondaryMenuAnimDuration);
+  Exit->MoveTimed(glm::vec2(SecondaryMenuAnimUnderX,
+                            -MemoriesItemCount * MenuEntriesYPadding),
+                  SecondaryMenuAnimDuration);
 }
 
 void TitleMenu::ShowSystemItems() {
@@ -666,12 +671,13 @@ void TitleMenu::ShowSystemItems() {
 
   SecondaryFadeAnimation.StartIn();
 
-  Option->Move(SecondaryMenuAnimTarget, SecondaryMenuAnimDuration);
-  SystemSave->Move(glm::vec2(SecondaryMenuAnimTarget.x + SecondaryMenuPadding,
-                             SecondaryMenuAnimTarget.y),
-                   SecondaryMenuAnimDuration);
+  Option->MoveTimed(SecondaryMenuAnimTarget, SecondaryMenuAnimDuration);
+  SystemSave->MoveTimed(
+      glm::vec2(SecondaryMenuAnimTarget.x + SecondaryMenuPadding,
+                SecondaryMenuAnimTarget.y),
+      SecondaryMenuAnimDuration);
 
-  Exit->Move(
+  Exit->MoveTimed(
       glm::vec2(SecondaryMenuAnimUnderX, SystemItemCount * MenuEntriesYPadding),
       SecondaryMenuAnimDuration);
 }
@@ -679,15 +685,15 @@ void TitleMenu::ShowSystemItems() {
 void TitleMenu::HideSystemItems() {
   SecondaryFadeAnimation.StartOut();
 
-  Option->Move(-SecondaryMenuAnimTarget, SecondaryMenuAnimDuration);
-  SystemSave->Move(
+  Option->MoveTimed(-SecondaryMenuAnimTarget, SecondaryMenuAnimDuration);
+  SystemSave->MoveTimed(
       glm::vec2(-(SecondaryMenuAnimTarget.x + SecondaryMenuPadding),
                 SecondaryMenuAnimTarget.y),
       SecondaryMenuAnimDuration);
 
-  Exit->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                       -SystemItemCount * MenuEntriesYPadding),
-             SecondaryMenuAnimDuration);
+  Exit->MoveTimed(glm::vec2(SecondaryMenuAnimUnderX,
+                            -SystemItemCount * MenuEntriesYPadding),
+                  SecondaryMenuAnimDuration);
 }
 
 }  // namespace MO6TW

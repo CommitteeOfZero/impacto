@@ -17,12 +17,10 @@ class TrophyMenuEntry : public Widget {
   void UpdateInput(float dt) override {};
   void Render() override;
   void Move(glm::vec2 relativePosition) override;
-  void MoveTo(glm::vec2 pos) override;
   void UpdateOffset(glm::vec2 offset);
 
  private:
   int AchievementId;
-  glm::vec2 Position;
   Impacto::UI::Widgets::Label NameLabel;
   Impacto::UI::Widgets::Label DescriptionLabel;
   Impacto::Sprite Icon;

@@ -39,13 +39,6 @@ void SceneListEntry::Move(glm::vec2 relativePosition) {
   Widget::Move(relativePosition);
 }
 
-void SceneListEntry::MoveTo(glm::vec2 pos) {
-  Number->MoveTo(pos);
-  LockedText->MoveTo(pos);
-  UnlockedText->MoveTo(pos);
-  Widget::MoveTo(pos);
-}
-
 }  // namespace MO6TW
 }  // namespace Widgets
 }  // namespace UI

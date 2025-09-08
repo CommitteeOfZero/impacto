@@ -35,8 +35,8 @@ class TipsTabGroup : public Menu {
   void Render() override;
   void UpdateTipsEntries(std::vector<int> const& SortedTipIds);
   size_t GetTipEntriesCount() { return TipsEntryButtons.size(); }
+
   void Move(glm::vec2 offset);
-  void MoveTo(glm::vec2 pos);
 
   glm::vec4 Tint = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
