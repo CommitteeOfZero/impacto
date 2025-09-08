@@ -55,6 +55,8 @@ void Configure() {
   PageSeparatorIndex = EnsureGetMember<int>("PageSeparatorIndex");
   LockedTipsIndex = EnsureGetMember<int>("LockedTipsIndex");
   NumberLabelStrIndex = EnsureGetMember<int>("NumberLabelStrIndex");
+  NewLabelStrIndex = EnsureGetMember<int>("NewLabelStrIndex");
+  UnreadLabelStrIndex = EnsureGetMember<int>("UnreadLabelStrIndex");
   auto str = EnsureGetMember<char const*>("CategoryString");
   TextGetSc3String(str, CategoryString);
 
@@ -99,6 +101,7 @@ void Configure() {
   TipsListBgBarHole = EnsureGetMember<Sprite>("TipsListBgBarHoleSprite");
 
   TipsListEntryDotOffset = EnsureGetMember<glm::vec2>("TipsListEntryDotOffset");
+  TipsListNewDotOffset = EnsureGetMember<glm::vec2>("TipsListNewDotOffset");
   TipsScrollThumb = EnsureGetMember<Sprite>("TipsScrollThumbSprite");
   TipsScrollTrack = EnsureGetMember<Sprite>("TipsScrollTrackSprite");
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
