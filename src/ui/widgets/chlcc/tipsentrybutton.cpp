@@ -87,12 +87,8 @@ void TipsEntryButton::Update(float dt) {
 
 void TipsEntryButton::Render() {
   if (HasFocus) {
-    const RectF dest =
-        HighlightSprite.ScaledBounds()
-            .Scale({Bounds.Width / HighlightSprite.ScaledWidth(), 1.0f},
-                   {0.0f, 0.0f})
-            .Translate(Bounds.GetPos() + HighlightOffset);
-    Renderer->DrawSprite(HighlightSprite, dest, Tint);
+    Renderer->DrawSprite(HighlightSprite, Bounds.GetPos() + HighlightOffset,
+                         Tint);
     Renderer->DrawSprite(
         TipsEntryHighlightDot,
         Bounds.GetPos() + HighlightOffset + TipsListEntryDotOffset, Tint);
@@ -107,7 +103,8 @@ void TipsEntryButton::Render() {
     Renderer->DrawProcessedText(Text, Profile::Dialogue::DialogueFont, Tint.a,
                                 RendererOutlineMode::Full);
     if (TipEntryRecord->IsNew) {
-      // ToDo: Draw new sprite
+      Renderer->DrawSprite(TipsEntryNewDot,
+                           Bounds.GetPos() + TipsListNewDotOffset, Tint);
     }
   }
 }
