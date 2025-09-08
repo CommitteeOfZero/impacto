@@ -7,6 +7,8 @@ namespace Profile {
 namespace CHLCC {
 namespace TipsMenu {
 
+int constexpr inline MaxCategoryString = 5;
+
 inline float MenuTransitionDuration;
 inline uint32_t BackgroundColor;
 inline Sprite CircleSprite;
@@ -39,6 +41,47 @@ inline glm::vec2 CurrentTipBackgroundPosition;
 inline Sprite CurrentTipBackgroundSprite;
 inline glm::vec2 ButtonPromptPosition;
 inline Sprite ButtonPromptSprite;
+inline int TipsStringTable;
+inline int CategoryStringIndex;
+inline int SortStringIndex;
+inline int PageSeparatorIndex;
+inline int LockedTipsIndex;
+inline int NumberLabelStrIndex;
+inline uint16_t CategoryString[MaxCategoryString];
+inline glm::vec2 NumberLabelPosition;
+inline float NumberLabelFontSize;
+inline RectF NumberBounds;
+inline float NumberFontSize;
+inline RectF CurrentPageBounds;
+inline RectF TotalPagesBounds;
+inline int DefaultColorIndex;
+inline int UnreadColorIndex;
+inline glm::vec2 PageSeparatorPosition;
+inline float PageSeparatorFontSize;
+inline RectF TipListEntryBounds;
+inline float TipListEntryFontSize;
+inline float TipListYPadding;
+inline float PronounciationFontSize;
+inline float NameFontSize;
+inline float TipListEntryNameXOffset;
+inline float TipListEntryTextOffsetX;
+inline glm::vec2 TipsListEntryDotOffset;
+inline RectF NameInitialBounds;
+inline RectF PronounciationInitialBounds;
+inline RectF TipsListBounds;
+inline RectF TipsListRenderBounds;
+inline Sprite TipsEntryHighlightBar;
+inline Sprite TipsEntryHighlightDot;
+inline Sprite TipsEntryNewDot;
+
+inline Sprite TipsLeftLine;
+inline Sprite TipsLeftLineHole;
+inline Sprite TipsLeftLineEnd;
+inline Sprite TipsLeftLineHoleEnd;
+inline Sprite TipsListBgBar;
+inline Sprite TipsListBgBarHole;
+inline Sprite TipsScrollThumb;
+inline Sprite TipsScrollTrack;
 
 void Configure();
 
