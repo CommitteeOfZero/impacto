@@ -142,11 +142,8 @@ void TipsMenu::Render() {
 }
 
 void TipsMenu::Init() {
-  Sprite nullSprite = Sprite();
-  nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
   auto onClick = [this](auto *btn) { return TipOnClick(btn); };
   int currentPage = 0, currentCategoryId = -1;
-  Group *pageItems = new Group(this);
 
   // String of characters by which tips are sorted, taken from _system script
   auto [scriptBufId, sortStrAddr] =
@@ -156,6 +153,10 @@ void TipsMenu::Init() {
 
   float currentY = TipListInitialY;
 
+  ItemsList.Clear();
+  TipViewItems.Clear();
+
+  Group *pageItems = new Group(this);
   for (size_t i = 0; i < recordCount; i++) {
     auto record = TipsSystem::GetTipRecord(i);
 
