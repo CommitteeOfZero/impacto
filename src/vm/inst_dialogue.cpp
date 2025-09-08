@@ -597,8 +597,10 @@ VmInstruction(InstTips) {
       uint32_t tipsDataSize =
           ScriptGetLabelSize(thread->ScriptBufferId, tipsLabelNum);
       TipsSystem::DataInit(thread->ScriptBufferId, tipsDataAdr, tipsDataSize);
-      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-                 "STUB instruction Tips(type: TipsDataInit)\n");
+      if (UI::TipsMenuPtr) {
+        UI::TipsMenuPtr->Init();
+      }
+
     } break;
     case 1:  // TipsInit
       TipsSystem::UpdateTipRecords();
