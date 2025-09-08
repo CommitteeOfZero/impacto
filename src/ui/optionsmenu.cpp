@@ -80,8 +80,8 @@ void OptionsMenu::Update(float dt) {
   UpdateVisibility();
 
   if (State == Shown && IsFocused) {
-    UpdateInput(dt);
     Pages[CurrentPage]->Update(dt);
+    UpdateInput(dt);
   }
 }
 
@@ -133,7 +133,7 @@ void OptionsMenu::UpdateEntryMovementInput(float dt) {
 void OptionsMenu::UpdateInput(float dt) {
   UpdatePageInput(dt);
 
-  if (GetControlState(CT_Back)) {
+  if (IsFocused && GetControlState(CT_Back)) {
     Hide();
     return;
   }
@@ -171,7 +171,9 @@ void OptionsMenu::Highlight(Widget* toHighlight) {
         (PAD1RIGHT * (bool)toHighlight->GetFocus(FDIR_RIGHT));
   }
   CurrentlyFocusedElement = toHighlight;
-  HighlightedEntriesPerPage[CurrentPage] = CurrentlyFocusedElement;
+  if (RememberHighlightedEntries) {
+    HighlightedEntriesPerPage[CurrentPage] = CurrentlyFocusedElement;
+  }
 }
 
 }  // namespace UI
