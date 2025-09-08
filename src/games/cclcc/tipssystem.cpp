@@ -45,7 +45,6 @@ void TipsSystem::DataInit(uint32_t scriptBufferId, uint32_t tipsDataAdr,
     TipEntryCount += 1;
   }
   Records.resize(TipEntryCount);
-  UI::TipsMenuPtr->Init();
 }
 
 void TipsSystem::UpdateTipRecords() {
