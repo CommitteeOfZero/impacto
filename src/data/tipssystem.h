@@ -15,7 +15,7 @@ int constexpr MaxTipStrings = 10;
 
 struct TipsDataRecord {
   uint16_t Id = 0;
-  uint16_t SortLetterIndex = 0;
+  uint16_t CategoryLetterIndex = 0;
   uint16_t ThumbnailIndex = 0;
   uint16_t NumberOfContentStrings = 0;
   std::array<uint32_t, MaxTipStrings> StringAdr = {};
