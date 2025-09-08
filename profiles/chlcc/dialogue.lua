@@ -24,6 +24,8 @@ root.Sprites["SkipIconSprite"] = {
 };
 
 root.Dialogue = {
+    TipsBounds = { X = 404, Y = 150, Width = 800, Height = 420 },
+    TipsColorIndex = 0,
     REVBounds = { X = 337, Y = 159, Width = 952, Height = 555 },
     SecondaryREVBounds = {X = 338, Y = 159, Width = 480, Height = 106},
     ErinBoxSprite = "ErinBox",

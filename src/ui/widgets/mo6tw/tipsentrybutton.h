@@ -8,10 +8,6 @@ namespace UI {
 namespace Widgets {
 namespace MO6TW {
 
-int constexpr TipNumberLength = 4;
-int constexpr TipLockedTextLength = 3;
-int constexpr NewTextLength = 3;
-
 class TipsEntryButton : public Widgets::Button {
  public:
   TipsEntryButton(int id, Impacto::TipsSystem::TipsDataRecord* tipRecord,
@@ -22,9 +18,9 @@ class TipsEntryButton : public Widgets::Button {
   Impacto::TipsSystem::TipsDataRecord* TipEntryRecord;
 
  private:
-  std::array<ProcessedTextGlyph, TipNumberLength> TipNumber;
-  std::array<ProcessedTextGlyph, TipLockedTextLength> TipLockedText;
-  std::array<ProcessedTextGlyph, NewTextLength> NewText;
+  std::array<ProcessedTextGlyph, 3> TipNumber;
+  std::array<ProcessedTextGlyph, 3> TipLockedText;
+  std::array<ProcessedTextGlyph, 3> NewText;
 
   bool PrevUnreadState;
 };
