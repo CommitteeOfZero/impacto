@@ -326,6 +326,13 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
     time_t rawtime;
     time(&rawtime);
     entry->SaveDate = CurrentDateTime();
+
+    // Save file does not store timezone info
+    // Zeroing out so sorting works properly
+    entry->SaveDate.tm_isdst = 0;
+    entry->SaveDate.tm_gmtoff = 0;
+    entry->SaveDate.tm_zone = nullptr;
+
     auto captureBuffer =
         Renderer->GetSpriteSheetImage(WorkingSaveThumbnail.Sheet);
 
