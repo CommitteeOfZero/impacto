@@ -1,12 +1,72 @@
 #include "tipssystem.h"
 
 #include "../profile/data/tipssystem.h"
+#include "../vm/vm.h"
 #include <vector>
 
 namespace Impacto {
 namespace TipsSystem {
 
 using namespace Impacto::Profile::TipsSystem;
+
+TipsSorter::TipsSorter(uint32_t tipsTableId, uint32_t sortStringIndex,
+                       int tipIdStrIndex)
+    : SortString(nullptr), TipIdStrIndex(tipIdStrIndex) {
+  auto [scrBufId, offset] =
+      Vm::ScriptGetTextTableStrAddress(tipsTableId, sortStringIndex);
+  SortString = &Vm::ScriptBuffers[scrBufId][offset];
+  int i = 0;
+  int distance = 0;
+  while (SortString[i] != 0xFF) {
+    if (SortString[i] & 0x80) {
+      uint16_t sc3Char = SDL_SwapBE16(UnalignedRead<uint16_t>(SortString + i));
+      Sc3SortMap[sc3Char] = distance++;
+      i += 2;
+    } else {
+      ImpLogSlow(LogLevel::Warning, LogChannel::VM,
+                 "TipsSorter: SC3 Tag Found in Sort String\n", SortString[i]);
+      i++;
+    }
+  }
+}
+
+bool TipsSorter::operator()(int a, int b) const {
+  auto* aRecord = TipsSystem::GetTipRecord(a);
+  auto* bRecord = TipsSystem::GetTipRecord(b);
+  uint32_t tipsScrBufId = TipsSystem::GetTipsScriptBufferId();
+  uint8_t* aString =
+      &Vm::ScriptBuffers[tipsScrBufId][aRecord->StringAdr[TipIdStrIndex]];
+  uint8_t* bString =
+      &Vm::ScriptBuffers[tipsScrBufId][bRecord->StringAdr[TipIdStrIndex]];
+
+  int aIndex = 0;
+  int bIndex = 0;
+
+  while (aString[aIndex] != 0xff && bString[bIndex] != 0xff) {
+    if ((aString[aIndex] & 0x80) == 0) {
+      aIndex++;
+      continue;
+    }
+    if ((bString[bIndex] & 0x80) == 0) {
+      bIndex++;
+      continue;
+    }
+    uint16_t aSc3Char = SDL_SwapBE16(UnalignedRead<uint16_t>(aString + aIndex));
+    aIndex += 2;
+
+    uint16_t bSc3Char = SDL_SwapBE16(UnalignedRead<uint16_t>(bString + bIndex));
+    bIndex += 2;
+    if (aSc3Char != bSc3Char) {
+      auto aSortValue = Sc3SortMap.find(aSc3Char);
+      auto bSortValue = Sc3SortMap.find(bSc3Char);
+      if (aSortValue != Sc3SortMap.end() && bSortValue != Sc3SortMap.end()) {
+        return aSortValue->second < bSortValue->second;
+      }
+    }
+  }
+  // If strings are all the same, return the shorter one
+  return aString[aIndex] == 0xff && bString[bIndex] != 0xff;
+}
 
 void Init() { Configure(); }
 
