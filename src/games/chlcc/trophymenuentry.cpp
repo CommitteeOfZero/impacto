@@ -2,6 +2,7 @@
 #include "../../data/achievementsystem.h"
 #include "trophymenu.h"
 #include "../../profile/games/chlcc/trophymenu.h"
+#include "../../profile/game.h"
 
 namespace Impacto {
 namespace UI {
@@ -12,7 +13,7 @@ using namespace Impacto::Profile::CHLCC::TrophyMenu;
 using namespace Impacto::AchievementSystem;
 
 TrophyMenuEntry::TrophyMenuEntry(int achievementId)
-    : AchievementId(achievementId), Offset(0.0f, -720.0f) {
+    : AchievementId(achievementId), Offset(0.0f, -Profile::DesignHeight) {
   Position = glm::vec2(0.0f, 74.0f * (AchievementId % 6) + 130) + Offset;
 
   const auto* ach = AchievementSystem::GetAchievement(AchievementId);

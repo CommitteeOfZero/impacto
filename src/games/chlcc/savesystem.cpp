@@ -8,10 +8,8 @@
 #include "../../profile/scriptvars.h"
 #include "../../renderer/renderer.h"
 #include "../../profile/configsystem.h"
-#include "../../profile/hud/delusiontrigger.h"
 
 #include <cstdint>
-#include <ctime>
 #include <numeric>
 
 namespace Impacto {

@@ -6,6 +6,7 @@
 #include "../../profile/games/chlcc/delusiontrigger.h"
 #include "../../profile/scriptvars.h"
 #include "../../game.h"
+#include "../../profile/game.h"
 
 namespace Impacto {
 namespace CHLCC {
@@ -334,14 +335,18 @@ void DelusionTrigger::Render() {
   ScaledMask.Bounds.Y = BackgroundSpriteMask.Bounds.Y - deltaHeight / 2.0f;
 
   TriggerOnTint[3] = TriggerOnTintAlpha * backgroundAlpha / 65536.0f;
-  Renderer->DrawQuad(RectF(0.0f, 0.0f, 1280.0f, 720.0f), TriggerOnTint);
+  Renderer->DrawQuad(
+      RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+      TriggerOnTint);
 
   ScreenMask.Bounds.X = UnderlayerXOffset / 1000.0f;
   Renderer->DrawSprite(
-      ScreenMask, RectF(0.0f, 0.0f, 1280.0f, 720.0f),
+      ScreenMask,
+      RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
       glm::vec4(1.0f, 1.0f, 1.0f, (backgroundAlpha * 160) / 65536.0));
 
-  const RectF spriteDest = {0.0f, 0.0f, 1280.0f, 720.0f};
+  const RectF spriteDest = {0.0f, 0.0f, Profile::DesignWidth,
+                            Profile::DesignHeight};
   const CornersQuad maskDest =
       ScaledMask.Bounds.RotateAroundCenter(ScrWorkAngleToRad(spinAngle));
   Renderer->DrawMaskedSpriteOverlay(BackgroundSprite, ScaledMask, spriteDest,

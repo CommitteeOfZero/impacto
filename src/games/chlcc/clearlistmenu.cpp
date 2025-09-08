@@ -8,6 +8,7 @@
 #include "../../data/savesystem.h"
 #include "../../data/tipssystem.h"
 #include "../../background2d.h"
+#include "../../profile/game.h"
 
 namespace Impacto {
 namespace UI {
@@ -70,11 +71,12 @@ void ClearListMenu::Hide() {
 void ClearListMenu::Render() {
   if (State != Hidden) {
     if (MenuTransition.IsIn()) {
-      Renderer->DrawQuad(RectF(0.0f, 0.0f, 1280.0f, 720.0f),
-                         RgbIntToFloat(BackgroundColor));
+      Renderer->DrawQuad(
+          RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+          RgbIntToFloat(BackgroundColor));
     } else if (GetFlag(SF_SYSTEMMENU)) {
       Renderer->DrawQuad(
-          RectF(0.0f, 0.0f, 1280.0f, 720.0f),
+          RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
           RgbIntToFloat(BackgroundColor, FromSystemMenuTransition.Progress));
     } else {
       DrawCircles();
@@ -95,7 +97,8 @@ void ClearListMenu::Render() {
     Renderer->CaptureScreencap(ShaderScreencapture.BgSprite);
     Renderer->DrawCHLCCMenuBackground(
         ShaderScreencapture.BgSprite, BackgroundFilter,
-        RectF(0.0f, 0.0f, 1280.0f, 720.0f), MenuTransition.Progress);
+        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+        MenuTransition.Progress);
 
     if (MenuTransition.Progress > 0.34f) {
       Renderer->DrawSprite(MenuTitleText, LeftTitlePos);
@@ -106,7 +109,7 @@ void ClearListMenu::Render() {
       if (MenuTransition.Progress < 0.73f) {
         // Approximated function from the original, another mess
         yOffset = glm::mix(
-            -720.0f, 0.0f,
+            -Profile::DesignHeight, 0.0f,
             1.00397f * std::sin(3.97161f - 3.26438f * MenuTransition.Progress) -
                 0.00295643f);
       }
