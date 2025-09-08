@@ -186,8 +186,6 @@ VmInstruction(InstMes) {
   UI::BacklogMenuPtr->AddMessage(
       {.ScriptBufferId = thread->ScriptBufferId, .IpOffset = line}, audioId,
       characterId);
-
-  dialoguePage.AutoWaitTime = (float)dialoguePage.Glyphs.size();
 }
 VmInstruction(InstMesMain) {
   StartInstruction;

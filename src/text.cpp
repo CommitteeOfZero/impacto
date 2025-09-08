@@ -54,8 +54,8 @@ enum StringTokenType : uint8_t {
   STT_EvaluateExpression = 0x15,
   STT_UnlockTip = 0x16,
   STT_Present_0x18 = 0x18,
-  STT_AutoForward = 0x19,
-  STT_AutoForward_1A = 0x1A,
+  STT_AutoForward_SyncVoice = 0x19,
+  STT_AutoForward = 0x1A,
   STT_RubyCenterPerCharacter = 0x1E,
   STT_AltLineBreak = 0x1F,
 
@@ -93,8 +93,8 @@ int StringToken::Read(Vm::Sc3VmThread* ctx) {
     case STT_PrintInParallel:
     case STT_CenterText:
     case STT_Present_0x18:
+    case STT_AutoForward_SyncVoice:
     case STT_AutoForward:
-    case STT_AutoForward_1A:
     case STT_RubyCenterPerCharacter:
     case STT_AltLineBreak:
     case STT_EndOfString: {
@@ -186,57 +186,201 @@ uint8_t ProcessedTextGlyph::Flags() const {
   return Profile::Charset::Flags[CharId];
 }
 
-void TypewriterEffect::Start(int firstGlyph, int glyphCount, float duration) {
-  DurationIn = duration;
+void TypewriterEffect::Start(size_t firstGlyph, size_t glyphCount,
+                             const std::set<size_t>& parallelStartGlyphs,
+                             const bool voiced) {
+  DurationIn = 1.0f;
   FirstGlyph = firstGlyph;
   GlyphCount = glyphCount;
-  LastOpaqueCharacter = 0;
+  Voiced = voiced;
   IsCancelled = false;
   SkipOnSkipMode = true;
+  ProgressOnCancel = 0.0f;
+  ParallelStartGlyphs = parallelStartGlyphs;
   StartIn(true);
 }
 
 void TypewriterEffect::Update(float dt) {
   if (State == AnimationState::Stopped) return;
-  if (CancelRequested) {
-    CancelRequested = false;
+
+  if (CancelRequested && !IsCancelled) {
     IsCancelled = true;
+    CancelRequested = false;
+    ProgressOnCancel = Progress;
     DurationIn = 0.25f;
-    CancelStartTime = Progress * DurationIn;
   }
+
+  if (!IsCancelled) {
+    if (Voiced && Profile::ConfigSystem::SyncVoice) {
+      // Effectively progress at the constant pace such that the line ends
+      // the moment the voice line ends
+      const float remainingAudioDuration =
+          Audio::Channels[Audio::AC_VOICE0]->DurationInSeconds() -
+          Audio::Channels[Audio::AC_VOICE0]->PositionInSeconds();
+      const float progressLeft = DurationIn - Progress;
+      const float remainingAudioCompletionFraction =
+          remainingAudioDuration > 0.0f ? dt / remainingAudioDuration : 1.0f;
+      const float progressAdded =
+          progressLeft * remainingAudioCompletionFraction;
+      dt = progressAdded;
+    } else {
+      // Progress at the characters-per-second speed defined by TextSpeed
+      const float progressLeft = 1.0f - Progress;
+      const float glyphsLeft = static_cast<float>(GlyphCount) * progressLeft;
+      const float secondsLeft =
+          Profile::ConfigSystem::TextSpeed > 0.0f
+              ? glyphsLeft / Profile::ConfigSystem::TextSpeed
+              : 0.0f;
+      const float secondsLeftFractionCompleted =
+          secondsLeft > 0.0f ? dt / secondsLeft : 1.0f;
+      const float progressAdded = progressLeft * secondsLeftFractionCompleted;
+      dt = progressAdded;
+    }
+  }
+
   UpdateImpl(dt);
 }
 
-float TypewriterEffect::CalcOpacity(int glyph) {
+TypewriterEffect::ParallelBlock TypewriterEffect::GetParallelBlock(
+    const size_t glyph) {
+  if (ParallelStartGlyphs.empty()) {  // No parallel blocks
+    return {FirstGlyph, GlyphCount};
+
+  } else if (glyph < *ParallelStartGlyphs.begin()) {  // First parallel block
+    return {FirstGlyph, *ParallelStartGlyphs.begin() - FirstGlyph};
+
+  } else if (glyph >= *ParallelStartGlyphs.rbegin()) {  // Last parallel block
+    return {*ParallelStartGlyphs.rbegin(),
+            (FirstGlyph + GlyphCount) - *ParallelStartGlyphs.rbegin()};
+
+  } else {
+    const size_t firstGlyphOfBlock = *std::max_element(
+        ParallelStartGlyphs.begin(), ParallelStartGlyphs.upper_bound(glyph));
+    return {firstGlyphOfBlock,
+            *ParallelStartGlyphs.upper_bound(glyph) - firstGlyphOfBlock};
+  }
+}
+
+std::pair<float, float> TypewriterEffect::GetGlyphWritingProgresses(
+    const size_t glyph) {
+  const ParallelBlock block = GetParallelBlock(glyph);
+
+  const size_t parallelBlockGlyphNo = glyph - block.Start;
+
+  // We start displaying a glyph after the previous one is 25% opaque, hence
+  // totalDisplayTime = glyphCount * (0.25 * glyphDisplayTime) +
+  //                    glyphDisplayTime * 0.75
+
+  constexpr float singleGlyphDuration = 1.0f;
+  constexpr float glyphPropagateProgress = 0.25f;
+  constexpr float glyphPropagateDuration =
+      singleGlyphDuration * glyphPropagateProgress;
+  const float totalDuration =
+      block.Size * glyphPropagateDuration +
+      (1.0f - glyphPropagateProgress) * singleGlyphDuration;
+
+  const float startTime = glyphPropagateDuration * parallelBlockGlyphNo;
+  const float endTime = startTime + singleGlyphDuration;
+
+  return {startTime / totalDuration, endTime / totalDuration};
+}
+
+float TypewriterEffect::CalcOpacity(size_t glyph) {
   if (glyph < FirstGlyph) return 1.0f;
   if (glyph >= FirstGlyph + GlyphCount) return 0.0f;
 
-  // We start displaying a glyph after the previous one is 25% opaque
-  // => Total time t given glyph count n and time per glyph d:
-  //        t = ((n - 1) * (0.25 * d)) + d
-  // => Time per glyph given glyph count n and total time t:
-  //        d = (4 * t) / (n + 3)
+  const auto [startProgress, endProgress] = GetGlyphWritingProgresses(glyph);
 
-  float currentTime = Progress * DurationIn;
-  float timePerGlyph = (4.0f * DurationIn) / ((float)GlyphCount + 3.0f);
+  if (IsCancelled) {
+    // On cancellation, all non-opaque glyphs start appearing simultaneously
 
-  // We animate only [FirstGlyph, FirstGlyph + GlyphCount],
-  // shift to [0, GlyphCount]
-  int glyphInSeries = glyph - FirstGlyph;
-  float glyphStartTime;
-  float glyphEndTime;
-  if (IsCancelled && glyph >= LastOpaqueCharacter) {
-    glyphStartTime = CancelStartTime;
-    glyphEndTime = DurationIn;
-    timePerGlyph = DurationIn;
-  } else {
-    glyphStartTime = (float)glyphInSeries * timePerGlyph * 0.25f;
-    glyphEndTime = glyphStartTime + timePerGlyph;
+    // Opaque glyphs remain opaque
+    if (ProgressOnCancel >= endProgress) return 1.0f;
+
+    // Transparent glyphs fade in according to the progress made
+    // since cancelling
+    const float cancelProgress =
+        (Progress - ProgressOnCancel) / (1.0f - ProgressOnCancel);
+    if (ProgressOnCancel <= startProgress) return cancelProgress;
+
+    // Translucent glyphs fade in further, in addition to the opacity they
+    // already had
+    const float glyphProgressBeforeCancellation =
+        (ProgressOnCancel - startProgress) / (endProgress - startProgress);
+    return glyphProgressBeforeCancellation +
+           cancelProgress * (1.0f - glyphProgressBeforeCancellation);
   }
 
-  if (currentTime < glyphStartTime) return 0.0f;
-  if (currentTime >= glyphEndTime) return 1.0f;
-  return (currentTime - glyphStartTime) / timePerGlyph;
+  return std::clamp((Progress - startProgress) / (endProgress - startProgress),
+                    0.0f, 1.0f);
+}
+
+float TypewriterEffect::CalcRubyOpacity(const size_t rubyGlyphId,
+                                        const RubyChunk& chunk) {
+  // Ruby fade as a regular textbox would, with the start and end times of
+  // the animation being the start and end fade times of the ruby chunk's base
+  //
+  // On cancellation, the ruby all fade in simultaneously, like regular text
+
+  const size_t baseStart = chunk.FirstBaseCharacter;
+  const size_t baseEnd = chunk.FirstBaseCharacter + chunk.BaseLength;
+
+  // Base is already fully opaque / still fully transparent
+  if (baseEnd <= FirstGlyph) return 1.0f;
+  if (baseStart > FirstGlyph + GlyphCount) return 0.0f;
+
+  const float baseStartProgress = GetGlyphWritingProgresses(baseStart).first;
+  const float baseEndProgress = GetGlyphWritingProgresses(baseEnd - 1).second;
+
+  if (IsCancelled) {
+    if (ProgressOnCancel >= baseEndProgress) return 1.0f;
+
+    const float cancelProgress =
+        (Progress - ProgressOnCancel) / (1.0f - ProgressOnCancel);
+    if (ProgressOnCancel <= baseStartProgress) return cancelProgress;
+  } else {
+    if (Progress >= baseEndProgress) return 1.0f;
+    if (Progress <= baseStartProgress) return 0.0f;
+  }
+
+  const float baseProgressLength = baseEndProgress - baseStartProgress;
+
+  // We start displaying a glyph after the previous one is 25% opaque, hence
+  // totalDisplayTime = glyphCount * (0.25 * glyphDisplayTime) +
+  //                    glyphDisplayTime * 0.75
+
+  constexpr float singleGlyphDuration = 1.0f;
+  constexpr float glyphPropagateProgress = 0.25f;
+  constexpr float glyphPropagateDuration =
+      singleGlyphDuration * glyphPropagateProgress;
+  const float totalDuration =
+      chunk.Length * glyphPropagateDuration +
+      (1.0f - glyphPropagateProgress) * singleGlyphDuration;
+
+  const float glyphStartTime = glyphPropagateDuration * rubyGlyphId;
+  const float glyphEndTime = glyphStartTime + singleGlyphDuration;
+
+  // Convert back to progress-space
+  const float startProgress =
+      baseStartProgress + (glyphStartTime / totalDuration) * baseProgressLength;
+  const float endProgress =
+      baseStartProgress + (glyphEndTime / totalDuration) * baseProgressLength;
+
+  if (IsCancelled) {
+    if (ProgressOnCancel >= endProgress) return 1.0f;
+
+    const float cancelProgress =
+        (Progress - ProgressOnCancel) / (1.0f - ProgressOnCancel);
+    if (ProgressOnCancel <= startProgress) return cancelProgress;
+
+    const float glyphProgressBeforeCancellation =
+        (ProgressOnCancel - startProgress) / (endProgress - startProgress);
+    return glyphProgressBeforeCancellation +
+           cancelProgress * (1.0f - glyphProgressBeforeCancellation);
+  }
+
+  return std::clamp((Progress - startProgress) / (endProgress - startProgress),
+                    0.0f, 1.0f);
 }
 
 bool DialoguePage::TextIsFullyOpaque() { return Typewriter.Progress == 1.0f; }
@@ -302,17 +446,18 @@ enum TextParseState { TPS_Normal, TPS_Name, TPS_Ruby };
 
 void DialoguePage::FinishLine(Vm::Sc3VmThread* ctx, size_t nextLineStart,
                               const RectF& boxBounds, TextAlignment alignment) {
-  EndRubyBase(static_cast<int>(nextLineStart) - 1);
-
   // Lay out all ruby chunks on this line (before we change CurrentLineTop and
   // thus can't find where to put them)
   for (size_t i = FirstRubyChunkOnLine; i < RubyChunkCount; i++) {
-    if (RubyChunks[i].FirstBaseCharacter >= nextLineStart) break;
+    RubyChunk& chunk = RubyChunks[i];
 
-    Vm::Sc3Stream rubyText(RubyChunks[i].RawText);
+    if (chunk.FirstBaseCharacter >= nextLineStart) break;
+
+    Vm::Sc3Stream rubyText(chunk.RawText.data());
 
     glm::vec2 pos =
-        glm::vec2(0, CurrentLineTop + CurrentLineTopMargin + RubyYOffset);
+        glm::vec2(Glyphs[chunk.FirstBaseCharacter].DestRect.X,
+                  CurrentLineTop + CurrentLineTopMargin + RubyYOffset);
 
     // ruby base length > ruby text length: block align
     // ruby base length > ruby text length and 0x1E: center per character
@@ -320,37 +465,52 @@ void DialoguePage::FinishLine(Vm::Sc3VmThread* ctx, size_t nextLineStart,
     // ruby base length < ruby text length: center over block (handled by
     // block align)
 
-    if (RubyChunks[i].Length == RubyChunks[i].BaseLength ||
-        (RubyChunks[i].CenterPerCharacter &&
-         RubyChunks[i].BaseLength > RubyChunks[i].Length)) {
+    if (chunk.Length == chunk.BaseLength ||
+        (chunk.CenterPerCharacter && chunk.BaseLength > chunk.Length)) {
       // center every ruby character over the base character below it
-      for (size_t j = 0; j < RubyChunks[i].Length; j++) {
+      for (size_t j = 0; j < chunk.Length; j++) {
         RectF const& baseGlyphRect =
-            Glyphs[RubyChunks[i].FirstBaseCharacter + j].DestRect;
+            Glyphs[chunk.FirstBaseCharacter + j].DestRect;
         pos.x = baseGlyphRect.Center().x;
-        TextLayoutPlainLine(rubyText, 1, std::span(RubyChunks[i].Text + j, 1),
+        TextLayoutPlainLine(rubyText, 1, std::span(chunk.Text.begin() + j, 1),
                             DialogueFont, RubyFontSize, ColorTable[0], 1.0f,
                             pos, TextAlignment::Center);
       }
     } else {
-      // evenly space out all ruby characters over the block of base text
-      // TODO is this really the right behaviour for CenterPerCharacter(0x1E)
-      // and ruby base length < ruby text length?
-      RectF const& baseGlyphRect =
-          Glyphs[RubyChunks[i].FirstBaseCharacter].DestRect;
-      pos.x = baseGlyphRect.X;
-      /*
-       * This seems unused right now
-      float blockWidth = 0.0f;
-      for (int j = 0; j < RubyChunks[i].BaseLength; j++) {
-        blockWidth +=
-            Glyphs[RubyChunks[i].FirstBaseCharacter + j].DestRect.Width;
+      TextLayoutPlainLine(rubyText, static_cast<int>(chunk.Length), chunk.Text,
+                          DialogueFont, RubyFontSize, ColorTable[0], 1.0f, pos,
+                          TextAlignment::Left);
+      const float baseWidth =
+          (Glyphs[chunk.FirstBaseCharacter + chunk.BaseLength - 1].DestRect.X +
+           Glyphs[chunk.FirstBaseCharacter + chunk.BaseLength - 1]
+               .DestRect.Width) -
+          Glyphs[chunk.FirstBaseCharacter].DestRect.X;
+      const float nonSpacedWidth =
+          (chunk.Text[chunk.Length - 1].DestRect.X +
+           chunk.Text[chunk.Length - 1].DestRect.Width) -
+          chunk.Text[0].DestRect.X;
+      const float excessWidth = baseWidth - nonSpacedWidth;
+
+      if (chunk.Length == 1) {
+        chunk.Text[0].DestRect.X += baseWidth / 2.0f;
+      } else if (excessWidth <= 0.0f) {
+        // Ruby overflows => center over base with normal spacing
+        const float offsetX = (baseWidth - nonSpacedWidth) / 2.0f;
+        for (size_t rubyGlyphId = 0; rubyGlyphId < chunk.Length;
+             rubyGlyphId++) {
+          chunk.Text[rubyGlyphId].DestRect.X += offsetX;
+        }
+      } else {
+        // Evenly space out all ruby characters over the block of base text
+        const float extraSpacing = excessWidth / (chunk.Length - 1);
+        for (size_t rubyGlyphId = 0; rubyGlyphId < chunk.Length;
+             rubyGlyphId++) {
+          chunk.Text[rubyGlyphId].DestRect.X += extraSpacing * rubyGlyphId;
+        }
       }
-    int rubyLength =
-        TextLayoutPlainLine(ctx, RubyChunks[i].Length, RubyChunks[i].Text,
-                            DialogueFont, RubyFontSize, ColorTable[0], 1.0f,
-                            pos, TextAlignment::Block, blockWidth);
-    */
+
+      // TODO is this really the right behaviour for
+      // CenterPerCharacter(0x1E) and ruby base length < ruby text length?
     }
     FirstRubyChunkOnLine++;
   }
@@ -383,7 +543,8 @@ void DialoguePage::FinishLine(Vm::Sc3VmThread* ctx, size_t nextLineStart,
                        Glyphs[nextLineStart - 1].DestRect.Width;
     switch (alignment) {
       case TextAlignment::Center:
-        Glyphs[i].DestRect.X += (boxBounds.Width - lastGlyphX) / 2.0f;
+        Glyphs[i].DestRect.X +=
+            (boxBounds.Width - (lastGlyphX - boxBounds.X)) / 2.0f;
         break;
       case TextAlignment::Right:
         Glyphs[i].DestRect.X += boxBounds.Width - lastGlyphX - marginXOffset;
@@ -425,12 +586,13 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
   PrevMode = Mode;
 
   size_t typewriterStart = Glyphs.size();
+  std::set<size_t> parallelStartGlyphs;
 
   // TODO should we reset HasName here?
   // It shouldn't really matter since names are an ADV thing and we clear
   // before every add on ADV anyway...
 
-  AutoForward = false;
+  AutoForward = AutoForwardType::Off;
 
   TextParseState State = TPS_Normal;
   // TODO respect alignment
@@ -541,11 +703,15 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
         RubyChunkCount++;
         RubyChunks[CurrentRubyChunk].FirstBaseCharacter = Glyphs.size();
         LastWordStart = Glyphs.size();
+        BuildingRubyBase = true;
         break;
       }
-      case STT_AutoForward:
-      case STT_AutoForward_1A: {
-        AutoForward = true;
+      case STT_AutoForward_SyncVoice: {
+        AutoForward = AutoForwardType::SyncVoice;
+        break;
+      }
+      case STT_AutoForward: {
+        AutoForward = AutoForwardType::Normal;
         break;
       }
       case STT_SetColor: {
@@ -628,9 +794,12 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
             LastWordStart = Glyphs.size();  // now after this character
           }
         }
-      }
+      } break;
 
-      // TODO print in parallel
+      case STT_PrintInParallel:
+        parallelStartGlyphs.insert(Glyphs.size());
+        break;
+
       default: {
         break;
       }
@@ -688,17 +857,17 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
     assert(NameLength == Name.size());
   }
 
-  if (voice != 0) {
+  if (voice != nullptr) {
     Audio::Channels[Audio::AC_VOICE0]->Play(
         std::unique_ptr<Audio::AudioStream>(voice), false, 0.0f);
   }
 
-  size_t typewriterCt = Glyphs.size() - typewriterStart;
-  float typewriterDur =
-      (Profile::ConfigSystem::SyncVoice && voice != nullptr)
-          ? Audio::Channels[Audio::AC_VOICE0]->DurationInSeconds()
-          : (float)typewriterCt / Profile::ConfigSystem::TextSpeed;
-  Typewriter.Start((int)typewriterStart, (int)typewriterCt, typewriterDur);
+  const size_t typewriterCt = Glyphs.size() - typewriterStart;
+  Typewriter.Start(typewriterStart, typewriterCt, parallelStartGlyphs,
+                   voice != nullptr);
+
+  AutoWaitTime = static_cast<float>(typewriterCt);
+  if (AutoForward == AutoForwardType::SyncVoice) AutoWaitTime *= 2.0f;
 }
 
 void DialoguePage::Update(float dt) {
@@ -707,15 +876,27 @@ void DialoguePage::Update(float dt) {
   Typewriter.Update(dt);
 
   for (size_t i = 0; i < Glyphs.size(); i++) {
-    Glyphs[i].Opacity = Typewriter.CalcOpacity(static_cast<int>(i));
-    if (Glyphs[i].Opacity == 0.0f) {
-      Typewriter.LastOpaqueCharacter = static_cast<int>(i);
+    Glyphs[i].Opacity = Typewriter.CalcOpacity(i);
+  }
+
+  for (size_t rubyChunkId = 0; rubyChunkId < RubyChunkCount; rubyChunkId++) {
+    for (size_t rubyGlyphId = 0; rubyGlyphId < RubyChunks[rubyChunkId].Length;
+         rubyGlyphId++) {
+      RubyChunks[rubyChunkId].Text[rubyGlyphId].Opacity =
+          Typewriter.CalcRubyOpacity(rubyGlyphId, RubyChunks[rubyChunkId]);
     }
   }
 
-  if (TextIsFullyOpaque() && MesSkipMode & SkipModeFlags::Auto)
+  if (AutoForward == AutoForwardType::SyncVoice) {
+    const float speed = AutoWaitTime > Typewriter.GetGlyphCount()
+                            ? Profile::ConfigSystem::TextSpeed
+                            : Profile::ConfigSystem::AutoSpeed;
+    AutoWaitTime = std::max(0.0f, AutoWaitTime - speed * dt);
+  } else if (TextIsFullyOpaque() && (AutoForward == AutoForwardType::Normal ||
+                                     (MesSkipMode & SkipModeFlags::Auto))) {
     AutoWaitTime =
         std::max(0.0f, AutoWaitTime - Profile::ConfigSystem::AutoSpeed * dt);
+  }
 
   TextBox->Update(dt);
   FadeAnimation.Update(dt);
@@ -749,6 +930,10 @@ void DialoguePage::Render() {
 
   Renderer->DrawProcessedText(Glyphs, DialogueFont, opacityTint.a,
                               RendererOutlineMode::Full);
+  for (size_t rubyChunkId = 0; rubyChunkId < RubyChunkCount; rubyChunkId++) {
+    Renderer->DrawProcessedText(RubyChunks[rubyChunkId].Text, DialogueFont,
+                                opacityTint.a, RendererOutlineMode::Full);
+  }
 
   if (HasName && ADVBoxShowName) {
     Renderer->DrawProcessedText(Name, DialogueFont, opacityTint.a,
@@ -774,6 +959,12 @@ void DialoguePage::Move(glm::vec2 relativePos) {
     for (size_t i = 0; i < NameLength; i++) {
       Name[i].DestRect.X += relativePos.x;
       Name[i].DestRect.Y += relativePos.y;
+    }
+  }
+  for (RubyChunk rubyChunk : std::span(RubyChunks.begin(), RubyChunkCount)) {
+    for (auto glyph : std::span(rubyChunk.Text.begin(), rubyChunk.Length)) {
+      glyph.DestRect.X += relativePos.x;
+      glyph.DestRect.Y += relativePos.y;
     }
   }
 }
@@ -844,26 +1035,42 @@ std::pair<int, float> TextLayoutPlainLineHelper(
   StringToken token;
 
   float currentX = 0;
+  DialogueColorPair currentColors = colors;
   for (int i = 0; i < stringLength; i++) {
     token.Read(sc3);
     if (token.Type == STT_EndOfString) break;
-    if (token.Type != STT_Character) continue;
 
-    ProcessedTextGlyph ptg;
-    ptg.CharId = token.Val_Uint16;
-    ptg.Colors = colors;
-    ptg.Opacity = opacity;
+    switch (token.Type) {
+      default:
+        break;
 
-    ptg.DestRect.X = currentX;
-    ptg.DestRect.Y = pos.y;
-    ptg.DestRect.Width = std::floor((fontSize / font->BitmapEmWidth) *
-                                    font->AdvanceWidths[ptg.CharId]);
-    ptg.DestRect.Height = fontSize;
+      case STT_SetColor: {
+        if (253 <= token.Val_Expr && token.Val_Expr <= 255) {
+          token.Val_Expr = ScrWork[SW_SYSMESCOL1 + (255 - token.Val_Expr)];
+        }
 
-    currentX += ptg.DestRect.Width;
+        assert(token.Val_Expr < ColorCount);
+        currentColors = ColorTable[token.Val_Expr];
+      } break;
 
-    *outIt++ = ptg;
-    characterCount++;
+      case STT_Character: {
+        ProcessedTextGlyph ptg;
+        ptg.CharId = token.Val_Uint16;
+        ptg.Colors = currentColors;
+        ptg.Opacity = opacity;
+
+        ptg.DestRect.X = currentX;
+        ptg.DestRect.Y = pos.y;
+        ptg.DestRect.Width = std::floor((fontSize / font->BitmapEmWidth) *
+                                        font->AdvanceWidths[ptg.CharId]);
+        ptg.DestRect.Height = fontSize;
+
+        currentX += ptg.DestRect.Width;
+
+        *outIt++ = ptg;
+        characterCount++;
+      } break;
+    }
   }
   // currentX is now line width
   // If you want to align, you can pass a span or vector to the alignment

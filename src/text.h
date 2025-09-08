@@ -1,5 +1,6 @@
 #pragma once
 
+#include <set>
 #include <span>
 #include <enum.h>
 #include <ankerl/unordered_dense.h>
@@ -55,23 +56,41 @@ struct RubyChunk {
   size_t Length;
   size_t BaseLength;
   bool CenterPerCharacter;
-  ProcessedTextGlyph Text[DialogueMaxRubyChunkLength];
-  uint16_t RawText[DialogueMaxRubyChunkLength];
+  std::array<ProcessedTextGlyph, DialogueMaxRubyChunkLength> Text;
+  std::array<uint16_t, DialogueMaxRubyChunkLength> RawText;
 };
 
 struct TypewriterEffect : public Animation {
  public:
-  void Start(int firstGlyph, int glyphCount, float duration);
-  float CalcOpacity(int glyph);
+  void Start(size_t firstGlyph, size_t glyphCount,
+             const std::set<size_t>& parallelStartGlyphs, bool voiced);
   void Update(float dt);
-  int LastOpaqueCharacter;
+
+  float CalcOpacity(size_t glyph);
+  float CalcRubyOpacity(size_t rubyGlyphId, const RubyChunk& chunk);
+
+  size_t GetGlyphCount() const { return GlyphCount; }
+
   bool CancelRequested = false;
   bool IsCancelled = false;
 
  private:
-  int FirstGlyph;
-  int GlyphCount;
-  float CancelStartTime;
+  size_t FirstGlyph = 0;
+  size_t GlyphCount = 0;
+
+  bool Voiced = false;
+
+  std::set<size_t> ParallelStartGlyphs;
+  float ProgressOnCancel;
+
+  struct ParallelBlock {
+    size_t Start;
+    size_t Size;
+  };
+  ParallelBlock GetParallelBlock(size_t glyph);
+
+  // {startProgress, endProgress}
+  std::pair<float, float> GetGlyphWritingProgresses(size_t glyph);
 };
 
 struct DialoguePage {
@@ -104,9 +123,10 @@ struct DialoguePage {
   TextAlignment Alignment = TextAlignment::Left;
 
   bool NVLResetBeforeAdd;
-  bool AutoForward;
 
-  float AutoWaitTime;
+  enum class AutoForwardType { Off, Normal, SyncVoice };
+  AutoForwardType AutoForward = AutoForwardType::Off;
+  float AutoWaitTime = 0.0f;
 
   RectF BoxBounds;
 
