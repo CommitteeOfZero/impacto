@@ -7,6 +7,7 @@ root.BacklogMenu = {
     EntryHighlightSprite = "EntryHighlight",
     EntryHighlightLocation = EntryHighlightLocationType.BottomLeftOfEntry,
     EntryHighlightOffset = { X = 0, Y = 0 },
+    EntryHighlightPadding = 0.0,
 
     VoiceIconSprite = "VoiceIcon",
     VoiceIconOffset = { X = 0, Y = 0 },
