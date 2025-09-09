@@ -103,6 +103,16 @@ struct RectF {
       : X(x), Y(y), Width(width), Height(height) {}
   constexpr RectF(Rect const& rect);
 
+  constexpr float Left() const { return X; }
+  constexpr float Right() const { return X + Width; }
+  constexpr float Top() const { return Y; }
+  constexpr float Bottom() const { return Y + Height; }
+
+  constexpr glm::vec2 TopLeft() const { return {Left(), Top()}; }
+  constexpr glm::vec2 TopRight() const { return {Right(), Top()}; }
+  constexpr glm::vec2 BottomRight() const { return {Right(), Bottom()}; }
+  constexpr glm::vec2 BottomLeft() const { return {Left(), Bottom()}; }
+
   // RectF is rotated around center
   constexpr glm::vec2 Center() const {
     return glm::vec2(X + Width / 2.0f, Y + Height / 2.0f);
@@ -119,13 +129,13 @@ struct RectF {
   }
 
   constexpr bool Intersects(RectF const& rect) const {
-    return (X <= rect.X + rect.Width && rect.X <= X + Width &&
-            Y <= rect.Y + rect.Height && rect.Y <= Y + Height);
+    return (Left() <= rect.Right() && Right() >= rect.Left() &&
+            Top() <= rect.Bottom() && Bottom() >= rect.Top());
   }
 
   constexpr bool Contains(RectF const& rect) const {
-    return (X <= rect.X && rect.X + rect.Width <= X + Width && Y <= rect.Y &&
-            rect.Y + rect.Height <= Y + Height);
+    return (Left() <= rect.Left() && rect.Right() <= Right() &&
+            Top() <= rect.Top() && rect.Bottom() <= Bottom());
   }
 
   constexpr RectF operator+(const glm::vec2 movementVector) const {
@@ -216,6 +226,16 @@ struct Rect {
   constexpr Rect(RectF const& rect)
       : Rect((int)rect.X, (int)rect.Y, (int)rect.Width, (int)rect.Height) {}
 
+  constexpr int Left() const { return X; }
+  constexpr int Right() const { return X + Width; }
+  constexpr int Top() const { return Y; }
+  constexpr int Bottom() const { return Y + Height; }
+
+  constexpr glm::ivec2 TopLeft() const { return {Left(), Top()}; }
+  constexpr glm::ivec2 TopRight() const { return {Right(), Top()}; }
+  constexpr glm::ivec2 BottomRight() const { return {Right(), Bottom()}; }
+  constexpr glm::ivec2 BottomLeft() const { return {Left(), Bottom()}; }
+
   // Rect is rotated around center
   constexpr glm::ivec2 Center() const {
     return glm::ivec2(X + Width / 2, Y + Height / 2);
@@ -230,8 +250,8 @@ struct Rect {
   }
 
   constexpr bool Intersects(Rect const& rect) const {
-    return (X <= rect.X + rect.Width && rect.X <= X + Width &&
-            Y <= rect.Y + rect.Height && rect.Y <= Y + Height);
+    return (Left() <= rect.Right() && Right() >= rect.Left() &&
+            Top() <= rect.Bottom() && Bottom() >= rect.Top());
   }
 
   constexpr bool operator==(Rect const& other) const {
