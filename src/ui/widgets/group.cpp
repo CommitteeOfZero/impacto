@@ -108,12 +108,10 @@ void Group::Render() {
     Renderer->EnableScissor();
     Renderer->SetScissorRect(RenderingBounds);
     for (const auto& el : Children) {
-      if (RenderingBounds.Intersects(el->Bounds)) {
-        auto tint = el->Tint;
-        el->Tint *= Tint;
-        el->Render();
-        el->Tint = tint;
-      }
+      auto tint = el->Tint;
+      el->Tint *= Tint;
+      el->Render();
+      el->Tint = tint;
     }
     Renderer->DisableScissor();
   }
