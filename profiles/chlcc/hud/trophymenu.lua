@@ -1,14 +1,22 @@
 root.TrophyMenu = {
     DrawType = DrawComponentType.SystemMenu,
     Type = TrophyMenuType.CHLCC,
+
     TransitionDuration = 64 / 60,
+
+    ShowPageAnimationStartTime = 13 / 64, -- 16 / 64,
+    ShowPageAnimationDuration = 43 / 64, -- (48 - 16) / 64,
+
     BackgroundColor = 0xe8641b,
+    BackgroundFilter = "BackgroundFilter",
+
     CircleSprite = "CircleTrophy",
     CircleStartPosition = { X = 20, Y = 20 },
     CircleOffset = 200,
+
     ErinSprite = "Erin",
     ErinPosition = { X = 301, Y = 1 },
-    BackgroundFilter = "BackgroundFilter",
+
     InitialRedBarPosition = { X = 0, Y = 538 },
     RightRedBarPosition = { X = 1059, Y = 538 },
     RedBarDivision = 1826,
@@ -16,35 +24,55 @@ root.TrophyMenu = {
     RedBarSprite = "RedBar",
     RedBarLabelPosition = { X = 1067, Y = 573 },
     RedBarLabel = "RedBarLabel",
+
     MenuTitleTextRightPos = { X = 790, Y = 256 },
     MenuTitleTextLeftPos = { X = 4, Y = 4 },
     MenuTitleTextAngle = 4.45,
     TitleFadeInDuration = 40 / 60,
     TitleFadeOutDuration = 28 / 60,
     MenuTitleText = "MenuTitleTextTrophy",
+
     ButtonPromptSprite = "ButtonPromptTrophy",
-    ButtonPromptPosition = { X = 1112, Y = 651 },
+    ButtonPromptPosition = { X = 1113, Y = 651 },
+
+    PlatinumTrophySprite = "PlatinumTrophy",
+    PlatinumTrophyPos = { X = 585, Y = 91 },
+    GoldTrophySprite = "GoldTrophy",
+    GoldTrophyPos = { X =  649, Y = 91 },
+    SilverTrophySprite = "SilverTrophy",
+    SilverTrophyPos = { X = 713, Y = 91 },
+    BronzeTrophySprite = "BronzeTrophy",
+    BronzeTrophyPos = { X = 777, Y = 91 },
+
     DefaultTrophyIconSprite = "DefaultTrophyIcon",
     TrophyEntryCardSprite = "TrophyEntryCard",
-    PlatinumTrophySprite = "PlatinumTrophy",
-    PlatinumTrophyPos = { X = 575, Y = 91},
-    GoldTrophySprite = "GoldTrophy",
-    GoldTrophyPos = { X =  649, Y = 91},
-    SilverTrophySprite = "SilverTrophy",
-    SilverTrophyPos = { X = 713, Y = 91},
-    BronzeTrophySprite = "BronzeTrophy",
-    BronzeTrophyPos = { X = 777, Y = 91},
     TrophyEntriesBorderSprite = "TrophyEntriesBorder",
     TrophyPageCtBoxSprite = "TrophyPageCtBox",
-    PageNumSeparatorSlashSprite = "PageNumSeparatorSlash",
-    
+    TrophyPageCtPos = { X = 1090, Y = 60 },
+
+    EntriesPerPage = 6,
+    FirstEntryPos = { X = 0, Y = 130 },
+    EntryHeight = 74,
+    EntryCardOffset = { X = 91, Y = 1 },
+    EntryNameOffset = { X = 218, Y = 12 },
+    EntryNameFontSize = 26,
+    EntryDescriptionOffset = { X = 218, Y = 42 },
+    EntryDescriptionFontSize = 18,
+    EntryIconOffset = { X = 112, Y = 4 },
+    EntryDefaultNameTextTableId = 0,
+    EntryDefaultNameStringNum = 19,
+
     CurrentPageNumPos = { X = 1133, Y = 65 },
+    PageNumSeparatorSlashSprite = "PageNumSeparatorSlash",
     PageNumSeparatorSlashPos = { X = 1161, Y = 90 },
     MaxPageNumPos = { X = 1179, Y = 90 },
-
     PageNums = {},
     ReachablePageNums = {},
-    TrophyCountHintLabelPos = { X = 298, Y = 97}
+
+    TrophyCountHintTextTableId = 0,
+    TrophyCountHintStringNum = 20,
+    TrophyCountHintLabelPos = { X = 297, Y = 97 },
+    TrophyCountFontSize = 20
 };
 
 root.Sprites["CircleTrophy"] = {

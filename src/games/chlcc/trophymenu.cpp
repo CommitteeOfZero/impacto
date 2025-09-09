@@ -11,8 +11,10 @@
 #include "../../vm/interface/input.h"
 #include "../../data/tipssystem.h"
 #include "../../data/achievementsystem.h"
-#include "trophymenuentry.h"
+#include "../../ui/widgets/chlcc/trophymenuentry.h"
 #include "../../profile/game.h"
+
+#include <numbers>
 
 namespace Impacto {
 namespace UI {
@@ -46,6 +48,7 @@ TrophyMenu::TrophyMenu() {
   RedBarPosition = InitialRedBarPosition;
 
   TrophyCountHintLabel.Enabled = false;
+  TrophyCountHintLabel.MoveTo(TrophyCountHintLabelPos);
 }
 
 void TrophyMenu::Show() {
@@ -63,19 +66,20 @@ void TrophyMenu::Show() {
     UI::FocusedMenu = this;
 
     for (size_t i = 0; i < MaxTrophyPages; i++) {
-      for (size_t j = 0; j < 6; j++) {
-        const size_t index = i * 6 + j;
+      for (size_t j = 0; j < EntriesPerPage; j++) {
+        const size_t index = i * EntriesPerPage + j;
         if (index >= AchievementSystem::GetAchievementCount()) break;
         TrophyMenuEntry* entry = new TrophyMenuEntry(static_cast<int>(index));
         MainItems[i].Add(entry);
       }
     }
-    Offset = glm::vec2(0.0f, -Profile::DesignHeight);
     MainItems[CurrentPage].Show();
     if (!TrophyCountHintLabel.Enabled) {
       TrophyCountHintLabel.Enabled = true;
-      TrophyCountHintLabel.SetText(Vm::ScriptGetTextTableStrAddress(0, 20), 20,
-                                   RendererOutlineMode::Full, 0);
+      TrophyCountHintLabel.SetText(
+          Vm::ScriptGetTextTableStrAddress(TrophyCountHintTextTableId,
+                                           TrophyCountHintStringNum),
+          TrophyCountFontSize, RendererOutlineMode::Full, 0);
     }
   }
 }
@@ -132,33 +136,44 @@ void TrophyMenu::Render() {
       RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
       glm::vec4(tint, alpha));
 
-  if (MenuTransition.Progress > 0.22f) {
-    if (MenuTransition.Progress < 0.72f) {
-      // Approximated function from the original, another mess
-      Offset = glm::vec2(
-          0.0f,
-          glm::mix(-Profile::DesignHeight, 0.0f,
-                   1.00397f * std::sin(3.97161f -
-                                       3.26438f * MenuTransition.Progress) -
-                       0.00295643f));
-    }
-    DrawButtonPrompt();
+  const float startProgress =
+      ShowPageAnimationStartTime / MenuTransitionDuration;
+  const float endProgress =
+      startProgress + ShowPageAnimationDuration / MenuTransitionDuration;
+
+  if (startProgress < MenuTransition.Progress &&
+      MenuTransition.Progress < endProgress) {
+    const float progress = (MenuTransition.Progress - startProgress) /
+                           (endProgress - startProgress);
+    const float angle = progress * std::numbers::pi_v<float> * 0.5f;
+
+    Offset = {0.0f, (std::sin(angle) - 1.0f) * Profile::DesignHeight};
+  } else if (MenuTransition.Progress <= startProgress) {
+    Offset = {0.0f, -Profile::DesignHeight};
   }
+
+  DrawButtonPrompt();
+
+  TrophyCountHintLabel.Move(Offset);
   TrophyCountHintLabel.Render();
+  TrophyCountHintLabel.Move(-Offset);
+
   Renderer->DrawSprite(PlatinumTrophySprite, Offset + PlatinumTrophyPos);
   Renderer->DrawSprite(GoldTrophySprite, Offset + GoldTrophyPos);
   Renderer->DrawSprite(SilverTrophySprite, Offset + SilverTrophyPos);
   Renderer->DrawSprite(BronzeTrophySprite, Offset + BronzeTrophyPos);
 
-  Renderer->DrawSprite(TrophyPageCtBoxSprite,
-                       Offset + glm::vec2(1090.0f, 60.0f));
+  Renderer->DrawSprite(TrophyPageCtBoxSprite, Offset + TrophyPageCtPos);
   Renderer->DrawSprite(PageNums[CurrentPage + 1], Offset + CurrentPageNumPos);
   Renderer->DrawSprite(PageNumSeparatorSlash, Offset + PageNumSeparatorPos);
   Renderer->DrawSprite(ReachablePageNums[MaxTrophyPages],
                        Offset + MaxPageNumPos);
 
-  Renderer->DrawSprite(TrophyEntriesBorderSprite, Offset);
+  MainItems[CurrentPage].Move(Offset);
   MainItems[CurrentPage].Render();
+  MainItems[CurrentPage].Move(-Offset);
+
+  Renderer->DrawSprite(TrophyEntriesBorderSprite, Offset);
 }
 
 void TrophyMenu::UpdateInput(float dt) {
@@ -215,11 +230,6 @@ void TrophyMenu::Update(float dt) {
     }
     TitleFade.Update(dt);
     UpdateTitles();
-    for (auto* entry : MainItems[CurrentPage].Children) {
-      TrophyMenuEntry* trophyEntry = static_cast<TrophyMenuEntry*>(entry);
-      trophyEntry->UpdateOffset(Offset);
-    }
-    TrophyCountHintLabel.MoveTo(Offset + TrophyCountHintLabelPos);
   }
 }
 

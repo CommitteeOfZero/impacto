@@ -164,7 +164,6 @@ set(Impacto_Src
         src/games/chlcc/backlogmenu.cpp
         src/games/chlcc/systemmenu.cpp
         src/games/chlcc/trophymenu.cpp
-        src/games/chlcc/trophymenuentry.cpp
         src/games/chlcc/delusiontrigger.cpp
         src/games/chlcc/introsequence.cpp
         src/games/chlcc/tipsnotification.cpp
@@ -262,6 +261,7 @@ set(Impacto_Src
         src/ui/widgets/chlcc/albumthumbnailbutton.cpp
         src/ui/widgets/chlcc/trackselectbutton.cpp
         src/ui/widgets/chlcc/backlogentry.cpp
+        src/ui/widgets/chlcc/trophymenuentry.cpp
         src/ui/widgets/rne/sysmenubutton.cpp
         src/ui/widgets/cc/backlogentry.cpp
         src/ui/widgets/cc/titlebutton.cpp
@@ -582,6 +582,7 @@ set(Impacto_Header
         src/ui/widgets/chlcc/albumthumbnailbutton.h
         src/ui/widgets/chlcc/trackselectbutton.h
         src/ui/widgets/chlcc/backlogentry.h
+        src/ui/widgets/chlcc/trophymenuentry.h
         src/ui/widgets/rne/sysmenubutton.h
         src/ui/widgets/cc/backlogentry.h
         src/ui/widgets/cc/titlebutton.h
