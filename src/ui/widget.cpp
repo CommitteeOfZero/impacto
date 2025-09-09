@@ -21,6 +21,7 @@ WidgetType Widget::GetType() { return WT_NORMAL; }
 void Widget::Move(glm::vec2 relativePosition, float duration) {
   MoveOrigin = Bounds.GetPos();
   MoveTarget = MoveOrigin + relativePosition;
+  if (MoveToAnchor.has_value()) *MoveToAnchor += relativePosition;
 
   MoveAnimation.SetDuration(duration);
   MoveAnimation.StartIn(true);

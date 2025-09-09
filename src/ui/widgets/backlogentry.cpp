@@ -64,6 +64,8 @@ BacklogEntry::BacklogEntry(int id, Vm::BufferOffsetContext scrCtx, int audioId,
       break;
     }
   }
+
+  MoveToAnchor = Position;
   MoveTo(pos);
 }
 
