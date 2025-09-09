@@ -140,19 +140,6 @@ void SaveEntryButton::Move(glm::vec2 relativePosition) {
   BrokenDataSymbol.Move(relativePosition);
 }
 
-void SaveEntryButton::MoveTo(glm::vec2 position) {
-  Button::MoveTo(position);
-  NormalSpriteLabel.MoveTo(position);
-  FocusedSpriteLabel.MoveTo(position);
-  LockedSymbol.MoveTo(position);
-  CharacterRouteLabel.MoveTo(position);
-  SceneTitleLabel.MoveTo(position);
-  SaveDateLabel.MoveTo(position);
-  Thumbnail.MoveTo(position);
-  NoDataSymbol.MoveTo(position);
-  BrokenDataSymbol.MoveTo(position);
-}
-
 void SaveEntryButton::RefreshCharacterRouteText(int strIndex) {
   auto strAddr = Vm::ScriptGetTextTableStrAddress(1, strIndex);
   float fontSize = 28;

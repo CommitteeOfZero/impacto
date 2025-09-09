@@ -14,8 +14,9 @@ class SceneListEntry : public Widgets::Button {
                  Widgets::Label* unlockedText, Sprite const& highlight,
                  bool isLocked);
   void Render() override;
+
+  using Widget::Move;
   void Move(glm::vec2 relativePosition) override;
-  void MoveTo(glm::vec2 pos) override;
 
   bool IsLocked = false;
 

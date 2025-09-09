@@ -163,7 +163,18 @@ struct RectF {
   }
 
   constexpr glm::vec2 GetPos() const { return glm::vec2(X, Y); }
+  void SetPos(float x, float y) {
+    X = x;
+    Y = y;
+  }
+  void SetPos(glm::vec2 position) { SetPos(position.x, position.y); }
+
   constexpr glm::vec2 GetSize() const { return glm::vec2(Width, Height); }
+  void SetSize(float width, float height) {
+    Width = width;
+    Height = height;
+  }
+  void SetSize(glm::vec2 size) { SetSize(size.x, size.y); }
 
   static RectF Coalesce(const RectF& first, const RectF& second);
   static RectF BoundingBox(const RectF& first, const CornersQuad& second);

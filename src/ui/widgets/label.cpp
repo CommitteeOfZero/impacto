@@ -85,15 +85,9 @@ void Label::Render() {
 
 void Label::Move(glm::vec2 relativePosition) {
   for (ProcessedTextGlyph& glyph : Text) {
-    glyph.DestRect.X += relativePosition.x;
-    glyph.DestRect.Y += relativePosition.y;
+    glyph.DestRect += relativePosition;
   }
   Widget::Move(relativePosition);
-}
-
-void Label::MoveTo(glm::vec2 pos) {
-  auto relativePosition = pos - glm::vec2(Bounds.X, Bounds.Y);
-  Move(relativePosition);
 }
 
 void Label::SetSprite(Sprite const& label) {

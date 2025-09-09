@@ -20,8 +20,9 @@ class SaveEntryButton : public Widgets::Button {
                   Sprite noDataSprite, Sprite brokenDataSprite);
 
   void Render() override;
+
+  using Widget::Move;
   void Move(glm::vec2 pos) override;
-  void MoveTo(glm::vec2 pos) override;
 
   int GetPage() const;
 

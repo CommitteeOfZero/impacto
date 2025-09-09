@@ -18,8 +18,9 @@ class AlbumThumbnailButton : public ImageThumbnailButton {
                        int unlockedVariations, int totalVariations,
                        glm::vec2 pos);
   void Render() override;
+
+  using Widget::Move;
   void Move(glm::vec2 relativePosition) override;
-  void MoveTo(glm::vec2 pos) override;
 
  private:
   Sprite Border;

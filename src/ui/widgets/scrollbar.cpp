@@ -174,15 +174,8 @@ void Scrollbar::Render() {
 }
 
 void Scrollbar::Move(glm::vec2 relativePosition) {
-  TrackBounds.X += relativePosition.x;
-  TrackBounds.Y += relativePosition.y;
-  ThumbBounds.X += relativePosition.x;
-  ThumbBounds.Y += relativePosition.y;
-}
-
-void Scrollbar::MoveTo(glm::vec2 pos) {
-  auto relativePosition = pos - glm::vec2(Bounds.X, Bounds.Y);
-  Move(relativePosition);
+  TrackBounds += relativePosition;
+  ThumbBounds += relativePosition;
 }
 
 void Scrollbar::ClampValue() {

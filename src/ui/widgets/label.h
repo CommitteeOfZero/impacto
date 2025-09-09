@@ -35,8 +35,9 @@ class Label : public Widget {
   void Update(float dt) override;
   void UpdateInput(float dt) override;
   void Render() override;
+
+  using Widget::Move;
   void Move(glm::vec2 relativePosition) override;
-  void MoveTo(glm::vec2 pos) override;
 
   void SetSprite(Sprite const& label);
   void SetText(std::vector<ProcessedTextGlyph> text, float textWidth,

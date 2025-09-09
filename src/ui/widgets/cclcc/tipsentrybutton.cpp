@@ -117,11 +117,6 @@ void TipsEntryButton::Move(glm::vec2 relativePos) {
   }
 }
 
-void TipsEntryButton::MoveTo(glm::vec2 pos) {
-  auto relativePos = pos - glm::vec2(Bounds.X, Bounds.Y);
-  Move(relativePos);
-}
-
 }  // namespace CCLCC
 }  // namespace Widgets
 }  // namespace UI

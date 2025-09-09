@@ -43,6 +43,8 @@ class SaveEntryButton : public Widgets::Button {
                          RendererOutlineMode outlineMode,
                          glm::vec2 relativeTitlePosition, int colorIndex);
   void AddThumbnail(Sprite thumbnail, glm::vec2 pos);
+
+  using Widget::Move;
   void Move(glm::vec2 pos) override;
 
   static void FocusedAlphaFadeStart();

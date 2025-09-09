@@ -98,12 +98,6 @@ void OptionsVoiceSlider::Move(glm::vec2 relativePos) {
   MuteButton.Move(relativePos);
 }
 
-void OptionsVoiceSlider::MoveTo(glm::vec2 pos) {
-  const glm::vec2 relativePosition = pos - Bounds.GetPos();
-  OptionsSlider::MoveTo(pos);
-  MuteButton.Move(relativePosition);
-}
-
 void OptionsVoiceSlider::MuteButtonOnClick(ClickArea* target) {
   if (HasFocus) Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0.0f);
 
