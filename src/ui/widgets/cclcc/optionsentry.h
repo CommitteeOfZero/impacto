@@ -25,7 +25,6 @@ class OptionsEntry : public Widget {
   void Hide() override;
 
   void Move(glm::vec2 relativePos) override;
-  void MoveTo(glm::vec2 pos) override;
 
   bool Selected = false;
 

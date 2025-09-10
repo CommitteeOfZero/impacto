@@ -20,7 +20,6 @@ class BacklogEntry : public Widget {
   void Render() override;
 
   void Move(glm::vec2 relativePosition) override;
-  void MoveTo(glm::vec2 position) override;
 
   int Id;
   int AudioId = -1;

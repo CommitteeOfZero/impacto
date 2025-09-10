@@ -179,17 +179,18 @@ void Scrollbar::Render() {
                        Tint);
 }
 
+void Scrollbar::Hide() {
+  Widget::Hide();
+  ScrollHeld = false;
+}
+
 void Scrollbar::Move(glm::vec2 relativePosition) {
   Widget::Move(relativePosition);
+
   TrackBounds.X += relativePosition.x;
   TrackBounds.Y += relativePosition.y;
   ThumbBounds.X += relativePosition.x;
   ThumbBounds.Y += relativePosition.y;
-}
-
-void Scrollbar::MoveTo(glm::vec2 pos) {
-  auto relativePosition = pos - glm::vec2(Bounds.X, Bounds.Y);
-  Move(relativePosition);
 }
 
 void Scrollbar::ClampValue() {

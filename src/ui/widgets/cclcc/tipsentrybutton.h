@@ -19,7 +19,6 @@ class TipsEntryButton : public Widgets::Button {
   void UpdateInput(float dt) override;
   void Render() override;
   void Move(glm::vec2 pos) override;
-  void MoveTo(glm::vec2 pos) override;
 
   TipsSystem::TipsDataRecord const* TipEntryRecord;
   bool PrevFocusState = false;

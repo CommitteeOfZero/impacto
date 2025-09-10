@@ -579,9 +579,9 @@ void ClearListMenu::UpdateSceneList() {
 
 // TEST
 void ClearListMenu::OnAdvancePage(Widget* currentPage, Widget* nextPage) {
-  currentPage->Move(glm::vec2(750.0f, 0.0f), 0.4f);
+  currentPage->MoveTimed(glm::vec2(750.0f, 0.0f), 0.4f);
   nextPage->MoveTo(glm::vec2(-750.0f, 0.0f));
-  nextPage->Move(glm::vec2(750.0f, 0.0f), 0.4f);
+  nextPage->MoveTimed(glm::vec2(750.0f, 0.0f), 0.4f);
   nextPage->Show();
   CurrentPage = nextPage;
   PreviousPage = currentPage;
@@ -589,9 +589,9 @@ void ClearListMenu::OnAdvancePage(Widget* currentPage, Widget* nextPage) {
 
 // TEST
 void ClearListMenu::OnGoBackPage(Widget* currentPage, Widget* nextPage) {
-  currentPage->Move(glm::vec2(-750.0f, 0.0f), 0.4f);
+  currentPage->MoveTimed(glm::vec2(-750.0f, 0.0f), 0.4f);
   nextPage->MoveTo(glm::vec2(750.0f, 0.0f));
-  nextPage->Move(glm::vec2(-750.0f, 0.0f), 0.4f);
+  nextPage->MoveTimed(glm::vec2(-750.0f, 0.0f), 0.4f);
   nextPage->Show();
   CurrentPage = nextPage;
   PreviousPage = currentPage;

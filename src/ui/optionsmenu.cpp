@@ -22,6 +22,7 @@ OptionsMenu::OptionsMenu()
   FadeAnimation.LoopMode = AnimationLoopMode::Stop;
   FadeAnimation.DurationIn = FadeInDuration;
   FadeAnimation.DurationOut = FadeOutDuration;
+  FadeAnimation.SkipOnSkipMode = false;
 }
 
 void OptionsMenu::Show() {
@@ -29,10 +30,14 @@ void OptionsMenu::Show() {
     if (State != Showing) {
       FadeAnimation.StartIn();
 
-      CurrentPage = 0;
-      Pages[0]->HasFocus = true;
-      Pages[0]->Show();
-      Highlight(Pages[0]->GetFirstFocusableChild());
+      if (!RememberLastPage) CurrentPage = 0;
+      Pages[CurrentPage]->HasFocus = true;
+      Pages[CurrentPage]->Show();
+
+      Highlight(RememberHighlightedEntries
+                    ? HighlightedEntriesPerPage[CurrentPage]
+                    : Pages[CurrentPage]->GetFirstFocusableChild());
+      UpdateValues();
 
       DirectionButtonHeldHandler.Reset();
       PageButtonHeldHandler.Reset();
@@ -74,9 +79,9 @@ void OptionsMenu::Update(float dt) {
   FadeAnimation.Update(dt);
   UpdateVisibility();
 
-  if (State != Hidden && IsFocused) {
-    UpdateInput(dt);
+  if (State == Shown && IsFocused) {
     Pages[CurrentPage]->Update(dt);
+    UpdateInput(dt);
   }
 }
 
@@ -93,7 +98,10 @@ void OptionsMenu::UpdatePageInput(float dt) {
     return;
   }
 
-  GoToPage((CurrentPage + direction) % Pages.size());
+  const auto nextPage =
+      (static_cast<int>(CurrentPage) + direction + std::ssize(Pages)) %
+      std::ssize(Pages);
+  GoToPage(static_cast<size_t>(nextPage));
 }
 
 void OptionsMenu::UpdateEntryMovementInput(float dt) {
@@ -125,7 +133,7 @@ void OptionsMenu::UpdateEntryMovementInput(float dt) {
 void OptionsMenu::UpdateInput(float dt) {
   UpdatePageInput(dt);
 
-  if (GetControlState(CT_Back)) {
+  if (IsFocused && GetControlState(CT_Back)) {
     Hide();
     return;
   }
@@ -133,7 +141,7 @@ void OptionsMenu::UpdateInput(float dt) {
   UpdateEntryMovementInput(dt);
 }
 
-void OptionsMenu::GoToPage(int pageNumber) {
+void OptionsMenu::GoToPage(size_t pageNumber) {
   if (CurrentPage == pageNumber) return;
 
   Pages[CurrentPage]->Hide();
@@ -143,12 +151,12 @@ void OptionsMenu::GoToPage(int pageNumber) {
 
   page->HasFocus = true;
   page->Show();
-  Highlight(page->GetFirstFocusableChild());
+
+  Highlight(RememberHighlightedEntries ? HighlightedEntriesPerPage[CurrentPage]
+                                       : page->GetFirstFocusableChild());
 }
 
 void OptionsMenu::Highlight(Widget* toHighlight) {
-  if (CurrentlyFocusedElement == toHighlight) return;
-
   for (Widget* entry : Pages[CurrentPage]->Children) {
     entry->HasFocus = false;
   }
@@ -163,6 +171,9 @@ void OptionsMenu::Highlight(Widget* toHighlight) {
         (PAD1RIGHT * (bool)toHighlight->GetFocus(FDIR_RIGHT));
   }
   CurrentlyFocusedElement = toHighlight;
+  if (RememberHighlightedEntries) {
+    HighlightedEntriesPerPage[CurrentPage] = CurrentlyFocusedElement;
+  }
 }
 
 }  // namespace UI

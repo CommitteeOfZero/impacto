@@ -15,7 +15,6 @@ class SceneListEntry : public Widgets::Button {
                  bool isLocked);
   void Render() override;
   void Move(glm::vec2 relativePosition) override;
-  void MoveTo(glm::vec2 pos) override;
 
   bool IsLocked = false;
 

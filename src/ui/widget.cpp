@@ -18,32 +18,12 @@ void Widget::Hide() {
 
 WidgetType Widget::GetType() { return WT_NORMAL; }
 
-void Widget::Move(glm::vec2 relativePosition, float duration) {
+void Widget::MoveTimed(glm::vec2 relativePosition, float duration) {
   MoveOrigin = Bounds.GetPos();
   MoveTarget = MoveOrigin + relativePosition;
-  MoveAnimation.Progress = 0.0f;
-  MoveAnimation.Direction = AnimationDirection::In;
+
   MoveAnimation.SetDuration(duration);
-  MoveAnimation.StartIn();
-}
-
-void Widget::Move(glm::vec2 relativePosition) {
-  Bounds.X += relativePosition.x;
-  Bounds.Y += relativePosition.y;
-}
-
-void Widget::MoveTo(glm::vec2 pos, float duration) {
-  MoveOrigin = Bounds.GetPos();
-  MoveTarget = pos;
-  MoveAnimation.Progress = 0.0f;
-  MoveAnimation.Direction = AnimationDirection::In;
-  MoveAnimation.SetDuration(duration);
-  MoveAnimation.StartIn();
-}
-
-void Widget::MoveTo(glm::vec2 pos) {
-  Bounds.X = pos.x;
-  Bounds.Y = pos.y;
+  MoveAnimation.StartIn(true);
 }
 
 Widget* Widget::GetFocus(FocusDirection dir) {

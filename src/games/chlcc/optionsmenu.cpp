@@ -1,5 +1,8 @@
 #include "optionsmenu.h"
 
+#include "../../ui/widgets/chlcc/optionsbutton.h"
+#include "../../ui/widgets/chlcc/optionsslider.h"
+
 #include "../../renderer/renderer.h"
 #include "../../mem.h"
 #include "../../vm/vm.h"
@@ -11,7 +14,11 @@
 #include "../../io/memorystream.h"
 #include "../../data/tipssystem.h"
 #include "../../vm/interface/input.h"
+#include "../../inputsystem.h"
 #include "../../profile/game.h"
+
+#include "../../profile/configsystem.h"
+#include "../../audio/audiosystem.h"
 
 namespace Impacto {
 namespace UI {
@@ -20,48 +27,262 @@ namespace CHLCC {
 using namespace Impacto::Profile::OptionsMenu;
 using namespace Impacto::Profile::CHLCC::OptionsMenu;
 using namespace Impacto::Profile::ScriptVars;
+using namespace Impacto::Profile::ConfigSystem;
 
 using namespace Impacto::Vm::Interface;
 
 using namespace Impacto::UI::Widgets;
+using namespace Impacto::UI::Widgets::CHLCC;
 
 OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
+  RememberLastPage = true;
+  RememberHighlightedEntries = true;
+
   TitleFade.Direction = AnimationDirection::In;
   TitleFade.LoopMode = AnimationLoopMode::Stop;
   TitleFade.DurationIn = TitleFadeInDuration;
   TitleFade.DurationOut = TitleFadeOutDuration;
+  TitleFade.SkipOnSkipMode = false;
 
   FromSystemMenuTransition.Direction = AnimationDirection::In;
   FromSystemMenuTransition.LoopMode = AnimationLoopMode::Stop;
   FromSystemMenuTransition.DurationIn = TitleFadeInDuration;
   FromSystemMenuTransition.DurationOut = TitleFadeOutDuration;
+  FromSystemMenuTransition.SkipOnSkipMode = false;
 
   RedBarSprite = InitialRedBarSprite;
   RedBarPosition = InitialRedBarPosition;
 
-  // Push dummy group so Show and Hide don't access garbage
-  // Will be replaced when actually implemented
-  auto dummyPage = std::make_unique<Group>(this);
-  dummyPage->Add(new Label(), FDIR_DOWN);
-  Pages.push_back(std::move(dummyPage));
+  ShowPageAnimation.SetDuration(ShowAnimationDuration);
+  ShowPageAnimation.SkipOnSkipMode = false;
+
+  PageTransitionAnimation.SetDuration(PageTransitionDuration);
+  PageTransitionAnimation.SkipOnSkipMode = false;
+
+  SelectedAnimation.DurationIn = SelectedSlideDuration;
+  SelectedAnimation.LoopMode = AnimationLoopMode::Loop;
+  SelectedAnimation.SkipOnSkipMode = false;
+  SelectedAnimation.StartIn();
+
+  std::function<void(OptionsEntry*)> highlight = [this](auto* entry) {
+    return Highlight(entry);
+  };
+
+  Pages.reserve(3);
+  Pages.emplace_back(CreateTextPage(highlight));
+  Pages.emplace_back(CreateSoundPage(highlight));
+  Pages.emplace_back(CreateVoicePage(highlight));
+
+  HighlightedEntriesPerPage.reserve(Pages.size());
+  for (std::unique_ptr<Group>& page : Pages) {
+    HighlightedEntriesPerPage.push_back(page->GetFirstFocusableChild());
+  }
+
+  SelectedLabelPos = HighlightedEntriesPerPage[CurrentPage]->Bounds.GetPos();
+}
+
+std::unique_ptr<Widgets::Group> OptionsMenu::CreateTextPage(
+    const std::function<void(OptionsEntry*)>& highlight) {
+  std::unique_ptr<Group> textPage = std::make_unique<Group>(this);
+  RectF highlightBounds(0.0f, 0.0f, SelectedLabelSprite.ScaledWidth(),
+                        SelectedLabelSprite.ScaledHeight());
+
+  const auto addButton = [&]<typename T>(size_t id, T& value,
+                                         std::span<const T> values,
+                                         std::span<const Sprite*> sprites) {
+    highlightBounds.X = TextPageEntryPositions[id].x;
+    highlightBounds.Y = TextPageEntryPositions[id].y;
+    textPage->Add(
+        new OptionsButton<T>(
+            value, values, sprites,
+            highlightBounds.GetPos() + glm::vec2(highlightBounds.Width, 0.0f),
+            highlightBounds, highlight),
+        FDIR_DOWN);
+  };
+
+  // Basic settings
+  {
+    std::array<const Sprite*, 2> sprites{&SettingDoSprite, &SettingDontSprite};
+    addButton.template operator()<bool>(0, TriggerStopSkip,
+                                        TriggerStopSkipValues, sprites);
+  }
+  {
+    std::array<const Sprite*, 2> sprites{&SettingDoSprite, &SettingDontSprite};
+    addButton.template operator()<bool>(1, ShowTipsNotification,
+                                        ShowTipsNotificationValues, sprites);
+  }
+  {
+    std::array<const Sprite*, 4> sprites{
+        &SettingOnTriggerAndSceneSprite, &SettingDontSprite,
+        &SettingOnTriggerSprite, &SettingOnSceneSprite};
+    addButton.template operator()<uint8_t>(2, AutoQuickSave,
+                                           AutoQuickSaveValues, sprites);
+  }
+  {
+    std::array<const Sprite*, 2> sprites{&SettingTypeASprite,
+                                         &SettingTypeBSprite};
+    addButton.template operator()<uint8_t>(3, ControllerType,
+                                           ControllerTypeValues, sprites);
+  }
+
+  highlightBounds.X = TextPageEntryPositions[4].x;
+  highlightBounds.Y = TextPageEntryPositions[4].y;
+  textPage->Add(
+      new OptionsSlider(
+          ImageSize, 0.0f, 1.0f, SliderBarBaseSprite, SliderBarFillSprite,
+          highlightBounds.GetPos() + glm::vec2(highlightBounds.Width, 0.0f),
+          highlightBounds, highlight),
+      FDIR_DOWN);
+
+  // Text settings
+  {
+    std::array<const Sprite*, 4> sprites{
+        &SettingNormalSprite, &SettingFastSprite, &SettingInstantSprite,
+        &SettingSlowSprite};
+    addButton.template operator()<float>(5, TextSpeed, TextSpeedValues,
+                                         sprites);
+  }
+  {
+    std::array<const Sprite*, 3> sprites{
+        &SettingNormalSprite, &SettingFastSprite, &SettingSlowSprite};
+    addButton.template operator()<float>(6, AutoSpeed, AutoSpeedValues,
+                                         sprites);
+  }
+  {
+    std::array<const Sprite*, 2> sprites{&SettingReadSprite, &SettingAllSprite};
+    addButton.template operator()<bool>(7, SkipRead, SkipReadValues, sprites);
+  }
+
+  return textPage;
+}
+
+std::unique_ptr<Widgets::Group> OptionsMenu::CreateSoundPage(
+    const std::function<void(OptionsEntry*)>& highlight) {
+  std::unique_ptr<Group> soundPage = std::make_unique<Group>(this);
+  RectF highlightBounds(0.0f, 0.0f, SelectedLabelSprite.ScaledWidth(),
+                        SelectedLabelSprite.ScaledHeight());
+
+  const auto addButton = [&]<typename T>(size_t id, T& value,
+                                         std::span<const T> values,
+                                         std::span<const Sprite*> sprites) {
+    highlightBounds.X = SoundPageEntryPositions[id].x;
+    highlightBounds.Y = SoundPageEntryPositions[id].y;
+    const glm::vec2 topRight =
+        highlightBounds.GetPos() + glm::vec2(highlightBounds.Width, 0.0f);
+    soundPage->Add(new OptionsButton<T>(value, values, sprites, topRight,
+                                        highlightBounds, highlight),
+                   FDIR_DOWN);
+  };
+  const auto addSlider = [&](size_t id, float& value, float min, float max) {
+    highlightBounds.X = SoundPageEntryPositions[id].x;
+    highlightBounds.Y = SoundPageEntryPositions[id].y;
+    const glm::vec2 topRight =
+        highlightBounds.GetPos() + glm::vec2(highlightBounds.Width, 0.0f);
+    soundPage->Add(new OptionsSlider(value, min, max, SliderBarBaseSprite,
+                                     SliderBarFillSprite, topRight,
+                                     highlightBounds, highlight),
+                   FDIR_DOWN);
+  };
+
+  addSlider(0, Audio::GroupVolumes[Audio::ACG_Voice], 0.0f, 1.0f);
+  addSlider(1, Audio::GroupVolumes[Audio::ACG_BGM], 0.0f, 0.5f);
+  addSlider(2, Audio::GroupVolumes[Audio::ACG_SE], 0.0f, 1.0f);
+  addSlider(3, Audio::GroupVolumes[Audio::ACG_Movie], 0.0f, 1.0f);
+  {
+    std::array<const Sprite*, 2> sprites{&SettingDoSprite, &SettingDontSprite};
+    addButton.template operator()<bool>(4, SyncVoice, SyncVoiceValues, sprites);
+  }
+  {
+    std::array<const Sprite*, 2> sprites{&SettingDontSprite, &SettingDoSprite};
+    addButton.template operator()<bool>(5, SkipVoice, SkipVoiceValues, sprites);
+  }
+
+  return soundPage;
+}
+
+std::unique_ptr<Widgets::Group> OptionsMenu::CreateVoicePage(
+    const std::function<void(OptionsEntry*)>& highlight) {
+  std::unique_ptr<Group> voicePage = std::make_unique<Group>(this);
+  RectF highlightBounds(0.0f, 0.0f, SelectedLabelSprite.ScaledWidth(),
+                        SelectedLabelSprite.ScaledHeight());
+
+  for (size_t i = 0; i < VoicePageEntryPositions.size(); i++) {
+    highlightBounds.X = VoicePageEntryPositions[i].x;
+    highlightBounds.Y = VoicePageEntryPositions[i].y;
+    const glm::vec2 topRight =
+        highlightBounds.GetPos() + glm::vec2(highlightBounds.Width, 0.0f);
+
+    voicePage->Add(
+        new OptionsSlider(Profile::ConfigSystem::VoiceVolume[i], 0.0f, 1.0f,
+                          SliderBarBaseSprite, SliderBarFillSprite, topRight,
+                          highlightBounds, highlight, VoiceMutedSprite),
+        FDIR_DOWN);
+  }
+
+  return voicePage;
+}
+
+void OptionsMenu::Show() {
+  if (State == Hidden) {
+    ShowPageAnimation.StartIn();
+  }
+
+  UI::OptionsMenu::Show();
+}
+
+void OptionsMenu::Hide() {
+  if (State == Shown) {
+    SetFlag(SF_SUBMENUEXIT, true);
+    ShowPageAnimation.StartOut();
+  }
+
+  UI::OptionsMenu::Hide();
+
+  if (State == Hiding) {
+    Pages[CurrentPage]->IsShown = true;
+  }
+}
+
+void OptionsMenu::RenderPage(const size_t pageId, const glm::vec2 offset) {
+  switch (pageId) {
+    case static_cast<int>(PageType::Text):
+      Renderer->DrawSprite(BasicSettingsSprite, BasicSettingsPos + offset);
+      Renderer->DrawSprite(TextSettingsSprite, TextSettingsPos + offset);
+      break;
+    case static_cast<int>(PageType::Sound):
+      Renderer->DrawSprite(SoundSettingsSprite, SoundSettingsPos + offset);
+      break;
+    case static_cast<int>(PageType::Voice):
+      Renderer->DrawSprite(VoiceSettingsSprite, VoiceSettingsPos + offset);
+      break;
+    default:
+      ImpLogSlow(LogLevel::Warning, LogChannel::General,
+                 "Unexpected options menu page {:d}", pageId);
+      break;
+  }
+
+  Pages[pageId]->Move(offset);
+  Pages[pageId]->Render();
+  Pages[pageId]->Move(-offset);
 }
 
 void OptionsMenu::Render() {
-  if (State != Hidden) {
-    if (FadeAnimation.IsIn()) {
-      Renderer->DrawQuad(
-          RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-          RgbIntToFloat(BackgroundColor));
-    } else if (GetFlag(SF_SYSTEMMENU)) {
-      Renderer->DrawQuad(
-          RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-          RgbIntToFloat(BackgroundColor, FromSystemMenuTransition.Progress));
-    } else {
-      DrawCircles();
-    }
-    DrawErin();
-    DrawRedBar();
+  if (State == Hidden) return;
+
+  if (FadeAnimation.IsIn()) {
+    Renderer->DrawQuad(
+        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+        RgbIntToFloat(BackgroundColor));
+  } else if (GetFlag(SF_SYSTEMMENU)) {
+    Renderer->DrawQuad(
+        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+        RgbIntToFloat(BackgroundColor, FromSystemMenuTransition.Progress));
+  } else {
+    DrawCircles();
   }
+  DrawErin();
+  DrawRedBar();
+
   if (FadeAnimation.Progress > 0.34f) {
     Renderer->DrawSprite(RedBarLabel, RedTitleLabelPos);
 
@@ -71,27 +292,54 @@ void OptionsMenu::Render() {
     Renderer->DrawSprite(MenuTitleText, titleDest);
   }
 
-  glm::vec3 tint = {1.0f, 1.0f, 1.0f};
   // Alpha goes from 0 to 1 in half the time
-  float alpha =
+  const float alpha =
       FadeAnimation.Progress < 0.5f ? FadeAnimation.Progress * 2.0f : 1.0f;
   Renderer->DrawSprite(
       BackgroundFilter,
       RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-      glm::vec4(tint, alpha));
+      {1.0f, 1.0f, 1.0f, alpha});
 
-  glm::vec2 offset(0.0f, 0.0f);
   if (FadeAnimation.Progress > 0.22f) {
-    if (FadeAnimation.Progress < 0.72f) {
-      // Approximated function from the original, another mess
-      offset = glm::vec2(
-          0.0f,
-          glm::mix(-Profile::DesignHeight, 0.0f,
-                   1.00397f * std::sin(3.97161f -
-                                       3.26438f * FadeAnimation.Progress) -
-                       0.00295643f));
-    }
     DrawButtonPrompt();
+  }
+
+  if ((CurrentlyFocusedElement != nullptr || !ShowPageAnimation.IsIn()) &&
+      PageTransitionAnimation.IsStopped()) {
+    for (float x = SelectedSprite.ScaledWidth() * -SelectedAnimation.Progress;
+         x < Profile::DesignWidth; x += SelectedSprite.ScaledWidth()) {
+      Renderer->DrawSprite(SelectedSprite,
+                           glm::vec2(x, SelectedLabelPos.y) + ShowPageOffset);
+    }
+
+    Renderer->DrawSprite(SelectedLabelSprite,
+                         SelectedLabelPos + ShowPageOffset);
+    const glm::vec2 dotOffset =
+        CurrentPage == static_cast<size_t>(PageType::Voice)
+            ? SelectedDotVoicesOffset
+            : SelectedDotOffset;
+    Renderer->DrawSprite(SelectedDotSprite,
+                         SelectedLabelPos + dotOffset + ShowPageOffset);
+  }
+
+  if (PageTransitionAnimation.IsStopped()) {
+    RenderPage(CurrentPage, ShowPageOffset);
+  } else {
+    Pages[PreviousPage]->IsShown = true;
+    RenderPage(PreviousPage, PageTransitionGoingOffset + ShowPageOffset);
+    RenderPage(CurrentPage, PageTransitionComingOffset + ShowPageOffset);
+  }
+}
+
+void OptionsMenu::UpdatePageInput(float dt) {
+  UI::OptionsMenu::UpdatePageInput(dt);
+
+  if (PageTransitionAnimation.IsPlaying()) return;
+
+  if (Input::MouseWheelDeltaY > 0.0f) {
+    GoToPage((CurrentPage + Pages.size() - 1) % Pages.size());
+  } else if (Input::MouseWheelDeltaY < 0.0f) {
+    GoToPage((CurrentPage + 1) % Pages.size());
   }
 }
 
@@ -104,20 +352,92 @@ void OptionsMenu::UpdateVisibility() {
     Show();
   }
 
-  if (FadeAnimation.IsOut() &&
-      (ScrWork[SW_SYSMENUCT] == 0 || GetFlag(SF_SYSTEMMENU)) && State == Hiding)
+  if (FadeAnimation.IsOut() && !GetFlag(SF_OPTIONMENU) &&
+      (ScrWork[SW_SYSMENUCT] == 0 || GetFlag(SF_SYSTEMMENU)) &&
+      State == Hiding) {
     State = Hidden;
-  else if (FadeAnimation.IsIn() && ScrWork[SW_SYSMENUCT] == 10000 &&
-           State == Showing) {
+  } else if (FadeAnimation.IsIn() && ScrWork[SW_SYSMENUCT] == 10000 &&
+             GetFlag(SF_OPTIONMENU) && State == Showing) {
     State = Shown;
   }
 }
 
+void OptionsMenu::UpdatePageShowAnimation(float dt) {
+  ShowPageAnimation.Update(dt);
+  ShowPageOffset = {0.0f, 0.0f};
+
+  if (ShowPageAnimation.IsIn()) return;
+
+  const float startProgress =
+      ShowPageAnimationStartTime / ShowAnimationDuration;
+  const float endProgress =
+      startProgress + ShowPageAnimationDuration / ShowAnimationDuration;
+
+  if (startProgress < ShowPageAnimation.Progress &&
+      ShowPageAnimation.Progress < endProgress) {
+    const float progress = (ShowPageAnimation.Progress - startProgress) /
+                           (endProgress - startProgress);
+    const float angle = progress * std::numbers::pi_v<float> * 0.5f;
+
+    ShowPageOffset = {0.0f, (std::sin(angle) - 1.0f) * Profile::DesignHeight};
+
+  } else if (ShowPageAnimation.Progress <= startProgress) {
+    ShowPageOffset = {0.0f, -Profile::DesignHeight};
+  }
+}
+
+void OptionsMenu::UpdateSelectedLabel(float dt) {
+  SelectedAnimation.Update(dt);
+
+  if (CurrentlyFocusedElement == nullptr ||
+      SelectedLabelPos.y == CurrentlyFocusedElement->Bounds.Y)
+    return;
+
+  const float currentY = SelectedLabelPos.y;
+  const float targetY = CurrentlyFocusedElement->Bounds.Y;
+
+  // Not exactly how the binary does it, but this is smoother
+  const float entriesLeft =
+      std::abs(currentY - targetY) / SelectedLabelModalDistancePerEntry;
+  const float speedMultiplier =
+      1.0f + 3.0f * glm::smoothstep(0.0f, 4.0f, entriesLeft);
+  const float pixelsMoved = SelectedLabelBaseSpeed * speedMultiplier * dt;
+
+  if (SelectedLabelPos.y < CurrentlyFocusedElement->Bounds.Y) {
+    SelectedLabelPos.y = std::min(SelectedLabelPos.y + pixelsMoved,
+                                  CurrentlyFocusedElement->Bounds.Y);
+  } else {
+    SelectedLabelPos.y = std::max(SelectedLabelPos.y - pixelsMoved,
+                                  CurrentlyFocusedElement->Bounds.Y);
+  }
+}
+
+void OptionsMenu::UpdatePageTransitionAnimation(float dt) {
+  PageTransitionAnimation.Update(dt);
+
+  if (PageTransitionAnimation.IsStopped()) return;
+
+  constexpr glm::vec2 anchor = {1.0f, 0.0f};
+
+  float angle = (1.0f - PageTransitionAnimation.Progress) * PageRotationAngle;
+  PageTransitionComingOffset =
+      (glm::vec2(std::cos(angle), std::sin(angle)) - anchor) *
+      Profile::DesignHeight;
+
+  angle = -PageTransitionAnimation.Progress * PageRotationAngle;
+  PageTransitionGoingOffset =
+      (glm::vec2(std::cos(angle), std::sin(angle)) - anchor) *
+      Profile::DesignHeight;
+
+  if (PageTransitionAnimation.Direction == AnimationDirection::Out) {
+    std::swap(PageTransitionGoingOffset, PageTransitionComingOffset);
+  }
+}
+
 void OptionsMenu::Update(float dt) {
-  UpdateVisibility();
+  UI::OptionsMenu::Update(dt);
 
   if (State != Hidden) {
-    FadeAnimation.Update(dt);
     FromSystemMenuTransition.Update(dt);
     if (FadeAnimation.Direction == AnimationDirection::Out &&
         FadeAnimation.Progress <= 0.72f) {
@@ -130,12 +450,43 @@ void OptionsMenu::Update(float dt) {
       FromSystemMenuTransition.StartIn();
     }
     TitleFade.Update(dt);
-    UpdateTitles();
-  }
 
-  if (GetControlState(CT_Back)) {
-    SetFlag(SF_SUBMENUEXIT, true);
+    UpdateTitles();
+    UpdatePageShowAnimation(dt);
+    UpdatePageTransitionAnimation(dt);
+    UpdateSelectedLabel(dt);
   }
+}
+
+void OptionsMenu::UpdateValues() {
+  for (std::unique_ptr<Group>& page : Pages) {
+    for (Widget* entry : page->Children) {
+      static_cast<OptionsEntry*>(entry)->UpdateValue();
+    }
+  }
+}
+
+void OptionsMenu::UpdateInput(float dt) {
+  if (State != Shown || PageTransitionAnimation.IsPlaying()) return;
+
+  UI::OptionsMenu::UpdateInput(dt);
+}
+
+void OptionsMenu::GoToPage(size_t pageNumber) {
+  if (pageNumber == CurrentPage || PageTransitionAnimation.IsPlaying()) return;
+
+  PreviousPage = CurrentPage;
+  UI::OptionsMenu::GoToPage(pageNumber);
+
+  AnimationDirection direction = PreviousPage > CurrentPage
+                                     ? AnimationDirection::In
+                                     : AnimationDirection::Out;
+  if (PreviousPage == Pages.size() - 1 && CurrentPage == 0)
+    direction = AnimationDirection::Out;
+  else if (PreviousPage == 0 && CurrentPage == Pages.size() - 1)
+    direction = AnimationDirection::In;
+
+  PageTransitionAnimation.Start(direction, true);
 }
 
 inline void OptionsMenu::DrawCircles() {
@@ -201,12 +552,20 @@ inline void OptionsMenu::DrawRedBar() {
 }
 
 inline void OptionsMenu::DrawButtonPrompt() {
-  if (FadeAnimation.IsIn()) {
+  const float startProgress =
+      ButtonPromptAnimationStartTime / ShowAnimationDuration;
+  const float endProgress =
+      startProgress + ButtonPromptAnimationDuration / ShowAnimationDuration;
+
+  if (ShowPageAnimation.Progress >= endProgress) {
     Renderer->DrawSprite(ButtonPromptSprite, ButtonPromptPosition);
-  } else if (FadeAnimation.Progress > 0.734f) {
-    float x = ButtonPromptPosition.x - 2560.0f * (FadeAnimation.Progress - 1);
-    Renderer->DrawSprite(ButtonPromptSprite,
-                         glm::vec2(x, ButtonPromptPosition.y));
+
+  } else if (ShowPageAnimation.Progress >= startProgress) {
+    const float progress = (ShowPageAnimation.Progress - startProgress) /
+                           (endProgress - startProgress);
+    Renderer->DrawSprite(
+        ButtonPromptSprite,
+        glm::mix(ButtonPromptStartPosition, ButtonPromptPosition, progress));
   }
 }
 
@@ -224,6 +583,37 @@ void OptionsMenu::UpdateTitles() {
   RightTitlePos +=
       glm::vec2(-572.0f * (FadeAnimation.Progress * 4.0f - 3.0f),
                 460.0f * (FadeAnimation.Progress * 4.0f - 3.0f) / 3.0f);
+}
+
+void OptionsMenu::ResetToDefault() {
+  switch (CurrentPage) {
+    case static_cast<size_t>(PageType::Text): {
+      TriggerStopSkip = Default::TriggerStopSkip;
+      ShowTipsNotification = Default::ShowTipsNotification;
+      AutoQuickSave = Default::AutoQuickSave;
+      ControllerType = Default::ControllerType;
+      ImageSize = Default::ImageSize;
+
+      TextSpeed = Default::TextSpeed;
+      AutoSpeed = Default::AutoSpeed;
+      SkipRead = Default::SkipRead;
+    } break;
+
+    case static_cast<size_t>(PageType::Sound): {
+      std::ranges::copy(Default::GroupVolumes, Audio::GroupVolumes.begin());
+      SyncVoice = Default::SyncVoice;
+      SkipVoice = Default::SkipVoice;
+    } break;
+
+    case static_cast<size_t>(PageType::Voice): {
+      std::ranges::copy(Default::VoiceVolume, VoiceVolume.begin());
+    } break;
+
+    default:
+      break;
+  }
+
+  UpdateValues();
 }
 
 }  // namespace CHLCC

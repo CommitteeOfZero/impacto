@@ -30,9 +30,9 @@ class OptionsMenu : public UI::OptionsMenu {
   void UpdatePageInput(float dt) override;
   void UpdateVisibility() override;
 
-  void GoToPage(int pageNumber) override;
+  void GoToPage(size_t pageNumber) override;
   Animation PageFadeAnimation;
-  int PreviousPage = -1;
+  std::optional<size_t> PreviousPage;
 
   Widgets::Group* PageControls;
 

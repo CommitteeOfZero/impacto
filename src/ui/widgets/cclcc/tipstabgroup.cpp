@@ -308,14 +308,6 @@ void TipsTabGroup::Move(glm::vec2 relativePosition) {
   TipsEntriesGroup.RenderingBounds.Y += relativePosition.y;
 }
 
-void TipsTabGroup::MoveTo(glm::vec2 pos) {
-  TabName.MoveTo(pos);
-  TipsEntriesGroup.MoveTo(pos);
-  TipsEntriesScrollbar->MoveTo(pos);
-  TipsEntriesGroup.RenderingBounds.X = pos.x;
-  TipsEntriesGroup.RenderingBounds.Y = pos.y;
-}
-
 }  // namespace CCLCC
 }  // namespace Widgets
 }  // namespace UI

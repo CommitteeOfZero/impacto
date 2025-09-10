@@ -73,6 +73,11 @@ void OptionsEntry::UpdateInput(float dt) {
   if (Selected && PADinputButtonWentDown & PAD1B) {
     Selected = false;
     Audio::Channels[Audio::AC_SSE]->Play("sysse", 3, false, 0.0f);
+
+    // Hack to prevent closing the menu entirely
+    PADinputButtonWentDown &= ~PAD1B;
+    PADinputButtonIsDown &= ~PAD1B;
+
     return;
   }
 }
@@ -88,12 +93,6 @@ void OptionsEntry::Hide() {
 void OptionsEntry::Move(glm::vec2 relativePos) {
   Widget::Move(relativePos);
   EntryButton.Move(relativePos);
-}
-
-void OptionsEntry::MoveTo(glm::vec2 pos) {
-  const glm::vec2 relativePosition = pos - Bounds.GetPos();
-  Widget::MoveTo(pos);
-  EntryButton.Move(relativePosition);
 }
 
 void OptionsEntry::EntryButtonOnClick(ClickArea* target) {

@@ -19,6 +19,10 @@ void Configure() {
     Default::ShowTipsNotification =
         TryGetMember<bool>("ShowTipsNotification")
             .value_or(Default::ShowTipsNotification);
+    Default::AutoQuickSave =
+        TryGetMember<uint8_t>("AutoQuickSave").value_or(Default::AutoQuickSave);
+    Default::ControllerType = TryGetMember<uint8_t>("ControllerType")
+                                  .value_or(Default::ControllerType);
     Default::AdvanceTextOnDirectionalInput =
         TryGetMember<bool>("AdvanceTextOnDirectionalInput")
             .value_or(Default::AdvanceTextOnDirectionalInput);
@@ -54,6 +58,9 @@ void Configure() {
       GetMemberArray(Default::VoiceVolume.data(), voiceCount, "VoiceVolume");
     }
 
+    Default::ImageSize =
+        TryGetMember<float>("ImageSize").value_or(Default::ImageSize);
+
     Pop();
   }
 
@@ -62,6 +69,8 @@ void Configure() {
 
 void ResetToDefault() {
   ShowTipsNotification = Default::ShowTipsNotification;
+  AutoQuickSave = Default::AutoQuickSave;
+  ControllerType = Default::ControllerType;
   AdvanceTextOnDirectionalInput = Default::AdvanceTextOnDirectionalInput;
   DirectionalInputForTrigger = Default::DirectionalInputForTrigger;
   TriggerStopSkip = Default::TriggerStopSkip;
@@ -76,6 +85,8 @@ void ResetToDefault() {
   std::ranges::copy(Default::VoiceMuted, VoiceMuted.begin());
   std::ranges::copy(Default::VoiceVolume, VoiceVolume.begin());
   std::ranges::copy(Default::GroupVolumes, Audio::GroupVolumes.begin());
+
+  ImageSize = Default::ImageSize;
 }
 
 }  // namespace ConfigSystem
