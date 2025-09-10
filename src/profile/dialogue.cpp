@@ -17,6 +17,7 @@ void Configure() {
   NVLBounds = EnsureGetMember<RectF>("NVLBounds");
   ADVBounds = EnsureGetMember<RectF>("ADVBounds");
   REVBounds = EnsureGetMember<RectF>("REVBounds");
+  TryGetMember<RectF>("SecondaryREVBounds", SecondaryREVBounds);
   TryGetMember<RectF>("TipsBounds", TipsBounds);
 
   ADVBoxSprite = EnsureGetMember<Sprite>("ADVBoxSprite");

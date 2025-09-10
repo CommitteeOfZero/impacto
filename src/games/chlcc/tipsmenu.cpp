@@ -2,13 +2,10 @@
 
 #include "../../renderer/renderer.h"
 #include "../../mem.h"
-#include "../../vm/vm.h"
 #include "../../profile/scriptvars.h"
 #include "../../profile/dialogue.h"
-#include "../../profile/ui/backlogmenu.h"
 #include "../../profile/ui/tipsmenu.h"
 #include "../../profile/games/chlcc/tipsmenu.h"
-#include "../../io/memorystream.h"
 #include "../../data/tipssystem.h"
 #include "../../vm/interface/input.h"
 #include "../../profile/game.h"
@@ -126,11 +123,12 @@ void TipsMenu::Hide() {
 void TipsMenu::Render() {
   if (State == Hidden) return;
   if (FadeAnimation.IsIn()) {
-    Renderer->DrawQuad(RectF(0.0f, 0.0f, 1280.0f, 720.0f),
-                       RgbIntToFloat(BackgroundColor));
+    Renderer->DrawQuad(
+        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+        RgbIntToFloat(BackgroundColor));
   } else if (GetFlag(SF_SYSTEMMENU)) {
     Renderer->DrawQuad(
-        RectF(0.0f, 0.0f, 1280.0f, 720.0f),
+        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
         RgbIntToFloat(BackgroundColor, FromSystemMenuTransition.Progress));
   } else {
     DrawCircles();
@@ -151,8 +149,10 @@ void TipsMenu::Render() {
   // Alpha goes from 0 to 1 in half the time
   float alpha =
       FadeAnimation.Progress < 0.5f ? FadeAnimation.Progress * 2.0f : 1.0f;
-  Renderer->DrawSprite(BackgroundFilter, RectF(0.0f, 0.0f, 1280.0f, 720.0f),
-                       glm::vec4(tint, alpha));
+  Renderer->DrawSprite(
+      BackgroundFilter,
+      RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+      glm::vec4(tint, alpha));
   if (FadeAnimation.State != AnimationState::Stopped) {
     Group *currentPage = static_cast<Group *>(*ItemsList.GetCurrent());
     const glm::vec2 pgOffset = [&] {

@@ -16,6 +16,7 @@ namespace Dialogue {
 inline RectF NVLBounds;
 inline RectF ADVBounds;
 inline RectF REVBounds;
+inline RectF SecondaryREVBounds;
 inline RectF TipsBounds;
 
 inline Sprite ADVBoxSprite;

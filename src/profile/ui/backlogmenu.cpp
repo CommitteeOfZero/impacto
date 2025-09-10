@@ -7,6 +7,7 @@
 #include "../../ui/widgets/backlogentry.h"
 
 #include "../games/mo6tw/backlogmenu.h"
+#include "../games/chlcc/backlogmenu.h"
 #include "../games/cc/backlogmenu.h"
 
 namespace Impacto {
@@ -43,6 +44,7 @@ void Configure() {
     EntryYPadding = EnsureGetMember<float>("EntryYPadding");
     EntriesStart = EnsureGetMember<glm::vec2>("EntriesStart");
     EntryHighlightOffset = EnsureGetMember<glm::vec2>("EntryHighlightOffset");
+    EntryHighlightPadding = EnsureGetMember<float>("EntryHighlightPadding");
     VoiceIconOffset = EnsureGetMember<glm::vec2>("VoiceIconOffset");
     ScrollbarPosition = EnsureGetMember<glm::vec2>("ScrollbarPosition");
     ScrollbarThumbLength = EnsureGetMember<float>("ScrollbarThumbLength");
@@ -61,6 +63,10 @@ void Configure() {
     switch (Type) {
       case BacklogMenuType::MO6TW:
         MO6TW::BacklogMenu::Configure();
+        break;
+
+      case BacklogMenuType::CHLCC:
+        CHLCC::BacklogMenu::Configure();
         break;
 
       case BacklogMenuType::CC:

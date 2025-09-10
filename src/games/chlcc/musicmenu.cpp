@@ -7,6 +7,7 @@
 #include "../../data/savesystem.h"
 #include "../../background2d.h"
 #include "../../vm/interface/input.h"
+#include "../../profile/game.h"
 
 #include "../../ui/widgets/chlcc/trackselectbutton.h"
 
@@ -111,11 +112,12 @@ void MusicMenu::Hide() {
 void MusicMenu::Render() {
   if (State != Hidden) {
     if (MenuTransition.IsIn()) {
-      Renderer->DrawQuad(RectF(0.0f, 0.0f, 1280.0f, 720.0f),
-                         RgbIntToFloat(BackgroundColor));
+      Renderer->DrawQuad(
+          RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+          RgbIntToFloat(BackgroundColor));
     } else if (GetFlag(SF_SYSTEMMENU)) {
       Renderer->DrawQuad(
-          RectF(0.0f, 0.0f, 1280.0f, 720.0f),
+          RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
           RgbIntToFloat(BackgroundColor, FromSystemMenuTransition.Progress));
     } else {
       DrawCircles();
@@ -136,7 +138,8 @@ void MusicMenu::Render() {
     Renderer->CaptureScreencap(ShaderScreencapture.BgSprite);
     Renderer->DrawCHLCCMenuBackground(
         ShaderScreencapture.BgSprite, BackgroundFilter,
-        RectF(0.0f, 0.0f, 1280.0f, 720.0f), MenuTransition.Progress);
+        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+        MenuTransition.Progress);
 
     glm::vec2 offset(0.0f, 0.0f);
     if (MenuTransition.Progress > 0.22f) {
@@ -144,14 +147,14 @@ void MusicMenu::Render() {
         // Approximated function from the original, another mess
         offset = glm::vec2(
             0.0f,
-            glm::mix(-720.0f, 0.0f,
+            glm::mix(-Profile::DesignHeight, 0.0f,
                      1.00397f * std::sin(3.97161f -
                                          3.26438f * MenuTransition.Progress) -
                          0.00295643f));
 
         MainItems->RenderingBounds =
-            RectF(0.0f, TrackButtonPosTemplate.y + offset.y, 1280.0f,
-                  16 * TrackOffset.y + 1);
+            RectF(0.0f, TrackButtonPosTemplate.y + offset.y,
+                  Profile::DesignWidth, 16 * TrackOffset.y + 1);
 
         glm::vec2 currentScroll(0.0f,
                                 -(float)CurrentLowerBound * TrackOffset.y);
@@ -217,7 +220,8 @@ void MusicMenu::Update(float dt) {
              State == Showing) {
     State = Shown;
     MainItems->RenderingBounds =
-        RectF(0.0f, TrackButtonPosTemplate.y, 1280.0f, 16 * TrackOffset.y + 1);
+        RectF(0.0f, TrackButtonPosTemplate.y, Profile::DesignWidth,
+              16 * TrackOffset.y + 1);
     MainItems->MoveTo({0.0f, 0.0f});
     for (auto el : MainItems->Children)
       static_cast<Widgets::CHLCC::TrackSelectButton*>(el)->MoveTracks(

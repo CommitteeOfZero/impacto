@@ -1,8 +1,6 @@
 #include "titlemenu.h"
 
-#include "../../texture/texture.h"
 #include "../../spritesheet.h"
-#include "../../io/vfs.h"
 
 #include "../../renderer/renderer.h"
 #include "../../mem.h"

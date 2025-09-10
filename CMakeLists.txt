@@ -95,6 +95,7 @@ set(Impacto_Src
         src/profile/games/chlcc/musicmenu.cpp
         src/profile/games/chlcc/tipsmenu.cpp
         src/profile/games/chlcc/optionsmenu.cpp
+        src/profile/games/chlcc/backlogmenu.cpp
         src/profile/games/chlcc/systemmenu.cpp
         src/profile/games/chlcc/trophymenu.cpp
         src/profile/games/chlcc/delusiontrigger.cpp
@@ -160,6 +161,7 @@ set(Impacto_Src
         src/games/chlcc/musicmenu.cpp
         src/games/chlcc/tipsmenu.cpp
         src/games/chlcc/optionsmenu.cpp
+        src/games/chlcc/backlogmenu.cpp
         src/games/chlcc/systemmenu.cpp
         src/games/chlcc/trophymenu.cpp
         src/games/chlcc/trophymenuentry.cpp
@@ -260,6 +262,7 @@ set(Impacto_Src
         src/ui/widgets/chlcc/albumthumbnailbutton.cpp
         src/ui/widgets/chlcc/trackselectbutton.cpp
         src/ui/widgets/chlcc/tipsentrybutton.cpp
+        src/ui/widgets/chlcc/backlogentry.cpp
         src/ui/widgets/rne/sysmenubutton.cpp
         src/ui/widgets/cc/backlogentry.cpp
         src/ui/widgets/cc/titlebutton.cpp
@@ -422,6 +425,7 @@ set(Impacto_Header
         src/profile/games/chlcc/musicmenu.h
         src/profile/games/chlcc/tipsmenu.h
         src/profile/games/chlcc/optionsmenu.h
+        src/profile/games/chlcc/backlogmenu.h
         src/profile/games/chlcc/systemmenu.h
         src/profile/games/chlcc/trophymenu.h
         src/profile/games/chlcc/delusiontrigger.h
@@ -485,6 +489,7 @@ set(Impacto_Header
         src/games/chlcc/musicmenu.h
         src/games/chlcc/tipsmenu.h
         src/games/chlcc/optionsmenu.h
+        src/games/chlcc/backlogmenu.h
         src/games/chlcc/systemmenu.h
         src/games/chlcc/trophymenu.h
         src/games/chlcc/delusiontrigger.h
@@ -578,6 +583,7 @@ set(Impacto_Header
         src/ui/widgets/chlcc/moviemenuentrybutton.h
         src/ui/widgets/chlcc/albumthumbnailbutton.h
         src/ui/widgets/chlcc/trackselectbutton.h
+        src/ui/widgets/chlcc/backlogentry.h
         src/ui/widgets/rne/sysmenubutton.h
         src/ui/widgets/cc/backlogentry.h
         src/ui/widgets/cc/titlebutton.h

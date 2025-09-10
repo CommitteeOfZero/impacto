@@ -1,11 +1,11 @@
-#include "clearlistmenu.h"
+#include "backlogmenu.h"
 
-#include "../../profile/games/chlcc/clearlistmenu.h"
+#include "../../profile/games/chlcc/backlogmenu.h"
+#include "../../ui/widgets/chlcc/backlogentry.h"
 #include "../../profile/scriptvars.h"
 #include "../../profile/profile_internal.h"
 #include "../../renderer/renderer.h"
 #include "../../ui/ui.h"
-#include "../../data/savesystem.h"
 #include "../../data/tipssystem.h"
 #include "../../background2d.h"
 #include "../../profile/game.h"
@@ -14,49 +14,49 @@ namespace Impacto {
 namespace UI {
 namespace CHLCC {
 
-using namespace Impacto::Profile::CHLCC::ClearListMenu;
+using namespace Impacto::Profile::CHLCC::BacklogMenu;
+using namespace Impacto::UI::Widgets::CHLCC;
 using namespace Impacto::Profile::ScriptVars;
-using namespace Impacto::UI::Widgets;
-using namespace Impacto::TipsSystem;
-using namespace Impacto::Profile;
 
-ClearListMenu::ClearListMenu() {
+BacklogMenu::BacklogMenu() {
   MenuTransition.Direction = AnimationDirection::In;
   MenuTransition.LoopMode = AnimationLoopMode::Stop;
-  MenuTransition.DurationIn = MenuTransitionDuration;
-  MenuTransition.DurationOut = MenuTransitionDuration;
+  MenuTransition.DurationIn = TransitionDuration;
+  MenuTransition.DurationOut = TransitionDuration;
 
   TitleFade.Direction = AnimationDirection::In;
   TitleFade.LoopMode = AnimationLoopMode::Stop;
   TitleFade.DurationIn = TitleFadeInDuration;
   TitleFade.DurationOut = TitleFadeOutDuration;
 
+  FromSystemMenuTransition.Direction = AnimationDirection::In;
+  FromSystemMenuTransition.LoopMode = AnimationLoopMode::Stop;
+  FromSystemMenuTransition.DurationIn = TitleFadeInDuration;
+  FromSystemMenuTransition.DurationOut = TitleFadeOutDuration;
+
   RedBarSprite = InitialRedBarSprite;
   RedBarPosition = InitialRedBarPosition;
 }
 
-void ClearListMenu::Show() {
+void BacklogMenu::Show() {
   if (State != Shown) {
     if (State != Showing) {
       MenuTransition.StartIn();
       FromSystemMenuTransition.StartIn();
     }
+    UI::BacklogMenu::Show();
     State = Showing;
-    if (UI::FocusedMenu != 0) {
-      LastFocusedMenu = UI::FocusedMenu;
-      LastFocusedMenu->IsFocused = false;
-    }
     IsFocused = true;
-    UI::FocusedMenu = this;
   }
 }
 
-void ClearListMenu::Hide() {
+void BacklogMenu::Hide() {
   if (State != Hidden) {
     if (State != Hiding) {
       MenuTransition.StartOut();
       FromSystemMenuTransition.StartOut();
     }
+    UI::BacklogMenu::Hide();
     State = Hiding;
     if (LastFocusedMenu != 0) {
       UI::FocusedMenu = LastFocusedMenu;
@@ -65,10 +65,11 @@ void ClearListMenu::Hide() {
       UI::FocusedMenu = 0;
     }
     IsFocused = false;
+    Audio::Channels[Audio::AC_REV]->Stop(0.0f);
   }
 }
 
-void ClearListMenu::Render() {
+void BacklogMenu::Render() {
   if (State != Hidden) {
     if (MenuTransition.IsIn()) {
       Renderer->DrawQuad(
@@ -100,10 +101,6 @@ void ClearListMenu::Render() {
         RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
         MenuTransition.Progress);
 
-    if (MenuTransition.Progress > 0.34f) {
-      Renderer->DrawSprite(MenuTitleText, LeftTitlePos);
-    }
-
     float yOffset = 0;
     if (MenuTransition.Progress > 0.22f) {
       if (MenuTransition.Progress < 0.73f) {
@@ -113,37 +110,45 @@ void ClearListMenu::Render() {
             1.00397f * std::sin(3.97161f - 3.26438f * MenuTransition.Progress) -
                 0.00295643f);
       }
-      Renderer->DrawSprite(
-          ClearListLabel,
-          glm::vec2(LabelPosition.x, LabelPosition.y + yOffset));
-      DrawPlayTime(yOffset);
-      DrawEndingCount(yOffset);
-      DrawTIPSCount(yOffset);
-      DrawAlbumCompletion(yOffset);
-      DrawEndingTree(yOffset);
+      Renderer->DrawSprite(BacklogBackgroundSprite, {0.0f, 0.0f + yOffset});
       DrawButtonPrompt();
+      Renderer->DrawSprite(MenuTitleText, LeftTitlePos);
+      RenderHighlight();
+
+      MainItems->RenderingBounds.Y += yOffset;
+      MainItems->Move({0.0f, yOffset});
+      MainItems->Render();
+      MainItems->Move({0.0f, -yOffset});
+      MainItems->RenderingBounds.Y -= yOffset;
+
+      MainScrollbar->Move({0.0f, yOffset});
+      MainScrollbar->Render();
+      MainScrollbar->Move({0.0f, -yOffset});
     }
   }
 }
 
-void ClearListMenu::Update(float dt) {
-  if ((!GetFlag(SF_CLEARLISTMENU) || ScrWork[SW_SYSMENUCT] < 10000) &&
+void BacklogMenu::Update(float dt) {
+  if ((!GetFlag(SF_BACKLOGMENU) || ScrWork[SW_SYSMENUCT] < 10000) &&
       State == Shown) {
     Hide();
-  } else if (GetFlag(SF_CLEARLISTMENU) && ScrWork[SW_SYSMENUCT] > 0 &&
+  } else if (GetFlag(SF_BACKLOGMENU) && ScrWork[SW_SYSMENUCT] > 0 &&
              State == Hidden) {
     Show();
   }
 
   if (MenuTransition.IsOut() &&
-      (ScrWork[SW_SYSMENUCT] == 0 || GetFlag(SF_SYSTEMMENU)) && State == Hiding)
+      (ScrWork[SW_SYSMENUCT] == 0 || GetFlag(SF_SYSTEMMENU)) &&
+      State == Hiding) {
     State = Hidden;
-  else if (MenuTransition.IsIn() && ScrWork[SW_SYSMENUCT] == 10000 &&
-           State == Showing) {
+    MainItems->Hide();
+  } else if (MenuTransition.IsIn() && ScrWork[SW_SYSMENUCT] == 10000 &&
+             State == Showing) {
     State = Shown;
   }
 
   if (State != Hidden) {
+    UI::BacklogMenu::Update(dt);
     MenuTransition.Update(dt);
     FromSystemMenuTransition.Update(dt);
     if (MenuTransition.Direction == AnimationDirection::Out &&
@@ -159,12 +164,12 @@ void ClearListMenu::Update(float dt) {
   }
 }
 
-inline void ClearListMenu::DrawCircles() {
+inline void BacklogMenu::DrawCircles() {
   float y = CircleStartPosition.y;
   int resetCounter = 0;
   // Give the whole range that mimics ScrWork[SW_SYSMENUCT] given that the
   // duration is totalframes/60
-  float progress = MenuTransition.Progress * MenuTransitionDuration * 60.0f;
+  float progress = MenuTransition.Progress * TransitionDuration * 60.0f;
   for (int line = 0; line < 4; line++) {
     int counter = resetCounter;
     float x = CircleStartPosition.x;
@@ -186,7 +191,7 @@ inline void ClearListMenu::DrawCircles() {
   }
 }
 
-inline void ClearListMenu::DrawErin() {
+inline void BacklogMenu::DrawErin() {
   float y = ErinPosition.y;
   if (MenuTransition.Progress < 0.78f) {
     y = 801.0f;
@@ -201,13 +206,13 @@ inline void ClearListMenu::DrawErin() {
   Renderer->DrawSprite(ErinSprite, glm::vec2(ErinPosition.x, y));
 }
 
-inline void ClearListMenu::DrawRedBar() {
+inline void BacklogMenu::DrawRedBar() {
   if (MenuTransition.IsIn()) {
     Renderer->DrawSprite(InitialRedBarSprite, InitialRedBarPosition);
   } else if (MenuTransition.Progress > 0.70f) {
     // Give the whole range that mimics ScrWork[SW_SYSMENUCT] given that the
     // duration is totalframes/60
-    float progress = MenuTransition.Progress * MenuTransitionDuration * 60.0f;
+    float progress = MenuTransition.Progress * TransitionDuration * 60.0f;
     float pixelPerAdvanceLeft = RedBarBaseX * (progress - 47.0f) / 17.0f;
     RedBarSprite.Bounds.X = RedBarDivision - pixelPerAdvanceLeft;
     RedBarSprite.Bounds.Width = pixelPerAdvanceLeft;
@@ -221,98 +226,7 @@ inline void ClearListMenu::DrawRedBar() {
   }
 }
 
-inline void ClearListMenu::DrawPlayTime(float yOffset) {
-  int totalSeconds = ScrWork[SW_TOTALPLAYTIME];
-  int hours = totalSeconds / 3600;
-  int minutes = (totalSeconds % 3600) / 60;
-  int seconds = (totalSeconds % 3600) % 60;
-
-  if (hours > 99) {
-    hours = 99;
-    minutes = 59;
-    seconds = 59;
-  }
-  int time[6] = {hours / 10,   hours % 10,   minutes / 10,
-                 minutes % 10, seconds / 10, seconds % 10};
-
-  for (int idx = 0; idx < 6; idx++) {
-    if (!(idx % 2 == 0 && time[idx] == 0)) {
-      glm::vec2 position(TimePositions[idx].x, TimePositions[idx].y + yOffset);
-      Renderer->DrawSprite(Digits[time[idx]], position);
-    }
-  }
-}
-
-inline void ClearListMenu::DrawEndingCount(float yOffset) {
-  int unlockedEndingCount = 0;
-  for (int i = 0; i < Endings; i++) {
-    unlockedEndingCount += GetFlag(SF_CLR_END1 + i);
-  }
-  glm::vec2 position(EndingCountPosition.x, EndingCountPosition.y + yOffset);
-  Renderer->DrawSprite(Digits[unlockedEndingCount], position);
-}
-
-inline void ClearListMenu::DrawTIPSCount(float yOffset) {
-  int unlockedTipsCount = 0;
-  size_t totalTips = GetTipCount();
-  for (size_t idx = 0; idx < totalTips; idx++) {
-    unlockedTipsCount += GetTipLockedState(idx) ? 0 : 1;
-  }
-  if (unlockedTipsCount / 10 != 0) {
-    Renderer->DrawSprite(
-        Digits[unlockedTipsCount / 10],
-        glm::vec2(TIPSCountPositions[0].x, TIPSCountPositions[0].y + yOffset));
-  }
-  Renderer->DrawSprite(
-      Digits[unlockedTipsCount % 10],
-      glm::vec2(TIPSCountPositions[1].x, TIPSCountPositions[1].y + yOffset));
-}
-
-inline void ClearListMenu::DrawAlbumCompletion(float yOffset) {
-  int totalCount = 0, unlockedCount = 0;
-  SaveSystem::GetViewedEVsCount(&totalCount, &unlockedCount);
-  // The 9 bonus CGs after 100% completion don't count
-  totalCount -= 9;
-  unlockedCount = unlockedCount <= totalCount ? unlockedCount : totalCount;
-  int percentage = unlockedCount * 100 / totalCount;
-  if (percentage == 0 && (unlockedCount) != 0) {
-    percentage = 1;
-  }
-  if (percentage / 100 != 0) {
-    Renderer->DrawSprite(
-        Digits[percentage / 100],
-        glm::vec2(AlbumPositions[0].x, AlbumPositions[0].y + yOffset));
-    Renderer->DrawSprite(
-        Digits[(percentage / 10) % 10],
-        glm::vec2(AlbumPositions[1].x, AlbumPositions[1].y + yOffset));
-  } else if (percentage / 10 != 0) {
-    Renderer->DrawSprite(
-        Digits[(percentage / 10) % 10],
-        glm::vec2(AlbumPositions[1].x, AlbumPositions[1].y + yOffset));
-  }
-  Renderer->DrawSprite(
-      Digits[percentage % 10],
-      glm::vec2(AlbumPositions[2].x, AlbumPositions[2].y + yOffset));
-}
-
-inline void ClearListMenu::DrawEndingTree(float yOffset) {
-  for (int i = 0; i < Endings; i++) {
-    glm::vec2 boxPosition(BoxPositions[i].x, BoxPositions[i].y + yOffset);
-    glm::vec2 thumbnailPosition(ThumbnailPositions[i].x,
-                                ThumbnailPositions[i].y + yOffset);
-    Renderer->DrawSprite(EndingBox, boxPosition);
-    // Flag for the 1st ending, they are contiguous
-    if (GetFlag(SF_CLR_END1 + i)) {
-      Renderer->DrawSprite(EndingThumbnails[i], thumbnailPosition);
-    } else {
-      Renderer->DrawSprite(LockedThumbnail, thumbnailPosition);
-    }
-  }
-  glm::vec2 listPosition(ListPosition.x, ListPosition.y + yOffset);
-  Renderer->DrawSprite(EndingList, listPosition);
-}
-
-inline void ClearListMenu::DrawButtonPrompt() {
+inline void BacklogMenu::DrawButtonPrompt() {
   if (MenuTransition.IsIn()) {
     Renderer->DrawSprite(ButtonPromptSprite, ButtonPromptPosition);
   } else if (MenuTransition.Progress > 0.734f) {
@@ -322,19 +236,16 @@ inline void ClearListMenu::DrawButtonPrompt() {
   }
 }
 
-void ClearListMenu::UpdateTitles() {
+void BacklogMenu::UpdateTitles() {
   if (MenuTransition.Progress <= 0.34f) return;
 
   RedTitleLabelPos = RedBarLabelPosition;
   RightTitlePos = MenuTitleTextRightPosition;
-  LeftTitlePos = glm::vec2(
-      MenuTitleTextLeftPosition.x,
-      TitleFade.IsIn()
-          ? MenuTitleTextLeftPosition.y
-          : glm::mix(
-                1.0f, 721.0f,
-                1.01011f * std::sin(1.62223f * TitleFade.Progress + 3.152f) +
-                    1.01012f));
+  LeftTitlePos = glm::vec2(TitleFade.IsIn()
+                               ? MenuTitleTextLeftPosition.x
+                               : MenuTitleTextLeftPosition.x -
+                                     2560.0f * (MenuTransition.Progress - 1.0f),
+                           MenuTitleTextLeftPosition.y);
 
   if (MenuTransition.Progress >= 0.73f) return;
 
