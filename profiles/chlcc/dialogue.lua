@@ -64,7 +64,7 @@ root.Dialogue = {
     WaitIconOffset = { X = 4, Y = 4 },
     DialogueFont = "Default",
     REVLineHeight = 24,
-    REVLineSpacing = 16,
+    REVLineSpacing = root.Language == "Japanese" and 16 or 0,
     REVFontSize = 24,
     SetFontSizeRatio = 1000.0,
     DefaultFontSize = 32,

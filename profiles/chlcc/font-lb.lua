@@ -4,11 +4,11 @@ root.Fonts = {
         ForegroundSheet = "FontLBForeground",
         OutlineSheet = "FontLBOutline",
         Columns = 64,
-        Rows = 37,
+        Rows = 39,
         AdvanceWidths = "games/chlcc/font-lb/widths.bin",
-        AdvanceWidthsEmWidth = 48,
-        OutlineOffset = { X = -4, Y = -4 },
-        LineSpacing = 14,
+        AdvanceWidthsEmWidth = 60,
+        OutlineOffset = { X = 1, Y = 1 },
+        LineSpacing = 0,
     }
 };
 
@@ -16,12 +16,12 @@ root.SpriteSheets["Font"] = nil;
 
 root.SpriteSheets["FontLBForeground"] = {
     Path = "games/chlcc/font-lb/foreground.png",
-    DesignWidth = 3072,
-    DesignHeight = 1776
+    DesignWidth = 4096,
+    DesignHeight = 2496
 };
 
 root.SpriteSheets["FontLBOutline"] = {
     Path = "games/chlcc/font-lb/outline.png",
-    DesignWidth = 3648,
-    DesignHeight = 2112
+    DesignWidth = 4096,
+    DesignHeight = 2496
 };
