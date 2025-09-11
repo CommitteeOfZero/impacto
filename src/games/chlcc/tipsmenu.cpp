@@ -320,6 +320,17 @@ void TipsMenu::Init() {
       indexes, [&records](size_t i) -> TipsSystem::TipsDataRecord & {
         return records[i];
       });
+
+  auto createCategory = [&](auto labelText, float yPos) {
+    Label *categoryLabel = new Label();
+    categoryLabel->Bounds.X = TipListEntryBounds.X;
+    categoryLabel->Bounds.Y = yPos;
+    categoryLabel->Bounds.X += 5;
+    categoryLabel->SetText(labelText, TipListEntryFontSize,
+                           RendererOutlineMode::Full, 0);
+    categoryLabel->Bounds.X -= 5;
+    return categoryLabel;
+  };
   {
     int i = 0;
     float currentY = TipListEntryBounds.Y;
@@ -338,16 +349,9 @@ void TipsMenu::Init() {
           CategoryStringBuffer[1] = UnalignedRead<uint16_t>(
               &categoryString[currentCategoryId * sizeof(uint16_t)]);
         }
-        Label *categoryLabel = new Label();
         Vm::Sc3Stream categoryStrStream(
             reinterpret_cast<uint8_t *>(CategoryStringBuffer.data()));
-        categoryLabel->Bounds.X = TipListEntryBounds.X;
-        categoryLabel->Bounds.Y = currentY;
-        categoryLabel->Bounds.X += 5;
-        categoryLabel->SetText(categoryStrStream, TipListEntryFontSize,
-                               RendererOutlineMode::Full, 0);
-        categoryLabel->Bounds.X -= 5;
-        allTipsGroup->Add(categoryLabel);
+        allTipsGroup->Add(createCategory(categoryStrStream, currentY));
         currentY += TipListYPadding;
       }
 
@@ -369,15 +373,9 @@ void TipsMenu::Init() {
     float currentY = TipListEntryBounds.Y;
 
     Group *newTipsGroup = new Group(this);
-    Label *categoryLabel = new Label();
-    categoryLabel->Bounds.X = TipListEntryBounds.X;
-    categoryLabel->Bounds.Y = currentY;
-    categoryLabel->Bounds.X += 5;
-    categoryLabel->SetText(
+    newTipsGroup->Add(createCategory(
         Vm::ScriptGetTextTableStrAddress(TipsStringTable, NewLabelStrIndex),
-        TipListEntryFontSize, RendererOutlineMode::Full, 0);
-    categoryLabel->Bounds.X -= 5;
-    newTipsGroup->Add(categoryLabel);
+        currentY));
     currentY += TipListYPadding;
     // I think new tips uses order tips came in
     for (auto &record : records) {
@@ -394,9 +392,13 @@ void TipsMenu::Init() {
       newTipsGroup->Add(button, FDIR_DOWN);
       currentY += TipListYPadding;
     }
-    ItemsList.Add(newTipsGroup);
-    newTipsGroup->Bounds = TipsListBounds;
-    newTipsGroup->RenderingBounds = TipsListRenderBounds;
+    if (newTipsGroup->Children.size() > 1) {
+      ItemsList.Add(newTipsGroup);
+      newTipsGroup->Bounds = TipsListBounds;
+      newTipsGroup->RenderingBounds = TipsListRenderBounds;
+    } else {
+      delete newTipsGroup;
+    }
   }
 
   {
@@ -404,16 +406,9 @@ void TipsMenu::Init() {
     float currentY = TipListEntryBounds.Y;
 
     Group *unreadTipsGroup = new Group(this);
-    Label *categoryLabel = new Label();
-    categoryLabel->Bounds.X = TipListEntryBounds.X;
-    categoryLabel->Bounds.Y = currentY;
-
-    categoryLabel->Bounds.X += 5;
-    categoryLabel->SetText(
+    unreadTipsGroup->Add(createCategory(
         Vm::ScriptGetTextTableStrAddress(TipsStringTable, UnreadLabelStrIndex),
-        TipListEntryFontSize, RendererOutlineMode::Full, 0);
-    categoryLabel->Bounds.X -= 5;
-    unreadTipsGroup->Add(categoryLabel);
+        currentY));
     currentY += TipListYPadding;
     for (auto &record : sortedView) {
       if (!record.IsUnread || record.IsLocked) {
@@ -429,9 +424,13 @@ void TipsMenu::Init() {
       unreadTipsGroup->Add(button, FDIR_DOWN);
       currentY += TipListYPadding;
     }
-    ItemsList.Add(unreadTipsGroup);
-    unreadTipsGroup->Bounds = TipsListBounds;
-    unreadTipsGroup->RenderingBounds = TipsListRenderBounds;
+    if (unreadTipsGroup->Children.size() > 1) {
+      ItemsList.Add(unreadTipsGroup);
+      unreadTipsGroup->Bounds = TipsListBounds;
+      unreadTipsGroup->RenderingBounds = TipsListRenderBounds;
+    } else {
+      delete unreadTipsGroup;
+    }
   }
 
   TipsEntriesScrollbar =
@@ -643,10 +642,6 @@ void TipsMenu::DrawTipsTree() {
         remainder,
     };
     Renderer->DrawQuad(dest, RgbIntToFloat(EndOfGradientColor));
-    for (float j = start; j < remainder + start; j += TipListYPadding) {
-      const glm::vec2 pos = {TipsListBounds.X + AnimationOffset.x - 22.0f, j};
-      Renderer->DrawSprite(TipsLeftLine, pos);
-    }
   }
 }
 
