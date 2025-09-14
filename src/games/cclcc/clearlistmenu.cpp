@@ -82,20 +82,19 @@ void ClearListMenu::Update(float dt) {
 }
 
 void ClearListMenu::Render() {
-  if (State != Hidden) {
-    glm::vec4 transition(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
-    glm::vec4 maskTint = glm::vec4(1.0f);
-    maskTint.a = 0.85f;
-    Renderer->DrawSprite(ClearListBookLayerSprite, glm::vec2(0.0f, MenuOffsetY),
-                         transition);
-    DrawEndingSprites(transition);
-    Renderer->DrawSprite(
-        ClearListMaskSprite,
-        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-        maskTint);
-    Renderer->DrawSprite(ClearListGuideSprite, ClearListGuidePosition,
-                         transition);
-  }
+  if (State == Hidden) return;
+
+  glm::vec4 transition(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
+  glm::vec4 maskTint = glm::vec4(1.0f);
+  maskTint.a = 0.85f;
+  Renderer->DrawSprite(ClearListBookLayerSprite, glm::vec2(0.0f, MenuOffsetY),
+                       transition);
+  DrawEndingSprites(transition);
+  Renderer->DrawSprite(
+      ClearListMaskSprite,
+      RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight), maskTint);
+  Renderer->DrawSprite(ClearListGuideSprite, ClearListGuidePosition,
+                       transition);
 }
 
 int mappedAlphas[] = {

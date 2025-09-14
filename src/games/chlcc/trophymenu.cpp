@@ -98,21 +98,20 @@ void TrophyMenu::Hide() {
 
 void TrophyMenu::Render() {
   if (State == Hidden) return;
-  if (State != Hidden) {
-    if (MenuTransition.IsIn()) {
-      Renderer->DrawQuad(
-          RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-          RgbIntToFloat(BackgroundColor));
-    } else if (GetFlag(SF_SYSTEMMENU)) {
-      Renderer->DrawQuad(
-          RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-          RgbIntToFloat(BackgroundColor, FromSystemMenuTransition.Progress));
-    } else {
-      DrawCircles();
-    }
-    DrawErin();
-    DrawRedBar();
+
+  if (MenuTransition.IsIn()) {
+    Renderer->DrawQuad(
+        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+        RgbIntToFloat(BackgroundColor));
+  } else if (GetFlag(SF_SYSTEMMENU)) {
+    Renderer->DrawQuad(
+        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+        RgbIntToFloat(BackgroundColor, FromSystemMenuTransition.Progress));
+  } else {
+    DrawCircles();
   }
+  DrawErin();
+  DrawRedBar();
   if (MenuTransition.Progress > 0.34f) {
     Renderer->DrawSprite(RedBarLabel, RedTitleLabelPos);
 

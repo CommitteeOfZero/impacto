@@ -186,33 +186,32 @@ void SysMesBox::Update(float dt) {
 }
 
 void SysMesBox::Render() {
-  if (State != Hidden) {
-    int animationFrame =
-        (int)std::ceil(FadeAnimation.Progress * AnimationSpeed);
-    int totalSeals =
-        animationFrame > SealSpriteCount ? SealSpriteCount : animationFrame;
-    for (int i = 0; i < totalSeals; i++) {
-      float alpha = glm::clamp(
-          0.125f * ((FadeAnimation.Progress * AnimationSpeed) - i), 0.0f, 1.0f);
-      glm::vec4 col(1.0f, 1.0f, 1.0f, alpha);
-      float scale = (1.0f - alpha) + 1.0f;
-      float width = SumoSealSprites[i].Bounds.Width * scale;
-      float height = SumoSealSprites[i].Bounds.Height * scale;
-      Renderer->DrawSprite(
-          SumoSealSprites[i],
-          RectF(SumoSealCenterPosX[i] - (width * 0.5f),
-                SumoSealCenterPosY[i] - (height * 0.5f), width, height),
-          col);
-    }
+  if (State == Hidden) return;
 
-    if (animationFrame > SealSpriteCount) {
-      MessageItems->Tint.a =
-          WidgetsAlphaMultiplier * ((FadeAnimation.Progress * AnimationSpeed) -
-                                    AnimationProgressWidgetsStartOffset);
-      MessageItems->Render();
+  int animationFrame = (int)std::ceil(FadeAnimation.Progress * AnimationSpeed);
+  int totalSeals =
+      animationFrame > SealSpriteCount ? SealSpriteCount : animationFrame;
+  for (int i = 0; i < totalSeals; i++) {
+    float alpha = glm::clamp(
+        0.125f * ((FadeAnimation.Progress * AnimationSpeed) - i), 0.0f, 1.0f);
+    glm::vec4 col(1.0f, 1.0f, 1.0f, alpha);
+    float scale = (1.0f - alpha) + 1.0f;
+    float width = SumoSealSprites[i].Bounds.Width * scale;
+    float height = SumoSealSprites[i].Bounds.Height * scale;
+    Renderer->DrawSprite(
+        SumoSealSprites[i],
+        RectF(SumoSealCenterPosX[i] - (width * 0.5f),
+              SumoSealCenterPosY[i] - (height * 0.5f), width, height),
+        col);
+  }
 
-      ChoiceItems->Render();
-    }
+  if (animationFrame > SealSpriteCount) {
+    MessageItems->Tint.a =
+        WidgetsAlphaMultiplier * ((FadeAnimation.Progress * AnimationSpeed) -
+                                  AnimationProgressWidgetsStartOffset);
+    MessageItems->Render();
+
+    ChoiceItems->Render();
   }
 }
 

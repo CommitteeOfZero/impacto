@@ -217,57 +217,54 @@ void SysMesBox::Update(float dt) {
 }
 
 void SysMesBox::Render() {
-  if (State != Hidden) {
-    glm::vec4 col(1.0f, 1.0f, 1.0f, 1.0f);
+  if (State == Hidden) return;
 
-    if (BoxAnimCount > BoxDisplayStartCount) {
-      Renderer->DrawQuad(
-          RectF(BoxDisplayX, BoxTopY - 1.0f, BoxWidth, BoxHeight + 2.0f),
-          glm::vec4(1.0f, 1.0f, 1.0f, 0.75f));
-      Renderer->DrawSprite(BoxDecorationTop,
-                           glm::vec2(BoxDisplayX, BoxTopY - 3.0f), col);
-      if (Type == +SysMesBoxType::Dash) {
-        Renderer->DrawSprite(
-            BoxDecorationBottom,
-            glm::vec2(BoxDisplayX,
-                      BoxBottomY - BoxDecorationBottom.Bounds.Height + 3.0f),
-            col);
-      } else {
-        Renderer->DrawSprite(BoxDecorationBottom,
-                             glm::vec2(BoxDisplayX, BoxBottomY - 3.0f), col);
-      }
+  glm::vec4 col(1.0f, 1.0f, 1.0f, 1.0f);
 
-      if (BoxProgressCount > TextStartCount) {
-        glm::vec4 texCol(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
-        if (BoxHeight > TextDecorationStart) {
-          Renderer->DrawSprite(
-              TextDecoration,
-              glm::vec2(BoxDisplayX, BoxTopY + TextDecorationTopYOffset),
-              texCol);
-          Renderer->DrawSprite(
-              TextDecoration,
-              glm::vec2(BoxDisplayX, BoxBottomY - TextDecorationBottomYOffset),
-              texCol);
-        }
-        Renderer->DrawSprite(MessageLabel,
-                             glm::vec2(BoxDisplayX, BoxTopY + 3.0f), texCol);
-
-        MessageItems->Tint.a = texCol.a;
-        MessageItems->Render();
-        ChoiceItems->Tint.a = texCol.a;
-        ChoiceItems->Render();
-      }
-
+  if (BoxAnimCount > BoxDisplayStartCount) {
+    Renderer->DrawQuad(
+        RectF(BoxDisplayX, BoxTopY - 1.0f, BoxWidth, BoxHeight + 2.0f),
+        glm::vec4(1.0f, 1.0f, 1.0f, 0.75f));
+    Renderer->DrawSprite(BoxDecorationTop,
+                         glm::vec2(BoxDisplayX, BoxTopY - 3.0f), col);
+    if (Type == +SysMesBoxType::Dash) {
+      Renderer->DrawSprite(
+          BoxDecorationBottom,
+          glm::vec2(BoxDisplayX,
+                    BoxBottomY - BoxDecorationBottom.Bounds.Height + 3.0f),
+          col);
     } else {
-      Renderer->DrawSprite(
-          Line1,
-          glm::vec2(LineDisplayXBase - (LineLength / 2.0f), Line1DisplayY),
-          col);
-      Renderer->DrawSprite(
-          Line2,
-          glm::vec2(LineDisplayXBase - (LineLength / 2.0f), Line2DisplayY),
-          col);
+      Renderer->DrawSprite(BoxDecorationBottom,
+                           glm::vec2(BoxDisplayX, BoxBottomY - 3.0f), col);
     }
+
+    if (BoxProgressCount > TextStartCount) {
+      glm::vec4 texCol(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
+      if (BoxHeight > TextDecorationStart) {
+        Renderer->DrawSprite(
+            TextDecoration,
+            glm::vec2(BoxDisplayX, BoxTopY + TextDecorationTopYOffset), texCol);
+        Renderer->DrawSprite(
+            TextDecoration,
+            glm::vec2(BoxDisplayX, BoxBottomY - TextDecorationBottomYOffset),
+            texCol);
+      }
+      Renderer->DrawSprite(MessageLabel, glm::vec2(BoxDisplayX, BoxTopY + 3.0f),
+                           texCol);
+
+      MessageItems->Tint.a = texCol.a;
+      MessageItems->Render();
+      ChoiceItems->Tint.a = texCol.a;
+      ChoiceItems->Render();
+    }
+
+  } else {
+    Renderer->DrawSprite(
+        Line1, glm::vec2(LineDisplayXBase - (LineLength / 2.0f), Line1DisplayY),
+        col);
+    Renderer->DrawSprite(
+        Line2, glm::vec2(LineDisplayXBase - (LineLength / 2.0f), Line2DisplayY),
+        col);
   }
 }
 

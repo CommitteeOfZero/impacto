@@ -311,40 +311,38 @@ void TipsMenu::Update(float dt) {
 
 void TipsMenu::Render() {
   if (!HasInitialized) return;
-  if (State != Hidden) {
-    glm::vec4 fade(1.0f, 1.0f, 1.0f,
-                   glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress));
-    glm::vec4 maskTint = fade;
-    maskTint.a *= 0.85f;
+  if (State == Hidden) return;
 
-    Renderer->DrawSprite(BackgroundSprite,
-                         glm::vec2(0.0f, Profile::DesignHeight / 2 - LastYPos),
-                         fade);
-    TipsTabs[CurrentTabType]->Tint.a = fade.a;
-    TipsTabs[CurrentTabType]->Render();
+  glm::vec4 fade(1.0f, 1.0f, 1.0f,
+                 glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress));
+  glm::vec4 maskTint = fade;
+  maskTint.a *= 0.85f;
 
-    if (CurrentlyDisplayedTipId != -1) {
-      TipViewItems.Tint.a = fade.a;
-      TipViewItems.Render();
+  Renderer->DrawSprite(BackgroundSprite,
+                       glm::vec2(0.0f, Profile::DesignHeight / 2 - LastYPos),
+                       fade);
+  TipsTabs[CurrentTabType]->Tint.a = fade.a;
+  TipsTabs[CurrentTabType]->Render();
 
-      Renderer->DrawProcessedText(
-          TextPage.Glyphs, Profile::Dialogue::DialogueFont,
-          FadeAnimation.Progress, FadeAnimation.Progress,
-          RendererOutlineMode::None, true, &TipsMaskSheet);
+  if (CurrentlyDisplayedTipId != -1) {
+    TipViewItems.Tint.a = fade.a;
+    TipViewItems.Render();
 
-      TipsScrollbar->Render();
-    }
+    Renderer->DrawProcessedText(
+        TextPage.Glyphs, Profile::Dialogue::DialogueFont,
+        FadeAnimation.Progress, FadeAnimation.Progress,
+        RendererOutlineMode::None, true, &TipsMaskSheet);
 
-    Renderer->DrawSprite(
-        TipsMaskSprite,
-        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-        maskTint);
-    Renderer->DrawSprite(
-        TipsGuideSprite,
-        glm::vec2(TipsGuideX,
-                  TipsGuideY + Profile::DesignHeight / 2 - LastYPos),
-        fade);
+    TipsScrollbar->Render();
   }
+
+  Renderer->DrawSprite(
+      TipsMaskSprite,
+      RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight), maskTint);
+  Renderer->DrawSprite(
+      TipsGuideSprite,
+      glm::vec2(TipsGuideX, TipsGuideY + Profile::DesignHeight / 2 - LastYPos),
+      fade);
 }
 
 void TipsMenu::Init() {

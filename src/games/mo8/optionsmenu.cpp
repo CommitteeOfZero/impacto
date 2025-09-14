@@ -311,32 +311,32 @@ void OptionsMenu::Update(float dt) {
 }
 
 void OptionsMenu::Render() {
-  if (State != Hidden) {
-    glm::vec4 col(1.0f, 1.0f, 1.0f,
-                  glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress));
-    Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f, 0.0f), col);
+  if (State == Hidden) return;
 
-    std::unique_ptr<Group>& currentPage = Pages[CurrentPage];
-    if (PageFadeAnimation.State == AnimationState::Playing) {
-      std::unique_ptr<Group>& previousPage = Pages[PreviousPage];
+  glm::vec4 col(1.0f, 1.0f, 1.0f,
+                glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress));
+  Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f, 0.0f), col);
 
-      currentPage->Tint = col;
-      previousPage->Tint = col;
-      currentPage->Tint.a *=
-          glm::smoothstep(0.0f, 1.0f, PageFadeAnimation.Progress);
-      previousPage->Tint.a *=
-          glm::smoothstep(1.0f, 0.0f, PageFadeAnimation.Progress);
+  std::unique_ptr<Group>& currentPage = Pages[CurrentPage];
+  if (PageFadeAnimation.State == AnimationState::Playing) {
+    std::unique_ptr<Group>& previousPage = Pages[PreviousPage];
 
-      previousPage->Render();
-      currentPage->Render();
-    } else {
-      currentPage->Tint = col;
-      currentPage->Render();
-    }
+    currentPage->Tint = col;
+    previousPage->Tint = col;
+    currentPage->Tint.a *=
+        glm::smoothstep(0.0f, 1.0f, PageFadeAnimation.Progress);
+    previousPage->Tint.a *=
+        glm::smoothstep(1.0f, 0.0f, PageFadeAnimation.Progress);
 
-    PageControls->Tint = col;
-    PageControls->Render();
+    previousPage->Render();
+    currentPage->Render();
+  } else {
+    currentPage->Tint = col;
+    currentPage->Render();
   }
+
+  PageControls->Tint = col;
+  PageControls->Render();
 }
 
 void OptionsMenu::GoToPage(int pageNumber) {

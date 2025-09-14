@@ -171,58 +171,58 @@ void MovieMenu::Hide() {
 }
 
 void MovieMenu::Render() {
-  if (State != Hidden) {
-    if (MenuTransition.IsIn()) {
-      Renderer->DrawQuad(
-          RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-          RgbIntToFloat(BackgroundColor));
-    } else if (GetFlag(SF_SYSTEMMENU)) {
-      Renderer->DrawQuad(
-          RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-          RgbIntToFloat(BackgroundColor, FromSystemMenuTransition.Progress));
-    } else {
-      DrawCircles();
-    }
-    DrawErin();
-    DrawRedBar();
+  if (State == Hidden) return;
 
-    if (MenuTransition.Progress > 0.34f) {
-      Renderer->DrawSprite(RedBarLabel, RedTitleLabelPos);
-
-      const CornersQuad titleDest = MenuTitleText.ScaledBounds()
-                                        .RotateAroundCenter(MenuTitleTextAngle)
-                                        .Translate(RightTitlePos);
-      Renderer->DrawSprite(MenuTitleText, titleDest);
-
-      Renderer->DrawSprite(MenuTitleText, LeftTitlePos);
-    }
-
-    glm::vec3 tint = {1.0f, 1.0f, 1.0f};
-    // Alpha goes from 0 to 1 in half the time
-    float alpha =
-        MenuTransition.Progress < 0.5f ? MenuTransition.Progress * 2.0f : 1.0f;
-    Renderer->DrawSprite(
-        BackgroundFilter,
+  if (MenuTransition.IsIn()) {
+    Renderer->DrawQuad(
         RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-        glm::vec4(tint, alpha));
+        RgbIntToFloat(BackgroundColor));
+  } else if (GetFlag(SF_SYSTEMMENU)) {
+    Renderer->DrawQuad(
+        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+        RgbIntToFloat(BackgroundColor, FromSystemMenuTransition.Progress));
+  } else {
+    DrawCircles();
+  }
+  DrawErin();
+  DrawRedBar();
 
-    float yOffset = 0;
-    if (MenuTransition.Progress > 0.22f) {
-      if (MenuTransition.Progress < 0.73f) {
-        // Approximated function from the original, another mess
-        yOffset = glm::mix(
-            -Profile::DesignHeight, 0.0f,
-            1.00397f * std::sin(3.97161f - 3.26438f * MenuTransition.Progress) -
-                0.00295643f);
-      }
+  if (MenuTransition.Progress > 0.34f) {
+    Renderer->DrawSprite(RedBarLabel, RedTitleLabelPos);
 
-      MovieItems->MoveTo(glm::vec2(0, yOffset));
-      MovieItems->Render();
-      glm::vec2 listPosition(ListPosition.x, ListPosition.y + yOffset);
-      Renderer->DrawSprite(MovieList, listPosition);
-      DrawButtonPrompt();
-      DrawSelectMovie(yOffset);
+    const CornersQuad titleDest = MenuTitleText.ScaledBounds()
+                                      .RotateAroundCenter(MenuTitleTextAngle)
+                                      .Translate(RightTitlePos);
+    Renderer->DrawSprite(MenuTitleText, titleDest);
+
+    Renderer->DrawSprite(MenuTitleText, LeftTitlePos);
+  }
+
+  glm::vec3 tint = {1.0f, 1.0f, 1.0f};
+  // Alpha goes from 0 to 1 in half the time
+  float alpha =
+      MenuTransition.Progress < 0.5f ? MenuTransition.Progress * 2.0f : 1.0f;
+  Renderer->DrawSprite(
+      BackgroundFilter,
+      RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+      glm::vec4(tint, alpha));
+
+  float yOffset = 0;
+  if (MenuTransition.Progress > 0.22f) {
+    if (MenuTransition.Progress < 0.73f) {
+      // Approximated function from the original, another mess
+      yOffset = glm::mix(
+          -Profile::DesignHeight, 0.0f,
+          1.00397f * std::sin(3.97161f - 3.26438f * MenuTransition.Progress) -
+              0.00295643f);
     }
+
+    MovieItems->MoveTo(glm::vec2(0, yOffset));
+    MovieItems->Render();
+    glm::vec2 listPosition(ListPosition.x, ListPosition.y + yOffset);
+    Renderer->DrawSprite(MovieList, listPosition);
+    DrawButtonPrompt();
+    DrawSelectMovie(yOffset);
   }
 }
 

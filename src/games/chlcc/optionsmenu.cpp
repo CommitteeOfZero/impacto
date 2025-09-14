@@ -47,21 +47,21 @@ OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
 }
 
 void OptionsMenu::Render() {
-  if (State != Hidden) {
-    if (FadeAnimation.IsIn()) {
-      Renderer->DrawQuad(
-          RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-          RgbIntToFloat(BackgroundColor));
-    } else if (GetFlag(SF_SYSTEMMENU)) {
-      Renderer->DrawQuad(
-          RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-          RgbIntToFloat(BackgroundColor, FromSystemMenuTransition.Progress));
-    } else {
-      DrawCircles();
-    }
-    DrawErin();
-    DrawRedBar();
+  if (State == Hidden) return;
+
+  if (FadeAnimation.IsIn()) {
+    Renderer->DrawQuad(
+        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+        RgbIntToFloat(BackgroundColor));
+  } else if (GetFlag(SF_SYSTEMMENU)) {
+    Renderer->DrawQuad(
+        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+        RgbIntToFloat(BackgroundColor, FromSystemMenuTransition.Progress));
+  } else {
+    DrawCircles();
   }
+  DrawErin();
+  DrawRedBar();
   if (FadeAnimation.Progress > 0.34f) {
     Renderer->DrawSprite(RedBarLabel, RedTitleLabelPos);
 

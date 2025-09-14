@@ -110,92 +110,91 @@ void MusicMenu::Hide() {
 }
 
 void MusicMenu::Render() {
-  if (State != Hidden) {
-    if (MenuTransition.IsIn()) {
-      Renderer->DrawQuad(
-          RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-          RgbIntToFloat(BackgroundColor));
-    } else if (GetFlag(SF_SYSTEMMENU)) {
-      Renderer->DrawQuad(
-          RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-          RgbIntToFloat(BackgroundColor, FromSystemMenuTransition.Progress));
-    } else {
-      DrawCircles();
+  if (State == Hidden) return;
+
+  if (MenuTransition.IsIn()) {
+    Renderer->DrawQuad(
+        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+        RgbIntToFloat(BackgroundColor));
+  } else if (GetFlag(SF_SYSTEMMENU)) {
+    Renderer->DrawQuad(
+        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+        RgbIntToFloat(BackgroundColor, FromSystemMenuTransition.Progress));
+  } else {
+    DrawCircles();
+  }
+  DrawErin();
+  DrawRedBar();
+
+  if (MenuTransition.Progress > 0.34f) {
+    Renderer->DrawSprite(RedBarLabel, RedTitleLabelPos);
+
+    const CornersQuad titleDest =
+        SoundLibraryTitle.ScaledBounds()
+            .RotateAroundCenter(SoundLibraryTitleAngle)
+            .Translate(RightTitlePos);
+    Renderer->DrawSprite(SoundLibraryTitle, titleDest);
+  }
+
+  Renderer->CaptureScreencap(ShaderScreencapture.BgSprite);
+  Renderer->DrawCHLCCMenuBackground(
+      ShaderScreencapture.BgSprite, BackgroundFilter,
+      RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+      MenuTransition.Progress);
+
+  glm::vec2 offset(0.0f, 0.0f);
+  if (MenuTransition.Progress > 0.22f) {
+    if (MenuTransition.Progress < 0.73f) {
+      // Approximated function from the original, another mess
+      offset = glm::vec2(
+          0.0f,
+          glm::mix(-Profile::DesignHeight, 0.0f,
+                   1.00397f * std::sin(3.97161f -
+                                       3.26438f * MenuTransition.Progress) -
+                       0.00295643f));
+
+      MainItems->RenderingBounds =
+          RectF(0.0f, TrackButtonPosTemplate.y + offset.y, Profile::DesignWidth,
+                16 * TrackOffset.y + 1);
+
+      glm::vec2 currentScroll(0.0f, -(float)CurrentLowerBound * TrackOffset.y);
+      MainItems->MoveTo(currentScroll + offset);
+      for (auto button : MainItems->Children)
+        static_cast<Widgets::CHLCC::TrackSelectButton*>(button)->MoveTracks(
+            currentScroll + offset);
     }
-    DrawErin();
-    DrawRedBar();
+    MainItems->Render();
 
     if (MenuTransition.Progress > 0.34f) {
-      Renderer->DrawSprite(RedBarLabel, RedTitleLabelPos);
-
-      const CornersQuad titleDest =
-          SoundLibraryTitle.ScaledBounds()
-              .RotateAroundCenter(SoundLibraryTitleAngle)
-              .Translate(RightTitlePos);
-      Renderer->DrawSprite(SoundLibraryTitle, titleDest);
+      Renderer->DrawSprite(SoundLibraryTitle, LeftTitlePos);
     }
 
-    Renderer->CaptureScreencap(ShaderScreencapture.BgSprite);
-    Renderer->DrawCHLCCMenuBackground(
-        ShaderScreencapture.BgSprite, BackgroundFilter,
-        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-        MenuTransition.Progress);
+    for (int idx = 0; idx < 11; idx++) {
+      Renderer->DrawSprite(SelectSound[idx], SelectSoundPos[idx] + offset);
+    }
 
-    glm::vec2 offset(0.0f, 0.0f);
-    if (MenuTransition.Progress > 0.22f) {
-      if (MenuTransition.Progress < 0.73f) {
-        // Approximated function from the original, another mess
-        offset = glm::vec2(
-            0.0f,
-            glm::mix(-Profile::DesignHeight, 0.0f,
-                     1.00397f * std::sin(3.97161f -
-                                         3.26438f * MenuTransition.Progress) -
-                         0.00295643f));
-
-        MainItems->RenderingBounds =
-            RectF(0.0f, TrackButtonPosTemplate.y + offset.y,
-                  Profile::DesignWidth, 16 * TrackOffset.y + 1);
-
-        glm::vec2 currentScroll(0.0f,
-                                -(float)CurrentLowerBound * TrackOffset.y);
-        MainItems->MoveTo(currentScroll + offset);
-        for (auto button : MainItems->Children)
-          static_cast<Widgets::CHLCC::TrackSelectButton*>(button)->MoveTracks(
-              currentScroll + offset);
-      }
-      MainItems->Render();
-
-      if (MenuTransition.Progress > 0.34f) {
-        Renderer->DrawSprite(SoundLibraryTitle, LeftTitlePos);
-      }
-
-      for (int idx = 0; idx < 11; idx++) {
-        Renderer->DrawSprite(SelectSound[idx], SelectSoundPos[idx] + offset);
-      }
-
-      Renderer->DrawSprite(TrackTree, TrackTreePos + offset);
-      Renderer->DrawSprite(PlaymodeRepeatSprite, PlaymodeRepeatPos + offset);
-      Renderer->DrawSprite(PlaymodeAllSprite, PlaymodeAllPos + offset);
-      glm::vec2 temp =
-          glm::vec2(15 * 16 * (1 - NowPlayingAnimation.Progress), offset.y) +
-          NowPlayingPos;
-      glm::vec4 tint(glm::vec3(1.0f), NowPlayingAnimation.Progress);
-      CurrentlyPlayingTrackName.MoveTo(temp + PlayingTrackOffset);
-      CurrentlyPlayingTrackName.Tint = tint;
-      CurrentlyPlayingTrackName.Render();
-      CurrentlyPlayingTrackArtist.MoveTo(temp + PlayingTrackArtistOffset);
-      CurrentlyPlayingTrackArtist.Tint = tint;
-      CurrentlyPlayingTrackArtist.Render();
-      Renderer->DrawSprite(NowPlaying, temp, tint);
-      if (CurrentlyPlayingTrackId != -1 &&
-          CurrentlyPlayingTrackId >= CurrentLowerBound &&
-          CurrentlyPlayingTrackId <= CurrentUpperBound) {
-        Renderer->DrawSprite(
-            HighlightStar,
-            glm::vec2(MainItems->Children[CurrentlyPlayingTrackId]->Bounds.X,
-                      MainItems->Children[CurrentlyPlayingTrackId]->Bounds.Y) +
-                HighlightStarRelativePos);
-      }
+    Renderer->DrawSprite(TrackTree, TrackTreePos + offset);
+    Renderer->DrawSprite(PlaymodeRepeatSprite, PlaymodeRepeatPos + offset);
+    Renderer->DrawSprite(PlaymodeAllSprite, PlaymodeAllPos + offset);
+    glm::vec2 temp =
+        glm::vec2(15 * 16 * (1 - NowPlayingAnimation.Progress), offset.y) +
+        NowPlayingPos;
+    glm::vec4 tint(glm::vec3(1.0f), NowPlayingAnimation.Progress);
+    CurrentlyPlayingTrackName.MoveTo(temp + PlayingTrackOffset);
+    CurrentlyPlayingTrackName.Tint = tint;
+    CurrentlyPlayingTrackName.Render();
+    CurrentlyPlayingTrackArtist.MoveTo(temp + PlayingTrackArtistOffset);
+    CurrentlyPlayingTrackArtist.Tint = tint;
+    CurrentlyPlayingTrackArtist.Render();
+    Renderer->DrawSprite(NowPlaying, temp, tint);
+    if (CurrentlyPlayingTrackId != -1 &&
+        CurrentlyPlayingTrackId >= CurrentLowerBound &&
+        CurrentlyPlayingTrackId <= CurrentUpperBound) {
+      Renderer->DrawSprite(
+          HighlightStar,
+          glm::vec2(MainItems->Children[CurrentlyPlayingTrackId]->Bounds.X,
+                    MainItems->Children[CurrentlyPlayingTrackId]->Bounds.Y) +
+              HighlightStarRelativePos);
     }
   }
 }

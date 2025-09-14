@@ -126,32 +126,32 @@ void SysMesBox::Update(float dt) {
 }
 
 void SysMesBox::Render() {
-  if (State != Hidden) {
-    glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
+  if (State == Hidden) return;
 
-    float maxWidth = FLT_MIN;
-    for (int i = 0; i < MessageCount; i++) {
-      if (maxWidth < MessageWidths[i]) maxWidth = MessageWidths[i];
-    }
-    if (maxWidth < BoxMinimumWidth) maxWidth = BoxMinimumWidth;
+  glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
 
-    float leftStartX = BoxMiddleBaseX - (maxWidth / 2.0f);
-    Renderer->DrawSprite(BoxPartLeft, glm::vec2(leftStartX, BoxY), col);
-
-    BoxPartMiddle.BaseScale =
-        glm::vec2((maxWidth - BoxRightBaseWidth) / BoxMiddleBaseWidth, 1.0f);
-    Renderer->DrawSprite(BoxPartMiddle,
-                         glm::vec2(leftStartX + BoxRightRemainPad, BoxY), col);
-
-    Renderer->DrawSprite(
-        BoxPartRight,
-        glm::vec2(leftStartX + maxWidth + BoxRightBaseWidth, BoxY), col);
-
-    MessageItems->Tint.a = FadeAnimation.Progress;
-    MessageItems->Render();
-    ChoiceItems->Tint.a = FadeAnimation.Progress;
-    ChoiceItems->Render();
+  float maxWidth = FLT_MIN;
+  for (int i = 0; i < MessageCount; i++) {
+    if (maxWidth < MessageWidths[i]) maxWidth = MessageWidths[i];
   }
+  if (maxWidth < BoxMinimumWidth) maxWidth = BoxMinimumWidth;
+
+  float leftStartX = BoxMiddleBaseX - (maxWidth / 2.0f);
+  Renderer->DrawSprite(BoxPartLeft, glm::vec2(leftStartX, BoxY), col);
+
+  BoxPartMiddle.BaseScale =
+      glm::vec2((maxWidth - BoxRightBaseWidth) / BoxMiddleBaseWidth, 1.0f);
+  Renderer->DrawSprite(BoxPartMiddle,
+                       glm::vec2(leftStartX + BoxRightRemainPad, BoxY), col);
+
+  Renderer->DrawSprite(
+      BoxPartRight, glm::vec2(leftStartX + maxWidth + BoxRightBaseWidth, BoxY),
+      col);
+
+  MessageItems->Tint.a = FadeAnimation.Progress;
+  MessageItems->Render();
+  ChoiceItems->Tint.a = FadeAnimation.Progress;
+  ChoiceItems->Render();
 }
 
 void SysMesBox::Init() {

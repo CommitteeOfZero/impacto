@@ -156,12 +156,12 @@ void MovieMenu::Update(float dt) {
 }
 
 void MovieMenu::Render() {
-  if (State != Hidden) {
-    glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
-    Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f, 0.0f), col);
-    MainItems->Tint = col;
-    MainItems->Render();
-  }
+  if (State == Hidden) return;
+
+  glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
+  Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f, 0.0f), col);
+  MainItems->Tint = col;
+  MainItems->Render();
 }
 
 void MovieMenu::UpdateMovieEntries() {
