@@ -40,10 +40,8 @@ class Group : public Widget {
 
   void Clear();
 
+  using Widget::Move;
   void Move(glm::vec2 relativePosition) override;
-  void MoveTo(glm::vec2 pos) override;
-  void Move(glm::vec2 relativePosition, float duration) override;
-  void MoveTo(glm::vec2 pos, float duration) override;
 
   Widget* GetFirstFocusableChild();
 

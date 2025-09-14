@@ -129,25 +129,11 @@ void Button::SetText(std::vector<ProcessedTextGlyph> text, float textWidth,
 void Button::Move(glm::vec2 relativePosition) {
   if (HasText) {
     for (ProcessedTextGlyph& glyph : Text) {
-      glyph.DestRect.X += relativePosition.x;
-      glyph.DestRect.Y += relativePosition.y;
+      glyph.DestRect += relativePosition;
     }
   }
   Widget::Move(relativePosition);
   if (HoverBounds != RectF{}) HoverBounds += relativePosition;
-}
-
-void Button::Move(glm::vec2 relativePosition, float duration) {
-  Widget::Move(relativePosition, duration);
-}
-
-void Button::MoveTo(glm::vec2 pos) {
-  auto relativePosition = pos - glm::vec2(Bounds.X, Bounds.Y);
-  Move(relativePosition);
-}
-
-void Button::MoveTo(glm::vec2 pos, float duration) {
-  Widget::MoveTo(pos, duration);
 }
 
 }  // namespace Widgets

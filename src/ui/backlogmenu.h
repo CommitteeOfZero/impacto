@@ -46,7 +46,7 @@ class BacklogMenu : public Menu {
   TurboOnHoldHandler DirectionButtonHeldHandler;
   TurboOnHoldHandler PageUpDownButtonHeldHandler;
 
-  void RenderHighlight() const;
+  void RenderHighlight(glm::vec2 offset = {0.0f, 0.0f}) const;
 
   void UpdatePageUpDownInput(float dt);
   void UpdateScrollingInput(float dt);

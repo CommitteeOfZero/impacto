@@ -64,6 +64,8 @@ BacklogEntry::BacklogEntry(int id, Vm::BufferOffsetContext scrCtx, int audioId,
       break;
     }
   }
+
+  MoveToAnchor = Position;
   MoveTo(pos);
 }
 
@@ -100,11 +102,6 @@ void BacklogEntry::Move(glm::vec2 relativePosition) {
   Position += relativePosition;
   Widget::Move(relativePosition);
   BacklogPage->Move(relativePosition);
-}
-
-void BacklogEntry::MoveTo(glm::vec2 position) {
-  glm::vec2 relativePosition = position - Position;
-  Move(relativePosition);
 }
 
 void BacklogEntry::Render() {

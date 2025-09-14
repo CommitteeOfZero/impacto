@@ -19,10 +19,9 @@ class Button : public Widget {
 
   virtual void UpdateInput(float dt) override;
   virtual void Render() override;
+
+  using Widget::Move;
   virtual void Move(glm::vec2 relativePosition) override;
-  virtual void Move(glm::vec2 relativePosition, float duration) override;
-  virtual void MoveTo(glm::vec2 pos) override;
-  virtual void MoveTo(glm::vec2 pos, float duration) override;
 
   void SetText(Vm::BufferOffsetContext scrCtx, float fontSize,
                RendererOutlineMode outlineMode, int colorIndex = 10);

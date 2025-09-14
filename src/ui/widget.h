@@ -32,15 +32,22 @@ class Widget {
   virtual WidgetType GetType();
 
   // TODO: Text movement in widgets with text
-  virtual void Move(glm::vec2 relativePosition, float duration);
-  virtual void Move(glm::vec2 relativePosition);
-  virtual void MoveTo(glm::vec2 pos, float duration);
-  virtual void MoveTo(glm::vec2 pos);
+  virtual void Move(glm::vec2 relativePosition) { Bounds += relativePosition; }
+  void Move(glm::vec2 relativePosition, float duration);
+  void MoveTo(glm::vec2 pos) {
+    Move(pos - MoveToAnchor.value_or(Bounds.GetPos()));
+  }
+  void MoveTo(glm::vec2 pos, float duration) {
+    Move(pos - MoveToAnchor.value_or(Bounds.GetPos()), duration);
+  }
 
   virtual Widget* GetFocus(FocusDirection dir);
   virtual void SetFocus(Widget* widget, FocusDirection dir);
 
   RectF Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
+
+  // Will move this point to the desired location with MoveTo
+  std::optional<glm::vec2> MoveToAnchor;
 
   glm::vec2 MoveTarget;
   glm::vec2 MoveOrigin;

@@ -108,12 +108,10 @@ void Group::Render() {
     Renderer->EnableScissor();
     Renderer->SetScissorRect(RenderingBounds);
     for (const auto& el : Children) {
-      if (RenderingBounds.Intersects(el->Bounds)) {
-        auto tint = el->Tint;
-        el->Tint *= Tint;
-        el->Render();
-        el->Tint = tint;
-      }
+      auto tint = el->Tint;
+      el->Tint *= Tint;
+      el->Render();
+      el->Tint = tint;
     }
     Renderer->DisableScissor();
   }
@@ -169,22 +167,6 @@ void Group::Move(glm::vec2 relativePosition) {
     el->Move(relativePosition);
   }
   Widget::Move(relativePosition);
-}
-
-void Group::MoveTo(glm::vec2 pos) {
-  auto relativePosition = pos - glm::vec2(Bounds.X, Bounds.Y);
-  for (const auto& el : Children) {
-    el->Move(relativePosition);
-  }
-  Widget::MoveTo(pos);
-}
-
-void Group::Move(glm::vec2 relativePosition, float duration) {
-  Widget::Move(relativePosition, duration);
-}
-
-void Group::MoveTo(glm::vec2 pos, float duration) {
-  Widget::MoveTo(pos, duration);
 }
 
 void Group::Clear() {

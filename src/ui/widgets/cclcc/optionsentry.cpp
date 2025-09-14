@@ -90,12 +90,6 @@ void OptionsEntry::Move(glm::vec2 relativePos) {
   EntryButton.Move(relativePos);
 }
 
-void OptionsEntry::MoveTo(glm::vec2 pos) {
-  const glm::vec2 relativePosition = pos - Bounds.GetPos();
-  Widget::MoveTo(pos);
-  EntryButton.Move(relativePosition);
-}
-
 void OptionsEntry::EntryButtonOnClick(ClickArea* target) {
   if (Selected) return;
 

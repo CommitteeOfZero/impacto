@@ -127,7 +127,7 @@ void BacklogMenu::Render() {
     Renderer->SetScissorRect(BacklogBackgroundSprite.Bounds);
     Renderer->DrawSprite(MenuTitleText, LeftTitlePos);
     Renderer->DisableScissor();
-    RenderHighlight();
+    RenderHighlight({0.0f, yOffset});
   }
   if (MenuTransition.Progress > 0.22f) {
     if (MenuTransition.Progress < 0.73f) {
