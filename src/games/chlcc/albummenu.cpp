@@ -10,6 +10,7 @@
 #include "../../ui/widgets/chlcc/albumthumbnailbutton.h"
 #include "../../ui/widgets/group.h"
 #include "../../background2d.h"
+#include "../../profile/game.h"
 
 namespace Impacto {
 namespace UI {
@@ -126,59 +127,61 @@ void AlbumMenu::Hide() {
 }
 
 void AlbumMenu::Render() {
-  if (State != Hidden) {
-    if (MenuTransition.IsIn()) {
-      Renderer->DrawQuad(RectF(0.0f, 0.0f, 1280.0f, 720.0f),
-                         RgbIntToFloat(BackgroundColor));
-    } else if (GetFlag(SF_SYSTEMMENU)) {
-      Renderer->DrawQuad(
-          RectF(0.0f, 0.0f, 1280.0f, 720.0f),
-          RgbIntToFloat(BackgroundColor, FromSystemMenuTransition.Progress));
-    } else {
-      DrawCircles();
+  if (State == Hidden) return;
+
+  if (MenuTransition.IsIn()) {
+    Renderer->DrawQuad(
+        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+        RgbIntToFloat(BackgroundColor));
+  } else if (GetFlag(SF_SYSTEMMENU)) {
+    Renderer->DrawQuad(
+        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+        RgbIntToFloat(BackgroundColor, FromSystemMenuTransition.Progress));
+  } else {
+    DrawCircles();
+  }
+
+  DrawErin();
+  DrawRedBar();
+
+  if (MenuTransition.Progress > 0.34f) {
+    Renderer->DrawSprite(RedBarLabel, RedTitleLabelPos);
+
+    const CornersQuad titleDest = AlbumMenuTitle.ScaledBounds()
+                                      .RotateAroundCenter(AlbumMenuTitleAngle)
+                                      .Translate(RightTitlePos);
+    Renderer->DrawSprite(AlbumMenuTitle, titleDest);
+  }
+
+  Renderer->CaptureScreencap(ShaderScreencapture.BgSprite);
+  Renderer->DrawCHLCCMenuBackground(
+      ShaderScreencapture.BgSprite, BackgroundFilter,
+      RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+      MenuTransition.Progress);
+
+  if (MenuTransition.Progress > 0.34f) {
+    Renderer->DrawSprite(AlbumMenuTitle, LeftTitlePos);
+  }
+
+  glm::vec2 offset(0.0f, 0.0f);
+  if (MenuTransition.Progress > 0.22f) {
+    if (MenuTransition.Progress < 0.72f) {
+      // Approximated function from the original, another mess
+      offset = glm::vec2(
+          0.0f,
+          glm::mix(-Profile::DesignHeight, 0.0f,
+                   1.00397f * std::sin(3.97161f -
+                                       3.26438f * MenuTransition.Progress) -
+                       0.00295643f));
+    }
+    DrawPage(offset);
+
+    for (int i = 0; i <= EntriesPerPage; i++) {
+      Renderer->DrawSprite(SelectData[i], SelectDataPos[i] + offset);
     }
 
-    DrawErin();
-    DrawRedBar();
-
-    if (MenuTransition.Progress > 0.34f) {
-      Renderer->DrawSprite(RedBarLabel, RedTitleLabelPos);
-
-      const CornersQuad titleDest = AlbumMenuTitle.ScaledBounds()
-                                        .RotateAroundCenter(AlbumMenuTitleAngle)
-                                        .Translate(RightTitlePos);
-      Renderer->DrawSprite(AlbumMenuTitle, titleDest);
-    }
-
-    Renderer->CaptureScreencap(ShaderScreencapture.BgSprite);
-    Renderer->DrawCHLCCMenuBackground(
-        ShaderScreencapture.BgSprite, BackgroundFilter,
-        RectF(0.0f, 0.0f, 1280.0f, 720.0f), MenuTransition.Progress);
-
-    if (MenuTransition.Progress > 0.34f) {
-      Renderer->DrawSprite(AlbumMenuTitle, LeftTitlePos);
-    }
-
-    glm::vec2 offset(0.0f, 0.0f);
-    if (MenuTransition.Progress > 0.22f) {
-      if (MenuTransition.Progress < 0.72f) {
-        // Approximated function from the original, another mess
-        offset = glm::vec2(
-            0.0f,
-            glm::mix(-720.0f, 0.0f,
-                     1.00397f * std::sin(3.97161f -
-                                         3.26438f * MenuTransition.Progress) -
-                         0.00295643f));
-      }
-      DrawPage(offset);
-
-      for (int i = 0; i <= EntriesPerPage; i++) {
-        Renderer->DrawSprite(SelectData[i], SelectDataPos[i] + offset);
-      }
-
-      CgViewerGroup->Render();
-      DrawButtonGuide();
-    }
+    CgViewerGroup->Render();
+    DrawButtonGuide();
   }
 }
 

@@ -3,6 +3,7 @@ root.BacklogMenu = {
     DrawType = DrawComponentType.ExtrasScenes,
     BacklogBackgroundSprite = "BacklogBackground",
     EntryHighlightSprite = "EntryHighlight",
+    EntryHighlightPadding = 0.0,
     VoiceIconSprite = "VoiceIcon",
     ScrollbarTrackSprite = "ScrollbarTrack",
     ScrollbarThumbSprite = "ScrollbarThumb",

@@ -159,15 +159,15 @@ void ClearListMenu::Update(float dt) {
 }
 
 void ClearListMenu::Render() {
-  if (State != Hidden) {
-    glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
-    Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f, 0.0f), col);
-    MainItems->Tint = col;
-    MainItems->Render();
-    Arrows->Tint =
-        glm::vec4(1.0f, 1.0f, 1.0f, glm::step(0.5f, ArrowsAnimation.Progress));
-    Arrows->Render();
-  }
+  if (State == Hidden) return;
+
+  glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
+  Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f, 0.0f), col);
+  MainItems->Tint = col;
+  MainItems->Render();
+  Arrows->Tint =
+      glm::vec4(1.0f, 1.0f, 1.0f, glm::step(0.5f, ArrowsAnimation.Progress));
+  Arrows->Render();
 }
 
 void ClearListMenu::InitMainPage() {

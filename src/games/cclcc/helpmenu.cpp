@@ -120,33 +120,33 @@ void HelpMenu::UpdateInput(float dt) {
 }
 
 void HelpMenu::Render() {
-  if (State != Hidden) {
-    glm::vec4 transition(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
-    int alpha = (ScrWork[SW_SYSSUBMENUCT] * ScrWork[SW_SYSSUBMENUALPHA]) >> 5;
-    float topLeftX = 0.0f;
+  if (State == Hidden) return;
 
-    if (PreviousPage != -1) {
-      Renderer->DrawSprite(ManualPages[PreviousPage], glm::vec2(0.0f, 0.0f),
-                           glm::vec4{1.0f});
+  glm::vec4 transition(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
+  int alpha = (ScrWork[SW_SYSSUBMENUCT] * ScrWork[SW_SYSSUBMENUALPHA]) >> 5;
+  float topLeftX = 0.0f;
 
-      transition = {1.0f, 1.0f, 1.0f, NextPageAnimation.Progress};
-      topLeftX = IsGoingNext ? NextPageAnimation.Progress * 1920.0f - 1920.0f
-                             : (1.0f - NextPageAnimation.Progress) * 1920.0f;
-      Renderer->DrawSprite(
-          ManualPages[CurrentPage], glm::vec2(topLeftX, 0.0f),
-          glm::vec4{glm::vec3{transition}, transition.a * alpha / 256.0f});
-    } else {
-      topLeftX = FadeAnimation.Progress * 32 * 200 * 0.0625f - 400.0f;
-      Renderer->DrawSprite(
-          ManualPages[CurrentPage], glm::vec2(topLeftX, 0.0f),
-          glm::vec4{glm::vec3{transition}, transition.a * alpha / 256.0f});
-    }
+  if (PreviousPage != -1) {
+    Renderer->DrawSprite(ManualPages[PreviousPage], glm::vec2(0.0f, 0.0f),
+                         glm::vec4{1.0f});
 
+    transition = {1.0f, 1.0f, 1.0f, NextPageAnimation.Progress};
+    topLeftX = IsGoingNext ? NextPageAnimation.Progress * 1920.0f - 1920.0f
+                           : (1.0f - NextPageAnimation.Progress) * 1920.0f;
     Renderer->DrawSprite(
-        HelpMaskSprite,
-        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-        glm::vec4{glm::vec3{transition}, 0.85f});
+        ManualPages[CurrentPage], glm::vec2(topLeftX, 0.0f),
+        glm::vec4{glm::vec3{transition}, transition.a * alpha / 256.0f});
+  } else {
+    topLeftX = FadeAnimation.Progress * 32 * 200 * 0.0625f - 400.0f;
+    Renderer->DrawSprite(
+        ManualPages[CurrentPage], glm::vec2(topLeftX, 0.0f),
+        glm::vec4{glm::vec3{transition}, transition.a * alpha / 256.0f});
   }
+
+  Renderer->DrawSprite(
+      HelpMaskSprite,
+      RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+      glm::vec4{glm::vec3{transition}, 0.85f});
 }
 
 }  // namespace CCLCC

@@ -107,23 +107,23 @@ void SaveMenu::Update(float dt) {
 }
 
 void SaveMenu::Render() {
-  if (State != Hidden) {
-    glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
-    Renderer->DrawSprite(SaveMenuBackgroundSprite, glm::vec2(0.0f), col);
-    switch (ScrWork[SW_SYSSUBMENUNO]) {
-      case 0:
-        Renderer->DrawSprite(QuickLoadTextSprite, MenuTitleTextPos, col);
-        break;
-      case 3:
-        Renderer->DrawSprite(SaveTextSprite, MenuTitleTextPos, col);
-        break;
-      case 4:
-        Renderer->DrawSprite(LoadTextSprite, MenuTitleTextPos, col);
-        break;
-    }
-    PageControls->Tint = col;
-    PageControls->Render();
+  if (State == Hidden) return;
+
+  glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
+  Renderer->DrawSprite(SaveMenuBackgroundSprite, glm::vec2(0.0f), col);
+  switch (ScrWork[SW_SYSSUBMENUNO]) {
+    case 0:
+      Renderer->DrawSprite(QuickLoadTextSprite, MenuTitleTextPos, col);
+      break;
+    case 3:
+      Renderer->DrawSprite(SaveTextSprite, MenuTitleTextPos, col);
+      break;
+    case 4:
+      Renderer->DrawSprite(LoadTextSprite, MenuTitleTextPos, col);
+      break;
   }
+  PageControls->Tint = col;
+  PageControls->Render();
 }
 
 }  // namespace MO8

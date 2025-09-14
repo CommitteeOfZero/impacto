@@ -2,13 +2,10 @@
 
 #include "../../renderer/renderer.h"
 #include "../../mem.h"
-#include "../../vm/vm.h"
 #include "../../profile/scriptvars.h"
 #include "../../profile/dialogue.h"
-#include "../../profile/ui/backlogmenu.h"
 #include "../../profile/ui/tipsmenu.h"
 #include "../../profile/games/chlcc/tipsmenu.h"
-#include "../../io/memorystream.h"
 #include "../../data/tipssystem.h"
 #include "../../vm/interface/input.h"
 #include "../../profile/game.h"
@@ -77,20 +74,21 @@ void TipsMenu::Hide() {
 }
 
 void TipsMenu::Render() {
-  if (State != Hidden) {
-    if (MenuTransition.IsIn()) {
-      Renderer->DrawQuad(RectF(0.0f, 0.0f, 1280.0f, 720.0f),
-                         RgbIntToFloat(BackgroundColor));
-    } else if (GetFlag(SF_SYSTEMMENU)) {
-      Renderer->DrawQuad(
-          RectF(0.0f, 0.0f, 1280.0f, 720.0f),
-          RgbIntToFloat(BackgroundColor, FromSystemMenuTransition.Progress));
-    } else {
-      DrawCircles();
-    }
-    DrawErin();
-    DrawRedBar();
+  if (State == Hidden) return;
+
+  if (MenuTransition.IsIn()) {
+    Renderer->DrawQuad(
+        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+        RgbIntToFloat(BackgroundColor));
+  } else if (GetFlag(SF_SYSTEMMENU)) {
+    Renderer->DrawQuad(
+        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+        RgbIntToFloat(BackgroundColor, FromSystemMenuTransition.Progress));
+  } else {
+    DrawCircles();
   }
+  DrawErin();
+  DrawRedBar();
   if (MenuTransition.Progress > 0.34f) {
     Renderer->DrawSprite(RedBarLabel, RedTitleLabelPos);
 
@@ -104,8 +102,10 @@ void TipsMenu::Render() {
   // Alpha goes from 0 to 1 in half the time
   float alpha =
       MenuTransition.Progress < 0.5f ? MenuTransition.Progress * 2.0f : 1.0f;
-  Renderer->DrawSprite(BackgroundFilter, RectF(0.0f, 0.0f, 1280.0f, 720.0f),
-                       glm::vec4(tint, alpha));
+  Renderer->DrawSprite(
+      BackgroundFilter,
+      RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+      glm::vec4(tint, alpha));
 
   glm::vec2 offset(0.0f, 0.0f);
   if (MenuTransition.Progress > 0.22f) {
@@ -113,7 +113,7 @@ void TipsMenu::Render() {
       // Approximated function from the original, another mess
       offset = glm::vec2(
           0.0f,
-          glm::mix(-720.0f, 0.0f,
+          glm::mix(-Profile::DesignHeight, 0.0f,
                    1.00397f * std::sin(3.97161f -
                                        3.26438f * MenuTransition.Progress) -
                        0.00295643f));
@@ -237,7 +237,7 @@ inline void TipsMenu::DrawTipsTree(float yOffset) {
   Renderer->DrawQuad(
       RectF(GradientPosition.x, TipsGradient.Bounds.Height + yOffset,
             TipsGradient.Bounds.Width - 10.0f,
-            720.0f - TipsGradient.Bounds.Height - 86.0f),
+            Profile::DesignHeight - TipsGradient.Bounds.Height - 86.0f),
       RgbIntToFloat(EndOfGradientColor));
   Renderer->DrawQuad(RectF(GradientPosition.x, 634.0f + yOffset,
                            TipsGradient.Bounds.Width, 86.0f),

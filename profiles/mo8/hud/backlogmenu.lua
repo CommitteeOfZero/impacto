@@ -3,6 +3,7 @@ root.BacklogMenu = {
     DrawType = DrawComponentType.SystemMenu,
     BacklogBackgroundSprite = "BacklogBackground",
     EntryHighlightSprite = "EntryHighlight",
+    EntryHighlightPadding = 0.0,
     VoiceIconSprite = "VoiceIcon",
     ScrollbarTrackSprite = "ScrollbarTrack",
     ScrollbarThumbSprite = "ScrollbarThumb",

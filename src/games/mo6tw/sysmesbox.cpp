@@ -126,35 +126,35 @@ void SysMesBox::Update(float dt) {
 }
 
 void SysMesBox::Render() {
-  if (State != Hidden) {
-    glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
+  if (State == Hidden) return;
 
-    float maxWidth = FLT_MIN;
-    for (int i = 0; i < MessageCount; i++) {
-      if (maxWidth < MessageWidths[i]) maxWidth = MessageWidths[i];
-    }
-    if (maxWidth < BoxMinimumWidth) maxWidth = BoxMinimumWidth;
+  glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
 
-    Renderer->DrawSprite(BoxPartLeft, glm::vec2(BoxX - (maxWidth / 2.0f), BoxY),
-                         col);
-
-    float remainWidth = maxWidth - BoxMiddleRemainBase;
-    float currentX = BoxMiddleBaseX - (maxWidth / 2.0f);
-    while (remainWidth >= BoxMiddleBaseWidth) {
-      Renderer->DrawSprite(BoxPartMiddle, glm::vec2(currentX, BoxY), col);
-      currentX += BoxMiddleBaseWidth;
-      remainWidth -= BoxMiddleBaseWidth;
-    }
-
-    BoxPartRight.Bounds.X = BoxRightBaseX - (remainWidth + BoxRightRemainPad);
-    BoxPartRight.Bounds.Width = (remainWidth + BoxRightRemainPad) - 1.0f;
-    Renderer->DrawSprite(BoxPartRight, glm::vec2(currentX, BoxY), col);
-
-    MessageItems->Tint.a = FadeAnimation.Progress;
-    MessageItems->Render();
-    ChoiceItems->Tint.a = FadeAnimation.Progress;
-    ChoiceItems->Render();
+  float maxWidth = FLT_MIN;
+  for (int i = 0; i < MessageCount; i++) {
+    if (maxWidth < MessageWidths[i]) maxWidth = MessageWidths[i];
   }
+  if (maxWidth < BoxMinimumWidth) maxWidth = BoxMinimumWidth;
+
+  Renderer->DrawSprite(BoxPartLeft, glm::vec2(BoxX - (maxWidth / 2.0f), BoxY),
+                       col);
+
+  float remainWidth = maxWidth - BoxMiddleRemainBase;
+  float currentX = BoxMiddleBaseX - (maxWidth / 2.0f);
+  while (remainWidth >= BoxMiddleBaseWidth) {
+    Renderer->DrawSprite(BoxPartMiddle, glm::vec2(currentX, BoxY), col);
+    currentX += BoxMiddleBaseWidth;
+    remainWidth -= BoxMiddleBaseWidth;
+  }
+
+  BoxPartRight.Bounds.X = BoxRightBaseX - (remainWidth + BoxRightRemainPad);
+  BoxPartRight.Bounds.Width = (remainWidth + BoxRightRemainPad) - 1.0f;
+  Renderer->DrawSprite(BoxPartRight, glm::vec2(currentX, BoxY), col);
+
+  MessageItems->Tint.a = FadeAnimation.Progress;
+  MessageItems->Render();
+  ChoiceItems->Tint.a = FadeAnimation.Progress;
+  ChoiceItems->Render();
 }
 
 void SysMesBox::Init() {

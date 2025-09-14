@@ -145,35 +145,35 @@ void SysMesBox::Update(float dt) {
 }
 
 void SysMesBox::Render() {
-  if (State != Hidden) {
-    glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
+  if (State == Hidden) return;
 
-    float maxWidth = FLT_MIN;
-    for (int i = 0; i < MessageCount; i++) {
-      if (maxWidth < MessageWidths[i]) maxWidth = MessageWidths[i];
-    }
-    if (maxWidth < MinMaxMesWidth) maxWidth = MinMaxMesWidth;
+  glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
 
-    Renderer->DrawSprite(Box, glm::vec2(BoxX, BoxY), col);
+  float maxWidth = FLT_MIN;
+  for (int i = 0; i < MessageCount; i++) {
+    if (maxWidth < MessageWidths[i]) maxWidth = MessageWidths[i];
+  }
+  if (maxWidth < MinMaxMesWidth) maxWidth = MinMaxMesWidth;
 
-    MessageItems->Tint.a = FadeAnimation.Progress;
-    MessageItems->Render();
-    ChoiceItems->Tint.a = FadeAnimation.Progress;
-    ChoiceItems->Render();
+  Renderer->DrawSprite(Box, glm::vec2(BoxX, BoxY), col);
 
-    if (GetFlag(SF_SAVEICON)) {
-      for (size_t i = 0; i < LoadingStars.size(); i++) {
-        const SysMesBoxStar& star = LoadingStars[i];
-        glm::vec2 position = LoadingStarsPosition +
-                             glm::vec2(LoadingStar.ScaledWidth() * i, 0.0f);
+  MessageItems->Tint.a = FadeAnimation.Progress;
+  MessageItems->Render();
+  ChoiceItems->Tint.a = FadeAnimation.Progress;
+  ChoiceItems->Render();
 
-        CornersQuad dest = LoadingStar.ScaledBounds()
-                               .RotateAroundCenter(star.Angle)
-                               .Translate(position);
+  if (GetFlag(SF_SAVEICON)) {
+    for (size_t i = 0; i < LoadingStars.size(); i++) {
+      const SysMesBoxStar& star = LoadingStars[i];
+      glm::vec2 position =
+          LoadingStarsPosition + glm::vec2(LoadingStar.ScaledWidth() * i, 0.0f);
 
-        float alpha = LoadingStarsFadeAnimation.Progress;
-        Renderer->DrawSprite(LoadingStar, dest, {1.0f, 1.0f, 1.0f, alpha});
-      }
+      CornersQuad dest = LoadingStar.ScaledBounds()
+                             .RotateAroundCenter(star.Angle)
+                             .Translate(position);
+
+      float alpha = LoadingStarsFadeAnimation.Progress;
+      Renderer->DrawSprite(LoadingStar, dest, {1.0f, 1.0f, 1.0f, alpha});
     }
   }
 }

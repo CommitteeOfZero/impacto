@@ -5,6 +5,7 @@
 #include "../../vm/interface/input.h"
 #include "../../profile/ui/systemmenu.h"
 #include "../../ui/widgets/chlcc/systemmenuentrybutton.h"
+#include "../../profile/game.h"
 
 namespace Impacto {
 namespace UI {
@@ -144,68 +145,70 @@ void SystemMenu::Update(float dt) {
 }
 
 void SystemMenu::Render() {
-  if (State != Hidden) {
-    if (MenuTransition.IsIn()) {
-      Renderer->DrawQuad(RectF(0.0f, 0.0f, 1280.0f, 720.0f),
-                         RgbIntToFloat(BackgroundColor));
-    } else {
-      DrawCircles();
-    }
-    DrawErin();
+  if (State == Hidden) return;
 
-    glm::vec3 tint = {1.0f, 1.0f, 1.0f};
-    // Alpha goes from 0 to 1 in half the time
-    float alpha =
-        MenuTransition.Progress < 0.5f ? MenuTransition.Progress * 2.0f : 1.0f;
-    Renderer->DrawSprite(BackgroundFilter, RectF(0.0f, 0.0f, 1280.0f, 720.0f),
-                         glm::vec4(tint, alpha));
-    DrawRedBar();
-    float yOffset = 0;
-    if (MenuTransition.Progress > 0.34f) {
-      Renderer->DrawSprite(RedBarLabel, RedTitleLabelPos);
-      const CornersQuad titleDest = MainMenuTitleText.ScaledBounds()
-                                        .RotateAroundCenter(MenuTitleTextAngle)
-                                        .Translate(RightTitlePos);
-      Renderer->DrawSprite(MainMenuTitleText, titleDest);
-    }
-    if (MenuTransition.Progress > 0.22f) {
-      if (MenuTransition.Progress < 0.72f) {
-        // Approximated function from the original, another mess
-        yOffset = glm::mix(
-            -720.0f, 0.0f,
-            1.00397f * std::sin(3.97161f - 3.26438f * MenuTransition.Progress) -
-                0.00295643f);
-      }
-      DrawButtonPrompt();
-      if (IndexOfActiveButton >= 0 && State != Hidden) {
-        DrawRunningSelectedLabel(SelectionOffsetY +
-                                 MenuRunningSelectedLabelPosition.y + yOffset);
-      }
+  if (MenuTransition.IsIn()) {
+    Renderer->DrawQuad(
+        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+        RgbIntToFloat(BackgroundColor));
+  } else {
+    DrawCircles();
+  }
+  DrawErin();
 
-      Renderer->DrawSprite(Background,
-                           glm::vec2(BackgroundPosition.x, yOffset));
-      DrawSelectMenu(yOffset);
-      Renderer->DrawSprite(MainMenuTitleText, LeftTitlePos,
-                           glm::vec4(tint, TitleFade.Progress));
-      Renderer->DrawSprite(MenuItemsLine,
-                           glm::vec2(MenuItemsLinePosition.x, yOffset));
-      if (IndexOfActiveButton >= 0 && State != Hidden) {
-        Renderer->DrawSprite(
-            MenuSelectionDot,
-            glm::vec2(MenuSelectionDotPosition.x,
-                      MenuSelectionDotPosition.y +
-                          IndexOfActiveButton * MenuSelectionDotMultiplier +
-                          +yOffset));
-        Renderer->DrawSprite(
-            MenuSelection,
-            glm::vec2(MenuSelectionPosition.x,
-                      MenuSelectionPosition.y + SelectionOffsetY + yOffset));
-      }
-
-      MainItems->MoveTo(glm::vec2(0, yOffset));
-      MainItems->Tint = glm::vec4(tint, 1.0f);
-      MainItems->Render();
+  glm::vec3 tint = {1.0f, 1.0f, 1.0f};
+  // Alpha goes from 0 to 1 in half the time
+  float alpha =
+      MenuTransition.Progress < 0.5f ? MenuTransition.Progress * 2.0f : 1.0f;
+  Renderer->DrawSprite(
+      BackgroundFilter,
+      RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+      glm::vec4(tint, alpha));
+  DrawRedBar();
+  float yOffset = 0;
+  if (MenuTransition.Progress > 0.34f) {
+    Renderer->DrawSprite(RedBarLabel, RedTitleLabelPos);
+    const CornersQuad titleDest = MainMenuTitleText.ScaledBounds()
+                                      .RotateAroundCenter(MenuTitleTextAngle)
+                                      .Translate(RightTitlePos);
+    Renderer->DrawSprite(MainMenuTitleText, titleDest);
+  }
+  if (MenuTransition.Progress > 0.22f) {
+    if (MenuTransition.Progress < 0.72f) {
+      // Approximated function from the original, another mess
+      yOffset = glm::mix(
+          -Profile::DesignHeight, 0.0f,
+          1.00397f * std::sin(3.97161f - 3.26438f * MenuTransition.Progress) -
+              0.00295643f);
     }
+    DrawButtonPrompt();
+    if (IndexOfActiveButton >= 0 && State != Hidden) {
+      DrawRunningSelectedLabel(SelectionOffsetY +
+                               MenuRunningSelectedLabelPosition.y + yOffset);
+    }
+
+    Renderer->DrawSprite(Background, glm::vec2(BackgroundPosition.x, yOffset));
+    DrawSelectMenu(yOffset);
+    Renderer->DrawSprite(MainMenuTitleText, LeftTitlePos,
+                         glm::vec4(tint, TitleFade.Progress));
+    Renderer->DrawSprite(MenuItemsLine,
+                         glm::vec2(MenuItemsLinePosition.x, yOffset));
+    if (IndexOfActiveButton >= 0 && State != Hidden) {
+      Renderer->DrawSprite(
+          MenuSelectionDot,
+          glm::vec2(MenuSelectionDotPosition.x,
+                    MenuSelectionDotPosition.y +
+                        IndexOfActiveButton * MenuSelectionDotMultiplier +
+                        +yOffset));
+      Renderer->DrawSprite(
+          MenuSelection,
+          glm::vec2(MenuSelectionPosition.x,
+                    MenuSelectionPosition.y + SelectionOffsetY + yOffset));
+    }
+
+    MainItems->MoveTo(glm::vec2(0, yOffset));
+    MainItems->Tint = glm::vec4(tint, 1.0f);
+    MainItems->Render();
   }
 }
 

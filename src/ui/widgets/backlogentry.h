@@ -2,6 +2,7 @@
 
 #include <functional>
 
+#include "../../profile/dialogue.h"
 #include "../widget.h"
 #include "../../text.h"
 #include "../../vm/vm.h"
@@ -35,6 +36,8 @@ class BacklogEntry : public Widget {
 
  private:
   glm::vec2 Position;
+
+  RectF REVBounds = Profile::Dialogue::REVBounds;
   const RectF& HoverBounds;
 };
 

@@ -366,15 +366,15 @@ void MusicBGs::Render() {
 }
 
 void MusicMenu::Render() {
-  if (State != Hidden) {
-    BGWidget.Render();
-    LibrarySubmenu::Render();
-    Renderer->DrawSprite(
-        MusicNowPlayingNotificationSprite, MusicNowPlayingNotificationPos,
-        glm::vec4{glm::vec3{1.0f}, NowPlayingFadeAnimation.Progress});
-    NowPlayingTrackName.Render();
-    ModeButton.Render();
-  }
+  if (State == Hidden) return;
+
+  BGWidget.Render();
+  LibrarySubmenu::Render();
+  Renderer->DrawSprite(
+      MusicNowPlayingNotificationSprite, MusicNowPlayingNotificationPos,
+      glm::vec4{glm::vec3{1.0f}, NowPlayingFadeAnimation.Progress});
+  NowPlayingTrackName.Render();
+  ModeButton.Render();
 }
 
 void MusicMenu::PlayTrack(size_t index) {

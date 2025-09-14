@@ -47,20 +47,21 @@ OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
 }
 
 void OptionsMenu::Render() {
-  if (State != Hidden) {
-    if (FadeAnimation.IsIn()) {
-      Renderer->DrawQuad(RectF(0.0f, 0.0f, 1280.0f, 720.0f),
-                         RgbIntToFloat(BackgroundColor));
-    } else if (GetFlag(SF_SYSTEMMENU)) {
-      Renderer->DrawQuad(
-          RectF(0.0f, 0.0f, 1280.0f, 720.0f),
-          RgbIntToFloat(BackgroundColor, FromSystemMenuTransition.Progress));
-    } else {
-      DrawCircles();
-    }
-    DrawErin();
-    DrawRedBar();
+  if (State == Hidden) return;
+
+  if (FadeAnimation.IsIn()) {
+    Renderer->DrawQuad(
+        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+        RgbIntToFloat(BackgroundColor));
+  } else if (GetFlag(SF_SYSTEMMENU)) {
+    Renderer->DrawQuad(
+        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+        RgbIntToFloat(BackgroundColor, FromSystemMenuTransition.Progress));
+  } else {
+    DrawCircles();
   }
+  DrawErin();
+  DrawRedBar();
   if (FadeAnimation.Progress > 0.34f) {
     Renderer->DrawSprite(RedBarLabel, RedTitleLabelPos);
 
@@ -74,8 +75,10 @@ void OptionsMenu::Render() {
   // Alpha goes from 0 to 1 in half the time
   float alpha =
       FadeAnimation.Progress < 0.5f ? FadeAnimation.Progress * 2.0f : 1.0f;
-  Renderer->DrawSprite(BackgroundFilter, RectF(0.0f, 0.0f, 1280.0f, 720.0f),
-                       glm::vec4(tint, alpha));
+  Renderer->DrawSprite(
+      BackgroundFilter,
+      RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+      glm::vec4(tint, alpha));
 
   glm::vec2 offset(0.0f, 0.0f);
   if (FadeAnimation.Progress > 0.22f) {
@@ -83,7 +86,7 @@ void OptionsMenu::Render() {
       // Approximated function from the original, another mess
       offset = glm::vec2(
           0.0f,
-          glm::mix(-720.0f, 0.0f,
+          glm::mix(-Profile::DesignHeight, 0.0f,
                    1.00397f * std::sin(3.97161f -
                                        3.26438f * FadeAnimation.Progress) -
                        0.00295643f));

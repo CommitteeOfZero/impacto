@@ -199,14 +199,14 @@ void TipsTabGroup::Update(float dt) {
 }
 
 void TipsTabGroup::Render() {
-  if (State != Hidden) {
-    TabName.Tint = Tint;
-    TabName.Render();
-    TipsEntriesGroup.Tint = Tint;
-    TipsEntriesGroup.Render();
-    TipsEntriesScrollbar->Tint = Tint;
-    TipsEntriesScrollbar->Render();
-  }
+  if (State == Hidden) return;
+
+  TabName.Tint = Tint;
+  TabName.Render();
+  TipsEntriesGroup.Tint = Tint;
+  TipsEntriesGroup.Render();
+  TipsEntriesScrollbar->Tint = Tint;
+  TipsEntriesScrollbar->Render();
 }
 
 void TipsTabGroup::UpdateTipsEntries(std::vector<int> const& SortedTipIds) {

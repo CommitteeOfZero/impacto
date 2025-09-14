@@ -197,16 +197,16 @@ void MusicMenu::Update(float dt) {
 }
 
 void MusicMenu::Render() {
-  if (State != Hidden) {
-    glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
-    Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f, 0.0f), col);
-    BackgroundItems->Tint = col;
-    BackgroundItems->Render();
-    MainItems->Tint = col;
-    MainItems->Render();
-    Timer->Tint.a *= col.a;
-    Timer->Render();
-  }
+  if (State == Hidden) return;
+
+  glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
+  Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f, 0.0f), col);
+  BackgroundItems->Tint = col;
+  BackgroundItems->Render();
+  MainItems->Tint = col;
+  MainItems->Render();
+  Timer->Tint.a *= col.a;
+  Timer->Render();
 }
 
 void MusicMenu::UpdateMusicEntries() {

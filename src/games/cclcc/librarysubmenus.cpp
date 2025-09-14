@@ -63,10 +63,10 @@ void LibrarySubmenu::Update(float dt) {
 }
 
 void LibrarySubmenu::Render() {
-  if (State != Hidden) {
-    MainItems.Tint = glm::vec4(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
-    MainItems.Render();
-  }
+  if (State == Hidden) return;
+
+  MainItems.Tint = glm::vec4(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
+  MainItems.Render();
 }
 
 void LibrarySubmenu::Unfocus() {

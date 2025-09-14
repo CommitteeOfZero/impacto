@@ -232,20 +232,20 @@ void AlbumMenu::Update(float dt) {
 }
 
 void AlbumMenu::Render() {
-  if (State != Hidden) {
-    glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
-    Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f, 0.0f), col);
-    MainItems->Tint = col;
-    MainItems->Render();
-    SecondaryItems->Tint = col;
-    SecondaryItems->Render();
-    ImageGrid->Tint = col;
-    ImageGrid->Render();
-    Arrows->Tint =
-        glm::vec4(1.0f, 1.0f, 1.0f, glm::step(0.5f, ArrowsAnimation.Progress));
-    Arrows->Render();
-    CgViewerGroup->Render();
-  }
+  if (State == Hidden) return;
+
+  glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
+  Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f, 0.0f), col);
+  MainItems->Tint = col;
+  MainItems->Render();
+  SecondaryItems->Tint = col;
+  SecondaryItems->Render();
+  ImageGrid->Tint = col;
+  ImageGrid->Render();
+  Arrows->Tint =
+      glm::vec4(1.0f, 1.0f, 1.0f, glm::step(0.5f, ArrowsAnimation.Progress));
+  Arrows->Render();
+  CgViewerGroup->Render();
 }
 
 void AlbumMenu::SwitchToCharacter(int id) {

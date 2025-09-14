@@ -12,6 +12,7 @@
 #include "../../data/tipssystem.h"
 #include "../../data/achievementsystem.h"
 #include "trophymenuentry.h"
+#include "../../profile/game.h"
 
 namespace Impacto {
 namespace UI {
@@ -69,7 +70,7 @@ void TrophyMenu::Show() {
         MainItems[i].Add(entry);
       }
     }
-    Offset = glm::vec2(0.0f, -720.0f);
+    Offset = glm::vec2(0.0f, -Profile::DesignHeight);
     MainItems[CurrentPage].Show();
     if (!TrophyCountHintLabel.Enabled) {
       TrophyCountHintLabel.Enabled = true;
@@ -97,20 +98,20 @@ void TrophyMenu::Hide() {
 
 void TrophyMenu::Render() {
   if (State == Hidden) return;
-  if (State != Hidden) {
-    if (MenuTransition.IsIn()) {
-      Renderer->DrawQuad(RectF(0.0f, 0.0f, 1280.0f, 720.0f),
-                         RgbIntToFloat(BackgroundColor));
-    } else if (GetFlag(SF_SYSTEMMENU)) {
-      Renderer->DrawQuad(
-          RectF(0.0f, 0.0f, 1280.0f, 720.0f),
-          RgbIntToFloat(BackgroundColor, FromSystemMenuTransition.Progress));
-    } else {
-      DrawCircles();
-    }
-    DrawErin();
-    DrawRedBar();
+
+  if (MenuTransition.IsIn()) {
+    Renderer->DrawQuad(
+        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+        RgbIntToFloat(BackgroundColor));
+  } else if (GetFlag(SF_SYSTEMMENU)) {
+    Renderer->DrawQuad(
+        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+        RgbIntToFloat(BackgroundColor, FromSystemMenuTransition.Progress));
+  } else {
+    DrawCircles();
   }
+  DrawErin();
+  DrawRedBar();
   if (MenuTransition.Progress > 0.34f) {
     Renderer->DrawSprite(RedBarLabel, RedTitleLabelPos);
 
@@ -126,15 +127,17 @@ void TrophyMenu::Render() {
   // Alpha goes from 0 to 1 in half the time
   float alpha =
       MenuTransition.Progress < 0.5f ? MenuTransition.Progress * 2.0f : 1.0f;
-  Renderer->DrawSprite(BackgroundFilter, RectF(0.0f, 0.0f, 1280.0f, 720.0f),
-                       glm::vec4(tint, alpha));
+  Renderer->DrawSprite(
+      BackgroundFilter,
+      RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+      glm::vec4(tint, alpha));
 
   if (MenuTransition.Progress > 0.22f) {
     if (MenuTransition.Progress < 0.72f) {
       // Approximated function from the original, another mess
       Offset = glm::vec2(
           0.0f,
-          glm::mix(-720.0f, 0.0f,
+          glm::mix(-Profile::DesignHeight, 0.0f,
                    1.00397f * std::sin(3.97161f -
                                        3.26438f * MenuTransition.Progress) -
                        0.00295643f));
