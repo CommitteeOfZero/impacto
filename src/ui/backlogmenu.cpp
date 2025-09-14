@@ -253,7 +253,7 @@ void BacklogMenu::Update(float dt) {
   }
 }
 
-void BacklogMenu::RenderHighlight() const {
+void BacklogMenu::RenderHighlight(const glm::vec2 offset) const {
   if (EntryHighlightLocation == +EntryHighlightLocationType::None ||
       CurrentlyFocusedElement == nullptr ||
       !MainItems->RenderingBounds.Intersects(CurrentlyFocusedElement->Bounds))
@@ -286,7 +286,7 @@ void BacklogMenu::RenderHighlight() const {
   pos.Y += EntryHighlightOffset.y;
 
   float opacity = glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
-  Renderer->DrawSprite(EntryHighlight, pos,
+  Renderer->DrawSprite(EntryHighlight, pos + offset,
                        glm::vec4(1.0f, 1.0f, 1.0f, opacity));
 }
 
