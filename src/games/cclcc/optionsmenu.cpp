@@ -262,7 +262,7 @@ void OptionsMenu::Update(float dt) {
   }
 }
 
-void OptionsMenu::PageButtonOnHover(int pageNumber) {
+void OptionsMenu::PageButtonOnHover(size_t pageNumber) {
   if (pageNumber != CurrentPage || !CurrentlyFocusedElement)
     Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0.0f);
 
@@ -280,7 +280,7 @@ void OptionsMenu::UpdatePageInput(float dt) {
     if (!wasHovered && button.Hovered) PageButtonOnHover(button.Id);
   }
 
-  const int lastPage = CurrentPage;
+  const size_t lastPage = CurrentPage;
   UI::OptionsMenu::UpdatePageInput(dt);
 
   if (CurrentPage != lastPage)
@@ -406,6 +406,8 @@ void OptionsMenu::ResetToDefault() {
     default:
       break;
   }
+
+  UpdateValues();
 }
 
 }  // namespace CCLCC

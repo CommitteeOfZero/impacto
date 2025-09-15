@@ -7,6 +7,7 @@
 
 #include "ui/backlogmenu.h"
 #include "dialogue.h"
+#include "configsystem.h"
 #include "../font.h"
 #include "../text.h"
 #include "../game.h"
@@ -218,6 +219,7 @@ void MakeLuaProfile(std::string const& name) {
   DefineEnumInt<LKMVersion>(LuaState);
   DefineEnumInt<Dialogue::REVNameLocationType>(LuaState);
   DefineEnumInt<ShaderProgramType>(LuaState);
+  DefineEnumInt<ConfigSystem::AutoQuickSaveType>(LuaState);
 
   ImpLog(LogLevel::Info, LogChannel::Profile, "Starting profile {:s}\n", name);
 
