@@ -94,16 +94,14 @@ class ExpressionParser {
 };
 
 int ExpressionEval(Sc3VmThread* thd, int* result) {
-  ExpressionParser* parser = new ExpressionParser(thd);
+  std::unique_ptr<ExpressionParser> parser =
+      std::make_unique<ExpressionParser>(thd);
 
   ExpressionNode* root = parser->ParseSubExpression(0);
-
   std::unique_ptr<ExpressionNode> rootPtr =
       std::unique_ptr<ExpressionNode>(root);
 
-  *result = rootPtr->Evaluate(thd);
-
-  delete parser;
+  *result = root == nullptr ? 0 : rootPtr->Evaluate(thd);
 
   return 0;
 }
@@ -399,6 +397,8 @@ ExpressionNode* ExpressionParser::ParseSubExpression(int minPrecidence) {
 }
 
 ExpressionNode* ExpressionParser::ParseTerm() {
+  if (Tokens.empty()) return nullptr;
+
   ExprToken tok = Tokens[CurrentToken++];
   ExpressionNode* term = nullptr;
   switch (tok.Type) {
