@@ -51,7 +51,30 @@ VmInstruction(InstSetMesWinPri) {
              "{:d}, unused: {:d})\n",
              arg1, arg2, unused);
 }
-VmInstruction(InstMesSync) {}
+VmInstruction(InstMesSync) {
+  StartInstruction;
+
+  PopUint8(type);
+  switch (type) {
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+    case 11:
+    case 12:
+    case 13:
+    case 14:
+    case 20:
+      break;
+    case 10: {
+      PopExpression(unknown);
+    } break;
+  }
+
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction MesSync(type: {:d})\n", type);
+}
 VmInstruction(InstMesSetID) {
   StartInstruction;
   PopUint8(type);
