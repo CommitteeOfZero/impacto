@@ -37,6 +37,7 @@ void Configure() {
 
   SaveMenuMaskSprite = EnsureGetMember<Sprite>("SaveMenuMaskSprite");
   SaveEntryPrimaryColor = EnsureGetMember<uint32_t>("SaveEntryPrimaryColor");
+  LoadEntryPrimaryColor = EnsureGetMember<uint32_t>("LoadEntryPrimaryColor");
   SaveEntrySecondaryColor =
       EnsureGetMember<uint32_t>("SaveEntrySecondaryColor");
   for (int i = 0; i < std::ssize(SaveMenuTypeNames); i++) {

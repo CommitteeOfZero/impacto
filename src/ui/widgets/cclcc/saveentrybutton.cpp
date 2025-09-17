@@ -144,8 +144,11 @@ void SaveEntryButton::RefreshCharacterRouteText(int strIndex) {
   auto strAddr = Vm::ScriptGetTextTableStrAddress(1, strIndex);
   float fontSize = 28;
   RendererOutlineMode outlineMode = RendererOutlineMode::Full;
-  CharacterRouteLabel.SetText(strAddr, fontSize, outlineMode,
-                              {SaveEntryPrimaryColor, SaveEntryPrimaryColor});
+  DialogueColorPair colorPair =
+      UI::SaveMenuPtr->ActiveMenuType->_to_integral() == SaveMenuPageType::Save
+          ? DialogueColorPair{SaveEntryPrimaryColor, SaveEntryPrimaryColor}
+          : DialogueColorPair{LoadEntryPrimaryColor, LoadEntryPrimaryColor};
+  CharacterRouteLabel.SetText(strAddr, fontSize, outlineMode, colorPair);
 }
 
 void SaveEntryButton::RefreshSceneTitleText(int strIndex) {
