@@ -395,6 +395,7 @@ void TitleMenu::ExplodeScreenUpdate() {
   if (TitleAnimation.IsOut() && !IsExploding) {
     TitleAnimation.StartIn();
     IsExploding = true;
+    EverExploded = true;
   }
   if (TitleAnimation.IsIn() && !IsExploding) {
     TitleAnimation.StartOut();
@@ -534,7 +535,7 @@ void TitleMenu::Render() {
                       1.0f - ScrWork[SW_TITLEDISPCT] / 60.0f));
       } break;
       case 2: {  // Transition between Press to start and menus
-        if (IsExploding) {
+        if (IsExploding || EverExploded) {
           DrawMainMenuBackGraphics();
         } else {
           DrawDISwordBackground();
