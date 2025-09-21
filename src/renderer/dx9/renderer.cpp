@@ -717,16 +717,20 @@ void Renderer::CaptureScreencap(Sprite& sprite) {
   }
 
   sprite.Sheet.IsScreenCap = true;
-  sprite.Sheet.DesignWidth = static_cast<float>(Window->WindowWidth);
-  sprite.Sheet.DesignHeight = static_cast<float>(Window->WindowHeight);
-  sprite.Bounds.Width = sprite.Sheet.DesignWidth;
-  sprite.Bounds.Height = sprite.Sheet.DesignHeight;
 
   IDirect3DSurface9* sourceSurface = nullptr;
   Device->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &sourceSurface);
 
+  D3DSURFACE_DESC backBufferDesc;
+  sourceSurface->GetDesc(&backBufferDesc);
+
+  sprite.Sheet.DesignWidth = static_cast<float>(backBufferDesc.Width);
+  sprite.Sheet.DesignHeight = static_cast<float>(backBufferDesc.Height);
+  sprite.Bounds = RectF{0.0f, 0.0f, static_cast<float>(backBufferDesc.Width),
+                        static_cast<float>(backBufferDesc.Height)};
+
   IDirect3DTexture9* texture;
-  Device->CreateTexture(Window->WindowWidth, Window->WindowHeight, 1,
+  Device->CreateTexture(backBufferDesc.Width, backBufferDesc.Height, 1,
                         D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT,
                         &texture, nullptr);
   auto id = NextTextureId;

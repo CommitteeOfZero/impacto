@@ -398,12 +398,6 @@ void Background2D::UpdateState(const int bgId) {
   if (Profile::UseBgChaEffects) {
     ChaBgEff.Shader = GetBgEffShader(ScrWork[SW_BG1NO + structOffset], 3);
   }
-
-  if (BgSprite.Sheet.IsScreenCap) {
-    BgSprite.BaseScale *=
-        glm::vec2(Profile::DesignWidth / Window->WindowWidth,
-                  Profile::DesignHeight / Window->WindowHeight);
-  }
 }
 
 void Background2D::Render(const int layer) {
@@ -591,12 +585,6 @@ void Capture2D::UpdateState(const int capId) {
   Tint.a = (ScrWork[SW_CAP1ALPHA + structOffset] +
             ScrWork[SW_CAP1ALPHA_OFS + structOfsOffset]) /
            256.0f;
-
-  if (BgSprite.Sheet.IsScreenCap) {
-    BgSprite.BaseScale *=
-        glm::vec2(Profile::DesignWidth / Window->WindowWidth,
-                  Profile::DesignHeight / Window->WindowHeight);
-  }
 }
 
 void Capture2D::Render(const int layer) {

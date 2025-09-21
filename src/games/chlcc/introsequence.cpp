@@ -13,15 +13,14 @@ namespace CHLCC {
 
 IntroSequence::IntroSequence() {
   Texture fallingStarsMaskTexture{};
-  fallingStarsMaskTexture.LoadSolidColor((int)ResolutionWidth,
-                                         (int)ResolutionHeight, 0);
-  SpriteSheet fallingStarsMaskSheet(static_cast<float>(ResolutionWidth),
-                                    static_cast<float>(ResolutionHeight));
+  fallingStarsMaskTexture.LoadSolidColor(Window->WindowWidth,
+                                         Window->WindowHeight, 0);
+  SpriteSheet fallingStarsMaskSheet(static_cast<float>(Window->WindowWidth),
+                                    static_cast<float>(Window->WindowHeight));
   fallingStarsMaskSheet.Texture = fallingStarsMaskTexture.Submit();
   fallingStarsMaskSheet.IsScreenCap = true;
   FallingStarsMask =
-      Sprite(fallingStarsMaskSheet, 0, 0, static_cast<float>(ResolutionWidth),
-             static_cast<float>(ResolutionHeight));
+      Sprite(fallingStarsMaskSheet, 0, 0, DesignWidth, DesignHeight);
 
   // Randomize falling stars
   for (size_t i = 0; i < FallingStarSeeds.size(); i++) {
@@ -105,8 +104,9 @@ void IntroSequence::Reset() {
   Renderer->FreeTexture(FallingStarsMask.Sheet.Texture);
 
   Texture fallingStarsMaskTexture{};
-  fallingStarsMaskTexture.LoadSolidColor((int)ResolutionWidth,
-                                         (int)ResolutionHeight, 0);
+  fallingStarsMaskTexture.LoadSolidColor(static_cast<int>(Window->WindowWidth),
+                                         static_cast<int>(Window->WindowHeight),
+                                         0);
   FallingStarsMask.Sheet.Texture = fallingStarsMaskTexture.Submit();
 
   IntroAnimation.StartIn(true);
@@ -217,10 +217,9 @@ void IntroSequence::DrawBackground() const {
   Renderer->DrawQuad(RectF{0.0f, 0.0f, DesignWidth, DesignHeight},
                      {0.0f, 0.0f, 0.0f, 1.0f});
 
-  float scale = 4 / (progress * 3 + 1);
+  const float scale = 4 / (progress * 3 + 1);
   RectF dest = ShaderScreencapture.BgSprite.ScaledBounds().Scale(
-      glm::vec2(scale) * designDimensions /
-          glm::vec2(ResolutionWidth, ResolutionHeight),
+      glm::vec2(scale) * designDimensions / Window->GetViewport().GetSize(),
       glm::vec2(0.0f));
 
   Renderer->DrawSprite(ShaderScreencapture.BgSprite, dest,

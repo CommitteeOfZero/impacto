@@ -828,10 +828,17 @@ void Renderer::DrawVideoTexture(const YUVFrame& frame, const RectF& dest,
 void Renderer::CaptureScreencap(Sprite& sprite) {
   Flush();
   sprite.Sheet.IsScreenCap = true;
-  sprite.Sheet.DesignWidth = (float)Window->WindowWidth;
-  sprite.Sheet.DesignHeight = (float)Window->WindowHeight;
-  sprite.Bounds.Width = sprite.Sheet.DesignWidth;
-  sprite.Bounds.Height = sprite.Sheet.DesignHeight;
+
+  int fbWidth, fbHeight;
+  glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH,
+                               &fbWidth);
+  glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT,
+                               &fbHeight);
+
+  sprite.Sheet.DesignWidth = static_cast<float>(fbWidth);
+  sprite.Sheet.DesignHeight = static_cast<float>(fbHeight);
+  sprite.Bounds = RectF{0.0f, 0.0f, static_cast<float>(fbWidth),
+                        static_cast<float>(fbHeight)};
 
   int prevReadBuffer;
   int drawBuffer;
@@ -843,9 +850,7 @@ void Renderer::CaptureScreencap(Sprite& sprite) {
 
   GLC::BindFramebuffer(GL_READ_FRAMEBUFFER, drawBuffer);
   glBindTexture(GL_TEXTURE_2D, sprite.Sheet.Texture);
-
-  glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, Window->WindowWidth,
-                   Window->WindowHeight, 0);
+  glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, fbWidth, fbHeight, 0);
 
   glBindTexture(GL_TEXTURE_2D, prevTextureBinding);
   GLC::BindFramebuffer(GL_READ_FRAMEBUFFER, prevReadBuffer);
