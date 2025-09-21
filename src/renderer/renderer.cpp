@@ -394,7 +394,7 @@ void BaseRenderer::DrawProcessedText_LBFont(
                              : glyph.Opacity);
 
     const CornersQuad maskUV = CornersQuad(dest).Scale(
-        {1.0f / Window->WindowWidth, 1.0f / Window->WindowHeight},
+        {1.0f / Profile::DesignWidth, 1.0f / Profile::DesignHeight},
         {0.0f, 0.0f});
     InsertQuad(std::span<VertexBufferSprites, 4>(vertices.begin() + i * 4, 4),
                dest, destUV, color, maskUV);

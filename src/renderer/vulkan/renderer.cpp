@@ -1725,8 +1725,9 @@ void Renderer::DrawVideoTexture(const YUVFrame& frame, const RectF& dest,
 void Renderer::CaptureScreencap(Sprite& sprite) {
   if (Textures.count(sprite.Sheet.Texture) == 0) return;
   sprite.Sheet.IsScreenCap = true;
-  sprite.Sheet.DesignWidth = (float)Window->WindowWidth;
-  sprite.Sheet.DesignHeight = (float)Window->WindowHeight;
+
+  sprite.Sheet.DesignWidth = static_cast<float>(SwapChainExtent.width);
+  sprite.Sheet.DesignHeight = static_cast<float>(SwapChainExtent.height);
   sprite.Bounds.Width = sprite.Sheet.DesignWidth;
   sprite.Bounds.Height = sprite.Sheet.DesignHeight;
 
