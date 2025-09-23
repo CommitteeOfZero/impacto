@@ -24,6 +24,10 @@ class Carousel : public Widget {
   void Add(Widget* widget);
   void Next();
   void Previous();
+  void Clear();
+  auto GetCurrent() const { return Iterator; }
+
+  std::vector<Widget*> Children;
 
  private:
   void OnChange(Widget* current, Widget* next);
@@ -32,7 +36,6 @@ class Carousel : public Widget {
   std::function<void(Widget*, Widget*)> OnBackHandler;
 
   CarouselDirection Direction;
-  std::vector<Widget*> Children;
   std::vector<Widget*>::iterator Iterator;
 };
 

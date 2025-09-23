@@ -15,7 +15,7 @@ int constexpr MaxTipStrings = 10;
 
 struct TipsDataRecord {
   uint16_t Id = 0;
-  uint16_t SortLetterIndex = 0;
+  uint16_t CategoryLetterIndex = 0;
   uint16_t ThumbnailIndex = 0;
   uint16_t NumberOfContentStrings = 0;
   std::array<uint32_t, MaxTipStrings> StringAdr = {};
@@ -40,6 +40,14 @@ class TipsSystemBase {
   std::vector<TipsDataRecord> Records;
   size_t TipEntryCount = 0;
   uint8_t ScriptBufferId = 0;
+};
+
+struct TipsSorter {
+  TipsSorter(uint32_t tipsTableId, uint32_t sortStringIndex, int tipIdStrIndex);
+  bool operator()(int a, int b) const;
+  uint8_t* SortString;
+  int TipIdStrIndex;
+  ankerl::unordered_dense::map<uint16_t, int> Sc3SortMap;
 };
 
 inline std::unique_ptr<TipsSystemBase> Implementation;
