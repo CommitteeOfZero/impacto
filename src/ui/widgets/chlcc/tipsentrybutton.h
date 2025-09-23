@@ -25,7 +25,6 @@ class TipsEntryButton : public Button {
   std::array<ProcessedTextGlyph, TipNumberLength> TipNumber;
   std::array<ProcessedTextGlyph, TipLockedTextLength> TipLockedText;
   bool PrevUnreadState;
-  bool IsNewState;
 };
 
 }  // namespace CHLCC
