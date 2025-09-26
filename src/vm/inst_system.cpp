@@ -1025,7 +1025,7 @@ VmInstruction(InstAutoSave) {
     } break;
 
     case 0xff: {
-      SetFlag(1206, 1);
+      SetFlag(SF_SAVECAPTURE, 1);
       BlockThread;
     } break;
 
@@ -1100,7 +1100,7 @@ VmInstruction(InstAutoSaveOld) {
 
     case 10: {  // SetCheckpointId
       BlockThread;
-      SetFlag(1206, 1);
+      SetFlag(SF_SAVECAPTURE, 1);
     } break;
 
     case 20:
