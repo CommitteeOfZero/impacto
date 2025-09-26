@@ -51,8 +51,15 @@ constexpr uint8_t AutoQuickSaveSettingToIndex(const uint8_t setting) {
   constexpr uint8_t onTriggerAndSceneIndex = 2;
   constexpr uint8_t neverIndex = 3;
 
-  return onScene ? (onTrigger ? onTriggerAndSceneIndex : onSceneIndex)
-                 : (onTrigger ? onTriggerIndex : neverIndex);
+  if (onScene && onTrigger) {
+    return onTriggerAndSceneIndex;
+  } else if (onScene && !onTrigger) {
+    return onSceneIndex;
+  } else if (!onScene && onTrigger) {
+    return onTriggerIndex;
+  } else {
+    return neverIndex;
+  }
 }
 
 constexpr uint8_t AutoQuickSaveIndexToSetting(const uint8_t index) {
