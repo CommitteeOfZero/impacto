@@ -11,8 +11,6 @@ namespace Impacto {
 namespace UI {
 namespace CHLCC {
 
-using namespace Impacto::UI::Widgets::CHLCC;
-
 class OptionsMenu : public UI::OptionsMenu {
  public:
   OptionsMenu();
@@ -44,11 +42,11 @@ class OptionsMenu : public UI::OptionsMenu {
   void UpdateVisibility() override;
 
   std::unique_ptr<Widgets::Group> CreateTextPage(
-      const std::function<void(OptionsEntry*)>& highlight);
+      const std::function<void(Widgets::CHLCC::OptionsEntry*)>& highlight);
   std::unique_ptr<Widgets::Group> CreateSoundPage(
-      const std::function<void(OptionsEntry*)>& highlight);
+      const std::function<void(Widgets::CHLCC::OptionsEntry*)>& highlight);
   std::unique_ptr<Widgets::Group> CreateVoicePage(
-      const std::function<void(OptionsEntry*)>& highlight);
+      const std::function<void(Widgets::CHLCC::OptionsEntry*)>& highlight);
 
   Animation TitleFade;
   Animation FromSystemMenuTransition;
