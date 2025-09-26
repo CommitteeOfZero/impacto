@@ -28,6 +28,7 @@ class SaveEntryButton : public Widgets::Button {
 
   void AddThumbnail(Sprite thumbnail, glm::vec2 pos);
   void RefreshInfo();
+  void ToggleLock();
 
   void AddNormalSpriteLabel(Sprite norm, glm::vec2 pos);
   void RefreshSaveDateText();
@@ -37,20 +38,18 @@ class SaveEntryButton : public Widgets::Button {
  private:
   int Index;
   int Page;
+  int SaveStatus;
+  SaveSystem::SaveType Type;
+
   Label NormalSpriteLabel;
   Label FocusedSpriteLabel;
   Label LockedSymbol;
   Label Thumbnail;
-  SaveSystem::SaveType Type;
   Label NoDataSymbol;
   Label BrokenDataSymbol;
-
   Label SaveDateLabel;
   Label SceneTitleLabel;
   Label CharacterRouteLabel;
-
-  int SaveStatus;
-  bool IsLocked;
 };
 
 }  // namespace CCLCC

@@ -25,12 +25,11 @@ class Menu {
   bool IsFocused = false;
   bool ChoiceMade = false;
   bool AllowsScriptInput = true;
+  uint8_t DrawType = Game::DrawComponentType::Main;
 
   Menu* LastFocusedMenu = 0;
   Widget* FocusStart[4] = {0, 0, 0, 0};
   Widget* CurrentlyFocusedElement = 0;
-
-  uint8_t DrawType = Game::DrawComponentType::Main;
 
  protected:
   void AdvanceFocus(FocusDirection dir);

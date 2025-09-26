@@ -99,6 +99,7 @@ class SaveSystemBase {
   virtual SaveError WriteSaveFile() = 0;
   virtual uint32_t GetSavePlayTime(SaveType type, int id) = 0;
   virtual uint8_t GetSaveFlags(SaveType type, int id) = 0;
+  virtual void SetSaveFlags(SaveType type, int id, uint8_t flags) = 0;
   virtual tm const& GetSaveDate(SaveType type, int id) = 0;
   virtual uint8_t GetSaveStatus(SaveType type, int id) = 0;
   virtual int GetSaveTitle(SaveType type, int id) = 0;
@@ -154,6 +155,7 @@ void FlushWorkingSaveEntry(SaveType type, int id, int autoSaveType = 0);
 void WriteSaveFile();
 uint32_t GetSavePlayTime(SaveType type, int id);
 uint8_t GetSaveFlags(SaveType type, int id);
+void SetSaveFlags(SaveType type, int id, uint8_t flags);
 tm const& GetSaveDate(SaveType type, int id);
 uint8_t GetSaveStatus(SaveType type, int id);
 int GetSaveTitle(SaveType type, int id);

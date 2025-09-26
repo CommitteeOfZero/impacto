@@ -32,10 +32,10 @@ SaveEntryButton::SaveEntryButton(int id, int index, Sprite const& focusedBox,
       Page(page),
       FocusedSpriteLabel(focusedText, glm::vec2{pos.x, pos.y - 34}),
       LockedSymbol(lockedSymbol,
-                   glm::vec2(Bounds.X, Bounds.Y) + glm::vec2(205.0f, 79.0f)),
+                   glm::vec2(Bounds.X, Bounds.Y) + SlotLockedSpritePosition),
       Type(saveType),
-      NoDataSymbol(noDataSprite, glm::vec2(Bounds.X, Bounds.Y) +
-                                     glm::vec2(211.0f, 20.0f + 1.0f - 12.0f)),
+      NoDataSymbol(noDataSprite,
+                   glm::vec2(Bounds.X, Bounds.Y) + NoDataSpritePosition),
       BrokenDataSymbol(brokenDataSprite,
                        glm::vec2(Bounds.X, Bounds.Y) +
                            glm::vec2(211.0f, 20.0f + 1.0f - 12.0f)) {
@@ -97,8 +97,6 @@ void SaveEntryButton::Render() {
         separationLineDest, Tint);
 
     if (IsLocked) {
-      SceneTitleLabel.Tint = Tint;
-      SceneTitleLabel.Render();
       LockedSymbol.Tint = Tint;
       LockedSymbol.Render();
     }
@@ -167,6 +165,12 @@ void SaveEntryButton::RefreshSaveDateText() {
   SaveDateLabel.SetText(fmt::format(FMT_STRING("{:%Y/%m/%d %H:%M:%S}"), date),
                         fontSize, outlineMode,
                         {SaveEntrySecondaryColor, SaveEntrySecondaryColor});
+}
+
+void SaveEntryButton::ToggleLock() {
+  const uint8_t newLock = SaveSystem::GetSaveFlags(Type, Id) ^ WriteProtect;
+  SaveSystem::SetSaveFlags(Type, Id, newLock);
+  IsLocked = newLock & WriteProtect;
 }
 
 void SaveEntryButton::RefreshInfo() {
