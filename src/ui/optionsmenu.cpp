@@ -133,11 +133,6 @@ void OptionsMenu::UpdateEntryMovementInput(float dt) {
 void OptionsMenu::UpdateInput(float dt) {
   UpdatePageInput(dt);
 
-  if (IsFocused && GetControlState(CT_Back)) {
-    Hide();
-    return;
-  }
-
   UpdateEntryMovementInput(dt);
 }
 
