@@ -13,6 +13,7 @@ namespace CHLCC {
 
 using namespace Impacto::Profile::SaveMenu;
 using namespace Impacto::Profile::CHLCC::SaveMenu;
+using namespace Impacto::SaveSystem;
 
 glm::vec4 SaveEntryButton::FocusedAlpha = glm::vec4(1.0f);
 Animation SaveEntryButton::FocusedAlphaFade;
@@ -24,8 +25,7 @@ SaveEntryButton::SaveEntryButton(int id, Sprite const& norm,
     : Widgets::Button(id, norm, focused, highlight, pos),
       Page(page),
       FocusedSpriteLabel(focused, pos),
-      LockedSymbol(lockedSymbol,
-                   glm::vec2(Bounds.X, Bounds.Y) + glm::vec2(205.0f, 79.0f)) {
+      LockedSymbol(lockedSymbol, pos) {
   IsLocked = locked == 1;
 }
 
@@ -180,9 +180,8 @@ void SaveEntryButton::RefreshInfo(const SaveSystem::SaveType entryType) {
     }
   }();
 
-  const uint8_t lock = SaveSystem::GetSaveFlags(entryType, Id);
+  IsLocked = SaveSystem::GetSaveFlags(entryType, Id) & WriteProtect;
 
-  IsLocked = lock == 1;
   AddNormalSpriteLabel(entrySprite, EntryPositions[Id % 6]);
   AddSelectionMarkerLabel(SelectionMarkerSprite,
                           {EntryPositions[Id % 6].x - SelectionMarkerOffset.x,
@@ -195,6 +194,7 @@ void SaveEntryButton::RefreshInfo(const SaveSystem::SaveType entryType) {
                      EntryNumberTextRelativePos);
 
   FocusedSpriteLabel.MoveTo(EntryPositions[Id % 6]);
+  LockedSymbol.MoveTo(EntryPositions[Id % 6] + LockedSymbolRelativePos);
 
   switch (SaveSystem::GetSaveStatus(entryType, Id)) {
     case 0: {  // No data
@@ -253,6 +253,13 @@ void SaveEntryButton::RefreshInfo(const SaveSystem::SaveType entryType) {
                    EntryPositions[Id % 6] + ThumbnailRelativePos);
     } break;
   }
+}
+
+void SaveEntryButton::ToggleLock(const SaveSystem::SaveType entryType) {
+  const uint8_t newLock =
+      SaveSystem::GetSaveFlags(entryType, Id) ^ WriteProtect;
+  SaveSystem::SetSaveFlags(entryType, Id, newLock);
+  IsLocked = newLock & WriteProtect;
 }
 
 }  // namespace CHLCC

@@ -154,6 +154,12 @@ uint8_t GetSaveFlags(SaveType type, int id) {
   return 0;
 }
 
+void SetSaveFlags(SaveType type, int id, uint8_t flags) {
+  if (Implementation) return Implementation->SetSaveFlags(type, id, flags);
+  ImpLog(LogLevel::Warning, LogChannel::VMStub,
+         "{:s}: save system not implemented, returning 0\n", __func__);
+}
+
 tm const& GetSaveDate(SaveType type, int id) {
   const static tm t = [] {
     tm tmStruct{};
@@ -293,6 +299,12 @@ Sprite& GetWorkingSaveThumbnail() {
          __func__);
   static Sprite dummy;
   return dummy;
+}
+
+int SaveSystemBase::GetLockedQuickSaveCount() { return LockedQuickSaveCount; }
+
+void SaveSystemBase::SetLockedQuickSaveCount(int value) {
+  LockedQuickSaveCount = value;
 }
 
 }  // namespace SaveSystem

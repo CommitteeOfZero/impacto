@@ -53,6 +53,7 @@ class SaveEntryButton : public Widgets::Button {
 
   void RefreshInfo(SaveSystem::SaveType entryType);
 
+  void ToggleLock(SaveSystem::SaveType entryType);
   bool EntryActive = false;
 
  private:
