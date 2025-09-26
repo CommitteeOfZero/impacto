@@ -16,12 +16,13 @@ using namespace Impacto::Profile::CHLCC::OptionsMenu;
 template <typename T>
 OptionsButton<T>::OptionsButton(
     T& value, const std::span<const T> optionsValues,
-    const std::span<const Sprite*> optionsSprites, const glm::vec2 topRight,
-    const RectF hoverBounds, const std::function<void(OptionsEntry*)> highlight)
+    const std::span<const std::reference_wrapper<const Sprite>> optionsSprites,
+    const glm::vec2 topRight, const RectF hoverBounds,
+    const std::function<void(OptionsEntry*)> highlight)
     : OptionsEntry(hoverBounds, highlight),
       Value(value),
-      OptionsValues(optionsValues.begin(), optionsValues.end()),
-      OptionsSprites(optionsSprites.begin(), optionsSprites.end()),
+      OptionsValues(optionsValues),
+      OptionsSprites(optionsSprites),
       OptionClickArea(0, hoverBounds,
                       [this](ClickArea* area) {
                         this->OptionId =
@@ -36,10 +37,10 @@ OptionsButton<T>::OptionsButton(
 
 template <typename T>
 void OptionsButton<T>::Render() {
-  const Sprite* optionSprite = OptionsSprites[OptionId];
-  Renderer->DrawSprite(*optionSprite,
+  const Sprite& optionSprite = OptionsSprites[OptionId];
+  Renderer->DrawSprite(optionSprite,
                        TopRight + SettingButtonTopRightOffset -
-                           glm::vec2(optionSprite->Bounds.Width, 0.0f));
+                           glm::vec2(optionSprite.Bounds.Width, 0.0f));
 }
 
 template <typename T>

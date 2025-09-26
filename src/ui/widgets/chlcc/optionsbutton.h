@@ -10,10 +10,11 @@ namespace CHLCC {
 template <typename T>
 class OptionsButton : public OptionsEntry {
  public:
-  OptionsButton(T& value, std::span<const T> optionsValues,
-                std::span<const Sprite*> optionsSprites, glm::vec2 topRight,
-                RectF hoverBounds,
-                std::function<void(OptionsEntry*)> highlight);
+  OptionsButton(
+      T& value, std::span<const T> optionsValues,
+      std::span<const std::reference_wrapper<const Sprite>> optionsSprites,
+      glm::vec2 topRight, RectF hoverBounds,
+      std::function<void(OptionsEntry*)> highlight);
 
   void Render() override;
   void UpdateInput(float dt) override;
@@ -27,8 +28,8 @@ class OptionsButton : public OptionsEntry {
 
   T& Value;
 
-  std::vector<T> OptionsValues;
-  std::vector<const Sprite*> OptionsSprites;
+  std::span<const T> OptionsValues;
+  std::span<const std::reference_wrapper<const Sprite>> OptionsSprites;
   ClickArea OptionClickArea;
 
   size_t OptionCount;

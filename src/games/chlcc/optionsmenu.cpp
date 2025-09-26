@@ -87,42 +87,45 @@ std::unique_ptr<Widgets::Group> OptionsMenu::CreateTextPage(
   RectF highlightBounds(0.0f, 0.0f, SelectedLabelSprite.ScaledWidth(),
                         SelectedLabelSprite.ScaledHeight());
 
-  const auto addButton = [&]<typename T>(size_t id, T& value,
-                                         std::span<const T> values,
-                                         std::span<const Sprite*> sprites) {
-    highlightBounds.X = TextPageEntryPositions[id].x;
-    highlightBounds.Y = TextPageEntryPositions[id].y;
-    textPage->Add(
-        new OptionsButton<T>(
-            value, values, sprites,
-            highlightBounds.GetPos() + glm::vec2(highlightBounds.Width, 0.0f),
-            highlightBounds, highlight),
-        FDIR_DOWN);
-  };
+  const auto addButton =
+      [&]<typename T>(
+          size_t id, T& value, std::span<const T> values,
+          std::span<const std::reference_wrapper<const Sprite>> sprites) {
+        highlightBounds.X = TextPageEntryPositions[id].x;
+        highlightBounds.Y = TextPageEntryPositions[id].y;
+        textPage->Add(
+            new OptionsButton<T>(value, values, sprites,
+                                 highlightBounds.GetPos() +
+                                     glm::vec2(highlightBounds.Width, 0.0f),
+                                 highlightBounds, highlight),
+            FDIR_DOWN);
+      };
 
   // Basic settings
   {
-    std::array<const Sprite*, 2> sprites{&SettingDoSprite, &SettingDontSprite};
-    addButton.template operator()<bool>(0, TriggerStopSkip,
-                                        TriggerStopSkipValues, sprites);
+    constexpr static std::array<std::reference_wrapper<const Sprite>, 2>
+        sprites{SettingDoSprite, SettingDontSprite};
+    addButton(0, TriggerStopSkip, std::span<const bool>(TriggerStopSkipValues),
+              sprites);
   }
   {
-    std::array<const Sprite*, 2> sprites{&SettingDoSprite, &SettingDontSprite};
-    addButton.template operator()<bool>(1, ShowTipsNotification,
-                                        ShowTipsNotificationValues, sprites);
+    constexpr static std::array<std::reference_wrapper<const Sprite>, 2>
+        sprites{SettingDoSprite, SettingDontSprite};
+    addButton(1, ShowTipsNotification,
+              std::span<const bool>(ShowTipsNotificationValues), sprites);
   }
   {
-    std::array<const Sprite*, 4> sprites{
-        &SettingOnTriggerAndSceneSprite, &SettingDontSprite,
-        &SettingOnTriggerSprite, &SettingOnSceneSprite};
-    addButton.template operator()<uint8_t>(2, AutoQuickSave,
-                                           AutoQuickSaveValues, sprites);
+    constexpr static std::array<std::reference_wrapper<const Sprite>, 4>
+        sprites{SettingOnTriggerAndSceneSprite, SettingDontSprite,
+                SettingOnTriggerSprite, SettingOnSceneSprite};
+    addButton(2, AutoQuickSave, std::span<const uint8_t>(AutoQuickSaveValues),
+              sprites);
   }
   {
-    std::array<const Sprite*, 2> sprites{&SettingTypeASprite,
-                                         &SettingTypeBSprite};
-    addButton.template operator()<uint8_t>(3, ControllerType,
-                                           ControllerTypeValues, sprites);
+    constexpr static std::array<std::reference_wrapper<const Sprite>, 2>
+        sprites{SettingTypeASprite, SettingTypeBSprite};
+    addButton(3, ControllerType, std::span<const uint8_t>(ControllerTypeValues),
+              sprites);
   }
 
   highlightBounds.X = TextPageEntryPositions[4].x;
@@ -136,21 +139,20 @@ std::unique_ptr<Widgets::Group> OptionsMenu::CreateTextPage(
 
   // Text settings
   {
-    std::array<const Sprite*, 4> sprites{
-        &SettingNormalSprite, &SettingFastSprite, &SettingInstantSprite,
-        &SettingSlowSprite};
-    addButton.template operator()<float>(5, TextSpeed, TextSpeedValues,
-                                         sprites);
+    constexpr static std::array<std::reference_wrapper<const Sprite>, 4>
+        sprites{SettingNormalSprite, SettingFastSprite, SettingInstantSprite,
+                SettingSlowSprite};
+    addButton(5, TextSpeed, std::span<const float>(TextSpeedValues), sprites);
   }
   {
-    std::array<const Sprite*, 3> sprites{
-        &SettingNormalSprite, &SettingFastSprite, &SettingSlowSprite};
-    addButton.template operator()<float>(6, AutoSpeed, AutoSpeedValues,
-                                         sprites);
+    constexpr static std::array<std::reference_wrapper<const Sprite>, 3>
+        sprites{SettingNormalSprite, SettingFastSprite, SettingSlowSprite};
+    addButton(6, AutoSpeed, std::span<const float>(AutoSpeedValues), sprites);
   }
   {
-    std::array<const Sprite*, 2> sprites{&SettingReadSprite, &SettingAllSprite};
-    addButton.template operator()<bool>(7, SkipRead, SkipReadValues, sprites);
+    constexpr static std::array<std::reference_wrapper<const Sprite>, 2>
+        sprites{SettingReadSprite, SettingAllSprite};
+    addButton(7, SkipRead, std::span<const bool>(SkipReadValues), sprites);
   }
 
   return textPage;
@@ -162,17 +164,18 @@ std::unique_ptr<Widgets::Group> OptionsMenu::CreateSoundPage(
   RectF highlightBounds(0.0f, 0.0f, SelectedLabelSprite.ScaledWidth(),
                         SelectedLabelSprite.ScaledHeight());
 
-  const auto addButton = [&]<typename T>(size_t id, T& value,
-                                         std::span<const T> values,
-                                         std::span<const Sprite*> sprites) {
-    highlightBounds.X = SoundPageEntryPositions[id].x;
-    highlightBounds.Y = SoundPageEntryPositions[id].y;
-    const glm::vec2 topRight =
-        highlightBounds.GetPos() + glm::vec2(highlightBounds.Width, 0.0f);
-    soundPage->Add(new OptionsButton<T>(value, values, sprites, topRight,
-                                        highlightBounds, highlight),
-                   FDIR_DOWN);
-  };
+  const auto addButton =
+      [&]<typename T>(
+          size_t id, T& value, std::span<const T> values,
+          std::span<const std::reference_wrapper<const Sprite>> sprites) {
+        highlightBounds.X = SoundPageEntryPositions[id].x;
+        highlightBounds.Y = SoundPageEntryPositions[id].y;
+        const glm::vec2 topRight =
+            highlightBounds.GetPos() + glm::vec2(highlightBounds.Width, 0.0f);
+        soundPage->Add(new OptionsButton<T>(value, values, sprites, topRight,
+                                            highlightBounds, highlight),
+                       FDIR_DOWN);
+      };
   const auto addSlider = [&](size_t id, float& value, float min, float max) {
     highlightBounds.X = SoundPageEntryPositions[id].x;
     highlightBounds.Y = SoundPageEntryPositions[id].y;
@@ -189,12 +192,14 @@ std::unique_ptr<Widgets::Group> OptionsMenu::CreateSoundPage(
   addSlider(2, Audio::GroupVolumes[Audio::ACG_SE], 0.0f, 1.0f);
   addSlider(3, Audio::GroupVolumes[Audio::ACG_Movie], 0.0f, 1.0f);
   {
-    std::array<const Sprite*, 2> sprites{&SettingDoSprite, &SettingDontSprite};
-    addButton.template operator()<bool>(4, SyncVoice, SyncVoiceValues, sprites);
+    constexpr static std::array<std::reference_wrapper<const Sprite>, 2>
+        sprites{SettingDoSprite, SettingDontSprite};
+    addButton(4, SyncVoice, std::span<const bool>(SyncVoiceValues), sprites);
   }
   {
-    std::array<const Sprite*, 2> sprites{&SettingDontSprite, &SettingDoSprite};
-    addButton.template operator()<bool>(5, SkipVoice, SkipVoiceValues, sprites);
+    constexpr static std::array<std::reference_wrapper<const Sprite>, 2>
+        sprites{SettingDontSprite, SettingDoSprite};
+    addButton(5, SkipVoice, std::span<const bool>(SkipVoiceValues), sprites);
   }
 
   return soundPage;
