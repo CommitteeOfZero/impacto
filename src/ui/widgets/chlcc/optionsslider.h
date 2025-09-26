@@ -33,8 +33,6 @@ class OptionsSlider : public OptionsEntry {
 
   Scrollbar Slider;
   Sprite BarSprite;
-  Sprite FillSprite;
-  float FillSpriteWidth;
 
   std::optional<Sprite> MutedSprite;
   std::optional<ClickArea> MuteClickArea;

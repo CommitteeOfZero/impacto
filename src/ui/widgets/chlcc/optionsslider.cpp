@@ -26,10 +26,10 @@ OptionsSlider::OptionsSlider(float& value, const float min, const float max,
              min, max, &value, ScrollbarDirection::SBDIR_HORIZONTAL,
              fill.Bounds.GetSize()),
       BarSprite(bar),
-      FillSprite(fill),
-      FillSpriteWidth(fill.Bounds.Width),
       MutedSprite(mutedSprite),
       BeforeMutedProgress(min) {
+  Slider.FillSprite = fill;
+
   ChangingFadeAnimation.SetDuration(SliderBarFadeDuration);
   ChangingFadeAnimation.LoopMode = AnimationLoopMode::ReverseDirection;
   ChangingFadeAnimation.StartIn();
@@ -61,9 +61,8 @@ void OptionsSlider::Render() {
 
   const float fillAlpha =
       Changing ? 0.5f + ChangingFadeAnimation.Progress * 0.5f : 1.0f;
-  FillSprite.Bounds.Width = FillSpriteWidth * Slider.GetNormalizedValue();
-  Renderer->DrawSprite(FillSprite, Slider.GetTrackBounds().GetPos(),
-                       {1.0f, 1.0f, 1.0f, fillAlpha});
+  Slider.Tint.a = fillAlpha;
+  Slider.Render();
 
   if (MutedSprite.has_value() && *Slider.Value <= Slider.StartValue) {
     const float mutedAlpha =
