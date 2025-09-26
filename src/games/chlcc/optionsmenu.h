@@ -41,13 +41,6 @@ class OptionsMenu : public UI::OptionsMenu {
 
   void UpdateVisibility() override;
 
-  std::unique_ptr<Widgets::Group> CreateTextPage(
-      const std::function<void(Widgets::CHLCC::OptionsEntry*)>& highlight);
-  std::unique_ptr<Widgets::Group> CreateSoundPage(
-      const std::function<void(Widgets::CHLCC::OptionsEntry*)>& highlight);
-  std::unique_ptr<Widgets::Group> CreateVoicePage(
-      const std::function<void(Widgets::CHLCC::OptionsEntry*)>& highlight);
-
   Animation TitleFade;
   Animation FromSystemMenuTransition;
 

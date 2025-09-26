@@ -34,56 +34,10 @@ using namespace Impacto::Vm::Interface;
 using namespace Impacto::UI::Widgets;
 using namespace Impacto::UI::Widgets::CHLCC;
 
-OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
-  RememberLastPage = true;
-  RememberHighlightedEntries = true;
-
-  TitleFade.Direction = AnimationDirection::In;
-  TitleFade.LoopMode = AnimationLoopMode::Stop;
-  TitleFade.DurationIn = TitleFadeInDuration;
-  TitleFade.DurationOut = TitleFadeOutDuration;
-  TitleFade.SkipOnSkipMode = false;
-
-  FromSystemMenuTransition.Direction = AnimationDirection::In;
-  FromSystemMenuTransition.LoopMode = AnimationLoopMode::Stop;
-  FromSystemMenuTransition.DurationIn = TitleFadeInDuration;
-  FromSystemMenuTransition.DurationOut = TitleFadeOutDuration;
-  FromSystemMenuTransition.SkipOnSkipMode = false;
-
-  RedBarSprite = InitialRedBarSprite;
-  RedBarPosition = InitialRedBarPosition;
-
-  ShowPageAnimation.SetDuration(ShowAnimationDuration);
-  ShowPageAnimation.SkipOnSkipMode = false;
-
-  PageTransitionAnimation.SetDuration(PageTransitionDuration);
-  PageTransitionAnimation.SkipOnSkipMode = false;
-
-  SelectedAnimation.DurationIn = SelectedSlideDuration;
-  SelectedAnimation.LoopMode = AnimationLoopMode::Loop;
-  SelectedAnimation.SkipOnSkipMode = false;
-  SelectedAnimation.StartIn();
-
-  std::function<void(OptionsEntry*)> highlight = [this](auto* entry) {
-    return Highlight(entry);
-  };
-
-  Pages.reserve(3);
-  Pages.emplace_back(CreateTextPage(highlight));
-  Pages.emplace_back(CreateSoundPage(highlight));
-  Pages.emplace_back(CreateVoicePage(highlight));
-
-  HighlightedEntriesPerPage.reserve(Pages.size());
-  for (std::unique_ptr<Group>& page : Pages) {
-    HighlightedEntriesPerPage.push_back(page->GetFirstFocusableChild());
-  }
-
-  SelectedLabelPos = HighlightedEntriesPerPage[CurrentPage]->Bounds.GetPos();
-}
-
-std::unique_ptr<Widgets::Group> OptionsMenu::CreateTextPage(
+static std::unique_ptr<Widgets::Group> CreateTextPage(
+    OptionsMenu* const menu,
     const std::function<void(OptionsEntry*)>& highlight) {
-  std::unique_ptr<Group> textPage = std::make_unique<Group>(this);
+  std::unique_ptr<Group> textPage = std::make_unique<Group>(menu);
   RectF highlightBounds(0.0f, 0.0f, SelectedLabelSprite.ScaledWidth(),
                         SelectedLabelSprite.ScaledHeight());
 
@@ -158,9 +112,10 @@ std::unique_ptr<Widgets::Group> OptionsMenu::CreateTextPage(
   return textPage;
 }
 
-std::unique_ptr<Widgets::Group> OptionsMenu::CreateSoundPage(
+static std::unique_ptr<Widgets::Group> CreateSoundPage(
+    OptionsMenu* const menu,
     const std::function<void(OptionsEntry*)>& highlight) {
-  std::unique_ptr<Group> soundPage = std::make_unique<Group>(this);
+  std::unique_ptr<Group> soundPage = std::make_unique<Group>(menu);
   RectF highlightBounds(0.0f, 0.0f, SelectedLabelSprite.ScaledWidth(),
                         SelectedLabelSprite.ScaledHeight());
 
@@ -205,9 +160,10 @@ std::unique_ptr<Widgets::Group> OptionsMenu::CreateSoundPage(
   return soundPage;
 }
 
-std::unique_ptr<Widgets::Group> OptionsMenu::CreateVoicePage(
+static std::unique_ptr<Widgets::Group> CreateVoicePage(
+    OptionsMenu* const menu,
     const std::function<void(OptionsEntry*)>& highlight) {
-  std::unique_ptr<Group> voicePage = std::make_unique<Group>(this);
+  std::unique_ptr<Group> voicePage = std::make_unique<Group>(menu);
   RectF highlightBounds(0.0f, 0.0f, SelectedLabelSprite.ScaledWidth(),
                         SelectedLabelSprite.ScaledHeight());
 
@@ -225,6 +181,53 @@ std::unique_ptr<Widgets::Group> OptionsMenu::CreateVoicePage(
   }
 
   return voicePage;
+}
+
+OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
+  RememberLastPage = true;
+  RememberHighlightedEntries = true;
+
+  TitleFade.Direction = AnimationDirection::In;
+  TitleFade.LoopMode = AnimationLoopMode::Stop;
+  TitleFade.DurationIn = TitleFadeInDuration;
+  TitleFade.DurationOut = TitleFadeOutDuration;
+  TitleFade.SkipOnSkipMode = false;
+
+  FromSystemMenuTransition.Direction = AnimationDirection::In;
+  FromSystemMenuTransition.LoopMode = AnimationLoopMode::Stop;
+  FromSystemMenuTransition.DurationIn = TitleFadeInDuration;
+  FromSystemMenuTransition.DurationOut = TitleFadeOutDuration;
+  FromSystemMenuTransition.SkipOnSkipMode = false;
+
+  RedBarSprite = InitialRedBarSprite;
+  RedBarPosition = InitialRedBarPosition;
+
+  ShowPageAnimation.SetDuration(ShowAnimationDuration);
+  ShowPageAnimation.SkipOnSkipMode = false;
+
+  PageTransitionAnimation.SetDuration(PageTransitionDuration);
+  PageTransitionAnimation.SkipOnSkipMode = false;
+
+  SelectedAnimation.DurationIn = SelectedSlideDuration;
+  SelectedAnimation.LoopMode = AnimationLoopMode::Loop;
+  SelectedAnimation.SkipOnSkipMode = false;
+  SelectedAnimation.StartIn();
+
+  std::function<void(OptionsEntry*)> highlight = [this](auto* entry) {
+    return Highlight(entry);
+  };
+
+  Pages.reserve(3);
+  Pages.emplace_back(CreateTextPage(this, highlight));
+  Pages.emplace_back(CreateSoundPage(this, highlight));
+  Pages.emplace_back(CreateVoicePage(this, highlight));
+
+  HighlightedEntriesPerPage.reserve(Pages.size());
+  for (std::unique_ptr<Group>& page : Pages) {
+    HighlightedEntriesPerPage.push_back(page->GetFirstFocusableChild());
+  }
+
+  SelectedLabelPos = HighlightedEntriesPerPage[CurrentPage]->Bounds.GetPos();
 }
 
 void OptionsMenu::Show() {
