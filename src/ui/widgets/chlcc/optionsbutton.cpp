@@ -75,8 +75,9 @@ size_t OptionsButton<T>::GetCurrentOptionId() {
   const auto found = std::ranges::find(OptionsValues, Value);
 
   if (found == OptionsValues.end()) {
-    ImpLogSlow(LogLevel::Error, LogChannel::General,
-               "Failed to find option id\n");
+    ImpLog(LogLevel::Error, LogChannel::General,
+           "Failed to find option id. Replacing with first option\n");
+    Value = OptionsValues[0];
     return 0;
   }
 
