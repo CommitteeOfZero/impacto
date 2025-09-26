@@ -37,6 +37,7 @@ class SaveMenu : public UI::SaveMenu {
   void DrawSelectData(float yOffset);
 
   void UpdateTitles();
+  bool IsEverySaveLocked();
 
   int CurrentFullSavePage = 0;
   int CurrentQuickSavePage = 0;

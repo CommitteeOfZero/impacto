@@ -31,6 +31,8 @@ class SaveMenu : public UI::SaveMenu {
   Animation FadeAnimation;
   Animation PageAnimation;
   bool HasCleared = true;
+
+  bool IsEverySaveLocked();
 };
 
 }  // namespace CCLCC

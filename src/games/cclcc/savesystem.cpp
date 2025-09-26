@@ -26,6 +26,8 @@ using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::Vm;
 using namespace Impacto::Profile::ConfigSystem;
 
+int SaveSystem::LockedQuickSaveSlots = 0;
+
 uint32_t CalculateChecksum(std::span<const uint8_t> bufferData,
                            uint16_t initSum = 0, uint16_t initXor = 0,
                            bool swapSrcBytes = false) {
@@ -274,6 +276,7 @@ SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
       CalculateChecksum(std::span(SystemData).subspan(4));
   */
 
+  LockedQuickSaveSlots = 0;
   textures.reserve(MaxSaveEntries * 2);
   for (auto& entryArray : {FullSaveEntries, QuickSaveEntries}) {
     SaveType saveType =
@@ -296,11 +299,17 @@ SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
       LoadEntryBuffer(saveEntryDataStream,
                       static_cast<SaveFileEntry&>(*entryArray[i]), saveType,
                       tex.Tex);
+      if (saveType == SaveType::Quick) {
+        LockedQuickSaveSlots +=
+            static_cast<SaveFileEntry&>(*entryArray[i]).Flags & WriteProtect;
+      }
       textures.push_back(tex);
 
       // Todo, validate checksum?
     }
   }
+  SetFlag(SF_ALLQUICKSAVESLOCKED, LockedQuickSaveSlots == MaxSaveEntries);
+
   delete stream;
   return SaveError::OK;
 }
@@ -666,6 +675,20 @@ uint8_t SaveSystem::GetSaveFlags(SaveType type, int id) {
       ImpLog(LogLevel::Error, LogChannel::IO,
              "Failed to get save flags: unknown save type, returning 0\n");
       return 0;
+  }
+}
+
+void SaveSystem::SetSaveFlags(SaveType type, int id, uint8_t flags) {
+  switch (type) {
+    case SaveType::Full:
+      ((SaveFileEntry*)FullSaveEntries[id])->Flags = flags;
+      break;
+    case SaveType::Quick:
+      ((SaveFileEntry*)QuickSaveEntries[id])->Flags = flags;
+      break;
+    default:
+      ImpLog(LogLevel::Error, LogChannel::IO,
+             "Failed to set save flags: unknown save type, doing nothing\n");
   }
 }
 

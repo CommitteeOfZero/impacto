@@ -46,6 +46,7 @@ root.SaveMenu = {
     SelectionMarkerOffset = {X = 5, Y = 49},
     EntryHighlightedSprite = "EntryHighlighted",
     LockedSymbolSprite = "LockedSymbol",
+    LockedSymbolRelativePos = {X = 205, Y = 79},
     ThumbnailRelativePos = {X = 21, Y = 12},
     FadeInDuration = 64 / 60,
     FadeOutDuration = 64 / 60,

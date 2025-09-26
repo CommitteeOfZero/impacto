@@ -40,19 +40,18 @@ class Button : public Widget {
     HasText = false;
   }
 
-  int Id;
+  std::function<void(Button*)> OnClickHandler;
+
   Sprite NormalSprite;
   Sprite FocusedSprite;
   Sprite HighlightSprite;
   Sprite DisabledSprite;
   Sprite LockedSprite;
-
-  bool IsLocked = false;
   RectF HoverBounds;
-
-  std::function<void(Button*)> OnClickHandler;
-
   glm::vec2 HighlightOffset = glm::vec2(0.0f, 3.0f);
+
+  int Id;
+  bool IsLocked = false;
 
  protected:
   bool HasText = false;

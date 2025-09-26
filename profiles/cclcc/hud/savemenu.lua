@@ -18,6 +18,8 @@ root.SaveMenu = {
     MenuTextPosition = {X = 11, Y = 10}, 
     SlotsBackgroundPosition = {X = 135, Y = 0}, 
     PageNumberPosition = {X = 1314, Y = 867},
+    SlotLockedSpritePosition = {X = 656, Y = 9},
+    NoDataSpritePosition = {X = 232, Y = 9},
 };
 
 root.Sprites["EmptyThumbnail"] = {
