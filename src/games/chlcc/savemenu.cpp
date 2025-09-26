@@ -292,7 +292,8 @@ void SaveMenu::UpdateInput(float dt) {
         saveButton->RefreshInfo(EntryType);
         SetFlag(SF_LOCKSTATECHANGED, 1);
         if (*ActiveMenuType == +SaveMenuPageType::QuickLoad) {
-          Impacto::CHLCC::SaveSystem::LockedQuickSaveSlots += saveButton->IsLocked ? 1 : -1;
+          Impacto::CHLCC::SaveSystem::LockedQuickSaveSlots +=
+              saveButton->IsLocked ? 1 : -1;
           SetFlag(SF_ALLQUICKSAVESLOCKED, IsEverySaveLocked());
         }
       }

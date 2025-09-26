@@ -34,7 +34,8 @@ void Configure() {
   SlotsBackgroundPosition =
       EnsureGetMember<glm::vec2>("SlotsBackgroundPosition");
   PageNumberPosition = EnsureGetMember<glm::vec2>("PageNumberPosition");
-  SlotLockedSpritePosition = EnsureGetMember<glm::vec2>("SlotLockedSpritePosition");
+  SlotLockedSpritePosition =
+      EnsureGetMember<glm::vec2>("SlotLockedSpritePosition");
   NoDataSpritePosition = EnsureGetMember<glm::vec2>("NoDataSpritePosition");
 
   SaveMenuMaskSprite = EnsureGetMember<Sprite>("SaveMenuMaskSprite");

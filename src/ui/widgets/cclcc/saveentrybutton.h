@@ -50,7 +50,6 @@ class SaveEntryButton : public Widgets::Button {
   Label SaveDateLabel;
   Label SceneTitleLabel;
   Label CharacterRouteLabel;
-
 };
 
 }  // namespace CCLCC

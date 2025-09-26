@@ -256,7 +256,8 @@ void SaveMenu::UpdateInput(float dt) {
         saveButton->ToggleLock();
         saveButton->RefreshInfo();
         if (saveType == SaveSystem::SaveType::Quick) {
-          Impacto::CCLCC::SaveSystem::LockedQuickSaveSlots += saveButton->IsLocked ? 1 : -1;
+          Impacto::CCLCC::SaveSystem::LockedQuickSaveSlots +=
+              saveButton->IsLocked ? 1 : -1;
           SetFlag(SF_ALLQUICKSAVESLOCKED, IsEverySaveLocked());
         }
         Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0);
@@ -393,7 +394,8 @@ void SaveMenu::RefreshCurrentEntryInfo() {
 }
 
 inline bool SaveMenu::IsEverySaveLocked() {
-  return Impacto::CCLCC::SaveSystem::LockedQuickSaveSlots == (RowsPerPage * EntriesPerRow * Pages);
+  return Impacto::CCLCC::SaveSystem::LockedQuickSaveSlots ==
+         (RowsPerPage * EntriesPerRow * Pages);
 }
 
 }  // namespace CCLCC
