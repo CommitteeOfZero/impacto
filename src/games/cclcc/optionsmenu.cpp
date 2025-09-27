@@ -260,9 +260,11 @@ void OptionsMenu::Update(float dt) {
       page->MoveTo(backgroundPosition);
     }
   }
+
+  AllowsScriptInput = !AnyEntrySelected();
 }
 
-void OptionsMenu::PageButtonOnHover(int pageNumber) {
+void OptionsMenu::PageButtonOnHover(size_t pageNumber) {
   if (pageNumber != CurrentPage || !CurrentlyFocusedElement)
     Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0.0f);
 
@@ -280,7 +282,7 @@ void OptionsMenu::UpdatePageInput(float dt) {
     if (!wasHovered && button.Hovered) PageButtonOnHover(button.Id);
   }
 
-  const int lastPage = CurrentPage;
+  const size_t lastPage = CurrentPage;
   UI::OptionsMenu::UpdatePageInput(dt);
 
   if (CurrentPage != lastPage)
@@ -296,18 +298,19 @@ void OptionsMenu::UpdateEntryMovementInput(float dt) {
 }
 
 void OptionsMenu::UpdateInput(float dt) {
-  UpdatePageInput(dt);
-  bool backBtnPressed =
-      ((PADinputButtonWentDown | PADinputMouseWentDown) & PAD1B) ||
-      (!AnyEntrySelected() && GetControlState(CT_Back));
+  bool backBtnPressed = (PADinputMouseWentDown & PAD1B) ||
+                        (AllowsScriptInput && GetControlState(CT_Back));
   if (State == Shown && backBtnPressed) {
     if (!GetFlag(SF_SUBMENUEXIT))
       Audio::Channels[Audio::AC_SSE]->Play("sysse", 3, false, 0.0f);
     SetFlag(SF_SUBMENUEXIT, 1);
+    return;
   }
 
+  UpdatePageInput(dt);
+
   // If something is selected, the option entry takes full control
-  if (AnyEntrySelected()) return;
+  if (!AllowsScriptInput) return;
 
   UpdateEntryMovementInput(dt);
 }
@@ -406,6 +409,8 @@ void OptionsMenu::ResetToDefault() {
     default:
       break;
   }
+
+  UpdateValues();
 }
 
 }  // namespace CCLCC

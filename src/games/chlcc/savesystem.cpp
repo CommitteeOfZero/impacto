@@ -42,6 +42,43 @@ constexpr uint8_t AutoSpeedToSettingIndex(const float speed) {
   return std::ssize(AutoSpeeds) - 1;
 }
 
+constexpr uint8_t AutoQuickSaveSettingToIndex(const uint8_t setting) {
+  const bool onScene = setting & AutoQuickSaveType::OnScene;
+  const bool onTrigger = setting & AutoQuickSaveType::OnTrigger;
+
+  constexpr uint8_t onTriggerIndex = 0;
+  constexpr uint8_t onSceneIndex = 1;
+  constexpr uint8_t onTriggerAndSceneIndex = 2;
+  constexpr uint8_t neverIndex = 3;
+
+  if (onScene && onTrigger) {
+    return onTriggerAndSceneIndex;
+  } else if (onScene && !onTrigger) {
+    return onSceneIndex;
+  } else if (!onScene && onTrigger) {
+    return onTriggerIndex;
+  } else {
+    return neverIndex;
+  }
+}
+
+constexpr uint8_t AutoQuickSaveIndexToSetting(const uint8_t index) {
+  switch (index) {
+    case 0:
+      return AutoQuickSaveType::OnTrigger;
+    case 1:
+      return AutoQuickSaveType::OnScene;
+    case 2:
+      return AutoQuickSaveType::OnTrigger | AutoQuickSaveType::OnScene;
+    case 3:
+      return AutoQuickSaveType::Never;
+  }
+
+  ImpLog(LogLevel::Warning, LogChannel::IO,
+         "Unexpected auto quick save index {:d}", index);
+  return AutoQuickSaveType::OnTrigger | AutoQuickSaveType::OnScene;
+}
+
 std::pair<uint8_t, uint8_t> CalculateFileChecksum(
     std::span<const uint8_t> bufferData, uint8_t initSum = 0,
     uint8_t initXor = 0) {
@@ -107,13 +144,14 @@ void SaveSystem::InitializeSystemData() {
   Io::WriteLE(&stream, AutoSpeedToSettingIndex(Default::AutoSpeed));
   Io::WriteLE(&stream, Default::SyncVoice);
   Io::WriteLE(&stream, !Default::SkipRead);
-  Io::WriteLE<Uint8>(&stream, 0x02);  // TODO: QSave
+  Io::WriteLE(&stream, AutoQuickSaveSettingToIndex(Default::AutoQuickSave));
 
   stream.Seek(0x77c, SEEK_SET);
   Io::WriteLE(&stream, Default::SkipVoice);
   Io::WriteLE(&stream, Default::ShowTipsNotification);
-  Io::WriteLE<Uint8>(&stream, 0x00);  // TODO: Pad type
+  Io::WriteLE(&stream, Default::ControllerType);
   Io::WriteLE(&stream, Default::TriggerStopSkip);
+  Io::WriteLE(&stream, (Uint8)(Default::ImageSize * 128));
 
   stream.Seek(0x794, SEEK_SET);
   static_assert(Default::VoiceMuted.size() >= 32);
@@ -220,13 +258,14 @@ void SaveSystem::SaveSystemData() {
   Io::WriteLE(&stream, AutoSpeedToSettingIndex(AutoSpeed));
   Io::WriteLE(&stream, SyncVoice);
   Io::WriteLE(&stream, !SkipRead);
-  Io::WriteLE<Uint8>(&stream, 0x02);  // TODO: QSave
+  Io::WriteLE(&stream, AutoQuickSaveSettingToIndex(AutoQuickSave));
 
   stream.Seek(0x77c, SEEK_SET);
   Io::WriteLE(&stream, SkipVoice);
   Io::WriteLE(&stream, ShowTipsNotification);
-  Io::WriteLE<Uint8>(&stream, 0x00);  // TODO: Pad type
+  Io::WriteLE(&stream, ControllerType);
   Io::WriteLE(&stream, TriggerStopSkip);
+  Io::WriteLE(&stream, (Uint8)(ImageSize * 128));
 
   stream.Seek(0x794, SEEK_SET);
   static_assert(VoiceMuted.size() >= 32);
@@ -393,13 +432,14 @@ SaveError SaveSystem::LoadSystemData() {
   AutoSpeed = AutoSpeeds[Io::ReadLE<Uint8>(&stream)];
   SyncVoice = Io::ReadLE<bool>(&stream);
   SkipRead = !Io::ReadLE<bool>(&stream);
-  stream.Seek(1, SEEK_CUR);  // TODO: QSave
+  AutoQuickSave = AutoQuickSaveIndexToSetting(Io::ReadLE<Uint8>(&stream));
 
   stream.Seek(0x77c, SEEK_SET);
   SkipVoice = Io::ReadLE<bool>(&stream);
   ShowTipsNotification = Io::ReadLE<bool>(&stream);
-  stream.Seek(1, SEEK_CUR);  // TODO: Pad type
+  ControllerType = Io::ReadLE<Uint8>(&stream);
   TriggerStopSkip = Io::ReadLE<bool>(&stream);
+  ImageSize = Io::ReadLE<Uint8>(&stream) / 128.0f;
 
   stream.Seek(0x794, SEEK_SET);
   static_assert(VoiceMuted.size() >= 32);
