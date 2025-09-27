@@ -237,72 +237,72 @@ root.Sprites["SliderBarFillSprite"] = {
 -- Setting sprites
 root.Sprites["SettingInstantSprite"] = {
     Sheet = "Options",
-    Bounds = { X = 1121, Y = 1, Width = 56, Height = 28 }
+    Bounds = { X = 959, Y = 1, Width = 218, Height = 28 }
 }
 
 root.Sprites["SettingFastSprite"] = {
     Sheet = "Options",
-    Bounds = { X = 1121, Y = 31, Width = 56, Height = 28 }
+    Bounds = { X = 959, Y = 31, Width = 218, Height = 28 }
 }
 
 root.Sprites["SettingNormalSprite"] = {
     Sheet = "Options",
-    Bounds = { X = 1121, Y = 61, Width = 56, Height = 28 }
+    Bounds = { X = 959, Y = 61, Width = 218, Height = 28 }
 }
 
 root.Sprites["SettingSlowSprite"] = {
     Sheet = "Options",
-    Bounds = { X = 1121, Y = 91, Width = 56, Height = 28 }
+    Bounds = { X = 959, Y = 91, Width = 218, Height = 28 }
 }
 
 root.Sprites["SettingShortSprite"] = {
     Sheet = "Options",
-    Bounds = { X = 1121, Y = 121, Width = 56, Height = 28 }
+    Bounds = { X = 959, Y = 121, Width = 218, Height = 28 }
 }
 
 root.Sprites["SettingLongSprite"] = {
     Sheet = "Options",
-    Bounds = { X = 1121, Y = 151, Width = 56, Height = 28 }
+    Bounds = { X = 959, Y = 151, Width = 218, Height = 28 }
 }
 
 root.Sprites["SettingDoSprite"] = {
     Sheet = "Options",
-    Bounds = { X = 1121, Y = 181, Width = 56, Height = 28 }
+    Bounds = { X = 959, Y = 181, Width = 218, Height = 28 }
 }
 
 root.Sprites["SettingDontSprite"] = {
     Sheet = "Options",
-    Bounds = { X = 1099, Y = 211, Width = 78, Height = 28 }
+    Bounds = { X = 959, Y = 211, Width = 218, Height = 28 }
 }
 
 root.Sprites["SettingYesSprite"] = {
     Sheet = "Options",
-    Bounds = { X = 1121, Y = 241, Width = 56, Height = 28 }
+    Bounds = { X = 959, Y = 241, Width = 218, Height = 28 }
 }
 
 root.Sprites["SettingNoSprite"] = {
     Sheet = "Options",
-    Bounds = { X = 1099, Y = 271, Width = 78, Height = 28 }
+    Bounds = { X = 959, Y = 271, Width = 218, Height = 28 }
 }
 
 root.Sprites["SettingReadSprite"] = {
     Sheet = "Options",
-    Bounds = { X = 1069, Y = 301, Width = 108, Height = 28 }
+    Bounds = { X = 959, Y = 301, Width = 218, Height = 28 }
 }
 
 root.Sprites["SettingAllSprite"] = {
     Sheet = "Options",
-    Bounds = { X = 1121, Y = 331, Width = 56, Height = 28 }
+    Bounds = { X = 959, Y = 331, Width = 218, Height = 28 }
 }
 
 root.Sprites["SettingOnTriggerSprite"] = {
     Sheet = "Options",
-    Bounds = { X = 1047, Y = 361, Width = 130, Height = 28 }
+    Bounds = { X = 959, Y = 361, Width = 218, Height = 28 }
 }
 
 root.Sprites["SettingOnSceneSprite"] = {
     Sheet = "Options",
-    Bounds = { X = 1068, Y = 391, Width = 109, Height = 28 }
+    Bounds = { X = 959, Y = 391, Width = 218, Height = 28 }
 }
 
 root.Sprites["SettingOnTriggerAndSceneSprite"] = {
@@ -312,10 +312,51 @@ root.Sprites["SettingOnTriggerAndSceneSprite"] = {
 
 root.Sprites["SettingTypeASprite"] = {
     Sheet = "Options",
-    Bounds = { X = 1068, Y = 451, Width = 109, Height = 28 }
+    Bounds = { X = 959, Y = 451, Width = 218, Height = 28 }
 }
 
 root.Sprites["SettingTypeBSprite"] = {
     Sheet = "Options",
-    Bounds = { X = 1068, Y = 481, Width = 109, Height = 28 }
+    Bounds = { X = 959, Y = 481, Width = 218, Height = 28 }
 }
+
+if root.Language == "English" then
+    local uiSprites = {
+        "MenuTitleTextConfig",
+        "ButtonPromptConfig",
+        "SelectedSprite",
+        "SelectedLabelSprite",
+        "SliderBarBaseSprite",
+        "SliderBarFillSprite"
+    }
+    for i,spriteName in ipairs(uiSprites) do
+        root.Sprites[spriteName].Bounds.X = root.Sprites[spriteName].Bounds.X + 343
+    end
+
+    local valueSprites = {
+        "SettingInstantSprite",
+        "SettingFastSprite",
+        "SettingNormalSprite",
+        "SettingSlowSprite",
+        "SettingShortSprite",
+        "SettingLongSprite",
+        "SettingDoSprite",
+        "SettingDontSprite",
+        "SettingYesSprite",
+        "SettingNoSprite",
+        "SettingReadSprite",
+        "SettingAllSprite",
+        "SettingOnTriggerSprite",
+        "SettingOnSceneSprite",
+        "SettingOnTriggerAndSceneSprite",
+        "SettingTypeASprite",
+        "SettingTypeBSprite"
+    }
+    for i,spriteName in ipairs(valueSprites) do
+        root.Sprites[spriteName].Bounds.X = 1282
+    end
+
+    root.Sprites["BasicSettingsSprite"].Bounds.Width = 659
+    root.Sprites["TextSettingsSprite"].Bounds.Width = 542
+    root.Sprites["SoundSettingsSprite"].Bounds.Width = 627
+end
