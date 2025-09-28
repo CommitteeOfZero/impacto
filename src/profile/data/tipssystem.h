@@ -11,6 +11,8 @@ inline Impacto::TipsSystem::TipsSystemType Type =
 
 inline size_t MaxTipsCount;
 
+inline std::optional<std::vector<int>> SortCategoryMapping;
+
 void Configure();
 
 }  // namespace TipsSystem

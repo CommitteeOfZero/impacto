@@ -24,21 +24,20 @@ void TipsSystem::DataInit(uint32_t scriptBufferId, uint32_t tipsDataAdr,
   const std::unordered_map<uint16_t, int> strIndicesMap = [&] {
     std::unordered_map<uint16_t, int> sc3Map;
     auto [scrBufId, offset] =
-        ScriptGetTextTableStrAddress(TipsStringTable, CategoryStringIndex);
+        ScriptGetTextTableStrAddress(TipsStringTable, SortStringIndex);
 
-    auto categoryStr = &ScriptBuffers[scrBufId][offset];
+    auto sortStr = &ScriptBuffers[scrBufId][offset];
     size_t i = 0;
     int distance = 0;
-    while (categoryStr[i] != 0xFF) {
-      if (categoryStr[i] & 0x80) {
+    while (sortStr[i] != 0xFF) {
+      if (sortStr[i] & 0x80) {
         uint16_t currentSc3Char =
-            SDL_SwapBE16(UnalignedRead<uint16_t>(categoryStr + i));
+            SDL_SwapBE16(UnalignedRead<uint16_t>(sortStr + i));
         i += 2;
         sc3Map.try_emplace(currentSc3Char, distance++);
       } else {
         ImpLogSlow(LogLevel::Error, LogChannel::VM,
-                   "TipsSorter: SC3 Tag Found in Sort String\n",
-                   categoryStr[i]);
+                   "TipsSorter: SC3 Tag Found in Sort String\n", sortStr[i]);
         i++;
       }
     }
@@ -62,21 +61,18 @@ void TipsSystem::DataInit(uint32_t scriptBufferId, uint32_t tipsDataAdr,
         .IsUnread = true,
         .IsNew = true,
     };
-
     ReadLE<uint16_t>(&stream);  // Reads in a padding space string
     for (uint16_t i = 0; i < record.NumberOfContentStrings + 3; i++) {
       record.StringAdr[i] =
           ScriptGetStrAddress(scriptBufferId, ReadLE<uint16_t>(&stream));
     }
-
-    auto categoryStrIndex = record.StringAdr[2];
-    auto firstChar = SDL_SwapBE16(UnalignedRead<uint16_t>(
-        &ScriptBuffers[scriptBufferId][categoryStrIndex]));
-    auto categoryIndexItr = strIndicesMap.find(firstChar);
+    auto sortStrIndex = record.StringAdr[2];
+    auto firstChar = SDL_SwapBE16(
+        UnalignedRead<uint16_t>(&ScriptBuffers[scriptBufferId][sortStrIndex]));
+    auto sortIndexItr = strIndicesMap.find(firstChar);
+    assert(sortIndexItr != strIndicesMap.end());
     record.CategoryLetterIndex =
-        categoryIndexItr != strIndicesMap.end()
-            ? static_cast<uint16_t>(categoryIndexItr->second)
-            : std::numeric_limits<uint16_t>::max();
+        static_cast<uint16_t>(SortCategoryMapping->at(sortIndexItr->second));
     Records[TipEntryCount] = std::move(record);
 
     // Next tip entry from the data array
