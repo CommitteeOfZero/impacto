@@ -164,8 +164,8 @@ VmInstruction(InstMes) {
 
   int audioId = -1;
   int animationId = 0;
-  if (voiced) ExpressionEval(thread, &audioId);
-  if (acted) ExpressionEval(thread, &animationId);
+  if (voiced) audioId = ExpressionEval(thread);
+  if (acted) animationId = ExpressionEval(thread);
   PopExpression(characterId);
   if (characterId >= 32) characterId = 0;
   PopUint16(lineId);
@@ -640,18 +640,18 @@ VmInstruction(InstSetRevMes) {
   int audioId = -1;
   int animationId = 0;
   if (voiced) {
-    ExpressionEval(thread, &audioId);
-    ExpressionEval(thread, &animationId);
+    audioId = ExpressionEval(thread);
+    animationId = ExpressionEval(thread);
   }
 
-  int savePtr = 0;
   if (savep) {
-    ExpressionEval(thread, &savePtr);
+    // TODO: use?
+    ExpressionEval(thread);
   }
 
   int lineId;
   if (expression) {
-    ExpressionEval(thread, &lineId);
+    lineId = ExpressionEval(thread);
   } else {
     PopUint16(lineIdTemp);
     lineId = lineIdTemp;

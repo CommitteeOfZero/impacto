@@ -123,7 +123,7 @@ int StringToken::Read(Vm::Sc3VmThread* ctx) {
       } else {
         uint32_t oldIp = ctx->IpOffset;
         // TODO is this really okay to do in parsing code?
-        Vm::ExpressionEval(ctx, &Val_Expr);
+        Val_Expr = Vm::ExpressionEval(ctx);
         bytesRead += (int)(ctx->IpOffset - oldIp);
       }
       break;
@@ -133,7 +133,7 @@ int StringToken::Read(Vm::Sc3VmThread* ctx) {
       Type = (StringTokenType)c;
       uint32_t oldIp = ctx->IpOffset;
       // TODO is this really okay to do in parsing code?
-      Vm::ExpressionEval(ctx, &Val_Expr);
+      Val_Expr = Vm::ExpressionEval(ctx);
       bytesRead += (int)(ctx->IpOffset - oldIp);
       break;
     }

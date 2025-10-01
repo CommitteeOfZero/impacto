@@ -93,7 +93,7 @@ class ExpressionParser {
   ExpressionNode* ParseTerm();
 };
 
-int ExpressionEval(Sc3VmThread* thd, int* result) {
+int ExpressionEval(Sc3VmThread* thd) {
   std::unique_ptr<ExpressionParser> parser =
       std::make_unique<ExpressionParser>(thd);
 
@@ -101,9 +101,7 @@ int ExpressionEval(Sc3VmThread* thd, int* result) {
   std::unique_ptr<ExpressionNode> rootPtr =
       std::unique_ptr<ExpressionNode>(root);
 
-  *result = root == nullptr ? 0 : rootPtr->Evaluate(thd);
-
-  return 0;
+  return root == nullptr ? 0 : rootPtr->Evaluate(thd);
 }
 
 int ExpressionNode::Evaluate(Sc3VmThread* thd) {

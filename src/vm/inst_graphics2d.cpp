@@ -145,7 +145,7 @@ VmInstruction(InstBGsetLink) {
   PopExpression(arg2);
   int arg3 = 0;
   if (id >= 4) {
-    ExpressionEval(thread, &arg3);
+    arg3 = ExpressionEval(thread);
     id -= 4;
   }
   PopExpression(arg4);
