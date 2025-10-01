@@ -45,7 +45,7 @@ void* Sc3VmThread::GetMemberPointer(uint32_t offset) {
 }
 
 uint8_t* Sc3VmThread::GetIp() const {
-  return ScriptBuffers[ScriptBufferId].data() + IpOffset;
+  return &ScriptBuffers[ScriptBufferId][IpOffset];
 }
 void Sc3VmThread::SetIp(uint8_t* ptr) {
   assert(ptr >= ScriptBuffers[ScriptBufferId].data() &&
@@ -55,6 +55,7 @@ void Sc3VmThread::SetIp(uint8_t* ptr) {
 }
 
 void Sc3VmThread::SetIp(BufferOffsetContext ctx) {
+  assert(ctx.IpOffset < ScriptBuffers[ctx.ScriptBufferId].size());
   IpOffset = ctx.IpOffset;
   ScriptBufferId = ctx.ScriptBufferId;
 }
