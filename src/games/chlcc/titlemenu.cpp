@@ -264,6 +264,11 @@ void TitleMenu::Hide() {
       UI::FocusedMenu = 0;
     }
     IsFocused = false;
+
+    MainItems->Hide();
+    LoadItems->Hide();
+    SystemItems->Hide();
+    UnlockedExtraItems->Hide();
   }
 }
 
@@ -317,6 +322,7 @@ void TitleMenu::Update(float dt) {
 
         IntroSequence.Update(dt);
 
+        MainItems->Hide();
         // When returning to title menu from loading a game we need to hide the
         // load sub-menu
         if (LoadItems->IsShown) {

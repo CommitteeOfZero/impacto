@@ -574,6 +574,13 @@ VmInstruction(InstTitleMenuNew) {
 }
 VmInstruction(InstTitleMenuOld) {
   StartInstruction;
+
+  if (UI::TitleMenuPtr == nullptr) return;
+
+  if (ScrWork[SW_TITLECUR1] == 0xff) {
+    ScrWork[SW_TITLECUR1] = 0;
+  }
+
   // Sometimes in order to make something sane
   // you have to sacrifice the sanity of others...
   if (!UI::TitleMenuPtr->ChoiceMade) {
@@ -586,14 +593,6 @@ VmInstruction(InstTitleMenuOld) {
     UI::TitleMenuPtr->ChoiceMade = false;
     Interface::PADinputButtonWentDown |= Interface::PAD1A;
   }
-
-  // if (TitleMenu::Implementation != 0) {
-  //  // ScrWork[SW_TITLECUR1] = TitleMenu::Implementation->CurrentChoice;
-  //  ScrWork[SW_TITLECUR2] = TitleMenu::Implementation->SecondaryChoice;
-  //} else {
-  //  // ScrWork[SW_TITLECUR1] = 0;
-  //  ScrWork[SW_TITLECUR2] = 255;
-  //}
 }
 VmInstruction(InstSetPlayMode) {
   StartInstruction;

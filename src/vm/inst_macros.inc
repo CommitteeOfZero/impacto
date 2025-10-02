@@ -33,9 +33,7 @@
     name = ScriptGetLabelAddress(scriptBufferId, labelNum); \
   }                                                         \
   (void)0
-#define PopExpression(name) \
-  int name;                 \
-  ExpressionEval(thread, &name)
+#define PopExpression(name) [[maybe_unused]] int name = ExpressionEval(thread)
 #define PopString(name)                                            \
   uint32_t name;                                                   \
   {                                                                \

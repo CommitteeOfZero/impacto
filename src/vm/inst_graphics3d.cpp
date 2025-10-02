@@ -308,8 +308,8 @@ VmInstruction(InstUnk0210) {
   PopExpression(arg2);
   int arg3, arg4;
   if (arg1 & 0x10) {
-    ExpressionEval(thread, &arg3);
-    ExpressionEval(thread, &arg4);
+    arg3 = ExpressionEval(thread);
+    arg4 = ExpressionEval(thread);
   } else {
     arg3 = 0;
     arg4 = 0;

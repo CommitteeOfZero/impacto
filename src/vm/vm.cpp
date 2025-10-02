@@ -438,7 +438,6 @@ void RunThread(Sc3VmThread* thread) {
   uint32_t opcodeGrp;
   uint32_t opcode;
   uint32_t opcodeGrp1;
-  int calDummy;
 
   ImpLog(LogLevel::Trace, LogChannel::VM, "Running thread ID = {:d}\n",
          thread->Id);
@@ -477,7 +476,7 @@ void RunThread(Sc3VmThread* thread) {
     opcodeGrp = *scrVal;
     if ((uint8_t)opcodeGrp == 0xFE) {
       thread->IpOffset += 1;
-      ExpressionEval(thread, &calDummy);
+      ExpressionEval(thread);
     } else {
       opcode = *(scrVal + 1);
       opcodeGrp1 = opcodeGrp & 0x7F;
