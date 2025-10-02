@@ -266,7 +266,7 @@ void TipsMenu::Update(float dt) {
       // Approximated function from the original, another mess
       AnimationOffset = glm::vec2(
           0.0f,
-          glm::mix(-720.0f, 0.0f,
+          glm::mix(-Profile::DesignHeight, 0.0f,
                    1.00397f * std::sin(3.97161f -
                                        3.26438f * FadeAnimation.Progress) -
                        0.00295643f));
@@ -274,7 +274,7 @@ void TipsMenu::Update(float dt) {
       AnimationOffset = {0.0f, 0.0f};
     }
   } else {
-    AnimationOffset = {0.0f, -720.0f};
+    AnimationOffset = {0.0f, -Profile::DesignHeight};
   }
 }
 
@@ -499,7 +499,7 @@ void TipsMenu::DrawErin() {
     if (FadeAnimation.Progress > 0.22f) {
       // Approximation from the original function, which was a bigger mess
       y = glm::mix(
-          -19.0f, 721.0f,
+          -19.0f, Profile::DesignHeight + 1.0f,
           0.998938f -
               0.998267f * sin(3.97835f - 3.27549f * FadeAnimation.Progress));
     }
@@ -675,7 +675,7 @@ void TipsMenu::UpdateTitles() {
       TitleFade.IsIn()
           ? MenuTitleTextLeftPosition.y
           : glm::mix(
-                1.0f, 721.0f,
+                1.0f, Profile::DesignHeight + 1.0f,
                 1.01011f * std::sin(1.62223f * TitleFade.Progress + 3.152f) +
                     1.01012f));
 
