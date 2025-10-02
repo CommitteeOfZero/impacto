@@ -55,9 +55,9 @@ class Scrollbar : public Widget {
 
   bool FillBeforeTrack = false;
   bool HoveredWheelBounds = false;
+  float Step = 0.0f;
 
  protected:
-  float Step = 0.0f;
   float TrackProgress = 0.0f;
   glm::vec2 ThumbPosition;
   glm::vec2 ThumbSpriteOffset = glm::vec2(0.0f, 0.0f);
