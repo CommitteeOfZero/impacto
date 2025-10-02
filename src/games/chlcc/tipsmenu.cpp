@@ -46,8 +46,9 @@ void TipsMenu::HandlePageChange(Widget *cur, Widget *next) {
     TipsEntriesScrollbar = Scrollbar(
         0, {TipsListBounds.X + TipsListBounds.Width, TipsListBounds.Y}, 0.0f,
         GetEndScroll(static_cast<Group *>(next)), &TipsEntryScrollPos,
-        SBDIR_VERTICAL, TipsScrollTrack, TipsScrollThumb, {0.0f, 0.0f},
+        SBDIR_VERTICAL, TipsScrollTrack, TipsScrollThumb, {0.0f, -4.0f},
         TipsScrollThumb.ScaledHeight(), TipsListBounds);
+    TipsEntriesScrollbar->Step = TipListYPadding;
   }
 }
 
@@ -201,16 +202,7 @@ void TipsMenu::Render() {
 void TipsMenu::UpdateInput(float dt) {
   if (State == Shown) {
     ItemsList.UpdateInput(dt);
-    float oldScrollPos = TipsEntryScrollPos;
     UpdatePageInput(dt);
-    if (TipsEntriesScrollbar) {
-      TipsEntriesScrollbar->UpdateInput(dt);
-      if (oldScrollPos != TipsEntryScrollPos) {
-        float delta = oldScrollPos - TipsEntryScrollPos;
-        auto *curPage = static_cast<Group *>(*ItemsList.GetCurrent());
-        curPage->Move({0, delta});
-      }
-    }
     if (CurrentlyDisplayedTipId != -1) {
       if (PADinputButtonWentDown & PAD1X) {
         NextTipPage();
@@ -438,7 +430,7 @@ void TipsMenu::Init() {
                 0.0f, GetEndScroll(allTipsGroup), &TipsEntryScrollPos,
                 SBDIR_VERTICAL, TipsScrollTrack, TipsScrollThumb, {0.0f, 0.0f},
                 TipsScrollThumb.ScaledHeight(), TipsListBounds);
-
+  TipsEntriesScrollbar->Step = TipListYPadding;
   Name = new Label();
   Name->Bounds = NameInitialBounds;
   TipViewItems.Add(Name);
@@ -539,7 +531,24 @@ void TipsMenu::UpdatePageInput(float dt) {
   using namespace Vm::Interface;
   if (IsFocused) {
     auto prevEntry = CurrentlyFocusedElement;
-    TipsEntriesScrollbar->UpdateInput(dt);
+    if (TipsEntriesScrollbar) {
+      float oldScrollPos = TipsEntryScrollPos;
+
+      TipsEntriesScrollbar->UpdateInput(dt);
+
+      if (oldScrollPos != TipsEntryScrollPos) {
+        float delta = oldScrollPos - TipsEntryScrollPos;
+        if (std::fmod(std::abs(delta), TipListYPadding) >
+            std::numeric_limits<float>::epsilon()) {
+          const float newDelta =
+              std::round(delta / TipListYPadding) * TipListYPadding;
+          TipsEntryScrollPos = oldScrollPos - newDelta;
+          delta = newDelta;
+        }
+        auto *curPage = static_cast<Group *>(*ItemsList.GetCurrent());
+        curPage->Move({0, delta});
+      }
+    }
 
     auto checkScrollBounds = [&]() {
       return !TipsListBounds.Contains(CurrentlyFocusedElement->Bounds);
@@ -587,7 +596,7 @@ void TipsMenu::DrawTipsTree() {
   Renderer->DrawQuad(
       RectF(GradientPosition.x,
             TipsListBounds.Y + TipsListBounds.Height + AnimationOffset.y,
-            TipsGradient.Bounds.Width, 86.0f),
+            TipsGradient.Bounds.Width, 88.0f),
       RgbIntToFloat(EndOfGradientColor));
   glm::vec2 treePosition(TreePosition.x, TreePosition.y + AnimationOffset.y);
   Renderer->DrawSprite(TipsTree, treePosition);
