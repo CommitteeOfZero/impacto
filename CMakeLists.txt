@@ -265,6 +265,7 @@ set(Impacto_Src
         src/ui/widgets/chlcc/optionsentry.cpp
         src/ui/widgets/chlcc/optionsbutton.cpp
         src/ui/widgets/chlcc/optionsslider.cpp
+        src/ui/widgets/chlcc/tipsentrybutton.cpp
         src/ui/widgets/rne/sysmenubutton.cpp
         src/ui/widgets/cc/backlogentry.cpp
         src/ui/widgets/cc/titlebutton.cpp
@@ -580,6 +581,7 @@ set(Impacto_Header
         src/ui/widgets/mo6tw/albumcharacterbutton.h
         src/ui/widgets/chlcc/titlebutton.h
         src/ui/widgets/chlcc/saveentrybutton.h
+        src/ui/widgets/chlcc/tipsentrybutton.h
         src/ui/widgets/chlcc/systemmenuentrybutton.h
         src/ui/widgets/chlcc/moviemenuentrybutton.h
         src/ui/widgets/chlcc/albumthumbnailbutton.h

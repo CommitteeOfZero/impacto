@@ -23,6 +23,7 @@ Scrollbar::Scrollbar(int id, glm::vec2 pos, float start, float end,
       TrackBounds(pos.x, pos.y, trackBounds.x, trackBounds.y),
       ThumbBounds(0.0f, 0.0f, 0.0f, 0.0f),
       ThumbLength(0.0f) {
+  Bounds.SetPos(pos);
   UpdatePosition();
 }
 
@@ -41,6 +42,7 @@ Scrollbar::Scrollbar(int id, glm::vec2 pos, float start, float end,
       ThumbLength(thumbLength),
       WheelSpeedMultiplier(wheelSpeedMultiplier) {
   Enabled = true;
+  Bounds.SetPos(pos);
   Step = (EndValue - StartValue) * 0.01f;
   Length = Direction == SBDIR_VERTICAL ? trackBounds.y : trackBounds.x;
   UpdatePosition();
@@ -65,6 +67,7 @@ Scrollbar::Scrollbar(int id, glm::vec2 pos, float start, float end,
       ThumbLength(thumbLength),
       WheelSpeedMultiplier(wheelSpeedMultiplier) {
   Enabled = true;
+  Bounds.SetPos(pos);
   Length = Direction == SBDIR_VERTICAL ? TrackSprite->Bounds.Height
                                        : TrackSprite->Bounds.Width;
   ThumbBounds =

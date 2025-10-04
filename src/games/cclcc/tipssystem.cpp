@@ -32,7 +32,6 @@ void TipsSystem::DataInit(uint32_t scriptBufferId, uint32_t tipsDataAdr,
     // Read tip entry from the data array
     TipsDataRecord record;
     record.Id = (uint16_t)TipEntryCount;
-    // TODO: record.SortLetterIndex
     record.NumberOfContentStrings = (uint16_t)numberOfContentStrings;
     for (int i = 0; i < numberOfContentStrings + 4; i++) {
       record.StringAdr[i] =
@@ -45,7 +44,6 @@ void TipsSystem::DataInit(uint32_t scriptBufferId, uint32_t tipsDataAdr,
     TipEntryCount += 1;
   }
   Records.resize(TipEntryCount);
-  UI::TipsMenuPtr->Init();
 }
 
 void TipsSystem::UpdateTipRecords() {

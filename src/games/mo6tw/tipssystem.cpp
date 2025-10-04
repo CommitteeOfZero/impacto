@@ -31,7 +31,7 @@ void TipsSystem::DataInit(uint32_t scriptBufferId, uint32_t tipsDataAdr,
     TipsDataRecord record{.IsLocked = false, .IsUnread = false, .IsNew = false};
     record.Id = (uint16_t)idx;
     // I don't know, I don't care, this is not my magic
-    record.SortLetterIndex = (unk01 - 5 * ((unk01 + 1) / 10) - 6);
+    record.CategoryLetterIndex = (unk01 - 5 * ((unk01 + 1) / 10) - 6);
     record.ThumbnailIndex = ReadLE<uint16_t>(stream);
     record.NumberOfContentStrings = ReadLE<uint16_t>(stream);
     for (int i = 0; i < record.NumberOfContentStrings + 3; i++) {
@@ -46,8 +46,6 @@ void TipsSystem::DataInit(uint32_t scriptBufferId, uint32_t tipsDataAdr,
     TipEntryCount = idx;
   }
   Records.resize(TipEntryCount);
-
-  UI::TipsMenuPtr->Init();
 
   delete stream;
 }
