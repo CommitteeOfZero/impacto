@@ -206,9 +206,11 @@ root.ExtraMenus = {
         TrackButtonPosTemplate = { X = 94, Y = 170 },
         TrackNameOffset = { X = 95, Y = 5 },
         ArtistOffset = { X = 411, Y = 5 },
-        TrackOffset = { X = 0, Y = 28 },
+        TrackOffset = { X = 0, Y = 27 },
         TrackHighlight = "TrackHighlight",
         TrackNumRelativePos = { X = 25, Y = 5 },
+        ButtonPromptPosition = { X = 738, Y = 651 },
+        ButtonPromptSprite = "MusicButtonPrompt",
         PlaymodeRepeatPos = { X = 718, Y = 146 },
         PlaymodeAllPos = { X = 771, Y = 146 },
         PlaymodeRepeat = "PlaymodeRepeat",
@@ -245,6 +247,8 @@ root.ExtraMenus = {
             { X = 220, Y = 51 },
             { X = 234, Y = 52 },
         },
+        MusicDirectionalHoldTime = 0.2,
+        MusicDirectionalFocusTimeInterval = 0.05,
     }
 }
 
@@ -552,6 +556,12 @@ root.Sprites["NowPlaying"] = {
     Sheet = "Sound",
     Bounds = { X = 1, Y = 611, Width = 656, Height = 19 }
 }
+
+root.Sprites["MusicButtonPrompt"] = {
+    Sheet = "Sound",
+    Bounds = { X = 1, Y = 724, Width = 552, Height = 28}
+}
+
 
 root.Sprites["SoundLibraryTitle"] = {
     Sheet = "Sound",
