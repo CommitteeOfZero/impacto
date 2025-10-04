@@ -605,30 +605,19 @@ void TipsMenu::DrawTipsTree() {
   for (const auto *const widget : currentPage->Children) {
     const glm::vec2 pos = widget->Bounds.GetPos();
     const glm::vec2 linePos = pos + glm::vec2{-22, 0};
-    const bool isLastItem = pos.y > AnimationOffset.y + TipsListBounds.Y +
-                                        TipsListBounds.Height -
-                                        TipListYPadding &&
-                            pos.y < AnimationOffset.y + TipsListBounds.Y +
-                                        TipsListBounds.Height - TipListYPadding;
+    const float bottomEdge =
+        AnimationOffset.y + TipsListBounds.Y + TipsListBounds.Height;
+    const bool lastViewable = bottomEdge - pos.y < TipListYPadding + 1.0f &&
+                              bottomEdge - pos.y > 0.0f;
 
     std::reference_wrapper<const Sprite> barSprite = TipsListBgBar;
     std::reference_wrapper<const Sprite> lineSprite = TipsLeftLine;
-
-    if (const auto *const category = dynamic_cast<const Label *>(widget)) {
-      if (isLastItem) {
-        lineSprite = TipsLeftLineEnd;
-      }
-    } else if (const auto *const btn =
-                   dynamic_cast<const TipsEntryButton *>(widget)) {
+    if (const auto *const btn = dynamic_cast<const TipsEntryButton *>(widget)) {
       barSprite = TipsListBgBarHole;
-      if (isLastItem) {
-        lineSprite = (btn == currentPage->Children.back()) ? TipsLeftLineHoleEnd
-                                                           : TipsLeftLineEnd;
-      } else {
-        lineSprite = TipsLeftLineHole;
+      lineSprite = TipsLeftLineHole;
+      if (lastViewable && btn == currentPage->Children.back()) {
+        lineSprite = TipsLeftLineHoleEnd;
       }
-    } else {
-      throw std::invalid_argument("Invalid widget type for tip items");
     }
 
     Renderer->EnableScissor();
@@ -636,6 +625,9 @@ void TipsMenu::DrawTipsTree() {
     Renderer->DrawSprite(barSprite, pos);
     Renderer->DrawSprite(lineSprite, linePos);
     Renderer->DisableScissor();
+    if (lastViewable && widget != currentPage->Children.back())
+      Renderer->DrawSprite(TipsLeftLineEnd,
+                           linePos + glm::vec2{0, TipListYPadding});
     ++i;
   }
   // Fill in the rest of the bg if tips is less than full page
