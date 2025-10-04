@@ -8,7 +8,6 @@ namespace UI {
 namespace Widgets {
 namespace CCLCC {
 
-int constexpr TipNumberLength = 4;
 int constexpr TipLockedTextLength = 5;
 
 class TipsEntryButton : public Widgets::Button {
@@ -26,8 +25,8 @@ class TipsEntryButton : public Widgets::Button {
   bool PrevFocusState = false;
 
  private:
-  std::array<ProcessedTextGlyph, TipNumberLength> TipNumber;
-  std::array<ProcessedTextGlyph, TipLockedTextLength> TipLockedText;
+  std::array<ProcessedTextGlyph, 4> TipNumber;
+  std::array<ProcessedTextGlyph, 5> TipLockedText;
   bool PrevUnreadState;
   bool IsNewState;
 };

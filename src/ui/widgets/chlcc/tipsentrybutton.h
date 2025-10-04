@@ -7,10 +7,6 @@ namespace Impacto {
 namespace UI {
 namespace Widgets {
 namespace CHLCC {
-
-int constexpr inline TipNumberLength = 4;
-int constexpr inline TipLockedTextLength = 4;
-
 class TipsEntryButton : public Button {
  public:
   TipsEntryButton(int id, TipsSystem::TipsDataRecord* tipRecord,
@@ -22,8 +18,8 @@ class TipsEntryButton : public Button {
   TipsSystem::TipsDataRecord const* TipEntryRecord;
 
  private:
-  std::array<ProcessedTextGlyph, TipNumberLength> TipNumber;
-  std::array<ProcessedTextGlyph, TipLockedTextLength> TipLockedText;
+  std::array<ProcessedTextGlyph, 4> TipNumber;
+  std::array<ProcessedTextGlyph, 4> TipLockedText;
   bool PrevUnreadState;
 };
 

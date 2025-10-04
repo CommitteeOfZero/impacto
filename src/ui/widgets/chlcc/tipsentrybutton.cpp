@@ -59,11 +59,11 @@ TipsEntryButton::TipsEntryButton(int id, TipsDataRecord* tipRecord,
 
 void TipsEntryButton::Move(glm::vec2 relativePos) {
   Button::Move(relativePos);
-  for (int i = 0; i < TipNumberLength; i++) {
+  for (size_t i = 0; i < TipNumber.size(); i++) {
     TipNumber[i].DestRect.X += relativePos.x;
     TipNumber[i].DestRect.Y += relativePos.y;
   }
-  for (int i = 0; i < TipLockedTextLength; i++) {
+  for (size_t i = 0; i < TipLockedText.size(); i++) {
     TipLockedText[i].DestRect.X += relativePos.x;
     TipLockedText[i].DestRect.Y += relativePos.y;
   }
