@@ -9,8 +9,8 @@ namespace TipsSystem {
 
 using namespace Impacto::Profile::TipsSystem;
 
-TipsSorter::TipsSorter(uint32_t tipsTableId, uint32_t sortStringIndex,
-                       int tipIdStrIndex)
+TipsComparator::TipsComparator(uint32_t tipsTableId, uint32_t sortStringIndex,
+                               int tipIdStrIndex)
     : SortString(nullptr), TipIdStrIndex(tipIdStrIndex) {
   auto [scrBufId, offset] =
       Vm::ScriptGetTextTableStrAddress(tipsTableId, sortStringIndex);
@@ -24,13 +24,14 @@ TipsSorter::TipsSorter(uint32_t tipsTableId, uint32_t sortStringIndex,
       i += 2;
     } else {
       ImpLogSlow(LogLevel::Warning, LogChannel::VM,
-                 "TipsSorter: SC3 Tag Found in Sort String\n", SortString[i]);
+                 "TipsComparator: SC3 Tag Found in Sort String\n",
+                 SortString[i]);
       i++;
     }
   }
 }
 
-bool TipsSorter::operator()(int a, int b) const {
+bool TipsComparator::operator()(int a, int b) const {
   auto* aRecord = TipsSystem::GetTipRecord(a);
   auto* bRecord = TipsSystem::GetTipRecord(b);
   uint32_t tipsScrBufId = TipsSystem::GetTipsScriptBufferId();
@@ -61,6 +62,11 @@ bool TipsSorter::operator()(int a, int b) const {
       auto bSortValue = Sc3SortMap.find(bSc3Char);
       if (aSortValue != Sc3SortMap.end() && bSortValue != Sc3SortMap.end()) {
         return aSortValue->second < bSortValue->second;
+      } else {
+        ImpLogSlow(LogLevel::Error, LogChannel::VM,
+                   "TipsComparator: Character Not Found in Sort String\n",
+                   aSc3Char, bSc3Char);
+        return aSc3Char < bSc3Char;
       }
     }
   }

@@ -42,8 +42,9 @@ class TipsSystemBase {
   uint8_t ScriptBufferId = 0;
 };
 
-struct TipsSorter {
-  TipsSorter(uint32_t tipsTableId, uint32_t sortStringIndex, int tipIdStrIndex);
+struct TipsComparator {
+  TipsComparator(uint32_t tipsTableId, uint32_t sortStringIndex,
+                 int tipIdStrIndex);
   bool operator()(int a, int b) const;
   uint8_t* SortString;
   int TipIdStrIndex;

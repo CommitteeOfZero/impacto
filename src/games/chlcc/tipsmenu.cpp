@@ -307,7 +307,7 @@ void TipsMenu::Init() {
   auto &records = *TipsSystem::GetTipRecords();
   std::iota(indexes.begin(), indexes.end(), 0);
   std::ranges::sort(
-      indexes, TipsSystem::TipsSorter(TipsStringTable, SortStringIndex, 2));
+      indexes, TipsSystem::TipsComparator(TipsStringTable, SortStringIndex, 2));
   auto sortedView = std::ranges::views::transform(
       indexes, [&records](size_t i) -> TipsSystem::TipsDataRecord & {
         return records[i];

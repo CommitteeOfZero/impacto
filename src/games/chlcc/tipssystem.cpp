@@ -37,7 +37,8 @@ void TipsSystem::DataInit(uint32_t scriptBufferId, uint32_t tipsDataAdr,
         sc3Map.try_emplace(currentSc3Char, distance++);
       } else {
         ImpLogSlow(LogLevel::Error, LogChannel::VM,
-                   "TipsSorter: SC3 Tag Found in Sort String\n", sortStr[i]);
+                   "TipsComparator: SC3 Tag Found in Sort String\n",
+                   sortStr[i]);
         i++;
       }
     }

@@ -288,9 +288,9 @@ void TipsMenu::Init() {
   std::transform(
       TipRecords->begin(), TipRecords->end(), std::back_inserter(SortedTipIds),
       [](TipsSystem::TipsDataRecord const& record) { return record.Id; });
-  std::sort(
-      SortedTipIds.begin(), SortedTipIds.end(),
-      TipsSystem::TipsSorter(TipsTextTableIndex, TipsTextSortStringIndex, 3));
+  std::sort(SortedTipIds.begin(), SortedTipIds.end(),
+            TipsSystem::TipsComparator(TipsTextTableIndex,
+                                       TipsTextSortStringIndex, 3));
   for (int i = 0; i < TabCount; i++) {
     TipsTabType type = static_cast<TipsTabType>(i);
     TipsTabs[i] = new TipsTabGroup(
