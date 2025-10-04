@@ -36,7 +36,7 @@ void SaveMenu::MenuButtonOnClick(Widgets::Button* target) {
         SaveSystem::GetSaveStatus(saveType, ScrWork[SW_SAVEFILENO]);
 
     ChoiceMade = true;
-    SetFlag(SF_SAVINGLOCKEDSAVE,
+    SetFlag(SF_SAVEPROTECTED,
             SaveSystem::GetSaveFlags(saveType, ScrWork[SW_SAVEFILENO]) &
                 SaveSystem::SaveFlagsMode::WriteProtect);
   }
@@ -255,11 +255,6 @@ void SaveMenu::UpdateInput(float dt) {
       if (SaveSystem::GetSaveStatus(saveType, saveButton->Id) == 1) {
         saveButton->ToggleLock();
         saveButton->RefreshInfo();
-        if (saveType == SaveSystem::SaveType::Quick) {
-          Impacto::CCLCC::SaveSystem::LockedQuickSaveSlots +=
-              saveButton->IsLocked ? 1 : -1;
-          SetFlag(SF_ALLQUICKSAVESLOCKED, IsEverySaveLocked());
-        }
         Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0);
       } else {
         Audio::Channels[Audio::AC_SSE]->Play("sysse", 4, false, 0);
@@ -391,11 +386,6 @@ void SaveMenu::Render() {
 void SaveMenu::RefreshCurrentEntryInfo() {
   if (!CurrentlyFocusedElement) return;
   static_cast<SaveEntryButton*>(CurrentlyFocusedElement)->RefreshInfo();
-}
-
-inline bool SaveMenu::IsEverySaveLocked() {
-  return Impacto::CCLCC::SaveSystem::LockedQuickSaveSlots ==
-         (RowsPerPage * EntriesPerRow * Pages);
 }
 
 }  // namespace CCLCC

@@ -33,7 +33,7 @@ void SaveMenu::MenuButtonOnClick(Widgets::Button* target) {
     ScrWork[SW_SAVEFILESTATUS] =
         SaveSystem::GetSaveStatus(EntryType, ScrWork[SW_SAVEFILENO]);
 
-    SetFlag(SF_SAVINGLOCKEDSAVE,
+    SetFlag(SF_SAVEPROTECTED,
             SaveSystem::GetSaveFlags(EntryType, ScrWork[SW_SAVEFILENO]) &
                 SaveSystem::SaveFlagsMode::WriteProtect);
     ChoiceMade = true;
@@ -186,7 +186,7 @@ SaveMenu::SaveMenu() {
 }
 
 void SaveMenu::Init() {
-  SetFlag(SF_LOCKSTATECHANGED, 0);
+  SetFlag(SF_SAVEPROTECTCHANGED, 0);
 
   switch (*ActiveMenuType) {
     case SaveMenuPageType::QuickLoad:
@@ -290,12 +290,7 @@ void SaveMenu::UpdateInput(float dt) {
       if (SaveSystem::GetSaveStatus(EntryType, saveButton->Id) == 1) {
         saveButton->ToggleLock(EntryType);
         saveButton->RefreshInfo(EntryType);
-        SetFlag(SF_LOCKSTATECHANGED, 1);
-        if (*ActiveMenuType == +SaveMenuPageType::QuickLoad) {
-          Impacto::CHLCC::SaveSystem::LockedQuickSaveSlots +=
-              saveButton->IsLocked ? 1 : -1;
-          SetFlag(SF_ALLQUICKSAVESLOCKED, IsEverySaveLocked());
-        }
+        SetFlag(SF_SAVEPROTECTCHANGED, 1);
       }
     }
   }
@@ -513,11 +508,6 @@ inline void SaveMenu::DrawSelectData(float yOffset) {
                                    SelectDataTextPositions[idx].y + yOffset),
                          glm::vec4(glm::vec3(1.0f), alpha));
   }
-}
-
-inline bool SaveMenu::IsEverySaveLocked() {
-  return Impacto::CHLCC::SaveSystem::LockedQuickSaveSlots ==
-         (EntriesPerPage * Pages);
 }
 
 void SaveMenu::UpdateTitles() {

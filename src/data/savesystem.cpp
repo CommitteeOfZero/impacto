@@ -301,5 +301,11 @@ Sprite& GetWorkingSaveThumbnail() {
   return dummy;
 }
 
+int SaveSystemBase::GetLockedQuickSaveCount() { return LockedQuickSaveCount; }
+
+void SaveSystemBase::SetLockedQuickSaveCount(int value) {
+  LockedQuickSaveCount = value;
+}
+
 }  // namespace SaveSystem
 }  // namespace Impacto

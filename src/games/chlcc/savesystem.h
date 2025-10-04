@@ -33,8 +33,6 @@ class SaveFileEntry : public SaveFileEntryBase {
 
 class SaveSystem : public SaveSystemBase {
  public:
-  static int LockedQuickSaveSlots;
-
   SaveError CheckSaveFile() override;
   SaveError MountSaveFile(std::vector<QueuedTexture>& textures) override;
 

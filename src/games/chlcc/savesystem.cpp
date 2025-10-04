@@ -20,7 +20,6 @@ using namespace Impacto::Profile::SaveSystem;
 using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::ConfigSystem;
 
-int SaveSystem::LockedQuickSaveSlots = 0;
 SaveFileEntry* WorkingSaveEntry = nullptr;
 
 constexpr std::array<float, 4> TextSpeeds = {0x100 / 60.0f, 0x300 / 60.0f,
@@ -538,7 +537,7 @@ SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
 
   uint8_t calcFileEntriesChecksumSum = 0;
   uint8_t calcFileEntriesChecksumXor = 0;
-  LockedQuickSaveSlots = 0;
+  int lockedQuickSaveSlots = 0;
   for (auto& entryArray : {QuickSaveEntries, FullSaveEntries}) {
     SaveType saveType =
         (entryArray == QuickSaveEntries) ? SaveType::Quick : SaveType::Full;
@@ -572,11 +571,13 @@ SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
       LoadEntryBuffer(saveEntryDataStream,
                       static_cast<SaveFileEntry&>(*entryArray[i]));
       if (saveType == SaveType::Quick) {
-        LockedQuickSaveSlots +=
+        lockedQuickSaveSlots +=
             static_cast<SaveFileEntry&>(*entryArray[i]).Flags & WriteProtect;
       }
     }
   }
+
+  SetLockedQuickSaveCount(lockedQuickSaveSlots);
 
   if (readFileEntriesChecksumSum != calcFileEntriesChecksumSum ||
       readFileEntriesChecksumXor != calcFileEntriesChecksumXor) {
@@ -832,9 +833,20 @@ void SaveSystem::SetSaveFlags(SaveType type, int id, uint8_t flags) {
     case SaveType::Full:
       ((SaveFileEntry*)FullSaveEntries[id])->Flags = flags;
       break;
-    case SaveType::Quick:
+    case SaveType::Quick: {
+      uint8_t currentFlags = ((SaveFileEntry*)QuickSaveEntries[id])->Flags;
+      if ((currentFlags ^ flags) & WriteProtect) {
+        if (flags & WriteProtect) {
+          LockedQuickSaveCount++;
+        } else {
+          LockedQuickSaveCount--;
+        }
+
+        SetFlag(SF_SAVEALLPROTECTED, LockedQuickSaveCount == MaxSaveEntries);
+      }
       ((SaveFileEntry*)QuickSaveEntries[id])->Flags = flags;
       break;
+    }
     default:
       ImpLog(LogLevel::Error, LogChannel::IO,
              "Failed to get save flags: unknown save type, doing nothing\n");

@@ -129,12 +129,15 @@ class SaveSystemBase {
     return -1;
   }
   Sprite& GetWorkingSaveThumbnail() { return WorkingSaveThumbnail; }
+  int GetLockedQuickSaveCount();
+  void SetLockedQuickSaveCount(int value);
 
  protected:
   SaveFileEntryBase* FullSaveEntries[MaxSaveEntries];
   SaveFileEntryBase* QuickSaveEntries[MaxSaveEntries];
   int QuickSaveCount;
   Sprite WorkingSaveThumbnail;
+  int LockedQuickSaveCount;
 };
 
 inline SaveSystemBase* Implementation = nullptr;
