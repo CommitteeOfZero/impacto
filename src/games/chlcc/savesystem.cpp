@@ -537,8 +537,10 @@ SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
 
   uint8_t calcFileEntriesChecksumSum = 0;
   uint8_t calcFileEntriesChecksumXor = 0;
-
+  int lockedQuickSaveSlots = 0;
   for (auto& entryArray : {QuickSaveEntries, FullSaveEntries}) {
+    SaveType saveType =
+        (entryArray == QuickSaveEntries) ? SaveType::Quick : SaveType::Full;
     for (int i = 0; i < MaxSaveEntries; i++) {
       entryArray[i] = new SaveFileEntry();
 
@@ -568,8 +570,14 @@ SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
 
       LoadEntryBuffer(saveEntryDataStream,
                       static_cast<SaveFileEntry&>(*entryArray[i]));
+      if (saveType == SaveType::Quick) {
+        lockedQuickSaveSlots +=
+            static_cast<SaveFileEntry&>(*entryArray[i]).Flags & WriteProtect;
+      }
     }
   }
+
+  SetLockedQuickSaveCount(lockedQuickSaveSlots);
 
   if (readFileEntriesChecksumSum != calcFileEntriesChecksumSum ||
       readFileEntriesChecksumXor != calcFileEntriesChecksumXor) {
@@ -817,6 +825,31 @@ uint8_t SaveSystem::GetSaveFlags(SaveType type, int id) {
       ImpLog(LogLevel::Error, LogChannel::IO,
              "Failed to get save flags: unknown save type, returning 0\n");
       return 0;
+  }
+}
+
+void SaveSystem::SetSaveFlags(SaveType type, int id, uint8_t flags) {
+  switch (type) {
+    case SaveType::Full:
+      ((SaveFileEntry*)FullSaveEntries[id])->Flags = flags;
+      break;
+    case SaveType::Quick: {
+      uint8_t currentFlags = ((SaveFileEntry*)QuickSaveEntries[id])->Flags;
+      if ((currentFlags ^ flags) & WriteProtect) {
+        if (flags & WriteProtect) {
+          LockedQuickSaveCount++;
+        } else {
+          LockedQuickSaveCount--;
+        }
+
+        SetFlag(SF_SAVEALLPROTECTED, LockedQuickSaveCount == MaxSaveEntries);
+      }
+      ((SaveFileEntry*)QuickSaveEntries[id])->Flags = flags;
+      break;
+    }
+    default:
+      ImpLog(LogLevel::Error, LogChannel::IO,
+             "Failed to get save flags: unknown save type, doing nothing\n");
   }
 }
 

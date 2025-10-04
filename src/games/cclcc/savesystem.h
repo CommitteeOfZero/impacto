@@ -56,6 +56,7 @@ class SaveSystem : public SaveSystemBase {
   SaveError WriteSaveFile() override;
   uint32_t GetSavePlayTime(SaveType type, int id) override;
   uint8_t GetSaveFlags(SaveType type, int id) override;
+  void SetSaveFlags(SaveType type, int id, uint8_t flags) override;
   tm const& GetSaveDate(SaveType type, int id) override;
   uint8_t GetSaveStatus(SaveType type, int id) override;
   int GetSaveTitle(SaveType type, int id) override;

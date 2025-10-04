@@ -57,6 +57,7 @@ inline Sprite SelectionMarkerSprite;
 inline glm::vec2 SelectionMarkerOffset;
 inline Sprite EntryHighlightedSprite;
 inline Sprite LockedSymbolSprite;
+inline glm::vec2 LockedSymbolRelativePos;
 inline glm::vec2 ThumbnailRelativePos;
 inline glm::vec2 PageNumBackgroundPos;
 inline Sprite PageNumBackgroundSprite;

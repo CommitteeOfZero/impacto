@@ -10,6 +10,7 @@
 #include "../../ui/widgets/cclcc/saveentrybutton.h"
 #include "../../data/savesystem.h"
 #include "../../profile/game.h"
+#include "../../games/cclcc/savesystem.h"
 
 namespace Impacto {
 namespace UI {
@@ -35,8 +36,9 @@ void SaveMenu::MenuButtonOnClick(Widgets::Button* target) {
         SaveSystem::GetSaveStatus(saveType, ScrWork[SW_SAVEFILENO]);
 
     ChoiceMade = true;
-    SetFlag(1245,
-            SaveSystem::GetSaveFlags(saveType, ScrWork[SW_SAVEFILENO]) & 1);
+    SetFlag(SF_SAVEPROTECTED,
+            SaveSystem::GetSaveFlags(saveType, ScrWork[SW_SAVEFILENO]) &
+                SaveSystem::SaveFlagsMode::WriteProtect);
   }
   if (SaveStatus == 0 || *ActiveMenuType == +SaveMenuPageType::Load ||
       *ActiveMenuType == +SaveMenuPageType::QuickLoad) {
@@ -238,6 +240,25 @@ void SaveMenu::UpdateInput(float dt) {
       updatePage((CurrentPage - 1 + Pages) % Pages);
       CurrentlyFocusedElement = MainItems[CurrentPage]->GetFocus(FDIR_DOWN);
       IsFocused = false;
+    } else {
+      if (PADinputButtonWentDown & (PAD1DOWN | PAD1UP | PAD1RIGHT | PAD1LEFT)) {
+        Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0);
+      }
+    }
+
+    if (CurrentlyFocusedElement && (PADinputButtonWentDown & PAD1Y)) {
+      Impacto::SaveSystem::SaveType saveType =
+          *ActiveMenuType == +SaveMenuPageType::QuickLoad
+              ? SaveSystem::SaveType::Quick
+              : SaveSystem::SaveType::Full;
+      auto saveButton = static_cast<SaveEntryButton*>(CurrentlyFocusedElement);
+      if (SaveSystem::GetSaveStatus(saveType, saveButton->Id) == 1) {
+        saveButton->ToggleLock();
+        saveButton->RefreshInfo();
+        Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0);
+      } else {
+        Audio::Channels[Audio::AC_SSE]->Play("sysse", 4, false, 0);
+      }
     }
   }
 }

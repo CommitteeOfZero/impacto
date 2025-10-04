@@ -591,6 +591,20 @@ uint8_t SaveSystem::GetSaveFlags(SaveType type, int id) {
   }
 }
 
+void SaveSystem::SetSaveFlags(SaveType type, int id, uint8_t flags) {
+  switch (type) {
+    case SaveType::Full:
+      ((SaveFileEntry*)FullSaveEntries[id])->Flags = flags;
+      break;
+    case SaveType::Quick:
+      ((SaveFileEntry*)QuickSaveEntries[id])->Flags = flags;
+      break;
+    default:
+      ImpLog(LogLevel::Error, LogChannel::IO,
+             "Failed to set save flags: unknown save type, doing nothing\n");
+  }
+}
+
 tm const& SaveSystem::GetSaveDate(SaveType type, int id) {
   const static tm t = [] {
     tm tmStruct{};
