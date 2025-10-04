@@ -44,8 +44,8 @@ void TipsMenu::HandlePageChange(Widget *cur, Widget *next) {
     next->Show();
     TipsEntryScrollPos = 0.0f;
     TipsEntriesScrollbar = Scrollbar(
-        0, {TipsListBounds.X + TipsListBounds.Width, TipsListBounds.Y}, 0.0f,
-        GetEndScroll(static_cast<Group *>(next)), &TipsEntryScrollPos,
+        0, {TipsListBounds.X + TipsListBounds.Width - 3.0f, TipsListBounds.Y},
+        0.0f, GetEndScroll(static_cast<Group *>(next)), &TipsEntryScrollPos,
         SBDIR_VERTICAL, TipsScrollTrack, TipsScrollThumb, {0.0f, -4.0f},
         TipsScrollThumb.ScaledHeight(), TipsListBounds);
     TipsEntriesScrollbar->Step = TipListYPadding;
@@ -101,7 +101,7 @@ void TipsMenu::Show() {
     TipViewItems.Show();
     if (TipsEntriesScrollbar) {
       TipsEntriesScrollbar->MoveTo(
-          {TipsListBounds.X + TipsListBounds.Width, TipsListBounds.Y});
+          {TipsListBounds.X + TipsListBounds.Width - 3.0f, TipsListBounds.Y});
     }
   }
 }
@@ -531,24 +531,7 @@ void TipsMenu::UpdatePageInput(float dt) {
   using namespace Vm::Interface;
   if (!IsFocused) return;
   auto prevEntry = CurrentlyFocusedElement;
-  if (TipsEntriesScrollbar) {
-    float oldScrollPos = TipsEntryScrollPos;
-
-    TipsEntriesScrollbar->UpdateInput(dt);
-
-    if (oldScrollPos != TipsEntryScrollPos) {
-      float delta = oldScrollPos - TipsEntryScrollPos;
-      if (std::fmod(std::abs(delta), TipListYPadding) >
-          std::numeric_limits<float>::epsilon()) {
-        const float newDelta =
-            std::round(delta / TipListYPadding) * TipListYPadding;
-        TipsEntryScrollPos = oldScrollPos - newDelta;
-        delta = newDelta;
-      }
-      auto *curPage = static_cast<Group *>(*ItemsList.GetCurrent());
-      curPage->Move({0, delta});
-    }
-  }
+  const float oldScrollPos = TipsEntryScrollPos;
 
   auto checkScrollBounds = [&]() {
     return !TipsListBounds.Contains(CurrentlyFocusedElement->Bounds);
@@ -580,6 +563,22 @@ void TipsMenu::UpdatePageInput(float dt) {
             CurrentlyFocusedElement->Bounds.Y - prevEntry->Bounds.Y;
       }
     }
+  }
+
+  if (TipsEntriesScrollbar) {
+    TipsEntriesScrollbar->UpdateInput(dt);
+  }
+
+  if (oldScrollPos != TipsEntryScrollPos) {
+    float delta = oldScrollPos - TipsEntryScrollPos;
+    if (std::fmod(std::abs(delta), TipListYPadding) >
+        std::numeric_limits<float>::epsilon()) {
+      const float newDelta =
+          std::round(delta / TipListYPadding) * TipListYPadding;
+      TipsEntryScrollPos = oldScrollPos - newDelta;
+      delta = newDelta;
+    }
+    curPage->Move({0, delta});
   }
 }
 

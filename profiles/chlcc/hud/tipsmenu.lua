@@ -57,8 +57,8 @@ root.TipsMenu = {
     TipListEntryTextOffsetX = 6;
     TipListEntryFontSize = 20,
     TipListYPadding = 24,
-    TipsListBounds = { X = 75, Y = 130, Width = 283, Height = 500 },
-    TipsListRenderBounds = { X = 30, Y = 130, Width = 380, Height = 500 },
+    TipsListBounds = { X = 75, Y = 130, Width = 286, Height = 504 },
+    TipsListRenderBounds = { X = 30, Y = 130, Width = 380, Height = 504 },
     NumberLabelPosition = { X = 396, Y = 52 },
     NumberLabelFontSize = 22,
     NumberBounds = { X = 409, Y = 52, Width = 0, Height = 0 },
