@@ -42,6 +42,9 @@ void TipsMenu::HandlePageChange(Widget *cur, Widget *next) {
     static_cast<Group *>(cur)->MoveTo(TipsListBounds.GetPos());
     cur->Hide();
     next->Show();
+    CurrentlyFocusedElement =
+        static_cast<Group *>(next)->GetFirstFocusableChild();
+    CurrentlyFocusedElement->HasFocus = true;
     TipsEntryScrollPos = 0.0f;
     TipsEntriesScrollbar = Scrollbar(
         0, {TipsListBounds.X + TipsListBounds.Width - 3.0f, TipsListBounds.Y},
@@ -361,7 +364,7 @@ void TipsMenu::Init() {
     allTipsGroup->HasFocus = false;
   }
   {
-    int i = 0;
+    int i = static_cast<int>(std::ssize(records) - 1);
     float currentY = TipListEntryBounds.Y;
 
     Group *newTipsGroup = new Group(this);
@@ -369,16 +372,15 @@ void TipsMenu::Init() {
         Vm::ScriptGetTextTableStrAddress(TipsStringTable, NewLabelStrIndex),
         currentY));
     currentY += TipListYPadding;
-    // I think new tips uses order tips came in
-    for (auto &record : records) {
+    for (auto &record : std::views::reverse(records)) {
       if (!record.IsNew || record.IsLocked) {
-        i++;
+        i--;
         continue;
       }
       RectF bounds = TipListEntryBounds;
       bounds.Y = currentY;
       TipsEntryButton *button =
-          new TipsEntryButton(i++, &record, bounds, TipsEntryHighlightBar);
+          new TipsEntryButton(i--, &record, bounds, TipsEntryHighlightBar);
       button->OnClickHandler = onClick;
 
       newTipsGroup->Add(button, FDIR_DOWN);
@@ -615,7 +617,7 @@ void TipsMenu::DrawTipsTree() {
     if (const auto *const btn = dynamic_cast<const TipsEntryButton *>(widget)) {
       barSprite = TipsListBgBarHole;
       lineSprite = TipsLeftLineHole;
-      if (lastViewable && btn == currentPage->Children.back()) {
+      if (btn == currentPage->Children.back()) {
         lineSprite = TipsLeftLineHoleEnd;
       }
     }
