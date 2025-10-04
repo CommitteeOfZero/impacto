@@ -17,15 +17,14 @@ using namespace Impacto::TipsSystem;
 
 using namespace Impacto::Profile::CHLCC::TipsMenu;
 TipsEntryButton::TipsEntryButton(int id, TipsDataRecord* tipRecord,
-                                 RectF const& dest, Sprite const& highlight) {
+                                 RectF const& dest, Sprite const& highlight)
+    : TipEntryRecord(tipRecord), PrevUnreadState(tipRecord->IsUnread) {
   Id = id;
-  TipEntryRecord = tipRecord;
   Bounds = dest;
   HighlightSprite = highlight;
   Enabled = true;
   HasText = true;
   HighlightOffset = {0.0f, 0.0f};
-  PrevUnreadState = TipEntryRecord->IsUnread;
   TextLayoutPlainString(fmt::format("{:3d}.", id + 1), TipNumber,
                         Profile::Dialogue::DialogueFont, TipListEntryFontSize,
                         Profile::Dialogue::ColorTable[DefaultColorIndex], 1.0f,
@@ -60,12 +59,10 @@ TipsEntryButton::TipsEntryButton(int id, TipsDataRecord* tipRecord,
 void TipsEntryButton::Move(glm::vec2 relativePos) {
   Button::Move(relativePos);
   for (size_t i = 0; i < TipNumber.size(); i++) {
-    TipNumber[i].DestRect.X += relativePos.x;
-    TipNumber[i].DestRect.Y += relativePos.y;
+    TipNumber[i].DestRect += relativePos;
   }
   for (size_t i = 0; i < TipLockedText.size(); i++) {
-    TipLockedText[i].DestRect.X += relativePos.x;
-    TipLockedText[i].DestRect.Y += relativePos.y;
+    TipLockedText[i].DestRect += relativePos;
   }
 }
 

@@ -450,11 +450,11 @@ void TipsMenu::Init() {
   Number->Bounds = NumberBounds;
   TipViewItems.Add(Number);
   // Tip page separator
-  PageSeparator = new Label(
+  auto *const pageSeparator = new Label(
       Vm::ScriptGetTextTableStrAddress(TipsStringTable, PageSeparatorIndex),
       PageSeparatorPosition, PageSeparatorFontSize, RendererOutlineMode::Full,
       DefaultColorIndex);
-  TipViewItems.Add(PageSeparator);
+  TipViewItems.Add(pageSeparator);
   // Current tip page
   CurrentPage = new Label();
   CurrentPage->Bounds = CurrentPageBounds;
@@ -529,56 +529,55 @@ void TipsMenu::DrawRedBar() {
 
 void TipsMenu::UpdatePageInput(float dt) {
   using namespace Vm::Interface;
-  if (IsFocused) {
-    auto prevEntry = CurrentlyFocusedElement;
-    if (TipsEntriesScrollbar) {
-      float oldScrollPos = TipsEntryScrollPos;
+  if (!IsFocused) return;
+  auto prevEntry = CurrentlyFocusedElement;
+  if (TipsEntriesScrollbar) {
+    float oldScrollPos = TipsEntryScrollPos;
 
-      TipsEntriesScrollbar->UpdateInput(dt);
+    TipsEntriesScrollbar->UpdateInput(dt);
 
-      if (oldScrollPos != TipsEntryScrollPos) {
-        float delta = oldScrollPos - TipsEntryScrollPos;
-        if (std::fmod(std::abs(delta), TipListYPadding) >
-            std::numeric_limits<float>::epsilon()) {
-          const float newDelta =
-              std::round(delta / TipListYPadding) * TipListYPadding;
-          TipsEntryScrollPos = oldScrollPos - newDelta;
-          delta = newDelta;
-        }
-        auto *curPage = static_cast<Group *>(*ItemsList.GetCurrent());
-        curPage->Move({0, delta});
+    if (oldScrollPos != TipsEntryScrollPos) {
+      float delta = oldScrollPos - TipsEntryScrollPos;
+      if (std::fmod(std::abs(delta), TipListYPadding) >
+          std::numeric_limits<float>::epsilon()) {
+        const float newDelta =
+            std::round(delta / TipListYPadding) * TipListYPadding;
+        TipsEntryScrollPos = oldScrollPos - newDelta;
+        delta = newDelta;
       }
+      auto *curPage = static_cast<Group *>(*ItemsList.GetCurrent());
+      curPage->Move({0, delta});
+    }
+  }
+
+  auto checkScrollBounds = [&]() {
+    return !TipsListBounds.Contains(CurrentlyFocusedElement->Bounds);
+  };
+
+  const uint32_t btnUp = PADcustom[28];
+  const uint32_t btnDown = PADcustom[29];
+
+  const int directionShouldFire = PADinputButtonWentDown & (btnUp | btnDown);
+  const bool directionMovement = ((bool)(directionShouldFire & btnUp) ^
+                                  (bool)(directionShouldFire & btnDown));
+
+  auto *curPage = static_cast<Group *>(*ItemsList.GetCurrent());
+
+  if (directionMovement) {
+    if (directionShouldFire & btnDown) {
+      AdvanceFocus(FDIR_DOWN);
+    } else {
+      AdvanceFocus(FDIR_UP);
     }
 
-    auto checkScrollBounds = [&]() {
-      return !TipsListBounds.Contains(CurrentlyFocusedElement->Bounds);
-    };
-
-    const uint32_t btnUp = PADcustom[28];
-    const uint32_t btnDown = PADcustom[29];
-
-    const int directionShouldFire = PADinputButtonWentDown & (btnUp | btnDown);
-    const bool directionMovement = ((bool)(directionShouldFire & btnUp) ^
-                                    (bool)(directionShouldFire & btnDown));
-
-    auto *curPage = static_cast<Group *>(*ItemsList.GetCurrent());
-
-    if (directionMovement) {
-      if (directionShouldFire & btnDown) {
-        AdvanceFocus(FDIR_DOWN);
+    if (CurrentlyFocusedElement != prevEntry && checkScrollBounds()) {
+      if (CurrentlyFocusedElement == curPage->GetFirstFocusableChild()) {
+        TipsEntryScrollPos = 0;
+      } else if (CurrentlyFocusedElement == curPage->Children.back()) {
+        TipsEntryScrollPos = TipsEntriesScrollbar->EndValue;
       } else {
-        AdvanceFocus(FDIR_UP);
-      }
-
-      if (CurrentlyFocusedElement != prevEntry && checkScrollBounds()) {
-        if (CurrentlyFocusedElement == curPage->GetFirstFocusableChild()) {
-          TipsEntryScrollPos = 0;
-        } else if (CurrentlyFocusedElement == curPage->Children.back()) {
-          TipsEntryScrollPos = TipsEntriesScrollbar->EndValue;
-        } else {
-          TipsEntryScrollPos +=
-              CurrentlyFocusedElement->Bounds.Y - prevEntry->Bounds.Y;
-        }
+        TipsEntryScrollPos +=
+            CurrentlyFocusedElement->Bounds.Y - prevEntry->Bounds.Y;
       }
     }
   }
@@ -728,8 +727,9 @@ void TipsMenu::SwitchToTipId(int id) {
 }
 
 void TipsMenu::NextTipPage() {
-  CurrentTipPage += 1;
   auto currentRecord = TipsSystem::GetTipRecord(CurrentlyDisplayedTipId);
+  if (currentRecord->NumberOfContentStrings == 1) return;
+  CurrentTipPage += 1;
   if (CurrentTipPage > currentRecord->NumberOfContentStrings)
     CurrentTipPage = 1;
 
