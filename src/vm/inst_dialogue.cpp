@@ -597,7 +597,8 @@ VmInstruction(InstTips) {
       uint32_t tipsDataSize =
           ScriptGetLabelSize(thread->ScriptBufferId, tipsLabelNum);
       TipsSystem::DataInit(thread->ScriptBufferId, tipsDataAdr, tipsDataSize);
-      if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
+      if (Profile::Vm::GameInstructionSet == +InstructionSet::CC &&
+          UI::TipsMenuPtr) {
         UI::TipsMenuPtr->Init();
       }
     } break;
