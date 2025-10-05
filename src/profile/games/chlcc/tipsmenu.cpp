@@ -57,9 +57,12 @@ void Configure() {
   NumberLabelStrIndex = EnsureGetMember<int>("NumberLabelStrIndex");
   NewLabelStrIndex = EnsureGetMember<int>("NewLabelStrIndex");
   UnreadLabelStrIndex = EnsureGetMember<int>("UnreadLabelStrIndex");
-  auto str = EnsureGetMember<char const*>("CategoryString");
-  TextGetSc3String(str, CategoryString);
-
+  {
+    EnsurePushMember("CategoryString");
+    auto str = EnsureGet<char const*>();
+    TextGetSc3String(str, CategoryString);
+    Pop();
+  }
   NumberLabelPosition = EnsureGetMember<glm::vec2>("NumberLabelPosition");
   NumberLabelFontSize = EnsureGetMember<float>("NumberLabelFontSize");
   NumberBounds = EnsureGetMember<RectF>("NumberBounds");
