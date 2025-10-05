@@ -107,6 +107,12 @@ void Configure() {
   TipsListNewDotOffset = EnsureGetMember<glm::vec2>("TipsListNewDotOffset");
   TipsScrollThumb = EnsureGetMember<Sprite>("TipsScrollThumbSprite");
   TipsScrollTrack = EnsureGetMember<Sprite>("TipsScrollTrackSprite");
+
+  SelectWordSprites = GetMemberVector<Sprite>("SelectWordSprites");
+  SelectWordPos = GetMemberVector<glm::vec2>("SelectWordPos");
+  SelectWordDuration = EnsureGetMember<float>("SelectWordDuration");
+  SelectWordInterval = EnsureGetMember<float>("SelectWordInterval");
+
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMember<uint8_t>("DrawType"));
 

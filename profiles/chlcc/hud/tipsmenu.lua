@@ -31,19 +31,21 @@ root.TipsMenu = {
     ButtonPromptPosition = { X = 685, Y = 651 },
     CurrentTipBackgroundSprite = "CurrentTipBackgroundSprite",
     CurrentTipBackgroundPosition = { X = 381, Y = 42 },
-    SelectWordSprite = "SelectWord",
+    SelectWordSprites = {},
     SelectWordPos = {
-        { X = 94, Y = 51 },
-        { X = 109, Y = 51 },
-        { X = 122, Y = 51 },
-        { X = 134, Y = 51 },
-        { X = 147, Y = 51 },
-        { X = 161, Y = 51 },
-        { X = 180, Y = 51 },
-        { X = 199, Y = 51 },
-        { X = 213, Y = 51 },
-        { X = 228, Y = 51 }
+        { X = 78, Y = 49 },
+        { X = 91, Y = 49 },
+        { X = 105, Y = 49 },
+        { X = 117, Y = 49 },
+        { X = 131, Y = 49 },
+        { X = 144, Y = 49 },
+        { X = 156, Y = 49 },
+        { X = 183, Y = 49 },
+        { X = 199, Y = 49 },
+        { X = 215, Y = 49 }
     },
+    SelectWordDuration = 110/60,
+    SelectWordInterval = 5/60,
     CategoryString = "【 】",
     TipsStringTable = 2,
     CategoryStringIndex = 5, 
@@ -142,10 +144,26 @@ root.Sprites["CurrentTipBackgroundSprite"] = {
     Bounds = { X = 1, Y = 1, Width = 846, Height = 605 }
 }
 
-root.Sprites["SelectWord"] = {
-    Sheet = "Tips",
-    Bounds = { X = 1, Y = 643, Width = 200, Height = 57 }
+local selectWordBounds = {
+    { X = 1, Y = 643, Width = 16, Height = 57 },
+    { X = 20, Y = 643, Width = 17, Height = 57 },
+    { X = 38, Y = 643, Width = 15, Height = 57 },
+    { X = 55, Y = 643, Width = 17, Height = 57 },
+    { X = 74, Y = 643, Width = 16, Height = 57 },
+    { X = 92, Y = 643, Width = 15, Height = 57 },
+    { X = 109, Y = 643, Width = 30, Height = 57 },
+    { X = 141, Y = 643, Width = 19, Height = 57 },
+    { X = 162, Y = 643, Width = 19, Height = 57 },
+    { X = 181, Y = 643, Width = 18, Height = 57 }
 }
+
+for i, bounds in ipairs(selectWordBounds) do
+    root.Sprites["SelectWord" .. i - 1] = {
+        Sheet = "Tips",
+        Bounds = bounds
+    }
+    root.TipsMenu.SelectWordSprites[i] = "SelectWord" .. i - 1;
+end
 
 root.Sprites["TipsEntryHighlightBar"] = {
     Sheet = "Tips",

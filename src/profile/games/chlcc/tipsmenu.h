@@ -86,6 +86,11 @@ inline Sprite TipsListBgBarHole;
 inline Sprite TipsScrollThumb;
 inline Sprite TipsScrollTrack;
 
+inline std::vector<Sprite> SelectWordSprites;
+inline std::vector<glm::vec2> SelectWordPos;
+inline float SelectWordDuration;
+inline float SelectWordInterval;
+
 void Configure();
 
 }  // namespace TipsMenu

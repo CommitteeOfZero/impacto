@@ -37,11 +37,13 @@ class TipsMenu : public UI::TipsMenu {
   void DrawRedBar();
   void DrawTipsTree();
   void DrawButtonPrompt();
+  void DrawSelectWord();
   void UpdateTitles();
   void HandlePageChange(Widget* cur, Widget* next);
 
   Animation TitleFade;
   Animation FromSystemMenuTransition;
+  Animation SelectWordAnimation;
 
   glm::vec2 RedTitleLabelPos;
   glm::vec2 RightTitlePos;

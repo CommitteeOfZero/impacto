@@ -75,6 +75,11 @@ TipsMenu::TipsMenu()
   FromSystemMenuTransition.DurationIn = TitleFadeInDuration;
   FromSystemMenuTransition.DurationOut = TitleFadeOutDuration;
 
+  SelectWordAnimation.Direction = AnimationDirection::In;
+  SelectWordAnimation.LoopMode = AnimationLoopMode::Loop;
+  SelectWordAnimation.DurationIn = SelectWordDuration;
+  SelectWordAnimation.DurationOut = 0.0f;
+
   RedBarSprite = InitialRedBarSprite;
   RedBarPosition = InitialRedBarPosition;
 
@@ -91,6 +96,7 @@ void TipsMenu::Show() {
     if (State != Showing) {
       FadeAnimation.StartIn();
       FromSystemMenuTransition.StartIn();
+      SelectWordAnimation.StartIn(true);
     }
     State = Showing;
     if (UI::FocusedMenu != 0) {
@@ -181,7 +187,7 @@ void TipsMenu::Render() {
   }
 
   DrawTipsTree();
-
+  DrawSelectWord();
   if (FadeAnimation.Progress > 0.34) {
     Renderer->DrawSprite(MenuTitleText, LeftTitlePos);
     ItemsList.Tint.a = alpha;
@@ -242,6 +248,7 @@ void TipsMenu::Update(float dt) {
   if (State != Hidden) {
     FadeAnimation.Update(dt);
     FromSystemMenuTransition.Update(dt);
+    SelectWordAnimation.Update(dt);
     if (FadeAnimation.Direction == AnimationDirection::Out &&
         FadeAnimation.Progress <= 0.72f) {
       TitleFade.StartOut();
@@ -654,6 +661,25 @@ void TipsMenu::DrawButtonPrompt() {
     float x = ButtonPromptPosition.x - 2560.0f * (FadeAnimation.Progress - 1);
     Renderer->DrawSprite(ButtonPromptSprite,
                          glm::vec2(x, ButtonPromptPosition.y));
+  }
+}
+
+void TipsMenu::DrawSelectWord() {
+  const auto currentLetter = static_cast<size_t>(
+      SelectWordAnimation.Progress * SelectWordDuration / SelectWordInterval);
+  for (size_t i = 0; i < SelectWordSprites.size(); i++) {
+    if (currentLetter < i) break;
+    const glm::vec2 pos = SelectWordPos[i];
+    const float alpha =
+        i == currentLetter
+            ? (SelectWordAnimation.Progress * SelectWordDuration -
+               i * SelectWordInterval) /
+                  SelectWordInterval
+            : 1.0f;
+    if (i == currentLetter)
+      ImpLog(LogLevel::Trace, LogChannel::Render, "alpha {}\n", alpha);
+    Renderer->DrawSprite(SelectWordSprites[i], pos + AnimationOffset,
+                         glm::vec4(1.0f, 1.0f, 1.0f, alpha));
   }
 }
 
