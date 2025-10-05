@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../ui/menu.h"
+#include "../../ui/turboonholdhandler.h"
 #include "../../ui/widgets/group.h"
 #include "../../ui/widgets/button.h"
 #include "../../ui/widgets/label.h"
@@ -34,6 +35,7 @@ class MusicMenu : public Menu {
   void DrawCircles();
   void DrawErin();
   void DrawRedBar();
+  void DrawButtonPrompt();
 
   void UpdateEntries();
   void UpdateTitles();

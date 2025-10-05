@@ -7,8 +7,10 @@ namespace Profile {
 namespace CHLCC {
 namespace MusicMenu {
 
-int constexpr Endings = 8;
-int constexpr MusicTrackCount = 45;
+int inline constexpr Endings = 8;
+int inline constexpr MusicTrackCount = 45;
+int inline constexpr VisibleItemsPerPage = 16;
+int inline constexpr SelectableItemsPerPage = 15;
 
 inline float MenuTransitionDuration;
 inline uint32_t BackgroundColor;
@@ -57,6 +59,8 @@ inline glm::vec2 HighlightStarRelativePos;
 inline int Playlist[MusicTrackCount];
 inline Sprite SelectSound[11];
 inline glm::vec2 SelectSoundPos[11];
+inline glm::vec2 ButtonPromptPosition;
+inline Sprite ButtonPromptSprite;
 
 void Configure();
 

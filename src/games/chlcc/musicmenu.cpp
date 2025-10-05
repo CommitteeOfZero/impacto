@@ -8,7 +8,7 @@
 #include "../../background2d.h"
 #include "../../vm/interface/input.h"
 #include "../../profile/game.h"
-
+#include "../../inputsystem.h"
 #include "../../ui/widgets/chlcc/trackselectbutton.h"
 
 namespace Impacto {
@@ -60,10 +60,27 @@ MusicMenu::MusicMenu() {
         idx, TrackHighlight, TrackButtonPosTemplate + (float)idx * TrackOffset,
         TrackNumRelativePos, TrackNameOffset, ArtistOffset);
     MainItems->Add(button, FDIR_DOWN);
+
+    // Page scrolling
+    if (idx >= SelectableItemsPerPage) {
+      button->SetFocus(MainItems->Children[idx - SelectableItemsPerPage],
+                       FDIR_LEFT);
+      MainItems->Children[idx - SelectableItemsPerPage]->SetFocus(button,
+                                                                  FDIR_RIGHT);
+    } else {
+      button->SetFocus(MainItems->Children.front(), FDIR_LEFT);
+    }
+  }
+  // Everything in last page points to last element
+  for (int idx = MusicTrackCount - 1 - SelectableItemsPerPage;
+       idx < MusicTrackCount; idx++) {
+    MainItems->Children[idx]->SetFocus(MainItems->Children.back(), FDIR_RIGHT);
   }
 
   MainItems->Children.front()->SetFocus(MainItems->Children.back(), FDIR_UP);
+  MainItems->Children.front()->SetFocus(MainItems->Children.back(), FDIR_LEFT);
   MainItems->Children.back()->SetFocus(MainItems->Children.front(), FDIR_DOWN);
+  MainItems->Children.back()->SetFocus(MainItems->Children.front(), FDIR_RIGHT);
 }
 
 void MusicMenu::Show() {
@@ -155,7 +172,10 @@ void MusicMenu::Render() {
 
       MainItems->RenderingBounds =
           RectF(0.0f, TrackButtonPosTemplate.y + offset.y, Profile::DesignWidth,
-                16 * TrackOffset.y + 1);
+                VisibleItemsPerPage * TrackOffset.y + 1);
+      MainItems->HoverBounds = RectF(
+          0.0f, TrackButtonPosTemplate.y + offset.y + 2, Profile::DesignWidth,
+          (SelectableItemsPerPage)*TrackOffset.y - 4);
 
       glm::vec2 currentScroll(0.0f, -(float)CurrentLowerBound * TrackOffset.y);
       MainItems->MoveTo(currentScroll + offset);
@@ -196,6 +216,7 @@ void MusicMenu::Render() {
                     MainItems->Children[CurrentlyPlayingTrackId]->Bounds.Y) +
               HighlightStarRelativePos);
     }
+    DrawButtonPrompt();
   }
 }
 
@@ -220,7 +241,10 @@ void MusicMenu::Update(float dt) {
     State = Shown;
     MainItems->RenderingBounds =
         RectF(0.0f, TrackButtonPosTemplate.y, Profile::DesignWidth,
-              16 * TrackOffset.y + 1);
+              VisibleItemsPerPage * TrackOffset.y + 1);
+    MainItems->HoverBounds =
+        RectF(0.0f, TrackButtonPosTemplate.y + 2, Profile::DesignWidth,
+              (SelectableItemsPerPage)*TrackOffset.y - 4);
     MainItems->MoveTo({0.0f, 0.0f});
     for (auto el : MainItems->Children)
       static_cast<Widgets::CHLCC::TrackSelectButton*>(el)->MoveTracks(
@@ -275,6 +299,7 @@ void MusicMenu::Update(float dt) {
 }
 
 void MusicMenu::UpdateInput(float dt) {
+  auto* prevFocus = CurrentlyFocusedElement;
   Menu::UpdateInput(dt);
   if (State == Shown) {
     MainItems->UpdateInput(dt);
@@ -297,19 +322,39 @@ void MusicMenu::UpdateInput(float dt) {
       SwitchToTrack(-1);
     }
 
-    auto button = static_cast<Widgets::CHLCC::TrackSelectButton*>(
-        CurrentlyFocusedElement);
-    if (button == nullptr) return;
-
-    // Opposite of scroll direction
-    if (button->Id - CurrentLowerBound >= 16) {
-      CurrentLowerBound = button->Id - 15;
-      CurrentUpperBound = button->Id;
-    } else if (CurrentUpperBound - button->Id >= 16) {
-      CurrentLowerBound = button->Id;
-      CurrentUpperBound = button->Id + 15;
-    } else
-      return;
+    if ((Input::MouseWheelDeltaY > 0 && CurrentLowerBound > 0)) {
+      CurrentLowerBound--;
+      CurrentUpperBound--;
+    } else if ((Input::MouseWheelDeltaY < 0) &&
+               CurrentUpperBound < MusicTrackCount) {
+      CurrentLowerBound++;
+      CurrentUpperBound++;
+    } else {
+      auto prevBtnId =
+          static_cast<Widgets::CHLCC::TrackSelectButton*>(prevFocus)->Id;
+      auto buttonid = static_cast<Widgets::CHLCC::TrackSelectButton*>(
+                          CurrentlyFocusedElement)
+                          ->Id;
+      if (buttonid < CurrentLowerBound) {
+        if (buttonid == 0) {
+          CurrentLowerBound = 0;
+          CurrentUpperBound = SelectableItemsPerPage;
+        } else {
+          const int delta = prevBtnId - buttonid;
+          CurrentLowerBound -= delta;
+          CurrentUpperBound -= delta;
+        }
+      } else if (buttonid >= CurrentUpperBound) {
+        if (buttonid == MusicTrackCount - 1) {
+          CurrentLowerBound = MusicTrackCount - SelectableItemsPerPage;
+          CurrentUpperBound = MusicTrackCount;
+        } else {
+          const int delta = buttonid - prevBtnId;
+          CurrentLowerBound += delta;
+          CurrentUpperBound += delta;
+        }
+      }
+    }
 
     glm::vec2 offset(0.0f, -(float)CurrentLowerBound * TrackOffset.y);
     MainItems->MoveTo(offset);
@@ -380,6 +425,16 @@ inline void MusicMenu::DrawRedBar() {
     RedBarSprite.Bounds.Width = pixelPerAdvanceRight;
     RedBarPosition = RightRedBarPosition;
     Renderer->DrawSprite(RedBarSprite, RedBarPosition);
+  }
+}
+
+inline void MusicMenu::DrawButtonPrompt() {
+  if (MenuTransition.IsIn()) {
+    Renderer->DrawSprite(ButtonPromptSprite, ButtonPromptPosition);
+  } else if (MenuTransition.Progress > 0.734f) {
+    float x = ButtonPromptPosition.x - 2560.0f * (MenuTransition.Progress - 1);
+    Renderer->DrawSprite(ButtonPromptSprite,
+                         glm::vec2(x, ButtonPromptPosition.y));
   }
 }
 
