@@ -21,6 +21,8 @@ inline glm::vec2 GuidePosition;
 inline glm::vec2 MenuTextPosition;
 inline glm::vec2 SlotsBackgroundPosition;
 inline glm::vec2 PageNumberPosition;
+inline glm::vec2 SlotLockedSpritePosition;
+inline glm::vec2 NoDataSpritePosition;
 
 int constexpr EntriesPerRow = 2;
 int constexpr RowsPerPage = 4;

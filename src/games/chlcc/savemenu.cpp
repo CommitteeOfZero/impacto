@@ -12,6 +12,7 @@
 #include "../../data/savesystem.h"
 #include "../../profile/game.h"
 #include "../../background2d.h"
+#include "../../games/chlcc/savesystem.h"
 
 namespace Impacto {
 namespace UI {
@@ -31,6 +32,10 @@ void SaveMenu::MenuButtonOnClick(Widgets::Button* target) {
     ScrWork[SW_SAVEFILENO] = target->Id;
     ScrWork[SW_SAVEFILESTATUS] =
         SaveSystem::GetSaveStatus(EntryType, ScrWork[SW_SAVEFILENO]);
+
+    SetFlag(SF_SAVEPROTECTED,
+            SaveSystem::GetSaveFlags(EntryType, ScrWork[SW_SAVEFILENO]) &
+                SaveSystem::SaveFlagsMode::WriteProtect);
     ChoiceMade = true;
   }
 }
@@ -181,6 +186,8 @@ SaveMenu::SaveMenu() {
 }
 
 void SaveMenu::Init() {
+  SetFlag(SF_SAVEPROTECTCHANGED, 0);
+
   switch (*ActiveMenuType) {
     case SaveMenuPageType::QuickLoad:
       EntryType = SaveSystem::SaveType::Quick;
@@ -276,6 +283,15 @@ void SaveMenu::UpdateInput(float dt) {
     } else if (Input::MouseWheelDeltaY > 0 ||
                PADinputButtonWentDown & PADcustom[7]) {
       updatePage((*CurrentPage - 1 + Pages) % Pages);
+    }
+
+    if (CurrentlyFocusedElement && (PADinputButtonWentDown & PAD1Y)) {
+      auto saveButton = static_cast<SaveEntryButton*>(CurrentlyFocusedElement);
+      if (SaveSystem::GetSaveStatus(EntryType, saveButton->Id) == 1) {
+        saveButton->ToggleLock(EntryType);
+        saveButton->RefreshInfo(EntryType);
+        SetFlag(SF_SAVEPROTECTCHANGED, 1);
+      }
     }
   }
 }
@@ -493,6 +509,7 @@ inline void SaveMenu::DrawSelectData(float yOffset) {
                          glm::vec4(glm::vec3(1.0f), alpha));
   }
 }
+
 void SaveMenu::UpdateTitles() {
   if (MenuTransition.Progress <= 0.34f) return;
 

@@ -274,6 +274,7 @@ SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
       CalculateChecksum(std::span(SystemData).subspan(4));
   */
 
+  int lockedQuickSaveSlots = 0;
   textures.reserve(MaxSaveEntries * 2);
   for (auto& entryArray : {FullSaveEntries, QuickSaveEntries}) {
     SaveType saveType =
@@ -296,11 +297,18 @@ SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
       LoadEntryBuffer(saveEntryDataStream,
                       static_cast<SaveFileEntry&>(*entryArray[i]), saveType,
                       tex.Tex);
+      if (saveType == SaveType::Quick) {
+        lockedQuickSaveSlots +=
+            static_cast<SaveFileEntry&>(*entryArray[i]).Flags & WriteProtect;
+      }
       textures.push_back(tex);
 
       // Todo, validate checksum?
     }
   }
+  SetLockedQuickSaveCount(lockedQuickSaveSlots);
+  SetFlag(SF_SAVEALLPROTECTED, LockedQuickSaveCount == MaxSaveEntries);
+
   delete stream;
   return SaveError::OK;
 }
@@ -666,6 +674,31 @@ uint8_t SaveSystem::GetSaveFlags(SaveType type, int id) {
       ImpLog(LogLevel::Error, LogChannel::IO,
              "Failed to get save flags: unknown save type, returning 0\n");
       return 0;
+  }
+}
+
+void SaveSystem::SetSaveFlags(SaveType type, int id, uint8_t flags) {
+  switch (type) {
+    case SaveType::Full:
+      ((SaveFileEntry*)FullSaveEntries[id])->Flags = flags;
+      break;
+    case SaveType::Quick: {
+      uint8_t currentFlags = ((SaveFileEntry*)QuickSaveEntries[id])->Flags;
+      if ((currentFlags ^ flags) & WriteProtect) {
+        if (flags & WriteProtect) {
+          LockedQuickSaveCount++;
+        } else {
+          LockedQuickSaveCount--;
+        }
+
+        SetFlag(SF_SAVEALLPROTECTED, LockedQuickSaveCount == MaxSaveEntries);
+      }
+      ((SaveFileEntry*)QuickSaveEntries[id])->Flags = flags;
+      break;
+    }
+    default:
+      ImpLog(LogLevel::Error, LogChannel::IO,
+             "Failed to set save flags: unknown save type, doing nothing\n");
   }
 }
 

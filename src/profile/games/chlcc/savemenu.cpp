@@ -57,6 +57,8 @@ void Configure() {
   SelectionMarkerOffset = EnsureGetMember<glm::vec2>("SelectionMarkerOffset");
   EntryHighlightedSprite = EnsureGetMember<Sprite>("EntryHighlightedSprite");
   LockedSymbolSprite = EnsureGetMember<Sprite>("LockedSymbolSprite");
+  LockedSymbolRelativePos =
+      EnsureGetMember<glm::vec2>("LockedSymbolRelativePos");
   ThumbnailRelativePos = EnsureGetMember<glm::vec2>("ThumbnailRelativePos");
   PageNumBackgroundPos = EnsureGetMember<glm::vec2>("PageNumBackgroundPos");
   PageNumBackgroundSprite = EnsureGetMember<Sprite>("PageNumBackground");
