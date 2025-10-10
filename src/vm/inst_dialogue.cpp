@@ -669,6 +669,12 @@ VmInstruction(InstSetRevMes) {
 void ChkMesSkip() {
   bool mesSkip = false;
 
+  if (MesSkipMode & (SkipModeFlags::SkipRead | SkipModeFlags::SkipAll)) {
+    MesSkipMode &= SkipModeFlags::Auto;
+    MesSkipMode |= (Profile::ConfigSystem::SkipRead ? SkipModeFlags::SkipRead
+                                                    : SkipModeFlags::SkipAll);
+  }
+
   if (ScrWork[SW_SYSMESALPHA] != 255) MesSkipMode = false;
 
   if ((ScrWork[SW_GAMESTATE] & 0b101) == 0b001 && !GetFlag(SF_UIHIDDEN)) {
