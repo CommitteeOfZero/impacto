@@ -21,6 +21,7 @@ static float BoxAnimCount = 0.0f;
 
 void SysMesBox::ChoiceItemOnClick(Button* target) {
   ScrWork[SW_SYSSEL] = target->Id;
+  Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0);
   ChoiceMade = true;
 }
 

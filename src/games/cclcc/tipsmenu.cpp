@@ -178,6 +178,7 @@ void TipsMenu::Hide() {
   if (State != Hidden) {
     State = Hiding;
     FadeAnimation.StartOut();
+    Audio::Channels[Audio::AC_SSE]->Play("sysse", 3, false, 0);
     if (ScrWork[SW_SYSSUBMENUCT] != 0) {
       TransitionAnimation.StartOut();
     } else {

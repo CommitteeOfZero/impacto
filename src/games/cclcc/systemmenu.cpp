@@ -24,6 +24,7 @@ void SystemMenu::MenuButtonOnClick(Widgets::Button* target) {
   // is case 0)
   SaveMenuPtr->ActiveMenuType =
       SaveMenuPageType::_from_integral_nothrow(target->Id % 4);
+  Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0);
   ChoiceMade = true;
 }
 

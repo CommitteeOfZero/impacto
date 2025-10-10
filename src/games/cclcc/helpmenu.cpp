@@ -50,6 +50,7 @@ void HelpMenu::Hide() {
     State = Hiding;
     FadeAnimation.StartOut();
     NextPageAnimation.StartOut();
+    Audio::Channels[Audio::AC_SSE]->Play("sysse", 3, false, 0);
     if (LastFocusedMenu != 0) {
       UI::FocusedMenu = LastFocusedMenu;
     } else {
