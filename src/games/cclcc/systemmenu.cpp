@@ -4,6 +4,7 @@
 #include "../../renderer/renderer.h"
 #include "../../ui/ui.h"
 #include "../../vm/interface/input.h"
+#include "../../inputsystem.h"
 #include "../../profile/ui/systemmenu.h"
 #include "../../profile/game.h"
 #include "../../ui/widgets/cclcc/sysmenubutton.h"
@@ -26,6 +27,14 @@ void SystemMenu::MenuButtonOnClick(Widgets::Button* target) {
       SaveMenuPageType::_from_integral_nothrow(target->Id % 4);
   Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0);
   ChoiceMade = true;
+}
+
+void SystemMenu::UpdateInput(float dt) {
+  if (!IsFocused) return;
+  Menu::UpdateInput(dt);
+  if (PADinputButtonWentDown & (PAD1DOWN | PAD1UP)) {
+    Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0);
+  }
 }
 
 SystemMenu::SystemMenu() {
