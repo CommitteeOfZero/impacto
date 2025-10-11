@@ -4,6 +4,8 @@
 #include "../profile/ui/optionsmenu.h"
 #include "../profile/scriptinput.h"
 #include "../vm/interface/input.h"
+#include "../text.h"
+#include "../profile/configsystem.h"
 
 namespace Impacto {
 namespace UI {
@@ -71,6 +73,14 @@ void OptionsMenu::Hide() {
     if (CurrentlyFocusedElement) {
       CurrentlyFocusedElement->HasFocus = false;
       CurrentlyFocusedElement = nullptr;
+    }
+
+    if (Impacto::MesSkipMode &
+        (Impacto::SkipModeFlags::SkipRead | Impacto::SkipModeFlags::SkipAll)) {
+      Impacto::MesSkipMode &= Impacto::SkipModeFlags::Auto;
+      Impacto::MesSkipMode |= (Impacto::Profile::ConfigSystem::SkipRead
+                                   ? Impacto::SkipModeFlags::SkipRead
+                                   : Impacto::SkipModeFlags::SkipAll);
     }
   }
 }
