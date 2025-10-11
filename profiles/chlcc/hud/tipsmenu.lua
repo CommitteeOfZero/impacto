@@ -65,12 +65,14 @@ root.TipsMenu = {
     NumberLabelFontSize = 22,
     NumberBounds = { X = 409, Y = 52, Width = 0, Height = 0 },
     NumberFontSize = 22,
-    CurrentPageBounds = { X = 1130, Y = 645, Width = 0, Height = 0 },
-    TotalPagesBounds = { X = 1184, Y = 645, Width = 0, Height = 0 },
+    CurrentPageSprites = {},
+    TotalPageSprites = {},
+    PageSeparatorSprite = "PageSeparatorSprite",
+    CurrentPagePosition = { X = 1155, Y = 586 },
+    TotalPagesPosition = { X = 1195, Y = 611 },
+    PageSeparatorPosition = { X = 1181, Y = 611 },
     DefaultColorIndex = 0,
     UnreadColorIndex = 70,
-    PageSeparatorPosition = { X = 1154, Y = 645 },
-    PageSeparatorFontSize = 32,
     PronounciationFontSize = 18,
     NameFontSize = 30,
     TipListEntryNameXOffset = 55,
@@ -208,4 +210,25 @@ root.Sprites["TipsScrollThumb"] = {
 root.Sprites["TipsScrollTrack"] = {
     Sheet = "Tips",
     Bounds = { X = 1280, Y = 0, Width = 3, Height = 500 }
+}
+
+for i = 0, 9 do
+    root.Sprites["CurrentPageSprites" .. i] = {
+        Sheet = "Data",
+        Bounds = { X = 371 + (i * 36), Y = 1, Width = 34, Height = 48 }
+    }
+    root.TipsMenu.CurrentPageSprites[i + 1] = "CurrentPageSprites" .. i ;
+end
+
+for i = 0, 9 do
+    root.Sprites["TotalPageSprites" .. i] = {
+        Sheet = "Data",
+        Bounds = { X = 190 + (i * 18), Y = 67, Width = 16, Height = 22 }
+    }
+    root.TipsMenu.TotalPageSprites[i + 1] = "TotalPageSprites" .. i ;
+end
+
+root.Sprites["PageSeparatorSprite"] = {
+    Sheet = "Data",
+    Bounds = { X = 173, Y = 67, Width = 16, Height = 22 }
 }

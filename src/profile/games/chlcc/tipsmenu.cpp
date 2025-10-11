@@ -67,13 +67,10 @@ void Configure() {
   NumberLabelFontSize = EnsureGetMember<float>("NumberLabelFontSize");
   NumberBounds = EnsureGetMember<RectF>("NumberBounds");
   NumberFontSize = EnsureGetMember<float>("NumberFontSize");
-  CurrentPageBounds = EnsureGetMember<RectF>("CurrentPageBounds");
-  TotalPagesBounds = EnsureGetMember<RectF>("TotalPagesBounds");
+
   DefaultColorIndex = EnsureGetMember<int>("DefaultColorIndex");
   UnreadColorIndex = EnsureGetMember<int>("UnreadColorIndex");
 
-  PageSeparatorPosition = EnsureGetMember<glm::vec2>("PageSeparatorPosition");
-  PageSeparatorFontSize = EnsureGetMember<float>("PageSeparatorFontSize");
   TipListEntryBounds = EnsureGetMember<RectF>("TipListEntryBounds");
   TipListEntryFontSize = EnsureGetMember<float>("TipListEntryFontSize");
   TipListYPadding = EnsureGetMember<float>("TipListYPadding");
@@ -107,6 +104,13 @@ void Configure() {
   TipsListNewDotOffset = EnsureGetMember<glm::vec2>("TipsListNewDotOffset");
   TipsScrollThumb = EnsureGetMember<Sprite>("TipsScrollThumbSprite");
   TipsScrollTrack = EnsureGetMember<Sprite>("TipsScrollTrackSprite");
+
+  CurrentPagePosition = EnsureGetMember<glm::vec2>("CurrentPagePosition");
+  TotalPagesPosition = EnsureGetMember<glm::vec2>("TotalPagesPosition");
+  PageSeparatorPosition = EnsureGetMember<glm::vec2>("PageSeparatorPosition");
+  CurrentPageSprites = GetMemberVector<Sprite>("CurrentPageSprites");
+  TotalPageSprites = GetMemberVector<Sprite>("TotalPageSprites");
+  PageSeparatorSprite = EnsureGetMember<Sprite>("PageSeparatorSprite");
 
   SelectWordSprites = GetMemberVector<Sprite>("SelectWordSprites");
   SelectWordPos = GetMemberVector<glm::vec2>("SelectWordPos");

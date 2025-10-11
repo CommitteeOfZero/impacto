@@ -111,6 +111,7 @@ void TipsMenu::Show() {
     }
     (*ItemsList.GetCurrent())->Show();
     (*ItemsList.GetCurrent())->HasFocus = false;
+    TipViewItems.Bounds = RectF{};
     TipViewItems.Show();
     if (TipsEntriesScrollbar) {
       TipsEntriesScrollbar->MoveTo(
@@ -476,18 +477,16 @@ void TipsMenu::Init() {
   Number->Bounds = NumberBounds;
   TipViewItems.Add(Number);
   // Tip page separator
-  auto *const pageSeparator = new Label(
-      Vm::ScriptGetTextTableStrAddress(TipsStringTable, PageSeparatorIndex),
-      PageSeparatorPosition, PageSeparatorFontSize, RendererOutlineMode::Full,
-      DefaultColorIndex);
+  auto *const pageSeparator =
+      new Label(PageSeparatorSprite, PageSeparatorPosition);
   TipViewItems.Add(pageSeparator);
   // Current tip page
   CurrentPage = new Label();
-  CurrentPage->Bounds = CurrentPageBounds;
+  CurrentPage->Bounds.SetPos(CurrentPagePosition);
   TipViewItems.Add(CurrentPage);
   // Total tip pages
   TotalPages = new Label();
-  TotalPages->Bounds = TotalPagesBounds;
+  TotalPages->Bounds.SetPos(TotalPagesPosition);
   TipViewItems.Add(TotalPages);
 }
 
@@ -748,12 +747,8 @@ void TipsMenu::SwitchToTipId(int id) {
   Number->SetText(fmt::format("{:4d}", tipRecord->Id + 1), NumberFontSize,
                   RendererOutlineMode::Full, DefaultColorIndex);
 
-  CurrentPage->SetText(fmt::to_string(CurrentTipPage), PageSeparatorFontSize,
-                       RendererOutlineMode::Full, DefaultColorIndex);
-
-  TotalPages->SetText(fmt::to_string(tipRecord->NumberOfContentStrings),
-                      PageSeparatorFontSize, RendererOutlineMode::Full,
-                      DefaultColorIndex);
+  CurrentPage->SetSprite(CurrentPageSprites[CurrentTipPage]);
+  TotalPages->SetSprite(TotalPageSprites[tipRecord->NumberOfContentStrings]);
 
   TextPage.Clear();
   Vm::Sc3VmThread dummy;
@@ -774,8 +769,7 @@ void TipsMenu::NextTipPage() {
   dummy.IpOffset = currentRecord->StringAdr[3 + CurrentTipPage - 1];
   dummy.ScriptBufferId = TipsSystem::GetTipsScriptBufferId();
   TextPage.AddString(&dummy);
-  CurrentPage->SetText(fmt::to_string(CurrentTipPage), PageSeparatorFontSize,
-                       RendererOutlineMode::Full, DefaultColorIndex);
+  CurrentPage->SetSprite(CurrentPageSprites[CurrentTipPage]);
 }
 
 }  // namespace CHLCC

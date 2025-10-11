@@ -54,12 +54,8 @@ inline glm::vec2 NumberLabelPosition;
 inline float NumberLabelFontSize;
 inline RectF NumberBounds;
 inline float NumberFontSize;
-inline RectF CurrentPageBounds;
-inline RectF TotalPagesBounds;
 inline int DefaultColorIndex;
 inline int UnreadColorIndex;
-inline glm::vec2 PageSeparatorPosition;
-inline float PageSeparatorFontSize;
 inline RectF TipListEntryBounds;
 inline float TipListEntryFontSize;
 inline float TipListYPadding;
@@ -85,6 +81,13 @@ inline Sprite TipsListBgBar;
 inline Sprite TipsListBgBarHole;
 inline Sprite TipsScrollThumb;
 inline Sprite TipsScrollTrack;
+
+inline glm::vec2 CurrentPagePosition;
+inline glm::vec2 TotalPagesPosition;
+inline glm::vec2 PageSeparatorPosition;
+inline std::vector<Sprite> CurrentPageSprites;
+inline std::vector<Sprite> TotalPageSprites;
+inline Sprite PageSeparatorSprite;
 
 inline std::vector<Sprite> SelectWordSprites;
 inline std::vector<glm::vec2> SelectWordPos;
