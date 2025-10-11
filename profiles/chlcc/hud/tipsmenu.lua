@@ -169,7 +169,7 @@ end
 
 root.Sprites["TipsEntryHighlightBar"] = {
     Sheet = "Tips",
-    Bounds = { X = 851, Y = 510, Width = 296, Height = 24 }
+    Bounds = { X = 851, Y = 510, Width = 286, Height = 24 }
 }
 root.Sprites["TipsEntryHighlightDot"] = {
     Sheet = "Tips",
