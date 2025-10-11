@@ -28,68 +28,6 @@ using namespace Impacto::Vm::Interface;
 using namespace Impacto::UI::Widgets;
 using namespace Impacto::UI::Widgets::CCLCC;
 
-struct SortByTipName {
-  SortByTipName() {
-    auto [scrBufId, offset] = Vm::ScriptGetTextTableStrAddress(
-        TipsTextTableIndex, TipsTextSortStringIndex);
-    SortString = &Vm::ScriptBuffers[scrBufId][offset];
-    int i = 0;
-    int distance = 0;
-    while (SortString[i] != 0xFF) {
-      if (SortString[i] & 0x80) {
-        uint16_t sc3Char =
-            SDL_SwapBE16(UnalignedRead<uint16_t>(SortString + i));
-        Sc3SortMap[sc3Char] = distance++;
-        i += 2;
-      } else {
-        ImpLogSlow(LogLevel::Warning, LogChannel::VM,
-                   "SortByTipName: SC3 Tag Found in Sort String\n",
-                   SortString[i]);
-        i++;
-      }
-    }
-  }
-  bool operator()(int a, int b) const {
-    auto* aRecord = TipsSystem::GetTipRecord(a);
-    auto* bRecord = TipsSystem::GetTipRecord(b);
-    uint32_t tipsScrBufId = TipsSystem::GetTipsScriptBufferId();
-    uint8_t* aString = &Vm::ScriptBuffers[tipsScrBufId][aRecord->StringAdr[3]];
-    uint8_t* bString = &Vm::ScriptBuffers[tipsScrBufId][bRecord->StringAdr[3]];
-
-    int aIndex = 0;
-    int bIndex = 0;
-
-    while (aString[aIndex] != 0xff && bString[bIndex] != 0xff) {
-      if ((aString[aIndex] & 0x80) == 0) {
-        aIndex++;
-        continue;
-      }
-      if ((bString[bIndex] & 0x80) == 0) {
-        bIndex++;
-        continue;
-      }
-      uint16_t aSc3Char =
-          SDL_SwapBE16(UnalignedRead<uint16_t>(aString + aIndex));
-      aIndex += 2;
-
-      uint16_t bSc3Char =
-          SDL_SwapBE16(UnalignedRead<uint16_t>(bString + bIndex));
-      bIndex += 2;
-      if (aSc3Char != bSc3Char) {
-        auto aSortValue = Sc3SortMap.find(aSc3Char);
-        auto bSortValue = Sc3SortMap.find(bSc3Char);
-        if (aSortValue != Sc3SortMap.end() && bSortValue != Sc3SortMap.end()) {
-          return aSortValue->second < bSortValue->second;
-        }
-      }
-    }
-    // If strings are all the same, return the shorter one
-    return aString[aIndex] == 0xff && bString[bIndex] != 0xff;
-  }
-  uint8_t* SortString;
-  ankerl::unordered_dense::map<uint16_t, int> Sc3SortMap;
-};
-
 TipsMenu::TipsMenu() : TipViewItems(this) {
   FadeAnimation.Direction = AnimationDirection::In;
   FadeAnimation.LoopMode = AnimationLoopMode::Stop;
@@ -351,7 +289,9 @@ void TipsMenu::Init() {
   std::transform(
       TipRecords->begin(), TipRecords->end(), std::back_inserter(SortedTipIds),
       [](TipsSystem::TipsDataRecord const& record) { return record.Id; });
-  std::sort(SortedTipIds.begin(), SortedTipIds.end(), SortByTipName());
+  std::sort(SortedTipIds.begin(), SortedTipIds.end(),
+            TipsSystem::TipsComparator(TipsTextTableIndex,
+                                       TipsTextSortStringIndex, 3));
   for (int i = 0; i < TabCount; i++) {
     TipsTabType type = static_cast<TipsTabType>(i);
     TipsTabs[i] = new TipsTabGroup(
