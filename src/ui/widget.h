@@ -49,8 +49,8 @@ class Widget {
   // Will move this point to the desired location with MoveTo
   std::optional<glm::vec2> MoveToAnchor;
 
-  glm::vec2 MoveTarget;
-  glm::vec2 MoveOrigin;
+  glm::vec2 MoveTarget{};
+  glm::vec2 MoveOrigin{};
   Animation MoveAnimation;
 
  private:
