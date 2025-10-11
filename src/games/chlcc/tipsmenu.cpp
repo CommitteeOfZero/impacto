@@ -33,7 +33,7 @@ static float GetEndScroll(Group *tipsItemsGroup) {
   const float lastItemEndPos = lastItem->Bounds.Height + lastItem->Bounds.Y;
   const float pagePos =
       lastItemEndPos - TipsListBounds.Height - TipsListBounds.Y;
-
+  if (pagePos < 0.0f) return 0.0f;
   return ((int)(pagePos / TipListYPadding) * TipListYPadding);
 }
 
