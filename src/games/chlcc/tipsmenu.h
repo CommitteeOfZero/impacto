@@ -54,6 +54,7 @@ class TipsMenu : public UI::TipsMenu {
 
   Widgets::Carousel ItemsList;
   Widgets::Group TipViewItems;
+  Widgets::Group* NewTipsGroup;
   Widgets::Label* CurrentPage;
   Widgets::Label* TotalPages;
   std::vector<uint16_t> CategoryStringBuffer;

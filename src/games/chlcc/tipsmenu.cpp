@@ -106,7 +106,11 @@ void TipsMenu::Show() {
     UI::FocusedMenu = this;
     AnimationOffset = {0.0f, 0.0f};
     TipsEntryScrollPos = 0.0f;
+    if (ItemsList.Children.size() > 1) {
+      ItemsList.Next();
+    }
     (*ItemsList.GetCurrent())->Show();
+    (*ItemsList.GetCurrent())->HasFocus = false;
     TipViewItems.Show();
     if (TipsEntriesScrollbar) {
       TipsEntriesScrollbar->MoveTo(
@@ -233,6 +237,13 @@ void TipsMenu::Update(float dt) {
       (ScrWork[SW_SYSMENUCT] == 0 || GetFlag(SF_SYSTEMMENU)) &&
       State == Hiding) {
     State = Hidden;
+    if (NewTipsGroup) {
+      for (auto child : NewTipsGroup->Children | std::views::drop(1)) {
+        auto tipButton = static_cast<TipsEntryButton *>(child);
+        tipButton->TipEntryRecord->IsNew = false;
+      }
+      NewTipsGroup = nullptr;
+    }
     (*ItemsList.GetCurrent())->Hide();
     TipViewItems.Hide();
     CurrentlyDisplayedTipId = -1;
@@ -241,7 +252,7 @@ void TipsMenu::Update(float dt) {
              State == Showing) {
     State = Shown;
     IsFocused = true;
-    ItemsList.Children[0]->HasFocus = true;
+    (*ItemsList.GetCurrent())->HasFocus = true;
     AdvanceFocus(FDIR_DOWN);
   }
 
@@ -302,7 +313,6 @@ void TipsMenu::Init() {
   auto [scriptBufId, catStrAddr] =
       Vm::ScriptGetTextTableStrAddress(TipsStringTable, CategoryStringIndex);
   uint8_t *categoryString = &Vm::ScriptBuffers[scriptBufId][catStrAddr];
-  const auto recordCount = TipsSystem::GetTipCount();
   ItemsList.Clear();
   TipViewItems.Clear();
   Group *allTipsGroup = new Group(this);
@@ -313,11 +323,19 @@ void TipsMenu::Init() {
   ItemsList.Add(allTipsGroup);
   TipsEntryScrollPos = 0;
   // Sorting tip records
-  std::vector<int> indexes(recordCount);
   auto &records = *TipsSystem::GetTipRecords();
-  std::iota(indexes.begin(), indexes.end(), 0);
-  std::ranges::sort(
-      indexes, TipsSystem::TipsComparator(TipsStringTable, SortStringIndex, 2));
+  auto [indexes, sortedIndicesMap] = [] {
+    const auto recordCount = TipsSystem::GetTipCount();
+    std::vector<int> result(recordCount);
+    std::vector<int> mapping(recordCount);
+    std::iota(result.begin(), result.end(), 0);
+    std::ranges::sort(result, TipsSystem::TipsComparator(TipsStringTable,
+                                                         SortStringIndex, 2));
+    for (int pos = 0; pos < std::ssize(result); ++pos) {
+      mapping[result[pos]] = pos;
+    }
+    return std::pair{result, mapping};
+  }();
   auto sortedView = std::ranges::views::transform(
       indexes, [&records](size_t i) -> TipsSystem::TipsDataRecord & {
         return records[i];
@@ -334,8 +352,8 @@ void TipsMenu::Init() {
     return categoryLabel;
   };
   {
-    int i = 0;
     float currentY = TipListEntryBounds.Y;
+    int i = 0;
     for (auto &record : sortedView) {
       //  Each category is a character from the sort string and contains all
       //  tips the names of which begin with that character
@@ -367,43 +385,41 @@ void TipsMenu::Init() {
       allTipsGroup->Add(button, FDIR_DOWN);
       currentY += TipListYPadding;
     }
-    allTipsGroup->Show();
-    allTipsGroup->HasFocus = false;
   }
   {
-    int i = static_cast<int>(std::ssize(records) - 1);
     float currentY = TipListEntryBounds.Y;
-
-    Group *newTipsGroup = new Group(this);
-    newTipsGroup->Add(createCategory(
+    NewTipsGroup = new Group(this);
+    NewTipsGroup->Add(createCategory(
         Vm::ScriptGetTextTableStrAddress(TipsStringTable, NewLabelStrIndex),
         currentY));
     currentY += TipListYPadding;
-    for (auto &record : std::views::reverse(records)) {
+
+    int i = 0;
+    for (auto &record : records) {
       if (!record.IsNew || record.IsLocked) {
-        i--;
+        i++;
         continue;
       }
       RectF bounds = TipListEntryBounds;
       bounds.Y = currentY;
-      TipsEntryButton *button =
-          new TipsEntryButton(i--, &record, bounds, TipsEntryHighlightBar);
+      TipsEntryButton *button = new TipsEntryButton(
+          sortedIndicesMap[i++], &record, bounds, TipsEntryHighlightBar);
       button->OnClickHandler = onClick;
 
-      newTipsGroup->Add(button, FDIR_DOWN);
+      NewTipsGroup->Add(button, FDIR_DOWN);
       currentY += TipListYPadding;
     }
-    if (newTipsGroup->Children.size() > 1) {
-      ItemsList.Add(newTipsGroup);
-      newTipsGroup->Bounds = TipsListBounds;
-      newTipsGroup->RenderingBounds = TipsListRenderBounds;
+    if (NewTipsGroup->Children.size() > 1) {
+      ItemsList.Add(NewTipsGroup);
+      NewTipsGroup->Bounds = TipsListBounds;
+      NewTipsGroup->RenderingBounds = TipsListRenderBounds;
     } else {
-      delete newTipsGroup;
+      delete NewTipsGroup;
+      NewTipsGroup = nullptr;
     }
   }
 
   {
-    int i = 0;
     float currentY = TipListEntryBounds.Y;
 
     Group *unreadTipsGroup = new Group(this);
@@ -411,15 +427,16 @@ void TipsMenu::Init() {
         Vm::ScriptGetTextTableStrAddress(TipsStringTable, UnreadLabelStrIndex),
         currentY));
     currentY += TipListYPadding;
-    for (auto &record : sortedView) {
+    int i = 0;
+    for (auto &record : records) {
       if (!record.IsUnread || record.IsLocked) {
         i++;
         continue;
       }
       RectF bounds = TipListEntryBounds;
       bounds.Y = currentY;
-      TipsEntryButton *button =
-          new TipsEntryButton(i++, &record, bounds, TipsEntryHighlightBar);
+      TipsEntryButton *button = new TipsEntryButton(
+          sortedIndicesMap[i++], &record, bounds, TipsEntryHighlightBar);
       button->OnClickHandler = onClick;
 
       unreadTipsGroup->Add(button, FDIR_DOWN);
@@ -647,7 +664,7 @@ void TipsMenu::DrawTipsTree() {
     RectF dest{
         GradientPosition.x + AnimationOffset.x,
         start,
-        TipsGradient.Bounds.Width,
+        TipsListBounds.Width,
         remainder,
     };
     Renderer->DrawQuad(dest, RgbIntToFloat(EndOfGradientColor));

@@ -15,7 +15,7 @@ class TipsEntryButton : public Button {
   void Update(float dt) override;
   void Move(glm::vec2 relativePos) override;
 
-  TipsSystem::TipsDataRecord const* TipEntryRecord;
+  TipsSystem::TipsDataRecord* TipEntryRecord;
 
  private:
   std::array<ProcessedTextGlyph, 4> TipNumber;

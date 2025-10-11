@@ -36,9 +36,11 @@ TipsEntryButton::TipsEntryButton(int id, TipsDataRecord* tipRecord,
   Vm::Sc3VmThread dummy;
   dummy.IpOffset = tipRecord->StringAdr[0];
   dummy.ScriptBufferId = TipsSystem::GetTipsScriptBufferId();
+  auto textColorIndex =
+      (tipRecord->IsUnread) ? UnreadColorIndex : DefaultColorIndex;
   Text = TextLayoutPlainLine(
       &dummy, 255, Profile::Dialogue::DialogueFont, TipListEntryFontSize,
-      Profile::Dialogue::ColorTable[DefaultColorIndex], 1.0f,
+      Profile::Dialogue::ColorTable[textColorIndex], 1.0f,
       glm::vec2(Bounds.X + TipListEntryNameXOffset + TipListEntryTextOffsetX,
                 Bounds.Y),
       TextAlignment::Left);
