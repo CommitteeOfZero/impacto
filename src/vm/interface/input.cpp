@@ -45,6 +45,9 @@ static void UpdateFromPADCode(int PADcode, PADInputType type) {
   const auto& kbDownArr = type == PADInputType::WentDown
                               ? Input::KeyboardButtonWentDown
                               : Input::KeyboardButtonIsDown;
+  const auto& gpDownArr = type == PADInputType::WentDown
+                              ? Input::ControllerButtonWentDown
+                              : Input::ControllerButtonIsDown;
 
   auto& padInputButton = type == PADInputType::WentDown ? PADinputButtonWentDown
                                                         : PADinputButtonIsDown;
@@ -55,8 +58,8 @@ static void UpdateFromPADCode(int PADcode, PADInputType type) {
       KBcodes != PADToKeyboard.end() &&
       std::any_of(KBcodes->second.begin(), KBcodes->second.end(),
                   [&kbDownArr](auto KBcode) { return kbDownArr[KBcode]; });
-  const bool isGpDown = GPcode != PADToController.end() &&
-                        Input::ControllerButtonWentDown[GPcode->second];
+  const bool isGpDown =
+      GPcode != PADToController.end() && gpDownArr[GPcode->second];
   const auto checkAxis = [&](auto axisDownArr) {
     if (GPAcode != PADToControllerAxis.end()) {
       if (axisDownArr[GPAcode->second.first] &&
