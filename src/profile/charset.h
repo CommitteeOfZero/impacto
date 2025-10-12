@@ -7,7 +7,6 @@ namespace Impacto {
 namespace Profile {
 namespace Charset {
 
-inline std::vector<uint8_t> Flags;
 inline ankerl::unordered_dense::map<uint32_t, uint16_t> CharacterToSc3;
 
 void Load();

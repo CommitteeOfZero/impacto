@@ -37,7 +37,12 @@ struct ProcessedTextGlyph {
   float Opacity;
   RectF DestRect;
 
-  uint8_t Flags() const;
+  static inline ankerl::unordered_dense::map<uint16_t, uint8_t> FlagsMap;
+  static void AddFlags(Vm::BufferOffsetContext scrCtx, uint8_t flags);
+
+  uint8_t Flags() const {
+    return FlagsMap.contains(CharId) ? FlagsMap[CharId] : 0;
+  }
 };
 
 enum DialoguePageMode : uint8_t {
