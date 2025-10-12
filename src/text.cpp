@@ -740,6 +740,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
             TipsSystem::GetTipLockedState(token.Val_Uint16)) {
           TipsSystem::SetTipLockedState(token.Val_Uint16, false);
           TipsNotification::AddTip(token.Val_Uint16);
+          TipsSystem::GetNewTipsIndices().push_back(token.Val_Uint16);
         }
         break;
       }

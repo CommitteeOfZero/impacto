@@ -8,6 +8,7 @@
 #include "../../profile/scriptvars.h"
 #include "../../renderer/renderer.h"
 #include "../../profile/configsystem.h"
+#include "../../data/tipssystem.h"
 
 #include <cstdint>
 #include <numeric>
@@ -297,6 +298,15 @@ void SaveSystem::SaveSystemData() {
   stream.Seek(0xc1c, SEEK_SET);
   Io::WriteArrayLE<uint8_t>(MessageFlags.data(), &stream, MessageFlags.size());
 
+  stream.Seek(0x332c, SEEK_SET);
+  Io::WriteArrayBE<uint16_t>(TipsSystem::GetNewTipsIndices().data(), &stream,
+                             TipsSystem::GetNewTipsIndices().size());
+  Io::WriteBE<uint16_t>(&stream, 0,
+                        299 - TipsSystem::GetNewTipsIndices().size());
+  stream.Seek(0x3582, SEEK_SET);
+  Io::WriteLE<uint16_t>(
+      &stream, static_cast<uint16_t>(TipsSystem::GetNewTipsIndices().size()));
+
   stream.Seek(0x3584, SEEK_SET);
   Io::WriteArrayLE<uint8_t>(GameExtraData.data(), &stream,
                             GameExtraData.size());
@@ -471,6 +481,13 @@ SaveError SaveSystem::LoadSystemData() {
 
   stream.Seek(0xc1c, SEEK_SET);
   Io::ReadArrayLE<uint8_t>(MessageFlags.data(), &stream, MessageFlags.size());
+
+  stream.Seek(0x3582, SEEK_SET);
+  uint16_t newTipsCount = Io::ReadLE<uint16_t>(&stream);
+  TipsSystem::GetNewTipsIndices() = std::vector<uint16_t>(newTipsCount);
+  stream.Seek(0x332c, SEEK_SET);
+  Io::ReadArrayBE<uint16_t>(TipsSystem::GetNewTipsIndices().data(), &stream,
+                            newTipsCount);
 
   stream.Seek(0x3584, SEEK_SET);
   Io::ReadArrayLE<uint8_t>(GameExtraData.data(), &stream, GameExtraData.size());

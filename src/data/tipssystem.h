@@ -38,6 +38,7 @@ class TipsSystemBase {
   virtual bool GetTipLockedState(size_t id) = 0;
 
   std::vector<TipsDataRecord> Records;
+  std::vector<uint16_t> NewTipsIndices;
   size_t TipEntryCount = 0;
   uint8_t ScriptBufferId = 0;
 };
@@ -66,6 +67,7 @@ bool GetTipLockedState(size_t id);
 std::vector<TipsDataRecord>* GetTipRecords();
 TipsDataRecord* GetTipRecord(size_t id);
 size_t GetTipCount();
+std::vector<uint16_t>& GetNewTipsIndices();
 
 }  // namespace TipsSystem
 }  // namespace Impacto

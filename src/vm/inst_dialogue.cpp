@@ -526,6 +526,7 @@ VmInstruction(InstSetDic) {
         TipsSystem::SetTipNewState(tipId, true);
         TipsSystem::SetTipUnreadState(tipId, true);
         TipsNotification::AddTip(tipId);
+        TipsSystem::GetNewTipsIndices().push_back(static_cast<uint16_t>(tipId));
       }
       if (type == 1) {
         PopExpression(flagId);
@@ -547,6 +548,7 @@ VmInstruction(InstEncyclopedia) {
   if (TipsSystem::GetTipLockedState(tipId)) {
     TipsSystem::SetTipLockedState(tipId, false);
     TipsNotification::AddTip(tipId);
+    TipsSystem::GetNewTipsIndices().push_back(static_cast<uint16_t>(tipId));
   }
 }
 VmInstruction(InstNameID) {

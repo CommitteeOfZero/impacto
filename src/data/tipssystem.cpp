@@ -143,5 +143,14 @@ uint8_t GetTipsScriptBufferId() {
          "{:s}: tips system not implemented, returning 0\n", __func__);
   return 0;
 }
+
+std::vector<uint16_t>& GetNewTipsIndices() {
+  if (Implementation) return Implementation->NewTipsIndices;
+  ImpLog(LogLevel::Warning, LogChannel::VMStub,
+         "{:s}: tips system not implemented, returning empty vector\n",
+         __func__);
+  static std::vector<uint16_t> empty;
+  return empty;
+}
 }  // namespace TipsSystem
 }  // namespace Impacto
