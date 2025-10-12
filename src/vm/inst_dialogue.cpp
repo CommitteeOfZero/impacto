@@ -267,12 +267,13 @@ VmInstruction(InstSetMesModeFormat) {
 }
 VmInstruction(InstSetNGmoji) {
   StartInstruction;
-  PopString(strAdr1);
-  PopString(strAdr2);
-  (void)strAdr1;
-  (void)strAdr2;
-  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-             "STUB instruction SetNGmoji()\n");
+  PopString(startingPuncts);
+  PopString(endingPuncts);
+
+  ProcessedTextGlyph::AddFlags({thread->ScriptBufferId, startingPuncts},
+                               CharacterTypeFlags::WordStartingPunct);
+  ProcessedTextGlyph::AddFlags({thread->ScriptBufferId, endingPuncts},
+                               CharacterTypeFlags::WordEndingPunct);
 }
 VmInstruction(InstMesRev) {
   StartInstruction;
