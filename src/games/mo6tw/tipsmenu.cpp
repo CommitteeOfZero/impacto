@@ -142,11 +142,8 @@ void TipsMenu::Render() {
 }
 
 void TipsMenu::Init() {
-  Sprite nullSprite = Sprite();
-  nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
   auto onClick = [this](auto *btn) { return TipOnClick(btn); };
   int currentPage = 0, currentCategoryId = -1;
-  Group *pageItems = new Group(this);
 
   // String of characters by which tips are sorted, taken from _system script
   auto [scriptBufId, sortStrAddr] =
@@ -156,6 +153,10 @@ void TipsMenu::Init() {
 
   float currentY = TipListInitialY;
 
+  ItemsList.Clear();
+  TipViewItems.Clear();
+
+  Group *pageItems = new Group(this);
   for (size_t i = 0; i < recordCount; i++) {
     auto record = TipsSystem::GetTipRecord(i);
 
@@ -163,7 +164,7 @@ void TipsMenu::Init() {
     // categories per page, with each category being a character from
     // the sort string and containing all tips the names of which begin with
     // that character
-    auto page = record->SortLetterIndex / TipListCategoriesPerPage;
+    auto page = record->CategoryLetterIndex / TipListCategoriesPerPage;
     if (page != currentPage) {
       if (currentPage == 0) pageItems->Show();
       currentPage = page;
@@ -175,8 +176,8 @@ void TipsMenu::Init() {
     // Start new category
     // We take a character from the sort string and use that as the category
     // name inside a predefined template
-    if (record->SortLetterIndex != currentCategoryId) {
-      currentCategoryId = record->SortLetterIndex;
+    if (record->CategoryLetterIndex != currentCategoryId) {
+      currentCategoryId = record->CategoryLetterIndex;
       CategoryString[1] = UnalignedRead<uint16_t>(
           &sortString[currentCategoryId * sizeof(uint16_t)]);
 

@@ -15,7 +15,7 @@ int constexpr MaxTipStrings = 10;
 
 struct TipsDataRecord {
   uint16_t Id = 0;
-  uint16_t SortLetterIndex = 0;
+  uint16_t CategoryLetterIndex = 0;
   uint16_t ThumbnailIndex = 0;
   uint16_t NumberOfContentStrings = 0;
   std::array<uint32_t, MaxTipStrings> StringAdr = {};
@@ -38,8 +38,18 @@ class TipsSystemBase {
   virtual bool GetTipLockedState(size_t id) = 0;
 
   std::vector<TipsDataRecord> Records;
+  std::vector<uint16_t> NewTipsIndices;
   size_t TipEntryCount = 0;
   uint8_t ScriptBufferId = 0;
+};
+
+struct TipsComparator {
+  TipsComparator(uint32_t tipsTableId, uint32_t sortStringIndex,
+                 int tipIdStrIndex);
+  bool operator()(int a, int b) const;
+  uint8_t* SortString;
+  int TipIdStrIndex;
+  ankerl::unordered_dense::map<uint16_t, int> Sc3SortMap;
 };
 
 inline std::unique_ptr<TipsSystemBase> Implementation;
@@ -57,6 +67,7 @@ bool GetTipLockedState(size_t id);
 std::vector<TipsDataRecord>* GetTipRecords();
 TipsDataRecord* GetTipRecord(size_t id);
 size_t GetTipCount();
+std::vector<uint16_t>& GetNewTipsIndices();
 
 }  // namespace TipsSystem
 }  // namespace Impacto

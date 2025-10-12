@@ -48,6 +48,14 @@ void Carousel::UpdateInput(float dt) {
   }
 }
 
+void Carousel::Clear() {
+  for (const auto& el : Children) {
+    delete el;
+  }
+  Children.clear();
+  Iterator = Children.end();
+}
+
 void Carousel::Render() {
   for (const auto& el : Children) {
     auto tint = el->Tint;
@@ -83,8 +91,10 @@ void Carousel::Previous() {
 }
 
 void Carousel::OnChange(Widget* current, Widget* next) {
-  current->Hide();
-  next->Show();
+  if (current != next) {
+    current->Hide();
+    next->Show();
+  }
 }
 
 }  // namespace Widgets

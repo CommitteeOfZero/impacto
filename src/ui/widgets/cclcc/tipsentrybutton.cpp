@@ -46,8 +46,8 @@ TipsEntryButton::TipsEntryButton(int tipId, int dispId, RectF const& dest,
 
   dummy.IpOffset = Vm::ScriptGetStrAddress(TipsSystem::GetTipsScriptBufferId(),
                                            TipsTextEntryLockedIndex);
-  TextLayoutPlainLine(&dummy, TipLockedTextLength, TipLockedText,
-                      Profile::Dialogue::DialogueFont,
+  TextLayoutPlainLine(&dummy, static_cast<int>(TipLockedText.size()),
+                      TipLockedText, Profile::Dialogue::DialogueFont,
                       (float)TipsEntryNameFontSize, {initColorName, 0}, 1.0f,
                       nameDest, TextAlignment::Left);
   HighlightOffset = TipsEntryHighlightOffset;
@@ -107,11 +107,11 @@ void TipsEntryButton::Render() {
 
 void TipsEntryButton::Move(glm::vec2 relativePos) {
   Button::Move(relativePos);
-  for (int i = 0; i < TipNumberLength; i++) {
+  for (size_t i = 0; i < TipNumber.size(); i++) {
     TipNumber[i].DestRect.X += relativePos.x;
     TipNumber[i].DestRect.Y += relativePos.y;
   }
-  for (int i = 0; i < TipLockedTextLength; i++) {
+  for (size_t i = 0; i < TipLockedText.size(); i++) {
     TipLockedText[i].DestRect.X += relativePos.x;
     TipLockedText[i].DestRect.Y += relativePos.y;
   }

@@ -526,6 +526,7 @@ VmInstruction(InstSetDic) {
         TipsSystem::SetTipNewState(tipId, true);
         TipsSystem::SetTipUnreadState(tipId, true);
         TipsNotification::AddTip(tipId);
+        TipsSystem::GetNewTipsIndices().push_back(static_cast<uint16_t>(tipId));
       }
       if (type == 1) {
         PopExpression(flagId);
@@ -547,6 +548,7 @@ VmInstruction(InstEncyclopedia) {
   if (TipsSystem::GetTipLockedState(tipId)) {
     TipsSystem::SetTipLockedState(tipId, false);
     TipsNotification::AddTip(tipId);
+    TipsSystem::GetNewTipsIndices().push_back(static_cast<uint16_t>(tipId));
   }
 }
 VmInstruction(InstNameID) {
@@ -597,13 +599,17 @@ VmInstruction(InstTips) {
       uint32_t tipsDataSize =
           ScriptGetLabelSize(thread->ScriptBufferId, tipsLabelNum);
       TipsSystem::DataInit(thread->ScriptBufferId, tipsDataAdr, tipsDataSize);
-      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-                 "STUB instruction Tips(type: TipsDataInit)\n");
+      if (Profile::Vm::GameInstructionSet == +InstructionSet::CC &&
+          UI::TipsMenuPtr) {
+        UI::TipsMenuPtr->Init();
+      }
     } break;
     case 1:  // TipsInit
       TipsSystem::UpdateTipRecords();
-      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-                 "STUB instruction Tips(type: TipsInit)\n");
+      if (Profile::Vm::GameInstructionSet != +InstructionSet::CC &&
+          UI::TipsMenuPtr) {
+        UI::TipsMenuPtr->Init();
+      }
       break;
     case 2:  // TipsMain
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
@@ -614,9 +620,14 @@ VmInstruction(InstTips) {
                  "STUB instruction Tips(type: TipsEnd)\n");
       break;
     case 4:  // TipsSet
-      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-                 "STUB instruction Tips(type: TipsSet)\n");
       TipsSystem::UpdateTipRecords();
+      break;
+    case 5:
+      TipsSystem::UpdateTipRecords();
+      if (Profile::Vm::GameInstructionSet != +InstructionSet::CC &&
+          UI::TipsMenuPtr) {
+        UI::TipsMenuPtr->Init();
+      }
       break;
     case 10:  // Tips_ProfSetXboxEvent
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
