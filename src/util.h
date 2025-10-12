@@ -506,4 +506,13 @@ inline int CALCrnd(int max) {
 
 tm CurrentDateTime();
 
+constexpr auto operator<=>(const std::tm& a, const std::tm& b) {
+  if (auto cmp = a.tm_year <=> b.tm_year; cmp != 0) return cmp;
+  if (auto cmp = a.tm_mon <=> b.tm_mon; cmp != 0) return cmp;
+  if (auto cmp = a.tm_mday <=> b.tm_mday; cmp != 0) return cmp;
+  if (auto cmp = a.tm_hour <=> b.tm_hour; cmp != 0) return cmp;
+  if (auto cmp = a.tm_min <=> b.tm_min; cmp != 0) return cmp;
+  return a.tm_sec <=> b.tm_sec;
+}
+
 }  // namespace Impacto

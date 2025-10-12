@@ -82,14 +82,7 @@ void SaveMenu::Show() {
                   if (statusA == statusB) {
                     std::tm ta = SaveSystem::GetSaveDate(saveType, a);
                     std::tm tb = SaveSystem::GetSaveDate(saveType, b);
-                    std::time_t th = std::mktime(&ta);
-                    std::time_t tl = std::mktime(&tb);
-                    if (th == -1 || tl == -1) {
-                      ImpLog(LogLevel::Error, LogChannel::General,
-                             "Failed to convert time to time_t\n");
-                      return statusA > statusB;
-                    }
-                    return difftime(th, tl) > 0;
+                    return ta > tb;
                   }
                   return statusA > statusB;
                 });
