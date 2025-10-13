@@ -3,27 +3,17 @@
 #include "vfsarchive.h"
 #include "memorystream.h"
 #include <vector>
+#include <variant>
 #include <ankerl/unordered_dense.h>
 
 namespace Impacto {
 namespace Io {
 
-int constexpr CpkMaxPath = 224;
-
 struct CpkMetaEntry;
 
-struct CpkCell {
-  union {
-    uint8_t Uint8Val;
-    uint16_t Uint16Val;
-    uint32_t Uint32Val;
-    uint64_t Uint64Val;
-    uint8_t* DataArray;
-    float FloatVal;
-    char StringVal[CpkMaxPath];
-  };
-  uint64_t DataSize;
-};
+using CpkCell = std::variant<std::monostate, uint8_t, int8_t, uint16_t, int16_t,
+                             uint32_t, int32_t, uint64_t, int64_t, float,
+                             double, std::vector<uint8_t>, std::string>;
 
 class CpkArchive : public VfsArchive {
  public:
@@ -42,10 +32,10 @@ class CpkArchive : public VfsArchive {
   CpkMetaEntry* GetFileListEntry(uint32_t id);
 
   bool ReadUtfBlock(
-      uint8_t* utfBlock, uint64_t utfSize,
+      std::vector<uint8_t>& utfBlock,
       std::vector<ankerl::unordered_dense::map<
-          std::string, CpkCell, string_hash, std::equal_to<>>>* rows);
-  void ReadString(int64_t stringsOffset, char* output);
+          std::string, CpkCell, string_hash, std::equal_to<>>>& rows);
+  std::string ReadString(int64_t stringsOffset);
 
   uint16_t Version;
   uint16_t Revision;

@@ -8,30 +8,35 @@
 namespace Impacto {
 namespace Io {
 
-enum CpkColumnFlags {
-  STORAGE_MASK = 0xf0,
-  STORAGE_NONE = 0x00,
-  STORAGE_ZERO = 0x10,
-  STORAGE_CONSTANT = 0x30,
-  STORAGE_PERROW = 0x50,
-
-  TYPE_MASK = 0x0f,
-  TYPE_DATA = 0x0b,
-  TYPE_STRING = 0x0a,
-  TYPE_FLOAT = 0x08,
-  TYPE_8BYTE2 = 0x07,
-  TYPE_8BYTE = 0x06,
-  TYPE_4BYTE2 = 0x05,
-  TYPE_4BYTE = 0x04,
-  TYPE_2BYTE2 = 0x03,
-  TYPE_2BYTE = 0x02,
-  TYPE_1BYTE2 = 0x01,
-  TYPE_1BYTE = 0x00,
-};
-
 struct CpkColumn {
+  enum Kind : uint8_t {
+    U8 = 0,
+    I8,
+    U16,
+    I16,
+    U32,
+    I32,
+    U64,
+    I64,
+    Float,
+    Double,
+    String,
+    Data
+  };
+
+  enum Storage : uint8_t {
+    NONE = 0,
+    DEFAULT = 1,
+    CONSTANT = 3,
+    NORMAL = 5,
+  };
   uint32_t Flags;
-  char Name[CpkMaxPath];
+  Kind GetType() const { return static_cast<Kind>(Flags & 0xF); }
+  Storage GetStorage() const {
+    return static_cast<Storage>((Flags >> 4) & 0xF);
+  }
+
+  std::string Name;
   std::vector<CpkCell> Cells;
 };
 
@@ -54,13 +59,13 @@ void DecryptUtfBlock(uint8_t* utfBlock, uint64_t size) {
 }
 
 bool CpkArchive::ReadUtfBlock(
-    uint8_t* utfBlock, uint64_t utfSize,
+    std::vector<uint8_t>& utfBlock,
     std::vector<ankerl::unordered_dense::map<std::string, CpkCell, string_hash,
-                                             std::equal_to<>>>* rows) {
+                                             std::equal_to<>>>& rows) {
   const uint32_t utfMagic = 0x40555446;
-  UtfStream = new MemoryStream(utfBlock, utfSize, true);
+  UtfStream = new MemoryStream(utfBlock.data(), utfBlock.size(), false);
   if (ReadBE<uint32_t>(UtfStream) != utfMagic) {
-    DecryptUtfBlock(utfBlock, utfSize);
+    DecryptUtfBlock(utfBlock.data(), utfBlock.size());
     UtfStream->Seek(0, RW_SEEK_SET);
     if (ReadBE<uint32_t>(UtfStream) != utfMagic) {
       ImpLog(LogLevel::Trace, LogChannel::IO, "Error reading CPK UTF table\n");
@@ -87,11 +92,78 @@ bool CpkArchive::ReadUtfBlock(
 
   std::vector<CpkColumn> columns;
 
+  const auto readCell = [this, &stringsOffset,
+                         &dataOffset](CpkColumn const& column) {
+    const auto readOrDefaultT = []<typename T>(CpkColumn::Storage storeType,
+                                               Stream* s) {
+      if (storeType == CpkColumn::Storage::DEFAULT) return T{};
+      return Io::ReadBE<T>(s);
+    };
+
+    CpkCell cell{};
+    auto storeType = column.GetStorage();
+    switch (column.GetType()) {
+      case CpkColumn::Kind::U8:
+        cell = readOrDefaultT.operator()<uint8_t>(storeType, UtfStream);
+        break;
+      case CpkColumn::Kind::I8:
+        cell = readOrDefaultT.operator()<int8_t>(storeType, UtfStream);
+        break;
+      case CpkColumn::Kind::U16:
+        cell = readOrDefaultT.operator()<uint16_t>(storeType, UtfStream);
+        break;
+      case CpkColumn::Kind::I16:
+        cell = readOrDefaultT.operator()<int16_t>(storeType, UtfStream);
+        break;
+      case CpkColumn::Kind::U32:
+        cell = readOrDefaultT.operator()<uint32_t>(storeType, UtfStream);
+        break;
+      case CpkColumn::Kind::I32:
+        cell = readOrDefaultT.operator()<int32_t>(storeType, UtfStream);
+        break;
+      case CpkColumn::Kind::U64:
+        cell = readOrDefaultT.operator()<uint64_t>(storeType, UtfStream);
+        break;
+      case CpkColumn::Kind::I64:
+        cell = readOrDefaultT.operator()<int64_t>(storeType, UtfStream);
+        break;
+      case CpkColumn::Kind::Float:
+        cell = readOrDefaultT.operator()<float>(storeType, UtfStream);
+        break;
+      case CpkColumn::Kind::Double:
+        cell = readOrDefaultT.operator()<double>(storeType, UtfStream);
+        break;
+      case CpkColumn::Kind::String:
+        if (storeType == CpkColumn::Storage::DEFAULT) {
+          cell = std::string();
+        } else {
+          cell = ReadString(stringsOffset);
+        }
+        break;
+      case CpkColumn::Kind::Data: {
+        if (storeType == CpkColumn::Storage::DEFAULT) {
+          cell = std::vector<uint8_t>();
+        } else {
+          int64_t dataPos = ReadBE<uint32_t>(UtfStream) + dataOffset;
+          uint64_t dataSize = ReadBE<uint32_t>(UtfStream);
+          uint64_t retAddr = UtfStream->Position;
+          std::vector<uint8_t> dataBuf(dataSize + sizeof(uint64_t));
+          UtfStream->Seek(dataPos, RW_SEEK_SET);
+          UtfStream->Read(dataBuf.data(), dataSize);
+          UtfStream->Seek(retAddr, RW_SEEK_SET);
+          cell = std::move(dataBuf);
+        }
+      } break;
+    }
+    return cell;
+  };
+
   for (int i = 0; i < numColumns; i++) {
     CpkColumn column;
     column.Flags = ReadU8(UtfStream);
     if (column.Flags == 0) column.Flags = ReadBE<uint32_t>(UtfStream);
 
+    column.Name = ReadString(stringsOffset);
     ReadString(stringsOffset, column.Name);
 
     columns.push_back(column);
@@ -103,74 +175,29 @@ bool CpkArchive::ReadUtfBlock(
                                  std::equal_to<>>
         row;
     for (auto& column : columns) {
-      CpkCell cell{};
-      int storageFlag = column.Flags & CpkColumnFlags::STORAGE_MASK;
-      if (storageFlag == 0x50) {
-        int cellType = column.Flags & CpkColumnFlags::TYPE_MASK;
-        switch (cellType) {
-          case 0:
-          case 1:
-            cell.Uint8Val = ReadU8(UtfStream);
-            break;
-          case 2:
-          case 3:
-            cell.Uint16Val = ReadBE<uint16_t>(UtfStream);
-            break;
-          case 4:
-          case 5:
-            cell.Uint32Val = ReadBE<uint32_t>(UtfStream);
-            break;
-          case 6:
-          case 7:
-            cell.Uint64Val = ReadBE<uint64_t>(UtfStream);
-            break;
-          case 8:
-            cell.FloatVal = ReadBE<float>(UtfStream);
-            break;
-          case 0xA:
-            ReadString(stringsOffset, cell.StringVal);
-            break;
-          case 0xB:
-            int64_t dataPos = ReadBE<uint32_t>(UtfStream) + dataOffset;
-            uint64_t dataSize = ReadBE<uint32_t>(UtfStream);
-            uint64_t retAddr = UtfStream->Position;
-            cell.DataArray = (uint8_t*)malloc(dataSize + sizeof(uint64_t));
-            cell.DataSize = dataSize;
-            if (cell.DataArray != 0) {
-              UtfStream->Seek(dataPos, RW_SEEK_SET);
-              UtfStream->Read(cell.DataArray, dataSize);
-              UtfStream->Seek(retAddr, RW_SEEK_SET);
-            }
-            break;
-        }
-      } else {
-        cell.Uint64Val = 0;
-      }
-      row[column.Name] = cell;
+      row[column.Name] = readCell(column);
     }
-    rows->push_back(row);
+    rows.push_back(row);
   }
 
   delete UtfStream;
   return true;
 }
 
-void CpkArchive::ReadString(int64_t stringsOffset, char* output) {
+std::string CpkArchive::ReadString(int64_t stringsOffset) {
   int64_t stringAddr = stringsOffset + ReadBE<uint32_t>(UtfStream);
 
   int64_t retAddr = UtfStream->Position;
 
   UtfStream->Seek(stringAddr, RW_SEEK_SET);
 
-  memset(output, 0, CpkMaxPath);
-
   char ch;
-  int i = 0;
+  std::string output;
   while ((ch = ReadU8(UtfStream)) != 0x00) {
-    output[i++] = ch;
+    output.push_back(ch);
   }
-  output[i] = '\0';
   UtfStream->Seek(retAddr, RW_SEEK_SET);
+  return output;
 }
 
 CpkMetaEntry* CpkArchive::GetFileListEntry(uint32_t id) {
@@ -196,34 +223,34 @@ IoError CpkArchive::ReadItoc(int64_t itocOffset, int64_t contentOffset,
   }
   BaseStream->Seek(4, RW_SEEK_CUR);
   uint64_t utfSize = ReadLE<uint64_t>(BaseStream);
-  uint8_t* utfBlock = (uint8_t*)malloc(utfSize);
-  BaseStream->Read(utfBlock, utfSize);
+  std::vector<uint8_t> utfBlock(utfSize);
+  BaseStream->Read(utfBlock.data(), utfSize);
   std::vector<ankerl::unordered_dense::map<std::string, CpkCell, string_hash,
                                            std::equal_to<>>>
       itocUtfTable;
-  if (!ReadUtfBlock(utfBlock, utfSize, &itocUtfTable)) return IoError_Fail;
-
-  if (itocUtfTable[0]["DataL"].Uint64Val != 0) {
+  if (!ReadUtfBlock(utfBlock, itocUtfTable)) return IoError_Fail;
+  auto lowDataItr = itocUtfTable[0].find("DataL");
+  if (lowDataItr != itocUtfTable[0].end()) {
     std::vector<ankerl::unordered_dense::map<std::string, CpkCell, string_hash,
                                              std::equal_to<>>>
         dataLUtfTable;
-    if (!ReadUtfBlock(itocUtfTable[0]["DataL"].DataArray,
-                      itocUtfTable[0]["DataL"].DataSize, &dataLUtfTable))
+    if (!ReadUtfBlock(std::get<std::vector<uint8_t>>(itocUtfTable[0]["DataL"]),
+                      dataLUtfTable))
       return IoError_Fail;
     std::vector<ankerl::unordered_dense::map<std::string, CpkCell, string_hash,
                                              std::equal_to<>>>
         dataHUtfTable;
-    if (!ReadUtfBlock(itocUtfTable[0]["DataH"].DataArray,
-                      itocUtfTable[0]["DataH"].DataSize, &dataHUtfTable))
+    if (!ReadUtfBlock(std::get<std::vector<uint8_t>>(itocUtfTable[0]["DataH"]),
+                      dataHUtfTable))
       return IoError_Fail;
 
     for (auto& row : dataLUtfTable) {
-      int id = row["ID"].Uint16Val;
+      int id = std::get<uint16_t>(row["ID"]);
       CpkMetaEntry* entry = GetFileListEntry(id);
       entry->Id = id;
 
-      uint16_t extractedSize = row["ExtractSize"].Uint16Val;
-      uint16_t fileSize = row["FileSize"].Uint16Val;
+      uint16_t extractedSize = std::get<uint16_t>(row["ExtractSize"]);
+      uint16_t fileSize = std::get<uint16_t>(row["FileSize"]);
       if (extractedSize && (extractedSize != fileSize)) {
         entry->Size = extractedSize;
         entry->CompressedSize = fileSize;
@@ -241,12 +268,12 @@ IoError CpkArchive::ReadItoc(int64_t itocOffset, int64_t contentOffset,
     }
 
     for (auto& row : dataHUtfTable) {
-      int id = row["ID"].Uint16Val;
+      int id = std::get<uint16_t>(row["ID"]);
       CpkMetaEntry* entry = GetFileListEntry(id);
       entry->Id = id;
 
-      int extractedSize = row["ExtractSize"].Uint32Val;
-      int fileSize = row["FileSize"].Uint32Val;
+      int extractedSize = std::get<uint32_t>(row["ExtractSize"]);
+      int fileSize = std::get<uint32_t>(row["FileSize"]);
       if (extractedSize && (extractedSize != fileSize)) {
         entry->Size = extractedSize;
         entry->CompressedSize = fileSize;
@@ -293,35 +320,37 @@ IoError CpkArchive::ReadToc(int64_t tocOffset, int64_t contentOffset) {
   }
   BaseStream->Seek(4, RW_SEEK_CUR);
   uint64_t utfSize = ReadLE<uint64_t>(BaseStream);
-  uint8_t* utfBlock = (uint8_t*)malloc(utfSize);
-  BaseStream->Read(utfBlock, utfSize);
+  std::vector<uint8_t> utfBlock(utfSize);
+  BaseStream->Read(utfBlock.data(), utfSize);
   std::vector<ankerl::unordered_dense::map<std::string, CpkCell, string_hash,
                                            std::equal_to<>>>
       tocUtfTable;
-  if (!ReadUtfBlock(utfBlock, utfSize, &tocUtfTable)) return IoError_Fail;
+  if (!ReadUtfBlock(utfBlock, tocUtfTable)) return IoError_Fail;
 
   for (auto& row : tocUtfTable) {
-    uint32_t id = row["ID"].Uint32Val;
+    uint32_t id = std::get<uint32_t>(row["ID"]);
     CpkMetaEntry* entry = GetFileListEntry(id);
 
     entry->Id = id;
-    entry->Offset = row["FileOffset"].Uint64Val;
-
+    entry->Offset = std::get<uint64_t>(row["FileOffset"]);
+    constexpr static int CpkMaxPath = 244;
     char path[CpkMaxPath * 2] = {0};
 
-    if (*row["DirName"].StringVal) {
-      snprintf(path, CpkMaxPath * 2, "%s/%s", row["DirName"].StringVal,
-               row["FileName"].StringVal);
+    if (auto* dir = std::get_if<std::string>(&row["DirName"]);
+        dir && !dir->empty()) {
+      fmt::format_to_n(path, CpkMaxPath * 2, "{}/{}", *dir,
+                       std::get<std::string>(row["FileName"]));
     } else {
-      snprintf(path, CpkMaxPath, "%s", row["FileName"].StringVal);
+      fmt::format_to_n(path, CpkMaxPath, "{}",
+                       std::get<std::string>(row["FileName"]));
     }
     if (strlen(path) == 0) {
       snprintf(path, CpkMaxPath, "%05i", id);
     }
     entry->FileName = path;
 
-    int extractedSize = row["ExtractSize"].Uint32Val;
-    int fileSize = row["FileSize"].Uint32Val;
+    int extractedSize = std::get<uint32_t>(row["ExtractSize"]);
+    int fileSize = std::get<uint32_t>(row["FileSize"]);
     if (extractedSize && (extractedSize != fileSize)) {
       entry->Size = extractedSize;
       entry->CompressedSize = fileSize;
@@ -345,12 +374,12 @@ IoError CpkArchive::ReadEtoc(int64_t etocOffset) {
   }
   BaseStream->Seek(4, RW_SEEK_CUR);
   uint64_t utfSize = ReadLE<uint64_t>(BaseStream);
-  uint8_t* utfBlock = (uint8_t*)malloc(utfSize);
-  BaseStream->Read(utfBlock, utfSize);
+  std::vector<uint8_t> utfBlock(utfSize);
+  BaseStream->Read(utfBlock.data(), utfSize);
   std::vector<ankerl::unordered_dense::map<std::string, CpkCell, string_hash,
                                            std::equal_to<>>>
       etocUtfTable;
-  if (!ReadUtfBlock(utfBlock, utfSize, &etocUtfTable)) return IoError_Fail;
+  if (!ReadUtfBlock(utfBlock, etocUtfTable)) return IoError_Fail;
 
   // for (auto& row : etocUtfTable) {
   // TODO: This contains the LocalDir and UpdateDateTime params. Do we actually
@@ -371,45 +400,60 @@ IoError CpkArchive::Create(Stream* stream, VfsArchive** outArchive) {
       headerUtfTable;
 
   uint16_t alignVal;
-  uint64_t utfSize = 0;
-  uint8_t* utfBlock = 0;
+
+  auto errorHandler = [&] {
+    stream->Seek(0, RW_SEEK_SET);
+    if (result) delete result;
+    return IoError_Fail;
+  };
 
   uint32_t const magic = 0x43504B20;
   if (ReadBE<uint32_t>(stream) != magic) {
     ImpLog(LogLevel::Trace, LogChannel::IO, "Not a CPK\n");
-    goto fail;
+    return errorHandler();
   }
 
   result = new CpkArchive;
   result->BaseStream = stream;
 
-  stream->Seek(0x8, RW_SEEK_SET);
-  utfSize = ReadLE<uint64_t>(stream);
-  utfBlock = (uint8_t*)malloc(utfSize);
-  stream->Read(utfBlock, utfSize);
-  if (!result->ReadUtfBlock(utfBlock, utfSize, &headerUtfTable)) {
-    goto fail;
+  bool encrypted = ReadLE<uint32_t>(stream) == 0;
+  {
+    uint64_t utfSize = ReadLE<uint64_t>(stream);
+    std::vector<uint8_t> utfBlock(utfSize);
+    if (encrypted) {
+      uint8_t key = 0x5F;
+      for (auto& elem : utfBlock) {
+        elem = elem ^ key;
+        key = (key * 0x15) & 0xFF;
+      }
+    }
+    stream->Read(utfBlock.data(), utfSize);
+    if (!result->ReadUtfBlock(utfBlock, headerUtfTable)) {
+      return errorHandler();
+    }
   }
 
-  alignVal = headerUtfTable[0]["Align"].Uint16Val;
-  result->FileCount = headerUtfTable[0]["Files"].Uint32Val;
-  result->Version = headerUtfTable[0]["Version"].Uint16Val;
-  result->Revision = headerUtfTable[0]["Revision"].Uint16Val;
+  result->FileCount = std::get<uint32_t>(headerUtfTable[0]["Files"]);
+  result->Version = std::get<uint16_t>(headerUtfTable[0]["Version"]);
+  result->Revision = std::get<uint16_t>(headerUtfTable[0]["Revision"]);
+
+  alignVal = std::get<uint16_t>(headerUtfTable[0]["Align"]);
 
   result->FileList = new CpkMetaEntry[result->FileCount];
 
-  if (headerUtfTable[0]["TocOffset"].Uint64Val != 0) {
-    result->ReadToc(headerUtfTable[0]["TocOffset"].Uint64Val,
-                    headerUtfTable[0]["ContentOffset"].Uint64Val);
+  if (std::get<uint64_t>(headerUtfTable[0]["TocOffset"]) != 0) {
+    result->ReadToc(std::get<uint64_t>(headerUtfTable[0]["TocOffset"]),
+                    std::get<uint64_t>(headerUtfTable[0]["ContentOffset"]));
   }
 
-  if (headerUtfTable[0]["EtocOffset"].Uint64Val != 0) {
-    result->ReadEtoc(headerUtfTable[0]["EtocOffset"].Uint64Val);
+  if (std::get<uint64_t>(headerUtfTable[0]["EtocOffset"]) != 0) {
+    result->ReadEtoc(std::get<uint64_t>(headerUtfTable[0]["EtocOffset"]));
   }
 
-  if (headerUtfTable[0]["ItocOffset"].Uint64Val != 0) {
-    result->ReadItoc(headerUtfTable[0]["ItocOffset"].Uint64Val,
-                     headerUtfTable[0]["ContentOffset"].Uint64Val, alignVal);
+  if (std::get<uint64_t>(headerUtfTable[0]["ItocOffset"]) != 0) {
+    result->ReadItoc(std::get<uint64_t>(headerUtfTable[0]["ItocOffset"]),
+                     std::get<uint64_t>(headerUtfTable[0]["ContentOffset"]),
+                     alignVal);
   }
 
   for (uint32_t i = 0; i < result->FileCount; i++) {
@@ -419,11 +463,6 @@ IoError CpkArchive::Create(Stream* stream, VfsArchive** outArchive) {
   result->IsInit = true;
   *outArchive = result;
   return IoError_OK;
-
-fail:
-  stream->Seek(0, RW_SEEK_SET);
-  if (result) delete result;
-  return IoError_Fail;
 }
 
 IoError CpkArchive::Open(FileMeta* file, Stream** outStream) {
