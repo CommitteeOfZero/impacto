@@ -1,5 +1,7 @@
 #include "cpkarchive.h"
 
+#include <variant>
+
 #include "../log.h"
 #include "../util.h"
 #include "uncompressedstream.h"
@@ -7,6 +9,9 @@
 
 namespace Impacto {
 namespace Io {
+using CpkCell = std::variant<std::monostate, uint8_t, int8_t, uint16_t, int16_t,
+                             uint32_t, int32_t, uint64_t, int64_t, float,
+                             double, std::vector<uint8_t>, std::string>;
 
 struct CpkColumn {
   enum Kind : uint8_t {
@@ -59,41 +64,57 @@ void DecryptUtfBlock(uint8_t* utfBlock, uint64_t size) {
   }
 }
 
-bool CpkArchive::ReadUtfBlock(
+static std::string ReadString(int64_t stringsOffset, Stream* utfStream) {
+  int64_t stringAddr = stringsOffset + ReadBE<uint32_t>(utfStream);
+
+  int64_t retAddr = utfStream->Position;
+
+  utfStream->Seek(stringAddr, RW_SEEK_SET);
+
+  char ch;
+  std::string output;
+  while ((ch = ReadU8(utfStream)) != 0x00) {
+    output.push_back(ch);
+  }
+  utfStream->Seek(retAddr, RW_SEEK_SET);
+  return output;
+}
+
+static bool ReadUtfBlock(
     std::vector<uint8_t>& utfBlock,
     std::vector<ankerl::unordered_dense::map<std::string, CpkCell, string_hash,
                                              std::equal_to<>>>& rows) {
   const uint32_t utfMagic = 0x40555446;
-  UtfStream = new MemoryStream(utfBlock.data(), utfBlock.size(), false);
-  if (ReadBE<uint32_t>(UtfStream) != utfMagic) {
+  auto* utfStream = new MemoryStream(utfBlock.data(), utfBlock.size(), false);
+  if (ReadBE<uint32_t>(utfStream) != utfMagic) {
     DecryptUtfBlock(utfBlock.data(), utfBlock.size());
-    UtfStream->Seek(0, RW_SEEK_SET);
-    if (ReadBE<uint32_t>(UtfStream) != utfMagic) {
+    utfStream->Seek(0, RW_SEEK_SET);
+    if (ReadBE<uint32_t>(utfStream) != utfMagic) {
       ImpLog(LogLevel::Trace, LogChannel::IO, "Error reading CPK UTF table\n");
-      delete UtfStream;
+      delete utfStream;
       return false;
     }
   }
 
-  // uint32_t tableSize = ReadBE<uint32_t>(UtfStream);
-  UtfStream->Seek(4, RW_SEEK_CUR);
-  int64_t rowsOffset = ReadBE<uint32_t>(UtfStream);
-  int64_t stringsOffset = ReadBE<uint32_t>(UtfStream);
-  int64_t dataOffset = ReadBE<uint32_t>(UtfStream);
+  // uint32_t tableSize = ReadBE<uint32_t>(utfStream);
+  utfStream->Seek(4, RW_SEEK_CUR);
+  int64_t rowsOffset = ReadBE<uint32_t>(utfStream);
+  int64_t stringsOffset = ReadBE<uint32_t>(utfStream);
+  int64_t dataOffset = ReadBE<uint32_t>(utfStream);
 
   rowsOffset += 8;
   stringsOffset += 8;
   dataOffset += 8;
 
   // uint32_t tableNameOffset = ReadBE<uint32_t>(UtfStream);
-  UtfStream->Seek(4, RW_SEEK_CUR);
-  uint16_t numColumns = ReadBE<uint16_t>(UtfStream);
-  uint16_t rowLength = ReadBE<uint16_t>(UtfStream);
-  uint32_t numRows = ReadBE<uint32_t>(UtfStream);
+  utfStream->Seek(4, RW_SEEK_CUR);
+  uint16_t numColumns = ReadBE<uint16_t>(utfStream);
+  uint16_t rowLength = ReadBE<uint16_t>(utfStream);
+  uint32_t numRows = ReadBE<uint32_t>(utfStream);
 
   std::vector<CpkColumn> columns;
 
-  const auto readCell = [this, &stringsOffset,
+  const auto readCell = [utfStream, &stringsOffset,
                          &dataOffset](CpkColumn const& column) {
     const auto readOrDefaultT = []<typename T>(CpkColumn::Storage storeType,
                                                Stream* s) {
@@ -105,53 +126,53 @@ bool CpkArchive::ReadUtfBlock(
     auto storeType = column.GetStorage();
     switch (column.GetType()) {
       case CpkColumn::Kind::U8:
-        cell = readOrDefaultT.operator()<uint8_t>(storeType, UtfStream);
+        cell = readOrDefaultT.operator()<uint8_t>(storeType, utfStream);
         break;
       case CpkColumn::Kind::I8:
-        cell = readOrDefaultT.operator()<int8_t>(storeType, UtfStream);
+        cell = readOrDefaultT.operator()<int8_t>(storeType, utfStream);
         break;
       case CpkColumn::Kind::U16:
-        cell = readOrDefaultT.operator()<uint16_t>(storeType, UtfStream);
+        cell = readOrDefaultT.operator()<uint16_t>(storeType, utfStream);
         break;
       case CpkColumn::Kind::I16:
-        cell = readOrDefaultT.operator()<int16_t>(storeType, UtfStream);
+        cell = readOrDefaultT.operator()<int16_t>(storeType, utfStream);
         break;
       case CpkColumn::Kind::U32:
-        cell = readOrDefaultT.operator()<uint32_t>(storeType, UtfStream);
+        cell = readOrDefaultT.operator()<uint32_t>(storeType, utfStream);
         break;
       case CpkColumn::Kind::I32:
-        cell = readOrDefaultT.operator()<int32_t>(storeType, UtfStream);
+        cell = readOrDefaultT.operator()<int32_t>(storeType, utfStream);
         break;
       case CpkColumn::Kind::U64:
-        cell = readOrDefaultT.operator()<uint64_t>(storeType, UtfStream);
+        cell = readOrDefaultT.operator()<uint64_t>(storeType, utfStream);
         break;
       case CpkColumn::Kind::I64:
-        cell = readOrDefaultT.operator()<int64_t>(storeType, UtfStream);
+        cell = readOrDefaultT.operator()<int64_t>(storeType, utfStream);
         break;
       case CpkColumn::Kind::Float:
-        cell = readOrDefaultT.operator()<float>(storeType, UtfStream);
+        cell = readOrDefaultT.operator()<float>(storeType, utfStream);
         break;
       case CpkColumn::Kind::Double:
-        cell = readOrDefaultT.operator()<double>(storeType, UtfStream);
+        cell = readOrDefaultT.operator()<double>(storeType, utfStream);
         break;
       case CpkColumn::Kind::String:
         if (storeType == CpkColumn::Storage::DEFAULT) {
           cell = std::string();
         } else {
-          cell = ReadString(stringsOffset);
+          cell = ReadString(stringsOffset, utfStream);
         }
         break;
       case CpkColumn::Kind::Data: {
         if (storeType == CpkColumn::Storage::DEFAULT) {
           cell = std::vector<uint8_t>();
         } else {
-          int64_t dataPos = ReadBE<uint32_t>(UtfStream) + dataOffset;
-          uint64_t dataSize = ReadBE<uint32_t>(UtfStream);
-          uint64_t retAddr = UtfStream->Position;
+          int64_t dataPos = ReadBE<uint32_t>(utfStream) + dataOffset;
+          uint64_t dataSize = ReadBE<uint32_t>(utfStream);
+          uint64_t retAddr = utfStream->Position;
           std::vector<uint8_t> dataBuf(dataSize + sizeof(uint64_t));
-          UtfStream->Seek(dataPos, RW_SEEK_SET);
-          UtfStream->Read(dataBuf.data(), dataSize);
-          UtfStream->Seek(retAddr, RW_SEEK_SET);
+          utfStream->Seek(dataPos, RW_SEEK_SET);
+          utfStream->Read(dataBuf.data(), dataSize);
+          utfStream->Seek(retAddr, RW_SEEK_SET);
           cell = std::move(dataBuf);
         }
       } break;
@@ -161,10 +182,10 @@ bool CpkArchive::ReadUtfBlock(
 
   for (int i = 0; i < numColumns; i++) {
     CpkColumn column;
-    column.Flags = ReadU8(UtfStream);
-    if (column.Flags == 0) column.Flags = ReadBE<uint32_t>(UtfStream);
+    column.Flags = ReadU8(utfStream);
+    if (column.Flags == 0) column.Flags = ReadBE<uint32_t>(utfStream);
 
-    column.Name = ReadString(stringsOffset);
+    column.Name = ReadString(stringsOffset, utfStream);
     if (column.GetStorage() == CpkColumn::Storage::CONSTANT) {
       column.Constant = readCell(column);
     }
@@ -173,7 +194,7 @@ bool CpkArchive::ReadUtfBlock(
   }
 
   for (uint32_t i = 0; i < numRows; i++) {
-    UtfStream->Seek(rowsOffset + (i * rowLength), RW_SEEK_SET);
+    utfStream->Seek(rowsOffset + (i * rowLength), RW_SEEK_SET);
     ankerl::unordered_dense::map<std::string, CpkCell, string_hash,
                                  std::equal_to<>>
         row;
@@ -185,24 +206,8 @@ bool CpkArchive::ReadUtfBlock(
     rows.push_back(row);
   }
 
-  delete UtfStream;
+  delete utfStream;
   return true;
-}
-
-std::string CpkArchive::ReadString(int64_t stringsOffset) {
-  int64_t stringAddr = stringsOffset + ReadBE<uint32_t>(UtfStream);
-
-  int64_t retAddr = UtfStream->Position;
-
-  UtfStream->Seek(stringAddr, RW_SEEK_SET);
-
-  char ch;
-  std::string output;
-  while ((ch = ReadU8(UtfStream)) != 0x00) {
-    output.push_back(ch);
-  }
-  UtfStream->Seek(retAddr, RW_SEEK_SET);
-  return output;
 }
 
 CpkMetaEntry* CpkArchive::GetFileListEntry(uint32_t id) {
@@ -433,7 +438,7 @@ IoError CpkArchive::Create(Stream* stream, VfsArchive** outArchive) {
       }
     }
     stream->Read(utfBlock.data(), utfSize);
-    if (!result->ReadUtfBlock(utfBlock, headerUtfTable)) {
+    if (!ReadUtfBlock(utfBlock, headerUtfTable)) {
       return errorHandler();
     }
   }
