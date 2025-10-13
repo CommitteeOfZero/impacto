@@ -38,6 +38,7 @@ struct CpkColumn {
 
   std::string Name;
   std::vector<CpkCell> Cells;
+  CpkCell Constant;
 };
 
 struct CpkMetaEntry : public FileMeta {
@@ -164,7 +165,9 @@ bool CpkArchive::ReadUtfBlock(
     if (column.Flags == 0) column.Flags = ReadBE<uint32_t>(UtfStream);
 
     column.Name = ReadString(stringsOffset);
-    ReadString(stringsOffset, column.Name);
+    if (column.GetStorage() == CpkColumn::Storage::CONSTANT) {
+      column.Constant = readCell(column);
+    }
 
     columns.push_back(column);
   }
@@ -175,7 +178,9 @@ bool CpkArchive::ReadUtfBlock(
                                  std::equal_to<>>
         row;
     for (auto& column : columns) {
-      row[column.Name] = readCell(column);
+      row[column.Name] = (column.GetStorage() == CpkColumn::Storage::CONSTANT)
+                             ? column.Constant
+                             : readCell(column);
     }
     rows.push_back(row);
   }
