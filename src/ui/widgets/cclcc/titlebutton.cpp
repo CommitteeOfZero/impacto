@@ -1,6 +1,7 @@
 #include "titlebutton.h"
 
 #include "../../../renderer/renderer.h"
+#include "../../../inputsystem.h"
 #include "../../../profile/games/cclcc/titlemenu.h"
 
 namespace Impacto {
@@ -38,7 +39,9 @@ void TitleButton::Update(float dt) {
   }
   if (PrevFocusState != HasFocus) {
     PrevFocusState = HasFocus;
-    Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0);
+    if (Input::CurrentInputDevice != Input::Device::Mouse) {
+      Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0);
+    }
     if (!IsSubButton) {
       if (HighlightAnimation.IsOut() && HasFocus) {
         HighlightAnimation.StartIn();

@@ -100,8 +100,11 @@ void MusicTrackButton::Update(float dt) {
   const int alpha = ((ScrWork[SW_SYSSUBMENUCT] * 32 - 768) * 224) >> 8;
   Tint = glm::vec4(1.0f, 1.0f, 1.0f, alpha / 255.0f);
   Button::Update(dt);
-  if (HasFocus && !PrevFocusState)
-    Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0);
+  if (HasFocus && !PrevFocusState) {
+    if (Input::CurrentInputDevice != Input::Device::Mouse) {
+      Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0);
+    }
+  }
   if (PrevFocusState != HasFocus) {
     PrevFocusState = HasFocus;
   }
