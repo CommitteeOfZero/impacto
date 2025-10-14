@@ -40,9 +40,9 @@ jobs:
         uses: actions/checkout@v4
       - name: Update clang-format
         run: |
-          wget https://apt.llvm.org/llvm.sh
-          chmod +x llvm.sh
-          sudo ./llvm.sh 19
+          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
+          sudo apt-add-repository "deb http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-19 main"
+          sudo apt update
           sudo apt install -y clang-format-19
           sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-19 1000
           sudo update-alternatives --set clang-format /usr/bin/clang-format-19
