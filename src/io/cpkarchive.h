@@ -8,22 +8,7 @@
 namespace Impacto {
 namespace Io {
 
-int constexpr CpkMaxPath = 224;
-
 struct CpkMetaEntry;
-
-struct CpkCell {
-  union {
-    uint8_t Uint8Val;
-    uint16_t Uint16Val;
-    uint32_t Uint32Val;
-    uint64_t Uint64Val;
-    uint8_t* DataArray;
-    float FloatVal;
-    char StringVal[CpkMaxPath];
-  };
-  uint64_t DataSize;
-};
 
 class CpkArchive : public VfsArchive {
  public:
@@ -41,16 +26,9 @@ class CpkArchive : public VfsArchive {
 
   CpkMetaEntry* GetFileListEntry(uint32_t id);
 
-  bool ReadUtfBlock(
-      uint8_t* utfBlock, uint64_t utfSize,
-      std::vector<ankerl::unordered_dense::map<
-          std::string, CpkCell, string_hash, std::equal_to<>>>* rows);
-  void ReadString(int64_t stringsOffset, char* output);
-
   uint16_t Version;
   uint16_t Revision;
 
-  MemoryStream* UtfStream = 0;
   CpkMetaEntry* FileList = 0;
   uint32_t FileCount = 0;
   uint32_t NextFile = 0;
