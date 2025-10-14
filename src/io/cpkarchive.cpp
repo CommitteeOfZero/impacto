@@ -65,6 +65,7 @@ void DecryptUtfBlock(uint8_t* utfBlock, uint64_t size) {
 }
 
 static std::string ReadString(int64_t stringsOffset, Stream* utfStream) {
+  assert(utfStream);
   int64_t stringAddr = stringsOffset + ReadBE<uint32_t>(utfStream);
 
   int64_t retAddr = utfStream->Position;
@@ -85,22 +86,22 @@ static bool ReadUtfBlock(
     std::vector<ankerl::unordered_dense::map<std::string, CpkCell, string_hash,
                                              std::equal_to<>>>& rows) {
   const uint32_t utfMagic = 0x40555446;
-  auto* utfStream = new MemoryStream(utfBlock.data(), utfBlock.size(), false);
-  if (ReadBE<uint32_t>(utfStream) != utfMagic) {
+  auto utfStream =
+      std::make_unique<MemoryStream>(utfBlock.data(), utfBlock.size(), false);
+  if (ReadBE<uint32_t>(utfStream.get()) != utfMagic) {
     DecryptUtfBlock(utfBlock.data(), utfBlock.size());
     utfStream->Seek(0, RW_SEEK_SET);
-    if (ReadBE<uint32_t>(utfStream) != utfMagic) {
+    if (ReadBE<uint32_t>(utfStream.get()) != utfMagic) {
       ImpLog(LogLevel::Trace, LogChannel::IO, "Error reading CPK UTF table\n");
-      delete utfStream;
       return false;
     }
   }
 
   // uint32_t tableSize = ReadBE<uint32_t>(utfStream);
   utfStream->Seek(4, RW_SEEK_CUR);
-  int64_t rowsOffset = ReadBE<uint32_t>(utfStream);
-  int64_t stringsOffset = ReadBE<uint32_t>(utfStream);
-  int64_t dataOffset = ReadBE<uint32_t>(utfStream);
+  int64_t rowsOffset = ReadBE<uint32_t>(utfStream.get());
+  int64_t stringsOffset = ReadBE<uint32_t>(utfStream.get());
+  int64_t dataOffset = ReadBE<uint32_t>(utfStream.get());
 
   rowsOffset += 8;
   stringsOffset += 8;
@@ -108,13 +109,13 @@ static bool ReadUtfBlock(
 
   // uint32_t tableNameOffset = ReadBE<uint32_t>(UtfStream);
   utfStream->Seek(4, RW_SEEK_CUR);
-  uint16_t numColumns = ReadBE<uint16_t>(utfStream);
-  uint16_t rowLength = ReadBE<uint16_t>(utfStream);
-  uint32_t numRows = ReadBE<uint32_t>(utfStream);
+  uint16_t numColumns = ReadBE<uint16_t>(utfStream.get());
+  uint16_t rowLength = ReadBE<uint16_t>(utfStream.get());
+  uint32_t numRows = ReadBE<uint32_t>(utfStream.get());
 
   std::vector<CpkColumn> columns;
 
-  const auto readCell = [utfStream, &stringsOffset,
+  const auto readCell = [&utfStream, &stringsOffset,
                          &dataOffset](CpkColumn const& column) {
     const auto readOrDefaultT = []<typename T>(CpkColumn::Storage storeType,
                                                Stream* s) {
@@ -126,48 +127,48 @@ static bool ReadUtfBlock(
     auto storeType = column.GetStorage();
     switch (column.GetType()) {
       case CpkColumn::Kind::U8:
-        cell = readOrDefaultT.operator()<uint8_t>(storeType, utfStream);
+        cell = readOrDefaultT.operator()<uint8_t>(storeType, utfStream.get());
         break;
       case CpkColumn::Kind::I8:
-        cell = readOrDefaultT.operator()<int8_t>(storeType, utfStream);
+        cell = readOrDefaultT.operator()<int8_t>(storeType, utfStream.get());
         break;
       case CpkColumn::Kind::U16:
-        cell = readOrDefaultT.operator()<uint16_t>(storeType, utfStream);
+        cell = readOrDefaultT.operator()<uint16_t>(storeType, utfStream.get());
         break;
       case CpkColumn::Kind::I16:
-        cell = readOrDefaultT.operator()<int16_t>(storeType, utfStream);
+        cell = readOrDefaultT.operator()<int16_t>(storeType, utfStream.get());
         break;
       case CpkColumn::Kind::U32:
-        cell = readOrDefaultT.operator()<uint32_t>(storeType, utfStream);
+        cell = readOrDefaultT.operator()<uint32_t>(storeType, utfStream.get());
         break;
       case CpkColumn::Kind::I32:
-        cell = readOrDefaultT.operator()<int32_t>(storeType, utfStream);
+        cell = readOrDefaultT.operator()<int32_t>(storeType, utfStream.get());
         break;
       case CpkColumn::Kind::U64:
-        cell = readOrDefaultT.operator()<uint64_t>(storeType, utfStream);
+        cell = readOrDefaultT.operator()<uint64_t>(storeType, utfStream.get());
         break;
       case CpkColumn::Kind::I64:
-        cell = readOrDefaultT.operator()<int64_t>(storeType, utfStream);
+        cell = readOrDefaultT.operator()<int64_t>(storeType, utfStream.get());
         break;
       case CpkColumn::Kind::Float:
-        cell = readOrDefaultT.operator()<float>(storeType, utfStream);
+        cell = readOrDefaultT.operator()<float>(storeType, utfStream.get());
         break;
       case CpkColumn::Kind::Double:
-        cell = readOrDefaultT.operator()<double>(storeType, utfStream);
+        cell = readOrDefaultT.operator()<double>(storeType, utfStream.get());
         break;
       case CpkColumn::Kind::String:
         if (storeType == CpkColumn::Storage::DEFAULT) {
           cell = std::string();
         } else {
-          cell = ReadString(stringsOffset, utfStream);
+          cell = ReadString(stringsOffset, utfStream.get());
         }
         break;
       case CpkColumn::Kind::Data: {
         if (storeType == CpkColumn::Storage::DEFAULT) {
           cell = std::vector<uint8_t>();
         } else {
-          int64_t dataPos = ReadBE<uint32_t>(utfStream) + dataOffset;
-          uint64_t dataSize = ReadBE<uint32_t>(utfStream);
+          int64_t dataPos = ReadBE<uint32_t>(utfStream.get()) + dataOffset;
+          uint64_t dataSize = ReadBE<uint32_t>(utfStream.get());
           uint64_t retAddr = utfStream->Position;
           std::vector<uint8_t> dataBuf(dataSize + sizeof(uint64_t));
           utfStream->Seek(dataPos, RW_SEEK_SET);
@@ -182,10 +183,10 @@ static bool ReadUtfBlock(
 
   for (int i = 0; i < numColumns; i++) {
     CpkColumn column;
-    column.Flags = ReadU8(utfStream);
-    if (column.Flags == 0) column.Flags = ReadBE<uint32_t>(utfStream);
+    column.Flags = ReadU8(utfStream.get());
+    if (column.Flags == 0) column.Flags = ReadBE<uint32_t>(utfStream.get());
 
-    column.Name = ReadString(stringsOffset, utfStream);
+    column.Name = ReadString(stringsOffset, utfStream.get());
     if (column.GetStorage() == CpkColumn::Storage::CONSTANT) {
       column.Constant = readCell(column);
     }
@@ -206,7 +207,6 @@ static bool ReadUtfBlock(
     rows.push_back(row);
   }
 
-  delete utfStream;
   return true;
 }
 
