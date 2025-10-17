@@ -26,10 +26,10 @@ using namespace Impacto::Vm::Interface;
 using namespace Impacto::UI::Widgets;
 using namespace Impacto::UI::Widgets::CHLCC;
 
-static float GetEndScroll(Group *tipsItemsGroup) {
+static float GetEndScroll(Group* tipsItemsGroup) {
   if (tipsItemsGroup->Children.empty() || tipsItemsGroup->Children.size() == 1)
     return 0.0f;
-  const Widget *lastItem = tipsItemsGroup->Children.back();
+  const Widget* lastItem = tipsItemsGroup->Children.back();
   const float lastItemEndPos = lastItem->Bounds.Height + lastItem->Bounds.Y;
   const float pagePos =
       lastItemEndPos - TipsListBounds.Height - TipsListBounds.Y;
@@ -37,18 +37,18 @@ static float GetEndScroll(Group *tipsItemsGroup) {
   return ((int)(pagePos / TipListYPadding) * TipListYPadding);
 }
 
-void TipsMenu::HandlePageChange(Widget *cur, Widget *next) {
+void TipsMenu::HandlePageChange(Widget* cur, Widget* next) {
   if (cur != next) {
-    static_cast<Group *>(cur)->MoveTo(TipsListBounds.GetPos());
+    static_cast<Group*>(cur)->MoveTo(TipsListBounds.GetPos());
     cur->Hide();
     next->Show();
     CurrentlyFocusedElement =
-        static_cast<Group *>(next)->GetFirstFocusableChild();
+        static_cast<Group*>(next)->GetFirstFocusableChild();
     CurrentlyFocusedElement->HasFocus = true;
     TipsEntryScrollPos = 0.0f;
     TipsEntriesScrollbar = Scrollbar(
         0, {TipsListBounds.X + TipsListBounds.Width - 3.0f, TipsListBounds.Y},
-        0.0f, GetEndScroll(static_cast<Group *>(next)), &TipsEntryScrollPos,
+        0.0f, GetEndScroll(static_cast<Group*>(next)), &TipsEntryScrollPos,
         SBDIR_VERTICAL, TipsScrollTrack, TipsScrollThumb, {0.0f, -4.0f},
         TipsScrollThumb.ScaledHeight(), TipsListBounds);
     TipsEntriesScrollbar->Step = TipListYPadding;
@@ -58,8 +58,8 @@ void TipsMenu::HandlePageChange(Widget *cur, Widget *next) {
 TipsMenu::TipsMenu()
     : ItemsList(
           Widgets::CarouselDirection::CDIR_HORIZONTAL,
-          [this](Widget *cur, Widget *next) { HandlePageChange(cur, next); },
-          [this](Widget *cur, Widget *next) { HandlePageChange(cur, next); }),
+          [this](Widget* cur, Widget* next) { HandlePageChange(cur, next); },
+          [this](Widget* cur, Widget* next) { HandlePageChange(cur, next); }),
       TipViewItems(this) {
   FadeAnimation.Direction = AnimationDirection::In;
   FadeAnimation.LoopMode = AnimationLoopMode::Stop;
@@ -169,7 +169,7 @@ void TipsMenu::Render() {
       RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
       glm::vec4(tint, alpha));
   if (FadeAnimation.State != AnimationState::Stopped) {
-    Group *currentPage = static_cast<Group *>(*ItemsList.GetCurrent());
+    Group* currentPage = static_cast<Group*>(*ItemsList.GetCurrent());
     const glm::vec2 pgOffset = [&] {
       glm::vec2 fOffset = TipsListBounds.GetPos() + AnimationOffset;
       return glm::vec2{std::round(fOffset.x),
@@ -299,23 +299,23 @@ void TipsMenu::Update(float dt) {
   }
 }
 
-void TipsMenu::TipOnClick(Button *target) {
-  auto tipEntry = static_cast<TipsEntryButton *>(target);
+void TipsMenu::TipOnClick(Button* target) {
+  auto tipEntry = static_cast<TipsEntryButton*>(target);
   if (!tipEntry->TipEntryRecord->IsLocked)
     SwitchToTipId(tipEntry->TipEntryRecord->Id);
 }
 
 void TipsMenu::Init() {
-  auto onClick = [this](auto *btn) { return TipOnClick(btn); };
+  auto onClick = [this](auto* btn) { return TipOnClick(btn); };
   int currentCategoryId = -1;
 
   // String of characters by which tips are sorted, taken from _system script
   auto [scriptBufId, catStrAddr] =
       Vm::ScriptGetTextTableStrAddress(TipsStringTable, CategoryStringIndex);
-  uint8_t *categoryString = &Vm::ScriptBuffers[scriptBufId][catStrAddr];
+  uint8_t* categoryString = &Vm::ScriptBuffers[scriptBufId][catStrAddr];
   ItemsList.Clear();
   TipViewItems.Clear();
-  Group *allTipsGroup = new Group(this);
+  Group* allTipsGroup = new Group(this);
   allTipsGroup->Bounds = TipsListBounds;
   allTipsGroup->RenderingBounds = TipsListRenderBounds;
   // Add a bit of margins
@@ -323,7 +323,7 @@ void TipsMenu::Init() {
   ItemsList.Add(allTipsGroup);
   TipsEntryScrollPos = 0;
   // Sorting tip records
-  auto &records = *TipsSystem::GetTipRecords();
+  auto& records = *TipsSystem::GetTipRecords();
   const auto recordCount = TipsSystem::GetTipCount();
   auto indexes = [recordCount] {
     std::vector<int> result(recordCount);
@@ -333,7 +333,7 @@ void TipsMenu::Init() {
     return result;
   }();
   auto sortedView = std::ranges::views::transform(
-      indexes, [&records](size_t i) -> TipsSystem::TipsDataRecord & {
+      indexes, [&records](size_t i) -> TipsSystem::TipsDataRecord& {
         return records[i];
       });
   std::vector<int> sortedIndicesMap(recordCount);
@@ -342,7 +342,7 @@ void TipsMenu::Init() {
   }
 
   auto createCategory = [&](auto labelText, float yPos) {
-    Label *categoryLabel = new Label();
+    Label* categoryLabel = new Label();
     categoryLabel->Bounds.X = TipListEntryBounds.X;
     categoryLabel->Bounds.Y = yPos;
     categoryLabel->Bounds.X += 5;
@@ -353,7 +353,7 @@ void TipsMenu::Init() {
   };
   {
     float currentY = TipListEntryBounds.Y;
-    for (auto &record : sortedView) {
+    for (auto& record : sortedView) {
       //  Each category is a character from the sort string and contains all
       //  tips the names of which begin with that character
 
@@ -369,7 +369,7 @@ void TipsMenu::Init() {
               &categoryString[currentCategoryId * sizeof(uint16_t)]);
         }
         Vm::Sc3Stream categoryStrStream(
-            reinterpret_cast<uint8_t *>(CategoryStringBuffer.data()));
+            reinterpret_cast<uint8_t*>(CategoryStringBuffer.data()));
         allTipsGroup->Add(createCategory(categoryStrStream, currentY));
         currentY += TipListYPadding;
       }
@@ -377,7 +377,7 @@ void TipsMenu::Init() {
       // Actual tip entry button
       RectF bounds = TipListEntryBounds;
       bounds.Y = currentY;
-      TipsEntryButton *button = new TipsEntryButton(
+      TipsEntryButton* button = new TipsEntryButton(
           sortedIndicesMap[record.Id], &record, bounds, TipsEntryHighlightBar);
       button->OnClickHandler = onClick;
 
@@ -387,7 +387,7 @@ void TipsMenu::Init() {
   }
   {
     float currentY = TipListEntryBounds.Y;
-    auto *newTipsGroup = new Group(this);
+    auto* newTipsGroup = new Group(this);
     newTipsGroup->Add(createCategory(
         Vm::ScriptGetTextTableStrAddress(TipsStringTable, NewLabelStrIndex),
         currentY));
@@ -396,15 +396,15 @@ void TipsMenu::Init() {
     auto newRecordsView =
         std::ranges::views::transform(
             TipsSystem::GetNewTipsIndices(),
-            [&records](size_t i) -> TipsSystem::TipsDataRecord & {
+            [&records](size_t i) -> TipsSystem::TipsDataRecord& {
               return records[i];
             }) |
         std::views::reverse;
-    for (auto &record : newRecordsView) {
-      assert(!record.IsLocked && record.IsNew);
+    for (auto& record : newRecordsView) {
+      // assert(!record.IsLocked && record.IsNew);
       RectF bounds = TipListEntryBounds;
       bounds.Y = currentY;
-      TipsEntryButton *button = new TipsEntryButton(
+      TipsEntryButton* button = new TipsEntryButton(
           sortedIndicesMap[record.Id], &record, bounds, TipsEntryHighlightBar);
       button->OnClickHandler = onClick;
 
@@ -424,18 +424,18 @@ void TipsMenu::Init() {
   {
     float currentY = TipListEntryBounds.Y;
 
-    Group *unreadTipsGroup = new Group(this);
+    Group* unreadTipsGroup = new Group(this);
     unreadTipsGroup->Add(createCategory(
         Vm::ScriptGetTextTableStrAddress(TipsStringTable, UnreadLabelStrIndex),
         currentY));
     currentY += TipListYPadding;
-    for (auto &record : sortedView) {
+    for (auto& record : sortedView) {
       if (!record.IsUnread || record.IsLocked) {
         continue;
       }
       RectF bounds = TipListEntryBounds;
       bounds.Y = currentY;
-      TipsEntryButton *button = new TipsEntryButton(
+      TipsEntryButton* button = new TipsEntryButton(
           sortedIndicesMap[record.Id], &record, bounds, TipsEntryHighlightBar);
       button->OnClickHandler = onClick;
 
@@ -476,7 +476,7 @@ void TipsMenu::Init() {
   Number->Bounds = NumberBounds;
   TipViewItems.Add(Number);
   // Tip page separator
-  auto *const pageSeparator =
+  auto* const pageSeparator =
       new Label(PageSeparatorSprite, PageSeparatorPosition);
   TipViewItems.Add(pageSeparator);
   // Current tip page
@@ -561,31 +561,18 @@ void TipsMenu::UpdatePageInput(float dt) {
     return !TipsListBounds.Contains(CurrentlyFocusedElement->Bounds);
   };
 
-  const uint32_t btnUp = PADcustom[28];
-  const uint32_t btnDown = PADcustom[29];
+  UI::TipsMenu::UpdateInput(dt);
 
-  const int directionShouldFire = PADinputButtonWentDown & (btnUp | btnDown);
-  const bool directionMovement = ((bool)(directionShouldFire & btnUp) ^
-                                  (bool)(directionShouldFire & btnDown));
+  auto* curPage = static_cast<Group*>(*ItemsList.GetCurrent());
 
-  auto *curPage = static_cast<Group *>(*ItemsList.GetCurrent());
-
-  if (directionMovement) {
-    if (directionShouldFire & btnDown) {
-      AdvanceFocus(FDIR_DOWN);
+  if (CurrentlyFocusedElement != prevEntry && checkScrollBounds()) {
+    if (CurrentlyFocusedElement == curPage->GetFirstFocusableChild()) {
+      TipsEntryScrollPos = 0;
+    } else if (CurrentlyFocusedElement == curPage->Children.back()) {
+      TipsEntryScrollPos = TipsEntriesScrollbar->EndValue;
     } else {
-      AdvanceFocus(FDIR_UP);
-    }
-
-    if (CurrentlyFocusedElement != prevEntry && checkScrollBounds()) {
-      if (CurrentlyFocusedElement == curPage->GetFirstFocusableChild()) {
-        TipsEntryScrollPos = 0;
-      } else if (CurrentlyFocusedElement == curPage->Children.back()) {
-        TipsEntryScrollPos = TipsEntriesScrollbar->EndValue;
-      } else {
-        TipsEntryScrollPos +=
-            CurrentlyFocusedElement->Bounds.Y - prevEntry->Bounds.Y;
-      }
+      TipsEntryScrollPos +=
+          CurrentlyFocusedElement->Bounds.Y - prevEntry->Bounds.Y;
     }
   }
 
@@ -623,10 +610,10 @@ void TipsMenu::DrawTipsTree() {
   glm::vec2 treePosition(TreePosition.x, TreePosition.y + AnimationOffset.y);
   Renderer->DrawSprite(TipsTree, treePosition);
 
-  const auto *const currentPage =
-      static_cast<Widgets::Group *>(*ItemsList.GetCurrent());
+  const auto* const currentPage =
+      static_cast<Widgets::Group*>(*ItemsList.GetCurrent());
   size_t i = 0;
-  for (const auto *const widget : currentPage->Children) {
+  for (const auto* const widget : currentPage->Children) {
     const glm::vec2 pos = widget->Bounds.GetPos();
     const glm::vec2 linePos = pos + glm::vec2{-22, 0};
     const float bottomEdge =
@@ -636,7 +623,7 @@ void TipsMenu::DrawTipsTree() {
 
     std::reference_wrapper<const Sprite> barSprite = TipsListBgBar;
     std::reference_wrapper<const Sprite> lineSprite = TipsLeftLine;
-    if (const auto *const btn = dynamic_cast<const TipsEntryButton *>(widget)) {
+    if (const auto* const btn = dynamic_cast<const TipsEntryButton*>(widget)) {
       barSprite = TipsListBgBarHole;
       lineSprite = TipsLeftLineHole;
       if (btn == currentPage->Children.back()) {
