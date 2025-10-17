@@ -73,9 +73,6 @@ root.OptionsMenu = {
     PortraitOffset = { X = 3, Y = 2 },
     VoicePosition = { X = 454, Y = 310 },
 
-    MinButtonHoldTime = 0.5,
-    ButtonHoldFireInterval = 0.07,
-
     MenuMask = "MenuMask",
 };
 

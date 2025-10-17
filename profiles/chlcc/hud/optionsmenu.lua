@@ -47,9 +47,6 @@ root.OptionsMenu = {
     ButtonPromptAnimationStartTime = 48 / 60,
     ButtonPromptAnimationDuration = (64 - 48) / 60,
 
-    MinButtonHoldTime = 0.5,
-    ButtonHoldFireInterval = 0.07,
-
     SelectedSprite = "SelectedSprite",
     SelectedSlideDuration = 32 / 60;
     SelectedLabelSprite = "SelectedLabelSprite",
