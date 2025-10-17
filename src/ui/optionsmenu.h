@@ -1,7 +1,6 @@
 #pragma once
 
 #include "menu.h"
-#include "turboonholdhandler.h"
 #include "widgets/group.h"
 #include "../profile/configsystem.h"
 
@@ -40,8 +39,7 @@ class OptionsMenu : public Menu {
   size_t CurrentPage = 0;
   std::vector<std::unique_ptr<Widgets::Group>> Pages;
 
-  TurboOnHoldHandler DirectionButtonHeldHandler;
-  TurboOnHoldHandler PageButtonHeldHandler;
+  uint32_t PADinputButtonHoldMask;
 };
 
 }  // namespace UI
