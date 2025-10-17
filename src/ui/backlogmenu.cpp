@@ -40,6 +40,7 @@ void BacklogMenu::MenuButtonOnClick(Widgets::BacklogEntry* target) {
 }
 
 BacklogMenu::BacklogMenu() {
+  InputConfig = InputRate::RepeatFast;
   MainItems = new Widgets::Group(this, EntriesStart);
   MainItems->RenderingBounds = RenderingBounds;
   MainItems->HoverBounds = HoverBounds;
