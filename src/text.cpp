@@ -182,8 +182,29 @@ int StringToken::Read(Vm::Sc3Stream& stream) {
   return 1;
 }
 
-uint8_t ProcessedTextGlyph::Flags() const {
-  return Profile::Charset::Flags[CharId];
+void ProcessedTextGlyph::AddFlags(const Vm::BufferOffsetContext scrCtx,
+                                  const uint8_t flags) {
+  Vm::Sc3VmThread dummy;
+  dummy.ScriptBufferId = scrCtx.ScriptBufferId;
+  dummy.IpOffset = scrCtx.IpOffset;
+
+  StringToken token;
+  token.Read(&dummy);
+  for (; token.Type != STT_EndOfString; token.Read(&dummy)) {
+    if (token.Type != STT_Character) {
+      ImpLog(LogLevel::Error, LogChannel::VM,
+             "Encountered non-character token 0x{:02x} in flag string\n",
+             static_cast<uint8_t>(token.Type));
+      return;
+    }
+
+    const uint16_t glyphId = token.Val_Uint16;
+    if (auto it = FlagsMap.find(glyphId); it != FlagsMap.end()) {
+      it->second = it->second | flags;
+    } else {
+      FlagsMap.emplace(glyphId, flags);
+    }
+  }
 }
 
 void TypewriterEffect::Start(size_t firstGlyph, size_t glyphCount,
