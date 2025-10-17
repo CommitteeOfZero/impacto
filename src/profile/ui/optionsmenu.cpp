@@ -20,9 +20,6 @@ void Configure() {
     Type =
         OptionsMenuType::_from_integral_unchecked(EnsureGetMember<int>("Type"));
 
-    MinButtonHoldTime = EnsureGetMember<float>("MinButtonHoldTime");
-    ButtonHoldFireInterval = EnsureGetMember<float>("ButtonHoldFireInterval");
-
     FadeInDuration = EnsureGetMember<float>("FadeInDuration");
     FadeOutDuration = EnsureGetMember<float>("FadeOutDuration");
 

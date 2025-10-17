@@ -1,7 +1,6 @@
 #pragma once
 
 #include "menu.h"
-#include "turboonholdhandler.h"
 #include "widgets/group.h"
 #include "widgets/backlogentry.h"
 #include "widgets/scrollbar.h"
@@ -43,11 +42,7 @@ class BacklogMenu : public Menu {
   Animation FadeAnimation;
   Widgets::Scrollbar* MainScrollbar;
 
-  TurboOnHoldHandler DirectionButtonHeldHandler;
-  TurboOnHoldHandler PageUpDownButtonHeldHandler;
-
   void RenderHighlight(glm::vec2 offset = {0.0f, 0.0f}) const;
-
   void UpdatePageUpDownInput(float dt);
   void UpdateScrollingInput(float dt);
 };

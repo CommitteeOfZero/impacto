@@ -47,7 +47,7 @@ void SaveMenu::MenuButtonOnClick(Widgets::Button* target) {
   }
 }
 
-SaveMenu::SaveMenu() {
+SaveMenu::SaveMenu() : UI::SaveMenu() {
   FadeAnimation.Direction = AnimationDirection::In;
   FadeAnimation.LoopMode = AnimationLoopMode::Stop;
   FadeAnimation.DurationIn = FadeInDuration;

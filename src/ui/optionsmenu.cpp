@@ -14,10 +14,7 @@ using namespace Impacto::UI::Widgets;
 using namespace Impacto::Vm::Interface;
 
 OptionsMenu::OptionsMenu()
-    : DirectionButtonHeldHandler(MinButtonHoldTime, ButtonHoldFireInterval,
-                                 PAD1UP | PAD1DOWN | PAD1LEFT | PAD1RIGHT),
-      PageButtonHeldHandler(MinButtonHoldTime, ButtonHoldFireInterval,
-                            PAD1L1 | PAD1R1) {
+    : PADinputButtonHoldMask(PAD1UP | PAD1DOWN | PAD1LEFT | PAD1RIGHT) {
   FadeAnimation.Direction = AnimationDirection::In;
   FadeAnimation.LoopMode = AnimationLoopMode::Stop;
   FadeAnimation.DurationIn = FadeInDuration;
@@ -39,8 +36,8 @@ void OptionsMenu::Show() {
                     : Pages[CurrentPage]->GetFirstFocusableChild());
       UpdateValues();
 
-      DirectionButtonHeldHandler.Reset();
-      PageButtonHeldHandler.Reset();
+      ResetPADHoldTimer(PAD1UP | PAD1DOWN | PAD1LEFT | PAD1RIGHT | PAD1L1 |
+                        PAD1R1);
     }
     State = Showing;
 
@@ -86,15 +83,14 @@ void OptionsMenu::Update(float dt) {
 }
 
 void OptionsMenu::UpdatePageInput(float dt) {
-  PageButtonHeldHandler.Update(dt);
-  const int shouldFire = PageButtonHeldHandler.ShouldFire();
+  const int shouldFire = PADinputButtonRepeatDown & (PAD1L1 | PAD1R1);
 
   // Button input
   const int direction =
       (bool)(shouldFire & PAD1R1) - (bool)(shouldFire & PAD1L1);
 
   if (direction == 0 && shouldFire) {
-    PageButtonHeldHandler.Reset();
+    ResetPADHoldTimer(PAD1L1 | PAD1R1);
     return;
   }
 
@@ -105,8 +101,7 @@ void OptionsMenu::UpdatePageInput(float dt) {
 }
 
 void OptionsMenu::UpdateEntryMovementInput(float dt) {
-  DirectionButtonHeldHandler.Update(dt);
-  const int shouldFire = DirectionButtonHeldHandler.ShouldFire();
+  const uint32_t shouldFire = PADinputButtonRepeatDown & PADinputButtonHoldMask;
 
   const int verticalMovement =
       (bool)(shouldFire & PAD1DOWN) - (bool)(shouldFire & PAD1UP);
@@ -120,7 +115,7 @@ void OptionsMenu::UpdateEntryMovementInput(float dt) {
                                                  : FocusDirection::FDIR_RIGHT;
 
   if (!verticalMovement && !horizontalMovement) {
-    if (shouldFire) DirectionButtonHeldHandler.Reset();
+    if (shouldFire) ResetPADHoldTimer(PADinputButtonHoldMask);
     return;
   }
 
@@ -159,7 +154,7 @@ void OptionsMenu::Highlight(Widget* toHighlight) {
   if (toHighlight) {
     toHighlight->HasFocus = true;
 
-    DirectionButtonHeldHandler.PADinputButtonHoldMask =
+    PADinputButtonHoldMask =
         (PAD1UP * (bool)toHighlight->GetFocus(FDIR_UP)) |
         (PAD1DOWN * (bool)toHighlight->GetFocus(FDIR_DOWN)) |
         (PAD1LEFT * (bool)toHighlight->GetFocus(FDIR_LEFT)) |
