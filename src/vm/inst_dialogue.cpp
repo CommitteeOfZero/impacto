@@ -267,13 +267,13 @@ VmInstruction(InstSetMesModeFormat) {
 }
 VmInstruction(InstSetNGmoji) {
   StartInstruction;
-  PopString(startingPuncts);
   PopString(endingPuncts);
+  PopString(startingPuncts);
 
-  ProcessedTextGlyph::AddFlags({thread->ScriptBufferId, startingPuncts},
-                               CharacterTypeFlags::WordStartingPunct);
-  ProcessedTextGlyph::AddFlags({thread->ScriptBufferId, endingPuncts},
-                               CharacterTypeFlags::WordEndingPunct);
+  StringToken::AddFlags({thread->ScriptBufferId, startingPuncts},
+                        CharacterTypeFlags::WordStartingPunct);
+  StringToken::AddFlags({thread->ScriptBufferId, endingPuncts},
+                        CharacterTypeFlags::WordEndingPunct);
 }
 VmInstruction(InstMesRev) {
   StartInstruction;

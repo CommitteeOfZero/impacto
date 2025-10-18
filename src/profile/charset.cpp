@@ -18,11 +18,7 @@ void Load() {
       uint16_t glyphId = EnsureGetKey<uint16_t>();
       const uint8_t flags = EnsureGetArrayElement<uint8_t>();
 
-      if (ProcessedTextGlyph::FlagsMap.contains(glyphId)) {
-        ProcessedTextGlyph::FlagsMap[glyphId] |= flags;
-      } else {
-        ProcessedTextGlyph::FlagsMap.emplace(glyphId, flags);
-      }
+      StringToken::AddFlags(glyphId, flags);
 
       Pop();
     }

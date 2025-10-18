@@ -35,48 +35,9 @@ using namespace Impacto::Profile::ScriptVars;
 
 static DialogueBox* TextBox;
 
-enum StringTokenType : uint8_t {
-  STT_LineBreak = 0x00,
-  STT_CharacterNameStart = 0x01,
-  STT_DialogueLineStart = 0x02,
-  STT_Present = 0x03,
-  STT_SetColor = 0x04,
-  STT_Present_Clear = 0x08,
-  STT_RubyBaseStart = 0x09,
-  STT_RubyTextStart = 0x0A,
-  STT_RubyTextEnd = 0x0B,
-  STT_SetFontSize = 0x0C,
-  STT_PrintInParallel = 0x0E,
-  STT_CenterText = 0x0F,
-  STT_SetTopMargin = 0x11,
-  STT_SetLeftMargin = 0x12,
-  STT_GetHardcodedValue = 0x13,
-  STT_EvaluateExpression = 0x15,
-  STT_UnlockTip = 0x16,
-  STT_Present_0x18 = 0x18,
-  STT_AutoForward_SyncVoice = 0x19,
-  STT_AutoForward = 0x1A,
-  STT_RubyCenterPerCharacter = 0x1E,
-  STT_AltLineBreak = 0x1F,
-
-  // This is our own!
-  STT_Character = 0xFE,
-
-  STT_EndOfString = 0xFF
-};
-
-struct StringToken {
-  StringTokenType Type;
-
-  uint16_t Val_Uint16;
-  int Val_Expr;
-
-  int Read(Vm::Sc3VmThread* ctx);
-  int Read(Vm::Sc3Stream& stream);
-};
-
 int StringToken::Read(Vm::Sc3VmThread* ctx) {
   int bytesRead = 0;
+  Flags = 0;
 
   uint8_t c = *ctx->GetIp();
   ctx->IpOffset++;
@@ -151,6 +112,8 @@ int StringToken::Read(Vm::Sc3VmThread* ctx) {
         uint16_t glyphId = (((uint16_t)c & 0x7F) << 8) | *ctx->GetIp();
         ctx->IpOffset++;
 
+        Flags |= GetFlags(glyphId);
+
         Type = STT_Character;
         Val_Uint16 = glyphId;
       }
@@ -182,8 +145,8 @@ int StringToken::Read(Vm::Sc3Stream& stream) {
   return 1;
 }
 
-void ProcessedTextGlyph::AddFlags(const Vm::BufferOffsetContext scrCtx,
-                                  const uint8_t flags) {
+void StringToken::AddFlags(const Vm::BufferOffsetContext scrCtx,
+                           const uint8_t flags) {
   Vm::Sc3VmThread dummy;
   dummy.ScriptBufferId = scrCtx.ScriptBufferId;
   dummy.IpOffset = scrCtx.IpOffset;
@@ -621,13 +584,13 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
 
   AutoForward = AutoForwardType::Off;
 
-  TextParseState State = TPS_Normal;
+  TextParseState state = TPS_Normal;
   // TODO respect alignment
   Alignment = TextAlignment::Left;
-  size_t LastWordStart = Glyphs.size();
+  size_t lastWordStart = Glyphs.size();
   LastLineStart = Glyphs.size();
-  DialogueColorPair CurrentColors = ColorTable[0];
-  if (Mode == DPM_REV) CurrentColors = ColorTable[REVColor];
+  DialogueColorPair currentColors = ColorTable[0];
+  if (Mode == DPM_REV) currentColors = ColorTable[REVColor];
 
   FontSize = DefaultFontSize;
   // Erin DialogueBox
@@ -648,12 +611,12 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
     }
   } else if (Mode == DPM_TIPS) {
     BoxBounds = TipsBounds;
-    CurrentColors = ColorTable[TipsColorIndex];
+    currentColors = ColorTable[TipsColorIndex];
   } else {
     BoxBounds = NVLBounds;
   }
 
-  float CurrentX = 0.0f;
+  float currentX = 0.0f;
 
   uint16_t name[DialogueMaxNameLength];
 
@@ -666,94 +629,97 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
       case STT_LineBreak:
       case STT_AltLineBreak: {
         FinishLine(ctx, Glyphs.size(), BoxBounds, Alignment);
-        LastWordStart = Glyphs.size();
-        CurrentX = 0.0f;
-        break;
-      }
+        lastWordStart = Glyphs.size();
+        currentX = 0.0f;
+      } break;
+
       case STT_CharacterNameStart: {
         HasName = true;
         Name.reserve(DialogueMaxNameLength);
-        State = TPS_Name;
+        state = TPS_Name;
         if (Mode == DPM_REV &&
             REVNameLocation != +REVNameLocationType::LeftTop) {
           CurrentLineTop += REVNameOffset;
         }
-        break;
-      }
+        lastWordStart = Glyphs.size();
+      } break;
+
       case STT_RubyTextStart: {
         EndRubyBase((int)Glyphs.size() - 1);
-        State = TPS_Ruby;
-        break;
-      }
+        state = TPS_Ruby;
+      } break;
+
       case STT_RubyCenterPerCharacter: {
         RubyChunks[CurrentRubyChunk].CenterPerCharacter = true;
-        break;
-      }
+      } break;
+
       case STT_DialogueLineStart: {
-        State = TPS_Normal;
-        break;
-      }
+        state = TPS_Normal;
+        lastWordStart = Glyphs.size();
+      } break;
+
       case STT_RubyTextEnd: {
         // At least S;G uses [ruby-base]link text[ruby-text-end] for mails,
         // with no ruby-text-start
         EndRubyBase((int)Glyphs.size() - 1);
-        State = TPS_Normal;
-        break;
-      }
+        state = TPS_Normal;
+        lastWordStart = Glyphs.size();
+      } break;
+
       case STT_CenterText: {
         Alignment = TextAlignment::Center;
-        break;
-      }
+      } break;
+
       case STT_Present_Clear: {
         NVLResetBeforeAdd = true;
-        break;
-      }
+      } break;
+
       case STT_SetLeftMargin: {
         float addX = token.Val_Uint16;
-        if (CurrentX + addX > BoxBounds.Width) {
+        if (currentX + addX > BoxBounds.Width) {
           FinishLine(ctx, Glyphs.size(), BoxBounds, Alignment);
-          LastWordStart = Glyphs.size();
-          addX -= (BoxBounds.Width - CurrentX);
-          CurrentX = 0.0f;
+          addX -= (BoxBounds.Width - currentX);
+          currentX = 0.0f;
         }
         while (addX > BoxBounds.Width) {
           FinishLine(ctx, Glyphs.size(), BoxBounds, Alignment);
           addX -= BoxBounds.Width;
         }
-        CurrentX += addX;
-        break;
-      }
+        currentX += addX;
+        lastWordStart = Glyphs.size();
+      } break;
+
       case STT_SetTopMargin: {
         CurrentLineTopMargin = token.Val_Uint16;
-        break;
-      }
+      } break;
+
       case STT_SetFontSize: {
         FontSize = DefaultFontSize * (token.Val_Uint16 / SetFontSizeRatio);
-        break;
-      }
+      } break;
+
       case STT_RubyBaseStart: {
         CurrentRubyChunk = static_cast<int>(RubyChunkCount);
         RubyChunkCount++;
         RubyChunks[CurrentRubyChunk].FirstBaseCharacter = Glyphs.size();
-        LastWordStart = Glyphs.size();
         BuildingRubyBase = true;
-        break;
-      }
+        lastWordStart = Glyphs.size();
+      } break;
+
       case STT_AutoForward_SyncVoice: {
         AutoForward = AutoForwardType::SyncVoice;
-        break;
-      }
+      } break;
+
       case STT_AutoForward: {
         AutoForward = AutoForwardType::Normal;
-        break;
-      }
+      } break;
+
       case STT_SetColor: {
         if (Mode == DPM_REV) break;
 
         assert(token.Val_Expr < ColorCount);
-        CurrentColors = ColorTable[token.Val_Expr];
-        break;
-      }
+        currentColors = ColorTable[token.Val_Expr];
+      } break;
+
       case STT_UnlockTip: {
         if ((Mode == DPM_ADV ||
              (ScrWork[SW_MESWIN0TYPE] == 1 && Mode == DPM_REV) ||
@@ -763,13 +729,13 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
           TipsNotification::AddTip(token.Val_Uint16);
           TipsSystem::GetNewTipsIndices().push_back(token.Val_Uint16);
         }
-        break;
-      }
+      } break;
+
       case STT_Character: {
-        if (State == TPS_Name) {
+        if (state == TPS_Name) {
           name[NameLength] = SDL_Swap16(token.Val_Uint16 | 0x8000);
           NameLength++;
-        } else if (State == TPS_Ruby) {
+        } else if (state == TPS_Ruby) {
           RubyChunks[CurrentRubyChunk]
               .RawText[RubyChunks[CurrentRubyChunk].Length] =
               SDL_Swap16(token.Val_Uint16 | 0x8000);
@@ -784,47 +750,51 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
             ptg.Opacity = 1.0f;
           else
             ptg.Opacity = 0.0f;
-          ptg.Colors = CurrentColors;
+          ptg.Colors = currentColors;
 
-          if (ptg.Flags() & CharacterTypeFlags::WordStartingPunct) {
-            LastWordStart = Glyphs.size();  // still *before* this character
+          if (token.Flags & CharacterTypeFlags::WordStartingPunct) {
+            lastWordStart = Glyphs.size() - 1;  // still *before* this character
           }
 
-          ptg.DestRect.X = BoxBounds.X + CurrentX;
+          ptg.DestRect.X = BoxBounds.X + currentX;
           ptg.DestRect.Width = (FontSize / DialogueFont->BitmapEmWidth) *
                                DialogueFont->AdvanceWidths[ptg.CharId];
           ptg.DestRect.Height = FontSize;
 
-          CurrentX += ptg.DestRect.Width;
+          currentX += ptg.DestRect.Width;
 
           // Line breaking
           if (ptg.DestRect.X + ptg.DestRect.Width >
               BoxBounds.X + BoxBounds.Width) {
-            if (LastLineStart == LastWordStart) {
+            if (LastLineStart == lastWordStart) {
               // Word doesn't fit on a line, gotta break in the middle of it
               ptg.DestRect.X = BoxBounds.X;
-              CurrentX = ptg.DestRect.Width;
+              currentX = ptg.DestRect.Width;
               FinishLine(ctx, Glyphs.size() - 1, BoxBounds, Alignment);
-              LastWordStart = Glyphs.size() - 1;
+              lastWordStart = Glyphs.size() - 1;
             } else {
-              size_t firstNonSpace = LastWordStart;
+              size_t firstNonSpace = lastWordStart;
               // Skip spaces at start of (new) line
-              for (size_t i = LastWordStart; i < Glyphs.size(); i++) {
-                if (!(Glyphs[i].Flags() & CharacterTypeFlags::Space)) break;
+              for (size_t i = lastWordStart; i < Glyphs.size(); i++) {
+                const bool isSpace = StringToken::GetFlags(Glyphs[i].CharId) &
+                                     CharacterTypeFlags::Space;
+                if (!isSpace) break;
                 firstNonSpace = i + 1;
               }
+
               FinishLine(ctx, firstNonSpace, BoxBounds, Alignment);
-              LastWordStart = firstNonSpace;
-              CurrentX = 0.0f;
+              lastWordStart = firstNonSpace;
+
+              currentX = 0.0f;
               for (size_t i = firstNonSpace; i < Glyphs.size(); i++) {
-                Glyphs[i].DestRect.X = BoxBounds.X + CurrentX;
-                CurrentX += Glyphs[i].DestRect.Width;
+                Glyphs[i].DestRect.X = BoxBounds.X + currentX;
+                currentX += Glyphs[i].DestRect.Width;
               }
             }
           }
 
-          if (ptg.Flags() & CharacterTypeFlags::WordEndingPunct) {
-            LastWordStart = Glyphs.size();  // now after this character
+          if (token.Flags & CharacterTypeFlags::WordEndingPunct) {
+            lastWordStart = Glyphs.size();  // now after this character
           }
         }
       } break;
@@ -833,14 +803,13 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
         parallelStartGlyphs.insert(Glyphs.size());
         break;
 
-      default: {
+      default:
         break;
-      }
     }
   } while (token.Type != STT_EndOfString);
 
   FinishLine(ctx, Glyphs.size(), BoxBounds, Alignment);
-  CurrentX = 0.0f;
+  currentX = 0.0f;
 
   RectF boundingBox = Glyphs.empty() ? RectF() : Glyphs.begin()->DestRect;
   for (const ProcessedTextGlyph& glyph : Glyphs) {
