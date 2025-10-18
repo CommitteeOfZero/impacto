@@ -161,16 +161,19 @@ void OpenALAudioChannel::UpdatePlayback() {
     return;
   }
 
-  // Only propogate the latest state to OpenAL
+  // Only propagate the latest state to OpenAL
   // when the audio channel is updated to avoid "blips"
   // when multiple state changes occur in one frame
-  if (alState != AL_PAUSED && State == ACS_Paused) {
+  if (alState == AL_PLAYING && State == ACS_Paused) {
     alSourcePause(Source);
   } else if (alState != AL_PLAYING &&
              (State == ACS_Playing || State == ACS_FadingIn ||
               State == ACS_FadingOut)) {
     alSourcePlay(Source);
     PlaybackStarted = true;
+  } else if ((alState == AL_PLAYING || alState == AL_PAUSED) &&
+             State == ACS_Stopped) {
+    EndPlayback();
   }
 }
 
