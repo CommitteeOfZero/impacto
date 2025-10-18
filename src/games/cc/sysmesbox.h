@@ -12,6 +12,7 @@ class SysMesBox : public UI::SysMesBox {
   virtual void Show() override;
   virtual void Hide() override;
   virtual void Update(float dt) override;
+  virtual void UpdateInput(float dt) override;
   virtual void Render() override;
 
   virtual void Init() override;
