@@ -31,8 +31,9 @@ void SystemMenu::MenuButtonOnClick(Widgets::Button* target) {
 
 void SystemMenu::UpdateInput(float dt) {
   if (!IsFocused) return;
+  const auto* const prevSelected = CurrentlyFocusedElement;
   Menu::UpdateInput(dt);
-  if (PADinputButtonWentDown & (PAD1DOWN | PAD1UP)) {
+  if (CurrentlyFocusedElement && prevSelected != CurrentlyFocusedElement) {
     Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0);
   }
 }

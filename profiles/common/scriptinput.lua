@@ -1,15 +1,15 @@
 root.Input = {
     -- Keyboard
-    KB_PAD1A={40},             -- Return
+    KB_PAD1A={40,44},          -- Return,Space
     KB_PAD1B={42},             -- Backspace
     KB_PAD1X={60,76},          -- F3,Del   :function keys are probably supposed to be scripted in
     KB_PAD1Y={59,73},          -- F2,Insert
     KB_PAD1SELECT={61},        -- F4
     KB_PAD1START={30},         -- 1
-    KB_PAD1UP={82},            -- Up
-    KB_PAD1DOWN={81},          -- Down
-    KB_PAD1LEFT={80},          -- Left
-    KB_PAD1RIGHT={79},         -- Right
+    KB_PAD1UP={82,26},         -- Up,W
+    KB_PAD1DOWN={81,22},       -- Down,S
+    KB_PAD1LEFT={80,4},        -- Left,A
+    KB_PAD1RIGHT={79,7},       -- Right,D
     KB_PAD1L1={20,224},        -- Q,LCTRL
     KB_PAD1L2={29},            -- Z
     KB_PAD1L3={32},            -- 3
