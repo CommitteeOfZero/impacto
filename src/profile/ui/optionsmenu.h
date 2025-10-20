@@ -12,9 +12,6 @@ inline Impacto::UI::OptionsMenuType Type = Impacto::UI::OptionsMenuType::None;
 inline float FadeInDuration;
 inline float FadeOutDuration;
 
-inline float MinButtonHoldTime;
-inline float ButtonHoldFireInterval;
-
 void Configure();
 
 }  // namespace OptionsMenu

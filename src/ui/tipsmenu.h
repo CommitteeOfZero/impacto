@@ -10,6 +10,7 @@ namespace UI {
 
 class TipsMenu : public Menu {
  public:
+  TipsMenu() { InputConfig = InputRate::RepeatFast; }
   virtual void Init() override;
   virtual void Show() override;
   virtual void Hide() override;

@@ -240,6 +240,7 @@ void UpdateSystem(float dt) {
   }
   if (Profile::GameFeatures & GameFeature::Sc3VirtualMachine) {
     Vm::Interface::UpdatePADInput();
+    Vm::Interface::UpdatePADHoldInput(UpdateSecondCounter);
     UpdateGameState(UpdateSecondCounter);
 
     for (DrawComponentType value : DrawComponentType::_values()) {

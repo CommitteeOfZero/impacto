@@ -25,9 +25,14 @@ void UpdatePADcustomType(int type) {
   }
 }
 
+static std::array<float, 32> PADIsDownTime{};
+static float PADRepeatClock = 0.0f;
+static float PADAccel1Clock = 0.0f;
+static float PADAccel2Clock = 0.0f;
+
 enum class PADInputType { WentDown, IsDown };
 
-static void UpdateFromPADCode(int PADcode, PADInputType type) {
+static void UpdateFromPADCode(uint32_t PADcode, PADInputType type) {
   const auto KBcodes = PADToKeyboard.find(PADcode);
   const auto GPcode = PADToController.find(PADcode);
   const auto GPAcode = PADToControllerAxis.find(PADcode);
@@ -100,13 +105,80 @@ static void UpdateFromPADCode(int PADcode, PADInputType type) {
   if (isMsDown) padInputMouse |= PADcode;
 }
 
+void UpdatePADHoldInput(float dt) {
+  constexpr float frameTime = 1 / 60.0f;
+
+  PADinputButtonRepeatDown = 0;
+  PADinputButtonRepeatAccelDown = 0;
+
+  PADRepeatClock += dt;
+  PADAccel1Clock += dt;
+  PADAccel2Clock += dt;
+
+  bool repeatCycle = false;
+  bool accel1Cycle = false;
+  bool accel2Cycle = false;
+
+  // Reset clocks at intervals so all buttons sync
+  if (PADRepeatClock >= 4 * frameTime) {
+    repeatCycle = true;
+    PADRepeatClock = 0.0f;
+  }
+  if (PADAccel1Clock >= 2 * frameTime) {
+    accel1Cycle = true;
+    PADAccel1Clock = 0.0f;
+  }
+  if (PADAccel2Clock >= 1 * frameTime) {
+    accel2Cycle = true;
+    PADAccel2Clock = 0.0f;
+  }
+
+  for (int i = 0; i < 32; i++) {
+    uint32_t PADcode = 1 << (uint8_t)i;
+    if ((PADinputButtonIsDown & PADcode) == 0) {
+      PADIsDownTime[i] = 0.0f;
+      continue;
+    }
+
+    if (PADinputButtonWentDown & PADcode) {
+      PADinputButtonRepeatDown |= PADcode;
+      PADinputButtonRepeatAccelDown |= PADcode;
+    }
+
+    PADIsDownTime[i] += dt;
+    if (PADIsDownTime[i] >= 90 * frameTime) {
+      if (PADIsDownTime[i] < 180) {
+        if (accel1Cycle) PADinputButtonRepeatAccelDown |= PADcode;
+
+      } else {
+        if (accel2Cycle) PADinputButtonRepeatAccelDown |= PADcode;
+      }
+    }
+
+    if (PADIsDownTime[i] >= 30 * frameTime) {
+      if (repeatCycle) {
+        PADinputButtonRepeatDown |= PADcode;
+        if (PADIsDownTime[i] < 90 * frameTime) {
+          PADinputButtonRepeatAccelDown |= PADcode;
+        }
+      }
+    }
+  }
+}
+
+void ResetPADHoldTimer(uint32_t PADcode) {
+  for (uint8_t i = 0; i < 32; ++i) {
+    if (PADcode & (1 << i)) PADIsDownTime[i] = 0.0f;
+  }
+}
+
 void UpdatePADInput() {
   PADinputButtonWentDown = 0;
   PADinputMouseWentDown = 0;
   PADinputButtonIsDown = 0;
   PADinputMouseIsDown = 0;
-  for (int i = 0; i < 30; i++) {
-    int PADcode = (int)std::pow(2, i);
+  for (int i = 0; i < 32; i++) {
+    uint32_t PADcode = 1 << (uint8_t)i;
     UpdateFromPADCode(PADcode, PADInputType::WentDown);
     UpdateFromPADCode(PADcode, PADInputType::IsDown);
   }

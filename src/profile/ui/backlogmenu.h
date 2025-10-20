@@ -36,8 +36,6 @@ inline float FadeInDuration;
 inline float FadeOutDuration;
 
 inline float ScrollingSpeed;
-inline float MinHoldTime;
-inline float AdvanceFocusTimeInterval;
 inline float PageUpDownHeight;
 
 void Configure();

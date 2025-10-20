@@ -40,10 +40,12 @@ enum PADinput {
 
 inline std::span<uint32_t> PADcustom;
 
-inline int PADinputButtonWentDown = 0;
-inline int PADinputMouseWentDown = 0;
-inline int PADinputButtonIsDown = 0;
-inline int PADinputMouseIsDown = 0;
+inline uint32_t PADinputButtonWentDown = 0;         // padone
+inline uint32_t PADinputButtonIsDown = 0;           // padrep
+inline uint32_t PADinputButtonRepeatDown = 0;       // padref
+inline uint32_t PADinputButtonRepeatAccelDown = 0;  // padacc
+inline uint32_t PADinputMouseWentDown = 0;
+inline uint32_t PADinputMouseIsDown = 0;
 
 enum ControlType {
   CT_OK = 0,
@@ -61,6 +63,8 @@ enum ControlType {
 };
 
 void UpdatePADInput();
+void UpdatePADHoldInput(float dt);
+void ResetPADHoldTimer(uint32_t PADcode);
 void UpdatePADcustomType(int type);
 bool GetControlState(int controlId);
 

@@ -3,7 +3,6 @@
 #include <optional>
 #include "librarysubmenus.h"
 #include "../../profile/games/cclcc/librarymenu.h"
-#include "../../ui/turboonholdhandler.h"
 #include "../../ui/widget.h"
 
 namespace Impacto {
@@ -66,10 +65,10 @@ class MusicMenu : public LibrarySubmenu {
   std::optional<FocusDirection> QueuedMove;
   std::vector<size_t> ShuffleTrackIndices;
   MusicBGs BGWidget;
-  TurboOnHoldHandler DirectionButtonHoldHandler;
   Animation NowPlayingFadeAnimation;
   Widgets::Label NowPlayingTrackName;
   MusicModeButton ModeButton;
+  float HoldTimer = 0.0f;
   bool TurboMoved = false;
   void PlayTrack(size_t index);
   void StopMusic();
