@@ -337,8 +337,8 @@ void TipsMenu::Init() {
         return records[i];
       });
   std::vector<int> sortedIndicesMap(recordCount);
-  for (size_t i = 0; i < recordCount; i++) {
-    sortedIndicesMap[i] = records[i].Id;
+  for (int i = 0; i < std::ssize(sortedView); i++) {
+    sortedIndicesMap[sortedView[i].Id] = i;
   }
 
   auto createCategory = [&](auto labelText, float yPos) {
