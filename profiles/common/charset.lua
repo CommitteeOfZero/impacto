@@ -30,7 +30,14 @@ if root.CharsetInternal ~= nil and root.CharsetInternal.CharsetStr ~= nil then
     end
 
     for i = 0, #root.CharsetInternal.CharsetStr do root.Charset.Flags[i] = 0; end
-    AddCharsetFlag(root.CharsetInternal.Spaces, CharacterTypeFlags.Space);
-    AddCharsetFlag(root.CharsetInternal.WordEndingPuncts, CharacterTypeFlags.WordEndingPunct);
-    AddCharsetFlag(root.CharsetInternal.WordStartingPuncts, CharacterTypeFlags.WordStartingPunct);
+
+    if root.CharsetInternal.Spaces ~= nil then
+        AddCharsetFlag(root.CharsetInternal.Spaces, CharacterTypeFlags.Space);
+    end
+    if root.CharsetInternal.WordEndingPuncts ~= nil then
+        AddCharsetFlag(root.CharsetInternal.WordEndingPuncts, CharacterTypeFlags.WordEndingPunct);
+    end
+    if root.CharsetInternal.WordStartingPunct ~= nil then
+        AddCharsetFlag(root.CharsetInternal.WordStartingPuncts, CharacterTypeFlags.WordStartingPunct);
+    end
 end

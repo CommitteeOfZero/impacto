@@ -1,5 +1,6 @@
 #include "charset.h"
 #include "profile_internal.h"
+#include "../text.h"
 
 #include <utf8.h>
 
@@ -9,15 +10,16 @@ namespace Charset {
 
 void Load() {
   EnsurePushMemberOfType("Charset", LUA_TTABLE);
-  {
-    EnsurePushMemberOfType("Flags", LUA_TTABLE);
 
-    uint32_t flagsCount = (uint32_t)lua_rawlen(LuaState, -1);
-    Flags.resize(flagsCount + 1);
+  if (TryPushMember("Flags")) {
+    AssertIs(LUA_TTABLE);
     PushInitialIndex();
     while (PushNextTableElement() != 0) {
-      int i = EnsureGetKey<int32_t>();
-      Flags[i] = EnsureGetArrayElement<uint8_t>();
+      uint16_t glyphId = EnsureGetKey<uint16_t>();
+      const uint8_t flags = EnsureGetArrayElement<uint8_t>();
+
+      StringToken::AddFlags(glyphId, flags);
+
       Pop();
     }
 
