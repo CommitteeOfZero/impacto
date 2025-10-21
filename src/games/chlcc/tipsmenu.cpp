@@ -602,10 +602,10 @@ void TipsMenu::DrawTipsTree() {
   glm::vec2 gradientPosition(GradientPosition.x,
                              GradientPosition.y + AnimationOffset.y);
   Renderer->DrawSprite(TipsGradient, gradientPosition);
+  const float gradientEndY =
+      TipsListBounds.Y + TipsListBounds.Height + AnimationOffset.y - 5.0f;
   Renderer->DrawQuad(
-      RectF(GradientPosition.x,
-            TipsListBounds.Y + TipsListBounds.Height + AnimationOffset.y,
-            TipsGradient.Bounds.Width, 88.0f),
+      RectF(GradientPosition.x, gradientEndY, TipsGradient.Bounds.Width, 91.0f),
       RgbIntToFloat(EndOfGradientColor));
   glm::vec2 treePosition(TreePosition.x, TreePosition.y + AnimationOffset.y);
   Renderer->DrawSprite(TipsTree, treePosition);
