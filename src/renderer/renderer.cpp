@@ -173,18 +173,34 @@ void BaseRenderer::DrawProcessedText(std::span<const ProcessedTextGlyph> text,
   }
 }
 
+static std::vector<size_t> GetVisibleGlyphIds(
+    std::span<const ProcessedTextGlyph> text) {
+  const static RectF viewport{0.0f, 0.0f, Profile::DesignWidth,
+                              Profile::DesignHeight};
+
+  std::vector<size_t> visibleGlyphIds;
+  for (size_t i = 0; i < text.size(); i++) {
+    if (text[i].DestRect.Intersects(viewport)) visibleGlyphIds.push_back(i);
+  }
+  return visibleGlyphIds;
+}
+
 void BaseRenderer::DrawProcessedText_BasicFont(
     std::span<const ProcessedTextGlyph> text, BasicFont* font, float opacity,
     RendererOutlineMode outlineMode, bool smoothstepGlyphOpacity,
     float outlineOpacity, SpriteSheet* maskedSheet) {
-  const size_t vertexCount = text.size() * 4;
-  const size_t indexCount = text.size() * 6;
+  const std::vector<size_t> visibleGlyphIds = GetVisibleGlyphIds(text);
+  const size_t glyphCount = visibleGlyphIds.size();
+  if (glyphCount == 0) return;
+
+  const size_t vertexCount = glyphCount * 4;
+  const size_t indexCount = glyphCount * 6;
   std::vector<VertexBufferSprites> vertices;
   std::vector<uint16_t> indices;
   vertices.resize(vertexCount);
   indices.resize(indexCount);
 
-  for (uint16_t i = 0; i < text.size(); i++) {
+  for (uint16_t i = 0; i < glyphCount; i++) {
     const uint16_t bl = i * 4;
     const uint16_t tl = bl + 1;
     const uint16_t tr = bl + 2;
@@ -198,8 +214,8 @@ void BaseRenderer::DrawProcessedText_BasicFont(
     indices[i * 6 + 5] = br;
   }
 
-  for (size_t i = 0; i < text.size(); i++) {
-    const ProcessedTextGlyph glyph = text[i];
+  for (size_t i = 0; i < glyphCount; i++) {
+    const ProcessedTextGlyph glyph = text[visibleGlyphIds[i]];
 
     const CornersQuad dest = glyph.DestRect;
     const CornersQuad destUV = font->Glyph(glyph.CharId).NormalizedBounds();
@@ -226,8 +242,8 @@ void BaseRenderer::DrawProcessedText_BasicFont(
     maxIndex += (uint16_t)vertexCount;
 
     // Set the color of the outline
-    for (size_t i = 0; i < text.size(); i++) {
-      const ProcessedTextGlyph glyph = text[i];
+    for (size_t i = 0; i < glyphCount; i++) {
+      const ProcessedTextGlyph glyph = text[visibleGlyphIds[i]];
       glm::vec4 color = RgbIntToFloat(glyph.Colors.OutlineColor);
       color.a =
           outlineOpacity * (smoothstepGlyphOpacity
@@ -303,16 +319,20 @@ void BaseRenderer::DrawProcessedText_LBFont(
     std::span<const ProcessedTextGlyph> text, LBFont* font, float opacity,
     RendererOutlineMode outlineMode, bool smoothstepGlyphOpacity,
     float outlineOpacity, SpriteSheet* maskedSheet) {
+  const std::vector<size_t> visibleGlyphIds = GetVisibleGlyphIds(text);
+  const size_t glyphCount = visibleGlyphIds.size();
+  if (glyphCount == 0) return;
+
   const ShaderProgramType shader = maskedSheet == nullptr
                                        ? ShaderProgramType::Sprite
                                        : ShaderProgramType::MaskedSpriteNoAlpha;
 
-  const size_t vertexCount = text.size() * 4;
-  const size_t indexCount = text.size() * 6;
+  const size_t vertexCount = glyphCount * 4;
+  const size_t indexCount = glyphCount * 6;
   std::vector<VertexBufferSprites> vertices(vertexCount);
   std::vector<uint16_t> indices(indexCount);
 
-  for (uint16_t i = 0; i < text.size(); i++) {
+  for (uint16_t i = 0; i < glyphCount; i++) {
     const uint16_t bl = i * 4;
     const uint16_t tl = bl + 1;
     const uint16_t tr = bl + 2;
@@ -327,8 +347,8 @@ void BaseRenderer::DrawProcessedText_LBFont(
   }
 
   if (outlineMode != RendererOutlineMode::None) {
-    for (size_t i = 0; i < text.size(); i++) {
-      const ProcessedTextGlyph glyph = text[i];
+    for (size_t i = 0; i < glyphCount; i++) {
+      const ProcessedTextGlyph glyph = text[visibleGlyphIds[i]];
 
       glm::vec4 color = RgbIntToFloat(glyph.Colors.OutlineColor);
       color.a =
@@ -376,8 +396,8 @@ void BaseRenderer::DrawProcessedText_LBFont(
     DrawVertices(font->OutlineSheet, maskedSheet, shader, vertices, indices);
   }
 
-  for (size_t i = 0; i < text.size(); i++) {
-    const ProcessedTextGlyph glyph = text[i];
+  for (size_t i = 0; i < glyphCount; i++) {
+    const ProcessedTextGlyph glyph = text[visibleGlyphIds[i]];
 
     glm::vec2 scale = {glyph.DestRect.Height / font->BitmapEmWidth,
                        glyph.DestRect.Height / font->BitmapEmHeight};
