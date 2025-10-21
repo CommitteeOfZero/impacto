@@ -317,7 +317,7 @@ root.Sprites["SettingTypeBSprite"] = {
     Bounds = { X = 959, Y = 481, Width = 218, Height = 28 }
 }
 
-if root.Language == "English" then
+if root.Language ~= "Japanese" then
     local uiSprites = {
         "MenuTitleTextConfig",
         "ButtonPromptConfig",
