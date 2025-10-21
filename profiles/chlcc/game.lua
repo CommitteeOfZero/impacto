@@ -42,8 +42,11 @@ include('chlcc/sprites.lua');
 include('common/animation.lua');
 include('chlcc/charset.lua');
 include('common/charset.lua');
---include('chlcc/font.lua');
-include('chlcc/font-lb.lua');
+if root.Language == "Japanese" then
+    include('chlcc/font.lua');
+else
+    include('chlcc/font-lb.lua');
+end
 include('chlcc/dialogue.lua');
 include('chlcc/hud/saveicon.lua');
 include('chlcc/hud/loadingdisplay.lua');
