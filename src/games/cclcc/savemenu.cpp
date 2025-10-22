@@ -40,8 +40,9 @@ void SaveMenu::MenuButtonOnClick(Widgets::Button* target) {
             SaveSystem::GetSaveFlags(saveType, ScrWork[SW_SAVEFILENO]) &
                 SaveSystem::SaveFlagsMode::WriteProtect);
   }
-  if (SaveStatus == 0 || *ActiveMenuType == +SaveMenuPageType::Load ||
-      *ActiveMenuType == +SaveMenuPageType::QuickLoad) {
+  if ((*ActiveMenuType == +SaveMenuPageType::Load ||
+       *ActiveMenuType == +SaveMenuPageType::QuickLoad) &&
+      SaveStatus == 0) {
     Audio::Channels[Audio::AC_SSE]->Play("sysse", 4, false, 0);
     return;
   }
