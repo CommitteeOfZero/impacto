@@ -337,8 +337,8 @@ void TipsMenu::Init() {
         return records[i];
       });
   std::vector<int> sortedIndicesMap(recordCount);
-  for (size_t i = 0; i < recordCount; i++) {
-    sortedIndicesMap[i] = records[i].Id;
+  for (int i = 0; i < std::ssize(sortedView); i++) {
+    sortedIndicesMap[sortedView[i].Id] = i;
   }
 
   auto createCategory = [&](auto labelText, float yPos) {
@@ -602,10 +602,10 @@ void TipsMenu::DrawTipsTree() {
   glm::vec2 gradientPosition(GradientPosition.x,
                              GradientPosition.y + AnimationOffset.y);
   Renderer->DrawSprite(TipsGradient, gradientPosition);
+  const float gradientEndY =
+      TipsListBounds.Y + TipsListBounds.Height + AnimationOffset.y - 5.0f;
   Renderer->DrawQuad(
-      RectF(GradientPosition.x,
-            TipsListBounds.Y + TipsListBounds.Height + AnimationOffset.y,
-            TipsGradient.Bounds.Width, 88.0f),
+      RectF(GradientPosition.x, gradientEndY, TipsGradient.Bounds.Width, 91.0f),
       RgbIntToFloat(EndOfGradientColor));
   glm::vec2 treePosition(TreePosition.x, TreePosition.y + AnimationOffset.y);
   Renderer->DrawSprite(TipsTree, treePosition);
