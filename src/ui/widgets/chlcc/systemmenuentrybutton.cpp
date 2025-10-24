@@ -24,8 +24,11 @@ void SystemMenuEntryButton::Render() {
         glm::vec2(Bounds.X + HighlightOffset.x, Bounds.Y + HighlightOffset.y),
         RgbIntToFloat(0x28537f));
   }
-  Renderer->DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y),
-                       HasFocus ? FocusTint : glm::vec4(1.0f));
+
+  glm::vec4 tint = IsLocked   ? RgbIntToFloat(0x808080)
+                   : HasFocus ? FocusTint
+                              : glm::vec4(1.0f);
+  Renderer->DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y), tint);
 }
 glm::vec2 SystemMenuEntryButton::RotatePoint(const glm::vec2& point,
                                              const glm::vec2& center,

@@ -156,6 +156,7 @@ VmInstruction(InstMes) {
         (DialoguePageMode)ScrWork[thread->DialoguePageId * 10 + SW_MESMODE0];
     dialoguePage.FadeAnimation.StartIn(true);
   }
+  SaveSystem::SetQSavedOnCurrentLine(false);
 
   PopUint8(type);
   bool voiced = type & 1;

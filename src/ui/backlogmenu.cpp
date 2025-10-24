@@ -210,6 +210,7 @@ void BacklogMenu::UpdateInput(float dt) {
 void BacklogMenu::Update(float dt) {
   if (State != Hidden && State != Shown) FadeAnimation.Update(dt);
   UpdateVisibility();
+  SetFlag(SF_BACKLOG_NOLOG, MainItems->Children.empty());
 
   if (State == Shown && IsFocused) {
     UpdateInput(dt);

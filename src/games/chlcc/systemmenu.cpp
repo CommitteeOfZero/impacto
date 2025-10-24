@@ -18,6 +18,15 @@ using namespace Impacto::Profile::SystemMenu;
 using namespace Impacto::UI::Widgets::CHLCC;
 
 void SystemMenu::MenuButtonOnClick(Widgets::Button* target) {
+  if (static_cast<SystemMenuEntryButton*>(target)->IsLocked) {
+    // Yep, that's similar to how it's done in the binary
+    // Binary checks for button state and if it's locked, PADone is modified
+    // like button press never happened, and then script reads inputs
+    PADinputButtonWentDown = PADinputButtonWentDown & ~PAD1A;
+    PADinputMouseWentDown = PADinputMouseWentDown & ~PAD1A;
+    return;
+  }
+
   ScrWork[SW_SYSMENUCNO] = target->Id;
   // Make the Id match the save menu mode (5th button would be Quick Load which
   // is case 0)
@@ -77,6 +86,10 @@ void SystemMenu::Show() {
     UI::FocusedMenu = this;
     if (!CurrentlyFocusedElement) AdvanceFocus(FDIR_DOWN);
   }
+
+  bool noFreeSlots = SaveSystem::MaxSaveEntries ==
+                     SaveSystem::Implementation->GetLockedQuickSaveCount();
+  SetFlag(SF_SAVEALLPROTECTED, noFreeSlots);
 }
 
 void SystemMenu::Hide() {
@@ -129,6 +142,14 @@ void SystemMenu::Update(float dt) {
 
     UpdateMenuLoop();
     UpdateTitles();
+    bool noFreeSlots = SaveSystem::MaxSaveEntries ==
+                       SaveSystem::Implementation->GetLockedQuickSaveCount();
+    bool quickSaveLockState = GetFlag(SF_SAVEDISABLE) ||
+                              SaveSystem::HasQSavedOnCurrentLine() ||
+                              noFreeSlots;
+    static_cast<SystemMenuEntryButton*>(
+        MainItems->Children[static_cast<size_t>(MenuItems::QuickSave)])
+        ->IsLocked = quickSaveLockState;
   }
 
   auto* btn = static_cast<Widgets::Button*>(CurrentlyFocusedElement);

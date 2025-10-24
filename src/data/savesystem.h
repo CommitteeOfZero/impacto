@@ -131,6 +131,8 @@ class SaveSystemBase {
   Sprite& GetWorkingSaveThumbnail() { return WorkingSaveThumbnail; }
   int GetLockedQuickSaveCount();
   void SetLockedQuickSaveCount(int value);
+  bool HasQSavedOnCurrentLine() const;
+  void SetQSavedOnCurrentLine(bool value);
 
  protected:
   SaveFileEntryBase* FullSaveEntries[MaxSaveEntries];
@@ -138,6 +140,7 @@ class SaveSystemBase {
   int QuickSaveCount;
   Sprite WorkingSaveThumbnail;
   int LockedQuickSaveCount;
+  bool QuickSavedOnCurrentLine;
 };
 
 inline SaveSystemBase* Implementation = nullptr;
@@ -177,6 +180,8 @@ void SetCheckpointId(int id);
 int GetQuickSaveOpenSlot();
 Sprite& GetSaveThumbnail(SaveType type, int id);
 Sprite& GetWorkingSaveThumbnail();
+bool HasQSavedOnCurrentLine();
+void SetQSavedOnCurrentLine(bool value);
 
 }  // namespace SaveSystem
 }  // namespace Impacto
