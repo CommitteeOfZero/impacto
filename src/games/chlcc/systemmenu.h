@@ -32,6 +32,18 @@ class SystemMenu : public Menu {
   void DrawCircles();
   void DrawErin();
 
+  enum class MenuItems : size_t {
+    Backlog,
+    Save,
+    Load,
+    QuickSave,
+    QuickLoad,
+    Config,
+    TipsList,
+    Trophy,
+    ReturnTitle
+  };
+
   float CurrentRunningPosition = 0.0f;
   float SelectionOffsetY = 0.0f;
   int IndexOfActiveButton = 0;
