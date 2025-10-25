@@ -6,6 +6,7 @@
 #include <enum.h>
 
 namespace Impacto {
+namespace UI {
 namespace CCLCC {
 class YesNoTrigger {
  public:
@@ -64,4 +65,5 @@ class YesNoTrigger {
 };
 
 }  // namespace CCLCC
+}  // namespace UI
 }  // namespace Impacto
