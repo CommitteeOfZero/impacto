@@ -9,6 +9,7 @@
 #include "../../profile/game.h"
 
 namespace Impacto {
+namespace UI {
 namespace CHLCC {
 
 using namespace Impacto::Profile::CHLCC::DelusionTrigger;
@@ -357,4 +358,5 @@ void DelusionTrigger::Render() {
 }
 
 }  // namespace CHLCC
+}  // namespace UI
 }  // namespace Impacto

@@ -7,6 +7,7 @@
 #include "../../profile/configsystem.h"
 
 namespace Impacto {
+namespace UI {
 namespace CCLCC {
 using namespace Impacto::Profile::CCLCC::DelusionTrigger;
 using namespace Impacto::Profile::ScriptVars;
@@ -397,4 +398,5 @@ void DelusionTrigger::Render() {
 }
 
 };  // namespace CCLCC
+}  // namespace UI
 };  // namespace Impacto

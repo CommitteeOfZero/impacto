@@ -4,6 +4,7 @@
 #include "../../ui/menu.h"
 
 namespace Impacto {
+namespace UI {
 namespace CCLCC {
 
 class DelusionTrigger {
@@ -46,4 +47,5 @@ class DelusionTrigger {
 };
 
 }  // namespace CCLCC
+}  // namespace UI
 }  // namespace Impacto
