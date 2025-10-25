@@ -10,14 +10,6 @@ using namespace Profile::CCLCC::YesNoTrigger;
 using namespace Vm::Interface;
 using namespace Impacto::Profile::ScriptVars;
 
-YesNoTrigger *YesNoTrigger::YesNoTriggerPtr = nullptr;
-
-void YesNoTrigger::Init() {
-  if (Profile::CCLCC::YesNoTrigger::Configure()) {
-    YesNoTriggerPtr = new YesNoTrigger();
-  }
-}
-
 int YesNoTrigger::Load(uint8_t *data) {
   int dataSize = 0;
   if (YesNoTriggerPtr == nullptr) {

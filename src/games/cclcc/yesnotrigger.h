@@ -28,7 +28,6 @@ class YesNoTrigger {
     glm::vec2 BubblePos;  // unused
   };
 
-  void static Init();
   void Start(int bgType, int bgBufId, int chipsBufId);
   void Show();
   void Hide();
@@ -56,7 +55,7 @@ class YesNoTrigger {
   int CurArrIndex = 0;
   int TargetArrIndex = 0;
 
-  static YesNoTrigger* YesNoTriggerPtr;
+  static inline std::unique_ptr<YesNoTrigger> YesNoTriggerPtr = nullptr;
 
  private:
   void UpdateYesNoPos(float startX, float startY, float startScale,
