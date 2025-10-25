@@ -1033,7 +1033,7 @@ VmInstruction(InstYesNoTriggerCCLCC) {
                  "STUB instruction Unk103A(type: {:d}, arg1: {:d}, arg2: {:d}, "
                  "arg3: {:d})\n",
                  type, arg1, arg2, arg3);
-      YesNoTrigger::YesNoTriggerPtr->Start(arg1, arg2, arg3);
+      YesNoTrigger::Implementation->Start(arg1, arg2, arg3);
     } break;
     case 1: {
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
@@ -1043,18 +1043,18 @@ VmInstruction(InstYesNoTriggerCCLCC) {
     case 2: {
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction YesNoTriggerCCLCC(type: {:d})\n", type);
-      YesNoTrigger::YesNoTriggerPtr->Show();
+      YesNoTrigger::Implementation->Show();
       BlockThread;
     } break;
     case 3: {
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction YesNoTriggerCCLCC(type: {:d})\n", type);
-      YesNoTrigger::YesNoTriggerPtr->Hide();
+      YesNoTrigger::Implementation->Hide();
     } break;
     case 4: {
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction YesNoTriggerCCLCC(type: {:d})\n", type);
-      if (YesNoTrigger::YesNoTriggerPtr->State != YesNoState::MainInput) {
+      if (YesNoTrigger::Implementation->State != YesNoState::MainInput) {
         ResetInstruction;
         BlockThread;
       }
@@ -1062,12 +1062,12 @@ VmInstruction(InstYesNoTriggerCCLCC) {
     case 5: {
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction YesNoTriggerCCLCC(type: {:d})\n", type);
-      YesNoTrigger::YesNoTriggerPtr->AllowInput = true;
+      YesNoTrigger::Implementation->AllowInput = true;
     } break;
     case 6: {
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction YesNoTriggerCCLCC(type: {:d})\n", type);
-      if (YesNoTrigger::YesNoTriggerPtr->State == YesNoState::MainInput) {
+      if (YesNoTrigger::Implementation->State == YesNoState::MainInput) {
         ResetInstruction;
         BlockThread;
       }
@@ -1075,17 +1075,17 @@ VmInstruction(InstYesNoTriggerCCLCC) {
     case 7: {
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction YesNoTriggerCCLCC(type: {:d})\n", type);
-      YesNoTrigger::YesNoTriggerPtr->GoToNextQuestion = true;
+      YesNoTrigger::Implementation->GoToNextQuestion = true;
     } break;
     case 8: {
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction YesNoTriggerCCLCC(type: {:d})\n", type);
       PopLocalLabel(branchAddress);
-      if (YesNoTrigger::YesNoTriggerPtr->State == YesNoState::PanToNext ||
-          YesNoTrigger::YesNoTriggerPtr->State == YesNoState::ZoomStart) {
+      if (YesNoTrigger::Implementation->State == YesNoState::PanToNext ||
+          YesNoTrigger::Implementation->State == YesNoState::ZoomStart) {
         ResetInstruction;
         BlockThread;
-      } else if (YesNoTrigger::YesNoTriggerPtr->State != YesNoState::Complete) {
+      } else if (YesNoTrigger::Implementation->State != YesNoState::Complete) {
         thread->IpOffset = branchAddress;
         BlockThread;
       }
@@ -1094,7 +1094,7 @@ VmInstruction(InstYesNoTriggerCCLCC) {
     case 10: {
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction YesNoTriggerCCLCC(type: {:d})\n", type);
-      YesNoTrigger::YesNoTriggerPtr->Reset();
+      YesNoTrigger::Implementation->Reset();
 
     } break;
     default: {

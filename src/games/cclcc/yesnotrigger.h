@@ -55,7 +55,7 @@ class YesNoTrigger {
   int CurArrIndex = 0;
   int TargetArrIndex = 0;
 
-  static inline std::unique_ptr<YesNoTrigger> YesNoTriggerPtr = nullptr;
+  static inline std::unique_ptr<YesNoTrigger> Implementation = nullptr;
 
  private:
   void UpdateYesNoPos(float startX, float startY, float startScale,
