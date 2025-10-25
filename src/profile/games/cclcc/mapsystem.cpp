@@ -11,6 +11,8 @@ namespace CCLCC {
 namespace MapSystem {
 
 void Configure() {
+  if (!TryPushMember("MapSystem")) return;
+  AssertIs(LUA_TTABLE);
   MapBgSprite = EnsureGetMember<Sprite>("MapBackground");
   int MapPartsPhotosNum = EnsureGetMember<int>("MapPartsPhotosNum");
   GetMemberArray<Sprite>(MapPartsPhotoSprites, MapPartsPhotosNum,
@@ -22,13 +24,14 @@ void Configure() {
   int MapPartsPinsNum = EnsureGetMember<int>("MapPartsPinsNum");
   GetMemberArray<Sprite>(MapPartsPinSprites, MapPartsPinsNum,
                          "MapPartsPinSprites");
-  MapButtonGuideSprite = EnsureGetMember<Sprite>("MapButtonGuide");
   int MapPartsTagsNum = EnsureGetMember<int>("MapPartsTagsNum");
   GetMemberArray<Sprite>(MapPartsTagSprites, MapPartsTagsNum,
                          "MapPartsTagSprites");
   FadeAnimationDuration = EnsureGetMember<float>("FadeAnimationDuration");
   MapLine = EnsureGetMember<Sprite>("MapLine");
   MapLineRed = EnsureGetMember<Sprite>("MapLineRed");
+
+  Pop();
 }
 
 }  // namespace MapSystem

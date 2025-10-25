@@ -22,7 +22,6 @@
 #include "../hud/skipicondisplay.h"
 #include "../hud/dialoguebox.h"
 #include "../hud/tipsnotification.h"
-#include "../hud/delusiontrigger.h"
 #include "../renderer/3d/model.h"
 
 namespace Impacto {
@@ -212,7 +211,6 @@ void MakeLuaProfile(std::string const& name) {
   DefineEnumInt<AutoIconDisplay::AutoIconType>(LuaState);
   DefineEnumInt<SkipIconDisplay::SkipIconType>(LuaState);
   DefineEnumInt<TipsNotification::TipsNotificationType>(LuaState);
-  DefineEnumInt<DelusionTrigger::DelusionTriggerType>(LuaState);
   DefineEnumInt<DialogueBoxType>(LuaState);
   DefineEnumInt<UI::SysMesBoxType>(LuaState);
   DefineEnumInt<FontType>(LuaState);
@@ -220,6 +218,7 @@ void MakeLuaProfile(std::string const& name) {
   DefineEnumInt<Dialogue::REVNameLocationType>(LuaState);
   DefineEnumInt<ShaderProgramType>(LuaState);
   DefineEnumInt<ConfigSystem::AutoQuickSaveType>(LuaState);
+  DefineEnumInt<UI::GameSpecificType>(LuaState);
 
   ImpLog(LogLevel::Info, LogChannel::Profile, "Starting profile {:s}\n", name);
 

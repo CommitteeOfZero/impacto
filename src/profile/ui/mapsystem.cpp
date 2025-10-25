@@ -17,8 +17,7 @@ void Configure() {
 }
 void CreateInstance() {
   if (!Impacto::UI::MapSystem::MapSystemPtr) {
-    Impacto::UI::MapSystem::MapSystemPtr =
-        new Impacto::UI::CCLCC::MapSystemCCLCC;
+    Impacto::UI::MapSystem::MapSystemPtr = new Impacto::UI::CCLCC::MapSystem;
   }
 }
 }  // namespace MapSystem
