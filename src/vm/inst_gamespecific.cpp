@@ -974,7 +974,7 @@ VmInstruction(InstTwipo_Dash) {
 VmInstruction(InstDelusionTriggerCHLCC) {
   StartInstruction;
   PopUint8(type);
-  auto* ptr = CHLCC::DelusionTrigger::Implementation.get();
+  auto* ptr = UI::CHLCC::DelusionTrigger::Implementation.get();
   switch (type) {
     case 0: {
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
@@ -1360,7 +1360,7 @@ VmInstruction(InstMtrg) {
   StartInstruction;
   PopUint8(type);
 
-  auto* ptr = CCLCC::DelusionTrigger::Implementation.get();
+  auto* ptr = UI::CCLCC::DelusionTrigger::Implementation.get();
   switch (type) {
     case 0: {
       PopExpression(arg1);

@@ -4,6 +4,7 @@
 #include "../../ui/menu.h"
 
 namespace Impacto {
+namespace UI {
 namespace CHLCC {
 class DelusionTrigger {
  public:
@@ -43,4 +44,5 @@ class DelusionTrigger {
 };
 
 }  // namespace CHLCC
+}  // namespace UI
 }  // namespace Impacto
