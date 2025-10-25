@@ -20,7 +20,7 @@ void BacklogMenu::MenuButtonOnClick(Widgets::BacklogEntry* target) {
   UI::BacklogMenu::MenuButtonOnClick(target);
 
   if (target->AudioId == -1)
-    Audio::Channels[Audio::AC_SSE]->Play("sysse", 4, false, 0.0f);
+    Audio::PlayInGroup(Audio::ACG_SE, "sysse", 4, false, 0.0f);
 }
 
 void BacklogMenu::Show() {

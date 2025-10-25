@@ -43,7 +43,7 @@ void SaveMenu::MenuButtonOnClick(Widgets::Button* target) {
   if ((*ActiveMenuType == +SaveMenuPageType::Load ||
        *ActiveMenuType == +SaveMenuPageType::QuickLoad) &&
       SaveStatus == 0) {
-    Audio::Channels[Audio::AC_SSE]->Play("sysse", 4, false, 0);
+    Audio::PlayInGroup(Audio::ACG_SE, "sysse", 4, false, 0);
     return;
   }
 }
@@ -213,7 +213,7 @@ void SaveMenu::Hide() {
       UI::FocusedMenu = 0;
     }
     IsFocused = false;
-    Audio::Channels[Audio::AC_SSE]->Play("sysse", 3, false, 0);
+    Audio::PlayInGroup(Audio::ACG_SE, "sysse", 3, false, 0);
   }
 }
 
@@ -229,7 +229,7 @@ void SaveMenu::UpdateInput(float dt) {
     CurrentPage = nextPage;
     MainItems[CurrentPage]->Show();
     PageAnimation.StartIn();
-    Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0);
+    Audio::PlayInGroup(Audio::ACG_SE, "sysse", 2, false, 0);
   };
   if (IsFocused) {
     if (Input::MouseWheelDeltaY < 0 || PADinputButtonWentDown & PADcustom[8]) {
@@ -243,7 +243,7 @@ void SaveMenu::UpdateInput(float dt) {
       IsFocused = false;
     } else {
       if (PADinputButtonWentDown & (PAD1DOWN | PAD1UP | PAD1RIGHT | PAD1LEFT)) {
-        Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0);
+        Audio::PlayInGroup(Audio::ACG_SE, "sysse", 1, false, 0);
       }
     }
 
@@ -256,9 +256,9 @@ void SaveMenu::UpdateInput(float dt) {
       if (SaveSystem::GetSaveStatus(saveType, saveButton->Id) == 1) {
         saveButton->ToggleLock();
         saveButton->RefreshInfo();
-        Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0);
+        Audio::PlayInGroup(Audio::ACG_SE, "sysse", 2, false, 0);
       } else {
-        Audio::Channels[Audio::AC_SSE]->Play("sysse", 4, false, 0);
+        Audio::PlayInGroup(Audio::ACG_SE, "sysse", 4, false, 0);
       }
     }
   }
@@ -307,7 +307,7 @@ void SaveMenu::Update(float dt) {
       CurrentlyFocusedElement = focusedElem;
       CurrentlyFocusedElement->HasFocus = true;
       IsFocused = false;
-      Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0);
+      Audio::PlayInGroup(Audio::ACG_SE, "sysse", 2, false, 0);
     }
   }
   if (State == Hidden && !HasCleared) {

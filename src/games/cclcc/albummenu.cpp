@@ -262,7 +262,7 @@ void AlbumMenu::Init() {
       IsFocused = false;
       ThumbnailZoomAnimation.SetDuration(AlbumThumbZoomClickDuration);
       ThumbnailZoomAnimation.StartIn();
-      Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0);
+      Audio::PlayInGroup(Audio::ACG_SE, "sysse", 2, false, 0);
     };
     const int mainAngle = getMainAngle(itemCountInPage);
     int variantAngleOffset = 0;
@@ -583,7 +583,7 @@ void AlbumMenu::Update(float dt) {
   if (!CGViewer) {
     UpdateThumbnail(dt);
     if (CurrentlyFocusedElement != prevBtn) {
-      Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0);
+      Audio::PlayInGroup(Audio::ACG_SE, "sysse", 1, false, 0);
       ThumbnailThumbBlink.StartIn();
     }
   } else {

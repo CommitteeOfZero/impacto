@@ -58,7 +58,7 @@ void OptionsEntry::UpdateInput(float dt) {
   const bool wasHovered = EntryButton.Hovered;
   EntryButton.UpdateInput(dt);
   if (!HasFocus && !wasHovered && EntryButton.Hovered) {
-    Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0.0f);
+    Audio::PlayInGroup(Audio::ACG_SE, "sysse", 1, false, 0.0f);
     Highlight(this);
   }
 
@@ -66,13 +66,13 @@ void OptionsEntry::UpdateInput(float dt) {
 
   if (PADinputButtonWentDown & PAD1A) {
     Selected = !Selected;
-    Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0.0f);
+    Audio::PlayInGroup(Audio::ACG_SE, "sysse", 2, false, 0.0f);
     return;
   }
 
   if (Selected && PADinputButtonWentDown & PAD1B) {
     Selected = false;
-    Audio::Channels[Audio::AC_SSE]->Play("sysse", 3, false, 0.0f);
+    Audio::PlayInGroup(Audio::ACG_SE, "sysse", 3, false, 0.0f);
     return;
   }
 }
@@ -93,7 +93,7 @@ void OptionsEntry::Move(glm::vec2 relativePos) {
 void OptionsEntry::EntryButtonOnClick(ClickArea* target) {
   if (Selected) return;
 
-  Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0.0f);
+  Audio::PlayInGroup(Audio::ACG_SE, "sysse", 2, false, 0.0f);
   Select(this);
 }
 

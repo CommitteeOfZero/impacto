@@ -73,7 +73,7 @@ LibraryMenu::LibraryMenu() : MainItems(this) {
     auto* prevButton = static_cast<LibraryMenuButton*>(
         MainItems.Children.at(CurrentLibraryMenu));
     prevButton->Selected = false;
-    Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0);
+    Audio::PlayInGroup(Audio::ACG_SE, "sysse", 2, false, 0);
     CurrentLibraryMenu = clickedType;
     AllowsScriptInput = false;
     button->Selected = true;
@@ -163,7 +163,7 @@ void LibraryMenu::Update(float dt) {
       UpdateInput(dt);
       if ((Vm::Interface::PADinputButtonWentDown & Vm::Interface::PAD1B) ||
           (Vm::Interface::PADinputMouseWentDown & Vm::Interface::PAD1B)) {
-        Audio::Channels[Audio::AC_SSE]->Play("sysse", 3, false, 0);
+        Audio::PlayInGroup(Audio::ACG_SE, "sysse", 3, false, 0);
         if (!IsFocused) {  // unfocus submenu
           if (CurrentLibraryMenu != +LibraryMenuPageType::Album ||
               !albumMenuPtr->CGViewer) {
@@ -206,7 +206,7 @@ void LibraryMenu::Update(float dt) {
       CurrentlyFocusedElement->HasFocus = false;
     }
     if (prevBtn != CurrentlyFocusedElement) {
-      Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0);
+      Audio::PlayInGroup(Audio::ACG_SE, "sysse", 1, false, 0);
     }
   }
 

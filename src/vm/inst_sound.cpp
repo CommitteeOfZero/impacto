@@ -90,11 +90,11 @@ VmInstruction(InstSSEplay) {
     PopUint8(channel);
   }
   PopExpression(sysSeId);
-  Audio::Channels[Audio::AC_SSE]->Play("sysse", sysSeId, false, 0.0f);
+  Audio::PlayInGroup(Audio::ACG_SE, "sysse", sysSeId, false, 0.0f);
 }
 VmInstruction(InstSSEstop) {
   StartInstruction;
-  Audio::Channels[Audio::AC_SSE]->Stop(1.0f);
+  Audio::StopChannelGroup(Audio::ACG_SE, 1.0f);
 }
 VmInstruction(InstBGMflag) {
   StartInstruction;

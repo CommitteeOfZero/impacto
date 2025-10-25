@@ -555,7 +555,7 @@ VmInstruction(InstTitleMenuNew) {
             // Check "PRESS TO START" here
             if (((Interface::PADinputButtonWentDown & Interface::PAD1A) ||
                  (Interface::PADinputMouseWentDown & Interface::PAD1A))) {
-              Audio::Channels[Audio::AC_SSE]->Play("sysse", 0, false, 0.0f);
+              Audio::PlayInGroup(Audio::ACG_SE, "sysse", 0, false, 0.0f);
               ScrWork[SW_TITLEMODE] = 2;
               ScrWork[SW_TITLEDISPCT] = 0;
               ScrWork[SW_TITLEMOVIECT] = 0;

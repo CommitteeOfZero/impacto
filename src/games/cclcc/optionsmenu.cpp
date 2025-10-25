@@ -266,7 +266,7 @@ void OptionsMenu::Update(float dt) {
 
 void OptionsMenu::PageButtonOnHover(size_t pageNumber) {
   if (pageNumber != CurrentPage || !CurrentlyFocusedElement)
-    Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0.0f);
+    Audio::PlayInGroup(Audio::ACG_SE, "sysse", 1, false, 0.0f);
 
   if (pageNumber == CurrentPage && CurrentlyFocusedElement) return;
 
@@ -286,7 +286,7 @@ void OptionsMenu::UpdatePageInput(float dt) {
   UI::OptionsMenu::UpdatePageInput(dt);
 
   if (CurrentPage != lastPage)
-    Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0.0f);
+    Audio::PlayInGroup(Audio::ACG_SE, "sysse", 1, false, 0.0f);
 }
 
 void OptionsMenu::UpdateEntryMovementInput(float dt) {
@@ -294,7 +294,7 @@ void OptionsMenu::UpdateEntryMovementInput(float dt) {
   UI::OptionsMenu::UpdateEntryMovementInput(dt);
 
   if (CurrentlyFocusedElement != lastHighlight)
-    Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0.0f);
+    Audio::PlayInGroup(Audio::ACG_SE, "sysse", 1, false, 0.0f);
 }
 
 void OptionsMenu::UpdateInput(float dt) {
@@ -302,7 +302,7 @@ void OptionsMenu::UpdateInput(float dt) {
                         (AllowsScriptInput && GetControlState(CT_Back));
   if (State == Shown && backBtnPressed) {
     if (!GetFlag(SF_SUBMENUEXIT))
-      Audio::Channels[Audio::AC_SSE]->Play("sysse", 3, false, 0.0f);
+      Audio::PlayInGroup(Audio::ACG_SE, "sysse", 3, false, 0.0f);
     SetFlag(SF_SUBMENUEXIT, 1);
     return;
   }

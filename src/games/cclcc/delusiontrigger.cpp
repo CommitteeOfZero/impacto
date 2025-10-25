@@ -68,12 +68,12 @@ void DelusionTrigger::Update(float dt) {
     if (DelusionState == DS_Neutral) {
       if (ScrWork[SW_DELUSION_LIMIT] == Delusion_Both ||
           ScrWork[SW_DELUSION_LIMIT] == Delusion_NegOnly) {
-        Audio::Channels[Audio::AC_SSE]->Play("sysse", 11, false, 0.0f);
+        Audio::PlayInGroup(Audio::ACG_SE, "sysse", 11, false, 0.0f);
         ScrWork[SW_DELUSION_SPIN_COUNTER] = 64;
         DelusionState = DS_Negative;
       }
     } else if (DelusionState == DS_Positive) {
-      Audio::Channels[Audio::AC_SSE]->Play("sysse", 12, false, 0.0f);
+      Audio::PlayInGroup(Audio::ACG_SE, "sysse", 12, false, 0.0f);
       ScrWork[SW_DELUSION_SPIN_COUNTER] = 64;
       DelusionState = DS_Neutral;
     }
@@ -83,12 +83,12 @@ void DelusionTrigger::Update(float dt) {
     if (DelusionState == DS_Neutral) {
       if (ScrWork[SW_DELUSION_LIMIT] == Delusion_Both ||
           ScrWork[SW_DELUSION_LIMIT] == Delusion_PosOnly) {
-        Audio::Channels[Audio::AC_SSE]->Play("sysse", 10, false, 0.0f);
+        Audio::PlayInGroup(Audio::ACG_SE, "sysse", 10, false, 0.0f);
         ScrWork[SW_DELUSION_SPIN_COUNTER] = 64;
         DelusionState = DS_Positive;
       }
     } else if (DelusionState == DS_Negative) {
-      Audio::Channels[Audio::AC_SSE]->Play("sysse", 12, false, 0.0f);
+      Audio::PlayInGroup(Audio::ACG_SE, "sysse", 12, false, 0.0f);
       ScrWork[SW_DELUSION_SPIN_COUNTER] = 64;
       DelusionState = DS_Neutral;
     }
