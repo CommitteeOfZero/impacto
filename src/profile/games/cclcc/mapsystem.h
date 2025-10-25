@@ -12,7 +12,6 @@ constexpr int MapPartsPinSpritesNumMax = 12;
 constexpr int MapPartsTagSpritesNumMax = 16;
 
 inline Sprite MapBgSprite;
-inline Sprite MapButtonGuideSprite;
 inline Sprite MapPartsPhotoSprites[MapPartsPhotoSpritesNumMax];
 inline Sprite MapPartsArticleSprites[MapPartsArticleSpritesNumMax];
 inline Sprite MapPartsPinSprites[MapPartsPinSpritesNumMax];

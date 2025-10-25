@@ -17,7 +17,6 @@
 #include "../profile/vm.h"
 #include "../profile/dialogue.h"
 #include "../profile/hud/tipsnotification.h"
-#include "../profile/hud/delusiontrigger.h"
 #include "../profile/data/tipssystem.h"
 #include "../profile/ui/backlogmenu.h"
 #include "../hud/saveicondisplay.h"
@@ -25,6 +24,7 @@
 #include "../data/savesystem.h"
 #include "../data/achievementsystem.h"
 #include "../ui/ui.h"
+#include "../ui/gamespecific.h"
 #include "../voicetable.h"
 
 namespace Impacto {
@@ -793,7 +793,7 @@ VmInstruction(InstMSinit) {
 
   if (initType == 1) {
     Profile::TipsNotification::CreateInstance();
-    Profile::DelusionTrigger::CreateInstance();
+    UI::GameSpecific::Init();
     SetFlag(SF_MESREVDISABLE, false);
   }
 
@@ -802,7 +802,7 @@ VmInstruction(InstMSinit) {
   }
 
   if (initType == 10) {
-    Profile::DelusionTrigger::CreateInstance();
+    UI::GameSpecific::Init();
 
     // Technically not done here in the MAGES. engine, but we have to do it
     // *somewhere* on boot...

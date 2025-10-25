@@ -9,7 +9,6 @@ root.MapSystem = {
     MapPartsPinsNum = 12,
     MapPartsTagsNum = 16,
     SelectedMapPoolTag = "SelectedMapPoolTag",
-    MapButtonGuide = "MapButtonGuide",
     MapLineRed = "MapLineRed",
     MapLine = "MapLine",
     FadeAnimationDuration = 16 / 60
@@ -33,11 +32,6 @@ root.Sprites["MapLineRed"] = {
 root.Sprites["MapLine"] = {
     Sheet = "MapParts",
     Bounds = { X = 0, Y = 13, Width = 2048, Height = 10 }
-};
-
-root.Sprites["MapButtonGuide"] = {
-    Sheet = "Data",
-    Bounds = { X = 0, Y = 1177, Width = 1920, Height = 54 }
 };
 
 for i = 0, root.MapSystem.MapPartsPhotosNum - 1 do

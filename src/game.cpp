@@ -9,6 +9,7 @@
 #include "debugmenu.h"
 
 #include "ui/ui.h"
+#include "ui/gamespecific.h"
 
 #include "data/savesystem.h"
 #include "data/achievementsystem.h"
@@ -27,8 +28,6 @@
 #include "hud/saveicondisplay.h"
 #include "hud/loadingdisplay.h"
 #include "hud/tipsnotification.h"
-#include "hud/delusiontrigger.h"
-#include "games/cclcc/yesnotrigger.h"
 #include "games/cclcc/systemmenu.h"
 
 #include "profile/profile.h"
@@ -52,9 +51,9 @@
 #include "profile/ui/tipsmenu.h"
 #include "profile/ui/extramenus.h"
 #include "profile/ui/trophymenu.h"
-#include "profile/ui/mapsystem.h"
 #include "profile/ui/helpmenu.h"
 #include "profile/data/bgeff.h"
+#include "profile/ui/gamespecific.h"
 
 namespace Impacto {
 
@@ -144,12 +143,9 @@ static void Init() {
     Profile::HelpMenu::Configure();
     Profile::TipsMenu::Configure();
     Profile::ExtraMenus::Configure();
+    Profile::GameSpecific::Configure();
     DateDisplay::Init();
     TipsNotification::Init();
-    DelusionTrigger::Init();
-    UI::MapSystem::Init();
-    CCLCC::YesNoTrigger::Init();
-
     // Default controls
     Vm::Interface::UpdatePADcustomType(0);
 
@@ -205,6 +201,9 @@ void UpdateGameState(float dt) {
     }
   }
   Vm::ChkMesSkip();
+  if (Profile::Vm::GameInstructionSet == +Vm::InstructionSet::CC) {
+    UI::GameSpecific::UpdateCCButtonGuide(dt);
+  }
 }
 
 void UpdateSystem(float dt) {
@@ -257,10 +256,7 @@ void UpdateSystem(float dt) {
     DateDisplay::Update(UpdateSecondCounter);
     if (ScrWork[SW_GAMESTATE] & 5 && !GetFlag(SF_GAMEPAUSE) &&
         !GetFlag(SF_SYSMENUDISABLE)) {
-      DelusionTrigger::Update(UpdateSecondCounter);
-      UI::MapSystem::Update(UpdateSecondCounter);
-      if (CCLCC::YesNoTrigger::YesNoTriggerPtr)
-        CCLCC::YesNoTrigger::YesNoTriggerPtr->Update(UpdateSecondCounter);
+      UI::GameSpecific::Update(UpdateSecondCounter);
 
       if (!GetFlag(SF_MOVIEPLAY)) {
         TipsNotification::Update(UpdateSecondCounter);
@@ -340,10 +336,6 @@ static void RenderMain() {
       Framebuffers[0].Render(layer);
     }
 
-    if (ScrWork[SW_MAP_PRI] == static_cast<int>(layer) &&
-        ScrWork[SW_MAP_ALPHA]) {
-      UI::MapSystem::Render();
-    }
     if (ScrWork[SW_MASK1PRI] == static_cast<int>(layer)) {
       const int maskAlpha = ScrWork[SW_MASK1ALPHA_OFS] + ScrWork[SW_MASK1ALPHA];
 
@@ -406,12 +398,8 @@ static void RenderMain() {
         Video::VideoRender(videoAlpha / 256.0f);
       }
     }
-    if (static_cast<uint32_t>(ScrWork[SW_DELUSION_PRI]) == layer)
-      DelusionTrigger::Render();
-    if (CCLCC::YesNoTrigger::YesNoTriggerPtr &&
-        static_cast<uint32_t>(ScrWork[SW_YESNO_PRI]) == layer) {
-      CCLCC::YesNoTrigger::YesNoTriggerPtr->Render();
-    }
+
+    UI::GameSpecific::RenderLayer(layer);
   }
 
   Renderer->SetFramebuffer(0);
@@ -518,7 +506,10 @@ void Render() {
           break;
         }
         case DrawComponentType::SystemIcons: {
-          UI::MapSystem::RenderButtonGuide();
+          if (Profile::Vm::GameInstructionSet == +Vm::InstructionSet::CC) {
+            UI::GameSpecific::RenderCCButtonGuide();
+          }
+
           LoadingDisplay::Render();
           SaveIconDisplay::Render();
           break;

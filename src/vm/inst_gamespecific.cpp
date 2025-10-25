@@ -6,11 +6,9 @@
 #include "../log.h"
 #include "../mem.h"
 #include "../profile/scriptvars.h"
-#include "../hud/delusiontrigger.h"
-#include "../ui/mapsystem.h"
 #include "../video/videosystem.h"
 #include "../profile/vm.h"
-#include "../games/cclcc/yesnotrigger.h"
+#include "../ui/gamespecific.h"
 
 namespace Impacto {
 
@@ -408,14 +406,15 @@ VmInstruction(InstUnk1037) {
 VmInstruction(InstMapSystem) {
   StartInstruction;
   PopUint8(type);
+  auto* ptr = UI::CCLCC::MapSystemCCLCC::Implementation.get();
   switch (type) {
     case 1:
-      Impacto::UI::MapSystem::MapInit();
+      ptr->MapInit();
       break;
     case 2: {
       PopExpression(arg1);
       PopExpression(arg2);
-      Impacto::UI::MapSystem::MapSetFadein(arg1, arg2);
+      ptr->MapSetFadein(arg1, arg2);
     } break;
     case 3: {
       PopExpression(arg1);
@@ -427,17 +426,17 @@ VmInstruction(InstMapSystem) {
           "STUB instruction MapSetGroup(arg1: {:d}, arg2: {:d}, arg3: {:d}, "
           "arg4: {:d})\n",
           arg1, arg2, arg3, arg4);
-      Impacto::UI::MapSystem::MapSetGroup(arg1, arg2, arg3, arg4);
+      ptr->MapSetGroup(arg1, arg2, arg3, arg4);
     } break;
     case 4: {
       PopExpression(arg1);
       PopExpression(arg2);
-      Impacto::UI::MapSystem::MapSetFadeout(arg1, arg2);
+      ptr->MapSetFadeout(arg1, arg2);
     } break;
     case 5: {
       PopExpression(arg1);
       PopExpression(arg2);
-      Impacto::UI::MapSystem::MapSetDisp(arg1, arg2);
+      ptr->MapSetDisp(arg1, arg2);
     } break;
     case 6: {
       PopExpression(arg1);
@@ -445,10 +444,10 @@ VmInstruction(InstMapSystem) {
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction MapSetHide(arg1: {:d}, arg2: {:d})\n", arg1,
                  arg2);
-      Impacto::UI::MapSystem::MapSetHide(arg1, arg2);
+      ptr->MapSetHide(arg1, arg2);
     } break;
     case 7:
-      if (!Impacto::UI::MapSystem::MapFadeEndChk_Wait()) {
+      if (!ptr->MapFadeEndChk_Wait()) {
         ResetInstruction;
         BlockThread;
       }
@@ -461,12 +460,12 @@ VmInstruction(InstMapSystem) {
                  "STUB instruction MapMoveAnimeInit(arg1: {:d}, arg2: {:d}, "
                  "arg3: {:d})\n",
                  arg1, arg2, arg3);
-      Impacto::UI::MapSystem::MapMoveAnimeInit(arg1, arg2, arg3);
+      ptr->MapMoveAnimeInit(arg1, arg2, arg3);
     } break;
     case 9:
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction MapMoveAnimeMain\n");
-      if (!Impacto::UI::MapSystem::MapMoveAnimeMain()) {
+      if (!ptr->MapMoveAnimeMain()) {
         ResetInstruction;
         BlockThread;
       }
@@ -474,8 +473,7 @@ VmInstruction(InstMapSystem) {
     case 0xA: {
       PopExpression(arg1);
       PopExpression(arg2);
-      Impacto::UI::MapSystem::MapGetPos(arg1, arg2, ScrWork[6365],
-                                        ScrWork[6366]);
+      ptr->MapGetPos(arg1, arg2, ScrWork[6365], ScrWork[6366]);
 
     } break;
     case 0xB: {
@@ -483,21 +481,21 @@ VmInstruction(InstMapSystem) {
       PopExpression(arg2);
       PopExpression(arg3);
       PopExpression(arg4);
-      Impacto::UI::MapSystem::MapSetPool(arg2 + arg1 * 10, arg3, arg4);
+      ptr->MapSetPool(arg2 + arg1 * 10, arg3, arg4);
     } break;
     case 0xC: {
       PopExpression(arg1);
-      Impacto::UI::MapSystem::MapResetPoolAll(arg1);
+      ptr->MapResetPoolAll(arg1);
     } break;
     case 0xD:
-      if (!Impacto::UI::MapSystem::MapPoolFadeEndChk_Wait()) {
+      if (!ptr->MapPoolFadeEndChk_Wait()) {
         ResetInstruction;
         BlockThread;
       }
       break;
     case 0xE: {
       PopExpression(arg1);
-      Impacto::UI::MapSystem::MapPoolShuffle(arg1);
+      ptr->MapPoolShuffle(arg1);
     } break;
     case 0xF: {
       PopExpression(arg1);
@@ -505,7 +503,7 @@ VmInstruction(InstMapSystem) {
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction MapPoolSetDisp(arg1: {:d}, arg2: {:d})\n",
                  arg1, arg2);
-      Impacto::UI::MapSystem::MapPoolSetDisp(arg1, arg2);
+      ptr->MapPoolSetDisp(arg1, arg2);
     } break;
     case 0x10: {
       PopExpression(arg1);
@@ -513,21 +511,21 @@ VmInstruction(InstMapSystem) {
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction MapPoolSetHide(arg1: {:d}, arg2: {:d})\n",
                  arg1, arg2);
-      Impacto::UI::MapSystem::MapPoolSetHide(arg1, arg2);
+      ptr->MapPoolSetHide(arg1, arg2);
     } break;
     case 0x11: {
       PopExpression(arg1);
       PopExpression(arg2);
-      Impacto::UI::MapSystem::MapPoolSetFadein(arg1, arg2);
+      ptr->MapPoolSetFadein(arg1, arg2);
     } break;
     case 0x12: {
       PopExpression(arg1);
       PopExpression(arg2);
-      Impacto::UI::MapSystem::MapPoolSetFadeout(arg1, arg2);
+      ptr->MapPoolSetFadeout(arg1, arg2);
     } break;
     case 0x13: {
       PopExpression(arg1);
-      if (!Impacto::UI::MapSystem::MapPlayerPhotoSelect(arg1)) {
+      if (!ptr->MapPlayerPhotoSelect(arg1)) {
         ResetInstruction;
         BlockThread;
       }
@@ -535,7 +533,7 @@ VmInstruction(InstMapSystem) {
     case 0x14: {
       PopExpression(arg1);
       PopExpression(arg2);
-      Impacto::UI::MapSystem::MapResetPool(arg1 * 10 + arg2);
+      ptr->MapResetPool(arg1 * 10 + arg2);
     } break;
     case 0x15: {
       PopExpression(arg1);
@@ -545,7 +543,7 @@ VmInstruction(InstMapSystem) {
                  "STUB instruction MapSetGroupEx(arg1: {:d}, arg2: {:d}, arg3: "
                  "{:d})\n",
                  arg1, arg2, arg3);
-      Impacto::UI::MapSystem::MapSetGroupEx(arg1, arg2, arg3);
+      ptr->MapSetGroupEx(arg1, arg2, arg3);
     } break;
     case 0x16: {
       PopExpression(arg1);
@@ -557,7 +555,7 @@ VmInstruction(InstMapSystem) {
           arg1, arg2, arg3);
       if (arg1 != ScrWork[6363] || arg2 != ScrWork[6364] ||
           arg3 != ScrWork[6362]) {
-        Impacto::UI::MapSystem::MapZoomInit(arg1, arg2, arg3);
+        ptr->MapZoomInit(arg1, arg2, arg3);
       } else {
         thread->IpOffset += 3;
       }
@@ -565,7 +563,7 @@ VmInstruction(InstMapSystem) {
     case 0x17:
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction MapZoomMain\n");
-      if (!Impacto::UI::MapSystem::MapZoomMain()) {
+      if (!ptr->MapZoomMain()) {
         ResetInstruction;
         BlockThread;
       }
@@ -580,13 +578,13 @@ VmInstruction(InstMapSystem) {
           arg1, arg2, arg3);
       if (arg1 != ScrWork[6363] || arg2 != ScrWork[6364] ||
           arg3 != ScrWork[6362]) {
-        Impacto::UI::MapSystem::MapZoomInit2(arg1, arg2);
+        ptr->MapZoomInit2(arg1, arg2);
       } else {
         thread->IpOffset += 3;
       }
     } break;
     case 0x19:
-      if (!Impacto::UI::MapSystem::MapZoomMain3()) {
+      if (!ptr->MapZoomMain3()) {
         ResetInstruction;
         BlockThread;
       }
@@ -597,7 +595,7 @@ VmInstruction(InstMapSystem) {
       PopExpression(arg3);
       if (arg1 != ScrWork[6363] || arg2 != ScrWork[6364] ||
           arg3 != ScrWork[6362]) {
-        if (!Impacto::UI::MapSystem::MapZoomInit3(arg1, arg2, arg3)) {
+        if (!ptr->MapZoomInit3(arg1, arg2, arg3)) {
           thread->IpOffset += 3;
         }
       } else {
@@ -610,7 +608,7 @@ VmInstruction(InstMapSystem) {
       PopExpression(arg3);
       if (arg1 != ScrWork[6363] || arg2 != ScrWork[6364] ||
           arg3 != ScrWork[6362]) {
-        if (!Impacto::UI::MapSystem::MapMoveAnimeInit2(arg1, arg2, arg3)) {
+        if (!ptr->MapMoveAnimeInit2(arg1, arg2, arg3)) {
           thread->IpOffset += 3;
         }
       } else {
@@ -618,7 +616,7 @@ VmInstruction(InstMapSystem) {
       }
     } break;
     case 0x1C:
-      if (!Impacto::UI::MapSystem::MapMoveAnimeMain2()) {
+      if (!ptr->MapMoveAnimeMain2()) {
         ResetInstruction;
         BlockThread;
       }
@@ -626,12 +624,12 @@ VmInstruction(InstMapSystem) {
     case 0x1E:
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction MapPlayerPotalSelectInit\n");
-      Impacto::UI::MapSystem::MapPlayerPotalSelectInit();
+      ptr->MapPlayerPotalSelectInit();
       break;
     case 0x1F:
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction MapPlayerPotalSelect\n");
-      if (!Impacto::UI::MapSystem::MapPlayerPotalSelect()) {
+      if (!ptr->MapPlayerPotalSelect()) {
         ResetInstruction;
         BlockThread;
       }
@@ -639,7 +637,7 @@ VmInstruction(InstMapSystem) {
     case 0x28:
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction MapSystem_28\n");
-      Impacto::UI::MapSystem::MapSystem_28();
+      ptr->MapSystem_28();
       break;
   }
 }
@@ -976,27 +974,28 @@ VmInstruction(InstTwipo_Dash) {
 VmInstruction(InstDelusionTriggerCHLCC) {
   StartInstruction;
   PopUint8(type);
+  auto* ptr = CHLCC::DelusionTrigger::Implementation.get();
   switch (type) {
     case 0: {
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction DelusionTriggerCHLCC(type: {:d})\n", type);
-      DelusionTrigger::Hide();
+      ptr->Hide();
     } break;
     case 1: {
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction DelusionTriggerCHLCC(type: {:d})\n", type);
-      DelusionTrigger::Show();
+      ptr->Show();
     } break;
     case 2: {
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction DelusionTriggerCHLCC(type: {:d})\n", type);
-      DelusionTrigger::Show();
+      ptr->Show();
       BlockThread;
     } break;
     case 3: {
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction DelusionTriggerCHLCC(type: {:d})\n", type);
-      DelusionTrigger::Show();
+      ptr->Show();
     } break;
     case 4: {
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
@@ -1005,7 +1004,7 @@ VmInstruction(InstDelusionTriggerCHLCC) {
     case 5: {
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction DelusionTriggerCHLCC(type: {:d})\n", type);
-      DelusionTrigger::Show();
+      ptr->Show();
     } break;
     case 6: {
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
@@ -1014,7 +1013,7 @@ VmInstruction(InstDelusionTriggerCHLCC) {
     case 7: {
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction DelusionTriggerCHLCC(type: {:d})\n", type);
-      DelusionTrigger::Hide();
+      ptr->Hide();
       BlockThread;
     } break;
   }
@@ -1360,6 +1359,8 @@ VmInstruction(InstUnk1037Noah) {
 VmInstruction(InstMtrg) {
   StartInstruction;
   PopUint8(type);
+
+  auto* ptr = CCLCC::DelusionTrigger::Implementation.get();
   switch (type) {
     case 0: {
       PopExpression(arg1);
@@ -1367,14 +1368,14 @@ VmInstruction(InstMtrg) {
       PopExpression(arg3);
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction MtrgStart(type: {:d})\n", type);
-      if (DelusionTrigger::Show(arg1, arg2, arg3)) {
+      if (ptr->Show(arg1, arg2, arg3)) {
         return;
       }
     } break;
     case 1: {
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction MtrgEnd_Wait(type: {:d})\n", type);
-      DelusionTrigger::Hide();
+      ptr->Hide();
       if (ScrWork[SW_DELUSION_BG_COUNTER] != 0) {
         ResetInstruction;
       }
@@ -1405,7 +1406,7 @@ VmInstruction(InstMtrg) {
     case 3: {
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction MtrgStop_Wait(type: {:d})\n", type);
-      if (DelusionTrigger::CheckTransitionAnimationComplete()) {
+      if (ptr->CheckTransitionAnimationComplete()) {
         SetFlag(SF_DELUSIONSELECTED, 1);
         return;
       }
@@ -1413,7 +1414,7 @@ VmInstruction(InstMtrg) {
     case 4: {
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction MtrgStart_Wait(type: {:d})\n", type);
-      if (DelusionTrigger::CheckStartTransitionComplete()) {
+      if (ptr->CheckStartTransitionComplete()) {
         return;
       }
     } break;

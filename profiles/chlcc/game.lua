@@ -65,4 +65,4 @@ include('chlcc/hud/tipsnotification.lua');
 include('chlcc/hud/optionsmenu.lua');
 include('chlcc/hud/extramenus.lua');
 include('chlcc/hud/trophymenu.lua');
-include('chlcc/hud/delusiontrigger.lua');
+include('chlcc/gamespecific.lua');

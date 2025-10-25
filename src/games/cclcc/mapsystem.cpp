@@ -1975,49 +1975,6 @@ void MapSystemCCLCC::Update(float dt) {
   if (ScrWork[SW_MAP_ALPHA] && GetFlag(2800)) {
     MapSetPos(dt);
   }
-
-  if (ScrWork[6500] == 0) {
-    if (ScrWork[6501] == 0) {
-      ScrWork[6502] = 0;
-    } else {
-      ScrWork[6501]--;
-    }
-  } else {
-    ScrWork[6502] = ScrWork[6500];
-    if (ScrWork[6501] < 32) {
-      ScrWork[6501]++;
-    }
-  }
-}
-
-void MapSystemCCLCC::RenderButtonGuide() {
-  if (!GetFlag(SF_UIHIDDEN) && !GetFlag(2487)) {
-    if (ScrWork[6501] != 0) {
-      float guideXWidth = (ScrWork[6501] * 1920.0f) / 32.0f;
-      MapButtonGuideSprite.Bounds.Width = guideXWidth;
-      Renderer->DrawSprite(MapButtonGuideSprite, glm::vec2{0.0f, 988.0f});
-      if (guideXWidth < 1920) {
-        Sprite MapButtonGuideSprite2 = MapButtonGuideSprite;
-        std::array<glm::vec4, 4> tints = {
-            glm::vec4{1.0f, 1.0f, 1.0f, 0.0f},
-            glm::vec4{1.0f, 1.0f, 1.0f, 1.0f},
-            glm::vec4{1.0f, 1.0f, 1.0f, 1.0f},
-            glm::vec4{1.0f, 1.0f, 1.0f, 0.0f},
-        };
-        MapButtonGuideSprite2.Bounds.X = guideXWidth;
-        MapButtonGuideSprite2.Bounds.Width = 60;
-
-        CornersQuad dest = {
-            glm::vec2{guideXWidth, 988.0f},        // top left
-            glm::vec2{guideXWidth, 1042.0f},       // bottom left
-            glm::vec2{guideXWidth + 60, 988.0f},   // top right
-            glm::vec2{guideXWidth + 60, 1042.0f},  // bottom right
-        };
-        Renderer->DrawSprite(MapButtonGuideSprite2, dest, glm::mat4(1.0f),
-                             tints, glm::vec3(0.0f), false);
-      }
-    }
-  }
 }
 
 void MapSystemCCLCC::Render() {

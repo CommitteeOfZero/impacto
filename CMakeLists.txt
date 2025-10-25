@@ -64,7 +64,6 @@ set(Impacto_Src
         src/profile/hud/loadingdisplay.cpp
         src/profile/hud/datedisplay.cpp
         src/profile/hud/tipsnotification.cpp
-        src/profile/hud/delusiontrigger.cpp
 
         src/profile/ui/systemmenu.cpp
         src/profile/ui/titlemenu.cpp
@@ -76,8 +75,8 @@ set(Impacto_Src
         src/profile/ui/tipsmenu.cpp
         src/profile/ui/extramenus.cpp
         src/profile/ui/trophymenu.cpp
-        src/profile/ui/mapsystem.cpp
         src/profile/ui/helpmenu.cpp
+        src/profile/ui/gamespecific.cpp
 
         src/profile/games/rne/tilebackground.cpp
         src/profile/games/rne/systemmenu.cpp
@@ -225,9 +224,7 @@ set(Impacto_Src
         src/hud/skipicondisplay.cpp
         src/hud/waiticondisplay.cpp
         src/hud/tipsnotification.cpp
-        src/hud/delusiontrigger.cpp
 
-        src/ui/mapsystem.cpp
         src/ui/widget.cpp
         src/ui/menu.cpp
         src/ui/nullmenu.cpp
@@ -278,6 +275,7 @@ set(Impacto_Src
         src/ui/widgets/cclcc/sysmenubutton.cpp
         src/ui/widgets/cclcc/tipsentrybutton.cpp
         src/ui/widgets/cclcc/tipstabgroup.cpp
+        src/ui/gamespecific.cpp
 
         src/stbi_impl.c
 
@@ -396,7 +394,6 @@ set(Impacto_Header
         src/profile/hud/loadingdisplay.h
         src/profile/hud/datedisplay.h
         src/profile/hud/tipsnotification.h
-        src/profile/hud/delusiontrigger.h
 
         src/profile/ui/systemmenu.h
         src/profile/ui/titlemenu.h
@@ -408,8 +405,8 @@ set(Impacto_Header
         src/profile/ui/tipsmenu.h
         src/profile/ui/extramenus.h
         src/profile/ui/trophymenu.h
-        src/profile/ui/mapsystem.h
         src/profile/ui/helpmenu.h
+        src/profile/ui/gamespecific.h
 
         src/profile/games/rne/tilebackground.h
         src/profile/games/rne/systemmenu.h
@@ -548,10 +545,8 @@ set(Impacto_Header
         src/hud/skipicondisplay.h
         src/hud/waiticondisplay.h
         src/hud/tipsnotification.h
-        src/hud/delusiontrigger.h
 
         src/ui/ui.h
-        src/ui/mapsystem.h
         src/ui/menu.h
         src/ui/nullmenu.h
         src/ui/selectionmenu.h
@@ -598,6 +593,7 @@ set(Impacto_Header
         src/ui/widgets/cclcc/optionsbinarybutton.h
         src/ui/widgets/cclcc/optionsslider.h
         src/ui/widgets/cclcc/optionsvoiceslider.h
+        src/ui/gamespecific.h
 
         src/renderer/3d/camera.h
         src/renderer/3d/model.h
