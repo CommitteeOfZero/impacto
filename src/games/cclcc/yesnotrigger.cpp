@@ -12,7 +12,7 @@ using namespace Impacto::Profile::ScriptVars;
 
 int YesNoTrigger::Load(uint8_t *data) {
   int dataSize = 0;
-  if (YesNoTriggerPtr == nullptr) {
+  if (Implementation == nullptr) {
     return dataSize;
   }
   dataSize += 4;
@@ -74,7 +74,7 @@ int YesNoTrigger::Load(uint8_t *data) {
 
 int YesNoTrigger::Save(uint8_t *data) {
   int dataSize = 0;
-  if (YesNoTriggerPtr == nullptr) {
+  if (Implementation == nullptr) {
     return dataSize;
   }
   dataSize += 4;
