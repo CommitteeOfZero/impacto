@@ -14,45 +14,44 @@ namespace GameSpecific {
 
 void Init() {
   if (Profile::GameSpecific::GameSpecificType == +GameSpecificType::CHLCC) {
-    UI::CHLCC::DelusionTrigger::Implementation =
-        std::make_unique<UI::CHLCC::DelusionTrigger>();
+    CHLCC::DelusionTrigger::Implementation =
+        std::make_unique<CHLCC::DelusionTrigger>();
   } else if (Profile::GameSpecific::GameSpecificType ==
              +GameSpecificType::CCLCC) {
-    Impacto::UI::CCLCC::DelusionTrigger::Implementation =
-        std::make_unique<Impacto::UI::CCLCC::DelusionTrigger>();
-    Impacto::UI::CCLCC::YesNoTrigger::Implementation =
-        std::make_unique<Impacto::UI::CCLCC::YesNoTrigger>();
-    Impacto::UI::CCLCC::MapSystem::Implementation =
-        std::make_unique<Impacto::UI::CCLCC::MapSystem>();
+    CCLCC::DelusionTrigger::Implementation =
+        std::make_unique<CCLCC::DelusionTrigger>();
+    CCLCC::YesNoTrigger::Implementation =
+        std::make_unique<CCLCC::YesNoTrigger>();
+    CCLCC::MapSystem::Implementation = std::make_unique<CCLCC::MapSystem>();
   }
 }
 
 void Update(float dt) {
   if (Profile::GameSpecific::GameSpecificType == +GameSpecificType::CHLCC) {
-    Impacto::UI::CHLCC::DelusionTrigger::Implementation->Update(dt);
+    CHLCC::DelusionTrigger::Implementation->Update(dt);
   } else if (Profile::GameSpecific::GameSpecificType ==
              +GameSpecificType::CCLCC) {
-    Impacto::UI::CCLCC::YesNoTrigger::Implementation->Update(dt);
-    Impacto::UI::CCLCC::DelusionTrigger::Implementation->Update(dt);
-    Impacto::UI::CCLCC::MapSystem::Implementation->Update(dt);
+    CCLCC::YesNoTrigger::Implementation->Update(dt);
+    CCLCC::DelusionTrigger::Implementation->Update(dt);
+    CCLCC::MapSystem::Implementation->Update(dt);
   }
 }
 
 void RenderLayer(uint32_t layer) {
   if (Profile::GameSpecific::GameSpecificType == +GameSpecificType::CHLCC) {
-    UI::CHLCC::DelusionTrigger::Implementation->Render();
+    CHLCC::DelusionTrigger::Implementation->Render();
   } else if (Profile::GameSpecific::GameSpecificType ==
              +GameSpecificType::CCLCC) {
     if (ScrWork[SW_MAP_PRI] == static_cast<int>(layer) &&
         ScrWork[SW_MAP_ALPHA]) {
-      Impacto::UI::CCLCC::MapSystem::Implementation->Render();
+      CCLCC::MapSystem::Implementation->Render();
     }
 
     if (static_cast<uint32_t>(ScrWork[SW_DELUSION_PRI]) == layer)
-      Impacto::UI::CCLCC::DelusionTrigger::Implementation->Render();
-    if (Impacto::UI::CCLCC::YesNoTrigger::Implementation &&
+      CCLCC::DelusionTrigger::Implementation->Render();
+    if (CCLCC::YesNoTrigger::Implementation &&
         static_cast<uint32_t>(ScrWork[SW_YESNO_PRI]) == layer) {
-      Impacto::UI::CCLCC::YesNoTrigger::Implementation->Render();
+      CCLCC::YesNoTrigger::Implementation->Render();
     }
   }
 }
