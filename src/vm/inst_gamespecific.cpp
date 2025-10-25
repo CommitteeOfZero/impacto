@@ -406,7 +406,7 @@ VmInstruction(InstUnk1037) {
 VmInstruction(InstMapSystem) {
   StartInstruction;
   PopUint8(type);
-  auto* ptr = UI::CCLCC::MapSystemCCLCC::Implementation.get();
+  auto* ptr = UI::CCLCC::MapSystem::Implementation.get();
   switch (type) {
     case 1:
       ptr->MapInit();

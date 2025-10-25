@@ -767,7 +767,7 @@ void SaveSystem::SaveMemory() {
              16 * sizeof(int));
       WorkingSaveEntry->MainThreadDialoguePageId = thd->DialoguePageId;
     }
-    UI::CCLCC::MapSystemCCLCC::Implementation->MapSave(
+    UI::CCLCC::MapSystem::Implementation->MapSave(
         WorkingSaveEntry->MapLoadData.data());
     CCLCC::YesNoTrigger::YesNoTriggerPtr->Save(
         WorkingSaveEntry->YesNoData.data());
@@ -811,7 +811,7 @@ void SaveSystem::LoadMemoryNew(LoadProcess load) {
     std::ranges::copy(WorkingSaveEntry->ScrWorkScript1, ScrWork.begin() + 1000);
     std::ranges::copy(WorkingSaveEntry->ScrWorkScript2, ScrWork.begin() + 4300);
 
-    UI::CCLCC::MapSystemCCLCC::Implementation->MapLoad(
+    UI::CCLCC::MapSystem::Implementation->MapLoad(
         WorkingSaveEntry->MapLoadData.data());
     CCLCC::YesNoTrigger::YesNoTriggerPtr->Load(
         WorkingSaveEntry->YesNoData.data());

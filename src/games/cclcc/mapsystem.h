@@ -6,7 +6,7 @@
 namespace Impacto {
 namespace UI {
 namespace CCLCC {
-class MapSystemCCLCC {
+class MapSystem {
   enum DisplayState { Hidden, Hiding, Showing, Shown };
 
  public:
@@ -91,7 +91,7 @@ class MapSystemCCLCC {
     MapPositionState End;
   };
 
-  static inline std::unique_ptr<MapSystemCCLCC> Implementation = nullptr;
+  static inline std::unique_ptr<MapSystem> Implementation = nullptr;
 
  private:
   enum MapPosEnum { MapZoom, MapZoom3, MapMove2, MapPosTransitionsMax };
@@ -113,14 +113,14 @@ class MapSystemCCLCC {
   void MapSetFadein_PhotoArticle(int arg1, int arg2);
   void MapSetFadein_Line(int arg1, int arg2);
 
-  std::array<MapSystemCCLCC::MapPoolStruct, 20> MapPool = {};
-  std::array<MapSystemCCLCC::MapPoolDispStruct, 40> MapPoolDisp = {};
+  std::array<MapSystem::MapPoolStruct, 20> MapPool = {};
+  std::array<MapSystem::MapPoolDispStruct, 40> MapPoolDisp = {};
 
-  std::array<MapSystemCCLCC::MapPartsDispStruct, 40> MapPartsDisp = {};
-  std::array<MapSystemCCLCC::MapGroupStruct, 40> MapGroup = {};
+  std::array<MapSystem::MapPartsDispStruct, 40> MapPartsDisp = {};
+  std::array<MapSystem::MapGroupStruct, 40> MapGroup = {};
   int MapPartsMax = 0;
 
-  std::array<MapSystemCCLCC::MapPositionTransitions, 4> MapPosTransitions;
+  std::array<MapSystem::MapPositionTransitions, 4> MapPosTransitions;
   std::array<int, 13> MapZoomCtAcc = {};
   std::array<int, 20> MapPoolCurCt = {};
 

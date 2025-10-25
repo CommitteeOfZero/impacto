@@ -22,8 +22,8 @@ void Init() {
         std::make_unique<Impacto::CCLCC::DelusionTrigger>();
     Impacto::CCLCC::YesNoTrigger::YesNoTriggerPtr =
         std::make_unique<Impacto::CCLCC::YesNoTrigger>();
-    Impacto::UI::CCLCC::MapSystemCCLCC::Implementation =
-        std::make_unique<Impacto::UI::CCLCC::MapSystemCCLCC>();
+    Impacto::UI::CCLCC::MapSystem::Implementation =
+        std::make_unique<Impacto::UI::CCLCC::MapSystem>();
   }
 }
 
@@ -34,7 +34,7 @@ void Update(float dt) {
              +GameSpecificType::CCLCC) {
     Impacto::CCLCC::YesNoTrigger::YesNoTriggerPtr->Update(dt);
     Impacto::CCLCC::DelusionTrigger::Implementation->Update(dt);
-    Impacto::UI::CCLCC::MapSystemCCLCC::Implementation->Update(dt);
+    Impacto::UI::CCLCC::MapSystem::Implementation->Update(dt);
   }
 }
 
@@ -45,7 +45,7 @@ void RenderLayer(uint32_t layer) {
              +GameSpecificType::CCLCC) {
     if (ScrWork[SW_MAP_PRI] == static_cast<int>(layer) &&
         ScrWork[SW_MAP_ALPHA]) {
-      Impacto::UI::CCLCC::MapSystemCCLCC::Implementation->Render();
+      Impacto::UI::CCLCC::MapSystem::Implementation->Render();
     }
 
     if (static_cast<uint32_t>(ScrWork[SW_DELUSION_PRI]) == layer)
