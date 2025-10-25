@@ -767,7 +767,7 @@ void SaveSystem::SaveMemory() {
     }
     UI::CCLCC::MapSystem::Implementation->MapSave(
         WorkingSaveEntry->MapLoadData.data());
-    CCLCC::YesNoTrigger::Implementation->Save(
+    UI::CCLCC::YesNoTrigger::Implementation->Save(
         WorkingSaveEntry->YesNoData.data());
   }
 }
@@ -811,7 +811,7 @@ void SaveSystem::LoadMemoryNew(LoadProcess load) {
 
     UI::CCLCC::MapSystem::Implementation->MapLoad(
         WorkingSaveEntry->MapLoadData.data());
-    CCLCC::YesNoTrigger::Implementation->Load(
+    UI::CCLCC::YesNoTrigger::Implementation->Load(
         WorkingSaveEntry->YesNoData.data());
 
     // TODO: What to do about this mess I wonder...

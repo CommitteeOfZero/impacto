@@ -1022,8 +1022,8 @@ VmInstruction(InstDelusionTriggerCHLCC) {
 VmInstruction(InstYesNoTriggerCCLCC) {
   StartInstruction;
   PopUint8(type);
-  using CCLCC::YesNoTrigger;
-  using YesNoState = CCLCC::YesNoTrigger::YesNoState;
+  using UI::CCLCC::YesNoTrigger;
+  using YesNoState = UI::CCLCC::YesNoTrigger::YesNoState;
   switch (type) {
     case 0: {
       PopExpression(arg1);  // 0, 1, 2, 3

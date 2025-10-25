@@ -5,12 +5,13 @@
 #include "../../renderer/renderer.h"
 
 namespace Impacto {
+namespace UI {
 namespace CCLCC {
 using namespace Profile::CCLCC::YesNoTrigger;
 using namespace Vm::Interface;
 using namespace Impacto::Profile::ScriptVars;
 
-int YesNoTrigger::Load(uint8_t *data) {
+int YesNoTrigger::Load(uint8_t* data) {
   int dataSize = 0;
   if (Implementation == nullptr) {
     return dataSize;
@@ -46,7 +47,7 @@ int YesNoTrigger::Load(uint8_t *data) {
   dataSize += 4;
   memcpy(&TargetArrIndex, data + dataSize, sizeof(int));
   dataSize += 4;
-  dataSize += sizeof(void *);  // buffer pointer in their struct
+  dataSize += sizeof(void*);  // buffer pointer in their struct
   dataSize += 8;
   assert(dataSize == 0x60);
   if (State != YesNoState::None && State != YesNoState::Complete) {
@@ -72,7 +73,7 @@ int YesNoTrigger::Load(uint8_t *data) {
   return dataSize;
 }
 
-int YesNoTrigger::Save(uint8_t *data) {
+int YesNoTrigger::Save(uint8_t* data) {
   int dataSize = 0;
   if (Implementation == nullptr) {
     return dataSize;
@@ -105,7 +106,7 @@ int YesNoTrigger::Save(uint8_t *data) {
   dataSize += 4;
   memcpy(data + dataSize, &TargetArrIndex, sizeof(int));
   dataSize += 4;
-  dataSize += sizeof(void *);  // buffer pointer in their struct
+  dataSize += sizeof(void*);  // buffer pointer in their struct
   dataSize += 8;
 
   assert(dataSize == 0x60);
@@ -257,8 +258,8 @@ void YesNoTrigger::Render() {
     float chipNoY =
         (DispPosArr[TargetArrIndex].ChipNoPos.y - ActiveBackground.Bounds.Y) *
         0.5f * BgSpriteScale;
-    Sprite *ActiveYesChip;
-    Sprite *ActiveNoChip;
+    Sprite* ActiveYesChip;
+    Sprite* ActiveNoChip;
     glm::vec4 chipTint = glm::vec4(1.0f, 1.0f, 1.0f, alpha / 255.0f);
 
     if (BgType == BGType::BG0 || BgType == BGType::BG1) {
@@ -358,4 +359,5 @@ void YesNoTrigger::Hide() {
 }
 
 }  // namespace CCLCC
+}  // namespace UI
 }  // namespace Impacto
