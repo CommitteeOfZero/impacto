@@ -102,7 +102,7 @@ void MusicTrackButton::Update(float dt) {
   Button::Update(dt);
   if (HasFocus && !PrevFocusState) {
     if (Input::CurrentInputDevice != Input::Device::Mouse) {
-      Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0);
+      Audio::PlayInGroup(Audio::ACG_SE, "sysse", 1, false, 0);
     }
   }
   if (PrevFocusState != HasFocus) {
@@ -145,7 +145,7 @@ MusicModeButton::MusicModeButton(
     auto* modeBtn = static_cast<MusicModeButton*>(btn);
     modeBtn->PlayMode = MusicMenuPlayingMode::_from_integral(
         (modeBtn->PlayMode._to_integral() + 1) % MusicMenuPlayingMode::_size());
-    Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0);
+    Audio::PlayInGroup(Audio::ACG_SE, "sysse", 1, false, 0);
   };
 }
 
@@ -172,7 +172,7 @@ void MusicMenu::Init() {
   const auto musicOnclick = [this](Widgets::Button* target) {
     auto* musicBtn = static_cast<MusicTrackButton*>(target);
     if (musicBtn->IsLocked) {
-      Audio::Channels[Audio::AC_SSE]->Play("sysse", 4, false, 0);
+      Audio::PlayInGroup(Audio::ACG_SE, "sysse", 4, false, 0);
       return;
     }
     if (ModeButton.Hovered) return;
@@ -182,7 +182,7 @@ void MusicMenu::Init() {
       ResetShuffle();
     }
     musicBtn->Selected = true;
-    Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0);
+    Audio::PlayInGroup(Audio::ACG_SE, "sysse", 2, false, 0);
   };
   const float maxY = MusicPlayIds.size() * MusicButtonBounds.Height;
 
@@ -273,7 +273,7 @@ void MusicMenu::Unfocus() {
   if (!IsFocused) return;
   StopMusic();
   Audio::Channels[Audio::AC_BGM0]->Play("bgm", 101, true, 0.0f);
-  Audio::Channels[Audio::AC_SSE]->Play("sysse", 3, false, 0);
+  Audio::PlayInGroup(Audio::ACG_SE, "sysse", 3, false, 0);
   LibrarySubmenu::Unfocus();
 }
 

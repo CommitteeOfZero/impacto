@@ -173,9 +173,9 @@ void YesNoTrigger::Update(float dt) {
           if (BgType == BGType::BG1 &&
               (TargetArrIndex == 11 || TargetArrIndex == 12)) {
             Selection = YesNoSelect::NO;
-            Audio::Channels[Audio::AC_SSE]->Play("sysse", 4, false, 0.0f);
+            Audio::PlayInGroup(Audio::ACG_SE, "sysse", 4, false, 0.0f);
           } else {
-            Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0.0f);
+            Audio::PlayInGroup(Audio::ACG_SE, "sysse", 1, false, 0.0f);
           }
         }
         // TODO: Mouse stuff
@@ -193,7 +193,7 @@ void YesNoTrigger::Update(float dt) {
           AllowInput = false;
           Selection = YesNoSelect::NONE;
           ScrWork[6432] = to_underlying(Selection);
-          Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0.0f);
+          Audio::PlayInGroup(Audio::ACG_SE, "sysse", 2, false, 0.0f);
         }
       }
       break;

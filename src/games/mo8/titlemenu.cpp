@@ -29,19 +29,19 @@ void TitleMenu::MenuButtonOnClick(Widgets::Button* target) {
   AllowsScriptInput = true;
   ScrWork[SW_TITLECUR] = target->Id;
   SetFlag(SF_TITLEEND, 1);
-  Audio::Channels[Audio::AC_SSE]->Play("sysse", 5, false, 0.0f);
+  Audio::PlayInGroup(Audio::ACG_SE, "sysse", 5, false, 0.0f);
 }
 
 void TitleMenu::ContinueButtonOnClick(Widgets::Button* target) {
   ContinueSelected = true;
   AllowsScriptInput = false;
-  Audio::Channels[Audio::AC_SSE]->Play("sysse", 5, false, 0.0f);
+  Audio::PlayInGroup(Audio::ACG_SE, "sysse", 5, false, 0.0f);
 }
 
 void TitleMenu::GalleryButtonOnClick(Widgets::Button* target) {
   GallerySelected = true;
   AllowsScriptInput = false;
-  Audio::Channels[Audio::AC_SSE]->Play("sysse", 5, false, 0.0f);
+  Audio::PlayInGroup(Audio::ACG_SE, "sysse", 5, false, 0.0f);
 }
 
 TitleMenu::TitleMenu() {
@@ -341,7 +341,7 @@ void TitleMenu::UpdateSubMenu(Animation* showAnimation,
     }
   } else if (showAnimation->IsIn() &&
              Vm::Interface::GetControlState(Vm::Interface::CT_Back)) {
-    Audio::Channels[Audio::AC_SSE]->Play("sysse", 3, false, 0.0f);
+    Audio::PlayInGroup(Audio::ACG_SE, "sysse", 3, false, 0.0f);
     showAnimation->StartOut();
   }
   Vm::Interface::PADinputButtonWentDown &= ~Vm::Interface::PADcustom[6];

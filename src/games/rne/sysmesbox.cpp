@@ -86,14 +86,14 @@ void SysMesBox::Show() {
 
   if (Profile::Vm::GameInstructionSet == +Vm::InstructionSet::RNE) {
     if (!ScrWork[SW_SYSMESANIMCTCUR]) {
-      Audio::Channels[Audio::AC_SSE]->Play("sysse", 16, false, 0.0f);
+      Audio::PlayInGroup(Audio::ACG_SE, "sysse", 16, false, 0.0f);
     }
   }
 }
 
 void SysMesBox::Hide() {
   if (Profile::Vm::GameInstructionSet == +Vm::InstructionSet::RNE) {
-    Audio::Channels[Audio::AC_SSE]->Play("sysse", 29, false, 0.0f);
+    Audio::PlayInGroup(Audio::ACG_SE, "sysse", 29, false, 0.0f);
   }
   State = Hiding;
   if (LastFocusedMenu != 0) {
@@ -206,7 +206,7 @@ void SysMesBox::Update(float dt) {
 
     if (Input::KeyboardButtonWentDown[SDL_SCANCODE_RIGHT] ||
         Input::KeyboardButtonWentDown[SDL_SCANCODE_LEFT]) {
-      Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0.0f);
+      Audio::PlayInGroup(Audio::ACG_SE, "sysse", 1, false, 0.0f);
     }
 
     if (IsFocused) {

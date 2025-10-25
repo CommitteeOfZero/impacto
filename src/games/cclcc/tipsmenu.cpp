@@ -116,7 +116,7 @@ void TipsMenu::Hide() {
   if (State != Hidden) {
     State = Hiding;
     FadeAnimation.StartOut();
-    Audio::Channels[Audio::AC_SSE]->Play("sysse", 3, false, 0);
+    Audio::PlayInGroup(Audio::ACG_SE, "sysse", 3, false, 0);
     if (ScrWork[SW_SYSSUBMENUCT] != 0) {
       TransitionAnimation.StartOut();
     } else {
@@ -308,7 +308,7 @@ void TipsMenu::SwitchToTipId(int id) {
   uint32_t tipsScrBufId = TipsSystem::GetTipsScriptBufferId();
 
   if (record->IsLocked) {
-    Audio::Channels[Audio::AC_SSE]->Play("sysse", 4, false, 0);
+    Audio::PlayInGroup(Audio::ACG_SE, "sysse", 4, false, 0);
     return;
   }
   CurrentlyDisplayedTipId = id - 1;
@@ -359,13 +359,13 @@ void TipsMenu::SwitchToTipId(int id) {
       TipsScrollThumbLength, TextPage.BoxBounds, 5.0f);
   TipsScrollbar->HasFocus = false;  // We want to manually control kb/pad input
 
-  Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0);
+  Audio::PlayInGroup(Audio::ACG_SE, "sysse", 2, false, 0);
 }
 
 void TipsMenu::SetActiveTab(TipsTabType type) {
   if (type == CurrentTabType || !TipsTabs[type]->GetTipEntriesCount()) return;
 
-  Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0);
+  Audio::PlayInGroup(Audio::ACG_SE, "sysse", 1, false, 0);
 
   TipsTabs[CurrentTabType]->Hide();
   TipsTabs[type]->Show();

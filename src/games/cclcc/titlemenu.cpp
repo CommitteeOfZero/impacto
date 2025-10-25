@@ -29,7 +29,7 @@ using namespace Impacto::UI::Widgets::CCLCC;
 
 void TitleMenu::MenuButtonOnClick(Widgets::Button* target) {
   TitleButton* button = static_cast<TitleButton*>(target);
-  Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0);
+  Audio::PlayInGroup(Audio::ACG_SE, "sysse", 2, false, 0);
   button->ChoiceBlinkAnimation.StartIn();
   AllowsScriptInput = false;
   InputLocked = true;
@@ -37,7 +37,7 @@ void TitleMenu::MenuButtonOnClick(Widgets::Button* target) {
 
 void TitleMenu::ContinueButtonOnClick(Widgets::Button* target) {
   if (CurrentSubMenu == ContinueItems) return;
-  Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0);
+  Audio::PlayInGroup(Audio::ACG_SE, "sysse", 2, false, 0);
   CurrentSubMenu = ContinueItems;
   CurrentSubMenu->HasFocus = true;
   AllowsScriptInput = false;
@@ -49,7 +49,7 @@ void TitleMenu::ExtraButtonOnClick(Widgets::Button* target) {
   if (CurrentSubMenu == ExtraItems) return;
   // SetFlag(SF_CLR_FLAG, true); // Uncomment for testing
   if (!GetFlag(SF_CLR_FLAG)) {
-    Audio::Channels[Audio::AC_SSE]->Play("sysse", 4, false, 0);
+    Audio::PlayInGroup(Audio::ACG_SE, "sysse", 4, false, 0);
     return;
   }
   CurrentSubMenu = ExtraItems;
@@ -290,7 +290,7 @@ void TitleMenu::UpdateInput(float dt) {
   if (CurrentSubMenu && SecondaryFadeAnimation.IsIn()) {
     if ((PADinputButtonWentDown & PAD1B || PADinputMouseWentDown & PAD1B) &&
         CurrentSubMenu->IsShown && CurrentSubMenu->HasFocus) {
-      Audio::Channels[Audio::AC_SSE]->Play("sysse", 3, false, 0);
+      Audio::PlayInGroup(Audio::ACG_SE, "sysse", 3, false, 0);
       CurrentlyFocusedElement->Enabled = false;
       SecondaryFadeAnimation.StartOut();
       if (CurrentSubMenu == ContinueItems) {

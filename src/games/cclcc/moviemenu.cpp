@@ -15,7 +15,7 @@ MovieMenu::MovieMenu() : LibrarySubmenu() {
     auto movieOnclick = [](Widgets::Button* target) {
       ScrWork[SW_MOVIEMODE_CUR] = MovieDiskPlayIds[target->Id];
       LibraryMenuPtr->AllowsScriptInput = true;
-      Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0);
+      Audio::PlayInGroup(Audio::ACG_SE, "sysse", 2, false, 0);
       Audio::Channels[Audio::AC_BGM0]->Stop(0.0f);
     };
     auto disk = new Widgets::Button(static_cast<int>(i), diskSprite,

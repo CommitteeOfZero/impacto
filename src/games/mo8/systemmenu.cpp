@@ -26,7 +26,7 @@ void SystemMenu::MenuButtonOnClick(Widgets::Button* target) {
   if (target->Id == ExitMenuButtonId)
     IsFocused = false;
   else
-    Audio::Channels[Audio::AC_SSE]->Play("sysse", 5, false, 0.0f);
+    Audio::PlayInGroup(Audio::ACG_SE, "sysse", 5, false, 0.0f);
 }
 
 SystemMenu::SystemMenu() {

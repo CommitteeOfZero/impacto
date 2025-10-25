@@ -23,7 +23,7 @@ static float BoxAnimCount = 0.0f;
 
 void SysMesBox::ChoiceItemOnClick(Button* target) {
   ScrWork[SW_SYSSEL] = target->Id;
-  Audio::Channels[Audio::AC_SSE]->Play("sysse", 2, false, 0);
+  Audio::PlayInGroup(Audio::ACG_SE, "sysse", 2, false, 0);
   ChoiceMade = true;
 }
 
@@ -116,7 +116,7 @@ void SysMesBox::UpdateInput(float dt) {
   const auto* const prevSelected = CurrentlyFocusedElement;
   Menu::UpdateInput(dt);
   if (CurrentlyFocusedElement && prevSelected != CurrentlyFocusedElement) {
-    Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0.0f);
+    Audio::PlayInGroup(Audio::ACG_SE, "sysse", 1, false, 0.0f);
   }
 }
 

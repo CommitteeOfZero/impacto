@@ -16,7 +16,10 @@ enum AudioChannelId {
   AC_BGM0,
   AC_BGM1,
   AC_BGM2,
-  AC_SSE,  // "system sound effect"
+  AC_SSE0,  // "system sound effect"
+  AC_SSE1,
+  AC_SSE2,
+  AC_SSE3,
   AC_Count
 };
 

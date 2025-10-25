@@ -67,7 +67,7 @@ void TipsEntryButton::Update(float dt) {
     PrevUnreadState = curUnreadState;
   }
   if (!PrevFocusState && HasFocus)
-    Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0);
+    Audio::PlayInGroup(Audio::ACG_SE, "sysse", 1, false, 0);
   if (PrevFocusState != HasFocus) {
     PrevFocusState = HasFocus;
   }

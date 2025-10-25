@@ -40,7 +40,7 @@ void TitleButton::Update(float dt) {
   if (PrevFocusState != HasFocus) {
     PrevFocusState = HasFocus;
     if (Input::CurrentInputDevice != Input::Device::Mouse) {
-      Audio::Channels[Audio::AC_SSE]->Play("sysse", 1, false, 0);
+      Audio::PlayInGroup(Audio::ACG_SE, "sysse", 1, false, 0);
     }
     if (!IsSubButton) {
       if (HighlightAnimation.IsOut() && HasFocus) {
