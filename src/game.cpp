@@ -401,6 +401,7 @@ static void RenderMain() {
 
     UI::GameSpecific::RenderLayer(layer);
   }
+  UI::GameSpecific::RenderMain();
 
   Renderer->SetFramebuffer(0);
 

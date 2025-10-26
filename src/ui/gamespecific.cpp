@@ -51,6 +51,12 @@ void Update(float dt) {
   }
 }
 
+void RenderMain() {
+  if (Profile::GameSpecific::GameSpecificType == +GameSpecificType::CHLCC) {
+    CHLCC::DelusionTrigger::GetInstance().Render();
+  }
+}
+
 void RenderLayer(uint32_t layer) {
   switch (Profile::GameSpecific::GameSpecificType) {
     case +GameSpecificType::CHLCC: {
