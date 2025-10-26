@@ -38,6 +38,18 @@ class SystemMenu : public Menu {
   glm::vec2 BGPosition{};
 
   GridVertices Vertices;
+
+  enum class MenuItems : size_t {
+    Backlog,
+    QuickSave,
+    QuickLoad,
+    Save,
+    Load,
+    TipsList,
+    Config,
+    Help,
+    ReturnTitle
+  };
 };
 
 }  // namespace CCLCC
