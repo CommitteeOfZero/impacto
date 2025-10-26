@@ -20,11 +20,12 @@ using namespace Impacto::UI::Widgets::CHLCC;
 
 void MovieMenu::MovieButtonOnClick(Widgets::Button* target) {
   auto movieButton = static_cast<MovieMenuEntryButton*>(target);
-  ChoiceMade = true;
-  IsChoiceMadeOnce = true;
-  // TODO Add PSP OP as 11, PSP Normal ED as 12, PSP Ayase ED as 13
-  // Reordering IDs (note: ScrWork[SW_MOVIEMODE_CUR] = 9 is the smoke VFX video)
   if (!movieButton->IsLocked) {
+    ChoiceMade = true;
+    IsChoiceMadeOnce = true;
+    // TODO Add PSP OP as 11, PSP Normal ED as 12, PSP Ayase ED as 13
+    // Reordering IDs (note: ScrWork[SW_MOVIEMODE_CUR] = 9 is the smoke VFX
+    // video)
     switch (movieButton->Id) {
       case 0: {
         ScrWork[SW_MOVIEMODE_CUR] = 10;
@@ -41,8 +42,8 @@ void MovieMenu::MovieButtonOnClick(Widgets::Button* target) {
         ScrWork[SW_MOVIEMODE_CUR] = movieButton->Id - 1;
       } break;
     }
+    Audio::Channels[Audio::AC_BGM0]->Stop(0.0f);
   }
-  Audio::Channels[Audio::AC_BGM0]->Stop(0.0f);
 }
 
 MovieMenu::MovieMenu() {
