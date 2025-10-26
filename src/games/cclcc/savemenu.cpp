@@ -213,7 +213,6 @@ void SaveMenu::Hide() {
       UI::FocusedMenu = 0;
     }
     IsFocused = false;
-    Audio::PlayInGroup(Audio::ACG_SE, "sysse", 3, false, 0);
   }
 }
 
