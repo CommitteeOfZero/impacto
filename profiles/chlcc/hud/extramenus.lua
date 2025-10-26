@@ -37,8 +37,10 @@ root.ExtraMenus = {
             { X = 1165, Y = 152 }
         },
         EndingCountPosition = { X = 1159, Y = 96 },
-        TIPSCountPositions = {
+        TIPSCountPositions = root.Language == "Japanese" and {
             { X = 1125, Y = 124 }, { X = 1145, Y = 124 },
+        } or {
+            { X = 1122, Y = 124 }, { X = 1142, Y = 124 },
         },
         EndingList = "EndingList",
         ListPosition = { X = 0, Y = 0 },
