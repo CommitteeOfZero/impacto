@@ -728,6 +728,8 @@ void Renderer::CaptureScreencap(Sprite& sprite) {
   sprite.Sheet.DesignHeight = static_cast<float>(backBufferDesc.Height);
   sprite.Bounds = RectF{0.0f, 0.0f, static_cast<float>(backBufferDesc.Width),
                         static_cast<float>(backBufferDesc.Height)};
+  sprite.BaseScale = {Profile::DesignWidth / backBufferDesc.Width,
+                      Profile::DesignHeight / backBufferDesc.Height};
 
   IDirect3DTexture9* texture;
   Device->CreateTexture(backBufferDesc.Width, backBufferDesc.Height, 1,

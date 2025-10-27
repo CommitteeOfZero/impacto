@@ -219,8 +219,7 @@ void IntroSequence::DrawBackground() const {
 
   const float scale = 4 / (progress * 3 + 1);
   RectF dest = ShaderScreencapture.BgSprite.ScaledBounds().Scale(
-      glm::vec2(scale) * designDimensions / Window->GetViewport().GetSize(),
-      glm::vec2(0.0f));
+      glm::vec2(scale), glm::vec2(0.0f));
 
   Renderer->DrawSprite(ShaderScreencapture.BgSprite, dest,
                        {1.0f, 1.0f, 1.0f, progress});
