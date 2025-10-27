@@ -228,7 +228,7 @@ void SaveMenu::UpdateInput(float dt) {
     CurrentPage = nextPage;
     MainItems[CurrentPage]->Show();
     PageAnimation.StartIn();
-    Audio::PlayInGroup(Audio::ACG_SE, "sysse", 2, false, 0);
+    Audio::PlayInGroup(Audio::ACG_SE, "sysse", 1, false, 0);
   };
   if (IsFocused) {
     if (Input::MouseWheelDeltaY < 0 || PADinputButtonWentDown & PADcustom[8]) {
@@ -306,7 +306,6 @@ void SaveMenu::Update(float dt) {
       CurrentlyFocusedElement = focusedElem;
       CurrentlyFocusedElement->HasFocus = true;
       IsFocused = false;
-      Audio::PlayInGroup(Audio::ACG_SE, "sysse", 2, false, 0);
     }
   }
   if (State == Hidden && !HasCleared) {
