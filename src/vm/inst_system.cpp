@@ -794,6 +794,7 @@ VmInstruction(InstMSinit) {
   if (initType == 1) {
     Profile::TipsNotification::CreateInstance();
     Profile::DelusionTrigger::CreateInstance();
+    SetFlag(SF_MESREVDISABLE, false);
   }
 
   if (initType == 5) {
@@ -963,7 +964,7 @@ VmInstruction(InstAutoSave) {
                                           quicksaveEntries, 0);
         SaveSystem::SaveThumbnailData();
       }
-
+      SaveSystem::SetQSavedOnCurrentLine(true);
       SetFlag(SF_AUTOSAVEENABLE, 0);
     } break;
 
@@ -1087,7 +1088,7 @@ VmInstruction(InstAutoSaveOld) {
                                           quicksaveEntries, 0);
         SaveSystem::SaveThumbnailData();
       }
-
+      SaveSystem::SetQSavedOnCurrentLine(true);
       SetFlag(SF_AUTOSAVEENABLE, 0);
     } break;
 

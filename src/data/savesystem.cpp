@@ -301,10 +301,29 @@ Sprite& GetWorkingSaveThumbnail() {
   return dummy;
 }
 
+bool HasQSavedOnCurrentLine() {
+  if (Implementation) return Implementation->HasQSavedOnCurrentLine();
+  ImpLog(LogLevel::Warning, LogChannel::VMStub,
+         "{:s}: save system not implemented, returning -1\n", __func__);
+  return false;
+}
+
+void SetQSavedOnCurrentLine(bool value) {
+  if (Implementation) Implementation->SetQSavedOnCurrentLine(value);
+}
+
 int SaveSystemBase::GetLockedQuickSaveCount() { return LockedQuickSaveCount; }
 
 void SaveSystemBase::SetLockedQuickSaveCount(int value) {
   LockedQuickSaveCount = value;
+}
+
+bool SaveSystemBase::HasQSavedOnCurrentLine() const {
+  return QuickSavedOnCurrentLine;
+}
+
+void SaveSystemBase::SetQSavedOnCurrentLine(bool value) {
+  QuickSavedOnCurrentLine = value;
 }
 
 }  // namespace SaveSystem

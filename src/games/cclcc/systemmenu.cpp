@@ -20,12 +20,23 @@ using namespace Impacto::Profile::SystemMenu;
 using namespace Impacto::UI::Widgets::CCLCC;
 
 void SystemMenu::MenuButtonOnClick(Widgets::Button* target) {
+  bool targetButtonLocked = static_cast<SysMenuButton*>(target)->IsLocked;
+  Audio::PlayInGroup(Audio::ACG_SE, "sysse", targetButtonLocked ? 4 : 2, false,
+                     0);
+  if (targetButtonLocked) {
+    // Yep, that's similar to how it's done in the binary
+    // Binary checks for button state and if it's locked, PADone is modified
+    // like button press never happened, and then script reads inputs
+    PADinputButtonWentDown = PADinputButtonWentDown & ~PAD1A;
+    PADinputMouseWentDown = PADinputMouseWentDown & ~PAD1A;
+    return;
+  }
+
   ScrWork[SW_SYSMENUCNO] = target->Id;
-  // Make the Id match the save menu mode (5th button would be Quick Load which
-  // is case 0)
+  // Make the Id match the save menu mode (5th button would be Quick Load
+  // which is case 0)
   SaveMenuPtr->ActiveMenuType =
       SaveMenuPageType::_from_integral_nothrow(target->Id % 4);
-  Audio::PlayInGroup(Audio::ACG_SE, "sysse", 2, false, 0);
   ChoiceMade = true;
 }
 
@@ -160,6 +171,14 @@ void SystemMenu::Update(float dt) {
         ItemsFadeComplete = true;
       }
     }
+
+    bool noFreeSlots = SaveSystem::MaxSaveEntries ==
+                       SaveSystem::Implementation->GetLockedQuickSaveCount();
+    bool quickSaveLockState = GetFlag(SF_SAVEDISABLE) || noFreeSlots ||
+                              SaveSystem::HasQSavedOnCurrentLine();
+    static_cast<UI::CCLCC::SysMenuButton*>(
+        MainItems->Children[static_cast<size_t>(MenuItems::QuickSave)])
+        ->IsLocked = quickSaveLockState;
   }
 
   if (State == Shown && IsFocused) {
@@ -245,6 +264,17 @@ void SystemMenu::Render() {
 void SystemMenu::Init() {
   BGPosition = {CALCrnd((int)BGRandPosRange.x), CALCrnd((int)BGRandPosRange.y)};
   SetFlag(SF_SYSTEMMENUCAPTURE, true);
+
+  bool backlogLockState =
+      GetFlag(SF_BACKLOG_NOLOG) || GetFlag(SF_MESREVDISABLE);
+  static_cast<SysMenuButton*>(
+      MainItems->Children[static_cast<size_t>(MenuItems::Backlog)])
+      ->IsLocked = backlogLockState;
+
+  // these flag need to be recalculated after loading a game
+  bool noFreeSlots = SaveSystem::MaxSaveEntries ==
+                     SaveSystem::Implementation->GetLockedQuickSaveCount();
+  SetFlag(SF_SAVEALLPROTECTED, noFreeSlots);
 }
 
 }  // namespace CCLCC
