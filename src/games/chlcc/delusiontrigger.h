@@ -22,22 +22,22 @@ class DelusionTrigger {
   };
 
  protected:
-  int maskScaleFactor;
-  int spinAngle;
-  int spinRate;
-  int underLayerAlpha;
-  int backgroundAlpha;
+  void UpdateShowing();
+  void UpdateShown();
+  void UpdateHiding();
+  void PlayClickSound();
+
+  int MaskScaleFactor;
+  int SpinAngle;
+  int SpinRate;
+  int UnderlayerAlpha;
+  int BackgroundAlpha;
 
   int AnimCounter;
   int AnimationState;
 
   glm::vec4 TriggerOnTint;
   int TriggerOnTintAlpha;
-
-  void UpdateShowing();
-  void UpdateShown();
-  void UpdateHiding();
-  void PlayClickSound();
 
   int UnderlayerXOffset, UnderlayerXRate;
   int ShakeState;
