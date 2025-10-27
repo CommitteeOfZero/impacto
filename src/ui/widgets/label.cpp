@@ -177,7 +177,9 @@ void Label::SetText(Vm::BufferOffsetContext scrCtx, float fontSize,
   for (const ProcessedTextGlyph& glyph : Text) {
     TextWidth += glyph.DestRect.Width;
   }
-  Bounds = RectF(Text[0].DestRect.X, Text[0].DestRect.Y, TextWidth, fontSize);
+  Bounds = Text.empty() ? RectF()
+                        : RectF(Text[0].DestRect.X, Text[0].DestRect.Y,
+                                TextWidth, fontSize);
 }
 
 void Label::SetText(std::string_view str, float fontSize,
