@@ -172,8 +172,6 @@ void Init() {
   }
 
   ScrWork[2200] = 1;  // Global animation multiplier maybe?... Set in GameInit()
-  // SetFlag(SF_MESALLSKIP,
-  //        1);  // Force skip mode for now
 }
 
 bool LoadScript(uint32_t bufferId, uint32_t scriptId) {

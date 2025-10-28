@@ -688,7 +688,10 @@ void ChkMesSkip() {
                                                     : SkipModeFlags::SkipAll);
   }
 
-  if (ScrWork[SW_SYSMESALPHA] != 255) MesSkipMode = false;
+  if (Profile::Vm::GameInstructionSet != +InstructionSet::CHLCC &&
+      ScrWork[SW_SYSMESALPHA] != 255) {
+    MesSkipMode = false;
+  }
 
   if ((ScrWork[SW_GAMESTATE] & 0b101) == 0b001 && !GetFlag(SF_UIHIDDEN)) {
     // Force skip
