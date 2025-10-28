@@ -623,6 +623,8 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
   BuildingRubyBase = false;
 
   StringToken token;
+  bool prevGlyphWordStarting = false;
+  bool prevGlyphWordEnding = false;
   do {
     token.Read(ctx);
     switch (token.Type) {
@@ -753,7 +755,24 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
           ptg.Colors = currentColors;
 
           if (token.Flags & CharacterTypeFlags::WordStartingPunct) {
-            lastWordStart = Glyphs.size() - 1;  // still *before* this character
+            // Ensure only the leftmost consecutive WordStartingPunct is counted
+            if (!prevGlyphWordStarting) {
+              // Still *before* this character
+              lastWordStart = Glyphs.size() - 1;
+              prevGlyphWordStarting = true;
+            }
+          } else {
+            prevGlyphWordStarting = false;
+          }
+
+          if (token.Flags & CharacterTypeFlags::WordEndingPunct) {
+            prevGlyphWordEnding = true;
+            // Ensure only the rightmost consecutive WordEndingPunct is counted
+          } else if (prevGlyphWordEnding) {
+            // Previous character was word ending, so this character marks the
+            // beginning of the next word
+            lastWordStart = Glyphs.size() - 1;
+            prevGlyphWordEnding = false;
           }
 
           ptg.DestRect.X = BoxBounds.X + currentX;
@@ -791,10 +810,6 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
                 currentX += Glyphs[i].DestRect.Width;
               }
             }
-          }
-
-          if (token.Flags & CharacterTypeFlags::WordEndingPunct) {
-            lastWordStart = Glyphs.size();  // now after this character
           }
         }
       } break;

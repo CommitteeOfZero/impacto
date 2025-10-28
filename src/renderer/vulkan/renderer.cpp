@@ -1730,6 +1730,8 @@ void Renderer::CaptureScreencap(Sprite& sprite) {
   sprite.Sheet.DesignHeight = static_cast<float>(SwapChainExtent.height);
   sprite.Bounds.Width = sprite.Sheet.DesignWidth;
   sprite.Bounds.Height = sprite.Sheet.DesignHeight;
+  sprite.BaseScale = {Profile::DesignWidth / SwapChainExtent.width,
+                      Profile::DesignHeight / SwapChainExtent.height};
 
   // Here we go...
   Flush();

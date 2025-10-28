@@ -730,7 +730,9 @@ void TipsMenu::SwitchToTipId(int id) {
   Pronounciation->MoveTo(PronounciationInitialBounds.GetPos() -
                          glm::vec2{Pronounciation->Bounds.Width, 0.0f});
 
-  Number->SetText(fmt::format("{:4d}", tipRecord->Id + 1), NumberFontSize,
+  const int sortedTipId =
+      static_cast<TipsEntryButton*>(CurrentlyFocusedElement)->Id;
+  Number->SetText(fmt::format("{:4d}", sortedTipId + 1), NumberFontSize,
                   RendererOutlineMode::Full, DefaultColorIndex);
 
   CurrentPage->SetSprite(CurrentPageSprites[CurrentTipPage]);

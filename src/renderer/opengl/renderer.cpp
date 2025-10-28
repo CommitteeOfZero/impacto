@@ -839,6 +839,8 @@ void Renderer::CaptureScreencap(Sprite& sprite) {
   sprite.Sheet.DesignHeight = static_cast<float>(fbHeight);
   sprite.Bounds = RectF{0.0f, 0.0f, static_cast<float>(fbWidth),
                         static_cast<float>(fbHeight)};
+  sprite.BaseScale = {Profile::DesignWidth / fbWidth,
+                      Profile::DesignHeight / fbHeight};
 
   int prevReadBuffer;
   int drawBuffer;
