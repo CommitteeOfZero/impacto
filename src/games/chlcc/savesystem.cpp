@@ -682,7 +682,9 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
 
   if (WorkingSaveEntry != nullptr && entry != nullptr &&
       !(GetSaveFlags(type, id) & WriteProtect)) {
+    uint8_t savedFlags = entry->Flags;
     *entry = *WorkingSaveEntry;
+    entry->Flags = savedFlags;
     if (type == SaveType::Quick) entry->SaveType = autoSaveType;
 
     entry->SaveDate = CurrentDateTime();
