@@ -23,8 +23,7 @@ DelusionTrigger::DelusionTrigger()
       DelusionState(ScrWork[SW_DELUSION_STATE]) {}
 
 void DelusionTrigger::Show() {
-  if (Profile::ConfigSystem::TriggerStopSkip)
-    MesSkipMode &= SkipModeFlags::Auto;
+  if (Profile::ConfigSystem::TriggerStopSkip) SkipModeEnabled = false;
   if (State != Shown && State != Showing) {
     State = Showing;
     DelusionState = DS_Neutral;

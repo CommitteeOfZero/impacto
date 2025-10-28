@@ -910,8 +910,8 @@ void DialoguePage::Update(float dt) {
                             ? Profile::ConfigSystem::TextSpeed
                             : Profile::ConfigSystem::AutoSpeed;
     AutoWaitTime = std::max(0.0f, AutoWaitTime - speed * dt);
-  } else if (TextIsFullyOpaque() && (AutoForward == AutoForwardType::Normal ||
-                                     (MesSkipMode & SkipModeFlags::Auto))) {
+  } else if (TextIsFullyOpaque() &&
+             (AutoForward == AutoForwardType::Normal || AutoModeEnabled)) {
     AutoWaitTime =
         std::max(0.0f, AutoWaitTime - Profile::ConfigSystem::AutoSpeed * dt);
   }

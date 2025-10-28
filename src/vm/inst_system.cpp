@@ -623,7 +623,7 @@ VmInstruction(InstGetSystemStatus) {
       thread->ScriptParam = GetFlag(SF_MESALLSKIP);
     } break;
     case 10: {  // Auto mode bit
-      thread->ScriptParam = (MesSkipMode & SkipModeFlags::Auto) >> 2;
+      thread->ScriptParam = AutoModeEnabled;
     } break;
     case 11: {
       thread->ScriptParam = 1;

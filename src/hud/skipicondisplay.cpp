@@ -38,21 +38,19 @@ void Init() {
 void Update(float dt) {
   switch (SkipIconCurrentType) {
     case SkipIconType::SpriteAnim:
-      if ((MesSkipMode & (SkipModeFlags::SkipRead | SkipModeFlags::SkipAll)) &&
-          SpriteAnim.Direction == AnimationDirection::Out)
+      if (SkipModeEnabled && SpriteAnim.Direction == AnimationDirection::Out)
         SpriteAnim.StartIn();
-      if (!(MesSkipMode & (SkipModeFlags::SkipRead | SkipModeFlags::SkipAll)) &&
-          SpriteAnim.Direction == AnimationDirection::In)
+      if (!SkipModeEnabled && SpriteAnim.Direction == AnimationDirection::In)
         SpriteAnim.StartOut();
 
       SpriteAnim.Update(dt);
       break;
 
     case SkipIconType::SpriteAnimFixed:
-      if ((MesSkipMode & (SkipModeFlags::SkipRead | SkipModeFlags::SkipAll)) &&
+      if (SkipModeEnabled &&
           FixedSpriteAnim.Direction == AnimationDirection::Out)
         FixedSpriteAnim.StartIn();
-      if (!(MesSkipMode & (SkipModeFlags::SkipRead | SkipModeFlags::SkipAll)) &&
+      if (!SkipModeEnabled &&
           FixedSpriteAnim.Direction == AnimationDirection::In)
         FixedSpriteAnim.StartOut();
 
@@ -94,7 +92,7 @@ void Render(glm::vec4 opacityTint) {
       break;
 
     case SkipIconType::CHLCC:
-      if (MesSkipMode & (SkipModeFlags::SkipRead | SkipModeFlags::SkipAll)) {
+      if (SkipModeEnabled) {
         const CornersQuad arrowsDest =
             AutoSkipArrowsSprite.ScaledBounds()
                 .RotateAroundCenter(Progress * 2.0f * std::numbers::pi_v<float>)

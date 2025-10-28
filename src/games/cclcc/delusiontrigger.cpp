@@ -27,8 +27,7 @@ DelusionTrigger::DelusionTrigger() : DelusionState(ScrWork[SW_DELUSION_STATE]) {
 
 bool DelusionTrigger::Show(int bgOverlayBgBufferId, int circlesBgBufferId,
                            int availableDelusions) {
-  if (Profile::ConfigSystem::TriggerStopSkip)
-    MesSkipMode &= SkipModeFlags::Auto;
+  if (Profile::ConfigSystem::TriggerStopSkip) SkipModeEnabled = false;
   if (GetFlag(SF_MOVIEPLAY) && GetFlag(SF_MOVIE_DRAWWAIT)) {
     return false;
   }
