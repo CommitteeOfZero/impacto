@@ -172,13 +172,17 @@ void SystemMenu::Update(float dt) {
       }
     }
 
+    bool savesDisabled = GetFlag(SF_SAVEDISABLE);
     bool noFreeSlots = SaveSystem::MaxSaveEntries ==
                        SaveSystem::Implementation->GetLockedQuickSaveCount();
-    bool quickSaveLockState = GetFlag(SF_SAVEDISABLE) || noFreeSlots ||
-                              SaveSystem::HasQSavedOnCurrentLine();
+    bool quickSaveLockState =
+        savesDisabled || noFreeSlots || SaveSystem::HasQSavedOnCurrentLine();
     static_cast<UI::CCLCC::SysMenuButton*>(
         MainItems->Children[static_cast<size_t>(MenuItems::QuickSave)])
         ->IsLocked = quickSaveLockState;
+    static_cast<UI::CCLCC::SysMenuButton*>(
+        MainItems->Children[static_cast<size_t>(MenuItems::Save)])
+        ->IsLocked = savesDisabled;
   }
 
   if (State == Shown && IsFocused) {

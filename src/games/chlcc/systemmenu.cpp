@@ -142,14 +142,18 @@ void SystemMenu::Update(float dt) {
 
     UpdateMenuLoop();
     UpdateTitles();
+
+    bool savesDisabled = GetFlag(SF_SAVEDISABLE);
     bool noFreeSlots = SaveSystem::MaxSaveEntries ==
                        SaveSystem::Implementation->GetLockedQuickSaveCount();
-    bool quickSaveLockState = GetFlag(SF_SAVEDISABLE) ||
-                              SaveSystem::HasQSavedOnCurrentLine() ||
-                              noFreeSlots;
+    bool quickSaveLockState =
+        savesDisabled || SaveSystem::HasQSavedOnCurrentLine() || noFreeSlots;
     static_cast<SystemMenuEntryButton*>(
         MainItems->Children[static_cast<size_t>(MenuItems::QuickSave)])
         ->IsLocked = quickSaveLockState;
+    static_cast<SystemMenuEntryButton*>(
+        MainItems->Children[static_cast<size_t>(MenuItems::Save)])
+        ->IsLocked = savesDisabled;
   }
 
   auto* btn = static_cast<Widgets::Button*>(CurrentlyFocusedElement);
