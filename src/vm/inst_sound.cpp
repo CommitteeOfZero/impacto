@@ -63,9 +63,7 @@ VmInstruction(InstSEplay) {
       Audio::Channels[Audio::AC_SE0 + channel]->Pause();
     }
   } else {
-    ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-               "STUB instruction SEplay(channel: {:d}, type: {:d})\n", channel,
-               type);
+    Audio::Channels[Audio::AC_SE0 + channel]->Resume();
   }
 }
 VmInstruction(InstSEplayMO6) {
