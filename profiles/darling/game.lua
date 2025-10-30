@@ -6,6 +6,7 @@ root.DesignWidth = 1280;
 root.DesignHeight = 720;
 
 root.WindowName = "STEINS;GATE: Hiyoku Renri no Darling";
+root.WindowIconPath = "profiles/darling/icon.png";
 
 root.CharaIsMvl = false;
 root.LayFileBigEndian = true;

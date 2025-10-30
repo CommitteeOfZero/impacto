@@ -16,6 +16,7 @@ void LoadGameFromLua() {
   LayerCount = EnsureGetMember<int>("LayerCount");
   GameFeatures = EnsureGetMember<int>("GameFeatures");
   WindowName = EnsureGetMember<char const*>("WindowName");
+  WindowIconPath = TryGetMember<std::string>("WindowIconPath");
   DesignWidth = EnsureGetMember<float>("DesignWidth");
   DesignHeight = EnsureGetMember<float>("DesignHeight");
 

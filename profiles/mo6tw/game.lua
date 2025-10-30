@@ -6,6 +6,7 @@ root.DesignWidth = 1280;
 root.DesignHeight = 720;
 
 root.WindowName = "Memories Off 6 ~T-Wave~";
+root.WindowIconPath = "profiles/mo6tw/icon.png";
 
 root.CharaIsMvl = false;
 root.LayFileBigEndian = true;

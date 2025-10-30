@@ -6,6 +6,7 @@ root.DesignWidth = 1920;
 root.DesignHeight = 1080;
 
 root.WindowName = "CHAOS;CHILD";
+root.WindowIconPath = "profiles/cc/icon.png";
 root.UseMoviePriority = true;
 
 root.CharaIsMvl = false;

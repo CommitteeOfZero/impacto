@@ -6,6 +6,7 @@ root.DesignWidth = 1920;
 root.DesignHeight = 1080;
 
 root.WindowName = "Memories Off -Innocent Fille-";
+root.WindowIconPath = "profiles/mo8/icon.png";
 
 root.CharaIsMvl = true;
 root.UseMoviePriority = true;

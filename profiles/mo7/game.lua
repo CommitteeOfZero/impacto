@@ -6,6 +6,7 @@ root.DesignWidth = 1280;
 root.DesignHeight = 720;
 
 root.WindowName = "Memories Off Yubikiri no Kioku";
+root.WindowIconPath = "profiles/mo7/icon.png";
 
 root.CharaIsMvl = false;
 root.LayFileBigEndian = true;

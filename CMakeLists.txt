@@ -33,6 +33,7 @@ set(Impacto_Src
         src/animation.cpp
 
         src/renderer/renderer.cpp
+        src/renderer/window.cpp
 
         src/data/savesystem.cpp
         src/data/tipssystem.cpp

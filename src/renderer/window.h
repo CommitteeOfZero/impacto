@@ -5,6 +5,8 @@
 
 namespace Impacto {
 
+void SetWindowIcon(SDL_Window* window);
+
 enum GraphicsApi {
   GfxApi_GL,
   // Forces the use of a GLES driver (e.g. ANGLE on Windows)

@@ -6,6 +6,7 @@ root.DesignWidth = 1920;
 root.DesignHeight = 1080;
 
 root.WindowName = "CHAOS;HEAD NOAH";
+root.WindowIconPath = "profiles/chn/icon.png";
 
 root.CharaIsMvl = true;
 

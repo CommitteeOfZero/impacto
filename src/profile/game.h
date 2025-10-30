@@ -3,6 +3,8 @@
 #include "../game.h"
 
 #include <cstdint>
+#include <optional>
+#include <string>
 
 namespace Impacto {
 namespace Profile {
@@ -15,6 +17,7 @@ inline uint32_t LayerCount;
 inline int GameFeatures;
 
 inline char const* WindowName;
+inline std::optional<std::string> WindowIconPath;
 
 inline bool LayFileBigEndian;
 inline bool CharaIsMvl;
