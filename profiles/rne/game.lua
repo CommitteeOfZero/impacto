@@ -6,6 +6,7 @@ root.DesignWidth = 1280;
 root.DesignHeight = 720;
 
 root.WindowName = "ROBOTICS;NOTES ELITE";
+root.WindowIconPath = "profiles/rne/icon.png";
 
 root.Vm = {
     StartScript = 4,

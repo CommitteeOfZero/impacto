@@ -92,6 +92,8 @@ void VulkanWindow::Init() {
   ImpLog(LogLevel::Debug, LogChannel::General,
          "Window size (screen coords): {:d} x {:d}\n", WindowWidth,
          WindowHeight);
+
+  SetWindowIcon(SDLWindow);
 }
 
 void VulkanWindow::SetDimensions(int width, int height, int msaa,

@@ -7,6 +7,7 @@ root.DesignWidth = 1920;
 root.DesignHeight = 1080;
 
 root.WindowName = "CHAOS;CHILD Love Chu☆Chu!!";
+root.WindowIconPath = "profiles/cclcc/icon.png";
 
 root.CharaIsMvl = true;
 root.UseMoviePriority = true;

@@ -6,6 +6,7 @@ root.DesignWidth = 1280;
 root.DesignHeight = 720;
 
 root.WindowName = "STEINS;GATE";
+root.WindowIconPath = "profiles/sgps3/icon.png";
 
 root.CharaIsMvl = false;
 root.LayFileBigEndian = true;
