@@ -93,6 +93,8 @@ void Configure() {
       EnsureGetMember<glm::vec2>("SaveDateHintTextRelativePos");
   SaveDateTextRelativePos =
       EnsureGetMember<glm::vec2>("SaveDateTextRelativePos");
+  SaveHourTextRelativePos =
+      EnsureGetMember<glm::vec2>("SaveHourTextRelativePos");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMember<uint8_t>("DrawType"));

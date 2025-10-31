@@ -82,6 +82,7 @@ inline glm::vec2 PlayTimeHintTextRelativePos;
 inline glm::vec2 PlayTimeTextRelativePos;
 inline glm::vec2 SaveDateHintTextRelativePos;
 inline glm::vec2 SaveDateTextRelativePos;
+inline glm::vec2 SaveHourTextRelativePos;
 
 void Configure();
 
