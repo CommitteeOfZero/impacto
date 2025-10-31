@@ -1,6 +1,9 @@
 root.GameSpecific = {
   Type = GameSpecificType.CCLCC,
-  UIButtonGuideSprites = {}
+  UIButtonGuideSprites = {},
+  UIButtonGuideEndDisp = {
+    X = 0, Y = 988, Width = 60, Height = 54
+  }
 }
 
 include('cclcc/mapsystem.lua');

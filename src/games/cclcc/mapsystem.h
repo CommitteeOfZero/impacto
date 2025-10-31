@@ -91,7 +91,10 @@ class MapSystem {
     MapPositionState End;
   };
 
-  static inline std::unique_ptr<MapSystem> Implementation = nullptr;
+  static MapSystem& GetInstance() {
+    static MapSystem impl;
+    return impl;
+  }
 
  private:
   enum MapPosEnum { MapZoom, MapZoom3, MapMove2, MapPosTransitionsMax };

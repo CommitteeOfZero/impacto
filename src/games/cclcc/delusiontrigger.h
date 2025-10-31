@@ -26,7 +26,10 @@ class DelusionTrigger {
   bool CheckTransitionAnimationComplete();
   bool CheckStartTransitionComplete();
 
-  static inline std::unique_ptr<DelusionTrigger> Implementation = nullptr;
+  static DelusionTrigger& GetInstance() {
+    static DelusionTrigger impl;
+    return impl;
+  };
 
  private:
   int MtrgAlphaCt = 0;

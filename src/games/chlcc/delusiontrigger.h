@@ -16,7 +16,10 @@ class DelusionTrigger {
   void Update(float dt);
   void Render();
 
-  static inline std::unique_ptr<DelusionTrigger> Implementation = nullptr;
+  static DelusionTrigger& GetInstance() {
+    static DelusionTrigger impl;
+    return impl;
+  };
 
  protected:
   int maskScaleFactor;

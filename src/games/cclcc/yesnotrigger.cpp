@@ -13,9 +13,6 @@ using namespace Impacto::Profile::ScriptVars;
 
 int YesNoTrigger::Load(uint8_t* data) {
   int dataSize = 0;
-  if (Implementation == nullptr) {
-    return dataSize;
-  }
   dataSize += 4;
   memcpy(&BgType, data + dataSize, sizeof(BGType));
   dataSize += 12;
@@ -75,9 +72,6 @@ int YesNoTrigger::Load(uint8_t* data) {
 
 int YesNoTrigger::Save(uint8_t* data) {
   int dataSize = 0;
-  if (Implementation == nullptr) {
-    return dataSize;
-  }
   dataSize += 4;
   memcpy(data + dataSize, &BgType, sizeof(BGType));
   dataSize += 12;

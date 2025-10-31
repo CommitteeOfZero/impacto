@@ -22,17 +22,23 @@ void Configure() {
   // Get common gamespecific UI elements
   if (GameSpecificType == +GameSpecificType::CCLCC) {
     UIButtonGuideSprites = GetMemberVector<Sprite>("UIButtonGuideSprites");
+    UIButtonGuideEndDisp = EnsureGetMember<RectF>("UIButtonGuideEndDisp");
   }
   Pop();
 
-  // Configure game-specific subsystems
-  if (GameSpecificType == +GameSpecificType::CHLCC) {
-    Profile::CHLCC::DelusionTrigger::Configure();
-  } else if (GameSpecificType == +GameSpecificType::CC) {
-  } else if (GameSpecificType == +GameSpecificType::CCLCC) {
-    Profile::CCLCC::MapSystem::Configure();
-    Profile::CCLCC::YesNoTrigger::Configure();
-    Profile::CCLCC::DelusionTrigger::Configure();
+  switch (GameSpecificType) {
+    case +GameSpecificType::CHLCC:
+      CHLCC::DelusionTrigger::Configure();
+      break;
+    case +GameSpecificType::CC:
+      break;
+    case +GameSpecificType::CCLCC:
+      CCLCC::MapSystem::Configure();
+      CCLCC::YesNoTrigger::Configure();
+      CCLCC::DelusionTrigger::Configure();
+      break;
+    case +GameSpecificType::None:
+      break;
   }
 }
 
