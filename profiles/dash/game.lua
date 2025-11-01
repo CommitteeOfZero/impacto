@@ -6,9 +6,9 @@ root.DesignWidth = 1920;
 root.DesignHeight = 1080;
 
 root.WindowName = "ROBOTICS;NOTES DaSH";
-root.WindowIconPath = "profiles/dash/icon.png";
-root.CursorArrowPath = "profiles/dash/cursor_arrow.png";
-root.CursorPointerPath = "profiles/dash/cursor_pointer.png";
+root.WindowIconPath = "games/dash/icondata/icon.png";
+root.CursorArrowPath = "games/dash/icondata/cursor_arrow.png";
+root.CursorPointerPath = "games/dash/icondata/cursor_pointer.png";
 
 root.Vm = {
     StartScript = 4,
