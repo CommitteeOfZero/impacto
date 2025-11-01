@@ -7,6 +7,8 @@ root.DesignHeight = 720;
 
 root.WindowName = "ROBOTICS;NOTES ELITE";
 root.WindowIconPath = "profiles/rne/icon.png";
+root.CursorArrowPath = "profiles/rne/cursor_arrow.png";
+root.CursorPointerPath = "profiles/rne/cursor_pointer.png";
 
 root.Vm = {
     StartScript = 4,

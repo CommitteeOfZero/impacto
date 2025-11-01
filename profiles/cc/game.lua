@@ -7,6 +7,8 @@ root.DesignHeight = 1080;
 
 root.WindowName = "CHAOS;CHILD";
 root.WindowIconPath = "profiles/cc/icon.png";
+root.CursorArrowPath = "profiles/cc/cursor_arrow.png";
+root.CursorPointerPath = "profiles/cc/cursor_pointer.png";
 root.UseMoviePriority = true;
 
 root.CharaIsMvl = false;

@@ -7,6 +7,8 @@ root.DesignHeight = 720;
 
 root.WindowName = "CHAOS;HEAD Love Chu☆Chu!";
 root.WindowIconPath = "profiles/chlcc/icon.png";
+root.CursorArrowPath = "profiles/chlcc/cursor_arrow.png";
+root.CursorPointerPath = "profiles/chlcc/cursor_pointer.png";
 
 root.CharaIsMvl = false;
 root.UseMoviePriority = true;

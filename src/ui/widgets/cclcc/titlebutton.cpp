@@ -29,6 +29,7 @@ void TitleButton::UpdateInput(float dt) {
 }
 
 void TitleButton::Update(float dt) {
+  Widget::Update(dt);
   HighlightAnimation.Update(dt);
   ChoiceBlinkAnimation.Update(dt);
   if (ChoiceBlinkAnimation.IsIn()) {

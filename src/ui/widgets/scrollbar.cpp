@@ -2,6 +2,7 @@
 #include "../../renderer/renderer.h"
 #include "../../inputsystem.h"
 #include "../../vm/interface/input.h"
+#include "../../renderer/window.h"
 
 namespace Impacto {
 namespace UI {
@@ -194,7 +195,15 @@ void Scrollbar::ClampValue() {
   *Value = std::clamp(*Value, minValue, maxValue);
 }
 
-void Scrollbar::Update(float dt) { UpdatePosition(); }
+void Scrollbar::Update(float dt) {
+  Widget::Update(dt);
+  UpdatePosition();
+
+  if (Enabled && HoveredWheelBounds &&
+      Input::CurrentInputDevice == Input::Device::Mouse) {
+    RequestCursor(CursorType::Pointer);
+  }
+}
 
 void Scrollbar::UpdatePosition() {
   TrackProgress = ((*Value - StartValue) / (EndValue - StartValue)) * Length;

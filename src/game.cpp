@@ -22,6 +22,7 @@
 #include "mem.h"
 #include "vm/interface/input.h"
 #include "vm/inst_dialogue.h"
+#include "renderer/window.h"
 #include "hud/datedisplay.h"
 #include "hud/saveicondisplay.h"
 #include "hud/loadingdisplay.h"
@@ -83,6 +84,7 @@ static void Init() {
 #endif
 
   InitRenderer();
+  InitCursors();
 
   memset(DrawComponents, DrawComponentType::None, sizeof(DrawComponents));
 
@@ -215,6 +217,7 @@ void UpdateSystem(float dt) {
   SDL_Event e;
   if (Profile::GameFeatures & GameFeature::Input) {
     Input::BeginFrame();
+    RequestCursor(CursorType::Default);
   }
 
   while (SDL_PollEvent(&e)) {
@@ -265,6 +268,8 @@ void UpdateSystem(float dt) {
     }
 
     Vm::Update(dt);
+
+    ApplyCursorForFrame();
   }
   UpdateSecondCounter = 0.0f;
 }

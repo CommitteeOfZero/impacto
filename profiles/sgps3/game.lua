@@ -7,6 +7,8 @@ root.DesignHeight = 720;
 
 root.WindowName = "STEINS;GATE";
 root.WindowIconPath = "profiles/sgps3/icon.png";
+root.CursorArrowPath = "profiles/sgps3/cursor_arrow.png";
+root.CursorPointerPath = "profiles/sgps3/cursor_pointer.png";
 
 root.CharaIsMvl = false;
 root.LayFileBigEndian = true;

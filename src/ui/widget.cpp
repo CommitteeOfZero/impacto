@@ -1,4 +1,6 @@
 #include "widget.h"
+#include "../inputsystem.h"
+#include "../renderer/window.h"
 
 namespace Impacto {
 namespace UI {
@@ -7,6 +9,10 @@ void Widget::Update(float dt) {
     MoveAnimation.Update(dt);
     auto move = glm::mix(MoveOrigin, MoveTarget, MoveAnimation.Progress);
     MoveTo(move);
+  }
+
+  if (Enabled && Hovered && Input::CurrentInputDevice == Input::Device::Mouse) {
+    RequestCursor(CursorType::Pointer);
   }
 }
 

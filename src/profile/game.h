@@ -18,6 +18,8 @@ inline int GameFeatures;
 
 inline char const* WindowName;
 inline std::optional<std::string> WindowIconPath;
+inline std::optional<std::string> CursorArrowPath;
+inline std::optional<std::string> CursorPointerPath;
 
 inline bool LayFileBigEndian;
 inline bool CharaIsMvl;
