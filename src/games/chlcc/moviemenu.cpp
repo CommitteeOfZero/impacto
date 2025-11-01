@@ -396,11 +396,12 @@ void MovieMenu::UpdateTitles() {
 void MovieMenu::UpdateMovieEntries() {
   for (auto el : MovieItems->Children) {
     auto movieButton = dynamic_cast<MovieMenuEntryButton*>(el);
-    if (movieButton->Id == 0 || movieButton->Id == 1)
+    if (movieButton->Id == 0 || movieButton->Id == 1) {
       movieButton->IsLocked = false;
-    else
-      movieButton->IsLocked = !((GetFlag(SF_MOVIE_UNLOCK1)) ||
-                                (GetFlag(SF_CLR_END1 + movieButton->Id)));
+    } else {
+      movieButton->IsLocked = !(GetFlag(SF_MOVIE_UNLOCK1) ||
+                                GetFlag(SF_CLR_END1 + movieButton->Id - 2));
+    }
   }
 }
 
