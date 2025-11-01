@@ -5,7 +5,12 @@
 
 namespace Impacto {
 
+enum class CursorType { Default, Pointer };
+
 void SetWindowIcon(SDL_Window* window);
+void InitCursors();
+void RequestCursor(CursorType type);
+void ApplyCursorForFrame();
 
 enum GraphicsApi {
   GfxApi_GL,

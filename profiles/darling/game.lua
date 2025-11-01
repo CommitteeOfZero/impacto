@@ -7,6 +7,8 @@ root.DesignHeight = 720;
 
 root.WindowName = "STEINS;GATE: Hiyoku Renri no Darling";
 root.WindowIconPath = "profiles/darling/icon.png";
+root.CursorArrowPath = "profiles/darling/cursor_arrow.png";
+root.CursorPointerPath = "profiles/darling/cursor_pointer.png";
 
 root.CharaIsMvl = false;
 root.LayFileBigEndian = true;

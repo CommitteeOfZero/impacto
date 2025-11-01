@@ -7,6 +7,8 @@ root.DesignHeight = 1080;
 
 root.WindowName = "CHAOS;HEAD NOAH";
 root.WindowIconPath = "profiles/chn/icon.png";
+root.CursorArrowPath = "profiles/chn/cursor_arrow.png";
+root.CursorPointerPath = "profiles/chn/cursor_pointer.png";
 
 root.CharaIsMvl = true;
 

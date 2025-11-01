@@ -17,6 +17,8 @@ void LoadGameFromLua() {
   GameFeatures = EnsureGetMember<int>("GameFeatures");
   WindowName = EnsureGetMember<char const*>("WindowName");
   WindowIconPath = TryGetMember<std::string>("WindowIconPath");
+  CursorArrowPath = TryGetMember<std::string>("CursorArrowPath");
+  CursorPointerPath = TryGetMember<std::string>("CursorPointerPath");
   DesignWidth = EnsureGetMember<float>("DesignWidth");
   DesignHeight = EnsureGetMember<float>("DesignHeight");
 
