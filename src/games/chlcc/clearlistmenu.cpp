@@ -235,7 +235,7 @@ inline void ClearListMenu::DrawPlayTime(float yOffset) {
                  minutes % 10, seconds / 10, seconds % 10};
 
   for (int idx = 0; idx < 6; idx++) {
-    if (!(idx % 2 == 0 && time[idx] == 0)) {
+    if (!(idx == 0 && time[idx] == 0)) {
       glm::vec2 position(TimePositions[idx].x, TimePositions[idx].y + yOffset);
       Renderer->DrawSprite(Digits[time[idx]], position);
     }
