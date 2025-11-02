@@ -166,8 +166,9 @@ VmInstruction(InstMes) {
   int audioId = -1;
   int animationId = 0;
   if (voiced) audioId = ExpressionEval(thread);
-  if (acted) animationId = ExpressionEval(thread);
   PopExpression(characterId);
+  if (acted) animationId = ExpressionEval(thread);
+
   if (characterId >= 32) characterId = 0;
   PopUint16(lineId);
   uint32_t line = MSB ? MsbGetStrAddress(thread->ScriptBufferId, lineId)
