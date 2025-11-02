@@ -336,8 +336,6 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
     if (type == SaveType::Quick) {
       entry->SaveType = autoSaveType;
     }
-    time_t rawtime;
-    time(&rawtime);
     entry->SaveDate = CurrentDateTime();
     auto captureBuffer =
         Renderer->GetSpriteSheetImage(WorkingSaveThumbnail.Sheet);

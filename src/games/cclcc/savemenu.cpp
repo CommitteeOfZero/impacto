@@ -80,19 +80,12 @@ void SaveMenu::Show() {
       // quick saves are sorted by time and status
       std::sort(saveEntryIds.begin(), saveEntryIds.end(),
                 [saveType](int a, int b) {
-                  int statusA = SaveSystem::GetSaveStatus(saveType, a);
-                  int statusB = SaveSystem::GetSaveStatus(saveType, b);
+                  const int statusA = SaveSystem::GetSaveStatus(saveType, a);
+                  const int statusB = SaveSystem::GetSaveStatus(saveType, b);
                   if (statusA == statusB) {
-                    std::tm ta = SaveSystem::GetSaveDate(saveType, a);
-                    std::tm tb = SaveSystem::GetSaveDate(saveType, b);
-                    std::time_t th = std::mktime(&ta);
-                    std::time_t tl = std::mktime(&tb);
-                    if (th == -1 || tl == -1) {
-                      ImpLog(LogLevel::Error, LogChannel::General,
-                             "Failed to convert time to time_t\n");
-                      return statusA > statusB;
-                    }
-                    return difftime(th, tl) > 0;
+                    std::tm const& ta = SaveSystem::GetSaveDate(saveType, a);
+                    std::tm const& tb = SaveSystem::GetSaveDate(saveType, b);
+                    return timegm(ta) > timegm(tb);
                   }
                   return statusA > statusB;
                 });
