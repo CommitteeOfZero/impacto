@@ -235,7 +235,7 @@ inline void ClearListMenu::DrawPlayTime(float yOffset) {
                  minutes % 10, seconds / 10, seconds % 10};
 
   for (int idx = 0; idx < 6; idx++) {
-    if (!(idx % 2 == 0 && time[idx] == 0)) {
+    if (!(idx == 0 && time[idx] == 0)) {
       glm::vec2 position(TimePositions[idx].x, TimePositions[idx].y + yOffset);
       Renderer->DrawSprite(Digits[time[idx]], position);
     }
@@ -254,17 +254,28 @@ inline void ClearListMenu::DrawEndingCount(float yOffset) {
 inline void ClearListMenu::DrawTIPSCount(float yOffset) {
   int unlockedTipsCount = 0;
   size_t totalTips = GetTipCount();
+
   for (size_t idx = 0; idx < totalTips; idx++) {
     unlockedTipsCount += GetTipLockedState(idx) ? 0 : 1;
   }
-  if (unlockedTipsCount / 10 != 0) {
+
+  const int hundreds = unlockedTipsCount / 100;
+  const int tens = (unlockedTipsCount / 10) % 10;
+  const int ones = unlockedTipsCount % 10;
+
+  if (hundreds > 0) {
     Renderer->DrawSprite(
-        Digits[unlockedTipsCount / 10],
+        Digits[hundreds],
         glm::vec2(TIPSCountPositions[0].x, TIPSCountPositions[0].y + yOffset));
   }
+  if (hundreds > 0 || tens > 0) {
+    Renderer->DrawSprite(
+        Digits[tens],
+        glm::vec2(TIPSCountPositions[1].x, TIPSCountPositions[1].y + yOffset));
+  }
   Renderer->DrawSprite(
-      Digits[unlockedTipsCount % 10],
-      glm::vec2(TIPSCountPositions[1].x, TIPSCountPositions[1].y + yOffset));
+      Digits[ones],
+      glm::vec2(TIPSCountPositions[2].x, TIPSCountPositions[2].y + yOffset));
 }
 
 inline void ClearListMenu::DrawAlbumCompletion(float yOffset) {

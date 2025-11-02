@@ -38,7 +38,7 @@ void Configure() {
   ClearListLabel = EnsureGetMember<Sprite>("ClearListLabel");
   GetMemberArray<glm::vec2>(TimePositions, 6, "TimePositions");
   EndingCountPosition = EnsureGetMember<glm::vec2>("EndingCountPosition");
-  GetMemberArray<glm::vec2>(TIPSCountPositions, 2, "TIPSCountPositions");
+  GetMemberArray<glm::vec2>(TIPSCountPositions, 3, "TIPSCountPositions");
   GetMemberArray<Sprite>(Digits, 10, "Digits");
   GetMemberArray<glm::vec2>(AlbumPositions, 3, "AlbumPositions");
   ListPosition = EnsureGetMember<glm::vec2>("ListPosition");

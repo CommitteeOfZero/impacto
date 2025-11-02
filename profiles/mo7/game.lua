@@ -6,9 +6,9 @@ root.DesignWidth = 1280;
 root.DesignHeight = 720;
 
 root.WindowName = "Memories Off Yubikiri no Kioku";
-root.WindowIconPath = "profiles/mo7/icon.png";
-root.CursorArrowPath = "profiles/mo7/cursor_arrow.png";
-root.CursorPointerPath = "profiles/mo7/cursor_pointer.png";
+root.WindowIconPath = "games/mo7/icondata/icon.png";
+root.CursorArrowPath = "games/mo7/icondata/cursor_arrow.png";
+root.CursorPointerPath = "games/mo7/icondata/cursor_pointer.png";
 
 root.CharaIsMvl = false;
 root.LayFileBigEndian = true;

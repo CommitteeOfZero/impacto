@@ -37,7 +37,7 @@ inline glm::vec2 LabelPosition;
 inline Sprite ClearListLabel;
 inline glm::vec2 TimePositions[6];
 inline glm::vec2 EndingCountPosition;
-inline glm::vec2 TIPSCountPositions[2];
+inline glm::vec2 TIPSCountPositions[3];
 inline glm::vec2 AlbumPositions[3];
 inline Sprite Digits[10];
 inline glm::vec2 ListPosition;

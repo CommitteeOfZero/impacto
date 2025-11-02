@@ -7,9 +7,9 @@ root.DesignWidth = 1920;
 root.DesignHeight = 1080;
 
 root.WindowName = "CHAOS;CHILD Love Chu☆Chu!!";
-root.WindowIconPath = "profiles/cclcc/icon.png";
-root.CursorArrowPath = "profiles/cclcc/cursor_arrow.png";
-root.CursorPointerPath = "profiles/cclcc/cursor_pointer.png";
+root.WindowIconPath = "games/cclcc/icondata/icon.png";
+root.CursorArrowPath = "games/cclcc/icondata/cursor_arrow.png";
+root.CursorPointerPath = "games/cclcc/icondata/cursor_pointer.png";
 
 root.CharaIsMvl = true;
 root.UseMoviePriority = true;

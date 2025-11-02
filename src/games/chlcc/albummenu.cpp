@@ -29,12 +29,14 @@ void AlbumMenu::OnCgVariationEnd(Widgets::CgViewer* target) {
 }
 
 void AlbumMenu::CgOnClick(Widgets::Button* target) {
-  int total, viewed = 0;
-  SaveSystem::GetEVStatus(target->Id, &total, &viewed);
+  if (!target->IsLocked) {
+    int total, viewed = 0;
+    SaveSystem::GetEVStatus(target->Id, &total, &viewed);
 
-  ShowCgViewer = true;
-  CgViewerWidget->LoadCgSprites((size_t)target->Id, "bg",
-                                Profile::SaveSystem::AlbumData[target->Id]);
+    ShowCgViewer = true;
+    CgViewerWidget->LoadCgSprites((size_t)target->Id, "bg",
+                                  Profile::SaveSystem::AlbumData[target->Id]);
+  }
 }
 
 AlbumMenu::AlbumMenu() {

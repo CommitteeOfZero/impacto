@@ -26,10 +26,14 @@ root.ExtraMenus = {
         ClearListLabel = "ClearListLabel",
         LabelPosition = { X = 800, Y = 44 },
         Digits = {},
-        TimePositions = {
+        TimePositions = root.Language == "Japanese" and {
             { X = 988, Y = 69 }, { X = 1008, Y = 69 },
             { X = 1079, Y = 69 }, { X = 1099, Y = 69 },
             { X = 1148, Y = 69 }, { X = 1168, Y = 69 },
+        } or {
+            { X = 1026, Y = 69 }, { X = 1046, Y = 69 },
+            { X = 1087, Y = 69 }, { X = 1107, Y = 69 },
+            { X = 1157, Y = 69 }, { X = 1177, Y = 69 },
         },
         AlbumPositions = {
             { X = 1125, Y = 152 },
@@ -37,8 +41,10 @@ root.ExtraMenus = {
             { X = 1165, Y = 152 }
         },
         EndingCountPosition = { X = 1159, Y = 96 },
-        TIPSCountPositions = {
-            { X = 1125, Y = 124 }, { X = 1145, Y = 124 },
+        TIPSCountPositions = root.Language == "Japanese" and {
+            { X = 1105, Y = 124 }, { X = 1125, Y = 124 }, { X = 1145, Y = 124 },
+        } or {
+            { X = 1102, Y = 124 }, { X = 1122, Y = 124 }, { X = 1142, Y = 124 },
         },
         EndingList = "EndingList",
         ListPosition = { X = 0, Y = 0 },

@@ -48,6 +48,7 @@ void SaveEntryButton::Render() {
     PlayTime.Render();
     SaveDateHint.Render();
     SaveDate.Render();
+    SaveHour.Render();
   } else {
     SceneTitle.Render();
   }
@@ -121,6 +122,14 @@ void SaveEntryButton::AddSaveDateText(std::string_view str, float fontSize,
                    fontSize, outlineMode, IsLocked ? 69 : 0);
 }
 
+void SaveEntryButton::AddSaveHourText(std::string_view str, float fontSize,
+                                      RendererOutlineMode outlineMode,
+                                      glm::vec2 relativePosition) {
+  // Spacing is currently set for the C;HLCC font, more or less
+  SaveHour = Label(str, glm::vec2(Bounds.X, Bounds.Y) + relativePosition,
+                   fontSize, outlineMode, IsLocked ? 69 : 0);
+}
+
 void SaveEntryButton::AddThumbnail(Sprite thumbnail, glm::vec2 pos) {
   ThumbnailLabel = Label(thumbnail, pos);
 }
@@ -138,6 +147,7 @@ void SaveEntryButton::Move(glm::vec2 relativePosition) {
   PlayTime.Move(relativePosition);
   SaveDateHint.Move(relativePosition);
   SaveDate.Move(relativePosition);
+  SaveHour.Move(relativePosition);
 }
 
 void SaveEntryButton::FocusedAlphaFadeStart() {
@@ -231,9 +241,12 @@ void SaveEntryButton::RefreshInfo(const SaveSystem::SaveType entryType) {
                           RendererOutlineMode::BottomRight,
                           SaveDateHintTextRelativePos);
       const tm& date = SaveSystem::GetSaveDate(entryType, Id);
-      AddSaveDateText(fmt::format("  {:%y/%m/%d %H:%M:%S}", date), 18,
+      AddSaveDateText(fmt::format("  {:%y/%m/%d}", date), 18,
                       RendererOutlineMode::BottomRight,
                       SaveDateTextRelativePos);
+      AddSaveHourText(fmt::format("  {:%H:%M:%S}", date), 18,
+                      RendererOutlineMode::BottomRight,
+                      SaveHourTextRelativePos);
 
       AddThumbnail(SaveSystem::GetSaveThumbnail(entryType, Id),
                    EntryPositions[Id % 6] + ThumbnailRelativePos);

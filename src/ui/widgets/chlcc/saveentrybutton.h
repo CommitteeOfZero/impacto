@@ -39,6 +39,9 @@ class SaveEntryButton : public Widgets::Button {
   void AddSaveDateText(std::string_view str, float fontSize,
                        RendererOutlineMode outlineMode,
                        glm::vec2 relativePosition);
+  void AddSaveHourText(std::string_view str, float fontSize,
+                       RendererOutlineMode outlineMode,
+                       glm::vec2 relativePosition);
   void AddSceneTitleText(Vm::BufferOffsetContext strAdr, float fontSize,
                          RendererOutlineMode outlineMode,
                          glm::vec2 relativeTitlePosition, int colorIndex);
@@ -72,6 +75,7 @@ class SaveEntryButton : public Widgets::Button {
   Label PlayTime;
   Label SaveDateHint;
   Label SaveDate;
+  Label SaveHour;
 };
 
 }  // namespace CHLCC
