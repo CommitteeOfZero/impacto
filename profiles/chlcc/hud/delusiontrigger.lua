@@ -1,6 +1,4 @@
 root.DelusionTrigger = {
-  DrawType = DrawComponentType.SystemMenu,
-  Type = DelusionTriggerType.CHLCC,
   BackgroundSprite = "BackgroundSprite",
   BackgroundSpriteMask = "BackgroundSpriteMask",
   ScreenMask = "ScreenMask",

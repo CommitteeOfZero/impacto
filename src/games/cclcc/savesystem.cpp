@@ -7,10 +7,10 @@
 #include "../../profile/data/savesystem.h"
 #include "../../profile/scriptvars.h"
 #include "../../profile/vm.h"
-#include "../../ui/mapsystem.h"
 #include "../../renderer/renderer.h"
 #include "../../profile/configsystem.h"
 
+#include "mapsystem.h"
 #include "yesnotrigger.h"
 
 #include <cstdint>
@@ -767,8 +767,9 @@ void SaveSystem::SaveMemory() {
              16 * sizeof(int));
       WorkingSaveEntry->MainThreadDialoguePageId = thd->DialoguePageId;
     }
-    UI::MapSystem::MapSave(WorkingSaveEntry->MapLoadData.data());
-    CCLCC::YesNoTrigger::YesNoTriggerPtr->Save(
+    UI::CCLCC::MapSystem::GetInstance().MapSave(
+        WorkingSaveEntry->MapLoadData.data());
+    UI::CCLCC::YesNoTrigger::GetInstance().Save(
         WorkingSaveEntry->YesNoData.data());
   }
 }
@@ -810,8 +811,9 @@ void SaveSystem::LoadMemoryNew(LoadProcess load) {
     std::ranges::copy(WorkingSaveEntry->ScrWorkScript1, ScrWork.begin() + 1000);
     std::ranges::copy(WorkingSaveEntry->ScrWorkScript2, ScrWork.begin() + 4300);
 
-    UI::MapSystem::MapLoad(WorkingSaveEntry->MapLoadData.data());
-    CCLCC::YesNoTrigger::YesNoTriggerPtr->Load(
+    UI::CCLCC::MapSystem::GetInstance().MapLoad(
+        WorkingSaveEntry->MapLoadData.data());
+    UI::CCLCC::YesNoTrigger::GetInstance().Load(
         WorkingSaveEntry->YesNoData.data());
 
     // TODO: What to do about this mess I wonder...

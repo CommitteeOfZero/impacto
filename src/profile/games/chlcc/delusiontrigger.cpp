@@ -12,12 +12,16 @@ namespace CHLCC {
 namespace DelusionTrigger {
 
 void Configure() {
+  if (!TryPushMember("DelusionTrigger")) return;
+  AssertIs(LUA_TTABLE);
   BackgroundSprite = EnsureGetMember<Sprite>("BackgroundSprite");
   BackgroundSpriteMask = EnsureGetMember<Sprite>("BackgroundSpriteMask");
   ScreenMask = EnsureGetMember<Sprite>("ScreenMask");
 
   BackgroundSpriteMask.Bounds.Y = BackgroundSprite.Bounds.Center().y -
                                   BackgroundSpriteMask.Bounds.Center().y;
+
+  Pop();
 }
 
 }  // namespace DelusionTrigger

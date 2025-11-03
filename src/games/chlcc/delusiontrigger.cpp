@@ -2,26 +2,29 @@
 #include "../../renderer/renderer.h"
 #include "../../vm/interface/input.h"
 #include "../../mem.h"
-#include "../../profile/hud/delusiontrigger.h"
 #include "../../profile/games/chlcc/delusiontrigger.h"
 #include "../../profile/scriptvars.h"
+#include "../../profile/configsystem.h"
 #include "../../game.h"
 #include "../../profile/game.h"
 
 namespace Impacto {
+namespace UI {
 namespace CHLCC {
 
 using namespace Impacto::Profile::CHLCC::DelusionTrigger;
-using namespace Impacto::Profile::DelusionTrigger;
 using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Vm::Interface;
 
+using enum Impacto::UI::MenuState;
+
 DelusionTrigger::DelusionTrigger()
-    : DelusionTriggerBase(ScrWork[SW_DELUSION_STATE], Hidden) {
-  TriggerOnTint = RgbIntToFloat(0xffb0ce);
-}
+    : TriggerOnTint(RgbIntToFloat(0xffb0ce)),
+      DelusionState(ScrWork[SW_DELUSION_STATE]) {}
 
 void DelusionTrigger::Show() {
+  if (Profile::ConfigSystem::TriggerStopSkip)
+    MesSkipMode &= SkipModeFlags::Auto;
   if (State != Shown && State != Showing) {
     State = Showing;
     DelusionState = DS_Neutral;
@@ -355,4 +358,5 @@ void DelusionTrigger::Render() {
 }
 
 }  // namespace CHLCC
+}  // namespace UI
 }  // namespace Impacto

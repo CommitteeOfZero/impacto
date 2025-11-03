@@ -1,20 +1,19 @@
 #include "delusiontrigger.h"
 #include "../../profile/games/cclcc/delusiontrigger.h"
-#include "../../profile/hud/delusiontrigger.h"
 #include "../../vm/interface/scene2d.h"
 #include "../../vm/interface/input.h"
 #include "../../profile/scriptvars.h"
 #include "../../src/video/videosystem.h"
+#include "../../profile/configsystem.h"
 
 namespace Impacto {
+namespace UI {
 namespace CCLCC {
 using namespace Impacto::Profile::CCLCC::DelusionTrigger;
-using namespace Impacto::Profile::DelusionTrigger;
 using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Vm::Interface;
 
-DelusionTrigger::DelusionTrigger()
-    : DelusionTriggerBase(ScrWork[SW_DELUSION_STATE], UiState::Hidden) {
+DelusionTrigger::DelusionTrigger() : DelusionState(ScrWork[SW_DELUSION_STATE]) {
   PositiveDelusionSprite.Bounds.X = 1024;
   PositiveDelusionSprite.Bounds.Y = 0;
   PositiveDelusionSprite.Bounds.Width = 1024;
@@ -28,6 +27,8 @@ DelusionTrigger::DelusionTrigger()
 
 bool DelusionTrigger::Show(int bgOverlayBgBufferId, int circlesBgBufferId,
                            int availableDelusions) {
+  if (Profile::ConfigSystem::TriggerStopSkip)
+    MesSkipMode &= SkipModeFlags::Auto;
   if (GetFlag(SF_MOVIEPLAY) && GetFlag(SF_MOVIE_DRAWWAIT)) {
     return false;
   }
@@ -397,4 +398,5 @@ void DelusionTrigger::Render() {
 }
 
 };  // namespace CCLCC
+}  // namespace UI
 };  // namespace Impacto

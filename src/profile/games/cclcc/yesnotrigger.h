@@ -28,8 +28,8 @@ inline Sprite StarChip;
 inline Sprite YesNoBgMask;
 
 inline glm::vec2 BackgroundPositions[BackgroundPositionsNum];
-inline Impacto::CCLCC::YesNoTrigger::YesNoPositions YesNoData1[YesNoDataSize];
-inline Impacto::CCLCC::YesNoTrigger::YesNoPositions YesNoData2[YesNoDataSize];
+inline UI::CCLCC::YesNoTrigger::YesNoPositions YesNoData1[YesNoDataSize];
+inline UI::CCLCC::YesNoTrigger::YesNoPositions YesNoData2[YesNoDataSize];
 
 }  // namespace YesNoTrigger
 }  // namespace CCLCC

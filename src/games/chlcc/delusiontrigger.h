@@ -1,18 +1,25 @@
 #pragma once
 
 #include "../../spriteanimation.h"
-#include "../../hud/delusiontrigger.h"
+#include "../../ui/menu.h"
 
 namespace Impacto {
+namespace UI {
 namespace CHLCC {
-class DelusionTrigger : public Impacto::DelusionTrigger::DelusionTriggerBase {
+class DelusionTrigger {
  public:
+  enum DelusionState { DS_Neutral, DS_Positive, DS_Negative };
   DelusionTrigger();
 
   void Show();
   void Hide();
   void Update(float dt);
   void Render();
+
+  static DelusionTrigger& GetInstance() {
+    static DelusionTrigger impl;
+    return impl;
+  };
 
  protected:
   int maskScaleFactor;
@@ -35,7 +42,10 @@ class DelusionTrigger : public Impacto::DelusionTrigger::DelusionTriggerBase {
   int UnderlayerXOffset, UnderlayerXRate;
   int ShakeState;
   int MaskOffsetX;
+  int& DelusionState;
+  UI::MenuState State = UI::Hidden;
 };
 
 }  // namespace CHLCC
+}  // namespace UI
 }  // namespace Impacto
