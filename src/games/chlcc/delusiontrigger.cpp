@@ -6,6 +6,8 @@
 #include "../../profile/scriptvars.h"
 #include "../../profile/configsystem.h"
 #include "../../game.h"
+#include "../../profile/vm.h"
+#include "../../vm/interface/scene2d.h"
 #include "../../profile/game.h"
 
 namespace Impacto {
@@ -19,8 +21,7 @@ using namespace Impacto::Vm::Interface;
 using enum Impacto::UI::MenuState;
 
 DelusionTrigger::DelusionTrigger()
-    : TriggerOnTint(RgbIntToFloat(0xffb0ce)),
-      DelusionState(ScrWork[SW_DELUSION_STATE]) {}
+    : DelusionState(ScrWork[SW_DELUSION_STATE]) {}
 
 void DelusionTrigger::Show() {
   if (Profile::ConfigSystem::TriggerStopSkip) SkipModeEnabled = false;
@@ -39,16 +40,16 @@ void DelusionTrigger::Show() {
     UnderlayerXRate = 400;
     ShakeState = 0;
     MaskOffsetX = 0;
-    SetFlag(2511, 1);
-    SetFlag(2512, 0);
+    SetFlag(SF_DELUSION_UI_ANIM_WAIT, 1);
+    SetFlag(SF_DELUSION_UI_ANIMSWITCH_WAIT, 0);
   }
 }
 void DelusionTrigger::Hide() {
   if (State != Hidden && State != Hiding) {
     State = Hiding;
     AnimationState = 0;
-    SetFlag(2511, 1);
-    SetFlag(2512, 0);
+    SetFlag(SF_DELUSION_UI_ANIM_WAIT, 1);
+    SetFlag(SF_DELUSION_UI_ANIMSWITCH_WAIT, 0);
   }
 }
 
@@ -200,13 +201,11 @@ void DelusionTrigger::UpdateShowing() {
       if (MaskScaleFactor > 79999) {
         AnimationState = 0;
         AnimCounter = 0;
-        SetFlag(2511, 0);
-        State = Shown;
+        SetFlag(SF_DELUSION_UI_ANIM_WAIT, 0);
       }
     } break;
     default:
-      SetFlag(2511, 0);
-      State = Shown;
+      break;
   }
 }
 
@@ -226,6 +225,7 @@ void DelusionTrigger::UpdateShown() {
                 : (ShakeState == 6) ? -20
                                     : 0;
   ShakeState = (ShakeState == 0) ? 0 : ShakeState - 1;
+  bool anim = false;
   if (PADinputButtonWentDown & PAD1L2) {
     switch (ScrWork[SW_DELUSION_STATE]) {
       case DS_Neutral:
@@ -263,16 +263,20 @@ void DelusionTrigger::UpdateShown() {
     if (ScrWork[SW_DELUSION_STATE] == DS_Positive) {
       if (SpinRate < 40) {
         SpinRate = SpinRate + 2;
+        anim = true;
       }
       if (UnderlayerXRate < 2400) {
         UnderlayerXRate += 100;
+        anim = true;
       }
     } else if (ScrWork[SW_DELUSION_STATE] == DS_Negative) {
       if (SpinRate > -40) {
         SpinRate = SpinRate - 2;
+        anim = true;
       }
       if (UnderlayerXRate > -2400) {
         UnderlayerXRate -= 100;
+        anim = true;
       }
     }
   } else {
@@ -281,20 +285,27 @@ void DelusionTrigger::UpdateShown() {
     }
     if (SpinRate < -5) {
       SpinRate = SpinRate + 2;
+      anim = true;
     } else if (SpinRate > 5) {
       SpinRate = SpinRate - 2;
+      anim = true;
     }
     if (UnderlayerXRate < -400) {
       UnderlayerXRate += 100;
+      anim = true;
     } else if (UnderlayerXRate > 400) {
       UnderlayerXRate -= 100;
+      anim = true;
     }
   }
-  SetFlag(2512, 0);
-  SetFlag(2511, 0);
+  SetFlag(SF_DELUSION_UI_ANIM_WAIT, anim);
+  SetFlag(SF_DELUSION_UI_ANIMSWITCH_WAIT, anim);
 }
 
 void DelusionTrigger::Update(float dt) {
+  if (!GetFlag(SF_DELUSIONACTIVE) && State != Hidden) {
+    Reset();
+  }
   if (State == Showing) {
     UpdateShowing();
   } else if (State == Hiding) {
@@ -341,19 +352,65 @@ void DelusionTrigger::Render() {
       RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
       TriggerOnTint);
 
-  ScreenMask.Bounds.X = UnderlayerXOffset / 1000.0f;
-  Renderer->DrawSprite(
-      ScreenMask,
-      RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-      glm::vec4(1.0f, 1.0f, 1.0f, (BackgroundAlpha * 160) / 65536.0));
+  Sprite mask = ScreenMask;
+  mask.Bounds.X = UnderlayerXOffset / 1000.0f;
 
   const RectF spriteDest = {0.0f, 0.0f, Profile::DesignWidth,
                             Profile::DesignHeight};
   const CornersQuad maskDest =
       ScaledMask.Bounds.RotateAroundCenter(ScrWorkAngleToRad(SpinAngle));
+
+  Renderer->DrawSprite(
+      mask, spriteDest,
+      glm::vec4(1.0f, 1.0f, 1.0f, (BackgroundAlpha * 160) / 65536.0f));
   Renderer->DrawMaskedSpriteOverlay(BackgroundSprite, ScaledMask, spriteDest,
                                     maskDest, (BackgroundAlpha * 160) >> 8, 20,
                                     glm::mat4(1.0f), glm::vec4(1.0f), true);
+}
+
+void DelusionTrigger::Load() {
+  State = Shown;
+  ShakeState = 0;
+  MaskOffsetX = 0;
+  MaskScaleFactor = 82944;
+
+  UnderlayerXOffset = 20000;
+  AnimCounter = 0;
+  SpinAngle = 0;
+  SpinRate = 5;
+  BackgroundAlpha = 256;
+  switch (DelusionState) {
+    case DS_Neutral:
+      TriggerOnTintAlpha = 0;
+      UnderlayerXRate = 400;
+
+      break;
+    case DS_Positive:
+      TriggerOnTintAlpha = 104;
+      UnderlayerXRate = 2400;
+      break;
+    case DS_Negative:
+      TriggerOnTintAlpha = 104;
+      UnderlayerXRate = -2400;
+      break;
+  }
+  auto bufId = Vm::Interface::GetBufferId(ScrWork[SW_EFF_CAP_BUF2]);
+  ScrWork[SW_CAP1FADECT + (bufId - 1) * Profile::Vm::ScrWorkBgStructSize] = 256;
+}
+
+void DelusionTrigger::Reset() {
+  State = Hidden;
+  SpinAngle = 0;
+  SpinRate = 0;
+  UnderlayerAlpha = 0;
+  UnderlayerXOffset = 0;
+  UnderlayerXRate = 0;
+  TriggerOnTint = glm::vec4{};
+  TriggerOnTintAlpha = 0;
+  AnimCounter = 0;
+  AnimationState = 0;
+  ShakeState = 0;
+  MaskScaleFactor = 65536;
 }
 
 }  // namespace CHLCC
