@@ -597,8 +597,14 @@ VmInstruction(InstTitleMenuOld) {
 VmInstruction(InstSetPlayMode) {
   StartInstruction;
   PopExpression(arg1);
-  MesSkipMode =
-      (arg1 == 4) ? (!Profile::ConfigSystem::SkipRead) + 1 : (uint8_t)arg1;
+
+  if (arg1 == 4) {
+    AutoModeEnabled = false;
+    SkipModeEnabled = true;
+  } else {
+    AutoModeEnabled = arg1 & 0b100;
+    SkipModeEnabled = arg1 & 0b011;
+  }
 }
 VmInstruction(InstSetEVflag) {
   StartInstruction;

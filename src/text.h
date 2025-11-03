@@ -21,9 +21,6 @@ BETTER_ENUM(TextAlignment, int, Left = 0, Center, Right, Block)
 BETTER_ENUM(CharacterTypeFlags, uint8_t, Space = (1 << 0),
             WordStartingPunct = (1 << 1), WordEndingPunct = (1 << 2))
 
-BETTER_ENUM(SkipModeFlags, uint8_t, SkipRead = (1 << 0), SkipAll = (1 << 1),
-            Auto = (1 << 2))
-
 // TODO: think about / profile memory access patterns
 
 enum StringTokenType : uint8_t {
@@ -255,7 +252,7 @@ inline ankerl::unordered_dense::map<uint32_t, uint32_t> NamePlateData;
 void InitNamePlateData(Vm::Sc3Stream& stream);
 uint32_t GetNameId(uint8_t* name, int nameLength);
 
-// Bitfield denoting the skip mode, according to SkipModeFlags
-inline uint8_t MesSkipMode = 0;
+inline bool SkipModeEnabled = false;
+inline bool AutoModeEnabled = false;
 
 }  // namespace Impacto

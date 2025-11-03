@@ -38,21 +38,19 @@ void Init() {
 void Update(float dt) {
   switch (AutoIconCurrentType) {
     case AutoIconType::SpriteAnim:
-      if ((MesSkipMode & SkipModeFlags::Auto) &&
-          SpriteAnim.Direction == AnimationDirection::Out)
+      if (AutoModeEnabled && SpriteAnim.Direction == AnimationDirection::Out)
         SpriteAnim.StartIn();
-      if (!(MesSkipMode & SkipModeFlags::Auto) &&
-          SpriteAnim.Direction == AnimationDirection::In)
+      if (!AutoModeEnabled && SpriteAnim.Direction == AnimationDirection::In)
         SpriteAnim.StartOut();
 
       SpriteAnim.Update(dt);
       break;
 
     case AutoIconType::SpriteAnimFixed:
-      if ((MesSkipMode & SkipModeFlags::Auto) &&
+      if (AutoModeEnabled &&
           FixedSpriteAnim.Direction == AnimationDirection::Out)
         FixedSpriteAnim.StartIn();
-      if (!(MesSkipMode & SkipModeFlags::Auto) &&
+      if (!AutoModeEnabled &&
           FixedSpriteAnim.Direction == AnimationDirection::In)
         FixedSpriteAnim.StartOut();
 
@@ -94,7 +92,7 @@ void Render(glm::vec4 opacityTint) {
       break;
 
     case AutoIconType::CHLCC:
-      if (MesSkipMode & SkipModeFlags::Auto) {
+      if (AutoModeEnabled) {
         const CornersQuad arrowsDest =
             AutoSkipArrowsSprite.ScaledBounds()
                 .RotateAroundCenter(Progress * 2.0f * std::numbers::pi_v<float>)

@@ -166,8 +166,9 @@ VmInstruction(InstMes) {
   int audioId = -1;
   int animationId = 0;
   if (voiced) audioId = ExpressionEval(thread);
-  if (acted) animationId = ExpressionEval(thread);
   PopExpression(characterId);
+  if (acted) animationId = ExpressionEval(thread);
+
   if (characterId >= 32) characterId = 0;
   PopUint16(lineId);
   uint32_t line = MSB ? MsbGetStrAddress(thread->ScriptBufferId, lineId)
@@ -682,39 +683,30 @@ VmInstruction(InstSetRevMes) {
 void ChkMesSkip() {
   bool mesSkip = false;
 
-  if (MesSkipMode & (SkipModeFlags::SkipRead | SkipModeFlags::SkipAll)) {
-    MesSkipMode &= SkipModeFlags::Auto;
-    MesSkipMode |= (Profile::ConfigSystem::SkipRead ? SkipModeFlags::SkipRead
-                                                    : SkipModeFlags::SkipAll);
+  if (Profile::Vm::GameInstructionSet != +InstructionSet::CHLCC &&
+      ScrWork[SW_SYSMESALPHA] != 255) {
+    SkipModeEnabled = false;
+    AutoModeEnabled = false;
   }
-
-  if (ScrWork[SW_SYSMESALPHA] != 255) MesSkipMode = false;
 
   if ((ScrWork[SW_GAMESTATE] & 0b101) == 0b001 && !GetFlag(SF_UIHIDDEN)) {
     // Force skip
     mesSkip |=
         (bool)(Interface::PADinputButtonIsDown & Interface::PADcustom[7]);
 
-    // Skip
     if (Interface::PADinputButtonWentDown & Interface::PADcustom[8]) {
-      if (MesSkipMode & (SkipModeFlags::SkipRead | SkipModeFlags::SkipAll)) {
-        // Turn off all skip modes (leaving auto)
-        MesSkipMode &= SkipModeFlags::Auto;
-      } else {
-        MesSkipMode |=
-            (Profile::ConfigSystem::SkipRead ? SkipModeFlags::SkipRead
-                                             : SkipModeFlags::SkipAll);
-      }
+      SkipModeEnabled = !SkipModeEnabled;
     }
 
-    // Auto
     if (Interface::PADinputButtonWentDown & Interface::PADcustom[9]) {
-      MesSkipMode ^= SkipModeFlags::Auto;
+      AutoModeEnabled = !AutoModeEnabled;
     }
   }
 
-  mesSkip |= (bool)(MesSkipMode & SkipModeFlags::SkipAll);
-  mesSkip |= (MesSkipMode & SkipModeFlags::SkipRead) && GetFlag(SF_MESREAD);
+  if (SkipModeEnabled) {
+    mesSkip |= Profile::ConfigSystem::SkipRead ? GetFlag(SF_MESREAD) : true;
+  }
+
   SetFlag(SF_MESSKIP, mesSkip);
   SetFlag(SF_MESALLSKIP, mesSkip);  // These two are seemingly identical?
 }
