@@ -15,11 +15,15 @@ class DelusionTrigger {
   void Hide();
   void Update(float dt);
   void Render();
+  void Load();
+  void Reset();
 
   static DelusionTrigger& GetInstance() {
     static DelusionTrigger impl;
     return impl;
   };
+
+  UI::MenuState State = UI::Hidden;
 
  protected:
   void UpdateShowing();
@@ -43,7 +47,6 @@ class DelusionTrigger {
   int ShakeState;
   int MaskOffsetX;
   int& DelusionState;
-  UI::MenuState State = UI::Hidden;
 };
 
 }  // namespace CHLCC
