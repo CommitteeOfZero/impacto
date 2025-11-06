@@ -2,6 +2,7 @@
 
 #include "../../inputsystem.h"
 #include "../../vm/interface/input.h"
+#include "../../renderer/window.h"
 
 namespace Impacto {
 namespace UI {
@@ -31,9 +32,15 @@ void ClickArea::UpdateInput(float dt) {
     Hovered = Bounds.ContainsPoint(Input::CurTouchPos);
   }
 
-  if (Clickable && Hovered &&
-      Vm::Interface::PADinputMouseWentDown & Vm::Interface::PAD1A)
-    OnClickHandler(this);
+  if (Clickable && Hovered) {
+    if (Input::CurrentInputDevice == Input::Device::Mouse) {
+      RequestCursor(CursorType::Pointer);
+    }
+
+    if (Vm::Interface::PADinputMouseWentDown & Vm::Interface::PAD1A) {
+      OnClickHandler(this);
+    }
+  }
 }
 
 void ClickArea::Show() {
