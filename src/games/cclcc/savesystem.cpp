@@ -1001,5 +1001,15 @@ Sprite& SaveSystem::GetSaveThumbnail(SaveType type, int id) {
       "Tried to get thumbnail of unimplemented save entry type {}", (int)type));
 }
 
+int SaveSystem::GetQuickSaveOpenSlot() {
+  for (int i = 0; i < MaxSaveEntries; i++) {
+    if (QuickSaveEntries[i]->Status == 0) return i;
+  }
+  for (int i = 0; i < MaxSaveEntries; i++) {
+    if (!(GetSaveFlags(SaveType::Quick, i) & WriteProtect)) return i;
+  }
+  return -1;
+}
+
 }  // namespace CCLCC
 }  // namespace Impacto
