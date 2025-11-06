@@ -18,6 +18,7 @@
 #include <cstdint>
 #include <ctime>
 #include <system_error>
+#include <ranges>
 
 namespace Impacto {
 namespace CCLCC {
@@ -52,7 +53,7 @@ uint32_t CalculateChecksum(std::span<const uint8_t> bufferData,
   return result;
 }
 
-SaveError SaveSystem::CheckSaveFile() {
+SaveError SaveSystem::CheckSaveFile() const {
   std::error_code ec;
 
   IoError existsState = Io::PathExists(SaveFilePath);
@@ -150,9 +151,6 @@ void SaveSystem::LoadEntryBuffer(Io::MemoryStream& stream, SaveFileEntry& entry,
                                  SaveType saveType, Texture& tex) {
   entry.Status = Io::ReadLE<uint8_t>(&stream);
   Io::ReadLE<uint8_t>(&stream);
-  if (entry.Status == 1 && saveType == SaveType::Quick) {
-    QuickSaveCount++;
-  }
   uint16_t checksumSum = Io::ReadLE<uint16_t>(&stream);
   uint16_t checksumXor = Io::ReadLE<uint16_t>(&stream);
 
@@ -318,23 +316,15 @@ SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
 
 void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
                                        int autoSaveType) {
-  SaveFileEntry* entry = nullptr;
-  switch (type) {
-    case SaveType::Quick:
-      entry = (SaveFileEntry*)QuickSaveEntries[id];
-      break;
-    case SaveType::Full:
-      entry = (SaveFileEntry*)FullSaveEntries[id];
-      break;
-  }
-
-  if (entry != nullptr && !(GetSaveFlags(type, id) & WriteProtect)) {
+  auto* entry = GetSaveEntry<SaveFileEntry>(type, id);
+  if (entry != nullptr && !(entry->Flags & WriteProtect)) {
     Renderer->FreeTexture(entry->SaveThumbnail.Sheet.Texture);
     uint8_t savedFlags = entry->Flags;
     *entry = *WorkingSaveEntry;
     entry->Flags = savedFlags;
     if (type == SaveType::Quick) {
       entry->SaveType = autoSaveType;
+      UpdateQuickSaveRecentSortedId(id);
     }
     entry->SaveDate = CurrentDateTime();
     auto captureBuffer =
@@ -502,6 +492,23 @@ SaveError SaveSystem::LoadSystemData() {
   DirectionalInputForTrigger = Io::ReadLE<bool>(&stream);
   TriggerStopSkip = Io::ReadLE<bool>(&stream);
 
+  stream.Seek(0xbce, SEEK_SET);
+  Io::ReadArrayLE<uint8_t>(QuickSaveRecentSortedId.data(), &stream,
+                           QuickSaveRecentSortedId.size());
+  std::array<uint8_t, MaxSaveEntries> sortedIdFreq{};
+
+  // backwards compat with older saves
+  for (uint8_t qsSlotId : QuickSaveRecentSortedId) {
+    if (sortedIdFreq[qsSlotId]++ > 1) {
+      std::iota(QuickSaveRecentSortedId.begin(), QuickSaveRecentSortedId.end(),
+                0);
+      std::ranges::sort(QuickSaveRecentSortedId,
+                        Impacto::SaveSystem::SaveRecencyComparator(),
+                        [this](int id) { return *QuickSaveEntries[id]; });
+      break;
+    }
+  }
+
   // EV Flags
   stream.Seek(0xC0E, SEEK_SET);
   for (int i = 0; i < 150; i++) {
@@ -580,6 +587,10 @@ void SaveSystem::SaveSystemData() {
   Io::WriteLE(&systemSaveStream, DirectionalInputForTrigger);
   Io::WriteLE(&systemSaveStream, TriggerStopSkip);
 
+  systemSaveStream.Seek(0xbce, SEEK_SET);
+  Io::WriteArrayLE<uint8_t>(QuickSaveRecentSortedId.data(), &systemSaveStream,
+                            QuickSaveRecentSortedId.size());
+
   // EV Flags
   systemSaveStream.Seek(0xC0E, SEEK_SET);
   for (int i = 0; i < 150; i++) {
@@ -655,80 +666,37 @@ SaveError SaveSystem::WriteSaveFile() {
   return SaveError::OK;
 }
 
-uint32_t SaveSystem::GetSavePlayTime(SaveType type, int id) {
-  switch (type) {
-    case SaveType::Full:
-      return ((SaveFileEntry*)FullSaveEntries[id])->PlayTime;
-    case SaveType::Quick:
-      return ((SaveFileEntry*)QuickSaveEntries[id])->PlayTime;
-    default:
-      ImpLog(LogLevel::Error, LogChannel::IO,
-             "Failed to get save play time: unknown save type, returning 0\n");
-      return 0;
-  }
+uint32_t SaveSystem::GetSavePlayTime(SaveType type, int id) const {
+  return GetSaveEntry<SaveFileEntry>(type, id)->PlayTime;
 }
 
-uint8_t SaveSystem::GetSaveFlags(SaveType type, int id) {
-  switch (type) {
-    case SaveType::Full:
-      return ((SaveFileEntry*)FullSaveEntries[id])->Flags;
-    case SaveType::Quick:
-      return ((SaveFileEntry*)QuickSaveEntries[id])->Flags;
-    default:
-      ImpLog(LogLevel::Error, LogChannel::IO,
-             "Failed to get save flags: unknown save type, returning 0\n");
-      return 0;
-  }
+uint8_t SaveSystem::GetSaveFlags(SaveType type, int id) const {
+  return GetSaveEntry<SaveFileEntry>(type, id)->Flags;
 }
 
 void SaveSystem::SetSaveFlags(SaveType type, int id, uint8_t flags) {
-  switch (type) {
-    case SaveType::Full:
-      ((SaveFileEntry*)FullSaveEntries[id])->Flags = flags;
-      break;
-    case SaveType::Quick: {
-      uint8_t currentFlags = ((SaveFileEntry*)QuickSaveEntries[id])->Flags;
-      if ((currentFlags ^ flags) & WriteProtect) {
-        if (flags & WriteProtect) {
-          LockedQuickSaveCount++;
-        } else {
-          LockedQuickSaveCount--;
-        }
+  auto* entry = GetSaveEntry<SaveFileEntry>(type, id);
 
-        SetFlag(SF_SAVEALLPROTECTED, LockedQuickSaveCount == MaxSaveEntries);
+  if (type == SaveType::Quick) {
+    uint8_t currentFlags = entry->Flags;
+    if ((currentFlags ^ flags) & WriteProtect) {
+      if (flags & WriteProtect) {
+        LockedQuickSaveCount++;
+      } else {
+        LockedQuickSaveCount--;
       }
-      ((SaveFileEntry*)QuickSaveEntries[id])->Flags = flags;
-      break;
+
+      SetFlag(SF_SAVEALLPROTECTED, LockedQuickSaveCount == MaxSaveEntries);
     }
-    default:
-      ImpLog(LogLevel::Error, LogChannel::IO,
-             "Failed to set save flags: unknown save type, doing nothing\n");
   }
+  entry->Flags = flags;
 }
 
-tm const& SaveSystem::GetSaveDate(SaveType type, int id) {
-  const static tm t = [] {
-    tm tmStruct{};
-    tmStruct.tm_mday = 1;
-    return tmStruct;
-  }();
-
-  switch (type) {
-    case SaveType::Full:
-      return ((SaveFileEntry*)FullSaveEntries[id])->SaveDate;
-    case SaveType::Quick:
-      return ((SaveFileEntry*)QuickSaveEntries[id])->SaveDate;
-    default:
-      ImpLog(LogLevel::Error, LogChannel::IO,
-             "Failed to read save date: Unknown save type, returning empty "
-             "time\n");
-      return t;
-  }
+tm const& SaveSystem::GetSaveDate(SaveType type, int id) const {
+  return GetSaveEntry<SaveFileEntry>(type, id)->SaveDate;
 }
 
 void SaveSystem::SaveMemory() {
-  // TODO: Sys save data
-
   if (WorkingSaveEntry) {
     WorkingSaveEntry->Status = 1;
 
@@ -783,18 +751,7 @@ void SaveSystem::LoadEntry(SaveType type, int id) {
            "Failed to load save memory: no working save\n");
     return;
   }
-  switch (type) {
-    case SaveType::Quick:
-      WorkingSaveEntry = *static_cast<SaveFileEntry*>(QuickSaveEntries[id]);
-      break;
-    case SaveType::Full:
-      WorkingSaveEntry = *static_cast<SaveFileEntry*>(FullSaveEntries[id]);
-      break;
-    default:
-      ImpLog(LogLevel::Error, LogChannel::IO,
-             "Failed to load save memory: unknown save type, doing nothing\n");
-      return;
-  }
+  WorkingSaveEntry = *GetSaveEntry<SaveFileEntry>(type, id);
 }
 
 void SaveSystem::LoadMemoryNew(LoadProcess load) {
@@ -862,37 +819,15 @@ void SaveSystem::LoadMemoryNew(LoadProcess load) {
   }
 }
 
-uint8_t SaveSystem::GetSaveStatus(SaveType type, int id) {
-  switch (type) {
-    case SaveType::Quick:
-      return QuickSaveEntries[id] != nullptr
-                 ? ((SaveFileEntry*)QuickSaveEntries[id])->Status
-                 : 0;
-    case SaveType::Full:
-      return FullSaveEntries[id] != nullptr
-                 ? ((SaveFileEntry*)FullSaveEntries[id])->Status
-                 : 0;
-    default:
-      ImpLog(LogLevel::Error, LogChannel::IO,
-             "Failed to get save status: unknown save type, returning 0\n");
-      return 0;
-  }
+uint8_t SaveSystem::GetSaveStatus(SaveType type, int id) const {
+  return GetSaveEntry<SaveFileEntry>(type, id)->Status;
 }
 
-int SaveSystem::GetSaveTitle(SaveType type, int id) {
-  switch (type) {
-    case SaveType::Quick:
-      return ((SaveFileEntry*)QuickSaveEntries[id])->SwTitle;
-    case SaveType::Full:
-      return ((SaveFileEntry*)FullSaveEntries[id])->SwTitle;
-    default:
-      ImpLog(LogLevel::Error, LogChannel::IO,
-             "Failed to get save title: unknown save type, returning 0\n");
-      return 0;
-  }
+int SaveSystem::GetSaveTitle(SaveType type, int id) const {
+  return GetSaveEntry<SaveFileEntry>(type, id)->SwTitle;
 }
 
-uint32_t SaveSystem::GetTipStatus(size_t tipId) {
+uint32_t SaveSystem::GetTipStatus(size_t tipId) const {
   tipId *= 3;
   uint8_t lockStatus = (GameExtraData[tipId >> 3] & Flbit[tipId & 7]) != 0;
   uint8_t newStatus =
@@ -933,7 +868,7 @@ void SaveSystem::SetLineRead(int scriptId, int lineId) {
   MessageFlags[offset >> 3] |= Flbit[offset & 0b111];
 }
 
-bool SaveSystem::IsLineRead(int scriptId, int lineId) {
+bool SaveSystem::IsLineRead(int scriptId, int lineId) const {
   if (scriptId >= 255) return false;
 
   uint32_t offset = ScriptMessageData[scriptId].SaveDataOffset + lineId;
@@ -944,7 +879,7 @@ bool SaveSystem::IsLineRead(int scriptId, int lineId) {
 }
 
 void SaveSystem::GetReadMessagesCount(int* totalMessageCount,
-                                      int* readMessageCount) {
+                                      int* readMessageCount) const {
   *totalMessageCount = 0;
   *readMessageCount = 0;
 
@@ -958,7 +893,8 @@ void SaveSystem::GetReadMessagesCount(int* totalMessageCount,
   }
 }
 
-void SaveSystem::GetViewedEVsCount(int* totalEVCount, int* viewedEVCount) {
+void SaveSystem::GetViewedEVsCount(int* totalEVCount,
+                                   int* viewedEVCount) const {
   for (int i = 0; i < MaxAlbumEntries; i++) {
     if (AlbumEvData[i][0] == 0xFFFF) break;
     for (int j = 0; j < MaxAlbumSubEntries; j++) {
@@ -969,7 +905,7 @@ void SaveSystem::GetViewedEVsCount(int* totalEVCount, int* viewedEVCount) {
   }
 }
 void SaveSystem::GetEVStatus(int evId, int* totalVariations,
-                             int* viewedVariations) {
+                             int* viewedVariations) const {
   *totalVariations = 0;
   *viewedVariations = 0;
   for (int i = 0; i < MaxAlbumSubEntries; i++) {
@@ -981,12 +917,13 @@ void SaveSystem::GetEVStatus(int evId, int* totalVariations,
 
 void SaveSystem::SetEVStatus(int id) { EVFlags[id] = true; }
 
-bool SaveSystem::GetEVVariationIsUnlocked(size_t evId, size_t variationIdx) {
+bool SaveSystem::GetEVVariationIsUnlocked(size_t evId,
+                                          size_t variationIdx) const {
   if (AlbumEvData[evId][variationIdx] == 0xFFFF) return false;
   return EVFlags[AlbumEvData[evId][variationIdx]];
 }
 
-bool SaveSystem::GetBgmFlag(int id) { return BGMFlags[id]; }
+bool SaveSystem::GetBgmFlag(int id) const { return BGMFlags[id]; }
 void SaveSystem::SetBgmFlag(int id, bool flag) { BGMFlags[id] = flag; }
 
 void SaveSystem::SetCheckpointId(int id) {
@@ -994,15 +931,7 @@ void SaveSystem::SetCheckpointId(int id) {
 }
 
 Sprite& SaveSystem::GetSaveThumbnail(SaveType type, int id) {
-  switch (type) {
-    case SaveType::Quick:
-      return ((SaveFileEntry*)QuickSaveEntries[id])->SaveThumbnail;
-    case SaveType::Full:
-      return ((SaveFileEntry*)FullSaveEntries[id])->SaveThumbnail;
-  }
-
-  throw std::invalid_argument(fmt::format(
-      "Tried to get thumbnail of unimplemented save entry type {}", (int)type));
+  return GetSaveEntry<SaveFileEntry>(type, id)->SaveThumbnail;
 }
 
 void SaveSystem::WaveSave(std::span<int> data) {

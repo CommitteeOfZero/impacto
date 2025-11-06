@@ -5,6 +5,7 @@
 #include <string>
 #include <enum.h>
 #include <ctime>
+#include <numeric>
 #include "../log.h"
 #include "../spritesheet.h"
 #include "../texture/texture.h"
@@ -77,9 +78,23 @@ class SaveFileEntryBase {
   Sprite SaveThumbnail{};
 };
 
+struct SaveRecencyComparator {
+  bool operator()(SaveFileEntryBase const& entryA,
+                  SaveFileEntryBase const& entryB) const {
+    const int statusA = entryA.Status;
+    const int statusB = entryB.Status;
+    if (statusA == statusB) {
+      std::tm const& ta = entryA.SaveDate;
+      std::tm const& tb = entryB.SaveDate;
+      return timegm(ta) > timegm(tb);
+    }
+    return statusA > statusB;
+  }
+};
+
 class SaveSystemBase {
  public:
-  virtual SaveError CheckSaveFile() = 0;
+  virtual SaveError CheckSaveFile() const = 0;
   virtual SaveError MountSaveFile(std::vector<QueuedTexture>& textures) = 0;
 
   virtual void SaveMemory() = 0;
@@ -97,47 +112,61 @@ class SaveSystemBase {
 
   virtual void SaveThumbnailData() = 0;
   virtual SaveError WriteSaveFile() = 0;
-  virtual uint32_t GetSavePlayTime(SaveType type, int id) = 0;
-  virtual uint8_t GetSaveFlags(SaveType type, int id) = 0;
+  virtual uint32_t GetSavePlayTime(SaveType type, int id) const = 0;
+  virtual uint8_t GetSaveFlags(SaveType type, int id) const = 0;
   virtual void SetSaveFlags(SaveType type, int id, uint8_t flags) = 0;
-  virtual tm const& GetSaveDate(SaveType type, int id) = 0;
-  virtual uint8_t GetSaveStatus(SaveType type, int id) = 0;
-  virtual int GetSaveTitle(SaveType type, int id) = 0;
-  virtual uint32_t GetTipStatus(size_t tipId) = 0;
+  virtual tm const& GetSaveDate(SaveType type, int id) const = 0;
+  virtual uint8_t GetSaveStatus(SaveType type, int id) const = 0;
+  virtual int GetSaveTitle(SaveType type, int id) const = 0;
+  virtual uint32_t GetTipStatus(size_t tipId) const = 0;
   virtual void SetTipStatus(size_t tipId, bool isLocked, bool isUnread,
                             bool isNew) = 0;
   virtual void SetLineRead(int scriptId, int lineId) = 0;
-  virtual bool IsLineRead(int scriptId, int MessageId) = 0;
+  virtual bool IsLineRead(int scriptId, int MessageId) const = 0;
   virtual void GetReadMessagesCount(int* totalMessageCount,
-                                    int* readMessageCount) = 0;
-  virtual void GetViewedEVsCount(int* totalEVCount, int* viewedEVCount) = 0;
+                                    int* readMessageCount) const = 0;
+  virtual void GetViewedEVsCount(int* totalEVCount,
+                                 int* viewedEVCount) const = 0;
   virtual void GetEVStatus(int evId, int* totalVariations,
-                           int* viewedVariations) = 0;
+                           int* viewedVariations) const = 0;
   virtual void SetEVStatus(int id) = 0;
-  virtual bool GetEVVariationIsUnlocked(size_t evId, size_t variationIdx) = 0;
-  virtual bool GetBgmFlag(int id) = 0;
+  virtual bool GetEVVariationIsUnlocked(size_t evId,
+                                        size_t variationIdx) const = 0;
+  virtual bool GetBgmFlag(int id) const = 0;
   virtual void SetBgmFlag(int id, bool flag) = 0;
   virtual void SetCheckpointId(int id) = 0;
   virtual Sprite& GetSaveThumbnail(SaveType type, int id) = 0;
-  int GetQuickSaveOpenSlot() {
-    for (int i = 0; i < MaxSaveEntries; i++) {
-      if (QuickSaveEntries[i]->Status == 0) return i;
-    }
-    for (int i = 0; i < MaxSaveEntries; i++) {
-      if (!(GetSaveFlags(SaveType::Quick, i) & WriteProtect)) return i;
-    }
-    return -1;
-  }
+  std::optional<uint8_t> GetQuickSaveOpenSlot() const;
+  void UpdateQuickSaveRecentSortedId(int replacedSlot);
   Sprite& GetWorkingSaveThumbnail() { return WorkingSaveThumbnail; }
-  int GetLockedQuickSaveCount();
+  int GetLockedQuickSaveCount() const;
   void SetLockedQuickSaveCount(int value);
   bool HasQSavedOnCurrentLine() const;
   void SetQSavedOnCurrentLine(bool value);
 
+  template <typename T>
+  T* GetSaveEntry(SaveType type, int position) const
+    requires(std::derived_from<T, SaveFileEntryBase>)
+  {
+    switch (type) {
+      case SaveType::Full:
+        return static_cast<T*>(FullSaveEntries[position]);
+      case SaveType::Quick:
+        return static_cast<T*>(
+            QuickSaveEntries[QuickSaveRecentSortedId[position]]);
+    }
+    throw std::invalid_argument(fmt::format(
+        "Invalid save type provided to GetSaveEntry: {}", (int)type));
+  }
+
  protected:
   SaveFileEntryBase* FullSaveEntries[MaxSaveEntries];
   SaveFileEntryBase* QuickSaveEntries[MaxSaveEntries];
-  int QuickSaveCount;
+  std::array<uint8_t, MaxSaveEntries> QuickSaveRecentSortedId = [] {
+    std::array<uint8_t, MaxSaveEntries> tmp;
+    std::iota(tmp.begin(), tmp.end(), 0);
+    return tmp;
+  }();
   Sprite WorkingSaveThumbnail;
   int LockedQuickSaveCount;
   bool QuickSavedOnCurrentLine;
@@ -177,7 +206,8 @@ bool GetEVVariationIsUnlocked(size_t evId, size_t variationIdx);
 bool GetBgmFlag(int id);
 void SetBgmFlag(int id, bool setFlag);
 void SetCheckpointId(int id);
-int GetQuickSaveOpenSlot();
+std::optional<uint8_t> GetQuickSaveOpenSlot();
+void UpdateQuickSaveRecentSortedId(int replacedSlot);
 Sprite& GetSaveThumbnail(SaveType type, int id);
 Sprite& GetWorkingSaveThumbnail();
 bool HasQSavedOnCurrentLine();

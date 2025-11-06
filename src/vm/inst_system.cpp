@@ -952,11 +952,11 @@ VmInstruction(InstDebugData) {
 VmInstruction(InstAutoSave) {
   using namespace Profile::ConfigSystem;
   const auto quickSave = [](const int saveType) {
-    int quicksaveEntries = SaveSystem::GetQuickSaveOpenSlot();
-    if (quicksaveEntries != -1) {
+    auto quicksaveEntries = SaveSystem::GetQuickSaveOpenSlot();
+    if (quicksaveEntries) {
       SaveIconDisplay::ShowFor(2.4f);
       SaveSystem::FlushWorkingSaveEntry(SaveSystem::SaveType::Quick,
-                                        quicksaveEntries, saveType);
+                                        *quicksaveEntries, saveType);
       SaveSystem::SaveThumbnailData();
     }
   };
@@ -997,11 +997,11 @@ VmInstruction(InstAutoSave) {
     } break;
 
     case 3: {  // DisableAutoSave
-      int quicksaveEntries = SaveSystem::GetQuickSaveOpenSlot();
-      if (quicksaveEntries != -1) {
+      auto quicksaveEntries = SaveSystem::GetQuickSaveOpenSlot();
+      if (quicksaveEntries.has_value()) {
         SaveIconDisplay::ShowFor(2.4f);
         SaveSystem::FlushWorkingSaveEntry(SaveSystem::SaveType::Quick,
-                                          quicksaveEntries, 0);
+                                          *quicksaveEntries, 0);
         SaveSystem::SaveThumbnailData();
       }
       SaveSystem::SetQSavedOnCurrentLine(true);
@@ -1080,11 +1080,11 @@ VmInstruction(InstAutoSave) {
 VmInstruction(InstAutoSaveOld) {
   using namespace Impacto::Profile::ConfigSystem;
   const auto quickSave = [](const int saveType) {
-    int quicksaveEntries = SaveSystem::GetQuickSaveOpenSlot();
-    if (quicksaveEntries != -1) {
+    auto quicksaveId = SaveSystem::GetQuickSaveOpenSlot();
+    if (quicksaveId) {
       SaveIconDisplay::ShowFor(2.4f);
       SaveSystem::FlushWorkingSaveEntry(SaveSystem::SaveType::Quick,
-                                        quicksaveEntries, saveType);
+                                        *quicksaveId, saveType);
       SaveSystem::SaveThumbnailData();
     }
   };
@@ -1121,11 +1121,11 @@ VmInstruction(InstAutoSaveOld) {
     } break;
 
     case 3: {  // DisableAutoSave
-      int quicksaveEntries = SaveSystem::GetQuickSaveOpenSlot();
-      if (quicksaveEntries != -1) {
+      auto quicksaveEntries = SaveSystem::GetQuickSaveOpenSlot();
+      if (quicksaveEntries) {
         SaveIconDisplay::ShowFor(2.4f);
         SaveSystem::FlushWorkingSaveEntry(SaveSystem::SaveType::Quick,
-                                          quicksaveEntries, 0);
+                                          *quicksaveEntries, 0);
         SaveSystem::SaveThumbnailData();
       }
       SaveSystem::SetQSavedOnCurrentLine(true);

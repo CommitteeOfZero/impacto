@@ -16,7 +16,7 @@ using namespace Impacto::Profile::CCLCC::SaveMenu;
 using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::SaveSystem;
 
-SaveEntryButton::SaveEntryButton(int id, int index, Sprite const& focusedBox,
+SaveEntryButton::SaveEntryButton(int id, Sprite const& focusedBox,
                                  Sprite const& focusedText, int page,
                                  glm::vec2 pos, Sprite lockedSymbol,
                                  SaveSystem::SaveType saveType,
@@ -26,7 +26,6 @@ SaveEntryButton::SaveEntryButton(int id, int index, Sprite const& focusedBox,
           Sprite(SpriteSheet(), focusedBox.Bounds.X, focusedBox.Bounds.Y,
                  focusedBox.Bounds.Width, focusedBox.Bounds.Height),
           Sprite(SpriteSheet(), 0, 0, 0, 0), focusedBox, pos),
-      Index(index),
       Page(page),
       Type(saveType),
       FocusedSpriteLabel(focusedText, glm::vec2{pos.x, pos.y - 34}),
@@ -77,11 +76,11 @@ void SaveEntryButton::Render() {
                                     .Translate(Bounds.GetPos());
   Renderer->DrawSprite(
       NumberDigitSprite[UI::SaveMenuPtr->ActiveMenuType->_to_integral()]
-                       [(Index + 1) / 10],
+                       [(Id + 1) / 10],
       RectF(numberDigitDest).Translate({720, 120}), Tint);
   Renderer->DrawSprite(
       NumberDigitSprite[UI::SaveMenuPtr->ActiveMenuType->_to_integral()]
-                       [(Index + 1) % 10],
+                       [(Id + 1) % 10],
       RectF(numberDigitDest).Translate({752, 120}), Tint);
 
   if (SaveStatus == 1) {

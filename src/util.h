@@ -532,15 +532,7 @@ inline int GetScriptBufferId(int bufIdBySurf) {
   return bufIdBySurf <= 0 ? 0 : (1 << (bufIdBySurf - 1));
 }
 
-constexpr int days_from_epoch(int y, int m, int d) {
-  y -= m <= 2;
-  const int era = y / 400;
-  const int yoe = y - era * 400;                                   // [0, 399]
-  const int doy = (153 * (m + (m > 2 ? -3 : 9)) + 2) / 5 + d - 1;  // [0, 365]
-  const int doe = yoe * 365 + yoe / 4 - yoe / 100 + doy;  // [0, 146096]
-  return era * 146097 + doe - 719468;
-}
-
+// https://stackoverflow.com/a/58037981/27686485
 constexpr time_t timegm(tm const& t) {
   int year = t.tm_year + 1900;
   int month = t.tm_mon;  // 0-11
@@ -552,9 +544,18 @@ constexpr time_t timegm(tm const& t) {
     year -= years_diff;
     month += 12 * years_diff;
   }
-  const int days_since_epoch = days_from_epoch(year, month + 1, t.tm_mday);
+  constexpr auto daysFromEpoch = [](int y, int m, int d) {
+    y -= m <= 2;
+    const int era = y / 400;
+    const int yoe = y - era * 400;                                   // [0, 399]
+    const int doy = (153 * (m + (m > 2 ? -3 : 9)) + 2) / 5 + d - 1;  // [0, 365]
+    const int doe = yoe * 365 + yoe / 4 - yoe / 100 + doy;  // [0, 146096]
+    return era * 146097 + doe - 719468;
+  };
 
-  return 60 * (60 * (24L * days_since_epoch + t.tm_hour) + t.tm_min) + t.tm_sec;
+  const int daysSinceEpoch = daysFromEpoch(year, month + 1, t.tm_mday);
+
+  return 60 * (60 * (24L * daysSinceEpoch + t.tm_hour) + t.tm_min) + t.tm_sec;
 }
 
 }  // namespace Impacto

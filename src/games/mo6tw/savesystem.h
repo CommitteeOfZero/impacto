@@ -17,7 +17,7 @@ class SaveFileEntry : public SaveFileEntryBase {
 
 class SaveSystem : public SaveSystemBase {
  public:
-  SaveError CheckSaveFile() override { return SaveError::OK; }  // Todo
+  SaveError CheckSaveFile() const override { return SaveError::OK; }  // Todo
   SaveError MountSaveFile(std::vector<QueuedTexture>& textures) override;
 
   SaveError LoadSystemData() override;
@@ -29,25 +29,26 @@ class SaveSystem : public SaveSystemBase {
   void LoadEntry(SaveType type, int id) override;
   void FlushWorkingSaveEntry(SaveType type, int id, int autoSaveType) override;
   SaveError WriteSaveFile() override;
-  uint32_t GetSavePlayTime(SaveType type, int id) override;
-  uint8_t GetSaveFlags(SaveType type, int id) override;
+  uint32_t GetSavePlayTime(SaveType type, int id) const override;
+  uint8_t GetSaveFlags(SaveType type, int id) const override;
   void SetSaveFlags(SaveType type, int id, uint8_t flags) override;
-  tm const& GetSaveDate(SaveType type, int id) override;
-  uint8_t GetSaveStatus(SaveType type, int id) override;
-  int GetSaveTitle(SaveType type, int id) override;
-  uint32_t GetTipStatus(size_t tipId) override;
+  tm const& GetSaveDate(SaveType type, int id) const override;
+  uint8_t GetSaveStatus(SaveType type, int id) const override;
+  int GetSaveTitle(SaveType type, int id) const override;
+  uint32_t GetTipStatus(size_t tipId) const override;
   void SetTipStatus(size_t tipId, bool isLocked, bool isUnread,
                     bool isNew) override;
   void SetLineRead(int scriptId, int lineId) override;
-  bool IsLineRead(int scriptId, int lineId) override;
+  bool IsLineRead(int scriptId, int lineId) const override;
   void GetReadMessagesCount(int* totalMessageCount,
-                            int* readMessageCount) override;
-  void GetViewedEVsCount(int* totalEVCount, int* viewedEVCount) override;
+                            int* readMessageCount) const override;
+  void GetViewedEVsCount(int* totalEVCount, int* viewedEVCount) const override;
   void GetEVStatus(int evId, int* totalVariations,
-                   int* viewedVariations) override;
+                   int* viewedVariations) const override;
   void SetEVStatus(int evId) override;
-  bool GetEVVariationIsUnlocked(size_t evId, size_t variationIdx) override;
-  bool GetBgmFlag(int id) override;
+  bool GetEVVariationIsUnlocked(size_t evId,
+                                size_t variationIdx) const override;
+  bool GetBgmFlag(int id) const override;
   void SetBgmFlag(int id, bool flag) override;
   void SetCheckpointId(int id) override {}
   Sprite& GetSaveThumbnail(SaveType type, int id) override;

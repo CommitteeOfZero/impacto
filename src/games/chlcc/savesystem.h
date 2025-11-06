@@ -35,7 +35,7 @@ class SaveFileEntry : public SaveFileEntryBase {
 
 class SaveSystem : public SaveSystemBase {
  public:
-  SaveError CheckSaveFile() override;
+  SaveError CheckSaveFile() const override;
   SaveError MountSaveFile(std::vector<QueuedTexture>& textures) override;
 
   SaveError LoadSystemData() override;
@@ -53,29 +53,30 @@ class SaveSystem : public SaveSystemBase {
   void SaveMemory() override;
 
   SaveError WriteSaveFile() override;
-  uint32_t GetSavePlayTime(SaveType type, int id) override;
-  uint8_t GetSaveFlags(SaveType type, int id) override;
+  uint32_t GetSavePlayTime(SaveType type, int id) const override;
+  uint8_t GetSaveFlags(SaveType type, int id) const override;
   void SetSaveFlags(SaveType type, int id, uint8_t flags) override;
-  tm const& GetSaveDate(SaveType type, int id) override;
-  uint8_t GetSaveStatus(SaveType type, int id) override;
-  int GetSaveTitle(SaveType type, int id) override;
+  tm const& GetSaveDate(SaveType type, int id) const override;
+  uint8_t GetSaveStatus(SaveType type, int id) const override;
+  int GetSaveTitle(SaveType type, int id) const override;
 
-  uint32_t GetTipStatus(size_t tipId) override;
+  uint32_t GetTipStatus(size_t tipId) const override;
   void SetTipStatus(size_t tipId, bool isLocked, bool isUnread,
                     bool isNew) override;
 
   void SetLineRead(int scriptId, int lineId) override;
-  bool IsLineRead(int scriptId, int lineId) override;
+  bool IsLineRead(int scriptId, int lineId) const override;
   void GetReadMessagesCount(int* totalMessageCount,
-                            int* readMessageCount) override;
+                            int* readMessageCount) const override;
 
-  void GetViewedEVsCount(int* totalEVCount, int* viewedEVCount) override;
+  void GetViewedEVsCount(int* totalEVCount, int* viewedEVCount) const override;
   void GetEVStatus(int evId, int* totalVariations,
-                   int* viewedVariations) override;
+                   int* viewedVariations) const override;
   void SetEVStatus(int id) override;
-  bool GetEVVariationIsUnlocked(size_t evId, size_t variationIdx) override;
+  bool GetEVVariationIsUnlocked(size_t evId,
+                                size_t variationIdx) const override;
 
-  bool GetBgmFlag(int id) override;
+  bool GetBgmFlag(int id) const override;
   void SetBgmFlag(int id, bool flag) override;
 
   void SetCheckpointId(int id) override {}
@@ -88,6 +89,7 @@ class SaveSystem : public SaveSystemBase {
   std::array<uint8_t, 0x3afc> SystemData;
   std::array<bool, 1200> EVFlags;
   std::array<uint8_t, 100> BGMFlags;
+  uint8_t QuickSaveCount{};
 };
 
 }  // namespace CHLCC

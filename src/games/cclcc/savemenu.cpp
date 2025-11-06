@@ -72,25 +72,6 @@ void SaveMenu::Show() {
             ? SaveSystem::SaveType::Quick
             : SaveSystem::SaveType::Full;
 
-    std::array<int, SaveSystem::MaxSaveEntries> saveEntryIds;
-    for (int i = 0; i < SaveSystem::MaxSaveEntries; i++) {
-      saveEntryIds[i] = i;
-    }
-    if (saveType == SaveSystem::SaveType::Quick) {
-      // quick saves are sorted by time and status
-      std::sort(saveEntryIds.begin(), saveEntryIds.end(),
-                [saveType](int a, int b) {
-                  const int statusA = SaveSystem::GetSaveStatus(saveType, a);
-                  const int statusB = SaveSystem::GetSaveStatus(saveType, b);
-                  if (statusA == statusB) {
-                    std::tm const& ta = SaveSystem::GetSaveDate(saveType, a);
-                    std::tm const& tb = SaveSystem::GetSaveDate(saveType, b);
-                    return timegm(ta) > timegm(tb);
-                  }
-                  return statusA > statusB;
-                });
-    }
-
     for (int p = 0; p < Pages; ++p) {
       MainItems[p] = new Widgets::Group(this);
       MainItems[p]->WrapFocus = false;
@@ -104,7 +85,7 @@ void SaveMenu::Show() {
                   ? glm::vec2{EntryStartXL, EntryStartYL + (i * EntryYPadding)}
                   : glm::vec2{EntryStartXR, EntryStartYR + (i * EntryYPadding)};
           SaveEntryButton* saveEntryButton = new SaveEntryButton(
-              saveEntryIds[id], id, EntryHighlightedBoxSprite[*ActiveMenuType],
+              id, EntryHighlightedBoxSprite[*ActiveMenuType],
               EntryHighlightedTextSprite[*ActiveMenuType], p, buttonPos,
               SlotLockedSprite[ActiveMenuType], saveType,
               NoDataSprite[*ActiveMenuType], BrokenDataSprite[*ActiveMenuType]);

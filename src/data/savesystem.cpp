@@ -276,11 +276,16 @@ void SetCheckpointId(int id) {
   if (Implementation) Implementation->SetCheckpointId(id);
 }
 
-int GetQuickSaveOpenSlot() {
+std::optional<uint8_t> GetQuickSaveOpenSlot() {
   if (Implementation) return Implementation->GetQuickSaveOpenSlot();
   ImpLog(LogLevel::Warning, LogChannel::VMStub,
-         "{:s}: save system not implemented, returning -1\n", __func__);
-  return -1;
+         "{:s}: save system not implemented, returning nullopt\n", __func__);
+  return std::nullopt;
+}
+
+void UpdateQuickSaveRecentSortedId(int openSlot) {
+  if (Implementation)
+    return Implementation->UpdateQuickSaveRecentSortedId(openSlot);
 }
 
 Sprite& GetSaveThumbnail(SaveType type, int id) {
@@ -312,7 +317,9 @@ void SetQSavedOnCurrentLine(bool value) {
   if (Implementation) Implementation->SetQSavedOnCurrentLine(value);
 }
 
-int SaveSystemBase::GetLockedQuickSaveCount() { return LockedQuickSaveCount; }
+int SaveSystemBase::GetLockedQuickSaveCount() const {
+  return LockedQuickSaveCount;
+}
 
 void SaveSystemBase::SetLockedQuickSaveCount(int value) {
   LockedQuickSaveCount = value;
@@ -324,6 +331,32 @@ bool SaveSystemBase::HasQSavedOnCurrentLine() const {
 
 void SaveSystemBase::SetQSavedOnCurrentLine(bool value) {
   QuickSavedOnCurrentLine = value;
+}
+
+std::optional<uint8_t> SaveSystemBase::GetQuickSaveOpenSlot() const {
+  // First unsaved slot
+  for (int i = 0; i < MaxSaveEntries; i++) {
+    if (QuickSaveEntries[QuickSaveRecentSortedId[i]]->Status == 0) {
+      return i;
+    };
+  }
+
+  // Oldest unlocked slot,
+  for (int i = MaxSaveEntries - 1; i >= 0; --i) {
+    if ((QuickSaveEntries[QuickSaveRecentSortedId[i]]->Flags & WriteProtect) ==
+        0) {
+      return i;
+    }
+  }
+
+  return std::nullopt;
+}
+
+void SaveSystemBase::UpdateQuickSaveRecentSortedId(int replacementSlot) {
+  auto replacementSlotId = QuickSaveRecentSortedId[replacementSlot];
+  std::shift_right(QuickSaveRecentSortedId.begin(),
+                   QuickSaveRecentSortedId.begin() + replacementSlot + 1, 1);
+  QuickSaveRecentSortedId[0] = replacementSlotId;
 }
 
 }  // namespace SaveSystem
