@@ -1,7 +1,11 @@
 #include "yuvframe.h"
 #include "../../log.h"
 
+#if __VITA__
+#include <vitaGL.h>
+#else
 #include <glad/glad.h>
+#endif
 
 namespace Impacto {
 namespace OpenGL {

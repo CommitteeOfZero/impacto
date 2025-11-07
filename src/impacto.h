@@ -11,7 +11,11 @@
 #include <SDL.h>
 
 #ifndef IMPACTO_DISABLE_OPENGL
+#if __VITA__
+#include <vitaGL.h>
+#else
 #include <glad/glad.h>
+#endif
 #endif
 
 #ifndef IMPACTO_DISABLE_IMGUI

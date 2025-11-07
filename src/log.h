@@ -4,7 +4,11 @@
 #include "util.h"
 
 #ifndef IMPACTO_DISABLE_OPENGL
+#if __VITA__
+#include <vitaGL.h>
+#else
 #include <glad/glad.h>
+#endif
 #endif
 
 namespace Impacto {
@@ -188,11 +192,13 @@ void ImpLog(LogLevel level, LogChannel channel, fmt::format_string<T...> format,
 #define ImpLogSlow(...) (void)0
 #endif
 
+#ifndef __VITA__
 #ifndef IMPACTO_DISABLE_OPENGL
 void GLAPIENTRY LogGLMessageCallback(GLenum source, GLenum type, GLuint id,
                                      GLenum severity, GLsizei length,
                                      const GLchar* message,
                                      const void* userParam);
+#endif
 #endif
 
 }  // namespace Impacto

@@ -6,6 +6,10 @@ endif()
 
 project("impacto")
 
+if(DEFINED ENV{VITASDK})
+    set(VITA $ENV{VITASDK})
+endif()
+
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/modules")
 include(FetchContent)
 
@@ -693,14 +697,14 @@ set(Impacto_Lib_Targets
     squish
 )
 
-if (NX OR EMSCRIPTEN)
+if (NX OR EMSCRIPTEN OR VITA)
     set(IMPACTO_DISABLE_VULKAN ON)
     set(IMPACTO_DISABLE_DX9 ON)
     set(IMPACTO_DISABLE_MMAP ON)
     set(BUILD_SHARED_LIBS OFF)
 endif ()
 
-if(ANDROID)
+if(ANDROID OR VITA)
     set(IMPACTO_DISABLE_IMGUI ON)
 endif ()
 
@@ -728,13 +732,17 @@ else ()
 endif ()
 
 
-if(ANDROID OR NX)
+if(ANDROID OR NX OR VITA)
     set(BUILD_SHARED_LIBS OFF)
     set(LIBATRAC9_BUILD_SHARED OFF)
 endif()
 
 if(NX)
     add_compile_definitions(__SWITCH__)
+endif()
+
+if (VITA)
+    add_compile_definitions(__VITA__)
 endif()
 
 # dependencies
@@ -842,7 +850,7 @@ if (WIN32)
     set(SDL2_LIBRARIES SDL2::SDL2 SDL2::SDL2main)
 endif ()
 
-if (NOT NX) # avoid CMAKE_DL_LIBS for NX
+if (NOT NX AND NOT VITA) # avoid CMAKE_DL_LIBS for NX
     list(APPEND Impacto_Libs
         ${CMAKE_DL_LIBS}
     )
@@ -1040,7 +1048,6 @@ if (NOT DEFINED IMPACTO_DISABLE_OPENGL)
             src/renderer/opengl/yuvframe.cpp
             src/renderer/opengl/3d/renderable3d.cpp
             src/renderer/opengl/3d/scene.cpp
-
             vendor/glad/src/glad.c
     )
     list(APPEND Impacto_Header
@@ -1065,7 +1072,31 @@ if (NOT DEFINED IMPACTO_DISABLE_FFMPEG)
             src/video/ffmpegstream.h
     )
 
-    if (NOT VCPKG_TOOLCHAIN)
+    if (VITA)
+        if(NOT BUILD_SHARED_LIBS)
+            set(AV_ENABLE_SHARED OFF CACHE BOOL "Enable shared library build (Off)" FORCE)
+        endif()
+        FetchContent_Declare(
+                avcpp
+                GIT_REPOSITORY "https://github.com/h4tr3d/avcpp"
+                GIT_TAG "v2.4.0"
+                UPDATE_DISCONNECTED 1
+                SYSTEM
+                GIT_SUBMODULES ""
+        )
+
+        FetchContent_MakeAvailable(avcpp)
+
+        list(APPEND Impacto_Libs
+                avcpp
+        )
+
+        list(APPEND Impacto_Libs
+                ${FFMPEG_LIBRARIES}
+        )
+        list(APPEND Impacto_Include_Dirs ${FFMPEG_INCLUDE_DIRS})
+        list(APPEND Impacto_Include_Dirs ${AvCpp_SOURCE_DIR}/src)
+    elseif (NOT VCPKG_TOOLCHAIN)
         set(AVCPP_PATCH git apply ${CMAKE_CURRENT_SOURCE_DIR}/vendor/patches/avcpp.patch)
         if(NOT BUILD_SHARED_LIBS)
             set(AV_ENABLE_SHARED OFF CACHE BOOL "Enable shared library build (Off)" FORCE)            
@@ -1091,7 +1122,6 @@ if (NOT DEFINED IMPACTO_DISABLE_FFMPEG)
         )
         list(APPEND Impacto_Include_Dirs ${FFMPEG_INCLUDE_DIRS})
         list(APPEND Impacto_Include_Dirs ${AvCpp_SOURCE_DIR}/src)
-
     else ()
         find_package(avcpp CONFIG REQUIRED)
         list(APPEND Impacto_Libs
@@ -1272,6 +1302,8 @@ target_precompile_headers(impacto PRIVATE
 if (ANDROID)
     install(TARGETS impacto LIBRARY DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/jniLibs/${CMAKE_ANDROID_ARCH_ABI})
 elseif (NX)
+    install(TARGETS impacto RUNTIME DESTINATION .)
+elseif (VITA)
     install(TARGETS impacto RUNTIME DESTINATION .)
 elseif (WIN32)
     install(TARGETS impacto RUNTIME DESTINATION .)

@@ -3,6 +3,7 @@ on:
   push:
     branches:
     - "master"
+    - "vita-build"
     tags:
     - "*"
   pull_request_target:
@@ -256,6 +257,85 @@ jobs:
           path: impacto-switch-${{ env.VERSION }}${{ github.run_number }}-${{ github.sha }}.zip
           name: release-switch
 
+  vita:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    needs:
+      - lint
+      - get-version
+    permissions:
+      contents: read
+    env:
+      VERSION: ${{ needs.get-version.outputs.VERSION }}
+      VITASDK: $HOME/vitasdk
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ needs.lint.outputs.commitid }}
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake git build-essential autoconf texinfo bison flex libtool pkg-config libopenal-dev
+
+      - name: Build VitaSDK from PR branch (only if not cached)
+        run: |
+          git clone https://github.com/vitasdk/buildscripts.git
+          cd buildscripts
+          git fetch origin pull/136/head:pr-136
+          git checkout pr-136
+          
+          mkdir build && cd build
+          cmake .. -DCMAKE_INSTALL_PREFIX=$VITASDK -DDOWNLOAD_DIR=$HOME/vitasdk_tarballs -DOFFLINE=NO
+          make -j2
+          mkdir -p "$VITASDK/bin" "$VITASDK/lib" "$VITASDK/include" "$VITASDK/share"
+
+          cp toolchain_build/arm-vita-eabi/bin/* "$VITASDK/bin/"
+          
+          cp -r toolchain_build/arm-vita-eabi/lib "$VITASDK/"
+          cp -r toolchain_build/arm-vita-eabi/include "$VITASDK/"
+          
+          cp -r toolchain_build/share "$VITASDK/"
+
+      - name: Add VitaSDK to PATH
+        run: echo "$VITASDK/bin" >> $GITHUB_PATH
+
+      - name: Verify VitaSDK
+        run: |
+          arm-vita-eabi-g++ --version
+
+      - name: Build project
+        run: |
+          export VITASDK=$HOME/vitasdk
+          export PATH=$VITASDK/bin:$PATH
+          vdpm sdl2 openal-soft zlib libogg libvorbis libwebp ffmpeg vitaGL vitaShaRK
+          
+          cmake . -DCMAKE_TOOLCHAIN_FILE=$VITASDK/share/vita.toolchain.cmake
+  
+          make -j$(nproc)
+          make vpk
+        shell: bash
+
+      - name: Package Vita build
+        run: |
+          mkdir -p release/ci-release
+          cp impacto.elf release/ci-release/
+          cp -r assets release/ci-release/
+          cp -r shaders release/ci-release/
+          cp THIRDPARTY.md README.md LICENSE release/ci-release/
+        shell: bash
+
+      - name: Archive Artifacts
+        run: |
+          mv ./release/ci-release ./release/impacto
+          7z u impacto-vita-${{ env.VERSION }}${{ github.run_number }}-${{ github.sha }}.zip ./release/impacto
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4.1.0
+        with:
+          path: impacto-vita-${{ env.VERSION }}${{ github.run_number }}-${{ github.sha }}.zip
+          name: release-vita
+
   publish_artifacts:
     name: Publish Artifacts
     runs-on: ubuntu-22.04
@@ -264,10 +344,11 @@ jobs:
     needs:
     - job-matrix
     - switch
+    - vita
     - get-version
     env:
       VERSION: ${{ needs.get-version.outputs.VERSION }}
-    if: needs.job-matrix.result == 'success' && needs.switch.result == 'success' && github.event_name != 'pull_request_target' && ((startsWith(github.ref, 'refs/tags') || github.ref_name == 'master'))
+    if: needs.job-matrix.result == 'success' && needs.switch.result == 'success' && needs.vita.result == 'success' && github.event_name != 'pull_request_target' && ((startsWith(github.ref, 'refs/tags') || github.ref_name == 'master'))
     steps:
     - uses: actions/download-artifact@v4
       with:
@@ -313,6 +394,7 @@ jobs:
     needs:
     - job-matrix
     - switch
+    - vita
     if: always() && (contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled'))
     steps:
     - uses: actions/checkout@v2
@@ -357,6 +439,7 @@ jobs:
           macos-arm64: ${{steps.get_jobs_status.outputs.macos-arm64}} 
           macos-x64: ${{steps.get_jobs_status.outputs.macos-x64}} 
           switch: ${{steps.get_jobs_status.outputs.switch}} 
+          vita: ${{steps.get_jobs_status.outputs.vita}} 
           android: ${{steps.get_jobs_status.outputs.android}} 
 
           Details:

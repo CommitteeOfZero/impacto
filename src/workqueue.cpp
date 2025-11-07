@@ -7,11 +7,11 @@
 
 #if IMPACTO_HAVE_THREADS
 #include <thread>
-#if __SWITCH__
+#if __SWITCH__ || __VITA__
 #define __unix__
 #endif
 #include <blockingconcurrentqueue.h>
-#if __SWITCH__
+#if __SWITCH__ || __VITA__
 #undef __unix__
 #endif
 #endif

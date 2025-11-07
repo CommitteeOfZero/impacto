@@ -11,11 +11,11 @@
 #include <thread>
 #include <memory>
 #include <type_traits>
-#if __SWITCH__
+#if __SWITCH__ || __VITA__
 #define __unix__
 #endif
 #include <readerwritercircularbuffer.h>
-#if __SWITCH__
+#if __SWITCH__ || __VITA__
 #undef __unix__
 #endif
 

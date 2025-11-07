@@ -1,6 +1,10 @@
 #pragma once
 
+#if __VITA__
+#include <vitaGL.h>
+#else
 #include <glad/glad.h>
+#endif
 #include <glm/glm.hpp>
 #include <ankerl/unordered_dense.h>
 #include <string>

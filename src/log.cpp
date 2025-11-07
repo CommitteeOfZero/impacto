@@ -126,7 +126,7 @@ void LogInit() {
   SetSDLLogger(SDLLogger);
   SDL_LogSetPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_VERBOSE);
 }
-
+#ifndef __VITA__
 #ifndef IMPACTO_DISABLE_OPENGL
 void GLAPIENTRY LogGLMessageCallback(GLenum source, GLenum type, GLuint id,
                                      GLenum severity, GLsizei length,
@@ -210,6 +210,7 @@ void GLAPIENTRY LogGLMessageCallback(GLenum source, GLenum type, GLuint id,
          "type={:s}, source={:s}, id={:d}, message: {:s}\n", typeStr, sourceStr,
          id, message);
 }
+#endif
 #endif
 
 }  // namespace Impacto

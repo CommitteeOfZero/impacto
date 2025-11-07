@@ -1,6 +1,10 @@
 #pragma once
 
+#if __VITA__
+#include <vitaGL.h>
+#else
 #include <glad/glad.h>
+#endif
 
 #include "../../3d/renderable3d.h"
 #include "../shader.h"

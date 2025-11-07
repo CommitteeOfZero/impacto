@@ -29,7 +29,7 @@
 #define LUA_USE_LINUX
 #elif defined(__APPLE__)
 #define LUA_USE_MACOSX
-#elif defined(__SWITCH__) || defined(PLATFORM_DREAMCAST)
+#elif defined(__SWITCH__) || defined(__VITA__) || defined(PLATFORM_DREAMCAST)
 #define LUA_USE_C89
 #else /* probably a POSIX system */
 #define LUA_USE_POSIX
@@ -557,7 +557,7 @@ extern "C" {
 
 #define LUA_NUMBER	double
 
-#define l_floatatt(n)		(DBL_##n)
+#define l_floatatt(n)		(DBL_## n)
 
 #define LUAI_UACNUMBER	double
 

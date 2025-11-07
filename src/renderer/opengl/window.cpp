@@ -1,6 +1,10 @@
 #include "window.h"
 
+#if __VITA__
+#include <vitaGL.h>
+#else
 #include <glad/glad.h>
+#endif
 #include <SDL_opengl.h>
 
 #include "../renderer.h"
