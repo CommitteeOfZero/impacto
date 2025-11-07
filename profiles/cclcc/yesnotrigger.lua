@@ -1,15 +1,11 @@
 local function createYesNoData(value1, value2, value3, value4, value5, value6, value7, value8, value9, value10)
     return {
-        bgXpos = value1,
-        bgYpos = value2,
+        bgPos = { X = value1, Y = value2 },
         index = value3,
         index2 = value4,
-        yesChipX = value5,
-        yesChipY = value6,
-        noChipX = value7,
-        noChipY = value8,
-        bubbleX = value9,
-        bubbleY = value10,
+        yesChipPos = { X = value5, Y = value6 },
+        noChipPos = { X = value7, Y = value8 },
+        bubblePos = { X = value9, Y = value10 }
     }
 end
 
@@ -62,6 +58,9 @@ root.YesNoTrigger = {
     YesNoBackground1 = "YesNoBackground1",
     YesNoBackground2 = "YesNoBackground2",
     YesNoBackground3 = "YesNoBackground3",
+    YNChipBlurBg0 = "YNChipBlurBg0",
+    YNChipBlurBg1 = "YNChipBlurBg1",
+    YNChipBlurBg2 = "YNChipBlurBg2",
     YN1ChipYesL = "YN1ChipYesL",
     YN1ChipNoL = "YN1ChipNoL",
     YN1ChipYesS = "YN1ChipYesS",
@@ -69,66 +68,83 @@ root.YesNoTrigger = {
     YN2ChipYesL = "YN2ChipYesL",
     YN2ChipNoL = "YN2ChipNoL",
     YN2ChipYesS = "YN2ChipYesS",
-    YN2ChipNoS = "YN2ChipNoS", 
-    ChipStar = "YNChipStar", 
-    BGMask = "YNOverlayMask",
+    YN2ChipNoS = "YN2ChipNoS",
+    ChipStar = "YNChipStar",
+    YNBlurMask = "YNBlurMask",
+    YNBgOverlay = "YNBgOverlay",
     YesNoData1 = data1,
     YesNoData2 = data2,
 };
 
 root.Sprites["YesNoBackground0"] = {
-    Sheet = "YesNoBG0", 
-    Bounds = {X = 0, Y = 0, Width = 3840.0, Height = 2160}
+    Sheet = "YesNoBG0",
+    Bounds = { X = 0, Y = 0, Width = 3840.0, Height = 2160 }
 };
 root.Sprites["YesNoBackground1"] = {
-    Sheet = "YesNoBG1", 
-    Bounds = {X = 0, Y = 0, Width = 3840.0, Height = 2160}
+    Sheet = "YesNoBG1",
+    Bounds = { X = 0, Y = 0, Width = 3840.0, Height = 2160 }
 };
 root.Sprites["YesNoBackground2"] = {
-    Sheet = "YesNoBG2", 
-    Bounds = {X = 0, Y = 0, Width = 3840.0, Height = 2160}
+    Sheet = "YesNoBG2",
+    Bounds = { X = 0, Y = 0, Width = 3840.0, Height = 2160 }
 };
 root.Sprites["YesNoBackground3"] = {
-    Sheet = "YesNoBG3", 
-    Bounds = {X = 0, Y = 0, Width = 3840.0, Height = 2160}
+    Sheet = "YesNoBG3",
+    Bounds = { X = 0, Y = 0, Width = 3840.0, Height = 2160 }
+};
+root.Sprites["YNChipBlurBg0"] = {
+    Sheet = "YesNoChip",
+    Bounds = { X = 0, Y = 0, Width = 960, Height = 540 }
+};
+root.Sprites["YNChipBlurBg1"] = {
+    Sheet = "YesNoChip",
+    Bounds = { X = 0, Y = 548, Width = 960, Height = 540 }
+};
+root.Sprites["YNChipBlurBg2"] = {
+    Sheet = "YesNoChip",
+    Bounds = { X = 0, Y = 1096, Width = 960, Height = 540 }
 };
 root.Sprites["YN1ChipYesL"] = {
-    Sheet = "YesNoChip", 
-    Bounds = {X = 1056.0, Y = 0, Width = 96, Height = 64}
+    Sheet = "YesNoChip",
+    Bounds = { X = 1056.0, Y = 0, Width = 96, Height = 64 }
 };
 root.Sprites["YN1ChipNoL"] = {
-    Sheet = "YesNoChip", 
-    Bounds = {X = 1056.0, Y = 64, Width = 96, Height = 64}
+    Sheet = "YesNoChip",
+    Bounds = { X = 1056.0, Y = 64, Width = 96, Height = 64 }
 };
 root.Sprites["YN1ChipYesS"] = {
-    Sheet = "YesNoChip", 
-    Bounds = {X = 1056.0, Y = 128.0, Width = 96, Height = 64}
+    Sheet = "YesNoChip",
+    Bounds = { X = 1056.0, Y = 128.0, Width = 96, Height = 64 }
 };
 root.Sprites["YN1ChipNoS"] = {
-    Sheet = "YesNoChip", 
-    Bounds = {X = 1056.0, Y = 192.0, Width = 96, Height = 64}
+    Sheet = "YesNoChip",
+    Bounds = { X = 1056.0, Y = 192.0, Width = 96, Height = 64 }
 };
 root.Sprites["YN2ChipYesL"] = {
-    Sheet = "YesNoChip", 
-    Bounds = {X = 1248.0, Y = 0, Width = 148.0, Height = 70}
+    Sheet = "YesNoChip",
+    Bounds = { X = 1248.0, Y = 0, Width = 148.0, Height = 70 }
 };
 root.Sprites["YN2ChipNoL"] = {
-    Sheet = "YesNoChip", 
-    Bounds = {X = 1248.0, Y = 96, Width = 148.0, Height = 70}
+    Sheet = "YesNoChip",
+    Bounds = { X = 1248.0, Y = 96, Width = 148.0, Height = 70 }
 };
 root.Sprites["YN2ChipYesS"] = {
-    Sheet = "YesNoChip", 
-    Bounds = {X = 1248.0, Y = 192.0, Width = 106.0, Height = 46}
+    Sheet = "YesNoChip",
+    Bounds = { X = 1248.0, Y = 192.0, Width = 106.0, Height = 46 }
 };
 root.Sprites["YN2ChipNoS"] = {
-    Sheet = "YesNoChip", 
-    Bounds = {X = 1248.0, Y = 288.0, Width = 106.0, Height = 46}
+    Sheet = "YesNoChip",
+    Bounds = { X = 1248.0, Y = 288.0, Width = 106.0, Height = 46 }
 };
 root.Sprites["YNChipStar"] = {
-    Sheet = "YesNoChip", 
-    Bounds = {X = 1024.0, Y = 374.0, Width = 400.0, Height = 400}
+    Sheet = "YesNoChip",
+    Bounds = { X = 1024.0, Y = 374.0, Width = 400.0, Height = 400 }
 };
-root.Sprites["YNOverlayMask"] = {
-    Sheet = "MenuChip", 
-    Bounds = {X = 156.0, Y = 144.0, Width = 1896.0, Height = 1056}
+root.Sprites["YNBgOverlay"] = {
+    Sheet = "MenuChip",
+    Bounds = { X = 154.0, Y = 141.0, Width = 1900, Height = 1060 }
+};
+root.Sprites["YNBlurMask"] = {
+    Sheet = "YesNoBlurMask",
+    Bounds = { X = 0, Y = 0, Width = 512, Height = 256 }
 };

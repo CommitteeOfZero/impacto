@@ -40,12 +40,12 @@ root.SpriteSheets = {
         DesignHeight = 5616
     },
     ["LibraryMenu"] = {
-        Path = { Mount = "system", Id = 14},
+        Path = { Mount = "system", Id = 14 },
         DesignWidth = 2048,
         DesignHeight = 2048
     },
     ["LoadMenu"] = {
-        Path = { Mount = "system", Id = 15},
+        Path = { Mount = "system", Id = 15 },
         DesignWidth = 2048,
         DesignHeight = 2048
     },
@@ -90,12 +90,12 @@ root.SpriteSheets = {
         DesignHeight = 2048
     },
     ["QuickLoadMenu"] = {
-        Path = { Mount = "system", Id = 25},
+        Path = { Mount = "system", Id = 25 },
         DesignWidth = 2048,
         DesignHeight = 2048
     },
     ["SaveMenu"] = {
-        Path = { Mount = "system", Id = 26},
+        Path = { Mount = "system", Id = 26 },
         DesignWidth = 2048,
         DesignHeight = 2048
     },
@@ -144,6 +144,11 @@ root.SpriteSheets = {
         DesignWidth = 1536,
         DesignHeight = 2400
     },
+    ["YesNoBlurMask"] = {
+        Path = { Mount = "mask", Id = 12 },
+        DesignWidth = 512,
+        DesignHeight = 256
+    }
 };
 
 local numberOfPages = root.Language == "Japanese" and 16 or 1

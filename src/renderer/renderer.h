@@ -164,6 +164,20 @@ class BaseRenderer {
                                const CornersQuad& spriteDest,
                                const CornersQuad& maskDest, int alpha,
                                int fadeRange, glm::mat4 spriteTransformation,
+                               glm::mat4 maskTransformation,
+                               glm::vec4 tint = glm::vec4(1.0f),
+                               bool isInverted = false,
+                               bool useMaskAlpha = true) {
+    DrawMaskedSpriteOverlay(sprite, mask, spriteDest, maskDest, alpha,
+                            fadeRange, spriteTransformation, maskTransformation,
+                            std::array<glm::vec4, 4>{tint, tint, tint, tint},
+                            isInverted, useMaskAlpha);
+  }
+
+  void DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
+                               const CornersQuad& spriteDest,
+                               const CornersQuad& maskDest, int alpha,
+                               int fadeRange, glm::mat4 spriteTransformation,
                                glm::vec4 tint = glm::vec4(1.0f),
                                bool isInverted = false,
                                bool useMaskAlpha = true) {
