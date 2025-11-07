@@ -138,7 +138,6 @@ class MapSystem {
   float MapPosX;
   float MapPosY;
   int MapMoveMode = 0;
-  bool PhotoSelClick = false;
 };
 
 }  // namespace CCLCC

@@ -6,6 +6,7 @@
 
 #include "../../util.h"
 #include "../../mem.h"
+#include "../../inputsystem.h"
 #include "../../vm/interface/input.h"
 #include "../../profile/scriptvars.h"
 
@@ -776,7 +777,6 @@ void MapSystem::MapPoolSetFadeout(int unused, int poolIdx) {
 }
 
 void MapSystem::HandlePoolUpDownNav(int maxPoolRow, int poolType, bool isUp) {
-  PhotoSelClick = false;
   if (HoverMapPoolIdx == 0xff) {
     for (int i = 0; i < 10; ++i) {
       if (MapPool[i].id != 0xff && MapPoolDisp[i * 2].state == Shown) {
@@ -831,7 +831,6 @@ void MapSystem::HandlePoolUpDownNav(int maxPoolRow, int poolType, bool isUp) {
 
 void MapSystem::HandlePoolLeftRightNav(int maxPoolRow, int poolType,
                                        bool isLeft) {
-  PhotoSelClick = false;
   if (HoverMapPoolIdx == 0xff) {
     for (int i = 0; i < 10; ++i) {
       if (MapPool[i].id != 0xff && MapPoolDisp[i * 2].state == Shown) {
@@ -912,10 +911,11 @@ bool MapSystem::MapPlayerPhotoSelect(int unused) {
     int maxPoolRow =
         (poolType == 3) ? 2 : 3;  // 3 per row for photo, 2 for articles
 
-    if (PhotoSelClick) {
+    if (Impacto::Input::CurrentInputDevice == Input::Device::Mouse) {
       for (size_t i = 0; i < MapPool.size(); i++) {
         if (MapPool[i].id != 0xff && MapPool[i].button.Enabled) {
           MapPool[i].button.UpdateInput(0.0f);
+          MapPool[i].button.Update(0.0f);
           if (MapPool[i].button.Hovered) {
             HoverMapPoolIdx = (int)i;
           }
@@ -933,12 +933,7 @@ bool MapSystem::MapPlayerPhotoSelect(int unused) {
       HandlePoolLeftRightNav(maxPoolRow, poolType, false);
     } else if (PADinputButtonWentDown & PAD1A && (HoverMapPoolIdx != 0xff) &&
                (MapPoolCurCt[HoverMapPoolIdx] == 16)) {
-      if (HoverMapPoolIdx != 0xff) {
-        SelectedMapPoolIdx = HoverMapPoolIdx;
-      }
-      PhotoSelClick = false;
-    } else if (!PhotoSelClick && PADinputMouseWentDown & PAD1A) {
-      PhotoSelClick = true;
+      SelectedMapPoolIdx = HoverMapPoolIdx;
     }
 
     if (oldHover != HoverMapPoolIdx) {
