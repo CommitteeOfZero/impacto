@@ -218,12 +218,19 @@ void Character2D::UpdateEyeMouth() {
   static std::array<int, CurMouthIndex.size()> mouthCounter{};
 
   for (size_t i = 0; i < eyeCounter.size(); i++) {
+    // Every four game frames, an eye frame updates
     if (eyeCounter[i] == 0) {
+      eyeCounter[i] = 4;
+
       if (++CurEyeFrame[i] == 3) {
         CurEyeFrame[i] = 0;
-        eyeCounter[i] = CALCrnd(230) + 200;
-      } else {
-        eyeCounter[i] = 4;
+
+        // There's a 5% chance of two consecutive blinks
+        if (CALCrnd(100) < 95) {
+          // The number of frames between two blinks is
+          // uniformly distributed in [200, 430)
+          eyeCounter[i] = CALCrnd(230) + 200;
+        }
       }
     } else {
       eyeCounter[i]--;
