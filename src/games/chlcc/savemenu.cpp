@@ -27,6 +27,7 @@ using namespace Impacto::UI::Widgets::CHLCC;
 Widget* EntryGrid[EntriesPerPage];
 
 void SaveMenu::MenuButtonOnClick(Widgets::Button* target) {
+  target->Hovered = false;
   if ((SaveSystem::GetSaveStatus(EntryType, target->Id) == 1) ||
       *ActiveMenuType == +SaveMenuPageType::Save) {
     ScrWork[SW_SAVEFILENO] = target->Id;

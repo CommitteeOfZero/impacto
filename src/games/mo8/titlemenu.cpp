@@ -26,6 +26,7 @@ using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::UI::Widgets;
 
 void TitleMenu::MenuButtonOnClick(Widgets::Button* target) {
+  target->Hovered = false;
   AllowsScriptInput = true;
   ScrWork[SW_TITLECUR] = target->Id;
   SetFlag(SF_TITLEEND, 1);
@@ -33,12 +34,14 @@ void TitleMenu::MenuButtonOnClick(Widgets::Button* target) {
 }
 
 void TitleMenu::ContinueButtonOnClick(Widgets::Button* target) {
+  target->Hovered = false;
   ContinueSelected = true;
   AllowsScriptInput = false;
   Audio::PlayInGroup(Audio::ACG_SE, "sysse", 5, false, 0.0f);
 }
 
 void TitleMenu::GalleryButtonOnClick(Widgets::Button* target) {
+  target->Hovered = false;
   GallerySelected = true;
   AllowsScriptInput = false;
   Audio::PlayInGroup(Audio::ACG_SE, "sysse", 5, false, 0.0f);

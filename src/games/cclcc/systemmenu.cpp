@@ -20,6 +20,7 @@ using namespace Impacto::Profile::SystemMenu;
 using namespace Impacto::UI::Widgets::CCLCC;
 
 void SystemMenu::MenuButtonOnClick(Widgets::Button* target) {
+  target->Hovered = false;
   bool targetButtonLocked = static_cast<SysMenuButton*>(target)->IsLocked;
   Audio::PlayInGroup(Audio::ACG_SE, "sysse", targetButtonLocked ? 4 : 2, false,
                      0);
@@ -107,6 +108,7 @@ void SystemMenu::Show() {
       UI::FocusedMenu = this;
       ItemsFade.StartIn();
       MainItems->Show();
+      if (!CurrentlyFocusedElement) AdvanceFocus(FDIR_DOWN);
     }
   }
 }

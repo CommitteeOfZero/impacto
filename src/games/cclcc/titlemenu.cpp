@@ -28,6 +28,7 @@ using namespace Impacto::Vm::Interface;
 using namespace Impacto::UI::Widgets::CCLCC;
 
 void TitleMenu::MenuButtonOnClick(Widgets::Button* target) {
+  target->Hovered = false;
   TitleButton* button = static_cast<TitleButton*>(target);
   Audio::PlayInGroup(Audio::ACG_SE, "sysse", 2, false, 0);
   button->ChoiceBlinkAnimation.StartIn();
@@ -36,6 +37,7 @@ void TitleMenu::MenuButtonOnClick(Widgets::Button* target) {
 }
 
 void TitleMenu::ContinueButtonOnClick(Widgets::Button* target) {
+  target->Hovered = false;
   if (CurrentSubMenu == ContinueItems) return;
   Audio::PlayInGroup(Audio::ACG_SE, "sysse", 2, false, 0);
   CurrentSubMenu = ContinueItems;
@@ -46,6 +48,7 @@ void TitleMenu::ContinueButtonOnClick(Widgets::Button* target) {
 }
 
 void TitleMenu::ExtraButtonOnClick(Widgets::Button* target) {
+  target->Hovered = false;
   if (CurrentSubMenu == ExtraItems) return;
   // SetFlag(SF_CLR_FLAG, true); // Uncomment for testing
   if (!GetFlag(SF_CLR_FLAG)) {

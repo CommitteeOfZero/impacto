@@ -24,6 +24,7 @@ using namespace Impacto::UI::Widgets::CCLCC;
 Widget* EntryGrid[Pages][RowsPerPage][EntriesPerRow];
 
 void SaveMenu::MenuButtonOnClick(Widgets::Button* target) {
+  target->Hovered = false;
   Impacto::SaveSystem::SaveType saveType =
       *ActiveMenuType == +SaveMenuPageType::QuickLoad
           ? SaveSystem::SaveType::Quick
