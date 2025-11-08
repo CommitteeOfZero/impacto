@@ -569,6 +569,7 @@ void DialoguePage::EndRubyBase(int lastBaseCharacter) {
 void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
                              int animId) {
   AnimationId = animId;
+  CurrentLineVoiced = voice != nullptr;
   if (Mode == DPM_ADV || Mode == DPM_REV || NVLResetBeforeAdd ||
       PrevMode != Mode) {
     Clear();

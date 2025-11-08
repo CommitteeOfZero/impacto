@@ -153,6 +153,7 @@ struct DialoguePage {
 
   int Id;
   int AnimationId;
+  bool CurrentLineVoiced = false;
 
   Animation FadeAnimation;
   TypewriterEffect Typewriter;
