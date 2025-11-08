@@ -152,7 +152,7 @@ struct DialoguePage {
   static void Init();
 
   int Id;
-  int AnimationId;
+  int AnimationId = 0;
   bool CurrentLineVoiced = false;
 
   Animation FadeAnimation;
