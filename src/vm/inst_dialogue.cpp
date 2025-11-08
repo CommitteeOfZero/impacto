@@ -194,7 +194,8 @@ VmInstruction(InstMes) {
 
   uint32_t oldIp = thread->IpOffset;
   thread->IpOffset = line;
-  dialoguePage.AddString(thread, audioStream, animationId);
+  dialoguePage.AddString(thread, audioStream,
+                         acted ? animationId : characterId);
   ResetInstruction;
   if (!GetFlag(SF_MESSAVEPOINT_SSP + thread->DialoguePageId)) {
     if ((ScrWork[thread->DialoguePageId * 10 + SW_MESWIN0TYPE] & 4) == 0 &&
@@ -210,7 +211,13 @@ VmInstruction(InstMes) {
   thread->IpOffset = oldIp;
   UI::BacklogMenuPtr->AddMessage(
       {.ScriptBufferId = thread->ScriptBufferId, .IpOffset = line}, audioId,
-      characterId);
+      acted ? animationId : characterId);
+
+  if (!(type & 0b1000)) {
+    SetFlag(1213 + thread->DialoguePageId, true);
+  }
+
+  SetFlag(SF_SYSTEMMENUDISABLE2, false);
 }
 VmInstruction(InstMesMain) {
   StartInstruction;
@@ -243,6 +250,7 @@ VmInstruction(InstMesMain) {
           // Advance to next line
           SaveSystem::SetLineRead(ScrWork[2 * currentPage->Id + SW_SCRIPTID],
                                   ScrWork[2 * currentPage->Id + SW_LINEID]);
+          SetFlag(1213 + thread->DialoguePageId, false);
           SetFlag(SF_SHOWWAITICON + thread->DialoguePageId, false);
 
           if (Profile::ConfigSystem::SkipVoice || GetFlag(SF_MESALLSKIP))
