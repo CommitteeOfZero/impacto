@@ -18,6 +18,7 @@ using namespace Impacto::Profile::SystemMenu;
 using namespace Impacto::UI::Widgets::CHLCC;
 
 void SystemMenu::MenuButtonOnClick(Widgets::Button* target) {
+  target->Hovered = false;
   if (static_cast<SystemMenuEntryButton*>(target)->IsLocked) {
     // Yep, that's similar to how it's done in the binary
     // Binary checks for button state and if it's locked, PADone is modified

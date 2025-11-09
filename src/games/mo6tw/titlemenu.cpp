@@ -21,11 +21,13 @@ using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::UI::Widgets::MO6TW;
 
 void TitleMenu::MenuButtonOnClick(Widgets::Button* target) {
+  target->Hovered = false;
   ScrWork[SW_TITLECUR1] = target->Id;
   ChoiceMade = true;
 }
 
 void TitleMenu::SecondaryButtonOnClick(Widgets::Button* target) {
+  target->Hovered = false;
   ScrWork[SW_TITLECUR2] = target->Id;
   ChoiceMade = true;
 }

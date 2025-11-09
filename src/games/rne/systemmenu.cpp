@@ -22,6 +22,7 @@ using namespace Impacto::UI::Widgets;
 using namespace Impacto::UI::Widgets::RNE;
 
 void SystemMenu::MenuButtonOnClick(Widgets::Button* target) {
+  target->Hovered = false;
   ScrWork[SW_SYSMENUCNO] = target->Id;
   ChoiceMade = true;
 }

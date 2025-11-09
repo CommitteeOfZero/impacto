@@ -24,11 +24,13 @@ using namespace Impacto::Profile;
 using namespace Impacto::UI::Widgets::CHLCC;
 
 void TitleMenu::MenuButtonOnClick(Widgets::Button* target) {
+  target->Hovered = false;
   ScrWork[SW_TITLECUR1] = target->Id;
   ChoiceMade = true;
 }
 
 void TitleMenu::SecondaryButtonOnClick(Widgets::Button* target) {
+  target->Hovered = false;
   ScrWork[SW_TITLECUR2] = target->Id;
   ChoiceMade = true;
 }

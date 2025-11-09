@@ -19,6 +19,7 @@ using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::UI::Widgets;
 
 void SystemMenu::MenuButtonOnClick(Widgets::Button* target) {
+  target->Hovered = false;
   ScrWork[SW_SYSMENUCNO] = target->Id;
   ChoiceMade = true;
   // When exiting through a menu button remove focus from the menu to avoid

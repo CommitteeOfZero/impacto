@@ -34,17 +34,20 @@ using namespace Impacto::Vm::Interface;
 using namespace Impacto::UI::Widgets::CC;
 
 void TitleMenu::MenuButtonOnClick(Widgets::Button* target) {
+  target->Hovered = false;
   ScrWork[SW_TITLECUR1] = target->Id;
   SetFlag(SF_TITLEEND, 1);
   AllowsScriptInput = true;
 }
 
 void TitleMenu::ContinueButtonOnClick(Widgets::Button* target) {
+  target->Hovered = false;
   CurrentSubMenu = ContinueItems;
   AllowsScriptInput = false;
 }
 
 void TitleMenu::ExtraButtonOnClick(Widgets::Button* target) {
+  target->Hovered = false;
   CurrentSubMenu = ExtraItems;
   AllowsScriptInput = false;
 }
