@@ -366,7 +366,7 @@ void Character2D::UpdateState(const int chaId) {
 
     if (!SkipModeEnabled) {
       for (uint8_t i = 0; i < 3; i++) {
-        if (!GetFlag(1213 + i) ||
+        if (!GetFlag(SF_CHAANIME + i) ||
             (chaIndexMask & ScrWork[SW_ANIME0CHANO + i]) == 0) {
           continue;
         }

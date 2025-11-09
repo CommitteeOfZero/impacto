@@ -214,7 +214,7 @@ VmInstruction(InstMes) {
       acted ? animationId : characterId);
 
   if (!(type & 0b1000)) {
-    SetFlag(1213 + thread->DialoguePageId, true);
+    SetFlag(SF_CHAANIME + thread->DialoguePageId, true);
   }
 
   SetFlag(SF_SYSTEMMENUDISABLE2, false);
@@ -250,7 +250,7 @@ VmInstruction(InstMesMain) {
           // Advance to next line
           SaveSystem::SetLineRead(ScrWork[2 * currentPage->Id + SW_SCRIPTID],
                                   ScrWork[2 * currentPage->Id + SW_LINEID]);
-          SetFlag(1213 + thread->DialoguePageId, false);
+          SetFlag(SF_CHAANIME + thread->DialoguePageId, false);
           SetFlag(SF_SHOWWAITICON + thread->DialoguePageId, false);
 
           if (Profile::ConfigSystem::SkipVoice || GetFlag(SF_MESALLSKIP))
@@ -443,7 +443,7 @@ VmInstruction(InstSelect) {
     case 0: {
       UI::SelectionMenuPtr->Show();
       bool flag = GetFlag(SF_SAVEDISABLE);
-      SetFlag(thread->DialoguePageId + 1213, 0);
+      SetFlag(thread->DialoguePageId + SF_CHAANIME, false);
       if (ScrWork[SW_AUTOSAVERESTART] == 2) {
         thread->IpOffset += 12;
         return;
