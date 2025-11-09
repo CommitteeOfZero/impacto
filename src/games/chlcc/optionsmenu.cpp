@@ -351,19 +351,22 @@ void OptionsMenu::UpdatePageInput(float dt) {
 }
 
 void OptionsMenu::UpdateVisibility() {
-  if ((!GetFlag(SF_OPTIONMENU) || ScrWork[SW_SYSMENUCT] < 10000) &&
+  const int sysMenuCt = ScrWork[SW_SYSMENUCT];
+  const int systemMenuCHG = ScrWork[SW_SYSTEMMENUCHG];
+
+  if ((!GetFlag(SF_OPTIONMENU) || sysMenuCt < 10000 ||
+       (sysMenuCt == 10000 && systemMenuCHG != 0 && systemMenuCHG != 64)) &&
       State == Shown) {
     Hide();
-  } else if (GetFlag(SF_OPTIONMENU) && ScrWork[SW_SYSMENUCT] > 0 &&
-             State == Hidden) {
+  } else if (GetFlag(SF_OPTIONMENU) && sysMenuCt > 0 && State == Hidden) {
     Show();
   }
 
-  if (FadeAnimation.IsOut() && !GetFlag(SF_OPTIONMENU) &&
-      (ScrWork[SW_SYSMENUCT] == 0 || GetFlag(SF_SYSTEMMENU)) &&
-      State == Hiding) {
+  if (FadeAnimation.IsOut() && !GetFlag(SF_OPTIONMENU) && systemMenuCHG == 0 &&
+      (sysMenuCt == 0 || GetFlag(SF_SYSTEMMENU)) && State == Hiding) {
     State = Hidden;
-  } else if (FadeAnimation.IsIn() && ScrWork[SW_SYSMENUCT] == 10000 &&
+  } else if (FadeAnimation.IsIn() && sysMenuCt == 10000 &&
+             (systemMenuCHG == 0 || systemMenuCHG == 64) &&
              GetFlag(SF_OPTIONMENU) && State == Showing) {
     State = Shown;
   }
