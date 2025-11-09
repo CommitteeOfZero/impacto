@@ -11,22 +11,13 @@ namespace CCLCC {
 namespace LibraryMenu {
 
 std::vector<AlbumDataEntry> GetAlbumTbl() {
-  const auto forEachLua = [](std::invocable<uint32_t> auto func) {
-    AssertIs(LUA_TTABLE);
-    PushInitialIndex();
-    while (PushNextTableElement() != 0) {
-      auto index = EnsureGetKey<uint32_t>() - 1;
-      func(index);
-      Pop();
-    }
-  };
   std::vector<AlbumDataEntry> albumData;
 
   EnsurePushMemberOfType("AlbumTbl", LUA_TTABLE);
-  forEachLua([&](uint32_t rowIndex) {
+  ForEachProfileArray([&](uint32_t rowIndex) {
     AssertIs(LUA_TTABLE);
     AlbumDataEntry entry;
-    forEachLua([&](uint32_t innerRowIndex) {
+    ForEachProfileArray([&](uint32_t innerRowIndex) {
       switch (innerRowIndex) {
         case 0: {
           entry.PageNumber = EnsureGetArrayElement<uint8_t>();
@@ -35,10 +26,10 @@ std::vector<AlbumDataEntry> GetAlbumTbl() {
           entry.IndexInPage = EnsureGetArrayElement<uint8_t>();
         } break;
         case 2: {
-          forEachLua([&](uint32_t variantIndex) {
+          ForEachProfileArray([&](uint32_t variantIndex) {
             Sprite thumbnail;
             thumbnail.Sheet = SpriteSheets.at("Album");
-            forEachLua([&](uint32_t variantSpriteDataIndex) {
+            ForEachProfileArray([&](uint32_t variantSpriteDataIndex) {
               switch (variantSpriteDataIndex) {
                 case 0:
                   thumbnail.Bounds.X = EnsureGetArrayElement<float>() * 340 + 1;

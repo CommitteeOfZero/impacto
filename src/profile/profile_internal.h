@@ -254,5 +254,15 @@ std::vector<T> GetMemberVector(char const* name) {
   return result;
 }
 
+void ForEachProfileArray(std::invocable<uint32_t> auto func) {
+  AssertIs(LUA_TTABLE);
+  PushInitialIndex();
+  while (PushNextTableElement() != 0) {
+    auto index = EnsureGetKey<uint32_t>() - 1;
+    func(index);
+    Pop();
+  }
+}
+
 }  // namespace Profile
 }  // namespace Impacto
