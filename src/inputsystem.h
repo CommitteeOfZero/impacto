@@ -14,7 +14,6 @@ int constexpr MouseButtonsMax = SDL_BUTTON_X2 + 1;
 int constexpr FingerTapMax = 2;
 
 void BeginFrame();
-void EndFrame();
 bool HandleEvent(SDL_Event const* ev);
 
 inline Device CurrentInputDevice = Device::Mouse;
