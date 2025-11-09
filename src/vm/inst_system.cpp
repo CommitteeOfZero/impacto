@@ -459,16 +459,20 @@ VmInstruction(InstSaveIconLoad) {
 VmInstruction(InstVoiceTableLoadMaybe) {
   StartInstruction;
   PopExpression(fileId);
-  if (VoiceTableData.Status == LoadStatus::Loading) {
-    ResetInstruction;
-    BlockThread;
-  } else if (VoiceTableData.Status == LoadStatus::Unloaded) {
-    VoiceTableData.LoadAsync(fileId);
-    ResetInstruction;
-    BlockThread;
+
+  switch (VoiceTableData.Status) {
+    case LoadStatus::Unloaded:
+      VoiceTableData.LoadAsync(fileId);
+      ResetInstruction;
+      BlockThread;
+      break;
+    case LoadStatus::Loading:
+      ResetInstruction;
+      BlockThread;
+      break;
+    case LoadStatus::Loaded:
+      break;
   }
-  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-             "STUB instruction VoiceTableLoad(arg1: {:d})\n", fileId);
 }
 VmInstruction(InstSetPadCustom) {
   StartInstruction;

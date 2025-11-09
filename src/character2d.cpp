@@ -218,12 +218,19 @@ void Character2D::UpdateEyeMouth() {
   static std::array<int, CurMouthIndex.size()> mouthCounter{};
 
   for (size_t i = 0; i < eyeCounter.size(); i++) {
+    // Every four game frames, an eye frame updates
     if (eyeCounter[i] == 0) {
+      eyeCounter[i] = 4;
+
       if (++CurEyeFrame[i] == 3) {
         CurEyeFrame[i] = 0;
-        eyeCounter[i] = CALCrnd(230) + 200;
-      } else {
-        eyeCounter[i] = 4;
+
+        // There's a 5% chance of two consecutive blinks
+        if (CALCrnd(100) < 95) {
+          // The number of frames between two blinks is
+          // uniformly distributed in [200, 430)
+          eyeCounter[i] = CALCrnd(230) + 200;
+        }
       }
     } else {
       eyeCounter[i]--;
@@ -245,26 +252,27 @@ void Character2D::UpdateEyeMouth() {
   }
 }
 
-static uint8_t GetSoundLevel() {
-  if (Audio::Channels[Audio::AC_VOICE0]->GetState() != Audio::ACS_Playing ||
-      Audio::Channels[Audio::AC_VOICE0]->DurationInSeconds() -
-              Audio::Channels[Audio::AC_VOICE0]->PositionInSeconds() <
-          FLT_EPSILON) {
+static uint8_t GetSoundLevel(Audio::AudioChannelId channelId) {
+  if (channelId < Audio::AC_VOICE0 || Audio::AC_REV < channelId) return 0;
+  const auto& channel = *Audio::Channels[channelId];
+
+  if (channel.GetState() != Audio::ACS_Playing ||
+      channel.DurationInSeconds() - channel.PositionInSeconds() < FLT_EPSILON) {
     return 0;
   }
 
-  const int audioPos =
-      (int)(Audio::Channels[Audio::AC_VOICE0]->PositionInSeconds() * 6.0f);
+  const int audioPos = (int)(channel.PositionInSeconds() * 6.0f);
 
-  const int fileId =
-      Audio::Channels[Audio::AC_VOICE0]->GetStream()->GetBaseStream()->Meta.Id;
-  const uint8_t voiceData = VoiceTableData.GetVoiceData(fileId, audioPos / 4);
+  const int fileId = channel.GetStream()->GetBaseStream()->Meta.Id;
+  const uint8_t voiceData = VoiceTableData.GetVoiceData(fileId, audioPos >> 2);
 
-  const uint8_t result = (voiceData >> ((audioPos << 1) & 0b110)) & 0b11;
+  const uint8_t result = (voiceData >> ((audioPos & 0b11) << 1)) & 0b11;
   return result;
 }
 
 void Character2D::UpdateState(const int chaId) {
+  using namespace Impacto::Audio;
+
   const size_t structOffset = ScrWorkChaStructSize * chaId;
   const size_t structOfsOffset = ScrWorkChaOffsetStructSize * chaId;
 
@@ -356,12 +364,28 @@ void Character2D::UpdateState(const int chaId) {
     bool charSpeaking = false;
     const uint32_t chaIndexMask = 1 << chaId & 0x1F;
 
-    for (int dialoguePageId = 0; dialoguePageId < DialoguePageCount;
-         dialoguePageId++) {
-      if (chaIndexMask & DialoguePages[dialoguePageId].AnimationId) {
-        LipFrame = GetSoundLevel() > 0
-                       ? AnimeTable[CurMouthIndex[dialoguePageId]].first
-                       : 0;
+    if (!SkipModeEnabled) {
+      for (uint8_t i = 0; i < 3; i++) {
+        if (!GetFlag(SF_CHAANIME + i) ||
+            (chaIndexMask & ScrWork[SW_ANIME0CHANO + i]) == 0) {
+          continue;
+        }
+
+        LipFrame = GetSoundLevel(static_cast<AudioChannelId>(AC_VOICE0 + i));
+        if (DialoguePages[i].CurrentLineVoiced) {
+          const AudioChannelState voiceState =
+              Channels[AC_VOICE0 + i]->GetState();
+          const bool voicePlaying =
+              voiceState != AudioChannelState::ACS_Paused &&
+              voiceState != AudioChannelState::ACS_Stopped;
+
+          if (!voicePlaying) {
+            LipFrame = 0;
+          } else if (LipFrame != 0) {
+            LipFrame = AnimeTable[CurMouthIndex[i]].first;
+          }
+        }
+
         charSpeaking = true;
         break;
       }

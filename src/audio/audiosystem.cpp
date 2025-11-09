@@ -208,7 +208,7 @@ void PlayInGroup(AudioChannelGroup group, std::string const& mountpoint,
 void AudioUpdate(float dt) {
   // Set voice modifier for each voice channel
   for (int i = AC_VOICE0; i <= AC_VOICE2; i++) {
-    const int charId = ScrWork[SW_ANIME0CHANO + (i - AC_VOICE0)];
+    const int charId = DialoguePages[i - AC_VOICE0].AnimationId;
     const int mappedCharId = ScrWork[SW_CHARACTERIDMAPPING + charId];
     const float voiceVolumeModifier =
         Profile::ConfigSystem::VoiceMuted[mappedCharId]
