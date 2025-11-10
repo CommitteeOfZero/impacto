@@ -3,6 +3,7 @@
 #include "../../../renderer/renderer.h"
 #include "../../../inputsystem.h"
 #include "../../../profile/games/cclcc/titlemenu.h"
+#include "../../../vm/interface/input.h"
 
 namespace Impacto {
 namespace UI {
@@ -40,7 +41,12 @@ void TitleButton::Update(float dt) {
   }
   if (PrevFocusState != HasFocus) {
     PrevFocusState = HasFocus;
-    if (Input::CurrentInputDevice != Input::Device::Mouse) {
+    if (Input::CurrentInputDevice != Input::Device::Mouse &&
+        ((Vm::Interface::PADinputButtonWentDown |
+          Vm::Interface::PADinputButtonRepeatDown |
+          Vm::Interface::PADinputButtonRepeatAccelDown) &
+         (IsSubButton ? (Vm::Interface::PAD1LEFT | Vm::Interface::PAD1RIGHT)
+                      : (Vm::Interface::PAD1UP | Vm::Interface::PAD1DOWN)))) {
       Audio::PlayInGroup(Audio::ACG_SE, "sysse", 1, false, 0);
     }
     if (!IsSubButton) {
