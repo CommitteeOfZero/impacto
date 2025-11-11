@@ -583,7 +583,9 @@ void AlbumMenu::Update(float dt) {
   if (!CGViewer) {
     UpdateThumbnail(dt);
     if (CurrentlyFocusedElement != prevBtn) {
-      Audio::PlayInGroup(Audio::ACG_SE, "sysse", 1, false, 0);
+      if (State == Shown && IsFocused && prevBtn != nullptr) {
+        Audio::PlayInGroup(Audio::ACG_SE, "sysse", 1, false, 0);
+      }
       ThumbnailThumbBlink.StartIn();
     }
   } else {
