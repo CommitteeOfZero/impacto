@@ -83,11 +83,11 @@ jobs:
             os_name: linux
             triplet: x64-linux-ci
             host_triplet: x64-linux-ci
-          - os: macos-14
+          - os: macos-15
             os_name: macos-arm64
             triplet: arm64-osx-ci
             host_triplet: arm64-osx-ci
-          - os: macos-13
+          - os: macos-15-intel
             os_name: macos-x64
             triplet: x64-osx-ci
             host_triplet: x64-osx-ci
