@@ -225,7 +225,6 @@ void YesNoTrigger::Render() {
   const float alpha =
       std::clamp(static_cast<float>(ScrWork[6433] << 3), 0.0f, 255.0f);
   const glm::vec4 bgtint = glm::vec4(1.0f, 1.0f, 1.0f, alpha / 255.0f);
-  glm::vec2 starPos{};
   ActiveBackground.Bounds =
       Rect(static_cast<int>(BgSpritePos.x + bgXOffset),
            static_cast<int>(BgSpritePos.y + bgYOffset),
@@ -282,6 +281,7 @@ void YesNoTrigger::Render() {
                           0.5f * BgSpriteScale;
     Sprite* activeYesChip;
     Sprite* activeNoChip;
+    glm::vec2 selectedChipSmallSize;
     const glm::vec4 chipTint = glm::vec4(1.0f, 1.0f, 1.0f, alpha / 255.0f);
 
     if (BgType == BGType::BG0 || BgType == BGType::BG1) {
@@ -289,38 +289,46 @@ void YesNoTrigger::Render() {
           (Selection == YesNoSelect::YES) ? &YN1YesChipLarge : &YN1YesChipSmall;
       activeNoChip =
           (Selection == YesNoSelect::NO) ? &YN1NoChipLarge : &YN1NoChipSmall;
-
-      if (Selection == YesNoSelect::YES) {
-        starPos = yesChipPos - glm::vec2(132.0f, 166.0f);
-      } else if (Selection == YesNoSelect::NO) {
-        starPos = noChipPos - glm::vec2(132.0f, 166.0f);
-      }
-
+      selectedChipSmallSize =
+          ((Selection == YesNoSelect::YES) ? YN1YesChipSmall : YN1NoChipSmall)
+              .Bounds.GetSize();
     } else /* if (BgType == BGType::BG2 || BgType == BGType::BG3) */ {
       activeYesChip =
           (Selection == YesNoSelect::YES) ? &YN2YesChipLarge : &YN2YesChipSmall;
       activeNoChip =
           (Selection == YesNoSelect::NO) ? &YN2NoChipLarge : &YN2NoChipSmall;
-
-      if (Selection == YesNoSelect::YES) {
-        starPos = yesChipPos - glm::vec2(92.0f, 147.0f);
-      } else if (Selection == YesNoSelect::NO) {
-        starPos = noChipPos - glm::vec2(92.0f, 147.0f);
-      }
+      selectedChipSmallSize =
+          ((Selection == YesNoSelect::YES) ? YN2YesChipSmall : YN2NoChipSmall)
+              .Bounds.GetSize();
     }
     const glm::vec2 yesChipSize =
         0.5f * BgSpriteScale * activeYesChip->Bounds.GetSize();
     const glm::vec2 noChipSize =
         0.5f * BgSpriteScale * activeNoChip->Bounds.GetSize();
-    const RectF yesChipDest =
+    RectF yesChipDest =
         RectF(yesChipPos.x, yesChipPos.y, yesChipSize.x, yesChipSize.y);
-    const RectF noChipDest =
+    RectF noChipDest =
         RectF(noChipPos.x, noChipPos.y, noChipSize.x, noChipSize.y);
+
     if (Selection != YesNoSelect::NONE) {
-      const CornersQuad dest = StarChip.ScaledBounds()
-                                   .RotateAroundCenter(StarAnimation.Progress)
-                                   .Translate(starPos);
-      Renderer->DrawSprite(StarChip, dest, chipTint);
+      const glm::vec2 selectedChipPos =
+          (Selection == YesNoSelect::YES) ? yesChipPos : noChipPos;
+      const glm::vec2 activeSmallChipCenter =
+          selectedChipPos + selectedChipSmallSize * 0.5f * 0.5f * BgSpriteScale;
+
+      if (Selection == YesNoSelect::YES) {
+        yesChipDest.SetPos(activeSmallChipCenter - yesChipSize * 0.5f);
+      } else {
+        noChipDest.SetPos(activeSmallChipCenter - noChipSize * 0.5f);
+      }
+
+      const glm::vec2 starTopLeft =
+          activeSmallChipCenter - StarChip.Bounds.GetSize() * 0.5f;
+      const CornersQuad starDest =
+          StarChip.ScaledBounds()
+              .RotateAroundCenter(StarAnimation.Progress)
+              .Translate(starTopLeft);
+      Renderer->DrawSprite(StarChip, starDest, chipTint);
     }
 
     YesClickArea.Bounds = yesChipDest;

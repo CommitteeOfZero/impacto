@@ -106,19 +106,19 @@ root.Sprites["YNChipBlurBg2"] = {
 };
 root.Sprites["YN1ChipYesL"] = {
     Sheet = "YesNoChip",
-    Bounds = { X = 1056.0, Y = 0, Width = 96, Height = 64 }
+    Bounds = { X = 1056.0, Y = 0, Width = 96, Height = 55 }
 };
 root.Sprites["YN1ChipNoL"] = {
     Sheet = "YesNoChip",
-    Bounds = { X = 1056.0, Y = 64, Width = 96, Height = 64 }
+    Bounds = { X = 1056.0, Y = 65, Width = 96, Height = 46 }
 };
 root.Sprites["YN1ChipYesS"] = {
     Sheet = "YesNoChip",
-    Bounds = { X = 1056.0, Y = 128.0, Width = 96, Height = 64 }
+    Bounds = { X = 1056.0, Y = 128.0, Width = 96, Height = 55 }
 };
 root.Sprites["YN1ChipNoS"] = {
     Sheet = "YesNoChip",
-    Bounds = { X = 1056.0, Y = 192.0, Width = 96, Height = 64 }
+    Bounds = { X = 1056.0, Y = 196.0, Width = 96, Height = 45 }
 };
 root.Sprites["YN2ChipYesL"] = {
     Sheet = "YesNoChip",
@@ -138,7 +138,7 @@ root.Sprites["YN2ChipNoS"] = {
 };
 root.Sprites["YNChipStar"] = {
     Sheet = "YesNoChip",
-    Bounds = { X = 1024.0, Y = 374.0, Width = 400.0, Height = 400 }
+    Bounds = { X = 1033.0, Y = 385.0, Width = 380, Height = 380 }
 };
 root.Sprites["YNBgOverlay"] = {
     Sheet = "MenuChip",
