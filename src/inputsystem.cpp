@@ -28,14 +28,6 @@ void BeginFrame() {
   MouseWheelDeltaX = MouseWheelDeltaY = 0;
 }
 
-void EndFrame() {
-  if (CurrentInputDevice == Device::Mouse) {
-    SDL_ShowCursor(SDL_ENABLE);
-  } else {
-    SDL_ShowCursor(SDL_DISABLE);
-  }
-}
-
 static glm::vec2 SDLMouseCoordsToDesign(int x, int y) {
   RectF viewport = Window->GetViewport();
   glm::vec2 result;
