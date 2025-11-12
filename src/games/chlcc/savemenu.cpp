@@ -298,21 +298,24 @@ void SaveMenu::UpdateInput(float dt) {
 }
 
 void SaveMenu::Update(float dt) {
-  if ((!GetFlag(SF_SAVEMENU) || ScrWork[SW_SYSMENUCT] < 10000) &&
+  const int sysMenuCt = ScrWork[SW_SYSMENUCT];
+  const int systemMenuCHG = ScrWork[SW_SYSTEMMENUCHG];
+
+  if ((!GetFlag(SF_SAVEMENU) || sysMenuCt < 10000 ||
+       (sysMenuCt == 10000 && systemMenuCHG != 0 && systemMenuCHG != 64)) &&
       State == Shown) {
     Hide();
-  } else if (GetFlag(SF_SAVEMENU) && ScrWork[SW_SYSMENUCT] > 0 &&
-             State == Hidden) {
+  } else if (GetFlag(SF_SAVEMENU) && sysMenuCt > 0 && State == Hidden) {
     Show();
   }
 
-  if (MenuTransition.IsOut() &&
-      (ScrWork[SW_SYSMENUCT] == 0 || GetFlag(SF_SYSTEMMENU)) &&
-      State == Hiding) {
+  if (MenuTransition.IsOut() && !GetFlag(SF_SAVEMENU) && systemMenuCHG == 0 &&
+      (sysMenuCt == 0 || GetFlag(SF_SYSTEMMENU)) && State == Hiding) {
     State = Hidden;
     SavePages->at(*CurrentPage)->Hide();
-  } else if (MenuTransition.IsIn() && ScrWork[SW_SYSMENUCT] == 10000 &&
-             State == Showing) {
+  } else if (MenuTransition.IsIn() && sysMenuCt == 10000 &&
+             (systemMenuCHG == 0 || systemMenuCHG == 64) &&
+             GetFlag(SF_SAVEMENU) && State == Showing) {
     State = Shown;
     SavePages->at(*CurrentPage)->HasFocus = true;
     SaveEntryButton::FocusedAlphaFadeStart();

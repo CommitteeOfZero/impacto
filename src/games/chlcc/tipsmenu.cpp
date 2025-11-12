@@ -226,17 +226,19 @@ void TipsMenu::UpdateInput(float dt) {
 }
 
 void TipsMenu::Update(float dt) {
-  if ((!GetFlag(SF_TIPSMENU) || ScrWork[SW_SYSMENUCT] < 10000) &&
+  const int sysMenuCt = ScrWork[SW_SYSMENUCT];
+  const int systemMenuCHG = ScrWork[SW_SYSTEMMENUCHG];
+
+  if ((!GetFlag(SF_TIPSMENU) || sysMenuCt < 10000 ||
+       (sysMenuCt == 10000 && systemMenuCHG != 0 && systemMenuCHG != 64)) &&
       State == Shown) {
     Hide();
-  } else if (GetFlag(SF_TIPSMENU) && ScrWork[SW_SYSMENUCT] > 0 &&
-             State == Hidden) {
+  } else if (GetFlag(SF_TIPSMENU) && sysMenuCt > 0 && State == Hidden) {
     Show();
   }
 
-  if (FadeAnimation.IsOut() &&
-      (ScrWork[SW_SYSMENUCT] == 0 || GetFlag(SF_SYSTEMMENU)) &&
-      State == Hiding) {
+  if (FadeAnimation.IsOut() && !GetFlag(SF_TIPSMENU) && systemMenuCHG == 0 &&
+      (sysMenuCt == 0 || GetFlag(SF_SYSTEMMENU)) && State == Hiding) {
     State = Hidden;
 
     (*ItemsList.GetCurrent())->Hide();
@@ -248,8 +250,9 @@ void TipsMenu::Update(float dt) {
     TipsSystem::GetNewTipsIndices().resize(0);
     CurrentlyDisplayedTipId = -1;
     if (LastFocusedMenu) LastFocusedMenu->IsFocused = true;
-  } else if (FadeAnimation.IsIn() && ScrWork[SW_SYSMENUCT] == 10000 &&
-             State == Showing) {
+  } else if (FadeAnimation.IsIn() && sysMenuCt == 10000 &&
+             (systemMenuCHG == 0 || systemMenuCHG == 64) &&
+             GetFlag(SF_TIPSMENU) && State == Showing) {
     State = Shown;
     IsFocused = true;
     (*ItemsList.GetCurrent())->HasFocus = true;
