@@ -10,6 +10,7 @@ namespace DelusionTrigger {
 inline Sprite BackgroundSprite;
 inline Sprite BackgroundSpriteMask;
 inline Sprite ScreenMask;
+inline std::array<std::vector<Sprite>, 21> DelusionTextGlyphs;
 
 void Configure();
 

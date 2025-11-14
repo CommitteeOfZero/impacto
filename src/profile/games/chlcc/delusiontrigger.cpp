@@ -21,6 +21,15 @@ void Configure() {
   BackgroundSpriteMask.Bounds.Y = BackgroundSprite.Bounds.Center().y -
                                   BackgroundSpriteMask.Bounds.Center().y;
 
+  EnsurePushMemberOfType("DelusionTextGlyphs", LUA_TTABLE);
+  ForEachProfileArray([](uint32_t line) {
+    AssertIs(LUA_TTABLE);
+    ForEachProfileArray([line](uint32_t) {
+      DelusionTextGlyphs[line].emplace_back(EnsureGetArrayElement<Sprite>());
+    });
+  });
+
+  Pop();
   Pop();
 }
 
