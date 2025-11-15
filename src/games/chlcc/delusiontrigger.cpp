@@ -6,6 +6,8 @@
 #include "../../profile/scriptvars.h"
 #include "../../profile/configsystem.h"
 #include "../../game.h"
+#include "../../profile/vm.h"
+#include "../../vm/interface/scene2d.h"
 #include "../../profile/game.h"
 
 namespace Impacto {
@@ -19,19 +21,18 @@ using namespace Impacto::Vm::Interface;
 using enum Impacto::UI::MenuState;
 
 DelusionTrigger::DelusionTrigger()
-    : TriggerOnTint(RgbIntToFloat(0xffb0ce)),
-      DelusionState(ScrWork[SW_DELUSION_STATE]) {}
+    : DelusionState(ScrWork[SW_DELUSION_STATE]), TextSystem(*this) {}
 
 void DelusionTrigger::Show() {
   if (Profile::ConfigSystem::TriggerStopSkip) SkipModeEnabled = false;
   if (State != Shown && State != Showing) {
     State = Showing;
     DelusionState = DS_Neutral;
-    maskScaleFactor = 131072;
-    spinAngle = 0;
-    spinRate = 3072;
-    underLayerAlpha = 0;
-    backgroundAlpha = 0;
+    MaskScaleFactor = 131072;
+    SpinAngle = 0;
+    SpinRate = 3072;
+    UnderlayerAlpha = 0;
+    BackgroundAlpha = 0;
     AnimationState = 0;
     AnimCounter = 0;
     TriggerOnTintAlpha = 0;
@@ -39,16 +40,16 @@ void DelusionTrigger::Show() {
     UnderlayerXRate = 400;
     ShakeState = 0;
     MaskOffsetX = 0;
-    SetFlag(2511, 1);
-    SetFlag(2512, 0);
+    SetFlag(SF_DELUSION_UI_ANIM_WAIT, 1);
+    SetFlag(SF_DELUSION_UI_ANIMSWITCH_WAIT, 0);
   }
 }
 void DelusionTrigger::Hide() {
   if (State != Hidden && State != Hiding) {
     State = Hiding;
     AnimationState = 0;
-    SetFlag(2511, 1);
-    SetFlag(2512, 0);
+    SetFlag(SF_DELUSION_UI_ANIM_WAIT, 1);
+    SetFlag(SF_DELUSION_UI_ANIMSWITCH_WAIT, 0);
   }
 }
 
@@ -58,7 +59,7 @@ void DelusionTrigger::UpdateHiding() {
     switch (AnimationState) {
       case 0:
       case 4: {
-        maskScaleFactor -= 1760;
+        MaskScaleFactor -= 1760;
         if (AnimCounter == 5) {
           AnimationState++;
           AnimCounter = 0;
@@ -72,14 +73,14 @@ void DelusionTrigger::UpdateHiding() {
       } break;
       case 2:
       case 6: {
-        maskScaleFactor += 1760;
+        MaskScaleFactor += 1760;
         if (AnimCounter == 5) {
           AnimationState++;
           AnimCounter = 0;
         }
       } break;
       case 8: {
-        maskScaleFactor -= 3072;
+        MaskScaleFactor -= 3072;
         if (AnimCounter == 14) {
           AnimationState++;
           AnimCounter = 0;
@@ -94,9 +95,9 @@ void DelusionTrigger::UpdateHiding() {
         }
       } break;
       case 10: {
-        maskScaleFactor += 3072;
+        MaskScaleFactor += 3072;
         if (AnimCounter > 17) {
-          backgroundAlpha -= 16;
+          BackgroundAlpha -= 16;
         }
         if (AnimCounter == 50) {
           AnimCounter = 0;
@@ -106,10 +107,10 @@ void DelusionTrigger::UpdateHiding() {
         }
       } break;
       case 11: {
-        spinRate += 24;
-        maskScaleFactor += 1536;
+        SpinRate += 24;
+        MaskScaleFactor += 1536;
         if (AnimCounter > 67) {
-          backgroundAlpha -= 8;
+          BackgroundAlpha -= 8;
         }
         if (AnimCounter == 100) {
           AnimCounter = 0;
@@ -119,10 +120,10 @@ void DelusionTrigger::UpdateHiding() {
         }
       } break;
       case 12: {
-        spinRate -= 24;
-        maskScaleFactor += 1536;
+        SpinRate -= 24;
+        MaskScaleFactor += 1536;
         if (AnimCounter > 67) {
-          backgroundAlpha -= 8;
+          BackgroundAlpha -= 8;
         }
         if (AnimCounter == 100) {
           AnimCounter = 0;
@@ -138,19 +139,19 @@ void DelusionTrigger::UpdateHiding() {
 void DelusionTrigger::UpdateShowing() {
   switch (AnimationState) {
     case 0: {
-      spinRate -= 24;
-      maskScaleFactor -= 736;
+      SpinRate -= 24;
+      MaskScaleFactor -= 736;
 
-      if (underLayerAlpha < 256) {
-        underLayerAlpha += 16;
+      if (UnderlayerAlpha < 256) {
+        UnderlayerAlpha += 16;
       }
-      if (backgroundAlpha < 256) {
-        backgroundAlpha += 16;
+      if (BackgroundAlpha < 256) {
+        BackgroundAlpha += 16;
       }
 
-      if (spinRate == 0) {
+      if (SpinRate == 0) {
         AnimationState += 1;
-        spinRate = -1024;
+        SpinRate = -1024;
       }
     } break;
     case 1:
@@ -159,7 +160,7 @@ void DelusionTrigger::UpdateShowing() {
       AnimCounter += 1;
       if (AnimCounter == 5) {
         AnimationState += 1;
-        spinRate = 0;
+        SpinRate = 0;
         AnimCounter = 0;
       }
     } break;
@@ -168,7 +169,7 @@ void DelusionTrigger::UpdateShowing() {
       if (AnimCounter == 15) {
         AnimationState += 1;
         AnimCounter = 0;
-        spinRate = 1024;
+        SpinRate = 1024;
       }
     } break;
     case 4: {
@@ -176,7 +177,7 @@ void DelusionTrigger::UpdateShowing() {
       if (AnimCounter == 15) {
         AnimationState += 1;
         AnimCounter = 0;
-        spinRate = -1024;
+        SpinRate = -1024;
       }
     } break;
     case 6: {
@@ -184,11 +185,11 @@ void DelusionTrigger::UpdateShowing() {
       if (AnimCounter == 20) {
         AnimationState += 1;
         AnimCounter = 0;
-        spinRate = 5;
+        SpinRate = 5;
       }
     } break;
     case 7: {
-      maskScaleFactor -= 1536;
+      MaskScaleFactor -= 1536;
       AnimCounter += 1;
       if (AnimCounter == 10) {
         AnimationState += 1;
@@ -196,17 +197,15 @@ void DelusionTrigger::UpdateShowing() {
       }
     } break;
     case 8: {
-      maskScaleFactor += 3072;
-      if (maskScaleFactor > 79999) {
+      MaskScaleFactor += 3072;
+      if (MaskScaleFactor > 79999) {
         AnimationState = 0;
         AnimCounter = 0;
-        SetFlag(2511, 0);
-        State = Shown;
+        SetFlag(SF_DELUSION_UI_ANIM_WAIT, 0);
       }
     } break;
     default:
-      SetFlag(2511, 0);
-      State = Shown;
+      break;
   }
 }
 
@@ -226,7 +225,9 @@ void DelusionTrigger::UpdateShown() {
                 : (ShakeState == 6) ? -20
                                     : 0;
   ShakeState = (ShakeState == 0) ? 0 : ShakeState - 1;
-  if (PADinputButtonWentDown & PAD1L2) {
+  bool anim = false;
+  if (((PADinputButtonWentDown & PAD1L2)) &&
+      (!DelusionTextAlpha || DelusionTextAlpha == 256)) {
     switch (ScrWork[SW_DELUSION_STATE]) {
       case DS_Neutral:
         ScrWork[SW_DELUSION_STATE] = DS_Positive;
@@ -240,7 +241,8 @@ void DelusionTrigger::UpdateShown() {
       default:
         break;
     }
-  } else if (PADinputButtonWentDown & PAD1R2) {
+  } else if ((PADinputButtonWentDown & PAD1R2) &&
+             (!DelusionTextAlpha || DelusionTextAlpha == 256)) {
     switch (ScrWork[SW_DELUSION_STATE]) {
       case DS_Neutral:
         ScrWork[SW_DELUSION_STATE] = DS_Negative;
@@ -261,40 +263,70 @@ void DelusionTrigger::UpdateShown() {
       TriggerOnTintAlpha = TriggerOnTintAlpha + 4;
     }
     if (ScrWork[SW_DELUSION_STATE] == DS_Positive) {
-      if (spinRate < 40) {
-        spinRate = spinRate + 2;
+      TriggerOnTint = RgbIntToFloat(0xffb0ce);
+      if (SpinRate < 40) {
+        SpinRate = SpinRate + 2;
+        anim = true;
       }
       if (UnderlayerXRate < 2400) {
         UnderlayerXRate += 100;
+        anim = true;
+        if (UnderlayerXRate == 2400 && ScrWork[SW_DELUSION_POS_TXT_IDX] != 0) {
+          DelusionSelectedLine = (ScrWork[SW_DELUSION_POS_TXT_IDX] - 1) * 3;
+          DelusionTextAlpha = 256;
+          TextSystem.Init();
+        }
       }
     } else if (ScrWork[SW_DELUSION_STATE] == DS_Negative) {
-      if (spinRate > -40) {
-        spinRate = spinRate - 2;
+      TriggerOnTint = ScrWork[SW_DELUSION_NEG_TXT_IDX]
+                          ? RgbIntToFloat(0xffb0ce)
+                          : RgbIntToFloat(0x2242e3);
+      if (SpinRate > -40) {
+        SpinRate = SpinRate - 2;
+        anim = true;
       }
       if (UnderlayerXRate > -2400) {
         UnderlayerXRate -= 100;
+        anim = true;
+        if (UnderlayerXRate == -2400 && ScrWork[SW_DELUSION_NEG_TXT_IDX] != 0) {
+          DelusionSelectedLine = (ScrWork[SW_DELUSION_NEG_TXT_IDX] - 1) * 3;
+          DelusionTextAlpha = 256;
+          TextSystem.Init();
+        }
       }
     }
   } else {
     if ((TriggerOnTintAlpha != 0)) {
       TriggerOnTintAlpha -= 4;
     }
-    if (spinRate < -5) {
-      spinRate = spinRate + 2;
-    } else if (spinRate > 5) {
-      spinRate = spinRate - 2;
+    if (DelusionTextAlpha != 0) {
+      DelusionTextAlpha = DelusionTextAlpha + -16;
+    }
+    if (SpinRate < -5) {
+      SpinRate = SpinRate + 2;
+      anim = true;
+    } else if (SpinRate > 5) {
+      SpinRate = SpinRate - 2;
+      anim = true;
     }
     if (UnderlayerXRate < -400) {
       UnderlayerXRate += 100;
+      anim = true;
     } else if (UnderlayerXRate > 400) {
       UnderlayerXRate -= 100;
+      anim = true;
     }
   }
-  SetFlag(2512, 0);
-  SetFlag(2511, 0);
+
+  TextSystem.Update();
+  SetFlag(SF_DELUSION_UI_ANIM_WAIT, anim);
+  SetFlag(SF_DELUSION_UI_ANIMSWITCH_WAIT, anim);
 }
 
 void DelusionTrigger::Update(float dt) {
+  if (!GetFlag(SF_DELUSIONACTIVE) && State != Hidden) {
+    Reset();
+  }
   if (State == Showing) {
     UpdateShowing();
   } else if (State == Hiding) {
@@ -311,7 +343,7 @@ void DelusionTrigger::Update(float dt) {
     for (; 29999 < UnderlayerXOffset;
          UnderlayerXOffset = UnderlayerXOffset + -10000) {
     }
-    spinAngle = ((spinAngle + spinRate) & 0xffff);
+    SpinAngle = ((SpinAngle + SpinRate) & 0xffff);
   }
 }
 
@@ -322,9 +354,9 @@ void DelusionTrigger::Render() {
   constexpr float aspect_ratio = 1280.0f / 720.0f;
 
   float newWidth = BackgroundSpriteMask.Bounds.Width * 65535.0f /
-                   maskScaleFactor * aspect_ratio * 0.7f;
+                   MaskScaleFactor * aspect_ratio * 0.7f;
   float newHeight =
-      BackgroundSpriteMask.Bounds.Height * 65535.0f / maskScaleFactor * 0.7f;
+      BackgroundSpriteMask.Bounds.Height * 65535.0f / MaskScaleFactor * 0.7f;
 
   float deltaWidth = newWidth - BackgroundSpriteMask.Bounds.Width;
   float deltaHeight = newHeight - BackgroundSpriteMask.Bounds.Height;
@@ -336,24 +368,224 @@ void DelusionTrigger::Render() {
       MaskOffsetX + BackgroundSpriteMask.Bounds.X - deltaWidth / 2.0f;
   ScaledMask.Bounds.Y = BackgroundSpriteMask.Bounds.Y - deltaHeight / 2.0f;
 
-  TriggerOnTint[3] = TriggerOnTintAlpha * backgroundAlpha / 65536.0f;
+  TriggerOnTint[3] = TriggerOnTintAlpha * BackgroundAlpha / 65536.0f;
   Renderer->DrawQuad(
       RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
       TriggerOnTint);
 
-  ScreenMask.Bounds.X = UnderlayerXOffset / 1000.0f;
-  Renderer->DrawSprite(
-      ScreenMask,
-      RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-      glm::vec4(1.0f, 1.0f, 1.0f, (backgroundAlpha * 160) / 65536.0));
+  Sprite mask = ScreenMask;
+  mask.Bounds.X = UnderlayerXOffset / 1000.0f;
 
   const RectF spriteDest = {0.0f, 0.0f, Profile::DesignWidth,
                             Profile::DesignHeight};
   const CornersQuad maskDest =
-      ScaledMask.Bounds.RotateAroundCenter(ScrWorkAngleToRad(spinAngle));
+      ScaledMask.Bounds.RotateAroundCenter(ScrWorkAngleToRad(SpinAngle));
+
+  Renderer->DrawSprite(
+      mask, spriteDest,
+      glm::vec4(1.0f, 1.0f, 1.0f, (BackgroundAlpha * 160) / 65536.0f));
+
+  TextSystem.Render();
   Renderer->DrawMaskedSpriteOverlay(BackgroundSprite, ScaledMask, spriteDest,
-                                    maskDest, (backgroundAlpha * 160) >> 8, 20,
+                                    maskDest, (BackgroundAlpha * 160) >> 8, 20,
                                     glm::mat4(1.0f), glm::vec4(1.0f), true);
+}
+
+void DelusionTrigger::Load() {
+  State = Shown;
+  ShakeState = 0;
+  MaskOffsetX = 0;
+  MaskScaleFactor = 82944;
+
+  UnderlayerXOffset = 20000;
+  AnimCounter = 0;
+  SpinAngle = 0;
+  SpinRate = 5;
+  BackgroundAlpha = 256;
+  DelusionTextAlpha = 0;
+  TextSystem.Clear();
+  switch (DelusionState) {
+    case DS_Neutral:
+      TriggerOnTintAlpha = 0;
+      TriggerOnTint = glm::vec4(0.0f);
+      UnderlayerXRate = 400;
+      break;
+    case DS_Positive:
+      TriggerOnTintAlpha = 104;
+      TriggerOnTint = RgbIntToFloat(0xffb0ce);
+      UnderlayerXRate = 2400;
+      if (ScrWork[SW_DELUSION_POS_TXT_IDX] != 0) {
+        DelusionTextAlpha = 256;
+        DelusionSelectedLine = (ScrWork[SW_DELUSION_POS_TXT_IDX] - 1) * 3;
+        TextSystem.Init();
+      }
+      break;
+    case DS_Negative:
+      TriggerOnTintAlpha = 104;
+      UnderlayerXRate = -2400;
+      TriggerOnTint = RgbIntToFloat(0x2242e3);
+      if (ScrWork[SW_DELUSION_NEG_TXT_IDX] != 0) {
+        TriggerOnTint = RgbIntToFloat(0xffb0ce);
+        DelusionTextAlpha = 256;
+        DelusionSelectedLine = (ScrWork[SW_DELUSION_NEG_TXT_IDX] - 1) * 3;
+        TextSystem.Init();
+      }
+      break;
+  }
+  auto bufId = Vm::Interface::GetBufferId(ScrWork[SW_EFF_CAP_BUF2]);
+  ScrWork[SW_CAP1FADECT + (bufId - 1) * Profile::Vm::ScrWorkBgStructSize] = 256;
+}
+
+void DelusionTrigger::Reset() {
+  State = Hidden;
+  SpinAngle = 0;
+  SpinRate = 0;
+  UnderlayerAlpha = 0;
+  UnderlayerXOffset = 0;
+  UnderlayerXRate = 0;
+  TriggerOnTint = glm::vec4{};
+  TriggerOnTintAlpha = 0;
+  AnimCounter = 0;
+  AnimationState = 0;
+  ShakeState = 0;
+  MaskScaleFactor = 65536;
+  DelusionSelectedLine.reset();
+  DelusionTextAlpha = 0;
+  TextSystem.Clear();
+}
+
+DelusionTextSystem::DelusionTextSystem(DelusionTrigger const& ctx)
+    : Ctx(&ctx) {}
+
+void DelusionTextSystem::Init() {
+  InitLineOffsets();
+  InitLines();
+}
+
+void DelusionTextSystem::InitLineOffsets() {
+  // Line offsets [0,1,2,0,1,2,0,1,2,...]
+  for (size_t i = 0; i < LineOffsets.size(); ++i)
+    LineOffsets[i] = i / (LineOffsets.size() / GlyphLines.size());
+
+  std::shuffle(LineOffsets.begin(), LineOffsets.end(),
+               std::mt19937{std::random_device{}()});
+}
+
+void DelusionTextSystem::InitLines() {
+  using namespace Profile::CHLCC::DelusionTrigger;
+
+  for (auto& line : GlyphLines) line.fill(nullptr);
+  for (size_t lineIdx = 0; lineIdx < GlyphLines.size(); ++lineIdx) {
+    size_t charOffset = 4;
+    if (lineIdx != 1) charOffset = (std::rand() % 8) + 8;
+
+    size_t localIndex = TextIndex;
+    while (true) {
+      const size_t offsetIndex =
+          LineOffsets[localIndex] + *Ctx->DelusionSelectedLine;
+      const size_t charCnt = DelusionTextGlyphs[offsetIndex].size();
+      if (charOffset + charCnt >= LineWidth) break;
+
+      localIndex = (localIndex + 1) % LineOffsets.size();
+      charOffset++;
+
+      const auto& glyphSrc = DelusionTextGlyphs[offsetIndex];
+      for (size_t c = 0; c < charCnt && charOffset + c < LineWidth; ++c)
+        GlyphLines[lineIdx][charOffset + c] = &glyphSrc[c];
+
+      charOffset += charCnt;
+    }
+
+    TextIndex = localIndex;
+  }
+}
+
+void DelusionTextSystem::ScrollLine(size_t lineIdx) {
+  auto& line = GlyphLines[lineIdx];
+
+  std::shift_left(line.begin(), line.end(), 1);
+  line[LineWidth - 1] = nullptr;
+
+  // Find the last non-empty glyph position
+  int lastGlyph = -1;
+  for (int i = 0; i < LineWidth; ++i) {
+    if (line[i] != nullptr) lastGlyph = i;
+  }
+
+  // Start filling after the last glyph
+  size_t counter = lastGlyph + 1;
+
+  // Fill more glyphs until line full
+  while (true) {
+    size_t offsetIndex = LineOffsets[TextIndex] + *Ctx->DelusionSelectedLine;
+    size_t charCnt = DelusionTextGlyphs[offsetIndex].size();
+    if (counter + charCnt >= LineWidth) break;
+
+    TextIndex = (TextIndex + 1) % LineOffsets.size();
+    counter++;
+
+    const auto& glyphSrc = DelusionTextGlyphs[offsetIndex];
+    for (size_t c = 0; c < charCnt && counter + c < LineWidth; ++c)
+      line[counter + c] = &glyphSrc[c];
+
+    counter += charCnt;
+  }
+}
+
+void DelusionTextSystem::Update() {
+  if (Ctx->DelusionTextAlpha == 0) return;
+  TextLineXOffset -= 12;
+  if (TextLineXOffset - 12 < -319) {
+    TextLineXOffset += 308;
+    for (size_t i = 0; i < GlyphLines.size(); ++i) ScrollLine(i);
+  }
+}
+
+void DelusionTextSystem::Render() {
+  if (Ctx->DelusionTextAlpha == 0) return;
+  for (size_t i = 0; i < GlyphLines.size(); i++) {
+    for (size_t j = 0; j < GlyphLines[i].size(); j++) {
+      const Sprite* glyph = GlyphLines[i][j];
+      if (!glyph) continue;
+      const glm::vec2 translation{TextLineXOffset + 320 * j, -10 + 330 * i};
+      CornersQuad quad{{
+          .TL = {-160, -160},
+          .BL = {-160, 160},
+          .TR = {160, -160},
+          .BR = {160, 160},
+      }};
+      const float zRots[] = {
+          (translation.x * 38 + translation.y * 28965) *
+              std::numbers::pi_v<float> / 65535.0f,
+          (translation.x * 65 + translation.y * 14708) *
+              std::numbers::pi_v<float> / 65535.0f,
+          (translation.x * 34 + translation.y * 5651) *
+              std::numbers::pi_v<float> / 65535.0f,
+          (translation.x * 52 + translation.y * 18518) *
+              std::numbers::pi_v<float> / 65535.0f,
+      };
+      glm::vec2* const corners[] = {&quad.TopLeft, &quad.BottomLeft,
+                                    &quad.TopRight, &quad.BottomRight};
+
+      for (int cornerIndex = 0; cornerIndex < 4; ++cornerIndex) {
+        glm::vec2 result =
+            Rotate2D(zRots[cornerIndex]) * glm::vec2{20.0f, 20.0f};
+        *corners[cornerIndex] += glm::vec2(result) + translation;
+      }
+      Renderer->DrawSprite(*glyph, quad,
+                           RgbIntToFloat(0xffa0e0, (Ctx->DelusionTextAlpha *
+                                                    3.0f / 10.0f / 256.0f)));
+    }
+  }
+}
+
+void DelusionTextSystem::Clear() {
+  for (auto& line : GlyphLines) {
+    line.fill(nullptr);
+  }
+
+  TextIndex = 0;
+  TextLineXOffset = 0;
 }
 
 }  // namespace CHLCC

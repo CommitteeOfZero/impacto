@@ -982,46 +982,32 @@ VmInstruction(InstDelusionTriggerCHLCC) {
   PopUint8(type);
   auto& inst = UI::CHLCC::DelusionTrigger::GetInstance();
   switch (type) {
-    case 0: {
-      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-                 "STUB instruction DelusionTriggerCHLCC(type: {:d})\n", type);
-      inst.Hide();
-    } break;
     case 1: {
-      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-                 "STUB instruction DelusionTriggerCHLCC(type: {:d})\n", type);
+      // start show
       inst.Show();
-    } break;
-    case 2: {
-      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-                 "STUB instruction DelusionTriggerCHLCC(type: {:d})\n", type);
-      inst.Show();
-      BlockThread;
-    } break;
-    case 3: {
-      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-                 "STUB instruction DelusionTriggerCHLCC(type: {:d})\n", type);
-      inst.Show();
-    } break;
-    case 4: {
-      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-                 "STUB instruction DelusionTriggerCHLCC(type: {:d})\n", type);
     } break;
     case 5: {
-      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-                 "STUB instruction DelusionTriggerCHLCC(type: {:d})\n", type);
-      inst.Show();
+      // restore delusion from load save
+      inst.Load();
     } break;
     case 6: {
-      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-                 "STUB instruction DelusionTriggerCHLCC(type: {:d})\n", type);
-    } break;
-    case 7: {
-      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-                 "STUB instruction DelusionTriggerCHLCC(type: {:d})\n", type);
+      // begin hide anim
       inst.Hide();
-      BlockThread;
     } break;
+    case 4:
+      inst.State = UI::Shown;
+      [[fallthrough]];
+    case 2:
+    case 7:
+      // handled by update
+      BlockThread;
+      break;
+    case 0:
+    case 3:
+    default:
+      // unused
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction DelusionTriggerCHLCC(type: {:d})\n", type);
   }
 }
 
