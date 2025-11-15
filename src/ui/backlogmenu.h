@@ -45,6 +45,9 @@ class BacklogMenu : public Menu {
   void RenderHighlight(glm::vec2 offset = {0.0f, 0.0f}) const;
   void UpdatePageUpDownInput(float dt);
   void UpdateScrollingInput(float dt);
+
+ private:
+  bool AtBottomPrev = false;
 };
 
 }  // namespace UI

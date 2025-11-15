@@ -27,6 +27,8 @@ void LoadGameFromLua() {
   ResolutionHeight = EnsureGetMember<int>("ResolutionHeight");
   Fullscreen = EnsureGetMember<bool>("Fullscreen");
   Subtitles = EnsureGetMember<char const*>("Subtitles");
+  CloseBacklogWhenReachedEnd =
+      TryGetMember<bool>("CloseBacklogWhenReachedEnd").value_or(true);
 
   bool res = TryGetMember<bool>("LayFileBigEndian", LayFileBigEndian);
   if (!res) LayFileBigEndian = false;

@@ -1,5 +1,7 @@
 #include "backlogmenu.h"
 
+#include <limits>
+
 #include "ui.h"
 #include "../profile/game.h"
 #include "../profile/vm.h"
@@ -205,6 +207,19 @@ void BacklogMenu::UpdateInput(float dt) {
   MainScrollbar->UpdateInput(dt);
   UpdatePageUpDownInput(dt);
   UpdateScrollingInput(dt);
+
+  if (!(State == Shown && IsFocused)) {
+    AtBottomPrev = false;
+  } else if (Profile::CloseBacklogWhenReachedEnd) {
+    const float epsilon = std::numeric_limits<float>::epsilon();
+    const bool atBottomNow = !MainScrollbar->Enabled ||
+                             (PageY <= (MainScrollbar->EndValue + epsilon));
+
+    if (AtBottomPrev && atBottomNow && Input::MouseWheelDeltaY < 0) {
+      Vm::Interface::PADinputMouseWentDown |= Vm::Interface::PADcustom[6];
+    }
+    AtBottomPrev = atBottomNow;
+  }
 }
 
 void BacklogMenu::Update(float dt) {
