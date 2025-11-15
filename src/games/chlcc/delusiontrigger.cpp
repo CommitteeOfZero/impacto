@@ -475,7 +475,7 @@ void DelusionTextSystem::InitLines() {
   using namespace Profile::CHLCC::DelusionTrigger;
 
   for (auto& line : GlyphLines) line.fill(nullptr);
-  for (int lineIdx = 0; lineIdx < GlyphLines.size(); ++lineIdx) {
+  for (size_t lineIdx = 0; lineIdx < GlyphLines.size(); ++lineIdx) {
     size_t charOffset = 4;
     if (lineIdx != 1) charOffset = (std::rand() % 8) + 8;
 
@@ -500,7 +500,7 @@ void DelusionTextSystem::InitLines() {
   }
 }
 
-void DelusionTextSystem::ScrollLine(int lineIdx) {
+void DelusionTextSystem::ScrollLine(size_t lineIdx) {
   auto& line = GlyphLines[lineIdx];
 
   std::shift_left(line.begin(), line.end(), 1);
@@ -525,15 +525,11 @@ void DelusionTextSystem::ScrollLine(int lineIdx) {
     counter++;
 
     const auto& glyphSrc = DelusionTextGlyphs[offsetIndex];
-    for (int c = 0; c < charCnt && counter + c < LineWidth; ++c)
+    for (size_t c = 0; c < charCnt && counter + c < LineWidth; ++c)
       line[counter + c] = &glyphSrc[c];
 
     counter += charCnt;
   }
-}
-
-void DelusionTextSystem::ScrollAll() {
-  for (int i = 0; i < GlyphLines.size(); ++i) ScrollLine(i);
 }
 
 void DelusionTextSystem::Update() {
@@ -541,14 +537,14 @@ void DelusionTextSystem::Update() {
   TextLineXOffset -= 12;
   if (TextLineXOffset - 12 < -319) {
     TextLineXOffset += 308;
-    ScrollAll();
+    for (size_t i = 0; i < GlyphLines.size(); ++i) ScrollLine(i);
   }
 }
 
 void DelusionTextSystem::Render() {
   if (Ctx->DelusionTextAlpha == 0) return;
-  for (int i = 0; i < GlyphLines.size(); i++) {
-    for (int j = 0; j < GlyphLines[i].size(); j++) {
+  for (size_t i = 0; i < GlyphLines.size(); i++) {
+    for (size_t j = 0; j < GlyphLines[i].size(); j++) {
       const Sprite* glyph = GlyphLines[i][j];
       if (!glyph) continue;
       const glm::vec2 translation{TextLineXOffset + 320 * j, -10 + 330 * i};
