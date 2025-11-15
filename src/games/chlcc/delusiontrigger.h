@@ -28,8 +28,7 @@ class DelusionTextSystem {
   std::optional<size_t> LineBase() const;
   void InitLineOffsets();
   void InitLines();
-  void ScrollLine(int lineIndex);
-  void ScrollAll();
+  void ScrollLine(size_t lineIndex);
 };
 
 class DelusionTrigger {
