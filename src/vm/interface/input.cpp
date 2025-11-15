@@ -188,6 +188,10 @@ void UpdatePADInput() {
   else if (Input::TouchWentDown[0])
     PADinputMouseWentDown |= PAD1A;
   if (Input::TouchIsDown[0]) PADinputMouseIsDown |= PAD1A;
+
+  if (Input::MouseWheelDeltaY > 0) {
+    PADinputMouseWentDown |= PADcustom[12];
+  }
 }
 
 // TODO: Make this configurable per game

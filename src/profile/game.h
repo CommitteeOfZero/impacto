@@ -43,6 +43,7 @@ inline int ResolutionWidth;
 inline int ResolutionHeight;
 inline bool Fullscreen;
 inline char const* Subtitles;
+inline bool CloseBacklogWhenReachedEnd = true;
 
 inline int PlatformId = 0;
 
