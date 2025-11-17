@@ -112,3 +112,8 @@ root.SpriteSheets = {
 };
 
 root.Sprites = {};
+
+if root.Language ~= "Japanese" then
+    root.SpriteSheets.DelusionText.DesignWidth = 2730;
+    root.SpriteSheets.DelusionText.DesignHeight = 1408;
+end

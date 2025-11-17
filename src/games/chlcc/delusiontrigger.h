@@ -9,26 +9,28 @@ namespace CHLCC {
 class DelusionTrigger;
 class DelusionTextSystem {
  public:
-  static int constexpr LineWidth = 60;
-  std::array<std::array<const Sprite*, 60>, 3> GlyphLines;
+  static int constexpr MaxCharsPerLine = 90;
+  std::array<std::array<const Sprite*, MaxCharsPerLine>, 3> GlyphLines;
   std::array<size_t, 300> LineOffsets{};
 
+  std::optional<int> DelusionSelectedLine;
   size_t TextIndex = 0;
-  int TextLineXOffset = 0;
+  float TextLineXOffset = 0;
+  Animation DelusionTextFade;
   const DelusionTrigger* Ctx;
 
   DelusionTextSystem(DelusionTrigger const& ctx);
 
   void Init();
-  void Update();
+  void Update(float dt);
   void Render();
   void Clear();
 
  private:
-  std::optional<size_t> LineBase() const;
   void InitLineOffsets();
   void InitLines();
   void ScrollLine(size_t lineIndex);
+  void FillLine(size_t& counter, std::span<const Sprite*> line);
 };
 
 class DelusionTrigger {
@@ -51,9 +53,9 @@ class DelusionTrigger {
   UI::MenuState State = UI::Hidden;
 
  protected:
-  void UpdateShowing();
-  void UpdateShown();
-  void UpdateHiding();
+  void UpdateShowing(float dt);
+  void UpdateShown(float dt);
+  void UpdateHiding(float dt);
   void PlayClickSound();
 
   int& DelusionState;
@@ -73,8 +75,6 @@ class DelusionTrigger {
   int UnderlayerXOffset, UnderlayerXRate;
   int ShakeState;
   int MaskOffsetX;
-  std::optional<int> DelusionSelectedLine;
-  int DelusionTextAlpha;
 
   DelusionTextSystem TextSystem;
 

@@ -53,7 +53,7 @@ void DelusionTrigger::Hide() {
   }
 }
 
-void DelusionTrigger::UpdateHiding() {
+void DelusionTrigger::UpdateHiding(float dt) {
   if (AnimationState < 13) {
     AnimCounter++;
     switch (AnimationState) {
@@ -136,7 +136,7 @@ void DelusionTrigger::UpdateHiding() {
   }
 }
 
-void DelusionTrigger::UpdateShowing() {
+void DelusionTrigger::UpdateShowing(float dt) {
   switch (AnimationState) {
     case 0: {
       SpinRate -= 24;
@@ -216,7 +216,7 @@ void DelusionTrigger::PlayClickSound() {
   Impacto::Audio::Channels[Audio::AC_SE0 + 0]->Play("se", 19, false, 0.0f);
 }
 
-void DelusionTrigger::UpdateShown() {
+void DelusionTrigger::UpdateShown(float dt) {
   MaskOffsetX = (ShakeState == 1)   ? 0
                 : (ShakeState == 2) ? -16
                 : (ShakeState == 3) ? 0
@@ -226,8 +226,8 @@ void DelusionTrigger::UpdateShown() {
                                     : 0;
   ShakeState = (ShakeState == 0) ? 0 : ShakeState - 1;
   bool anim = false;
-  if (((PADinputButtonWentDown & PAD1L2)) &&
-      (!DelusionTextAlpha || DelusionTextAlpha == 256)) {
+  if ((PADinputButtonWentDown & PAD1L2) &&
+      TextSystem.DelusionTextFade.IsStopped()) {
     switch (ScrWork[SW_DELUSION_STATE]) {
       case DS_Neutral:
         ScrWork[SW_DELUSION_STATE] = DS_Positive;
@@ -242,7 +242,7 @@ void DelusionTrigger::UpdateShown() {
         break;
     }
   } else if ((PADinputButtonWentDown & PAD1R2) &&
-             (!DelusionTextAlpha || DelusionTextAlpha == 256)) {
+             TextSystem.DelusionTextFade.IsStopped()) {
     switch (ScrWork[SW_DELUSION_STATE]) {
       case DS_Neutral:
         ScrWork[SW_DELUSION_STATE] = DS_Negative;
@@ -272,8 +272,8 @@ void DelusionTrigger::UpdateShown() {
         UnderlayerXRate += 100;
         anim = true;
         if (UnderlayerXRate == 2400 && ScrWork[SW_DELUSION_POS_TXT_IDX] != 0) {
-          DelusionSelectedLine = (ScrWork[SW_DELUSION_POS_TXT_IDX] - 1) * 3;
-          DelusionTextAlpha = 256;
+          TextSystem.DelusionSelectedLine =
+              (ScrWork[SW_DELUSION_POS_TXT_IDX] - 1) * 3;
           TextSystem.Init();
         }
       }
@@ -289,8 +289,8 @@ void DelusionTrigger::UpdateShown() {
         UnderlayerXRate -= 100;
         anim = true;
         if (UnderlayerXRate == -2400 && ScrWork[SW_DELUSION_NEG_TXT_IDX] != 0) {
-          DelusionSelectedLine = (ScrWork[SW_DELUSION_NEG_TXT_IDX] - 1) * 3;
-          DelusionTextAlpha = 256;
+          TextSystem.DelusionSelectedLine =
+              (ScrWork[SW_DELUSION_NEG_TXT_IDX] - 1) * 3;
           TextSystem.Init();
         }
       }
@@ -299,8 +299,8 @@ void DelusionTrigger::UpdateShown() {
     if ((TriggerOnTintAlpha != 0)) {
       TriggerOnTintAlpha -= 4;
     }
-    if (DelusionTextAlpha != 0) {
-      DelusionTextAlpha = DelusionTextAlpha + -16;
+    if (TextSystem.DelusionTextFade.IsIn()) {
+      TextSystem.DelusionTextFade.StartOut();
     }
     if (SpinRate < -5) {
       SpinRate = SpinRate + 2;
@@ -318,7 +318,7 @@ void DelusionTrigger::UpdateShown() {
     }
   }
 
-  TextSystem.Update();
+  TextSystem.Update(dt);
   SetFlag(SF_DELUSION_UI_ANIM_WAIT, anim);
   SetFlag(SF_DELUSION_UI_ANIMSWITCH_WAIT, anim);
 }
@@ -328,11 +328,11 @@ void DelusionTrigger::Update(float dt) {
     Reset();
   }
   if (State == Showing) {
-    UpdateShowing();
+    UpdateShowing(dt);
   } else if (State == Hiding) {
-    UpdateHiding();
+    UpdateHiding(dt);
   } else if (State == Shown) {
-    UpdateShown();
+    UpdateShown(dt);
   }
 
   if (State != Hidden) {
@@ -350,7 +350,6 @@ void DelusionTrigger::Update(float dt) {
 void DelusionTrigger::Render() {
   if (State == Hidden) return;
   Sprite ScaledMask = BackgroundSpriteMask;
-  // float scalingFactor = 1;
   constexpr float aspect_ratio = 1280.0f / 720.0f;
 
   float newWidth = BackgroundSpriteMask.Bounds.Width * 65535.0f /
@@ -402,7 +401,6 @@ void DelusionTrigger::Load() {
   SpinAngle = 0;
   SpinRate = 5;
   BackgroundAlpha = 256;
-  DelusionTextAlpha = 0;
   TextSystem.Clear();
   switch (DelusionState) {
     case DS_Neutral:
@@ -415,8 +413,8 @@ void DelusionTrigger::Load() {
       TriggerOnTint = RgbIntToFloat(0xffb0ce);
       UnderlayerXRate = 2400;
       if (ScrWork[SW_DELUSION_POS_TXT_IDX] != 0) {
-        DelusionTextAlpha = 256;
-        DelusionSelectedLine = (ScrWork[SW_DELUSION_POS_TXT_IDX] - 1) * 3;
+        TextSystem.DelusionSelectedLine =
+            (ScrWork[SW_DELUSION_POS_TXT_IDX] - 1) * 3;
         TextSystem.Init();
       }
       break;
@@ -426,8 +424,8 @@ void DelusionTrigger::Load() {
       TriggerOnTint = RgbIntToFloat(0x2242e3);
       if (ScrWork[SW_DELUSION_NEG_TXT_IDX] != 0) {
         TriggerOnTint = RgbIntToFloat(0xffb0ce);
-        DelusionTextAlpha = 256;
-        DelusionSelectedLine = (ScrWork[SW_DELUSION_NEG_TXT_IDX] - 1) * 3;
+        TextSystem.DelusionSelectedLine =
+            (ScrWork[SW_DELUSION_NEG_TXT_IDX] - 1) * 3;
         TextSystem.Init();
       }
       break;
@@ -449,24 +447,25 @@ void DelusionTrigger::Reset() {
   AnimationState = 0;
   ShakeState = 0;
   MaskScaleFactor = 65536;
-  DelusionSelectedLine.reset();
-  DelusionTextAlpha = 0;
   TextSystem.Clear();
 }
 
-DelusionTextSystem::DelusionTextSystem(DelusionTrigger const& ctx)
-    : Ctx(&ctx) {}
+DelusionTextSystem::DelusionTextSystem(DelusionTrigger const& ctx) : Ctx(&ctx) {
+  DelusionTextFade.SetDuration(DelusionTextFadeDuration);
+}
 
 void DelusionTextSystem::Init() {
   InitLineOffsets();
   InitLines();
+  DelusionTextFade.StartIn();
 }
 
 void DelusionTextSystem::InitLineOffsets() {
   // Line offsets [0,1,2,0,1,2,0,1,2,...]
   for (size_t i = 0; i < LineOffsets.size(); ++i)
     LineOffsets[i] = i / (LineOffsets.size() / GlyphLines.size());
-
+  TextLineXOffset = 0;
+  TextIndex = 0;
   std::shuffle(LineOffsets.begin(), LineOffsets.end(),
                std::mt19937{std::random_device{}()});
 }
@@ -476,27 +475,13 @@ void DelusionTextSystem::InitLines() {
 
   for (auto& line : GlyphLines) line.fill(nullptr);
   for (size_t lineIdx = 0; lineIdx < GlyphLines.size(); ++lineIdx) {
-    size_t charOffset = 4;
-    if (lineIdx != 1) charOffset = (std::rand() % 8) + 8;
+    const int pastScreenStartIndex = static_cast<int>(
+        std::ceil(Profile::DesignWidth / DelusionScaledGlyphWidth));
 
-    size_t localIndex = TextIndex;
-    while (true) {
-      const size_t offsetIndex =
-          LineOffsets[localIndex] + *Ctx->DelusionSelectedLine;
-      const size_t charCnt = DelusionTextGlyphs[offsetIndex].size();
-      if (charOffset + charCnt >= LineWidth) break;
+    size_t charOffset = pastScreenStartIndex;
+    if (lineIdx != 1) charOffset = (std::rand() % 8) + pastScreenStartIndex * 2;
 
-      localIndex = (localIndex + 1) % LineOffsets.size();
-      charOffset++;
-
-      const auto& glyphSrc = DelusionTextGlyphs[offsetIndex];
-      for (size_t c = 0; c < charCnt && charOffset + c < LineWidth; ++c)
-        GlyphLines[lineIdx][charOffset + c] = &glyphSrc[c];
-
-      charOffset += charCnt;
-    }
-
-    TextIndex = localIndex;
+    FillLine(charOffset, GlyphLines[lineIdx]);
   }
 }
 
@@ -504,11 +489,11 @@ void DelusionTextSystem::ScrollLine(size_t lineIdx) {
   auto& line = GlyphLines[lineIdx];
 
   std::shift_left(line.begin(), line.end(), 1);
-  line[LineWidth - 1] = nullptr;
+  line[MaxCharsPerLine - 1] = nullptr;
 
   // Find the last non-empty glyph position
   int lastGlyph = -1;
-  for (int i = 0; i < LineWidth; ++i) {
+  for (int i = 0; i < MaxCharsPerLine; ++i) {
     if (line[i] != nullptr) lastGlyph = i;
   }
 
@@ -516,43 +501,58 @@ void DelusionTextSystem::ScrollLine(size_t lineIdx) {
   size_t counter = lastGlyph + 1;
 
   // Fill more glyphs until line full
+  FillLine(counter, line);
+}
+
+void DelusionTextSystem::FillLine(size_t& outStartIdx,
+                                  std::span<const Sprite*> line) {
   while (true) {
-    size_t offsetIndex = LineOffsets[TextIndex] + *Ctx->DelusionSelectedLine;
+    size_t offsetIndex = LineOffsets[TextIndex] + *DelusionSelectedLine;
     size_t charCnt = DelusionTextGlyphs[offsetIndex].size();
-    if (counter + charCnt >= LineWidth) break;
+    if (outStartIdx + charCnt >= MaxCharsPerLine) break;
 
     TextIndex = (TextIndex + 1) % LineOffsets.size();
-    counter++;
+    outStartIdx++;
 
     const auto& glyphSrc = DelusionTextGlyphs[offsetIndex];
-    for (size_t c = 0; c < charCnt && counter + c < LineWidth; ++c)
-      line[counter + c] = &glyphSrc[c];
+    for (size_t c = 0; c < charCnt && outStartIdx + c < MaxCharsPerLine; ++c)
+      line[outStartIdx + c] = &glyphSrc[c];
 
-    counter += charCnt;
+    outStartIdx += charCnt;
   }
 }
 
-void DelusionTextSystem::Update() {
-  if (Ctx->DelusionTextAlpha == 0) return;
-  TextLineXOffset -= 12;
-  if (TextLineXOffset - 12 < -319) {
-    TextLineXOffset += 308;
+void DelusionTextSystem::Update(float dt) {
+  DelusionTextFade.Update(dt);
+  if (DelusionTextFade.IsOut()) {
+    if (DelusionSelectedLine) DelusionSelectedLine.reset();
+    return;
+  };
+
+  TextLineXOffset -= DelusionTextXVelocity;
+
+  const float wrapAmount = DelusionScaledGlyphWidth - DelusionTextXVelocity;
+  if (TextLineXOffset < -wrapAmount) {
+    TextLineXOffset += wrapAmount;
     for (size_t i = 0; i < GlyphLines.size(); ++i) ScrollLine(i);
   }
 }
 
 void DelusionTextSystem::Render() {
-  if (Ctx->DelusionTextAlpha == 0) return;
+  if (DelusionTextFade.IsOut()) return;
   for (size_t i = 0; i < GlyphLines.size(); i++) {
     for (size_t j = 0; j < GlyphLines[i].size(); j++) {
       const Sprite* glyph = GlyphLines[i][j];
       if (!glyph) continue;
-      const glm::vec2 translation{TextLineXOffset + 320 * j, -10 + 330 * i};
+      const glm::vec2 translation{
+          TextLineXOffset + DelusionScaledGlyphWidth * j,
+          -DelusionTextLineSpacing +
+              (DelusionScaledGlyphHeight + DelusionTextLineSpacing) * i};
       CornersQuad quad{{
-          .TL = {-160, -160},
-          .BL = {-160, 160},
-          .TR = {160, -160},
-          .BR = {160, 160},
+          .TL = {-DelusionScaledGlyphWidth / 2, -DelusionScaledGlyphHeight / 2},
+          .BL = {-DelusionScaledGlyphWidth / 2, DelusionScaledGlyphHeight / 2},
+          .TR = {DelusionScaledGlyphWidth / 2, -DelusionScaledGlyphHeight / 2},
+          .BR = {DelusionScaledGlyphWidth / 2, DelusionScaledGlyphHeight / 2},
       }};
       const float zRots[] = {
           (translation.x * 38 + translation.y * 28965) *
@@ -572,9 +572,9 @@ void DelusionTextSystem::Render() {
             Rotate2D(zRots[cornerIndex]) * glm::vec2{20.0f, 20.0f};
         *corners[cornerIndex] += glm::vec2(result) + translation;
       }
-      Renderer->DrawSprite(*glyph, quad,
-                           RgbIntToFloat(0xffa0e0, (Ctx->DelusionTextAlpha *
-                                                    3.0f / 10.0f / 256.0f)));
+      Renderer->DrawSprite(
+          *glyph, quad,
+          RgbIntToFloat(0xffa0e0, (DelusionTextFade.Progress * 3.0f / 10.0f)));
     }
   }
 }
@@ -586,6 +586,9 @@ void DelusionTextSystem::Clear() {
 
   TextIndex = 0;
   TextLineXOffset = 0;
+  DelusionTextFade.Stop();
+  DelusionTextFade.Progress = 0.0f;
+  DelusionSelectedLine.reset();
 }
 
 }  // namespace CHLCC
