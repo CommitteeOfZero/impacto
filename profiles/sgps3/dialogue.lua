@@ -76,7 +76,11 @@ root.Dialogue = {
     },
     MaxPageSize = 2000,
     PageCount = 3,
-    ColorTagIsUint8 = true
+    ColorTagIsUint8 = true,
+    -- Nametag related values are stub, check CCLCC for more info
+    NameTagAnimStage1 = 0,
+    NameTagAnimStage2 = 0,
+    NameTagDuration = 0
 };
 
 include('sgps3/nametag.lua');

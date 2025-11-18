@@ -91,7 +91,11 @@ root.Dialogue = {
     HasMenuButton = true,
     MenuButtonSprite = "MenuButton",
     MenuButtonActiveSprite = "MenuButtonActive",
-    MenuButtonPosition = { X = 1786, Y = 996 }
+    MenuButtonPosition = { X = 1786, Y = 996 },
+    -- Nametag related values are stub, check CCLCC for more info
+    NameTagAnimStage1 = 0,
+    NameTagAnimStage2 = 0,
+    NameTagDuration = 0
 };
 
 MakeAnimation({
