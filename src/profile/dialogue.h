@@ -24,6 +24,7 @@ inline glm::vec2 ADVBoxPos;
 
 inline float FadeOutDuration;
 inline float FadeInDuration;
+inline float NameTagDuration;
 
 inline DialogueBoxType DialogueBoxCurrentType = DialogueBoxType::None;
 
@@ -89,6 +90,9 @@ inline int MaxPageSize;
 inline int PageCount;
 
 inline bool ColorTagIsUint8;
+
+inline float NameTagAnimStage1;
+inline float NameTagAnimStage2;
 
 inline bool HaveADVNameTag;
 namespace ADVNameTag {

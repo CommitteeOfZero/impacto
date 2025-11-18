@@ -110,15 +110,14 @@ struct RubyChunk {
   size_t FirstBaseCharacter;
   size_t Length;
   size_t BaseLength;
-  bool CenterPerCharacter;
   std::array<ProcessedTextGlyph, DialogueMaxRubyChunkLength> Text;
   std::array<uint16_t, DialogueMaxRubyChunkLength> RawText;
+  bool CenterPerCharacter;
 };
 
 struct TypewriterEffect : public Animation {
  public:
-  void Start(size_t firstGlyph, size_t glyphCount,
-             const std::set<size_t>& parallelStartGlyphs, bool voiced);
+  void Start(size_t firstGlyph, size_t glyphCount, bool voiced);
   void Update(float dt);
 
   float CalcOpacity(size_t glyph);
@@ -126,17 +125,17 @@ struct TypewriterEffect : public Animation {
 
   size_t GetGlyphCount() const { return GlyphCount; }
 
-  bool CancelRequested = false;
-  bool IsCancelled = false;
+  void SetParallelStartGlyphs(const std::set<size_t>& parallelStartGlyphs) {
+    ParallelStartGlyphs = parallelStartGlyphs;
+  }
 
  private:
   size_t FirstGlyph = 0;
   size_t GlyphCount = 0;
 
-  bool Voiced = false;
-
   std::set<size_t> ParallelStartGlyphs;
   float ProgressOnCancel;
+  bool Voiced = false;
 
   struct ParallelBlock {
     size_t Start;
@@ -146,45 +145,58 @@ struct TypewriterEffect : public Animation {
 
   // {startProgress, endProgress}
   std::pair<float, float> GetGlyphWritingProgresses(size_t glyph);
+
+ public:
+  bool CancelRequested = false;
+  bool IsCancelled = false;
 };
+
+enum class NametagState : uint8_t { Hidden, Visible, Hiding, Showing };
 
 struct DialoguePage {
   static void Init();
 
   int Id;
   int AnimationId = 0;
-  bool CurrentLineVoiced = false;
+  TypewriterEffect Typewriter;
 
   Animation FadeAnimation;
-  TypewriterEffect Typewriter;
+  Animation NameTagAnimation;
+  std::vector<ProcessedTextGlyph> Name;
+
+  size_t TypeWriterStartNew = 0;
+  glm::vec2 Dimensions;
+
+  Audio::AudioStream* CurrentVoice;
+  size_t NameLength;
   // TODO get rid of this
   bool TextIsFullyOpaque();
 
   int Length;
-  glm::vec2 Dimensions;
   float FontSize;
 
-  size_t NameLength;
-  int NameId;
-  bool HasName;
-  std::vector<ProcessedTextGlyph> Name;
-
-  size_t RubyChunkCount;
-  int CurrentRubyChunk;
   std::array<RubyChunk, DialogueMaxRubyChunks> RubyChunks;
-
   std::vector<ProcessedTextGlyph> Glyphs;
 
-  DialoguePageMode Mode;
+  size_t RubyChunkCount;
+  RectF BoxBounds;
+
+  int CurrentRubyChunk;
   TextAlignment Alignment = TextAlignment::Left;
 
+  uint32_t NameId;
+  uint32_t PrevNameId;
+
+  DialoguePageMode Mode;
   bool NVLResetBeforeAdd;
+
+  bool HasName;
+  bool CurrentLineVoiced = false;
+
+  // NametagState NameState = NametagState::Hidden;
 
   enum class AutoForwardType { Off, Normal, SyncVoice };
   AutoForwardType AutoForward = AutoForwardType::Off;
-  float AutoWaitTime = 0.0f;
-
-  RectF BoxBounds;
 
   void Clear();
   void AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice = 0,
@@ -193,19 +205,26 @@ struct DialoguePage {
   void Move(glm::vec2 relativePos);
   void MoveTo(glm::vec2 pos);
   void Render();
+  void HideCurrentName(bool updatePrevName = false);
 
  private:
   void FinishLine(Vm::Sc3VmThread* ctx, size_t nextLineStart,
                   const RectF& boxBounds, TextAlignment alignment);
   void EndRubyBase(int lastBaseCharacter);
 
-  bool BuildingRubyBase;
   size_t FirstRubyChunkOnLine;
+  size_t LastLineStart;
 
   float CurrentLineTop;
   float CurrentLineTopMargin;
-  size_t LastLineStart;
+
+  bool BuildingRubyBase;
+  bool HasPrevName;
+  bool ShouldShowNewText = false;
   DialoguePageMode PrevMode = DPM_ADV;
+
+ public:
+  float AutoWaitTime = 0.0f;
 };
 
 inline DialoguePage* DialoguePages;

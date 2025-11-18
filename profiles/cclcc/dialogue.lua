@@ -95,7 +95,10 @@ root.Dialogue = {
     },
     MaxPageSize = 2000,
     PageCount = 3,
-    ColorTagIsUint8 = false
+    ColorTagIsUint8 = false,
+    NameTagAnimStage1 = 16.0/54.0,
+    NameTagAnimStage2 = 38.0/54.0,
+    NameTagDuration = 0.9
 };
 
 MakeAnimation({

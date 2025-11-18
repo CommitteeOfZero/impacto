@@ -18,7 +18,8 @@ class DialogueBox {
   virtual void Hide();
   virtual void Update(float dt);
   virtual void Render(DialoguePageMode mode, bool hasName, float nameWidth,
-                      uint32_t nameId, float opacity);
+                      uint32_t nameId, float opacity,
+                      const Animation& nameTagAnimProgress);
 
   DialogueBoxState State;
 

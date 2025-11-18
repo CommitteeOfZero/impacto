@@ -51,7 +51,8 @@ void DialogueBox::Hide() {}
 void DialogueBox::Update(float dt) { UpdateControlButtons(dt); }
 
 void DialogueBox::Render(DialoguePageMode mode, bool hasName, float nameWidth,
-                         uint32_t nameId, float opacity) {
+                         uint32_t nameId, float opacity,
+                         const Animation& nameTagAnim) {
   glm::vec4 col = ScrWorkGetColor(SW_MESWINDOW_COLOR);
   col.a = opacity;
   if (mode == DPM_ADV) {

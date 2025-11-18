@@ -15,7 +15,8 @@ using namespace Impacto::Profile::Dialogue;
 using namespace Impacto::Profile::CHLCC::DialogueBox;
 
 void DialogueBox::Render(DialoguePageMode mode, bool hasName, float nameWidth,
-                         uint32_t nameId, float opacity) {
+                         uint32_t nameId, float opacity,
+                         const Animation& nameTagAnim) {
   if (mode == DPM_ADV) {
     glm::vec4 col = glm::vec4(1.0f);
     Sprite* advBoxSprite = &ADVBoxSprite;

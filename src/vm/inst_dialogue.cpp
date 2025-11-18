@@ -364,6 +364,7 @@ VmInstruction(InstMessWindow) {
       PopExpression(messWindowId);
       if (!DialoguePages[messWindowId].FadeAnimation.IsOut()) {
         DialoguePages[messWindowId].FadeAnimation.StartOut();
+        DialoguePages[messWindowId].HideCurrentName(true);
         SetFlag(messWindowId + SF_MESWINDOW0OPENFL, 0);
       }
     } break;

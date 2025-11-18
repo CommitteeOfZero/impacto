@@ -27,6 +27,7 @@ void Configure() {
 
   FadeOutDuration = EnsureGetMember<float>("FadeOutDuration");
   FadeInDuration = EnsureGetMember<float>("FadeInDuration");
+  NameTagDuration = EnsureGetMember<float>("NameTagDuration");
 
   TryGetMember<bool>("HasAutoButton", HasAutoButton);
   if (HasAutoButton) {
@@ -225,6 +226,9 @@ void Configure() {
   }
 
   ColorTagIsUint8 = EnsureGetMember<bool>("ColorTagIsUint8");
+
+  NameTagAnimStage1 = EnsureGetMember<float>("NameTagAnimStage1");
+  NameTagAnimStage2 = EnsureGetMember<float>("NameTagAnimStage2");
 
   TryGetMember<bool>("HasSpeakerPortraits", HasSpeakerPortraits);
 

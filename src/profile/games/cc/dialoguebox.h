@@ -19,6 +19,7 @@ inline glm::vec2 ADVBoxNamePlateMainPos;
 inline glm::vec2 ADVBoxNamePlateLabelPos;
 
 inline float ADVBoxEffectDuration;
+inline float NametagTransitionDuration;
 
 }  // namespace DialogueBox
 }  // namespace CC
