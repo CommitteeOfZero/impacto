@@ -21,7 +21,7 @@ using namespace Impacto::Vm::Interface;
 using enum Impacto::UI::MenuState;
 
 DelusionTrigger::DelusionTrigger()
-    : DelusionState(ScrWork[SW_DELUSION_STATE]), TextSystem(*this) {}
+    : DelusionState(ScrWork[SW_DELUSION_STATE]) {}
 
 void DelusionTrigger::Show() {
   if (Profile::ConfigSystem::TriggerStopSkip) SkipModeEnabled = false;
@@ -450,7 +450,7 @@ void DelusionTrigger::Reset() {
   TextSystem.Clear();
 }
 
-DelusionTextSystem::DelusionTextSystem(DelusionTrigger const& ctx) : Ctx(&ctx) {
+DelusionTextSystem::DelusionTextSystem() {
   DelusionTextFade.SetDuration(DelusionTextFadeDuration);
 }
 

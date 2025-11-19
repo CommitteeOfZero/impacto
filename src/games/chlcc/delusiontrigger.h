@@ -6,7 +6,6 @@
 namespace Impacto {
 namespace UI {
 namespace CHLCC {
-class DelusionTrigger;
 class DelusionTextSystem {
  public:
   static int constexpr MaxCharsPerLine = 90;
@@ -17,9 +16,8 @@ class DelusionTextSystem {
   size_t TextIndex = 0;
   float TextLineXOffset = 0;
   Animation DelusionTextFade;
-  const DelusionTrigger* Ctx;
 
-  DelusionTextSystem(DelusionTrigger const& ctx);
+  DelusionTextSystem();
 
   void Init();
   void Update(float dt);
