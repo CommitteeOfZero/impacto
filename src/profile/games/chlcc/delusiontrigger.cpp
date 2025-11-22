@@ -21,6 +21,24 @@ void Configure() {
   BackgroundSpriteMask.Bounds.Y = BackgroundSprite.Bounds.Center().y -
                                   BackgroundSpriteMask.Bounds.Center().y;
 
+  {
+    EnsurePushMemberOfType("DelusionTextGlyphs", LUA_TTABLE);
+    ForEachProfileArray([](uint32_t line) {
+      AssertIs(LUA_TTABLE);
+      ForEachProfileArray([line](uint32_t) {
+        DelusionTextGlyphs[line].emplace_back(EnsureGetArrayElement<Sprite>());
+      });
+    });
+
+    Pop();
+  }
+
+  DelusionTextXVelocity = EnsureGetMember<float>("DelusionTextXVelocity");
+  DelusionTextFadeDuration = EnsureGetMember<float>("DelusionTextFadeDuration");
+  DelusionScaledGlyphWidth = EnsureGetMember<float>("DelusionScaledGlyphWidth");
+  DelusionScaledGlyphHeight =
+      EnsureGetMember<float>("DelusionScaledGlyphHeight");
+  DelusionTextLineSpacing = EnsureGetMember<float>("DelusionTextLineSpacing");
   Pop();
 }
 
