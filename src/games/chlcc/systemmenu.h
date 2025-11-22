@@ -47,6 +47,7 @@ class SystemMenu : public Menu {
   float CurrentRunningPosition = 0.0f;
   float SelectionOffsetY = 0.0f;
   int IndexOfActiveButton = 0;
+  int LastFocusedButtonId = -1;
   glm::vec2 RedTitleLabelPos;
   glm::vec2 RightTitlePos;
   glm::vec2 LeftTitlePos;
