@@ -36,6 +36,7 @@ class SystemMenu : public Menu {
   Animation ItemsFade;
   bool ItemsFadeComplete = false;
   glm::vec2 BGPosition{};
+  int LastFocusedButtonId = -1;
 
   GridVertices Vertices;
 

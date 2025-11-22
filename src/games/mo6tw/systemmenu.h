@@ -22,6 +22,7 @@ class SystemMenu : public Menu {
  private:
   Widgets::Group* MainItems;
   Animation FadeAnimation;
+  int LastFocusedButtonId = -1;
 };
 
 }  // namespace MO6TW
