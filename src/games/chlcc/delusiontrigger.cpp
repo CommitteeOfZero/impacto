@@ -50,10 +50,18 @@ void DelusionTrigger::Hide() {
     AnimationState = 0;
     SetFlag(SF_DELUSION_UI_ANIM_WAIT, 1);
     SetFlag(SF_DELUSION_UI_ANIMSWITCH_WAIT, 0);
+    TextSystem.DelusionTextFade.StartOut();
   }
 }
 
 void DelusionTrigger::UpdateHiding(float dt) {
+  auto setHidden = [this] {
+    AnimCounter = 0;
+    AnimationState = 0;
+    SetFlag(SF_DELUSION_UI_ANIM_WAIT, 0);
+    State = Hidden;
+    Reset();
+  };
   if (AnimationState < 13) {
     AnimCounter++;
     switch (AnimationState) {
@@ -100,10 +108,7 @@ void DelusionTrigger::UpdateHiding(float dt) {
           BackgroundAlpha -= 16;
         }
         if (AnimCounter == 50) {
-          AnimCounter = 0;
-          AnimationState = 0;
-          SetFlag(2511, 0);
-          State = Hidden;
+          setHidden();
         }
       } break;
       case 11: {
@@ -113,10 +118,7 @@ void DelusionTrigger::UpdateHiding(float dt) {
           BackgroundAlpha -= 8;
         }
         if (AnimCounter == 100) {
-          AnimCounter = 0;
-          AnimationState = 0;
-          SetFlag(2511, 0);
-          State = Hidden;
+          setHidden();
         }
       } break;
       case 12: {
@@ -126,10 +128,7 @@ void DelusionTrigger::UpdateHiding(float dt) {
           BackgroundAlpha -= 8;
         }
         if (AnimCounter == 100) {
-          AnimCounter = 0;
-          AnimationState = 0;
-          SetFlag(2511, 0);
-          State = Hidden;
+          setHidden();
         }
       } break;
     }
@@ -225,7 +224,7 @@ void DelusionTrigger::UpdateShown(float dt) {
                 : (ShakeState == 6) ? -20
                                     : 0;
   ShakeState = (ShakeState == 0) ? 0 : ShakeState - 1;
-  bool anim = false;
+  bool anim = ShakeState != 0;
   if ((PADinputButtonWentDown & PAD1L2) &&
       TextSystem.DelusionTextFade.IsStopped()) {
     switch (ScrWork[SW_DELUSION_STATE]) {
@@ -318,13 +317,12 @@ void DelusionTrigger::UpdateShown(float dt) {
     }
   }
 
-  TextSystem.Update(dt);
   SetFlag(SF_DELUSION_UI_ANIM_WAIT, anim);
   SetFlag(SF_DELUSION_UI_ANIMSWITCH_WAIT, anim);
 }
 
 void DelusionTrigger::Update(float dt) {
-  if (!GetFlag(SF_DELUSIONACTIVE) && State != Hidden) {
+  if (!GetFlag(SF_DELUSIONACTIVE) && State == Shown) {
     Reset();
   }
   if (State == Showing) {
@@ -334,15 +332,19 @@ void DelusionTrigger::Update(float dt) {
   } else if (State == Shown) {
     UpdateShown(dt);
   }
+  TextSystem.Update(dt);
 
   if (State != Hidden) {
-    for (UnderlayerXOffset = UnderlayerXOffset + UnderlayerXRate;
-         UnderlayerXOffset < 0x2711;
-         UnderlayerXOffset = UnderlayerXOffset + 10000) {
-    }
-    for (; 29999 < UnderlayerXOffset;
-         UnderlayerXOffset = UnderlayerXOffset + -10000) {
-    }
+    UnderlayerXOffset += UnderlayerXRate;
+
+    constexpr static int minOffset = 10000;
+    constexpr static int range = 20000;
+
+    int diff = UnderlayerXOffset - minOffset;
+    int rem = diff % range;
+    if (rem < 0) rem += range;
+    UnderlayerXOffset = rem + minOffset;
+
     SpinAngle = ((SpinAngle + SpinRate) & 0xffff);
   }
 }
@@ -491,16 +493,12 @@ void DelusionTextSystem::ScrollLine(size_t lineIdx) {
   std::shift_left(line.begin(), line.end(), 1);
   line[MaxCharsPerLine - 1] = nullptr;
 
-  // Find the last non-empty glyph position
-  int lastGlyph = -1;
-  for (int i = 0; i < MaxCharsPerLine; ++i) {
-    if (line[i] != nullptr) lastGlyph = i;
+  // Find the last non-empty glyph position, fill after it
+  int lastGlyph = MaxCharsPerLine;
+  for (; lastGlyph >= 0; lastGlyph--) {
+    if (line[lastGlyph] != nullptr) break;
   }
-
-  // Start filling after the last glyph
   size_t counter = lastGlyph + 1;
-
-  // Fill more glyphs until line full
   FillLine(counter, line);
 }
 
@@ -529,7 +527,7 @@ void DelusionTextSystem::Update(float dt) {
     return;
   };
 
-  TextLineXOffset -= DelusionTextXVelocity;
+  TextLineXOffset -= DelusionTextXVelocity * 60 * dt;
 
   const float wrapAmount = DelusionScaledGlyphWidth - DelusionTextXVelocity;
   if (TextLineXOffset < -wrapAmount) {
@@ -555,14 +553,18 @@ void DelusionTextSystem::Render() {
           .BR = {DelusionScaledGlyphWidth / 2, DelusionScaledGlyphHeight / 2},
       }};
       const float zRots[] = {
-          (translation.x * 38 + translation.y * 28965) *
-              std::numbers::pi_v<float> / 65535.0f,
-          (translation.x * 65 + translation.y * 14708) *
-              std::numbers::pi_v<float> / 65535.0f,
-          (translation.x * 34 + translation.y * 5651) *
-              std::numbers::pi_v<float> / 65535.0f,
-          (translation.x * 52 + translation.y * 18518) *
-              std::numbers::pi_v<float> / 65535.0f,
+          ScrWorkAngleToRad(
+              static_cast<int>(translation.x * 38 + translation.y * 28965)) /
+              2,
+          ScrWorkAngleToRad(
+              static_cast<int>(translation.x * 65 + translation.y * 14708)) /
+              2,
+          ScrWorkAngleToRad(
+              static_cast<int>(translation.x * 34 + translation.y * 5651)) /
+              2,
+          ScrWorkAngleToRad(
+              static_cast<int>(translation.x * 52 + translation.y * 18518)) /
+              2,
       };
       glm::vec2* const corners[] = {&quad.TopLeft, &quad.BottomLeft,
                                     &quad.TopRight, &quad.BottomRight};

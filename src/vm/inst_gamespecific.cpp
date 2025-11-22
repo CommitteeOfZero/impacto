@@ -996,7 +996,7 @@ VmInstruction(InstDelusionTriggerCHLCC) {
     } break;
     case 4:
       inst.State = UI::Shown;
-      [[fallthrough]];
+      break;
     case 2:
     case 7:
       // handled by update
