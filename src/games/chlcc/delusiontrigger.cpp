@@ -322,9 +322,6 @@ void DelusionTrigger::UpdateShown(float dt) {
 }
 
 void DelusionTrigger::Update(float dt) {
-  if (!GetFlag(SF_DELUSIONACTIVE) && State == Shown) {
-    Reset();
-  }
   if (State == Showing) {
     UpdateShowing(dt);
   } else if (State == Hiding) {
@@ -494,7 +491,7 @@ void DelusionTextSystem::ScrollLine(size_t lineIdx) {
   line[MaxCharsPerLine - 1] = nullptr;
 
   // Find the last non-empty glyph position, fill after it
-  int lastGlyph = MaxCharsPerLine;
+  int lastGlyph = MaxCharsPerLine - 1;
   for (; lastGlyph >= 0; lastGlyph--) {
     if (line[lastGlyph] != nullptr) break;
   }
