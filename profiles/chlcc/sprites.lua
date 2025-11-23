@@ -99,6 +99,11 @@ root.SpriteSheets = {
         DesignWidth = 2048,
         DesignHeight = 1024
     },
+    ["DelusionText"] = {
+        Path = { Mount = "system", Id = 23 },
+        DesignWidth = 1280,
+        DesignHeight = 1344
+    },
     ["Trophy"] = {
         Path = { Mount = "system", Id = 24 },
         DesignWidth = 1120,
@@ -107,3 +112,8 @@ root.SpriteSheets = {
 };
 
 root.Sprites = {};
+
+if root.Language ~= "Japanese" then
+    root.SpriteSheets.DelusionText.DesignWidth = 2730;
+    root.SpriteSheets.DelusionText.DesignHeight = 1408;
+end

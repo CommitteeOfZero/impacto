@@ -265,11 +265,25 @@ struct Rect {
 };
 
 struct CornersQuad {
+ private:
+  struct Args {
+    glm::vec2 TL;
+    glm::vec2 BL;
+    glm::vec2 TR;
+    glm::vec2 BR;
+  };
+
+ public:
   glm::vec2 TopLeft;
   glm::vec2 BottomLeft;
   glm::vec2 TopRight;
   glm::vec2 BottomRight;
 
+  constexpr CornersQuad(Args args)
+      : TopLeft(args.TL),
+        BottomLeft(args.BL),
+        TopRight(args.TR),
+        BottomRight(args.BR) {}
   constexpr CornersQuad(glm::vec2 tl, glm::vec2 bl, glm::vec2 tr, glm::vec2 br)
       : TopLeft(tl), BottomLeft(bl), TopRight(tr), BottomRight(br) {}
 

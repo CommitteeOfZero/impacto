@@ -20,7 +20,7 @@ namespace GameSpecific {
 void Init() {
   switch (Profile::GameSpecific::GameSpecificType) {
     case +GameSpecificType::CHLCC: {
-      CHLCC::DelusionTrigger::GetInstance();
+      CHLCC::DelusionTrigger::GetInstance().Reset();
     } break;
     case +GameSpecificType::CC: {
     } break;
