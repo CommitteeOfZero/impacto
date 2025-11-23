@@ -2,6 +2,7 @@
 #include "../profile/game.h"
 #include "../profile/vm.h"
 #include "../profile/scene3d.h"
+#include "../profile/sprites.h"
 #include "../profile/ui/gamespecific.h"
 #include "../profile/games/cclcc/delusiontrigger.h"
 #include "../profile/games/chlcc/delusiontrigger.h"
@@ -17,6 +18,8 @@ using namespace Impacto::Profile::ScriptVars;
 namespace Impacto {
 namespace UI {
 namespace GameSpecific {
+
+static float CHLCCScanlineOffsetY = 0.0f;
 
 void Init() {
   switch (Profile::GameSpecific::GameSpecificType) {
@@ -39,6 +42,7 @@ void Update(float dt) {
   switch (Profile::GameSpecific::GameSpecificType) {
     case +GameSpecificType::CHLCC: {
       CHLCC::DelusionTrigger::GetInstance().Update(dt);
+      CHLCCScanlineOffsetY = fmod(dt * 60 + CHLCCScanlineOffsetY, 300.0f);
     } break;
     case +GameSpecificType::CC: {
       UpdateCCButtonGuide(dt);
@@ -84,6 +88,16 @@ void RenderMain() {
 void RenderLayer(uint32_t layer) {
   switch (Profile::GameSpecific::GameSpecificType) {
     case +GameSpecificType::CHLCC: {
+      if (ScrWork[SW_MONITOR_SCANLINE_ENABLED] &&
+          static_cast<int>(layer) == ScrWork[SW_MONITOR_SCANLINE_LAYER]) {
+        Renderer->DrawSprite(
+            MonitorScanline,
+            RectF{0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight},
+            glm::vec4{glm::vec3{1.0f}, 26 / 255.0f});
+        float y = (299 - CHLCCScanlineOffsetY) * 1000.0f / 300 - 200;
+        Renderer->DrawQuad(RectF{0.0f, y, Profile::DesignWidth, 200},
+                           glm::vec4{glm::vec3{0.0f}, 88 / 255.0f});
+      }
     } break;
     case +GameSpecificType::CC: {
     } break;
