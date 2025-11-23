@@ -570,7 +570,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
                              int animId) {
   CurrentLineVoiced = voice != nullptr;
   // Hold last voiced animation id
-  if (CurrentLineVoiced) AnimationId = animId;
+  if (CurrentLineVoiced) AnimationId = std::max(animId, 31);
 
   if (Mode == DPM_ADV || Mode == DPM_REV || NVLResetBeforeAdd ||
       PrevMode != Mode) {
