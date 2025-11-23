@@ -169,7 +169,7 @@ VmInstruction(InstMes) {
   PopExpression(characterId);
   if (acted) animationId = ExpressionEval(thread);
 
-  if (characterId >= 32) characterId = 0;
+  if (characterId == 32) characterId = 0;
   PopUint16(lineId);
   uint32_t line = MSB ? MsbGetStrAddress(thread->ScriptBufferId, lineId)
                       : ScriptGetStrAddress(thread->ScriptBufferId, lineId);
