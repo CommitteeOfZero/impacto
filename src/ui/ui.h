@@ -28,7 +28,7 @@ BETTER_ENUM(MovieMenuType, int, None, MO6TW, CHLCC)
 BETTER_ENUM(ActorsVoiceMenuType, int, None, MO6TW)
 BETTER_ENUM(TrophyMenuType, int, None, CHLCC)
 BETTER_ENUM(HelpMenuType, int, None, CCLCC)
-BETTER_ENUM(GameSpecificType, int, None, CHLCC, CC, CCLCC)
+BETTER_ENUM(GameSpecificType, int, None, CHLCC, CC, CCLCC, RNE, Dash)
 
 int constexpr MaxExtraMenus = 10;
 

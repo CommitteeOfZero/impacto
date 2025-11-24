@@ -1,6 +1,7 @@
 #include "gamespecific.h"
 #include "../profile/game.h"
 #include "../profile/vm.h"
+#include "../profile/scene3d.h"
 #include "../profile/ui/gamespecific.h"
 #include "../profile/games/cclcc/delusiontrigger.h"
 #include "../profile/games/chlcc/delusiontrigger.h"
@@ -40,8 +41,10 @@ void Update(float dt) {
       CHLCC::DelusionTrigger::GetInstance().Update(dt);
     } break;
     case +GameSpecificType::CC: {
+      UpdateCCButtonGuide(dt);
     } break;
     case +GameSpecificType::CCLCC: {
+      UpdateCCButtonGuide(dt);
       CCLCC::YesNoTrigger::GetInstance().Update(dt);
       CCLCC::DelusionTrigger::GetInstance().Update(dt);
       CCLCC::MapSystem::GetInstance().Update(dt);
@@ -52,8 +55,29 @@ void Update(float dt) {
 }
 
 void RenderMain() {
-  if (Profile::GameSpecific::GameSpecificType == +GameSpecificType::CHLCC) {
-    CHLCC::DelusionTrigger::GetInstance().Render();
+  switch (Profile::GameSpecific::GameSpecificType) {
+    case +GameSpecificType::CHLCC: {
+      CHLCC::DelusionTrigger::GetInstance().Render();
+    } break;
+    case +GameSpecificType::Dash: {
+      /////////// DaSH hack kind of? ///////
+      if (GetFlag(SF_Pokecon_Disable) || GetFlag(SF_Pokecon_Open) ||
+          Renderer->Scene->MainCamera.CameraTransform.Position !=
+              Profile::Scene3D::DefaultCameraPosition)
+        SetFlag(SF_DATEDISPLAY, 0);
+      else
+        SetFlag(SF_DATEDISPLAY, 1);
+    }
+      [[fallthrough]];
+    case +GameSpecificType::RNE: {
+      if (GetFlag(SF_Pokecon_Open)) {
+        SetFlag(SF_DATEDISPLAY, 0);
+        // hack
+        ScrWork[SW_POKECON_BOOTANIMECT] = 0;
+        ScrWork[SW_POKECON_SHUTDOWNANIMECT] = 0;
+        ScrWork[SW_POKECON_MENUSELANIMECT] = 0;
+      }
+    } break;
   }
 }
 

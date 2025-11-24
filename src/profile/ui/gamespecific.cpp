@@ -37,6 +37,10 @@ void Configure() {
       CCLCC::YesNoTrigger::Configure();
       CCLCC::DelusionTrigger::Configure();
       break;
+    case +GameSpecificType::RNE:
+      break;
+    case +GameSpecificType::Dash:
+      break;
     case +GameSpecificType::None:
       break;
   }
