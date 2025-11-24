@@ -10,7 +10,7 @@ class DelusionTextSystem {
  public:
   static int constexpr MaxCharsPerLine = 90;
   std::array<std::array<const Sprite*, MaxCharsPerLine>, 3> GlyphLines;
-  std::array<size_t, 300> LineOffsets{};
+  std::array<uint8_t, 300> LineOffsets{};
 
   std::optional<int> DelusionSelectedLine;
   size_t TextIndex = 0;

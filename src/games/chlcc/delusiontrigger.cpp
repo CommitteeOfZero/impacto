@@ -461,8 +461,10 @@ void DelusionTextSystem::Init() {
 
 void DelusionTextSystem::InitLineOffsets() {
   // Line offsets [0,1,2,0,1,2,0,1,2,...]
-  for (size_t i = 0; i < LineOffsets.size(); ++i)
-    LineOffsets[i] = i / (LineOffsets.size() / GlyphLines.size());
+  for (size_t i = 0; i < LineOffsets.size(); ++i) {
+    size_t computed = i / (LineOffsets.size() / GlyphLines.size());
+    LineOffsets[i] = static_cast<uint8_t>(computed);
+  }
   TextLineXOffset = 0;
   TextIndex = 0;
   std::shuffle(LineOffsets.begin(), LineOffsets.end(),
