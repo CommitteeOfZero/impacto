@@ -108,13 +108,24 @@ void SystemMenu::Show() {
       UI::FocusedMenu = this;
       ItemsFade.StartIn();
       MainItems->Show();
-      if (!CurrentlyFocusedElement) AdvanceFocus(FDIR_DOWN);
+      if (LastFocusedButtonId && *LastFocusedButtonId < MenuEntriesNum) {
+        CurrentlyFocusedElement = MainItems->Children[*LastFocusedButtonId];
+        CurrentlyFocusedElement->HasFocus = true;
+      } else if (!CurrentlyFocusedElement) {
+        AdvanceFocus(FDIR_DOWN);
+      }
     }
   }
 }
 
 void SystemMenu::Hide() {
   if (State != Hidden) {
+    if (CurrentlyFocusedElement) {
+      auto* btn = static_cast<Widgets::Button*>(CurrentlyFocusedElement);
+      if (btn) {
+        LastFocusedButtonId = btn->Id;
+      }
+    }
     State = Hiding;
     MenuFade.StartOut();
     MenuTransition.StartOut();

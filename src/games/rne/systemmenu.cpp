@@ -58,10 +58,22 @@ void SystemMenu::Show() {
     }
     IsFocused = true;
     UI::FocusedMenu = this;
+
+    if (LastFocusedButtonId && *LastFocusedButtonId < MenuEntriesNum) {
+      CurrentlyFocusedElement = MainItems->Children[*LastFocusedButtonId];
+      CurrentlyFocusedElement->HasFocus = true;
+    }
   }
 }
 void SystemMenu::Hide() {
   if (State != Hidden) {
+    if (CurrentlyFocusedElement) {
+      auto* btn = static_cast<Widgets::Button*>(CurrentlyFocusedElement);
+      if (btn) {
+        LastFocusedButtonId = btn->Id;
+      }
+    }
+
     State = Hiding;
     HighlightAnimation.StartOut();
     for (auto& item : MainItems->Children) {

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include "../../ui/menu.h"
 #include "../../ui/savemenu.h"
 #include "../../ui/widgets/group.h"
@@ -47,6 +48,7 @@ class SystemMenu : public Menu {
   float CurrentRunningPosition = 0.0f;
   float SelectionOffsetY = 0.0f;
   int IndexOfActiveButton = 0;
+  std::optional<int> LastFocusedButtonId;
   glm::vec2 RedTitleLabelPos;
   glm::vec2 RightTitlePos;
   glm::vec2 LeftTitlePos;

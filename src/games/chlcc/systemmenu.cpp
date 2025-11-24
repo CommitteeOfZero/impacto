@@ -85,7 +85,13 @@ void SystemMenu::Show() {
     }
     IsFocused = true;
     UI::FocusedMenu = this;
-    if (!CurrentlyFocusedElement) AdvanceFocus(FDIR_DOWN);
+
+    if (LastFocusedButtonId && *LastFocusedButtonId < MenuEntriesNum) {
+      CurrentlyFocusedElement = MainItems->Children[*LastFocusedButtonId];
+      CurrentlyFocusedElement->HasFocus = true;
+    } else if (!CurrentlyFocusedElement) {
+      AdvanceFocus(FDIR_DOWN);
+    }
   }
 
   bool noFreeSlots = SaveSystem::MaxSaveEntries ==
@@ -95,6 +101,13 @@ void SystemMenu::Show() {
 
 void SystemMenu::Hide() {
   if (State != Hidden) {
+    if (CurrentlyFocusedElement) {
+      auto* btn = static_cast<Widgets::Button*>(CurrentlyFocusedElement);
+      if (btn) {
+        LastFocusedButtonId = btn->Id;
+      }
+    }
+
     State = Hiding;
     MenuTransition.StartOut();
     if (LastFocusedMenu != 0) {
