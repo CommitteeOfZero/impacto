@@ -417,10 +417,12 @@ void YesNoTrigger::Hide() {
 }
 
 void YesNoTrigger::AreaClick(Widgets::ClickArea* area) {
-  if (IsChoiceBlocked(static_cast<YesNoSelect>(area->Id))) {
+  YesNoSelect selected = static_cast<YesNoSelect>(area->Id);
+  if (IsChoiceBlocked(selected)) {
     Audio::PlayInGroup(Audio::ACG_SE, "sysse", 4, false, 0.0f);
     return;
   }
+  Selection = selected;
   ChooseSelected();
   area->Hovered = false;
 }
