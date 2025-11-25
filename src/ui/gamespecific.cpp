@@ -33,6 +33,10 @@ void Init() {
       CCLCC::YesNoTrigger::GetInstance();
       CCLCC::MapSystem::GetInstance();
     } break;
+    case +GameSpecificType::RNE:
+      break;
+    case +GameSpecificType::Dash:
+      break;
     case +GameSpecificType::None:
       break;
   }
@@ -53,6 +57,10 @@ void Update(float dt) {
       CCLCC::DelusionTrigger::GetInstance().Update(dt);
       CCLCC::MapSystem::GetInstance().Update(dt);
     } break;
+    case +GameSpecificType::RNE:
+      break;
+    case +GameSpecificType::Dash:
+      break;
     case +GameSpecificType::None:
       break;
   }
@@ -82,6 +90,12 @@ void RenderMain() {
         ScrWork[SW_POKECON_MENUSELANIMECT] = 0;
       }
     } break;
+    case +GameSpecificType::CC:
+      break;
+    case +GameSpecificType::CCLCC:
+      break;
+    case +GameSpecificType::None:
+      break;
   }
 }
 
@@ -113,6 +127,10 @@ void RenderLayer(uint32_t layer) {
         CCLCC::YesNoTrigger::GetInstance().Render();
       }
     } break;
+    case +GameSpecificType::RNE:
+      break;
+    case +GameSpecificType::Dash:
+      break;
     case +GameSpecificType::None:
       break;
   }

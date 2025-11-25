@@ -483,6 +483,8 @@ void Renderable3D::DrawMesh(int id, RenderPass pass) {
       SetTextures(id, dashEyeTextureTypes, 3);
       break;
     }
+    case MT_None:
+      break;
   }
 
   if (mesh.Opacity < 0.9 && CurrentMaterialIsDepthWrite) {
@@ -578,6 +580,8 @@ void Renderable3D::UseMaterial(MaterialType type) {
       ShaderEye->UseShader(Device);
       break;
     }
+    case MT_None:
+      break;
   }
 
   SetSceneUniformValues();
