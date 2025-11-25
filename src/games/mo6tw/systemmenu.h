@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include "../../ui/menu.h"
 #include "../../ui/widgets/group.h"
 #include "../../ui/widgets/button.h"
@@ -22,6 +23,7 @@ class SystemMenu : public Menu {
  private:
   Widgets::Group* MainItems;
   Animation FadeAnimation;
+  std::optional<int> LastFocusedButtonId;
 };
 
 }  // namespace MO6TW

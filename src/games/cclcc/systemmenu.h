@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <glm/fwd.hpp>
 #include "../../ui/menu.h"
 #include "../../ui/widgets/group.h"
@@ -36,6 +37,7 @@ class SystemMenu : public Menu {
   Animation ItemsFade;
   bool ItemsFadeComplete = false;
   glm::vec2 BGPosition{};
+  std::optional<int> LastFocusedButtonId;
 
   GridVertices Vertices;
 
