@@ -13,8 +13,8 @@ class DelusionTextSystem {
   std::array<uint8_t, 300> LineOffsets{};
 
   std::optional<int> DelusionSelectedLine;
-  size_t TextIndex = 0;
   float TextLineXOffset = 0;
+  size_t TextIndex = 0;
   Animation DelusionTextFade;
 
   DelusionTextSystem();
