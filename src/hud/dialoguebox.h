@@ -1,6 +1,7 @@
 #pragma once
 
 #include <enum.h>
+#include <optional>
 #include <ankerl/unordered_dense.h>
 #include "../text.h"
 #include "../ui/widgets/button.h"
@@ -17,8 +18,8 @@ class DialogueBox {
   virtual void Show();
   virtual void Hide();
   virtual void Update(float dt);
-  virtual void Render(DialoguePageMode mode, bool hasName, float nameWidth,
-                      uint32_t nameId, float opacity);
+  virtual void Render(DialoguePageMode mode, float nameWidth,
+                      std::optional<uint32_t> nameId, float opacity);
 
   DialogueBoxState State;
 

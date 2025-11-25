@@ -220,6 +220,7 @@ set(Impacto_Src
         src/hud/datedisplay.cpp
         src/hud/saveicondisplay.cpp
         src/hud/loadingdisplay.cpp
+        src/hud/nametagdisplay.cpp
         src/hud/autoicondisplay.cpp
         src/hud/skipicondisplay.cpp
         src/hud/waiticondisplay.cpp
@@ -541,6 +542,7 @@ set(Impacto_Header
         src/hud/datedisplay.h
         src/hud/saveicondisplay.h
         src/hud/loadingdisplay.h
+        src/hud/nametagdisplay.h
         src/hud/autoicondisplay.h
         src/hud/skipicondisplay.h
         src/hud/waiticondisplay.h

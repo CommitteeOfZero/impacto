@@ -226,6 +226,32 @@ void Configure() {
 
   ColorTagIsUint8 = EnsureGetMember<bool>("ColorTagIsUint8");
 
+  int NametagCurrentTypeInt;
+  if (!TryGetMember<int>("NametagCurrentType", NametagCurrentTypeInt)) {
+    NametagCurrentTypeInt = 0;  // None
+  }
+  NametagCurrentType =
+      NametagType::_from_integral_unchecked(NametagCurrentTypeInt);
+
+  switch (NametagCurrentType) {
+    case NametagType::Instant: {
+      NameTagAnimProgressShowNew = 0;
+      NameTagAnimProgressHideOld = 0;
+      NameTagDuration = 0;
+      break;
+    }
+    case NametagType::FadeInPauseOut: {
+      NameTagAnimProgressHideOld =
+          EnsureGetMember<float>("NameTagAnimProgressHideOld");
+      NameTagAnimProgressShowNew =
+          EnsureGetMember<float>("NameTagAnimProgressShowNew");
+      NameTagDuration = EnsureGetMember<float>("NameTagAnimDuration");
+      break;
+    }
+    case NametagType::None:
+      break;
+  }
+
   TryGetMember<bool>("HasSpeakerPortraits", HasSpeakerPortraits);
 
   HaveADVNameTag = TryPushMember("ADVNameTag");

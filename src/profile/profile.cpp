@@ -210,6 +210,7 @@ void MakeLuaProfile(std::string const& name) {
   DefineEnumInt<WaitIconDisplay::WaitIconType>(LuaState);
   DefineEnumInt<AutoIconDisplay::AutoIconType>(LuaState);
   DefineEnumInt<SkipIconDisplay::SkipIconType>(LuaState);
+  DefineEnumInt<Dialogue::NametagType>(LuaState);
   DefineEnumInt<TipsNotification::TipsNotificationType>(LuaState);
   DefineEnumInt<DialogueBoxType>(LuaState);
   DefineEnumInt<UI::SysMesBoxType>(LuaState);

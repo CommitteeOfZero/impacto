@@ -14,8 +14,8 @@ using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::Dialogue;
 using namespace Impacto::Profile::MO6TW::DialogueBox;
 
-void DialogueBox::Render(DialoguePageMode mode, bool hasName, float nameWidth,
-                         uint32_t nameId, float opacity) {
+void DialogueBox::Render(DialoguePageMode mode, float nameWidth,
+                         std::optional<uint32_t> nameId, float opacity) {
   glm::vec4 col = ScrWorkGetColor(SW_MESWINDOW_COLOR);
   col.a = opacity;
   if (mode == DPM_ADV) {
@@ -29,7 +29,7 @@ void DialogueBox::Render(DialoguePageMode mode, bool hasName, float nameWidth,
                        nvlBoxTint);
   }
 
-  if (mode == DPM_ADV && hasName) {
+  if (mode == DPM_ADV && nameId.has_value()) {
     if (HaveADVNameTag) {
       Renderer->DrawSprite(ADVNameTag::LeftSprite, ADVNameTag::Position, col);
     }

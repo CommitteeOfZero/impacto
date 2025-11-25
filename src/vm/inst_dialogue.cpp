@@ -181,7 +181,6 @@ VmInstruction(InstMes) {
 
   ScrWork[2 * dialoguePage.Id + SW_LINEID] = lineId;
   ScrWork[2 * dialoguePage.Id + SW_SCRIPTID] = scriptId;
-  ScrWork[dialoguePage.Id + SW_ANIME0CHANO] = characterId;
 
   Audio::AudioStream* audioStream = nullptr;
   if (voiced) {
@@ -194,8 +193,8 @@ VmInstruction(InstMes) {
 
   uint32_t oldIp = thread->IpOffset;
   thread->IpOffset = line;
-  dialoguePage.AddString(thread, audioStream,
-                         acted ? animationId : characterId);
+  dialoguePage.AddString(thread, audioStream, acted, animationId, characterId,
+                         true);
   ResetInstruction;
   if (!GetFlag(SF_MESSAVEPOINT_SSP + thread->DialoguePageId)) {
     if ((ScrWork[thread->DialoguePageId * 10 + SW_MESWIN0TYPE] & 4) == 0 &&
@@ -328,7 +327,7 @@ VmInstruction(InstMessWindow) {
   switch (type) {
     case 0:  // HideCurrent
       if (!currentPage->FadeAnimation.IsOut()) {
-        currentPage->FadeAnimation.StartOut();
+        currentPage->Hide();
         SetFlag(thread->DialoguePageId + SF_MESWINDOW0OPENFL, 0);
       }
       break;
@@ -336,7 +335,7 @@ VmInstruction(InstMessWindow) {
       if (!currentPage->FadeAnimation.IsIn()) {
         currentPage->Mode = (DialoguePageMode)
             ScrWork[thread->DialoguePageId * 10 + SW_MESMODE0];
-        currentPage->FadeAnimation.StartIn(true);
+        currentPage->Show();
         SetFlag(thread->DialoguePageId + SF_MESWINDOW0OPENFL, 1);
       }
       break;
@@ -356,14 +355,14 @@ VmInstruction(InstMessWindow) {
       break;
     case 4:  // HideCurrent04
       if (!currentPage->FadeAnimation.IsOut()) {
-        currentPage->FadeAnimation.StartOut();
+        currentPage->Hide();
         SetFlag(thread->DialoguePageId + SF_MESWINDOW0OPENFL, 0);
       }
       break;
     case 5: {  // Hide
       PopExpression(messWindowId);
       if (!DialoguePages[messWindowId].FadeAnimation.IsOut()) {
-        DialoguePages[messWindowId].FadeAnimation.StartOut();
+        DialoguePages[messWindowId].Hide();
         SetFlag(messWindowId + SF_MESWINDOW0OPENFL, 0);
       }
     } break;

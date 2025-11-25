@@ -23,7 +23,7 @@ BacklogEntry::BacklogEntry(int id, Vm::BufferOffsetContext scrCtx, int audioId,
                            const RectF& hoverBounds)
     : Widgets::BacklogEntry(id, scrCtx, audioId, characterId, pos,
                             hoverBounds) {
-  if (BacklogPage->HasName) {
+  if (BacklogPage->HasName()) {
     beforeNametagLabel.SetText(
         NametagCommonStrings[0], Profile::Dialogue::REVNameFontSize,
         Profile::Dialogue::REVNameOutlineMode, Profile::Dialogue::REVNameColor);
@@ -44,7 +44,7 @@ void BacklogEntry::Render() {
         Tint);
   }
 
-  if (BacklogPage->HasName) {
+  if (BacklogPage->HasName()) {
     beforeNametagLabel.MoveTo({Bounds.X, Bounds.Y});
     nametagLabel.MoveTo(beforeNametagLabel.Bounds.GetPos() +
                         glm::vec2(beforeNametagLabel.Bounds.Width, 0.0f));

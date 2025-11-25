@@ -95,7 +95,12 @@ root.Dialogue = {
     },
     MaxPageSize = 2000,
     PageCount = 3,
-    ColorTagIsUint8 = false
+    ColorTagIsUint8 = false,
+    NametagCurrentType = NametagType.FadeInPauseOut,
+    -- NameTag animation: [0:HideOld] - Hide old sprite; (HideOld;ShowNew) - Pause; [ShowNew;1] - Show new sprite
+    NameTagAnimProgressHideOld = 16.0/54.0,
+    NameTagAnimProgressShowNew = 38.0/54.0,
+    NameTagAnimDuration = 0.9
 };
 
 MakeAnimation({

@@ -26,7 +26,7 @@ void BacklogEntry::Render() {
                                       Tint, false, false);
   }
 
-  if (BacklogPage->HasName) {
+  if (BacklogPage->HasName()) {
     Renderer->DrawProcessedText(
         BacklogPage->Name, Profile::Dialogue::DialogueFont, Tint.a,
         Profile::Dialogue::REVNameOutlineMode, true, &BacklogMaskSheet);
