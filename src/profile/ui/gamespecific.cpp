@@ -24,6 +24,10 @@ void Configure() {
     UIButtonGuideSprites = GetMemberVector<Sprite>("UIButtonGuideSprites");
     UIButtonGuideEndDisp = EnsureGetMember<RectF>("UIButtonGuideEndDisp");
   }
+  if (GameSpecificType == +GameSpecificType::CHLCC) {
+    MonitorScanline = EnsureGetMember<Sprite>("MonitorScanline");
+  }
+
   Pop();
 
   switch (GameSpecificType) {
@@ -36,6 +40,10 @@ void Configure() {
       CCLCC::MapSystem::Configure();
       CCLCC::YesNoTrigger::Configure();
       CCLCC::DelusionTrigger::Configure();
+      break;
+    case +GameSpecificType::RNE:
+      break;
+    case +GameSpecificType::Dash:
       break;
     case +GameSpecificType::None:
       break;

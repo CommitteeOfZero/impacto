@@ -11,6 +11,7 @@ inline Impacto::UI::GameSpecificType GameSpecificType =
 
 inline std::optional<std::vector<Sprite>> UIButtonGuideSprites;
 inline std::optional<RectF> UIButtonGuideEndDisp;
+inline Sprite MonitorScanline;
 
 void Configure();
 

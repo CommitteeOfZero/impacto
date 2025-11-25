@@ -51,3 +51,4 @@ include('rne/scene3d/scene3d.lua');
 include('rne/hud/selectiondisplay.lua');
 include('rne/hud/tipsmenu.lua');
 include('rne/hud/tipsnotification.lua');
+include('rne/gamespecific.lua');

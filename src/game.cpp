@@ -405,23 +405,7 @@ static void RenderMain() {
   if (SaveSystem::Implementation) {
     Renderer->CaptureScreencap(SaveSystem::GetWorkingSaveThumbnail());
   }
-  if (GetFlag(SF_Pokecon_Open)) {
-    SetFlag(SF_DATEDISPLAY, 0);
-    // hack
-    ScrWork[SW_POKECON_BOOTANIMECT] = 0;
-    ScrWork[SW_POKECON_SHUTDOWNANIMECT] = 0;
-    ScrWork[SW_POKECON_MENUSELANIMECT] = 0;
-  }
-  if (Profile::Vm::GameInstructionSet == +Vm::InstructionSet::Dash) {
-    /////////// DaSH hack kind of? ///////
-    if (GetFlag(SF_Pokecon_Disable) || GetFlag(SF_Pokecon_Open) ||
-        Renderer->Scene->MainCamera.CameraTransform.Position !=
-            Profile::Scene3D::DefaultCameraPosition)
-      SetFlag(SF_DATEDISPLAY, 0);
-    else
-      SetFlag(SF_DATEDISPLAY, 1);
-    //////////////////////////////
-  }
+
   DateDisplay::Render();
 
   if (!GetFlag(SF_UIHIDDEN) && !GetFlag(SF_MOVIEPLAY)) {

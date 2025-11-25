@@ -1,6 +1,8 @@
 #include "gamespecific.h"
 #include "../profile/game.h"
 #include "../profile/vm.h"
+#include "../profile/scene3d.h"
+#include "../profile/sprites.h"
 #include "../profile/ui/gamespecific.h"
 #include "../profile/games/cclcc/delusiontrigger.h"
 #include "../profile/games/chlcc/delusiontrigger.h"
@@ -17,6 +19,8 @@ namespace Impacto {
 namespace UI {
 namespace GameSpecific {
 
+static float CHLCCScanlineOffsetY = 0.0f;
+
 void Init() {
   switch (Profile::GameSpecific::GameSpecificType) {
     case +GameSpecificType::CHLCC: {
@@ -29,6 +33,10 @@ void Init() {
       CCLCC::YesNoTrigger::GetInstance();
       CCLCC::MapSystem::GetInstance();
     } break;
+    case +GameSpecificType::RNE:
+      break;
+    case +GameSpecificType::Dash:
+      break;
     case +GameSpecificType::None:
       break;
   }
@@ -38,28 +46,72 @@ void Update(float dt) {
   switch (Profile::GameSpecific::GameSpecificType) {
     case +GameSpecificType::CHLCC: {
       CHLCC::DelusionTrigger::GetInstance().Update(dt);
+      CHLCCScanlineOffsetY = fmod(dt * 60 + CHLCCScanlineOffsetY, 300.0f);
     } break;
     case +GameSpecificType::CC: {
+      UpdateCCButtonGuide(dt);
     } break;
     case +GameSpecificType::CCLCC: {
+      UpdateCCButtonGuide(dt);
       CCLCC::YesNoTrigger::GetInstance().Update(dt);
       CCLCC::DelusionTrigger::GetInstance().Update(dt);
       CCLCC::MapSystem::GetInstance().Update(dt);
     } break;
+    case +GameSpecificType::RNE:
+      break;
+    case +GameSpecificType::Dash:
+      break;
     case +GameSpecificType::None:
       break;
   }
 }
 
 void RenderMain() {
-  if (Profile::GameSpecific::GameSpecificType == +GameSpecificType::CHLCC) {
-    CHLCC::DelusionTrigger::GetInstance().Render();
+  switch (Profile::GameSpecific::GameSpecificType) {
+    case +GameSpecificType::CHLCC: {
+      CHLCC::DelusionTrigger::GetInstance().Render();
+    } break;
+    case +GameSpecificType::Dash: {
+      /////////// DaSH hack kind of? ///////
+      if (GetFlag(SF_Pokecon_Disable) || GetFlag(SF_Pokecon_Open) ||
+          Renderer->Scene->MainCamera.CameraTransform.Position !=
+              Profile::Scene3D::DefaultCameraPosition)
+        SetFlag(SF_DATEDISPLAY, 0);
+      else
+        SetFlag(SF_DATEDISPLAY, 1);
+    }
+      [[fallthrough]];
+    case +GameSpecificType::RNE: {
+      if (GetFlag(SF_Pokecon_Open)) {
+        SetFlag(SF_DATEDISPLAY, 0);
+        // hack
+        ScrWork[SW_POKECON_BOOTANIMECT] = 0;
+        ScrWork[SW_POKECON_SHUTDOWNANIMECT] = 0;
+        ScrWork[SW_POKECON_MENUSELANIMECT] = 0;
+      }
+    } break;
+    case +GameSpecificType::CC:
+      break;
+    case +GameSpecificType::CCLCC:
+      break;
+    case +GameSpecificType::None:
+      break;
   }
 }
 
 void RenderLayer(uint32_t layer) {
   switch (Profile::GameSpecific::GameSpecificType) {
     case +GameSpecificType::CHLCC: {
+      if (ScrWork[SW_MONITOR_SCANLINE_ENABLED] &&
+          static_cast<int>(layer) == ScrWork[SW_MONITOR_SCANLINE_LAYER]) {
+        Renderer->DrawSprite(
+            MonitorScanline,
+            RectF{0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight},
+            glm::vec4{glm::vec3{1.0f}, 26 / 255.0f});
+        float y = (299 - CHLCCScanlineOffsetY) * 1000.0f / 300 - 200;
+        Renderer->DrawQuad(RectF{0.0f, y, Profile::DesignWidth, 200},
+                           glm::vec4{glm::vec3{0.0f}, 88 / 255.0f});
+      }
     } break;
     case +GameSpecificType::CC: {
     } break;
@@ -75,6 +127,10 @@ void RenderLayer(uint32_t layer) {
         CCLCC::YesNoTrigger::GetInstance().Render();
       }
     } break;
+    case +GameSpecificType::RNE:
+      break;
+    case +GameSpecificType::Dash:
+      break;
     case +GameSpecificType::None:
       break;
   }
