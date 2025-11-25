@@ -14,8 +14,8 @@ using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::Dialogue;
 using namespace Impacto::Profile::CHLCC::DialogueBox;
 
-void DialogueBox::Render(DialoguePageMode mode, bool hasName, float nameWidth,
-                         uint32_t nameId, float opacity) {
+void DialogueBox::Render(DialoguePageMode mode, float nameWidth,
+                         std::optional<uint32_t> nameId, float opacity) {
   if (mode == DPM_ADV) {
     glm::vec4 col = glm::vec4(1.0f);
     Sprite* advBoxSprite = &ADVBoxSprite;
@@ -42,7 +42,7 @@ void DialogueBox::Render(DialoguePageMode mode, bool hasName, float nameWidth,
     Renderer->DrawSprite(ErinBoxSprite, ErinBoxPos, col);
   }
 
-  if (mode == DPM_ADV && hasName) {
+  if (mode == DPM_ADV && nameId.has_value()) {
     if (HaveADVNameTag) {
       glm::vec4 col = glm::vec4(1.0f);
       Sprite* advNameTagLeftSprite = &ADVNameTag::LeftSprite;

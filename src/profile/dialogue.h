@@ -37,6 +37,10 @@ inline float ADVNameFontSize;
 inline glm::vec2 ADVNamePos;
 inline bool ADVBoxShowName = true;
 
+// FadeInPauseOut - CCLCC, Instant - CHLCC
+// Other games may have different behavior, implement as needed
+BETTER_ENUM(NametagType, int, None, Instant, FadeInPauseOut)
+
 BETTER_ENUM(REVNameLocationType, int, None, TopLeft, LeftTop)
 
 inline float REVNameFontSize;
@@ -89,6 +93,11 @@ inline int MaxPageSize;
 inline int PageCount;
 
 inline bool ColorTagIsUint8;
+
+inline NametagType NametagCurrentType = NametagType::None;
+inline float NameTagDuration = 0.0f;
+inline float NameTagAnimProgressHideOld = 0.0f;
+inline float NameTagAnimProgressShowNew = 0.0f;
 
 inline bool HaveADVNameTag;
 namespace ADVNameTag {

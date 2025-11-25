@@ -110,7 +110,8 @@ root.Dialogue = {
     },
     MaxPageSize = 2000,
     PageCount = 3,
-    ColorTagIsUint8 = false
+    ColorTagIsUint8 = false,
+    NametagCurrentType = NametagType.Instant
 };
 
 MakeAnimation({
