@@ -3,6 +3,7 @@
 #include "../../renderer/renderer.h"
 #include "../../ui/ui.h"
 #include "../../vm/interface/input.h"
+#include "../../inputsystem.h"
 #include "../../profile/ui/systemmenu.h"
 #include "../../ui/widgets/chlcc/systemmenuentrybutton.h"
 #include "../../profile/game.h"
@@ -16,6 +17,7 @@ using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Vm::Interface;
 using namespace Impacto::Profile::SystemMenu;
 using namespace Impacto::UI::Widgets::CHLCC;
+using namespace Impacto::Input;
 
 void SystemMenu::MenuButtonOnClick(Widgets::Button* target) {
   target->Hovered = false;
@@ -180,6 +182,24 @@ void SystemMenu::Update(float dt) {
     UpdateRunningSelectedLabel(dt);
     MainItems->UpdateInput(dt);
     MainItems->Update(dt);
+
+    if ((CurrentInputDevice == Device::Mouse ||
+         CurrentInputDevice == Device::Touch) &&
+        ((PADinputMouseWentDown & PAD1A))) {
+      bool noButtonsHovered = true;
+      for (auto child : MainItems->Children) {
+        auto button = static_cast<SystemMenuEntryButton*>(child);
+        if (button->Hovered) {
+          noButtonsHovered = false;
+          break;
+        }
+      }
+
+      if (noButtonsHovered) {
+        PADinputMouseWentDown = PADinputMouseWentDown & ~PAD1A;
+        PADinputButtonWentDown = PADinputButtonWentDown & ~PAD1A;
+      }
+    }
   }
 }
 
