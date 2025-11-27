@@ -206,15 +206,21 @@ void TypewriterEffect::Update(float dt) {
     } else {
       // Progress at the characters-per-second speed defined by TextSpeed
       const float progressLeft = 1.0f - Progress;
-      const float glyphsLeft = static_cast<float>(GlyphCount) * progressLeft;
-      const float secondsLeft =
-          Profile::ConfigSystem::TextSpeed > 0.0f
-              ? glyphsLeft / Profile::ConfigSystem::TextSpeed
-              : 0.0f;
-      const float secondsLeftFractionCompleted =
-          secondsLeft > 0.0f ? dt / secondsLeft : 1.0f;
-      const float progressAdded = progressLeft * secondsLeftFractionCompleted;
-      dt = progressAdded;
+
+      if (Profile::ConfigSystem::TextSpeed >=
+          Profile::ConfigSystem::TextSpeedBounds.y) {
+        dt = progressLeft;
+      } else {
+        const float glyphsLeft = static_cast<float>(GlyphCount) * progressLeft;
+        const float secondsLeft =
+            Profile::ConfigSystem::TextSpeed > 0.0f
+                ? glyphsLeft / Profile::ConfigSystem::TextSpeed
+                : 0.0f;
+        const float secondsLeftFractionCompleted =
+            secondsLeft > 0.0f ? dt / secondsLeft : 1.0f;
+        const float progressAdded = progressLeft * secondsLeftFractionCompleted;
+        dt = progressAdded;
+      }
     }
   }
 
