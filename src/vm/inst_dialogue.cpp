@@ -5,12 +5,14 @@
 #include "expression.h"
 #include "../profile/scriptvars.h"
 #include "../profile/configsystem.h"
+#include "../profile/dialogue.h"
 #include "../mem.h"
 #include "../log.h"
 #include "../audio/audiostream.h"
 #include "../profile/vm.h"
 #include "../hud/saveicondisplay.h"
 #include "../hud/tipsnotification.h"
+#include "../hud/nametagdisplay.h"
 #include "../data/savesystem.h"
 #include "../data/tipssystem.h"
 #include "../ui/ui.h"
@@ -241,22 +243,57 @@ VmInstruction(InstMesMain) {
       }
     } else {
       // Text is fully opaque
-      SetFlag(SF_SHOWWAITICON + thread->DialoguePageId, true);
-
       if (!GetFlag(SF_UIHIDDEN)) {
-        if (advanceButtonWentDown || GetFlag(SF_MESALLSKIP) ||
-            !currentPage->AutoWaitTime) {
+        bool useTextFade =
+            (currentPage->Mode == DPM_ADV || currentPage->Mode == DPM_REV ||
+             (currentPage->Mode == DPM_NVL && currentPage->NVLResetBeforeAdd));
+
+        if (useTextFade && currentPage->TextFadeAnimation.IsPlaying()) {
+          ResetInstruction;
+          BlockThread;
+          return;
+        }
+
+        if (useTextFade && currentPage->TextFadeAnimation.Progress == 0.0f) {
           // Advance to next line
           SaveSystem::SetLineRead(ScrWork[2 * currentPage->Id + SW_SCRIPTID],
                                   ScrWork[2 * currentPage->Id + SW_LINEID]);
           SetFlag(SF_CHAANIME + thread->DialoguePageId, false);
-          SetFlag(SF_SHOWWAITICON + thread->DialoguePageId, false);
 
           if (Profile::ConfigSystem::SkipVoice || GetFlag(SF_MESALLSKIP))
             Audio::Channels[Audio::AC_VOICE0]->Stop(0.0f);
 
           BlockThread;
           return;
+        }
+
+        SetFlag(SF_SHOWWAITICON + thread->DialoguePageId, true);
+
+        if (advanceButtonWentDown || GetFlag(SF_MESALLSKIP) ||
+            !currentPage->AutoWaitTime) {
+          if (useTextFade) {
+            currentPage->TextFadeAnimation.StartOut();
+            SetFlag(SF_SHOWWAITICON + thread->DialoguePageId, false);
+            if (currentPage->HasName() &&
+                Profile::Dialogue::NametagCurrentType ==
+                    +Profile::Dialogue::NametagType::FadeInPauseOut) {
+              NametagDisplay::StartHiding();
+            }
+            ResetInstruction;
+            BlockThread;
+            return;
+          } else {
+            SaveSystem::SetLineRead(ScrWork[2 * currentPage->Id + SW_SCRIPTID],
+                                    ScrWork[2 * currentPage->Id + SW_LINEID]);
+            SetFlag(SF_CHAANIME + thread->DialoguePageId, false);
+            SetFlag(SF_SHOWWAITICON + thread->DialoguePageId, false);
+
+            if (Profile::ConfigSystem::SkipVoice || GetFlag(SF_MESALLSKIP))
+              Audio::Channels[Audio::AC_VOICE0]->Stop(0.0f);
+
+            BlockThread;
+            return;
+          }
         }
       }
     }
