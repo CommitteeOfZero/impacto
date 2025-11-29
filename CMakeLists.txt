@@ -1075,7 +1075,7 @@ if (NOT DEFINED IMPACTO_DISABLE_FFMPEG)
         FetchContent_Declare(
             avcpp
             GIT_REPOSITORY "https://github.com/h4tr3d/avcpp"
-            GIT_TAG "v2.4.0"
+            GIT_TAG "v2.7.1"
             PATCH_COMMAND ${AVCPP_PATCH}
             UPDATE_DISCONNECTED 1
             SYSTEM
