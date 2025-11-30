@@ -18,6 +18,7 @@ using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Vm::Interface;
 using namespace Impacto::Profile::SystemMenu;
 using namespace Impacto::UI::Widgets::CCLCC;
+using namespace Impacto::Input;
 
 void SystemMenu::MenuButtonOnClick(Widgets::Button* target) {
   target->Hovered = false;
@@ -200,6 +201,24 @@ void SystemMenu::Update(float dt) {
 
   if (State == Shown && IsFocused) {
     MainItems->Update(dt);
+
+    if ((CurrentInputDevice == Device::Mouse ||
+         CurrentInputDevice == Device::Touch) &&
+        ((PADinputMouseWentDown & PAD1A))) {
+      bool noButtonsHovered = true;
+      for (auto child : MainItems->Children) {
+        auto button = static_cast<UI::CCLCC::SysMenuButton*>(child);
+        if (button->Hovered) {
+          noButtonsHovered = false;
+          break;
+        }
+      }
+
+      if (noButtonsHovered) {
+        PADinputMouseWentDown = PADinputMouseWentDown & ~PAD1A;
+        PADinputButtonWentDown = PADinputButtonWentDown & ~PAD1A;
+      }
+    }
   }
 }
 

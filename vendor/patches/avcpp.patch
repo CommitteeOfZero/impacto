@@ -1,5 +1,5 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 732a4b2..d4a4ee1 100644
+index 0e9968b..9cf9eed 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -32,7 +32,7 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
@@ -11,15 +11,8 @@ index 732a4b2..d4a4ee1 100644
  
  add_subdirectory(src)
  
-diff --git a/catch2 b/catch2
-deleted file mode 160000
-index c4e3767..0000000
---- a/catch2
-+++ /dev/null
-@@ -1 +0,0 @@
--Subproject commit c4e3767e265808590986d5db6ca1b5532a7f3d13
 diff --git a/cmake/FindFFmpeg.cmake b/cmake/FindFFmpeg.cmake
-index 2746b39..91c9b56 100644
+index 2746b39..cd333a2 100644
 --- a/cmake/FindFFmpeg.cmake
 +++ b/cmake/FindFFmpeg.cmake
 @@ -166,7 +166,6 @@ if (NOT FFMPEG_LIBRARIES)
@@ -30,21 +23,29 @@ index 2746b39..91c9b56 100644
    find_component(AVUTIL     libavutil     avutil   libavutil/avutil.h)
    find_component(AVFILTER   libavfilter   avfilter libavfilter/avfilter.h)
    find_component(SWSCALE    libswscale    swscale  libswscale/swscale.h)
+@@ -229,7 +228,7 @@ if (NOT TARGET FFmpeg::FFmpeg)
+ endif()
+ 
+ # Now set the noncached _FOUND vars for the components.
+-foreach (_component AVCODEC AVDEVICE AVFORMAT AVUTIL POSTPROCESS SWSCALE)
++foreach (_component AVCODEC AVFORMAT AVUTIL POSTPROCESS SWSCALE)
+   set_component_found(${_component})
+ endforeach ()
+ 
 diff --git a/src/avutils.cpp b/src/avutils.cpp
-index 6b7aa96..4a05be3 100644
+index 6b7aa96..979a003 100644
 --- a/src/avutils.cpp
 +++ b/src/avutils.cpp
-@@ -177,7 +177,7 @@ void init()
+@@ -177,7 +177,6 @@ void init()
  #if LIBAVFILTER_VERSION_MAJOR < 7 // FFmpeg 4.0
      avfilter_register_all();
  #endif
 -    avdevice_register_all();
-+    // avdevice_register_all();
  
  #if LIBAVCODEC_VERSION_MAJOR < 58 // FFmpeg 4.0
      av_lockmgr_register(avcpp_lockmgr_cb);
 diff --git a/src/ffmpeg.h b/src/ffmpeg.h
-index 397204f..f0afb22 100644
+index a01631e..f7cad6a 100644
 --- a/src/ffmpeg.h
 +++ b/src/ffmpeg.h
 @@ -9,7 +9,7 @@ extern "C"
@@ -56,3 +57,16 @@ index 397204f..f0afb22 100644
  #include <libswscale/swscale.h>
  #include <libswresample/swresample.h>
  #include <libavformat/version.h>
+diff --git a/src/libavcpp.pc.in b/src/libavcpp.pc.in
+index e3a5e00..3aaa52b 100644
+--- a/src/libavcpp.pc.in
++++ b/src/libavcpp.pc.in
+@@ -6,7 +6,7 @@ includedir=${prefix}/@INC_INSTALL_DIR@
+ Name: libavcpp
+ Description: FFmpeg libraries C++ interface
+ Version: @AVCPP_VERSION@
+-Requires: libavcodec >= @AVCODEC_VERSION@, libavformat >= @AVFORMAT_VERSION@, libavutil >= @AVUTIL_VERSION@, libavdevice >= @AVDEVICE_VERSION@, libavfilter >= @AVFILTER_VERSION@, libswscale >= @SWSCALE_VERSION@, libswresample >= @SWRESAMPLE_VERSION@
++Requires: libavcodec >= @AVCODEC_VERSION@, libavformat >= @AVFORMAT_VERSION@, libavutil >= @AVUTIL_VERSION@, libavfilter >= @AVFILTER_VERSION@, libswscale >= @SWSCALE_VERSION@, libswresample >= @SWRESAMPLE_VERSION@
+ Requires.private:
+ Conflicts:
+ Libs: -L${libdir}  -lavcpp
