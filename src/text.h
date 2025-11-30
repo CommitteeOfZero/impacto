@@ -166,6 +166,7 @@ struct DialoguePage {
 
   TypewriterEffect Typewriter;
   Animation FadeAnimation;
+  Animation TextFadeAnimation;
 
   size_t NameLength;
 

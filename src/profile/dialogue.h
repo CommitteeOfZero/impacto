@@ -25,6 +25,9 @@ inline glm::vec2 ADVBoxPos;
 inline float FadeOutDuration;
 inline float FadeInDuration;
 
+inline float TextFadeInDuration = 0.0f;
+inline float TextFadeOutDuration = 0.0f;
+
 inline DialogueBoxType DialogueBoxCurrentType = DialogueBoxType::None;
 
 inline float NVLBoxMaxOpacity;

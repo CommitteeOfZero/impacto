@@ -28,6 +28,9 @@ void Configure() {
   FadeOutDuration = EnsureGetMember<float>("FadeOutDuration");
   FadeInDuration = EnsureGetMember<float>("FadeInDuration");
 
+  TextFadeInDuration = EnsureGetMember<float>("TextFadeInDuration");
+  TextFadeOutDuration = EnsureGetMember<float>("TextFadeOutDuration");
+
   TryGetMember<bool>("HasAutoButton", HasAutoButton);
   if (HasAutoButton) {
     AutoButtonSprite = EnsureGetMember<Sprite>("AutoButtonSprite");

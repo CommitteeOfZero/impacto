@@ -209,7 +209,11 @@ void TypewriterEffect::Update(float dt) {
 
       if (Profile::ConfigSystem::TextSpeed >=
           Profile::ConfigSystem::TextSpeedBounds.y) {
-        dt = progressLeft;
+        if (TextFadeInDuration > 0.0f) {
+          dt = dt / TextFadeInDuration;
+        } else {
+          dt = progressLeft;
+        }
       } else {
         const float glyphsLeft = static_cast<float>(GlyphCount) * progressLeft;
         const float secondsLeft =
@@ -274,6 +278,13 @@ std::pair<float, float> TypewriterEffect::GetGlyphWritingProgresses(
 float TypewriterEffect::CalcOpacity(size_t glyph) {
   if (glyph < FirstGlyph) return 1.0f;
   if (glyph >= FirstGlyph + GlyphCount) return 0.0f;
+
+  if (!IsCancelled &&
+      Profile::ConfigSystem::TextSpeed >=
+          Profile::ConfigSystem::TextSpeedBounds.y &&
+      !(Voiced && Profile::ConfigSystem::SyncVoice)) {
+    return Progress;
+  }
 
   const auto [startProgress, endProgress] = GetGlyphWritingProgresses(glyph);
 
@@ -404,6 +415,11 @@ void DialoguePage::Init() {
     DialoguePages[i].FadeAnimation.DurationIn = FadeInDuration;
     DialoguePages[i].FadeAnimation.DurationOut = FadeOutDuration;
     DialoguePages[i].FadeAnimation.SkipOnSkipMode = true;
+
+    DialoguePages[i].TextFadeAnimation.DurationIn = TextFadeInDuration;
+    DialoguePages[i].TextFadeAnimation.DurationOut = TextFadeOutDuration;
+    DialoguePages[i].TextFadeAnimation.SkipOnSkipMode = true;
+    DialoguePages[i].TextFadeAnimation.Progress = 1.0f;
   }
 }
 
@@ -591,6 +607,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
   if (Mode == DPM_ADV || Mode == DPM_REV || NVLResetBeforeAdd ||
       PrevMode != Mode) {
     Clear();
+    TextFadeAnimation.Progress = 1.0f;
   }
   PrevMode = Mode;
 
@@ -958,6 +975,7 @@ void DialoguePage::Update(float dt) {
 
   TextBox->Update(dt);
   FadeAnimation.Update(dt);
+  TextFadeAnimation.Update(dt);
 
   WaitIconDisplay::Update(dt);
   AutoIconDisplay::Update(dt);
@@ -989,15 +1007,20 @@ void DialoguePage::Render() {
   glm::vec4 col = glm::vec4(1.0f);  // ScrWorkGetColor(SW_MESWINDOW_COLOR);
   col.a = opacityTint.a;
 
-  Renderer->DrawProcessedText(Glyphs, DialogueFont, opacityTint.a,
+  const float textFadeOpacity = opacityTint.a * TextFadeAnimation.Progress;
+
+  Renderer->DrawProcessedText(Glyphs, DialogueFont, textFadeOpacity,
                               RendererOutlineMode::Full);
   for (size_t rubyChunkId = 0; rubyChunkId < RubyChunkCount; rubyChunkId++) {
     Renderer->DrawProcessedText(RubyChunks[rubyChunkId].Text, DialogueFont,
-                                opacityTint.a, RendererOutlineMode::Full);
+                                textFadeOpacity, RendererOutlineMode::Full);
   }
 
   if (NameId.has_value() && ADVBoxShowName) {
-    Renderer->DrawProcessedText(Name, DialogueFont, opacityTint.a,
+    float nameOpacity = (NametagCurrentType == +NametagType::Instant)
+                            ? opacityTint.a
+                            : textFadeOpacity;
+    Renderer->DrawProcessedText(Name, DialogueFont, nameOpacity,
                                 RendererOutlineMode::Full);
   }
 
@@ -1044,14 +1067,13 @@ void DialoguePage::Hide() {
     PrevNameId = NameId;
     NameId.reset();
     NametagDisplay::UpdateNames(NameId, PrevNameId, Mode);
-    // force animation start
-    NametagDisplay::StartHiding();
   }
 }
 
 void DialoguePage::Show() {
   NametagDisplay::Reset();
   FadeAnimation.StartIn(true);
+  TextFadeAnimation.Progress = 1.0f;
 }
 
 int TextGetStringLength(Vm::Sc3Stream& stream) {

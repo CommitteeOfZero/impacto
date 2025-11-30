@@ -92,20 +92,31 @@ std::optional<uint32_t> GetNameToDraw() {
   return animatedName;
 }
 
+void StartHiding() {
+  PrevNameId = NameId;
+  NametagAnimation.StartIn(true);
+}
+
 void UpdateNames(std::optional<uint32_t> nameId,
                  std::optional<uint32_t> prevNameId, DialoguePageMode mode) {
   if (mode != +DialoguePageMode::DPM_ADV) {
     return;
   }
-  NameId = nameId;
-  PrevNameId = prevNameId;
 
   switch (NametagCurrentType) {
     case NametagType::None:  // falls through
     case NametagType::Instant: {
+      NameId = nameId;
+      PrevNameId = prevNameId;
       return;
     }
     case NametagType::FadeInPauseOut: {
+      if (NametagAnimation.State == AnimationState::Playing) {
+        NameId = nameId;
+        return;
+      }
+      NameId = nameId;
+      PrevNameId = prevNameId;
       if (NameId == PrevNameId) {
         // if name state stayed the same, still no name or same name
         NametagAnimation.Finish();

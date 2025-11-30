@@ -25,6 +25,8 @@ root.Dialogue = {
     ADVBoxPos = { X = 0, Y = 477.8 },
     FadeOutDuration = 0.33,
     FadeInDuration = 0.33,
+    --TextFadeInDuration = 0.33,
+    --TextFadeOutDuration = 0.33,
     DialogueBoxCurrentType = DialogueBoxType.Plain,
     NVLBoxMaxOpacity = 0.55,
     ADVNameAlignment = TextAlignment.Left,
