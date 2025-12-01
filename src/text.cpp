@@ -1007,7 +1007,10 @@ void DialoguePage::Render() {
   glm::vec4 col = glm::vec4(1.0f);  // ScrWorkGetColor(SW_MESWINDOW_COLOR);
   col.a = opacityTint.a;
 
-  const float textFadeOpacity = opacityTint.a * TextFadeAnimation.Progress;
+  const float textFadeOpacity =
+      GetFlag(Profile::ScriptVars::SF_MESALLSKIP)
+          ? 1.0f
+          : opacityTint.a * TextFadeAnimation.Progress;
 
   Renderer->DrawProcessedText(Glyphs, DialogueFont, textFadeOpacity,
                               RendererOutlineMode::Full);
