@@ -55,9 +55,9 @@ root.Sprites[name .. "SelectionLeftPart"] = {
     Sheet = sheet,
     Bounds = {
         X = 504,
-        Y = 53,
-        Width = 152,
-        Height = 33
+        Y = 52,
+        Width = 10,
+        Height = 34
     }
 };
 root.SysMesBoxDisplay.SelectionLeftPart = name .. "SelectionLeftPart";
@@ -65,10 +65,10 @@ root.SysMesBoxDisplay.SelectionLeftPart = name .. "SelectionLeftPart";
 root.Sprites[name .. "SelectionRightPart"] = {
     Sheet = sheet,
     Bounds = {
-        X = 634,
-        Y = 51,
-        Width = 24,
-        Height = 38
+        X = 644,
+        Y = 52,
+        Width = 13,
+        Height = 34
     }
 };
 root.SysMesBoxDisplay.SelectionRightPart = name .. "SelectionRightPart";
@@ -76,10 +76,10 @@ root.SysMesBoxDisplay.SelectionRightPart = name .. "SelectionRightPart";
 root.Sprites[name .. "SelectionMiddlePart"] = {
     Sheet = sheet,
     Bounds = {
-        X = 515,
-        Y = 51,
-        Width = 132,
-        Height = 38
+        X = 518,
+        Y = 52,
+        Width = 124,
+        Height = 34
     }
 };
 root.SysMesBoxDisplay.SelectionMiddlePart = name .. "SelectionMiddlePart";
