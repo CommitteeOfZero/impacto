@@ -13,6 +13,11 @@ inline std::optional<std::vector<Sprite>> UIButtonGuideSprites;
 inline std::optional<RectF> UIButtonGuideEndDisp;
 inline Sprite MonitorScanline;
 
+inline std::vector<Sprite> ButterflySprites;
+inline uint8_t ButterflyFrameCount;
+inline float ButterflyFlapFrameDuration;
+inline float ButterflyFadeDuration;
+
 void Configure();
 
 }  // namespace GameSpecific

@@ -8,6 +8,7 @@
 #include "../profile/games/chlcc/delusiontrigger.h"
 
 #include "../games/chlcc/delusiontrigger.h"
+#include "../games/chlcc/butterflyeffect.h"
 #include "../games/cclcc/delusiontrigger.h"
 #include "../games/cclcc/yesnotrigger.h"
 #include "../games/cclcc/mapsystem.h"
@@ -25,6 +26,7 @@ void Init() {
   switch (Profile::GameSpecific::GameSpecificType) {
     case +GameSpecificType::CHLCC: {
       CHLCC::DelusionTrigger::GetInstance().Reset();
+      CHLCC::ButterflyEffect::GetInstance();
     } break;
     case +GameSpecificType::CC: {
     } break;
@@ -46,6 +48,7 @@ void Update(float dt) {
   switch (Profile::GameSpecific::GameSpecificType) {
     case +GameSpecificType::CHLCC: {
       CHLCC::DelusionTrigger::GetInstance().Update(dt);
+      CHLCC::ButterflyEffect::GetInstance().Update(dt);
       CHLCCScanlineOffsetY = fmod(dt * 60 + CHLCCScanlineOffsetY, 300.0f);
     } break;
     case +GameSpecificType::CC: {
@@ -111,6 +114,10 @@ void RenderLayer(uint32_t layer) {
         float y = (299 - CHLCCScanlineOffsetY) * 1000.0f / 300 - 200;
         Renderer->DrawQuad(RectF{0.0f, y, Profile::DesignWidth, 200},
                            glm::vec4{glm::vec3{0.0f}, 88 / 255.0f});
+      }
+      if (ScrWork[SW_BUTTERFLY_ENABLED] &&
+          static_cast<int>(layer) == ScrWork[SW_BUTTERFLY_LAYER]) {
+        CHLCC::ButterflyEffect::GetInstance().Render();
       }
     } break;
     case +GameSpecificType::CC: {
