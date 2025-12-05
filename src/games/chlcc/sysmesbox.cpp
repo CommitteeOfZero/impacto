@@ -7,6 +7,7 @@
 #include "../../mem.h"
 #include "../../renderer/renderer.h"
 #include "../../util.h"
+#include "../../ui/widgets/chlcc/systemmessagebutton.h"
 
 namespace Impacto {
 namespace UI {
@@ -16,6 +17,7 @@ using namespace Impacto::UI::Widgets;
 using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::SysMesBox;
 using namespace Impacto::Profile::CHLCC::SysMesBox;
+using namespace Impacto::UI::Widgets::CHLCC;
 
 SysMesBox::SysMesBox() {
   LoadingStarsFadeAnimation.DurationIn = LoadingStarsFadeDuration;
@@ -36,11 +38,10 @@ void SysMesBox::Show() {
   auto onClick = [this](auto* btn) { return ChoiceItemOnClick(btn); };
 
   float diff = 0.0f;
-  float maxWidth = FLT_MIN;
+  float maxWidth = MinHighlightWidth;
   for (int i = 0; i < MessageCount; i++) {
-    if (maxWidth < MessageWidths[i]) maxWidth = MessageWidths[i];
+    maxWidth = std::max(maxWidth, MessageWidths[i]);
   }
-  if (maxWidth < MinHighlightWidth) maxWidth = MinHighlightWidth;
 
   for (int i = 0; i < MessageCount; i++) {
     if (Messages[i].empty()) continue;
@@ -61,8 +62,8 @@ void SysMesBox::Show() {
   for (int i = 0; i < ChoiceCount; i++) {
     totalChoiceWidth += ChoiceWidths[i] + ChoicePadding;
   }
-  if (maxWidth < totalChoiceWidth) maxWidth = totalChoiceWidth;
-  if (maxWidth < MinMaxMesWidth) maxWidth = MinMaxMesWidth;
+  maxWidth = std::max(maxWidth, totalChoiceWidth);
+  maxWidth = std::max(maxWidth, MinMaxMesWidth);
 
   ChoiceX = (maxWidth / 2.0f) - totalChoiceWidth + ChoiceXBase;
 
@@ -75,8 +76,9 @@ void SysMesBox::Show() {
       choice.DestRect.Y = ChoiceY;
     }
 
-    Button* choice = new Button(
-        i, nullSprite, nullSprite, SelectionLeftPart,
+    Button* choice = new SystemMessageButton(
+        i, nullSprite, nullSprite, SelectionLeftPart, SelectionMiddlePart,
+        SelectionRightPart,
         glm::vec2(Choices[i][0].DestRect.X, Choices[i][0].DestRect.Y));
     choice->HighlightOffset = glm::vec2(HighlightXOffset, HighlightYOffset);
 
@@ -214,8 +216,11 @@ void SysMesBox::AddChoice(Vm::BufferOffsetContext ctx) {
                           TextFontSize, Profile::Dialogue::ColorTable[0], 1.0f,
                           glm::vec2(TextX, 0.0f), TextAlignment::Left);
   float mesLen = 0.0f;
-  for (size_t i = 0; i < Choices[ChoiceCount].size(); i++) {
-    mesLen += Choices[ChoiceCount][i].DestRect.Width;
+  if (Choices[ChoiceCount].size() != 0) {
+    const RectF firstGlyph = Choices[ChoiceCount][0].DestRect;
+    const size_t lastIndex = Choices[ChoiceCount].size() - 1;
+    const RectF lastGlyph = Choices[ChoiceCount][lastIndex].DestRect;
+    mesLen = lastGlyph.X + lastGlyph.Width - firstGlyph.X;
   }
   ChoiceWidths[ChoiceCount] = mesLen;
   ChoiceCount++;

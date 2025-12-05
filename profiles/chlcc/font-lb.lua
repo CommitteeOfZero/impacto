@@ -7,7 +7,8 @@ root.Fonts = {
         Rows = 39,
         AdvanceWidths = "games/chlcc/font-lb/widths.bin",
         AdvanceWidthsEmWidth = 60,
-        OutlineOffset = { X = 1, Y = 1 },
+        ForegroundOffset = { X = -7, Y = 0 },
+        OutlineOffset = { X = -6, Y = 1 },
         LineSpacing = 0,
     }
 };
