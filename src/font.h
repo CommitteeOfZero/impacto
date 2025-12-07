@@ -1,7 +1,10 @@
 #pragma once
 
-#include "spritesheet.h"
+#include <vector>
+
 #include <enum.h>
+
+#include "spritesheet.h"
 
 namespace Impacto {
 
@@ -15,7 +18,7 @@ class Font {
 
   uint8_t Columns;
   uint8_t Rows;
-  float* AdvanceWidths;
+  std::vector<float> AdvanceWidths;
 
   float CellHeight;
   float CellWidth;
