@@ -44,14 +44,19 @@ ButterflyEffect::ButterflyEffect() {
   FadeAnimation.SetDuration(ButterflyFadeDuration);
 }
 
-void Butterfly::Render(float alpha) {
+void Butterfly::Render(float alphaMultipiler) {
   const uint8_t butterflyIndex =
-      static_cast<uint8_t>(Flap.Progress * ButterflyFlapFrameDuration);
+      static_cast<uint8_t>(Flap.Progress * ButterflyFrameCount);
   const float sizeF = static_cast<float>(Size);
   const RectF dest{Position.x - sizeF / 2.0f, Position.y - sizeF / 2.0f, sizeF,
                    sizeF};
-  Renderer->DrawSprite(ButterflySprites[butterflyIndex], dest,
-                       {glm::vec3{1.0f}, alpha});
+  const float alpha = (ScrWork[SW_BUTTERFLY_ENABLED] * alphaMultipiler) *
+                      (Size / 148.0f + 1 / 2.0f) / 256.0f;
+  constexpr static auto butterflyFrameSpriteMap =
+      std::to_array({0, 1, 2, 1, 0, 3, 4, 3});
+  Renderer->DrawSprite(
+      ButterflySprites[butterflyFrameSpriteMap[butterflyIndex]], dest,
+      {glm::vec3{1.0f}, alpha});
 }
 
 void ButterflyEffect::Init() {
