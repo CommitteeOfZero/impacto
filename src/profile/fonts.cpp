@@ -64,8 +64,8 @@ void LoadFonts() {
     float advanceWidthsEmWidth = EnsureGetMember<float>("AdvanceWidthsEmWidth");
     float bitmapEmWidth = baseFont->BitmapEmWidth;
 
-    baseFont->AdvanceWidths =
-        (float*)malloc(baseFont->Columns * baseFont->Rows * sizeof(float));
+    baseFont->AdvanceWidths.resize(baseFont->Columns * baseFont->Rows *
+                                   sizeof(float));
 
     float extraLetterSpacing;
     if (!TryGetMember<float>("ExtraLetterSpacing", extraLetterSpacing)) {
