@@ -115,7 +115,7 @@ void RenderLayer(uint32_t layer) {
         Renderer->DrawQuad(RectF{0.0f, y, Profile::DesignWidth, 200},
                            glm::vec4{glm::vec3{0.0f}, 88 / 255.0f});
       }
-      if (ScrWork[SW_BUTTERFLY_ENABLED] &&
+      if (ScrWork[SW_BUTTERFLY_ALPHA] &&
           static_cast<int>(layer) == ScrWork[SW_BUTTERFLY_LAYER]) {
         CHLCC::ButterflyEffect::GetInstance().Render();
       }

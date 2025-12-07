@@ -422,7 +422,7 @@ V(SW_MONITOR_SCANLINE_LAYER)    // CHLCC specific
 V(SW_MONITOR_SCANLINE_ENABLED)  // CHLCC specific
 V(SW_BUTTERFLY_COUNT)           // CHLCC specific
 V(SW_BUTTERFLY_LAYER)           // CHLCC specific
-V(SW_BUTTERFLY_ENABLED)         // CHLCC specific
+V(SW_BUTTERFLY_ALPHA)           // CHLCC specific
 V(SF_Pokecon_Open)
 V(SF_Pokecon_Cancel)
 V(SF_Pokecon_End)
