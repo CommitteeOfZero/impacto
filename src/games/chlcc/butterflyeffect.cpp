@@ -41,7 +41,7 @@ void Butterfly::Update(float dt) {
 }
 
 ButterflyEffect::ButterflyEffect() {
-  FadeAnimation.SetDuration(ButterflyFadeDuration);
+  FadeAnimation.DurationIn = ButterflyFadeDuration;
 }
 
 void Butterfly::Render(float alphaMultipiler) {
@@ -66,11 +66,11 @@ void ButterflyEffect::Init() {
 }
 
 void ButterflyEffect::Update(float dt) {
+  if (!ScrWork[SW_BUTTERFLY_ALPHA]) return;
   if (!ScrWork[SW_BUTTERFLY_COUNT]) {
-    if (FadeAnimation.IsIn()) {
+    if (FadeAnimation.Direction != AnimationDirection::Out) {
       FadeAnimation.StartOut();
     }
-    return;
   }
 
   if (FadeAnimation.IsOut()) {
