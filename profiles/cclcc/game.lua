@@ -15,6 +15,7 @@ root.CharaIsMvl = true;
 root.UseMoviePriority = true;
 root.UseBgChaEffects = true;
 root.UseBgFrameEffects = false;
+root.UseWaveEffects = true;
 
 root.Vm = {
     StartScript = 1,

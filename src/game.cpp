@@ -29,6 +29,7 @@
 #include "hud/loadingdisplay.h"
 #include "hud/tipsnotification.h"
 #include "games/cclcc/systemmenu.h"
+#include "effects/wave.h"
 
 #include "profile/profile.h"
 #include "profile/game.h"
@@ -110,8 +111,10 @@ static void Init() {
     Background2D::Init();
     Mask2D::Init();
 
-    if (Profile::UseBgChaEffects || Profile::UseBgFrameEffects) {
+    if (Profile::UseBgChaEffects || Profile::UseBgFrameEffects ||
+        Profile::UseWaveEffects) {
       Profile::BgEff::Load();
+      Effects::Init();
     }
   }
 
@@ -254,6 +257,22 @@ void UpdateSystem(float dt) {
     if (ScrWork[SW_GAMESTATE] & 5 && !GetFlag(SF_GAMEPAUSE) &&
         !GetFlag(SF_SYSMENUDISABLE)) {
       UI::GameSpecific::Update(UpdateSecondCounter);
+
+      // TODO: make a better check
+      if (Profile::UseWaveEffects) {
+        bool hasWaving = false;
+        for (size_t i = 0; i < std::ssize(Backgrounds); i++) {
+          const auto current = Backgrounds[i];
+          if (current.RenderType == 14 || current.RenderType == 28) {
+            hasWaving = true;
+            break;
+          }
+        }
+
+        if (hasWaving) {
+          Effects::WaveBg.Update(UpdateSecondCounter);
+        }
+      }
 
       if (!GetFlag(SF_MOVIEPLAY)) {
         TipsNotification::Update(UpdateSecondCounter);

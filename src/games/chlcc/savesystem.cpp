@@ -416,7 +416,7 @@ void SaveSystem::SaveEntryBuffer(Io::MemoryStream& memoryStream,
 
   Io::WriteArrayBE<int>(entry.MainThreadVariables.data(), &memoryStream, 16);
   Io::WriteBE<uint32_t>(&memoryStream, entry.MainThreadDialoguePageId);
-
+  // TODO: Save BGWave and EFFWave only
   memoryStream.Seek(1428, SEEK_CUR);
 }
 

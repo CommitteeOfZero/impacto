@@ -213,7 +213,7 @@ void SaveSystem::LoadEntryBuffer(Io::MemoryStream& stream, SaveFileEntry& entry,
   Io::ReadArrayBE<int>(entry.MainThreadVariables.data(), &stream, 16);
   entry.MainThreadDialoguePageId = Io::ReadLE<uint32_t>(&stream);
   assert(stream.Position == 0x3a04);
-  stream.Seek(1212, SEEK_CUR);
+  Io::ReadArrayLE<int>(entry.WaveData.data(), &stream, entry.WaveData.size());
   assert(stream.Position == 0x3ec0);
   Io::ReadArrayLE<uint8_t>(entry.MapLoadData.data(), &stream,
                            entry.MapLoadData.size());
@@ -415,7 +415,8 @@ void SaveSystem::SaveEntryBuffer(Io::MemoryStream& memoryStream,
   Io::WriteArrayBE<int>(entry.MainThreadVariables.data(), &memoryStream, 16);
   Io::WriteLE<uint32_t>(&memoryStream, entry.MainThreadDialoguePageId);
   assert(memoryStream.Position == 0x3a04);
-  memoryStream.Seek(1212, SEEK_CUR);
+  Io::ReadArrayLE<int>(entry.WaveData.data(), &memoryStream,
+                       entry.WaveData.size());
   assert(memoryStream.Position == 0x3ec0);
   Io::WriteArrayLE<uint8_t>(entry.MapLoadData.data(), &memoryStream,
                             entry.MapLoadData.size());

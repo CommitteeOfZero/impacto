@@ -1,4 +1,6 @@
 root.BgEffData = {
+    WaveGridSize = { X = 160, Y = 90 },
+
     -- bgId, eff1Shader, eff2Shader, eff3Shader, effChaShader
     BgEffShaderData = {
         {0, ShaderProgramType.Sprite, ShaderProgramType.Sprite, ShaderProgramType.Sprite, ShaderProgramType.ColorDodgeMaskedSprite},

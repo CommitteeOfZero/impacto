@@ -13,6 +13,7 @@
 // #include "window.h"
 #include "renderer/renderer.h"
 #include "vm/interface/scene2d.h"
+#include "effects/wave.h"
 
 namespace Impacto {
 
@@ -689,6 +690,48 @@ void BackgroundEffect2D::Render(const int layer) {
   std::invoke(BackgroundRenderTable[RenderType], this);
 
   Renderer->SetStencilMode(StencilBufferMode::Off);
+}
+
+void Background2D::RenderBgWave1() {
+  if (FadeCount == 0) {
+    return;
+  }
+
+  // should be affected by dt
+  for (size_t i = 0; i < Effects::WaveBg.Size; i++) {
+    Effects::WaveBg.WaveData[i].Phase += Effects::WaveBg.WaveData[i].PhaseDelta;
+  }
+  Effects::WaveBg.SetPos(0);
+  // TODO: create primitives
+  // Stub code
+
+  const glm::mat4 transformation =
+      TransformationMatrix(Origin, Scale, {Origin, 0.0f}, Rotation, Position);
+
+  Renderer->DrawMaskedSprite(BgSprite, Masks2D[MaskNumber].MaskSprite,
+                             FadeCount, FadeRange, transformation, Tint, false,
+                             false);
+}
+
+void Background2D::RenderBgWave2() {
+  if (FadeCount == 0) {
+    return;
+  }
+
+  // probably should be affected by dt
+  for (size_t i = 0; i < Effects::WaveBg.Size; i++) {
+    Effects::WaveBg.WaveData[i].Phase += Effects::WaveBg.WaveData[i].PhaseDelta;
+  }
+  // TODO: ?????
+  Effects::WaveBg.SetPos(MaskNumber);
+
+  // TODO: create primitives
+  // Stub code
+  const glm::mat4 transformation =
+      TransformationMatrix(Origin, Scale, {Origin, 0.0f}, Rotation, Position);
+  Renderer->DrawMaskedSprite(BgSprite, Masks2D[MaskNumber].MaskSprite,
+                             FadeCount, FadeRange, transformation, Tint, false,
+                             false);
 }
 
 void Background2D::RenderRegular() {

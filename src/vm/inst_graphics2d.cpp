@@ -11,6 +11,7 @@
 #include "../character2d.h"
 #include "interface/scene2d.h"
 #include "../profile/vm.h"
+#include "../effects/wave.h"
 
 namespace Impacto {
 
@@ -370,88 +371,66 @@ VmInstruction(InstBGeffectWave) {
   PopUint8(type);
   switch (type) {
     case 0:
-    case 2:  // Unimplemented
-      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-                 "STUB instruction BGeffectWave(type: {:d})\n", type);
+      Effects::WaveBg.InitWave();
       break;
-    case 1: {  // BGwaveSetWave
+    case 1: {
       PopExpression(arg1);
       PopExpression(arg2);
       PopExpression(arg3);
       PopExpression(arg4);
       PopExpression(arg5);
-      ImpLogSlow(
-          LogLevel::Warning, LogChannel::VMStub,
-          "STUB instruction BGeffectWave(type: BGwaveSetWave, arg1: {:d}, "
-          "arg2: {:d}, arg3: {:d}, arg4: {:d}, arg5: {:d})\n",
-          arg1, arg2, arg3, arg4, arg5);
+      Effects::WaveBg.SetWave(arg1, arg2, arg3, arg4, arg5);
     } break;
-    case 3: {  // CHAeffectWave
-      PopExpression(arg1);
-      PopExpression(arg2);
-      PopExpression(arg3);
-      PopExpression(arg4);
-      PopExpression(arg5);
-      ImpLogSlow(
-          LogLevel::Warning, LogChannel::VMStub,
-          "STUB instruction BGeffectWave(type: CHAeffectWave, arg1: {:d}, "
-          "arg2: {:d}, arg3: {:d}, arg4: {:d}, arg5: {:d})\n",
-          arg1, arg2, arg3, arg4, arg5);
-    } break;
-    case 4: {  // BGwaveResetWave
-      PopExpression(arg1);
-      PopExpression(arg2);
-      PopExpression(arg3);
-      PopExpression(arg4);
-      PopExpression(arg5);
-      PopExpression(arg6);
-      ImpLogSlow(
-          LogLevel::Warning, LogChannel::VMStub,
-          "STUB instruction BGeffectWave(type: BGwaveResetWave, arg1: {:d}, "
-          "arg2: {:d}, arg3: {:d}, arg4: {:d}, arg5: {:d}, arg6: {:d})\n",
-          arg1, arg2, arg3, arg4, arg5, arg6);
-    } break;
-    case 5: {  // CHAwaveResetWave
-      PopExpression(arg1);
-      PopExpression(arg2);
-      PopExpression(arg3);
-      PopExpression(arg4);
-      PopExpression(arg5);
-      PopExpression(arg6);
-      ImpLogSlow(
-          LogLevel::Warning, LogChannel::VMStub,
-          "STUB instruction BGeffectWave(type: CHAwaveResetWave, arg1: {:d}, "
-          "arg2: {:d}, arg3: {:d}, arg4: {:d}, arg5: {:d}, arg6: {:d})\n",
-          arg1, arg2, arg3, arg4, arg5, arg6);
-    } break;
-    case 10:  // EFFwaveInitWave
-      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-                 "STUB instruction BGeffectWave(type: EFFwaveInitWave)\n");
+    case 2: {
+      Effects::WaveCHA.InitWave();
       break;
-    case 11: {  // EFFwaveSetWave
+    }
+    case 3: {
       PopExpression(arg1);
       PopExpression(arg2);
       PopExpression(arg3);
       PopExpression(arg4);
       PopExpression(arg5);
-      ImpLogSlow(
-          LogLevel::Warning, LogChannel::VMStub,
-          "STUB instruction BGeffectWave(type: EFFwaveSetWave, arg1: {:d}, "
-          "arg2: {:d}, arg3: {:d}, arg4: {:d}, arg5: {:d})\n",
-          arg1, arg2, arg3, arg4, arg5);
+      Effects::WaveCHA.SetWave(arg1, arg2, arg3, arg4, arg5);
     } break;
-    case 12: {  // EFFwaveResetWave
+    case 4: {
+      PopExpression(index);
       PopExpression(arg1);
       PopExpression(arg2);
       PopExpression(arg3);
       PopExpression(arg4);
       PopExpression(arg5);
-      PopExpression(arg6);
-      ImpLogSlow(
-          LogLevel::Warning, LogChannel::VMStub,
-          "STUB instruction BGeffectWave(type: EFFwaveResetWave, arg1: {:d}, "
-          "arg2: {:d}, arg3: {:d}, arg4: {:d}, arg5: {:d}, arg6: {:d})\n",
-          arg1, arg2, arg3, arg4, arg5, arg6);
+      Effects::WaveBg.ResetWave(index, arg1, arg2, arg3, arg4, arg5);
+    } break;
+    case 5: {
+      PopExpression(index);
+      PopExpression(arg1);
+      PopExpression(arg2);
+      PopExpression(arg3);
+      PopExpression(arg4);
+      PopExpression(arg5);
+      Effects::WaveCHA.ResetWave(index, arg1, arg2, arg3, arg4, arg5);
+
+    } break;
+    case 10:
+      Effects::WaveEFF.InitWave();
+      break;
+    case 11: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      PopExpression(arg3);
+      PopExpression(arg4);
+      PopExpression(arg5);
+      Effects::WaveEFF.SetWave(arg1, arg2, arg3, arg4, arg5);
+    } break;
+    case 12: {
+      PopExpression(index);
+      PopExpression(arg1);
+      PopExpression(arg2);
+      PopExpression(arg3);
+      PopExpression(arg4);
+      PopExpression(arg5);
+      Effects::WaveEFF.ResetWave(index, arg1, arg2, arg3, arg4, arg5);
     } break;
   }
 }

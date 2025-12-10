@@ -32,6 +32,8 @@ set(Impacto_Src
         src/voicetable.cpp
         src/animation.cpp
 
+        src/effects/wave.cpp
+
         src/renderer/renderer.cpp
         src/renderer/window.cpp
 
@@ -361,6 +363,8 @@ set(Impacto_Header
         src/inputsystem.h
         src/rng.h
         src/animation.h
+
+        src/effects/wave.h
 
         src/renderer/renderer.h
         src/renderer/window.h

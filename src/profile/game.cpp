@@ -44,6 +44,7 @@ void LoadGameFromLua() {
   TryGetMember<bool>("UseMoviePriority", UseMoviePriority);
   TryGetMember<bool>("UseBgChaEffects", UseBgChaEffects);
   TryGetMember<bool>("UseBgFrameEffects", UseBgFrameEffects);
+  TryGetMember<bool>("UseWaveEffects", UseWaveEffects);
 
   int audioBackendType = -1;
   res = TryGetMember<int>("AudioBackendType", audioBackendType);

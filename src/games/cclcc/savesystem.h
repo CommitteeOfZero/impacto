@@ -28,6 +28,7 @@ class SaveFileEntry : public SaveFileEntryBase {
   std::array<int, 3000> ScrWorkScript2;      // 12000 bytes from &ScrWork[4300]
   std::array<uint8_t, 0x6ac8> MapLoadData;
   std::array<uint8_t, 0x54> YesNoData;
+  std::array<int, 303> WaveData;
   std::array<uint8_t, SaveThumbnailSize> ThumbnailData;
 };
 

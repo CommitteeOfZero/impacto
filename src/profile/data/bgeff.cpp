@@ -10,6 +10,7 @@ namespace BgEff {
 
 void Load() {
   EnsurePushMemberOfType("BgEffData", LUA_TTABLE);
+  WaveGridSize = EnsureGetMember<glm::u32vec2>("WaveGridSize");
 
   {
     EnsurePushMemberOfType("BgEffShaderData", LUA_TTABLE);
