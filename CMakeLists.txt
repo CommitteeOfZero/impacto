@@ -167,6 +167,7 @@ set(Impacto_Src
         src/games/chlcc/delusiontrigger.cpp
         src/games/chlcc/introsequence.cpp
         src/games/chlcc/tipsnotification.cpp
+        src/games/chlcc/butterflyeffect.cpp
 
         src/games/cc/backlogmenu.cpp
         src/games/cc/dialoguebox.cpp
@@ -497,6 +498,7 @@ set(Impacto_Header
         src/games/chlcc/delusiontrigger.h
         src/games/chlcc/introsequence.h
         src/games/chlcc/tipsnotification.h
+        src/games/chlcc/butterflyeffect.h
 
         src/games/cc/dialoguebox.h
         src/games/cc/titlemenu.h
