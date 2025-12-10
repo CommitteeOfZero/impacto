@@ -24,10 +24,10 @@ void Butterfly::Init(bool loop) {
   Velocity.x = std::sin(angle) * Size * 0.25f;
   Velocity.y = -std::cos(angle) * Size * 0.25f;
 
-  const int maxFrames =
-      static_cast<int>(ButterflyFlapFrameDuration * ButterflyFrameCount * 60);
-  const int randomProgress = CALCrnd(maxFrames);
-  Flap.Progress = static_cast<float>(randomProgress / maxFrames);
+  const float maxFrames =
+      std::floor(ButterflyFlapFrameDuration * ButterflyFrameCount * 60);
+  const int randomProgress = CALCrnd(static_cast<int>(maxFrames));
+  Flap.Progress = randomProgress / maxFrames;
   Flap.StartIn();
 }
 
