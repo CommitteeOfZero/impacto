@@ -304,8 +304,10 @@ void TipsMenu::Update(float dt) {
 
 void TipsMenu::TipOnClick(Button* target) {
   auto tipEntry = static_cast<TipsEntryButton*>(target);
-  if (!tipEntry->TipEntryRecord->IsLocked)
+  if (!tipEntry->TipEntryRecord->IsLocked) {
+    CurrentlyFocusedElement = target;
     SwitchToTipId(tipEntry->TipEntryRecord->Id);
+  }
 }
 
 void TipsMenu::Init() {
