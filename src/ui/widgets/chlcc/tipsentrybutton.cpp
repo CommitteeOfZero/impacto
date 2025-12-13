@@ -50,9 +50,9 @@ TipsEntryButton::TipsEntryButton(int id, TipsDataRecord* tipRecord,
   dummy.IpOffset = lockedScrPos.IpOffset;
   dummy.ScriptBufferId = lockedScrPos.ScriptBufferId;
   TextLayoutPlainLine(
-      &dummy, 3, TipLockedText, Profile::Dialogue::DialogueFont,
-      TipListEntryFontSize, Profile::Dialogue::ColorTable[UnreadColorIndex],
-      1.0f,
+      &dummy, static_cast<int>(TipLockedText.size()), TipLockedText,
+      Profile::Dialogue::DialogueFont, TipListEntryFontSize,
+      Profile::Dialogue::ColorTable[UnreadColorIndex], 1.0f,
       glm::vec2(Bounds.X + TipListEntryNameXOffset + TipListEntryTextOffsetX,
                 Bounds.Y),
       TextAlignment::Left);

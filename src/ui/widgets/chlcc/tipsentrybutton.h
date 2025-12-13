@@ -19,7 +19,7 @@ class TipsEntryButton : public Button {
 
  private:
   std::array<ProcessedTextGlyph, 4> TipNumber;
-  std::array<ProcessedTextGlyph, 4> TipLockedText;
+  std::array<ProcessedTextGlyph, 3> TipLockedText;
   bool PrevUnreadState;
 };
 
