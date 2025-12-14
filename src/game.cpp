@@ -333,21 +333,27 @@ static void RenderMain() {
       Framebuffers[0].Render(layer);
     }
 
-    if (ScrWork[SW_MASK1PRI] == static_cast<int>(layer)) {
-      const int maskAlpha = ScrWork[SW_MASK1ALPHA_OFS] + ScrWork[SW_MASK1ALPHA];
+    for (int i = 0; i < 2; ++i) {
+      constexpr static int maskOffset = 7;
+      if (ScrWork[SW_MASK1PRI + maskOffset * i] == static_cast<int>(layer)) {
+        const int maskAlpha = ScrWork[SW_MASK1ALPHA_OFS + i] +
+                              ScrWork[SW_MASK1ALPHA + maskOffset * i];
 
-      if (maskAlpha > 0) {
-        RectF maskRect = {
-            (float)ScrWork[SW_MASK1POSX], (float)ScrWork[SW_MASK1POSY],
-            (float)ScrWork[SW_MASK1SIZEX], (float)ScrWork[SW_MASK1SIZEY]};
-        if (maskRect.GetSize() == glm::vec2(0.0f)) {
-          maskRect = {0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight};
+        if (maskAlpha > 0) {
+          RectF maskRect = {(float)ScrWork[SW_MASK1POSX + maskOffset * i],
+                            (float)ScrWork[SW_MASK1POSY + maskOffset * i],
+                            (float)ScrWork[SW_MASK1SIZEX + maskOffset * i],
+                            (float)ScrWork[SW_MASK1SIZEY + maskOffset * i]};
+          if (maskRect.GetSize() == glm::vec2(0.0f)) {
+            maskRect = {0.0f, 0.0f, Profile::DesignWidth,
+                        Profile::DesignHeight};
+          }
+
+          glm::vec4 col = ScrWorkGetColor(SW_MASK1COLOR + maskOffset * i);
+          col.a = glm::min(maskAlpha / 256.0f, 1.0f);
+
+          Renderer->DrawQuad(maskRect, col);
         }
-
-        glm::vec4 col = ScrWorkGetColor(SW_MASK1COLOR);
-        col.a = glm::min(maskAlpha / 256.0f, 1.0f);
-
-        Renderer->DrawQuad(maskRect, col);
       }
     }
 
