@@ -414,10 +414,6 @@ static void RenderMain() {
 
   DateDisplay::Render();
 
-  if (!GetFlag(SF_UIHIDDEN) && !GetFlag(SF_MOVIEPLAY)) {
-    TipsNotification::Render();
-  }
-
   // MO8 uses those huge layer indexes for movie menu, it doesn't
   // actually have 4000 layers
   if ((Profile::GameFeatures & GameFeature::Video) &&
@@ -468,6 +464,10 @@ void Render() {
                 static_cast<UI::CCLCC::SystemMenu*>(UI::SystemMenuPtr)
                     ->ScreenCap);
             SetFlag(SF_SYSTEMMENUCAPTURE, false);
+          }
+
+          if (!GetFlag(SF_UIHIDDEN) && !GetFlag(SF_MOVIEPLAY)) {
+            TipsNotification::Render();
           }
           break;
         }
