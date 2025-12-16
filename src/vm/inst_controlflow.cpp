@@ -170,31 +170,28 @@ VmInstruction(InstFlagOnJump) {
   }
 }
 VmInstruction(InstKeyOnJump) {
+  using namespace Interface;
+
   StartInstruction;
-  PopUint8(arg1);
-  PopExpression(arg2);
-  PopExpression(arg3);
+  PopUint8(type);
+  PopExpression(buttonsArg);
+  PopExpression(downTypeId);
   PopUint16(labelNum);
   uint32_t labelAdr = ScriptGetLabelAddress(thread->ScriptBufferId, labelNum);
 
-  if (arg1 & 2) {
-    arg2 = Interface::PADcustom[arg2];
-  }
+  const InputDownType downType = static_cast<InputDownType>(downTypeId);
+
   const bool inputResult = [&]() -> bool {
-    switch (arg3) {
-      case 0:
-        return (arg2 & Interface::PADinputButtonIsDown) ||
-               (arg2 & Interface::PADinputMouseIsDown);
-      case 1:
-        return (arg2 & Interface::PADinputButtonWentDown) ||
-               (arg2 & Interface::PADinputMouseWentDown);
-      case 2:
-        return arg2 & Interface::PADinputButtonRepeatDown;
-      case 3:
-        return arg2 & Interface::PADinputButtonRepeatAccelDown;
-      default:
-        return false;
+    const uint32_t bitfield = (type & 2) ? PADcustom[buttonsArg] : buttonsArg;
+
+    uint32_t padInputDown = GetPadInputButtonDown(downType);
+    if (downType == InputDownType::IsDown) {
+      padInputDown |= PADinputMouseIsDown;
+    } else if (downType == InputDownType::WentDown) {
+      padInputDown |= PADinputMouseWentDown;
     }
+
+    return bitfield & padInputDown;
   }();
 
   if (inputResult) {
@@ -202,9 +199,9 @@ VmInstruction(InstKeyOnJump) {
   }
 
   ImpLogSlow(LogLevel::Trace, LogChannel::VM,
-             "KeyOnJump(arg1: {:d}, arg2: {:d}, arg3: {:d}, "
+             "KeyOnJump(type: {:d}, buttons: {:d}, downType: {:d}, "
              "labelNum: {:d})\n",
-             arg1, arg2, arg3, labelNum);
+             type, buttonsArg, downTypeId, labelNum);
 }
 VmInstruction(InstKeyOnJump_Dash) {
   StartInstruction;

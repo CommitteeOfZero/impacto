@@ -40,6 +40,13 @@ enum PADinput {
 
 inline std::span<uint32_t> PADcustom;
 
+enum class InputDownType {
+  IsDown = 0,
+  WentDown = 1,
+  RepeatDown = 2,
+  RepeatAccelDown = 3,
+};
+
 inline uint32_t PADinputButtonWentDown = 0;         // padone
 inline uint32_t PADinputButtonIsDown = 0;           // padrep
 inline uint32_t PADinputButtonRepeatDown = 0;       // padref
@@ -62,11 +69,13 @@ enum ControlType {
   CT_DelusionTriggerR = 42,
 };
 
+uint32_t GetPadInputButtonDown(InputDownType downType);
 void UpdatePADInput();
 void UpdatePADHoldInput(float dt);
 void ResetPADHoldTimer(uint32_t PADcode);
 void UpdatePADcustomType(int type);
-bool GetControlState(int controlId);
+bool GetControlState(int controlId,
+                     InputDownType downType = InputDownType::WentDown);
 
 }  // namespace Interface
 }  // namespace Vm
