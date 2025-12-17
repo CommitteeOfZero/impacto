@@ -63,6 +63,7 @@ enum ControlType {
   CT_MainMenu = 28,
   CT_Backlog = 29,
   CT_Tips = 30,
+  CT_MovieCancel = 38,
   CT_LogoSkip = 39,
   CT_ResetOptions = 40,
   CT_DelusionTriggerL = 41,

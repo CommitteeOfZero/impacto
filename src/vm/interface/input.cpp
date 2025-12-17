@@ -239,6 +239,7 @@ bool GetControlState(int controlId, InputDownType downType) {
       return padInputDown & PADcustom[12];
     case CT_Tips:
       return false;
+    case CT_MovieCancel:
     case CT_LogoSkip:
       return padInputDown & PADcustom[14];
     case CT_ResetOptions:

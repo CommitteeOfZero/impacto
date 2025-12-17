@@ -1377,20 +1377,21 @@ VmInstruction(InstMtrg) {
     case 2: {
       if (!GetFlag(SF_MOVIEPLAY)) {
         Impacto::Video::Players[0]->Stop();
-        SetFlag(2486, 0);
-        ScrWork[6333] = 0xffff;
-        ScrWork[6336] = 0xffff;
+        SetFlag(SF_MOVIELOADPLAYFL, 0);
+        ScrWork[SW_MOVIE_PLAYNO] = 0xffff;
+        ScrWork[SW_MOVIE_LOADNO] = 0xffff;
         ScrWork[6344] = 0;
         return;
       }
       if (GetFlag(SF_MESALLSKIP)) {
         Impacto::Video::Players[0]->Stop();
-        if ((ScrWork[6333] != 0xffff) && (ScrWork[6336] != 0xffff)) {
+        if ((ScrWork[SW_MOVIE_PLAYNO] != 0xffff) &&
+            (ScrWork[SW_MOVIE_LOADNO] != 0xffff)) {
           return;
         }
-        SetFlag(2486, 0);
-        ScrWork[6333] = 0xffff;
-        ScrWork[6336] = 0xffff;
+        SetFlag(SF_MOVIELOADPLAYFL, 0);
+        ScrWork[SW_MOVIE_PLAYNO] = 0xffff;
+        ScrWork[SW_MOVIE_LOADNO] = 0xffff;
         ScrWork[6344] = 0;
         return;
       }
