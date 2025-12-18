@@ -362,7 +362,7 @@ void Character2D::UpdateState(const int chaId) {
     LipFrame = ScrWork[SW_CHA1ANIME_MOUTH + structOffset];
   } else {
     bool charSpeaking = false;
-    const uint32_t chaIndexMask = 1 << chaId & 0x1F;
+    const uint32_t chaIndexMask = 1 << (chaId & 0x1F);
 
     if (!SkipModeEnabled) {
       for (uint8_t i = 0; i < 3; i++) {
