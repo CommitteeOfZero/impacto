@@ -370,7 +370,8 @@ static void RenderMain() {
     if (Profile::UseScreenCapEffects) {
       if (ScrWork[SW_EFF_CAP_BUF] &&
           static_cast<uint32_t>(ScrWork[SW_EFF_CAP_PRI]) == layer) {
-        int bufId = (int)std::log2(ScrWork[SW_EFF_CAP_BUF]);
+        const int bgId = static_cast<int>(std::log2(ScrWork[SW_EFF_CAP_BUF]));
+        const int bufId = ScrWork[SW_BG1SURF + bgId];
         if (Backgrounds2D[bufId]->Status == LoadStatus::Loaded) {
           Renderer->CaptureScreencap(Backgrounds2D[bufId]->BgSprite);
         }
@@ -378,7 +379,8 @@ static void RenderMain() {
 
       if (ScrWork[SW_EFF_CAP_BUF2] &&
           static_cast<uint32_t>(ScrWork[SW_EFF_CAP_PRI2]) == layer) {
-        int bufId = (int)std::log2(ScrWork[SW_EFF_CAP_BUF2]);
+        const int bgId = static_cast<int>(std::log2(ScrWork[SW_EFF_CAP_BUF2]));
+        const int bufId = ScrWork[SW_BG1SURF + bgId];
         if (Backgrounds2D[bufId]->Status == LoadStatus::Loaded) {
           Renderer->CaptureScreencap(Backgrounds2D[bufId]->BgSprite);
         }
