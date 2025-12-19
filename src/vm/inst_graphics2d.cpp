@@ -9,7 +9,6 @@
 #include "../mem.h"
 #include "../background2d.h"
 #include "../character2d.h"
-#include "interface/scene2d.h"
 #include "../profile/vm.h"
 #include "../effects/wave.h"
 
@@ -92,7 +91,7 @@ VmInstruction(InstBGload) {
   StartInstruction;
   PopExpression(bufferId);
   PopExpression(backgroundId);
-  int actualBufId = Interface::GetBufferId(bufferId);
+  int actualBufId = GetBufferId(bufferId);
   int bgBufId = ScrWork[SW_BG1SURF + actualBufId];
   if (Backgrounds2D[bgBufId]->Status == LoadStatus::Loading) {
     ResetInstruction;
@@ -110,8 +109,8 @@ VmInstruction(InstBGswap) {
   PopExpression(srcBufferId);
   PopExpression(dstBufferId);
 
-  srcBufferId = Interface::GetBufferId(srcBufferId);
-  dstBufferId = Interface::GetBufferId(dstBufferId);
+  srcBufferId = GetBufferId(srcBufferId);
+  dstBufferId = GetBufferId(dstBufferId);
 
   bool bg1fl = GetFlag(SF_BG1DISP + srcBufferId);
   bool bg2fl = GetFlag(SF_BG1DISP + dstBufferId);
@@ -172,7 +171,7 @@ VmInstruction(InstCHAload) {
   PopExpression(bufferId);
   PopExpression(characterId);
 
-  const int actualBufId = Interface::GetBufferId(bufferId);
+  const int actualBufId = GetBufferId(bufferId);
   const size_t chaStructOffset = ScrWorkChaStructSize * actualBufId;
 
   const int chaBufId = ScrWork[SW_CHA1SURF + actualBufId];
@@ -208,8 +207,8 @@ VmInstruction(InstCHAswap) {
   PopExpression(srcBufferId);
   PopExpression(dstBufferId);
 
-  srcBufferId = Interface::GetBufferId(srcBufferId);
-  dstBufferId = Interface::GetBufferId(dstBufferId);
+  srcBufferId = GetBufferId(srcBufferId);
+  dstBufferId = GetBufferId(dstBufferId);
 
   bool cha1fl = GetFlag(SF_CHA1DISP + srcBufferId);
   bool cha2fl = GetFlag(SF_CHA1DISP + dstBufferId);
@@ -234,7 +233,7 @@ VmInstruction(InstCHAswap) {
 VmInstruction(InstBGrelease) {
   StartInstruction;
   PopExpression(bufferId);
-  bufferId = Interface::GetBufferId(bufferId);
+  bufferId = GetBufferId(bufferId);
   int surfId = ScrWork[SW_BG1SURF + bufferId];
   ScrWork[SW_BG1NO + ScrWorkBgStructSize * bufferId] = 0xFFFF;
   if (Backgrounds2D[surfId]->Status == LoadStatus::Loaded) {
@@ -246,8 +245,8 @@ VmInstruction(InstBGcopy) {
   PopExpression(srcBufferId);
   PopExpression(dstBufferId);
 
-  srcBufferId = Interface::GetBufferId(srcBufferId);
-  dstBufferId = Interface::GetBufferId(dstBufferId);
+  srcBufferId = GetBufferId(srcBufferId);
+  dstBufferId = GetBufferId(dstBufferId);
 
   int bgId = ScrWork[SW_BG1NO + ScrWorkBgStructSize * srcBufferId];
   int dstSurfId = ScrWork[SW_BG1SURF + dstBufferId];
@@ -267,8 +266,8 @@ VmInstruction(InstCHAcopy) {
   PopExpression(srcBufferId);
   PopExpression(dstBufferId);
 
-  srcBufferId = Interface::GetBufferId(srcBufferId);
-  dstBufferId = Interface::GetBufferId(dstBufferId);
+  srcBufferId = GetBufferId(srcBufferId);
+  dstBufferId = GetBufferId(dstBufferId);
 
   int chaId = (ScrWork[SW_CHA1FACE + ScrWorkBgStructSize * srcBufferId] << 16) +
               ScrWork[SW_CHA1NO + ScrWorkBgStructSize * srcBufferId];
@@ -346,7 +345,7 @@ VmInstruction(InstBGloadEx) {
 VmInstruction(InstCHArelease) {
   StartInstruction;
   PopExpression(bufferId);
-  bufferId = Interface::GetBufferId(bufferId);
+  bufferId = GetBufferId(bufferId);
   int surfId = ScrWork[SW_CHA1SURF + bufferId];
   ScrWork[SW_CHA1NO + ScrWorkChaStructSize * bufferId] = 0xFFFF;
   if (Characters2D[surfId].Status == LoadStatus::Loaded) {
@@ -504,8 +503,8 @@ VmInstruction(InstFACEload) {
     case 0: {
       PopExpression(bufferId);
       PopExpression(faceId);
-      int actualBufId = Interface::GetBufferId(bufferId) -
-                        Profile::Vm::SpeakerPortraitsScrWorkOffset;
+      int actualBufId =
+          GetBufferId(bufferId) - Profile::Vm::SpeakerPortraitsScrWorkOffset;
       int chaBufId = ScrWork[SW_FACE1SURF + actualBufId];
       if (((faceId & 0xFFFF0000) >> 16) == 0) {
         faceId = (ScrWork[SW_FACEEX1FACE + 5 * actualBufId] << 16) | faceId;
@@ -528,8 +527,7 @@ VmInstruction(InstFACEload) {
 VmInstruction(InstFACErelease) {
   StartInstruction;
   PopExpression(bufferId);
-  bufferId = Interface::GetBufferId(bufferId) -
-             Profile::Vm::SpeakerPortraitsScrWorkOffset;
+  bufferId = GetBufferId(bufferId) - Profile::Vm::SpeakerPortraitsScrWorkOffset;
   int surfId = ScrWork[SW_FACE1SURF + bufferId];
   ScrWork[SW_FACEEX1NO + 5 * bufferId] = 0xFFFF;
   if (SpeakerPortraits[surfId].Status == LoadStatus::Loaded) {

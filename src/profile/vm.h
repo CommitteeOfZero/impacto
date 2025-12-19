@@ -18,14 +18,15 @@ inline bool UseMsbStrings = false;
 inline bool UseSeparateMsbArchive = false;
 inline bool RestartMaskUsesThreadAlpha = false;
 
-inline int ScrWorkChaStructSize;
-inline int ScrWorkChaOffsetStructSize;
-inline int ScrWorkBgStructSize;
-inline int ScrWorkBgOffsetStructSize;
-inline int ScrWorkCaptureStructSize;
-inline int ScrWorkCaptureOffsetStructSize;
-inline int ScrWorkBgEffStructSize;
-inline int ScrWorkBgEffOffsetStructSize;
+inline int ScrWorkChaStructSize = 0;
+inline int ScrWorkChaOffsetStructSize = 0;
+inline int ScrWorkBgStructSize = 0;
+inline int ScrWorkBgOffsetStructSize = 0;
+inline int ScrWorkCaptureStructSize = 0;
+inline int ScrWorkCaptureOffsetStructSize = 0;
+inline int ScrWorkCaptureEffectInfoStructSize = 0;
+inline int ScrWorkBgEffStructSize = 0;
+inline int ScrWorkBgEffOffsetStructSize = 0;
 
 inline int MaxLinkedBgBuffers = 1;
 inline int SystemScriptBuffer = 1;

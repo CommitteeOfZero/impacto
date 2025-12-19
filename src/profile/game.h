@@ -24,7 +24,7 @@ inline std::optional<std::string> CursorPointerPath;
 inline bool LayFileBigEndian;
 inline bool CharaIsMvl;
 
-inline bool UseScreenCapEffects;
+inline size_t ScreenCaptureCount = 0;
 inline bool UseMoviePriority = false;
 inline bool UseBgChaEffects = false;
 inline bool UseBgFrameEffects = false;

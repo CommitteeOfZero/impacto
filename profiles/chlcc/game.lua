@@ -17,6 +17,8 @@ root.LayFileBigEndian = true;
 root.LayFileTexXMultiplier = 2048;
 root.LayFileTexYMultiplier = 1024;
 
+root.ScreenCaptureCount = 2;
+
 root.Vm = {
     StartScript = 0,
     StartScriptBuffer = 0,
@@ -29,6 +31,7 @@ root.Vm = {
     ScrWorkBgOffsetStructSize = 10,
     ScrWorkCaptureStructSize = 20,
     ScrWorkCaptureOffsetStructSize = 10,
+    ScrWorkCaptureEffectInfoStructSize = 2,
     ScrWorkBgEffStructSize = 20,
     ScrWorkBgEffOffsetStructSize = 20,
 };

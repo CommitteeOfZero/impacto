@@ -10,6 +10,8 @@ root.WindowIconPath = "games/rne/icondata/icon.png";
 root.CursorArrowPath = "games/rne/icondata/cursor_arrow.png";
 root.CursorPointerPath = "games/rne/icondata/cursor_pointer.png";
 
+root.ScreenCaptureCount = 2;
+
 root.Vm = {
     StartScript = 4,
     StartScriptBuffer = 0,
@@ -22,6 +24,7 @@ root.Vm = {
     ScrWorkBgOffsetStructSize = 10,
     ScrWorkCaptureStructSize = 20,
     ScrWorkCaptureOffsetStructSize = 10,
+    ScrWorkCaptureEffectInfoStructSize = 3,
     ScrWorkBgEffStructSize = 30,
     ScrWorkBgEffOffsetStructSize = 20,
 

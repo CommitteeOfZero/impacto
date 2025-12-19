@@ -12,7 +12,6 @@
 #include "profile/vm.h"
 // #include "window.h"
 #include "renderer/renderer.h"
-#include "vm/interface/scene2d.h"
 #include "effects/wave.h"
 
 namespace Impacto {
@@ -31,6 +30,7 @@ void Background2D::InitFrameBuffers() {
 
     Framebuffers[i].Status = LoadStatus::Loaded;
     Framebuffers[i].BgSprite.Sheet.IsScreenCap = true;
+    Framebuffers[i].RenderSprite = Framebuffers[i].BgSprite;
   }
 }
 
@@ -214,7 +214,7 @@ void Background2D::MainThreadOnLoad(bool result) {
 
 void Background2D::LinkBuffers(const int linkCode, const int currentBufferId) {
   const int srcBufId = (linkCode >> 8) & 0xFF;
-  if (srcBufId != Vm::Interface::GetScriptBufferId(currentBufferId)) return;
+  if (srcBufId != GetScriptBufferId(currentBufferId)) return;
 
   const LinkDirection dir = static_cast<LinkDirection>((linkCode >> 16) & 0xFF);
 
@@ -222,7 +222,7 @@ void Background2D::LinkBuffers(const int linkCode, const int currentBufferId) {
     int childBufId = (linkCode >> (i * 24)) & 0xFF;
     if (childBufId == 0) continue;
 
-    childBufId = Vm::Interface::GetBufferId(childBufId);
+    childBufId = GetBufferId(childBufId);
     Background2D* const childBuf =
         Backgrounds2D[ScrWork[SW_BG1SURF + childBufId]];
 
@@ -384,6 +384,14 @@ void Background2D::UpdateState(const int bgId) {
     }
   }
 
+  RenderSprite = BgSprite;
+  for (int i = static_cast<int>(Profile::ScreenCaptureCount) - 1; i >= 0; i--) {
+    const int capOffset = i * Profile::Vm::ScrWorkCaptureEffectInfoStructSize;
+    if (ScrWork[SW_EFF_CAP_BUF + capOffset] == GetScriptBufferId(bgId + 1)) {
+      RenderSprite = Screencaptures[i].BgSprite;
+    }
+  }
+
   if (Profile::UseBgChaEffects || Profile::UseBgFrameEffects) {
     BgEffsLayers = {ScrWork[SW_BG1EFFPRI + structOffset],
                     ScrWork[SW_BG1EFFPRI2 + structOffset]};
@@ -402,7 +410,10 @@ void Background2D::UpdateState(const int bgId) {
 }
 
 void Background2D::Render(const int layer) {
-  if (Status != LoadStatus::Loaded || !OnLayer(layer) || !Show) return;
+  if (!Show || !OnLayer(layer) ||
+      (Status != LoadStatus::Loaded && &RenderSprite.get() == &BgSprite)) {
+    return;
+  }
 
   if (Profile::UseBgChaEffects || Profile::UseBgFrameEffects) {
     bool renderBgEffs = false;
@@ -589,7 +600,9 @@ void Capture2D::UpdateState(const int capId) {
 }
 
 void Capture2D::Render(const int layer) {
-  if (Status != LoadStatus::Loaded || !OnLayer(layer) || !Show) return;
+  if (Status != LoadStatus::Loaded || !OnLayer(layer) || !Show) {
+    return;
+  }
 
   std::invoke(BackgroundRenderTable[RenderType], this);
 }
@@ -671,7 +684,9 @@ void BackgroundEffect2D::UpdateState(const int bgId) {
 }
 
 void BackgroundEffect2D::Render(const int layer) {
-  if (Status != LoadStatus::Loaded || !OnLayer(layer) || !Show) return;
+  if (Status != LoadStatus::Loaded || !OnLayer(layer) || !Show) {
+    return;
+  }
 
   // Transform vertices
   const glm::mat4 stencilTransformation = TransformationMatrix(
@@ -719,15 +734,15 @@ void Background2D::RenderBgWave() {
 void Background2D::RenderRegular() {
   const glm::mat4 transformation =
       TransformationMatrix(Origin, Scale, {Origin, 0.0f}, Rotation, Position);
-  Renderer->DrawSprite(BgSprite, transformation, Tint, false);
+  Renderer->DrawSprite(RenderSprite, transformation, Tint, false);
 
   for (int i = 0; i < MaxLinkedBgBuffers; i++) {
     if (Links[i].Direction != LinkDirection::Off &&
         Links[i].LinkedBuffer != nullptr) {
       const glm::mat4 linkTransformation = TransformationMatrix(
           Origin, Scale, {Origin, 0.0f}, Rotation, Links[i].DisplayCoords);
-      Renderer->DrawSprite(Links[i].LinkedBuffer->BgSprite, linkTransformation,
-                           Tint, false);
+      Renderer->DrawSprite(Links[i].LinkedBuffer->RenderSprite,
+                           linkTransformation, Tint, false);
     }
   }
 }
@@ -736,7 +751,7 @@ void Background2D::RenderMasked() {
   const glm::mat4 transformation =
       TransformationMatrix(Origin, Scale, {Origin, 0.0f}, Rotation, Position);
 
-  Renderer->DrawMaskedSprite(BgSprite, Masks2D[MaskNumber].MaskSprite,
+  Renderer->DrawMaskedSprite(RenderSprite, Masks2D[MaskNumber].MaskSprite,
                              FadeCount, FadeRange, transformation, Tint, false,
                              false);
 }
@@ -745,7 +760,7 @@ void Background2D::RenderMaskedInverted() {
   const glm::mat4 transformation =
       TransformationMatrix(Origin, Scale, {Origin, 0.0f}, Rotation, Position);
 
-  Renderer->DrawMaskedSprite(BgSprite, Masks2D[MaskNumber].MaskSprite,
+  Renderer->DrawMaskedSprite(RenderSprite, Masks2D[MaskNumber].MaskSprite,
                              FadeCount, FadeRange, transformation, Tint, true,
                              false);
 }

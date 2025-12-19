@@ -520,4 +520,12 @@ inline int CALCrnd(int max) {
 
 tm CurrentDateTime();
 
+// Because yes
+inline int GetBufferId(int bufIdByScript) {
+  return static_cast<int>(std::log2(bufIdByScript));
+}
+inline int GetScriptBufferId(int bufIdBySurf) {
+  return bufIdBySurf <= 0 ? 0 : (1 << (bufIdBySurf - 1));
+}
+
 }  // namespace Impacto

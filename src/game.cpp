@@ -325,6 +325,15 @@ static void RenderMain() {
       Backgrounds2D[bufId]->Render(layer);
     }
 
+    // Games with <= 2 don't render their captures separately
+    if (Profile::Vm::ScrWorkCaptureEffectInfoStructSize >= 3) {
+      for (int capId = 0; capId < static_cast<int>(Profile::ScreenCaptureCount);
+           capId++) {
+        Screencaptures[capId].UpdateState(capId);
+        Screencaptures[capId].Render(layer);
+      }
+    }
+
     if (Background2D::LastRenderedBackground != nullptr) {
       Background2D::LastRenderedBackground->RenderBgEff(layer);
     }
@@ -367,24 +376,16 @@ static void RenderMain() {
       }
     }
 
-    if (Profile::UseScreenCapEffects) {
-      if (ScrWork[SW_EFF_CAP_BUF] &&
-          static_cast<uint32_t>(ScrWork[SW_EFF_CAP_PRI]) == layer) {
-        const int bgId = static_cast<int>(std::log2(ScrWork[SW_EFF_CAP_BUF]));
-        const int bufId = ScrWork[SW_BG1SURF + bgId];
-        if (Backgrounds2D[bufId]->Status == LoadStatus::Loaded) {
-          Renderer->CaptureScreencap(Backgrounds2D[bufId]->BgSprite);
-        }
+    for (size_t capId = 0; capId < Profile::ScreenCaptureCount; capId++) {
+      const size_t capOffset =
+          capId * Profile::Vm::ScrWorkCaptureEffectInfoStructSize;
+      if (ScrWork[SW_EFF_CAP_BUF + capOffset] == 0 ||
+          static_cast<uint32_t>(ScrWork[SW_EFF_CAP_PRI + capOffset]) != layer) {
+        continue;
       }
 
-      if (ScrWork[SW_EFF_CAP_BUF2] &&
-          static_cast<uint32_t>(ScrWork[SW_EFF_CAP_PRI2]) == layer) {
-        const int bgId = static_cast<int>(std::log2(ScrWork[SW_EFF_CAP_BUF2]));
-        const int bufId = ScrWork[SW_BG1SURF + bgId];
-        if (Backgrounds2D[bufId]->Status == LoadStatus::Loaded) {
-          Renderer->CaptureScreencap(Backgrounds2D[bufId]->BgSprite);
-        }
-      }
+      Renderer->CaptureScreencap(Screencaptures[capId].BgSprite);
+      Screencaptures[capId].Status = LoadStatus::Loaded;
     }
 
     if (Profile::UseMoviePriority &&

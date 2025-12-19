@@ -34,6 +34,7 @@ class Background2D : public Loadable<Background2D, bool, uint32_t> {
   static void InitFrameBuffers();
 
   Sprite BgSprite;
+  std::reference_wrapper<Sprite> RenderSprite = BgSprite;
 
   std::array<int, 2> BgEffsLayers = {0, 0};
   std::array<BgEff, 3> FrameBgEffs;
