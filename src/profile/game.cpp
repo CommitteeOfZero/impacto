@@ -39,8 +39,7 @@ void LoadGameFromLua() {
   res = TryGetMember<float>("LayFileTexYMultiplier", LayFileTexYMultiplier);
   if (!res) LayFileTexYMultiplier = 1.0f;
 
-  res = TryGetMember<bool>("UseScreenCapEffects", UseScreenCapEffects);
-  if (!res) UseScreenCapEffects = true;
+  ScreenCaptureCount = TryGetMember<size_t>("ScreenCaptureCount").value_or(0);
   TryGetMember<bool>("UseMoviePriority", UseMoviePriority);
   TryGetMember<bool>("UseBgChaEffects", UseBgChaEffects);
   TryGetMember<bool>("UseBgFrameEffects", UseBgFrameEffects);

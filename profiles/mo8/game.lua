@@ -13,6 +13,8 @@ root.CursorPointerPath = "games/mo8/icondata/cursor_pointer.png";
 root.CharaIsMvl = true;
 root.UseMoviePriority = true;
 
+root.ScreenCaptureCount = 2;
+
 root.Vm = {
     StartScript = 7,
     StartScriptBuffer = 0,
@@ -26,6 +28,7 @@ root.Vm = {
     ScrWorkBgOffsetStructSize = 10,
     ScrWorkCaptureStructSize = 20,
     ScrWorkCaptureOffsetStructSize = 10,
+    ScrWorkCaptureEffectInfoStructSize = 3,
     ScrWorkBgEffStructSize = 30,
     ScrWorkBgEffOffsetStructSize = 20,
 

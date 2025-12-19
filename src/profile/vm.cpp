@@ -1,5 +1,6 @@
 #include "vm.h"
 #include "profile_internal.h"
+#include "game.h"
 
 namespace Impacto {
 namespace Profile {
@@ -24,9 +25,15 @@ void Configure() {
       EnsureGetMember<int>("ScrWorkChaOffsetStructSize");
   ScrWorkBgStructSize = EnsureGetMember<int>("ScrWorkBgStructSize");
   ScrWorkBgOffsetStructSize = EnsureGetMember<int>("ScrWorkBgOffsetStructSize");
-  ScrWorkCaptureStructSize = EnsureGetMember<int>("ScrWorkCaptureStructSize");
-  ScrWorkCaptureOffsetStructSize =
-      EnsureGetMember<int>("ScrWorkCaptureStructSize");
+
+  if (ScreenCaptureCount > 0) {
+    ScrWorkCaptureStructSize = EnsureGetMember<int>("ScrWorkCaptureStructSize");
+    ScrWorkCaptureOffsetStructSize =
+        EnsureGetMember<int>("ScrWorkCaptureStructSize");
+    ScrWorkCaptureEffectInfoStructSize =
+        EnsureGetMember<int>("ScrWorkCaptureEffectInfoStructSize");
+  }
+
   ScrWorkBgEffStructSize = EnsureGetMember<int>("ScrWorkBgEffStructSize");
   ScrWorkBgEffOffsetStructSize =
       EnsureGetMember<int>("ScrWorkBgEffOffsetStructSize");

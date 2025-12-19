@@ -16,6 +16,8 @@ root.UseMoviePriority = true;
 root.UseBgChaEffects = true;
 root.UseBgFrameEffects = false;
 
+root.ScreenCaptureCount = 2;
+
 root.Vm = {
     StartScript = 1,
     StartScriptBuffer = 0,
@@ -28,6 +30,7 @@ root.Vm = {
     ScrWorkBgOffsetStructSize = 10,
     ScrWorkCaptureStructSize = 20,
     ScrWorkCaptureOffsetStructSize = 10,
+    ScrWorkCaptureEffectInfoStructSize = 3,
     ScrWorkBgEffStructSize = 30,
     ScrWorkBgEffOffsetStructSize = 20,
 

@@ -1,10 +1,10 @@
 #include "delusiontrigger.h"
 #include "../../profile/games/cclcc/delusiontrigger.h"
-#include "../../vm/interface/scene2d.h"
 #include "../../vm/interface/input.h"
 #include "../../profile/scriptvars.h"
 #include "../../src/video/videosystem.h"
 #include "../../profile/configsystem.h"
+#include "../../background2d.h"
 
 namespace Impacto {
 namespace UI {
@@ -115,14 +115,12 @@ void DelusionTrigger::Update(float dt) {
 
     if (BgOverlaySprite.Sheet.Texture == 0) {
       int bgOverlayBGIdx =
-          ScrWork[SW_BG1SURF +
-                  Vm::Interface::GetBufferId(ScrWork[SW_DELUSION_OVERLAY_BUF])];
+          ScrWork[SW_BG1SURF + GetBufferId(ScrWork[SW_DELUSION_OVERLAY_BUF])];
       BgOverlaySprite = Backgrounds2D[bgOverlayBGIdx]->BgSprite;
     }
 
     int delusionCirclesBGIdx =
-        ScrWork[SW_BG1SURF +
-                Vm::Interface::GetBufferId(ScrWork[SW_DELUSION_CIRCLE_BUF])];
+        ScrWork[SW_BG1SURF + GetBufferId(ScrWork[SW_DELUSION_CIRCLE_BUF])];
     if (PositiveDelusionSprite.Sheet.Texture == 0) {
       PositiveDelusionSprite.Sheet =
           Backgrounds2D[delusionCirclesBGIdx]->BgSprite.Sheet;

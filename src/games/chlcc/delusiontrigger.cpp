@@ -7,7 +7,6 @@
 #include "../../profile/configsystem.h"
 #include "../../game.h"
 #include "../../profile/vm.h"
-#include "../../vm/interface/scene2d.h"
 #include "../../profile/game.h"
 
 namespace Impacto {
@@ -429,7 +428,7 @@ void DelusionTrigger::Load() {
       }
       break;
   }
-  auto bufId = Vm::Interface::GetBufferId(ScrWork[SW_EFF_CAP_BUF2]);
+  auto bufId = GetBufferId(ScrWork[SW_EFF_CAP_BUF2]);
   ScrWork[SW_CAP1FADECT + (bufId - 1) * Profile::Vm::ScrWorkBgStructSize] = 256;
 }
 
