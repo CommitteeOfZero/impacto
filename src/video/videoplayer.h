@@ -22,6 +22,9 @@ class VideoPlayer {
 
   bool IsPlaying = false;
 
+  bool CancelFlag = false;
+  uint8_t CancelWaitTime = 0;
+
  protected:
   using VideoPlayerCreator = auto (*)(Io::Stream* stream) -> VideoPlayer*;
   static bool AddVideoPlayerCreator(VideoPlayerCreator c);

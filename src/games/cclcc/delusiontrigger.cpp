@@ -157,10 +157,11 @@ void DelusionTrigger::Update(float dt) {
     }
   }
   if (Video::Players[0]->IsPlaying) return;
-  if ((ScrWork[6333] == 0xffff) || (ScrWork[6333] == 0xffff)) {
-    SetFlag(2486, 0);
-    ScrWork[6333] = 0xffff;
-    ScrWork[6336] = 0xffff;
+  if ((ScrWork[SW_MOVIE_PLAYNO] == 0xffff) ||
+      (ScrWork[SW_MOVIE_PLAYNO] == 0xffff)) {
+    SetFlag(SF_MOVIELOADPLAYFL, 0);
+    ScrWork[SW_MOVIE_PLAYNO] = 0xffff;
+    ScrWork[SW_MOVIE_LOADNO] = 0xffff;
   }
   auto leftTrigger = GetControlState(CT_DelusionTriggerL);
   auto rightTrigger = GetControlState(CT_DelusionTriggerR);

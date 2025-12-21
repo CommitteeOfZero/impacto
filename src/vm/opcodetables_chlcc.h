@@ -308,17 +308,17 @@ InstructionProc inline constexpr OpcodeTableGraph_CHLCC[256] = {
     InstUnk011F,           // 01 1F
     InstSCcapture,         // 01 20
     InstSetTextTable,      // 01 21
-    InstPlayMovie,         // 01 22
+    InstPlayMovieOld,      // 01 22
     InstMovieMain,         // 01 23
     InstLoadMovie,         // 01 24
     InstSetRevMes,         // 01 25
     InstPlayMovieMemory,   // 01 26
-    InstPlayMovie,         // 01 27
+    InstPlayMovieOld2,     // 01 27
     InstMovieMain,         // 01 28
     InstLoadMovie,         // 01 29
     InstPlayMovieMemory,   // 01 2A
     InstSFDpause,          // 01 2B
-    InstPlayMovie,         // 01 2C
+    InstPlayMovieOld,      // 01 2C
     InstUnk012D,           // 01 2D
     InstDummy,             // 01 2E
     InstDummy,             // 01 2F

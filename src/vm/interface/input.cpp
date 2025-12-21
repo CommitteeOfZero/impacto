@@ -17,6 +17,25 @@ namespace Interface {
 using namespace Impacto::Profile::ScriptInput;
 using namespace Impacto::Profile::ScriptVars;
 
+uint32_t GetPadInputButtonDown(InputDownType downType) {
+  switch (downType) {
+    case InputDownType::IsDown:
+      return PADinputButtonIsDown;
+    case InputDownType::WentDown:
+      return PADinputButtonWentDown;
+    case InputDownType::RepeatDown:
+      return PADinputButtonRepeatDown;
+    case InputDownType::RepeatAccelDown:
+      return PADinputButtonRepeatAccelDown;
+
+    default: {
+      ImpLog(LogLevel::Error, LogChannel::General,
+             "Unexpected InputDownType {:d}", static_cast<int>(downType));
+      return 0;
+    }
+  }
+}
+
 void UpdatePADcustomType(int type) {
   if (type == 0) {
     PADcustom = PADcustomA;
@@ -188,69 +207,47 @@ void UpdatePADInput() {
   else if (Input::TouchWentDown[0])
     PADinputMouseWentDown |= PAD1A;
   if (Input::TouchIsDown[0]) PADinputMouseIsDown |= PAD1A;
-
-  if (Input::MouseWheelDeltaY > 0) {
-    PADinputMouseWentDown |= PADcustom[12];
-  }
 }
 
 // TODO: Make this configurable per game
 // I have no idea why they have a million things for controls...
-bool GetControlState(int controlId) {
+bool GetControlState(int controlId, InputDownType downType) {
   using namespace Impacto::Profile::ConfigSystem;
 
+  uint32_t padInputDown = GetPadInputButtonDown(downType);
+  if (downType == InputDownType::IsDown) {
+    padInputDown |= Interface::PADinputMouseIsDown;
+  } else if (downType == InputDownType::WentDown) {
+    padInputDown |= Interface::PADinputMouseWentDown;
+  }
+
   switch (controlId) {
-    case CT_OK: {
-      return (PADinputButtonWentDown & PADcustom[5]) ||
-             (PADinputMouseWentDown & PADcustom[5]);
-    }
-    case CT_Back: {
-      return (PADinputButtonWentDown & PADcustom[6]) ||
-             (PADinputMouseWentDown & PADcustom[6]);
-    }
-    case CT_HIDE: {
+    case CT_OK:
+      return padInputDown & PADcustom[5];
+    case CT_Back:
+      return padInputDown & PADcustom[6];
+    case CT_HIDE:
       return PADcustom[11] ? (PADcustom[11] & PADinputButtonWentDown)
                            : (PADcustom[6] & PADinputButtonWentDown);
-    }
-    case CT_NextMessage: {
-      return (PADinputButtonWentDown & PADcustom[23]) ||
-             (PADinputMouseWentDown & PADcustom[23]);
-    }
-    case CT_QuickSave: {
-      return (PADinputButtonWentDown & PADcustom[13]) ||
-             (PADinputMouseWentDown & PADcustom[13]);
-    }
-    case CT_MainMenu: {
-      return (PADinputButtonWentDown & PADcustom[10]) ||
-             (PADinputMouseWentDown & PADcustom[10]);
-    }
-    case CT_Backlog: {
-      return (PADinputButtonWentDown & PADcustom[12]) ||
-             (PADinputMouseWentDown & PADcustom[12]);
-    }
-    case CT_Tips: {
+    case CT_NextMessage:
+      return padInputDown & PADcustom[23];
+    case CT_QuickSave:
+      return padInputDown & PADcustom[13];
+    case CT_MainMenu:
+      return padInputDown & PADcustom[10];
+    case CT_Backlog:
+      return padInputDown & PADcustom[12];
+    case CT_Tips:
       return false;
-    }
-    case CT_LogoSkip: {
-      return (PADinputButtonWentDown & PADcustom[14]) ||
-             (PADinputMouseWentDown & PADcustom[14]);
-    }
-    case CT_ResetOptions: {
-      return (PADinputButtonWentDown & PAD1Y) ||
-             (PADinputMouseWentDown & PAD1Y);
-    }
-    case CT_DelusionTriggerL: {
-      return (PADinputButtonWentDown &
-              PADcustom[36 + 2 * DirectionalInputForTrigger]) ||
-             (PADinputMouseWentDown &
-              PADcustom[36 + 2 * DirectionalInputForTrigger]);
-    }
-    case CT_DelusionTriggerR: {
-      return (PADinputButtonWentDown &
-              PADcustom[37 + 2 * DirectionalInputForTrigger]) ||
-             (PADinputMouseWentDown &
-              PADcustom[37 + 2 * DirectionalInputForTrigger]);
-    }
+    case CT_MovieCancel:
+    case CT_LogoSkip:
+      return padInputDown & PADcustom[14];
+    case CT_ResetOptions:
+      return padInputDown & PAD1Y;
+    case CT_DelusionTriggerL:
+      return padInputDown & PADcustom[36 + 2 * DirectionalInputForTrigger];
+    case CT_DelusionTriggerR:
+      return padInputDown & PADcustom[37 + 2 * DirectionalInputForTrigger];
     default:
       return false;
   }
