@@ -173,6 +173,7 @@ set(Impacto_Src
         src/games/chlcc/introsequence.cpp
         src/games/chlcc/tipsnotification.cpp
         src/games/chlcc/butterflyeffect.cpp
+        src/games/chlcc/eyecatch.cpp
 
         src/games/cc/backlogmenu.cpp
         src/games/cc/dialoguebox.cpp
@@ -508,6 +509,7 @@ set(Impacto_Header
         src/games/chlcc/introsequence.h
         src/games/chlcc/tipsnotification.h
         src/games/chlcc/butterflyeffect.h
+        src/games/chlcc/eyecatch.h
 
         src/games/cc/dialoguebox.h
         src/games/cc/titlemenu.h

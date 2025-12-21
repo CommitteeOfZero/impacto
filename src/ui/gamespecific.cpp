@@ -9,9 +9,13 @@
 
 #include "../games/chlcc/delusiontrigger.h"
 #include "../games/chlcc/butterflyeffect.h"
+#include "../games/chlcc/eyecatch.h"
+
 #include "../games/cclcc/delusiontrigger.h"
 #include "../games/cclcc/yesnotrigger.h"
 #include "../games/cclcc/mapsystem.h"
+
+#include "../background2d.h"
 
 using namespace Impacto::Profile::GameSpecific;
 using namespace Impacto::Profile::ScriptVars;
@@ -68,6 +72,19 @@ void Update(float dt) {
       break;
   }
 }
+void RenderEarlyMain() {
+  switch (Profile::GameSpecific::GameSpecificType) {
+    case +GameSpecificType::CHLCC: {
+      CHLCC::EyecatchEffect::GetInstance().RenderMain();
+    } break;
+    case +GameSpecificType::Dash:
+    case +GameSpecificType::RNE:
+    case +GameSpecificType::CC:
+    case +GameSpecificType::CCLCC:
+    case +GameSpecificType::None:
+      break;
+  }
+}
 
 void RenderMain() {
   switch (Profile::GameSpecific::GameSpecificType) {
@@ -105,8 +122,9 @@ void RenderMain() {
 void RenderLayer(uint32_t layer) {
   switch (Profile::GameSpecific::GameSpecificType) {
     case +GameSpecificType::CHLCC: {
+      CHLCC::EyecatchEffect::GetInstance().RenderLayer(layer);
       if (ScrWork[SW_MONITOR_SCANLINE_ENABLED] &&
-          static_cast<int>(layer) == ScrWork[SW_MONITOR_SCANLINE_LAYER]) {
+          static_cast<int>(layer) == ScrWork[SW_MONITOR_SCANLINE_PRI]) {
         Renderer->DrawSprite(
             MonitorScanline,
             RectF{0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight},

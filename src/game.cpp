@@ -318,11 +318,13 @@ void Update(float dt) {
 
 static void RenderMain() {
   Background2D::LastRenderedBackground = nullptr;
-
+  UI::GameSpecific::RenderEarlyMain();
   for (uint32_t layer = 0; layer <= Profile::LayerCount; layer++) {
-    const int renderTarget = ScrWork[SW_RENDERTARGET + layer];
-    if (0 <= renderTarget && renderTarget <= MaxFramebuffers) {
-      Renderer->SetFramebuffer(renderTarget);
+    if (+Profile::Vm::GameInstructionSet == +Vm::InstructionSet::CC) {
+      const int renderTarget = ScrWork[SW_RENDERTARGET + layer];
+      if (0 <= renderTarget && renderTarget <= MaxFramebuffers) {
+        Renderer->SetFramebuffer(renderTarget);
+      }
     }
 
     for (int bgId = 0; bgId < std::ssize(Backgrounds); bgId++) {
@@ -371,7 +373,7 @@ static void RenderMain() {
                             (float)ScrWork[SW_MASK1POSY + maskOffset * i],
                             (float)ScrWork[SW_MASK1SIZEX + maskOffset * i],
                             (float)ScrWork[SW_MASK1SIZEY + maskOffset * i]};
-          if (maskRect.GetSize() == glm::vec2(0.0f)) {
+          if (maskRect.Width == 0.0f || maskRect.Height == 0.0f) {
             maskRect = {0.0f, 0.0f, Profile::DesignWidth,
                         Profile::DesignHeight};
           }

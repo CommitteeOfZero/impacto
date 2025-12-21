@@ -26,6 +26,7 @@ void Configure() {
   }
   if (GameSpecificType == +GameSpecificType::CHLCC) {
     MonitorScanline = EnsureGetMember<Sprite>("MonitorScanline");
+    EyecatchStar = EnsureGetMember<Sprite>("EyecatchStar");
     ButterflySprites = GetMemberVector<Sprite>("ButterflySprites");
     ButterflyFrameCount = EnsureGetMember<uint8_t>("ButterflyFrameCount");
     ButterflyFlapFrameDuration =

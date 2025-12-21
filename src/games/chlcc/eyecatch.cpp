@@ -1,0 +1,76 @@
+#include "eyecatch.h"
+
+#include "../../profile/ui/gamespecific.h"
+#include "../../renderer/renderer.h"
+#include "../../spritesheet.h"
+#include "../../profile/game.h"
+#include "../../vm/interface/scene2d.h"
+
+using namespace Impacto::Profile::ScriptVars;
+using namespace Impacto::Profile::GameSpecific;
+
+namespace Impacto {
+namespace UI {
+namespace CHLCC {
+
+EyecatchEffect::EyecatchEffect() {
+  Texture textureStarsMask{};
+  textureStarsMask.LoadSolidColor(Window->WindowWidth, Window->WindowHeight, 0);
+  SpriteSheet sheetStarsMask(static_cast<float>(Window->WindowWidth),
+                             static_cast<float>(Window->WindowHeight));
+  sheetStarsMask.Texture = textureStarsMask.Submit();
+  sheetStarsMask.IsScreenCap = true;
+  StarsMask =
+      Sprite(sheetStarsMask, 0, 0, Profile::DesignWidth, Profile::DesignHeight);
+}
+
+void EyecatchEffect::RenderMain() {
+  if (!ScrWork[SW_EYECATCH_COUNT]) return;
+  Renderer->Clear(glm::vec4(0.0f));
+  for (int i = 0; i < 4; ++i) {
+    int scaleOffset = 2 * i;
+    for (int j = 0; j < 7; ++j) {
+      if (scaleOffset + 1 <= ScrWork[SW_EYECATCH_COUNT]) {
+        const int scale =
+            std::min((ScrWork[SW_EYECATCH_COUNT] - (scaleOffset + 1)) * 18,
+                     400) *
+            280 / 106;
+        const float y = 20.0f + 200 * i;
+        const float x = 20.0f + 200 * j;
+        RectF dest{x, y, EyecatchStar.ScaledWidth(),
+                   EyecatchStar.ScaledHeight()};
+        dest.ScaleAroundCenter(glm::vec2{scale / 256.0f});
+        Renderer->DrawSprite(EyecatchStar, dest, glm::vec4(1.0f),
+                             glm::vec3{1.0f});
+      }
+      scaleOffset += 2;
+    }
+  }
+  Renderer->CaptureScreencap(StarsMask);
+}
+
+void EyecatchEffect::RenderLayer(int layer) {
+  if (((ScrWork[SW_EYECATCH_BUF] != 0) && (ScrWork[SW_EYECATCH_COUNT] != 0)) &&
+      (static_cast<int>(layer) == ScrWork[SW_EYECATCH_PRI])) {
+    int childBufId = Vm::Interface::GetBufferId(ScrWork[SW_EYECATCH_BUF]);
+    if (ScrWork[SW_EYECATCH_COUNT] < 64) {
+      const RectF dest = {0.0f, 0.0f, Profile::DesignWidth,
+                          Profile::DesignHeight};
+      Renderer->Clear(glm::vec4(0.0f));
+      Renderer->DrawMaskedSprite(
+          Backgrounds2D[ScrWork[SW_BG1SURF + childBufId]]->BgSprite, StarsMask,
+          255, 256, glm::vec2{0.0f, 0.0f}, glm::vec2{0.0f, 0.0f},
+          glm::vec4(1.0f), false, false);
+
+    } else {
+      Renderer->DrawSprite(
+          Backgrounds2D[ScrWork[SW_BG1SURF + childBufId]]->BgSprite,
+          RectF{0, 0, Profile::DesignWidth, Profile::DesignHeight},
+          glm::vec4{1.0f});
+    }
+  }
+}
+
+}  // namespace CHLCC
+}  // namespace UI
+}  // namespace Impacto
