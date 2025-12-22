@@ -30,7 +30,6 @@ void Background2D::InitFrameBuffers() {
 
     Framebuffers[i].Status = LoadStatus::Loaded;
     Framebuffers[i].BgSprite.Sheet.IsScreenCap = true;
-    Framebuffers[i].RenderSprite = Framebuffers[i].BgSprite;
   }
 }
 
@@ -212,21 +211,22 @@ void Background2D::MainThreadOnLoad(bool result) {
   std::fill(Layers.begin(), Layers.end(), -1);
 }
 
-void Background2D::LinkBuffers(const int linkCode, const int currentBufferId) {
+void Background2D::LinkBuffers(const int linkCode, const int currentBgId) {
   const int srcBufId = (linkCode >> 8) & 0xFF;
-  if (srcBufId != GetScriptBufferId(currentBufferId)) return;
+  if (GetBufferId(srcBufId) != currentBgId) return;
 
   const LinkDirection dir = static_cast<LinkDirection>((linkCode >> 16) & 0xFF);
 
   for (int i = 0; i < MaxLinkedBgBuffers; i++) {
     int childBufId = (linkCode >> (i * 24)) & 0xFF;
     if (childBufId == 0) continue;
-
     childBufId = GetBufferId(childBufId);
+
     Background2D* const childBuf =
         Backgrounds2D[ScrWork[SW_BG1SURF + childBufId]];
+    if (childBuf == nullptr) continue;
 
-    childBuf->BgSprite.BaseScale = BgSprite.BaseScale;
+    childBuf->RenderSprite.get().BaseScale = RenderSprite.get().BaseScale;
 
     Links[i].LinkedBuffer = childBuf;
     Links[i].Direction = dir;
@@ -235,36 +235,46 @@ void Background2D::LinkBuffers(const int linkCode, const int currentBufferId) {
     switch (dir) {
       case LinkDirection::Up3: {
         float offset =
-            i == 0 ? 0.0f : Links[i - 1].LinkedBuffer->BgSprite.ScaledHeight();
+            i == 0
+                ? 0.0f
+                : Links[i - 1].LinkedBuffer->RenderSprite.get().ScaledHeight();
         Links[i].DisplayCoords = {
-            Position.x, Position.y - BgSprite.ScaledHeight() - offset};
+            Position.x,
+            Position.y - RenderSprite.get().ScaledHeight() - offset};
       } break;
 
       case LinkDirection::Up: {
         Links[i].DisplayCoords = {
-            Position.x, Position.y - BgSprite.ScaledHeight() + overlapPixelCt};
+            Position.x,
+            Position.y - RenderSprite.get().ScaledHeight() + overlapPixelCt};
       } break;
 
       case LinkDirection::Down3: {
         float offset =
-            i == 0 ? 0.0f : Links[i - 1].LinkedBuffer->BgSprite.ScaledHeight();
+            i == 0
+                ? 0.0f
+                : Links[i - 1].LinkedBuffer->RenderSprite.get().ScaledHeight();
         Links[i].DisplayCoords = {
-            Position.x, Position.y + BgSprite.ScaledHeight() + offset};
+            Position.x,
+            Position.y + RenderSprite.get().ScaledHeight() + offset};
       } break;
 
       case LinkDirection::Down: {
         Links[i].DisplayCoords = {
-            Position.x, Position.y + BgSprite.ScaledHeight() - overlapPixelCt};
+            Position.x,
+            Position.y + RenderSprite.get().ScaledHeight() - overlapPixelCt};
       } break;
 
       case LinkDirection::Left: {
         Links[i].DisplayCoords = {
-            Position.x - BgSprite.ScaledWidth() + overlapPixelCt, Position.y};
+            Position.x - RenderSprite.get().ScaledWidth() + overlapPixelCt,
+            Position.y};
       } break;
 
       case LinkDirection::Right: {
         Links[i].DisplayCoords = {
-            Position.x + BgSprite.ScaledWidth() - overlapPixelCt, Position.y};
+            Position.x + RenderSprite.get().ScaledWidth() - overlapPixelCt,
+            Position.y};
       } break;
 
       case LinkDirection::Off:
@@ -289,6 +299,14 @@ void Background2D::UpdateState(const int bgId) {
   FadeRange = ScrWork[SW_BG1MASKFADERANGE + structOffset];
   FadeCount = ScrWork[SW_BG1FADECT + structOffset];
 
+  RenderSprite = BgSprite;
+  for (int i = static_cast<int>(Profile::ScreenCaptureCount) - 1; i >= 0; i--) {
+    const int capOffset = i * Profile::Vm::ScrWorkCaptureEffectInfoStructSize;
+    if (ScrWork[SW_EFF_CAP_BUF + capOffset] == GetScriptBufferId(bgId + 1)) {
+      RenderSprite = Screencaptures[i].BgSprite;
+    }
+  }
+
   const int dispMode = ScrWork[SW_BG1DISPMODE + structOffset];
   switch (dispMode) {
     case 0: {
@@ -299,7 +317,7 @@ void Background2D::UpdateState(const int bgId) {
                  resolutionScale;
 
       if (GameInstructionSet == +Vm::InstructionSet::MO8) {
-        Position -= (BgSprite.Bounds.GetSize() -
+        Position -= (RenderSprite.get().ScaledBounds().GetSize() -
                      glm::vec2(Profile::DesignWidth, Profile::DesignHeight)) *
                     0.5f;
       }
@@ -327,7 +345,7 @@ void Background2D::UpdateState(const int bgId) {
                            ScrWork[SW_BG1POSY + structOffset] +
                                ScrWork[SW_BG1POSY_OFS + structOfsOffset]) *
                  resolutionScale;
-      Position -= BgSprite.ScaledBounds().GetSize() / 2.0f;
+      Position -= RenderSprite.get().ScaledBounds().GetSize() / 2.0f;
 
       Scale = glm::vec2((float)ScrWork[SW_BG1SIZE + structOffset] +
                         (float)ScrWork[SW_BG1SIZE_OFS + structOfsOffset]) /
@@ -345,7 +363,7 @@ void Background2D::UpdateState(const int bgId) {
     } break;
   }
 
-  Origin = BgSprite.ScaledBounds().Center();
+  Origin = RenderSprite.get().ScaledBounds().Center();
 
   switch (GameInstructionSet) {
     case Vm::InstructionSet::CHLCC:
@@ -381,14 +399,6 @@ void Background2D::UpdateState(const int bgId) {
     for (int i = 0; i < MaxLinkedBgBuffers; i++) {
       Links[i].Direction = LinkDirection::Off;
       Links[i].LinkedBuffer = nullptr;
-    }
-  }
-
-  RenderSprite = BgSprite;
-  for (int i = static_cast<int>(Profile::ScreenCaptureCount) - 1; i >= 0; i--) {
-    const int capOffset = i * Profile::Vm::ScrWorkCaptureEffectInfoStructSize;
-    if (ScrWork[SW_EFF_CAP_BUF + capOffset] == GetScriptBufferId(bgId + 1)) {
-      RenderSprite = Screencaptures[i].BgSprite;
     }
   }
 
@@ -524,7 +534,7 @@ void Capture2D::UpdateState(const int capId) {
                  resolutionScale;
 
       if (GameInstructionSet == +Vm::InstructionSet::MO8) {
-        Position -= (BgSprite.Bounds.GetSize() -
+        Position -= (RenderSprite.get().ScaledBounds().GetSize() -
                      glm::vec2(Profile::DesignWidth, Profile::DesignHeight)) *
                     0.5f;
       }
@@ -552,7 +562,7 @@ void Capture2D::UpdateState(const int capId) {
                            ScrWork[SW_CAP1POSY + structOffset] +
                                ScrWork[SW_CAP1POSY_OFS + structOfsOffset]) *
                  resolutionScale;
-      Position -= BgSprite.ScaledBounds().GetSize() / 2.0f;
+      Position -= RenderSprite.get().ScaledBounds().GetSize() / 2.0f;
 
       Scale = glm::vec2((float)ScrWork[SW_CAP1SIZE + structOffset] +
                         (float)ScrWork[SW_CAP1SIZE_OFS + structOfsOffset]) /
@@ -570,7 +580,7 @@ void Capture2D::UpdateState(const int capId) {
     } break;
   }
 
-  Origin = BgSprite.ScaledBounds().Center();
+  Origin = RenderSprite.get().ScaledBounds().Center();
 
   switch (GameInstructionSet) {
     case Vm::InstructionSet::CHLCC:

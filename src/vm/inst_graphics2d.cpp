@@ -160,7 +160,7 @@ VmInstruction(InstBGsetLinkOld) {
   PopExpression(arg2);
   PopExpression(arg3);
   int link = (arg3 << 16) + (arg1 << 8) + arg2;
-  if (target)
+  if (target == 0)
     ScrWork[SW_BGLINK] = link;
   else
     ScrWork[SW_BGLINK2] = link;
