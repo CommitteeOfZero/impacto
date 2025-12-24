@@ -189,6 +189,7 @@ struct RectF {
   static RectF Coalesce(const RectF& first, const RectF& second);
   static RectF BoundingBox(const RectF& first, const CornersQuad& second);
   static RectF BoundingBox(const CornersQuad& first, const RectF& second);
+  static RectF Intersection(const RectF& first, const RectF& second);
 
   CornersQuad Transform(glm::mat4 transformation) const;
   CornersQuad Transform(
@@ -322,6 +323,9 @@ struct CornersQuad {
   CornersQuad& Rotate(glm::quat rotation, glm::vec3 origin);
   CornersQuad& Rotate(glm::quat rotation, glm::vec3 origin, float depth,
                       glm::vec2 vanishingPoint, bool stayInScreen = false);
+  CornersQuad& RotateAroundCenter(glm::quat rotation) {
+    return Rotate(rotation, glm::vec3(Center(), 0.0f));
+  }
 
   CornersQuad& FlipVertical() {
     std::swap(TopLeft, BottomLeft);
