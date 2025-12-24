@@ -29,11 +29,7 @@ root.Vm = {
     ScrWorkChaOffsetStructSize = 10,
     ScrWorkBgStructSize = 20,
     ScrWorkBgOffsetStructSize = 10,
-    ScrWorkCaptureStructSize = 20,
-    ScrWorkCaptureOffsetStructSize = 10,
     ScrWorkCaptureEffectInfoStructSize = 2,
-    ScrWorkBgEffStructSize = 20,
-    ScrWorkBgEffOffsetStructSize = 20,
 };
 
 include('common/scriptinput.lua');

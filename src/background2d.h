@@ -6,6 +6,7 @@
 #include "spritesheet.h"
 #include "loadable.h"
 #include "renderer/renderer.h"
+#include "profile/game.h"
 
 namespace Impacto {
 
@@ -34,17 +35,11 @@ class Background2D : public Loadable<Background2D, bool, uint32_t> {
   static void InitFrameBuffers();
 
   Sprite BgSprite;
-  std::reference_wrapper<Sprite> RenderSprite = BgSprite;
+  Sprite RenderSprite = BgSprite;
 
   std::array<int, 2> BgEffsLayers = {0, 0};
   std::array<BgEff, 3> FrameBgEffs;
   BgEff ChaBgEff;
-
-  glm::vec2 Position = {0.0f, 0.0f};
-  glm::vec2 Origin = {0.0f, 0.0f};
-
-  glm::vec2 Scale = {1.0f, 1.0f};
-  glm::quat Rotation = glm::quat();
 
   glm::vec4 Tint = glm::vec4(1.0f);
   int MaskNumber = 0;
@@ -80,6 +75,27 @@ class Background2D : public Loadable<Background2D, bool, uint32_t> {
 
   void LoadSolidColor(uint32_t color, int width, int height);
 
+  struct BgTransformState {
+   public:
+    glm::vec2 Position{};
+    glm::vec2 Scale = glm::vec2(1.0f);
+    glm::quat Rotation{};
+    glm::vec2 Origin{};
+
+    RectF Subsection =
+        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight);
+
+    static BgTransformState GetBgTransformState(int bgId);
+    static BgTransformState GetCapTransformState(int capId);
+    static BgTransformState GetBgEffTransformState(int bgEffId);
+
+    glm::mat4 ToMatrix() const {
+      return TransformationMatrix(Origin, Scale, {Origin, 0.0f}, Rotation,
+                                  Position);
+    }
+  };
+  BgTransformState TransformState;
+
  protected:
   Texture BgTexture;
 
@@ -88,6 +104,8 @@ class Background2D : public Loadable<Background2D, bool, uint32_t> {
   void MainThreadOnLoad(bool result);
 
   void LinkBuffers(int linkCode, int currentBufferId);
+
+  virtual void SetTransformState(int dispMode, BgTransformState state);
 
   bool OnLayer(int layer) {
     return std::find(Layers.begin(), Layers.end(), layer) != Layers.end();
@@ -161,10 +179,12 @@ class BackgroundEffect2D : public Background2D {
   void UpdateState(int bgId) override;
 
  private:
+  void SetTransformState(int dispMode, BgTransformState state) override;
+
   size_t VertexCount = 4;
   std::array<glm::vec2, 4> Vertices;
 
-  glm::vec2 StencilOffset;
+  glm::mat4 StencilTransformation = glm::mat4(1.0f);
 };
 
 inline std::array<Background2D, 8> Backgrounds;

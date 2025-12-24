@@ -27,16 +27,16 @@ void Configure() {
   ScrWorkBgOffsetStructSize = EnsureGetMember<int>("ScrWorkBgOffsetStructSize");
 
   if (ScreenCaptureCount > 0) {
-    ScrWorkCaptureStructSize = EnsureGetMember<int>("ScrWorkCaptureStructSize");
-    ScrWorkCaptureOffsetStructSize =
-        EnsureGetMember<int>("ScrWorkCaptureStructSize");
     ScrWorkCaptureEffectInfoStructSize =
         EnsureGetMember<int>("ScrWorkCaptureEffectInfoStructSize");
+    TryGetMember<int>("ScrWorkCaptureStructSize", ScrWorkCaptureStructSize);
+    TryGetMember<int>("ScrWorkCaptureOffsetStructSize",
+                      ScrWorkCaptureOffsetStructSize);
   }
 
-  ScrWorkBgEffStructSize = EnsureGetMember<int>("ScrWorkBgEffStructSize");
-  ScrWorkBgEffOffsetStructSize =
-      EnsureGetMember<int>("ScrWorkBgEffOffsetStructSize");
+  TryGetMember<int>("ScrWorkBgEffStructSize", ScrWorkBgEffStructSize);
+  TryGetMember<int>("ScrWorkBgEffOffsetStructSize",
+                    ScrWorkBgEffOffsetStructSize);
 
   TryGetMember<int>("MaxLinkedBgBuffers", MaxLinkedBgBuffers);
   TryGetMember<int>("SystemScriptBuffer", SystemScriptBuffer);

@@ -326,7 +326,7 @@ static void RenderMain() {
     }
 
     // Games with <= 2 don't render their captures separately
-    if (Profile::Vm::ScrWorkCaptureEffectInfoStructSize >= 3) {
+    if (Profile::Vm::ScrWorkCaptureStructSize > 0) {
       for (int capId = 0; capId < static_cast<int>(Profile::ScreenCaptureCount);
            capId++) {
         Screencaptures[capId].UpdateState(capId);
@@ -347,9 +347,11 @@ static void RenderMain() {
       }
     }
 
-    for (int bgId = 0; bgId < std::ssize(Backgrounds); bgId++) {
-      Framebuffers[0].UpdateState(bgId);
-      Framebuffers[0].Render(layer);
+    if (Profile::Vm::ScrWorkBgEffStructSize > 0) {
+      for (int bgId = 0; bgId < std::ssize(Backgrounds); bgId++) {
+        Framebuffers[0].UpdateState(bgId);
+        Framebuffers[0].Render(layer);
+      }
     }
 
     for (int i = 0; i < 2; ++i) {
