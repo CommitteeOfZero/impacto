@@ -723,7 +723,7 @@ VmInstruction(InstCalc) {
       PopExpression(dest);
       PopExpression(x);
       PopExpression(y);
-      ScrWork[dest] = (int)atan2(x, y);
+      ScrWork[dest] = (int)(0x4000 * std::atan2(y, x) / std::numbers::pi);
     } break;
     case 3: {  // CalcSinL
       PopExpression(dest);
