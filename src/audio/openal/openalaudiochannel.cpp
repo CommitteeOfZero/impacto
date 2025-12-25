@@ -59,6 +59,10 @@ void OpenALAudioChannel::Stop(float fadeOutDuration) {
     return;
   }
 
+  const float baseGain = MasterVolume * GroupVolumes[Group] * Volume;
+  float currentGain;
+  alGetSourcef(Source, AL_GAIN, &currentGain);
+  FadeStartFactor = baseGain > 0.0f ? currentGain / baseGain : 0.0f;
   State = ACS_FadingOut;
   FadeDuration = fadeOutDuration;
   FadeProgress = 0;
@@ -184,7 +188,7 @@ void OpenALAudioChannel::UpdateGain() {
       gain *= powf(FadeProgress, 3.0f);
       break;
     case ACS_FadingOut:
-      gain *= 1.0f - powf(FadeProgress, 3.0f);
+      gain *= FadeStartFactor * (1.0f - powf(FadeProgress, 3.0f));
       break;
   }
 

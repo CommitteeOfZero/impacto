@@ -32,10 +32,12 @@ class OpenALAudioChannel : public Audio::AudioChannel {
   std::vector<uint8_t> HostBuffer;
 
   size_t FirstQueuedBufferIndex = 0;
-  bool PlaybackStarted = false;
 
   float FadeDuration = 0;
   float FadeProgress = 0;
+  float FadeStartFactor = 0;
+
+  bool PlaybackStarted = false;
 
   void EndPlayback();
   void UpdateGain();
