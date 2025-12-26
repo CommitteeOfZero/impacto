@@ -134,6 +134,7 @@ GLuint ShaderCompiler::Attach(GLuint program, GLenum shaderType,
 
   glCompileShader(shader);
   glGetShaderiv(shader, GL_COMPILE_STATUS, &result);
+  assert(result);
   if (!result) {
     glGetShaderInfoLog(shader, sizeof(errorLog), NULL, errorLog);
     ImpLog(LogLevel::Fatal, LogChannel::Render,
