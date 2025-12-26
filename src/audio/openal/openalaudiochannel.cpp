@@ -59,6 +59,10 @@ void OpenALAudioChannel::Stop(float fadeOutDuration) {
     return;
   }
 
+  const float baseGain = MasterVolume * GroupVolumes[Group] * Volume;
+  float currentGain;
+  alGetSourcef(Source, AL_GAIN, &currentGain);
+  FadeStartFactor = baseGain > 0.0f ? currentGain / baseGain : 0.0f;
   State = ACS_FadingOut;
   FadeDuration = fadeOutDuration;
   FadeProgress = 0;
@@ -157,16 +161,19 @@ void OpenALAudioChannel::UpdatePlayback() {
     return;
   }
 
-  // Only propogate the latest state to OpenAL
+  // Only propagate the latest state to OpenAL
   // when the audio channel is updated to avoid "blips"
   // when multiple state changes occur in one frame
-  if (alState != AL_PAUSED && State == ACS_Paused) {
+  if (alState == AL_PLAYING && State == ACS_Paused) {
     alSourcePause(Source);
   } else if (alState != AL_PLAYING &&
              (State == ACS_Playing || State == ACS_FadingIn ||
               State == ACS_FadingOut)) {
     alSourcePlay(Source);
     PlaybackStarted = true;
+  } else if ((alState == AL_PLAYING || alState == AL_PAUSED) &&
+             State == ACS_Stopped) {
+    EndPlayback();
   }
 }
 
@@ -184,7 +191,7 @@ void OpenALAudioChannel::UpdateGain() {
       gain *= powf(FadeProgress, 3.0f);
       break;
     case ACS_FadingOut:
-      gain *= 1.0f - powf(FadeProgress, 3.0f);
+      gain *= FadeStartFactor * (1.0f - powf(FadeProgress, 3.0f));
       break;
   }
 
