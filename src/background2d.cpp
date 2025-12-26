@@ -797,6 +797,12 @@ void Background2D::RenderMasked() {
                              Tint, false, false);
 }
 
+void Background2D::RenderCaptureMasked() {
+  Renderer->DrawMaskedBinarySprite(RenderSprite, MaskCapture.BgSprite,
+                                   TransformState.ToMatrix(), std::nullopt,
+                                   Tint, false);
+}
+
 void Background2D::RenderMaskedInverted() {
   Renderer->DrawMaskedSprite(RenderSprite, Masks2D[MaskNumber].MaskSprite,
                              FadeCount, FadeRange, TransformState.ToMatrix(),
