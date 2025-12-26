@@ -40,9 +40,9 @@ struct PrimitiveData {
 BETTER_ENUM(ShaderProgramType, int, AdditiveMaskedSprite, CCMessageBoxSprite,
             CHLCCMenuBackground, ColorBurnMaskedSprite, ColorDodgeMaskedSprite,
             ColorMaskedSprite, HardLightMaskedSprite, LinearBurnMaskedSprite,
-            MaskedSprite, MaskedSpriteNoAlpha, OverlayMaskedSprite,
-            ScreenMaskedSprite, SoftLightMaskedSprite, Sprite, SpriteInverted,
-            YUVFrame);
+            MaskedSprite, MaskedSpriteBinary, MaskedSpriteNoAlpha,
+            OverlayMaskedSprite, ScreenMaskedSprite, SoftLightMaskedSprite,
+            Sprite, SpriteInverted, YUVFrame);
 
 enum class RendererBlendMode { Normal, Additive };
 
@@ -162,6 +162,23 @@ class BaseRenderer {
                         bool isInverted = false, bool isSameTexture = false) {
     DrawMaskedSprite(sprite, mask, alpha, fadeRange, spriteTopLeft,
                      {0.0f, 0.0f}, tint, isInverted, isSameTexture);
+  }
+
+  virtual void DrawMaskedBinarySprite(
+      const Sprite& sprite, const Sprite& mask, const CornersQuad& spriteDest,
+      const CornersQuad& maskDest, glm::mat4 spriteTransformation,
+      std::optional<glm::mat4> maskTransformation,
+      std::span<const glm::vec4, 4> tints, bool isInverted = false) = 0;
+
+  void DrawMaskedBinarySprite(const Sprite& sprite, const Sprite& mask,
+                              glm::mat4 spriteTransformation,
+                              std::optional<glm::mat4> maskTransformation,
+                              glm::vec4 tint = glm::vec4(1.0f),
+                              bool isInverted = false) {
+    DrawMaskedBinarySprite(
+        sprite, mask, sprite.ScaledBounds(), mask.ScaledBounds(),
+        spriteTransformation, maskTransformation,
+        std::array<glm::vec4, 4>{tint, tint, tint, tint}, isInverted);
   }
 
   virtual void DrawMaskedSpriteOverlay(

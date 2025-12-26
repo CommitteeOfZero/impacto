@@ -49,6 +49,14 @@ class Renderer : public BaseRenderer {
                         std::span<const glm::vec4, 4> tints, bool isInverted,
                         bool isSameTexture) override;
 
+  void DrawMaskedBinarySprite(const Sprite& sprite, const Sprite& mask,
+                              const CornersQuad& spriteDest,
+                              const CornersQuad& maskDest,
+                              glm::mat4 spriteTransformation,
+                              std::optional<glm::mat4> maskTransformation,
+                              std::span<const glm::vec4, 4> tints,
+                              bool isInverted = false) override;
+
   void DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
                                const CornersQuad& spriteDest,
                                const CornersQuad& maskDest, int alpha,
@@ -104,6 +112,7 @@ class Renderer : public BaseRenderer {
   std::optional<SpriteShader> SpriteShaderProgram;
   std::optional<SpriteInvertedShader> SpriteInvertedShaderProgram;
   std::optional<MaskedSpriteShader> MaskedSpriteShaderProgram;
+  std::optional<MaskedSpriteBinaryShader> MaskedSpriteBinaryShaderProgram;
   std::optional<MaskedSpriteNoAlphaShader> MaskedSpriteNoAlphaShaderProgram;
   std::optional<ColorMaskedSpriteShader> ColorMaskedSpriteShaderProgram;
   std::optional<AdditiveMaskedSpriteShader> AdditiveMaskedSpriteShaderProgram;
