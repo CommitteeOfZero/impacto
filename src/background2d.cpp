@@ -37,12 +37,14 @@ void Background2D::Init() {
     Backgrounds2D[i] = &Backgrounds[i];
   }
 
-  for (Capture2D& capture : Screencaptures) {
+  const auto initCapture = [](Capture2D& capture) {
     capture.BgSprite.Sheet.IsScreenCap = true;
     capture.LoadSolidColor(0xFF000000, Window->WindowWidth,
                            Window->WindowHeight);
     capture.Status = LoadStatus::Loaded;
-  }
+  };
+  for (Capture2D& capture : Screencaptures) initCapture(capture);
+  initCapture(MaskCapture);
 
   ShaderScreencapture.BgSprite.Sheet.IsScreenCap = true;
   InitFrameBuffers();

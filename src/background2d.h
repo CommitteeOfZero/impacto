@@ -189,6 +189,7 @@ class BackgroundEffect2D : public Background2D {
 
 inline std::array<Background2D, 8> Backgrounds;
 inline std::array<Capture2D, 2> Screencaptures;
+inline Capture2D MaskCapture;
 inline std::array<BackgroundEffect2D, MaxFramebuffers> Framebuffers;
 inline Background2D ShaderScreencapture;
 
