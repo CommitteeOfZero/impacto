@@ -81,6 +81,8 @@ class SaveSystem : public SaveSystemBase {
 
   void SetCheckpointId(int id) override;
 
+  int GetQuickSaveOpenSlot() override;
+
  private:
   uint8_t GameExtraData[1024];
   uint8_t MessageFlags[10000];

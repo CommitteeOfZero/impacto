@@ -119,7 +119,7 @@ class SaveSystemBase {
   virtual void SetBgmFlag(int id, bool flag) = 0;
   virtual void SetCheckpointId(int id) = 0;
   virtual Sprite& GetSaveThumbnail(SaveType type, int id) = 0;
-  int GetQuickSaveOpenSlot() {
+  virtual int GetQuickSaveOpenSlot() {
     for (int i = 0; i < MaxSaveEntries; i++) {
       if (QuickSaveEntries[i]->Status == 0) return i;
     }

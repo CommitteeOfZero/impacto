@@ -241,7 +241,7 @@ void SaveEntryButton::RefreshInfo(const SaveSystem::SaveType entryType) {
                           RendererOutlineMode::BottomRight,
                           SaveDateHintTextRelativePos);
       const tm& date = SaveSystem::GetSaveDate(entryType, Id);
-      AddSaveDateText(fmt::format("  {:%y/%m/%d}", date), 18,
+      AddSaveDateText(fmt::format("  {:%m/%d/%y}", date), 18,
                       RendererOutlineMode::BottomRight,
                       SaveDateTextRelativePos);
       AddSaveHourText(fmt::format("  {:%H:%M:%S}", date), 18,
