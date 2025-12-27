@@ -363,91 +363,68 @@ Background2D::BgTransformState::GetCapTransformState(int capId) {
 void Background2D::SetTransformState(int dispMode, BgTransformState state) {
   TransformState = BgTransformState();
 
-  if (ScrWorkBgStructSize >= 40) {
-    switch (dispMode) {
-      case 0: {
-        TransformState.Position = -state.Position;
-      } break;
+  const bool newEngine = ScrWorkBgStructSize >= 40;
 
-      case 1: {
-        const RectF scaledSubsection = state.Subsection.Scale(
-            glm::vec2(1.0f) / RenderSprite.BaseScale, glm::vec2(0.0f));
-        RenderSprite.Bounds =
-            RectF::Intersection(RenderSprite.Bounds, scaledSubsection);
+  const auto scaleToFullscreen = [&]() {
+    TransformState.Scale =
+        glm::vec2(Profile::DesignWidth, Profile::DesignHeight) /
+        RenderSprite.ScaledBounds().GetSize();
+  };
 
-        // Scale to fullscreen
-        TransformState.Scale =
-            glm::vec2(Profile::DesignWidth, Profile::DesignHeight) /
-            RenderSprite.ScaledBounds().GetSize();
-      } break;
+  switch (dispMode) {
+    case 0: {
+      TransformState.Position = -state.Position;
+    } break;
 
-      case 2: {
+    case 1: {
+      const RectF scaledSubsection = state.Subsection.Scale(
+          glm::vec2(1.0f) / RenderSprite.BaseScale, glm::vec2(0.0f));
+      RenderSprite.Bounds =
+          RectF::Intersection(RenderSprite.Bounds, scaledSubsection);
+
+      if (newEngine) scaleToFullscreen();
+    } break;
+
+    case 2: {
+      TransformState.Scale = state.Scale;
+
+      if (newEngine) {
         TransformState.Position = state.Position - RenderSprite.Center();
-        TransformState.Scale = state.Scale;
         TransformState.Origin = RenderSprite.Center();
-      } break;
-
-      case 3: {
-        const RectF scaledSubsection = state.Subsection.Scale(
-            glm::vec2(1.0f) / RenderSprite.BaseScale, glm::vec2(0.0f));
-        RenderSprite.Bounds =
-            RectF::Intersection(RenderSprite.Bounds, scaledSubsection);
-
-        TransformState.Position = state.Position;
-      } break;
-
-      case 4: {
-        TransformState.Position = -state.Position / 1000.0f;
-      } break;
-
-      case 6: {
-        TransformState.Origin = RenderSprite.Center();
-        TransformState.Position = state.Position - TransformState.Origin;
-        TransformState.Scale = state.Scale;
-        TransformState.Rotation = state.Rotation;
-      } break;
-
-      default: {
-        RenderSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
-      } break;
-    }
-
-  } else {
-    switch (dispMode) {
-      case 0: {
-        TransformState.Position = -state.Position;
-      } break;
-
-      case 1: {
-        const RectF scaledSubsection = state.Subsection.Scale(
-            glm::vec2(1.0f) / RenderSprite.BaseScale, glm::vec2(0.0f));
-        RenderSprite.Bounds =
-            RectF::Intersection(RenderSprite.Bounds, scaledSubsection);
-      } break;
-
-      case 2: {
-        TransformState.Scale = state.Scale;
+      } else {
         TransformState.Position =
             glm::vec2(Profile::DesignWidth, Profile::DesignHeight) / 2.0f -
             state.Position * TransformState.Scale;
-      } break;
+      }
+    } break;
 
-      case 3: {
-        const RectF scaledSubsection = state.Subsection.Scale(
-            glm::vec2(1.0f) / RenderSprite.BaseScale, glm::vec2(0.0f));
-        RenderSprite.Bounds =
-            RectF::Intersection(RenderSprite.Bounds, scaledSubsection);
+    case 3: {
+      const RectF scaledSubsection = state.Subsection.Scale(
+          glm::vec2(1.0f) / RenderSprite.BaseScale, glm::vec2(0.0f));
+      RenderSprite.Bounds =
+          RectF::Intersection(RenderSprite.Bounds, scaledSubsection);
 
-        // Scale to fullscreen
-        TransformState.Scale =
-            glm::vec2(Profile::DesignWidth, Profile::DesignHeight) /
-            RenderSprite.ScaledBounds().GetSize();
-      } break;
+      if (newEngine) {
+        TransformState.Position = state.Position;
+      } else {
+        scaleToFullscreen();
+      }
+    } break;
 
-      default: {
-        RenderSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
-      } break;
-    }
+    case 4: {
+      TransformState.Position = -state.Position / 1000.0f;
+    } break;
+
+    case 6: {
+      TransformState.Origin = RenderSprite.Center();
+      TransformState.Position = state.Position - TransformState.Origin;
+      TransformState.Scale = state.Scale;
+      TransformState.Rotation = state.Rotation;
+    } break;
+
+    default: {
+      RenderSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
+    } break;
   }
 }
 
