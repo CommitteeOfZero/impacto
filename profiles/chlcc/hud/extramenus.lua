@@ -90,6 +90,7 @@ root.ExtraMenus = {
         MovieList = "MovieList",
         ListPosition = { X = 0, Y = 0 },
         MovieBox = "MovieBox",
+        MovieBoxExtra = "MovieBoxExtra",
         BoxPositions = {
             { X = 93, Y = 127 }, { X = 93, Y = 255 },
             { X = 93, Y = 383 }, { X = 93, Y = 511 },
@@ -98,10 +99,13 @@ root.ExtraMenus = {
             { X = 589, Y = 255 }, { X = 589, Y = 383 },
         },
         MoviesThumbnails = {},
+        MovieThumbnailExtraOp = "MovieThumbnailExtraOp",
         ThumbnailPositions = {},
         LockedThumbnail = "MovieLockedThumbnail",
         ButtonPromptPosition = { X = 1022, Y = 651 },
         ButtonPromptSprite = "MovieButtonPrompt",
+        MovieButtonExtraPromptPosition = { X = 877, Y = 651 },
+        MovieButtonExtraPrompt = "MovieButtonExtraPrompt",
         SelectedMovieAnimation = "SelectedMovieAnimDef",
         SelectedMovieYellowDot = "SelectedMovieYellowDot",
         SelectMovieFadeDuration = 110 / 60,
@@ -377,6 +381,21 @@ root.Sprites["CircleMovie"] = {
 root.Sprites["MovieBox"] = {
     Sheet = "Movie",
     Bounds = { X = 728, Y = 1, Width = 198, Height = 122 }
+}
+
+root.Sprites["MovieBoxExtra"] = {
+    Sheet = "Movie",
+    Bounds = { X = 1091, Y = 1, Width = 198, Height = 122 }
+}
+
+root.Sprites["MovieThumbnailExtraOp"] = {
+    Sheet = "Movie",
+    Bounds = { X = 1091, Y = 126, Width = 160, Height = 90 }
+}
+
+root.Sprites["MovieButtonExtraPrompt"] = {
+    Sheet = "Movie",
+    Bounds = { X = 1, Y = 732, Width = 427, Height = 28 }
 }
 
 local thumbnailXOffset = 20;

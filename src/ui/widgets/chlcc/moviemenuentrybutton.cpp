@@ -2,6 +2,7 @@
 
 #include "../../../renderer/renderer.h"
 #include "../../../profile/games/chlcc/moviemenu.h"
+#include "../../../games/chlcc/moviemenu.h"
 #include "../../../profile/scriptvars.h"
 
 namespace Impacto {
@@ -15,7 +16,9 @@ using namespace Impacto::Profile::ScriptVars;
 MovieMenuEntryButton::MovieMenuEntryButton(int id, Sprite const& movieThumbnail,
                                            Sprite const& lockedMovieThumbnail,
                                            glm::vec2 thumbnailPos,
-                                           glm::vec2 boxPos) {
+                                           glm::vec2 boxPos,
+                                           bool& isMovieExtraMode)
+    : IsExtraMovieModeOn(isMovieExtraMode) {
   Id = id;
   NormalSprite = movieThumbnail;
   DisabledSprite = lockedMovieThumbnail;
@@ -40,11 +43,18 @@ void MovieMenuEntryButton::Render() {
     Renderer->DrawSprite(SelectedMovieYellowDot,
                          glm::vec2(Bounds.X - 7, Bounds.Y + 53));
   } else {
-    Renderer->DrawSprite(MovieBox, Bounds);
+    // Make MovieBox Jade Green when in ExtraMovieMode
+    Renderer->DrawSprite(IsExtraMovieModeOn ? MovieBoxExtra : MovieBox, Bounds);
   }
   if (!IsLocked) {
-    Renderer->DrawSprite(NormalSprite, glm::vec2(Bounds.X + 20, Bounds.Y + 16),
-                         Tint);
+    // Have a new thumbnail for the PSP OP
+    if (IsExtraMovieModeOn && Id == 0) {
+      Renderer->DrawSprite(MovieThumbnailExtraOp,
+                           glm::vec2(Bounds.X + 20, Bounds.Y + 16), Tint);
+    } else {
+      Renderer->DrawSprite(NormalSprite,
+                           glm::vec2(Bounds.X + 20, Bounds.Y + 16), Tint);
+    }
   } else {
     Renderer->DrawSprite(DisabledSprite,
                          glm::vec2(Bounds.X + 20, Bounds.Y + 16), Tint);
