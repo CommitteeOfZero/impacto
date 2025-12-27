@@ -55,12 +55,13 @@ class Renderer : public BaseRenderer {
                                std::span<const glm::vec4, 4> tints,
                                bool isInverted, bool useMaskAlpha) override;
 
-  void DrawVertices(const SpriteSheet& sheet, const SpriteSheet* mask,
-                    ShaderProgramType shaderType,
-                    std::span<const VertexBufferSprites> vertices,
-                    std::span<const uint16_t> indices,
-                    glm::mat4 spriteTransformation,
-                    glm::mat4 maskTransformation, bool inverted) override;
+  void DrawPrimitives(const SpriteSheet& sheet, const SpriteSheet* mask,
+                      ShaderProgramType shaderType,
+                      std::span<const VertexBufferSprites> vertices,
+                      std::span<const uint16_t> indices,
+                      glm::mat4 spriteTransformation,
+                      glm::mat4 maskTransformation, bool inverted,
+                      TopologyMode topologyMode) override;
 
   void DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
                         RectF const& dest, glm::vec4 tint, int alpha,

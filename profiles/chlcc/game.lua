@@ -12,6 +12,7 @@ root.CursorPointerPath = "games/chlcc/icondata/cursor_pointer.png";
 
 root.CharaIsMvl = false;
 root.UseMoviePriority = true;
+root.UseWaveEffects = true;
 root.LayFileBigEndian = true;
 root.LayFileTexXMultiplier = 2048;
 root.LayFileTexYMultiplier = 1024;
@@ -66,3 +67,4 @@ include('chlcc/hud/optionsmenu.lua');
 include('chlcc/hud/extramenus.lua');
 include('chlcc/hud/trophymenu.lua');
 include('chlcc/gamespecific.lua');
+include('chlcc/waveeffects.lua');

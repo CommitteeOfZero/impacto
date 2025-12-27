@@ -9,6 +9,7 @@
 #include "../../profile/vm.h"
 #include "../../renderer/renderer.h"
 #include "../../profile/configsystem.h"
+#include "../../effects/wave.h"
 
 #include "mapsystem.h"
 #include "yesnotrigger.h"
@@ -21,6 +22,7 @@ namespace Impacto {
 namespace CCLCC {
 
 using namespace Impacto::Vm;
+using namespace Impacto::Effects;
 using namespace Impacto::Profile::SaveSystem;
 using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::Vm;
@@ -213,7 +215,7 @@ void SaveSystem::LoadEntryBuffer(Io::MemoryStream& stream, SaveFileEntry& entry,
   Io::ReadArrayBE<int>(entry.MainThreadVariables.data(), &stream, 16);
   entry.MainThreadDialoguePageId = Io::ReadLE<uint32_t>(&stream);
   assert(stream.Position == 0x3a04);
-  stream.Seek(1212, SEEK_CUR);
+  Io::ReadArrayLE<int>(entry.WaveData.data(), &stream, entry.WaveData.size());
   assert(stream.Position == 0x3ec0);
   Io::ReadArrayLE<uint8_t>(entry.MapLoadData.data(), &stream,
                            entry.MapLoadData.size());
@@ -415,7 +417,8 @@ void SaveSystem::SaveEntryBuffer(Io::MemoryStream& memoryStream,
   Io::WriteArrayBE<int>(entry.MainThreadVariables.data(), &memoryStream, 16);
   Io::WriteLE<uint32_t>(&memoryStream, entry.MainThreadDialoguePageId);
   assert(memoryStream.Position == 0x3a04);
-  memoryStream.Seek(1212, SEEK_CUR);
+  Io::WriteArrayLE<int>(entry.WaveData.data(), &memoryStream,
+                        entry.WaveData.size());
   assert(memoryStream.Position == 0x3ec0);
   Io::WriteArrayLE<uint8_t>(entry.MapLoadData.data(), &memoryStream,
                             entry.MapLoadData.size());
@@ -771,6 +774,7 @@ void SaveSystem::SaveMemory() {
         WorkingSaveEntry->MapLoadData.data());
     UI::CCLCC::YesNoTrigger::GetInstance().Save(
         WorkingSaveEntry->YesNoData.data());
+    WaveSave(std::span(WorkingSaveEntry->WaveData));
   }
 }
 
@@ -815,6 +819,7 @@ void SaveSystem::LoadMemoryNew(LoadProcess load) {
         WorkingSaveEntry->MapLoadData.data());
     UI::CCLCC::YesNoTrigger::GetInstance().Load(
         WorkingSaveEntry->YesNoData.data());
+    WaveLoad(std::span(WorkingSaveEntry->WaveData));
 
     // TODO: What to do about this mess I wonder...
     ScrWork[SW_SVSENO] = ScrWork[SW_SEREQNO];
@@ -999,6 +1004,64 @@ Sprite& SaveSystem::GetSaveThumbnail(SaveType type, int id) {
 
   throw std::invalid_argument(fmt::format(
       "Tried to get thumbnail of unimplemented save entry type {}", (int)type));
+}
+
+void SaveSystem::WaveSave(std::span<int> data) {
+  size_t offset = 0;
+  for (size_t i = 0; i < 20; i++) {
+    data[offset++] = WaveBG.WaveData[i].Flags;
+    data[offset++] = WaveBG.WaveData[i].Amplitude;
+    data[offset++] = WaveBG.WaveData[i].TemporalFrequency;
+    data[offset++] = WaveBG.WaveData[i].Phase;
+    data[offset++] = WaveBG.WaveData[i].SpatialFrequency;
+  }
+  for (size_t i = 0; i < 20; i++) {
+    data[offset++] = WaveEFF.WaveData[i].Flags;
+    data[offset++] = WaveEFF.WaveData[i].Amplitude;
+    data[offset++] = WaveEFF.WaveData[i].TemporalFrequency;
+    data[offset++] = WaveEFF.WaveData[i].Phase;
+    data[offset++] = WaveEFF.WaveData[i].SpatialFrequency;
+  }
+  for (size_t i = 0; i < 20; i++) {
+    data[offset++] = WaveCHA.WaveData[i].Flags;
+    data[offset++] = WaveCHA.WaveData[i].Amplitude;
+    data[offset++] = WaveCHA.WaveData[i].TemporalFrequency;
+    data[offset++] = WaveCHA.WaveData[i].Phase;
+    data[offset++] = WaveCHA.WaveData[i].SpatialFrequency;
+  }
+
+  data[offset++] = WaveBG.WaveCount;
+  data[offset++] = WaveEFF.WaveCount;
+  data[offset++] = WaveCHA.WaveCount;
+}
+
+void SaveSystem::WaveLoad(std::span<const int> data) const {
+  size_t offset = 0;
+  for (size_t i = 0; i < 20; i++) {
+    WaveBG.WaveData[i].Flags = data[offset++];
+    WaveBG.WaveData[i].Amplitude = data[offset++];
+    WaveBG.WaveData[i].TemporalFrequency = data[offset++];
+    WaveBG.WaveData[i].Phase = data[offset++];
+    WaveBG.WaveData[i].SpatialFrequency = data[offset++];
+  }
+  for (size_t i = 0; i < 20; i++) {
+    WaveEFF.WaveData[i].Flags = data[offset++];
+    WaveEFF.WaveData[i].Amplitude = data[offset++];
+    WaveEFF.WaveData[i].TemporalFrequency = data[offset++];
+    WaveEFF.WaveData[i].Phase = data[offset++];
+    WaveEFF.WaveData[i].SpatialFrequency = data[offset++];
+  }
+  for (size_t i = 0; i < 20; i++) {
+    WaveCHA.WaveData[i].Flags = data[offset++];
+    WaveCHA.WaveData[i].Amplitude = data[offset++];
+    WaveCHA.WaveData[i].TemporalFrequency = data[offset++];
+    WaveCHA.WaveData[i].Phase = data[offset++];
+    WaveCHA.WaveData[i].SpatialFrequency = data[offset++];
+  }
+
+  WaveBG.WaveCount = data[offset++];
+  WaveEFF.WaveCount = data[offset++];
+  WaveCHA.WaveCount = data[offset++];
 }
 
 }  // namespace CCLCC

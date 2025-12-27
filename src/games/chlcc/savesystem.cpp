@@ -9,6 +9,7 @@
 #include "../../renderer/renderer.h"
 #include "../../profile/configsystem.h"
 #include "../../data/tipssystem.h"
+#include "../../effects/wave.h"
 
 #include <cstdint>
 #include <numeric>
@@ -17,6 +18,7 @@ namespace Impacto {
 namespace CHLCC {
 
 using namespace Impacto::Vm;
+using namespace Impacto::Effects;
 using namespace Impacto::Profile::SaveSystem;
 using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::ConfigSystem;
@@ -366,7 +368,9 @@ void SaveSystem::LoadEntryBuffer(Io::MemoryStream& memoryStream,
   Io::ReadArrayBE<int>(entry.MainThreadVariables.data(), &memoryStream, 16);
   entry.MainThreadDialoguePageId = Io::ReadBE<uint32_t>(&memoryStream);
 
-  memoryStream.Seek(1428, SEEK_CUR);
+  Io::ReadArrayLE<uint16_t>(entry.WaveData.data(), &memoryStream,
+                            entry.WaveData.size());
+  memoryStream.Seek(1224, SEEK_CUR);
 }
 
 void SaveSystem::SaveEntryBuffer(Io::MemoryStream& memoryStream,
@@ -417,7 +421,9 @@ void SaveSystem::SaveEntryBuffer(Io::MemoryStream& memoryStream,
   Io::WriteArrayBE<int>(entry.MainThreadVariables.data(), &memoryStream, 16);
   Io::WriteBE<uint32_t>(&memoryStream, entry.MainThreadDialoguePageId);
 
-  memoryStream.Seek(1428, SEEK_CUR);
+  Io::WriteArrayLE<uint16_t>(entry.WaveData.data(), &memoryStream,
+                             entry.WaveData.size());
+  memoryStream.Seek(1224, SEEK_CUR);
 }
 
 SaveError SaveSystem::LoadSystemData() {
@@ -935,6 +941,7 @@ void SaveSystem::SaveMemory() {
     memcpy(WorkingSaveEntry->MainThreadVariables.data(), thd->Variables, 64);
     WorkingSaveEntry->MainThreadDialoguePageId = thd->DialoguePageId;
   }
+  WaveSave(std::span(WorkingSaveEntry->WaveData));
 }
 
 void SaveSystem::LoadEntry(SaveType type, int id) {
@@ -1051,6 +1058,7 @@ void SaveSystem::LoadEntry(SaveType type, int id) {
                16 * sizeof(int));
         thd->DialoguePageId = entry->MainThreadDialoguePageId;
       }
+      WaveLoad(std::span(entry->WaveData));
     }
 }
 
@@ -1217,6 +1225,56 @@ Sprite& SaveSystem::GetSaveThumbnail(SaveType type, int id) {
 
   throw std::invalid_argument(fmt::format(
       "Tried to get thumbnail of unimplemented save entry type {}", (int)type));
+}
+
+void SaveSystem::WaveSave(std::span<uint16_t> data) {
+  size_t dataOff = 0;
+  for (size_t i = 0; i < 10; i++) {
+    data[dataOff++] = static_cast<uint16_t>(WaveBG.WaveData[i].Flags);
+    data[dataOff++] = static_cast<uint16_t>(WaveEFF.WaveData[i].Flags);
+
+    data[dataOff++] = static_cast<uint16_t>(WaveBG.WaveData[i].Amplitude);
+    data[dataOff++] = static_cast<uint16_t>(WaveEFF.WaveData[i].Amplitude);
+
+    data[dataOff++] =
+        static_cast<uint16_t>(WaveBG.WaveData[i].TemporalFrequency);
+    data[dataOff++] =
+        static_cast<uint16_t>(WaveEFF.WaveData[i].TemporalFrequency);
+
+    data[dataOff++] = static_cast<uint16_t>(WaveBG.WaveData[i].Phase);
+    data[dataOff++] = static_cast<uint16_t>(WaveEFF.WaveData[i].Phase);
+
+    data[dataOff++] =
+        static_cast<uint16_t>(WaveBG.WaveData[i].SpatialFrequency);
+    data[dataOff++] =
+        static_cast<uint16_t>(WaveEFF.WaveData[i].SpatialFrequency);
+  }
+
+  data[dataOff++] = static_cast<uint16_t>(WaveBG.WaveCount);
+  data[dataOff++] = static_cast<uint16_t>(WaveEFF.WaveCount);
+}
+
+void SaveSystem::WaveLoad(std::span<const uint16_t> data) const {
+  size_t dataOff = 0;
+  for (size_t i = 0; i < 10; i++) {
+    WaveBG.WaveData[i].Flags = static_cast<int>(data[dataOff++]);
+    WaveEFF.WaveData[i].Flags = static_cast<int>(data[dataOff++]);
+
+    WaveBG.WaveData[i].Amplitude = static_cast<int>(data[dataOff++]);
+    WaveEFF.WaveData[i].Amplitude = static_cast<int>(data[dataOff++]);
+
+    WaveBG.WaveData[i].TemporalFrequency = static_cast<int>(data[dataOff++]);
+    WaveEFF.WaveData[i].TemporalFrequency = static_cast<int>(data[dataOff++]);
+
+    WaveBG.WaveData[i].Phase = static_cast<int>(data[dataOff++]);
+    WaveEFF.WaveData[i].Phase = static_cast<int>(data[dataOff++]);
+
+    WaveBG.WaveData[i].SpatialFrequency = static_cast<int>(data[dataOff++]);
+    WaveEFF.WaveData[i].SpatialFrequency = static_cast<int>(data[dataOff++]);
+  }
+
+  WaveBG.WaveCount = static_cast<uint32_t>(data[dataOff++]);
+  WaveEFF.WaveCount = static_cast<uint32_t>(data[dataOff++]);
 }
 
 }  // namespace CHLCC

@@ -28,6 +28,7 @@ inline bool UseScreenCapEffects;
 inline bool UseMoviePriority = false;
 inline bool UseBgChaEffects = false;
 inline bool UseBgFrameEffects = false;
+inline bool UseWaveEffects = false;
 
 inline float LayFileTexXMultiplier;
 inline float LayFileTexYMultiplier;

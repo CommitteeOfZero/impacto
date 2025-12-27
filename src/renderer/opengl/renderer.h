@@ -57,12 +57,13 @@ class Renderer : public BaseRenderer {
                                std::span<const glm::vec4, 4> tints,
                                bool isInverted, bool useMaskAlpha) override;
 
-  void DrawVertices(const SpriteSheet& sheet, const SpriteSheet* mask,
-                    ShaderProgramType shaderType,
-                    std::span<const VertexBufferSprites> vertices,
-                    std::span<const uint16_t> indices,
-                    glm::mat4 spriteTransformation,
-                    glm::mat4 maskTransformation, bool inverted) override;
+  void DrawPrimitives(const SpriteSheet& sheet, const SpriteSheet* mask,
+                      ShaderProgramType shaderType,
+                      std::span<const VertexBufferSprites> vertices,
+                      std::span<const uint16_t> indices,
+                      glm::mat4 spriteTransformation,
+                      glm::mat4 maskTransformation, bool inverted,
+                      TopologyMode topologyMode) override;
 
   void DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
                         RectF const& dest, glm::vec4 tint, int alpha,
@@ -150,6 +151,8 @@ class Renderer : public BaseRenderer {
     InsertVerticesQuad(pos, uv, std::array{tint, tint, tint, tint}, maskUV);
   }
 
+  void EnsureTopologyMode(TopologyMode newMode);
+
   GLWindow* OpenGLWindow;
 
   GLuint VBO;
@@ -157,6 +160,8 @@ class Renderer : public BaseRenderer {
   GLuint VAOSprites;
 
   bool Drawing = false;
+
+  TopologyMode LastTopologyMode = TopologyMode::Triangles;
 
   struct TextureUnit {
     uint32_t TextureId = 0;
@@ -174,22 +179,20 @@ class Renderer : public BaseRenderer {
                      return unit;
                    });
   }
+  std::vector<VertexBufferSprites> VertexBuffer;
+  std::vector<uint16_t> IndexBuffer;
 
   std::array<GLuint, TextureUnitCount> Samplers;
+  const glm::mat4 Projection =
+      glm::ortho(0.0f, Profile::DesignWidth, Profile::DesignHeight, 0.0f,
+                 -Profile::DesignWidth, Profile::DesignWidth);
 
   static constexpr size_t MaxVertexCount =
       1024 * 1024 / sizeof(VertexBufferSprites);
   static constexpr uint16_t MaxIndexCount =
       std::numeric_limits<uint16_t>::max();
 
-  std::vector<VertexBufferSprites> VertexBuffer;
-  std::vector<uint16_t> IndexBuffer;
-
   uint16_t NextFreeIndex = 0;
-
-  const glm::mat4 Projection =
-      glm::ortho(0.0f, Profile::DesignWidth, Profile::DesignHeight, 0.0f,
-                 -Profile::DesignWidth, Profile::DesignWidth);
 
   // ShaderCompiler compiler
   ShaderCompiler Shaders;

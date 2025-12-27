@@ -333,6 +333,8 @@ void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
     return;
   }
 
+  EnsureTopologyMode(TopologyMode::Triangles);
+
   if (sprite.Sheet.IsScreenCap) Flush();
 
   if (textureWrapRepeat) {
@@ -401,6 +403,7 @@ void Renderer::DrawMaskedSprite(
            "Renderer->DrawMaskedSprite() called before BeginFrame()\n");
     return;
   }
+  EnsureTopologyMode(TopologyMode::Triangles);
 
   alpha = std::clamp(alpha, 0, fadeRange + 256);
   const float alphaRange = 256.0f / fadeRange;
@@ -446,6 +449,7 @@ void Renderer::DrawMaskedSpriteOverlay(
            "Renderer->DrawMaskedSpriteOverlay() called before BeginFrame()\n");
     return;
   }
+  EnsureTopologyMode(TopologyMode::Triangles);
 
   alpha = std::clamp(alpha, 0, fadeRange + 256);
   const float alphaRange = 256.0f / fadeRange;
@@ -493,19 +497,20 @@ void Renderer::DrawMaskedSpriteOverlay(
                      normalizedMaskDest);
 }
 
-void Renderer::DrawVertices(const SpriteSheet& sheet,
-                            const SpriteSheet* const mask,
-                            const ShaderProgramType shaderType,
-                            const std::span<const VertexBufferSprites> vertices,
-                            const std::span<const uint16_t> indices,
-                            const glm::mat4 spriteTransformation,
-                            const glm::mat4 maskTransformation,
-                            const bool inverted) {
+void Renderer::DrawPrimitives(
+    const SpriteSheet& sheet, const SpriteSheet* const mask,
+    const ShaderProgramType shaderType,
+    const std::span<const VertexBufferSprites> vertices,
+    const std::span<const uint16_t> indices,
+    const glm::mat4 spriteTransformation, const glm::mat4 maskTransformation,
+    const bool inverted, TopologyMode topologyMode) {
   if (!Drawing) {
     ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawVertices() called before BeginFrame()\n");
     return;
   }
+
+  EnsureTopologyMode(topologyMode);
 
   // Set uniform variables
   // PringlesGang: I promise I'll clean all of this up with the bgfx refactor!!
@@ -708,6 +713,8 @@ void Renderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
     return;
   }
 
+  EnsureTopologyMode(TopologyMode::Triangles);
+
   if (alpha < 0) alpha = 0;
   if (alpha > fadeRange + 256) alpha = fadeRange + 256;
 
@@ -742,6 +749,8 @@ void Renderer::DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
            "Renderer->DrawCHLCCMenuBackground() called before BeginFrame()\n");
     return;
   }
+
+  EnsureTopologyMode(TopologyMode::Triangles);
 
   if (alpha < 0.0f)
     alpha = 0;
@@ -785,8 +794,22 @@ void Renderer::Flush() {
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, IndexBuffer.size() * sizeof(uint16_t),
                  IndexBuffer.data(), GL_DYNAMIC_DRAW);
 
-    glDrawElements(GL_TRIANGLES, (GLsizei)IndexBuffer.size(), GL_UNSIGNED_SHORT,
-                   0);
+    GLenum mode;
+    switch (LastTopologyMode) {
+      default:  // falls through
+      case TopologyMode::Triangles: {
+        mode = GL_TRIANGLES;
+        glDisable(GL_PRIMITIVE_RESTART);
+        break;
+      }
+      case TopologyMode::TriangleStrips: {
+        mode = GL_TRIANGLE_STRIP;
+        glPrimitiveRestartIndex(0xFFFF);
+        glEnable(GL_PRIMITIVE_RESTART);
+        break;
+      }
+    }
+    glDrawElements(mode, (GLsizei)IndexBuffer.size(), GL_UNSIGNED_SHORT, 0);
   }
 
   VertexBuffer.clear();
@@ -803,6 +826,8 @@ void Renderer::DrawVideoTexture(const YUVFrame& frame, const RectF& dest,
            "Renderer->DrawVideoTexture() called before BeginFrame()\n");
     return;
   }
+
+  EnsureTopologyMode(TopologyMode::Triangles);
 
   UseTextures(std::array<std::pair<uint32_t, size_t>, 3>{
       std::pair{frame.LumaId, 0},
@@ -954,6 +979,13 @@ void Renderer::Clear(glm::vec4 color) {
 
   glClearColor(color.r, color.g, color.b, color.a);
   glClear(GL_COLOR_BUFFER_BIT);
+}
+
+void Renderer::EnsureTopologyMode(TopologyMode newMode) {
+  if (LastTopologyMode != newMode) {
+    Flush();
+    LastTopologyMode = newMode;
+  }
 }
 
 }  // namespace OpenGL

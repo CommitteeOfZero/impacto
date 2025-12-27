@@ -119,6 +119,13 @@ bool TryGet<glm::vec2>(glm::vec2& outVec2) {
 }
 
 template <>
+bool TryGet<glm::u16vec2>(glm::u16vec2& outVec2) {
+  if (!lua_istable(LuaState, -1)) return false;
+
+  return TryGetMember("X", outVec2.x) && TryGetMember("Y", outVec2.y);
+}
+
+template <>
 bool TryGet<DialogueColorPair>(DialogueColorPair& outColor) {
   if (!lua_istable(LuaState, -1)) return false;
 
