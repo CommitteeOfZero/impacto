@@ -36,6 +36,8 @@ void Configure() {
   MenuTitleText = EnsureGetMember<Sprite>("MenuTitleText");
   SelectedMovieAnimation =
       EnsureGetMember<SpriteAnimationDef>("SelectedMovieAnimation");
+  SelectedMovieExtraAnimation =
+      EnsureGetMember<SpriteAnimationDef>("SelectedMovieExtraAnimation");
   SelectedMovieYellowDot = EnsureGetMember<Sprite>("SelectedMovieYellowDot");
 
   SelectMovieFadeDuration = EnsureGetMember<float>("SelectMovieFadeDuration");
@@ -47,11 +49,16 @@ void Configure() {
   MovieList = EnsureGetMember<Sprite>("MovieList");
   GetMemberArray<glm::vec2>(BoxPositions, Movies, "BoxPositions");
   MovieBox = EnsureGetMember<Sprite>("MovieBox");
+  MovieBoxExtra = EnsureGetMember<Sprite>("MovieBoxExtra");
   GetMemberArray<glm::vec2>(ThumbnailPositions, Movies, "ThumbnailPositions");
   GetMemberArray<Sprite>(MoviesThumbnails, Movies, "MoviesThumbnails");
+  MovieThumbnailExtraOp = EnsureGetMember<Sprite>("MovieThumbnailExtraOp");
   LockedThumbnail = EnsureGetMember<Sprite>("LockedThumbnail");
   ButtonPromptPosition = EnsureGetMember<glm::vec2>("ButtonPromptPosition");
   ButtonPromptSprite = EnsureGetMember<Sprite>("ButtonPromptSprite");
+  MovieButtonExtraPromptPosition =
+      EnsureGetMember<glm::vec2>("MovieButtonExtraPromptPosition");
+  MovieButtonExtraPrompt = EnsureGetMember<Sprite>("MovieButtonExtraPrompt");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMember<uint8_t>("DrawType"));
