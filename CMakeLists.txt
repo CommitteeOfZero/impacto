@@ -32,6 +32,8 @@ set(Impacto_Src
         src/voicetable.cpp
         src/animation.cpp
 
+        src/effects/wave.cpp
+
         src/renderer/renderer.cpp
         src/renderer/window.cpp
 
@@ -59,6 +61,7 @@ set(Impacto_Src
         src/profile/data/savesystem.cpp
         src/profile/data/tipssystem.cpp
         src/profile/data/achievementsystem.cpp
+        src/profile/data/waveeffects.cpp
 
         src/profile/hud/saveicon.cpp
         src/profile/hud/loadingdisplay.cpp
@@ -364,6 +367,8 @@ set(Impacto_Header
         src/rng.h
         src/animation.h
 
+        src/effects/wave.h
+
         src/renderer/renderer.h
         src/renderer/window.h
         src/renderer/yuvframe.h
@@ -392,6 +397,7 @@ set(Impacto_Header
         src/profile/data/savesystem.h
         src/profile/data/tipssystem.h
         src/profile/data/achievementsystem.h
+        src/profile/data/waveeffects.h
 
         src/profile/hud/saveicon.h
         src/profile/hud/loadingdisplay.h

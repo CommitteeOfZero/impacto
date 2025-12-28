@@ -415,8 +415,8 @@ void Character2D::Render(const int layer) {
         Profile::UseBgChaEffects && Background2D::LastRenderedBackground &&
         Background2D::LastRenderedBackground->ChaBgEff.Loaded && UseBgEffect;
     if (!renderWithBgEffect) {
-      Renderer->DrawVertices(CharaSpriteSheet, ShaderProgramType::Sprite,
-                             MvlVertices, MvlIndices, transformation);
+      Renderer->DrawPrimitives(CharaSpriteSheet, ShaderProgramType::Sprite,
+                               MvlVertices, MvlIndices, transformation);
 
     } else {
       const BgEff& bgEff = Background2D::LastRenderedBackground->ChaBgEff;
@@ -425,9 +425,9 @@ void Character2D::Render(const int layer) {
                                        1.0f / Profile::DesignHeight, 1.0f}) *
           transformation;
 
-      Renderer->DrawVertices(CharaSpriteSheet, &bgEff.BgEffSprite.Sheet,
-                             bgEff.Shader, MvlVertices, MvlIndices,
-                             transformation, maskTransformation);
+      Renderer->DrawPrimitives(CharaSpriteSheet, &bgEff.BgEffSprite.Sheet,
+                               bgEff.Shader, MvlVertices, MvlIndices,
+                               transformation, maskTransformation);
     }
 
   } else {

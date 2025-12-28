@@ -1354,14 +1354,13 @@ void Renderer::DrawMaskedSpriteOverlay(
   for (int i = 0; i < 4; i++) vertices[i].Tint = tints[i];
 }
 
-void Renderer::DrawVertices(const SpriteSheet& sheet,
-                            const SpriteSheet* const mask,
-                            const ShaderProgramType shaderType,
-                            const std::span<const VertexBufferSprites> vertices,
-                            const std::span<const uint16_t> indices,
-                            const glm::mat4 spriteTransformation,
-                            const glm::mat4 maskTransformation,
-                            const bool inverted) {
+void Renderer::DrawPrimitives(
+    const SpriteSheet& sheet, const SpriteSheet* const mask,
+    const ShaderProgramType shaderType,
+    const std::span<const VertexBufferSprites> vertices,
+    const std::span<const uint16_t> indices,
+    const glm::mat4 spriteTransformation, const glm::mat4 maskTransformation,
+    const bool inverted, TopologyMode topologyMode) {
   if (!Drawing) {
     ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawVertices() called before BeginFrame()\n");

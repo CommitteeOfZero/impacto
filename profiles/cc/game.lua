@@ -10,6 +10,7 @@ root.WindowIconPath = "games/cc/icondata/icon.png";
 root.CursorArrowPath = "games/cc/icondata/cursor_arrow.png";
 root.CursorPointerPath = "games/cc/icondata/cursor_pointer.png";
 root.UseMoviePriority = true;
+root.UseWaveEffects = true;
 
 root.CharaIsMvl = false;
 root.LayFileBigEndian = false;
@@ -49,6 +50,7 @@ include('cc/charset.lua');
 --include('cc/font.lua');
 include('cc/font-lb.lua');
 include('cc/dialogue.lua');
+include('cc/waveeffects.lua');
 include('cc/hud/saveicon.lua');
 include('cc/hud/loadingdisplay.lua');
 include('cc/hud/datedisplay.lua');

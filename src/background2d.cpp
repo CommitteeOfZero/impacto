@@ -13,6 +13,7 @@
 // #include "window.h"
 #include "renderer/renderer.h"
 #include "vm/interface/scene2d.h"
+#include "effects/wave.h"
 
 namespace Impacto {
 
@@ -479,8 +480,8 @@ void Background2D::RenderBgEff(const int layer) {
     if (!bgEff->Loaded) continue;
 
     Renderer->CaptureScreencap(frameSprite);
-    Renderer->DrawVertices(frameSprite.Sheet, &bgEff->BgEffSprite.Sheet,
-                           bgEff->Shader, vertices, indices);
+    Renderer->DrawPrimitives(frameSprite.Sheet, &bgEff->BgEffSprite.Sheet,
+                             bgEff->Shader, vertices, indices);
   }
 
   LastRenderedBackground = nullptr;
@@ -691,6 +692,30 @@ void BackgroundEffect2D::Render(const int layer) {
   Renderer->SetStencilMode(StencilBufferMode::Off);
 }
 
+template <bool PhaseZero>
+void Background2D::RenderBgWave() {
+  if (FadeCount == 0) {
+    return;
+  }
+
+  if constexpr (PhaseZero) {
+    Effects::WaveBG.CalcPos(0);
+  } else {
+    // maybe that's it, maybe not
+    Effects::WaveBG.CalcPos(MaskNumber);
+  }
+
+  PrimitiveData primitives = Effects::WaveBG.GetPrimitives();
+
+  const glm::mat4 transformation =
+      TransformationMatrix(Origin, Scale, {Origin, 0.0f}, Rotation, Position);
+
+  Renderer->DrawPrimitives(
+      BgSprite.Sheet, &Masks2D[MaskNumber].MaskSprite.Sheet,
+      ShaderProgramType::MaskedSprite, primitives.Vertices, primitives.Indices,
+      transformation, glm::mat4(1.0f), false, TopologyMode::TriangleStrips);
+}
+
 void Background2D::RenderRegular() {
   const glm::mat4 transformation =
       TransformationMatrix(Origin, Scale, {Origin, 0.0f}, Rotation, Position);
@@ -729,6 +754,12 @@ void Background2D::RenderFade() {
   Tint.a *= FadeCount / 256.0f;
 
   RenderRegular();
+}
+
+bool IsBgWaveEffectActive() {
+  return std::ranges::any_of(Backgrounds, [](const auto& currentBg) {
+    return currentBg.RenderType == 14 || currentBg.RenderType == 28;
+  });
 }
 
 }  // namespace Impacto

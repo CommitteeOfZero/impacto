@@ -28,6 +28,8 @@ class SaveFileEntry : public SaveFileEntryBase {
   std::array<uint8_t, 100> FlagWorkScript2{};  // 100 bytes from &FlagWork[300]
   std::array<int, 300> ScrWorkScript1{};       // 1200 bytes from &ScrWork[300]
   std::array<int, 1300> ScrWorkScript2{};      // 5200 bytes from &ScrWork[2300]
+  std::array<uint16_t, 102>
+      WaveData{};  // 2 wave types * 10 waves * 5 fields + 2 counts
   std::array<uint8_t, SaveThumbnailSize> ThumbnailData;
 };
 
@@ -77,6 +79,8 @@ class SaveSystem : public SaveSystemBase {
   void SetBgmFlag(int id, bool flag) override;
 
   void SetCheckpointId(int id) override {}
+  void WaveSave(std::span<uint16_t> data);
+  void WaveLoad(std::span<const uint16_t> data) const;
 
  private:
   std::array<uint8_t, 1024> GameExtraData;

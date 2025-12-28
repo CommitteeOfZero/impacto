@@ -98,8 +98,12 @@ class Background2D : public Loadable<Background2D, bool, uint32_t> {
   void RenderMasked();
   void RenderMaskedInverted();
   void RenderFade();
+  template <bool PhaseZero>
+  void RenderBgWave();
 
-  std::array<BackgroundRenderProc, 30> constexpr static BackgroundRenderTable =
+  // RenderRegular at positions 2-27 are used as stubs, engine has separate
+  // calls for those
+  std::array<BackgroundRenderProc, 40> constexpr static BackgroundRenderTable =
       {
           &Background2D::RenderRegular,         // 0
           &Background2D::RenderFade,            // 1
@@ -115,7 +119,7 @@ class Background2D : public Loadable<Background2D, bool, uint32_t> {
           &Background2D::RenderRegular,         // 11
           &Background2D::RenderRegular,         // 12
           &Background2D::RenderRegular,         // 13
-          &Background2D::RenderRegular,         // 14
+          &Background2D::RenderBgWave<true>,    // 14
           &Background2D::RenderMasked,          // 15
           &Background2D::RenderMaskedInverted,  // 16
           &Background2D::RenderRegular,         // 17
@@ -129,8 +133,18 @@ class Background2D : public Loadable<Background2D, bool, uint32_t> {
           &Background2D::RenderRegular,         // 25
           &Background2D::RenderRegular,         // 26
           &Background2D::RenderRegular,         // 27
-          &Background2D::RenderRegular,         // 28
+          &Background2D::RenderBgWave<false>,   // 28
           &Background2D::RenderRegular,         // 29
+          &Background2D::RenderRegular,         // 30
+          &Background2D::RenderRegular,         // 31
+          &Background2D::RenderRegular,         // 32
+          &Background2D::RenderRegular,         // 33
+          &Background2D::RenderRegular,         // 34
+          &Background2D::RenderRegular,         // 35
+          &Background2D::RenderRegular,         // 36
+          &Background2D::RenderRegular,         // 37
+          &Background2D::RenderRegular,         // 38
+          &Background2D::RenderRegular,         // 39
       };
 };
 
@@ -158,5 +172,7 @@ inline std::array<BackgroundEffect2D, MaxFramebuffers> Framebuffers;
 inline Background2D ShaderScreencapture;
 
 inline ankerl::unordered_dense::map<int, Background2D*> Backgrounds2D;
+
+bool IsBgWaveEffectActive();
 
 }  // namespace Impacto

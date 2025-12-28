@@ -15,6 +15,7 @@ root.CharaIsMvl = true;
 root.UseMoviePriority = true;
 root.UseBgChaEffects = true;
 root.UseBgFrameEffects = false;
+root.UseWaveEffects = true;
 
 root.Vm = {
     StartScript = 1,
@@ -56,6 +57,7 @@ include('cclcc/font-lb-italic.lua');
 include('cclcc/dialogue.lua');
 include('cclcc/configsystem.lua');
 include('cclcc/bgeff.lua');
+include('cclcc/waveeffects.lua');
 include('cclcc/hud/saveicon.lua');
 include('cclcc/hud/loadingdisplay.lua');
 include('cclcc/hud/datedisplay.lua');

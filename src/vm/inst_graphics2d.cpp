@@ -11,6 +11,7 @@
 #include "../character2d.h"
 #include "interface/scene2d.h"
 #include "../profile/vm.h"
+#include "../effects/wave.h"
 
 namespace Impacto {
 
@@ -18,6 +19,7 @@ namespace Vm {
 
 using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::Vm;
+using namespace Impacto::Effects;
 
 VmInstruction(InstCreateSurf) {
   StartInstruction;
@@ -370,88 +372,90 @@ VmInstruction(InstBGeffectWave) {
   PopUint8(type);
   switch (type) {
     case 0:
-    case 2:  // Unimplemented
-      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-                 "STUB instruction BGeffectWave(type: {:d})\n", type);
+      WaveBG.ClearWaves();
       break;
-    case 1: {  // BGwaveSetWave
-      PopExpression(arg1);
-      PopExpression(arg2);
-      PopExpression(arg3);
-      PopExpression(arg4);
-      PopExpression(arg5);
-      ImpLogSlow(
-          LogLevel::Warning, LogChannel::VMStub,
-          "STUB instruction BGeffectWave(type: BGwaveSetWave, arg1: {:d}, "
-          "arg2: {:d}, arg3: {:d}, arg4: {:d}, arg5: {:d})\n",
-          arg1, arg2, arg3, arg4, arg5);
+    case 1: {
+      PopExpression(flags);
+      PopExpression(amplitude);
+      PopExpression(initialPhase);
+      PopExpression(temporalFreq);
+      PopExpression(spatialFreq);
+      WaveBG.AddWave(WaveParams{.Flags = flags,
+                                .Amplitude = amplitude,
+                                .TemporalFrequency = temporalFreq,
+                                .Phase = initialPhase,
+                                .SpatialFrequency = spatialFreq});
     } break;
-    case 3: {  // CHAeffectWave
-      PopExpression(arg1);
-      PopExpression(arg2);
-      PopExpression(arg3);
-      PopExpression(arg4);
-      PopExpression(arg5);
-      ImpLogSlow(
-          LogLevel::Warning, LogChannel::VMStub,
-          "STUB instruction BGeffectWave(type: CHAeffectWave, arg1: {:d}, "
-          "arg2: {:d}, arg3: {:d}, arg4: {:d}, arg5: {:d})\n",
-          arg1, arg2, arg3, arg4, arg5);
-    } break;
-    case 4: {  // BGwaveResetWave
-      PopExpression(arg1);
-      PopExpression(arg2);
-      PopExpression(arg3);
-      PopExpression(arg4);
-      PopExpression(arg5);
-      PopExpression(arg6);
-      ImpLogSlow(
-          LogLevel::Warning, LogChannel::VMStub,
-          "STUB instruction BGeffectWave(type: BGwaveResetWave, arg1: {:d}, "
-          "arg2: {:d}, arg3: {:d}, arg4: {:d}, arg5: {:d}, arg6: {:d})\n",
-          arg1, arg2, arg3, arg4, arg5, arg6);
-    } break;
-    case 5: {  // CHAwaveResetWave
-      PopExpression(arg1);
-      PopExpression(arg2);
-      PopExpression(arg3);
-      PopExpression(arg4);
-      PopExpression(arg5);
-      PopExpression(arg6);
-      ImpLogSlow(
-          LogLevel::Warning, LogChannel::VMStub,
-          "STUB instruction BGeffectWave(type: CHAwaveResetWave, arg1: {:d}, "
-          "arg2: {:d}, arg3: {:d}, arg4: {:d}, arg5: {:d}, arg6: {:d})\n",
-          arg1, arg2, arg3, arg4, arg5, arg6);
-    } break;
-    case 10:  // EFFwaveInitWave
-      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-                 "STUB instruction BGeffectWave(type: EFFwaveInitWave)\n");
+    case 2: {
+      WaveCHA.ClearWaves();
       break;
-    case 11: {  // EFFwaveSetWave
-      PopExpression(arg1);
-      PopExpression(arg2);
-      PopExpression(arg3);
-      PopExpression(arg4);
-      PopExpression(arg5);
-      ImpLogSlow(
-          LogLevel::Warning, LogChannel::VMStub,
-          "STUB instruction BGeffectWave(type: EFFwaveSetWave, arg1: {:d}, "
-          "arg2: {:d}, arg3: {:d}, arg4: {:d}, arg5: {:d})\n",
-          arg1, arg2, arg3, arg4, arg5);
+    }
+    case 3: {
+      PopExpression(flags);
+      PopExpression(amplitude);
+      PopExpression(initialPhase);
+      PopExpression(temporalFreq);
+      PopExpression(spatialFreq);
+      WaveCHA.AddWave(WaveParams{.Flags = flags,
+                                 .Amplitude = amplitude,
+                                 .TemporalFrequency = temporalFreq,
+                                 .Phase = initialPhase,
+                                 .SpatialFrequency = spatialFreq});
     } break;
-    case 12: {  // EFFwaveResetWave
-      PopExpression(arg1);
-      PopExpression(arg2);
-      PopExpression(arg3);
-      PopExpression(arg4);
-      PopExpression(arg5);
-      PopExpression(arg6);
-      ImpLogSlow(
-          LogLevel::Warning, LogChannel::VMStub,
-          "STUB instruction BGeffectWave(type: EFFwaveResetWave, arg1: {:d}, "
-          "arg2: {:d}, arg3: {:d}, arg4: {:d}, arg5: {:d}, arg6: {:d})\n",
-          arg1, arg2, arg3, arg4, arg5, arg6);
+    case 4: {
+      PopExpression(index);
+      PopExpression(flags);
+      PopExpression(amplitude);
+      PopExpression(initialPhase);
+      PopExpression(temporalFreq);
+      PopExpression(spatialFreq);
+      WaveBG.SetWave(index, WaveParams{.Flags = flags,
+                                       .Amplitude = amplitude,
+                                       .TemporalFrequency = temporalFreq,
+                                       .Phase = initialPhase,
+                                       .SpatialFrequency = spatialFreq});
+    } break;
+    case 5: {
+      PopExpression(index);
+      PopExpression(flags);
+      PopExpression(amplitude);
+      PopExpression(initialPhase);
+      PopExpression(temporalFreq);
+      PopExpression(spatialFreq);
+      WaveCHA.SetWave(index, WaveParams{.Flags = flags,
+                                        .Amplitude = amplitude,
+                                        .TemporalFrequency = temporalFreq,
+                                        .Phase = initialPhase,
+                                        .SpatialFrequency = spatialFreq});
+
+    } break;
+    case 10:
+      WaveEFF.ClearWaves();
+      break;
+    case 11: {
+      PopExpression(flags);
+      PopExpression(amplitude);
+      PopExpression(initialPhase);
+      PopExpression(temporalFreq);
+      PopExpression(spatialFreq);
+      WaveEFF.AddWave(WaveParams{.Flags = flags,
+                                 .Amplitude = amplitude,
+                                 .TemporalFrequency = temporalFreq,
+                                 .Phase = initialPhase,
+                                 .SpatialFrequency = spatialFreq});
+    } break;
+    case 12: {
+      PopExpression(index);
+      PopExpression(flags);
+      PopExpression(amplitude);
+      PopExpression(initialPhase);
+      PopExpression(temporalFreq);
+      PopExpression(spatialFreq);
+      WaveEFF.SetWave(index, WaveParams{.Flags = flags,
+                                        .Amplitude = amplitude,
+                                        .TemporalFrequency = temporalFreq,
+                                        .Phase = initialPhase,
+                                        .SpatialFrequency = spatialFreq});
     } break;
   }
 }

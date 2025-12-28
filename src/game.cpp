@@ -29,6 +29,7 @@
 #include "hud/loadingdisplay.h"
 #include "hud/tipsnotification.h"
 #include "games/cclcc/systemmenu.h"
+#include "effects/wave.h"
 
 #include "profile/profile.h"
 #include "profile/game.h"
@@ -112,6 +113,11 @@ static void Init() {
 
     if (Profile::UseBgChaEffects || Profile::UseBgFrameEffects) {
       Profile::BgEff::Load();
+    }
+
+    if (Profile::UseWaveEffects) {
+      Profile::WaveEffects::Load();
+      Effects::Init();
     }
   }
 
@@ -254,6 +260,10 @@ void UpdateSystem(float dt) {
     if (ScrWork[SW_GAMESTATE] & 5 && !GetFlag(SF_GAMEPAUSE) &&
         !GetFlag(SF_SYSMENUDISABLE)) {
       UI::GameSpecific::Update(UpdateSecondCounter);
+
+      if (Profile::UseWaveEffects && IsBgWaveEffectActive()) {
+        Effects::WaveBG.Update(UpdateSecondCounter);
+      }
 
       if (!GetFlag(SF_MOVIEPLAY)) {
         TipsNotification::Update(UpdateSecondCounter);

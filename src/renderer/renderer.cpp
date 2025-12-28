@@ -106,8 +106,8 @@ void BaseRenderer::DrawConvexShape(const std::span<const glm::vec2> vertices,
       });
 
   if (vertices.size() == 3) {
-    DrawVertices(RectSprite.Sheet, ShaderProgramType::Sprite, vertexAttributes,
-                 std::array<uint16_t, 3>{0, 1, 2});
+    DrawPrimitives(RectSprite.Sheet, ShaderProgramType::Sprite,
+                   vertexAttributes, std::array<uint16_t, 3>{0, 1, 2});
     return;
   }
 
@@ -128,8 +128,8 @@ void BaseRenderer::DrawConvexShape(const std::span<const glm::vec2> vertices,
     indices.insert(indices.end(), {centerOfMassIndex, i, nextIndex});
   }
 
-  DrawVertices(RectSprite.Sheet, ShaderProgramType::Sprite, vertexAttributes,
-               indices);
+  DrawPrimitives(RectSprite.Sheet, ShaderProgramType::Sprite, vertexAttributes,
+                 indices);
 }
 
 void BaseRenderer::DrawQuad(const CornersQuad& dest, const glm::vec4 color) {
@@ -312,7 +312,7 @@ void BaseRenderer::DrawProcessedText_BasicFont(
   const ShaderProgramType shader = maskedSheet == nullptr
                                        ? ShaderProgramType::Sprite
                                        : ShaderProgramType::MaskedSpriteNoAlpha;
-  DrawVertices(font->Sheet, maskedSheet, shader, vertices, indices);
+  DrawPrimitives(font->Sheet, maskedSheet, shader, vertices, indices);
 }
 
 void BaseRenderer::DrawProcessedText_LBFont(
@@ -393,7 +393,7 @@ void BaseRenderer::DrawProcessedText_LBFont(
                  dest, destUV, color, maskUV);
     }
 
-    DrawVertices(font->OutlineSheet, maskedSheet, shader, vertices, indices);
+    DrawPrimitives(font->OutlineSheet, maskedSheet, shader, vertices, indices);
   }
 
   for (size_t i = 0; i < glyphCount; i++) {
@@ -420,7 +420,7 @@ void BaseRenderer::DrawProcessedText_LBFont(
                dest, destUV, color, maskUV);
   }
 
-  DrawVertices(font->ForegroundSheet, maskedSheet, shader, vertices, indices);
+  DrawPrimitives(font->ForegroundSheet, maskedSheet, shader, vertices, indices);
 }
 
 void BaseRenderer::QuadSetPosition(CornersQuad quad, glm::vec2* const pos,

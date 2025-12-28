@@ -135,6 +135,8 @@ bool TryGet<glm::vec3>(glm::vec3& outVec3);
 template <>
 bool TryGet<glm::vec2>(glm::vec2& outVec2);
 template <>
+bool TryGet<glm::u16vec2>(glm::u16vec2& outVecu32);
+template <>
 bool TryGet<bool>(bool& outBool);
 template <>
 bool TryGet<DialogueColorPair>(DialogueColorPair& outColor);
