@@ -134,7 +134,7 @@ void RenderLayer(uint32_t layer) {
                            glm::vec4{glm::vec3{0.0f}, 88 / 255.0f});
       }
       if (ScrWork[SW_BUTTERFLY_ALPHA] &&
-          static_cast<int>(layer) == ScrWork[SW_BUTTERFLY_LAYER]) {
+          static_cast<int>(layer) == ScrWork[SW_BUTTERFLY_PRI]) {
         CHLCC::ButterflyEffect::GetInstance().Render();
       }
     } break;
