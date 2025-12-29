@@ -7,6 +7,10 @@ root.GameSpecific = {
   ButterflyFlapFrameDuration = 4/60,
   ButterflyFrameCount = 8,
   ButterflyFadeDuration = 64 / 60,
+  
+  BubbleSpriteSmall = "BubbleSpriteSmall",
+  BubbleSpriteBig = "BubbleSpriteBig",
+  BubbleFadeDuration = 64/60,
 
   EyecatchStar = "EyecatchStar",
 };
@@ -34,5 +38,25 @@ for i = 0, 5 do
   };
   root.GameSpecific.ButterflySprites[i + 1] = name
 end
+
+root.Sprites["BubbleSpriteSmall"] = {
+    Sheet = "Data",
+    Bounds = {
+        X = 129,
+        Y = 981,
+        Width = 22,
+        Height = 22
+    },
+};
+
+root.Sprites["BubbleSpriteBig"] = {
+    Sheet = "Data",
+    Bounds = {
+        X = 179,
+        Y = 967,
+        Width = 50,
+        Height = 50
+    },
+};
 
 include('chlcc/hud/delusiontrigger.lua');

@@ -32,6 +32,10 @@ void Configure() {
     ButterflyFlapFrameDuration =
         EnsureGetMember<float>("ButterflyFlapFrameDuration");
     ButterflyFadeDuration = EnsureGetMember<float>("ButterflyFadeDuration");
+
+    BubbleSpriteSmall = EnsureGetMember<Sprite>("BubbleSpriteSmall");
+    BubbleSpriteBig = EnsureGetMember<Sprite>("BubbleSpriteBig");
+    BubbleFadeDuration = EnsureGetMember<float>("BubbleFadeDuration");
   }
 
   Pop();
