@@ -9,6 +9,7 @@
 
 #include "../games/chlcc/delusiontrigger.h"
 #include "../games/chlcc/butterflyeffect.h"
+#include "../games/chlcc/bubbleseffect.h"
 #include "../games/chlcc/eyecatch.h"
 
 #include "../games/cclcc/delusiontrigger.h"
@@ -30,7 +31,8 @@ void Init() {
   switch (Profile::GameSpecific::GameSpecificType) {
     case +GameSpecificType::CHLCC: {
       CHLCC::DelusionTrigger::GetInstance().Reset();
-      CHLCC::ButterflyEffect::GetInstance();
+      CHLCC::ButterflyEffect::GetInstance().Init();
+      CHLCC::BubblesEffect::GetInstance().Init();
     } break;
     case +GameSpecificType::CC: {
     } break;
@@ -53,6 +55,7 @@ void Update(float dt) {
     case +GameSpecificType::CHLCC: {
       CHLCC::DelusionTrigger::GetInstance().Update(dt);
       CHLCC::ButterflyEffect::GetInstance().Update(dt);
+      CHLCC::BubblesEffect::GetInstance().Update(dt);
       CHLCCScanlineOffsetY = fmod(dt * 60 + CHLCCScanlineOffsetY, 300.0f);
     } break;
     case +GameSpecificType::CC: {
@@ -136,6 +139,10 @@ void RenderLayer(uint32_t layer) {
       if (ScrWork[SW_BUTTERFLY_ALPHA] &&
           static_cast<int>(layer) == ScrWork[SW_BUTTERFLY_PRI]) {
         CHLCC::ButterflyEffect::GetInstance().Render();
+      }
+      if (ScrWork[SW_BUBBLES_ALPHA] &&
+          static_cast<int>(layer) == ScrWork[SW_BUBBLES_PRI]) {
+        CHLCC::BubblesEffect::GetInstance().Render();
       }
     } break;
     case +GameSpecificType::CC: {

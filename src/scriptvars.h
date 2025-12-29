@@ -436,6 +436,9 @@ V(SW_EYECATCH_PRI)              // CHLCC specific
 V(SW_BUTTERFLY_COUNT)           // CHLCC specific
 V(SW_BUTTERFLY_PRI)             // CHLCC specific
 V(SW_BUTTERFLY_ALPHA)           // CHLCC specific
+V(SW_BUBBLES_COUNT)             // CHLCC specific
+V(SW_BUBBLES_PRI)               // CHLCC specific
+V(SW_BUBBLES_ALPHA)             // CHLCC specific
 V(SF_Pokecon_Open)
 V(SF_Pokecon_Cancel)
 V(SF_Pokecon_End)
