@@ -71,6 +71,7 @@ void Renderer::Init() {
   SpriteShaderProgram.emplace(Shaders.Compile("Sprite"));
   SpriteInvertedShaderProgram.emplace(Shaders.Compile("SpriteInverted"));
   MaskedSpriteShaderProgram.emplace(Shaders.Compile("MaskedSprite"));
+  MaskedSpriteRedShaderProgram.emplace(Shaders.Compile("MaskedSpriteRed"));
   MaskedSpriteNoAlphaShaderProgram.emplace(
       Shaders.Compile("MaskedSpriteNoAlpha"));
   ColorMaskedSpriteShaderProgram.emplace(Shaders.Compile("ColorMaskedSprite"));
@@ -444,6 +445,47 @@ void Renderer::DrawMaskedSprite(
   InsertVerticesQuad(spriteDest, uvDest, tints, maskUVDest);
 }
 
+void Renderer::DrawMaskedRedSprite(const Sprite& sprite, const Sprite& mask,
+                                   const CornersQuad& spriteDest,
+                                   const CornersQuad& maskDest,
+                                   glm::mat4 spriteTransformation,
+                                   std::optional<glm::mat4> maskTransformation,
+                                   std::span<const glm::vec4, 4> tints,
+                                   bool isInverted) {
+  if (!Drawing) {
+    ImpLog(LogLevel::Error, LogChannel::Render,
+           "Renderer->DrawMaskedSprite() called before BeginFrame()\n");
+    return;
+  }
+
+  // Set uniform variables
+  MaskedSpriteRedUniforms uniforms{
+      .Projection = Projection,
+      .SpriteTransformation = spriteTransformation,
+      .MaskTransformation = maskTransformation.value_or(glm::mat4(1.0f)),
+      .FullscreenMask = !maskTransformation.has_value(),
+      .ColorMap = 0,
+      .Mask = 2,
+      .IsInverted = isInverted,
+  };
+
+  UseShader(*MaskedSpriteRedShaderProgram, uniforms);
+
+  UseTextures(std::array<std::pair<uint32_t, size_t>, 2>{
+      std::pair{sprite.Sheet.Texture, 0},
+      std::pair{mask.Sheet.Texture, 2},
+  });
+
+  // OK, all good, make quad
+
+  CornersQuad uvDest = sprite.NormalizedBounds();
+  CornersQuad maskUVDest = CornersQuad(maskDest).Scale(
+      {1.0f / sprite.Bounds.Width, 1.0f / sprite.Bounds.Height}, {0.0f, 0.0f});
+  if (sprite.Sheet.IsScreenCap) uvDest = FlipUvVertical(uvDest);
+  if (mask.Sheet.IsScreenCap) maskUVDest = FlipUvVertical(maskUVDest);
+  InsertVerticesQuad(spriteDest, uvDest, tints, maskUVDest);
+}
+
 void Renderer::DrawMaskedSpriteOverlay(
     const Sprite& sprite, const Sprite& mask, const CornersQuad& spriteDest,
     const CornersQuad& maskDest, int alpha, const int fadeRange,
@@ -604,6 +646,20 @@ void Renderer::DrawVertices(const SpriteSheet& sheet,
       };
 
       UseShader(*MaskedSpriteShaderProgram, uniforms);
+    } break;
+
+    case ShaderProgramType::MaskedSpriteRed: {
+      MaskedSpriteRedUniforms uniforms{
+          .Projection = Projection,
+          .SpriteTransformation = spriteTransformation,
+          .MaskTransformation = maskTransformation,
+          .FullscreenMask = false,
+          .ColorMap = 0,
+          .Mask = 2,
+          .IsInverted = inverted,
+      };
+
+      UseShader(*MaskedSpriteRedShaderProgram, uniforms);
     } break;
 
     case ShaderProgramType::MaskedSpriteNoAlpha: {

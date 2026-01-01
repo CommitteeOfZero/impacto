@@ -279,6 +279,36 @@ class MaskedSpriteShader : public Shader<MaskedSpriteUniforms> {
   const GLint IsSameTextureLocation;
 };
 
+struct MaskedSpriteRedUniforms {
+  bool operator==(const MaskedSpriteRedUniforms& other) const = default;
+
+  glm::mat4 Projection{};
+  glm::mat4 SpriteTransformation{};
+  glm::mat4 MaskTransformation{};
+  bool FullscreenMask = false;
+
+  GLint ColorMap;
+  GLint Mask;
+  bool IsInverted = false;
+};
+
+class MaskedSpriteRedShader : public Shader<MaskedSpriteRedUniforms> {
+ public:
+  MaskedSpriteRedShader(GLint programId);
+
+  void UploadUniforms(MaskedSpriteRedUniforms uniforms) override;
+
+ private:
+  const GLint ProjectionLocation;
+  const GLint SpriteTransformationLocation;
+  const GLint MaskTransformationLocation;
+  const GLint FullscreenMaskLocation;
+
+  const GLint ColorMapLocation;
+  const GLint MaskLocation;
+  const GLint IsInvertedLocation;
+};
+
 struct ColorBurnMaskedSpriteUniforms {
   bool operator==(const ColorBurnMaskedSpriteUniforms& other) const = default;
 

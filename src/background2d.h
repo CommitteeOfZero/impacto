@@ -115,6 +115,7 @@ class Background2D : public Loadable<Background2D, bool, uint32_t> {
 
   void RenderRegular();
   void RenderMasked();
+  void RenderCaptureMasked();
   void RenderMaskedInverted();
   void RenderFade();
 
@@ -143,7 +144,7 @@ class Background2D : public Loadable<Background2D, bool, uint32_t> {
           &Background2D::RenderRegular,         // 20
           &Background2D::RenderRegular,         // 21
           &Background2D::RenderRegular,         // 22
-          &Background2D::RenderRegular,         // 23
+          &Background2D::RenderCaptureMasked,   // 23
           &Background2D::RenderRegular,         // 24
           &Background2D::RenderRegular,         // 25
           &Background2D::RenderRegular,         // 26
@@ -175,6 +176,7 @@ class BackgroundEffect2D : public Background2D {
 
 inline std::array<Background2D, 8> Backgrounds;
 inline std::array<Capture2D, 2> Screencaptures;
+inline Capture2D MaskCapture;
 inline std::array<BackgroundEffect2D, MaxFramebuffers> Framebuffers;
 inline Background2D ShaderScreencapture;
 
