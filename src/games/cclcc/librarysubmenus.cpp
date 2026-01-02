@@ -72,6 +72,10 @@ void LibrarySubmenu::Render() {
 void LibrarySubmenu::Unfocus() {
   if (!IsFocused) return;
 
+  for (auto* child : MainItems.Children) {
+    child->Hovered = false;
+  }
+
   if (UI::FocusedMenu == this) {
     if (LastFocusedMenu != 0) {
       UI::FocusedMenu = LastFocusedMenu;
