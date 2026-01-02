@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../button.h"
-#include "../label.h"
 #include "../../../spriteanimation.h"
 
 namespace Impacto {
@@ -13,7 +12,8 @@ class MovieMenuEntryButton : public Widgets::Button {
  public:
   MovieMenuEntryButton(int id, Sprite const& movieThumbnail,
                        Sprite const& lockedMovieThumbnail,
-                       glm::vec2 thumbnailPos, glm::vec2 boxPos);
+                       glm::vec2 thumbnailPos, glm::vec2 boxPos,
+                       bool& isMovieExtraMode);
 
   void Update(float dt) override;
   void Render() override;
@@ -22,6 +22,8 @@ class MovieMenuEntryButton : public Widgets::Button {
 
  private:
   SpriteAnimation MovieBoxAnim;
+
+  std::reference_wrapper<bool> IsExtraMovieModeOn;
 };
 
 }  // namespace CHLCC

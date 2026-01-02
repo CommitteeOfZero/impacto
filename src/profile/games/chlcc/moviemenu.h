@@ -45,11 +45,15 @@ inline Sprite MovieList;
 inline glm::vec2 BoxPositions[Movies];
 inline glm::vec2 ListPosition;
 inline Sprite MovieBox;
+inline Sprite MovieBoxExtra;
 inline glm::vec2 ThumbnailPositions[Movies];
 inline Sprite MoviesThumbnails[Movies];
+inline Sprite MovieThumbnailExtraOp;
 inline Sprite LockedThumbnail;
 inline glm::vec2 ButtonPromptPosition;
 inline Sprite ButtonPromptSprite;
+inline glm::vec2 MovieButtonExtraPromptPosition;
+inline Sprite MovieButtonExtraPrompt;
 
 void Configure();
 
