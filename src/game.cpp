@@ -325,6 +325,15 @@ static void RenderMain() {
       Backgrounds2D[bufId]->Render(layer);
     }
 
+    // Games with <= 2 don't render their captures separately
+    if (Profile::Vm::ScrWorkCaptureStructSize > 0) {
+      for (int capId = 0; capId < static_cast<int>(Profile::ScreenCaptureCount);
+           capId++) {
+        Screencaptures[capId].UpdateState(capId);
+        Screencaptures[capId].Render(layer);
+      }
+    }
+
     if (Background2D::LastRenderedBackground != nullptr) {
       Background2D::LastRenderedBackground->RenderBgEff(layer);
     }
@@ -338,9 +347,11 @@ static void RenderMain() {
       }
     }
 
-    for (int bgId = 0; bgId < std::ssize(Backgrounds); bgId++) {
-      Framebuffers[0].UpdateState(bgId);
-      Framebuffers[0].Render(layer);
+    if (Profile::Vm::ScrWorkBgEffStructSize > 0) {
+      for (int bgId = 0; bgId < std::ssize(Backgrounds); bgId++) {
+        Framebuffers[0].UpdateState(bgId);
+        Framebuffers[0].Render(layer);
+      }
     }
 
     for (int i = 0; i < 2; ++i) {
@@ -367,22 +378,16 @@ static void RenderMain() {
       }
     }
 
-    if (Profile::UseScreenCapEffects) {
-      if (ScrWork[SW_EFF_CAP_BUF] &&
-          static_cast<uint32_t>(ScrWork[SW_EFF_CAP_PRI]) == layer) {
-        int bufId = (int)std::log2(ScrWork[SW_EFF_CAP_BUF]);
-        if (Backgrounds2D[bufId]->Status == LoadStatus::Loaded) {
-          Renderer->CaptureScreencap(Backgrounds2D[bufId]->BgSprite);
-        }
+    for (size_t capId = 0; capId < Profile::ScreenCaptureCount; capId++) {
+      const size_t capOffset =
+          capId * Profile::Vm::ScrWorkCaptureEffectInfoStructSize;
+      if (ScrWork[SW_EFF_CAP_BUF + capOffset] == 0 ||
+          static_cast<uint32_t>(ScrWork[SW_EFF_CAP_PRI + capOffset]) != layer) {
+        continue;
       }
 
-      if (ScrWork[SW_EFF_CAP_BUF2] &&
-          static_cast<uint32_t>(ScrWork[SW_EFF_CAP_PRI2]) == layer) {
-        int bufId = (int)std::log2(ScrWork[SW_EFF_CAP_BUF2]);
-        if (Backgrounds2D[bufId]->Status == LoadStatus::Loaded) {
-          Renderer->CaptureScreencap(Backgrounds2D[bufId]->BgSprite);
-        }
-      }
+      Renderer->CaptureScreencap(Screencaptures[capId].BgSprite);
+      Screencaptures[capId].Status = LoadStatus::Loaded;
     }
 
     if (Profile::UseMoviePriority &&

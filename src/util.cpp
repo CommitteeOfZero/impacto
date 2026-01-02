@@ -352,6 +352,17 @@ RectF RectF::BoundingBox(const CornersQuad& first, const RectF& second) {
   return BoundingBox(second, first);
 }
 
+RectF RectF::Intersection(const RectF& first, const RectF& second) {
+  RectF rect;
+
+  rect.X = std::max(first.X, second.X);
+  rect.Y = std::max(first.Y, second.Y);
+  rect.Width = std::min(first.Right(), second.Right()) - rect.X;
+  rect.Height = std::min(first.Bottom(), second.Bottom()) - rect.Y;
+
+  return (rect.Width > 0.0f && rect.Height > 0.0f) ? rect : RectF();
+}
+
 tm CurrentDateTime() {
   std::time_t now = std::time(nullptr);
   tm result;

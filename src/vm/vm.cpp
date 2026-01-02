@@ -6,8 +6,8 @@
 #include "../game.h"
 #include "../mem.h"
 #include "interface/scene3d.h"
-#include "interface/scene2d.h"
 #include "interface/input.h"
+#include "../character2d.h"
 #include "opcodetables_rne.h"
 #include "opcodetables_darling.h"
 #include "opcodetables_chlcc.h"
@@ -303,7 +303,6 @@ void Update(float dt) {
   } else {
     Character2D::UpdateEyeMouth();
   }
-  Interface::UpdateBackground2D();
 }
 
 static void CreateThreadDrawTable() {

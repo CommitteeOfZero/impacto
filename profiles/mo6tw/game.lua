@@ -14,7 +14,6 @@ root.CharaIsMvl = false;
 root.LayFileBigEndian = true;
 root.LayFileTexXMultiplier = 2048;
 root.LayFileTexYMultiplier = 1024;
-root.UseScreenCapEffects = false;
 
 root.Vm = {
     StartScript=0,
@@ -27,8 +26,6 @@ root.Vm = {
     ScrWorkChaOffsetStructSize = 10,
     ScrWorkBgStructSize = 20,
     ScrWorkBgOffsetStructSize = 10,
-    ScrWorkCaptureStructSize = 20,
-    ScrWorkCaptureOffsetStructSize = 10,
     ScrWorkBgEffStructSize = 20,
     ScrWorkBgEffOffsetStructSize = 20,
 };

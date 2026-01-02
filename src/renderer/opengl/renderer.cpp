@@ -15,6 +15,15 @@
 namespace Impacto {
 namespace OpenGL {
 
+static CornersQuad FlipUvVertical(CornersQuad quad) {
+  quad.BottomLeft.y = 1.0f - quad.BottomLeft.y;
+  quad.BottomRight.y = 1.0f - quad.BottomRight.y;
+  quad.TopRight.y = 1.0f - quad.TopRight.y;
+  quad.TopLeft.y = 1.0f - quad.TopLeft.y;
+
+  return quad;
+}
+
 void Renderer::Init() {
   if (IsInit) return;
   ImpLog(LogLevel::Info, LogChannel::Render,
@@ -376,7 +385,7 @@ void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
   // OK, all good, make quad
 
   CornersQuad uvDest = sprite.NormalizedBounds();
-  if (sprite.Sheet.IsScreenCap) uvDest.FlipVertical();
+  if (sprite.Sheet.IsScreenCap) uvDest = FlipUvVertical(uvDest);
   InsertVerticesQuad(dest, uvDest, tints);
 
   if (disableBlend) {
@@ -433,8 +442,8 @@ void Renderer::DrawMaskedSprite(
   CornersQuad uvDest = sprite.NormalizedBounds();
   CornersQuad maskUVDest = CornersQuad(maskDest).Scale(
       {1.0f / sprite.Bounds.Width, 1.0f / sprite.Bounds.Height}, {0.0f, 0.0f});
-  if (sprite.Sheet.IsScreenCap) uvDest.FlipVertical();
-  if (mask.Sheet.IsScreenCap) maskUVDest.FlipVertical();
+  if (sprite.Sheet.IsScreenCap) uvDest = FlipUvVertical(uvDest);
+  if (mask.Sheet.IsScreenCap) maskUVDest = FlipUvVertical(maskUVDest);
   InsertVerticesQuad(spriteDest, uvDest, tints, maskUVDest);
 }
 
@@ -738,7 +747,7 @@ void Renderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
   // OK, all good, make quad
 
   CornersQuad uvDest = sprite.NormalizedBounds();
-  if (sprite.Sheet.IsScreenCap) uvDest.FlipVertical();
+  if (sprite.Sheet.IsScreenCap) uvDest = FlipUvVertical(uvDest);
   InsertVerticesQuad(dest, uvDest, tint, mask.NormalizedBounds());
 }
 
@@ -774,7 +783,7 @@ void Renderer::DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
   // OK, all good, make quad
 
   CornersQuad uvDest = sprite.NormalizedBounds();
-  if (sprite.Sheet.IsScreenCap) uvDest.FlipVertical();
+  if (sprite.Sheet.IsScreenCap) uvDest = FlipUvVertical(uvDest);
   InsertVerticesQuad(dest, uvDest, glm::vec4(1.0f), mask.NormalizedBounds());
 }
 

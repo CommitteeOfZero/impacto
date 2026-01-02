@@ -709,19 +709,21 @@ VmInstruction(InstCalc) {
       PopExpression(dest);
       PopExpression(angle);
       ScrWork[dest] =
-          (int)(std::sin(angle / (65536 / (2 * std::numbers::pi))) * 65536);
+          (int)(std::sin(angle / (0x10000 / (2.0 * std::numbers::pi))) *
+                0x10000);
     } break;
     case 1: {  // CalcCos
       PopExpression(dest);
       PopExpression(angle);
       ScrWork[dest] =
-          (int)(std::cos(angle / (65536 / (2 * std::numbers::pi))) * 65536);
+          (int)(std::cos(angle / (0x10000 / (2.0 * std::numbers::pi))) *
+                0x10000);
     } break;
     case 2: {  // CalcAtan2
       PopExpression(dest);
       PopExpression(x);
       PopExpression(y);
-      ScrWork[dest] = (int)atan2(x, y);
+      ScrWork[dest] = (int)(0x4000 * std::atan2(y, x) / std::numbers::pi);
     } break;
     case 3: {  // CalcSinL
       PopExpression(dest);
@@ -730,8 +732,8 @@ VmInstruction(InstCalc) {
       PopExpression(offset);
       ScrWork[dest] =
           offset +
-          (int)(base * std::sin(angle / (65536 / (2 * std::numbers::pi))) *
-                65536);
+          base * (int)(std::sin(angle / (0x10000 / (2.0 * std::numbers::pi))) *
+                       0x10000);
     } break;
     case 4: {  // CalcCosL
       PopExpression(dest);
@@ -740,8 +742,8 @@ VmInstruction(InstCalc) {
       PopExpression(offset);
       ScrWork[dest] =
           offset +
-          (int)(base * std::cos(angle / (65536 / (2 * std::numbers::pi))) *
-                65536);
+          base * (int)(std::cos(angle / (0x10000 / (2.0 * std::numbers::pi))) *
+                       0x10000);
     } break;
     case 5: {  // CalcRound
       PopExpression(dest);
@@ -749,7 +751,7 @@ VmInstruction(InstCalc) {
       PopExpression(multiplier);
       PopExpression(divider);
       ScrWork[dest] =
-          (int)((((((multiplier * value) * 10.0) / divider) + 5.0) / 10.0));
+          (int)(((((multiplier * value) * 10.0) / divider) + 5.0) / 10.0);
     } break;
     case 6: {  // CalcAccel
       PopExpression(dest);
