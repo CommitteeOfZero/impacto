@@ -42,9 +42,10 @@ BETTER_ENUM(ShaderProgramType, int, AdditiveMaskedSprite, CCMessageBoxSprite,
             ColorMaskedSprite, HardLightMaskedSprite, LinearBurnMaskedSprite,
             MaskedSprite, MaskedSpriteBinary, MaskedSpriteNoAlpha,
             OverlayMaskedSprite, ScreenMaskedSprite, SoftLightMaskedSprite,
-            Sprite, SpriteInverted, YUVFrame);
+            Sprite, SpriteInverted, YUVFrame, GaussianBlur);
 
 enum class RendererBlendMode { Normal, Additive };
+enum class RendererBlurDirection { Horizontal, Vertical };
 
 class BaseRenderer {
  public:
@@ -328,6 +329,11 @@ class BaseRenderer {
 
   virtual void DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
                                        const RectF& dest, float alpha) = 0;
+
+  virtual void DrawBlurredSprite(const Sprite& sprite, const CornersQuad& dest,
+                                 glm::mat4 transformation,
+                                 RendererBlurDirection blurDirection,
+                                 glm::vec4 tint) = 0;
 
   void DrawProcessedText_BasicFont(std::span<const ProcessedTextGlyph> text,
                                    BasicFont* font, float opacity,
