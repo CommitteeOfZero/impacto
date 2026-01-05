@@ -127,10 +127,13 @@ void YesNoTrigger::Update(float dt) {
     return;
   }
 
-  YesClickArea.UpdateInput(dt);
-  NoClickArea.UpdateInput(dt);
   YesClickArea.Enabled = AllowInput;
+  YesClickArea.UpdateInput(dt);
+  YesClickArea.Update(dt);
   NoClickArea.Enabled = AllowInput;
+  NoClickArea.UpdateInput(dt);
+  NoClickArea.Update(dt);
+
   StarAnimation.Update(dt);
   switch (State) {
     case YesNoState::Init:
