@@ -35,6 +35,9 @@ set(Impacto_Src
         src/effects/wave.cpp
         src/effects/blur.cpp
         src/effects/mosaic.cpp
+        src/effects/chlcc/butterflyeffect.cpp
+        src/effects/chlcc/bubbleseffect.cpp
+        src/effects/chlcc/eyecatch.cpp
 
         src/renderer/renderer.cpp
         src/renderer/window.cpp
@@ -172,9 +175,6 @@ set(Impacto_Src
         src/games/chlcc/delusiontrigger.cpp
         src/games/chlcc/introsequence.cpp
         src/games/chlcc/tipsnotification.cpp
-        src/games/chlcc/butterflyeffect.cpp
-        src/games/chlcc/bubbleseffect.cpp
-        src/games/chlcc/eyecatch.cpp
 
         src/games/cc/backlogmenu.cpp
         src/games/cc/dialoguebox.cpp
@@ -373,6 +373,9 @@ set(Impacto_Header
         src/effects/wave.h
         src/effects/blur.h
         src/effects/mosaic.h
+        src/effects/chlcc/butterflyeffect.h
+        src/effects/chlcc/bubbleseffect.h
+        src/effects/chlcc/eyecatch.h
 
         src/renderer/renderer.h
         src/renderer/window.h
@@ -509,9 +512,6 @@ set(Impacto_Header
         src/games/chlcc/delusiontrigger.h
         src/games/chlcc/introsequence.h
         src/games/chlcc/tipsnotification.h
-        src/games/chlcc/butterflyeffect.h
-        src/games/chlcc/bubbleseffect.h
-        src/games/chlcc/eyecatch.h
 
         src/games/cc/dialoguebox.h
         src/games/cc/titlemenu.h

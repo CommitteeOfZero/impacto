@@ -4,7 +4,8 @@
 #include "../../renderer/renderer.h"
 #include "../../spritesheet.h"
 #include "../../profile/game.h"
-#include "../../vm/interface/scene2d.h"
+#include "../../background2d.h"
+#include "../../util.h"
 
 using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::GameSpecific;
@@ -50,12 +51,10 @@ void EyecatchEffect::RenderMain() {
 }
 
 void EyecatchEffect::RenderLayer(int layer) {
-  if (((ScrWork[SW_EYECATCH_BUF] != 0) && (ScrWork[SW_EYECATCH_COUNT] != 0)) &&
-      (static_cast<int>(layer) == ScrWork[SW_EYECATCH_PRI])) {
-    int childBufId = Vm::Interface::GetBufferId(ScrWork[SW_EYECATCH_BUF]);
+  if (ScrWork[SW_EYECATCH_BUF] != 0 && ScrWork[SW_EYECATCH_COUNT] != 0 &&
+      layer == ScrWork[SW_EYECATCH_PRI]) {
+    const int childBufId = GetBufferId(ScrWork[SW_EYECATCH_BUF]);
     if (ScrWork[SW_EYECATCH_COUNT] < 64) {
-      const RectF dest = {0.0f, 0.0f, Profile::DesignWidth,
-                          Profile::DesignHeight};
       Renderer->Clear(glm::vec4(0.0f));
       Renderer->DrawMaskedSprite(
           Backgrounds2D[ScrWork[SW_BG1SURF + childBufId]]->BgSprite, StarsMask,

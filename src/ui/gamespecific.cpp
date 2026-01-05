@@ -8,9 +8,9 @@
 #include "../profile/games/chlcc/delusiontrigger.h"
 
 #include "../games/chlcc/delusiontrigger.h"
-#include "../games/chlcc/butterflyeffect.h"
-#include "../games/chlcc/bubbleseffect.h"
-#include "../games/chlcc/eyecatch.h"
+#include "../effects/chlcc/butterflyeffect.h"
+#include "../effects/chlcc/bubbleseffect.h"
+#include "../effects/chlcc/eyecatch.h"
 
 #include "../games/cclcc/delusiontrigger.h"
 #include "../games/cclcc/yesnotrigger.h"

@@ -1,37 +1,41 @@
 #pragma once
 
+// Hey this isn't Steins;Gate
+
 #include <cstdint>
 #include "../../animation.h"
 namespace Impacto {
 namespace UI {
 namespace CHLCC {
 
-struct Bubble {
+struct Butterfly {
   glm::vec2 Position{};
-  uint16_t RandAngle{};
+  glm::vec2 Velocity{};
+  Animation Flap;
   uint16_t Size{};
 
-  Bubble();
+  Butterfly();
   void Init(bool loop = false);
   void Update(float dt);
   void Render(float alpha);
 };
 
-class BubblesEffect {
+class ButterflyEffect {
+  ButterflyEffect();
+
  public:
-  BubblesEffect();
   void Init();
   void Update(float dt);
   void Render();
 
-  static BubblesEffect& GetInstance() {
-    static BubblesEffect impl;
+  static ButterflyEffect& GetInstance() {
+    static ButterflyEffect impl;
     return impl;
   };
 
  private:
   Animation FadeAnimation;
-  std::array<Bubble, 400> Bubbles;
+  std::array<Butterfly, 400> Butterflies;
 };
 }  // namespace CHLCC
 }  // namespace UI

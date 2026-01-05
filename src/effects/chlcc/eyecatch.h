@@ -1,17 +1,17 @@
 #pragma once
 
-#include <cstdint>
-#include "../../animation.h"
 #include "../../spritesheet.h"
 
 namespace Impacto {
 namespace UI {
 namespace CHLCC {
 
-struct EyecatchEffect {
+class EyecatchEffect {
+  EyecatchEffect();
+
+ public:
   Sprite StarsMask;
 
-  EyecatchEffect();
   void RenderMain();
   void RenderLayer(int layer);
 

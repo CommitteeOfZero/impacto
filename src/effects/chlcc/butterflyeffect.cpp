@@ -1,7 +1,6 @@
 #include "butterflyeffect.h"
 #include "../../profile/ui/gamespecific.h"
-
-#include <numeric>
+#include "../../profile/game.h"
 
 using namespace Impacto::Profile::GameSpecific;
 using namespace Impacto::Profile::ScriptVars;
@@ -18,8 +17,10 @@ Butterfly::Butterfly() {
 
 void Butterfly::Init(bool loop) {
   Size = static_cast<uint16_t>(CALCrnd(34) + 40);
+
   Position.x = static_cast<float>(CALCrnd(1480) - 100);
   Position.y = static_cast<float>(loop ? (Size + 720) : CALCrnd(820) - 100);
+
   const float angle = ((CALCrnd(60) - 30)) * std::numbers::pi_v<float> / 180.0f;
   Velocity.x = std::sin(angle) * Size * 0.25f;
   Velocity.y = -std::cos(angle) * Size * 0.25f;
@@ -48,8 +49,10 @@ void Butterfly::Render(float alphaMultiplier) {
   const uint8_t butterflyIndex =
       static_cast<uint8_t>(Flap.Progress * ButterflyFrameCount);
   const float sizeF = static_cast<float>(Size);
-  const RectF dest{Position.x - sizeF / 2.0f, Position.y - sizeF / 2.0f, sizeF,
-                   sizeF};
+  RectF dest{Position.x - sizeF / 2.0f, Position.y - sizeF / 2.0f, sizeF,
+             sizeF};
+  dest.Scale({Profile::DesignWidth / 1280.0f, Profile::DesignHeight / 720.0f},
+             {0.0f, 0.0f});
   const float alpha = (ScrWork[SW_BUTTERFLY_ALPHA] * alphaMultiplier) *
                       (Size / 148.0f + 1 / 2.0f) / 256.0f;
   constexpr static auto butterflyFrameSpriteMap =

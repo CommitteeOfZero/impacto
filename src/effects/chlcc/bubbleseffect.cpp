@@ -1,7 +1,7 @@
 #include "bubbleseffect.h"
 #include "../../profile/ui/gamespecific.h"
 
-#include <numeric>
+#include "../../profile/game.h"
 
 using namespace Impacto::Profile::GameSpecific;
 using namespace Impacto::Profile::ScriptVars;
@@ -32,13 +32,14 @@ BubblesEffect::BubblesEffect() {
   FadeAnimation.DurationIn = BubbleFadeDuration;
 }
 
-void Bubble::Render(float alphaMultipiler) {
+void Bubble::Render(float alphaMultiplier) {
   const float sizeF = static_cast<float>(Size);
-  const float sine =
-      std::sin(RandAngle / 65536.0f * 2 * std::numbers::pi_v<float>);
+  const float sine = std::sin(ScrWorkAngleToRad(RandAngle));
   const float xPos = Position.x + sizeF * sine * 0.5f - sizeF / 2.0f;
-  const RectF dest{xPos, Position.y - sizeF / 2.0f, sizeF, sizeF};
-  const float alpha = (ScrWork[SW_BUBBLES_ALPHA] * alphaMultipiler) / 256.0f;
+  RectF dest{xPos, Position.y - sizeF / 2.0f, sizeF, sizeF};
+  dest.Scale({Profile::DesignWidth / 1280.0f, Profile::DesignHeight / 720.0f},
+             {0.0f, 0.0f});
+  const float alpha = (ScrWork[SW_BUBBLES_ALPHA] * alphaMultiplier) / 256.0f;
   if (Size < 70) {
     Renderer->DrawSprite(BubbleSpriteSmall, dest, {glm::vec3{1.0f}, alpha});
   } else {
