@@ -892,7 +892,7 @@ void Renderer::DrawMosaic(const Sprite& sprite, const CornersQuad dest,
       .Transformation = transformation,
       .ColorMap = 0,
       .TextureDimensions = sprite.Bounds.GetSize(),
-      .TileSize = tileSize,
+      .TileSize = tileSize / sprite.BaseScale.x,
   };
 
   UseShader(*MosaicShaderProgram, uniforms);
