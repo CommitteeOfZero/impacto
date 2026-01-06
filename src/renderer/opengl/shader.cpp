@@ -725,5 +725,31 @@ void GaussianBlurShader::UploadUniforms(GaussianBlurUniforms newUniforms) {
             IsHorizontalLocation);
 }
 
+MosaicShader::MosaicShader(GLint programId)
+    : Shader(programId),
+      ProjectionLocation(glGetUniformLocation(programId, "Projection")),
+      TransformationLocation(glGetUniformLocation(programId, "Transformation")),
+      ColorMapLocation(glGetUniformLocation(programId, "ColorMap")),
+      TextureDimensionsLocation(
+          glGetUniformLocation(programId, "TextureDimensions")),
+      TileSizeLocation(glGetUniformLocation(programId, "TileSize")) {
+  UploadVar(Uniforms.Projection, ProjectionLocation);
+  UploadVar(Uniforms.Transformation, TransformationLocation);
+  UploadVar(Uniforms.ColorMap, ColorMapLocation);
+  UploadVar(Uniforms.TextureDimensions, TextureDimensionsLocation);
+  UploadVar(Uniforms.TileSize, TileSizeLocation);
+}
+
+void MosaicShader::UploadUniforms(MosaicUniforms newUniforms) {
+  UpdateVar(newUniforms.Projection, Uniforms.Projection, ProjectionLocation);
+  UpdateVar(newUniforms.Transformation, Uniforms.Transformation,
+            TransformationLocation);
+
+  UpdateVar(newUniforms.ColorMap, Uniforms.ColorMap, ColorMapLocation);
+  UpdateVar(newUniforms.TextureDimensions, Uniforms.TextureDimensions,
+            TextureDimensionsLocation);
+  UpdateVar(newUniforms.TileSize, Uniforms.TileSize, TileSizeLocation);
+}
+
 }  // namespace OpenGL
 }  // namespace Impacto

@@ -97,6 +97,7 @@ void Renderer::Init() {
   CHLCCMenuBackgroundShaderProgram.emplace(
       Shaders.Compile("CHLCCMenuBackground"));
   GaussianBlurShaderProgram.emplace(Shaders.Compile("GaussianBlur"));
+  MosaicShaderProgram.emplace(Shaders.Compile("Mosaic"));
 
   glGenSamplers((GLsizei)Samplers.size(), Samplers.data());
   for (size_t i = 0; i < TextureUnitCount; i++) {
@@ -864,6 +865,37 @@ void Renderer::DrawBlurredSprite(const Sprite& sprite, const CornersQuad& dest,
   };
 
   UseShader(*GaussianBlurShaderProgram, uniforms);
+
+  UseTextures(std::array<std::pair<uint32_t, size_t>, 1>{
+      std::pair{sprite.Sheet.Texture, 0}});
+
+  // OK, all good, make quad
+
+  CornersQuad uvDest = sprite.NormalizedBounds();
+  if (sprite.Sheet.IsScreenCap) uvDest = FlipUvVertical(uvDest);
+  InsertVerticesQuad(dest, uvDest, tint);
+}
+
+void Renderer::DrawMosaic(const Sprite& sprite, const CornersQuad dest,
+                          float tileSize, glm::mat4 transformation,
+                          glm::vec4 tint) {
+  if (!Drawing) {
+    ImpLog(LogLevel::Error, LogChannel::Render,
+           "Renderer->DrawMosaic() called before BeginFrame()\n");
+    return;
+  }
+
+  EnsureTopologyMode(TopologyMode::Triangles);
+
+  MosaicUniforms uniforms{
+      .Projection = Projection,
+      .Transformation = transformation,
+      .ColorMap = 0,
+      .TextureDimensions = sprite.Bounds.GetSize(),
+      .TileSize = tileSize,
+  };
+
+  UseShader(*MosaicShaderProgram, uniforms);
 
   UseTextures(std::array<std::pair<uint32_t, size_t>, 1>{
       std::pair{sprite.Sheet.Texture, 0}});

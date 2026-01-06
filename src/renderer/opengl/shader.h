@@ -596,5 +596,31 @@ class GaussianBlurShader : public Shader<GaussianBlurUniforms> {
   const GLint IsHorizontalLocation;
 };
 
+struct MosaicUniforms {
+  bool operator==(const MosaicUniforms& other) const = default;
+
+  glm::mat4 Projection{};
+  glm::mat4 Transformation{};
+
+  GLint ColorMap;
+  glm::vec2 TextureDimensions;
+  float TileSize = 1.0f;
+};
+
+class MosaicShader : public Shader<MosaicUniforms> {
+ public:
+  MosaicShader(GLint programId);
+
+  void UploadUniforms(MosaicUniforms uniforms) override;
+
+ private:
+  const GLint ProjectionLocation;
+  const GLint TransformationLocation;
+
+  const GLint ColorMapLocation;
+  const GLint TextureDimensionsLocation;
+  const GLint TileSizeLocation;
+};
+
 }  // namespace OpenGL
 }  // namespace Impacto
