@@ -390,6 +390,12 @@ static void RenderMain() {
       Screencaptures[capId].Status = LoadStatus::Loaded;
     }
 
+    if (GetFlag(SF_MASK_CAPTURE) &&
+        ScrWork[SW_MASK_CAPTURE_PRI] == static_cast<int>(layer)) {
+      Renderer->CaptureScreencap(MaskCapture.BgSprite);
+      MaskCapture.Status = LoadStatus::Loaded;
+    }
+
     if (Profile::UseMoviePriority &&
         (Profile::GameFeatures & GameFeature::Video)) {
       int videoAlpha = 0;

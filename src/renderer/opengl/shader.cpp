@@ -134,6 +134,7 @@ GLuint ShaderCompiler::Attach(GLuint program, GLenum shaderType,
 
   glCompileShader(shader);
   glGetShaderiv(shader, GL_COMPILE_STATUS, &result);
+  assert(result);
   if (!result) {
     glGetShaderInfoLog(shader, sizeof(errorLog), NULL, errorLog);
     ImpLog(LogLevel::Fatal, LogChannel::Render,
@@ -352,6 +353,41 @@ MaskedSpriteShader::MaskedSpriteShader(GLint programId)
   UploadVar(Uniforms.Alpha, AlphaLocation);
   UploadVar(Uniforms.IsInverted, IsInvertedLocation);
   UploadVar(Uniforms.IsSameTexture, IsSameTextureLocation);
+}
+
+void MaskedSpriteBinaryShader::UploadUniforms(
+    MaskedSpriteBinaryUniforms newUniforms) {
+  UpdateVar(newUniforms.Projection, Uniforms.Projection, ProjectionLocation);
+  UpdateVar(newUniforms.SpriteTransformation, Uniforms.SpriteTransformation,
+            SpriteTransformationLocation);
+  UpdateVar(newUniforms.MaskTransformation, Uniforms.MaskTransformation,
+            MaskTransformationLocation);
+  UpdateVar(newUniforms.FullscreenMask, Uniforms.FullscreenMask,
+            FullscreenMaskLocation);
+
+  UpdateVar(newUniforms.ColorMap, Uniforms.ColorMap, ColorMapLocation);
+  UpdateVar(newUniforms.Mask, Uniforms.Mask, MaskLocation);
+  UpdateVar(newUniforms.IsInverted, Uniforms.IsInverted, IsInvertedLocation);
+}
+
+MaskedSpriteBinaryShader::MaskedSpriteBinaryShader(GLint programId)
+    : Shader(programId),
+      ProjectionLocation(glGetUniformLocation(programId, "Projection")),
+      SpriteTransformationLocation(
+          glGetUniformLocation(programId, "SpriteTransformation")),
+      MaskTransformationLocation(
+          glGetUniformLocation(programId, "MaskTransformation")),
+      FullscreenMaskLocation(glGetUniformLocation(programId, "FullscreenMask")),
+      ColorMapLocation(glGetUniformLocation(programId, "ColorMap")),
+      MaskLocation(glGetUniformLocation(programId, "Mask")),
+      IsInvertedLocation(glGetUniformLocation(programId, "IsInverted")) {
+  UploadVar(Uniforms.Projection, ProjectionLocation);
+  UploadVar(Uniforms.SpriteTransformation, SpriteTransformationLocation);
+  UploadVar(Uniforms.MaskTransformation, MaskTransformationLocation);
+  UploadVar(Uniforms.FullscreenMask, FullscreenMaskLocation);
+  UploadVar(Uniforms.ColorMap, ColorMapLocation);
+  UploadVar(Uniforms.Mask, MaskLocation);
+  UploadVar(Uniforms.IsInverted, IsInvertedLocation);
 }
 
 void MaskedSpriteShader::UploadUniforms(MaskedSpriteUniforms newUniforms) {

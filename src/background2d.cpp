@@ -37,12 +37,14 @@ void Background2D::Init() {
     Backgrounds2D[i] = &Backgrounds[i];
   }
 
-  for (Capture2D& capture : Screencaptures) {
+  const auto initCapture = [](Capture2D& capture) {
     capture.BgSprite.Sheet.IsScreenCap = true;
     capture.LoadSolidColor(0xFF000000, Window->WindowWidth,
                            Window->WindowHeight);
     capture.Status = LoadStatus::Loaded;
-  }
+  };
+  for (Capture2D& capture : Screencaptures) initCapture(capture);
+  initCapture(MaskCapture);
 
   ShaderScreencapture.BgSprite.Sheet.IsScreenCap = true;
   InitFrameBuffers();
@@ -793,6 +795,12 @@ void Background2D::RenderMasked() {
   Renderer->DrawMaskedSprite(RenderSprite, Masks2D[MaskNumber].MaskSprite,
                              FadeCount, FadeRange, TransformState.ToMatrix(),
                              Tint, false, false);
+}
+
+void Background2D::RenderCaptureMasked() {
+  Renderer->DrawMaskedBinarySprite(RenderSprite, MaskCapture.BgSprite,
+                                   TransformState.ToMatrix(), std::nullopt,
+                                   Tint, false);
 }
 
 void Background2D::RenderMaskedInverted() {

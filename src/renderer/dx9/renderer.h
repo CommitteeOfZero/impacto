@@ -45,7 +45,16 @@ class Renderer : public BaseRenderer {
                         glm::mat4 spriteTransformation,
                         glm::mat4 maskTransformation,
                         std::span<const glm::vec4, 4> tints, bool isInverted,
-                        bool isSameTexture);
+                        bool isSameTexture) override;
+
+  // TODO: implement
+  void DrawMaskedBinarySprite(const Sprite& sprite, const Sprite& mask,
+                              const CornersQuad& spriteDest,
+                              const CornersQuad& maskDest,
+                              glm::mat4 spriteTransformation,
+                              std::optional<glm::mat4> maskTransformation,
+                              std::span<const glm::vec4, 4> tints,
+                              bool isInverted) override {}
 
   void DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
                                const CornersQuad& spriteDest,
