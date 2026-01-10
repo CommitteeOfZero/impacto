@@ -42,7 +42,7 @@ BETTER_ENUM(ShaderProgramType, int, AdditiveMaskedSprite, CCMessageBoxSprite,
             ColorMaskedSprite, HardLightMaskedSprite, LinearBurnMaskedSprite,
             MaskedSprite, MaskedSpriteBinary, MaskedSpriteNoAlpha,
             OverlayMaskedSprite, ScreenMaskedSprite, SoftLightMaskedSprite,
-            Sprite, SpriteInverted, YUVFrame, GaussianBlur);
+            Sprite, SpriteInverted, YUVFrame, GaussianBlur, Mosaic);
 
 enum class RendererBlendMode { Normal, Additive };
 enum class RendererBlurDirection { Horizontal, Vertical };
@@ -334,6 +334,10 @@ class BaseRenderer {
                                  glm::mat4 transformation,
                                  RendererBlurDirection blurDirection,
                                  glm::vec4 tint) = 0;
+
+  virtual void DrawMosaic(const Sprite& sprite, const CornersQuad dest,
+                          float tileSize, glm::mat4 transformation,
+                          glm::vec4 tint) = 0;
 
   void DrawProcessedText_BasicFont(std::span<const ProcessedTextGlyph> text,
                                    BasicFont* font, float opacity,

@@ -85,6 +85,9 @@ class Renderer : public BaseRenderer {
                          RendererBlurDirection blurDirection,
                          glm::vec4 tint) override;
 
+  void DrawMosaic(const Sprite& sprite, const CornersQuad dest, float tileSize,
+                  glm::mat4 transformation, glm::vec4 tint) override;
+
   void DrawVideoTexture(const YUVFrame& frame, const RectF& dest,
                         glm::vec4 tint, bool alphaVideo) override;
 
@@ -134,6 +137,7 @@ class Renderer : public BaseRenderer {
   std::optional<CCMessageBoxShader> CCMessageBoxShaderProgram;
   std::optional<CHLCCMenuBackgroundShader> CHLCCMenuBackgroundShaderProgram;
   std::optional<GaussianBlurShader> GaussianBlurShaderProgram;
+  std::optional<MosaicShader> MosaicShaderProgram;
 
   const void* CurrentShaderProgram = nullptr;
 

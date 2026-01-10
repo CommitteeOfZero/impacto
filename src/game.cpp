@@ -31,6 +31,7 @@
 #include "games/cclcc/systemmenu.h"
 #include "effects/wave.h"
 #include "effects/blur.h"
+#include "effects/mosaic.h"
 
 #include "profile/profile.h"
 #include "profile/game.h"
@@ -159,6 +160,8 @@ static void Init() {
     Vm::Interface::UpdatePADcustomType(0);
 
     SaveSystem::InitializeSystemData();
+
+    Effects::Mosaic.Init();
   }
 
   Profile::ClearProfile();
@@ -434,6 +437,13 @@ static void RenderMain() {
     if (ScrWork[SW_FEATHERING2_PRI] == static_cast<int>(layer) &&
         ScrWork[SW_FEATHERING2] > 0) {
       Effects::Blur.Render(ScrWork[SW_FEATHERING2]);
+    }
+
+    if (ScrWork[SW_MOSAIC_PRI] == static_cast<int>(layer)) {
+      // There is no normalizing around the usual 720p ScrWork vars *by design*!
+      // Lower-resolution games actually show larger tile sizes than
+      // the higher-resolution ones.
+      Effects::Mosaic.Render(static_cast<float>(ScrWork[SW_MOSAIC]));
     }
 
     UI::GameSpecific::RenderLayer(layer);
