@@ -30,6 +30,7 @@
 #include "hud/tipsnotification.h"
 #include "games/cclcc/systemmenu.h"
 #include "effects/wave.h"
+#include "effects/blur.h"
 
 #include "profile/profile.h"
 #include "profile/game.h"
@@ -119,6 +120,8 @@ static void Init() {
       Profile::WaveEffects::Load();
       Effects::Init();
     }
+
+    Effects::Blur.Init();
   }
 
   if (Profile::GameFeatures & GameFeature::ModelViewer) {
@@ -421,6 +424,16 @@ static void RenderMain() {
       if (videoAlpha > 0) {
         Video::VideoRender(videoAlpha / 256.0f);
       }
+    }
+
+    if (ScrWork[SW_FEATHERING_PRI] == static_cast<int>(layer) &&
+        ScrWork[SW_FEATHERING] > 0) {
+      Effects::Blur.Render(ScrWork[SW_FEATHERING]);
+    }
+
+    if (ScrWork[SW_FEATHERING2_PRI] == static_cast<int>(layer) &&
+        ScrWork[SW_FEATHERING2] > 0) {
+      Effects::Blur.Render(ScrWork[SW_FEATHERING2]);
     }
 
     UI::GameSpecific::RenderLayer(layer);

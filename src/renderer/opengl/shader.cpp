@@ -698,5 +698,32 @@ void CHLCCMenuBackgroundShader::UploadUniforms(
   UpdateVar(newUniforms.Alpha, Uniforms.Alpha, AlphaLocation);
 }
 
+GaussianBlurShader::GaussianBlurShader(GLint programId)
+    : Shader(programId),
+      ProjectionLocation(glGetUniformLocation(programId, "Projection")),
+      TransformationLocation(glGetUniformLocation(programId, "Transformation")),
+      ColorMapLocation(glGetUniformLocation(programId, "ColorMap")),
+      TextureDimensionsLocation(
+          glGetUniformLocation(programId, "TextureDimensions")),
+      IsHorizontalLocation(glGetUniformLocation(programId, "IsHorizontal")) {
+  UploadVar(Uniforms.Projection, ProjectionLocation);
+  UploadVar(Uniforms.Transformation, TransformationLocation);
+  UploadVar(Uniforms.ColorMap, ColorMapLocation);
+  UploadVar(Uniforms.TextureDimensions, TextureDimensionsLocation);
+  UploadVar(Uniforms.IsHorizontal, IsHorizontalLocation);
+}
+
+void GaussianBlurShader::UploadUniforms(GaussianBlurUniforms newUniforms) {
+  UpdateVar(newUniforms.Projection, Uniforms.Projection, ProjectionLocation);
+  UpdateVar(newUniforms.Transformation, Uniforms.Transformation,
+            TransformationLocation);
+
+  UpdateVar(newUniforms.ColorMap, Uniforms.ColorMap, ColorMapLocation);
+  UpdateVar(newUniforms.TextureDimensions, Uniforms.TextureDimensions,
+            TextureDimensionsLocation);
+  UpdateVar(newUniforms.IsHorizontal, Uniforms.IsHorizontal,
+            IsHorizontalLocation);
+}
+
 }  // namespace OpenGL
 }  // namespace Impacto

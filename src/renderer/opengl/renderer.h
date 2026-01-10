@@ -80,6 +80,11 @@ class Renderer : public BaseRenderer {
   void DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
                                const RectF& dest, float alpha) override;
 
+  void DrawBlurredSprite(const Sprite& sprite, const CornersQuad& dest,
+                         glm::mat4 transformation,
+                         RendererBlurDirection blurDirection,
+                         glm::vec4 tint) override;
+
   void DrawVideoTexture(const YUVFrame& frame, const RectF& dest,
                         glm::vec4 tint, bool alphaVideo) override;
 
@@ -128,6 +133,7 @@ class Renderer : public BaseRenderer {
   std::optional<YUVFrameShader> YUVFrameShaderProgram;
   std::optional<CCMessageBoxShader> CCMessageBoxShaderProgram;
   std::optional<CHLCCMenuBackgroundShader> CHLCCMenuBackgroundShaderProgram;
+  std::optional<GaussianBlurShader> GaussianBlurShaderProgram;
 
   const void* CurrentShaderProgram = nullptr;
 

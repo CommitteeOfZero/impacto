@@ -570,5 +570,31 @@ class CHLCCMenuBackgroundShader : public Shader<CHLCCMenuBackgroundUniforms> {
   const GLint AlphaLocation;
 };
 
+struct GaussianBlurUniforms {
+  bool operator==(const GaussianBlurUniforms& other) const = default;
+
+  glm::mat4 Projection{};
+  glm::mat4 Transformation{};
+
+  GLint ColorMap;
+  glm::vec2 TextureDimensions;
+  bool IsHorizontal;
+};
+
+class GaussianBlurShader : public Shader<GaussianBlurUniforms> {
+ public:
+  GaussianBlurShader(GLint programId);
+
+  void UploadUniforms(GaussianBlurUniforms uniforms) override;
+
+ private:
+  const GLint ProjectionLocation;
+  const GLint TransformationLocation;
+
+  const GLint ColorMapLocation;
+  const GLint TextureDimensionsLocation;
+  const GLint IsHorizontalLocation;
+};
+
 }  // namespace OpenGL
 }  // namespace Impacto

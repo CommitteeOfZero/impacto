@@ -96,6 +96,7 @@ void Renderer::Init() {
   CCMessageBoxShaderProgram.emplace(Shaders.Compile("CCMessageBoxSprite"));
   CHLCCMenuBackgroundShaderProgram.emplace(
       Shaders.Compile("CHLCCMenuBackground"));
+  GaussianBlurShaderProgram.emplace(Shaders.Compile("GaussianBlur"));
 
   glGenSamplers((GLsizei)Samplers.size(), Samplers.data());
   for (size_t i = 0; i < TextureUnitCount; i++) {
@@ -840,6 +841,38 @@ void Renderer::DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
   CornersQuad uvDest = sprite.NormalizedBounds();
   if (sprite.Sheet.IsScreenCap) uvDest = FlipUvVertical(uvDest);
   InsertVerticesQuad(dest, uvDest, glm::vec4(1.0f), mask.NormalizedBounds());
+}
+
+void Renderer::DrawBlurredSprite(const Sprite& sprite, const CornersQuad& dest,
+                                 glm::mat4 transformation,
+                                 RendererBlurDirection blurDirection,
+                                 glm::vec4 tint) {
+  if (!Drawing) {
+    ImpLog(LogLevel::Error, LogChannel::Render,
+           "Renderer->DrawBlurredSprite() called before BeginFrame()\n");
+    return;
+  }
+
+  EnsureTopologyMode(TopologyMode::Triangles);
+
+  GaussianBlurUniforms uniforms{
+      .Projection = Projection,
+      .Transformation = transformation,
+      .ColorMap = 0,
+      .TextureDimensions = sprite.Bounds.GetSize(),
+      .IsHorizontal = blurDirection == RendererBlurDirection::Horizontal,
+  };
+
+  UseShader(*GaussianBlurShaderProgram, uniforms);
+
+  UseTextures(std::array<std::pair<uint32_t, size_t>, 1>{
+      std::pair{sprite.Sheet.Texture, 0}});
+
+  // OK, all good, make quad
+
+  CornersQuad uvDest = sprite.NormalizedBounds();
+  if (sprite.Sheet.IsScreenCap) uvDest = FlipUvVertical(uvDest);
+  InsertVerticesQuad(dest, uvDest, tint);
 }
 
 void Renderer::Flush() {

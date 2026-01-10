@@ -33,6 +33,7 @@ set(Impacto_Src
         src/animation.cpp
 
         src/effects/wave.cpp
+        src/effects/blur.cpp
 
         src/renderer/renderer.cpp
         src/renderer/window.cpp
@@ -367,6 +368,7 @@ set(Impacto_Header
         src/animation.h
 
         src/effects/wave.h
+        src/effects/blur.h
 
         src/renderer/renderer.h
         src/renderer/window.h
