@@ -16,9 +16,9 @@ namespace CHLCC {
 
 EyecatchEffect::EyecatchEffect() {
   Texture textureStarsMask{};
-  textureStarsMask.LoadSolidColor(Window->WindowWidth, Window->WindowHeight, 0);
-  SpriteSheet sheetStarsMask(static_cast<float>(Window->WindowWidth),
-                             static_cast<float>(Window->WindowHeight));
+  textureStarsMask.LoadSolidColor(static_cast<int>(Profile::DesignWidth),
+                                  static_cast<int>(Profile::DesignHeight), 0);
+  SpriteSheet sheetStarsMask(Profile::DesignWidth, Profile::DesignHeight);
   sheetStarsMask.Texture = textureStarsMask.Submit();
   sheetStarsMask.IsScreenCap = true;
   StarsMask =
@@ -28,6 +28,8 @@ EyecatchEffect::EyecatchEffect() {
 void EyecatchEffect::RenderMain() {
   if (!ScrWork[SW_EYECATCH_COUNT]) return;
   Renderer->Clear(glm::vec4(0.0f));
+  const auto scaleRatio =
+      glm::vec2{Profile::DesignWidth / 1280.0f, Profile::DesignHeight / 720.0f};
   for (int i = 0; i < 4; ++i) {
     int scaleOffset = 2 * i;
     for (int j = 0; j < 7; ++j) {
@@ -36,8 +38,8 @@ void EyecatchEffect::RenderMain() {
             std::min((ScrWork[SW_EYECATCH_COUNT] - (scaleOffset + 1)) * 18,
                      400) *
             280 / 106;
-        const float y = 20.0f + 200 * i;
-        const float x = 20.0f + 200 * j;
+        const float y = scaleRatio.y * (20.0f + 200 * i);
+        const float x = scaleRatio.x * (20.0f + 200 * j);
         RectF dest{x, y, EyecatchStar.ScaledWidth(),
                    EyecatchStar.ScaledHeight()};
         dest.ScaleAroundCenter(glm::vec2{scale / 256.0f});
