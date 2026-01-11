@@ -26,11 +26,16 @@ void Configure() {
   }
   if (GameSpecificType == +GameSpecificType::CHLCC) {
     MonitorScanline = EnsureGetMember<Sprite>("MonitorScanline");
+    EyecatchStar = EnsureGetMember<Sprite>("EyecatchStar");
     ButterflySprites = GetMemberVector<Sprite>("ButterflySprites");
     ButterflyFrameCount = EnsureGetMember<uint8_t>("ButterflyFrameCount");
     ButterflyFlapFrameDuration =
         EnsureGetMember<float>("ButterflyFlapFrameDuration");
     ButterflyFadeDuration = EnsureGetMember<float>("ButterflyFadeDuration");
+
+    BubbleSpriteSmall = EnsureGetMember<Sprite>("BubbleSpriteSmall");
+    BubbleSpriteBig = EnsureGetMember<Sprite>("BubbleSpriteBig");
+    BubbleFadeDuration = EnsureGetMember<float>("BubbleFadeDuration");
   }
 
   Pop();

@@ -21,8 +21,9 @@ struct Butterfly {
 };
 
 class ButterflyEffect {
- public:
   ButterflyEffect();
+
+ public:
   void Init();
   void Update(float dt);
   void Render();

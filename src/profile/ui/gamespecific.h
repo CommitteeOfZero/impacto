@@ -18,6 +18,12 @@ inline uint8_t ButterflyFrameCount;
 inline float ButterflyFlapFrameDuration;
 inline float ButterflyFadeDuration;
 
+inline Sprite BubbleSpriteSmall;
+inline Sprite BubbleSpriteBig;
+inline float BubbleFadeDuration;
+
+inline Sprite EyecatchStar;
+
 void Configure();
 
 }  // namespace GameSpecific

@@ -4,6 +4,7 @@ namespace UI {
 namespace GameSpecific {
 void Init();
 void Update(float dt);
+void RenderEarlyMain();
 void RenderMain();
 void RenderLayer(uint32_t layer);
 void RenderCCButtonGuide();
