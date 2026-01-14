@@ -43,7 +43,6 @@ root.SystemMenu = {
     MenuSelectedLabelSpeed = -400,
     MenuEntriesNum = 9,
     MenuEntriesHNum = 0,
-    SelectMenuSpritesCount = 10,
     ------
     --Not used since it isn't laid out in a way that would make it easier to use this
     MenuEntriesX = 173,

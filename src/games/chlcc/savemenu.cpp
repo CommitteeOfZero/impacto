@@ -42,19 +42,10 @@ void SaveMenu::MenuButtonOnClick(Widgets::Button* target) {
 }
 
 SaveMenu::SaveMenu() : UI::SaveMenu() {
-  MenuTransition.Direction = AnimationDirection::In;
-  MenuTransition.LoopMode = AnimationLoopMode::Stop;
-  MenuTransition.DurationIn = FadeInDuration;
-  MenuTransition.DurationOut = FadeOutDuration;
-
   TitleFade.Direction = AnimationDirection::In;
   TitleFade.LoopMode = AnimationLoopMode::Stop;
   TitleFade.DurationIn = TitleFadeInDuration;
   TitleFade.DurationOut = TitleFadeOutDuration;
-
-  SelectDataTextFade.Direction = AnimationDirection::In;
-  SelectDataTextFade.LoopMode = AnimationLoopMode::Loop;
-  SelectDataTextFade.DurationIn = SelectDataFadeDuration;
 
   FromSystemMenuTransition.Direction = AnimationDirection::In;
   FromSystemMenuTransition.LoopMode = AnimationLoopMode::Stop;
@@ -230,7 +221,7 @@ void SaveMenu::Show() {
     if (State != Showing) {
       MenuTransition.StartIn();
       FromSystemMenuTransition.StartIn();
-      SelectDataTextFade.StartIn();
+      SelectAnimation.StartIn(true);
     }
     SavePages->at(*CurrentPage)->Show();
     SavePages->at(*CurrentPage)->HasFocus = false;
@@ -323,7 +314,7 @@ void SaveMenu::Update(float dt) {
 
   if (State != Hidden) {
     MenuTransition.Update(dt);
-    SelectDataTextFade.Update(dt);
+    SelectAnimation.Update(dt);
     FromSystemMenuTransition.Update(dt);
     if (MenuTransition.Direction == AnimationDirection::Out &&
         MenuTransition.Progress <= 0.72f) {
@@ -395,23 +386,16 @@ void SaveMenu::Render() {
       Renderer->DrawSprite(MenuTitleTextSprite, LeftTitlePos);
     }
 
-    float yOffset = 0;
-    if (MenuTransition.Progress > 0.22f) {
-      if (MenuTransition.Progress < 0.73f) {
-        // Approximated function from the original, another mess
-        yOffset = glm::mix(
-            -Profile::DesignHeight, 0.0f,
-            1.00397f * std::sin(3.97161f - 3.26438f * MenuTransition.Progress) -
-                0.00295643f);
-      }
-      SavePages->at(*CurrentPage)->MoveTo(glm::vec2(0, yOffset));
-      SavePages->at(*CurrentPage)->Render();
-      Renderer->DrawSprite(SaveListSprite,
-                           SaveListPosition + glm::vec2(0, yOffset));
-      DrawPageNumber(yOffset);
-      DrawButtonPrompt();
-      DrawSelectData(yOffset);
-    }
+    if (MenuTransition.Progress < 0.22f) return;
+    glm::vec2 offset = MenuTransition.GetPageOffset();
+
+    SavePages->at(*CurrentPage)->MoveTo(offset);
+    SavePages->at(*CurrentPage)->Render();
+    Renderer->DrawSprite(SaveListSprite, SaveListPosition + offset);
+    DrawPageNumber(offset.y);
+    DrawButtonPrompt();
+    SelectAnimation.Draw(SelectDataTextSprites, SelectDataTextPositions,
+                         offset);
   }
 }
 
@@ -497,20 +481,6 @@ inline void SaveMenu::DrawButtonPrompt() {
     float x = ButtonPromptPosition.x - 2560.0f * (MenuTransition.Progress - 1);
     Renderer->DrawSprite(ButtonPromptSprite,
                          glm::vec2(x, ButtonPromptPosition.y));
-  }
-}
-
-inline void SaveMenu::DrawSelectData(float yOffset) {
-  float alpha;
-  for (int idx = 0; idx < 10; idx++) {
-    alpha = 1.0f;
-    if (SelectDataTextFade.Progress < 0.046f * (idx + 1)) {
-      alpha = (SelectDataTextFade.Progress - 0.046f * idx) / 0.046f;
-    }
-    Renderer->DrawSprite(SelectDataTextSprites[idx],
-                         glm::vec2(SelectDataTextPositions[idx].x,
-                                   SelectDataTextPositions[idx].y + yOffset),
-                         glm::vec4(glm::vec3(1.0f), alpha));
   }
 }
 

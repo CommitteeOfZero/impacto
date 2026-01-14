@@ -145,6 +145,7 @@ static void Init() {
     TipsSystem::Init();
     SaveIconDisplay::Init();
     LoadingDisplay::Init();
+    Profile::GameSpecific::Configure();
     Profile::SysMesBox::Configure();
     Profile::TitleMenu::Configure();
     Profile::SystemMenu::Configure();
@@ -155,7 +156,6 @@ static void Init() {
     Profile::HelpMenu::Configure();
     Profile::TipsMenu::Configure();
     Profile::ExtraMenus::Configure();
-    Profile::GameSpecific::Configure();
     DateDisplay::Init();
     TipsNotification::Init();
     // Default controls

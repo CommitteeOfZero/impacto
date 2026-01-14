@@ -2,6 +2,7 @@
 
 #include "../../ui/backlogmenu.h"
 #include "../../ui/widgets/chlcc/backlogentry.h"
+#include "animations/menutransition.h"
 
 namespace Impacto {
 namespace UI {
@@ -31,7 +32,7 @@ class BacklogMenu : public UI::BacklogMenu {
 
   void UpdateTitles();
 
-  Animation MenuTransition;
+  MenuTransitionAnimation MenuTransition;
   Animation TitleFade;
   Animation FromSystemMenuTransition;
 

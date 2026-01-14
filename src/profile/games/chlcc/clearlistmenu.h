@@ -9,7 +9,6 @@ namespace ClearListMenu {
 
 int constexpr Endings = 8;
 
-inline float MenuTransitionDuration;
 inline uint32_t BackgroundColor;
 inline Sprite CircleSprite;
 inline glm::vec2 CircleStartPosition;

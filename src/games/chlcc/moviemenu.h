@@ -1,5 +1,7 @@
 #pragma once
 
+#include "animations/selectprompt.h"
+#include "animations/menutransition.h"
 #include "../../ui/menu.h"
 #include "../../ui/widgets/group.h"
 #include "../../ui/widgets/button.h"
@@ -32,15 +34,14 @@ class MovieMenu : public Menu {
   void DrawErin();
   void DrawRedBar();
   void DrawButtonPrompt();
-  void DrawSelectMovie(float yOffset);
   void UpdateTitles();
 
   void UpdateMovieEntries();
 
-  Animation MenuTransition;
   Animation TitleFade;
-  Animation SelectMovieTextFade;
   Animation FromSystemMenuTransition;
+  SelectPromptAnimation SelectAnimation;
+  MenuTransitionAnimation MenuTransition;
 
   glm::vec2 RedTitleLabelPos;
   glm::vec2 RightTitlePos;

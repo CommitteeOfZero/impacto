@@ -9,7 +9,6 @@ namespace CHLCC {
 namespace BacklogMenu {
 
 void Configure() {
-  TransitionDuration = EnsureGetMember<float>("TransitionDuration");
   BackgroundColor = EnsureGetMember<uint32_t>("BackgroundColor");
   CircleSprite = EnsureGetMember<Sprite>("CircleSprite");
   CircleStartPosition = EnsureGetMember<glm::vec2>("CircleStartPosition");

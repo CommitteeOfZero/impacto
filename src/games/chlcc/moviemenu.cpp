@@ -65,10 +65,6 @@ MovieMenu::MovieMenu() {
   TitleFade.DurationIn = TitleFadeInDuration;
   TitleFade.DurationOut = TitleFadeOutDuration;
 
-  SelectMovieTextFade.Direction = AnimationDirection::In;
-  SelectMovieTextFade.LoopMode = AnimationLoopMode::Loop;
-  SelectMovieTextFade.DurationIn = SelectMovieFadeDuration;
-
   FromSystemMenuTransition.Direction = AnimationDirection::In;
   FromSystemMenuTransition.LoopMode = AnimationLoopMode::Stop;
   FromSystemMenuTransition.DurationIn = TitleFadeInDuration;
@@ -138,10 +134,9 @@ void MovieMenu::Show() {
     if (State != Showing) {
       if (ChoiceMade) {
         MenuTransition.Progress = 1.0f;
-        SelectMovieTextFade.Progress = 1.0f;
       }
       MenuTransition.StartIn();
-      SelectMovieTextFade.StartIn();
+      SelectAnimation.StartIn();
       FromSystemMenuTransition.StartIn();
     }
     MovieItems->Show();
@@ -166,10 +161,8 @@ void MovieMenu::Hide() {
     if (State != Hiding) {
       if (ChoiceMade) {
         MenuTransition.Progress = 0.0f;
-        SelectMovieTextFade.Progress = 0.0f;
       }
       MenuTransition.StartOut();
-      SelectMovieTextFade.StartOut();
       FromSystemMenuTransition.StartOut();
     }
     MovieItems->HasFocus = false;
@@ -221,23 +214,16 @@ void MovieMenu::Render() {
       RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
       glm::vec4(tint, alpha));
 
-  float yOffset = 0;
-  if (MenuTransition.Progress > 0.22f) {
-    if (MenuTransition.Progress < 0.73f) {
-      // Approximated function from the original, another mess
-      yOffset = glm::mix(
-          -Profile::DesignHeight, 0.0f,
-          1.00397f * std::sin(3.97161f - 3.26438f * MenuTransition.Progress) -
-              0.00295643f);
-    }
+  if (MenuTransition.Progress <= 0.22f) return;
 
-    MovieItems->MoveTo(glm::vec2(0, yOffset));
-    MovieItems->Render();
-    glm::vec2 listPosition(ListPosition.x, ListPosition.y + yOffset);
-    Renderer->DrawSprite(MovieList, listPosition);
-    DrawButtonPrompt();
-    DrawSelectMovie(yOffset);
-  }
+  glm::vec2 pageOffset = MenuTransition.GetPageOffset();
+
+  MovieItems->MoveTo(pageOffset);
+  MovieItems->Render();
+  glm::vec2 listPosition = ListPosition + pageOffset;
+  Renderer->DrawSprite(MovieList, listPosition);
+  DrawButtonPrompt();
+  SelectAnimation.Draw(SelectMovie, SelectMoviePos, pageOffset);
 }
 
 void MovieMenu::UpdateInput(float dt) {
@@ -275,7 +261,7 @@ void MovieMenu::Update(float dt) {
 
   if (State != Hidden) {
     MenuTransition.Update(dt);
-    SelectMovieTextFade.Update(dt);
+    SelectAnimation.Update(dt);
     FromSystemMenuTransition.Update(dt);
     if (MenuTransition.Direction == AnimationDirection::Out &&
         MenuTransition.Progress <= 0.72f) {
@@ -377,20 +363,6 @@ inline void MovieMenu::DrawButtonPrompt() {
         finalButtonPromptPosition.x - 2560.0f * (MenuTransition.Progress - 1);
     Renderer->DrawSprite(finalButtonPromptSprite,
                          glm::vec2(x, finalButtonPromptPosition.y));
-  }
-}
-
-inline void MovieMenu::DrawSelectMovie(float yOffset) {
-  float alpha;
-  for (int idx = 0; idx < 11; idx++) {
-    alpha = 1.0f;
-    if (SelectMovieTextFade.Progress < 0.046f * (idx + 1)) {
-      alpha = (SelectMovieTextFade.Progress - 0.046f * idx) / 0.046f;
-    }
-    Renderer->DrawSprite(
-        SelectMovie[idx],
-        glm::vec2(SelectMoviePos[idx].x, SelectMoviePos[idx].y + yOffset),
-        glm::vec4(glm::vec3(1.0f), alpha));
   }
 }
 

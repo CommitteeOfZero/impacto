@@ -1,10 +1,12 @@
 #include "trackselectbutton.h"
 #include "../../../renderer/renderer.h"
+#include "../../../profile/games/chlcc/musicmenu.h"
 
 namespace Impacto {
 namespace UI {
 namespace Widgets {
 namespace CHLCC {
+using namespace Impacto::Profile::CHLCC::MusicMenu;
 
 TrackSelectButton::TrackSelectButton(int id, Sprite const &focused,
                                      glm::vec2 pos, glm::vec2 numOffset,
@@ -31,7 +33,10 @@ void TrackSelectButton::SetArtistText(Vm::BufferOffsetContext strAdr) {
 
 void TrackSelectButton::Render() {
   if (HasFocus) {
-    Renderer->DrawSprite(FocusedSprite, glm::vec2(0, Bounds.Y));
+    // adjusts sprite height to prevent visual bug tied to mouse support (1px of
+    // out of bounds highlight sprite can be visible)
+    RectF dest = RectF(0, Bounds.Y, FocusedSprite.ScaledWidth(), TrackOffset.y);
+    Renderer->DrawSprite(FocusedSprite, dest);
   }
 
   TrackNum.Render();

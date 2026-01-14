@@ -7,12 +7,18 @@ root.GameSpecific = {
   ButterflyFlapFrameDuration = 4/60,
   ButterflyFrameCount = 8,
   ButterflyFadeDuration = 64 / 60,
-  
+
   BubbleSpriteSmall = "BubbleSpriteSmall",
   BubbleSpriteBig = "BubbleSpriteBig",
   BubbleFadeDuration = 64/60,
 
   EyecatchStar = "EyecatchStar",
+
+  MenuSelectPromptDuration =  110 / 60,
+  MenuSelectPromptInterval = 5 / 60,
+  MenuTransitionDuration = 64 / 60,
+  ShowPageAnimationStartTime = 16 / 60,
+  ShowPageAnimationDuration = (48 - 16) / 60,
 };
 
 root.Sprites["MonitorScanline"] = {

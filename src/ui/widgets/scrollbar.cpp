@@ -190,8 +190,7 @@ void Scrollbar::Move(glm::vec2 relativePosition) {
 }
 
 void Scrollbar::ClampValue() {
-  float minValue = std::min(StartValue, EndValue);
-  float maxValue = std::max(StartValue, EndValue);
+  auto [minValue, maxValue] = std::minmax(StartValue, EndValue);
   *Value = std::clamp(*Value, minValue, maxValue);
 }
 

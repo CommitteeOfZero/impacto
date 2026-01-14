@@ -17,7 +17,7 @@ root.TipsMenu = {
     RedBarLabelPosition = { X = 1067, Y = 573 },
     RedBarLabel = "RedBarLabel",
     MenuTitleTextRightPos = { X = 787, Y = 209 },
-    MenuTitleTextLeftPos = { X = 260, Y = 1 },
+    MenuTitleTextLeftPos = { X = 257, Y = 1 },
     MenuTitleTextAngle = 4.45,
     TitleFadeInDuration = 40 / 60,
     TitleFadeOutDuration = 28 / 60,
@@ -80,6 +80,7 @@ root.TipsMenu = {
     PronounciationInitialBounds = { X = 1210, Y = 110, Width = 0, Height = 0 },
     TipsListEntryDotOffset = { X = -17, Y = -4},
     TipsListNewDotOffset= { X = -40, Y = -4},
+    TipScrollbarPos = { X = 359, Y = 127},
 
     TipsEntryHighlightBarSprite = "TipsEntryHighlightBar",
     TipsEntryHighlightDotSprite = "TipsEntryHighlightDot",
@@ -122,7 +123,7 @@ root.Sprites["RedBarLabel"] = {
 
 root.Sprites["MenuTitleTextTips"] = {
     Sheet = "Tips",
-    Bounds = { X = 1154, Y = 1, Width = 117, Height = 742 }
+    Bounds = { X = 1151, Y = 1, Width = 120, Height = 742 }
 }
 
 root.Sprites["TipsTree"] = {
@@ -193,7 +194,7 @@ root.Sprites["TipsLeftLineHoleEnd"] = {
 }
 root.Sprites["TipsLeftLineEnd"] = {
     Sheet = "Tips",
-    Bounds = { X = 851, Y = 484, Width = 316, Height = 8 }
+    Bounds = { X = 851, Y = 484, Width = 286, Height = 8 }
 }
 root.Sprites["TipsListBgBar"] = {
     Sheet = "Tips",
@@ -205,11 +206,11 @@ root.Sprites["TipsListBgBarHole"] = {
 }
 root.Sprites["TipsScrollThumb"] = {
     Sheet = "Tips",
-    Bounds = { X = 1274, Y = 511, Width = 16, Height = 61 }
+    Bounds = { X = 1275, Y = 512, Width = 14, Height = 60 }
 }
 root.Sprites["TipsScrollTrack"] = {
     Sheet = "Tips",
-    Bounds = { X = 1280, Y = 0, Width = 3, Height = 500 }
+    Bounds = { X = 1281, Y = 0, Width = 2, Height = 499 }
 }
 
 for i = 0, 9 do

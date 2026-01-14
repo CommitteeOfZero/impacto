@@ -10,7 +10,6 @@ namespace MovieMenu {
 
 int constexpr Movies = 10;
 
-inline float MenuTransitionDuration;
 inline uint32_t BackgroundColor;
 inline Sprite CircleSprite;
 inline glm::vec2 CircleStartPosition;
@@ -37,8 +36,8 @@ inline SpriteAnimationDef SelectedMovieAnimation;
 inline Sprite SelectedMovieYellowDot;
 
 inline float SelectMovieFadeDuration;
-inline Sprite SelectMovie[11];
-inline glm::vec2 SelectMoviePos[11];
+inline std::vector<Sprite> SelectMovie;
+inline std::vector<glm::vec2> SelectMoviePos;
 inline glm::vec2 LabelPosition;
 inline Sprite MovieLabel;
 inline Sprite MovieList;

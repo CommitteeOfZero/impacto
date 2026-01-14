@@ -70,9 +70,8 @@ inline Sprite MaxPageNumSprite;
 inline glm::vec2 ButtonPromptPosition;
 inline Sprite ButtonPromptSprite;
 inline float SelectDataFadeDuration;
-// 10 letters in "SELECT DATA"
-inline glm::vec2 SelectDataTextPositions[10];
-inline Sprite SelectDataTextSprites[10];
+inline std::vector<glm::vec2> SelectDataTextPositions;
+inline std::vector<Sprite> SelectDataTextSprites;
 
 inline glm::vec2 EntryNumberHintTextRelativePos;
 inline glm::vec2 EntryNumberTextRelativePos;

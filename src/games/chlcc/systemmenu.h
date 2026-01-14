@@ -1,5 +1,7 @@
 #pragma once
 
+#include "animations/selectprompt.h"
+#include "animations/menutransition.h"
 #include <optional>
 #include "../../ui/menu.h"
 #include "../../ui/savemenu.h"
@@ -26,7 +28,6 @@ class SystemMenu : public Menu {
   void UpdateTitles();
   void DrawRedBar();
   void DrawButtonPrompt();
-  void DrawSelectMenu(float yOffset);
   void DrawRunningSelectedLabel(float offsetY);
   void UpdateRunningSelectedLabel(float dt);
   void UpdateSmoothSelection(float dt);
@@ -45,6 +46,11 @@ class SystemMenu : public Menu {
     ReturnTitle
   };
 
+  Widgets::Group* MainItems;
+  Animation TitleFade;
+  SelectPromptAnimation SelectAnimation;
+  MenuTransitionAnimation ShowMenu;
+
   float CurrentRunningPosition = 0.0f;
   float SelectionOffsetY = 0.0f;
   int IndexOfActiveButton = 0;
@@ -52,11 +58,6 @@ class SystemMenu : public Menu {
   glm::vec2 RedTitleLabelPos;
   glm::vec2 RightTitlePos;
   glm::vec2 LeftTitlePos;
-
-  Widgets::Group* MainItems;
-  Animation MenuTransition;
-  Animation TitleFade;
-  Animation MenuLoop;
 };
 
 }  // namespace CHLCC
