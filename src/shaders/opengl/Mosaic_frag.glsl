@@ -11,7 +11,7 @@ void main() {
     color = tint;
 
     if (TileSize <= 1.0) {
-        color *= texture2D(ColorMap, uv);
+        color *= texture(ColorMap, uv);
         return;
     }
 
@@ -19,5 +19,5 @@ void main() {
     vec2 tileCoord = floor(uv / tileUvSize);
     vec2 tileCenterPos = (tileCoord + vec2(0.5)) * tileUvSize;
 
-    color *= texture2D(ColorMap, tileCenterPos);
+    color *= texture(ColorMap, tileCenterPos);
 }
