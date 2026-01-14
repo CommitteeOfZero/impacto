@@ -1,5 +1,7 @@
 #pragma once
 
+#include "animations/selectprompt.h"
+#include "animations/menutransition.h"
 #include "../../ui/menu.h"
 #include "../../ui/widgets/group.h"
 #include "../../ui/widgets/button.h"
@@ -28,7 +30,7 @@ class AlbumMenu : public Menu {
   void DrawRedBar();
   void DrawButtonGuide();
 
-  void DrawPage(const glm::vec2 &offset);
+  void DrawPage();
 
   void UpdatePages();
   void UpdateTitles();
@@ -36,21 +38,23 @@ class AlbumMenu : public Menu {
   void CgOnClick(Widgets::Button *target);
   void OnCgVariationEnd(Widgets::CgViewer *target);
 
-  Animation MenuTransition;
   Animation TitleFade;
   Animation FromSystemMenuTransition;
+  SelectPromptAnimation SelectAnimation;
+  MenuTransitionAnimation MenuTransition;
+
+  Widgets::Group *CgViewerGroup;
+  Widgets::CgViewer *CgViewerWidget;
+
+  glm::vec2 RedTitleLabelPos;
+  glm::vec2 RightTitlePos;
+  glm::vec2 LeftTitlePos;
 
   int PrevPage = 0;
   int CurrentPage;
   int MaxReachablePage;
 
-  Widgets::Group *CgViewerGroup;
-  Widgets::CgViewer *CgViewerWidget;
   bool ShowCgViewer = false;
-
-  glm::vec2 RedTitleLabelPos;
-  glm::vec2 RightTitlePos;
-  glm::vec2 LeftTitlePos;
 };
 
 }  // namespace CHLCC

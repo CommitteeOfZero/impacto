@@ -1,5 +1,7 @@
 #pragma once
 
+#include "animations/menutransition.h"
+
 #include "../../ui/optionsmenu.h"
 #include "../../ui/widgets/group.h"
 #include "../../ui/widgets/button.h"
@@ -43,9 +45,7 @@ class OptionsMenu : public UI::OptionsMenu {
 
   Animation TitleFade;
   Animation FromSystemMenuTransition;
-
-  Animation ShowPageAnimation;
-  glm::vec2 ShowPageOffset{0.0f, 0.0f};
+  MenuTransitionAnimation ShowPageAnimation;
 
   size_t PreviousPage = 0;
 

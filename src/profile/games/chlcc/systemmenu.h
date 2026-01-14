@@ -7,7 +7,6 @@ namespace Profile {
 namespace CHLCC {
 namespace SystemMenu {
 constexpr int MenuEntriesNumMax = 9;
-constexpr int SelectMenuTextMax = 10;
 
 inline uint32_t BackgroundColor;
 inline Sprite BackgroundFilter;
@@ -37,8 +36,8 @@ inline glm::vec2 MenuSelectionDotPosition;
 inline float MenuSelectionDotMultiplier;
 inline Sprite MenuSelection;
 inline glm::vec2 MenuSelectionPosition;
-inline Sprite SelectMenuHeader[SelectMenuTextMax];
-inline glm::vec2 SelectMenuHeaderPositions[SelectMenuTextMax];
+inline std::vector<Sprite> SelectMenuHeader;
+inline std::vector<glm::vec2> SelectMenuHeaderPositions;
 inline int SelectMenuHeaderCount;
 inline Sprite MenuRunningSelectedLabel;
 inline glm::vec2 MenuRunningSelectedLabelPosition;

@@ -9,7 +9,6 @@ namespace TipsMenu {
 
 int constexpr inline MaxCategoryString = 5;
 
-inline float MenuTransitionDuration;
 inline uint32_t BackgroundColor;
 inline Sprite CircleSprite;
 inline glm::vec2 CircleStartPosition;
@@ -68,6 +67,7 @@ inline glm::vec2 TipsListNewDotOffset;
 inline RectF NameInitialBounds;
 inline RectF PronounciationInitialBounds;
 inline RectF TipsListBounds;
+inline glm::vec2 TipScrollbarPos;
 inline RectF TipsListRenderBounds;
 inline Sprite TipsEntryHighlightBar;
 inline Sprite TipsEntryHighlightDot;
@@ -91,8 +91,6 @@ inline Sprite PageSeparatorSprite;
 
 inline std::vector<Sprite> SelectWordSprites;
 inline std::vector<glm::vec2> SelectWordPos;
-inline float SelectWordDuration;
-inline float SelectWordInterval;
 
 void Configure();
 

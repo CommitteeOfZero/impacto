@@ -36,6 +36,16 @@ void Configure() {
     BubbleSpriteSmall = EnsureGetMember<Sprite>("BubbleSpriteSmall");
     BubbleSpriteBig = EnsureGetMember<Sprite>("BubbleSpriteBig");
     BubbleFadeDuration = EnsureGetMember<float>("BubbleFadeDuration");
+
+    MenuSelectPromptDuration =
+        EnsureGetMember<float>("MenuSelectPromptDuration");
+    MenuSelectPromptInterval =
+        EnsureGetMember<float>("MenuSelectPromptInterval");
+    MenuTransitionDuration = EnsureGetMember<float>("MenuTransitionDuration");
+    ShowPageAnimationStartTime =
+        EnsureGetMember<float>("ShowPageAnimationStartTime");
+    ShowPageAnimationDuration =
+        EnsureGetMember<float>("ShowPageAnimationDuration");
   }
 
   Pop();

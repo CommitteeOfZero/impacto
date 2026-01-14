@@ -46,11 +46,12 @@ void Configure() {
   MenuSelection = EnsureGetMember<Sprite>("SystemMenuSelection");
   MenuSelectionPosition =
       EnsureGetMember<glm::vec2>("SystemMenuSelectionPosition");
-  SelectMenuHeaderCount = EnsureGetMember<int>("SelectMenuSpritesCount");
-  GetMemberArray<Sprite>(SelectMenuHeader, SelectMenuHeaderCount,
-                         "SelectMenuSprites");
-  GetMemberArray<glm::vec2>(SelectMenuHeaderPositions, SelectMenuHeaderCount,
-                            "SelectMenuTextPositions");
+
+  SelectMenuHeader = GetMemberVector<Sprite>("SelectMenuSprites");
+  SelectMenuHeaderPositions =
+      GetMemberVector<glm::vec2>("SelectMenuTextPositions");
+  assert(SelectMenuHeader.size() == SelectMenuHeaderPositions.size());
+
   MenuLoopDuration = EnsureGetMember<float>("MenuLoopDuration");
   HoverLerpSpeed = EnsureGetMember<float>("MenuHoverLerpSpeed");
   MenuRunningSelectedLabel =

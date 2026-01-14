@@ -1,5 +1,6 @@
 #pragma once
 
+#include "animations/menutransition.h"
 #include "../../ui/menu.h"
 #include "../../ui/widgets/group.h"
 #include "../../ui/widgets/button.h"
@@ -29,7 +30,7 @@ class TrophyMenu : public UI::Menu {
   void DrawButtonPrompt();
   void UpdateTitles();
 
-  Animation MenuTransition;
+  MenuTransitionAnimation MenuTransition;
   Animation TitleFade;
   Animation FromSystemMenuTransition;
 
@@ -42,7 +43,6 @@ class TrophyMenu : public UI::Menu {
           this, this, this, this, this, this, this, this, this};
   int CurrentPage = 0;
 
-  glm::vec2 Offset;
   Impacto::UI::Widgets::Label TrophyCountHintLabel;
 };
 

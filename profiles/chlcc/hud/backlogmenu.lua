@@ -1,7 +1,6 @@
 root.BacklogMenu = {
     Type = BacklogMenuType.CHLCC,
     DrawType = DrawComponentType.SystemMenu,
-    TransitionDuration = 64 / 60,
     BackgroundColor = 0x94b1ff,
     CircleSprite = "CircleBacklog",
     CircleStartPosition = { X = 20, Y = 20 },

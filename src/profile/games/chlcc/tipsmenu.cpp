@@ -14,7 +14,6 @@ namespace CHLCC {
 namespace TipsMenu {
 
 void Configure() {
-  MenuTransitionDuration = EnsureGetMember<float>("TransitionDuration");
   BackgroundColor = EnsureGetMember<uint32_t>("BackgroundColor");
   CircleSprite = EnsureGetMember<Sprite>("CircleSprite");
   CircleStartPosition = EnsureGetMember<glm::vec2>("CircleStartPosition");
@@ -86,6 +85,7 @@ void Configure() {
       EnsureGetMember<RectF>("PronounciationInitialBounds");
 
   TipsListBounds = EnsureGetMember<RectF>("TipsListBounds");
+  TipScrollbarPos = EnsureGetMember<glm::vec2>("TipScrollbarPos");
   TipsListRenderBounds = EnsureGetMember<RectF>("TipsListRenderBounds");
 
   TipsEntryHighlightBar =
@@ -114,8 +114,7 @@ void Configure() {
 
   SelectWordSprites = GetMemberVector<Sprite>("SelectWordSprites");
   SelectWordPos = GetMemberVector<glm::vec2>("SelectWordPos");
-  SelectWordDuration = EnsureGetMember<float>("SelectWordDuration");
-  SelectWordInterval = EnsureGetMember<float>("SelectWordInterval");
+  assert(SelectWordSprites.size() == SelectWordPos.size());
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMember<uint8_t>("DrawType"));

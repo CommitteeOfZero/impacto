@@ -73,10 +73,10 @@ void Configure() {
   ButtonPromptPosition = EnsureGetMember<glm::vec2>("ButtonPromptPosition");
   ButtonPromptSprite = EnsureGetMember<Sprite>("ButtonPrompt");
   SelectDataFadeDuration = EnsureGetMember<float>("SelectDataFadeDuration");
-  // 10 letters in "SELECT DATA"
-  GetMemberArray<glm::vec2>(SelectDataTextPositions, 10,
-                            "SelectDataTextPositions");
-  GetMemberArray<Sprite>(SelectDataTextSprites, 10, "SelectDataText");
+  SelectDataTextPositions =
+      GetMemberVector<glm::vec2>("SelectDataTextPositions");
+  SelectDataTextSprites = GetMemberVector<Sprite>("SelectDataText");
+  assert(SelectDataTextPositions.size() == SelectDataTextSprites.size());
 
   EntryNumberHintTextRelativePos =
       EnsureGetMember<glm::vec2>("EntryNumberHintTextRelativePos");
