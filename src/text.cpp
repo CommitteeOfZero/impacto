@@ -881,6 +881,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
     NameLength = 0;
   }
 
+  RenderName = hasName;
   if (hasName) {
     NameId = GetNameId((uint8_t*)name, static_cast<int>(NameLength * 2));
 
@@ -993,13 +994,14 @@ void DialoguePage::Render() {
 
   // Textbox
   float width = 0.0f;
-  if (NameId.has_value()) {
+  if (RenderName && NameId.has_value()) {
     for (size_t i = 0; i < NameLength; i++) {
       width += Name[i].DestRect.Width;
     }
   }
 
-  const std::optional<uint32_t> animatedName = NametagDisplay::GetNameToDraw();
+  const std::optional<uint32_t> animatedName =
+      RenderName ? NametagDisplay::GetNameToDraw() : std::nullopt;
 
   TextBox->Render(Mode, width, animatedName, opacityTint.a);
 
@@ -1019,7 +1021,7 @@ void DialoguePage::Render() {
                                 textFadeOpacity, RendererOutlineMode::Full);
   }
 
-  if (NameId.has_value() && ADVBoxShowName) {
+  if (RenderName && NameId.has_value() && ADVBoxShowName) {
     float nameOpacity = (NametagCurrentType == +NametagType::Instant)
                             ? opacityTint.a
                             : textFadeOpacity;
