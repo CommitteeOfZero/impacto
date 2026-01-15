@@ -513,7 +513,7 @@ void MusicMenu::UpdateEntries() {
     auto button = static_cast<Widgets::CHLCC::TrackSelectButton*>(
         MainItems->Children[idx]);
 
-    if (!SaveSystem::GetBgmFlag((int)idx)) {
+    if (!SaveSystem::GetBgmFlag(Playlist[button->Id])) {
       button->SetTrackText(Vm::ScriptGetTextTableStrAddress(0, 15));
       continue;
     }
