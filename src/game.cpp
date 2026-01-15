@@ -313,8 +313,7 @@ void Update(float dt) {
   }
 
   if (Profile::GameFeatures & GameFeature::Renderer2D) {
-    for (int i = 0; i < Profile::Dialogue::PageCount; i++)
-      DialoguePages[i].Update(dt);
+    for (DialoguePage& page : DialoguePages) page.Update(dt);
   }
 }
 
@@ -501,9 +500,10 @@ void Render() {
           if (!GetFlag(SF_UIHIDDEN) &&
               (!GetFlag(SF_SELECTMODE) || GetFlag(SF_SYSTEMMENUCAPTURE))) {
             // Dialogue pages drawn in reverse order, at least for cclcc
-            for (int pageId = Profile::Dialogue::PageCount - 1; pageId >= 0;
-                 pageId--)
-              DialoguePages[pageId].Render();
+            for (auto pageIt = DialoguePages.rbegin();
+                 pageIt != DialoguePages.rend(); pageIt++) {
+              pageIt->Render();
+            }
           }
           // System menu capture
           if (Profile::Vm::GameInstructionSet == +Vm::InstructionSet::CC &&
