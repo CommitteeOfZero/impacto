@@ -425,9 +425,7 @@ void DialoguePage::Init() {
 
 void DialoguePage::Clear() {
   Glyphs.clear();
-  NameLength = 0;
-  Name.clear();
-  NameId.reset();
+  ClearName();
   std::fill(RubyChunks.begin(), RubyChunks.end(), RubyChunk{});
   RubyChunkCount = 0;
   CurrentRubyChunk = 0;
@@ -447,6 +445,15 @@ void DialoguePage::Clear() {
   }
   CurrentLineTopMargin = 0.0f;
   NVLResetBeforeAdd = false;
+}
+
+void DialoguePage::ClearName() {
+  Name.clear();
+  NameLength = 0;
+  RenderName = false;
+
+  PrevNameId = NameId;
+  NameId.reset();
 }
 
 enum TextParseState { TPS_Normal, TPS_Name, TPS_Ruby };

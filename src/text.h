@@ -201,6 +201,7 @@ struct DialoguePage {
   // TODO get rid of this
   bool TextIsFullyOpaque();
   void Clear();
+  void ClearName();
   void AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice = 0,
                  bool acted = true, int animId = 0, int charId = -1,
                  bool shouldUpdateCharId = false);

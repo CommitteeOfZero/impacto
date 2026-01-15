@@ -79,6 +79,9 @@ VmInstruction(InstMesSync) {
 }
 VmInstruction(InstMesSetID) {
   StartInstruction;
+
+  int dialoguePageId = 0;
+
   PopUint8(type);
   switch (type) {
     case 0: {  // SetSavePointPage0
@@ -98,7 +101,7 @@ VmInstruction(InstMesSetID) {
     } break;
     case 1: {  // SetSavePointForPage
       PopUint16(savePointId);
-      PopExpression(dialoguePageId);
+      dialoguePageId = ExpressionEval(thread);
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction MesSetID(type: SetSavePoint1, "
                  "savePointId: {:d}, arg1: {:d})\n",
@@ -106,17 +109,17 @@ VmInstruction(InstMesSetID) {
       if (!GetFlag(SF_MESSAVEPOINT_SSP + dialoguePageId)) {
         SaveSystem::SetCheckpointId(savePointId);
       }
-      thread->DialoguePageId = dialoguePageId;
     } break;
     case 2: {  // SetPage
-      PopExpression(dialoguePageId);
+      dialoguePageId = ExpressionEval(thread);
       ImpLogSlow(
           LogLevel::Warning, LogChannel::VMStub,
           "STUB instruction MesSetID(type: SetPage, dialoguePageId: {:d})\n",
           dialoguePageId);
-      thread->DialoguePageId = dialoguePageId;
     } break;
   }
+
+  thread->DialoguePageId = dialoguePageId;
 }
 VmInstruction(InstMesCls) {
   StartInstruction;
@@ -359,63 +362,98 @@ VmInstruction(InstMesRev) {
 }
 VmInstruction(InstMessWindow) {
   StartInstruction;
+
+  const auto getCurrentPage = [&thread]() -> DialoguePage& {
+    return DialoguePages[thread->DialoguePageId];
+  };
+
   PopUint8(type);
-  DialoguePage* currentPage = &DialoguePages[thread->DialoguePageId];
   switch (type) {
-    case 0:  // HideCurrent
-      if (!currentPage->FadeAnimation.IsOut()) {
-        currentPage->Hide();
-        SetFlag(thread->DialoguePageId + SF_MESWINDOW0OPENFL, 0);
+    case 0: {  // Close
+      DialoguePage& currentPage = getCurrentPage();
+
+      if (!currentPage.FadeAnimation.IsOut()) {
+        currentPage.Hide();
+        SetFlag(currentPage.Id + SF_MESWINDOW0OPENFL, 0);
+        BlockThread;
       }
-      break;
-    case 1:  // ShowCurrent
-      if (!currentPage->FadeAnimation.IsIn()) {
-        currentPage->Mode = (DialoguePageMode)
-            ScrWork[thread->DialoguePageId * 10 + SW_MESMODE0];
-        currentPage->Show();
+    } break;
+
+    case 1: {  // Open
+      DialoguePage& currentPage = getCurrentPage();
+
+      if (!currentPage.FadeAnimation.IsIn()) {
+        currentPage.Show();
+
+        SetFlag(SF_SYSTEMMENUDISABLE2, true);
         SetFlag(thread->DialoguePageId + SF_MESWINDOW0OPENFL, 1);
+
+        if (ScrWork[currentPage.Id + SW_MESWINDOW0ALPHA] == 0) {
+          currentPage.RenderName = false;
+        }
+
+        BlockThread;
       }
-      break;
-    case 2:  // AwaitShowCurrent
-      if (currentPage->FadeAnimation.State == AnimationState::Playing) {
+    } break;
+
+    case 2:    // OpenedWait
+    case 3: {  // ClosedWait
+      const bool fading = getCurrentPage().FadeAnimation.IsPlaying();
+      SetFlag(SF_SYSTEMMENUDISABLE2, fading);
+
+      if (fading) {
         ResetInstruction;
         BlockThread;
       }
-      break;
-    case 3:  // AwaitHideCurrent
-      if (currentPage->FadeAnimation.State == AnimationState::Playing) {
-        ResetInstruction;
+    } break;
+
+    case 4: {  // HideCurrent04
+      DialoguePage& currentPage = getCurrentPage();
+
+      SetFlag(currentPage.Id + SF_MESWINDOW0OPENFL, false);
+
+      currentPage.Hide();
+      currentPage.FadeAnimation.Finish();
+      currentPage.Clear();
+    } break;
+
+    case 5: {  // CloseEx
+      PopExpression(dialoguePageId);
+      thread->DialoguePageId = dialoguePageId;
+      DialoguePage& currentPage = getCurrentPage();
+
+      if (!currentPage.FadeAnimation.IsOut()) {
+        currentPage.Hide();
+        currentPage.ClearName();
+        SetFlag(dialoguePageId + SF_MESWINDOW0OPENFL, 0);
         BlockThread;
-      } else if (currentPage->FadeAnimation.IsOut()) {
-        currentPage->Clear();
-      }
-      break;
-    case 4:  // HideCurrent04
-      if (!currentPage->FadeAnimation.IsOut()) {
-        currentPage->Hide();
-        SetFlag(thread->DialoguePageId + SF_MESWINDOW0OPENFL, 0);
-      }
-      break;
-    case 5: {  // Hide
-      PopExpression(messWindowId);
-      if (!DialoguePages[messWindowId].FadeAnimation.IsOut()) {
-        DialoguePages[messWindowId].Hide();
-        SetFlag(messWindowId + SF_MESWINDOW0OPENFL, 0);
       }
     } break;
-    case 6: {  // HideSlow
-      PopExpression(messWindowId);
-      ImpLogSlow(
-          LogLevel::Warning, LogChannel::VMStub,
-          "STUB instruction MessWindow(type: HideSlow, messWindowId: {:d})\n",
-          messWindowId);
+
+    case 6: {  // OpenEx
+      PopExpression(dialoguePageId);
+      thread->DialoguePageId = dialoguePageId;
+      DialoguePage& currentPage = getCurrentPage();
+
+      if (!currentPage.FadeAnimation.IsIn()) {
+        if (ScrWork[dialoguePageId + SW_MESWINDOW0ALPHA] == 0) {
+          currentPage.RenderName = false;
+        }
+
+        currentPage.Show();
+
+        SetFlag(dialoguePageId + SF_MESWINDOW0OPENFL, true);
+        BlockThread;
+      }
     } break;
-    case 7: {  // HideSlow
-      PopExpression(messWindowId);
-      ImpLogSlow(
-          LogLevel::Warning, LogChannel::VMStub,
-          "STUB instruction MessWindow(type: HideSlow, messWindowId: {:d})\n",
-          messWindowId);
+
+    case 7: {  // FastClose
+      PopExpression(dialoguePageId);
+      thread->DialoguePageId = dialoguePageId;
+
+      SetFlag(dialoguePageId + SF_MESWINDOW0OPENFL, false);
+      ScrWork[dialoguePageId + SW_MESWINDOW0ALPHA] = 0;
+      getCurrentPage().ClearName();
     } break;
   }
 }
