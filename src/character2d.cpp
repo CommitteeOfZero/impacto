@@ -6,6 +6,7 @@
 #include "util.h"
 #include "profile/scriptvars.h"
 #include "profile/vm.h"
+#include "profile/configsystem.h"
 #include "voicetable.h"
 #include "background2d.h"
 
@@ -364,7 +365,10 @@ void Character2D::UpdateState(const int chaId) {
     bool charSpeaking = false;
     const uint32_t chaIndexMask = 1 << (chaId & 0x1F);
 
-    if (!SkipModeEnabled) {
+    const bool skipping =
+        SkipModeEnabled &&
+        (!Profile::ConfigSystem::SkipRead || GetFlag(SF_MESREAD));
+    if (!skipping) {
       for (uint8_t i = 0; i < 3; i++) {
         if (!GetFlag(SF_CHAANIME + i) ||
             (chaIndexMask & ScrWork[SW_ANIME0CHANO + i]) == 0) {
