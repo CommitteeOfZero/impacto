@@ -131,8 +131,8 @@ VmInstruction(InstMesCls) {
   }
   switch (type) {
     case 1: {
-      for (int i = 0; i < DialoguePageCount; i++) {
-        DialoguePages[i].Clear();
+      for (DialoguePage& page : DialoguePages) {
+        page.Clear();
       }
       SetFlag(SF_SHOWWAITICON, 0);
       SetFlag(SF_SHOWWAITICON + 1, 0);

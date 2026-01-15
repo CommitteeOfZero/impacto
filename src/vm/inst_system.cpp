@@ -790,7 +790,7 @@ VmInstruction(InstMSinit) {
 
   if (initType == 0 || initType == 1) {
     ScrWork[SW_GAMESTATE] = 0;
-    for (int i = 0; i < DialoguePageCount; i++) {
+    for (int i = 0; i < std::ssize(DialoguePages); i++) {
       DialoguePages[i].Clear();
       DialoguePages[i].FadeAnimation.Progress = 0;
       SetFlag(i + SF_MESWINDOW0OPENFL, 0);

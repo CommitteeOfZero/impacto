@@ -228,8 +228,7 @@ struct DialoguePage {
   float CurrentLineTopMargin;
 };
 
-inline DialoguePage* DialoguePages;
-inline int DialoguePageCount = 0;
+inline std::vector<DialoguePage> DialoguePages;
 
 int TextGetStringLength(Vm::Sc3Stream& stream);
 int TextGetStringLength(Vm::Sc3VmThread* ctx);

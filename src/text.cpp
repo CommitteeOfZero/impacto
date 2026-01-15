@@ -407,7 +407,7 @@ void DialoguePage::Init() {
   SkipIconDisplay::Init();
   NametagDisplay::Init();
 
-  for (int i = 0; i < Profile::Dialogue::PageCount; i++) {
+  for (int i = 0; i < std::ssize(DialoguePages); i++) {
     DialoguePages[i].Clear();
     DialoguePages[i].Mode = DPM_NVL;
     DialoguePages[i].Id = i;
