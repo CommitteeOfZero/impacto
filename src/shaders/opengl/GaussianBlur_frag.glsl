@@ -45,8 +45,8 @@ void main() {
         float weight = interpolateWeight(float(i) / weightDistance);
         totalWeight += weight * 2.0;
 
-        color += weight * texture2D(ColorMap, uv + normalizedOffset * i);
-        color += weight * texture2D(ColorMap, uv - normalizedOffset * i);
+        color += weight * texture(ColorMap, uv + normalizedOffset * i);
+        color += weight * texture(ColorMap, uv - normalizedOffset * i);
     }
     color /= totalWeight;
 
