@@ -36,6 +36,8 @@ void Configure() {
   MenuTitleText = EnsureGetMember<Sprite>("MenuTitleText");
   SelectedMovieAnimation =
       EnsureGetMember<SpriteAnimationDef>("SelectedMovieAnimation");
+  SelectedMovieExtraAnimation =
+      EnsureGetMember<SpriteAnimationDef>("SelectedMovieExtraAnimation");
   SelectedMovieYellowDot = EnsureGetMember<Sprite>("SelectedMovieYellowDot");
 
   SelectMovieFadeDuration = EnsureGetMember<float>("SelectMovieFadeDuration");

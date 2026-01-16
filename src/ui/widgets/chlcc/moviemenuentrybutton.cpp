@@ -30,16 +30,25 @@ MovieMenuEntryButton::MovieMenuEntryButton(int id, Sprite const& movieThumbnail,
   MovieBoxAnim.Direction = AnimationDirection::In;
   MovieBoxAnim.LoopMode = AnimationLoopMode::Loop;
   MovieBoxAnim.StartIn();
+
+  MovieBoxAnimExtra = SelectedMovieExtraAnimation.Instantiate();
+  MovieBoxAnimExtra.Direction = AnimationDirection::In;
+  MovieBoxAnimExtra.LoopMode = AnimationLoopMode::Loop;
+  MovieBoxAnimExtra.StartIn();
 }
 
 void MovieMenuEntryButton::Update(float dt) {
   Button::Update(dt);
   MovieBoxAnim.Update(dt);
+  MovieBoxAnimExtra.Update(dt);
 }
 
 void MovieMenuEntryButton::Render() {
   if (HasFocus) {
-    Renderer->DrawSprite(MovieBoxAnim.CurrentSprite(), Bounds);
+    // Make MovieBoxAnimExtra Jade Green when in ExtraMovieMode
+    Renderer->DrawSprite(IsExtraMovieModeOn ? MovieBoxAnimExtra.CurrentSprite()
+                                            : MovieBoxAnim.CurrentSprite(),
+                         Bounds);
     Renderer->DrawSprite(SelectedMovieYellowDot,
                          glm::vec2(Bounds.X - 7, Bounds.Y + 53));
   } else {

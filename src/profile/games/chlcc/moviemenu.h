@@ -34,6 +34,7 @@ inline float TitleFadeInDuration;
 inline float TitleFadeOutDuration;
 inline Sprite MenuTitleText;
 inline SpriteAnimationDef SelectedMovieAnimation;
+inline SpriteAnimationDef SelectedMovieExtraAnimation;
 inline Sprite SelectedMovieYellowDot;
 
 inline float SelectMovieFadeDuration;

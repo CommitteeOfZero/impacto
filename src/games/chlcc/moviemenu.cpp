@@ -18,6 +18,19 @@ using namespace Impacto::Vm::Interface;
 
 using namespace Impacto::UI::Widgets::CHLCC;
 
+constexpr std::array<MovieButtonEntry, 10> MovieButtonMap{{
+    {10, 18},  // 0: PS3 OP / PSP OP
+    {0, 0},    // 1: X360 OP
+    {1, 11},   // 2: Rimi ED
+    {2, 12},   // 3: Nanami ED
+    {4, 14},   // 4: Yua ED
+    {5, 15},   // 5: Mia ED
+    {6, 16},   // 6: Ayase ED
+    {3, 13},   // 7: Sena ED
+    {7, 17},   // 8: Kozue ED
+    {8, 8}     // 9: Seira ED
+}};
+
 static bool IsExtraMoviesPresent() {
   static bool isPresent = [] {
     std::map<uint32_t, std::string> listing;
@@ -35,8 +48,8 @@ void MovieMenu::MovieButtonOnClick(Widgets::Button* target) {
     ChoiceMade = true;
     IsChoiceMadeOnce = true;
     ScrWork[SW_MOVIEMODE_CUR] =
-        IsExtraMovieModeOn ? movieButtonMap.at(movieButton->Id).ExtraId
-                           : movieButtonMap.at(movieButton->Id).PhysicalId;
+        IsExtraMovieModeOn ? MovieButtonMap.at(movieButton->Id).ExtraId
+                           : MovieButtonMap.at(movieButton->Id).PhysicalId;
     Audio::Channels[Audio::AC_BGM0]->Stop(0.0f);
   }
 }

@@ -107,6 +107,7 @@ root.ExtraMenus = {
         MovieButtonExtraPromptPosition = { X = 877, Y = 651 },
         MovieButtonExtraPrompt = "MovieButtonExtraPrompt",
         SelectedMovieAnimation = "SelectedMovieAnimDef",
+        SelectedMovieExtraAnimation = "SelectedMovieExtraAnimDef",
         SelectedMovieYellowDot = "SelectedMovieYellowDot",
         SelectMovieFadeDuration = 110 / 60,
         SelectMovie = {},
@@ -390,7 +391,7 @@ root.Sprites["MovieBoxExtra"] = {
 
 root.Sprites["MovieThumbnailExtraOp"] = {
     Sheet = "Movie",
-    Bounds = { X = 1091, Y = 126, Width = 160, Height = 90 }
+    Bounds = { X = 1291, Y = 93, Width = 160, Height = 90 }
 }
 
 root.Sprites["MovieButtonExtraPrompt"] = {
@@ -527,6 +528,22 @@ MakeAnimation({
     Name = "SelectedMovieAnimDef",
     Sheet = "Movie",
     FirstFrameX = 728,
+    FirstFrameY = 125,
+    FrameWidth = 198,
+    ColWidth = 198,
+    FrameHeight = 124,
+    RowHeight = 124,
+    Frames = 7,
+    Duration = 0.2,
+    Rows = 7,
+    Columns = 1,
+    PrimaryDirection = AnimationDirections.Down,
+});
+
+MakeAnimation({
+    Name = "SelectedMovieExtraAnimDef",
+    Sheet = "Movie",
+    FirstFrameX = 1091,
     FirstFrameY = 125,
     FrameWidth = 198,
     ColWidth = 198,

@@ -22,6 +22,7 @@ class MovieMenuEntryButton : public Widgets::Button {
 
  private:
   SpriteAnimation MovieBoxAnim;
+  SpriteAnimation MovieBoxAnimExtra;
 
   std::reference_wrapper<bool> IsExtraMovieModeOn;
 };
