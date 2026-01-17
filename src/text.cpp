@@ -1040,7 +1040,7 @@ void DialoguePage::Render() {
   const RectF& lastGlyphDest =
       Glyphs.empty() ? RectF() : Glyphs.back().DestRect;
   glm::vec2 waitIconPos(lastGlyphDest.X + lastGlyphDest.Width, lastGlyphDest.Y);
-  WaitIconDisplay::Render(waitIconPos, col, Mode);
+  WaitIconDisplay::Render(waitIconPos, col, Mode, Id);
 
   AutoIconDisplay::Render(col);
   SkipIconDisplay::Render(col);

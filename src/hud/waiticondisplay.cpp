@@ -7,6 +7,9 @@
 
 #include "../animation.h"
 
+#include <ranges>
+#include <numeric>
+
 namespace Impacto {
 namespace WaitIconDisplay {
 
@@ -43,13 +46,20 @@ void Init() {
   }
 }
 
+static bool AnyPageWaiting() {
+  return std::ranges::any_of(std::views::iota(0, std::ssize(DialoguePages)),
+                             [](int dialoguePageId) {
+                               return GetFlag(SF_SHOWWAITICON + dialoguePageId);
+                             });
+}
+
 void Update(float dt) {
   switch (WaitIconCurrentType) {
     case WaitIconType::None:
       return;
 
     case WaitIconType::SpriteAnim: {
-      bool showWaitIcon = GetFlag(Profile::ScriptVars::SF_SHOWWAITICON);
+      const bool showWaitIcon = AnyPageWaiting();
       if (showWaitIcon && SpriteAnim.IsOut())
         SpriteAnim.StartIn();
       else if (!showWaitIcon && SpriteAnim.IsIn())
@@ -60,7 +70,7 @@ void Update(float dt) {
     }
 
     case WaitIconType::SpriteAnimFixed: {
-      bool showWaitIcon = GetFlag(Profile::ScriptVars::SF_SHOWWAITICON);
+      const bool showWaitIcon = AnyPageWaiting();
       if (showWaitIcon && FixedSpriteAnim.IsOut())
         FixedSpriteAnim.StartIn();
       else if (!showWaitIcon && FixedSpriteAnim.IsIn())
@@ -77,8 +87,8 @@ void Update(float dt) {
 }
 
 static void RenderSpriteAnim(glm::vec2 pos, glm::vec4 opacityTint,
-                             DialoguePageMode mode) {
-  if (!GetFlag(Profile::ScriptVars::SF_SHOWWAITICON)) return;
+                             DialoguePageMode mode, int dialoguePageId) {
+  if (!GetFlag(SF_SHOWWAITICON + dialoguePageId)) return;
 
   glm::vec2 offset = WaitIconOffset;
 
@@ -102,8 +112,9 @@ static void RenderSpriteAnimFixed(glm::vec4 opacityTint) {
                        opacityTint);
 }
 
-static void RenderRotateZ(glm::vec2 pos, glm::vec4 opacityTint) {
-  if (!GetFlag(Profile::ScriptVars::SF_SHOWWAITICON)) return;
+static void RenderRotateZ(glm::vec2 pos, glm::vec4 opacityTint,
+                          int dialoguePageId) {
+  if (!GetFlag(SF_SHOWWAITICON + dialoguePageId)) return;
 
   // TODO: MO6TW only for now
   glm::vec3 euler(SimpleAnim.Progress * 2.0f * std::numbers::pi_v<float>, 0,
@@ -119,19 +130,20 @@ static void RenderRotateZ(glm::vec2 pos, glm::vec4 opacityTint) {
   Renderer->DrawSprite(WaitIconSprite, dest, opacityTint);
 }
 
-static void RenderFixed(glm::vec4 opacityTint) {
-  if (!GetFlag(Profile::ScriptVars::SF_SHOWWAITICON)) return;
+static void RenderFixed(glm::vec4 opacityTint, int dialoguePageId) {
+  if (!GetFlag(SF_SHOWWAITICON + dialoguePageId)) return;
 
   Renderer->DrawSprite(WaitIconSprite, WaitIconOffset, opacityTint);
 }
 
-void Render(glm::vec2 pos, glm::vec4 opacityTint, DialoguePageMode mode) {
+void Render(glm::vec2 pos, glm::vec4 opacityTint, DialoguePageMode mode,
+            int dialoguePageId) {
   switch (WaitIconCurrentType) {
     case WaitIconType::None:
       return;
 
     case WaitIconType::SpriteAnim:
-      RenderSpriteAnim(pos, opacityTint, mode);
+      RenderSpriteAnim(pos, opacityTint, mode, dialoguePageId);
       return;
 
     case WaitIconType::SpriteAnimFixed:
@@ -139,15 +151,15 @@ void Render(glm::vec2 pos, glm::vec4 opacityTint, DialoguePageMode mode) {
       return;
 
     case WaitIconType::RotateZ:
-      RenderRotateZ(pos, opacityTint);
+      RenderRotateZ(pos, opacityTint, dialoguePageId);
       return;
 
     case WaitIconType::Fixed:
-      RenderFixed(opacityTint);
+      RenderFixed(opacityTint, dialoguePageId);
       return;
 
     default: {
-      if (!GetFlag(Profile::ScriptVars::SF_SHOWWAITICON)) return;
+      if (!GetFlag(SF_SHOWWAITICON + dialoguePageId)) return;
 
       const CornersQuad dest =
           WaitIconSprite.ScaledBounds()
