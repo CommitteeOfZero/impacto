@@ -764,6 +764,7 @@ VmInstruction(InstSetRevMes) {
 
 void ChkMesSkip() {
   bool mesSkip = false;
+  bool mesAllSkip = false;
 
   if (Profile::Vm::GameInstructionSet != +InstructionSet::CHLCC &&
       ScrWork[SW_SYSMESALPHA] != 255) {
@@ -772,9 +773,13 @@ void ChkMesSkip() {
   }
 
   if ((ScrWork[SW_GAMESTATE] & 0b101) == 0b001 && !GetFlag(SF_UIHIDDEN)) {
-    // Force skip
-    mesSkip |=
-        (bool)(Interface::PADinputButtonIsDown & Interface::PADcustom[7]);
+    mesSkip |= Interface::GetControlState(Interface::CT_NextMessage);
+
+    if (Interface::GetControlState(Interface::CT_ForceSkip,
+                                   Interface::InputDownType::IsDown)) {
+      mesSkip = true;
+      mesAllSkip = true;
+    };
 
     if (Interface::PADinputButtonWentDown & Interface::PADcustom[8]) {
       SkipModeEnabled = !SkipModeEnabled;
@@ -783,14 +788,16 @@ void ChkMesSkip() {
     if (Interface::PADinputButtonWentDown & Interface::PADcustom[9]) {
       AutoModeEnabled = !AutoModeEnabled;
     }
-  }
 
-  if (SkipModeEnabled) {
-    mesSkip |= Profile::ConfigSystem::SkipRead ? GetFlag(SF_MESREAD) : true;
+    if (SkipModeEnabled &&
+        (!Profile::ConfigSystem::SkipRead || GetFlag(SF_MESREAD))) {
+      mesSkip = true;
+      mesAllSkip = true;
+    }
   }
 
   SetFlag(SF_MESSKIP, mesSkip);
-  SetFlag(SF_MESALLSKIP, mesSkip);  // These two are seemingly identical?
+  SetFlag(SF_MESALLSKIP, mesAllSkip);
 }
 
 }  // namespace Vm
