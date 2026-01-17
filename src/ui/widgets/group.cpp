@@ -98,7 +98,9 @@ void Group::Update(float dt) {
                     (el == MenuContext->CurrentlyFocusedElement ? true : false);
         HasFocus = isFocused;
       }
-      el->Update(dt);
+      if (el->Bounds.Intersects(RenderingBounds)) {
+        el->Update(dt);
+      }
     }
   }
 }

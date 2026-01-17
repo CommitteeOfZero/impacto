@@ -39,19 +39,10 @@ void SystemMenu::MenuButtonOnClick(Widgets::Button* target) {
 }
 
 SystemMenu::SystemMenu() {
-  MenuTransition.Direction = AnimationDirection::In;
-  MenuTransition.LoopMode = AnimationLoopMode::Stop;
-  MenuTransition.DurationIn = FadeInDuration;
-  MenuTransition.DurationOut = FadeOutDuration;
-
   TitleFade.Direction = AnimationDirection::In;
   TitleFade.LoopMode = AnimationLoopMode::Stop;
   TitleFade.DurationIn = TitleFadeInDuration;
   TitleFade.DurationOut = TitleFadeOutDuration;
-
-  MenuLoop.Direction = AnimationDirection::In;
-  MenuLoop.LoopMode = AnimationLoopMode::Loop;
-  MenuLoop.DurationIn = MenuLoopDuration;
 
   auto onClick = [this](auto* btn) { return MenuButtonOnClick(btn); };
 
@@ -78,8 +69,8 @@ SystemMenu::SystemMenu() {
 void SystemMenu::Show() {
   if (State != Shown) {
     State = Showing;
-    MenuTransition.StartIn();
-    MenuLoop.StartIn();
+    ShowMenu.StartIn();
+    SelectAnimation.StartIn();
     MainItems->Show();
     if (UI::FocusedMenu != 0) {
       LastFocusedMenu = UI::FocusedMenu;
@@ -111,7 +102,7 @@ void SystemMenu::Hide() {
     }
 
     State = Hiding;
-    MenuTransition.StartOut();
+    ShowMenu.StartOut();
     if (LastFocusedMenu != 0) {
       UI::FocusedMenu = LastFocusedMenu;
       LastFocusedMenu->IsFocused = true;
@@ -132,24 +123,24 @@ void SystemMenu::Update(float dt) {
     Show();
   }
 
-  if (MenuTransition.IsOut() && ScrWork[SW_SYSMENUCT] == 0 && State == Hiding) {
+  if (ShowMenu.IsOut() && ScrWork[SW_SYSMENUCT] == 0 && State == Hiding) {
     MainItems->Hide();
     State = Hidden;
     if (CurrentlyFocusedElement) {
       CurrentlyFocusedElement->HasFocus = false;
       CurrentlyFocusedElement = nullptr;
     }
-  } else if (MenuTransition.IsIn() && ScrWork[SW_SYSMENUCT] == 10000 &&
+  } else if (ShowMenu.IsIn() && ScrWork[SW_SYSMENUCT] == 10000 &&
              State == Showing) {
     State = Shown;
   }
 
   if (State != Hidden) {
-    MenuTransition.Update(dt);
-    if (MenuTransition.Direction == AnimationDirection::Out &&
-        MenuTransition.Progress <= 0.72f) {
+    ShowMenu.Update(dt);
+    if (ShowMenu.Direction == AnimationDirection::Out &&
+        ShowMenu.Progress <= 0.72f) {
       TitleFade.StartOut();
-    } else if (MenuTransition.IsIn() &&
+    } else if (ShowMenu.IsIn() &&
                (TitleFade.Direction == AnimationDirection::In ||
                 TitleFade.IsOut())) {
       TitleFade.StartIn();
@@ -178,7 +169,7 @@ void SystemMenu::Update(float dt) {
   }
   if (State != Hidden && IsFocused) {
     UpdateSmoothSelection(dt);
-    MenuLoop.Update(dt);
+    SelectAnimation.Update(dt);
     UpdateRunningSelectedLabel(dt);
     MainItems->UpdateInput(dt);
     MainItems->Update(dt);
@@ -206,7 +197,7 @@ void SystemMenu::Update(float dt) {
 void SystemMenu::Render() {
   if (State == Hidden) return;
 
-  if (MenuTransition.IsIn()) {
+  if (ShowMenu.IsIn()) {
     Renderer->DrawQuad(
         RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
         RgbIntToFloat(BackgroundColor));
@@ -217,58 +208,51 @@ void SystemMenu::Render() {
 
   glm::vec3 tint = {1.0f, 1.0f, 1.0f};
   // Alpha goes from 0 to 1 in half the time
-  float alpha =
-      MenuTransition.Progress < 0.5f ? MenuTransition.Progress * 2.0f : 1.0f;
+  float alpha = ShowMenu.Progress < 0.5f ? ShowMenu.Progress * 2.0f : 1.0f;
   Renderer->DrawSprite(
       BackgroundFilter,
       RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
       glm::vec4(tint, alpha));
   DrawRedBar();
-  float yOffset = 0;
-  if (MenuTransition.Progress > 0.34f) {
+  if (ShowMenu.Progress > 0.34f) {
     Renderer->DrawSprite(RedBarLabel, RedTitleLabelPos);
     const CornersQuad titleDest = MainMenuTitleText.ScaledBounds()
                                       .RotateAroundCenter(MenuTitleTextAngle)
                                       .Translate(RightTitlePos);
     Renderer->DrawSprite(MainMenuTitleText, titleDest);
   }
-  if (MenuTransition.Progress > 0.22f) {
-    if (MenuTransition.Progress < 0.72f) {
-      // Approximated function from the original, another mess
-      yOffset = glm::mix(
-          -Profile::DesignHeight, 0.0f,
-          1.00397f * std::sin(3.97161f - 3.26438f * MenuTransition.Progress) -
-              0.00295643f);
-    }
-    DrawButtonPrompt();
-    if (IndexOfActiveButton >= 0 && State != Hidden) {
-      DrawRunningSelectedLabel(SelectionOffsetY +
-                               MenuRunningSelectedLabelPosition.y + yOffset);
-    }
 
-    Renderer->DrawSprite(Background, glm::vec2(BackgroundPosition.x, yOffset));
-    DrawSelectMenu(yOffset);
-    Renderer->DrawSprite(MainMenuTitleText, LeftTitlePos,
-                         glm::vec4(tint, TitleFade.Progress));
-    Renderer->DrawSprite(MenuItemsLine,
-                         glm::vec2(MenuItemsLinePosition.x, yOffset));
-    if (IndexOfActiveButton >= 0 && State != Hidden) {
-      Renderer->DrawSprite(
-          MenuSelectionDot,
-          glm::vec2(MenuSelectionDotPosition.x,
-                    MenuSelectionDotPosition.y +
-                        IndexOfActiveButton * MenuSelectionDotMultiplier +
-                        +yOffset));
-      Renderer->DrawSprite(
-          MenuSelection,
-          glm::vec2(MenuSelectionPosition.x,
-                    MenuSelectionPosition.y + SelectionOffsetY + yOffset));
-    }
+  if (ShowMenu.Progress < 0.22f) return;
 
-    MainItems->MoveTo(glm::vec2(0, yOffset));
-    MainItems->Tint = glm::vec4(tint, 1.0f);
-    MainItems->Render();
+  glm::vec2 offset = ShowMenu.GetPageOffset();
+  DrawButtonPrompt();
+  if (IndexOfActiveButton >= 0 && State != Hidden) {
+    DrawRunningSelectedLabel(SelectionOffsetY +
+                             MenuRunningSelectedLabelPosition.y + offset.y);
   }
+
+  Renderer->DrawSprite(Background, glm::vec2(BackgroundPosition.x, offset.y));
+  SelectAnimation.Draw(SelectMenuHeader, SelectMenuHeaderPositions, offset);
+  Renderer->DrawSprite(MainMenuTitleText, LeftTitlePos,
+                       glm::vec4(tint, TitleFade.Progress));
+  Renderer->DrawSprite(MenuItemsLine,
+                       glm::vec2(MenuItemsLinePosition.x, offset.y));
+  if (IndexOfActiveButton >= 0 && State != Hidden) {
+    Renderer->DrawSprite(
+        MenuSelectionDot,
+        glm::vec2(MenuSelectionDotPosition.x,
+                  MenuSelectionDotPosition.y +
+                      IndexOfActiveButton * MenuSelectionDotMultiplier +
+                      +offset.y));
+    Renderer->DrawSprite(
+        MenuSelection,
+        glm::vec2(MenuSelectionPosition.x,
+                  MenuSelectionPosition.y + SelectionOffsetY + offset.y));
+  }
+
+  MainItems->MoveTo(offset);
+  MainItems->Tint = glm::vec4(tint, 1.0f);
+  MainItems->Render();
 }
 
 inline void SystemMenu::UpdateSmoothSelection(float dt) {
@@ -302,7 +286,7 @@ inline void SystemMenu::DrawCircles() {
   int resetCounter = 0;
   // Give the whole range that mimics ScrWork[SW_SYSMENUCT] given that the
   // duration is totalframes/60
-  float progress = MenuTransition.Progress * FadeInDuration * 60.0f;
+  float progress = ShowMenu.Progress * FadeInDuration * 60.0f;
   for (int line = 0; line < 4; line++) {
     int counter = resetCounter;
     float x = CircleStartPosition.x;
@@ -324,12 +308,12 @@ inline void SystemMenu::DrawCircles() {
 }
 
 inline void SystemMenu::DrawRedBar() {
-  if (MenuTransition.IsIn()) {
+  if (ShowMenu.IsIn()) {
     Renderer->DrawSprite(InitialRedBarSprite, InitialRedBarPosition);
-  } else if (MenuTransition.Progress > 0.70f) {
+  } else if (ShowMenu.Progress > 0.70f) {
     // Give the whole range that mimics ScrWork[SW_SYSMENUCT] given that the
     // duration is totalframes/60
-    float progress = MenuTransition.Progress * FadeInDuration * 60.0f;
+    float progress = ShowMenu.Progress * FadeInDuration * 60.0f;
     float pixelPerAdvanceLeft = RedBarBaseX * (progress - 47.0f) / 17.0f;
     RedBarSprite.Bounds.X = RedBarDivision - pixelPerAdvanceLeft;
     RedBarSprite.Bounds.Width = pixelPerAdvanceLeft;
@@ -343,78 +327,62 @@ inline void SystemMenu::DrawRedBar() {
   }
 }
 
-inline void SystemMenu::DrawSelectMenu(float yOffset) {
-  float alpha;
-  for (int idx = 0; idx < SelectMenuHeaderCount; idx++) {
-    alpha = 1.0f;
-    if (MenuLoop.Progress < 0.046f * (idx + 1)) {
-      alpha = (MenuLoop.Progress - 0.046f * idx) / 0.046f;
-    }
-    Renderer->DrawSprite(SelectMenuHeader[idx],
-                         glm::vec2(SelectMenuHeaderPositions[idx].x,
-                                   SelectMenuHeaderPositions[idx].y + yOffset),
-                         glm::vec4(glm::vec3(1.0f), alpha));
-  }
-}
-
 void SystemMenu::UpdateMenuLoop() {
-  if (MenuLoop.Progress < 0.362F) {
+  // it uses same Animation for progress
+  if (SelectAnimation.Progress < 0.362f) {
     LeftTitlePos = glm::vec2(
         MenuTitleTextPosition.x,
-        glm::mix(
-            1.0f, 721.0f,
-            1.01011f * std::sin(1.62223f * (MenuLoop.Progress * 2.7604561455F) +
-                                3.152f) +
-                1.01012f));
-  } else if (MenuLoop.Progress > 0.637F) {
+        glm::mix(1.0f, 721.0f,
+                 1.01011f * std::sin(1.62223f * (SelectAnimation.Progress *
+                                                 2.7604561455F) +
+                                     3.152f) +
+                     1.01012f));
+  } else if (SelectAnimation.Progress > 0.637f) {
     LeftTitlePos = glm::vec2(
         MenuTitleTextPosition.x,
         glm::mix(-MainMenuTitleText.Bounds.Height, 1.0f,
-                 1.01011f * std::sin(1.62223f *
-                                         ((MenuLoop.Progress * 2.7604559169F) -
-                                          1.774F) +
+                 1.01011f * std::sin(1.62223f * ((SelectAnimation.Progress *
+                                                  2.7604559169F) -
+                                                 1.774F) +
                                      3.152f) +
                      1.01012f));
   }
 }
 
 void SystemMenu::UpdateTitles() {
-  if (MenuTransition.Progress <= 0.34f) return;
+  if (ShowMenu.Progress <= 0.34f) return;
 
   RedTitleLabelPos = RedBarLabelPosition;
   RightTitlePos = MainMenuLabelRightPosition;
 
-  if (MenuTransition.Progress >= 0.73f) return;
+  if (ShowMenu.Progress >= 0.73f) return;
 
   RedTitleLabelPos +=
-      glm::vec2(-572.0f * (MenuTransition.Progress * 4.0f - 3.0f),
-                460.0f * (MenuTransition.Progress * 4.0f - 3.0f) / 3.0f);
-  RightTitlePos +=
-      glm::vec2(-572.0f * (MenuTransition.Progress * 4.0f - 3.0f),
-                460.0f * (MenuTransition.Progress * 4.0f - 3.0f) / 3.0f);
+      glm::vec2(-572.0f * (ShowMenu.Progress * 4.0f - 3.0f),
+                460.0f * (ShowMenu.Progress * 4.0f - 3.0f) / 3.0f);
+  RightTitlePos += glm::vec2(-572.0f * (ShowMenu.Progress * 4.0f - 3.0f),
+                             460.0f * (ShowMenu.Progress * 4.0f - 3.0f) / 3.0f);
 }
 
 inline void SystemMenu::DrawErin() {
   float y = ErinPosition.y;
-  if (MenuTransition.Progress < 0.78f) {
+  if (ShowMenu.Progress < 0.78f) {
     y = 801.0f;
-    if (MenuTransition.Progress > 0.22f) {
+    if (ShowMenu.Progress > 0.22f) {
       // Approximation from the original function, which was a bigger mess
       y = glm::mix(
           -19.0f, 721.0f,
-          0.998938f -
-              0.998267f * sin(3.97835f - 3.27549f * MenuTransition.Progress));
+          0.998938f - 0.998267f * sin(3.97835f - 3.27549f * ShowMenu.Progress));
     }
   }
   Renderer->DrawSprite(ErinSprite, glm::vec2(ErinPosition.x, y));
 }
 
 inline void SystemMenu::DrawButtonPrompt() {
-  if (MenuTransition.IsIn()) {
+  if (ShowMenu.IsIn()) {
     Renderer->DrawSprite(MenuButtonPrompt, MenuButtonPromptPosition);
-  } else if (MenuTransition.Progress > 0.734f) {
-    float x =
-        MenuButtonPromptPosition.x - 2560.0f * (MenuTransition.Progress - 1);
+  } else if (ShowMenu.Progress > 0.734f) {
+    float x = MenuButtonPromptPosition.x - 2560.0f * (ShowMenu.Progress - 1);
     Renderer->DrawSprite(MenuButtonPrompt,
                          glm::vec2(x, MenuButtonPromptPosition.y));
   }

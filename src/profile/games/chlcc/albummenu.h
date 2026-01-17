@@ -7,7 +7,6 @@ namespace Profile {
 namespace CHLCC {
 namespace AlbumMenu {
 
-inline float MenuTransitionDuration;
 inline uint32_t BackgroundColor;
 inline Sprite CircleSprite;
 inline glm::vec2 CircleStartPosition;
@@ -50,8 +49,8 @@ inline glm::vec2 PageNumSeparatorSlashPos;
 inline Sprite ReachablePageNums[10];
 inline Sprite ButtonGuide;
 inline glm::vec2 ButtonGuidePos;
-inline Sprite SelectData[10];
-inline glm::vec2 SelectDataPos[10];
+inline std::vector<Sprite> SelectDataSprites;
+inline std::vector<glm::vec2> SelectDataPos;
 inline Sprite AlbumMenuTitle;
 inline glm::vec2 AlbumMenuTitleRightPos;
 inline glm::vec2 AlbumMenuTitleLeftPos;

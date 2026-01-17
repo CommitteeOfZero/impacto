@@ -15,15 +15,11 @@ namespace UI {
 namespace CHLCC {
 
 using namespace Impacto::Profile::CHLCC::BacklogMenu;
+using namespace Impacto::Profile::GameSpecific;
 using namespace Impacto::UI::Widgets::CHLCC;
 using namespace Impacto::Profile::ScriptVars;
 
 BacklogMenu::BacklogMenu() {
-  MenuTransition.Direction = AnimationDirection::In;
-  MenuTransition.LoopMode = AnimationLoopMode::Stop;
-  MenuTransition.DurationIn = TransitionDuration;
-  MenuTransition.DurationOut = TransitionDuration;
-
   TitleFade.Direction = AnimationDirection::In;
   TitleFade.LoopMode = AnimationLoopMode::Stop;
   TitleFade.DurationIn = TitleFadeInDuration;
@@ -102,13 +98,7 @@ void BacklogMenu::Render() {
 
   float yOffset = 0;
   if (MenuTransition.Progress > 0.22f) {
-    if (MenuTransition.Progress < 0.73f) {
-      // Approximated function from the original, another mess
-      yOffset = glm::mix(
-          -Profile::DesignHeight, 0.0f,
-          1.00397f * std::sin(3.97161f - 3.26438f * MenuTransition.Progress) -
-              0.00295643f);
-    }
+    yOffset = MenuTransition.GetPageOffset().y;
     Renderer->DrawSprite(BacklogBackgroundSprite, {0.0f, 0.0f + yOffset});
     DrawButtonPrompt();
 
@@ -130,13 +120,6 @@ void BacklogMenu::Render() {
     RenderHighlight({0.0f, yOffset});
   }
   if (MenuTransition.Progress > 0.22f) {
-    if (MenuTransition.Progress < 0.73f) {
-      // Approximated function from the original, another mess
-      yOffset = glm::mix(
-          -Profile::DesignHeight, 0.0f,
-          1.00397f * std::sin(3.97161f - 3.26438f * MenuTransition.Progress) -
-              0.00295643f);
-    }
     MainItems->RenderingBounds.Y += yOffset;
     MainItems->Move({0.0f, yOffset});
     MainItems->Render();
@@ -195,7 +178,7 @@ inline void BacklogMenu::DrawCircles() {
   int resetCounter = 0;
   // Give the whole range that mimics ScrWork[SW_SYSMENUCT] given that the
   // duration is totalframes/60
-  float progress = MenuTransition.Progress * TransitionDuration * 60.0f;
+  float progress = MenuTransition.Progress * MenuTransitionDuration * 60.0f;
   for (int line = 0; line < 4; line++) {
     int counter = resetCounter;
     float x = CircleStartPosition.x;
@@ -238,7 +221,7 @@ inline void BacklogMenu::DrawRedBar() {
   } else if (MenuTransition.Progress > 0.70f) {
     // Give the whole range that mimics ScrWork[SW_SYSMENUCT] given that the
     // duration is totalframes/60
-    float progress = MenuTransition.Progress * TransitionDuration * 60.0f;
+    float progress = MenuTransition.Progress * MenuTransitionDuration * 60.0f;
     float pixelPerAdvanceLeft = RedBarBaseX * (progress - 47.0f) / 17.0f;
     RedBarSprite.Bounds.X = RedBarDivision - pixelPerAdvanceLeft;
     RedBarSprite.Bounds.Width = pixelPerAdvanceLeft;

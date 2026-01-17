@@ -9,8 +9,6 @@ namespace TrophyMenu {
 
 int constexpr inline MaxTrophyPages = 9;
 
-inline float MenuTransitionDuration;
-
 inline float ShowPageAnimationStartTime;
 inline float ShowPageAnimationDuration;
 

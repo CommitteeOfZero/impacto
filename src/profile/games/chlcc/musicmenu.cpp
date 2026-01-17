@@ -10,7 +10,6 @@ namespace CHLCC {
 namespace MusicMenu {
 
 void Configure() {
-  MenuTransitionDuration = EnsureGetMember<float>("TransitionDuration");
   BackgroundColor = EnsureGetMember<uint32_t>("BackgroundColor");
   CircleSprite = EnsureGetMember<Sprite>("CircleSprite");
   CircleStartPosition = EnsureGetMember<glm::vec2>("CircleStartPosition");
@@ -60,12 +59,18 @@ void Configure() {
   HighlightStarRelativePos =
       EnsureGetMember<glm::vec2>("HighlightStarRelativePos");
   GetMemberArray<int>(Playlist, MusicTrackCount, "Playlist");
-  GetMemberArray<Sprite>(SelectSound, 11, "SelectSound");
-  GetMemberArray<glm::vec2>(SelectSoundPos, 11, "SelectSoundPos");
+  SelectSoundSprites = GetMemberVector<Sprite>("SelectSoundSprites");
+  SelectSoundPos = GetMemberVector<glm::vec2>("SelectSoundPos");
+  if (SelectSoundSprites.size() != SelectSoundPos.size()) {
+    throw std::runtime_error("Related arrays have mismatching sizes");
+  }
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMember<uint8_t>("DrawType"));
-
+  ScrollThumbSprite = EnsureGetMember<Sprite>("ScrollThumb");
+  ScrollbarPosition = EnsureGetMember<glm::vec2>("ScrollbarPosition");
+  TrackListBounds = EnsureGetMember<RectF>("TrackListBounds");
+  ScrollTrackBounds = EnsureGetMember<glm::vec2>("ScrollTrackBounds");
   UI::Menus[drawType].push_back(new UI::CHLCC::MusicMenu());
 }
 

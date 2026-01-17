@@ -201,64 +201,23 @@ root.Sprites["SaveButtonPrompt"] = {
     Bounds = {X = 1, Y = 581, Width = 430, Height = 28}
 };
 
--- This is a mess
+local saveMenuFadeTextBounds = {
+    { X = 1, Y = 670, Width = 18, Height = 55 },
+    { X = 21, Y = 670, Width = 16, Height = 55 },
+    { X = 39, Y = 670, Width = 15, Height = 55 },
+    { X = 56, Y = 670, Width = 16, Height = 55 },
+    { X = 74, Y = 670, Width = 17, Height = 55 },
+    { X = 93, Y = 670, Width = 22, Height = 55 },
+    { X = 117, Y = 670, Width = 22, Height = 55 },
+    { X = 141, Y = 670, Width = 17, Height = 55 },
+    { X = 159, Y = 670, Width = 18, Height = 55 },
+    { X = 179, Y = 670, Width = 20, Height = 55 }
+}
 
-root.Sprites["SaveMenuFadeTextS"] = {
-    Sheet = "Save",
-    Bounds = {X = 1, Y = 670, Width = 18, Height = 55}
-};
-root.SaveMenu.SelectDataText[#root.SaveMenu.SelectDataText + 1] = "SaveMenuFadeTextS";
-
-root.Sprites["SaveMenuFadeTextE"] = {
-    Sheet = "Save",
-    Bounds = {X = 21, Y = 670, Width = 16, Height = 55}
-};
-root.SaveMenu.SelectDataText[#root.SaveMenu.SelectDataText + 1] = "SaveMenuFadeTextE";
-
-root.Sprites["SaveMenuFadeTextL"] = {
-    Sheet = "Save",
-    Bounds = {X = 39, Y = 670, Width = 15, Height = 55}
-};
-root.SaveMenu.SelectDataText[#root.SaveMenu.SelectDataText + 1] = "SaveMenuFadeTextL";
-
-root.Sprites["SaveMenuFadeTextE2"] = {
-    Sheet = "Save",
-    Bounds = {X = 56, Y = 670, Width = 16, Height = 55}
-};
-root.SaveMenu.SelectDataText[#root.SaveMenu.SelectDataText + 1] = "SaveMenuFadeTextE2";
-
-root.Sprites["SaveMenuFadeTextC"] = {
-    Sheet = "Save",
-    Bounds = {X = 74, Y = 670, Width = 17, Height = 55}
-};
-root.SaveMenu.SelectDataText[#root.SaveMenu.SelectDataText + 1] = "SaveMenuFadeTextC";
-
-root.Sprites["SaveMenuFadeTextT"] = {
-    Sheet = "Save",
-    Bounds = {X = 93, Y = 670, Width = 22, Height = 55}
-};
-root.SaveMenu.SelectDataText[#root.SaveMenu.SelectDataText + 1] = "SaveMenuFadeTextT";
-
-root.Sprites["SaveMenuFadeTextD"] = {
-    Sheet = "Save",
-    Bounds = {X = 117, Y = 670, Width = 22, Height = 55}
-};
-root.SaveMenu.SelectDataText[#root.SaveMenu.SelectDataText + 1] = "SaveMenuFadeTextD";
-
-root.Sprites["SaveMenuFadeTextA"] = {
-    Sheet = "Save",
-    Bounds = {X = 141, Y = 670, Width = 17, Height = 55}
-};
-root.SaveMenu.SelectDataText[#root.SaveMenu.SelectDataText + 1] = "SaveMenuFadeTextA";
-
-root.Sprites["SaveMenuFadeTextT2"] = {
-    Sheet = "Save",
-    Bounds = {X = 159, Y = 670, Width = 18, Height = 55}
-};
-root.SaveMenu.SelectDataText[#root.SaveMenu.SelectDataText + 1] = "SaveMenuFadeTextT2";
-
-root.Sprites["SaveMenuFadeTextA2"] = {
-    Sheet = "Save",
-    Bounds = {X = 179, Y = 670, Width = 20, Height = 55}
-};
-root.SaveMenu.SelectDataText[#root.SaveMenu.SelectDataText + 1] = "SaveMenuFadeTextA2";
+for i, bounds in ipairs(saveMenuFadeTextBounds) do
+    root.Sprites["SaveMenuFadeText" .. i - 1] = {
+        Sheet = "Save",
+        Bounds = bounds
+    }
+    root.SaveMenu.SelectDataText[i] = "SaveMenuFadeText" .. i - 1;
+end

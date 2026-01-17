@@ -9,7 +9,6 @@ namespace BacklogMenu {
 
 void Configure();
 
-inline float TransitionDuration;
 inline uint32_t BackgroundColor;
 inline Sprite CircleSprite;
 inline glm::vec2 CircleStartPosition;

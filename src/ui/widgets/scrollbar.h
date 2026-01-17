@@ -11,6 +11,7 @@ enum ScrollbarDirection { SBDIR_VERTICAL, SBDIR_HORIZONTAL };
 
 class Scrollbar : public Widget {
  public:
+  Scrollbar() = default;
   Scrollbar(int id, glm::vec2 pos, float start, float end, float* value,
             ScrollbarDirection dir, glm::vec2 trackBounds);
   Scrollbar(int id, glm::vec2 pos, float start, float end, float* value,
@@ -42,6 +43,7 @@ class Scrollbar : public Widget {
   };
 
   RectF GetTrackBounds() const { return TrackBounds; }
+  bool IsScrollHeld() const { return ScrollHeld; }
 
   int Id;
   ScrollbarDirection Direction;

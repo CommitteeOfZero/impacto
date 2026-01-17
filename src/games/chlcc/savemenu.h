@@ -1,5 +1,7 @@
 #pragma once
 
+#include "animations/selectprompt.h"
+#include "animations/menutransition.h"
 #include "../../ui/menu.h"
 #include "../../ui/savemenu.h"
 #include "../../ui/widgets/group.h"
@@ -34,7 +36,6 @@ class SaveMenu : public UI::SaveMenu {
   void DrawRedBar();
   void DrawPageNumber(float yOffset);
   void DrawButtonPrompt();
-  void DrawSelectData(float yOffset);
 
   void UpdateTitles();
 
@@ -47,10 +48,10 @@ class SaveMenu : public UI::SaveMenu {
   std::vector<Widgets::Group*> QuickSavePages;
   std::vector<Widgets::Group*>* SavePages;
   Widgets::Group* MainItems;
-  Animation MenuTransition;
   Animation TitleFade;
-  Animation SelectDataTextFade;
   Animation FromSystemMenuTransition;
+  SelectPromptAnimation SelectAnimation;
+  MenuTransitionAnimation MenuTransition;
   SaveSystem::SaveType EntryType;
 
   glm::vec2 RedTitleLabelPos;

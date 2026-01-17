@@ -10,7 +10,6 @@ namespace CHLCC {
 namespace AlbumMenu {
 
 void Configure() {
-  MenuTransitionDuration = EnsureGetMember<float>("TransitionDuration");
   BackgroundColor = EnsureGetMember<uint32_t>("BackgroundColor");
   CircleSprite = EnsureGetMember<Sprite>("CircleSprite");
   CircleStartPosition = EnsureGetMember<glm::vec2>("CircleStartPosition");
@@ -54,8 +53,11 @@ void Configure() {
   GetMemberArray<Sprite>(ReachablePageNums, 10, "ReachablePageNums");
   ButtonGuide = EnsureGetMember<Sprite>("ButtonGuide");
   ButtonGuidePos = EnsureGetMember<glm::vec2>("ButtonGuidePos");
-  GetMemberArray<Sprite>(SelectData, 10, "SelectData");
-  GetMemberArray<glm::vec2>(SelectDataPos, 10, "SelectDataPos");
+  SelectDataSprites = GetMemberVector<Sprite>("SelectDataSprites");
+  SelectDataPos = GetMemberVector<glm::vec2>("SelectDataPos");
+  if (SelectDataSprites.size() != SelectDataPos.size()) {
+    throw std::runtime_error("Related arrays have mismatching sizes");
+  }
   AlbumMenuTitle = EnsureGetMember<Sprite>("AlbumMenuTitle");
   AlbumMenuTitleRightPos = EnsureGetMember<glm::vec2>("AlbumMenuTitleRightPos");
   AlbumMenuTitleLeftPos = EnsureGetMember<glm::vec2>("AlbumMenuTitleLeftPos");

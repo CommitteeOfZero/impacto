@@ -34,7 +34,7 @@ static float GetEndScroll(Group* tipsItemsGroup) {
   const float pagePos =
       lastItemEndPos - TipsListBounds.Height - TipsListBounds.Y;
   if (pagePos < 0.0f) return 0.0f;
-  return ((int)(pagePos / TipListYPadding) * TipListYPadding);
+  return round(pagePos / TipListYPadding) * TipListYPadding;
 }
 
 void TipsMenu::HandlePageChange(Widget* cur, Widget* next) {
@@ -61,10 +61,6 @@ TipsMenu::TipsMenu()
           [this](Widget* cur, Widget* next) { HandlePageChange(cur, next); },
           [this](Widget* cur, Widget* next) { HandlePageChange(cur, next); }),
       TipViewItems(this) {
-  FadeAnimation.Direction = AnimationDirection::In;
-  FadeAnimation.LoopMode = AnimationLoopMode::Stop;
-  FadeAnimation.SetDuration(MenuTransitionDuration);
-
   TitleFade.Direction = AnimationDirection::In;
   TitleFade.LoopMode = AnimationLoopMode::Stop;
   TitleFade.DurationIn = TitleFadeInDuration;
@@ -74,11 +70,6 @@ TipsMenu::TipsMenu()
   FromSystemMenuTransition.LoopMode = AnimationLoopMode::Stop;
   FromSystemMenuTransition.DurationIn = TitleFadeInDuration;
   FromSystemMenuTransition.DurationOut = TitleFadeOutDuration;
-
-  SelectWordAnimation.Direction = AnimationDirection::In;
-  SelectWordAnimation.LoopMode = AnimationLoopMode::Loop;
-  SelectWordAnimation.DurationIn = SelectWordDuration;
-  SelectWordAnimation.DurationOut = 0.0f;
 
   RedBarSprite = InitialRedBarSprite;
   RedBarPosition = InitialRedBarPosition;
@@ -94,9 +85,9 @@ TipsMenu::TipsMenu()
 void TipsMenu::Show() {
   if (State != Shown) {
     if (State != Showing) {
-      FadeAnimation.StartIn();
+      MenuTransition.StartIn();
       FromSystemMenuTransition.StartIn();
-      SelectWordAnimation.StartIn(true);
+      SelectAnimation.StartIn(true);
     }
     State = Showing;
     if (UI::FocusedMenu != 0) {
@@ -104,11 +95,7 @@ void TipsMenu::Show() {
       LastFocusedMenu->IsFocused = false;
     }
     UI::FocusedMenu = this;
-    AnimationOffset = {0.0f, 0.0f};
     TipsEntryScrollPos = 0.0f;
-    if (ItemsList.Children.size() > 1) {
-      ItemsList.Next();
-    }
     (*ItemsList.GetCurrent())->Show();
     (*ItemsList.GetCurrent())->HasFocus = false;
     TipViewItems.Bounds = RectF{};
@@ -122,7 +109,7 @@ void TipsMenu::Show() {
 void TipsMenu::Hide() {
   if (State != Hidden) {
     if (State != Hiding) {
-      FadeAnimation.StartOut();
+      MenuTransition.StartOut();
       FromSystemMenuTransition.StartOut();
     }
     State = Hiding;
@@ -138,7 +125,7 @@ void TipsMenu::Hide() {
 void TipsMenu::Render() {
   if (State == Hidden) return;
 
-  if (FadeAnimation.IsIn()) {
+  if (MenuTransition.IsIn()) {
     Renderer->DrawQuad(
         RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
         RgbIntToFloat(BackgroundColor));
@@ -151,7 +138,7 @@ void TipsMenu::Render() {
   }
   DrawErin();
   DrawRedBar();
-  if (FadeAnimation.Progress > 0.34f) {
+  if (MenuTransition.Progress > 0.34f) {
     Renderer->DrawSprite(RedBarLabel, RedTitleLabelPos);
 
     const CornersQuad titleDest = MenuTitleText.ScaledBounds()
@@ -160,40 +147,43 @@ void TipsMenu::Render() {
     Renderer->DrawSprite(MenuTitleText, titleDest);
   }
 
-  glm::vec3 tint = {1.0f, 1.0f, 1.0f};
+  const glm::vec3 tint = {1.0f, 1.0f, 1.0f};
+  const glm::vec2 animationOffset = MenuTransition.GetPageOffset();
+
   // Alpha goes from 0 to 1 in half the time
-  float alpha =
-      FadeAnimation.Progress < 0.5f ? FadeAnimation.Progress * 2.0f : 1.0f;
+  const float alpha =
+      MenuTransition.Progress < 0.5f ? MenuTransition.Progress * 2.0f : 1.0f;
   Renderer->DrawSprite(
       BackgroundFilter,
       RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
       glm::vec4(tint, alpha));
-  if (FadeAnimation.State != AnimationState::Stopped) {
+
+  if (MenuTransition.State != AnimationState::Stopped) {
     Group* currentPage = static_cast<Group*>(*ItemsList.GetCurrent());
     const glm::vec2 pgOffset = [&] {
-      glm::vec2 fOffset = TipsListBounds.GetPos() + AnimationOffset;
+      glm::vec2 fOffset = TipsListBounds.GetPos() + animationOffset;
       return glm::vec2{std::round(fOffset.x),
                        std::round(fOffset.y - TipsEntryScrollPos)};
     }();
     const glm::vec2 renderBoundsOffset =
-        TipsListRenderBounds.GetPos() + AnimationOffset;
+        TipsListRenderBounds.GetPos() + animationOffset;
 
     currentPage->MoveTo(pgOffset);
     currentPage->RenderingBounds.X = std::round(renderBoundsOffset.x);
     currentPage->RenderingBounds.Y = std::round(renderBoundsOffset.y);
-    TipViewItems.MoveTo(AnimationOffset);
-    TextPage.MoveTo(Profile::Dialogue::TipsBounds.GetPos() + AnimationOffset);
+    TipViewItems.MoveTo(animationOffset);
+    TextPage.MoveTo(Profile::Dialogue::TipsBounds.GetPos() + animationOffset);
     if (TipsEntriesScrollbar) {
       const glm::vec2 scrollbarOffset =
-          AnimationOffset +
+          animationOffset +
           glm::vec2{TipsListBounds.X + TipsListBounds.Width, TipsListBounds.Y};
       TipsEntriesScrollbar->MoveTo(scrollbarOffset);
     }
   }
 
   DrawTipsTree();
-  DrawSelectWord();
-  if (FadeAnimation.Progress > 0.34) {
+  SelectAnimation.Draw(SelectWordSprites, SelectWordPos, animationOffset);
+  if (MenuTransition.Progress > 0.34) {
     Renderer->DrawSprite(MenuTitleText, LeftTitlePos);
     ItemsList.Tint.a = alpha;
     ItemsList.Render();
@@ -237,7 +227,7 @@ void TipsMenu::Update(float dt) {
     Show();
   }
 
-  if (FadeAnimation.IsOut() && !GetFlag(SF_TIPSMENU) && systemMenuCHG == 0 &&
+  if (MenuTransition.IsOut() && !GetFlag(SF_TIPSMENU) && systemMenuCHG == 0 &&
       (sysMenuCt == 0 || GetFlag(SF_SYSTEMMENU)) && State == Hiding) {
     State = Hidden;
 
@@ -250,7 +240,7 @@ void TipsMenu::Update(float dt) {
     TipsSystem::GetNewTipsIndices().resize(0);
     CurrentlyDisplayedTipId = -1;
     if (LastFocusedMenu) LastFocusedMenu->IsFocused = true;
-  } else if (FadeAnimation.IsIn() && sysMenuCt == 10000 &&
+  } else if (MenuTransition.IsIn() && sysMenuCt == 10000 &&
              (systemMenuCHG == 0 || systemMenuCHG == 64) &&
              GetFlag(SF_TIPSMENU) && State == Showing) {
     State = Shown;
@@ -260,13 +250,13 @@ void TipsMenu::Update(float dt) {
   }
 
   if (State != Hidden) {
-    FadeAnimation.Update(dt);
+    MenuTransition.Update(dt);
     FromSystemMenuTransition.Update(dt);
-    SelectWordAnimation.Update(dt);
-    if (FadeAnimation.Direction == AnimationDirection::Out &&
-        FadeAnimation.Progress <= 0.72f) {
+    SelectAnimation.Update(dt);
+    if (MenuTransition.Direction == AnimationDirection::Out &&
+        MenuTransition.Progress <= 0.72f) {
       TitleFade.StartOut();
-    } else if (FadeAnimation.IsIn() &&
+    } else if (MenuTransition.IsIn() &&
                (TitleFade.Direction == AnimationDirection::In ||
                 TitleFade.IsOut())) {
       TitleFade.StartIn();
@@ -283,22 +273,6 @@ void TipsMenu::Update(float dt) {
 
   if (TipsEntriesScrollbar) {
     TipsEntriesScrollbar->Update(dt);
-  }
-
-  if (FadeAnimation.Progress > 0.22f) {
-    if (FadeAnimation.Progress < 0.72f) {
-      // Approximated function from the original, another mess
-      AnimationOffset = glm::vec2(
-          0.0f,
-          glm::mix(-Profile::DesignHeight, 0.0f,
-                   1.00397f * std::sin(3.97161f -
-                                       3.26438f * FadeAnimation.Progress) -
-                       0.00295643f));
-    } else {
-      AnimationOffset = {0.0f, 0.0f};
-    }
-  } else {
-    AnimationOffset = {0.0f, -Profile::DesignHeight};
   }
 }
 
@@ -499,7 +473,7 @@ void TipsMenu::DrawCircles() {
   int resetCounter = 0;
   // Give the whole range that mimics ScrWork[SW_SYSMENUCT] given that the
   // duration is totalframes/60
-  float progress = FadeAnimation.Progress * MenuTransitionDuration * 60.0f;
+  float progress = MenuTransition.Progress * MenuTransitionDuration * 60.0f;
   for (int line = 0; line < 4; line++) {
     int counter = resetCounter;
     float x = CircleStartPosition.x;
@@ -523,26 +497,26 @@ void TipsMenu::DrawCircles() {
 
 void TipsMenu::DrawErin() {
   float y = ErinPosition.y;
-  if (FadeAnimation.Progress < 0.78f) {
+  if (MenuTransition.Progress < 0.78f) {
     y = 801.0f;
-    if (FadeAnimation.Progress > 0.22f) {
+    if (MenuTransition.Progress > 0.22f) {
       // Approximation from the original function, which was a bigger mess
       y = glm::mix(
           -19.0f, Profile::DesignHeight + 1.0f,
           0.998938f -
-              0.998267f * sin(3.97835f - 3.27549f * FadeAnimation.Progress));
+              0.998267f * sin(3.97835f - 3.27549f * MenuTransition.Progress));
     }
   }
   Renderer->DrawSprite(ErinSprite, glm::vec2(ErinPosition.x, y));
 }
 
 void TipsMenu::DrawRedBar() {
-  if (FadeAnimation.IsIn()) {
+  if (MenuTransition.IsIn()) {
     Renderer->DrawSprite(InitialRedBarSprite, InitialRedBarPosition);
-  } else if (FadeAnimation.Progress > 0.70f) {
+  } else if (MenuTransition.Progress > 0.70f) {
     // Give the whole range that mimics ScrWork[SW_SYSMENUCT] given that the
     // duration is totalframes/60
-    float progress = FadeAnimation.Progress * MenuTransitionDuration * 60.0f;
+    float progress = MenuTransition.Progress * MenuTransitionDuration * 60.0f;
     float pixelPerAdvanceLeft = RedBarBaseX * (progress - 47.0f) / 17.0f;
     RedBarSprite.Bounds.X = RedBarDivision - pixelPerAdvanceLeft;
     RedBarSprite.Bounds.Width = pixelPerAdvanceLeft;
@@ -599,20 +573,21 @@ void TipsMenu::UpdatePageInput(float dt) {
 }
 
 void TipsMenu::DrawTipsTree() {
+  const glm::vec2 animationOffset = MenuTransition.GetPageOffset();
   glm::vec2 currentTipBackgroundPosition(
       CurrentTipBackgroundPosition.x,
-      CurrentTipBackgroundPosition.y + AnimationOffset.y);
+      CurrentTipBackgroundPosition.y + animationOffset.y);
   Renderer->DrawSprite(CurrentTipBackgroundSprite,
                        currentTipBackgroundPosition);
   glm::vec2 gradientPosition(GradientPosition.x,
-                             GradientPosition.y + AnimationOffset.y);
+                             GradientPosition.y + animationOffset.y);
   Renderer->DrawSprite(TipsGradient, gradientPosition);
   const float gradientEndY =
-      TipsListBounds.Y + TipsListBounds.Height + AnimationOffset.y - 5.0f;
+      TipsListBounds.Y + TipsListBounds.Height + animationOffset.y - 5.0f;
   Renderer->DrawQuad(
       RectF(GradientPosition.x, gradientEndY, TipsGradient.Bounds.Width, 91.0f),
       RgbIntToFloat(EndOfGradientColor));
-  glm::vec2 treePosition(TreePosition.x, TreePosition.y + AnimationOffset.y);
+  glm::vec2 treePosition(TreePosition.x, TreePosition.y + animationOffset.y);
   Renderer->DrawSprite(TipsTree, treePosition);
 
   const auto* const currentPage =
@@ -622,7 +597,7 @@ void TipsMenu::DrawTipsTree() {
     const glm::vec2 pos = widget->Bounds.GetPos();
     const glm::vec2 linePos = pos + glm::vec2{-22, 0};
     const float bottomEdge =
-        AnimationOffset.y + TipsListBounds.Y + TipsListBounds.Height;
+        animationOffset.y + TipsListBounds.Y + TipsListBounds.Height;
     const bool lastViewable = bottomEdge - pos.y < TipListYPadding + 1.0f &&
                               bottomEdge - pos.y > 0.0f;
 
@@ -650,9 +625,9 @@ void TipsMenu::DrawTipsTree() {
   if (i * TipListYPadding < TipsListBounds.Height) {
     const float remainder = TipsListBounds.Height - (i * TipListYPadding);
     const float start =
-        TipsListBounds.Y + AnimationOffset.y + (i * TipListYPadding);
+        TipsListBounds.Y + animationOffset.y + (i * TipListYPadding);
     RectF dest{
-        GradientPosition.x + AnimationOffset.x,
+        GradientPosition.x + animationOffset.x,
         start,
         TipsListBounds.Width,
         remainder,
@@ -662,36 +637,17 @@ void TipsMenu::DrawTipsTree() {
 }
 
 void TipsMenu::DrawButtonPrompt() {
-  if (FadeAnimation.IsIn()) {
+  if (MenuTransition.IsIn()) {
     Renderer->DrawSprite(ButtonPromptSprite, ButtonPromptPosition);
-  } else if (FadeAnimation.Progress > 0.734f) {
-    float x = ButtonPromptPosition.x - 2560.0f * (FadeAnimation.Progress - 1);
+  } else if (MenuTransition.Progress > 0.734f) {
+    float x = ButtonPromptPosition.x - 2560.0f * (MenuTransition.Progress - 1);
     Renderer->DrawSprite(ButtonPromptSprite,
                          glm::vec2(x, ButtonPromptPosition.y));
   }
 }
 
-void TipsMenu::DrawSelectWord() {
-  const auto currentLetter = static_cast<size_t>(
-      SelectWordAnimation.Progress * SelectWordDuration / SelectWordInterval);
-  for (size_t i = 0; i < SelectWordSprites.size(); i++) {
-    if (currentLetter < i) break;
-    const glm::vec2 pos = SelectWordPos[i];
-    const float alpha =
-        i == currentLetter
-            ? (SelectWordAnimation.Progress * SelectWordDuration -
-               i * SelectWordInterval) /
-                  SelectWordInterval
-            : 1.0f;
-    if (i == currentLetter)
-      ImpLog(LogLevel::Trace, LogChannel::Render, "alpha {}\n", alpha);
-    Renderer->DrawSprite(SelectWordSprites[i], pos + AnimationOffset,
-                         glm::vec4(1.0f, 1.0f, 1.0f, alpha));
-  }
-}
-
 void TipsMenu::UpdateTitles() {
-  if (FadeAnimation.Progress <= 0.34f) return;
+  if (MenuTransition.Progress <= 0.34f) return;
 
   RedTitleLabelPos = RedBarLabelPosition;
   RightTitlePos = MenuTitleTextRightPosition;
@@ -704,14 +660,14 @@ void TipsMenu::UpdateTitles() {
                 1.01011f * std::sin(1.62223f * TitleFade.Progress + 3.152f) +
                     1.01012f));
 
-  if (FadeAnimation.Progress >= 0.73f) return;
+  if (MenuTransition.Progress >= 0.73f) return;
 
   RedTitleLabelPos +=
-      glm::vec2(-572.0f * (FadeAnimation.Progress * 4.0f - 3.0f),
-                460.0f * (FadeAnimation.Progress * 4.0f - 3.0f) / 3.0f);
+      glm::vec2(-572.0f * (MenuTransition.Progress * 4.0f - 3.0f),
+                460.0f * (MenuTransition.Progress * 4.0f - 3.0f) / 3.0f);
   RightTitlePos +=
-      glm::vec2(-572.0f * (FadeAnimation.Progress * 4.0f - 3.0f),
-                460.0f * (FadeAnimation.Progress * 4.0f - 3.0f) / 3.0f);
+      glm::vec2(-572.0f * (MenuTransition.Progress * 4.0f - 3.0f),
+                460.0f * (MenuTransition.Progress * 4.0f - 3.0f) / 3.0f);
 }
 
 void TipsMenu::SwitchToTipId(int id) {

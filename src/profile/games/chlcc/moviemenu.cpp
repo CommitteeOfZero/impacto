@@ -11,7 +11,6 @@ namespace CHLCC {
 namespace MovieMenu {
 
 void Configure() {
-  MenuTransitionDuration = EnsureGetMember<float>("TransitionDuration");
   BackgroundColor = EnsureGetMember<uint32_t>("BackgroundColor");
   CircleSprite = EnsureGetMember<Sprite>("CircleSprite");
   CircleStartPosition = EnsureGetMember<glm::vec2>("CircleStartPosition");
@@ -38,9 +37,11 @@ void Configure() {
       EnsureGetMember<SpriteAnimationDef>("SelectedMovieAnimation");
   SelectedMovieYellowDot = EnsureGetMember<Sprite>("SelectedMovieYellowDot");
 
-  SelectMovieFadeDuration = EnsureGetMember<float>("SelectMovieFadeDuration");
-  GetMemberArray<Sprite>(SelectMovie, 11, "SelectMovie");
-  GetMemberArray<glm::vec2>(SelectMoviePos, 11, "SelectMoviePos");
+  SelectMovie = GetMemberVector<Sprite>("SelectMovie");
+  SelectMoviePos = GetMemberVector<glm::vec2>("SelectMoviePos");
+  if (SelectMovie.size() != SelectMoviePos.size()) {
+    throw std::runtime_error("Related arrays have mismatching sizes");
+  }
   LabelPosition = EnsureGetMember<glm::vec2>("LabelPosition");
   MovieLabel = EnsureGetMember<Sprite>("MovieLabel");
   ListPosition = EnsureGetMember<glm::vec2>("ListPosition");
