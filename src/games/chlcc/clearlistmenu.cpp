@@ -135,10 +135,11 @@ void ClearListMenu::Update(float dt) {
   }
 
   if (MenuTransition.IsOut() &&
-      (ScrWork[SW_SYSMENUCT] == 0 || GetFlag(SF_SYSTEMMENU)) && State == Hiding)
+      (ScrWork[SW_SYSMENUCT] == 0 || GetFlag(SF_SYSTEMMENU)) &&
+      State == Hiding) {
     State = Hidden;
-  else if (MenuTransition.IsIn() && ScrWork[SW_SYSMENUCT] == 10000 &&
-           State == Showing) {
+  } else if (MenuTransition.IsIn() && ScrWork[SW_SYSMENUCT] == 10000 &&
+             State == Showing) {
     State = Shown;
   }
 
