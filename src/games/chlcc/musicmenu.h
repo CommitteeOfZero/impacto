@@ -19,8 +19,33 @@ enum class MusicPlaybackMode : uint8_t {
   One = 0b00,
   Playlist = 0b01,
   RepeatOne = 0b10,
-  RepeatPlaylist = 0b11
+  RepeatPlaylist = 0b11,
+  COUNT  // number of entries in the enum
 };
+
+constexpr MusicPlaybackMode operator&(MusicPlaybackMode mode,
+                                      MusicPlaybackMode other) {
+  return static_cast<MusicPlaybackMode>(to_underlying(mode) &
+                                        to_underlying(other));
+}
+
+constexpr MusicPlaybackMode& operator++(MusicPlaybackMode& mode) {
+  mode = static_cast<MusicPlaybackMode>(
+      (to_underlying(mode) + 1) % to_underlying(MusicPlaybackMode::COUNT));
+  return mode;
+}
+
+constexpr MusicPlaybackMode operator^(MusicPlaybackMode mode,
+                                      MusicPlaybackMode other) {
+  return static_cast<MusicPlaybackMode>(to_underlying(mode) ^
+                                        to_underlying(other));
+}
+
+constexpr MusicPlaybackMode& operator^=(MusicPlaybackMode& mode,
+                                        MusicPlaybackMode other) {
+  mode = mode ^ other;
+  return mode;
+}
 
 class MusicMenu : public Menu {
  public:

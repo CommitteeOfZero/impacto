@@ -55,6 +55,9 @@ void Configure() {
   ButtonGuidePos = EnsureGetMember<glm::vec2>("ButtonGuidePos");
   SelectDataSprites = GetMemberVector<Sprite>("SelectDataSprites");
   SelectDataPos = GetMemberVector<glm::vec2>("SelectDataPos");
+  if (SelectDataSprites.size() != SelectDataPos.size()) {
+    throw std::runtime_error("Related arrays have mismatching sizes");
+  }
   AlbumMenuTitle = EnsureGetMember<Sprite>("AlbumMenuTitle");
   AlbumMenuTitleRightPos = EnsureGetMember<glm::vec2>("AlbumMenuTitleRightPos");
   AlbumMenuTitleLeftPos = EnsureGetMember<glm::vec2>("AlbumMenuTitleLeftPos");

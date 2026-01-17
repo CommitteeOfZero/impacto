@@ -23,13 +23,13 @@ using namespace Impacto::UI::Widgets;
 using namespace Impacto::Vm::Interface;
 
 constexpr bool isRepeatOne(MusicPlaybackMode playbackMode) {
-  return to_underlying(playbackMode) &
-         to_underlying(MusicPlaybackMode::RepeatOne);
+  return (playbackMode & MusicPlaybackMode::RepeatOne) ==
+         MusicPlaybackMode::RepeatOne;
 }
 
 constexpr bool isPlaylist(MusicPlaybackMode playbackMode) {
-  return to_underlying(playbackMode) &
-         to_underlying(MusicPlaybackMode::Playlist);
+  return (playbackMode & MusicPlaybackMode::Playlist) ==
+         MusicPlaybackMode::Playlist;
 }
 
 void MusicMenu::MusicButtonOnClick(Button* target) {
@@ -39,18 +39,14 @@ void MusicMenu::MusicButtonOnClick(Button* target) {
 }
 
 void MusicMenu::ToggleRepeatMode() {
-  PlaybackMode =
-      (MusicPlaybackMode)(to_underlying(PlaybackMode) ^
-                          to_underlying(MusicPlaybackMode::RepeatOne));
+  PlaybackMode ^= MusicPlaybackMode::RepeatOne;
   PlayModeRepeatSprite =
       isRepeatOne(PlaybackMode) ? PlaymodeRepeatHighlight : PlaymodeRepeat;
   UpdateLooping();
 }
 
 void MusicMenu::ToggleAllMode() {
-  PlaybackMode =
-      (MusicPlaybackMode)(to_underlying(PlaybackMode) ^
-                          to_underlying(MusicPlaybackMode::Playlist));
+  PlaybackMode ^= MusicPlaybackMode::Playlist;
   PlayModeAllSprite =
       isPlaylist(PlaybackMode) ? PlaymodeAllHighlight : PlaymodeAll;
   UpdateLooping();
@@ -360,7 +356,9 @@ void MusicMenu::Update(float dt) {
 
 void MusicMenu::UpdateInput(float dt) {
   auto* prevFocus = CurrentlyFocusedElement;
-  Menu::UpdateInput(dt);
+  if (!MainScrollbar.IsScrollHeld()) {
+    Menu::UpdateInput(dt);
+  }
   if (State == Shown) {
     const float prevScrollPos = ScrollY;
     auto checkScrollBounds = [&]() {
@@ -373,11 +371,21 @@ void MusicMenu::UpdateInput(float dt) {
       } else if (CurrentlyFocusedElement == MainItems->Children.back()) {
         ScrollY = MainScrollbar.EndValue;
       } else {
-        ScrollY += CurrentlyFocusedElement->Bounds.Y - prevFocus->Bounds.Y;
+        float targetScroll = CurrentlyFocusedElement->Bounds.Y -
+                             MainItems->GetFirstFocusableChild()->Bounds.Y;
+        // if focused item is out of bounds, we scroll to it if focus has
+        // changed
+        if (targetScroll <= ScrollY) {
+          ScrollY = targetScroll;
+        } else {
+          ScrollY = targetScroll - SelectableItemsPerPage * TrackOffset.y;
+        }
+        MainScrollbar.ClampValue();
       }
     }
 
-    // imitate gamepad's dpad/keyboard controls bahaviour
+    // imitate gamepad's d-pad/keyboard controls behavior, when scrolling out of
+    // bounds
     if (Input::CurrentInputDevice != Input::Device::Mouse) {
       int currentLowerBound = (int)(ScrollY / TrackOffset.y);
       int currentUpperBound = currentLowerBound + SelectableItemsPerPage;
@@ -416,8 +424,7 @@ void MusicMenu::UpdateInput(float dt) {
     }
 
     if (PADinputButtonWentDown & PAD1Y) {
-      uint8_t mode = (to_underlying(PlaybackMode) + 1) % 4;
-      PlaybackMode = (MusicPlaybackMode)mode;
+      ++PlaybackMode;
       PlayModeAllSprite =
           isPlaylist(PlaybackMode) ? PlaymodeAllHighlight : PlaymodeAll;
       PlayModeRepeatSprite =
@@ -506,7 +513,6 @@ inline void MusicMenu::DrawButtonPrompt() {
 
 void MusicMenu::UpdateEntries() {
   auto onClick = [this](auto* btn) { return MusicButtonOnClick(btn); };
-
   for (size_t idx = 0; idx < MainItems->Children.size(); idx++) {
     auto button = static_cast<Widgets::CHLCC::TrackSelectButton*>(
         MainItems->Children[idx]);

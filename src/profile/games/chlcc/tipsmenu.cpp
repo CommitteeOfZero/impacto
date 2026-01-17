@@ -114,7 +114,9 @@ void Configure() {
 
   SelectWordSprites = GetMemberVector<Sprite>("SelectWordSprites");
   SelectWordPos = GetMemberVector<glm::vec2>("SelectWordPos");
-  assert(SelectWordSprites.size() == SelectWordPos.size());
+  if (SelectWordSprites.size() != SelectWordPos.size()) {
+    throw std::runtime_error("Related arrays have mismatching sizes");
+  }
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMember<uint8_t>("DrawType"));

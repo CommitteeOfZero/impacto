@@ -15,8 +15,8 @@ using namespace Impacto::Profile::GameSpecific;
 class SelectPromptAnimation : public Animation {
  public:
   SelectPromptAnimation();
-  void Draw(const std::span<const Sprite> sprites,
-            const std::span<const glm::vec2> positions, const glm::vec2 offset);
+  void Draw(std::span<const Sprite> sprites,
+            std::span<const glm::vec2> positions, glm::vec2 offset);
 };
 
 }  // namespace CHLCC

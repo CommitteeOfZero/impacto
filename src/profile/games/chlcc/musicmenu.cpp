@@ -61,7 +61,9 @@ void Configure() {
   GetMemberArray<int>(Playlist, MusicTrackCount, "Playlist");
   SelectSoundSprites = GetMemberVector<Sprite>("SelectSoundSprites");
   SelectSoundPos = GetMemberVector<glm::vec2>("SelectSoundPos");
-  assert(SelectSoundSprites.size() == SelectSoundPos.size());
+  if (SelectSoundSprites.size() != SelectSoundPos.size()) {
+    throw std::runtime_error("Related arrays have mismatching sizes");
+  }
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMember<uint8_t>("DrawType"));

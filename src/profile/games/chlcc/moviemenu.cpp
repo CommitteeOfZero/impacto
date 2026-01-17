@@ -39,6 +39,9 @@ void Configure() {
 
   SelectMovie = GetMemberVector<Sprite>("SelectMovie");
   SelectMoviePos = GetMemberVector<glm::vec2>("SelectMoviePos");
+  if (SelectMovie.size() != SelectMoviePos.size()) {
+    throw std::runtime_error("Related arrays have mismatching sizes");
+  }
   LabelPosition = EnsureGetMember<glm::vec2>("LabelPosition");
   MovieLabel = EnsureGetMember<Sprite>("MovieLabel");
   ListPosition = EnsureGetMember<glm::vec2>("ListPosition");

@@ -76,7 +76,9 @@ void Configure() {
   SelectDataTextPositions =
       GetMemberVector<glm::vec2>("SelectDataTextPositions");
   SelectDataTextSprites = GetMemberVector<Sprite>("SelectDataText");
-  assert(SelectDataTextPositions.size() == SelectDataTextSprites.size());
+  if (SelectDataTextPositions.size() != SelectDataTextSprites.size()) {
+    throw std::runtime_error("Related arrays have mismatching sizes");
+  }
 
   EntryNumberHintTextRelativePos =
       EnsureGetMember<glm::vec2>("EntryNumberHintTextRelativePos");

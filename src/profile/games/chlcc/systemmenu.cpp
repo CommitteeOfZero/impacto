@@ -50,7 +50,9 @@ void Configure() {
   SelectMenuHeader = GetMemberVector<Sprite>("SelectMenuSprites");
   SelectMenuHeaderPositions =
       GetMemberVector<glm::vec2>("SelectMenuTextPositions");
-  assert(SelectMenuHeader.size() == SelectMenuHeaderPositions.size());
+  if (SelectMenuHeader.size() != SelectMenuHeaderPositions.size()) {
+    throw std::runtime_error("Related arrays have mismatching sizes");
+  }
 
   MenuLoopDuration = EnsureGetMember<float>("MenuLoopDuration");
   HoverLerpSpeed = EnsureGetMember<float>("MenuHoverLerpSpeed");
