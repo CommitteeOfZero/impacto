@@ -18,30 +18,39 @@ using namespace Impacto::Vm::Interface;
 
 using namespace Impacto::UI::Widgets::CHLCC;
 
+constexpr std::array<MovieButtonEntry, 10> MovieButtonMap{{
+    {10, 18},  // 0: PS3 OP / PSP OP
+    {0, 0},    // 1: X360 OP
+    {1, 11},   // 2: Rimi ED
+    {2, 12},   // 3: Nanami ED
+    {4, 14},   // 4: Yua ED
+    {5, 15},   // 5: Mia ED
+    {6, 16},   // 6: Ayase ED
+    {3, 13},   // 7: Sena ED
+    {7, 17},   // 8: Kozue ED
+    {8, 8}     // 9: Seira ED
+}};
+
+static bool IsExtraMoviesPresent() {
+  static bool isPresent = [] {
+    if (!MovieExtraVideosEnabled) return false;
+    std::map<uint32_t, std::string> listing;
+    Io::VfsListFiles("movie", listing);
+    // There are 11 videos in the base game: the 10 ones in this menu + the
+    // smoke one. If there's more than that, it means the PSP videos are in.
+    return listing.size() > Movies + 1;
+  }();
+  return isPresent;
+}
+
 void MovieMenu::MovieButtonOnClick(Widgets::Button* target) {
   auto movieButton = static_cast<MovieMenuEntryButton*>(target);
   if (!movieButton->IsLocked) {
     ChoiceMade = true;
     IsChoiceMadeOnce = true;
-    // TODO Add PSP OP as 11, PSP Normal ED as 12, PSP Ayase ED as 13
-    // Reordering IDs (note: ScrWork[SW_MOVIEMODE_CUR] = 9 is the smoke VFX
-    // video)
-    switch (movieButton->Id) {
-      case 0: {
-        ScrWork[SW_MOVIEMODE_CUR] = 10;
-      } break;
-      case 4:
-      case 5:
-      case 6: {
-        ScrWork[SW_MOVIEMODE_CUR] = movieButton->Id;
-      } break;
-      case 7: {
-        ScrWork[SW_MOVIEMODE_CUR] = 3;
-      } break;
-      default: {
-        ScrWork[SW_MOVIEMODE_CUR] = movieButton->Id - 1;
-      } break;
-    }
+    ScrWork[SW_MOVIEMODE_CUR] =
+        IsExtraMovieModeOn ? MovieButtonMap.at(movieButton->Id).ExtraId
+                           : MovieButtonMap.at(movieButton->Id).PhysicalId;
     Audio::Channels[Audio::AC_BGM0]->Stop(0.0f);
   }
 }
@@ -65,6 +74,10 @@ MovieMenu::MovieMenu() {
   FromSystemMenuTransition.DurationIn = TitleFadeInDuration;
   FromSystemMenuTransition.DurationOut = TitleFadeOutDuration;
 
+  // Check once in constructor that the ExtraMovieMode is usable, i.e: read VFS
+  // once.
+  IsExtraMoviesPresent();
+
   RedBarSprite = InitialRedBarSprite;
   RedBarPosition = InitialRedBarPosition;
 
@@ -77,9 +90,9 @@ MovieMenu::MovieMenu() {
     glm::vec2 thumbnailPosition(ThumbnailPositions[i].x,
                                 ThumbnailPositions[i].y);
     glm::vec2 boxPosition(BoxPositions[i].x, BoxPositions[i].y);
-    MovieMenuEntryButton* movieMenuEntryButton =
-        new MovieMenuEntryButton(i, MoviesThumbnails[i], LockedThumbnail,
-                                 thumbnailPosition, boxPosition);
+    MovieMenuEntryButton* movieMenuEntryButton = new MovieMenuEntryButton(
+        i, MoviesThumbnails[i], LockedThumbnail, thumbnailPosition, boxPosition,
+        IsExtraMovieModeOn);
     movieMenuEntryButton->OnClickHandler = onClick;
     MovieItems->Add(movieMenuEntryButton, FDIR_DOWN);
   }
@@ -233,6 +246,10 @@ void MovieMenu::UpdateInput(float dt) {
     if (PADinputButtonWentDown & PAD1B || PADinputMouseWentDown & PAD1B) {
       IsChoiceMadeOnce = false;
     }
+    if (IsExtraMoviesPresent() &&
+        (PADinputButtonWentDown & PAD1Y || PADinputMouseWentDown & PAD1Y)) {
+      IsExtraMovieModeOn = !IsExtraMovieModeOn;
+    }
   }
 }
 
@@ -346,12 +363,20 @@ inline void MovieMenu::DrawRedBar() {
 }
 
 inline void MovieMenu::DrawButtonPrompt() {
+  // If ExtraMovieMode is usable, change the button prompt to indicate the
+  // PAD1Y action is available.
+  const Sprite finalButtonPromptSprite =
+      IsExtraMoviesPresent() ? MovieButtonExtraPrompt : ButtonPromptSprite;
+  const glm::vec2 finalButtonPromptPosition =
+      IsExtraMoviesPresent() ? MovieButtonExtraPromptPosition
+                             : ButtonPromptPosition;
   if (MenuTransition.IsIn()) {
-    Renderer->DrawSprite(ButtonPromptSprite, ButtonPromptPosition);
+    Renderer->DrawSprite(finalButtonPromptSprite, finalButtonPromptPosition);
   } else if (MenuTransition.Progress > 0.734f) {
-    float x = ButtonPromptPosition.x - 2560.0f * (MenuTransition.Progress - 1);
-    Renderer->DrawSprite(ButtonPromptSprite,
-                         glm::vec2(x, ButtonPromptPosition.y));
+    float x =
+        finalButtonPromptPosition.x - 2560.0f * (MenuTransition.Progress - 1);
+    Renderer->DrawSprite(finalButtonPromptSprite,
+                         glm::vec2(x, finalButtonPromptPosition.y));
   }
 }
 

@@ -223,7 +223,8 @@ void AlbumMenu::UpdateInput(float dt) {
 }
 
 void AlbumMenu::Update(float dt) {
-  if (ScrWork[SW_SYSMENUCT] < 10000 && State == Shown) {
+  if ((!GetFlag(SF_ALBUMMENU) || ScrWork[SW_SYSMENUCT] < 10000) &&
+      State == Shown) {
     Hide();
   } else if (GetFlag(SF_ALBUMMENU) && ScrWork[SW_SYSMENUCT] > 0 &&
              State == Hidden) {

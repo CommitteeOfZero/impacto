@@ -51,6 +51,13 @@ inline Sprite LockedThumbnail;
 inline glm::vec2 ButtonPromptPosition;
 inline Sprite ButtonPromptSprite;
 
+inline bool MovieExtraVideosEnabled;
+inline SpriteAnimationDef SelectedMovieExtraAnimation;
+inline Sprite MovieBoxExtra;
+inline Sprite MovieThumbnailExtraOp;
+inline glm::vec2 MovieButtonExtraPromptPosition;
+inline Sprite MovieButtonExtraPrompt;
+
 void Configure();
 
 }  // namespace MovieMenu

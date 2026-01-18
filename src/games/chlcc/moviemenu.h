@@ -9,6 +9,10 @@ namespace Impacto {
 namespace UI {
 namespace CHLCC {
 
+struct MovieButtonEntry {
+  int PhysicalId;
+  int ExtraId;
+};
 class MovieMenu : public Menu {
  public:
   MovieMenu();
@@ -43,6 +47,7 @@ class MovieMenu : public Menu {
   glm::vec2 LeftTitlePos;
 
   bool IsChoiceMadeOnce = false;
+  bool IsExtraMovieModeOn = false;
 };
 
 }  // namespace CHLCC
