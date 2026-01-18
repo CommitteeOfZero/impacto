@@ -125,6 +125,8 @@ static void Init() {
     Effects::Blur.Init();
   }
 
+  SetWindowIcon(Window->SDLWindow);
+
   if (Profile::GameFeatures & GameFeature::ModelViewer) {
     ModelViewer::Init();
   }

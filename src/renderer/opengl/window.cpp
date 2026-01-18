@@ -205,8 +205,6 @@ void GLWindow::Init() {
          "Window size (screen coords): {:d} x {:d}\n", WindowWidth,
          WindowHeight);
 
-  SetWindowIcon(SDLWindow);
-
   bool gladOk;
   if (ActualGraphicsApi == GfxApi_GL) {
     gladOk = gladLoadGLLoader(SDL_GL_GetProcAddress);

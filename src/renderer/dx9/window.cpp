@@ -95,8 +95,6 @@ void DirectX9Window::Init() {
   ImpLog(LogLevel::Debug, LogChannel::General,
          "Window size (screen coords): {:d} x {:d}\n", WindowWidth,
          WindowHeight);
-
-  SetWindowIcon(SDLWindow);
 }
 
 void DirectX9Window::SetDimensions(int width, int height, int msaa,
