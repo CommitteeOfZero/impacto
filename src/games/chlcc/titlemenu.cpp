@@ -284,7 +284,7 @@ void TitleMenu::Update(float dt) {
 
   if (GetFlag(SF_TITLEMODE)) {
     Show();
-  } else {
+  } else if (ScrWork[SW_TITLECT] < 32) {
     ItemsFadeInAnimation.StartOut();
     SecondaryItemsFadeInAnimation.StartOut();
     Hide();
