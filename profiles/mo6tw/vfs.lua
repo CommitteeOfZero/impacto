@@ -1,13 +1,13 @@
 root.Vfs = {
     Mounts={
-        ["script"]={"games/mo6tw/gamedata/script.cls"},
-        ["system"]={"games/mo6tw/gamedata/system.cpk"},
-        ["bgm"]={"games/mo6tw/gamedata/bgm.cpk"},
-        ["se"]={"games/mo6tw/gamedata/se.cpk"},
-        ["voice"]={"games/mo6tw/gamedata/voice.cpk"},
-        ["bg"]={"games/mo6tw/gamedata/bg.cpk"},
-        ["chara"]={"games/mo6tw/gamedata/chara.cpk"},
-        ["mask"]={"games/mo6tw/gamedata/mask.cpk"},
-        ["movie"]={"games/mo6tw/gamedata/movie.cls"}
+        ["bg"]={"games/mo6tw/gamedata/BG.CPK"},
+        ["bgm"]={"games/mo6tw/gamedata/BGM.CPK"},
+        ["chara"]={"games/mo6tw/gamedata/CHARA.CPK"},
+        ["mask"]={"games/mo6tw/gamedata/MASK.CPK"},
+        ["movie"]={"games/mo6tw/gamedata/MOVIE.CPK"},
+        ["script"]={"games/mo6tw/gamedata/SCRIPT.cls"},
+        ["se"]={"games/mo6tw/gamedata/SE.CPK"},
+        ["system"]={"games/mo6tw/gamedata/SYSTEM.CPK"},
+        ["voice"]={"games/mo6tw/gamedata/VOICE.CPK"}
     }
 };
