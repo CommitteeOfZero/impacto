@@ -32,8 +32,8 @@ constexpr std::array<MovieButtonEntry, 10> MovieButtonMap{{
 }};
 
 static bool IsExtraMoviesPresent() {
-  if (!MovieExtraVideosEnabled) return false;
   static bool isPresent = [] {
+    if (!MovieExtraVideosEnabled) return false;
     std::map<uint32_t, std::string> listing;
     Io::VfsListFiles("movie", listing);
     // There are 11 videos in the base game: the 10 ones in this menu + the

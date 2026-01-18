@@ -51,7 +51,7 @@ inline Sprite LockedThumbnail;
 inline glm::vec2 ButtonPromptPosition;
 inline Sprite ButtonPromptSprite;
 
-inline std::optional<bool> MovieExtraVideosEnabled;
+inline bool MovieExtraVideosEnabled;
 inline SpriteAnimationDef SelectedMovieExtraAnimation;
 inline Sprite MovieBoxExtra;
 inline Sprite MovieThumbnailExtraOp;
