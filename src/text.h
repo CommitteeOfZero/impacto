@@ -162,7 +162,9 @@ struct DialoguePage {
   int CharacterId = -1;
 
   std::array<RubyChunk, DialogueMaxRubyChunks> RubyChunks;
+  std::array<RubyChunk, DialogueMaxRubyChunks> PrevRubyChunks;
   std::vector<ProcessedTextGlyph> Glyphs;
+  std::vector<ProcessedTextGlyph> PrevGlyphs;
 
   TypewriterEffect Typewriter;
   Animation FadeAnimation;
@@ -180,8 +182,9 @@ struct DialoguePage {
   int Length;
   float FontSize;
 
-  size_t RubyChunkCount;
-  int CurrentRubyChunk;
+  uint8_t RubyChunkCount;
+  uint8_t PrevRubyChunkCount;
+  uint8_t CurrentRubyChunk;
 
   std::optional<uint32_t> NameId = std::nullopt;
   std::optional<uint32_t> PrevNameId = std::nullopt;
@@ -219,6 +222,7 @@ struct DialoguePage {
   bool ShouldShowNewText = false;
   DialoguePageMode PrevMode = DPM_ADV;
   bool ShouldUpdateCharId = false;
+  bool UseTextFade = false;
 
   bool BuildingRubyBase;
   size_t FirstRubyChunkOnLine;

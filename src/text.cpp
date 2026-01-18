@@ -206,25 +206,15 @@ void TypewriterEffect::Update(float dt) {
     } else {
       // Progress at the characters-per-second speed defined by TextSpeed
       const float progressLeft = 1.0f - Progress;
-
-      if (Profile::ConfigSystem::TextSpeed >=
-          Profile::ConfigSystem::TextSpeedBounds.y) {
-        if (TextFadeInDuration > 0.0f) {
-          dt = dt / TextFadeInDuration;
-        } else {
-          dt = progressLeft;
-        }
-      } else {
-        const float glyphsLeft = static_cast<float>(GlyphCount) * progressLeft;
-        const float secondsLeft =
-            Profile::ConfigSystem::TextSpeed > 0.0f
-                ? glyphsLeft / Profile::ConfigSystem::TextSpeed
-                : 0.0f;
-        const float secondsLeftFractionCompleted =
-            secondsLeft > 0.0f ? dt / secondsLeft : 1.0f;
-        const float progressAdded = progressLeft * secondsLeftFractionCompleted;
-        dt = progressAdded;
-      }
+      const float glyphsLeft = static_cast<float>(GlyphCount) * progressLeft;
+      const float secondsLeft =
+          Profile::ConfigSystem::TextSpeed > 0.0f
+              ? glyphsLeft / Profile::ConfigSystem::TextSpeed
+              : 0.0f;
+      const float secondsLeftFractionCompleted =
+          secondsLeft > 0.0f ? dt / secondsLeft : 1.0f;
+      const float progressAdded = progressLeft * secondsLeftFractionCompleted;
+      dt = progressAdded;
     }
   }
 
@@ -602,12 +592,21 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
   // Hold last voiced animation id
   if (CurrentLineVoiced) NextAnimationId = std::max(nextAnimId, 31);
 
+  UseTextFade = (Mode == DPM_ADV || Mode == DPM_REV ||
+                 (Mode == DPM_NVL && NVLResetBeforeAdd));
+
   PrevNameId = NameId;
+
+  PrevRubyChunkCount = RubyChunkCount;
+  PrevRubyChunks = RubyChunks;
 
   if (Mode == DPM_ADV || Mode == DPM_REV || NVLResetBeforeAdd ||
       PrevMode != Mode) {
+    // swap in O(1) and then clear Glyphs, no need for cloning
+    PrevGlyphs.swap(Glyphs);
     Clear();
-    TextFadeAnimation.Progress = 1.0f;
+  } else {
+    PrevGlyphs = Glyphs;
   }
   PrevMode = Mode;
 
@@ -911,6 +910,12 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
     assert(NameLength == Name.size());
   }
 
+  if (UseTextFade) {
+    TextFadeAnimation.StartOut(true);
+  } else {
+    TextFadeAnimation.Progress = 1;
+  }
+
   ShouldShowNewText = true;
   // resetting typewriter for a new line and setting new params
   Typewriter.Stop();
@@ -926,8 +931,12 @@ void DialoguePage::Update(float dt) {
   if (GetFlag(SF_UIHIDDEN)) return;
   if ((ScrWork[SW_GAMESTATE] & 4) != 0) return;
 
+  bool textFadeFinished =
+      (UseTextFade && TextFadeAnimation.IsOut()) || !UseTextFade;
+
   // delayed start of a typewriter, voice & wait timer
-  if (ShouldShowNewText && NametagDisplay::DialogueCanStartAppearing(Mode)) {
+  if (ShouldShowNewText && NametagDisplay::DialogueCanStartAppearing(Mode) &&
+      textFadeFinished) {
     ShouldShowNewText = false;
     if (CurrentLineVoiced) {
       AnimationId = NextAnimationId;
@@ -1007,14 +1016,21 @@ void DialoguePage::Render() {
   glm::vec4 col = glm::vec4(1.0f);  // ScrWorkGetColor(SW_MESWINDOW_COLOR);
   col.a = opacityTint.a;
 
+  bool textFadeFinished =
+      (UseTextFade && TextFadeAnimation.IsOut()) || !UseTextFade;
+
   const float textFadeOpacity =
       GetFlag(Profile::ScriptVars::SF_MESALLSKIP)
           ? 1.0f
-          : opacityTint.a * TextFadeAnimation.Progress;
+          : (textFadeFinished ? opacityTint.a
+                              : opacityTint.a * TextFadeAnimation.Progress);
 
-  Renderer->DrawProcessedText(Glyphs, DialogueFont, textFadeOpacity,
+  const auto glyphsToDraw = textFadeFinished ? Glyphs : PrevGlyphs;
+  Renderer->DrawProcessedText(glyphsToDraw, DialogueFont, textFadeOpacity,
                               RendererOutlineMode::Full);
-  for (size_t rubyChunkId = 0; rubyChunkId < RubyChunkCount; rubyChunkId++) {
+  const size_t rubyChunkCount =
+      textFadeFinished ? RubyChunkCount : PrevRubyChunkCount;
+  for (size_t rubyChunkId = 0; rubyChunkId < rubyChunkCount; rubyChunkId++) {
     Renderer->DrawProcessedText(RubyChunks[rubyChunkId].Text, DialogueFont,
                                 textFadeOpacity, RendererOutlineMode::Full);
   }
@@ -1029,7 +1045,7 @@ void DialoguePage::Render() {
 
   // Wait icon
   const RectF& lastGlyphDest =
-      Glyphs.empty() ? RectF() : Glyphs.back().DestRect;
+      glyphsToDraw.empty() ? RectF() : glyphsToDraw.back().DestRect;
   glm::vec2 waitIconPos(lastGlyphDest.X + lastGlyphDest.Width, lastGlyphDest.Y);
   WaitIconDisplay::Render(waitIconPos, col, Mode);
 
@@ -1070,13 +1086,14 @@ void DialoguePage::Hide() {
     PrevNameId = NameId;
     NameId.reset();
     NametagDisplay::UpdateNames(NameId, PrevNameId, Mode);
+    // force animation start
+    NametagDisplay::StartHiding();
   }
 }
 
 void DialoguePage::Show() {
   NametagDisplay::Reset();
   FadeAnimation.StartIn(true);
-  TextFadeAnimation.Progress = 1.0f;
 }
 
 int TextGetStringLength(Vm::Sc3Stream& stream) {

@@ -18,7 +18,6 @@ void Update(float dt, DialoguePageMode mode);
 
 void UpdateNames(std::optional<uint32_t> nameId,
                  std::optional<uint32_t> prevNameId, DialoguePageMode mode);
-void StartHiding();
 
 std::optional<uint32_t> GetNameToDraw();
 
@@ -34,6 +33,7 @@ inline bool IsHiding() {
 inline bool IsShowing() {
   return NametagAnimation.Progress >= NameTagAnimProgressShowNew;
 }
+inline void StartHiding() { NametagAnimation.StartIn(true); }
 
 }  // namespace NametagDisplay
 }  // namespace Impacto
