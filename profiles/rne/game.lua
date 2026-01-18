@@ -25,8 +25,6 @@ root.Vm = {
     ScrWorkCaptureStructSize = 20,
     ScrWorkCaptureOffsetStructSize = 10,
     ScrWorkCaptureEffectInfoStructSize = 3,
-    ScrWorkBgEffStructSize = 30,
-    ScrWorkBgEffOffsetStructSize = 20,
 
     MaxLinkedBgBuffers = 2
 };

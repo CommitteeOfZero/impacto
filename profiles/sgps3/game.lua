@@ -25,8 +25,6 @@ root.Vm = {
     ScrWorkChaOffsetStructSize = 10,
     ScrWorkBgStructSize = 20,
     ScrWorkBgOffsetStructSize = 10,
-    ScrWorkBgEffStructSize = 20,
-    ScrWorkBgEffOffsetStructSize = 20,
 };
 
 include('common/scriptinput.lua');
