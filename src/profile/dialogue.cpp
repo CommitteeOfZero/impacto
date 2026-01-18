@@ -197,10 +197,9 @@ void Configure() {
   MaxPageSize = EnsureGetMember<int>("MaxPageSize");
   PageCount = EnsureGetMember<int>("PageCount");
 
-  Impacto::DialoguePages = new DialoguePage[PageCount];
-  Impacto::DialoguePageCount = PageCount;
-  for (int i = 0; i < PageCount; i++) {
-    Impacto::DialoguePages[i].Glyphs.reserve(MaxPageSize);
+  Impacto::DialoguePages.resize(PageCount);
+  for (DialoguePage& page : Impacto::DialoguePages) {
+    page.Glyphs.reserve(MaxPageSize);
   }
 
   {

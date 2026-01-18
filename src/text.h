@@ -185,6 +185,7 @@ struct DialoguePage {
 
   std::optional<uint32_t> NameId = std::nullopt;
   std::optional<uint32_t> PrevNameId = std::nullopt;
+  bool RenderName = false;
 
   enum class AutoForwardType { Off, Normal, SyncVoice };
   AutoForwardType AutoForward = AutoForwardType::Off;
@@ -228,8 +229,7 @@ struct DialoguePage {
   float CurrentLineTopMargin;
 };
 
-inline DialoguePage* DialoguePages;
-inline int DialoguePageCount = 0;
+inline std::vector<DialoguePage> DialoguePages;
 
 int TextGetStringLength(Vm::Sc3Stream& stream);
 int TextGetStringLength(Vm::Sc3VmThread* ctx);
