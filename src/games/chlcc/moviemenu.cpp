@@ -32,6 +32,7 @@ constexpr std::array<MovieButtonEntry, 10> MovieButtonMap{{
 }};
 
 static bool IsExtraMoviesPresent() {
+  if (!MovieExtraVideosEnabled) return false;
   static bool isPresent = [] {
     std::map<uint32_t, std::string> listing;
     Io::VfsListFiles("movie", listing);
