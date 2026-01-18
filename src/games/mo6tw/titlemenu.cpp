@@ -228,7 +228,7 @@ void TitleMenu::Update(float dt) {
   SecondaryFadeAnimation.Update(dt);
   if (GetFlag(SF_TITLEMODE)) {
     Show();
-  } else {
+  } else if (ScrWork[SW_TITLECT] < 32) {
     Hide();
   }
 
