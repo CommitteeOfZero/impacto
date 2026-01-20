@@ -8,6 +8,10 @@ if (POLICY CMP0174)
   cmake_policy(SET CMP0174 NEW)
 endif()
 
+if(APPLE)
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0")
+endif()
+
 project("impacto")
 
 include(FetchContent)
@@ -16,10 +20,6 @@ find_package(PkgConfig)
 if (EMSCRIPTEN)
     list(APPEND CMAKE_MODULE_PATH ${EMSCRIPTEN_ROOT_PATH}/cmake/Modules)
 endif ()
-
-if (APPLE)
-    set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0")
-endif()
 
 set(Impacto_Src
     src/main.cpp
@@ -1416,11 +1416,31 @@ if (NOT DEFINED IMPACTO_DISABLE_DX9)
     )
 endif ()
 
+file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/VERSION" APP_VERSION)
+string(STRIP "${APP_VERSION}" APP_VERSION)
+string(REGEX REPLACE "\\.$" "" APP_VERSION "${APP_VERSION}")
+string(REGEX REPLACE "\\.[0-9]+$" "" APP_VERSION_SHORT "${APP_VERSION}")
+
 if(ANDROID)
     add_library(impacto SHARED ${Impacto_Src} ${Impacto_Header})
     target_link_options(impacto PRIVATE "LINKER:--build-id=sha1")
+elseif(APPLE)
+    add_executable(impacto MACOSX_BUNDLE ${Impacto_Src} ${Impacto_Header})
 else()
     add_executable(impacto ${Impacto_Src} ${Impacto_Header})
+endif()
+
+if (APPLE)
+    set_target_properties(
+        impacto
+        PROPERTIES
+        MACOSX_BUNDLE_BUNDLE_NAME "Impacto"
+        MACOSX_BUNDLE_BUNDLE_VERSION "${APP_VERSION}"
+        MACOSX_BUNDLE_SHORT_VERSION_STRING "${APP_VERSION_SHORT}"
+        MACOSX_BUNDLE_GUI_IDENTIFIER "com.committeeofzero.impacto"
+        INSTALL_RPATH "@executable_path/../Frameworks"
+        BUILD_WITH_INSTALL_RPATH TRUE
+    )
 endif()
 
 set_property(TARGET impacto PROPERTY COMPILE_WARNING_AS_ERROR ON)
@@ -1527,15 +1547,23 @@ elseif (WIN32)
     install(TARGETS impacto RUNTIME DESTINATION .)
     install(FILES $<TARGET_RUNTIME_DLLS:impacto> DESTINATION .)
     x_vcpkg_install_local_dependencies(TARGETS impacto DESTINATION .)
+elseif(APPLE)    
+    install(TARGETS impacto
+            BUNDLE  DESTINATION .
+            RUNTIME DESTINATION .
+            RESOURCE DESTINATION .
+    )
+    install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src/shaders"
+        DESTINATION "Impacto.app/Contents/Resources/"
+    )
+    install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/games"
+        DESTINATION "Impacto.app/Contents/Resources/"
+    )
+    install(TARGETS atrac9
+            LIBRARY DESTINATION Impacto.app/Contents/Frameworks
+    )
 else()
-    if (APPLE)
-        set_property(
-            TARGET impacto
-            PROPERTY INSTALL_RPATH
-            "@loader_path/"
-            "@loader_path/lib"
-        )
-    elseif (LINUX)
+    if (LINUX)
         set_property(
             TARGET impacto
             PROPERTY INSTALL_RPATH
@@ -1557,9 +1585,11 @@ endif ()
 # asset install
 
 if (NOT ANDROID)
-    install(DIRECTORY src/shaders DESTINATION .)
+    if(NOT APPLE)
+        install(DIRECTORY src/shaders DESTINATION .)
+        install(DIRECTORY games DESTINATION .)
+    endif()
     install(DIRECTORY profiles DESTINATION .)
-    install(DIRECTORY games DESTINATION .)
     install(FILES basepaths.lua DESTINATION .)
     install(FILES gamedefinitions.lua DESTINATION .)
     install(FILES userconfig.lua DESTINATION .)
