@@ -265,8 +265,7 @@ void UpdateSystem(float dt) {
     SaveIconDisplay::Update(UpdateSecondCounter);
     LoadingDisplay::Update(UpdateSecondCounter);
     DateDisplay::Update(UpdateSecondCounter);
-    if (ScrWork[SW_GAMESTATE] & 5 && !GetFlag(SF_GAMEPAUSE) &&
-        !GetFlag(SF_SYSMENUDISABLE)) {
+    if (ScrWork[SW_GAMESTATE] & 5 && !GetFlag(SF_GAMEPAUSE)) {
       UI::GameSpecific::Update(UpdateSecondCounter);
 
       if (Profile::UseWaveEffects && IsBgWaveEffectActive()) {
