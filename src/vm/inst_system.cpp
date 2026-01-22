@@ -795,6 +795,40 @@ VmInstruction(InstMSinit) {
       DialoguePages[i].FadeAnimation.Progress = 0;
       SetFlag(i + SF_MESWINDOW0OPENFL, 0);
     }
+
+    for (int i = 0; i < std::ssize(Backgrounds); i++) {
+      size_t offset = Profile::Vm::ScrWorkBgStructSize * i;
+      ScrWork[SW_BG1POSX + offset] = 0;
+      ScrWork[SW_BG1POSY + offset] = 0;
+      ScrWork[SW_BG1SX + offset] = 0;
+      ScrWork[SW_BG1SY + offset] = 0;
+      ScrWork[SW_BG1SIZE + offset] = 0;
+      ScrWork[SW_BG1LX + offset] = 0;
+      ScrWork[SW_BG1LY + offset] = 0;
+      ScrWork[SW_BG1NO + offset] = 0xffff;
+      ScrWork[SW_BG1PRI + offset] = 0;
+      ScrWork[SW_BG1DISPMODE + offset] = 0;
+      ScrWork[SW_BG1FADECT + offset] = 0;
+      ScrWork[SW_BG1FADETYPE + offset] = 0;
+      ScrWork[SW_BG1ROTZ + offset] = 0;
+      ScrWork[SW_BG1ALPHA + offset] = 256;
+      ScrWork[SW_BG1MASKNO + offset] = 0;
+      ScrWork[SW_BG1MASKFADERANGE + offset] = 0;
+
+      if (Profile::Vm::ScrWorkBgEffStructSize > 20) {
+        ScrWork[SW_BG1PRI2 + offset] = 0xffff;
+        ScrWork[SW_BG1FILTER + offset] = 0xffffff;
+
+        ScrWork[SW_BG1CLIP_X + offset] = 1280;
+        ScrWork[SW_BG1CLIP_Y + offset] = 720;
+      } else {
+        ScrWork[SW_BG1CLIP_X + 2 * i] = 1280;
+        ScrWork[SW_BG1CLIP_Y + 2 * i] = 720;
+      }
+
+      ScrWork[SW_BG1SURF + i] = i;
+      SetFlag(SF_BG1DISP + i, false);
+    }
   }
 
   if (initType == 1) {
