@@ -349,9 +349,9 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
     entry->SaveThumbnail.Bounds =
         RectF(0.0f, 0.0f, SaveThumbnailWidth, SaveThumbnailHeight);
 
-    int result = ResizeImage(
-        WorkingSaveThumbnail.Bounds, entry->SaveThumbnail.Bounds, captureBuffer,
-        std::span{tex.Buffer, static_cast<size_t>(tex.BufferSize)});
+    int result =
+        ResizeImage(WorkingSaveThumbnail.Bounds, entry->SaveThumbnail.Bounds,
+                    captureBuffer, tex.Buffer);
     if (result < 0) {
       ImpLog(LogLevel::Error, LogChannel::General,
              "Failed to resize save thumbnail\n");

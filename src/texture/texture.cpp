@@ -31,23 +31,26 @@ bool Texture::Load(Io::Stream* stream) {
   return false;
 }
 
-void Texture::Init(TexFmt fmt, int width, int height) {
+void Texture::Init(TexFmt format, int width, int height) {
   Width = width;
   Height = height;
-  Format = fmt;
+  Format = format;
 
-  switch (fmt) {
-    case TexFmt_RGBA:
-      BufferSize = width * height * 4;
-      break;
-    case TexFmt_RGB:
-      BufferSize = width * height * 3;
-      break;
-    case TexFmt_U8:
-      BufferSize = width * height;
-      break;
-  }
-  Buffer = (uint8_t*)malloc(BufferSize);
+  const size_t bufferSize = [&]() {
+    switch (format) {
+      case TexFmt_RGBA:
+        return width * height * 4;
+      case TexFmt_RGB:
+        return width * height * 3;
+      case TexFmt_U8:
+        return width * height;
+      default:
+        ImpLog(LogLevel::Warning, LogChannel::TextureLoad,
+               "Unknown texture buffer format {:d}", static_cast<int>(format));
+        return 0;
+    }
+  }();
+  Buffer.resize(bufferSize);
 }
 
 void Texture::Load1x1(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha) {
@@ -60,25 +63,20 @@ void Texture::Load1x1(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha) {
 
 void Texture::LoadSolidColor(int width, int height, uint32_t color) {
   Init(TexFmt_RGBA, width, height);
-  uint32_t* out = (uint32_t*)Buffer;
-  for (int y = 0; y < Height; y++) {
-    for (int x = 0; x < Width; x++) {
-      *out = color;
-      out++;
-    }
+
+  const auto colorArray =
+      std::bit_cast<std::array<const uint8_t, sizeof(uint32_t)>>(color);
+  for (size_t i = 0; i + colorArray.size() <= Buffer.size();
+       i += colorArray.size()) {
+    std::ranges::copy(colorArray, Buffer.begin() + i);
   }
 }
 
 void Texture::LoadCheckerboard() {
   Init(TexFmt_U8, 128, 128);
   uint8_t color = 0xFF;
-  uint8_t* out = Buffer;
-  for (int y = 0; y < Height; y++) {
-    for (int x = 0; x < Width; x++) {
-      *out = color;
-      out++;
-      color = ~color;
-    }
+  for (uint8_t& byte : Buffer) {
+    byte = color;
     color = ~color;
   }
 }
@@ -114,12 +112,13 @@ void Texture::LoadPoliticalCompass() {
 uint32_t Texture::Submit() {
   ImpLog(LogLevel::Debug, LogChannel::Render, "Submitting texture\n");
 
-  if (Buffer == NULL) return std::numeric_limits<uint32_t>::max();
+  if (Buffer.empty()) return std::numeric_limits<uint32_t>::max();
 
-  uint32_t result = Renderer->SubmitTexture(Format, Buffer, Width, Height);
+  uint32_t result =
+      Renderer->SubmitTexture(Format, Buffer.data(), Width, Height);
 
   // TODO I meant to do this elsewhere but we gotta do it somewhere
-  free(Buffer);
+  Buffer.clear();
 
   return result;
 }

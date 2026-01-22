@@ -48,19 +48,10 @@ bool TextureLoadWebP(Io::Stream* stream, Texture* outTexture) {
 
   outTexture->Width = width;
   outTexture->Height = height;
-  outTexture->BufferSize = (3 + features.has_alpha) * width * height;
+  const size_t bufferSize = (3 + features.has_alpha) * width * height;
+  outTexture->Buffer.assign(image, image + bufferSize);
 
-  uint8_t* imageData = (uint8_t*)malloc(outTexture->BufferSize);
-  if (imageData == 0) {
-    stream->Seek(0, RW_SEEK_SET);
-    free(rawData);
-    return false;
-  }
-
-  memcpy(imageData, image, outTexture->BufferSize);
-  outTexture->Buffer = imageData;
   WebPFree(image);
-
   free(rawData);
   return true;
 }
