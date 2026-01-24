@@ -47,6 +47,14 @@ void SequencedAnimation::StartOutImpl(bool reset) {
   }
 }
 
+void SequencedAnimation::ResetImpl(
+    std::optional<AnimationDirection> direction) {
+  for (ChildAnimation& child : Children) {
+    // Sequenced animations do not support reverse animations
+    child.ChildAnimation.get().Reset();
+  }
+}
+
 void SequencedAnimation::FinishImpl() {
   for (ChildAnimation& child : Children) {
     child.ChildAnimation.get().Finish();
