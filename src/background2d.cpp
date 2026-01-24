@@ -376,7 +376,10 @@ void Background2D::SetTransformState(int dispMode, BgTransformState state) {
 
   switch (dispMode) {
     case 0: {
-      TransformState.Position = -state.Position;
+      const glm::vec2 scaledPos = state.Position / RenderSprite.BaseScale;
+      const glm::vec2 newDimensions = RenderSprite.Bounds.GetSize() - scaledPos;
+      RenderSprite.Bounds.SetPos(scaledPos);
+      RenderSprite.Bounds.SetSize(newDimensions);
     } break;
 
     case 1: {
