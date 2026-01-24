@@ -109,7 +109,7 @@ void IntroSequence::Reset() {
                                          0);
   FallingStarsMask.Sheet.Texture = fallingStarsMaskTexture.Submit();
 
-  IntroAnimation.StartIn(true);
+  IntroAnimation.Reset();
 }
 
 void IntroSequence::Update(float dt) {

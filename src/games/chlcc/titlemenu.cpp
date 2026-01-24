@@ -274,6 +274,12 @@ void TitleMenu::Hide() {
   }
 }
 
+void TitleMenu::ResetIntroSequence() {
+  IntroSequence.Reset();
+  SpinningCircleAnimation.Reset();
+  SpinningCircleFlashingAnimation.Reset();
+}
+
 void TitleMenu::Update(float dt) {
   UpdateInput(dt);
   PressToStartAnimation.Update(dt);
@@ -306,7 +312,10 @@ void TitleMenu::Update(float dt) {
 
     switch (ScrWork[SW_TITLEDISPCT]) {
       case 0: {
-        if (IntroSequence.IntroAnimation.IsOut()) {
+        if (IntroSequence.IntroAnimation.IsIn() && ScrWork[SW_TITLECT] == 0) {
+          ResetIntroSequence();
+        }
+        if (!IntroSequence.IntroAnimation.IsPlaying()) {
           IntroSequence.IntroAnimation.StartIn();
         }
 
@@ -336,10 +345,6 @@ void TitleMenu::Update(float dt) {
       case 1: {
         if (PressToStartAnimation.State == AnimationState::Stopped) {
           PressToStartAnimation.StartIn();
-        }
-
-        if (!IntroSequence.IntroAnimation.IsOut()) {
-          IntroSequence.Reset();
         }
       } break;
       case 3: {  // Main Menu Fade In
