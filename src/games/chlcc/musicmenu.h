@@ -1,20 +1,51 @@
 #pragma once
 
+#include "animations/selectprompt.h"
+#include "animations/menutransition.h"
+
 #include "../../ui/menu.h"
+#include "../../util.h"
 #include "../../ui/widgets/group.h"
+#include "../../ui/widgets/clickarea.h"
 #include "../../ui/widgets/button.h"
 #include "../../ui/widgets/label.h"
+#include "../../ui/widgets/scrollbar.h"
 
 namespace Impacto {
 namespace UI {
 namespace CHLCC {
 
-enum MusicPlaybackMode {
-  MPM_One,
-  MPM_Playlist,
-  MPM_RepeatOne,
-  MPM_RepeatPlaylist
+enum class MusicPlaybackMode : uint8_t {
+  One = 0b00,
+  Playlist = 0b01,
+  RepeatOne = 0b10,
+  RepeatPlaylist = 0b11,
+  COUNT  // number of entries in the enum
 };
+
+constexpr MusicPlaybackMode operator&(MusicPlaybackMode mode,
+                                      MusicPlaybackMode other) {
+  return static_cast<MusicPlaybackMode>(to_underlying(mode) &
+                                        to_underlying(other));
+}
+
+constexpr MusicPlaybackMode& operator++(MusicPlaybackMode& mode) {
+  mode = static_cast<MusicPlaybackMode>(
+      (to_underlying(mode) + 1) % to_underlying(MusicPlaybackMode::COUNT));
+  return mode;
+}
+
+constexpr MusicPlaybackMode operator^(MusicPlaybackMode mode,
+                                      MusicPlaybackMode other) {
+  return static_cast<MusicPlaybackMode>(to_underlying(mode) ^
+                                        to_underlying(other));
+}
+
+constexpr MusicPlaybackMode& operator^=(MusicPlaybackMode& mode,
+                                        MusicPlaybackMode other) {
+  mode = mode ^ other;
+  return mode;
+}
 
 class MusicMenu : public Menu {
  public:
@@ -25,8 +56,6 @@ class MusicMenu : public Menu {
   void UpdateInput(float dt) override;
   void Update(float dt) override;
   void Render() override;
-
-  // void MovieButtonOnClick(Widgets::Button* target);
 
  private:
   Widgets::Group* MainItems;
@@ -39,29 +68,40 @@ class MusicMenu : public Menu {
   void UpdateEntries();
   void UpdateTitles();
   void MusicButtonOnClick(Widgets::Button* target);
-  void SwitchToTrack(int id);
+  void SwitchToTrack(std::optional<int> id);
   int GetNextTrackId(int id);
+  void ToggleRepeatMode();
+  void ToggleAllMode();
+  void UpdateLooping();
 
-  Animation MenuTransition;
   Animation TitleFade;
   Animation NowPlayingAnimation;
   Animation FromSystemMenuTransition;
+  SelectPromptAnimation SelectAnimation;
+  MenuTransitionAnimation MenuTransition;
 
-  bool InputEnabled = false;
+  Sprite PlayModeRepeatSprite;
+  Sprite PlayModeAllSprite;
 
-  int CurrentlyPlayingTrackId = -1;
-  int CurrentLowerBound = 0;
-  int CurrentUpperBound = 15;
-  float PreviousPosition = 0.0f;
-  MusicPlaybackMode PlaybackMode = MPM_One;
-  Sprite PlaymodeRepeatSprite;
-  Sprite PlaymodeAllSprite;
   Widgets::Label CurrentlyPlayingTrackName;
   Widgets::Label CurrentlyPlayingTrackArtist;
+
+  Widgets::Scrollbar MainScrollbar;
+
+  Widgets::ClickArea PlayModeRepeatClickArea;
+  Widgets::ClickArea PlayModeAllClickArea;
+
+  std::optional<int> CurrentlyPlayingTrackId = std::nullopt;
+  float PreviousPosition = 0.0f;
+
+  float ScrollY = 0.0f;
 
   glm::vec2 RedTitleLabelPos;
   glm::vec2 RightTitlePos;
   glm::vec2 LeftTitlePos;
+
+  bool InputEnabled = false;
+  MusicPlaybackMode PlaybackMode = MusicPlaybackMode::One;
 };
 
 }  // namespace CHLCC

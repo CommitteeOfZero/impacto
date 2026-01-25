@@ -14,7 +14,6 @@ namespace CHLCC {
 namespace TipsMenu {
 
 void Configure() {
-  MenuTransitionDuration = EnsureGetMember<float>("TransitionDuration");
   BackgroundColor = EnsureGetMember<uint32_t>("BackgroundColor");
   CircleSprite = EnsureGetMember<Sprite>("CircleSprite");
   CircleStartPosition = EnsureGetMember<glm::vec2>("CircleStartPosition");
@@ -86,6 +85,7 @@ void Configure() {
       EnsureGetMember<RectF>("PronounciationInitialBounds");
 
   TipsListBounds = EnsureGetMember<RectF>("TipsListBounds");
+  TipScrollbarPos = EnsureGetMember<glm::vec2>("TipScrollbarPos");
   TipsListRenderBounds = EnsureGetMember<RectF>("TipsListRenderBounds");
 
   TipsEntryHighlightBar =
@@ -114,8 +114,9 @@ void Configure() {
 
   SelectWordSprites = GetMemberVector<Sprite>("SelectWordSprites");
   SelectWordPos = GetMemberVector<glm::vec2>("SelectWordPos");
-  SelectWordDuration = EnsureGetMember<float>("SelectWordDuration");
-  SelectWordInterval = EnsureGetMember<float>("SelectWordInterval");
+  if (SelectWordSprites.size() != SelectWordPos.size()) {
+    throw std::runtime_error("Related arrays have mismatching sizes");
+  }
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMember<uint8_t>("DrawType"));

@@ -6,10 +6,14 @@
 
 namespace Impacto {
 
-enum class AnimationState { Stopped = 0, Playing = 1 };
-enum class AnimationLoopMode { Stop = 0, ReverseDirection = 1, Loop = 2 };
+enum class AnimationState : uint8_t { Stopped = 0, Playing = 1 };
+enum class AnimationLoopMode : uint8_t {
+  Stop = 0,
+  ReverseDirection = 1,
+  Loop = 2
+};
 
-enum class AnimationDirection { In = 1, Out = -1 };
+enum class AnimationDirection : int8_t { In = 1, Out = -1 };
 constexpr AnimationDirection operator-(AnimationDirection direction) {
   return static_cast<AnimationDirection>(static_cast<int>(direction) * -1);
 }
@@ -18,10 +22,10 @@ class Animation {
  public:
   float DurationIn = 0;
   float DurationOut = 0;
-  // 1 = in, -1 = out
-  AnimationDirection Direction = AnimationDirection::In;
   // 0 = fully out, 1 = fully in
   float Progress = 0;
+  // 1 = in, -1 = out
+  AnimationDirection Direction = AnimationDirection::In;
   AnimationState State = AnimationState::Stopped;
   AnimationLoopMode LoopMode = AnimationLoopMode::Stop;
   // Animation skips to the end when skip mode is enabled

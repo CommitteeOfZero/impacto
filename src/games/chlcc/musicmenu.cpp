@@ -22,17 +22,56 @@ using namespace Impacto::UI::Widgets;
 
 using namespace Impacto::Vm::Interface;
 
+constexpr bool isRepeat(MusicPlaybackMode playbackMode) {
+  return (playbackMode & MusicPlaybackMode::RepeatOne) ==
+         MusicPlaybackMode::RepeatOne;
+}
+
+constexpr bool isPlaylist(MusicPlaybackMode playbackMode) {
+  return (playbackMode & MusicPlaybackMode::Playlist) ==
+         MusicPlaybackMode::Playlist;
+}
+
 void MusicMenu::MusicButtonOnClick(Button* target) {
   if (target->IsLocked) return;
 
   SwitchToTrack(target->Id);
 }
 
-MusicMenu::MusicMenu() {
-  MenuTransition.Direction = AnimationDirection::In;
-  MenuTransition.LoopMode = AnimationLoopMode::Stop;
-  MenuTransition.SetDuration(MenuTransitionDuration);
+void MusicMenu::ToggleRepeatMode() {
+  PlaybackMode ^= MusicPlaybackMode::RepeatOne;
+  PlayModeRepeatSprite =
+      isRepeat(PlaybackMode) ? PlaymodeRepeatHighlight : PlaymodeRepeat;
+  UpdateLooping();
+}
 
+void MusicMenu::ToggleAllMode() {
+  PlaybackMode ^= MusicPlaybackMode::Playlist;
+  PlayModeAllSprite =
+      isPlaylist(PlaybackMode) ? PlaymodeAllHighlight : PlaymodeAll;
+  UpdateLooping();
+}
+
+void MusicMenu::UpdateLooping() {
+  if (PlaybackMode == MusicPlaybackMode::RepeatOne) {
+    Audio::Channels[Audio::AC_BGM0]->SetLooping(true);
+  } else {
+    Audio::Channels[Audio::AC_BGM0]->SetLooping(false);
+  }
+}
+
+static float GetEndScroll(Group* itemsGroup) {
+  if (itemsGroup->Children.empty() || itemsGroup->Children.size() == 1)
+    return 0.0f;
+  const Widget* lastItem = itemsGroup->Children.back();
+  const float lastItemEndPos = lastItem->Bounds.Height + lastItem->Bounds.Y;
+  const float pagePos =
+      lastItemEndPos - TrackListBounds.Height - TrackListBounds.Y;
+  if (pagePos < 0.0f) return 0.0f;
+  return round(pagePos / TrackOffset.y) * TrackOffset.y;
+}
+
+MusicMenu::MusicMenu() {
   TitleFade.Direction = AnimationDirection::In;
   TitleFade.LoopMode = AnimationLoopMode::Stop;
   TitleFade.DurationIn = TitleFadeInDuration;
@@ -50,8 +89,19 @@ MusicMenu::MusicMenu() {
   RedBarSprite = InitialRedBarSprite;
   RedBarPosition = InitialRedBarPosition;
 
-  PlaymodeRepeatSprite = PlaymodeRepeat;
-  PlaymodeAllSprite = PlaymodeAll;
+  auto toggleRepeatClick = [this](auto* btn) { return ToggleRepeatMode(); };
+  PlayModeRepeatClickArea =
+      ClickArea(0,
+                {PlaymodeRepeatPos.x, PlaymodeRepeatPos.y,
+                 PlaymodeRepeat.ScaledWidth(), PlaymodeRepeat.ScaledHeight()},
+                toggleRepeatClick);
+
+  auto toggleAllClick = [this](auto* btn) { return ToggleAllMode(); };
+  PlayModeAllClickArea =
+      ClickArea(1,
+                {PlaymodeAllPos.x, PlaymodeAllPos.y, PlaymodeAll.ScaledWidth(),
+                 PlaymodeAll.ScaledHeight()},
+                toggleAllClick);
 
   MainItems = new Group(this);
 
@@ -71,6 +121,13 @@ MusicMenu::MusicMenu() {
       button->SetFocus(MainItems->Children.front(), FDIR_LEFT);
     }
   }
+
+  MainScrollbar = Scrollbar(
+      0, ScrollbarPosition, 0.0f, GetEndScroll(MainItems), &ScrollY,
+      ScrollbarDirection::SBDIR_VERTICAL, ScrollThumbSprite, ScrollTrackBounds,
+      ScrollThumbSprite.ScaledHeight(), TrackListBounds, 1.0f);
+  MainScrollbar.Step = TrackOffset.y;
+
   // Everything in last page points to last element
   for (int idx = MusicTrackCount - 1 - SelectableItemsPerPage;
        idx < MusicTrackCount; idx++) {
@@ -86,8 +143,9 @@ MusicMenu::MusicMenu() {
 void MusicMenu::Show() {
   if (State != Shown) {
     if (State != Showing) {
-      MenuTransition.StartIn();
       FromSystemMenuTransition.StartIn();
+      MenuTransition.StartIn();
+      SelectAnimation.StartIn(true);
     }
     State = Showing;
     UpdateEntries();
@@ -98,10 +156,14 @@ void MusicMenu::Show() {
       LastFocusedMenu = UI::FocusedMenu;
       LastFocusedMenu->IsFocused = false;
     }
+    ScrollY = 0.0f;
     IsFocused = true;
     UI::FocusedMenu = this;
     MainItems->Children.front()->HasFocus = true;
     CurrentlyFocusedElement = MainItems->Children.front();
+    PlayModeRepeatSprite = PlaymodeRepeat;
+    PlayModeAllSprite = PlaymodeAll;
+    PlaybackMode = MusicPlaybackMode::One;
   }
 }
 
@@ -110,8 +172,9 @@ void MusicMenu::Hide() {
     if (State != Hiding) {
       MenuTransition.StartOut();
       FromSystemMenuTransition.StartOut();
+      MenuTransition.StartOut();
     }
-    CurrentlyPlayingTrackId = -1;
+    CurrentlyPlayingTrackId.reset();
     NowPlayingAnimation.StartOut();
     Audio::Channels[Audio::AC_BGM0]->Stop(0.0f);
     State = Hiding;
@@ -159,65 +222,59 @@ void MusicMenu::Render() {
       RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
       MenuTransition.Progress);
 
-  glm::vec2 offset(0.0f, 0.0f);
-  if (MenuTransition.Progress > 0.22f) {
-    if (MenuTransition.Progress < 0.73f) {
-      // Approximated function from the original, another mess
-      offset = glm::vec2(
-          0.0f,
-          glm::mix(-Profile::DesignHeight, 0.0f,
-                   1.00397f * std::sin(3.97161f -
-                                       3.26438f * MenuTransition.Progress) -
-                       0.00295643f));
+  if (MenuTransition.Progress <= 0.22f) return;
 
-      MainItems->RenderingBounds =
-          RectF(0.0f, TrackButtonPosTemplate.y + offset.y, Profile::DesignWidth,
-                VisibleItemsPerPage * TrackOffset.y + 1);
-      MainItems->HoverBounds = RectF(
-          0.0f, TrackButtonPosTemplate.y + offset.y + 2, Profile::DesignWidth,
-          (SelectableItemsPerPage)*TrackOffset.y - 4);
+  glm::vec2 offset = MenuTransition.GetPageOffset();
+  if (MenuTransition.IsPlaying()) {
+    glm::vec2 offsetScroll = glm::vec2(0.0f, -ScrollY) + offset;
 
-      glm::vec2 currentScroll(0.0f, -(float)CurrentLowerBound * TrackOffset.y);
-      MainItems->MoveTo(currentScroll + offset);
-      for (auto button : MainItems->Children)
-        static_cast<Widgets::CHLCC::TrackSelectButton*>(button)->MoveTracks(
-            currentScroll + offset);
-    }
-    MainItems->Render();
+    const RectF bounds =
+        RectF(0.0f, TrackButtonPosTemplate.y + offset.y, Profile::DesignWidth,
+              VisibleItemsPerPage * TrackOffset.y);
+    MainItems->RenderingBounds = bounds;
+    MainItems->HoverBounds = bounds;
 
-    if (MenuTransition.Progress > 0.34f) {
-      Renderer->DrawSprite(SoundLibraryTitle, LeftTitlePos);
-    }
+    MainScrollbar.MoveTo(ScrollbarPosition + offset);
 
-    for (int idx = 0; idx < 11; idx++) {
-      Renderer->DrawSprite(SelectSound[idx], SelectSoundPos[idx] + offset);
-    }
-
-    Renderer->DrawSprite(TrackTree, TrackTreePos + offset);
-    Renderer->DrawSprite(PlaymodeRepeatSprite, PlaymodeRepeatPos + offset);
-    Renderer->DrawSprite(PlaymodeAllSprite, PlaymodeAllPos + offset);
-    glm::vec2 temp =
-        glm::vec2(15 * 16 * (1 - NowPlayingAnimation.Progress), offset.y) +
-        NowPlayingPos;
-    glm::vec4 tint(glm::vec3(1.0f), NowPlayingAnimation.Progress);
-    CurrentlyPlayingTrackName.MoveTo(temp + PlayingTrackOffset);
-    CurrentlyPlayingTrackName.Tint = tint;
-    CurrentlyPlayingTrackName.Render();
-    CurrentlyPlayingTrackArtist.MoveTo(temp + PlayingTrackArtistOffset);
-    CurrentlyPlayingTrackArtist.Tint = tint;
-    CurrentlyPlayingTrackArtist.Render();
-    Renderer->DrawSprite(NowPlaying, temp, tint);
-    if (CurrentlyPlayingTrackId != -1 &&
-        CurrentlyPlayingTrackId >= CurrentLowerBound &&
-        CurrentlyPlayingTrackId <= CurrentUpperBound) {
-      Renderer->DrawSprite(
-          HighlightStar,
-          glm::vec2(MainItems->Children[CurrentlyPlayingTrackId]->Bounds.X,
-                    MainItems->Children[CurrentlyPlayingTrackId]->Bounds.Y) +
-              HighlightStarRelativePos);
-    }
-    DrawButtonPrompt();
+    MainItems->MoveTo(offsetScroll);
+    for (auto button : MainItems->Children)
+      static_cast<Widgets::CHLCC::TrackSelectButton*>(button)->MoveTracks(
+          offsetScroll);
   }
+  MainItems->Render();
+  MainScrollbar.Render();
+
+  if (MenuTransition.Progress > 0.34f) {
+    Renderer->DrawSprite(SoundLibraryTitle, LeftTitlePos);
+  }
+
+  SelectAnimation.Draw(SelectSoundSprites, SelectSoundPos, offset);
+
+  Renderer->DrawSprite(TrackTree, TrackTreePos + offset);
+  Renderer->DrawSprite(PlayModeRepeatSprite, PlaymodeRepeatPos + offset);
+  Renderer->DrawSprite(PlayModeAllSprite, PlaymodeAllPos + offset);
+  glm::vec2 nowPlayingOffset =
+      glm::vec2(15 * 16 * (1 - NowPlayingAnimation.Progress), offset.y) +
+      NowPlayingPos;
+  glm::vec4 tint(glm::vec3(1.0f), NowPlayingAnimation.Progress);
+  CurrentlyPlayingTrackName.MoveTo(nowPlayingOffset + PlayingTrackOffset);
+  CurrentlyPlayingTrackName.Tint = tint;
+  CurrentlyPlayingTrackName.Render();
+  CurrentlyPlayingTrackArtist.MoveTo(nowPlayingOffset +
+                                     PlayingTrackArtistOffset);
+  CurrentlyPlayingTrackArtist.Tint = tint;
+  CurrentlyPlayingTrackArtist.Render();
+  Renderer->DrawSprite(NowPlaying, nowPlayingOffset, tint);
+  if (CurrentlyPlayingTrackId.has_value()) {
+    auto currentTrackId = CurrentlyPlayingTrackId.value();
+    auto targetCenter = MainItems->Children[currentTrackId]->Bounds.Center();
+    auto targetPos = MainItems->Children[currentTrackId]->Bounds.GetPos() +
+                     HighlightStarRelativePos;
+    if (MainItems->RenderingBounds.ContainsPoint(targetCenter)) {
+      Renderer->DrawSprite(HighlightStar, targetPos);
+    }
+  }
+  DrawButtonPrompt();
 }
 
 void MusicMenu::Update(float dt) {
@@ -239,22 +296,13 @@ void MusicMenu::Update(float dt) {
   } else if (MenuTransition.IsIn() && ScrWork[SW_SYSMENUCT] == 10000 &&
              State == Showing) {
     State = Shown;
-    MainItems->RenderingBounds =
-        RectF(0.0f, TrackButtonPosTemplate.y, Profile::DesignWidth,
-              VisibleItemsPerPage * TrackOffset.y + 1);
-    MainItems->HoverBounds =
-        RectF(0.0f, TrackButtonPosTemplate.y + 2, Profile::DesignWidth,
-              (SelectableItemsPerPage)*TrackOffset.y - 4);
-    MainItems->MoveTo({0.0f, 0.0f});
-    for (auto el : MainItems->Children)
-      static_cast<Widgets::CHLCC::TrackSelectButton*>(el)->MoveTracks(
-          {0.0f, 0.0f});
     InputEnabled = true;
   }
 
   if (State != Hidden) {
-    MenuTransition.Update(dt);
     FromSystemMenuTransition.Update(dt);
+    SelectAnimation.Update(dt);
+    MenuTransition.Update(dt);
     if (MenuTransition.Direction == AnimationDirection::Out &&
         MenuTransition.Progress <= 0.72f) {
       TitleFade.StartOut();
@@ -268,27 +316,31 @@ void MusicMenu::Update(float dt) {
     }
     TitleFade.Update(dt);
     NowPlayingAnimation.Update(dt);
+    MainScrollbar.Update(dt);
+    PlayModeRepeatClickArea.Update(dt);
+    PlayModeAllClickArea.Update(dt);
     UpdateTitles();
     if (InputEnabled) MainItems->Update(dt);
-    if (CurrentlyPlayingTrackId == -1) return;
-    if (PlaybackMode != MPM_RepeatOne && CurrentlyPlayingTrackId < 40 &&
+    if (!CurrentlyPlayingTrackId.has_value()) return;
+    if (PlaybackMode != MusicPlaybackMode::RepeatOne &&
+        CurrentlyPlayingTrackId < 40 &&
         abs(Audio::Channels[Audio::AC_BGM0]->PositionInSeconds() -
             PreviousPosition) > 1.0f) {
-      CurrentlyPlayingTrackId = -1;
+      CurrentlyPlayingTrackId.reset();
       NowPlayingAnimation.StartOut();
       Audio::Channels[Audio::AC_BGM0]->Stop(2.0f);
     }
     if (Audio::Channels[Audio::AC_BGM0]->GetState() == Audio::ACS_Stopped) {
-      int trackId;
-      if (PlaybackMode == MPM_One) {
-        trackId = -1;
+      std::optional<int> trackId;
+      if (PlaybackMode == MusicPlaybackMode::One) {
+        trackId = std::nullopt;
       } else {
-        trackId = GetNextTrackId(CurrentlyPlayingTrackId + 1);
+        trackId = GetNextTrackId(CurrentlyPlayingTrackId.value() + 1);
         if (trackId == MusicTrackCount) {
-          if (PlaybackMode == MPM_RepeatPlaylist) {
+          if (PlaybackMode == MusicPlaybackMode::RepeatPlaylist) {
             trackId = GetNextTrackId(0);
-          } else if (PlaybackMode == MPM_Playlist) {
-            trackId = -1;
+          } else if (PlaybackMode == MusicPlaybackMode::Playlist) {
+            trackId = std::nullopt;
           }
         }
       }
@@ -300,67 +352,84 @@ void MusicMenu::Update(float dt) {
 
 void MusicMenu::UpdateInput(float dt) {
   auto* prevFocus = CurrentlyFocusedElement;
-  Menu::UpdateInput(dt);
+  if (!MainScrollbar.IsScrollHeld()) {
+    Menu::UpdateInput(dt);
+  }
   if (State == Shown) {
+    const float prevScrollPos = ScrollY;
+    auto checkScrollBounds = [&]() {
+      return !TrackListBounds.Contains(CurrentlyFocusedElement->Bounds);
+    };
+
+    if (CurrentlyFocusedElement != prevFocus && checkScrollBounds()) {
+      if (CurrentlyFocusedElement == MainItems->GetFirstFocusableChild()) {
+        ScrollY = 0;
+      } else if (CurrentlyFocusedElement == MainItems->Children.back()) {
+        ScrollY = MainScrollbar.EndValue;
+      } else {
+        float targetScroll = CurrentlyFocusedElement->Bounds.Y -
+                             MainItems->GetFirstFocusableChild()->Bounds.Y;
+        // if focused item is out of bounds, we scroll to it if focus has
+        // changed
+        if (targetScroll <= ScrollY) {
+          ScrollY = targetScroll;
+        } else {
+          ScrollY = targetScroll - SelectableItemsPerPage * TrackOffset.y;
+        }
+        MainScrollbar.ClampValue();
+      }
+    }
+
+    // imitate gamepad's d-pad/keyboard controls behavior, when scrolling out of
+    // bounds
+    if (Input::CurrentInputDevice != Input::Device::Mouse) {
+      int currentLowerBound = (int)(ScrollY / TrackOffset.y);
+      int currentUpperBound = currentLowerBound + SelectableItemsPerPage;
+      auto btnId = static_cast<Widgets::CHLCC::TrackSelectButton*>(
+                       CurrentlyFocusedElement)
+                       ->Id;
+      if (btnId == currentLowerBound && btnId != 0) {
+        ScrollY -= TrackOffset.y;
+      }
+
+      if (btnId == currentUpperBound && btnId != MusicTrackCount - 1) {
+        ScrollY += TrackOffset.y;
+      }
+    }
+
     MainItems->UpdateInput(dt);
+    MainScrollbar.UpdateInput(dt);
+    PlayModeRepeatClickArea.UpdateInput(dt);
+    PlayModeAllClickArea.UpdateInput(dt);
+
+    if (prevScrollPos != ScrollY) {
+      float delta = prevScrollPos - ScrollY;
+      if (std::fmod(std::abs(delta), TrackOffset.y) >
+          std::numeric_limits<float>::epsilon()) {
+        const float newDelta =
+            std::round(delta / TrackOffset.y) * TrackOffset.y;
+        ScrollY = prevScrollPos - newDelta;
+        delta = newDelta;
+      }
+      glm::vec2 itemsPos = {0, -ScrollY};
+      MainItems->MoveTo(itemsPos);
+      for (auto child : MainItems->Children) {
+        auto button = static_cast<Widgets::CHLCC::TrackSelectButton*>(child);
+        button->MoveTracks(itemsPos);
+      }
+    }
 
     if (PADinputButtonWentDown & PAD1Y) {
-      auto mode = (int)PlaybackMode + 1;
-      if (mode > 3) mode = 0;
-      PlaybackMode = (MusicPlaybackMode)mode;
-      PlaymodeAllSprite = mode & 1 ? PlaymodeAllHighlight : PlaymodeAll;
-      PlaymodeRepeatSprite =
-          mode & 2 ? PlaymodeRepeatHighlight : PlaymodeRepeat;
-      if (PlaybackMode == MPM_RepeatOne) {
-        Audio::Channels[Audio::AC_BGM0]->SetLooping(true);
-      } else {
-        Audio::Channels[Audio::AC_BGM0]->SetLooping(false);
-      }
+      ++PlaybackMode;
+      PlayModeAllSprite =
+          isPlaylist(PlaybackMode) ? PlaymodeAllHighlight : PlaymodeAll;
+      PlayModeRepeatSprite =
+          isRepeat(PlaybackMode) ? PlaymodeRepeatHighlight : PlaymodeRepeat;
+      UpdateLooping();
     }
 
     if (PADinputButtonWentDown & PAD1X) {
-      SwitchToTrack(-1);
-    }
-
-    if ((Input::MouseWheelDeltaY > 0 && CurrentLowerBound > 0)) {
-      CurrentLowerBound--;
-      CurrentUpperBound--;
-    } else if ((Input::MouseWheelDeltaY < 0) &&
-               CurrentUpperBound < MusicTrackCount) {
-      CurrentLowerBound++;
-      CurrentUpperBound++;
-    } else {
-      auto prevBtnId =
-          static_cast<Widgets::CHLCC::TrackSelectButton*>(prevFocus)->Id;
-      auto buttonid = static_cast<Widgets::CHLCC::TrackSelectButton*>(
-                          CurrentlyFocusedElement)
-                          ->Id;
-      if (buttonid < CurrentLowerBound) {
-        if (buttonid == 0) {
-          CurrentLowerBound = 0;
-          CurrentUpperBound = SelectableItemsPerPage;
-        } else {
-          const int delta = prevBtnId - buttonid;
-          CurrentLowerBound -= delta;
-          CurrentUpperBound -= delta;
-        }
-      } else if (buttonid >= CurrentUpperBound) {
-        if (buttonid == MusicTrackCount - 1) {
-          CurrentLowerBound = MusicTrackCount - SelectableItemsPerPage;
-          CurrentUpperBound = MusicTrackCount;
-        } else {
-          const int delta = buttonid - prevBtnId;
-          CurrentLowerBound += delta;
-          CurrentUpperBound += delta;
-        }
-      }
-    }
-
-    glm::vec2 offset(0.0f, -(float)CurrentLowerBound * TrackOffset.y);
-    MainItems->MoveTo(offset);
-    for (auto el : MainItems->Children) {
-      auto b = static_cast<Widgets::CHLCC::TrackSelectButton*>(el);
-      b->MoveTracks(offset);
+      SwitchToTrack(std::nullopt);
     }
   }
 }
@@ -440,7 +509,6 @@ inline void MusicMenu::DrawButtonPrompt() {
 
 void MusicMenu::UpdateEntries() {
   auto onClick = [this](auto* btn) { return MusicButtonOnClick(btn); };
-
   for (size_t idx = 0; idx < MainItems->Children.size(); idx++) {
     auto button = static_cast<Widgets::CHLCC::TrackSelectButton*>(
         MainItems->Children[idx]);
@@ -457,34 +525,39 @@ void MusicMenu::UpdateEntries() {
   }
 }
 
-void MusicMenu::SwitchToTrack(int id) {
+void MusicMenu::SwitchToTrack(std::optional<int> id) {
+  if (CurrentlyPlayingTrackId == id) {
+    return;
+  }
+
   CurrentlyPlayingTrackId = id;
-  if (id == -1) {
+  if (!id.has_value()) {
     NowPlayingAnimation.StartOut();
     Audio::Channels[Audio::AC_BGM0]->Stop(0.5f);
     return;
   }
   if (!NowPlayingAnimation.IsIn()) NowPlayingAnimation.StartIn();
   CurrentlyPlayingTrackName = Label(
-      Vm::ScriptGetTextTableStrAddress(4, CurrentlyPlayingTrackId * 3),
+      Vm::ScriptGetTextTableStrAddress(4, CurrentlyPlayingTrackId.value() * 3),
       NowPlayingPos + PlayingTrackOffset, 32, RendererOutlineMode::None, 0);
-  CurrentlyPlayingTrackArtist = Label(
-      Vm::ScriptGetTextTableStrAddress(4, CurrentlyPlayingTrackId * 3 + 2),
-      NowPlayingPos + PlayingTrackArtistOffset, 20, RendererOutlineMode::None,
-      0);
+  CurrentlyPlayingTrackArtist =
+      Label(Vm::ScriptGetTextTableStrAddress(
+                4, CurrentlyPlayingTrackId.value() * 3 + 2),
+            NowPlayingPos + PlayingTrackArtistOffset, 20,
+            RendererOutlineMode::None, 0);
   PreviousPosition = 0.0f;
   Audio::Channels[Audio::AC_BGM0]->Play(
-      "bgm", Playlist[id], id >= 40 ? (PlaybackMode == MPM_RepeatOne) : true,
-      0.5f);
+      "bgm", Playlist[id.value()],
+      id >= 40 ? (PlaybackMode == MusicPlaybackMode::RepeatOne) : true, 0.5f);
 }
 
 inline int MusicMenu::GetNextTrackId(int id) {
   while (!SaveSystem::GetBgmFlag(Playlist[id])) {
     id += 1;
     if (id == MusicTrackCount) {
-      if (PlaybackMode == MPM_RepeatPlaylist) {
+      if (PlaybackMode == MusicPlaybackMode::RepeatPlaylist) {
         id = 0;
-      } else if (PlaybackMode == MPM_Playlist) {
+      } else if (PlaybackMode == MusicPlaybackMode::Playlist) {
         id = -1;
         break;
       }

@@ -12,7 +12,6 @@ int inline constexpr MusicTrackCount = 45;
 int inline constexpr VisibleItemsPerPage = 16;
 int inline constexpr SelectableItemsPerPage = 15;
 
-inline float MenuTransitionDuration;
 inline uint32_t BackgroundColor;
 inline Sprite CircleSprite;
 inline glm::vec2 CircleStartPosition;
@@ -57,10 +56,14 @@ inline float SoundLibraryTitleAngle;
 inline Sprite HighlightStar;
 inline glm::vec2 HighlightStarRelativePos;
 inline int Playlist[MusicTrackCount];
-inline Sprite SelectSound[11];
-inline glm::vec2 SelectSoundPos[11];
+inline std::vector<Sprite> SelectSoundSprites;
+inline std::vector<glm::vec2> SelectSoundPos;
 inline glm::vec2 ButtonPromptPosition;
 inline Sprite ButtonPromptSprite;
+inline Sprite ScrollThumbSprite;
+inline glm::vec2 ScrollbarPosition;
+inline glm::vec2 ScrollTrackBounds;
+inline RectF TrackListBounds;
 
 void Configure();
 

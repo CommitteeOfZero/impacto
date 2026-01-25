@@ -1,5 +1,6 @@
 #pragma once
 
+#include "animations/menutransition.h"
 #include "../../ui/menu.h"
 #include "../../ui/widgets/group.h"
 #include "../../ui/widgets/label.h"
@@ -33,7 +34,7 @@ class ClearListMenu : public Menu {
 
   void UpdateTitles();
 
-  Animation MenuTransition;
+  MenuTransitionAnimation MenuTransition;
   Animation TitleFade;
   Animation FromSystemMenuTransition;
 

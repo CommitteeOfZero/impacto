@@ -23,6 +23,7 @@ namespace CHLCC {
 using namespace Impacto::Profile::TrophyMenu;
 using namespace Impacto::Profile::CHLCC::TrophyMenu;
 using namespace Impacto::Profile::ScriptVars;
+using namespace Impacto::Profile::GameSpecific;
 
 using namespace Impacto::Vm::Interface;
 
@@ -30,10 +31,6 @@ using namespace Impacto::UI::Widgets;
 using namespace Impacto::UI::Widgets::CHLCC;
 
 TrophyMenu::TrophyMenu() {
-  MenuTransition.Direction = AnimationDirection::In;
-  MenuTransition.LoopMode = AnimationLoopMode::Stop;
-  MenuTransition.SetDuration(MenuTransitionDuration);
-
   TitleFade.Direction = AnimationDirection::In;
   TitleFade.LoopMode = AnimationLoopMode::Stop;
   TitleFade.DurationIn = TitleFadeInDuration;
@@ -136,44 +133,32 @@ void TrophyMenu::Render() {
       RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
       glm::vec4(tint, alpha));
 
-  const float startProgress =
-      ShowPageAnimationStartTime / MenuTransitionDuration;
-  const float endProgress =
-      startProgress + ShowPageAnimationDuration / MenuTransitionDuration;
+  if (MenuTransition.Progress < 0.22f) return;
 
-  if (startProgress < MenuTransition.Progress &&
-      MenuTransition.Progress < endProgress) {
-    const float progress = (MenuTransition.Progress - startProgress) /
-                           (endProgress - startProgress);
-    const float angle = progress * std::numbers::pi_v<float> * 0.5f;
-
-    Offset = {0.0f, (std::sin(angle) - 1.0f) * Profile::DesignHeight};
-  } else if (MenuTransition.Progress <= startProgress) {
-    Offset = {0.0f, -Profile::DesignHeight};
-  }
+  glm::vec2 offset = MenuTransition.GetPageOffset();
 
   DrawButtonPrompt();
 
-  TrophyCountHintLabel.Move(Offset);
+  TrophyCountHintLabel.Move(offset);
   TrophyCountHintLabel.Render();
-  TrophyCountHintLabel.Move(-Offset);
+  TrophyCountHintLabel.Move(-offset);
 
-  Renderer->DrawSprite(PlatinumTrophySprite, Offset + PlatinumTrophyPos);
-  Renderer->DrawSprite(GoldTrophySprite, Offset + GoldTrophyPos);
-  Renderer->DrawSprite(SilverTrophySprite, Offset + SilverTrophyPos);
-  Renderer->DrawSprite(BronzeTrophySprite, Offset + BronzeTrophyPos);
+  Renderer->DrawSprite(PlatinumTrophySprite, offset + PlatinumTrophyPos);
+  Renderer->DrawSprite(GoldTrophySprite, offset + GoldTrophyPos);
+  Renderer->DrawSprite(SilverTrophySprite, offset + SilverTrophyPos);
+  Renderer->DrawSprite(BronzeTrophySprite, offset + BronzeTrophyPos);
 
-  Renderer->DrawSprite(TrophyPageCtBoxSprite, Offset + TrophyPageCtPos);
-  Renderer->DrawSprite(PageNums[CurrentPage + 1], Offset + CurrentPageNumPos);
-  Renderer->DrawSprite(PageNumSeparatorSlash, Offset + PageNumSeparatorPos);
+  Renderer->DrawSprite(TrophyPageCtBoxSprite, offset + TrophyPageCtPos);
+  Renderer->DrawSprite(PageNums[CurrentPage + 1], offset + CurrentPageNumPos);
+  Renderer->DrawSprite(PageNumSeparatorSlash, offset + PageNumSeparatorPos);
   Renderer->DrawSprite(ReachablePageNums[MaxTrophyPages],
-                       Offset + MaxPageNumPos);
+                       offset + MaxPageNumPos);
 
-  MainItems[CurrentPage].Move(Offset);
+  MainItems[CurrentPage].Move(offset);
   MainItems[CurrentPage].Render();
-  MainItems[CurrentPage].Move(-Offset);
+  MainItems[CurrentPage].Move(-offset);
 
-  Renderer->DrawSprite(TrophyEntriesBorderSprite, Offset);
+  Renderer->DrawSprite(TrophyEntriesBorderSprite, offset);
 }
 
 void TrophyMenu::UpdateInput(float dt) {

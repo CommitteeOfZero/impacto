@@ -2,7 +2,6 @@ root.ExtraMenus = {
     ClearListMenu = {
         DrawType = DrawComponentType.SystemMenu,
         Type = ClearListMenuType.CHLCC,
-        TransitionDuration = 64 / 60,
         BackgroundColor = 0x405f86,
         CircleSprite = "Circle",
         CircleStartPosition = { X = 20, Y = 20 },
@@ -64,7 +63,6 @@ root.ExtraMenus = {
     MovieMenu = {
         DrawType = DrawComponentType.SystemMenu,
         Type = MovieMenuType.CHLCC,
-        TransitionDuration = 64 / 60,
         BackgroundColor = 0x8e4f9f,
         CircleSprite = "CircleMovie",
         CircleStartPosition = { X = 20, Y = 20 },
@@ -79,8 +77,8 @@ root.ExtraMenus = {
         RedBarSprite = "RedBar",
         RedBarLabelPosition = { X = 1067, Y = 573 },
         RedBarLabel = "RedBarLabel",
-        MenuTitleTextRightPos = { X = 790, Y = 75 },
-        MenuTitleTextLeftPos = { X = 6, Y = 3 },
+        MenuTitleTextRightPos = { X = 788, Y = 80 },
+        MenuTitleTextLeftPos = { X = 3, Y = 3 },
         MenuTitleTextAngle = 4.45,
         TitleFadeInDuration = 40 / 60,
         TitleFadeOutDuration = 28 / 60,
@@ -104,20 +102,19 @@ root.ExtraMenus = {
         ButtonPromptSprite = "MovieButtonPrompt",
         SelectedMovieAnimation = "SelectedMovieAnimDef",
         SelectedMovieYellowDot = "SelectedMovieYellowDot",
-        SelectMovieFadeDuration = 110 / 60,
         SelectMovie = {},
         SelectMoviePos = {
             { X = 94, Y = 51 },
-            { X = 109, Y = 51 },
-            { X = 122, Y = 51 },
-            { X = 134, Y = 51 },
-            { X = 147, Y = 51 },
-            { X = 161, Y = 51 },
-            { X = 180, Y = 51 },
-            { X = 199, Y = 51 },
-            { X = 213, Y = 51 },
-            { X = 229, Y = 51 },
-            { X = 234, Y = 51 },
+            { X = 107, Y = 51 },
+            { X = 120, Y = 51 },
+            { X = 132, Y = 51 },
+            { X = 146, Y = 51 },
+            { X = 158, Y = 51 },
+            { X = 178, Y = 51 },
+            { X = 197, Y = 51 },
+            { X = 211, Y = 51 },
+            { X = 228, Y = 51 },
+            { X = 233, Y = 51 },
         },
         MovieExtraVideosEnabled = true,
         MovieBoxExtra = "MovieBoxExtra",
@@ -129,7 +126,6 @@ root.ExtraMenus = {
     AlbumMenu = {
         DrawType = DrawComponentType.SystemMenu,
         Type = AlbumMenuType.CHLCC,
-        TransitionDuration = 64 / 60,
         BackgroundColor = 0xf36989,
         CircleSprite = "CircleCG",
         CircleStartPosition = { X = 20, Y = 20 },
@@ -170,7 +166,7 @@ root.ExtraMenus = {
         ReachablePageNums = {},
         ButtonGuide = "ButtonGuide",
         ButtonGuidePos = { X = 1019, Y = 651 },
-        SelectData = {},
+        SelectDataSprites = {},
         SelectDataPos = {
             { X = 94, Y = 51 },
             { X = 109, Y = 51 },
@@ -240,25 +236,30 @@ root.ExtraMenus = {
         SoundLibraryTitleAngle = 4.45,
         HighlightStar = "HighlightStar",
         HighlightStarRelativePos = { X = 1, Y = 1 },
+        TrackListBounds = { X = 94, Y = 164, Width = 608, Height = 455},
+        ScrollTrackBounds = { X = 14, Y = 446},
+        ScrollThumb = "ScrollThumb",
+        ScrollbarPosition = { X = 687, Y = 169},
+
         Playlist = {
             8, 14, 26, 10, 28, 12, 20, 16, 18, 24, 22, 80, 76, 32, 34,
             36, 38, 77, 41, 43, 78, 46, 49, 79, 51, 53, 56, 81, 59, 61,
             63, 65, 82, 83, 84, 0, 1, 2, 4, 6, 85, 72, 74, 75, 71
         },
-        SelectSound = {},
+        SelectSoundSprites = {},
         SelectSoundPos = {
-            { X = 94, Y = 51 },
-            { X = 109, Y = 51 },
-            { X = 122, Y = 51 },
-            { X = 134, Y = 51 },
-            { X = 147, Y = 51 },
-            { X = 161, Y = 51 },
-            { X = 178, Y = 51 },
-            { X = 192, Y = 51 },
-            { X = 206, Y = 51 },
-            { X = 220, Y = 51 },
-            { X = 234, Y = 52 },
-        },
+            { X = 85, Y = 49 },
+            { X = 98, Y = 49 },
+            { X = 111, Y = 49 },
+            { X = 123, Y = 49 },
+            { X = 137, Y = 49 },
+            { X = 149, Y = 49 },
+            { X = 170, Y = 49 },
+            { X = 185, Y = 49 },
+            { X = 200, Y = 49 },
+            { X = 215, Y = 49 },
+            { X = 231, Y = 49 },
+        }
     }
 }
 
@@ -454,71 +455,27 @@ root.Sprites["MovieButtonPrompt"] = {
     Bounds = { X = 1, Y = 686, Width = 282, Height = 28 }
 }
 
-root.Sprites["SelectMovie0"] = {
-    Sheet = "Movie",
-    Bounds = { X = 1, Y = 597, Width = 15, Height = 57 }
+local selectMovieBounds = {
+    { X = 1, Y = 597, Width = 15, Height = 57 },
+    { X = 19, Y = 597, Width = 16, Height = 57 },
+    { X = 37, Y = 597, Width = 15, Height = 57 },
+    { X = 53, Y = 597, Width = 16, Height = 57 },
+    { X = 72, Y = 597, Width = 17, Height = 57 },
+    { X = 89, Y = 597, Width = 13, Height = 57 },
+    { X = 114, Y = 597, Width = 21, Height = 57 },
+    { X = 138, Y = 597, Width = 16, Height = 57 },
+    { X = 157, Y = 597, Width = 15, Height = 57 },
+    { X = 179, Y = 597, Width = 7, Height = 57 },
+    { X = 189, Y = 597, Width = 16, Height = 57 }
 }
-root.ExtraMenus.MovieMenu.SelectMovie[#root.ExtraMenus.MovieMenu.SelectMovie + 1] = "SelectMovie0";
 
-root.Sprites["SelectMovie1"] = {
-    Sheet = "Movie",
-    Bounds = { X = 19, Y = 597, Width = 16, Height = 57 }
-}
-root.ExtraMenus.MovieMenu.SelectMovie[#root.ExtraMenus.MovieMenu.SelectMovie + 1] = "SelectMovie1";
-
-root.Sprites["SelectMovie2"] = {
-    Sheet = "Movie",
-    Bounds = { X = 37, Y = 597, Width = 15, Height = 57 }
-}
-root.ExtraMenus.MovieMenu.SelectMovie[#root.ExtraMenus.MovieMenu.SelectMovie + 1] = "SelectMovie2";
-
-root.Sprites["SelectMovie3"] = {
-    Sheet = "Movie",
-    Bounds = { X = 53, Y = 597, Width = 16, Height = 57 }
-}
-root.ExtraMenus.MovieMenu.SelectMovie[#root.ExtraMenus.MovieMenu.SelectMovie + 1] = "SelectMovie3";
-
-root.Sprites["SelectMovie4"] = {
-    Sheet = "Movie",
-    Bounds = { X = 72, Y = 597, Width = 17, Height = 57 }
-}
-root.ExtraMenus.MovieMenu.SelectMovie[#root.ExtraMenus.MovieMenu.SelectMovie + 1] = "SelectMovie4";
-
-root.Sprites["SelectMovie5"] = {
-    Sheet = "Movie",
-    Bounds = { X = 89, Y = 597, Width = 13, Height = 57 }
-}
-root.ExtraMenus.MovieMenu.SelectMovie[#root.ExtraMenus.MovieMenu.SelectMovie + 1] = "SelectMovie5";
-
-root.Sprites["SelectMovie6"] = {
-    Sheet = "Movie",
-    Bounds = { X = 114, Y = 597, Width = 21, Height = 57 }
-}
-root.ExtraMenus.MovieMenu.SelectMovie[#root.ExtraMenus.MovieMenu.SelectMovie + 1] = "SelectMovie6";
-
-root.Sprites["SelectMovie7"] = {
-    Sheet = "Movie",
-    Bounds = { X = 138, Y = 597, Width = 16, Height = 57 }
-}
-root.ExtraMenus.MovieMenu.SelectMovie[#root.ExtraMenus.MovieMenu.SelectMovie + 1] = "SelectMovie7";
-
-root.Sprites["SelectMovie8"] = {
-    Sheet = "Movie",
-    Bounds = { X = 157, Y = 597, Width = 15, Height = 57 }
-}
-root.ExtraMenus.MovieMenu.SelectMovie[#root.ExtraMenus.MovieMenu.SelectMovie + 1] = "SelectMovie8";
-
-root.Sprites["SelectMovie9"] = {
-    Sheet = "Movie",
-    Bounds = { X = 179, Y = 597, Width = 7, Height = 57 }
-}
-root.ExtraMenus.MovieMenu.SelectMovie[#root.ExtraMenus.MovieMenu.SelectMovie + 1] = "SelectMovie9";
-
-root.Sprites["SelectMovie10"] = {
-    Sheet = "Movie",
-    Bounds = { X = 189, Y = 597, Width = 16, Height = 57 }
-}
-root.ExtraMenus.MovieMenu.SelectMovie[#root.ExtraMenus.MovieMenu.SelectMovie + 1] = "SelectMovie10";
+for i, bounds in ipairs(selectMovieBounds) do
+    root.Sprites["SelectMovie" .. i - 1] = {
+        Sheet = "Movie",
+        Bounds = bounds
+    }
+    root.ExtraMenus.MovieMenu.SelectMovie[i] = "SelectMovie" .. i - 1;
+end
 
 root.Sprites["SelectedMovieYellowDot"] = {
     Sheet = "Movie",
@@ -614,71 +571,32 @@ root.Sprites["HighlightStar"] = {
     Bounds = { X = 216, Y = 632, Width = 23, Height = 23 }
 }
 
-root.Sprites["SelectSound0"] = {
-    Sheet = "Sound",
-    Bounds = { X = 2, Y = 633, Width = 15, Height = 58 }
+local selectSoundBounds = {
+    { X = 2, Y = 633, Width = 15, Height = 58 },
+    { X = 20, Y = 633, Width = 16, Height = 58 },
+    { X = 38, Y = 633, Width = 15, Height = 58 },
+    { X = 54, Y = 633, Width = 16, Height = 58 },
+    { X = 73, Y = 633, Width = 15, Height = 58 },
+    { X = 90, Y = 633, Width = 13, Height = 58 },
+    { X = 116, Y = 633, Width = 16, Height = 58 },
+    { X = 136, Y = 633, Width = 16, Height = 58 },
+    { X = 156, Y = 633, Width = 17, Height = 58 },
+    { X = 176, Y = 633, Width = 18, Height = 58 },
+    { X = 197, Y = 633, Width = 17, Height = 58 }
 }
-root.ExtraMenus.MusicMenu.SelectSound[#root.ExtraMenus.MusicMenu.SelectSound + 1] = "SelectSound0";
 
-root.Sprites["SelectSound1"] = {
-    Sheet = "Sound",
-    Bounds = { X = 20, Y = 633, Width = 16, Height = 58 }
-}
-root.ExtraMenus.MusicMenu.SelectSound[#root.ExtraMenus.MusicMenu.SelectSound + 1] = "SelectSound1";
+for i, bounds in ipairs(selectSoundBounds) do
+    root.Sprites["SelectSound" .. i - 1] = {
+        Sheet = "Sound",
+        Bounds = bounds
+    }
+    root.ExtraMenus.MusicMenu.SelectSoundSprites[i] = "SelectSound" .. i - 1;
+end
 
-root.Sprites["SelectSound2"] = {
+root.Sprites["ScrollThumb"] = {
     Sheet = "Sound",
-    Bounds = { X = 38, Y = 633, Width = 15, Height = 58 }
+    Bounds = { X = 241, Y = 632, Width = 14, Height = 59 }
 }
-root.ExtraMenus.MusicMenu.SelectSound[#root.ExtraMenus.MusicMenu.SelectSound + 1] = "SelectSound2";
-
-root.Sprites["SelectSound3"] = {
-    Sheet = "Sound",
-    Bounds = { X = 54, Y = 633, Width = 16, Height = 58 }
-}
-root.ExtraMenus.MusicMenu.SelectSound[#root.ExtraMenus.MusicMenu.SelectSound + 1] = "SelectSound3";
-
-root.Sprites["SelectSound4"] = {
-    Sheet = "Sound",
-    Bounds = { X = 73, Y = 633, Width = 15, Height = 58 }
-}
-root.ExtraMenus.MusicMenu.SelectSound[#root.ExtraMenus.MusicMenu.SelectSound + 1] = "SelectSound4";
-
-root.Sprites["SelectSound5"] = {
-    Sheet = "Sound",
-    Bounds = { X = 90, Y = 633, Width = 13, Height = 58 }
-}
-root.ExtraMenus.MusicMenu.SelectSound[#root.ExtraMenus.MusicMenu.SelectSound + 1] = "SelectSound5";
-
-root.Sprites["SelectSound6"] = {
-    Sheet = "Sound",
-    Bounds = { X = 116, Y = 633, Width = 16, Height = 58 }
-}
-root.ExtraMenus.MusicMenu.SelectSound[#root.ExtraMenus.MusicMenu.SelectSound + 1] = "SelectSound6";
-
-root.Sprites["SelectSound7"] = {
-    Sheet = "Sound",
-    Bounds = { X = 136, Y = 633, Width = 16, Height = 58 }
-}
-root.ExtraMenus.MusicMenu.SelectSound[#root.ExtraMenus.MusicMenu.SelectSound + 1] = "SelectSound7";
-
-root.Sprites["SelectSound8"] = {
-    Sheet = "Sound",
-    Bounds = { X = 156, Y = 633, Width = 17, Height = 58 }
-}
-root.ExtraMenus.MusicMenu.SelectSound[#root.ExtraMenus.MusicMenu.SelectSound + 1] = "SelectSound8";
-
-root.Sprites["SelectSound9"] = {
-    Sheet = "Sound",
-    Bounds = { X = 176, Y = 633, Width = 18, Height = 58 }
-}
-root.ExtraMenus.MusicMenu.SelectSound[#root.ExtraMenus.MusicMenu.SelectSound + 1] = "SelectSound9";
-
-root.Sprites["SelectSound10"] = {
-    Sheet = "Sound",
-    Bounds = { X = 197, Y = 633, Width = 17, Height = 58 }
-}
-root.ExtraMenus.MusicMenu.SelectSound[#root.ExtraMenus.MusicMenu.SelectSound + 1] = "SelectSound10";
 
 --CGList
 root.Sprites["CircleCG"] = {
@@ -765,65 +683,26 @@ root.Sprites["ButtonGuide"] = {
     Bounds = { X = 1, Y = 581, Width = 380, Height = 28 }
 }
 
-root.Sprites["SelectData0"] = {
-    Sheet = "CG",
-    Bounds = { X = 1, Y = 670, Width = 18, Height = 55 }
+local selectDataBounds = {
+    { X = 1, Y = 670, Width = 18, Height = 55 },
+    { X = 21, Y = 670, Width = 16, Height = 55 },
+    { X = 39, Y = 670, Width = 15, Height = 55 },
+    { X = 56, Y = 670, Width = 16, Height = 55 },
+    { X = 74, Y = 670, Width = 17, Height = 55 },
+    { X = 93, Y = 670, Width = 22, Height = 55 },
+    { X = 117, Y = 670, Width = 22, Height = 55 },
+    { X = 141, Y = 670, Width = 17, Height = 55 },
+    { X = 159, Y = 670, Width = 18, Height = 55 },
+    { X = 179, Y = 670, Width = 20, Height = 55 }
 }
-root.ExtraMenus.AlbumMenu.SelectData[#root.ExtraMenus.AlbumMenu.SelectData + 1] = "SelectData0";
 
-root.Sprites["SelectData1"] = {
-    Sheet = "CG",
-    Bounds = { X = 21, Y = 670, Width = 16, Height = 55 }
-}
-root.ExtraMenus.AlbumMenu.SelectData[#root.ExtraMenus.AlbumMenu.SelectData + 1] = "SelectData1";
-
-root.Sprites["SelectData2"] = {
-    Sheet = "CG",
-    Bounds = { X = 39, Y = 670, Width = 15, Height = 55 }
-}
-root.ExtraMenus.AlbumMenu.SelectData[#root.ExtraMenus.AlbumMenu.SelectData + 1] = "SelectData2";
-
-root.Sprites["SelectData3"] = {
-    Sheet = "CG",
-    Bounds = { X = 56, Y = 670, Width = 16, Height = 55 }
-}
-root.ExtraMenus.AlbumMenu.SelectData[#root.ExtraMenus.AlbumMenu.SelectData + 1] = "SelectData3";
-
-root.Sprites["SelectData4"] = {
-    Sheet = "CG",
-    Bounds = { X = 74, Y = 670, Width = 17, Height = 55 }
-}
-root.ExtraMenus.AlbumMenu.SelectData[#root.ExtraMenus.AlbumMenu.SelectData + 1] = "SelectData4";
-
-root.Sprites["SelectData5"] = {
-    Sheet = "CG",
-    Bounds = { X = 93, Y = 670, Width = 22, Height = 55 }
-}
-root.ExtraMenus.AlbumMenu.SelectData[#root.ExtraMenus.AlbumMenu.SelectData + 1] = "SelectData5";
-
-root.Sprites["SelectData6"] = {
-    Sheet = "CG",
-    Bounds = { X = 117, Y = 670, Width = 22, Height = 55 }
-}
-root.ExtraMenus.AlbumMenu.SelectData[#root.ExtraMenus.AlbumMenu.SelectData + 1] = "SelectData6";
-
-root.Sprites["SelectData7"] = {
-    Sheet = "CG",
-    Bounds = { X = 141, Y = 670, Width = 17, Height = 55 }
-}
-root.ExtraMenus.AlbumMenu.SelectData[#root.ExtraMenus.AlbumMenu.SelectData + 1] = "SelectData7";
-
-root.Sprites["SelectData8"] = {
-    Sheet = "CG",
-    Bounds = { X = 159, Y = 670, Width = 18, Height = 55 }
-}
-root.ExtraMenus.AlbumMenu.SelectData[#root.ExtraMenus.AlbumMenu.SelectData + 1] = "SelectData8";
-
-root.Sprites["SelectData9"] = {
-    Sheet = "CG",
-    Bounds = { X = 179, Y = 670, Width = 20, Height = 55 }
-}
-root.ExtraMenus.AlbumMenu.SelectData[#root.ExtraMenus.AlbumMenu.SelectData + 1] = "SelectData9";
+for i, bounds in ipairs(selectDataBounds) do
+    root.Sprites["SelectData" .. i - 1] = {
+        Sheet = "CG",
+        Bounds = bounds
+    }
+    root.ExtraMenus.AlbumMenu.SelectDataSprites[i] = "SelectData" .. i - 1;
+end
 
 root.Sprites["AlbumMenuTitle"] = {
     Sheet = "CG",

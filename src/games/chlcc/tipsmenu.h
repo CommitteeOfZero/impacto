@@ -1,5 +1,7 @@
 #pragma once
 
+#include "animations/selectprompt.h"
+#include "animations/menutransition.h"
 #include "../../ui/tipsmenu.h"
 #include "../../ui/widgets/group.h"
 #include "../../ui/widgets/button.h"
@@ -37,13 +39,13 @@ class TipsMenu : public UI::TipsMenu {
   void DrawRedBar();
   void DrawTipsTree();
   void DrawButtonPrompt();
-  void DrawSelectWord();
   void UpdateTitles();
   void HandlePageChange(Widget* cur, Widget* next);
 
   Animation TitleFade;
   Animation FromSystemMenuTransition;
-  Animation SelectWordAnimation;
+  SelectPromptAnimation SelectAnimation;
+  MenuTransitionAnimation MenuTransition;
 
   glm::vec2 RedTitleLabelPos;
   glm::vec2 RightTitlePos;
@@ -58,8 +60,6 @@ class TipsMenu : public UI::TipsMenu {
   Widgets::Label* TotalPages;
   std::vector<uint16_t> CategoryStringBuffer;
   std::optional<Widgets::Scrollbar> TipsEntriesScrollbar;
-
-  glm::vec2 AnimationOffset;
 };
 
 }  // namespace CHLCC

@@ -16,16 +16,12 @@ namespace CHLCC {
 
 using namespace Impacto::Profile::CHLCC::ClearListMenu;
 using namespace Impacto::Profile::ScriptVars;
+using namespace Impacto::Profile::GameSpecific;
 using namespace Impacto::UI::Widgets;
 using namespace Impacto::TipsSystem;
 using namespace Impacto::Profile;
 
 ClearListMenu::ClearListMenu() {
-  MenuTransition.Direction = AnimationDirection::In;
-  MenuTransition.LoopMode = AnimationLoopMode::Stop;
-  MenuTransition.DurationIn = MenuTransitionDuration;
-  MenuTransition.DurationOut = MenuTransitionDuration;
-
   TitleFade.Direction = AnimationDirection::In;
   TitleFade.LoopMode = AnimationLoopMode::Stop;
   TitleFade.DurationIn = TitleFadeInDuration;
@@ -105,24 +101,17 @@ void ClearListMenu::Render() {
     Renderer->DrawSprite(MenuTitleText, LeftTitlePos);
   }
 
-  float yOffset = 0;
-  if (MenuTransition.Progress > 0.22f) {
-    if (MenuTransition.Progress < 0.73f) {
-      // Approximated function from the original, another mess
-      yOffset = glm::mix(
-          -Profile::DesignHeight, 0.0f,
-          1.00397f * std::sin(3.97161f - 3.26438f * MenuTransition.Progress) -
-              0.00295643f);
-    }
-    Renderer->DrawSprite(ClearListLabel,
-                         glm::vec2(LabelPosition.x, LabelPosition.y + yOffset));
-    DrawPlayTime(yOffset);
-    DrawEndingCount(yOffset);
-    DrawTIPSCount(yOffset);
-    DrawAlbumCompletion(yOffset);
-    DrawEndingTree(yOffset);
-    DrawButtonPrompt();
-  }
+  if (MenuTransition.Progress < 0.22f) return;
+  float yOffset = MenuTransition.GetPageOffset().y;
+
+  Renderer->DrawSprite(ClearListLabel,
+                       glm::vec2(LabelPosition.x, LabelPosition.y + yOffset));
+  DrawPlayTime(yOffset);
+  DrawEndingCount(yOffset);
+  DrawTIPSCount(yOffset);
+  DrawAlbumCompletion(yOffset);
+  DrawEndingTree(yOffset);
+  DrawButtonPrompt();
 }
 
 void ClearListMenu::Update(float dt) {

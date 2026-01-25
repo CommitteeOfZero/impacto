@@ -15,8 +15,6 @@ namespace CHLCC {
 namespace TrophyMenu {
 
 void Configure() {
-  MenuTransitionDuration = EnsureGetMember<float>("TransitionDuration");
-
   ShowPageAnimationStartTime =
       EnsureGetMember<float>("ShowPageAnimationStartTime");
   ShowPageAnimationDuration =

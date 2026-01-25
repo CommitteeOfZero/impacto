@@ -42,10 +42,6 @@ void AlbumMenu::CgOnClick(Widgets::Button* target) {
 AlbumMenu::AlbumMenu() {
   CurrentPage = 0;
 
-  MenuTransition.Direction = AnimationDirection::In;
-  MenuTransition.LoopMode = AnimationLoopMode::Stop;
-  MenuTransition.SetDuration(MenuTransitionDuration);
-
   TitleFade.Direction = AnimationDirection::In;
   TitleFade.LoopMode = AnimationLoopMode::Stop;
   TitleFade.DurationIn = TitleFadeInDuration;
@@ -93,6 +89,7 @@ void AlbumMenu::Show() {
     if (State != Showing) {
       MenuTransition.StartIn();
       FromSystemMenuTransition.StartIn();
+      SelectAnimation.StartIn(true);
     };
     UpdatePages();
     Pages[CurrentPage]->Show();
@@ -165,26 +162,11 @@ void AlbumMenu::Render() {
     Renderer->DrawSprite(AlbumMenuTitle, LeftTitlePos);
   }
 
-  glm::vec2 offset(0.0f, 0.0f);
-  if (MenuTransition.Progress > 0.22f) {
-    if (MenuTransition.Progress < 0.72f) {
-      // Approximated function from the original, another mess
-      offset = glm::vec2(
-          0.0f,
-          glm::mix(-Profile::DesignHeight, 0.0f,
-                   1.00397f * std::sin(3.97161f -
-                                       3.26438f * MenuTransition.Progress) -
-                       0.00295643f));
-    }
-    DrawPage(offset);
+  if (MenuTransition.Progress < 0.22f) return;
 
-    for (int i = 0; i <= EntriesPerPage; i++) {
-      Renderer->DrawSprite(SelectData[i], SelectDataPos[i] + offset);
-    }
-
-    CgViewerGroup->Render();
-    DrawButtonGuide();
-  }
+  DrawPage();
+  CgViewerGroup->Render();
+  DrawButtonGuide();
 }
 
 void AlbumMenu::UpdateInput(float dt) {
@@ -246,6 +228,7 @@ void AlbumMenu::Update(float dt) {
   if (State != Hidden) {
     MenuTransition.Update(dt);
     FromSystemMenuTransition.Update(dt);
+    SelectAnimation.Update(dt);
     if (MenuTransition.Direction == AnimationDirection::Out &&
         MenuTransition.Progress <= 0.72f) {
       TitleFade.StartOut();
@@ -383,7 +366,8 @@ void AlbumMenu::UpdatePages() {
   }
 }
 
-inline void AlbumMenu::DrawPage(const glm::vec2& offset) {
+inline void AlbumMenu::DrawPage() {
+  glm::vec2 offset = MenuTransition.GetPageOffset();
   Renderer->DrawSprite(PageCountLabel, PageLabelPosition + offset);
   Renderer->DrawSprite(PageNums[CurrentPage + 1], CurrentPageNumPos + offset);
   Renderer->DrawSprite(PageNumSeparatorSlash,
@@ -403,6 +387,7 @@ inline void AlbumMenu::DrawPage(const glm::vec2& offset) {
   Renderer->DrawSprite(CGList, CGListPosition + offset);
   Pages[CurrentPage]->MoveTo(offset);
   Pages[CurrentPage]->Render();
+  SelectAnimation.Draw(SelectDataSprites, SelectDataPos, offset);
 }
 void AlbumMenu::DrawButtonGuide() {
   if (MenuTransition.Progress > 0.734f) {
