@@ -60,8 +60,8 @@ SaveMenu::SaveMenu() : UI::SaveMenu() {
   // Quick Save Pages initialization
 
   for (int i = 0; i < Pages; i++) {
-    MainItems = new Widgets::Group(this);
-    MainItems->WrapFocus = false;
+    Widgets::Group* mainItems = new Widgets::Group(this);
+    mainItems->WrapFocus = false;
 
     for (int j = 0; j < EntriesPerPage; j++) {
       SaveEntryButton* saveEntryButton =
@@ -70,7 +70,7 @@ SaveMenu::SaveMenu() : UI::SaveMenu() {
                               EntryPositions[j], i, false, LockedSymbolSprite);
       saveEntryButton->OnClickHandler = onClick;
       saveEntryButton->AddThumbnail(EmptyThumbnailSprite, ThumbnailRelativePos);
-      MainItems->Add(saveEntryButton);
+      mainItems->Add(saveEntryButton);
       EntryGrid[j] = saveEntryButton;
     }
 
@@ -89,7 +89,7 @@ SaveMenu::SaveMenu() : UI::SaveMenu() {
     EntryGrid[5]->SetFocus(EntryGrid[4], FDIR_UP);
     EntryGrid[5]->SetFocus(EntryGrid[4], FDIR_DOWN);
 
-    QuickSavePages.push_back(MainItems);
+    QuickSavePages.push_back(mainItems);
   }
   // Maintaining focus across pages
   for (auto pageItr = QuickSavePages.begin(); pageItr != QuickSavePages.end();
@@ -120,15 +120,15 @@ SaveMenu::SaveMenu() : UI::SaveMenu() {
   // Full Save Pages initialization
 
   for (int i = 0; i < Pages; i++) {
-    MainItems = new Widgets::Group(this);
-    MainItems->WrapFocus = false;
+    Widgets::Group* mainItems = new Widgets::Group(this);
+    mainItems->WrapFocus = false;
 
     for (int j = 0; j < EntriesPerPage; j++) {
       SaveEntryButton* saveEntryButton = new SaveEntryButton(
           i * EntriesPerPage + j, SaveEntrySprite, EntryHighlightedSprite,
           SaveEntrySprite, EntryPositions[j], i, true, LockedSymbolSprite);
       saveEntryButton->OnClickHandler = onClick;
-      MainItems->Add(saveEntryButton);
+      mainItems->Add(saveEntryButton);
       EntryGrid[j] = saveEntryButton;
     }
 
@@ -147,7 +147,7 @@ SaveMenu::SaveMenu() : UI::SaveMenu() {
     EntryGrid[5]->SetFocus(EntryGrid[4], FDIR_UP);
     EntryGrid[5]->SetFocus(EntryGrid[4], FDIR_DOWN);
 
-    FullSavePages.push_back(MainItems);
+    FullSavePages.push_back(mainItems);
   }
 
   // Maintaining focus across pages

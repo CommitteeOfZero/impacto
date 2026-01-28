@@ -47,7 +47,6 @@ class SaveMenu : public UI::SaveMenu {
   std::vector<Widgets::Group*> FullSavePages;
   std::vector<Widgets::Group*> QuickSavePages;
   std::vector<Widgets::Group*>* SavePages;
-  Widgets::Group* MainItems;
   Animation TitleFade;
   Animation FromSystemMenuTransition;
   SelectPromptAnimation SelectAnimation;

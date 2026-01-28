@@ -115,13 +115,6 @@ void SysMesBox::Show() {
 void SysMesBox::Hide() {
   FadeAnimation.StartOut();
   State = Hiding;
-  if (LastFocusedMenu != 0) {
-    UI::FocusedMenu = LastFocusedMenu;
-    LastFocusedMenu->IsFocused = true;
-  } else {
-    UI::FocusedMenu = 0;
-  }
-  IsFocused = false;
 }
 
 void SysMesBox::Update(float dt) {
@@ -129,6 +122,16 @@ void SysMesBox::Update(float dt) {
 
   FadeAnimation.Update(dt);
   if (State != Hidden) {
+    if (State == Hiding && FadeAnimation.IsOut()) {
+      if (LastFocusedMenu != 0) {
+        UI::FocusedMenu = LastFocusedMenu;
+        LastFocusedMenu->IsFocused = true;
+      } else {
+        UI::FocusedMenu = 0;
+      }
+      IsFocused = false;
+    }
+
     if (FadeAnimation.IsIn()) State = Shown;
     if (FadeAnimation.IsOut()) State = Hidden;
 
