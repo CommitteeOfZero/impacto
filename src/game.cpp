@@ -501,6 +501,11 @@ void Render() {
             // Dialogue pages drawn in reverse order, at least for cclcc
             for (auto pageIt = DialoguePages.rbegin();
                  pageIt != DialoguePages.rend(); pageIt++) {
+              // TODO: Consistently just use the ScrWork variable internally
+              // after tips and backlog entry pages have been refactored out of
+              // DialoguePage
+              pageIt->Mode = static_cast<DialoguePageMode>(
+                  ScrWork[SW_MESMODE0 + 10 * pageIt->Id]);
               pageIt->Render();
             }
           }

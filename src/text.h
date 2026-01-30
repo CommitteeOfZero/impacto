@@ -156,7 +156,7 @@ struct TypewriterEffect : public Animation {
 struct DialoguePage {
   static void Init();
 
-  int Id;
+  int Id = 0;
   int AnimationId = 0;
   int NextAnimationId = 0;
   int CharacterId = -1;
