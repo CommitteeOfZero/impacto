@@ -33,6 +33,10 @@
 #include "effects/blur.h"
 #include "effects/mosaic.h"
 
+#ifdef __linux__
+#include "linuxdesktop.h"
+#endif
+
 #include "profile/profile.h"
 #include "profile/game.h"
 #include "profile/sprites.h"
@@ -83,6 +87,10 @@ static void Init() {
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
   }
+#endif
+
+#ifdef __linux__
+  LinuxDesktop::SetWMClassHints(Profile::CurrentProfileName);
 #endif
 
   InitRenderer();
@@ -170,6 +178,7 @@ static void Init() {
 }
 
 void InitFromProfile(std::string const& name) {
+  Profile::CurrentProfileName = name;
   Profile::MakeLuaProfile(name);
   Init();
 }

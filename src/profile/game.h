@@ -21,6 +21,8 @@ inline std::optional<std::string> WindowIconPath;
 inline std::optional<std::string> CursorArrowPath;
 inline std::optional<std::string> CursorPointerPath;
 
+inline std::string CurrentProfileName;
+
 inline bool LayFileBigEndian;
 inline bool CharaIsMvl;
 

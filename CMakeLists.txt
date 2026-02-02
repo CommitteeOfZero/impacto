@@ -19,6 +19,7 @@ set(Impacto_Src
         src/util.cpp
         src/workqueue.cpp
         src/game.cpp
+        src/linuxdesktop.cpp
         src/mem.cpp
         src/modelviewer.cpp
         src/characterviewer.cpp
@@ -356,6 +357,7 @@ set(Impacto_Header
         src/util.h
         src/workqueue.h
         src/game.h
+        src/linuxdesktop.h
         src/mem.h
         src/modelviewer.h
         src/characterviewer.h
