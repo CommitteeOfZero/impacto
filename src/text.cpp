@@ -380,6 +380,20 @@ float TypewriterEffect::CalcRubyOpacity(const size_t rubyGlyphId,
                     0.0f, 1.0f);
 }
 
+DialoguePage::State DialoguePage::GetState() const {
+  using enum State;
+
+  if (Typewriter.IsOut()) return Initial;
+  if (Typewriter.IsPlaying()) return Showing;
+  // Typewriter is in
+
+  if (TextFadeAnimation.IsIn()) return Shown;
+  if (TextFadeAnimation.IsPlaying()) return Hiding;
+  // Text fade animation is out
+
+  return Hidden;
+}
+
 bool DialoguePage::TextIsFullyOpaque() { return Typewriter.Progress == 1.0f; }
 
 void DialoguePage::Init() {
@@ -444,7 +458,7 @@ void DialoguePage::Clear() {
     CurrentLineTop = NVLBounds.Y;
   }
   CurrentLineTopMargin = 0.0f;
-  NVLResetBeforeAdd = false;
+  AdvanceMethod = AdvanceMethodType::Skip;
 }
 
 void DialoguePage::ClearName() {
@@ -611,11 +625,11 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
 
   PrevNameId = NameId;
 
-  if (Mode == DPM_ADV || Mode == DPM_REV || NVLResetBeforeAdd ||
-      PrevMode != Mode) {
+  if (Mode == DPM_ADV || Mode == DPM_REV ||
+      AdvanceMethod == AdvanceMethodType::PresentClear || PrevMode != Mode) {
     Clear();
-    TextFadeAnimation.Progress = 1.0f;
   }
+  TextFadeAnimation.Reset(AnimationDirection::Out);
   PrevMode = Mode;
 
   const size_t typeWriterStart = Glyphs.size();
@@ -625,7 +639,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
   // It shouldn't really matter since names are an ADV thing and we clear
   // before every add on ADV anyway...
 
-  AutoForward = AutoForwardType::Off;
+  AdvanceMethod = AdvanceMethodType::Skip;
 
   TextParseState state = TPS_Normal;
   // TODO respect alignment
@@ -689,6 +703,10 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
         lastWordStart = Glyphs.size();
       } break;
 
+      case STT_Present: {
+        AdvanceMethod = AdvanceMethodType::Present;
+      } break;
+
       case STT_RubyTextStart: {
         EndRubyBase((int)Glyphs.size() - 1);
         state = TPS_Ruby;
@@ -716,7 +734,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
       } break;
 
       case STT_Present_Clear: {
-        NVLResetBeforeAdd = true;
+        AdvanceMethod = AdvanceMethodType::PresentClear;
       } break;
 
       case STT_SetLeftMargin: {
@@ -750,12 +768,16 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
         lastWordStart = Glyphs.size();
       } break;
 
+      case STT_Present_0x18: {
+        AdvanceMethod = AdvanceMethodType::Present0x18;
+      } break;
+
       case STT_AutoForward_SyncVoice: {
-        AutoForward = AutoForwardType::SyncVoice;
+        AdvanceMethod = AdvanceMethodType::AutoForwardSyncVoice;
       } break;
 
       case STT_AutoForward: {
-        AutoForward = AutoForwardType::Normal;
+        AdvanceMethod = AdvanceMethodType::AutoForward;
       } break;
 
       case STT_SetColor: {
@@ -951,7 +973,9 @@ void DialoguePage::Update(float dt) {
     Typewriter.Start(CurrentLineVoiced);
 
     AutoWaitTime = static_cast<float>(Typewriter.GetGlyphCount());
-    if (AutoForward == AutoForwardType::SyncVoice) AutoWaitTime *= 2.0f;
+    if (AdvanceMethod == AdvanceMethodType::AutoForwardSyncVoice) {
+      AutoWaitTime *= 2.0f;
+    }
   }
 
   Typewriter.Update(dt);
@@ -969,13 +993,14 @@ void DialoguePage::Update(float dt) {
       }
     }
 
-    if (AutoForward == AutoForwardType::SyncVoice) {
+    if (AdvanceMethod == AdvanceMethodType::AutoForwardSyncVoice) {
       const float speed = AutoWaitTime > Typewriter.GetGlyphCount()
                               ? Profile::ConfigSystem::TextSpeed
                               : Profile::ConfigSystem::AutoSpeed;
       AutoWaitTime = std::max(0.0f, AutoWaitTime - speed * dt);
     } else if (TextIsFullyOpaque() &&
-               (AutoForward == AutoForwardType::Normal || AutoModeEnabled)) {
+               (AdvanceMethod == AdvanceMethodType::AutoForward ||
+                AutoModeEnabled)) {
       AutoWaitTime =
           std::max(0.0f, AutoWaitTime - Profile::ConfigSystem::AutoSpeed * dt);
     }
@@ -1017,10 +1042,8 @@ void DialoguePage::Render() {
   col.a = opacityTint.a;
 
   const float textFadeOpacity =
-      GetFlag(Profile::ScriptVars::SF_MESALLSKIP)
-          ? 1.0f
-          : opacityTint.a * TextFadeAnimation.Progress;
-
+      GetFlag(SF_MESALLSKIP) ? 1.0f
+                             : opacityTint.a * TextFadeAnimation.Progress;
   Renderer->DrawProcessedText(Glyphs, DialogueFont, textFadeOpacity,
                               RendererOutlineMode::Full);
   for (size_t rubyChunkId = 0; rubyChunkId < RubyChunkCount; rubyChunkId++) {

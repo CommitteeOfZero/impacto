@@ -224,87 +224,105 @@ VmInstruction(InstMes) {
   SetFlag(SF_SYSTEMMENUDISABLE2, false);
 }
 VmInstruction(InstMesMain) {
+  using enum DialoguePage::AdvanceMethodType;
+  using enum DialoguePage::State;
+
   StartInstruction;
   PopUint8(type);
-  DialoguePage* currentPage = &DialoguePages[thread->DialoguePageId];
+  DialoguePage& currentPage = DialoguePages[thread->DialoguePageId];
+  DialoguePage::State pageState = currentPage.GetState();
 
-  bool advanceButtonWentDown =
-      Interface::PADinputButtonWentDown & Interface::PAD1A ||
-      Interface::PADinputMouseWentDown & Interface::PAD1A ||
-      (Profile::ConfigSystem::AdvanceTextOnDirectionalInput &&
-       Interface::PADinputButtonWentDown &
-           (Interface::PAD1UP | Interface::PAD1DOWN | Interface::PAD1LEFT |
-            Interface::PAD1RIGHT));
-
-  if (type == 0) {  // Normal mode
-    if (!currentPage->TextIsFullyOpaque()) {
-      // Text is still appearing
-      if (advanceButtonWentDown || GetFlag(SF_MESALLSKIP)) {
-        if (!currentPage->Typewriter.IsCancelled) {
-          currentPage->Typewriter.CancelRequested = true;
-        }
-      }
-    } else {
-      // Text is fully opaque
-      if (!GetFlag(SF_UIHIDDEN)) {
-        bool useTextFade =
-            (currentPage->Mode == DPM_ADV || currentPage->Mode == DPM_REV ||
-             (currentPage->Mode == DPM_NVL && currentPage->NVLResetBeforeAdd));
-
-        if (useTextFade && currentPage->TextFadeAnimation.IsPlaying()) {
-          ResetInstruction;
-          BlockThread;
-          return;
-        }
-
-        if (useTextFade && currentPage->TextFadeAnimation.Progress == 0.0f) {
-          // Advance to next line
-          SaveSystem::SetLineRead(ScrWork[2 * currentPage->Id + SW_SCRIPTID],
-                                  ScrWork[2 * currentPage->Id + SW_LINEID]);
-          SetFlag(SF_CHAANIME + thread->DialoguePageId, false);
-
-          if (Profile::ConfigSystem::SkipVoice || GetFlag(SF_MESALLSKIP))
-            Audio::Channels[Audio::AC_VOICE0]->Stop(0.0f);
-
-          BlockThread;
-          return;
-        }
-
-        SetFlag(SF_SHOWWAITICON + thread->DialoguePageId, true);
-
-        if (advanceButtonWentDown || GetFlag(SF_MESALLSKIP) ||
-            !currentPage->AutoWaitTime) {
-          if (useTextFade) {
-            currentPage->TextFadeAnimation.StartOut();
-            SetFlag(SF_SHOWWAITICON + thread->DialoguePageId, false);
-            if (currentPage->HasName() &&
-                Profile::Dialogue::NametagCurrentType ==
-                    +Profile::Dialogue::NametagType::FadeInPauseOut) {
-              NametagDisplay::StartHiding();
-            }
-            ResetInstruction;
-            BlockThread;
-            return;
-          } else {
-            SaveSystem::SetLineRead(ScrWork[2 * currentPage->Id + SW_SCRIPTID],
-                                    ScrWork[2 * currentPage->Id + SW_LINEID]);
-            SetFlag(SF_CHAANIME + thread->DialoguePageId, false);
-            SetFlag(SF_SHOWWAITICON + thread->DialoguePageId, false);
-
-            if (Profile::ConfigSystem::SkipVoice || GetFlag(SF_MESALLSKIP))
-              Audio::Channels[Audio::AC_VOICE0]->Stop(0.0f);
-
-            BlockThread;
-            return;
-          }
-        }
-      }
+  if (pageState == Initial || pageState == Showing) {
+    if (GetFlag(SF_MESALLSKIP)) {
+      currentPage.Typewriter.Finish();
+    } else if (GetFlag(SF_MESSKIP)) {
+      currentPage.Typewriter.CancelRequested = true;
     }
+  }
 
+  if (pageState == Initial || pageState == Showing || pageState == Hiding) {
     ResetInstruction;
     BlockThread;
+    return;
   }
-  // TODO: Type 1 - Skip mode(?)
+
+  if (pageState == Hidden) {
+    currentPage.Clear();
+
+    // TODO: Add backlog entry
+
+    SaveSystem::SetLineRead(ScrWork[currentPage.Id * 2 + SW_SCRIPTID],
+                            ScrWork[currentPage.Id * 2 + SW_LINEID]);
+    return;
+  }
+
+  assert(pageState == Shown);
+
+  const bool autoForward = currentPage.AdvanceMethod == AutoForward ||
+                           currentPage.AdvanceMethod == AutoForwardSyncVoice;
+  if (!autoForward) {
+    SetFlag(SF_SYSMENUDISABLE, false);
+
+    if (currentPage.AdvanceMethod == Skip && type != 1) {
+      // TODO: Add backlog entry
+
+      currentPage.Typewriter.Reset();
+
+      return;
+    }
+
+    SetFlag(currentPage.Id + SF_SHOWWAITICON, true);
+  }
+
+  if (!GetFlag(SF_UIHIDDEN) && GetFlag(SF_MESSKIP)) {
+    currentPage.AutoWaitTime = 0.0f;
+
+    if (Profile::ConfigSystem::SkipVoice) {
+      Audio::Channels[Audio::AC_VOICE0]->Stop(0.0f);
+    }
+  }
+
+  const Audio::AudioChannelState audioState =
+      Audio::Channels[Audio::AC_VOICE0]->GetState();
+  const bool audioPlaying = audioState == Audio::ACS_Playing ||
+                            audioState == Audio::ACS_FadingIn ||
+                            audioState == Audio::ACS_FadingOut;
+  if (currentPage.AutoWaitTime == 0.0f &&
+      (!audioPlaying || GetFlag(SF_MESSKIP))) {
+    if (Profile::ConfigSystem::SkipVoice) {
+      Audio::Channels[Audio::AC_VOICE0]->Stop(0.0f);
+    }
+
+    SetFlag(currentPage.Id + SF_CHAANIME, false);
+    SetFlag(currentPage.Id + SF_SHOWWAITICON, false);
+    SetFlag(SF_SYSMENUDISABLE, true);
+
+    const bool advanceWithoutHiding =
+        currentPage.AdvanceMethod == Present0x18 ||
+        currentPage.AdvanceMethod == AutoForward ||
+        (currentPage.AdvanceMethod != PresentClear && type != 1 &&
+         currentPage.Mode == DPM_NVL);
+    if (advanceWithoutHiding) {
+      // TODO: Add backlog entry
+
+      SaveSystem::SetLineRead(ScrWork[currentPage.Id * 2 + SW_SCRIPTID],
+                              ScrWork[currentPage.Id * 2 + SW_LINEID]);
+
+      currentPage.Typewriter.Reset();
+
+      BlockThread;
+      return;
+    }
+
+    if (GetFlag(SF_MESALLSKIP)) {
+      currentPage.TextFadeAnimation.Finish(AnimationDirection::Out);
+    } else {
+      currentPage.TextFadeAnimation.StartOut();
+    }
+  }
+
+  BlockThread;
+  ResetInstruction;
 }
 VmInstruction(InstSetMesModeFormat) {
   StartInstruction;

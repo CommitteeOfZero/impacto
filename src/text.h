@@ -187,16 +187,25 @@ struct DialoguePage {
   std::optional<uint32_t> PrevNameId = std::nullopt;
   bool RenderName = false;
 
-  enum class AutoForwardType { Off, Normal, SyncVoice };
-  AutoForwardType AutoForward = AutoForwardType::Off;
+  enum class AdvanceMethodType : uint8_t {
+    Skip,
+    Present,
+    PresentClear,
+    Present0x18,
+    AutoForwardSyncVoice,
+    AutoForward,
+  };
+  AdvanceMethodType AdvanceMethod = AdvanceMethodType::Skip;
+
   float AutoWaitTime = 0.0f;
 
   TextAlignment Alignment = TextAlignment::Left;
   DialoguePageMode Mode;
 
-  bool NVLResetBeforeAdd;
-
   bool CurrentLineVoiced = false;
+
+  enum class State { Initial, Showing, Hiding, Shown, Hidden };
+  State GetState() const;
 
   // TODO get rid of this
   bool TextIsFullyOpaque();
