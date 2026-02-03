@@ -160,7 +160,7 @@ void VitaUnswizzle(int* x, int* y, int width, int height) {
 bool GXTLoadSubtexture(Stream* stream, Texture* outTexture,
                        SubtextureHeader* stx, uint8_t* p4Palettes,
                        uint8_t* p8Palettes, uint32_t p4count) {
-  memset(outTexture, 0, sizeof(*outTexture));
+  *outTexture = Texture();
   stream->Seek(stx->Offset, RW_SEEK_SET);
   uint32_t baseFormat = (stx->Format & 0xFF000000U);
   uint32_t channelOrder = (stx->Format & 0x0000FFFFU);
@@ -179,11 +179,11 @@ bool GXTLoadSubtexture(Stream* stream, Texture* outTexture,
       outTexture->Init(TexFmt_RGB, stx->Width, stx->Height);
 
       if (channelOrder == Gxm::BGR && stx->PixelOrder == Gxm::Linear) {
-        stream->Read(outTexture->Buffer, outTexture->BufferSize);
+        stream->Read(outTexture->Buffer.data(), outTexture->Buffer.size());
       } else {
-        uint8_t* inBuffer = (uint8_t*)malloc(outTexture->BufferSize);
+        uint8_t* inBuffer = (uint8_t*)malloc(outTexture->Buffer.size());
         uint8_t* reader = inBuffer;
-        stream->Read(inBuffer, outTexture->BufferSize);
+        stream->Read(inBuffer, outTexture->Buffer.size());
 
         for (int y = 0; y < stx->Height; y++) {
           for (int x = 0; x < stx->Width; x++) {
@@ -199,7 +199,7 @@ bool GXTLoadSubtexture(Stream* stream, Texture* outTexture,
               outTexture->Buffer[px + 1] = *reader++;
               outTexture->Buffer[px + 0] = *reader++;
             } else if (channelOrder == Gxm::BGR) {
-              memcpy(outTexture->Buffer + px, reader, 3);
+              std::copy(reader, reader + 3, outTexture->Buffer.begin() + px);
               reader += 3;
             }
           }
@@ -216,9 +216,9 @@ bool GXTLoadSubtexture(Stream* stream, Texture* outTexture,
 
       outTexture->Init(TexFmt_RGBA, stx->Width, stx->Height);
 
-      uint8_t* inBuffer = (uint8_t*)malloc(outTexture->BufferSize);
+      uint8_t* inBuffer = (uint8_t*)malloc(outTexture->Buffer.size());
       uint8_t* reader = inBuffer;
-      stream->Read(inBuffer, outTexture->BufferSize);
+      stream->Read(inBuffer, outTexture->Buffer.size());
 
       for (int y = 0; y < stx->Height; y++) {
         for (int x = 0; x < stx->Width; x++) {
@@ -295,10 +295,10 @@ bool GXTLoadSubtexture(Stream* stream, Texture* outTexture,
 
       if (stx->PixelOrder == Gxm::Swizzled) {
         BlockDecompressImageDXT1VitaSwizzled(stx->Width, stx->Height, stream,
-                                             outTexture->Buffer);
+                                             outTexture->Buffer.data());
       } else {
         BlockDecompressImageDXT1(stx->Width, stx->Height, stream,
-                                 outTexture->Buffer);
+                                 outTexture->Buffer.data());
       }
       break;
     }
@@ -309,10 +309,10 @@ bool GXTLoadSubtexture(Stream* stream, Texture* outTexture,
 
       if (stx->PixelOrder == Gxm::Swizzled) {
         BlockDecompressImageDXT5VitaSwizzled(stx->Width, stx->Height, stream,
-                                             outTexture->Buffer);
+                                             outTexture->Buffer.data());
       } else {
         BlockDecompressImageDXT5(stx->Width, stx->Height, stream,
-                                 outTexture->Buffer);
+                                 outTexture->Buffer.data());
       }
       break;
     }
@@ -322,9 +322,9 @@ bool GXTLoadSubtexture(Stream* stream, Texture* outTexture,
       outTexture->Init(TexFmt_U8, stx->Width, stx->Height);
 
       if (stx->PixelOrder == Gxm::Swizzled) {
-        uint8_t* inBuffer = (uint8_t*)malloc(outTexture->BufferSize);
+        uint8_t* inBuffer = (uint8_t*)malloc(outTexture->Buffer.size());
         uint8_t* reader = inBuffer;
-        stream->Read(inBuffer, outTexture->BufferSize);
+        stream->Read(inBuffer, outTexture->Buffer.size());
 
         for (int y = 0; y < stx->Height; y++) {
           for (int x = 0; x < stx->Width; x++) {
@@ -339,7 +339,7 @@ bool GXTLoadSubtexture(Stream* stream, Texture* outTexture,
 
         free(inBuffer);
       } else {
-        stream->Read(outTexture->Buffer, outTexture->BufferSize);
+        stream->Read(outTexture->Buffer.data(), outTexture->Buffer.size());
       }
       break;
     }

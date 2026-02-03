@@ -30,6 +30,7 @@ class SequencedAnimation : public Animation {
   void UpdateImpl(float dt) override;
   void StartInImpl(bool reset) override;
   void StartOutImpl(bool reset) override;
+  void ResetImpl(std::optional<AnimationDirection> direction) override;
   void FinishImpl() override;
 
  private:

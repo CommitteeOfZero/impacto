@@ -306,7 +306,7 @@ bool TextureLoadDDS(Stream* stream, Texture* outTexture) {
   }
 
   outTexture->Init(texFmt, m_dds.width, m_dds.height);
-  internal_readimg(stream, outTexture->Buffer, m_dds.width, m_dds.height,
+  internal_readimg(stream, outTexture->Buffer.data(), m_dds.width, m_dds.height,
                    m_dds.depth);
 
   return true;

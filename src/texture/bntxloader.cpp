@@ -447,11 +447,10 @@ bool TextureLoadBNTX(Stream* stream, Texture* outTexture) {
           break;
       }
 
-      outTexture->Buffer = dataBuff;
-      outTexture->BufferSize = element.Height * element.Width * 4;
-      outTexture->Width = element.Width;
-      outTexture->Height = element.Height;
-      outTexture->Format = TexFmt_RGBA;
+      outTexture->Init(TexFmt_RGBA, element.Width, element.Height);
+      outTexture->Buffer.assign(dataBuff, dataBuff + outTexture->Buffer.size());
+      free(dataBuff);
+
       result = true;
       break;
     }

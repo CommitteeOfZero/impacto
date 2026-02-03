@@ -73,6 +73,7 @@ class Animation {
     State = AnimationState::Stopped;
     if (direction.has_value()) Direction = direction.value();
     Progress = Direction == AnimationDirection::In ? 0.0f : 1.0f;
+    ResetImpl(direction);
   }
 
   void Update(float dt) {
@@ -99,6 +100,7 @@ class Animation {
   void AddDelta(float dt);
   virtual void StartInImpl(bool reset = false) {}
   virtual void StartOutImpl(bool reset = false) {}
+  virtual void ResetImpl(std::optional<AnimationDirection> direction) {};
   virtual void FinishImpl() {};
   virtual void ResetImpl() {};
   virtual void UpdateImpl(float dt) {

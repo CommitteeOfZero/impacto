@@ -60,6 +60,8 @@ class TitleMenu : public Menu {
   Widgets::CHLCC::TitleButton* SystemSave;
 
   Impacto::CHLCC::IntroSequence IntroSequence;
+
+  void ResetIntroSequence();
 };
 
 }  // namespace CHLCC

@@ -652,8 +652,8 @@ SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
                                entry->ThumbnailData.size());
       stream->Seek(thumbnailPaddingSize, SEEK_CUR);
 
-      std::ranges::copy(entry->ThumbnailData, texture.Tex.Buffer);
-
+      texture.Tex.Buffer.assign(entry->ThumbnailData.begin(),
+                                entry->ThumbnailData.end());
       textures.push_back(texture);
 
       std::tie(calcFileThumbnailsChecksumSum, calcFileThumbnailsChecksumXor) =
@@ -706,7 +706,7 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
         RectF(0.0f, 0.0f, SaveThumbnailWidth, SaveThumbnailHeight);
 
     if (ResizeImage(WorkingSaveThumbnail.Bounds, entry->SaveThumbnail.Bounds,
-                    captureBuffer, std::span(tex.Buffer, tex.BufferSize)) < 0) {
+                    captureBuffer, tex.Buffer) < 0) {
       ImpLog(LogLevel::Error, LogChannel::General,
              "Failed to resize save thumbnail\n");
     }

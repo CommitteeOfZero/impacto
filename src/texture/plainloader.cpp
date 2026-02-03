@@ -42,21 +42,16 @@ bool TextureLoadPlain(Stream* stream, Texture* outTexture) {
       stream->Read(inBuffer, width * height);
 
       uint8_t* reader = inBuffer;
-      uint8_t* writer = outTexture->Buffer;
+      for (size_t i = 0; i < outTexture->Buffer.size(); i += 4) {
+        uint8_t colorIdx = *reader;
+        uint8_t* color = palette + 4 * colorIdx;
 
-      for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; x++) {
-          uint8_t colorIdx = *reader;
-          uint8_t* color = palette + 4 * colorIdx;
+        outTexture->Buffer[i + 0] = color[2];
+        outTexture->Buffer[i + 1] = color[1];
+        outTexture->Buffer[i + 2] = color[0];
+        outTexture->Buffer[i + 3] = color[3];
 
-          writer[0] = color[2];
-          writer[1] = color[1];
-          writer[2] = color[0];
-          writer[3] = color[3];
-
-          reader++;
-          writer += 4;
-        }
+        reader++;
       }
 
       free(inBuffer);
@@ -66,22 +61,14 @@ bool TextureLoadPlain(Stream* stream, Texture* outTexture) {
     case Plain_32Bit_ARGB: {  // 32-bit ARGB
       outTexture->Init(TexFmt_RGBA, width, height);
 
-      uint8_t* inBuffer = (uint8_t*)malloc(outTexture->BufferSize);
-      stream->Read(inBuffer, outTexture->BufferSize);
+      uint8_t* inBuffer = (uint8_t*)malloc(outTexture->Buffer.size());
+      stream->Read(inBuffer, outTexture->Buffer.size());
 
-      uint8_t* reader = inBuffer;
-      uint8_t* writer = outTexture->Buffer;
-
-      for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; x++) {
-          writer[0] = reader[1];
-          writer[1] = reader[2];
-          writer[2] = reader[3];
-          writer[3] = reader[0];
-
-          reader += 4;
-          writer += 4;
-        }
+      for (size_t i = 0; i < outTexture->Buffer.size(); i += 4) {
+        outTexture->Buffer[i + 0] = inBuffer[i + 1];
+        outTexture->Buffer[i + 1] = inBuffer[i + 2];
+        outTexture->Buffer[i + 2] = inBuffer[i + 3];
+        outTexture->Buffer[i + 3] = inBuffer[i + 0];
       }
 
       free(inBuffer);
@@ -92,21 +79,15 @@ bool TextureLoadPlain(Stream* stream, Texture* outTexture) {
     case Plain_8Bit_Alpha2: {  // No palette, alpha channel only
       // TODO alpha textures
       outTexture->Init(TexFmt_RGBA, width, height);
-      memset(outTexture->Buffer, 0xFF, outTexture->BufferSize);
+      std::ranges::fill(outTexture->Buffer, 0xFF);
 
       uint8_t* inBuffer = (uint8_t*)malloc(width * height);
       stream->Read(inBuffer, width * height);
 
       uint8_t* reader = inBuffer;
-      uint8_t* writer = outTexture->Buffer + 3;
-
-      for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; x++) {
-          *writer = *reader;
-
-          reader++;
-          writer += 4;
-        }
+      for (size_t i = 0; i < outTexture->Buffer.size(); i += 4) {
+        outTexture->Buffer[i + 3] = *reader;
+        reader++;
       }
 
       free(inBuffer);

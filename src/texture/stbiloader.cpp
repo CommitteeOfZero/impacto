@@ -51,9 +51,9 @@ bool TextureLoadSTBI(Io::Stream* stream, Texture* outTexture) {
 
   outTexture->Width = x;
   outTexture->Height = y;
-  outTexture->Buffer = image;
-  outTexture->BufferSize = channels_in_file * x * y;
+  outTexture->Buffer.assign(image, image + (channels_in_file * x * y));
 
+  free(image);
   return true;
 }
 

@@ -9,13 +9,12 @@ namespace Impacto {
 enum TexFmt { TexFmt_RGB, TexFmt_RGBA, TexFmt_U8 };
 
 struct Texture {
-  int Width;
-  int Height;
-  TexFmt Format;
-  uint8_t* Buffer;
-  int BufferSize;
+  int Width = 0;
+  int Height = 0;
+  TexFmt Format = TexFmt_U8;
+  std::vector<uint8_t> Buffer;
 
-  void Init(TexFmt fmt, int width, int height);
+  void Init(TexFmt format, int width, int height);
 
   bool Load(Io::Stream* stream);
   void Load1x1(uint8_t red = 0, uint8_t green = 0, uint8_t blue = 0,
