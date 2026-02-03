@@ -13,7 +13,8 @@ BETTER_ENUM(WaitIconType, int, None, SpriteAnim, SpriteAnimFixed, Rotate, Fixed,
 
 void Init();
 void Update(float dt);
-void Render(glm::vec2 pos, glm::vec4 opacityTint, DialoguePageMode mode);
+void Render(glm::vec2 pos, glm::vec4 opacityTint, DialoguePageMode mode,
+            int dialoguePageId);
 
 }  // namespace WaitIconDisplay
 }  // namespace Impacto

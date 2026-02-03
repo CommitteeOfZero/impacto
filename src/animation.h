@@ -62,10 +62,17 @@ class Animation {
       StartOut(reset);
   }
 
-  void Finish() {
+  void Finish(std::optional<AnimationDirection> direction = std::nullopt) {
     State = AnimationState::Stopped;
+    if (direction.has_value()) Direction = direction.value();
     Progress = Direction == AnimationDirection::In ? 1.0f : 0.0f;
     FinishImpl();
+  }
+
+  void Reset(std::optional<AnimationDirection> direction = std::nullopt) {
+    State = AnimationState::Stopped;
+    if (direction.has_value()) Direction = direction.value();
+    Progress = Direction == AnimationDirection::In ? 0.0f : 1.0f;
   }
 
   void Update(float dt) {
@@ -93,6 +100,7 @@ class Animation {
   virtual void StartInImpl(bool reset = false) {}
   virtual void StartOutImpl(bool reset = false) {}
   virtual void FinishImpl() {};
+  virtual void ResetImpl() {};
   virtual void UpdateImpl(float dt) {
     if (SkipOnSkipMode && GetFlag(Profile::ScriptVars::SF_MESALLSKIP) &&
         State != AnimationState::Stopped) {

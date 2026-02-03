@@ -156,7 +156,7 @@ struct TypewriterEffect : public Animation {
 struct DialoguePage {
   static void Init();
 
-  int Id;
+  int Id = 0;
   int AnimationId = 0;
   int NextAnimationId = 0;
   int CharacterId = -1;
@@ -185,21 +185,32 @@ struct DialoguePage {
 
   std::optional<uint32_t> NameId = std::nullopt;
   std::optional<uint32_t> PrevNameId = std::nullopt;
+  bool RenderName = false;
 
-  enum class AutoForwardType { Off, Normal, SyncVoice };
-  AutoForwardType AutoForward = AutoForwardType::Off;
+  enum class AdvanceMethodType : uint8_t {
+    Skip,
+    Present,
+    PresentClear,
+    Present0x18,
+    AutoForwardSyncVoice,
+    AutoForward,
+  };
+  AdvanceMethodType AdvanceMethod = AdvanceMethodType::Skip;
+
   float AutoWaitTime = 0.0f;
 
   TextAlignment Alignment = TextAlignment::Left;
   DialoguePageMode Mode;
 
-  bool NVLResetBeforeAdd;
-
   bool CurrentLineVoiced = false;
+
+  enum class State { Initial, Showing, Hiding, Shown, Hidden };
+  State GetState() const;
 
   // TODO get rid of this
   bool TextIsFullyOpaque();
   void Clear();
+  void ClearName();
   void AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice = 0,
                  bool acted = true, int animId = 0, int charId = -1,
                  bool shouldUpdateCharId = false);
@@ -228,8 +239,7 @@ struct DialoguePage {
   float CurrentLineTopMargin;
 };
 
-inline DialoguePage* DialoguePages;
-inline int DialoguePageCount = 0;
+inline std::vector<DialoguePage> DialoguePages;
 
 int TextGetStringLength(Vm::Sc3Stream& stream);
 int TextGetStringLength(Vm::Sc3VmThread* ctx);

@@ -231,6 +231,12 @@ bool GetControlState(int controlId, InputDownType downType) {
                            : (PADcustom[6] & PADinputButtonWentDown);
     case CT_NextMessage:
       return padInputDown & PADcustom[23];
+    case CT_ForceSkip:
+      return padInputDown & PADcustom[7];
+    case CT_SkipMode:
+      return padInputDown & PADcustom[8];
+    case CT_AutoMode:
+      return padInputDown & PADcustom[9];
     case CT_QuickSave:
       return padInputDown & PADcustom[13];
     case CT_MainMenu:
