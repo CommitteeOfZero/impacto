@@ -5,7 +5,7 @@
 #include "../../video/videosystem.h"
 #include "../../vm/interface/input.h"
 #include "../../inputsystem.h"
-#include "../../text.h"
+#include "../../text/text.h"
 #include "../../profile/dialogue.h"
 
 namespace Impacto {

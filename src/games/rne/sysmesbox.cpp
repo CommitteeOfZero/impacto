@@ -8,6 +8,8 @@
 #include "../../mem.h"
 #include "../../inputsystem.h"
 #include "../../renderer/renderer.h"
+#include "../../audio/audiochannel.h"
+#include "../../audio/audiosystem.h"
 
 namespace Impacto {
 namespace UI {

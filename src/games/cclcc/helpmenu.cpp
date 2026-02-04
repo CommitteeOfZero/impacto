@@ -9,6 +9,7 @@
 #include "../../vm/interface/input.h"
 #include "../../profile/game.h"
 #include "../../inputsystem.h"
+#include "../../audio/audiosystem.h"
 
 namespace Impacto {
 namespace UI {

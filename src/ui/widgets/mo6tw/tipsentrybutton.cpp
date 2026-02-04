@@ -3,7 +3,7 @@
 #include "../../../renderer/renderer.h"
 #include "../../../profile/dialogue.h"
 #include "../../../profile/games/mo6tw/tipsmenu.h"
-#include "../../../text.h"
+#include "../../../text/text.h"
 #include "../../../vm/vm.h"
 
 namespace Impacto {

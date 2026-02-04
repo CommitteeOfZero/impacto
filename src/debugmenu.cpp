@@ -6,6 +6,7 @@
 
 #include "game.h"
 #include "mem.h"
+#include "log.h"
 #include "inputsystem.h"
 #include "vm/vm.h"
 #include "io/vfs.h"

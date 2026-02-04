@@ -27,10 +27,13 @@ set(Impacto_Src
         src/background2d.cpp
         src/mask2d.cpp
         src/character2d.cpp
-        src/text.cpp
         src/inputsystem.cpp
         src/voicetable.cpp
         src/animation.cpp
+        
+        src/text/text.cpp
+        src/text/typewritereffect.cpp
+        src/text/dialoguepage.cpp
 
         src/effects/wave.cpp
         src/effects/blur.cpp
@@ -366,11 +369,14 @@ set(Impacto_Header
         src/background2d.h
         src/mask2d.h
         src/character2d.h
-        src/text.h
         src/loadable.h
         src/inputsystem.h
         src/rng.h
         src/animation.h
+        
+        src/text/text.h
+        src/text/typewritereffect.h
+        src/text/dialoguepage.h
 
         src/effects/wave.h
         src/effects/blur.h

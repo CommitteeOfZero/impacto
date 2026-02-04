@@ -6,6 +6,7 @@
 #include "../../profile/ui/backlogmenu.h"
 #include "../../profile/games/cc/backlogmenu.h"
 #include "../../profile/scriptvars.h"
+#include "../../audio/audiosystem.h"
 
 namespace Impacto {
 namespace UI {

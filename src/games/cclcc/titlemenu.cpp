@@ -14,6 +14,7 @@
 #include "../../profile/game.h"
 #include "../../profile/vm.h"
 #include "../../vm/interface/input.h"
+#include "../../audio/audiosystem.h"
 
 namespace Impacto {
 namespace UI {

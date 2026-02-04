@@ -4,7 +4,7 @@
 
 #include "../../profile/dialogue.h"
 #include "../widget.h"
-#include "../../text.h"
+#include "../../text/text.h"
 #include "../../vm/vm.h"
 
 namespace Impacto {

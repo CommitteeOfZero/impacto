@@ -9,7 +9,7 @@
 #include "dialogue.h"
 #include "configsystem.h"
 #include "../font.h"
-#include "../text.h"
+#include "../text/text.h"
 #include "../game.h"
 #include "../ui/ui.h"
 #include "../vm/vm.h"

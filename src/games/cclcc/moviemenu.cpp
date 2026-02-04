@@ -2,6 +2,7 @@
 
 #include <ranges>
 #include "../../ui/ui.h"
+#include "../../audio/audiosystem.h"
 #include "../../profile/games/cclcc/librarymenu.h"
 
 namespace Impacto::UI::CCLCC {

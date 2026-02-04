@@ -8,6 +8,7 @@
 #include "../../profile/scriptvars.h"
 #include "../../data/savesystem.h"
 #include "../../audio/audiochannel.h"
+#include "../../audio/audiosystem.h"
 #include "../../vm/interface/input.h"
 
 namespace Impacto {

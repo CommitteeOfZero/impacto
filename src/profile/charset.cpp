@@ -1,6 +1,6 @@
 #include "charset.h"
 #include "profile_internal.h"
-#include "../text.h"
+#include "../text/text.h"
 
 #include <utf8.h>
 

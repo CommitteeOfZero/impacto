@@ -9,6 +9,7 @@
 #include "../../vm/interface/input.h"
 #include "../../profile/game.h"
 #include "../../inputsystem.h"
+#include "../../audio/audiosystem.h"
 #include "../../ui/widgets/chlcc/trackselectbutton.h"
 
 namespace Impacto {

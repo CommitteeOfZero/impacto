@@ -1,6 +1,7 @@
 #include "renderer.h"
 
 #include "../profile/game.h"
+#include "../log.h"
 
 #ifndef IMPACTO_DISABLE_OPENGL
 #include "opengl/renderer.h"

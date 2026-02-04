@@ -4,6 +4,7 @@
 #include "../../../inputsystem.h"
 #include "../../../profile/games/cclcc/titlemenu.h"
 #include "../../../vm/interface/input.h"
+#include "../../../audio/audiosystem.h"
 
 namespace Impacto {
 namespace UI {

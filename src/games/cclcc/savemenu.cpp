@@ -11,6 +11,7 @@
 #include "../../data/savesystem.h"
 #include "../../profile/game.h"
 #include "../../games/cclcc/savesystem.h"
+#include "../../audio/audiosystem.h"
 
 namespace Impacto {
 namespace UI {

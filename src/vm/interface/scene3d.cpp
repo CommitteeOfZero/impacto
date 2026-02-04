@@ -5,6 +5,7 @@
 #include "../../renderer/renderer.h"
 #include "../../mem.h"
 #include "../../util.h"
+#include "../../log.h"
 
 #include "../../profile/scene3d.h"
 #include "../../profile/vm.h"

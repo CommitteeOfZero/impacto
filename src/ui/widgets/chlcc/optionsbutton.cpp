@@ -4,6 +4,7 @@
 #include "../../../renderer/renderer.h"
 #include "../../../inputsystem.h"
 #include "../../../vm/interface/input.h"
+#include "../../../log.h"
 
 namespace Impacto {
 namespace UI {

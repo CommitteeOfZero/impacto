@@ -3,6 +3,7 @@
 #include "../../profile/game.h"
 #include "../../profile/games/chlcc/titlemenu.h"
 #include "../../background2d.h"
+#include "../../audio/audiosystem.h"
 
 using namespace Impacto::Profile;
 using namespace Impacto::Profile::CHLCC::TitleMenu;

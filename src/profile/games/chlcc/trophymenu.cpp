@@ -1,7 +1,7 @@
 #include "trophymenu.h"
 #include "../../profile_internal.h"
 #include "../../../log.h"
-#include "../../../text.h"
+#include "../../../text/text.h"
 
 #include "../../ui/trophymenu.h"
 #include "../../../game.h"

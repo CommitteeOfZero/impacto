@@ -12,6 +12,7 @@
 #include "../../vm/interface/input.h"
 #include "../../profile/game.h"
 #include "../../ui/widgets/cclcc/librarymenubutton.h"
+#include "../../audio/audiosystem.h"
 
 namespace Impacto {
 namespace UI {

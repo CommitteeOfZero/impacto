@@ -17,7 +17,8 @@
 #include "../data/tipssystem.h"
 #include "../ui/ui.h"
 #include "interface/input.h"
-#include "../text.h"
+#include "../text/text.h"
+#include "../audio/audiosystem.h"
 #include "vm.h"
 
 namespace Impacto {

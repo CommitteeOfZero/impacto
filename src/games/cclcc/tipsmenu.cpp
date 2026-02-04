@@ -13,6 +13,7 @@
 #include "../../data/tipssystem.h"
 #include "../../vm/interface/input.h"
 #include "../../profile/game.h"
+#include "../../audio/audiosystem.h"
 
 #include "../../ui/widgets/cclcc/tipstabgroup.h"
 namespace Impacto {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../../text.h"
+#include "../../../text/text.h"
 
 namespace Impacto {
 namespace Profile {

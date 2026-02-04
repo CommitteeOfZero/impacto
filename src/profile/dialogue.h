@@ -2,12 +2,13 @@
 
 #include "../util.h"
 #include "../spritesheet.h"
-#include "../text.h"
 #include "../hud/waiticondisplay.h"
 #include "../hud/autoicondisplay.h"
 #include "../hud/skipicondisplay.h"
 #include "../hud/dialoguebox.h"
 #include "../spriteanimation.h"
+
+#include "../text/text.h"
 
 namespace Impacto {
 namespace Profile {

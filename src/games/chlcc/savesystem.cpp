@@ -10,6 +10,7 @@
 #include "../../profile/configsystem.h"
 #include "../../data/tipssystem.h"
 #include "../../effects/wave.h"
+#include "../../audio/audiosystem.h"
 
 #include <cstdint>
 #include <numeric>

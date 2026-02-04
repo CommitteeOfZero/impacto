@@ -9,6 +9,7 @@
 #include "../../data/tipssystem.h"
 #include "../../background2d.h"
 #include "../../profile/game.h"
+#include "../../audio/audiosystem.h"
 
 namespace Impacto {
 namespace UI {
