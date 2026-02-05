@@ -6,6 +6,7 @@
 #include "../../mem.h"
 #include "../../profile/scriptvars.h"
 #include "../../vm/interface/input.h"
+#include "../../audio/audiosystem.h"
 
 namespace Impacto {
 namespace UI {

@@ -9,6 +9,9 @@
 #include "profile/configsystem.h"
 #include "voicetable.h"
 #include "background2d.h"
+#include "text/dialoguepage.h"
+#include "audio/audiochannel.h"
+#include "audio/audiosystem.h"
 
 namespace Impacto {
 

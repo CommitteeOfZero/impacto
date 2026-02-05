@@ -3,7 +3,7 @@
 #include "../../../ui/ui.h"
 
 #include "../../../games/mo6tw/albummenu.h"
-#include "../../../text.h"
+#include "../../../text/text.h"
 #include "../../../game.h"
 
 namespace Impacto {

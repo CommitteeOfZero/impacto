@@ -1,7 +1,9 @@
 #include "shader.h"
-#include "renderer.h"
 
 #include <d3dcompiler.h>
+
+#include "renderer.h"
+#include "../../log.h"
 
 namespace Impacto {
 namespace DirectX9 {

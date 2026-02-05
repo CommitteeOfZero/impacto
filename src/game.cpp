@@ -1,6 +1,7 @@
 #include "game.h"
 
-#include "text.h"
+#include "text/text.h"
+#include "text/dialoguepage.h"
 #include "workqueue.h"
 #include "modelviewer.h"
 #include "characterviewer.h"

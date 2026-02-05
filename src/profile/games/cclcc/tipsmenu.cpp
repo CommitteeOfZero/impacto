@@ -1,7 +1,7 @@
 #include "tipsmenu.h"
 #include "../../profile_internal.h"
 #include "../../../log.h"
-#include "../../../text.h"
+#include "../../../text/text.h"
 
 #include "../../ui/tipsmenu.h"
 #include "../../../game.h"

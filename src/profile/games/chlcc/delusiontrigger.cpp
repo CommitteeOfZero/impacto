@@ -1,7 +1,7 @@
 #include "delusiontrigger.h"
 #include "../../profile_internal.h"
 #include "../../../log.h"
-#include "../../../text.h"
+#include "../../../text/text.h"
 
 #include "../../../game.h"
 #include "../../../ui/ui.h"

@@ -4,7 +4,7 @@
 #include "../../vm/vm.h"
 #include "../../vm/sc3stream.h"
 #include "../widget.h"
-#include "../../text.h"
+#include "../../text/text.h"
 #include "../../renderer/renderer.h"
 
 namespace Impacto {

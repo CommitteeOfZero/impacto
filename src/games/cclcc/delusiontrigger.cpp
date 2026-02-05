@@ -5,6 +5,8 @@
 #include "../../src/video/videosystem.h"
 #include "../../profile/configsystem.h"
 #include "../../background2d.h"
+#include "../../text/dialoguepage.h"
+#include "../../audio/audiosystem.h"
 
 namespace Impacto {
 namespace UI {

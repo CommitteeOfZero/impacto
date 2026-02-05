@@ -3,10 +3,11 @@
 #include "../../../renderer/renderer.h"
 #include "../../../profile/dialogue.h"
 #include "../../../profile/games/cclcc/tipsmenu.h"
-#include "../../../text.h"
+#include "../../../text/text.h"
 #include "../../../vm/vm.h"
 #include "../../../inputsystem.h"
 #include "../../../vm/interface/input.h"
+#include "../../../audio/audiosystem.h"
 
 namespace Impacto {
 namespace UI {

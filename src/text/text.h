@@ -1,17 +1,14 @@
 #pragma once
 
-#include <set>
 #include <span>
+#include <array>
 #include <enum.h>
 #include <ankerl/unordered_dense.h>
 
-#include "font.h"
-#include "animation.h"
-#include "vm/thread.h"
-#include "vm/sc3stream.h"
-#include "audio/audiosystem.h"
-#include "audio/audiostream.h"
-#include "audio/audiochannel.h"
+#include "../font.h"
+#include "../animation.h"
+#include "../vm/thread.h"
+#include "../vm/sc3stream.h"
 
 namespace Impacto {
 
@@ -95,151 +92,14 @@ struct ProcessedTextGlyph {
   RectF DestRect;
 };
 
-enum DialoguePageMode : uint8_t {
-  DPM_ADV = 0,
-  DPM_NVL = 1,
-  DPM_REV = 2,
-  DPM_TIPS = 3
-};
-
-int constexpr DialogueMaxNameLength = 64;
-int constexpr DialogueMaxRubyChunks = 32;
-int constexpr DialogueMaxRubyChunkLength = 32;
-
 struct RubyChunk {
   size_t FirstBaseCharacter;
   size_t Length;
   size_t BaseLength;
-  std::array<ProcessedTextGlyph, DialogueMaxRubyChunkLength> Text;
-  std::array<uint16_t, DialogueMaxRubyChunkLength> RawText;
+  std::array<ProcessedTextGlyph, 32> Text;
+  std::array<uint16_t, 32> RawText;
   bool CenterPerCharacter;
 };
-
-struct TypewriterEffect : public Animation {
- public:
-  void Start(bool voiced);
-  void Update(float dt);
-
-  float CalcOpacity(size_t glyph);
-  float CalcRubyOpacity(size_t rubyGlyphId, const RubyChunk& chunk);
-
-  void SetGlyphCount(size_t glyphCount) { GlyphCount = glyphCount; }
-  size_t GetGlyphCount() const { return GlyphCount; }
-
-  void SetParallelStartGlyphs(const std::set<size_t>& parallelStartGlyphs) {
-    ParallelStartGlyphs = parallelStartGlyphs;
-  }
-  void SetFirstGlyph(size_t firstGlyph) { FirstGlyph = firstGlyph; }
-
-  bool CancelRequested = false;
-  bool IsCancelled = false;
-
- private:
-  size_t FirstGlyph = 0;
-  size_t GlyphCount = 0;
-
-  std::set<size_t> ParallelStartGlyphs;
-  float ProgressOnCancel;
-
-  bool Voiced = false;
-
-  struct ParallelBlock {
-    size_t Start;
-    size_t Size;
-  };
-  ParallelBlock GetParallelBlock(size_t glyph);
-
-  // {startProgress, endProgress}
-  std::pair<float, float> GetGlyphWritingProgresses(size_t glyph);
-};
-
-struct DialoguePage {
-  static void Init();
-
-  int Id = 0;
-  int AnimationId = 0;
-  int NextAnimationId = 0;
-  int CharacterId = -1;
-
-  std::array<RubyChunk, DialogueMaxRubyChunks> RubyChunks;
-  std::vector<ProcessedTextGlyph> Glyphs;
-
-  TypewriterEffect Typewriter;
-  Animation FadeAnimation;
-  Animation TextFadeAnimation;
-
-  size_t NameLength;
-
-  std::vector<ProcessedTextGlyph> Name;
-
-  RectF BoxBounds;
-
-  Audio::AudioStream* CurrentVoice;
-
-  glm::vec2 Dimensions;
-  int Length;
-  float FontSize;
-
-  size_t RubyChunkCount;
-  int CurrentRubyChunk;
-
-  std::optional<uint32_t> NameId = std::nullopt;
-  std::optional<uint32_t> PrevNameId = std::nullopt;
-  bool RenderName = false;
-
-  enum class AdvanceMethodType : uint8_t {
-    Skip,
-    Present,
-    PresentClear,
-    Present0x18,
-    AutoForwardSyncVoice,
-    AutoForward,
-  };
-  AdvanceMethodType AdvanceMethod = AdvanceMethodType::Skip;
-
-  float AutoWaitTime = 0.0f;
-
-  TextAlignment Alignment = TextAlignment::Left;
-  DialoguePageMode Mode;
-
-  bool CurrentLineVoiced = false;
-
-  enum class State { Initial, Showing, Hiding, Shown, Hidden };
-  State GetState() const;
-
-  // TODO get rid of this
-  bool TextIsFullyOpaque();
-  void Clear();
-  void ClearName();
-  void AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice = 0,
-                 bool acted = true, int animId = 0, int charId = -1,
-                 bool shouldUpdateCharId = false);
-  void Update(float dt);
-  void Move(glm::vec2 relativePos);
-  void MoveTo(glm::vec2 pos);
-  void Render();
-  void Hide();
-  void Show();
-  bool HasName() { return this->NameId.has_value(); }
-
- private:
-  void FinishLine(Vm::Sc3VmThread* ctx, size_t nextLineStart,
-                  const RectF& boxBounds, TextAlignment alignment);
-  void EndRubyBase(int lastBaseCharacter);
-
-  bool ShouldShowNewText = false;
-  DialoguePageMode PrevMode = DPM_ADV;
-  bool ShouldUpdateCharId = false;
-
-  bool BuildingRubyBase;
-  size_t FirstRubyChunkOnLine;
-
-  size_t LastLineStart;
-  float CurrentLineTop;
-  float CurrentLineTopMargin;
-};
-
-inline std::vector<DialoguePage> DialoguePages;
 
 int TextGetStringLength(Vm::Sc3Stream& stream);
 int TextGetStringLength(Vm::Sc3VmThread* ctx);
@@ -282,8 +142,5 @@ void TextGetSc3String(std::string_view str, std::span<uint16_t> out);
 inline ankerl::unordered_dense::map<uint32_t, uint32_t> NamePlateData;
 void InitNamePlateData(Vm::Sc3Stream& stream);
 uint32_t GetNameId(uint8_t* name, int nameLength);
-
-inline bool SkipModeEnabled = false;
-inline bool AutoModeEnabled = false;
 
 }  // namespace Impacto

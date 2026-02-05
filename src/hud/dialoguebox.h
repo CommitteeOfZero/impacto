@@ -3,7 +3,8 @@
 #include <enum.h>
 #include <optional>
 #include <ankerl/unordered_dense.h>
-#include "../text.h"
+#include "../text/text.h"
+#include "../text/dialoguepage.h"
 #include "../ui/widgets/button.h"
 
 namespace Impacto {

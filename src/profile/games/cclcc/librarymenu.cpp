@@ -2,7 +2,7 @@
 #include "../../profile_internal.h"
 #include "../../../ui/ui.h"
 #include "../../../games/cclcc/librarymenu.h"
-#include "../../../text.h"
+#include "../../../text/text.h"
 #include "../../../game.h"
 
 namespace Impacto {

@@ -7,6 +7,7 @@
 #include "../../profile/scriptvars.h"
 #include "../../inputsystem.h"
 #include "../../ui/widgets/button.h"
+#include "../../audio/audiosystem.h"
 
 namespace Impacto {
 namespace UI {

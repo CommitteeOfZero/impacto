@@ -7,7 +7,7 @@
 #include "../../../inputsystem.h"
 #include "../../../vm/interface/input.h"
 #include "../../../ui/ui.h"
-#include "../../../text.h"
+#include "../../../text/text.h"
 #include "../../../vm/vm.h"
 #include "../../../profile/game.h"
 

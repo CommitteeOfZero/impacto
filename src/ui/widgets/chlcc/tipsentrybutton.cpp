@@ -3,7 +3,7 @@
 #include "../../../renderer/renderer.h"
 #include "../../../profile/dialogue.h"
 #include "../../../profile/games/chlcc/tipsmenu.h"
-#include "../../../text.h"
+#include "../../../text/text.h"
 #include "../../../vm/vm.h"
 #include "../../../inputsystem.h"
 #include "../../../vm/interface/input.h"

@@ -8,6 +8,8 @@
 #include "../../game.h"
 #include "../../profile/vm.h"
 #include "../../profile/game.h"
+#include "../../audio/audiosystem.h"
+#include "../../text/dialoguepage.h"
 
 namespace Impacto {
 namespace UI {

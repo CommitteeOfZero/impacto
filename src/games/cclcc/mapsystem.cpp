@@ -4,12 +4,13 @@
 #include <algorithm>
 #include <cstdint>
 
+#include "../../log.h"
 #include "../../util.h"
 #include "../../mem.h"
 #include "../../inputsystem.h"
+#include "../../audio/audiosystem.h"
 #include "../../vm/interface/input.h"
 #include "../../profile/scriptvars.h"
-
 #include "../../profile/games/cclcc/mapsystem.h"
 
 namespace Impacto {

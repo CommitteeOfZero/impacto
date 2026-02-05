@@ -9,6 +9,7 @@
 #include "../../profile/data/savesystem.h"
 #include "../../profile/game.h"
 #include "../../background2d.h"
+#include "../../audio/audiosystem.h"
 
 using namespace Impacto::Profile::CCLCC::LibraryMenu;
 using namespace Impacto::Profile::ScriptVars;

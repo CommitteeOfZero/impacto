@@ -10,6 +10,7 @@
 #include "../../renderer/renderer.h"
 #include "../../profile/configsystem.h"
 #include "../../effects/wave.h"
+#include "../../audio/audiosystem.h"
 
 #include "mapsystem.h"
 #include "yesnotrigger.h"

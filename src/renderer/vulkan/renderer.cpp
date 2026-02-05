@@ -5,6 +5,7 @@
 
 #include "../../profile/game.h"
 #include "../../game.h"
+#include "../../log.h"
 #include "3d/scene.h"
 #include "yuvframe.h"
 

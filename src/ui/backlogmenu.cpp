@@ -19,6 +19,7 @@
 #include "../profile/games/cclcc/systemmenu.h"
 #include "../inputsystem.h"
 #include "../io/vfs.h"
+#include "../audio/audiosystem.h"
 
 namespace Impacto {
 namespace UI {

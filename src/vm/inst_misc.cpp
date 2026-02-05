@@ -12,6 +12,7 @@
 #include "../hud/saveicondisplay.h"
 #include "../ui/ui.h"
 #include "../data/savesystem.h"
+#include "../audio/audiosystem.h"
 
 #include "../profile/vm.h"
 #include "../games/cclcc/systemmenu.h"

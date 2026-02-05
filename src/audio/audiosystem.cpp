@@ -3,6 +3,7 @@
 #include "../profile/game.h"
 #include "../profile/scriptvars.h"
 #include "../profile/configsystem.h"
+#include "../text/dialoguepage.h"
 
 #ifndef IMPACTO_DISABLE_OPENAL
 #include "openal/audiobackend.h"

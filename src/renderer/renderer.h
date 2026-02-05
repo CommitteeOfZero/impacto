@@ -4,7 +4,7 @@
 
 #include "3d/scene.h"
 #include "../spritesheet.h"
-#include "../text.h"
+#include "../text/text.h"
 #include "yuvframe.h"
 #include <span>
 

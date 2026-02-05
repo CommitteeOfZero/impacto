@@ -2,7 +2,7 @@
 
 #include "menu.h"
 #include "../vm/vm.h"
-#include "../text.h"
+#include "../text/text.h"
 #include "../ui/widgets/group.h"
 
 namespace Impacto {

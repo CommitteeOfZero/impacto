@@ -3,7 +3,7 @@
 #include "menu.h"
 #include "widgets/button.h"
 #include "widgets/group.h"
-#include "../text.h"
+#include "../text/text.h"
 
 namespace Impacto {
 namespace UI {

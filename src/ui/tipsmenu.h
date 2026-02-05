@@ -1,7 +1,8 @@
 #pragma once
 
 #include "menu.h"
-#include "../text.h"
+#include "../text/text.h"
+#include "../text/dialoguepage.h"
 #include "../ui/widgets/group.h"
 #include "../ui/widgets/label.h"
 
