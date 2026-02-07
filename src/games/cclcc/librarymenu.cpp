@@ -190,7 +190,7 @@ void LibraryMenu::Update(float dt) {
   FadeAnimation.Update(dt);
   UI::AlbumMenuPtr->Update(dt);
   UI::MusicMenuPtr->Update(dt);
-  UI::MovieMenuPtr->Update(dt);
+  if (!moviePlaying) UI::MovieMenuPtr->Update(dt);
   ButtonBlinkAnimation.Update(dt);
   if (!moviePlaying && !cgViewerActive) MainItems.Update(dt);
 
