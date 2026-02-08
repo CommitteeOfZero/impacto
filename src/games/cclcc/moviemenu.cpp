@@ -14,6 +14,7 @@ MovieMenu::MovieMenu() : LibrarySubmenu() {
     const auto& diskSprite = MovieDiskSprites[i];
     const auto& diskHighlightSprite = MovieDiskHighlightSprites[i];
     auto movieOnclick = [](Widgets::Button* target) {
+      target->Hovered = false;
       ScrWork[SW_MOVIEMODE_CUR] = MovieDiskPlayIds[target->Id];
       LibraryMenuPtr->AllowsScriptInput = true;
       Audio::PlayInGroup(Audio::ACG_SE, "sysse", 2, false, 0);
