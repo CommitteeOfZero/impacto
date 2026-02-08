@@ -2,6 +2,7 @@
 
 #include "../profile/dialogue.h"
 #include "../renderer/renderer.h"
+#include "../text/dialoguepage.h"
 
 namespace Impacto {
 namespace SkipIconDisplay {

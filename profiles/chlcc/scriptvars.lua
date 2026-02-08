@@ -1,5 +1,6 @@
 local sv = root.ScriptVars;
 
+sv.SW_MESNAMEID0 = 0; -- Disable
 sv.SW_TOTALPLAYTIME = 990;
 sv.SW_GAMESTATE = 1012;
 sv.SW_TITLEDISPCT = 1014;

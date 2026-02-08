@@ -22,9 +22,13 @@ root.Dialogue = {
     TextFadeOutDuration = 0.33,
     DialogueBoxCurrentType = DialogueBoxType.Plain,
     NVLBoxMaxOpacity = 0.55,
+
     ADVNameAlignment = TextAlignment.Left,
     ADVNameFontSize = 33,
     ADVNamePos = { X = 173, Y = 773 },
+
+    NametagCurrentType = NametagType.None,
+
     WaitIconSpriteAnim = "WaitIconSpriteAnimDef",
     WaitIconCurrentType = WaitIconType.SpriteAnim,
     WaitIconOffset = { X = 0, Y = 0 },
@@ -91,5 +95,3 @@ MakeAnimation({
     PrimaryDirection = AnimationDirections.Right,
     SecondaryDirection = AnimationDirections.Down
 });
-
-include('chn/nametag.lua');

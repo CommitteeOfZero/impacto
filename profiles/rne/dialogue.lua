@@ -29,9 +29,18 @@ root.Dialogue = {
     TextFadeOutDuration = 0.33,
     DialogueBoxCurrentType = DialogueBoxType.Plain,
     NVLBoxMaxOpacity = 0.55,
+
     ADVNameAlignment = TextAlignment.Left,
     ADVNameFontSize = 22,
     ADVNamePos = { X = 104, Y = 498 },
+
+    NametagCurrentType = NametagType.ThreePiece,
+    NametagPosition = { X = 0, Y = 503 },
+    NametagLeftSprite = "NametagLeftSprite",
+    NametagMiddleSprite = "NametagMiddleSprite",
+    NametagRightSprite = "NametagRightSprite",
+    NametagMiddleBaseWidth = 64.0,
+
     WaitIconCurrentType = WaitIconType.Rotate,
     WaitIconSprite = "DialogueWaitIcon",
     WaitIconOffset = { X = 4, Y = 4 },
@@ -83,4 +92,20 @@ root.Dialogue = {
     ColorTagIsUint8 = false
 };
 
-include('rne/nametag.lua');
+root.Sprites["NametagLeftSprite"] = {
+    Sheet = "Data",
+    Bounds = { X = 768, Y = 774, Width = 155, Height = 31 },
+    BaseScale = { X = 1280 / 960, Y = 720 / 544 }
+};
+
+root.Sprites["NametagMiddleSprite"] = {
+    Sheet = "Data",
+    Bounds = { X = 923, Y = 774, Width = 86, Height = 31 },
+    BaseScale = { X = 1280 / 960, Y = 720 / 544 }
+};
+
+root.Sprites["NametagLeftSprite"] = {
+    Sheet = "Data",
+    Bounds = { X = 1009, Y = 774, Width = 22, Height = 31 },
+    BaseScale = { X = 1280 / 960, Y = 720 / 544 }
+};
