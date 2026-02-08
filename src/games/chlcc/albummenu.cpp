@@ -173,8 +173,10 @@ void AlbumMenu::UpdateInput(float dt) {
   using namespace Vm::Interface;
   Menu::UpdateInput(dt);
   if (State == Shown) {
+    CgViewerGroup->UpdateInput(dt);
+    Pages[CurrentPage]->UpdateInput(dt);
     if (PADinputButtonWentDown & PAD1B || PADinputMouseWentDown & PAD1B) {
-      if (CgViewerGroup->IsShown) {
+      if (CgViewerGroup->VisibilityState != Hidden) {
         CgViewerGroup->Hide();
         ShowCgViewer = false;
       } else {
@@ -245,7 +247,7 @@ void AlbumMenu::Update(float dt) {
     AlbumThumbnailButton::UpdateFocusedAlphaFade(dt);
 
     if (ShowCgViewer) {
-      if (!CgViewerGroup->IsShown) CgViewerGroup->Show();
+      if (CgViewerGroup->VisibilityState == Hidden) CgViewerGroup->Show();
       CgViewerGroup->Update(dt);
     } else {
       auto button = static_cast<AlbumThumbnailButton*>(CurrentlyFocusedElement);

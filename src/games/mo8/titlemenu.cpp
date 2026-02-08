@@ -237,8 +237,14 @@ void TitleMenu::Update(float dt) {
     Gallery->Tint = glm::vec4(1.0f, 1.0f, 1.0f, GetFlag(803) ? 1.0f : 0.0f);
     Gallery->Enabled = GetFlag(803);
     MainItems->Update(dt);
+    MainItems->UpdateInput(dt);
     ContinueItems->Update(dt);
     GalleryItems->Update(dt);
+    if (ContinueSelected) {
+      ContinueItems->UpdateInput(dt);
+    } else if (GallerySelected) {
+      GalleryItems->UpdateInput(dt);
+    }
 
     switch (ScrWork[SW_TITLEMODE]) {
       case 0:
@@ -255,7 +261,7 @@ void TitleMenu::Update(float dt) {
           UpdateSubMenu(&GalleryItemsShowAnimation, GalleryItems,
                         &GallerySelected);
         } else {
-          if (!MainItems->IsShown) MainItems->Show();
+          if (MainItems->VisibilityState == Hidden) MainItems->Show();
         }
       } break;
       case 6: {
@@ -331,7 +337,7 @@ void TitleMenu::UpdateSubMenu(Animation* showAnimation,
   if (MainItemsHideAnimation.IsOut()) {
     MainItemsHideAnimation.StartIn();
   } else if (MainItemsHideAnimation.IsIn() && showAnimation->IsOut()) {
-    if (subMenuGroup->IsShown) {
+    if (subMenuGroup->VisibilityState != Hidden) {
       MainItems->Show();
       subMenuGroup->Hide();
       MainItemsHideAnimation.StartOut();

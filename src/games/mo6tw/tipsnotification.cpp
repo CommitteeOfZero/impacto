@@ -8,6 +8,7 @@
 #include "../../profile/hud/tipsnotification.h"
 #include "../../profile/games/mo6tw/tipsnotification.h"
 #include "../../data/tipssystem.h"
+#include "../../ui/menu.h"
 
 namespace Impacto {
 namespace MO6TW {
@@ -15,6 +16,7 @@ namespace MO6TW {
 using namespace Impacto::Profile::TipsNotification;
 using namespace Impacto::Profile::MO6TW::TipsNotification;
 using namespace Impacto::Profile::ScriptVars;
+using namespace Impacto::UI;
 using namespace Impacto::UI::Widgets;
 
 TipsNotification::TipsNotification() {
@@ -26,12 +28,12 @@ TipsNotification::TipsNotification() {
 
   AlertTitle = new Group(NULL);
   AlertTitle->FocusLock = true;
-  AlertTitle->IsShown = true;
+  AlertTitle->VisibilityState = Shown;
   AlertTitle->HasFocus = false;
 
   Notification = new Group(NULL);
   Notification->FocusLock = true;
-  Notification->IsShown = true;
+  Notification->VisibilityState = Shown;
   Notification->HasFocus = false;
 
   auto textAlert =

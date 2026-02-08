@@ -270,6 +270,7 @@ void SaveMenu::UpdateInput(float dt) {
     CurrentlyFocusedElement = SavePages->at(*CurrentPage)->Children.front();
   };
   if (IsFocused) {
+    SavePages->at(*CurrentPage)->UpdateInput(dt);
     if (Input::MouseWheelDeltaY < 0 || PADinputButtonWentDown & PADcustom[8]) {
       updatePage((*CurrentPage + 1) % Pages);
     } else if (Input::MouseWheelDeltaY > 0 ||

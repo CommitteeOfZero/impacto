@@ -38,7 +38,7 @@ TipsMenu::TipsMenu() : ItemsList(CDIR_HORIZONTAL), TipViewItems(this) {
   FadeAnimation.DurationOut = FadeOutDuration;
 
   TipViewItems.FocusLock = false;
-  TipViewItems.IsShown = true;
+  TipViewItems.VisibilityState = Shown;
 
   Name = new Label();
   Name->Bounds = NameInitialBounds;
@@ -86,8 +86,8 @@ void TipsMenu::Hide() {
 }
 
 void TipsMenu::UpdateInput(float dt) {
-  Menu::UpdateInput(dt);
   if (State == Shown) {
+    Menu::UpdateInput(dt);
     ItemsList.UpdateInput(dt);
     if (CurrentlyDisplayedTipId != -1) {
       if (PADinputButtonWentDown & PAD1X) {

@@ -73,6 +73,8 @@ TipsTabGroup::TipsTabGroup(
 void TipsTabGroup::UpdatePageInput(float dt) {
   using namespace Vm::Interface;
   if (IsFocused) {
+    TipsEntriesGroup.UpdateInput(dt);
+
     auto prevEntry = CurrentlyFocusedElement;
     TipsEntriesScrollbar->UpdateInput(dt);
 

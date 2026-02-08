@@ -233,6 +233,7 @@ void SaveMenu::UpdateInput(float dt) {
     Audio::PlayInGroup(Audio::ACG_SE, "sysse", 1, false, 0);
   };
   if (IsFocused) {
+    MainItems[CurrentPage]->UpdateInput(dt);
     if (Input::MouseWheelDeltaY < 0 || PADinputButtonWentDown & PADcustom[8]) {
       updatePage((CurrentPage + 1) % Pages);
       CurrentlyFocusedElement = MainItems[CurrentPage]->GetFocus(FDIR_UP);
