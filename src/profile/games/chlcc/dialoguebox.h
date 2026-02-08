@@ -8,17 +8,10 @@ namespace CHLCC {
 namespace DialogueBox {
 
 void Configure();
+void ConfigureNametag();
 
 inline Sprite SecondaryADVBoxSprite;
-
-inline bool HaveSecondaryADVNameTag;
-namespace SecondaryADVNameTag {
-inline glm::vec2 Position;
-inline Sprite LeftSprite;
-inline Sprite LineSprite;
-inline Sprite RightSprite;
-inline float BaseLineWidth;
-}  // namespace SecondaryADVNameTag
+inline Sprite SecondaryNametagSprite;
 
 inline Sprite ErinBoxSprite;
 inline glm::vec2 ErinBoxPos;

@@ -8,17 +8,19 @@ namespace CC {
 namespace DialogueBox {
 
 void Configure();
-
-int constexpr NamePlateCountMax = 80;
+void ConfigureNametag();
 
 inline Sprite ADVBoxMask;
-inline Sprite NamePlateMainSprites[NamePlateCountMax];
-inline Sprite NamePlateLabelSprites[NamePlateCountMax];
-
-inline glm::vec2 ADVBoxNamePlateMainPos;
-inline glm::vec2 ADVBoxNamePlateLabelPos;
 
 inline float ADVBoxEffectDuration;
+
+inline std::vector<Sprite> NametagMainSprites;
+inline std::vector<Sprite> NametagLabelSprites;
+
+inline glm::vec2 NametagMainPos = glm::vec2(0.0f);
+inline glm::vec2 NametagLabelPos = glm::vec2(0.0f);
+
+inline float NametagShowDuration = 0.0f;
 
 }  // namespace DialogueBox
 }  // namespace CC

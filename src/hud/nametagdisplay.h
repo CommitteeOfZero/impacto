@@ -1,39 +1,50 @@
 #pragma once
 
-#include <enum.h>
-#include <optional>
-
-#include "dialoguebox.h"
-#include "../profile/dialogue.h"
+#include "../src/text/text.h"
 
 namespace Impacto {
-namespace NametagDisplay {
-using namespace Impacto::Profile::Dialogue;
 
-inline Animation NametagAnimation;
+struct NameInfo {
+  bool RenderWindow;
+  std::optional<int> NameId;
+  std::span<ProcessedTextGlyph> Name;
+};
 
-void Init();
-void Reset();
-void Update(float dt, DialoguePageMode mode);
+class NametagDisplay {
+ public:
+  static std::unique_ptr<NametagDisplay> Create();
+  virtual ~NametagDisplay() = default;
 
-void UpdateNames(std::optional<uint32_t> nameId,
-                 std::optional<uint32_t> prevNameId, DialoguePageMode mode);
-void StartHiding();
+  virtual void Render(const NameInfo& nameInfo, glm::vec4 tint) = 0;
+  virtual void Update(float dt) = 0;
+  virtual void Reset() = 0;
 
-std::optional<uint32_t> GetNameToDraw();
+  virtual void Show() { Hidden = false; }
+  virtual void Hide() { Hidden = true; }
 
-float GetHidingProgress();
-float GetShowingProgress();
+ protected:
+  bool Hidden = true;
+};
 
-bool DialogueCanStartAppearing(DialoguePageMode mode);
+class VoidNametagDisplay : public NametagDisplay {
+ public:
+  void Render(const NameInfo& nameInfo, glm::vec4 tint) override;
+  void Update(float dt) override {}
+  void Reset() override {}
+};
 
-inline bool IsHiding() {
-  return NametagAnimation.Progress <= NameTagAnimProgressHideOld;
-}
+class SpriteNametagDisplay : public NametagDisplay {
+ public:
+  void Render(const NameInfo& nameInfo, glm::vec4 tint) override;
+  void Update(float dt) override {}
+  void Reset() override {}
+};
 
-inline bool IsShowing() {
-  return NametagAnimation.Progress >= NameTagAnimProgressShowNew;
-}
+class ThreePieceNametagDisplay : public NametagDisplay {
+ public:
+  void Render(const NameInfo& nameInfo, glm::vec4 tint) override;
+  void Update(float dt) override {}
+  void Reset() override {}
+};
 
-}  // namespace NametagDisplay
 }  // namespace Impacto

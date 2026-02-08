@@ -3,6 +3,8 @@
 #include "text.h"
 #include "typewritereffect.h"
 
+#include "../hud/dialoguebox.h"
+
 #include "../audio/audiostream.h"
 
 namespace Impacto {
@@ -97,6 +99,8 @@ struct DialoguePage {
   size_t LastLineStart;
   float CurrentLineTop;
   float CurrentLineTopMargin;
+
+  std::unique_ptr<DialogueBox> DialogueBoxInst = DialogueBox::Create();
 };
 
 inline std::vector<DialoguePage> DialoguePages;

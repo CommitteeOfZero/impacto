@@ -9,15 +9,14 @@ namespace CC {
 
 class DialogueBox : public Impacto::DialogueBox {
  public:
-  void Init() override;
+  DialogueBox();
+
   void Update(float dt) override;
-  void Render(DialoguePageMode mode, float nameWidth,
-              std::optional<uint32_t> nameId, float opacity) override;
+  void Render(DialoguePageMode mode, const NameInfo& nameInfo,
+              glm::vec4 tint) override;
 
  private:
   Animation TextBoxEffect;
-  void RenderNameSprites(uint32_t nameId, float progress,
-                         AnimationDirection direction);
 };
 
 }  // namespace CC

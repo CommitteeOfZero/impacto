@@ -22,9 +22,15 @@ root.Dialogue = {
     TextFadeOutDuration = 0.33,
     DialogueBoxCurrentType = DialogueBoxType.Plain,
     NVLBoxMaxOpacity = 0.55,
+
     ADVNameAlignment = TextAlignment.Left,
     ADVNameFontSize = 29,
     ADVNamePos = { X = 222, Y = 459 },
+
+    NametagCurrentType = NametagType.Sprite,
+    NametagPosition = { X = 82, Y = 443 },
+    NametagSprite = "NametagSprite",
+
     WaitIconSpriteAnim = "WaitIconSpriteAnimDef",
     WaitIconCurrentType = WaitIconType.SpriteAnim,
     WaitIconOffset = { X = 4, Y = 4 },
@@ -91,4 +97,7 @@ MakeAnimation({
     PrimaryDirection = AnimationDirections.Down,
 });
 
-include('mo7/nametag.lua');
+root.Sprites["NametagSprite"] = {
+    Sheet = "Data",
+    Bounds = { X = 1, Y = 961, Width = 350, Height = 62 }
+};

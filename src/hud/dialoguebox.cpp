@@ -1,9 +1,15 @@
 #include "dialoguebox.h"
 
+#include "../games/mo6tw/dialoguebox.h"
+#include "../games/chlcc/dialoguebox.h"
+#include "../games/cc/dialoguebox.h"
+
+#include "../text/dialoguepage.h"
 #include "../renderer/renderer.h"
 #include "../profile/dialogue.h"
 #include "../profile/game.h"
 #include "../mem.h"
+#include "../log.h"
 #include "../profile/scriptvars.h"
 #include "../profile/vm.h"
 #include "../vm/vm.h"
@@ -14,103 +20,131 @@ namespace Impacto {
 using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::Dialogue;
 
-void DialogueBox::Init() {
+std::unique_ptr<DialogueBox> DialogueBox::Create() {
+  switch (DialogueBoxCurrentType) {
+    default:
+      ImpLog(LogLevel::Warning, LogChannel::General,
+             "Attempting to create unexpected DialogueBox type {:d}; "
+             "defaulting to Void",
+             static_cast<int>(DialogueBoxCurrentType));
+      [[fallthrough]];
+    case DialogueBoxType::None:
+      return std::make_unique<VoidDialogueBox>();
+
+    case DialogueBoxType::MO6TW:
+      return std::make_unique<MO6TW::DialogueBox>();
+
+    case DialogueBoxType::CHLCC:
+      return std::make_unique<CHLCC::DialogueBox>();
+
+    case DialogueBoxType::CC:
+      return std::make_unique<CC::DialogueBox>();
+
+    case DialogueBoxType::Plain:
+      return std::make_unique<PlainDialogueBox>();
+  }
+}
+
+PlainDialogueBox::PlainDialogueBox() {
+  using namespace UI::Widgets;
+
   Sprite nullSprite = Sprite();
   nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
 
   if (HasAutoButton) {
-    UI::Widgets::Button* autoButton = new UI::Widgets::Button(
-        0, AutoButtonSprite, AutoButtonSprite, nullSprite, AutoButtonPosition);
-    ControlButtons.push_back(autoButton);
+    ControlButtons.emplace_back(std::make_unique<Button>(
+        0, AutoButtonSprite, AutoButtonSprite, nullSprite, AutoButtonPosition));
   }
 
   if (HasSkipButton) {
-    UI::Widgets::Button* skipButton = new UI::Widgets::Button(
-        0, SkipButtonSprite, SkipButtonSprite, nullSprite, SkipButtonPosition);
-    ControlButtons.push_back(skipButton);
+    ControlButtons.emplace_back(std::make_unique<Button>(
+        0, SkipButtonSprite, SkipButtonSprite, nullSprite, SkipButtonPosition));
   }
 
   if (HasBacklogButton) {
-    UI::Widgets::Button* backlogButton =
-        new UI::Widgets::Button(0, BacklogButtonSprite, BacklogButtonSprite,
-                                nullSprite, BacklogButtonPosition);
-    ControlButtons.push_back(backlogButton);
+    ControlButtons.emplace_back(
+        std::make_unique<Button>(0, BacklogButtonSprite, BacklogButtonSprite,
+                                 nullSprite, BacklogButtonPosition));
   }
 
   if (HasMenuButton) {
-    UI::Widgets::Button* menuButton = new UI::Widgets::Button(
-        0, MenuButtonSprite, MenuButtonSprite, nullSprite, MenuButtonPosition);
-    ControlButtons.push_back(menuButton);
+    ControlButtons.emplace_back(std::make_unique<Button>(
+        0, MenuButtonSprite, MenuButtonSprite, nullSprite, MenuButtonPosition));
   }
 }
 
-void DialogueBox::Show() {}
+void PlainDialogueBox::Show() {
+  DialogueBox::Show();
+  VisibilityState = Shown;
+}
 
-void DialogueBox::Hide() {}
+void PlainDialogueBox::Hide() {
+  DialogueBox::Hide();
+  VisibilityState = Hidden;
+}
 
-void DialogueBox::Update(float dt) { UpdateControlButtons(dt); }
+void PlainDialogueBox::UpdateInput(float dt) {
+  DialogueBox::UpdateInput(dt);
+  UpdateControlButtons(dt);
+}
 
-void DialogueBox::Render(DialoguePageMode mode, float nameWidth,
-                         std::optional<uint32_t> nameId, float opacity) {
-  glm::vec4 col = ScrWorkGetColor(SW_MESWINDOW_COLOR);
-  col.a = opacity;
+void PlainDialogueBox::Render(const DialoguePageMode mode,
+                              const NameInfo& nameInfo, glm::vec4 tint) {
+  tint = glm::vec4(glm::vec3(ScrWorkGetColor(SW_MESWINDOW_COLOR)), tint.a);
+
   if (mode == DPM_ADV) {
-    Renderer->DrawSprite(ADVBoxSprite, ADVBoxPos, col);
-    RenderControlButtons(col);
+    Renderer->DrawSprite(ADVBoxSprite, ADVBoxPos, tint);
+    RenderControlButtons(tint);
+
+    if (!nameInfo.Name.empty()) {
+      if (HasSpeakerPortraits) {
+        // Draw Face
+        for (int i = 0; i < std::ssize(SpeakerPortraits); i++) {
+          int bufId = ScrWork[SW_FACE1SURF + i];
+          SpeakerPortraits[bufId].UpdateState(i);
+
+          SpeakerPortraits[bufId].Tint = tint;
+          SpeakerPortraits[bufId].Position +=
+              glm::vec2(SpeakerPortraitBaseOffsetX, SpeakerPortraitBaseOffsetY);
+
+          SpeakerPortraits[bufId].Render(-1);
+        }
+      }
+    }
+
+    NametagDisplayInst->Render(nameInfo, tint);
+
   } else {
-    glm::vec4 nvlBoxTint(0.0f, 0.0f, 0.0f, opacity * NVLBoxMaxOpacity);
+    assert(mode == DPM_REV);
+
+    glm::vec4 nvlBoxTint(0.0f, 0.0f, 0.0f, tint.a * NVLBoxMaxOpacity);
     Renderer->DrawQuad(RectF(0, 0, Profile::DesignWidth, Profile::DesignHeight),
                        nvlBoxTint);
   }
-
-  if (mode == DPM_ADV && nameId.has_value()) {
-    if (HasSpeakerPortraits) {
-      // Draw Face
-      for (int i = 0; i < std::ssize(SpeakerPortraits); i++) {
-        int bufId = ScrWork[SW_FACE1SURF + i];
-        SpeakerPortraits[bufId].UpdateState(i);
-
-        SpeakerPortraits[bufId].Tint = col;
-        SpeakerPortraits[bufId].Position +=
-            glm::vec2(SpeakerPortraitBaseOffsetX, SpeakerPortraitBaseOffsetY);
-
-        SpeakerPortraits[bufId].Render(-1);
-      }
-    }
-
-    if (HaveADVNameTag) {
-      Renderer->DrawSprite(ADVNameTag::LeftSprite, ADVNameTag::Position, col);
-
-      // Name graphic additional length
-      float lineWidth = nameWidth - ADVNameTag::BaseLineWidth;
-      float lineX =
-          ADVNameTag::Position.x + ADVNameTag::LeftSprite.ScaledWidth();
-      while (lineWidth > 0.0f) {
-        Sprite lineSprite = ADVNameTag::LineSprite;
-        lineSprite.SetScaledWidth(fminf(lineSprite.ScaledWidth(), lineWidth));
-        Renderer->DrawSprite(lineSprite,
-                             glm::vec2(lineX, ADVNameTag::Position.y), col);
-        lineX += lineSprite.ScaledWidth();
-        lineWidth -= lineSprite.ScaledWidth();
-      }
-      Renderer->DrawSprite(ADVNameTag::RightSprite,
-                           glm::vec2(lineX, ADVNameTag::Position.y), col);
-    }
-  }
 }
 
-void DialogueBox::UpdateControlButtons(float dt) {
-  for (auto button : ControlButtons) {
+void PlainDialogueBox::UpdateControlButtons(float dt) {
+  for (auto& button : ControlButtons) {
     button->UpdateInput(dt);
     button->Update(dt);
   }
 }
 
-void DialogueBox::RenderControlButtons(glm::vec4 col) {
-  for (auto button : ControlButtons) {
+void PlainDialogueBox::RenderControlButtons(glm::vec4 col) {
+  for (auto& button : ControlButtons) {
     button->Tint = col;
     button->Render();
   }
+}
+
+void VoidDialogueBox::Show() {
+  DialogueBox::Show();
+  VisibilityState = Shown;
+}
+
+void VoidDialogueBox::Hide() {
+  DialogueBox::Hide();
+  VisibilityState = Hidden;
 }
 
 }  // namespace Impacto

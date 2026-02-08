@@ -1,6 +1,7 @@
 #include "dialoguepage.h"
 
 #include "../profile/configsystem.h"
+#include "../profile/dialogue.h"
 #include "../profile/games/chlcc/dialoguebox.h"
 
 #include "../data/tipssystem.h"
@@ -25,7 +26,6 @@ namespace Impacto {
 using namespace Impacto::Profile::Dialogue;
 using namespace Impacto::Profile::ScriptVars;
 
-static DialogueBox* TextBox;
 static int constexpr DialogueMaxNameLength = 64;
 
 DialoguePage::State DialoguePage::GetState() const {
@@ -47,27 +47,14 @@ bool DialoguePage::TextIsFullyOpaque() { return Typewriter.Progress == 1.0f; }
 void DialoguePage::Init() {
   Profile::Dialogue::Configure();
 
-  switch (DialogueBoxCurrentType) {
-    case DialogueBoxType::MO6TW:
-      TextBox = new MO6TW::DialogueBox();
-      break;
-    case DialogueBoxType::CHLCC:
-      TextBox = new CHLCC::DialogueBox();
-      break;
-    case DialogueBoxType::CC:
-      TextBox = new CC::DialogueBox();
-      break;
-    default:
-      TextBox = new DialogueBox();
-      break;
-  }
-
-  TextBox->Init();
-
   WaitIconDisplay::Init();
   AutoIconDisplay::Init();
   SkipIconDisplay::Init();
-  NametagDisplay::Init();
+
+  DialoguePages.resize(PageCount);
+  for (DialoguePage& page : DialoguePages) {
+    page.Glyphs.reserve(MaxPageSize);
+  }
 
   for (int i = 0; i < std::ssize(DialoguePages); i++) {
     DialoguePages[i].Clear();
@@ -588,6 +575,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
                                1.0f, pos, alignment);
     assert(NameLength == Name.size());
   }
+  ScrWork[SW_MESNAMEID0 + Id] = NameId.value_or(0xFFFF);
 
   ShouldShowNewText = true;
   // resetting typewriter for a new line and setting new params
@@ -596,8 +584,6 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
   Typewriter.SetGlyphCount(Glyphs.size() - typeWriterStart);
   Typewriter.SetParallelStartGlyphs(parallelStartGlyphs);
   Typewriter.Progress = 0;
-
-  NametagDisplay::UpdateNames(NameId, PrevNameId, Mode);
 }
 
 void DialoguePage::Update(float dt) {
@@ -605,7 +591,7 @@ void DialoguePage::Update(float dt) {
   if ((ScrWork[SW_GAMESTATE] & 4) != 0) return;
 
   // delayed start of a typewriter, voice & wait timer
-  if (ShouldShowNewText && NametagDisplay::DialogueCanStartAppearing(Mode)) {
+  if (ShouldShowNewText) {
     ShouldShowNewText = false;
     if (CurrentLineVoiced) {
       AnimationId = NextAnimationId;
@@ -654,14 +640,22 @@ void DialoguePage::Update(float dt) {
     }
   }
 
-  TextBox->Update(dt);
+  const State visibilityState = GetState();
+  const bool shouldHide =
+      visibilityState == State::Hiding || visibilityState == State::Hidden;
+  if (RenderName && !shouldHide) {
+    DialogueBoxInst->ShowName();
+  } else {
+    DialogueBoxInst->HideName();
+  }
+
+  DialogueBoxInst->Update(dt);
   FadeAnimation.Update(dt);
   TextFadeAnimation.Update(dt);
 
   WaitIconDisplay::Update(dt);
   AutoIconDisplay::Update(dt);
   SkipIconDisplay::Update(dt);
-  NametagDisplay::Update(dt, Mode);
 }
 
 void DialoguePage::Render() {
@@ -672,18 +666,14 @@ void DialoguePage::Render() {
   glm::vec4 opacityTint(1.0f);
   opacityTint.a = glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
 
-  // Textbox
-  float width = 0.0f;
-  if (RenderName && NameId.has_value()) {
-    for (size_t i = 0; i < NameLength; i++) {
-      width += Name[i].DestRect.Width;
-    }
-  }
-
-  const std::optional<uint32_t> animatedName =
-      RenderName ? NametagDisplay::GetNameToDraw() : std::nullopt;
-
-  TextBox->Render(Mode, width, animatedName, opacityTint.a);
+  const NameInfo nameInfo{
+      .RenderWindow = RenderName,
+      .NameId = ScrWork[SW_MESNAMEID0 + Id] == 0xffff
+                    ? std::nullopt
+                    : std::optional(ScrWork[SW_MESNAMEID0 + Id]),
+      .Name = Name,
+  };
+  DialogueBoxInst->Render(Mode, nameInfo, opacityTint);
 
   // TODO: Figure out what's up with text box coloring
   glm::vec4 col = glm::vec4(1.0f);  // ScrWorkGetColor(SW_MESWINDOW_COLOR);
@@ -697,14 +687,6 @@ void DialoguePage::Render() {
   for (size_t rubyChunkId = 0; rubyChunkId < RubyChunkCount; rubyChunkId++) {
     Renderer->DrawProcessedText(RubyChunks[rubyChunkId].Text, DialogueFont,
                                 textFadeOpacity, RendererOutlineMode::Full);
-  }
-
-  if (RenderName && NameId.has_value() && ADVBoxShowName) {
-    float nameOpacity = (NametagCurrentType == +NametagType::Instant)
-                            ? opacityTint.a
-                            : textFadeOpacity;
-    Renderer->DrawProcessedText(Name, DialogueFont, nameOpacity,
-                                RendererOutlineMode::Full);
   }
 
   // Wait icon
@@ -749,12 +731,10 @@ void DialoguePage::Hide() {
   if (NameId.has_value()) {
     PrevNameId = NameId;
     NameId.reset();
-    NametagDisplay::UpdateNames(NameId, PrevNameId, Mode);
   }
 }
 
 void DialoguePage::Show() {
-  NametagDisplay::Reset();
   FadeAnimation.StartIn(true);
   TextFadeAnimation.Progress = 1.0f;
 }

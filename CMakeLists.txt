@@ -30,7 +30,7 @@ set(Impacto_Src
         src/inputsystem.cpp
         src/voicetable.cpp
         src/animation.cpp
-        
+
         src/text/text.cpp
         src/text/typewritereffect.cpp
         src/text/dialoguepage.cpp
@@ -164,8 +164,8 @@ set(Impacto_Src
         src/games/chlcc/titlemenu.cpp
         src/games/chlcc/savemenu.cpp
         src/games/chlcc/sysmesbox.cpp
-        src/games/chlcc/animations/selectprompt.cpp     
-        src/games/chlcc/animations/menutransition.cpp        
+        src/games/chlcc/animations/selectprompt.cpp
+        src/games/chlcc/animations/menutransition.cpp
         src/games/chlcc/savesystem.cpp
         src/games/chlcc/tipssystem.cpp
         src/games/chlcc/clearlistmenu.cpp
@@ -238,6 +238,9 @@ set(Impacto_Src
         src/hud/skipicondisplay.cpp
         src/hud/waiticondisplay.cpp
         src/hud/tipsnotification.cpp
+
+        src/hud/chlcc/nametagdisplay.cpp
+        src/hud/cc/nametagdisplay.cpp
 
         src/ui/widget.cpp
         src/ui/menu.cpp
@@ -373,7 +376,7 @@ set(Impacto_Header
         src/inputsystem.h
         src/rng.h
         src/animation.h
-        
+
         src/text/text.h
         src/text/typewritereffect.h
         src/text/dialoguepage.h
@@ -507,7 +510,7 @@ set(Impacto_Header
         src/games/chlcc/savemenu.h
         src/games/chlcc/sysmesbox.h
         src/games/chlcc/animations/selectprompt.h
-        src/games/chlcc/animations/menutransition.h        
+        src/games/chlcc/animations/menutransition.h
         src/games/chlcc/savesystem.h
         src/games/chlcc/tipssystem.h
         src/games/chlcc/clearlistmenu.h
@@ -573,6 +576,9 @@ set(Impacto_Header
         src/hud/skipicondisplay.h
         src/hud/waiticondisplay.h
         src/hud/tipsnotification.h
+
+        src/hud/chlcc/nametagdisplay.h
+        src/hud/cc/nametagdisplay.h
 
         src/ui/ui.h
         src/ui/menu.h

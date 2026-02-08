@@ -1,165 +1,94 @@
 #include "nametagdisplay.h"
 
+#include "../profile/dialogue.h"
+#include "chlcc/nametagdisplay.h"
+#include "cc/nametagdisplay.h"
+#include "../log.h"
+
+#include <numeric>
+
 namespace Impacto {
-namespace NametagDisplay {
 
 using namespace Impacto::Profile::Dialogue;
 
-static std::optional<uint32_t> NameId;
-static std::optional<uint32_t> PrevNameId;
-
-void Init() {
-  if (NametagCurrentType == +NametagType::None) {
-    return;
-  }
-
+std::unique_ptr<NametagDisplay> NametagDisplay::Create() {
   switch (NametagCurrentType) {
+    default:
+      ImpLog(LogLevel::Warning, LogChannel::General,
+             "Attempted to create unexpected nametag type {:d}; defaulting to "
+             "Void",
+             static_cast<int>(NametagCurrentType));
+      [[fallthrough]];
     case NametagType::None:
-    case NametagType::Instant: {
-      break;
-    }
-    case NametagType::FadeInPauseOut: {
-      NametagAnimation.DurationIn = NameTagDuration;
-      NametagAnimation.SkipOnSkipMode = true;
-      break;
-    }
+      return std::make_unique<VoidNametagDisplay>();
+
+    case NametagType::Sprite:
+      return std::make_unique<SpriteNametagDisplay>();
+
+    case NametagType::TwoPiece:
+    case NametagType::ThreePiece:
+      return std::make_unique<ThreePieceNametagDisplay>();
+
+    case NametagType::CHLCC:
+      return std::make_unique<CHLCC::NametagDisplay>();
+
+    case NametagType::CC:
+      return std::make_unique<CC::NametagDisplay>();
   }
 }
 
-void Update(float dt, DialoguePageMode mode) {
-  if (mode != DialoguePageMode::DPM_ADV) {
-    return;
-  }
-  switch (NametagCurrentType) {
-    case NametagType::None:
-    case NametagType::Instant: {
-      break;
-    }
-    case NametagType::FadeInPauseOut: {
-      // if the text can start appearing and there's no nametag we should skip
-      // the pause
-      if (DialogueCanStartAppearing(mode) && !NameId.has_value() &&
-          NametagAnimation.Progress < NameTagAnimProgressShowNew) {
-        NametagAnimation.Progress = NameTagAnimProgressShowNew;
-      }
-      break;
-    }
-  }
-  NametagAnimation.Update(dt);
+void VoidNametagDisplay::Render(const NameInfo& nameInfo,
+                                const glm::vec4 tint) {
+  if (Hidden || !nameInfo.RenderWindow) return;
+
+  Renderer->DrawProcessedText(nameInfo.Name, DialogueFont, tint.a,
+                              RendererOutlineMode::Full);
 }
 
-void Reset() {
-  NametagAnimation.Progress = 0;
-  NametagAnimation.Stop();
-  NameId.reset();
-  PrevNameId.reset();
+void SpriteNametagDisplay::Render(const NameInfo& nameInfo,
+                                  const glm::vec4 tint) {
+  if (Hidden || !nameInfo.RenderWindow) return;
+
+  Renderer->DrawSprite(NametagSprite, NametagPosition, tint);
+
+  Renderer->DrawProcessedText(nameInfo.Name, DialogueFont, tint.a,
+                              RendererOutlineMode::Full);
 }
 
-bool DialogueCanStartAppearing(DialoguePageMode mode) {
-  if (mode != DialoguePageMode::DPM_ADV) {
-    return true;
-  }
-  switch (NametagCurrentType) {
-    case NametagType::FadeInPauseOut: {
-      const bool hasCurrentName = NameId.has_value();
-      return (!hasCurrentName && !IsHiding()) ||
-             (hasCurrentName && IsShowing());
+void ThreePieceNametagDisplay::Render(const NameInfo& nameInfo,
+                                      const glm::vec4 tint) {
+  if (Hidden || !nameInfo.RenderWindow) return;
+
+  Renderer->DrawSprite(NametagLeftSprite, NametagPosition, tint);
+
+  const RectF nameBounds = std::accumulate(
+      nameInfo.Name.begin() + 1, nameInfo.Name.end(), nameInfo.Name[0].DestRect,
+      [](const RectF rect, const ProcessedTextGlyph& glyph) {
+        return RectF::Coalesce(rect, glyph.DestRect);
+      });
+  float rightX =
+      NametagPosition.x + NametagLeftSprite.ScaledWidth() + nameBounds.Width;
+
+  if (NametagCurrentType == +NametagType::ThreePiece) {
+    rightX -= NametagMiddleBaseWidth;
+
+    // Draw middle sprites
+    const float middleBegin =
+        NametagPosition.x + NametagLeftSprite.ScaledWidth();
+
+    Sprite middleSprite = NametagMiddleSprite;
+    for (float x = middleBegin; x < rightX;
+         x += NametagMiddleSprite.ScaledWidth()) {
+      middleSprite.SetScaledWidth(
+          std::min(rightX - x, NametagMiddleSprite.ScaledWidth()));
+      Renderer->DrawSprite(middleSprite, {x, NametagPosition.y}, tint);
     }
-    default: {
-      // None and Instant
-      return true;
-    }
   }
+
+  Renderer->DrawSprite(NametagRightSprite, {rightX, NametagPosition.y}, tint);
+
+  Renderer->DrawProcessedText(nameInfo.Name, DialogueFont, tint.a,
+                              RendererOutlineMode::Full);
 }
 
-std::optional<uint32_t> GetNameToDraw() {
-  std::optional<uint32_t> animatedName = NameId;
-
-  switch (NametagCurrentType) {
-    case NametagType::None:  // falls through
-    case NametagType::Instant: {
-      break;
-    }
-    case NametagType::FadeInPauseOut: {
-      if (NametagAnimation.Progress != 0 && NametagAnimation.Progress != 1 &&
-          (NametagAnimation.Progress < NameTagAnimProgressHideOld)) {
-        animatedName = PrevNameId;
-      }
-      break;
-    }
-  }
-
-  return animatedName;
-}
-
-void StartHiding() {
-  PrevNameId = NameId;
-  NametagAnimation.StartIn(true);
-}
-
-void UpdateNames(std::optional<uint32_t> nameId,
-                 std::optional<uint32_t> prevNameId, DialoguePageMode mode) {
-  if (mode != +DialoguePageMode::DPM_ADV) {
-    return;
-  }
-
-  switch (NametagCurrentType) {
-    case NametagType::None:  // falls through
-    case NametagType::Instant: {
-      NameId = nameId;
-      PrevNameId = prevNameId;
-      return;
-    }
-    case NametagType::FadeInPauseOut: {
-      if (NametagAnimation.State == AnimationState::Playing) {
-        NameId = nameId;
-        return;
-      }
-      NameId = nameId;
-      PrevNameId = prevNameId;
-      if (NameId == PrevNameId) {
-        // if name state stayed the same, still no name or same name
-        NametagAnimation.Finish();
-      } else if (NameId.has_value() && !PrevNameId.has_value()) {
-        // skip hiding name if there was none
-        NametagAnimation.Progress = NameTagAnimProgressShowNew;
-        NametagAnimation.StartIn();
-      } else {
-        // start with hiding prev name
-        NametagAnimation.StartIn(true);
-      };
-    }
-  }
-}
-
-float GetHidingProgress() {
-  switch (NametagCurrentType) {
-    case NametagType::FadeInPauseOut: {
-      if (NameTagAnimProgressHideOld == 0.0f) {
-        return 1.0f;
-      }
-      return NametagAnimation.Progress / NameTagAnimProgressHideOld;
-    }
-    default: {
-      return 1.0f;
-    }
-  }
-}
-
-float GetShowingProgress() {
-  switch (NametagCurrentType) {
-    case NametagType::FadeInPauseOut: {
-      if (NameTagAnimProgressShowNew == 1.0f) {
-        return 1.0f;
-      }
-      return (NametagAnimation.Progress - NameTagAnimProgressShowNew) /
-             (1.0f - NameTagAnimProgressShowNew);
-    }
-    default: {
-      return 1.0f;
-    }
-  }
-}
-
-}  // namespace NametagDisplay
 }  // namespace Impacto

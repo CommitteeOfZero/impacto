@@ -27,9 +27,16 @@ root.Dialogue = {
     TextFadeOutDuration = 0.33,
     DialogueBoxCurrentType = DialogueBoxType.Plain,
     NVLBoxMaxOpacity = 0.55,
+
     ADVNameAlignment = TextAlignment.Left,
     ADVNameFontSize = 22,
     ADVNamePos = { X = 600, Y = 672 },
+
+    NametagCurrentType = NametagType.TwoPiece,
+    NametagPosition = { X = 400, Y = 680 },
+    NametagLeftSprite = "NametagLeftSprite",
+    NametagRightSprite = "NametagRightSprite",
+
     WaitIconCurrentType = WaitIconType.Rotate,
     WaitIconSprite = "DialogueWaitIcon",
     WaitIconOffset = { X = 4, Y = 4 },
@@ -81,4 +88,12 @@ root.Dialogue = {
     ColorTagIsUint8 = true
 };
 
-include('sgps3/nametag.lua');
+root.Sprites["NametagLeftSprite"] = {
+    Sheet = "Data",
+    Bounds = { X = 768, Y = 787, Width = 195, Height = 11 }
+};
+
+root.Sprites["NametagRightSprite"] = {
+    Sheet = "Data",
+    Bounds = { X = 964, Y = 787, Width = 200, Height = 11 }
+};
