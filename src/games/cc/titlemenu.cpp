@@ -190,7 +190,9 @@ void TitleMenu::Hide() {
 
 void TitleMenu::UpdateInput(float dt) {
   Menu::UpdateInput(dt);
+  MainItems->UpdateInput(dt);
   if (CurrentSubMenu) {
+    CurrentSubMenu->UpdateInput(dt);
     if ((PADinputButtonWentDown & PAD1B || PADinputMouseWentDown & PAD1B) &&
         CurrentSubMenu->IsShown) {
       if (CurrentSubMenu == ContinueItems) {

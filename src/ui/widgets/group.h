@@ -9,6 +9,7 @@
 namespace Impacto {
 namespace UI {
 namespace Widgets {
+// enum GroupState : uint8_t { Hidden, Hiding, Showing, Shown };
 
 class Group : public Widget {
  public:
@@ -23,6 +24,8 @@ class Group : public Widget {
   RectF RenderingBounds{};
   RectF HoverBounds{};
 
+  // GroupState State = GroupState::Hidden;
+  //  todo use enum instead of boolean
   bool IsShown = false;
   bool FocusLock = true;
   bool WrapFocus = true;

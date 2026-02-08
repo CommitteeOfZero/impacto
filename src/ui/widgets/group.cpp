@@ -69,10 +69,14 @@ void Group::Add(Widget* widget, FocusDirection dir) {
 WidgetType Group::GetType() { return WT_GROUP; }
 
 void Group::UpdateInput(float dt) {
+  if (!IsShown) return;
+  if (FocusLock && !HasFocus) return;
+
   for (const auto& el : Children) {
     if (el->GetType() == WT_NORMAL) {
       el->UpdateInput(dt);
-      if (el->Enabled && el->Hovered && el->Bounds.Intersects(HoverBounds) &&
+      el->Hovered &= el->Bounds.Intersects(HoverBounds);
+      if (el->Enabled && el->Hovered &&
           (Input::CurrentInputDevice == Input::Device::Mouse ||
            Input::CurrentInputDevice == Input::Device::Touch)) {
         if (MenuContext->CurrentlyFocusedElement &&
@@ -88,9 +92,6 @@ void Group::UpdateInput(float dt) {
 void Group::Update(float dt) {
   if (IsShown) {
     Widget::Update(dt);
-    if ((FocusLock && HasFocus) || !FocusLock) {
-      UpdateInput(dt);
-    }
     bool isFocused = false;
     for (const auto& el : Children) {
       if (!FocusLock) {

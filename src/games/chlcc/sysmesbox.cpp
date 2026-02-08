@@ -137,7 +137,9 @@ void SysMesBox::Update(float dt) {
 
     if (IsFocused) {
       MessageItems->Update(dt);
+      MessageItems->UpdateInput(dt);
       ChoiceItems->Update(dt);
+      ChoiceItems->UpdateInput(dt);
     }
 
     if (GetFlag(SF_SAVEICON)) {

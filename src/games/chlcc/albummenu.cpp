@@ -173,6 +173,8 @@ void AlbumMenu::UpdateInput(float dt) {
   using namespace Vm::Interface;
   Menu::UpdateInput(dt);
   if (State == Shown) {
+    CgViewerGroup->UpdateInput(dt);
+    Pages[CurrentPage]->UpdateInput(dt);
     if (PADinputButtonWentDown & PAD1B || PADinputMouseWentDown & PAD1B) {
       if (CgViewerGroup->IsShown) {
         CgViewerGroup->Hide();

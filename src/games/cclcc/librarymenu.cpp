@@ -192,7 +192,10 @@ void LibraryMenu::Update(float dt) {
   UI::MusicMenuPtr->Update(dt);
   UI::MovieMenuPtr->Update(dt);
   ButtonBlinkAnimation.Update(dt);
-  if (!moviePlaying && !cgViewerActive) MainItems.Update(dt);
+  if (!moviePlaying && !cgViewerActive) {
+    MainItems.Update(dt);
+    MainItems.UpdateInput(dt);
+  }
 
   if (CurrentlyFocusedElement) {
     auto* activeBtn = static_cast<LibraryMenuButton*>(CurrentlyFocusedElement);

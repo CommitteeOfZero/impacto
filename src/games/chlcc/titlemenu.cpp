@@ -310,6 +310,11 @@ void TitleMenu::Update(float dt) {
         glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
     SystemItems->Update(dt);
 
+    MainItems->UpdateInput(dt);
+    LoadItems->UpdateInput(dt);
+    SystemItems->UpdateInput(dt);
+    CurrentExtraItems->UpdateInput(dt);
+
     switch (ScrWork[SW_TITLEDISPCT]) {
       case 0: {
         if (IntroSequence.IntroAnimation.IsIn() && ScrWork[SW_TITLECT] == 0) {

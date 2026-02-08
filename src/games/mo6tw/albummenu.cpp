@@ -171,8 +171,14 @@ void AlbumMenu::Hide() {
 }
 
 void AlbumMenu::UpdateInput(float dt) {
-  Menu::UpdateInput(dt);
   if (State == Shown) {
+    Menu::UpdateInput(dt);
+    MainItems->UpdateInput(dt);
+    if (ShowCgViewer) {
+      CgViewerGroup->UpdateInput(dt);
+    } else {
+      ImageGrid->UpdateInput(dt);
+    }
     if (SelectedCharacterId != -1 && !ShowCgViewer) {
       if ((PADinputButtonWentDown & PAD1DOWN ||
            PADinputButtonWentDown & PAD1UP) &&

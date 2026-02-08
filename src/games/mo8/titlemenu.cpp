@@ -237,8 +237,14 @@ void TitleMenu::Update(float dt) {
     Gallery->Tint = glm::vec4(1.0f, 1.0f, 1.0f, GetFlag(803) ? 1.0f : 0.0f);
     Gallery->Enabled = GetFlag(803);
     MainItems->Update(dt);
+    MainItems->UpdateInput(dt);
     ContinueItems->Update(dt);
     GalleryItems->Update(dt);
+    if (ContinueSelected) {
+      ContinueItems->UpdateInput(dt);
+    } else if (GallerySelected) {
+      GalleryItems->UpdateInput(dt);
+    }
 
     switch (ScrWork[SW_TITLEMODE]) {
       case 0:

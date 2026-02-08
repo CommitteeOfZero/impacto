@@ -263,6 +263,7 @@ OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
 void OptionsMenu::UpdatePageInput(float dt) {
   // Mouse controls
   PageControls->Update(dt);
+  PageControls->UpdateInput(dt);
 
   UI::OptionsMenu::UpdatePageInput(dt);
 }

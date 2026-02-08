@@ -116,6 +116,7 @@ void SysMesBox::UpdateInput(float dt) {
 
   const auto* const prevSelected = CurrentlyFocusedElement;
   Menu::UpdateInput(dt);
+  ChoiceItems->UpdateInput(dt);
   if (CurrentlyFocusedElement && prevSelected != CurrentlyFocusedElement) {
     Audio::PlayInGroup(Audio::ACG_SE, "sysse", 1, false, 0.0f);
   }

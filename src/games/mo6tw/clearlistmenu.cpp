@@ -114,6 +114,7 @@ void ClearListMenu::UpdateInput(float dt) {
   Menu::UpdateInput(dt);
   if (State == Shown) {
     MainItems->UpdateInput(dt);
+    Arrows->UpdateInput(dt);
     if ((PADinputButtonWentDown & PAD1DOWN ||
          PADinputButtonWentDown & PAD1UP) &&
         SceneTitleItems->HasFocus) {

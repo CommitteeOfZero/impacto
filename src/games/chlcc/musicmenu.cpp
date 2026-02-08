@@ -229,9 +229,10 @@ void MusicMenu::Render() {
   if (MenuTransition.IsPlaying()) {
     glm::vec2 offsetScroll = glm::vec2(0.0f, -ScrollY) + offset;
 
+    // add a little 1-2 pixel offsets so out of bounds elements won't pass Intersection check in case they are lying on the bound
     const RectF bounds =
-        RectF(0.0f, TrackButtonPosTemplate.y + offset.y, Profile::DesignWidth,
-              VisibleItemsPerPage * TrackOffset.y);
+        RectF(0.0f, TrackButtonPosTemplate.y + offset.y + 1,
+              Profile::DesignWidth, VisibleItemsPerPage * TrackOffset.y - 2);
     MainItems->RenderingBounds = bounds;
     MainItems->HoverBounds = bounds;
 
@@ -359,7 +360,7 @@ void MusicMenu::UpdateInput(float dt) {
   if (State == Shown) {
     const float prevScrollPos = ScrollY;
     auto checkScrollBounds = [&]() {
-      return !TrackListBounds.Contains(CurrentlyFocusedElement->Bounds);
+      return !TrackListBounds.Intersects(CurrentlyFocusedElement->Bounds);
     };
 
     if (CurrentlyFocusedElement != prevFocus && checkScrollBounds()) {
@@ -383,7 +384,9 @@ void MusicMenu::UpdateInput(float dt) {
 
     // imitate gamepad's d-pad/keyboard controls behavior, when scrolling out of
     // bounds
-    if (Input::CurrentInputDevice != Input::Device::Mouse) {
+    bool dirButtonPressed =
+        PADinputButtonIsDown & (FDIR_DOWN | FDIR_UP | FDIR_LEFT | FDIR_RIGHT);
+    if (Input::CurrentInputDevice != Input::Device::Mouse && dirButtonPressed) {
       int currentLowerBound = (int)(ScrollY / TrackOffset.y);
       int currentUpperBound = currentLowerBound + SelectableItemsPerPage;
       auto btnId = static_cast<Widgets::CHLCC::TrackSelectButton*>(
@@ -396,6 +399,7 @@ void MusicMenu::UpdateInput(float dt) {
       if (btnId == currentUpperBound && btnId != MusicTrackCount - 1) {
         ScrollY += TrackOffset.y;
       }
+      MainScrollbar.ClampValue();
     }
 
     MainItems->UpdateInput(dt);

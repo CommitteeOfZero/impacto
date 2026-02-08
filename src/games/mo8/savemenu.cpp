@@ -101,6 +101,7 @@ void SaveMenu::Update(float dt) {
 
   if (State == Shown) {
     PageControls->Update(dt);
+    PageControls->UpdateInput(dt);
     if (GetControlState(CT_Back)) {
       SetFlag(SF_SUBMENUEXIT, true);
     }

@@ -86,8 +86,8 @@ void TipsMenu::Hide() {
 }
 
 void TipsMenu::UpdateInput(float dt) {
-  Menu::UpdateInput(dt);
   if (State == Shown) {
+    Menu::UpdateInput(dt);
     ItemsList.UpdateInput(dt);
     if (CurrentlyDisplayedTipId != -1) {
       if (PADinputButtonWentDown & PAD1X) {

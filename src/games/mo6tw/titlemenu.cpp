@@ -244,6 +244,7 @@ void TitleMenu::Update(float dt) {
       MainItems->Tint.a =
           glm::smoothstep(0.0f, 1.0f, PrimaryFadeAnimation.Progress);
       MainItems->Update(dt);
+      MainItems->UpdateInput(dt);
       ContinueItems->Tint.a =
           glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
       ContinueItems->Update(dt);

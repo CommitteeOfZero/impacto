@@ -289,6 +289,10 @@ void TitleMenu::UpdateInput(float dt) {
   if (CurrentSubMenu && !CurrentSubMenu->HasFocus) return;
   if (CurrentSubMenu || MainItems->HasFocus) {
     Menu::UpdateInput(dt);
+    MainItems->UpdateInput(dt);
+    if (CurrentSubMenu) {
+      CurrentSubMenu->UpdateInput(dt);
+    }
   }
 
   if (CurrentSubMenu && SecondaryFadeAnimation.IsIn()) {
