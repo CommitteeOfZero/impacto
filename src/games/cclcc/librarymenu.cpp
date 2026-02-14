@@ -137,7 +137,7 @@ void LibraryMenu::Hide() {
       UI::FocusedMenu = 0;
     }
     MainItems.Hide();
-    MainItems.IsShown = true;
+    MainItems.State = Shown;
     MainItems.Move({-LibraryTransitionPositionOffset, 0.0f},
                    FadeAnimation.DurationOut);
     IsFocused = false;
@@ -192,7 +192,10 @@ void LibraryMenu::Update(float dt) {
   UI::MusicMenuPtr->Update(dt);
   if (!moviePlaying) UI::MovieMenuPtr->Update(dt);
   ButtonBlinkAnimation.Update(dt);
-  if (!moviePlaying && !cgViewerActive) MainItems.Update(dt);
+  if (!moviePlaying && !cgViewerActive) {
+    MainItems.Update(dt);
+    MainItems.UpdateInput(dt);
+  }
 
   if (CurrentlyFocusedElement) {
     auto* activeBtn = static_cast<LibraryMenuButton*>(CurrentlyFocusedElement);
@@ -222,7 +225,7 @@ void LibraryMenu::Update(float dt) {
   } else if (State == Hiding && FadeAnimation.Progress == 0.0f &&
              ScrWork[SW_SYSSUBMENUCT] == 0) {
     State = Hidden;
-    MainItems.IsShown = false;
+    MainItems.State = Shown;
     IsFocused = false;
     if (UI::FocusedMenu) UI::FocusedMenu->IsFocused = true;
   }

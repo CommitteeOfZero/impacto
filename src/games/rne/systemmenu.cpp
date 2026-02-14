@@ -150,6 +150,7 @@ void SystemMenu::Update(float dt) {
 
   if (State == Shown && IsFocused) {
     MainItems->Update(dt);
+    MainItems->UpdateInput(dt);
   }
 }
 

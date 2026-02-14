@@ -230,6 +230,7 @@ void MovieMenu::Render() {
 void MovieMenu::UpdateInput(float dt) {
   Menu::UpdateInput(dt);
   if (State == Shown) {
+    MovieItems->UpdateInput(dt);
     if (PADinputButtonWentDown & PAD1B || PADinputMouseWentDown & PAD1B) {
       IsChoiceMadeOnce = false;
     }

@@ -287,6 +287,7 @@ void MusicMenu::Hide() {
 void MusicMenu::UpdateInput(float dt) {
   using namespace Vm::Interface;
   if (State == Shown && IsFocused) {
+    MainItems.UpdateInput(dt);
     if (PADinputButtonWentDown & PADcustom[17]) {
       StopMusic();
     }

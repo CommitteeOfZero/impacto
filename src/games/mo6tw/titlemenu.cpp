@@ -244,6 +244,7 @@ void TitleMenu::Update(float dt) {
       MainItems->Tint.a =
           glm::smoothstep(0.0f, 1.0f, PrimaryFadeAnimation.Progress);
       MainItems->Update(dt);
+      MainItems->UpdateInput(dt);
       ContinueItems->Tint.a =
           glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
       ContinueItems->Update(dt);
@@ -262,7 +263,7 @@ void TitleMenu::Update(float dt) {
       case 0: {
         // When returning to title menu from loading a game we need to hide the
         // continue sub-menu and extra story sub-menu
-        if (ContinueItems->IsShown) {
+        if (ContinueItems->State != Hidden) {
           MainItems->HasFocus = true;
           SecondaryFadeAnimation.StartOut();
           Load->Move(-SecondaryMenuAnimTarget);
@@ -281,7 +282,7 @@ void TitleMenu::Update(float dt) {
                                -ContinueItemCount * MenuEntriesYPadding));
           ContinueItems->Hide();
         }
-        if (ExtraStoryItems->IsShown) {
+        if (ExtraStoryItems->State != Hidden) {
           MainItems->HasFocus = true;
           SecondaryFadeAnimation.StartOut();
           Prologue->Move(-SecondaryMenuAnimTarget);
@@ -306,16 +307,17 @@ void TitleMenu::Update(float dt) {
         }
       } break;
       case 3: {  // Main Menu Fade In
-        if (!MainItems->IsShown && ScrWork[SW_TITLECT] == 0) {
+        if (MainItems->State == Hidden && ScrWork[SW_TITLECT] == 0) {
           MainItems->Show();
           MainItems->Tint.a = 0.0f;
           PrimaryFadeAnimation.StartIn();
         }
       } break;
       case 5: {  // Secondary menu Extra Story Fade In
-        if (!ExtraStoryItems->IsShown && ScrWork[SW_TITLECT] == 0) {
+        if (ExtraStoryItems->State != Shown && ScrWork[SW_TITLECT] == 0) {
           ShowExtraStoryItems();
-        } else if (ExtraStoryItems->IsShown && ScrWork[SW_TITLECT] == 32) {
+        } else if (ExtraStoryItems->State != Hidden &&
+                   ScrWork[SW_TITLECT] == 32) {
           HideExtraStoryItems();
         } else if (ScrWork[SW_TITLECT] == 0) {
           ExtraStoryItems->Hide();
@@ -323,9 +325,10 @@ void TitleMenu::Update(float dt) {
         }
       } break;
       case 7: {  // Secondary menu Continue Fade In
-        if (!ContinueItems->IsShown && ScrWork[SW_TITLECT] == 0) {
+        if (ContinueItems->State != Shown && ScrWork[SW_TITLECT] == 0) {
           ShowContinueItems();
-        } else if (ContinueItems->IsShown && ScrWork[SW_TITLECT] == 32) {
+        } else if (ContinueItems->State != Hidden &&
+                   ScrWork[SW_TITLECT] == 32) {
           HideContinueItems();
         } else if (ScrWork[SW_TITLECT] == 0) {
           ContinueItems->Hide();
@@ -333,9 +336,10 @@ void TitleMenu::Update(float dt) {
         }
       } break;
       case 9: {  // Secondary menu Memories Fade In
-        if (!MemoriesItems->IsShown && ScrWork[SW_TITLECT] == 0) {
+        if (MemoriesItems->State != Shown && ScrWork[SW_TITLECT] == 0) {
           ShowMemoriesItems();
-        } else if (MemoriesItems->IsShown && ScrWork[SW_TITLECT] == 32) {
+        } else if (MemoriesItems->State != Hidden &&
+                   ScrWork[SW_TITLECT] == 32) {
           HideMemoriesItems();
         } else if (ScrWork[SW_TITLECT] == 0) {
           MemoriesItems->Hide();
@@ -343,14 +347,14 @@ void TitleMenu::Update(float dt) {
         }
       } break;
       case 10: {
-        if (MemoriesItems->IsShown && !MainItems->IsShown) {
-          MainItems->IsShown = true;
+        if (MemoriesItems->State != Hidden && MainItems->State == Hidden) {
+          MainItems->State = Shown;
         }
       } break;
       case 11: {  // Secondary menu System Fade In
-        if (!SystemItems->IsShown && ScrWork[SW_TITLECT] == 0) {
+        if (SystemItems->State != Shown && ScrWork[SW_TITLECT] == 0) {
           ShowSystemItems();
-        } else if (SystemItems->IsShown && ScrWork[SW_TITLECT] == 32) {
+        } else if (SystemItems->State != Hidden && ScrWork[SW_TITLECT] == 32) {
           HideSystemItems();
         } else if (ScrWork[SW_TITLECT] == 0) {
           SystemItems->Hide();

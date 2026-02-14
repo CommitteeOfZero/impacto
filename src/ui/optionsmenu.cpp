@@ -83,6 +83,7 @@ void OptionsMenu::Update(float dt) {
 }
 
 void OptionsMenu::UpdatePageInput(float dt) {
+  Pages[CurrentPage]->UpdateInput(dt);
   const int shouldFire = PADinputButtonRepeatDown & (PAD1L1 | PAD1R1);
 
   // Button input

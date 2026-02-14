@@ -150,6 +150,7 @@ void SelectionMenu::Update(float dt) {
     if (FadeAnimation.IsIn()) State = Shown;
     if (FadeAnimation.IsOut()) State = Hidden;
     ChoiceItems->Update(dt);
+    ChoiceItems->UpdateInput(dt);
   }
 }
 void SelectionMenu::Render() {
