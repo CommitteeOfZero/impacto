@@ -137,7 +137,7 @@ void LibraryMenu::Hide() {
       UI::FocusedMenu = 0;
     }
     MainItems.Hide();
-    MainItems.IsShown = true;
+    MainItems.State = Shown;
     MainItems.Move({-LibraryTransitionPositionOffset, 0.0f},
                    FadeAnimation.DurationOut);
     IsFocused = false;
@@ -225,7 +225,7 @@ void LibraryMenu::Update(float dt) {
   } else if (State == Hiding && FadeAnimation.Progress == 0.0f &&
              ScrWork[SW_SYSSUBMENUCT] == 0) {
     State = Hidden;
-    MainItems.IsShown = false;
+    MainItems.State = Shown;
     IsFocused = false;
     if (UI::FocusedMenu) UI::FocusedMenu->IsFocused = true;
   }

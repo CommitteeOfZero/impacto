@@ -82,7 +82,7 @@ OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
   previousPage->OnClickHandler = previousPageOnClick;
   PageControls->Add(nextPage);
   PageControls->Add(previousPage);
-  PageControls->IsShown = true;
+  PageControls->State = Shown;
 
   auto currentPos = ListStartingPosition;
 
@@ -307,7 +307,8 @@ void OptionsMenu::Update(float dt) {
   if (State != Hidden) {
     if (PageFadeAnimation.State == AnimationState::Playing) {
       Pages[*PreviousPage]->Update(dt);
-    } else if (PreviousPage.has_value() && Pages[*PreviousPage]->IsShown) {
+    } else if (PreviousPage.has_value() &&
+               Pages[*PreviousPage]->State != Hidden) {
       Pages[*PreviousPage]->Hide();
       Pages[CurrentPage]->Show();
     }

@@ -69,7 +69,7 @@ void Group::Add(Widget* widget, FocusDirection dir) {
 WidgetType Group::GetType() { return WT_GROUP; }
 
 void Group::UpdateInput(float dt) {
-  if (!IsShown) return;
+  if (State != Shown) return;
   if (FocusLock && !HasFocus) return;
 
   for (const auto& el : Children) {
@@ -90,7 +90,7 @@ void Group::UpdateInput(float dt) {
 }
 
 void Group::Update(float dt) {
-  if (IsShown) {
+  if (State != Hidden) {
     Widget::Update(dt);
     bool isFocused = false;
     for (const auto& el : Children) {
@@ -105,7 +105,7 @@ void Group::Update(float dt) {
 }
 
 void Group::Render() {
-  if (IsShown) {
+  if (State != Hidden) {
     Renderer->EnableScissor();
     Renderer->SetScissorRect(RenderingBounds);
     for (const auto& el : Children) {
@@ -130,7 +130,7 @@ Widget* Group::GetFocus(FocusDirection dir) {
 
 void Group::Show() {
   Tint.a = 1.0f;
-  IsShown = true;
+  State = Shown;
   if (FocusLock) {
     HasFocus = true;
     if (!Children.empty()) {
@@ -149,7 +149,7 @@ void Group::Show() {
 
 void Group::Hide() {
   Tint.a = 0.0f;
-  IsShown = false;
+  State = Hidden;
   HasFocus = false;
   if (FocusLock) {
     if (MenuContext->CurrentlyFocusedElement)

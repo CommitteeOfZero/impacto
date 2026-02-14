@@ -66,7 +66,7 @@ ClearListMenu::ClearListMenu() {
 
   Arrows->Add(arrowLeft);
   Arrows->Add(arrowRight);
-  Arrows->IsShown = true;
+  Arrows->State = Shown;
 }
 
 void ClearListMenu::Show() {

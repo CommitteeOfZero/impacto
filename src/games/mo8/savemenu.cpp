@@ -50,7 +50,7 @@ SaveMenu::SaveMenu() : UI::SaveMenu() {
                  BackButtonPosition);
   PageControls->Add(nextPage);
   PageControls->Add(previousPage);
-  PageControls->IsShown = true;
+  PageControls->State = Shown;
 }
 
 void SaveMenu::Show() {

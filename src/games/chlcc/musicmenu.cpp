@@ -229,7 +229,8 @@ void MusicMenu::Render() {
   if (MenuTransition.IsPlaying()) {
     glm::vec2 offsetScroll = glm::vec2(0.0f, -ScrollY) + offset;
 
-    // add a little 1-2 pixel offsets so out of bounds elements won't pass Intersection check in case they are lying on the bound
+    // add a little 1-2 pixel offsets so out of bounds elements won't pass
+    // Intersection check in case they are lying on the bound
     const RectF bounds =
         RectF(0.0f, TrackButtonPosTemplate.y + offset.y + 1,
               Profile::DesignWidth, VisibleItemsPerPage * TrackOffset.y - 2);

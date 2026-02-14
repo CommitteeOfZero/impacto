@@ -261,7 +261,7 @@ void TitleMenu::Update(float dt) {
           UpdateSubMenu(&GalleryItemsShowAnimation, GalleryItems,
                         &GallerySelected);
         } else {
-          if (!MainItems->IsShown) MainItems->Show();
+          if (MainItems->State == Hidden) MainItems->Show();
         }
       } break;
       case 6: {
@@ -337,7 +337,7 @@ void TitleMenu::UpdateSubMenu(Animation* showAnimation,
   if (MainItemsHideAnimation.IsOut()) {
     MainItemsHideAnimation.StartIn();
   } else if (MainItemsHideAnimation.IsIn() && showAnimation->IsOut()) {
-    if (subMenuGroup->IsShown) {
+    if (subMenuGroup->State != Hidden) {
       MainItems->Show();
       subMenuGroup->Hide();
       MainItemsHideAnimation.StartOut();

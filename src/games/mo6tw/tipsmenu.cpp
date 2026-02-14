@@ -38,7 +38,7 @@ TipsMenu::TipsMenu() : ItemsList(CDIR_HORIZONTAL), TipViewItems(this) {
   FadeAnimation.DurationOut = FadeOutDuration;
 
   TipViewItems.FocusLock = false;
-  TipViewItems.IsShown = true;
+  TipViewItems.State = Shown;
 
   Name = new Label();
   Name->Bounds = NameInitialBounds;

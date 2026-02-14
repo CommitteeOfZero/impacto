@@ -187,7 +187,7 @@ void AlbumMenu::UpdateInput(float dt) {
       }
     }
     if (PADinputButtonWentDown & PAD1B || PADinputMouseWentDown & PAD1B) {
-      if (CgViewerGroup->IsShown) {
+      if (CgViewerGroup->State != Hidden) {
         CgViewerGroup->Hide();
         ShowCgViewer = false;
       } else if (SelectedCharacterId == -1) {
@@ -219,7 +219,7 @@ void AlbumMenu::Update(float dt) {
     MainItems->Update(dt);
     if (SelectedCharacterId != -1) {
       if (ShowCgViewer) {
-        if (!CgViewerGroup->IsShown) CgViewerGroup->Show();
+        if (CgViewerGroup->State == Hidden) CgViewerGroup->Show();
         CgViewerGroup->Update(dt);
       } else {
         ArrowsAnimation.Update(dt);
