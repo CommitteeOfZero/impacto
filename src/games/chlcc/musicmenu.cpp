@@ -141,6 +141,30 @@ MusicMenu::MusicMenu() {
   MainItems->Children.back()->SetFocus(MainItems->Children.front(), FDIR_RIGHT);
 }
 
+void MusicMenu::Init() {
+  for (const auto presetFlag : PresetBgmFlags) {
+    SaveSystem::SetBgmFlag(presetFlag, true);
+  }
+  if (GetFlag(SF_CLR_AYASE)) {
+    SaveSystem::SetBgmFlag(AyaseEndingBgmId, true);
+  }
+
+  const std::array<int, 7> endingFlags = {
+      SF_CLR_RIMI, SF_CLR_NANAMI, SF_CLR_YUA,  SF_CLR_MIA,
+      SF_CLR_SENA, SF_CLR_KOZUE,  SF_CLR_SEIRA};
+  const bool gotRequiredEndings = std::ranges::all_of(endingFlags, GetFlag);
+  if (gotRequiredEndings) {
+    SaveSystem::SetBgmFlag(NormalEndingBgmId, true);
+  }
+
+  for (size_t i = 0; i < DstBgmPairedFlag.size(); i++) {
+    const int dstFlagId = DstBgmPairedFlag[i];
+    const bool flagValue = SaveSystem::GetBgmFlag(dstFlagId) ||
+                           SaveSystem::GetBgmFlag(SrcBgmPairedFlag[i]);
+    SaveSystem::SetBgmFlag(dstFlagId, flagValue);
+  }
+}
+
 void MusicMenu::Show() {
   if (State != Shown) {
     if (State != Showing) {
@@ -514,7 +538,7 @@ void MusicMenu::UpdateEntries() {
     auto button = static_cast<Widgets::CHLCC::TrackSelectButton*>(
         MainItems->Children[idx]);
 
-    if (!SaveSystem::GetBgmFlag((int)idx)) {
+    if (!SaveSystem::GetBgmFlag(Playlist[button->Id])) {
       button->SetTrackText(Vm::ScriptGetTextTableStrAddress(0, 15));
       continue;
     }

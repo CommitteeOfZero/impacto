@@ -64,6 +64,11 @@ inline Sprite ScrollThumbSprite;
 inline glm::vec2 ScrollbarPosition;
 inline glm::vec2 ScrollTrackBounds;
 inline RectF TrackListBounds;
+inline int AyaseEndingBgmId;
+inline int NormalEndingBgmId;
+inline std::vector<int> PresetBgmFlags;
+inline std::vector<int> DstBgmPairedFlag;
+inline std::vector<int> SrcBgmPairedFlag;
 
 void Configure();
 

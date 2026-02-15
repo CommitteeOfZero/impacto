@@ -71,7 +71,20 @@ void Configure() {
   ScrollbarPosition = EnsureGetMember<glm::vec2>("ScrollbarPosition");
   TrackListBounds = EnsureGetMember<RectF>("TrackListBounds");
   ScrollTrackBounds = EnsureGetMember<glm::vec2>("ScrollTrackBounds");
-  UI::Menus[drawType].push_back(new UI::CHLCC::MusicMenu());
+
+  AyaseEndingBgmId = EnsureGetMember<int>("AyaseEndingBgmId");
+  NormalEndingBgmId = EnsureGetMember<int>("NormalEndingBgmId");
+
+  PresetBgmFlags = GetMemberVector<int>("PresetBgmFlags");
+  DstBgmPairedFlag = GetMemberVector<int>("DstBgmPairedFlag");
+  SrcBgmPairedFlag = GetMemberVector<int>("SrcBgmPairedFlag");
+
+  if (DstBgmPairedFlag.size() != SrcBgmPairedFlag.size()) {
+    throw std::runtime_error("Related arrays have mismatching sizes");
+  }
+
+  UI::MusicMenuPtr = new UI::CHLCC::MusicMenu();
+  UI::Menus[drawType].push_back(UI::MusicMenuPtr);
 }
 
 }  // namespace MusicMenu
