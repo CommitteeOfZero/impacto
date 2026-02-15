@@ -282,8 +282,7 @@ VmInstruction(InstSoundMenu) {
   PopUint8(type);
   switch (type) {
     case 0:  // MusicInit
-      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-                 "STUB instruction SoundMenu(type: MusicInit)\n");
+      if (UI::MusicMenuPtr) UI::MusicMenuPtr->Init();
       break;
     case 1:  // MusicMain
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,

@@ -441,6 +441,14 @@ V(SW_BUTTERFLY_ALPHA)           // CHLCC specific
 V(SW_BUBBLES_COUNT)             // CHLCC specific
 V(SW_BUBBLES_PRI)               // CHLCC specific
 V(SW_BUBBLES_ALPHA)             // CHLCC specific
+V(SF_CLR_RIMI)                  // CHLCC specific
+V(SF_CLR_NANAMI)                // CHLCC specific
+V(SF_CLR_YUA)                   // CHLCC specific
+V(SF_CLR_MIA)                   // CHLCC specific
+V(SF_CLR_AYASE)                 // CHLCC specific
+V(SF_CLR_SENA)                  // CHLCC specific
+V(SF_CLR_KOZUE)                 // CHLCC specific
+V(SF_CLR_SEIRA)                 // CHLCC specific
 V(SF_Pokecon_Open)
 V(SF_Pokecon_Cancel)
 V(SF_Pokecon_End)
