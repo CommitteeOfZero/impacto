@@ -1,14 +1,12 @@
 #include "saveentrybutton.h"
 
-#include <iomanip>
-#include <sstream>
 #include "../../../renderer/renderer.h"
 #include "../../../profile/dialogue.h"
 #include "../../../profile/games/cclcc/savemenu.h"
 #include "../../../vm/vm.h"
 #include "../../../ui/ui.h"
+#include "../../../profile/game.h"
 #include <fmt/format.h>
-#include <fmt/chrono.h>
 
 namespace Impacto {
 namespace UI {
@@ -162,9 +160,11 @@ void SaveEntryButton::RefreshSaveDateText() {
   float fontSize = 32;
   RendererOutlineMode outlineMode = RendererOutlineMode::Full;
   // Maybe fmt will merge my PR for space padded month
-  SaveDateLabel.SetText(fmt::format(FMT_STRING("{:%Y/%m/%d %H:%M:%S}"), date),
-                        fontSize, outlineMode,
-                        {SaveEntrySecondaryColor, SaveEntrySecondaryColor});
+  SaveDateLabel.SetText(
+      fmt::format(fmt::runtime(Profile::DateFormat.FormattedString()), date) +
+          fmt::format(" {:%H:%M:%S}", date),
+      fontSize, outlineMode,
+      {SaveEntrySecondaryColor, SaveEntrySecondaryColor});
 }
 
 void SaveEntryButton::ToggleLock() {
