@@ -189,6 +189,9 @@ VmInstruction(InstMes) {
   ScrWork[2 * dialoguePage.Id + SW_SCRIPTID] = scriptId;
 
   Audio::AudioStream* audioStream = nullptr;
+  if (GetFlag(SF_MESALLSKIP)) {
+    Audio::Channels[Audio::AC_VOICE0]->Stop(0.0f);
+  }
   if (voiced) {
     Io::Stream* stream;
     IoError err = Io::VfsOpen("voice", audioId, &stream);
