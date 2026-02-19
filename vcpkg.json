@@ -1,6 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
-  "builtin-baseline": "acd5bba5aac8b6573b5f6f463dc0341ac0ee6fa4",
+  "builtin-baseline": "81ded1ca9f81437a39dc520c653f3006953308f3",
   "dependencies": [
     "sdl2",
     {
@@ -22,6 +22,10 @@
     {
       "name": "avcpp",
       "version": "2.7.1"
+    },
+    {
+      "name": "ffmpeg",
+      "version": "7.1.2#5"
     }
   ]
 }
