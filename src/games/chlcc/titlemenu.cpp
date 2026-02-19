@@ -300,15 +300,19 @@ void TitleMenu::Update(float dt) {
     MainItems->Tint.a =
         glm::smoothstep(0.0f, 1.0f, PrimaryFadeAnimation.Progress);
     MainItems->Update(dt);
+    MainItems->UpdateInput(dt);
     LoadItems->Tint.a =
         glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
     LoadItems->Update(dt);
+    LoadItems->UpdateInput(dt);
     CurrentExtraItems->Tint.a =
         glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
     CurrentExtraItems->Update(dt);
+    SystemItems->UpdateInput(dt);
     SystemItems->Tint.a =
         glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
     SystemItems->Update(dt);
+    CurrentExtraItems->UpdateInput(dt);
 
     switch (ScrWork[SW_TITLEDISPCT]) {
       case 0: {
@@ -336,7 +340,7 @@ void TitleMenu::Update(float dt) {
         MainItems->Hide();
         // When returning to title menu from loading a game we need to hide the
         // load sub-menu
-        if (LoadItems->IsShown) {
+        if (LoadItems->VisibilityState != Hidden) {
           SecondaryFadeAnimation.StartOut();
           MainItems->HasFocus = true;
           LoadItems->Hide();
@@ -348,7 +352,7 @@ void TitleMenu::Update(float dt) {
         }
       } break;
       case 3: {  // Main Menu Fade In
-        if (!MainItems->IsShown && ScrWork[SW_TITLECT] == 0) {
+        if (MainItems->VisibilityState == Hidden && ScrWork[SW_TITLECT] == 0) {
           MainItems->Show();
           MainItems->Tint.a = 0.0f;
           CurrentlyFocusedElement = Start;
@@ -359,7 +363,7 @@ void TitleMenu::Update(float dt) {
         }
       } break;
       case 7: {  // Secondary menu Load Fade In
-        if (!LoadItems->IsShown && ScrWork[SW_TITLECT] == 0) {
+        if (LoadItems->VisibilityState == Hidden && ScrWork[SW_TITLECT] == 0) {
           LoadItems->Show();
           LoadItems->Tint.a = 0.0f;
           MainItems->HasFocus = false;
@@ -370,7 +374,8 @@ void TitleMenu::Update(float dt) {
           SecondaryFadeAnimation.DurationOut = SecondaryFadeOutDuration;
           SecondaryFadeAnimation.StartIn();
 
-        } else if (LoadItems->IsShown && ScrWork[SW_TITLECT] == 32) {
+        } else if (LoadItems->VisibilityState != Hidden &&
+                   ScrWork[SW_TITLECT] == 32) {
           SecondaryFadeAnimation.StartOut();
 
         } else if (ScrWork[SW_TITLECT] == 0) {
@@ -379,7 +384,8 @@ void TitleMenu::Update(float dt) {
         }
       } break;
       case 9: {  // Secondary menu Extra Fade In
-        if (!CurrentExtraItems->IsShown && ScrWork[SW_TITLECT] == 0) {
+        if (CurrentExtraItems->VisibilityState == Hidden &&
+            ScrWork[SW_TITLECT] == 0) {
           CurrentExtraItems->Show();
           CurrentExtraItems->Tint.a = 0.0f;
           MainItems->HasFocus = false;
@@ -389,7 +395,8 @@ void TitleMenu::Update(float dt) {
           SecondaryFadeAnimation.DurationOut = SecondaryFadeOutDuration;
           SecondaryFadeAnimation.StartIn();
 
-        } else if (CurrentExtraItems->IsShown && ScrWork[SW_TITLECT] == 32) {
+        } else if (CurrentExtraItems->VisibilityState != Hidden &&
+                   ScrWork[SW_TITLECT] == 32) {
           SecondaryFadeAnimation.StartOut();
 
         } else if (ScrWork[SW_TITLECT] == 0) {
@@ -398,7 +405,8 @@ void TitleMenu::Update(float dt) {
         }
       } break;
       case 11: {  // Secondary menu System Fade In
-        if (!SystemItems->IsShown && ScrWork[SW_TITLECT] == 0) {
+        if (SystemItems->VisibilityState == Hidden &&
+            ScrWork[SW_TITLECT] == 0) {
           SystemItems->Show();
           SystemItems->Tint.a = 0.0f;
           MainItems->HasFocus = false;
@@ -408,7 +416,8 @@ void TitleMenu::Update(float dt) {
           SecondaryFadeAnimation.DurationOut = SecondaryFadeOutDuration;
           SecondaryFadeAnimation.StartIn();
 
-        } else if (SystemItems->IsShown && ScrWork[SW_TITLECT] == 32) {
+        } else if (SystemItems->VisibilityState != Hidden &&
+                   ScrWork[SW_TITLECT] == 32) {
           SecondaryFadeAnimation.StartOut();
 
         } else if (ScrWork[SW_TITLECT] == 0) {

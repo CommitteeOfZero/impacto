@@ -236,7 +236,7 @@ root.ExtraMenus = {
         SoundLibraryTitleAngle = 4.45,
         HighlightStar = "HighlightStar",
         HighlightStarRelativePos = { X = 1, Y = 1 },
-        TrackListBounds = { X = 94, Y = 164, Width = 608, Height = 455},
+        TrackListBounds = { X = 94, Y = 170, Width = 608, Height = 448},
         ScrollTrackBounds = { X = 14, Y = 446},
         ScrollThumb = "ScrollThumb",
         ScrollbarPosition = { X = 687, Y = 169},

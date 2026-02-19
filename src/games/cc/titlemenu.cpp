@@ -190,9 +190,11 @@ void TitleMenu::Hide() {
 
 void TitleMenu::UpdateInput(float dt) {
   Menu::UpdateInput(dt);
+  MainItems->UpdateInput(dt);
   if (CurrentSubMenu) {
+    CurrentSubMenu->UpdateInput(dt);
     if ((PADinputButtonWentDown & PAD1B || PADinputMouseWentDown & PAD1B) &&
-        CurrentSubMenu->IsShown) {
+        CurrentSubMenu->VisibilityState != Hidden) {
       if (CurrentSubMenu == ContinueItems) {
         // HideContinueItems();
       }
@@ -235,7 +237,7 @@ void TitleMenu::Update(float dt) {
         } else if (MoveLeftAnimation.IsIn() && ScrWork[SW_TITLEDISPCT] < 90) {
           MoveLeftAnimation.StartOut();
         }
-        if (!MainItems->IsShown) {
+        if (MainItems->VisibilityState == Hidden) {
           MainItems->Show();
           CurrentlyFocusedElement = NewGame;
           NewGame->HasFocus = true;

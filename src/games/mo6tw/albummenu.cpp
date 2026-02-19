@@ -171,8 +171,14 @@ void AlbumMenu::Hide() {
 }
 
 void AlbumMenu::UpdateInput(float dt) {
-  Menu::UpdateInput(dt);
   if (State == Shown) {
+    Menu::UpdateInput(dt);
+    MainItems->UpdateInput(dt);
+    if (ShowCgViewer) {
+      CgViewerGroup->UpdateInput(dt);
+    } else {
+      ImageGrid->UpdateInput(dt);
+    }
     if (SelectedCharacterId != -1 && !ShowCgViewer) {
       if ((PADinputButtonWentDown & PAD1DOWN ||
            PADinputButtonWentDown & PAD1UP) &&
@@ -181,7 +187,7 @@ void AlbumMenu::UpdateInput(float dt) {
       }
     }
     if (PADinputButtonWentDown & PAD1B || PADinputMouseWentDown & PAD1B) {
-      if (CgViewerGroup->IsShown) {
+      if (CgViewerGroup->VisibilityState != Hidden) {
         CgViewerGroup->Hide();
         ShowCgViewer = false;
       } else if (SelectedCharacterId == -1) {
@@ -213,7 +219,7 @@ void AlbumMenu::Update(float dt) {
     MainItems->Update(dt);
     if (SelectedCharacterId != -1) {
       if (ShowCgViewer) {
-        if (!CgViewerGroup->IsShown) CgViewerGroup->Show();
+        if (CgViewerGroup->VisibilityState == Hidden) CgViewerGroup->Show();
         CgViewerGroup->Update(dt);
       } else {
         ArrowsAnimation.Update(dt);

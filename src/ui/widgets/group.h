@@ -23,7 +23,7 @@ class Group : public Widget {
   RectF RenderingBounds{};
   RectF HoverBounds{};
 
-  bool IsShown = false;
+  MenuState VisibilityState = Hidden;
   bool FocusLock = true;
   bool WrapFocus = true;
 

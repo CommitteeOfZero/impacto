@@ -121,6 +121,7 @@ void SysMesBox::Update(float dt) {
     if (IsFocused) {
       MessageItems->Update(dt);
       ChoiceItems->Update(dt);
+      ChoiceItems->UpdateInput(dt);
     }
   }
 }

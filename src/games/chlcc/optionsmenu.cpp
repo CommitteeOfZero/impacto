@@ -244,7 +244,7 @@ void OptionsMenu::Hide() {
   UI::OptionsMenu::Hide();
 
   if (State == Hiding) {
-    Pages[CurrentPage]->IsShown = true;
+    Pages[CurrentPage]->VisibilityState = Shown;
   }
 }
 
@@ -330,7 +330,7 @@ void OptionsMenu::Render() {
   if (PageTransitionAnimation.IsStopped()) {
     RenderPage(CurrentPage, showPageOffset);
   } else {
-    Pages[PreviousPage]->IsShown = true;
+    Pages[PreviousPage]->VisibilityState = Shown;
     RenderPage(PreviousPage, PageTransitionGoingOffset + showPageOffset);
     RenderPage(CurrentPage, PageTransitionComingOffset + showPageOffset);
   }

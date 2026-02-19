@@ -289,11 +289,15 @@ void TitleMenu::UpdateInput(float dt) {
   if (CurrentSubMenu && !CurrentSubMenu->HasFocus) return;
   if (CurrentSubMenu || MainItems->HasFocus) {
     Menu::UpdateInput(dt);
+    MainItems->UpdateInput(dt);
+    if (CurrentSubMenu) {
+      CurrentSubMenu->UpdateInput(dt);
+    }
   }
 
   if (CurrentSubMenu && SecondaryFadeAnimation.IsIn()) {
     if ((PADinputButtonWentDown & PAD1B || PADinputMouseWentDown & PAD1B) &&
-        CurrentSubMenu->IsShown && CurrentSubMenu->HasFocus) {
+        CurrentSubMenu->VisibilityState != Hidden && CurrentSubMenu->HasFocus) {
       Audio::PlayInGroup(Audio::ACG_SE, "sysse", 3, false, 0);
       CurrentlyFocusedElement->Enabled = false;
       SecondaryFadeAnimation.StartOut();
@@ -414,7 +418,7 @@ void TitleMenu::ExplodeScreenUpdate() {
 }
 
 void TitleMenu::ReturnToMenuUpdate() {
-  if (!MainItems->IsShown) {
+  if (MainItems->VisibilityState == Hidden) {
     InputLocked = false;
     CurrentlyFocusedElement = NewGame;
     for (auto& item : MainItems->Children) {
@@ -454,7 +458,7 @@ void TitleMenu::MainMenuUpdate() {
     PrimaryFadeAnimation.StartIn();
   }
 
-  if (!MainItems->IsShown) {
+  if (MainItems->VisibilityState == Hidden) {
     MainItems->FocusLock = false;
     MainItems->Show();
   }

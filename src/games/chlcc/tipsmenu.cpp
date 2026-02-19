@@ -206,6 +206,7 @@ void TipsMenu::Render() {
 void TipsMenu::UpdateInput(float dt) {
   if (State == Shown) {
     ItemsList.UpdateInput(dt);
+    TipViewItems.UpdateInput(dt);
     UpdatePageInput(dt);
     if (CurrentlyDisplayedTipId != -1) {
       if (PADinputButtonWentDown & PAD1X) {
@@ -543,6 +544,7 @@ void TipsMenu::UpdatePageInput(float dt) {
   UI::TipsMenu::UpdateInput(dt);
 
   auto* curPage = static_cast<Group*>(*ItemsList.GetCurrent());
+  curPage->UpdateInput(dt);
 
   if (CurrentlyFocusedElement != prevEntry && checkScrollBounds()) {
     if (CurrentlyFocusedElement == curPage->GetFirstFocusableChild()) {

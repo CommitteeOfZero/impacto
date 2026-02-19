@@ -132,8 +132,8 @@ void TipsMenu::Hide() {
 }
 
 void TipsMenu::UpdateInput(float dt) {
-  Menu::UpdateInput(dt);
   if (State == Shown) {
+    Menu::UpdateInput(dt);
     if (PADinputButtonWentDown & PAD1R1) {
       TipsTabType type =
           static_cast<TipsTabType>((CurrentTabType + 1) % TabCount);

@@ -47,6 +47,7 @@ void SystemMenu::UpdateInput(float dt) {
   if (!IsFocused) return;
   const auto* const prevSelected = CurrentlyFocusedElement;
   Menu::UpdateInput(dt);
+  MainItems->UpdateInput(dt);
   if (CurrentlyFocusedElement && prevSelected != CurrentlyFocusedElement) {
     Audio::PlayInGroup(Audio::ACG_SE, "sysse", 1, false, 0);
   }

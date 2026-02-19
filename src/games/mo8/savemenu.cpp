@@ -50,7 +50,7 @@ SaveMenu::SaveMenu() : UI::SaveMenu() {
                  BackButtonPosition);
   PageControls->Add(nextPage);
   PageControls->Add(previousPage);
-  PageControls->IsShown = true;
+  PageControls->VisibilityState = Shown;
 }
 
 void SaveMenu::Show() {
@@ -101,6 +101,7 @@ void SaveMenu::Update(float dt) {
 
   if (State == Shown) {
     PageControls->Update(dt);
+    PageControls->UpdateInput(dt);
     if (GetControlState(CT_Back)) {
       SetFlag(SF_SUBMENUEXIT, true);
     }
