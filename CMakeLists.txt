@@ -797,14 +797,15 @@ FetchContent_Declare(
     SYSTEM
     EXCLUDE_FROM_ALL
 )
-
-FetchContent_Declare(
-    fmt
-    GIT_REPOSITORY "https://github.com/fmtlib/fmt.git"
-    GIT_TAG "11.1.4"
-    SYSTEM
-    EXCLUDE_FROM_ALL
-)
+if (NOT VCPKG_TOOLCHAIN)
+    FetchContent_Declare(
+        fmt
+        GIT_REPOSITORY "https://github.com/fmtlib/fmt.git"
+        GIT_TAG "11.1.4"
+        SYSTEM
+        EXCLUDE_FROM_ALL
+    )
+endif ()
 
 FetchContent_Declare(
     pugixml
@@ -846,7 +847,9 @@ FetchContent_Declare(
     EXCLUDE_FROM_ALL
 )
 
-FetchContent_MakeAvailable(fmt)
+if (NOT VCPKG_TOOLCHAIN)
+    FetchContent_MakeAvailable(fmt)
+endif ()
 FetchContent_MakeAvailable(glm)
 FetchContent_MakeAvailable(pugixml)
 FetchContent_MakeAvailable(utf8cpp)
@@ -1015,8 +1018,12 @@ endif ()
 list(APPEND Impacto_Include_Dirs ${SDL2_INCLUDE_DIRS})
 list(APPEND Impacto_Include_Dirs ${WebP_INCLUDE_DIRS})
 
+if (VCPKG_TOOLCHAIN)
+    find_package(fmt CONFIG REQUIRED)
+endif ()
+list(APPEND Impacto_Libs fmt::fmt)
+
 list(APPEND Impacto_Libs
-        fmt::fmt
         pugixml::pugixml
         atrac9
         unordered_dense::unordered_dense
@@ -1227,6 +1234,9 @@ endIf()
 
 list(APPEND Impacto_Libs ${Impacto_Lib_Targets})
 target_link_libraries(impacto PRIVATE ${Impacto_Libs})
+
+target_compile_options(impacto PRIVATE "$<$<C_COMPILER_ID:MSVC>:/utf-8>")
+target_compile_options(impacto PRIVATE "$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
 
 if (IMPACTO_WARNINGS)
     if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
