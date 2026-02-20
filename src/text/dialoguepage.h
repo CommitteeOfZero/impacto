@@ -30,9 +30,8 @@ struct DialoguePage {
   Animation FadeAnimation;
   Animation TextFadeAnimation;
 
-  size_t NameLength;
-
   std::vector<ProcessedTextGlyph> Name;
+  bool RenderName = false;
 
   RectF BoxBounds;
 
@@ -44,10 +43,6 @@ struct DialoguePage {
 
   size_t RubyChunkCount;
   int CurrentRubyChunk;
-
-  std::optional<uint32_t> NameId = std::nullopt;
-  std::optional<uint32_t> PrevNameId = std::nullopt;
-  bool RenderName = false;
 
   enum class AdvanceMethodType : uint8_t {
     Skip,
@@ -82,16 +77,14 @@ struct DialoguePage {
   void Render();
   void Hide();
   void Show();
-  bool HasName() { return this->NameId.has_value(); }
+  bool HasName() const { return !Name.empty(); }
 
  private:
   void FinishLine(Vm::Sc3VmThread* ctx, size_t nextLineStart,
                   const RectF& boxBounds, TextAlignment alignment);
   void EndRubyBase(int lastBaseCharacter);
 
-  bool ShouldShowNewText = false;
   DialoguePageMode PrevMode = DPM_ADV;
-  bool ShouldUpdateCharId = false;
 
   bool BuildingRubyBase;
   size_t FirstRubyChunkOnLine;

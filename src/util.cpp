@@ -245,10 +245,10 @@ glm::vec4 TransformVector(const glm::vec3 pos, const glm::vec3 scalingOrigin,
          glm::vec4(pos, 1.0f);
 }
 
-uint32_t GetHashCode(uint8_t* data, int length) {
+uint32_t GetHashCode(const std::span<const uint8_t> data) {
   uint32_t hash = 2166136261;
-  for (int i = 0; i < length; i++) {
-    hash = (hash ^ data[i]) * 16777619;
+  for (const uint8_t byte : data) {
+    hash = (hash ^ byte) * 16777619;
   }
 
   return hash;
