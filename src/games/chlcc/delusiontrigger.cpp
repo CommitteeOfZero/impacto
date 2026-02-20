@@ -5,7 +5,6 @@
 #include "../../profile/games/chlcc/delusiontrigger.h"
 #include "../../profile/scriptvars.h"
 #include "../../profile/configsystem.h"
-#include "../../game.h"
 #include "../../profile/vm.h"
 #include "../../profile/game.h"
 #include "../../audio/audiosystem.h"
@@ -19,7 +18,7 @@ using namespace Impacto::Profile::CHLCC::DelusionTrigger;
 using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Vm::Interface;
 
-using enum Impacto::UI::MenuState;
+using enum MenuState;
 
 DelusionTrigger::DelusionTrigger()
     : DelusionState(ScrWork[SW_DELUSION_STATE]) {}
@@ -210,10 +209,9 @@ void DelusionTrigger::UpdateShowing(float dt) {
 }
 
 void DelusionTrigger::PlayClickSound() {
-  ScrWork[SW_SEREQNO + 0] = 19;
-  Impacto::Audio::Channels[Audio::AC_SE0 + 0]->SetVolume(
+  Audio::Channels[Audio::AC_SE0 + 0]->SetVolume(
       (ScrWork[SW_SEVOL + 0] / 100.0f) * 0.3f);
-  Impacto::Audio::Channels[Audio::AC_SE0 + 0]->Play("se", 19, false, 0.0f);
+  Audio::Channels[Audio::AC_SE0 + 0]->Play("se", 19, false, 0.0f);
 }
 
 void DelusionTrigger::UpdateShown(float dt) {
