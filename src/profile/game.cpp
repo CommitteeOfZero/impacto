@@ -29,6 +29,8 @@ void LoadGameFromLua() {
   Subtitles = EnsureGetMember<char const*>("Subtitles");
   CloseBacklogWhenReachedEnd =
       TryGetMember<bool>("CloseBacklogWhenReachedEnd").value_or(true);
+  DateFormat = DateFormatType::_from_integral_unchecked(
+      TryGetMember<uint8_t>("DateFormat").value_or(+DateFormatType::YMD));
 
   bool res = TryGetMember<bool>("LayFileBigEndian", LayFileBigEndian);
   if (!res) LayFileBigEndian = false;

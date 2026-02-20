@@ -9,6 +9,24 @@
 namespace Impacto {
 namespace Profile {
 
+BETTER_ENUM(DateFormatType, uint8_t, DMY, MDY, YMD);
+
+struct DateFormatDef {
+  DateFormatDef(DateFormatType sel) : Sel(sel) {}
+  std::string_view FormattedString() const {
+    switch (Sel) {
+      case +DateFormatType::DMY:
+        return "{:%d/%m/%y}";
+      case +DateFormatType::MDY:
+        return "{:%m/%d/%y}";
+      case +DateFormatType::YMD:
+      default:
+        return "{:%y/%m/%d}";
+    }
+  }
+  DateFormatType Sel;
+};
+
 inline RendererType ActiveRenderer = RendererType::OpenGL;
 inline VideoPlayerType VideoPlayer = VideoPlayerType::FFmpeg;
 inline AudioBackendType ActiveAudioBackend = AudioBackendType::OpenAL;
@@ -45,6 +63,7 @@ inline int ResolutionHeight;
 inline bool Fullscreen;
 inline char const* Subtitles;
 inline bool CloseBacklogWhenReachedEnd = true;
+inline DateFormatDef DateFormat = +DateFormatType::YMD;
 
 inline int PlatformId = 0;
 
