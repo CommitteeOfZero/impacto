@@ -7,7 +7,7 @@ namespace MO6TW {
 
 class DialogueBox : public Impacto::DialogueBox {
  public:
-  void Render(DialoguePageMode mode, std::optional<NameInfo> nameInfo,
+  void Render(DialoguePageMode mode, NameInfo nameInfo,
               glm::vec4 tint) override;
 };
 

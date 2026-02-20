@@ -28,8 +28,8 @@ void DialogueBox::Update(float dt) {
   TextBoxEffect.Update(dt);
 }
 
-void DialogueBox::Render(DialoguePageMode mode,
-                         std::optional<NameInfo> nameInfo, glm::vec4 tint) {
+void DialogueBox::Render(const DialoguePageMode mode, const NameInfo nameInfo,
+                         const glm::vec4 tint) {
   switch (mode) {
     case DPM_ADV: {
       Renderer->DrawCCMessageBox(ADVBoxSprite, ADVBoxMask, ADVBoxPos,

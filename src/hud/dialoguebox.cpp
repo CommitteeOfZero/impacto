@@ -88,16 +88,15 @@ void PlainDialogueBox::UpdateInput(float dt) {
   UpdateControlButtons(dt);
 }
 
-void PlainDialogueBox::Render(DialoguePageMode mode,
-                              std::optional<NameInfo> nameInfo,
-                              glm::vec4 tint) {
+void PlainDialogueBox::Render(const DialoguePageMode mode,
+                              const NameInfo nameInfo, glm::vec4 tint) {
   tint = glm::vec4(glm::vec3(ScrWorkGetColor(SW_MESWINDOW_COLOR)), tint.a);
 
   if (mode == DPM_ADV) {
     Renderer->DrawSprite(ADVBoxSprite, ADVBoxPos, tint);
     RenderControlButtons(tint);
 
-    if (nameInfo.has_value()) {
+    if (!nameInfo.Name.empty()) {
       if (HasSpeakerPortraits) {
         // Draw Face
         for (int i = 0; i < std::ssize(SpeakerPortraits); i++) {
@@ -111,9 +110,9 @@ void PlainDialogueBox::Render(DialoguePageMode mode,
           SpeakerPortraits[bufId].Render(-1);
         }
       }
-
-      NametagDisplayInst->Render(nameInfo, tint);
     }
+
+    NametagDisplayInst->Render(nameInfo, tint);
 
   } else {
     assert(mode == DPM_REV);

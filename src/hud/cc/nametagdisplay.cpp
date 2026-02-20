@@ -10,18 +10,19 @@ using namespace Impacto::Profile::CC::DialogueBox;
 
 NametagDisplay::NametagDisplay() {
   ShowAnimation.SetDuration(NametagShowDuration);
+  ShowAnimation.SkipOnSkipMode = true;
   ShowAnimation.Reset(AnimationDirection::In);
 }
 
-void NametagDisplay::Render(const std::optional<NameInfo> nameInfo,
-                            const glm::vec4 tint) {
-  if (ShowAnimation.IsOut() || !nameInfo.has_value() ||
-      nameInfo->NameId >= std::ssize(NametagMainSprites)) {
+void NametagDisplay::Render(const NameInfo nameInfo, const glm::vec4 tint) {
+  if (ShowAnimation.IsOut() || !nameInfo.RenderWindow ||
+      !nameInfo.NameId.has_value() ||
+      nameInfo.NameId.value() >= std::ssize(NametagMainSprites)) {
     return;
   }
 
-  const Sprite& mainSprite = NametagMainSprites[nameInfo->NameId];
-  const Sprite& labelSprite = NametagLabelSprites[nameInfo->NameId];
+  const Sprite& mainSprite = NametagMainSprites[*nameInfo.NameId];
+  const Sprite& labelSprite = NametagLabelSprites[*nameInfo.NameId];
 
   const glm::vec2 mainStartPos = {-mainSprite.ScaledWidth(), NametagMainPos.y};
   const glm::vec2 mainPos =

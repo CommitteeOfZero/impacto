@@ -16,8 +16,8 @@ using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::Dialogue;
 using namespace Impacto::Profile::CHLCC::DialogueBox;
 
-void DialogueBox::Render(DialoguePageMode mode,
-                         std::optional<NameInfo> nameInfo, glm::vec4 tint) {
+void DialogueBox::Render(const DialoguePageMode mode, const NameInfo nameInfo,
+                         glm::vec4 tint) {
   switch (mode) {
     case DPM_ADV: {
       tint = {1.0f, 1.0f, 1.0f, tint.a};

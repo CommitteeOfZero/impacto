@@ -37,36 +37,34 @@ std::unique_ptr<NametagDisplay> NametagDisplay::Create() {
   }
 }
 
-void VoidNametagDisplay::Render(const std::optional<NameInfo> nameInfo,
-                                const glm::vec4 tint) {
-  if (Hidden || !nameInfo.has_value()) return;
+void VoidNametagDisplay::Render(const NameInfo nameInfo, const glm::vec4 tint) {
+  if (Hidden || !nameInfo.RenderWindow) return;
 
-  Renderer->DrawProcessedText(nameInfo->Name, DialogueFont, tint.a,
+  Renderer->DrawProcessedText(nameInfo.Name, DialogueFont, tint.a,
                               RendererOutlineMode::Full);
 }
 
-void SpriteNametagDisplay::Render(const std::optional<NameInfo> nameInfo,
+void SpriteNametagDisplay::Render(const NameInfo nameInfo,
                                   const glm::vec4 tint) {
-  if (Hidden || !nameInfo.has_value()) return;
+  if (Hidden || !nameInfo.RenderWindow) return;
 
   Renderer->DrawSprite(NametagSprite, NametagPosition, tint);
 
-  Renderer->DrawProcessedText(nameInfo->Name, DialogueFont, tint.a,
+  Renderer->DrawProcessedText(nameInfo.Name, DialogueFont, tint.a,
                               RendererOutlineMode::Full);
 }
 
-void ThreePieceNametagDisplay::Render(const std::optional<NameInfo> nameInfo,
+void ThreePieceNametagDisplay::Render(const NameInfo nameInfo,
                                       const glm::vec4 tint) {
-  if (Hidden || !nameInfo.has_value()) return;
+  if (Hidden || !nameInfo.RenderWindow) return;
 
   Renderer->DrawSprite(NametagLeftSprite, NametagPosition, tint);
 
-  const RectF nameBounds =
-      std::accumulate(nameInfo->Name.begin() + 1, nameInfo->Name.end(),
-                      nameInfo->Name[0].DestRect,
-                      [](const RectF rect, const ProcessedTextGlyph& glyph) {
-                        return RectF::Coalesce(rect, glyph.DestRect);
-                      });
+  const RectF nameBounds = std::accumulate(
+      nameInfo.Name.begin() + 1, nameInfo.Name.end(), nameInfo.Name[0].DestRect,
+      [](const RectF rect, const ProcessedTextGlyph& glyph) {
+        return RectF::Coalesce(rect, glyph.DestRect);
+      });
   float rightX =
       NametagPosition.x + NametagLeftSprite.ScaledWidth() + nameBounds.Width;
 
@@ -88,7 +86,7 @@ void ThreePieceNametagDisplay::Render(const std::optional<NameInfo> nameInfo,
 
   Renderer->DrawSprite(NametagRightSprite, {rightX, NametagPosition.y}, tint);
 
-  Renderer->DrawProcessedText(nameInfo->Name, DialogueFont, tint.a,
+  Renderer->DrawProcessedText(nameInfo.Name, DialogueFont, tint.a,
                               RendererOutlineMode::Full);
 }
 

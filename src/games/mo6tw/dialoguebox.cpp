@@ -15,8 +15,8 @@ using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::Dialogue;
 using namespace Impacto::Profile::MO6TW::DialogueBox;
 
-void DialogueBox::Render(DialoguePageMode mode,
-                         std::optional<NameInfo> nameInfo, glm::vec4 tint) {
+void DialogueBox::Render(const DialoguePageMode mode, const NameInfo nameInfo,
+                         glm::vec4 tint) {
   tint = glm::vec4(glm::vec3(ScrWorkGetColor(SW_MESWINDOW_COLOR)), tint.a);
 
   if (mode == DPM_ADV) {

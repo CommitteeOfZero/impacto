@@ -9,7 +9,7 @@ class NametagDisplay : public Impacto::NametagDisplay {
  public:
   NametagDisplay();
 
-  void Render(std::optional<NameInfo> nameInfo, glm::vec4 tint) override;
+  void Render(NameInfo nameInfo, glm::vec4 tint) override;
   void Update(float dt) override;
   void Reset() override;
 

@@ -12,16 +12,17 @@ using namespace Impacto::Profile::CHLCC::DialogueBox;
 using namespace Impacto::Profile::Dialogue;
 using namespace Impacto::Profile::ScriptVars;
 
-void NametagDisplay::Render(const std::optional<NameInfo> nameInfo,
-                            glm::vec4 tint) {
-  if (Hidden || !nameInfo.has_value()) return;
+void NametagDisplay::Render(const NameInfo nameInfo, glm::vec4 tint) {
+  if (!nameInfo.RenderWindow) return;
 
   Renderer->DrawSprite(
       ScrWork[SW_MESWINDOW_COLOR] == 1 ? SecondaryNametagSprite : NametagSprite,
       NametagPosition, tint);
 
-  Renderer->DrawProcessedText(nameInfo->Name, DialogueFont, tint.a,
-                              RendererOutlineMode::Full);
+  if (!Hidden) {
+    Renderer->DrawProcessedText(nameInfo.Name, DialogueFont, tint.a,
+                                RendererOutlineMode::Full);
+  }
 }
 
 }  // namespace CHLCC

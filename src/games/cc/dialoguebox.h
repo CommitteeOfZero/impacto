@@ -12,7 +12,7 @@ class DialogueBox : public Impacto::DialogueBox {
   DialogueBox();
 
   void Update(float dt) override;
-  void Render(DialoguePageMode mode, std::optional<NameInfo> nameInfo,
+  void Render(DialoguePageMode mode, NameInfo nameInfo,
               glm::vec4 tint) override;
 
  private:

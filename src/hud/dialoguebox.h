@@ -26,7 +26,7 @@ class DialogueBox {
   virtual void Update(float dt) { NametagDisplayInst->Update(dt); }
   virtual void UpdateInput(float dt) {}
 
-  virtual void Render(DialoguePageMode mode, std::optional<NameInfo> nameInfo,
+  virtual void Render(DialoguePageMode mode, NameInfo nameInfo,
                       glm::vec4 tint = glm::vec4(1.0f)) = 0;
 
   enum class VisibilityStateType { Hidden, Hiding, Showing, Shown };
@@ -44,7 +44,7 @@ class PlainDialogueBox : public DialogueBox {
   void Show() override;
   void Hide() override;
   void UpdateInput(float dt) override;
-  void Render(DialoguePageMode mode, std::optional<NameInfo> nameInfo,
+  void Render(DialoguePageMode mode, NameInfo nameInfo,
               glm::vec4 tint) override;
 
  private:
@@ -58,7 +58,7 @@ class VoidDialogueBox : public DialogueBox {
  public:
   void Show() override;
   void Hide() override;
-  void Render(DialoguePageMode mode, std::optional<NameInfo> nameInfo,
+  void Render(DialoguePageMode mode, NameInfo nameInfo,
               glm::vec4 tint) override {}
 };
 

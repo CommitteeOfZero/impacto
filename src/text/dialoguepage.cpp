@@ -666,12 +666,13 @@ void DialoguePage::Render() {
   glm::vec4 opacityTint(1.0f);
   opacityTint.a = glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
 
-  const std::optional<NameInfo> nameInfo =
-      !RenderName ? std::nullopt
-                  : std::optional<NameInfo>(NameInfo{
-                        .NameId = ScrWork[SW_MESNAMEID0 + Id],
-                        .Name = Name,
-                    });
+  const NameInfo nameInfo{
+      .RenderWindow = RenderName,
+      .NameId = ScrWork[SW_MESNAMEID0 + Id] == 0xffff
+                    ? std::nullopt
+                    : std::optional(ScrWork[SW_MESNAMEID0 + Id]),
+      .Name = Name,
+  };
   DialogueBoxInst->Render(Mode, nameInfo, opacityTint);
 
   // TODO: Figure out what's up with text box coloring
