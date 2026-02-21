@@ -223,21 +223,14 @@ SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
 
 void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
                                        int autoSaveType) {
-  SaveFileEntry* entry = 0;
-  switch (type) {
-    case SaveType::Quick:
-      entry = (SaveFileEntry*)QuickSaveEntries[id];
-      break;
-    case SaveType::Full:
-      entry = (SaveFileEntry*)FullSaveEntries[id];
-      break;
-  }
+  auto* entry = GetSaveEntry<SaveFileEntry>(type, id);
 
   if (WorkingSaveEntry != 0) {
-    if (entry != 0 && !(GetSaveFlags(type, id) & WriteProtect)) {
+    if (entry != 0 && !(entry->Flags & WriteProtect)) {
       Renderer->FreeTexture(entry->SaveThumbnail.Sheet.Texture);
       if (type == SaveType::Quick) {
         entry->SaveType = autoSaveType;
+        UpdateQuickSaveRecentSortedId(id);
       }
       entry->Status = 1;
 
@@ -278,141 +271,81 @@ SaveError SaveSystem::WriteSaveFile() {
   using CF = Io::PhysicalFileStream::CreateFlagsMode;
   Io::PhysicalFileStream* stream;
   Io::Stream* instream;
-  IoError err = Io::PhysicalFileStream::Create(
-      SaveFilePath, &instream, CF::CREATE | CF::CREATE_DIRS | CF::WRITE);
-  auto err1 = SDL_GetError();
-  if (err != IoError_OK) {
-    ImpLog(LogLevel::Error, LogChannel::IO,
-           "Failed to create save file, SDL error: {:s}\n", err1);
-    return SaveError::Failed;
+  {
+    IoError err = Io::PhysicalFileStream::Create(
+        SaveFilePath, &instream, CF::CREATE | CF::CREATE_DIRS | CF::WRITE);
+    if (err != IoError_OK) {
+      ImpLog(LogLevel::Error, LogChannel::IO, "Failed to create save file\n");
+      return SaveError::Failed;
+    }
   }
   stream = (Io::PhysicalFileStream*)instream;
 
   Io::WriteArrayLE<uint8_t>(SystemData.data(), stream, SystemData.size());
+  auto writeEntry = [&](SaveFileEntry* entry) {
+    if (entry == nullptr || entry->Status == 0) {
+      stream->Seek(0x1814, SEEK_CUR);
+      return SaveError::OK;
+    }
+    auto writeErr = stream->Write(&entry->Status, sizeof(uint8_t), 1);
+    if (writeErr != IoError_OK) {
+      ImpLog(LogLevel::Error, LogChannel::IO,
+             "Failed to write save entry to file\n");
+      return SaveError::Failed;
+    }
+    // TODO: Add error checking
+    stream->Write(&entry->Checksum, sizeof(uint16_t), 1);
+    stream->Seek(1, SEEK_CUR);
+    uint8_t mon = (uint8_t)(entry->SaveDate.tm_mon + 1);
+    stream->Write(&mon, sizeof(uint8_t), 1);
+    stream->Write(&entry->SaveDate.tm_mday, sizeof(uint8_t), 1);
+    stream->Write(&entry->SaveDate.tm_hour, sizeof(uint8_t), 1);
+    stream->Write(&entry->SaveDate.tm_min, sizeof(uint8_t), 1);
+    uint8_t year = (uint8_t)(entry->SaveDate.tm_year - 100);
+    stream->Write(&year, sizeof(uint8_t), 1);
+    stream->Write(&entry->SaveDate.tm_sec, sizeof(uint8_t), 1);
+    stream->Seek(2, SEEK_CUR);
+    stream->Write(&entry->PlayTime, sizeof(uint32_t), 1);
+    stream->Write(&entry->SwTitle, sizeof(uint16_t), 1);
+    stream->Seek(32, SEEK_CUR);
+    stream->Write(((SaveFileEntry*)entry)->FlagWorkScript1, sizeof(uint8_t),
+                  50);
+    stream->Write(((SaveFileEntry*)entry)->FlagWorkScript2, sizeof(uint8_t),
+                  100);
+    stream->Write(((SaveFileEntry*)entry)->ScrWorkScript1, sizeof(int), 300);
+    stream->Write(((SaveFileEntry*)entry)->ScrWorkScript2, sizeof(int), 1100);
+    stream->Write(&entry->MainThreadExecPriority, sizeof(uint32_t), 1);
+    stream->Write(&entry->MainThreadGroupId, sizeof(uint32_t), 1);
+    stream->Write(&entry->MainThreadWaitCounter, sizeof(uint32_t), 1);
+    stream->Write(&entry->MainThreadScriptParam, sizeof(uint32_t), 1);
+    stream->Write(&entry->MainThreadIp, sizeof(uint32_t), 1);
+    stream->Write(&entry->MainThreadLoopCounter, sizeof(uint32_t), 1);
+    stream->Write(&entry->MainThreadLoopAdr, sizeof(uint32_t), 1);
+    stream->Write(&entry->MainThreadCallStackDepth, sizeof(uint32_t), 1);
+    for (int j = 0; j < 8; j++) {
+      stream->Write(&entry->MainThreadReturnIds[j], sizeof(uint32_t), 1);
+      stream->Write(&entry->MainThreadReturnBufIds[j], sizeof(uint32_t), 1);
+    }
+    stream->Write(&entry->MainThreadVariables, sizeof(int), 16);
+    stream->Seek(204, SEEK_CUR);
+    return SaveError::OK;
+  };
 
   for (int i = 0; i < MaxSaveEntries; i++) {
-    if (QuickSaveEntries[i] == nullptr || QuickSaveEntries[i]->Status == 0) {
-      stream->Seek(0x1814, SEEK_CUR);
-    } else {
-      // TODO: We don't have writing to file...
-
-      auto writeErr =
-          stream->Write(&QuickSaveEntries[i]->Status, sizeof(uint8_t), 1);
-      err1 = SDL_GetError();
-      if (writeErr != IoError_OK) {
-        ImpLog(LogLevel::Error, LogChannel::IO,
-               "Failed to write save entry to file, SDL error: {:s}\n", err1);
-        return SaveError::Failed;
-      }
-      // TODO: Add error checking
-      stream->Write(&QuickSaveEntries[i]->Checksum, sizeof(uint16_t), 1);
-      stream->Seek(1, SEEK_CUR);
-      uint8_t mon = (uint8_t)(QuickSaveEntries[i]->SaveDate.tm_mon + 1);
-      stream->Write(&mon, sizeof(uint8_t), 1);
-      stream->Write(&QuickSaveEntries[i]->SaveDate.tm_mday, sizeof(uint8_t), 1);
-      stream->Write(&QuickSaveEntries[i]->SaveDate.tm_hour, sizeof(uint8_t), 1);
-      stream->Write(&QuickSaveEntries[i]->SaveDate.tm_min, sizeof(uint8_t), 1);
-      uint8_t year = (uint8_t)(QuickSaveEntries[i]->SaveDate.tm_year - 100);
-      stream->Write(&year, sizeof(uint8_t), 1);
-      stream->Write(&QuickSaveEntries[i]->SaveDate.tm_sec, sizeof(uint8_t), 1);
-      stream->Seek(2, SEEK_CUR);
-      stream->Write(&QuickSaveEntries[i]->PlayTime, sizeof(uint32_t), 1);
-      stream->Write(&QuickSaveEntries[i]->SwTitle, sizeof(uint16_t), 1);
-      stream->Seek(32, SEEK_CUR);
-      stream->Write(((SaveFileEntry*)QuickSaveEntries[i])->FlagWorkScript1,
-                    sizeof(uint8_t), 50);
-      stream->Write(((SaveFileEntry*)QuickSaveEntries[i])->FlagWorkScript2,
-                    sizeof(uint8_t), 100);
-      stream->Write(((SaveFileEntry*)QuickSaveEntries[i])->ScrWorkScript1,
-                    sizeof(int), 300);
-      stream->Write(((SaveFileEntry*)QuickSaveEntries[i])->ScrWorkScript2,
-                    sizeof(int), 1100);
-      stream->Write(&QuickSaveEntries[i]->MainThreadExecPriority,
-                    sizeof(uint32_t), 1);
-      stream->Write(&QuickSaveEntries[i]->MainThreadGroupId, sizeof(uint32_t),
-                    1);
-      stream->Write(&QuickSaveEntries[i]->MainThreadWaitCounter,
-                    sizeof(uint32_t), 1);
-      stream->Write(&QuickSaveEntries[i]->MainThreadScriptParam,
-                    sizeof(uint32_t), 1);
-      stream->Write(&QuickSaveEntries[i]->MainThreadIp, sizeof(uint32_t), 1);
-      stream->Write(&QuickSaveEntries[i]->MainThreadLoopCounter,
-                    sizeof(uint32_t), 1);
-      stream->Write(&QuickSaveEntries[i]->MainThreadLoopAdr, sizeof(uint32_t),
-                    1);
-      stream->Write(&QuickSaveEntries[i]->MainThreadCallStackDepth,
-                    sizeof(uint32_t), 1);
-      for (int j = 0; j < 8; j++) {
-        stream->Write(&QuickSaveEntries[i]->MainThreadReturnIds[j],
-                      sizeof(uint32_t), 1);
-        stream->Write(&QuickSaveEntries[i]->MainThreadReturnBufIds[j],
-                      sizeof(uint32_t), 1);
-      }
-      stream->Write(&QuickSaveEntries[i]->MainThreadVariables, sizeof(int), 16);
-      stream->Seek(204, SEEK_CUR);
-    }
+    int reverseI = MaxSaveEntries - i - 1;
+    auto err = writeEntry(static_cast<SaveFileEntry*>(
+        QuickSaveEntries[QuickSaveRecentSortedId[reverseI]]));
+    if (err != SaveError::OK) return err;
   }
 
   stream->Seek(0x3028, SEEK_CUR);
 
   for (int i = 0; i < MaxSaveEntries; i++) {
-    if (FullSaveEntries[i]->Status == 0) {
-      stream->Seek(0x1814, SEEK_CUR);
-    } else {
-      // TODO: We don't have writing to file...
-
-      stream->Write(&FullSaveEntries[i]->Status, sizeof(uint8_t), 1);
-      stream->Write(&FullSaveEntries[i]->Checksum, sizeof(uint16_t), 1);
-      stream->Seek(1, SEEK_CUR);
-      uint8_t mon = (uint8_t)(FullSaveEntries[i]->SaveDate.tm_mon + 1);
-      stream->Write(&mon, sizeof(uint8_t), 1);
-      stream->Write(&FullSaveEntries[i]->SaveDate.tm_mday, sizeof(uint8_t), 1);
-      stream->Write(&FullSaveEntries[i]->SaveDate.tm_hour, sizeof(uint8_t), 1);
-      stream->Write(&FullSaveEntries[i]->SaveDate.tm_min, sizeof(uint8_t), 1);
-      uint8_t year = (uint8_t)(FullSaveEntries[i]->SaveDate.tm_year - 100);
-      stream->Write(&year, sizeof(uint8_t), 1);
-      stream->Write(&FullSaveEntries[i]->SaveDate.tm_sec, sizeof(uint8_t), 1);
-      stream->Seek(2, SEEK_CUR);
-      stream->Write(&FullSaveEntries[i]->PlayTime, sizeof(uint32_t), 1);
-      stream->Write(&FullSaveEntries[i]->SwTitle, sizeof(uint16_t), 1);
-      stream->Seek(32, SEEK_CUR);
-      stream->Write(((SaveFileEntry*)FullSaveEntries[i])->FlagWorkScript1,
-                    sizeof(uint8_t), 50);
-      stream->Write(((SaveFileEntry*)FullSaveEntries[i])->FlagWorkScript2,
-                    sizeof(uint8_t), 100);
-      stream->Write(((SaveFileEntry*)FullSaveEntries[i])->ScrWorkScript1,
-                    sizeof(int), 300);
-      stream->Write(((SaveFileEntry*)FullSaveEntries[i])->ScrWorkScript2,
-                    sizeof(int), 1100);
-      stream->Write(&FullSaveEntries[i]->MainThreadExecPriority,
-                    sizeof(uint32_t), 1);
-      stream->Write(&FullSaveEntries[i]->MainThreadGroupId, sizeof(uint32_t),
-                    1);
-      stream->Write(&FullSaveEntries[i]->MainThreadWaitCounter,
-                    sizeof(uint32_t), 1);
-      stream->Write(&FullSaveEntries[i]->MainThreadScriptParam,
-                    sizeof(uint32_t), 1);
-      stream->Write(&FullSaveEntries[i]->MainThreadIp, sizeof(uint32_t), 1);
-      stream->Write(&FullSaveEntries[i]->MainThreadLoopCounter,
-                    sizeof(uint32_t), 1);
-      stream->Write(&FullSaveEntries[i]->MainThreadLoopAdr, sizeof(uint32_t),
-                    1);
-      stream->Write(&FullSaveEntries[i]->MainThreadCallStackDepth,
-                    sizeof(uint32_t), 1);
-      for (int j = 0; j < 8; j++) {
-        stream->Write(&FullSaveEntries[i]->MainThreadReturnIds[j],
-                      sizeof(uint32_t), 1);
-        stream->Write(&FullSaveEntries[i]->MainThreadReturnBufIds[j],
-                      sizeof(uint32_t), 1);
-      }
-      stream->Write(&FullSaveEntries[i]->MainThreadVariables, sizeof(int), 16);
-      // FullSaveEntries[i]->MainThreadDialoguePageId =
-      // Io::ReadLE<uint32_t>(stream);
-      stream->Seek(204, SEEK_CUR);
-    }
+    auto err = writeEntry(static_cast<SaveFileEntry*>(FullSaveEntries[i]));
+    if (err != SaveError::OK) return err;
   }
 
-  stream->~PhysicalFileStream();
+  delete stream;
   return SaveError::OK;
 }
 
@@ -454,15 +387,7 @@ void SaveSystem::SaveMemory() {
 }
 
 void SaveSystem::LoadEntry(SaveType type, int id) {
-  SaveFileEntry* entry = 0;
-  switch (type) {
-    case SaveType::Quick:
-      entry = (SaveFileEntry*)QuickSaveEntries[id];
-      break;
-    case SaveType::Full:
-      entry = (SaveFileEntry*)FullSaveEntries[id];
-      break;
-  }
+  auto* entry = GetSaveEntry<SaveFileEntry>(type, id);
 
   if (entry != 0)
     if (entry->Status) {
@@ -565,97 +490,32 @@ void SaveSystem::LoadEntry(SaveType type, int id) {
     }
 }
 
-uint32_t SaveSystem::GetSavePlayTime(SaveType type, int id) {
-  switch (type) {
-    case SaveType::Full:
-      return ((SaveFileEntry*)FullSaveEntries[id])->PlayTime;
-    case SaveType::Quick:
-      return ((SaveFileEntry*)QuickSaveEntries[id])->PlayTime;
-    default:
-      ImpLog(LogLevel::Error, LogChannel::IO,
-             "Failed to read play time: Unknown save type, returning 0\n");
-      return 0;
-  }
+uint32_t SaveSystem::GetSavePlayTime(SaveType type, int id) const {
+  return GetSaveEntry<SaveFileEntry>(type, id)->PlayTime;
 }
 
-uint8_t SaveSystem::GetSaveFlags(SaveType type, int id) {
-  switch (type) {
-    case SaveType::Full:
-      return ((SaveFileEntry*)FullSaveEntries[id])->Flags;
-    case SaveType::Quick:
-      return ((SaveFileEntry*)QuickSaveEntries[id])->Flags;
-    default:
-      ImpLog(LogLevel::Error, LogChannel::IO,
-             "Failed to read save flags: Unknown save type, returning 0\n");
-      return 0;
-  }
+uint8_t SaveSystem::GetSaveFlags(SaveType type, int id) const {
+  return GetSaveEntry<SaveFileEntry>(type, id)->Flags;
 }
 
 void SaveSystem::SetSaveFlags(SaveType type, int id, uint8_t flags) {
-  switch (type) {
-    case SaveType::Full:
-      ((SaveFileEntry*)FullSaveEntries[id])->Flags = flags;
-      break;
-    case SaveType::Quick:
-      ((SaveFileEntry*)QuickSaveEntries[id])->Flags = flags;
-      break;
-    default:
-      ImpLog(LogLevel::Error, LogChannel::IO,
-             "Failed to set save flags: unknown save type, doing nothing\n");
-  }
+  auto* entry = GetSaveEntry<SaveFileEntry>(type, id);
+  entry->Flags = flags;
 }
 
-tm const& SaveSystem::GetSaveDate(SaveType type, int id) {
-  const static tm t = [] {
-    tm tmStruct{};
-    tmStruct.tm_mday = 1;
-    return tmStruct;
-  }();
-
-  switch (type) {
-    case SaveType::Full:
-      return ((SaveFileEntry*)FullSaveEntries[id])->SaveDate;
-    case SaveType::Quick:
-      return ((SaveFileEntry*)QuickSaveEntries[id])->SaveDate;
-    default:
-      ImpLog(LogLevel::Error, LogChannel::IO,
-             "Failed to read save date: Unknown save type, returning empty "
-             "time\n");
-      return t;
-  }
+tm const& SaveSystem::GetSaveDate(SaveType type, int id) const {
+  return GetSaveEntry<SaveFileEntry>(type, id)->SaveDate;
 }
 
-uint8_t SaveSystem::GetSaveStatus(SaveType type, int id) {
-  switch (type) {
-    case SaveType::Quick:
-      return QuickSaveEntries[id] != nullptr
-                 ? ((SaveFileEntry*)QuickSaveEntries[id])->Status
-                 : 0;
-    case SaveType::Full:
-      return FullSaveEntries[id] != nullptr
-                 ? ((SaveFileEntry*)FullSaveEntries[id])->Status
-                 : 0;
-    default:
-      ImpLog(LogLevel::Error, LogChannel::IO,
-             "Failed to read save status: Unknown save type, returning 0\n");
-      return 0;
-  }
+uint8_t SaveSystem::GetSaveStatus(SaveType type, int id) const {
+  return GetSaveEntry<SaveFileEntry>(type, id)->Status;
 }
 
-int SaveSystem::GetSaveTitle(SaveType type, int id) {
-  switch (type) {
-    case SaveType::Quick:
-      return ((SaveFileEntry*)QuickSaveEntries[id])->SwTitle;
-    case SaveType::Full:
-      return ((SaveFileEntry*)FullSaveEntries[id])->SwTitle;
-    default:
-      ImpLog(LogLevel::Error, LogChannel::IO,
-             "Failed to read save title: Unknown save type, returning 0\n");
-      return 0;
-  }
+int SaveSystem::GetSaveTitle(SaveType type, int id) const {
+  return GetSaveEntry<SaveFileEntry>(type, id)->SwTitle;
 }
 
-uint32_t SaveSystem::GetTipStatus(size_t tipId) {
+uint32_t SaveSystem::GetTipStatus(size_t tipId) const {
   tipId *= 3;
   uint8_t lockStatus = (GameExtraData[tipId >> 3] & Flbit[tipId & 7]) != 0;
   uint8_t newStatus =
@@ -697,7 +557,7 @@ void SaveSystem::SetLineRead(int scriptId, int lineId) {
   MessageFlags[offset >> 3] |= Flbit[offset & 0b111];
 }
 
-bool SaveSystem::IsLineRead(int scriptId, int lineId) {
+bool SaveSystem::IsLineRead(int scriptId, int lineId) const {
   if (scriptId >= StoryScriptCount.value()) return false;
 
   uint32_t offset =
@@ -709,7 +569,7 @@ bool SaveSystem::IsLineRead(int scriptId, int lineId) {
 }
 
 void SaveSystem::GetReadMessagesCount(int* totalMessageCount,
-                                      int* readMessageCount) {
+                                      int* readMessageCount) const {
   *totalMessageCount = 0;
   *readMessageCount = 0;
 
@@ -723,7 +583,8 @@ void SaveSystem::GetReadMessagesCount(int* totalMessageCount,
   }
 }
 
-void SaveSystem::GetViewedEVsCount(int* totalEVCount, int* viewedEVCount) {
+void SaveSystem::GetViewedEVsCount(int* totalEVCount,
+                                   int* viewedEVCount) const {
   for (int i = 0; i < MaxAlbumEntries; i++) {
     if (AlbumEvData[i][0] == 0xFFFF) break;
     for (int j = 0; j < MaxAlbumSubEntries; j++) {
@@ -735,7 +596,7 @@ void SaveSystem::GetViewedEVsCount(int* totalEVCount, int* viewedEVCount) {
 }
 
 void SaveSystem::GetEVStatus(int evId, int* totalVariations,
-                             int* viewedVariations) {
+                             int* viewedVariations) const {
   *totalVariations = 0;
   *viewedVariations = 0;
   for (int i = 0; i < MaxAlbumSubEntries; i++) {
@@ -747,24 +608,17 @@ void SaveSystem::GetEVStatus(int evId, int* totalVariations,
 
 void SaveSystem::SetEVStatus(int id) { EVFlags[id] = true; }
 
-bool SaveSystem::GetEVVariationIsUnlocked(size_t evId, size_t variationIdx) {
+bool SaveSystem::GetEVVariationIsUnlocked(size_t evId,
+                                          size_t variationIdx) const {
   if (AlbumEvData[evId][variationIdx] == 0xFFFF) return false;
   return EVFlags[AlbumEvData[evId][variationIdx]];
 }
 
-bool SaveSystem::GetBgmFlag(int id) { return BGMFlags[id]; }
+bool SaveSystem::GetBgmFlag(int id) const { return BGMFlags[id]; }
 void SaveSystem::SetBgmFlag(int id, bool flag) { BGMFlags[id] = flag; }
 
 Sprite& SaveSystem::GetSaveThumbnail(SaveType type, int id) {
-  switch (type) {
-    case SaveType::Quick:
-      return ((SaveFileEntry*)QuickSaveEntries[id])->SaveThumbnail;
-    case SaveType::Full:
-      return ((SaveFileEntry*)FullSaveEntries[id])->SaveThumbnail;
-  }
-
-  throw std::invalid_argument(fmt::format(
-      "Tried to get thumbnail of unimplemented save entry type {}", (int)type));
+  return GetSaveEntry<SaveFileEntry>(type, id)->SaveThumbnail;
 }
 
 }  // namespace MO6TW

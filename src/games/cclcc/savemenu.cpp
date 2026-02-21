@@ -72,32 +72,6 @@ void SaveMenu::Show() {
             ? SaveSystem::SaveType::Quick
             : SaveSystem::SaveType::Full;
 
-    std::array<int, SaveSystem::MaxSaveEntries> saveEntryIds;
-    for (int i = 0; i < SaveSystem::MaxSaveEntries; i++) {
-      saveEntryIds[i] = i;
-    }
-    if (saveType == SaveSystem::SaveType::Quick) {
-      // quick saves are sorted by time and status
-      std::sort(saveEntryIds.begin(), saveEntryIds.end(),
-                [saveType](int a, int b) {
-                  int statusA = SaveSystem::GetSaveStatus(saveType, a);
-                  int statusB = SaveSystem::GetSaveStatus(saveType, b);
-                  if (statusA == statusB) {
-                    std::tm ta = SaveSystem::GetSaveDate(saveType, a);
-                    std::tm tb = SaveSystem::GetSaveDate(saveType, b);
-                    std::time_t th = std::mktime(&ta);
-                    std::time_t tl = std::mktime(&tb);
-                    if (th == -1 || tl == -1) {
-                      ImpLog(LogLevel::Error, LogChannel::General,
-                             "Failed to convert time to time_t\n");
-                      return statusA > statusB;
-                    }
-                    return difftime(th, tl) > 0;
-                  }
-                  return statusA > statusB;
-                });
-    }
-
     for (int p = 0; p < Pages; ++p) {
       MainItems[p] = new Widgets::Group(this);
       MainItems[p]->WrapFocus = false;
@@ -111,7 +85,7 @@ void SaveMenu::Show() {
                   ? glm::vec2{EntryStartXL, EntryStartYL + (i * EntryYPadding)}
                   : glm::vec2{EntryStartXR, EntryStartYR + (i * EntryYPadding)};
           SaveEntryButton* saveEntryButton = new SaveEntryButton(
-              saveEntryIds[id], id, EntryHighlightedBoxSprite[*ActiveMenuType],
+              id, EntryHighlightedBoxSprite[*ActiveMenuType],
               EntryHighlightedTextSprite[*ActiveMenuType], p, buttonPos,
               SlotLockedSprite[ActiveMenuType], saveType,
               NoDataSprite[*ActiveMenuType], BrokenDataSprite[*ActiveMenuType]);

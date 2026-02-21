@@ -188,7 +188,7 @@ void SaveSystem::InitializeSystemData() {
   WorkingSaveThumbnail.Sheet.Texture = workingSaveTexture.Submit();
 }
 
-SaveError SaveSystem::CheckSaveFile() {
+SaveError SaveSystem::CheckSaveFile() const {
   const static auto checkFile = [](const std::string& filePath, size_t fileSize,
                                    std::string_view logName) {
     std::error_code ec;
@@ -245,6 +245,9 @@ void SaveSystem::SaveSystemData() {
   Io::WriteArrayLE<uint8_t>(&FlagWork[100], &stream, 50);
   Io::WriteArrayLE<uint8_t>(&FlagWork[460], &stream, 40);
   Io::WriteArrayBE<int>(&ScrWork[600], &stream, 400);
+
+  stream.Seek(0x76b, SEEK_SET);
+  Io::WriteLE(&stream, QuickSaveCount);
 
   // Config settings
   stream.Seek(0x76c, SEEK_SET);
@@ -437,6 +440,8 @@ SaveError SaveSystem::LoadSystemData() {
   Io::ReadArrayLE<uint8_t>(&FlagWork[460], &stream, 40);
   Io::ReadArrayBE<int>(&ScrWork[600], &stream, 400);
 
+  stream.Seek(0x76b, SEEK_SET);
+  QuickSaveCount = Io::ReadLE<Uint8>(&stream);
   // Config settings
   stream.Seek(0x76c, SEEK_SET);
   stream.Seek(1, SEEK_CUR);  // VOICE2vol
@@ -603,6 +608,11 @@ SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
 
   SetLockedQuickSaveCount(lockedQuickSaveSlots);
 
+  // CHLCC doesn't use a separate recents list
+  std::ranges::sort(QuickSaveRecentSortedId,
+                    Impacto::SaveSystem::SaveRecencyComparator(),
+                    [this](int id) { return *QuickSaveEntries[id]; });
+
   if (readFileEntriesChecksumSum != calcFileEntriesChecksumSum ||
       readFileEntriesChecksumXor != calcFileEntriesChecksumXor) {
     ImpLog(LogLevel::Error, LogChannel::IO,
@@ -677,22 +687,19 @@ SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
 
 void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
                                        int autoSaveType) {
-  SaveFileEntry* entry = 0;
-  switch (type) {
-    case SaveType::Quick:
-      entry = (SaveFileEntry*)QuickSaveEntries[id];
-      break;
-    case SaveType::Full:
-      entry = (SaveFileEntry*)FullSaveEntries[id];
-      break;
-  }
-
+  auto* entry = GetSaveEntry<SaveFileEntry>(type, id);
   if (WorkingSaveEntry != nullptr && entry != nullptr &&
-      !(GetSaveFlags(type, id) & WriteProtect)) {
+      !(entry->Flags & WriteProtect)) {
+    if (type == SaveType::Quick) {
+      entry->SaveType = autoSaveType;
+      UpdateQuickSaveRecentSortedId(id);
+      if (QuickSaveCount != MaxSaveEntries) {
+        QuickSaveCount++;
+      }
+    }
     uint8_t savedFlags = entry->Flags;
     *entry = *WorkingSaveEntry;
     entry->Flags = savedFlags;
-    if (type == SaveType::Quick) entry->SaveType = autoSaveType;
 
     entry->SaveDate = CurrentDateTime();
 
@@ -745,35 +752,45 @@ SaveError SaveSystem::WriteSaveFile() {
 
   uint8_t fileEntriesChecksumSum = 0;
   uint8_t fileEntriesChecksumXor = 0;
-  for (auto& entryArray : {QuickSaveEntries, FullSaveEntries}) {
-    [[maybe_unused]] int64_t saveDataPos = stream->Position;
-    for (size_t i = 0; i < MaxSaveEntries; i++) {
-      assert(stream->Position - saveDataPos == (int64_t)(i * SaveEntrySize));
-      SaveFileEntry* entry = (SaveFileEntry*)entryArray[i];
 
-      if (entry == nullptr || entry->Status == 0) {
-        Io::WriteLE<uint8_t>(stream, 0, SaveEntrySize);
-      } else {
-        std::array<uint8_t, SaveEntrySize> entrySlotBuf{};
-        Io::MemoryStream saveEntryMemoryStream(entrySlotBuf.data(),
-                                               entrySlotBuf.size(), false);
-        SaveEntryBuffer(saveEntryMemoryStream, *entry);
+  [[maybe_unused]] int64_t saveDataPos = stream->Position;
+  auto writeEntry = [&](SaveFileEntry* entry, int i) {
+    assert(stream->Position - saveDataPos == (int64_t)(i * SaveEntrySize));
 
-        const auto [entryChecksumSum, entryChecksumXor] =
-            CalculateEntryChecksum(std::span(entrySlotBuf).subspan(4), 0x76,
-                                   0x12);
-        entrySlotBuf[0] = 1;
-        entrySlotBuf[1] = entryChecksumSum;
-        entrySlotBuf[2] = entryChecksumXor;
+    if (entry == nullptr || entry->Status == 0) {
+      Io::WriteLE<uint8_t>(stream, 0, SaveEntrySize);
+    } else {
+      std::array<uint8_t, SaveEntrySize> entrySlotBuf{};
+      Io::MemoryStream saveEntryMemoryStream(entrySlotBuf.data(),
+                                             entrySlotBuf.size(), false);
+      SaveEntryBuffer(saveEntryMemoryStream, *entry);
 
-        std::tie(fileEntriesChecksumSum, fileEntriesChecksumXor) =
-            CalculateFileChecksum(entrySlotBuf, fileEntriesChecksumSum,
-                                  fileEntriesChecksumXor);
+      const auto [entryChecksumSum, entryChecksumXor] = CalculateEntryChecksum(
+          std::span(entrySlotBuf).subspan(4), 0x76, 0x12);
+      entrySlotBuf[0] = 1;
+      entrySlotBuf[1] = entryChecksumSum;
+      entrySlotBuf[2] = entryChecksumXor;
 
-        Io::WriteArrayLE<uint8_t>(entrySlotBuf.data(), stream,
-                                  entrySlotBuf.size());
-      }
+      std::tie(fileEntriesChecksumSum, fileEntriesChecksumXor) =
+          CalculateFileChecksum(entrySlotBuf, fileEntriesChecksumSum,
+                                fileEntriesChecksumXor);
+
+      Io::WriteArrayLE<uint8_t>(entrySlotBuf.data(), stream,
+                                entrySlotBuf.size());
     }
+  };
+
+  // Chlcc stores quick saves from oldest to newest, with no separate recency
+  // array.
+  for (int i = 0; i < MaxSaveEntries; ++i) {
+    int reverseI = MaxSaveEntries - i - 1;
+    auto* entry = GetSaveEntry<SaveFileEntry>(SaveType::Quick, reverseI);
+    writeEntry(entry, i);
+  }
+  saveDataPos = stream->Position;
+  for (int i = 0; i < MaxSaveEntries; ++i) {
+    auto* entry = GetSaveEntry<SaveFileEntry>(SaveType::Full, i);
+    writeEntry(entry, i);
   }
 
   stream->Seek(0x2, SEEK_SET);
@@ -828,75 +845,33 @@ SaveError SaveSystem::WriteSaveFile() {
   return SaveError::OK;
 }
 
-uint32_t SaveSystem::GetSavePlayTime(SaveType type, int id) {
-  switch (type) {
-    case SaveType::Full:
-      return ((SaveFileEntry*)FullSaveEntries[id])->PlayTime;
-    case SaveType::Quick:
-      return ((SaveFileEntry*)QuickSaveEntries[id])->PlayTime;
-    default:
-      ImpLog(LogLevel::Error, LogChannel::IO,
-             "Failed to get save play time: unknown save type, returning 0\n");
-      return 0;
-  }
+uint32_t SaveSystem::GetSavePlayTime(SaveType type, int id) const {
+  return GetSaveEntry<SaveFileEntry>(type, id)->PlayTime;
 }
 
-uint8_t SaveSystem::GetSaveFlags(SaveType type, int id) {
-  switch (type) {
-    case SaveType::Full:
-      return ((SaveFileEntry*)FullSaveEntries[id])->Flags;
-    case SaveType::Quick:
-      return ((SaveFileEntry*)QuickSaveEntries[id])->Flags;
-    default:
-      ImpLog(LogLevel::Error, LogChannel::IO,
-             "Failed to get save flags: unknown save type, returning 0\n");
-      return 0;
-  }
+uint8_t SaveSystem::GetSaveFlags(SaveType type, int id) const {
+  return GetSaveEntry<SaveFileEntry>(type, id)->Flags;
 }
 
 void SaveSystem::SetSaveFlags(SaveType type, int id, uint8_t flags) {
-  switch (type) {
-    case SaveType::Full:
-      ((SaveFileEntry*)FullSaveEntries[id])->Flags = flags;
-      break;
-    case SaveType::Quick: {
-      uint8_t currentFlags = ((SaveFileEntry*)QuickSaveEntries[id])->Flags;
-      if ((currentFlags ^ flags) & WriteProtect) {
-        if (flags & WriteProtect) {
-          LockedQuickSaveCount++;
-        } else {
-          LockedQuickSaveCount--;
-        }
-
-        SetFlag(SF_SAVEALLPROTECTED, LockedQuickSaveCount == MaxSaveEntries);
+  auto* entry = GetSaveEntry<SaveFileEntry>(type, id);
+  if (type == SaveType::Quick) {
+    uint8_t currentFlags = entry->Flags;
+    if ((currentFlags ^ flags) & WriteProtect) {
+      if (flags & WriteProtect) {
+        LockedQuickSaveCount++;
+      } else {
+        LockedQuickSaveCount--;
       }
-      ((SaveFileEntry*)QuickSaveEntries[id])->Flags = flags;
-      break;
+
+      SetFlag(SF_SAVEALLPROTECTED, LockedQuickSaveCount == MaxSaveEntries);
     }
-    default:
-      ImpLog(LogLevel::Error, LogChannel::IO,
-             "Failed to get save flags: unknown save type, doing nothing\n");
   }
+  entry->Flags = flags;
 }
 
-tm const& SaveSystem::GetSaveDate(SaveType type, int id) {
-  const static tm t = [] {
-    tm tmStruct{};
-    tmStruct.tm_mday = 1;
-    return tmStruct;
-  }();
-
-  switch (type) {
-    case SaveType::Full:
-      return ((SaveFileEntry*)FullSaveEntries[id])->SaveDate;
-    case SaveType::Quick:
-      return ((SaveFileEntry*)QuickSaveEntries[id])->SaveDate;
-    default:
-      ImpLog(LogLevel::Error, LogChannel::IO,
-             "Failed to read save date: Unknown save type, returning empty "
-             "time\n");
-      return t;
-  }
+tm const& SaveSystem::GetSaveDate(SaveType type, int id) const {
+  return GetSaveEntry<SaveFileEntry>(type, id)->SaveDate;
 }
 
 void SaveSystem::SaveMemory() {
@@ -946,154 +921,119 @@ void SaveSystem::SaveMemory() {
 }
 
 void SaveSystem::LoadEntry(SaveType type, int id) {
-  SaveFileEntry* entry = 0;
-  switch (type) {
-    case SaveType::Quick:
-      entry = (SaveFileEntry*)QuickSaveEntries[id];
-      break;
-    case SaveType::Full:
-      entry = (SaveFileEntry*)FullSaveEntries[id];
-      break;
-    default:
-      ImpLog(LogLevel::Error, LogChannel::IO,
-             "Failed to load save memory: unknown save type, doing nothing\n");
-      return;
-  }
+  const auto* entry = GetSaveEntry<SaveFileEntry>(type, id);
 
-  if (entry != nullptr)
-    if (entry->Status) {
-      ScrWork[SW_PLAYTIME] = entry->PlayTime;
-      ScrWork[SW_TITLE] = entry->SwTitle;
+  if (entry->Status) {
+    ScrWork[SW_PLAYTIME] = entry->PlayTime;
+    ScrWork[SW_TITLE] = entry->SwTitle;
 
-      std::ranges::copy(entry->FlagWorkScript1, FlagWork.begin() + 50);
-      std::ranges::copy(entry->FlagWorkScript2, FlagWork.begin() + 300);
-      std::ranges::copy(entry->ScrWorkScript1, ScrWork.begin() + 300);
-      std::ranges::copy(entry->ScrWorkScript2, ScrWork.begin() + 2300);
+    std::ranges::copy(entry->FlagWorkScript1, FlagWork.begin() + 50);
+    std::ranges::copy(entry->FlagWorkScript2, FlagWork.begin() + 300);
+    std::ranges::copy(entry->ScrWorkScript1, ScrWork.begin() + 300);
+    std::ranges::copy(entry->ScrWorkScript2, ScrWork.begin() + 2300);
 
-      // TODO: What to do about this mess I wonder...
-      ScrWork[SW_SVSENO] = ScrWork[SW_SEREQNO];
-      ScrWork[SW_SVSENO + 1] = ScrWork[SW_SEREQNO + 1];
-      ScrWork[SW_SVSENO + 2] = ScrWork[SW_SEREQNO + 2];
-      ScrWork[SW_SVBGMNO] = ScrWork[SW_BGMREQNO];
-      ScrWork[SW_SVSCRNO1] = ScrWork[SW_SCRIPTNO2];
-      ScrWork[SW_SVSCRNO2] = ScrWork[SW_SCRIPTNO3];
-      ScrWork[SW_SVSCRNO3] = ScrWork[SW_SCRIPTNO4];
-      ScrWork[SW_SVSCRNO4] = ScrWork[SW_SCRIPTNO5];
-      ScrWork[SW_SVBGNO1] = ScrWork[SW_BG1NO];
-      ScrWork[SW_SVBGNO1 + 1] = ScrWork[2427];
-      ScrWork[SW_SVBGNO1 + 2] = ScrWork[2447];
-      ScrWork[SW_SVBGNO1 + 3] = ScrWork[2467];
-      ScrWork[SW_SVBGNO1 + 4] = ScrWork[2487];
-      ScrWork[SW_SVBGNO1 + 5] = ScrWork[2507];
-      ScrWork[SW_SVBGNO1 + 6] = ScrWork[2527];
-      ScrWork[SW_SVBGNO1 + 7] = ScrWork[2547];
-      ScrWork[SW_SVCHANO1] = ScrWork[SW_CHA1NO];
-      ScrWork[SW_SVCHANO1 + 1] = ScrWork[2629];
-      ScrWork[SW_SVCHANO1 + 2] = ScrWork[2649];
-      ScrWork[SW_SVCHANO1 + 3] = ScrWork[2669];
-      ScrWork[SW_SVCHANO1 + 4] = ScrWork[2689];
-      ScrWork[SW_SVCHANO1 + 5] = ScrWork[2709];
-      ScrWork[SW_SVCHANO1 + 6] = ScrWork[2729];
-      ScrWork[SW_SVCHANO1 + 7] = ScrWork[2749];
-      ScrWork[SW_SVCHANO1 + 8] = ScrWork[2769];
-      ScrWork[SW_SVCHANO1 + 9] = ScrWork[2789];
-      ScrWork[SW_SVCHANO1 + 10] = ScrWork[2809];
-      ScrWork[SW_SVCHANO1 + 11] = ScrWork[2829];
-      ScrWork[SW_SVCHANO1 + 12] = ScrWork[2849];
-      ScrWork[SW_SVCHANO1 + 13] = ScrWork[2869];
-      ScrWork[SW_SVCHANO1 + 14] = ScrWork[2889];
-      ScrWork[SW_SVCHANO1 + 15] = ScrWork[2909];
-      ScrWork[2034] = ScrWork[3200];
-      ScrWork[2035] = ScrWork[3201];
-      ScrWork[2036] = ScrWork[3202];
-      ScrWork[2037] = ScrWork[3203];
-      ScrWork[2038] = ScrWork[3204];
-      ScrWork[2039] = ScrWork[3205];
-      ScrWork[2040] = ScrWork[3206];
-      ScrWork[2041] = ScrWork[3207];
-      ScrWork[2042] = ScrWork[3208];
-      ScrWork[2043] = ScrWork[3209];
-      ScrWork[2044] = ScrWork[3210];
-      ScrWork[2045] = ScrWork[3211];
-      ScrWork[2046] = ScrWork[3212];
-      ScrWork[2047] = ScrWork[3213];
-      ScrWork[2048] = ScrWork[3214];
-      ScrWork[2049] = ScrWork[3215];
-      ScrWork[2050] = ScrWork[3216];
-      ScrWork[2051] = ScrWork[3220];
-      ScrWork[2052] = ScrWork[3221];
-      ScrWork[2053] = ScrWork[3222];
-      ScrWork[2054] = ScrWork[3223];
-      ScrWork[2055] = ScrWork[3224];
-      ScrWork[2056] = ScrWork[3225];
-      ScrWork[2057] = ScrWork[3226];
-      ScrWork[2058] = ScrWork[3227];
-      ScrWork[2059] = ScrWork[3228];
-      ScrWork[2060] = ScrWork[3229];
-      ScrWork[2061] = ScrWork[3230];
-      ScrWork[2062] = ScrWork[3231];
-      ScrWork[2063] = ScrWork[3232];
-      ScrWork[2064] = ScrWork[3233];
-      ScrWork[2065] = ScrWork[3234];
-      ScrWork[2066] = ScrWork[3235];
-      ScrWork[2067] = ScrWork[3236];
+    // TODO: What to do about this mess I wonder...
+    ScrWork[SW_SVSENO] = ScrWork[SW_SEREQNO];
+    ScrWork[SW_SVSENO + 1] = ScrWork[SW_SEREQNO + 1];
+    ScrWork[SW_SVSENO + 2] = ScrWork[SW_SEREQNO + 2];
+    ScrWork[SW_SVBGMNO] = ScrWork[SW_BGMREQNO];
+    ScrWork[SW_SVSCRNO1] = ScrWork[SW_SCRIPTNO2];
+    ScrWork[SW_SVSCRNO2] = ScrWork[SW_SCRIPTNO3];
+    ScrWork[SW_SVSCRNO3] = ScrWork[SW_SCRIPTNO4];
+    ScrWork[SW_SVSCRNO4] = ScrWork[SW_SCRIPTNO5];
+    ScrWork[SW_SVBGNO1] = ScrWork[SW_BG1NO];
+    ScrWork[SW_SVBGNO1 + 1] = ScrWork[2427];
+    ScrWork[SW_SVBGNO1 + 2] = ScrWork[2447];
+    ScrWork[SW_SVBGNO1 + 3] = ScrWork[2467];
+    ScrWork[SW_SVBGNO1 + 4] = ScrWork[2487];
+    ScrWork[SW_SVBGNO1 + 5] = ScrWork[2507];
+    ScrWork[SW_SVBGNO1 + 6] = ScrWork[2527];
+    ScrWork[SW_SVBGNO1 + 7] = ScrWork[2547];
+    ScrWork[SW_SVCHANO1] = ScrWork[SW_CHA1NO];
+    ScrWork[SW_SVCHANO1 + 1] = ScrWork[2629];
+    ScrWork[SW_SVCHANO1 + 2] = ScrWork[2649];
+    ScrWork[SW_SVCHANO1 + 3] = ScrWork[2669];
+    ScrWork[SW_SVCHANO1 + 4] = ScrWork[2689];
+    ScrWork[SW_SVCHANO1 + 5] = ScrWork[2709];
+    ScrWork[SW_SVCHANO1 + 6] = ScrWork[2729];
+    ScrWork[SW_SVCHANO1 + 7] = ScrWork[2749];
+    ScrWork[SW_SVCHANO1 + 8] = ScrWork[2769];
+    ScrWork[SW_SVCHANO1 + 9] = ScrWork[2789];
+    ScrWork[SW_SVCHANO1 + 10] = ScrWork[2809];
+    ScrWork[SW_SVCHANO1 + 11] = ScrWork[2829];
+    ScrWork[SW_SVCHANO1 + 12] = ScrWork[2849];
+    ScrWork[SW_SVCHANO1 + 13] = ScrWork[2869];
+    ScrWork[SW_SVCHANO1 + 14] = ScrWork[2889];
+    ScrWork[SW_SVCHANO1 + 15] = ScrWork[2909];
+    ScrWork[2034] = ScrWork[3200];
+    ScrWork[2035] = ScrWork[3201];
+    ScrWork[2036] = ScrWork[3202];
+    ScrWork[2037] = ScrWork[3203];
+    ScrWork[2038] = ScrWork[3204];
+    ScrWork[2039] = ScrWork[3205];
+    ScrWork[2040] = ScrWork[3206];
+    ScrWork[2041] = ScrWork[3207];
+    ScrWork[2042] = ScrWork[3208];
+    ScrWork[2043] = ScrWork[3209];
+    ScrWork[2044] = ScrWork[3210];
+    ScrWork[2045] = ScrWork[3211];
+    ScrWork[2046] = ScrWork[3212];
+    ScrWork[2047] = ScrWork[3213];
+    ScrWork[2048] = ScrWork[3214];
+    ScrWork[2049] = ScrWork[3215];
+    ScrWork[2050] = ScrWork[3216];
+    ScrWork[2051] = ScrWork[3220];
+    ScrWork[2052] = ScrWork[3221];
+    ScrWork[2053] = ScrWork[3222];
+    ScrWork[2054] = ScrWork[3223];
+    ScrWork[2055] = ScrWork[3224];
+    ScrWork[2056] = ScrWork[3225];
+    ScrWork[2057] = ScrWork[3226];
+    ScrWork[2058] = ScrWork[3227];
+    ScrWork[2059] = ScrWork[3228];
+    ScrWork[2060] = ScrWork[3229];
+    ScrWork[2061] = ScrWork[3230];
+    ScrWork[2062] = ScrWork[3231];
+    ScrWork[2063] = ScrWork[3232];
+    ScrWork[2064] = ScrWork[3233];
+    ScrWork[2065] = ScrWork[3234];
+    ScrWork[2066] = ScrWork[3235];
+    ScrWork[2067] = ScrWork[3236];
 
-      int threadId = ScrWork[SW_MAINTHDP];
-      Sc3VmThread* thd = &ThreadPool[threadId & 0x7FFFFFFF];
-      if (thd != nullptr &&
-          (thd->GroupId == 4 || thd->GroupId == 5 || thd->GroupId == 6)) {
-        thd->ExecPriority = entry->MainThreadExecPriority;
-        thd->WaitCounter = entry->MainThreadWaitCounter;
-        thd->ScriptParam = entry->MainThreadScriptParam;
-        thd->GroupId = entry->MainThreadGroupId >> 16;
-        thd->ScriptBufferId = entry->MainThreadGroupId & 0xFFFF;
-        thd->IpOffset = entry->MainThreadIp;
-        thd->CallStackDepth = entry->MainThreadCallStackDepth;
+    int threadId = ScrWork[SW_MAINTHDP];
+    Sc3VmThread* thd = &ThreadPool[threadId & 0x7FFFFFFF];
+    if (thd != nullptr &&
+        (thd->GroupId == 4 || thd->GroupId == 5 || thd->GroupId == 6)) {
+      thd->ExecPriority = entry->MainThreadExecPriority;
+      thd->WaitCounter = entry->MainThreadWaitCounter;
+      thd->ScriptParam = entry->MainThreadScriptParam;
+      thd->GroupId = entry->MainThreadGroupId >> 16;
+      thd->ScriptBufferId = entry->MainThreadGroupId & 0xFFFF;
+      thd->IpOffset = entry->MainThreadIp;
+      thd->CallStackDepth = entry->MainThreadCallStackDepth;
 
-        for (size_t i = 0; i < thd->CallStackDepth; i++) {
-          thd->ReturnScriptBufferIds[i] = entry->MainThreadReturnBufIds[i];
-          thd->ReturnAddresses[i] = entry->MainThreadReturnAddresses[i];
-        }
-
-        memcpy(thd->Variables, entry->MainThreadVariables.data(),
-               16 * sizeof(int));
-        thd->DialoguePageId = entry->MainThreadDialoguePageId;
+      for (size_t i = 0; i < thd->CallStackDepth; i++) {
+        thd->ReturnScriptBufferIds[i] = entry->MainThreadReturnBufIds[i];
+        thd->ReturnAddresses[i] = entry->MainThreadReturnAddresses[i];
       }
-      WaveLoad(std::span(entry->WaveData));
+
+      memcpy(thd->Variables, entry->MainThreadVariables.data(),
+             16 * sizeof(int));
+      thd->DialoguePageId = entry->MainThreadDialoguePageId;
     }
-}
-
-uint8_t SaveSystem::GetSaveStatus(SaveType type, int id) {
-  switch (type) {
-    case SaveType::Quick:
-      return QuickSaveEntries[id] != nullptr
-                 ? ((SaveFileEntry*)QuickSaveEntries[id])->Status
-                 : 0;
-    case SaveType::Full:
-      return FullSaveEntries[id] != nullptr
-                 ? ((SaveFileEntry*)FullSaveEntries[id])->Status
-                 : 0;
-    default:
-      ImpLog(LogLevel::Error, LogChannel::IO,
-             "Failed to get save status: unknown save type, returning 0\n");
-      return 0;
+    WaveLoad(std::span(entry->WaveData));
   }
 }
 
-int SaveSystem::GetSaveTitle(SaveType type, int id) {
-  switch (type) {
-    case SaveType::Quick:
-      return ((SaveFileEntry*)QuickSaveEntries[id])->SwTitle;
-    case SaveType::Full:
-      return ((SaveFileEntry*)FullSaveEntries[id])->SwTitle;
-    default:
-      ImpLog(LogLevel::Error, LogChannel::IO,
-             "Failed to get save title: unknown save type, returning 0\n");
-      return 0;
-  }
+uint8_t SaveSystem::GetSaveStatus(SaveType type, int id) const {
+  return GetSaveEntry<SaveFileEntry>(type, id)->Status;
 }
 
-uint32_t SaveSystem::GetTipStatus(size_t tipId) {
+int SaveSystem::GetSaveTitle(SaveType type, int id) const {
+  return GetSaveEntry<SaveFileEntry>(type, id)->SwTitle;
+}
+
+uint32_t SaveSystem::GetTipStatus(size_t tipId) const {
   tipId *= 3;
   uint8_t lockStatus = (GameExtraData[tipId >> 3] & Flbit[tipId & 7]) != 0;
   uint8_t newStatus =
@@ -1134,7 +1074,7 @@ void SaveSystem::SetLineRead(int scriptId, int lineId) {
   MessageFlags[offset >> 3] |= Flbit[offset & 0b111];
 }
 
-bool SaveSystem::IsLineRead(int scriptId, int lineId) {
+bool SaveSystem::IsLineRead(int scriptId, int lineId) const {
   if (std::ssize(ScriptMessageData) <= scriptId) return false;
 
   uint32_t offset = ScriptMessageData[scriptId].SaveDataOffset + lineId;
@@ -1145,7 +1085,7 @@ bool SaveSystem::IsLineRead(int scriptId, int lineId) {
 }
 
 void SaveSystem::GetReadMessagesCount(int* totalMessageCount,
-                                      int* readMessageCount) {
+                                      int* readMessageCount) const {
   *totalMessageCount = 0;
   *readMessageCount = 0;
 
@@ -1159,7 +1099,8 @@ void SaveSystem::GetReadMessagesCount(int* totalMessageCount,
   }
 }
 
-void SaveSystem::GetViewedEVsCount(int* totalEVCount, int* viewedEVCount) {
+void SaveSystem::GetViewedEVsCount(int* totalEVCount,
+                                   int* viewedEVCount) const {
   for (int i = 0; i < MaxAlbumEntries; i++) {
     if (AlbumEvData[i][0] == 0xFFFF) break;
     for (int j = 0; j < MaxAlbumSubEntries; j++) {
@@ -1170,7 +1111,7 @@ void SaveSystem::GetViewedEVsCount(int* totalEVCount, int* viewedEVCount) {
   }
 }
 void SaveSystem::GetEVStatus(int evId, int* totalVariations,
-                             int* viewedVariations) {
+                             int* viewedVariations) const {
   *totalVariations = 0;
   *viewedVariations = 0;
   for (int i = 0; i < MaxAlbumSubEntries; i++) {
@@ -1182,12 +1123,13 @@ void SaveSystem::GetEVStatus(int evId, int* totalVariations,
 
 void SaveSystem::SetEVStatus(int id) { EVFlags[id] = true; }
 
-bool SaveSystem::GetEVVariationIsUnlocked(size_t evId, size_t variationIdx) {
+bool SaveSystem::GetEVVariationIsUnlocked(size_t evId,
+                                          size_t variationIdx) const {
   if (AlbumEvData[evId][variationIdx] == 0xFFFF) return false;
   return EVFlags[AlbumEvData[evId][variationIdx]];
 }
 
-bool SaveSystem::GetBgmFlag(int id) { return BGMFlags[id]; }
+bool SaveSystem::GetBgmFlag(int id) const { return BGMFlags[id]; }
 void SaveSystem::SetBgmFlag(int id, bool flag) { BGMFlags[id] = flag; }
 
 void SaveSystem::SaveThumbnailData() {
@@ -1217,15 +1159,7 @@ void SaveSystem::SaveThumbnailData() {
 }
 
 Sprite& SaveSystem::GetSaveThumbnail(SaveType type, int id) {
-  switch (type) {
-    case SaveType::Quick:
-      return QuickSaveEntries[id]->SaveThumbnail;
-    case SaveType::Full:
-      return FullSaveEntries[id]->SaveThumbnail;
-  }
-
-  throw std::invalid_argument(fmt::format(
-      "Tried to get thumbnail of unimplemented save entry type {}", (int)type));
+  return GetSaveEntry<SaveFileEntry>(type, id)->SaveThumbnail;
 }
 
 void SaveSystem::WaveSave(std::span<uint16_t> data) {
