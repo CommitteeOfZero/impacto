@@ -35,6 +35,7 @@ include(root.BasePaths.RootProfilesDir .. '/sgps3/tipssystem.lua');
 include(root.BasePaths.RootProfilesDir .. '/sgps3/vfs.lua');
 include(root.BasePaths.RootProfilesDir .. '/sgps3/sprites.lua');
 include(root.BasePaths.RootProfilesDir .. '/common/animation.lua');
+include(root.BasePaths.RootProfilesDir .. '/common/achievementnotification.lua');
 include(root.BasePaths.RootProfilesDir .. '/sgps3/charset.lua');
 include(root.BasePaths.RootProfilesDir .. '/sgps3/font.lua');
 include(root.BasePaths.RootProfilesDir .. '/sgps3/dialogue.lua');

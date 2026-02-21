@@ -22,6 +22,7 @@ enum class GameFeature : int {
   Video = (1 << 8),
   Subtitles = (1 << 9),
   DebugMenuMultiViewport = (1 << 10),
+  Achievements = (1 << 11),
 };
 
 namespace Game {

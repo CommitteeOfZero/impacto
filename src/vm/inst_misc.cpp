@@ -14,6 +14,7 @@
 #include "../data/savesystem.h"
 #include "../audio/audiosystem.h"
 #include "../text/dialoguepage.h"
+#include "../hud/achievementnotification.h"
 
 #include "../profile/vm.h"
 #include "../games/cc/titlemenu.h"
@@ -55,10 +56,12 @@ VmInstruction(InstSetAchievement) {
   PopUint8(type);
   if (type == 1) {
     PopExpression(arg1);
+    AchievementNotification::Show(arg1);
     ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                "STUB instruction Achievement(type: {:d}, arg1: {:d})\n", type,
                arg1);
   } else {
+    AchievementNotification::Show(type);
     ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                "STUB instruction Achievement(type: {:d})\n", type);
   }
