@@ -1,0 +1,1 @@
+root.AchievementNotificationPath = "games/common/achievementnotification.png";
