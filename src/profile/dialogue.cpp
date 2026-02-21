@@ -7,9 +7,53 @@
 #include "games/chlcc/dialoguebox.h"
 #include "games/cc/dialoguebox.h"
 
+#include "../hud/nametagdisplay.h"
+
 namespace Impacto {
 namespace Profile {
 namespace Dialogue {
+
+static void ConfigureNametag() {
+  NametagCurrentType = NametagType::_from_integral_unchecked(
+      EnsureGetMember<int>("NametagCurrentType"));
+
+  switch (NametagCurrentType) {
+    case NametagType::None:
+      break;
+
+    case NametagType::Sprite:
+      NametagPosition = EnsureGetMember<glm::vec2>("NametagPosition");
+      NametagSprite = EnsureGetMember<Sprite>("NametagSprite");
+      break;
+
+    case NametagType::TwoPiece:
+    case NametagType::ThreePiece:
+      NametagPosition = EnsureGetMember<glm::vec2>("NametagPosition");
+
+      NametagLeftSprite = EnsureGetMember<Sprite>("NametagLeftSprite");
+      NametagRightSprite = EnsureGetMember<Sprite>("NametagRightSprite");
+
+      if (NametagCurrentType == +NametagType::ThreePiece) {
+        NametagMiddleSprite = EnsureGetMember<Sprite>("NametagMiddleSprite");
+        NametagMiddleBaseWidth =
+            EnsureGetMember<float>("NametagMiddleBaseWidth");
+      }
+      break;
+
+    case NametagType::CHLCC:
+      CHLCC::DialogueBox::ConfigureNametag();
+      break;
+
+    case NametagType::CC:
+      CC::DialogueBox::ConfigureNametag();
+      break;
+
+    default:
+      throw std::runtime_error(
+          fmt::format("Tried to configure unknown nametag type {:d}",
+                      static_cast<int>(NametagCurrentType)));
+  }
+}
 
 void Configure() {
   EnsurePushMemberOfType("Dialogue", LUA_TTABLE);
@@ -22,8 +66,6 @@ void Configure() {
 
   ADVBoxSprite = EnsureGetMember<Sprite>("ADVBoxSprite");
   ADVBoxPos = EnsureGetMember<glm::vec2>("ADVBoxPos");
-
-  TryGetMember<bool>("ADVBoxShowName", ADVBoxShowName);
 
   FadeOutDuration = EnsureGetMember<float>("FadeOutDuration");
   FadeInDuration = EnsureGetMember<float>("FadeInDuration");
@@ -197,11 +239,6 @@ void Configure() {
   MaxPageSize = EnsureGetMember<int>("MaxPageSize");
   PageCount = EnsureGetMember<int>("PageCount");
 
-  Impacto::DialoguePages.resize(PageCount);
-  for (DialoguePage& page : Impacto::DialoguePages) {
-    page.Glyphs.reserve(MaxPageSize);
-  }
-
   {
     EnsurePushMemberOfType("ColorTable", LUA_TTABLE);
 
@@ -228,46 +265,9 @@ void Configure() {
 
   ColorTagIsUint8 = EnsureGetMember<bool>("ColorTagIsUint8");
 
-  int NametagCurrentTypeInt;
-  if (!TryGetMember<int>("NametagCurrentType", NametagCurrentTypeInt)) {
-    NametagCurrentTypeInt = 0;  // None
-  }
-  NametagCurrentType =
-      NametagType::_from_integral_unchecked(NametagCurrentTypeInt);
-
-  switch (NametagCurrentType) {
-    case NametagType::Instant: {
-      NameTagAnimProgressShowNew = 0;
-      NameTagAnimProgressHideOld = 0;
-      NameTagDuration = 0;
-      break;
-    }
-    case NametagType::FadeInPauseOut: {
-      NameTagAnimProgressHideOld =
-          EnsureGetMember<float>("NameTagAnimProgressHideOld");
-      NameTagAnimProgressShowNew =
-          EnsureGetMember<float>("NameTagAnimProgressShowNew");
-      NameTagDuration = EnsureGetMember<float>("NameTagAnimDuration");
-      break;
-    }
-    case NametagType::None:
-      break;
-  }
+  ConfigureNametag();
 
   TryGetMember<bool>("HasSpeakerPortraits", HasSpeakerPortraits);
-
-  HaveADVNameTag = TryPushMember("ADVNameTag");
-  if (HaveADVNameTag) {
-    AssertIs(LUA_TTABLE);
-
-    ADVNameTag::Position = EnsureGetMember<glm::vec2>("Position");
-    ADVNameTag::LeftSprite = EnsureGetMember<Sprite>("LeftSprite");
-    ADVNameTag::LineSprite = EnsureGetMember<Sprite>("LineSprite");
-    ADVNameTag::RightSprite = EnsureGetMember<Sprite>("RightSprite");
-    ADVNameTag::BaseLineWidth = EnsureGetMember<float>("BaseLineWidth");
-
-    Pop();
-  }
 
   Pop();
 }

@@ -1,6 +1,7 @@
 #include "autoicondisplay.h"
 
 #include "../profile/dialogue.h"
+#include "../text/dialoguepage.h"
 #include "../renderer/renderer.h"
 
 namespace Impacto {

@@ -22,9 +22,15 @@ root.Dialogue = {
     TextFadeOutDuration = 0.33,
     DialogueBoxCurrentType = DialogueBoxType.Plain,
     NVLBoxMaxOpacity = 0.55,
+
     ADVNameAlignment = TextAlignment.Center,
     ADVNameFontSize = 42,
     ADVNamePos = { X = 168, Y = 974 },
+
+    NametagCurrentType = NametagType.Sprite,
+    NametagPosition = { X = 0, Y = 950 },
+    NametagSprite = "NametagSprite",
+
     WaitIconSpriteAnim = "WaitIconSpriteAnimDef",
     WaitIconCurrentType = WaitIconType.SpriteAnim,
     WaitIconOffset = { X = 0, Y = 0 },
@@ -153,4 +159,7 @@ root.Sprites["MenuButtonActive"] = {
     Bounds = { X = 694, Y = 330, Width = 68, Height = 66 },
 };
 
-include('mo8/nametag.lua');
+root.Sprites["NametagSprite"] = {
+    Sheet = "MesBox",
+    Bounds = { X = 0, Y = 340, Width = 420, Height = 90 }
+};

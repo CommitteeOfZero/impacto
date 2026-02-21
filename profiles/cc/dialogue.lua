@@ -26,12 +26,6 @@ root.Dialogue = {
     ADVBounds = { X = 330, Y = 795, Width = 1240, Height = 270 },
     ADVBoxSprite = "ADVBox",
     ADVBoxMask = "ADVBoxMask",
-    ADVBoxNamePlateMainSprites = {},
-    ADVBoxNamePlateLabelSprites = {},
-    ADVBoxNamePlateMainPos = { X = 0, Y = 764 },
-    ADVBoxNamePlateLabelPos = { X = 0, Y = 988 },
-    ADVBoxNamePlateCount = 80,
-    ADVBoxShowName = false,
     ADVBoxEffectDuration = 10,
     ADVBoxPos = { X = 0, Y = 760 },
     FadeOutDuration = 0.33,
@@ -40,9 +34,21 @@ root.Dialogue = {
     TextFadeOutDuration = 0.33,
     DialogueBoxCurrentType = DialogueBoxType.CC,
     NVLBoxMaxOpacity = 0.55,
+
     ADVNameAlignment = TextAlignment.Left,
     ADVNameFontSize = 33,
     ADVNamePos = { X = 173, Y = 773 },
+
+    NametagCurrentType = NametagType.CC,
+
+    NametagMainSprites = {},
+    NametagLabelSprites = {},
+
+    NametagMainPos = { X = -1, Y = 764 },
+    NametagLabelPos = { X = 0, Y = 988 },
+
+    NametagShowDuration = 16 / 60;
+
     WaitIconCurrentType = WaitIconType.None,
     WaitIconSprite = "WaitIconSprite",
     WaitIconOffset = { X = 1578, Y = 940 },
@@ -97,11 +103,6 @@ root.Dialogue = {
     MaxPageSize = 2000,
     PageCount = 3,
     ColorTagIsUint8 = false,
-    NametagCurrentType = NametagType.FadeInPauseOut,
-    -- NameTag animation: [0:HideOld] - Hide old sprite; (HideOld;ShowNew) - Pause; [ShowNew;1] - Show new sprite
-    NameTagAnimProgressHideOld = 16.0/54.0,
-    NameTagAnimProgressShowNew = 38.0/54.0,
-    NameTagAnimDuration = 0.9
 };
 
 MakeAnimation({
@@ -136,51 +137,49 @@ MakeAnimation({
     PrimaryDirection = AnimationDirections.Right
 });
 
-local namePlateMainX = 0;
-local namePlateMainY = 0;
-local namePlateLabelX = 3600;
-local namePlateLabelY = 0;
-local namePlateMainWidth = 448;
-local namePlateMainHeight = 218;
-local namePlateLabelWidth = 240;
-local namePlateLabelHeight = 40;
+local nametagMainX = 0;
+local nametagMainY = 0;
+local nametagLabelX = 3600;
+local nametagLabelY = 0;
+local nametagMainWidth = 448;
+local nametagMainHeight = 218;
+local nametagLabelWidth = 240;
+local nametagLabelHeight = 40;
 
 for i = 1, 80 do
-    root.Sprites["ADVBoxNamePlateMain" .. i] = {
+    root.Sprites["NametagMainSprite" .. i] = {
         Sheet = "NamePlate",
         Bounds = {
-            X = namePlateMainX,
-            Y = namePlateMainY,
-            Width = namePlateMainWidth,
-            Height = namePlateMainHeight
+            X = nametagMainX,
+            Y = nametagMainY,
+            Width = nametagMainWidth,
+            Height = nametagMainHeight
         }
     };
-    root.Dialogue.ADVBoxNamePlateMainSprites[#root.Dialogue.ADVBoxNamePlateMainSprites + 1] = "ADVBoxNamePlateMain" .. i;
+    root.Dialogue.NametagMainSprites[#root.Dialogue.NametagMainSprites + 1] = "NametagMainSprite" .. i;
 
     if i % 8 == 0 then
-        namePlateMainY = namePlateMainY + namePlateMainHeight;
-        namePlateMainX = 0;
+        nametagMainY = nametagMainY + nametagMainHeight;
+        nametagMainX = 0;
     else
-        namePlateMainX = namePlateMainX + namePlateMainWidth;
+        nametagMainX = nametagMainX + nametagMainWidth;
     end
 
-    root.Sprites["ADVBoxNamePlateLabel" .. i] = {
+    root.Sprites["NametagLabelSprite" .. i] = {
         Sheet = "NamePlate",
         Bounds = {
-            X = namePlateLabelX,
-            Y = namePlateLabelY,
-            Width = namePlateLabelWidth,
-            Height = namePlateLabelHeight
+            X = nametagLabelX,
+            Y = nametagLabelY,
+            Width = nametagLabelWidth,
+            Height = nametagLabelHeight
         }
     };
-    root.Dialogue.ADVBoxNamePlateLabelSprites[#root.Dialogue.ADVBoxNamePlateLabelSprites + 1] = "ADVBoxNamePlateLabel" .. i;
+    root.Dialogue.NametagLabelSprites[#root.Dialogue.NametagLabelSprites + 1] = "NametagLabelSprite" .. i;
 
     if i % 2 == 0 then
-        namePlateLabelX = 3600;
-        namePlateLabelY = namePlateLabelY + namePlateLabelHeight;
+        nametagLabelX = 3600;
+        nametagLabelY = nametagLabelY + nametagLabelHeight;
     else
-        namePlateLabelX = namePlateLabelX + namePlateLabelWidth;
+        nametagLabelX = nametagLabelX + nametagLabelWidth;
     end
 end
-
-include('cc/nametag.lua');

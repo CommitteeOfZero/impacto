@@ -48,9 +48,6 @@ root.Dialogue = {
     TextFadeOutDuration = 0.33,
     DialogueBoxCurrentType = DialogueBoxType.CHLCC,
     NVLBoxMaxOpacity = 0.55,
-    ADVNameAlignment = TextAlignment.Left,
-    ADVNameFontSize = 29,
-    ADVNamePos = { X = 132, Y = 470 },
     WaitIconSpriteAnim = "WaitIconSpriteAnimDef",
     WaitIconCurrentType = WaitIconType.SpriteAnim,
     AutoIconCurrentType = AutoIconType.CHLCC,
@@ -113,7 +110,14 @@ root.Dialogue = {
     MaxPageSize = 2000,
     PageCount = 3,
     ColorTagIsUint8 = false,
-    NametagCurrentType = NametagType.Instant
+
+    ADVNameAlignment = TextAlignment.Left,
+    ADVNameFontSize = 29,
+    ADVNamePos = { X = 132, Y = 470 },
+    NametagCurrentType = NametagType.CHLCC,
+    NametagPosition = { X = -1, Y = 465 },
+    NametagSprite = "NametagSprite",
+    SecondaryNametagSprite = "SecondaryNametagSprite"
 };
 
 MakeAnimation({
@@ -132,4 +136,12 @@ MakeAnimation({
     PrimaryDirection = AnimationDirections.Down,
 });
 
-include('chlcc/nametag.lua');
+root.Sprites["NametagSprite"] = {
+    Sheet = "Data",
+    Bounds = { X = 35, Y = 97, Width = 266, Height = 44 }
+}
+
+root.Sprites["SecondaryNametagSprite"] = {
+    Sheet = "Data",
+    Bounds = { X = 502, Y = 97, Width = 266, Height = 44 }
+}

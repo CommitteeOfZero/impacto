@@ -468,11 +468,11 @@ void InitNamePlateData(Vm::Sc3Stream& stream) {
   } while (stream.PeekU16() != 0xFFFF);
 }
 
-uint32_t GetNameId(uint8_t* name, int nameLength) {
+std::optional<uint32_t> GetNameId(uint8_t* name, int nameLength) {
   uint32_t nameHash = GetHashCode(name, nameLength);
   if (NamePlateData.find(nameHash) != NamePlateData.end())
     return NamePlateData[nameHash];
   else
-    return 0;
+    return std::nullopt;
 }
 }  // namespace Impacto

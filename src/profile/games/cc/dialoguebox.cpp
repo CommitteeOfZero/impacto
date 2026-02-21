@@ -1,7 +1,7 @@
 #include "dialoguebox.h"
+
 #include "../../profile_internal.h"
-#include "../../../log.h"
-#include "../../../renderer/renderer.h"
+#include "../../../hud/cc/nametagdisplay.h"
 
 namespace Impacto {
 namespace Profile {
@@ -11,15 +11,21 @@ namespace DialogueBox {
 void Configure() {
   ADVBoxMask = EnsureGetMember<Sprite>("ADVBoxMask");
   ADVBoxEffectDuration = EnsureGetMember<float>("ADVBoxEffectDuration");
-  const int NamePlateCount = EnsureGetMember<int>("ADVBoxNamePlateCount");
-  GetMemberArray<Sprite>(NamePlateMainSprites, NamePlateCount,
-                         "ADVBoxNamePlateMainSprites");
-  GetMemberArray<Sprite>(NamePlateLabelSprites, NamePlateCount,
-                         "ADVBoxNamePlateLabelSprites");
+}
 
-  ADVBoxNamePlateMainPos = EnsureGetMember<glm::vec2>("ADVBoxNamePlateMainPos");
-  ADVBoxNamePlateLabelPos =
-      EnsureGetMember<glm::vec2>("ADVBoxNamePlateLabelPos");
+void ConfigureNametag() {
+  NametagMainSprites = GetMemberVector<Sprite>("NametagMainSprites");
+  NametagLabelSprites = GetMemberVector<Sprite>("NametagLabelSprites");
+  if (NametagMainSprites.size() != NametagLabelSprites.size()) {
+    throw std::runtime_error(
+        "Number of nametag main sprites not equal to number of "
+        "nametag label sprites");
+  }
+
+  NametagMainPos = EnsureGetMember<glm::vec2>("NametagMainPos");
+  NametagLabelPos = EnsureGetMember<glm::vec2>("NametagLabelPos");
+
+  NametagShowDuration = EnsureGetMember<float>("NametagShowDuration");
 }
 
 }  // namespace DialogueBox
