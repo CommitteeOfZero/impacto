@@ -190,8 +190,10 @@ void TipsMenu::Update(float dt) {
   if (State != Hidden) {
     FadeAnimation.Update(dt);
     TransitionAnimation.Update(dt);
-    for (int i = 0; i < TabCount; i++) {
-      TipsTabs[i]->Update(dt);
+    if (State == Shown) {
+      for (int i = 0; i < TabCount; i++) {
+        TipsTabs[i]->Update(dt);
+      }
     }
   }
 
