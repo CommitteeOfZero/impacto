@@ -544,7 +544,6 @@ void TipsMenu::UpdatePageInput(float dt) {
   UI::TipsMenu::UpdateInput(dt);
 
   auto* curPage = static_cast<Group*>(*ItemsList.GetCurrent());
-  curPage->UpdateInput(dt);
 
   if (CurrentlyFocusedElement != prevEntry && checkScrollBounds()) {
     if (CurrentlyFocusedElement == curPage->GetFirstFocusableChild()) {
@@ -571,7 +570,21 @@ void TipsMenu::UpdatePageInput(float dt) {
       delta = newDelta;
     }
     curPage->Move({0, delta});
+
+    if (TipsEntriesScrollbar && TipsEntriesScrollbar->IsScrollHeld() &&
+        CurrentlyFocusedElement) {
+      // advance focus during drag
+      FocusDirection dir = (delta < 0) ? FDIR_DOWN : FDIR_UP;
+      Widget* startElement = CurrentlyFocusedElement;
+      while (!TipsListBounds.Contains(CurrentlyFocusedElement->Bounds)) {
+        AdvanceFocus(dir);
+        if (CurrentlyFocusedElement == startElement) break;
+      }
+    }
   }
+
+  if (!TipsEntriesScrollbar || !TipsEntriesScrollbar->IsScrollHeld())
+    curPage->UpdateInput(dt);
 }
 
 void TipsMenu::DrawTipsTree() {

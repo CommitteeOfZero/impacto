@@ -206,7 +206,6 @@ void BacklogMenu::UpdateScrollingInput(float dt) {
 
 void BacklogMenu::UpdateInput(float dt) {
   MainScrollbar->UpdateInput(dt);
-  MainItems->UpdateInput(dt);
   UpdatePageUpDownInput(dt);
   UpdateScrollingInput(dt);
 
@@ -248,6 +247,7 @@ void BacklogMenu::Update(float dt) {
     }
 
     MainItems->Update(dt);
+    if (!MainScrollbar->IsScrollHeld()) MainItems->UpdateInput(dt);
     MainScrollbar->Update(dt);
 
     // Handle entry moving out of hover bounds

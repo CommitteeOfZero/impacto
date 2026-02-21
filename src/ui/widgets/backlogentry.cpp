@@ -75,15 +75,13 @@ void BacklogEntry::UpdateInput(float dt) {
   if (Enabled) {
     RectF entryHoverBounds =
         RectF(HoverBounds.X, Bounds.Y, HoverBounds.Width, Bounds.Height);
-    if (Input::CurrentInputDevice == Input::Device::Mouse &&
-        Input::PrevMousePos != Input::CurMousePos) {
+    if (Input::CurrentInputDevice == Input::Device::Mouse) {
       Hovered =
           entryHoverBounds.ContainsPoint(Input::CurMousePos) &&
           HoverBounds.Y <= Bounds.Y &&
           (Bounds.Y + Bounds.Height) <= (HoverBounds.Y + HoverBounds.Height);
     } else if (Input::CurrentInputDevice == Input::Device::Touch &&
-               Input::TouchIsDown[0] &&
-               Input::PrevMousePos != Input::CurTouchPos) {
+               Input::TouchIsDown[0]) {
       Hovered =
           entryHoverBounds.ContainsPoint(Input::CurTouchPos) &&
           HoverBounds.Y <= Bounds.Y &&

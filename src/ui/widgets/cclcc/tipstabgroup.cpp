@@ -10,6 +10,8 @@
 #include "../../../text/text.h"
 #include "../../../vm/vm.h"
 #include "../../../profile/game.h"
+#include <cmath>
+#include <limits>
 
 namespace Impacto {
 namespace UI {
@@ -73,8 +75,6 @@ TipsTabGroup::TipsTabGroup(
 void TipsTabGroup::UpdatePageInput(float dt) {
   using namespace Vm::Interface;
   if (IsFocused) {
-    TipsEntriesGroup.UpdateInput(dt);
-
     auto prevEntry = CurrentlyFocusedElement;
     TipsEntriesScrollbar->UpdateInput(dt);
 
@@ -189,8 +189,30 @@ void TipsTabGroup::Update(float dt) {
       TipsEntriesScrollbar->Update(dt);
       TipsEntriesScrollbar->UpdateInput(dt);
       if (oldScrollPosY != ScrollPosY) {
-        TipsEntriesGroup.Move({0, oldScrollPosY - ScrollPosY});
+        float delta = oldScrollPosY - ScrollPosY;
+        // taken from CHLCC
+        if (std::fmod(std::abs(delta), TipsEntryBounds.Height) >
+            std::numeric_limits<float>::epsilon()) {
+          const float newDelta = std::round(delta / TipsEntryBounds.Height) *
+                                 TipsEntryBounds.Height;
+          ScrollPosY = oldScrollPosY - newDelta;
+          delta = newDelta;
+        }
+        TipsEntriesGroup.Move({0, delta});
+
+        if (TipsEntriesScrollbar->IsScrollHeld() && CurrentlyFocusedElement) {
+          // advance focus during drag
+          FocusDirection dir = (delta < 0) ? FDIR_DOWN : FDIR_UP;
+          int steps =
+              static_cast<int>(std::abs(delta) / TipsEntryBounds.Height);
+          for (int i = 0; i < steps; i++) {
+            AdvanceFocus(dir);
+          }
+        }
       }
+
+      if (!TipsEntriesScrollbar->IsScrollHeld())
+        TipsEntriesGroup.UpdateInput(dt);
     }
   }
 }
@@ -265,6 +287,7 @@ void TipsTabGroup::UpdateTipsEntries(std::vector<int> const& SortedTipIds) {
       0, TipsScrollStartPos, 0.0f, std::max(0.0f, (float)scrollDistance),
       &ScrollPosY, SBDIR_VERTICAL, TipsScrollThumbSprite, TipsScrollTrackBounds,
       TipsScrollThumbLength, TipsTabBounds);
+  TipsEntriesScrollbar->Step = TipsEntryBounds.Height;
   TipsEntriesGroup.RenderingBounds = TipsTabBounds;
   TipsEntriesGroup.HoverBounds = TipsTabBounds;
   TabName.Reset();

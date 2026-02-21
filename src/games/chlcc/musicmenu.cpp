@@ -393,17 +393,6 @@ void MusicMenu::UpdateInput(float dt) {
         ScrollY = 0;
       } else if (CurrentlyFocusedElement == MainItems->Children.back()) {
         ScrollY = MainScrollbar.EndValue;
-      } else {
-        float targetScroll = CurrentlyFocusedElement->Bounds.Y -
-                             MainItems->GetFirstFocusableChild()->Bounds.Y;
-        // if focused item is out of bounds, we scroll to it if focus has
-        // changed
-        if (targetScroll <= ScrollY) {
-          ScrollY = targetScroll;
-        } else {
-          ScrollY = targetScroll - SelectableItemsPerPage * TrackOffset.y;
-        }
-        MainScrollbar.ClampValue();
       }
     }
 
@@ -427,7 +416,6 @@ void MusicMenu::UpdateInput(float dt) {
       MainScrollbar.ClampValue();
     }
 
-    MainItems->UpdateInput(dt);
     MainScrollbar.UpdateInput(dt);
     PlayModeRepeatClickArea.UpdateInput(dt);
     PlayModeAllClickArea.UpdateInput(dt);
@@ -447,7 +435,18 @@ void MusicMenu::UpdateInput(float dt) {
         auto button = static_cast<Widgets::CHLCC::TrackSelectButton*>(child);
         button->MoveTracks(itemsPos);
       }
+
+      if (MainScrollbar.IsScrollHeld() && CurrentlyFocusedElement) {
+        // advance focus during drag
+        FocusDirection dir = (delta < 0) ? FDIR_DOWN : FDIR_UP;
+        int steps = static_cast<int>(std::abs(delta) / TrackOffset.y);
+        for (int i = 0; i < steps; i++) {
+          AdvanceFocus(dir);
+        }
+      }
     }
+
+    if (!MainScrollbar.IsScrollHeld()) MainItems->UpdateInput(dt);
 
     if (PADinputButtonWentDown & PAD1Y) {
       ++PlaybackMode;
