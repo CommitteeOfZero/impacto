@@ -1,8 +1,8 @@
 #include "dialoguebox.h"
 
-#include "../games/mo6tw/dialoguebox.h"
-#include "../games/chlcc/dialoguebox.h"
-#include "../games/cc/dialoguebox.h"
+#include "mo6tw/dialoguebox.h"
+#include "chlcc/dialoguebox.h"
+#include "cc/dialoguebox.h"
 
 #include "../text/dialoguepage.h"
 #include "../renderer/renderer.h"

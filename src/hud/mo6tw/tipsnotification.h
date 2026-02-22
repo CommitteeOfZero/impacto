@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../hud/tipsnotification.h"
+#include "../tipsnotification.h"
 #include "../../ui/widgets/label.h"
 #include "../../ui/widgets/group.h"
 

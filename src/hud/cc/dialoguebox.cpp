@@ -1,6 +1,6 @@
 #include "dialoguebox.h"
 
-#include "../../hud/nametagdisplay.h"
+#include "../nametagdisplay.h"
 #include "../../text/dialoguepage.h"
 #include "../../renderer/renderer.h"
 #include "../../profile/dialogue.h"

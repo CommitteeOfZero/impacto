@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../hud/datedisplay.h"
+#include "../datedisplay.h"
 
 namespace Impacto {
 namespace RNE {

@@ -1,11 +1,11 @@
 #pragma once
 
-#include "../../hud/tipsnotification.h"
+#include "../tipsnotification.h"
 #include "../../ui/widgets/label.h"
-#include "../../ui/widgets/group.h"
+#include "../../sequencedanimation.h"
 
 namespace Impacto {
-namespace CCLCC {
+namespace CHLCC {
 
 using namespace Impacto::TipsNotification;
 
@@ -17,15 +17,22 @@ class TipsNotification : public TipsNotificationBase {
   void Render() override;
   void AddTip(int tipId) override;
 
- protected:
-  Animation Timer;
+ private:
+  UI::Widgets::Label Header;
 
   UI::Widgets::Label TextPartBefore;
   UI::Widgets::Label TextPartAfter;
   UI::Widgets::Label TipName;
 
-  float PositionY;
+  SequencedAnimation TipsAnimation;
+
+  Animation FadeOutAnimation;
+  Animation SlideAnimation;
+  Animation HoldAnimation;
+
+  bool FirstInQueue = true;
+  bool FirstIsRendering = false;
 };
 
-}  // namespace CCLCC
+}  // namespace CHLCC
 }  // namespace Impacto

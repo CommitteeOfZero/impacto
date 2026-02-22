@@ -13,10 +13,6 @@
 #include "../hud/dialoguebox.h"
 #include "../hud/tipsnotification.h"
 
-#include "../games/mo6tw/dialoguebox.h"
-#include "../games/chlcc/dialoguebox.h"
-#include "../games/cc/dialoguebox.h"
-
 #include "../audio/audiostream.h"
 #include "../audio/audiosystem.h"
 #include "../audio/audiostream.h"

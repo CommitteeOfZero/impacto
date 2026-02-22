@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../hud/dialoguebox.h"
+#include "../dialoguebox.h"
 
 namespace Impacto {
 namespace MO6TW {
