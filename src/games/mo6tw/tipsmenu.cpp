@@ -91,7 +91,7 @@ void TipsMenu::UpdateInput(float dt) {
     ItemsList.UpdateInput(dt);
     if (CurrentlyDisplayedTipId != -1) {
       if (PADinputButtonWentDown & PAD1X) {
-        NextTipPage();
+        AdvanceTipPage(TipAdvanceMode::NextLooped);
       }
     }
   }
@@ -279,11 +279,26 @@ void TipsMenu::SwitchToTipId(int id) {
   TextPage.AddString(&dummy);
 }
 
-void TipsMenu::NextTipPage() {
-  CurrentTipPage += 1;
+void TipsMenu::AdvanceTipPage(TipAdvanceMode mode) {
   auto currentRecord = TipsSystem::GetTipRecord(CurrentlyDisplayedTipId);
-  if (CurrentTipPage > currentRecord->NumberOfContentStrings)
-    CurrentTipPage = 1;
+  const int numberOfContentStrings =
+      static_cast<int>(currentRecord->NumberOfContentStrings);
+  if (numberOfContentStrings == 1) return;
+  CurrentTipPage += mode == TipAdvanceMode::PrevClamped ? -1 : 1;
+  switch (mode) {
+    case TipAdvanceMode::PrevClamped: {
+      CurrentTipPage = std::max(CurrentTipPage, 1);
+      break;
+    }
+    case TipAdvanceMode::NextClamped: {
+      CurrentTipPage = std::min(CurrentTipPage, numberOfContentStrings);
+      break;
+    }
+    case TipAdvanceMode::NextLooped: {
+      if (CurrentTipPage > numberOfContentStrings) CurrentTipPage = 1;
+      break;
+    }
+  }
 
   TextPage.Clear();
   Vm::Sc3VmThread dummy;

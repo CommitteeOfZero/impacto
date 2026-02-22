@@ -5,10 +5,10 @@
 #include "../../ui/tipsmenu.h"
 #include "../../ui/widgets/group.h"
 #include "../../ui/widgets/button.h"
+#include "../../ui/widgets/clickarea.h"
 #include "../../ui/widgets/carousel.h"
 #include "../../ui/widgets/label.h"
 #include "../../ui/widgets/scrollbar.h"
-#include "../../data/tipssystem.h"
 
 namespace Impacto {
 namespace UI {
@@ -31,7 +31,7 @@ class TipsMenu : public UI::TipsMenu {
 
  protected:
   void SwitchToTipId(int id) override;
-  void NextTipPage() override;
+  void AdvanceTipPage(TipAdvanceMode mode) override;
 
  private:
   void DrawCircles();
@@ -42,11 +42,12 @@ class TipsMenu : public UI::TipsMenu {
   void UpdateTitles();
   void HandlePageChange(Widget* cur, Widget* next);
 
+  Widgets::ClickArea PrevPageTipClickArea;
+  Widgets::ClickArea NextPageTipClickArea;
   Animation TitleFade;
   Animation FromSystemMenuTransition;
   SelectPromptAnimation SelectAnimation;
   MenuTransitionAnimation MenuTransition;
-
   glm::vec2 RedTitleLabelPos;
   glm::vec2 RightTitlePos;
   glm::vec2 LeftTitlePos;

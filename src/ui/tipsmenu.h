@@ -1,13 +1,14 @@
 #pragma once
 
 #include "menu.h"
-#include "../text/text.h"
 #include "../text/dialoguepage.h"
-#include "../ui/widgets/group.h"
 #include "../ui/widgets/label.h"
 
 namespace Impacto {
 namespace UI {
+
+// "Clamped" can't go outside [min,max], "Looped" loopes from last to first
+enum class TipAdvanceMode : uint8_t { PrevClamped, NextClamped, NextLooped };
 
 class TipsMenu : public Menu {
  public:
@@ -20,7 +21,7 @@ class TipsMenu : public Menu {
 
  protected:
   virtual void SwitchToTipId(int id);
-  virtual void NextTipPage();
+  virtual void AdvanceTipPage(TipAdvanceMode mode);
 
   int CurrentlyDisplayedTipId = -1;
 

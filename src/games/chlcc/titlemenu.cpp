@@ -27,6 +27,8 @@ void TitleMenu::MenuButtonOnClick(Widgets::Button* target) {
   target->Hovered = false;
   ScrWork[SW_TITLECUR1] = target->Id;
   ChoiceMade = true;
+  // disable focus immediately, so MainItems couldn't get stuck being hovered
+  MainItems->HasFocus = false;
 }
 
 void TitleMenu::SecondaryButtonOnClick(Widgets::Button* target) {
