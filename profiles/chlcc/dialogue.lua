@@ -120,7 +120,7 @@ MakeAnimation({
     Name = "WaitIconSpriteAnimDef",
     Sheet = "Data",
     FirstFrameX = 0,
-    FirstFrameY = 96,
+    FirstFrameY = 97,
     FrameWidth = 34,
     ColWidth = 34,
     FrameHeight = 34,

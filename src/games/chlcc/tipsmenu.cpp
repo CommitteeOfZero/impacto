@@ -9,8 +9,9 @@
 #include "../../data/tipssystem.h"
 #include "../../vm/interface/input.h"
 #include "../../profile/game.h"
-#include "../../profile/charset.h"
 #include "../../ui/widgets/chlcc/tipsentrybutton.h"
+#include "../../inputsystem.h"
+
 #include <numeric>
 
 namespace Impacto {
@@ -210,8 +211,26 @@ void TipsMenu::UpdateInput(float dt) {
     UpdatePageInput(dt);
     if (CurrentlyDisplayedTipId != -1) {
       if (PADinputButtonWentDown & PAD1X) {
-        NextTipPage();
+        AdvanceTipPage(TipAdvanceMode::NextLooped);
       }
+
+      if (Input::CurrentInputDevice == Input::Device::Mouse) {
+        const RectF tipBox(CurrentTipBackgroundPosition.x,
+                           CurrentTipBackgroundPosition.y,
+                           CurrentTipBackgroundSprite.Bounds.Width,
+                           CurrentTipBackgroundSprite.Bounds.Height);
+
+        if (tipBox.ContainsPoint(Input::CurMousePos)) {
+          if (Input::MouseWheelDeltaY > 0.0f) {
+            AdvanceTipPage(TipAdvanceMode::PrevClamped);
+          } else if (Input::MouseWheelDeltaY < 0.0f) {
+            AdvanceTipPage(TipAdvanceMode::NextClamped);
+          }
+        }
+      }
+
+      PrevPageTipClickArea.UpdateInput(dt);
+      NextPageTipClickArea.UpdateInput(dt);
     }
   }
 }
@@ -264,16 +283,20 @@ void TipsMenu::Update(float dt) {
     }
     TitleFade.Update(dt);
     UpdateTitles();
+    if (TipsEntriesScrollbar) {
+      TipsEntriesScrollbar->Update(dt);
+    }
+
+    if (CurrentlyDisplayedTipId != -1) {
+      PrevPageTipClickArea.Update(dt);
+      NextPageTipClickArea.Update(dt);
+    }
   }
 
   if (State == Shown) {
     UpdateInput(dt);
     ItemsList.Update(dt);
     TipViewItems.Update(dt);
-  }
-
-  if (TipsEntriesScrollbar) {
-    TipsEntriesScrollbar->Update(dt);
   }
 }
 
@@ -467,6 +490,21 @@ void TipsMenu::Init() {
   TotalPages = new Label();
   TotalPages->Bounds.SetPos(TotalPagesPosition);
   TipViewItems.Add(TotalPages);
+
+  // use size from CurrentPageSprite and use Y coord from CurrentPagePos
+  const glm::vec2 pageNumberSize = CurrentPageSprites[0].Bounds.GetSize();
+  RectF pagerBounds = RectF(CurrentPagePosition.x, CurrentPagePosition.y,
+                            pageNumberSize.x, pageNumberSize.y);
+  const std::function<void(ClickArea*)> onClickPrev = [this](auto* btn) {
+    return AdvanceTipPage(TipAdvanceMode::PrevClamped);
+  };
+  PrevPageTipClickArea = ClickArea(0, pagerBounds, onClickPrev);
+
+  pagerBounds.X = TotalPagesPosition.x;
+  const std::function<void(ClickArea*)> onClickNext = [this](auto* btn) {
+    return AdvanceTipPage(TipAdvanceMode::NextClamped);
+  };
+  NextPageTipClickArea = ClickArea(1, pagerBounds, onClickNext);
 }
 
 void TipsMenu::DrawCircles() {
@@ -721,12 +759,26 @@ void TipsMenu::SwitchToTipId(int id) {
   TextPage.AddString(&dummy);
 }
 
-void TipsMenu::NextTipPage() {
+void TipsMenu::AdvanceTipPage(TipAdvanceMode mode) {
   auto currentRecord = TipsSystem::GetTipRecord(CurrentlyDisplayedTipId);
-  if (currentRecord->NumberOfContentStrings == 1) return;
-  CurrentTipPage += 1;
-  if (CurrentTipPage > currentRecord->NumberOfContentStrings)
-    CurrentTipPage = 1;
+  const int numberOfContentStrings =
+      static_cast<int>(currentRecord->NumberOfContentStrings);
+  if (numberOfContentStrings == 1) return;
+  CurrentTipPage += mode == TipAdvanceMode::PrevClamped ? -1 : 1;
+  switch (mode) {
+    case TipAdvanceMode::PrevClamped: {
+      CurrentTipPage = std::max(CurrentTipPage, 1);
+      break;
+    }
+    case TipAdvanceMode::NextClamped: {
+      CurrentTipPage = std::min(CurrentTipPage, numberOfContentStrings);
+      break;
+    }
+    case TipAdvanceMode::NextLooped: {
+      if (CurrentTipPage > numberOfContentStrings) CurrentTipPage = 1;
+      break;
+    }
+  }
 
   TextPage.Clear();
   Vm::Sc3VmThread dummy;

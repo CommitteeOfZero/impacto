@@ -9,7 +9,7 @@ void TipsMenu::Hide() {}
 void TipsMenu::Update(float dt) {}
 void TipsMenu::Render() {}
 void TipsMenu::SwitchToTipId(int id) {}
-void TipsMenu::NextTipPage() {}
+void TipsMenu::AdvanceTipPage(TipAdvanceMode mode) {}
 
 }  // namespace UI
 }  // namespace Impacto

@@ -5,7 +5,6 @@
 #include "../../ui/widgets/button.h"
 #include "../../ui/widgets/carousel.h"
 #include "../../ui/widgets/label.h"
-#include "../../data/tipssystem.h"
 
 namespace Impacto {
 namespace UI {
@@ -27,7 +26,7 @@ class TipsMenu : public UI::TipsMenu {
 
  protected:
   void SwitchToTipId(int id);
-  void NextTipPage();
+  void AdvanceTipPage(TipAdvanceMode mode);
 
  private:
   int CurrentTipPage = 1;
