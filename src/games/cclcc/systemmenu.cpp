@@ -22,7 +22,6 @@ using namespace Impacto::UI::Widgets::CCLCC;
 using namespace Impacto::Input;
 
 void SystemMenu::MenuButtonOnClick(Widgets::Button* target) {
-  target->Hovered = false;
   bool targetButtonLocked = static_cast<SysMenuButton*>(target)->IsLocked;
   Audio::PlayInGroup(Audio::ACG_SE, "sysse", targetButtonLocked ? 4 : 2, false,
                      0);

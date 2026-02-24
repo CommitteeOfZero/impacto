@@ -11,6 +11,21 @@ namespace Impacto {
 namespace UI {
 namespace CHLCC {
 
+enum class TitleDispCtState : uint8_t {
+  IntroAnimation = 0,
+  PressStart = 1,
+  EmptyBackground = 2,
+  MainEntriesFading = 3,
+  MainEntriesControl = 4,
+  // 5 and 6 go unused
+  LoadSubEntriesFading = 7,
+  LoadSubEntriesControl = 8,
+  ExtraSubEntriesFading = 9,
+  ExtraSubEntriesControl = 10,
+  SystemSubEntriesFading = 11,
+  SystemSubEntriesControl = 12,
+};
+
 class TitleMenu : public Menu {
  public:
   TitleMenu();

@@ -32,7 +32,6 @@ void TitleMenu::MenuButtonOnClick(Widgets::Button* target) {
 }
 
 void TitleMenu::SecondaryButtonOnClick(Widgets::Button* target) {
-  target->Hovered = false;
   ScrWork[SW_TITLECUR2] = target->Id;
   ChoiceMade = true;
 }
@@ -292,32 +291,31 @@ void TitleMenu::Update(float dt) {
 
   if (GetFlag(SF_TITLEMODE)) {
     Show();
-  } else if (ScrWork[SW_TITLECT] < 32) {
-    ItemsFadeInAnimation.StartOut();
-    SecondaryItemsFadeInAnimation.StartOut();
+  } else if (State == Shown && !IsFocused) {
+    // when loading/starting a game from a submenu
     Hide();
   }
 
   if (State == Shown && IsFocused) {
     MainItems->Tint.a =
         glm::smoothstep(0.0f, 1.0f, PrimaryFadeAnimation.Progress);
-    MainItems->Update(dt);
     MainItems->UpdateInput(dt);
+    MainItems->Update(dt);
     LoadItems->Tint.a =
         glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
-    LoadItems->Update(dt);
     LoadItems->UpdateInput(dt);
+    LoadItems->Update(dt);
     CurrentExtraItems->Tint.a =
         glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
+    CurrentExtraItems->UpdateInput(dt);
     CurrentExtraItems->Update(dt);
-    SystemItems->UpdateInput(dt);
     SystemItems->Tint.a =
         glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
+    SystemItems->UpdateInput(dt);
     SystemItems->Update(dt);
-    CurrentExtraItems->UpdateInput(dt);
 
-    switch (ScrWork[SW_TITLEDISPCT]) {
-      case 0: {
+    switch (static_cast<TitleDispCtState>(ScrWork[SW_TITLEDISPCT])) {
+      case TitleDispCtState::IntroAnimation: {
         if (IntroSequence.IntroAnimation.IsIn() && ScrWork[SW_TITLECT] == 0) {
           ResetIntroSequence();
         }
@@ -348,12 +346,18 @@ void TitleMenu::Update(float dt) {
           LoadItems->Hide();
         }
       } break;
-      case 1: {
+      case TitleDispCtState::PressStart: {
+        if (!GetFlag(SF_TITLEMODE)) {
+          ItemsFadeInAnimation.StartOut();
+          SecondaryItemsFadeInAnimation.StartOut();
+          Hide();
+          break;
+        }
         if (PressToStartAnimation.State == AnimationState::Stopped) {
           PressToStartAnimation.StartIn();
         }
       } break;
-      case 3: {  // Main Menu Fade In
+      case TitleDispCtState::MainEntriesFading: {
         if (MainItems->VisibilityState == Hidden && ScrWork[SW_TITLECT] == 0) {
           MainItems->Show();
           MainItems->Tint.a = 0.0f;
@@ -362,9 +366,23 @@ void TitleMenu::Update(float dt) {
           PrimaryFadeAnimation.DurationIn = PrimaryFadeInDuration;
           PrimaryFadeAnimation.DurationOut = PrimaryFadeOutDuration;
           PrimaryFadeAnimation.StartIn();
+
+        } else if (MainItems->VisibilityState != Hidden &&
+                   ScrWork[SW_TITLECT] == 32) {
+          PrimaryFadeAnimation.StartOut();
+
+        } else if (ScrWork[SW_TITLECT] == 0) {
+          MainItems->Hide();
         }
       } break;
-      case 7: {  // Secondary menu Load Fade In
+      case TitleDispCtState::MainEntriesControl: {
+        if (!GetFlag(SF_TITLEMODE)) {
+          ItemsFadeInAnimation.StartOut();
+          SecondaryItemsFadeInAnimation.StartOut();
+          Hide();
+        }
+      } break;
+      case TitleDispCtState::LoadSubEntriesFading: {
         if (LoadItems->VisibilityState == Hidden && ScrWork[SW_TITLECT] == 0) {
           LoadItems->Show();
           LoadItems->Tint.a = 0.0f;
@@ -385,7 +403,7 @@ void TitleMenu::Update(float dt) {
           MainItems->HasFocus = true;
         }
       } break;
-      case 9: {  // Secondary menu Extra Fade In
+      case TitleDispCtState::ExtraSubEntriesFading: {
         if (CurrentExtraItems->VisibilityState == Hidden &&
             ScrWork[SW_TITLECT] == 0) {
           CurrentExtraItems->Show();
@@ -406,7 +424,7 @@ void TitleMenu::Update(float dt) {
           MainItems->HasFocus = true;
         }
       } break;
-      case 11: {  // Secondary menu System Fade In
+      case TitleDispCtState::SystemSubEntriesFading: {
         if (SystemItems->VisibilityState == Hidden &&
             ScrWork[SW_TITLECT] == 0) {
           SystemItems->Show();
@@ -427,6 +445,8 @@ void TitleMenu::Update(float dt) {
           MainItems->HasFocus = true;
         }
       } break;
+      default:
+        break;
     }
   }
 }
@@ -434,8 +454,8 @@ void TitleMenu::Update(float dt) {
 void TitleMenu::Render() {
   if (State != Hidden && GetFlag(SF_TITLEMODE)) {
     if (ScrWork[SW_MENUCT] < 64) {
-      switch (ScrWork[SW_TITLEDISPCT]) {
-        case 0: {  // Initial animation
+      switch (static_cast<TitleDispCtState>(ScrWork[SW_TITLEDISPCT])) {
+        case TitleDispCtState::IntroAnimation: {
           if (IntroSequence.FallingStarsAnimation.IsIn()) {
             Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f));
           }
@@ -446,17 +466,17 @@ void TitleMenu::Render() {
 
           IntroSequence.Render();
         } break;
-        case 1: {  // Press to start
+        case TitleDispCtState::PressStart: {
           DrawTitleMenuBackGraphics();
           glm::vec4 col = glm::vec4(1.0f);
           col.a = glm::smoothstep(0.0f, 1.0f, PressToStartAnimation.Progress);
           Renderer->DrawSprite(PressToStartSprite,
                                glm::vec2(PressToStartX, PressToStartY), col);
         } break;
-        case 2: {  // Transition between Press to start and menus
+        case TitleDispCtState::EmptyBackground: {
           DrawTitleMenuBackGraphics();
         } break;
-        case 3: {  // MenuItems Fade In
+        case TitleDispCtState::MainEntriesFading: {
           if (ItemsFadeInAnimation.IsOut() &&
               ItemsFadeInAnimation.State != AnimationState::Playing)
             ItemsFadeInAnimation.StartIn();
@@ -465,37 +485,39 @@ void TitleMenu::Render() {
           DrawTitleMenuBackGraphics();
           MainItems->Render();
         } break;
-        case 4: {  // Main Menu
+        case TitleDispCtState::MainEntriesControl: {
           DrawTitleMenuBackGraphics();
           MainItems->Render();
         } break;
-        case 7: {  // Secondary menu LOAD Fade In
+        case TitleDispCtState::LoadSubEntriesFading: {
           DrawTitleMenuBackGraphics();
           MainItems->Render();
         } break;
-        case 8: {  // Secondary menu LOAD
+        case TitleDispCtState::LoadSubEntriesControl: {
           DrawTitleMenuBackGraphics();
           LoadItems->Render();
           MainItems->Render();
         } break;
-        case 9: {  // Secondary menu EXTRAS Fade In
+        case TitleDispCtState::ExtraSubEntriesFading: {
           DrawTitleMenuBackGraphics();
           MainItems->Render();
         } break;
-        case 10: {  // Secondary menu EXTRAS
+        case TitleDispCtState::ExtraSubEntriesControl: {
           DrawTitleMenuBackGraphics();
           CurrentExtraItems->Render();
           MainItems->Render();
         } break;
-        case 11: {  // Secondary menu SYSTEM Fade In
+        case TitleDispCtState::SystemSubEntriesFading: {
           DrawTitleMenuBackGraphics();
           MainItems->Render();
         } break;
-        case 12: {  // Secondary menu SYSTEM
+        case TitleDispCtState::SystemSubEntriesControl: {
           DrawTitleMenuBackGraphics();
           SystemItems->Render();
           MainItems->Render();
         } break;
+        default:
+          break;
       }
     }
 

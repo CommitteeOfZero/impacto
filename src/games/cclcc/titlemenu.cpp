@@ -29,7 +29,6 @@ using namespace Impacto::Vm::Interface;
 using namespace Impacto::UI::Widgets::CCLCC;
 
 void TitleMenu::MenuButtonOnClick(Widgets::Button* target) {
-  target->Hovered = false;
   TitleButton* button = static_cast<TitleButton*>(target);
   Audio::PlayInGroup(Audio::ACG_SE, "sysse", 2, false, 0);
   button->ChoiceBlinkAnimation.StartIn();
