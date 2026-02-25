@@ -958,6 +958,34 @@ void Background2D::RenderExplode() {
   }
 
   UpdateExplode(static_cast<float>(FadeCount));
+
+  static std::array<VertexBufferSprites, ExplodeTris.size() * 3> vertices;
+  size_t vertexIdx = 0;
+  for (const ExplodeTri& tri : ExplodeTris) {
+    const glm::mat4 transformationMatrix =
+        TransformationMatrix({0.0f, 0.0f}, {1.0f, 1.0f}, glm::vec3(0.0f),
+                             tri.Rotation, tri.DisplayPosition);
+
+    for (size_t i = 0; i < 3; i++) {
+      vertices[vertexIdx + i] = VertexBufferSprites{
+          .Position = transformationMatrix *
+                      glm::vec4(tri.VertexOffsets[i], 0.0f, 1.0f),
+          .UV = tri.SpritePositions[i],
+          .Tint = {1.0f, 1.0f, 1.0f, tri.Alpha},
+      };
+    }
+
+    vertexIdx += 3;
+  }
+
+  const static std::array<uint16_t, vertices.size()> indices = []() {
+    std::array<uint16_t, vertices.size()> tempIndices;
+    std::iota(tempIndices.begin(), tempIndices.end(), 0);
+    return tempIndices;
+  }();
+
+  Renderer->DrawPrimitives(RenderSprite.Sheet, ShaderProgramType::Sprite,
+                           vertices, indices, glm::mat4(1.0f));
 }
 
 bool IsBgWaveEffectActive() {
