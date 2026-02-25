@@ -13,7 +13,7 @@ MosaicEffect::MosaicEffect()
 }
 
 MosaicEffect::~MosaicEffect() {
-  Renderer->FreeTexture(CaptureSprite.Sheet.Texture);
+  if (Renderer) Renderer->FreeTexture(CaptureSprite.Sheet.Texture);
 }
 
 void MosaicEffect::Init() {
