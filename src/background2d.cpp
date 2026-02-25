@@ -1,6 +1,8 @@
 #include "background2d.h"
 
+#include <ranges>
 #include <numeric>
+#include <glm/ext/quaternion_exponential.hpp>
 
 #include "mask2d.h"
 #include "mem.h"
@@ -924,11 +926,38 @@ void ResetExplodeTris(const Sprite& renderSprite) {
   }
 }
 
+static void UpdateExplode(float fadeCount) {
+  // Don't run this every frame; only when the fadeCount changed
+  static float lastFadeCount = -1.0f;
+  if (lastFadeCount == fadeCount) return;
+  lastFadeCount = fadeCount;
+
+  bool anyTriVisible = false;
+  for (ExplodeTri& tri : ExplodeTris) {
+    tri.DisplayPosition =
+        tri.InitialDisplayPosition + tri.TranslationSpeed * fadeCount;
+    tri.Rotation = glm::pow(tri.RotationSpeed, fadeCount);
+
+    [[maybe_unused]] constexpr float fadeCountMax = 64.0f;
+    constexpr float fadeOutDuration = 32.0f;
+    const float fadeOutProgress =
+        (fadeCount - tri.StartFadeOutTime) / fadeOutDuration;
+    tri.Alpha = std::clamp(1.0f - fadeOutProgress, 0.0f, 1.0f);
+    assert(tri.StartFadeOutTime + fadeOutDuration <= fadeCountMax);
+
+    anyTriVisible |= tri.Alpha > 0.0f;
+  }
+
+  SetFlag(SF_BGEXPLOSIONVISIBLE, anyTriVisible);
+}
+
 void Background2D::RenderExplode() {
   if (FadeCount == -1) {
     ResetExplodeTris(RenderSprite);
     return;
   }
+
+  UpdateExplode(static_cast<float>(FadeCount));
 }
 
 bool IsBgWaveEffectActive() {
