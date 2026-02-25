@@ -183,12 +183,11 @@ void Configure() {
       Profile::TitleMenu::PressToStartAnimDurationOut;
   menu->PressToStartAnimation.LoopMode = AnimationLoopMode::ReverseDirection;
 
-  menu->ItemsFadeInAnimation.DurationIn = ItemFadeInDuration;
-  menu->ItemsFadeInAnimation.DurationOut = ItemFadeOutDuration;
+  menu->PrimaryFadeAnimation.DurationIn = PrimaryFadeInDuration;
+  menu->PrimaryFadeAnimation.DurationOut = PrimaryFadeOutDuration;
 
-  menu->SecondaryItemsFadeInAnimation.DurationIn = SecondaryItemFadeInDuration;
-  menu->SecondaryItemsFadeInAnimation.DurationOut =
-      SecondaryItemFadeOutDuration;
+  menu->SecondaryFadeAnimation.DurationIn = SecondaryFadeInDuration;
+  menu->SecondaryFadeAnimation.DurationOut = SecondaryFadeOutDuration;
 
   menu->SpinningCircleAnimation.LoopMode = AnimationLoopMode::Loop;
   menu->SpinningCircleAnimation.SetDuration(SpinningCircleAnimationDuration);

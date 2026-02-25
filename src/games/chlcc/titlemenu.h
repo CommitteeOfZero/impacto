@@ -38,8 +38,6 @@ class TitleMenu : public Menu {
   Animation PressToStartAnimation;
   Animation PrimaryFadeAnimation;
   Animation SecondaryFadeAnimation;
-  Animation ItemsFadeInAnimation;
-  Animation SecondaryItemsFadeInAnimation;
   Animation SpinningCircleAnimation;
   Animation SpinningCircleFlashingAnimation;
 

@@ -4,7 +4,6 @@
 
 #include "../../renderer/renderer.h"
 #include "../../mem.h"
-#include "../../inputsystem.h"
 #include "../../ui/widgets/label.h"
 #include "../../profile/ui/titlemenu.h"
 #include "../../profile/games/chlcc/titlemenu.h"
@@ -49,42 +48,34 @@ TitleMenu::TitleMenu() {
   };
 
   // Start menu button
-  Start = new TitleButton(
-      0, MenuEntriesSprites[0], MenuEntriesHSprites[0], ItemHighlightSprite,
-      glm::vec2(
-          ((ItemHighlightOffset.x * ItemsFadeInAnimation.Progress) - 1.0f) +
-              ItemHighlightOffset.x,
-          ((ItemYBase - 1.0f) + (0 * ItemPadding))));
+  Start = new TitleButton(0, MenuEntriesSprites[0], MenuEntriesHSprites[0],
+                          ItemHighlightSprite,
+                          glm::vec2(ItemHighlightOffset.x - 1.0f,
+                                    ((ItemYBase - 1.0f) + (0 * ItemPadding))));
   Start->OnClickHandler = onClick;
   MainItems->Add(Start, FDIR_DOWN);
 
   // Load menu button
-  Load = new TitleButton(
-      1, MenuEntriesSprites[1], MenuEntriesHSprites[1], ItemHighlightSprite,
-      glm::vec2(
-          ((ItemHighlightOffset.x * ItemsFadeInAnimation.Progress) - 1.0f) +
-              ItemHighlightOffset.x,
-          ((ItemYBase - 1.0f) + (1 * ItemPadding))));
+  Load = new TitleButton(1, MenuEntriesSprites[1], MenuEntriesHSprites[1],
+                         ItemHighlightSprite,
+                         glm::vec2(ItemHighlightOffset.x - 1.0f,
+                                   ((ItemYBase - 1.0f) + (1 * ItemPadding))));
   Load->OnClickHandler = onClick;
   MainItems->Add(Load, FDIR_DOWN);
 
   // Extra menu button
-  Extra = new TitleButton(
-      2, MenuEntriesSprites[2], MenuEntriesHSprites[2], ItemHighlightSprite,
-      glm::vec2(
-          ((ItemHighlightOffset.x * ItemsFadeInAnimation.Progress) - 1.0f) +
-              ItemHighlightOffset.x,
-          ((ItemYBase - 1.0f) + (2 * ItemPadding))));
+  Extra = new TitleButton(2, MenuEntriesSprites[2], MenuEntriesHSprites[2],
+                          ItemHighlightSprite,
+                          glm::vec2(ItemHighlightOffset.x - 1.0f,
+                                    ((ItemYBase - 1.0f) + (2 * ItemPadding))));
   Extra->OnClickHandler = onClick;
   MainItems->Add(Extra, FDIR_DOWN);
 
   // System menu button
-  System = new TitleButton(
-      3, MenuEntriesSprites[3], MenuEntriesHSprites[3], ItemHighlightSprite,
-      glm::vec2(
-          ((ItemHighlightOffset.x * ItemsFadeInAnimation.Progress) - 1.0f) +
-              ItemHighlightOffset.x,
-          ((ItemYBase - 1.0f) + (3 * ItemPadding))));
+  System = new TitleButton(3, MenuEntriesSprites[3], MenuEntriesHSprites[3],
+                           ItemHighlightSprite,
+                           glm::vec2(ItemHighlightOffset.x - 1.0f,
+                                     ((ItemYBase - 1.0f) + (3 * ItemPadding))));
   System->OnClickHandler = onClick;
   MainItems->Add(System, FDIR_DOWN);
 
@@ -301,16 +292,15 @@ void TitleMenu::Update(float dt) {
         glm::smoothstep(0.0f, 1.0f, PrimaryFadeAnimation.Progress);
     MainItems->UpdateInput(dt);
     MainItems->Update(dt);
-    LoadItems->Tint.a =
+    const float secondarySmoothProgress =
         glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
+    LoadItems->Tint.a = secondarySmoothProgress;
     LoadItems->UpdateInput(dt);
     LoadItems->Update(dt);
-    CurrentExtraItems->Tint.a =
-        glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
+    CurrentExtraItems->Tint.a = secondarySmoothProgress;
     CurrentExtraItems->UpdateInput(dt);
     CurrentExtraItems->Update(dt);
-    SystemItems->Tint.a =
-        glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
+    SystemItems->Tint.a = secondarySmoothProgress;
     SystemItems->UpdateInput(dt);
     SystemItems->Update(dt);
 
@@ -348,8 +338,6 @@ void TitleMenu::Update(float dt) {
       } break;
       case TitleDispCtState::PressStart: {
         if (!GetFlag(SF_TITLEMODE)) {
-          ItemsFadeInAnimation.StartOut();
-          SecondaryItemsFadeInAnimation.StartOut();
           Hide();
           break;
         }
@@ -363,22 +351,23 @@ void TitleMenu::Update(float dt) {
           MainItems->Tint.a = 0.0f;
           CurrentlyFocusedElement = Start;
           Start->HasFocus = true;
-          PrimaryFadeAnimation.DurationIn = PrimaryFadeInDuration;
-          PrimaryFadeAnimation.DurationOut = PrimaryFadeOutDuration;
           PrimaryFadeAnimation.StartIn();
-
+          const glm::vec2 mainItemsEndPos = {0, 0};
+          MainItems->MoveTo(mainItemsEndPos, PrimaryFadeAnimation.DurationIn);
         } else if (MainItems->VisibilityState != Hidden &&
                    ScrWork[SW_TITLECT] == 32) {
           PrimaryFadeAnimation.StartOut();
+          const glm::vec2 mainItemsEndPos = {-ItemHighlightOffset.x, 0};
+          MainItems->MoveTo(mainItemsEndPos, PrimaryFadeAnimation.DurationOut);
 
         } else if (ScrWork[SW_TITLECT] == 0) {
           MainItems->Hide();
         }
+
       } break;
       case TitleDispCtState::MainEntriesControl: {
+        MainItems->MoveTo({0, 0});
         if (!GetFlag(SF_TITLEMODE)) {
-          ItemsFadeInAnimation.StartOut();
-          SecondaryItemsFadeInAnimation.StartOut();
           Hide();
         }
       } break;
@@ -389,9 +378,6 @@ void TitleMenu::Update(float dt) {
           MainItems->HasFocus = false;
           CurrentlyFocusedElement = QuickLoad;
           QuickLoad->HasFocus = true;
-
-          SecondaryFadeAnimation.DurationIn = SecondaryFadeInDuration;
-          SecondaryFadeAnimation.DurationOut = SecondaryFadeOutDuration;
           SecondaryFadeAnimation.StartIn();
 
         } else if (LoadItems->VisibilityState != Hidden &&
@@ -411,8 +397,6 @@ void TitleMenu::Update(float dt) {
           MainItems->HasFocus = false;
           CurrentlyFocusedElement = ClearList;
           ClearList->HasFocus = true;
-          SecondaryFadeAnimation.DurationIn = SecondaryFadeInDuration;
-          SecondaryFadeAnimation.DurationOut = SecondaryFadeOutDuration;
           SecondaryFadeAnimation.StartIn();
 
         } else if (CurrentExtraItems->VisibilityState != Hidden &&
@@ -432,8 +416,6 @@ void TitleMenu::Update(float dt) {
           MainItems->HasFocus = false;
           CurrentlyFocusedElement = Config;
           Config->HasFocus = true;
-          SecondaryFadeAnimation.DurationIn = SecondaryFadeInDuration;
-          SecondaryFadeAnimation.DurationOut = SecondaryFadeOutDuration;
           SecondaryFadeAnimation.StartIn();
 
         } else if (SystemItems->VisibilityState != Hidden &&
@@ -477,11 +459,6 @@ void TitleMenu::Render() {
           DrawTitleMenuBackGraphics();
         } break;
         case TitleDispCtState::MainEntriesFading: {
-          if (ItemsFadeInAnimation.IsOut() &&
-              ItemsFadeInAnimation.State != AnimationState::Playing)
-            ItemsFadeInAnimation.StartIn();
-          else if (ItemsFadeInAnimation.State != AnimationState::Playing)
-            ItemsFadeInAnimation.StartOut();
           DrawTitleMenuBackGraphics();
           MainItems->Render();
         } break;
@@ -489,28 +466,22 @@ void TitleMenu::Render() {
           DrawTitleMenuBackGraphics();
           MainItems->Render();
         } break;
-        case TitleDispCtState::LoadSubEntriesFading: {
-          DrawTitleMenuBackGraphics();
-          MainItems->Render();
-        } break;
+        case TitleDispCtState::LoadSubEntriesFading:
+          [[fallthrough]];
         case TitleDispCtState::LoadSubEntriesControl: {
           DrawTitleMenuBackGraphics();
           LoadItems->Render();
           MainItems->Render();
         } break;
-        case TitleDispCtState::ExtraSubEntriesFading: {
-          DrawTitleMenuBackGraphics();
-          MainItems->Render();
-        } break;
+        case TitleDispCtState::ExtraSubEntriesFading:
+          [[fallthrough]];
         case TitleDispCtState::ExtraSubEntriesControl: {
           DrawTitleMenuBackGraphics();
           CurrentExtraItems->Render();
           MainItems->Render();
         } break;
-        case TitleDispCtState::SystemSubEntriesFading: {
-          DrawTitleMenuBackGraphics();
-          MainItems->Render();
-        } break;
+        case TitleDispCtState::SystemSubEntriesFading:
+          [[fallthrough]];
         case TitleDispCtState::SystemSubEntriesControl: {
           DrawTitleMenuBackGraphics();
           SystemItems->Render();
