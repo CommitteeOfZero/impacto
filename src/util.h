@@ -354,7 +354,7 @@ constexpr glm::vec4 RgbIntToFloat(uint32_t rgb, float opacity = 1.0f) {
                    (float)((rgb >> 0) & 0xFF) / 255.0f, opacity};
 }
 
-uint32_t GetHashCode(uint8_t* data, int length);
+uint32_t GetHashCode(std::span<const uint8_t> data);
 
 std::string DumpMat4(glm::mat4* matrix, std::string_view columnSeparator = "\t",
                      std::string_view rowSeparator = "\n");

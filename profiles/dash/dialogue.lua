@@ -22,9 +22,18 @@ root.Dialogue = {
     TextFadeOutDuration = 0.33,
     DialogueBoxCurrentType = DialogueBoxType.Plain,
     NVLBoxMaxOpacity = 0.55,
+
     ADVNameAlignment = TextAlignment.Left,
     ADVNameFontSize = 33,
     ADVNamePos = { X = 173, Y = 773 },
+
+    NametagCurrentType = NametagType.ThreePiece,
+    NametagPosition = { X = 64, Y = 768 },
+    NametagLeftSprite = "NametagLeftSprite",
+    NametagMiddleSprite = "NametagMiddleSprite",
+    NametagRightSprite = "NametagRightSprite",
+    NametagMiddleBaseWidth = 0.0,
+
     WaitIconSpriteAnim = "WaitIconSpriteAnimDef",
     WaitIconCurrentType = WaitIconType.SpriteAnim,
     WaitIconOffset = { X = 0, Y = 0 },
@@ -92,4 +101,20 @@ MakeAnimation({
     SecondaryDirection = AnimationDirections.Down
 });
 
-include('dash/nametag.lua');
+root.Sprites["NametagLeftSprite"] = {
+    Sheet = "Menu",
+    Bounds = { X = 3207, Y = 1097, Width = 168, Height = 65 },
+    BaseScale = { X = 41 / 65, Y = 41 / 65 }
+};
+
+root.Sprites["NametagMiddleSprite"] = {
+    Sheet = "Menu",
+    Bounds = { X = 3375, Y = 1097, Width = 467, Height = 65 },
+    BaseScale = { X = 41 / 65, Y = 41 / 65 }
+};
+
+root.Sprites["NametagLeftSprite"] = {
+    Sheet = "Menu",
+    Bounds = { X = 3842, Y = 1097, Width = 130, Height = 65 },
+    BaseScale = { X = 41 / 65, Y = 41 / 65 }
+};

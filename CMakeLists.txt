@@ -30,7 +30,7 @@ set(Impacto_Src
         src/inputsystem.cpp
         src/voicetable.cpp
         src/animation.cpp
-        
+
         src/text/text.cpp
         src/text/typewritereffect.cpp
         src/text/dialoguepage.cpp
@@ -153,19 +153,17 @@ set(Impacto_Src
         src/profile/games/darling/sysmesbox.cpp
 
         src/games/rne/tilebackground.cpp
-        src/games/rne/datedisplay.cpp
         src/games/rne/systemmenu.cpp
         src/games/rne/titlemenu.cpp
         src/games/rne/sysmesbox.cpp
 
         src/games/dash/titlemenu.cpp
 
-        src/games/chlcc/dialoguebox.cpp
         src/games/chlcc/titlemenu.cpp
         src/games/chlcc/savemenu.cpp
         src/games/chlcc/sysmesbox.cpp
-        src/games/chlcc/animations/selectprompt.cpp     
-        src/games/chlcc/animations/menutransition.cpp        
+        src/games/chlcc/animations/selectprompt.cpp
+        src/games/chlcc/animations/menutransition.cpp
         src/games/chlcc/savesystem.cpp
         src/games/chlcc/tipssystem.cpp
         src/games/chlcc/clearlistmenu.cpp
@@ -179,10 +177,8 @@ set(Impacto_Src
         src/games/chlcc/trophymenu.cpp
         src/games/chlcc/delusiontrigger.cpp
         src/games/chlcc/introsequence.cpp
-        src/games/chlcc/tipsnotification.cpp
 
         src/games/cc/backlogmenu.cpp
-        src/games/cc/dialoguebox.cpp
         src/games/cc/titlemenu.cpp
         src/games/cc/sysmesbox.cpp
 
@@ -197,7 +193,6 @@ set(Impacto_Src
         src/games/cclcc/albummenu.cpp
         src/games/cclcc/musicmenu.cpp
         src/games/cclcc/moviemenu.cpp
-        src/games/cclcc/tipsnotification.cpp
         src/games/cclcc/mapsystem.cpp
         src/games/cclcc/delusiontrigger.cpp
         src/games/cclcc/yesnotrigger.cpp
@@ -206,7 +201,6 @@ set(Impacto_Src
         src/games/cclcc/helpmenu.cpp
 
         src/games/mo6tw/backlogmenu.cpp
-        src/games/mo6tw/dialoguebox.cpp
         src/games/mo6tw/sysmesbox.cpp
         src/games/mo6tw/systemmenu.cpp
         src/games/mo6tw/titlemenu.cpp
@@ -220,7 +214,6 @@ set(Impacto_Src
         src/games/mo6tw/actorsvoicemenu.cpp
         src/games/mo6tw/musicmenu.cpp
         src/games/mo6tw/albummenu.cpp
-        src/games/mo6tw/tipsnotification.cpp
 
         src/games/mo8/titlemenu.cpp
         src/games/mo8/systemmenu.cpp
@@ -238,6 +231,20 @@ set(Impacto_Src
         src/hud/skipicondisplay.cpp
         src/hud/waiticondisplay.cpp
         src/hud/tipsnotification.cpp
+
+        src/hud/cc/dialoguebox.cpp
+        src/hud/cc/nametagdisplay.cpp
+
+        src/hud/cclcc/tipsnotification.cpp
+
+        src/hud/chlcc/dialoguebox.cpp
+        src/hud/chlcc/nametagdisplay.cpp
+        src/hud/chlcc/tipsnotification.cpp
+
+        src/hud/mo6tw/dialoguebox.cpp
+        src/hud/mo6tw/tipsnotification.cpp
+
+        src/hud/rne/datedisplay.cpp
 
         src/ui/widget.cpp
         src/ui/menu.cpp
@@ -373,7 +380,7 @@ set(Impacto_Header
         src/inputsystem.h
         src/rng.h
         src/animation.h
-        
+
         src/text/text.h
         src/text/typewritereffect.h
         src/text/dialoguepage.h
@@ -495,19 +502,17 @@ set(Impacto_Header
         src/profile/games/darling/sysmesbox.h
 
         src/games/rne/tilebackground.h
-        src/games/rne/datedisplay.h
         src/games/rne/systemmenu.h
         src/games/rne/titlemenu.h
         src/games/rne/sysmesbox.h
 
         src/games/dash/titlemenu.h
 
-        src/games/chlcc/dialoguebox.h
         src/games/chlcc/titlemenu.h
         src/games/chlcc/savemenu.h
         src/games/chlcc/sysmesbox.h
         src/games/chlcc/animations/selectprompt.h
-        src/games/chlcc/animations/menutransition.h        
+        src/games/chlcc/animations/menutransition.h
         src/games/chlcc/savesystem.h
         src/games/chlcc/tipssystem.h
         src/games/chlcc/clearlistmenu.h
@@ -521,9 +526,7 @@ set(Impacto_Header
         src/games/chlcc/trophymenu.h
         src/games/chlcc/delusiontrigger.h
         src/games/chlcc/introsequence.h
-        src/games/chlcc/tipsnotification.h
 
-        src/games/cc/dialoguebox.h
         src/games/cc/titlemenu.h
         src/games/cc/sysmesbox.h
 
@@ -541,7 +544,6 @@ set(Impacto_Header
         src/games/cclcc/delusiontrigger.h
         src/games/cclcc/helpmenu.h
 
-        src/games/mo6tw/dialoguebox.h
         src/games/mo6tw/sysmesbox.h
         src/games/mo6tw/systemmenu.h
         src/games/mo6tw/titlemenu.h
@@ -555,7 +557,6 @@ set(Impacto_Header
         src/games/mo6tw/actorsvoicemenu.h
         src/games/mo6tw/musicmenu.h
         src/games/mo6tw/albummenu.h
-        src/games/mo6tw/tipsnotification.h
 
         src/games/mo8/titlemenu.h
         src/games/mo8/systemmenu.h
@@ -573,6 +574,20 @@ set(Impacto_Header
         src/hud/skipicondisplay.h
         src/hud/waiticondisplay.h
         src/hud/tipsnotification.h
+
+        src/hud/cc/dialoguebox.h
+        src/hud/cc/nametagdisplay.h
+
+        src/hud/cclcc/tipsnotification.h
+
+        src/hud/chlcc/dialoguebox.h
+        src/hud/chlcc/nametagdisplay.h
+        src/hud/chlcc/tipsnotification.h
+
+        src/hud/mo6tw/dialoguebox.h
+        src/hud/mo6tw/tipsnotification.h
+
+        src/hud/rne/datedisplay.h
 
         src/ui/ui.h
         src/ui/menu.h

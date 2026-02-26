@@ -141,6 +141,6 @@ void TextGetSc3String(std::string_view str, std::span<uint16_t> out);
 
 inline ankerl::unordered_dense::map<uint32_t, uint32_t> NamePlateData;
 void InitNamePlateData(Vm::Sc3Stream& stream);
-uint32_t GetNameId(uint8_t* name, int nameLength);
+std::optional<uint32_t> GetNameId(std::span<const uint16_t> name);
 
 }  // namespace Impacto

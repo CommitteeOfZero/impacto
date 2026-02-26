@@ -51,9 +51,18 @@ root.Dialogue = {
     ADVBoxDecoration = "ADVBoxDecoration",
     ADVBoxDecorationPos = { X = 1001, Y = 646 },
     NVLBoxMaxOpacity = 0.55,
+
     ADVNameAlignment = TextAlignment.Left,
     ADVNameFontSize = 32,
     ADVNamePos = { X = 120, Y = 462 },
+
+    NametagCurrentType = NametagType.ThreePiece,
+    NametagPosition = { X = 100, Y = 458 },
+    NametagLeftSprite = "NametagLeftSprite",
+    NametagMiddleSprite = "NametagMiddleSprite",
+    NametagRightSprite = "NametagRightSprite",
+    NametagMiddleBaseWidth = 0.0,
+
     WaitIconCurrentType = WaitIconType.RotateZ,
     WaitIconSprite = "DialogueWaitIcon",
     WaitIconOffset = { X = 4, Y = 4 },
@@ -106,4 +115,17 @@ root.Dialogue = {
     ColorTagIsUint8 = true
 };
 
-include('mo6tw/nametag.lua');
+root.Sprites["NametagLeftSprite"] = {
+    Sheet = "Data",
+    Bounds = { X = 1, Y = 266, Width = 23, Height = 41 }
+};
+
+root.Sprites["NametagMiddleSprite"] = {
+    Sheet = "Data",
+    Bounds = { X = 24, Y = 266, Width = 190, Height = 41 }
+};
+
+root.Sprites["NametagRightSprite"] = {
+    Sheet = "Data",
+    Bounds = { X = 214, Y = 266, Width = 23, Height = 41 }
+};

@@ -4,6 +4,7 @@
 #include "../profile/dialogue.h"
 #include "../profile/scriptvars.h"
 #include "../profile/games/chlcc/dialoguebox.h"
+#include "../text/dialoguepage.h"
 
 #include "../animation.h"
 

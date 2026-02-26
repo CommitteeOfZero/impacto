@@ -463,16 +463,18 @@ void InitNamePlateData(Vm::Sc3Stream& stream) {
     dummy.ScriptBufferId = Profile::Vm::SystemScriptBuffer;
     int nameLength = (TextGetStringLength(&dummy) - 1) * 2;
     dummy.IpOffset = nameAddr;
-    uint32_t nameHash = GetHashCode(dummy.GetIp(), nameLength);
+    uint32_t nameHash =
+        GetHashCode(std::span<uint8_t>(dummy.GetIp(), nameLength));
     NamePlateData[nameHash] = id;
   } while (stream.PeekU16() != 0xFFFF);
 }
 
-uint32_t GetNameId(uint8_t* name, int nameLength) {
-  uint32_t nameHash = GetHashCode(name, nameLength);
+std::optional<uint32_t> GetNameId(const std::span<const uint16_t> name) {
+  uint32_t nameHash = GetHashCode(std::span<const uint8_t>(
+      std::bit_cast<uint8_t*>(name.data()), name.size_bytes()));
   if (NamePlateData.find(nameHash) != NamePlateData.end())
     return NamePlateData[nameHash];
   else
-    return 0;
+    return std::nullopt;
 }
 }  // namespace Impacto

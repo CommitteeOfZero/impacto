@@ -1,6 +1,7 @@
 #include "dialoguepage.h"
 
 #include "../profile/configsystem.h"
+#include "../profile/dialogue.h"
 #include "../profile/games/chlcc/dialoguebox.h"
 
 #include "../data/tipssystem.h"
@@ -12,10 +13,6 @@
 #include "../hud/dialoguebox.h"
 #include "../hud/tipsnotification.h"
 
-#include "../games/mo6tw/dialoguebox.h"
-#include "../games/chlcc/dialoguebox.h"
-#include "../games/cc/dialoguebox.h"
-
 #include "../audio/audiostream.h"
 #include "../audio/audiosystem.h"
 #include "../audio/audiostream.h"
@@ -24,9 +21,6 @@
 namespace Impacto {
 using namespace Impacto::Profile::Dialogue;
 using namespace Impacto::Profile::ScriptVars;
-
-static DialogueBox* TextBox;
-static int constexpr DialogueMaxNameLength = 64;
 
 DialoguePage::State DialoguePage::GetState() const {
   using enum State;
@@ -47,27 +41,14 @@ bool DialoguePage::TextIsFullyOpaque() { return Typewriter.Progress == 1.0f; }
 void DialoguePage::Init() {
   Profile::Dialogue::Configure();
 
-  switch (DialogueBoxCurrentType) {
-    case DialogueBoxType::MO6TW:
-      TextBox = new MO6TW::DialogueBox();
-      break;
-    case DialogueBoxType::CHLCC:
-      TextBox = new CHLCC::DialogueBox();
-      break;
-    case DialogueBoxType::CC:
-      TextBox = new CC::DialogueBox();
-      break;
-    default:
-      TextBox = new DialogueBox();
-      break;
-  }
-
-  TextBox->Init();
-
   WaitIconDisplay::Init();
   AutoIconDisplay::Init();
   SkipIconDisplay::Init();
-  NametagDisplay::Init();
+
+  DialoguePages.resize(PageCount);
+  for (DialoguePage& page : DialoguePages) {
+    page.Glyphs.reserve(MaxPageSize);
+  }
 
   for (int i = 0; i < std::ssize(DialoguePages); i++) {
     DialoguePages[i].Clear();
@@ -87,7 +68,7 @@ void DialoguePage::Init() {
 
 void DialoguePage::Clear() {
   Glyphs.clear();
-  ClearName();
+  Name.clear();
   std::fill(RubyChunks.begin(), RubyChunks.end(), RubyChunk{});
   RubyChunkCount = 0;
   CurrentRubyChunk = 0;
@@ -107,15 +88,6 @@ void DialoguePage::Clear() {
   }
   CurrentLineTopMargin = 0.0f;
   AdvanceMethod = AdvanceMethodType::Skip;
-}
-
-void DialoguePage::ClearName() {
-  Name.clear();
-  NameLength = 0;
-  RenderName = false;
-
-  PrevNameId = NameId;
-  NameId.reset();
 }
 
 enum TextParseState { TPS_Normal, TPS_Name, TPS_Ruby };
@@ -259,19 +231,17 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
                              bool shouldUpdateCharId) {
   CurrentVoice = voice;
   CurrentLineVoiced = voice != nullptr;
-  ShouldUpdateCharId = shouldUpdateCharId;
 
   bool hasName = false;
-  if (ShouldUpdateCharId) {
+  if (shouldUpdateCharId) {
     CharacterId = charId;
+    ScrWork[Id + SW_ANIME0CHANO] = CharacterId;
   }
 
   const int nextAnimId = acted ? animId : charId;
 
   // Hold last voiced animation id
   if (CurrentLineVoiced) NextAnimationId = std::max(nextAnimId, 31);
-
-  PrevNameId = NameId;
 
   if (Mode == DPM_ADV || Mode == DPM_REV ||
       AdvanceMethod == AdvanceMethodType::PresentClear || PrevMode != Mode) {
@@ -323,7 +293,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
 
   float currentX = 0.0f;
 
-  uint16_t name[DialogueMaxNameLength];
+  std::vector<uint16_t> name;
 
   BuildingRubyBase = false;
 
@@ -342,7 +312,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
 
       case STT_CharacterNameStart: {
         hasName = true;
-        Name.reserve(DialogueMaxNameLength);
+        name.reserve(64);
         state = TPS_Name;
         if (Mode == DPM_REV &&
             REVNameLocation != +REVNameLocationType::LeftTop) {
@@ -448,8 +418,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
 
       case STT_Character: {
         if (state == TPS_Name) {
-          name[NameLength] = SDL_Swap16(token.Val_Uint16 | 0x8000);
-          NameLength++;
+          name.emplace_back(SDL_Swap16(token.Val_Uint16 | 0x8000));
         } else if (state == TPS_Ruby) {
           RubyChunks[CurrentRubyChunk]
               .RawText[RubyChunks[CurrentRubyChunk].Length] =
@@ -549,18 +518,16 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
   // rendered when in NVL mode
   if (Mode == DPM_NVL) {
     hasName = false;
-    NameLength = 0;
   }
 
   if (DialogueBoxCurrentType == +DialogueBoxType::CHLCC && Mode == DPM_REV &&
       ScrWork[SW_MESWIN0TYPE] == 1) {
     hasName = false;
-    NameLength = 0;
   }
 
   RenderName = hasName;
   if (hasName) {
-    NameId = GetNameId((uint8_t*)name, static_cast<int>(NameLength * 2));
+    ScrWork[SW_MESNAMEID0 + Id] = GetNameId(name).value_or(0xFFFF);
 
     float fontSize = ADVNameFontSize;
     glm::vec2 pos = ADVNamePos;
@@ -582,49 +549,37 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
           break;
       }
     }
-    Vm::Sc3Stream nameStream(name);
-    Name = TextLayoutPlainLine(nameStream, static_cast<int>(NameLength),
+    Vm::Sc3Stream nameStream(name.data());
+    Name = TextLayoutPlainLine(nameStream, static_cast<int>(name.size()),
                                DialogueFont, fontSize, ColorTable[colorIndex],
                                1.0f, pos, alignment);
-    assert(NameLength == Name.size());
+    assert(name.size() == Name.size());
+  } else {
+    ScrWork[SW_MESNAMEID0 + Id] = 0xFFFF;
   }
 
-  ShouldShowNewText = true;
   // resetting typewriter for a new line and setting new params
-  Typewriter.Stop();
+  Typewriter.Reset(AnimationDirection::In);
   Typewriter.SetFirstGlyph(typeWriterStart);
   Typewriter.SetGlyphCount(Glyphs.size() - typeWriterStart);
   Typewriter.SetParallelStartGlyphs(parallelStartGlyphs);
-  Typewriter.Progress = 0;
+  Typewriter.Start(CurrentLineVoiced);
 
-  NametagDisplay::UpdateNames(NameId, PrevNameId, Mode);
+  if (CurrentLineVoiced) {
+    AnimationId = NextAnimationId;
+    Audio::Channels[Audio::AC_VOICE0]->Play(
+        std::unique_ptr<Audio::AudioStream>(CurrentVoice), false, 0.0f);
+  }
+
+  AutoWaitTime = static_cast<float>(Typewriter.GetGlyphCount());
+  if (AdvanceMethod == AdvanceMethodType::AutoForwardSyncVoice) {
+    AutoWaitTime *= 2.0f;
+  }
 }
 
 void DialoguePage::Update(float dt) {
   if (GetFlag(SF_UIHIDDEN)) return;
   if ((ScrWork[SW_GAMESTATE] & 4) != 0) return;
-
-  // delayed start of a typewriter, voice & wait timer
-  if (ShouldShowNewText && NametagDisplay::DialogueCanStartAppearing(Mode)) {
-    ShouldShowNewText = false;
-    if (CurrentLineVoiced) {
-      AnimationId = NextAnimationId;
-      Audio::Channels[Audio::AC_VOICE0]->Play(
-          std::unique_ptr<Audio::AudioStream>(CurrentVoice), false, 0.0f);
-    }
-
-    if (ShouldUpdateCharId) {
-      ScrWork[Id + SW_ANIME0CHANO] = CharacterId;
-      ShouldUpdateCharId = false;
-    }
-
-    Typewriter.Start(CurrentLineVoiced);
-
-    AutoWaitTime = static_cast<float>(Typewriter.GetGlyphCount());
-    if (AdvanceMethod == AdvanceMethodType::AutoForwardSyncVoice) {
-      AutoWaitTime *= 2.0f;
-    }
-  }
 
   Typewriter.Update(dt);
 
@@ -654,14 +609,22 @@ void DialoguePage::Update(float dt) {
     }
   }
 
-  TextBox->Update(dt);
+  const State visibilityState = GetState();
+  const bool shouldHide =
+      visibilityState == State::Hiding || visibilityState == State::Hidden;
+  if (RenderName && !shouldHide) {
+    DialogueBoxInst->ShowName();
+  } else {
+    DialogueBoxInst->HideName();
+  }
+
+  DialogueBoxInst->Update(dt);
   FadeAnimation.Update(dt);
   TextFadeAnimation.Update(dt);
 
   WaitIconDisplay::Update(dt);
   AutoIconDisplay::Update(dt);
   SkipIconDisplay::Update(dt);
-  NametagDisplay::Update(dt, Mode);
 }
 
 void DialoguePage::Render() {
@@ -672,18 +635,14 @@ void DialoguePage::Render() {
   glm::vec4 opacityTint(1.0f);
   opacityTint.a = glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
 
-  // Textbox
-  float width = 0.0f;
-  if (RenderName && NameId.has_value()) {
-    for (size_t i = 0; i < NameLength; i++) {
-      width += Name[i].DestRect.Width;
-    }
-  }
-
-  const std::optional<uint32_t> animatedName =
-      RenderName ? NametagDisplay::GetNameToDraw() : std::nullopt;
-
-  TextBox->Render(Mode, width, animatedName, opacityTint.a);
+  const NameInfo nameInfo{
+      .RenderWindow = RenderName,
+      .NameId = ScrWork[SW_MESNAMEID0 + Id] == 0xffff
+                    ? std::nullopt
+                    : std::optional(ScrWork[SW_MESNAMEID0 + Id]),
+      .Name = Name,
+  };
+  DialogueBoxInst->Render(Mode, nameInfo, opacityTint);
 
   // TODO: Figure out what's up with text box coloring
   glm::vec4 col = glm::vec4(1.0f);  // ScrWorkGetColor(SW_MESWINDOW_COLOR);
@@ -697,14 +656,6 @@ void DialoguePage::Render() {
   for (size_t rubyChunkId = 0; rubyChunkId < RubyChunkCount; rubyChunkId++) {
     Renderer->DrawProcessedText(RubyChunks[rubyChunkId].Text, DialogueFont,
                                 textFadeOpacity, RendererOutlineMode::Full);
-  }
-
-  if (RenderName && NameId.has_value() && ADVBoxShowName) {
-    float nameOpacity = (NametagCurrentType == +NametagType::Instant)
-                            ? opacityTint.a
-                            : textFadeOpacity;
-    Renderer->DrawProcessedText(Name, DialogueFont, nameOpacity,
-                                RendererOutlineMode::Full);
   }
 
   // Wait icon
@@ -722,11 +673,9 @@ void DialoguePage::Move(glm::vec2 relativePos) {
     glyph.DestRect.X += relativePos.x;
     glyph.DestRect.Y += relativePos.y;
   }
-  if (NameId.has_value()) {
-    for (size_t i = 0; i < NameLength; i++) {
-      Name[i].DestRect.X += relativePos.x;
-      Name[i].DestRect.Y += relativePos.y;
-    }
+  for (ProcessedTextGlyph& glyph : Name) {
+    glyph.DestRect.X += relativePos.x;
+    glyph.DestRect.Y += relativePos.y;
   }
   for (RubyChunk rubyChunk : std::span(RubyChunks.begin(), RubyChunkCount)) {
     for (auto glyph : std::span(rubyChunk.Text.begin(), rubyChunk.Length)) {
@@ -743,18 +692,9 @@ void DialoguePage::MoveTo(glm::vec2 pos) {
   Move(relativePos);
 }
 
-void DialoguePage::Hide() {
-  FadeAnimation.StartOut();
-
-  if (NameId.has_value()) {
-    PrevNameId = NameId;
-    NameId.reset();
-    NametagDisplay::UpdateNames(NameId, PrevNameId, Mode);
-  }
-}
+void DialoguePage::Hide() { FadeAnimation.StartOut(); }
 
 void DialoguePage::Show() {
-  NametagDisplay::Reset();
   FadeAnimation.StartIn(true);
   TextFadeAnimation.Progress = 1.0f;
 }

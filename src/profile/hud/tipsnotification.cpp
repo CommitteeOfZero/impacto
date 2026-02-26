@@ -3,9 +3,9 @@
 #include "../games/mo6tw/tipsnotification.h"
 #include "../games/cclcc/tipsnotification.h"
 #include "../games/chlcc/tipsnotification.h"
-#include "../../games/mo6tw/tipsnotification.h"
-#include "../../games/cclcc/tipsnotification.h"
-#include "../../games/chlcc/tipsnotification.h"
+#include "../../hud/mo6tw/tipsnotification.h"
+#include "../../hud/cclcc/tipsnotification.h"
+#include "../../hud/chlcc/tipsnotification.h"
 
 namespace Impacto {
 namespace Profile {

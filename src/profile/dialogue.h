@@ -39,11 +39,8 @@ inline float ADVNameFontSize;
 // e.g. if ADVNameAlignment == TextAlignment::Right, name will *end* at
 // ADVNamePos.x
 inline glm::vec2 ADVNamePos;
-inline bool ADVBoxShowName = true;
 
-// FadeInPauseOut - CCLCC, Instant - CHLCC
-// Other games may have different behavior, implement as needed
-BETTER_ENUM(NametagType, int, None, Instant, FadeInPauseOut)
+BETTER_ENUM(NametagType, int, None, Sprite, TwoPiece, ThreePiece, CHLCC, CC)
 
 BETTER_ENUM(REVNameLocationType, int, None, TopLeft, LeftTop)
 
@@ -99,18 +96,13 @@ inline int PageCount;
 inline bool ColorTagIsUint8;
 
 inline NametagType NametagCurrentType = NametagType::None;
-inline float NameTagDuration = 0.0f;
-inline float NameTagAnimProgressHideOld = 0.0f;
-inline float NameTagAnimProgressShowNew = 0.0f;
 
-inline bool HaveADVNameTag;
-namespace ADVNameTag {
-inline glm::vec2 Position;
-inline Sprite LeftSprite;
-inline Sprite LineSprite;
-inline Sprite RightSprite;
-inline float BaseLineWidth;
-}  // namespace ADVNameTag
+inline glm::vec2 NametagPosition{};
+inline Sprite NametagSprite;
+inline Sprite NametagLeftSprite;
+inline Sprite NametagMiddleSprite;
+inline Sprite NametagRightSprite;
+inline float NametagMiddleBaseWidth = 0.0f;
 
 inline bool HasSpeakerPortraits = false;
 inline float SpeakerPortraitBaseOffsetX = 250.0f;

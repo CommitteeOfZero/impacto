@@ -437,6 +437,7 @@ VmInstruction(InstMessWindow) {
       currentPage.Hide();
       currentPage.FadeAnimation.Finish();
       currentPage.Clear();
+      currentPage.RenderName = false;
     } break;
 
     case 5: {  // CloseEx
@@ -446,7 +447,7 @@ VmInstruction(InstMessWindow) {
 
       if (!currentPage.FadeAnimation.IsOut()) {
         currentPage.Hide();
-        currentPage.ClearName();
+        currentPage.Name.clear();
         SetFlag(dialoguePageId + SF_MESWINDOW0OPENFL, 0);
         BlockThread;
       }
@@ -475,7 +476,7 @@ VmInstruction(InstMessWindow) {
 
       SetFlag(dialoguePageId + SF_MESWINDOW0OPENFL, false);
       ScrWork[dialoguePageId + SW_MESWINDOW0ALPHA] = 0;
-      getCurrentPage().ClearName();
+      getCurrentPage().Name.clear();
     } break;
   }
 }
