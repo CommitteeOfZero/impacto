@@ -938,8 +938,8 @@ static void UpdateExplode(float fadeCount) {
         tri.InitialDisplayPosition + tri.TranslationSpeed * fadeCount;
     tri.Rotation = glm::pow(tri.RotationSpeed, fadeCount);
 
-    [[maybe_unused]] constexpr float fadeCountMax = 64.0f;
-    constexpr float fadeOutDuration = 32.0f;
+    [[maybe_unused]] static constexpr float fadeCountMax = 64.0f;
+    static constexpr float fadeOutDuration = 32.0f;
     const float fadeOutProgress =
         (fadeCount - tri.StartFadeOutTime) / fadeOutDuration;
     tri.Alpha = std::clamp(1.0f - fadeOutProgress, 0.0f, 1.0f);
