@@ -13,6 +13,10 @@ if (EMSCRIPTEN)
     list(APPEND CMAKE_MODULE_PATH ${EMSCRIPTEN_ROOT_PATH}/cmake/Modules)
 endif ()
 
+if (APPLE)
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0")
+endif()
+
 set(Impacto_Src
         src/main.cpp
         src/log.cpp
