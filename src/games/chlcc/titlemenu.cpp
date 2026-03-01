@@ -88,6 +88,18 @@ TitleMenu::TitleMenu() {
   System->OnClickHandler = onClick;
   MainItems->Add(System, FDIR_DOWN);
 
+  // Exit menu button (Configuration/Patch driven)
+  if (HasTitleMenuExitButton) {
+    Exit = new TitleButton(
+        4, ExitSprite, ExitHighlightSprite, ItemHighlightSprite,
+        glm::vec2(
+            ((ItemHighlightOffset.x * ItemsFadeInAnimation.Progress) - 1.0f) +
+                ItemHighlightOffset.x,
+            ((ItemYBase - 1.0f) + (4 * ItemPadding))));
+    Exit->OnClickHandler = [](auto*) { Game::ShouldQuit = true; };
+    MainItems->Add(Exit, FDIR_DOWN);
+  }
+
   // Quick Load secondary Load menu button
   QuickLoad = new TitleButton(0, MenuEntriesSprites[4], MenuEntriesHSprites[4],
                               SecondaryItemHighlightSprite,

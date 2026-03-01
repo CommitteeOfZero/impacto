@@ -32,6 +32,9 @@ void Configure() {
   EndingListSprite = EnsureGetMember<Sprite>("EndingListSprite");
   EndingListHighlightSprite =
       EnsureGetMember<Sprite>("EndingListHighlightSprite");
+  if (HasTitleMenuExitButton) {
+    ExitSprite = EnsureGetMember<Sprite>("ExitSprite");
+  }
 
   PrimaryFadeInDuration = EnsureGetMember<float>("PrimaryFadeInDuration");
   PrimaryFadeOutDuration = EnsureGetMember<float>("PrimaryFadeOutDuration");

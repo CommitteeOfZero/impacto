@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../animation.h"
+#include "../../character2d.h"
 #include "../../ui/menu.h"
 #include "../../ui/widgets/group.h"
 #include "../../ui/widgets/button.h"
@@ -55,6 +56,7 @@ class TitleMenu : public Menu {
   Widgets::CHLCC::TitleButton* Load;
   Widgets::CHLCC::TitleButton* Extra;
   Widgets::CHLCC::TitleButton* System;
+  Widgets::CHLCC::TitleButton* Exit;
 
   Widgets::Group* LoadItems;
   Widgets::CHLCC::TitleButton* SubLoad;

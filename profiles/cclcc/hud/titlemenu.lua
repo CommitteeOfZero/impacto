@@ -60,6 +60,7 @@ root.TitleMenu = {
     TitleAnimationFileId = 32,
     MenuEntriesSprites = {},
     MenuEntriesHighlightedSprites = {},
+    ExitSprite = "ExitSprite",
     MenuEntriesNum = 5,
     ChoiceBlinkAnimationDurationIn = 1,
     HighlightAnimationDurationIn = 15/60,
@@ -186,4 +187,9 @@ root.Sprites["TitleMenuOverlay"] = {
 root.Sprites["TitleMenuSmoke"] = {
     Sheet = "MenuChip",
     Bounds = { X = 0, Y = 1638, Width = 2000, Height = 410 },
+};
+
+root.Sprites["ExitSprite"] = {
+    Sheet = "TitleChip",
+    Bounds = { X = 33, Y = 568, Width = 223, Height = 37 },
 };

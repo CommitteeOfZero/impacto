@@ -10,6 +10,9 @@ namespace TitleMenu {
 
 void Configure();
 
+inline Sprite ExitSprite;
+inline Sprite ExitHighlightSprite;
+
 inline int LineNum;
 int constexpr LineEntriesNumMax = 32;
 inline Sprite LineSprites[LineEntriesNumMax];
