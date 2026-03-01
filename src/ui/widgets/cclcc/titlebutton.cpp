@@ -51,10 +51,20 @@ void TitleButton::Update(float dt) {
       Audio::PlayInGroup(Audio::ACG_SE, "sysse", 1, false, 0);
     }
     if (!IsSubButton) {
-      if (HighlightAnimation.IsOut() && HasFocus) {
-        HighlightAnimation.StartIn();
-      } else if (HighlightAnimation.IsIn() && !HasFocus) {
-        HighlightAnimation.StartOut();
+      if (HasFocus) {
+        if (Input::CurrentInputDevice == Input::Device::Mouse ||
+            Input::CurrentInputDevice == Input::Device::Touch) {
+          HighlightAnimation.Progress = 1.0f;
+        } else if (HighlightAnimation.IsOut()) {
+          HighlightAnimation.StartIn();
+        }
+      } else {
+        if (Input::CurrentInputDevice == Input::Device::Mouse ||
+            Input::CurrentInputDevice == Input::Device::Touch) {
+          HighlightAnimation.Progress = 0.0f;
+        } else if (HighlightAnimation.IsIn()) {
+          HighlightAnimation.StartOut();
+        }
       }
     }
   }
