@@ -33,6 +33,11 @@ void Configure() {
   EndingListHighlightSprite =
       EnsureGetMember<Sprite>("EndingListHighlightSprite");
 
+  auto nullSprite = Sprite();
+  nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
+  ExitSprite = nullSprite;
+  TryGetMember<Sprite>("ExitSprite", ExitSprite);
+
   PrimaryFadeInDuration = EnsureGetMember<float>("PrimaryFadeInDuration");
   PrimaryFadeOutDuration = EnsureGetMember<float>("PrimaryFadeOutDuration");
   SecondaryFadeInDuration = EnsureGetMember<float>("SecondaryFadeInDuration");

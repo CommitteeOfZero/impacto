@@ -26,6 +26,7 @@ inline Sprite LibrarySprite;
 inline Sprite LibraryHighlightSprite;
 inline Sprite EndingListSprite;
 inline Sprite EndingListHighlightSprite;
+inline Sprite ExitSprite;
 
 inline float PrimaryFadeInDuration;
 inline float PrimaryFadeOutDuration;

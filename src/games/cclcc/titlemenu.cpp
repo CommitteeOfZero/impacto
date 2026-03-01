@@ -62,6 +62,8 @@ void TitleMenu::ExtraButtonOnClick(Widgets::Button* target) {
   ShowExtraItems();
 }
 
+void TitleMenu::ExitButtonOnClick() { Game::ShouldQuit = true; }
+
 TitleMenu::TitleMenu() {
   MainItems = new Widgets::Group(this);
   ContinueItems = new Widgets::Group(this);
@@ -132,6 +134,15 @@ TitleMenu::TitleMenu() {
       40, MenuEntriesSprites[4], MenuEntriesHSprites[4], ItemHighlightSprite,
       glm::vec2(ItemHighlightOffsetX, (ItemYBase + (4 * ItemPadding))));
   setupBtn(Help, onClick, MainItems, FDIR_DOWN);
+
+  if (Profile::HasTitleMenuExitButton) {
+    // Exit menu button (Configuration/Patch driven)
+    Exit = new TitleButton(
+        5, ExitSprite, ExitSprite, ItemHighlightSprite,
+        glm::vec2(ItemHighlightOffsetX, (ItemYBase + (5 * ItemPadding))));
+    setupBtn(
+        Exit, [](auto*) { return ExitButtonOnClick(); }, MainItems, FDIR_DOWN);
+  }
 
   // Load secondary Continue menu button
   Load = new TitleButton(10, LoadSprite, LoadHighlightSprite, nullSprite,
