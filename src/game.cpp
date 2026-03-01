@@ -221,6 +221,24 @@ void UpdateGameState(float dt) {
   }
 }
 
+bool ConfirmQuit() {
+  const SDL_MessageBoxButtonData buttons[] = {
+      {0, 0, "Cancel"}, {SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 1, "Quit"}};
+
+  const SDL_MessageBoxData msgbox = {SDL_MESSAGEBOX_WARNING,
+                                     Window->SDLWindow,
+                                     "Confirm Exit",
+                                     "Are you sure you want to quit?",
+                                     SDL_arraysize(buttons),
+                                     buttons,
+                                     nullptr};
+
+  int buttonid = 0;
+  SDL_ShowMessageBox(&msgbox, &buttonid);
+
+  return buttonid == 1;
+}
+
 void UpdateSystem(float dt) {
   static float UpdateSecondCounter = 0.0f;
   UpdateSecondCounter += dt;
@@ -236,7 +254,12 @@ void UpdateSystem(float dt) {
 
   while (SDL_PollEvent(&e)) {
     if (e.type == SDL_QUIT) {
-      ShouldQuit = true;
+      if (ConfirmQuit()) {
+        ShouldQuit = true;
+      } else {
+        SDL_FlushEvent(SDL_QUIT);  // prevent repeat quit
+      }
+      continue;
     }
 
 #ifndef IMPACTO_DISABLE_IMGUI
