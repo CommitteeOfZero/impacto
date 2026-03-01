@@ -14,12 +14,10 @@ namespace CHLCC {
 namespace TitleMenu {
 
 void Configure() {
-  auto nullSprite = Sprite();
-  nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
-  ExitSprite = nullSprite;
-  TryGetMember<Sprite>("ExitSprite", ExitSprite);
-  ExitHighlightSprite = nullSprite;
-  TryGetMember<Sprite>("ExitHighlightSprite", ExitHighlightSprite);
+  if (HasTitleMenuExitButton) {
+    ExitSprite = EnsureGetMember<Sprite>("ExitSprite");
+    ExitHighlightSprite = EnsureGetMember<Sprite>("ExitHighlightSprite");
+  }
 
   BackgroundSprite = EnsureGetMember<Sprite>("BackgroundSprite");
   DelusionADVUnderSprite = EnsureGetMember<Sprite>("DelusionADVUnderSprite");

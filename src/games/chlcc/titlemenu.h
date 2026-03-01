@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../animation.h"
+#include "../../character2d.h"
 #include "../../ui/menu.h"
 #include "../../ui/widgets/group.h"
 #include "../../ui/widgets/button.h"
@@ -45,7 +46,6 @@ class TitleMenu : public Menu {
 
   void MenuButtonOnClick(Widgets::Button* target);
   void SecondaryButtonOnClick(Widgets::Button* target);
-  static void ExitButtonOnClick();
 
   void DrawTitleMenuBackGraphics() const;
   void DrawSpinningCircle(float alpha) const;
