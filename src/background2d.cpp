@@ -848,9 +848,12 @@ void ResetExplodeTris(const Sprite& renderSprite) {
     for (size_t x = 0; x <= ExplodeGridWidth; x++) {
       const glm::ivec2 randomOffsetLimits =
           glm::ivec2(cellDimensions + glm::vec2(0.5f)) * 10;
-      const glm::vec2 randomOffset = glm::vec2(CALCrnd(randomOffsetLimits.x),
-                                               CALCrnd(randomOffsetLimits.y)) /
-                                     10.0f;
+
+      const int randomOffsetX = CALCrnd(randomOffsetLimits.x);
+      const int randomOffsetY = CALCrnd(randomOffsetLimits.y);
+      const glm::vec2 randomOffset =
+          glm::vec2(randomOffsetX, randomOffsetY) / 10.0f;
+
       glm::vec2 gridPointPos =
           cellDimensions * (glm::vec2(x, y) - glm::vec2(0.5f)) + randomOffset;
 
@@ -915,11 +918,15 @@ void ResetExplodeTris(const Sprite& renderSprite) {
 
         // TranslationSpeed is not based on design dimensions in the
         // MAGES. engine either
-        tri.TranslationSpeed =
-            glm::vec2(CALCrnd(1200), CALCrnd(1200)) / 100.0f - glm::vec2(6.0f);
-        tri.RotationSpeed = ScrWorkAnglesToQuaternion(CALCrnd(0x400) - 0x200,
-                                                      CALCrnd(0x400) - 0x200,
-                                                      CALCrnd(0x400) - 0x200);
+        tri.TranslationSpeed.x = CALCrnd(1200) / 100.0f - 6.0f;
+        tri.TranslationSpeed.y = CALCrnd(1200) / 100.0f - 6.0f;
+
+        const int rotationSpeedX = CALCrnd(0x400) - 0x200;
+        const int rotationSpeedY = CALCrnd(0x400) - 0x200;
+        const int rotationSpeedZ = CALCrnd(0x400) - 0x200;
+        tri.RotationSpeed = ScrWorkAnglesToQuaternion(
+            rotationSpeedX, rotationSpeedY, rotationSpeedZ);
+
         tri.StartFadeOutTime = static_cast<uint8_t>(CALCrnd(20) + 10);
       }
     }
