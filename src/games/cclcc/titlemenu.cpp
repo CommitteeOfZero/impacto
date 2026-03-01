@@ -1,8 +1,6 @@
 #include "titlemenu.h"
 
-#include "../../texture/texture.h"
 #include "../../spritesheet.h"
-#include "../../io/vfs.h"
 
 #include "../../renderer/renderer.h"
 #include "../../mem.h"
@@ -12,7 +10,6 @@
 #include "../../profile/games/cclcc/titlemenu.h"
 #include "../../profile/scriptvars.h"
 #include "../../profile/game.h"
-#include "../../profile/vm.h"
 #include "../../vm/interface/input.h"
 #include "../../audio/audiosystem.h"
 
@@ -23,6 +20,7 @@ namespace CCLCC {
 using namespace Impacto::Profile::TitleMenu;
 using namespace Impacto::Profile::CCLCC::TitleMenu;
 using namespace Impacto::Profile::ScriptVars;
+using namespace Impacto::Profile;
 
 using namespace Impacto::Vm::Interface;
 
@@ -61,8 +59,6 @@ void TitleMenu::ExtraButtonOnClick(Widgets::Button* target) {
   InputLocked = true;
   ShowExtraItems();
 }
-
-void TitleMenu::ExitButtonOnClick() { Game::ShouldQuit = true; }
 
 TitleMenu::TitleMenu() {
   MainItems = new Widgets::Group(this);
@@ -135,13 +131,13 @@ TitleMenu::TitleMenu() {
       glm::vec2(ItemHighlightOffsetX, (ItemYBase + (4 * ItemPadding))));
   setupBtn(Help, onClick, MainItems, FDIR_DOWN);
 
-  if (Profile::HasTitleMenuExitButton) {
+  if (HasTitleMenuExitButton) {
     // Exit menu button (Configuration/Patch driven)
     Exit = new TitleButton(
         5, ExitSprite, ExitSprite, ItemHighlightSprite,
         glm::vec2(ItemHighlightOffsetX, (ItemYBase + (5 * ItemPadding))));
     setupBtn(
-        Exit, [](auto*) { return ExitButtonOnClick(); }, MainItems, FDIR_DOWN);
+        Exit, [](auto*) { Game::ShouldQuit = true; }, MainItems, FDIR_DOWN);
   }
 
   // Load secondary Continue menu button
