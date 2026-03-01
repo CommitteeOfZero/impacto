@@ -873,6 +873,20 @@ void ResetExplodeTris(const Sprite& renderSprite) {
     }
   }
 
+  const glm::vec2 renderSpritePos = renderSprite.Bounds.GetPos();
+  const glm::vec2 renderSpriteSheetDimensions =
+      renderSprite.Sheet.GetDimensions();
+
+  // Set the UVs for each vertex by "overlaying" the vertex grid onto the
+  // sprite's texture
+  const auto getSpritePosition = [&](glm::vec2 gridPosition) {
+    const glm::vec2 texturePos =
+        gridPosition / renderSprite.BaseScale + renderSpritePos;
+    const glm::vec2 normalizedTexturePos =
+        texturePos / renderSpriteSheetDimensions;
+    return normalizedTexturePos;
+  };
+
   // Fill the tri array
   ExplodeTris.fill(ExplodeTri());
   for (size_t y = 0; y < ExplodeGridHeight; y++) {
@@ -890,15 +904,6 @@ void ResetExplodeTris(const Sprite& renderSprite) {
                              grid[y * (ExplodeGridWidth + 1) + x + 1],
                              grid[(y + 1) * (ExplodeGridWidth + 1) + x]};
 
-        // Set the UVs for each vertex by "overlaying" the vertex grid onto the
-        // sprite's texture
-        const auto getSpritePosition = [&](glm::vec2 gridPosition) {
-          const glm::vec2 texturePos = gridPosition / renderSprite.BaseScale +
-                                       renderSprite.Bounds.GetPos();
-          const glm::vec2 normalizedTexturePos =
-              texturePos / renderSprite.Sheet.GetDimensions();
-          return normalizedTexturePos;
-        };
         std::ranges::transform(tri.VertexOffsets, tri.SpritePositions.begin(),
                                getSpritePosition);
 
