@@ -64,6 +64,7 @@ inline bool Fullscreen;
 inline char const* Subtitles;
 inline bool CloseBacklogWhenReachedEnd = true;
 inline DateFormatDef DateFormat = +DateFormatType::YMD;
+inline bool HasTitleMenuExitButton = false;
 
 inline int PlatformId = 0;
 
