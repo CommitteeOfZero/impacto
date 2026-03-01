@@ -163,6 +163,8 @@ root.TitleMenu = {
     MenuEntriesNum = 14,
     MenuEntriesSprites = {},
     MenuEntriesHighlightedSprites = {},
+    ExitSprite = "ExitSprite",
+    ExitHighlightSprite = "ExitHighlightSprite",
     LineNum = 6,
     LineEntriesSprites = {}
 };
@@ -509,4 +511,14 @@ root.Sprites["TitleMenuItemLoadHighlighted"] = {
 root.Sprites["TitleMenuSecondaryItemHighlight"] = {
     Sheet = "Title",
     Bounds = { X = 915, Y = 989, Width = 285, Height = 34 },
+};
+
+root.Sprites["ExitSprite"] = {
+    Sheet = "Title",
+    Bounds = { X = 1370, Y = 944, Width = 72, Height = 23 },
+};
+
+root.Sprites["ExitHighlightSprite"] = {
+    Sheet = "Title",
+    Bounds = { X = 1370, Y = 920, Width = 72, Height = 23 },
 };

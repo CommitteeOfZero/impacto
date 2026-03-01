@@ -45,6 +45,7 @@ class TitleMenu : public Menu {
 
   void MenuButtonOnClick(Widgets::Button* target);
   void SecondaryButtonOnClick(Widgets::Button* target);
+  static void ExitButtonOnClick();
 
   void DrawTitleMenuBackGraphics() const;
   void DrawSpinningCircle(float alpha) const;
@@ -55,6 +56,7 @@ class TitleMenu : public Menu {
   Widgets::CHLCC::TitleButton* Load;
   Widgets::CHLCC::TitleButton* Extra;
   Widgets::CHLCC::TitleButton* System;
+  Widgets::CHLCC::TitleButton* Exit;
 
   Widgets::Group* LoadItems;
   Widgets::CHLCC::TitleButton* SubLoad;
