@@ -928,6 +928,8 @@ void ResetExplodeTris(const Sprite& renderSprite) {
             rotationSpeedX, rotationSpeedY, rotationSpeedZ);
 
         tri.StartFadeOutTime = static_cast<uint8_t>(CALCrnd(20) + 10);
+        // Fade out duration is 32 fade counts, and the max fade count is 64
+        assert(tri.StartFadeOutTime + 32.0f <= 64.0f);
       }
     }
   }
