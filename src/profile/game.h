@@ -61,6 +61,7 @@ inline char const* Language;
 inline int ResolutionWidth;
 inline int ResolutionHeight;
 inline bool Fullscreen;
+// TODO Move to "Patch" logic
 inline char const* Subtitles;
 inline bool CloseBacklogWhenReachedEnd = true;
 inline DateFormatDef DateFormat = +DateFormatType::YMD;
