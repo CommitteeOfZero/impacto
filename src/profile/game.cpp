@@ -26,7 +26,9 @@ void LoadGameFromLua() {
   ResolutionWidth = EnsureGetMember<int>("ResolutionWidth");
   ResolutionHeight = EnsureGetMember<int>("ResolutionHeight");
   Fullscreen = EnsureGetMember<bool>("Fullscreen");
-  Subtitles = EnsureGetMember<char const*>("Subtitles");
+  SubtitleConfig = SubtitleConfigType::_from_integral_unchecked(
+      TryGetMember<uint8_t>("SubtitleConfig")
+          .value_or(+SubtitleConfigType::All));
   CloseBacklogWhenReachedEnd =
       TryGetMember<bool>("CloseBacklogWhenReachedEnd").value_or(true);
   DateFormat = DateFormatType::_from_integral_unchecked(
