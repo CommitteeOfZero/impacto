@@ -48,7 +48,8 @@
       "platform": "linux | windows"
     },
     "libwebp",
-    "fmt"
+    "fmt",
+    "libass"
   ],
   "overrides": [
     {

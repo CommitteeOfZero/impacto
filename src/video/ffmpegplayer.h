@@ -14,6 +14,7 @@
 #include "../io/stream.h"
 #include "../renderer/yuvframe.h"
 #include "../audio/ffmpegaudioplayer.h"
+#include "../subtitle/subtitlesystem.h"
 
 namespace Impacto {
 namespace Io {
@@ -47,7 +48,7 @@ class FFmpegPlayer : public VideoPlayer {
 
   void Read();
   template <AVMediaType avType>
-  void Decode();
+  void Decode(FFmpegStream<avType>& stream);
   void ProcessAudio();
 
   std::atomic<bool> AbortRequest;
@@ -56,7 +57,11 @@ class FFmpegPlayer : public VideoPlayer {
   std::optional<FFmpegStream<AVMEDIA_TYPE_VIDEO>> VideoStream;
   std::optional<FFmpegStream<AVMEDIA_TYPE_AUDIO>> AudioStream;
 
+  std::vector<FFmpegStream<AVMEDIA_TYPE_SUBTITLE>> EmbeddedSubtitleStreams;
+  std::optional<Subtitle::SubtitlePlayer> SubPlayer;
+
  private:
+  void InitSubtitles(std::vector<std::pair<av::Stream, int>>& subtitleStreams);
   void FillAudioBuffers();
   Clock::Seconds GetTargetDelay(Clock::Seconds duration);
   bool QueuesHaveEnoughPackets();
@@ -66,6 +71,8 @@ class FFmpegPlayer : public VideoPlayer {
   template <AVMediaType MediaType>
   void OpenCodec(std::optional<FFmpegStream<MediaType>>& streamOpt,
                  av::Stream&& avStream, int streamId);
+
+  void UpdateSubtitles();
 
   static int constexpr FILESTREAMBUFFERSZ = 64 * 8192;
   std::condition_variable ReadCond;

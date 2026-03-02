@@ -20,6 +20,8 @@
 #undef __unix__
 #endif
 
+#include "ffmpegsubtitlehelper.h"
+
 struct AVFrame;
 struct AVPacket;
 struct AVCodecContext;
@@ -44,6 +46,12 @@ struct AVTypes<AVMEDIA_TYPE_AUDIO> {
   using FrameType = av::AudioSamples;
 };
 
+template <>
+struct AVTypes<AVMEDIA_TYPE_SUBTITLE> {
+  using DecodingContextType = SubtitleDecoderContext;
+  using FrameType = SubtitleData;
+};
+
 template <AVMediaType MediaType>
 using DecodingContext_t = typename AVTypes<MediaType>::DecodingContextType;
 
@@ -56,7 +64,7 @@ struct AVPacketItem {
 };
 
 template <AVMediaType MediaType>
-struct AVFrameItem {
+struct AVDecodedItem {
   Frame_t<MediaType> Frame;
   int Serial = -1;
   av::Timestamp Timestamp;
@@ -65,9 +73,9 @@ struct AVFrameItem {
 template <AVMediaType MediaType>
 struct FFmpegStream {
   DecodingContext_t<MediaType> CodecContext;
-  av::Stream stream;
+  av::Stream AvStream;
   moodycamel::BlockingReaderWriterCircularBuffer<AVPacketItem> PacketQueue{25};
-  moodycamel::BlockingReaderWriterCircularBuffer<AVFrameItem<MediaType>>
+  moodycamel::BlockingReaderWriterCircularBuffer<AVDecodedItem<MediaType>>
       FrameQueue{60};
   int Duration;
   int PacketQueueSerial = 0;
@@ -77,12 +85,12 @@ struct FFmpegStream {
 
   FFmpegStream() = default;
   FFmpegStream(av::Stream&& avStream, DecodingContext_t<MediaType>&& codecCtx)
-      : CodecContext(std::move(codecCtx)), stream(std::move(avStream)) {}
+      : CodecContext(std::move(codecCtx)), AvStream(std::move(avStream)) {}
 
   FFmpegStream(av::Stream&& avStream, DecodingContext_t<MediaType>&& codecCtx,
                int duration)
       : CodecContext(std::move(codecCtx)),
-        stream(std::move(avStream)),
+        AvStream(std::move(avStream)),
         Duration(duration) {}
 
   void FlushPacketQueue();
