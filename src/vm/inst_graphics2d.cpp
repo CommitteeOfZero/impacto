@@ -362,9 +362,13 @@ VmInstruction(InstGetCharaPause) {
 }
 VmInstruction(InstBGfadeExpInit) {
   StartInstruction;
-  PopExpression(arg1);
-  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-             "STUB instruction BGfadeExpInit(arg1: {:d})\n", arg1);
+
+  PopExpression(bgId);
+  bgId = static_cast<int>(std::floor(std::log2(bgId)));
+
+  Background2D& background = Backgrounds[bgId];
+  background.UpdateState(bgId);
+  ResetExplodeTris(background.RenderSprite);
 }
 VmInstruction(InstBGeffectWave) {
   StartInstruction;
