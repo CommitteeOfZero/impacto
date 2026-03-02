@@ -118,6 +118,7 @@ class Background2D : public Loadable<Background2D, bool, uint32_t> {
   void RenderCaptureMasked();
   void RenderMaskedInverted();
   void RenderFade();
+  void RenderExplode();
   template <bool PhaseZero>
   void RenderBgWave();
 
@@ -127,7 +128,7 @@ class Background2D : public Loadable<Background2D, bool, uint32_t> {
       {
           &Background2D::RenderRegular,         // 0
           &Background2D::RenderFade,            // 1
-          &Background2D::RenderRegular,         // 2
+          &Background2D::RenderExplode,         // 2
           &Background2D::RenderRegular,         // 3
           &Background2D::RenderRegular,         // 4
           &Background2D::RenderRegular,         // 5
@@ -197,5 +198,6 @@ inline Background2D ShaderScreencapture;
 inline ankerl::unordered_dense::map<int, Background2D*> Backgrounds2D;
 
 bool IsBgWaveEffectActive();
+void ResetExplodeTris(const Sprite& renderSprite);
 
 }  // namespace Impacto

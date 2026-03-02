@@ -1,6 +1,8 @@
 #include "background2d.h"
 
+#include <ranges>
 #include <numeric>
+#include <glm/ext/quaternion_exponential.hpp>
 
 #include "mask2d.h"
 #include "mem.h"
@@ -813,6 +815,189 @@ void Background2D::RenderFade() {
   Tint.a *= FadeCount / 256.0f;
 
   RenderRegular();
+}
+
+constexpr size_t ExplodeGridWidth = 64;
+constexpr size_t ExplodeGridHeight = 36;
+struct ExplodeTri {
+  std::array<glm::vec2, 3> SpritePositions{};
+  std::array<glm::vec2, 3> VertexOffsets{};
+
+  glm::quat Rotation = {1.0f, 0.0f, 0.0f, 0.0f};
+  glm::quat RotationSpeed = {1.0f, 0.0f, 0.0f, 0.0f};
+
+  glm::vec2 DisplayPosition{};
+  glm::vec2 InitialDisplayPosition{};
+  glm::vec2 TranslationSpeed{};
+
+  float Alpha = 1.0f;
+  uint8_t StartFadeOutTime = 0;
+};
+static std::array<ExplodeTri, ExplodeGridWidth * ExplodeGridHeight * 2>
+    ExplodeTris;
+
+void ResetExplodeTris(const Sprite& renderSprite) {
+  const glm::vec2 renderDimensions = renderSprite.ScaledBounds().GetSize();
+  const glm::vec2 cellDimensions =
+      renderDimensions / glm::vec2(ExplodeGridWidth, ExplodeGridHeight);
+
+  // Initialize gridpoint positions
+  std::array<glm::vec2, (ExplodeGridWidth + 1) * (ExplodeGridHeight + 1)> grid;
+
+  for (size_t y = 0; y <= ExplodeGridHeight; y++) {
+    for (size_t x = 0; x <= ExplodeGridWidth; x++) {
+      const glm::ivec2 randomOffsetLimits =
+          glm::ivec2(cellDimensions + glm::vec2(0.5f)) * 10;
+
+      const int randomOffsetX = CALCrnd(randomOffsetLimits.x);
+      const int randomOffsetY = CALCrnd(randomOffsetLimits.y);
+      const glm::vec2 randomOffset =
+          glm::vec2(randomOffsetX, randomOffsetY) / 10.0f;
+
+      glm::vec2 gridPointPos =
+          cellDimensions * (glm::vec2(x, y) - glm::vec2(0.5f)) + randomOffset;
+
+      // Clamp edge grid points to the edge of the sprite
+      if (x == 0)
+        gridPointPos.x = 0.0f;
+      else if (x == ExplodeGridWidth)
+        gridPointPos.x = renderDimensions.x;
+
+      if (y == 0)
+        gridPointPos.y = 0.0f;
+      else if (y == ExplodeGridHeight)
+        gridPointPos.y = renderDimensions.y;
+
+      const size_t idx = y * (ExplodeGridWidth + 1) + x;
+      grid[idx] = glm::clamp(gridPointPos, {0.0f, 0.0f}, renderDimensions);
+    }
+  }
+
+  const glm::vec2 renderSpritePos = renderSprite.Bounds.GetPos();
+  const glm::vec2 renderSpriteSheetDimensions =
+      renderSprite.Sheet.GetDimensions();
+
+  // Set the UVs for each vertex by "overlaying" the vertex grid onto the
+  // sprite's texture
+  const auto getSpritePosition = [&](glm::vec2 gridPosition) {
+    const glm::vec2 texturePos =
+        gridPosition / renderSprite.BaseScale + renderSpritePos;
+    const glm::vec2 normalizedTexturePos =
+        texturePos / renderSpriteSheetDimensions;
+    return normalizedTexturePos;
+  };
+
+  // Fill the tri array
+  ExplodeTris.fill(ExplodeTri());
+  for (size_t y = 0; y < ExplodeGridHeight; y++) {
+    for (size_t x = 0; x < ExplodeGridWidth; x++) {
+      for (uint8_t triIdxInSquare = 0; triIdxInSquare < 2; triIdxInSquare++) {
+        const size_t triIdx = (y * ExplodeGridWidth + x) * 2 + triIdxInSquare;
+        ExplodeTri& tri = ExplodeTris[triIdx];
+
+        tri.VertexOffsets =
+            triIdxInSquare
+                ? std::array{grid[y * (ExplodeGridWidth + 1) + x + 1],
+                             grid[(y + 1) * (ExplodeGridWidth + 1) + x],
+                             grid[(y + 1) * (ExplodeGridWidth + 1) + x + 1]}
+                : std::array{grid[y * (ExplodeGridWidth + 1) + x],
+                             grid[y * (ExplodeGridWidth + 1) + x + 1],
+                             grid[(y + 1) * (ExplodeGridWidth + 1) + x]};
+
+        std::ranges::transform(tri.VertexOffsets, tri.SpritePositions.begin(),
+                               getSpritePosition);
+
+        // Set the InitialDisplayPosition to the center of the bounding square
+        // and make VertexOffsets the offsets from this center
+        const glm::vec2 topLeft =
+            glm::min(tri.VertexOffsets[0],
+                     glm::min(tri.VertexOffsets[1], tri.VertexOffsets[2]));
+        const glm::vec2 bottomRight =
+            glm::max(tri.VertexOffsets[0],
+                     glm::max(tri.VertexOffsets[1], tri.VertexOffsets[2]));
+        const glm::vec2 center = (topLeft + bottomRight) / 2.0f;
+        tri.InitialDisplayPosition = center;
+        std::ranges::transform(
+            tri.VertexOffsets, tri.VertexOffsets.begin(),
+            [center](glm::vec2 pos) { return pos - center; });
+
+        // TranslationSpeed is not based on design dimensions in the
+        // MAGES. engine either
+        tri.TranslationSpeed.x = CALCrnd(1200) / 100.0f - 6.0f;
+        tri.TranslationSpeed.y = CALCrnd(1200) / 100.0f - 6.0f;
+
+        const int rotationSpeedX = CALCrnd(0x400) - 0x200;
+        const int rotationSpeedY = CALCrnd(0x400) - 0x200;
+        const int rotationSpeedZ = CALCrnd(0x400) - 0x200;
+        tri.RotationSpeed = ScrWorkAnglesToQuaternion(
+            rotationSpeedX, rotationSpeedY, rotationSpeedZ);
+
+        tri.StartFadeOutTime = static_cast<uint8_t>(CALCrnd(20) + 10);
+        // Fade out duration is 32 fade counts, and the max fade count is 64
+        assert(tri.StartFadeOutTime + 32.0f <= 64.0f);
+      }
+    }
+  }
+}
+
+static void UpdateExplode(float fadeCount) {
+  // Don't run this every frame; only when the fadeCount changed
+  static float lastFadeCount = -1.0f;
+  if (lastFadeCount == fadeCount) return;
+  lastFadeCount = fadeCount;
+
+  bool anyTriVisible = false;
+  for (ExplodeTri& tri : ExplodeTris) {
+    tri.DisplayPosition =
+        tri.InitialDisplayPosition + tri.TranslationSpeed * fadeCount;
+    tri.Rotation = glm::pow(tri.RotationSpeed, fadeCount);
+
+    static constexpr float fadeOutDuration = 32.0f;
+    const float fadeOutProgress =
+        (fadeCount - tri.StartFadeOutTime) / fadeOutDuration;
+    tri.Alpha = std::clamp(1.0f - fadeOutProgress, 0.0f, 1.0f);
+
+    anyTriVisible |= tri.Alpha > 0.0f;
+  }
+
+  SetFlag(SF_BGEXPLOSIONVISIBLE, anyTriVisible);
+}
+
+void Background2D::RenderExplode() {
+  if (FadeCount == -1) {
+    ResetExplodeTris(RenderSprite);
+    return;
+  }
+
+  UpdateExplode(static_cast<float>(FadeCount));
+
+  static std::array<VertexBufferSprites, ExplodeTris.size() * 3> vertices;
+  size_t vertexIdx = 0;
+  for (const ExplodeTri& tri : ExplodeTris) {
+    const glm::mat4 transformationMatrix =
+        TransformationMatrix({0.0f, 0.0f}, {1.0f, 1.0f}, glm::vec3(0.0f),
+                             tri.Rotation, tri.DisplayPosition);
+
+    for (size_t i = 0; i < 3; i++) {
+      vertices[vertexIdx + i] = VertexBufferSprites{
+          .Position = transformationMatrix *
+                      glm::vec4(tri.VertexOffsets[i], 0.0f, 1.0f),
+          .UV = tri.SpritePositions[i],
+          .Tint = {1.0f, 1.0f, 1.0f, tri.Alpha},
+      };
+    }
+
+    vertexIdx += 3;
+  }
+
+  const static std::array<uint16_t, vertices.size()> indices = []() {
+    std::array<uint16_t, vertices.size()> tempIndices;
+    std::iota(tempIndices.begin(), tempIndices.end(), 0);
+    return tempIndices;
+  }();
+
+  Renderer->DrawPrimitives(RenderSprite.Sheet, ShaderProgramType::Sprite,
+                           vertices, indices, glm::mat4(1.0f));
 }
 
 bool IsBgWaveEffectActive() {
