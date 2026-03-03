@@ -4,10 +4,14 @@ if (POLICY CMP0141)
   cmake_policy(SET CMP0141 NEW)
 endif()
 
+if (POLICY CMP0174)
+  cmake_policy(SET CMP0174 NEW)
+endif()
+
 project("impacto")
 
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/modules")
 include(FetchContent)
+find_package(PkgConfig)
 
 if (EMSCRIPTEN)
     list(APPEND CMAKE_MODULE_PATH ${EMSCRIPTEN_ROOT_PATH}/cmake/Modules)
@@ -942,6 +946,7 @@ if (NOT DEFINED IMPACTO_DISABLE_OPENAL)
             src/audio/openal/ffmpegaudioplayer.h
     )
 
+    list(APPEND Impacto_Include_Dirs ${OPENAL_INCLUDE_DIR})
 endif ()
 
 if (EMSCRIPTEN)
@@ -982,49 +987,48 @@ if (EMSCRIPTEN)
     string(REPLACE "-O2" "" CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
     string(REPLACE "-O2" "" CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE}")
 else ()
-    find_package(SDL2 REQUIRED)
+    find_package(SDL2 CONFIG REQUIRED)
     find_package(ZLIB REQUIRED)
-    find_package(OggVorbis REQUIRED)
-    find_package(WebP REQUIRED)
 
-    list(APPEND Impacto_Include_Dirs ${OGGVORBIS_INCLUDE_DIRS})
-
+    set(SDL2_LIBRARIES 
+        "$<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>"
+        "$<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>"
+    )
     if (NX)
+        pkg_check_modules(ogg REQUIRED IMPORTED_TARGET ogg)
+        pkg_check_modules(vorbis REQUIRED IMPORTED_TARGET vorbis)
+        pkg_check_modules(vorbisfile REQUIRED IMPORTED_TARGET vorbisfile)
+        pkg_check_modules(libwebp REQUIRED IMPORTED_TARGET libwebp)
         list(APPEND Impacto_Libs
                 ${SDL2_LIBRARIES}
                 ZLIB::ZLIB
-                vorbisfile
-                vorbis
-                ogg
-                webp
-                dav1d
+                PkgConfig::vorbisfile
+                PkgConfig::vorbis
+                PkgConfig::ogg
+                PkgConfig::libwebp
                 EGL
                 glapi
                 drm_nouveau
                 nx
         )
-
-        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--start-group") # workaround for SDL2 being last in the linker list
     else ()
-        # Add this because apparently find_package(SDL2 REQUIRED) doesn't work right on Arch?
-        if ("${SDL2_LIBRARIES}" STREQUAL "")
-            set(SDL2_LIBRARIES "SDL2::SDL2")
-        endif ()
+        find_package(Ogg CONFIG REQUIRED)
+        find_package(Vorbis CONFIG REQUIRED)
+        find_package(WebP CONFIG REQUIRED)
 
         list(APPEND Impacto_Libs
                 ${SDL2_LIBRARIES}
                 ZLIB::ZLIB
-                ${OGGVORBIS_LIBRARIES}
-                ${WebP_LIBRARIES}
+                WebP::webp WebP::webpdecoder WebP::webpdemux
+                Ogg::ogg
+                Vorbis::vorbis
+                Vorbis::vorbisfile
         )
 
         add_definitions(-DIMPACTO_OPENAL_HAVE_ALEXT)
     endif ()
 endif ()
 
-if (NOT DEFINED IMPACTO_DISABLE_OPENAL)
-    list(APPEND Impacto_Include_Dirs ${OPENAL_INCLUDE_DIR})
-endif ()
 list(APPEND Impacto_Include_Dirs ${SDL2_INCLUDE_DIRS})
 list(APPEND Impacto_Include_Dirs ${WebP_INCLUDE_DIRS})
 
@@ -1130,38 +1134,46 @@ if (NOT DEFINED IMPACTO_DISABLE_FFMPEG)
         if(NOT BUILD_SHARED_LIBS)
             set(AV_ENABLE_SHARED OFF CACHE BOOL "Enable shared library build (Off)" FORCE)            
         endif()
+        set(AV_DISABLE_AVDEVICE ON CACHE INTERNAL "Disable FFMPEG AVDevice")
+        set(AV_DISABLE_AVFILTER ON CACHE INTERNAL "Disable FFMPEG AVFilter")
+        set(AV_BUILD_EXAMPLES OFF CACHE INTERNAL "Build AVCPP Examples")
         FetchContent_Declare(
             avcpp
             GIT_REPOSITORY "https://github.com/h4tr3d/avcpp"
-            GIT_TAG "v2.7.1"
-            PATCH_COMMAND ${AVCPP_PATCH}
-            UPDATE_DISCONNECTED 1
+            GIT_TAG "00e29ea0c0f7036423b80553aaccacd70f90aace"
             SYSTEM
             GIT_SUBMODULES ""
         )
 
         FetchContent_MakeAvailable(avcpp)
+        pkg_check_modules(FFmpeg REQUIRED IMPORTED_TARGET 
+            libavcodec 
+            libavutil 
+            libswscale
+            libswresample
+            libavformat 
+        )
 
         list(APPEND Impacto_Libs
-                avcpp
+            avcpp
+            PkgConfig::FFmpeg
         )
-        
-        list(APPEND Impacto_Libs
-            ${FFMPEG_LIBRARIES}
-        )
-        list(APPEND Impacto_Include_Dirs ${FFMPEG_INCLUDE_DIRS})
-        list(APPEND Impacto_Include_Dirs ${AvCpp_SOURCE_DIR}/src)
-
     else ()
         find_package(avcpp CONFIG REQUIRED)
         list(APPEND Impacto_Libs
-                avcpp::avcpp
-                avcpp::FFmpeg
+            avcpp::avcpp
+            avcpp::FFmpeg
         )
+        
     endif ()
-
-    
-
+    list(APPEND Impacto_Include_Dirs ${FFMPEG_INCLUDE_DIRS})
+    list(APPEND Impacto_Libs ${FFMPEG_LIBRARIES})
+    pkg_check_modules(dav1d REQUIRED IMPORTED_TARGET dav1d)
+    list(APPEND Impacto_Libs PkgConfig::dav1d)
+    if(ANDROID)
+        find_library(mediandk-lib mediandk)
+        list(APPEND Impacto_Libs ${mediandk-lib})
+    endif()
 endif ()
 
 if (NOT DEFINED IMPACTO_DISABLE_MSPACK)

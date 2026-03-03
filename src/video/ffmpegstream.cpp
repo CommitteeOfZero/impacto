@@ -1,11 +1,5 @@
 #include "ffmpegstream.h"
-#include <libavutil/avutil.h>
 #include "ffmpegplayer.h"
-
-extern "C" {
-#include <libavcodec/avcodec.h>
-#include <libavformat/avformat.h>
-};
 
 namespace Impacto {
 namespace Video {
