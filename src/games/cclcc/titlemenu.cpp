@@ -12,6 +12,7 @@
 #include "../../profile/game.h"
 #include "../../vm/interface/input.h"
 #include "../../audio/audiosystem.h"
+#include "../../profile/scriptinput.h"
 
 namespace Impacto {
 namespace UI {
@@ -58,6 +59,14 @@ void TitleMenu::ExtraButtonOnClick(Widgets::Button* target) {
   AllowsScriptInput = false;
   InputLocked = true;
   ShowExtraItems();
+}
+
+void TitleMenu::ExitButtonOnClick(Widgets::Button* target) {
+  target->Hovered = false;
+  Audio::PlayInGroup(Audio::ACG_SE, "sysse", 2, false, 0);
+  AllowsScriptInput = false;
+  InputLocked = true;
+  Input::KeyboardButtonWentDown[SDL_SCANCODE_ESCAPE] = true;
 }
 
 TitleMenu::TitleMenu() {
@@ -137,7 +146,9 @@ TitleMenu::TitleMenu() {
         5, ExitSprite, ExitSprite, ItemHighlightSprite,
         glm::vec2(ItemHighlightOffsetX, (ItemYBase + (5 * ItemPadding))));
     setupBtn(
-        Exit, [](auto*) { Game::ShouldQuit = true; }, MainItems, FDIR_DOWN);
+        Exit,
+        [this](Widgets::Button* target) { return ExitButtonOnClick(target); },
+        MainItems, FDIR_DOWN);
   }
 
   // Load secondary Continue menu button
@@ -293,9 +304,11 @@ void TitleMenu::UpdateInput(float dt) {
     }
   }
   if (CurrentSubMenu && !CurrentSubMenu->HasFocus) return;
-  if (CurrentSubMenu || MainItems->HasFocus) {
+  if (IsFocused) {
     Menu::UpdateInput(dt);
-    MainItems->UpdateInput(dt);
+    if (MainItems->HasFocus && !CurrentSubMenu) {
+      MainItems->UpdateInput(dt);
+    }
     if (CurrentSubMenu) {
       CurrentSubMenu->UpdateInput(dt);
     }
@@ -443,6 +456,9 @@ void TitleMenu::ReturnToMenuUpdate() {
 }
 
 void TitleMenu::MainMenuUpdate() {
+  if (IsFocused) {
+    MainItems->HasFocus = true;
+  }
   MainItems->Tint.a =
       glm::smoothstep(0.0f, 1.0f, PrimaryFadeAnimation.Progress);
   ContinueItems->Tint.a =
