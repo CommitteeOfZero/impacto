@@ -238,8 +238,8 @@ void FFmpegPlayer::HandleSeekRequest() {
     AudioStream->FlushFrameQueue();
   }
 
-  FrameTimer = 0;
-  PreviousFrameTimestamp = -1;
+  FrameTimer = Clock::MonotonicTime{};
+  PreviousFrameTimestamp = std::nullopt;
   SeekRequest = false;
   ReaderEOF = false;
 }
@@ -413,9 +413,10 @@ void FFmpegPlayer::Seek(int64_t pos) {
 
 void FFmpegPlayer::Update(float dt) {
   if (IsPlaying) {
+    using namespace std::literals::chrono_literals;
     if (AudioStream) AudioPlayer->Process();
-    double duration{};
-    double time;
+    Clock::Seconds duration{};
+    Clock::MonotonicTime time;
 
     AVFrameItem<AVMEDIA_TYPE_VIDEO>* const frame =
         VideoStream->FrameQueue.peek();
@@ -430,11 +431,11 @@ void FFmpegPlayer::Update(float dt) {
       }
       return;
     }
-    time = av_gettime_relative() / 1000000.0;
-    if (!FrameTimer) {
+    time = Clock::Now();
+    if (FrameTimer == Clock::MonotonicTime{}) {
       FrameTimer = time;
     }
-    if (PreviousFrameTimestamp != -1) {
+    if (PreviousFrameTimestamp) {
       auto inverseFrameRate = av::Rational(1, 30);
       size_t frameNum = av_rescale_q(frame->Timestamp.timestamp(),
                                      frame->Timestamp.timebase().getValue(),
@@ -442,23 +443,23 @@ void FFmpegPlayer::Update(float dt) {
       // This isn't the place for it but I can't think of
       // anything right now
       ScrWork[SW_MOVIEFRAME] = (int)frameNum;
-      duration = (frame->Timestamp.seconds() - PreviousFrameTimestamp);
+      duration = (frame->Timestamp.toDuration<Clock::Seconds>() -
+                  PreviousFrameTimestamp->toDuration<Clock::Seconds>());
     }
 
     if (AudioStream) {
-      duration = GetTargetDelay(duration);
+      duration = GetTargetDelay(Clock::Seconds(duration));
     } else {
-      duration =
-          ((double)VideoStream->stream.averageFrameRate().getDenominator() /
-           VideoStream->stream.averageFrameRate().getNumerator());
+      duration = Clock::Seconds(
+          (double)VideoStream->stream.averageFrameRate().getDenominator() /
+          VideoStream->stream.averageFrameRate().getNumerator());
     }
 
     if (time < FrameTimer + duration) {
       return;
     }
-
-    FrameTimer += duration;
-    if (duration > 0 && (time - FrameTimer) > 0.1) {
+    FrameTimer += duration_cast<Clock::MonotonicTime::duration>(duration);
+    if (duration > 0s && (time - FrameTimer) > 0.1s) {
       FrameTimer = time;
     }
 
@@ -466,7 +467,8 @@ void FFmpegPlayer::Update(float dt) {
 
     VideoTexture->Submit(frame->Frame.data(0), frame->Frame.data(1),
                          frame->Frame.data(2));
-    VideoClock.Set(frame->Timestamp.seconds(), frame->Serial);
+    VideoClock.Set(frame->Timestamp.toDuration<Clock::Seconds>(),
+                   frame->Serial);
     MasterClock->SyncTo(&VideoClock);
     AVFrameItem<AVMEDIA_TYPE_VIDEO> unused;
     VideoStream->FrameQueue.wait_dequeue(unused);
@@ -483,19 +485,22 @@ void FFmpegPlayer::Render(float videoAlpha) {
   }
 }
 
-double FFmpegPlayer::GetTargetDelay(double duration) {
-  double diff = VideoClock.Get() - MasterClock->Get();
-  double sync_threshold = std::max(0.04, std::min(0.1, duration));
-  if (!isnan(diff) && fabs(diff) < MaxFrameDuration) {
+Clock::Seconds FFmpegPlayer::GetTargetDelay(Clock::Seconds duration) {
+  using namespace std::literals::chrono_literals;
+  using namespace std::chrono;
+  Clock::Seconds diff = VideoClock.Get() - MasterClock->Get();
+  Clock::Seconds sync_threshold =
+      std::max<Clock::Seconds>(0.04s, std::min<Clock::Seconds>(0.1s, duration));
+  if (!isnan(diff.count()) && abs(diff) < MaxFrameDuration) {
     if (diff <= -sync_threshold)
-      duration = std::max(0.0, duration + diff);
-    else if (diff >= sync_threshold && duration > 0.1)
+      duration = std::max<Clock::Seconds>(0.0s, duration + diff);
+    else if (diff >= sync_threshold && duration > 0.1s)
       duration = duration + diff;
     else if (diff >= sync_threshold)
       duration = 2 * duration;
   }
   ImpLogSlow(LogLevel::Trace, LogChannel::Video, "Target delay: {:f}\n",
-             duration);
+             duration.count());
 
   return duration;
 }

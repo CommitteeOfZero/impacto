@@ -137,10 +137,10 @@ void FFmpegAudioPlayer::Process() {
     int sampleRate = Player->AudioStream->CodecContext.sampleRate();
     samplePosition = std::min(samplePosition, Player->AudioStream->Duration);
     auto audioTime = av::Timestamp(samplePosition, av::Rational(1, sampleRate));
-    double audioS = audioTime.seconds();
-    ImpLogSlow(LogLevel::Trace, LogChannel::Video, "samplePosition: {:f}\n",
-               audioS);
+    auto audioS = audioTime.toDuration<Video::Clock::Seconds>();
     AudioClock.Set(audioS, 0);
+    ImpLogSlow(LogLevel::Trace, LogChannel::Video, "samplePosition: {:f}\n",
+               audioS.count());
 
     FillAudioBuffers();
     ALint sourceState;
