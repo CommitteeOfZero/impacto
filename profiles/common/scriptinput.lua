@@ -80,52 +80,73 @@ local AllDir = root.PADinput.PAD1UP | root.PADinput.PAD1DOWN | root.PADinput.PAD
 
 -- Default to cclcc profile
 root.PADcustomType = 0;
-root.PADcustomSizeA = 43;
+root.PADcustomSizeA = 64;
 root.PADcustomSizeB = 0;
 root.PADcustomA = {
-  root.PADinput.PAD1UP,
-  root.PADinput.PAD1DOWN,
-  root.PADinput.PAD1LEFT,
-  root.PADinput.PAD1RIGHT,
-  root.PADinput.PAD1A | root.PADinput.PAD1START,
-  root.PADinput.PAD1A,
-  root.PADinput.PAD1B,
-  root.PADinput.PAD1L1,
-  root.PADinput.PAD1R1,
-  root.PADinput.PAD1X,
-  root.PADinput.PAD1START,
-  0,
-  root.PADinput.PAD1Y,
-  root.PADinput.PAD1R3,
-  root.PADinput.PAD1A | root.PADinput.PAD1B,
-  root.PADinput.PAD1A,
-  root.PADinput.PAD1B,
-  root.PADinput.PAD1X,
-  root.PADinput.PAD1Y,
-  0,
-  0,
-  root.PADinput.PAD1SELECT,
-  0,
-  root.PADinput.PAD1A,
-  0,
-  0,
-  0,
-  0,
-  root.PADinput.PAD1UP_LS | root.PADinput.PAD1UP_DIRECT,
-  root.PADinput.PAD1DOWN_LS | root.PADinput.PAD1DOWN_DIRECT,
-  root.PADinput.PAD1LEFT_LS | root.PADinput.PAD1LEFT_DIRECT,
-  root.PADinput.PAD1RIGHT_LS | root.PADinput.PAD1RIGHT_DIRECT,
-  root.PADinput.PAD1UP_RS,
-  root.PADinput.PAD1DOWN_RS,
-  root.PADinput.PAD1LEFT_RS,
-  root.PADinput.PAD1RIGHT_RS,
-  root.PADinput.PAD1L2,
-  root.PADinput.PAD1R2,
-  root.PADinput.PAD1LEFT | root.PADinput.PAD1L2,
-  root.PADinput.PAD1RIGHT | root.PADinput.PAD1R2,
-  AllDir | root.PADinput.PAD1A,
-  root.PADinput.PAD1L1,
-  root.PADinput.PAD1R1,
+    root.PADinput.PAD1UP, --0
+    root.PADinput.PAD1DOWN, --1
+    root.PADinput.PAD1LEFT, --2
+    root.PADinput.PAD1RIGHT, --3
+    root.PADinput.PAD1A | root.PADinput.PAD1START, --4
+    root.PADinput.PAD1A, --5
+    root.PADinput.PAD1B, --6
+    root.PADinput.PAD1L1, --7
+    root.PADinput.PAD1R1, --8
+    root.PADinput.PAD1X, --9
+    root.PADinput.PAD1START, --10
+    0, --11
+    root.PADinput.PAD1Y, --12
+    root.PADinput.PAD1R3, --13
+    root.PADinput.PAD1A | root.PADinput.PAD1B, --14
+    root.PADinput.PAD1A, --15
+    root.PADinput.PAD1B, --16
+    root.PADinput.PAD1X, --17
+    root.PADinput.PAD1Y, --18
+    0, --19
+    0, --20
+    root.PADinput.PAD1SELECT, --21
+    0, --22
+    root.PADinput.PAD1A, --23
+    0, --24
+    0, --25
+    0, --26
+    0, --27
+    root.PADinput.PAD1UP_LS | root.PADinput.PAD1UP_DIRECT, --28
+    root.PADinput.PAD1DOWN_LS | root.PADinput.PAD1DOWN_DIRECT, --29
+    root.PADinput.PAD1LEFT_LS | root.PADinput.PAD1LEFT_DIRECT, --30
+    root.PADinput.PAD1RIGHT_LS | root.PADinput.PAD1RIGHT_DIRECT, --31
+    root.PADinput.PAD1UP_RS, --32
+    root.PADinput.PAD1DOWN_RS, --33
+    root.PADinput.PAD1LEFT_RS, --34
+    root.PADinput.PAD1RIGHT_RS, --35
+    root.PADinput.PAD1L2, --36
+    root.PADinput.PAD1R2, --34
+    root.PADinput.PAD1LEFT | root.PADinput.PAD1L2, --35
+    root.PADinput.PAD1RIGHT | root.PADinput.PAD1R2, --36
+    AllDir | root.PADinput.PAD1A, --37
+    root.PADinput.PAD1L1, --38
+    root.PADinput.PAD1R1, --39
+    0, --40
+    0, --41
+    0, --42
+    0, --43
+    0, --44
+    0, --45
+    0, --46
+    0, --47
+    0, --48
+    0, --49
+    0, --50
+    0, --51
+    0, --52
+    0, --53
+    0, --54
+    0, --55
+    0, --56
+    0, --57
+    0, --58
+    0, --59
+    0, --60
 }
 
 root.PADcustomB = {};
