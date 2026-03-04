@@ -236,7 +236,7 @@ void UpdateSystem(float dt) {
 
   while (SDL_PollEvent(&e)) {
     if (e.type == SDL_QUIT) {
-      ShouldQuit = true;
+      SetFlag(3340, true);
     }
 
 #ifndef IMPACTO_DISABLE_IMGUI
