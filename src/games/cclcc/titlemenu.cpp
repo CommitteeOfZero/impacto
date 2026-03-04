@@ -674,6 +674,7 @@ void TitleMenu::ShowContinueItems() {
   Extra->Move(glm::vec2(0.0f, ItemPadding));
   Config->Move(glm::vec2(0.0f, ItemPadding));
   Help->Move(glm::vec2(0.0f, ItemPadding));
+  Exit->Move(glm::vec2(0.0f, ItemPadding));
   ContinueItems->Move(glm::vec2(Profile::DesignWidth / 2, 0.0f),
                       SecondaryFadeAnimation.DurationOut);
 }
@@ -687,6 +688,7 @@ void TitleMenu::HideContinueItems() {
   Extra->Move(glm::vec2(0.0f, -ItemPadding));
   Config->Move(glm::vec2(0.0f, -ItemPadding));
   Help->Move(glm::vec2(0.0f, -ItemPadding));
+  Exit->Move(glm::vec2(0.0f, -ItemPadding));
 }
 
 void TitleMenu::ShowExtraItems() {
@@ -702,6 +704,7 @@ void TitleMenu::ShowExtraItems() {
 
   Config->Move(glm::vec2(0, ItemPadding));
   Help->Move(glm::vec2(0, ItemPadding));
+  Exit->Move(glm::vec2(0, ItemPadding));
   ExtraItems->Move({Profile::DesignWidth / 2, 0.0f},
                    SecondaryFadeAnimation.DurationIn);
 }
@@ -715,6 +718,7 @@ void TitleMenu::HideExtraItems() {
   AllowsScriptInput = true;
   Config->Move(glm::vec2(0, -ItemPadding));
   Help->Move(glm::vec2(0, -ItemPadding));
+  Exit->Move(glm::vec2(0, -ItemPadding));
   Config->Enabled = true;
   Help->Enabled = true;
 }
