@@ -11,7 +11,7 @@ struct SpriteAnimation : public Animation {
   SpriteAnimationDef* Def = 0;
 
   bool Exists();
-  virtual Sprite CurrentSprite();
+  virtual Sprite CurrentSprite() const;
 };
 
 /*
@@ -36,7 +36,7 @@ struct FixedSpriteAnimation : public SpriteAnimation {
   void StartInImpl(bool reset) override;
   void StartOutImpl(bool reset) override;
   void UpdateImpl(float dt) override;
-  Sprite CurrentSprite() override;
+  Sprite CurrentSprite() const override;
   float GetFixedSpriteProgress() const;
 };
 
