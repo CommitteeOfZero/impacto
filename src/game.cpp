@@ -246,7 +246,12 @@ void UpdateSystem(float dt) {
 
   while (SDL_PollEvent(&e)) {
     if (e.type == SDL_QUIT) {
-      ShouldQuit = true;
+      if (Profile::Vm::GameInstructionSet == +Vm::InstructionSet::CHLCC ||
+          Profile::Vm::GameInstructionSet == +Vm::InstructionSet::CC) {
+        Input::KeyboardButtonWentDown[SDL_SCANCODE_ESCAPE] = true;
+      } else {
+        ShouldQuit = true;
+      }
     }
 
 #ifndef IMPACTO_DISABLE_IMGUI
