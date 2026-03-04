@@ -45,6 +45,8 @@
 #include "profile/vm.h"
 #include "profile/scriptvars.h"
 #include "profile/configsystem.h"
+#include "profile/hud/saveicon.h"
+#include "profile/ui/commonmenu.h"
 #include "profile/ui/selectionmenu.h"
 #include "profile/ui/sysmesbox.h"
 #include "profile/ui/systemmenu.h"
@@ -139,6 +141,7 @@ static void Init() {
   if (Profile::GameFeatures & GameFeature::Sc3VirtualMachine) {
     Vm::Init();
 
+    Profile::CommonMenu::Configure();
     Profile::SelectionMenu::Configure();
 
     SaveSystem::Init();
@@ -568,7 +571,9 @@ void Render() {
           break;
         }
         case DrawComponentType::SaveIcon: {
-          SaveIconDisplay::Render();
+          if (Profile::SaveIcon::SaveIconMenuOverlay) {
+            SaveIconDisplay::Render();
+          }
           break;
         }
         default: {
