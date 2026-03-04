@@ -4,7 +4,7 @@ namespace Impacto {
 
 bool SpriteAnimation::Exists() { return Def != 0; }
 
-Sprite SpriteAnimation::CurrentSprite() {
+Sprite SpriteAnimation::CurrentSprite() const {
   int frame = (int)(Progress * (float)Def->FrameCount);
 
   if (frame >= Def->FrameCount)
@@ -67,7 +67,7 @@ void FixedSpriteAnimation::UpdateImpl(float dt) {
   }
 }
 
-Sprite FixedSpriteAnimation::CurrentSprite() {
+Sprite FixedSpriteAnimation::CurrentSprite() const {
   int frame;
   float fixedSpriteProgress = GetFixedSpriteProgress();
 
