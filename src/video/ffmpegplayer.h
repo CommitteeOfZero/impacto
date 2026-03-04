@@ -58,7 +58,7 @@ class FFmpegPlayer : public VideoPlayer {
 
  private:
   void FillAudioBuffers();
-  double GetTargetDelay(double duration);
+  Clock::Microseconds GetTargetDelay(Clock::Microseconds duration);
   bool QueuesHaveEnoughPackets();
 
   void HandleSeekRequest();
@@ -90,9 +90,9 @@ class FFmpegPlayer : public VideoPlayer {
   bool Looping = false;
   bool ReaderEOF = false;
   bool PlaybackStarted = false;
-  double PreviousFrameTimestamp = 0.0;
-  double FrameTimer = 0.0;
-  double MaxFrameDuration = 0.0;
+  std::optional<av::Timestamp> PreviousFrameTimestamp{};
+  Clock::MonotonicTime FrameTimer{};
+  Clock::Microseconds MaxFrameDuration{};
   bool NoAudio = false;
   int FrameCount = 0;
 };

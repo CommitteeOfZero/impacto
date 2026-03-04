@@ -1,41 +1,33 @@
 #include "clock.h"
 #include "../impacto.h"
 
-extern "C" {
-#include <libavutil/time.h>
-}
-
 namespace Impacto::Video {
 
+using namespace std::chrono;
 Clock::Clock()
-    : Pts(NAN),
-      PtsDrift(NAN),
-      LastUpdated(av_gettime_relative() / 1000000.0),
-      Speed(1.0),
-      Serial(-1),
-      Paused(false) {}
+    : Pts(), LastUpdated(Now()), Speed(1.0), Serial(-1), Paused(false) {}
 
 void Clock::SyncTo(Clock* target) {
-  double clock = Get();
-  double targetClock = target->Get();
-  if (!isnan(targetClock) && (isnan(clock) || fabs(clock - targetClock) > 10.0))
+  Microseconds clock = Get();
+  Microseconds targetClock = target->Get();
+  if (targetClock != Microseconds{} &&
+      (clock == Microseconds{} || abs(clock - targetClock) > 10s))
     Set(targetClock, target->Serial);
 }
 
-void Clock::Set(double pts, int serial) {
-  double time = av_gettime_relative() / 1000000.0;
+void Clock::Set(Microseconds pts, int serial) {
   Pts = pts;
-  LastUpdated = time;
-  PtsDrift = Pts - time;
+  LastUpdated = std::chrono::steady_clock::now();
   Serial = serial;
 }
 
-double Clock::Get() {
+Clock::Microseconds Clock::Get() {
   if (Paused) {
     return Pts;
   } else {
-    double time = av_gettime_relative() / 1000000.0;
-    return PtsDrift + time - (time - LastUpdated) * (1.0 - Speed);
+    auto elapsed = Now() - LastUpdated;
+    auto scaled = duration<double, std::micro>(elapsed * Speed);
+    return Pts + round<Microseconds>(scaled);
   }
 }
 
