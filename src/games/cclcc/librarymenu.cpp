@@ -195,7 +195,9 @@ void LibraryMenu::Update(float dt) {
   ButtonBlinkAnimation.Update(dt);
   if (!moviePlaying && !cgViewerActive) {
     MainItems.Update(dt);
-    MainItems.UpdateInput(dt);
+    if (State == Shown) {
+      MainItems.UpdateInput(dt);
+    }
   }
 
   if (CurrentlyFocusedElement) {
