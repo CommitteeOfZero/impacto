@@ -36,6 +36,11 @@ void TitleMenu::SecondaryButtonOnClick(Widgets::Button* target) {
   ChoiceMade = true;
 }
 
+void TitleMenu::ExitButtonOnClick() {
+  SetFlag(3340, true);
+  ChoiceMade = true;
+}
+
 TitleMenu::TitleMenu() {
   MainItems = new Widgets::Group(this);
   LoadItems = new Widgets::Group(this);
@@ -96,7 +101,7 @@ TitleMenu::TitleMenu() {
             ((ItemHighlightOffset.x * ItemsFadeInAnimation.Progress) - 1.0f) +
                 ItemHighlightOffset.x,
             ((ItemYBase - 1.0f) + (4 * ItemPadding))));
-    Exit->OnClickHandler = [](auto*) { Game::ShouldQuit = true; };
+    Exit->OnClickHandler = [this](auto*) { return ExitButtonOnClick(); };
     MainItems->Add(Exit, FDIR_DOWN);
   }
 
