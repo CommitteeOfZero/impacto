@@ -5,6 +5,7 @@
 #include "../../../profile/ui/tipsmenu.h"
 #include "../../../profile/games/cclcc/tipsmenu.h"
 #include "../../../inputsystem.h"
+#include "../../../audio/audiosystem.h"
 #include "../../../vm/interface/input.h"
 #include "../../../ui/ui.h"
 #include "../../../text/text.h"
@@ -77,6 +78,10 @@ void TipsTabGroup::UpdatePageInput(float dt) {
   if (IsFocused) {
     auto prevEntry = CurrentlyFocusedElement;
     TipsEntriesScrollbar->UpdateInput(dt);
+    if ((PADinputMouseWentDown & PAD1A) &&
+        TipsEntriesScrollbar->IsScrollHeld()) {
+      Audio::PlayInGroup(Audio::ACG_SE, "sysse", 2, false, 0);
+    }
 
     auto checkScrollBounds = [&]() {
       return !TipsTabBounds.Contains(CurrentlyFocusedElement->Bounds);
@@ -213,6 +218,15 @@ void TipsTabGroup::Update(float dt) {
 
       if (!TipsEntriesScrollbar->IsScrollHeld())
         TipsEntriesGroup.UpdateInput(dt);
+
+      if (oldScrollPosY != ScrollPosY &&
+          Input::CurrentInputDevice == Input::Device::Mouse &&
+          (Input::MouseWheelDeltaY != 0 ||
+           TipsEntriesScrollbar->IsScrollHeld())) {
+        for (auto* entry : TipsEntryButtons) {
+          entry->PrevFocusState = entry->HasFocus;
+        }
+      }
     }
   }
 }
