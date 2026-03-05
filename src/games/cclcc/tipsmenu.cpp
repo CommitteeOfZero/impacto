@@ -202,6 +202,9 @@ void TipsMenu::Update(float dt) {
     UpdateInput(dt);
     if (TipsScrollbar) {
       TipsScrollbar->UpdateInput(dt);
+      if ((PADinputMouseWentDown & PAD1A) && TipsScrollbar->IsScrollHeld()) {
+        Audio::PlayInGroup(Audio::ACG_SE, "sysse", 2, false, 0);
+      }
       TipsScrollbar->Update(dt);
       if (oldPageY != TipPageY) {
         TextPage.Move({0, oldPageY - TipPageY});
@@ -368,7 +371,11 @@ void TipsMenu::SwitchToTipId(int id) {
 void TipsMenu::SetActiveTab(TipsTabType type) {
   if (type == CurrentTabType || !TipsTabs[type]->GetTipEntriesCount()) return;
 
-  Audio::PlayInGroup(Audio::ACG_SE, "sysse", 1, false, 0);
+  if (PADinputMouseWentDown & PAD1A) {
+    Audio::PlayInGroup(Audio::ACG_SE, "sysse", 2, false, 0);
+  } else {
+    Audio::PlayInGroup(Audio::ACG_SE, "sysse", 1, false, 0);
+  }
 
   TipsTabs[CurrentTabType]->Hide();
   TipsTabs[type]->Show();
