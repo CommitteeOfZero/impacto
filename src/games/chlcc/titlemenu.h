@@ -43,6 +43,7 @@ class TitleMenu : public Menu {
 
   void MenuButtonOnClick(Widgets::Button* target);
   void SecondaryButtonOnClick(Widgets::Button* target);
+  void ExitButtonOnClick(Widgets::Button* target);
 
   void DrawTitleMenuBackGraphics() const;
   void DrawSpinningCircle(float alpha) const;
