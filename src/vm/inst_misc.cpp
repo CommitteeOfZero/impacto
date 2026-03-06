@@ -645,7 +645,10 @@ VmInstruction(InstChkClearFlag) {
              "STUB instruction ChkClearFlag()\n");
 }
 VmInstruction(InstScreenChange) { StartInstruction; }
-VmInstruction(InstExitGame) { StartInstruction; }
+VmInstruction(InstExitGame) {
+  StartInstruction;
+  Game::ShouldQuit = true;
+}
 
 }  // namespace Vm
 

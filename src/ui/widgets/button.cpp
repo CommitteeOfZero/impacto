@@ -26,6 +26,7 @@ Button::Button(int id, Sprite const& norm, Sprite const& focused,
 }
 
 void Button::UpdateInput(float dt) {
+  RequestCursor(CursorType::Default);
   if (Enabled) {
     const RectF& bounds = (HoverBounds != RectF{}) ? HoverBounds : Bounds;
     if (Input::CurrentInputDevice == Input::Device::Mouse) {

@@ -136,8 +136,8 @@ TitleMenu::TitleMenu() {
     Exit = new TitleButton(
         5, ExitSprite, ExitSprite, ItemHighlightSprite,
         glm::vec2(ItemHighlightOffsetX, (ItemYBase + (5 * ItemPadding))));
-    setupBtn(
-        Exit, [](auto*) { Game::ShouldQuit = true; }, MainItems, FDIR_DOWN);
+    // TODO stop using flag once KeyboardOnJump03 is implemented
+    setupBtn(Exit, [](auto*) { SetFlag(3340, true); }, MainItems, FDIR_DOWN);
   }
 
   // Load secondary Continue menu button
@@ -293,9 +293,11 @@ void TitleMenu::UpdateInput(float dt) {
     }
   }
   if (CurrentSubMenu && !CurrentSubMenu->HasFocus) return;
-  if (CurrentSubMenu || MainItems->HasFocus) {
+  if (IsFocused) {
     Menu::UpdateInput(dt);
-    MainItems->UpdateInput(dt);
+    if (MainItems->HasFocus && !CurrentSubMenu) {
+      MainItems->UpdateInput(dt);
+    }
     if (CurrentSubMenu) {
       CurrentSubMenu->UpdateInput(dt);
     }
@@ -443,6 +445,9 @@ void TitleMenu::ReturnToMenuUpdate() {
 }
 
 void TitleMenu::MainMenuUpdate() {
+  if (IsFocused) {
+    MainItems->HasFocus = true;
+  }
   MainItems->Tint.a =
       glm::smoothstep(0.0f, 1.0f, PrimaryFadeAnimation.Progress);
   ContinueItems->Tint.a =
@@ -674,6 +679,7 @@ void TitleMenu::ShowContinueItems() {
   Extra->Move(glm::vec2(0.0f, ItemPadding));
   Config->Move(glm::vec2(0.0f, ItemPadding));
   Help->Move(glm::vec2(0.0f, ItemPadding));
+  Exit->Move(glm::vec2(0.0f, ItemPadding));
   ContinueItems->Move(glm::vec2(Profile::DesignWidth / 2, 0.0f),
                       SecondaryFadeAnimation.DurationOut);
 }
@@ -687,6 +693,7 @@ void TitleMenu::HideContinueItems() {
   Extra->Move(glm::vec2(0.0f, -ItemPadding));
   Config->Move(glm::vec2(0.0f, -ItemPadding));
   Help->Move(glm::vec2(0.0f, -ItemPadding));
+  Exit->Move(glm::vec2(0.0f, -ItemPadding));
 }
 
 void TitleMenu::ShowExtraItems() {
@@ -702,6 +709,7 @@ void TitleMenu::ShowExtraItems() {
 
   Config->Move(glm::vec2(0, ItemPadding));
   Help->Move(glm::vec2(0, ItemPadding));
+  Exit->Move(glm::vec2(0, ItemPadding));
   ExtraItems->Move({Profile::DesignWidth / 2, 0.0f},
                    SecondaryFadeAnimation.DurationIn);
 }
@@ -715,6 +723,7 @@ void TitleMenu::HideExtraItems() {
   AllowsScriptInput = true;
   Config->Move(glm::vec2(0, -ItemPadding));
   Help->Move(glm::vec2(0, -ItemPadding));
+  Exit->Move(glm::vec2(0, -ItemPadding));
   Config->Enabled = true;
   Help->Enabled = true;
 }

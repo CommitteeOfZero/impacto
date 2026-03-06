@@ -236,7 +236,12 @@ void UpdateSystem(float dt) {
 
   while (SDL_PollEvent(&e)) {
     if (e.type == SDL_QUIT) {
-      ShouldQuit = true;
+      if (Profile::Vm::GameInstructionSet == +Vm::InstructionSet::CHLCC ||
+          Profile::Vm::GameInstructionSet == +Vm::InstructionSet::CC) {
+        SetFlag(3340, true);
+      } else {
+        ShouldQuit = true;
+      }
     }
 
 #ifndef IMPACTO_DISABLE_IMGUI
