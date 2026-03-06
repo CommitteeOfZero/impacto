@@ -102,7 +102,7 @@ jobs:
             (github.event.pull_request.head.repo.full_name != github.repository)
             && 'clear;nuget,https://nuget.pkg.github.com/committeeofzero/index.json,read'
             || 'clear;nuget,https://nuget.pkg.github.com/committeeofzero/index.json,readwrite' }}
-      vcpkgCommitId: 'acd5bba5aac8b6573b5f6f463dc0341ac0ee6fa4'
+      vcpkgCommitId: '62159a45e18f3a9ac0548628dcaf74fcb60c6ff9'
       PresetName: ${{ (matrix.os_name == 'android') && 'ci-release-android' || 'ci-release' }}
       VERSION: ${{ needs.get-version.outputs.VERSION }}
       VCPKG_FORCE_DOWNLOADED_BINARIES: 1
@@ -144,7 +144,7 @@ jobs:
     - name: Install Dependencies Linux
       run: |
         sudo apt-get update
-        sudo apt-get install nasm libx11-dev libxft-dev libxext-dev libwayland-dev libxkbcommon-dev libegl1-mesa-dev libibus-1.0-dev libxrandr-dev libltdl-dev mono-complete
+        sudo apt-get install nasm libx11-dev libxft-dev libxext-dev libwayland-dev libxkbcommon-dev libegl1-mesa-dev libibus-1.0-dev libxrandr-dev libltdl-dev mono-complete autoconf autoconf-archive automake libtool
       if: matrix.os_name == 'linux' || matrix.os_name == 'android'
     - name: Install Dependencies Mac
       run: brew install nasm mono
