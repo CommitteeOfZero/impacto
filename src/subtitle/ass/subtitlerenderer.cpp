@@ -136,10 +136,12 @@ void SubtitleRenderTrack::Render() {
     SubtitlesSpritesheet.Texture = t.Submit();
   }
   if (SubtitlesSpritesheet.Texture) {
+    Renderer->SetBlendMode(RendererBlendMode::Premultiplied);
     Renderer->DrawSprite(
         Sprite(SubtitlesSpritesheet, 0, 0, SubtitlesSpritesheet.DesignWidth,
                SubtitlesSpritesheet.DesignHeight),
         {0, 0});
+    Renderer->SetBlendMode(RendererBlendMode::Normal);
   }
 }
 

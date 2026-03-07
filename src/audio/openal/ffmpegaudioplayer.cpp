@@ -70,9 +70,8 @@ void FFmpegAudioPlayer::Unload() {
 void FFmpegAudioPlayer::FillAudioBuffers() {
   while (FreeBufferCount && !Player->AbortRequest) {
     int totalSize = 0;
+    bool firstFrame = true;
     do {
-      bool firstFrame = true;
-
       Video::AVDecodedItem<AVMEDIA_TYPE_AUDIO> aFrame;
       if (!Player->AudioStream->FrameQueue.try_dequeue(aFrame)) {
         break;

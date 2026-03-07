@@ -75,4 +75,3 @@ include('cclcc/hud/tipsnotification.lua');
 include('cclcc/hud/systemmenu.lua');
 include('cclcc/hud/savemenu.lua');
 include('cclcc/hud/helpmenu.lua');
-include('cclcc/subtitle.lua');
