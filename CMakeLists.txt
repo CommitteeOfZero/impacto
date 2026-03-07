@@ -11,6 +11,7 @@ endif()
 project("impacto")
 
 include(FetchContent)
+include(CheckLinkerFlag)
 find_package(PkgConfig)
 
 if (EMSCRIPTEN)
@@ -1009,7 +1010,6 @@ else ()
                 nx
         )
 
-        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--start-group") # workaround for SDL2 being last in the linker list
     else ()
         find_package(Ogg CONFIG REQUIRED)
         find_package(Vorbis CONFIG REQUIRED)
@@ -1265,6 +1265,10 @@ endIf()
 
 list(APPEND Impacto_Libs ${Impacto_Lib_Targets})
 target_link_libraries(impacto PRIVATE ${Impacto_Libs})
+check_linker_flag(CXX "-Wl,--start-group" HAS_START_GROUP)
+if(HAS_START_GROUP)
+    target_link_options(impacto PRIVATE "-Wl,--start-group")
+endif()
 
 target_compile_options(impacto PRIVATE "$<$<C_COMPILER_ID:MSVC>:/utf-8>")
 target_compile_options(impacto PRIVATE "$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
