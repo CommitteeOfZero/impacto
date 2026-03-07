@@ -44,7 +44,7 @@ BETTER_ENUM(ShaderProgramType, int, AdditiveMaskedSprite, CCMessageBoxSprite,
             OverlayMaskedSprite, ScreenMaskedSprite, SoftLightMaskedSprite,
             Sprite, SpriteInverted, YUVFrame, GaussianBlur, Mosaic);
 
-enum class RendererBlendMode { Normal, Additive };
+enum class RendererBlendMode { Normal, Additive, Premultiplied };
 enum class RendererBlurDirection { Horizontal, Vertical };
 
 class BaseRenderer {
