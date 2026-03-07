@@ -1,11 +1,5 @@
 #include "ffmpegstream.h"
-#include <libavutil/avutil.h>
 #include "ffmpegplayer.h"
-
-extern "C" {
-#include <libavcodec/avcodec.h>
-#include <libavformat/avformat.h>
-};
 
 namespace Impacto {
 namespace Video {
@@ -27,7 +21,7 @@ template void FFmpegStream<AVMEDIA_TYPE_VIDEO>::FlushPacketQueue();
 
 template <AVMediaType MediaType>
 void FFmpegStream<MediaType>::FlushFrameQueue() {
-  AVFrameItem<MediaType> item;
+  AVDecodedItem<MediaType> item;
   while (FrameQueue.try_dequeue(item));
 }
 template void FFmpegStream<AVMEDIA_TYPE_AUDIO>::FlushFrameQueue();

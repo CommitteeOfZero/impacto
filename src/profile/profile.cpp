@@ -8,6 +8,7 @@
 #include "ui/backlogmenu.h"
 #include "dialogue.h"
 #include "configsystem.h"
+#include "subtitle.h"
 #include "game.h"
 #include "../font.h"
 #include "../text/text.h"
@@ -222,6 +223,10 @@ void MakeLuaProfile(std::string const& name) {
   DefineEnumInt<ConfigSystem::AutoQuickSaveType>(LuaState);
   DefineEnumInt<UI::GameSpecificType>(LuaState);
   DefineEnumInt<DateFormatType>(LuaState);
+  DefineEnumInt<SubtitleAssBackendType>(LuaState);
+  DefineEnumInt<SubtitleBmpBackendType>(LuaState);
+  DefineEnumInt<SubtitleTextBackendType>(LuaState);
+  DefineEnumInt<Subtitle::SubtitleType>(LuaState);
 
   ImpLog(LogLevel::Info, LogChannel::Profile, "Starting profile {:s}\n", name);
 
