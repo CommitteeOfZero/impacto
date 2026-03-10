@@ -97,22 +97,25 @@ bool HandleEvent(SDL_Event const* ev) {
     }
     case SDL_CONTROLLERAXISMOTION: {
       SDL_ControllerAxisEvent const* evt = &ev->caxis;
-      CurrentInputDevice = Device::Controller;
       float newVal = (float)evt->value / (float)INT16_MAX;
       float newWeight = fabsf(newVal);
       float oldWeight = fabsf(ControllerAxis[evt->axis]);
-      if (oldWeight < ControllerAxisLightThreshold &&
-          newWeight >= ControllerAxisLightThreshold) {
+      const bool axisIsDownLight = newWeight >= ControllerAxisLightThreshold;
+      const bool axisIsDownHeavy = newWeight >= ControllerAxisHeavyThreshold;
+      if (oldWeight < ControllerAxisLightThreshold && axisIsDownLight) {
         ControllerAxisWentDownLight[evt->axis] = true;
       }
-      if (oldWeight < ControllerAxisHeavyThreshold &&
-          newWeight >= ControllerAxisHeavyThreshold) {
+
+      if (oldWeight < ControllerAxisHeavyThreshold && axisIsDownHeavy) {
         ControllerAxisWentDownHeavy[evt->axis] = true;
       }
-      ControllerAxisIsDownLight[evt->axis] =
-          newWeight >= ControllerAxisLightThreshold;
-      ControllerAxisIsDownHeavy[evt->axis] =
-          newWeight >= ControllerAxisHeavyThreshold;
+
+      if (axisIsDownLight) {
+        CurrentInputDevice = Device::Controller;
+      }
+
+      ControllerAxisIsDownLight[evt->axis] = axisIsDownLight;
+      ControllerAxisIsDownHeavy[evt->axis] = axisIsDownHeavy;
       ControllerAxis[evt->axis] = newVal;
       return true;
       break;
