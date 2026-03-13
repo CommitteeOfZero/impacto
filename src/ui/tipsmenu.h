@@ -26,7 +26,7 @@ class TipsMenu : public Menu {
   int CurrentlyDisplayedTipId = -1;
 
   Animation FadeAnimation;
-  DialoguePage TextPage;
+  DialoguePage TextPage = DialoguePage(0);
   Widgets::Label* Name;
   Widgets::Label* Pronounciation;
   Widgets::Label* Category;
