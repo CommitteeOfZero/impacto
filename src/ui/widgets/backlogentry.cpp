@@ -25,7 +25,7 @@ BacklogEntry::BacklogEntry(int id, Vm::BufferOffsetContext scrCtx, int audioId,
       HoverBounds(hoverBounds) {
   Enabled = true;
 
-  BacklogPage = new DialoguePage();
+  BacklogPage = new DialoguePage(0);
   BacklogPage->Glyphs.reserve(512);
   BacklogPage->Clear();
   BacklogPage->Mode = DPM_REV;
@@ -111,7 +111,7 @@ void BacklogEntry::Render() {
         Tint);
   }
 
-  if (BacklogPage->HasName()) {
+  if (!BacklogPage->Name.empty()) {
     Renderer->DrawProcessedText(BacklogPage->Name,
                                 Profile::Dialogue::DialogueFont, Tint.a,
                                 Profile::Dialogue::REVNameOutlineMode);

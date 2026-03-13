@@ -32,7 +32,7 @@ class BacklogEntry : public Widget {
 
  protected:
   DialoguePage* BacklogPage;
-  int TextLength = 0;
+  size_t TextLength = 0;
 
  private:
   glm::vec2 Position;

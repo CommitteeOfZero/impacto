@@ -10,12 +10,10 @@
 #include "../hud/autoicondisplay.h"
 #include "../hud/skipicondisplay.h"
 #include "../hud/nametagdisplay.h"
-#include "../hud/dialoguebox.h"
 #include "../hud/tipsnotification.h"
 
 #include "../audio/audiostream.h"
 #include "../audio/audiosystem.h"
-#include "../audio/audiostream.h"
 #include "../audio/audiochannel.h"
 
 namespace Impacto {
@@ -45,9 +43,9 @@ void DialoguePage::Init() {
   AutoIconDisplay::Init();
   SkipIconDisplay::Init();
 
-  DialoguePages.resize(PageCount);
-  for (DialoguePage& page : DialoguePages) {
-    page.Glyphs.reserve(MaxPageSize);
+  DialoguePages.reserve(PageCount);
+  for (int pageId = 0; pageId < PageCount; pageId++) {
+    DialoguePages.emplace_back(pageId).Glyphs.reserve(MaxPageSize);
   }
 
   for (int i = 0; i < std::ssize(DialoguePages); i++) {
@@ -67,12 +65,9 @@ void DialoguePage::Init() {
 }
 
 void DialoguePage::Clear() {
-  Glyphs.clear();
+  TextPage::Clear();
   Name.clear();
-  std::fill(RubyChunks.begin(), RubyChunks.end(), RubyChunk{});
-  RubyChunkCount = 0;
-  CurrentRubyChunk = 0;
-  FirstRubyChunkOnLine = 0;
+
   if (Mode == DPM_ADV) {
     CurrentLineTop = ADVBounds.Y;
   } else if (Mode == DPM_REV) {
@@ -86,7 +81,7 @@ void DialoguePage::Clear() {
   } else {
     CurrentLineTop = NVLBounds.Y;
   }
-  CurrentLineTopMargin = 0.0f;
+
   AdvanceMethod = AdvanceMethodType::Skip;
 }
 
@@ -96,9 +91,7 @@ void DialoguePage::FinishLine(Vm::Sc3VmThread* ctx, size_t nextLineStart,
                               const RectF& boxBounds, TextAlignment alignment) {
   // Lay out all ruby chunks on this line (before we change CurrentLineTop and
   // thus can't find where to put them)
-  for (size_t i = FirstRubyChunkOnLine; i < RubyChunkCount; i++) {
-    RubyChunk& chunk = RubyChunks[i];
-
+  for (RubyChunk& chunk : RubyChunks) {
     if (chunk.FirstBaseCharacter >= nextLineStart) break;
 
     Vm::Sc3Stream rubyText(chunk.RawText.data());
@@ -217,20 +210,10 @@ void DialoguePage::FinishLine(Vm::Sc3VmThread* ctx, size_t nextLineStart,
   LastLineStart = nextLineStart;
 }
 
-void DialoguePage::EndRubyBase(int lastBaseCharacter) {
-  if (BuildingRubyBase) {
-    RubyChunks[CurrentRubyChunk].BaseLength =
-        (lastBaseCharacter - RubyChunks[CurrentRubyChunk].FirstBaseCharacter) +
-        1;
-    BuildingRubyBase = false;
-  }
-}
-
 void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
                              bool acted, int animId, int charId,
                              bool shouldUpdateCharId) {
-  CurrentVoice = voice;
-  CurrentLineVoiced = voice != nullptr;
+  Voice = voice;
 
   bool hasName = false;
   if (shouldUpdateCharId) {
@@ -241,7 +224,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
   const int nextAnimId = acted ? animId : charId;
 
   // Hold last voiced animation id
-  if (CurrentLineVoiced) NextAnimationId = std::max(nextAnimId, 31);
+  if (Voice != nullptr) NextAnimationId = std::max(nextAnimId, 31);
 
   if (Mode == DPM_ADV || Mode == DPM_REV ||
       AdvanceMethod == AdvanceMethodType::PresentClear || PrevMode != Mode) {
@@ -326,12 +309,12 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
       } break;
 
       case STT_RubyTextStart: {
-        EndRubyBase((int)Glyphs.size() - 1);
+        EndRubyBase(Glyphs.size());
         state = TPS_Ruby;
       } break;
 
       case STT_RubyCenterPerCharacter: {
-        RubyChunks[CurrentRubyChunk].CenterPerCharacter = true;
+        RubyChunks.back().CenterPerCharacter = true;
       } break;
 
       case STT_DialogueLineStart: {
@@ -342,7 +325,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
       case STT_RubyTextEnd: {
         // At least S;G uses [ruby-base]link text[ruby-text-end] for mails,
         // with no ruby-text-start
-        EndRubyBase((int)Glyphs.size() - 1);
+        EndRubyBase(Glyphs.size());
         state = TPS_Normal;
         lastWordStart = Glyphs.size();
       } break;
@@ -379,9 +362,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
       } break;
 
       case STT_RubyBaseStart: {
-        CurrentRubyChunk = static_cast<int>(RubyChunkCount);
-        RubyChunkCount++;
-        RubyChunks[CurrentRubyChunk].FirstBaseCharacter = Glyphs.size();
+        RubyChunks.emplace_back().FirstBaseCharacter = Glyphs.size();
         BuildingRubyBase = true;
         lastWordStart = Glyphs.size();
       } break;
@@ -420,10 +401,10 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
         if (state == TPS_Name) {
           name.emplace_back(SDL_Swap16(token.Val_Uint16 | 0x8000));
         } else if (state == TPS_Ruby) {
-          RubyChunks[CurrentRubyChunk]
-              .RawText[RubyChunks[CurrentRubyChunk].Length] =
+          RubyChunk& curChunk = RubyChunks.back();
+          curChunk.RawText[curChunk.Length] =
               SDL_Swap16(token.Val_Uint16 | 0x8000);
-          RubyChunks[CurrentRubyChunk].Length++;
+          curChunk.Length++;
         } else {
           // TODO respect TA_Center
           // TODO what to do about left margin if text alignment is center?
@@ -563,12 +544,12 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
   Typewriter.SetFirstGlyph(typeWriterStart);
   Typewriter.SetGlyphCount(Glyphs.size() - typeWriterStart);
   Typewriter.SetParallelStartGlyphs(parallelStartGlyphs);
-  Typewriter.Start(CurrentLineVoiced);
+  Typewriter.Start(Voice != nullptr);
 
-  if (CurrentLineVoiced) {
+  if (Voice != nullptr) {
     AnimationId = NextAnimationId;
     Audio::Channels[Audio::AC_VOICE0]->Play(
-        std::unique_ptr<Audio::AudioStream>(CurrentVoice), false, 0.0f);
+        std::unique_ptr<Audio::AudioStream>(Voice), false, 0.0f);
   }
 
   AutoWaitTime = static_cast<float>(Typewriter.GetGlyphCount());
@@ -588,11 +569,10 @@ void DialoguePage::Update(float dt) {
       Glyphs[i].Opacity = Typewriter.CalcOpacity(i);
     }
 
-    for (size_t rubyChunkId = 0; rubyChunkId < RubyChunkCount; rubyChunkId++) {
-      for (size_t rubyGlyphId = 0; rubyGlyphId < RubyChunks[rubyChunkId].Length;
-           rubyGlyphId++) {
-        RubyChunks[rubyChunkId].Text[rubyGlyphId].Opacity =
-            Typewriter.CalcRubyOpacity(rubyGlyphId, RubyChunks[rubyChunkId]);
+    for (RubyChunk& chunk : RubyChunks) {
+      for (size_t rubyGlyphId = 0; rubyGlyphId < chunk.Length; rubyGlyphId++) {
+        chunk.Text[rubyGlyphId].Opacity =
+            Typewriter.CalcRubyOpacity(rubyGlyphId, chunk);
       }
     }
 
@@ -627,13 +607,22 @@ void DialoguePage::Update(float dt) {
   SkipIconDisplay::Update(dt);
 }
 
-void DialoguePage::Render() {
+void DialoguePage::Move(const glm::vec2 relativeOffset) {
+  TextPage::Move(relativeOffset);
+
+  for (ProcessedTextGlyph& glyph : Name) {
+    glyph.DestRect += relativeOffset;
+  }
+}
+
+void DialoguePage::Render(const float alpha,
+                          const RendererOutlineMode outlineMode) {
   // dialogue text
   if (GetFlag(SF_UIHIDDEN)) return;
   if (FadeAnimation.IsOut()) return;
 
   glm::vec4 opacityTint(1.0f);
-  opacityTint.a = glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
+  opacityTint.a = glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress) * alpha;
 
   const NameInfo nameInfo{
       .RenderWindow = RenderName,
@@ -652,10 +641,10 @@ void DialoguePage::Render() {
       GetFlag(SF_MESALLSKIP) ? 1.0f
                              : opacityTint.a * TextFadeAnimation.Progress;
   Renderer->DrawProcessedText(Glyphs, DialogueFont, textFadeOpacity,
-                              RendererOutlineMode::Full);
-  for (size_t rubyChunkId = 0; rubyChunkId < RubyChunkCount; rubyChunkId++) {
-    Renderer->DrawProcessedText(RubyChunks[rubyChunkId].Text, DialogueFont,
-                                textFadeOpacity, RendererOutlineMode::Full);
+                              outlineMode);
+  for (const RubyChunk& chunk : RubyChunks) {
+    Renderer->DrawProcessedText(chunk.Text, DialogueFont, textFadeOpacity,
+                                outlineMode);
   }
 
   // Wait icon
@@ -668,34 +657,11 @@ void DialoguePage::Render() {
   SkipIconDisplay::Render(col);
 }
 
-void DialoguePage::Move(glm::vec2 relativePos) {
-  for (ProcessedTextGlyph& glyph : Glyphs) {
-    glyph.DestRect.X += relativePos.x;
-    glyph.DestRect.Y += relativePos.y;
-  }
-  for (ProcessedTextGlyph& glyph : Name) {
-    glyph.DestRect.X += relativePos.x;
-    glyph.DestRect.Y += relativePos.y;
-  }
-  for (RubyChunk rubyChunk : std::span(RubyChunks.begin(), RubyChunkCount)) {
-    for (auto glyph : std::span(rubyChunk.Text.begin(), rubyChunk.Length)) {
-      glyph.DestRect.X += relativePos.x;
-      glyph.DestRect.Y += relativePos.y;
-    }
-  }
-}
-
-void DialoguePage::MoveTo(glm::vec2 pos) {
-  if (Glyphs.empty()) return;
-  glm::vec2 relativePos =
-      pos - glm::vec2(Glyphs[0].DestRect.X, Glyphs[0].DestRect.Y);
-  Move(relativePos);
-}
-
 void DialoguePage::Hide() { FadeAnimation.StartOut(); }
 
 void DialoguePage::Show() {
   FadeAnimation.StartIn(true);
   TextFadeAnimation.Progress = 1.0f;
 }
+
 }  // namespace Impacto

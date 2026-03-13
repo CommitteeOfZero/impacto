@@ -375,7 +375,7 @@ void Character2D::UpdateState(const int chaId) {
         }
 
         LipFrame = GetSoundLevel(static_cast<AudioChannelId>(AC_VOICE0 + i));
-        if (DialoguePages[i].CurrentLineVoiced) {
+        if (DialoguePages[i].Voice != nullptr) {
           const AudioChannelState voiceState =
               Channels[AC_VOICE0 + i]->GetState();
           const bool voicePlaying =

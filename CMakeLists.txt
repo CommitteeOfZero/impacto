@@ -36,6 +36,7 @@ set(Impacto_Src
     src/animation.cpp
 
     src/text/text.cpp
+    src/text/textpage.cpp
     src/text/typewritereffect.cpp
     src/text/dialoguepage.cpp
 
@@ -394,6 +395,7 @@ set(Impacto_Header
     src/animation.h
 
     src/text/text.h
+    src/text/textpage.h
     src/text/typewritereffect.h
     src/text/dialoguepage.h
 
