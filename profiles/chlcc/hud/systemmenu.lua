@@ -1,3 +1,5 @@
+local toRad = 3.141592653 / 180;
+
 root.SystemMenu = {
     Type = SystemMenuType.CHLCC,
     DrawType = DrawComponentType.SystemMenu,
@@ -51,6 +53,26 @@ root.SystemMenu = {
     },
     MenuEntriesSprites = {},
     SelectMenuSprites = {},
+    StarSprite = "SysMenuStar",
+    StarAnimationDuration = 18 / 60,
+    StarRotationSpeed = 325 * toRad,
+    LeftAngle = -15.0 * toRad,
+    StarsOffsetsStart = {
+        { X = -15, Y = -25 },
+        { X = 11,  Y = -47 },
+        { X = 39,  Y = -65 },
+        { X = 72,  Y = -73 },
+        { X = 106, Y = -74 },
+        { X = 139, Y = -69 },
+    },
+    StarsOffsetsEnd = {
+        { X = -74,  Y = -23 },
+        { X = -58,  Y = -72 },
+        { X = -6,   Y = -105 },
+        { X = 61,   Y = -127 },
+        { X = 137,  Y = -125 },
+        { X = 188,  Y = -79 },
+    }
 };
 
 root.Sprites["SystemMenuBackground"] = {
@@ -174,3 +196,8 @@ for _, sprite in ipairs(fadeTextSprites) do
     }
     root.SystemMenu.SelectMenuSprites[#root.SystemMenu.SelectMenuSprites + 1] = id;
 end
+
+root.Sprites["SysMenuStar"] = {
+    Sheet = "Main",
+    Bounds = { X = 599, Y = 546, Width = 40, Height = 39 }
+}

@@ -58,6 +58,14 @@ void Configure() {
   MenuButtonPromptPosition =
       EnsureGetMember<glm::vec2>("SystemMenuButtonPromptPosition");
   SelectedLabelSpeed = EnsureGetMember<float>("MenuSelectedLabelSpeed");
+  StarAnimationDuration = EnsureGetMember<float>("StarAnimationDuration");
+  StarRotationSpeed = EnsureGetMember<float>("StarRotationSpeed");
+  LeftAngle = EnsureGetMember<float>("LeftAngle");
+  GetMemberArray<glm::vec2>(StarsOffsetsStart.data(), StarsOffsetsStart.size(),
+                            "StarsOffsetsStart");
+  GetMemberArray<glm::vec2>(StarsOffsetsEnd.data(), StarsOffsetsEnd.size(),
+                            "StarsOffsetsEnd");
+  StarSprite = EnsureGetMember<Sprite>("StarSprite");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMember<uint8_t>("DrawType"));
