@@ -1,11 +1,9 @@
 #pragma once
 
-#include "animations/selectprompt.h"
-#include "animations/menutransition.h"
+#include "commonmenu.h"
 #include "../../ui/menu.h"
 #include "../../ui/widgets/group.h"
 #include "../../ui/widgets/button.h"
-#include "../../ui/widgets/chlcc/moviemenuentrybutton.h"
 
 namespace Impacto {
 namespace UI {
@@ -15,7 +13,7 @@ struct MovieButtonEntry {
   int PhysicalId;
   int ExtraId;
 };
-class MovieMenu : public Menu {
+class MovieMenu : public Menu, public CommonMenu {
  public:
   MovieMenu();
 
@@ -30,22 +28,9 @@ class MovieMenu : public Menu {
  private:
   Widgets::Group* MovieItems;
 
-  void DrawCircles();
-  void DrawErin();
-  void DrawRedBar();
+  using CommonMenu::DrawButtonPrompt;
   void DrawButtonPrompt();
-  void UpdateTitles();
-
   void UpdateMovieEntries();
-
-  Animation TitleFade;
-  Animation FromSystemMenuTransition;
-  SelectPromptAnimation SelectAnimation;
-  MenuTransitionAnimation MenuTransition;
-
-  glm::vec2 RedTitleLabelPos;
-  glm::vec2 RightTitlePos;
-  glm::vec2 LeftTitlePos;
 
   bool IsChoiceMadeOnce = false;
   bool IsExtraMovieModeOn = false;

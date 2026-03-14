@@ -8,31 +8,12 @@ root.OptionsMenu = {
     BackgroundColor = 0xa988e5,
 
     CircleSprite = "CircleConfig",
-    CircleStartPosition = { X = 20, Y = 20 },
-    CircleOffset = 200,
-
-    ErinSprite = "Erin",
-    ErinPosition = { X = 301, Y = 1 },
-
-    BackgroundFilter = "BackgroundFilter",
-
-    InitialRedBarPosition = { X = 0, Y = 538 },
-    RightRedBarPosition = { X = 1059, Y = 538 },
-    RedBarDivision = 1826,
-    RedBarBaseX = 1059,
-    RedBarSprite = "RedBar",
-    RedBarLabelPosition = { X = 1067, Y = 573 },
-    RedBarLabel = "RedBarLabel",
-
-    ShowAnimationDuration = 64 / 60,
 
     ShowPageAnimationStartTime = 16 / 60,
     ShowPageAnimationDuration = (48 - 16) / 60,
 
     MenuTitleTextRightPos = { X = 551, Y = 525 },
     MenuTitleTextAngle = 6.02,
-    TitleFadeInDuration = 40 / 60,
-    TitleFadeOutDuration = 28 / 60,
     MenuTitleText = "MenuTitleTextConfig",
 
     -- (π / 2) * 0.56 in the binary, but the voice page blips out too early lol
@@ -43,9 +24,6 @@ root.OptionsMenu = {
 
     ButtonPromptSprite = "ButtonPromptConfig",
     ButtonPromptPosition = { X = 603, Y = 651 },
-    ButtonPromptStartPosition = { X = 603 + (64 - 48) * 40, Y = 651 },
-    ButtonPromptAnimationStartTime = 48 / 60,
-    ButtonPromptAnimationDuration = (64 - 48) / 60,
 
     SelectedSprite = "SelectedSprite",
     SelectedSlideDuration = 32 / 60;
@@ -147,26 +125,6 @@ root.OptionsMenu = {
 root.Sprites["CircleConfig"] = {
     Sheet = "Options",
     Bounds = { X = 1, Y = 917, Width = 106, Height = 106 }
-}
-
-root.Sprites["Erin"] = {
-    Sheet = "Main",
-    Bounds = { X = 641, Y = 1, Width = 978, Height = 798 }
-}
-
-root.Sprites["BackgroundFilter"] = {
-    Sheet = "Main",
-    Bounds = { X = 0, Y = 0, Width = 640, Height = 360 }
-}
-
-root.Sprites["RedBar"] = {
-    Sheet = "Main",
-    Bounds = { X = 767, Y = 913, Width = 1280, Height = 110 }
-}
-
-root.Sprites["RedBarLabel"] = {
-    Sheet = "Main",
-    Bounds = { X = 506, Y = 469, Width = 133, Height = 74 }
 }
 
 root.Sprites["MenuTitleTextConfig"] = {

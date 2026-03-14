@@ -7,13 +7,13 @@
 #include "../../ui/ui.h"
 #include "../../data/savesystem.h"
 #include "../../data/tipssystem.h"
-#include "../../background2d.h"
-#include "../../profile/game.h"
+#include "../../profile/games/chlcc/commonmenu.h"
 
 namespace Impacto {
 namespace UI {
 namespace CHLCC {
 
+using namespace Impacto::Profile::CHLCC::CommonMenu;
 using namespace Impacto::Profile::CHLCC::ClearListMenu;
 using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::GameSpecific;
@@ -21,21 +21,12 @@ using namespace Impacto::UI::Widgets;
 using namespace Impacto::TipsSystem;
 using namespace Impacto::Profile;
 
-ClearListMenu::ClearListMenu() {
-  TitleFade.Direction = AnimationDirection::In;
-  TitleFade.LoopMode = AnimationLoopMode::Stop;
-  TitleFade.DurationIn = TitleFadeInDuration;
-  TitleFade.DurationOut = TitleFadeOutDuration;
-
-  RedBarSprite = InitialRedBarSprite;
-  RedBarPosition = InitialRedBarPosition;
-}
+ClearListMenu::ClearListMenu() : CommonMenu(false) {}
 
 void ClearListMenu::Show() {
   if (State != Shown) {
     if (State != Showing) {
       MenuTransition.StartIn();
-      FromSystemMenuTransition.StartIn();
     }
     State = Showing;
     if (UI::FocusedMenu != 0) {
@@ -51,7 +42,6 @@ void ClearListMenu::Hide() {
   if (State != Hidden) {
     if (State != Hiding) {
       MenuTransition.StartOut();
-      FromSystemMenuTransition.StartOut();
     }
     State = Hiding;
     if (LastFocusedMenu != 0) {
@@ -66,40 +56,8 @@ void ClearListMenu::Hide() {
 
 void ClearListMenu::Render() {
   if (State == Hidden) return;
-
-  if (MenuTransition.IsIn()) {
-    Renderer->DrawQuad(
-        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-        RgbIntToFloat(BackgroundColor));
-  } else if (GetFlag(SF_SYSTEMMENU)) {
-    Renderer->DrawQuad(
-        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-        RgbIntToFloat(BackgroundColor, FromSystemMenuTransition.Progress));
-  } else {
-    DrawCircles();
-  }
-
-  DrawErin();
-  DrawRedBar();
-
-  if (MenuTransition.Progress > 0.34f) {
-    Renderer->DrawSprite(RedBarLabel, RedTitleLabelPos);
-
-    const CornersQuad titleDest = MenuTitleText.ScaledBounds()
-                                      .RotateAroundCenter(MenuTitleTextAngle)
-                                      .Translate(RightTitlePos);
-    Renderer->DrawSprite(MenuTitleText, titleDest);
-  }
-
-  Renderer->CaptureScreencap(ShaderScreencapture.BgSprite);
-  Renderer->DrawCHLCCMenuBackground(
-      ShaderScreencapture.BgSprite, BackgroundFilter,
-      RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-      MenuTransition.Progress);
-
-  if (MenuTransition.Progress > 0.34f) {
-    Renderer->DrawSprite(MenuTitleText, LeftTitlePos);
-  }
+  CommonMenu::DrawSubmenu(BackgroundColor, CircleSprite, MenuTitleText,
+                          MenuTitleTextAngle, true);
 
   if (MenuTransition.Progress < 0.22f) return;
   float yOffset = MenuTransition.GetPageOffset().y;
@@ -111,7 +69,7 @@ void ClearListMenu::Render() {
   DrawTIPSCount(yOffset);
   DrawAlbumCompletion(yOffset);
   DrawEndingTree(yOffset);
-  DrawButtonPrompt();
+  CommonMenu::DrawButtonPrompt(ButtonPromptSprite, ButtonPromptPosition);
 }
 
 void ClearListMenu::Update(float dt) {
@@ -134,7 +92,6 @@ void ClearListMenu::Update(float dt) {
 
   if (State != Hidden) {
     MenuTransition.Update(dt);
-    FromSystemMenuTransition.Update(dt);
     if (MenuTransition.Direction == AnimationDirection::Out &&
         MenuTransition.Progress <= 0.72f) {
       TitleFade.StartOut();
@@ -144,69 +101,7 @@ void ClearListMenu::Update(float dt) {
       TitleFade.StartIn();
     }
     TitleFade.Update(dt);
-    UpdateTitles();
-  }
-}
-
-inline void ClearListMenu::DrawCircles() {
-  float y = CircleStartPosition.y;
-  int resetCounter = 0;
-  // Give the whole range that mimics ScrWork[SW_SYSMENUCT] given that the
-  // duration is totalframes/60
-  float progress = MenuTransition.Progress * MenuTransitionDuration * 60.0f;
-  for (int line = 0; line < 4; line++) {
-    int counter = resetCounter;
-    float x = CircleStartPosition.x;
-    for (int col = 0; col < 7; col++) {
-      if (counter + 1 <= (progress)) {
-        float scale = ((progress) - (counter + 1.0f)) * 16.0f;
-        scale = scale <= 320.0f ? scale : 320.0f;
-        scale *= CircleSprite.Bounds.Height / 106.0f;
-        Renderer->DrawSprite(
-            CircleSprite, RectF(x + (CircleSprite.Bounds.Width - scale) / 2.0f,
-                                y + (CircleSprite.Bounds.Height - scale) / 2.0f,
-                                scale, scale));
-        x += CircleOffset;
-      }
-      counter += 2;
-    }
-    y += CircleOffset;
-    resetCounter += 2;
-  }
-}
-
-inline void ClearListMenu::DrawErin() {
-  float y = ErinPosition.y;
-  if (MenuTransition.Progress < 0.78f) {
-    y = 801.0f;
-    if (MenuTransition.Progress > 0.22f) {
-      // Approximation from the original function, which was a bigger mess
-      y = glm::mix(
-          -19.0f, 721.0f,
-          0.998938f -
-              0.998267f * sin(3.97835f - 3.27549f * MenuTransition.Progress));
-    }
-  }
-  Renderer->DrawSprite(ErinSprite, glm::vec2(ErinPosition.x, y));
-}
-
-inline void ClearListMenu::DrawRedBar() {
-  if (MenuTransition.IsIn()) {
-    Renderer->DrawSprite(InitialRedBarSprite, InitialRedBarPosition);
-  } else if (MenuTransition.Progress > 0.70f) {
-    // Give the whole range that mimics ScrWork[SW_SYSMENUCT] given that the
-    // duration is totalframes/60
-    float progress = MenuTransition.Progress * MenuTransitionDuration * 60.0f;
-    float pixelPerAdvanceLeft = RedBarBaseX * (progress - 47.0f) / 17.0f;
-    RedBarSprite.Bounds.X = RedBarDivision - pixelPerAdvanceLeft;
-    RedBarSprite.Bounds.Width = pixelPerAdvanceLeft;
-    RedBarPosition.x = RedBarBaseX - pixelPerAdvanceLeft;
-    Renderer->DrawSprite(RedBarSprite, RedBarPosition);
-    float pixelPerAdvanceRight = 13.0f * (progress - 47.0f);
-    RedBarSprite.Bounds.X = RedBarDivision;
-    RedBarSprite.Bounds.Width = pixelPerAdvanceRight;
-    RedBarPosition = RightRedBarPosition;
-    Renderer->DrawSprite(RedBarSprite, RedBarPosition);
+    UpdateTitles(MenuTitleTextRightPosition, MenuTitleTextLeftPosition);
   }
 }
 
@@ -310,40 +205,6 @@ inline void ClearListMenu::DrawEndingTree(float yOffset) {
   }
   glm::vec2 listPosition(ListPosition.x, ListPosition.y + yOffset);
   Renderer->DrawSprite(EndingList, listPosition);
-}
-
-inline void ClearListMenu::DrawButtonPrompt() {
-  if (MenuTransition.IsIn()) {
-    Renderer->DrawSprite(ButtonPromptSprite, ButtonPromptPosition);
-  } else if (MenuTransition.Progress > 0.734f) {
-    float x = ButtonPromptPosition.x - 2560.0f * (MenuTransition.Progress - 1);
-    Renderer->DrawSprite(ButtonPromptSprite,
-                         glm::vec2(x, ButtonPromptPosition.y));
-  }
-}
-
-void ClearListMenu::UpdateTitles() {
-  if (MenuTransition.Progress <= 0.34f) return;
-
-  RedTitleLabelPos = RedBarLabelPosition;
-  RightTitlePos = MenuTitleTextRightPosition;
-  LeftTitlePos = glm::vec2(
-      MenuTitleTextLeftPosition.x,
-      TitleFade.IsIn()
-          ? MenuTitleTextLeftPosition.y
-          : glm::mix(
-                1.0f, 721.0f,
-                1.01011f * std::sin(1.62223f * TitleFade.Progress + 3.152f) +
-                    1.01012f));
-
-  if (MenuTransition.Progress >= 0.73f) return;
-
-  RedTitleLabelPos +=
-      glm::vec2(-572.0f * (MenuTransition.Progress * 4.0f - 3.0f),
-                460.0f * (MenuTransition.Progress * 4.0f - 3.0f) / 3.0f);
-  RightTitlePos +=
-      glm::vec2(-572.0f * (MenuTransition.Progress * 4.0f - 3.0f),
-                460.0f * (MenuTransition.Progress * 4.0f - 3.0f) / 3.0f);
 }
 
 }  // namespace CHLCC

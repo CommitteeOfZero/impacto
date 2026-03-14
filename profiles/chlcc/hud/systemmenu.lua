@@ -2,16 +2,7 @@ root.SystemMenu = {
     Type = SystemMenuType.CHLCC,
     DrawType = DrawComponentType.SystemMenu,
     BackgroundColor = 0xff9cb6,
-    BackgroundFilter = "BackgroundFilter",
-    FadeInDuration = 64 / 60,
-    FadeOutDuration = 64 / 60,
-    CircleStartPosition = {X = 20, Y = 20},
     CircleSprite = "SystemMenuCircle",
-    CircleOffset = 200,
-    ErinPosition = {X = 301, Y = 1},
-    ErinSprite = "Erin",
-    TitleFadeInDuration = 40 / 60,
-    TitleFadeOutDuration = 28 / 60,
 
     MenuLoopDuration = 1.815,
     MenuHoverLerpSpeed = 20,
@@ -33,13 +24,6 @@ root.SystemMenu = {
     SystemMenuRunningSelectedLabelAngle = -0.268,
     SystemMenuButtonPrompt= "SystemMenuButtonPrompt",
     SystemMenuButtonPromptPosition = {X = 1022, Y = 651},
-    InitialRedBarPosition = { X = 0, Y = 538 },
-    RightRedBarPosition = { X = 1059, Y = 538 },
-    RedBarDivision = 1826,
-    RedBarBaseX = 1059,
-    RedBarSprite = "RedBar",
-    RedBarLabelPosition = { X = 1067, Y = 573 },
-    RedBarLabel = "RedBarLabel",
     MenuSelectedLabelSpeed = -400,
     MenuEntriesNum = 9,
     MenuEntriesHNum = 0,
@@ -109,15 +93,6 @@ root.Sprites["SystemMenuSelectionDot"] = {
     Bounds = {X = 511, Y = 550, Width = 14, Height = 14}
 };
 
-root.Sprites["RedBar"] = {
-    Sheet = "Main",
-    Bounds = { X = 767, Y = 913, Width = 1280, Height = 110 }
-}
-
-root.Sprites["RedBarLabel"] = {
-    Sheet = "Main",
-    Bounds = { X = 506, Y = 469, Width = 133, Height = 74 }
-}
 root.Sprites["SystemMenuCircle"] = {
     Sheet = "Main",
     Bounds = {X = 533, Y = 361, Width = 106, Height = 106}

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../../animation.h"
-#include "../../character2d.h"
 #include "../../ui/menu.h"
 #include "../../ui/widgets/group.h"
 #include "../../ui/widgets/button.h"

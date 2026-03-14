@@ -51,6 +51,7 @@ else
     include('chlcc/font-lb.lua');
 end
 include('chlcc/dialogue.lua');
+include('chlcc/hud/commonmenu.lua');
 include('chlcc/hud/saveicon.lua');
 include('chlcc/hud/loadingdisplay.lua');
 include('chlcc/hud/datedisplay.lua');

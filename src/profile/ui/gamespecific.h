@@ -18,12 +18,6 @@ inline uint8_t ButterflyFrameCount;
 inline float ButterflyFlapFrameDuration;
 inline float ButterflyFadeDuration;
 
-inline float MenuSelectPromptDuration;
-inline float MenuSelectPromptInterval;
-inline float MenuTransitionDuration;
-inline float ShowPageAnimationStartTime;
-inline float ShowPageAnimationDuration;
-
 inline Sprite BubbleSpriteSmall;
 inline Sprite BubbleSpriteBig;
 inline float BubbleFadeDuration;

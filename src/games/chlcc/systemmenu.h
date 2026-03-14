@@ -1,10 +1,9 @@
 #pragma once
 
-#include "animations/selectprompt.h"
-#include "animations/menutransition.h"
 #include <optional>
+#include "commonmenu.h"
+#include "animations/menutransition.h"
 #include "../../ui/menu.h"
-#include "../../ui/savemenu.h"
 #include "../../ui/widgets/group.h"
 #include "../../ui/widgets/button.h"
 
@@ -12,27 +11,28 @@ namespace Impacto {
 namespace UI {
 namespace CHLCC {
 
-class SystemMenu : public Menu {
+class SystemMenu : public Menu, public CommonMenu {
  public:
   SystemMenu();
 
   void Show() override;
   void Hide() override;
+  void SubItemShow();
+  void SubItemsHide();
   void Update(float dt) override;
   void Render() override;
 
   void MenuButtonOnClick(Widgets::Button* target);
 
  private:
-  void UpdateMenuLoop();
+  glm::vec4 GetCurrentBgColor();
+
+  using CommonMenu::UpdateTitles;
   void UpdateTitles();
-  void DrawRedBar();
-  void DrawButtonPrompt();
+  void UpdateRightTitle();
   void DrawRunningSelectedLabel(float offsetY);
   void UpdateRunningSelectedLabel(float dt);
   void UpdateSmoothSelection(float dt);
-  void DrawCircles();
-  void DrawErin();
 
   enum class MenuItems : size_t {
     Backlog,
@@ -46,18 +46,15 @@ class SystemMenu : public Menu {
     ReturnTitle
   };
 
+  MenuTransitionAnimation SubItemsTransition;
   Widgets::Group* MainItems;
-  Animation TitleFade;
-  SelectPromptAnimation SelectAnimation;
-  MenuTransitionAnimation ShowMenu;
 
   float CurrentRunningPosition = 0.0f;
   float SelectionOffsetY = 0.0f;
   int IndexOfActiveButton = 0;
   std::optional<int> LastFocusedButtonId;
-  glm::vec2 RedTitleLabelPos;
-  glm::vec2 RightTitlePos;
-  glm::vec2 LeftTitlePos;
+  uint32_t CurrentColor;
+  MenuState SubItemsState;
 };
 
 }  // namespace CHLCC

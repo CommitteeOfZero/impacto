@@ -1,5 +1,6 @@
 #pragma once
 
+#include "commonmenu.h"
 #include "animations/menutransition.h"
 #include "../../ui/menu.h"
 #include "../../ui/widgets/group.h"
@@ -13,7 +14,7 @@ namespace Impacto {
 namespace UI {
 namespace CHLCC {
 
-class TrophyMenu : public UI::Menu {
+class TrophyMenu : public Menu, public CommonMenu {
  public:
   TrophyMenu();
 
@@ -24,20 +25,6 @@ class TrophyMenu : public UI::Menu {
   void Render();
 
  private:
-  void DrawCircles();
-  void DrawErin();
-  void DrawRedBar();
-  void DrawButtonPrompt();
-  void UpdateTitles();
-
-  MenuTransitionAnimation MenuTransition;
-  Animation TitleFade;
-  Animation FromSystemMenuTransition;
-
-  glm::vec2 RedTitleLabelPos;
-  glm::vec2 RightTitlePos;
-  glm::vec2 LeftTitlePos;
-
   Impacto::UI::Widgets::Group
       MainItems[Impacto::Profile::CHLCC::TrophyMenu::MaxTrophyPages] = {
           this, this, this, this, this, this, this, this, this};

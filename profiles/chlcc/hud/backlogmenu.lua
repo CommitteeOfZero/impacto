@@ -3,23 +3,9 @@ root.BacklogMenu = {
     DrawType = DrawComponentType.SystemMenu,
     BackgroundColor = 0x94b1ff,
     CircleSprite = "CircleBacklog",
-    CircleStartPosition = { X = 20, Y = 20 },
-    CircleOffset = 200,
-    ErinSprite = "Erin",
-    ErinPosition = { X = 301, Y = 1 },
-    BackgroundFilter = "BackgroundFilter",
-    InitialRedBarPosition = { X = 0, Y = 538 },
-    RightRedBarPosition = { X = 1059, Y = 538 },
-    RedBarDivision = 1826,
-    RedBarBaseX = 1059,
-    RedBarSprite = "RedBar",
-    RedBarLabelPosition = { X = 1067, Y = 573 },
-    RedBarLabel = "RedBarLabel",
     MenuTitleTextRightPosition = { X = 465, Y = 530 },
     MenuTitleTextLeftPosition = { X = 77, Y = -5 },
     MenuTitleTextAngle = 6.02,
-    TitleFadeInDuration = 40 / 60,
-    TitleFadeOutDuration = 28 / 60,
     MenuTitleText = "BacklogMenuTitleText",
     ButtonPromptPosition = { X = 966, Y = 651 },
     BacklogButtonPromptSprite = "BacklogButtonPrompt",
@@ -51,26 +37,6 @@ root.Sprites["CircleBacklog"] = {
     Bounds = { X = 1, Y = 917, Width = 106, Height = 106 }
 }
 
-root.Sprites["Erin"] = {
-    Sheet = "Main",
-    Bounds = { X = 641, Y = 1, Width = 978, Height = 798 }
-}
-
-root.Sprites["BackgroundFilter"] = {
-    Sheet = "Main",
-    Bounds = { X = 0, Y = 0, Width = 640, Height = 360 }
-}
-
-root.Sprites["RedBar"] = {
-    Sheet = "Main",
-    Bounds = { X = 767, Y = 913, Width = 1280, Height = 110 }
-}
-
-root.Sprites["RedBarLabel"] = {
-    Sheet = "Main",
-    Bounds = { X = 506, Y = 469, Width = 133, Height = 74 }
-}
-
 root.Sprites["BacklogMenuTitleText"] = {
     Sheet = "Backlog",
     Bounds = { X = 2, Y = 640, Width = 759, Height = 116 }
@@ -94,11 +60,6 @@ root.Sprites["EntryHighlight"] = {
 root.Sprites["BacklogButtonPrompt"] = {
     Sheet = "Backlog",
     Bounds = { X = 1213, Y = 1, Width = 315, Height = 28 }
-}
-
-root.Sprites["Erin"] = {
-    Sheet = "Main",
-    Bounds = { X = 641, Y = 1, Width = 978, Height = 798 }
 }
 
 root.Sprites["ScrollbarThumb"] = {

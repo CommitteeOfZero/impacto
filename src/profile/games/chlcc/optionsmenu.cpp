@@ -17,23 +17,6 @@ void Configure() {
   BackgroundColor = EnsureGetMember<uint32_t>("BackgroundColor");
 
   CircleSprite = EnsureGetMember<Sprite>("CircleSprite");
-  CircleStartPosition = EnsureGetMember<glm::vec2>("CircleStartPosition");
-  CircleOffset = EnsureGetMember<float>("CircleOffset");
-
-  ErinPosition = EnsureGetMember<glm::vec2>("ErinPosition");
-  ErinSprite = EnsureGetMember<Sprite>("ErinSprite");
-
-  BackgroundFilter = EnsureGetMember<Sprite>("BackgroundFilter");
-
-  InitialRedBarPosition = EnsureGetMember<glm::vec2>("InitialRedBarPosition");
-  RightRedBarPosition = EnsureGetMember<glm::vec2>("RightRedBarPosition");
-  RedBarDivision = EnsureGetMember<float>("RedBarDivision");
-  RedBarBaseX = EnsureGetMember<float>("RedBarBaseX");
-  InitialRedBarSprite = EnsureGetMember<Sprite>("RedBarSprite");
-  RedBarLabelPosition = EnsureGetMember<glm::vec2>("RedBarLabelPosition");
-  RedBarLabel = EnsureGetMember<Sprite>("RedBarLabel");
-
-  ShowAnimationDuration = EnsureGetMember<float>("ShowAnimationDuration");
 
   ShowPageAnimationStartTime =
       EnsureGetMember<float>("ShowPageAnimationStartTime");
@@ -43,8 +26,6 @@ void Configure() {
   MenuTitleTextRightPosition =
       EnsureGetMember<glm::vec2>("MenuTitleTextRightPos");
   MenuTitleTextAngle = EnsureGetMember<float>("MenuTitleTextAngle");
-  TitleFadeInDuration = EnsureGetMember<float>("TitleFadeInDuration");
-  TitleFadeOutDuration = EnsureGetMember<float>("TitleFadeOutDuration");
   MenuTitleText = EnsureGetMember<Sprite>("MenuTitleText");
 
   PageRotationAngle = EnsureGetMember<float>("PageRotationAngle");
@@ -52,12 +33,6 @@ void Configure() {
 
   ButtonPromptSprite = EnsureGetMember<Sprite>("ButtonPromptSprite");
   ButtonPromptPosition = EnsureGetMember<glm::vec2>("ButtonPromptPosition");
-  ButtonPromptStartPosition =
-      EnsureGetMember<glm::vec2>("ButtonPromptStartPosition");
-  ButtonPromptAnimationStartTime =
-      EnsureGetMember<float>("ButtonPromptAnimationStartTime");
-  ButtonPromptAnimationDuration =
-      EnsureGetMember<float>("ButtonPromptAnimationDuration");
 
   SelectedSprite = EnsureGetMember<Sprite>("SelectedSprite");
   SelectedSlideDuration = EnsureGetMember<float>("SelectedSlideDuration");

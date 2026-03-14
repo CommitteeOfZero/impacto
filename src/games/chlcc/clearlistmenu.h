@@ -1,16 +1,14 @@
 #pragma once
 
-#include "animations/menutransition.h"
+#include "commonmenu.h"
 #include "../../ui/menu.h"
-#include "../../ui/widgets/group.h"
-#include "../../ui/widgets/label.h"
 #include "../../profile/games/chlcc/clearlistmenu.h"
 
 namespace Impacto {
 namespace UI {
 namespace CHLCC {
 
-class ClearListMenu : public Menu {
+class ClearListMenu : public Menu, public CommonMenu {
  public:
   ClearListMenu();
 
@@ -20,27 +18,11 @@ class ClearListMenu : public Menu {
   void Render() override;
 
  private:
-  void DrawCircles();
-  void DrawErin();
-  void DrawRedBar();
-
   void DrawPlayTime(float yOffset);
   void DrawEndingCount(float yOffset);
   void DrawTIPSCount(float yOffset);
   void DrawAlbumCompletion(float yOffset);
   void DrawEndingTree(float yOffset);
-
-  void DrawButtonPrompt();
-
-  void UpdateTitles();
-
-  MenuTransitionAnimation MenuTransition;
-  Animation TitleFade;
-  Animation FromSystemMenuTransition;
-
-  glm::vec2 RedTitleLabelPos;
-  glm::vec2 RightTitlePos;
-  glm::vec2 LeftTitlePos;
 };
 
 }  // namespace CHLCC

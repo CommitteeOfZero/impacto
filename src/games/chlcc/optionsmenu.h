@@ -1,19 +1,14 @@
 #pragma once
 
-#include "animations/menutransition.h"
+#include "commonmenu.h"
 
 #include "../../ui/optionsmenu.h"
-#include "../../ui/widgets/group.h"
-#include "../../ui/widgets/button.h"
-#include "../../ui/widgets/carousel.h"
-#include "../../ui/widgets/label.h"
-#include "../../ui/widgets/chlcc/optionsentry.h"
 
 namespace Impacto {
 namespace UI {
 namespace CHLCC {
 
-class OptionsMenu : public UI::OptionsMenu {
+class OptionsMenu : public UI::OptionsMenu, public CommonMenu {
  public:
   OptionsMenu();
 
@@ -28,24 +23,14 @@ class OptionsMenu : public UI::OptionsMenu {
   void RenderPage(size_t pageId, glm::vec2 offset);
   void GoToPage(size_t pageNumber) override;
 
-  void DrawCircles();
-  void DrawErin();
-  void DrawRedBar();
-  void DrawButtonPrompt();
-
   void UpdatePageInput(float dt) override;
   void UpdateValues() override;
 
-  void UpdateTitles();
   void UpdatePageShowAnimation(float dt);
   void UpdatePageTransitionAnimation(float dt);
   void UpdateSelectedLabel(float dt);
 
   void UpdateVisibility() override;
-
-  Animation TitleFade;
-  Animation FromSystemMenuTransition;
-  MenuTransitionAnimation ShowPageAnimation;
 
   size_t PreviousPage = 0;
 
@@ -55,9 +40,6 @@ class OptionsMenu : public UI::OptionsMenu {
 
   Animation SelectedAnimation;
   glm::vec2 SelectedLabelPos;
-
-  glm::vec2 RedTitleLabelPos;
-  glm::vec2 RightTitlePos;
 
   enum class PageType { Text = 0, Sound = 1, Voice = 2 };
 };
