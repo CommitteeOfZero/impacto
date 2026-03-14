@@ -1,8 +1,6 @@
 #pragma once
 
-#include "animations/selectprompt.h"
-#include "animations/menutransition.h"
-#include "../../ui/menu.h"
+#include "commonmenu.h"
 #include "../../ui/savemenu.h"
 #include "../../ui/widgets/group.h"
 #include "../../ui/widgets/button.h"
@@ -15,7 +13,7 @@ namespace CHLCC {
 
 using namespace Impacto::UI::Widgets::CHLCC;
 
-class SaveMenu : public UI::SaveMenu {
+class SaveMenu : public UI::SaveMenu, public CommonMenu {
  public:
   SaveMenu();
 
@@ -31,13 +29,7 @@ class SaveMenu : public UI::SaveMenu {
   void MenuButtonOnClick(Widgets::Button* target);
 
  private:
-  void DrawCircles();
-  void DrawErin();
-  void DrawRedBar();
   void DrawPageNumber(float yOffset);
-  void DrawButtonPrompt();
-
-  void UpdateTitles();
 
   int CurrentFullSavePage = 0;
   int CurrentQuickSavePage = 0;
@@ -47,15 +39,7 @@ class SaveMenu : public UI::SaveMenu {
   std::vector<Widgets::Group*> FullSavePages;
   std::vector<Widgets::Group*> QuickSavePages;
   std::vector<Widgets::Group*>* SavePages;
-  Animation TitleFade;
-  Animation FromSystemMenuTransition;
-  SelectPromptAnimation SelectAnimation;
-  MenuTransitionAnimation MenuTransition;
   SaveSystem::SaveType EntryType;
-
-  glm::vec2 RedTitleLabelPos;
-  glm::vec2 RightTitlePos;
-  glm::vec2 LeftTitlePos;
 };
 
 }  // namespace CHLCC

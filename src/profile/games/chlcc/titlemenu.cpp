@@ -1,10 +1,9 @@
 #include "titlemenu.h"
-#include "../../../log.h"
 #include "../../../renderer/renderer.h"
 #include "../../profile_internal.h"
 
 #include "../../ui/titlemenu.h"
-#include "../../../game.h"
+#include "../../game.h"
 #include "../../../ui/ui.h"
 #include "../../../games/chlcc/titlemenu.h"
 

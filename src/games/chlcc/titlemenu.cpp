@@ -483,7 +483,6 @@ void TitleMenu::Render() {
           MainItems->Render();
         } break;
         case TitleDispCtState::LoadSubEntriesFading:
-          [[fallthrough]];
         case TitleDispCtState::LoadSubEntriesControl: {
           DrawTitleMenuBackGraphics();
           LoadItems->Render();

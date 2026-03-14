@@ -7,26 +7,12 @@ root.SaveMenu = {
     SaveCircle = "PinkCircle",
     LoadCircle = "LightBlueCircle",
     QuickLoadCircle = "GreenCircle",
-    CircleStartPosition = {X = 20, Y = 20},
-    CircleOffset = 200,
-    ErinSprite = "Erin",
-    ErinPosition = {X = 301, Y = 1},
-    BackgroundFilter = "BackgroundFilter",
-    InitialRedBarPosition = {X = 0, Y = 538},
-    RightRedBarPosition = {X = 1059, Y = 538},
-    RedBarDivision = 1826,
-    RedBarBaseX = 1059,
-    RedBarSprite = "RedBar",
-    RedBarLabelPosition = {X = 1067, Y = 573},
-    RedBarLabel = "RedBarLabel",
     QuickLoadTextSprite = "QuickLoadText",
     SaveTextSprite = "SaveText",
     LoadTextSprite = "LoadText",
     MenuTitleTextAngle = 4.45,
     MenuTitleTextLeftPos = {X = 1, Y = 1},
     MenuTitleTextRightPos = {X = 782, Y = 584},
-    TitleFadeInDuration = 40 / 60,
-    TitleFadeOutDuration = 28 / 60,
     SaveListPosition = {X = 0, Y = 0},
     SaveListSprite = "SaveList",
     EntryPositions = {
@@ -60,7 +46,6 @@ root.SaveMenu = {
     MaxPageNum = "MaxPageNum",
     ButtonPromptPosition = {X = 853, Y = 651},
     ButtonPrompt = "SaveButtonPrompt",
-    SelectDataFadeDuration = 110 / 60,
     SelectDataTextPositions = {
         {X = 94, Y = 51}, {X = 109, Y = 51},
         {X = 122, Y = 51}, {X = 134, Y = 51},
@@ -93,26 +78,6 @@ root.Sprites["LightBlueCircle"] = {
 root.Sprites["GreenCircle"] = {
     Sheet = "Save",
     Bounds = {X = 217, Y = 917, Width = 106, Height = 106}
-};
-
-root.Sprites["Erin"] = {
-    Sheet = "ClearList",
-    Bounds = {X = 641, Y = 1, Width = 978, Height = 798}
-};
-
-root.Sprites["RedBar"] = {
-    Sheet = "ClearList",
-    Bounds = {X = 767, Y = 913, Width = 1280, Height = 110}
-};
-
-root.Sprites["BackgroundFilter"] = {
-    Sheet = "Main",
-    Bounds = {X = 0, Y = 0, Width = 640, Height = 360}
-};
-
-root.Sprites["RedBarLabel"] = {
-    Sheet = "ClearList",
-    Bounds = {X = 506, Y = 469, Width = 133, Height = 74}
 };
 
 root.Sprites["SaveMenuBackground"] = {

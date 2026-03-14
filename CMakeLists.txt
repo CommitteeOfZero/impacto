@@ -76,6 +76,7 @@ set(Impacto_Src
         src/profile/hud/datedisplay.cpp
         src/profile/hud/tipsnotification.cpp
 
+        src/profile/ui/commonmenu.cpp
         src/profile/ui/systemmenu.cpp
         src/profile/ui/titlemenu.cpp
         src/profile/ui/savemenu.cpp
@@ -96,6 +97,7 @@ set(Impacto_Src
 
         src/profile/games/dash/titlemenu.cpp
 
+        src/profile/games/chlcc/commonmenu.cpp
         src/profile/games/chlcc/dialoguebox.cpp
         src/profile/games/chlcc/titlemenu.cpp
         src/profile/games/chlcc/savemenu.cpp
@@ -159,6 +161,7 @@ set(Impacto_Src
 
         src/games/dash/titlemenu.cpp
 
+        src/games/chlcc/commonmenu.cpp
         src/games/chlcc/titlemenu.cpp
         src/games/chlcc/savemenu.cpp
         src/games/chlcc/sysmesbox.cpp
@@ -429,6 +432,7 @@ set(Impacto_Header
         src/profile/hud/datedisplay.h
         src/profile/hud/tipsnotification.h
 
+        src/profile/ui/commonmenu.h
         src/profile/ui/systemmenu.h
         src/profile/ui/titlemenu.h
         src/profile/ui/savemenu.h
@@ -449,6 +453,7 @@ set(Impacto_Header
 
         src/profile/games/dash/titlemenu.h
 
+        src/profile/games/chlcc/commonmenu.h
         src/profile/games/chlcc/dialoguebox.h
         src/profile/games/chlcc/titlemenu.h
         src/profile/games/chlcc/savemenu.h
@@ -510,6 +515,7 @@ set(Impacto_Header
 
         src/games/dash/titlemenu.h
 
+        src/games/chlcc/commonmenu.h
         src/games/chlcc/titlemenu.h
         src/games/chlcc/savemenu.h
         src/games/chlcc/sysmesbox.h

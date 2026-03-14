@@ -10,33 +10,12 @@ namespace OptionsMenu {
 inline uint32_t BackgroundColor;
 
 inline Sprite CircleSprite;
-inline glm::vec2 CircleStartPosition;
-inline float CircleOffset;
-
-inline Sprite ErinSprite;
-inline glm::vec2 ErinPosition;
-
-inline Sprite BackgroundFilter;
-
-inline glm::vec2 InitialRedBarPosition;
-inline glm::vec2 RightRedBarPosition;
-inline float RedBarDivision;
-inline float RedBarBaseX;
-inline Sprite RedBarSprite;
-inline Sprite InitialRedBarSprite;
-inline glm::vec2 RedBarPosition;
-inline glm::vec2 RedBarLabelPosition;
-inline Sprite RedBarLabel;
-
-inline float ShowAnimationDuration;
 
 inline float ShowPageAnimationStartTime;
 inline float ShowPageAnimationDuration;
 
 inline glm::vec2 MenuTitleTextRightPosition;
 inline float MenuTitleTextAngle;
-inline float TitleFadeInDuration;
-inline float TitleFadeOutDuration;
 inline Sprite MenuTitleText;
 
 inline float PageRotationAngle;
@@ -44,9 +23,6 @@ inline float PageTransitionDuration;
 
 inline Sprite ButtonPromptSprite;
 inline glm::vec2 ButtonPromptPosition;
-inline glm::vec2 ButtonPromptStartPosition;
-inline float ButtonPromptAnimationStartTime;
-inline float ButtonPromptAnimationDuration;
 
 inline Sprite SelectedSprite;
 inline float SelectedSlideDuration;

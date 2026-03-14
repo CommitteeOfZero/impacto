@@ -1,14 +1,14 @@
 #include "menutransition.h"
 
 #include "../../../profile/game.h"
-#include "../../../profile/ui/gamespecific.h"
+#include "../../../profile/games/chlcc/commonmenu.h"
 
 namespace Impacto {
 namespace UI {
 namespace CHLCC {
 
 using namespace Impacto::Profile;
-using namespace Impacto::Profile::GameSpecific;
+using namespace Impacto::Profile::CHLCC::CommonMenu;
 
 MenuTransitionAnimation::MenuTransitionAnimation() {
   SetDuration(MenuTransitionDuration);

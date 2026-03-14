@@ -9,22 +9,6 @@ namespace AlbumMenu {
 
 inline uint32_t BackgroundColor;
 inline Sprite CircleSprite;
-inline glm::vec2 CircleStartPosition;
-inline float CircleOffset;
-inline glm::vec2 ErinPosition;
-inline Sprite ErinSprite;
-inline Sprite BackgroundFilter;
-inline glm::vec2 InitialRedBarPosition;
-inline Sprite InitialRedBarSprite;
-inline glm::vec2 RightRedBarPosition;
-inline glm::vec2 RedBarPosition;
-inline float RedBarDivision;
-inline float RedBarBaseX;
-inline Sprite RedBarSprite;
-inline glm::vec2 RedBarLabelPosition;
-inline Sprite RedBarLabel;
-inline float TitleFadeInDuration;
-inline float TitleFadeOutDuration;
 inline Sprite CGList;
 inline glm::vec2 CGListPosition;
 inline Sprite PageCountLabel;

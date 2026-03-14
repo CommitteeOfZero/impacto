@@ -1,11 +1,7 @@
 #pragma once
 
-#include <vector>
-
 #include "../../../animation.h"
-#include "../../../spritesheet.h"
 #include "../../../renderer/renderer.h"
-#include "../../../profile/ui/gamespecific.h"
 
 namespace Impacto {
 namespace UI {
