@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../button.h"
+#include "../../../animation.h"
 
 namespace Impacto {
 namespace UI {
@@ -13,6 +14,7 @@ class SystemMenuEntryButton : public Button {
                         glm::vec4 focusTint, Sprite const& highlight,
                         glm::vec2 pos, RectF hoverBounds);
   void Render() override;
+  void Update(float dt) override;
   void UpdateInput(float dt) override;
 
  private:
@@ -20,6 +22,7 @@ class SystemMenuEntryButton : public Button {
                         float angleRadians);
 
  protected:
+  Animation StarAnimation;
   glm::vec4 FocusTint;
 };
 

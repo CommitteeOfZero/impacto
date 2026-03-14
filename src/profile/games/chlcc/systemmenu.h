@@ -7,6 +7,7 @@ namespace Profile {
 namespace CHLCC {
 namespace SystemMenu {
 constexpr int MenuEntriesNumMax = 9;
+constexpr int STAR_COUNT = 6;
 
 inline uint32_t BackgroundColor;
 inline Sprite CircleSprite;
@@ -41,6 +42,13 @@ inline glm::vec2 MenuTitleTextRightPosition;
 inline glm::vec2 MenuCHLCCLabelPosition;
 inline float SelectedLabelSpeed;
 inline float HoverLerpSpeed;
+
+inline float StarAnimationDuration;
+inline float StarRotationSpeed;
+inline float LeftAngle;
+inline std::array<glm::vec2, STAR_COUNT> StarsOffsetsStart;
+inline std::array<glm::vec2, STAR_COUNT> StarsOffsetsEnd;
+inline Sprite StarSprite;
 
 void Configure();
 
