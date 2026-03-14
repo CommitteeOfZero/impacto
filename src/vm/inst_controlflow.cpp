@@ -247,17 +247,38 @@ VmInstruction(InstClickOnJump) {
              arg1, arg2, labelNum);
 }
 VmInstruction(InstKeyboardOnJump) {
+  using namespace Interface;
   StartInstruction;
-  PopUint8(arg1);
-  PopExpression(arg2);
-  PopExpression(arg3);
-  PopLocalLabel(arg4);
-  (void)arg4;  // Unused
-  ImpLogSlow(
-      LogLevel::Warning, LogChannel::VMStub,
-      "STUB instruction KeyboardOnJump(arg1: {:d}, arg2: {:d}, arg3: {:d}, "
-      "arg4: {:d})\n",
-      arg1, arg2, arg3, arg4);
+  PopUint8(type);
+  PopExpression(buttonsArg);
+  PopExpression(downTypeId);
+  PopUint16(labelNum);
+  uint32_t labelAdr = ScriptGetLabelAddress(thread->ScriptBufferId, labelNum);
+
+  const InputDownType downType = static_cast<InputDownType>(downTypeId);
+
+  const bool inputResult = [&]() -> bool {
+    const uint32_t bitfield = (type & 2) ? PADcustom[buttonsArg] : buttonsArg;
+
+    uint32_t padInputDown = GetPadInputButtonDown(downType);
+    if (downType == InputDownType::IsDown) {
+      padInputDown |= PADinputButtonIsDown;
+    } else if (downType == InputDownType::WentDown) {
+      padInputDown |= PADinputButtonWentDown;
+    }
+
+    return bitfield & padInputDown;
+  }();
+
+  if (inputResult) {
+    thread->IpOffset = labelAdr;
+  }
+
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction KeyboardOnJump(type: {:d}, buttonsArg: {:d}, "
+             "downTypeId: {:d}, "
+             "labelNum: {:d})\n",
+             type, buttonsArg, downTypeId, labelNum);
 }
 VmInstruction(InstControlOnJump) {
   StartInstruction;
