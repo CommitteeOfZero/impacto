@@ -27,6 +27,10 @@
     {
       "name": "ffmpeg",
       "version": "7.1.2#5"
+    },
+    {
+      "name": "sdl2",
+      "version": "2.32.10"
     }
   ]
 }
