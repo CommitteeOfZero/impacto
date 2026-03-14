@@ -4,10 +4,15 @@ if (POLICY CMP0141)
   cmake_policy(SET CMP0141 NEW)
 endif()
 
+if (POLICY CMP0174)
+  cmake_policy(SET CMP0174 NEW)
+endif()
+
 project("impacto")
 
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/modules")
 include(FetchContent)
+include(CheckLinkerFlag)
+find_package(PkgConfig)
 
 if (EMSCRIPTEN)
     list(APPEND CMAKE_MODULE_PATH ${EMSCRIPTEN_ROOT_PATH}/cmake/Modules)
@@ -64,6 +69,7 @@ set(Impacto_Src
         src/profile/scriptvars.cpp
         src/profile/scriptinput.cpp
         src/profile/configsystem.cpp
+        src/profile/subtitle.cpp
 
         src/profile/data/bgeff.cpp
         src/profile/data/savesystem.cpp
@@ -358,6 +364,8 @@ set(Impacto_Src
         src/video/videosystem.cpp
         src/video/videoplayer.cpp
         src/video/clock.cpp
+
+        src/subtitle/subtitlesystem.cpp
 )
 
 set(Impacto_Header
@@ -415,6 +423,7 @@ set(Impacto_Header
         src/profile/scriptvars.h
         src/profile/scriptinput.h
         src/profile/configsystem.h
+        src/profile/subtitle.h
 
         src/profile/data/bgeff.h
         src/profile/data/savesystem.h
@@ -699,7 +708,10 @@ set(Impacto_Header
         src/video/videosystem.h
         src/video/videoplayer.h
         src/video/clock.h
-        )
+
+        src/subtitle/subtitlesystem.h
+        src/subtitle/subtitlerenderer.h
+    )
 
 if (WIN32)
     list(APPEND Impacto_Src
@@ -932,6 +944,7 @@ if (NOT DEFINED IMPACTO_DISABLE_OPENAL)
             src/audio/openal/ffmpegaudioplayer.h
     )
 
+    list(APPEND Impacto_Include_Dirs ${OPENAL_INCLUDE_DIR})
 endif ()
 
 if (EMSCRIPTEN)
@@ -972,49 +985,49 @@ if (EMSCRIPTEN)
     string(REPLACE "-O2" "" CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
     string(REPLACE "-O2" "" CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE}")
 else ()
-    find_package(SDL2 REQUIRED)
+    find_package(SDL2 CONFIG REQUIRED)
     find_package(ZLIB REQUIRED)
-    find_package(OggVorbis REQUIRED)
-    find_package(WebP REQUIRED)
 
-    list(APPEND Impacto_Include_Dirs ${OGGVORBIS_INCLUDE_DIRS})
-
+    set(SDL2_LIBRARIES 
+        "$<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>"
+        "$<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>"
+    )
     if (NX)
+        pkg_check_modules(ogg REQUIRED IMPORTED_TARGET ogg)
+        pkg_check_modules(vorbis REQUIRED IMPORTED_TARGET vorbis)
+        pkg_check_modules(vorbisfile REQUIRED IMPORTED_TARGET vorbisfile)
+        pkg_check_modules(libwebp REQUIRED IMPORTED_TARGET libwebp)
         list(APPEND Impacto_Libs
                 ${SDL2_LIBRARIES}
                 ZLIB::ZLIB
-                vorbisfile
-                vorbis
-                ogg
-                webp
-                dav1d
+                PkgConfig::vorbisfile
+                PkgConfig::vorbis
+                PkgConfig::ogg
+                PkgConfig::libwebp
                 EGL
                 glapi
                 drm_nouveau
                 nx
         )
 
-        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--start-group") # workaround for SDL2 being last in the linker list
     else ()
-        # Add this because apparently find_package(SDL2 REQUIRED) doesn't work right on Arch?
-        if ("${SDL2_LIBRARIES}" STREQUAL "")
-            set(SDL2_LIBRARIES "SDL2::SDL2")
-        endif ()
+        find_package(Ogg CONFIG REQUIRED)
+        find_package(Vorbis CONFIG REQUIRED)
+        find_package(WebP CONFIG REQUIRED)
 
         list(APPEND Impacto_Libs
                 ${SDL2_LIBRARIES}
                 ZLIB::ZLIB
-                ${OGGVORBIS_LIBRARIES}
-                ${WebP_LIBRARIES}
+                WebP::webp WebP::webpdecoder WebP::webpdemux
+                Ogg::ogg
+                Vorbis::vorbis
+                Vorbis::vorbisfile
         )
 
         add_definitions(-DIMPACTO_OPENAL_HAVE_ALEXT)
     endif ()
 endif ()
 
-if (NOT DEFINED IMPACTO_DISABLE_OPENAL)
-    list(APPEND Impacto_Include_Dirs ${OPENAL_INCLUDE_DIR})
-endif ()
 list(APPEND Impacto_Include_Dirs ${SDL2_INCLUDE_DIRS})
 list(APPEND Impacto_Include_Dirs ${WebP_INCLUDE_DIRS})
 
@@ -1032,6 +1045,21 @@ list(APPEND Impacto_Libs
         concurrentqueue
         readerwriterqueue
 )
+
+if (NOT DEFINED IMPACTO_DISABLE_LIBASS)
+    list(APPEND Impacto_Src src/subtitle/ass/subtitlerenderer.cpp)
+    list(APPEND Impacto_Header src/subtitle/ass/subtitlerenderer.h)
+    
+    pkg_check_modules(LIBASS REQUIRED IMPORTED_TARGET GLOBAL libass)
+    list(APPEND Impacto_Include_Dirs ${LIBASS_INCLUDE_DIRS})
+    list(APPEND Impacto_Libs
+        ${LIBASS_LINK_LIBRARIES}
+    )
+    list(APPEND Impacto_Compile_Options
+        ${LIBASS_CFLAGS_OTHER}
+    )
+
+endif()
 
 if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
     set(imgui_src
@@ -1109,23 +1137,27 @@ if (NOT DEFINED IMPACTO_DISABLE_FFMPEG)
     list(APPEND Impacto_Src
             src/video/ffmpegplayer.cpp
             src/video/ffmpegstream.cpp
-    )
-    list(APPEND Impacto_Header
+            src/video/ffmpegsubtitlehelper.cpp
+            )
+            list(APPEND Impacto_Header
             src/video/ffmpegplayer.h
             src/video/ffmpegstream.h
+            src/video/ffmpegsubtitlehelper.h
     )
+
 
     if (NOT VCPKG_TOOLCHAIN)
         set(AVCPP_PATCH git apply ${CMAKE_CURRENT_SOURCE_DIR}/vendor/patches/avcpp.patch)
         if(NOT BUILD_SHARED_LIBS)
             set(AV_ENABLE_SHARED OFF CACHE BOOL "Enable shared library build (Off)" FORCE)            
         endif()
+        set(AV_DISABLE_AVDEVICE ON CACHE INTERNAL "Disable FFMPEG AVDevice")
+        set(AV_DISABLE_AVFILTER ON CACHE INTERNAL "Disable FFMPEG AVFilter")
+        set(AV_BUILD_EXAMPLES OFF CACHE INTERNAL "Build AVCPP Examples")
         FetchContent_Declare(
             avcpp
             GIT_REPOSITORY "https://github.com/h4tr3d/avcpp"
-            GIT_TAG "v2.7.1"
-            PATCH_COMMAND ${AVCPP_PATCH}
-            UPDATE_DISCONNECTED 1
+            GIT_TAG "00e29ea0c0f7036423b80553aaccacd70f90aace"
             SYSTEM
             GIT_SUBMODULES ""
         )
@@ -1135,23 +1167,22 @@ if (NOT DEFINED IMPACTO_DISABLE_FFMPEG)
         list(APPEND Impacto_Libs
                 avcpp
         )
-        
-        list(APPEND Impacto_Libs
-            ${FFMPEG_LIBRARIES}
-        )
-        list(APPEND Impacto_Include_Dirs ${FFMPEG_INCLUDE_DIRS})
-        list(APPEND Impacto_Include_Dirs ${AvCpp_SOURCE_DIR}/src)
-
     else ()
         find_package(avcpp CONFIG REQUIRED)
         list(APPEND Impacto_Libs
-                avcpp::avcpp
-                avcpp::FFmpeg
+            avcpp::avcpp
+            avcpp::FFmpeg
         )
+        
     endif ()
-
-    
-
+    list(APPEND Impacto_Include_Dirs ${FFMPEG_INCLUDE_DIRS})
+    list(APPEND Impacto_Libs ${FFMPEG_LIBRARIES})
+    pkg_check_modules(dav1d REQUIRED IMPORTED_TARGET dav1d)
+    list(APPEND Impacto_Libs PkgConfig::dav1d)
+    if(ANDROID)
+        find_library(mediandk-lib mediandk)
+        list(APPEND Impacto_Libs ${mediandk-lib})
+    endif()
 endif ()
 
 if (NOT DEFINED IMPACTO_DISABLE_MSPACK)
@@ -1234,6 +1265,10 @@ endIf()
 
 list(APPEND Impacto_Libs ${Impacto_Lib_Targets})
 target_link_libraries(impacto PRIVATE ${Impacto_Libs})
+check_linker_flag(CXX "-Wl,--start-group" HAS_START_GROUP)
+if(HAS_START_GROUP)
+    target_link_options(impacto PRIVATE "-Wl,--start-group")
+endif()
 
 target_compile_options(impacto PRIVATE "$<$<C_COMPILER_ID:MSVC>:/utf-8>")
 target_compile_options(impacto PRIVATE "$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
@@ -1256,7 +1291,7 @@ else ()
 endif ()
 
 # compiler/dependency configuration
-
+target_compile_options(impacto PRIVATE ${Impacto_Compile_Options})
 set_property(TARGET impacto ${Impacto_Lib_Targets} PROPERTY CXX_STANDARD 20)
 set_property(TARGET impacto PROPERTY CXX_SCAN_FOR_MODULES OFF)
 

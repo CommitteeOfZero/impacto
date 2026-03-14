@@ -177,7 +177,9 @@ void Renderer::EndFrame() {
 
 uint32_t Renderer::SubmitTexture(TexFmt format, uint8_t* buffer, int width,
                                  int height) {
+  GLint prevBound;
   uint32_t result;
+  glGetIntegerv(GL_TEXTURE_BINDING_2D, &prevBound);
   glGenTextures(1, &result);
   glBindTexture(GL_TEXTURE_2D, result);
 
@@ -214,7 +216,7 @@ uint32_t Renderer::SubmitTexture(TexFmt format, uint8_t* buffer, int width,
   // TODO do this ourselves outside of Submit(), this can easily cause a
   // framedrop
   glGenerateMipmap(GL_TEXTURE_2D);
-
+  glBindTexture(GL_TEXTURE_2D, prevBound);
   return result;
 }
 
@@ -1100,6 +1102,9 @@ void Renderer::SetBlendMode(RendererBlendMode blendMode) {
       return;
     case RendererBlendMode::Additive:
       glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+      return;
+    case RendererBlendMode::Premultiplied:
+      glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
       return;
   }
 }

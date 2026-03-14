@@ -17,6 +17,7 @@
 #include "data/tipssystem.h"
 #include "audio/audiosystem.h"
 #include "video/videosystem.h"
+#include "subtitle/subtitlesystem.h"
 #include "background2d.h"
 #include "mask2d.h"
 #include "character2d.h"
@@ -58,6 +59,7 @@
 #include "profile/ui/helpmenu.h"
 #include "profile/data/bgeff.h"
 #include "profile/ui/gamespecific.h"
+#include "profile/subtitle.h"
 
 namespace Impacto {
 
@@ -99,6 +101,11 @@ static void Init() {
 
   if (Profile::GameFeatures & GameFeature::Video) {
     Video::VideoInit();
+  }
+
+  if (Profile::GameFeatures & GameFeature::Subtitles) {
+    Profile::Subtitle::Configure();
+    Subtitle::SubtitleInit();
   }
 
   ScrWork = {};

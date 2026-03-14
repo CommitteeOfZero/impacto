@@ -1,12 +1,10 @@
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO h4tr3d/avcpp
-    REF "v${VERSION}"
-    SHA512 323fb8aa4a5cb2f069f387ff04fce083caaca6a5e9884977b42ebeac117d9bc61b62315cf55854a0dc6f54822501b9ffac0a2f071a52fec1090c8da801b9337a
-    HEAD_REF master
+    REF "00e29ea0c0f7036423b80553aaccacd70f90aace"
+    SHA512 c46642e695dea447d27eec608994e6ad2a5dba71a74c594d64940018f455c3dd929cb4be642f83ddd17a8e071a00436480c8858f089c1719565f406c0a21a234
     PATCHES
         0002-av_init_packet_deprecation.patch
-        ../../vendor/patches/avcpp.patch
 )
 
 string(COMPARE EQUAL "${VCPKG_LIBRARY_LINKAGE}" "static" AVCPP_ENABLE_STATIC)
@@ -19,9 +17,10 @@ vcpkg_cmake_configure(
     OPTIONS
         "-DAV_ENABLE_STATIC=${AVCPP_ENABLE_STATIC}"
         "-DAV_ENABLE_SHARED=${AVCPP_ENABLE_SHARED}"
-        "-DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON"
         "-DPKG_CONFIG_EXECUTABLE=${PKGCONFIG}"
         -DAV_BUILD_EXAMPLES=OFF
+        -DAV_DISABLE_AVDEVICE=ON
+        -DAV_DISABLE_AVFILTER=ON
 )
 vcpkg_cmake_install()
 vcpkg_cmake_config_fixup(CONFIG_PATH "lib/cmake/${PORT}")

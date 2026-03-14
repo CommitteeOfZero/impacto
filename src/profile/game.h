@@ -31,6 +31,12 @@ inline RendererType ActiveRenderer = RendererType::OpenGL;
 inline VideoPlayerType VideoPlayer = VideoPlayerType::FFmpeg;
 inline AudioBackendType ActiveAudioBackend = AudioBackendType::OpenAL;
 
+inline SubtitleAssBackendType SubtitleAssBackend =
+    SubtitleAssBackendType::LibAss;
+inline SubtitleTextBackendType SubtitleTextBackend =
+    SubtitleTextBackendType::None;
+inline SubtitleBmpBackendType SubtitleBmpBackend = SubtitleBmpBackendType::None;
+
 inline uint32_t LayerCount;
 inline int GameFeatures;
 

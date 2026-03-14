@@ -15,15 +15,43 @@
     "libogg",
     "libvorbis",
     "zlib",
-    "avcpp",
-    "libwebp",
-    "fmt"
-  ],
-  "overrides": [
     {
       "name": "avcpp",
-      "version": "2.7.1"
+      "default-features": false
     },
+    {
+      "name": "ffmpeg",
+      "default-features": false,
+      "features": [
+        "avcodec",
+        "avformat",
+        "swresample",
+        "swscale",
+        "dav1d",
+        "zlib"
+      ]
+    },
+    {
+      "name": "ffmpeg",
+      "default-features": false,
+      "features": [
+        "amf"
+      ],
+      "platform": "!osx"
+    },
+    {
+      "name": "ffmpeg",
+      "default-features": false,
+      "features": [
+        "nvcodec"
+      ],
+      "platform": "linux | windows"
+    },
+    "libwebp",
+    "fmt",
+    "libass"
+  ],
+  "overrides": [
     {
       "name": "ffmpeg",
       "version": "7.1.2#5"

@@ -2,7 +2,7 @@ root.ActiveRenderer = RendererType.OpenGL;
 
 root.LayerCount = 100;
 root.GameFeatures = GameFeature.Sc3VirtualMachine | GameFeature.Renderer2D | GameFeature.Input | GameFeature.Audio |
-                        GameFeature.Video | GameFeature.DebugMenu;
+                        GameFeature.Video | GameFeature.Subtitles | GameFeature.DebugMenu;
 root.DesignWidth = 1920;
 root.DesignHeight = 1080;
 
@@ -75,3 +75,4 @@ include('cclcc/hud/tipsnotification.lua');
 include('cclcc/hud/systemmenu.lua');
 include('cclcc/hud/savemenu.lua');
 include('cclcc/hud/helpmenu.lua');
+include('cclcc/subtitle.lua');
