@@ -1,17 +1,10 @@
+local toRad = 3.141592653 / 180;
+
 root.SystemMenu = {
     Type = SystemMenuType.CHLCC,
     DrawType = DrawComponentType.SystemMenu,
     BackgroundColor = 0xff9cb6,
-    BackgroundFilter = "BackgroundFilter",
-    FadeInDuration = 64 / 60,
-    FadeOutDuration = 64 / 60,
-    CircleStartPosition = {X = 20, Y = 20},
     CircleSprite = "SystemMenuCircle",
-    CircleOffset = 200,
-    ErinPosition = {X = 301, Y = 1},
-    ErinSprite = "Erin",
-    TitleFadeInDuration = 40 / 60,
-    TitleFadeOutDuration = 28 / 60,
 
     MenuLoopDuration = 1.815,
     MenuHoverLerpSpeed = 20,
@@ -33,13 +26,6 @@ root.SystemMenu = {
     SystemMenuRunningSelectedLabelAngle = -0.268,
     SystemMenuButtonPrompt= "SystemMenuButtonPrompt",
     SystemMenuButtonPromptPosition = {X = 1022, Y = 651},
-    InitialRedBarPosition = { X = 0, Y = 538 },
-    RightRedBarPosition = { X = 1059, Y = 538 },
-    RedBarDivision = 1826,
-    RedBarBaseX = 1059,
-    RedBarSprite = "RedBar",
-    RedBarLabelPosition = { X = 1067, Y = 573 },
-    RedBarLabel = "RedBarLabel",
     MenuSelectedLabelSpeed = -400,
     MenuEntriesNum = 9,
     MenuEntriesHNum = 0,
@@ -67,6 +53,26 @@ root.SystemMenu = {
     },
     MenuEntriesSprites = {},
     SelectMenuSprites = {},
+    StarSprite = "SysMenuStar",
+    StarAnimationDuration = 18 / 60,
+    StarRotationSpeed = 325 * toRad,
+    LeftAngle = -15.0 * toRad,
+    StarsOffsetsStart = {
+        { X = -15, Y = -25 },
+        { X = 11,  Y = -47 },
+        { X = 39,  Y = -65 },
+        { X = 72,  Y = -73 },
+        { X = 106, Y = -74 },
+        { X = 139, Y = -69 },
+    },
+    StarsOffsetsEnd = {
+        { X = -74,  Y = -23 },
+        { X = -58,  Y = -72 },
+        { X = -6,   Y = -105 },
+        { X = 61,   Y = -127 },
+        { X = 137,  Y = -125 },
+        { X = 188,  Y = -79 },
+    }
 };
 
 root.Sprites["SystemMenuBackground"] = {
@@ -109,15 +115,6 @@ root.Sprites["SystemMenuSelectionDot"] = {
     Bounds = {X = 511, Y = 550, Width = 14, Height = 14}
 };
 
-root.Sprites["RedBar"] = {
-    Sheet = "Main",
-    Bounds = { X = 767, Y = 913, Width = 1280, Height = 110 }
-}
-
-root.Sprites["RedBarLabel"] = {
-    Sheet = "Main",
-    Bounds = { X = 506, Y = 469, Width = 133, Height = 74 }
-}
 root.Sprites["SystemMenuCircle"] = {
     Sheet = "Main",
     Bounds = {X = 533, Y = 361, Width = 106, Height = 106}
@@ -199,3 +196,8 @@ for _, sprite in ipairs(fadeTextSprites) do
     }
     root.SystemMenu.SelectMenuSprites[#root.SystemMenu.SelectMenuSprites + 1] = id;
 end
+
+root.Sprites["SysMenuStar"] = {
+    Sheet = "Main",
+    Bounds = { X = 599, Y = 546, Width = 40, Height = 39 }
+}

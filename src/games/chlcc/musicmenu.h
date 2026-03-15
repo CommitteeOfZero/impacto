@@ -1,7 +1,6 @@
 #pragma once
 
-#include "animations/selectprompt.h"
-#include "animations/menutransition.h"
+#include "commonmenu.h"
 
 #include "../../ui/menu.h"
 #include "../../util.h"
@@ -47,7 +46,7 @@ constexpr MusicPlaybackMode& operator^=(MusicPlaybackMode& mode,
   return mode;
 }
 
-class MusicMenu : public Menu {
+class MusicMenu : public Menu, public CommonMenu {
  public:
   MusicMenu();
 
@@ -61,13 +60,7 @@ class MusicMenu : public Menu {
  private:
   Widgets::Group* MainItems;
 
-  void DrawCircles();
-  void DrawErin();
-  void DrawRedBar();
-  void DrawButtonPrompt();
-
   void UpdateEntries();
-  void UpdateTitles();
   void MusicButtonOnClick(Widgets::Button* target);
   void SwitchToTrack(std::optional<int> id);
   int GetNextTrackId(int id);
@@ -75,11 +68,7 @@ class MusicMenu : public Menu {
   void ToggleAllMode();
   void UpdateLooping();
 
-  Animation TitleFade;
   Animation NowPlayingAnimation;
-  Animation FromSystemMenuTransition;
-  SelectPromptAnimation SelectAnimation;
-  MenuTransitionAnimation MenuTransition;
 
   Sprite PlayModeRepeatSprite;
   Sprite PlayModeAllSprite;
@@ -96,10 +85,6 @@ class MusicMenu : public Menu {
   float PreviousPosition = 0.0f;
 
   float ScrollY = 0.0f;
-
-  glm::vec2 RedTitleLabelPos;
-  glm::vec2 RightTitlePos;
-  glm::vec2 LeftTitlePos;
 
   bool InputEnabled = false;
   MusicPlaybackMode PlaybackMode = MusicPlaybackMode::One;

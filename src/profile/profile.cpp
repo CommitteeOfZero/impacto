@@ -2,18 +2,15 @@
 #include "profile_internal.h"
 #include "../io/physicalfilestream.h"
 #include "../log.h"
-#include "../renderer/renderer.h"
 #include <ankerl/unordered_dense.h>
 
 #include "ui/backlogmenu.h"
 #include "dialogue.h"
 #include "configsystem.h"
 #include "game.h"
-#include "../font.h"
 #include "../text/text.h"
 #include "../game.h"
 #include "../ui/ui.h"
-#include "../vm/vm.h"
 #include "../data/savesystem.h"
 #include "../data/achievementsystem.h"
 #include "../data/tipssystem.h"
@@ -21,9 +18,8 @@
 #include "../hud/waiticondisplay.h"
 #include "../hud/autoicondisplay.h"
 #include "../hud/skipicondisplay.h"
-#include "../hud/dialoguebox.h"
 #include "../hud/tipsnotification.h"
-#include "../renderer/3d/model.h"
+#include "../profile/hud/saveicon.h"
 
 namespace Impacto {
 namespace Profile {
@@ -192,6 +188,7 @@ void MakeLuaProfile(std::string const& name) {
   DefineEnumInt<SaveSystem::SaveDataType>(LuaState);
   DefineEnumInt<AchievementSystem::AchievementDataType>(LuaState);
   DefineEnumInt<TipsSystem::TipsSystemType>(LuaState);
+  DefineEnumInt<UI::CommonMenuType>(LuaState);
   DefineEnumInt<UI::SystemMenuType>(LuaState);
   DefineEnumInt<UI::TitleMenuType>(LuaState);
   DefineEnumInt<UI::SaveMenuType>(LuaState);
@@ -211,6 +208,7 @@ void MakeLuaProfile(std::string const& name) {
   DefineEnumInt<WaitIconDisplay::WaitIconType>(LuaState);
   DefineEnumInt<AutoIconDisplay::AutoIconType>(LuaState);
   DefineEnumInt<SkipIconDisplay::SkipIconType>(LuaState);
+  DefineEnumInt<SaveIcon::SaveIconType>(LuaState);
   DefineEnumInt<Dialogue::NametagType>(LuaState);
   DefineEnumInt<TipsNotification::TipsNotificationType>(LuaState);
   DefineEnumInt<DialogueBoxType>(LuaState);

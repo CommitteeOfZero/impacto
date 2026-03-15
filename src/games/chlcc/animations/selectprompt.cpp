@@ -1,8 +1,11 @@
 #include "selectprompt.h"
+#include "../../../profile/games/chlcc/commonmenu.h"
 
 namespace Impacto {
 namespace UI {
 namespace CHLCC {
+
+using namespace Impacto::Profile::CHLCC::CommonMenu;
 
 SelectPromptAnimation::SelectPromptAnimation() {
   Direction = AnimationDirection::In;
