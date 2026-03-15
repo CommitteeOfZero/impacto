@@ -77,71 +77,48 @@ void PushInitialIndex() { lua_pushnil(LuaState); }
 int PushNextTableElement() { return lua_next(LuaState, -2); }
 
 template <>
-bool TryGet<Io::AssetPath>(Io::AssetPath& outPath) {
+std::optional<Io::AssetPath> TryGet<Io::AssetPath>() {
   if (lua_isstring(LuaState, -1)) {
-    outPath.Mount = "";
-    outPath.Id = 0;
-    outPath.FileName = lua_tostring(LuaState, -1);
-    return true;
-  } else {
-    if (!lua_istable(LuaState, -1)) return false;
-
-    if (!TryGetMember("Id", outPath.Id)) return false;
-    char const* _mount;
-    if (!TryGetMember("Mount", _mount)) return false;
-    outPath.Mount = _mount;
-    return true;
+    return Io::AssetPath{.Mount = "", .FileName = lua_tostring(LuaState, -1)};
   }
+  if (!lua_istable(LuaState, -1)) return std::nullopt;
+  auto id = TryGetMember<uint32_t>("Id");
+  auto mount = TryGetMember<std::string>("Mount");
+  if (!id || !mount) return std::nullopt;
+  return Io::AssetPath{.Mount = *mount, .Id = *id};
 }
 
 template <>
-bool TryGet<RectF>(RectF& outRectF) {
-  if (!lua_istable(LuaState, -1)) return false;
-
-  return TryGetMember("X", outRectF.X) && TryGetMember("Y", outRectF.Y) &&
-         TryGetMember("Width", outRectF.Width) &&
-         TryGetMember("Height", outRectF.Height);
+std::optional<RectF> TryGet<RectF>() {
+  if (!lua_istable(LuaState, -1)) return std::nullopt;
+  RectF outRectF;
+  if (TryGetMember("X", outRectF.X) && TryGetMember("Y", outRectF.Y) &&
+      TryGetMember("Width", outRectF.Width) &&
+      TryGetMember("Height", outRectF.Height)) {
+    return outRectF;
+  }
+  return std::nullopt;
 }
 
 template <>
-bool TryGet<glm::vec3>(glm::vec3& outVec3) {
-  if (!lua_istable(LuaState, -1)) return false;
-
-  return TryGetMember("X", outVec3.x) && TryGetMember("Y", outVec3.y) &&
-         TryGetMember("Z", outVec3.z);
+std::optional<DialogueColorPair> TryGet<DialogueColorPair>() {
+  if (!lua_istable(LuaState, -1)) return std::nullopt;
+  DialogueColorPair outColor;
+  if (TryGetMember("TextColor", outColor.TextColor) &&
+      TryGetMember("OutlineColor", outColor.OutlineColor)) {
+    return outColor;
+  }
+  return std::nullopt;
 }
 
 template <>
-bool TryGet<glm::vec2>(glm::vec2& outVec2) {
-  if (!lua_istable(LuaState, -1)) return false;
-
-  return TryGetMember("X", outVec2.x) && TryGetMember("Y", outVec2.y);
-}
-
-template <>
-bool TryGet<glm::u16vec2>(glm::u16vec2& outVec2) {
-  if (!lua_istable(LuaState, -1)) return false;
-
-  return TryGetMember("X", outVec2.x) && TryGetMember("Y", outVec2.y);
-}
-
-template <>
-bool TryGet<DialogueColorPair>(DialogueColorPair& outColor) {
-  if (!lua_istable(LuaState, -1)) return false;
-
-  return TryGetMember("TextColor", outColor.TextColor) &&
-         TryGetMember("OutlineColor", outColor.OutlineColor);
-}
-
-template <>
-bool TryGet<bool>(bool& outBool) {
+std::optional<bool> TryGet<bool>() {
   if (lua_isboolean(LuaState, -1)) {
-    outBool = lua_toboolean(LuaState, -1);
-    return true;
+    return lua_toboolean(LuaState, -1);
   }
   // TODO conversion?
 
-  return false;
+  return std::nullopt;
 }
 
 void ClearProfileInternal() { lua_close(LuaState); }
