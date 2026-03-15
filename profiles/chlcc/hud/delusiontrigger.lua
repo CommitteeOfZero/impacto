@@ -1080,8 +1080,6 @@ else
       { X = 1989, Y = 1280, Width = 39, Height = 64 },
       { X = 2028, Y = 1280, Width = 39, Height = 64 },
     },
-    {
-    },
   };
 
   for i = 0, #delusionTextGlyphs - 1 do
