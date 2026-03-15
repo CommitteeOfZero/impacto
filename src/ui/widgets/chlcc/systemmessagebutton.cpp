@@ -55,12 +55,12 @@ void SystemMessageButton::SetText(std::vector<ProcessedTextGlyph> text,
            HighlightOffset;
 
   const glm::vec2 leftSize = LeftHighlightSprite.ScaledBounds().GetSize();
-  const float leftWidth = leftSize.x * (fontSize / leftSize.y);
+  const float leftWidth = std::round(leftSize.x * fontSize / leftSize.y);
 
   const glm::vec2 rightSize = RightHighlightSprite.ScaledBounds().GetSize();
-  const float rightWidth = rightSize.x * (fontSize / rightSize.y);
+  const float rightWidth = std::round(rightSize.x * fontSize / rightSize.y);
 
-  LeftHighlightPos = {Bounds.X - leftWidth - 0.5f, Bounds.Y};
+  LeftHighlightPos = {Bounds.X - leftWidth - 1.0f, Bounds.Y};
   RightHighlightPos = {Bounds.X + TextWidth, Bounds.Y};
   HoverBounds = RectF(LeftHighlightPos.x, Bounds.Y,
                       TextWidth + leftWidth + rightWidth, fontSize);
