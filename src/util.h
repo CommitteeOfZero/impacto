@@ -48,7 +48,15 @@ struct string_hash {
 };
 
 template <typename T, typename... Ts>
-concept is_any_of = std::disjunction_v<std::is_same<T, Ts>...>;
+using is_any_of = std::disjunction<std::is_same<T, Ts>...>;
+
+template <typename T, typename... Ts>
+concept is_any_of_v = is_any_of<T, Ts...>::value;
+
+template <typename>
+struct is_std_array : std::false_type {};
+template <typename T, std::size_t N>
+struct is_std_array<std::array<T, N>> : std::true_type {};
 
 glm::mat2 Rotate2D(float angle);
 
