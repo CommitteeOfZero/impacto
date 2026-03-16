@@ -22,10 +22,14 @@ void Configure() {
     Impacto::DateDisplay::Implementation = new Impacto::RNE::DateDisplay;
   }
 
-  GetMemberArray<Sprite>(MonthNumSprites, NumSpriteCount, "MonthNumSprites");
-  GetMemberArray<Sprite>(DayNumSprites, NumSpriteCount, "DayNumSprites");
-  GetMemberArray<Sprite>(YearNumSprites, NumSpriteCount, "YearNumSprites");
-  GetMemberArray<Sprite>(WeekSprites, WeekSpriteCount, "WeekSprites");
+  GetMemberArray<Sprite>(std::span(MonthNumSprites, NumSpriteCount),
+                         "MonthNumSprites");
+  GetMemberArray<Sprite>(std::span(DayNumSprites, NumSpriteCount),
+                         "DayNumSprites");
+  GetMemberArray<Sprite>(std::span(YearNumSprites, NumSpriteCount),
+                         "YearNumSprites");
+  GetMemberArray<Sprite>(std::span(WeekSprites, WeekSpriteCount),
+                         "WeekSprites");
 
   MDSeparatorSprite = EnsureGetMember<Sprite>("MDSeparatorSprite");
   DYSeparatorSprite = EnsureGetMember<Sprite>("DYSeparatorSprite");

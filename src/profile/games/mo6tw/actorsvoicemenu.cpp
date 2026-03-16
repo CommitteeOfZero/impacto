@@ -14,11 +14,14 @@ namespace ActorsVoiceMenu {
 void Configure() {
   BackgroundSprite = EnsureGetMember<Sprite>("BackgroundSprite");
 
-  GetMemberArray<Sprite>(UnlockedSprites, ActorsVoiceCount, "UnlockedSprites");
-  GetMemberArray<Sprite>(LockedSprites, ActorsVoiceCount, "LockedSprites");
-  GetMemberArray<Sprite>(UnlockedHighlightedSprites, ActorsVoiceCount,
-                         "UnlockedHighlightedSprites");
-  GetMemberArray<Sprite>(LockedHighlightedSprites, ActorsVoiceCount,
+  GetMemberArray<Sprite>(std::span(UnlockedSprites, ActorsVoiceCount),
+                         "UnlockedSprites");
+  GetMemberArray<Sprite>(std::span(LockedSprites, ActorsVoiceCount),
+                         "LockedSprites");
+  GetMemberArray<Sprite>(
+      std::span(UnlockedHighlightedSprites, ActorsVoiceCount),
+      "UnlockedHighlightedSprites");
+  GetMemberArray<Sprite>(std::span(LockedHighlightedSprites, ActorsVoiceCount),
                          "LockedHighlightedSprites");
 
   InitialItemPosition = EnsureGetMember<glm::vec2>("InitialItemPosition");

@@ -49,7 +49,8 @@ void Configure() {
 
   SaveListPosition = EnsureGetMember<glm::vec2>("SaveListPosition");
   SaveListSprite = EnsureGetMember<Sprite>("SaveListSprite");
-  GetMemberArray<glm::vec2>(EntryPositions, EntriesPerPage, "EntryPositions");
+  GetMemberArray<glm::vec2>(std::span(EntryPositions, EntriesPerPage),
+                            "EntryPositions");
   QuickLoadEntrySprite = EnsureGetMember<Sprite>("QuickLoadEntrySprite");
   SaveEntrySprite = EnsureGetMember<Sprite>("SaveEntrySprite");
   LoadEntrySprite = EnsureGetMember<Sprite>("LoadEntrySprite");
@@ -63,7 +64,7 @@ void Configure() {
   PageNumBackgroundPos = EnsureGetMember<glm::vec2>("PageNumBackgroundPos");
   PageNumBackgroundSprite = EnsureGetMember<Sprite>("PageNumBackground");
   CurrentPageNumPos = EnsureGetMember<glm::vec2>("CurrentPageNumPos");
-  GetMemberArray<Sprite>(BigDigits, 10, "BigDigits");
+  GetMemberArray<Sprite>(std::span(BigDigits, 10), "BigDigits");
   PageNumSeparatorSlashPos =
       EnsureGetMember<glm::vec2>("PageNumSeparatorSlashPos");
   PageNumSeparatorSlashSprite =

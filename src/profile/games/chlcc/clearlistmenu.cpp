@@ -35,17 +35,20 @@ void Configure() {
 
   LabelPosition = EnsureGetMember<glm::vec2>("LabelPosition");
   ClearListLabel = EnsureGetMember<Sprite>("ClearListLabel");
-  GetMemberArray<glm::vec2>(TimePositions, 6, "TimePositions");
+  GetMemberArray<glm::vec2>(std::span(TimePositions, 6), "TimePositions");
   EndingCountPosition = EnsureGetMember<glm::vec2>("EndingCountPosition");
-  GetMemberArray<glm::vec2>(TIPSCountPositions, 3, "TIPSCountPositions");
-  GetMemberArray<Sprite>(Digits, 10, "Digits");
-  GetMemberArray<glm::vec2>(AlbumPositions, 3, "AlbumPositions");
+  GetMemberArray<glm::vec2>(std::span(TIPSCountPositions, 3),
+                            "TIPSCountPositions");
+  GetMemberArray<Sprite>(std::span(Digits, 10), "Digits");
+  GetMemberArray<glm::vec2>(std::span(AlbumPositions, 3), "AlbumPositions");
   ListPosition = EnsureGetMember<glm::vec2>("ListPosition");
   EndingList = EnsureGetMember<Sprite>("EndingList");
-  GetMemberArray<glm::vec2>(BoxPositions, Endings, "BoxPositions");
+  GetMemberArray<glm::vec2>(std::span(BoxPositions, Endings), "BoxPositions");
   EndingBox = EnsureGetMember<Sprite>("EndingBox");
-  GetMemberArray<glm::vec2>(ThumbnailPositions, Endings, "ThumbnailPositions");
-  GetMemberArray<Sprite>(EndingThumbnails, Endings, "EndingThumbnails");
+  GetMemberArray<glm::vec2>(std::span(ThumbnailPositions, Endings),
+                            "ThumbnailPositions");
+  GetMemberArray<Sprite>(std::span(EndingThumbnails, Endings),
+                         "EndingThumbnails");
   LockedThumbnail = EnsureGetMember<Sprite>("LockedThumbnail");
   ButtonPromptPosition = EnsureGetMember<glm::vec2>("ButtonPromptPosition");
   ButtonPromptSprite = EnsureGetMember<Sprite>("ButtonPromptSprite");

@@ -25,9 +25,9 @@ void Configure() {
 
     MenuEntriesNum = EnsureGetMember<int>("MenuEntriesNum");
     if (MenuEntriesNum > 0) {
-      GetMemberArray<Sprite>(MenuEntriesSprites, MenuEntriesNum,
+      GetMemberArray<Sprite>(std::span(MenuEntriesSprites, MenuEntriesNum),
                              "MenuEntriesSprites");
-      GetMemberArray<Sprite>(MenuEntriesHSprites, MenuEntriesNum,
+      GetMemberArray<Sprite>(std::span(MenuEntriesHSprites, MenuEntriesNum),
                              "MenuEntriesHighlightedSprites");
     }
 

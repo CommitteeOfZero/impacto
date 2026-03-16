@@ -46,10 +46,12 @@ void Configure() {
   MovieLabel = EnsureGetMember<Sprite>("MovieLabel");
   ListPosition = EnsureGetMember<glm::vec2>("ListPosition");
   MovieList = EnsureGetMember<Sprite>("MovieList");
-  GetMemberArray<glm::vec2>(BoxPositions, Movies, "BoxPositions");
+  GetMemberArray<glm::vec2>(std::span(BoxPositions, Movies), "BoxPositions");
   MovieBox = EnsureGetMember<Sprite>("MovieBox");
-  GetMemberArray<glm::vec2>(ThumbnailPositions, Movies, "ThumbnailPositions");
-  GetMemberArray<Sprite>(MoviesThumbnails, Movies, "MoviesThumbnails");
+  GetMemberArray<glm::vec2>(std::span(ThumbnailPositions, Movies),
+                            "ThumbnailPositions");
+  GetMemberArray<Sprite>(std::span(MoviesThumbnails, Movies),
+                         "MoviesThumbnails");
   LockedThumbnail = EnsureGetMember<Sprite>("LockedThumbnail");
   ButtonPromptPosition = EnsureGetMember<glm::vec2>("ButtonPromptPosition");
   ButtonPromptSprite = EnsureGetMember<Sprite>("ButtonPromptSprite");

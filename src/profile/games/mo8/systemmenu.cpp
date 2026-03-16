@@ -15,7 +15,7 @@ namespace SystemMenu {
 void Configure() {
   MenuEntriesLNum = EnsureGetMember<int>("MenuEntriesLNum");
   if (MenuEntriesLNum > 0) {
-    GetMemberArray<Sprite>(MenuEntriesLSprites, MenuEntriesLNum,
+    GetMemberArray<Sprite>(std::span(MenuEntriesLSprites, MenuEntriesLNum),
                            "MenuEntriesLockedSprites");
   }
   ExitMenuButtonId = EnsureGetMember<int>("ExitMenuButtonId");

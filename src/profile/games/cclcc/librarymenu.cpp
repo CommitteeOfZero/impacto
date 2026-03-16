@@ -158,11 +158,11 @@ void Configure() {
       EnsureGetMember<uint32_t>("MusicNowPlayingTextColor");
   MusicNowPlayingTextOutlineColor =
       EnsureGetMember<uint32_t>("MusicNowPlayingTextOutlineColor");
-  GetMemberArray<Sprite>(MusicPlayingModeSprites.data(),
-                         (uint32_t)MusicMenuPlayingMode::_size(),
+  GetMemberArray<Sprite>(std::span(MusicPlayingModeSprites.data(),
+                                   (uint32_t)MusicMenuPlayingMode::_size()),
                          "MusicPlayingModeSprites");
-  GetMemberArray<RectF>(MusicPlayingModeDisplayBounds.data(),
-                        (uint32_t)MusicMenuPlayingMode::_size(),
+  GetMemberArray<RectF>(std::span(MusicPlayingModeDisplayBounds.data(),
+                                  (uint32_t)MusicMenuPlayingMode::_size()),
                         "MusicPlayingModeDisplayBounds");
 
   MovieDiskSprites = GetMemberVector<Sprite>("MovieDiskSprites");

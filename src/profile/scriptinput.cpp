@@ -111,8 +111,8 @@ void Configure() {
   PADcustomType = EnsureGetMember<uint32_t>("PADcustomType");
   PADcustomSizeA = EnsureGetMember<uint32_t>("PADcustomSizeA");
   PADcustomSizeB = EnsureGetMember<uint32_t>("PADcustomSizeB");
-  GetMemberArray<uint32_t>(PADcustomA, PADcustomSizeA, "PADcustomA");
-  GetMemberArray<uint32_t>(PADcustomB, PADcustomSizeB, "PADcustomB");
+  GetMemberArray<uint32_t>(std::span(PADcustomA, PADcustomSizeA), "PADcustomA");
+  GetMemberArray<uint32_t>(std::span(PADcustomB, PADcustomSizeB), "PADcustomB");
 }
 
 }  // namespace ScriptInput

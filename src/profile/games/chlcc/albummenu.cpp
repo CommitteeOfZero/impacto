@@ -32,7 +32,7 @@ void Configure() {
   PageLabelPosition = EnsureGetMember<glm::vec2>("PageLabelPosition");
   CGBox = EnsureGetMember<Sprite>("CGBox");
   CGBoxTemplatePosition = EnsureGetMember<glm::vec2>("CGBoxTemplatePosition");
-  GetMemberArray<Sprite>(AlbumThumbnails, 63, "AlbumThumbnails");
+  GetMemberArray<Sprite>(std::span(AlbumThumbnails, 63), "AlbumThumbnails");
   ThumbnailTemplatePosition =
       EnsureGetMember<glm::vec2>("ThumbnailTemplatePosition");
   VariationUnlocked = EnsureGetMember<Sprite>("VariationUnlocked");
@@ -44,13 +44,13 @@ void Configure() {
   ThumbnailHighlight = EnsureGetMember<Sprite>("ThumbnailHighlight");
   AlbumPages = EnsureGetMember<int>("AlbumPages");
   EntriesPerPage = EnsureGetMember<int>("EntriesPerPage");
-  GetMemberArray<Sprite>(PageNums, 10, "PageNums");
+  GetMemberArray<Sprite>(std::span(PageNums, 10), "PageNums");
   CurrentPageNumPos = EnsureGetMember<glm::vec2>("CurrentPageNumPos");
   MaxPageNumPos = EnsureGetMember<glm::vec2>("MaxPageNumPos");
   PageNumSeparatorSlash = EnsureGetMember<Sprite>("PageNumSeparatorSlash");
   PageNumSeparatorSlashPos =
       EnsureGetMember<glm::vec2>("PageNumSeparatorSlashPos");
-  GetMemberArray<Sprite>(ReachablePageNums, 10, "ReachablePageNums");
+  GetMemberArray<Sprite>(std::span(ReachablePageNums, 10), "ReachablePageNums");
   ButtonGuide = EnsureGetMember<Sprite>("ButtonGuide");
   ButtonGuidePos = EnsureGetMember<glm::vec2>("ButtonGuidePos");
   SelectDataSprites = GetMemberVector<Sprite>("SelectDataSprites");

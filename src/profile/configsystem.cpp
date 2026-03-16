@@ -54,8 +54,10 @@ void Configure() {
       uint32_t voiceCount = optionalVoiceCount.value();
       assert(voiceCount <= VoiceCount);
 
-      GetMemberArray(Default::VoiceMuted.data(), voiceCount, "VoiceMuted");
-      GetMemberArray(Default::VoiceVolume.data(), voiceCount, "VoiceVolume");
+      GetMemberArray(std::span(Default::VoiceMuted.data(), voiceCount),
+                     "VoiceMuted");
+      GetMemberArray(std::span(Default::VoiceVolume.data(), voiceCount),
+                     "VoiceVolume");
     }
 
     Default::ImageSize =

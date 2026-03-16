@@ -63,7 +63,7 @@ template <typename T>
 T EnsureGetArrayElementByIndex(uint32_t index);
 
 template <typename T>
-void GetMemberArray(T* arr, size_t count, char const* name);
+void GetMemberArray(std::span<T> out, char const* name);
 
 template <typename T>
 std::vector<T> GetMemberVector(char const* name);
@@ -360,19 +360,19 @@ template <>
 std::optional<DialogueColorPair> TryGet<DialogueColorPair>();
 
 template <typename T>
-inline void GetMemberArray(T* arr, size_t count, char const* name) {
+inline void GetMemberArray(std::span<T> out, char const* name) {
   EnsurePushMemberOfType(name, LUA_TTABLE);
 
   size_t actualCount = static_cast<size_t>(lua_rawlen(LuaState, -1));
-  if (actualCount != count) {
+  if (actualCount != out.size()) {
     std::string error =
-        fmt::format("Expected to have {:d} values for {:s}, got {:d}", count,
-                    name, actualCount);
+        fmt::format("Expected to have {:d} values for {:s}, got {:d}",
+                    out.size(), name, actualCount);
     ImpLog(LogLevel::Fatal, LogChannel::Profile, "{:s}\n", error);
     throw std::runtime_error(error);
   }
 
-  ForEachProfileArray([&](uint32_t i) { arr[i] = EnsureGetArrayElement<T>(); });
+  ForEachProfileArray([&](uint32_t i) { out[i] = EnsureGetArrayElement<T>(); });
   Pop();
 }
 

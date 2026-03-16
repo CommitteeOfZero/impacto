@@ -23,9 +23,9 @@ void Configure() {
   TitleFadeOutDuration = EnsureGetMember<float>("TitleFadeOutDuration");
 
   FocusTint = EnsureGetMember<uint32_t>("FocusTint");
-  GetMemberArray<glm::vec2>(MenuEntriesPositions,
-                            Profile::SystemMenu::MenuEntriesNum,
-                            "MenuEntriesPositions");
+  GetMemberArray<glm::vec2>(
+      std::span(MenuEntriesPositions, Profile::SystemMenu::MenuEntriesNum),
+      "MenuEntriesPositions");
   Background = EnsureGetMember<Sprite>("SystemMenuBackground");
   BackgroundPosition =
       EnsureGetMember<glm::vec2>("SystemMenuBackgroundPosition");

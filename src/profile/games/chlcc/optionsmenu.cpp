@@ -111,35 +111,42 @@ void Configure() {
   SettingButtonTopRightOffset =
       EnsureGetMember<glm::vec2>("SettingButtonTopRightOffset");
 
-  GetMemberArray<glm::vec2>(TextPageEntryPositions.data(),
-                            TextPageEntryPositions.size(),
-                            "TextPageEntryPositions");
-  GetMemberArray<glm::vec2>(SoundPageEntryPositions.data(),
-                            SoundPageEntryPositions.size(),
-                            "SoundPageEntryPositions");
-  GetMemberArray<glm::vec2>(VoicePageEntryPositions.data(),
-                            VoicePageEntryPositions.size(),
-                            "VoicePageEntryPositions");
+  GetMemberArray<glm::vec2>(
+      std::span(TextPageEntryPositions.data(), TextPageEntryPositions.size()),
+      "TextPageEntryPositions");
+  GetMemberArray<glm::vec2>(
+      std::span(SoundPageEntryPositions.data(), SoundPageEntryPositions.size()),
+      "SoundPageEntryPositions");
+  GetMemberArray<glm::vec2>(
+      std::span(VoicePageEntryPositions.data(), VoicePageEntryPositions.size()),
+      "VoicePageEntryPositions");
 
-  GetMemberArray<bool>(TriggerStopSkipValues.data(),
-                       TriggerStopSkipValues.size(), "TriggerStopSkipValues");
-  GetMemberArray<bool>(ShowTipsNotificationValues.data(),
-                       ShowTipsNotificationValues.size(),
+  GetMemberArray<bool>(
+      std::span(TriggerStopSkipValues.data(), TriggerStopSkipValues.size()),
+      "TriggerStopSkipValues");
+  GetMemberArray<bool>(std::span(ShowTipsNotificationValues.data(),
+                                 ShowTipsNotificationValues.size()),
                        "ShowTipsNotificationValues");
-  GetMemberArray<uint8_t>(AutoQuickSaveValues.data(),
-                          AutoQuickSaveValues.size(), "AutoQuickSaveValues");
-  GetMemberArray<uint8_t>(ControllerTypeValues.data(),
-                          ControllerTypeValues.size(), "ControllerTypeValues");
-  GetMemberArray<float>(TextSpeedValues.data(), TextSpeedValues.size(),
-                        "TextSpeedValues");
-  GetMemberArray<float>(AutoSpeedValues.data(), AutoSpeedValues.size(),
-                        "AutoSpeedValues");
-  GetMemberArray<bool>(SkipReadValues.data(), SkipReadValues.size(),
+  GetMemberArray<uint8_t>(
+      std::span(AutoQuickSaveValues.data(), AutoQuickSaveValues.size()),
+      "AutoQuickSaveValues");
+  GetMemberArray<uint8_t>(
+      std::span(ControllerTypeValues.data(), ControllerTypeValues.size()),
+      "ControllerTypeValues");
+  GetMemberArray<float>(
+      std::span(TextSpeedValues.data(), TextSpeedValues.size()),
+      "TextSpeedValues");
+  GetMemberArray<float>(
+      std::span(AutoSpeedValues.data(), AutoSpeedValues.size()),
+      "AutoSpeedValues");
+  GetMemberArray<bool>(std::span(SkipReadValues.data(), SkipReadValues.size()),
                        "SkipReadValues");
-  GetMemberArray<bool>(SyncVoiceValues.data(), SyncVoiceValues.size(),
-                       "SyncVoiceValues");
-  GetMemberArray<bool>(SkipVoiceValues.data(), SkipVoiceValues.size(),
-                       "SkipVoiceValues");
+  GetMemberArray<bool>(
+      std::span(SyncVoiceValues.data(), SyncVoiceValues.size()),
+      "SyncVoiceValues");
+  GetMemberArray<bool>(
+      std::span(SkipVoiceValues.data(), SkipVoiceValues.size()),
+      "SkipVoiceValues");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMember<uint8_t>("DrawType"));
