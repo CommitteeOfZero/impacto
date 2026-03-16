@@ -21,13 +21,14 @@ void Configure() {
 
   // Get common gamespecific UI elements
   if (GameSpecificType == +GameSpecificType::CCLCC) {
-    UIButtonGuideSprites = GetMemberVector<Sprite>("UIButtonGuideSprites");
+    UIButtonGuideSprites =
+        EnsureGetMember<std::vector<Sprite>>("UIButtonGuideSprites");
     UIButtonGuideEndDisp = EnsureGetMember<RectF>("UIButtonGuideEndDisp");
   }
   if (GameSpecificType == +GameSpecificType::CHLCC) {
     MonitorScanline = EnsureGetMember<Sprite>("MonitorScanline");
     EyecatchStar = EnsureGetMember<Sprite>("EyecatchStar");
-    ButterflySprites = GetMemberVector<Sprite>("ButterflySprites");
+    ButterflySprites = EnsureGetMember<std::vector<Sprite>>("ButterflySprites");
     ButterflyFrameCount = EnsureGetMember<uint8_t>("ButterflyFrameCount");
     ButterflyFlapFrameDuration =
         EnsureGetMember<float>("ButterflyFlapFrameDuration");

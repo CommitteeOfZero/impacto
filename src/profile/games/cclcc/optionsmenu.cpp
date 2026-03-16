@@ -25,18 +25,19 @@ void Configure() {
 
   HeaderSprite = EnsureGetMember<Sprite>("HeaderSprite");
   HeaderPosition = EnsureGetMember<glm::vec2>("HeaderPosition");
-  GetMemberArray<Sprite>(PageHeaderSprites, PageCount, "PageHeaderSprites");
+  GetMemberArray<Sprite>(std::span(PageHeaderSprites, PageCount),
+                         "PageHeaderSprites");
   PageHeaderPosition = EnsureGetMember<glm::vec2>("PageHeaderPosition");
 
   PagePanelSprite = EnsureGetMember<Sprite>("PagePanelSprite");
   PagePanelPosition = EnsureGetMember<glm::vec2>("PagePanelPosition");
   PagePanelFadeStartPosition =
       EnsureGetMember<glm::vec2>("PagePanelFadeStartPosition");
-  GetMemberArray<Sprite>(PagePanelSprites, PagePanelSpriteCount,
+  GetMemberArray<Sprite>(std::span(PagePanelSprites, PagePanelSpriteCount),
                          "PagePanelSprites");
-  GetMemberArray<glm::vec2>(PagePanelIconOffsets, PageCount,
+  GetMemberArray<glm::vec2>(std::span(PagePanelIconOffsets, PageCount),
                             "PagePanelIconOffsets");
-  GetMemberArray<RectF>(PagePanelHoverBounds, PageCount,
+  GetMemberArray<RectF>(std::span(PagePanelHoverBounds, PageCount),
                         "PagePanelHoverBounds");
   PoleAnimation = EnsureGetMember<SpriteAnimationDef>("PoleAnimation");
 
@@ -70,11 +71,13 @@ void Configure() {
   EntryDimensions = EnsureGetMember<glm::vec2>("EntryDimensions");
   VoiceEntryDimensions = EnsureGetMember<glm::vec2>("VoiceEntryDimensions");
 
-  GetMemberArray<Sprite>(LabelSprites, LabelCount, "LabelSprites");
+  GetMemberArray<Sprite>(std::span(LabelSprites, LabelCount), "LabelSprites");
   LabelOffset = EnsureGetMember<glm::vec2>("LabelOffset");
-  GetMemberArray<Sprite>(NametagSprites, NametagCount, "NametagSprites");
+  GetMemberArray<Sprite>(std::span(NametagSprites, NametagCount),
+                         "NametagSprites");
   NametagOffset = EnsureGetMember<glm::vec2>("NametagOffset");
-  GetMemberArray<Sprite>(PortraitSprites, PortraitCount, "PortraitSprites");
+  GetMemberArray<Sprite>(std::span(PortraitSprites, PortraitCount),
+                         "PortraitSprites");
   PortraitOffset = EnsureGetMember<glm::vec2>("PortraitOffset");
   VoicePosition = EnsureGetMember<glm::vec2>("VoicePosition");
 

@@ -23,9 +23,9 @@ void Configure() {
   TitleFadeOutDuration = EnsureGetMember<float>("TitleFadeOutDuration");
 
   FocusTint = EnsureGetMember<uint32_t>("FocusTint");
-  GetMemberArray<glm::vec2>(MenuEntriesPositions,
-                            Profile::SystemMenu::MenuEntriesNum,
-                            "MenuEntriesPositions");
+  GetMemberArray<glm::vec2>(
+      std::span(MenuEntriesPositions, Profile::SystemMenu::MenuEntriesNum),
+      "MenuEntriesPositions");
   Background = EnsureGetMember<Sprite>("SystemMenuBackground");
   BackgroundPosition =
       EnsureGetMember<glm::vec2>("SystemMenuBackgroundPosition");
@@ -47,9 +47,9 @@ void Configure() {
   MenuSelectionPosition =
       EnsureGetMember<glm::vec2>("SystemMenuSelectionPosition");
 
-  SelectMenuHeader = GetMemberVector<Sprite>("SelectMenuSprites");
+  SelectMenuHeader = EnsureGetMember<std::vector<Sprite>>("SelectMenuSprites");
   SelectMenuHeaderPositions =
-      GetMemberVector<glm::vec2>("SelectMenuTextPositions");
+      EnsureGetMember<std::vector<glm::vec2>>("SelectMenuTextPositions");
   if (SelectMenuHeader.size() != SelectMenuHeaderPositions.size()) {
     throw std::runtime_error("Related arrays have mismatching sizes");
   }

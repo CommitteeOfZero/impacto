@@ -108,12 +108,13 @@ void Configure() {
   CurrentPagePosition = EnsureGetMember<glm::vec2>("CurrentPagePosition");
   TotalPagesPosition = EnsureGetMember<glm::vec2>("TotalPagesPosition");
   PageSeparatorPosition = EnsureGetMember<glm::vec2>("PageSeparatorPosition");
-  CurrentPageSprites = GetMemberVector<Sprite>("CurrentPageSprites");
-  TotalPageSprites = GetMemberVector<Sprite>("TotalPageSprites");
+  CurrentPageSprites =
+      EnsureGetMember<std::vector<Sprite>>("CurrentPageSprites");
+  TotalPageSprites = EnsureGetMember<std::vector<Sprite>>("TotalPageSprites");
   PageSeparatorSprite = EnsureGetMember<Sprite>("PageSeparatorSprite");
 
-  SelectWordSprites = GetMemberVector<Sprite>("SelectWordSprites");
-  SelectWordPos = GetMemberVector<glm::vec2>("SelectWordPos");
+  SelectWordSprites = EnsureGetMember<std::vector<Sprite>>("SelectWordSprites");
+  SelectWordPos = EnsureGetMember<std::vector<glm::vec2>>("SelectWordPos");
   if (SelectWordSprites.size() != SelectWordPos.size()) {
     throw std::runtime_error("Related arrays have mismatching sizes");
   }

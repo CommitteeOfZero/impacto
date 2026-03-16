@@ -17,13 +17,13 @@ void Configure() {
   ItemsFadeInDuration = EnsureGetMember<float>("ItemsFadeInDuration");
   ItemsFadeOutDuration = EnsureGetMember<float>("ItemsFadeOutDuration");
 
-  GetMemberArray<glm::vec2>(MenuEntriesPositions,
-                            Profile::SystemMenu::MenuEntriesNum,
-                            "MenuEntriesPositions");
+  GetMemberArray<glm::vec2>(
+      std::span(MenuEntriesPositions, Profile::SystemMenu::MenuEntriesNum),
+      "MenuEntriesPositions");
 
-  GetMemberArray<RectF>(MenuEntriesButtonBounds,
-                        Profile::SystemMenu::MenuEntriesNum,
-                        "MenuEntriesButtonBounds");
+  GetMemberArray<RectF>(
+      std::span(MenuEntriesButtonBounds, Profile::SystemMenu::MenuEntriesNum),
+      "MenuEntriesButtonBounds");
 
   SystemMenuBG = EnsureGetMember<Sprite>("SystemMenuBG");
   SystemMenuFrame = EnsureGetMember<Sprite>("SystemMenuFrame");

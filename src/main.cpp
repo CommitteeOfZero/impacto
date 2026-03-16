@@ -154,22 +154,26 @@ int main(int argc, char* argv[]) {
   // context parameters
   EM_ASM(EGL.antialias = false;);
 #endif
-
-  Game::InitFromProfile(profileName);
+  try {
+    Game::InitFromProfile(profileName);
 
 #ifdef EMSCRIPTEN
-  EM_ASM(OnGameLoaded(););
+    EM_ASM(OnGameLoaded(););
 #else
-  t = SDL_GetPerformanceCounter();
+    t = SDL_GetPerformanceCounter();
 
-  while (!Game::ShouldQuit) {
-    GameLoop();
-  }
+    while (!Game::ShouldQuit) {
+      GameLoop();
+    }
 
-  ImpLog(LogLevel::Info, LogChannel::General, "Bye!\n");
+    ImpLog(LogLevel::Info, LogChannel::General, "Bye!\n");
 
-  Game::Shutdown();
+    Game::Shutdown();
 #endif
-
+  } catch (std::exception const& e) {
+    ImpLog(LogLevel::Fatal, LogChannel::General,
+           "Fatal error occured: {}, exiting!\n", e.what());
+    exit(1);
+  }
   return 0;
 }

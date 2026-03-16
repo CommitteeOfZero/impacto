@@ -15,7 +15,7 @@ namespace MO6TW {
 namespace TipsMenu {
 
 void Configure() {
-  GetMemberArray<Sprite>(TipThumbnails, 37, "Thumbnails");
+  GetMemberArray<Sprite>(std::span(TipThumbnails, 37), "Thumbnails");
   TipTextOnlyThumbnail = EnsureGetMember<Sprite>("TextOnlyThumbnail");
   ThumbnailPosition = EnsureGetMember<glm::vec2>("ThumbnailPosition");
   auto str = EnsureGetMember<char const*>("CategoryString");

@@ -11,11 +11,12 @@ namespace CC {
 namespace SysMesBox {
 
 void Configure() {
-  GetMemberArray<Sprite>(SumoSealSprites, SealSpriteCount, "SumoSealSprites");
+  GetMemberArray<Sprite>(std::span(SumoSealSprites, SealSpriteCount),
+                         "SumoSealSprites");
 
-  GetMemberArray<float>(SumoSealCenterPosX, SealSpriteCount,
+  GetMemberArray<float>(std::span(SumoSealCenterPosX, SealSpriteCount),
                         "SumoSealCenterPosX");
-  GetMemberArray<float>(SumoSealCenterPosY, SealSpriteCount,
+  GetMemberArray<float>(std::span(SumoSealCenterPosY, SealSpriteCount),
                         "SumoSealCenterPosY");
   ButtonYes = EnsureGetMember<Sprite>("ButtonYes");
   ButtonNo = EnsureGetMember<Sprite>("ButtonNo");

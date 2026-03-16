@@ -31,11 +31,11 @@ void Configure() {
     MenuEntriesYPadding = TryGetMember<float>("MenuEntriesYPadding");
 
     if (MenuEntriesNum > 0) {
-      GetMemberArray<Sprite>(MenuEntriesSprites, MenuEntriesNum,
+      GetMemberArray<Sprite>(std::span(MenuEntriesSprites, MenuEntriesNum),
                              "MenuEntriesSprites");
     }
     if (MenuEntriesHNum > 0) {
-      GetMemberArray<Sprite>(MenuEntriesHSprites, MenuEntriesHNum,
+      GetMemberArray<Sprite>(std::span(MenuEntriesHSprites, MenuEntriesHNum),
                              "MenuEntriesHighlightedSprites");
     }
 

@@ -37,8 +37,8 @@ void Configure() {
       EnsureGetMember<SpriteAnimationDef>("SelectedMovieAnimation");
   SelectedMovieYellowDot = EnsureGetMember<Sprite>("SelectedMovieYellowDot");
 
-  SelectMovie = GetMemberVector<Sprite>("SelectMovie");
-  SelectMoviePos = GetMemberVector<glm::vec2>("SelectMoviePos");
+  SelectMovie = EnsureGetMember<std::vector<Sprite>>("SelectMovie");
+  SelectMoviePos = EnsureGetMember<std::vector<glm::vec2>>("SelectMoviePos");
   if (SelectMovie.size() != SelectMoviePos.size()) {
     throw std::runtime_error("Related arrays have mismatching sizes");
   }
@@ -46,10 +46,12 @@ void Configure() {
   MovieLabel = EnsureGetMember<Sprite>("MovieLabel");
   ListPosition = EnsureGetMember<glm::vec2>("ListPosition");
   MovieList = EnsureGetMember<Sprite>("MovieList");
-  GetMemberArray<glm::vec2>(BoxPositions, Movies, "BoxPositions");
+  GetMemberArray<glm::vec2>(std::span(BoxPositions, Movies), "BoxPositions");
   MovieBox = EnsureGetMember<Sprite>("MovieBox");
-  GetMemberArray<glm::vec2>(ThumbnailPositions, Movies, "ThumbnailPositions");
-  GetMemberArray<Sprite>(MoviesThumbnails, Movies, "MoviesThumbnails");
+  GetMemberArray<glm::vec2>(std::span(ThumbnailPositions, Movies),
+                            "ThumbnailPositions");
+  GetMemberArray<Sprite>(std::span(MoviesThumbnails, Movies),
+                         "MoviesThumbnails");
   LockedThumbnail = EnsureGetMember<Sprite>("LockedThumbnail");
   ButtonPromptPosition = EnsureGetMember<glm::vec2>("ButtonPromptPosition");
   ButtonPromptSprite = EnsureGetMember<Sprite>("ButtonPromptSprite");

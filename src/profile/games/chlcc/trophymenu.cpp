@@ -85,9 +85,11 @@ void Configure() {
       EnsureGetMember<Sprite>("PageNumSeparatorSlashSprite");
   PageNumSeparatorPos = EnsureGetMember<glm::vec2>("PageNumSeparatorSlashPos");
   MaxPageNumPos = EnsureGetMember<glm::vec2>("MaxPageNumPos");
-  GetMemberArray<Sprite>(PageNums.data(), std::ssize(PageNums), "PageNums");
-  GetMemberArray<Sprite>(ReachablePageNums.data(),
-                         std::ssize(ReachablePageNums), "ReachablePageNums");
+  GetMemberArray<Sprite>(std::span(PageNums.data(), std::ssize(PageNums)),
+                         "PageNums");
+  GetMemberArray<Sprite>(
+      std::span(ReachablePageNums.data(), std::ssize(ReachablePageNums)),
+      "ReachablePageNums");
 
   TrophyCountHintTextTableId =
       EnsureGetMember<uint32_t>("TrophyCountHintTextTableId");

@@ -20,10 +20,12 @@ void Configure() {
   SecondOPTopPartSprite = EnsureGetMember<Sprite>("SecondOPTopPartSprite");
   SecondOPBottomPartSprite =
       EnsureGetMember<Sprite>("SecondOPBottomPartSprite");
-  GetMemberArray<Sprite>(UnlockedMovieThumbnailSprites, MaxMovieThumbnails,
-                         "UnlockedMovieThumbnailSprites");
-  GetMemberArray<Sprite>(LockedMovieThumbnailSprites, MaxMovieThumbnails,
-                         "LockedMovieThumbnailSprites");
+  GetMemberArray<Sprite>(
+      std::span(UnlockedMovieThumbnailSprites, MaxMovieThumbnails),
+      "UnlockedMovieThumbnailSprites");
+  GetMemberArray<Sprite>(
+      std::span(LockedMovieThumbnailSprites, MaxMovieThumbnails),
+      "LockedMovieThumbnailSprites");
   SelectionHighlightTopLeft =
       EnsureGetMember<Sprite>("SelectionHighlightTopLeft");
   SelectionHighlightTopRight =

@@ -43,7 +43,7 @@ void Configure() {
 
   SelectionMaxCount = EnsureGetMember<int>("SelectionMaxCount");
   SelectionBackgroundX = EnsureGetMember<float>("SelectionBackgroundX");
-  GetMemberArray<float>(SelectionBackgroundY, SelectionMaxCount,
+  GetMemberArray<float>(std::span(SelectionBackgroundY, SelectionMaxCount),
                         "SelectionBackgroundY");
   SelectionYSpacing = EnsureGetMember<float>("SelectionYSpacing");
   PlainSelectionYSpacing = EnsureGetMember<float>("PlainSelectionYSpacing");

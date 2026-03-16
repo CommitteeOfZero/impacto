@@ -15,10 +15,11 @@ namespace OptionsMenu {
 void Configure() {
   BackgroundSprite = EnsureGetMember<Sprite>("BackgroundSprite");
 
-  GetMemberArray<Sprite>(VoiceToggleEnabledSprites, VoiceToggleCount,
+  GetMemberArray<Sprite>(std::span(VoiceToggleEnabledSprites, VoiceToggleCount),
                          "VoiceToggleEnabledSprites");
-  GetMemberArray<Sprite>(VoiceToggleDisabledSprites, VoiceToggleCount,
-                         "VoiceToggleDisabledSprites");
+  GetMemberArray<Sprite>(
+      std::span(VoiceToggleDisabledSprites, VoiceToggleCount),
+      "VoiceToggleDisabledSprites");
   VoiceToggleHighlightSprite =
       EnsureGetMember<Sprite>("VoiceToggleHighlightSprite");
 
@@ -26,8 +27,9 @@ void Configure() {
   VoiceTogglePadding = EnsureGetMember<glm::vec2>("VoiceTogglePadding");
   VoiceTogglePerLine = EnsureGetMember<int>("VoiceTogglePerLine");
 
-  GetMemberArray<Sprite>(SectionHeaderSprites, SectionHeaderSpriteCount,
-                         "SectionHeaderSprites");
+  GetMemberArray<Sprite>(
+      std::span(SectionHeaderSprites, SectionHeaderSpriteCount),
+      "SectionHeaderSprites");
 
   SliderTrackSprite = EnsureGetMember<Sprite>("SliderTrackSprite");
   SliderFillSprite = EnsureGetMember<Sprite>("SliderFillSprite");
@@ -35,7 +37,7 @@ void Configure() {
 
   CheckboxBoxSprite = EnsureGetMember<Sprite>("CheckboxBoxSprite");
   CheckboxTickSprite = EnsureGetMember<Sprite>("CheckboxTickSprite");
-  GetMemberArray<Sprite>(CheckboxLabelSprites, CheckboxLabelCount,
+  GetMemberArray<Sprite>(std::span(CheckboxLabelSprites, CheckboxLabelCount),
                          "CheckboxLabelSprites");
 
   FirstPageSliderPos = EnsureGetMember<glm::vec2>("FirstPageSliderPos");
@@ -49,8 +51,9 @@ void Configure() {
   CheckboxSecondPos = EnsureGetMember<glm::vec2>("CheckboxSecondPos");
   CheckboxSecondSectionFirstPaddingX =
       EnsureGetMember<float>("CheckboxSecondSectionFirstPaddingX");
-  GetMemberArray<float>(AutoSaveTriggerXPos, AutoSaveTriggerXPosCount,
-                        "AutoSaveTriggerXPos");
+  GetMemberArray<float>(
+      std::span(AutoSaveTriggerXPos, AutoSaveTriggerXPosCount),
+      "AutoSaveTriggerXPos");
   ScreenSizeSliderPos = EnsureGetMember<glm::vec2>("ScreenSizeSliderPos");
   TipsPos = EnsureGetMember<glm::vec2>("TipsPos");
   FirstPageSectionHeaderPos =

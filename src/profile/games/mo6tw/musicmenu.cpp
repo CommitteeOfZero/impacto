@@ -16,7 +16,7 @@ namespace MusicMenu {
 void Configure() {
   BackgroundSprite = EnsureGetMember<Sprite>("BackgroundSprite");
 
-  GetMemberArray<Sprite>(Thumbnails, MusicTrackCount, "Thumbnails");
+  GetMemberArray<Sprite>(std::span(Thumbnails, MusicTrackCount), "Thumbnails");
   ThumbnailPosition = EnsureGetMember<glm::vec2>("ThumbnailPosition");
   ItemsWindow = EnsureGetMember<Sprite>("ItemsWindow");
   ItemsWindowPosition = EnsureGetMember<glm::vec2>("ItemsWindowPosition");
@@ -27,13 +27,14 @@ void Configure() {
       EnsureGetMember<glm::vec2>("MusicListInitialPosition");
   PlaybackWindow = EnsureGetMember<Sprite>("PlaybackWindow");
   PlaybackWindowPosition = EnsureGetMember<glm::vec2>("PlaybackWindowPosition");
-  GetMemberArray<Sprite>(PlaybackModeLabels, MusicPlaybackModeLabelCount,
-                         "PlaybackModeLabels");
+  GetMemberArray<Sprite>(
+      std::span(PlaybackModeLabels, MusicPlaybackModeLabelCount),
+      "PlaybackModeLabels");
   PlaybackModeLabelPosition =
       EnsureGetMember<glm::vec2>("PlaybackModeLabelPosition");
   CurrentlyPlayingLabelPosition =
       EnsureGetMember<glm::vec2>("CurrentlyPlayingLabelPosition");
-  GetMemberArray<Sprite>(ItemNames, MusicTrackCount, "ItemNames");
+  GetMemberArray<Sprite>(std::span(ItemNames, MusicTrackCount), "ItemNames");
   ItemNameHighlightOffset =
       EnsureGetMember<glm::vec2>("ItemNameHighlightOffset");
   LockedItem = EnsureGetMember<Sprite>("LockedItem");
@@ -57,7 +58,7 @@ void Configure() {
     Pop();
   }
 
-  GetMemberArray<Sprite>(TimerChars, TimerCharCount, "TimerChars");
+  GetMemberArray<Sprite>(std::span(TimerChars, TimerCharCount), "TimerChars");
   TimerInitialPosition = EnsureGetMember<glm::vec2>("TimerInitialPosition");
   TimerMargin = EnsureGetMember<glm::vec2>("TimerMargin");
 

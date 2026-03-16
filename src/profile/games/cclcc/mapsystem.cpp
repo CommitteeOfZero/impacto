@@ -15,17 +15,17 @@ void Configure() {
   AssertIs(LUA_TTABLE);
   MapBgSprite = EnsureGetMember<Sprite>("MapBackground");
   int MapPartsPhotosNum = EnsureGetMember<int>("MapPartsPhotosNum");
-  GetMemberArray<Sprite>(MapPartsPhotoSprites, MapPartsPhotosNum,
+  GetMemberArray<Sprite>(std::span(MapPartsPhotoSprites, MapPartsPhotosNum),
                          "MapPartsPhotoSprites");
   SelectedMapPoolTagSprite = EnsureGetMember<Sprite>("SelectedMapPoolTag");
   int MapPartsArticlesNum = EnsureGetMember<int>("MapPartsArticlesNum");
-  GetMemberArray<Sprite>(MapPartsArticleSprites, MapPartsArticlesNum,
+  GetMemberArray<Sprite>(std::span(MapPartsArticleSprites, MapPartsArticlesNum),
                          "MapPartsArticleSprites");
   int MapPartsPinsNum = EnsureGetMember<int>("MapPartsPinsNum");
-  GetMemberArray<Sprite>(MapPartsPinSprites, MapPartsPinsNum,
+  GetMemberArray<Sprite>(std::span(MapPartsPinSprites, MapPartsPinsNum),
                          "MapPartsPinSprites");
   int MapPartsTagsNum = EnsureGetMember<int>("MapPartsTagsNum");
-  GetMemberArray<Sprite>(MapPartsTagSprites, MapPartsTagsNum,
+  GetMemberArray<Sprite>(std::span(MapPartsTagSprites, MapPartsTagsNum),
                          "MapPartsTagSprites");
   FadeAnimationDuration = EnsureGetMember<float>("FadeAnimationDuration");
   MapLine = EnsureGetMember<Sprite>("MapLine");

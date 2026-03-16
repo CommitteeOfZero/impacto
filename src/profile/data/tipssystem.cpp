@@ -25,7 +25,8 @@ void Configure() {
             std::make_unique<Impacto::MO6TW::TipsSystem>(MaxTipsCount);
         break;
       case TipsSystemType::CHLCC:
-        SortCategoryMapping = GetMemberVector<int>("SortCategoryMapping");
+        SortCategoryMapping =
+            EnsureGetMember<std::vector<int>>("SortCategoryMapping");
         Implementation =
             std::make_unique<Impacto::CHLCC::TipsSystem>(MaxTipsCount);
         break;

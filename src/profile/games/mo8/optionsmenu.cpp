@@ -47,10 +47,12 @@ void Configure() {
     TextSpeedOptionsLabel = EnsureGetMember<Sprite>("TextSpeedOptionsLabel");
     TextSpeedOptionsLabelH = EnsureGetMember<Sprite>("TextSpeedOptionsLabelH");
 
-    GetMemberArray<Sprite>(TextSpeedOptionsSprites, TextSpeedOptionsNum,
-                           "TextSpeedOptionsSprites");
-    GetMemberArray<Sprite>(TextSpeedOptionsHSprites, TextSpeedOptionsNum,
-                           "TextSpeedOptionsHSprites");
+    GetMemberArray<Sprite>(
+        std::span(TextSpeedOptionsSprites, TextSpeedOptionsNum),
+        "TextSpeedOptionsSprites");
+    GetMemberArray<Sprite>(
+        std::span(TextSpeedOptionsHSprites, TextSpeedOptionsNum),
+        "TextSpeedOptionsHSprites");
   }
 
   AutoModeOptionsNum = EnsureGetMember<int>("AutoModeOptionsNum");
@@ -58,10 +60,12 @@ void Configure() {
     AutoModeOptionsLabel = EnsureGetMember<Sprite>("AutoModeOptionsLabel");
     AutoModeOptionsLabelH = EnsureGetMember<Sprite>("AutoModeOptionsLabelH");
 
-    GetMemberArray<Sprite>(AutoModeOptionsSprites, AutoModeOptionsNum,
-                           "AutoModeOptionsSprites");
-    GetMemberArray<Sprite>(AutoModeOptionsHSprites, AutoModeOptionsNum,
-                           "AutoModeOptionsHSprites");
+    GetMemberArray<Sprite>(
+        std::span(AutoModeOptionsSprites, AutoModeOptionsNum),
+        "AutoModeOptionsSprites");
+    GetMemberArray<Sprite>(
+        std::span(AutoModeOptionsHSprites, AutoModeOptionsNum),
+        "AutoModeOptionsHSprites");
   }
 
   SkipModeOptionsNum = EnsureGetMember<int>("SkipModeOptionsNum");
@@ -69,10 +73,12 @@ void Configure() {
     SkipModeOptionsLabel = EnsureGetMember<Sprite>("SkipModeOptionsLabel");
     SkipModeOptionsLabelH = EnsureGetMember<Sprite>("SkipModeOptionsLabelH");
 
-    GetMemberArray<Sprite>(SkipModeOptionsSprites, SkipModeOptionsNum,
-                           "SkipModeOptionsSprites");
-    GetMemberArray<Sprite>(SkipModeOptionsHSprites, SkipModeOptionsNum,
-                           "SkipModeOptionsHSprites");
+    GetMemberArray<Sprite>(
+        std::span(SkipModeOptionsSprites, SkipModeOptionsNum),
+        "SkipModeOptionsSprites");
+    GetMemberArray<Sprite>(
+        std::span(SkipModeOptionsHSprites, SkipModeOptionsNum),
+        "SkipModeOptionsHSprites");
   }
 
   SoundPageLabel = EnsureGetMember<Sprite>("SoundPageLabel");
@@ -87,10 +93,12 @@ void Configure() {
     VoiceHighlightOptionsLabelH =
         EnsureGetMember<Sprite>("VoiceHighlightOptionsLabelH");
 
-    GetMemberArray<Sprite>(SoundModeOptionsSprites, SoundModeOptionsNum,
-                           "SoundModeOptionsSprites");
-    GetMemberArray<Sprite>(SoundModeOptionsHSprites, SoundModeOptionsNum,
-                           "SoundModeOptionsHSprites");
+    GetMemberArray<Sprite>(
+        std::span(SoundModeOptionsSprites, SoundModeOptionsNum),
+        "SoundModeOptionsSprites");
+    GetMemberArray<Sprite>(
+        std::span(SoundModeOptionsHSprites, SoundModeOptionsNum),
+        "SoundModeOptionsHSprites");
   }
 
   BgmVolumeLabel = EnsureGetMember<Sprite>("BgmVolumeLabel");
@@ -113,10 +121,12 @@ void Configure() {
     QuickSaveOptionsLabel = EnsureGetMember<Sprite>("QuickSaveOptionsLabel");
     QuickSaveOptionsLabelH = EnsureGetMember<Sprite>("QuickSaveOptionsLabelH");
 
-    GetMemberArray<Sprite>(QuickSaveOptionsSprites, AutoModeOptionsNum,
-                           "QuickSaveOptionsSprites");
-    GetMemberArray<Sprite>(QuickSaveOptionsHSprites, AutoModeOptionsNum,
-                           "QuickSaveOptionsHSprites");
+    GetMemberArray<Sprite>(
+        std::span(QuickSaveOptionsSprites, AutoModeOptionsNum),
+        "QuickSaveOptionsSprites");
+    GetMemberArray<Sprite>(
+        std::span(QuickSaveOptionsHSprites, AutoModeOptionsNum),
+        "QuickSaveOptionsHSprites");
   }
 
   UI::OptionsMenuPtr = new UI::MO8::OptionsMenu();

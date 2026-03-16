@@ -58,7 +58,7 @@ void Configure() {
   SecondaryFadeInDuration = EnsureGetMember<float>("SecondaryFadeInDuration");
   SecondaryFadeOutDuration = EnsureGetMember<float>("SecondaryFadeOutDuration");
   LineNum = EnsureGetMember<int>("LineNum");
-  GetMemberArray<Sprite>(LineSprites, LineNum, "LineEntriesSprites");
+  GetMemberArray<Sprite>(std::span(LineSprites, LineNum), "LineEntriesSprites");
   ItemLoadQuickSprite = EnsureGetMember<Sprite>("ItemLoadQuickSprite");
   SecondaryItemX = EnsureGetMember<float>("SecondaryItemX");
   ItemLoadY = EnsureGetMember<float>("ItemLoadY");
@@ -96,15 +96,18 @@ void Configure() {
       EnsureGetMember<float>("SecondaryMenuSystemConfigY");
   SecondaryMenuSystemSaveY = EnsureGetMember<float>("SecondaryMenuSystemSaveY");
 
-  GetMemberArray<Sprite>(IntroHighlightSprites.data(), IntroHighlightCount,
-                         "IntroHighlightSprites");
-  GetMemberArray<float>(IntroHighlightPositions.data(), IntroHighlightCount,
-                        "IntroHighlightPositions");
+  GetMemberArray<Sprite>(
+      std::span(IntroHighlightSprites.data(), IntroHighlightCount),
+      "IntroHighlightSprites");
+  GetMemberArray<float>(
+      std::span(IntroHighlightPositions.data(), IntroHighlightCount),
+      "IntroHighlightPositions");
 
-  GetMemberArray<Sprite>(LCCLogoSprites.data(), LCCLogoSpriteCount,
+  GetMemberArray<Sprite>(std::span(LCCLogoSprites.data(), LCCLogoSpriteCount),
                          "LCCLogoSprites");
-  GetMemberArray<glm::vec2>(LCCLogoPositions.data(), LCCLogoSpriteCount,
-                            "LCCLogoPositions");
+  GetMemberArray<glm::vec2>(
+      std::span(LCCLogoPositions.data(), LCCLogoSpriteCount),
+      "LCCLogoPositions");
 
   IntroBackgroundSprite = EnsureGetMember<Sprite>("IntroBackgroundSprite");
   IntroPanningAnimationDuration =
@@ -153,12 +156,12 @@ void Configure() {
 
   IntroDelusionADVSpriteCount =
       EnsureGetMember<int>("IntroDelusionADVSpriteCount");
-  GetMemberArray<Sprite>(IntroDelusionADVSprites.data(),
-                         IntroDelusionADVSpriteCount,
-                         "IntroDelusionADVSprites");
-  GetMemberArray<glm::vec2>(IntroDelusionADVPositions.data(),
-                            IntroDelusionADVSpriteCount,
-                            "IntroDelusionADVPositions");
+  GetMemberArray<Sprite>(
+      std::span(IntroDelusionADVSprites.data(), IntroDelusionADVSpriteCount),
+      "IntroDelusionADVSprites");
+  GetMemberArray<glm::vec2>(
+      std::span(IntroDelusionADVPositions.data(), IntroDelusionADVSpriteCount),
+      "IntroDelusionADVPositions");
   IntroDelusionADVAnimationDuration =
       EnsureGetMember<float>("IntroDelusionADVAnimationDuration");
 

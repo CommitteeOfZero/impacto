@@ -14,10 +14,12 @@ namespace AlbumMenu {
 void Configure() {
   BackgroundSprite = EnsureGetMember<Sprite>("BackgroundSprite");
 
-  GetMemberArray<Sprite>(CharacterButtonSprites, CharacterButtonCount,
-                         "CharacterButtons");
-  GetMemberArray<Sprite>(HighlightedCharacterButtonSprites,
-                         CharacterButtonCount, "HighlightedCharacterButtons");
+  GetMemberArray<Sprite>(
+      std::span(CharacterButtonSprites, CharacterButtonCount),
+      "CharacterButtons");
+  GetMemberArray<Sprite>(
+      std::span(HighlightedCharacterButtonSprites, CharacterButtonCount),
+      "HighlightedCharacterButtons");
   InitialButtonPosition = EnsureGetMember<glm::vec2>("InitialButtonPosition");
   ButtonOddX = EnsureGetMember<float>("ButtonOddX");
   ButtonEvenX = EnsureGetMember<float>("ButtonEvenX");
@@ -26,7 +28,7 @@ void Configure() {
       EnsureGetMember<float>("HighlightAnimationDuration");
   YunoButtonIdx = EnsureGetMember<int>("YunoButtonIdx");
   SuzuButtonIdx = EnsureGetMember<int>("SuzuButtonIdx");
-  GetMemberArray<Sprite>(CharacterPortraits, CharacterPortraitCount,
+  GetMemberArray<Sprite>(std::span(CharacterPortraits, CharacterPortraitCount),
                          "CharacterPortraits");
   OthersPortraitTopPart = EnsureGetMember<Sprite>("OthersPortraitTopPart");
   OthersPortraitBottomPart =
@@ -35,8 +37,9 @@ void Configure() {
   OthersPortraitPosition = EnsureGetMember<glm::vec2>("OthersPortraitPosition");
   ThumbnailsPerRow = EnsureGetMember<int>("ThumbnailsPerRow");
   ThumbnailsPerColumn = EnsureGetMember<int>("ThumbnailsPerColumn");
-  GetMemberArray<Sprite>(Thumbnails, EventCgCount, "Thumbnails");
-  GetMemberArray<int>(ThumbnailOffsets, CharacterCount, "ThumbnailOffsets");
+  GetMemberArray<Sprite>(std::span(Thumbnails, EventCgCount), "Thumbnails");
+  GetMemberArray<int>(std::span(ThumbnailOffsets, CharacterCount),
+                      "ThumbnailOffsets");
   LockedThumbnail = EnsureGetMember<Sprite>("LockedThumbnail");
   ThumbnailBorder = EnsureGetMember<Sprite>("ThumbnailBorder");
   ThumbnailHighlightTopLeft =

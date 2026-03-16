@@ -15,7 +15,7 @@ void Configure() {
   ClearListGuideSprite = EnsureGetMember<Sprite>("ClearListGuideSprite");
   ClearListMaskSprite = EnsureGetMember<Sprite>("ClearListMaskSprite");
 
-  GetMemberArray<Sprite>(EndingSprites, Endings, "EndingSprites");
+  GetMemberArray<Sprite>(std::span(EndingSprites, Endings), "EndingSprites");
   EndingSpriteOffsetY = EnsureGetMember<float>("EndingSpriteOffsetY");
   MenuOffsetY = EnsureGetMember<float>("MenuOffsetY");
 

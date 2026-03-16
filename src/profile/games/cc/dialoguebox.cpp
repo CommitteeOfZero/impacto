@@ -14,8 +14,10 @@ void Configure() {
 }
 
 void ConfigureNametag() {
-  NametagMainSprites = GetMemberVector<Sprite>("NametagMainSprites");
-  NametagLabelSprites = GetMemberVector<Sprite>("NametagLabelSprites");
+  NametagMainSprites =
+      EnsureGetMember<std::vector<Sprite>>("NametagMainSprites");
+  NametagLabelSprites =
+      EnsureGetMember<std::vector<Sprite>>("NametagLabelSprites");
   if (NametagMainSprites.size() != NametagLabelSprites.size()) {
     throw std::runtime_error(
         "Number of nametag main sprites not equal to number of "
