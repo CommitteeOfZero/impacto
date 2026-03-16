@@ -34,9 +34,15 @@ int PushNextTableElement();
 void ClearProfileInternal();
 
 template <typename T>
+struct TryGetImpl {
+  static std::optional<T> Call() {
+    static_assert(sizeof(T) == 0, "TryGet not implemented for this type");
+  }
+};
+
+template <typename T>
 std::optional<T> TryGet() {
-  static_assert(sizeof(T*) == 0, "TryGet<T> not implemented for this type");
-  return std::nullopt;
+  return TryGetImpl<T>::Call();
 }
 
 template <typename T>
@@ -99,9 +105,10 @@ std::optional<T> TryGet();
 
 // generic map getter
 template <typename T>
-  requires std::is_same_v<
+  requires is_any_of_v<
       typename T::value_type,
-      std::pair<const typename T::key_type, typename T::mapped_type>>
+      std::pair<const typename T::key_type, typename T::mapped_type>,
+      std::pair<typename T::key_type, typename T::mapped_type>>
 std::optional<T> TryGet();
 
 template <typename T>
@@ -111,6 +118,18 @@ std::optional<T> TryGet();
 
 template <typename T>
   requires is_std_array<T>::value
+std::optional<T> TryGet();
+
+template <typename T>
+  requires requires(T x) {
+    { std::tuple{x} } -> std::same_as<T>;
+  }
+std::optional<T> TryGet();
+
+template <typename T>
+  requires requires(T x) {
+    { std::pair{x} } -> std::same_as<T>;
+  }
 std::optional<T> TryGet();
 
 // Definitions:
@@ -286,11 +305,71 @@ inline std::optional<T> TryGet() {
   return makeOptVec(std::make_index_sequence<T::length()>{});
 }
 
+template <typename T>
+  requires requires(T x) {
+    { std::pair{x} } -> std::same_as<T>;
+  }
+inline std::optional<T> TryGet() {
+  using TupleType = std::tuple<typename T::first_type, typename T::second_type>;
+  return TryGet<TupleType>();
+}
+
+// generic tuple getter
+template <typename T>
+  requires requires(T x) {
+    { std::tuple{x} } -> std::same_as<T>;
+  }
+inline std::optional<T> TryGet() {
+  if (!lua_istable(LuaState, -1)) return std::nullopt;
+  constexpr static auto tupleSize = std::tuple_size_v<T>;
+
+  AssertIs(LUA_TTABLE);
+  PushInitialIndex();
+
+  const auto errorHandler = [&](std::string error) {
+    ImpLog(LogLevel::Fatal, LogChannel::Profile, "{:s}\n", error);
+    throw std::runtime_error(error);
+  };
+
+  T out;
+  size_t curIndex = 0;
+  const auto tupleElemHandler = [&]<std::size_t I> {
+    using TupleType = std::tuple_element_t<I, T>;
+    if (!PushNextTableElement()) return false;
+
+    auto i = EnsureGetKey<uint32_t>() - 1;
+    if (curIndex++ != i)
+      errorHandler(fmt::format("Unexpected key {}, expected {}", i, curIndex));
+    auto elemOpt = TryGet<TupleType>();
+    if (!elemOpt) {
+      errorHandler(fmt::format("Failed to get {}th element in tuple", i));
+    }
+    std::get<I>(out) = *elemOpt;
+
+    Pop();
+    return true;
+  };
+
+  const auto tupleFiller = [&]<std::size_t... Is>(std::index_sequence<Is...>) {
+    if ((tupleElemHandler.template operator()<Is>() && ...)) {
+      errorHandler(fmt::format("Tuple size {} is too small for profile array",
+                               tupleSize));
+    } else if (curIndex != tupleSize) {
+      errorHandler(fmt::format("Tuple size too large, expected {}, got {}",
+                               tupleSize, curIndex));
+    }
+  };
+
+  tupleFiller(std::make_index_sequence<tupleSize>{});
+  return out;
+}
+
 // generic map getter
 template <typename T>
-  requires std::is_same_v<
+  requires is_any_of_v<
       typename T::value_type,
-      std::pair<const typename T::key_type, typename T::mapped_type>>
+      std::pair<const typename T::key_type, typename T::mapped_type>,
+      std::pair<typename T::key_type, typename T::mapped_type>>
 inline std::optional<T> TryGet() {
   if (!lua_istable(LuaState, -1)) return std::nullopt;
 
@@ -351,13 +430,23 @@ inline std::optional<T> TryGet() {
 }
 
 template <>
-std::optional<Io::AssetPath> TryGet<Io::AssetPath>();
+struct TryGetImpl<Io::AssetPath> {
+  static std::optional<Io::AssetPath> Call();
+};
+
 template <>
-std::optional<RectF> TryGet<RectF>();
+struct TryGetImpl<RectF> {
+  static std::optional<RectF> Call();
+};
 template <>
-std::optional<bool> TryGet<bool>();
+struct TryGetImpl<bool> {
+  static std::optional<bool> Call();
+};
+
 template <>
-std::optional<DialogueColorPair> TryGet<DialogueColorPair>();
+struct TryGetImpl<DialogueColorPair> {
+  static std::optional<DialogueColorPair> Call();
+};
 
 template <typename T>
 inline void GetArray(std::span<T> out) {
