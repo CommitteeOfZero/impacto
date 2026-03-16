@@ -87,10 +87,11 @@ void Configure() {
   LoveMovieSpriteSelect = EnsureGetMember<Sprite>("LoveMovieSpriteSelect");
   LoveMoviePos = EnsureGetMember<glm::vec2>("LoveMoviePos");
 
-  AlbumThumbDispPos = GetMemberVector<glm::vec2>("AlbumThumbDispPos");
+  AlbumThumbDispPos =
+      EnsureGetMember<std::vector<glm::vec2>>("AlbumThumbDispPos");
   AlbumData = GetAlbumTbl();
   AlbumThumbnailPinSprites =
-      GetMemberVector<Sprite>("AlbumThumbnailPinSprites");
+      EnsureGetMember<std::vector<Sprite>>("AlbumThumbnailPinSprites");
   AlbumThumbnailThumbSprite =
       EnsureGetMember<Sprite>("AlbumThumbnailThumbSprite");
   AlbumThumbZoomPgChangeDuration =
@@ -104,8 +105,9 @@ void Configure() {
   AlbumThumbnailThumbBlinkDuration =
       EnsureGetMember<float>("AlbumThumbnailThumbBlinkDuration");
   AlbumPageNumberPositions =
-      GetMemberVector<glm::vec2>("AlbumPageNumberPositions");
-  AlbumPageNumberSprites = GetMemberVector<Sprite>("AlbumPageNumberSprites");
+      EnsureGetMember<std::vector<glm::vec2>>("AlbumPageNumberPositions");
+  AlbumPageNumberSprites =
+      EnsureGetMember<std::vector<Sprite>>("AlbumPageNumberSprites");
   AlbumCameraPageIconSprite =
       EnsureGetMember<Sprite>("AlbumCameraPageIconSprite");
   AlbumCameraPageIconPosition =
@@ -118,8 +120,8 @@ void Configure() {
   MusicItemsOverlaySprite = EnsureGetMember<Sprite>("MusicItemsOverlaySprite");
   MusicRenderingBounds = EnsureGetMember<RectF>("MusicRenderingBounds");
   MusicHoverBounds = EnsureGetMember<RectF>("MusicHoverBounds");
-  MusicPlayIds = GetMemberVector<uint8_t>("MusicPlayIds");
-  MusicBGMFlagIds = GetMemberVector<uint8_t>("MusicBGMFlagIds");
+  MusicPlayIds = EnsureGetMember<std::vector<uint8_t>>("MusicPlayIds");
+  MusicBGMFlagIds = EnsureGetMember<std::vector<uint8_t>>("MusicBGMFlagIds");
   MusicStringTableId = EnsureGetMember<uint8_t>("MusicStringTableId");
   MusicStringLockedIndex = EnsureGetMember<int>("MusicStringLockedIndex");
   MusicTrackNameSize = EnsureGetMember<float>("MusicTrackNameSize");
@@ -165,14 +167,14 @@ void Configure() {
                                   (uint32_t)MusicMenuPlayingMode::_size()),
                         "MusicPlayingModeDisplayBounds");
 
-  MovieDiskSprites = GetMemberVector<Sprite>("MovieDiskSprites");
+  MovieDiskSprites = EnsureGetMember<std::vector<Sprite>>("MovieDiskSprites");
   MovieDiskHighlightSprites =
-      GetMemberVector<Sprite>("MovieDiskHighlightSprites");
+      EnsureGetMember<std::vector<Sprite>>("MovieDiskHighlightSprites");
   MovieDiskDisplayPositions =
-      GetMemberVector<glm::vec2>("MovieDiskDisplayPositions");
+      EnsureGetMember<std::vector<glm::vec2>>("MovieDiskDisplayPositions");
   SubMenuFadeInDuration = EnsureGetMember<float>("SubMenuFadeInDuration");
   SubMenuFadeOutDuration = EnsureGetMember<float>("SubMenuFadeOutDuration");
-  MovieDiskPlayIds = GetMemberVector<int>("MovieDiskPlayIds");
+  MovieDiskPlayIds = EnsureGetMember<std::vector<int>>("MovieDiskPlayIds");
 
   AlbumMenuGuideSprite = EnsureGetMember<Sprite>("AlbumMenuGuideSprite");
   AlbumMenuCGViewerGuideSprite =

@@ -75,8 +75,9 @@ void Configure() {
   ButtonPromptSprite = EnsureGetMember<Sprite>("ButtonPrompt");
   SelectDataFadeDuration = EnsureGetMember<float>("SelectDataFadeDuration");
   SelectDataTextPositions =
-      GetMemberVector<glm::vec2>("SelectDataTextPositions");
-  SelectDataTextSprites = GetMemberVector<Sprite>("SelectDataText");
+      EnsureGetMember<std::vector<glm::vec2>>("SelectDataTextPositions");
+  SelectDataTextSprites =
+      EnsureGetMember<std::vector<Sprite>>("SelectDataText");
   if (SelectDataTextPositions.size() != SelectDataTextSprites.size()) {
     throw std::runtime_error("Related arrays have mismatching sizes");
   }

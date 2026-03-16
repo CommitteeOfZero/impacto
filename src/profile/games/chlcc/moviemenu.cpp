@@ -37,8 +37,8 @@ void Configure() {
       EnsureGetMember<SpriteAnimationDef>("SelectedMovieAnimation");
   SelectedMovieYellowDot = EnsureGetMember<Sprite>("SelectedMovieYellowDot");
 
-  SelectMovie = GetMemberVector<Sprite>("SelectMovie");
-  SelectMoviePos = GetMemberVector<glm::vec2>("SelectMoviePos");
+  SelectMovie = EnsureGetMember<std::vector<Sprite>>("SelectMovie");
+  SelectMoviePos = EnsureGetMember<std::vector<glm::vec2>>("SelectMoviePos");
   if (SelectMovie.size() != SelectMoviePos.size()) {
     throw std::runtime_error("Related arrays have mismatching sizes");
   }

@@ -47,9 +47,9 @@ void Configure() {
   MenuSelectionPosition =
       EnsureGetMember<glm::vec2>("SystemMenuSelectionPosition");
 
-  SelectMenuHeader = GetMemberVector<Sprite>("SelectMenuSprites");
+  SelectMenuHeader = EnsureGetMember<std::vector<Sprite>>("SelectMenuSprites");
   SelectMenuHeaderPositions =
-      GetMemberVector<glm::vec2>("SelectMenuTextPositions");
+      EnsureGetMember<std::vector<glm::vec2>>("SelectMenuTextPositions");
   if (SelectMenuHeader.size() != SelectMenuHeaderPositions.size()) {
     throw std::runtime_error("Related arrays have mismatching sizes");
   }

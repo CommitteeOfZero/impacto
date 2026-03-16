@@ -59,8 +59,9 @@ void Configure() {
   HighlightStarRelativePos =
       EnsureGetMember<glm::vec2>("HighlightStarRelativePos");
   GetMemberArray<int>(std::span(Playlist, MusicTrackCount), "Playlist");
-  SelectSoundSprites = GetMemberVector<Sprite>("SelectSoundSprites");
-  SelectSoundPos = GetMemberVector<glm::vec2>("SelectSoundPos");
+  SelectSoundSprites =
+      EnsureGetMember<std::vector<Sprite>>("SelectSoundSprites");
+  SelectSoundPos = EnsureGetMember<std::vector<glm::vec2>>("SelectSoundPos");
   if (SelectSoundSprites.size() != SelectSoundPos.size()) {
     throw std::runtime_error("Related arrays have mismatching sizes");
   }
@@ -75,9 +76,9 @@ void Configure() {
   AyaseEndingBgmId = EnsureGetMember<int>("AyaseEndingBgmId");
   NormalEndingBgmId = EnsureGetMember<int>("NormalEndingBgmId");
 
-  PresetBgmFlags = GetMemberVector<int>("PresetBgmFlags");
-  DstBgmPairedFlag = GetMemberVector<int>("DstBgmPairedFlag");
-  SrcBgmPairedFlag = GetMemberVector<int>("SrcBgmPairedFlag");
+  PresetBgmFlags = EnsureGetMember<std::vector<int>>("PresetBgmFlags");
+  DstBgmPairedFlag = EnsureGetMember<std::vector<int>>("DstBgmPairedFlag");
+  SrcBgmPairedFlag = EnsureGetMember<std::vector<int>>("SrcBgmPairedFlag");
 
   if (DstBgmPairedFlag.size() != SrcBgmPairedFlag.size()) {
     throw std::runtime_error("Related arrays have mismatching sizes");

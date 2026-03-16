@@ -12,24 +12,31 @@ using namespace Impacto::Vm::Interface;
 void Configure() {
   EnsurePushMemberOfType("Input", LUA_TTABLE);
 
-  auto KB_PAD1A = GetMemberVector<KeyboardCodeType>("KB_PAD1A");
-  auto KB_PAD1B = GetMemberVector<KeyboardCodeType>("KB_PAD1B");
-  auto KB_PAD1X = GetMemberVector<KeyboardCodeType>("KB_PAD1X");
-  auto KB_PAD1Y = GetMemberVector<KeyboardCodeType>("KB_PAD1Y");
-  auto KB_PAD1SELECT = GetMemberVector<KeyboardCodeType>("KB_PAD1SELECT");
-  auto KB_PAD1START = GetMemberVector<KeyboardCodeType>("KB_PAD1START");
-  auto KB_PAD1UP = GetMemberVector<KeyboardCodeType>("KB_PAD1UP");
-  auto KB_PAD1DOWN = GetMemberVector<KeyboardCodeType>("KB_PAD1DOWN");
-  auto KB_PAD1LEFT = GetMemberVector<KeyboardCodeType>("KB_PAD1LEFT");
-  auto KB_PAD1RIGHT = GetMemberVector<KeyboardCodeType>("KB_PAD1RIGHT");
-  auto KB_PAD1L1 = GetMemberVector<KeyboardCodeType>("KB_PAD1L1");
-  auto KB_PAD1L2 = GetMemberVector<KeyboardCodeType>("KB_PAD1L2");
-  auto KB_PAD1L3 = GetMemberVector<KeyboardCodeType>("KB_PAD1L3");
-  auto KB_PAD1R1 = GetMemberVector<KeyboardCodeType>("KB_PAD1R1");
-  auto KB_PAD1R2 = GetMemberVector<KeyboardCodeType>("KB_PAD1R2");
-  auto KB_PAD1R3 = GetMemberVector<KeyboardCodeType>("KB_PAD1R3");
-  auto KB_PAD1UP_RS = GetMemberVector<KeyboardCodeType>("KB_PAD1UP_RS");
-  auto KB_PAD1DOWN_RS = GetMemberVector<KeyboardCodeType>("KB_PAD1DOWN_RS");
+  auto KB_PAD1A = EnsureGetMember<std::vector<KeyboardCodeType>>("KB_PAD1A");
+  auto KB_PAD1B = EnsureGetMember<std::vector<KeyboardCodeType>>("KB_PAD1B");
+  auto KB_PAD1X = EnsureGetMember<std::vector<KeyboardCodeType>>("KB_PAD1X");
+  auto KB_PAD1Y = EnsureGetMember<std::vector<KeyboardCodeType>>("KB_PAD1Y");
+  auto KB_PAD1SELECT =
+      EnsureGetMember<std::vector<KeyboardCodeType>>("KB_PAD1SELECT");
+  auto KB_PAD1START =
+      EnsureGetMember<std::vector<KeyboardCodeType>>("KB_PAD1START");
+  auto KB_PAD1UP = EnsureGetMember<std::vector<KeyboardCodeType>>("KB_PAD1UP");
+  auto KB_PAD1DOWN =
+      EnsureGetMember<std::vector<KeyboardCodeType>>("KB_PAD1DOWN");
+  auto KB_PAD1LEFT =
+      EnsureGetMember<std::vector<KeyboardCodeType>>("KB_PAD1LEFT");
+  auto KB_PAD1RIGHT =
+      EnsureGetMember<std::vector<KeyboardCodeType>>("KB_PAD1RIGHT");
+  auto KB_PAD1L1 = EnsureGetMember<std::vector<KeyboardCodeType>>("KB_PAD1L1");
+  auto KB_PAD1L2 = EnsureGetMember<std::vector<KeyboardCodeType>>("KB_PAD1L2");
+  auto KB_PAD1L3 = EnsureGetMember<std::vector<KeyboardCodeType>>("KB_PAD1L3");
+  auto KB_PAD1R1 = EnsureGetMember<std::vector<KeyboardCodeType>>("KB_PAD1R1");
+  auto KB_PAD1R2 = EnsureGetMember<std::vector<KeyboardCodeType>>("KB_PAD1R2");
+  auto KB_PAD1R3 = EnsureGetMember<std::vector<KeyboardCodeType>>("KB_PAD1R3");
+  auto KB_PAD1UP_RS =
+      EnsureGetMember<std::vector<KeyboardCodeType>>("KB_PAD1UP_RS");
+  auto KB_PAD1DOWN_RS =
+      EnsureGetMember<std::vector<KeyboardCodeType>>("KB_PAD1DOWN_RS");
 
   auto MS_LEFT = EnsureGetMember<int>("MS_LEFT");
   auto MS_RIGHT = EnsureGetMember<int>("MS_RIGHT");

@@ -53,8 +53,8 @@ void Configure() {
   GetMemberArray<Sprite>(std::span(ReachablePageNums, 10), "ReachablePageNums");
   ButtonGuide = EnsureGetMember<Sprite>("ButtonGuide");
   ButtonGuidePos = EnsureGetMember<glm::vec2>("ButtonGuidePos");
-  SelectDataSprites = GetMemberVector<Sprite>("SelectDataSprites");
-  SelectDataPos = GetMemberVector<glm::vec2>("SelectDataPos");
+  SelectDataSprites = EnsureGetMember<std::vector<Sprite>>("SelectDataSprites");
+  SelectDataPos = EnsureGetMember<std::vector<glm::vec2>>("SelectDataPos");
   if (SelectDataSprites.size() != SelectDataPos.size()) {
     throw std::runtime_error("Related arrays have mismatching sizes");
   }

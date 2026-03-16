@@ -68,9 +68,6 @@ void GetArray(std::span<T> out);
 template <typename T>
 void GetMemberArray(std::span<T> out, char const* name);
 
-template <typename T>
-std::vector<T> GetMemberVector(char const* name);
-
 void ForEachProfileArray(std::invocable<uint32_t> auto func);
 
 template <typename K>
@@ -381,19 +378,6 @@ inline void GetMemberArray(std::span<T> out, char const* name) {
   EnsurePushMemberOfType(name, LUA_TTABLE);
   GetArray(out);
   Pop();
-}
-
-template <typename T>
-inline std::vector<T> GetMemberVector(char const* name) {
-  std::vector<T> result;
-  EnsurePushMemberOfType(name, LUA_TTABLE);
-  ForEachProfileArray([&](uint32_t i) {
-    assert(i == result.size());
-    result.push_back(EnsureGetArrayElement<T>());
-  });
-
-  Pop();
-  return result;
 }
 
 inline void ForEachProfileArray(std::invocable<uint32_t> auto func) {
