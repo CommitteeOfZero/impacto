@@ -79,8 +79,7 @@ void PushInitialIndex() { lua_pushnil(LuaState); }
 
 int PushNextTableElement() { return lua_next(LuaState, -2); }
 
-template <>
-std::optional<Io::AssetPath> TryGet<Io::AssetPath>() {
+std::optional<Io::AssetPath> TryGetImpl<Io::AssetPath>::Call() {
   if (lua_isstring(LuaState, -1)) {
     return Io::AssetPath{.Mount = "", .FileName = lua_tostring(LuaState, -1)};
   }
@@ -91,8 +90,7 @@ std::optional<Io::AssetPath> TryGet<Io::AssetPath>() {
   return Io::AssetPath{.Mount = *mount, .Id = *id};
 }
 
-template <>
-std::optional<RectF> TryGet<RectF>() {
+std::optional<RectF> TryGetImpl<RectF>::Call() {
   if (!lua_istable(LuaState, -1)) return std::nullopt;
   RectF outRectF;
   if (TryGetMember("X", outRectF.X) && TryGetMember("Y", outRectF.Y) &&
@@ -103,8 +101,7 @@ std::optional<RectF> TryGet<RectF>() {
   return std::nullopt;
 }
 
-template <>
-std::optional<DialogueColorPair> TryGet<DialogueColorPair>() {
+std::optional<DialogueColorPair> TryGetImpl<DialogueColorPair>::Call() {
   if (!lua_istable(LuaState, -1)) return std::nullopt;
   DialogueColorPair outColor;
   if (TryGetMember("TextColor", outColor.TextColor) &&
@@ -114,8 +111,7 @@ std::optional<DialogueColorPair> TryGet<DialogueColorPair>() {
   return std::nullopt;
 }
 
-template <>
-std::optional<bool> TryGet<bool>() {
+std::optional<bool> TryGetImpl<bool>::Call() {
   if (lua_isboolean(LuaState, -1)) {
     return lua_toboolean(LuaState, -1);
   }
