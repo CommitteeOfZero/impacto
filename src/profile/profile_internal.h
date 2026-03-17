@@ -351,12 +351,13 @@ inline std::optional<T> TryGet() {
   };
 
   const auto tupleFiller = [&]<std::size_t... Is>(std::index_sequence<Is...>) {
-    if ((tupleElemHandler.template operator()<Is>() && ...)) {
-      errorHandler(fmt::format("Tuple size {} is too small for profile array",
-                               tupleSize));
-    } else if (curIndex != tupleSize) {
-      errorHandler(fmt::format("Tuple size too large, expected {}, got {}",
+    if (!(tupleElemHandler.template operator()<Is>() && ...)) {
+      errorHandler(fmt::format("Tuple size too small, expected {}, got {}",
                                tupleSize, curIndex));
+    } else if (PushNextTableElement()) {
+      Pop();
+      errorHandler(fmt::format(
+          "Tuple size too large for profile array, expected {}", tupleSize));
     }
   };
 
