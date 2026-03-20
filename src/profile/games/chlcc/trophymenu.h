@@ -9,35 +9,12 @@ namespace TrophyMenu {
 
 int constexpr inline MaxTrophyPages = 9;
 
-inline float ShowPageAnimationStartTime;
-inline float ShowPageAnimationDuration;
-
 inline uint32_t BackgroundColor;
-inline Sprite BackgroundFilter;
-
 inline Sprite CircleSprite;
-inline glm::vec2 CircleStartPosition;
-inline float CircleOffset;
-
-inline glm::vec2 ErinPosition;
-inline Sprite ErinSprite;
-
-inline glm::vec2 InitialRedBarPosition;
-inline glm::vec2 RightRedBarPosition;
-inline float RedBarDivision;
-inline float RedBarBaseX;
-inline Sprite InitialRedBarSprite;
-inline glm::vec2 RedBarLabelPosition;
-inline Sprite RedBarLabel;
-
-inline Sprite RedBarSprite;
-inline glm::vec2 RedBarPosition;
 
 inline glm::vec2 MenuTitleTextRightPosition;
 inline glm::vec2 MenuTitleTextLeftPosition;
 inline float MenuTitleTextAngle;
-inline float TitleFadeInDuration;
-inline float TitleFadeOutDuration;
 inline Sprite MenuTitleText;
 
 inline glm::vec2 ButtonPromptPosition;

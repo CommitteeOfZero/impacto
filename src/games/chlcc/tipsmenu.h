@@ -1,7 +1,6 @@
 #pragma once
 
-#include "animations/selectprompt.h"
-#include "animations/menutransition.h"
+#include "commonmenu.h"
 #include "../../ui/tipsmenu.h"
 #include "../../ui/widgets/group.h"
 #include "../../ui/widgets/button.h"
@@ -14,7 +13,7 @@ namespace Impacto {
 namespace UI {
 namespace CHLCC {
 
-class TipsMenu : public UI::TipsMenu {
+class TipsMenu : public UI::TipsMenu, public CommonMenu {
  public:
   TipsMenu();
 
@@ -34,23 +33,11 @@ class TipsMenu : public UI::TipsMenu {
   void AdvanceTipPage(TipAdvanceMode mode) override;
 
  private:
-  void DrawCircles();
-  void DrawErin();
-  void DrawRedBar();
   void DrawTipsTree();
-  void DrawButtonPrompt();
-  void UpdateTitles();
   void HandlePageChange(Widget* cur, Widget* next);
 
   Widgets::ClickArea PrevPageTipClickArea;
   Widgets::ClickArea NextPageTipClickArea;
-  Animation TitleFade;
-  Animation FromSystemMenuTransition;
-  SelectPromptAnimation SelectAnimation;
-  MenuTransitionAnimation MenuTransition;
-  glm::vec2 RedTitleLabelPos;
-  glm::vec2 RightTitlePos;
-  glm::vec2 LeftTitlePos;
 
   int CurrentTipPage = 1;
   float TipsEntryScrollPos = 0;

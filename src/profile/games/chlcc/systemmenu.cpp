@@ -13,15 +13,7 @@ namespace SystemMenu {
 
 void Configure() {
   BackgroundColor = EnsureGetMember<uint32_t>("BackgroundColor");
-  BackgroundFilter = EnsureGetMember<Sprite>("BackgroundFilter");
-  CircleStartPosition = EnsureGetMember<glm::vec2>("CircleStartPosition");
   CircleSprite = EnsureGetMember<Sprite>("CircleSprite");
-  CircleOffset = EnsureGetMember<float>("CircleOffset");
-  ErinPosition = EnsureGetMember<glm::vec2>("ErinPosition");
-  ErinSprite = EnsureGetMember<Sprite>("ErinSprite");
-  TitleFadeInDuration = EnsureGetMember<float>("TitleFadeInDuration");
-  TitleFadeOutDuration = EnsureGetMember<float>("TitleFadeOutDuration");
-
   FocusTint = EnsureGetMember<uint32_t>("FocusTint");
   GetMemberArray<glm::vec2>(
       std::span(MenuEntriesPositions, Profile::SystemMenu::MenuEntriesNum),
@@ -65,15 +57,15 @@ void Configure() {
   MenuButtonPrompt = EnsureGetMember<Sprite>("SystemMenuButtonPrompt");
   MenuButtonPromptPosition =
       EnsureGetMember<glm::vec2>("SystemMenuButtonPromptPosition");
-  RedBarSprite = EnsureGetMember<Sprite>("RedBarSprite");
-  InitialRedBarPosition = EnsureGetMember<glm::vec2>("InitialRedBarPosition");
-  RightRedBarPosition = EnsureGetMember<glm::vec2>("RightRedBarPosition");
-  InitialRedBarSprite = EnsureGetMember<Sprite>("RedBarSprite");
-  RedBarDivision = EnsureGetMember<float>("RedBarDivision");
-  RedBarBaseX = EnsureGetMember<float>("RedBarBaseX");
-  RedBarLabel = EnsureGetMember<Sprite>("RedBarLabel");
-  RedBarLabelPosition = EnsureGetMember<glm::vec2>("RedBarLabelPosition");
   SelectedLabelSpeed = EnsureGetMember<float>("MenuSelectedLabelSpeed");
+  StarAnimationDuration = EnsureGetMember<float>("StarAnimationDuration");
+  StarRotationSpeed = EnsureGetMember<float>("StarRotationSpeed");
+  LeftAngle = EnsureGetMember<float>("LeftAngle");
+  GetMemberArray<glm::vec2>(std::span(StarsOffsetsStart.data(), STAR_COUNT),
+                            "StarsOffsetsStart");
+  GetMemberArray<glm::vec2>(std::span(StarsOffsetsEnd.data(), STAR_COUNT),
+                            "StarsOffsetsEnd");
+  StarSprite = EnsureGetMember<Sprite>("StarSprite");
 
   auto drawType = Game::DrawComponentType::_from_integral_unchecked(
       EnsureGetMember<uint8_t>("DrawType"));

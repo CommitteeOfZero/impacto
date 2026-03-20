@@ -1,10 +1,9 @@
 #include "titlemenu.h"
-#include "../../../log.h"
 #include "../../../renderer/renderer.h"
 #include "../../profile_internal.h"
 
 #include "../../ui/titlemenu.h"
-#include "../../../game.h"
+#include "../../game.h"
 #include "../../../ui/ui.h"
 #include "../../../games/chlcc/titlemenu.h"
 
@@ -191,12 +190,11 @@ void Configure() {
       Profile::TitleMenu::PressToStartAnimDurationOut;
   menu->PressToStartAnimation.LoopMode = AnimationLoopMode::ReverseDirection;
 
-  menu->ItemsFadeInAnimation.DurationIn = ItemFadeInDuration;
-  menu->ItemsFadeInAnimation.DurationOut = ItemFadeOutDuration;
+  menu->PrimaryFadeAnimation.DurationIn = PrimaryFadeInDuration;
+  menu->PrimaryFadeAnimation.DurationOut = PrimaryFadeOutDuration;
 
-  menu->SecondaryItemsFadeInAnimation.DurationIn = SecondaryItemFadeInDuration;
-  menu->SecondaryItemsFadeInAnimation.DurationOut =
-      SecondaryItemFadeOutDuration;
+  menu->SecondaryFadeAnimation.DurationIn = SecondaryFadeInDuration;
+  menu->SecondaryFadeAnimation.DurationOut = SecondaryFadeOutDuration;
 
   menu->SpinningCircleAnimation.LoopMode = AnimationLoopMode::Loop;
   menu->SpinningCircleAnimation.SetDuration(SpinningCircleAnimationDuration);

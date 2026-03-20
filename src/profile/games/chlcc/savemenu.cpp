@@ -26,26 +26,12 @@ void Configure() {
   SaveCircle = EnsureGetMember<Sprite>("SaveCircle");
   LoadCircle = EnsureGetMember<Sprite>("LoadCircle");
   QuickLoadCircle = EnsureGetMember<Sprite>("QuickLoadCircle");
-  CircleStartPosition = EnsureGetMember<glm::vec2>("CircleStartPosition");
-  CircleOffset = EnsureGetMember<float>("CircleOffset");
-  ErinPosition = EnsureGetMember<glm::vec2>("ErinPosition");
-  ErinSprite = EnsureGetMember<Sprite>("ErinSprite");
-  BackgroundFilter = EnsureGetMember<Sprite>("BackgroundFilter");
-  InitialRedBarPosition = EnsureGetMember<glm::vec2>("InitialRedBarPosition");
-  RightRedBarPosition = EnsureGetMember<glm::vec2>("RightRedBarPosition");
-  InitialRedBarSprite = EnsureGetMember<Sprite>("RedBarSprite");
-  RedBarDivision = EnsureGetMember<float>("RedBarDivision");
-  RedBarBaseX = EnsureGetMember<float>("RedBarBaseX");
-  RedBarLabelPosition = EnsureGetMember<glm::vec2>("RedBarLabelPosition");
-  RedBarLabel = EnsureGetMember<Sprite>("RedBarLabel");
   QuickLoadTextSprite = EnsureGetMember<Sprite>("QuickLoadTextSprite");
   LoadTextSprite = EnsureGetMember<Sprite>("LoadTextSprite");
   SaveTextSprite = EnsureGetMember<Sprite>("SaveTextSprite");
   MenuTitleTextRightPos = EnsureGetMember<glm::vec2>("MenuTitleTextRightPos");
   MenuTitleTextLeftPos = EnsureGetMember<glm::vec2>("MenuTitleTextLeftPos");
   MenuTitleTextAngle = EnsureGetMember<float>("MenuTitleTextAngle");
-  TitleFadeInDuration = EnsureGetMember<float>("TitleFadeInDuration");
-  TitleFadeOutDuration = EnsureGetMember<float>("TitleFadeOutDuration");
 
   SaveListPosition = EnsureGetMember<glm::vec2>("SaveListPosition");
   SaveListSprite = EnsureGetMember<Sprite>("SaveListSprite");
@@ -73,7 +59,6 @@ void Configure() {
   MaxPageNumSprite = EnsureGetMember<Sprite>("MaxPageNum");
   ButtonPromptPosition = EnsureGetMember<glm::vec2>("ButtonPromptPosition");
   ButtonPromptSprite = EnsureGetMember<Sprite>("ButtonPrompt");
-  SelectDataFadeDuration = EnsureGetMember<float>("SelectDataFadeDuration");
   SelectDataTextPositions =
       EnsureGetMember<std::vector<glm::vec2>>("SelectDataTextPositions");
   SelectDataTextSprites =

@@ -1,18 +1,16 @@
 #pragma once
 
-#include "animations/selectprompt.h"
-#include "animations/menutransition.h"
+#include "commonmenu.h"
 #include "../../ui/menu.h"
 #include "../../ui/widgets/group.h"
 #include "../../ui/widgets/button.h"
-#include "../../vm/interface/input.h"
 #include "../../ui/widgets/cgviewer.h"
 
 namespace Impacto {
 namespace UI {
 namespace CHLCC {
 
-class AlbumMenu : public Menu {
+class AlbumMenu : public Menu, public CommonMenu {
  public:
   AlbumMenu();
 
@@ -25,30 +23,15 @@ class AlbumMenu : public Menu {
  private:
   std::vector<Widgets::Group *> Pages;
 
-  void DrawCircles();
-  void DrawErin();
-  void DrawRedBar();
-  void DrawButtonGuide();
-
   void DrawPage();
 
   void UpdatePages();
-  void UpdateTitles();
 
   void CgOnClick(Widgets::Button *target);
   void OnCgVariationEnd(Widgets::CgViewer *target);
 
-  Animation TitleFade;
-  Animation FromSystemMenuTransition;
-  SelectPromptAnimation SelectAnimation;
-  MenuTransitionAnimation MenuTransition;
-
   Widgets::Group *CgViewerGroup;
   Widgets::CgViewer *CgViewerWidget;
-
-  glm::vec2 RedTitleLabelPos;
-  glm::vec2 RightTitlePos;
-  glm::vec2 LeftTitlePos;
 
   int PrevPage = 0;
   int CurrentPage;

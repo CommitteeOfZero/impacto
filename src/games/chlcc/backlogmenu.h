@@ -1,14 +1,14 @@
 #pragma once
 
+#include "commonmenu.h"
 #include "../../ui/backlogmenu.h"
 #include "../../ui/widgets/chlcc/backlogentry.h"
-#include "animations/menutransition.h"
 
 namespace Impacto {
 namespace UI {
 namespace CHLCC {
 
-class BacklogMenu : public UI::BacklogMenu {
+class BacklogMenu : public UI::BacklogMenu, public CommonMenu {
  public:
   BacklogMenu();
 
@@ -23,22 +23,6 @@ class BacklogMenu : public UI::BacklogMenu {
     return new Widgets::CHLCC::BacklogEntry(id, scrCtx, audioId, characterId,
                                             pos, hoverBounds);
   }
-
- private:
-  void DrawCircles();
-  void DrawErin();
-  void DrawRedBar();
-  void DrawButtonPrompt();
-
-  void UpdateTitles();
-
-  MenuTransitionAnimation MenuTransition;
-  Animation TitleFade;
-  Animation FromSystemMenuTransition;
-
-  glm::vec2 RedTitleLabelPos;
-  glm::vec2 RightTitlePos;
-  glm::vec2 LeftTitlePos;
 };
 
 }  // namespace CHLCC

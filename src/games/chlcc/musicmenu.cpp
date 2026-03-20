@@ -5,17 +5,18 @@
 #include "../../renderer/renderer.h"
 #include "../../ui/ui.h"
 #include "../../data/savesystem.h"
-#include "../../background2d.h"
 #include "../../vm/interface/input.h"
 #include "../../profile/game.h"
 #include "../../inputsystem.h"
 #include "../../audio/audiosystem.h"
 #include "../../ui/widgets/chlcc/trackselectbutton.h"
+#include "../../profile/games/chlcc/commonmenu.h"
 
 namespace Impacto {
 namespace UI {
 namespace CHLCC {
 
+using namespace Impacto::Profile::CHLCC::CommonMenu;
 using namespace Impacto::Profile::CHLCC::MusicMenu;
 using namespace Impacto::Profile::ScriptVars;
 
@@ -72,23 +73,10 @@ static float GetEndScroll(Group* itemsGroup) {
   return round(pagePos / TrackOffset.y) * TrackOffset.y;
 }
 
-MusicMenu::MusicMenu() {
-  TitleFade.Direction = AnimationDirection::In;
-  TitleFade.LoopMode = AnimationLoopMode::Stop;
-  TitleFade.DurationIn = TitleFadeInDuration;
-  TitleFade.DurationOut = TitleFadeOutDuration;
-
+MusicMenu::MusicMenu() : CommonMenu(false) {
   NowPlayingAnimation.Direction = AnimationDirection::In;
   NowPlayingAnimation.LoopMode = AnimationLoopMode::Stop;
   NowPlayingAnimation.SetDuration(NowPlayingAnimationDuration);
-
-  FromSystemMenuTransition.Direction = AnimationDirection::In;
-  FromSystemMenuTransition.LoopMode = AnimationLoopMode::Stop;
-  FromSystemMenuTransition.DurationIn = TitleFadeInDuration;
-  FromSystemMenuTransition.DurationOut = TitleFadeOutDuration;
-
-  RedBarSprite = InitialRedBarSprite;
-  RedBarPosition = InitialRedBarPosition;
 
   auto toggleRepeatClick = [this](auto* btn) { return ToggleRepeatMode(); };
   PlayModeRepeatClickArea =
@@ -168,7 +156,6 @@ void MusicMenu::Init() {
 void MusicMenu::Show() {
   if (State != Shown) {
     if (State != Showing) {
-      FromSystemMenuTransition.StartIn();
       MenuTransition.StartIn();
       SelectAnimation.StartIn(true);
     }
@@ -196,7 +183,6 @@ void MusicMenu::Hide() {
   if (State != Hidden) {
     if (State != Hiding) {
       MenuTransition.StartOut();
-      FromSystemMenuTransition.StartOut();
       MenuTransition.StartOut();
     }
     CurrentlyPlayingTrackId.reset();
@@ -216,36 +202,8 @@ void MusicMenu::Hide() {
 
 void MusicMenu::Render() {
   if (State == Hidden) return;
-
-  if (MenuTransition.IsIn()) {
-    Renderer->DrawQuad(
-        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-        RgbIntToFloat(BackgroundColor));
-  } else if (GetFlag(SF_SYSTEMMENU)) {
-    Renderer->DrawQuad(
-        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-        RgbIntToFloat(BackgroundColor, FromSystemMenuTransition.Progress));
-  } else {
-    DrawCircles();
-  }
-  DrawErin();
-  DrawRedBar();
-
-  if (MenuTransition.Progress > 0.34f) {
-    Renderer->DrawSprite(RedBarLabel, RedTitleLabelPos);
-
-    const CornersQuad titleDest =
-        SoundLibraryTitle.ScaledBounds()
-            .RotateAroundCenter(SoundLibraryTitleAngle)
-            .Translate(RightTitlePos);
-    Renderer->DrawSprite(SoundLibraryTitle, titleDest);
-  }
-
-  Renderer->CaptureScreencap(ShaderScreencapture.BgSprite);
-  Renderer->DrawCHLCCMenuBackground(
-      ShaderScreencapture.BgSprite, BackgroundFilter,
-      RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-      MenuTransition.Progress);
+  CommonMenu::DrawSubmenu(BackgroundColor, CircleSprite, SoundLibraryTitle,
+                          SoundLibraryTitleAngle);
 
   if (MenuTransition.Progress <= 0.22f) return;
 
@@ -271,9 +229,7 @@ void MusicMenu::Render() {
   MainItems->Render();
   MainScrollbar.Render();
 
-  if (MenuTransition.Progress > 0.34f) {
-    Renderer->DrawSprite(SoundLibraryTitle, LeftTitlePos);
-  }
+  DrawLeftTitle(SoundLibraryTitle);
 
   SelectAnimation.Draw(SelectSoundSprites, SelectSoundPos, offset);
 
@@ -301,7 +257,7 @@ void MusicMenu::Render() {
       Renderer->DrawSprite(HighlightStar, targetPos);
     }
   }
-  DrawButtonPrompt();
+  DrawButtonPrompt(ButtonPromptSprite, ButtonPromptPosition);
 }
 
 void MusicMenu::Update(float dt) {
@@ -327,7 +283,6 @@ void MusicMenu::Update(float dt) {
   }
 
   if (State != Hidden) {
-    FromSystemMenuTransition.Update(dt);
     SelectAnimation.Update(dt);
     MenuTransition.Update(dt);
     if (MenuTransition.Direction == AnimationDirection::Out &&
@@ -346,7 +301,7 @@ void MusicMenu::Update(float dt) {
     MainScrollbar.Update(dt);
     PlayModeRepeatClickArea.Update(dt);
     PlayModeAllClickArea.Update(dt);
-    UpdateTitles();
+    UpdateTitles(SoundLibraryTitleRightPos, SoundLibraryTitleLeftPos);
     if (InputEnabled) MainItems->Update(dt);
     if (!CurrentlyPlayingTrackId.has_value()) return;
     if (PlaybackMode != MusicPlaybackMode::RepeatOne &&
@@ -463,79 +418,6 @@ void MusicMenu::UpdateInput(float dt) {
   }
 }
 
-inline void MusicMenu::DrawCircles() {
-  float y = CircleStartPosition.y;
-  int resetCounter = 0;
-  // Give the whole range that mimics ScrWork[SW_SYSMENUCT] given that the
-  // duration is totalframes/60
-  float progress = MenuTransition.Progress * MenuTransitionDuration * 60.0f;
-  for (int line = 0; line < 4; line++) {
-    int counter = resetCounter;
-    float x = CircleStartPosition.x;
-    for (int col = 0; col < 7; col++) {
-      if (counter + 1 <= (progress)) {
-        float scale = ((progress) - (counter + 1.0f)) * 16.0f;
-        scale = scale <= 320.0f ? scale : 320.0f;
-        scale *= CircleSprite.Bounds.Height / 106.0f;
-        Renderer->DrawSprite(
-            CircleSprite, RectF(x + (CircleSprite.Bounds.Width - scale) / 2.0f,
-                                y + (CircleSprite.Bounds.Height - scale) / 2.0f,
-                                scale, scale));
-        x += CircleOffset;
-      }
-      counter += 2;
-    }
-    y += CircleOffset;
-    resetCounter += 2;
-  }
-}
-
-inline void MusicMenu::DrawErin() {
-  float y = ErinPosition.y;
-  if (MenuTransition.Progress < 0.78f) {
-    y = 801.0f;
-    if (MenuTransition.Progress > 0.22f) {
-      // Approximation from the original function, which was a bigger
-      // mess
-      y = glm::mix(
-          -19.0f, 721.0f,
-          0.998938f -
-              0.998267f * sin(3.97835f - 3.27549f * MenuTransition.Progress));
-    }
-  }
-  Renderer->DrawSprite(ErinSprite, glm::vec2(ErinPosition.x, y));
-}
-
-inline void MusicMenu::DrawRedBar() {
-  if (MenuTransition.IsIn()) {
-    Renderer->DrawSprite(InitialRedBarSprite, InitialRedBarPosition);
-  } else if (MenuTransition.Progress > 0.70f) {
-    // Give the whole range that mimics ScrWork[SW_SYSMENUCT] given that the
-    // duration is totalframes/60
-    float progress = MenuTransition.Progress * MenuTransitionDuration * 60.0f;
-    float pixelPerAdvanceLeft = RedBarBaseX * (progress - 47.0f) / 17.0f;
-    RedBarSprite.Bounds.X = RedBarDivision - pixelPerAdvanceLeft;
-    RedBarSprite.Bounds.Width = pixelPerAdvanceLeft;
-    RedBarPosition.x = RedBarBaseX - pixelPerAdvanceLeft;
-    Renderer->DrawSprite(RedBarSprite, RedBarPosition);
-    float pixelPerAdvanceRight = 13.0f * (progress - 47.0f);
-    RedBarSprite.Bounds.X = RedBarDivision;
-    RedBarSprite.Bounds.Width = pixelPerAdvanceRight;
-    RedBarPosition = RightRedBarPosition;
-    Renderer->DrawSprite(RedBarSprite, RedBarPosition);
-  }
-}
-
-inline void MusicMenu::DrawButtonPrompt() {
-  if (MenuTransition.IsIn()) {
-    Renderer->DrawSprite(ButtonPromptSprite, ButtonPromptPosition);
-  } else if (MenuTransition.Progress > 0.734f) {
-    float x = ButtonPromptPosition.x - 2560.0f * (MenuTransition.Progress - 1);
-    Renderer->DrawSprite(ButtonPromptSprite,
-                         glm::vec2(x, ButtonPromptPosition.y));
-  }
-}
-
 void MusicMenu::UpdateEntries() {
   auto onClick = [this](auto* btn) { return MusicButtonOnClick(btn); };
   for (size_t idx = 0; idx < MainItems->Children.size(); idx++) {
@@ -593,30 +475,6 @@ inline int MusicMenu::GetNextTrackId(int id) {
     }
   }
   return id;
-}
-
-void MusicMenu::UpdateTitles() {
-  if (MenuTransition.Progress <= 0.34f) return;
-
-  RedTitleLabelPos = RedBarLabelPosition;
-  RightTitlePos = SoundLibraryTitleRightPos;
-  LeftTitlePos = glm::vec2(
-      SoundLibraryTitleLeftPos.x,
-      TitleFade.IsIn()
-          ? SoundLibraryTitleLeftPos.y
-          : glm::mix(
-                1.0f, 721.0f,
-                1.01011f * std::sin(1.62223f * TitleFade.Progress + 3.152f) +
-                    1.01012f));
-
-  if (MenuTransition.Progress >= 0.73f) return;
-
-  RedTitleLabelPos +=
-      glm::vec2(-572.0f * (MenuTransition.Progress * 4.0f - 3.0f),
-                460.0f * (MenuTransition.Progress * 4.0f - 3.0f) / 3.0f);
-  RightTitlePos +=
-      glm::vec2(-572.0f * (MenuTransition.Progress * 4.0f - 3.0f),
-                460.0f * (MenuTransition.Progress * 4.0f - 3.0f) / 3.0f);
 }
 
 }  // namespace CHLCC

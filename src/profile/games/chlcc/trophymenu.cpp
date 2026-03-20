@@ -15,36 +15,13 @@ namespace CHLCC {
 namespace TrophyMenu {
 
 void Configure() {
-  ShowPageAnimationStartTime =
-      EnsureGetMember<float>("ShowPageAnimationStartTime");
-  ShowPageAnimationDuration =
-      EnsureGetMember<float>("ShowPageAnimationDuration");
-
-  BackgroundColor = EnsureGetMember<uint32_t>("BackgroundColor");
-  BackgroundFilter = EnsureGetMember<Sprite>("BackgroundFilter");
-
   CircleSprite = EnsureGetMember<Sprite>("CircleSprite");
-  CircleStartPosition = EnsureGetMember<glm::vec2>("CircleStartPosition");
-  CircleOffset = EnsureGetMember<float>("CircleOffset");
-
-  ErinPosition = EnsureGetMember<glm::vec2>("ErinPosition");
-  ErinSprite = EnsureGetMember<Sprite>("ErinSprite");
-
-  InitialRedBarPosition = EnsureGetMember<glm::vec2>("InitialRedBarPosition");
-  RightRedBarPosition = EnsureGetMember<glm::vec2>("RightRedBarPosition");
-  RedBarDivision = EnsureGetMember<float>("RedBarDivision");
-  RedBarBaseX = EnsureGetMember<float>("RedBarBaseX");
-  InitialRedBarSprite = EnsureGetMember<Sprite>("RedBarSprite");
-  RedBarLabelPosition = EnsureGetMember<glm::vec2>("RedBarLabelPosition");
-  RedBarLabel = EnsureGetMember<Sprite>("RedBarLabel");
-
+  BackgroundColor = EnsureGetMember<uint32_t>("BackgroundColor");
   MenuTitleTextRightPosition =
       EnsureGetMember<glm::vec2>("MenuTitleTextRightPos");
   MenuTitleTextLeftPosition =
       EnsureGetMember<glm::vec2>("MenuTitleTextLeftPos");
   MenuTitleTextAngle = EnsureGetMember<float>("MenuTitleTextAngle");
-  TitleFadeInDuration = EnsureGetMember<float>("TitleFadeInDuration");
-  TitleFadeOutDuration = EnsureGetMember<float>("TitleFadeOutDuration");
   MenuTitleText = EnsureGetMember<Sprite>("MenuTitleText");
 
   ButtonPromptPosition = EnsureGetMember<glm::vec2>("ButtonPromptPosition");

@@ -76,6 +76,7 @@ set(Impacto_Src
         src/profile/hud/datedisplay.cpp
         src/profile/hud/tipsnotification.cpp
 
+        src/profile/ui/commonmenu.cpp
         src/profile/ui/systemmenu.cpp
         src/profile/ui/titlemenu.cpp
         src/profile/ui/savemenu.cpp
@@ -96,6 +97,7 @@ set(Impacto_Src
 
         src/profile/games/dash/titlemenu.cpp
 
+        src/profile/games/chlcc/commonmenu.cpp
         src/profile/games/chlcc/dialoguebox.cpp
         src/profile/games/chlcc/titlemenu.cpp
         src/profile/games/chlcc/savemenu.cpp
@@ -159,11 +161,13 @@ set(Impacto_Src
 
         src/games/dash/titlemenu.cpp
 
+        src/games/chlcc/commonmenu.cpp
         src/games/chlcc/titlemenu.cpp
         src/games/chlcc/savemenu.cpp
         src/games/chlcc/sysmesbox.cpp
         src/games/chlcc/animations/selectprompt.cpp
         src/games/chlcc/animations/menutransition.cpp
+        src/games/chlcc/animations/saveicon.cpp
         src/games/chlcc/savesystem.cpp
         src/games/chlcc/tipssystem.cpp
         src/games/chlcc/clearlistmenu.cpp
@@ -223,6 +227,7 @@ set(Impacto_Src
         src/games/darling/sysmesbox.cpp
 
         src/hud/dialoguebox.cpp
+        src/hud/defaultsaveiconanimation.cpp
         src/hud/datedisplay.cpp
         src/hud/saveicondisplay.cpp
         src/hud/loadingdisplay.cpp
@@ -427,6 +432,7 @@ set(Impacto_Header
         src/profile/hud/datedisplay.h
         src/profile/hud/tipsnotification.h
 
+        src/profile/ui/commonmenu.h
         src/profile/ui/systemmenu.h
         src/profile/ui/titlemenu.h
         src/profile/ui/savemenu.h
@@ -447,6 +453,7 @@ set(Impacto_Header
 
         src/profile/games/dash/titlemenu.h
 
+        src/profile/games/chlcc/commonmenu.h
         src/profile/games/chlcc/dialoguebox.h
         src/profile/games/chlcc/titlemenu.h
         src/profile/games/chlcc/savemenu.h
@@ -508,11 +515,13 @@ set(Impacto_Header
 
         src/games/dash/titlemenu.h
 
+        src/games/chlcc/commonmenu.h
         src/games/chlcc/titlemenu.h
         src/games/chlcc/savemenu.h
         src/games/chlcc/sysmesbox.h
         src/games/chlcc/animations/selectprompt.h
         src/games/chlcc/animations/menutransition.h
+        src/games/chlcc/animations/saveicon.h
         src/games/chlcc/savesystem.h
         src/games/chlcc/tipssystem.h
         src/games/chlcc/clearlistmenu.h
@@ -566,6 +575,7 @@ set(Impacto_Header
         src/games/darling/sysmesbox.h
 
         src/hud/dialoguebox.h
+        src/hud/defaultsaveiconanimation.h
         src/hud/datedisplay.h
         src/hud/saveicondisplay.h
         src/hud/loadingdisplay.h

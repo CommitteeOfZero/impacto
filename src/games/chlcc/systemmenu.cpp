@@ -1,17 +1,26 @@
 #include "systemmenu.h"
-#include "../../profile/games/chlcc/systemmenu.h"
+
+#include "../../profile/game.h"
 #include "../../renderer/renderer.h"
 #include "../../ui/ui.h"
 #include "../../vm/interface/input.h"
 #include "../../inputsystem.h"
 #include "../../profile/ui/systemmenu.h"
 #include "../../ui/widgets/chlcc/systemmenuentrybutton.h"
-#include "../../profile/game.h"
+
+#include "../../profile/games/chlcc/systemmenu.h"
+#include "../../profile/games/chlcc/commonmenu.h"
+#include "../../profile/games/chlcc/backlogmenu.h"
+#include "../../profile/games/chlcc/savemenu.h"
+#include "../../profile/games/chlcc/optionsmenu.h"
+#include "../../profile/games/chlcc/tipsmenu.h"
+#include "../../profile/games/chlcc/trophymenu.h"
 
 namespace Impacto {
 namespace UI {
 namespace CHLCC {
 
+using namespace Impacto::Profile::CHLCC::CommonMenu;
 using namespace Impacto::Profile::CHLCC::SystemMenu;
 using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Vm::Interface;
@@ -38,12 +47,9 @@ void SystemMenu::MenuButtonOnClick(Widgets::Button* target) {
   ChoiceMade = true;
 }
 
-SystemMenu::SystemMenu() {
-  TitleFade.Direction = AnimationDirection::In;
-  TitleFade.LoopMode = AnimationLoopMode::Stop;
-  TitleFade.DurationIn = TitleFadeInDuration;
-  TitleFade.DurationOut = TitleFadeOutDuration;
-
+SystemMenu::SystemMenu() : CommonMenu(false) {
+  CurrentColor = Profile::CHLCC::SystemMenu::BackgroundColor;
+  SubItemsTransition = MenuTransition;
   auto onClick = [this](auto* btn) { return MenuButtonOnClick(btn); };
 
   MainItems = new Widgets::Group(this);
@@ -69,9 +75,7 @@ SystemMenu::SystemMenu() {
 void SystemMenu::Show() {
   if (State != Shown) {
     State = Showing;
-    ShowMenu.StartIn();
-    SelectAnimation.StartIn();
-    MainItems->Show();
+    MenuTransition.StartIn();
     if (UI::FocusedMenu != 0) {
       LastFocusedMenu = UI::FocusedMenu;
       LastFocusedMenu->IsFocused = false;
@@ -79,12 +83,7 @@ void SystemMenu::Show() {
     IsFocused = true;
     UI::FocusedMenu = this;
 
-    if (LastFocusedButtonId && *LastFocusedButtonId < MenuEntriesNum) {
-      CurrentlyFocusedElement = MainItems->Children[*LastFocusedButtonId];
-      CurrentlyFocusedElement->HasFocus = true;
-    } else if (!CurrentlyFocusedElement) {
-      AdvanceFocus(FDIR_DOWN);
-    }
+    SubItemShow();
   }
 
   bool noFreeSlots = SaveSystem::MaxSaveEntries ==
@@ -94,15 +93,9 @@ void SystemMenu::Show() {
 
 void SystemMenu::Hide() {
   if (State != Hidden) {
-    if (CurrentlyFocusedElement) {
-      auto* btn = static_cast<Widgets::Button*>(CurrentlyFocusedElement);
-      if (btn) {
-        LastFocusedButtonId = btn->Id;
-      }
-    }
-
     State = Hiding;
-    ShowMenu.StartOut();
+    MenuTransition.StartOut();
+    SubItemsHide();
     if (LastFocusedMenu != 0) {
       UI::FocusedMenu = LastFocusedMenu;
       LastFocusedMenu->IsFocused = true;
@@ -113,41 +106,91 @@ void SystemMenu::Hide() {
   }
 }
 
+void SystemMenu::SubItemsHide() {
+  if (SubItemsState != Hidden) {
+    SubItemsState = Hiding;
+    SubItemsTransition.StartOut();
+  }
+  if (CurrentlyFocusedElement) {
+    auto* btn = static_cast<Widgets::Button*>(CurrentlyFocusedElement);
+    if (btn) {
+      LastFocusedButtonId = btn->Id;
+    }
+  }
+}
+void SystemMenu::SubItemShow() {
+  if (SubItemsState != Shown) {
+    SubItemsState = Showing;
+    SubItemsTransition.StartIn();
+    MainItems->Show();
+    SelectAnimation.StartIn(true);
+  }
+  if (LastFocusedButtonId && *LastFocusedButtonId < MenuEntriesNum) {
+    CurrentlyFocusedElement = MainItems->Children[*LastFocusedButtonId];
+    CurrentlyFocusedElement->HasFocus = true;
+  } else if (!CurrentlyFocusedElement) {
+    AdvanceFocus(FDIR_DOWN);
+  }
+}
+
 void SystemMenu::Update(float dt) {
   UpdateInput(dt);
-  if ((!GetFlag(SF_SYSTEMMENU) || ScrWork[SW_SYSMENUCT] < 10000) &&
-      State == Shown) {
+  const bool isSysMenuOpen = GetFlag(SF_SYSTEMMENU);
+  if ((!isSysMenuOpen || ScrWork[SW_SYSMENUCT] < 10000) && State == Shown) {
     Hide();
-  } else if (GetFlag(SF_SYSTEMMENU) && ScrWork[SW_SYSMENUCT] > 0 &&
-             State == Hidden) {
+  } else if (isSysMenuOpen && ScrWork[SW_SYSMENUCT] > 0 && State == Hidden) {
     Show();
   }
 
-  if (ShowMenu.IsOut() && ScrWork[SW_SYSMENUCT] == 0 && State == Hiding) {
+  if (isSysMenuOpen) {
+    if (UI::FocusedMenu != this && SubItemsState == Shown &&
+        UI::SysMesBoxPtr->State == UI::MenuState::Hidden) {
+      SubItemsHide();
+    } else if (UI::FocusedMenu == this && SubItemsState == Hidden) {
+      SubItemShow();
+    }
+  }
+
+  if (MenuTransition.IsOut() && ScrWork[SW_SYSMENUCT] == 0 && State == Hiding) {
     MainItems->Hide();
     State = Hidden;
     if (CurrentlyFocusedElement) {
       CurrentlyFocusedElement->HasFocus = false;
       CurrentlyFocusedElement = nullptr;
     }
-  } else if (ShowMenu.IsIn() && ScrWork[SW_SYSMENUCT] == 10000 &&
+  } else if (MenuTransition.IsIn() && ScrWork[SW_SYSMENUCT] == 10000 &&
              State == Showing) {
     State = Shown;
   }
 
+  if (SubItemsTransition.IsOut() && SubItemsState == Hiding) {
+    MainItems->Hide();
+    if (CurrentlyFocusedElement) {
+      CurrentlyFocusedElement->HasFocus = false;
+      CurrentlyFocusedElement = nullptr;
+    }
+    SubItemsState = Hidden;
+  } else if (SubItemsTransition.IsIn() && SubItemsState == Showing) {
+    SubItemsState = Shown;
+  }
+
+  if (SubItemsState != Hidden) {
+    SubItemsTransition.Update(dt);
+    UpdateRightTitle();
+  }
+
   if (State != Hidden) {
-    ShowMenu.Update(dt);
-    if (ShowMenu.Direction == AnimationDirection::Out &&
-        ShowMenu.Progress <= 0.72f) {
+    MenuTransition.Update(dt);
+    if (MenuTransition.Direction == AnimationDirection::Out &&
+        MenuTransition.Progress <= 0.72f) {
       TitleFade.StartOut();
-    } else if (ShowMenu.IsIn() &&
+    } else if (MenuTransition.IsIn() &&
                (TitleFade.Direction == AnimationDirection::In ||
                 TitleFade.IsOut())) {
       TitleFade.StartIn();
     }
     TitleFade.Update(dt);
 
-    UpdateMenuLoop();
     UpdateTitles();
 
     bool savesDisabled = GetFlag(SF_SAVEDISABLE);
@@ -167,28 +210,32 @@ void SystemMenu::Update(float dt) {
   if (btn) {
     IndexOfActiveButton = btn->Id;
   }
-  if (State != Hidden && IsFocused) {
+  if (State != Hidden) {
+    // These animations should update when sysmenu is unfocused (fading to
+    // submenu/showing sysmesbox)
     UpdateSmoothSelection(dt);
     SelectAnimation.Update(dt);
     UpdateRunningSelectedLabel(dt);
-    MainItems->UpdateInput(dt);
-    MainItems->Update(dt);
+    if (IsFocused) {
+      MainItems->UpdateInput(dt);
+      MainItems->Update(dt);
 
-    if ((CurrentInputDevice == Device::Mouse ||
-         CurrentInputDevice == Device::Touch) &&
-        ((PADinputMouseWentDown & PAD1A))) {
-      bool noButtonsHovered = true;
-      for (auto child : MainItems->Children) {
-        auto button = static_cast<SystemMenuEntryButton*>(child);
-        if (button->Hovered) {
-          noButtonsHovered = false;
-          break;
+      if ((CurrentInputDevice == Device::Mouse ||
+           CurrentInputDevice == Device::Touch) &&
+          ((PADinputMouseWentDown & PAD1A))) {
+        bool noButtonsHovered = true;
+        for (auto child : MainItems->Children) {
+          auto button = static_cast<SystemMenuEntryButton*>(child);
+          if (button->Hovered) {
+            noButtonsHovered = false;
+            break;
+          }
         }
-      }
 
-      if (noButtonsHovered) {
-        PADinputMouseWentDown = PADinputMouseWentDown & ~PAD1A;
-        PADinputButtonWentDown = PADinputButtonWentDown & ~PAD1A;
+        if (noButtonsHovered) {
+          PADinputMouseWentDown = PADinputMouseWentDown & ~PAD1A;
+          PADinputButtonWentDown = PADinputButtonWentDown & ~PAD1A;
+        }
       }
     }
   }
@@ -196,36 +243,16 @@ void SystemMenu::Update(float dt) {
 
 void SystemMenu::Render() {
   if (State == Hidden) return;
+  CommonMenu::DrawSysMenu(GetCurrentBgColor(), CircleSprite, MainMenuTitleText,
+                          MenuTitleTextAngle);
+  if (SubItemsState == Hidden) return;
 
-  if (ShowMenu.IsIn()) {
-    Renderer->DrawQuad(
-        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-        RgbIntToFloat(BackgroundColor));
-  } else {
-    DrawCircles();
-  }
-  DrawErin();
+  if (MenuTransition.Progress < 0.22f) return;
 
-  glm::vec3 tint = {1.0f, 1.0f, 1.0f};
-  // Alpha goes from 0 to 1 in half the time
-  float alpha = ShowMenu.Progress < 0.5f ? ShowMenu.Progress * 2.0f : 1.0f;
-  Renderer->DrawSprite(
-      BackgroundFilter,
-      RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-      glm::vec4(tint, alpha));
-  DrawRedBar();
-  if (ShowMenu.Progress > 0.34f) {
-    Renderer->DrawSprite(RedBarLabel, RedTitleLabelPos);
-    const CornersQuad titleDest = MainMenuTitleText.ScaledBounds()
-                                      .RotateAroundCenter(MenuTitleTextAngle)
-                                      .Translate(RightTitlePos);
-    Renderer->DrawSprite(MainMenuTitleText, titleDest);
-  }
+  CommonMenu::DrawButtonPrompt(MenuButtonPrompt, MenuButtonPromptPosition,
+                               SubItemsTransition);
 
-  if (ShowMenu.Progress < 0.22f) return;
-
-  glm::vec2 offset = ShowMenu.GetPageOffset();
-  DrawButtonPrompt();
+  glm::vec2 offset = SubItemsTransition.GetPageOffset();
   if (IndexOfActiveButton >= 0 && State != Hidden) {
     DrawRunningSelectedLabel(SelectionOffsetY +
                              MenuRunningSelectedLabelPosition.y + offset.y);
@@ -233,8 +260,11 @@ void SystemMenu::Render() {
 
   Renderer->DrawSprite(Background, glm::vec2(BackgroundPosition.x, offset.y));
   SelectAnimation.Draw(SelectMenuHeader, SelectMenuHeaderPositions, offset);
-  Renderer->DrawSprite(MainMenuTitleText, LeftTitlePos,
-                       glm::vec4(tint, TitleFade.Progress));
+
+  glm::vec3 tint = {1.0f, 1.0f, 1.0f};
+  if (SubItemsState == Shown) {
+    DrawLeftTitle(MainMenuTitleText, glm::vec4(tint, TitleFade.Progress));
+  }
   Renderer->DrawSprite(MenuItemsLine,
                        glm::vec2(MenuItemsLinePosition.x, offset.y));
   if (IndexOfActiveButton >= 0 && State != Hidden) {
@@ -281,60 +311,14 @@ inline void SystemMenu::DrawRunningSelectedLabel(float offsetY) {
   }
 }
 
-inline void SystemMenu::DrawCircles() {
-  float y = CircleStartPosition.y;
-  int resetCounter = 0;
-  // Give the whole range that mimics ScrWork[SW_SYSMENUCT] given that the
-  // duration is totalframes/60
-  float progress = ShowMenu.Progress * FadeInDuration * 60.0f;
-  for (int line = 0; line < 4; line++) {
-    int counter = resetCounter;
-    float x = CircleStartPosition.x;
-    for (int col = 0; col < 7; col++) {
-      if (counter + 1 <= (progress)) {
-        float scale = ((progress) - (counter + 1.0f)) * 16.0f;
-        scale = scale <= 320.0f ? scale : 320.0f;
-        Renderer->DrawSprite(
-            CircleSprite, RectF(x + (CircleSprite.Bounds.Width - scale) / 2.0f,
-                                y + (CircleSprite.Bounds.Height - scale) / 2.0f,
-                                scale, scale));
-        x += CircleOffset;
-      }
-      counter += 2;
-    }
-    y += CircleOffset;
-    resetCounter += 2;
-  }
-}
-
-inline void SystemMenu::DrawRedBar() {
-  if (ShowMenu.IsIn()) {
-    Renderer->DrawSprite(InitialRedBarSprite, InitialRedBarPosition);
-  } else if (ShowMenu.Progress > 0.70f) {
-    // Give the whole range that mimics ScrWork[SW_SYSMENUCT] given that the
-    // duration is totalframes/60
-    float progress = ShowMenu.Progress * FadeInDuration * 60.0f;
-    float pixelPerAdvanceLeft = RedBarBaseX * (progress - 47.0f) / 17.0f;
-    RedBarSprite.Bounds.X = RedBarDivision - pixelPerAdvanceLeft;
-    RedBarSprite.Bounds.Width = pixelPerAdvanceLeft;
-    RedBarPosition.x = RedBarBaseX - pixelPerAdvanceLeft;
-    Renderer->DrawSprite(RedBarSprite, RedBarPosition);
-    float pixelPerAdvanceRight = 13.0f * (progress - 47.0f);
-    RedBarSprite.Bounds.X = RedBarDivision;
-    RedBarSprite.Bounds.Width = pixelPerAdvanceRight;
-    RedBarPosition = RightRedBarPosition;
-    Renderer->DrawSprite(RedBarSprite, RedBarPosition);
-  }
-}
-
-void SystemMenu::UpdateMenuLoop() {
-  // it uses same Animation for progress
+void SystemMenu::UpdateTitles() {
+  // it also uses SelectAnimation for leftTitle
   if (SelectAnimation.Progress < 0.362f) {
     LeftTitlePos = glm::vec2(
         MenuTitleTextPosition.x,
-        glm::mix(1.0f, 721.0f,
+        glm::mix(1.0f, Profile::DesignHeight + 1.0f,
                  1.01011f * std::sin(1.62223f * (SelectAnimation.Progress *
-                                                 2.7604561455F) +
+                                                 2.7604561455f) +
                                      3.152f) +
                      1.01012f));
   } else if (SelectAnimation.Progress > 0.637f) {
@@ -342,50 +326,53 @@ void SystemMenu::UpdateMenuLoop() {
         MenuTitleTextPosition.x,
         glm::mix(-MainMenuTitleText.Bounds.Height, 1.0f,
                  1.01011f * std::sin(1.62223f * ((SelectAnimation.Progress *
-                                                  2.7604559169F) -
-                                                 1.774F) +
+                                                  2.7604559169f) -
+                                                 1.774f) +
                                      3.152f) +
                      1.01012f));
   }
-}
 
-void SystemMenu::UpdateTitles() {
-  if (ShowMenu.Progress <= 0.34f) return;
+  if (MenuTransition.Progress <= 0.34f) return;
 
   RedTitleLabelPos = RedBarLabelPosition;
-  RightTitlePos = MainMenuLabelRightPosition;
 
-  if (ShowMenu.Progress >= 0.73f) return;
+  if (MenuTransition.Progress >= 0.73f) return;
 
   RedTitleLabelPos +=
-      glm::vec2(-572.0f * (ShowMenu.Progress * 4.0f - 3.0f),
-                460.0f * (ShowMenu.Progress * 4.0f - 3.0f) / 3.0f);
-  RightTitlePos += glm::vec2(-572.0f * (ShowMenu.Progress * 4.0f - 3.0f),
-                             460.0f * (ShowMenu.Progress * 4.0f - 3.0f) / 3.0f);
+      glm::mix(DiagonalTitlesOffsetStart, DiagonalTitlesOffsetEnd,
+               MenuTransition.Progress);
 }
 
-inline void SystemMenu::DrawErin() {
-  float y = ErinPosition.y;
-  if (ShowMenu.Progress < 0.78f) {
-    y = 801.0f;
-    if (ShowMenu.Progress > 0.22f) {
-      // Approximation from the original function, which was a bigger mess
-      y = glm::mix(
-          -19.0f, 721.0f,
-          0.998938f - 0.998267f * sin(3.97835f - 3.27549f * ShowMenu.Progress));
+void SystemMenu::UpdateRightTitle() {
+  if (SubItemsTransition.Progress <= 0.34f) return;
+
+  RightTitlePos = MainMenuLabelRightPosition;
+
+  if (SubItemsTransition.Progress >= 0.73f) return;
+  RightTitlePos += glm::mix(DiagonalTitlesOffsetStart, DiagonalTitlesOffsetEnd,
+                            SubItemsTransition.Progress);
+}
+
+glm::vec4 SystemMenu::GetCurrentBgColor() {
+  const glm::vec4 sourceColor = RgbIntToFloat(BackgroundColor);
+  if (UI::FocusedMenu != this) {
+    if (GetFlag(SF_BACKLOGMENU)) {
+      CurrentColor = Profile::CHLCC::BacklogMenu::BackgroundColor;
+    } else if (GetFlag(SF_SAVEMENU)) {
+      CurrentColor = Profile::CHLCC::SaveMenu::BackgroundColor;
+    } else if (GetFlag(SF_OPTIONMENU)) {
+      CurrentColor = Profile::CHLCC::OptionsMenu::BackgroundColor;
+    } else if (GetFlag(SF_TIPSMENU)) {
+      CurrentColor = Profile::CHLCC::TipsMenu::BackgroundColor;
+    } else if (GetFlag(SF_ACHIEVEMENTMENU)) {
+      CurrentColor = Profile::CHLCC::TrophyMenu::BackgroundColor;
+    } else {
+      CurrentColor = BackgroundColor;
     }
   }
-  Renderer->DrawSprite(ErinSprite, glm::vec2(ErinPosition.x, y));
-}
-
-inline void SystemMenu::DrawButtonPrompt() {
-  if (ShowMenu.IsIn()) {
-    Renderer->DrawSprite(MenuButtonPrompt, MenuButtonPromptPosition);
-  } else if (ShowMenu.Progress > 0.734f) {
-    float x = MenuButtonPromptPosition.x - 2560.0f * (ShowMenu.Progress - 1);
-    Renderer->DrawSprite(MenuButtonPrompt,
-                         glm::vec2(x, MenuButtonPromptPosition.y));
-  }
+  glm::vec4 targetColor = RgbIntToFloat(CurrentColor);
+  // crossfading from one color to another
+  return glm::mix(targetColor, sourceColor, SubItemsTransition.Progress);
 }
 
 }  // namespace CHLCC
