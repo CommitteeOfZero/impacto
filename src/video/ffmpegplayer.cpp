@@ -1,15 +1,14 @@
 #include "ffmpegplayer.h"
 
-#include <av.h>
-#include <avtime.h>
-#include <avutils.h>
-#include <codec.h>
-#include <dictionary.h>
-#include <formatcontext.h>
-#include <codeccontext.h>
-#include <timestamp.h>
-#include <packet.h>
-#include <rational.h>
+#include <avcpp/av.h>
+#include <avcpp/avtime.h>
+#include <avcpp/avutils.h>
+#include <avcpp/codec.h>
+#include <avcpp/formatcontext.h>
+#include <avcpp/codeccontext.h>
+#include <avcpp/timestamp.h>
+#include <avcpp/packet.h>
+#include <avcpp/rational.h>
 
 extern "C" {
 #include <libavutil/avutil.h>

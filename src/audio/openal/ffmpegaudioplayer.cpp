@@ -2,8 +2,8 @@
 #include "../../video/ffmpegplayer.h"
 #include "../audiosystem.h"
 #include <mutex>
-#include <audioresampler.h>
-#include <timestamp.h>
+#include <avcpp/audioresampler.h>
+#include <avcpp/timestamp.h>
 
 extern "C" {
 #include <libavutil/avutil.h>
