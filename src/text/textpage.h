@@ -29,17 +29,18 @@ class TextPage {
 
   TextAlignment Alignment = TextAlignment::Left;
 
+  float CurrentLineTop = 0.0f;
+  float CurrentLineTopMargin = 0.0f;
+
  protected:
   TextPage() = default;
 
   void EndRubyBase(size_t lastBaseCharacter);
 
-  bool BuildingRubyBase;
-  size_t FirstRubyChunkOnLine;
+  bool BuildingRubyBase = false;
+  size_t FirstRubyChunkOnLine = 0;
 
-  size_t LastLineStart;
-  float CurrentLineTop;
-  float CurrentLineTopMargin;
+  size_t LastLineStart = 0;
 };
 
 }  // namespace Impacto
