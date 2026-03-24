@@ -36,7 +36,7 @@ void Camera::Init() {
 
 void Camera::Recalculate() {
   // X axis is flipped in DaSH, for whatever reason
-  if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+  if (Profile::Scene3D::Version == LKMVersion::DaSH) {
     Transform xFlippedTransform = CameraTransform;
     xFlippedTransform.Scale.x = -xFlippedTransform.Scale.x;
     View = glm::inverse(xFlippedTransform.Matrix());
@@ -45,7 +45,7 @@ void Camera::Recalculate() {
         CameraTransform.Matrix());  // move the world, not the camera
   }
 
-  if (Profile::ActiveRenderer == +RendererType::Vulkan) {
+  if (Profile::ActiveRenderer == RendererType::Vulkan) {
     Projection = glm::perspectiveRH_ZO(Fov, AspectRatio, Near, Far);
     Projection[1][1] *= -1.0f;
   } else {

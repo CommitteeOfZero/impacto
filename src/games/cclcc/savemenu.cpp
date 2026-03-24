@@ -26,11 +26,11 @@ Widget* EntryGrid[Pages][RowsPerPage][EntriesPerRow];
 
 void SaveMenu::MenuButtonOnClick(Widgets::Button* target) {
   Impacto::SaveSystem::SaveType saveType =
-      *ActiveMenuType == +SaveMenuPageType::QuickLoad
+      *ActiveMenuType == SaveMenuPageType::QuickLoad
           ? SaveSystem::SaveType::Quick
           : SaveSystem::SaveType::Full;
   int SaveStatus = SaveSystem::GetSaveStatus(saveType, target->Id);
-  if (SaveStatus == 1 || *ActiveMenuType == +SaveMenuPageType::Save) {
+  if (SaveStatus == 1 || *ActiveMenuType == SaveMenuPageType::Save) {
     ScrWork[SW_SAVEFILENO] = target->Id;
     ScrWork[SW_SAVEFILETYPE] = (int)saveType;
     ScrWork[SW_SAVEFILESTATUS] =
@@ -41,8 +41,8 @@ void SaveMenu::MenuButtonOnClick(Widgets::Button* target) {
             SaveSystem::GetSaveFlags(saveType, ScrWork[SW_SAVEFILENO]) &
                 SaveSystem::SaveFlagsMode::WriteProtect);
   }
-  if ((*ActiveMenuType == +SaveMenuPageType::Load ||
-       *ActiveMenuType == +SaveMenuPageType::QuickLoad) &&
+  if ((*ActiveMenuType == SaveMenuPageType::Load ||
+       *ActiveMenuType == SaveMenuPageType::QuickLoad) &&
       SaveStatus == 0) {
     Audio::PlayInGroup(Audio::ACG_SE, "sysse", 4, false, 0);
     return;
@@ -67,7 +67,7 @@ void SaveMenu::Show() {
     FadeAnimation.StartIn();
     int id = 0;
     Impacto::SaveSystem::SaveType saveType =
-        *ActiveMenuType == +SaveMenuPageType::QuickLoad
+        *ActiveMenuType == SaveMenuPageType::QuickLoad
             ? SaveSystem::SaveType::Quick
             : SaveSystem::SaveType::Full;
 
@@ -86,7 +86,7 @@ void SaveMenu::Show() {
           SaveEntryButton* saveEntryButton = new SaveEntryButton(
               id, EntryHighlightedBoxSprite[*ActiveMenuType],
               EntryHighlightedTextSprite[*ActiveMenuType], p, buttonPos,
-              SlotLockedSprite[ActiveMenuType], saveType,
+              SlotLockedSprite[*ActiveMenuType], saveType,
               NoDataSprite[*ActiveMenuType], BrokenDataSprite[*ActiveMenuType]);
 
           saveEntryButton->OnClickHandler = onClick;
@@ -224,7 +224,7 @@ void SaveMenu::UpdateInput(float dt) {
 
     if (CurrentlyFocusedElement && (PADinputButtonWentDown & PAD1Y)) {
       Impacto::SaveSystem::SaveType saveType =
-          *ActiveMenuType == +SaveMenuPageType::QuickLoad
+          *ActiveMenuType == SaveMenuPageType::QuickLoad
               ? SaveSystem::SaveType::Quick
               : SaveSystem::SaveType::Full;
       auto saveButton = static_cast<SaveEntryButton*>(CurrentlyFocusedElement);

@@ -35,8 +35,8 @@ class SaveFileLoader : public Loadable<SaveFileLoader, SaveError> {
     QueuedTextures.clear();
 
     // Let's not report errors until we finalize the implementation
-    if (Profile::Vm::GameInstructionSet != +Vm::InstructionSet::CC &&
-        Profile::Vm::GameInstructionSet != +Vm::InstructionSet::CHLCC) {
+    if (Profile::Vm::GameInstructionSet != Vm::InstructionSet::CC &&
+        Profile::Vm::GameInstructionSet != Vm::InstructionSet::CHLCC) {
       result = SaveError::OK;
     }
 
@@ -58,8 +58,8 @@ class SaveFileChecker : public Loadable<SaveFileChecker, SaveError> {
 
   void MainThreadOnLoad(SaveError result) {
     // Let's not report errors until we finalize the implementation
-    if (Profile::Vm::GameInstructionSet != +Vm::InstructionSet::CC &&
-        Profile::Vm::GameInstructionSet != +Vm::InstructionSet::CHLCC) {
+    if (Profile::Vm::GameInstructionSet != Vm::InstructionSet::CC &&
+        Profile::Vm::GameInstructionSet != Vm::InstructionSet::CHLCC) {
       result = SaveError::OK;
     }
 
@@ -78,8 +78,8 @@ class SaveFileWriter : public Loadable<SaveFileWriter, SaveError> {
 
   void MainThreadOnLoad(SaveError result) {
     // Let's not report errors until we finalize the implementation
-    if (Profile::Vm::GameInstructionSet != +Vm::InstructionSet::CC &&
-        Profile::Vm::GameInstructionSet != +Vm::InstructionSet::CHLCC) {
+    if (Profile::Vm::GameInstructionSet != Vm::InstructionSet::CC &&
+        Profile::Vm::GameInstructionSet != Vm::InstructionSet::CHLCC) {
       result = SaveError::OK;
     }
 

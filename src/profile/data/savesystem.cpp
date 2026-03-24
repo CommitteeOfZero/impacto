@@ -15,7 +15,7 @@ using namespace Impacto::SaveSystem;
 void Configure() {
   EnsurePushMemberOfType("SaveData", LUA_TTABLE);
 
-  Type = SaveDataType::_from_integral_unchecked(EnsureGetMember<int>("Type"));
+  Type = EnsureGetMember<SaveDataType>("Type");
 
   switch (Type) {
     case SaveDataType::CHLCC:

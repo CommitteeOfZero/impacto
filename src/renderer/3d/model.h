@@ -1,6 +1,6 @@
 #pragma once
 
-#include <enum.h>
+#include <magic_enum/magic_enum.hpp>
 #include "../../impacto.h"
 #include "../../util.h"
 #include "../../texture/texture.h"
@@ -15,8 +15,10 @@
 
 namespace Impacto {
 
-BETTER_ENUM(LKMVersion, int, RNE = 0, DaSH)
-
+enum class LKMVersion : int {
+  RNE = 0,
+  DaSH,
+};
 enum ModelType : uint32_t {
   ModelType_Background = 1,
   ModelType_Character = 2,

@@ -1,12 +1,17 @@
 #pragma once
 #include <ankerl/unordered_dense.h>
 #include <string>
-#include <enum.h>
+#include <magic_enum/magic_enum.hpp>
 #include "game.h"
 
 namespace Impacto::Profile::Subtitle {
 
-BETTER_ENUM(SubtitleType, uint8_t, None = 0, Bitmap, Text, Ass)
+enum class SubtitleType : uint8_t {
+  None = 0,
+  Bitmap,
+  Text,
+  Ass,
+};
 
 struct SubtitleTrackFile {
   SubtitleType Type;

@@ -35,8 +35,7 @@ void Configure() {
   LoadingStarsFadeDuration = EnsureGetMember<float>("LoadingStarsFadeDuration");
   LoadingStarsPosition = EnsureGetMember<glm::vec2>("LoadingStarsPosition");
 
-  auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMember<uint8_t>("DrawType"));
+  auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
 
   UI::SysMesBoxPtr = new UI::CHLCC::SysMesBox();
   UI::Menus[drawType].push_back(UI::SysMesBoxPtr);

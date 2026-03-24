@@ -10,11 +10,10 @@ namespace Profile {
 void LoadGameFromLua() {
   AssertIs(LUA_TTABLE);
 
-  ActiveRenderer = RendererType::_from_integral_unchecked(
-      EnsureGetMember<int>("ActiveRenderer"));
+  ActiveRenderer = EnsureGetMember<RendererType>("ActiveRenderer");
 
   LayerCount = EnsureGetMember<int>("LayerCount");
-  GameFeatures = EnsureGetMember<int>("GameFeatures");
+  GameFeatures = EnsureGetMember<GameFeature>("GameFeatures");
   WindowName = EnsureGetMember<char const*>("WindowName");
   WindowIconPath = TryGetMember<std::string>("WindowIconPath");
   CursorArrowPath = TryGetMember<std::string>("CursorArrowPath");
@@ -26,24 +25,21 @@ void LoadGameFromLua() {
   ResolutionWidth = EnsureGetMember<int>("ResolutionWidth");
   ResolutionHeight = EnsureGetMember<int>("ResolutionHeight");
   Fullscreen = EnsureGetMember<bool>("Fullscreen");
-  SubtitleConfig = SubtitleConfigType::_from_integral_unchecked(
-      TryGetMember<uint8_t>("SubtitleConfig")
-          .value_or(+SubtitleConfigType::All));
+  SubtitleConfig = TryGetMember<SubtitleConfigType>("SubtitleConfig")
+                       .value_or(SubtitleConfigType::All);
   CloseBacklogWhenReachedEnd =
       TryGetMember<bool>("CloseBacklogWhenReachedEnd").value_or(true);
-  DateFormat = DateFormatType::_from_integral_unchecked(
-      TryGetMember<uint8_t>("DateFormat").value_or(+DateFormatType::YMD));
+  DateFormat =
+      TryGetMember<DateFormatType>("DateFormat").value_or(DateFormatType::YMD);
   HasScriptedExitLogic =
       TryGetMember<bool>("HasScriptedExitLogic").value_or(false);
 
-  bool res = TryGetMember<bool>("LayFileBigEndian", LayFileBigEndian);
-  if (!res) LayFileBigEndian = false;
-  res = TryGetMember<bool>("CharaIsMvl", CharaIsMvl);
-  if (!res) CharaIsMvl = false;
-  res = TryGetMember<float>("LayFileTexXMultiplier", LayFileTexXMultiplier);
-  if (!res) LayFileTexXMultiplier = 1.0f;
-  res = TryGetMember<float>("LayFileTexYMultiplier", LayFileTexYMultiplier);
-  if (!res) LayFileTexYMultiplier = 1.0f;
+  LayFileBigEndian = TryGetMember<bool>("LayFileBigEndian").value_or(false);
+  CharaIsMvl = TryGetMember<bool>("CharaIsMvl").value_or(false);
+  LayFileTexXMultiplier =
+      TryGetMember<float>("LayFileTexXMultiplier").value_or(1.0f);
+  LayFileTexYMultiplier =
+      TryGetMember<float>("LayFileTexYMultiplier").value_or(1.0f);
 
   ScreenCaptureCount = TryGetMember<size_t>("ScreenCaptureCount").value_or(0);
   TryGetMember<bool>("UseMoviePriority", UseMoviePriority);
@@ -51,27 +47,22 @@ void LoadGameFromLua() {
   TryGetMember<bool>("UseBgFrameEffects", UseBgFrameEffects);
   TryGetMember<bool>("UseWaveEffects", UseWaveEffects);
 
-  int audioBackendType = -1;
-  res = TryGetMember<int>("AudioBackendType", audioBackendType);
-  if (!res) {
+  ActiveAudioBackend =
+      TryGetMember<AudioBackendType>("AudioBackendType").value_or([] {
 #ifndef IMPACTO_DISABLE_OPENAL
-    ActiveAudioBackend = AudioBackendType::OpenAL;
+        return AudioBackendType::OpenAL;
 #else
-    ActiveAudioBackend = AudioBackendType::None;
+        return AudioBackendType::None;
 #endif
-  } else
-    ActiveAudioBackend =
-        AudioBackendType::_from_integral_unchecked(audioBackendType);
-  int videoPlayerType = -1;
-  res = TryGetMember<int>("VideoPlayerType", videoPlayerType);
-  if (!res) {
+      }());
+
+  VideoPlayer = TryGetMember<VideoPlayerType>("VideoPlayerType").value_or([] {
 #ifndef IMPACTO_DISABLE_FFMPEG
-    VideoPlayer = VideoPlayerType::FFmpeg;
+    return VideoPlayerType::FFmpeg;
 #else
-    VideoPlayer = VideoPlayerType::None;
+    return VideoPlayerType::None;
 #endif
-  } else
-    VideoPlayer = VideoPlayerType::_from_integral_unchecked(videoPlayerType);
+  }());
 
   TryGetMember<int>("PlatformId", PlatformId);
 }

@@ -1,14 +1,16 @@
 #pragma once
 
-#include <enum.h>
+#include <magic_enum/magic_enum.hpp>
 #include "../spritesheet.h"
 #include "../loadable.h"
 
 namespace Impacto {
 namespace AchievementSystem {
 
-BETTER_ENUM(AchievementDataType, int, None, PS3)
-
+enum class AchievementDataType : int {
+  None,
+  PS3,
+};
 enum class AchievementError {
   OK = 0,
   InProgress = 1,

@@ -14,8 +14,7 @@ namespace Profile {
 namespace Dialogue {
 
 static void ConfigureNametag() {
-  NametagCurrentType = NametagType::_from_integral_unchecked(
-      EnsureGetMember<int>("NametagCurrentType"));
+  NametagCurrentType = EnsureGetMember<NametagType>("NametagCurrentType");
 
   switch (NametagCurrentType) {
     case NametagType::None:
@@ -33,7 +32,7 @@ static void ConfigureNametag() {
       NametagLeftSprite = EnsureGetMember<Sprite>("NametagLeftSprite");
       NametagRightSprite = EnsureGetMember<Sprite>("NametagRightSprite");
 
-      if (NametagCurrentType == +NametagType::ThreePiece) {
+      if (NametagCurrentType == NametagType::ThreePiece) {
         NametagMiddleSprite = EnsureGetMember<Sprite>("NametagMiddleSprite");
         NametagMiddleBaseWidth =
             EnsureGetMember<float>("NametagMiddleBaseWidth");
@@ -102,8 +101,8 @@ void Configure() {
     MenuButtonPosition = EnsureGetMember<glm::vec2>("MenuButtonPosition");
   }
 
-  DialogueBoxCurrentType = DialogueBoxType::_from_integral_unchecked(
-      EnsureGetMember<int>("DialogueBoxCurrentType"));
+  DialogueBoxCurrentType =
+      EnsureGetMember<DialogueBoxType>("DialogueBoxCurrentType");
 
   switch (DialogueBoxCurrentType) {
     case DialogueBoxType::MO6TW:
@@ -123,8 +122,7 @@ void Configure() {
 
   NVLBoxMaxOpacity = EnsureGetMember<float>("NVLBoxMaxOpacity");
 
-  ADVNameAlignment = TextAlignment::_from_integral_unchecked(
-      EnsureGetMember<int>("ADVNameAlignment"));
+  ADVNameAlignment = EnsureGetMember<TextAlignment>("ADVNameAlignment");
 
   ADVNameFontSize = EnsureGetMember<float>("ADVNameFontSize");
   ADVNamePos = EnsureGetMember<glm::vec2>("ADVNamePos");
@@ -133,8 +131,7 @@ void Configure() {
   REVColor = EnsureGetMember<int>("REVColor");
   REVNameColor = EnsureGetMember<int>("REVNameColor");
   REVNameOffset = EnsureGetMember<float>("REVNameOffset");
-  REVNameLocation = REVNameLocationType::_from_integral_unchecked(
-      EnsureGetMember<int>("REVNameLocation"));
+  REVNameLocation = EnsureGetMember<REVNameLocationType>("REVNameLocation");
   REVOutlineMode = RendererOutlineMode(EnsureGetMember<int>("REVOutlineMode"));
   REVNameOutlineMode =
       RendererOutlineMode(EnsureGetMember<int>("REVNameOutlineMode"));
@@ -142,12 +139,10 @@ void Configure() {
   TryGetMember<float>("TipsLineSpacing", TipsLineSpacing);
   TryGetMember<int>("TipsColorIndex", TipsColorIndex);
 
-  int WaitIconCurrentTypeInt;
-  if (!TryGetMember<int>("WaitIconCurrentType", WaitIconCurrentTypeInt))
-    WaitIconCurrentTypeInt = +WaitIconDisplay::WaitIconType::None;
-  WaitIconCurrentType = WaitIconDisplay::WaitIconType::_from_integral_unchecked(
-      WaitIconCurrentTypeInt);
-  if (WaitIconCurrentType != +WaitIconDisplay::WaitIconType::None) {
+  WaitIconCurrentType =
+      TryGetMember<WaitIconDisplay::WaitIconType>("WaitIconCurrentType")
+          .value_or(WaitIconDisplay::WaitIconType::None);
+  if (WaitIconCurrentType != WaitIconDisplay::WaitIconType::None) {
     switch (WaitIconCurrentType) {
       case WaitIconDisplay::WaitIconType::SpriteAnim:
         WaitIconSpriteAnim =
@@ -169,11 +164,9 @@ void Configure() {
     WaitIconOffset = EnsureGetMember<glm::vec2>("WaitIconOffset");
   }
 
-  int AutoIconCurrentTypeInt;
-  if (!TryGetMember<int>("AutoIconCurrentType", AutoIconCurrentTypeInt))
-    AutoIconCurrentTypeInt = 0;  // None
-  AutoIconCurrentType = AutoIconDisplay::AutoIconType::_from_integral_unchecked(
-      AutoIconCurrentTypeInt);
+  AutoIconCurrentType =
+      TryGetMember<AutoIconDisplay::AutoIconType>("AutoIconCurrentType")
+          .value_or(AutoIconDisplay::AutoIconType::None);
   switch (AutoIconCurrentType) {
     case AutoIconDisplay::AutoIconType::SpriteAnim:
       AutoIconSpriteAnim =
@@ -200,11 +193,9 @@ void Configure() {
       break;
   }
 
-  int SkipIconCurrentTypeInt;
-  if (!TryGetMember<int>("SkipIconCurrentType", SkipIconCurrentTypeInt))
-    SkipIconCurrentTypeInt = 0;  // None
-  SkipIconCurrentType = SkipIconDisplay::SkipIconType::_from_integral_unchecked(
-      SkipIconCurrentTypeInt);
+  SkipIconCurrentType =
+      TryGetMember<SkipIconDisplay::SkipIconType>("SkipIconCurrentType")
+          .value_or(SkipIconDisplay::SkipIconType::None);
   switch (SkipIconCurrentType) {
     case SkipIconDisplay::SkipIconType::SpriteAnim:
       SkipIconSpriteAnim =

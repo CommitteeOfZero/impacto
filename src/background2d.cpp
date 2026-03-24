@@ -518,12 +518,12 @@ void Background2D::Render(const int layer) {
       if (Profile::UseBgFrameEffects) {
         nonSpriteShader |= std::any_of(
             FrameBgEffs.begin(), FrameBgEffs.end() - 1, [](const auto bgEff) {
-              return bgEff.Shader != +ShaderProgramType::Sprite;
+              return bgEff.Shader != ShaderProgramType::Sprite;
             });
       }
 
       if (Profile::UseBgChaEffects) {
-        nonSpriteShader |= ChaBgEff.Shader != +ShaderProgramType::Sprite;
+        nonSpriteShader |= ChaBgEff.Shader != ShaderProgramType::Sprite;
       }
 
       if (!nonSpriteShader) renderBgEffs = false;

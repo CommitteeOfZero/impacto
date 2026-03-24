@@ -2,14 +2,18 @@
 
 #include <queue>
 
-#include <enum.h>
+#include <magic_enum/magic_enum.hpp>
 #include "../animation.h"
 
 namespace Impacto {
 namespace TipsNotification {
 
-BETTER_ENUM(TipsNotificationType, int, None, MO6TW, CCLCC, CHLCC)
-
+enum class TipsNotificationType : int {
+  None,
+  MO6TW,
+  CCLCC,
+  CHLCC,
+};
 class TipsNotificationBase {
  public:
   virtual ~TipsNotificationBase() = default;

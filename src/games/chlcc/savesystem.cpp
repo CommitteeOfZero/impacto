@@ -47,8 +47,8 @@ constexpr uint8_t AutoSpeedToSettingIndex(const float speed) {
 }
 
 constexpr uint8_t AutoQuickSaveSettingToIndex(const uint8_t setting) {
-  const bool onScene = setting & AutoQuickSaveType::OnScene;
-  const bool onTrigger = setting & AutoQuickSaveType::OnTrigger;
+  const bool onScene = setting & +AutoQuickSaveType::OnScene;
+  const bool onTrigger = setting & +AutoQuickSaveType::OnTrigger;
 
   constexpr uint8_t onTriggerIndex = 0;
   constexpr uint8_t onSceneIndex = 1;
@@ -66,21 +66,22 @@ constexpr uint8_t AutoQuickSaveSettingToIndex(const uint8_t setting) {
   }
 }
 
-constexpr uint8_t AutoQuickSaveIndexToSetting(const uint8_t index) {
+constexpr std::underlying_type_t<AutoQuickSaveType> AutoQuickSaveIndexToSetting(
+    const uint8_t index) {
   switch (index) {
     case 0:
-      return AutoQuickSaveType::OnTrigger;
+      return +AutoQuickSaveType::OnTrigger;
     case 1:
-      return AutoQuickSaveType::OnScene;
+      return +AutoQuickSaveType::OnScene;
     case 2:
-      return AutoQuickSaveType::OnTrigger | AutoQuickSaveType::OnScene;
+      return +AutoQuickSaveType::OnTrigger | +AutoQuickSaveType::OnScene;
     case 3:
-      return AutoQuickSaveType::Never;
+      return +AutoQuickSaveType::Never;
   }
 
   ImpLog(LogLevel::Warning, LogChannel::IO,
          "Unexpected auto quick save index {:d}", index);
-  return AutoQuickSaveType::OnTrigger | AutoQuickSaveType::OnScene;
+  return +AutoQuickSaveType::OnTrigger | +AutoQuickSaveType::OnScene;
 }
 
 std::pair<uint8_t, uint8_t> CalculateFileChecksum(

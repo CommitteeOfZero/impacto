@@ -2,7 +2,8 @@
 
 #include "../../../spritesheet.h"
 #include "../../../ui/savemenu.h"
-#include <enum.h>
+#include <magic_enum/magic_enum.hpp>
+#include <magic_enum/magic_enum_containers.hpp>
 
 namespace Impacto {
 namespace Profile {
@@ -31,18 +32,31 @@ inline uint32_t SaveEntryPrimaryColor;
 inline uint32_t LoadEntryPrimaryColor;
 inline uint32_t SaveEntrySecondaryColor;
 
-inline Sprite MenuTextSprite[UI::SaveMenuPageType::_size_constant];
-inline Sprite EntryHighlightedBoxSprite[UI::SaveMenuPageType::_size_constant];
-inline Sprite EntryHighlightedTextSprite[UI::SaveMenuPageType::_size_constant];
-inline Sprite EntrySlotsSprite[UI::SaveMenuPageType::_size_constant];
-inline Sprite ButtonGuideSprite[UI::SaveMenuPageType::_size_constant];
-inline Sprite SeparationLineSprite[UI::SaveMenuPageType::_size_constant];
-inline Sprite NumberDigitSprite[UI::SaveMenuPageType::_size_constant][10];
-inline Sprite NoDataSprite[UI::SaveMenuPageType::_size_constant];
-inline Sprite BrokenDataSprite[UI::SaveMenuPageType::_size_constant];
-inline Sprite SlotLockedSprite[UI::SaveMenuPageType::_size_constant];
-inline Sprite PageNumSprite[UI::SaveMenuPageType::_size_constant][6];
-inline Sprite SaveTimeSprite[UI::SaveMenuPageType::_size_constant];
+inline magic_enum::containers::array<UI::SaveMenuPageType, Sprite>
+    MenuTextSprite;
+inline magic_enum::containers::array<UI::SaveMenuPageType, Sprite>
+    EntryHighlightedBoxSprite;
+inline magic_enum::containers::array<UI::SaveMenuPageType, Sprite>
+    EntryHighlightedTextSprite;
+inline magic_enum::containers::array<UI::SaveMenuPageType, Sprite>
+    EntrySlotsSprite;
+inline magic_enum::containers::array<UI::SaveMenuPageType, Sprite>
+    ButtonGuideSprite;
+inline magic_enum::containers::array<UI::SaveMenuPageType, Sprite>
+    SeparationLineSprite;
+inline magic_enum::containers::array<UI::SaveMenuPageType,
+                                     std::array<Sprite, 10>>
+    NumberDigitSprite;
+inline magic_enum::containers::array<UI::SaveMenuPageType, Sprite> NoDataSprite;
+inline magic_enum::containers::array<UI::SaveMenuPageType, Sprite>
+    BrokenDataSprite;
+inline magic_enum::containers::array<UI::SaveMenuPageType, Sprite>
+    SlotLockedSprite;
+inline magic_enum::containers::array<UI::SaveMenuPageType,
+                                     std::array<Sprite, 6>>
+    PageNumSprite;
+inline magic_enum::containers::array<UI::SaveMenuPageType, Sprite>
+    SaveTimeSprite;
 
 void Configure();
 

@@ -99,7 +99,7 @@ VmInstruction(InstCHAplayAnim3DMaybe) {
   if (Renderer->Scene->Renderables[bufferId]->Status == LoadStatus::Loaded &&
       animationId != 0) {
     // TODO shouldn't this wait for that renderable to be loaded?
-    if (Profile::Vm::GameInstructionSet == +InstructionSet::Dash &&
+    if (Profile::Vm::GameInstructionSet == InstructionSet::Dash &&
         Renderer->Scene->Renderables[bufferId]->Animator.IsPlaying &&
         Renderer->Scene->Renderables[bufferId]
             ->Animator.CurrentAnimation->OneShot) {

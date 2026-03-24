@@ -85,7 +85,7 @@ Model::~Model() {
 
 static IoError GetModelMountpoint(uint32_t modelId,
                                   std::string& outMountpoint) {
-  if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+  if (Profile::Scene3D::Version == LKMVersion::DaSH) {
     outMountpoint = "model";
     return IoError_OK;
   } else {
@@ -103,7 +103,7 @@ static IoError GetModelMountpoint(uint32_t modelId,
 
 static IoError MountModel(uint32_t modelId, std::string& outMountpoint) {
   // DaSH doesn't have model archives
-  if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+  if (Profile::Scene3D::Version == LKMVersion::DaSH) {
     outMountpoint = "model";
     return IoError_OK;
   }
@@ -137,7 +137,7 @@ static IoError MountModel(uint32_t modelId, std::string& outMountpoint) {
 }
 
 static void UnmountModel(uint32_t modelId) {
-  if (Profile::Scene3D::Version == +LKMVersion::DaSH) return;
+  if (Profile::Scene3D::Version == LKMVersion::DaSH) return;
 
   FileMeta arcMeta;
   IoError err = VfsGetMeta("model", modelId, &arcMeta);
@@ -153,7 +153,7 @@ static void UnmountModel(uint32_t modelId) {
 
 static IoError SlurpModel(uint32_t modelId, void*& outMemory,
                           int64_t& outSize) {
-  if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+  if (Profile::Scene3D::Version == LKMVersion::DaSH) {
     return VfsSlurp("model", modelId, outMemory, outSize);
   } else {
     std::string mountpoint;
@@ -168,7 +168,7 @@ static IoError SlurpAnim(uint32_t modelId, int16_t animId, void*& outMemory,
   std::string mountpoint;
   IoError err;
 
-  if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+  if (Profile::Scene3D::Version == LKMVersion::DaSH) {
     mountpoint = "motion";
   } else {
     err = GetModelMountpoint(modelId, mountpoint);
@@ -191,7 +191,7 @@ static IoError SlurpAnim(uint32_t modelId, int16_t animId, void*& outMemory,
 Model* Model::Load(uint32_t modelId) {
   uint32_t meshInfoSize, meshInfoCountsOffset, boneSize,
       boneBaseTransformOffset;
-  if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+  if (Profile::Scene3D::Version == LKMVersion::DaSH) {
     meshInfoSize = ModelFileMeshInfoSize_DaSH;
     meshInfoCountsOffset = MeshInfoCountsOffset_DaSH;
     boneSize = ModelFileBoneSize_DaSH;
@@ -230,7 +230,7 @@ Model* Model::Load(uint32_t modelId) {
   result->Id = modelId;
   uint32_t type = ReadLE<uint32_t>(stream);
   if (type == ModelType_DaSH_Unspecified) {
-    assert(Profile::Scene3D::Version == +LKMVersion::DaSH);
+    assert(Profile::Scene3D::Version == LKMVersion::DaSH);
     if (Profile::Scene3D::ModelsToCharacters.count(modelId) != 0) {
       type = ModelType_Character;
     } else {
@@ -282,7 +282,7 @@ Model* Model::Load(uint32_t modelId) {
   }
 
   if (result->Type == ModelType_Character) {
-    if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+    if (Profile::Scene3D::Version == LKMVersion::DaSH) {
       result->VertexBuffers =
           calloc(result->VertexCount, sizeof(VertexBufferDaSH));
     } else {
@@ -298,7 +298,7 @@ Model* Model::Load(uint32_t modelId) {
     stream->Seek(MeshInfosOffset + meshInfoSize * i, RW_SEEK_SET);
     Mesh* mesh = &result->Meshes[i];
 
-    if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+    if (Profile::Scene3D::Version == LKMVersion::DaSH) {
       stream->Read(mesh->Name, 32);
     } else {
       memset(mesh->Name, 0, sizeof(mesh->Name));
@@ -307,7 +307,7 @@ Model* Model::Load(uint32_t modelId) {
     mesh->Id = i;
     mesh->GroupId = ReadLE<int32_t>(stream);
 
-    if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+    if (Profile::Scene3D::Version == LKMVersion::DaSH) {
       std::string nameStr = std::string((char*)mesh->Name);
       assert(result->NamedMeshGroups.count(nameStr) == 0 ||
              result->NamedMeshGroups[nameStr] == mesh->GroupId ||
@@ -321,7 +321,7 @@ Model* Model::Load(uint32_t modelId) {
     assert(mesh->MorphTargetCount <= ModelMaxMorphTargetsPerMesh);
     stream->Read(mesh->MorphTargetIds, ModelMaxMorphTargetsPerMesh);
 
-    int64_t seekPos = (Profile::Scene3D::Version == +LKMVersion::DaSH)
+    int64_t seekPos = (Profile::Scene3D::Version == LKMVersion::DaSH)
                           ? ModelUnknownsAfterMorphTargets_DaSH
                           : ModelUnknownsAfterMorphTargets;
     // Skip translation, rotation and scale (these sometimes don't match the
@@ -339,7 +339,7 @@ Model* Model::Load(uint32_t modelId) {
     mesh->IndexCount = ReadLE<int32_t>(stream);
 
     stream->Seek(0x68, RW_SEEK_CUR);
-    if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+    if (Profile::Scene3D::Version == LKMVersion::DaSH) {
       // Don't ask me why there's a float for this
       mesh->HasShadowColorMap = ReadLE<float>(stream) != 0.0f;
     } else {
@@ -356,7 +356,7 @@ Model* Model::Load(uint32_t modelId) {
     // Choose material
     if (result->Type == ModelType_Background) {
       mesh->Material = MT_Background;
-    } else if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+    } else if (Profile::Scene3D::Version == LKMVersion::DaSH) {
       stream->Seek(3 * 4, RW_SEEK_CUR);
       mesh->Material = (MaterialType)ReadLE<int>(stream);
       assert(mesh->Material == MT_DaSH_Generic ||
@@ -389,7 +389,7 @@ Model* Model::Load(uint32_t modelId) {
     // Read vertex buffers
     stream->Seek(RawVertexOffset, RW_SEEK_SET);
     if (result->Type == ModelType_Character) {
-      if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+      if (Profile::Scene3D::Version == LKMVersion::DaSH) {
         for (uint32_t j = 0; j < mesh->VertexCount; j++) {
           VertexBufferDaSH* vertex =
               &((VertexBufferDaSH*)result->VertexBuffers)[CurrentVertexOffset];
@@ -458,7 +458,7 @@ Model* Model::Load(uint32_t modelId) {
     stream->Seek(seekPos, RW_SEEK_SET);
     StaticBone* bone = &result->Bones[i];
 
-    if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+    if (Profile::Scene3D::Version == LKMVersion::DaSH) {
       stream->Read(bone->Name, 32);
     } else {
       memset(bone->Name, 0, sizeof(bone->Name));
@@ -466,7 +466,7 @@ Model* Model::Load(uint32_t modelId) {
 
     bone->Id = ReadLE<int16_t>(stream);
 
-    if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+    if (Profile::Scene3D::Version == LKMVersion::DaSH) {
       std::string nameStr = std::string((char*)bone->Name);
       assert(result->NamedBones.count(nameStr) == 0 ||
              result->NamedBones[nameStr] == bone->Id || nameStr == "");
@@ -484,7 +484,7 @@ Model* Model::Load(uint32_t modelId) {
     bone->ChildrenCount = ReadLE<int16_t>(stream);
     assert(bone->ChildrenCount <= ModelMaxChildrenPerBone);
 
-    if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+    if (Profile::Scene3D::Version == LKMVersion::DaSH) {
       stream->Seek(2, RW_SEEK_CUR);
     }
 

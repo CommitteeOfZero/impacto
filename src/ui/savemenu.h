@@ -7,8 +7,11 @@
 
 namespace Impacto {
 namespace UI {
-BETTER_ENUM(SaveMenuPageType, int, QuickLoad, Save, Load)
-
+enum class SaveMenuPageType : int {
+  QuickLoad,
+  Save,
+  Load,
+};
 class SaveMenu : public Menu {
  public:
   SaveMenu() { InputConfig = InputRate::RepeatFast; }
@@ -18,7 +21,7 @@ class SaveMenu : public Menu {
   virtual void RefreshCurrentEntryInfo() {};
 
   uint8_t ActivePage = 0;
-  better_enums::optional<SaveMenuPageType> ActiveMenuType;
+  std::optional<SaveMenuPageType> ActiveMenuType;
 };
 
 }  // namespace UI

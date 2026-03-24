@@ -3,16 +3,25 @@
 #include <span>
 #include "thread.h"
 #include "../io/vfs.h"
-#include <enum.h>
+#include <magic_enum/magic_enum.hpp>
 
 #define VmInstruction(name) void name(Sc3VmThread* thread)
 
 namespace Impacto {
 namespace Vm {
 
-BETTER_ENUM(InstructionSet, int, RNE, Darling, CHLCC, MO6TW, MO7, Dash, CC,
-            SGPS3, MO8, CHN)
-
+enum class InstructionSet : int {
+  RNE,
+  Darling,
+  CHLCC,
+  MO6TW,
+  MO7,
+  Dash,
+  CC,
+  SGPS3,
+  MO8,
+  CHN,
+};
 using InstructionProc = auto (*)(Sc3VmThread* thread) -> void;
 
 int constexpr MaxLoadedScripts = 16;

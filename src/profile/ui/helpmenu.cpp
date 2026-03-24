@@ -14,9 +14,9 @@ void Configure() {
   if (TryPushMember("HelpMenu")) {
     AssertIs(LUA_TTABLE);
 
-    Type = HelpMenuType::_from_integral_unchecked(EnsureGetMember<int>("Type"));
+    Type = EnsureGetMember<HelpMenuType>("Type");
 
-    if (Type == +HelpMenuType::CCLCC) {
+    if (Type == HelpMenuType::CCLCC) {
       CCLCC::HelpMenu::Configure();
     }
 

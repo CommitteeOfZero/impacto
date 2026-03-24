@@ -69,7 +69,7 @@ void ThreePieceNametagDisplay::Render(const NameInfo& nameInfo,
   float rightX =
       NametagPosition.x + NametagLeftSprite.ScaledWidth() + nameBounds.Width;
 
-  if (NametagCurrentType == +NametagType::ThreePiece) {
+  if (NametagCurrentType == NametagType::ThreePiece) {
     rightX -= NametagMiddleBaseWidth;
 
     // Draw middle sprites

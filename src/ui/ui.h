@@ -7,6 +7,7 @@
 #include "tipsmenu.h"
 #include "optionsmenu.h"
 #include "savemenu.h"
+#include "../game.h"
 
 #include <ankerl/unordered_dense.h>
 #include <vector>
@@ -14,26 +15,106 @@
 namespace Impacto {
 namespace UI {
 
-BETTER_ENUM(CommonMenuType, int, None, CHLCC)
-BETTER_ENUM(SystemMenuType, int, None, RNE, MO6TW, CHLCC, MO8, CCLCC)
-BETTER_ENUM(SaveMenuType, int, None, MO6TW, MO8, CHLCC, CCLCC)
-BETTER_ENUM(SysMesBoxType, int, None, RNE, Dash, CHLCC, MO6TW, Darling, CC)
-BETTER_ENUM(TitleMenuType, int, None, RNE, Dash, CHLCC, MO6TW, MO8, CC, CCLCC)
-BETTER_ENUM(OptionsMenuType, int, None, MO6TW, MO8, CHLCC, CCLCC)
-BETTER_ENUM(TipsMenuType, int, None, MO6TW, CHLCC, CCLCC)
-BETTER_ENUM(ClearListMenuType, int, None, MO6TW, CHLCC, CCLCC)
-BETTER_ENUM(LibraryMenuType, int, None, CCLCC)
-BETTER_ENUM(AlbumMenuType, int, None, MO6TW, CHLCC)
-BETTER_ENUM(MusicMenuType, int, None, MO6TW, CHLCC)
-BETTER_ENUM(MovieMenuType, int, None, MO6TW, CHLCC)
-BETTER_ENUM(ActorsVoiceMenuType, int, None, MO6TW)
-BETTER_ENUM(TrophyMenuType, int, None, CHLCC)
-BETTER_ENUM(HelpMenuType, int, None, CCLCC)
-BETTER_ENUM(GameSpecificType, int, None, CHLCC, CC, CCLCC, RNE, Dash)
-
+enum class CommonMenuType : int {
+  None,
+  CHLCC,
+};
+enum class SystemMenuType : int {
+  None,
+  RNE,
+  MO6TW,
+  CHLCC,
+  MO8,
+  CCLCC,
+};
+enum class SaveMenuType : int {
+  None,
+  MO6TW,
+  MO8,
+  CHLCC,
+  CCLCC,
+};
+enum class SysMesBoxType : int {
+  None,
+  RNE,
+  Dash,
+  CHLCC,
+  MO6TW,
+  Darling,
+  CC,
+};
+enum class TitleMenuType : int {
+  None,
+  RNE,
+  Dash,
+  CHLCC,
+  MO6TW,
+  MO8,
+  CC,
+  CCLCC,
+};
+enum class OptionsMenuType : int {
+  None,
+  MO6TW,
+  MO8,
+  CHLCC,
+  CCLCC,
+};
+enum class TipsMenuType : int {
+  None,
+  MO6TW,
+  CHLCC,
+  CCLCC,
+};
+enum class ClearListMenuType : int {
+  None,
+  MO6TW,
+  CHLCC,
+  CCLCC,
+};
+enum class LibraryMenuType : int {
+  None,
+  CCLCC,
+};
+enum class AlbumMenuType : int {
+  None,
+  MO6TW,
+  CHLCC,
+};
+enum class MusicMenuType : int {
+  None,
+  MO6TW,
+  CHLCC,
+};
+enum class MovieMenuType : int {
+  None,
+  MO6TW,
+  CHLCC,
+};
+enum class ActorsVoiceMenuType : int {
+  None,
+  MO6TW,
+};
+enum class TrophyMenuType : int {
+  None,
+  CHLCC,
+};
+enum class HelpMenuType : int {
+  None,
+  CCLCC,
+};
+enum class GameSpecificType : int {
+  None,
+  CHLCC,
+  CC,
+  CCLCC,
+  RNE,
+  Dash,
+};
 int constexpr MaxExtraMenus = 10;
 
-inline ankerl::unordered_dense::map<uint8_t, std::vector<Menu*>> Menus;
+inline ankerl::unordered_dense::map<Game::DrawComponentType, std::vector<Menu*>>
+    Menus;
 
 // Current focused menu
 inline Menu* FocusedMenu = nullptr;

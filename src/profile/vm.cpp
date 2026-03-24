@@ -12,8 +12,8 @@ void Configure() {
   StartScript = EnsureGetMember<uint32_t>("StartScript");
   StartScriptBuffer = EnsureGetMember<uint32_t>("StartScriptBuffer");
 
-  GameInstructionSet = Impacto::Vm::InstructionSet::_from_integral_unchecked(
-      EnsureGetMember<int>("GameInstructionSet"));
+  GameInstructionSet =
+      EnsureGetMember<Impacto::Vm::InstructionSet>("GameInstructionSet");
 
   UseReturnIds = EnsureGetMember<bool>("UseReturnIds");
   TryGetMember<bool>("UseMsbStrings", UseMsbStrings);

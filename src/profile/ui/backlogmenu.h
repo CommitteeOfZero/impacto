@@ -2,15 +2,24 @@
 
 #include "../../ui/ui.h"
 #include "../../spritesheet.h"
-#include <enum.h>
+#include <magic_enum/magic_enum.hpp>
 
 namespace Impacto {
 namespace Profile {
 namespace BacklogMenu {
 
-BETTER_ENUM(BacklogMenuType, int, None, MO6TW, CHLCC, CC)
-BETTER_ENUM(EntryHighlightLocationType, int, None, BottomLeftOfEntry,
-            TopLineLeftOfScreen, AllLinesLeftOfScreen)
+enum class BacklogMenuType : int {
+  None,
+  MO6TW,
+  CHLCC,
+  CC,
+};
+enum class EntryHighlightLocationType : int {
+  None,
+  BottomLeftOfEntry,
+  TopLineLeftOfScreen,
+  AllLinesLeftOfScreen,
+};
 
 inline BacklogMenuType Type = BacklogMenuType::None;
 inline EntryHighlightLocationType EntryHighlightLocation =

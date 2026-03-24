@@ -52,8 +52,7 @@ void Configure() {
     throw std::runtime_error("Related arrays have mismatching sizes");
   }
 
-  auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMember<uint8_t>("DrawType"));
+  auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
   ScrollThumbSprite = EnsureGetMember<Sprite>("ScrollThumb");
   ScrollbarPosition = EnsureGetMember<glm::vec2>("ScrollbarPosition");
   TrackListBounds = EnsureGetMember<RectF>("TrackListBounds");

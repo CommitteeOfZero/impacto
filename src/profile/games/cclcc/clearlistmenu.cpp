@@ -24,8 +24,7 @@ void Configure() {
 
   ClearListGuidePosition = EnsureGetMember<glm::vec2>("ClearListGuidePosition");
 
-  auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMember<uint8_t>("DrawType"));
+  auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
 
   auto clearList = new UI::CCLCC::ClearListMenu();
   UI::Menus[drawType].push_back(clearList);

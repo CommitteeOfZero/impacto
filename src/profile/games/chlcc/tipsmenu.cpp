@@ -105,8 +105,7 @@ void Configure() {
     throw std::runtime_error("Related arrays have mismatching sizes");
   }
 
-  auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMember<uint8_t>("DrawType"));
+  auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
 
   UI::TipsMenuPtr = new UI::CHLCC::TipsMenu();
   UI::Menus[drawType].push_back(UI::TipsMenuPtr);

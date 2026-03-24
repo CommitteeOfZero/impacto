@@ -91,7 +91,7 @@ void Renderer::Init() {
   CurrentShader = ShaderSprite;
   CurrentShader->UseShader(Device);
 
-  if (Profile::GameFeatures & GameFeature::Scene3D) {
+  if (+Profile::GameFeatures & +GameFeature::Scene3D) {
     Scene = new Scene3D(DXWindow, Device);
     Scene->Init();
   }
@@ -130,7 +130,7 @@ void Renderer::Shutdown() {
   if (!IsInit) return;
   IsInit = false;
 
-  if (Profile::GameFeatures & GameFeature::Scene3D) {
+  if (+Profile::GameFeatures & +GameFeature::Scene3D) {
     Scene->Shutdown();
   }
 

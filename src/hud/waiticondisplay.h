@@ -1,6 +1,6 @@
 #pragma once
 
-#include <enum.h>
+#include <magic_enum/magic_enum.hpp>
 #include <glm/glm.hpp>
 
 #include "dialoguebox.h"
@@ -8,9 +8,14 @@
 namespace Impacto {
 namespace WaitIconDisplay {
 
-BETTER_ENUM(WaitIconType, int, None, SpriteAnim, SpriteAnimFixed, Rotate, Fixed,
-            RotateZ)
-
+enum class WaitIconType : int {
+  None,
+  SpriteAnim,
+  SpriteAnimFixed,
+  Rotate,
+  Fixed,
+  RotateZ,
+};
 void Init();
 void Update(float dt);
 void Render(glm::vec2 pos, glm::vec4 opacityTint, DialoguePageMode mode,

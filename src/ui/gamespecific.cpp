@@ -29,72 +29,72 @@ static float CHLCCScanlineOffsetY = 0.0f;
 
 void Init() {
   switch (Profile::GameSpecific::GameSpecificType) {
-    case +GameSpecificType::CHLCC: {
+    case GameSpecificType::CHLCC: {
       CHLCC::DelusionTrigger::GetInstance().Reset();
       CHLCC::ButterflyEffect::GetInstance().Init();
       CHLCC::BubblesEffect::GetInstance().Init();
     } break;
-    case +GameSpecificType::CC: {
+    case GameSpecificType::CC: {
     } break;
-    case +GameSpecificType::CCLCC: {
+    case GameSpecificType::CCLCC: {
       CCLCC::DelusionTrigger::GetInstance();
       CCLCC::YesNoTrigger::GetInstance();
       CCLCC::MapSystem::GetInstance();
     } break;
-    case +GameSpecificType::RNE:
+    case GameSpecificType::RNE:
       break;
-    case +GameSpecificType::Dash:
+    case GameSpecificType::Dash:
       break;
-    case +GameSpecificType::None:
+    case GameSpecificType::None:
       break;
   }
 }
 
 void Update(float dt) {
   switch (Profile::GameSpecific::GameSpecificType) {
-    case +GameSpecificType::CHLCC: {
+    case GameSpecificType::CHLCC: {
       CHLCC::DelusionTrigger::GetInstance().Update(dt);
       CHLCC::ButterflyEffect::GetInstance().Update(dt);
       CHLCC::BubblesEffect::GetInstance().Update(dt);
       CHLCCScanlineOffsetY = fmod(dt * 60 + CHLCCScanlineOffsetY, 300.0f);
     } break;
-    case +GameSpecificType::CC: {
+    case GameSpecificType::CC: {
       UpdateCCButtonGuide(dt);
     } break;
-    case +GameSpecificType::CCLCC: {
+    case GameSpecificType::CCLCC: {
       UpdateCCButtonGuide(dt);
       CCLCC::YesNoTrigger::GetInstance().Update(dt);
       CCLCC::DelusionTrigger::GetInstance().Update(dt);
       CCLCC::MapSystem::GetInstance().Update(dt);
     } break;
-    case +GameSpecificType::RNE:
+    case GameSpecificType::RNE:
       break;
-    case +GameSpecificType::Dash:
+    case GameSpecificType::Dash:
       break;
-    case +GameSpecificType::None:
+    case GameSpecificType::None:
       break;
   }
 }
 void RenderEarlyMain() {
   switch (Profile::GameSpecific::GameSpecificType) {
-    case +GameSpecificType::CHLCC: {
+    case GameSpecificType::CHLCC: {
       CHLCC::EyecatchEffect::GetInstance().RenderMain();
     } break;
-    case +GameSpecificType::Dash:
-    case +GameSpecificType::RNE:
-    case +GameSpecificType::CC:
-    case +GameSpecificType::CCLCC:
-    case +GameSpecificType::None:
+    case GameSpecificType::Dash:
+    case GameSpecificType::RNE:
+    case GameSpecificType::CC:
+    case GameSpecificType::CCLCC:
+    case GameSpecificType::None:
       break;
   }
 }
 
 void RenderMain() {
   switch (Profile::GameSpecific::GameSpecificType) {
-    case +GameSpecificType::CHLCC: {
+    case GameSpecificType::CHLCC: {
       CHLCC::DelusionTrigger::GetInstance().Render();
     } break;
-    case +GameSpecificType::Dash: {
+    case GameSpecificType::Dash: {
       /////////// DaSH hack kind of? ///////
       if (GetFlag(SF_Pokecon_Disable) || GetFlag(SF_Pokecon_Open) ||
           Renderer->Scene->MainCamera.CameraTransform.Position !=
@@ -104,7 +104,7 @@ void RenderMain() {
         SetFlag(SF_DATEDISPLAY, 1);
     }
       [[fallthrough]];
-    case +GameSpecificType::RNE: {
+    case GameSpecificType::RNE: {
       if (GetFlag(SF_Pokecon_Open)) {
         SetFlag(SF_DATEDISPLAY, 0);
         // hack
@@ -113,18 +113,18 @@ void RenderMain() {
         ScrWork[SW_POKECON_MENUSELANIMECT] = 0;
       }
     } break;
-    case +GameSpecificType::CC:
+    case GameSpecificType::CC:
       break;
-    case +GameSpecificType::CCLCC:
+    case GameSpecificType::CCLCC:
       break;
-    case +GameSpecificType::None:
+    case GameSpecificType::None:
       break;
   }
 }
 
 void RenderLayer(uint32_t layer) {
   switch (Profile::GameSpecific::GameSpecificType) {
-    case +GameSpecificType::CHLCC: {
+    case GameSpecificType::CHLCC: {
       CHLCC::EyecatchEffect::GetInstance().RenderLayer(layer);
       if (ScrWork[SW_MONITOR_SCANLINE_ENABLED] &&
           static_cast<int>(layer) == ScrWork[SW_MONITOR_SCANLINE_PRI]) {
@@ -145,9 +145,9 @@ void RenderLayer(uint32_t layer) {
         CHLCC::BubblesEffect::GetInstance().Render();
       }
     } break;
-    case +GameSpecificType::CC: {
+    case GameSpecificType::CC: {
     } break;
-    case +GameSpecificType::CCLCC: {
+    case GameSpecificType::CCLCC: {
       if (ScrWork[SW_MAP_PRI] == static_cast<int>(layer) &&
           ScrWork[SW_MAP_ALPHA]) {
         CCLCC::MapSystem::GetInstance().Render();
@@ -159,11 +159,11 @@ void RenderLayer(uint32_t layer) {
         CCLCC::YesNoTrigger::GetInstance().Render();
       }
     } break;
-    case +GameSpecificType::RNE:
+    case GameSpecificType::RNE:
       break;
-    case +GameSpecificType::Dash:
+    case GameSpecificType::Dash:
       break;
-    case +GameSpecificType::None:
+    case GameSpecificType::None:
       break;
   }
 }

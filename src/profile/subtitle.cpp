@@ -8,16 +8,16 @@ template <>
 struct TryGetImpl<Subtitle::SubtitleTrackFile> {
   static std::optional<Subtitle::SubtitleTrackFile> Call() {
     if (!lua_istable(LuaState, -1)) return std::nullopt;
-    auto typeOpt = TryGetMember<uint8_t>("Type");
+    auto typeOpt = TryGetMember<Subtitle::SubtitleType>("Type");
     auto idOpt = TryGetMember<int>("Id");
     auto pathOpt = TryGetMember<std::string>("Path");
-    auto configOpt = TryGetMember<uint8_t>("Config");
+    auto configOpt = TryGetMember<SubtitleConfigType>("Config");
 
     if (!typeOpt || !configOpt || !(pathOpt.has_value() ^ idOpt.has_value()))
       return std::nullopt;
     return Subtitle::SubtitleTrackFile{
-        .Type = Subtitle::SubtitleType::_from_integral_unchecked(*typeOpt),
-        .Config = SubtitleConfigType::_from_integral_unchecked(*configOpt),
+        .Type = *typeOpt,
+        .Config = *configOpt,
         .Id = std::move(idOpt),
         .Path = std::move(pathOpt),
     };

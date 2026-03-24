@@ -61,8 +61,7 @@ void Configure() {
   SecondPageSectionHeaderPos =
       EnsureGetMember<glm::vec2>("SecondPageSectionHeaderPos");
 
-  auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMember<uint8_t>("DrawType"));
+  auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
 
   UI::OptionsMenuPtr = new UI::MO6TW::OptionsMenu();
   UI::Menus[drawType].push_back(UI::OptionsMenuPtr);

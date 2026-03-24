@@ -26,12 +26,12 @@ Widget* EntryGrid[RowsPerPage][EntriesPerRow];
 void SaveMenu::MenuButtonOnClick(Widgets::Button* target) {
   target->Hovered = false;
   const SaveSystem::SaveType saveType =
-      *ActiveMenuType == +SaveMenuPageType::QuickLoad
+      *ActiveMenuType == SaveMenuPageType::QuickLoad
           ? SaveSystem::SaveType::Quick
           : SaveSystem::SaveType::Full;
 
   if ((SaveSystem::GetSaveStatus(saveType, target->Id) != 0) ||
-      *ActiveMenuType == +SaveMenuPageType::Save) {
+      *ActiveMenuType == SaveMenuPageType::Save) {
     ScrWork[SW_SAVEFILENO] = target->Id;
     ScrWork[SW_SAVEFILESTATUS] =
         SaveSystem::GetSaveStatus(saveType, ScrWork[SW_SAVEFILENO]);

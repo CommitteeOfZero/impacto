@@ -8,11 +8,7 @@ namespace Scene3D {
 void Configure() {
   EnsurePushMemberOfType("Scene3D", LUA_TTABLE);
 
-  Version =
-      LKMVersion::_from_integral_unchecked(EnsureGetMember<int>("Version"));
-
-  MaxRenderables = EnsureGetMember<uint32_t>("MaxRenderables");
-  AnimationDesignFrameRate = EnsureGetMember<float>("AnimationDesignFrameRate");
+  Version = EnsureGetMember<LKMVersion>("MaxRenderables");
 
   {
     EnsurePushMemberOfType("DefaultCamera", LUA_TTABLE);

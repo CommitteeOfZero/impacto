@@ -21,13 +21,13 @@ void Init() {
   Configure();
   switch (SaveIconCurrentType) {
     default:
-    case (+SaveIconType::Default): {
+    case (SaveIconType::Default): {
       IconAnimation = UI::DefaultSaveIconAnimation(
           ForegroundAnimation, BackgroundSprite, BackgroundOffset,
           BackgroundMaxAlpha, FadeInDuration, FadeOutDuration);
       break;
     }
-    case (+SaveIconType::CHLCC): {
+    case (SaveIconType::CHLCC): {
       IconAnimation = UI::CHLCC::SaveIconAnimation(
           ActiveAnimationDuration, FadeInDuration, FadeOutDuration,
           std::span<Sprite, CHLCC_SAVE_ICON_SPRITES>(SaveIconSprites));

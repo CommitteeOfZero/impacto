@@ -43,7 +43,7 @@ void SystemMenu::MenuButtonOnClick(Widgets::Button* target) {
   // Make the Id match the save menu mode (5th button would be Quick Load which
   // is case 0)
   UI::SaveMenuPtr->ActiveMenuType =
-      SaveMenuPageType::_from_integral_nothrow(target->Id % 4);
+      magic_enum::enum_cast<SaveMenuPageType>(target->Id % 4);
   ChoiceMade = true;
 }
 

@@ -2,14 +2,16 @@
 
 #include <vector>
 
-#include <enum.h>
+#include <magic_enum/magic_enum.hpp>
 
 #include "spritesheet.h"
 
 namespace Impacto {
 
-BETTER_ENUM(FontType, int, Basic, LB)
-
+enum class FontType : int {
+  Basic,
+  LB,
+};
 class Font {
  public:
   Font(FontType type) : Type(type) {}

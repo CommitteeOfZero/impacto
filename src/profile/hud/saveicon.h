@@ -8,7 +8,10 @@ namespace SaveIcon {
 
 constexpr size_t CHLCC_SAVE_ICON_SPRITES = 3;
 
-BETTER_ENUM(SaveIconType, int, Default, CHLCC)
+enum class SaveIconType : int {
+  Default,
+  CHLCC,
+};
 inline SaveIconType SaveIconCurrentType = SaveIconType::Default;
 
 inline SpriteAnimationDef ForegroundAnimation;

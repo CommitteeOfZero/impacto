@@ -9,13 +9,16 @@ namespace ConfigSystem {
 
 constexpr int VoiceCount = 33;
 
-BETTER_ENUM(AutoQuickSaveType, uint8_t, Never = 0, OnTrigger = (1 << 0),
-            OnScene = (1 << 1))
+enum class AutoQuickSaveType : uint8_t {
+  Never = 0,
+  OnTrigger = (1 << 0),
+  OnScene = (1 << 1),
+};
 
 namespace Default {
 inline bool ShowTipsNotification = true;
 inline uint8_t AutoQuickSave =
-    AutoQuickSaveType::OnTrigger | AutoQuickSaveType::OnScene;
+    +AutoQuickSaveType::OnTrigger | +AutoQuickSaveType::OnScene;
 inline uint8_t ControllerType = 0;
 inline bool AdvanceTextOnDirectionalInput = false;
 inline bool DirectionalInputForTrigger = false;

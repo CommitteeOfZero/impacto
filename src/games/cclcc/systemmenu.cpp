@@ -37,8 +37,10 @@ void SystemMenu::MenuButtonOnClick(Widgets::Button* target) {
   ScrWork[SW_SYSMENUCNO] = target->Id;
   // Make the Id match the save menu mode (5th button would be Quick Load
   // which is case 0)
-  SaveMenuPtr->ActiveMenuType =
-      SaveMenuPageType::_from_integral_nothrow(target->Id % 4);
+  auto newMenuType = magic_enum::enum_cast<SaveMenuPageType>(target->Id % 4);
+  if (newMenuType) {
+    SaveMenuPtr->ActiveMenuType = newMenuType;
+  }
   ChoiceMade = true;
 }
 

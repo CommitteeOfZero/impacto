@@ -269,7 +269,7 @@ void BacklogMenu::Update(float dt) {
 }
 
 void BacklogMenu::RenderHighlight(const glm::vec2 offset) const {
-  if (EntryHighlightLocation == +EntryHighlightLocationType::None ||
+  if (EntryHighlightLocation == EntryHighlightLocationType::None ||
       CurrentlyFocusedElement == nullptr ||
       !MainItems->RenderingBounds.Intersects(CurrentlyFocusedElement->Bounds))
     return;

@@ -91,8 +91,8 @@ VmInstruction(InstSystemMenu) {
              "STUB instruction SystemMenu(mode: {:d})\n", mode);
   switch (mode) {
     case 0:
-      if (Profile::Vm::GameInstructionSet == +InstructionSet::MO6TW) {
-      } else if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
+      if (Profile::Vm::GameInstructionSet == InstructionSet::MO6TW) {
+      } else if (Profile::Vm::GameInstructionSet == InstructionSet::CC) {
         auto* sysMenuPtr =
             static_cast<UI::CCLCC::SystemMenu*>(UI::SystemMenuPtr);
         sysMenuPtr->Init();
@@ -238,7 +238,7 @@ VmInstruction(InstOption) {
                  "STUB instruction Option(type: V2toV1vol)\n");
       break;
     case 4:
-      if (Profile::Vm::GameInstructionSet == +InstructionSet::CHLCC) {
+      if (Profile::Vm::GameInstructionSet == InstructionSet::CHLCC) {
         PopExpression(unusedPageNo);
       }
 
@@ -364,7 +364,7 @@ VmInstruction(InstSaveMenu) {
     case 0: {  // SaveMenuInit
       PopUint8(arg1);
       UI::SaveMenuPtr->ActiveMenuType =
-          UI::SaveMenuPageType::_from_integral_nothrow(arg1);
+          magic_enum::enum_cast<UI::SaveMenuPageType>(arg1);
       ScrWork[SW_SAVEFILESTATUS] = 0;
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction SaveMenu(type: SaveMenuInit)\n");
@@ -417,7 +417,7 @@ VmInstruction(InstSaveMenuOld) {
     case 0: {
       PopUint8(arg1);
       UI::SaveMenuPtr->ActiveMenuType =
-          UI::SaveMenuPageType::_from_integral_nothrow(arg1);
+          magic_enum::enum_cast<UI::SaveMenuPageType>(arg1);
       ScrWork[SW_SAVEFILESTATUS] = 0;
       if (UI::SaveMenuPtr) UI::SaveMenuPtr->Init();
     } break;
@@ -472,7 +472,7 @@ VmInstruction(InstLoadDataOld) {
   StartInstruction;
   PopExpression(arg1);
   SaveSystem::SaveType saveType;
-  if (*UI::SaveMenuPtr->ActiveMenuType == +UI::SaveMenuPageType::QuickLoad) {
+  if (*UI::SaveMenuPtr->ActiveMenuType == UI::SaveMenuPageType::QuickLoad) {
     saveType = SaveSystem::SaveType::Quick;
   } else {
     saveType = SaveSystem::SaveType::Full;
@@ -534,7 +534,7 @@ VmInstruction(InstTitleMenuNew) {
             }
           } else if (ScrWork[SW_TITLEMODE] == 1 &&
                      ScrWork[SW_TITLEDISPCT] ==
-                         (Profile::Vm::GameInstructionSet == +InstructionSet::CC
+                         (Profile::Vm::GameInstructionSet == InstructionSet::CC
                               ? 60
                               : 400)) {
             // Check "PRESS TO START" here
@@ -608,8 +608,8 @@ VmInstruction(InstSetPlayMode) {
 }
 VmInstruction(InstSetEVflag) {
   StartInstruction;
-  if (Profile::Vm::GameInstructionSet == +InstructionSet::MO8 ||
-      Profile::Vm::GameInstructionSet == +InstructionSet::CHN) {
+  if (Profile::Vm::GameInstructionSet == InstructionSet::MO8 ||
+      Profile::Vm::GameInstructionSet == InstructionSet::CHN) {
     PopUint8(unk01);
   }
   PopExpression(arg1);

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <enum.h>
+#include <magic_enum/magic_enum.hpp>
 #include <optional>
 #include <ankerl/unordered_dense.h>
 #include "../text/text.h"
@@ -11,8 +11,13 @@ namespace Impacto {
 
 enum DialoguePageMode : uint8_t;
 
-BETTER_ENUM(DialogueBoxType, int, None, Plain, MO6TW, CHLCC, CC)
-
+enum class DialogueBoxType : int {
+  None,
+  Plain,
+  MO6TW,
+  CHLCC,
+  CC,
+};
 class DialogueBox {
  public:
   static std::unique_ptr<DialogueBox> Create();

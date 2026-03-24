@@ -100,13 +100,13 @@ void Renderable3D::Init(VulkanWindow* window, VkDevice device,
 
   VkVertexInputBindingDescription modelBindingDescription{};
   modelBindingDescription.binding = 0;
-  modelBindingDescription.stride =
-      Profile::Scene3D::Version == +LKMVersion::DaSH ? sizeof(VertexBufferDaSH)
-                                                     : sizeof(VertexBuffer);
+  modelBindingDescription.stride = Profile::Scene3D::Version == LKMVersion::DaSH
+                                       ? sizeof(VertexBufferDaSH)
+                                       : sizeof(VertexBuffer);
   modelBindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
   VkVertexInputAttributeDescription modelAttributeDescriptions[5] = {};
-  if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+  if (Profile::Scene3D::Version == LKMVersion::DaSH) {
     modelAttributeDescriptions[0].binding = 0;
     modelAttributeDescriptions[0].location = 0;
     modelAttributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
@@ -331,7 +331,7 @@ void Renderable3D::InitMeshAnimStatus() {
   }
   if (totalMorphedVertices > 0) {
     for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-      if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+      if (Profile::Scene3D::Version == LKMVersion::DaSH) {
         CurrentMorphedVerticesVk[i] = CreateBuffer(
             totalMorphedVertices * sizeof(VertexBufferDaSH),
             VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
@@ -350,7 +350,7 @@ void Renderable3D::InitMeshAnimStatus() {
 void Renderable3D::ReloadDefaultMeshAnimStatus() {
   /*
   void* currentMorphedVertex;
-  if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+  if (Profile::Scene3D::Version == LKMVersion::DaSH) {
     currentMorphedVertex =
         ((VertexBufferDaSH*)CurrentMorphedVerticesVkMapped[CurrentFrameIndex]);
   } else {
@@ -400,7 +400,7 @@ void Renderable3D::CalculateMorphedVertices(int id) {
   if (mesh->MorphTargetCount == 0) return;
 
   void* currentMorphedVertex;
-  if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+  if (Profile::Scene3D::Version == LKMVersion::DaSH) {
     currentMorphedVertex =
         ((VertexBufferDaSH*)CurrentMorphedVerticesVkMapped[CurrentFrameIndex]) +
         animStatus->MorphedVerticesOffset;
@@ -414,7 +414,7 @@ void Renderable3D::CalculateMorphedVertices(int id) {
       (VertexBufferDaSH*)currentMorphedVertex;
 
   void* currentVertex;
-  if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+  if (Profile::Scene3D::Version == LKMVersion::DaSH) {
     currentVertex =
         ((VertexBufferDaSH*)StaticModel->VertexBuffers) + mesh->VertexOffset;
   } else {
@@ -426,7 +426,7 @@ void Renderable3D::CalculateMorphedVertices(int id) {
   VertexBufferDaSH* currentVertexDaSH = (VertexBufferDaSH*)currentVertex;
 
   for (uint32_t j = 0; j < mesh->VertexCount; j++) {
-    if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+    if (Profile::Scene3D::Version == LKMVersion::DaSH) {
       memcpy(currentMorphedVertexDaSH, currentVertexDaSH,
              sizeof(VertexBufferDaSH));
       currentMorphedVertexDaSH++;
@@ -450,7 +450,7 @@ void Renderable3D::CalculateMorphedVertices(int id) {
 
     if (influence == 0.0f) continue;
 
-    if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+    if (Profile::Scene3D::Version == LKMVersion::DaSH) {
       currentMorphedVertex =
           ((VertexBufferDaSH*)
                CurrentMorphedVerticesVkMapped[CurrentFrameIndex]) +
@@ -463,7 +463,7 @@ void Renderable3D::CalculateMorphedVertices(int id) {
     currentMorphedVertexRNE = (VertexBuffer*)currentMorphedVertex;
     currentMorphedVertexDaSH = (VertexBufferDaSH*)currentMorphedVertex;
 
-    if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+    if (Profile::Scene3D::Version == LKMVersion::DaSH) {
       currentVertex =
           ((VertexBufferDaSH*)StaticModel->VertexBuffers) + mesh->VertexOffset;
     } else {
@@ -479,7 +479,7 @@ void Renderable3D::CalculateMorphedVertices(int id) {
         StaticModel->MorphTargets[mesh->MorphTargetIds[k]].VertexOffset;
 
     for (uint32_t j = 0; j < mesh->VertexCount; j++) {
-      if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+      if (Profile::Scene3D::Version == LKMVersion::DaSH) {
         currentMorphedVertexDaSH->Position +=
             (currentMorphTargetVbo->Position - currentVertexDaSH->Position) *
             influence;
@@ -671,7 +671,7 @@ void Renderable3D::DrawMesh(int id, RenderPass pass) {
       break;
     }
     case MT_Outline: {
-      if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+      if (Profile::Scene3D::Version == LKMVersion::DaSH) {
         int constexpr outlineTextureTypes[] = {TT_DaSH_ColorMap,
                                                TT_DaSH_NoiseMap};
         textureCount = 2;
@@ -773,7 +773,7 @@ void Renderable3D::DrawMesh(int id, RenderPass pass) {
   CurrentWriteDescriptorSet = 0;
 
   PipelinePushConstants pushConstants{Profile::Scene3D::Version ==
-                                      +LKMVersion::DaSH};
+                                      LKMVersion::DaSH};
   vkCmdPushConstants(CommandBuffers[CurrentFrameIndex],
                      CurrentPipeline->PipelineLayout,
                      VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_VERTEX_BIT,
@@ -782,7 +782,7 @@ void Renderable3D::DrawMesh(int id, RenderPass pass) {
   if (StaticModel->Meshes[id].MorphTargetCount > 0) {
     VkBuffer vertexBuffers[] = {
         CurrentMorphedVerticesVk[CurrentFrameIndex].Buffer};
-    size_t stride = Profile::Scene3D::Version == +LKMVersion::DaSH
+    size_t stride = Profile::Scene3D::Version == LKMVersion::DaSH
                         ? sizeof(VertexBufferDaSH)
                         : sizeof(VertexBuffer);
     VkDeviceSize offsets[] = {
@@ -1066,7 +1066,7 @@ void Renderable3D::MainThreadOnLoad() {
       uint32_t vertexCopySize = 0;
 
       if (StaticModel->Type == ModelType_Character) {
-        if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+        if (Profile::Scene3D::Version == LKMVersion::DaSH) {
           MeshVertexBuffers[i][j] = CreateBuffer(
               sizeof(VertexBufferDaSH) * StaticModel->Meshes[i].VertexCount,
               VK_BUFFER_USAGE_TRANSFER_DST_BIT |

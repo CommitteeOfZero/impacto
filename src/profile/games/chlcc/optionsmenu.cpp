@@ -123,8 +123,7 @@ void Configure() {
       std::span(SkipVoiceValues.data(), SkipVoiceValues.size()),
       "SkipVoiceValues");
 
-  auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMember<uint8_t>("DrawType"));
+  auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
 
   UI::OptionsMenuPtr = new UI::CHLCC::OptionsMenu();
   UI::Menus[drawType].push_back(UI::OptionsMenuPtr);

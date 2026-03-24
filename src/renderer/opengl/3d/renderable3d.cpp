@@ -71,7 +71,7 @@ void Renderable3D::Init(GLWindow* window, ShaderCompiler& shaderCompiler) {
 
   ShaderParamMap shaderParams;
   shaderParams["ModelMaxBonesPerMesh"] = ModelMaxBonesPerMesh;
-  int isDaSH = (int)(Profile::Scene3D::Version == +LKMVersion::DaSH);
+  int isDaSH = (int)(Profile::Scene3D::Version == LKMVersion::DaSH);
   shaderParams["DASH"] = ShaderParameter(isDaSH, true);
 
   ShaderProgram =
@@ -138,7 +138,7 @@ void Renderable3D::Init(GLWindow* window, ShaderCompiler& shaderCompiler) {
   UniformMVPBackground = glGetUniformLocation(ShaderProgramBackground, "MVP");
 
   glUseProgram(ShaderProgram);
-  if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+  if (Profile::Scene3D::Version == LKMVersion::DaSH) {
     glUniform1i(glGetUniformLocation(ShaderProgram, "ColorMap"),
                 TT_DaSH_ColorMap);
     glUniform1i(glGetUniformLocation(ShaderProgram, "ShadowColorMap"),
@@ -156,7 +156,7 @@ void Renderable3D::Init(GLWindow* window, ShaderCompiler& shaderCompiler) {
   }
 
   glUseProgram(ShaderProgramOutline);
-  if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+  if (Profile::Scene3D::Version == LKMVersion::DaSH) {
     glUniform1i(glGetUniformLocation(ShaderProgramOutline, "ColorMap"),
                 TT_DaSH_ColorMap);
     glUniform1i(glGetUniformLocation(ShaderProgramOutline, "NoiseMap"),
@@ -167,7 +167,7 @@ void Renderable3D::Init(GLWindow* window, ShaderCompiler& shaderCompiler) {
   }
 
   glUseProgram(ShaderProgramEye);
-  if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+  if (Profile::Scene3D::Version == LKMVersion::DaSH) {
     glUniform1i(glGetUniformLocation(ShaderProgramEye, "HighlightColorMap"),
                 TT_DaSH_Eye_HighlightColorMap);
     glUniform1i(glGetUniformLocation(ShaderProgramEye, "WhiteColorMap"),
@@ -312,7 +312,7 @@ void Renderable3D::CalculateMorphedVertices(int id) {
       CurrentMorphedVertices + animStatus->MorphedVerticesOffset;
 
   void* currentVertex;
-  if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+  if (Profile::Scene3D::Version == LKMVersion::DaSH) {
     currentVertex =
         ((VertexBufferDaSH*)StaticModel->VertexBuffers) + mesh->VertexOffset;
   } else {
@@ -324,7 +324,7 @@ void Renderable3D::CalculateMorphedVertices(int id) {
   VertexBufferDaSH* currentVertexDaSH = (VertexBufferDaSH*)currentVertex;
 
   for (uint32_t j = 0; j < mesh->VertexCount; j++) {
-    if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+    if (Profile::Scene3D::Version == LKMVersion::DaSH) {
       currentMorphedVertex->Position = currentVertexDaSH->Position;
       currentMorphedVertex->Normal = currentVertexDaSH->Normal;
       currentVertexDaSH++;
@@ -351,7 +351,7 @@ void Renderable3D::CalculateMorphedVertices(int id) {
     currentMorphedVertex =
         CurrentMorphedVertices + animStatus->MorphedVerticesOffset;
 
-    if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+    if (Profile::Scene3D::Version == LKMVersion::DaSH) {
       currentVertex =
           ((VertexBufferDaSH*)StaticModel->VertexBuffers) + mesh->VertexOffset;
     } else {
@@ -367,7 +367,7 @@ void Renderable3D::CalculateMorphedVertices(int id) {
         StaticModel->MorphTargets[mesh->MorphTargetIds[k]].VertexOffset;
 
     for (uint32_t j = 0; j < mesh->VertexCount; j++) {
-      if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+      if (Profile::Scene3D::Version == LKMVersion::DaSH) {
         currentMorphedVertex->Position +=
             (currentMorphTargetVbo->Position - currentVertexDaSH->Position) *
             influence;
@@ -474,7 +474,7 @@ void Renderable3D::DrawMesh(int id, RenderPass pass) {
       break;
     }
     case MT_Outline: {
-      if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+      if (Profile::Scene3D::Version == LKMVersion::DaSH) {
         int constexpr outlineTextureTypes[] = {TT_DaSH_ColorMap,
                                                TT_DaSH_NoiseMap};
         SetTextures(id, outlineTextureTypes, 2);
@@ -758,7 +758,7 @@ void Renderable3D::MainThreadOnLoad() {
     glBindBuffer(GL_ARRAY_BUFFER, VBOs[i]);
 
     if (StaticModel->Type == ModelType_Character) {
-      if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+      if (Profile::Scene3D::Version == LKMVersion::DaSH) {
         glBufferData(
             GL_ARRAY_BUFFER,
             sizeof(VertexBufferDaSH) * StaticModel->Meshes[i].VertexCount,

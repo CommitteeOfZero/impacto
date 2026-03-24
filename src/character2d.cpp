@@ -283,7 +283,7 @@ void Character2D::UpdateState(const int chaId) {
   const glm::vec2 resolutionScale = {Profile::DesignWidth / 1280.0f,
                                      Profile::DesignHeight / 720.0f};
 
-  if (Profile::Vm::GameInstructionSet == +Vm::InstructionSet::MO6TW) {
+  if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::MO6TW) {
     // If I don't do this it tries to access a label with an index of 65535,
     // which is... not good. I have no idea why this happens, the script code
     // does actually seem to do this on purpose, so... HACK (for now)
@@ -303,7 +303,7 @@ void Character2D::UpdateState(const int chaId) {
                            ScrWork[SW_CHA1POSY_OFS + structOfsOffset]) *
              resolutionScale;
 
-  if (Profile::Vm::GameInstructionSet == +Vm::InstructionSet::MO8) {
+  if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::MO8) {
     constexpr std::array<float, 7> BaseScaleValues = {
         1.3f, 1.0f, 0.6f, 0.4f, 0.13f, 0.8f, 0.7f,
     };
@@ -341,7 +341,7 @@ void Character2D::UpdateState(const int chaId) {
             ScrWork[SW_CHA1ROTZ_OFS + structOfsOffset]);
   }
 
-  if (Profile::Vm::GameInstructionSet == +Vm::InstructionSet::CC) {
+  if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::CC) {
     Tint = ScrWorkGetColor(SW_CHA1FILTER + structOffset);
   } else {
     Tint = glm::vec4(1.0f);
