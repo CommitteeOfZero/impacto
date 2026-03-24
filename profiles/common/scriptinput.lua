@@ -169,7 +169,44 @@ root.Input.PADcustomA = {
     root.PADinput.PAD1R1,
 }
 
-root.Input.PADcustomB = {};
+root.Input.PADcustomB = {
+  root.PADinput.PAD1UP,
+  root.PADinput.PAD1DOWN,
+  root.PADinput.PAD1LEFT,
+  root.PADinput.PAD1RIGHT,
+  root.PADinput.PAD1A | root.PADinput.PAD1START,
+  root.PADinput.PAD1A,
+  root.PADinput.PAD1B,
+  root.PADinput.PAD1L2,
+  root.PADinput.PAD1R1,
+  root.PADinput.PAD1R2,
+  root.PADinput.PAD1START,
+  0,
+  root.PADinput.PAD1Y,
+  root.PADinput.PAD1R3,
+  root.PADinput.PAD1A | root.PADinput.PAD1B | root.PADinput.PAD1START,
+  root.PADinput.PAD1A,
+  root.PADinput.PAD1B,
+  root.PADinput.PAD1X,
+  root.PADinput.PAD1Y,
+  root.PADinput.PAD1R1,
+  root.PADinput.PAD1R2,
+  root.PADinput.PAD1L1,
+  0,
+  AllDir | root.PADinput.PAD1A,
+  root.PADinput.PAD1R1,
+  root.PADinput.PAD1L1,
+  root.PADinput.PAD1A,
+  root.PADinput.PAD1B,
+  root.PADinput.PAD1UP_LS | root.PADinput.PAD1UP_DIRECT,
+  root.PADinput.PAD1DOWN_LS | root.PADinput.PAD1DOWN_DIRECT,
+  root.PADinput.PAD1LEFT_LS | root.PADinput.PAD1LEFT_DIRECT,
+  root.PADinput.PAD1RIGHT_LS | root.PADinput.PAD1RIGHT_DIRECT,
+  root.PADinput.PAD1UP_RS,
+  root.PADinput.PAD1DOWN_RS,
+  root.PADinput.PAD1LEFT_RS,
+  root.PADinput.PAD1RIGHT_RS,
+};
 
 root.Input.KBcustom = {
      [0] = {82, 96, 26},      -- UP, NUMPAD_8, W
