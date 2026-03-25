@@ -87,35 +87,37 @@ root.Input.PADtoMS = {
 }
 
 -- Controller
+local BTN = ControllerButton;
 root.Input.PADtoGP = {
-    [root.PADinput.PAD1A]            =  0,
-    [root.PADinput.PAD1B]            =  1,
-    [root.PADinput.PAD1X]            =  2,
-    [root.PADinput.PAD1Y]            =  3,
-    [root.PADinput.PAD1SELECT]       =  4,
-    [root.PADinput.PAD1START]        =  6,
-    [root.PADinput.PAD1L3]           =  7,
-    [root.PADinput.PAD1R3]           =  8,
-    [root.PADinput.PAD1L1]           =  9,
-    [root.PADinput.PAD1R1]           = 10,
-    [root.PADinput.PAD1UP_DIRECT]    = 11,
-    [root.PADinput.PAD1DOWN_DIRECT]  = 12,
-    [root.PADinput.PAD1LEFT_DIRECT]  = 13,
-    [root.PADinput.PAD1RIGHT_DIRECT] = 14,
+    [root.PADinput.PAD1A]            = BTN.A,
+    [root.PADinput.PAD1B]            = BTN.B,
+    [root.PADinput.PAD1X]            = BTN.X,
+    [root.PADinput.PAD1Y]            = BTN.Y,
+    [root.PADinput.PAD1SELECT]       = BTN.BACK,
+    [root.PADinput.PAD1START]        = BTN.START,
+    [root.PADinput.PAD1L3]           = BTN.LEFTSTICK,
+    [root.PADinput.PAD1R3]           = BTN.RIGHTSTICK,
+    [root.PADinput.PAD1L1]           = BTN.LEFTSHOULDER,
+    [root.PADinput.PAD1R1]           = BTN.RIGHTSHOULDER,
+    [root.PADinput.PAD1UP_DIRECT]    = BTN.DPAD_UP,
+    [root.PADinput.PAD1DOWN_DIRECT]  = BTN.DPAD_DOWN,
+    [root.PADinput.PAD1LEFT_DIRECT]  = BTN.DPAD_LEFT,
+    [root.PADinput.PAD1RIGHT_DIRECT] = BTN.DPAD_RIGHT,
 };
-
+local AXIS = ControllerAxis;
+local DIR = { POS = 1, NEG = -1 };
 root.Input.PADtoGPA = {
     -- { Axis Id, Direction }
-    [root.PADinput.PAD1UP_LS]        = {1, -1},  -- Left stick Y axis
-    [root.PADinput.PAD1DOWN_LS]      = {1,  1},  -- Left stick Y axis
-    [root.PADinput.PAD1LEFT_LS]      = {0, -1},  -- Left stick X axis
-    [root.PADinput.PAD1RIGHT_LS]     = {0,  1},  -- Left stick X axis
-    [root.PADinput.PAD1UP_RS]        = {3, -1},  -- Right stick Y axis
-    [root.PADinput.PAD1DOWN_RS]      = {3,  1},  -- Right stick Y axis
-    [root.PADinput.PAD1LEFT_RS]      = {2, -1},  -- Right stick X axis
-    [root.PADinput.PAD1RIGHT_RS]     = {2,  1},  -- Right stick X axis
-    [root.PADinput.PAD1L2]           = {4,  1},  -- Left trigger
-    [root.PADinput.PAD1R2]           = {5,  1},  -- Right trigger
+    [root.PADinput.PAD1UP_LS]    = {AXIS.LEFTY,       DIR.NEG},  -- Left stick Y axis
+    [root.PADinput.PAD1DOWN_LS]  = {AXIS.LEFTY,       DIR.POS},  -- Left stick Y axis
+    [root.PADinput.PAD1LEFT_LS]  = {AXIS.LEFTX,       DIR.NEG},  -- Left stick X axis
+    [root.PADinput.PAD1RIGHT_LS] = {AXIS.LEFTX,       DIR.POS},  -- Left stick X axis
+    [root.PADinput.PAD1UP_RS]    = {AXIS.RIGHTY,      DIR.NEG},  -- Right stick Y axis
+    [root.PADinput.PAD1DOWN_RS]  = {AXIS.RIGHTY,      DIR.POS},  -- Right stick Y axis
+    [root.PADinput.PAD1LEFT_RS]  = {AXIS.RIGHTX,      DIR.NEG},  -- Right stick X axis
+    [root.PADinput.PAD1RIGHT_RS] = {AXIS.RIGHTX,      DIR.POS},  -- Right stick X axis
+    [root.PADinput.PAD1L2]       = {AXIS.TRIGGERLEFT,  DIR.POS},  -- Left trigger
+    [root.PADinput.PAD1R2]       = {AXIS.TRIGGERRIGHT, DIR.POS},  -- Right trigger
 };
 
 
@@ -208,33 +210,34 @@ root.Input.PADcustomB = {
   root.PADinput.PAD1RIGHT_RS,
 };
 
+local SC = KeyboardScanCode;
 root.Input.KBcustom = {
-     [0] = {82, 96, 26},      -- UP, NUMPAD_8, W
-     [1] = {81, 90, 22},      -- DOWN, NUMPAD_2, S
-     [2] = {80, 92, 4},       -- LEFT, NUMPAD_4, A
-     [3] = {79, 94, 7},       -- RIGHT, NUMPAD_6, D
-     [4] = {40, 88, 44},      -- RETURN, NUMPAD_ENTER, SPACE
-     [5] = {42, 27, 98},      -- BACKSPACE, X, NUMPAD_0
-     [6] = {76},              -- DELETE
-     [7] = {73},              -- INSERT
-     [8] = {20, 95, 54, 74},  -- Q, NUMPAD_7, COMMA, HOME  
-     [9] = {29, 89, 77},      -- Z, NUMPAD_1, END
-    [11] = {8, 97, 55, 157},  -- E, NUMPAD_9, PERIOD, PRIOR  
-    [12] = {6, 91, 78},       -- C, NUMPAD_3, PAGEDOWN
-    [13] = {65},              -- F8
-    [14] = {30, 84},          -- 1, NUMPAD_DIVIDE
-    [20] = {21, 86, 47},      -- R, NUMPAD_MINUS, LEFTBRACKET
-    [21] = {9, 87, 48},       -- F, NUMPAD_PLUS, RIGHTBRACKET
-    [50] = {224, 228},        -- LCTRL, RCTRL
-    [51] = {58},              -- F1
-    [52] = {59},              -- F2
-    [53] = {60},              -- F3
-    [54] = {61},              -- F4
-    [55] = {62},              -- F5
-    [56] = {63},              -- F6
-    [57] = {66},              -- F9
-    [58] = {64},              -- F7
-    [59] = {68},              -- F11
-    [60] = {41},              -- ESCAPE
-    [61] = {67},              -- F10
-}
+     [0] = {SC._UP, SC._KP_8, SC._W},
+     [1] = {SC._DOWN, SC._KP_2, SC._S},
+     [2] = {SC._LEFT, SC._KP_4, SC._A},
+     [3] = {SC._RIGHT, SC._KP_6, SC._D},
+     [4] = {SC._RETURN, SC._KP_ENTER, SC._SPACE},
+     [5] = {SC._BACKSPACE, SC._X, SC._KP_0},
+     [6] = {SC._DELETE},
+     [7] = {SC._INSERT},
+     [8] = {SC._Q, SC._KP_7, SC._COMMA, SC._HOME},
+     [9] = {SC._Z, SC._KP_1, SC._END},
+    [11] = {SC._E, SC._KP_9, SC._PERIOD, SC._PAGEUP},
+    [12] = {SC._C, SC._KP_3, SC._PAGEDOWN},
+    [13] = {SC._F8},
+    [14] = {SC._1, SC._KP_DIVIDE},
+    [20] = {SC._R, SC._KP_MINUS, SC._LEFTBRACKET},
+    [21] = {SC._F, SC._KP_PLUS, SC._RIGHTBRACKET},
+    [50] = {SC._LCTRL, SC._RCTRL},
+    [51] = {SC._F1},
+    [52] = {SC._F2},
+    [53] = {SC._F3},
+    [54] = {SC._F4},
+    [55] = {SC._F5},
+    [56] = {SC._F6},
+    [57] = {SC._F9},
+    [58] = {SC._F7},
+    [59] = {SC._F11},
+    [60] = {SC._ESCAPE},
+    [61] = {SC._F10},
+};

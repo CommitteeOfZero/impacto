@@ -28,7 +28,7 @@ inline int MouseWheelDeltaY = 0;
 inline glm::vec2 PrevTouchPos = glm::vec2(0.0f);
 inline glm::vec2 CurTouchPos = glm::vec2(0.0f);
 
-inline float ControllerAxis[SDL_CONTROLLER_AXIS_MAX];
+inline float ControllerAxisValue[SDL_CONTROLLER_AXIS_MAX];
 
 inline bool MouseButtonWentDown[MouseButtonsMax] = {false};
 inline bool MouseButtonIsDown[MouseButtonsMax] = {false};
@@ -45,5 +45,50 @@ inline bool KeyboardButtonIsDown[SDL_NUM_SCANCODES] = {false};
 inline bool TouchIsDown[FingerTapMax]{};
 inline bool TouchWentDown[FingerTapMax]{};
 
+// Using statements to ensure that types are coming from this header (for
+// consistent magic enum range specialization).
+using KeyboardScanCode = SDL_Scancode;
+using ControllerButton = SDL_GameControllerButton;
+using ControllerAxis = SDL_GameControllerAxis;
+
 }  // namespace Input
 }  // namespace Impacto
+
+namespace magic_enum::customize {
+template <>
+struct enum_range<Impacto::Input::KeyboardScanCode> {
+  static constexpr int min = 0;
+  static constexpr int max = 512;
+  // keep underscore because numbers can't be at the start of an identifier
+  static constexpr size_t prefix_length =
+      std::string_view("SDL_SCANCODE").size();
+};
+
+template <>
+constexpr customize_t
+enum_type_name<Impacto::Input::KeyboardScanCode>() noexcept {
+  return "KeyboardScanCode";
+};
+
+template <>
+struct enum_range<Impacto::Input::ControllerButton> {
+  static constexpr size_t prefix_length =
+      std::string_view("SDL_CONTROLLER_BUTTON_").size();
+};
+template <>
+constexpr customize_t
+enum_type_name<Impacto::Input::ControllerButton>() noexcept {
+  return "ControllerButton";
+};
+
+template <>
+struct enum_range<Impacto::Input::ControllerAxis> {
+  static constexpr size_t prefix_length =
+      std::string_view("SDL_CONTROLLER_AXIS_").size();
+};
+template <>
+constexpr customize_t
+enum_type_name<Impacto::Input::ControllerAxis>() noexcept {
+  return "ControllerAxis";
+};
+}  // namespace magic_enum::customize

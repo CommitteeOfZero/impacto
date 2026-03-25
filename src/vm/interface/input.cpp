@@ -100,7 +100,7 @@ static void UpdateFromPADCode(uint32_t PADcode, PADInputType type) {
   const auto checkAxis = [&](auto axisDownArr) {
     if (GPAcode != PADToControllerAxis.end()) {
       if (axisDownArr[GPAcode->second.first] &&
-          Input::ControllerAxis[GPAcode->second.first] *
+          Input::ControllerAxisValue[GPAcode->second.first] *
                   (float)GPAcode->second.second >
               0.0f)
         return true;
@@ -128,7 +128,7 @@ static void UpdateFromPADCode(uint32_t PADcode, PADInputType type) {
   const bool isMsDown =
       MScode != PADToMouse.end() && mouseDownArr[MScode->second];
   if (isGPAxisDown &&
-      Input::ControllerAxis[GPAcode->second.first] >
+      Input::ControllerAxisValue[GPAcode->second.first] >
           (float)GPAcode->second.second * Input::ControllerAxisLightThreshold)
     padInputButton |= PADcode;
   if (isKbDown || isGpDown || isGPAxisDown) {
