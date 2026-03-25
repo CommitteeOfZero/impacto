@@ -54,6 +54,9 @@ inline uint32_t PADinputButtonRepeatAccelDown = 0;  // padacc
 inline uint32_t PADinputMouseWentDown = 0;
 inline uint32_t PADinputMouseIsDown = 0;
 
+inline ankerl::unordered_dense::map<uint8_t, std::vector<int>> KBcustom{};
+inline std::array<bool, SDL_NUM_SCANCODES> KBinputHeldDown = {false};
+
 enum ControlType {
   CT_OK = 0,
   CT_Back = 2,
@@ -80,6 +83,8 @@ void ResetPADHoldTimer(uint32_t PADcode);
 void UpdatePADcustomType(int type);
 bool GetControlState(int controlId,
                      InputDownType downType = InputDownType::WentDown);
+void UpdateKBInput();
+void UpdateKBHoldInput(float dt);
 
 }  // namespace Interface
 }  // namespace Vm

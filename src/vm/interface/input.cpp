@@ -52,7 +52,7 @@ static float PADAccel2Clock = 0.0f;
 enum class PADInputType { WentDown, IsDown };
 
 static void UpdateFromPADCode(uint32_t PADcode, PADInputType type) {
-  const auto KBcodes = PADToKeyboard.find(PADcode);
+  const auto KBcustomMappings = PADToKBcustom.find(PADcode);
   const auto GPcode = PADToController.find(PADcode);
   const auto GPAcode = PADToControllerAxis.find(PADcode);
   const auto MScode = PADToMouse.find(PADcode);
@@ -78,10 +78,23 @@ static void UpdateFromPADCode(uint32_t PADcode, PADInputType type) {
   auto& padInputMouse = type == PADInputType::WentDown ? PADinputMouseWentDown
                                                        : PADinputMouseIsDown;
 
+  const auto padToKbPred = [&kbDownArr, &type](auto const& kbMapping) {
+    using Profile::ScriptInput::KeyboardPadMapping;
+    using enum KeyboardPadMapping::InputMode;
+    KeyboardPadMapping::InputMode mask =
+        (type == PADInputType::WentDown) ? Tap : Held;
+    auto kbCustomItr = KBcustom.find(kbMapping.Id);
+    if (kbCustomItr == KBcustom.end()) return false;
+    return (kbMapping.Mode & mask) &&
+           std::any_of(kbCustomItr->second.begin(), kbCustomItr->second.end(),
+                       [&kbDownArr](int id) { return kbDownArr[id]; });
+  };
+
   const bool isKbDown =
-      KBcodes != PADToKeyboard.end() &&
-      std::any_of(KBcodes->second.begin(), KBcodes->second.end(),
-                  [&kbDownArr](auto KBcode) { return kbDownArr[KBcode]; });
+      KBcustomMappings != PADToKBcustom.end() &&
+      std::any_of(KBcustomMappings->second.begin(),
+                  KBcustomMappings->second.end(), padToKbPred);
+
   const bool isGpDown =
       GPcode != PADToController.end() && gpDownArr[GPcode->second];
   const auto checkAxis = [&](auto axisDownArr) {
@@ -181,6 +194,20 @@ void UpdatePADHoldInput(float dt) {
           PADinputButtonRepeatAccelDown |= PADcode;
         }
       }
+    }
+  }
+}
+
+void UpdateKBHoldInput(float dt) {
+  static std::array<float, SDL_NUM_SCANCODES> KBIsDownTime{};
+  constexpr float frameTime = 1 / 60.0f;
+  for (size_t i = 0; i < KBinputHeldDown.size(); i++) {
+    if (Input::KeyboardButtonIsDown[i]) {
+      KBIsDownTime[i] += dt;
+      KBinputHeldDown[i] = KBIsDownTime[i] >= frameTime * 8;
+    } else {
+      KBIsDownTime[i] = 0.0f;
+      KBinputHeldDown[i] = false;
     }
   }
 }

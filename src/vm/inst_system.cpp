@@ -476,7 +476,7 @@ VmInstruction(InstVoiceTableLoadMaybe) {
 }
 VmInstruction(InstSetPadCustom) {
   StartInstruction;
-  Interface::UpdatePADcustomType(Profile::ScriptInput::PADcustomType);
+  Interface::UpdatePADcustomType(Profile::ConfigSystem::ControllerType);
   ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
              "STUB instruction SetPadCustom()\n");
 }

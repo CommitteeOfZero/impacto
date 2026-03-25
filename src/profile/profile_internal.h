@@ -309,9 +309,14 @@ template <typename T>
   requires requires(T x) {
     { std::pair{x} } -> std::same_as<T>;
   }
-inline std::optional<T> TryGet() {
+std::optional<T> TryGet() {
   using TupleType = std::tuple<typename T::first_type, typename T::second_type>;
-  return TryGet<TupleType>();
+  const auto toPair = [](std::optional<TupleType>&& opt) -> std::optional<T> {
+    if (!opt) return std::nullopt;
+    return std::optional<T>{std::in_place, std::move(std::get<0>(*opt)),
+                            std::move(std::get<1>(*opt))};
+  };
+  return toPair(TryGet<TupleType>());
 }
 
 // generic tuple getter

@@ -247,17 +247,41 @@ VmInstruction(InstClickOnJump) {
              arg1, arg2, labelNum);
 }
 VmInstruction(InstKeyboardOnJump) {
+  using namespace Interface;
+  using namespace Input;
   StartInstruction;
-  PopUint8(arg1);
-  PopExpression(arg2);
-  PopExpression(arg3);
-  PopLocalLabel(arg4);
-  (void)arg4;  // Unused
-  ImpLogSlow(
-      LogLevel::Warning, LogChannel::VMStub,
-      "STUB instruction KeyboardOnJump(arg1: {:d}, arg2: {:d}, arg3: {:d}, "
-      "arg4: {:d})\n",
-      arg1, arg2, arg3, arg4);
+  PopUint8(type);
+  PopExpression(buttonsArg);
+  PopExpression(downTypeId);
+  PopUint16(labelNum);
+  uint32_t labelAdr = ScriptGetLabelAddress(thread->ScriptBufferId, labelNum);
+
+  const InputDownType downType = static_cast<InputDownType>(downTypeId);
+  const bool useKBcustom = (type & 2);
+  const bool inputResult = [&]() -> bool {
+    std::span<const bool> const kbBtnArr =
+        (downType == InputDownType::IsDown     ? KeyboardButtonIsDown
+         : downType == InputDownType::WentDown ? KeyboardButtonWentDown
+                                               : std::span<const bool>{});
+    if (kbBtnArr.empty()) return true;
+    if (useKBcustom) {
+      auto kbCustomItr = KBcustom.find(static_cast<uint8_t>(buttonsArg));
+      if (kbCustomItr == KBcustom.end()) return false;
+      return std::any_of(kbCustomItr->second.begin(), kbCustomItr->second.end(),
+                         [&kbBtnArr](int id) { return kbBtnArr[id]; });
+    } else
+      return kbBtnArr[buttonsArg];
+  }();
+
+  if (inputResult) {
+    thread->IpOffset = labelAdr;
+  }
+
+  ImpLogSlow(LogLevel::Trace, LogChannel::VM,
+             "Instruction KeyboardOnJump(type: {:d}, buttonsArg: {:d}, "
+             "downTypeId: {:d}, "
+             "labelNum: {:d})\n",
+             type, buttonsArg, downTypeId, labelNum);
 }
 VmInstruction(InstControlOnJump) {
   StartInstruction;
