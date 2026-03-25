@@ -28,6 +28,12 @@ enum class MusicMenuPlayingMode : int {
   Shuffle,
 };
 
+constexpr MusicMenuPlayingMode& operator++(MusicMenuPlayingMode& mode) {
+  mode = static_cast<MusicMenuPlayingMode>(
+      (+mode + 1) % magic_enum::enum_count<MusicMenuPlayingMode>());
+  return mode;
+}
+
 inline Sprite LibraryBackgroundSprite;
 inline glm::vec2 LibraryBackgroundPosition;
 inline Sprite LibraryIndexSprite;

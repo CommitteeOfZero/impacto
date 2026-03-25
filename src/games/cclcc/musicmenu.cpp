@@ -139,14 +139,11 @@ void MusicTrackButton::Render() {
   }
 }
 
-MusicModeButton::MusicModeButton(
-    Profile::CCLCC::LibraryMenu::MusicMenuPlayingMode& mode)
+MusicModeButton::MusicModeButton(MusicMenuPlayingMode& mode)
     : Widgets::Button(), PlayMode(mode) {
   OnClickHandler = [](Widgets::Button* btn) {
     auto* modeBtn = static_cast<MusicModeButton*>(btn);
-    modeBtn->PlayMode =
-        MusicMenuPlayingMode((+modeBtn->PlayMode + 1) %
-                             magic_enum::enum_count<MusicMenuPlayingMode>());
+    ++modeBtn->PlayMode;
     Audio::PlayInGroup(Audio::ACG_SE, "sysse", 1, false, 0);
   };
 }
@@ -294,8 +291,7 @@ void MusicMenu::UpdateInput(float dt) {
     }
 
     if (PADinputButtonWentDown & PADcustom[18]) {
-      PlayMode = MusicMenuPlayingMode(
-          (+PlayMode + 1) % magic_enum::enum_count<MusicMenuPlayingMode>());
+      ++PlayMode;
     }
     ModeButton.UpdateInput(dt);
 
