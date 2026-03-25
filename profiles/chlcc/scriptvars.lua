@@ -132,6 +132,7 @@ sv.SW_EFF_CAP_PRI2 = 3270;
 sv.SW_EFF_CAP_BUF2 = 3271;
 sv.SW_MOVIEPRI = 3410;
 sv.SW_MOVIEPRI2 = 3400;
+sv.SW_EFF_WAVE_PRI = 3400; -- Same SW variable is reused as EFF_WAVE_PRI and SW_MOVIEPRI2 in older version of the engine
 sv.SW_MOVIEALPHA = 3411;
 sv.SW_MOVIE_PLAYNO = 3412;
 sv.SW_MOVIE_PLAYMODE = 3413;

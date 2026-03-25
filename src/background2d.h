@@ -170,9 +170,12 @@ class Background2D : public Loadable<Background2D, bool, uint32_t> {
 };
 
 class Capture2D : public Background2D {
+  bool HasEffects = false;
  public:
   void Render(int layer) override;
   void UpdateState(int capId) override;
+  inline bool GetHasEffects() { return HasEffects; }
+  inline void SetHasEffects(bool hasEffects) { HasEffects = hasEffects; }
 };
 
 class BackgroundEffect2D : public Background2D {

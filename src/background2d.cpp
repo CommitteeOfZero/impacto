@@ -802,7 +802,7 @@ void Background2D::RenderMasked() {
 void Background2D::RenderCaptureMasked() {
   Renderer->DrawMaskedBinarySprite(RenderSprite, MaskCapture.BgSprite,
                                    TransformState.ToMatrix(), std::nullopt,
-                                   Tint, false);
+                                   Tint, false, MaskCapture.GetHasEffects());
   for (int i = 0; i < MaxLinkedBgBuffers; i++) {
     if (Links[i].Direction != LinkDirection::Off &&
         Links[i].LinkedBuffer != nullptr) {
@@ -812,7 +812,8 @@ void Background2D::RenderCaptureMasked() {
                                TransformState.Rotation, Links[i].DisplayCoords);
       Renderer->DrawMaskedBinarySprite(Links[i].LinkedBuffer->RenderSprite,
                                        MaskCapture.BgSprite, linkTransformation,
-                                       std::nullopt, Tint, false);
+                                       std::nullopt, Tint, false,
+                                       MaskCapture.GetHasEffects());
     }
   }
 }

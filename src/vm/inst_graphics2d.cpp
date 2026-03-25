@@ -460,6 +460,11 @@ VmInstruction(InstBGeffectWave) {
                                         .Phase = initialPhase,
                                         .SpatialFrequency = spatialFreq});
     } break;
+    default: {
+      // also has EFFripples & EFFwater in later versions of the engine
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction BGeffectWave(type: {:d})\n", type);
+    }
   }
 }
 VmInstruction(InstBGeffect) {
