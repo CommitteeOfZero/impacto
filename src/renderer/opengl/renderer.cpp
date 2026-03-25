@@ -269,14 +269,22 @@ void Renderer::InsertVertices(
 
   if (IndexBuffer.size() + indices.size() > MaxIndexCount) Flush();
 
-  const uint16_t maxIndex = *std::max_element(indices.begin(), indices.end());
-
   VertexBuffer.insert(VertexBuffer.end(), vertices.begin(), vertices.end());
 
-  IndexBuffer.reserve(IndexBuffer.size() + indices.size());
-  std::transform(
-      indices.begin(), indices.end(), std::back_inserter(IndexBuffer),
-      [this](uint16_t index) { return index + this->NextFreeIndex; });
+  const size_t offset = IndexBuffer.size();
+  const size_t indicesCount = indices.size();
+  IndexBuffer.resize(offset + indicesCount);
+
+  constexpr uint16_t restartIndex = 0xFFFF;
+  uint16_t maxIndex = 0;
+  for (size_t i = 0; i < indicesCount; ++i) {
+    if (indices[i] == restartIndex) {
+      IndexBuffer[i + offset] = restartIndex;
+    } else {
+      IndexBuffer[i + offset] = indices[i] + NextFreeIndex;
+      if (indices[i] > maxIndex) maxIndex = indices[i];
+    }
+  }
 
   NextFreeIndex += maxIndex + 1;
 }
@@ -776,15 +784,22 @@ void Renderer::DrawPrimitives(
     });
   }
 
-  std::vector<VertexBufferSprites> transformedVertices;
-  transformedVertices.resize(vertices.size());
+  std::span<const VertexBufferSprites> transformedVertices;
+  if (sheet.IsScreenCap) {
+    static std::vector<VertexBufferSprites> transformedVerticesBuffer(
+        MaxIndexCount);
 
-  const auto transformVertex = [sheet](VertexBufferSprites info) {
-    if (sheet.IsScreenCap) info.UV.y = 1.0f - info.UV.y;
-    return info;
-  };
-  std::transform(vertices.begin(), vertices.end(), transformedVertices.begin(),
-                 transformVertex);
+    const auto transformVertex = [](VertexBufferSprites info) {
+      info.UV.y = 1.0f - info.UV.y;
+      return info;
+    };
+    std::transform(vertices.begin(), vertices.end(),
+                   transformedVerticesBuffer.begin(), transformVertex);
+    transformedVertices =
+        std::span(transformedVerticesBuffer).subspan(0, vertices.size());
+  } else {
+    transformedVertices = vertices;
+  }
 
   InsertVertices(transformedVertices, indices);
 }
