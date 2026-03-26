@@ -69,13 +69,13 @@ bool SubtitlePlayer::CanAddTrack(int trackId, SubtitleType type,
   const auto& backend = Backends[GetBackendIndex(type)];
   if (!backend) {
     ImpLog(LogLevel::Warning, LogChannel::Subtitle,
-           "Subtitle backend not initialized for {}", +type);
+           "Subtitle backend not initialized for {}", type);
     return false;
   }
   if ((+config & +Profile::SubtitleConfig) == 0) {
     ImpLog(LogLevel::Info, LogChannel::Subtitle,
            "Current subtitle mode is {}, skipping track {}, which is mode {}",
-           +Profile::SubtitleConfig, trackId, +config);
+           Profile::SubtitleConfig, trackId, config);
     return false;
   }
   return true;
@@ -113,7 +113,7 @@ void SubtitlePlayer::PushEntry(int trackId, SubtitleEntry entry) {
   auto& backend = Backends[backendIndex];
   if (!backend) {
     ImpLog(LogLevel::Warning, LogChannel::Subtitle,
-           "Subtitle backend not initialized for {}", +type);
+           "Subtitle backend not initialized for {}", type);
     return;
   }
   backend->AddSubtitleEntry(trackId, std::move(entry));
@@ -146,7 +146,7 @@ int8_t SubtitlePlayer::GetBackendIndex(SubtitleType type) const {
     case SubtitleType::None:
       break;
   }
-  throw std::runtime_error(fmt::format("Invalid SubtitleType {}", +type));
+  throw std::runtime_error(fmt::format("Invalid SubtitleType {}", type));
 }
 
 }  // namespace Impacto::Subtitle

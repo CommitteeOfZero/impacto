@@ -131,7 +131,7 @@ void OpenALAudioChannel::Update(float dt) {
 
       if (queuedBuffers == 0 && PlaybackStarted) {
         ImpLog(LogLevel::Error, LogChannel::Audio,
-               "Buffer underrun on channel {:d}\n", Id);
+               "Buffer underrun on channel {}\n", Id);
 
         // Restart playback in case of buffer underrun
         alSourcePlay(Source);

@@ -26,3 +26,4 @@
 #include <fmt/printf.h>
 #include <fmt/chrono.h>
 #include <ankerl/unordered_dense.h>
+#include <magic_enum/magic_enum.hpp>

@@ -7,6 +7,8 @@
 #include <glad/glad.h>
 #endif
 
+#include <magic_enum/magic_enum_format.hpp>
+
 namespace Impacto {
 enum class LogLevel {
   Off = 0,

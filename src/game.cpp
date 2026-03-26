@@ -618,8 +618,8 @@ void Render() {
         }
         default: {
           ImpLogSlow(LogLevel::Warning, LogChannel::General,
-                     "Encountered unknown draw component type 0x{:02x}\n",
-                     +DrawComponents[i]);
+                     "Encountered unknown draw component type {}\n",
+                     DrawComponents[i]);
           break;
         }
       }

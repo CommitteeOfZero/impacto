@@ -42,7 +42,7 @@ VmInstruction(InstPlayMovie) {
     auto err = Io::VfsOpen("movie", playNo, &stream);
     if (err != IoError_OK) {
       ImpLog(LogLevel::Error, LogChannel::Video,
-             "Failed to open movie for playback: IO error {:s}\n", err);
+             "Failed to open movie for playback: IO error {}\n", err);
       return;
     }
 
@@ -120,7 +120,7 @@ static void PlayMovieOldCommon(Sc3VmThread* thread, uint8_t instType) {
     auto err = Io::VfsOpen("movie", playNo, &stream);
     if (err != IoError_OK) {
       ImpLog(LogLevel::Error, LogChannel::Video,
-             "Failed to open movie for playback: IO error {:s}\n", err);
+             "Failed to open movie for playback: IO error {}\n", err);
       return;
     }
 

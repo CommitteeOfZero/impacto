@@ -12,17 +12,6 @@ namespace Impacto {
 namespace Io {
 
 enum TextArchiveType { CLS, MLP, TextMPK };
-auto format_as(TextArchiveType type) -> std::string {
-  switch (type) {
-    case CLS:
-      return "CLS";
-    case MLP:
-      return "MLP";
-    case TextMPK:
-      return "TextMPK";
-  }
-  return "Unknown";
-}
 
 struct TextMetaEntry : FileMeta {
   std::string FullPath;
