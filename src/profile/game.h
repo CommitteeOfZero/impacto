@@ -73,7 +73,7 @@ inline bool Fullscreen;
 inline SubtitleConfigType SubtitleConfig = +SubtitleConfigType::None;
 inline bool CloseBacklogWhenReachedEnd = true;
 inline DateFormatDef DateFormat = +DateFormatType::YMD;
-inline bool HasTitleMenuExitButton = false;
+inline bool HasScriptedExitLogic = false;
 
 inline int PlatformId = 0;
 

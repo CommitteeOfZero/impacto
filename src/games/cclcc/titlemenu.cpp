@@ -140,7 +140,7 @@ TitleMenu::TitleMenu() {
       glm::vec2(ItemHighlightOffsetX, (ItemYBase + (4 * ItemPadding))));
   setupBtn(Help, onClick, MainItems, FDIR_DOWN);
 
-  if (HasTitleMenuExitButton) {
+  if (HasScriptedExitLogic) {
     // Exit menu button (Configuration/Patch driven)
     Exit = new TitleButton(
         5, ExitSprite, ExitSprite, ItemHighlightSprite,

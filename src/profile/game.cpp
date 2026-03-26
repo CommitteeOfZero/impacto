@@ -33,8 +33,8 @@ void LoadGameFromLua() {
       TryGetMember<bool>("CloseBacklogWhenReachedEnd").value_or(true);
   DateFormat = DateFormatType::_from_integral_unchecked(
       TryGetMember<uint8_t>("DateFormat").value_or(+DateFormatType::YMD));
-  HasTitleMenuExitButton =
-      TryGetMember<bool>("HasTitleMenuExitButton").value_or(false);
+  HasScriptedExitLogic =
+      TryGetMember<bool>("HasScriptedExitLogic").value_or(false);
 
   bool res = TryGetMember<bool>("LayFileBigEndian", LayFileBigEndian);
   if (!res) LayFileBigEndian = false;

@@ -90,7 +90,7 @@ TitleMenu::TitleMenu() {
   MainItems->Add(System, FDIR_DOWN);
 
   // Exit menu button (Configuration/Patch driven)
-  if (HasTitleMenuExitButton) {
+  if (HasScriptedExitLogic) {
     Exit =
         new TitleButton(4, ExitSprite, ExitHighlightSprite, ItemHighlightSprite,
                         glm::vec2(ItemHighlightOffset.x - 1.0f,

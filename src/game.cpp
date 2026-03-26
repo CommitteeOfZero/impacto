@@ -246,8 +246,7 @@ void UpdateSystem(float dt) {
 
   while (SDL_PollEvent(&e)) {
     if (e.type == SDL_QUIT) {
-      if (Profile::Vm::GameInstructionSet == +Vm::InstructionSet::CHLCC ||
-          Profile::Vm::GameInstructionSet == +Vm::InstructionSet::CC) {
+      if (Profile::HasScriptedExitLogic) {
         Input::KeyboardButtonWentDown[SDL_SCANCODE_ESCAPE] = true;
       } else {
         ShouldQuit = true;

@@ -13,7 +13,7 @@ namespace CHLCC {
 namespace TitleMenu {
 
 void Configure() {
-  if (HasTitleMenuExitButton) {
+  if (HasScriptedExitLogic) {
     ExitSprite = EnsureGetMember<Sprite>("ExitSprite");
     ExitHighlightSprite = EnsureGetMember<Sprite>("ExitHighlightSprite");
   }
