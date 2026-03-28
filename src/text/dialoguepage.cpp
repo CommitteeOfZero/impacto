@@ -51,7 +51,6 @@ void DialoguePage::Init() {
 
     page.Glyphs.reserve(MaxPageSize);
 
-    page.Mode = DPM_NVL;
     page.AnimationId = 0;
 
     page.FadeAnimation.DurationIn = FadeInDuration;
@@ -67,21 +66,23 @@ void DialoguePage::Init() {
 
 void DialoguePage::Clear() {
   TextPage::Clear();
-  Name.clear();
 
-  if (Mode == DPM_ADV) {
-    CurrentLineTop = ADVBounds.Y;
-  } else if (Mode == DPM_REV) {
-    if (ScrWork[SW_MESWIN0TYPE] == 0) {
-      CurrentLineTop = REVBounds.Y;
-    } else {
-      CurrentLineTop = SecondaryREVBounds.Y;
+  Name.clear();
+  Voice = nullptr;
+
+  CurrentLineTop = [this]() {
+    switch (this->GetMode()) {
+      case DPM_ADV:
+        return ADVBounds.Y;
+      case DPM_REV:
+        return SecondaryREVBounds.Y;
+      case DPM_TIPS:
+        return TipsBounds.Y;
+      default:
+      case DPM_NVL:
+        return NVLBounds.Y;
     }
-  } else if (Mode == DPM_TIPS) {
-    CurrentLineTop = TipsBounds.Y;
-  } else {
-    CurrentLineTop = NVLBounds.Y;
-  }
+  }();
   CurrentLineTopMargin = 0.0f;
 
   AdvanceMethod = AdvanceMethodType::Skip;
@@ -90,6 +91,13 @@ void DialoguePage::Clear() {
 void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
                              bool acted, int animId, int charId,
                              bool shouldUpdateCharId) {
+  const DialoguePageMode mode = GetMode();
+  if (mode == DPM_ADV || mode == DPM_REV ||
+      AdvanceMethod == AdvanceMethodType::PresentClear) {
+    Clear();
+  }
+  TextFadeAnimation.Reset(AnimationDirection::Out);
+
   Voice = voice;
 
   if (shouldUpdateCharId) {
@@ -101,13 +109,6 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
 
   // Hold last voiced animation id
   if (Voice != nullptr) NextAnimationId = std::max(nextAnimId, 31);
-
-  if (Mode == DPM_ADV || Mode == DPM_REV ||
-      AdvanceMethod == AdvanceMethodType::PresentClear || PrevMode != Mode) {
-    Clear();
-  }
-  TextFadeAnimation.Reset(AnimationDirection::Out);
-  PrevMode = Mode;
 
   const size_t typeWriterStart = Glyphs.size();
 
@@ -213,7 +214,7 @@ void DialoguePage::Render(const float alpha,
                     : std::optional(ScrWork[SW_MESNAMEID0 + Id]),
       .Name = Name,
   };
-  DialogueBoxInst->Render(Mode, nameInfo, opacityTint);
+  DialogueBoxInst->Render(GetMode(), nameInfo, opacityTint);
 
   // TODO: Figure out what's up with text box coloring
   glm::vec4 col = glm::vec4(1.0f);  // ScrWorkGetColor(SW_MESWINDOW_COLOR);
@@ -233,7 +234,7 @@ void DialoguePage::Render(const float alpha,
   const RectF& lastGlyphDest =
       Glyphs.empty() ? RectF() : Glyphs.back().DestRect;
   glm::vec2 waitIconPos(lastGlyphDest.X + lastGlyphDest.Width, lastGlyphDest.Y);
-  WaitIconDisplay::Render(waitIconPos, col, Mode, Id);
+  WaitIconDisplay::Render(waitIconPos, col, GetMode(), Id);
 
   AutoIconDisplay::Render(col);
   SkipIconDisplay::Render(col);

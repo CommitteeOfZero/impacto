@@ -403,8 +403,8 @@ void DialogueTextParser::ParseString(Vm::Sc3VmThread* string) {
       BoxBounds = NVLBounds;
       break;
     case DPM_REV:
-      BoxBounds = REVBounds;
-      CurrentColors = ColorTable[REVColor];
+      BoxBounds = SecondaryREVBounds;
+      FontSize = Profile::CHLCC::DialogueBox::REVFontSize;
       break;
     case DPM_TIPS:
       BoxBounds = TipsBounds;
@@ -461,10 +461,10 @@ void DialogueTextParser::ParseString(DialoguePage& page,
   Glyphs.swap(page.Glyphs);
   RubyChunks.swap(page.RubyChunks);
   Name.swap(page.Name);
-  PageMode = page.Mode;
   CurrentLineTop = page.CurrentLineTop;
   CurrentLineTopMargin = page.CurrentLineTopMargin;
   LastLineStart = Glyphs.size();
+  PageMode = page.GetMode();
 
   ParseString(string);
 

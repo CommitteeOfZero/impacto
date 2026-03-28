@@ -57,7 +57,6 @@ TipsMenu::TipsMenu() : CommonMenu(FadeAnimation), TipViewItems(this) {
   TipViewItems.Add(Number);
 
   TextPage.Clear();
-  TextPage.Mode = DPM_TIPS;
   TextPage.FadeAnimation.Progress = 1.0f;
 
   TipsScrollStartPos = {TipsScrollDetailsX, TipsScrollYStart};
