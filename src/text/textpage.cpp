@@ -39,13 +39,4 @@ void TextPage::Render(const float alpha,
   }
 }
 
-void TextPage::EndRubyBase(const size_t lastBaseCharacter) {
-  if (BuildingRubyBase && !RubyChunks.empty()) {
-    const size_t firstBaseCharacter = RubyChunks.back().FirstBaseCharacter;
-    RubyChunks.back().BaseLength = lastBaseCharacter - firstBaseCharacter;
-  }
-
-  BuildingRubyBase = false;
-}
-
 }  // namespace Impacto

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "dialoguepage.h"
+#include "backlogpage.h"
 
 #include "../profile/dialogue.h"
 
@@ -60,7 +61,6 @@ class TextParser {
   TextParsingState ParsingState = TextParsingState::Normal;
 
   bool BuildingRubyBase = false;
-  size_t LastRubyBaseCharacter = 0;
   size_t FirstRubyChunkOnLine = 0;
 
   RectF BoxBounds;
@@ -88,6 +88,15 @@ class DialogueTextParser : public TextParser {
   void ParseString(DialoguePage& page, Vm::Sc3VmThread* string);
 };
 
+class BacklogTextParser : public TextParser {
+ public:
+  BacklogTextParser() = default;
+
+  void ParseString(Vm::Sc3VmThread* string) override;
+  void ParseString(BacklogPage& page, Vm::Sc3VmThread* string);
+};
+
 inline DialogueTextParser DialogueTextParserInst;
+inline BacklogTextParser BacklogTextParserInst;
 
 }  // namespace Impacto

@@ -100,12 +100,12 @@ struct ProcessedTextGlyph {
 };
 
 struct RubyChunk {
-  size_t FirstBaseCharacter;
-  size_t Length;
-  size_t BaseLength;
+  size_t FirstBaseCharacter = 0;
+  size_t Length = 0;
+  size_t BaseLength = 0;
   std::array<ProcessedTextGlyph, 32> Text;
   std::array<uint16_t, 32> RawText;
-  bool CenterPerCharacter;
+  bool CenterPerCharacter = false;
 };
 
 int TextGetStringLength(Vm::Sc3Stream& stream);

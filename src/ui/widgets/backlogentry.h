@@ -4,7 +4,7 @@
 
 #include "../../profile/dialogue.h"
 #include "../widget.h"
-#include "../../text/dialoguepage.h"
+#include "../../text/backlogpage.h"
 #include "../../vm/vm.h"
 
 namespace Impacto {
@@ -15,7 +15,6 @@ class BacklogEntry : public Widget {
  public:
   BacklogEntry(int id, Vm::BufferOffsetContext scrCtx, int audioId,
                int characterId, glm::vec2 pos, const RectF& hoverBounds);
-  ~BacklogEntry();
 
   void UpdateInput(float dt) override;
   void Render() override;
@@ -31,8 +30,7 @@ class BacklogEntry : public Widget {
   std::function<void(BacklogEntry*)> OnClickHandler;
 
  protected:
-  DialoguePage* BacklogPage;
-  size_t TextLength = 0;
+  std::unique_ptr<BacklogPage> Page;
 
  private:
   glm::vec2 Position;
