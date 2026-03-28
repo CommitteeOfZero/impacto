@@ -70,7 +70,6 @@ TipsMenu::TipsMenu()
 
   TextPage.Glyphs.reserve(Profile::Dialogue::MaxPageSize);
   TextPage.Clear();
-  TextPage.Mode = DPM_TIPS;
   TextPage.FadeAnimation.Progress = 1.0f;
 }
 

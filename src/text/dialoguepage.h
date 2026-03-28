@@ -3,6 +3,8 @@
 #include "textpage.h"
 #include "typewritereffect.h"
 
+#include "../profile/scriptvars.h"
+
 #include "../hud/dialoguebox.h"
 
 #include "../audio/audiostream.h"
@@ -46,10 +48,15 @@ struct DialoguePage : public TextPage {
 
   float AutoWaitTime = 0.0f;
 
-  DialoguePageMode Mode;
-
   enum class State { Initial, Showing, Hiding, Shown, Hidden };
   State GetState() const;
+
+  DialoguePageMode GetMode() const {
+    using namespace Profile::ScriptVars;
+    const int mode = ScrWork[SW_MESMODE0 + 10 * Id];
+    assert(mode < 4);
+    return static_cast<DialoguePageMode>(mode);
+  }
 
   bool TextIsFullyOpaque();
   void Clear() override;
@@ -68,8 +75,6 @@ struct DialoguePage : public TextPage {
  private:
   void FinishLine(Vm::Sc3VmThread* ctx, size_t nextLineStart,
                   const RectF& boxBounds, TextAlignment alignment);
-
-  DialoguePageMode PrevMode = DPM_ADV;
 
   std::unique_ptr<DialogueBox> DialogueBoxInst = DialogueBox::Create();
 };

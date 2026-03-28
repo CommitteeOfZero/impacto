@@ -158,8 +158,6 @@ VmInstruction(InstMes) {
   // After loading a save we need to make sure the textbox is actually shown
   if (dialoguePage.FadeAnimation.IsOut() &&
       GetFlag(thread->DialoguePageId + SF_MESWINDOW0OPENFL)) {
-    dialoguePage.Mode =
-        (DialoguePageMode)ScrWork[thread->DialoguePageId * 10 + SW_MESMODE0];
     dialoguePage.FadeAnimation.StartIn(true);
   }
   SaveSystem::SetQSavedOnCurrentLine(false);
@@ -305,7 +303,7 @@ VmInstruction(InstMesMain) {
         currentPage.AdvanceMethod == Present0x18 ||
         currentPage.AdvanceMethod == AutoForward ||
         (currentPage.AdvanceMethod != PresentClear && type != 1 &&
-         currentPage.Mode == DPM_NVL);
+         currentPage.GetMode() == DPM_NVL);
     if (advanceWithoutHiding) {
       // TODO: Add backlog entry
 
