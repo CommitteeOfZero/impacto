@@ -26,13 +26,19 @@ void BacklogEntry::Render() {
                                       Tint, false, false);
   }
 
-  Renderer->DrawProcessedText(
-      BacklogPage->Name, Profile::Dialogue::DialogueFont, Tint.a,
-      Profile::Dialogue::REVNameOutlineMode, true, &BacklogMaskSheet);
+  Renderer->DrawProcessedText(Page->Name, Profile::Dialogue::DialogueFont,
+                              Tint.a, Profile::Dialogue::REVNameOutlineMode,
+                              true, &BacklogMaskSheet);
 
-  Renderer->DrawProcessedText(
-      BacklogPage->Glyphs, Profile::Dialogue::DialogueFont, Tint.a,
-      Profile::Dialogue::REVOutlineMode, true, &BacklogMaskSheet);
+  for (RubyChunk& chunk : Page->RubyChunks) {
+    Renderer->DrawProcessedText(chunk.Text, Profile::Dialogue::DialogueFont,
+                                Tint.a, Profile::Dialogue::REVNameOutlineMode,
+                                true, &BacklogMaskSheet);
+  }
+
+  Renderer->DrawProcessedText(Page->Glyphs, Profile::Dialogue::DialogueFont,
+                              Tint.a, Profile::Dialogue::REVOutlineMode, true,
+                              &BacklogMaskSheet);
 }
 
 }  // namespace CC

@@ -35,8 +35,6 @@ class TextPage {
  protected:
   TextPage() = default;
 
-  void EndRubyBase(size_t lastBaseCharacter);
-
   bool BuildingRubyBase = false;
   size_t FirstRubyChunkOnLine = 0;
 

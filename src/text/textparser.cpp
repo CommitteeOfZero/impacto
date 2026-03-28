@@ -1,6 +1,7 @@
 #include "textparser.h"
 
 #include "../profile/dialogue.h"
+#include "../profile/games/chlcc/dialoguebox.h"
 
 #include "../data/tipssystem.h"
 #include "../hud/tipsnotification.h"
@@ -22,7 +23,6 @@ void TextParser::Reset() {
   ParsingState = TextParsingState::Normal;
 
   BuildingRubyBase = false;
-  LastRubyBaseCharacter = 0;
   FirstRubyChunkOnLine = 0;
 
   ParallelStartGlyphs.clear();
@@ -357,8 +357,8 @@ void TextParser::FinishLine(const size_t nextLineStart) {
 
 void TextParser::EndRubyBase() {
   if (BuildingRubyBase && !RubyChunks.empty()) {
-    const size_t firstBaseCharacter = RubyChunks.back().FirstBaseCharacter;
-    RubyChunks.back().BaseLength = LastRubyBaseCharacter - firstBaseCharacter;
+    RubyChunk& chunk = RubyChunks.back();
+    chunk.BaseLength = Glyphs.size() - chunk.FirstBaseCharacter;
   }
 
   BuildingRubyBase = false;
@@ -476,6 +476,79 @@ void DialogueTextParser::ParseString(DialoguePage& page,
   page.AdvanceMethod = AdvanceMethod;
   page.CurrentLineTop = CurrentLineTop;
   page.CurrentLineTopMargin = CurrentLineTopMargin;
+}
+
+void BacklogTextParser::ParseString(Vm::Sc3VmThread* string) {
+  const ankerl::unordered_dense::map<
+      StringTokenType,
+      std::function<void(BacklogTextParser*, const StringToken&)>>
+      parsingFunctions{
+          {STT_LineBreak, &BacklogTextParser::ParseLineBreak},
+          {STT_CharacterNameStart, &BacklogTextParser::ParseCharacterNameStart},
+          {STT_DialogueLineStart, &BacklogTextParser::ParseDialogueLineStart},
+          {STT_SetColor, &BacklogTextParser::ParseSetColor},
+          {STT_RubyBaseStart, &BacklogTextParser::ParseRubyBaseStart},
+          {STT_RubyTextStart, &BacklogTextParser::ParseRubyTextStart},
+          {STT_RubyTextEnd, &BacklogTextParser::ParseRubyTextEnd},
+          {STT_RubyCenterPerCharacter,
+           &BacklogTextParser::ParseRubyCenterPerCharacter},
+          {STT_Character, &BacklogTextParser::ParseCharacter},
+      };
+
+  FontSize = DefaultFontSize;
+  BoxBounds = REVBounds;
+  CurrentColors = ColorTable[REVColor];
+
+  StringToken token;
+  do {
+    token.Read(string);
+    const auto function = parsingFunctions.find(token.Type);
+    if (function != parsingFunctions.end()) function->second(this, token);
+  } while (token.Type != STT_EndOfString);
+
+  FinishLine(Glyphs.size());
+
+  if (!NameCode.empty()) {
+    float fontSize = REVNameFontSize;
+    int colorIndex = REVNameColor;
+
+    glm::vec2 pos = REVBounds.GetPos();
+    TextAlignment alignment = TextAlignment::Left;
+    switch (REVNameLocation) {
+      case REVNameLocationType::None:
+      case REVNameLocationType::TopLeft:
+        pos = REVBounds.GetPos();
+        alignment = TextAlignment::Left;
+        break;
+      case REVNameLocationType::LeftTop:
+        pos = {REVBounds.X - REVNameOffset, Glyphs[0].DestRect.Y};
+        alignment = TextAlignment::Right;
+        break;
+    }
+
+    Vm::Sc3Stream nameStream(NameCode.data());
+    Name = TextLayoutPlainLine(nameStream, static_cast<int>(NameCode.size()),
+                               DialogueFont, fontSize, ColorTable[colorIndex],
+                               1.0f, pos, alignment);
+    assert(NameCode.size() == Name.size());
+  }
+}
+
+void BacklogTextParser::ParseString(BacklogPage& page,
+                                    Vm::Sc3VmThread* string) {
+  Reset();
+  Glyphs.swap(page.Glyphs);
+  RubyChunks.swap(page.RubyChunks);
+  Name.swap(page.Name);
+  PageMode = DPM_REV;
+  LastLineStart = Glyphs.size();
+  CurrentLineTop = REVBounds.Y;
+
+  ParseString(string);
+
+  Glyphs.swap(page.Glyphs);
+  RubyChunks.swap(page.RubyChunks);
+  Name.swap(page.Name);
 }
 
 }  // namespace Impacto
