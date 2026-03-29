@@ -541,7 +541,12 @@ void FFmpegPlayer::Update(float dt) {
   if (IsPlaying) {
     using namespace std::literals::chrono_literals;
     if (AudioStream) AudioPlayer->Process();
-    if (SubPlayer) SubPlayer->Update(MasterClock->Get());
+
+    if (Profile::GameFeatures & GameFeature::Subtitles) {
+      if (SubPlayer) SubPlayer->Update(MasterClock->Get());
+      UpdateSubtitles();
+    }
+
     Clock::Microseconds duration{};
     Clock::MonotonicTime time;
 
@@ -583,7 +588,6 @@ void FFmpegPlayer::Update(float dt) {
                      std::chrono::seconds(fps.getDenominator())) /
                  fps.getNumerator();
     }
-    if (Profile::GameFeatures & GameFeature::Subtitles) UpdateSubtitles();
 
     if (time < FrameTimer + duration) {
       return;
