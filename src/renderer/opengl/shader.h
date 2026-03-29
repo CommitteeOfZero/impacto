@@ -622,5 +622,27 @@ class MosaicShader : public Shader<MosaicUniforms> {
   const GLint TileSizeLocation;
 };
 
+struct SubtitleGlyphUniforms {
+  bool operator==(const SubtitleGlyphUniforms& other) const = default;
+
+  glm::mat4 Projection{};
+  glm::mat4 Transformation{};
+
+  GLint CoverageMap = 0;
+};
+
+class SubtitleGlyphShader : public Shader<SubtitleGlyphUniforms> {
+ public:
+  SubtitleGlyphShader(GLint programId);
+
+  void UploadUniforms(SubtitleGlyphUniforms uniforms) override;
+
+ private:
+  const GLint ProjectionLocation;
+  const GLint TransformationLocation;
+
+  const GLint CoverageMapLocation;
+};
+
 }  // namespace OpenGL
 }  // namespace Impacto

@@ -47,8 +47,7 @@ void AssMsgHandler(int level, const char* fmt, va_list va, void* data) {
 
 SubtitleRenderTrack::SubtitleRenderTrack(SubtitleRenderer& renderer,
                                          std::string_view header)
-    : SubtitlesSpritesheet(renderer.GetWidth(), renderer.GetHeight()),
-      SubRenderer(renderer),
+    : SubRenderer(renderer),
       AssTrack(ass_new_track(SubtitleRenderer::GetAssLibrary())) {
   if (!AssTrack) {
     ImpLog(LogLevel::Error, LogChannel::Subtitle,
@@ -61,8 +60,7 @@ SubtitleRenderTrack::SubtitleRenderTrack(SubtitleRenderer& renderer,
 
 SubtitleRenderTrack::SubtitleRenderTrack(SubtitleRenderer& renderer,
                                          std::span<const char> fileBuffer)
-    : SubtitlesSpritesheet(renderer.GetWidth(), renderer.GetHeight()),
-      SubRenderer(renderer),
+    : SubRenderer(renderer),
       AssTrack(ass_read_memory(SubtitleRenderer::GetAssLibrary(),
                                const_cast<char*>(fileBuffer.data()),
                                fileBuffer.size(), "UTF-8")) {
@@ -82,65 +80,83 @@ void SubtitleRenderTrack::Push(SubtitleEntry entry) {
                     entry.Duration.count());
 }
 
+SubtitleRenderTrack::GlyphKey::GlyphKey(ASS_Image const& img)
+    : BitmapHash(0),
+      Dimensions{img.w, img.h},
+      Type(static_cast<AssImageType>(img.type)) {
+  const std::span<const uint8_t> bitmapSpan(img.bitmap,
+                                            (img.stride * (img.h - 1)) + img.w);
+  BitmapHash = GetHashCode(bitmapSpan);
+}
+
+void SubtitleRenderTrack::UpdateSubtitleGlyphs(ASS_Image* images) {
+  ankerl::unordered_dense::set<GlyphKey, GlyphKey::hash> removalKeys;
+  std::transform(GlyphTextures.begin(), GlyphTextures.end(),
+                 std::inserter(removalKeys, removalKeys.end()),
+                 [](auto pair) { return pair.first; });
+  SubtitleGlyphs.clear();
+
+  // Hash the bitmap coverage & some ass_img metadata, then cache the texture
+  // This allows us to reuse textures when only some parts of subtitle line
+  // changes, which should be more performant for karaoke effect
+  for (ASS_Image* img = images; img; img = img->next) {
+    SpriteSheet sheet{float(img->w), float(img->h)};
+    auto itr = GlyphTextures.find(*img);
+    if (itr != GlyphTextures.end()) {
+      removalKeys.erase(*img);
+      sheet.Texture = itr->second;
+    } else {
+      Texture t;
+      t.Init(TexFmt_U8, img->w, img->h);
+      for (int y = 0; y < img->h; ++y) {
+        const uint8_t* srcRow = img->bitmap + y * img->stride;
+        std::span<uint8_t> dstRow =
+            std::span(t.Buffer).subspan(y * img->w, img->w);
+        std::memcpy(dstRow.data(), srcRow, img->w);
+      }
+      sheet.Texture = t.Submit();
+      GlyphTextures.try_emplace(GlyphKey(*img), sheet.Texture);
+    }
+    const glm::vec4 tint{
+        ((img->color >> 24) & 0xFF) / 255.0f,
+        ((img->color >> 16) & 0xFF) / 255.0f,
+        ((img->color >> 8) & 0xFF) / 255.0f,
+        (255 - (img->color & 0xFF)) / 255.0f,
+    };
+    const glm::vec2 pos{(float)img->dst_x, (float)img->dst_y};
+    SubtitleGlyphs.emplace_back(
+        Sprite{sheet, 0, 0, (float)img->w, (float)img->h}, tint, pos);
+  }
+
+  for (const auto& key : removalKeys) {
+    Renderer->FreeTexture(GlyphTextures[key]);
+    GlyphTextures.erase(key);
+  }
+}
+
 void SubtitleRenderTrack::Render() {
   int wasChanged = 0;
   ASS_Image* images =
       ass_render_frame(SubRenderer.get().GetAssRenderer(), AssTrack.get(),
                        SubRenderer.get().GetTime().count(), &wasChanged);
   Change = static_cast<ChangeStatus>(wasChanged);
-  if (SubtitlesSpritesheet.Texture &&
-      (Change != ChangeStatus::UNCHANGED || !images)) {
-    Renderer->FreeTexture(SubtitlesSpritesheet.Texture);
-    SubtitlesSpritesheet.Texture = 0;
-  }
-  if (Change != ChangeStatus::UNCHANGED && images) {
-    Texture t;
-    t.Init(TexFmt_RGBA, static_cast<int>(SubRenderer.get().GetWidth()),
-           static_cast<int>(SubRenderer.get().GetHeight()));
-    auto drawGlyph = [&t](ASS_Image& img) {
-      if (img.w == 0 || img.h == 0) return;
-      const glm::u8vec3 rgb{
-          (img.color >> 24) & 0xFF,
-          (img.color >> 16) & 0xFF,
-          (img.color >> 8) & 0xFF,
-      };
-      const uint8_t a = 255 - (img.color & 0xFF);
-      for (int y = 0; y < img.h; ++y) {
-        for (int x = 0; x < img.w; ++x) {
-          const uint8_t k = img.bitmap[y * img.stride + x];
-          const int dstX = img.dst_x + x;
-          const int dstY = img.dst_y + y;
-          if (!k || dstX < 0 || dstX >= t.Width || dstY < 0 || dstY >= t.Height)
-            continue;
-
-          const size_t idx = (dstY * t.Width + dstX) * 4;
-
-          constexpr uint32_t mult = 255 * 255;
-          const glm::u32vec4 src{
-              rgb.r * a * k,
-              rgb.g * a * k,
-              rgb.b * a * k,
-              a * k * 255,
-          };
-          const uint32_t cover = a * k;
-          const auto buf = glm::make_vec4(&t.Buffer[idx]);
-          const auto result =
-              glm::u8vec4((src + glm::u32vec4(buf) * (mult - cover)) / mult);
-          std::memcpy(&t.Buffer[idx], glm::value_ptr(result), 4);
-        }
-      }
-    };
+  if (Change == ChangeStatus::CONTENT || !images) {
+    UpdateSubtitleGlyphs(images);
+  } else if (Change == ChangeStatus::POSITION) {
+    int i = 0;
     for (ASS_Image* img = images; img; img = img->next) {
-      drawGlyph(*img);
+      SubtitleGlyphs[i].Position =
+          glm::vec2{float(img->dst_x), float(img->dst_y)};
+      i++;
     }
-    SubtitlesSpritesheet.Texture = t.Submit();
   }
-  if (SubtitlesSpritesheet.Texture) {
+
+  if (!SubtitleGlyphs.empty()) {
     Renderer->SetBlendMode(RendererBlendMode::Premultiplied);
-    Renderer->DrawSprite(
-        Sprite(SubtitlesSpritesheet, 0, 0, SubtitlesSpritesheet.DesignWidth,
-               SubtitlesSpritesheet.DesignHeight),
-        {0, 0});
+    for (const auto& subtitleGlyph : SubtitleGlyphs) {
+      Renderer->DrawSubtitleGlyph(subtitleGlyph.GlyphSprite,
+                                  subtitleGlyph.Position, subtitleGlyph.Tint);
+    }
     Renderer->SetBlendMode(RendererBlendMode::Normal);
   }
 }

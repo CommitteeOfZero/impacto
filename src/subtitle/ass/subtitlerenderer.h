@@ -42,8 +42,46 @@ class SubtitleRenderTrack {
     POSITION = 1,
     CONTENT = 2
   };
-  SpriteSheet SubtitlesSpritesheet;
+
+  struct GlyphKey {
+    enum AssImageType : uint8_t {
+      Character,
+      Outline,
+      Shadow,
+    };
+    GlyphKey(ASS_Image const& img);
+    uint64_t BitmapHash;
+    glm::ivec2 Dimensions;
+    AssImageType Type;
+
+    friend bool operator==(const GlyphKey& lhs, const GlyphKey& rhs) {
+      return lhs.BitmapHash == rhs.BitmapHash &&
+             lhs.Dimensions == rhs.Dimensions && lhs.Type == rhs.Type;
+    }
+
+    struct hash {
+      size_t operator()(const GlyphKey& k) const {
+        std::size_t seed = 0;
+        HashCombine(seed, k.BitmapHash, k.Dimensions.x, k.Dimensions.y,
+                    to_underlying(k.Type));
+        return seed;
+      }
+    };
+  };
+
+  struct SubtitleGlyph {
+    Sprite GlyphSprite;
+    glm::vec4 Tint;
+    glm::vec2 Position;
+  };
+
+  void UpdateSubtitleGlyphs(ASS_Image* images);
+
   std::vector<SubtitleEntry> Entries;
+  std::vector<SubtitleGlyph> SubtitleGlyphs;
+  ankerl::unordered_dense::map<GlyphKey, uint32_t, GlyphKey::hash>
+      GlyphTextures;
+
   std::reference_wrapper<SubtitleRenderer> SubRenderer;
   std::unique_ptr<ASS_Track, AssDeleter> AssTrack;
   size_t EntryCounter = 0;

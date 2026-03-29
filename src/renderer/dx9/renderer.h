@@ -91,6 +91,10 @@ class Renderer : public BaseRenderer {
   void DrawVideoTexture(const YUVFrame& frame, const RectF& dest,
                         glm::vec4 tint, bool alphaVideo) override;
 
+  void DrawSubtitleGlyph(const Sprite& sprite, const CornersQuad& dest,
+                         const glm::mat4 transformation,
+                         const glm::vec4 tint) override {};  // TODO: Implement
+
   void CaptureScreencap(Sprite& sprite) override;
 
   void SetFramebuffer(size_t buffer) override {};  // TODO: Implement

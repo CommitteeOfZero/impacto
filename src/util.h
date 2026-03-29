@@ -566,4 +566,10 @@ constexpr time_t timegm(tm const& t) {
   return 60 * (60 * (24L * daysSinceEpoch + t.tm_hour) + t.tm_min) + t.tm_sec;
 }
 
+// Boost's hash_combine algorithm
+template <typename T, typename... Rest>
+void HashCombine(std::size_t& seed, const T& v, const Rest&... rest) {
+  seed ^= std::hash<T>{}(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+  (HashCombine(seed, rest), ...);
+}
 }  // namespace Impacto
