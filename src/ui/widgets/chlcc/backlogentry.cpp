@@ -18,9 +18,9 @@ constexpr std::array<std::string_view, 2> NametagCommonStrings = {
     "　】",
 };
 
-BacklogEntry::BacklogEntry(int id, Vm::BufferOffsetContext scrCtx, int audioId,
-                           int characterId, glm::vec2 pos,
-                           const RectF& hoverBounds)
+BacklogEntry::BacklogEntry(int id, Vm::BufferOffsetContext scrCtx,
+                           std::optional<int> audioId, int characterId,
+                           glm::vec2 pos, const RectF& hoverBounds)
     : Widgets::BacklogEntry(id, scrCtx, audioId, characterId, pos,
                             hoverBounds) {
   if (!Page->Name.empty()) {
@@ -35,7 +35,7 @@ BacklogEntry::BacklogEntry(int id, Vm::BufferOffsetContext scrCtx, int audioId,
 }
 
 void BacklogEntry::Render() {
-  if (AudioId != -1) {
+  if (AudioId.has_value()) {
     Renderer->DrawSprite(
         VoiceIcon,
         glm::vec2(Profile::CHLCC::BacklogMenu::RenderingBounds.X,

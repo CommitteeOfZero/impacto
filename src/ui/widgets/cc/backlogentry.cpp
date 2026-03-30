@@ -13,7 +13,7 @@ using namespace Impacto::Profile::BacklogMenu;
 using namespace Impacto::Profile::CC::BacklogMenu;
 
 void BacklogEntry::Render() {
-  if (AudioId != -1) {
+  if (AudioId.has_value()) {
     RectF bounds = RectF(Bounds.X - VoiceIcon.ScaledWidth() + VoiceIconOffset.x,
                          Bounds.Y + VoiceIconOffset.y, VoiceIcon.ScaledWidth(),
                          VoiceIcon.ScaledHeight());

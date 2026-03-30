@@ -15,9 +15,9 @@ namespace Widgets {
 using namespace Impacto::Profile::BacklogMenu;
 using namespace Impacto::Profile::ScriptVars;
 
-BacklogEntry::BacklogEntry(int id, Vm::BufferOffsetContext scrCtx, int audioId,
-                           int characterId, glm::vec2 pos,
-                           const RectF& hoverBounds)
+BacklogEntry::BacklogEntry(int id, Vm::BufferOffsetContext scrCtx,
+                           std::optional<int> audioId, int characterId,
+                           glm::vec2 pos, const RectF& hoverBounds)
     : Id(id),
       AudioId(audioId),
       CharacterId(characterId),
@@ -91,7 +91,7 @@ void BacklogEntry::Move(glm::vec2 relativePosition) {
 }
 
 void BacklogEntry::Render() {
-  if (AudioId != -1) {
+  if (AudioId.has_value()) {
     Renderer->DrawSprite(
         VoiceIcon,
         glm::vec2(Bounds.X - VoiceIcon.ScaledWidth(), Bounds.Y) +
