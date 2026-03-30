@@ -8,6 +8,7 @@
 #include "utils.h"
 #include "window.h"
 #include "yuvframe.h"
+#include "nv12frame.h"
 
 namespace Impacto {
 namespace Vulkan {
@@ -61,6 +62,7 @@ class Renderer : public BaseRenderer {
                           std::span<uint8_t> outBuffer) override;
   void FreeTexture(uint32_t id) override;
   YUVFrame* CreateYUVFrame(float width, float height) override;
+  NV12Frame* CreateNV12Frame(float width, float height) override;
 
   void DrawSprite(const Sprite& sprite, const CornersQuad& dest,
                   glm::mat4 transformation, std::span<const glm::vec4, 4> tints,
@@ -119,7 +121,8 @@ class Renderer : public BaseRenderer {
 
   void DrawVideoTexture(const YUVFrame& frame, const RectF& dest,
                         glm::vec4 tint, bool alphaVideo) override;
-
+  void DrawVideoTexture(const NV12Frame& frame, const RectF& dest,
+                        glm::vec4 tint, bool alphaVideo = false) override;
   void DrawSubtitleGlyph(const Sprite& sprite, const CornersQuad& dest,
                          const glm::mat4 transformation,
                          const glm::vec4 tint) override {};  // TODO: Implement
@@ -220,6 +223,7 @@ class Renderer : public BaseRenderer {
   Pipeline* PipelineMaskedSprite;
   Pipeline* PipelineMaskedSpriteNoAlpha;
   Pipeline* PipelineYUVFrame;
+  Pipeline* PipelineNV12Frame;
   Pipeline* PipelineCCMessageBox;
   Pipeline* PipelineCHLCCMenuBackground;
 
@@ -229,7 +233,8 @@ class Renderer : public BaseRenderer {
   uint32_t CurrentTexture = 0;
   uint32_t NextTextureId = 1;
 
-  VkYUVFrame* VideoFrameInternal;
+  VkYUVFrame* VideoFrameInternalYUV;
+  VkNV12Frame* VideoFrameInternalNV12;
 
   static int constexpr VertexBufferSize = 4096 * 4096;
   static int constexpr IndexBufferCount =

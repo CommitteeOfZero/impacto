@@ -407,6 +407,7 @@ set(Impacto_Header
     src/renderer/renderer.h
     src/renderer/window.h
     src/renderer/yuvframe.h
+    src/renderer/nv12frame.h
 
     src/data/savesystem.h
     src/data/tipssystem.h
@@ -1145,6 +1146,7 @@ if (NOT DEFINED IMPACTO_DISABLE_OPENGL)
         src/renderer/opengl/shader.cpp
         src/renderer/opengl/glc.cpp
         src/renderer/opengl/yuvframe.cpp
+        src/renderer/opengl/nv12frame.cpp
         src/renderer/opengl/3d/renderable3d.cpp
         src/renderer/opengl/3d/scene.cpp
 
@@ -1156,6 +1158,7 @@ if (NOT DEFINED IMPACTO_DISABLE_OPENGL)
         src/renderer/opengl/shader.h
         src/renderer/opengl/glc.h
         src/renderer/opengl/yuvframe.h
+        src/renderer/opengl/nv12frame.h
         src/renderer/opengl/3d/renderable3d.h
         src/renderer/opengl/3d/scene.h
     )
@@ -1240,6 +1243,7 @@ if (NOT DEFINED IMPACTO_DISABLE_VULKAN)
         src/renderer/vulkan/pipeline.cpp
         src/renderer/vulkan/utils.cpp
         src/renderer/vulkan/yuvframe.cpp
+        src/renderer/vulkan/nv12frame.cpp
         src/renderer/vulkan/3d/renderable3d.cpp
         src/renderer/vulkan/3d/scene.cpp
     )
@@ -1249,6 +1253,7 @@ if (NOT DEFINED IMPACTO_DISABLE_VULKAN)
         src/renderer/vulkan/pipeline.h
         src/renderer/vulkan/utils.h
         src/renderer/vulkan/yuvframe.h
+        src/renderer/vulkan/nv12frame.h
         src/renderer/vulkan/3d/renderable3d.h
         src/renderer/vulkan/3d/scene.h
     )
@@ -1267,6 +1272,7 @@ if (NOT DEFINED IMPACTO_DISABLE_DX9)
         src/renderer/dx9/window.cpp
         src/renderer/dx9/shader.cpp
         src/renderer/dx9/yuvframe.cpp
+        src/renderer/dx9/nv12frame.cpp
         src/renderer/dx9/3d/scene.cpp
         src/renderer/dx9/3d/renderable3d.cpp
     )
@@ -1276,6 +1282,7 @@ if (NOT DEFINED IMPACTO_DISABLE_DX9)
         src/renderer/dx9/window.h
         src/renderer/dx9/shader.h
         src/renderer/dx9/yuvframe.h
+        src/renderer/dx9/nv12frame.h
         src/renderer/dx9/3d/scene.h
         src/renderer/dx9/3d/renderable3d.h
     )

@@ -82,6 +82,8 @@ void Renderer::Init() {
                                      vertexDeclaration);
   ShaderYUVFrame = new Shader();
   ShaderYUVFrame->Compile("YUVFrame", Device, vertexDeclaration);
+  ShaderNV12Frame = new Shader();
+  ShaderNV12Frame->Compile("NV12Frame", Device, vertexDeclaration);
   ShaderCCMessageBox = new Shader();
   ShaderCCMessageBox->Compile("CCMessageBoxSprite", Device, vertexDeclaration);
   ShaderCHLCCMenuBackground = new Shader();
@@ -258,9 +260,15 @@ void Renderer::FreeTexture(uint32_t id) {
 }
 
 YUVFrame* Renderer::CreateYUVFrame(float width, float height) {
-  VideoFrameInternal = new DX9YUVFrame(Device);
-  VideoFrameInternal->Init(width, height);
-  return (YUVFrame*)VideoFrameInternal;
+  VideoFrameInternalYUV = new DX9YUVFrame(Device);
+  VideoFrameInternalYUV->Init(width, height);
+  return (YUVFrame*)VideoFrameInternalYUV;
+}
+
+NV12Frame* Renderer::CreateNV12Frame(float width, float height) {
+  VideoFrameInternalNV12 = new DX9NV12Frame(Device);
+  VideoFrameInternalNV12->Init(width, height);
+  return (NV12Frame*)VideoFrameInternalNV12;
 }
 
 void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
@@ -687,9 +695,46 @@ void Renderer::DrawVideoTexture(const YUVFrame& frame, const RectF& dest,
   // Do we have space for one more sprite quad?
   EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
 
-  auto err = Device->SetTexture(0, VideoFrameInternal->Luma);
-  err = Device->SetTexture(1, VideoFrameInternal->Cb);
-  err = Device->SetTexture(2, VideoFrameInternal->Cr);
+  auto err = Device->SetTexture(0, VideoFrameInternalYUV->Luma);
+  err = Device->SetTexture(1, VideoFrameInternalYUV->Cb);
+  err = Device->SetTexture(2, VideoFrameInternalYUV->Cr);
+
+  // This is cursed man, idk
+  BOOL alphaVideoB = (BOOL)alphaVideo;
+  Device->SetPixelShaderConstantB(0, &alphaVideoB, 1);
+
+  // OK, all good, make quad
+
+  VertexBufferSprites* vertices =
+      (VertexBufferSprites*)(VertexBuffer + VertexBufferFill);
+  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
+
+  IndexBufferFill += 6;
+
+  QuadSetUV(RectF(0.0f, 0.0f, frame.Width, frame.Height),
+            {frame.Width, frame.Height}, &vertices[0].UV,
+            sizeof(VertexBufferSprites));
+  QuadSetPosition(dest, &vertices[0].Position, sizeof(VertexBufferSprites));
+
+  for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
+}
+
+void Renderer::DrawVideoTexture(const NV12Frame& frame, const RectF& dest,
+                                const glm::vec4 tint, const bool alphaVideo) {
+  if (!Drawing) {
+    ImpLog(LogLevel::Error, LogChannel::Render,
+           "Renderer->DrawVideoTexture() called before BeginFrame()\n");
+    return;
+  }
+
+  EnsureShader(ShaderNV12Frame);
+  CurrentTexture = std::numeric_limits<uint32_t>::max();
+
+  // Do we have space for one more sprite quad?
+  EnsureSpaceAvailable(4, sizeof(VertexBufferSprites), 6);
+
+  auto err = Device->SetTexture(0, VideoFrameInternalNV12->Luma);
+  err = Device->SetTexture(1, VideoFrameInternalNV12->CbCr);
 
   // This is cursed man, idk
   BOOL alphaVideoB = (BOOL)alphaVideo;

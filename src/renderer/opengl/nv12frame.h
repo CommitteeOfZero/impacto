@@ -1,0 +1,17 @@
+#pragma once
+
+#include "../nv12frame.h"
+
+namespace Impacto {
+namespace OpenGL {
+
+class GLNV12Frame : public NV12Frame {
+ public:
+  void Init(float width, float height) override;
+
+  void Submit(const void* luma, const void* cbcr) override;
+  void Release() override;
+};
+
+}  // namespace OpenGL
+}  // namespace Impacto

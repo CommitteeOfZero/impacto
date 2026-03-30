@@ -6,6 +6,7 @@
 #include "../spritesheet.h"
 #include "../text/text.h"
 #include "yuvframe.h"
+#include "nv12frame.h"
 #include <span>
 
 namespace Impacto {
@@ -92,6 +93,7 @@ class BaseRenderer {
                                   std::span<uint8_t> outBuffer) = 0;
   virtual void FreeTexture(uint32_t id) = 0;
   virtual YUVFrame* CreateYUVFrame(float width, float height) = 0;
+  virtual NV12Frame* CreateNV12Frame(float width, float height) = 0;
 
   virtual void DrawSprite(const Sprite& sprite, const CornersQuad& dest,
                           glm::mat4 transformation,
@@ -386,6 +388,8 @@ class BaseRenderer {
       bool smoothstepGlyphOpacity = true, SpriteSheet* maskedSheet = nullptr);
 
   virtual void DrawVideoTexture(const YUVFrame& frame, const RectF& dest,
+                                glm::vec4 tint, bool alphaVideo = false) = 0;
+  virtual void DrawVideoTexture(const NV12Frame& frame, const RectF& dest,
                                 glm::vec4 tint, bool alphaVideo = false) = 0;
 
   virtual void DrawSubtitleGlyph(const Sprite& sprite, const CornersQuad& dest,

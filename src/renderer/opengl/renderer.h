@@ -35,6 +35,7 @@ class Renderer : public BaseRenderer {
                           std::span<uint8_t> outBuffer) override;
   void FreeTexture(uint32_t id) override;
   YUVFrame* CreateYUVFrame(float width, float height) override;
+  NV12Frame* CreateNV12Frame(float width, float height) override;
 
   void DrawSprite(const Sprite& sprite, const CornersQuad& dest,
                   glm::mat4 transformation, std::span<const glm::vec4, 4> tints,
@@ -92,6 +93,8 @@ class Renderer : public BaseRenderer {
 
   void DrawVideoTexture(const YUVFrame& frame, const RectF& dest,
                         glm::vec4 tint, bool alphaVideo) override;
+  void DrawVideoTexture(const NV12Frame& frame, const RectF& dest,
+                        glm::vec4 tint, bool alphaVideo) override;
   void DrawSubtitleGlyph(const Sprite& sprite, const CornersQuad& dest,
                          const glm::mat4 transformation,
                          const glm::vec4 tint) override;
@@ -144,6 +147,7 @@ class Renderer : public BaseRenderer {
   std::optional<GaussianBlurShader> GaussianBlurShaderProgram;
   std::optional<MosaicShader> MosaicShaderProgram;
   std::optional<SubtitleGlyphShader> SubtitleGlyphShaderProgram;
+  std::optional<NV12FrameShader> NV12FrameShaderProgram;
 
   const void* CurrentShaderProgram = nullptr;
 

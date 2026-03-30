@@ -73,6 +73,8 @@ class FFmpegPlayer : public VideoPlayer {
                  av::Stream&& avStream, int streamId);
 
   void UpdateSubtitles();
+  void ProcessVideoFrame(Frame_t<AVMEDIA_TYPE_VIDEO>& avFrame);
+  AVBufferRef* HwDecoderInit(const AVCodec* codec);
 
   static int constexpr FILESTREAMBUFFERSZ = 64 * 8192;
   std::condition_variable ReadCond;
@@ -82,16 +84,17 @@ class FFmpegPlayer : public VideoPlayer {
 
   std::unique_ptr<Io::Stream> StreamPtr;
   av::FormatContext FormatContext;
+  AVPixelFormat HwVideoPixelFormat = AV_PIX_FMT_NONE;
   FFmpegFileIO IoContext;
-  Clock VideoClock;
 
+  Clock VideoClock;
   Clock* MasterClock{};
 
   std::unique_ptr<Audio::FFmpegAudioPlayer> AudioPlayer;
 
   bool IsInit = false;
 
-  YUVFrame* VideoTexture;
+  std::variant<std::monostate, YUVFrame*, NV12Frame*> VideoTexture;
 
   bool IsAlpha = false;
   bool Looping = false;
