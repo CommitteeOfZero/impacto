@@ -38,15 +38,15 @@ TipsMenu::TipsMenu() : TipViewItems(this) {
   TransitionAnimation.DurationOut = TransitionOutDuration;
 
   Name = new Label();
-  Pronounciation = new Label();
+  Pronunciation = new Label();
   Category = new Label();
   Number = new Label();
 
   Name->Bounds.X = NamePos.x;
   Name->Bounds.Y = NamePos.y;
 
-  Pronounciation->Bounds.X = PronounciationPos.x;
-  Pronounciation->Bounds.Y = PronounciationPos.y;
+  Pronunciation->Bounds.X = PronunciationPos.x;
+  Pronunciation->Bounds.Y = PronunciationPos.y;
 
   Category->Bounds.X = CategoryPos.x;
   Category->Bounds.Y = CategoryPos.y;
@@ -55,7 +55,7 @@ TipsMenu::TipsMenu() : TipViewItems(this) {
   Number->Bounds.Y = NumberPos.y;
 
   TipViewItems.Add(Name);
-  TipViewItems.Add(Pronounciation);
+  TipViewItems.Add(Pronunciation);
   TipViewItems.Add(Category);
   TipViewItems.Add(Number);
 
@@ -88,8 +88,8 @@ void TipsMenu::Show() {
     Name->Bounds.X = NamePos.x;
     Name->Bounds.Y = NamePos.y;
 
-    Pronounciation->Bounds.X = PronounciationPos.x;
-    Pronounciation->Bounds.Y = PronounciationPos.y;
+    Pronunciation->Bounds.X = PronunciationPos.x;
+    Pronunciation->Bounds.Y = PronunciationPos.y;
 
     Category->Bounds.X = CategoryPos.x;
     Category->Bounds.Y = CategoryPos.y;
@@ -326,9 +326,9 @@ void TipsMenu::SwitchToTipId(int id) {
       {.ScriptBufferId = tipsScrBufId, .IpOffset = record->StringAdr[1]},
       (float)NameFontSize, RendererOutlineMode::None,
       {TipsMenuDarkTextColor, 0});
-  Pronounciation->SetText(
+  Pronunciation->SetText(
       {.ScriptBufferId = tipsScrBufId, .IpOffset = record->StringAdr[2]},
-      (float)PronounciationFontSize, RendererOutlineMode::None, 0);
+      (float)PronunciationFontSize, RendererOutlineMode::None, 0);
 
   {
     uint16_t sc3StringBuffer[5];

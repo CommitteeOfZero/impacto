@@ -7,7 +7,7 @@
 namespace Impacto {
 namespace UI {
 
-// "Clamped" can't go outside [min,max], "Looped" loopes from last to first
+// "Clamped" can't go outside [min,max], "Looped" loops from last to first
 enum class TipAdvanceMode : uint8_t { PrevClamped, NextClamped, NextLooped };
 
 class TipsMenu : public Menu {
@@ -28,7 +28,7 @@ class TipsMenu : public Menu {
   Animation FadeAnimation;
   TipsPage TextPage;
   Widgets::Label* Name;
-  Widgets::Label* Pronounciation;
+  Widgets::Label* Pronunciation;
   Widgets::Label* Category;
   Widgets::Label* NumberText;
   Widgets::Label* Number;

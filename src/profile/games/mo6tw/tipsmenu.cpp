@@ -25,9 +25,9 @@ void Configure() {
   UnreadColorIndex = EnsureGetMember<int>("UnreadColorIndex");
   NameInitialBounds = EnsureGetMember<RectF>("NameInitialBounds");
   NameFontSize = EnsureGetMember<float>("NameFontSize");
-  PronounciationInitialBounds =
-      EnsureGetMember<RectF>("PronounciationInitialBounds");
-  PronounciationFontSize = EnsureGetMember<float>("PronounciationFontSize");
+  PronunciationInitialBounds =
+      EnsureGetMember<RectF>("PronunciationInitialBounds");
+  PronunciationFontSize = EnsureGetMember<float>("PronunciationFontSize");
   CategoryInitialBounds = EnsureGetMember<RectF>("CategoryInitialBounds");
   CategoryEndX = EnsureGetMember<float>("CategoryEndX");
   CategoryFontSize = EnsureGetMember<float>("CategoryFontSize");
