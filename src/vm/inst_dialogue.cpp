@@ -17,7 +17,7 @@
 #include "../data/tipssystem.h"
 #include "../ui/ui.h"
 #include "interface/input.h"
-#include "../text/text.h"
+#include "../text/dialoguepage.h"
 #include "../audio/audiosystem.h"
 #include "vm.h"
 

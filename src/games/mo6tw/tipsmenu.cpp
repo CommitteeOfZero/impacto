@@ -54,7 +54,6 @@ TipsMenu::TipsMenu() : ItemsList(CDIR_HORIZONTAL), TipViewItems(this) {
 
   TextPage.Glyphs.reserve(Profile::Dialogue::MaxPageSize);
   TextPage.Clear();
-  TextPage.FadeAnimation.Progress = 1.0f;
 }
 
 void TipsMenu::Show() {
@@ -130,9 +129,7 @@ void TipsMenu::Render() {
 
     if (CurrentlyDisplayedTipId != -1) {
       TipViewItems.Render();
-      Renderer->DrawProcessedText(TextPage.Glyphs,
-                                  Profile::Dialogue::DialogueFont, col.a,
-                                  RendererOutlineMode::Full, true);
+      TextPage.Render(col.a, RendererOutlineMode::Full);
       if (ThumbnailSprite) {
         Renderer->DrawSprite(*ThumbnailSprite, ThumbnailPosition, col);
       }

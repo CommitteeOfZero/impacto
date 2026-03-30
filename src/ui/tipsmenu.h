@@ -1,7 +1,7 @@
 #pragma once
 
 #include "menu.h"
-#include "../text/dialoguepage.h"
+#include "../text/tipspage.h"
 #include "../ui/widgets/label.h"
 
 namespace Impacto {
@@ -26,7 +26,7 @@ class TipsMenu : public Menu {
   int CurrentlyDisplayedTipId = -1;
 
   Animation FadeAnimation;
-  DialoguePage TextPage = DialoguePage(0);
+  TipsPage TextPage;
   Widgets::Label* Name;
   Widgets::Label* Pronounciation;
   Widgets::Label* Category;

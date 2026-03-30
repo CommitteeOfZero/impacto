@@ -70,7 +70,6 @@ TipsMenu::TipsMenu()
 
   TextPage.Glyphs.reserve(Profile::Dialogue::MaxPageSize);
   TextPage.Clear();
-  TextPage.FadeAnimation.Progress = 1.0f;
 }
 
 void TipsMenu::Show() {
@@ -154,9 +153,7 @@ void TipsMenu::Render() {
     if (CurrentlyDisplayedTipId != -1) {
       TipViewItems.Tint.a = alpha;
       TipViewItems.Render();
-      Renderer->DrawProcessedText(TextPage.Glyphs,
-                                  Profile::Dialogue::DialogueFont, alpha,
-                                  RendererOutlineMode::Full, true);
+      TextPage.Render(alpha, RendererOutlineMode::Full);
     }
     if (TipsEntriesScrollbar) {
       TipsEntriesScrollbar->Tint.a = alpha;
