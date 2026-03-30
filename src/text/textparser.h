@@ -2,6 +2,7 @@
 
 #include "dialoguepage.h"
 #include "backlogpage.h"
+#include "tipspage.h"
 
 #include "../profile/dialogue.h"
 
@@ -96,7 +97,16 @@ class BacklogTextParser : public TextParser {
   void ParseString(BacklogPage& page, Vm::Sc3VmThread* string);
 };
 
+class TipsTextParser : public TextParser {
+ public:
+  TipsTextParser() = default;
+
+  void ParseString(Vm::Sc3VmThread* string) override;
+  void ParseString(TipsPage& page, Vm::Sc3VmThread* string);
+};
+
 inline DialogueTextParser DialogueTextParserInst;
 inline BacklogTextParser BacklogTextParserInst;
+inline TipsTextParser TipsTextParserInst;
 
 }  // namespace Impacto

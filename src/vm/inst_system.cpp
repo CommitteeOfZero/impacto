@@ -26,6 +26,7 @@
 #include "../ui/ui.h"
 #include "../ui/gamespecific.h"
 #include "../voicetable.h"
+#include "../text/dialoguepage.h"
 
 namespace Impacto {
 

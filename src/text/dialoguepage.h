@@ -60,8 +60,7 @@ struct DialoguePage : public TextPage {
   bool TextIsFullyOpaque();
   void Clear() override;
   void AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice = 0,
-                 bool acted = true, int animId = 0, int charId = -1,
-                 bool shouldUpdateCharId = false);
+                 bool acted = true, int animId = 0, int charId = -1);
   void Update(float dt);
 
   void Move(glm::vec2 relativePos) override;

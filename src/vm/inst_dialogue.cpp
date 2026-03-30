@@ -16,7 +16,7 @@
 #include "../data/tipssystem.h"
 #include "../ui/ui.h"
 #include "interface/input.h"
-#include "../text/text.h"
+#include "../text/dialoguepage.h"
 #include "../audio/audiosystem.h"
 #include "vm.h"
 
@@ -199,8 +199,7 @@ VmInstruction(InstMes) {
 
   uint32_t oldIp = thread->IpOffset;
   thread->IpOffset = line;
-  dialoguePage.AddString(thread, audioStream, acted, animationId, characterId,
-                         true);
+  dialoguePage.AddString(thread, audioStream, acted, animationId, characterId);
   ResetInstruction;
   if (!GetFlag(SF_MESSAVEPOINT_SSP + thread->DialoguePageId)) {
     if ((ScrWork[thread->DialoguePageId * 10 + SW_MESWIN0TYPE] & 4) == 0 &&

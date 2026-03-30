@@ -57,7 +57,6 @@ TipsMenu::TipsMenu() : CommonMenu(FadeAnimation), TipViewItems(this) {
   TipViewItems.Add(Number);
 
   TextPage.Clear();
-  TextPage.FadeAnimation.Progress = 1.0f;
 
   TipsScrollStartPos = {TipsScrollDetailsX, TipsScrollYStart};
 
@@ -352,11 +351,10 @@ void TipsMenu::SwitchToTipId(int id) {
   TextPage.AddString(&dummy);
   TipViewItems.HasFocus = true;
 
-  auto& lastGlyph = TextPage.Glyphs.back();
+  const RectF lastGlyphBox = TextPage.Glyphs.back().DestRect;
   int scrollDistance =
-      (int)(lastGlyph.DestRect.Y + lastGlyph.DestRect.Height -
-            (TextPage.BoxBounds.Y + TextPage.BoxBounds.Height) +
-            lastGlyph.DestRect.Height);
+      static_cast<int>(lastGlyphBox.Bottom() - TextPage.BoxBounds.Bottom() +
+                       lastGlyphBox.Height);
 
   TipPageY = 0;
   TipsScrollbar = std::make_unique<Widgets::Scrollbar>(

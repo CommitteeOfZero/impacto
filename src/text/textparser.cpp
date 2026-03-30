@@ -551,4 +551,50 @@ void BacklogTextParser::ParseString(BacklogPage& page,
   Name.swap(page.Name);
 }
 
+void TipsTextParser::ParseString(Vm::Sc3VmThread* string) {
+  const ankerl::unordered_dense::map<
+      StringTokenType, std::function<void(TipsTextParser*, const StringToken&)>>
+      parsingFunctions{
+          {STT_LineBreak, &TipsTextParser::ParseLineBreak},
+          {STT_SetColor, &TipsTextParser::ParseSetColor},
+          {STT_RubyBaseStart, &TipsTextParser::ParseRubyBaseStart},
+          {STT_RubyTextStart, &TipsTextParser::ParseRubyTextStart},
+          {STT_RubyTextEnd, &TipsTextParser::ParseRubyTextEnd},
+          {STT_SetFontSize, &TipsTextParser::ParseSetFontSize},
+          {STT_CenterText, &TipsTextParser::ParseCenterText},
+          {STT_SetTopMargin, &TipsTextParser::ParseSetTopMargin},
+          {STT_SetLeftMargin, &TipsTextParser::ParseSetLeftMargin},
+          {STT_RubyCenterPerCharacter,
+           &TipsTextParser::ParseRubyCenterPerCharacter},
+          {STT_AltLineBreak, &TipsTextParser::ParseLineBreak},
+          {STT_Character, &TipsTextParser::ParseCharacter},
+      };
+
+  FontSize = DefaultFontSize;
+  BoxBounds = TipsBounds;
+  CurrentColors = ColorTable[TipsColorIndex];
+
+  StringToken token;
+  do {
+    token.Read(string);
+    const auto function = parsingFunctions.find(token.Type);
+    if (function != parsingFunctions.end()) function->second(this, token);
+  } while (token.Type != STT_EndOfString);
+
+  FinishLine(Glyphs.size());
+}
+
+void TipsTextParser::ParseString(TipsPage& page, Vm::Sc3VmThread* string) {
+  Reset();
+  Glyphs.swap(page.Glyphs);
+  RubyChunks.swap(page.RubyChunks);
+  PageMode = DPM_TIPS;
+  CurrentLineTop = TipsBounds.Y;
+
+  ParseString(string);
+
+  Glyphs.swap(page.Glyphs);
+  RubyChunks.swap(page.RubyChunks);
+}
+
 }  // namespace Impacto

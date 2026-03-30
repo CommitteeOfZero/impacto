@@ -89,8 +89,7 @@ void DialoguePage::Clear() {
 }
 
 void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
-                             bool acted, int animId, int charId,
-                             bool shouldUpdateCharId) {
+                             bool acted, int animId, int charId) {
   const DialoguePageMode mode = GetMode();
   if (mode == DPM_ADV || mode == DPM_REV ||
       AdvanceMethod == AdvanceMethodType::PresentClear) {
@@ -100,10 +99,8 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
 
   Voice = voice;
 
-  if (shouldUpdateCharId) {
-    CharacterId = charId;
-    ScrWork[Id + SW_ANIME0CHANO] = CharacterId;
-  }
+  CharacterId = charId;
+  ScrWork[Id + SW_ANIME0CHANO] = CharacterId;
 
   const int nextAnimId = acted ? animId : charId;
 
