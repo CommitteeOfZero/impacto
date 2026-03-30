@@ -28,7 +28,7 @@ class TipsMenu : public Menu {
   Animation FadeAnimation;
   TipsPage TextPage;
   Widgets::Label* Name;
-  Widgets::Label* Pronounciation;
+  Widgets::Label* Pronunciation;
   Widgets::Label* Category;
   Widgets::Label* NumberText;
   Widgets::Label* Number;

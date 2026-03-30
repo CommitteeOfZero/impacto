@@ -35,8 +35,8 @@ root.TipsMenu = {
     NameFontSize = 54,
     NumberPos = { X = 1875, Y = 80},
     NumberFontSize = 62,
-    PronounciationPos = { X = 1020, Y = 246},
-    PronounciationFontSize = 34,
+    PronunciationPos = { X = 1020, Y = 246},
+    PronunciationFontSize = 34,
 
     TipsEntryNameUnreadColor = 0x117733, 
     TipsMenuDarkTextColor = 0x3e3e3c,

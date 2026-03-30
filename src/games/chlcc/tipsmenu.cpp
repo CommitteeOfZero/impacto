@@ -424,9 +424,9 @@ void TipsMenu::Init() {
   Name->Bounds = NameInitialBounds;
   TipViewItems.Add(Name);
 
-  Pronounciation = new Label();
-  Pronounciation->Bounds = PronounciationInitialBounds;
-  TipViewItems.Add(Pronounciation);
+  Pronunciation = new Label();
+  Pronunciation->Bounds = PronunciationInitialBounds;
+  TipViewItems.Add(Pronunciation);
 
   // Number label
   NumberText = new Label(
@@ -598,15 +598,15 @@ void TipsMenu::SwitchToTipId(int id) {
   Name->SetText({.ScriptBufferId = tipsScriptBufferId,
                  .IpOffset = tipRecord->StringAdr[0]},
                 NameFontSize, RendererOutlineMode::Full, DefaultColorIndex);
-  Pronounciation->SetText({.ScriptBufferId = tipsScriptBufferId,
-                           .IpOffset = tipRecord->StringAdr[1]},
-                          PronounciationFontSize, RendererOutlineMode::Full,
-                          DefaultColorIndex);
+  Pronunciation->SetText({.ScriptBufferId = tipsScriptBufferId,
+                          .IpOffset = tipRecord->StringAdr[1]},
+                         PronunciationFontSize, RendererOutlineMode::Full,
+                         DefaultColorIndex);
   // Right alignment
   Name->MoveTo(NameInitialBounds.GetPos() -
                glm::vec2{Name->Bounds.Width, 0.0f});
-  Pronounciation->MoveTo(PronounciationInitialBounds.GetPos() -
-                         glm::vec2{Pronounciation->Bounds.Width, 0.0f});
+  Pronunciation->MoveTo(PronunciationInitialBounds.GetPos() -
+                        glm::vec2{Pronunciation->Bounds.Width, 0.0f});
 
   const int sortedTipId =
       static_cast<TipsEntryButton*>(CurrentlyFocusedElement)->Id;
