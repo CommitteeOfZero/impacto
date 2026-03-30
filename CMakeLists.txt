@@ -68,6 +68,7 @@ set(Impacto_Src
     src/profile/scriptvars.cpp
     src/profile/scriptinput.cpp
     src/profile/configsystem.cpp
+    src/profile/subtitle.cpp
 
     src/profile/data/bgeff.cpp
     src/profile/data/savesystem.cpp
@@ -367,6 +368,8 @@ set(Impacto_Src
     src/video/videosystem.cpp
     src/video/videoplayer.cpp
     src/video/clock.cpp
+
+    src/subtitle/subtitlesystem.cpp
 )
 
 set(Impacto_Header
@@ -424,6 +427,7 @@ set(Impacto_Header
     src/profile/scriptvars.h
     src/profile/scriptinput.h
     src/profile/configsystem.h
+    src/profile/subtitle.h
 
     src/profile/data/bgeff.h
     src/profile/data/savesystem.h
@@ -713,6 +717,9 @@ set(Impacto_Header
     src/video/videosystem.h
     src/video/videoplayer.h
     src/video/clock.h
+
+    src/subtitle/subtitlesystem.h
+    src/subtitle/subtitlerenderer.h
 )
 
 if (WIN32)
@@ -1047,6 +1054,21 @@ list(APPEND Impacto_Libs
         readerwriterqueue
 )
 
+if (NOT DEFINED IMPACTO_DISABLE_LIBASS)
+    list(APPEND Impacto_Src src/subtitle/ass/subtitlerenderer.cpp)
+    list(APPEND Impacto_Header src/subtitle/ass/subtitlerenderer.h)
+    
+    pkg_check_modules(LIBASS REQUIRED IMPORTED_TARGET GLOBAL libass)
+    list(APPEND Impacto_Include_Dirs ${LIBASS_INCLUDE_DIRS})
+    list(APPEND Impacto_Libs
+        ${LIBASS_LINK_LIBRARIES}
+    )
+    list(APPEND Impacto_Compile_Options
+        ${LIBASS_CFLAGS_OTHER}
+    )
+
+endif()
+
 if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
     set(imgui_src
         ${imgui_SOURCE_DIR}/imgui.cpp
@@ -1123,10 +1145,12 @@ if (NOT DEFINED IMPACTO_DISABLE_FFMPEG)
     list(APPEND Impacto_Src
         src/video/ffmpegplayer.cpp
         src/video/ffmpegstream.cpp
+        src/video/ffmpegsubtitlehelper.cpp
     )
     list(APPEND Impacto_Header
         src/video/ffmpegplayer.h
         src/video/ffmpegstream.h
+        src/video/ffmpegsubtitlehelper.h
     )
 
     if (NOT VCPKG_TOOLCHAIN)
@@ -1278,7 +1302,7 @@ else ()
 endif ()
 
 # compiler/dependency configuration
-
+target_compile_options(impacto PRIVATE ${Impacto_Compile_Options})
 set_property(TARGET impacto ${Impacto_Lib_Targets} PROPERTY CXX_STANDARD 20)
 set_property(TARGET impacto PROPERTY CXX_SCAN_FOR_MODULES OFF)
 

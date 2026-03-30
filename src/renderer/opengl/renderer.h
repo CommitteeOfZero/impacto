@@ -90,6 +90,9 @@ class Renderer : public BaseRenderer {
 
   void DrawVideoTexture(const YUVFrame& frame, const RectF& dest,
                         glm::vec4 tint, bool alphaVideo) override;
+  void DrawSubtitleGlyph(const Sprite& sprite, const CornersQuad& dest,
+                         const glm::mat4 transformation,
+                         const glm::vec4 tint) override;
 
   void CaptureScreencap(Sprite& sprite) override;
 
@@ -138,6 +141,7 @@ class Renderer : public BaseRenderer {
   std::optional<CHLCCMenuBackgroundShader> CHLCCMenuBackgroundShaderProgram;
   std::optional<GaussianBlurShader> GaussianBlurShaderProgram;
   std::optional<MosaicShader> MosaicShaderProgram;
+  std::optional<SubtitleGlyphShader> SubtitleGlyphShaderProgram;
 
   const void* CurrentShaderProgram = nullptr;
 

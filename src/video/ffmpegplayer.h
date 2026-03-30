@@ -14,6 +14,7 @@
 #include "../io/stream.h"
 #include "../renderer/yuvframe.h"
 #include "../audio/ffmpegaudioplayer.h"
+#include "../subtitle/subtitlesystem.h"
 
 namespace Impacto {
 namespace Io {
@@ -47,7 +48,7 @@ class FFmpegPlayer : public VideoPlayer {
 
   void Read();
   template <AVMediaType avType>
-  void Decode();
+  void Decode(FFmpegStream<avType>& stream);
   void ProcessAudio();
 
   std::atomic<bool> AbortRequest;
@@ -56,9 +57,13 @@ class FFmpegPlayer : public VideoPlayer {
   std::optional<FFmpegStream<AVMEDIA_TYPE_VIDEO>> VideoStream;
   std::optional<FFmpegStream<AVMEDIA_TYPE_AUDIO>> AudioStream;
 
+  std::vector<FFmpegStream<AVMEDIA_TYPE_SUBTITLE>> EmbeddedSubtitleStreams;
+  std::optional<Subtitle::SubtitlePlayer> SubPlayer;
+
  private:
+  void InitSubtitles(std::vector<std::pair<av::Stream, int>>& subtitleStreams);
   void FillAudioBuffers();
-  double GetTargetDelay(double duration);
+  Clock::Microseconds GetTargetDelay(Clock::Microseconds duration);
   bool QueuesHaveEnoughPackets();
 
   void HandleSeekRequest();
@@ -66,6 +71,8 @@ class FFmpegPlayer : public VideoPlayer {
   template <AVMediaType MediaType>
   void OpenCodec(std::optional<FFmpegStream<MediaType>>& streamOpt,
                  av::Stream&& avStream, int streamId);
+
+  void UpdateSubtitles();
 
   static int constexpr FILESTREAMBUFFERSZ = 64 * 8192;
   std::condition_variable ReadCond;
@@ -90,9 +97,9 @@ class FFmpegPlayer : public VideoPlayer {
   bool Looping = false;
   bool ReaderEOF = false;
   bool PlaybackStarted = false;
-  double PreviousFrameTimestamp = 0.0;
-  double FrameTimer = 0.0;
-  double MaxFrameDuration = 0.0;
+  std::optional<av::Timestamp> PreviousFrameTimestamp{};
+  Clock::MonotonicTime FrameTimer{};
+  Clock::Microseconds MaxFrameDuration{};
   bool NoAudio = false;
   int FrameCount = 0;
 };

@@ -70,20 +70,19 @@ void FFmpegAudioPlayer::Unload() {
 void FFmpegAudioPlayer::FillAudioBuffers() {
   while (FreeBufferCount && !Player->AbortRequest) {
     int totalSize = 0;
+    bool firstFrame = true;
     do {
-      bool firstFrame = true;
-
-      Video::AVFrameItem<AVMEDIA_TYPE_AUDIO> aFrame;
+      Video::AVDecodedItem<AVMEDIA_TYPE_AUDIO> aFrame;
       if (!Player->AudioStream->FrameQueue.try_dequeue(aFrame)) {
-        continue;
+        break;
       }
       if (aFrame.Serial == INT32_MIN) break;
 
       if (firstFrame) {
         BufferStartPositions[FirstFreeBuffer] =
             (int)(aFrame.Frame.pts().timestamp() * aFrame.Frame.sampleRate() *
-                  Player->AudioStream->stream.timeBase().getNumerator() /
-                  Player->AudioStream->stream.timeBase().getDenominator());
+                  Player->AudioStream->AvStream.timeBase().getNumerator() /
+                  Player->AudioStream->AvStream.timeBase().getDenominator());
         firstFrame = false;
       }
 
@@ -119,6 +118,7 @@ void FFmpegAudioPlayer::FillAudioBuffers() {
 }
 
 void FFmpegAudioPlayer::Process() {
+  using namespace std::chrono_literals;
   float gain = Audio::MasterVolume * Audio::GroupVolumes[Audio::ACG_Movie];
   alSourcef(ALSource, AL_GAIN, gain);
 
@@ -137,10 +137,10 @@ void FFmpegAudioPlayer::Process() {
     int sampleRate = Player->AudioStream->CodecContext.sampleRate();
     samplePosition = std::min(samplePosition, Player->AudioStream->Duration);
     auto audioTime = av::Timestamp(samplePosition, av::Rational(1, sampleRate));
-    double audioS = audioTime.seconds();
-    ImpLogSlow(LogLevel::Trace, LogChannel::Video, "samplePosition: {:f}\n",
-               audioS);
+    auto audioS = audioTime.toDuration<Video::Clock::Microseconds>();
     AudioClock.Set(audioS, 0);
+    ImpLogSlow(LogLevel::Trace, LogChannel::Video, "samplePosition: {:f}\n",
+               std::chrono::duration<double>(audioS).count());
 
     FillAudioBuffers();
     ALint sourceState;

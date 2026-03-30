@@ -99,6 +99,7 @@ void Renderer::Init() {
       Shaders.Compile("CHLCCMenuBackground"));
   GaussianBlurShaderProgram.emplace(Shaders.Compile("GaussianBlur"));
   MosaicShaderProgram.emplace(Shaders.Compile("Mosaic"));
+  SubtitleGlyphShaderProgram.emplace(Shaders.Compile("SubtitleGlyph"));
 
   glGenSamplers((GLsizei)Samplers.size(), Samplers.data());
   for (size_t i = 0; i < TextureUnitCount; i++) {
@@ -177,7 +178,9 @@ void Renderer::EndFrame() {
 
 uint32_t Renderer::SubmitTexture(TexFmt format, uint8_t* buffer, int width,
                                  int height) {
+  GLint prevBound;
   uint32_t result;
+  glGetIntegerv(GL_TEXTURE_BINDING_2D, &prevBound);
   glGenTextures(1, &result);
   glBindTexture(GL_TEXTURE_2D, result);
 
@@ -214,7 +217,7 @@ uint32_t Renderer::SubmitTexture(TexFmt format, uint8_t* buffer, int width,
   // TODO do this ourselves outside of Submit(), this can easily cause a
   // framedrop
   glGenerateMipmap(GL_TEXTURE_2D);
-
+  glBindTexture(GL_TEXTURE_2D, prevBound);
   return result;
 }
 
@@ -1013,6 +1016,39 @@ void Renderer::CaptureScreencap(Sprite& sprite) {
   GLC::BindFramebuffer(GL_READ_FRAMEBUFFER, prevReadBuffer);
 }
 
+void Renderer::DrawSubtitleGlyph(const Sprite& sprite, const CornersQuad& dest,
+                                 const glm::mat4 transformation,
+                                 const glm::vec4 tint) {
+  if (!Drawing) {
+    ImpLog(LogLevel::Error, LogChannel::Render,
+           "Renderer->DrawSubtitleGlyph() called before BeginFrame()\n");
+    return;
+  }
+
+  EnsureTopologyMode(TopologyMode::Triangles);
+
+  if (sprite.Sheet.IsScreenCap) Flush();
+
+  // Set uniform variables
+
+  SubtitleGlyphUniforms uniforms{
+      .Projection = Projection,
+      .Transformation = transformation,
+      .CoverageMap = 0,
+  };
+
+  UseShader(*SubtitleGlyphShaderProgram, uniforms);
+
+  UseTextures(std::array<std::pair<uint32_t, size_t>, 1>{
+      std::pair{sprite.Sheet.Texture, 0}});
+
+  // OK, all good, make quad
+
+  CornersQuad uvDest = sprite.NormalizedBounds();
+  if (sprite.Sheet.IsScreenCap) uvDest = FlipUvVertical(uvDest);
+  InsertVerticesQuad(dest, uvDest, tint);
+}
+
 void Renderer::EnableScissor() {
   if (ScissorEnabled) return;
 
@@ -1100,6 +1136,9 @@ void Renderer::SetBlendMode(RendererBlendMode blendMode) {
       return;
     case RendererBlendMode::Additive:
       glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+      return;
+    case RendererBlendMode::Premultiplied:
+      glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
       return;
   }
 }

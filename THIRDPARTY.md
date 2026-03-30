@@ -18,7 +18,7 @@
 * `vendor/imgui`: [Dear ImGui](https://github.com/ocornut/imgui)
 * `vendor/pcg`: [PCG Random Number Generation, Minimal C Edition](https://github.com/imneme/pcg-c-basic)
 * `vendor/squish`: [Squish](http://sjbrown.co.uk/?code=squish)
-* `vendor/utf8-cpp`: [UTF8-CPP](http://utfcpp.sourceforge.net/)
+* `vendor/utf8-cpp`: [UTF8-CPP](https://github.com/nemtrif/utfcpp)
 * `vendor/mspack`: [libmspack](https://www.cabextract.org.uk/libmspack/), only includes LZX decompressor to reduce code size
 * `vendor/pugixml`: [pugixml](https://github.com/zeux/pugixml) 
 * `vendor/mio`: [mio](https://github.com/vimpunk/mio), except for platforms without mmap support
@@ -38,6 +38,7 @@ All third-party code mentioned above is mandatory, included in the build process
 * [Vorbis](https://github.com/xiph/vorbis)
 * [zlib](https://github.com/madler/zlib)
 * [avcpp](https://github.com/h4tr3d/avcpp), at `vendor/avcpp` for non-vcpkg builds
+* [libass](https://github.com/libass/libass)
 
 **Sourcing and linkage:**
 
@@ -896,7 +897,9 @@ See below for license text (LGPLv2).
 
 ## UTF8-CPP
 
-http://utfcpp.sourceforge.net/
+https://github.com/nemtrif/utfcpp
+
+See below for license text (BSL) 
 
 ## avcpp
 
@@ -990,6 +993,11 @@ Redistribution and use in source and binary forms, with or without modification,
     Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+## libass
+https://github.com/libass/libass
+
+See below for license text (ISC)
 
 # Generic license texts
 
@@ -1932,6 +1940,4 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 >     2. Altered source versions must be plainly marked as such, and must not be
 >        misrepresented as being the original software.
 >     3. This notice may not be removed or altered from any source distribution.
-
-## UTF8-CPP
 

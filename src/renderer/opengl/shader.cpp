@@ -751,5 +751,22 @@ void MosaicShader::UploadUniforms(MosaicUniforms newUniforms) {
   UpdateVar(newUniforms.TileSize, Uniforms.TileSize, TileSizeLocation);
 }
 
+SubtitleGlyphShader::SubtitleGlyphShader(GLint programId)
+    : Shader(programId),
+      ProjectionLocation(glGetUniformLocation(programId, "Projection")),
+      TransformationLocation(glGetUniformLocation(programId, "Transformation")),
+      CoverageMapLocation(glGetUniformLocation(programId, "CoverageMap")) {
+  UploadVar(Uniforms.Projection, ProjectionLocation);
+  UploadVar(Uniforms.Transformation, TransformationLocation);
+  UploadVar(Uniforms.CoverageMap, CoverageMapLocation);
+}
+
+void SubtitleGlyphShader::UploadUniforms(SubtitleGlyphUniforms newUniforms) {
+  UpdateVar(newUniforms.Projection, Uniforms.Projection, ProjectionLocation);
+  UpdateVar(newUniforms.Transformation, Uniforms.Transformation,
+            TransformationLocation);
+  UpdateVar(newUniforms.CoverageMap, Uniforms.CoverageMap, CoverageMapLocation);
+}
+
 }  // namespace OpenGL
 }  // namespace Impacto

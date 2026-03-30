@@ -44,7 +44,7 @@ BETTER_ENUM(ShaderProgramType, int, AdditiveMaskedSprite, CCMessageBoxSprite,
             OverlayMaskedSprite, ScreenMaskedSprite, SoftLightMaskedSprite,
             Sprite, SpriteInverted, YUVFrame, GaussianBlur, Mosaic);
 
-enum class RendererBlendMode { Normal, Additive };
+enum class RendererBlendMode { Normal, Additive, Premultiplied };
 enum class RendererBlurDirection { Horizontal, Vertical };
 
 class BaseRenderer {
@@ -365,6 +365,15 @@ class BaseRenderer {
 
   virtual void DrawVideoTexture(const YUVFrame& frame, const RectF& dest,
                                 glm::vec4 tint, bool alphaVideo = false) = 0;
+
+  virtual void DrawSubtitleGlyph(const Sprite& sprite, const CornersQuad& dest,
+                                 glm::mat4 transformation, glm::vec4 tint) = 0;
+
+  void DrawSubtitleGlyph(const Sprite& sprite, glm::vec2 topLeft,
+                         glm::vec4 tint) {
+    DrawSubtitleGlyph(sprite, sprite.ScaledBounds().Translate(topLeft),
+                      glm::mat4(1.0f), tint);
+  }
 
   virtual void CaptureScreencap(Sprite& sprite) = 0;
 
