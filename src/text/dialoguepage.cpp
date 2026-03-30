@@ -6,6 +6,7 @@
 #include "../profile/dialogue.h"
 #include "../profile/games/chlcc/dialoguebox.h"
 
+#include "../ui/ui.h"
 #include "../data/tipssystem.h"
 
 #include "../hud/waiticondisplay.h"
@@ -53,7 +54,7 @@ void DialoguePage::Init() {
   for (int i = 0; i < std::ssize(DialoguePages); i++) {
     DialoguePages[i].Clear();
     DialoguePages[i].Id = i;
-    DialoguePages[i].AnimationId = 0;
+    DialoguePages[i].CurrentVoiceCharacterId = 0;
     DialoguePages[i].FadeAnimation.DurationIn = FadeInDuration;
     DialoguePages[i].FadeAnimation.DurationOut = FadeOutDuration;
     DialoguePages[i].FadeAnimation.SkipOnSkipMode = true;
@@ -69,7 +70,8 @@ void DialoguePage::Clear() {
   TextPage::Clear();
 
   Name.clear();
-  Voice = nullptr;
+  AudioId.reset();
+  CurrentStringAddress.reset();
 
   CurrentLineTop = [this]() {
     switch (this->GetMode()) {
@@ -89,7 +91,7 @@ void DialoguePage::Clear() {
   AdvanceMethod = AdvanceMethodType::Skip;
 }
 
-void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
+void DialoguePage::AddString(Vm::Sc3VmThread* ctx, std::optional<int> voiceId,
                              bool acted, int animId, int charId,
                              bool shouldUpdateCharId) {
   const DialoguePageMode mode = GetMode();
@@ -99,17 +101,24 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
   }
   TextFadeAnimation.Reset(AnimationDirection::Out);
 
-  Voice = voice;
+  CurrentStringAddress = {ctx->ScriptBufferId, ctx->IpOffset};
+  AudioId = voiceId;
+
+  Audio::AudioStream* audioStream = nullptr;
+  if (voiceId.has_value()) {
+    Io::Stream* stream;
+    IoError err = Io::VfsOpen("voice", *voiceId, &stream);
+
+    const bool playAudio = (err == IoError_OK && !GetFlag(SF_MESALLSKIP));
+    if (playAudio) audioStream = Audio::AudioStream::Create(stream);
+  }
 
   if (shouldUpdateCharId) {
     CharacterId = charId;
-    ScrWork[Id + SW_ANIME0CHANO] = CharacterId;
+    ScrWork[Id + SW_ANIME0CHANO] = charId;
   }
 
-  const int nextAnimId = acted ? animId : charId;
-
-  // Hold last voiced animation id
-  if (Voice != nullptr) NextAnimationId = std::max(nextAnimId, 31);
+  AnimationId = std::max(acted ? animId : charId, 31);
 
   const size_t typeWriterStart = Glyphs.size();
 
@@ -128,12 +137,14 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
   Typewriter.SetFirstGlyph(typeWriterStart);
   Typewriter.SetGlyphCount(Glyphs.size() - typeWriterStart);
   Typewriter.SetParallelStartGlyphs(DialogueTextParserInst.ParallelStartGlyphs);
-  Typewriter.Start(Voice != nullptr);
+  Typewriter.Start(AudioId.has_value());
 
-  if (Voice != nullptr) {
-    AnimationId = NextAnimationId;
-    Audio::Channels[Audio::AC_VOICE0]->Play(
-        std::unique_ptr<Audio::AudioStream>(Voice), false, 0.0f);
+  if (AudioId.has_value()) {
+    CurrentVoiceCharacterId = AnimationId;
+    if (audioStream) {
+      Audio::Channels[Audio::AC_VOICE0]->Play(
+          std::unique_ptr<Audio::AudioStream>(audioStream), false, 0.0f);
+    }
   }
 
   AutoWaitTime = static_cast<float>(Typewriter.GetGlyphCount());
@@ -246,6 +257,15 @@ void DialoguePage::Hide() { FadeAnimation.StartOut(); }
 void DialoguePage::Show() {
   FadeAnimation.StartIn(true);
   TextFadeAnimation.Progress = 1.0f;
+}
+
+void DialoguePage::PushBacklogEntry() {
+  if (!CurrentStringAddress.has_value() || GetFlag(SF_REVADDDISABLE) ||
+      (ScrWork[SW_MESWIN0TYPE + 10 * Id] & 0b10)) {
+    return;
+  }
+
+  UI::BacklogMenuPtr->AddMessage(*CurrentStringAddress, AudioId, AnimationId);
 }
 
 }  // namespace Impacto

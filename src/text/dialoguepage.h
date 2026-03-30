@@ -23,9 +23,10 @@ struct DialoguePage : public TextPage {
   DialoguePage(int id) : Id(id) {}
 
   int Id;
+  int CurrentVoiceCharacterId = 0;
   int AnimationId = 0;
-  int NextAnimationId = 0;
-  int CharacterId = -1;
+  int CharacterId = 0;
+  std::optional<int> AudioId;
 
   TypewriterEffect Typewriter;
   Animation FadeAnimation;
@@ -33,8 +34,6 @@ struct DialoguePage : public TextPage {
 
   std::vector<ProcessedTextGlyph> Name;
   bool RenderName = false;
-
-  Audio::AudioStream* Voice;
 
   enum class AdvanceMethodType : uint8_t {
     Skip,
@@ -60,8 +59,9 @@ struct DialoguePage : public TextPage {
 
   bool TextIsFullyOpaque();
   void Clear() override;
-  void AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice = 0,
-                 bool acted = true, int animId = 0, int charId = -1,
+  void AddString(Vm::Sc3VmThread* ctx,
+                 std::optional<int> voiceId = std::nullopt, bool acted = true,
+                 int animId = 0, int charId = 0,
                  bool shouldUpdateCharId = false);
   void Update(float dt);
 
@@ -72,11 +72,15 @@ struct DialoguePage : public TextPage {
   void Hide();
   void Show();
 
+  void PushBacklogEntry();
+
  private:
   void FinishLine(Vm::Sc3VmThread* ctx, size_t nextLineStart,
                   const RectF& boxBounds, TextAlignment alignment);
 
   std::unique_ptr<DialogueBox> DialogueBoxInst = DialogueBox::Create();
+
+  std::optional<Vm::BufferOffsetContext> CurrentStringAddress;
 };
 
 inline std::vector<DialoguePage> DialoguePages;

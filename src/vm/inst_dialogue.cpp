@@ -167,7 +167,7 @@ VmInstruction(InstMes) {
   bool acted = type & (1 << 1);
   bool MSB = type & (1 << 7);
 
-  int audioId = -1;
+  std::optional<int> audioId;
   int animationId = 0;
   if (voiced) audioId = ExpressionEval(thread);
   PopExpression(characterId);
@@ -186,21 +186,13 @@ VmInstruction(InstMes) {
   ScrWork[2 * dialoguePage.Id + SW_LINEID] = lineId;
   ScrWork[2 * dialoguePage.Id + SW_SCRIPTID] = scriptId;
 
-  Audio::AudioStream* audioStream = nullptr;
   if (GetFlag(SF_MESALLSKIP)) {
     Audio::Channels[Audio::AC_VOICE0]->Stop(0.0f);
-  }
-  if (voiced) {
-    Io::Stream* stream;
-    IoError err = Io::VfsOpen("voice", audioId, &stream);
-
-    bool playAudio = (err == IoError_OK && !GetFlag(SF_MESALLSKIP));
-    if (playAudio) audioStream = Audio::AudioStream::Create(stream);
   }
 
   uint32_t oldIp = thread->IpOffset;
   thread->IpOffset = line;
-  dialoguePage.AddString(thread, audioStream, acted, animationId, characterId,
+  dialoguePage.AddString(thread, audioId, acted, animationId, characterId,
                          true);
   ResetInstruction;
   if (!GetFlag(SF_MESSAVEPOINT_SSP + thread->DialoguePageId)) {
@@ -215,9 +207,6 @@ VmInstruction(InstMes) {
   }
 
   thread->IpOffset = oldIp;
-  UI::BacklogMenuPtr->AddMessage(
-      {.ScriptBufferId = thread->ScriptBufferId, .IpOffset = line}, audioId,
-      acted ? animationId : characterId);
 
   if (!(type & 0b1000)) {
     SetFlag(SF_CHAANIME + thread->DialoguePageId, true);
@@ -249,9 +238,8 @@ VmInstruction(InstMesMain) {
   }
 
   if (pageState == Hidden) {
+    currentPage.PushBacklogEntry();
     currentPage.Clear();
-
-    // TODO: Add backlog entry
 
     SaveSystem::SetLineRead(ScrWork[currentPage.Id * 2 + SW_SCRIPTID],
                             ScrWork[currentPage.Id * 2 + SW_LINEID]);
@@ -266,8 +254,7 @@ VmInstruction(InstMesMain) {
     SetFlag(SF_SYSMENUDISABLE, false);
 
     if (currentPage.AdvanceMethod == Skip && type != 1) {
-      // TODO: Add backlog entry
-
+      currentPage.PushBacklogEntry();
       currentPage.Typewriter.Reset();
 
       return;
@@ -305,11 +292,10 @@ VmInstruction(InstMesMain) {
         (currentPage.AdvanceMethod != PresentClear && type != 1 &&
          currentPage.GetMode() == DPM_NVL);
     if (advanceWithoutHiding) {
-      // TODO: Add backlog entry
-
       SaveSystem::SetLineRead(ScrWork[currentPage.Id * 2 + SW_SCRIPTID],
                               ScrWork[currentPage.Id * 2 + SW_LINEID]);
 
+      currentPage.PushBacklogEntry();
       currentPage.Typewriter.Reset();
 
       BlockThread;
@@ -754,7 +740,7 @@ VmInstruction(InstSetRevMes) {
                "STUB instruction SetRevMes(type: {:d})\n", type);
   }
 
-  int audioId = -1;
+  std::optional<int> audioId;
   int animationId = 0;
   if (voiced) {
     audioId = ExpressionEval(thread);

@@ -32,13 +32,14 @@ using namespace Impacto::Vm::Interface;
 using namespace Impacto::UI::Widgets;
 
 void BacklogMenu::MenuButtonOnClick(Widgets::BacklogEntry* target) {
-  if (target->AudioId != -1) {
+  if (target->AudioId.has_value()) {
     const float volume =
         Profile::ConfigSystem::VoiceMuted[target->CharacterId]
             ? 0.0f
             : Profile::ConfigSystem::VoiceVolume[target->CharacterId];
     Audio::Channels[Audio::AC_REV]->SetVolume(volume);
-    Audio::Channels[Audio::AC_REV]->Play("voice", target->AudioId, false, 0.0f);
+    Audio::Channels[Audio::AC_REV]->Play("voice", *target->AudioId, false,
+                                         0.0f);
   }
 }
 
@@ -307,8 +308,8 @@ void BacklogMenu::RenderHighlight(const glm::vec2 offset) const {
 
 void BacklogMenu::Render() {}
 
-void BacklogMenu::AddMessage(Vm::BufferOffsetContext scrCtx, int audioId,
-                             int characterId) {
+void BacklogMenu::AddMessage(Vm::BufferOffsetContext scrCtx,
+                             std::optional<int> audioId, int characterId) {
   if (!GetFlag(SF_REVADDDISABLE) || ScrWork[SW_MESWIN0TYPE] == 0) {
     auto onClick = [this](auto* btn) { return MenuButtonOnClick(btn); };
 

@@ -20,7 +20,7 @@ using namespace Impacto::Profile::ScriptVars;
 void BacklogMenu::MenuButtonOnClick(Widgets::BacklogEntry* target) {
   UI::BacklogMenu::MenuButtonOnClick(target);
 
-  if (target->AudioId == -1)
+  if (!target->AudioId.has_value())
     Audio::PlayInGroup(Audio::ACG_SE, "sysse", 4, false, 0.0f);
 }
 
