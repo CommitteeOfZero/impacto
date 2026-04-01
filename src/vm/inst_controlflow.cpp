@@ -182,7 +182,10 @@ VmInstruction(InstKeyOnJump) {
   const InputDownType downType = static_cast<InputDownType>(downTypeId);
 
   const bool inputResult = [&]() -> bool {
-    const uint32_t bitfield = (type & 2) ? PADcustom[buttonsArg] : buttonsArg;
+    const uint32_t bitfield = (type & 2) == 0 ? buttonsArg
+                              : buttonsArg < std::ssize(PADcustom)
+                                  ? PADcustom[buttonsArg]
+                                  : 0;
 
     uint32_t padInputDown = GetPadInputButtonDown(downType);
     if (downType == InputDownType::IsDown) {

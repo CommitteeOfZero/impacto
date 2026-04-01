@@ -4,6 +4,8 @@
 
 #include "../../renderer/renderer.h"
 #include "../../mem.h"
+#include "../../inputsystem.h"
+#include "../../vm/interface/input.h"
 #include "../../ui/widgets/label.h"
 #include "../../profile/ui/titlemenu.h"
 #include "../../profile/games/chlcc/titlemenu.h"
@@ -20,6 +22,8 @@ using namespace Impacto::Profile::CHLCC::TitleMenu;
 using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile;
 
+using namespace Impacto::Vm::Interface;
+
 using namespace Impacto::UI::Widgets::CHLCC;
 
 void TitleMenu::MenuButtonOnClick(Widgets::Button* target) {
@@ -33,6 +37,12 @@ void TitleMenu::MenuButtonOnClick(Widgets::Button* target) {
 void TitleMenu::SecondaryButtonOnClick(Widgets::Button* target) {
   ScrWork[SW_TITLECUR2] = target->Id;
   ChoiceMade = true;
+}
+
+void TitleMenu::ExitButtonOnClick(Widgets::Button* target) {
+  PADinputButtonWentDown = PADinputButtonWentDown & ~PAD1A;
+  PADinputMouseWentDown = PADinputMouseWentDown & ~PAD1A;
+  Input::KeyboardButtonWentDown[SDL_SCANCODE_ESCAPE] = true;
 }
 
 TitleMenu::TitleMenu() {
@@ -80,12 +90,12 @@ TitleMenu::TitleMenu() {
   MainItems->Add(System, FDIR_DOWN);
 
   // Exit menu button (Configuration/Patch driven)
-  if (HasTitleMenuExitButton) {
+  if (HasScriptedExitLogic) {
     Exit =
         new TitleButton(4, ExitSprite, ExitHighlightSprite, ItemHighlightSprite,
                         glm::vec2(ItemHighlightOffset.x - 1.0f,
-                                  ItemYBase - 1.0f + 3 * ItemPadding));
-    Exit->OnClickHandler = [](auto*) { Game::ShouldQuit = true; };
+                                  ItemYBase - 1.0f + 4 * ItemPadding));
+    Exit->OnClickHandler = [this](auto* btn) { return ExitButtonOnClick(btn); };
     MainItems->Add(Exit, FDIR_DOWN);
   }
 

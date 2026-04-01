@@ -32,7 +32,7 @@ void Configure() {
   EndingListSprite = EnsureGetMember<Sprite>("EndingListSprite");
   EndingListHighlightSprite =
       EnsureGetMember<Sprite>("EndingListHighlightSprite");
-  if (HasTitleMenuExitButton) {
+  if (HasScriptedExitLogic) {
     ExitSprite = EnsureGetMember<Sprite>("ExitSprite");
   }
 

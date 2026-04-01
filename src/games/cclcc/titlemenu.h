@@ -33,6 +33,7 @@ class TitleMenu : public Menu {
   void MenuButtonOnClick(Widgets::Button* target);
   void ContinueButtonOnClick(Widgets::Button* target);
   void ExtraButtonOnClick(Widgets::Button* target);
+  void ExitButtonOnClick(Widgets::Button* target);
 
  private:
   Widgets::Group* CurrentSubMenu = 0;

@@ -99,7 +99,7 @@ InstructionProc inline constexpr OpcodeTableSystem_CHLCC[256] = {
     InstGlobalSystemMessage,  // 00 51
     InstUnk0052,              // 00 52
     InstUnk0053,              // 00 53
-    InstUnk0054,              // 00 54
+    InstKeyboardOnJump,       // 00 54
     InstReturnIfFlag,         // 00 55
     InstDummy,                // 00 56
     InstDummy,                // 00 57
@@ -598,7 +598,7 @@ InstructionProc inline constexpr OpcodeTableUser1_CHLCC[256] = {
     InstDummy,             // 10 3E
     InstDummy,             // 10 3F
     InstDummy,             // 10 40
-    InstDummy,             // 10 41
+    InstExitGame,          // 10 41
     InstDummy,             // 10 42
     InstDummy,             // 10 43
     InstDummy,             // 10 44
