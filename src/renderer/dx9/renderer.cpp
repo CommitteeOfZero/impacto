@@ -428,7 +428,8 @@ void Renderer::DrawPrimitives(
     const std::span<const VertexBufferSprites> vertices,
     const std::span<const uint16_t> indices,
     const glm::mat4 spriteTransformation, const glm::mat4 maskTransformation,
-    const bool inverted, TopologyMode topologyMode) {
+    const bool inverted, TopologyMode topologyMode,
+    std::optional<FBOId> fboId) {
   if (!Drawing) {
     ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawVertices() called before BeginFrame()\n");

@@ -284,8 +284,15 @@ void UpdateSystem(float dt) {
     if (ScrWork[SW_GAMESTATE] & 5 && !GetFlag(SF_GAMEPAUSE)) {
       UI::GameSpecific::Update(UpdateSecondCounter);
 
-      if (Profile::UseWaveEffects && IsBgWaveEffectActive()) {
-        Effects::WaveBG.Update(UpdateSecondCounter);
+      if (Profile::UseWaveEffects) {
+        if (IsBgWaveEffectActive()) {
+          Effects::WaveBG.Update(UpdateSecondCounter);
+        }
+        const bool isCC =
+            +Profile::Vm::GameInstructionSet == +Vm::InstructionSet::CC;
+        if (GetFlag(SF_BGEFF1DISP) && (!isCC || ScrWork[SW_EFF_WAVE_ALPHA])) {
+          Effects::WaveEFF.Update(UpdateSecondCounter);
+        }
       }
 
       if (!GetFlag(SF_MOVIEPLAY)) {
@@ -457,6 +464,24 @@ static void RenderMain() {
       Effects::Blur.Render(ScrWork[SW_FEATHERING2]);
     }
 
+    if (Profile::UseWaveEffects) {
+      const bool isCC =
+          +Profile::Vm::GameInstructionSet == +Vm::InstructionSet::CC;
+      if (GetFlag(SF_BGEFF1DISP) && (!isCC || ScrWork[SW_EFF_WAVE_ALPHA])) {
+        if (ScrWork[SW_EFF_WAVE_PRI] == static_cast<int>(layer)) {
+          std::optional<uint32_t> alpha = std::nullopt;
+          if (isCC) {
+            alpha = static_cast<uint32_t>(ScrWork[SW_EFF_WAVE_ALPHA]);
+          }
+          Effects::WaveEFF.CalcPos(0, alpha);
+          Effects::WaveEFF.Render(MaskCapture.BgSprite);
+          MaskCapture.SetHasEffects(true);
+        }
+      } else {
+        MaskCapture.SetHasEffects(false);
+      }
+    }
+
     if (ScrWork[SW_MOSAIC_PRI] == static_cast<int>(layer)) {
       // There is no normalizing around the usual 720p ScrWork vars *by design*!
       // Lower-resolution games actually show larger tile sizes than
@@ -484,6 +509,7 @@ static void RenderMain() {
         (ScrWork[SW_MOVIEPRI] == 3000 || ScrWork[SW_MOVIEPRI] == 4000)))) {
     Video::VideoRender(ScrWork[SW_MOVIEALPHA] / 256.0f);
   }
+  MaskCapture.SetHasEffects(false);
 }
 
 void Render() {

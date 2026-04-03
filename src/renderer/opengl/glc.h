@@ -12,7 +12,11 @@ inline std::array<GLuint, MaxFramebuffers> Framebuffers;
 inline std::array<GLuint, MaxFramebuffers> FramebufferTextures;
 inline std::array<GLuint, MaxFramebuffers> StencilBuffers;
 
+inline GLuint MaskEffectFramebuffer = 0;
+inline GLuint MaskEffectFramebufferTexture = 0;
+
 void InitializeFramebuffers();
+void DeleteMaskFramebuffer();
 
 void BindFramebuffer(GLenum target, GLuint framebuffer);
 

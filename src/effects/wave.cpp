@@ -16,9 +16,25 @@ void Init() {
 
 void BGWave::Init() {
   WaveData.resize(WaveMaxCount);
-  WavePos.resize(BGWaveGridSize.x * BGWaveGridSize.y);
-  Vertices.resize(BGWaveGridSize.x * BGWaveGridSize.y);
-  Indices.resize((BGWaveGridSize.x * 2 + 1) * (BGWaveGridSize.y - 1) - 1);
+  WavePos.resize((size_t)BGWaveGridSize.x * (size_t)BGWaveGridSize.y);
+  Vertices.resize((size_t)BGWaveGridSize.x * (size_t)BGWaveGridSize.y);
+  Indices.resize(
+      ((size_t)BGWaveGridSize.x * 2 + 1) * ((size_t)BGWaveGridSize.y - 1) - 1);
+
+  // triangle strips with primitive restart index
+  constexpr uint16_t primitiveRestart = 0xFFFF;
+  size_t i = 0;
+  for (uint16_t y = 0; y < BGWaveGridSize.y - 1; y++) {
+    for (uint16_t x = 0; x < BGWaveGridSize.x; x++) {
+      const uint16_t firstIndex = y * BGWaveGridSize.x + x;
+      Indices[i++] = firstIndex;
+      Indices[i++] = firstIndex + BGWaveGridSize.x;
+    }
+
+    if (y != BGWaveGridSize.y - 2) {
+      Indices[i++] = primitiveRestart;
+    }
+  }
 }
 
 void Wave::ClearWaves() { WaveCount = 0; }
@@ -43,7 +59,7 @@ void Wave::SetWave(int index, WaveParams params) {
   }
 }
 
-void BGWave::CalcPos(int startPhase) {
+void BGWave::CalcPos(int startPhase, std::optional<uint32_t> alpha) {
   std::vector<float> left = std::vector(BGWaveGridSize.y, 0.0f);
   std::vector<float> right =
       std::vector(BGWaveGridSize.y, (float)Profile::ResolutionWidth);
@@ -60,17 +76,21 @@ void BGWave::CalcPos(int startPhase) {
     const float amplitude = static_cast<float>(WaveData[i].Amplitude);
     const int frequency = WaveData[i].SpatialFrequency;
     const int flags = WaveData[i].Flags;
+    const bool topFlag = flags & 4;
+    const bool bottomFlag = flags & 8;
+    const bool leftFlag = flags & 1;
+    const bool rightFlag = flags & 2;
 
     for (size_t j = 0; j < maxGridDimension; j++) {
       currentPhase = (currentPhase + frequency) & 0xFFFF;
       const float ampedSin =
           amplitude * std::sin(ScrWorkAngleToRad(currentPhase));
       if (j < BGWaveGridSize.y) {
-        if (flags & 1) {
+        if (leftFlag) {
           left[j] += ampedSin - amplitude;
         }
 
-        if (flags & 2) {
+        if (rightFlag) {
           right[j] += ampedSin + amplitude;
         }
       }
@@ -78,11 +98,11 @@ void BGWave::CalcPos(int startPhase) {
       // top and bottom are switched since original engine has an upside-down
       // mesh
       if (j < BGWaveGridSize.x) {
-        if (flags & 4) {
+        if (topFlag) {
           top[j] += ampedSin - amplitude;
         }
 
-        if (flags & 8) {
+        if (bottomFlag) {
           bottom[j] += ampedSin + amplitude;
         }
       }
@@ -122,15 +142,10 @@ void BGWave::CalcPos(int startPhase) {
       currentVal += step;
     }
   }
-}
 
-// TODO: not implemented
-void EFFWave::CalcPos(int startPhase) {}
-
-// TODO: not implemented
-void CHAWave::CalcPos(int startPhase) {}
-
-PrimitiveData BGWave::GetPrimitives() {
+  const float alphaFloat = static_cast<float>(alpha.value_or(255)) / 255.0f;
+  const glm::vec4 tint = glm::vec4(1.0f, 1.0f, 1.0f, alphaFloat);
+  // update vertices
   for (size_t y = 0; y < BGWaveGridSize.y; y++) {
     float yUV =
         static_cast<float>(y) / static_cast<float>(BGWaveGridSize.y - 1);
@@ -140,39 +155,21 @@ PrimitiveData BGWave::GetPrimitives() {
           static_cast<float>(x) / static_cast<float>(BGWaveGridSize.x - 1);
 
       size_t index = row_start + x;
-      Vertices[index] =
-          VertexBufferSprites{.Position = WavePos[index], .UV = {xUV, yUV}};
+      Vertices[index] = VertexBufferSprites{
+          .Position = WavePos[index], .UV = {xUV, yUV}, .Tint = tint};
     }
   }
+}
 
-  constexpr uint16_t PRIMITIVE_RESTART = 0xFFFF;
-
-  // triangle strips with primitive restart index
-  size_t i = 0;
-  for (uint16_t y = 0; y < BGWaveGridSize.y - 1; y++) {
-    for (uint16_t x = 0; x < BGWaveGridSize.x; x++) {
-      const uint16_t firstIndex = y * BGWaveGridSize.x + x;
-      Indices[i++] = firstIndex;
-      Indices[i++] = firstIndex + BGWaveGridSize.x;
-    }
-
-    if (y != BGWaveGridSize.y - 2) {
-      Indices[i++] = PRIMITIVE_RESTART;
-    }
-  }
-
-  return {std::span(Vertices), std::span(Indices)};
+void EFFWave::Render(const Sprite& mask) {
+  PrimitiveData primitives = GetPrimitives();
+  Renderer->DrawPrimitives(
+      mask.Sheet, nullptr, ShaderProgramType::Sprite, primitives.Vertices,
+      primitives.Indices, glm::mat4(1.0f), glm::mat4(1.0f), false,
+      TopologyMode::TriangleStrips, SpecialFBO::MaskEffectFrameBuffer);
 }
 
 // TODO: Not implemented
-PrimitiveData EFFWave::GetPrimitives() {
-  return {std::span(Vertices), std::span(Indices)};
-}
-
-// TODO: Not implemented
-PrimitiveData CHAWave::GetPrimitives() {
-  return {std::span(Vertices), std::span(Indices)};
-}
-
+void CHAWave::CalcPos(int startPhase, std::optional<uint32_t> alpha) {}
 }  // namespace Effects
 }  // namespace Impacto
