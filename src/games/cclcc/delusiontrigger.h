@@ -32,10 +32,13 @@ class DelusionTrigger {
   };
 
  private:
+  enum class DragHitbox { None, Positive, Negative };
+
   int MtrgAlphaCt = 0;
   int MtrgAng = 0;
   int& DelusionState;
   int LastDelusionState = 0xFF;
+  DragHitbox ActiveDragHitbox = DragHitbox::None;
   Sprite PositiveDelusionSprite;
   Sprite NegativeDelusionSprite;
   Sprite BgOverlaySprite;
