@@ -193,26 +193,27 @@ uint32_t Renderer::SubmitTexture(TexFmt format, uint8_t* buffer, int width,
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 16);
 
   // Load in data
-  const GLuint texFormat = [format]() {
+  const auto [internalFormat,
+              texFormat] = [format]() -> std::pair<GLint, GLenum> {
     switch (format) {
       case TexFmt_RGBA:
         glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-        return GL_RGBA;
+        return {GL_RGBA, GL_RGBA};
 
       case TexFmt_RGB:
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        return GL_RGB;
+        return {GL_RGB, GL_RGB};
 
       case TexFmt_U8:
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        return GL_RED;
+        return {GL_R8, GL_RED};
 
       default:
         throw std::invalid_argument(
             fmt::format("Unimplemented texture format {}", (int)format));
     }
   }();
-  glTexImage2D(GL_TEXTURE_2D, 0, texFormat, width, height, 0, texFormat,
+  glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, texFormat,
                GL_UNSIGNED_BYTE, buffer);
 
   // Build mip chain

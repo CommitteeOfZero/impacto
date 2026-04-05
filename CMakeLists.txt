@@ -1178,7 +1178,6 @@ if (NOT DEFINED IMPACTO_DISABLE_FFMPEG)
     )
 
     if (NOT VCPKG_TOOLCHAIN)
-        set(AVCPP_PATCH git apply ${CMAKE_CURRENT_SOURCE_DIR}/vendor/patches/avcpp.patch)
         if(NOT BUILD_SHARED_LIBS)
             set(AV_ENABLE_SHARED OFF CACHE BOOL "Enable shared library build (Off)" FORCE)            
         endif()
@@ -1188,9 +1187,11 @@ if (NOT DEFINED IMPACTO_DISABLE_FFMPEG)
         FetchContent_Declare(
             avcpp
             GIT_REPOSITORY "https://github.com/h4tr3d/avcpp"
-            GIT_TAG "00e29ea0c0f7036423b80553aaccacd70f90aace"
+            GIT_TAG "6bf8c76b120cf2cc448d706ea22f112017803605"
             SYSTEM
             GIT_SUBMODULES ""
+            PATCH_COMMAND ${AVCPP_PATCH}
+            UPDATE_DISCONNECTED 1
         )
 
         FetchContent_MakeAvailable(avcpp)

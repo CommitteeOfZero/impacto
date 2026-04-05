@@ -59,14 +59,25 @@ void VkNV12Frame::Init(float width, float height) {
                     &CbCrImage.ImageView);
 }
 
-void VkNV12Frame::Submit(const void* luma, const void* cbcr) {
-  int cbcrOffset = (int)(Width * Height);
+void Impacto::Vulkan::VkNV12Frame::Submit(const void* luma, int lumaStride,
+                                          const void* cbcr, int cbcrStride) {
+  const int cbcrOffset = (int)(Width * Height);
 
-  uint8_t* mappedStagingBuffer = (uint8_t*)MappedStagingBuffer;
+  const uint8_t* src = (const uint8_t*)luma;
+  uint8_t* dst = (uint8_t*)MappedStagingBuffer;
+  for (int y = 0; y < Height; y++) {
+    memcpy(dst, src, (int)Width);
+    src += lumaStride;
+    dst += (int)Width;
+  }
 
-  memcpy(mappedStagingBuffer, luma, cbcrOffset);
-  memcpy(mappedStagingBuffer + cbcrOffset, cbcr,
-         (size_t)((Width) * (Height / 2)));
+  src = (const uint8_t*)cbcr;
+  dst = (uint8_t*)MappedStagingBuffer + cbcrOffset;
+  for (int y = 0; y < (int)Height / 2; y++) {
+    memcpy(dst, src, (int)Width);
+    src += cbcrStride;
+    dst += (int)Width;
+  }
 
   ImmediateSubmit([&](VkCommandBuffer cmd) {
     VkExtent3D lumaImageExtent;

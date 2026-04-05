@@ -16,14 +16,30 @@ void DX9NV12Frame::Init(float width, float height) {
                               D3DFMT_A8L8, D3DPOOL_MANAGED, &CbCr, nullptr);
 }
 
-void DX9NV12Frame::Submit(const void* luma, const void* cbcr) {
+void Impacto::DirectX9::DX9NV12Frame::Submit(const void* luma, int lumaStride,
+                                             const void* cbcr, int cbcrStride) {
   D3DLOCKED_RECT lockRect;
   auto err = Luma->LockRect(0, &lockRect, NULL, 0);
-  memcpy(lockRect.pBits, luma, (size_t)(Width * Height));
+  const uint8_t* src = (const uint8_t*)luma;
+  uint8_t* dst = (uint8_t*)lockRect.pBits;
+  for (int y = 0; y < (int)Height; y++) {
+    memcpy(dst, src, (int)Width);
+    src += lumaStride;
+    dst += lockRect.Pitch;
+  }
+
   err = Luma->UnlockRect(0);
 
   err = CbCr->LockRect(0, &lockRect, NULL, 0);
-  memcpy(lockRect.pBits, cbcr, (size_t)((Width) * (Height / 2)));
+
+  src = (const uint8_t*)cbcr;
+  dst = (uint8_t*)lockRect.pBits;
+  for (int y = 0; y < (int)Height / 2; y++) {
+    memcpy(dst, src, (int)Width);
+    src += cbcrStride;
+    dst += lockRect.Pitch;
+  }
+
   err = CbCr->UnlockRect(0);
 }
 

@@ -16,16 +16,20 @@ void GLNV12Frame::Init(float width, float height) {
   CbCrId = yuv[1];
 }
 
-void GLNV12Frame::Submit(const void* luma, const void* cbcr) {
+void Impacto::OpenGL::GLNV12Frame::Submit(const void* luma, int lumaStride,
+                                          const void* cbcr, int cbcrStride) {
   glBindTexture(GL_TEXTURE_2D, LumaId);
+  glPixelStorei(GL_UNPACK_ROW_LENGTH, lumaStride);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, (GLsizei)Width, (GLsizei)Height, 0,
                GL_RED, GL_UNSIGNED_BYTE, luma);
   glGenerateMipmap(GL_TEXTURE_2D);
 
   glBindTexture(GL_TEXTURE_2D, CbCrId);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RG, (GLsizei)(Width / 2),
+  glPixelStorei(GL_UNPACK_ROW_LENGTH, cbcrStride / 2);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RG8, (GLsizei)(Width / 2),
                (GLsizei)(Height / 2), 0, GL_RG, GL_UNSIGNED_BYTE, cbcr);
   glGenerateMipmap(GL_TEXTURE_2D);
+  glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 }
 
 void GLNV12Frame::Release() {

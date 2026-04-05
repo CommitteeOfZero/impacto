@@ -14,7 +14,8 @@ class VkNV12Frame : public NV12Frame {
  public:
   void Init(float width, float height) override;
 
-  void Submit(const void* luma, const void* cbcr) override;
+  void Submit(const void* luma, int lumaStride, const void* cbcr,
+              int cbcrStride) override;
   void Release() override;
 
  protected:

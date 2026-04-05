@@ -13,7 +13,8 @@ class NV12Frame {
 
   virtual void Init(float width, float height) = 0;
 
-  virtual void Submit(const void* luma, const void* cbcr) = 0;
+  virtual void Submit(const void* luma, int lumaStride, const void* cbcr,
+                      int cbcrStride) = 0;
   virtual void Release() = 0;
 };
 

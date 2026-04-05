@@ -54,6 +54,7 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "VCPKG_OVERLAY_TRIPLETS": "${sourceDir}/triplets",
+        "VCPKG_OVERLAY_PORTS": "${sourceDir}/portfiles",
         "IMPACTO_WARNINGS": "ON"
       }
     },
