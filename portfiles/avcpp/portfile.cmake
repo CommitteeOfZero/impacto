@@ -1,3 +1,8 @@
+if(VCPKG_TARGET_IS_WINDOWS)
+    # avcpp doesn't export any symbols
+    vcpkg_check_linkage(ONLY_STATIC_LIBRARY)
+endif()
+
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO h4tr3d/avcpp
