@@ -134,13 +134,13 @@ GLuint ShaderCompiler::Attach(GLuint program, GLenum shaderType,
 
   glCompileShader(shader);
   glGetShaderiv(shader, GL_COMPILE_STATUS, &result);
-  assert(result);
   if (!result) {
     glGetShaderInfoLog(shader, sizeof(errorLog), NULL, errorLog);
     ImpLog(LogLevel::Fatal, LogChannel::Render,
            "Error compiling shader: {:s}\n", errorLog);
     SDL_free(source);
     glDeleteShader(shader);
+    assert(0);
     return 0;
   }
 
