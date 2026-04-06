@@ -70,6 +70,11 @@ SystemMenu::SystemMenu() {
   ItemsFade.DurationIn = ItemsFadeInDuration;
   ItemsFade.DurationOut = ItemsFadeOutDuration;
 
+  SmokeAnimation.Direction = AnimationDirection::In;
+  SmokeAnimation.LoopMode = AnimationLoopMode::Loop;
+  SmokeAnimation.DurationIn = SmokeAnimationDurationIn;
+  SmokeAnimation.DurationOut = SmokeAnimationDurationOut;
+
   auto onClick = [this](auto* btn) { return MenuButtonOnClick(btn); };
 
   MainItems = new Widgets::Group(this);
@@ -100,6 +105,7 @@ void SystemMenu::Show() {
     State = Showing;
     MenuTransition.StartIn();
     MenuFade.StartIn();
+    SmokeAnimation.StartIn();
     // If the function was called due to a submenu opening directly,
     // then don't take over focus
     if (!((ScrWork[SW_SYSMENUCT] == 32 && ScrWork[SW_SYSSUBMENUCT]) ||
@@ -146,6 +152,7 @@ void SystemMenu::Hide() {
 
 void SystemMenu::Update(float dt) {
   UpdateInput(dt);
+  SmokeAnimation.Update(dt);
 
   if (State == Shown &&
       ((GetFlag(SF_TITLEMODE) || ScrWork[SW_SYSMENUCT] < 32) ||
@@ -294,10 +301,39 @@ void SystemMenu::Render() {
         RectF{0, 0, Profile::DesignWidth, Profile::DesignHeight},
         glm::vec4{tint, alpha});
 
+    DrawSmoke(ScrWork[SW_SYSMENUCT] / 128.0f);
+
     MainItems->Tint =
         glm::vec4(tint, glm::smoothstep(0.0f, 1.0f, ItemsFade.Progress));
     MainItems->Render();
   }
+}
+
+void SystemMenu::DrawSmoke(float opacity) {
+  Renderer->SetBlendMode(RendererBlendMode::Additive);
+  glm::vec4 col = glm::vec4(1.0f);
+  col.a = opacity;
+  Sprite smokeSpriteCopy = Sprite(SmokeSprite);
+
+  smokeSpriteCopy.Bounds = RectF(
+      SmokeBounds.Width - (SmokeAnimationBoundsXMax * SmokeAnimation.Progress) +
+          SmokeAnimationBoundsXOffset,
+      SmokeBounds.Y,
+      SmokeBounds.Width -
+          (SmokeAnimationBoundsXMax * (1.0f - SmokeAnimation.Progress)),
+      SmokeBounds.Height);
+  Renderer->DrawSprite(smokeSpriteCopy, SmokePosition, col);
+  smokeSpriteCopy.Bounds = RectF(
+      SmokeBounds.X, SmokeBounds.Y,
+      SmokeBounds.Width - (SmokeAnimationBoundsXMax * SmokeAnimation.Progress),
+      SmokeBounds.Height);
+  Renderer->DrawSprite(
+      smokeSpriteCopy,
+      glm::vec2(SmokeBounds.Width - (SmokeAnimationBoundsXMax *
+                                     (1.0f - SmokeAnimation.Progress)),
+                SmokePosition.y),
+      col);
+  Renderer->SetBlendMode(RendererBlendMode::Normal);
 }
 
 void SystemMenu::Init() {
