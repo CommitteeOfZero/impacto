@@ -14,12 +14,21 @@ inline Sprite SystemMenuBG;
 inline Sprite MenuButtonGuide;
 inline Sprite SystemMenuFrame;
 inline Sprite SystemMenuMask;
+inline Sprite SmokeSprite;
 inline float MoveInDuration;
 inline float MoveOutDuration;
 inline float ItemsFadeInDuration;
 inline float ItemsFadeOutDuration;
 inline glm::vec2 MenuEntriesPositions[MenuEntriesNumMax];
 inline RectF MenuEntriesButtonBounds[MenuEntriesNumMax];
+
+inline float SmokeOpacityNormal;
+inline glm::vec2 SmokePosition;
+inline RectF SmokeBounds;
+inline float SmokeAnimationBoundsXOffset;
+inline float SmokeAnimationBoundsXMax;
+inline float SmokeAnimationDurationIn;
+inline float SmokeAnimationDurationOut;
 
 inline glm::vec2 BGDispOffsetTopLeft;
 inline glm::vec2 BGDispOffsetBottomLeft;

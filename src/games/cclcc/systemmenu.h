@@ -26,6 +26,9 @@ class SystemMenu : public Menu {
   void UpdateInput(float dt) override;
   void Update(float dt) override;
   void Render() override;
+  void DrawSmoke(float opacity);
+
+  Animation SmokeAnimation;
 
   void MenuButtonOnClick(Widgets::Button* target);
   Sprite ScreenCap;

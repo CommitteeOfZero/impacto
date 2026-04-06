@@ -17,12 +17,8 @@ root.TitleMenu = {
     CopyrightTextSprite = "CopyrightText",
     CopyrightTextX = 566,
     CopyrightTextY = 955,
-    SmokeX = 0,
-    SmokeY = 580,
-    SmokeBoundsX = 20,
-    SmokeBoundsY = 1550,
-    SmokeBoundsWidth = 1920,
-    SmokeBoundsHeight = 500,
+    SmokePosition = {X = 0, Y = 580},
+    SmokeBounds = {X = 20, Y = 1550,  Width = 1920, Height = 500},
     SmokeAnimationBoundsXOffset = 20,
     SmokeAnimationBoundsXMax = 1919,
     SmokeOpacityNormal = 0.15,
@@ -181,7 +177,7 @@ root.Sprites["TitleMenuMenu"] = {
 
 root.Sprites["TitleMenuOverlay"] = {
     Sheet = "MenuChip",
-    Bounds = { X = 154, Y = 140, Width = 1900, Height = 1061 },
+    Bounds = { X = 154, Y = 141, Width = 1900, Height = 1060 },
 };
 
 root.Sprites["TitleMenuSmoke"] = {

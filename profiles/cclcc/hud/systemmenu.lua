@@ -47,6 +47,15 @@ root.SystemMenu = {
     SystemMenuFrame = "SystemMenuFrame",
     SystemMenuMask = "SystemMenuMask",
 
+    SmokePosition = {X = 0, Y = 580},
+    SmokeBounds = {X = 20, Y = 1550,  Width = 1920, Height = 500},
+    SmokeAnimationBoundsXOffset = 20,
+    SmokeAnimationBoundsXMax = 1919,
+    SmokeOpacityNormal = 0.15,
+    SmokeAnimationDurationIn = 32,
+    SmokeAnimationDurationOut = 32,
+    SmokeSprite = "SystemMenuSmoke",
+
     BGDispOffsetTopLeft = {X=-1200, Y= -330},
     BGDispOffsetBottomLeft = {X=-1200, Y= 2080},
     BGDispOffsetTopRight = {X=2520, Y= -330},
@@ -148,5 +157,10 @@ root.Sprites["SystemMenuFrame"] = {
 
 root.Sprites["SystemMenuMask"] = {
     Sheet = "MenuChip",
-    Bounds = { X = 154, Y = 140, Width = 1900, Height = 1061 },
+    Bounds = { X = 154, Y = 141, Width = 1900, Height = 1060 },
+};
+
+root.Sprites["SystemMenuSmoke"] = {
+    Sheet = "MenuChip",
+    Bounds = { X = 0, Y = 1638, Width = 2000, Height = 410 },
 };

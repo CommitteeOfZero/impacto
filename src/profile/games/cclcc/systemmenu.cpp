@@ -17,6 +17,16 @@ void Configure() {
   ItemsFadeInDuration = EnsureGetMember<float>("ItemsFadeInDuration");
   ItemsFadeOutDuration = EnsureGetMember<float>("ItemsFadeOutDuration");
 
+  SmokeOpacityNormal = EnsureGetMember<float>("SmokeOpacityNormal");
+  SmokePosition = EnsureGetMember<glm::vec2>("SmokePosition");
+  SmokeBounds = EnsureGetMember<RectF>("SmokeBounds");
+  SmokeAnimationBoundsXOffset =
+      EnsureGetMember<float>("SmokeAnimationBoundsXOffset");
+  SmokeAnimationBoundsXMax = EnsureGetMember<float>("SmokeAnimationBoundsXMax");
+  SmokeAnimationDurationIn = EnsureGetMember<float>("SmokeAnimationDurationIn");
+  SmokeAnimationDurationOut =
+      EnsureGetMember<float>("SmokeAnimationDurationOut");
+
   GetMemberArray<glm::vec2>(
       std::span(MenuEntriesPositions, Profile::SystemMenu::MenuEntriesNum),
       "MenuEntriesPositions");
@@ -29,6 +39,7 @@ void Configure() {
   SystemMenuFrame = EnsureGetMember<Sprite>("SystemMenuFrame");
   MenuButtonGuide = EnsureGetMember<Sprite>("MenuButtonGuide");
   SystemMenuMask = EnsureGetMember<Sprite>("SystemMenuMask");
+  SmokeSprite = EnsureGetMember<Sprite>("SmokeSprite");
 
   BGDispOffsetTopLeft = EnsureGetMember<glm::vec2>("BGDispOffsetTopLeft");
   BGDispOffsetBottomLeft = EnsureGetMember<glm::vec2>("BGDispOffsetBottomLeft");
