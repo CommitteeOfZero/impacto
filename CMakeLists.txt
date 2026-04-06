@@ -1058,13 +1058,24 @@ if (NOT DEFINED IMPACTO_DISABLE_LIBASS)
     list(APPEND Impacto_Src src/subtitle/ass/subtitlerenderer.cpp)
     list(APPEND Impacto_Header src/subtitle/ass/subtitlerenderer.h)
     
-    pkg_check_modules(LIBASS REQUIRED IMPORTED_TARGET GLOBAL libass)
-    list(APPEND Impacto_Include_Dirs ${LIBASS_INCLUDE_DIRS})
+    pkg_check_modules(ass REQUIRED IMPORTED_TARGET GLOBAL libass)
+    # Libass links libc++ which overrides the static stllib linkage 
+    if(ANDROID)
+        get_target_property(ASS_LINK_LIBS PkgConfig::ass INTERFACE_LINK_LIBRARIES)
+        set(CLEANED_ASS_LINK_LIBS "")
+        foreach(LIB_PATH IN LISTS ASS_LINK_LIBS)
+            get_filename_component(LIB_NAME "${LIB_PATH}" NAME)
+            
+            # Check if the filename starts with "libc++." or "libc++_"
+            if(NOT ("${LIB_NAME}" MATCHES "^libc\\+\\+\\." OR "${LIB_NAME}" MATCHES "^libc\\+\\+_"))
+                list(APPEND CLEANED_ASS_LINK_LIBS "${LIB_PATH}")
+            endif()
+        endforeach()
+
+        set_target_properties(PkgConfig::ass PROPERTIES INTERFACE_LINK_LIBRARIES "${CLEANED_ASS_LINK_LIBS}")
+    endif()
     list(APPEND Impacto_Libs
-        ${LIBASS_LINK_LIBRARIES}
-    )
-    list(APPEND Impacto_Compile_Options
-        ${LIBASS_CFLAGS_OTHER}
+        PkgConfig::ass
     )
 
 endif()

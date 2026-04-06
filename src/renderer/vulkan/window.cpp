@@ -61,6 +61,9 @@ void VulkanWindow::Init() {
   ImpLog(LogLevel::Info, LogChannel::General, "Creating window\n");
   IsInit = true;
 
+#ifdef __ANDROID__
+  SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
+#endif
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) != 0) {
     ImpLog(LogLevel::Fatal, LogChannel::General,
            "SDL initialisation failed: {:s}\n", SDL_GetError());

@@ -27,7 +27,7 @@ float interpolateWeight(float progress) {
     int lowerWeightIdx = min(int(floor(progress)), WEIGHTS_COUNT - 2);
     int upperWeightIdx = lowerWeightIdx + 1;
 
-    float weightProgress = clamp(progress - lowerWeightIdx, 0.0, 1.0);
+    float weightProgress = clamp(progress - float(lowerWeightIdx), 0.0, 1.0);
     return mix(WEIGHTS[lowerWeightIdx], WEIGHTS[upperWeightIdx], weightProgress);
 }
 
@@ -37,16 +37,16 @@ void main() {
 
     // Vita's blur effect operates on a 480 x 255 texture
     float weightDistance = IsHorizontal ? TextureDimensions.x / 480.0 : TextureDimensions.y / 255.0;
-    int maxDistance = int(ceil(weightDistance * WEIGHTS_COUNT));
+    int maxDistance = int(ceil(weightDistance * float(WEIGHTS_COUNT)));
 
     color = vec4(0.0);
     float totalWeight = 0.0;
     for (int i = 0; i < maxDistance; i++) {
         float weight = interpolateWeight(float(i) / weightDistance);
-        totalWeight += weight * 2.0;
+        totalWeight += weight * 2.0f;
 
-        color += weight * texture(ColorMap, uv + normalizedOffset * i);
-        color += weight * texture(ColorMap, uv - normalizedOffset * i);
+        color += weight * texture(ColorMap, uv + normalizedOffset * float(i));
+        color += weight * texture(ColorMap, uv - normalizedOffset * float(i));
     }
     color /= totalWeight;
 

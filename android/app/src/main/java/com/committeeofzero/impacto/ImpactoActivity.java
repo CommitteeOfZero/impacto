@@ -46,10 +46,10 @@ public class ImpactoActivity extends SDLActivity {
         SharedPreferences.Editor editor = prefs.edit();
         editor.putBoolean("firstRun", false);
         editor.apply();
+        copyAssetFolder("shaders", getFilesDir().getAbsolutePath() + "/" + "shaders");
         if (reset) {
             copyAssetFolder("games", externalFilesDir.getAbsolutePath() + "/" + "games");
             copyAssetFolder("profiles", externalFilesDir.getAbsolutePath() + "/" + "profiles");
-            copyAssetFolder("shaders", getFilesDir().getAbsolutePath() + "/" + "shaders");
         }
         super.onCreate(savedInstanceState);
     }

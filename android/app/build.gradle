@@ -18,9 +18,12 @@ android {
             signingConfig signingConfigs.release
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            resValue "string", "app_name", "Impacto"
         }
         debug {
             applicationIdSuffix ".debug"
+            versionNameSuffix '-DEBUG'
+            resValue "string", "app_name", "Impacto Debug"
             debuggable true
             packaging {
                 jniLibs {
@@ -39,6 +42,7 @@ android {
             outputs.upToDateWhen { false }
         }
     }
+
 }
 
 dependencies {
