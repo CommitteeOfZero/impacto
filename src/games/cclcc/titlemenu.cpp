@@ -53,6 +53,8 @@ void TitleMenu::ExtraButtonOnClick(Widgets::Button* target) {
   if (!GetFlag(SF_CLR_FLAG)) {
     Audio::PlayInGroup(Audio::ACG_SE, "sysse", 4, false, 0);
     return;
+  } else {
+    Audio::PlayInGroup(Audio::ACG_SE, "sysse", 2, false, 0);
   }
   CurrentSubMenu = ExtraItems;
   CurrentSubMenu->HasFocus = true;
