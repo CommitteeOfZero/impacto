@@ -306,7 +306,12 @@ void TitleMenu::UpdateInput(float dt) {
     }
   }
   if (CurrentSubMenu && !CurrentSubMenu->HasFocus) return;
-  if (IsFocused) {
+
+  const bool buttonHighlightAnimationPlaying =
+      CurrentlyFocusedElement &&
+      static_cast<TitleButton*>(CurrentlyFocusedElement)
+          ->HighlightAnimation.IsPlaying();
+  if (IsFocused && !buttonHighlightAnimationPlaying) {
     Menu::UpdateInput(dt);
     if (MainItems->HasFocus && !CurrentSubMenu) {
       MainItems->UpdateInput(dt);
