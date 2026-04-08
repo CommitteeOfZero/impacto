@@ -37,6 +37,7 @@ Widget* Widget::GetFocus(FocusDirection dir) {
   Widget* nextFocus = FocusElements[dir];
   while (nextFocus && !nextFocus->Enabled) {
     nextFocus = nextFocus->FocusElements[dir];
+    assert(nextFocus != this && "Entered an infinite loop");
   }
   return nextFocus;
 }
