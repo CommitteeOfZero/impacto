@@ -91,12 +91,16 @@ TitleMenu::TitleMenu() {
 
   // Exit menu button (Configuration/Patch driven)
   if (HasScriptedExitLogic) {
-    Exit =
+    auto* const exitPtr =
         new TitleButton(4, ExitSprite, ExitHighlightSprite, ItemHighlightSprite,
                         glm::vec2(ItemHighlightOffset.x - 1.0f,
                                   ItemYBase - 1.0f + 4 * ItemPadding));
-    Exit->OnClickHandler = [this](auto* btn) { return ExitButtonOnClick(btn); };
-    MainItems->Add(Exit, FDIR_DOWN);
+    exitPtr->OnClickHandler = [this](auto* btn) {
+      return ExitButtonOnClick(btn);
+    };
+
+    Exit.emplace(*exitPtr);
+    MainItems->Add(exitPtr, FDIR_DOWN);
   }
 
   // Quick Load secondary Load menu button
