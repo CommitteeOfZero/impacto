@@ -258,6 +258,7 @@ void FFmpegPlayer::Play(Io::Stream* stream, bool looping, bool alpha) {
 void FFmpegPlayer::InitSubtitles(
     std::vector<std::pair<av::Stream, int>>& embeddedSubStreams) {
   using Profile::Subtitle::SubtitleMappings;
+  using Profile::Subtitle::SubtitleTrackFile;
   using Profile::Subtitle::SubtitleType;
   using namespace Subtitle;
   auto initSubPlayer = [this] {
@@ -268,7 +269,17 @@ void FFmpegPlayer::InitSubtitles(
         SubPlayer.emplace(Profile::DesignWidth, Profile::DesignHeight);
     }
   };
-  auto mappingsItr = SubtitleMappings.find(StreamPtr->Meta.FileName);
+  const auto subtitleMappings =
+      [this]() -> std::vector<SubtitleTrackFile> const* {
+    const auto mountMapItr =
+        SubtitleMappings.find(StreamPtr->Meta.ArchiveMountPoint);
+    if (mountMapItr == SubtitleMappings.end()) return nullptr;
+    auto subMapItr = mountMapItr->second.find(StreamPtr->Meta.FileName);
+    if (subMapItr == mountMapItr->second.end())
+      subMapItr = mountMapItr->second.find(StreamPtr->Meta.Id);
+    if (subMapItr == mountMapItr->second.end()) return nullptr;
+    return &(subMapItr->second);
+  }();
 
   // Tracks embedded in video
   for (auto& [subtitleStream, id] : embeddedSubStreams) {
@@ -290,14 +301,13 @@ void FFmpegPlayer::InitSubtitles(
 
     // Optionally tag embedded subtitle tracks in lua
     Profile::SubtitleConfigType subConfig = Profile::SubtitleConfigType::All;
-    if (mappingsItr != SubtitleMappings.end()) {
+    if (subtitleMappings) {
       const auto subFileItr = std::find_if(
-          mappingsItr->second.begin(), mappingsItr->second.end(),
+          subtitleMappings->begin(), subtitleMappings->end(),
           [&subStream](const auto& subFile) {
             return subFile.Id && subStream.AvStream.id() == *subFile.Id;
           });
-      if (subFileItr != mappingsItr->second.end())
-        subConfig = subFileItr->Config;
+      if (subFileItr != subtitleMappings->end()) subConfig = subFileItr->Config;
     }
 #ifndef IMPACTO_DISABLE_LIBASS
     if (subtitleType == SubtitleType::Ass) {
@@ -309,10 +319,10 @@ void FFmpegPlayer::InitSubtitles(
   }
 
   // External subs mapped through lua
-  if (mappingsItr != SubtitleMappings.end()) {
+  if (subtitleMappings) {
     initSubPlayer();
     int trackId = 0;
-    for (auto const& subFile : mappingsItr->second) {
+    for (auto const& subFile : *subtitleMappings) {
       if (!subFile.Path) continue;
       SubPlayer->AddTrackFile(trackId++, subFile.Type, *subFile.Path,
                               subFile.Config);
@@ -543,7 +553,7 @@ void FFmpegPlayer::Update(float dt) {
     if (AudioStream) AudioPlayer->Process();
 
     if (+Profile::GameFeatures & +GameFeature::Subtitles && SubPlayer) {
-SubPlayer->UpdateElapsedTime(MasterClock->Get());
+      SubPlayer->UpdateElapsedTime(MasterClock->Get());
       UpdateSubtitles();
     }
 

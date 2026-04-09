@@ -21,7 +21,10 @@ struct SubtitleTrackFile {
 };
 
 using SubtitleTrackFiles = std::vector<SubtitleTrackFile>;
-inline ankerl::unordered_dense::map<std::string, SubtitleTrackFiles>
+using SubtitleMountMapping =
+    ankerl::unordered_dense::map<std::variant<uint32_t, std::string>,
+                                 SubtitleTrackFiles>;
+inline ankerl::unordered_dense::map<std::string, SubtitleMountMapping>
     SubtitleMappings;
 inline std::vector<std::string> SubtitleFontsDir;
 
