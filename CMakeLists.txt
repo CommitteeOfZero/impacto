@@ -1208,6 +1208,10 @@ if (NOT DEFINED IMPACTO_DISABLE_FFMPEG)
             PkgConfig::FFmpeg
         )
     else ()
+        find_package(FFMPEG REQUIRED)
+        list(APPEND Impacto_Include_Dirs ${FFMPEG_INCLUDE_DIRS})
+        list(APPEND Impacto_Libs ${FFMPEG_LIBRARIES})
+
         find_package(avcpp CONFIG REQUIRED)
         list(APPEND Impacto_Libs
             avcpp::avcpp
