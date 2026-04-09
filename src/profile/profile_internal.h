@@ -55,6 +55,12 @@ template <typename T>
 T EnsureGetKey();
 
 template <typename T>
+  requires requires(T x) {
+    { std::variant{x} } -> std::same_as<T>;
+  }
+T EnsureGetKey();
+
+template <typename T>
 bool TryGetMember(char const* name, T& out);
 
 template <typename T>
@@ -132,6 +138,12 @@ template <typename T>
   }
 std::optional<T> TryGet();
 
+template <typename T>
+  requires requires(T x) {
+    { std::variant{x} } -> std::same_as<T>;
+  }
+std::optional<T> TryGet();
+
 template <typename E>
   requires std::is_enum_v<E>
 std::optional<E> TryGet();
@@ -156,8 +168,45 @@ inline T EnsureGetKey() {
     return lua_tostring(LuaState, -2);
   else if constexpr (std::is_integral_v<T> && !std::is_same_v<T, bool>)
     return (T)lua_tointeger(LuaState, -2);
-  else
+  else if constexpr (requires(T x) {
+                       {
+                         std::variant { x }
+                       } -> std::same_as<T>;
+                     }) {
+    lua_rotate(LuaState, -2, 1);
+    T result = EnsureGet<T>();
+    lua_rotate(LuaState, -2, -1);
+    return result;
+
+  } else
     static_assert(sizeof(T*) == 0, "Invalid Key Type");
+}
+
+template <typename T>
+  requires requires(T x) {
+    { std::variant{x} } -> std::same_as<T>;
+  }
+inline T EnsureGetKey() {
+  static constexpr auto isKeyType = []<typename K>() {
+    return is_any_of_v<K, char const*, std::string_view, std::string> ||
+           (std::is_integral_v<K> && !std::is_same_v<K, bool>);
+  };
+  static constexpr auto variantTypeChecker = []<std::size_t... Is>(
+                                                 std::index_sequence<Is...>) {
+    return (
+        isKeyType.template operator()<std::variant_alternative_t<Is, T>>() ||
+        ...);
+  };
+
+  if constexpr (variantTypeChecker.template operator()(
+                    std::make_index_sequence<std::variant_size_v<T>>{})) {
+    lua_rotate(LuaState, -2, 1);
+    T result = EnsureGet<T>();
+    lua_rotate(LuaState, -2, -1);
+    return result;
+  } else {
+    static_assert(sizeof(T*) == 0, "Invalid Key Type");
+  }
 }
 
 template <typename T>
@@ -234,7 +283,7 @@ inline std::optional<T> TryGet() {
       if (ec == std::errc{}) {
         return outNumber;
       }
-      ImpLog(LogLevel::Fatal, LogChannel::Profile,
+      ImpLog(LogLevel::Warning, LogChannel::Profile,
              "Error encountered converting {:s} to number: {:s}\n", inputStr,
              std::make_error_code(ec).message());
     } else {
@@ -247,7 +296,7 @@ inline std::optional<T> TryGet() {
       if (endPtr != inputStr.data()) {
         return outNumber;
       }
-      ImpLog(LogLevel::Fatal, LogChannel::Profile,
+      ImpLog(LogLevel::Warning, LogChannel::Profile,
              "Error encountered converting {:s} to number: {:s}\n", inputStr,
              std::error_code{errno, std::generic_category()}.message());
     }
@@ -411,6 +460,30 @@ inline std::optional<T> TryGet() {
 }
 
 template <typename T>
+  requires requires(T x) {
+    { std::variant{x} } -> std::same_as<T>;
+  }
+inline std::optional<T> TryGet() {
+  const auto variantElemHandler =
+      [&]<std::size_t I>(std::optional<T>& variantOpt) {
+        using ElemType = std::variant_alternative_t<I, T>;
+        auto elemOpt = TryGet<ElemType>();
+        if (elemOpt) variantOpt = std::move(*elemOpt);
+        return elemOpt.has_value();
+      };
+
+  const auto variantFetcher =
+      [&]<std::size_t... Is>(std::index_sequence<Is...>) {
+        std::optional<T> variantOpt;
+
+        (variantElemHandler.template operator()<Is>(variantOpt) || ...);
+        return variantOpt;
+      };
+
+  return variantFetcher(std::make_index_sequence<std::variant_size_v<T>>{});
+}
+
+template <typename T>
   requires is_std_array<T>::value
 inline std::optional<T> TryGet() {
   if (!lua_istable(LuaState, -1)) return std::nullopt;
@@ -442,6 +515,7 @@ inline std::optional<T> TryGet() {
 template <typename E>
   requires std::is_enum_v<E>
 inline std::optional<E> TryGet() {
+  using MagicEnumRange = magic_enum::customize::enum_range<E>;
   const auto optUnderlying = TryGet<std::underlying_type_t<E>>();
   if (optUnderlying) {
     if constexpr (requires { MagicEnumRange::is_flags; }) {
