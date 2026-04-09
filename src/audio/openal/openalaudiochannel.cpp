@@ -49,6 +49,8 @@ void OpenALAudioChannel::Play(std::unique_ptr<AudioStream> stream, bool loop,
   FadeProgress = FadeDuration == 0 ? 1.0f : 0.0f;
   State = FadeDuration == 0 ? ACS_Playing : ACS_FadingIn;
   Looping = loop;
+
+  AudioSubtitlesStart(this);
 }
 
 void OpenALAudioChannel::Stop(float fadeOutDuration) {
