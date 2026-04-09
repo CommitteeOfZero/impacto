@@ -18,7 +18,7 @@ class SystemMenu : public Menu, public CommonMenu {
   void Show() override;
   void Hide() override;
   void SubItemShow();
-  void SubItemsHide();
+  void SubItemsHide(bool instantHide);
   void Update(float dt) override;
   void Render() override;
 
@@ -54,7 +54,7 @@ class SystemMenu : public Menu, public CommonMenu {
   int IndexOfActiveButton = 0;
   std::optional<int> LastFocusedButtonId;
   uint32_t CurrentColor;
-  MenuState SubItemsState;
+  MenuState SubItemsState = Hidden;
 };
 
 }  // namespace CHLCC

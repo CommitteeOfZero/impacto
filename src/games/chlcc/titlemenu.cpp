@@ -306,7 +306,7 @@ void TitleMenu::Update(float dt) {
 
   if (GetFlag(SF_TITLEMODE)) {
     Show();
-  } else if (State == Shown && !IsFocused &&
+  } else if (State == Shown &&
              static_cast<TitleDispCtState>(ScrWork[SW_TITLEDISPCT]) !=
                  TitleDispCtState::ExtraSubEntriesControl) {
     // when loading/starting a game from a submenu
