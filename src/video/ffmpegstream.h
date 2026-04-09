@@ -20,7 +20,7 @@
 #undef __unix__
 #endif
 
-#include "ffmpegsubtitlehelper.h"
+#include "../subtitle/ffmpegsubtitlehelper.h"
 
 struct AVFrame;
 struct AVPacket;
@@ -48,8 +48,8 @@ struct AVTypes<AVMEDIA_TYPE_AUDIO> {
 
 template <>
 struct AVTypes<AVMEDIA_TYPE_SUBTITLE> {
-  using DecodingContextType = SubtitleDecoderContext;
-  using FrameType = SubtitleData;
+  using DecodingContextType = Subtitle::SubtitleDecoderContext;
+  using FrameType = Subtitle::SubtitleData;
 };
 
 template <AVMediaType MediaType>

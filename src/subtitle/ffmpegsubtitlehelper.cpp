@@ -2,7 +2,7 @@
 
 #include <avcpp/packet.h>
 
-namespace Impacto::Video {
+namespace Impacto::Subtitle {
 // avcpp codeccontext.cpp
 std::pair<int, const std::error_category*> make_error_pair(av::Errors errc) {
   return std::make_pair(static_cast<int>(errc), &av::avcpp_category());
@@ -137,4 +137,4 @@ SubtitleData SubtitleDecoderContext::decode(const av::Packet& packet,
   return decodeSubtitle(ec, packet, offset, &decodedBytes);
 }
 
-}  // namespace Impacto::Video
+}  // namespace Impacto::Subtitle
