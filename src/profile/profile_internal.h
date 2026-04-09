@@ -443,7 +443,6 @@ template <typename E>
   requires std::is_enum_v<E>
 inline std::optional<E> TryGet() {
   const auto optUnderlying = TryGet<std::underlying_type_t<E>>();
-  using MagicEnumRange = magic_enum::customize::enum_range<E>;
   if (optUnderlying) {
     if constexpr (requires { MagicEnumRange::is_flags; }) {
       if constexpr (MagicEnumRange::is_flags)
