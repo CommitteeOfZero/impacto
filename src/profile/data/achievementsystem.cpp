@@ -12,8 +12,7 @@ using namespace Impacto::AchievementSystem;
 void Configure() {
   if (TryPushMember("AchievementData")) {
     AssertIs(LUA_TTABLE);
-    Type = AchievementDataType::_from_integral_unchecked(
-        EnsureGetMember<int>("Type"));
+    Type = EnsureGetMember<AchievementDataType>("Type");
 
     switch (Type) {
       case AchievementDataType::PS3:

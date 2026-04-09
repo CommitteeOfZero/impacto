@@ -11,10 +11,9 @@ void Configure() {
   if (TryPushMember("CommonMenu")) {
     AssertIs(LUA_TTABLE);
 
-    Type =
-        CommonMenuType::_from_integral_unchecked(EnsureGetMember<int>("Type"));
+    Type = EnsureGetMember<CommonMenuType>("Type");
 
-    if (Type == +CommonMenuType::CHLCC) {
+    if (Type == CommonMenuType::CHLCC) {
       CHLCC::CommonMenu::Configure();
     }
 

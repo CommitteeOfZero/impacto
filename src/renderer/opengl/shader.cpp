@@ -84,7 +84,7 @@ int ShaderCompiler::PrintParameter(char* dest, int destSz, char const* name,
 
     default:
       ImpLog(LogLevel::Error, LogChannel::Render,
-             "Invalid shader parameter type {:d}\n", param.Type);
+             "Invalid shader parameter type {}\n", param.Type);
       if (destSz > 0) *dest = '\0';
       return 0;
   }

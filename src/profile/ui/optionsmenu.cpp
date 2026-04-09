@@ -17,8 +17,7 @@ void Configure() {
   if (TryPushMember("OptionsMenu")) {
     AssertIs(LUA_TTABLE);
 
-    Type =
-        OptionsMenuType::_from_integral_unchecked(EnsureGetMember<int>("Type"));
+    Type = EnsureGetMember<OptionsMenuType>("Type");
 
     FadeInDuration = EnsureGetMember<float>("FadeInDuration");
     FadeOutDuration = EnsureGetMember<float>("FadeOutDuration");

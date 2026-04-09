@@ -409,11 +409,12 @@ void ShowScriptDebugger() {
   }
 
   char comboPreviewValue[128];
-  auto groupType = ThreadGroupType::_from_integral_nothrow(
+  auto groupType = magic_enum::enum_cast<ThreadGroupType>(
       (uint8_t)Vm::ThreadPool[ScriptDebuggerSelectedThreadId].GroupId);
   if (groupType) {
     snprintf(
-        comboPreviewValue, 128, "[%s][%d] %s", groupType.value()._to_string(),
+        comboPreviewValue, 128, "[%s][%d] %s",
+        magic_enum::enum_name(*groupType).data(),
         Vm::ThreadPool[ScriptDebuggerSelectedThreadId].Id,
         Vm::LoadedScriptMetas[Vm::ThreadPool[ScriptDebuggerSelectedThreadId]
                                   .ScriptBufferId]
@@ -433,11 +434,12 @@ void ShowScriptDebugger() {
     for (int i = 0; i < Vm::MaxThreads; i++) {
       if (Vm::ThreadPool[i].IpOffset != 0) {
         const bool isSelected = (ScriptDebuggerSelectedThreadId == i);
-        groupType = ThreadGroupType::_from_integral_nothrow(
+        groupType = magic_enum::enum_cast<ThreadGroupType>(
             (uint8_t)Vm::ThreadPool[i].GroupId);
         if (groupType) {
           snprintf(comboPreviewValue, 128, "[%s][%d] %s",
-                   groupType.value()._to_string(), Vm::ThreadPool[i].Id,
+                   magic_enum::enum_name(*groupType).data(),
+                   Vm::ThreadPool[i].Id,
                    Vm::LoadedScriptMetas[Vm::ThreadPool[i].ScriptBufferId]
                        .FileName.c_str());
         } else {
@@ -534,10 +536,10 @@ void ShowScriptDebugger() {
                 Vm::ThreadPool[ScriptDebuggerSelectedThreadId].ExecPriority);
 
     ImGui::TableNextColumn();
-    auto drawType = Game::DrawComponentType::_from_integral_nothrow(
+    auto drawType = magic_enum::enum_cast<Game::DrawComponentType>(
         Vm::ThreadPool[ScriptDebuggerSelectedThreadId].DrawType);
     if (drawType) {
-      ImGui::Text("DrawType: %s", drawType.value()._to_string());
+      ImGui::Text("DrawType: %s", magic_enum::enum_name(*drawType).data());
     } else {
       ImGui::Text("DrawType: %d",
                   Vm::ThreadPool[ScriptDebuggerSelectedThreadId].DrawType);
@@ -548,10 +550,10 @@ void ShowScriptDebugger() {
                 Vm::ThreadPool[ScriptDebuggerSelectedThreadId].Alpha);
 
     ImGui::TableNextColumn();
-    groupType = ThreadGroupType::_from_integral_nothrow(
+    groupType = magic_enum::enum_cast<ThreadGroupType>(
         (uint8_t)Vm::ThreadPool[ScriptDebuggerSelectedThreadId].GroupId);
     if (groupType) {
-      ImGui::Text("Group: %s", groupType.value()._to_string());
+      ImGui::Text("Group: %s", magic_enum::enum_name(*groupType).data());
     } else {
       ImGui::Text("Group: %d",
                   Vm::ThreadPool[ScriptDebuggerSelectedThreadId].GroupId);
@@ -755,7 +757,7 @@ static ankerl::unordered_dense::map<uint32_t, std::vector<std::string>>
     SpritesBySpriteSheet;
 
 static void ShowSprite(const Sprite* sprite) {
-  if (Profile::ActiveRenderer == +RendererType::OpenGL) {
+  if (Profile::ActiveRenderer == RendererType::OpenGL) {
     float texWidth = sprite->Sheet.DesignWidth;
     float texHeight = sprite->Sheet.DesignHeight;
     ImGui::Image(
@@ -784,7 +786,7 @@ void ShowObjects() {
         float texWidth = spriteSheet.second.DesignWidth * 0.4f;
         float texHeight = spriteSheet.second.DesignHeight * 0.4f;
         // Only OpenGL for now
-        if (Profile::ActiveRenderer == +RendererType::OpenGL) {
+        if (Profile::ActiveRenderer == RendererType::OpenGL) {
           ImVec2 pos = ImGui::GetCursorScreenPos();
           ImGui::Image((ImTextureID)(intptr_t)spriteSheet.second.Texture,
                        ImVec2(texWidth, texHeight));
@@ -833,7 +835,7 @@ void ShowObjects() {
           float texWidth = Backgrounds[i].BgSprite.Sheet.DesignWidth * 0.4f;
           float texHeight = Backgrounds[i].BgSprite.Sheet.DesignHeight * 0.4f;
           // Only OpenGL for now
-          if (Profile::ActiveRenderer == +RendererType::OpenGL) {
+          if (Profile::ActiveRenderer == RendererType::OpenGL) {
             ImVec2 pos = ImGui::GetCursorScreenPos();
             ImGui::Image(
                 (ImTextureID)(intptr_t)Backgrounds[i].BgSprite.Sheet.Texture,
@@ -887,7 +889,7 @@ void ShowObjects() {
           float texHeight =
               Characters2D[i].CharaSprite.Sheet.DesignHeight * 0.4f;
           // Only OpenGL for now
-          if (Profile::ActiveRenderer == +RendererType::OpenGL) {
+          if (Profile::ActiveRenderer == RendererType::OpenGL) {
             ImVec2 pos = ImGui::GetCursorScreenPos();
             ImGui::Image((ImTextureID)(intptr_t)Characters2D[i]
                              .CharaSprite.Sheet.Texture,

@@ -86,7 +86,7 @@ void SysMesBox::Show() {
   IsFocused = true;
   UI::FocusedMenu = this;
 
-  if (Profile::Vm::GameInstructionSet == +Vm::InstructionSet::RNE) {
+  if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::RNE) {
     if (!ScrWork[SW_SYSMESANIMCTCUR]) {
       Audio::PlayInGroup(Audio::ACG_SE, "sysse", 16, false, 0.0f);
     }
@@ -94,7 +94,7 @@ void SysMesBox::Show() {
 }
 
 void SysMesBox::Hide() {
-  if (Profile::Vm::GameInstructionSet == +Vm::InstructionSet::RNE) {
+  if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::RNE) {
     Audio::PlayInGroup(Audio::ACG_SE, "sysse", 29, false, 0.0f);
   }
   State = Hiding;
@@ -230,7 +230,7 @@ void SysMesBox::Render() {
         glm::vec4(1.0f, 1.0f, 1.0f, 0.75f));
     Renderer->DrawSprite(BoxDecorationTop,
                          glm::vec2(BoxDisplayX, BoxTopY - 3.0f), col);
-    if (Type == +SysMesBoxType::Dash) {
+    if (Type == SysMesBoxType::Dash) {
       Renderer->DrawSprite(
           BoxDecorationBottom,
           glm::vec2(BoxDisplayX,

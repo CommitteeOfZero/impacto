@@ -3,14 +3,18 @@
 
 #include <vector>
 #include <array>
-#include <enum.h>
+#include <magic_enum/magic_enum.hpp>
 #include "../log.h"
 
 namespace Impacto {
 namespace TipsSystem {
 
-BETTER_ENUM(TipsSystemType, int, None, MO6TW, CHLCC, CCLCC)
-
+enum class TipsSystemType : int {
+  None,
+  MO6TW,
+  CHLCC,
+  CCLCC,
+};
 int constexpr MaxTipStrings = 10;
 
 struct TipsDataRecord {

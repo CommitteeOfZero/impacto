@@ -20,10 +20,9 @@ void Configure() {
   if (TryPushMember("BacklogMenu")) {
     AssertIs(LUA_TTABLE);
 
-    Type =
-        BacklogMenuType::_from_integral_unchecked(EnsureGetMember<int>("Type"));
+    Type = EnsureGetMember<BacklogMenuType>("Type");
 
-    if (Type == +BacklogMenuType::None) {
+    if (Type == BacklogMenuType::None) {
       UI::BacklogMenuPtr = new UI::BacklogMenu();
       UI::Menus[Game::DrawComponentType::None].push_back(UI::BacklogMenuPtr);
 
@@ -32,8 +31,7 @@ void Configure() {
     }
 
     EntryHighlightLocation =
-        EntryHighlightLocationType::_from_integral_unchecked(
-            EnsureGetMember<int>("EntryHighlightLocation"));
+        EnsureGetMember<EntryHighlightLocationType>("EntryHighlightLocation");
 
     BacklogBackground = EnsureGetMember<Sprite>("BacklogBackgroundSprite");
     EntryHighlight = EnsureGetMember<Sprite>("EntryHighlightSprite");

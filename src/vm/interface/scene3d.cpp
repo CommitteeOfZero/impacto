@@ -97,7 +97,7 @@ static void UpdateCamera() {
   glm::vec3 lookatCam;
   float hFovRad;
   int camera = 0;
-  if (Profile::Vm::GameInstructionSet == +InstructionSet::RNE)
+  if (Profile::Vm::GameInstructionSet == InstructionSet::RNE)
     camera = !GetFlag(SF_IRUOENABLE);
   posCam = ScrWorkGetVec3(SW_IRUOCAMERAPOSX + 20 * camera,
                           SW_IRUOCAMERAPOSY + 20 * camera,

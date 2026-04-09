@@ -15,10 +15,9 @@ DateDisplayType Type = DateDisplayType::None;
 void Configure() {
   EnsurePushMemberOfType("DateDisplay", LUA_TTABLE);
 
-  Type =
-      DateDisplayType::_from_integral_unchecked(EnsureGetMember<int>("Type"));
+  Type = EnsureGetMember<DateDisplayType>("Type");
 
-  if (Type == +DateDisplayType::RNE) {
+  if (Type == DateDisplayType::RNE) {
     Impacto::DateDisplay::Implementation = new Impacto::RNE::DateDisplay;
   }
 

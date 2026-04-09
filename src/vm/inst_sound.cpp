@@ -84,7 +84,7 @@ VmInstruction(InstSEstop) {
 }
 VmInstruction(InstSSEplay) {
   StartInstruction;
-  if (Profile::Vm::GameInstructionSet == +InstructionSet::CHN) {
+  if (Profile::Vm::GameInstructionSet == InstructionSet::CHN) {
     PopUint8(channel);
   }
   PopExpression(sysSeId);
@@ -205,8 +205,8 @@ VmInstruction(InstSysVoicePlay) {
 }
 VmInstruction(InstSysSeload) {
   StartInstruction;
-  if (Profile::Vm::GameInstructionSet == +InstructionSet::MO8 ||
-      Profile::Vm::GameInstructionSet == +InstructionSet::CHN) {
+  if (Profile::Vm::GameInstructionSet == InstructionSet::MO8 ||
+      Profile::Vm::GameInstructionSet == InstructionSet::CHN) {
     PopUint8(arg1);
   }
   ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,

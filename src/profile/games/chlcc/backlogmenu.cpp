@@ -29,8 +29,7 @@ void Configure() {
   RenderingBounds = EnsureGetMember<RectF>("RenderingBounds");
   EntryYPadding = EnsureGetMember<float>("EntryYPadding");
 
-  auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMember<uint8_t>("DrawType"));
+  auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
 
   UI::BacklogMenuPtr = new UI::CHLCC::BacklogMenu();
   UI::Menus[drawType].push_back(UI::BacklogMenuPtr);

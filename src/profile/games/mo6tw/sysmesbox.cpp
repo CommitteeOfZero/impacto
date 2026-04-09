@@ -31,8 +31,7 @@ void Configure() {
   BoxRightBaseX = EnsureGetMember<float>("BoxRightBaseX");
   BoxRightRemainPad = EnsureGetMember<float>("BoxRightRemainPad");
 
-  auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMember<uint8_t>("DrawType"));
+  auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
 
   UI::SysMesBoxPtr = new UI::MO6TW::SysMesBox();
   UI::Menus[drawType].push_back(UI::SysMesBoxPtr);

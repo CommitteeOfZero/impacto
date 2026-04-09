@@ -132,6 +132,10 @@ template <typename T>
   }
 std::optional<T> TryGet();
 
+template <typename E>
+  requires std::is_enum_v<E>
+std::optional<E> TryGet();
+
 // Definitions:
 template <typename T>
 inline T EnsureGet() {
@@ -433,6 +437,16 @@ inline std::optional<T> TryGet() {
                              result.size(), count));
   }
   return result;
+}
+
+template <typename E>
+  requires std::is_enum_v<E>
+inline std::optional<E> TryGet() {
+  const auto optUnderlying = TryGet<std::underlying_type_t<E>>();
+  if (optUnderlying) {
+    return magic_enum::enum_cast<E>(*optUnderlying);
+  }
+  return std::nullopt;
 }
 
 template <>

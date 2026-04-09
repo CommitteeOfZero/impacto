@@ -30,8 +30,7 @@ void Configure() {
   BoxRightBaseWidth = EnsureGetMember<float>("BoxRightBaseWidth");
   BoxRightRemainPad = EnsureGetMember<float>("BoxRightRemainPad");
 
-  auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMember<uint8_t>("DrawType"));
+  auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
 
   UI::SysMesBoxPtr = new UI::Darling::SysMesBox();
   UI::Menus[drawType].push_back(UI::SysMesBoxPtr);

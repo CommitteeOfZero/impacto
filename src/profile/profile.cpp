@@ -21,6 +21,7 @@
 #include "../hud/skipicondisplay.h"
 #include "../hud/tipsnotification.h"
 #include "../profile/hud/saveicon.h"
+#include "../inputsystem.h"
 
 namespace Impacto {
 namespace Profile {
@@ -105,33 +106,19 @@ static int LuaInclude(lua_State* ctx) {
 }
 
 template <typename Enum>
-static void DefineEnumDouble(lua_State* ctx) {
+static void DefineEnum(lua_State* ctx) {
   lua_createtable(ctx, 0, 0);
-  for (Enum value : Enum::_values()) {
-    lua_pushnumber(ctx, value._value);
-    lua_setfield(ctx, -2, value._to_string());
+  const auto enumTypeName = std::string(magic_enum::enum_type_name<Enum>());
+  for (auto&& [value, name] : magic_enum::enum_entries<Enum>()) {
+    const auto fieldName = std::string(name);
+    if constexpr (std::is_floating_point_v<std::underlying_type_t<Enum>>) {
+      lua_pushnumber(ctx, to_underlying(value));
+    } else {
+      lua_pushinteger(ctx, to_underlying(value));
+    }
+    lua_setfield(ctx, -2, fieldName.c_str());
   }
-  lua_setglobal(ctx, Enum::_name());
-}
-
-template <typename Enum>
-static void DefineEnumInt(lua_State* ctx) {
-  lua_createtable(ctx, 0, 0);
-  for (Enum value : Enum::_values()) {
-    lua_pushinteger(ctx, value._value);
-    lua_setfield(ctx, -2, value._to_string());
-  }
-  lua_setglobal(ctx, Enum::_name());
-}
-
-template <typename Enum>
-static void DefineEnumUint(lua_State* ctx) {
-  lua_createtable(ctx, 0, 0);
-  for (Enum value : Enum::_values()) {
-    lua_pushinteger(ctx, value._value);
-    lua_setfield(ctx, -2, value._to_string());
-  }
-  lua_setglobal(ctx, Enum::_name());
+  lua_setglobal(ctx, enumTypeName.c_str());
 }
 
 void MakeLuaProfile(std::string const& name) {
@@ -178,54 +165,57 @@ void MakeLuaProfile(std::string const& name) {
   lua_setglobal(LuaState, "root");
 
   // Enums /sigh
-  DefineEnumInt<RendererType>(LuaState);
-  DefineEnumInt<VideoPlayerType>(LuaState);
-  DefineEnumInt<AudioBackendType>(LuaState);
-  DefineEnumInt<TextAlignment>(LuaState);
-  DefineEnumInt<GameFeature>(LuaState);
-  DefineEnumInt<CharacterTypeFlags>(LuaState);
-  DefineEnumInt<Vm::InstructionSet>(LuaState);
-  DefineEnumUint<Game::DrawComponentType>(LuaState);
-  DefineEnumInt<SaveSystem::SaveDataType>(LuaState);
-  DefineEnumInt<AchievementSystem::AchievementDataType>(LuaState);
-  DefineEnumInt<TipsSystem::TipsSystemType>(LuaState);
-  DefineEnumInt<UI::CommonMenuType>(LuaState);
-  DefineEnumInt<UI::SystemMenuType>(LuaState);
-  DefineEnumInt<UI::TitleMenuType>(LuaState);
-  DefineEnumInt<UI::SaveMenuType>(LuaState);
-  DefineEnumInt<UI::OptionsMenuType>(LuaState);
-  DefineEnumInt<UI::TrophyMenuType>(LuaState);
-  DefineEnumInt<UI::HelpMenuType>(LuaState);
-  DefineEnumInt<BacklogMenu::BacklogMenuType>(LuaState);
-  DefineEnumInt<BacklogMenu::EntryHighlightLocationType>(LuaState);
-  DefineEnumInt<UI::TipsMenuType>(LuaState);
-  DefineEnumInt<UI::LibraryMenuType>(LuaState);
-  DefineEnumInt<UI::ClearListMenuType>(LuaState);
-  DefineEnumInt<UI::AlbumMenuType>(LuaState);
-  DefineEnumInt<UI::MusicMenuType>(LuaState);
-  DefineEnumInt<UI::MovieMenuType>(LuaState);
-  DefineEnumInt<UI::ActorsVoiceMenuType>(LuaState);
-  DefineEnumInt<DateDisplay::DateDisplayType>(LuaState);
-  DefineEnumInt<WaitIconDisplay::WaitIconType>(LuaState);
-  DefineEnumInt<AutoIconDisplay::AutoIconType>(LuaState);
-  DefineEnumInt<SkipIconDisplay::SkipIconType>(LuaState);
-  DefineEnumInt<SaveIcon::SaveIconType>(LuaState);
-  DefineEnumInt<Dialogue::NametagType>(LuaState);
-  DefineEnumInt<TipsNotification::TipsNotificationType>(LuaState);
-  DefineEnumInt<DialogueBoxType>(LuaState);
-  DefineEnumInt<UI::SysMesBoxType>(LuaState);
-  DefineEnumInt<FontType>(LuaState);
-  DefineEnumInt<LKMVersion>(LuaState);
-  DefineEnumInt<Dialogue::REVNameLocationType>(LuaState);
-  DefineEnumInt<ShaderProgramType>(LuaState);
-  DefineEnumInt<ConfigSystem::AutoQuickSaveType>(LuaState);
-  DefineEnumInt<UI::GameSpecificType>(LuaState);
-  DefineEnumInt<DateFormatType>(LuaState);
-  DefineEnumInt<SubtitleAssBackendType>(LuaState);
-  DefineEnumInt<SubtitleBmpBackendType>(LuaState);
-  DefineEnumInt<SubtitleTextBackendType>(LuaState);
-  DefineEnumInt<Subtitle::SubtitleType>(LuaState);
-  DefineEnumInt<SubtitleConfigType>(LuaState);
+  DefineEnum<RendererType>(LuaState);
+  DefineEnum<VideoPlayerType>(LuaState);
+  DefineEnum<AudioBackendType>(LuaState);
+  DefineEnum<TextAlignment>(LuaState);
+  DefineEnum<GameFeature>(LuaState);
+  DefineEnum<CharacterTypeFlags>(LuaState);
+  DefineEnum<Vm::InstructionSet>(LuaState);
+  DefineEnum<Game::DrawComponentType>(LuaState);
+  DefineEnum<SaveSystem::SaveDataType>(LuaState);
+  DefineEnum<AchievementSystem::AchievementDataType>(LuaState);
+  DefineEnum<TipsSystem::TipsSystemType>(LuaState);
+  DefineEnum<UI::CommonMenuType>(LuaState);
+  DefineEnum<UI::SystemMenuType>(LuaState);
+  DefineEnum<UI::TitleMenuType>(LuaState);
+  DefineEnum<UI::SaveMenuType>(LuaState);
+  DefineEnum<UI::OptionsMenuType>(LuaState);
+  DefineEnum<UI::TrophyMenuType>(LuaState);
+  DefineEnum<UI::HelpMenuType>(LuaState);
+  DefineEnum<BacklogMenu::BacklogMenuType>(LuaState);
+  DefineEnum<BacklogMenu::EntryHighlightLocationType>(LuaState);
+  DefineEnum<UI::TipsMenuType>(LuaState);
+  DefineEnum<UI::LibraryMenuType>(LuaState);
+  DefineEnum<UI::ClearListMenuType>(LuaState);
+  DefineEnum<UI::AlbumMenuType>(LuaState);
+  DefineEnum<UI::MusicMenuType>(LuaState);
+  DefineEnum<UI::MovieMenuType>(LuaState);
+  DefineEnum<UI::ActorsVoiceMenuType>(LuaState);
+  DefineEnum<DateDisplay::DateDisplayType>(LuaState);
+  DefineEnum<WaitIconDisplay::WaitIconType>(LuaState);
+  DefineEnum<AutoIconDisplay::AutoIconType>(LuaState);
+  DefineEnum<SkipIconDisplay::SkipIconType>(LuaState);
+  DefineEnum<SaveIcon::SaveIconType>(LuaState);
+  DefineEnum<Dialogue::NametagType>(LuaState);
+  DefineEnum<TipsNotification::TipsNotificationType>(LuaState);
+  DefineEnum<DialogueBoxType>(LuaState);
+  DefineEnum<UI::SysMesBoxType>(LuaState);
+  DefineEnum<FontType>(LuaState);
+  DefineEnum<LKMVersion>(LuaState);
+  DefineEnum<Dialogue::REVNameLocationType>(LuaState);
+  DefineEnum<ShaderProgramType>(LuaState);
+  DefineEnum<ConfigSystem::AutoQuickSaveType>(LuaState);
+  DefineEnum<UI::GameSpecificType>(LuaState);
+  DefineEnum<DateFormatType>(LuaState);
+  DefineEnum<SubtitleAssBackendType>(LuaState);
+  DefineEnum<SubtitleBmpBackendType>(LuaState);
+  DefineEnum<SubtitleTextBackendType>(LuaState);
+  DefineEnum<Subtitle::SubtitleType>(LuaState);
+  DefineEnum<SubtitleConfigType>(LuaState);
+  DefineEnum<Input::KeyboardScanCode>(LuaState);
+  DefineEnum<Input::ControllerButton>(LuaState);
+  DefineEnum<Input::ControllerAxis>(LuaState);
 
   ImpLog(LogLevel::Info, LogChannel::Profile, "Starting profile {:s}\n", name);
 

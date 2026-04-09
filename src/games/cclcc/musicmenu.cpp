@@ -139,22 +139,20 @@ void MusicTrackButton::Render() {
   }
 }
 
-MusicModeButton::MusicModeButton(
-    Profile::CCLCC::LibraryMenu::MusicMenuPlayingMode& mode)
+MusicModeButton::MusicModeButton(MusicMenuPlayingMode& mode)
     : Widgets::Button(), PlayMode(mode) {
   OnClickHandler = [](Widgets::Button* btn) {
     auto* modeBtn = static_cast<MusicModeButton*>(btn);
-    modeBtn->PlayMode = MusicMenuPlayingMode::_from_integral(
-        (modeBtn->PlayMode._to_integral() + 1) % MusicMenuPlayingMode::_size());
+    ++modeBtn->PlayMode;
     Audio::PlayInGroup(Audio::ACG_SE, "sysse", 1, false, 0);
   };
 }
 
 void MusicModeButton::Update(float dt) {
   Widgets::Button::Update(dt);
-  NormalSprite = MusicPlayingModeSprites[PlayMode._to_integral()];
+  NormalSprite = MusicPlayingModeSprites[PlayMode];
   FocusedSprite = NormalSprite;
-  Bounds = MusicPlayingModeDisplayBounds[PlayMode._to_integral()];
+  Bounds = MusicPlayingModeDisplayBounds[PlayMode];
 }
 
 MusicMenu::MusicMenu() : LibrarySubmenu(), ModeButton(PlayMode) {
@@ -179,7 +177,7 @@ void MusicMenu::Init() {
     if (ModeButton.Hovered) return;
     if (CurrentlyPlayingBtn) CurrentlyPlayingBtn->Selected = false;
     PlayTrack(musicBtn->Id);
-    if (PlayMode == +MusicMenuPlayingMode::Shuffle) {
+    if (PlayMode == MusicMenuPlayingMode::Shuffle) {
       ResetShuffle();
     }
     musicBtn->Selected = true;
@@ -293,8 +291,7 @@ void MusicMenu::UpdateInput(float dt) {
     }
 
     if (PADinputButtonWentDown & PADcustom[18]) {
-      PlayMode = MusicMenuPlayingMode::_from_integral(
-          (PlayMode._to_integral() + 1) % MusicMenuPlayingMode::_size());
+      ++PlayMode;
     }
     ModeButton.UpdateInput(dt);
 
@@ -409,7 +406,7 @@ void MusicMenu::PlayTrack(size_t index) {
 
 void MusicMenu::ResetShuffle() {
   static std::random_device randomDevice{};
-  if (PlayMode == +MusicMenuPlayingMode::Shuffle) {
+  if (PlayMode == MusicMenuPlayingMode::Shuffle) {
     ShuffleTrackIndices.clear();
     for (size_t i = 0; i < MusicPlayIds.size(); ++i) {
       if (static_cast<MusicTrackButton*>(MainItems.Children[i])->IsLocked)

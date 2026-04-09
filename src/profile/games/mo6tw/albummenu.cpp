@@ -71,8 +71,7 @@ void Configure() {
   FadeInDuration = EnsureGetMember<float>("FadeInDuration");
   FadeOutDuration = EnsureGetMember<float>("FadeOutDuration");
 
-  auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMember<uint8_t>("DrawType"));
+  auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
 
   UI::Menus[drawType].push_back(new UI::MO6TW::AlbumMenu());
 }

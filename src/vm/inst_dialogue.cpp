@@ -342,9 +342,9 @@ VmInstruction(InstSetNGmoji) {
   PopString(startingPuncts);
 
   StringToken::AddFlags({thread->ScriptBufferId, startingPuncts},
-                        CharacterTypeFlags::WordStartingPunct);
+                        +CharacterTypeFlags::WordStartingPunct);
   StringToken::AddFlags({thread->ScriptBufferId, endingPuncts},
-                        CharacterTypeFlags::WordEndingPunct);
+                        +CharacterTypeFlags::WordEndingPunct);
 }
 VmInstruction(InstMesRev) {
   StartInstruction;
@@ -485,9 +485,9 @@ VmInstruction(InstSel) {
   PopUint8(type);
   switch (type) {
     case 0: {  // SelInit
-      if (Profile::Vm::GameInstructionSet == +InstructionSet::Dash ||
-          Profile::Vm::GameInstructionSet == +InstructionSet::CC ||
-          Profile::Vm::GameInstructionSet == +InstructionSet::MO8) {
+      if (Profile::Vm::GameInstructionSet == InstructionSet::Dash ||
+          Profile::Vm::GameInstructionSet == InstructionSet::CC ||
+          Profile::Vm::GameInstructionSet == InstructionSet::MO8) {
         PopUint16(savepointid);
         // SF_MESSAVEPOINT_SSP + dialog page's field 5 in decompile?
         // if (GetFlag(SF_MESSAVEPOINT_SSP + thread->DialoguePageId) == 0) {
@@ -664,14 +664,14 @@ VmInstruction(InstNameID) {
   PopUint8(type);
   switch (type) {
     case 0:
-      if (Profile::Vm::GameInstructionSet == +InstructionSet::CC ||
-          Profile::Vm::GameInstructionSet == +InstructionSet::MO8 ||
-          Profile::Vm::GameInstructionSet == +InstructionSet::CHN) {
+      if (Profile::Vm::GameInstructionSet == InstructionSet::CC ||
+          Profile::Vm::GameInstructionSet == InstructionSet::MO8 ||
+          Profile::Vm::GameInstructionSet == InstructionSet::CHN) {
         PopLocalLabel(namePlateDataBlock);
         Sc3Stream namePlateData(
             &ScriptBuffers[thread->ScriptBufferId][namePlateDataBlock]);
         if (!Profile::Vm::UseMsbStrings) InitNamePlateData(namePlateData);
-      } else if (Profile::Vm::GameInstructionSet == +InstructionSet::MO6TW) {
+      } else if (Profile::Vm::GameInstructionSet == InstructionSet::MO6TW) {
         PopExpression(arg1);
         PopExpression(arg2);
         PopExpression(arg3);
@@ -699,22 +699,22 @@ VmInstruction(InstTips) {
       PopUint16(tipsLabelNum);
       uint32_t tipsDataAdr =
           ScriptGetLabelAddress(thread->ScriptBufferId, tipsLabelNum);
-      if (Profile::Vm::GameInstructionSet == +InstructionSet::MO8 ||
-          Profile::Vm::GameInstructionSet == +InstructionSet::CHN) {
+      if (Profile::Vm::GameInstructionSet == InstructionSet::MO8 ||
+          Profile::Vm::GameInstructionSet == InstructionSet::CHN) {
         PopLocalLabel(tipsDataAdr1);
         (void)tipsDataAdr1;
       }
       uint32_t tipsDataSize =
           ScriptGetLabelSize(thread->ScriptBufferId, tipsLabelNum);
       TipsSystem::DataInit(thread->ScriptBufferId, tipsDataAdr, tipsDataSize);
-      if (Profile::Vm::GameInstructionSet == +InstructionSet::CC &&
+      if (Profile::Vm::GameInstructionSet == InstructionSet::CC &&
           UI::TipsMenuPtr) {
         UI::TipsMenuPtr->Init();
       }
     } break;
     case 1:  // TipsInit
       TipsSystem::UpdateTipRecords();
-      if (Profile::Vm::GameInstructionSet != +InstructionSet::CC &&
+      if (Profile::Vm::GameInstructionSet != InstructionSet::CC &&
           UI::TipsMenuPtr) {
         UI::TipsMenuPtr->Init();
       }
@@ -732,7 +732,7 @@ VmInstruction(InstTips) {
       break;
     case 5:
       TipsSystem::UpdateTipRecords();
-      if (Profile::Vm::GameInstructionSet != +InstructionSet::CC &&
+      if (Profile::Vm::GameInstructionSet != InstructionSet::CC &&
           UI::TipsMenuPtr) {
         UI::TipsMenuPtr->Init();
       }
@@ -789,7 +789,7 @@ void ChkMesSkip() {
   bool mesSkip = false;
   bool mesAllSkip = false;
 
-  if (Profile::Vm::GameInstructionSet != +InstructionSet::CHLCC &&
+  if (Profile::Vm::GameInstructionSet != InstructionSet::CHLCC &&
       ScrWork[SW_SYSMESALPHA] != 255) {
     SkipModeEnabled = false;
     AutoModeEnabled = false;

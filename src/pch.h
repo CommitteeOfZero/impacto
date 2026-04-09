@@ -24,4 +24,4 @@
 #include <ankerl/unordered_dense.h>
 #include <span>
 #include <glm/glm.hpp>
-#include <enum.h>
+#include <magic_enum/magic_enum.hpp>

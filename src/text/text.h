@@ -2,7 +2,7 @@
 
 #include <span>
 #include <array>
-#include <enum.h>
+#include <magic_enum/magic_enum.hpp>
 #include <ankerl/unordered_dense.h>
 
 #include "../font.h"
@@ -12,11 +12,18 @@
 
 namespace Impacto {
 
-BETTER_ENUM(TextAlignment, int, Left = 0, Center, Right, Block)
-// Block alignment only supported for ruby
+enum class TextAlignment : int {
+  Left = 0,
+  Center,
+  Right,
+  Block,  // Block alignment only supported for ruby
+};
 
-BETTER_ENUM(CharacterTypeFlags, uint8_t, Space = (1 << 0),
-            WordStartingPunct = (1 << 1), WordEndingPunct = (1 << 2))
+enum class CharacterTypeFlags : uint8_t {
+  Space = (1 << 0),
+  WordStartingPunct = (1 << 1),
+  WordEndingPunct = (1 << 2),
+};
 
 // TODO: think about / profile memory access patterns
 

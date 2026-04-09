@@ -16,20 +16,20 @@ void Configure() {
   if (TryPushMember("SaveMenu")) {
     AssertIs(LUA_TTABLE);
 
-    Type = SaveMenuType::_from_integral_unchecked(EnsureGetMember<int>("Type"));
+    Type = EnsureGetMember<SaveMenuType>("Type");
 
     EmptyThumbnailSprite = EnsureGetMember<Sprite>("EmptyThumbnailSprite");
 
     FadeInDuration = EnsureGetMember<float>("FadeInDuration");
     FadeOutDuration = EnsureGetMember<float>("FadeOutDuration");
 
-    if (Type == +SaveMenuType::MO6TW) {
+    if (Type == SaveMenuType::MO6TW) {
       MO6TW::SaveMenu::Configure();
-    } else if (Type == +SaveMenuType::CHLCC) {
+    } else if (Type == SaveMenuType::CHLCC) {
       CHLCC::SaveMenu::Configure();
-    } else if (Type == +SaveMenuType::CCLCC) {
+    } else if (Type == SaveMenuType::CCLCC) {
       CCLCC::SaveMenu::Configure();
-    } else if (Type == +SaveMenuType::MO8) {
+    } else if (Type == SaveMenuType::MO8) {
       MO8::SaveMenu::Configure();
     }
 

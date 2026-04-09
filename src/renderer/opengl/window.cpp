@@ -352,7 +352,7 @@ void GLWindow::Update() {
 
   glEnable(GL_BLEND);
 
-  if (Profile::Vm::GameInstructionSet == +Vm::InstructionSet::CHLCC) {
+  if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::CHLCC) {
     glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
   } else {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

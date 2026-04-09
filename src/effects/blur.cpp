@@ -33,7 +33,7 @@ BlurEffect::~BlurEffect() {
 }
 
 void BlurEffect::Render(int iterations) {
-  if (Profile::Vm::GameInstructionSet == +Vm::InstructionSet::CHLCC) {
+  if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::CHLCC) {
     iterations = std::min(iterations / 2, 8);
   } else {
     iterations = std::min(iterations, 32);

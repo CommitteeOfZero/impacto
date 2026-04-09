@@ -30,7 +30,7 @@ class Menu {
   bool IsFocused = false;
   bool ChoiceMade = false;
   bool AllowsScriptInput = true;
-  uint8_t DrawType = Game::DrawComponentType::Main;
+  uint8_t DrawType = +Game::DrawComponentType::Main;
 
  protected:
   void AdvanceFocus(FocusDirection dir);

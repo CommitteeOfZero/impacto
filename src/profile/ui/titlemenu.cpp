@@ -20,8 +20,7 @@ void Configure() {
   if (TryPushMember("TitleMenu")) {
     AssertIs(LUA_TTABLE);
 
-    Type =
-        TitleMenuType::_from_integral_unchecked(EnsureGetMember<int>("Type"));
+    Type = EnsureGetMember<TitleMenuType>("Type");
 
     MenuEntriesNum = EnsureGetMember<int>("MenuEntriesNum");
     if (MenuEntriesNum > 0) {
@@ -41,19 +40,19 @@ void Configure() {
     PressToStartX = EnsureGetMember<float>("PressToStartX");
     PressToStartY = EnsureGetMember<float>("PressToStartY");
 
-    if (Type == +TitleMenuType::RNE) {
+    if (Type == TitleMenuType::RNE) {
       RNE::TitleMenu::Configure();
-    } else if (Type == +TitleMenuType::Dash) {
+    } else if (Type == TitleMenuType::Dash) {
       Dash::TitleMenu::Configure();
-    } else if (Type == +TitleMenuType::CHLCC) {
+    } else if (Type == TitleMenuType::CHLCC) {
       CHLCC::TitleMenu::Configure();
-    } else if (Type == +TitleMenuType::MO6TW) {
+    } else if (Type == TitleMenuType::MO6TW) {
       MO6TW::TitleMenu::Configure();
-    } else if (Type == +TitleMenuType::MO8) {
+    } else if (Type == TitleMenuType::MO8) {
       MO8::TitleMenu::Configure();
-    } else if (Type == +TitleMenuType::CC) {
+    } else if (Type == TitleMenuType::CC) {
       CC::TitleMenu::Configure();
-    } else if (Type == +TitleMenuType::CCLCC) {
+    } else if (Type == TitleMenuType::CCLCC) {
       CCLCC::TitleMenu::Configure();
     }
 

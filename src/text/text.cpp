@@ -322,7 +322,7 @@ int TextLayoutAlignment(Impacto::TextAlignment& alignment, float blockWidth,
   //
   // If block below is shorter than line, line is just centered over the block
 
-  if (alignment == +TextAlignment::Block && blockWidth < currentX) {
+  if (alignment == TextAlignment::Block && blockWidth < currentX) {
     pos.x += blockWidth / 2.0f;
     alignment = TextAlignment::Center;
   }

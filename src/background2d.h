@@ -63,7 +63,7 @@ class Background2D : public Loadable<Background2D, bool, uint32_t> {
 
     // Unmapped means sprite
     return found != BgEffShaderMap.end() ? found->second[bgEffId]
-                                         : +ShaderProgramType::Sprite;
+                                         : ShaderProgramType::Sprite;
   }
 
   inline static ankerl::unordered_dense::map<int, std::array<int, 4>>

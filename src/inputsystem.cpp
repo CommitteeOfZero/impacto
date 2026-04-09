@@ -99,7 +99,7 @@ bool HandleEvent(SDL_Event const* ev) {
       SDL_ControllerAxisEvent const* evt = &ev->caxis;
       float newVal = (float)evt->value / (float)INT16_MAX;
       float newWeight = fabsf(newVal);
-      float oldWeight = fabsf(ControllerAxis[evt->axis]);
+      float oldWeight = fabsf(ControllerAxisValue[evt->axis]);
       const bool axisIsDownLight = newWeight >= ControllerAxisLightThreshold;
       const bool axisIsDownHeavy = newWeight >= ControllerAxisHeavyThreshold;
       if (oldWeight < ControllerAxisLightThreshold && axisIsDownLight) {
@@ -116,7 +116,7 @@ bool HandleEvent(SDL_Event const* ev) {
 
       ControllerAxisIsDownLight[evt->axis] = axisIsDownLight;
       ControllerAxisIsDownHeavy[evt->axis] = axisIsDownHeavy;
-      ControllerAxis[evt->axis] = newVal;
+      ControllerAxisValue[evt->axis] = newVal;
       return true;
       break;
     }

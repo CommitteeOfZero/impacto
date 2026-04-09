@@ -49,7 +49,7 @@ Target GetTarget(Stream* stream, Model* model) {
   Target result;
   result.Type = TargetType_NotFound;
 
-  if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+  if (Profile::Scene3D::Version == LKMVersion::DaSH) {
     stream->Read(result.Name, 32);
 
     stream->Seek(2 * sizeof(uint16_t), RW_SEEK_CUR);
@@ -77,7 +77,7 @@ Target GetTarget(Stream* stream, Model* model) {
 ModelAnimation* ModelAnimation::Load(Stream* stream, Model* model,
                                      int16_t animId) {
   int trackSize, trackCountsOffset, trackOffsetsOffset;
-  if (Profile::Scene3D::Version == +LKMVersion::DaSH) {
+  if (Profile::Scene3D::Version == LKMVersion::DaSH) {
     trackSize = TrackSize_DaSH;
     trackCountsOffset = TrackCountsOffset_DaSH;
     trackOffsetsOffset = TrackOffsetsOffset_DaSH;
@@ -143,7 +143,7 @@ ModelAnimation* ModelAnimation::Load(Stream* stream, Model* model,
 
       uint32_t seekPos = tracksOffset + trackSize * i;
       // Skip name
-      if (Profile::Scene3D::Version == +LKMVersion::DaSH) seekPos += 32;
+      if (Profile::Scene3D::Version == LKMVersion::DaSH) seekPos += 32;
       // Skip id, targetType, unknown ushort and visibility
       seekPos += (4 * sizeof(uint16_t));
       stream->Seek(seekPos, RW_SEEK_SET);
@@ -187,7 +187,7 @@ ModelAnimation* ModelAnimation::Load(Stream* stream, Model* model,
 
       uint32_t seekPos = tracksOffset + trackSize * i;
       // Skip name
-      if (Profile::Scene3D::Version == +LKMVersion::DaSH) seekPos += 32;
+      if (Profile::Scene3D::Version == LKMVersion::DaSH) seekPos += 32;
       // Skip id, targetType, unknown ushort
       seekPos += 3 * sizeof(uint16_t);
       stream->Seek(seekPos, RW_SEEK_SET);
@@ -209,7 +209,7 @@ ModelAnimation* ModelAnimation::Load(Stream* stream, Model* model,
 
       seekPos = tracksOffset + trackSize * i;
       // Skip name
-      if (Profile::Scene3D::Version == +LKMVersion::DaSH) seekPos += 32;
+      if (Profile::Scene3D::Version == LKMVersion::DaSH) seekPos += 32;
       seekPos += 0x48;
       stream->Seek(seekPos, RW_SEEK_SET);
 
@@ -493,7 +493,7 @@ ModelAnimation* ModelAnimation::Load(Stream* stream, Model* model,
 
       seekPos = tracksOffset + trackSize * i;
       // Skip name
-      if (Profile::Scene3D::Version == +LKMVersion::DaSH) seekPos += 32;
+      if (Profile::Scene3D::Version == LKMVersion::DaSH) seekPos += 32;
       seekPos += 0x48;
       stream->Seek(seekPos, RW_SEEK_SET);
 
@@ -520,7 +520,7 @@ ModelAnimation* ModelAnimation::Load(Stream* stream, Model* model,
       // Morph influence data
       seekPos = tracksOffset + trackSize * i;
       // Skip name
-      if (Profile::Scene3D::Version == +LKMVersion::DaSH) seekPos += 32;
+      if (Profile::Scene3D::Version == LKMVersion::DaSH) seekPos += 32;
       seekPos += 0xA8;
       stream->Seek(seekPos, RW_SEEK_SET);
       int rawInfluenceOffsets[16];

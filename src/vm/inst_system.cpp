@@ -256,7 +256,7 @@ VmInstruction(InstSave) {
       break;
     }
     case 40: {  // SystemDataCheck
-      if (Profile::Vm::GameInstructionSet == +InstructionSet::RNE) {
+      if (Profile::Vm::GameInstructionSet == InstructionSet::RNE) {
         PopExpression(unused1);
         PopExpression(unused2);
         PopExpression(unused3);
@@ -774,11 +774,11 @@ VmInstruction(InstMSinit) {
              "STUB instruction MSinit(initType: {:d})\n", initType);
   SaveSystem::SetCheckpointId(0xffff);
   if (initType == 0) {
-    if (Profile::Vm::GameInstructionSet == +InstructionSet::MO6TW ||
-        Profile::Vm::GameInstructionSet == +InstructionSet::CHLCC) {
+    if (Profile::Vm::GameInstructionSet == InstructionSet::MO6TW ||
+        Profile::Vm::GameInstructionSet == InstructionSet::CHLCC) {
       memset(&FlagWork, 0, 500);
       memset(&ScrWork, 0, 24000);
-    } else if (Profile::Vm::GameInstructionSet == +InstructionSet::CC) {
+    } else if (Profile::Vm::GameInstructionSet == InstructionSet::CC) {
       memset(&FlagWork, 0, 1000);
       memset(&ScrWork, 0, 32000);
     }
@@ -855,8 +855,8 @@ VmInstruction(InstMSinit) {
     memset(&FlagWork[150], 0, 75);
     memset(&FlagWork[300], 0, 100);
 
-    if (Profile::Vm::GameInstructionSet == +InstructionSet::MO6TW ||
-        Profile::Vm::GameInstructionSet == +InstructionSet::CHLCC) {
+    if (Profile::Vm::GameInstructionSet == InstructionSet::MO6TW ||
+        Profile::Vm::GameInstructionSet == InstructionSet::CHLCC) {
       std::fill(ScrWork.begin(), ScrWork.begin() + 600, 0);
       std::fill(ScrWork.begin() + 1000, ScrWork.begin() + 1700, 0);
       std::fill(ScrWork.begin() + 2300, ScrWork.begin() + 2320, 0);
@@ -896,8 +896,8 @@ VmInstruction(InstMSinit) {
   ScrWork[SW_SEVOL + 2] = 100;
   ScrWork[SW_MOVIEALPHA] = 256;
 
-  if (Profile::Vm::GameInstructionSet == +InstructionSet::RNE ||
-      Profile::Vm::GameInstructionSet == +InstructionSet::Dash) {
+  if (Profile::Vm::GameInstructionSet == InstructionSet::RNE ||
+      Profile::Vm::GameInstructionSet == InstructionSet::Dash) {
     ScrWork[SW_IRUOCAMERAHFOVCUR] = 40000;
     ScrWork[SW_MAINCAMERAHFOVCUR] = 40000;
     ScrWork[SW_AR_POSX] = 640;
@@ -909,11 +909,11 @@ VmInstruction(InstMSinit) {
     ScrWork[SW_AR_ROTMAX] = 19088;
   }
 
-  if (Profile::Vm::GameInstructionSet == +InstructionSet::MO7) {
+  if (Profile::Vm::GameInstructionSet == InstructionSet::MO7) {
     ScrWork[SW_SHORTCUT] = 0xFFFF;
   }
 
-  if (Profile::Vm::GameInstructionSet == +InstructionSet::CHLCC) {
+  if (Profile::Vm::GameInstructionSet == InstructionSet::CHLCC) {
     ScrWork[SW_INTROVOICE] = 999;
   }
 
@@ -974,7 +974,7 @@ VmInstruction(InstAutoSave) {
       SaveSystem::SaveMemory();
 
       if (ScrWork[SW_AUTOSAVERESTART] != 1 &&
-          (autoQuickSave & AutoQuickSaveType::OnScene)) {
+          (autoQuickSave & +AutoQuickSaveType::OnScene)) {
         quickSave(1);
       }
 
@@ -988,7 +988,7 @@ VmInstruction(InstAutoSave) {
       SaveSystem::SaveMemory();
 
       if (ScrWork[SW_AUTOSAVERESTART] != 3 &&
-          (autoQuickSave & AutoQuickSaveType::OnTrigger)) {
+          (autoQuickSave & +AutoQuickSaveType::OnTrigger)) {
         quickSave(3);
       }
 
@@ -1012,7 +1012,7 @@ VmInstruction(InstAutoSave) {
       SaveSystem::SaveMemory();
 
       if (ScrWork[SW_AUTOSAVERESTART] != 4 &&
-          (autoQuickSave & AutoQuickSaveType::OnTrigger)) {
+          (autoQuickSave & +AutoQuickSaveType::OnTrigger)) {
         quickSave(4);
       }
 
@@ -1047,7 +1047,7 @@ VmInstruction(InstAutoSave) {
       if (ScrWork[SW_TITLE] == 0xffff) break;
 
       if (ScrWork[SW_AUTOSAVERESTART] != 1 &&
-          (autoQuickSave & AutoQuickSaveType::OnScene)) {
+          (autoQuickSave & +AutoQuickSaveType::OnScene)) {
         quickSave(1);
       }
 
@@ -1058,7 +1058,7 @@ VmInstruction(InstAutoSave) {
       if (ScrWork[SW_TITLE] == 0xffff) break;
 
       if (ScrWork[SW_AUTOSAVERESTART] != 3 &&
-          (autoQuickSave & AutoQuickSaveType::OnTrigger)) {
+          (autoQuickSave & +AutoQuickSaveType::OnTrigger)) {
         quickSave(3);
       }
 
@@ -1099,7 +1099,7 @@ VmInstruction(InstAutoSaveOld) {
     case 0: {  // QuickSave
       SaveSystem::SaveMemory();
 
-      if ((autoQuickSave & AutoQuickSaveType::OnScene) &&
+      if ((autoQuickSave & +AutoQuickSaveType::OnScene) &&
           ScrWork[SW_AUTOSAVERESTART] != 1) {
         quickSave(1);
       }
@@ -1111,7 +1111,7 @@ VmInstruction(InstAutoSaveOld) {
     case 1: {  // QuickSaveTrigger
       SaveSystem::SaveMemory();
 
-      if ((autoQuickSave & AutoQuickSaveType::OnTrigger) &&
+      if ((autoQuickSave & +AutoQuickSaveType::OnTrigger) &&
           ScrWork[SW_AUTOSAVERESTART] != 3) {
         quickSave(3);
       }

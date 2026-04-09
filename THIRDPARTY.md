@@ -13,18 +13,13 @@
 * `vendor/clHCA`: part of [vgmstream](https://github.com/losnoco/vgmstream)
 * `vendor/minilua`: [minilua](https://github.com/edubart/minilua)
 * `vendor/glad`: output from [glad](https://github.com/Dav1dde/glad) generator, patched for Switch support
-* `vendor/include/enum.h`: [Better Enums](http://github.com/aantron/better-enums)
 * `vendor/include/stb_image.h`: [stb_image](https://github.com/nothings/stb)
 * `vendor/imgui`: [Dear ImGui](https://github.com/ocornut/imgui)
 * `vendor/pcg`: [PCG Random Number Generation, Minimal C Edition](https://github.com/imneme/pcg-c-basic)
 * `vendor/squish`: [Squish](http://sjbrown.co.uk/?code=squish)
 * `vendor/utf8-cpp`: [UTF8-CPP](https://github.com/nemtrif/utfcpp)
 * `vendor/mspack`: [libmspack](https://www.cabextract.org.uk/libmspack/), only includes LZX decompressor to reduce code size
-* `vendor/pugixml`: [pugixml](https://github.com/zeux/pugixml) 
 * `vendor/mio`: [mio](https://github.com/vimpunk/mio), except for platforms without mmap support
-* `vendor/fmtlib`: [fmtlib](https://github.com/fmtlib/fmt)
-* `vendor/concurrent_queue`: [concurrent_queue](https://github.com/cameron314/concurrentqueue)
-* `vendor/readerwriterqueue`: [readerwriterqueue](https://github.com/cameron314/readerwriterqueue)
 
 All third-party code mentioned above is mandatory, included in the build process and compiled into the output executable for impacto on every supported platform and build configuration.
 
@@ -37,23 +32,29 @@ All third-party code mentioned above is mandatory, included in the build process
 * [SDL2](https://libsdl.org/download-2.0.php)
 * [Vorbis](https://github.com/xiph/vorbis)
 * [zlib](https://github.com/madler/zlib)
-* [avcpp](https://github.com/h4tr3d/avcpp), at `vendor/avcpp` for non-vcpkg builds
 * [libass](https://github.com/libass/libass)
+* [avcpp](https://github.com/h4tr3d/avcpp)
+* [concurrent_queue](https://github.com/cameron314/concurrentqueue)
+* [readerwriterqueue](https://github.com/cameron314/readerwriterqueue)
+* [fmtlib](https://github.com/fmtlib/fmt)
+* [pugixml](https://github.com/zeux/pugixml)
+* [UTF8-CPP](https://github.com/nemtrif/utfcpp)
+* [magic_enum](https://github.com/Neargye/magic_enum)
 
 **Sourcing and linkage:**
 
 * Refer to individual toolchain/platform documentation for standard library licenses and default external library sourcing behaviour.
-* Emscripten and NX builds use static linking for all other external libraries, other platforms use dynamic linking.
-* glm (being a header-only template library) is always compiled into the output executable.
-* The example Emscripten build process explicitly uses emscripten-ports packages for [Ogg](https://github.com/emscripten-ports/Ogg), [SDL2](https://github.com/emscripten-ports/SDL2), [Vorbis](https://github.com/emscripten-ports/Vorbis) and [zlib](https://github.com/emscripten-ports/zlib) and the original authors' source distributions for glm and LibAtrac9.
-* The example Win32/MSVC build process explicitly uses vcpkg packages for [OpenAL Soft](https://github.com/microsoft/vcpkg/tree/master/ports/openal-soft), [glm](https://github.com/microsoft/vcpkg/tree/master/ports/glm), [Ogg](https://github.com/microsoft/vcpkg/tree/master/ports/libogg), [SDL2](https://github.com/microsoft/vcpkg/tree/master/ports/sdl2), [Vorbis](https://github.com/microsoft/vcpkg/tree/master/ports/libvorbis), [zlib](https://github.com/microsoft/vcpkg/tree/master/ports/zlib) and [FFmpeg](https://github.com/microsoft/vcpkg/tree/master/ports/ffmpeg) and the original authors' source distributions for LibAtrac9.
-* The example Ubuntu build process explicitly uses build host apt packages for `libopenal-dev` (OpenAL Soft on Ubuntu 18.04), `libogg-dev`, `libsdl2-dev`, `libvorbis-dev`, `zlib1g-dev`, `libavdevice-dev`, `libavfilter-dev`, `libavformat-dev`, `libavcodec-dev`, `libswscale-dev`, `libswresample-dev`, `libavresample-dev` and `libavutil-dev` and the original authors' source distributions for glm and LibAtrac9.
+* Emscripten, NX, Android builds use static linking for all other external libraries, other platforms use dynamic linking.
+* Some external dependencies (due to being header only libraries) are always compiled into the output executable.
+* The example Emscripten build process explicitly uses emscripten-ports packages for [Ogg](https://github.com/emscripten-ports/Ogg), [SDL2](https://github.com/emscripten-ports/SDL2), [Vorbis](https://github.com/emscripten-ports/Vorbis) and [zlib](https://github.com/emscripten-ports/zlib).
+* Win32/MSVC, Linux, Android, Mac OS X build processes explicitly uses vcpkg packages listed in vcpkg.json, and the original authors' source distributions for other dependencies.
 * Win32 install targets copy all required DLLs except the standard C/C++ runtime libraries to the output folder.
 
-** Binary licensing:**
+**Binary licensing:**
 
 * Unless specified otherwise, impacto source and binaries are covered by [the ISC license](LICENSE) but contain and use the dependencies listed above, requiring third-party copyright notices.
 * NX builds statically link OpenAL Soft (assuming this is used as the OpenAL implementation), placing NX binaries under LGPLv2 or later.
+* Android builds statically link FFmpeg, placing those binaries under LGPLv2. To disable FFmpeg, use define -DIMPACTO_DISABLE_FFMPEG.
 * All builds ship with libmspack in the impacto executable, placing it under LGPLv2 or later. If you wish to disable libmspack and get rid of LGPLv2 dependency, please use -DIMPACTO_DISABLE_MSPACK
   define.
 
@@ -80,13 +81,13 @@ https://github.com/ifeherva/bcndecode/blob/5bc7043002d7b2485c857624f5ef6f55576ba
 
 See below for license text.
 
-## Better Enums
+## Magic Enum
 
-https://github.com/aantron/better-enums/blob/2fad3f60eea97cf3b75339a1562ab13d5e0cc4f7/enum.h
+https://github.com/Neargye/magic_enum
 
-Copyright (c) 2012-2016, Anton Bachin. All rights reserved.
+Copyright (c) 2019 - 2024 Daniil Goncharov
 
-Better Enums is distributed under the terms of the 2-clause BSD license. See below for license text.
+See below for license text(MIT)
 
 ## MiniLua
 
@@ -899,7 +900,7 @@ See below for license text (LGPLv2).
 
 https://github.com/nemtrif/utfcpp
 
-See below for license text (BSL) 
+See below for license text (BSL-1.0)
 
 ## avcpp
 

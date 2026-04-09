@@ -1,13 +1,16 @@
 #pragma once
 
-#include <enum.h>
+#include <magic_enum/magic_enum.hpp>
 #include "../animation.h"
 
 namespace Impacto {
 namespace DateDisplay {
 
-BETTER_ENUM(DateDisplayType, int, None, RNE, Darling)
-
+enum class DateDisplayType : int {
+  None,
+  RNE,
+  Darling,
+};
 class DateDisplayBase {
  public:
   virtual void Update(float dt) = 0;

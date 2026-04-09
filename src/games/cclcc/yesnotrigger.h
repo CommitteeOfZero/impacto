@@ -3,7 +3,7 @@
 #include "../../spritesheet.h"
 
 #include <array>
-#include <enum.h>
+#include <magic_enum/magic_enum.hpp>
 #include "../../ui/widgets/clickarea.h"
 
 namespace Impacto {

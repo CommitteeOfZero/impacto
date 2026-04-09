@@ -50,8 +50,7 @@ void Configure() {
   FadeAnimationDurationInOut =
       EnsureGetMember<float>("FadeAnimationDurationInOut");
 
-  auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMember<uint8_t>("DrawType"));
+  auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
 
   UI::SelectionMenuPtr = new UI::SelectionMenu();
   UI::Menus[drawType].push_back(UI::SelectionMenuPtr);

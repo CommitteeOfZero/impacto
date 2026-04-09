@@ -14,9 +14,9 @@ using namespace Impacto::TipsSystem;
 void Configure() {
   EnsurePushMemberOfType("TipsSystem", LUA_TTABLE);
 
-  Type = TipsSystemType::_from_integral_unchecked(EnsureGetMember<int>("Type"));
+  Type = EnsureGetMember<TipsSystemType>("Type");
 
-  if (Type != +TipsSystemType::None) {
+  if (Type != TipsSystemType::None) {
     MaxTipsCount = EnsureGetMember<size_t>("MaxTipsCount");
 
     switch (Type) {

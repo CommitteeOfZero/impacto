@@ -1,6 +1,6 @@
 #pragma once
 
-#include <enum.h>
+#include <magic_enum/magic_enum.hpp>
 
 #include "../impacto.h"
 #include "../util.h"

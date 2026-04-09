@@ -46,14 +46,14 @@ Profile::Subtitle::SubtitleType SubtitleCodecToType(AVCodecID id) {
     case AV_CODEC_ID_SRT:
     case AV_CODEC_ID_MOV_TEXT:
     case AV_CODEC_ID_SUBRIP:
-      return +Profile::Subtitle::SubtitleType::Text;
+      return Profile::Subtitle::SubtitleType::Text;
     case AV_CODEC_ID_SSA:
     case AV_CODEC_ID_ASS:
-      return +Profile::Subtitle::SubtitleType::Ass;
+      return Profile::Subtitle::SubtitleType::Ass;
     case AV_CODEC_ID_HDMV_PGS_SUBTITLE:
-      return +Profile::Subtitle::SubtitleType::Bitmap;
+      return Profile::Subtitle::SubtitleType::Bitmap;
     default:
-      return +Profile::Subtitle::SubtitleType::None;
+      return Profile::Subtitle::SubtitleType::None;
   }
 }
 
@@ -248,7 +248,7 @@ void FFmpegPlayer::Play(Io::Stream* stream, bool looping, bool alpha) {
         std::thread{&FFmpegPlayer::Decode<AVMEDIA_TYPE_AUDIO>, this,
                     std::ref(*AudioStream)};
   }
-  if (Profile::GameFeatures & GameFeature::Subtitles) {
+  if (+Profile::GameFeatures & +GameFeature::Subtitles) {
     InitSubtitles(embeddedSubStreams);
   }
 
@@ -289,7 +289,7 @@ void FFmpegPlayer::InitSubtitles(
                     std::ref(subStream)};
 
     // Optionally tag embedded subtitle tracks in lua
-    Profile::SubtitleConfigType subConfig = +Profile::SubtitleConfigType::All;
+    Profile::SubtitleConfigType subConfig = Profile::SubtitleConfigType::All;
     if (mappingsItr != SubtitleMappings.end()) {
       const auto subFileItr = std::find_if(
           mappingsItr->second.begin(), mappingsItr->second.end(),
@@ -300,7 +300,7 @@ void FFmpegPlayer::InitSubtitles(
         subConfig = subFileItr->Config;
     }
 #ifndef IMPACTO_DISABLE_LIBASS
-    if (subtitleType == +SubtitleType::Ass) {
+    if (subtitleType == SubtitleType::Ass) {
       std::string_view subHeader = subStream.CodecContext.subtitleHeader();
       SubPlayer->AddTrack<Ass::SubtitleRenderTrack>(subStream.AvStream.id(),
                                                     subConfig, subHeader);
@@ -542,7 +542,7 @@ void FFmpegPlayer::Update(float dt) {
     using namespace std::literals::chrono_literals;
     if (AudioStream) AudioPlayer->Process();
 
-    if (Profile::GameFeatures & GameFeature::Subtitles) {
+    if (+Profile::GameFeatures & +GameFeature::Subtitles) {
       if (SubPlayer) SubPlayer->Update(MasterClock->Get());
       UpdateSubtitles();
     }

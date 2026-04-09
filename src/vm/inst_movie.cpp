@@ -37,12 +37,12 @@ VmInstruction(InstPlayMovie) {
   PopExpression(playNo);
   PopExpression(movCancelFlag);
 
-  if (Profile::GameFeatures & GameFeature::Video) {
+  if (+Profile::GameFeatures & +GameFeature::Video) {
     Io::Stream* stream;
     auto err = Io::VfsOpen("movie", playNo, &stream);
     if (err != IoError_OK) {
       ImpLog(LogLevel::Error, LogChannel::Video,
-             "Failed to open movie for playback: IO error {:s}\n", err);
+             "Failed to open movie for playback: IO error {}\n", err);
       return;
     }
 
@@ -115,12 +115,12 @@ static void PlayMovieOldCommon(Sc3VmThread* thread, uint8_t instType) {
   PopExpression(playNo);
   PopExpression(movCancelFlag);
 
-  if (Profile::GameFeatures & GameFeature::Video) {
+  if (+Profile::GameFeatures & +GameFeature::Video) {
     Io::Stream* stream;
     auto err = Io::VfsOpen("movie", playNo, &stream);
     if (err != IoError_OK) {
       ImpLog(LogLevel::Error, LogChannel::Video,
-             "Failed to open movie for playback: IO error {:s}\n", err);
+             "Failed to open movie for playback: IO error {}\n", err);
       return;
     }
 
@@ -169,7 +169,7 @@ VmInstruction(InstMovieMain) {
   using namespace Video;
   StartInstruction;
 
-  const bool videoEnabled = Profile::GameFeatures & GameFeature::Video;
+  const bool videoEnabled = +Profile::GameFeatures & +GameFeature::Video;
 
   PopUint8(type);
   const uint8_t playerId = type < 20 ? 0 : 1;

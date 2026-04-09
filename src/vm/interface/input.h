@@ -1,7 +1,9 @@
 #pragma once
 
-#include "../../impacto.h"
 #include <span>
+
+#include "../../impacto.h"
+#include "../../inputsystem.h"
 
 namespace Impacto {
 namespace Vm {
@@ -54,7 +56,9 @@ inline uint32_t PADinputButtonRepeatAccelDown = 0;  // padacc
 inline uint32_t PADinputMouseWentDown = 0;
 inline uint32_t PADinputMouseIsDown = 0;
 
-inline ankerl::unordered_dense::map<uint8_t, std::vector<int>> KBcustom{};
+inline ankerl::unordered_dense::map<uint8_t,
+                                    std::vector<Input::KeyboardScanCode>>
+    KBcustom{};
 inline std::array<bool, SDL_NUM_SCANCODES> KBinputHeldDown = {false};
 
 enum ControlType {

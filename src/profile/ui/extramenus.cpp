@@ -24,10 +24,9 @@ void Configure() {
     AssertIs(LUA_TTABLE);
 
     if (TryPushMember("LibraryMenu")) {
-      LibraryMenuType = LibraryMenuType::_from_integral_unchecked(
-          EnsureGetMember<int>("Type"));
+      LibraryMenuType = EnsureGetMember<UI::LibraryMenuType>("Type");
 
-      if (LibraryMenuType == +LibraryMenuType::CCLCC) {
+      if (LibraryMenuType == LibraryMenuType::CCLCC) {
         CCLCC::LibraryMenu::Configure();
       }
 
@@ -35,14 +34,13 @@ void Configure() {
     }
 
     if (TryPushMember("ClearListMenu")) {
-      ClearListType = ClearListMenuType::_from_integral_unchecked(
-          EnsureGetMember<int>("Type"));
+      ClearListType = EnsureGetMember<ClearListMenuType>("Type");
 
-      if (ClearListType == +ClearListMenuType::MO6TW) {
+      if (ClearListType == ClearListMenuType::MO6TW) {
         MO6TW::ClearListMenu::Configure();
-      } else if (ClearListType == +ClearListMenuType::CCLCC) {
+      } else if (ClearListType == ClearListMenuType::CCLCC) {
         CCLCC::ClearListMenu::Configure();
-      } else if (ClearListType == +ClearListMenuType::CHLCC) {
+      } else if (ClearListType == ClearListMenuType::CHLCC) {
         CHLCC::ClearListMenu::Configure();
       }
 
@@ -50,12 +48,11 @@ void Configure() {
     }
 
     if (TryPushMember("AlbumMenu")) {
-      AlbumType =
-          AlbumMenuType::_from_integral_unchecked(EnsureGetMember<int>("Type"));
+      AlbumType = EnsureGetMember<AlbumMenuType>("Type");
 
-      if (AlbumType == +AlbumMenuType::MO6TW) {
+      if (AlbumType == AlbumMenuType::MO6TW) {
         MO6TW::AlbumMenu::Configure();
-      } else if (AlbumType == +AlbumMenuType::CHLCC) {
+      } else if (AlbumType == AlbumMenuType::CHLCC) {
         CHLCC::AlbumMenu::Configure();
       }
 
@@ -63,12 +60,11 @@ void Configure() {
     }
 
     if (TryPushMember("MusicMenu")) {
-      MusicType =
-          MusicMenuType::_from_integral_unchecked(EnsureGetMember<int>("Type"));
+      MusicType = EnsureGetMember<MusicMenuType>("Type");
 
-      if (MusicType == +MusicMenuType::MO6TW) {
+      if (MusicType == MusicMenuType::MO6TW) {
         MO6TW::MusicMenu::Configure();
-      } else if (MusicType == +MusicMenuType::CHLCC) {
+      } else if (MusicType == MusicMenuType::CHLCC) {
         CHLCC::MusicMenu::Configure();
       }
 
@@ -76,12 +72,11 @@ void Configure() {
     }
 
     if (TryPushMember("MovieMenu")) {
-      MovieType =
-          MovieMenuType::_from_integral_unchecked(EnsureGetMember<int>("Type"));
+      MovieType = EnsureGetMember<MovieMenuType>("Type");
 
-      if (MovieType == +MovieMenuType::MO6TW) {
+      if (MovieType == MovieMenuType::MO6TW) {
         MO6TW::MovieMenu::Configure();
-      } else if (MovieType == +MovieMenuType::CHLCC) {
+      } else if (MovieType == MovieMenuType::CHLCC) {
         CHLCC::MovieMenu::Configure();
       }
 
@@ -89,10 +84,9 @@ void Configure() {
     }
 
     if (TryPushMember("ActorsVoiceMenu")) {
-      ActorsVoiceType = ActorsVoiceMenuType::_from_integral_unchecked(
-          EnsureGetMember<int>("Type"));
+      ActorsVoiceType = EnsureGetMember<ActorsVoiceMenuType>("Type");
 
-      if (ActorsVoiceType == +ActorsVoiceMenuType::MO6TW) {
+      if (ActorsVoiceType == ActorsVoiceMenuType::MO6TW) {
         MO6TW::ActorsVoiceMenu::Configure();
       }
 

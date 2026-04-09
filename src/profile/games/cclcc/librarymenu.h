@@ -1,7 +1,8 @@
 #pragma once
 
 #include "../../../spritesheet.h"
-#include <enum.h>
+#include <magic_enum/magic_enum.hpp>
+#include <magic_enum/magic_enum_containers.hpp>
 
 namespace Impacto {
 namespace Profile {
@@ -15,8 +16,23 @@ struct AlbumDataEntry {
   uint8_t PageNumber;
 };
 
-BETTER_ENUM(LibraryMenuPageType, int, Album, Sound, Movie)
-BETTER_ENUM(MusicMenuPlayingMode, int, RepeatOne, PlayAll, RepeatAll, Shuffle)
+enum class LibraryMenuPageType : int {
+  Album,
+  Sound,
+  Movie,
+};
+enum class MusicMenuPlayingMode : int {
+  RepeatOne,
+  PlayAll,
+  RepeatAll,
+  Shuffle,
+};
+
+constexpr MusicMenuPlayingMode& operator++(MusicMenuPlayingMode& mode) {
+  mode = static_cast<MusicMenuPlayingMode>(
+      (+mode + 1) % magic_enum::enum_count<MusicMenuPlayingMode>());
+  return mode;
+}
 
 inline Sprite LibraryBackgroundSprite;
 inline glm::vec2 LibraryBackgroundPosition;
@@ -84,9 +100,9 @@ inline glm::vec2 MusicNowPlayingNotificationTrackOffset;
 inline int MusicNowPlayingNotificationTrackFontSize;
 inline uint32_t MusicNowPlayingTextColor;
 inline uint32_t MusicNowPlayingTextOutlineColor;
-inline std::array<Sprite, MusicMenuPlayingMode::_size()>
+inline magic_enum::containers::array<MusicMenuPlayingMode, Sprite>
     MusicPlayingModeSprites;
-inline std::array<RectF, MusicMenuPlayingMode::_size()>
+inline magic_enum::containers::array<MusicMenuPlayingMode, RectF>
     MusicPlayingModeDisplayBounds;
 
 inline std::vector<Sprite> MovieDiskSprites;

@@ -9,6 +9,7 @@ namespace Profile {
 namespace BgEff {
 
 void Load() {
+  using magic_enum::enum_cast;
   EnsurePushMemberOfType("BgEffData", LUA_TTABLE);
 
   {
@@ -29,16 +30,15 @@ void Load() {
       Background2D::BgEffShaderMap.emplace(
           EnsureGetArrayElementByIndex<int>(0),
           std::array<ShaderProgramType, 4>{
-              ShaderProgramType::_from_integral_unchecked(
-                  EnsureGetArrayElementByIndex<int>(1)),
-              ShaderProgramType::_from_integral_unchecked(
-                  EnsureGetArrayElementByIndex<int>(2)),
-              ShaderProgramType::_from_integral_unchecked(
-                  EnsureGetArrayElementByIndex<int>(3)),
-              ShaderProgramType::_from_integral_unchecked(
-                  EnsureGetArrayElementByIndex<int>(4)),
+              enum_cast<ShaderProgramType>(EnsureGetArrayElementByIndex<int>(1))
+                  .value(),
+              enum_cast<ShaderProgramType>(EnsureGetArrayElementByIndex<int>(2))
+                  .value(),
+              enum_cast<ShaderProgramType>(EnsureGetArrayElementByIndex<int>(3))
+                  .value(),
+              enum_cast<ShaderProgramType>(EnsureGetArrayElementByIndex<int>(4))
+                  .value(),
           });
-
       Pop();
     }
 

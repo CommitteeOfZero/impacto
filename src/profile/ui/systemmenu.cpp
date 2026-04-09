@@ -20,8 +20,7 @@ void Configure() {
   if (TryPushMember("SystemMenu")) {
     AssertIs(LUA_TTABLE);
 
-    Type =
-        SystemMenuType::_from_integral_unchecked(EnsureGetMember<int>("Type"));
+    Type = EnsureGetMember<SystemMenuType>("Type");
 
     MenuEntriesNum = EnsureGetMember<int>("MenuEntriesNum");
     MenuEntriesHNum = EnsureGetMember<int>("MenuEntriesHNum");
@@ -42,15 +41,15 @@ void Configure() {
     TryGetMember<float>("FadeInDuration", FadeInDuration);
     TryGetMember<float>("FadeOutDuration", FadeOutDuration);
 
-    if (Type == +SystemMenuType::RNE) {
+    if (Type == SystemMenuType::RNE) {
       RNE::SystemMenu::Configure();
-    } else if (Type == +SystemMenuType::MO6TW) {
+    } else if (Type == SystemMenuType::MO6TW) {
       MO6TW::SystemMenu::Configure();
-    } else if (Type == +SystemMenuType::CHLCC) {
+    } else if (Type == SystemMenuType::CHLCC) {
       CHLCC::SystemMenu::Configure();
-    } else if (Type == +SystemMenuType::MO8) {
+    } else if (Type == SystemMenuType::MO8) {
       MO8::SystemMenu::Configure();
-    } else if (Type == +SystemMenuType::CCLCC) {
+    } else if (Type == SystemMenuType::CCLCC) {
       CCLCC::SystemMenu::Configure();
     }
 

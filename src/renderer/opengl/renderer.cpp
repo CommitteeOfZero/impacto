@@ -35,7 +35,7 @@ void Renderer::Init() {
   OpenGLWindow->Init();
   Window = (BaseWindow*)OpenGLWindow;
 
-  if (Profile::GameFeatures & GameFeature::Scene3D) {
+  if (+Profile::GameFeatures & +GameFeature::Scene3D) {
     Scene = new Scene3D(OpenGLWindow, Shaders);
     Scene->Init();
   }
@@ -135,7 +135,7 @@ void Renderer::Shutdown() {
 
   glDeleteSamplers((GLsizei)Samplers.size(), Samplers.data());
 
-  if (Profile::GameFeatures & GameFeature::Scene3D) {
+  if (+Profile::GameFeatures & +GameFeature::Scene3D) {
     Scene->Shutdown();
   }
 }

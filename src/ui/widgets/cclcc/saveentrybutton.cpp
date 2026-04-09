@@ -70,28 +70,26 @@ void SaveEntryButton::Render() {
     Renderer->DrawSprite(HighlightSprite, highlightDest, Tint);
   }
 
-  const RectF numberDigitDest = NumberDigitSprite[0][0]
-                                    .ScaledBounds()
-                                    .Scale(scale, {0.0f, 0.0f})
-                                    .Translate(Bounds.GetPos());
+  const RectF numberDigitDest =
+      NumberDigitSprite[*UI::SaveMenuPtr->ActiveMenuType][0]
+          .ScaledBounds()
+          .Scale(scale, {0.0f, 0.0f})
+          .Translate(Bounds.GetPos());
   Renderer->DrawSprite(
-      NumberDigitSprite[UI::SaveMenuPtr->ActiveMenuType->_to_integral()]
-                       [(Id + 1) / 10],
+      NumberDigitSprite[*UI::SaveMenuPtr->ActiveMenuType][(Id + 1) / 10],
       RectF(numberDigitDest).Translate({720, 120}), Tint);
   Renderer->DrawSprite(
-      NumberDigitSprite[UI::SaveMenuPtr->ActiveMenuType->_to_integral()]
-                       [(Id + 1) % 10],
+      NumberDigitSprite[*UI::SaveMenuPtr->ActiveMenuType][(Id + 1) % 10],
       RectF(numberDigitDest).Translate({752, 120}), Tint);
 
   if (SaveStatus == 1) {
     const RectF separationLineDest =
-        SeparationLineSprite[0]
+        SeparationLineSprite[*UI::SaveMenuPtr->ActiveMenuType]
             .ScaledBounds()
             .Scale(scale, {0.0f, 0.0f})
             .Translate(Bounds.GetPos() + glm::vec2(308, 112));
-    Renderer->DrawSprite(
-        SeparationLineSprite[UI::SaveMenuPtr->ActiveMenuType->_to_integral()],
-        separationLineDest, Tint);
+    Renderer->DrawSprite(SeparationLineSprite[*UI::SaveMenuPtr->ActiveMenuType],
+                         separationLineDest, Tint);
 
     if (IsLocked) {
       LockedSymbol.Tint = Tint;
@@ -140,7 +138,7 @@ void SaveEntryButton::RefreshCharacterRouteText(int strIndex) {
   float fontSize = 28;
   RendererOutlineMode outlineMode = RendererOutlineMode::Full;
   DialogueColorPair colorPair =
-      UI::SaveMenuPtr->ActiveMenuType->_to_integral() == SaveMenuPageType::Save
+      *UI::SaveMenuPtr->ActiveMenuType == SaveMenuPageType::Save
           ? DialogueColorPair{SaveEntryPrimaryColor, SaveEntryPrimaryColor}
           : DialogueColorPair{LoadEntryPrimaryColor, LoadEntryPrimaryColor};
   CharacterRouteLabel.SetText(strAddr, fontSize, outlineMode, colorPair);

@@ -17,18 +17,17 @@ void Configure() {
   if (TryPushMember("SysMesBoxDisplay")) {
     AssertIs(LUA_TTABLE);
 
-    Type =
-        SysMesBoxType::_from_integral_unchecked(EnsureGetMember<int>("Type"));
+    Type = EnsureGetMember<SysMesBoxType>("Type");
 
-    if (Type == +SysMesBoxType::RNE || Type == +SysMesBoxType::Dash) {
+    if (Type == SysMesBoxType::RNE || Type == SysMesBoxType::Dash) {
       RNE::SysMesBox::Configure();
-    } else if (Type == +SysMesBoxType::CHLCC) {
+    } else if (Type == SysMesBoxType::CHLCC) {
       CHLCC::SysMesBox::Configure();
-    } else if (Type == +SysMesBoxType::MO6TW) {
+    } else if (Type == SysMesBoxType::MO6TW) {
       MO6TW::SysMesBox::Configure();
-    } else if (Type == +SysMesBoxType::Darling) {
+    } else if (Type == SysMesBoxType::Darling) {
       Darling::SysMesBox::Configure();
-    } else if (Type == +SysMesBoxType::CC) {
+    } else if (Type == SysMesBoxType::CC) {
       CC::SysMesBox::Configure();
     }
 

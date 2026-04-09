@@ -4,39 +4,83 @@
 #include "vm/vm.h"
 #include "io/vfs.h"
 #include "renderer/renderer.h"
-#include <enum.h>
+#include <magic_enum/magic_enum.hpp>
 
 #include <string>
 
 namespace Impacto {
 
-BETTER_ENUM(RendererType, int, OpenGL, Vulkan, DirectX9);
+enum class RendererType : int {
+  OpenGL,
+  Vulkan,
+  DirectX9,
+};
 
-BETTER_ENUM(GameFeature, int, DebugMenu = (1 << 0), Scene3D = (1 << 1),
-            ModelViewer = (1 << 2), Sc3VirtualMachine = (1 << 3),
-            Renderer2D = (1 << 4), Input = (1 << 5), Audio = (1 << 6),
-            CharacterViewer = (1 << 7), Video = (1 << 8), Subtitles = (1 << 9),
-            DebugMenuMultiViewport = (1 << 10))
+enum class GameFeature : int {
+  DebugMenu = (1 << 0),
+  Scene3D = (1 << 1),
+  ModelViewer = (1 << 2),
+  Sc3VirtualMachine = (1 << 3),
+  Renderer2D = (1 << 4),
+  Input = (1 << 5),
+  Audio = (1 << 6),
+  CharacterViewer = (1 << 7),
+  Video = (1 << 8),
+  Subtitles = (1 << 9),
+  DebugMenuMultiViewport = (1 << 10),
+};
 
-BETTER_ENUM(VideoPlayerType, int, None, FFmpeg);
+enum class VideoPlayerType : int {
+  None,
+  FFmpeg,
+};
 
-BETTER_ENUM(AudioBackendType, int, None, OpenAL);
+enum class AudioBackendType : int {
+  None,
+  OpenAL,
+};
 
-BETTER_ENUM(SubtitleAssBackendType, int, None, LibAss);
-BETTER_ENUM(SubtitleTextBackendType, int, None);
-BETTER_ENUM(SubtitleBmpBackendType, int, None);
+enum class SubtitleAssBackendType : int {
+  None,
+  LibAss,
+};
+
+enum class SubtitleTextBackendType : int {
+  None,
+};
+
+enum class SubtitleBmpBackendType : int {
+  None,
+};
 
 namespace Game {
 
-BETTER_ENUM(DrawComponentType, uint8_t, Text = 0x0, Main = 0x1,
-            ExtrasScenes = 0x2, Mask = 0x3, SystemText = 0x3, SaveMenu = 0x4,
-            SaveMenu05 = 0x5, SystemIcons = 0x6, TitleMenu = 0x7, Option = 0x9,
-            SystemMenu = 0xA, SystemMessage = 0xB, PlayData = 0xC, Album = 0xD,
-            ExtrasMusicMode = 0xE, DictionaryMode = 0xF, ExtrasMovieMode = 0x10,
-            ExtrasActorsVoice = 0x11, SaveIcon = 0x12,
-            GlobalSystemMessage = 0x15, InstallInfo = 0x16,
-            SystemMessage17 = 0x17, DebugEditor = 0x1E, None = 0xFF)
-
+enum class DrawComponentType : uint8_t {
+  Text = 0x0,
+  Main = 0x1,
+  ExtrasScenes = 0x2,
+  Mask = 0x3,
+  SystemText = 0x3,
+  SaveMenu = 0x4,
+  SaveMenu05 = 0x5,
+  SystemIcons = 0x6,
+  TitleMenu = 0x7,
+  Option = 0x9,
+  SystemMenu = 0xA,
+  SystemMessage = 0xB,
+  PlayData = 0xC,
+  Album = 0xD,
+  ExtrasMusicMode = 0xE,
+  DictionaryMode = 0xF,
+  ExtrasMovieMode = 0x10,
+  ExtrasActorsVoice = 0x11,
+  SaveIcon = 0x12,
+  GlobalSystemMessage = 0x15,
+  InstallInfo = 0x16,
+  SystemMessage17 = 0x17,
+  DebugEditor = 0x1E,
+  None = 0xFF,
+};
 void InitFromProfile(std::string const& name);
 
 void Shutdown();
@@ -44,9 +88,20 @@ void Shutdown();
 void Update(float dt);
 void Render();
 
-inline uint8_t DrawComponents[Vm::MaxThreads];
+inline DrawComponentType DrawComponents[Vm::MaxThreads];
 
 inline bool ShouldQuit = false;
 }  // namespace Game
 
 }  // namespace Impacto
+
+template <>
+struct magic_enum::customize::enum_range<Impacto::GameFeature> {
+  static constexpr bool is_flags = true;
+};
+
+template <>
+struct magic_enum::customize::enum_range<Impacto::Game::DrawComponentType> {
+  static constexpr int min = 0;
+  static constexpr int max = 0xff;
+};

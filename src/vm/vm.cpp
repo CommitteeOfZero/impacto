@@ -298,7 +298,7 @@ void Update(float dt) {
 
   DrawAllThreads();
 
-  if (Profile::GameFeatures & GameFeature::Scene3D) {
+  if (+Profile::GameFeatures & +GameFeature::Scene3D) {
     Interface::UpdateScene3D(dt);
   } else {
     Character2D::UpdateEyeMouth();
@@ -343,13 +343,20 @@ static void DrawAllThreads() {
   CreateThreadDrawTable();
   SortThreadDrawTable();
 
-  memset(Game::DrawComponents, Game::DrawComponentType::None,
-         sizeof(Game::DrawComponents));
+  std::fill(std::begin(Game::DrawComponents), std::end(Game::DrawComponents),
+            Game::DrawComponentType::None);
 
   int cnt = 0;
   while (ThreadTable[cnt]) {
     if (ThreadTable[cnt]->Flags & TF_Display) {
-      Game::DrawComponents[cnt] = ThreadTable[cnt]->DrawType;
+      if (!magic_enum::enum_contains<Game::DrawComponentType>(
+              ThreadTable[cnt]->DrawType)) {
+        ImpLog(LogLevel::Warning, LogChannel::VM,
+               "{} is not in the list of DrawTypes\n",
+               ThreadTable[cnt]->DrawType);
+      }
+      Game::DrawComponents[cnt] =
+          Game::DrawComponentType(ThreadTable[cnt]->DrawType);
       if (Profile::Vm::RestartMaskUsesThreadAlpha &&
           ThreadTable[cnt]->DrawType == +Game::DrawComponentType::Mask) {
         ScrWork[SW_RESTARTMASK] = ThreadTable[cnt]->Alpha;

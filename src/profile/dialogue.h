@@ -40,10 +40,19 @@ inline float ADVNameFontSize;
 // ADVNamePos.x
 inline glm::vec2 ADVNamePos;
 
-BETTER_ENUM(NametagType, int, None, Sprite, TwoPiece, ThreePiece, CHLCC, CC)
-
-BETTER_ENUM(REVNameLocationType, int, None, TopLeft, LeftTop)
-
+enum class NametagType : int {
+  None,
+  Sprite,
+  TwoPiece,
+  ThreePiece,
+  CHLCC,
+  CC,
+};
+enum class REVNameLocationType : int {
+  None,
+  TopLeft,
+  LeftTop,
+};
 inline float REVNameFontSize;
 inline int REVColor;
 inline int REVNameColor;

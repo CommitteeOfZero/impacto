@@ -165,7 +165,7 @@ void DialoguePage::FinishLine(Vm::Sc3VmThread* ctx, size_t nextLineStart,
 
   float lineHeight = FontSize;
   // Erin DialogueBox
-  if (DialogueBoxCurrentType == +DialogueBoxType::CHLCC && Mode == DPM_REV &&
+  if (DialogueBoxCurrentType == DialogueBoxType::CHLCC && Mode == DPM_REV &&
       ScrWork[SW_MESWIN0TYPE] == 1) {
     lineHeight = Impacto::Profile::CHLCC::DialogueBox::REVLineHeight;
   }
@@ -206,7 +206,7 @@ void DialoguePage::FinishLine(Vm::Sc3VmThread* ctx, size_t nextLineStart,
   }
   float lineSpacing = DialogueFont->LineSpacing;
   // Erin DialogueBox
-  if (DialogueBoxCurrentType == +DialogueBoxType::CHLCC && Mode == DPM_REV &&
+  if (DialogueBoxCurrentType == DialogueBoxType::CHLCC && Mode == DPM_REV &&
       ScrWork[SW_MESWIN0TYPE] == 1) {
     lineSpacing = Impacto::Profile::CHLCC::DialogueBox::REVLineSpacing;
   }
@@ -269,7 +269,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
 
   FontSize = DefaultFontSize;
   // Erin DialogueBox
-  if (DialogueBoxCurrentType == +DialogueBoxType::CHLCC && Mode == DPM_REV &&
+  if (DialogueBoxCurrentType == DialogueBoxType::CHLCC && Mode == DPM_REV &&
       ScrWork[SW_MESWIN0TYPE] == 1) {
     FontSize = Impacto::Profile::CHLCC::DialogueBox::REVFontSize;
   } else {
@@ -315,7 +315,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
         name.reserve(64);
         state = TPS_Name;
         if (Mode == DPM_REV &&
-            REVNameLocation != +REVNameLocationType::LeftTop) {
+            REVNameLocation != REVNameLocationType::LeftTop) {
           CurrentLineTop += REVNameOffset;
         }
         lastWordStart = Glyphs.size();
@@ -436,7 +436,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
             ptg.Opacity = 0.0f;
           ptg.Colors = currentColors;
 
-          if (token.Flags & CharacterTypeFlags::WordStartingPunct) {
+          if (token.Flags & +CharacterTypeFlags::WordStartingPunct) {
             // Ensure only the leftmost consecutive WordStartingPunct is counted
             if (!prevGlyphWordStarting) {
               // Still *before* this character
@@ -447,7 +447,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
             prevGlyphWordStarting = false;
           }
 
-          if (token.Flags & CharacterTypeFlags::WordEndingPunct) {
+          if (token.Flags & +CharacterTypeFlags::WordEndingPunct) {
             prevGlyphWordEnding = true;
             // Ensure only the rightmost consecutive WordEndingPunct is counted
           } else if (prevGlyphWordEnding) {
@@ -478,7 +478,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
               // Skip spaces at start of (new) line
               for (size_t i = lastWordStart; i < Glyphs.size(); i++) {
                 const bool isSpace = StringToken::GetFlags(Glyphs[i].CharId) &
-                                     CharacterTypeFlags::Space;
+                                     +CharacterTypeFlags::Space;
                 if (!isSpace) break;
                 firstNonSpace = i + 1;
               }
@@ -520,7 +520,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice,
     hasName = false;
   }
 
-  if (DialogueBoxCurrentType == +DialogueBoxType::CHLCC && Mode == DPM_REV &&
+  if (DialogueBoxCurrentType == DialogueBoxType::CHLCC && Mode == DPM_REV &&
       ScrWork[SW_MESWIN0TYPE] == 1) {
     hasName = false;
   }

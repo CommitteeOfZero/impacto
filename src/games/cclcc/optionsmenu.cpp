@@ -382,26 +382,26 @@ void OptionsMenu::Highlight(Widget* toHighlight) {
 
 void OptionsMenu::ResetToDefault() {
   switch (CurrentPage) {
-    case PageType::Basic: {
+    case +PageType::Basic: {
       ShowTipsNotification = Default::ShowTipsNotification;
       AdvanceTextOnDirectionalInput = Default::AdvanceTextOnDirectionalInput;
       DirectionalInputForTrigger = Default::DirectionalInputForTrigger;
       TriggerStopSkip = Default::TriggerStopSkip;
       break;
     }
-    case PageType::Text: {
+    case +PageType::Text: {
       TextSpeed = Default::TextSpeed;
       AutoSpeed = Default::AutoSpeed;
       SkipRead = Default::SkipRead;
       break;
     }
-    case PageType::Sound: {
+    case +PageType::Sound: {
       std::ranges::copy(Default::GroupVolumes, Audio::GroupVolumes.begin());
       SyncVoice = Default::SyncVoice;
       SkipVoice = Default::SkipVoice;
       break;
     }
-    case PageType::Voice: {
+    case +PageType::Voice: {
       std::ranges::copy(Default::VoiceMuted, VoiceMuted.begin());
       std::ranges::copy(Default::VoiceVolume, VoiceVolume.begin());
       break;

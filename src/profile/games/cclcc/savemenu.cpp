@@ -12,15 +12,8 @@ namespace Profile {
 namespace CCLCC {
 namespace SaveMenu {
 
-constexpr std::array<std::string_view, 3> SaveMenuTypeNames = {
-    "QuickLoad",
-    "Load",
-    "Save",
-};
-
 void Configure() {
-  auto drawType = Game::DrawComponentType::_from_integral_unchecked(
-      EnsureGetMember<uint8_t>("DrawType"));
+  auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
 
   EntryStartXL = EnsureGetMember<float>("EntryStartXL");
   EntryStartXR = EnsureGetMember<float>("EntryStartXR");
@@ -43,11 +36,9 @@ void Configure() {
   LoadEntryPrimaryColor = EnsureGetMember<uint32_t>("LoadEntryPrimaryColor");
   SaveEntrySecondaryColor =
       EnsureGetMember<uint32_t>("SaveEntrySecondaryColor");
-  for (int i = 0; i < std::ssize(SaveMenuTypeNames); i++) {
-    UI::SaveMenuPageType menuType =
-        UI::SaveMenuPageType::_from_integral_unchecked(i);
-    std::string menuName = menuType._to_string();
-
+  for (auto [menuType, menuNameView] :
+       magic_enum::enum_entries<UI::SaveMenuPageType>()) {
+    auto menuName = std::string{menuNameView};
     MenuTextSprite[menuType] =
         EnsureGetMember<Sprite>((menuName + "TextSprite").c_str());
     EntryHighlightedBoxSprite[menuType] = EnsureGetMember<Sprite>(

@@ -19,7 +19,6 @@ enum class MusicPlaybackMode : uint8_t {
   Playlist = 0b01,
   RepeatOne = 0b10,
   RepeatPlaylist = 0b11,
-  COUNT  // number of entries in the enum
 };
 
 constexpr MusicPlaybackMode operator&(MusicPlaybackMode mode,
@@ -30,7 +29,7 @@ constexpr MusicPlaybackMode operator&(MusicPlaybackMode mode,
 
 constexpr MusicPlaybackMode& operator++(MusicPlaybackMode& mode) {
   mode = static_cast<MusicPlaybackMode>(
-      (to_underlying(mode) + 1) % to_underlying(MusicPlaybackMode::COUNT));
+      (+mode + 1) % magic_enum::enum_count<MusicPlaybackMode>());
   return mode;
 }
 

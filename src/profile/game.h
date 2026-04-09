@@ -9,19 +9,28 @@
 namespace Impacto {
 namespace Profile {
 
-BETTER_ENUM(DateFormatType, uint8_t, DMY, MDY, YMD);
-BETTER_ENUM(SubtitleConfigType, uint8_t, None = 0, Karaoke = 1 << 0,
-            Translation = 1 << 1, All = 0xFF);
+enum class DateFormatType : uint8_t {
+  DMY,
+  MDY,
+  YMD,
+};
+
+enum class SubtitleConfigType : uint8_t {
+  None = 0,
+  Karaoke = 1 << 0,
+  Translation = 1 << 1,
+  All = 0xFF,
+};
 
 struct DateFormatDef {
   DateFormatDef(DateFormatType sel) : Sel(sel) {}
   std::string_view FormattedString() const {
     switch (Sel) {
-      case +DateFormatType::DMY:
+      case DateFormatType::DMY:
         return "{:%d/%m/%y}";
-      case +DateFormatType::MDY:
+      case DateFormatType::MDY:
         return "{:%m/%d/%y}";
-      case +DateFormatType::YMD:
+      case DateFormatType::YMD:
       default:
         return "{:%y/%m/%d}";
     }
@@ -40,7 +49,7 @@ inline SubtitleTextBackendType SubtitleTextBackend =
 inline SubtitleBmpBackendType SubtitleBmpBackend = SubtitleBmpBackendType::None;
 
 inline uint32_t LayerCount;
-inline int GameFeatures;
+inline GameFeature GameFeatures;
 
 inline char const* WindowName;
 inline std::optional<std::string> WindowIconPath;
@@ -70,9 +79,9 @@ inline int ResolutionWidth;
 inline int ResolutionHeight;
 inline bool Fullscreen;
 // TODO Move to "Patch" logic
-inline SubtitleConfigType SubtitleConfig = +SubtitleConfigType::None;
+inline SubtitleConfigType SubtitleConfig = SubtitleConfigType::None;
 inline bool CloseBacklogWhenReachedEnd = true;
-inline DateFormatDef DateFormat = +DateFormatType::YMD;
+inline DateFormatDef DateFormat = DateFormatType::YMD;
 inline bool HasScriptedExitLogic = false;
 
 inline int PlatformId = 0;
@@ -81,3 +90,8 @@ void LoadGameFromLua();
 
 }  // namespace Profile
 }  // namespace Impacto
+
+template <>
+struct magic_enum::customize::enum_range<Impacto::Profile::SubtitleConfigType> {
+  static constexpr bool is_flags = true;
+};

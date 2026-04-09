@@ -16,16 +16,15 @@ using namespace Impacto::UI;
 void Configure() {
   if (!TryPushMember("GameSpecific")) return;
   AssertIs(LUA_TTABLE);
-  GameSpecificType =
-      GameSpecificType::_from_integral_unchecked(EnsureGetMember<int>("Type"));
+  GameSpecificType = EnsureGetMember<UI::GameSpecificType>("Type");
 
   // Get common gamespecific UI elements
-  if (GameSpecificType == +GameSpecificType::CCLCC) {
+  if (GameSpecificType == GameSpecificType::CCLCC) {
     UIButtonGuideSprites =
         EnsureGetMember<std::vector<Sprite>>("UIButtonGuideSprites");
     UIButtonGuideEndDisp = EnsureGetMember<RectF>("UIButtonGuideEndDisp");
   }
-  if (GameSpecificType == +GameSpecificType::CHLCC) {
+  if (GameSpecificType == GameSpecificType::CHLCC) {
     MonitorScanline = EnsureGetMember<Sprite>("MonitorScanline");
     EyecatchStar = EnsureGetMember<Sprite>("EyecatchStar");
     ButterflySprites = EnsureGetMember<std::vector<Sprite>>("ButterflySprites");
@@ -42,21 +41,21 @@ void Configure() {
   Pop();
 
   switch (GameSpecificType) {
-    case +GameSpecificType::CHLCC:
+    case GameSpecificType::CHLCC:
       CHLCC::DelusionTrigger::Configure();
       break;
-    case +GameSpecificType::CC:
+    case GameSpecificType::CC:
       break;
-    case +GameSpecificType::CCLCC:
+    case GameSpecificType::CCLCC:
       CCLCC::MapSystem::Configure();
       CCLCC::YesNoTrigger::Configure();
       CCLCC::DelusionTrigger::Configure();
       break;
-    case +GameSpecificType::RNE:
+    case GameSpecificType::RNE:
       break;
-    case +GameSpecificType::Dash:
+    case GameSpecificType::Dash:
       break;
-    case +GameSpecificType::None:
+    case GameSpecificType::None:
       break;
   }
 }

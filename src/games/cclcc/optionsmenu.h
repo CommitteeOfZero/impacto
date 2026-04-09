@@ -12,8 +12,12 @@ namespace Impacto {
 namespace UI {
 namespace CCLCC {
 
-BETTER_ENUM(PageType, uint32_t, Basic = 0, Text = 1, Sound = 2, Voice = 3)
-
+enum class PageType : uint32_t {
+  Basic = 0,
+  Text = 1,
+  Sound = 2,
+  Voice = 3,
+};
 class OptionsMenu : public UI::OptionsMenu {
  public:
   OptionsMenu();

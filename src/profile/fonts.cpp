@@ -13,8 +13,7 @@ void LoadFonts() {
   while (PushNextTableElement() != 0) {
     std::string name(EnsureGetKey<std::string>());
 
-    FontType type =
-        FontType::_from_integral_unchecked(EnsureGetMember<int>("Type"));
+    FontType type = EnsureGetMember<FontType>("Type");
 
     Font* baseFont = nullptr;
 

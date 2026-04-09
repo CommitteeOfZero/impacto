@@ -18,8 +18,7 @@ TipsNotificationType Type = TipsNotificationType::None;
 void Configure() {
   EnsurePushMemberOfType("TipsNotification", LUA_TTABLE);
 
-  Type = TipsNotificationType::_from_integral_unchecked(
-      EnsureGetMember<int>("Type"));
+  Type = EnsureGetMember<TipsNotificationType>("Type");
 
   switch (Type) {
     case TipsNotificationType::MO6TW:

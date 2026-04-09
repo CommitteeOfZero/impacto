@@ -17,46 +17,49 @@ using namespace Profile::Subtitle;
 void SubtitleInit() {
   switch (Profile::SubtitleAssBackend) {
 #ifndef IMPACTO_DISABLE_LIBASS
-    case +SubtitleAssBackendType::LibAss:
+    case SubtitleAssBackendType::LibAss:
       Ass::SubtitleRenderer::InitSystem();
       break;
 #endif
-    case +SubtitleAssBackendType::None:
+    case SubtitleAssBackendType::None:
+      break;
     default:
       ImpLog(LogLevel::Warning, LogChannel::Subtitle,
              "Unknown or unsupported ass subtitle backend selected!.\n");
   }
   switch (Profile::SubtitleTextBackend) {
-    case +SubtitleTextBackendType::None:
+    case SubtitleTextBackendType::None:
+      break;
+    default:
       ImpLog(LogLevel::Warning, LogChannel::Subtitle,
              "Unknown or unsupported text subtitle backend selected!.\n");
-      break;
   }
   switch (Profile::SubtitleBmpBackend) {
-    case +SubtitleBmpBackendType::None:
+    case SubtitleBmpBackendType::None:
+      break;
+    default:
       ImpLog(LogLevel::Warning, LogChannel::Subtitle,
              "Unknown or unsupported bitmap subtitle backend selected!.\n");
-      break;
   }
 }
 
 SubtitlePlayer::SubtitlePlayer(float width, float height) {
   switch (Profile::SubtitleAssBackend) {
 #ifndef IMPACTO_DISABLE_LIBASS
-    case +SubtitleAssBackendType::LibAss:
+    case SubtitleAssBackendType::LibAss:
       Backends[GetBackendIndex(SubtitleType::Ass)] =
           std::make_unique<Ass::SubtitleRenderer>(*this, width, height);
       break;
 #endif
-    case +SubtitleAssBackendType::None:
+    case SubtitleAssBackendType::None:
       break;
   }
   switch (Profile::SubtitleTextBackend) {
-    case +SubtitleTextBackendType::None:
+    case SubtitleTextBackendType::None:
       break;
   }
   switch (Profile::SubtitleBmpBackend) {
-    case +SubtitleBmpBackendType::None:
+    case SubtitleBmpBackendType::None:
       break;
   }
 }
@@ -66,13 +69,13 @@ bool SubtitlePlayer::CanAddTrack(int trackId, SubtitleType type,
   const auto& backend = Backends[GetBackendIndex(type)];
   if (!backend) {
     ImpLog(LogLevel::Warning, LogChannel::Subtitle,
-           "Subtitle backend not initialized for {}", type._to_string());
+           "Subtitle backend not initialized for {}", type);
     return false;
   }
-  if ((config & Profile::SubtitleConfig) == 0) {
+  if ((+config & +Profile::SubtitleConfig) == 0) {
     ImpLog(LogLevel::Info, LogChannel::Subtitle,
            "Current subtitle mode is {}, skipping track {}, which is mode {}",
-           Profile::SubtitleConfig._to_string(), trackId, config._to_string());
+           Profile::SubtitleConfig, trackId, config);
     return false;
   }
   return true;
@@ -110,7 +113,7 @@ void SubtitlePlayer::PushEntry(int trackId, SubtitleEntry entry) {
   auto& backend = Backends[backendIndex];
   if (!backend) {
     ImpLog(LogLevel::Warning, LogChannel::Subtitle,
-           "Subtitle backend not initialized for {}", type._to_string());
+           "Subtitle backend not initialized for {}", type);
     return;
   }
   backend->AddSubtitleEntry(trackId, std::move(entry));
@@ -134,17 +137,16 @@ void SubtitlePlayer::Render() {
 
 int8_t SubtitlePlayer::GetBackendIndex(SubtitleType type) const {
   switch (type) {
-    case +SubtitleType::Ass:
+    case SubtitleType::Ass:
       return 0;
-    case +SubtitleType::Bitmap:
+    case SubtitleType::Bitmap:
       return 1;
-    case +SubtitleType::Text:
+    case SubtitleType::Text:
       return 2;
-    case +SubtitleType::None:
+    case SubtitleType::None:
       break;
   }
-  throw std::runtime_error(
-      fmt::format("Invalid SubtitleType {}", type._to_integral()));
+  throw std::runtime_error(fmt::format("Invalid SubtitleType {}", type));
 }
 
 }  // namespace Impacto::Subtitle

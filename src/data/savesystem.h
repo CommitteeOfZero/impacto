@@ -3,7 +3,7 @@
 #include "../vm/vm.h"
 
 #include <string>
-#include <enum.h>
+#include <magic_enum/magic_enum.hpp>
 #include <ctime>
 #include <numeric>
 #include "../log.h"
@@ -14,8 +14,12 @@
 namespace Impacto {
 namespace SaveSystem {
 
-BETTER_ENUM(SaveDataType, int, None, CHLCC, CCLCC, MO6TW)
-
+enum class SaveDataType : int {
+  None,
+  CHLCC,
+  CCLCC,
+  MO6TW,
+};
 enum SaveFlagsMode { WriteProtect = 1 };
 
 enum class SaveError {
@@ -215,3 +219,9 @@ void SetQSavedOnCurrentLine(bool value);
 
 }  // namespace SaveSystem
 }  // namespace Impacto
+
+template <>
+struct magic_enum::customize::enum_range<Impacto::SaveSystem::SaveError> {
+  static constexpr int min = 0;
+  static constexpr int max = 255;
+};

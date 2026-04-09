@@ -1,8 +1,9 @@
 #pragma once
 
-#include "../util.h"
 #include <ankerl/unordered_dense.h>
 
+#include "../util.h"
+#include "../inputsystem.h"
 namespace Impacto {
 namespace Profile {
 namespace ScriptInput {
@@ -23,15 +24,13 @@ struct KeyboardPadMapping {
   InputMode Mode;
 };
 
-using ControllerButtonType = std::underlying_type_t<SDL_GameControllerButton>;
-using ControllerAxisType = std::underlying_type_t<SDL_GameControllerAxis>;
-
 inline ankerl::unordered_dense::map<int, std::vector<KeyboardPadMapping>>
     PADToKBcustom;
 inline ankerl::unordered_dense::map<int, uint32_t> PADToMouse;
-inline ankerl::unordered_dense::map<int, ControllerButtonType> PADToController;
-inline ankerl::unordered_dense::map<int,
-                                    std::pair<ControllerAxisType, InputAxisDir>>
+inline ankerl::unordered_dense::map<int, Input::ControllerButton>
+    PADToController;
+inline ankerl::unordered_dense::map<
+    int, std::pair<Input::ControllerAxis, InputAxisDir>>
     PADToControllerAxis;
 
 inline std::vector<uint32_t> PADcustomA;

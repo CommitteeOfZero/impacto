@@ -868,6 +868,14 @@ FetchContent_Declare(
     EXCLUDE_FROM_ALL
 )
 
+FetchContent_Declare(
+    magic_enum
+    GIT_TAG "7d87efb4a3dddbbe8caa9ca14eff05ede1102ab8"
+    GIT_REPOSITORY "https://github.com/Neargye/magic_enum.git"
+    SYSTEM
+    EXCLUDE_FROM_ALL
+)
+
 if (NOT VCPKG_TOOLCHAIN)
     FetchContent_MakeAvailable(fmt)
 endif ()
@@ -878,6 +886,7 @@ FetchContent_MakeAvailable(libatrac9)
 FetchContent_MakeAvailable(concurrentqueue)
 FetchContent_MakeAvailable(readerwriterqueue)
 FetchContent_MakeAvailable(unordered_dense)
+FetchContent_MakeAvailable(magic_enum)
 
 if (NOT DEFINED IMPACTO_DISABLE_MMAP)
     list(APPEND Impacto_Src
@@ -1048,6 +1057,7 @@ list(APPEND Impacto_Libs
         pugixml::pugixml
         atrac9
         unordered_dense::unordered_dense
+        magic_enum
         glm::glm
         utf8cpp
         concurrentqueue

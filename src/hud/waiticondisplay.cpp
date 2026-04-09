@@ -23,7 +23,7 @@ using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::CHLCC;
 
 void Init() {
-  if (WaitIconCurrentType == +WaitIconType::None) return;
+  if (WaitIconCurrentType == WaitIconType::None) return;
 
   switch (WaitIconCurrentType) {
     case WaitIconType::SpriteAnim:
@@ -93,7 +93,7 @@ static void RenderSpriteAnim(glm::vec2 pos, glm::vec4 opacityTint,
 
   glm::vec2 offset = WaitIconOffset;
 
-  if (DialogueBoxCurrentType == +DialogueBoxType::CHLCC) {
+  if (DialogueBoxCurrentType == DialogueBoxType::CHLCC) {
     // To deal with multiple DialogueBox
     opacityTint = glm::vec4(1.0f, 1.0f, 1.0f, opacityTint.a);
 
