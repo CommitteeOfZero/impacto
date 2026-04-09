@@ -24,6 +24,7 @@ root.Vm = {
     StartScript = 0,
     StartScriptBuffer = 0,
     GameInstructionSet = InstructionSet.CHLCC,
+    RestartMaskUsesThreadAlpha = true,
     UseReturnIds = false,
 
     ScrWorkChaStructSize = 20,
