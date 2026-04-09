@@ -36,7 +36,7 @@ class SubtitlePlayer {
                     std::string const& path,
                     Profile::SubtitleConfigType config);
   void PushEntry(int trackId, SubtitleEntry entry);
-  void Update(Video::Clock::Microseconds elapsedTime);
+  void UpdateElapsedTime(Video::Clock::Microseconds elapsedTime);
   void Render();
 
  protected:

@@ -119,7 +119,7 @@ void SubtitlePlayer::PushEntry(int trackId, SubtitleEntry entry) {
   backend->AddSubtitleEntry(trackId, std::move(entry));
 }
 
-void SubtitlePlayer::Update(Video::Clock::Microseconds elapsedTime) {
+void SubtitlePlayer::UpdateElapsedTime(Video::Clock::Microseconds elapsedTime) {
   for (auto& backend : Backends) {
     if (backend) {
       backend->Update(elapsedTime);

@@ -542,8 +542,8 @@ void FFmpegPlayer::Update(float dt) {
     using namespace std::literals::chrono_literals;
     if (AudioStream) AudioPlayer->Process();
 
-    if (+Profile::GameFeatures & +GameFeature::Subtitles) {
-      if (SubPlayer) SubPlayer->Update(MasterClock->Get());
+    if (+Profile::GameFeatures & +GameFeature::Subtitles && SubPlayer) {
+SubPlayer->UpdateElapsedTime(MasterClock->Get());
       UpdateSubtitles();
     }
 
