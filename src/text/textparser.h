@@ -32,26 +32,8 @@ class TextParser {
   DialoguePageMode PageMode = DPM_ADV;
 
  protected:
-  void ParseLineBreak(const StringToken& token);
-  void ParseCharacterNameStart(const StringToken& token);
-  void ParseDialogueLineStart(const StringToken& token);
-  void ParsePresent(const StringToken& token);
-  void ParseSetColor(const StringToken& token);
-  void ParsePresentClear(const StringToken& token);
-  void ParseRubyBaseStart(const StringToken& token);
-  void ParseRubyTextStart(const StringToken& token);
-  void ParseRubyTextEnd(const StringToken& token);
-  void ParseSetFontSize(const StringToken& token);
-  void ParsePrintInParallel(const StringToken& token);
-  void ParseCenterText(const StringToken& token);
-  void ParseSetTopMargin(const StringToken& token);
-  void ParseSetLeftMargin(const StringToken& token);
-  void ParseUnlockTip(const StringToken& token);
-  void ParsePreset0x18(const StringToken& token);
-  void ParseAutoForwardSyncVoice(const StringToken& token);
-  void ParseAutoForward(const StringToken& token);
-  void ParseRubyCenterPerCharacter(const StringToken& token);
-  void ParseCharacter(const StringToken& token);
+  template <StringTokenType T>
+  void ParseStringToken(const StringToken& token);
 
   void FinishLine(size_t nextLineStart);
   void EndRubyBase();

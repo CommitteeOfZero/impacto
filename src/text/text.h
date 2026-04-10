@@ -153,3 +153,12 @@ void FitGlyphsForPlainLine(std::span<ProcessedTextGlyph> glyphs,
                            float containerRight);
 
 }  // namespace Impacto
+
+namespace magic_enum::customize {
+template <>
+struct enum_range<Impacto::StringTokenType> {
+  constexpr static size_t prefix_length = std::string_view("STT_").size();
+  constexpr static int min = Impacto::STT_LineBreak;
+  constexpr static int max = Impacto::STT_EndOfString;
+};
+}  // namespace magic_enum::customize
