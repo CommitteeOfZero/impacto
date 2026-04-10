@@ -23,6 +23,7 @@ enum class CharacterTypeFlags : uint8_t {
   Space = (1 << 0),
   WordStartingPunct = (1 << 1),
   WordEndingPunct = (1 << 2),
+  Alphabet = (1 << 3),
 };
 
 // TODO: think about / profile memory access patterns
