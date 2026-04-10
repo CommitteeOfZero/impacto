@@ -50,6 +50,23 @@ void Init() {
   }
 }
 
+// Update that is run before and independently of ScrWork[SW_GAMESTATE] & 5 &&
+// !GetFlag(SF_GAMEPAUSE)
+void NonGameplayUpdate(float dt) {
+  switch (Profile::GameSpecific::GameSpecificType) {
+    case GameSpecificType::CHLCC: {
+      if (UI ::TitleMenuPtr) UI::TitleMenuPtr->Update(dt);
+    } break;
+    case GameSpecificType::Dash:
+    case GameSpecificType::RNE:
+    case GameSpecificType::CC:
+    case GameSpecificType::CCLCC:
+    case GameSpecificType::None:
+      break;
+  }
+  return;
+}
+
 void Update(float dt) {
   switch (Profile::GameSpecific::GameSpecificType) {
     case GameSpecificType::CHLCC: {
@@ -123,11 +140,12 @@ void RenderMain() {
 }
 
 void RenderLayer(uint32_t layer) {
+  int layerInt = static_cast<int>(layer);
   switch (Profile::GameSpecific::GameSpecificType) {
     case GameSpecificType::CHLCC: {
       CHLCC::EyecatchEffect::GetInstance().RenderLayer(layer);
       if (ScrWork[SW_MONITOR_SCANLINE_ENABLED] &&
-          static_cast<int>(layer) == ScrWork[SW_MONITOR_SCANLINE_PRI]) {
+          layerInt == ScrWork[SW_MONITOR_SCANLINE_PRI]) {
         Renderer->DrawSprite(
             MonitorScanline,
             RectF{0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight},
@@ -137,25 +155,28 @@ void RenderLayer(uint32_t layer) {
                            glm::vec4{glm::vec3{0.0f}, 88 / 255.0f});
       }
       if (ScrWork[SW_BUTTERFLY_ALPHA] &&
-          static_cast<int>(layer) == ScrWork[SW_BUTTERFLY_PRI]) {
+          layerInt == ScrWork[SW_BUTTERFLY_PRI]) {
         CHLCC::ButterflyEffect::GetInstance().Render();
       }
-      if (ScrWork[SW_BUBBLES_ALPHA] &&
-          static_cast<int>(layer) == ScrWork[SW_BUBBLES_PRI]) {
+      if (ScrWork[SW_BUBBLES_ALPHA] && layerInt == ScrWork[SW_BUBBLES_PRI]) {
         CHLCC::BubblesEffect::GetInstance().Render();
       }
+
+      if (GetFlag(SF_TITLEMODE) && ScrWork[SW_TITLE_PRI] == layerInt) {
+        if (UI ::TitleMenuPtr) UI::TitleMenuPtr->Render();
+      }
+
     } break;
     case GameSpecificType::CC: {
     } break;
     case GameSpecificType::CCLCC: {
-      if (ScrWork[SW_MAP_PRI] == static_cast<int>(layer) &&
-          ScrWork[SW_MAP_ALPHA]) {
+      if (ScrWork[SW_MAP_PRI] == layerInt && ScrWork[SW_MAP_ALPHA]) {
         CCLCC::MapSystem::GetInstance().Render();
       }
 
-      if (static_cast<uint32_t>(ScrWork[SW_DELUSION_PRI]) == layer)
+      if (ScrWork[SW_DELUSION_PRI] == layerInt)
         CCLCC::DelusionTrigger::GetInstance().Render();
-      if (static_cast<uint32_t>(ScrWork[SW_YESNO_PRI]) == layer) {
+      if (ScrWork[SW_YESNO_PRI] == layerInt) {
         CCLCC::YesNoTrigger::GetInstance().Render();
       }
     } break;

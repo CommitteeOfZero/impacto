@@ -3,6 +3,7 @@ namespace Impacto {
 namespace UI {
 namespace GameSpecific {
 void Init();
+void NonGameplayUpdate(float dt);
 void Update(float dt);
 void RenderEarlyMain();
 void RenderMain();

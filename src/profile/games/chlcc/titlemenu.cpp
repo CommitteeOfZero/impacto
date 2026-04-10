@@ -203,10 +203,6 @@ void Configure() {
       AnimationLoopMode::ReverseDirection;
 
   UI::TitleMenuPtr = menu;
-
-  auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
-
-  UI::Menus[drawType].push_back(UI::TitleMenuPtr);
 }
 
 }  // namespace TitleMenu
