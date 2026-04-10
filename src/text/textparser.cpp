@@ -1,5 +1,7 @@
 #include "textparser.h"
 
+#include <magic_enum/magic_enum_containers.hpp>
+
 #include "../profile/dialogue.h"
 #include "../profile/games/chlcc/dialoguebox.h"
 
@@ -45,13 +47,16 @@ void TextParser::Reset() {
   CurrentColors = ColorTable[0];
 }
 
-void TextParser::ParseLineBreak(const StringToken& token) {
+template <>
+void TextParser::ParseStringToken<STT_LineBreak>(const StringToken& token) {
   FinishLine(Glyphs.size());
   LastWordStart = Glyphs.size();
   CurrentX = 0.0f;
 }
 
-void TextParser::ParseCharacterNameStart(const StringToken& token) {
+template <>
+void TextParser::ParseStringToken<STT_CharacterNameStart>(
+    const StringToken& token) {
   NameCode.reserve(64);
   ParsingState = TextParsingState::Name;
   if (PageMode == DPM_REV && REVNameLocation != REVNameLocationType::LeftTop) {
@@ -60,38 +65,46 @@ void TextParser::ParseCharacterNameStart(const StringToken& token) {
   LastWordStart = Glyphs.size();
 }
 
-void TextParser::ParseDialogueLineStart(const StringToken& token) {
+template <>
+void TextParser::ParseStringToken<STT_DialogueLineStart>(
+    const StringToken& token) {
   ParsingState = TextParsingState::Normal;
   LastWordStart = Glyphs.size();
 }
 
-void TextParser::ParsePresent(const StringToken& token) {
+template <>
+void TextParser::ParseStringToken<STT_Present>(const StringToken& token) {
   AdvanceMethod = DialoguePage::AdvanceMethodType::Present;
 }
 
-void TextParser::ParseSetColor(const StringToken& token) {
+template <>
+void TextParser::ParseStringToken<STT_SetColor>(const StringToken& token) {
   if (PageMode == DPM_REV) return;
 
   assert(token.Val_Expr < ColorCount);
   CurrentColors = ColorTable[token.Val_Expr];
 }
 
-void TextParser::ParsePresentClear(const StringToken& token) {
+template <>
+void TextParser::ParseStringToken<STT_Present_Clear>(const StringToken& token) {
   AdvanceMethod = DialoguePage::AdvanceMethodType::PresentClear;
 }
 
-void TextParser::ParseRubyBaseStart(const StringToken& token) {
+template <>
+void TextParser::ParseStringToken<STT_RubyBaseStart>(const StringToken& token) {
   RubyChunks.emplace_back().FirstBaseCharacter = Glyphs.size();
   BuildingRubyBase = true;
   LastWordStart = Glyphs.size();
 }
 
-void TextParser::ParseRubyTextStart(const StringToken& token) {
+template <>
+void TextParser::ParseStringToken<STT_RubyTextStart>(const StringToken& token) {
   EndRubyBase();
   ParsingState = TextParsingState::Ruby;
 }
 
-void TextParser::ParseRubyTextEnd(const StringToken& token) {
+template <>
+void TextParser::ParseStringToken<STT_RubyTextEnd>(const StringToken& token) {
   // At least S;G uses [ruby-base]link text[ruby-text-end] for mails,
   // with no ruby-text-start
   EndRubyBase();
@@ -99,23 +112,29 @@ void TextParser::ParseRubyTextEnd(const StringToken& token) {
   LastWordStart = Glyphs.size();
 }
 
-void TextParser::ParseSetFontSize(const StringToken& token) {
+template <>
+void TextParser::ParseStringToken<STT_SetFontSize>(const StringToken& token) {
   FontSize = DefaultFontSize * (token.Val_Uint16 / SetFontSizeRatio);
 }
 
-void TextParser::ParsePrintInParallel(const StringToken& token) {
+template <>
+void TextParser::ParseStringToken<STT_PrintInParallel>(
+    const StringToken& token) {
   ParallelStartGlyphs.insert(Glyphs.size());
 }
 
-void TextParser::ParseCenterText(const StringToken& token) {
+template <>
+void TextParser::ParseStringToken<STT_CenterText>(const StringToken& token) {
   Alignment = TextAlignment::Center;
 }
 
-void TextParser::ParseSetTopMargin(const StringToken& token) {
+template <>
+void TextParser::ParseStringToken<STT_SetTopMargin>(const StringToken& token) {
   CurrentLineTopMargin = token.Val_Uint16;
 }
 
-void TextParser::ParseSetLeftMargin(const StringToken& token) {
+template <>
+void TextParser::ParseStringToken<STT_SetLeftMargin>(const StringToken& token) {
   float addX = token.Val_Uint16;
   if (CurrentX + addX > BoxBounds.Width) {
     FinishLine(Glyphs.size());
@@ -130,7 +149,8 @@ void TextParser::ParseSetLeftMargin(const StringToken& token) {
   LastWordStart = Glyphs.size();
 }
 
-void TextParser::ParseUnlockTip(const StringToken& token) {
+template <>
+void TextParser::ParseStringToken<STT_UnlockTip>(const StringToken& token) {
   if ((PageMode == DPM_ADV ||
        (ScrWork[SW_MESWIN0TYPE] == 1 && PageMode == DPM_REV) ||
        PageMode == DPM_NVL) &&
@@ -141,23 +161,30 @@ void TextParser::ParseUnlockTip(const StringToken& token) {
   }
 }
 
-void TextParser::ParsePreset0x18(const StringToken& token) {
+template <>
+void TextParser::ParseStringToken<STT_Present_0x18>(const StringToken& token) {
   AdvanceMethod = DialoguePage::AdvanceMethodType::Present0x18;
 }
 
-void TextParser::ParseAutoForwardSyncVoice(const StringToken& token) {
+template <>
+void TextParser::ParseStringToken<STT_AutoForward_SyncVoice>(
+    const StringToken& token) {
   AdvanceMethod = DialoguePage::AdvanceMethodType::AutoForwardSyncVoice;
 }
 
-void TextParser::ParseAutoForward(const StringToken& token) {
+template <>
+void TextParser::ParseStringToken<STT_AutoForward>(const StringToken& token) {
   AdvanceMethod = DialoguePage::AdvanceMethodType::AutoForward;
 }
 
-void TextParser::ParseRubyCenterPerCharacter(const StringToken& token) {
+template <>
+void TextParser::ParseStringToken<STT_RubyCenterPerCharacter>(
+    const StringToken& token) {
   RubyChunks.back().CenterPerCharacter = true;
 }
 
-void TextParser::ParseCharacter(const StringToken& token) {
+template <>
+void TextParser::ParseStringToken<STT_Character>(const StringToken& token) {
   switch (ParsingState) {
     case TextParsingState::Name: {
       NameCode.emplace_back(SDL_Swap16(token.Val_Uint16 | 0x8000));
@@ -365,35 +392,49 @@ void TextParser::EndRubyBase() {
 }
 
 void DialogueTextParser::ParseString(Vm::Sc3VmThread* string) {
-  const ankerl::unordered_dense::map<
-      StringTokenType,
-      std::function<void(DialogueTextParser*, const StringToken&)>>
-      parsingFunctions{
-          {STT_LineBreak, &DialogueTextParser::ParseLineBreak},
-          {STT_CharacterNameStart,
-           &DialogueTextParser::ParseCharacterNameStart},
-          {STT_DialogueLineStart, &DialogueTextParser::ParseDialogueLineStart},
-          {STT_Present, &DialogueTextParser::ParsePresent},
-          {STT_SetColor, &DialogueTextParser::ParseSetColor},
-          {STT_Present_Clear, &DialogueTextParser::ParsePresentClear},
-          {STT_RubyBaseStart, &DialogueTextParser::ParseRubyBaseStart},
-          {STT_RubyTextStart, &DialogueTextParser::ParseRubyTextStart},
-          {STT_RubyTextEnd, &DialogueTextParser::ParseRubyTextEnd},
-          {STT_SetFontSize, &DialogueTextParser::ParseSetFontSize},
-          {STT_PrintInParallel, &DialogueTextParser::ParsePrintInParallel},
-          {STT_CenterText, &DialogueTextParser::ParseCenterText},
-          {STT_SetTopMargin, &DialogueTextParser::ParseSetTopMargin},
-          {STT_SetLeftMargin, &DialogueTextParser::ParseSetLeftMargin},
-          {STT_UnlockTip, &DialogueTextParser::ParseUnlockTip},
-          {STT_Present_0x18, &DialogueTextParser::ParsePresent},
-          {STT_AutoForward_SyncVoice,
-           &DialogueTextParser::ParseAutoForwardSyncVoice},
-          {STT_AutoForward, &DialogueTextParser::ParseAutoForward},
-          {STT_RubyCenterPerCharacter,
-           &DialogueTextParser::ParseRubyCenterPerCharacter},
-          {STT_AltLineBreak, &DialogueTextParser::ParseLineBreak},
-          {STT_Character, &DialogueTextParser::ParseCharacter},
-      };
+  using TokenParserProc = auto (TextParser::*)(const StringToken&)->void;
+  constexpr static auto tokenParserLUT = []() {
+    magic_enum::containers::array<StringTokenType, TokenParserProc> lut;
+    lut.fill(nullptr);
+
+    lut[STT_LineBreak] = &DialogueTextParser::ParseStringToken<STT_LineBreak>;
+    lut[STT_CharacterNameStart] =
+        &DialogueTextParser::ParseStringToken<STT_CharacterNameStart>;
+    lut[STT_DialogueLineStart] =
+        &DialogueTextParser::ParseStringToken<STT_DialogueLineStart>;
+    lut[STT_Present] = &DialogueTextParser::ParseStringToken<STT_Present>;
+    lut[STT_SetColor] = &DialogueTextParser::ParseStringToken<STT_SetColor>;
+    lut[STT_Present_Clear] =
+        &DialogueTextParser::ParseStringToken<STT_Present_Clear>;
+    lut[STT_RubyBaseStart] =
+        &DialogueTextParser::ParseStringToken<STT_RubyBaseStart>;
+    lut[STT_RubyTextStart] =
+        &DialogueTextParser::ParseStringToken<STT_RubyTextStart>;
+    lut[STT_RubyTextEnd] =
+        &DialogueTextParser::ParseStringToken<STT_RubyTextEnd>;
+    lut[STT_SetFontSize] =
+        &DialogueTextParser::ParseStringToken<STT_SetFontSize>;
+    lut[STT_PrintInParallel] =
+        &DialogueTextParser::ParseStringToken<STT_PrintInParallel>;
+    lut[STT_CenterText] = &DialogueTextParser::ParseStringToken<STT_CenterText>;
+    lut[STT_SetTopMargin] =
+        &DialogueTextParser::ParseStringToken<STT_SetTopMargin>;
+    lut[STT_SetLeftMargin] =
+        &DialogueTextParser::ParseStringToken<STT_SetLeftMargin>;
+    lut[STT_UnlockTip] = &DialogueTextParser::ParseStringToken<STT_UnlockTip>;
+    lut[STT_Present_0x18] = &DialogueTextParser::ParseStringToken<STT_Present>;
+    lut[STT_AutoForward_SyncVoice] =
+        &DialogueTextParser::ParseStringToken<STT_AutoForward_SyncVoice>;
+    lut[STT_AutoForward] =
+        &DialogueTextParser::ParseStringToken<STT_AutoForward>;
+    lut[STT_RubyCenterPerCharacter] =
+        &DialogueTextParser::ParseStringToken<STT_RubyCenterPerCharacter>;
+    lut[STT_AltLineBreak] =
+        &DialogueTextParser::ParseStringToken<STT_LineBreak>;
+    lut[STT_Character] = &DialogueTextParser::ParseStringToken<STT_Character>;
+
+    return lut;
+  }();
 
   switch (PageMode) {
     case DPM_ADV:
@@ -415,8 +456,8 @@ void DialogueTextParser::ParseString(Vm::Sc3VmThread* string) {
   StringToken token;
   do {
     token.Read(string);
-    const auto function = parsingFunctions.find(token.Type);
-    if (function != parsingFunctions.end()) function->second(this, token);
+    const TokenParserProc parser = tokenParserLUT[token.Type];
+    if (parser != nullptr) std::invoke(parser, this, token);
   } while (token.Type != STT_EndOfString);
 
   FinishLine(Glyphs.size());
@@ -479,21 +520,29 @@ void DialogueTextParser::ParseString(DialoguePage& page,
 }
 
 void BacklogTextParser::ParseString(Vm::Sc3VmThread* string) {
-  const ankerl::unordered_dense::map<
-      StringTokenType,
-      std::function<void(BacklogTextParser*, const StringToken&)>>
-      parsingFunctions{
-          {STT_LineBreak, &BacklogTextParser::ParseLineBreak},
-          {STT_CharacterNameStart, &BacklogTextParser::ParseCharacterNameStart},
-          {STT_DialogueLineStart, &BacklogTextParser::ParseDialogueLineStart},
-          {STT_SetColor, &BacklogTextParser::ParseSetColor},
-          {STT_RubyBaseStart, &BacklogTextParser::ParseRubyBaseStart},
-          {STT_RubyTextStart, &BacklogTextParser::ParseRubyTextStart},
-          {STT_RubyTextEnd, &BacklogTextParser::ParseRubyTextEnd},
-          {STT_RubyCenterPerCharacter,
-           &BacklogTextParser::ParseRubyCenterPerCharacter},
-          {STT_Character, &BacklogTextParser::ParseCharacter},
-      };
+  using TokenParserProc = auto (TextParser::*)(const StringToken&)->void;
+  constexpr static auto tokenParserLUT = []() {
+    magic_enum::containers::array<StringTokenType, TokenParserProc> lut;
+    lut.fill(nullptr);
+
+    lut[STT_LineBreak] = &BacklogTextParser::ParseStringToken<STT_LineBreak>;
+    lut[STT_CharacterNameStart] =
+        &BacklogTextParser::ParseStringToken<STT_CharacterNameStart>;
+    lut[STT_DialogueLineStart] =
+        &BacklogTextParser::ParseStringToken<STT_DialogueLineStart>;
+    lut[STT_RubyBaseStart] =
+        &BacklogTextParser::ParseStringToken<STT_RubyBaseStart>;
+    lut[STT_RubyTextStart] =
+        &BacklogTextParser::ParseStringToken<STT_RubyTextStart>;
+    lut[STT_RubyTextEnd] =
+        &BacklogTextParser::ParseStringToken<STT_RubyTextEnd>;
+    lut[STT_CenterText] = &BacklogTextParser::ParseStringToken<STT_CenterText>;
+    lut[STT_RubyCenterPerCharacter] =
+        &BacklogTextParser::ParseStringToken<STT_RubyCenterPerCharacter>;
+    lut[STT_Character] = &BacklogTextParser::ParseStringToken<STT_Character>;
+
+    return lut;
+  }();
 
   FontSize = DefaultFontSize;
   BoxBounds = REVBounds;
@@ -502,8 +551,8 @@ void BacklogTextParser::ParseString(Vm::Sc3VmThread* string) {
   StringToken token;
   do {
     token.Read(string);
-    const auto function = parsingFunctions.find(token.Type);
-    if (function != parsingFunctions.end()) function->second(this, token);
+    const TokenParserProc parser = tokenParserLUT[token.Type];
+    if (parser != nullptr) std::invoke(parser, this, token);
   } while (token.Type != STT_EndOfString);
 
   FinishLine(Glyphs.size());
@@ -552,23 +601,30 @@ void BacklogTextParser::ParseString(BacklogPage& page,
 }
 
 void TipsTextParser::ParseString(Vm::Sc3VmThread* string) {
-  const ankerl::unordered_dense::map<
-      StringTokenType, std::function<void(TipsTextParser*, const StringToken&)>>
-      parsingFunctions{
-          {STT_LineBreak, &TipsTextParser::ParseLineBreak},
-          {STT_SetColor, &TipsTextParser::ParseSetColor},
-          {STT_RubyBaseStart, &TipsTextParser::ParseRubyBaseStart},
-          {STT_RubyTextStart, &TipsTextParser::ParseRubyTextStart},
-          {STT_RubyTextEnd, &TipsTextParser::ParseRubyTextEnd},
-          {STT_SetFontSize, &TipsTextParser::ParseSetFontSize},
-          {STT_CenterText, &TipsTextParser::ParseCenterText},
-          {STT_SetTopMargin, &TipsTextParser::ParseSetTopMargin},
-          {STT_SetLeftMargin, &TipsTextParser::ParseSetLeftMargin},
-          {STT_RubyCenterPerCharacter,
-           &TipsTextParser::ParseRubyCenterPerCharacter},
-          {STT_AltLineBreak, &TipsTextParser::ParseLineBreak},
-          {STT_Character, &TipsTextParser::ParseCharacter},
-      };
+  using TokenParserProc = auto (TextParser::*)(const StringToken&)->void;
+  constexpr static auto tokenParserLUT = []() {
+    magic_enum::containers::array<StringTokenType, TokenParserProc> lut;
+    lut.fill(nullptr);
+
+    lut[STT_LineBreak] = &TipsTextParser::ParseStringToken<STT_LineBreak>;
+    lut[STT_SetColor] = &TipsTextParser::ParseStringToken<STT_SetColor>;
+    lut[STT_RubyBaseStart] =
+        &TipsTextParser::ParseStringToken<STT_RubyBaseStart>;
+    lut[STT_RubyTextStart] =
+        &TipsTextParser::ParseStringToken<STT_RubyTextStart>;
+    lut[STT_RubyTextEnd] = &TipsTextParser::ParseStringToken<STT_RubyTextEnd>;
+    lut[STT_SetFontSize] = &TipsTextParser::ParseStringToken<STT_SetFontSize>;
+    lut[STT_CenterText] = &TipsTextParser::ParseStringToken<STT_CenterText>;
+    lut[STT_SetTopMargin] = &TipsTextParser::ParseStringToken<STT_SetTopMargin>;
+    lut[STT_SetLeftMargin] =
+        &TipsTextParser::ParseStringToken<STT_SetLeftMargin>;
+    lut[STT_RubyCenterPerCharacter] =
+        &TipsTextParser::ParseStringToken<STT_RubyCenterPerCharacter>;
+    lut[STT_AltLineBreak] = &TipsTextParser::ParseStringToken<STT_LineBreak>;
+    lut[STT_Character] = &TipsTextParser::ParseStringToken<STT_Character>;
+
+    return lut;
+  }();
 
   FontSize = DefaultFontSize;
   BoxBounds = TipsBounds;
@@ -577,8 +633,8 @@ void TipsTextParser::ParseString(Vm::Sc3VmThread* string) {
   StringToken token;
   do {
     token.Read(string);
-    const auto function = parsingFunctions.find(token.Type);
-    if (function != parsingFunctions.end()) function->second(this, token);
+    const TokenParserProc parser = tokenParserLUT[token.Type];
+    if (parser != nullptr) std::invoke(parser, this, token);
   } while (token.Type != STT_EndOfString);
 
   FinishLine(Glyphs.size());
