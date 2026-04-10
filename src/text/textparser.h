@@ -49,9 +49,6 @@ class TextParser {
   RectF BoxBounds;
 
   size_t LastLineStart = 0;
-  size_t LastWordStart = 0;
-  bool PrevGlyphWordStarting = false;
-  bool PrevGlyphWordEnding = false;
 
   float FontSize = DefaultFontSize;
 

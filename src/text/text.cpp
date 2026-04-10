@@ -148,12 +148,7 @@ void StringToken::AddFlags(const Vm::BufferOffsetContext scrCtx,
       return;
     }
 
-    const uint16_t glyphId = token.Val_Uint16;
-    if (auto it = FlagsMap.find(glyphId); it != FlagsMap.end()) {
-      it->second = it->second | flags;
-    } else {
-      FlagsMap.emplace(glyphId, flags);
-    }
+    AddFlags(token.Val_Uint16, flags);
   }
 }
 

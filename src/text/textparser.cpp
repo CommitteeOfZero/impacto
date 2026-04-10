@@ -33,9 +33,6 @@ void TextParser::Reset() {
   BoxBounds = ADVBounds;
 
   LastLineStart = 0;
-  LastWordStart = 0;
-  PrevGlyphWordStarting = false;
-  PrevGlyphWordEnding = false;
 
   FontSize = DefaultFontSize;
 
@@ -50,7 +47,6 @@ void TextParser::Reset() {
 template <>
 void TextParser::ParseStringToken<STT_LineBreak>(const StringToken& token) {
   FinishLine(Glyphs.size());
-  LastWordStart = Glyphs.size();
   CurrentX = 0.0f;
 }
 
@@ -62,14 +58,12 @@ void TextParser::ParseStringToken<STT_CharacterNameStart>(
   if (PageMode == DPM_REV && REVNameLocation != REVNameLocationType::LeftTop) {
     CurrentLineTop += REVNameOffset;
   }
-  LastWordStart = Glyphs.size();
 }
 
 template <>
 void TextParser::ParseStringToken<STT_DialogueLineStart>(
     const StringToken& token) {
   ParsingState = TextParsingState::Normal;
-  LastWordStart = Glyphs.size();
 }
 
 template <>
@@ -94,7 +88,6 @@ template <>
 void TextParser::ParseStringToken<STT_RubyBaseStart>(const StringToken& token) {
   RubyChunks.emplace_back().FirstBaseCharacter = Glyphs.size();
   BuildingRubyBase = true;
-  LastWordStart = Glyphs.size();
 }
 
 template <>
@@ -109,7 +102,6 @@ void TextParser::ParseStringToken<STT_RubyTextEnd>(const StringToken& token) {
   // with no ruby-text-start
   EndRubyBase();
   ParsingState = TextParsingState::Normal;
-  LastWordStart = Glyphs.size();
 }
 
 template <>
@@ -146,7 +138,6 @@ void TextParser::ParseStringToken<STT_SetLeftMargin>(const StringToken& token) {
     addX -= BoxBounds.Width;
   }
   CurrentX += addX;
-  LastWordStart = Glyphs.size();
 }
 
 template <>
@@ -208,27 +199,6 @@ void TextParser::ParseStringToken<STT_Character>(const StringToken& token) {
           (PageMode == DPM_REV || PageMode == DPM_TIPS) ? 1.0f : 0.0f;
       glyph.Colors = CurrentColors;
 
-      if (token.Flags & +CharacterTypeFlags::WordStartingPunct) {
-        // Ensure only the leftmost consecutive WordStartingPunct is counted
-        if (!PrevGlyphWordStarting) {
-          // Still *before* this character
-          LastWordStart = Glyphs.size() - 1;
-          PrevGlyphWordStarting = true;
-        }
-      } else {
-        PrevGlyphWordStarting = false;
-      }
-
-      if (token.Flags & +CharacterTypeFlags::WordEndingPunct) {
-        PrevGlyphWordEnding = true;
-        // Ensure only the rightmost consecutive WordEndingPunct is counted
-      } else if (PrevGlyphWordEnding) {
-        // Previous character was word ending, so this character marks the
-        // beginning of the next word
-        LastWordStart = Glyphs.size() - 1;
-        PrevGlyphWordEnding = false;
-      }
-
       glyph.DestRect.X = BoxBounds.X + CurrentX;
       glyph.DestRect.Width = (FontSize / DialogueFont->BitmapEmWidth) *
                              DialogueFont->AdvanceWidths[glyph.CharId];
@@ -238,33 +208,37 @@ void TextParser::ParseStringToken<STT_Character>(const StringToken& token) {
 
       // Line breaking
       if (glyph.DestRect.Right() > BoxBounds.Right()) {
-        if (LastLineStart == LastWordStart) {
-          // Word doesn't fit on a line, gotta break in the middle of it
-          glyph.DestRect.X = BoxBounds.X;
-          CurrentX = glyph.DestRect.Width;
-
-          LastWordStart = Glyphs.size() - 1;
-          FinishLine(LastWordStart);
-        } else {
-          size_t firstNonSpace = LastWordStart;
-          // Skip spaces at start of (new) line
-          for (size_t i = LastWordStart; i < Glyphs.size(); i++) {
-            const bool isSpace = StringToken::GetFlags(Glyphs[i].CharId) &
-                                 +CharacterTypeFlags::Space;
-            if (!isSpace) break;
-            firstNonSpace = i + 1;
-          }
-
-          LastWordStart = firstNonSpace;
-          FinishLine(firstNonSpace);
-
-          CurrentX = 0.0f;
-          for (size_t i = firstNonSpace; i < Glyphs.size(); i++) {
-            Glyphs[i].DestRect.X = BoxBounds.X + CurrentX;
-            CurrentX += Glyphs[i].DestRect.Width;
+        size_t breakCharacter = Glyphs.size() - 1;
+        for (; breakCharacter > LastLineStart; breakCharacter--) {
+          constexpr uint8_t dontBreakBeforeFlags =
+              +CharacterTypeFlags::WordStartingPunct;
+          constexpr uint8_t dontBreakOnFlags =
+              +CharacterTypeFlags::WordEndingPunct |
+              +CharacterTypeFlags::Alphabet;
+          if (!(StringToken::GetFlags(Glyphs[breakCharacter - 1].CharId) &
+                dontBreakBeforeFlags) &&
+              !(StringToken::GetFlags(Glyphs[breakCharacter].CharId) &
+                dontBreakOnFlags)) {
+            break;
           }
         }
+
+        FinishLine(breakCharacter);
+
+        for (; breakCharacter < Glyphs.size(); breakCharacter++) {
+          if (!(StringToken::GetFlags(Glyphs[breakCharacter].CharId) &
+                +CharacterTypeFlags::Space)) {
+            break;
+          }
+        }
+
+        CurrentX = 0.0f;
+        for (size_t i = breakCharacter; i < Glyphs.size(); i++) {
+          Glyphs[i].DestRect.X = BoxBounds.X + CurrentX;
+          CurrentX += Glyphs[i].DestRect.Width;
+        }
       }
+
       return;
     }
   }
