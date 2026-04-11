@@ -24,7 +24,6 @@ void TextParser::Reset() {
   AdvanceMethod = DialoguePage::AdvanceMethodType::Skip;
   ParsingState = TextParsingState::Normal;
 
-  BuildingRubyBase = false;
   FirstRubyChunkOnLine = 0;
 
   ParallelStartGlyphs.clear();
@@ -87,20 +86,24 @@ void TextParser::ParseStringToken<STT_Present_Clear>(const StringToken& token) {
 template <>
 void TextParser::ParseStringToken<STT_RubyBaseStart>(const StringToken& token) {
   RubyChunks.emplace_back().FirstBaseCharacter = Glyphs.size();
-  BuildingRubyBase = true;
+  ParsingState = TextParsingState::RubyBase;
 }
 
 template <>
 void TextParser::ParseStringToken<STT_RubyTextStart>(const StringToken& token) {
-  EndRubyBase();
-  ParsingState = TextParsingState::Ruby;
+  assert(ParsingState == TextParsingState::RubyBase);
+  RubyChunks.back().FinishBase(Glyphs.size());
+  ParsingState = TextParsingState::RubyAnnotation;
 }
 
 template <>
 void TextParser::ParseStringToken<STT_RubyTextEnd>(const StringToken& token) {
   // At least S;G uses [ruby-base]link text[ruby-text-end] for mails,
   // with no ruby-text-start
-  EndRubyBase();
+  if (ParsingState == TextParsingState::RubyBase) {
+    RubyChunks.back().FinishBase(Glyphs.size());
+  }
+
   ParsingState = TextParsingState::Normal;
 }
 
@@ -182,7 +185,8 @@ void TextParser::ParseStringToken<STT_Character>(const StringToken& token) {
       return;
     }
 
-    case TextParsingState::Ruby: {
+    case TextParsingState::RubyBase:
+    case TextParsingState::RubyAnnotation: {
       RubyChunk& curChunk = RubyChunks.back();
       curChunk.RawText[curChunk.Length] = SDL_Swap16(token.Val_Uint16 | 0x8000);
       curChunk.Length++;
@@ -354,15 +358,6 @@ void TextParser::FinishLine(const size_t nextLineStart) {
       CurrentLineTop + CurrentLineTopMargin + lineHeight + lineSpacing;
   CurrentLineTopMargin = 0.0f;
   LastLineStart = nextLineStart;
-}
-
-void TextParser::EndRubyBase() {
-  if (BuildingRubyBase && !RubyChunks.empty()) {
-    RubyChunk& chunk = RubyChunks.back();
-    chunk.BaseLength = Glyphs.size() - chunk.FirstBaseCharacter;
-  }
-
-  BuildingRubyBase = false;
 }
 
 void DialogueTextParser::ParseString(Vm::Sc3VmThread* string) {

@@ -36,14 +36,12 @@ class TextParser {
   void ParseStringToken(const StringToken& token);
 
   void FinishLine(size_t nextLineStart);
-  void EndRubyBase();
 
   std::vector<uint16_t> NameCode;
 
-  enum class TextParsingState { Normal, Name, Ruby };
+  enum class TextParsingState { Normal, Name, RubyBase, RubyAnnotation };
   TextParsingState ParsingState = TextParsingState::Normal;
 
-  bool BuildingRubyBase = false;
   size_t FirstRubyChunkOnLine = 0;
 
   RectF BoxBounds;
