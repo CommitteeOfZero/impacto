@@ -108,6 +108,14 @@ std::optional<DialogueColorPair> TryGetImpl<DialogueColorPair>::Call() {
       TryGetMember("OutlineColor", outColor.OutlineColor)) {
     return outColor;
   }
+
+  const auto colorPair = TryGet<std::pair<uint32_t, uint32_t>>();
+  if (colorPair.has_value()) {
+    outColor.TextColor = colorPair->first;
+    outColor.OutlineColor = colorPair->second;
+    return outColor;
+  }
+
   return std::nullopt;
 }
 

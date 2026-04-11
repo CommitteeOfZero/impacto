@@ -72,9 +72,6 @@ void TextParser::ParseStringToken<STT_Present>(const StringToken& token) {
 
 template <>
 void TextParser::ParseStringToken<STT_SetColor>(const StringToken& token) {
-  if (PageMode == DPM_REV) return;
-
-  assert(token.Val_Expr < ColorCount);
   CurrentColors = ColorTable[token.Val_Expr];
 }
 

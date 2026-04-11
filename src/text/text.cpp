@@ -226,7 +226,6 @@ std::pair<int, float> TextLayoutPlainLineHelper(
           token.Val_Expr = ScrWork[SW_SYSMESCOL1 + (255 - token.Val_Expr)];
         }
 
-        assert(token.Val_Expr < ColorCount);
         currentColors = ColorTable[token.Val_Expr];
       } break;
 
