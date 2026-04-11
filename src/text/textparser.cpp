@@ -1,5 +1,6 @@
 #include "textparser.h"
 
+#include <numeric>
 #include <magic_enum/magic_enum_containers.hpp>
 
 #include "../profile/dialogue.h"
@@ -23,9 +24,6 @@ void TextParser::Reset() {
 
   AdvanceMethod = DialoguePage::AdvanceMethodType::Skip;
   ParsingState = TextParsingState::Normal;
-
-  BuildingRubyBase = false;
-  FirstRubyChunkOnLine = 0;
 
   ParallelStartGlyphs.clear();
 
@@ -84,20 +82,24 @@ void TextParser::ParseStringToken<STT_Present_Clear>(const StringToken& token) {
 template <>
 void TextParser::ParseStringToken<STT_RubyBaseStart>(const StringToken& token) {
   RubyChunks.emplace_back().FirstBaseCharacter = Glyphs.size();
-  BuildingRubyBase = true;
+  ParsingState = TextParsingState::RubyBase;
 }
 
 template <>
 void TextParser::ParseStringToken<STT_RubyTextStart>(const StringToken& token) {
-  EndRubyBase();
-  ParsingState = TextParsingState::Ruby;
+  assert(ParsingState == TextParsingState::RubyBase);
+  RubyChunks.back().FinishBase(Glyphs.size());
+  ParsingState = TextParsingState::RubyAnnotation;
 }
 
 template <>
 void TextParser::ParseStringToken<STT_RubyTextEnd>(const StringToken& token) {
   // At least S;G uses [ruby-base]link text[ruby-text-end] for mails,
   // with no ruby-text-start
-  EndRubyBase();
+  if (ParsingState == TextParsingState::RubyBase) {
+    RubyChunks.back().FinishBase(Glyphs.size());
+  }
+
   ParsingState = TextParsingState::Normal;
 }
 
@@ -176,14 +178,15 @@ void TextParser::ParseStringToken<STT_Character>(const StringToken& token) {
       return;
     }
 
-    case TextParsingState::Ruby: {
+    case TextParsingState::RubyAnnotation: {
       RubyChunk& curChunk = RubyChunks.back();
       curChunk.RawText[curChunk.Length] = SDL_Swap16(token.Val_Uint16 | 0x8000);
       curChunk.Length++;
       return;
     }
 
-    case TextParsingState::Normal: {
+    case TextParsingState::Normal:
+    case TextParsingState::RubyBase: {
       // TODO respect TA_Center
       // TODO what to do about left margin if text alignment is center?
       ProcessedTextGlyph& glyph = Glyphs.emplace_back();
@@ -246,15 +249,23 @@ void TextParser::ParseStringToken<STT_Character>(const StringToken& token) {
 }
 
 void TextParser::FinishLine(const size_t nextLineStart) {
+  if (nextLineStart == LastLineStart) return;
+
+  const std::span<ProcessedTextGlyph> currentLine =
+      std::span(Glyphs.begin() + LastLineStart, nextLineStart - LastLineStart);
+
   // Lay out all ruby chunks on this line (before we change CurrentLineTop and
   // thus can't find where to put them)
   for (RubyChunk& chunk : RubyChunks) {
+    if (chunk.FirstBaseCharacter < LastLineStart) continue;
     if (chunk.FirstBaseCharacter >= nextLineStart) break;
 
     Vm::Sc3Stream rubyText(chunk.RawText.data());
 
+    const std::span<const ProcessedTextGlyph> base =
+        std::span(Glyphs.begin() + chunk.FirstBaseCharacter, chunk.BaseLength);
     glm::vec2 pos =
-        glm::vec2(Glyphs[chunk.FirstBaseCharacter].DestRect.X,
+        glm::vec2(base.front().DestRect.X,
                   CurrentLineTop + CurrentLineTopMargin + RubyYOffset);
 
     // ruby base length > ruby text length: block align
@@ -267,9 +278,7 @@ void TextParser::FinishLine(const size_t nextLineStart) {
         (chunk.CenterPerCharacter && chunk.BaseLength > chunk.Length)) {
       // center every ruby character over the base character below it
       for (size_t j = 0; j < chunk.Length; j++) {
-        RectF const& baseGlyphRect =
-            Glyphs[chunk.FirstBaseCharacter + j].DestRect;
-        pos.x = baseGlyphRect.Center().x;
+        pos.x = base[j].DestRect.Center().x;
         TextLayoutPlainLine(rubyText, 1, std::span(chunk.Text.begin() + j, 1),
                             DialogueFont, RubyFontSize, ColorTable[0], 1.0f,
                             pos, TextAlignment::Center);
@@ -279,13 +288,9 @@ void TextParser::FinishLine(const size_t nextLineStart) {
                           DialogueFont, RubyFontSize, ColorTable[0], 1.0f, pos,
                           TextAlignment::Left);
       const float baseWidth =
-          (Glyphs[chunk.FirstBaseCharacter + chunk.BaseLength - 1].DestRect.X +
-           Glyphs[chunk.FirstBaseCharacter + chunk.BaseLength - 1]
-               .DestRect.Width) -
-          Glyphs[chunk.FirstBaseCharacter].DestRect.X;
+          base.back().DestRect.Right() - base.front().DestRect.X;
       const float nonSpacedWidth =
-          (chunk.Text[chunk.Length - 1].DestRect.X +
-           chunk.Text[chunk.Length - 1].DestRect.Width) -
+          chunk.Text[chunk.Length - 1].DestRect.Right() -
           chunk.Text[0].DestRect.X;
       const float excessWidth = baseWidth - nonSpacedWidth;
 
@@ -310,60 +315,50 @@ void TextParser::FinishLine(const size_t nextLineStart) {
       // TODO is this really the right behaviour for
       // CenterPerCharacter(0x1E) and ruby base length < ruby text length?
     }
-    FirstRubyChunkOnLine++;
   }
 
-  float lineHeight = FontSize;
   // Glyphs of different font sizes are bottom-aligned within the line
-  for (size_t i = LastLineStart; i < nextLineStart; i++) {
-    if (Glyphs[i].DestRect.Height > lineHeight)
-      lineHeight = Glyphs[i].DestRect.Height;
-  }
+  const float lineHeight =
+      std::accumulate(currentLine.begin(), currentLine.end(), FontSize,
+                      [](float lhs, const auto& rhs) {
+                        return std::max(lhs, rhs.DestRect.Height);
+                      });
 
   // completely trial and error guess
-  if (CurrentLineTopMargin) {
-    CurrentLineTopMargin *= (FontSize / DefaultFontSize);
-  }
+  const float normalizedFontSize = FontSize / DefaultFontSize;
+  CurrentLineTopMargin *= normalizedFontSize;
+
   float marginXOffset = 0;
-  if (LastLineStart < nextLineStart &&
-      Glyphs[LastLineStart].DestRect.X > BoxBounds.X) {
-    marginXOffset = (Glyphs[LastLineStart].DestRect.X - BoxBounds.X) *
-                    ((FontSize / DefaultFontSize) - 1.0f);
+  if (currentLine.front().DestRect.X > BoxBounds.X) {
+    marginXOffset = (currentLine.front().DestRect.Right() - BoxBounds.X) *
+                    (normalizedFontSize - 1.0f);
   }
-  for (size_t i = LastLineStart; i < nextLineStart; i++) {
-    Glyphs[i].DestRect.Y = CurrentLineTop + CurrentLineTopMargin +
-                           (lineHeight - Glyphs[i].DestRect.Height);
-    float lastGlyphX = Glyphs[nextLineStart - 1].DestRect.X +
-                       Glyphs[nextLineStart - 1].DestRect.Width;
+
+  const float lastGlyphX = currentLine.back().DestRect.Right();
+  for (ProcessedTextGlyph& glyph : currentLine) {
+    glyph.DestRect.Y = CurrentLineTop + CurrentLineTopMargin +
+                       (lineHeight - glyph.DestRect.Height);
     switch (Alignment) {
       case TextAlignment::Center:
-        Glyphs[i].DestRect.X +=
+        glyph.DestRect.X +=
             (BoxBounds.Width - (lastGlyphX - BoxBounds.X)) / 2.0f;
         break;
       case TextAlignment::Right:
-        Glyphs[i].DestRect.X += BoxBounds.Width - lastGlyphX - marginXOffset;
+        glyph.DestRect.X += BoxBounds.Width - lastGlyphX - marginXOffset;
         break;
       case TextAlignment::Left:
-        Glyphs[i].DestRect.X += marginXOffset;
+        glyph.DestRect.X += marginXOffset;
       default:
         break;
     }
   }
-  float lineSpacing = DialogueFont->LineSpacing;
-  if (PageMode == DPM_TIPS) lineSpacing = TipsLineSpacing;
-  CurrentLineTop =
-      CurrentLineTop + CurrentLineTopMargin + lineHeight + lineSpacing;
+
+  const float lineSpacing =
+      PageMode == DPM_TIPS ? TipsLineSpacing : DialogueFont->LineSpacing;
+  CurrentLineTop += CurrentLineTopMargin + lineHeight + lineSpacing;
   CurrentLineTopMargin = 0.0f;
+
   LastLineStart = nextLineStart;
-}
-
-void TextParser::EndRubyBase() {
-  if (BuildingRubyBase && !RubyChunks.empty()) {
-    RubyChunk& chunk = RubyChunks.back();
-    chunk.BaseLength = Glyphs.size() - chunk.FirstBaseCharacter;
-  }
-
-  BuildingRubyBase = false;
 }
 
 void DialogueTextParser::ParseString(Vm::Sc3VmThread* string) {

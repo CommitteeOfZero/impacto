@@ -107,6 +107,10 @@ struct RubyChunk {
   std::array<ProcessedTextGlyph, 32> Text;
   std::array<uint16_t, 32> RawText;
   bool CenterPerCharacter = false;
+
+  void FinishBase(size_t glyphCount) {
+    BaseLength = glyphCount - FirstBaseCharacter;
+  }
 };
 
 int TextGetStringLength(Vm::Sc3Stream& stream);
