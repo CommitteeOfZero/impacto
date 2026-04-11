@@ -96,8 +96,7 @@ inline float DefaultFontSize;
 inline float RubyFontSize;
 inline float RubyYOffset;
 
-inline int ColorCount;
-inline DialogueColorPair* ColorTable;
+inline std::vector<DialogueColorPair> ColorTable;
 
 inline int MaxPageSize;
 inline int PageCount;
