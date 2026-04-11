@@ -44,7 +44,7 @@ class TitleMenu : public Menu {
   Widgets::CCLCC::TitleButton* Extra;
   Widgets::CCLCC::TitleButton* Config;
   Widgets::CCLCC::TitleButton* Help;
-  Widgets::CCLCC::TitleButton* Exit;
+  std::optional<std::reference_wrapper<Widgets::CCLCC::TitleButton>> Exit;
   Widgets::Label* MenuLabel;
 
   Widgets::Group* ContinueItems;

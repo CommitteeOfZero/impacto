@@ -54,7 +54,7 @@ class TitleMenu : public Menu {
   Widgets::CHLCC::TitleButton* Load;
   Widgets::CHLCC::TitleButton* Extra;
   Widgets::CHLCC::TitleButton* System;
-  Widgets::CHLCC::TitleButton* Exit;
+  std::optional<std::reference_wrapper<Widgets::CHLCC::TitleButton>> Exit;
 
   Widgets::Group* LoadItems;
   Widgets::CHLCC::TitleButton* SubLoad;
