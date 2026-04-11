@@ -453,6 +453,7 @@ V(SF_CLR_AYASE)                 // CHLCC specific
 V(SF_CLR_SENA)                  // CHLCC specific
 V(SF_CLR_KOZUE)                 // CHLCC specific
 V(SF_CLR_SEIRA)                 // CHLCC specific
+V(SW_TITLE_PRI)                 // CHLCC (or old version) specific
 V(SF_Pokecon_Open)
 V(SF_Pokecon_Cancel)
 V(SF_Pokecon_End)
@@ -475,6 +476,7 @@ V(SF_MOVIEMENU)
 V(SF_RETURNTITLE)
 V(SF_MOVIEPLAY)
 V(SF_MOVIECANCEL)
+V(SF_RESTARTMASK)
 V(SF_ACHIEVEMENTMENU)
 V(SF_SYSTEMMENUCAPTURE)
 V(SF_EXTRA_ENA)

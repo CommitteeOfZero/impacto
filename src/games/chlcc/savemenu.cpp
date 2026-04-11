@@ -224,13 +224,22 @@ void SaveMenu::Show() {
 }
 void SaveMenu::Hide() {
   if (State != Hidden) {
-    if (State != Hiding) {
-      SaveEntryButton::FocusedAlphaFadeReset();
-      MenuTransition.StartOut();
-      FromSystemMenuTransition->StartOut();
+    const bool isLoading = GetFlag(SF_RESTARTMASK);
+    if (isLoading) {
+      State = Hidden;
+      MenuTransition.Finish(AnimationDirection::Out);
+      FromSystemMenuTransition->Finish(AnimationDirection::Out);
+      CurrentlyFocusedElement->Hovered = false;
+      CurrentlyFocusedElement->HasFocus = false;
+    } else {
+      if (State != Hiding) {
+        SaveEntryButton::FocusedAlphaFadeReset();
+        MenuTransition.StartOut();
+        FromSystemMenuTransition->StartOut();
+      }
+      State = Hiding;
     }
     SavePages->at(*CurrentPage)->HasFocus = false;
-    State = Hiding;
     if (LastFocusedMenu != 0) {
       UI::FocusedMenu = LastFocusedMenu;
       LastFocusedMenu->IsFocused = true;

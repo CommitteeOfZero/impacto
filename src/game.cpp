@@ -280,6 +280,7 @@ void UpdateSystem(float dt) {
       }
     }
 
+    UI::GameSpecific::NonGameplayUpdate(UpdateSecondCounter);
     SaveIconDisplay::Update(UpdateSecondCounter);
     LoadingDisplay::Update(UpdateSecondCounter);
     DateDisplay::Update(UpdateSecondCounter);

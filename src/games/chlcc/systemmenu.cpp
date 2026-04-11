@@ -93,9 +93,15 @@ void SystemMenu::Show() {
 
 void SystemMenu::Hide() {
   if (State != Hidden) {
-    State = Hiding;
-    MenuTransition.StartOut();
-    SubItemsHide();
+    const bool isLoading = GetFlag(SF_RESTARTMASK);
+    if (isLoading) {
+      State = Hidden;
+      MenuTransition.Finish(AnimationDirection::Out);
+    } else {
+      State = Hiding;
+      MenuTransition.StartOut();
+    }
+    SubItemsHide(isLoading);
     if (LastFocusedMenu != 0) {
       UI::FocusedMenu = LastFocusedMenu;
       LastFocusedMenu->IsFocused = true;
@@ -106,10 +112,15 @@ void SystemMenu::Hide() {
   }
 }
 
-void SystemMenu::SubItemsHide() {
+void SystemMenu::SubItemsHide(bool instantHide) {
   if (SubItemsState != Hidden) {
-    SubItemsState = Hiding;
-    SubItemsTransition.StartOut();
+    if (instantHide) {
+      SubItemsState = Hidden;
+      SubItemsTransition.Finish(AnimationDirection::Out);
+    } else {
+      SubItemsState = Hiding;
+      SubItemsTransition.StartOut(true);
+    }
   }
   if (CurrentlyFocusedElement) {
     auto* btn = static_cast<Widgets::Button*>(CurrentlyFocusedElement);
@@ -121,7 +132,7 @@ void SystemMenu::SubItemsHide() {
 void SystemMenu::SubItemShow() {
   if (SubItemsState != Shown) {
     SubItemsState = Showing;
-    SubItemsTransition.StartIn();
+    SubItemsTransition.StartIn(true);
     MainItems->Show();
     SelectAnimation.StartIn(true);
   }
@@ -136,30 +147,32 @@ void SystemMenu::SubItemShow() {
 void SystemMenu::Update(float dt) {
   UpdateInput(dt);
   const bool isSysMenuOpen = GetFlag(SF_SYSTEMMENU);
-  if ((!isSysMenuOpen || ScrWork[SW_SYSMENUCT] < 10000) && State == Shown) {
+  const int sysMenuCt = ScrWork[SW_SYSMENUCT];
+  if ((!isSysMenuOpen || sysMenuCt < 10000) && State == Shown) {
     Hide();
-  } else if (isSysMenuOpen && ScrWork[SW_SYSMENUCT] > 0 && State == Hidden) {
+  } else if (isSysMenuOpen && sysMenuCt > 0 && State == Hidden) {
     Show();
   }
 
-  if (isSysMenuOpen) {
+  // this branch is only for hiding sub items when menu is open
+  if (isSysMenuOpen && State == Shown) {
     if (UI::FocusedMenu != this && SubItemsState == Shown &&
         UI::SysMesBoxPtr->State == UI::MenuState::Hidden) {
-      SubItemsHide();
+      const bool isLoading = GetFlag(SF_RESTARTMASK);
+      SubItemsHide(isLoading);
     } else if (UI::FocusedMenu == this && SubItemsState == Hidden) {
       SubItemShow();
     }
   }
 
-  if (MenuTransition.IsOut() && ScrWork[SW_SYSMENUCT] == 0 && State == Hiding) {
+  if (MenuTransition.IsOut() && sysMenuCt == 0 && State == Hiding) {
     MainItems->Hide();
     State = Hidden;
     if (CurrentlyFocusedElement) {
       CurrentlyFocusedElement->HasFocus = false;
       CurrentlyFocusedElement = nullptr;
     }
-  } else if (MenuTransition.IsIn() && ScrWork[SW_SYSMENUCT] == 10000 &&
-             State == Showing) {
+  } else if (MenuTransition.IsIn() && sysMenuCt == 10000 && State == Showing) {
     State = Shown;
   }
 
