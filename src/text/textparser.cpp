@@ -142,14 +142,11 @@ void TextParser::ParseStringToken<STT_SetLeftMargin>(const StringToken& token) {
 
 template <>
 void TextParser::ParseStringToken<STT_UnlockTip>(const StringToken& token) {
-  if ((PageMode == DPM_ADV ||
-       (ScrWork[SW_MESWIN0TYPE] == 1 && PageMode == DPM_REV) ||
-       PageMode == DPM_NVL) &&
-      TipsSystem::GetTipLockedState(token.Val_Uint16)) {
-    TipsSystem::SetTipLockedState(token.Val_Uint16, false);
-    TipsNotification::AddTip(token.Val_Uint16);
-    TipsSystem::GetNewTipsIndices().push_back(token.Val_Uint16);
-  }
+  if (!TipsSystem::GetTipLockedState(token.Val_Uint16)) return;
+
+  TipsSystem::SetTipLockedState(token.Val_Uint16, false);
+  TipsNotification::AddTip(token.Val_Uint16);
+  TipsSystem::GetNewTipsIndices().push_back(token.Val_Uint16);
 }
 
 template <>
