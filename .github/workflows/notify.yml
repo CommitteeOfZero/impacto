@@ -1,0 +1,60 @@
+name: notify
+on:
+  workflow_run:
+    workflows: [impacto]
+    types:
+      - completed
+    tags:
+      - 'v*'
+jobs:
+  notify_fail:
+    name: Notify failure
+    runs-on: ubuntu-22.04
+    if: always() && (github.event.workflow_run.conclusion.conclusion == "cancelled" || github.event.workflow_run.conclusion.conclusion == "failure")
+    steps:
+    - uses: actions/checkout@v2
+    - name: 'Get Jobs Status'
+      id: get_jobs_status
+      run: |
+        echo "Fetch workflow run jobs"
+        json_data=$(curl -s -H "Authorization: Bearer ${{ github.token }}" \
+                ${{ github.event.workflow_run.jobs_url }}")
+
+        
+        name_conclusion_array=($(echo "$json_data" | jq -r '
+          .jobs[] | 
+            select(.name | IN("macos-arm64", "linux", "windows", "switch", "macos-x64", "android")) | 
+          "\(.name).\(.conclusion)"'))
+
+        for item in "${name_conclusion_array[@]}"; do
+            IFS='.' read -r name conclusion <<< "$item"
+            echo "$name=$conclusion" >> $GITHUB_OUTPUT
+        done
+
+    - name: Get current date
+      id: date
+      run: echo "NOW=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
+
+    - uses: tsickert/discord-webhook@v5.3.0
+      with:
+        webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        username: IMPACTO
+        avatar-url: https://cdn.discordapp.com/emojis/766988033127481344.png
+        embed-title : "${{ github.event.commits[0].author.name }}"
+        embed-color: 16711680
+        embed-timestamp: ${{ steps.date.outputs.NOW }}
+        embed-description: |
+          Commit
+          `${{ github.event.head_commit.message }} (${{ github.sha }})`
+          from branch `${{ env.BRANCH_NAME }}` has failed build.
+
+          Job status:
+          windows: ${{steps.get_jobs_status.outputs.windows}} 
+          linux: ${{steps.get_jobs_status.outputs.linux}} 
+          macos-arm64: ${{steps.get_jobs_status.outputs.macos-arm64}} 
+          macos-x64: ${{steps.get_jobs_status.outputs.macos-x64}} 
+          switch: ${{steps.get_jobs_status.outputs.switch}} 
+          android: ${{steps.get_jobs_status.outputs.android}} 
+
+          Details:
+          ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.run_id }}

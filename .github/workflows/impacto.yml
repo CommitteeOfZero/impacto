@@ -5,7 +5,7 @@ on:
     - "master"
     tags:
     - "*"
-  pull_request_target:
+  pull_request:
     branches:
     - "master"
   workflow_dispatch:
@@ -25,7 +25,13 @@ jobs:
     - uses: actions/checkout@v4
     - name: Set version
       id: set-version
-      run: echo "VERSION=$(cat VERSION)" >> $GITHUB_OUTPUT
+      run: 
+        - echo "VERSION=$(cat VERSION)" >> $GITHUB_OUTPUT
+    - name: Upload VERSION Artifact
+      uses: actions/upload-artifact@v4.1.0
+      with:
+        path: VERSION
+        name: VERSION
   lint:
     name: Run linters
     permissions:
@@ -80,11 +86,11 @@ jobs:
             triplet: x64-linux-ci
             host_triplet: x64-linux-ci
           - os: macos-15
-            os_name: macos-arm64
+            os_name: macos_arm64
             triplet: arm64-osx-ci
             host_triplet: arm64-osx-ci
           - os: macos-15-intel
-            os_name: macos-x64
+            os_name: macos_x64
             triplet: x64-osx-ci
             host_triplet: x64-osx-ci
           - os: ubuntu-24.04
@@ -186,7 +192,7 @@ jobs:
         cp THIRDPARTY.md README.md LICENSE "${{ github.workspace }}/release/${{ env.PresetName }}"
       shell: bash
     - name: Decode signing/prod.properties file
-      if: matrix.os_name == 'android' && (github.event_name != 'pull_request_target' || github.event.pull_request.head.repo.full_name == github.repository)
+      if: matrix.os_name == 'android' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
       env:
         PROD_PROPERTIES: ${{ secrets.ANDROID_PROD_PROPERTIES }}
         PROD_JKS: ${{ secrets.ANDROID_PROD_JKS }}
@@ -251,109 +257,3 @@ jobs:
         with:
           path: impacto-switch-${{ env.VERSION }}${{ github.run_number }}-${{ github.sha }}.zip
           name: release-switch
-
-  publish_artifacts:
-    name: Publish Artifacts
-    runs-on: ubuntu-22.04
-    permissions:
-      contents: write
-    needs:
-    - job-matrix
-    - switch
-    - get-version
-    env:
-      VERSION: ${{ needs.get-version.outputs.VERSION }}
-    if: needs.job-matrix.result == 'success' && needs.switch.result == 'success' && github.event_name != 'pull_request_target' && ((startsWith(github.ref, 'refs/tags') || github.ref_name == 'master'))
-    steps:
-    - uses: actions/download-artifact@v4
-      with:
-        pattern: release-*
-        path: "${{ github.workspace }}/release"
-        merge-multiple: true
-    - name: Upload Release
-      uses: softprops/action-gh-release@v2
-      if: startsWith(github.ref, 'refs/tags') || (github.ref_name == 'master')
-      with:
-        Name: Latest ${{ env.BRANCH_NAME }} build
-        tag_name: ${{ env.VERSION }}${{ github.run_number }}
-        files:
-          ${{ github.workspace }}/release/*.zip
-        prerelease: true
-        fail_on_unmatched_files: true
-        target_commitish: ${{ github.sha }}
-    - name: Get current date
-      id: date
-      run: echo "NOW=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_ENV
-
-    - uses: tsickert/discord-webhook@v5.3.0
-      with:
-        webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        username: IMPACTO
-        avatar-url: https://cdn.discordapp.com/emojis/766988033127481344.png
-        embed-title : "${{ github.event.commits[0].author.name }}"
-        embed-color: 3659647
-        embed-timestamp: ${{ env.NOW }}
-        embed-description: |
-          Commit
-          `${{ github.event.head_commit.message }} (${{ github.sha }})`
-          from branch `${{ env.BRANCH_NAME }}` has been successfully built.
-
-          Release URL:
-          https://github.com/CommitteeOfZero/impacto/releases/tag/${{ env.VERSION }}${{ github.run_number }}
-
-          Details:
-          ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-  notify_fail:
-    name: Notify failure
-    runs-on: ubuntu-22.04
-    needs:
-    - job-matrix
-    - switch
-    if: always() && (contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled'))
-    steps:
-    - uses: actions/checkout@v2
-    - name: 'Get Jobs Status'
-      id: get_jobs_status
-      run: |
-        echo "Fetch workflow run jobs"
-        json_data=$(curl -s -H "Authorization: Bearer ${{ github.token }}" \
-                "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs")
-
-        
-        name_conclusion_array=($(echo "$json_data" | jq -r '
-          .jobs[] | 
-            select(.name | IN("macos-arm64", "linux", "windows", "switch", "macos-x64", "android")) | 
-          "\(.name).\(.conclusion)"'))
-
-        for item in "${name_conclusion_array[@]}"; do
-            IFS='.' read -r name conclusion <<< "$item"
-            echo "$name=$conclusion" >> $GITHUB_OUTPUT
-        done
-
-    - name: Get current date
-      id: date
-      run: echo "NOW=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
-
-    - uses: tsickert/discord-webhook@v5.3.0
-      with:
-        webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        username: IMPACTO
-        avatar-url: https://cdn.discordapp.com/emojis/766988033127481344.png
-        embed-title : "${{ github.event.commits[0].author.name }}"
-        embed-color: 16711680
-        embed-timestamp: ${{ steps.date.outputs.NOW }}
-        embed-description: |
-          Commit
-          `${{ github.event.head_commit.message }} (${{ github.sha }})`
-          from branch `${{ env.BRANCH_NAME }}` has failed build.
-
-          Job status:
-          windows: ${{steps.get_jobs_status.outputs.windows}} 
-          linux: ${{steps.get_jobs_status.outputs.linux}} 
-          macos-arm64: ${{steps.get_jobs_status.outputs.macos-arm64}} 
-          macos-x64: ${{steps.get_jobs_status.outputs.macos-x64}} 
-          switch: ${{steps.get_jobs_status.outputs.switch}} 
-          android: ${{steps.get_jobs_status.outputs.android}} 
-
-          Details:
-          ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
