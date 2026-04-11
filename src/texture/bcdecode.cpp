@@ -50,13 +50,13 @@ typedef struct {
 
 #define LOAD32(p) (p)[0] | ((p)[1] << 8) | ((p)[2] << 16) | ((p)[3] << 24)
 
-static void bc1_color_load(bc1_color *dst, const uint8_t *src) {
+static void bc1_color_load(bc1_color* dst, const uint8_t* src) {
   dst->c0 = LOAD16(src);
   dst->c1 = LOAD16(src + 2);
   dst->lut = LOAD32(src + 4);
 }
 
-static void bc3_alpha_load(bc3_alpha *dst, const uint8_t *src) {
+static void bc3_alpha_load(bc3_alpha* dst, const uint8_t* src) {
   memcpy(dst, src, sizeof(bc3_alpha));
 }
 
@@ -76,7 +76,7 @@ static rgba decode_565(uint16_t x) {
   return c;
 }
 
-static void decode_bc1_color(rgba *dst, const uint8_t *src) {
+static void decode_bc1_color(rgba* dst, const uint8_t* src) {
   bc1_color col;
   rgba p[4];
   int n, cw;
@@ -116,7 +116,7 @@ static void decode_bc1_color(rgba *dst, const uint8_t *src) {
   }
 }
 
-static void decode_bc3_alpha(char *dst, const uint8_t *src, int stride, int o) {
+static void decode_bc3_alpha(char* dst, const uint8_t* src, int stride, int o) {
   bc3_alpha b;
   uint16_t a0, a1;
   uint8_t a[8];
@@ -154,11 +154,11 @@ static void decode_bc3_alpha(char *dst, const uint8_t *src, int stride, int o) {
   }
 }
 
-static void decode_bc1_block(rgba *col, const uint8_t *src) {
+static void decode_bc1_block(rgba* col, const uint8_t* src) {
   decode_bc1_color(col, src);
 }
 
-static void decode_bc2_block(rgba *col, const uint8_t *src) {
+static void decode_bc2_block(rgba* col, const uint8_t* src) {
   int n, bitI, byI;
   uint8_t av;
   decode_bc1_color(col, src + 8);
@@ -171,30 +171,30 @@ static void decode_bc2_block(rgba *col, const uint8_t *src) {
   }
 }
 
-static void decode_bc3_block(rgba *col, const uint8_t *src) {
+static void decode_bc3_block(rgba* col, const uint8_t* src) {
   decode_bc1_color(col, src + 8);
-  decode_bc3_alpha((char *)col, src, sizeof(col[0]), 3);
+  decode_bc3_alpha((char*)col, src, sizeof(col[0]), 3);
 }
 
-static void decode_bc4_block(lum *col, const uint8_t *src) {
-  decode_bc3_alpha((char *)col, src, sizeof(col[0]), 0);
+static void decode_bc4_block(lum* col, const uint8_t* src) {
+  decode_bc3_alpha((char*)col, src, sizeof(col[0]), 0);
 }
 
-static void decode_bc5_block(rgba *col, const uint8_t *src) {
-  decode_bc3_alpha((char *)col, src, sizeof(col[0]), 0);
-  decode_bc3_alpha((char *)col, src + 8, sizeof(col[0]), 1);
+static void decode_bc5_block(rgba* col, const uint8_t* src) {
+  decode_bc3_alpha((char*)col, src, sizeof(col[0]), 0);
+  decode_bc3_alpha((char*)col, src + 8, sizeof(col[0]), 1);
 }
 
 /* BC6 and BC7 are described here:
  https://www.opengl.org/registry/specs/ARB/texture_compression_bptc.txt */
 
-static uint8_t get_bit(const uint8_t *src, int bit) {
+static uint8_t get_bit(const uint8_t* src, int bit) {
   int by = bit >> 3;
   bit &= 7;
   return (src[by] >> bit) & 1;
 }
 
-static uint8_t get_bits(const uint8_t *src, int bit, int count) {
+static uint8_t get_bits(const uint8_t* src, int bit, int count) {
   uint8_t v;
   int x;
   int by = bit >> 3;
@@ -285,7 +285,7 @@ static const char bc7_weights3[] = {0, 9, 18, 27, 37, 46, 55, 64};
 static const char bc7_weights4[] = {0,  4,  9,  13, 17, 21, 26, 30,
                                     34, 38, 43, 47, 51, 55, 60, 64};
 
-static const char *bc7_get_weights(int n) {
+static const char* bc7_get_weights(int n) {
   if (n == 2) {
     return bc7_weights2;
   }
@@ -310,7 +310,7 @@ static uint8_t expand_quantized(uint8_t v, int bits) {
   return v | (v >> bits);
 }
 
-static void bc7_lerp(rgba *dst, const rgba *e, int s0, int s1) {
+static void bc7_lerp(rgba* dst, const rgba* e, int s0, int s1) {
   int t0 = 64 - s0;
   int t1 = 64 - s1;
   dst->r = (uint8_t)((t0 * e[0].r + s0 * e[1].r + 32) >> 6);
@@ -319,7 +319,7 @@ static void bc7_lerp(rgba *dst, const rgba *e, int s0, int s1) {
   dst->a = (uint8_t)((t1 * e[0].a + s1 * e[1].a + 32) >> 6);
 }
 
-static void decode_bc7_block(rgba *col, const uint8_t *src) {
+static void decode_bc7_block(rgba* col, const uint8_t* src) {
   rgba endpoints[6];
   int bit = 0, cibit, aibit;
   int mode = src[0];
@@ -327,7 +327,7 @@ static void decode_bc7_block(rgba *col, const uint8_t *src) {
   int numep, cb, ab, ib, ib2, i0, i1, s;
   uint8_t index_sel, partition, rotation, val;
   const char *cw, *aw;
-  const bc7_mode_info *info;
+  const bc7_mode_info* info;
 
   /* mode is the number of unset bits before the first set bit: */
   if (!mode) {
@@ -582,7 +582,7 @@ static const uint8_t bc6_bit_packings[][75] = {
      48, 49, 50, 51, 15, 14, 13, 12, 11, 10, 64, 65, 66, 67, 31,
      30, 29, 28, 27, 26, 80, 81, 82, 83, 47, 46, 45, 44, 43, 42}};
 
-static void bc6_sign_extend(uint16_t *v, int prec) {
+static void bc6_sign_extend(uint16_t* v, int prec) {
   int x = *v;
   if (x & (1 << (prec - 1))) {
     x |= -1 << prec;
@@ -654,7 +654,7 @@ static float bc6_finalize(int v, int sign) {
   }
 }
 
-static void bc6_lerp(rgb32f *col, int *e0, int *e1, int s, int sign) {
+static void bc6_lerp(rgb32f* col, int* e0, int* e1, int s, int sign) {
   int r, g, b;
   int t = 64 - s;
   r = (e0[0] * t + e1[0] * s) >> 6;
@@ -665,13 +665,13 @@ static void bc6_lerp(rgb32f *col, int *e0, int *e1, int s, int sign) {
   col->b = bc6_finalize(b, sign);
 }
 
-static void decode_bc6_block(rgb32f *col, const uint8_t *src, int sign) {
+static void decode_bc6_block(rgb32f* col, const uint8_t* src, int sign) {
   uint16_t endpoints[12]; /* storage for r0, g0, b0, r1, ... */
   int ueps[12];
   int i, i0, ib2, di, dw, mask, numep, s;
   uint8_t partition;
-  const bc6_mode_info *info;
-  const char *cw;
+  const bc6_mode_info* info;
+  const char* cw;
   int bit = 5;
   int epbits = 75;
   int ib = 3;
@@ -757,7 +757,7 @@ typedef struct {
   // For N=1, 2, 3, 5, 7: 4 bytes-per-pixel
   // For N=4, 1 byte-per-pixel
   // For N=6, 16 bytes-per-pixel (32-bit float)
-  uint8_t *dst;
+  uint8_t* dst;
   // Destination region offset
   int xoff, yoff;
   // Destination region size
@@ -774,7 +774,7 @@ typedef struct {
   uint8_t swizzle;
 } BcnDecoderState;
 
-static void swizzle_copy(int swizzle, uint8_t *dst, const uint8_t *src,
+static void swizzle_copy(int swizzle, uint8_t* dst, const uint8_t* src,
                          int sz) {
   if (sz < 4 || swizzle == 0 || swizzle == 0xe4) {
     memcpy(dst, src, sz);
@@ -789,15 +789,15 @@ static void swizzle_copy(int swizzle, uint8_t *dst, const uint8_t *src,
   memcpy(dst + sz * ((swizzle & 0xc0) >> 6), src + 3 * sz, sz);
 }
 
-static void put_block(BcnDecoderState *state, const uint8_t *col, int sz,
+static void put_block(BcnDecoderState* state, const uint8_t* col, int sz,
                       int C) {
   int width = state->width;
   int height = state->height;
   int xmax = width + state->xoff;
   int ymax = height + state->yoff;
   int j, i, y, x;
-  uint8_t *dst;
-  const uint8_t *src;
+  uint8_t* dst;
+  const uint8_t* src;
   for (j = 0; j < 4; j++) {
     y = state->y + j;
     if (C) {
@@ -836,22 +836,22 @@ static void put_block(BcnDecoderState *state, const uint8_t *col, int sz,
   }
 }
 
-static int decode_bcn(BcnDecoderState *state, const uint8_t *src, int bytes,
+static int decode_bcn(BcnDecoderState* state, const uint8_t* src, int bytes,
                       int N, int C) {
   int ymax = state->height + state->yoff;
-  const uint8_t *ptr = src;
+  const uint8_t* ptr = src;
   switch (N) {
-#define DECODE_LOOP(NN, SZ, TY, ...)                             \
-  case NN:                                                       \
-    while (bytes >= SZ) {                                        \
-      TY col[16];                                                \
-      memset(col, 0, 16 * sizeof(col[0]));                       \
-      decode_bc##NN##_block(col, ptr);                           \
-      put_block(state, (const uint8_t *)col, sizeof(col[0]), C); \
-      ptr += SZ;                                                 \
-      bytes -= SZ;                                               \
-      if (state->y >= ymax) break;                               \
-    }                                                            \
+#define DECODE_LOOP(NN, SZ, TY, ...)                            \
+  case NN:                                                      \
+    while (bytes >= SZ) {                                       \
+      TY col[16];                                               \
+      memset(col, 0, 16 * sizeof(col[0]));                      \
+      decode_bc##NN##_block(col, ptr);                          \
+      put_block(state, (const uint8_t*)col, sizeof(col[0]), C); \
+      ptr += SZ;                                                \
+      bytes -= SZ;                                              \
+      if (state->y >= ymax) break;                              \
+    }                                                           \
     break
     DECODE_LOOP(1, 8, rgba);
     DECODE_LOOP(2, 16, rgba);
@@ -862,7 +862,7 @@ static int decode_bcn(BcnDecoderState *state, const uint8_t *src, int bytes,
       while (bytes >= 16) {
         rgb32f col[16];
         decode_bc6_block(col, ptr, state->sign);
-        put_block(state, (const uint8_t *)col, sizeof(col[0]), C);
+        put_block(state, (const uint8_t*)col, sizeof(col[0]), C);
         ptr += 16;
         bytes -= 16;
         if (state->y >= ymax) break;
@@ -874,7 +874,7 @@ static int decode_bcn(BcnDecoderState *state, const uint8_t *src, int bytes,
   return (int)(ptr - src);
 }
 
-int BcnDecode(uint8_t *dst, int dst_size, const uint8_t *src, int src_size,
+int BcnDecode(uint8_t* dst, int dst_size, const uint8_t* src, int src_size,
               int width, int height, int N, int dst_format, int flip) {
   BcnDecoderState state = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
   if (width == 0 || height == 0) {
@@ -915,7 +915,7 @@ int BcnDecode(uint8_t *dst, int dst_size, const uint8_t *src, int src_size,
 
 #ifdef BCN_DECODER_TEST
 
-static void wcb(void *ctx, void *data, int size) {
+static void wcb(void* ctx, void* data, int size) {
   fwrite(data, 1, size, stdout);
 }
 /*

@@ -8,7 +8,7 @@ namespace Widgets {
 namespace CHLCC {
 using namespace Impacto::Profile::CHLCC::MusicMenu;
 
-TrackSelectButton::TrackSelectButton(int id, Sprite const &focused,
+TrackSelectButton::TrackSelectButton(int id, Sprite const& focused,
                                      glm::vec2 pos, glm::vec2 numOffset,
                                      glm::vec2 trackOffset,
                                      glm::vec2 artistOffset)

@@ -26,8 +26,8 @@ using namespace Impacto::Vm::Interface;
 using namespace Impacto::UI::Widgets;
 using namespace Impacto::UI::Widgets::MO6TW;
 
-void TipsMenu::TipOnClick(Button *target) {
-  auto tipEntry = static_cast<TipsEntryButton *>(target);
+void TipsMenu::TipOnClick(Button* target) {
+  auto tipEntry = static_cast<TipsEntryButton*>(target);
   if (!tipEntry->TipEntryRecord->IsLocked) SwitchToTipId(target->Id);
 }
 
@@ -142,13 +142,13 @@ void TipsMenu::Render() {
 }
 
 void TipsMenu::Init() {
-  auto onClick = [this](auto *btn) { return TipOnClick(btn); };
+  auto onClick = [this](auto* btn) { return TipOnClick(btn); };
   int currentPage = 0, currentCategoryId = -1;
 
   // String of characters by which tips are sorted, taken from _system script
   auto [scriptBufId, sortStrAddr] =
       Vm::ScriptGetTextTableStrAddress(SortStringTable, SortStringIndex);
-  uint8_t *sortString = &Vm::ScriptBuffers[scriptBufId][sortStrAddr];
+  uint8_t* sortString = &Vm::ScriptBuffers[scriptBufId][sortStrAddr];
   auto recordCount = TipsSystem::GetTipCount();
 
   float currentY = TipListInitialY;
@@ -156,7 +156,7 @@ void TipsMenu::Init() {
   ItemsList.Clear();
   TipViewItems.Clear();
 
-  Group *pageItems = new Group(this);
+  Group* pageItems = new Group(this);
   for (size_t i = 0; i < recordCount; i++) {
     auto record = TipsSystem::GetTipRecord(i);
 
@@ -181,11 +181,11 @@ void TipsMenu::Init() {
       CategoryString[1] = UnalignedRead<uint16_t>(
           &sortString[currentCategoryId * sizeof(uint16_t)]);
 
-      Label *categoryLabel = new Label();
+      Label* categoryLabel = new Label();
       categoryLabel->Bounds.X = TipListEntryBounds.X;
       categoryLabel->Bounds.Y = currentY;
       Vm::Sc3Stream categoryStrStream(
-          reinterpret_cast<uint8_t *>(CategoryString));
+          reinterpret_cast<uint8_t*>(CategoryString));
       categoryLabel->SetText(categoryStrStream, TipListEntryFontSize,
                              RendererOutlineMode::Full, 0);
       pageItems->Add(categoryLabel);
@@ -194,7 +194,7 @@ void TipsMenu::Init() {
 
     // Actual tip entry button
     TipListEntryBounds.Y = currentY;
-    TipsEntryButton *button =
+    TipsEntryButton* button =
         new TipsEntryButton(record->Id, record, TipListEntryBounds,
                             Profile::BacklogMenu::EntryHighlight);
     button->OnClickHandler = onClick;
