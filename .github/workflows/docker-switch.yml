@@ -4,6 +4,7 @@ on:
     paths:
       - docker/impacto-switch/*
       - .github/workflows/docker-switch.yml
+  workflow_dispatch:
 
 jobs:
   build_and_publish:
@@ -12,7 +13,7 @@ jobs:
       packages: write
     runs-on: ubuntu-latest
     steps: 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Log in to the Container registry
         uses: docker/login-action@v2
         with:
