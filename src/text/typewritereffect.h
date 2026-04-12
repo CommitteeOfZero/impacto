@@ -41,11 +41,6 @@ struct TypewriterEffect : public Animation {
   };
   ParallelBlock GetParallelBlock(size_t glyph);
 
-  float GetTypewriterDurationSeconds() const;
-  float GetSingleGlyphFadeDurationSeconds(float totalDurationSeconds) const;
-  // {startProgress, endProgress} in [0, 1]
-  std::pair<float, float> GetWritingProgresses(
-      size_t glyphNo, size_t glyphCount, float totalDurationSeconds) const;
   // {startProgress, endProgress}
   std::pair<float, float> GetGlyphWritingProgresses(size_t glyph);
 };
