@@ -1,4 +1,4 @@
-# impacto [![impacto](https://github.com/CommitteeOfZero/impacto/actions/workflows/pipeline.yml/badge.svg)](https://github.com/CommitteeOfZero/impacto/actions/workflows/pipeline.yml)
+# impacto [![impacto](https://github.com/CommitteeOfZero/impacto/actions/workflows/impacto.yml/badge.svg)](https://github.com/CommitteeOfZero/impacto/actions/workflows/impacto.yml)
 
 **impacto** is an open-source **reimplementation** of the **"MAGES." visual novel engine** in C++ and OpenGL. Using the original data files, impacto can run any supported game on any supported platform.
 
