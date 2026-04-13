@@ -190,6 +190,11 @@ VmInstruction(InstMes) {
     Audio::Channels[Audio::AC_VOICE0]->Stop(0.0f);
   }
 
+  if (GetFlag(SF_MESCLEAR0 + dialoguePage.Id)) {
+    dialoguePage.Clear();
+    SetFlag(SF_MESCLEAR0 + dialoguePage.Id, false);
+  }
+
   uint32_t oldIp = thread->IpOffset;
   thread->IpOffset = line;
   dialoguePage.AddString(thread, audioId, acted, animationId, characterId,
@@ -239,7 +244,8 @@ VmInstruction(InstMesMain) {
 
   if (pageState == Hidden) {
     currentPage.PushBacklogEntry();
-    currentPage.Clear();
+
+    SetFlag(SF_MESCLEAR0 + currentPage.Id, true);
 
     SaveSystem::SetLineRead(ScrWork[currentPage.Id * 2 + SW_SCRIPTID],
                             ScrWork[currentPage.Id * 2 + SW_LINEID]);
@@ -286,12 +292,16 @@ VmInstruction(InstMesMain) {
     SetFlag(currentPage.Id + SF_SHOWWAITICON, false);
     SetFlag(SF_SYSMENUDISABLE, true);
 
+    const bool nvlDontClear = currentPage.AdvanceMethod != PresentClear &&
+                              type != 1 && currentPage.GetMode() == DPM_NVL;
     const bool advanceWithoutHiding =
         currentPage.AdvanceMethod == Present0x18 ||
-        currentPage.AdvanceMethod == AutoForward ||
-        (currentPage.AdvanceMethod != PresentClear && type != 1 &&
-         currentPage.GetMode() == DPM_NVL);
+        currentPage.AdvanceMethod == AutoForward || nvlDontClear;
     if (advanceWithoutHiding) {
+      if (!nvlDontClear) {
+        SetFlag(SF_MESCLEAR0 + currentPage.Id, true);
+      }
+
       SaveSystem::SetLineRead(ScrWork[currentPage.Id * 2 + SW_SCRIPTID],
                               ScrWork[currentPage.Id * 2 + SW_LINEID]);
 
@@ -389,6 +399,7 @@ VmInstruction(InstMessWindow) {
       DialoguePage& currentPage = getCurrentPage();
 
       if (!currentPage.FadeAnimation.IsIn()) {
+        currentPage.Clear();
         currentPage.Show();
 
         SetFlag(SF_SYSTEMMENUDISABLE2, true);
@@ -447,6 +458,7 @@ VmInstruction(InstMessWindow) {
           currentPage.RenderName = false;
         }
 
+        currentPage.Clear();
         currentPage.Show();
 
         SetFlag(dialoguePageId + SF_MESWINDOW0OPENFL, true);

@@ -36,7 +36,7 @@ void TextParser::Reset() {
 
   Alignment = TextAlignment::Left;
   CurrentX = 0.0f;
-  CurrentLineTop = 0.0f;
+  CurrentLineTop = BoxBounds.Y;
   CurrentLineTopMargin = 0.0f;
 
   CurrentColors = ColorTable[0];
@@ -428,31 +428,10 @@ void DialogueTextParser::ParseString(Vm::Sc3VmThread* string) {
   if (!NameCode.empty()) {
     NameId = static_cast<uint16_t>(GetNameId(NameCode).value_or(0xFFFF));
 
-    float fontSize = ADVNameFontSize;
-    glm::vec2 pos = ADVNamePos;
-    TextAlignment alignment = ADVNameAlignment;
-    int colorIndex = 0;
-    if (PageMode == DPM_REV) {
-      fontSize = REVNameFontSize;
-      colorIndex = REVNameColor;
-
-      switch (REVNameLocation) {
-        case REVNameLocationType::None:
-        case REVNameLocationType::TopLeft:
-          pos = REVBounds.GetPos();
-          alignment = TextAlignment::Left;
-          break;
-        case REVNameLocationType::LeftTop:
-          pos = {REVBounds.X - REVNameOffset, Glyphs[0].DestRect.Y};
-          alignment = TextAlignment::Right;
-          break;
-      }
-    }
-
     Vm::Sc3Stream nameStream(NameCode.data());
     Name = TextLayoutPlainLine(nameStream, static_cast<int>(NameCode.size()),
-                               DialogueFont, fontSize, ColorTable[colorIndex],
-                               1.0f, pos, alignment);
+                               DialogueFont, ADVNameFontSize, ColorTable[0],
+                               1.0f, ADVNamePos, ADVNameAlignment);
     assert(NameCode.size() == Name.size());
   } else {
     NameId = 0xFFFF;
