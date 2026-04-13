@@ -35,9 +35,6 @@ class TextPage {
  protected:
   TextPage() = default;
 
-  bool BuildingRubyBase = false;
-  size_t FirstRubyChunkOnLine = 0;
-
   size_t LastLineStart = 0;
 };
 

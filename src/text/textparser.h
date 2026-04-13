@@ -42,8 +42,6 @@ class TextParser {
   enum class TextParsingState { Normal, Name, RubyBase, RubyAnnotation };
   TextParsingState ParsingState = TextParsingState::Normal;
 
-  size_t FirstRubyChunkOnLine = 0;
-
   RectF BoxBounds;
 
   size_t LastLineStart = 0;
