@@ -90,11 +90,6 @@ void DialoguePage::Clear() {
 
 void DialoguePage::AddString(Vm::Sc3VmThread* ctx, std::optional<int> voiceId,
                              bool acted, int animId, int charId) {
-  const DialoguePageMode mode = GetMode();
-  if (mode == DPM_ADV || mode == DPM_REV ||
-      AdvanceMethod == AdvanceMethodType::PresentClear) {
-    Clear();
-  }
   TextFadeAnimation.Reset(AnimationDirection::Out);
 
   CurrentStringAddress = {ctx->ScriptBufferId, ctx->IpOffset};
@@ -248,10 +243,7 @@ void DialoguePage::Render(const float alpha,
 
 void DialoguePage::Hide() { FadeAnimation.StartOut(); }
 
-void DialoguePage::Show() {
-  FadeAnimation.StartIn(true);
-  TextFadeAnimation.Progress = 1.0f;
-}
+void DialoguePage::Show() { FadeAnimation.StartIn(true); }
 
 void DialoguePage::PushBacklogEntry() {
   if (!CurrentStringAddress.has_value() || GetFlag(SF_REVADDDISABLE) ||
