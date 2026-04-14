@@ -98,12 +98,10 @@ TypewriterEffect::ParallelBlock TypewriterEffect::GetParallelBlock(
   }
 }
 
-static std::pair<float, float> GetWritingProgresses(const size_t glyphNo,
-                                                    const size_t glyphCount,
-                                                    const float totalProgress) {
+static std::pair<float, float> GetWritingProgresses(
+    const size_t glyphNo, const size_t glyphCount, const float totalProgress,
+    const float glyphFadeProgress) {
   if (glyphCount == 0 || totalProgress <= 0.0f) return {0.0f, 1.0f};
-
-  const float glyphFadeProgress = std::min(TextFadeInDuration, totalProgress);
 
   float startTime = 0.0f;
   if (glyphCount > 1 && totalProgress > glyphFadeProgress) {
@@ -117,11 +115,43 @@ static std::pair<float, float> GetWritingProgresses(const size_t glyphNo,
   return {startTime / totalProgress, endTime / totalProgress};
 }
 
+float TypewriterEffect::GetProgressDurationSeconds() const {
+  if (Voiced && Profile::ConfigSystem::SyncVoice) {
+    const float voiceDuration =
+        Audio::Channels[Audio::AC_VOICE0]->DurationInSeconds();
+    if (voiceDuration > 0.0f) return voiceDuration;
+  }
+
+  if (Profile::ConfigSystem::TextSpeed >=
+      Profile::ConfigSystem::TextSpeedBounds.y) {
+    return TextFadeInDuration;
+  }
+
+  if (Profile::ConfigSystem::TextSpeed > 0.0f) {
+    return static_cast<float>(GlyphCount) / Profile::ConfigSystem::TextSpeed;
+  }
+
+  return DurationIn;
+}
+
+float TypewriterEffect::GetGlyphFadeProgress(const float totalProgress) const {
+  if (totalProgress <= 0.0f) return 0.0f;
+
+  const float progressDuration = GetProgressDurationSeconds();
+  if (progressDuration <= 0.0f) return totalProgress;
+
+  const float normalizedGlyphFadeProgress =
+      std::clamp(TextFadeInDuration / progressDuration, 0.0f, 1.0f);
+
+  return std::min(totalProgress * normalizedGlyphFadeProgress, totalProgress);
+}
+
 std::pair<float, float> TypewriterEffect::GetGlyphWritingProgresses(
     const size_t glyph) {
   const ParallelBlock block = GetParallelBlock(glyph);
 
-  return GetWritingProgresses(glyph - block.Start, block.Size, 1.0f);
+  return GetWritingProgresses(glyph - block.Start, block.Size, 1.0f,
+                              GetGlyphFadeProgress(1.0f));
 }
 
 float TypewriterEffect::CalcOpacity(size_t glyph) {
@@ -177,7 +207,8 @@ float TypewriterEffect::CalcRubyOpacity(const size_t rubyGlyphId,
 
   const float baseProgressLength = baseEndProgress - baseStartProgress;
   const auto [glyphStartProgressInBase, glyphEndProgressInBase] =
-      GetWritingProgresses(rubyGlyphId, chunk.Length, baseProgressLength);
+      GetWritingProgresses(rubyGlyphId, chunk.Length, baseProgressLength,
+                           GetGlyphFadeProgress(baseProgressLength));
 
   // Convert back to progress-space
   const float startProgress =
