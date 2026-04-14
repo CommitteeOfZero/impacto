@@ -98,9 +98,9 @@ TypewriterEffect::ParallelBlock TypewriterEffect::GetParallelBlock(
   }
 }
 
-std::pair<float, float> GetWritingProgresses(const size_t glyphNo,
-                                             const size_t glyphCount,
-                                             const float totalProgress) {
+static std::pair<float, float> GetWritingProgresses(const size_t glyphNo,
+                                                    const size_t glyphCount,
+                                                    const float totalProgress) {
   if (glyphCount == 0 || totalProgress <= 0.0f) return {0.0f, 1.0f};
 
   const float glyphFadeProgress = std::min(TextFadeInDuration, totalProgress);
@@ -130,27 +130,21 @@ float TypewriterEffect::CalcOpacity(size_t glyph) {
 
   const auto [startProgress, endProgress] = GetGlyphWritingProgresses(glyph);
 
-  if (IsCancelled) {
-    // On cancellation, all non-opaque glyphs start appearing simultaneously
-
-    // Opaque glyphs remain opaque
-    if (ProgressOnCancel >= endProgress) return 1.0f;
-
-    // Transparent glyphs fade in according to the progress made
-    // since cancelling
-    const float cancelProgress =
-        (Progress - ProgressOnCancel) / (1.0f - ProgressOnCancel);
-    if (ProgressOnCancel <= startProgress) return cancelProgress;
-
-    // Translucent glyphs fade in further, in addition to the opacity they
-    // already had
-    const float glyphProgressBeforeCancellation =
-        CalcLinearProgress(ProgressOnCancel, startProgress, endProgress);
-    return glyphProgressBeforeCancellation +
-           cancelProgress * (1.0f - glyphProgressBeforeCancellation);
+  if (!IsCancelled) {
+    return CalcLinearProgress(Progress, startProgress, endProgress);
   }
 
-  return CalcLinearProgress(Progress, startProgress, endProgress);
+  if (ProgressOnCancel >= endProgress) return 1.0f;
+
+  const float cancelProgress =
+      (Progress - ProgressOnCancel) / (1.0f - ProgressOnCancel);
+
+  if (ProgressOnCancel <= startProgress) return cancelProgress;
+
+  const float glyphProgressBeforeCancellation =
+      CalcLinearProgress(ProgressOnCancel, startProgress, endProgress);
+  return glyphProgressBeforeCancellation +
+         cancelProgress * (1.0f - glyphProgressBeforeCancellation);
 }
 
 float TypewriterEffect::CalcRubyOpacity(const size_t rubyGlyphId,
