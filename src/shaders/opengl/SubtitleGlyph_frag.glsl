@@ -7,6 +7,6 @@ uniform sampler2D CoverageMap;
 
 void main() {
     float mask = texture(CoverageMap, uv).r;
-    color = tint * mask;
-    color.rgb = clamp(color.rgb, 0.0, 1.0);
+    float alpha = tint.a * mask;
+    color = vec4(tint.rgb * alpha, alpha);
 }
