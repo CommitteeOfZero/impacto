@@ -10,5 +10,5 @@ typedef enum {
   BcnDecoderFormatABGR = 4
 } BcnDecoderFormat;
 
-int BcnDecode(uint8_t *dst, int dst_size, const uint8_t *src, int src_size,
+int BcnDecode(uint8_t* dst, int dst_size, const uint8_t* src, int src_size,
               int width, int height, int N, int dst_format, int flip);

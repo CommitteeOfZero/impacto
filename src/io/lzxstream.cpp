@@ -8,10 +8,10 @@ namespace Io {
 
 LzxStream::~LzxStream() { free(CompressedBuffer); }
 
-IoError LzxStream::Create(Stream *baseStream, int64_t offset, int64_t size,
-                          Stream **out) {
+IoError LzxStream::Create(Stream* baseStream, int64_t offset, int64_t size,
+                          Stream** out) {
   if (offset + size > baseStream->Meta.Size) return IoError_Fail;
-  Stream *dup;
+  Stream* dup;
   int64_t err = baseStream->Duplicate(&dup);
   if (err != IoError_OK) return (IoError)err;
   err = dup->Seek(offset, RW_SEEK_SET);
@@ -50,7 +50,7 @@ IoError LzxStream::Create(Stream *baseStream, int64_t offset, int64_t size,
     return IoError_Fail;
   }
 
-  LzxStream *result = new LzxStream(uncompressedBlockSize);
+  LzxStream* result = new LzxStream(uncompressedBlockSize);
   result->BaseStream = dup;
   result->CompressedOffset = compressedOffset;
   result->CompressedPosition = 0;
@@ -61,13 +61,13 @@ IoError LzxStream::Create(Stream *baseStream, int64_t offset, int64_t size,
 
   result->WindowSize = windowSize;
   result->CompressionPartitionSize = compressionPartitionSize;
-  result->CompressedBuffer = (uint8_t *)malloc(compressedBlockSize);
+  result->CompressedBuffer = (uint8_t*)malloc(compressedBlockSize);
   result->CompressedBufferSize = compressedBlockSize;
-  *out = (Stream *)result;
+  *out = (Stream*)result;
   return IoError_OK;
 }
 
-int64_t LzxStream::Read(void *buffer, int64_t sz) {
+int64_t LzxStream::Read(void* buffer, int64_t sz) {
   return ReadBuffered(buffer, sz);
 }
 
@@ -105,14 +105,14 @@ int64_t LzxStream::Seek(int64_t offset, int origin) {
   return Position;
 }
 
-IoError LzxStream::Duplicate(Stream **outStream) {
-  Stream *dup;
+IoError LzxStream::Duplicate(Stream** outStream) {
+  Stream* dup;
   int64_t err = BaseStream->Duplicate(&dup);
   if (err != IoError_OK) return (IoError)err;
-  LzxStream *result = new LzxStream(*this);
-  result->CompressedBuffer = (uint8_t *)malloc(CompressedBufferSize);
+  LzxStream* result = new LzxStream(*this);
+  result->CompressedBuffer = (uint8_t*)malloc(CompressedBufferSize);
   result->BaseStream = dup;
-  *outStream = (Stream *)result;
+  *outStream = (Stream*)result;
   return IoError_OK;
 }
 
@@ -149,7 +149,7 @@ IoError LzxStream::FillBuffer() {
 }
 
 struct LZXFile {
-  uint8_t *buf;
+  uint8_t* buf;
   int bufSize;
   int pos;
   int rest;
@@ -158,7 +158,7 @@ struct LZXFile {
 // Based on
 // https://github.com/gildor2/UEViewer/blob/master/Unreal/UnCoreCompression.cpp
 
-static int LZXread(struct LZXFile *file, void *buffer, int bytes) {
+static int LZXread(struct LZXFile* file, void* buffer, int bytes) {
   if (!file->rest) {
     // read block header
     if (file->buf[file->pos] == 0xFF) {
@@ -186,27 +186,27 @@ static int LZXread(struct LZXFile *file, void *buffer, int bytes) {
   return bytes;
 }
 
-static int LZXwrite(struct LZXFile *file, void *buffer, int bytes) {
+static int LZXwrite(struct LZXFile* file, void* buffer, int bytes) {
   memcpy(file->buf + file->pos, buffer, bytes);
   file->pos += bytes;
   return bytes;
 }
 
-static void *LZXalloc(struct mspack_system *self, size_t bytes) {
+static void* LZXalloc(struct mspack_system* self, size_t bytes) {
   return malloc(bytes);
 }
 
-static void LZXfree(void *ptr) { free(ptr); }
+static void LZXfree(void* ptr) { free(ptr); }
 
-static void LZXCopy(void *src, void *dst, size_t bytes) {
+static void LZXCopy(void* src, void* dst, size_t bytes) {
   memcpy(dst, src, bytes);
 }
 
 static struct mspack_system LZXSys = {
     NULL,  // open
     NULL,  // close
-    (auto (*)(mspack_file *, void *, int)->int)&LZXread,
-    (auto (*)(mspack_file *, void *, int)->int)&LZXwrite,
+    (auto (*)(mspack_file*, void*, int)->int)&LZXread,
+    (auto (*)(mspack_file*, void*, int)->int)&LZXwrite,
     NULL,  // seek
     NULL,  // tell
     NULL,  // message
@@ -215,8 +215,8 @@ static struct mspack_system LZXSys = {
     &LZXCopy,
     NULL};
 
-int32_t LZXDecompress(uint8_t *CompressedBuffer, int CompressedSize,
-                      uint8_t *UncompressedBuffer, int UncompressedSize,
+int32_t LZXDecompress(uint8_t* CompressedBuffer, int CompressedSize,
+                      uint8_t* UncompressedBuffer, int UncompressedSize,
                       int WindowSize, int CompressionPartitionSize) {
   // setup streams
   struct LZXFile src, dst;
@@ -234,9 +234,9 @@ int32_t LZXDecompress(uint8_t *CompressedBuffer, int CompressedSize,
   }
   if (WindowSize <= 0) WindowSize = 17;
   if (CompressionPartitionSize <= 0) CompressionPartitionSize = 256 * 1024;
-  struct lzxd_stream *lzxd =
-      lzxd_init(&LZXSys, (mspack_file *)&src, (mspack_file *)&dst, WindowSize,
-                0, CompressionPartitionSize, UncompressedSize, 0);
+  struct lzxd_stream* lzxd =
+      lzxd_init(&LZXSys, (mspack_file*)&src, (mspack_file*)&dst, WindowSize, 0,
+                CompressionPartitionSize, UncompressedSize, 0);
   // decompress
   int r = lzxd_decompress(lzxd, UncompressedSize);
   if (r != MSPACK_ERR_OK) return -1;

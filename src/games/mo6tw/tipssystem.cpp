@@ -23,7 +23,7 @@ void TipsSystem::DataInit(uint32_t scriptBufferId, uint32_t tipsDataAdr,
   int idx = 0;
 
   // Read tips data from the script and create UI elements for each tip
-  MemoryStream *stream =
+  MemoryStream* stream =
       new MemoryStream(&scriptBuffer[tipsDataAdr], tipsDataSize);
   auto unk01 = ReadLE<uint16_t>(stream);
   while (unk01 != 255) {

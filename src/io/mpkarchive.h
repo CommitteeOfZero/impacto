@@ -10,12 +10,12 @@ struct MpkMetaEntry;
 class MpkArchive : public VfsArchive {
  public:
   ~MpkArchive();
-  IoError Open(FileMeta *file, Stream **outStream) override;
+  IoError Open(FileMeta* file, Stream** outStream) override;
 
-  static IoError Create(Stream *stream, VfsArchive **outArchive);
+  static IoError Create(Stream* stream, VfsArchive** outArchive);
 
  private:
-  MpkMetaEntry *TOC = 0;
+  MpkMetaEntry* TOC = 0;
 };
 
 }  // namespace Io

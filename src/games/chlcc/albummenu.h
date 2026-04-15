@@ -21,17 +21,17 @@ class AlbumMenu : public Menu, public CommonMenu {
   void Render() override;
 
  private:
-  std::vector<Widgets::Group *> Pages;
+  std::vector<Widgets::Group*> Pages;
 
   void DrawPage();
 
   void UpdatePages();
 
-  void CgOnClick(Widgets::Button *target);
-  void OnCgVariationEnd(Widgets::CgViewer *target);
+  void CgOnClick(Widgets::Button* target);
+  void OnCgVariationEnd(Widgets::CgViewer* target);
 
-  Widgets::Group *CgViewerGroup;
-  Widgets::CgViewer *CgViewerWidget;
+  Widgets::Group* CgViewerGroup;
+  Widgets::CgViewer* CgViewerWidget;
 
   int PrevPage = 0;
   int CurrentPage;
