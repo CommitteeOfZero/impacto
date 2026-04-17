@@ -190,6 +190,33 @@ void AudioInit() {
   IsInit = true;
 }
 
+void AudioSubtitlesStart(AudioChannel* channel) {
+  using Profile::Subtitle::SubtitleMappings;
+  std::optional<Subtitle::SubtitlePlayer> player;
+
+  if (channel->GetGroup() != AudioChannelGroup::ACG_BGM) return;
+  AudioStream const* bgmStream = channel->GetStream();
+
+  auto bgmSubtitleMapItr = SubtitleMappings.find("bgm");
+  if (bgmSubtitleMapItr == SubtitleMappings.end()) return;
+  auto mappingsItr =
+      bgmSubtitleMapItr->second.find(bgmStream->GetBaseStream()->Meta.FileName);
+  if (mappingsItr == bgmSubtitleMapItr->second.end()) {
+    mappingsItr =
+        bgmSubtitleMapItr->second.find(bgmStream->GetBaseStream()->Meta.Id);
+  }
+  if (mappingsItr == bgmSubtitleMapItr->second.end()) return;
+
+  SubtitlePlayers[channel->GetId() - AC_BGM0].emplace(Profile::DesignWidth,
+                                                      Profile::DesignHeight);
+  int trackId = 0;
+  for (auto const& subFile : mappingsItr->second) {
+    if (!subFile.Path) continue;
+    SubtitlePlayers[channel->GetId() - AC_BGM0]->AddTrackFile(
+        trackId++, subFile.Type, *subFile.Path, subFile.Config);
+  }
+}
+
 void PlayInGroup(AudioChannelGroup group, std::string const& mountpoint,
                  uint32_t fileId, bool loop, float fadeIn) {
   AudioChannel* channel = GetNextChannelInGroup(group);
@@ -220,6 +247,35 @@ void AudioUpdate(float dt) {
 
   for (int i = 0; i < AC_Count; i++) {
     Channels[i]->Update(dt);
+  }
+}
+
+void AudioSubtitlesUpdate() {
+  for (int i = 0; i < ssize(SubtitlePlayers); i++) {
+    if (!SubtitlePlayers[i]) continue;
+    auto const* currentChannel = Channels[i + AC_BGM0].get();
+    switch (currentChannel->GetState()) {
+      case ACS_Stopped:
+        SubtitlePlayers[i].reset();
+        break;
+      case ACS_Paused:
+        break;
+      case ACS_Playing:
+      case ACS_FadingIn:
+      case ACS_FadingOut: {
+        auto durationSec =
+            std::chrono::duration<float>{currentChannel->PositionInSeconds()};
+        SubtitlePlayers[i]->UpdateElapsedTime(
+            std::chrono::duration_cast<Video::Clock::Microseconds>(
+                durationSec));
+      }
+    }
+  }
+}
+
+void AudioSubtitlesRender() {
+  for (auto& subtitlePlayer : SubtitlePlayers) {
+    if (subtitlePlayer) subtitlePlayer->Render();
   }
 }
 

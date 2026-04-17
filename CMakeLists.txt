@@ -1166,12 +1166,12 @@ if (NOT DEFINED IMPACTO_DISABLE_FFMPEG)
     list(APPEND Impacto_Src
         src/video/ffmpegplayer.cpp
         src/video/ffmpegstream.cpp
-        src/video/ffmpegsubtitlehelper.cpp
+        src/subtitle/ffmpegsubtitlehelper.cpp
     )
     list(APPEND Impacto_Header
         src/video/ffmpegplayer.h
         src/video/ffmpegstream.h
-        src/video/ffmpegsubtitlehelper.h
+        src/subtitle/ffmpegsubtitlehelper.h
     )
 
     if (NOT VCPKG_TOOLCHAIN)

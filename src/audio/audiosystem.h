@@ -1,10 +1,12 @@
 #pragma once
 
+#include <memory>
+
 #include "../impacto.h"
 #include "../log.h"
 #include "audiochannel.h"
 #include "audiobackend.h"
-#include <memory>
+#include "../subtitle/subtitlesystem.h"
 
 namespace Impacto {
 namespace Audio {
@@ -13,11 +15,18 @@ void AudioInit();
 void AudioUpdate(float dt);
 void AudioShutdown();
 
+void AudioSubtitlesStart(AudioChannel* channel);
+void AudioSubtitlesUpdate();
+void AudioSubtitlesRender();
+
 inline AudioBackend* Backend = nullptr;
 
 inline float MasterVolume = 1.0f;
 inline std::array<float, ACG_Count> GroupVolumes;
 inline std::array<std::unique_ptr<AudioChannel>, AC_Count> Channels;
+
+// 3 subtitle players for 3 bgm channels
+inline std::array<std::optional<Subtitle::SubtitlePlayer>, 3> SubtitlePlayers;
 
 template <AudioChannelId... Ids>
 struct ChannelGroupDef {

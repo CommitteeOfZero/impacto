@@ -333,6 +333,11 @@ void Update(float dt) {
     Video::VideoUpdate(dt);
   }
 
+  if (+Profile::GameFeatures & +GameFeature::Audio &&
+      +Profile::GameFeatures & +GameFeature::Subtitles) {
+    Audio::AudioSubtitlesUpdate();
+  }
+
   if (+Profile::GameFeatures & +GameFeature::Scene3D) {
     Renderer->Scene->Update(dt);
   }
@@ -511,6 +516,11 @@ static void RenderMain() {
        (Profile::Vm::GameInstructionSet == Vm::InstructionSet::MO8 &&
         (ScrWork[SW_MOVIEPRI] == 3000 || ScrWork[SW_MOVIEPRI] == 4000)))) {
     Video::VideoRender(ScrWork[SW_MOVIEALPHA] / 256.0f);
+  }
+
+  if (+Profile::GameFeatures & +GameFeature::Audio &&
+      +Profile::GameFeatures & +GameFeature::Subtitles) {
+    Audio::AudioSubtitlesRender();
   }
   MaskCapture.SetHasEffects(false);
 }

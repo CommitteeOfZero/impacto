@@ -6,7 +6,7 @@
 // Since these are basically extension classes for avcpp, we'll use their naming
 // conventions for it for consistency
 
-namespace Impacto::Video {
+namespace Impacto::Subtitle {
 
 struct SubtitleData {
   SubtitleData() = default;
@@ -153,4 +153,4 @@ class SubtitleDecoderContext
                               size_t* decodedBytes);
 };
 
-}  // namespace Impacto::Video
+}  // namespace Impacto::Subtitle
