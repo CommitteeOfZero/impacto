@@ -245,21 +245,31 @@ static void UpdateCCAtChanScrollbar() {
     static int dragOffset = 0;
     bool mouseHover = false;
 
+    // From decompile
     const RectF thumbBounds{
         (float)-ScrWork[4580] * 1.5f - 2.0f,
         (float)-ScrWork[4581] * 1.5f - 2.0f,
         22.0f,
         112.0f,
     };
+    const std::pair<int, int> bgYRange{-45, ScrWork[1504]};
+
+    // Empirical values
+    const std::pair<float, float> mouseYRange{83.5f, 908.5f};
+
+    const float slope = (bgYRange.second - bgYRange.first) /
+                        (mouseYRange.second - mouseYRange.first);
+    const float offset = bgYRange.first - (mouseYRange.first * slope);
+    const int conversion = (int)(Input::CurMousePos.y * slope + offset);
 
     if (Input::CurrentInputDevice == Input::Device::Mouse) {
       ScrWork[SW_BG1POSY] -= Input::MouseWheelDeltaY * 16;
-
       mouseHover = thumbBounds.ContainsPoint(Input::CurMousePos);
       if (mouseHover) {
         if (Input::MouseButtonWentDown[SDL_BUTTON_LEFT]) {
           Audio::PlayInGroup(Audio::ACG_SE, "sysse", 2, false, 0.0f);
-          dragOffset = (int)Input::CurMousePos.y - 189 - ScrWork[SW_BG1POSY];
+
+          dragOffset = conversion - ScrWork[SW_BG1POSY];
           Vm::Interface::PADinputMouseWentDown &= ~Vm::Interface::PAD1A;
         }
         RequestCursor(CursorType::Pointer);
@@ -267,7 +277,7 @@ static void UpdateCCAtChanScrollbar() {
 
       if (ActiveCursorType == CursorType::Pointer) {
         if (Input::MouseButtonIsDown[SDL_BUTTON_LEFT]) {
-          ScrWork[SW_BG1POSY] = (int)Input::CurMousePos.y - 189 - dragOffset;
+          ScrWork[SW_BG1POSY] = conversion - dragOffset;
           RequestCursor(CursorType::Pointer);
         } else if (!mouseHover) {
           RequestCursor(CursorType::Default);
@@ -278,12 +288,9 @@ static void UpdateCCAtChanScrollbar() {
       RequestCursor(CursorType::Default);
       dragOffset = 0;
     }
-    if (ScrWork[SW_BG1POSY] < -45) {
-      ScrWork[SW_BG1POSY] = -45;
-    }
-    if (ScrWork[1504] < ScrWork[SW_BG1POSY]) {
-      ScrWork[SW_BG1POSY] = ScrWork[1504];
-    }
+
+    ScrWork[SW_BG1POSY] =
+        std::clamp(ScrWork[SW_BG1POSY], bgYRange.first, bgYRange.second);
   }
 }
 }  // namespace GameSpecific
