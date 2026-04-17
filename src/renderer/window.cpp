@@ -180,6 +180,7 @@ void ApplyCursorForFrame() {
       } else if (*RequestedCursorType == CursorType::Default) {
         desired = CursorArrow;
       }
+      ActiveCursorType = *RequestedCursorType;
       RequestedCursorType = std::nullopt;
     } else {
       if (actualCursor != CursorArrow && actualCursor != CursorPointer) {

@@ -17,6 +17,9 @@
 #include "../games/cclcc/mapsystem.h"
 
 #include "../background2d.h"
+#include "../inputsystem.h"
+#include "../audio/audiosystem.h"
+#include "../vm/interface/input.h"
 
 using namespace Impacto::Profile::GameSpecific;
 using namespace Impacto::Profile::ScriptVars;
@@ -26,6 +29,7 @@ namespace UI {
 namespace GameSpecific {
 
 static float CHLCCScanlineOffsetY = 0.0f;
+static void UpdateCCAtChanScrollbar();
 
 void Init() {
   switch (Profile::GameSpecific::GameSpecificType) {
@@ -77,9 +81,11 @@ void Update(float dt) {
     } break;
     case GameSpecificType::CC: {
       UpdateCCButtonGuide(dt);
+      UpdateCCAtChanScrollbar();
     } break;
     case GameSpecificType::CCLCC: {
       UpdateCCButtonGuide(dt);
+      UpdateCCAtChanScrollbar();
       CCLCC::YesNoTrigger::GetInstance().Update(dt);
       CCLCC::DelusionTrigger::GetInstance().Update(dt);
       CCLCC::MapSystem::GetInstance().Update(dt);
@@ -230,6 +236,53 @@ void UpdateCCButtonGuide([[maybe_unused]] float dt) {
     ScrWork[SW_UI_BTNGUIDE_TYPE] = ScrWork[SW_UI_BTNGUIDE_REQ];
     if (ScrWork[SW_UI_BTNGUIDE_PROG] < 32) {
       ScrWork[SW_UI_BTNGUIDE_PROG]++;
+    }
+  }
+}
+
+static void UpdateCCAtChanScrollbar() {
+  if (ScrWork[SW_UI_BTNGUIDE_TYPE] == 1) {
+    static int dragOffset = 0;
+    bool mouseHover = false;
+
+    const RectF thumbBounds{
+        (float)-ScrWork[4580] * 1.5f - 2.0f,
+        (float)-ScrWork[4581] * 1.5f - 2.0f,
+        22.0f,
+        112.0f,
+    };
+
+    if (Input::CurrentInputDevice == Input::Device::Mouse) {
+      ScrWork[SW_BG1POSY] -= Input::MouseWheelDeltaY * 16;
+
+      mouseHover = thumbBounds.ContainsPoint(Input::CurMousePos);
+      if (mouseHover) {
+        if (Input::MouseButtonWentDown[SDL_BUTTON_LEFT]) {
+          Audio::PlayInGroup(Audio::ACG_SE, "sysse", 2, false, 0.0f);
+          dragOffset = (int)Input::CurMousePos.y - 189 - ScrWork[SW_BG1POSY];
+          Vm::Interface::PADinputMouseWentDown &= ~Vm::Interface::PAD1A;
+        }
+        RequestCursor(CursorType::Pointer);
+      }
+
+      if (ActiveCursorType == CursorType::Pointer) {
+        if (Input::MouseButtonIsDown[SDL_BUTTON_LEFT]) {
+          ScrWork[SW_BG1POSY] = (int)Input::CurMousePos.y - 189 - dragOffset;
+          RequestCursor(CursorType::Pointer);
+        } else if (!mouseHover) {
+          RequestCursor(CursorType::Default);
+          dragOffset = 0;
+        }
+      }
+    } else {
+      RequestCursor(CursorType::Default);
+      dragOffset = 0;
+    }
+    if (ScrWork[SW_BG1POSY] < -45) {
+      ScrWork[SW_BG1POSY] = -45;
+    }
+    if (ScrWork[1504] < ScrWork[SW_BG1POSY]) {
+      ScrWork[SW_BG1POSY] = ScrWork[1504];
     }
   }
 }
