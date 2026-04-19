@@ -321,12 +321,68 @@ VmInstruction(InstMesMain) {
   ResetInstruction;
 }
 VmInstruction(InstSetMesModeFormat) {
+  struct RawMesModeInfo {
+    uint16_t DisplayMode;
+    uint16_t WindowId;
+    int16_t WindowPosX;
+    int16_t WindowPosY;
+    uint16_t NameDispMode;
+    uint16_t MaxNameWidth;
+    int16_t NamePosX;
+    int16_t NamePosY;
+    uint16_t NameGlyphWidth;
+    uint16_t NameGlyphHeight;
+    uint16_t MaxLineWidth;
+    uint16_t CurrentPageId;
+    uint16_t WaitIconPosX;
+    uint16_t WaitIconPosY;
+    uint16_t TextGlyphWidth;
+    uint16_t TextGlyphHeight;
+    uint16_t RubyGlyphWidth;
+    uint16_t RubyGlyphHeight;
+    uint16_t LineSpacing;
+    uint16_t RubyLineSpacing;
+    uint16_t RubyDispMode;
+    uint16_t LinefeedSpacing;
+    uint16_t NamePosFlags;
+    uint16_t NameLengthL;  // Idk what this is either
+  };
+
   StartInstruction;
   PopExpression(id);
   PopLocalLabel(modeDataAdr);
-  (void)modeDataAdr;
-  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-             "STUB instruction SetMesModeFormat(id: {:d})\n", id);
+
+  Sc3VmThread dummy;
+  dummy.IpOffset = modeDataAdr;
+  dummy.ScriptBufferId = thread->ScriptBufferId;
+  RawMesModeInfo* info = std::bit_cast<RawMesModeInfo*>(dummy.GetIp());
+
+  const glm::vec2 designScale = {Profile::DesignWidth / 1280.0f,
+                                 Profile::DesignHeight / 720.0f};
+  TextModesInfo[id] = {
+      .DisplayMode = info->DisplayMode,
+      .WindowId = info->WindowId,
+      .WindowPos = glm::vec2(info->WindowPosX, info->WindowPosY) * designScale,
+      .NameDispMode = info->NameDispMode,
+      .MaxNameWidth = info->MaxNameWidth * designScale.x,
+      .NamePos = glm::vec2(info->NamePosX, info->NamePosY) * designScale,
+      .NameGlyphSize =
+          glm::vec2(info->NameGlyphWidth, info->NameGlyphHeight) * designScale,
+      .MaxLineWidth = info->MaxLineWidth * designScale.x,
+      .CurrentPageId = info->CurrentPageId,
+      .WaitIconPos =
+          glm::vec2(info->WaitIconPosX, info->WaitIconPosY) * designScale,
+      .TextGlyphSize =
+          glm::vec2(info->TextGlyphWidth, info->TextGlyphHeight) * designScale,
+      .RubyGlyphSize =
+          glm::vec2(info->RubyGlyphWidth, info->RubyGlyphHeight) * designScale,
+      .LineSpacing = info->LineSpacing * designScale.y,
+      .RubyLineSpacing = info->RubyLineSpacing * designScale.y,
+      .RubyDispMode = info->RubyDispMode,
+      .LinefeedSpacing = info->LinefeedSpacing * designScale.y,
+      .NamePosFlags = info->NamePosFlags,
+      .NameLengthL = info->NameLengthL,
+  };
 }
 VmInstruction(InstSetNGmoji) {
   StartInstruction;
