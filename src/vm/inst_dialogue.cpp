@@ -323,12 +323,60 @@ VmInstruction(InstMesMain) {
   ResetInstruction;
 }
 VmInstruction(InstSetMesModeFormat) {
+  struct RawMesModeInfo {
+    uint16_t DisplayMode;
+    uint16_t WindowId;
+    int16_t WindowPosX;
+    int16_t WindowPosY;
+    uint16_t NameDispMode;
+    uint16_t MaxNameWidth;
+    int16_t NamePosX;
+    int16_t NamePosY;
+    uint16_t NameGlyphWidth;
+    uint16_t NameGlyphHeight;
+    uint16_t MaxLineWidth;
+    uint16_t CurrentPageId;
+    uint16_t WaitIconPosX;
+    uint16_t WaitIconPosY;
+    uint16_t TextGlyphWidth;
+    uint16_t TextGlyphHeight;
+    uint16_t RubyGlyphWidth;
+    uint16_t RubyGlyphHeight;
+    uint16_t LineSpacing;
+    uint16_t RubyLineSpacing;
+    uint16_t LinefeedSpacing;
+    uint16_t NamePosFlags;
+    uint16_t NameLengthL;  // Idk what this is either
+  };
+
   StartInstruction;
   PopExpression(id);
   PopLocalLabel(modeDataAdr);
-  (void)modeDataAdr;
-  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-             "STUB instruction SetMesModeFormat(id: {:d})\n", id);
+
+  Sc3VmThread dummy;
+  dummy.IpOffset = modeDataAdr;
+  dummy.ScriptBufferId = thread->ScriptBufferId;
+  RawMesModeInfo* info = std::bit_cast<RawMesModeInfo*>(dummy.GetIp());
+
+  TextModesInfo[id] = {
+      .DisplayMode = info->DisplayMode,
+      .WindowId = info->WindowId,
+      .WindowPos = {info->WindowPosX, info->WindowPosY},
+      .NameDispMode = info->NameDispMode,
+      .MaxNameWidth = static_cast<float>(info->MaxNameWidth),
+      .NamePos = {info->NamePosX, info->NamePosY},
+      .NameGlyphSize = {info->NameGlyphWidth, info->NameGlyphHeight},
+      .MaxLineWidth = static_cast<float>(info->MaxLineWidth),
+      .CurrentPageId = info->CurrentPageId,
+      .WaitIconPos = {info->WaitIconPosX, info->WaitIconPosY},
+      .TextGlyphSize = {info->TextGlyphWidth, info->TextGlyphHeight},
+      .RubyGlyphSize = {info->RubyGlyphWidth, info->RubyGlyphHeight},
+      .LineSpacing = static_cast<float>(info->LineSpacing),
+      .RubyLineSpacing = static_cast<float>(info->RubyLineSpacing),
+      .LinefeedSpacing = static_cast<float>(info->LinefeedSpacing),
+      .NamePosFlags = info->NamePosFlags,
+      .NameLengthL = info->NameLengthL,
+  };
 }
 VmInstruction(InstSetNGmoji) {
   StartInstruction;
