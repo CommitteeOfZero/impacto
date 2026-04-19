@@ -78,7 +78,7 @@ struct DialoguePage : public TextPage {
   void FinishLine(Vm::Sc3VmThread* ctx, size_t nextLineStart,
                   const RectF& boxBounds, TextAlignment alignment);
 
-  std::unique_ptr<DialogueBox> DialogueBoxInst = DialogueBox::Create();
+  std::unique_ptr<DialogueBox> DialogueBoxInst = DialogueBox::Create(*this);
 
   std::optional<Vm::BufferOffsetContext> CurrentStringAddress;
 };
