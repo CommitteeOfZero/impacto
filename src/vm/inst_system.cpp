@@ -841,11 +841,6 @@ VmInstruction(InstMSinit) {
 
   if (initType == 0 || initType == 1) {
     ScrWork[SW_GAMESTATE] = 0;
-    for (int i = 0; i < std::ssize(DialoguePages); i++) {
-      DialoguePages[i].Clear();
-      DialoguePages[i].FadeAnimation.Progress = 0;
-      SetFlag(i + SF_MESWINDOW0OPENFL, 0);
-    }
 
     for (int i = 0; i < std::ssize(Backgrounds); i++) {
       size_t offset = Profile::Vm::ScrWorkBgStructSize * i;
@@ -966,6 +961,14 @@ VmInstruction(InstMSinit) {
 
   if (Profile::Vm::GameInstructionSet == InstructionSet::CHLCC) {
     ScrWork[SW_INTROVOICE] = 999;
+  }
+
+  if (initType == 0 || initType == 1) {
+    for (int i = 0; i < std::ssize(DialoguePages); i++) {
+      DialoguePages[i].Clear();
+      DialoguePages[i].FadeAnimation.Progress = 0;
+      SetFlag(i + SF_MESWINDOW0OPENFL, 0);
+    }
   }
 
   ScrWork[SW_SINSTALL_ALL] = 100;
