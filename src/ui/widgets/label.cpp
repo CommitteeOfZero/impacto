@@ -30,9 +30,9 @@ Label::Label(std::span<ProcessedTextGlyph> str, float textWidth, float fontSize,
 }
 
 Label::Label(Vm::BufferOffsetContext scrCtx, glm::vec2 pos, float fontSize,
-             RendererOutlineMode outlineMode, int colorIndex)
+             RendererOutlineMode outlineMode, int colorIndex, float maxWidth)
     : Label(scrCtx, pos, fontSize, outlineMode,
-            Profile::Dialogue::ColorTable[colorIndex]) {}
+            Profile::Dialogue::ColorTable[colorIndex], maxWidth) {}
 
 Label::Label(std::string_view str, glm::vec2 pos, float fontSize,
              RendererOutlineMode outlineMode, int colorIndex)
@@ -45,10 +45,11 @@ Label::Label(Vm::Sc3Stream& stream, glm::vec2 pos, float fontSize,
             Profile::Dialogue::ColorTable[colorIndex]) {}
 
 Label::Label(Vm::BufferOffsetContext scrCtx, glm::vec2 pos, float fontSize,
-             RendererOutlineMode outlineMode, DialogueColorPair colorPair) {
+             RendererOutlineMode outlineMode, DialogueColorPair colorPair,
+             float maxWidth) {
   FontSize = fontSize;
   Bounds = RectF(pos.x, pos.y, 0, FontSize);
-  SetText(scrCtx, fontSize, outlineMode, colorPair);
+  SetText(scrCtx, fontSize, outlineMode, colorPair, maxWidth);
 }
 
 Label::Label(Vm::Sc3Stream& stream, glm::vec2 pos, float fontSize,
@@ -163,7 +164,7 @@ void Label::SetText(Vm::Sc3Stream& stream, float fontSize,
 
 void Label::SetText(Vm::BufferOffsetContext scrCtx, float fontSize,
                     RendererOutlineMode outlineMode,
-                    DialogueColorPair colorPair) {
+                    DialogueColorPair colorPair, float maxWidth) {
   IsText = true;
   Impacto::Vm::Sc3VmThread dummy;
   dummy.IpOffset = scrCtx.IpOffset;
@@ -171,7 +172,7 @@ void Label::SetText(Vm::BufferOffsetContext scrCtx, float fontSize,
   FontSize = fontSize;
   Text = TextLayoutPlainLine(
       &dummy, 255, Profile::Dialogue::DialogueFont, fontSize, colorPair, 1.0f,
-      glm::vec2(Bounds.X, Bounds.Y), TextAlignment::Left);
+      glm::vec2(Bounds.X, Bounds.Y), TextAlignment::Left, maxWidth);
   OutlineMode = outlineMode;
   TextWidth = 0.0f;
   for (const ProcessedTextGlyph& glyph : Text) {

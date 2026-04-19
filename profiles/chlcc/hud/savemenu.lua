@@ -62,7 +62,8 @@ root.SaveMenu = {
     PlayTimeTextRelativePos = {X = 400, Y = 67},
     SaveDateHintTextRelativePos = {X = 259, Y = 84},
     SaveDateTextRelativePos = {X = 325, Y = 84},
-    SaveHourTextRelativePos = {X = 402, Y = 84}
+    SaveHourTextRelativePos = {X = 402, Y = 84},
+    MaxTitleWidth = 306,
 };
 
 root.Sprites["PinkCircle"] = {

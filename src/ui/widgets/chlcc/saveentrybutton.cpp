@@ -88,7 +88,7 @@ void SaveEntryButton::AddSceneTitleText(Vm::BufferOffsetContext strAdr,
                                         int colorIndex) {
   SceneTitle =
       Label(strAdr, glm::vec2(Bounds.X, Bounds.Y) + relativeTitlePosition,
-            fontSize, outlineMode, colorIndex);
+            fontSize, outlineMode, colorIndex, MaxTitleWidth);
 }
 
 void SaveEntryButton::AddPlayTimeHintText(Vm::BufferOffsetContext strAdr,

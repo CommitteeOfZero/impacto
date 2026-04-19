@@ -309,7 +309,31 @@ std::vector<ProcessedTextGlyph> TextLayoutPlainLine(
       thd, maxLength, std::back_inserter(outGlyphs), font, fontSize, colors,
       opacity, pos, alignment, blockWidth);
   TextLayoutAlignment(alignment, blockWidth, currentX, pos, count, outGlyphs);
+  if (blockWidth > 0.0f) {
+    float containerRight = pos.x + blockWidth;
+    FitGlyphsForPlainLine(outGlyphs, containerRight);
+  }
   return outGlyphs;
+}
+
+void FitGlyphsForPlainLine(std::span<ProcessedTextGlyph> glyphs,
+                           float containerRight) {
+  if (glyphs.empty()) return;
+
+  float lineLeft = glyphs.front().DestRect.X;
+  float lineRight = glyphs.back().DestRect.Right();
+
+  if (lineRight <= containerRight) return;
+
+  float totalWidth = lineRight - lineLeft;
+  float availableWidth = containerRight - lineLeft;
+  float scale = availableWidth / totalWidth;
+
+  for (auto& glyph : glyphs) {
+    float localX = glyph.DestRect.X - lineLeft;
+    glyph.DestRect.X = lineLeft + localX * scale;
+    glyph.DestRect.Width = glyph.DestRect.Width * scale;
+  }
 }
 
 int TextLayoutAlignment(Impacto::TextAlignment& alignment, float blockWidth,
