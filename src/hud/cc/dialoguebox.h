@@ -9,7 +9,7 @@ namespace CC {
 
 class DialogueBox : public Impacto::DialogueBox {
  public:
-  DialogueBox();
+  DialogueBox(const DialoguePage& page);
 
   void Update(float dt) override;
   void Render(DialoguePageMode mode, const NameInfo& nameInfo,
