@@ -3,6 +3,7 @@
 #include <magic_enum/magic_enum.hpp>
 #include <optional>
 #include <ankerl/unordered_dense.h>
+
 #include "../text/text.h"
 #include "../ui/widgets/button.h"
 #include "nametagdisplay.h"
@@ -34,6 +35,8 @@ class DialogueBox {
 
   virtual void Render(DialoguePageMode mode, const NameInfo& nameInfo,
                       glm::vec4 tint = glm::vec4(1.0f)) = 0;
+
+  glm::vec2 GetScrWorkPos() const;
 
   enum class VisibilityStateType { Hidden, Hiding, Showing, Shown };
   using enum VisibilityStateType;

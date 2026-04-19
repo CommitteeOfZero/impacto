@@ -30,9 +30,10 @@ void DialogueBox::Render(const DialoguePageMode mode, const NameInfo& nameInfo,
     } break;
 
     case DPM_REV: {
-      if (ScrWork[SW_MESWIN0TYPE] != 1) break;
+      const glm::vec2 pos =
+          ScrWork[SW_MESWIN0TYPE] != 1 ? ErinBoxPos : GetScrWorkPos();
 
-      Renderer->DrawSprite(ErinBoxSprite, ErinBoxPos, glm::vec4(1.0f));
+      Renderer->DrawSprite(ErinBoxSprite, pos, glm::vec4(1.0f));
     } break;
 
     case DPM_NVL: {
