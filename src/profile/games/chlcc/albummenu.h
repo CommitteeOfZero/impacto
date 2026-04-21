@@ -44,6 +44,7 @@ inline Sprite CgViewerButtonGuideNoVariation;
 inline glm::vec2 CgViewerButtonGuidePos;
 inline Sprite SelectionMarkerSprite;
 inline glm::vec2 SelectionMarkerRelativePos;
+inline float CgFadeDuration;
 
 void Configure();
 

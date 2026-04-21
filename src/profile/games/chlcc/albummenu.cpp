@@ -56,6 +56,7 @@ void Configure() {
   SelectionMarkerSprite = EnsureGetMember<Sprite>("SelectionMarkerSprite");
   SelectionMarkerRelativePos =
       EnsureGetMember<glm::vec2>("SelectionMarkerRelativePos");
+  CgFadeDuration = EnsureGetMember<float>("CgFadeDuration");
 
   auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
 

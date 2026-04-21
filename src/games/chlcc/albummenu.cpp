@@ -27,8 +27,8 @@ using namespace Impacto::Vm::Interface;
 using namespace Impacto::UI::Widgets::CHLCC;
 
 void AlbumMenu::OnCgVariationEnd(Widgets::CgViewer* target) {
-  CgViewerGroup->Hide();
-  ShowCgViewer = false;
+  CgViewerWidget->Hide();
+  ButtonGuideFade.StartIn();
 }
 
 void AlbumMenu::CgOnClick(Widgets::Button* target) {
@@ -39,6 +39,7 @@ void AlbumMenu::CgOnClick(Widgets::Button* target) {
     ShowCgViewer = true;
     CgViewerWidget->LoadCgSprites((size_t)target->Id, "bg",
                                   Profile::SaveSystem::AlbumData[target->Id]);
+    ButtonGuideFade.StartOut();
   }
 }
 
@@ -49,7 +50,10 @@ AlbumMenu::AlbumMenu() : CommonMenu(false) {
   RedBarSprite = InitialRedBarSprite;
   RedBarPosition = InitialRedBarPosition;
 
-  CgViewerWidget = new Widgets::CgViewer();
+  ButtonGuideFade.SetDuration(CgFadeDuration);
+  ButtonGuideFade.Finish();
+
+  CgViewerWidget = new Widgets::CgViewer(CgFadeDuration);
   CgViewerWidget->OnVariationEndHandler = [this](auto* btn) {
     return OnCgVariationEnd(btn);
   };
@@ -126,25 +130,39 @@ void AlbumMenu::Render() {
 
   DrawPage();
   CgViewerGroup->Render();
-  CommonMenu::DrawButtonPrompt(ButtonGuide, ButtonGuidePos);
-  if (ShowCgViewer) {
-    Renderer->DrawSprite(
-        (CgViewerWidget->isOnLastVariation() ? CgViewerButtonGuideNoVariation
-                                             : CgViewerButtonGuideVariation),
-        CgViewerButtonGuidePos);
+  // show only when CGViewer is hidden, hiding, showing
+  if (!CgViewerWidget->IsShown()) {
+    CommonMenu::DrawButtonPrompt(ButtonGuide, ButtonGuidePos);
+  }
+  if (CgViewerWidget->IsFadingBetweenVariations() &&
+      CgViewerWidget->IsOnLastVariation()) {
+    float progress = CgViewerWidget->GetVariationFadeProgress();
+    float alpha = glm::smoothstep(1.0f, 0.0f, progress);
+
+    Renderer->DrawSprite(CgViewerButtonGuideVariation, CgViewerButtonGuidePos,
+                         glm::vec4(1.0f, 1.0f, 1.0f, alpha));
+    Renderer->DrawSprite(CgViewerButtonGuideNoVariation, CgViewerButtonGuidePos,
+                         glm::vec4(1.0f, 1.0f, 1.0f, 1.0f - alpha));
+  } else {
+    float alpha = glm::smoothstep(0.0f, 1.0f, 1.0f - ButtonGuideFade.Progress);
+    auto sprite = CgViewerWidget->IsOnLastVariation()
+                      ? CgViewerButtonGuideNoVariation
+                      : CgViewerButtonGuideVariation;
+    Renderer->DrawSprite(sprite, CgViewerButtonGuidePos,
+                         glm::vec4(1.0f, 1.0f, 1.0f, alpha));
   }
 }
 
 void AlbumMenu::UpdateInput(float dt) {
   using namespace Vm::Interface;
-  Menu::UpdateInput(dt);
+  if (!ShowCgViewer) Menu::UpdateInput(dt);
   if (State == Shown) {
     CgViewerGroup->UpdateInput(dt);
-    Pages[CurrentPage]->UpdateInput(dt);
+    if (!ShowCgViewer) Pages[CurrentPage]->UpdateInput(dt);
     if (PADinputButtonWentDown & PAD1B || PADinputMouseWentDown & PAD1B) {
       if (CgViewerGroup->VisibilityState != Hidden) {
-        CgViewerGroup->Hide();
-        ShowCgViewer = false;
+        CgViewerWidget->Hide();
+        ButtonGuideFade.StartIn();
       } else {
         SetFlag(SF_ALBUMEND, true);
       }
@@ -160,7 +178,7 @@ void AlbumMenu::UpdateInput(float dt) {
       Pages[CurrentPage]->Children.front()->HasFocus = true;
       CurrentlyFocusedElement = Pages[CurrentPage]->Children.front();
     };
-    if (IsFocused) {
+    if (IsFocused && !ShowCgViewer) {
       if (Input::MouseWheelDeltaY < 0 ||
           PADinputButtonWentDown & PADcustom[8]) {
         updatePage((CurrentPage + 1) % AlbumPages);
@@ -181,6 +199,11 @@ void AlbumMenu::Update(float dt) {
     Show();
   }
 
+  if (CgViewerWidget->IsHidden() && ShowCgViewer) {
+    CgViewerGroup->Hide();
+    ShowCgViewer = false;
+  }
+
   if (MenuTransition.IsOut() &&
       (ScrWork[SW_SYSMENUCT] == 0 || GetFlag(SF_SYSTEMMENU)) &&
       State == Hiding) {
@@ -194,6 +217,7 @@ void AlbumMenu::Update(float dt) {
   }
 
   if (State != Hidden) {
+    ButtonGuideFade.Update(dt);
     MenuTransition.Update(dt);
     SelectAnimation.Update(dt);
     if (MenuTransition.Direction == AnimationDirection::Out &&

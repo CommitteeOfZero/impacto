@@ -32,6 +32,7 @@ class AlbumMenu : public Menu, public CommonMenu {
 
   Widgets::Group* CgViewerGroup;
   Widgets::CgViewer* CgViewerWidget;
+  Animation ButtonGuideFade = Animation();
 
   int PrevPage = 0;
   int CurrentPage;

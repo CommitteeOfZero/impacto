@@ -145,7 +145,8 @@ root.ExtraMenus = {
         CgViewerButtonGuideNoVariation = "CgViewerButtonGuideNoVariation",
         CgViewerButtonGuidePos = { X = 208, Y = 648 },
         SelectionMarkerSprite = "SelectionMarkerSprite",
-        SelectionMarkerRelativePos = { X = -16, Y = 50 }
+        SelectionMarkerRelativePos = { X = -16, Y = 50 },
+        CgFadeDuration = 16 / 60,
     },
     MusicMenu = {
         DrawType = DrawComponentType.SystemMenu,
