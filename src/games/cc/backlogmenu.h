@@ -13,6 +13,7 @@ class BacklogMenu : public UI::BacklogMenu {
   void Show() override;
   void Hide() override;
   void Render() override;
+  void Update(float dt) override;
 
   Widgets::BacklogEntry* CreateBacklogEntry(
       int id, Vm::BufferOffsetContext scrCtx, int audioId, int characterId,
