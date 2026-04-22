@@ -8,6 +8,8 @@
 #include "../../profile/scriptvars.h"
 #include "../../audio/audiosystem.h"
 
+#include "../cclcc/systemmenu.h"
+
 namespace Impacto {
 namespace UI {
 namespace CC {
@@ -70,6 +72,16 @@ void BacklogMenu::UpdateVisibility() {
     if (UI::FocusedMenu) UI::FocusedMenu->IsFocused = true;
 
     MainItems->Hide();
+  }
+}
+
+void BacklogMenu::Update(float dt) {
+  float prevScrollPos = *MainScrollbar->Value;
+  UI::BacklogMenu::Update(dt);
+  if (IsFocused && prevScrollPos != *MainScrollbar->Value) {
+    if (auto* menu = dynamic_cast<UI::CCLCC::SystemMenu*>(UI::SystemMenuPtr)) {
+      menu->BGPosition.y += (prevScrollPos - *MainScrollbar->Value) * 0.5f;
+    }
   }
 }
 
