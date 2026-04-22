@@ -6,6 +6,7 @@
 namespace Impacto {
 
 enum class CursorType { Default, Pointer };
+inline CursorType ActiveCursorType = CursorType::Default;
 
 void SetWindowIcon(SDL_Window* window);
 void InitCursors();

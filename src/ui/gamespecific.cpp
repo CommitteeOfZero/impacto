@@ -17,6 +17,9 @@
 #include "../games/cclcc/mapsystem.h"
 
 #include "../background2d.h"
+#include "../inputsystem.h"
+#include "../audio/audiosystem.h"
+#include "../vm/interface/input.h"
 
 using namespace Impacto::Profile::GameSpecific;
 using namespace Impacto::Profile::ScriptVars;
@@ -26,6 +29,7 @@ namespace UI {
 namespace GameSpecific {
 
 static float CHLCCScanlineOffsetY = 0.0f;
+static void UpdateCCAtChanScrollbar();
 
 void Init() {
   switch (Profile::GameSpecific::GameSpecificType) {
@@ -77,9 +81,11 @@ void Update(float dt) {
     } break;
     case GameSpecificType::CC: {
       UpdateCCButtonGuide(dt);
+      UpdateCCAtChanScrollbar();
     } break;
     case GameSpecificType::CCLCC: {
       UpdateCCButtonGuide(dt);
+      UpdateCCAtChanScrollbar();
       CCLCC::YesNoTrigger::GetInstance().Update(dt);
       CCLCC::DelusionTrigger::GetInstance().Update(dt);
       CCLCC::MapSystem::GetInstance().Update(dt);
@@ -231,6 +237,61 @@ void UpdateCCButtonGuide([[maybe_unused]] float dt) {
     if (ScrWork[SW_UI_BTNGUIDE_PROG] < 32) {
       ScrWork[SW_UI_BTNGUIDE_PROG]++;
     }
+  }
+}
+
+static void UpdateCCAtChanScrollbar() {
+  if (ScrWork[SW_UI_BTNGUIDE_TYPE] == 1) {
+    static int dragOffset = 0;
+    bool mouseHover = false;
+
+    using Profile::Vm::ScrWorkBgStructSize;
+    // From decompile
+    const RectF thumbBounds{
+        (float)-ScrWork[SW_BG1POSX + ScrWorkBgStructSize * 2] * 1.5f - 2.0f,
+        (float)-ScrWork[SW_BG1POSY + ScrWorkBgStructSize * 2] * 1.5f - 2.0f,
+        22.0f,
+        112.0f,
+    };
+    const std::pair<int, int> bgYRange{-45, ScrWork[SW_ATCHAN_SCROLL_MAX]};
+
+    // Empirical values
+    const std::pair<float, float> mouseYRange{83.5f, 908.5f};
+
+    const float slope = (bgYRange.second - bgYRange.first) /
+                        (mouseYRange.second - mouseYRange.first);
+    const float offset = bgYRange.first - (mouseYRange.first * slope);
+    const int conversion = (int)(Input::CurMousePos.y * slope + offset);
+
+    if (Input::CurrentInputDevice == Input::Device::Mouse) {
+      ScrWork[SW_BG1POSY] -= Input::MouseWheelDeltaY * 16;
+      mouseHover = thumbBounds.ContainsPoint(Input::CurMousePos);
+      if (mouseHover) {
+        if (Input::MouseButtonWentDown[SDL_BUTTON_LEFT]) {
+          Audio::PlayInGroup(Audio::ACG_SE, "sysse", 2, false, 0.0f);
+
+          dragOffset = conversion - ScrWork[SW_BG1POSY];
+          Vm::Interface::PADinputMouseWentDown &= ~Vm::Interface::PAD1A;
+        }
+        RequestCursor(CursorType::Pointer);
+      }
+
+      if (ActiveCursorType == CursorType::Pointer) {
+        if (Input::MouseButtonIsDown[SDL_BUTTON_LEFT]) {
+          ScrWork[SW_BG1POSY] = conversion - dragOffset;
+          RequestCursor(CursorType::Pointer);
+        } else if (!mouseHover) {
+          RequestCursor(CursorType::Default);
+          dragOffset = 0;
+        }
+      }
+    } else {
+      RequestCursor(CursorType::Default);
+      dragOffset = 0;
+    }
+
+    ScrWork[SW_BG1POSY] =
+        std::clamp(ScrWork[SW_BG1POSY], bgYRange.first, bgYRange.second);
   }
 }
 }  // namespace GameSpecific
