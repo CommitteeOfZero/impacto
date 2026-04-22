@@ -4,6 +4,7 @@
 #include "window.h"
 #include "shader.h"
 #include "yuvframe.h"
+#include "nv12frame.h"
 
 #include <d3d9.h>
 
@@ -33,6 +34,7 @@ class Renderer : public BaseRenderer {
   }
   void FreeTexture(uint32_t id) override;
   YUVFrame* CreateYUVFrame(float width, float height) override;
+  NV12Frame* CreateNV12Frame(float width, float height) override;
 
   void DrawSprite(const Sprite& sprite, const CornersQuad& dest,
                   glm::mat4 transformation, std::span<const glm::vec4, 4> tints,
@@ -91,7 +93,8 @@ class Renderer : public BaseRenderer {
 
   void DrawVideoTexture(const YUVFrame& frame, const RectF& dest,
                         glm::vec4 tint, bool alphaVideo) override;
-
+  void DrawVideoTexture(const NV12Frame& frame, const RectF& dest,
+                        glm::vec4 tint, bool alphaVideo = false) override;
   void DrawSubtitleGlyph(const Sprite& sprite, const CornersQuad& dest,
                          const glm::mat4 transformation,
                          const glm::vec4 tint) override {};  // TODO: Implement
@@ -134,13 +137,15 @@ class Renderer : public BaseRenderer {
   Shader* ShaderMaskedSprite;
   Shader* ShaderMaskedSpriteNoAlpha;
   Shader* ShaderYUVFrame;
+  Shader* ShaderNV12Frame;
   Shader* ShaderCCMessageBox;
   Shader* ShaderCHLCCMenuBackground;
 
   uint32_t CurrentTexture = 0;
   uint32_t NextTextureId = 1;
 
-  DX9YUVFrame* VideoFrameInternal;
+  DX9YUVFrame* VideoFrameInternalYUV;
+  DX9NV12Frame* VideoFrameInternalNV12;
 
   bool Drawing = false;
 

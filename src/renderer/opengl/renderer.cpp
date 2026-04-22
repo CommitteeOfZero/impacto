@@ -8,6 +8,7 @@
 #include "../../log.h"
 #include "3d/scene.h"
 #include "yuvframe.h"
+#include "nv12frame.h"
 
 #ifndef IMPACTO_DISABLE_IMGUI
 #include <imgui_custom/backends/imgui_impl_opengl3.h>
@@ -100,6 +101,7 @@ void Renderer::Init() {
   GaussianBlurShaderProgram.emplace(Shaders.Compile("GaussianBlur"));
   MosaicShaderProgram.emplace(Shaders.Compile("Mosaic"));
   SubtitleGlyphShaderProgram.emplace(Shaders.Compile("SubtitleGlyph"));
+  NV12FrameShaderProgram.emplace(Shaders.Compile("NV12Frame"));
 
   glGenSamplers((GLsizei)Samplers.size(), Samplers.data());
   for (size_t i = 0; i < TextureUnitCount; i++) {
@@ -191,26 +193,27 @@ uint32_t Renderer::SubmitTexture(TexFmt format, uint8_t* buffer, int width,
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 16);
 
   // Load in data
-  const GLuint texFormat = [format]() {
+  const auto [internalFormat,
+              texFormat] = [format]() -> std::pair<GLint, GLenum> {
     switch (format) {
       case TexFmt_RGBA:
         glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-        return GL_RGBA;
+        return {GL_RGBA, GL_RGBA};
 
       case TexFmt_RGB:
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        return GL_RGB;
+        return {GL_RGB, GL_RGB};
 
       case TexFmt_U8:
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        return GL_RED;
+        return {GL_R8, GL_RED};
 
       default:
         throw std::invalid_argument(
             fmt::format("Unimplemented texture format {}", (int)format));
     }
   }();
-  glTexImage2D(GL_TEXTURE_2D, 0, texFormat, width, height, 0, texFormat,
+  glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, texFormat,
                GL_UNSIGNED_BYTE, buffer);
 
   // Build mip chain
@@ -259,6 +262,12 @@ YUVFrame* Renderer::CreateYUVFrame(float width, float height) {
   auto frame = new GLYUVFrame();
   frame->Init(width, height);
   return (YUVFrame*)frame;
+}
+
+NV12Frame* Renderer::CreateNV12Frame(float width, float height) {
+  auto frame = new GLNV12Frame();
+  frame->Init(width, height);
+  return (NV12Frame*)frame;
 }
 
 void Renderer::InsertVertices(
@@ -1008,6 +1017,36 @@ void Renderer::DrawVideoTexture(const YUVFrame& frame, const RectF& dest,
   };
 
   UseShader(*YUVFrameShaderProgram, uniforms);
+
+  // OK, all good, make quad
+
+  InsertVerticesQuad(dest, RectF(0.0f, 0.0f, 1.0f, 1.0f), tint);
+}
+
+void Renderer::DrawVideoTexture(const NV12Frame& frame, const RectF& dest,
+                                const glm::vec4 tint, const bool alphaVideo) {
+  if (!Drawing) {
+    ImpLog(LogLevel::Error, LogChannel::Render,
+           "Renderer->DrawVideoTexture() called before BeginFrame()\n");
+    return;
+  }
+
+  EnsureFBO(0);
+  EnsureTopologyMode(TopologyMode::Triangles);
+
+  UseTextures(std::array<std::pair<uint32_t, size_t>, 2>{
+      std::pair{frame.LumaId, 0},
+      std::pair{frame.CbCrId, 1},
+  });
+
+  NV12FrameUniforms uniforms{
+      .Projection = Projection,
+      .Luma = 0,
+      .CbCr = 1,
+      .IsAlpha = alphaVideo,
+  };
+
+  UseShader(*NV12FrameShaderProgram, uniforms);
 
   // OK, all good, make quad
 

@@ -8,6 +8,7 @@
 #include "../../log.h"
 #include "3d/scene.h"
 #include "yuvframe.h"
+#include "nv12frame.h"
 
 #ifndef IMPACTO_DISABLE_IMGUI
 #include <imgui_impl_vulkan.h>
@@ -737,6 +738,11 @@ void Renderer::Init() {
   PipelineYUVFrame->CreateWithShader(
       "YUVFrame", bindingDescription, attributeDescriptions.data(),
       attributeDescriptions.size(), TripleTextureSetLayout);
+  PipelineNV12Frame = new Pipeline(Device, RenderPass);
+  PipelineNV12Frame->SetPushConstants(&yuvFramePushConstants, 1);
+  PipelineNV12Frame->CreateWithShader(
+      "NV12Frame", bindingDescription, attributeDescriptions.data(),
+      attributeDescriptions.size(), TripleTextureSetLayout);
 
   VkPushConstantRange ccBoxPushConstant;
   ccBoxPushConstant.offset = 0;
@@ -1128,9 +1134,15 @@ void Renderer::FreeTexture(uint32_t id) {
 }
 
 YUVFrame* Renderer::CreateYUVFrame(float width, float height) {
-  VideoFrameInternal = new VkYUVFrame();
-  VideoFrameInternal->Init(width, height);
-  return (YUVFrame*)VideoFrameInternal;
+  VideoFrameInternalYUV = new VkYUVFrame();
+  VideoFrameInternalYUV->Init(width, height);
+  return (YUVFrame*)VideoFrameInternalYUV;
+}
+
+NV12Frame* Renderer::CreateNV12Frame(float width, float height) {
+  VideoFrameInternalNV12 = new VkNV12Frame();
+  VideoFrameInternalNV12->Init(width, height);
+  return (NV12Frame*)VideoFrameInternalNV12;
 }
 
 void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
@@ -1679,13 +1691,13 @@ void Renderer::DrawVideoTexture(const YUVFrame& frame, const RectF& dest,
 
   VkDescriptorImageInfo imageBufferInfo[3];
   imageBufferInfo[0].sampler = Sampler;
-  imageBufferInfo[0].imageView = VideoFrameInternal->LumaImage.ImageView;
+  imageBufferInfo[0].imageView = VideoFrameInternalYUV->LumaImage.ImageView;
   imageBufferInfo[0].imageLayout = VK_IMAGE_LAYOUT_GENERAL;
   imageBufferInfo[1].sampler = Sampler;
-  imageBufferInfo[1].imageView = VideoFrameInternal->CbImage.ImageView;
+  imageBufferInfo[1].imageView = VideoFrameInternalYUV->CbImage.ImageView;
   imageBufferInfo[1].imageLayout = VK_IMAGE_LAYOUT_GENERAL;
   imageBufferInfo[2].sampler = Sampler;
-  imageBufferInfo[2].imageView = VideoFrameInternal->CrImage.ImageView;
+  imageBufferInfo[2].imageView = VideoFrameInternalYUV->CrImage.ImageView;
   imageBufferInfo[2].imageLayout = VK_IMAGE_LAYOUT_GENERAL;
 
   VkWriteDescriptorSet writeDescriptorSet{};
@@ -1699,6 +1711,59 @@ void Renderer::DrawVideoTexture(const YUVFrame& frame, const RectF& dest,
   vkCmdPushDescriptorSetKHR(
       CommandBuffers[CurrentFrameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
       PipelineYUVFrame->PipelineLayout, 0, 1, &writeDescriptorSet);
+
+  YUVFramePushConstants constants = {};
+  constants.IsAlpha = alphaVideo;
+  vkCmdPushConstants(CommandBuffers[CurrentFrameIndex],
+                     CurrentPipeline->PipelineLayout,
+                     VK_SHADER_STAGE_FRAGMENT_BIT, 0,
+                     sizeof(YUVFramePushConstants), &constants);
+
+  // OK, all good, make quad
+  MakeQuad();
+
+  VertexBufferSprites* vertices =
+      (VertexBufferSprites*)(VertexBuffer + VertexBufferOffset +
+                             VertexBufferFill);
+  VertexBufferFill += 4 * sizeof(VertexBufferSprites);
+
+  QuadSetUV(RectF(0.0f, 0.0f, frame.Width, frame.Height),
+            {frame.Width, frame.Height}, &vertices[0].UV,
+            sizeof(VertexBufferSprites));
+  QuadSetPosition(dest, &vertices[0].Position, sizeof(VertexBufferSprites));
+
+  for (int i = 0; i < 4; i++) vertices[i].Tint = tint;
+}
+
+void Renderer::DrawVideoTexture(const NV12Frame& frame, const RectF& dest,
+                                const glm::vec4 tint, const bool alphaVideo) {
+  if (!Drawing) {
+    ImpLog(LogLevel::Error, LogChannel::Render,
+           "Renderer->DrawVideoTexture() called before BeginFrame()\n");
+    return;
+  }
+
+  EnsureMode(PipelineNV12Frame);
+
+  VkDescriptorImageInfo imageBufferInfo[2];
+  imageBufferInfo[0].sampler = Sampler;
+  imageBufferInfo[0].imageView = VideoFrameInternalNV12->LumaImage.ImageView;
+  imageBufferInfo[0].imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+  imageBufferInfo[1].sampler = Sampler;
+  imageBufferInfo[1].imageView = VideoFrameInternalNV12->CbCrImage.ImageView;
+  imageBufferInfo[1].imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+
+  VkWriteDescriptorSet writeDescriptorSet{};
+  writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+  writeDescriptorSet.dstSet = 0;
+  writeDescriptorSet.dstBinding = 0;
+  writeDescriptorSet.descriptorCount = 2;
+  writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+  writeDescriptorSet.pImageInfo = imageBufferInfo;
+
+  vkCmdPushDescriptorSetKHR(
+      CommandBuffers[CurrentFrameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
+      PipelineNV12Frame->PipelineLayout, 0, 1, &writeDescriptorSet);
 
   YUVFramePushConstants constants = {};
   constants.IsAlpha = alphaVideo;

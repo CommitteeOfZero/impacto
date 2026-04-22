@@ -35,17 +35,9 @@
       "name": "ffmpeg",
       "default-features": false,
       "features": [
-        "amf"
+        "vaapi"
       ],
-      "platform": "!osx"
-    },
-    {
-      "name": "ffmpeg",
-      "default-features": false,
-      "features": [
-        "nvcodec"
-      ],
-      "platform": "linux | windows"
+      "platform": "linux"
     },
     "libwebp",
     "fmt",

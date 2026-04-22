@@ -768,5 +768,24 @@ void SubtitleGlyphShader::UploadUniforms(SubtitleGlyphUniforms newUniforms) {
   UpdateVar(newUniforms.CoverageMap, Uniforms.CoverageMap, CoverageMapLocation);
 }
 
+NV12FrameShader::NV12FrameShader(GLint programId)
+    : Shader(programId),
+      ProjectionLocation(glGetUniformLocation(programId, "Projection")),
+      LumaLocation(glGetUniformLocation(programId, "Luma")),
+      CbCrLocation(glGetUniformLocation(programId, "CbCr")),
+      IsAlphaLocation(glGetUniformLocation(programId, "IsAlpha")) {
+  UploadVar(Uniforms.Projection, ProjectionLocation);
+  UploadVar(Uniforms.Luma, LumaLocation);
+  UploadVar(Uniforms.CbCr, CbCrLocation);
+  UploadVar(Uniforms.IsAlpha, IsAlphaLocation);
+}
+
+void NV12FrameShader::UploadUniforms(NV12FrameUniforms newUniforms) {
+  UpdateVar(newUniforms.Projection, Uniforms.Projection, ProjectionLocation);
+  UpdateVar(newUniforms.Luma, Uniforms.Luma, LumaLocation);
+  UpdateVar(newUniforms.CbCr, Uniforms.CbCr, CbCrLocation);
+  UpdateVar(newUniforms.IsAlpha, Uniforms.IsAlpha, IsAlphaLocation);
+}
+
 }  // namespace OpenGL
 }  // namespace Impacto

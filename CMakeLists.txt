@@ -407,6 +407,7 @@ set(Impacto_Header
     src/renderer/renderer.h
     src/renderer/window.h
     src/renderer/yuvframe.h
+    src/renderer/nv12frame.h
 
     src/data/savesystem.h
     src/data/tipssystem.h
@@ -1145,6 +1146,7 @@ if (NOT DEFINED IMPACTO_DISABLE_OPENGL)
         src/renderer/opengl/shader.cpp
         src/renderer/opengl/glc.cpp
         src/renderer/opengl/yuvframe.cpp
+        src/renderer/opengl/nv12frame.cpp
         src/renderer/opengl/3d/renderable3d.cpp
         src/renderer/opengl/3d/scene.cpp
 
@@ -1156,6 +1158,7 @@ if (NOT DEFINED IMPACTO_DISABLE_OPENGL)
         src/renderer/opengl/shader.h
         src/renderer/opengl/glc.h
         src/renderer/opengl/yuvframe.h
+        src/renderer/opengl/nv12frame.h
         src/renderer/opengl/3d/renderable3d.h
         src/renderer/opengl/3d/scene.h
     )
@@ -1175,7 +1178,6 @@ if (NOT DEFINED IMPACTO_DISABLE_FFMPEG)
     )
 
     if (NOT VCPKG_TOOLCHAIN)
-        set(AVCPP_PATCH git apply ${CMAKE_CURRENT_SOURCE_DIR}/vendor/patches/avcpp.patch)
         if(NOT BUILD_SHARED_LIBS)
             set(AV_ENABLE_SHARED OFF CACHE BOOL "Enable shared library build (Off)" FORCE)            
         endif()
@@ -1185,9 +1187,11 @@ if (NOT DEFINED IMPACTO_DISABLE_FFMPEG)
         FetchContent_Declare(
             avcpp
             GIT_REPOSITORY "https://github.com/h4tr3d/avcpp"
-            GIT_TAG "00e29ea0c0f7036423b80553aaccacd70f90aace"
+            GIT_TAG "6bf8c76b120cf2cc448d706ea22f112017803605"
             SYSTEM
             GIT_SUBMODULES ""
+            PATCH_COMMAND ${AVCPP_PATCH}
+            UPDATE_DISCONNECTED 1
         )
 
         FetchContent_MakeAvailable(avcpp)
@@ -1204,6 +1208,10 @@ if (NOT DEFINED IMPACTO_DISABLE_FFMPEG)
             PkgConfig::FFmpeg
         )
     else ()
+        find_package(FFMPEG REQUIRED)
+        list(APPEND Impacto_Include_Dirs ${FFMPEG_INCLUDE_DIRS})
+        list(APPEND Impacto_Libs ${FFMPEG_LIBRARIES})
+
         find_package(avcpp CONFIG REQUIRED)
         list(APPEND Impacto_Libs
             avcpp::avcpp
@@ -1240,6 +1248,7 @@ if (NOT DEFINED IMPACTO_DISABLE_VULKAN)
         src/renderer/vulkan/pipeline.cpp
         src/renderer/vulkan/utils.cpp
         src/renderer/vulkan/yuvframe.cpp
+        src/renderer/vulkan/nv12frame.cpp
         src/renderer/vulkan/3d/renderable3d.cpp
         src/renderer/vulkan/3d/scene.cpp
     )
@@ -1249,6 +1258,7 @@ if (NOT DEFINED IMPACTO_DISABLE_VULKAN)
         src/renderer/vulkan/pipeline.h
         src/renderer/vulkan/utils.h
         src/renderer/vulkan/yuvframe.h
+        src/renderer/vulkan/nv12frame.h
         src/renderer/vulkan/3d/renderable3d.h
         src/renderer/vulkan/3d/scene.h
     )
@@ -1267,6 +1277,7 @@ if (NOT DEFINED IMPACTO_DISABLE_DX9)
         src/renderer/dx9/window.cpp
         src/renderer/dx9/shader.cpp
         src/renderer/dx9/yuvframe.cpp
+        src/renderer/dx9/nv12frame.cpp
         src/renderer/dx9/3d/scene.cpp
         src/renderer/dx9/3d/renderable3d.cpp
     )
@@ -1276,6 +1287,7 @@ if (NOT DEFINED IMPACTO_DISABLE_DX9)
         src/renderer/dx9/window.h
         src/renderer/dx9/shader.h
         src/renderer/dx9/yuvframe.h
+        src/renderer/dx9/nv12frame.h
         src/renderer/dx9/3d/scene.h
         src/renderer/dx9/3d/renderable3d.h
     )

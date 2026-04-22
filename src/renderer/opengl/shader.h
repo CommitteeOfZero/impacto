@@ -641,5 +641,29 @@ class SubtitleGlyphShader : public Shader<SubtitleGlyphUniforms> {
   const GLint CoverageMapLocation;
 };
 
+struct NV12FrameUniforms {
+  bool operator==(const NV12FrameUniforms& other) const = default;
+
+  glm::mat4 Projection;
+
+  GLint Luma = 0;
+  GLint CbCr = 0;
+  bool IsAlpha = false;
+};
+
+class NV12FrameShader : public Shader<NV12FrameUniforms> {
+ public:
+  NV12FrameShader(GLint programId);
+
+  void UploadUniforms(NV12FrameUniforms uniforms) override;
+
+ private:
+  const GLint ProjectionLocation;
+
+  const GLint LumaLocation;
+  const GLint CbCrLocation;
+  const GLint IsAlphaLocation;
+};
+
 }  // namespace OpenGL
 }  // namespace Impacto

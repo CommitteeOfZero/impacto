@@ -102,6 +102,63 @@ void FFmpegPlayer::Init() {
   IsInit = true;
 }
 
+AVBufferRef* FFmpegPlayer::HwDecoderInit(const AVCodec* codec) {
+  for (int i = 0;; i++) {
+    const AVCodecHWConfig* cfg = avcodec_get_hw_config(codec, i);
+    if (!cfg) break;
+    if (!(cfg->methods & AV_CODEC_HW_CONFIG_METHOD_HW_DEVICE_CTX)) continue;
+
+    AVBufferRef* hw_device_ctx = NULL;
+    if (av_hwdevice_ctx_create(&hw_device_ctx, cfg->device_type, NULL, NULL,
+                               0) >= 0) {
+      HwVideoPixelFormat = static_cast<AVPixelFormat>(cfg->pix_fmt);
+      return hw_device_ctx;
+    }
+  }
+  return NULL;
+}
+
+template <AVMediaType MediaType>
+std::optional<av::Codec> findDecoderCodec(av::Stream const& avStream) {
+  const AVCodecID codecId = avStream.codecParameters().codecId();
+  std::optional<av::Codec> result;
+
+  auto checkDecode = [](av::Codec&& codec) -> std::optional<av::Codec> {
+    if (!codec.canDecode()) {
+      const auto channel = [] {
+        switch (MediaType) {
+          case AVMEDIA_TYPE_VIDEO:
+            return LogChannel::Video;
+          case AVMEDIA_TYPE_AUDIO:
+            return LogChannel::Audio;
+          case AVMEDIA_TYPE_SUBTITLE:
+            return LogChannel::Subtitle;
+          default:
+            return LogChannel::General;
+        }
+      }();
+      ImpLog(LogLevel::Error, channel, "Unsupported codec: {}!\n",
+             codec.name());
+      return std::nullopt;
+    }
+    return std::optional<av::Codec>{std::move(codec)};
+  };
+
+  if constexpr (MediaType == AVMEDIA_TYPE_VIDEO) {
+#ifdef __ANDROID__
+    const AVCodecDescriptor* desc = avcodec_descriptor_get(codecId);
+    const std::string decoderName = fmt::format("{}_mediacodec", desc->name);
+    result = checkDecode(av::findDecodingCodec(decoderName));
+#endif
+  }
+
+  if (!result) {
+    result = checkDecode(av::findDecodingCodec(codecId));
+  }
+
+  return result;
+}
+
 template <AVMediaType MediaType>
 void FFmpegPlayer::OpenCodec(std::optional<FFmpegStream<MediaType>>& streamOpt,
                              av::Stream&& avStream, int streamId) {
@@ -110,22 +167,50 @@ void FFmpegPlayer::OpenCodec(std::optional<FFmpegStream<MediaType>>& streamOpt,
                 MediaType != AVMEDIA_TYPE_SUBTITLE) {
     static_assert(MediaType && false, "Unsupported MediaType");
   }
+  std::optional<av::Codec> codec = findDecoderCodec<MediaType>(avStream);
+  if (!codec) {
+    avStream.reset();
+  }
 
-  const auto codec =
-      av::findDecodingCodec(avStream.codecParameters().codecId());
-  if (!codec.canDecode()) {
-    ImpLog(LogLevel::Error, LogChannel::Video, "Unsupported codec!\n");
-    streamOpt.reset();
+  DecodingContext_t<MediaType> decoderContext{avStream, *codec};
+  if constexpr (MediaType == AVMEDIA_TYPE_VIDEO) {
+    if (auto* ctx = HwDecoderInit(decoderContext.codec().raw()); ctx) {
+      decoderContext.raw()->hw_device_ctx = ctx;
+      decoderContext.raw()->opaque = this;
+      decoderContext.raw()->get_format =
+          [](AVCodecContext* ctx,
+             const AVPixelFormat* pix_fmts) -> AVPixelFormat {
+        auto const* self = static_cast<FFmpegPlayer*>(ctx->opaque);
+        for (const auto* p = pix_fmts; *p != AV_PIX_FMT_NONE; p++) {
+          if (*p == self->HwVideoPixelFormat) return *p;
+        }
+        for (const auto* p = pix_fmts; *p != AV_PIX_FMT_NONE; p++) {
+          const AVPixFmtDescriptor* desc = av_pix_fmt_desc_get(*p);
+          if (!(desc->flags & AV_PIX_FMT_FLAG_HWACCEL)) return *p;
+        }
+        return AV_PIX_FMT_NONE;
+      };
+    }
   }
 
   std::error_code ec;
-
-  DecodingContext_t<MediaType> decoderContext{avStream, codec};
-  decoderContext.open({{{"threads", "auto"}}}, ec);
+  decoderContext.open({{{"threads", "auto"}}}, decoderContext.codec(), ec);
   decoderContext.setRefCountedFrames(true);
   if (ec) {
-    ImpLog(LogLevel::Error, LogChannel::Audio,
-           "Failed to open codec, error: {:s}", ec.message());
+    const auto channel = [] {
+      switch (MediaType) {
+        case AVMEDIA_TYPE_VIDEO:
+          return LogChannel::Video;
+        case AVMEDIA_TYPE_AUDIO:
+          return LogChannel::Audio;
+        case AVMEDIA_TYPE_SUBTITLE:
+          return LogChannel::Subtitle;
+        default:
+          return LogChannel::General;
+      }
+    }();
+    ImpLog(LogLevel::Error, channel, "Failed to open codec, error: {:s}",
+           ec.message());
   }
 
   double rate = 1;
@@ -214,14 +299,25 @@ void FFmpegPlayer::Play(Io::Stream* stream, bool looping, bool alpha) {
                                   videoStreamId);
     ScrWork[SW_MOVIEFRAME] = 0;
     ScrWork[SW_MOVIETOTALFRAME] = VideoStream->Duration;
-    if (!VideoTexture)
-      VideoTexture =
-          Renderer->CreateYUVFrame((float)VideoStream->CodecContext.width(),
-                                   (float)VideoStream->CodecContext.height());
-    else {
-      VideoTexture->Width = (float)VideoStream->CodecContext.width();
-      VideoTexture->Height = (float)VideoStream->CodecContext.height();
-    }
+    std::visit(
+        [this](auto& videoText) {
+          if constexpr (std::is_same_v<std::decay_t<decltype(videoText)>,
+                                       std::monostate>) {
+            if (HwVideoPixelFormat == AV_PIX_FMT_NONE) {
+              VideoTexture = Renderer->CreateYUVFrame(
+                  (float)VideoStream->CodecContext.width(),
+                  (float)VideoStream->CodecContext.height());
+            } else {
+              VideoTexture = Renderer->CreateNV12Frame(
+                  (float)VideoStream->CodecContext.width(),
+                  (float)VideoStream->CodecContext.height());
+            }
+          } else {
+            videoText->Width = (float)VideoStream->CodecContext.width();
+            videoText->Height = (float)VideoStream->CodecContext.height();
+          }
+        },
+        VideoTexture);
   }
   if (audioStream.isAudio() && audioStream.isValid()) {
     OpenCodec<AVMEDIA_TYPE_AUDIO>(AudioStream, std::move(audioStream),
@@ -262,12 +358,17 @@ void FFmpegPlayer::InitSubtitles(
   using Profile::Subtitle::SubtitleType;
   using namespace Subtitle;
   auto initSubPlayer = [this] {
-    if (!SubPlayer) {
-      if (VideoTexture)
-        SubPlayer.emplace(VideoTexture->Width, VideoTexture->Height);
-      else
-        SubPlayer.emplace(Profile::DesignWidth, Profile::DesignHeight);
-    }
+    if (SubPlayer) return;
+    std::visit(
+        [this](auto& videoText) {
+          if constexpr (std::is_same_v<std::decay_t<decltype(videoText)>,
+                                       std::monostate>) {
+            SubPlayer.emplace(Profile::DesignWidth, Profile::DesignHeight);
+          } else {
+            SubPlayer.emplace(videoText->Width, videoText->Height);
+          }
+        },
+        VideoTexture);
   };
   const auto subtitleMappings =
       [this]() -> std::vector<SubtitleTrackFile> const* {
@@ -418,6 +519,23 @@ void FFmpegPlayer::Read() {
   }
 }
 
+void FFmpegPlayer::ProcessVideoFrame(Frame_t<AVMEDIA_TYPE_VIDEO>& avFrame) {
+  auto rawFrame = avFrame.raw();
+  if (rawFrame->format == AV_PIX_FMT_NONE ||
+      !(av_pix_fmt_desc_get(avFrame.pixelFormat())->flags &
+        AV_PIX_FMT_FLAG_HWACCEL)) {
+    return;
+  }
+  AVFrame* swFrame = av_frame_alloc();
+  if (av_hwframe_transfer_data(swFrame, rawFrame, 0) < 0) {
+    av_frame_free(&swFrame);
+    return;
+  }
+  av_frame_copy_props(swFrame, rawFrame);
+  av_frame_free(&rawFrame);
+  avFrame.reset(swFrame);
+}
+
 template <AVMediaType MediaType>
 void FFmpegPlayer::Decode(FFmpegStream<MediaType>& stream) {
   auto verifyPacket =
@@ -470,21 +588,33 @@ void FFmpegPlayer::Decode(FFmpegStream<MediaType>& stream) {
     AVPacketItem packet = verifyPacket(peek);
     std::error_code ec;
 
-    if (packet.Serial != INT32_MIN) {
-      Frame_t<MediaType> frame = stream.CodecContext.decode(packet.Packet, ec);
+    auto processAndPush = [&](Frame_t<MediaType>&& f) {
       if (ec) {
         ImpLog(LogLevel::Error, LogChannel::Video, "Failed to decode {:s}",
                ec.message());
+        return false;
       }
-      if (!frame) continue;  // Skip Empty Padding Frames
+      if (!f) return false;
+      if constexpr (MediaType == AVMEDIA_TYPE_VIDEO) {
+        ProcessVideoFrame(f);
+      }
       if constexpr (MediaType == AVMEDIA_TYPE_SUBTITLE) {
-        auto* rawSubtitle = frame.raw();
+        auto* rawSubtitle = f.raw();
         if (rawSubtitle->start_display_time == 0 &&
             rawSubtitle->end_display_time == 0) {
           rawSubtitle->end_display_time = packet.Packet.duration();
         }
       }
-      pushFrame(std::move(frame));
+      pushFrame(std::move(f));
+      return true;
+    };
+
+    if (packet.Serial != INT32_MIN) {
+      Frame_t<MediaType> frame = stream.CodecContext.decode(packet.Packet, ec);
+
+      while (processAndPush(std::move(frame))) {
+        frame = stream.CodecContext.decode(av::Packet{nullptr}, ec);
+      }
     } else {
       // Flush decoder since packets are finished
       bool decode = true;
@@ -533,10 +663,16 @@ void FFmpegPlayer::Stop() {
     PreviousFrameTimestamp = {};
     FormatContext.close();
     StreamPtr.reset();
-    if (VideoTexture) {
-      VideoTexture->Release();
-      VideoTexture = 0;
-    }
+    std::visit(
+        [this](auto& videoText) {
+          if constexpr (!std::is_same_v<std::decay_t<decltype(videoText)>,
+                                        std::monostate>) {
+            videoText->Release();
+            VideoTexture = std::monostate{};
+          }
+        },
+        VideoTexture);
+
     SetFlag(SF_MOVIEPLAY, false);
   }
 }
@@ -608,9 +744,18 @@ void FFmpegPlayer::Update(float dt) {
     }
 
     PreviousFrameTimestamp = frame->Timestamp;
-
-    VideoTexture->Submit(frame->Frame.data(0), frame->Frame.data(1),
-                         frame->Frame.data(2));
+    if (frame->Frame.pixelFormat() == AV_PIX_FMT_NV12) {
+      auto& nv12Frame = std::get<NV12Frame*>(VideoTexture);
+      nv12Frame->Submit(frame->Frame.data(0), frame->Frame.raw()->linesize[0],
+                        frame->Frame.data(1), frame->Frame.raw()->linesize[1]);
+    } else if (frame->Frame.pixelFormat() == AV_PIX_FMT_YUV420P) {
+      auto& yuvFrame = std::get<YUVFrame*>(VideoTexture);
+      yuvFrame->Submit(frame->Frame.data(0), frame->Frame.data(1),
+                       frame->Frame.data(2));
+    } else {
+      ImpLog(LogLevel::Warning, LogChannel::Video,
+             "Unsupported frame pixel format, video will not display!\n");
+    }
     VideoClock.Set(frame->Timestamp.toDuration<Clock::Microseconds>(),
                    frame->Serial);
     MasterClock->SyncTo(&VideoClock);
@@ -671,7 +816,14 @@ void FFmpegPlayer::Render(float videoAlpha) {
 
   const RectF dest = {0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight};
   const glm::vec4 tint = {1.0f, 1.0f, 1.0f, videoAlpha};
-  Renderer->DrawVideoTexture(*VideoTexture, dest, tint, IsAlpha);
+  std::visit(
+      [this, &dest, &tint](auto& videoText) {
+        if constexpr (!std::is_same_v<std::decay_t<decltype(videoText)>,
+                                      std::monostate>) {
+          Renderer->DrawVideoTexture(*videoText, dest, tint, IsAlpha);
+        }
+      },
+      VideoTexture);
   if (SubPlayer) SubPlayer->Render();
 }
 
