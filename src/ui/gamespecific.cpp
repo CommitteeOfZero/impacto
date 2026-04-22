@@ -245,14 +245,15 @@ static void UpdateCCAtChanScrollbar() {
     static int dragOffset = 0;
     bool mouseHover = false;
 
+    using Profile::Vm::ScrWorkBgStructSize;
     // From decompile
     const RectF thumbBounds{
-        (float)-ScrWork[4580] * 1.5f - 2.0f,
-        (float)-ScrWork[4581] * 1.5f - 2.0f,
+        (float)-ScrWork[SW_BG1POSX + ScrWorkBgStructSize * 2] * 1.5f - 2.0f,
+        (float)-ScrWork[SW_BG1POSY + ScrWorkBgStructSize * 2] * 1.5f - 2.0f,
         22.0f,
         112.0f,
     };
-    const std::pair<int, int> bgYRange{-45, ScrWork[1504]};
+    const std::pair<int, int> bgYRange{-45, ScrWork[SW_ATCHAN_SCROLL_MAX]};
 
     // Empirical values
     const std::pair<float, float> mouseYRange{83.5f, 908.5f};

@@ -1,5 +1,6 @@
 local sv = root.ScriptVars;
 
+sv.SW_ATCHAN_SCROLL_MAX = 1504;
 sv.SW_TITLECUR1 = 2139;
 sv.SW_TITLECUR2 = 2140; --Actual guess
 sv.SW_CAP1POSX_OFS = 2380;
