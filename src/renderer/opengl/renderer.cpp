@@ -589,8 +589,8 @@ void Renderer::DrawPrimitives(
     const std::span<const VertexBufferSprites> vertices,
     const std::span<const uint16_t> indices,
     const glm::mat4 spriteTransformation, const glm::mat4 maskTransformation,
-    const bool inverted, TopologyMode topologyMode,
-    std::optional<FBOId> fboId) {
+    const bool inverted, TopologyMode topologyMode, std::optional<FBOId> fboId,
+    const bool textureWrapRepeat) {
   if (!Drawing) {
     ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawVertices() called before BeginFrame()\n");
@@ -599,6 +599,13 @@ void Renderer::DrawPrimitives(
 
   EnsureFBO(fboId.value_or(0));
   EnsureTopologyMode(topologyMode);
+
+  if (textureWrapRepeat) {
+    Flush();
+    glBindSampler(0, Samplers[0]);
+    glSamplerParameteri(Samplers[0], GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glSamplerParameteri(Samplers[0], GL_TEXTURE_WRAP_T, GL_REPEAT);
+  }
 
   // Set uniform variables
   // PringlesGang: I promise I'll clean all of this up with the bgfx refactor!!
@@ -811,6 +818,13 @@ void Renderer::DrawPrimitives(
   }
 
   InsertVertices(transformedVertices, indices);
+
+  if (textureWrapRepeat) {
+    Flush();
+    glBindSampler(0, Samplers[0]);
+    glSamplerParameteri(Samplers[0], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glSamplerParameteri(Samplers[0], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  }
 }
 
 void Renderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
