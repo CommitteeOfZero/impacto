@@ -304,35 +304,39 @@ class BaseRenderer {
                               glm::mat4 maskTransformation = glm::mat4(1.0f),
                               bool inverted = false,
                               TopologyMode topology = TopologyMode::Triangles,
-                              std::optional<FBOId> fboId = std::nullopt) = 0;
+                              std::optional<FBOId> fboId = std::nullopt,
+                              bool textureWrapRepeat = false) = 0;
 
   virtual void DrawPrimitives(const SpriteSheet& sheet,
                               ShaderProgramType shaderType,
                               std::span<const VertexBufferSprites> vertices,
                               std::span<const uint16_t> indices,
                               glm::mat4 transformation = glm::mat4(1.0f),
-                              bool inverted = false) {
+                              bool inverted = false,
+                              bool textureWrapRepeat = false) {
     DrawPrimitives(sheet, nullptr, shaderType, vertices, indices,
-                   transformation, glm::mat4(1.0f), inverted);
+                   transformation, glm::mat4(1.0f), inverted,
+                   TopologyMode::Triangles, std::nullopt, textureWrapRepeat);
   }
 
   void DrawPrimitives(const SpriteSheet& sheet, const SpriteSheet* mask,
                       ShaderProgramType shaderType,
                       std::span<const VertexBufferSprites> vertices,
                       std::span<const uint16_t> indices, glm::vec2 offset,
-                      bool inverted = false) {
+                      bool inverted = false, bool textureWrapRepeat = false) {
     DrawPrimitives(sheet, mask, shaderType, vertices, indices,
                    glm::translate(glm::mat4(1.0f), glm::vec3(offset, 0.0f)),
-                   glm::mat4(1.0f), inverted);
+                   glm::mat4(1.0f), inverted, TopologyMode::Triangles,
+                   std::nullopt, textureWrapRepeat);
   }
 
   void DrawPrimitives(const SpriteSheet& sheet, ShaderProgramType shaderType,
                       std::span<const VertexBufferSprites> vertices,
                       std::span<const uint16_t> indices, glm::vec2 offset,
-                      bool inverted = false) {
+                      bool inverted = false, bool textureWrapRepeat = false) {
     DrawPrimitives(sheet, shaderType, vertices, indices,
                    glm::translate(glm::mat4(1.0f), glm::vec3(offset, 0.0f)),
-                   inverted);
+                   inverted, textureWrapRepeat);
   }
 
   void DrawConvexShape(std::span<const glm::vec2> vertices,
