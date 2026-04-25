@@ -44,7 +44,7 @@ void Configure() {
   HighlightStar = EnsureGetMember<Sprite>("HighlightStar");
   HighlightStarRelativePos =
       EnsureGetMember<glm::vec2>("HighlightStarRelativePos");
-  GetMemberArray<int>(std::span(Playlist, MusicTrackCount), "Playlist");
+  Playlist = EnsureGetMember<decltype(Playlist)>("Playlist");
   SelectSoundSprites =
       EnsureGetMember<std::vector<Sprite>>("SelectSoundSprites");
   SelectSoundPos = EnsureGetMember<std::vector<glm::vec2>>("SelectSoundPos");

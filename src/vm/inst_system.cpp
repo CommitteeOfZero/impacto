@@ -32,6 +32,7 @@ namespace Impacto {
 namespace Vm {
 
 using namespace Impacto::Profile::ScriptVars;
+using namespace Impacto::Vm::Interface;
 using Impacto::SaveSystem::SaveError;
 
 VmInstruction(InstDummy) {}
@@ -129,23 +130,72 @@ VmInstruction(InstCopyFlag) {
 VmInstruction(InstKeyWait) {
   StartInstruction;
   PopUint8(type);
-  PopExpression(arg1);
-  PopExpression(arg2);
-  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-             "STUB instruction KeyWait(type: {:d}, arg1: {:d}, arg2: {:d})\n",
-             type, arg1, arg2);
+  PopExpression(buttonsArg);
+  PopExpression(downTypeId);
+
+  const Interface::InputDownType downType =
+      static_cast<Interface::InputDownType>(downTypeId);
+
+  const bool inputResult = [&]() -> bool {
+    const uint32_t bitfield = (type & 2) == 0 ? buttonsArg
+                              : buttonsArg < std::ssize(PADcustom)
+                                  ? PADcustom[buttonsArg]
+                                  : 0;
+
+    uint32_t padInputDown = GetPadInputButtonDown(downType);
+    if (downType == InputDownType::IsDown) {
+      padInputDown |= PADinputMouseIsDown;
+    } else if (downType == InputDownType::WentDown) {
+      padInputDown |= PADinputMouseWentDown;
+    }
+
+    return bitfield & padInputDown;
+  }();
+
+  if (!inputResult) {
+    ResetInstruction;
+    BlockThread;
+  }
 }
 VmInstruction(InstKeyWaitTimer) {
   StartInstruction;
   PopUint8(type);
   PopExpression(timer);
-  PopExpression(arg1);
-  PopExpression(arg2);
-  ImpLogSlow(
-      LogLevel::Warning, LogChannel::VMStub,
-      "STUB instruction KeyWaitTimer(type: {:d}, timer: {:d}, arg1: {:d}, "
-      "arg2: {:d})\n",
-      type, timer, arg1, arg2);
+  PopExpression(buttonsArg);
+  PopExpression(downTypeId);
+
+  if (thread->WaitCounter <= 0) {
+    thread->WaitCounter = timer + 1;
+  } else {
+    thread->WaitCounter--;
+  }
+  const Interface::InputDownType downType =
+      static_cast<Interface::InputDownType>(downTypeId);
+  const bool inputResult = [&]() -> bool {
+    const uint32_t bitfield = (type & 2) == 0 ? buttonsArg
+                              : buttonsArg < std::ssize(PADcustom)
+                                  ? PADcustom[buttonsArg]
+                                  : 0;
+
+    uint32_t padInputDown = GetPadInputButtonDown(downType);
+    if (downType == InputDownType::IsDown) {
+      padInputDown |= PADinputMouseIsDown;
+    } else if (downType == InputDownType::WentDown) {
+      padInputDown |= PADinputMouseWentDown;
+    }
+
+    return bitfield & padInputDown;
+  }();
+
+  if (inputResult) {
+    thread->WaitCounter = 0;
+    return;
+  }
+
+  if (thread->WaitCounter > 0) {
+    ResetInstruction;
+    BlockThread;
+  }
 }
 VmInstruction(InstMemberWrite) {
   StartInstruction;

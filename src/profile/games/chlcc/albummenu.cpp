@@ -18,7 +18,8 @@ void Configure() {
   PageLabelPosition = EnsureGetMember<glm::vec2>("PageLabelPosition");
   CGBox = EnsureGetMember<Sprite>("CGBox");
   CGBoxTemplatePosition = EnsureGetMember<glm::vec2>("CGBoxTemplatePosition");
-  GetMemberArray<Sprite>(std::span(AlbumThumbnails, 63), "AlbumThumbnails");
+  AlbumThumbnails =
+      EnsureGetMember<decltype(AlbumThumbnails)>("AlbumThumbnails");
   ThumbnailTemplatePosition =
       EnsureGetMember<glm::vec2>("ThumbnailTemplatePosition");
   VariationUnlocked = EnsureGetMember<Sprite>("VariationUnlocked");
@@ -60,7 +61,8 @@ void Configure() {
 
   auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
 
-  UI::Menus[drawType].push_back(new UI::CHLCC::AlbumMenu());
+  UI::AlbumMenuPtr = new UI::CHLCC::AlbumMenu();
+  UI::Menus[drawType].push_back(UI::AlbumMenuPtr);
 }
 
 }  // namespace AlbumMenu

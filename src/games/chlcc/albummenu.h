@@ -14,6 +14,7 @@ class AlbumMenu : public Menu, public CommonMenu {
  public:
   AlbumMenu();
 
+  void Init() override;
   void Show() override;
   void Hide() override;
   void UpdateInput(float dt) override;

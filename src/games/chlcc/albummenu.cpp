@@ -82,6 +82,17 @@ AlbumMenu::AlbumMenu() : CommonMenu(false) {
   }
 }
 
+void AlbumMenu::Init() {
+  if (!GetFlag(SF_CONGRATULATED)) {
+    return;
+  }
+
+  const auto start = AlbumPages * EntriesPerPage;
+  for (int i = start; i < start + EntriesPerPage; i++) {
+    SaveSystem::SetEVStatus(i);
+  }
+}
+
 void AlbumMenu::Show() {
   if (State != Shown) {
     if (State != Showing) {
@@ -179,12 +190,13 @@ void AlbumMenu::UpdateInput(float dt) {
       CurrentlyFocusedElement = Pages[CurrentPage]->Children.front();
     };
     if (IsFocused && !ShowCgViewer) {
+      const auto albumPages = AlbumPages + GetFlag(SF_CONGRATULATED);
       if (Input::MouseWheelDeltaY < 0 ||
           PADinputButtonWentDown & PADcustom[8]) {
-        updatePage((CurrentPage + 1) % AlbumPages);
+        updatePage((CurrentPage + 1) % albumPages);
       } else if (Input::MouseWheelDeltaY > 0 ||
                  PADinputButtonWentDown & PADcustom[7]) {
-        updatePage((CurrentPage - 1 + AlbumPages) % AlbumPages);
+        updatePage((CurrentPage - 1 + albumPages) % albumPages);
       }
     }
   }
@@ -257,17 +269,19 @@ void AlbumMenu::UpdatePages() {
   int totalVariations = 0;
   int viewedVariations = 0;
   int lastNonEmptyPage = 0;
-  bool pageLocked = true;
-  for (int i = 0; i <= AlbumPages * EntriesPerPage; i++) {
+  const int32_t albumPages = AlbumPages + GetFlag(SF_CONGRATULATED);
+  for (int i = 0; i < albumPages * EntriesPerPage; i++) {
     SaveSystem::GetEVStatus(i, &totalVariations, &viewedVariations);
+    const size_t currentPage = i / EntriesPerPage;
     static_cast<AlbumThumbnailButton*>(
-        Pages[i / EntriesPerPage]->Children[i % EntriesPerPage])
+        Pages[currentPage]->Children[i % EntriesPerPage])
         ->UpdateVariations(totalVariations, viewedVariations);
 
-    if (viewedVariations > 0) pageLocked = false;
-    if (i % 9 == 0 && pageLocked == false) lastNonEmptyPage = i / 9;
+    if (viewedVariations > 0) {
+      lastNonEmptyPage = static_cast<int>(currentPage);
+    }
   }
-  MaxReachablePage = lastNonEmptyPage;
+  MaxReachablePage = lastNonEmptyPage + 1;
 
   for (int i = 0; i < EntriesPerPage * MaxReachablePage; i++) {
     int nextChild = ((i + 1) + ((i + 1) % 3 == 0) * 6) %

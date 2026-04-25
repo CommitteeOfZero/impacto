@@ -15,7 +15,7 @@ inline Sprite PageCountLabel;
 inline glm::vec2 PageLabelPosition;
 inline Sprite CGBox;
 inline glm::vec2 CGBoxTemplatePosition;
-inline Sprite AlbumThumbnails[63];
+inline std::array<Sprite, 63> AlbumThumbnails;
 inline glm::vec2 ThumbnailTemplatePosition;
 inline Sprite VariationUnlocked;
 inline Sprite VariationLocked;

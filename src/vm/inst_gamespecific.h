@@ -15,7 +15,7 @@ VmInstruction(InstUnk011F);
 VmInstruction(InstRINNS);
 VmInstruction(InstRINNSMain);
 VmInstruction(InstUnk012D);
-VmInstruction(InstUnk1035CHLCC);
+VmInstruction(InstAllClearChkCHLCC);
 VmInstruction(InstChatMO8);
 VmInstruction(InstGeotag);
 VmInstruction(InstUnk100FMO6);

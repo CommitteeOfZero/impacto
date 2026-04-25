@@ -10,6 +10,7 @@
 #include "../../profile/ui/titlemenu.h"
 #include "../../profile/games/chlcc/titlemenu.h"
 #include "../../profile/scriptvars.h"
+#include "../../background2d.h"
 #include "../../profile/game.h"
 #include <vector>
 
@@ -313,7 +314,12 @@ void TitleMenu::Update(float dt) {
     Hide();
   }
 
-  if (State == Shown && IsFocused) {
+  // CHLCC has "congrats" screen that is rendered as a BG on top of the title
+  // menu while it's still focused, and it's possible to hover extraSubItems
+  const bool hasVisibleBGs =
+      std::ranges::any_of(Impacto::Backgrounds2D,
+                          [](const auto& pair) { return pair.second->Show; });
+  if (State == Shown && IsFocused && !hasVisibleBGs) {
     MainItems->Tint.a =
         glm::smoothstep(0.0f, 1.0f, PrimaryFadeAnimation.Progress);
     MainItems->UpdateInput(dt);
