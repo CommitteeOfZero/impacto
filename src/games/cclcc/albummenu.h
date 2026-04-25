@@ -46,10 +46,12 @@ struct AlbumCGViewer {
   int ActiveVariantIndex{};
   std::reference_wrapper<AlbumThumbnail> ClickedThumbnail;
   Animation PageSwapAnimation;
+  Animation TransitionDuration;
   bool WasClicked = false;
   float ClickHoldTime = 0.0f;
   float SnapWidthHoldTime = 0.0f;
   bool WasZoomHeld = false;
+  bool StartHide = false;
   AlbumCGViewer(AlbumThumbnail& thumbnail) : ClickedThumbnail(thumbnail) {}
   void CGViewerPanZoom(float dt);
 };
@@ -65,7 +67,8 @@ class AlbumMenu : public LibrarySubmenu {
   std::vector<std::vector<AlbumThumbnail*>> ThumbnailPages;
   uint8_t PrevPage = 0;
   uint8_t ActivePage = 0;
-  Animation ThumbnailZoomAnimation;
+  Animation AlbumPgChangeAnimation;
+  Animation AlbumModeChangeAnimation;
   Animation ThumbnailThumbBlink;
 
   std::optional<AlbumCGViewer> CGViewer;

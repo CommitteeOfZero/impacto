@@ -93,16 +93,13 @@ void Configure() {
       EnsureGetMember<std::vector<Sprite>>("AlbumThumbnailPinSprites");
   AlbumThumbnailThumbSprite =
       EnsureGetMember<Sprite>("AlbumThumbnailThumbSprite");
-  AlbumThumbZoomPgChangeDuration =
-      EnsureGetMember<float>("AlbumThumbZoomPgChangeDuration");
-  AlbumThumbZoomClickDuration =
-      EnsureGetMember<float>("AlbumThumbZoomClickDuration");
+  AlbumPgChangeDuration = EnsureGetMember<float>("AlbumPgChangeDuration");
+  AlbumItemFadeDuration = EnsureGetMember<float>("AlbumItemFadeDuration");
   AlbumThumbnailPinRemoveOffset =
       EnsureGetMember<glm::vec2>("AlbumThumbnailPinRemoveOffset");
-  AlbumCGPageSwapAnimationDuration =
-      EnsureGetMember<float>("AlbumCGPageSwapAnimationDuration");
   AlbumThumbnailThumbBlinkDuration =
       EnsureGetMember<float>("AlbumThumbnailThumbBlinkDuration");
+  AlbumModeChangeDuration = EnsureGetMember<float>("AlbumModeChangeDuration");
   AlbumPageNumberPositions =
       EnsureGetMember<std::vector<glm::vec2>>("AlbumPageNumberPositions");
   AlbumPageNumberSprites =
