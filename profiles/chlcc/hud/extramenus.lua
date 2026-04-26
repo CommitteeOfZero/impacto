@@ -91,6 +91,7 @@ root.ExtraMenus = {
         MovieExtraVideosEnabled = true,
         MovieBoxExtra = "MovieBoxExtra",
         MovieThumbnailExtraOp = "MovieThumbnailExtraOp",
+        MovieThumbnailExtraOp2 = "MovieThumbnailExtraOp2",
         MovieButtonExtraPromptPosition = { X = 877, Y = 651 },
         MovieButtonExtraPrompt = "MovieButtonExtraPrompt",
         SelectedMovieExtraAnimation = "SelectedMovieExtraAnimDef",
@@ -327,6 +328,11 @@ root.Sprites["MovieBoxExtra"] = {
 root.Sprites["MovieThumbnailExtraOp"] = {
     Sheet = "Movie",
     Bounds = { X = 1291, Y = 93, Width = 160, Height = 90 }
+}
+
+root.Sprites["MovieThumbnailExtraOp2"] = {
+    Sheet = "Movie",
+    Bounds = { X = 1291, Y = 185, Width = 160, Height = 90 }
 }
 
 root.Sprites["MovieButtonExtraPrompt"] = {
