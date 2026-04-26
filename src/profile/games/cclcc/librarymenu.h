@@ -110,6 +110,11 @@ inline std::vector<Sprite> MovieDiskHighlightSprites;
 inline std::vector<glm::vec2> MovieDiskDisplayPositions;
 inline std::vector<int> MovieDiskPlayIds;
 
+inline bool MovieExtraVideosEnabled;
+inline Sprite MovieDiskExtraOp;
+inline Sprite MovieDiskExtraOpHighlight;
+inline int MovieDiskExtraOpPlayId;
+
 inline Sprite AlbumMenuGuideSprite;
 inline Sprite AlbumMenuCGViewerGuideSprite;
 inline Sprite MusicMenuGuideSprite;
