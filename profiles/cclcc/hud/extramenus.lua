@@ -227,6 +227,11 @@ root.ExtraMenus = {
             {X = 1422, Y= 412},
         },
         MovieDiskPlayIds = {54, 53, 52, 51},
+
+        MovieExtraVideosEnabled = true,
+        MovieDiskExtraOp = "MovieDiskExtraOp",
+        MovieDiskExtraOpHighlight = "MovieDiskExtraOpHighlight",
+        MovieDiskExtraOpPlayId = 62
     }
 };
 
@@ -368,6 +373,16 @@ for i = 0, 3 do
     root.ExtraMenus.LibraryMenu.MovieDiskSprites[#root.ExtraMenus.LibraryMenu.MovieDiskSprites + 1] = "MovieDiskSprites" .. i;
     root.ExtraMenus.LibraryMenu.MovieDiskHighlightSprites[#root.ExtraMenus.LibraryMenu.MovieDiskHighlightSprites + 1] = "MovieDiskHighlightSprites" .. i;
 end
+
+root.Sprites["MovieDiskExtraOp"] = {
+    Sheet = "MovMenu",
+    Bounds = { X = 2300, Y = 0, Width = 575, Height = 575 },
+};
+
+root.Sprites["MovieDiskExtraOpHighlight"] = {
+    Sheet = "MovMenu",
+    Bounds = { X = 2300, Y = 575 + 9, Width = 575, Height = 575 },
+};
 
 root.Sprites["MovieMenuGuide"] = {
     Sheet = "MovMenu",
