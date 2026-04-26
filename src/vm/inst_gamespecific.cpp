@@ -15,12 +15,18 @@
 #include "../games/chlcc/delusiontrigger.h"
 #include "../games/cclcc/yesnotrigger.h"
 #include "../games/cclcc/mapsystem.h"
+#include "../data/savesystem.h"
+#include "../data/tipssystem.h"
+#include "../profile/games/chlcc/albummenu.h"
+#include "../profile/games/chlcc/musicmenu.h"
 
 namespace Impacto {
 
 namespace Vm {
 
 using namespace Impacto::Profile::ScriptVars;
+using namespace Impacto::Profile::CHLCC::AlbumMenu;
+using namespace Impacto::Profile::CHLCC::MusicMenu;
 
 VmInstruction(InstUnk0041) {
   StartInstruction;
@@ -83,10 +89,42 @@ VmInstruction(InstUnk012D) {
   ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
              "STUB instruction Unk012D()\n");
 }
-VmInstruction(InstUnk1035CHLCC) {
+VmInstruction(InstAllClearChkCHLCC) {
   StartInstruction;
-  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-             "STUB instruction InstUnk1035CHLCC()\n");
+  // if already have seen 100% congrats
+  if (GetFlag(SF_CONGRATULATED)) {
+    SetFlag(SF_ALLCLEAR, false);
+    return;
+  }
+
+  const std::array<int, 7> endingFlags = {
+      SF_CLR_RIMI, SF_CLR_NANAMI, SF_CLR_YUA,  SF_CLR_MIA,
+      SF_CLR_SENA, SF_CLR_KOZUE,  SF_CLR_SEIRA};
+  const bool gotRequiredEndings = std::ranges::all_of(endingFlags, GetFlag);
+  if (!gotRequiredEndings) {
+    SetFlag(SF_ALLCLEAR, false);
+    return;
+  }
+  int totalVariations = 0;
+  int viewedVariations = 0;
+  for (int i = 0; i < AlbumPages * EntriesPerPage; i++) {
+    SaveSystem::GetEVStatus(i, &totalVariations, &viewedVariations);
+    if (totalVariations != viewedVariations) {
+      SetFlag(SF_ALLCLEAR, false);
+      return;
+    }
+  }
+
+  const size_t tipCount = TipsSystem::GetTipCount();
+  for (size_t id = 0; id < tipCount; id++) {
+    if (TipsSystem::GetTipLockedState(id)) {
+      SetFlag(SF_ALLCLEAR, false);
+      return;
+    }
+  }
+  // skipping songs check due to song flags init "delayed" nature, which makes
+  // congratulations easier to miss
+  SetFlag(SF_ALLCLEAR, true);
 }
 VmInstruction(InstRINNS) {
   StartInstruction;

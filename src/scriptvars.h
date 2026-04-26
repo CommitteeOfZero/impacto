@@ -455,6 +455,8 @@ V(SF_CLR_SENA)                  // CHLCC specific
 V(SF_CLR_KOZUE)                 // CHLCC specific
 V(SF_CLR_SEIRA)                 // CHLCC specific
 V(SW_TITLE_PRI)                 // CHLCC (or old version) specific
+V(SF_ALLCLEAR)
+V(SF_CONGRATULATED)
 V(SF_Pokecon_Open)
 V(SF_Pokecon_Cancel)
 V(SF_Pokecon_End)

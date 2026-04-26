@@ -14,6 +14,7 @@ class AlbumMenu : public Menu, public CommonMenu {
  public:
   AlbumMenu();
 
+  void Init() override;
   void Show() override;
   void Hide() override;
   void UpdateInput(float dt) override;
@@ -32,6 +33,7 @@ class AlbumMenu : public Menu, public CommonMenu {
 
   Widgets::Group* CgViewerGroup;
   Widgets::CgViewer* CgViewerWidget;
+  Animation ButtonGuideFade = Animation();
 
   int PrevPage = 0;
   int CurrentPage;

@@ -145,7 +145,8 @@ root.ExtraMenus = {
         CgViewerButtonGuideNoVariation = "CgViewerButtonGuideNoVariation",
         CgViewerButtonGuidePos = { X = 208, Y = 648 },
         SelectionMarkerSprite = "SelectionMarkerSprite",
-        SelectionMarkerRelativePos = { X = -16, Y = 50 }
+        SelectionMarkerRelativePos = { X = -16, Y = 50 },
+        CgFadeDuration = 16 / 60,
     },
     MusicMenu = {
         DrawType = DrawComponentType.SystemMenu,
@@ -564,7 +565,7 @@ end
 for i = 0, 6 do
     root.Sprites["AlbumThumbnail" .. (56 + i)] = {
         Sheet = "AlbumThumbnailSheet2",
-        Bounds = { X = 1, Y = 132 * i + 1, Width = 232, Height = 130 }
+        Bounds = { X =  234 * i + 1, Y = 1, Width = 232, Height = 130 }
     }
     root.ExtraMenus.AlbumMenu.AlbumThumbnails[#root.ExtraMenus.AlbumMenu.AlbumThumbnails + 1] = "AlbumThumbnail" .. (56 + i);
 end

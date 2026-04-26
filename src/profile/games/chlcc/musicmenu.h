@@ -39,7 +39,7 @@ inline glm::vec2 SoundLibraryTitleRightPos;
 inline float SoundLibraryTitleAngle;
 inline Sprite HighlightStar;
 inline glm::vec2 HighlightStarRelativePos;
-inline int Playlist[MusicTrackCount];
+inline std::array<int, MusicTrackCount> Playlist;
 inline std::vector<Sprite> SelectSoundSprites;
 inline std::vector<glm::vec2> SelectSoundPos;
 inline glm::vec2 ButtonPromptPosition;

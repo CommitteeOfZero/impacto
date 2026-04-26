@@ -84,6 +84,7 @@ void Configure() {
       EnsureGetMember<glm::vec2>("SaveDateTextRelativePos");
   SaveHourTextRelativePos =
       EnsureGetMember<glm::vec2>("SaveHourTextRelativePos");
+  MaxTitleWidth = EnsureGetMember<float>("MaxTitleWidth");
 
   auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
 

@@ -3,6 +3,7 @@
 #include <functional>
 
 #include "../widget.h"
+#include "../menu.h"
 #include "../../texture/texture.h"
 #include "../../spritesheet.h"
 #include "../../profile/data/savesystem.h"
@@ -16,7 +17,7 @@ int constexpr MaxCgViewerVariations = 15;
 
 class CgViewer : public Widget {
  public:
-  CgViewer();
+  CgViewer(std::optional<float> fadeDuration = std::nullopt);
 
   void Show() override;
   void Hide() override;
@@ -25,11 +26,25 @@ class CgViewer : public Widget {
   void UpdateInput(float dt) override;
   void Render() override;
 
+  void RenderVariation(size_t index, glm::vec4 col) const;
+
   void LoadCgSprites(size_t evId, std::string mountPoint,
                      uint16_t loadIds[][Profile::SaveSystem::MaxCGSprites]);
 
-  bool isOnLastVariation() const;
+  bool IsOnLastVariation() const;
   std::function<void(CgViewer*)> OnVariationEndHandler;
+
+  bool IsFadingBetweenVariations() const {
+    return State == Shown && this->FadeAnimation.IsPlaying() &&
+           this->FadeAnimation.Direction == AnimationDirection::In;
+  };
+
+  float GetVariationFadeProgress() const {
+    return this->FadeAnimation.Progress;
+  }
+
+  bool IsShown() const { return State == Shown; };
+  bool IsHidden() const { return State == Hidden; };
 
  protected:
   Texture CgTexture;
@@ -38,9 +53,12 @@ class CgViewer : public Widget {
 
   size_t EvId;
 
-  int CgCount[MaxCgViewerVariations];
-  bool HorizontalRendering[MaxCgViewerVariations];
+  std::array<int, MaxCgViewerVariations> CgCount;
+  std::array<bool, MaxCgViewerVariations> HorizontalRendering;
+  MenuState State = Hidden;
+
   glm::vec2 Position[MaxCgViewerVariations];
+  float PrevScale = 1.0f;
   float Scale = 1.0f;
   float MinScale[MaxCgViewerVariations];
   size_t CurrentVariation = 0;
