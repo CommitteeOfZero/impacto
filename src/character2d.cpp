@@ -341,11 +341,7 @@ void Character2D::UpdateState(const int chaId) {
             ScrWork[SW_CHA1ROTZ_OFS + structOfsOffset]);
   }
 
-  if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::CC) {
-    Tint = ScrWorkGetColor(SW_CHA1FILTER + structOffset);
-  } else {
-    Tint = glm::vec4(1.0f);
-  }
+  Tint = ScrWorkGetColor(SW_CHA1FILTER + structOffset);
 
   Tint.a = (ScrWork[SW_CHA1ALPHA + structOffset] +
             ScrWork[SW_CHA1ALPHA_OFS + structOfsOffset]) /
