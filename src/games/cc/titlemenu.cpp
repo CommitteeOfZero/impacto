@@ -340,23 +340,25 @@ void TitleMenu::DrawStartButton() {
 void TitleMenu::DrawSmoke(float opacity) {
   glm::vec4 col = glm::vec4(1.0f);
   col.a = opacity;
-  SmokeSprite.Bounds = RectF(
-      SmokeBoundsWidth - (SmokeAnimationBoundsXMax * SmokeAnimation.Progress) +
+  Sprite smokeSpriteCopy = Sprite(SmokeSprite);
+
+  smokeSpriteCopy.Bounds = RectF(
+      SmokeBounds.Width - (SmokeAnimationBoundsXMax * SmokeAnimation.Progress) +
           SmokeAnimationBoundsXOffset,
-      SmokeBoundsY,
-      SmokeBoundsWidth -
+      SmokeBounds.Y,
+      SmokeBounds.Width -
           (SmokeAnimationBoundsXMax * (1.0f - SmokeAnimation.Progress)),
-      SmokeBoundsHeight);
-  Renderer->DrawSprite(SmokeSprite, glm::vec2(SmokeX, SmokeY), col);
-  SmokeSprite.Bounds = RectF(
-      SmokeBoundsX, SmokeBoundsY,
-      SmokeBoundsWidth - (SmokeAnimationBoundsXMax * SmokeAnimation.Progress),
-      SmokeBoundsHeight);
+      SmokeBounds.Height);
+  Renderer->DrawSprite(smokeSpriteCopy, SmokePosition, col);
+  smokeSpriteCopy.Bounds = RectF(
+      SmokeBounds.X, SmokeBounds.Y,
+      SmokeBounds.Width - (SmokeAnimationBoundsXMax * SmokeAnimation.Progress),
+      SmokeBounds.Height);
   Renderer->DrawSprite(
-      SmokeSprite,
-      glm::vec2(SmokeBoundsWidth - (SmokeAnimationBoundsXMax *
-                                    (1.0f - SmokeAnimation.Progress)),
-                SmokeY),
+      smokeSpriteCopy,
+      glm::vec2(SmokeBounds.Width - (SmokeAnimationBoundsXMax *
+                                     (1.0f - SmokeAnimation.Progress)),
+                SmokePosition.y),
       col);
 }
 

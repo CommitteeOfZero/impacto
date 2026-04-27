@@ -43,12 +43,8 @@ void Configure() {
   CopyrightTextX = EnsureGetMember<float>("CopyrightTextX");
   CopyrightTextY = EnsureGetMember<float>("CopyrightTextY");
   SmokeOpacityNormal = EnsureGetMember<float>("SmokeOpacityNormal");
-  SmokeX = EnsureGetMember<float>("SmokeX");
-  SmokeY = EnsureGetMember<float>("SmokeY");
-  SmokeBoundsX = EnsureGetMember<float>("SmokeBoundsX");
-  SmokeBoundsY = EnsureGetMember<float>("SmokeBoundsY");
-  SmokeBoundsWidth = EnsureGetMember<float>("SmokeBoundsWidth");
-  SmokeBoundsHeight = EnsureGetMember<float>("SmokeBoundsHeight");
+  SmokePosition = EnsureGetMember<glm::vec2>("SmokePosition");
+  SmokeBounds = EnsureGetMember<RectF>("SmokeBounds");
   SmokeAnimationBoundsXOffset =
       EnsureGetMember<float>("SmokeAnimationBoundsXOffset");
   SmokeAnimationBoundsXMax = EnsureGetMember<float>("SmokeAnimationBoundsXMax");
