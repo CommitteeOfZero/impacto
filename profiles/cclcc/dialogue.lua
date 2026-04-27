@@ -9,6 +9,7 @@ root.Sprites["ADVBoxMask"] = {
 };
 
 root.Dialogue = {
+    TipsMessageModeIdx = 7,
     TipsBounds = { X = 1042, Y = 394, Width = 720, Height = 542 },
     TipsColorIndex = 10,
     REVMessageModeIdx = 9,

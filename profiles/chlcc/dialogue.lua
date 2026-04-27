@@ -24,6 +24,7 @@ root.Sprites["SkipIconSprite"] = {
 };
 
 root.Dialogue = {
+    TipsMessageModeIdx = 7,
     TipsBounds = { X = 404, Y = 150, Width = 800, Height = 420 },
     TipsColorIndex = 0,
     REVBounds = { X = 337, Y = 159, Width = 952, Height = 555 },

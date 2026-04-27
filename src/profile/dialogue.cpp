@@ -137,6 +137,7 @@ void Configure() {
   REVNameOutlineMode =
       RendererOutlineMode(EnsureGetMember<int>("REVNameOutlineMode"));
 
+  TipsMessageModeIdx = EnsureGetMember<size_t>("TipsMessageModeIdx");
   TryGetMember<float>("TipsLineSpacing", TipsLineSpacing);
   TryGetMember<int>("TipsColorIndex", TipsColorIndex);
 

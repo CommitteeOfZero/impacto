@@ -578,6 +578,7 @@ void TipsTextParser::ParseString(TipsPage& page, Vm::Sc3VmThread* string) {
   Glyphs.swap(page.Glyphs);
   RubyChunks.swap(page.RubyChunks);
   PageMode = DPM_TIPS;
+  ModeInfo = TextModesInfo[TipsMessageModeIdx];
   CurrentLineTop = TipsBounds.Y;
 
   ParseString(string);

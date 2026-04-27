@@ -62,6 +62,7 @@ inline REVNameLocationType REVNameLocation = REVNameLocationType::None;
 inline RendererOutlineMode REVOutlineMode = RendererOutlineMode::Full;
 inline RendererOutlineMode REVNameOutlineMode = RendererOutlineMode::Full;
 
+inline size_t TipsMessageModeIdx;
 inline float TipsLineSpacing;
 inline int TipsColorIndex = 0;
 
