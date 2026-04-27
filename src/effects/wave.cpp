@@ -18,11 +18,9 @@ void BGWave::Init() {
   WaveData.resize(WaveMaxCount);
   WavePos.resize((size_t)BGWaveGridSize.x * (size_t)BGWaveGridSize.y);
   Vertices.resize((size_t)BGWaveGridSize.x * (size_t)BGWaveGridSize.y);
-  Indices.resize(
-      ((size_t)BGWaveGridSize.x * 2 + 1) * ((size_t)BGWaveGridSize.y - 1) - 1);
+  Indices.resize((BGWaveGridSize.x * 2 + 2) * (BGWaveGridSize.y - 1) - 2);
 
-  // triangle strips with primitive restart index
-  constexpr uint16_t primitiveRestart = 0xFFFF;
+  // triangle strips with degenerate triangles for restarting a row
   size_t i = 0;
   for (uint16_t y = 0; y < BGWaveGridSize.y - 1; y++) {
     for (uint16_t x = 0; x < BGWaveGridSize.x; x++) {
@@ -32,7 +30,12 @@ void BGWave::Init() {
     }
 
     if (y != BGWaveGridSize.y - 2) {
-      Indices[i++] = primitiveRestart;
+      const uint16_t lastIndex =
+          (y + 1) * BGWaveGridSize.x + (BGWaveGridSize.x - 1);
+      const uint16_t nextIndex = (y + 1) * BGWaveGridSize.x;
+
+      Indices[i++] = lastIndex;
+      Indices[i++] = nextIndex;
     }
   }
 }

@@ -284,15 +284,10 @@ void Renderer::InsertVertices(
   const size_t indicesCount = indices.size();
   IndexBuffer.resize(offset + indicesCount);
 
-  constexpr uint16_t restartIndex = 0xFFFF;
   uint16_t maxIndex = 0;
   for (size_t i = 0; i < indicesCount; ++i) {
-    if (indices[i] == restartIndex) {
-      IndexBuffer[i + offset] = restartIndex;
-    } else {
-      IndexBuffer[i + offset] = indices[i] + NextFreeIndex;
-      if (indices[i] > maxIndex) maxIndex = indices[i];
-    }
+    IndexBuffer[i + offset] = indices[i] + NextFreeIndex;
+    if (indices[i] > maxIndex) maxIndex = indices[i];
   }
 
   NextFreeIndex += maxIndex + 1;
@@ -972,13 +967,10 @@ void Renderer::Flush() {
       default:  // falls through
       case TopologyMode::Triangles: {
         mode = GL_TRIANGLES;
-        glDisable(GL_PRIMITIVE_RESTART);
         break;
       }
       case TopologyMode::TriangleStrips: {
         mode = GL_TRIANGLE_STRIP;
-        glPrimitiveRestartIndex(0xFFFF);
-        glEnable(GL_PRIMITIVE_RESTART);
         break;
       }
     }
