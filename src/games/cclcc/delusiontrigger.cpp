@@ -1,10 +1,12 @@
 #include "delusiontrigger.h"
 #include "../../profile/games/cclcc/delusiontrigger.h"
 #include "../../vm/interface/input.h"
+#include "../../inputsystem.h"
 #include "../../profile/scriptvars.h"
 #include "../../src/video/videosystem.h"
 #include "../../profile/configsystem.h"
 #include "../../background2d.h"
+#include "../../renderer/window.h"
 #include "../../text/dialoguepage.h"
 #include "../../audio/audiosystem.h"
 
@@ -46,6 +48,7 @@ bool DelusionTrigger::Show(int bgOverlayBgBufferId, int circlesBgBufferId,
   ScrWork[6344] = 48;
   SetFlag(SF_DELUSIONSELECTED, 0);
   ScrWork[6418] = 960;
+  ActiveDragHitbox = DragHitbox::None;
   if (!Video::Players[0]->IsPlaying) {
     ScrWork[SW_DELUSION_BG_COUNTER] = 32;
   }
@@ -55,6 +58,7 @@ bool DelusionTrigger::Show(int bgOverlayBgBufferId, int circlesBgBufferId,
 void DelusionTrigger::Hide() {
   SetFlag(SF_DELUSIONACTIVE, 0);
   ScrWork[6344] = 0;
+  ActiveDragHitbox = DragHitbox::None;
 }
 
 bool DelusionTrigger::CheckTransitionAnimationComplete() {
@@ -66,6 +70,20 @@ bool DelusionTrigger::CheckStartTransitionComplete() {
 }
 
 void DelusionTrigger::Update(float dt) {
+  constexpr float dragThreshold = 10.0f;
+
+  const auto quadBounds = [](CornersQuad const& q) {
+    const float minX = std::min(std::min(q.TopLeft.x, q.TopRight.x),
+                                std::min(q.BottomLeft.x, q.BottomRight.x));
+    const float maxX = std::max(std::max(q.TopLeft.x, q.TopRight.x),
+                                std::max(q.BottomLeft.x, q.BottomRight.x));
+    const float minY = std::min(std::min(q.TopLeft.y, q.TopRight.y),
+                                std::min(q.BottomLeft.y, q.BottomRight.y));
+    const float maxY = std::max(std::max(q.TopLeft.y, q.TopRight.y),
+                                std::max(q.BottomLeft.y, q.BottomRight.y));
+    return RectF(minX, minY, maxX - minX, maxY - minY);
+  };
+
   auto onRightTrigger = [this]() {
     if (DelusionState == DS_Neutral) {
       if (ScrWork[SW_DELUSION_LIMIT] == Delusion_Both ||
@@ -167,14 +185,101 @@ void DelusionTrigger::Update(float dt) {
   auto rightTrigger = GetControlState(CT_DelusionTriggerR);
 
   if (LastDelusionState == DelusionState) {
+    const float spinAngle =
+        MtrgAng / 65535.0f * 2.0f * std::numbers::pi_v<float>;
+    RectF positiveHitbox;
+    RectF negativeHitbox;
+    bool hasPositiveHitbox = false;
+    bool hasNegativeHitbox = false;
+
+    if (DelusionState == DS_Neutral) {
+      if ((ScrWork[SW_DELUSION_LIMIT] == Delusion_Both) ||
+          (ScrWork[SW_DELUSION_LIMIT] == Delusion_PosOnly)) {
+        positiveHitbox = quadBounds(PositiveDelusionSprite.ScaledBounds()
+                                        .Rotate(spinAngle, {600, 557})
+                                        .Translate({-800, -109}));
+        hasPositiveHitbox = true;
+      }
+      if ((ScrWork[SW_DELUSION_LIMIT] == Delusion_Both) ||
+          (ScrWork[SW_DELUSION_LIMIT] == Delusion_NegOnly)) {
+        negativeHitbox = quadBounds(NegativeDelusionSprite.ScaledBounds()
+                                        .Rotate(spinAngle, {424, 557})
+                                        .Translate({1696, -109}));
+        hasNegativeHitbox = true;
+      }
+    } else if (DelusionState == DS_Positive) {
+      positiveHitbox = quadBounds(
+          PositiveDelusionSprite.ScaledBounds().Transform(TransformationMatrix(
+              {600, 557}, {1.8f, 1.8f}, {600, 557}, spinAngle, {448, -109})));
+      hasPositiveHitbox = true;
+    } else if (DelusionState == DS_Negative) {
+      negativeHitbox = quadBounds(
+          NegativeDelusionSprite.ScaledBounds().Transform(TransformationMatrix(
+              {424, 557}, {1.8f, 1.8f}, {424, 557}, spinAngle, {448, -109})));
+      hasNegativeHitbox = true;
+    }
+
+    const bool touchDown = Input::TouchIsDown[0];
+    const bool mouseDown = Input::MouseButtonIsDown[SDL_BUTTON_LEFT];
+    const bool pointerDown = touchDown || mouseDown;
+    const glm::vec2 curPos =
+        touchDown ? Input::CurTouchPos : Input::CurMousePos;
+    const glm::vec2 prevPos =
+        touchDown ? Input::PrevTouchPos : Input::PrevMousePos;
+    const glm::vec2 dragDelta = curPos - prevPos;
+
+    if (Input::CurrentInputDevice == Input::Device::Mouse &&
+        ((hasPositiveHitbox &&
+          positiveHitbox.ContainsPoint(Input::CurMousePos)) ||
+         (hasNegativeHitbox &&
+          negativeHitbox.ContainsPoint(Input::CurMousePos)))) {
+      RequestCursor(CursorType::Pointer);
+    }
+
+    if (!pointerDown) {
+      ActiveDragHitbox = DragHitbox::None;
+    } else {
+      if (ActiveDragHitbox == DragHitbox::None) {
+        if (hasPositiveHitbox && positiveHitbox.ContainsPoint(curPos)) {
+          ActiveDragHitbox = DragHitbox::Positive;
+        } else if (hasNegativeHitbox && negativeHitbox.ContainsPoint(curPos)) {
+          ActiveDragHitbox = DragHitbox::Negative;
+        }
+      }
+
+      bool dragLeftTrigger = false;
+      bool dragRightTrigger = false;
+      if (std::abs(dragDelta.x) >= dragThreshold) {
+        if (ActiveDragHitbox == DragHitbox::Positive) {
+          if (dragDelta.x > 0.0f && DelusionState == DS_Neutral) {
+            dragLeftTrigger = true;  // Select positive
+          } else if (dragDelta.x < 0.0f && DelusionState == DS_Positive) {
+            dragRightTrigger = true;  // Return to neutral
+          }
+        } else if (ActiveDragHitbox == DragHitbox::Negative) {
+          if (dragDelta.x < 0.0f && DelusionState == DS_Neutral) {
+            dragRightTrigger = true;  // Select negative
+          } else if (dragDelta.x > 0.0f && DelusionState == DS_Negative) {
+            dragLeftTrigger = true;  // Return to neutral
+          }
+        }
+      }
+
+      leftTrigger |= dragLeftTrigger;
+      rightTrigger |= dragRightTrigger;
+    }
+
     if (!leftTrigger && !rightTrigger) return;
     if (!leftTrigger && rightTrigger) {
       onRightTrigger();
+      ActiveDragHitbox = DragHitbox::None;
     }
     if (leftTrigger && !rightTrigger) {
       onLeftTrigger();
+      ActiveDragHitbox = DragHitbox::None;
     }
   } else {
+    ActiveDragHitbox = DragHitbox::None;
     if (ScrWork[SW_DELUSION_SPIN_COUNTER] != 0) {
       ScrWork[SW_DELUSION_SPIN_COUNTER] -= 2;
     }
