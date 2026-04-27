@@ -137,12 +137,18 @@ void AlbumThumbnail::UpdateInput(float dt) {
 
 void AlbumThumbnail::Update(float dt) {
   Button::Update(dt);
+  if (Menu.AlbumPgChangeAnimation.IsPlaying() ||
+      Menu.AlbumModeChangeAnimation.IsPlaying()) {
+    return;
+  }
   if (State == DisplayState::Showing) {
-    if (Menu.ThumbnailZoomAnimation.IsOut()) {
+    if (Menu.AlbumPgChangeAnimation.Progress == 0.0f ||
+        Menu.AlbumModeChangeAnimation.Progress == 0.0f) {
       State = DisplayState::Shown;
     }
   } else if (State == DisplayState::Hiding) {
-    if (Menu.ThumbnailZoomAnimation.IsIn()) {
+    if (Menu.AlbumPgChangeAnimation.Progress == 1.0f ||
+        Menu.AlbumModeChangeAnimation.Progress == 1.0f) {
       State = DisplayState::Hidden;
     }
   }
@@ -164,49 +170,85 @@ void AlbumThumbnail::Hide() {
 
 void AlbumThumbnail::Render() {
   if (State == DisplayState::Hidden) return;
-  // Stagger pgSwapDur based on GridPos.x // 4 (column index)
-  int staggerIndex = GridId / 4;
-  float staggerDelay = staggerIndex / 4.0f;
-  const float pgSwapDur = std::clamp(
-      Menu.ThumbnailZoomAnimation.Progress - staggerDelay, 0.0f, 1.0f);
-  const glm::vec4 tint = Tint * glm::vec4(1.0f, 1.0f, 1.0f, 1 - pgSwapDur);
+
+  // 0 = default, 1 = faded and zoomed
+  const float animProgress = [this]() {
+    const bool isClickedThumbnail =
+        Menu.CGViewer && &Menu.CGViewer->ClickedThumbnail.get() == this;
+    constexpr static float frameTime = 1 / 60.0f;
+    if (Menu.AlbumPgChangeAnimation.IsPlaying()) {
+      const float itemDuration = AlbumItemFadeDuration / 2;
+      const float changeTime =
+          Menu.AlbumPgChangeAnimation.Progress * AlbumPgChangeDuration;
+      const int revId = static_cast<int>(
+          Menu.ThumbnailPages[Menu.ActivePage].size() - GridId - 1);
+      const float staggerTime =
+          AlbumPgChangeDuration - (revId * frameTime + itemDuration);
+      return std::clamp(changeTime - staggerTime, 0.0f, itemDuration) /
+             itemDuration;
+    } else if (isClickedThumbnail &&
+               (Menu.AlbumModeChangeAnimation.IsPlaying() ||
+                Menu.AlbumModeChangeAnimation.IsIn())) {
+      float changeTime =
+          Menu.AlbumModeChangeAnimation.Progress * AlbumModeChangeDuration;
+
+      if (changeTime < AlbumItemFadeDuration)  // Delay portion
+        return 0.0f;
+      else {  // Fade portion
+        return (changeTime - AlbumItemFadeDuration) / AlbumItemFadeDuration;
+      }
+    }
+
+    return 0.0f;
+  }();
+
+  glm::vec4 tint = Tint;
+  tint.a *= (1.0f - animProgress);
+  if (tint.a <= 0.0f) return;
   if (Enabled) {
     for (const auto& spriteInfo : Variants) {
-      const Sprite& thumbnailSprite = spriteInfo.ThumbnailSprite;
+      Sprite thumbnailSprite = spriteInfo.ThumbnailSprite;
+      thumbnailSprite.Bounds += glm::vec2{1.0f, 1.0f};
+      thumbnailSprite.Bounds.SetSize(thumbnailSprite.Bounds.GetSize() -
+                                     glm::vec2{2.0f, 2.0f});
       const glm::vec2 picTopLeft =
           GridPos - glm::vec2(thumbnailSprite.Bounds.Width / 2, 0);
-      const float scaleFactor =
-          (!Menu.CGViewer || &Menu.CGViewer->ClickedThumbnail.get() == this)
-              ? 1.5f * pgSwapDur + 1.0f
-              : 1.0f;
+      const float scaleFactor = animProgress + 1.0f;
 
       float angle = ScrWorkAngleToRad(spriteInfo.Angle);
-      if (Menu.CGViewer && &Menu.CGViewer->ClickedThumbnail.get() == this)
-        angle *= (1.0f - pgSwapDur);
+      if (angle < std::numbers::pi_v<float>)
+        angle *= (1.0f - animProgress);
+      else {
+        angle = 2.0f * std::numbers::pi_v<float> -
+                ((2.0f * std::numbers::pi_v<float> - angle) *
+                 (1.0f - animProgress));
+      }
       const auto matrix =
           TransformationMatrix(spriteInfo.Origin, {scaleFactor, scaleFactor},
                                spriteInfo.Origin, angle, picTopLeft);
       Renderer->DrawSprite(thumbnailSprite, matrix, tint);
     }
-    if (HasFocus && Menu.ThumbnailZoomAnimation.IsOut()) {
+    if (HasFocus && Menu.AlbumPgChangeAnimation.IsOut() &&
+        Menu.AlbumModeChangeAnimation.IsOut()) {
       const glm::vec2 thumbTopLeft =
           GridPos - glm::vec2(AlbumThumbnailThumbSprite.Bounds.Width / 2, 0);
-      glm::vec4 thumbTint = Tint;
-      thumbTint = glm::vec4{
-          Menu.ThumbnailThumbBlink.Progress * glm::vec3(thumbTint), Tint.a};
+      glm::vec4 thumbTint = RgbIntToFloat(
+          0x10101 * (uint32_t)(0xFF * Menu.ThumbnailThumbBlink.Progress),
+          tint.a);
       Renderer->DrawSprite(AlbumThumbnailThumbSprite, thumbTopLeft, thumbTint);
     }
   }
   const auto& pinSprite = AlbumThumbnailPinSprites[IndexInPage];
-  const glm::vec2 pinOffset = pgSwapDur * AlbumThumbnailPinRemoveOffset;
+  const glm::vec2 pinOffset = animProgress * AlbumThumbnailPinRemoveOffset;
   const glm::vec2 pinTopLeft =
       GridPos - glm::vec2(pinSprite.Bounds.Width / 2, 0) - pinOffset;
   Renderer->DrawSprite(pinSprite, pinTopLeft, tint);
 }
 
 AlbumMenu::AlbumMenu() : LibrarySubmenu() {
-  ThumbnailZoomAnimation.SetDuration(AlbumThumbZoomPgChangeDuration);
+  AlbumPgChangeAnimation.SetDuration(AlbumPgChangeDuration);
   ThumbnailThumbBlink.SetDuration(AlbumThumbnailThumbBlinkDuration);
+  AlbumModeChangeAnimation.SetDuration(AlbumModeChangeDuration);
   ThumbnailThumbBlink.LoopMode = AnimationLoopMode::ReverseDirection;
 }
 
@@ -259,10 +301,10 @@ void AlbumMenu::Init() {
       SetFlag(SF_ALBUMLOAD_COMPLETE, 0);
       CGViewer->ActiveThumbnailIndex = static_cast<int>(index);
       CGViewer->ActiveVariantIndex = 0;
-      CGViewer->PageSwapAnimation.SetDuration(AlbumCGPageSwapAnimationDuration);
+      CGViewer->PageSwapAnimation.SetDuration(AlbumItemFadeDuration);
+      CGViewer->TransitionDuration.SetDuration(AlbumItemFadeDuration);
       IsFocused = false;
-      ThumbnailZoomAnimation.SetDuration(AlbumThumbZoomClickDuration);
-      ThumbnailZoomAnimation.StartIn();
+      AlbumModeChangeAnimation.StartIn();
       Audio::PlayInGroup(Audio::ACG_SE, "sysse", 2, false, 0);
     };
     const int mainAngle = getMainAngle(itemCountInPage);
@@ -338,13 +380,21 @@ void AlbumMenu::UpdateCGViewer(float dt) {
 
     return;
   }
-  if (!GetFlag(SF_ALBUMLOAD) && ThumbnailZoomAnimation.IsOut()) {
+  if (CGViewer->PageSwapAnimation.State == AnimationState::Playing) return;
+  if (CGViewer->TransitionDuration.State == AnimationState::Playing) return;
+
+  if (CGViewer->TransitionDuration.IsOut() && AlbumModeChangeAnimation.IsIn()) {
+    if (CGViewer->StartHide)
+      AlbumModeChangeAnimation.StartOut();
+    else
+      CGViewer->TransitionDuration.StartIn();
+    return;
+  }
+  if (!GetFlag(SF_ALBUMLOAD) && AlbumModeChangeAnimation.IsOut()) {
     CGViewer = std::nullopt;
-    ThumbnailZoomAnimation.SetDuration(AlbumThumbZoomPgChangeDuration);
     IsFocused = true;
     return;
   }
-  if (CGViewer->PageSwapAnimation.State == AnimationState::Playing) return;
 
   if (Vm::Interface::PADinputButtonWentDown & Vm::Interface::PAD1X) {
     CGViewer->EnableGuide = !CGViewer->EnableGuide;
@@ -374,12 +424,14 @@ void AlbumMenu::UpdateCGViewer(float dt) {
       SetFlag(SF_ALBUMLOAD_COMPLETE, 0);
       CGViewer->PageSwapAnimation.StartIn();
     } else {
-      ThumbnailZoomAnimation.StartOut();
+      CGViewer->TransitionDuration.StartOut();
+      CGViewer->StartHide = true;
       return;
     }
   } else if (Vm::Interface::PADinputButtonWentDown & Vm::Interface::PAD1B ||
              Vm::Interface::PADinputMouseWentDown & Vm::Interface::PAD1B) {
-    ThumbnailZoomAnimation.StartOut();
+    CGViewer->TransitionDuration.StartOut();
+    CGViewer->StartHide = true;
     return;
   }
   // Click release delay handling
@@ -538,11 +590,11 @@ void AlbumMenu::UpdateThumbnail(float dt) {
         if (!thum) continue;
         thum->Hide();
       }
-      ThumbnailZoomAnimation.StartIn();
+      AlbumPgChangeAnimation.StartIn();
     }
   };
   const uint8_t prevPg = ActivePage;
-  if (ThumbnailZoomAnimation.IsOut()) {
+  if (AlbumPgChangeAnimation.IsOut()) {
     PrevPage = prevPg;
     if (PADinputButtonWentDown & PADcustom[7] || Input::MouseWheelDeltaY > 0) {
       ActivePage = (ActivePage == 0)
@@ -554,7 +606,7 @@ void AlbumMenu::UpdateThumbnail(float dt) {
       ActivePage = (ActivePage + 1) % ThumbnailPages.size();
       updatePages(PrevPage, ActivePage);
     }
-  } else if (ThumbnailZoomAnimation.IsIn()) {
+  } else if (AlbumPgChangeAnimation.IsIn()) {
     const auto& curPage = ThumbnailPages[ActivePage];
     for (const auto& thum : curPage) {
       if (!thum) continue;
@@ -564,7 +616,7 @@ void AlbumMenu::UpdateThumbnail(float dt) {
         CurrentlyFocusedElement->HasFocus = true;
       }
     }
-    ThumbnailZoomAnimation.StartOut();
+    AlbumPgChangeAnimation.StartOut();
   }
   if (!CurrentlyFocusedElement) {
     auto thumItr = std::find_if(ThumbnailPages[ActivePage].begin(),
@@ -580,7 +632,8 @@ void AlbumMenu::UpdateThumbnail(float dt) {
 void AlbumMenu::Update(float dt) {
   MainItems.Tint.a = FadeAnimation.Progress;
   const auto* prevBtn = CurrentlyFocusedElement;
-  ThumbnailZoomAnimation.Update(dt);
+  AlbumPgChangeAnimation.Update(dt);
+  AlbumModeChangeAnimation.Update(dt);
   if (!CGViewer) {
     UpdateThumbnail(dt);
     if (CurrentlyFocusedElement != prevBtn) {
@@ -591,13 +644,14 @@ void AlbumMenu::Update(float dt) {
     }
   } else {
     CGViewer->PageSwapAnimation.Update(dt);
+    CGViewer->TransitionDuration.Update(dt);
     UpdateCGViewer(dt);
   }
 }
 
 void AlbumMenu::RenderCGViewer() {
   if (!CGViewer) return;
-  const glm::vec4 tint(1.0f, 1.0f, 1.0f, ThumbnailZoomAnimation.Progress);
+  const glm::vec4 tint(1.0f, 1.0f, 1.0f, CGViewer->TransitionDuration.Progress);
   Renderer->DrawSprite(
       Sprite{}, RectF{0, 0, Profile::DesignWidth, Profile::DesignHeight}, tint);
   const int fadingSurface = CGViewer->ViewBufId[0];
@@ -627,10 +681,10 @@ void AlbumMenu::Render() {
                        AlbumPageNumberPositions[0], pgBtnTint);
   if (dispActivePg != dispPrevPg) {
     const float totalProgress =
-        static_cast<int>(ThumbnailZoomAnimation.Direction) +
+        static_cast<int>(AlbumPgChangeAnimation.Direction) +
                 static_cast<int>(AnimationDirection::In)
-            ? ThumbnailZoomAnimation.Progress / 2.0f
-            : (1.0f + (1.0f - ThumbnailZoomAnimation.Progress)) / 2.0f;
+            ? AlbumPgChangeAnimation.Progress / 2.0f
+            : (1.0f + (1.0f - AlbumPgChangeAnimation.Progress)) / 2.0f;
     const float alpha = pgBtnTint.a * totalProgress;
     const float prevAlpha = 1.0f - alpha;
     Renderer->DrawSprite(AlbumPageNumberSprites[dispPrevPg % 10],
