@@ -29,8 +29,6 @@ class TextParser {
   DialoguePage::AdvanceMethodType AdvanceMethod =
       DialoguePage::AdvanceMethodType::Skip;
 
-  DialoguePageMode PageMode = DPM_ADV;
-
  protected:
   template <StringTokenType T>
   void ParseStringToken(const StringToken& token);
@@ -42,7 +40,7 @@ class TextParser {
   enum class TextParsingState { Normal, Name, RubyBase, RubyAnnotation };
   TextParsingState ParsingState = TextParsingState::Normal;
 
-  RectF BoxBounds;
+  TextModeInfo ModeInfo = TextModesInfo[0];
 
   size_t LastLineStart = 0;
 

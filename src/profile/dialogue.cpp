@@ -127,6 +127,7 @@ void Configure() {
   ADVNameFontSize = EnsureGetMember<float>("ADVNameFontSize");
   ADVNamePos = EnsureGetMember<glm::vec2>("ADVNamePos");
 
+  REVMessageModeIdx = EnsureGetMember<size_t>("REVMessageModeIdx");
   REVNameFontSize = EnsureGetMember<float>("REVNameFontSize");
   REVColor = EnsureGetMember<int>("REVColor");
   REVNameColor = EnsureGetMember<int>("REVNameColor");
@@ -136,6 +137,7 @@ void Configure() {
   REVNameOutlineMode =
       RendererOutlineMode(EnsureGetMember<int>("REVNameOutlineMode"));
 
+  TipsMessageModeIdx = EnsureGetMember<size_t>("TipsMessageModeIdx");
   TryGetMember<float>("TipsLineSpacing", TipsLineSpacing);
   TryGetMember<int>("TipsColorIndex", TipsColorIndex);
 

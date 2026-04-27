@@ -24,13 +24,14 @@ root.Sprites["SkipIconSprite"] = {
 };
 
 root.Dialogue = {
+    TipsMessageModeIdx = 7,
     TipsBounds = { X = 404, Y = 150, Width = 800, Height = 420 },
     TipsColorIndex = 0,
     REVBounds = { X = 337, Y = 159, Width = 952, Height = 555 },
     SecondaryREVBounds = {X = 338, Y = 159, Width = 480, Height = 106},
     ErinBoxSprite = "ErinBox",
-    ErinBoxPos = { X = 314, Y = 156 },
-    REVNameFontSize = 32,
+    ErinBoxPos = { X = -25, Y = -23 },
+    REVMessageModeIdx = 9,
     REVColor = 0,
     REVNameColor = 24,
     REVNameOffset = 34,
@@ -41,7 +42,7 @@ root.Dialogue = {
     ADVBounds = { X = 161, Y = 546, Width = 928, Height = 180 },
     ADVBoxSprite = "ADVBox",
     SecondaryADVBoxSprite =  "SecondaryADVBox",
-    ADVBoxPos = { X = -1, Y = 512 },
+    ADVBoxPos = { X = 0, Y = 508 },
     FadeOutDuration = 0.33,
     FadeInDuration = 0.33,
     TextFadeInDuration = 0.33,

@@ -18,20 +18,26 @@ using namespace Impacto::Profile::CHLCC::DialogueBox;
 
 void DialogueBox::Render(const DialoguePageMode mode, const NameInfo& nameInfo,
                          glm::vec4 tint) {
+  const glm::vec2 posOfs = {
+      ScrWork[SW_MESWIN0POSX_OFS + 2 * ParentPage.get().Id],
+      ScrWork[SW_MESWIN0POSY_OFS + 2 * ParentPage.get().Id]};
+
   switch (mode) {
     case DPM_ADV: {
       tint = {1.0f, 1.0f, 1.0f, tint.a};
       const Sprite advBoxSprite = ScrWork[SW_MESWINDOW_COLOR] == 1
                                       ? SecondaryADVBoxSprite
                                       : ADVBoxSprite;
-      Renderer->DrawSprite(advBoxSprite, ADVBoxPos, tint);
+      Renderer->DrawSprite(advBoxSprite, ADVBoxPos + posOfs, tint);
 
       NametagDisplayInst->Render(nameInfo, tint);
     } break;
 
     case DPM_REV: {
-      const glm::vec2 pos =
-          ScrWork[SW_MESWIN0TYPE] != 1 ? ErinBoxPos : GetScrWorkPos();
+      const glm::vec2 pos = (ScrWork[SW_MESWIN0TYPE] != 1
+                                 ? ParentPage.get().GetTextModeInfo().WindowPos
+                                 : GetScrWorkPos()) +
+                            ErinBoxPos - posOfs;
 
       Renderer->DrawSprite(ErinBoxSprite, pos, glm::vec4(1.0f));
     } break;

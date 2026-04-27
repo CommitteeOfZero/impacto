@@ -27,16 +27,13 @@ void TextParser::Reset() {
 
   ParallelStartGlyphs.clear();
 
-  PageMode = DPM_ADV;
-  BoxBounds = ADVBounds;
-
   LastLineStart = 0;
 
-  FontSize = DefaultFontSize;
+  FontSize = ModeInfo.TextGlyphSize.y;
 
   Alignment = TextAlignment::Left;
   CurrentX = 0.0f;
-  CurrentLineTop = BoxBounds.Y;
+  CurrentLineTop = 0.0f;
   CurrentLineTopMargin = 0.0f;
 
   CurrentColors = ColorTable[0];
@@ -53,9 +50,6 @@ void TextParser::ParseStringToken<STT_CharacterNameStart>(
     const StringToken& token) {
   NameCode.reserve(64);
   ParsingState = TextParsingState::Name;
-  if (PageMode == DPM_REV && REVNameLocation != REVNameLocationType::LeftTop) {
-    CurrentLineTop += REVNameOffset;
-  }
 }
 
 template <>
@@ -105,7 +99,7 @@ void TextParser::ParseStringToken<STT_RubyTextEnd>(const StringToken& token) {
 
 template <>
 void TextParser::ParseStringToken<STT_SetFontSize>(const StringToken& token) {
-  FontSize = DefaultFontSize * (token.Val_Uint16 / SetFontSizeRatio);
+  FontSize = ModeInfo.TextGlyphSize.y * (token.Val_Uint16 / SetFontSizeRatio);
 }
 
 template <>
@@ -127,14 +121,14 @@ void TextParser::ParseStringToken<STT_SetTopMargin>(const StringToken& token) {
 template <>
 void TextParser::ParseStringToken<STT_SetLeftMargin>(const StringToken& token) {
   float addX = token.Val_Uint16;
-  if (CurrentX + addX > BoxBounds.Width) {
+  if (CurrentX + addX > ModeInfo.MaxLineWidth) {
     FinishLine(Glyphs.size());
-    addX -= (BoxBounds.Width - CurrentX);
+    addX -= (ModeInfo.MaxLineWidth - CurrentX);
     CurrentX = 0.0f;
   }
-  while (addX > BoxBounds.Width) {
+  while (addX > ModeInfo.MaxLineWidth) {
     FinishLine(Glyphs.size());
-    addX -= BoxBounds.Width;
+    addX -= ModeInfo.MaxLineWidth;
   }
   CurrentX += addX;
 }
@@ -192,11 +186,10 @@ void TextParser::ParseStringToken<STT_Character>(const StringToken& token) {
       ProcessedTextGlyph& glyph = Glyphs.emplace_back();
       glyph.CharId = token.Val_Uint16;
 
-      glyph.Opacity =
-          (PageMode == DPM_REV || PageMode == DPM_TIPS) ? 1.0f : 0.0f;
+      glyph.Opacity = 1.0f;
       glyph.Colors = CurrentColors;
 
-      glyph.DestRect.X = BoxBounds.X + CurrentX;
+      glyph.DestRect.X = ModeInfo.WindowPos.x + CurrentX;
       glyph.DestRect.Width = (FontSize / DialogueFont->BitmapEmWidth) *
                              DialogueFont->AdvanceWidths[glyph.CharId];
       glyph.DestRect.Height = FontSize;
@@ -204,7 +197,7 @@ void TextParser::ParseStringToken<STT_Character>(const StringToken& token) {
       CurrentX += glyph.DestRect.Width;
 
       // Line breaking
-      if (glyph.DestRect.Right() > BoxBounds.Right()) {
+      if (CurrentX > ModeInfo.MaxLineWidth) {
         size_t breakCharacter = Glyphs.size() - 1;
         for (; breakCharacter > LastLineStart; breakCharacter--) {
           constexpr uint8_t dontBreakBeforeFlags =
@@ -238,7 +231,7 @@ void TextParser::ParseStringToken<STT_Character>(const StringToken& token) {
 
         CurrentX = 0.0f;
         for (size_t i = breakCharacter; i < Glyphs.size(); i++) {
-          Glyphs[i].DestRect.X = BoxBounds.X + CurrentX;
+          Glyphs[i].DestRect.X = ModeInfo.WindowPos.x + CurrentX;
           CurrentX += Glyphs[i].DestRect.Width;
         }
       }
@@ -257,16 +250,18 @@ void TextParser::FinishLine(const size_t nextLineStart) {
   // Lay out all ruby chunks on this line (before we change CurrentLineTop and
   // thus can't find where to put them)
   for (RubyChunk& chunk : RubyChunks) {
-    if (chunk.FirstBaseCharacter < LastLineStart) continue;
+    if (chunk.Length == 0 || chunk.BaseLength == 0 ||
+        chunk.FirstBaseCharacter < LastLineStart) {
+      continue;
+    }
     if (chunk.FirstBaseCharacter >= nextLineStart) break;
 
     Vm::Sc3Stream rubyText(chunk.RawText.data());
 
     const std::span<const ProcessedTextGlyph> base =
         std::span(Glyphs.begin() + chunk.FirstBaseCharacter, chunk.BaseLength);
-    glm::vec2 pos =
-        glm::vec2(base.front().DestRect.X,
-                  CurrentLineTop + CurrentLineTopMargin + RubyYOffset);
+    glm::vec2 pos = glm::vec2(base.front().DestRect.X,
+                              CurrentLineTop + CurrentLineTopMargin);
 
     // ruby base length > ruby text length: block align
     // ruby base length > ruby text length and 0x1E: center per character
@@ -280,13 +275,13 @@ void TextParser::FinishLine(const size_t nextLineStart) {
       for (size_t j = 0; j < chunk.Length; j++) {
         pos.x = base[j].DestRect.Center().x;
         TextLayoutPlainLine(rubyText, 1, std::span(chunk.Text.begin() + j, 1),
-                            DialogueFont, RubyFontSize, ColorTable[0], 1.0f,
-                            pos, TextAlignment::Center);
+                            DialogueFont, ModeInfo.RubyGlyphSize.y,
+                            ColorTable[0], 1.0f, pos, TextAlignment::Center);
       }
     } else {
       TextLayoutPlainLine(rubyText, static_cast<int>(chunk.Length), chunk.Text,
-                          DialogueFont, RubyFontSize, ColorTable[0], 1.0f, pos,
-                          TextAlignment::Left);
+                          DialogueFont, ModeInfo.RubyGlyphSize.y, ColorTable[0],
+                          1.0f, pos, TextAlignment::Left);
       const float baseWidth =
           base.back().DestRect.Right() - base.front().DestRect.X;
       const float nonSpacedWidth =
@@ -316,6 +311,7 @@ void TextParser::FinishLine(const size_t nextLineStart) {
       // CenterPerCharacter(0x1E) and ruby base length < ruby text length?
     }
   }
+  CurrentLineTop += ModeInfo.RubyGlyphSize.y + ModeInfo.RubyLineSpacing;
 
   // Glyphs of different font sizes are bottom-aligned within the line
   const float lineHeight =
@@ -325,13 +321,14 @@ void TextParser::FinishLine(const size_t nextLineStart) {
                       });
 
   // completely trial and error guess
-  const float normalizedFontSize = FontSize / DefaultFontSize;
+  const float normalizedFontSize = FontSize / ModeInfo.TextGlyphSize.y;
   CurrentLineTopMargin *= normalizedFontSize;
 
   float marginXOffset = 0;
-  if (currentLine.front().DestRect.X > BoxBounds.X) {
-    marginXOffset = (currentLine.front().DestRect.Right() - BoxBounds.X) *
-                    (normalizedFontSize - 1.0f);
+  if (currentLine.front().DestRect.X > ModeInfo.WindowPos.x) {
+    marginXOffset =
+        (currentLine.front().DestRect.Right() - ModeInfo.WindowPos.x) *
+        (normalizedFontSize - 1.0f);
   }
 
   const float lastGlyphX = currentLine.back().DestRect.Right();
@@ -341,10 +338,11 @@ void TextParser::FinishLine(const size_t nextLineStart) {
     switch (Alignment) {
       case TextAlignment::Center:
         glyph.DestRect.X +=
-            (BoxBounds.Width - (lastGlyphX - BoxBounds.X)) / 2.0f;
+            (ModeInfo.MaxLineWidth - (lastGlyphX - ModeInfo.WindowPos.x)) /
+            2.0f;
         break;
       case TextAlignment::Right:
-        glyph.DestRect.X += BoxBounds.Width - lastGlyphX - marginXOffset;
+        glyph.DestRect.X += ModeInfo.MaxLineWidth - lastGlyphX - marginXOffset;
         break;
       case TextAlignment::Left:
         glyph.DestRect.X += marginXOffset;
@@ -353,8 +351,7 @@ void TextParser::FinishLine(const size_t nextLineStart) {
     }
   }
 
-  const float lineSpacing =
-      PageMode == DPM_TIPS ? TipsLineSpacing : DialogueFont->LineSpacing;
+  const float lineSpacing = ModeInfo.LineSpacing;
   CurrentLineTop += CurrentLineTopMargin + lineHeight + lineSpacing;
   CurrentLineTopMargin = 0.0f;
 
@@ -407,23 +404,6 @@ void DialogueTextParser::ParseString(Vm::Sc3VmThread* string) {
     return lut;
   }();
 
-  switch (PageMode) {
-    case DPM_ADV:
-      BoxBounds = ADVBounds;
-      break;
-    case DPM_NVL:
-      BoxBounds = NVLBounds;
-      break;
-    case DPM_REV:
-      BoxBounds = SecondaryREVBounds;
-      FontSize = Profile::CHLCC::DialogueBox::REVFontSize;
-      break;
-    case DPM_TIPS:
-      BoxBounds = TipsBounds;
-      CurrentColors = ColorTable[TipsColorIndex];
-      break;
-  }
-
   StringToken token;
   do {
     token.Read(string);
@@ -437,9 +417,10 @@ void DialogueTextParser::ParseString(Vm::Sc3VmThread* string) {
     NameId = static_cast<uint16_t>(GetNameId(NameCode).value_or(0xFFFF));
 
     Vm::Sc3Stream nameStream(NameCode.data());
-    Name = TextLayoutPlainLine(nameStream, static_cast<int>(NameCode.size()),
-                               DialogueFont, ADVNameFontSize, ColorTable[0],
-                               1.0f, ADVNamePos, ADVNameAlignment);
+    Name =
+        TextLayoutPlainLine(nameStream, static_cast<int>(NameCode.size()),
+                            DialogueFont, ModeInfo.NameGlyphSize.y,
+                            ColorTable[0], 1.0f, ADVNamePos, ADVNameAlignment);
     assert(NameCode.size() == Name.size());
   } else {
     NameId = 0xFFFF;
@@ -455,7 +436,9 @@ void DialogueTextParser::ParseString(DialoguePage& page,
   CurrentLineTop = page.CurrentLineTop;
   CurrentLineTopMargin = page.CurrentLineTopMargin;
   LastLineStart = Glyphs.size();
-  PageMode = page.GetMode();
+
+  ModeInfo = page.GetTextModeInfo();
+  FontSize = ModeInfo.TextGlyphSize.y;
 
   ParseString(string);
 
@@ -494,8 +477,6 @@ void BacklogTextParser::ParseString(Vm::Sc3VmThread* string) {
     return lut;
   }();
 
-  FontSize = DefaultFontSize;
-  BoxBounds = REVBounds;
   CurrentColors = ColorTable[REVColor];
 
   StringToken token;
@@ -508,7 +489,7 @@ void BacklogTextParser::ParseString(Vm::Sc3VmThread* string) {
   FinishLine(Glyphs.size());
 
   if (!NameCode.empty()) {
-    float fontSize = REVNameFontSize;
+    float fontSize = ModeInfo.NameGlyphSize.y;
     int colorIndex = REVNameColor;
 
     glm::vec2 pos = REVBounds.GetPos();
@@ -539,9 +520,11 @@ void BacklogTextParser::ParseString(BacklogPage& page,
   Glyphs.swap(page.Glyphs);
   RubyChunks.swap(page.RubyChunks);
   Name.swap(page.Name);
-  PageMode = DPM_REV;
   LastLineStart = Glyphs.size();
   CurrentLineTop = REVBounds.Y;
+
+  ModeInfo = TextModesInfo[REVMessageModeIdx];
+  FontSize = ModeInfo.TextGlyphSize.y;
 
   ParseString(string);
 
@@ -576,8 +559,6 @@ void TipsTextParser::ParseString(Vm::Sc3VmThread* string) {
     return lut;
   }();
 
-  FontSize = DefaultFontSize;
-  BoxBounds = TipsBounds;
   CurrentColors = ColorTable[TipsColorIndex];
 
   StringToken token;
@@ -594,8 +575,10 @@ void TipsTextParser::ParseString(TipsPage& page, Vm::Sc3VmThread* string) {
   Reset();
   Glyphs.swap(page.Glyphs);
   RubyChunks.swap(page.RubyChunks);
-  PageMode = DPM_TIPS;
   CurrentLineTop = TipsBounds.Y;
+
+  ModeInfo = TextModesInfo[TipsMessageModeIdx];
+  FontSize = ModeInfo.TextGlyphSize.y;
 
   ParseString(string);
 
