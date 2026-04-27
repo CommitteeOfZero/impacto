@@ -358,22 +358,28 @@ VmInstruction(InstSetMesModeFormat) {
   dummy.ScriptBufferId = thread->ScriptBufferId;
   RawMesModeInfo* info = std::bit_cast<RawMesModeInfo*>(dummy.GetIp());
 
+  const glm::vec2 designScale = {Profile::DesignWidth / 1280.0f,
+                                 Profile::DesignHeight / 720.0f};
   TextModesInfo[id] = {
       .DisplayMode = info->DisplayMode,
       .WindowId = info->WindowId,
-      .WindowPos = {info->WindowPosX, info->WindowPosY},
+      .WindowPos = glm::vec2(info->WindowPosX, info->WindowPosY) * designScale,
       .NameDispMode = info->NameDispMode,
-      .MaxNameWidth = static_cast<float>(info->MaxNameWidth),
-      .NamePos = {info->NamePosX, info->NamePosY},
-      .NameGlyphSize = {info->NameGlyphWidth, info->NameGlyphHeight},
-      .MaxLineWidth = static_cast<float>(info->MaxLineWidth),
+      .MaxNameWidth = info->MaxNameWidth * designScale.x,
+      .NamePos = glm::vec2(info->NamePosX, info->NamePosY) * designScale,
+      .NameGlyphSize =
+          glm::vec2(info->NameGlyphWidth, info->NameGlyphHeight) * designScale,
+      .MaxLineWidth = info->MaxLineWidth * designScale.x,
       .CurrentPageId = info->CurrentPageId,
-      .WaitIconPos = {info->WaitIconPosX, info->WaitIconPosY},
-      .TextGlyphSize = {info->TextGlyphWidth, info->TextGlyphHeight},
-      .RubyGlyphSize = {info->RubyGlyphWidth, info->RubyGlyphHeight},
-      .LineSpacing = static_cast<float>(info->LineSpacing),
-      .RubyLineSpacing = static_cast<float>(info->RubyLineSpacing),
-      .LinefeedSpacing = static_cast<float>(info->LinefeedSpacing),
+      .WaitIconPos =
+          glm::vec2(info->WaitIconPosX, info->WaitIconPosY) * designScale,
+      .TextGlyphSize =
+          glm::vec2(info->TextGlyphWidth, info->TextGlyphHeight) * designScale,
+      .RubyGlyphSize =
+          glm::vec2(info->RubyGlyphWidth, info->RubyGlyphHeight) * designScale,
+      .LineSpacing = info->LineSpacing * designScale.y,
+      .RubyLineSpacing = info->RubyLineSpacing * designScale.y,
+      .LinefeedSpacing = info->LinefeedSpacing * designScale.y,
       .NamePosFlags = info->NamePosFlags,
       .NameLengthL = info->NameLengthL,
   };
