@@ -4,18 +4,40 @@
 #include "../../ui/ui.h"
 #include "../../audio/audiosystem.h"
 #include "../../profile/games/cclcc/librarymenu.h"
+#include "../../vm/interface/input.h"
 
 namespace Impacto::UI::CCLCC {
 using namespace Impacto::Profile::CCLCC::LibraryMenu;
 using namespace Impacto::Profile::ScriptVars;
 
+static bool IsExtraMoviesPresent() {
+  static bool isPresent = [] {
+    if (!MovieExtraVideosEnabled) return false;
+    std::map<uint32_t, std::string> listing;
+    Io::VfsListFiles("movie", listing);
+    // There are 62 videos in the base game.
+    return listing.size() > 62;
+  }();
+  return isPresent;
+}
+
+void MovieMenu::UpdateFirstMovieDiskVisuals() const {
+  auto* disk = static_cast<Widgets::Button*>(MainItems.Children[0]);
+  disk->NormalSprite =
+      IsExtraMovieModeOn ? MovieDiskExtraOp : MovieDiskSprites[0];
+  disk->FocusedSprite = IsExtraMovieModeOn ? MovieDiskExtraOpHighlight
+                                           : MovieDiskHighlightSprites[0];
+}
+
 MovieMenu::MovieMenu() : LibrarySubmenu() {
   for (size_t i = 0; i < MovieDiskSprites.size(); ++i) {
     const auto& diskSprite = MovieDiskSprites[i];
     const auto& diskHighlightSprite = MovieDiskHighlightSprites[i];
-    auto movieOnclick = [](Widgets::Button* target) {
+    auto movieOnclick = [this](Widgets::Button* target) {
       target->Hovered = false;
-      ScrWork[SW_MOVIEMODE_CUR] = MovieDiskPlayIds[target->Id];
+      ScrWork[SW_MOVIEMODE_CUR] = IsExtraMovieModeOn && target->Id == 0
+                                      ? MovieDiskExtraOpPlayId
+                                      : MovieDiskPlayIds[target->Id];
       LibraryMenuPtr->AllowsScriptInput = true;
       Audio::PlayInGroup(Audio::ACG_SE, "sysse", 2, false, 0);
       Audio::Channels[Audio::AC_BGM0]->Stop(0.0f);
@@ -54,6 +76,9 @@ MovieMenu::MovieMenu() : LibrarySubmenu() {
 }
 
 void MovieMenu::Init() {
+  // Check once in initialization that the ExtraMovieMode is usable, i.e: read
+  // VFS once.
+  IsExtraMoviesPresent();
   ScrWork[SW_MOVIEMODE_CUR] = 0xff;
   MainItems.Children[0]->Enabled = true;
   MainItems.Children[1]->Enabled = GetFlag(SF_CLR_TRUE_CCLCC);
@@ -63,6 +88,19 @@ void MovieMenu::Init() {
   MainItems.Children[2]->Enabled =
       std::ranges::any_of(endingFlags, [](bool flag) { return flag; });
   MainItems.Children[3]->Enabled = GetFlag(SF_CLR_END1);
+  UpdateFirstMovieDiskVisuals();
+}
+
+void MovieMenu::UpdateInput(float dt) {
+  using namespace Vm::Interface;
+  LibrarySubmenu::UpdateInput(dt);
+  if (State == Shown && IsFocused) {
+    if (IsExtraMoviesPresent() &&
+        (PADinputButtonWentDown & PAD1Y || PADinputMouseWentDown & PAD1Y)) {
+      IsExtraMovieModeOn = !IsExtraMovieModeOn;
+      UpdateFirstMovieDiskVisuals();
+    }
+  }
 }
 
 }  // namespace Impacto::UI::CCLCC
