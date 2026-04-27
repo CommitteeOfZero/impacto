@@ -363,29 +363,43 @@ class BaseRenderer {
                           float tileSize, glm::mat4 transformation,
                           glm::vec4 tint) = 0;
 
-  void DrawProcessedText_BasicFont(std::span<const ProcessedTextGlyph> text,
-                                   BasicFont* font, float opacity,
-                                   RendererOutlineMode outlineMode,
-                                   bool smoothstepGlyphOpacity,
-                                   float outlineOpacity,
-                                   SpriteSheet* maskedSheet);
+  void DrawProcessedText_BasicFont(
+      std::span<const ProcessedTextGlyph> text, BasicFont* font, float opacity,
+      RendererOutlineMode outlineMode, bool smoothstepGlyphOpacity,
+      float outlineOpacity, SpriteSheet* maskedSheet, glm::mat4 transformation);
 
   void DrawProcessedText_LBFont(std::span<const ProcessedTextGlyph> text,
                                 LBFont* font, float opacity,
                                 RendererOutlineMode outlineMode,
                                 bool smoothstepGlyphOpacity,
-                                float outlineOpacity, SpriteSheet* maskedSheet);
-  void DrawProcessedText(
-      std::span<const ProcessedTextGlyph> text, Font* font,
-      float opacity = 1.0f,
-      RendererOutlineMode outlineMode = RendererOutlineMode::None,
-      bool smoothstepGlyphOpacity = true, SpriteSheet* maskedSheet = nullptr);
-
+                                float outlineOpacity, SpriteSheet* maskedSheet,
+                                glm::mat4 transformation);
   void DrawProcessedText(
       std::span<const ProcessedTextGlyph> text, Font* font, float opacity,
       float outlineOpacity,
       RendererOutlineMode outlineMode = RendererOutlineMode::None,
-      bool smoothstepGlyphOpacity = true, SpriteSheet* maskedSheet = nullptr);
+      bool smoothstepGlyphOpacity = true, SpriteSheet* maskedSheet = nullptr,
+      glm::mat4 transformation = glm::mat4(1.0f));
+
+  void DrawProcessedText(
+      std::span<const ProcessedTextGlyph> text, Font* font,
+      float opacity = 1.0f,
+      RendererOutlineMode outlineMode = RendererOutlineMode::None,
+      bool smoothstepGlyphOpacity = true, SpriteSheet* maskedSheet = nullptr,
+      glm::mat4 transformation = glm::mat4(1.0f)) {
+    DrawProcessedText(text, font, opacity, opacity, outlineMode,
+                      smoothstepGlyphOpacity, maskedSheet, transformation);
+  }
+
+  void DrawProcessedText(std::span<const ProcessedTextGlyph> text, Font* font,
+                         float opacity, float outlineOpacity,
+                         RendererOutlineMode outlineMode, glm::vec2 pos,
+                         bool smoothstepGlyphOpacity = true,
+                         SpriteSheet* maskedSheet = nullptr) {
+    DrawProcessedText(text, font, opacity, outlineOpacity, outlineMode,
+                      smoothstepGlyphOpacity, maskedSheet,
+                      glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f)));
+  }
 
   virtual void DrawVideoTexture(const YUVFrame& frame, const RectF& dest,
                                 glm::vec4 tint, bool alphaVideo = false) = 0;

@@ -139,37 +139,21 @@ void BaseRenderer::DrawQuad(const CornersQuad& dest, const glm::vec4 color) {
 
 void BaseRenderer::DrawProcessedText(std::span<const ProcessedTextGlyph> text,
                                      Font* font, float opacity,
-                                     RendererOutlineMode outlineMode,
-                                     bool smoothstepGlyphOpacity,
-                                     SpriteSheet* maskedSheet) {
-  switch (font->Type) {
-    case FontType::Basic:
-      DrawProcessedText_BasicFont(text, (BasicFont*)font, opacity, outlineMode,
-                                  smoothstepGlyphOpacity, opacity, maskedSheet);
-      break;
-    case FontType::LB: {
-      DrawProcessedText_LBFont(text, (LBFont*)font, opacity, outlineMode,
-                               smoothstepGlyphOpacity, opacity, maskedSheet);
-    }
-  }
-}
-
-void BaseRenderer::DrawProcessedText(std::span<const ProcessedTextGlyph> text,
-                                     Font* font, float opacity,
                                      float outlineOpacity,
                                      RendererOutlineMode outlineMode,
                                      bool smoothstepGlyphOpacity,
-                                     SpriteSheet* maskedSheet) {
+                                     SpriteSheet* maskedSheet,
+                                     glm::mat4 transformation) {
   switch (font->Type) {
     case FontType::Basic:
       DrawProcessedText_BasicFont(text, (BasicFont*)font, opacity, outlineMode,
                                   smoothstepGlyphOpacity, outlineOpacity,
-                                  maskedSheet);
+                                  maskedSheet, transformation);
       break;
     case FontType::LB: {
       DrawProcessedText_LBFont(text, (LBFont*)font, opacity, outlineMode,
                                smoothstepGlyphOpacity, outlineOpacity,
-                               maskedSheet);
+                               maskedSheet, transformation);
     }
   }
 }
@@ -189,7 +173,7 @@ static std::vector<size_t> GetVisibleGlyphIds(
 void BaseRenderer::DrawProcessedText_BasicFont(
     std::span<const ProcessedTextGlyph> text, BasicFont* font, float opacity,
     RendererOutlineMode outlineMode, bool smoothstepGlyphOpacity,
-    float outlineOpacity, SpriteSheet* maskedSheet) {
+    float outlineOpacity, SpriteSheet* maskedSheet, glm::mat4 transformation) {
   const std::vector<size_t> visibleGlyphIds = GetVisibleGlyphIds(text);
   const size_t glyphCount = visibleGlyphIds.size();
   if (glyphCount == 0) return;
@@ -313,13 +297,14 @@ void BaseRenderer::DrawProcessedText_BasicFont(
   const ShaderProgramType shader = maskedSheet == nullptr
                                        ? ShaderProgramType::Sprite
                                        : ShaderProgramType::MaskedSpriteNoAlpha;
-  DrawPrimitives(font->Sheet, maskedSheet, shader, vertices, indices);
+  DrawPrimitives(font->Sheet, maskedSheet, shader, vertices, indices,
+                 transformation);
 }
 
 void BaseRenderer::DrawProcessedText_LBFont(
     std::span<const ProcessedTextGlyph> text, LBFont* font, float opacity,
     RendererOutlineMode outlineMode, bool smoothstepGlyphOpacity,
-    float outlineOpacity, SpriteSheet* maskedSheet) {
+    float outlineOpacity, SpriteSheet* maskedSheet, glm::mat4 transformation) {
   const std::vector<size_t> visibleGlyphIds = GetVisibleGlyphIds(text);
   const size_t glyphCount = visibleGlyphIds.size();
   if (glyphCount == 0) return;
@@ -394,7 +379,8 @@ void BaseRenderer::DrawProcessedText_LBFont(
                  dest, destUV, color, maskUV);
     }
 
-    DrawPrimitives(font->OutlineSheet, maskedSheet, shader, vertices, indices);
+    DrawPrimitives(font->OutlineSheet, maskedSheet, shader, vertices, indices,
+                   transformation);
   }
 
   for (size_t i = 0; i < glyphCount; i++) {
