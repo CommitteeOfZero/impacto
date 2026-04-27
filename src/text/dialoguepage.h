@@ -57,6 +57,10 @@ struct DialoguePage : public TextPage {
     return static_cast<DialoguePageMode>(mode);
   }
 
+  const TextModeInfo& GetTextModeInfo() const {
+    return TextModesInfo[GetMode()];
+  }
+
   bool TextIsFullyOpaque();
   void Clear() override;
   void AddString(Vm::Sc3VmThread* ctx,

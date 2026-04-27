@@ -28,7 +28,6 @@ void TextParser::Reset() {
   ParallelStartGlyphs.clear();
 
   PageMode = DPM_ADV;
-  BoxBounds = ADVBounds;
 
   LastLineStart = 0;
 
@@ -36,7 +35,7 @@ void TextParser::Reset() {
 
   Alignment = TextAlignment::Left;
   CurrentX = 0.0f;
-  CurrentLineTop = BoxBounds.Y;
+  CurrentLineTop = 0.0f;
   CurrentLineTopMargin = 0.0f;
 
   CurrentColors = ColorTable[0];
@@ -53,9 +52,6 @@ void TextParser::ParseStringToken<STT_CharacterNameStart>(
     const StringToken& token) {
   NameCode.reserve(64);
   ParsingState = TextParsingState::Name;
-  if (PageMode == DPM_REV && REVNameLocation != REVNameLocationType::LeftTop) {
-    CurrentLineTop += REVNameOffset;
-  }
 }
 
 template <>
@@ -127,14 +123,14 @@ void TextParser::ParseStringToken<STT_SetTopMargin>(const StringToken& token) {
 template <>
 void TextParser::ParseStringToken<STT_SetLeftMargin>(const StringToken& token) {
   float addX = token.Val_Uint16;
-  if (CurrentX + addX > BoxBounds.Width) {
+  if (CurrentX + addX > ModeInfo.MaxLineWidth) {
     FinishLine(Glyphs.size());
-    addX -= (BoxBounds.Width - CurrentX);
+    addX -= (ModeInfo.MaxLineWidth - CurrentX);
     CurrentX = 0.0f;
   }
-  while (addX > BoxBounds.Width) {
+  while (addX > ModeInfo.MaxLineWidth) {
     FinishLine(Glyphs.size());
-    addX -= BoxBounds.Width;
+    addX -= ModeInfo.MaxLineWidth;
   }
   CurrentX += addX;
 }
@@ -192,11 +188,10 @@ void TextParser::ParseStringToken<STT_Character>(const StringToken& token) {
       ProcessedTextGlyph& glyph = Glyphs.emplace_back();
       glyph.CharId = token.Val_Uint16;
 
-      glyph.Opacity =
-          (PageMode == DPM_REV || PageMode == DPM_TIPS) ? 1.0f : 0.0f;
+      glyph.Opacity = 1.0f;
       glyph.Colors = CurrentColors;
 
-      glyph.DestRect.X = BoxBounds.X + CurrentX;
+      glyph.DestRect.X = ModeInfo.WindowPos.x + CurrentX;
       glyph.DestRect.Width = (FontSize / DialogueFont->BitmapEmWidth) *
                              DialogueFont->AdvanceWidths[glyph.CharId];
       glyph.DestRect.Height = FontSize;
@@ -204,7 +199,7 @@ void TextParser::ParseStringToken<STT_Character>(const StringToken& token) {
       CurrentX += glyph.DestRect.Width;
 
       // Line breaking
-      if (glyph.DestRect.Right() > BoxBounds.Right()) {
+      if (CurrentX > ModeInfo.MaxLineWidth) {
         size_t breakCharacter = Glyphs.size() - 1;
         for (; breakCharacter > LastLineStart; breakCharacter--) {
           constexpr uint8_t dontBreakBeforeFlags =
@@ -231,7 +226,7 @@ void TextParser::ParseStringToken<STT_Character>(const StringToken& token) {
 
         CurrentX = 0.0f;
         for (size_t i = breakCharacter; i < Glyphs.size(); i++) {
-          Glyphs[i].DestRect.X = BoxBounds.X + CurrentX;
+          Glyphs[i].DestRect.X = ModeInfo.WindowPos.x + CurrentX;
           CurrentX += Glyphs[i].DestRect.Width;
         }
       }
@@ -322,9 +317,10 @@ void TextParser::FinishLine(const size_t nextLineStart) {
   CurrentLineTopMargin *= normalizedFontSize;
 
   float marginXOffset = 0;
-  if (currentLine.front().DestRect.X > BoxBounds.X) {
-    marginXOffset = (currentLine.front().DestRect.Right() - BoxBounds.X) *
-                    (normalizedFontSize - 1.0f);
+  if (currentLine.front().DestRect.X > ModeInfo.WindowPos.x) {
+    marginXOffset =
+        (currentLine.front().DestRect.Right() - ModeInfo.WindowPos.x) *
+        (normalizedFontSize - 1.0f);
   }
 
   const float lastGlyphX = currentLine.back().DestRect.Right();
@@ -334,10 +330,11 @@ void TextParser::FinishLine(const size_t nextLineStart) {
     switch (Alignment) {
       case TextAlignment::Center:
         glyph.DestRect.X +=
-            (BoxBounds.Width - (lastGlyphX - BoxBounds.X)) / 2.0f;
+            (ModeInfo.MaxLineWidth - (lastGlyphX - ModeInfo.WindowPos.x)) /
+            2.0f;
         break;
       case TextAlignment::Right:
-        glyph.DestRect.X += BoxBounds.Width - lastGlyphX - marginXOffset;
+        glyph.DestRect.X += ModeInfo.MaxLineWidth - lastGlyphX - marginXOffset;
         break;
       case TextAlignment::Left:
         glyph.DestRect.X += marginXOffset;
@@ -346,8 +343,7 @@ void TextParser::FinishLine(const size_t nextLineStart) {
     }
   }
 
-  const float lineSpacing =
-      PageMode == DPM_TIPS ? TipsLineSpacing : DialogueFont->LineSpacing;
+  const float lineSpacing = ModeInfo.LineSpacing;
   CurrentLineTop += CurrentLineTopMargin + lineHeight + lineSpacing;
   CurrentLineTopMargin = 0.0f;
 
@@ -399,19 +395,15 @@ void DialogueTextParser::ParseString(Vm::Sc3VmThread* string) {
     return lut;
   }();
 
+  ModeInfo = TextModesInfo[PageMode];
+
   switch (PageMode) {
-    case DPM_ADV:
-      BoxBounds = ADVBounds;
-      break;
-    case DPM_NVL:
-      BoxBounds = NVLBounds;
+    default:
       break;
     case DPM_REV:
-      BoxBounds = SecondaryREVBounds;
       FontSize = Profile::CHLCC::DialogueBox::REVFontSize;
       break;
     case DPM_TIPS:
-      BoxBounds = TipsBounds;
       CurrentColors = ColorTable[TipsColorIndex];
       break;
   }
@@ -487,7 +479,6 @@ void BacklogTextParser::ParseString(Vm::Sc3VmThread* string) {
   }();
 
   FontSize = DefaultFontSize;
-  BoxBounds = REVBounds;
   CurrentColors = ColorTable[REVColor];
 
   StringToken token;
@@ -569,7 +560,6 @@ void TipsTextParser::ParseString(Vm::Sc3VmThread* string) {
   }();
 
   FontSize = DefaultFontSize;
-  BoxBounds = TipsBounds;
   CurrentColors = ColorTable[TipsColorIndex];
 
   StringToken token;

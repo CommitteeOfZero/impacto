@@ -73,19 +73,7 @@ void DialoguePage::Clear() {
   AudioId.reset();
   CurrentStringAddress.reset();
 
-  CurrentLineTop = [this]() {
-    switch (this->GetMode()) {
-      case DPM_ADV:
-        return ADVBounds.Y;
-      case DPM_REV:
-        return SecondaryREVBounds.Y;
-      case DPM_TIPS:
-        return TipsBounds.Y;
-      default:
-      case DPM_NVL:
-        return NVLBounds.Y;
-    }
-  }();
+  CurrentLineTop = GetTextModeInfo().WindowPos.y;
   CurrentLineTopMargin = 0.0f;
 
   AdvanceMethod = AdvanceMethodType::Skip;
@@ -227,20 +215,24 @@ void DialoguePage::Render(const float alpha,
   glm::vec4 col = glm::vec4(1.0f);  // ScrWorkGetColor(SW_MESWINDOW_COLOR);
   col.a = opacityTint.a;
 
+  glm::vec2 pos = glm::vec2(ScrWork[SW_MESWIN0POSX_OFS + 2 * Id],
+                            ScrWork[SW_MESWIN0POSY_OFS + 2 * Id]);
+  if (ScrWork[SW_MESWIN0TYPE + 10 * Id] & 1) {
+    pos += DialogueBoxInst.get()->GetScrWorkPos() - GetTextModeInfo().WindowPos;
+  }
   const float textFadeOpacity =
       GetFlag(SF_MESALLSKIP) ? 1.0f
                              : opacityTint.a * TextFadeAnimation.Progress;
   Renderer->DrawProcessedText(Glyphs, DialogueFont, textFadeOpacity,
-                              outlineMode);
+                              textFadeOpacity, outlineMode, pos);
   for (const RubyChunk& chunk : RubyChunks) {
     Renderer->DrawProcessedText(chunk.Text, DialogueFont, textFadeOpacity,
-                                outlineMode);
+                                textFadeOpacity, outlineMode, pos);
   }
 
   // Wait icon
-  const RectF& lastGlyphDest =
-      Glyphs.empty() ? RectF() : Glyphs.back().DestRect;
-  glm::vec2 waitIconPos(lastGlyphDest.X + lastGlyphDest.Width, lastGlyphDest.Y);
+  const glm::vec2 waitIconPos =
+      pos + (Glyphs.empty() ? glm::vec2() : Glyphs.back().DestRect.TopRight());
   WaitIconDisplay::Render(waitIconPos, col, GetMode(), Id);
 
   AutoIconDisplay::Render(col);

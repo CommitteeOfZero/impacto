@@ -42,7 +42,7 @@ class TextParser {
   enum class TextParsingState { Normal, Name, RubyBase, RubyAnnotation };
   TextParsingState ParsingState = TextParsingState::Normal;
 
-  RectF BoxBounds;
+  TextModeInfo ModeInfo = TextModesInfo[0];
 
   size_t LastLineStart = 0;
 
