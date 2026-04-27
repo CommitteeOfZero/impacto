@@ -29,6 +29,7 @@ class SystemMenu : public Menu {
 
   void MenuButtonOnClick(Widgets::Button* target);
   Sprite ScreenCap;
+  glm::vec2 BGPosition{};
 
  private:
   Widgets::Group* MainItems;
@@ -36,7 +37,6 @@ class SystemMenu : public Menu {
   Animation MenuFade;
   Animation ItemsFade;
   bool ItemsFadeComplete = false;
-  glm::vec2 BGPosition{};
   std::optional<int> LastFocusedButtonId;
 
   GridVertices Vertices;
