@@ -10,6 +10,14 @@ namespace Impacto {
 using namespace Profile::ConfigSystem;
 using namespace Profile::Dialogue;
 
+static float CalcLinearProgress(float progress, float startProgress,
+                                float endProgress) {
+  if (endProgress <= startProgress)
+    return progress >= endProgress ? 1.0f : 0.0f;
+  return std::clamp((progress - startProgress) / (endProgress - startProgress),
+                    0.0f, 1.0f);
+}
+
 void TypewriterEffect::Start(const bool voiced) {
   DurationIn = 1.0f;
   Voiced = voiced;
@@ -90,65 +98,83 @@ TypewriterEffect::ParallelBlock TypewriterEffect::GetParallelBlock(
   }
 }
 
+static std::pair<float, float> GetWritingProgresses(
+    const size_t glyphNo, const size_t glyphCount, const float totalProgress,
+    const float glyphFadeProgress) {
+  if (glyphCount == 0 || totalProgress <= 0.0f) return {0.0f, 1.0f};
+
+  float startTime = 0.0f;
+  if (glyphCount > 1 && totalProgress > glyphFadeProgress) {
+    const float glyphStartInterval =
+        (totalProgress - glyphFadeProgress) / (glyphCount - 1);
+    startTime = glyphStartInterval * glyphNo;
+  }
+
+  const float endTime = std::min(startTime + glyphFadeProgress, totalProgress);
+
+  return {startTime / totalProgress, endTime / totalProgress};
+}
+
+float TypewriterEffect::GetProgressDurationSeconds() const {
+  if (Voiced && Profile::ConfigSystem::SyncVoice) {
+    const float voiceDuration =
+        Audio::Channels[Audio::AC_VOICE0]->DurationInSeconds();
+    if (voiceDuration > 0.0f) return voiceDuration;
+  }
+
+  if (Profile::ConfigSystem::TextSpeed >=
+      Profile::ConfigSystem::TextSpeedBounds.y) {
+    return TextFadeInDuration;
+  }
+
+  if (Profile::ConfigSystem::TextSpeed > 0.0f) {
+    return static_cast<float>(GlyphCount) / Profile::ConfigSystem::TextSpeed;
+  }
+
+  return DurationIn;
+}
+
+float TypewriterEffect::GetGlyphFadeProgress(const float totalProgress) const {
+  if (totalProgress <= 0.0f) return 0.0f;
+
+  const float progressDuration = GetProgressDurationSeconds();
+  if (progressDuration <= 0.0f) return totalProgress;
+
+  const float normalizedGlyphFadeProgress =
+      std::clamp(TextFadeInDuration / progressDuration, 0.0f, 1.0f);
+
+  return std::min(totalProgress * normalizedGlyphFadeProgress, totalProgress);
+}
+
 std::pair<float, float> TypewriterEffect::GetGlyphWritingProgresses(
     const size_t glyph) {
   const ParallelBlock block = GetParallelBlock(glyph);
 
-  const size_t parallelBlockGlyphNo = glyph - block.Start;
-
-  // We start displaying a glyph after the previous one is 25% opaque, hence
-  // totalDisplayTime = glyphCount * (0.25 * glyphDisplayTime) +
-  //                    glyphDisplayTime * 0.75
-
-  constexpr float singleGlyphDuration = 1.0f;
-  constexpr float glyphPropagateProgress = 0.25f;
-  constexpr float glyphPropagateDuration =
-      singleGlyphDuration * glyphPropagateProgress;
-  const float totalDuration =
-      block.Size * glyphPropagateDuration +
-      (1.0f - glyphPropagateProgress) * singleGlyphDuration;
-
-  const float startTime = glyphPropagateDuration * parallelBlockGlyphNo;
-  const float endTime = startTime + singleGlyphDuration;
-
-  return {startTime / totalDuration, endTime / totalDuration};
+  return GetWritingProgresses(glyph - block.Start, block.Size, 1.0f,
+                              GetGlyphFadeProgress(1.0f));
 }
 
 float TypewriterEffect::CalcOpacity(size_t glyph) {
   if (glyph < FirstGlyph) return 1.0f;
   if (glyph >= FirstGlyph + GlyphCount) return 0.0f;
 
-  if (!IsCancelled &&
-      Profile::ConfigSystem::TextSpeed >=
-          Profile::ConfigSystem::TextSpeedBounds.y &&
-      !(Voiced && Profile::ConfigSystem::SyncVoice)) {
-    return Progress;
-  }
-
   const auto [startProgress, endProgress] = GetGlyphWritingProgresses(glyph);
 
-  if (IsCancelled) {
-    // On cancellation, all non-opaque glyphs start appearing simultaneously
-
-    // Opaque glyphs remain opaque
-    if (ProgressOnCancel >= endProgress) return 1.0f;
-
-    // Transparent glyphs fade in according to the progress made
-    // since cancelling
-    const float cancelProgress =
-        (Progress - ProgressOnCancel) / (1.0f - ProgressOnCancel);
-    if (ProgressOnCancel <= startProgress) return cancelProgress;
-
-    // Translucent glyphs fade in further, in addition to the opacity they
-    // already had
-    const float glyphProgressBeforeCancellation =
-        (ProgressOnCancel - startProgress) / (endProgress - startProgress);
-    return glyphProgressBeforeCancellation +
-           cancelProgress * (1.0f - glyphProgressBeforeCancellation);
+  if (!IsCancelled) {
+    return CalcLinearProgress(Progress, startProgress, endProgress);
   }
 
-  return std::clamp((Progress - startProgress) / (endProgress - startProgress),
-                    0.0f, 1.0f);
+  if (ProgressOnCancel >= endProgress) return 1.0f;
+
+  const float cancelProgress =
+      (Progress - ProgressOnCancel) / (1.0f - ProgressOnCancel);
+
+  if (ProgressOnCancel <= startProgress) return cancelProgress;
+
+  const float glyphProgressBeforeCancellation =
+      CalcLinearProgress(ProgressOnCancel, startProgress, endProgress);
+  return glyphProgressBeforeCancellation +
+         cancelProgress * (1.0f - glyphProgressBeforeCancellation);
 }
 
 float TypewriterEffect::CalcRubyOpacity(const size_t rubyGlyphId,
@@ -180,27 +206,15 @@ float TypewriterEffect::CalcRubyOpacity(const size_t rubyGlyphId,
   }
 
   const float baseProgressLength = baseEndProgress - baseStartProgress;
-
-  // We start displaying a glyph after the previous one is 25% opaque, hence
-  // totalDisplayTime = glyphCount * (0.25 * glyphDisplayTime) +
-  //                    glyphDisplayTime * 0.75
-
-  constexpr float singleGlyphDuration = 1.0f;
-  constexpr float glyphPropagateProgress = 0.25f;
-  constexpr float glyphPropagateDuration =
-      singleGlyphDuration * glyphPropagateProgress;
-  const float totalDuration =
-      chunk.Length * glyphPropagateDuration +
-      (1.0f - glyphPropagateProgress) * singleGlyphDuration;
-
-  const float glyphStartTime = glyphPropagateDuration * rubyGlyphId;
-  const float glyphEndTime = glyphStartTime + singleGlyphDuration;
+  const auto [glyphStartProgressInBase, glyphEndProgressInBase] =
+      GetWritingProgresses(rubyGlyphId, chunk.Length, baseProgressLength,
+                           GetGlyphFadeProgress(baseProgressLength));
 
   // Convert back to progress-space
   const float startProgress =
-      baseStartProgress + (glyphStartTime / totalDuration) * baseProgressLength;
+      baseStartProgress + glyphStartProgressInBase * baseProgressLength;
   const float endProgress =
-      baseStartProgress + (glyphEndTime / totalDuration) * baseProgressLength;
+      baseStartProgress + glyphEndProgressInBase * baseProgressLength;
 
   if (IsCancelled) {
     if (ProgressOnCancel >= endProgress) return 1.0f;
@@ -210,12 +224,11 @@ float TypewriterEffect::CalcRubyOpacity(const size_t rubyGlyphId,
     if (ProgressOnCancel <= startProgress) return cancelProgress;
 
     const float glyphProgressBeforeCancellation =
-        (ProgressOnCancel - startProgress) / (endProgress - startProgress);
+        CalcLinearProgress(ProgressOnCancel, startProgress, endProgress);
     return glyphProgressBeforeCancellation +
            cancelProgress * (1.0f - glyphProgressBeforeCancellation);
   }
 
-  return std::clamp((Progress - startProgress) / (endProgress - startProgress),
-                    0.0f, 1.0f);
+  return CalcLinearProgress(Progress, startProgress, endProgress);
 }
 }  // namespace Impacto
