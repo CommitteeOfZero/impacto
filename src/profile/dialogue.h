@@ -53,6 +53,7 @@ enum class REVNameLocationType : int {
   TopLeft,
   LeftTop,
 };
+inline size_t REVMessageModeIdx;
 inline float REVNameFontSize;
 inline int REVColor;
 inline int REVNameColor;

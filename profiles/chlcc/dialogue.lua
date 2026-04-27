@@ -30,6 +30,7 @@ root.Dialogue = {
     SecondaryREVBounds = {X = 338, Y = 159, Width = 480, Height = 106},
     ErinBoxSprite = "ErinBox",
     ErinBoxPos = { X = 314, Y = 156 },
+    REVMessageModeIdx = 9,
     REVNameFontSize = 32,
     REVColor = 0,
     REVNameColor = 24,

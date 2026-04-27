@@ -523,6 +523,7 @@ void BacklogTextParser::ParseString(BacklogPage& page,
   RubyChunks.swap(page.RubyChunks);
   Name.swap(page.Name);
   PageMode = DPM_REV;
+  ModeInfo = TextModesInfo[REVMessageModeIdx];
   LastLineStart = Glyphs.size();
   CurrentLineTop = REVBounds.Y;
 

@@ -9,6 +9,7 @@ root.Sprites["DialogueWaitIcon"] = {
 };
 
 root.Dialogue = {
+    REVMessageModeIdx = 9,
     REVBounds = { X = 0, Y = 0, Width = 960, Height = 400 },
     REVNameFontSize = 24,
     REVColor = 0,

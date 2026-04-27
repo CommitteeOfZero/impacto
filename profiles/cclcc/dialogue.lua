@@ -11,6 +11,7 @@ root.Sprites["ADVBoxMask"] = {
 root.Dialogue = {
     TipsBounds = { X = 1042, Y = 394, Width = 720, Height = 542 },
     TipsColorIndex = 10,
+    REVMessageModeIdx = 9,
     REVBounds = { X = 547, Y = 0, Width = 1043, Height = 400 },
     REVNameFontSize = 42,
     REVColor = 10, -- Absolute guess
