@@ -243,7 +243,10 @@ void TextParser::FinishLine(const size_t nextLineStart) {
   // Lay out all ruby chunks on this line (before we change CurrentLineTop and
   // thus can't find where to put them)
   for (RubyChunk& chunk : RubyChunks) {
-    if (chunk.FirstBaseCharacter < LastLineStart) continue;
+    if (chunk.Length == 0 || chunk.BaseLength == 0 ||
+        chunk.FirstBaseCharacter < LastLineStart) {
+      continue;
+    }
     if (chunk.FirstBaseCharacter >= nextLineStart) break;
 
     Vm::Sc3Stream rubyText(chunk.RawText.data());
