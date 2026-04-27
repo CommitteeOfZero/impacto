@@ -29,8 +29,6 @@ class TextParser {
   DialoguePage::AdvanceMethodType AdvanceMethod =
       DialoguePage::AdvanceMethodType::Skip;
 
-  DialoguePageMode PageMode = DPM_ADV;
-
  protected:
   template <StringTokenType T>
   void ParseStringToken(const StringToken& token);

@@ -27,8 +27,6 @@ void TextParser::Reset() {
 
   ParallelStartGlyphs.clear();
 
-  PageMode = DPM_ADV;
-
   LastLineStart = 0;
 
   FontSize = DefaultFontSize;
@@ -395,19 +393,6 @@ void DialogueTextParser::ParseString(Vm::Sc3VmThread* string) {
     return lut;
   }();
 
-  ModeInfo = TextModesInfo[PageMode];
-
-  switch (PageMode) {
-    default:
-      break;
-    case DPM_REV:
-      FontSize = Profile::CHLCC::DialogueBox::REVFontSize;
-      break;
-    case DPM_TIPS:
-      CurrentColors = ColorTable[TipsColorIndex];
-      break;
-  }
-
   StringToken token;
   do {
     token.Read(string);
@@ -439,7 +424,7 @@ void DialogueTextParser::ParseString(DialoguePage& page,
   CurrentLineTop = page.CurrentLineTop;
   CurrentLineTopMargin = page.CurrentLineTopMargin;
   LastLineStart = Glyphs.size();
-  PageMode = page.GetMode();
+  ModeInfo = page.GetTextModeInfo();
 
   ParseString(string);
 
@@ -522,7 +507,6 @@ void BacklogTextParser::ParseString(BacklogPage& page,
   Glyphs.swap(page.Glyphs);
   RubyChunks.swap(page.RubyChunks);
   Name.swap(page.Name);
-  PageMode = DPM_REV;
   ModeInfo = TextModesInfo[REVMessageModeIdx];
   LastLineStart = Glyphs.size();
   CurrentLineTop = REVBounds.Y;
@@ -577,7 +561,6 @@ void TipsTextParser::ParseString(TipsPage& page, Vm::Sc3VmThread* string) {
   Reset();
   Glyphs.swap(page.Glyphs);
   RubyChunks.swap(page.RubyChunks);
-  PageMode = DPM_TIPS;
   ModeInfo = TextModesInfo[TipsMessageModeIdx];
   CurrentLineTop = TipsBounds.Y;
 
