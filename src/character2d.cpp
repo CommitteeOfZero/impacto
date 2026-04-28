@@ -434,8 +434,8 @@ void Character2D::Render(const int layer) {
     }
 
   } else {
-    const glm::mat4 transformation =
-        TransformationMatrix({0.0f, 0.0f}, Scale, glm::vec3(0.0f), Rotation);
+    const glm::mat4 transformation = TransformationMatrix(
+        Position, Scale, glm::vec3(Position, 0.0f), Rotation);
     for (auto id : StatesToDraw) {
       if (auto stateItr = States.find(id); stateItr != States.end()) {
         Character2DState const& state = stateItr->second;
