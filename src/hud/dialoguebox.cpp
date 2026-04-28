@@ -20,7 +20,7 @@ namespace Impacto {
 using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::Dialogue;
 
-std::unique_ptr<DialogueBox> DialogueBox::Create() {
+std::unique_ptr<DialogueBox> DialogueBox::Create(const DialoguePage& page) {
   switch (DialogueBoxCurrentType) {
     default:
       ImpLog(LogLevel::Warning, LogChannel::General,
@@ -29,23 +29,30 @@ std::unique_ptr<DialogueBox> DialogueBox::Create() {
              static_cast<int>(DialogueBoxCurrentType));
       [[fallthrough]];
     case DialogueBoxType::None:
-      return std::make_unique<VoidDialogueBox>();
+      return std::make_unique<VoidDialogueBox>(page);
 
     case DialogueBoxType::MO6TW:
-      return std::make_unique<MO6TW::DialogueBox>();
+      return std::make_unique<MO6TW::DialogueBox>(page);
 
     case DialogueBoxType::CHLCC:
-      return std::make_unique<CHLCC::DialogueBox>();
+      return std::make_unique<CHLCC::DialogueBox>(page);
 
     case DialogueBoxType::CC:
-      return std::make_unique<CC::DialogueBox>();
+      return std::make_unique<CC::DialogueBox>(page);
 
     case DialogueBoxType::Plain:
-      return std::make_unique<PlainDialogueBox>();
+      return std::make_unique<PlainDialogueBox>(page);
   }
 }
 
-PlainDialogueBox::PlainDialogueBox() {
+glm::vec2 DialogueBox::GetScrWorkPos() const {
+  using namespace Impacto::Profile::ScriptVars;
+  const int id = ParentPage.get().Id;
+  return {ScrWork[SW_MESWIN0POSX + 10 * id], ScrWork[SW_MESWIN0POSY + 10 * id]};
+}
+
+PlainDialogueBox::PlainDialogueBox(const DialoguePage& page)
+    : DialogueBox(page) {
   using namespace UI::Widgets;
 
   Sprite nullSprite = Sprite();

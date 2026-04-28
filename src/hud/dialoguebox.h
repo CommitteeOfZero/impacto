@@ -3,6 +3,7 @@
 #include <magic_enum/magic_enum.hpp>
 #include <optional>
 #include <ankerl/unordered_dense.h>
+
 #include "../text/text.h"
 #include "../ui/widgets/button.h"
 #include "nametagdisplay.h"
@@ -10,6 +11,7 @@
 namespace Impacto {
 
 enum DialoguePageMode : uint8_t;
+struct DialoguePage;
 
 enum class DialogueBoxType : int {
   None,
@@ -20,7 +22,7 @@ enum class DialogueBoxType : int {
 };
 class DialogueBox {
  public:
-  static std::unique_ptr<DialogueBox> Create();
+  static std::unique_ptr<DialogueBox> Create(const DialoguePage& page);
   virtual ~DialogueBox() = default;
 
   virtual void Show() { ShowName(); }
@@ -34,17 +36,23 @@ class DialogueBox {
   virtual void Render(DialoguePageMode mode, const NameInfo& nameInfo,
                       glm::vec4 tint = glm::vec4(1.0f)) = 0;
 
+  glm::vec2 GetScrWorkPos() const;
+
   enum class VisibilityStateType { Hidden, Hiding, Showing, Shown };
   using enum VisibilityStateType;
   VisibilityStateType VisibilityState = Hidden;
 
  protected:
+  DialogueBox(const DialoguePage& page) : ParentPage(page) {}
+
   std::unique_ptr<NametagDisplay> NametagDisplayInst = NametagDisplay::Create();
+
+  std::reference_wrapper<const DialoguePage> ParentPage;
 };
 
 class PlainDialogueBox : public DialogueBox {
  public:
-  PlainDialogueBox();
+  PlainDialogueBox(const DialoguePage& page);
 
   void Show() override;
   void Hide() override;
@@ -61,6 +69,8 @@ class PlainDialogueBox : public DialogueBox {
 
 class VoidDialogueBox : public DialogueBox {
  public:
+  VoidDialogueBox(const DialoguePage& page) : DialogueBox(page) {}
+
   void Show() override;
   void Hide() override;
   void Render(DialoguePageMode mode, const NameInfo& nameInfo,

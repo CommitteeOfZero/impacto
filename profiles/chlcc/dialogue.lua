@@ -24,12 +24,14 @@ root.Sprites["SkipIconSprite"] = {
 };
 
 root.Dialogue = {
+    TipsMessageModeIdx = 7,
     TipsBounds = { X = 404, Y = 150, Width = 800, Height = 420 },
     TipsColorIndex = 0,
     REVBounds = { X = 337, Y = 159, Width = 952, Height = 555 },
     SecondaryREVBounds = {X = 338, Y = 159, Width = 480, Height = 106},
     ErinBoxSprite = "ErinBox",
     ErinBoxPos = { X = 314, Y = 156 },
+    REVMessageModeIdx = 9,
     REVNameFontSize = 32,
     REVColor = 0,
     REVNameColor = 24,

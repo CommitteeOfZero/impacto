@@ -53,6 +53,7 @@ enum class REVNameLocationType : int {
   TopLeft,
   LeftTop,
 };
+inline size_t REVMessageModeIdx;
 inline float REVNameFontSize;
 inline int REVColor;
 inline int REVNameColor;
@@ -61,6 +62,7 @@ inline REVNameLocationType REVNameLocation = REVNameLocationType::None;
 inline RendererOutlineMode REVOutlineMode = RendererOutlineMode::Full;
 inline RendererOutlineMode REVNameOutlineMode = RendererOutlineMode::Full;
 
+inline size_t TipsMessageModeIdx;
 inline float TipsLineSpacing;
 inline int TipsColorIndex = 0;
 
@@ -96,8 +98,7 @@ inline float DefaultFontSize;
 inline float RubyFontSize;
 inline float RubyYOffset;
 
-inline int ColorCount;
-inline DialogueColorPair* ColorTable;
+inline std::vector<DialogueColorPair> ColorTable;
 
 inline int MaxPageSize;
 inline int PageCount;

@@ -38,15 +38,15 @@ TipsMenu::TipsMenu() : TipViewItems(this) {
   TransitionAnimation.DurationOut = TransitionOutDuration;
 
   Name = new Label();
-  Pronounciation = new Label();
+  Pronunciation = new Label();
   Category = new Label();
   Number = new Label();
 
   Name->Bounds.X = NamePos.x;
   Name->Bounds.Y = NamePos.y;
 
-  Pronounciation->Bounds.X = PronounciationPos.x;
-  Pronounciation->Bounds.Y = PronounciationPos.y;
+  Pronunciation->Bounds.X = PronunciationPos.x;
+  Pronunciation->Bounds.Y = PronunciationPos.y;
 
   Category->Bounds.X = CategoryPos.x;
   Category->Bounds.Y = CategoryPos.y;
@@ -55,13 +55,11 @@ TipsMenu::TipsMenu() : TipViewItems(this) {
   Number->Bounds.Y = NumberPos.y;
 
   TipViewItems.Add(Name);
-  TipViewItems.Add(Pronounciation);
+  TipViewItems.Add(Pronunciation);
   TipViewItems.Add(Category);
   TipViewItems.Add(Number);
 
   TextPage.Clear();
-  TextPage.Mode = DPM_TIPS;
-  TextPage.FadeAnimation.Progress = 1.0f;
 
   TipsScrollStartPos = {TipsScrollDetailsX, TipsScrollYStart};
 
@@ -90,8 +88,8 @@ void TipsMenu::Show() {
     Name->Bounds.X = NamePos.x;
     Name->Bounds.Y = NamePos.y;
 
-    Pronounciation->Bounds.X = PronounciationPos.x;
-    Pronounciation->Bounds.Y = PronounciationPos.y;
+    Pronunciation->Bounds.X = PronunciationPos.x;
+    Pronunciation->Bounds.Y = PronunciationPos.y;
 
     Category->Bounds.X = CategoryPos.x;
     Category->Bounds.Y = CategoryPos.y;
@@ -328,9 +326,9 @@ void TipsMenu::SwitchToTipId(int id) {
       {.ScriptBufferId = tipsScrBufId, .IpOffset = record->StringAdr[1]},
       (float)NameFontSize, RendererOutlineMode::None,
       {TipsMenuDarkTextColor, 0});
-  Pronounciation->SetText(
+  Pronunciation->SetText(
       {.ScriptBufferId = tipsScrBufId, .IpOffset = record->StringAdr[2]},
-      (float)PronounciationFontSize, RendererOutlineMode::None, 0);
+      (float)PronunciationFontSize, RendererOutlineMode::None, 0);
 
   {
     uint16_t sc3StringBuffer[5];
@@ -352,11 +350,10 @@ void TipsMenu::SwitchToTipId(int id) {
   TextPage.AddString(&dummy);
   TipViewItems.HasFocus = true;
 
-  auto& lastGlyph = TextPage.Glyphs.back();
+  const RectF lastGlyphBox = TextPage.Glyphs.back().DestRect;
   int scrollDistance =
-      (int)(lastGlyph.DestRect.Y + lastGlyph.DestRect.Height -
-            (TextPage.BoxBounds.Y + TextPage.BoxBounds.Height) +
-            lastGlyph.DestRect.Height);
+      static_cast<int>(lastGlyphBox.Bottom() - TextPage.BoxBounds.Bottom() +
+                       lastGlyphBox.Height);
 
   TipPageY = 0;
   TipsScrollbar = std::make_unique<Widgets::Scrollbar>(

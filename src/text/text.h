@@ -23,6 +23,7 @@ enum class CharacterTypeFlags : uint8_t {
   Space = (1 << 0),
   WordStartingPunct = (1 << 1),
   WordEndingPunct = (1 << 2),
+  Alphabet = (1 << 3),
 };
 
 // TODO: think about / profile memory access patterns
@@ -100,12 +101,16 @@ struct ProcessedTextGlyph {
 };
 
 struct RubyChunk {
-  size_t FirstBaseCharacter;
-  size_t Length;
-  size_t BaseLength;
+  size_t FirstBaseCharacter = 0;
+  size_t Length = 0;
+  size_t BaseLength = 0;
   std::array<ProcessedTextGlyph, 32> Text;
   std::array<uint16_t, 32> RawText;
-  bool CenterPerCharacter;
+  bool CenterPerCharacter = false;
+
+  void FinishBase(size_t glyphCount) {
+    BaseLength = glyphCount - FirstBaseCharacter;
+  }
 };
 
 int TextGetStringLength(Vm::Sc3Stream& stream);
@@ -153,3 +158,12 @@ void FitGlyphsForPlainLine(std::span<ProcessedTextGlyph> glyphs,
                            float containerRight);
 
 }  // namespace Impacto
+
+namespace magic_enum::customize {
+template <>
+struct enum_range<Impacto::StringTokenType> {
+  constexpr static size_t prefix_length = std::string_view("STT_").size();
+  constexpr static int min = Impacto::STT_LineBreak;
+  constexpr static int max = Impacto::STT_EndOfString;
+};
+}  // namespace magic_enum::customize

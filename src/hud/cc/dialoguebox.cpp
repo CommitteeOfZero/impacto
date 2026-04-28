@@ -17,7 +17,8 @@ using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::Dialogue;
 using namespace Impacto::Profile::CC::DialogueBox;
 
-DialogueBox::DialogueBox() {
+DialogueBox::DialogueBox(const DialoguePage& page)
+    : Impacto::DialogueBox(page) {
   TextBoxEffect.DurationIn = ADVBoxEffectDuration;
   TextBoxEffect.LoopMode = AnimationLoopMode::Loop;
   TextBoxEffect.StartIn();

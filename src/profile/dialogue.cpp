@@ -127,6 +127,7 @@ void Configure() {
   ADVNameFontSize = EnsureGetMember<float>("ADVNameFontSize");
   ADVNamePos = EnsureGetMember<glm::vec2>("ADVNamePos");
 
+  REVMessageModeIdx = EnsureGetMember<size_t>("REVMessageModeIdx");
   REVNameFontSize = EnsureGetMember<float>("REVNameFontSize");
   REVColor = EnsureGetMember<int>("REVColor");
   REVNameColor = EnsureGetMember<int>("REVNameColor");
@@ -136,6 +137,7 @@ void Configure() {
   REVNameOutlineMode =
       RendererOutlineMode(EnsureGetMember<int>("REVNameOutlineMode"));
 
+  TipsMessageModeIdx = EnsureGetMember<size_t>("TipsMessageModeIdx");
   TryGetMember<float>("TipsLineSpacing", TipsLineSpacing);
   TryGetMember<int>("TipsColorIndex", TipsColorIndex);
 
@@ -230,30 +232,7 @@ void Configure() {
   MaxPageSize = EnsureGetMember<int>("MaxPageSize");
   PageCount = EnsureGetMember<int>("PageCount");
 
-  {
-    EnsurePushMemberOfType("ColorTable", LUA_TTABLE);
-
-    ColorCount = (int)lua_rawlen(LuaState, -1);
-    ColorTable = new DialogueColorPair[ColorCount];
-    PushInitialIndex();
-    while (PushNextTableElement() != 0) {
-      int i = EnsureGetKey<int32_t>() - 1;
-      AssertIs(LUA_TTABLE);
-
-      auto pairSize = lua_rawlen(LuaState, -1);
-      if (pairSize != 2) {
-        ImpLog(LogLevel::Fatal, LogChannel::Profile, "Expected two colors\n");
-        Window->Shutdown();
-      }
-      ColorTable[i].TextColor = EnsureGetArrayElementByIndex<uint32_t>(0);
-      ColorTable[i].OutlineColor = EnsureGetArrayElementByIndex<uint32_t>(1);
-
-      Pop();
-    }
-
-    Pop();
-  }
-
+  ColorTable = EnsureGetMember<std::vector<DialogueColorPair>>("ColorTable");
   ColorTagIsUint8 = EnsureGetMember<bool>("ColorTagIsUint8");
 
   ConfigureNametag();

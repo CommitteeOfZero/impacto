@@ -13,7 +13,7 @@ using namespace Impacto::Profile::BacklogMenu;
 using namespace Impacto::Profile::CC::BacklogMenu;
 
 void BacklogEntry::Render() {
-  if (AudioId != -1) {
+  if (AudioId.has_value()) {
     RectF bounds = RectF(Bounds.X - VoiceIcon.ScaledWidth() + VoiceIconOffset.x,
                          Bounds.Y + VoiceIconOffset.y, VoiceIcon.ScaledWidth(),
                          VoiceIcon.ScaledHeight());
@@ -26,15 +26,19 @@ void BacklogEntry::Render() {
                                       Tint, false, false);
   }
 
-  if (BacklogPage->HasName()) {
-    Renderer->DrawProcessedText(
-        BacklogPage->Name, Profile::Dialogue::DialogueFont, Tint.a,
-        Profile::Dialogue::REVNameOutlineMode, true, &BacklogMaskSheet);
+  Renderer->DrawProcessedText(Page->Name, Profile::Dialogue::DialogueFont,
+                              Tint.a, Profile::Dialogue::REVNameOutlineMode,
+                              true, &BacklogMaskSheet);
+
+  for (RubyChunk& chunk : Page->RubyChunks) {
+    Renderer->DrawProcessedText(chunk.Text, Profile::Dialogue::DialogueFont,
+                                Tint.a, Profile::Dialogue::REVNameOutlineMode,
+                                true, &BacklogMaskSheet);
   }
 
-  Renderer->DrawProcessedText(
-      BacklogPage->Glyphs, Profile::Dialogue::DialogueFont, Tint.a,
-      Profile::Dialogue::REVOutlineMode, true, &BacklogMaskSheet);
+  Renderer->DrawProcessedText(Page->Glyphs, Profile::Dialogue::DialogueFont,
+                              Tint.a, Profile::Dialogue::REVOutlineMode, true,
+                              &BacklogMaskSheet);
 }
 
 }  // namespace CC

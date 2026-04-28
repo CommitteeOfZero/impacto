@@ -1,13 +1,13 @@
 #pragma once
 
 #include "menu.h"
-#include "../text/dialoguepage.h"
+#include "../text/tipspage.h"
 #include "../ui/widgets/label.h"
 
 namespace Impacto {
 namespace UI {
 
-// "Clamped" can't go outside [min,max], "Looped" loopes from last to first
+// "Clamped" can't go outside [min,max], "Looped" loops from last to first
 enum class TipAdvanceMode : uint8_t { PrevClamped, NextClamped, NextLooped };
 
 class TipsMenu : public Menu {
@@ -26,9 +26,9 @@ class TipsMenu : public Menu {
   int CurrentlyDisplayedTipId = -1;
 
   Animation FadeAnimation;
-  DialoguePage TextPage;
+  TipsPage TextPage;
   Widgets::Label* Name;
-  Widgets::Label* Pronounciation;
+  Widgets::Label* Pronunciation;
   Widgets::Label* Category;
   Widgets::Label* NumberText;
   Widgets::Label* Number;

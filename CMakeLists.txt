@@ -35,7 +35,11 @@ set(Impacto_Src
     src/voicetable.cpp
     src/animation.cpp
 
+    src/text/backlogpage.cpp
     src/text/text.cpp
+    src/text/textpage.cpp
+    src/text/textparser.cpp
+    src/text/tipspage.cpp
     src/text/typewritereffect.cpp
     src/text/dialoguepage.cpp
 
@@ -393,7 +397,11 @@ set(Impacto_Header
     src/rng.h
     src/animation.h
 
+    src/text/backlogpage.h
     src/text/text.h
+    src/text/textpage.h
+    src/text/textparser.h
+    src/text/tipspage.h
     src/text/typewritereffect.h
     src/text/dialoguepage.h
 

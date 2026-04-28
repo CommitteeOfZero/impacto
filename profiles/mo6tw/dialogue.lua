@@ -24,8 +24,10 @@ root.Sprites["ADVBoxDecoration"] = {
 };
 
 root.Dialogue = {
+    TipsMessageModeIdx = 7,
     TipsBounds = { X = 394, Y = 263, Width = 820, Height = 370 },
     TipsColorIndex = 0,
+    REVMessageModeIdx = 9,
     REVBounds = { X = 163, Y = 83, Width = 960, Height = 590 },
     REVNameFontSize = 24,
     REVColor = 0,

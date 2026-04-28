@@ -17,7 +17,7 @@
 #include "../data/tipssystem.h"
 #include "../ui/ui.h"
 #include "interface/input.h"
-#include "../text/text.h"
+#include "../text/dialoguepage.h"
 #include "../audio/audiosystem.h"
 #include "vm.h"
 
@@ -158,8 +158,6 @@ VmInstruction(InstMes) {
   // After loading a save we need to make sure the textbox is actually shown
   if (dialoguePage.FadeAnimation.IsOut() &&
       GetFlag(thread->DialoguePageId + SF_MESWINDOW0OPENFL)) {
-    dialoguePage.Mode =
-        (DialoguePageMode)ScrWork[thread->DialoguePageId * 10 + SW_MESMODE0];
     dialoguePage.FadeAnimation.StartIn(true);
   }
   SaveSystem::SetQSavedOnCurrentLine(false);
@@ -169,7 +167,7 @@ VmInstruction(InstMes) {
   bool acted = type & (1 << 1);
   bool MSB = type & (1 << 7);
 
-  int audioId = -1;
+  std::optional<int> audioId;
   int animationId = 0;
   if (voiced) audioId = ExpressionEval(thread);
   PopExpression(characterId);
@@ -188,21 +186,18 @@ VmInstruction(InstMes) {
   ScrWork[2 * dialoguePage.Id + SW_LINEID] = lineId;
   ScrWork[2 * dialoguePage.Id + SW_SCRIPTID] = scriptId;
 
-  Audio::AudioStream* audioStream = nullptr;
   if (GetFlag(SF_MESALLSKIP)) {
     Audio::Channels[Audio::AC_VOICE0]->Stop(0.0f);
   }
-  if (voiced) {
-    Io::Stream* stream;
-    IoError err = Io::VfsOpen("voice", audioId, &stream);
 
-    bool playAudio = (err == IoError_OK && !GetFlag(SF_MESALLSKIP));
-    if (playAudio) audioStream = Audio::AudioStream::Create(stream);
+  if (GetFlag(SF_MESCLEAR0 + dialoguePage.Id)) {
+    dialoguePage.Clear();
+    SetFlag(SF_MESCLEAR0 + dialoguePage.Id, false);
   }
 
   uint32_t oldIp = thread->IpOffset;
   thread->IpOffset = line;
-  dialoguePage.AddString(thread, audioStream, acted, animationId, characterId,
+  dialoguePage.AddString(thread, audioId, acted, animationId, characterId,
                          true);
   ResetInstruction;
   if (!GetFlag(SF_MESSAVEPOINT_SSP + thread->DialoguePageId)) {
@@ -217,9 +212,6 @@ VmInstruction(InstMes) {
   }
 
   thread->IpOffset = oldIp;
-  UI::BacklogMenuPtr->AddMessage(
-      {.ScriptBufferId = thread->ScriptBufferId, .IpOffset = line}, audioId,
-      acted ? animationId : characterId);
 
   if (!(type & 0b1000)) {
     SetFlag(SF_CHAANIME + thread->DialoguePageId, true);
@@ -251,9 +243,9 @@ VmInstruction(InstMesMain) {
   }
 
   if (pageState == Hidden) {
-    currentPage.Clear();
+    currentPage.PushBacklogEntry();
 
-    // TODO: Add backlog entry
+    SetFlag(SF_MESCLEAR0 + currentPage.Id, true);
 
     SaveSystem::SetLineRead(ScrWork[currentPage.Id * 2 + SW_SCRIPTID],
                             ScrWork[currentPage.Id * 2 + SW_LINEID]);
@@ -268,8 +260,7 @@ VmInstruction(InstMesMain) {
     SetFlag(SF_SYSMENUDISABLE, false);
 
     if (currentPage.AdvanceMethod == Skip && type != 1) {
-      // TODO: Add backlog entry
-
+      currentPage.PushBacklogEntry();
       currentPage.Typewriter.Reset();
 
       return;
@@ -301,17 +292,20 @@ VmInstruction(InstMesMain) {
     SetFlag(currentPage.Id + SF_SHOWWAITICON, false);
     SetFlag(SF_SYSMENUDISABLE, true);
 
+    const bool nvlDontClear = currentPage.AdvanceMethod != PresentClear &&
+                              type != 1 && currentPage.GetMode() == DPM_NVL;
     const bool advanceWithoutHiding =
         currentPage.AdvanceMethod == Present0x18 ||
-        currentPage.AdvanceMethod == AutoForward ||
-        (currentPage.AdvanceMethod != PresentClear && type != 1 &&
-         currentPage.Mode == DPM_NVL);
+        currentPage.AdvanceMethod == AutoForward || nvlDontClear;
     if (advanceWithoutHiding) {
-      // TODO: Add backlog entry
+      if (!nvlDontClear) {
+        SetFlag(SF_MESCLEAR0 + currentPage.Id, true);
+      }
 
       SaveSystem::SetLineRead(ScrWork[currentPage.Id * 2 + SW_SCRIPTID],
                               ScrWork[currentPage.Id * 2 + SW_LINEID]);
 
+      currentPage.PushBacklogEntry();
       currentPage.Typewriter.Reset();
 
       BlockThread;
@@ -329,12 +323,66 @@ VmInstruction(InstMesMain) {
   ResetInstruction;
 }
 VmInstruction(InstSetMesModeFormat) {
+  struct RawMesModeInfo {
+    uint16_t DisplayMode;
+    uint16_t WindowId;
+    int16_t WindowPosX;
+    int16_t WindowPosY;
+    uint16_t NameDispMode;
+    uint16_t MaxNameWidth;
+    int16_t NamePosX;
+    int16_t NamePosY;
+    uint16_t NameGlyphWidth;
+    uint16_t NameGlyphHeight;
+    uint16_t MaxLineWidth;
+    uint16_t CurrentPageId;
+    uint16_t WaitIconPosX;
+    uint16_t WaitIconPosY;
+    uint16_t TextGlyphWidth;
+    uint16_t TextGlyphHeight;
+    uint16_t RubyGlyphWidth;
+    uint16_t RubyGlyphHeight;
+    uint16_t LineSpacing;
+    uint16_t RubyLineSpacing;
+    uint16_t LinefeedSpacing;
+    uint16_t NamePosFlags;
+    uint16_t NameLengthL;  // Idk what this is either
+  };
+
   StartInstruction;
   PopExpression(id);
   PopLocalLabel(modeDataAdr);
-  (void)modeDataAdr;
-  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-             "STUB instruction SetMesModeFormat(id: {:d})\n", id);
+
+  Sc3VmThread dummy;
+  dummy.IpOffset = modeDataAdr;
+  dummy.ScriptBufferId = thread->ScriptBufferId;
+  RawMesModeInfo* info = std::bit_cast<RawMesModeInfo*>(dummy.GetIp());
+
+  const glm::vec2 designScale = {Profile::DesignWidth / 1280.0f,
+                                 Profile::DesignHeight / 720.0f};
+  TextModesInfo[id] = {
+      .DisplayMode = info->DisplayMode,
+      .WindowId = info->WindowId,
+      .WindowPos = glm::vec2(info->WindowPosX, info->WindowPosY) * designScale,
+      .NameDispMode = info->NameDispMode,
+      .MaxNameWidth = info->MaxNameWidth * designScale.x,
+      .NamePos = glm::vec2(info->NamePosX, info->NamePosY) * designScale,
+      .NameGlyphSize =
+          glm::vec2(info->NameGlyphWidth, info->NameGlyphHeight) * designScale,
+      .MaxLineWidth = info->MaxLineWidth * designScale.x,
+      .CurrentPageId = info->CurrentPageId,
+      .WaitIconPos =
+          glm::vec2(info->WaitIconPosX, info->WaitIconPosY) * designScale,
+      .TextGlyphSize =
+          glm::vec2(info->TextGlyphWidth, info->TextGlyphHeight) * designScale,
+      .RubyGlyphSize =
+          glm::vec2(info->RubyGlyphWidth, info->RubyGlyphHeight) * designScale,
+      .LineSpacing = info->LineSpacing * designScale.y,
+      .RubyLineSpacing = info->RubyLineSpacing * designScale.y,
+      .LinefeedSpacing = info->LinefeedSpacing * designScale.y,
+      .NamePosFlags = info->NamePosFlags,
+      .NameLengthL = info->NameLengthL,
+  };
 }
 VmInstruction(InstSetNGmoji) {
   StartInstruction;
@@ -405,6 +453,7 @@ VmInstruction(InstMessWindow) {
       DialoguePage& currentPage = getCurrentPage();
 
       if (!currentPage.FadeAnimation.IsIn()) {
+        currentPage.Clear();
         currentPage.Show();
 
         SetFlag(SF_SYSTEMMENUDISABLE2, true);
@@ -463,6 +512,7 @@ VmInstruction(InstMessWindow) {
           currentPage.RenderName = false;
         }
 
+        currentPage.Clear();
         currentPage.Show();
 
         SetFlag(dialoguePageId + SF_MESWINDOW0OPENFL, true);
@@ -756,7 +806,7 @@ VmInstruction(InstSetRevMes) {
                "STUB instruction SetRevMes(type: {:d})\n", type);
   }
 
-  int audioId = -1;
+  std::optional<int> audioId;
   int animationId = 0;
   if (voiced) {
     audioId = ExpressionEval(thread);
