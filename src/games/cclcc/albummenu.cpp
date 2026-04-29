@@ -544,11 +544,11 @@ void AlbumCGViewer::CGViewerPanZoom(float dt) {
   if (PADinputButtonIsDown & PADcustom[2]) x += 30.0f;  // LEFT
   if (PADinputButtonIsDown & PADcustom[3]) x -= 30.0f;  // RIGHT
 
-  if ((ClickHoldTime > 0.1 && PADinputMouseIsDown & PAD1A) &&
-      Input::PrevMousePos != Input::CurMousePos) {
+  if (ClickHoldTime > 0.1 && PADinputMouseIsDown & PAD1A) {
     const glm::vec2 mouseDelta = Input::CurMousePos - Input::PrevMousePos;
     x += mouseDelta.x;
     y += mouseDelta.y;
+    RequestCursor(CursorType::Pointer);
   }
 
   // --- Clamp or center after zoom and pan ---
