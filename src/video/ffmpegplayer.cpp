@@ -359,16 +359,7 @@ void FFmpegPlayer::InitSubtitles(
   using namespace Subtitle;
   auto initSubPlayer = [this] {
     if (SubPlayer) return;
-    std::visit(
-        [this](auto& videoText) {
-          if constexpr (std::is_same_v<std::decay_t<decltype(videoText)>,
-                                       std::monostate>) {
-            SubPlayer.emplace(Profile::DesignWidth, Profile::DesignHeight);
-          } else {
-            SubPlayer.emplace(videoText->Width, videoText->Height);
-          }
-        },
-        VideoTexture);
+    SubPlayer.emplace(Profile::DesignWidth, Profile::DesignHeight);
   };
   const auto subtitleMappings =
       [this]() -> std::vector<SubtitleTrackFile> const* {
