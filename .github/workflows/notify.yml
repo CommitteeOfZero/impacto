@@ -16,12 +16,11 @@ jobs:
       run: |
         echo "Fetch workflow run jobs"
         json_data=$(curl -s -H "Authorization: Bearer ${{ github.token }}" \
-                ${{ github.event.workflow_run.jobs_url }}")
+                "${{ github.event.workflow_run.jobs_url }}")
 
-        
         name_conclusion_array=($(echo "$json_data" | jq -r '
           .jobs[] | 
-            select(.name | IN("macos-arm64", "linux", "windows", "switch", "macos-x64", "android")) | 
+            select(.name | IN("macos_arm64", "linux", "windows", "switch", "macos_x64", "android")) | 
           "\(.name).\(.conclusion)"'))
 
         for item in "${name_conclusion_array[@]}"; do
