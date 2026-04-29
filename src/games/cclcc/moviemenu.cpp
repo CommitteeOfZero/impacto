@@ -95,8 +95,7 @@ void MovieMenu::UpdateInput(float dt) {
   using namespace Vm::Interface;
   LibrarySubmenu::UpdateInput(dt);
   if (State == Shown && IsFocused) {
-    if (IsExtraMoviesPresent() &&
-        (PADinputButtonWentDown & PAD1Y || PADinputMouseWentDown & PAD1Y)) {
+    if (IsExtraMoviesPresent() && (PADinputButtonWentDown & PAD1Y)) {
       IsExtraMovieModeOn = !IsExtraMovieModeOn;
       UpdateFirstMovieDiskVisuals();
     }

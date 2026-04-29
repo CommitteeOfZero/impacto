@@ -185,8 +185,7 @@ void MovieMenu::UpdateInput(float dt) {
     if (PADinputButtonWentDown & PAD1B || PADinputMouseWentDown & PAD1B) {
       IsChoiceMadeOnce = false;
     }
-    if (IsExtraMoviesPresent() &&
-        (PADinputButtonWentDown & PAD1Y || PADinputMouseWentDown & PAD1Y)) {
+    if (IsExtraMoviesPresent() && (PADinputButtonWentDown & PAD1Y)) {
       IsExtraMovieModeOn = !IsExtraMovieModeOn;
     }
   }
