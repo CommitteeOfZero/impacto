@@ -275,17 +275,18 @@ void LibraryMenu::Render() {
     const auto* const submenuGuideSprite = [&]() -> Sprite* {
       switch (CurrentLibraryMenu) {
         case LibraryMenuPageType::Album:
-          if (cgViewerActive && albumMenuPtr->CGViewer->EnableGuide)
-            return &AlbumMenuCGViewerGuideSprite;
-          else
+          if (cgViewerActive) {
+            if (albumMenuPtr->CGViewer->EnableGuide)
+              return &AlbumMenuCGViewerGuideSprite;
+            break;
+          } else
             return &AlbumMenuGuideSprite;
         case LibraryMenuPageType::Sound:
           return &MusicMenuGuideSprite;
         case LibraryMenuPageType::Movie:
           return &MovieMenuGuideSprite;
-        default:
-          return nullptr;
       }
+      return nullptr;
     }();
     if (cgViewerActive) {
       albumMenuPtr->RenderCGViewer();
