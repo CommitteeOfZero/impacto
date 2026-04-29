@@ -101,7 +101,8 @@ class Renderer : public BaseRenderer {
                       glm::mat4 spriteTransformation,
                       glm::mat4 maskTransformation, bool inverted,
                       TopologyMode topologyMode,
-                      std::optional<FBOId> fboId = std::nullopt) override;
+                      std::optional<FBOId> fboId = std::nullopt,
+                      bool textureWrapRepeat = false) override;
 
   void DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
                         RectF const& dest, glm::vec4 tint, int alpha,
