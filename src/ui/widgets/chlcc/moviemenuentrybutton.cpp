@@ -60,6 +60,9 @@ void MovieMenuEntryButton::Render() {
     if (IsExtraMovieModeOn && Id == 0) {
       Renderer->DrawSprite(MovieThumbnailExtraOp,
                            glm::vec2(Bounds.X + 20, Bounds.Y + 16), Tint);
+    } else if (IsExtraMovieModeOn && Id == 1) {
+      Renderer->DrawSprite(MovieThumbnailExtraOp2,
+                           glm::vec2(Bounds.X + 20, Bounds.Y + 16), Tint);
     } else {
       Renderer->DrawSprite(NormalSprite,
                            glm::vec2(Bounds.X + 20, Bounds.Y + 16), Tint);

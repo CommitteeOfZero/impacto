@@ -23,7 +23,7 @@ using namespace Impacto::UI::Widgets::CHLCC;
 
 constexpr std::array<MovieButtonEntry, 10> MovieButtonMap{{
     {10, 18},  // 0: PS3 OP / PSP OP
-    {0, 0},    // 1: X360 OP
+    {0, 19},   // 1: X360 OP / Switch OP
     {1, 11},   // 2: Rimi ED
     {2, 12},   // 3: Nanami ED
     {4, 14},   // 4: Yua ED
@@ -185,8 +185,7 @@ void MovieMenu::UpdateInput(float dt) {
     if (PADinputButtonWentDown & PAD1B || PADinputMouseWentDown & PAD1B) {
       IsChoiceMadeOnce = false;
     }
-    if (IsExtraMoviesPresent() &&
-        (PADinputButtonWentDown & PAD1Y || PADinputMouseWentDown & PAD1Y)) {
+    if (IsExtraMoviesPresent() && (PADinputButtonWentDown & PAD1Y)) {
       IsExtraMovieModeOn = !IsExtraMovieModeOn;
     }
   }

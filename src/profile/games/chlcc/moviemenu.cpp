@@ -49,6 +49,7 @@ void Configure() {
         EnsureGetMember<SpriteAnimationDef>("SelectedMovieExtraAnimation");
     MovieBoxExtra = EnsureGetMember<Sprite>("MovieBoxExtra");
     MovieThumbnailExtraOp = EnsureGetMember<Sprite>("MovieThumbnailExtraOp");
+    MovieThumbnailExtraOp2 = EnsureGetMember<Sprite>("MovieThumbnailExtraOp2");
     MovieButtonExtraPromptPosition =
         EnsureGetMember<glm::vec2>("MovieButtonExtraPromptPosition");
     MovieButtonExtraPrompt = EnsureGetMember<Sprite>("MovieButtonExtraPrompt");

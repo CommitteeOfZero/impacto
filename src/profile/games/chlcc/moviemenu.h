@@ -38,6 +38,7 @@ inline bool MovieExtraVideosEnabled;
 inline SpriteAnimationDef SelectedMovieExtraAnimation;
 inline Sprite MovieBoxExtra;
 inline Sprite MovieThumbnailExtraOp;
+inline Sprite MovieThumbnailExtraOp2;
 inline glm::vec2 MovieButtonExtraPromptPosition;
 inline Sprite MovieButtonExtraPrompt;
 

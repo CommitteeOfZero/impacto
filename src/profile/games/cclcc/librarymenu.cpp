@@ -172,6 +172,15 @@ void Configure() {
   SubMenuFadeOutDuration = EnsureGetMember<float>("SubMenuFadeOutDuration");
   MovieDiskPlayIds = EnsureGetMember<std::vector<int>>("MovieDiskPlayIds");
 
+  MovieExtraVideosEnabled =
+      TryGetMember<bool>("MovieExtraVideosEnabled").value_or(false);
+  if (MovieExtraVideosEnabled) {
+    MovieDiskExtraOp = EnsureGetMember<Sprite>("MovieDiskExtraOp");
+    MovieDiskExtraOpHighlight =
+        EnsureGetMember<Sprite>("MovieDiskExtraOpHighlight");
+    MovieDiskExtraOpPlayId = EnsureGetMember<int>("MovieDiskExtraOpPlayId");
+  }
+
   AlbumMenuGuideSprite = EnsureGetMember<Sprite>("AlbumMenuGuideSprite");
   AlbumMenuCGViewerGuideSprite =
       EnsureGetMember<Sprite>("AlbumMenuCGViewerGuideSprite");
