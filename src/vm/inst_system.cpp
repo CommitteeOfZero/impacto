@@ -968,6 +968,8 @@ VmInstruction(InstMSinit) {
   }
 
   ScrWork[SW_SINSTALL_ALL] = 100;
+  SkipModeEnabled = false;
+  AutoModeEnabled = false;
 }
 VmInstruction(InstSaveSlot) {
   StartInstruction;
