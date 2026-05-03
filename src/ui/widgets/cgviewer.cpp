@@ -199,21 +199,35 @@ void CgViewer::Render() {
 }
 
 void CgViewer::RenderVariation(size_t variation, glm::vec4 col) const {
+  if (CgCount[variation] == 1) {
+    Renderer->DrawSprite(CgSprites[variation][0], Position[variation], col);
+    return;
+  }
+
+  Renderer->SetFramebuffer(1);
+  Renderer->Clear(glm::vec4(0.0f));
+
   glm::vec2 pos;
   for (int i = 0; i < CgCount[variation]; i++) {
     if (i == 0)
       pos = Position[variation];
     else {
-      pos = HorizontalRendering[variation]
-                ? glm::vec2(Position[variation].x +
-                                CgSprites[variation][i - 1].ScaledWidth(),
-                            Position[variation].y)
-                : glm::vec2(Position[variation].x,
-                            Position[variation].y +
-                                CgSprites[variation][i - 1].ScaledHeight());
+      pos =
+          Position[variation] +
+          (HorizontalRendering[variation]
+               ? glm::vec2(CgSprites[variation][i - 1].ScaledWidth() - Scale, 0)
+               : glm::vec2(0,
+                           CgSprites[variation][i - 1].ScaledHeight() - Scale));
     }
-    Renderer->DrawSprite(CgSprites[variation][i], pos, col);
+    Renderer->DrawSprite(CgSprites[variation][i], pos, glm::vec4(1.0f));
   }
+  Sprite linkedSprite =
+      Sprite(SpriteSheet(Profile::DesignWidth, Profile::DesignHeight), 0.0f,
+             0.0f, Profile::DesignWidth, Profile::DesignHeight);
+  linkedSprite.Sheet.Texture = Renderer->GetFramebufferTexture(1);
+  linkedSprite.Sheet.IsScreenCap = true;
+  Renderer->SetFramebuffer(0);
+  Renderer->DrawSprite(linkedSprite, glm::mat4(1.0f), col);
 }
 
 void CgViewer::LoadCgSprites(
@@ -257,22 +271,34 @@ void CgViewer::LoadCgSprites(
       totalWidth += CgTexture.Width;
       if (idx == MaxCgViewerCgs) break;
     }
-
+    const int count = idx - static_cast<int>(sideways);
+    CgCount[variationIdx] = count;
+    if (count > 1) {
+      if (sideways)
+        totalWidth -= 2 * (count - 1);
+      else
+        totalHeight -= 2 * (count - 1);
+      // prevents pixel bleeding out in seams
+      for (int i = 1; i < count; i++) {
+        if (sideways)
+          CgSprites[variationIdx][i].Bounds.X++;
+        else
+          CgSprites[variationIdx][i].Bounds.Y++;
+      }
+    }
     MinScale[variationIdx] = sideways ? Profile::DesignWidth / totalWidth
                                       : Profile::DesignHeight / totalHeight;
-    CgCount[variationIdx] = idx - static_cast<int>(sideways);
     HorizontalRendering[variationIdx] = sideways;
     CgSprites[variationIdx][0].BaseScale.x = MinScale[variationIdx];
     CgSprites[variationIdx][0].BaseScale.y = MinScale[variationIdx];
     Position[variationIdx] =
-        HorizontalRendering[variationIdx]
-            ? glm::vec2(0.0f, (Profile::DesignHeight -
-                               CgSprites[variationIdx][0].ScaledHeight()) /
-                                  2)
-            : glm::vec2((Profile::DesignWidth -
-                         CgSprites[variationIdx][0].ScaledWidth()) /
-                            2,
-                        0.0f);
+        sideways ? glm::vec2(0.0f, (Profile::DesignHeight -
+                                    CgSprites[variationIdx][0].ScaledHeight()) /
+                                       2)
+                 : glm::vec2((Profile::DesignWidth -
+                              CgSprites[variationIdx][0].ScaledWidth()) /
+                                 2,
+                             0.0f);
     variationIdx += 1;
   }
 
