@@ -470,10 +470,19 @@ void Background2D::UpdateState(const int bgId) {
             ScrWork[SW_BG1ALPHA_OFS + structOfsOffset]) /
            256.0f;
 
-  if (ScrWork[SW_BGLINK]) {
-    LinkBuffers(ScrWork[SW_BGLINK], bgId);
-  } else if (ScrWork[SW_BGLINK2]) {
-    LinkBuffers(ScrWork[SW_BGLINK2], bgId);
+  if (Show) {
+    if (ScrWork[SW_BGLINK]) {
+      LinkBuffers(ScrWork[SW_BGLINK], bgId);
+    } else {
+      Links[0].Direction = LinkDirection::Off;
+      Links[0].LinkedBuffer = nullptr;
+    }
+    if (ScrWork[SW_BGLINK2]) {
+      LinkBuffers(ScrWork[SW_BGLINK2], bgId);
+    } else {
+      Links[1].Direction = LinkDirection::Off;
+      Links[1].LinkedBuffer = nullptr;
+    }
   } else {
     for (int i = 0; i < MaxLinkedBgBuffers; i++) {
       Links[i].Direction = LinkDirection::Off;
