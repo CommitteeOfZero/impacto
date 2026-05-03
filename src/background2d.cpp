@@ -761,17 +761,18 @@ void Background2D::RenderBgWave() {
     return;
   }
 
+  const float alpha = (Tint.a * FadeCount) / 256.0f;
   if constexpr (PhaseZero) {
-    Effects::WaveBG.CalcPos(0);
+    Effects::WaveBG.CalcPos(0, alpha);
   } else {
     // maybe that's it, maybe not
-    Effects::WaveBG.CalcPos(MaskNumber);
+    Effects::WaveBG.CalcPos(MaskNumber, alpha);
   }
 
   PrimitiveData primitives = Effects::WaveBG.GetPrimitives();
 
   Renderer->DrawPrimitives(
-      BgSprite.Sheet, &Masks2D[MaskNumber].MaskSprite.Sheet,
+      RenderSprite.Sheet, &Masks2D[MaskNumber].MaskSprite.Sheet,
       ShaderProgramType::MaskedSprite, primitives.Vertices, primitives.Indices,
       TransformState.ToMatrix(), glm::mat4(1.0f), false,
       TopologyMode::TriangleStrips);
