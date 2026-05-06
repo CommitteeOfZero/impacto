@@ -46,6 +46,7 @@ void Renderer::Init() {
   glGenBuffers(1, &IBO);
   glGenVertexArrays(1, &VAOSprites);
 
+  GLC::InitializeMaskFrameBuffer();
   GLC::InitializeFramebuffers();
 
   // Specify vertex layouts
@@ -134,6 +135,7 @@ void Renderer::Shutdown() {
                    GLC::FramebufferTextures.data());
   glDeleteRenderbuffers((GLsizei)GLC::StencilBuffers.size(),
                         GLC::StencilBuffers.data());
+  GLC::DeleteMaskFramebuffer();
 
   glDeleteSamplers((GLsizei)Samplers.size(), Samplers.data());
 

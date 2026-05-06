@@ -16,6 +16,7 @@ inline GLuint MaskEffectFramebuffer = 0;
 inline GLuint MaskEffectFramebufferTexture = 0;
 
 void InitializeFramebuffers();
+void InitializeMaskFrameBuffer();
 void DeleteMaskFramebuffer();
 
 void BindFramebuffer(GLenum target, GLuint framebuffer);
