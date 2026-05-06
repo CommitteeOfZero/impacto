@@ -62,7 +62,7 @@ void Wave::SetWave(int index, WaveParams params) {
   }
 }
 
-void BGWave::CalcPos(int startPhase, std::optional<uint32_t> alpha) {
+void BGWave::CalcPos(int startPhase, std::optional<float> alpha) {
   std::vector<float> left = std::vector(BGWaveGridSize.y, 0.0f);
   std::vector<float> right =
       std::vector(BGWaveGridSize.y, (float)Profile::ResolutionWidth);
@@ -146,8 +146,7 @@ void BGWave::CalcPos(int startPhase, std::optional<uint32_t> alpha) {
     }
   }
 
-  const float alphaFloat = static_cast<float>(alpha.value_or(255)) / 255.0f;
-  const glm::vec4 tint = glm::vec4(1.0f, 1.0f, 1.0f, alphaFloat);
+  const glm::vec4 tint = glm::vec4(1.0f, 1.0f, 1.0f, alpha.value_or(1.0f));
   // update vertices
   for (size_t y = 0; y < BGWaveGridSize.y; y++) {
     float yUV =
@@ -173,6 +172,6 @@ void EFFWave::Render(const Sprite& mask) {
 }
 
 // TODO: Not implemented
-void CHAWave::CalcPos(int startPhase, std::optional<uint32_t> alpha) {}
+void CHAWave::CalcPos(int startPhase, std::optional<float> alpha) {}
 }  // namespace Effects
 }  // namespace Impacto

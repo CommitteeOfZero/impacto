@@ -37,7 +37,7 @@ class Wave {
 
   virtual void Init() { WaveData.resize(Profile::WaveEffects::WaveMaxCount); };
   virtual void CalcPos(int startPhase,
-                       std::optional<uint32_t> alpha = std::nullopt) = 0;
+                       std::optional<float> alpha = std::nullopt) = 0;
   PrimitiveData GetPrimitives() {
     return {std::span(Vertices), std::span(Indices)};
   };
@@ -47,7 +47,7 @@ class BGWave : public Wave {
  public:
   void Init() override;
   void CalcPos(int startPhase,
-               std::optional<uint32_t> alpha = std::nullopt) override;
+               std::optional<float> alpha = std::nullopt) override;
 };
 
 class EFFWave : public BGWave {
@@ -63,7 +63,7 @@ class CHAWave : public Wave {
     WavePos.resize(28 * 20);
   }
   void CalcPos(int startPhase,
-               std::optional<uint32_t> alpha = std::nullopt) override;
+               std::optional<float> alpha = std::nullopt) override;
 };
 
 inline BGWave WaveBG = BGWave();

@@ -470,10 +470,19 @@ void Background2D::UpdateState(const int bgId) {
             ScrWork[SW_BG1ALPHA_OFS + structOfsOffset]) /
            256.0f;
 
-  if (ScrWork[SW_BGLINK]) {
-    LinkBuffers(ScrWork[SW_BGLINK], bgId);
-  } else if (ScrWork[SW_BGLINK2]) {
-    LinkBuffers(ScrWork[SW_BGLINK2], bgId);
+  if (Show) {
+    if (ScrWork[SW_BGLINK]) {
+      LinkBuffers(ScrWork[SW_BGLINK], bgId);
+    } else {
+      Links[0].Direction = LinkDirection::Off;
+      Links[0].LinkedBuffer = nullptr;
+    }
+    if (ScrWork[SW_BGLINK2]) {
+      LinkBuffers(ScrWork[SW_BGLINK2], bgId);
+    } else {
+      Links[1].Direction = LinkDirection::Off;
+      Links[1].LinkedBuffer = nullptr;
+    }
   } else {
     for (int i = 0; i < MaxLinkedBgBuffers; i++) {
       Links[i].Direction = LinkDirection::Off;
@@ -761,17 +770,18 @@ void Background2D::RenderBgWave() {
     return;
   }
 
+  const float alpha = (Tint.a * FadeCount) / 256.0f;
   if constexpr (PhaseZero) {
-    Effects::WaveBG.CalcPos(0);
+    Effects::WaveBG.CalcPos(0, alpha);
   } else {
     // maybe that's it, maybe not
-    Effects::WaveBG.CalcPos(MaskNumber);
+    Effects::WaveBG.CalcPos(MaskNumber, alpha);
   }
 
   PrimitiveData primitives = Effects::WaveBG.GetPrimitives();
 
   Renderer->DrawPrimitives(
-      BgSprite.Sheet, &Masks2D[MaskNumber].MaskSprite.Sheet,
+      RenderSprite.Sheet, &Masks2D[MaskNumber].MaskSprite.Sheet,
       ShaderProgramType::MaskedSprite, primitives.Vertices, primitives.Indices,
       TransformState.ToMatrix(), glm::mat4(1.0f), false,
       TopologyMode::TriangleStrips);

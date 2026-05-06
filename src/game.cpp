@@ -477,9 +477,9 @@ static void RenderMain() {
           +Profile::Vm::GameInstructionSet == +Vm::InstructionSet::CC;
       if (GetFlag(SF_BGEFF1DISP) && (!isCC || ScrWork[SW_EFF_WAVE_ALPHA])) {
         if (ScrWork[SW_EFF_WAVE_PRI] == static_cast<int>(layer)) {
-          std::optional<uint32_t> alpha = std::nullopt;
+          std::optional<float> alpha = std::nullopt;
           if (isCC) {
-            alpha = static_cast<uint32_t>(ScrWork[SW_EFF_WAVE_ALPHA]);
+            alpha = static_cast<uint32_t>(ScrWork[SW_EFF_WAVE_ALPHA]) / 256.0f;
           }
           Effects::WaveEFF.CalcPos(0, alpha);
           Effects::WaveEFF.Render(MaskCapture.BgSprite);

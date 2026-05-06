@@ -885,6 +885,8 @@ VmInstruction(InstMSinit) {
     Profile::TipsNotification::CreateInstance();
     UI::GameSpecific::Init();
     SetFlag(SF_MESREVDISABLE, false);
+    ScrWork[SW_BGLINK] = 0;
+    ScrWork[SW_BGLINK2] = 0;
   }
 
   if (initType == 5) {
