@@ -78,7 +78,6 @@ void OpenALAudioChannel::EndPlayback() {
   UnqueueBuffers(queuedBuffers);
 
   Stream = nullptr;
-  PlaybackStarted = false;
   State = ACS_Stopped;
   FadeProgress = 0;
   FirstQueuedBufferIndex = 0;
@@ -130,14 +129,6 @@ void OpenALAudioChannel::Update(float dt) {
       size_t firstFreeIndex =
           (FirstQueuedBufferIndex + queuedBuffers) % AudioBuffers.size();
       QueueBuffer(firstFreeIndex);
-
-      if (queuedBuffers == 0 && PlaybackStarted) {
-        ImpLog(LogLevel::Error, LogChannel::Audio,
-               "Buffer underrun on channel {}\n", Id);
-
-        // Restart playback in case of buffer underrun
-        alSourcePlay(Source);
-      }
     }
   }
 
@@ -154,11 +145,14 @@ void OpenALAudioChannel::UpdateFade(float dt) {
 }
 
 void OpenALAudioChannel::UpdatePlayback() {
-  ALenum alState;
+  ALint alState;
+  ALint queued;
   alGetSourcei(Source, AL_SOURCE_STATE, &alState);
+  alGetSourcei(Source, AL_BUFFERS_QUEUED, &queued);
 
-  // Stop playback when OpenAL finished processing the whole stream
-  if (alState == AL_STOPPED && PlaybackStarted) {
+  // Stop playback when OpenAL finished processing but not when there's buffer
+  // underrun
+  if (alState == AL_STOPPED && queued == 0) {
     EndPlayback();
     return;
   }
@@ -172,7 +166,6 @@ void OpenALAudioChannel::UpdatePlayback() {
              (State == ACS_Playing || State == ACS_FadingIn ||
               State == ACS_FadingOut)) {
     alSourcePlay(Source);
-    PlaybackStarted = true;
   } else if ((alState == AL_PLAYING || alState == AL_PAUSED) &&
              State == ACS_Stopped) {
     EndPlayback();
