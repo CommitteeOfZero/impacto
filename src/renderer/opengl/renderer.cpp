@@ -46,6 +46,7 @@ void Renderer::Init() {
   glGenBuffers(1, &IBO);
   glGenVertexArrays(1, &VAOSprites);
 
+  GLC::InitializeMaskFrameBuffer();
   GLC::InitializeFramebuffers();
 
   // Specify vertex layouts
@@ -134,6 +135,7 @@ void Renderer::Shutdown() {
                    GLC::FramebufferTextures.data());
   glDeleteRenderbuffers((GLsizei)GLC::StencilBuffers.size(),
                         GLC::StencilBuffers.data());
+  GLC::DeleteMaskFramebuffer();
 
   glDeleteSamplers((GLsizei)Samplers.size(), Samplers.data());
 
@@ -421,12 +423,14 @@ void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
   }
 }
 
-void Renderer::DrawMaskedSprite(
-    const Sprite& sprite, const Sprite& mask, const CornersQuad& spriteDest,
-    const CornersQuad& maskDest, int alpha, const int fadeRange,
-    glm::mat4 spriteTransformation, glm::mat4 maskTransformation,
-    const std::span<const glm::vec4, 4> tints, const bool isInverted,
-    const bool isSameTexture) {
+void Renderer::DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
+                                const CornersQuad& spriteDest,
+                                const CornersQuad& maskDest, int alpha,
+                                int fadeRange, glm::mat4 spriteTransformation,
+                                glm::mat4 maskTransformation,
+                                const std::span<const glm::vec4, 4> tints,
+                                const bool isInverted,
+                                const bool isSameTexture) {
   if (!Drawing) {
     ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawMaskedSprite() called before BeginFrame()\n");
@@ -435,9 +439,10 @@ void Renderer::DrawMaskedSprite(
   EnsureFBO(0);
   EnsureTopologyMode(TopologyMode::Triangles);
 
+  if (fadeRange == 0) fadeRange = 16;
   alpha = std::clamp(alpha, 0, fadeRange + 256);
   const float alphaRange = 256.0f / fadeRange;
-  const float constAlpha = ((255.0f - alpha) * alphaRange) / 255.0f;
+  const float constAlpha = (1.0f - alpha / 255.0f) * alphaRange;
 
   // Set uniform variables
   MaskedSpriteUniforms uniforms{
@@ -461,8 +466,7 @@ void Renderer::DrawMaskedSprite(
   // OK, all good, make quad
 
   CornersQuad uvDest = sprite.NormalizedBounds();
-  CornersQuad maskUVDest = CornersQuad(maskDest).Scale(
-      {1.0f / sprite.Bounds.Width, 1.0f / sprite.Bounds.Height}, {0.0f, 0.0f});
+  CornersQuad maskUVDest = RectF(0.0, 0.0, 1.0f, 1.0f);
   if (sprite.Sheet.IsScreenCap) uvDest = FlipUvVertical(uvDest);
   if (mask.Sheet.IsScreenCap) maskUVDest = FlipUvVertical(maskUVDest);
   InsertVerticesQuad(spriteDest, uvDest, tints, maskUVDest);
@@ -509,9 +513,9 @@ void Renderer::DrawMaskedBinarySprite(
   CornersQuad uvDest = sprite.NormalizedBounds();
   CornersQuad maskUVDest =
       hasEffects ? RectF(0.0f, 0.0f, 1.0f, 1.0f)
-                 : CornersQuad(maskDest).Scale({1.0f / sprite.Bounds.Width,
-                                                1.0f / sprite.Bounds.Height},
-                                               {0.0f, 0.0f});
+                 : CornersQuad(maskDest).Scale(
+                       {1.0f / mask.Bounds.Width, 1.0f / mask.Bounds.Height},
+                       {0.0f, 0.0f});
   if (sprite.Sheet.IsScreenCap) uvDest = FlipUvVertical(uvDest);
   if (mask.Sheet.IsScreenCap && !hasEffects)
     maskUVDest = FlipUvVertical(maskUVDest);

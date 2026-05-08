@@ -39,6 +39,11 @@ void InitializeFramebuffers() {
                               GL_RENDERBUFFER, stencilBufferId);
   }
 
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void InitializeMaskFrameBuffer() {
+  RectF viewport = Window->GetViewport();
   glGenFramebuffers(1, &MaskEffectFramebuffer);
   glGenTextures(1, &MaskEffectFramebufferTexture);
 
@@ -52,17 +57,20 @@ void InitializeFramebuffers() {
 
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
                          MaskEffectFramebufferTexture, 0);
-
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void DeleteMaskFramebuffer() {
-  if (MaskEffectFramebuffer != 0) {
-    glDeleteFramebuffers(1, &MaskEffectFramebuffer);
-    glDeleteTextures(1, &MaskEffectFramebufferTexture);
-    MaskEffectFramebuffer = 0;
-    MaskEffectFramebufferTexture = 0;
-  }
+  if (CurrentDrawFramebuffer == MaskEffectFramebuffer)
+    CurrentDrawFramebuffer = 0;
+  if (CurrentReadFramebuffer == MaskEffectFramebuffer)
+    CurrentReadFramebuffer = 0;
+  if (CurrentFramebuffer == MaskEffectFramebuffer) CurrentFramebuffer = 0;
+
+  glDeleteFramebuffers(1, &MaskEffectFramebuffer);
+  MaskEffectFramebuffer = 0;
+
+  glDeleteTextures(1, &MaskEffectFramebufferTexture);
+  MaskEffectFramebufferTexture = 0;
 }
 
 void BindFramebuffer(GLenum target, GLuint framebuffer) {

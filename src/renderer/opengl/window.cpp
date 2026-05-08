@@ -291,6 +291,7 @@ void GLWindow::CleanFBOs() {
   glDeleteRenderbuffers((GLsizei)GLC::StencilBuffers.size(),
                         GLC::StencilBuffers.data());
   GLC::StencilBuffers.fill(0);
+  GLC::DeleteMaskFramebuffer();
   DrawRenderTexture = ReadRenderTexture = DrawRT = ReadRT = 0;
 }
 
@@ -331,6 +332,7 @@ void GLWindow::Update() {
                           viewport.Height);
     createFBO(ReadRT, ReadRenderTexture, GL_READ_FRAMEBUFFER);
     createFBO(DrawRT, DrawRenderTexture, GL_DRAW_FRAMEBUFFER);
+    GLC::InitializeMaskFrameBuffer();
     GLC::InitializeFramebuffers();
   }
 
