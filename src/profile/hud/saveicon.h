@@ -19,6 +19,7 @@ inline glm::vec2 DefaultPosition;
 inline Sprite BackgroundSprite;
 inline glm::vec2 BackgroundOffset;
 inline float BackgroundMaxAlpha;
+inline uint8_t FullyVisibleSpriteIndex;
 inline float FadeInDuration;
 inline float FadeOutDuration;
 inline bool SaveIconMenuOverlay = true;
