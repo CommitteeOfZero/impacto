@@ -31,6 +31,7 @@ bool Configure() {
   StarChip = EnsureGetMember<Sprite>("ChipStar");
   YesNoBlurMask = EnsureGetMember<Sprite>("YNBlurMask");
   YesNoBgOverlay = EnsureGetMember<Sprite>("YNBgOverlay");
+  StarRotationPeriod = EnsureGetMember<float>("StarRotationPeriod");
 
   {
     EnsurePushMemberOfType("YesNoData1", LUA_TTABLE);

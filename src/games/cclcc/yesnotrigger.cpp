@@ -329,7 +329,8 @@ void YesNoTrigger::Render() {
           activeSmallChipCenter - StarChip.Bounds.GetSize() * 0.5f;
       const CornersQuad starDest =
           StarChip.ScaledBounds()
-              .RotateAroundCenter(StarAnimation.Progress)
+              .RotateAroundCenter(StarAnimation.Progress * 2.0f *
+                                  std::numbers::pi_v<float>)
               .Translate(starTopLeft);
       Renderer->DrawSprite(StarChip, starDest, chipTint);
     }
@@ -385,7 +386,7 @@ void YesNoTrigger::Start(int type, int bgBufId, int chipsBufId) {
   StarAnimation.Direction = AnimationDirection::In;
   StarAnimation.LoopMode = AnimationLoopMode::Loop;
   StarAnimation.SkipOnSkipMode = false;
-  StarAnimation.DurationIn = 0.55f;
+  StarAnimation.SetDuration(StarRotationPeriod);
   auto onClick = [this](auto* area) { return AreaClick(area); };
   YesClickArea =
       Widgets::ClickArea(static_cast<int>(YesNoSelect::YES), RectF(), onClick);
