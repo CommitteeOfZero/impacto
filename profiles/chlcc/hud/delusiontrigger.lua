@@ -13,9 +13,9 @@ root.DelusionTrigger = {
   DelusionTextGlyphs = {},
   DelusionTextFadeDuration = 16/60,
   DelusionTextXVelocity = 12,
-  DelusionScaledGlyphWidth = root.Language == "Japanese" and 330 or 195,
+  DelusionScaledGlyphWidth = root.Language == "English" and 195 or 330,
   DelusionScaledGlyphHeight = 320,
-  DelusionTextLineSpacing = root.Language == "Japanese" and 10 or 5,
+  DelusionTextLineSpacing = root.Language == "English" and 5 or 10,
 };
 
 root.Sprites["BackgroundSprite"] = {
@@ -31,7 +31,7 @@ root.Sprites["BackgroundSpriteMask"] = {
   Bounds = { X = 0, Y = 0, Width = 1024, Height = 1024 }
 }
 
-if (root.HasDelusionMouseSupport) then
+if (root.Patch.HasDelusionMouseSupport) then
   root.Sprites["LeftDelusionHeartSprite"] = {
     Sheet = "DelusionHeart",
     Bounds = { X = 7, Y = 279, Width = 158, Height = 147 }
@@ -43,31 +43,19 @@ if (root.HasDelusionMouseSupport) then
   }
 end
 
-if root.Language == "Japanese" then
-  local textCharacterCount = {
-    13,	13,	12,	17, 16,	17,	13,	13,
-    14,	19,	16,	16, 16,	12,	10,	15,
-    12,	20,	15,	14, 15,
+if (root.Patch.HasDelusionMouseSupport) then
+  root.Sprites["LeftDelusionHeartSprite"] = {
+    Sheet = "DelusionHeart",
+    Bounds = { X = 7, Y = 279, Width = 158, Height = 147 }
   }
 
-  for i = 0, 21 - 1 do
-    local currentLine = {}
-    for j = 0, textCharacterCount[i + 1] - 1 do
-        local name = "DelusionTextGlyph" .. i .. "_" .. j
-        root.Sprites[name] = {
-            Sheet = "DelusionText",
-            Bounds = {
-                X = j * 64,
-                Y = i * 64,
-                Width = 64,
-                Height = 64
-            },
-        };
-        currentLine[j + 1] = name;
-    end
-    root.DelusionTrigger.DelusionTextGlyphs[i + 1] = currentLine
-  end
-else
+  root.Sprites["RightDelusionHeartSprite"] = {
+    Sheet = "DelusionHeart",
+    Bounds = { X = 1115, Y = 279, Width = 158, Height = 147 }
+  }
+end
+
+if root.Language == "English" then
   local delusionTextGlyphs = {
     {
       { X = 0, Y = 0, Width = 39, Height = 64 },
@@ -1108,6 +1096,30 @@ else
         root.Sprites[name] = {
             Sheet = "DelusionText",
             Bounds = delusionTextGlyphs[i + 1][j + 1],
+        };
+        currentLine[j + 1] = name;
+    end
+    root.DelusionTrigger.DelusionTextGlyphs[i + 1] = currentLine
+  end
+else
+  local textCharacterCount = {
+    13,	13,	12,	17, 16,	17,	13,	13,
+    14,	19,	16,	16, 16,	12,	10,	15,
+    12,	20,	15,	14, 15,
+  }
+
+  for i = 0, 21 - 1 do
+    local currentLine = {}
+    for j = 0, textCharacterCount[i + 1] - 1 do
+        local name = "DelusionTextGlyph" .. i .. "_" .. j
+        root.Sprites[name] = {
+            Sheet = "DelusionText",
+            Bounds = {
+                X = j * 64,
+                Y = i * 64,
+                Width = 64,
+                Height = 64
+            },
         };
         currentLine[j + 1] = name;
     end

@@ -21,21 +21,6 @@ void LoadGameFromLua() {
   DesignWidth = EnsureGetMember<float>("DesignWidth");
   DesignHeight = EnsureGetMember<float>("DesignHeight");
 
-  Language = EnsureGetMember<char const*>("Language");
-  ResolutionWidth = EnsureGetMember<int>("ResolutionWidth");
-  ResolutionHeight = EnsureGetMember<int>("ResolutionHeight");
-  Fullscreen = EnsureGetMember<bool>("Fullscreen");
-  SubtitleConfig = TryGetMember<SubtitleConfigType>("SubtitleConfig")
-                       .value_or(SubtitleConfigType::All);
-  CloseBacklogWhenReachedEnd =
-      TryGetMember<bool>("CloseBacklogWhenReachedEnd").value_or(true);
-  DateFormat =
-      TryGetMember<DateFormatType>("DateFormat").value_or(DateFormatType::YMD);
-  HasScriptedExitLogic =
-      TryGetMember<bool>("HasScriptedExitLogic").value_or(false);
-  HasDelusionMouseSupport =
-      TryGetMember<bool>("HasDelusionMouseSupport").value_or(false);
-
   LayFileBigEndian = TryGetMember<bool>("LayFileBigEndian").value_or(false);
   CharaIsMvl = TryGetMember<bool>("CharaIsMvl").value_or(false);
   LayFileTexXMultiplier =

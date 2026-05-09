@@ -7,6 +7,8 @@
 
 #include "../util.h"
 #include "../profile/game.h"
+#include "../profile/profile.h"
+#include "../profile/userconfig.h"
 #include "../profile/subtitle.h"
 #include "../log.h"
 #include "../io/physicalfilestream.h"
@@ -64,26 +66,28 @@ SubtitlePlayer::SubtitlePlayer(float width, float height) {
   }
 }
 
-bool SubtitlePlayer::CanAddTrack(int trackId, SubtitleType type,
-                                 Profile::SubtitleConfigType config) const {
+bool SubtitlePlayer::CanAddTrack(
+    int trackId, SubtitleType type,
+    Profile::Subtitle::SubtitleConfigType config) const {
+  using Profile::UserConfig::CommonSettings;
   const auto& backend = Backends[GetBackendIndex(type)];
   if (!backend) {
     ImpLog(LogLevel::Warning, LogChannel::Subtitle,
            "Subtitle backend not initialized for {}", type);
     return false;
   }
-  if ((+config & +Profile::SubtitleConfig) == 0) {
+  if ((+config & +CommonSettings.SubtitleConfig) == 0) {
     ImpLog(LogLevel::Info, LogChannel::Subtitle,
            "Current subtitle mode is {}, skipping track {}, which is mode {}",
-           Profile::SubtitleConfig, trackId, config);
+           CommonSettings.SubtitleConfig, trackId, config);
     return false;
   }
   return true;
 }
 
-void SubtitlePlayer::AddTrackFile(int trackId, SubtitleType type,
-                                  std::string const& path,
-                                  Profile::SubtitleConfigType config) {
+void SubtitlePlayer::AddTrackFile(
+    int trackId, SubtitleType type, std::string const& path,
+    Profile::Subtitle::SubtitleConfigType config) {
   if (!CanAddTrack(trackId, type, config)) return;
   auto& backend = Backends[GetBackendIndex(type)];
   Io::Stream* subtitleFileStream{};

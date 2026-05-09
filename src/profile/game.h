@@ -9,35 +9,6 @@
 namespace Impacto {
 namespace Profile {
 
-enum class DateFormatType : uint8_t {
-  DMY,
-  MDY,
-  YMD,
-};
-
-enum class SubtitleConfigType : uint8_t {
-  None = 0,
-  Karaoke = 1 << 0,
-  Translation = 1 << 1,
-  All = 0xFF,
-};
-
-struct DateFormatDef {
-  DateFormatDef(DateFormatType sel) : Sel(sel) {}
-  std::string_view FormattedString() const {
-    switch (Sel) {
-      case DateFormatType::DMY:
-        return "{:%d/%m/%y}";
-      case DateFormatType::MDY:
-        return "{:%m/%d/%y}";
-      case DateFormatType::YMD:
-      default:
-        return "{:%y/%m/%d}";
-    }
-  }
-  DateFormatType Sel;
-};
-
 inline RendererType ActiveRenderer = RendererType::OpenGL;
 inline VideoPlayerType VideoPlayer = VideoPlayerType::FFmpeg;
 inline AudioBackendType ActiveAudioBackend = AudioBackendType::OpenAL;
@@ -73,26 +44,9 @@ inline float LayFileTexYMultiplier;
 inline float DesignWidth;
 inline float DesignHeight;
 
-// This is for user configuration with realboot
-inline char const* Language;
-inline int ResolutionWidth;
-inline int ResolutionHeight;
-inline bool Fullscreen;
-// TODO Move to "Patch" logic
-inline SubtitleConfigType SubtitleConfig = SubtitleConfigType::None;
-inline bool CloseBacklogWhenReachedEnd = true;
-inline DateFormatDef DateFormat = DateFormatType::YMD;
-inline bool HasScriptedExitLogic = false;
-inline bool HasDelusionMouseSupport = false;
-
 inline int PlatformId = 0;
 
 void LoadGameFromLua();
 
 }  // namespace Profile
 }  // namespace Impacto
-
-template <>
-struct magic_enum::customize::enum_range<Impacto::Profile::SubtitleConfigType> {
-  static constexpr bool is_flags = true;
-};

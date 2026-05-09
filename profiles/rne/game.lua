@@ -29,27 +29,26 @@ root.Vm = {
     MaxLinkedBgBuffers = 2
 };
 
-include('common/scriptinput.lua')
-include('common/scriptvars.lua');
-include('rne/config.lua');
-include('rne/savedata.lua');
-include('rne/tipssystem.lua');
-include('rne/vfs.lua');
-include('rne/sprites.lua');
-include('common/animation.lua');
-include('rne/charset.lua');
---include('rne/font.lua');
-include('rne/font-lb.lua');
-include('rne/dialogue.lua');
-include('rne/hud/saveicon.lua');
-include('rne/hud/loadingdisplay.lua');
-include('rne/hud/datedisplay.lua');
-include('rne/hud/titlemenu.lua');
-include('rne/hud/systemmenu.lua');
-include('rne/hud/backlogmenu.lua');
-include('rne/hud/sysmesboxdisplay.lua');
-include('rne/scene3d/scene3d.lua');
-include('rne/hud/selectiondisplay.lua');
-include('rne/hud/tipsmenu.lua');
-include('rne/hud/tipsnotification.lua');
-include('rne/gamespecific.lua');
+include(root.BaseConfig.RootProfilesDir .. '/common/scriptinput.lua')
+include(root.BaseConfig.RootProfilesDir .. '/common/scriptvars.lua');
+include(root.BaseConfig.RootProfilesDir .. '/rne/savedata.lua');
+include(root.BaseConfig.RootProfilesDir .. '/rne/tipssystem.lua');
+include(root.BaseConfig.RootProfilesDir .. '/rne/vfs.lua');
+include(root.BaseConfig.RootProfilesDir .. '/rne/sprites.lua');
+include(root.BaseConfig.RootProfilesDir .. '/common/animation.lua');
+include(root.BaseConfig.RootProfilesDir .. '/rne/charset.lua');
+--include(root.BaseConfig.RootProfilesDir .. '/rne/font.lua');
+include(root.BaseConfig.RootProfilesDir .. '/rne/font-lb.lua');
+include(root.BaseConfig.RootProfilesDir .. '/rne/dialogue.lua');
+include(root.BaseConfig.RootProfilesDir .. '/rne/hud/saveicon.lua');
+include(root.BaseConfig.RootProfilesDir .. '/rne/hud/loadingdisplay.lua');
+include(root.BaseConfig.RootProfilesDir .. '/rne/hud/datedisplay.lua');
+include(root.BaseConfig.RootProfilesDir .. '/rne/hud/titlemenu.lua');
+include(root.BaseConfig.RootProfilesDir .. '/rne/hud/systemmenu.lua');
+include(root.BaseConfig.RootProfilesDir .. '/rne/hud/backlogmenu.lua');
+include(root.BaseConfig.RootProfilesDir .. '/rne/hud/sysmesboxdisplay.lua');
+include(root.BaseConfig.RootProfilesDir .. '/rne/scene3d/scene3d.lua');
+include(root.BaseConfig.RootProfilesDir .. '/rne/hud/selectiondisplay.lua');
+include(root.BaseConfig.RootProfilesDir .. '/rne/hud/tipsmenu.lua');
+include(root.BaseConfig.RootProfilesDir .. '/rne/hud/tipsnotification.lua');
+include(root.BaseConfig.RootProfilesDir .. '/rne/gamespecific.lua');

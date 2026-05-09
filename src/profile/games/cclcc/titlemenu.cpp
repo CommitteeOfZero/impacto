@@ -1,6 +1,7 @@
 #include "titlemenu.h"
 #include "../../../log.h"
 #include "../../profile_internal.h"
+#include "../../patch.h"
 
 #include "../../ui/titlemenu.h"
 #include "../../../game.h"
@@ -30,7 +31,7 @@ void Configure() {
   EndingListSprite = EnsureGetMember<Sprite>("EndingListSprite");
   EndingListHighlightSprite =
       EnsureGetMember<Sprite>("EndingListHighlightSprite");
-  if (HasScriptedExitLogic) {
+  if (Patch::HasScriptedExitLogic) {
     ExitSprite = EnsureGetMember<Sprite>("ExitSprite");
   }
 

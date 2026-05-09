@@ -81,8 +81,8 @@ enum class DrawComponentType : uint8_t {
   DebugEditor = 0x1E,
   None = 0xFF,
 };
-void InitFromProfile(std::string const& name);
 
+void Init();
 void Shutdown();
 
 void Update(float dt);

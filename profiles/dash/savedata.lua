@@ -1,4 +1,4 @@
 root.SaveData = {
     Type = SaveDataType.None,
-    SaveFilePath = "games/dash/savedata/SYSTEM.DAT",
+    SaveFilePath = root.BaseConfig.RootSavesDir .. "/dash/jpn/SYSTEM.DAT",
 };

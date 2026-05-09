@@ -1,11 +1,13 @@
 #pragma once
 
-#include <string>
-
 namespace Impacto {
 namespace Profile {
 
-void MakeLuaProfile(std::string const& name);
+inline std::string BaseConfigPath;
+inline std::string UserConfigPath;
+
+void Init();
+void Configure();
 void ClearProfile();
 
 }  // namespace Profile

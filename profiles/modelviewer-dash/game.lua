@@ -1,4 +1,4 @@
-include('dash/game.lua');
+include(root.BaseConfig.RootProfilesDir .. '/dash/game.lua');
 
 root.GameFeatures = GameFeature.Scene3D | GameFeature.ModelViewer | GameFeature.Audio | GameFeature.Input;
 

@@ -37,5 +37,6 @@ int8_t CreateDirectories(std::string const& path, bool createParent = false);
 IoError GetFilePermissions(std::string const& path,
                            FilePermissionsFlags& flags);
 
+std::string const& GetPlatformConfigDir();
 }  // namespace Io
 }  // namespace Impacto

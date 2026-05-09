@@ -1,13 +1,13 @@
 root.Vfs = {
     Mounts={
-        ["bg"]={"games/mo6tw/gamedata/BG.CPK"},
-        ["bgm"]={"games/mo6tw/gamedata/BGM.CPK"},
-        ["chara"]={"games/mo6tw/gamedata/CHARA.CPK"},
-        ["mask"]={"games/mo6tw/gamedata/MASK.CPK"},
-        ["movie"]={"games/mo6tw/gamedata/MOVIE.CPK"},
-        ["script"]={"games/mo6tw/gamedata/SCRIPT.cls"},
-        ["se"]={"games/mo6tw/gamedata/SE.CPK"},
-        ["system"]={"games/mo6tw/gamedata/SYSTEM.CPK"},
-        ["voice"]={"games/mo6tw/gamedata/VOICE.CPK"}
+        ["bg"]={root.BaseConfig.RootGamedataDir .. "/mo6tw/BG.CPK"},
+        ["bgm"]={root.BaseConfig.RootGamedataDir .. "/mo6tw/BGM.CPK"},
+        ["chara"]={root.BaseConfig.RootGamedataDir .. "/mo6tw/CHARA.CPK"},
+        ["mask"]={root.BaseConfig.RootGamedataDir .. "/mo6tw/MASK.CPK"},
+        ["movie"]={root.BaseConfig.RootGamedataDir .. "/mo6tw/MOVIE.CPK"},
+        ["script"]={root.BaseConfig.RootGamedataDir .. "/mo6tw/SCRIPT.cls"},
+        ["se"]={root.BaseConfig.RootGamedataDir .. "/mo6tw/SE.CPK"},
+        ["system"]={root.BaseConfig.RootGamedataDir .. "/mo6tw/SYSTEM.CPK"},
+        ["voice"]={root.BaseConfig.RootGamedataDir .. "/mo6tw/VOICE.CPK"}
     }
 };

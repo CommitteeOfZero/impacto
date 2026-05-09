@@ -111,7 +111,7 @@ root.SpriteSheets = {
     },
 };
 
-if root.HasDelusionMouseSupport then
+if root.Patch.HasDelusionMouseSupport then
     root.SpriteSheets.DelusionHeart  = {
         Path = { Mount = "system", Id = 26 },
         DesignWidth = 1280,
@@ -121,7 +121,7 @@ end
 
 root.Sprites = {};
 
-if root.Language ~= "Japanese" then
+if root.Language == "English" then
     root.SpriteSheets.DelusionText.DesignWidth = 2730;
     root.SpriteSheets.DelusionText.DesignHeight = 1408;
 end

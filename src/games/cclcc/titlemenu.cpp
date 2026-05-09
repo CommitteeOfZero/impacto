@@ -12,6 +12,7 @@
 #include "../../profile/games/cclcc/systemmenu.h"
 #include "../../profile/scriptvars.h"
 #include "../../profile/game.h"
+#include "../../profile/patch.h"
 #include "../../vm/interface/input.h"
 #include "../../audio/audiosystem.h"
 #include "../../profile/scriptinput.h"
@@ -160,7 +161,7 @@ TitleMenu::TitleMenu() {
       glm::vec2(ItemHighlightOffset.x, (ItemYBase + (4 * ItemPadding))));
   setupBtn(Help, onClick, MainItems, FDIR_DOWN);
 
-  if (HasScriptedExitLogic) {
+  if (Patch::HasScriptedExitLogic) {
     // Exit menu button (Configuration/Patch driven)
     auto* const exitPtr = new TitleButton(
         5, ExitSprite, ExitSprite, ItemHighlightSprite,

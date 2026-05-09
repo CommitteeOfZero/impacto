@@ -12,6 +12,7 @@
 #include "../../profile/scriptvars.h"
 #include "../../background2d.h"
 #include "../../profile/game.h"
+#include "../../profile/patch.h"
 #include <vector>
 
 namespace Impacto {
@@ -91,7 +92,7 @@ TitleMenu::TitleMenu() {
   MainItems->Add(System, FDIR_DOWN);
 
   // Exit menu button (Configuration/Patch driven)
-  if (HasScriptedExitLogic) {
+  if (Patch::HasScriptedExitLogic) {
     auto* const exitPtr =
         new TitleButton(4, ExitSprite, ExitHighlightSprite, ItemHighlightSprite,
                         glm::vec2(ItemHighlightOffset.x - 1.0f,

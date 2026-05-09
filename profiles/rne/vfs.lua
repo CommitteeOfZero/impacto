@@ -1,13 +1,13 @@
 root.Vfs = {
     Mounts = {
-        ["script"] = {"games/rne/gamedata/script.cls"},
-        ["system"] = {"games/rne/gamedata/system.cpk"},
-        ["bgm"] = {"games/rne/gamedata/bgm.cpk"},
-        ["se"] = {"games/rne/gamedata/se.cpk"},
-        ["sysse"] = {"games/rne/gamedata/sysse.dat"},
-        ["voice"] = {"games/rne/gamedata/voice.cpk"},
-        ["model"] = {"games/rne/gamedata/model.cpk"},
-        ["bg"] = {"games/rne/gamedata/bg.cpk"},
-        ["mask"] = {"games/rne/gamedata/mask.cpk"}
+        ["script"] = {root.BaseConfig.RootGamedataDir .. "/rne/script.cls"},
+        ["system"] = {root.BaseConfig.RootGamedataDir .. "/rne/system.cpk"},
+        ["bgm"] = {root.BaseConfig.RootGamedataDir .. "/rne/bgm.cpk"},
+        ["se"] = {root.BaseConfig.RootGamedataDir .. "/rne/se.cpk"},
+        ["sysse"] = {root.BaseConfig.RootGamedataDir .. "/rne/sysse.dat"},
+        ["voice"] = {root.BaseConfig.RootGamedataDir .. "/rne/voice.cpk"},
+        ["model"] = {root.BaseConfig.RootGamedataDir .. "/rne/model.cpk"},
+        ["bg"] = {root.BaseConfig.RootGamedataDir .. "/rne/bg.cpk"},
+        ["mask"] = {root.BaseConfig.RootGamedataDir .. "/rne/mask.cpk"}
     }
 };

@@ -4,6 +4,7 @@
 
 #include "../../ui/titlemenu.h"
 #include "../../game.h"
+#include "../../patch.h"
 #include "../../../ui/ui.h"
 #include "../../../games/chlcc/titlemenu.h"
 
@@ -13,7 +14,7 @@ namespace CHLCC {
 namespace TitleMenu {
 
 void Configure() {
-  if (HasScriptedExitLogic) {
+  if (Patch::HasScriptedExitLogic) {
     ExitSprite = EnsureGetMember<Sprite>("ExitSprite");
     ExitHighlightSprite = EnsureGetMember<Sprite>("ExitHighlightSprite");
   }

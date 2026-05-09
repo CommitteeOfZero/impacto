@@ -64,5 +64,40 @@ IoError GetFilePermissions(std::string const& path,
   return IoError_OK;
 }
 
+// User app config directory
+std::string const& GetPlatformConfigDir() {
+  static const std::string path = [] {
+#if defined(__ANDROID__)  // prefer external storage dir for easier user access
+    const char* configPath = SDL_AndroidGetExternalStoragePath();
+    if (!configPath) {
+      ImpLog(LogLevel::Fatal, LogChannel::IO,
+             "Failed to get Android external storage path, error: {}\n",
+             SDL_GetError());
+      exit(1);
+    }
+    return configPath;
+#elif defined(__unix__)  // prefer .config over .local/share
+    std::filesystem::path result;
+    const char* configPath = SDL_getenv("XDG_CONFIG_HOME");
+    if (!configPath || *configPath == '\0') {
+      configPath = SDL_getenv("HOME");
+      if (!configPath || *configPath == '\0') {
+        return std::string{};
+      }
+      result = std::filesystem::path(configPath) / ".config";
+    } else {
+      result = std::filesystem::path(configPath);
+    }
+    return (result / "impacto").string();
+#else
+    char* configPath = SDL_GetPrefPath("Committee of Zero", "Impacto");
+    std::string result = configPath;
+    SDL_free(configPath);
+    return result;
+#endif
+  }();
+  return path;
+}
+
 }  // namespace Io
 }  // namespace Impacto
