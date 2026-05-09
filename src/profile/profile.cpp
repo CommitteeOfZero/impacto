@@ -1,15 +1,22 @@
 #include "profile.h"
+
+#include <algorithm>
+#include <ranges>
+#include <ankerl/unordered_dense.h>
 #include "profile_internal.h"
 #include "../io/physicalfilestream.h"
 #include "../log.h"
-#include <ankerl/unordered_dense.h>
 
+#include "userconfig.h"
+#include "baseconfig.h"
 #include "ui/backlogmenu.h"
 #include "dialogue.h"
 #include "configsystem.h"
 #include "subtitle.h"
 #include "game.h"
+#include "patch.h"
 #include "../text/textpage.h"
+#include "../text/text.h"
 #include "../game.h"
 #include "../ui/ui.h"
 #include "../data/savesystem.h"
@@ -26,7 +33,8 @@
 namespace Impacto {
 namespace Profile {
 
-static ankerl::unordered_dense::set<std::string> IncludedFiles;
+static ankerl::unordered_dense::set<std::string, string_hash, std::equal_to<>>
+    IncludedFiles;
 
 static int LuaPrint(lua_State* ctx) {
   ImpLog(LogLevel::Info, LogChannel::Profile, "Lua: {:s}\n",
@@ -34,9 +42,35 @@ static int LuaPrint(lua_State* ctx) {
   return 0;
 }
 
+static void RunLuaScriptBuffer(std::span<char const> buffer) {
+  if (luaL_loadbuffer(LuaState, buffer.data(), buffer.size(), buffer.data())) {
+    ImpLog(LogLevel::Fatal, LogChannel::Profile,
+           "Lua profile compile error: {:s}\n", lua_tostring(LuaState, -1));
+    lua_close(LuaState);
+    exit(1);
+  }
+  if (lua_pcall(LuaState, 0, 0, 0)) {
+    ImpLog(LogLevel::Fatal, LogChannel::Profile,
+           "Lua profile execute error: {:s}\n", lua_tostring(LuaState, -1));
+    lua_close(LuaState);
+    exit(1);
+  }
+}
+
+static void RunLuaScript(const char* path) {
+  ImpLog(LogLevel::Info, LogChannel::Profile, "Executing lua script {:s}\n",
+         path);
+  if (luaL_dofile(LuaState, path)) {
+    ImpLog(LogLevel::Fatal, LogChannel::Profile,
+           "Lua profile compile error: {:s}\n", lua_tostring(LuaState, -1));
+    exit(1);
+  }
+  ImpLog(LogLevel::Info, LogChannel::Profile, "Lua profile execute success\n");
+}
+
 static int LuaInclude(lua_State* ctx) {
-  auto fileName = lua_tostring(ctx, 1);
-  std::string file = "profiles/" + std::string(fileName);
+  auto file = lua_tostring(ctx, 1);
+
   if (IncludedFiles.find(file) != IncludedFiles.end()) {
     ImpLog(LogLevel::Debug, LogChannel::Profile,
            "File {:s} already included, skipping...\n", file);
@@ -57,23 +91,14 @@ static int LuaInclude(lua_State* ctx) {
   char const suffix[] = "\nend";
 
   size_t script_len = strlen(prefix) + stream->Meta.Size + strlen(suffix) + 1;
-  char* script = (char*)malloc(script_len);
-
-  if (script == NULL) {
-    delete stream;
-
-    ImpLog(LogLevel::Error, LogChannel::Profile,
-           "Could not allocate memory for script: {:s}", file);
-    return 0;
-  }
+  auto script = std::make_unique<char[]>(script_len);
 
   script[script_len - 1] = '\0';
-  memcpy(script, prefix, strlen(prefix));
+  memcpy(script.get(), prefix, strlen(prefix));
 
-  int64_t len = stream->Read(script + strlen(prefix), stream->Meta.Size);
+  int64_t len = stream->Read(script.get() + strlen(prefix), stream->Meta.Size);
 
   if (len < 0) {
-    free(script);
     delete stream;
 
     ImpLog(LogLevel::Error, LogChannel::Profile, "Could not open {:s}\n", file);
@@ -81,23 +106,11 @@ static int LuaInclude(lua_State* ctx) {
   }
 
   len += strlen(prefix);
-  memcpy(script + len, suffix, strlen(suffix));
+  memcpy(script.get() + len, suffix, strlen(suffix));
   len += strlen(suffix);
 
-  if (luaL_loadbuffer(LuaState, script, len, script)) {
-    ImpLog(LogLevel::Fatal, LogChannel::Profile,
-           "Lua profile compile error: {:s}\n", lua_tostring(ctx, -1));
-    lua_close(LuaState);
-    exit(1);
-  }
-  if (lua_pcall(ctx, 0, 0, 0)) {
-    ImpLog(LogLevel::Fatal, LogChannel::Profile,
-           "Lua profile execute error: {:s}\n", lua_tostring(ctx, -1));
-    lua_close(LuaState);
-    exit(1);
-  }
+  RunLuaScriptBuffer({script.get(), static_cast<size_t>(len)});
 
-  free(script);
   delete stream;
 
   lua_pop(ctx, -1);
@@ -121,50 +134,7 @@ static void DefineEnum(lua_State* ctx) {
   lua_setglobal(ctx, enumTypeName.c_str());
 }
 
-void MakeLuaProfile(std::string const& name) {
-  Io::Stream* stream;
-  IoError err =
-      Io::PhysicalFileStream::Create("profiles/" + name + "/game.lua", &stream);
-  if (err != IoError_OK) {
-    ImpLog(LogLevel::Fatal, LogChannel::Profile,
-           "Could not open profiles/{:s}/game.lua\n", name);
-    exit(1);
-  }
-
-  char* script = (char*)malloc(stream->Meta.Size + 1);
-  if (script == NULL) {
-    delete stream;
-
-    ImpLog(LogLevel::Error, LogChannel::Profile,
-           "Could not allocate memory for script: profiles/{:s}/game.lua",
-           name);
-    exit(1);
-  }
-
-  int64_t len = stream->Read(script, stream->Meta.Size);
-  if (len < 0) {
-    delete stream;
-    free(script);
-
-    ImpLog(LogLevel::Fatal, LogChannel::Profile,
-           "Could not open profiles/{:s}/game.lua\n", name);
-    exit(1);
-  }
-  script[len] = '\0';
-
-  LuaState = luaL_newstate();
-  // Set up API
-  luaL_openlibs(LuaState);
-  lua_pushcfunction(LuaState, LuaPrint);
-  lua_setglobal(LuaState, "print");
-  lua_pushcfunction(LuaState, LuaInclude);
-  lua_setglobal(LuaState, "include");
-
-  // Root profile object
-  lua_createtable(LuaState, 0, 0);
-  lua_setglobal(LuaState, "root");
-
-  // Enums /sigh
+static void DefineEnums() {
   DefineEnum<RendererType>(LuaState);
   DefineEnum<VideoPlayerType>(LuaState);
   DefineEnum<AudioBackendType>(LuaState);
@@ -206,40 +176,89 @@ void MakeLuaProfile(std::string const& name) {
   DefineEnum<ShaderProgramType>(LuaState);
   DefineEnum<ConfigSystem::AutoQuickSaveType>(LuaState);
   DefineEnum<UI::GameSpecificType>(LuaState);
-  DefineEnum<DateFormatType>(LuaState);
+  DefineEnum<Patch::DateFormatType>(LuaState);
   DefineEnum<SubtitleAssBackendType>(LuaState);
   DefineEnum<SubtitleBmpBackendType>(LuaState);
   DefineEnum<SubtitleTextBackendType>(LuaState);
   DefineEnum<Subtitle::SubtitleType>(LuaState);
-  DefineEnum<SubtitleConfigType>(LuaState);
+  DefineEnum<Subtitle::SubtitleConfigType>(LuaState);
   DefineEnum<Input::KeyboardScanCode>(LuaState);
   DefineEnum<Input::ControllerButton>(LuaState);
   DefineEnum<Input::ControllerAxis>(LuaState);
   DefineEnum<TextModeInfo::NameDispModeType>(LuaState);
   DefineEnum<TextModeInfo::NameAlignmentType>(LuaState);
+}
 
-  ImpLog(LogLevel::Info, LogChannel::Profile, "Starting profile {:s}\n", name);
+void Init() {
+  LuaState = luaL_newstate();
+  // Set up API
+  luaL_openlibs(LuaState);
+  lua_pushcfunction(LuaState, LuaPrint);
+  lua_setglobal(LuaState, "print");
+  lua_pushcfunction(LuaState, LuaInclude);
+  lua_setglobal(LuaState, "include");
 
-  if (luaL_loadbuffer(LuaState, script, len, name.c_str())) {
-    ImpLog(LogLevel::Fatal, LogChannel::Profile,
-           "Lua profile compile error: {:s}\n", lua_tostring(LuaState, -1));
-    lua_close(LuaState);
-    exit(1);
+  // Root profile object
+  lua_createtable(LuaState, 0, 0);
+  lua_setglobal(LuaState, "root");
+
+  // Enums /sigh
+  DefineEnums();
+}
+
+void Configure() {
+  if (BaseConfigPath.empty()) {
+    BaseConfigPath = Profile::BaseConfig::GetPlatformSpecificPath();
+    if (Io::PathExists(BaseConfigPath) != IoError_OK) {
+      BaseConfigPath = "./baseconfig.lua";
+    }
   }
-  if (lua_pcall(LuaState, 0, 0, 0)) {
-    ImpLog(LogLevel::Fatal, LogChannel::Profile,
-           "Lua profile execute error: {:s}\n", lua_tostring(LuaState, -1));
-    lua_close(LuaState);
-    exit(1);
+  if (UserConfigPath.empty()) {
+    UserConfigPath = Profile::UserConfig::GetPlatformSpecificPath();
+    if (Io::PathExists(UserConfigPath) != IoError_OK) {
+      UserConfigPath = "./userconfig.lua";
+    }
   }
-
-  delete stream;
-  free(script);
+  RunLuaScript(BaseConfigPath.c_str());
+  RunLuaScript(UserConfigPath.c_str());
 
   // Push the global onto the stack to load all the values later
   lua_getglobal(LuaState, "root");
 
-  ImpLog(LogLevel::Info, LogChannel::Profile, "Lua profile execute success\n");
+  BaseConfig::Configure();
+  UserConfig::Configure();
+
+  if (BaseConfig::RootPatchesDir.empty() &&
+      !UserConfig::ActiveGameSettings().ActivePatch.empty()) {
+    ImpLog(LogLevel::Fatal, LogChannel::Profile,
+           "Patch is enabled but no patch directory is specified\n");
+    exit(1);
+  }
+  auto const& activeGameDef =
+      BaseConfig::GameDefinitions.at(UserConfig::ActiveGame);
+
+  std::string const& gameProfilePath = activeGameDef.GameProfile;
+  RunLuaScript(gameProfilePath.c_str());
+  if (auto const& activePatch =
+          UserConfig::PatchOverride.empty()
+              ? UserConfig::ActiveGameSettings().ActivePatch
+              : UserConfig::PatchOverride;
+      !activePatch.empty()) {
+    auto patchProfilePathItr = activeGameDef.Patch.find(activePatch);
+    if (patchProfilePathItr == activeGameDef.Patch.end()) {
+      ImpLog(LogLevel::Fatal, LogChannel::Profile,
+             "Patch is enabled but patch.lua path is missing for language {} "
+             "in game {} definition\n",
+             activePatch, UserConfig::ActiveGame);
+      exit(1);
+    }
+    RunLuaScript(patchProfilePathItr->second.c_str());
+  }
+  ImpLog(LogLevel::Info, LogChannel::Profile,
+         "Profile for {:s} loaded successfully.\n", UserConfig::ActiveGame);
+
+  // Push the global onto the stack to load all the values later
+  lua_getglobal(LuaState, "root");
 }
 
 void ClearProfile() { ClearProfileInternal(); }

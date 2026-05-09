@@ -74,6 +74,7 @@ Useful flags for development and debugging:
 
 ```
 impacto -g chlcc                           # Specify active game/profile
+impacto -p English                         # Specify patch override
 impacto -ll Debug                          # Set log level (Fatal, Warning, Info, Debug)
 impacto -lc General                        # Enable specific log channel (repeat flag to specify multiple)
 impacto -lf log.txt                        # Specify Log File Path

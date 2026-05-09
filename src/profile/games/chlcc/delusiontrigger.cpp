@@ -6,6 +6,7 @@
 #include "../../../ui/ui.h"
 #include "../../../games/chlcc/delusiontrigger.h"
 #include "../../game.h"
+#include "../../patch.h"
 
 namespace Impacto {
 namespace Profile {
@@ -22,7 +23,7 @@ void Configure() {
   BackgroundSpriteMask.Bounds.Y = BackgroundSprite.Bounds.Center().y -
                                   BackgroundSpriteMask.Bounds.Center().y;
 
-  if (HasDelusionMouseSupport) {
+  if (Patch::HasDelusionMouseSupport) {
     LeftDelusionHeartSprite =
         EnsureGetMember<Sprite>("LeftDelusionHeartSprite");
     RightDelusionHeartSprite =

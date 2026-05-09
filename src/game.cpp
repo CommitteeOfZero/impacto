@@ -40,6 +40,7 @@
 
 #include "games/chlcc/delusiontrigger.h"
 #include "games/cclcc/delusiontrigger.h"
+#include "profile/patch.h"
 #include "profile/sprites.h"
 #include "profile/charset.h"
 #include "profile/fonts.h"
@@ -70,10 +71,11 @@ using namespace Profile::ScriptVars;
 
 namespace Game {
 
-static void Init() {
+void Init() {
   WorkQueue::Init();
 
   Profile::LoadGameFromLua();
+  Profile::Patch::Configure();
 
   Io::VfsInit();
 
@@ -182,11 +184,6 @@ static void Init() {
   Profile::ClearProfile();
 }
 
-void InitFromProfile(std::string const& name) {
-  Profile::MakeLuaProfile(name);
-  Init();
-}
-
 void Shutdown() {
   if (+Profile::GameFeatures & +GameFeature::Audio) {
     Audio::AudioShutdown();
@@ -256,7 +253,7 @@ void UpdateSystem(float dt) {
 
   while (SDL_PollEvent(&e)) {
     if (e.type == SDL_QUIT) {
-      if (Profile::HasScriptedExitLogic) {
+      if (Profile::Patch::HasScriptedExitLogic) {
         Input::KeyboardButtonWentDown[SDL_SCANCODE_ESCAPE] = true;
       } else {
         ShouldQuit = true;

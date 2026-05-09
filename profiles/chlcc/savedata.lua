@@ -1,6 +1,6 @@
 root.SaveData = {
     Type = SaveDataType.CHLCC,
-    SaveFilePath = "games/chlcc/savedata/SYSTEM.DAT",
+    SaveFilePath = root.BaseConfig.RootSavesDir .. "/chlcc/jpn/SYSTEM.DAT",
     ThumbnailFilePath = "games/chlcc/savedata/THUMNAIL.DAT",
 
     ScriptMessageData = { -- Pairs of line count and offset into read flag array

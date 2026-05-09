@@ -41,5 +41,5 @@ local SortCategoryMappingEN = SortCategoryMappingJP; -- Todo
 root.TipsSystem = {
     Type = TipsSystemType.CHLCC,
     MaxTipsCount = 200,
-    SortCategoryMapping = (root.Language == "Japanese") and SortCategoryMappingJP or SortCategoryMappingEN,
+    SortCategoryMapping = (root.Language == "English") and SortCategoryMappingEN or SortCategoryMappingJP,
 };

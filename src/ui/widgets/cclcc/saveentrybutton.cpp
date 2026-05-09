@@ -6,6 +6,7 @@
 #include "../../../vm/vm.h"
 #include "../../../ui/ui.h"
 #include "../../../profile/game.h"
+#include "../../../profile/patch.h"
 #include <fmt/format.h>
 
 namespace Impacto {
@@ -156,9 +157,9 @@ void SaveEntryButton::RefreshSaveDateText() {
   tm const& date = SaveSystem::GetSaveDate(Type, Id);
   float fontSize = 32;
   RendererOutlineMode outlineMode = RendererOutlineMode::Full;
-  // Maybe fmt will merge my PR for space padded month
   SaveDateLabel.SetText(
-      fmt::format(fmt::runtime(Profile::DateFormat.FormattedString()), date) +
+      fmt::format(fmt::runtime(Profile::Patch::DateFormat.FormattedString()),
+                  date) +
           fmt::format(" {:%H:%M:%S}", date),
       fontSize, outlineMode,
       {SaveEntrySecondaryColor, SaveEntrySecondaryColor});

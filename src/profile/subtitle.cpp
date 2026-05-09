@@ -1,8 +1,6 @@
 #include "subtitle.h"
 #include "../io/filemeta.h"
-
 #include "profile_internal.h"
-
 namespace Impacto::Profile {
 template <>
 struct TryGetImpl<Subtitle::SubtitleTrackFile> {
@@ -11,7 +9,7 @@ struct TryGetImpl<Subtitle::SubtitleTrackFile> {
     auto typeOpt = TryGetMember<Subtitle::SubtitleType>("Type");
     auto idOpt = TryGetMember<int>("Id");
     auto pathOpt = TryGetMember<std::string>("Path");
-    auto configOpt = TryGetMember<SubtitleConfigType>("Config");
+    auto configOpt = TryGetMember<Subtitle::SubtitleConfigType>("Config");
 
     if (!typeOpt || !configOpt || !(pathOpt.has_value() ^ idOpt.has_value()))
       return std::nullopt;
@@ -23,9 +21,7 @@ struct TryGetImpl<Subtitle::SubtitleTrackFile> {
     };
   }
 };
-
 }  // namespace Impacto::Profile
-
 namespace Impacto::Profile::Subtitle {
 void Configure() {
   if (TryPushMember("Subtitle")) {

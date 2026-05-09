@@ -1,5 +1,4 @@
-local languageSuffix = root.Language
-if root.Language == "Japanese" then languageSuffix = "" end
+local languageSuffix = root.Language == "English" and root.Language or ""
 
 root.TitleMenu = {
     Type = TitleMenuType.CHLCC,
@@ -49,7 +48,13 @@ root.TitleMenu = {
     IntroLogoStarHighlightAnimationDuration = 0.5334,
     IntroDelusionADVAnimationDuration = 1.4;
     IntroDelusionADVSprites = {},
-    IntroDelusionADVPositions = root.Language == "Japanese" and {
+    IntroDelusionADVPositions = root.Language == "English" and {
+        { X = 78,  Y = 400 },
+        { X = 78,  Y = 418 },
+        { X = 174, Y = 400 },
+        { X = 194, Y = 400 },
+        { X = 211, Y = 400 }
+    } or {
         { X = 80,  Y = 402 },
         { X = 104, Y = 402 },
         { X = 127, Y = 402 },
@@ -57,12 +62,6 @@ root.TitleMenu = {
         { X = 172, Y = 402 },
         { X = 195, Y = 402 },
         { X = 215, Y = 402 }
-    } or {
-        { X = 78,  Y = 400 },
-        { X = 78,  Y = 418 },
-        { X = 174, Y = 400 },
-        { X = 194, Y = 400 },
-        { X = 211, Y = 400 }
     },
     IntroDelusionADVHighlightAnimationDuration = 0.5334,
     IntroSeiraAnimationDuration = 0.8,
@@ -77,9 +76,9 @@ root.TitleMenu = {
         "ExclMarkLogo"
     };
     LCCLogoPositions = {
-        root.Language == "Japanese"
-            and { X = 235, Y = 336 }
-            or { X = 231, Y = 333 },
+        root.Language == "English"
+            and { X = 231, Y = 333 }
+            or { X = 235, Y = 336 },
         { X = 353, Y = 336 },
         { X = 500, Y = 316 },
         { X = 614, Y = 316 }
@@ -88,9 +87,9 @@ root.TitleMenu = {
     DelusionADVSprites = {},
     DelusionADVUnderSprite = "DelusionADVUnder" .. languageSuffix,
     DelusionADVSprite = "DelusionADV" .. languageSuffix,
-    DelusionADVPosition = root.Language == "Japanese"
-        and { X = 76, Y = 394 }
-        or { X = 76, Y = 397 },
+    DelusionADVPosition = root.Language == "English"
+        and { X = 76, Y = 397 }
+        or { X = 76, Y = 394 },
     DelusionADVPopoutOffset = { X = -2, Y = -3 },
     SeiraUnderSprite = "SeiraUnder",
     SeiraUnderPosition = { X = 733, Y = 0 },
@@ -100,9 +99,9 @@ root.TitleMenu = {
     CHLogoSprite = "CHLogo",
     CHLogoPosition = { X = 61, Y = 279 },
     LCCLogoUnderSprite = "LCCLogoUnder",
-    LCCLogoUnderPosition = root.Language == "Japanese"
-        and { X = 241, Y = 327 }
-        or { X = 242, Y = 328 },
+    LCCLogoUnderPosition = root.Language == "English"
+        and { X = 242, Y = 328 }
+        or { X = 241, Y = 327 },
     StarLogoSprite = "StarLogo",
     StarLogoPosition = { X = 465, Y = 316 },
     CopyrightTextSprite = "CopyrightText",

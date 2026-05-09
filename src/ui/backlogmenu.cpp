@@ -4,6 +4,7 @@
 
 #include "ui.h"
 #include "../profile/game.h"
+#include "../profile/userconfig.h"
 #include "../profile/vm.h"
 #include "../renderer/renderer.h"
 #include "../mem.h"
@@ -212,7 +213,7 @@ void BacklogMenu::UpdateInput(float dt) {
 
   if (!(State == Shown && IsFocused)) {
     AtBottomPrev = false;
-  } else if (Profile::CloseBacklogWhenReachedEnd) {
+  } else if (Profile::UserConfig::CommonSettings.CloseBacklogWhenReachedEnd) {
     const float epsilon = std::numeric_limits<float>::epsilon();
     const bool atBottomNow = !MainScrollbar->Enabled ||
                              (PageY <= (MainScrollbar->EndValue + epsilon));

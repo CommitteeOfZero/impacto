@@ -359,6 +359,7 @@ void FFmpegPlayer::Play(Io::Stream* stream, bool looping, bool alpha) {
 
 void FFmpegPlayer::InitSubtitles(
     std::vector<std::pair<av::Stream, int>>& embeddedSubStreams) {
+  using Profile::Subtitle::SubtitleConfigType;
   using Profile::Subtitle::SubtitleMappings;
   using Profile::Subtitle::SubtitleTrackFile;
   using Profile::Subtitle::SubtitleType;
@@ -398,7 +399,7 @@ void FFmpegPlayer::InitSubtitles(
                     std::ref(subStream)};
 
     // Optionally tag embedded subtitle tracks in lua
-    Profile::SubtitleConfigType subConfig = Profile::SubtitleConfigType::All;
+    SubtitleConfigType subConfig = SubtitleConfigType::All;
     if (subtitleMappings) {
       const auto subFileItr = std::find_if(
           subtitleMappings->begin(), subtitleMappings->end(),
