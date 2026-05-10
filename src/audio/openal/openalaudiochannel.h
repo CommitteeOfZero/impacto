@@ -37,6 +37,8 @@ class OpenALAudioChannel : public Audio::AudioChannel {
   float FadeProgress = 0;
   float FadeStartFactor = 0;
 
+  bool PlaybackStarted = false;
+
   void EndPlayback();
   void UpdateGain();
   void UpdateFade(float dt);

@@ -78,6 +78,7 @@ void OpenALAudioChannel::EndPlayback() {
   UnqueueBuffers(queuedBuffers);
 
   Stream = nullptr;
+  PlaybackStarted = false;
   State = ACS_Stopped;
   FadeProgress = 0;
   FirstQueuedBufferIndex = 0;
@@ -152,7 +153,7 @@ void OpenALAudioChannel::UpdatePlayback() {
 
   // Stop playback when OpenAL finished processing but not when there's buffer
   // underrun
-  if (alState == AL_STOPPED && queued == 0) {
+  if (alState == AL_STOPPED && queued == 0 && PlaybackStarted) {
     EndPlayback();
     return;
   }
@@ -166,6 +167,7 @@ void OpenALAudioChannel::UpdatePlayback() {
              (State == ACS_Playing || State == ACS_FadingIn ||
               State == ACS_FadingOut)) {
     alSourcePlay(Source);
+    PlaybackStarted = true;
   } else if ((alState == AL_PLAYING || alState == AL_PAUSED) &&
              State == ACS_Stopped) {
     EndPlayback();
