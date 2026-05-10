@@ -24,13 +24,15 @@ BacklogEntry::BacklogEntry(int id, Vm::BufferOffsetContext scrCtx,
     : Widgets::BacklogEntry(id, scrCtx, audioId, characterId, pos,
                             hoverBounds) {
   if (!Page->Name.empty()) {
-    beforeNametagLabel.SetText(
-        NametagCommonStrings[0], Profile::Dialogue::REVNameFontSize,
-        Profile::Dialogue::REVNameOutlineMode, Profile::Dialogue::REVNameColor);
+    const float nameFontSize =
+        TextModesInfo[Profile::Dialogue::REVMessageModeIdx].NameGlyphSize.y;
+    beforeNametagLabel.SetText(NametagCommonStrings[0], nameFontSize,
+                               Profile::Dialogue::REVNameOutlineMode,
+                               Profile::Dialogue::REVNameColor);
     nametagLabel.SetText(Page->Name, Profile::Dialogue::REVNameOutlineMode);
-    afterNametagLabel.SetText(
-        NametagCommonStrings[1], Profile::Dialogue::REVNameFontSize,
-        Profile::Dialogue::REVNameOutlineMode, Profile::Dialogue::REVNameColor);
+    afterNametagLabel.SetText(NametagCommonStrings[1], nameFontSize,
+                              Profile::Dialogue::REVNameOutlineMode,
+                              Profile::Dialogue::REVNameColor);
   }
 }
 

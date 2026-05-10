@@ -138,7 +138,9 @@ int TextLayoutAlignment(Impacto::TextAlignment& alignment, float blockWidth,
                         float currentX, glm::vec2& pos, int characterCount,
                         std::span<Impacto::ProcessedTextGlyph> outGlyphs);
 float TextGetPlainLineWidth(Vm::Sc3VmThread* ctx, Font* font, float fontSize);
-float TextGetPlainLineWidth(Vm::Sc3Stream& stream, Font* font, float fontSize);
+float TextGetPlainLineWidth(
+    Vm::Sc3Stream& stream, Font* font, float fontSize,
+    size_t maxLength = std::numeric_limits<size_t>::max());
 int TextLayoutPlainString(std::string_view str,
                           std::span<ProcessedTextGlyph> outGlyphs, Font* font,
                           float fontSize, DialogueColorPair colors,

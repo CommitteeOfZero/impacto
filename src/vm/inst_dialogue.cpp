@@ -363,7 +363,8 @@ VmInstruction(InstSetMesModeFormat) {
       .DisplayMode = info->DisplayMode,
       .WindowId = info->WindowId,
       .WindowPos = glm::vec2(info->WindowPosX, info->WindowPosY) * designScale,
-      .NameDispMode = info->NameDispMode,
+      .NameDispMode =
+          static_cast<TextModeInfo::NameDispModeType>(info->NameDispMode),
       .MaxNameWidth = info->MaxNameWidth * designScale.x,
       .NamePos = glm::vec2(info->NamePosX, info->NamePosY) * designScale,
       .NameGlyphSize =
@@ -380,10 +381,12 @@ VmInstruction(InstSetMesModeFormat) {
       .RubyLineSpacing = info->RubyLineSpacing * designScale.y,
       .RubyDispMode = info->RubyDispMode,
       .LinefeedSpacing = info->LinefeedSpacing * designScale.y,
-      .NamePosFlags = info->NamePosFlags,
+      .NameAlignment = static_cast<TextModeInfo::NameAlignmentType>(
+          info->NamePosFlags & 0b111),
+      .UseNameLengthL = (info->NamePosFlags & 0b1000) != 0,
       .NameLengthL = info->NameLengthL,
   };
-}
+}  // namespace Vm
 VmInstruction(InstSetNGmoji) {
   StartInstruction;
   PopString(endingPuncts);

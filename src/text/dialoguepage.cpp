@@ -67,6 +67,8 @@ void DialoguePage::Clear() {
   TextPage::Clear();
 
   Name.clear();
+  RenderName = false;
+
   AudioId.reset();
   CurrentStringAddress.reset();
 
@@ -101,7 +103,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, std::optional<int> voiceId,
 
   DialogueTextParserInst.ParseString(*this, ctx);
 
-  RenderName = !Name.empty();
+  RenderName = ScrWork[SW_MESNAMEID0 + Id] != NO_NAME || !Name.empty();
 
   RectF boundingBox = Glyphs.empty() ? RectF() : Glyphs.begin()->DestRect;
   for (const ProcessedTextGlyph& glyph : Glyphs) {
@@ -198,7 +200,7 @@ void DialoguePage::Render(const float alpha,
 
   const NameInfo nameInfo{
       .RenderWindow = RenderName,
-      .NameId = ScrWork[SW_MESNAMEID0 + Id] == 0xffff
+      .NameId = ScrWork[SW_MESNAMEID0 + Id] == NO_NAME
                     ? std::nullopt
                     : std::optional(ScrWork[SW_MESNAMEID0 + Id]),
       .Name = Name,
@@ -214,6 +216,10 @@ void DialoguePage::Render(const float alpha,
   if (ScrWork[SW_MESWIN0TYPE + 10 * Id] & 1) {
     pos += DialogueBoxInst.get()->GetScrWorkPos() - GetTextModeInfo().WindowPos;
   }
+
+  Renderer->DrawProcessedText(Name, DialogueFont, opacityTint.a, opacityTint.a,
+                              outlineMode, pos);
+
   const float textFadeOpacity =
       GetFlag(SF_MESALLSKIP) ? 1.0f
                              : opacityTint.a * TextFadeAnimation.Progress;

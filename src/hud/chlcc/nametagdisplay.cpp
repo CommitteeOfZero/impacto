@@ -13,14 +13,11 @@ using namespace Impacto::Profile::Dialogue;
 using namespace Impacto::Profile::ScriptVars;
 
 void NametagDisplay::Render(const NameInfo& nameInfo, glm::vec4 tint) {
-  if (!nameInfo.RenderWindow) return;
+  if (!nameInfo.RenderWindow || nameInfo.Name.empty()) return;
 
   Renderer->DrawSprite(
       ScrWork[SW_MESWINDOW_COLOR] == 1 ? SecondaryNametagSprite : NametagSprite,
       NametagPosition, tint);
-
-  Renderer->DrawProcessedText(nameInfo.Name, DialogueFont, tint.a,
-                              RendererOutlineMode::Full);
 }
 
 }  // namespace CHLCC

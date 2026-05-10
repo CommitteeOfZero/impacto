@@ -400,11 +400,12 @@ float TextGetPlainLineWidth(Vm::Sc3VmThread* ctx, Font* font, float fontSize) {
   return width;
 }
 
-float TextGetPlainLineWidth(Vm::Sc3Stream& stream, Font* font, float fontSize) {
+float TextGetPlainLineWidth(Vm::Sc3Stream& stream, Font* font, float fontSize,
+                            size_t maxLength) {
   StringToken token;
 
   float width = 0.0f;
-  while (true) {
+  while (maxLength-- > 0) {
     token.Read(stream);
     if (token.Type == STT_EndOfString) break;
     if (token.Type != STT_Character) continue;

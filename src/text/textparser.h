@@ -22,7 +22,7 @@ class TextParser {
   std::vector<RubyChunk> RubyChunks;
 
   std::vector<ProcessedTextGlyph> Name;
-  uint16_t NameId = 0xFFFF;
+  uint16_t NameId = NO_NAME;
 
   std::set<size_t> ParallelStartGlyphs;
 
@@ -34,6 +34,7 @@ class TextParser {
   void ParseStringToken(const StringToken& token);
 
   void FinishLine(size_t nextLineStart);
+  void FinishName();
 
   std::vector<uint16_t> NameCode;
 

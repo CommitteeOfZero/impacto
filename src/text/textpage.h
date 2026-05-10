@@ -44,7 +44,14 @@ struct TextModeInfo {
 
   glm::vec2 WindowPos = {0.0f, 0.0f};
 
-  uint16_t NameDispMode = 0;
+  enum class NameDispModeType : uint8_t {
+    RelativeToWindow = 0,
+    Invisible = 1,
+    InText = 2,
+    FixedPos = 3,
+  };
+  NameDispModeType NameDispMode = NameDispModeType::RelativeToWindow;
+
   float MaxNameWidth = 0.0f;
   glm::vec2 NamePos = {0.0f, 0.0f};
   glm::vec2 NameGlyphSize = {0.0f, 0.0f};
@@ -62,8 +69,16 @@ struct TextModeInfo {
   uint16_t RubyDispMode = 0;
   float LinefeedSpacing = 0.0f;
 
-  uint16_t NamePosFlags = 0;
-  uint16_t NameLengthL = 0;  // Idk what this is either
+  enum class NameAlignmentType : uint8_t {
+    Left = 0,
+    Center = 1,
+    Right = 2,
+  };
+  NameAlignmentType NameAlignment = NameAlignmentType::Center;
+
+  // Idk what these are either
+  bool UseNameLengthL = false;
+  uint16_t NameLengthL = 0;
 };
 inline std::array<TextModeInfo, 10> TextModesInfo;
 

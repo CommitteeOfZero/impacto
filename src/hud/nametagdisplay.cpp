@@ -39,7 +39,7 @@ std::unique_ptr<NametagDisplay> NametagDisplay::Create() {
 
 void VoidNametagDisplay::Render(const NameInfo& nameInfo,
                                 const glm::vec4 tint) {
-  if (Hidden || !nameInfo.RenderWindow) return;
+  if (Hidden || !nameInfo.RenderWindow || nameInfo.Name.empty()) return;
 
   Renderer->DrawProcessedText(nameInfo.Name, DialogueFont, tint.a,
                               RendererOutlineMode::Full);
@@ -47,7 +47,7 @@ void VoidNametagDisplay::Render(const NameInfo& nameInfo,
 
 void SpriteNametagDisplay::Render(const NameInfo& nameInfo,
                                   const glm::vec4 tint) {
-  if (Hidden || !nameInfo.RenderWindow) return;
+  if (Hidden || !nameInfo.RenderWindow || nameInfo.Name.empty()) return;
 
   Renderer->DrawSprite(NametagSprite, NametagPosition, tint);
 
@@ -57,7 +57,7 @@ void SpriteNametagDisplay::Render(const NameInfo& nameInfo,
 
 void ThreePieceNametagDisplay::Render(const NameInfo& nameInfo,
                                       const glm::vec4 tint) {
-  if (Hidden || !nameInfo.RenderWindow) return;
+  if (Hidden || !nameInfo.RenderWindow || nameInfo.Name.empty()) return;
 
   Renderer->DrawSprite(NametagLeftSprite, NametagPosition, tint);
 

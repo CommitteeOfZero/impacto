@@ -14,6 +14,8 @@ namespace Impacto {
 namespace Profile {
 namespace Dialogue {
 
+constexpr int NO_NAME = 0xffff;
+
 inline RectF NVLBounds;
 inline RectF ADVBounds;
 inline RectF REVBounds;
