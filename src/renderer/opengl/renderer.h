@@ -56,8 +56,7 @@ class Renderer : public BaseRenderer {
                               glm::mat4 spriteTransformation,
                               std::optional<glm::mat4> maskTransformation,
                               std::span<const glm::vec4, 4> tints,
-                              bool isInverted = false,
-                              bool hasEffects = false) override;
+                              bool isInverted = false) override;
 
   void DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
                                const CornersQuad& spriteDest,
@@ -74,7 +73,6 @@ class Renderer : public BaseRenderer {
                       glm::mat4 spriteTransformation,
                       glm::mat4 maskTransformation, bool inverted,
                       TopologyMode topologyMode,
-                      std::optional<FBOId> fboId = std::nullopt,
                       const bool textureWrapRepeat = false) override;
 
   void DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
@@ -180,7 +178,6 @@ class Renderer : public BaseRenderer {
                           CornersQuad maskUV = RectF()) {
     InsertVerticesQuad(pos, uv, std::array{tint, tint, tint, tint}, maskUV);
   }
-  void EnsureFBO(FBOId fboId);
   void EnsureTopologyMode(TopologyMode newMode);
 
   GLWindow* OpenGLWindow;
@@ -192,7 +189,6 @@ class Renderer : public BaseRenderer {
   bool Drawing = false;
 
   TopologyMode LastTopologyMode = TopologyMode::Triangles;
-  FBOId LastFBO = 0;
 
   struct TextureUnit {
     uint32_t TextureId = 0;
