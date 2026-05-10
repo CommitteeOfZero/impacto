@@ -124,7 +124,9 @@ static IoError MountModel(uint32_t modelId, std::string& outMountpoint) {
     return err;
   }
   std::string modelMountpoint = "model_" + arcMeta.FileName;
-  err = VfsMountMemory(modelMountpoint, arcMeta.FileName, arcMem, arcSz, true);
+  // models archives are mounted in reverse order
+  err = VfsMountMemory(modelMountpoint, arcMeta.FileName, arcMem, arcSz, true,
+                       true);
   if (err != IoError_OK) {
     ImpLog(LogLevel::Error, LogChannel::ModelLoad,
            "Could not open model archive for {:d}\n", modelId);
