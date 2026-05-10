@@ -572,51 +572,49 @@ void FFmpegPlayer::Decode(FFmpegStream<MediaType>& stream) {
     }
   };
 
+  auto processAndPush = [&](AVPacketItem const& packet, Frame_t<MediaType>&& f,
+                            std::error_code const& ec) {
+    if (ec) {
+      ImpLog(LogLevel::Error, LogChannel::Video, "Failed to decode {:s}",
+             ec.message());
+      return false;
+    }
+    if (!f) {
+      if (packet.Serial == INT32_MIN) pushFrame(std::move(f));
+      return false;
+    }
+    if constexpr (MediaType == AVMEDIA_TYPE_VIDEO) {
+      ProcessVideoFrame(f);
+    }
+    if constexpr (MediaType == AVMEDIA_TYPE_SUBTITLE) {
+      auto* rawSubtitle = f.raw();
+      if (rawSubtitle->start_display_time == 0 &&
+          rawSubtitle->end_display_time == 0) {
+        rawSubtitle->end_display_time = packet.Packet.duration();
+      }
+    }
+    pushFrame(std::move(f));
+    return true;
+  };
+
   while (!AbortRequest) {
     AVPacketItem const* peek = stream.PacketQueue.peek();
     if (peek == nullptr) continue;
 
-    AVPacketItem packet = verifyPacket(peek);
     std::error_code ec;
-
-    auto processAndPush = [&](Frame_t<MediaType>&& f) {
-      if (ec) {
-        ImpLog(LogLevel::Error, LogChannel::Video, "Failed to decode {:s}",
-               ec.message());
-        return false;
-      }
-      if (!f) return false;
-      if constexpr (MediaType == AVMEDIA_TYPE_VIDEO) {
-        ProcessVideoFrame(f);
-      }
-      if constexpr (MediaType == AVMEDIA_TYPE_SUBTITLE) {
-        auto* rawSubtitle = f.raw();
-        if (rawSubtitle->start_display_time == 0 &&
-            rawSubtitle->end_display_time == 0) {
-          rawSubtitle->end_display_time = packet.Packet.duration();
-        }
-      }
-      pushFrame(std::move(f));
-      return true;
-    };
+    AVPacketItem packet = verifyPacket(peek);
 
     if (packet.Serial != INT32_MIN) {
       Frame_t<MediaType> frame = stream.CodecContext.decode(packet.Packet, ec);
 
-      while (processAndPush(std::move(frame))) {
+      while (processAndPush(packet, std::move(frame), ec)) {
         frame = stream.CodecContext.decode(av::Packet{nullptr}, ec);
       }
     } else {
       // Flush decoder since packets are finished
-      bool decode = true;
-      while (decode && !AbortRequest) {
-        if (ec) {
-          ImpLog(LogLevel::Error, LogChannel::Video, "Failed to decode {:s}",
-                 ec.message());
-        }
-        Frame_t<MediaType> frame = stream.CodecContext.decode({}, ec);
-        decode = frame;
-        pushFrame(std::move(frame));
+      Frame_t<MediaType> frame = stream.CodecContext.decode({}, ec);
+      while (processAndPush(packet, std::move(frame), ec) && !AbortRequest) {
+        frame = stream.CodecContext.decode({}, ec);
       }
     }
   }
