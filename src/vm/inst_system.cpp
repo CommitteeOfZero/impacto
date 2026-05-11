@@ -836,7 +836,7 @@ VmInstruction(InstMSinit) {
 
     ScrWork[SW_SYSMESALPHA] = 255;
 
-    ScrWork[SW_PLATFORM] = Profile::PlatformId;
+    ScrWork[SW_PLATFORM] = Profile::Game::PlatformId;
   }
 
   if (initType == 0 || initType == 1) {

@@ -159,7 +159,7 @@ void AudioInit() {
   assert(IsInit == false);
   ImpLog(LogLevel::Info, LogChannel::Audio, "Initialising audio system\n");
 
-  switch (Profile::ActiveAudioBackend) {
+  switch (Profile::Game::ActiveAudioBackend) {
 #ifndef IMPACTO_DISABLE_OPENAL
     case AudioBackendType::OpenAL: {
       Backend = new OpenAL::AudioBackend();
@@ -223,8 +223,8 @@ void AudioSubtitlesStart(AudioChannel* channel) {
   }
   if (mappingsItr == bgmSubtitleMapItr->second.end()) return;
 
-  SubtitlePlayers[channel->GetId() - AC_BGM0].emplace(Profile::DesignWidth,
-                                                      Profile::DesignHeight);
+  SubtitlePlayers[channel->GetId() - AC_BGM0].emplace(
+      Profile::Game::DesignWidth, Profile::Game::DesignHeight);
   int trackId = 0;
   for (auto const& subFile : mappingsItr->second) {
     if (!subFile.Path) continue;

@@ -12,8 +12,9 @@ namespace Effects {
 using namespace Impacto::Profile::ScriptVars;
 
 BlurEffect::BlurEffect()
-    : BlurSprite(SpriteSheet(Profile::DesignWidth, Profile::DesignHeight), 0.0f,
-                 0.0f, Profile::DesignWidth, Profile::DesignHeight) {
+    : BlurSprite(
+          SpriteSheet(Profile::Game::DesignWidth, Profile::Game::DesignHeight),
+          0.0f, 0.0f, Profile::Game::DesignWidth, Profile::Game::DesignHeight) {
   BlurSprite.Sheet.IsScreenCap = true;
 }
 
@@ -23,8 +24,8 @@ void BlurEffect::Init() {
   }
 
   Texture texture{};
-  texture.LoadSolidColor(static_cast<int>(Profile::DesignWidth),
-                         static_cast<int>(Profile::DesignHeight), 0);
+  texture.LoadSolidColor(static_cast<int>(Profile::Game::DesignWidth),
+                         static_cast<int>(Profile::Game::DesignHeight), 0);
   BlurSprite.Sheet.Texture = texture.Submit();
 }
 
@@ -45,10 +46,10 @@ void BlurEffect::Render(int iterations) {
                                           : RendererBlurDirection::Horizontal;
 
     Renderer->CaptureScreencap(BlurSprite);
-    Renderer->DrawBlurredSprite(
-        BlurSprite,
-        RectF{0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight},
-        glm::mat4(1.0f), direction, glm::vec4(1.0f));
+    Renderer->DrawBlurredSprite(BlurSprite,
+                                RectF{0.0f, 0.0f, Profile::Game::DesignWidth,
+                                      Profile::Game::DesignHeight},
+                                glm::mat4(1.0f), direction, glm::vec4(1.0f));
   }
 }
 

@@ -58,7 +58,7 @@ void SelectionMenu::Show() {
 
   if (IsPlain) {
     float diff = 0.0f;
-    float choiceY = (Profile::DesignHeight -
+    float choiceY = (Profile::Game::DesignHeight -
                      (ChoiceCount * (Profile::Dialogue::DefaultFontSize +
                                      PlainSelectionYSpacing))) /
                     2.0f;
@@ -66,7 +66,7 @@ void SelectionMenu::Show() {
     for (int i = 0; i < ChoiceCount; i++) {
       if (ChoiceWidths[i] > ChoiceWidthMax) ChoiceWidthMax = ChoiceWidths[i];
 
-      diff = (Profile::DesignWidth - ChoiceWidths[i]) / 2.0f;
+      diff = (Profile::Game::DesignWidth - ChoiceWidths[i]) / 2.0f;
       for (ProcessedTextGlyph& glyph : Choices[i]) {
         glyph.DestRect.X += diff;
         glyph.DestRect.Y = choiceY;
@@ -102,7 +102,7 @@ void SelectionMenu::Show() {
                   2.0f;
 
     for (int i = 0; i < ChoiceCount; i++) {
-      diff = (Profile::DesignWidth - ChoiceWidths[i]) / 2.0f;
+      diff = (Profile::Game::DesignWidth - ChoiceWidths[i]) / 2.0f;
       for (ProcessedTextGlyph& glyph : Choices[i]) {
         glyph.DestRect.X += diff;
         glyph.DestRect.Y = choiceY;

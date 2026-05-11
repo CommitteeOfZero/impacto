@@ -80,7 +80,7 @@ FFmpegPlayer::~FFmpegPlayer() { IsInit = false; }
 void FFmpegPlayer::Init() {
   assert(IsInit == false);
 
-  switch (Profile::ActiveAudioBackend) {
+  switch (Profile::Game::ActiveAudioBackend) {
 #ifndef IMPACTO_DISABLE_OPENAL
     case AudioBackendType::OpenAL: {
       AudioPlayer.reset(new Audio::OpenAL::FFmpegAudioPlayer(this));
@@ -350,7 +350,7 @@ void FFmpegPlayer::Play(Io::Stream* stream, bool looping, bool alpha) {
         std::thread{&FFmpegPlayer::Decode<AVMEDIA_TYPE_AUDIO>, this,
                     std::ref(*AudioStream)};
   }
-  if (+Profile::GameFeatures & +GameFeature::Subtitles) {
+  if (+Profile::Game::GameFeatures & +GameFeature::Subtitles) {
     InitSubtitles(embeddedSubStreams);
   }
 
@@ -366,7 +366,7 @@ void FFmpegPlayer::InitSubtitles(
   using namespace Subtitle;
   auto initSubPlayer = [this] {
     if (SubPlayer) return;
-    SubPlayer.emplace(Profile::DesignWidth, Profile::DesignHeight);
+    SubPlayer.emplace(Profile::Game::DesignWidth, Profile::Game::DesignHeight);
   };
   const auto subtitleMappings =
       [this]() -> std::vector<SubtitleTrackFile> const* {
@@ -684,7 +684,7 @@ void FFmpegPlayer::Update(float dt) {
     using namespace std::literals::chrono_literals;
     if (AudioStream) AudioPlayer->Process();
 
-    if (+Profile::GameFeatures & +GameFeature::Subtitles && SubPlayer) {
+    if (+Profile::Game::GameFeatures & +GameFeature::Subtitles && SubPlayer) {
       SubPlayer->UpdateElapsedTime(MasterClock->Get());
       UpdateSubtitles();
     }
@@ -810,7 +810,8 @@ void FFmpegPlayer::UpdateSubtitles() {
 void FFmpegPlayer::Render(float videoAlpha) {
   if (!IsPlaying || !PlaybackStarted) return;
 
-  const RectF dest = {0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight};
+  const RectF dest = {0.0f, 0.0f, Profile::Game::DesignWidth,
+                      Profile::Game::DesignHeight};
   const glm::vec4 tint = {1.0f, 1.0f, 1.0f, videoAlpha};
   std::visit(
       [this, &dest, &tint](auto& videoText) {

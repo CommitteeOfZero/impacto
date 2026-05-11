@@ -69,7 +69,8 @@ void CgViewer::UpdateInput(float dt) {
   if ((PADinputButtonIsDown & (PAD1LEFT | PAD1RIGHT | PAD1UP | PAD1DOWN)) ||
       isLMBDown) {
     const glm::vec2 halfScreen =
-        glm::vec2(Profile::DesignWidth, Profile::DesignHeight) * 0.5f;
+        glm::vec2(Profile::Game::DesignWidth, Profile::Game::DesignHeight) *
+        0.5f;
 
     auto currentSize = glm::vec2(0.0f);
     if (HorizontalRendering[CurrentVariation]) {
@@ -137,10 +138,10 @@ void CgViewer::UpdateInput(float dt) {
       Position[CurrentVariation] =
           HorizontalRendering[CurrentVariation]
               ? glm::vec2(0.0f,
-                          (Profile::DesignHeight -
+                          (Profile::Game::DesignHeight -
                            CgSprites[CurrentVariation][0].ScaledHeight()) /
                               2)
-              : glm::vec2((Profile::DesignWidth -
+              : glm::vec2((Profile::Game::DesignWidth -
                            CgSprites[CurrentVariation][0].ScaledWidth()) /
                               2,
                           0.0f);
@@ -162,7 +163,8 @@ void CgViewer::Update(float dt) {
   } else if (FadeAnimation.IsOut() && State == Hiding) {
     State = Hidden;
   }
-  RectF screen = RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight);
+  RectF screen = RectF(0.0f, 0.0f, Profile::Game::DesignWidth,
+                       Profile::Game::DesignHeight);
   auto pointBefore = screen.Center() - Position[CurrentVariation];
   auto pointAfter = pointBefore * (Scale / PrevScale);
   auto diff = pointAfter - pointBefore;
@@ -181,9 +183,9 @@ void CgViewer::Render() {
     col.a = glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
   }
 
-  Renderer->DrawQuad(
-      RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-      glm::vec4(0.0f, 0.0f, 0.0f, col.a));
+  Renderer->DrawQuad(RectF(0.0f, 0.0f, Profile::Game::DesignWidth,
+                           Profile::Game::DesignHeight),
+                     glm::vec4(0.0f, 0.0f, 0.0f, col.a));
 
   if (State != Shown || CurrentVariation == 0) {
     RenderVariation(CurrentVariation, col);
@@ -221,9 +223,9 @@ void CgViewer::RenderVariation(size_t variation, glm::vec4 col) const {
     }
     Renderer->DrawSprite(CgSprites[variation][i], pos, glm::vec4(1.0f));
   }
-  Sprite linkedSprite =
-      Sprite(SpriteSheet(Profile::DesignWidth, Profile::DesignHeight), 0.0f,
-             0.0f, Profile::DesignWidth, Profile::DesignHeight);
+  Sprite linkedSprite = Sprite(
+      SpriteSheet(Profile::Game::DesignWidth, Profile::Game::DesignHeight),
+      0.0f, 0.0f, Profile::Game::DesignWidth, Profile::Game::DesignHeight);
   linkedSprite.Sheet.Texture = Renderer->GetFramebufferTexture(1);
   linkedSprite.Sheet.IsScreenCap = true;
   Renderer->SetFramebuffer(0);
@@ -286,16 +288,17 @@ void CgViewer::LoadCgSprites(
           CgSprites[variationIdx][i].Bounds.Y++;
       }
     }
-    MinScale[variationIdx] = sideways ? Profile::DesignWidth / totalWidth
-                                      : Profile::DesignHeight / totalHeight;
+    MinScale[variationIdx] = sideways
+                                 ? Profile::Game::DesignWidth / totalWidth
+                                 : Profile::Game::DesignHeight / totalHeight;
     HorizontalRendering[variationIdx] = sideways;
     CgSprites[variationIdx][0].BaseScale.x = MinScale[variationIdx];
     CgSprites[variationIdx][0].BaseScale.y = MinScale[variationIdx];
     Position[variationIdx] =
-        sideways ? glm::vec2(0.0f, (Profile::DesignHeight -
+        sideways ? glm::vec2(0.0f, (Profile::Game::DesignHeight -
                                     CgSprites[variationIdx][0].ScaledHeight()) /
                                        2)
-                 : glm::vec2((Profile::DesignWidth -
+                 : glm::vec2((Profile::Game::DesignWidth -
                               CgSprites[variationIdx][0].ScaledWidth()) /
                                  2,
                              0.0f);

@@ -8,6 +8,7 @@
 
 namespace Impacto {
 namespace Profile {
+namespace Game {
 
 inline RendererType ActiveRenderer = RendererType::OpenGL;
 inline VideoPlayerType VideoPlayer = VideoPlayerType::FFmpeg;
@@ -46,7 +47,7 @@ inline float DesignHeight;
 
 inline int PlatformId = 0;
 
-void LoadGameFromLua();
-
+void Configure();
+}  // namespace Game
 }  // namespace Profile
 }  // namespace Impacto

@@ -74,7 +74,7 @@ void Configure() {
   ExtraDisabledTint = EnsureGetMember<uint32_t>("ExtraDisabledTint");
 
   UI::TitleMenuPtr = new UI::CCLCC::TitleMenu();
-  auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
+  auto drawType = EnsureGetMember<Impacto::Game::DrawComponentType>("DrawType");
   UI::Menus[drawType].push_back(UI::TitleMenuPtr);
 }
 

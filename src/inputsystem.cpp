@@ -31,10 +31,10 @@ void BeginFrame() {
 static glm::vec2 SDLMouseCoordsToDesign(int x, int y) {
   RectF viewport = Window->GetViewport();
   glm::vec2 result;
-  result.x = ((float)x - viewport.X) *
-             (Profile::DesignWidth / (viewport.Width * Window->DpiScaleX));
-  result.y = ((float)y - viewport.Y) *
-             (Profile::DesignHeight / (viewport.Height * Window->DpiScaleY));
+  result.x = ((float)x - viewport.X) * (Profile::Game::DesignWidth /
+                                        (viewport.Width * Window->DpiScaleX));
+  result.y = ((float)y - viewport.Y) * (Profile::Game::DesignHeight /
+                                        (viewport.Height * Window->DpiScaleY));
   return result;
 }
 

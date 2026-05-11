@@ -49,8 +49,8 @@ void CommonMenu::Init() {
 
 void CommonMenu::InitSmokePos() {
   for (Animation& animation : SmokeAnimations) {
-    animation.Progress =
-        CALCrnd(static_cast<int>(Profile::DesignWidth)) / Profile::DesignWidth;
+    animation.Progress = CALCrnd(static_cast<int>(Profile::Game::DesignWidth)) /
+                         Profile::Game::DesignWidth;
   }
 }
 
@@ -87,19 +87,19 @@ void CommonMenu::DrawOverlay(const float alpha) {
           .MaskUV = {maskUvBounds.Left(), 1.0f - maskUvBounds.Top()},
       },
       VertexBufferSprites{
-          .Position = {Profile::DesignWidth, 0.0f},
+          .Position = {Profile::Game::DesignWidth, 0.0f},
           .UV = {1.0f, 0.0f},
           .Tint = tint,
           .MaskUV = {maskUvBounds.Right(), 1.0f - maskUvBounds.Top()},
       },
       VertexBufferSprites{
-          .Position = {0.0f, Profile::DesignHeight},
+          .Position = {0.0f, Profile::Game::DesignHeight},
           .UV = {0.0f, 1.0f},
           .Tint = tint,
           .MaskUV = {maskUvBounds.Left(), 1.0f - maskUvBounds.Bottom()},
       },
       VertexBufferSprites{
-          .Position = {Profile::DesignWidth, Profile::DesignHeight},
+          .Position = {Profile::Game::DesignWidth, Profile::Game::DesignHeight},
           .UV = {1.0f, 1.0f},
           .Tint = tint,
           .MaskUV = {maskUvBounds.Right(), 1.0f - maskUvBounds.Bottom()},
@@ -277,9 +277,10 @@ void CommonMenu::DrawBgSprite(MenuState state, const Animation& fadeAnimation,
 
     CornersQuad screenCapDisp = {
         glm::vec2{bgOffset + 0, 0},
-        glm::vec2{bgOffset + 0, Profile::DesignHeight},
-        glm::vec2{bgOffset + Profile::DesignWidth, 0},
-        glm::vec2{bgOffset + Profile::DesignWidth, Profile::DesignHeight},
+        glm::vec2{bgOffset + 0, Profile::Game::DesignHeight},
+        glm::vec2{bgOffset + Profile::Game::DesignWidth, 0},
+        glm::vec2{bgOffset + Profile::Game::DesignWidth,
+                  Profile::Game::DesignHeight},
     };
     screenCapDisp.Transform([&](glm::vec2 corner) {
       return TransformImageVertex(corner, transformation, BGTranslationOffset);

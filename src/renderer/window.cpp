@@ -11,18 +11,18 @@
 namespace Impacto {
 
 void SetWindowIcon(SDL_Window* window) {
-  if (!Profile::WindowIconPath.has_value()) {
+  if (!Profile::Game::WindowIconPath.has_value()) {
     return;
   }
 
   Io::AssetPath asset;
-  asset.FileName = Profile::WindowIconPath->c_str();
+  asset.FileName = Profile::Game::WindowIconPath->c_str();
   Io::Stream* streamPtr;
   IoError err = asset.Open(&streamPtr);
   if (err != IoError_OK) {
     ImpLog(LogLevel::Warning, LogChannel::General,
            "Could not open window icon file {:s}\n",
-           Profile::WindowIconPath->c_str());
+           Profile::Game::WindowIconPath->c_str());
     return;
   }
   std::unique_ptr<Io::Stream> stream(streamPtr);
@@ -33,7 +33,7 @@ void SetWindowIcon(SDL_Window* window) {
   if (bytesRead != (int64_t)fileSize) {
     ImpLog(LogLevel::Warning, LogChannel::General,
            "Could not read window icon file {:s}\n",
-           Profile::WindowIconPath->c_str());
+           Profile::Game::WindowIconPath->c_str());
     return;
   }
 
@@ -45,7 +45,7 @@ void SetWindowIcon(SDL_Window* window) {
   if (!image) {
     ImpLog(LogLevel::Warning, LogChannel::General,
            "Could not load window icon from {:s}\n",
-           Profile::WindowIconPath->c_str());
+           Profile::Game::WindowIconPath->c_str());
     return;
   }
 
@@ -55,7 +55,7 @@ void SetWindowIcon(SDL_Window* window) {
   if (!surface) {
     ImpLog(LogLevel::Error, LogChannel::General,
            "Could not create SDL surface for window icon from {:s}: {:s}\n",
-           Profile::WindowIconPath->c_str(), SDL_GetError());
+           Profile::Game::WindowIconPath->c_str(), SDL_GetError());
     stbi_image_free(image);
     return;
   }
@@ -125,15 +125,15 @@ static SDL_Cursor* LoadCursorFromFile(const std::string& path) {
 }
 
 void InitCursors() {
-  if (Profile::CursorArrowPath.has_value()) {
-    CursorArrow = LoadCursorFromFile(*Profile::CursorArrowPath);
+  if (Profile::Game::CursorArrowPath.has_value()) {
+    CursorArrow = LoadCursorFromFile(*Profile::Game::CursorArrowPath);
   }
   if (!CursorArrow) {
     CursorArrow = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
   }
 
-  if (Profile::CursorPointerPath.has_value()) {
-    CursorPointer = LoadCursorFromFile(*Profile::CursorPointerPath);
+  if (Profile::Game::CursorPointerPath.has_value()) {
+    CursorPointer = LoadCursorFromFile(*Profile::Game::CursorPointerPath);
   }
   if (!CursorPointer) {
     CursorPointer = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);

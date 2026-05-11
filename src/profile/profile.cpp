@@ -142,7 +142,7 @@ static void DefineEnums() {
   DefineEnum<GameFeature>(LuaState);
   DefineEnum<CharacterTypeFlags>(LuaState);
   DefineEnum<Vm::InstructionSet>(LuaState);
-  DefineEnum<Game::DrawComponentType>(LuaState);
+  DefineEnum<Impacto::Game::DrawComponentType>(LuaState);
   DefineEnum<SaveSystem::SaveDataType>(LuaState);
   DefineEnum<AchievementSystem::AchievementDataType>(LuaState);
   DefineEnum<TipsSystem::TipsSystemType>(LuaState);

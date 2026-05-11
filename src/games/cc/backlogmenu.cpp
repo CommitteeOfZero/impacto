@@ -83,8 +83,9 @@ void BacklogMenu::Render() {
 
   if (OpenedAsDirect) CommonMenu::DrawBgSprite<false>(State, FadeAnimation);
 
-  for (float yPos = backgroundY - Profile::DesignHeight;
-       yPos <= Profile::DesignHeight; yPos += BacklogBackground.Bounds.Height) {
+  for (float yPos = backgroundY - Profile::Game::DesignHeight;
+       yPos <= Profile::Game::DesignHeight;
+       yPos += BacklogBackground.Bounds.Height) {
     Renderer->DrawSprite(BacklogBackground, {0.0f, yPos}, transition);
   }
 

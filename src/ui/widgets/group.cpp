@@ -12,8 +12,8 @@ Group::Group(Menu* ctx) {
   Enabled = true;
   MenuContext = ctx;
   Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
-  RenderingBounds =
-      RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight);
+  RenderingBounds = RectF(0.0f, 0.0f, Profile::Game::DesignWidth,
+                          Profile::Game::DesignHeight);
   HoverBounds = RenderingBounds;
 }
 

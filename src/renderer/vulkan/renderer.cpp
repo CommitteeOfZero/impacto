@@ -95,7 +95,7 @@ void Renderer::CreateInstance() {
 
   VkApplicationInfo appInfo = {};
   appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-  appInfo.pApplicationName = Profile::WindowName;
+  appInfo.pApplicationName = Profile::Game::WindowName;
   appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
   appInfo.pEngineName = "impacto";
   appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
@@ -762,7 +762,7 @@ void Renderer::Init() {
 
   CurrentPipeline = PipelineSprite;
 
-  if (+Profile::GameFeatures & +GameFeature::Scene3D) {
+  if (+Profile::Game::GameFeatures & +GameFeature::Scene3D) {
     Scene = new Scene3D(VkWindow, Device, RenderPass, CommandBuffers);
     Scene->Init();
   }
@@ -812,7 +812,7 @@ void Renderer::Shutdown() {
   if (!IsInit) return;
   IsInit = false;
 
-  if (+Profile::GameFeatures & +GameFeature::Scene3D) {
+  if (+Profile::Game::GameFeatures & +GameFeature::Scene3D) {
     Scene->Shutdown();
   }
 
@@ -1795,8 +1795,8 @@ void Renderer::CaptureScreencap(Sprite& sprite) {
   sprite.Sheet.DesignHeight = static_cast<float>(SwapChainExtent.height);
   sprite.Bounds.Width = sprite.Sheet.DesignWidth;
   sprite.Bounds.Height = sprite.Sheet.DesignHeight;
-  sprite.BaseScale = {Profile::DesignWidth / SwapChainExtent.width,
-                      Profile::DesignHeight / SwapChainExtent.height};
+  sprite.BaseScale = {Profile::Game::DesignWidth / SwapChainExtent.width,
+                      Profile::Game::DesignHeight / SwapChainExtent.height};
 
   // Here we go...
   Flush();
@@ -1959,8 +1959,9 @@ void Renderer::SetScissorRect(RectF const& rect) {
   if (rect.X != PreviousScissorRect.X && rect.Y != PreviousScissorRect.Y &&
       rect.Width != PreviousScissorRect.Width &&
       rect.Height != PreviousScissorRect.Height) {
-    float scale = fmin((float)Window->WindowWidth / Profile::DesignWidth,
-                       (float)Window->WindowHeight / Profile::DesignHeight);
+    float scale =
+        fmin((float)Window->WindowWidth / Profile::Game::DesignWidth,
+             (float)Window->WindowHeight / Profile::Game::DesignHeight);
     float rectX = rect.X * scale;
     float rectY = rect.Y * scale;
     float rectWidth = rect.Width * scale;
@@ -1993,8 +1994,8 @@ void Renderer::DisableScissor() {
 
 glm::vec2 Renderer::DesignToNDC(const glm::vec2 designCoord) const {
   glm::vec2 result;
-  result.x = (designCoord.x / (Profile::DesignWidth * 0.5f)) - 1.0f;
-  result.y = (designCoord.y / (Profile::DesignHeight * 0.5f)) - 1.0f;
+  result.x = (designCoord.x / (Profile::Game::DesignWidth * 0.5f)) - 1.0f;
+  result.y = (designCoord.y / (Profile::Game::DesignHeight * 0.5f)) - 1.0f;
   return result;
 }
 

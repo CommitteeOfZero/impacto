@@ -255,21 +255,21 @@ void TitleMenu::Render() {
       case PressToStart: {
         DrawMainBackground(true);
         DrawStartButton();
-        Renderer->DrawSprite(
-            OverlaySprite,
-            RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight));
+        Renderer->DrawSprite(OverlaySprite,
+                             RectF(0.0f, 0.0f, Profile::Game::DesignWidth,
+                                   Profile::Game::DesignHeight));
         DrawSmoke(SmokeOpacityNormal);
-        Renderer->DrawQuad(
-            RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-            glm::vec4(1.0f, 1.0f, 1.0f,
-                      1.0f - ScrWork[SW_TITLEDISPCT] / 60.0f));
+        Renderer->DrawQuad(RectF(0.0f, 0.0f, Profile::Game::DesignWidth,
+                                 Profile::Game::DesignHeight),
+                           glm::vec4(1.0f, 1.0f, 1.0f,
+                                     1.0f - ScrWork[SW_TITLEDISPCT] / 60.0f));
       } break;
       case StartTransition: {
         DrawMainBackground(true);
         DrawStartButton();
-        Renderer->DrawSprite(
-            OverlaySprite,
-            RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight));
+        Renderer->DrawSprite(OverlaySprite,
+                             RectF(0.0f, 0.0f, Profile::Game::DesignWidth,
+                                   Profile::Game::DesignHeight));
         DrawSmoke(SmokeOpacityNormal);
       } break;
       case Main: {
@@ -294,9 +294,9 @@ void TitleMenu::Render() {
             glm::vec2(CopyrightX +
                           (CopyrightXMoveOffset * MoveLeftAnimation.Progress),
                       CopyrightY));
-        Renderer->DrawSprite(
-            OverlaySprite,
-            RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight));
+        Renderer->DrawSprite(OverlaySprite,
+                             RectF(0.0f, 0.0f, Profile::Game::DesignWidth,
+                                   Profile::Game::DesignHeight));
         Renderer->DrawSprite(MenuSprite, glm::vec2(MenuX, MenuY));
         if (!GetFlag(SF_CLR_TRUE_CC)) {
           DrawSmoke(SmokeOpacityNormal);
@@ -309,9 +309,9 @@ void TitleMenu::Render() {
       } break;
       case InitialFade: {
         DrawMainBackground(ScrWork[SW_TITLEDISPCT] / 32.0f);
-        Renderer->DrawSprite(
-            OverlaySprite,
-            RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight));
+        Renderer->DrawSprite(OverlaySprite,
+                             RectF(0.0f, 0.0f, Profile::Game::DesignWidth,
+                                   Profile::Game::DesignHeight));
         DrawSmoke(ScrWork[SW_TITLEDISPCT] / 128.0f);
       } break;
     }
