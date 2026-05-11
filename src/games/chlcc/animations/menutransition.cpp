@@ -7,7 +7,7 @@ namespace Impacto {
 namespace UI {
 namespace CHLCC {
 
-using namespace Impacto::Profile;
+using namespace Impacto::Profile::Game;
 using namespace Impacto::Profile::CHLCC::CommonMenu;
 
 MenuTransitionAnimation::MenuTransitionAnimation() {

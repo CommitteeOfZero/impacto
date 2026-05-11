@@ -43,9 +43,9 @@ void CommonMenu::DrawSubmenu(uint32_t backgroundColor,
   // menu will draw them
   if (fullDraw) {
     if (MenuTransition.IsIn()) {
-      Renderer->DrawQuad(
-          RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-          RgbIntToFloat(backgroundColor));
+      Renderer->DrawQuad(RectF(0.0f, 0.0f, Profile::Game::DesignWidth,
+                               Profile::Game::DesignHeight),
+                         RgbIntToFloat(backgroundColor));
     } else {
       DrawCircles(currentCircleSprite);
     }
@@ -69,9 +69,9 @@ void CommonMenu::DrawSysMenu(glm::vec4 backgroundColor,
                              const Sprite& menuTitleSprite,
                              float menuTitleAngle) {
   if (MenuTransition.IsIn()) {
-    Renderer->DrawQuad(
-        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-        backgroundColor);
+    Renderer->DrawQuad(RectF(0.0f, 0.0f, Profile::Game::DesignWidth,
+                             Profile::Game::DesignHeight),
+                       backgroundColor);
   } else {
     DrawCircles(currentCircleSprite);
   }
@@ -159,7 +159,7 @@ void CommonMenu::DrawErin() const {
     if (MenuTransition.Progress > 0.22f) {
       // Approximation from the original function, which was a bigger mess
       y = glm::mix(
-          -19.0f, Profile::DesignHeight + ErinPosition.y,
+          -19.0f, Profile::Game::DesignHeight + ErinPosition.y,
           0.998938f -
               0.998267f * sin(3.97835f - 3.27549f * MenuTransition.Progress));
     }
@@ -197,13 +197,13 @@ void CommonMenu::UpdateTitles(glm::vec2 rightTitlepos, glm::vec2 leftTitlePos,
   if (!TitleFade.IsIn()) {
     if (vertical) {
       const float delta =
-          glm::mix(leftTitlePos.y, Profile::DesignHeight + leftTitlePos.y,
+          glm::mix(leftTitlePos.y, Profile::Game::DesignHeight + leftTitlePos.y,
                    1.01011f * std::sin(1.62223f * TitleFade.Progress + 3.152f) +
                        1.01012f);
       LeftTitlePos.y += delta;
     } else {
       const float delta = glm::mix(
-          Profile::DesignWidth, 0.0f,
+          Profile::Game::DesignWidth, 0.0f,
           std::sin(TitleFade.Progress * std::numbers::pi_v<float> * 0.5f));
       LeftTitlePos.x += delta;
     }
@@ -224,7 +224,8 @@ void CommonMenu::DrawBackgroundFilter() {
   Renderer->CaptureScreencap(ShaderScreencapture.BgSprite);
   Renderer->DrawCHLCCMenuBackground(
       ShaderScreencapture.BgSprite, BackgroundFilter,
-      RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+      RectF(0.0f, 0.0f, Profile::Game::DesignWidth,
+            Profile::Game::DesignHeight),
       std::clamp(MenuTransition.Progress * 2.0f, 0.0f, 1.0f));
 }
 

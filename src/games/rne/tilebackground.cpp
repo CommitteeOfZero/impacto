@@ -8,8 +8,8 @@ namespace Impacto {
 namespace RNE {
 
 void TileBackground::Init() {
-  ColumnWidth = Profile::DesignWidth / (float)Columns;
-  RowHeight = Profile::DesignHeight / (float)Rows;
+  ColumnWidth = Profile::Game::DesignWidth / (float)Columns;
+  RowHeight = Profile::Game::DesignHeight / (float)Rows;
 }
 
 void TileBackground::Render() {
@@ -57,7 +57,7 @@ void TileBackground::Render() {
 
       // all rows go from right-angled to screen to parallel, hence the
       // different perspective per row
-      glm::vec2 vanishingPoint(VanishingPointX * Profile::DesignWidth,
+      glm::vec2 vanishingPoint(VanishingPointX * Profile::Game::DesignWidth,
                                ((float)y + 0.5f) * RowHeight);
 
       tileSprite.Bounds.X = (float)x * tileSprite.Bounds.Width;

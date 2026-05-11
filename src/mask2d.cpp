@@ -24,8 +24,8 @@ bool Mask2D::LoadSync(uint32_t maskId) {
   delete stream;
   MaskSpriteSheet.Texture = MaskTexture.Submit();
   if ((MaskTexture.Width == 1) && (MaskTexture.Height == 1)) {
-    MaskSpriteSheet.DesignWidth = Profile::DesignWidth;
-    MaskSpriteSheet.DesignHeight = Profile::DesignHeight;
+    MaskSpriteSheet.DesignWidth = Profile::Game::DesignWidth;
+    MaskSpriteSheet.DesignHeight = Profile::Game::DesignHeight;
   } else {
     MaskSpriteSheet.DesignWidth = (float)MaskTexture.Width;
     MaskSpriteSheet.DesignHeight = (float)MaskTexture.Height;

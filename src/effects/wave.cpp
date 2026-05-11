@@ -65,11 +65,11 @@ void Wave::SetWave(int index, WaveParams params) {
 void BGWave::CalcPos(int startPhase, std::optional<float> alpha) {
   std::vector<float> left = std::vector(BGWaveGridSize.y, 0.0f);
   std::vector<float> right =
-      std::vector(BGWaveGridSize.y, (float)Profile::DesignWidth);
+      std::vector(BGWaveGridSize.y, (float)Profile::Game::DesignWidth);
 
   std::vector<float> top = std::vector(BGWaveGridSize.x, 0.0f);
   std::vector<float> bottom =
-      std::vector(BGWaveGridSize.x, (float)Profile::DesignHeight);
+      std::vector(BGWaveGridSize.x, (float)Profile::Game::DesignHeight);
 
   const uint16_t maxGridDimension =
       std::max(BGWaveGridSize.x, BGWaveGridSize.y);

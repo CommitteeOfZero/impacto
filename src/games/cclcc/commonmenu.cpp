@@ -192,9 +192,10 @@ void CommonMenu::DrawBgSprite(MenuState state, const Animation& fadeAnimation,
 
     CornersQuad screenCapDisp = {
         glm::vec2{bgOffset + 0, 0},
-        glm::vec2{bgOffset + 0, Profile::DesignHeight},
-        glm::vec2{bgOffset + Profile::DesignWidth, 0},
-        glm::vec2{bgOffset + Profile::DesignWidth, Profile::DesignHeight},
+        glm::vec2{bgOffset + 0, Profile::Game::DesignHeight},
+        glm::vec2{bgOffset + Profile::Game::DesignWidth, 0},
+        glm::vec2{bgOffset + Profile::Game::DesignWidth,
+                  Profile::Game::DesignHeight},
     };
     screenCapDisp.Transform([&](glm::vec2 corner) {
       return TransformImageVertex(corner, transformation, BGTranslationOffset);

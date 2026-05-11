@@ -494,15 +494,15 @@ void DelusionTrigger::Render() {
   ScaledMask.Bounds.Y = BackgroundSpriteMask.Bounds.Y - deltaHeight / 2.0f;
 
   TriggerOnTint[3] = TriggerOnTintAlpha * BackgroundAlpha / 65536.0f;
-  Renderer->DrawQuad(
-      RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-      TriggerOnTint);
+  Renderer->DrawQuad(RectF(0.0f, 0.0f, Profile::Game::DesignWidth,
+                           Profile::Game::DesignHeight),
+                     TriggerOnTint);
 
   Sprite mask = ScreenMask;
   mask.Bounds.X = UnderlayerXOffset / 1000.0f;
 
-  const RectF spriteDest = {0.0f, 0.0f, Profile::DesignWidth,
-                            Profile::DesignHeight};
+  const RectF spriteDest = {0.0f, 0.0f, Profile::Game::DesignWidth,
+                            Profile::Game::DesignHeight};
   const CornersQuad maskDest =
       ScaledMask.Bounds.RotateAroundCenter(ScrWorkAngleToRad(SpinAngle));
 
@@ -620,7 +620,7 @@ void DelusionTextSystem::InitLines() {
   for (auto& line : GlyphLines) line.fill(nullptr);
   for (size_t lineIdx = 0; lineIdx < GlyphLines.size(); ++lineIdx) {
     const int pastScreenStartIndex = static_cast<int>(
-        std::ceil(Profile::DesignWidth / DelusionScaledGlyphWidth));
+        std::ceil(Profile::Game::DesignWidth / DelusionScaledGlyphWidth));
 
     size_t charOffset = pastScreenStartIndex;
     if (lineIdx != 1) charOffset = (std::rand() % 8) + pastScreenStartIndex * 2;

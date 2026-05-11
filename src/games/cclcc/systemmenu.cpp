@@ -235,7 +235,7 @@ void SystemMenu::Render() {
       CommonMenu::DrawBgSprite<true>(State, FadeAnimation, ScreenCap);
       Renderer->DrawSprite(
           SystemMenuMask,
-          RectF{0, 0, Profile::DesignWidth, Profile::DesignHeight},
+          RectF{0, 0, Profile::Game::DesignWidth, Profile::Game::DesignHeight},
           glm::vec4{tint, alpha});
     }
 

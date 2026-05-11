@@ -757,7 +757,7 @@ static ankerl::unordered_dense::map<uint32_t, std::vector<std::string>>
     SpritesBySpriteSheet;
 
 static void ShowSprite(const Sprite* sprite) {
-  if (Profile::ActiveRenderer == RendererType::OpenGL) {
+  if (Profile::Game::ActiveRenderer == RendererType::OpenGL) {
     float texWidth = sprite->Sheet.DesignWidth;
     float texHeight = sprite->Sheet.DesignHeight;
     ImGui::Image(
@@ -786,7 +786,7 @@ void ShowObjects() {
         float texWidth = spriteSheet.second.DesignWidth * 0.4f;
         float texHeight = spriteSheet.second.DesignHeight * 0.4f;
         // Only OpenGL for now
-        if (Profile::ActiveRenderer == RendererType::OpenGL) {
+        if (Profile::Game::ActiveRenderer == RendererType::OpenGL) {
           ImVec2 pos = ImGui::GetCursorScreenPos();
           ImGui::Image((ImTextureID)(intptr_t)spriteSheet.second.Texture,
                        ImVec2(texWidth, texHeight));
@@ -835,7 +835,7 @@ void ShowObjects() {
           float texWidth = Backgrounds[i].BgSprite.Sheet.DesignWidth * 0.4f;
           float texHeight = Backgrounds[i].BgSprite.Sheet.DesignHeight * 0.4f;
           // Only OpenGL for now
-          if (Profile::ActiveRenderer == RendererType::OpenGL) {
+          if (Profile::Game::ActiveRenderer == RendererType::OpenGL) {
             ImVec2 pos = ImGui::GetCursorScreenPos();
             ImGui::Image(
                 (ImTextureID)(intptr_t)Backgrounds[i].BgSprite.Sheet.Texture,
@@ -889,7 +889,7 @@ void ShowObjects() {
           float texHeight =
               Characters2D[i].CharaSprite.Sheet.DesignHeight * 0.4f;
           // Only OpenGL for now
-          if (Profile::ActiveRenderer == RendererType::OpenGL) {
+          if (Profile::Game::ActiveRenderer == RendererType::OpenGL) {
             ImVec2 pos = ImGui::GetCursorScreenPos();
             ImGui::Image((ImTextureID)(intptr_t)Characters2D[i]
                              .CharaSprite.Sheet.Texture,

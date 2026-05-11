@@ -269,7 +269,8 @@ void LibraryMenu::Render() {
     MainItems.Render();
     Renderer->DrawSprite(
         LibraryMaskSprite,
-        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+        RectF(0.0f, 0.0f, Profile::Game::DesignWidth,
+              Profile::Game::DesignHeight),
         glm::vec4(1.0f, 1.0f, 1.0f, FadeAnimation.Progress * LibraryMaskAlpha));
 
     const auto* const submenuGuideSprite = [&]() -> Sprite* {

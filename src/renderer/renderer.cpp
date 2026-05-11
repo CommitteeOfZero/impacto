@@ -18,7 +18,7 @@
 namespace Impacto {
 
 void InitRenderer() {
-  switch (Profile::ActiveRenderer) {
+  switch (Profile::Game::ActiveRenderer) {
 #ifndef IMPACTO_DISABLE_OPENGL
     case RendererType::OpenGL:
       Renderer = new OpenGL::Renderer();
@@ -160,8 +160,8 @@ void BaseRenderer::DrawProcessedText(std::span<const ProcessedTextGlyph> text,
 
 static std::vector<size_t> GetVisibleGlyphIds(
     std::span<const ProcessedTextGlyph> text) {
-  const static RectF viewport{0.0f, 0.0f, Profile::DesignWidth,
-                              Profile::DesignHeight};
+  const static RectF viewport{0.0f, 0.0f, Profile::Game::DesignWidth,
+                              Profile::Game::DesignHeight};
 
   std::vector<size_t> visibleGlyphIds;
   for (size_t i = 0; i < text.size(); i++) {
@@ -372,9 +372,10 @@ void BaseRenderer::DrawProcessedText_LBFont(
           break;
       }
 
-      const CornersQuad maskUV = CornersQuad(dest).Scale(
-          {1.0f / Profile::DesignWidth, 1.0f / Profile::DesignHeight},
-          {0.0f, 0.0f});
+      const CornersQuad maskUV =
+          CornersQuad(dest).Scale({1.0f / Profile::Game::DesignWidth,
+                                   1.0f / Profile::Game::DesignHeight},
+                                  {0.0f, 0.0f});
       InsertQuad(std::span<VertexBufferSprites, 4>(vertices.begin() + i * 4, 4),
                  dest, destUV, color, maskUV);
     }
@@ -401,7 +402,7 @@ void BaseRenderer::DrawProcessedText_LBFont(
                              : glyph.Opacity);
 
     const CornersQuad maskUV = CornersQuad(dest).Scale(
-        {1.0f / Profile::DesignWidth, 1.0f / Profile::DesignHeight},
+        {1.0f / Profile::Game::DesignWidth, 1.0f / Profile::Game::DesignHeight},
         {0.0f, 0.0f});
     InsertQuad(std::span<VertexBufferSprites, 4>(vertices.begin() + i * 4, 4),
                dest, destUV, color, maskUV);

@@ -16,20 +16,22 @@ namespace CHLCC {
 
 EyecatchEffect::EyecatchEffect() {
   Texture textureStarsMask{};
-  textureStarsMask.LoadSolidColor(static_cast<int>(Profile::DesignWidth),
-                                  static_cast<int>(Profile::DesignHeight), 0);
-  SpriteSheet sheetStarsMask(Profile::DesignWidth, Profile::DesignHeight);
+  textureStarsMask.LoadSolidColor(static_cast<int>(Profile::Game::DesignWidth),
+                                  static_cast<int>(Profile::Game::DesignHeight),
+                                  0);
+  SpriteSheet sheetStarsMask(Profile::Game::DesignWidth,
+                             Profile::Game::DesignHeight);
   sheetStarsMask.Texture = textureStarsMask.Submit();
   sheetStarsMask.IsScreenCap = true;
-  StarsMask =
-      Sprite(sheetStarsMask, 0, 0, Profile::DesignWidth, Profile::DesignHeight);
+  StarsMask = Sprite(sheetStarsMask, 0, 0, Profile::Game::DesignWidth,
+                     Profile::Game::DesignHeight);
 }
 
 void EyecatchEffect::RenderMain() {
   if (!ScrWork[SW_EYECATCH_COUNT]) return;
   Renderer->Clear(glm::vec4(0.0f));
-  const auto scaleRatio =
-      glm::vec2{Profile::DesignWidth / 1280.0f, Profile::DesignHeight / 720.0f};
+  const auto scaleRatio = glm::vec2{Profile::Game::DesignWidth / 1280.0f,
+                                    Profile::Game::DesignHeight / 720.0f};
   for (int i = 0; i < 4; ++i) {
     int scaleOffset = 2 * i;
     for (int j = 0; j < 7; ++j) {
@@ -66,7 +68,7 @@ void EyecatchEffect::RenderLayer(int layer) {
     } else {
       Renderer->DrawSprite(
           Backgrounds2D[ScrWork[SW_BG1SURF + childBufId]]->BgSprite,
-          RectF{0, 0, Profile::DesignWidth, Profile::DesignHeight},
+          RectF{0, 0, Profile::Game::DesignWidth, Profile::Game::DesignHeight},
           glm::vec4{1.0f});
     }
   }

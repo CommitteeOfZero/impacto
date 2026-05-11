@@ -269,7 +269,7 @@ void OptionsMenu::Render() {
   if ((CurrentlyFocusedElement != nullptr || !MenuTransition.IsIn()) &&
       PageTransitionAnimation.IsStopped()) {
     for (float x = SelectedSprite.ScaledWidth() * -SelectedAnimation.Progress;
-         x < Profile::DesignWidth; x += SelectedSprite.ScaledWidth()) {
+         x < Profile::Game::DesignWidth; x += SelectedSprite.ScaledWidth()) {
       Renderer->DrawSprite(SelectedSprite,
                            glm::vec2(x, SelectedLabelPos.y) + showPageOffset);
     }
@@ -363,12 +363,12 @@ void OptionsMenu::UpdatePageTransitionAnimation(float dt) {
   float angle = (1.0f - PageTransitionAnimation.Progress) * PageRotationAngle;
   PageTransitionComingOffset =
       (glm::vec2(std::cos(angle), std::sin(angle)) - anchor) *
-      Profile::DesignHeight;
+      Profile::Game::DesignHeight;
 
   angle = -PageTransitionAnimation.Progress * PageRotationAngle;
   PageTransitionGoingOffset =
       (glm::vec2(std::cos(angle), std::sin(angle)) - anchor) *
-      Profile::DesignHeight;
+      Profile::Game::DesignHeight;
 
   if (PageTransitionAnimation.Direction == AnimationDirection::Out) {
     std::swap(PageTransitionGoingOffset, PageTransitionComingOffset);

@@ -372,9 +372,10 @@ void OptionsMenu::Render() {
                          col);
   }
 
-  Renderer->DrawSprite(
-      MenuMaskSprite,
-      RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight), maskTint);
+  Renderer->DrawSprite(MenuMaskSprite,
+                       RectF(0.0f, 0.0f, Profile::Game::DesignWidth,
+                             Profile::Game::DesignHeight),
+                       maskTint);
 
   const Sprite& guideSprite =
       CurrentPage == +PageType::Voice ? VoiceGuideSprite : GuideSprite;

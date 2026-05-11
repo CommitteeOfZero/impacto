@@ -23,9 +23,9 @@ using namespace Impacto::Profile::Vm;
 void Background2D::InitFrameBuffers() {
   [[maybe_unused]] RectF viewPort = Window->GetViewport();
   for (size_t i = 0; i < Framebuffers.max_size(); i++) {
-    Framebuffers[i].BgSprite =
-        Sprite(SpriteSheet(Profile::DesignWidth, Profile::DesignHeight), 0.0f,
-               0.0f, Profile::DesignWidth, Profile::DesignHeight);
+    Framebuffers[i].BgSprite = Sprite(
+        SpriteSheet(Profile::Game::DesignWidth, Profile::Game::DesignHeight),
+        0.0f, 0.0f, Profile::Game::DesignWidth, Profile::Game::DesignHeight);
     Framebuffers[i].BgSprite.Sheet.Texture =
         Renderer->GetFramebufferTexture(i + 1);
 
@@ -52,9 +52,9 @@ void Background2D::Init() {
   InitFrameBuffers();
 
   for (size_t i = 0; i < Framebuffers.max_size(); i++) {
-    Framebuffers[i].BgSprite =
-        Sprite(SpriteSheet(Profile::DesignWidth, Profile::DesignHeight), 0.0f,
-               0.0f, Profile::DesignWidth, Profile::DesignHeight);
+    Framebuffers[i].BgSprite = Sprite(
+        SpriteSheet(Profile::Game::DesignWidth, Profile::Game::DesignHeight),
+        0.0f, 0.0f, Profile::Game::DesignWidth, Profile::Game::DesignHeight);
     Framebuffers[i].BgSprite.Sheet.Texture =
         Renderer->GetFramebufferTexture(i + 1);
 
@@ -84,7 +84,7 @@ bool Background2D::LoadSync(uint32_t bgId) {
       delete stream;
     }
 
-    if (Profile::UseBgFrameEffects && BgEffTextureIdMap.contains(bgId)) {
+    if (Profile::Game::UseBgFrameEffects && BgEffTextureIdMap.contains(bgId)) {
       std::for_each(FrameBgEffs.begin(), FrameBgEffs.end(),
                     [](auto& bgEff) { bgEff.Loaded = false; });
 
@@ -107,7 +107,7 @@ bool Background2D::LoadSync(uint32_t bgId) {
       }
     }
 
-    if (Profile::UseBgChaEffects && BgEffTextureIdMap.contains(bgId)) {
+    if (Profile::Game::UseBgChaEffects && BgEffTextureIdMap.contains(bgId)) {
       ChaBgEff.Loaded = false;
 
       const int textureId = BgEffTextureIdMap[bgId][3];
@@ -142,7 +142,7 @@ void Background2D::UnloadSync() {
   BgSprite.Sheet.Texture = 0;
   BgSprite.Sheet.IsScreenCap = false;
 
-  if (Profile::UseBgFrameEffects) {
+  if (Profile::Game::UseBgFrameEffects) {
     for (BgEff& bgEff : FrameBgEffs) {
       bgEff.Loaded = false;
 
@@ -153,7 +153,7 @@ void Background2D::UnloadSync() {
     }
   }
 
-  if (Profile::UseBgChaEffects) {
+  if (Profile::Game::UseBgChaEffects) {
     ChaBgEff.Loaded = false;
 
     Renderer->FreeTexture(ChaBgEff.BgEffSprite.Sheet.Texture);
@@ -171,8 +171,8 @@ void Background2D::MainThreadOnLoad(bool result) {
   BgSprite.Sheet.Texture = BgTexture.Submit();
 
   if ((BgTexture.Width == 1) && (BgTexture.Height == 1)) {
-    BgSprite.Sheet.DesignWidth = Profile::DesignWidth;
-    BgSprite.Sheet.DesignHeight = Profile::DesignHeight;
+    BgSprite.Sheet.DesignWidth = Profile::Game::DesignWidth;
+    BgSprite.Sheet.DesignHeight = Profile::Game::DesignHeight;
   } else {
     BgSprite.Sheet.DesignWidth = (float)BgTexture.Width;
     BgSprite.Sheet.DesignHeight = (float)BgTexture.Height;
@@ -182,7 +182,7 @@ void Background2D::MainThreadOnLoad(bool result) {
   BgSprite.Bounds = RectF(0.0f, 0.0f, BgSprite.Sheet.DesignWidth,
                           BgSprite.Sheet.DesignHeight);
 
-  if (Profile::UseBgFrameEffects) {
+  if (Profile::Game::UseBgFrameEffects) {
     for (BgEff& bgEff : FrameBgEffs) {
       if (!bgEff.Loaded) continue;
 
@@ -197,7 +197,7 @@ void Background2D::MainThreadOnLoad(bool result) {
     }
   }
 
-  if (Profile::UseBgChaEffects && ChaBgEff.Loaded) {
+  if (Profile::Game::UseBgChaEffects && ChaBgEff.Loaded) {
     ChaBgEff.BgEffSprite.Sheet.Texture = ChaBgEff.BgEffTexture.Submit();
 
     ChaBgEff.BgEffSprite.Sheet.DesignWidth = (float)ChaBgEff.BgEffTexture.Width;
@@ -289,8 +289,8 @@ Background2D::BgTransformState::GetBgTransformState(int bgId) {
   assert(ScrWorkBgStructSize >= 20);
   assert(ScrWorkBgOffsetStructSize >= 10);
 
-  const glm::vec2 resolutionScale = {Profile::DesignWidth / 1280.0f,
-                                     Profile::DesignHeight / 720.0f};
+  const glm::vec2 resolutionScale = {Profile::Game::DesignWidth / 1280.0f,
+                                     Profile::Game::DesignHeight / 720.0f};
 
   const std::span<const int> bgStruct =
       std::span(ScrWork.begin() + ScrWorkBgStructSize * bgId, ScrWork.end());
@@ -328,8 +328,8 @@ Background2D::BgTransformState::GetCapTransformState(int capId) {
   assert(ScrWorkCaptureStructSize >= 20);
   assert(ScrWorkCaptureOffsetStructSize >= 10);
 
-  const glm::vec2 resolutionScale = {Profile::DesignWidth / 1280.0f,
-                                     Profile::DesignHeight / 720.0f};
+  const glm::vec2 resolutionScale = {Profile::Game::DesignWidth / 1280.0f,
+                                     Profile::Game::DesignHeight / 720.0f};
 
   const std::span<const int> capStruct = std::span(
       ScrWork.begin() + ScrWorkCaptureStructSize * capId, ScrWork.end());
@@ -372,7 +372,7 @@ void Background2D::SetTransformState(int dispMode, BgTransformState state) {
 
   const auto scaleToFullscreen = [&]() {
     TransformState.Scale =
-        glm::vec2(Profile::DesignWidth, Profile::DesignHeight) /
+        glm::vec2(Profile::Game::DesignWidth, Profile::Game::DesignHeight) /
         RenderSprite.ScaledBounds().GetSize();
   };
 
@@ -398,7 +398,8 @@ void Background2D::SetTransformState(int dispMode, BgTransformState state) {
         TransformState.Origin = RenderSprite.Center();
       } else {
         TransformState.Position =
-            glm::vec2(Profile::DesignWidth, Profile::DesignHeight) / 2.0f -
+            glm::vec2(Profile::Game::DesignWidth, Profile::Game::DesignHeight) /
+                2.0f -
             state.Position * TransformState.Scale;
       }
     } break;
@@ -447,7 +448,8 @@ void Background2D::UpdateState(const int bgId) {
   FadeCount = ScrWork[SW_BG1FADECT + structOffset];
 
   RenderSprite = BgSprite;
-  for (int i = static_cast<int>(Profile::ScreenCaptureCount) - 1; i >= 0; i--) {
+  for (int i = static_cast<int>(Profile::Game::ScreenCaptureCount) - 1; i >= 0;
+       i--) {
     const int capOffset = i * Profile::Vm::ScrWorkCaptureEffectInfoStructSize;
     if (ScrWork[SW_EFF_CAP_BUF + capOffset] == GetScriptBufferId(bgId + 1)) {
       RenderSprite = Screencaptures[i].BgSprite;
@@ -490,19 +492,19 @@ void Background2D::UpdateState(const int bgId) {
     }
   }
 
-  if (Profile::UseBgChaEffects || Profile::UseBgFrameEffects) {
+  if (Profile::Game::UseBgChaEffects || Profile::Game::UseBgFrameEffects) {
     BgEffsLayers = {ScrWork[SW_BG1EFFPRI + structOffset],
                     ScrWork[SW_BG1EFFPRI2 + structOffset]};
   }
 
-  if (Profile::UseBgFrameEffects) {
+  if (Profile::Game::UseBgFrameEffects) {
     const int bgNo = ScrWork[SW_BG1NO + structOffset];
     for (size_t bgEffId = 0; bgEffId < FrameBgEffs.size(); bgEffId++) {
       FrameBgEffs[bgEffId].Shader = GetBgEffShader(bgNo, bgEffId);
     }
   }
 
-  if (Profile::UseBgChaEffects) {
+  if (Profile::Game::UseBgChaEffects) {
     ChaBgEff.Shader = GetBgEffShader(ScrWork[SW_BG1NO + structOffset], 3);
   }
 }
@@ -514,7 +516,7 @@ void Background2D::Render(const int layer) {
     return;
   }
 
-  if (Profile::UseBgChaEffects || Profile::UseBgFrameEffects) {
+  if (Profile::Game::UseBgChaEffects || Profile::Game::UseBgFrameEffects) {
     bool renderBgEffs = false;
 
     for (size_t i = 0; i < BgEffsLayers.size(); i++) {
@@ -524,14 +526,14 @@ void Background2D::Render(const int layer) {
     if (renderBgEffs) {
       bool nonSpriteShader = false;
 
-      if (Profile::UseBgFrameEffects) {
+      if (Profile::Game::UseBgFrameEffects) {
         nonSpriteShader |= std::any_of(
             FrameBgEffs.begin(), FrameBgEffs.end() - 1, [](const auto bgEff) {
               return bgEff.Shader != ShaderProgramType::Sprite;
             });
       }
 
-      if (Profile::UseBgChaEffects) {
+      if (Profile::Game::UseBgChaEffects) {
         nonSpriteShader |= ChaBgEff.Shader != ShaderProgramType::Sprite;
       }
 
@@ -545,7 +547,7 @@ void Background2D::Render(const int layer) {
 }
 
 void Background2D::RenderBgEff(const int layer) {
-  if (!Profile::UseBgFrameEffects || layer == 0 ||
+  if (!Profile::Game::UseBgFrameEffects || layer == 0 ||
       std::find(BgEffsLayers.begin(), BgEffsLayers.end(), layer) ==
           BgEffsLayers.end()) {
     return;
@@ -562,7 +564,7 @@ void Background2D::RenderBgEff(const int layer) {
 
   const std::array<VertexBufferSprites, 4> vertices{
       VertexBufferSprites{
-          .Position = {0.0f, Profile::DesignHeight},
+          .Position = {0.0f, Profile::Game::DesignHeight},
           .UV = {0.0f, 1.0f},
           .MaskUV = {0.0f, 0.0f},
       },
@@ -572,12 +574,12 @@ void Background2D::RenderBgEff(const int layer) {
           .MaskUV = {0.0f, 1.0f},
       },
       VertexBufferSprites{
-          .Position = {Profile::DesignWidth, 0.0f},
+          .Position = {Profile::Game::DesignWidth, 0.0f},
           .UV = {1.0f, 0.0f},
           .MaskUV = {1.0f, 1.0f},
       },
       VertexBufferSprites{
-          .Position = {Profile::DesignWidth, Profile::DesignHeight},
+          .Position = {Profile::Game::DesignWidth, Profile::Game::DesignHeight},
           .UV = {1.0f, 1.0f},
           .MaskUV = {1.0f, 0.0f},
       },
@@ -640,8 +642,8 @@ Background2D::BgTransformState::GetBgEffTransformState(int bgEffId) {
   assert(ScrWorkBgEffStructSize >= 30);
   assert(ScrWorkBgEffOffsetStructSize >= 20);
 
-  const glm::vec2 resolutionScale = {Profile::DesignWidth / 1280.0f,
-                                     Profile::DesignHeight / 720.0f};
+  const glm::vec2 resolutionScale = {Profile::Game::DesignWidth / 1280.0f,
+                                     Profile::Game::DesignHeight / 720.0f};
 
   const std::span<const int> bgEffStruct = std::span(
       ScrWork.begin() + ScrWorkBgEffStructSize * bgEffId, ScrWork.end());
@@ -653,7 +655,8 @@ Background2D::BgTransformState::GetBgEffTransformState(int bgEffId) {
   state.Position =
       glm::vec2(bgEffStruct[SW_BGEFF1_POSX] + bgEffOfsStruct[SW_BGEFF1_OFSX],
                 bgEffStruct[SW_BGEFF1_POSY] + bgEffOfsStruct[SW_BGEFF1_OFSY]) *
-      glm::vec2(Profile::DesignWidth / 1280.0f, Profile::DesignHeight / 720.0f);
+      glm::vec2(Profile::Game::DesignWidth / 1280.0f,
+                Profile::Game::DesignHeight / 720.0f);
 
   state.Scale =
       glm::vec2(static_cast<float>(bgEffStruct[SW_BGEFF1_SIZE] +
@@ -726,8 +729,8 @@ void BackgroundEffect2D::UpdateState(const int bgId) {
 
   // Get position coordinates
   const int maskType = ScrWork[SW_BGEFF1_MASK_TYPE + structOffset];
-  const glm::vec2 resolutionScale = {Profile::DesignWidth / 1280.0f,
-                                     Profile::DesignHeight / 720.0f};
+  const glm::vec2 resolutionScale = {Profile::Game::DesignWidth / 1280.0f,
+                                     Profile::Game::DesignHeight / 720.0f};
 
   VertexCount = maskType == 0 ? 4 : 3;
   for (size_t i = 0; i < VertexCount; i++) {
@@ -805,7 +808,8 @@ void Background2D::RenderRegular() {
 
 void Background2D::RenderMasked() {
   auto maskTransformState = TransformState;
-  glm::vec2 designSize = glm::vec2(Profile::DesignWidth, Profile::DesignHeight);
+  glm::vec2 designSize =
+      glm::vec2(Profile::Game::DesignWidth, Profile::Game::DesignHeight);
 
   // only handling negative values to account for dispMode 0
   auto position = glm::min(maskTransformState.Position, glm::vec2(0.0f));
@@ -840,7 +844,8 @@ void Background2D::RenderCaptureMasked() {
 
 void Background2D::RenderMaskedInverted() {
   auto maskTransformState = TransformState;
-  glm::vec2 designSize = glm::vec2(Profile::DesignWidth, Profile::DesignHeight);
+  glm::vec2 designSize =
+      glm::vec2(Profile::Game::DesignWidth, Profile::Game::DesignHeight);
 
   // only handling negative values to account for dispMode 0
   auto position = glm::min(maskTransformState.Position, glm::vec2(0.0f));

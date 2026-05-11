@@ -211,8 +211,8 @@ class Renderer : public BaseRenderer {
 
   std::array<GLuint, TextureUnitCount> Samplers;
   const glm::mat4 Projection =
-      glm::ortho(0.0f, Profile::DesignWidth, Profile::DesignHeight, 0.0f,
-                 -Profile::DesignWidth, Profile::DesignWidth);
+      glm::ortho(0.0f, Profile::Game::DesignWidth, Profile::Game::DesignHeight,
+                 0.0f, -Profile::Game::DesignWidth, Profile::Game::DesignWidth);
 
   static constexpr size_t MaxVertexCount =
       1024 * 1024 / sizeof(VertexBufferSprites);

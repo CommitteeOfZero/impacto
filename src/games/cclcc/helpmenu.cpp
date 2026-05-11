@@ -147,10 +147,10 @@ void HelpMenu::Render() {
   if (State != Shown) {
     maskAlpha *= glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
   }
-  Renderer->DrawSprite(
-      HelpMaskSprite,
-      RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-      glm::vec4(glm::vec3{1.0f}, maskAlpha));
+  Renderer->DrawSprite(HelpMaskSprite,
+                       RectF(0.0f, 0.0f, Profile::Game::DesignWidth,
+                             Profile::Game::DesignHeight),
+                       glm::vec4(glm::vec3{1.0f}, maskAlpha));
 }
 
 }  // namespace CCLCC

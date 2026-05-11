@@ -156,7 +156,7 @@ inline T EnsureGet() {
   if (!result.has_value()) {
     ImpLog(Impacto::LogLevel::Fatal, Impacto::LogChannel::Profile,
            "Unexpected type\n");
-    Game::Shutdown();
+    Impacto::Game::Shutdown();
   }
 
   return result.value();

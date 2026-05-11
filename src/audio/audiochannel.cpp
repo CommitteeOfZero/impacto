@@ -15,7 +15,7 @@ namespace Audio {
 
 std::unique_ptr<AudioChannel> AudioChannel::Create(
     AudioChannelId channelId, AudioChannelGroup channelGroup) {
-  switch (Profile::ActiveAudioBackend) {
+  switch (Profile::Game::ActiveAudioBackend) {
 #ifndef IMPACTO_DISABLE_OPENAL
     case AudioBackendType::OpenAL: {
       return std::make_unique<OpenAL::OpenALAudioChannel>(channelId,

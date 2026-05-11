@@ -194,8 +194,8 @@ void SaveMenu::Init() {
   }
 
   for (auto mainItems : *SavePages) {
-    mainItems->Bounds =
-        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight);
+    mainItems->Bounds = RectF(0.0f, 0.0f, Profile::Game::DesignWidth,
+                              Profile::Game::DesignHeight);
     for (auto widget : mainItems->Children) {
       static_cast<SaveEntryButton*>(widget)->RefreshInfo(EntryType);
     }

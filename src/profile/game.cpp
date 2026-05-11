@@ -7,7 +7,8 @@
 namespace Impacto {
 namespace Profile {
 
-void LoadGameFromLua() {
+namespace Game {
+void Configure() {
   AssertIs(LUA_TTABLE);
 
   ActiveRenderer = EnsureGetMember<RendererType>("ActiveRenderer");
@@ -53,6 +54,6 @@ void LoadGameFromLua() {
 
   TryGetMember<int>("PlatformId", PlatformId);
 }
-
+}  // namespace Game
 }  // namespace Profile
 }  // namespace Impacto

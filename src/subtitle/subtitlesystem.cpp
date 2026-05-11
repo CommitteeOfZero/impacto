@@ -17,7 +17,7 @@ namespace Impacto::Subtitle {
 using namespace Profile::Subtitle;
 
 void SubtitleInit() {
-  switch (Profile::SubtitleAssBackend) {
+  switch (Profile::Game::SubtitleAssBackend) {
 #ifndef IMPACTO_DISABLE_LIBASS
     case SubtitleAssBackendType::LibAss:
       Ass::SubtitleRenderer::InitSystem();
@@ -29,14 +29,14 @@ void SubtitleInit() {
       ImpLog(LogLevel::Warning, LogChannel::Subtitle,
              "Unknown or unsupported ass subtitle backend selected!.\n");
   }
-  switch (Profile::SubtitleTextBackend) {
+  switch (Profile::Game::SubtitleTextBackend) {
     case SubtitleTextBackendType::None:
       break;
     default:
       ImpLog(LogLevel::Warning, LogChannel::Subtitle,
              "Unknown or unsupported text subtitle backend selected!.\n");
   }
-  switch (Profile::SubtitleBmpBackend) {
+  switch (Profile::Game::SubtitleBmpBackend) {
     case SubtitleBmpBackendType::None:
       break;
     default:
@@ -46,7 +46,7 @@ void SubtitleInit() {
 }
 
 SubtitlePlayer::SubtitlePlayer(float width, float height) {
-  switch (Profile::SubtitleAssBackend) {
+  switch (Profile::Game::SubtitleAssBackend) {
 #ifndef IMPACTO_DISABLE_LIBASS
     case SubtitleAssBackendType::LibAss:
       Backends[GetBackendIndex(SubtitleType::Ass)] =
@@ -56,11 +56,11 @@ SubtitlePlayer::SubtitlePlayer(float width, float height) {
     case SubtitleAssBackendType::None:
       break;
   }
-  switch (Profile::SubtitleTextBackend) {
+  switch (Profile::Game::SubtitleTextBackend) {
     case SubtitleTextBackendType::None:
       break;
   }
-  switch (Profile::SubtitleBmpBackend) {
+  switch (Profile::Game::SubtitleBmpBackend) {
     case SubtitleBmpBackendType::None:
       break;
   }
