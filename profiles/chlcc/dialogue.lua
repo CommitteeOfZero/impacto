@@ -1,14 +1,14 @@
 root.Sprites["ADVBox"] = {
     Sheet = "Data",
-    Bounds = { X = 768, Y = 815, Width = 1280, Height = 206 },
+    Bounds = { X = 769, Y = 811, Width = 1278, Height = 212 },
 };
 root.Sprites["SecondaryADVBox"] = {
     Sheet = "Data",
-    Bounds = { X = 768, Y = 427, Width = 1280, Height = 206 },
+    Bounds = { X = 769, Y = 423, Width = 1278, Height = 212 },
 };
 root.Sprites["ErinBox"] = {
     Sheet = "Data",
-    Bounds = { X = 36, Y = 143, Width = 541, Height = 168 },
+    Bounds = { X = 35, Y = 142, Width = 732, Height = 225 },
 };
 root.Sprites["AutoSkipArrowsSprite"] = {
     Sheet = "Data",
