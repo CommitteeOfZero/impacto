@@ -42,6 +42,7 @@ class FFmpegPlayer : public VideoPlayer {
   void Play(Io::Stream* stream, bool loop, bool alpha) override;
   void Stop() override;
   void Seek(int64_t pos) override;
+  void Reinit() override;
 
   void Update(float dt) override;
   void Render(float videoAlpha) override;

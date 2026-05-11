@@ -50,5 +50,11 @@ void VideoRender(float videoAlpha) {
   }
 }
 
+void VideoReinit() {
+  for (int i = 0; i < VP_Count; i++) {
+    Players[i]->Reinit();
+  }
+}
+
 }  // namespace Video
 }  // namespace Impacto

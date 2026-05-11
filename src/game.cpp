@@ -311,6 +311,13 @@ void UpdateSystem(float dt) {
 }
 
 void Update(float dt) {
+#ifdef _WIN32
+  bool AudiDeviceChanged = false;
+  if (Audio::Backend) AudiDeviceChanged = Audio::Backend->DeviceChanged();
+  #else
+  const bool AudiDeviceChanged = false;
+#endif
+
   UpdateSystem(dt);
 
 #ifndef IMPACTO_DISABLE_IMGUI
@@ -326,10 +333,12 @@ void Update(float dt) {
   }
 
   if (+Profile::GameFeatures & +GameFeature::Audio) {
+    if (AudiDeviceChanged) Audio::AudioReinit();
     Audio::AudioUpdate(dt);
   }
 
   if (+Profile::GameFeatures & +GameFeature::Video) {
+    if (AudiDeviceChanged) Video::VideoReinit();
     Video::VideoUpdate(dt);
   }
 

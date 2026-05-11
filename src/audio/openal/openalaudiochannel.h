@@ -18,6 +18,7 @@ class OpenALAudioChannel : public Audio::AudioChannel {
   void Pause() override;
   void Resume() override;
 
+  void Reinit() override;
   void Update(float dt) override;
 
   float PositionInSeconds() const override;

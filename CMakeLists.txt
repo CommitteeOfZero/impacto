@@ -955,12 +955,14 @@ if (NOT DEFINED IMPACTO_DISABLE_OPENAL)
         src/audio/openal/audiobackend.cpp
         src/audio/openal/openalaudiochannel.cpp
         src/audio/openal/ffmpegaudioplayer.cpp
+	    src/audio/openal/notificationclient.cpp
     )
     list(APPEND Impacto_Header
         src/audio/openal/audiobackend.h
         src/audio/openal/openalaudiochannel.h
         src/audio/openal/audiocommon.h
         src/audio/openal/ffmpegaudioplayer.h
+	    src/audio/openal/notificationclient.h
     )
 
     list(APPEND Impacto_Include_Dirs ${OPENAL_INCLUDE_DIR})

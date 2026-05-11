@@ -26,6 +26,7 @@ class AudioChannel {
   virtual void Pause() = 0;
   virtual void Resume() = 0;
 
+  virtual void Reinit() = 0;
   virtual void Update(float dt) = 0;
   virtual float PositionInSeconds() const = 0;
 
@@ -80,6 +81,10 @@ class EmptyAudioChannel : public AudioChannel {
 
   void Resume() override {
     if (State == ACS_Paused) State = ACS_Playing;
+  }
+
+  void Reinit() override {
+
   }
 
   void Update(float dt) override {}

@@ -1,5 +1,7 @@
 #include "audiobackend.h"
-
+#ifdef _WIN32
+#include "notificationclient.h"
+#endif
 #include "../../log.h"
 
 namespace Impacto {
@@ -8,8 +10,12 @@ namespace OpenAL {
 
 static ALCdevice* AlcDevice = 0;
 static ALCcontext* AlcContext = 0;
+#ifdef _WIN32
+static NotificationClient* NotifClient = 0;
+#endif
 
 bool AudioBackend::Init() {
+  deviceChanged = false;
   AlcDevice = alcOpenDevice(NULL);
   if (!AlcDevice) {
     ImpLog(LogLevel::Fatal, LogChannel::Audio,
@@ -27,6 +33,9 @@ bool AudioBackend::Init() {
     alcCloseDevice(AlcDevice);
     return false;
   }
+#ifdef _WIN32
+  if (!NotifClient) NotifClient = new NotificationClient(&deviceChanged);
+#endif
   return true;
 }
 
@@ -35,6 +44,7 @@ void AudioBackend::Shutdown() {
   if (AlcDevice) alcCloseDevice(AlcDevice);
 }
 
+bool AudioBackend::DeviceChanged() { return deviceChanged; }
 };  // namespace OpenAL
 };  // namespace Audio
 };  // namespace Impacto

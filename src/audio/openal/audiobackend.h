@@ -12,6 +12,8 @@ class AudioBackend : public Audio::AudioBackend {
   bool Init() override;
 
   void Shutdown() override;
+
+  bool DeviceChanged() override;
 };
 
 }  // namespace OpenAL
