@@ -35,6 +35,17 @@ OpenALAudioChannel::OpenALAudioChannel(AudioChannelId id,
   UpdateGain();
 }
 
+void OpenALAudioChannel::Reinit() {
+  alGenBuffers((ALsizei)AudioBuffers.size(), AudioBuffers.data());
+  alGenSources(1, &Source);
+
+  alSourcef(Source, AL_PITCH, 1);
+  alSource3f(Source, AL_POSITION, 0, 0, 0);
+  alSource3f(Source, AL_VELOCITY, 0, 0, 0);
+  alSourcei(Source, AL_LOOPING, AL_FALSE);
+  UpdateGain();
+}
+
 OpenALAudioChannel::~OpenALAudioChannel() {
   alDeleteSources(1, &Source);
   alDeleteBuffers((ALsizei)AudioBuffers.size(), AudioBuffers.data());

@@ -19,6 +19,7 @@ class FFmpegAudioPlayer {
   virtual void InitConvertContext(AVCodecContext* codecCtx) {};
   virtual void FillAudioBuffers() {};
   virtual void Process() {};
+  virtual void Reinit() {};
 
   virtual void Stop() {};
   virtual void Unload() {};

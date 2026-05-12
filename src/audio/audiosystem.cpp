@@ -190,6 +190,22 @@ void AudioInit() {
   IsInit = true;
 }
 
+void AudioReinit() {
+  if (Backend->Reinit()) {
+    ImpLog(LogLevel::Info, LogChannel::Audio, "Reinitializing audio system\n");
+    if (Backend->ReopenSupported()) return;
+  }
+
+  for (int i = AC_SE0; i <= AC_SE2; i++) Channels[i]->Reinit();
+  for (int i = AC_VOICE0; i <= AC_REV; i++) Channels[i]->Reinit();
+  for (int i = AC_BGM0; i <= AC_BGM2; i++) Channels[i]->Reinit();
+
+  Channels[AC_SSE0]->Reinit();
+  Channels[AC_SSE1]->Reinit();
+  Channels[AC_SSE2]->Reinit();
+  Channels[AC_SSE3]->Reinit();
+}
+
 void AudioSubtitlesStart(AudioChannel* channel) {
   using Profile::Subtitle::SubtitleMappings;
   std::optional<Subtitle::SubtitlePlayer> player;

@@ -314,6 +314,12 @@ void UpdateSystem(float dt) {
 }
 
 void Update(float dt) {
+  bool AudioDeviceChanged = false;
+  bool AudioReopenSupported = false;
+  if (Audio::Backend) {
+    AudioDeviceChanged = Audio::Backend->DeviceChanged();
+    AudioReopenSupported = Audio::Backend->ReopenSupported();
+  }
   UpdateSystem(dt);
 
 #ifndef IMPACTO_DISABLE_IMGUI
@@ -329,10 +335,12 @@ void Update(float dt) {
   }
 
   if (+Profile::GameFeatures & +GameFeature::Audio) {
+    if (AudioDeviceChanged) Audio::AudioReinit();
     Audio::AudioUpdate(dt);
   }
 
   if (+Profile::GameFeatures & +GameFeature::Video) {
+    if (AudioDeviceChanged && !AudioReopenSupported) Video::VideoReinit();
     Video::VideoUpdate(dt);
   }
 

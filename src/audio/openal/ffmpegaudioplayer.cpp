@@ -37,6 +37,18 @@ void FFmpegAudioPlayer::Init() {
   alGenBuffers(AudioBufferCount, BufferIds);
 }
 
+void FFmpegAudioPlayer::Reinit() {
+  alGenSources(1, &ALSource);
+  alSourcef(ALSource, AL_PITCH, 1);
+  alSourcef(ALSource, AL_GAIN, 1);
+  alSource3f(ALSource, AL_POSITION, 0, 0, 0);
+  alSource3f(ALSource, AL_VELOCITY, 0, 0, 0);
+  alSourcei(ALSource, AL_LOOPING, AL_FALSE);
+
+  alGenBuffers(AudioBufferCount, BufferIds);
+  ReInit = true;
+}
+
 void FFmpegAudioPlayer::InitConvertContext(AVCodecContext* codecCtx) {
   AVChannelLayout stereoFormat;
   av_channel_layout_default(&stereoFormat, 2);
@@ -102,7 +114,7 @@ void FFmpegAudioPlayer::FillAudioBuffers() {
       totalSize += bufferSize;
     } while (totalSize <= 4096);
 
-    if (!First) {
+    if (!First && !ReInit) {
       alSourceUnqueueBuffers(ALSource, 1, &BufferIds[FirstFreeBuffer]);
     }
     FreeBufferCount--;
@@ -124,8 +136,9 @@ void FFmpegAudioPlayer::Process() {
 
   if (Player->AudioStream->FrameQueue.peek() != nullptr) {
     alGetSourcei(ALSource, AL_BUFFERS_PROCESSED, &FreeBufferCount);
-    if (First) {
+    if (First || ReInit) {
       FreeBufferCount = AudioBufferCount;
+      FirstFreeBuffer = 0;
     }
 
     int currentlyPlayingBuffer =
@@ -149,6 +162,7 @@ void FFmpegAudioPlayer::Process() {
       alSourcePlay(ALSource);
     }
     First = false;
+    ReInit = false;
   }
 }
 

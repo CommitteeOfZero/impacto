@@ -8,10 +8,19 @@ namespace Audio {
 namespace OpenAL {
 
 class AudioBackend : public Audio::AudioBackend {
+ private:
+  bool deviceChanged = false;
+
  public:
   bool Init() override;
 
+  bool Reinit() override;
+
   void Shutdown() override;
+
+  bool DeviceChanged() override;
+
+  bool ReopenSupported() override;
 };
 
 }  // namespace OpenAL
