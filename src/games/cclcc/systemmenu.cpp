@@ -360,7 +360,7 @@ void SystemMenu::Render() {
     Renderer->DrawPrimitives(SystemMenuBG.Sheet, nullptr,
                              ShaderProgramType::Sprite, Vertices, indices,
                              glm::mat4(1.0f), glm::mat4(1.0f), false,
-                             TopologyMode::TriangleStrips, 0, true);
+                             TopologyMode::TriangleStrips, true);
 
     if (!GetFlag(SF_SYSTEMMENUDIRECT)) {
       CornersQuad frameDisp = {

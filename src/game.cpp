@@ -8,6 +8,7 @@
 #include "log.h"
 #include "inputsystem.h"
 #include "debugmenu.h"
+#include "renderer/opengl/glc.h"
 
 #include "ui/ui.h"
 #include "ui/gamespecific.h"
@@ -417,24 +418,6 @@ static void RenderMain() {
       }
     }
 
-    for (size_t capId = 0; capId < Profile::ScreenCaptureCount; capId++) {
-      const size_t capOffset =
-          capId * Profile::Vm::ScrWorkCaptureEffectInfoStructSize;
-      if (ScrWork[SW_EFF_CAP_BUF + capOffset] == 0 ||
-          static_cast<uint32_t>(ScrWork[SW_EFF_CAP_PRI + capOffset]) != layer) {
-        continue;
-      }
-
-      Renderer->CaptureScreencap(Screencaptures[capId].BgSprite);
-      Screencaptures[capId].Status = LoadStatus::Loaded;
-    }
-
-    if (GetFlag(SF_MASK_CAPTURE) &&
-        ScrWork[SW_MASK_CAPTURE_PRI] == static_cast<int>(layer)) {
-      Renderer->CaptureScreencap(MaskCapture.BgSprite);
-      MaskCapture.Status = LoadStatus::Loaded;
-    }
-
     if (Profile::UseMoviePriority &&
         (+Profile::GameFeatures & +GameFeature::Video)) {
       int videoAlpha = 0;
@@ -481,12 +464,11 @@ static void RenderMain() {
           if (isCC) {
             alpha = static_cast<uint32_t>(ScrWork[SW_EFF_WAVE_ALPHA]) / 256.0f;
           }
+          Renderer->CaptureScreencap(Screencaptures[0].BgSprite);
+          Screencaptures[0].Status = LoadStatus::Loaded;
           Effects::WaveEFF.CalcPos(0, alpha);
-          Effects::WaveEFF.Render(MaskCapture.BgSprite);
-          MaskCapture.SetHasEffects(true);
+          Effects::WaveEFF.Render(Screencaptures[0].BgSprite);
         }
-      } else {
-        MaskCapture.SetHasEffects(false);
       }
     }
 
@@ -498,6 +480,24 @@ static void RenderMain() {
     }
 
     UI::GameSpecific::RenderLayer(layer);
+
+    for (size_t capId = 0; capId < Profile::ScreenCaptureCount; capId++) {
+      const size_t capOffset =
+          capId * Profile::Vm::ScrWorkCaptureEffectInfoStructSize;
+      if (ScrWork[SW_EFF_CAP_BUF + capOffset] == 0 ||
+          static_cast<uint32_t>(ScrWork[SW_EFF_CAP_PRI + capOffset]) != layer) {
+        continue;
+      }
+
+      Renderer->CaptureScreencap(Screencaptures[capId].BgSprite);
+      Screencaptures[capId].Status = LoadStatus::Loaded;
+    }
+
+    if (GetFlag(SF_MASK_CAPTURE) &&
+        ScrWork[SW_MASK_CAPTURE_PRI] == static_cast<int>(layer)) {
+      Renderer->CaptureScreencap(MaskCapture.BgSprite);
+      MaskCapture.Status = LoadStatus::Loaded;
+    }
   }
   UI::GameSpecific::RenderMain();
 
@@ -522,7 +522,6 @@ static void RenderMain() {
       +Profile::GameFeatures & +GameFeature::Subtitles) {
     Audio::AudioSubtitlesRender();
   }
-  MaskCapture.SetHasEffects(false);
 }
 
 void Render() {

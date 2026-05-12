@@ -165,10 +165,10 @@ void BGWave::CalcPos(int startPhase, std::optional<float> alpha) {
 
 void EFFWave::Render(const Sprite& mask) {
   PrimitiveData primitives = GetPrimitives();
-  Renderer->DrawPrimitives(
-      mask.Sheet, nullptr, ShaderProgramType::Sprite, primitives.Vertices,
-      primitives.Indices, glm::mat4(1.0f), glm::mat4(1.0f), false,
-      TopologyMode::TriangleStrips, SpecialFBO::MaskEffectFrameBuffer);
+  Renderer->DrawPrimitives(mask.Sheet, nullptr, ShaderProgramType::Sprite,
+                           primitives.Vertices, primitives.Indices,
+                           glm::mat4(1.0f), glm::mat4(1.0f), false,
+                           TopologyMode::TriangleStrips);
 }
 
 // TODO: Not implemented

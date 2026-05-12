@@ -38,9 +38,6 @@ struct PrimitiveData {
   }
 };
 
-enum class SpecialFBO { MaskEffectFrameBuffer };
-using FBOId = std::variant<int, SpecialFBO>;
-
 enum class ShaderProgramType : int {
   AdditiveMaskedSprite,
   CCMessageBoxSprite,
@@ -189,20 +186,17 @@ class BaseRenderer {
       const Sprite& sprite, const Sprite& mask, const CornersQuad& spriteDest,
       const CornersQuad& maskDest, glm::mat4 spriteTransformation,
       std::optional<glm::mat4> maskTransformation,
-      std::span<const glm::vec4, 4> tints, bool isInverted = false,
-      bool hasEffects = false) = 0;
+      std::span<const glm::vec4, 4> tints, bool isInverted = false) = 0;
 
   void DrawMaskedBinarySprite(const Sprite& sprite, const Sprite& mask,
                               glm::mat4 spriteTransformation,
                               std::optional<glm::mat4> maskTransformation,
                               glm::vec4 tint = glm::vec4(1.0f),
-                              bool isInverted = false,
-                              bool hasEffects = false) {
-    DrawMaskedBinarySprite(sprite, mask, sprite.ScaledBounds(),
-                           mask.ScaledBounds(), spriteTransformation,
-                           maskTransformation,
-                           std::array<glm::vec4, 4>{tint, tint, tint, tint},
-                           isInverted, hasEffects);
+                              bool isInverted = false) {
+    DrawMaskedBinarySprite(
+        sprite, mask, sprite.ScaledBounds(), mask.ScaledBounds(),
+        spriteTransformation, maskTransformation,
+        std::array<glm::vec4, 4>{tint, tint, tint, tint}, isInverted);
   }
 
   virtual void DrawMaskedSpriteOverlay(
@@ -304,7 +298,6 @@ class BaseRenderer {
                               glm::mat4 maskTransformation = glm::mat4(1.0f),
                               bool inverted = false,
                               TopologyMode topology = TopologyMode::Triangles,
-                              std::optional<FBOId> fboId = std::nullopt,
                               bool textureWrapRepeat = false) = 0;
 
   virtual void DrawPrimitives(const SpriteSheet& sheet,
@@ -316,7 +309,7 @@ class BaseRenderer {
                               bool textureWrapRepeat = false) {
     DrawPrimitives(sheet, nullptr, shaderType, vertices, indices,
                    transformation, glm::mat4(1.0f), inverted,
-                   TopologyMode::Triangles, std::nullopt, textureWrapRepeat);
+                   TopologyMode::Triangles, textureWrapRepeat);
   }
 
   void DrawPrimitives(const SpriteSheet& sheet, const SpriteSheet* mask,
@@ -327,7 +320,7 @@ class BaseRenderer {
     DrawPrimitives(sheet, mask, shaderType, vertices, indices,
                    glm::translate(glm::mat4(1.0f), glm::vec3(offset, 0.0f)),
                    glm::mat4(1.0f), inverted, TopologyMode::Triangles,
-                   std::nullopt, textureWrapRepeat);
+                   textureWrapRepeat);
   }
 
   void DrawPrimitives(const SpriteSheet& sheet, ShaderProgramType shaderType,

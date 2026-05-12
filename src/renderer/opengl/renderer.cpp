@@ -46,7 +46,6 @@ void Renderer::Init() {
   glGenBuffers(1, &IBO);
   glGenVertexArrays(1, &VAOSprites);
 
-  GLC::InitializeMaskFrameBuffer();
   GLC::InitializeFramebuffers();
 
   // Specify vertex layouts
@@ -135,7 +134,6 @@ void Renderer::Shutdown() {
                    GLC::FramebufferTextures.data());
   glDeleteRenderbuffers((GLsizei)GLC::StencilBuffers.size(),
                         GLC::StencilBuffers.data());
-  GLC::DeleteMaskFramebuffer();
 
   glDeleteSamplers((GLsizei)Samplers.size(), Samplers.data());
 
@@ -363,7 +361,7 @@ void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
            "Renderer->DrawSprite() called before BeginFrame()\n");
     return;
   }
-  EnsureFBO(0);
+
   EnsureTopologyMode(TopologyMode::Triangles);
 
   if (sprite.Sheet.IsScreenCap) Flush();
@@ -436,7 +434,7 @@ void Renderer::DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
            "Renderer->DrawMaskedSprite() called before BeginFrame()\n");
     return;
   }
-  EnsureFBO(0);
+
   EnsureTopologyMode(TopologyMode::Triangles);
 
   if (fadeRange == 0) fadeRange = 16;
@@ -476,26 +474,21 @@ void Renderer::DrawMaskedBinarySprite(
     const Sprite& sprite, const Sprite& mask, const CornersQuad& spriteDest,
     const CornersQuad& maskDest, glm::mat4 spriteTransformation,
     std::optional<glm::mat4> maskTransformation,
-    std::span<const glm::vec4, 4> tints, bool isInverted, bool hasEffects) {
+    std::span<const glm::vec4, 4> tints, bool isInverted) {
   if (!Drawing) {
     ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawMaskedSprite() called before BeginFrame()\n");
     return;
   }
-  EnsureFBO(0);
-  EnsureTopologyMode(TopologyMode::Triangles);
 
-  const uint32_t maskTextureId =
-      hasEffects ? GLC::MaskEffectFramebuffer : mask.Sheet.Texture;
+  EnsureTopologyMode(TopologyMode::Triangles);
 
   // Set uniform variables
   MaskedSpriteBinaryUniforms uniforms{
       .Projection = Projection,
       .SpriteTransformation = spriteTransformation,
-      .MaskTransformation = hasEffects
-                                ? glm::mat4(1.0f)
-                                : maskTransformation.value_or(glm::mat4(1.0f)),
-      .FullscreenMask = hasEffects ? true : !maskTransformation.has_value(),
+      .MaskTransformation = maskTransformation.value_or(glm::mat4(1.0f)),
+      .FullscreenMask = !maskTransformation.has_value(),
       .ColorMap = 0,
       .Mask = 2,
       .IsInverted = isInverted,
@@ -505,20 +498,16 @@ void Renderer::DrawMaskedBinarySprite(
 
   UseTextures(std::array<std::pair<uint32_t, size_t>, 2>{
       std::pair{sprite.Sheet.Texture, 0},
-      std::pair{maskTextureId, 2},
+      std::pair{mask.Sheet.Texture, 2},
   });
 
   // OK, all good, make quad
 
   CornersQuad uvDest = sprite.NormalizedBounds();
-  CornersQuad maskUVDest =
-      hasEffects ? RectF(0.0f, 0.0f, 1.0f, 1.0f)
-                 : CornersQuad(maskDest).Scale(
-                       {1.0f / mask.Bounds.Width, 1.0f / mask.Bounds.Height},
-                       {0.0f, 0.0f});
+  CornersQuad maskUVDest = CornersQuad(maskDest).Scale(
+      {1.0f / mask.Bounds.Width, 1.0f / mask.Bounds.Height}, {0.0f, 0.0f});
   if (sprite.Sheet.IsScreenCap) uvDest = FlipUvVertical(uvDest);
-  if (mask.Sheet.IsScreenCap && !hasEffects)
-    maskUVDest = FlipUvVertical(maskUVDest);
+  if (mask.Sheet.IsScreenCap) maskUVDest = FlipUvVertical(maskUVDest);
   InsertVerticesQuad(spriteDest, uvDest, tints, maskUVDest);
 }
 
@@ -533,7 +522,7 @@ void Renderer::DrawMaskedSpriteOverlay(
            "Renderer->DrawMaskedSpriteOverlay() called before BeginFrame()\n");
     return;
   }
-  EnsureFBO(0);
+
   EnsureTopologyMode(TopologyMode::Triangles);
 
   alpha = std::clamp(alpha, 0, fadeRange + 256);
@@ -588,15 +577,13 @@ void Renderer::DrawPrimitives(
     const std::span<const VertexBufferSprites> vertices,
     const std::span<const uint16_t> indices,
     const glm::mat4 spriteTransformation, const glm::mat4 maskTransformation,
-    const bool inverted, TopologyMode topologyMode, std::optional<FBOId> fboId,
+    const bool inverted, TopologyMode topologyMode,
     const bool textureWrapRepeat) {
   if (!Drawing) {
     ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawVertices() called before BeginFrame()\n");
     return;
   }
-
-  EnsureFBO(fboId.value_or(0));
   EnsureTopologyMode(topologyMode);
 
   if (textureWrapRepeat) {
@@ -834,8 +821,6 @@ void Renderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
            "Renderer->DrawCCMessageBox() called before BeginFrame()\n");
     return;
   }
-
-  EnsureFBO(0);
   EnsureTopologyMode(TopologyMode::Triangles);
 
   if (alpha < 0) alpha = 0;
@@ -872,7 +857,6 @@ void Renderer::DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
            "Renderer->DrawCHLCCMenuBackground() called before BeginFrame()\n");
     return;
   }
-  EnsureFBO(0);
   EnsureTopologyMode(TopologyMode::Triangles);
 
   if (alpha < 0.0f)
@@ -910,7 +894,6 @@ void Renderer::DrawBlurredSprite(const Sprite& sprite, const CornersQuad& dest,
            "Renderer->DrawBlurredSprite() called before BeginFrame()\n");
     return;
   }
-  EnsureFBO(0);
   EnsureTopologyMode(TopologyMode::Triangles);
 
   GaussianBlurUniforms uniforms{
@@ -941,7 +924,6 @@ void Renderer::DrawMosaic(const Sprite& sprite, const CornersQuad dest,
            "Renderer->DrawMosaic() called before BeginFrame()\n");
     return;
   }
-  EnsureFBO(0);
   EnsureTopologyMode(TopologyMode::Triangles);
 
   MosaicUniforms uniforms{
@@ -1009,7 +991,6 @@ void Renderer::DrawVideoTexture(const YUVFrame& frame, const RectF& dest,
            "Renderer->DrawVideoTexture() called before BeginFrame()\n");
     return;
   }
-  EnsureFBO(0);
   EnsureTopologyMode(TopologyMode::Triangles);
 
   UseTextures(std::array<std::pair<uint32_t, size_t>, 3>{
@@ -1040,8 +1021,6 @@ void Renderer::DrawVideoTexture(const NV12Frame& frame, const RectF& dest,
            "Renderer->DrawVideoTexture() called before BeginFrame()\n");
     return;
   }
-
-  EnsureFBO(0);
   EnsureTopologyMode(TopologyMode::Triangles);
 
   UseTextures(std::array<std::pair<uint32_t, size_t>, 2>{
@@ -1228,29 +1207,6 @@ void Renderer::Clear(glm::vec4 color) {
 
   glClearColor(color.r, color.g, color.b, color.a);
   glClear(GL_COLOR_BUFFER_BIT);
-}
-
-void Renderer::EnsureFBO(FBOId fboId) {
-  if (fboId == LastFBO) return;
-
-  if (const int* fboIndex = std::get_if<int>(&fboId)) {
-    SetFramebuffer(*fboIndex);
-  } else {
-    Flush();
-    const SpecialFBO fboType = std::get<SpecialFBO>(fboId);
-    switch (fboType) {
-      case SpecialFBO::MaskEffectFrameBuffer: {
-        GLC::BindFramebuffer(GL_FRAMEBUFFER, GLC::MaskEffectFramebuffer);
-        break;
-      }
-      default: {
-        ImpLogSlow(LogLevel::Warning, LogChannel::Render,
-                   "Unexpected special fbo type {:d}\n",
-                   static_cast<int>(fboType));
-      }
-    }
-  }
-  LastFBO = fboId;
 }
 
 void Renderer::EnsureTopologyMode(TopologyMode newMode) {

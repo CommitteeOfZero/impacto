@@ -56,7 +56,7 @@ class Renderer : public BaseRenderer {
                               glm::mat4 spriteTransformation,
                               std::optional<glm::mat4> maskTransformation,
                               std::span<const glm::vec4, 4> tints,
-                              bool isInverted, bool hasEffects) override {}
+                              bool isInverted) override {}
 
   void DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
                                const CornersQuad& spriteDest,
@@ -73,7 +73,6 @@ class Renderer : public BaseRenderer {
                       glm::mat4 spriteTransformation,
                       glm::mat4 maskTransformation, bool inverted,
                       TopologyMode topologyMode,
-                      std::optional<FBOId> fboId = std::nullopt,
                       bool textureWrapRepeat = false) override;
 
   void DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,

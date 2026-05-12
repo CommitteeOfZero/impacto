@@ -42,37 +42,6 @@ void InitializeFramebuffers() {
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void InitializeMaskFrameBuffer() {
-  RectF viewport = Window->GetViewport();
-  glGenFramebuffers(1, &MaskEffectFramebuffer);
-  glGenTextures(1, &MaskEffectFramebufferTexture);
-
-  glBindFramebuffer(GL_FRAMEBUFFER, MaskEffectFramebuffer);
-  glBindTexture(GL_TEXTURE_2D, MaskEffectFramebufferTexture);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, (GLsizei)viewport.Width,
-               (GLsizei)viewport.Height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
-
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
-                         MaskEffectFramebufferTexture, 0);
-}
-
-void DeleteMaskFramebuffer() {
-  if (CurrentDrawFramebuffer == MaskEffectFramebuffer)
-    CurrentDrawFramebuffer = 0;
-  if (CurrentReadFramebuffer == MaskEffectFramebuffer)
-    CurrentReadFramebuffer = 0;
-  if (CurrentFramebuffer == MaskEffectFramebuffer) CurrentFramebuffer = 0;
-
-  glDeleteFramebuffers(1, &MaskEffectFramebuffer);
-  MaskEffectFramebuffer = 0;
-
-  glDeleteTextures(1, &MaskEffectFramebufferTexture);
-  MaskEffectFramebufferTexture = 0;
-}
-
 void BindFramebuffer(GLenum target, GLuint framebuffer) {
   switch (target) {
     case GL_DRAW_FRAMEBUFFER: {
