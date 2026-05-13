@@ -378,10 +378,7 @@ void Background2D::SetTransformState(int dispMode, BgTransformState state) {
 
   switch (dispMode) {
     case 0: {
-      const glm::vec2 scaledPos = state.Position / RenderSprite.BaseScale;
-      const glm::vec2 newDimensions = RenderSprite.Bounds.GetSize() - scaledPos;
-      RenderSprite.Bounds.SetPos(scaledPos);
-      RenderSprite.Bounds.SetSize(newDimensions);
+      TransformState.Position = -state.Position;
     } break;
 
     case 1: {
@@ -807,9 +804,20 @@ void Background2D::RenderRegular() {
 }
 
 void Background2D::RenderMasked() {
+  auto maskTransformState = TransformState;
+  glm::vec2 designSize = glm::vec2(Profile::DesignWidth, Profile::DesignHeight);
+
+  // only handling negative values to account for dispMode 0
+  auto position = glm::min(maskTransformState.Position, glm::vec2(0.0f));
+  maskTransformState.Position = position / designSize;
+  glm::vec2 newScale = designSize / (designSize + position);
+  maskTransformState.Origin = -maskTransformState.Position;
+  maskTransformState.Scale = newScale;
+
   Renderer->DrawMaskedSprite(RenderSprite, Masks2D[MaskNumber].MaskSprite,
                              FadeCount, FadeRange, TransformState.ToMatrix(),
-                             Tint, false, false);
+                             maskTransformState.ToMatrix(), Tint, false, false);
+  // also can render Linked buffers, but IDK any examples to test
 }
 
 void Background2D::RenderCaptureMasked() {
@@ -831,9 +839,19 @@ void Background2D::RenderCaptureMasked() {
 }
 
 void Background2D::RenderMaskedInverted() {
+  auto maskTransformState = TransformState;
+  glm::vec2 designSize = glm::vec2(Profile::DesignWidth, Profile::DesignHeight);
+
+  // only handling negative values to account for dispMode 0
+  auto position = glm::min(maskTransformState.Position, glm::vec2(0.0f));
+  maskTransformState.Position = position / designSize;
+  glm::vec2 newScale = designSize / (designSize + position);
+  maskTransformState.Origin = -maskTransformState.Position;
+  maskTransformState.Scale = newScale;
+
   Renderer->DrawMaskedSprite(RenderSprite, Masks2D[MaskNumber].MaskSprite,
                              FadeCount, FadeRange, TransformState.ToMatrix(),
-                             Tint, true, false);
+                             maskTransformState.ToMatrix(), Tint, true, false);
 }
 
 void Background2D::RenderFade() {
