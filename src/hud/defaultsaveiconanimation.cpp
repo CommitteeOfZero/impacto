@@ -1,6 +1,8 @@
 #include "defaultsaveiconanimation.h"
 #include "../renderer/renderer.h"
 
+#include "../profile/hud/saveicon.h"
+
 namespace Impacto {
 namespace UI {
 
@@ -20,7 +22,11 @@ DefaultSaveIconAnimation::DefaultSaveIconAnimation(
 
 void DefaultSaveIconAnimation::Update(float dt) {
   FadeAnimation.Update(dt);
-  ForegroundAnimation.Update(dt);
+  // Images is fading-in and then ForegroundAnimation is playing, and in reverse
+  // for fade out
+  if (FadeAnimation.IsStopped()) {
+    ForegroundAnimation.Update(dt);
+  }
 }
 
 void DefaultSaveIconAnimation::Render(glm::vec2 position) {
@@ -38,12 +44,18 @@ void DefaultSaveIconAnimation::Render(glm::vec2 position) {
     Renderer->DrawSprite(bgSprite, position + GetBackgroundOffset(), tint);
   }
 
-  Renderer->DrawSprite(ForegroundAnimation.CurrentSprite(), position, col);
+  // if FadeAnimation is playing, should show full visible sprite
+  Renderer->DrawSprite(
+      FadeAnimation.IsPlaying()
+          ? ForegroundAnimation.Def
+                ->Frames[Profile::SaveIcon::FullyVisibleSpriteIndex]
+          : ForegroundAnimation.CurrentSprite(),
+      position, col);
 }
 
 void DefaultSaveIconAnimation::Show() {
-  FadeAnimation.StartIn();
-  ForegroundAnimation.StartIn();
+  FadeAnimation.StartIn(true);
+  ForegroundAnimation.StartIn(true);
 }
 
 void DefaultSaveIconAnimation::Hide() {

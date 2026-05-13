@@ -24,6 +24,8 @@ void Configure() {
       BackgroundSprite = EnsureGetMember<Sprite>("BackgroundSprite");
       BackgroundOffset = EnsureGetMember<glm::vec2>("BackgroundOffset");
       BackgroundMaxAlpha = EnsureGetMember<float>("BackgroundMaxAlpha");
+      FullyVisibleSpriteIndex =
+          TryGetMember<uint8_t>("FullyVisibleSpriteIndex").value_or(0);
       break;
     }
     case SaveIconType::CHLCC: {

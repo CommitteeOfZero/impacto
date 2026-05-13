@@ -30,6 +30,7 @@ inline Sprite YN2NoChipLarge;
 inline Sprite StarChip;
 inline Sprite YesNoBlurMask;
 inline Sprite YesNoBgOverlay;
+inline float StarRotationPeriod;
 
 inline glm::vec2 BackgroundPositions[BackgroundPositionsNum];
 inline UI::CCLCC::YesNoTrigger::YesNoPositions YesNoData1[YesNoDataSize];

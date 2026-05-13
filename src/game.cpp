@@ -234,9 +234,11 @@ void UpdateGameState(float dt) {
 }
 
 void UpdateSystem(float dt) {
+  constexpr float updateInterval = 1.0f / 60.0f;
+
   static float UpdateSecondCounter = 0.0f;
   UpdateSecondCounter += dt;
-  if (UpdateSecondCounter <= 1 / 60.0f) {
+  if (UpdateSecondCounter < updateInterval) {
     return;
   }
 
@@ -270,45 +272,45 @@ void UpdateSystem(float dt) {
   }
   if (+Profile::GameFeatures & +GameFeature::Sc3VirtualMachine) {
     Vm::Interface::UpdatePADInput();
-    Vm::Interface::UpdatePADHoldInput(UpdateSecondCounter);
-    Vm::Interface::UpdateKBHoldInput(UpdateSecondCounter);
-    UpdateGameState(UpdateSecondCounter);
+    Vm::Interface::UpdatePADHoldInput(updateInterval);
+    Vm::Interface::UpdateKBHoldInput(updateInterval);
+    UpdateGameState(updateInterval);
 
     for (DrawComponentType value :
          magic_enum::enum_values<DrawComponentType>()) {
       for (auto const& menu : UI::Menus[value]) {
-        menu->Update(UpdateSecondCounter);
+        menu->Update(updateInterval);
       }
     }
 
-    UI::GameSpecific::NonGameplayUpdate(UpdateSecondCounter);
-    SaveIconDisplay::Update(UpdateSecondCounter);
-    LoadingDisplay::Update(UpdateSecondCounter);
-    DateDisplay::Update(UpdateSecondCounter);
+    UI::GameSpecific::NonGameplayUpdate(updateInterval);
+    SaveIconDisplay::Update(updateInterval);
+    LoadingDisplay::Update(updateInterval);
+    DateDisplay::Update(updateInterval);
     if (ScrWork[SW_GAMESTATE] & 5 && !GetFlag(SF_GAMEPAUSE)) {
-      UI::GameSpecific::Update(UpdateSecondCounter);
+      UI::GameSpecific::Update(updateInterval);
 
       if (Profile::UseWaveEffects) {
         if (IsBgWaveEffectActive()) {
-          Effects::WaveBG.Update(UpdateSecondCounter);
+          Effects::WaveBG.Update(updateInterval);
         }
         const bool isCC =
             +Profile::Vm::GameInstructionSet == +Vm::InstructionSet::CC;
         if (GetFlag(SF_BGEFF1DISP) && (!isCC || ScrWork[SW_EFF_WAVE_ALPHA])) {
-          Effects::WaveEFF.Update(UpdateSecondCounter);
+          Effects::WaveEFF.Update(updateInterval);
         }
       }
 
       if (!GetFlag(SF_MOVIEPLAY)) {
-        TipsNotification::Update(UpdateSecondCounter);
+        TipsNotification::Update(updateInterval);
       }
     }
 
-    Vm::Update(dt);
+    Vm::Update(updateInterval);
 
     ApplyCursorForFrame();
   }
-  UpdateSecondCounter = 0.0f;
+  UpdateSecondCounter -= updateInterval;
 }
 
 void Update(float dt) {

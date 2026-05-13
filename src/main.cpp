@@ -23,6 +23,7 @@ void GameLoop() {
   t2 = SDL_GetPerformanceCounter();
   dt = ((float)(t2 - t) / (float)SDL_GetPerformanceFrequency());
   t = t2;
+  dt = std::min(dt, 1.0f);
 
   Game::Update(dt);
   Game::Render();

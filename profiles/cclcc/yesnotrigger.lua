@@ -74,6 +74,7 @@ root.YesNoTrigger = {
     YNBgOverlay = "YNBgOverlay",
     YesNoData1 = data1,
     YesNoData2 = data2,
+    StarRotationPeriod = 164 / 60, 
 };
 
 root.Sprites["YesNoBackground0"] = {
