@@ -1,5 +1,3 @@
-local languageSuffix = root.Language == "English" and root.Language or ""
-
 root.TitleMenu = {
     Type = TitleMenuType.CHLCC,
     PressToStartX = 72,
@@ -48,13 +46,7 @@ root.TitleMenu = {
     IntroLogoStarHighlightAnimationDuration = 0.5334,
     IntroDelusionADVAnimationDuration = 1.4;
     IntroDelusionADVSprites = {},
-    IntroDelusionADVPositions = root.Language == "English" and {
-        { X = 78,  Y = 400 },
-        { X = 78,  Y = 418 },
-        { X = 174, Y = 400 },
-        { X = 194, Y = 400 },
-        { X = 211, Y = 400 }
-    } or {
+    IntroDelusionADVPositions = {
         { X = 80,  Y = 402 },
         { X = 104, Y = 402 },
         { X = 127, Y = 402 },
@@ -76,20 +68,16 @@ root.TitleMenu = {
         "ExclMarkLogo"
     };
     LCCLogoPositions = {
-        root.Language == "English"
-            and { X = 231, Y = 333 }
-            or { X = 235, Y = 336 },
+        { X = 235, Y = 336 },
         { X = 353, Y = 336 },
         { X = 500, Y = 316 },
         { X = 614, Y = 316 }
     },
     DelusionADVSpriteCount = 7,
     DelusionADVSprites = {},
-    DelusionADVUnderSprite = "DelusionADVUnder" .. languageSuffix,
-    DelusionADVSprite = "DelusionADV" .. languageSuffix,
-    DelusionADVPosition = root.Language == "English"
-        and { X = 76, Y = 397 }
-        or { X = 76, Y = 394 },
+    DelusionADVUnderSprite = "DelusionADVUnder",
+    DelusionADVSprite = "DelusionADV",
+    DelusionADVPosition = { X = 76, Y = 394 },
     DelusionADVPopoutOffset = { X = -2, Y = -3 },
     SeiraUnderSprite = "SeiraUnder",
     SeiraUnderPosition = { X = 733, Y = 0 },
@@ -99,9 +87,7 @@ root.TitleMenu = {
     CHLogoSprite = "CHLogo",
     CHLogoPosition = { X = 61, Y = 279 },
     LCCLogoUnderSprite = "LCCLogoUnder",
-    LCCLogoUnderPosition = root.Language == "English"
-        and { X = 242, Y = 328 }
-        or { X = 241, Y = 327 },
+    LCCLogoUnderPosition = { X = 241, Y = 327 },
     StarLogoSprite = "StarLogo",
     StarLogoPosition = { X = 465, Y = 316 },
     CopyrightTextSprite = "CopyrightText",
@@ -169,7 +155,7 @@ root.TitleMenu = {
 
 root.TitleMenu.IntroDelusionADVSpriteCount = #root.TitleMenu.IntroDelusionADVPositions;
 for i = 1, root.TitleMenu.IntroDelusionADVSpriteCount do
-    root.TitleMenu.IntroDelusionADVSprites[i] = "IntroDelusionADV" .. i .. languageSuffix
+    root.TitleMenu.IntroDelusionADVSprites[i] = "IntroDelusionADV" .. i
 end
 
 for i = 0, 3 do
@@ -234,19 +220,10 @@ root.Sprites["DelusionADVUnder"] = {
     Bounds = { X = 1863, Y = 772, Width = 163, Height = 27 },
 };
 
-root.Sprites["DelusionADVUnderEnglish"] = {
-    Sheet = "Title",
-    Bounds = { X = 1862, Y = 785, Width = 154, Height = 33 },
-};
 
 root.Sprites["DelusionADV"] = {
     Sheet = "Title",
     Bounds = { X = 1863, Y = 728, Width = 163, Height = 27 },
-};
-
-root.Sprites["DelusionADVEnglish"] = {
-    Sheet = "Title",
-    Bounds = { X = 1862, Y = 734, Width = 154, Height = 33 },
 };
 
 root.Sprites["IntroDelusionADV1"] = {
@@ -284,31 +261,6 @@ root.Sprites["IntroDelusionADV7"] = {
     Bounds = { X = 2005, Y = 684, Width = 21, Height = 20 },
 };
 
-root.Sprites["IntroDelusionADV1English"] = {
-    Sheet = "Title",
-    Bounds = { X = 1862, Y = 683, Width = 90, Height = 18 },
-};
-
-root.Sprites["IntroDelusionADV2English"] = {
-    Sheet = "Title",
-    Bounds = { X = 1862, Y = 701, Width = 90, Height = 15 },
-};
-
-root.Sprites["IntroDelusionADV3English"] = {
-    Sheet = "Title",
-    Bounds = { X = 1958, Y = 683, Width = 19, Height = 33 },
-};
-
-root.Sprites["IntroDelusionADV4English"] = {
-    Sheet = "Title",
-    Bounds = { X = 1978, Y = 683, Width = 17, Height = 33 },
-};
-
-root.Sprites["IntroDelusionADV5English"] = {
-    Sheet = "Title",
-    Bounds = { X = 1996, Y = 683, Width = 19, Height = 33 },
-};
-
 root.Sprites["SeiraUnder"] = {
     Sheet = "Title",
     Bounds = { X = 555, Y = 1, Width = 594, Height = 768 },
@@ -327,11 +279,6 @@ root.Sprites["CHLogo"] = {
 root.Sprites["LCCLogoUnder"] = {
     Sheet = "Title",
     Bounds = { X = 597, Y = 771, Width = 462, Height = 122 },
-};
-
-root.Sprites["LCCLogoUnderEnglish"] = {
-    Sheet = "Title",
-    Bounds = { X = 591, Y = 771, Width = 468, Height = 122 },
 };
 
 root.Sprites["ChuLeftLogo"] = {

@@ -9,7 +9,7 @@ root.HelpMenu = {
     HelpMaskSprite = "HelpMask",
 }
 
-local numberOfPages = root.Language == "English" and 1 or 16
+local numberOfPages = 16
 
 for i = 0, numberOfPages do
     root.Sprites["ManualPage" .. i] = {
