@@ -46,11 +46,7 @@ include(root.BaseConfig.RootProfilesDir .. '/chlcc/sprites.lua');
 include(root.BaseConfig.RootProfilesDir .. '/common/animation.lua');
 include(root.BaseConfig.RootProfilesDir .. '/chlcc/charset.lua');
 include(root.BaseConfig.RootProfilesDir .. '/common/charset.lua');
-if root.Language == "English" then
-    include(root.BaseConfig.RootProfilesDir .. '/chlcc/font-lb.lua');
-else
-    include(root.BaseConfig.RootProfilesDir .. '/chlcc/font.lua');
-end
+include(root.BaseConfig.RootProfilesDir .. '/chlcc/font.lua');
 include(root.BaseConfig.RootProfilesDir .. '/chlcc/dialogue.lua');
 include(root.BaseConfig.RootProfilesDir .. '/chlcc/hud/commonmenu.lua');
 include(root.BaseConfig.RootProfilesDir .. '/chlcc/hud/saveicon.lua');
@@ -69,4 +65,3 @@ include(root.BaseConfig.RootProfilesDir .. '/chlcc/hud/extramenus.lua');
 include(root.BaseConfig.RootProfilesDir .. '/chlcc/hud/trophymenu.lua');
 include(root.BaseConfig.RootProfilesDir .. '/chlcc/gamespecific.lua');
 include(root.BaseConfig.RootProfilesDir .. '/chlcc/waveeffects.lua');
--- include(root.BaseConfig.RootProfilesDir .. '/chlcc/subtitle.lua');
