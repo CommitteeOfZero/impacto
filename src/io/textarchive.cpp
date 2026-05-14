@@ -100,6 +100,10 @@ IoError TextArchive::Create(Stream* stream, VfsArchive** outArchive) {
       break;
     }
     case MLP:
+      basePath =
+          (std::filesystem::path(stream->Meta.FileName).parent_path() / "")
+              .string();
+      break;
     case TextMPK: {
       basePath = "";
       break;
