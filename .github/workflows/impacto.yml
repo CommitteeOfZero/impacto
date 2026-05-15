@@ -54,9 +54,9 @@ jobs:
       - name: Run linters
         uses: wearerequired/lint-action@v2
         with:
-          auto_fix: ${{(env.BRANCH_NAME == 'master') && 'false' || 'true'}}
+          auto_fix: ${{(github.event.pull_request.head.repo.full_name != 'CommitteeOfZero/impacto') && 'false' || 'true'}}
           clang_format: true
-          clang_format_auto_fix: ${{(env.BRANCH_NAME == 'master') && 'false' || 'true'}}
+          clang_format_auto_fix: ${{(github.event.pull_request.head.repo.full_name != 'CommitteeOfZero/impacto') && 'false' || 'true'}}
           continue_on_error: false
       - name: Get latest commit
         id: commit
