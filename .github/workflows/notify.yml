@@ -48,8 +48,8 @@ jobs:
           Job status:
           windows: ${{steps.get_jobs_status.outputs.windows}} 
           linux: ${{steps.get_jobs_status.outputs.linux}} 
-          macos-arm64: ${{steps.get_jobs_status.outputs.macos-arm64}} 
-          macos-x64: ${{steps.get_jobs_status.outputs.macos-x64}} 
+          macos_arm64: ${{steps.get_jobs_status.outputs.macos_arm64}} 
+          macos_x64: ${{steps.get_jobs_status.outputs.macos_x64}} 
           switch: ${{steps.get_jobs_status.outputs.switch}} 
           android: ${{steps.get_jobs_status.outputs.android}} 
 
