@@ -6,8 +6,8 @@ namespace Impacto {
 namespace Audio {
 namespace OpenAL {
 
-static ALCdevice *AlcDevice = 0;
-static ALCcontext *AlcContext = 0;
+static ALCdevice* AlcDevice = 0;
+static ALCcontext* AlcContext = 0;
 static bool IsReopenSupported = false;
 #if IMPACTO_OPENAL_HAVE_ALEXT
 static LPALCEVENTCALLBACKSOFT EventCallBackFunc = 0;
@@ -15,9 +15,9 @@ static LPALCREOPENDEVICESOFT ReopenSoftFunc = 0;
 static LPALCEVENTCONTROLSOFT EventControlFunc = 0;
 
 void AL_APIENTRY DefaultDeviceChangedEventCallback(
-    ALCenum eventType, ALCenum deviceType, ALCdevice *device, ALCsizei length,
-    const ALCchar *message, void *userParam) {
-  *(bool *)userParam = true;
+    ALCenum eventType, ALCenum deviceType, ALCdevice* device, ALCsizei length,
+    const ALCchar* message, void* userParam) {
+  *(bool*)userParam = true;
 }
 #endif
 bool AudioBackend::Init() {
