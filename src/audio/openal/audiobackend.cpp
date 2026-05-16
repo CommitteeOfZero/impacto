@@ -9,7 +9,7 @@ namespace OpenAL {
 static ALCdevice *AlcDevice = 0;
 static ALCcontext *AlcContext = 0;
 static bool IsReopenSupported = false;
-
+#if IMPACTO_OPENAL_HAVE_ALEXT
 static LPALCEVENTCALLBACKSOFT EventCallBackFunc = 0;
 static LPALCREOPENDEVICESOFT ReopenSoftFunc = 0;
 static LPALCEVENTCONTROLSOFT EventControlFunc = 0;
@@ -19,7 +19,7 @@ void AL_APIENTRY DefaultDeviceChangedEventCallback(
     const ALCchar *message, void *userParam) {
   *(bool *)userParam = true;
 }
-
+#endif
 bool AudioBackend::Init() {
   AlcDevice = alcOpenDevice(NULL);
   if (!AlcDevice) {
@@ -38,6 +38,7 @@ bool AudioBackend::Init() {
     ImpLog(LogLevel::Error, LogChannel::Audio,
            "No floating-point audio support, some decoders may fail\n");
   }
+#if IMPACTO_OPENAL_HAVE_ALEXT
   if (alcIsExtensionPresent(AlcDevice, "ALC_SOFT_system_events") == AL_TRUE) {
     if (alcIsExtensionPresent(AlcDevice, "ALC_SOFT_reopen_device") ==
         AL_FALSE) {
@@ -64,11 +65,13 @@ bool AudioBackend::Init() {
                         &deviceChanged);
     }
   }
+#endif
   return true;
 }
 
 bool AudioBackend::Reinit() {
   deviceChanged = false;
+#if IMPACTO_OPENAL_HAVE_ALEXT
   if (IsReopenSupported) {
     if (ReopenSoftFunc) {
       return ReopenSoftFunc(AlcDevice, NULL, NULL);
@@ -78,6 +81,7 @@ bool AudioBackend::Reinit() {
              "back to manual reopen\n");
     }
   }
+#endif
   Shutdown();
   AlcDevice = alcOpenDevice(NULL);
   if (!AlcDevice) {
@@ -103,8 +107,12 @@ void AudioBackend::Shutdown() {
 bool AudioBackend::DeviceChanged() { return deviceChanged; }
 
 bool AudioBackend::ReopenSupported() {
+#if IMPACTO_OPENAL_HAVE_ALEXT
   return IsReopenSupported && ReopenSoftFunc && EventControlFunc &&
          EventCallBackFunc;
+#else
+  return false;
+#endif
 }
 
 };  // namespace OpenAL
