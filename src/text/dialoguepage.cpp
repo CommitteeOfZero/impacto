@@ -72,7 +72,7 @@ void DialoguePage::Clear() {
   AudioId.reset();
   CurrentStringAddress.reset();
 
-  CurrentLineTop = GetTextModeInfo().WindowPos.y;
+  CurrentLineTop = 0.0f;
   CurrentLineTopMargin = 0.0f;
 
   AdvanceMethod = AdvanceMethodType::Skip;

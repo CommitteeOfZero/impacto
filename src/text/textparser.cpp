@@ -264,9 +264,10 @@ void TextParser::FinishLine(const size_t nextLineStart) {
 
     const std::span<const ProcessedTextGlyph> base =
         std::span(Glyphs.begin() + chunk.FirstBaseCharacter, chunk.BaseLength);
-    glm::vec2 pos = glm::vec2(base.front().DestRect.X,
-                              CurrentLineTop + CurrentLineTopMargin +
-                                  (ModeInfo.RubyGlyphSize.y - rubyFontSize));
+    glm::vec2 pos =
+        glm::vec2(base.front().DestRect.X,
+                  ModeInfo.WindowPos.y + CurrentLineTop + CurrentLineTopMargin +
+                      (ModeInfo.RubyGlyphSize.y - rubyFontSize));
 
     // ruby base length > ruby text length: block align
     // ruby base length > ruby text length and 0x1E: center per character
@@ -339,23 +340,26 @@ void TextParser::FinishLine(const size_t nextLineStart) {
   }
 
   const float lastGlyphX = currentLine.back().DestRect.Right();
-  for (ProcessedTextGlyph& glyph : currentLine) {
-    glyph.DestRect.Y = CurrentLineTop + CurrentLineTopMargin +
-                       (lineHeight - glyph.DestRect.Height);
+  const float xAlignmentOffset = [&]() {
     switch (Alignment) {
       case TextAlignment::Center:
-        glyph.DestRect.X +=
-            (ModeInfo.MaxLineWidth - (lastGlyphX - ModeInfo.WindowPos.x)) /
-            2.0f;
+        return (ModeInfo.MaxLineWidth - (lastGlyphX - ModeInfo.WindowPos.x)) /
+               2.0f;
         break;
       case TextAlignment::Right:
-        glyph.DestRect.X += ModeInfo.MaxLineWidth - lastGlyphX - marginXOffset;
+        return ModeInfo.MaxLineWidth - lastGlyphX - marginXOffset;
         break;
       case TextAlignment::Left:
-        glyph.DestRect.X += marginXOffset;
+        return marginXOffset;
       default:
-        break;
+        return 0.0f;
     }
+  }();
+  for (ProcessedTextGlyph& glyph : currentLine) {
+    glyph.DestRect.X += xAlignmentOffset;
+    glyph.DestRect.Y = ModeInfo.WindowPos.y + CurrentLineTop +
+                       CurrentLineTopMargin +
+                       (lineHeight - glyph.DestRect.Height);
   }
 
   CurrentLineTop += CurrentLineTopMargin + lineHeight + ModeInfo.LineSpacing;
@@ -555,7 +559,6 @@ void BacklogTextParser::ParseString(BacklogPage& page,
   RubyChunks.swap(page.RubyChunks);
   Name.swap(page.Name);
   LastLineStart = Glyphs.size();
-  CurrentLineTop = REVBounds.Y;
 
   ModeInfo = TextModesInfo[REVMessageModeIdx];
   FontSize = ModeInfo.TextGlyphSize.y;
@@ -613,7 +616,6 @@ void TipsTextParser::ParseString(TipsPage& page, Vm::Sc3VmThread* string) {
   Reset();
   Glyphs.swap(page.Glyphs);
   RubyChunks.swap(page.RubyChunks);
-  CurrentLineTop = TipsBounds.Y;
 
   ModeInfo = TextModesInfo[TipsMessageModeIdx];
   FontSize = ModeInfo.TextGlyphSize.y;
