@@ -30,6 +30,7 @@
 #include "hud/saveicondisplay.h"
 #include "hud/loadingdisplay.h"
 #include "hud/tipsnotification.h"
+#include "hud/achievementnotification.h"
 #include "games/cclcc/systemmenu.h"
 #include "effects/wave.h"
 #include "effects/blur.h"
@@ -171,6 +172,7 @@ static void Init() {
     Profile::ExtraMenus::Configure();
     DateDisplay::Init();
     TipsNotification::Init();
+    AchievementNotification::Init();
     // Default controls
     Vm::Interface::UpdatePADcustomType(0);
 
@@ -293,6 +295,7 @@ void UpdateSystem(float dt) {
     SaveIconDisplay::Update(updateInterval);
     LoadingDisplay::Update(updateInterval);
     DateDisplay::Update(updateInterval);
+    AchievementNotification::Update(updateInterval);
     if (ScrWork[SW_GAMESTATE] & 5 && !GetFlag(SF_GAMEPAUSE)) {
       UI::GameSpecific::Update(updateInterval);
 
@@ -654,6 +657,7 @@ void Render() {
         menu->Render();
       }
     }
+    AchievementNotification::Render();
   }
 
   if (+Profile::GameFeatures & +GameFeature::CharacterViewer) {

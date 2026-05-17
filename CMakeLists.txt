@@ -246,6 +246,7 @@ set(Impacto_Src
     src/hud/skipicondisplay.cpp
     src/hud/waiticondisplay.cpp
     src/hud/tipsnotification.cpp
+    src/hud/achievementnotification.cpp
 
     src/hud/cc/dialoguebox.cpp
     src/hud/cc/nametagdisplay.cpp
@@ -599,6 +600,7 @@ set(Impacto_Header
     src/hud/skipicondisplay.h
     src/hud/waiticondisplay.h
     src/hud/tipsnotification.h
+    src/hud/achievementnotification.h
 
     src/hud/cc/dialoguebox.h
     src/hud/cc/nametagdisplay.h
