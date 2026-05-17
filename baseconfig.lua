@@ -22,8 +22,23 @@ root.BaseConfig.GameDefinitions = {
   },
   mo6tw = {
     GameProfile = root.BaseConfig.RootProfilesDir .. "/profiles/mo6tw/game.lua",
-    Patch = {
-      English = root.BaseConfig.RootPatchesDir .. "/english/profiles/mo6tw/patch.lua",
-    }
-  }
+  },
+  darling = {
+      GameProfile = root.BaseConfig.RootProfilesDir .. "/profiles/darling/game.lua",
+  },
+  dash = {
+      GameProfile = root.BaseConfig.RootProfilesDir .. "/profiles/dash/game.lua",
+  },
+  rne = {
+      GameProfile = root.BaseConfig.RootProfilesDir .. "/profiles/rne/game.lua",
+  },
+  characterviewer = {
+      GameProfile = root.BaseConfig.RootProfilesDir .. "/profiles/characterviewer/game.lua",
+  },
+  modelviewer = {
+      GameProfile = root.BaseConfig.RootProfilesDir .. "/profiles/modelviewer/game.lua",
+  },
+  ["modelviewer-dash"] = {
+      GameProfile = root.BaseConfig.RootProfilesDir .. "/profiles/modelviewer-dash/game.lua",
+  },
 };
