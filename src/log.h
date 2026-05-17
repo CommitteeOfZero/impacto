@@ -7,6 +7,8 @@
 #include <glad/glad.h>
 #endif
 
+#include "profiling/probe.h"
+
 #include <magic_enum/magic_enum_format.hpp>
 
 namespace Impacto {
@@ -176,10 +178,13 @@ void LogInit();
 bool CheckLogConfig(LogLevel level, LogChannel channel);
 
 void ImpLogImpl(LogLevel level, LogChannel channel, fmt::string_view format,
-                fmt::format_args args, size_t tailSize);
+                fmt::format_args args, size_t tailSize) NOINSTRUMENT;
 
 template <typename... T>
 void ImpLog(LogLevel level, LogChannel channel, fmt::format_string<T...> format,
+            T&&... args) NOINSTRUMENT;
+template <typename... T>
+inline void ImpLog(LogLevel level, LogChannel channel, fmt::format_string<T...> format,
             T&&... args) {
   if (!CheckLogConfig(level, channel)) return;
   size_t tailSize = fmt::formatted_size(format, std::forward<T>(args)...);

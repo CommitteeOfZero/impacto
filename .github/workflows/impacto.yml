@@ -226,7 +226,7 @@ jobs:
       contents: read
       packages: write
     container:
-      image: ghcr.io/committeeofzero/impacto-switch:latest
+      image: ghcr.io/committeeofzero/impacto-switch:build-updates
     env:
       VERSION: ${{ needs.get-version.outputs.VERSION }}
       PresetName: ci-release-switch

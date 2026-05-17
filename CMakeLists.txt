@@ -1236,6 +1236,23 @@ file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/VERSION" APP_VERSION)
 string(STRIP "${APP_VERSION}" APP_VERSION)
 string(REGEX REPLACE "\\.$" "" APP_VERSION "${APP_VERSION}")
 string(REGEX REPLACE "\\.[0-9]+$" "" APP_VERSION_SHORT "${APP_VERSION}")
+set(INSTRUMENTED_SOURCES ${Impacto_Src})
+
+list(REMOVE_ITEM INSTRUMENTED_SOURCES 
+    "src/main.cpp" 
+    "src/log.cpp" 
+    "src/profiling/probe.cpp"
+    "vendor/glad/src/glad.c"
+)
+set_source_files_properties(${INSTRUMENTED_SOURCES} PROPERTIES COMPILE_FLAGS 
+    "-finstrument-functions"
+)
+foreach(f ${INSTRUMENTED_SOURCES})
+    message(STATUS "  ${f}")
+endforeach()
+list(APPEND Impacto_Src 
+    src/profiling/probe.cpp src/profiling/probe.h src/profiling/timer.h
+)
 
 if(ANDROID)
     add_library(impacto SHARED ${Impacto_Src} ${Impacto_Header})

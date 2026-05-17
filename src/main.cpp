@@ -9,6 +9,7 @@
 #include "log.h"
 #include "game.h"
 #include "util.h"
+#include "profiling/probe.h"
 
 #include "profile/profile.h"
 #include "userconfig.h"
@@ -157,7 +158,6 @@ int main(int argc, char* argv[]) {
 #else
   LogSetConsole(true);
 #endif
-
   std::vector<std::string_view> arguments;
   for (int i = 1; i < argc; ++i) {
     arguments.push_back(argv[i]);
@@ -188,9 +188,11 @@ int main(int argc, char* argv[]) {
   EM_ASM(EGL.antialias = false;);
 #endif
   try {
+    enableProbing();
     Profile::Init();
     Profile::Configure();
     Game::Init();
+    endProbing();
 
 #ifdef EMSCRIPTEN
     EM_ASM(OnGameLoaded(););
