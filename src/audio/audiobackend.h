@@ -13,7 +13,7 @@ class AudioBackend {
 
   virtual void Shutdown() {};
 
-  virtual bool DeviceChanged() { return false; };
+  virtual bool DidDeviceChanged() { return false; };
 
   virtual bool ReopenSupported() { return false; }
 };

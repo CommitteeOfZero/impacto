@@ -9,7 +9,7 @@ namespace OpenAL {
 
 class AudioBackend : public Audio::AudioBackend {
  private:
-  bool deviceChanged = false;
+  bool DeviceChanged = false;
   void InitAlextFunctions();
 
  public:
@@ -19,7 +19,7 @@ class AudioBackend : public Audio::AudioBackend {
 
   void Shutdown() override;
 
-  bool DeviceChanged() override;
+  bool DidDeviceChanged() override;
 
   bool ReopenSupported() override;
 };

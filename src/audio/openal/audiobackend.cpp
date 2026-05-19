@@ -45,7 +45,7 @@ bool AudioBackend::Init() {
 }
 
 bool AudioBackend::Reinit() {
-  deviceChanged = false;
+  DeviceChanged = false;
 #if ALC_SOFT_reopen_device
   if (IsReopenSupported) {
     if (ReopenSoftFunc) {
@@ -79,7 +79,7 @@ void AudioBackend::Shutdown() {
   if (AlcDevice) alcCloseDevice(AlcDevice);
 }
 
-bool AudioBackend::DeviceChanged() { return deviceChanged; }
+bool AudioBackend::DidDeviceChanged() { return DeviceChanged; }
 
 bool AudioBackend::ReopenSupported() {
 #if ALC_SOFT_reopen_device
@@ -104,7 +104,7 @@ void AudioBackend::InitAlextFunctions() {
         AlcDevice, "alcEventCallbackSOFT");
     if (EventCallBackFunc) {
       EventCallBackFunc((ALCEVENTPROCTYPESOFT)DefaultDeviceChangedEventCallback,
-                        &deviceChanged);
+                        &DeviceChanged);
     }
 #if ALC_SOFT_reopen_device
     if (alcIsExtensionPresent(AlcDevice, "ALC_SOFT_reopen_device") ==

@@ -317,7 +317,7 @@ void Update(float dt) {
   bool AudioDeviceChanged = false;
   bool AudioReopenSupported = false;
   if (Audio::Backend) {
-    AudioDeviceChanged = Audio::Backend->DeviceChanged();
+    AudioDeviceChanged = Audio::Backend->DidDeviceChanged();
     AudioReopenSupported = Audio::Backend->ReopenSupported();
   }
   UpdateSystem(dt);
