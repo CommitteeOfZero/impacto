@@ -10,6 +10,7 @@ namespace OpenAL {
 class AudioBackend : public Audio::AudioBackend {
  private:
   bool deviceChanged = false;
+  void InitAlextFunctions();
 
  public:
   bool Init() override;

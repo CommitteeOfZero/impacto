@@ -33,7 +33,6 @@ class FFmpegAudioPlayer : public Audio::FFmpegAudioPlayer {
   int FreeBufferCount = AudioBufferCount;
   int BufferStartPositions[AudioBufferCount] = {};
   bool First = true;
-  bool ReInit = false;
 };
 
 }  // namespace OpenAL

@@ -102,7 +102,7 @@ void FFmpegPlayer::Init() {
   IsInit = true;
 }
 
-void FFmpegPlayer::Reinit() { AudioPlayer->Reinit(); }
+void FFmpegPlayer::ReinitAudio() { AudioPlayer->Reinit(); }
 
 AVBufferRef* FFmpegPlayer::HwDecoderInit(const AVCodec* codec) {
   for (int i = 0;; i++) {

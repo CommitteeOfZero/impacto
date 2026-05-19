@@ -17,7 +17,7 @@ class VideoPlayer {
   virtual void Stop() {};
   virtual void Seek(int64_t pos) {};
 
-  virtual void Reinit() {};
+  virtual void ReinitAudio() {};
   virtual void Update(float dt) {};
   virtual void Render(float videoAlpha) {};
 

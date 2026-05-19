@@ -43,7 +43,7 @@ class FFmpegPlayer : public VideoPlayer {
   void Stop() override;
   void Seek(int64_t pos) override;
 
-  void Reinit() override;
+  void ReinitAudio() override;
   void Update(float dt) override;
   void Render(float videoAlpha) override;
 

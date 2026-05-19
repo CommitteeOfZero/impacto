@@ -46,7 +46,7 @@ void FFmpegAudioPlayer::Reinit() {
   alSourcei(ALSource, AL_LOOPING, AL_FALSE);
 
   alGenBuffers(AudioBufferCount, BufferIds);
-  ReInit = true;
+  First = true;
 }
 
 void FFmpegAudioPlayer::InitConvertContext(AVCodecContext* codecCtx) {
@@ -114,7 +114,7 @@ void FFmpegAudioPlayer::FillAudioBuffers() {
       totalSize += bufferSize;
     } while (totalSize <= 4096);
 
-    if (!First && !ReInit) {
+    if (!First) {
       alSourceUnqueueBuffers(ALSource, 1, &BufferIds[FirstFreeBuffer]);
     }
     FreeBufferCount--;
@@ -136,7 +136,7 @@ void FFmpegAudioPlayer::Process() {
 
   if (Player->AudioStream->FrameQueue.peek() != nullptr) {
     alGetSourcei(ALSource, AL_BUFFERS_PROCESSED, &FreeBufferCount);
-    if (First || ReInit) {
+    if (First) {
       FreeBufferCount = AudioBufferCount;
       FirstFreeBuffer = 0;
     }
@@ -162,7 +162,6 @@ void FFmpegAudioPlayer::Process() {
       alSourcePlay(ALSource);
     }
     First = false;
-    ReInit = false;
   }
 }
 
