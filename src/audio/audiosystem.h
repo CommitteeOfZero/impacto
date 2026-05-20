@@ -14,6 +14,7 @@ namespace Audio {
 void AudioInit();
 void AudioUpdate(float dt);
 void AudioShutdown();
+void AudioReinit();
 
 void AudioSubtitlesStart(AudioChannel* channel);
 void AudioSubtitlesUpdate();

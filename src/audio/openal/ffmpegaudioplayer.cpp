@@ -37,6 +37,18 @@ void FFmpegAudioPlayer::Init() {
   alGenBuffers(AudioBufferCount, BufferIds);
 }
 
+void FFmpegAudioPlayer::Reinit() {
+  alGenSources(1, &ALSource);
+  alSourcef(ALSource, AL_PITCH, 1);
+  alSourcef(ALSource, AL_GAIN, 1);
+  alSource3f(ALSource, AL_POSITION, 0, 0, 0);
+  alSource3f(ALSource, AL_VELOCITY, 0, 0, 0);
+  alSourcei(ALSource, AL_LOOPING, AL_FALSE);
+
+  alGenBuffers(AudioBufferCount, BufferIds);
+  First = true;
+}
+
 void FFmpegAudioPlayer::InitConvertContext(AVCodecContext* codecCtx) {
   AVChannelLayout stereoFormat;
   av_channel_layout_default(&stereoFormat, 2);
@@ -126,6 +138,7 @@ void FFmpegAudioPlayer::Process() {
     alGetSourcei(ALSource, AL_BUFFERS_PROCESSED, &FreeBufferCount);
     if (First) {
       FreeBufferCount = AudioBufferCount;
+      FirstFreeBuffer = 0;
     }
 
     int currentlyPlayingBuffer =

@@ -102,6 +102,8 @@ void FFmpegPlayer::Init() {
   IsInit = true;
 }
 
+void FFmpegPlayer::ReinitAudio() { AudioPlayer->Reinit(); }
+
 AVBufferRef* FFmpegPlayer::HwDecoderInit(const AVCodec* codec) {
   for (int i = 0;; i++) {
     const AVCodecHWConfig* cfg = avcodec_get_hw_config(codec, i);

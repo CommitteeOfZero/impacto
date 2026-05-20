@@ -9,7 +9,13 @@ class AudioBackend {
  public:
   virtual bool Init() { return true; };
 
+  virtual bool Reinit() { return true; };
+
   virtual void Shutdown() {};
+
+  virtual bool DidDeviceChanged() { return false; };
+
+  virtual bool ReopenSupported() { return false; }
 };
 
 }  // namespace Audio

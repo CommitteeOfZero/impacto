@@ -18,6 +18,7 @@ class FFmpegAudioPlayer : public Audio::FFmpegAudioPlayer {
   void InitConvertContext(AVCodecContext* codecCtx) override;
   void FillAudioBuffers() override;
   void Process() override;
+  void Reinit() override;
 
   void Stop() override;
   void Unload() override;
