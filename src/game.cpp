@@ -340,7 +340,7 @@ void Update(float dt) {
   }
 
   if (+Profile::GameFeatures & +GameFeature::Video) {
-    if (AudioDeviceChanged && !AudioReopenSupported) Video::VideoReinit();
+    if (AudioDeviceChanged && !AudioReopenSupported) Video::ReinitAudio();
     Video::VideoUpdate(dt);
   }
 

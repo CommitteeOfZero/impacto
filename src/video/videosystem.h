@@ -14,6 +14,6 @@ void VideoInit();
 void VideoUpdate(float dt);
 void VideoRender(float videoAlpha);
 void VideoShutdown();
-void VideoReinit();
+void ReinitAudio();
 }  // namespace Video
 }  // namespace Impacto

@@ -50,7 +50,7 @@ void VideoRender(float videoAlpha) {
   }
 }
 
-void VideoReinit() {
+void ReinitAudio() {
   for (int i = 0; i < VP_Count; i++) {
     Players[i]->ReinitAudio();
   }
