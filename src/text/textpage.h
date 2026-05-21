@@ -66,7 +66,7 @@ struct TextModeInfo {
 
   float LineSpacing = 0.0f;
   float RubyLineSpacing = 0.0f;
-  uint16_t RubyDispMode = 0;
+  bool AlwaysAddRubySpacing = false;
   float LinefeedSpacing = 0.0f;
 
   enum class NameAlignmentType : uint8_t {

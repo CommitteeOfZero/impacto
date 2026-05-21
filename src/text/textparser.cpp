@@ -251,6 +251,7 @@ void TextParser::FinishLine(const size_t nextLineStart) {
 
   // Lay out all ruby chunks on this line (before we change CurrentLineTop and
   // thus can't find where to put them)
+  bool hasRuby = false;
   const float rubyFontSize =
       ModeInfo.RubyGlyphSize.y * FontSize / DefaultFontSize;
   for (RubyChunk& chunk : RubyChunks) {
@@ -259,6 +260,7 @@ void TextParser::FinishLine(const size_t nextLineStart) {
       continue;
     }
     if (chunk.FirstBaseCharacter >= nextLineStart) break;
+    hasRuby = true;
 
     Vm::Sc3Stream rubyText(chunk.RawText.data());
 
@@ -281,12 +283,12 @@ void TextParser::FinishLine(const size_t nextLineStart) {
       for (size_t j = 0; j < chunk.Length; j++) {
         pos.x = base[j].DestRect.Center().x;
         TextLayoutPlainLine(rubyText, 1, std::span(chunk.Text.begin() + j, 1),
-                            DialogueFont, rubyFontSize, ColorTable[0], 1.0f,
+                            DialogueFont, rubyFontSize, CurrentColors, 1.0f,
                             pos, TextAlignment::Center);
       }
     } else {
       TextLayoutPlainLine(rubyText, static_cast<int>(chunk.Length), chunk.Text,
-                          DialogueFont, rubyFontSize, ColorTable[0], 1.0f, pos,
+                          DialogueFont, rubyFontSize, CurrentColors, 1.0f, pos,
                           TextAlignment::Left);
       const float baseWidth =
           base.back().DestRect.Right() - base.front().DestRect.X;
@@ -319,7 +321,21 @@ void TextParser::FinishLine(const size_t nextLineStart) {
   }
   // Despite the font size actually being rubyFontSize, the line displacement is
   // still handled by ModeInfo.RubyGlyphSize.y
-  CurrentLineTop += ModeInfo.RubyGlyphSize.y + ModeInfo.RubyLineSpacing;
+  if (ModeInfo.AlwaysAddRubySpacing || hasRuby) {
+    const float rubyHeight = hasRuby ? rubyFontSize : ModeInfo.RubyGlyphSize.y;
+    CurrentLineTop += ModeInfo.RubyLineSpacing + rubyHeight;
+
+    // Align name height with the first line of text if NameDispMode is
+    // RelativeToWindow MAGES. engine also hardcodes it to only happen for the
+    // backlog
+    if (GetType() == TextParserType::Backlog && hasRuby && LastLineStart == 0 &&
+        ModeInfo.NameDispMode ==
+            TextModeInfo::NameDispModeType::RelativeToWindow) {
+      for (auto& glyph : Name) {
+        glyph.DestRect.Y += ModeInfo.RubyLineSpacing + rubyHeight;
+      }
+    }
+  }
 
   // Glyphs of different font sizes are bottom-aligned within the line
   const float lineHeight =

@@ -38,6 +38,11 @@ BacklogEntry::BacklogEntry(int id, Vm::BufferOffsetContext scrCtx,
   for (const ProcessedTextGlyph& glyph : Page->Glyphs) {
     Bounds = RectF::Coalesce(Bounds, glyph.DestRect);
   }
+  for (const RubyChunk& chunk : Page->RubyChunks) {
+    for (size_t i = 0; i < chunk.Length; i++) {
+      Bounds = RectF::Coalesce(Bounds, chunk.Text[i].DestRect);
+    }
+  }
   Position.x = Bounds.X;  // X position should not take name into account
   for (const ProcessedTextGlyph& glyph : Page->Name) {
     Bounds = RectF::Coalesce(Bounds, glyph.DestRect);

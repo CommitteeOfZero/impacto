@@ -32,8 +32,8 @@ void BacklogEntry::Render() {
 
   for (RubyChunk& chunk : Page->RubyChunks) {
     Renderer->DrawProcessedText(chunk.Text, Profile::Dialogue::DialogueFont,
-                                Tint.a, Profile::Dialogue::REVNameOutlineMode,
-                                true, &BacklogMaskSheet);
+                                Tint.a, Profile::Dialogue::REVOutlineMode, true,
+                                &BacklogMaskSheet);
   }
 
   Renderer->DrawProcessedText(Page->Glyphs, Profile::Dialogue::DialogueFont,

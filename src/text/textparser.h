@@ -10,11 +10,14 @@ namespace Impacto {
 
 using namespace Profile::Dialogue;
 
+enum class TextParserType { Dialogue, Backlog, Tips };
+
 class TextParser {
  public:
   virtual ~TextParser() = default;
 
   virtual void ParseString(Vm::Sc3VmThread* string) = 0;
+  virtual constexpr TextParserType GetType() = 0;
 
   virtual void Reset();
 
@@ -58,6 +61,9 @@ class TextParser {
 class DialogueTextParser : public TextParser {
  public:
   DialogueTextParser() = default;
+  constexpr TextParserType GetType() override {
+    return TextParserType::Dialogue;
+  }
 
   void ParseString(Vm::Sc3VmThread* string) override;
   void ParseString(DialoguePage& page, Vm::Sc3VmThread* string);
@@ -66,6 +72,9 @@ class DialogueTextParser : public TextParser {
 class BacklogTextParser : public TextParser {
  public:
   BacklogTextParser() = default;
+  constexpr TextParserType GetType() override {
+    return TextParserType::Backlog;
+  }
 
   void ParseString(Vm::Sc3VmThread* string) override;
   void ParseString(BacklogPage& page, Vm::Sc3VmThread* string);
@@ -74,6 +83,7 @@ class BacklogTextParser : public TextParser {
 class TipsTextParser : public TextParser {
  public:
   TipsTextParser() = default;
+  constexpr TextParserType GetType() override { return TextParserType::Tips; }
 
   void ParseString(Vm::Sc3VmThread* string) override;
   void ParseString(TipsPage& page, Vm::Sc3VmThread* string);

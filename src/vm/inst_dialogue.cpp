@@ -379,7 +379,7 @@ VmInstruction(InstSetMesModeFormat) {
           glm::vec2(info->RubyGlyphWidth, info->RubyGlyphHeight) * designScale,
       .LineSpacing = info->LineSpacing * designScale.y,
       .RubyLineSpacing = info->RubyLineSpacing * designScale.y,
-      .RubyDispMode = info->RubyDispMode,
+      .AlwaysAddRubySpacing = info->RubyDispMode != 0,
       .LinefeedSpacing = info->LinefeedSpacing * designScale.y,
       .NameAlignment = static_cast<TextModeInfo::NameAlignmentType>(
           info->NamePosFlags & 0b111),
