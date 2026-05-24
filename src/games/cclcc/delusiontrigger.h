@@ -20,6 +20,7 @@ class DelusionTrigger {
 
   void Hide();
   void Update(float dt);
+  void UpdateDragging(float dt);
   void Render();
   bool Show(int bgOverlayBgBufferId, int circlesBgBufferId,
             int availableDelusions);
@@ -32,14 +33,27 @@ class DelusionTrigger {
   };
 
  private:
+  enum class DragHitbox { None, Positive, Negative };
+
   int MtrgAlphaCt = 0;
   int MtrgAng = 0;
   int& DelusionState;
   int LastDelusionState = 0xFF;
+  DragHitbox ActiveDragHitbox = DragHitbox::None;
+  glm::vec2 DragStartPos = glm::vec2(0.0f);
+  float DragHoldTime = 0.0f;
+  bool DragPressPending = false;
+  bool DragHoldActive = false;
   Sprite PositiveDelusionSprite;
   Sprite NegativeDelusionSprite;
   Sprite BgOverlaySprite;
 
+  void TriggerLeft();
+  void TriggerRight();
+  void ResetDraggingPress();
+  std::pair<bool, bool> UpdateDraggingTriggers(bool updateInputBlocking,
+                                               float dt);
+  bool CanUpdateDragging() const;
   void RenderPositiveToNeutralTransition(float spinAngle, int spinAlpha);
   void RenderNegativeToNeutralTransition(float spinAngle, int spinAlpha);
   void RenderNeutralToNegativeTransition(float spinAngle, int spinAlpha);

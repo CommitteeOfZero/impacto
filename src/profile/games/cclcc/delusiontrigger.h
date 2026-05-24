@@ -7,6 +7,8 @@ namespace Profile {
 namespace CCLCC {
 namespace DelusionTrigger {
 
+inline float DragDelta;
+
 void Configure();
 
 }  // namespace DelusionTrigger

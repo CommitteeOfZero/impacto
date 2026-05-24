@@ -1,6 +1,5 @@
 #include "game.h"
 
-#include "text/text.h"
 #include "text/dialoguepage.h"
 #include "workqueue.h"
 #include "modelviewer.h"
@@ -40,6 +39,7 @@
 #include "profile/game.h"
 
 #include "games/chlcc/delusiontrigger.h"
+#include "games/cclcc/delusiontrigger.h"
 #include "profile/sprites.h"
 #include "profile/charset.h"
 #include "profile/fonts.h"
@@ -229,6 +229,9 @@ void UpdateGameState(float dt) {
   }
   if (Profile::GameSpecific::GameSpecificType == UI::GameSpecificType::CHLCC) {
     UI::CHLCC::DelusionTrigger::GetInstance().UpdateHeartButtons();
+  }
+  if (Profile::GameSpecific::GameSpecificType == UI::GameSpecificType::CCLCC) {
+    UI::CCLCC::DelusionTrigger::GetInstance().UpdateDragging(dt);
   }
   Vm::ChkMesSkip();
   if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::CC) {
