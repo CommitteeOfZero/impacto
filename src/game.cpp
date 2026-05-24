@@ -38,12 +38,12 @@
 
 #include "profile/profile.h"
 #include "profile/game.h"
+
+#include "games/chlcc/delusiontrigger.h"
 #include "profile/sprites.h"
 #include "profile/charset.h"
 #include "profile/fonts.h"
-#include "profile/dialogue.h"
 #include "profile/animations.h"
-#include "profile/scene3d.h"
 #include "profile/vm.h"
 #include "profile/scriptvars.h"
 #include "profile/configsystem.h"
@@ -226,6 +226,9 @@ void UpdateGameState(float dt) {
          GetFlag(SF_SHOWWAITICON + 2))) {
       SetFlag(SF_UIHIDDEN, !GetFlag(SF_UIHIDDEN));
     }
+  }
+  if (Profile::GameSpecific::GameSpecificType == UI::GameSpecificType::CHLCC) {
+    UI::CHLCC::DelusionTrigger::GetInstance().UpdateHeartButtons();
   }
   Vm::ChkMesSkip();
   if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::CC) {

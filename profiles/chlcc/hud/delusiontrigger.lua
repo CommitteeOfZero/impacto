@@ -3,6 +3,13 @@ root.DelusionTrigger = {
   BackgroundSpriteMask = "BackgroundSpriteMask",
   ScreenMask = "ScreenMask",
 
+  LeftDelusionHeartSprite = "LeftDelusionHeartSprite",
+  LeftDelusionHeartPos = { X = 7, Y = 279 },
+  RightDelusionHeartSprite = "RightDelusionHeartSprite",
+  RightDelusionHeartPos = { X = 1115, Y = 279 },
+  DelusionHeartPulseDuration = 1.0,
+  DelusionHeartPulseScale = 0.06,
+
   DelusionTextGlyphs = {},
   DelusionTextFadeDuration = 16/60,
   DelusionTextXVelocity = 12,
@@ -23,6 +30,18 @@ root.Sprites["BackgroundSpriteMask"] = {
   Sheet = "DelusionMask",
   Bounds = { X = 0, Y = 0, Width = 1024, Height = 1024 }
 }
+
+if (root.HasDelusionMouseSupport) then
+  root.Sprites["LeftDelusionHeartSprite"] = {
+    Sheet = "DelusionHeart",
+    Bounds = { X = 7, Y = 279, Width = 158, Height = 147 }
+  }
+
+  root.Sprites["RightDelusionHeartSprite"] = {
+    Sheet = "DelusionHeart",
+    Bounds = { X = 1115, Y = 279, Width = 158, Height = 147 }
+  }
+end
 
 if root.Language == "Japanese" then
   local textCharacterCount = {

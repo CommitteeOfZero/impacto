@@ -1,11 +1,12 @@
 #include "delusiontrigger.h"
 #include "../../profile_internal.h"
 #include "../../../log.h"
-#include "../../../text/text.h"
 
 #include "../../../game.h"
 #include "../../../ui/ui.h"
 #include "../../../games/chlcc/delusiontrigger.h"
+#include "../../game.h"
+
 namespace Impacto {
 namespace Profile {
 namespace CHLCC {
@@ -20,6 +21,18 @@ void Configure() {
 
   BackgroundSpriteMask.Bounds.Y = BackgroundSprite.Bounds.Center().y -
                                   BackgroundSpriteMask.Bounds.Center().y;
+
+  if (HasDelusionMouseSupport) {
+    LeftDelusionHeartSprite =
+        EnsureGetMember<Sprite>("LeftDelusionHeartSprite");
+    RightDelusionHeartSprite =
+        EnsureGetMember<Sprite>("RightDelusionHeartSprite");
+    LeftDelusionHeartPos = EnsureGetMember<glm::vec2>("LeftDelusionHeartPos");
+    RightDelusionHeartPos = EnsureGetMember<glm::vec2>("RightDelusionHeartPos");
+    DelusionHeartPulseDuration =
+        EnsureGetMember<float>("DelusionHeartPulseDuration");
+    DelusionHeartPulseScale = EnsureGetMember<float>("DelusionHeartPulseScale");
+  }
 
   {
     EnsurePushMemberOfType("DelusionTextGlyphs", LUA_TTABLE);

@@ -2,6 +2,7 @@
 
 #include "../../spriteanimation.h"
 #include "../../ui/menu.h"
+#include "../../ui/widgets/clickarea.h"
 
 namespace Impacto {
 namespace UI {
@@ -39,6 +40,7 @@ class DelusionTrigger {
   void Show();
   void Hide();
   void Update(float dt);
+  void UpdateHeartButtons();
   void Render();
   void Load();
   void Reset();
@@ -55,6 +57,12 @@ class DelusionTrigger {
   void UpdateShown(float dt);
   void UpdateHiding(float dt);
   void PlayClickSound();
+  void TriggerLeft();
+  void TriggerRight();
+  void HeartButtonOnClick(Widgets::ClickArea* target);
+  bool AreHeartButtonsVisible() const;
+  void RenderHeartButton(Sprite const& sprite, glm::vec2 pos, bool hovered,
+                         float alpha) const;
 
   int& DelusionState;
 
@@ -73,6 +81,12 @@ class DelusionTrigger {
   int UnderlayerXOffset, UnderlayerXRate;
   int ShakeState;
   int MaskOffsetX;
+  Animation HeartButtonFade;
+  Animation HeartPulseAnimation;
+  Animation LeftHeartFade;
+  Animation RightHeartFade;
+  Widgets::ClickArea LeftHeartClickArea;
+  Widgets::ClickArea RightHeartClickArea;
 
   DelusionTextSystem TextSystem;
 
