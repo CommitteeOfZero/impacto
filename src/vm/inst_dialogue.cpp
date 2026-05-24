@@ -12,7 +12,6 @@
 #include "../profile/vm.h"
 #include "../hud/saveicondisplay.h"
 #include "../hud/tipsnotification.h"
-#include "../hud/nametagdisplay.h"
 #include "../data/savesystem.h"
 #include "../data/tipssystem.h"
 #include "../ui/ui.h"
