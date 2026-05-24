@@ -98,6 +98,7 @@ void Update(float dt) {
       break;
   }
 }
+
 void RenderEarlyMain() {
   switch (Profile::GameSpecific::GameSpecificType) {
     case GameSpecificType::CHLCC: {

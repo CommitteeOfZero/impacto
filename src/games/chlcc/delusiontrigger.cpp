@@ -1,5 +1,9 @@
 #include "delusiontrigger.h"
+#include <cmath>
+#include <numbers>
 #include "../../renderer/renderer.h"
+#include "../../renderer/window.h"
+#include "../../inputsystem.h"
 #include "../../vm/interface/input.h"
 #include "../../mem.h"
 #include "../../profile/games/chlcc/delusiontrigger.h"
@@ -20,8 +24,20 @@ using namespace Impacto::Vm::Interface;
 
 using enum MenuState;
 
-DelusionTrigger::DelusionTrigger()
-    : DelusionState(ScrWork[SW_DELUSION_STATE]) {}
+DelusionTrigger::DelusionTrigger() : DelusionState(ScrWork[SW_DELUSION_STATE]) {
+  HeartButtonFade.SetDuration(1.0f / 6.0f);
+  HeartPulseAnimation.SetDuration(DelusionHeartPulseDuration * 0.5f);
+  HeartPulseAnimation.LoopMode = AnimationLoopMode::ReverseDirection;
+  LeftHeartFade.SetDuration(0.1f);
+  RightHeartFade.SetDuration(0.1f);
+  LeftHeartFade.Finish(AnimationDirection::In);
+  RightHeartFade.Finish(AnimationDirection::In);
+  const auto onHeartClick = [this](Widgets::ClickArea* target) {
+    HeartButtonOnClick(target);
+  };
+  LeftHeartClickArea = Widgets::ClickArea(0, RectF(), onHeartClick);
+  RightHeartClickArea = Widgets::ClickArea(1, RectF(), onHeartClick);
+}
 
 void DelusionTrigger::Show() {
   if (Profile::ConfigSystem::TriggerStopSkip) SkipModeEnabled = false;
@@ -42,6 +58,7 @@ void DelusionTrigger::Show() {
     MaskOffsetX = 0;
     SetFlag(SF_DELUSION_UI_ANIM_WAIT, 1);
     SetFlag(SF_DELUSION_UI_ANIMSWITCH_WAIT, 0);
+    HeartPulseAnimation.StartIn(true);
   }
 }
 void DelusionTrigger::Hide() {
@@ -214,6 +231,83 @@ void DelusionTrigger::PlayClickSound() {
   Audio::Channels[Audio::AC_SE0 + 0]->Play("se", 19, false, 0.0f);
 }
 
+void DelusionTrigger::TriggerLeft() {
+  switch (ScrWork[SW_DELUSION_STATE]) {
+    case DS_Neutral:
+      ScrWork[SW_DELUSION_STATE] = DS_Positive;
+      PlayClickSound();
+      ShakeState = 6;
+      break;
+    case DS_Negative:
+      ScrWork[SW_DELUSION_STATE] = DS_Neutral;
+      break;
+    case DS_Positive:
+    default:
+      break;
+  }
+}
+
+void DelusionTrigger::TriggerRight() {
+  switch (ScrWork[SW_DELUSION_STATE]) {
+    case DS_Neutral:
+      ScrWork[SW_DELUSION_STATE] = DS_Negative;
+      PlayClickSound();
+      ShakeState = 6;
+      break;
+    case DS_Positive:
+      ScrWork[SW_DELUSION_STATE] = DS_Neutral;
+      break;
+    case DS_Negative:
+    default:
+      break;
+  }
+}
+
+void DelusionTrigger::UpdateHeartButtons() {
+  if (!Profile::HasDelusionMouseSupport) {
+    return;
+  }
+  if (HeartButtonFade.Progress == 0.0f) {
+    return;
+  }
+
+  LeftHeartClickArea.Bounds =
+      LeftDelusionHeartSprite.ScaledBounds().Translate(LeftDelusionHeartPos);
+  RightHeartClickArea.Bounds =
+      RightDelusionHeartSprite.ScaledBounds().Translate(RightDelusionHeartPos);
+
+  if (ScrWork[SW_DELUSION_STATE] != DS_Positive) {
+    LeftHeartClickArea.Show();
+    LeftHeartClickArea.UpdateInput(0.0f);
+  } else {
+    LeftHeartClickArea.Hide();
+  }
+  LeftHeartClickArea.Update(0.0f);
+
+  if (ScrWork[SW_DELUSION_STATE] != DS_Negative) {
+    RightHeartClickArea.Show();
+    RightHeartClickArea.UpdateInput(0.0f);
+  } else {
+    RightHeartClickArea.Hide();
+  }
+  RightHeartClickArea.Update(0.0f);
+
+  if (Input::CurrentInputDevice == Input::Device::Mouse) {
+    if (LeftHeartClickArea.Hovered || RightHeartClickArea.Hovered) {
+      RequestCursor(CursorType::Pointer);
+    }
+  }
+}
+
+void DelusionTrigger::HeartButtonOnClick(Widgets::ClickArea* target) {
+  PADinputMouseWentDown &= ~PAD1A;
+  if (target->Id == 0) {
+    TriggerLeft();
+  } else {
+    TriggerRight();
+  }
+}
+
 void DelusionTrigger::UpdateShown(float dt) {
   MaskOffsetX = (ShakeState == 1)   ? 0
                 : (ShakeState == 2) ? -16
@@ -226,35 +320,23 @@ void DelusionTrigger::UpdateShown(float dt) {
   bool anim = ShakeState != 0;
   if ((PADinputButtonWentDown & PAD1L2) &&
       TextSystem.DelusionTextFade.IsStopped()) {
-    switch (ScrWork[SW_DELUSION_STATE]) {
-      case DS_Neutral:
-        ScrWork[SW_DELUSION_STATE] = DS_Positive;
-        PlayClickSound();
-        ShakeState = 6;
-        break;
-      case DS_Negative:
-        ScrWork[SW_DELUSION_STATE] = DS_Neutral;
-        break;
-      case DS_Positive:
-      default:
-        break;
-    }
+    TriggerLeft();
   } else if ((PADinputButtonWentDown & PAD1R2) &&
              TextSystem.DelusionTextFade.IsStopped()) {
-    switch (ScrWork[SW_DELUSION_STATE]) {
-      case DS_Neutral:
-        ScrWork[SW_DELUSION_STATE] = DS_Negative;
-        PlayClickSound();
-        ShakeState = 6;
-        break;
-      case DS_Positive:
-        ScrWork[SW_DELUSION_STATE] = DS_Neutral;
-        break;
-      case DS_Negative:
-      default:
-        break;
-    }
+    TriggerRight();
   }
+
+  const AnimationDirection leftHeartDirection =
+      (ScrWork[SW_DELUSION_STATE] == DS_Positive) ? AnimationDirection::Out
+                                                  : AnimationDirection::In;
+  const AnimationDirection rightHeartDirection =
+      (ScrWork[SW_DELUSION_STATE] == DS_Negative) ? AnimationDirection::Out
+                                                  : AnimationDirection::In;
+
+  LeftHeartFade.Start(leftHeartDirection);
+  RightHeartFade.Start(rightHeartDirection);
+  LeftHeartFade.Update(dt);
+  RightHeartFade.Update(dt);
 
   if (ScrWork[SW_DELUSION_STATE] != DS_Neutral) {
     if (TriggerOnTintAlpha < 104) {
@@ -321,6 +403,29 @@ void DelusionTrigger::UpdateShown(float dt) {
 }
 
 void DelusionTrigger::Update(float dt) {
+  if (Profile::HasDelusionMouseSupport && State != Hidden) {
+    if (DelusionHeartPulseDuration > 0.0f) {
+      HeartPulseAnimation.Update(dt);
+    }
+  }
+  AnimationDirection heartButtonDirection = AnimationDirection::Out;
+  switch (State) {
+    case Showing:
+      heartButtonDirection = (AnimationState >= 9) ? AnimationDirection::In
+                                                   : AnimationDirection::Out;
+      break;
+    case Shown:
+      heartButtonDirection = AnimationDirection::In;
+      break;
+    case Hiding:
+    case Hidden:
+      heartButtonDirection = AnimationDirection::Out;
+      break;
+  }
+
+  HeartButtonFade.Start(heartButtonDirection);
+  HeartButtonFade.Update(dt);
+
   if (State == Showing) {
     UpdateShowing(dt);
   } else if (State == Hiding) {
@@ -343,6 +448,34 @@ void DelusionTrigger::Update(float dt) {
 
     SpinAngle = ((SpinAngle + SpinRate) & 0xffff);
   }
+}
+
+bool DelusionTrigger::AreHeartButtonsVisible() const {
+  if (State == Showing) {
+    return AnimationState >= 9;
+  }
+
+  if (State == Hiding) {
+    return false;
+  }
+
+  return State == Shown;
+}
+
+void DelusionTrigger::RenderHeartButton(Sprite const& sprite, glm::vec2 pos,
+                                        bool hovered, float alpha) const {
+  float pulse = 0.0f;
+  if (DelusionHeartPulseDuration > 0.0f) {
+    pulse = glm::smoothstep(0.0f, 1.0f, HeartPulseAnimation.Progress);
+  }
+  const float scale = 1.0f + DelusionHeartPulseScale * pulse;
+  RectF dest = sprite.ScaledBounds();
+  dest.ScaleAroundCenter({scale, scale});
+  dest.Translate(pos);
+  float finalAlpha = (hovered ? 1.0f : alpha) *
+                     glm::smoothstep(0.0f, 1.0f, HeartButtonFade.Progress);
+
+  Renderer->DrawSprite(sprite, dest, glm::vec4(1.0f, 1.0f, 1.0f, finalAlpha));
 }
 
 void DelusionTrigger::Render() {
@@ -386,6 +519,15 @@ void DelusionTrigger::Render() {
   Renderer->DrawMaskedSpriteOverlay(BackgroundSprite, ScaledMask, spriteDest,
                                     maskDest, (BackgroundAlpha * 160) >> 8, 20,
                                     glm::mat4(1.0f), glm::vec4(1.0f), true);
+  if (Profile::HasDelusionMouseSupport && HeartButtonFade.Progress > 0.0f) {
+    RenderHeartButton(LeftDelusionHeartSprite, LeftDelusionHeartPos,
+                      LeftHeartClickArea.Hovered,
+                      glm::mix(0.25f, 0.75f, LeftHeartFade.Progress));
+
+    RenderHeartButton(RightDelusionHeartSprite, RightDelusionHeartPos,
+                      RightHeartClickArea.Hovered,
+                      glm::mix(0.25f, 0.75f, RightHeartFade.Progress));
+  }
 }
 
 void DelusionTrigger::Load() {
@@ -445,6 +587,10 @@ void DelusionTrigger::Reset() {
   AnimationState = 0;
   ShakeState = 0;
   MaskScaleFactor = 65536;
+  HeartButtonFade.StartOut(true);
+  HeartPulseAnimation.StartIn(true);
+  LeftHeartFade.Finish(AnimationDirection::In);
+  RightHeartFade.Finish(AnimationDirection::In);
   TextSystem.Clear();
 }
 

@@ -1,10 +1,13 @@
 #include "delusiontrigger.h"
+#include <optional>
 #include "../../profile/games/cclcc/delusiontrigger.h"
 #include "../../vm/interface/input.h"
+#include "../../inputsystem.h"
 #include "../../profile/scriptvars.h"
 #include "../../src/video/videosystem.h"
 #include "../../profile/configsystem.h"
 #include "../../background2d.h"
+#include "../../renderer/window.h"
 #include "../../text/dialoguepage.h"
 #include "../../audio/audiosystem.h"
 
@@ -46,6 +49,7 @@ bool DelusionTrigger::Show(int bgOverlayBgBufferId, int circlesBgBufferId,
   ScrWork[6344] = 48;
   SetFlag(SF_DELUSIONSELECTED, 0);
   ScrWork[6418] = 960;
+  ResetDraggingPress();
   if (!Video::Players[0]->IsPlaying) {
     ScrWork[SW_DELUSION_BG_COUNTER] = 32;
   }
@@ -55,6 +59,7 @@ bool DelusionTrigger::Show(int bgOverlayBgBufferId, int circlesBgBufferId,
 void DelusionTrigger::Hide() {
   SetFlag(SF_DELUSIONACTIVE, 0);
   ScrWork[6344] = 0;
+  ResetDraggingPress();
 }
 
 bool DelusionTrigger::CheckTransitionAnimationComplete() {
@@ -65,37 +70,182 @@ bool DelusionTrigger::CheckStartTransitionComplete() {
   return LastDelusionState != 0xff;
 }
 
-void DelusionTrigger::Update(float dt) {
-  auto onRightTrigger = [this]() {
-    if (DelusionState == DS_Neutral) {
-      if (ScrWork[SW_DELUSION_LIMIT] == Delusion_Both ||
-          ScrWork[SW_DELUSION_LIMIT] == Delusion_NegOnly) {
-        Audio::PlayInGroup(Audio::ACG_SE, "sysse", 11, false, 0.0f);
-        ScrWork[SW_DELUSION_SPIN_COUNTER] = 64;
-        DelusionState = DS_Negative;
+void DelusionTrigger::TriggerRight() {
+  if (DelusionState == DS_Neutral) {
+    if (ScrWork[SW_DELUSION_LIMIT] == Delusion_Both ||
+        ScrWork[SW_DELUSION_LIMIT] == Delusion_NegOnly) {
+      Audio::PlayInGroup(Audio::ACG_SE, "sysse", 11, false, 0.0f);
+      ScrWork[SW_DELUSION_SPIN_COUNTER] = 64;
+      DelusionState = DS_Negative;
+    }
+  } else if (DelusionState == DS_Positive) {
+    Audio::PlayInGroup(Audio::ACG_SE, "sysse", 12, false, 0.0f);
+    ScrWork[SW_DELUSION_SPIN_COUNTER] = 64;
+    DelusionState = DS_Neutral;
+  }
+}
+
+void DelusionTrigger::TriggerLeft() {
+  if (DelusionState == DS_Neutral) {
+    if (ScrWork[SW_DELUSION_LIMIT] == Delusion_Both ||
+        ScrWork[SW_DELUSION_LIMIT] == Delusion_PosOnly) {
+      Audio::PlayInGroup(Audio::ACG_SE, "sysse", 10, false, 0.0f);
+      ScrWork[SW_DELUSION_SPIN_COUNTER] = 64;
+      DelusionState = DS_Positive;
+    }
+  } else if (DelusionState == DS_Negative) {
+    Audio::PlayInGroup(Audio::ACG_SE, "sysse", 12, false, 0.0f);
+    ScrWork[SW_DELUSION_SPIN_COUNTER] = 64;
+    DelusionState = DS_Neutral;
+  }
+}
+
+bool DelusionTrigger::CanUpdateDragging() const {
+  return GetFlag(SF_DELUSIONACTIVE) && ScrWork[SW_DELUSION_BG_COUNTER] >= 32 &&
+         !GetFlag(SF_DELUSIONSELECTED) && ScrWork[SW_SYSSUBMENUCT] == 0 &&
+         ScrWork[SW_SYSMENUCT] == 0 && !Video::Players[0]->IsPlaying &&
+         LastDelusionState == DelusionState;
+}
+
+void DelusionTrigger::ResetDraggingPress() {
+  ActiveDragHitbox = DragHitbox::None;
+  DragStartPos = glm::vec2(0.0f);
+  DragHoldTime = 0.0f;
+  DragPressPending = false;
+  DragHoldActive = false;
+}
+
+std::pair<bool, bool> DelusionTrigger::UpdateDraggingTriggers(
+    bool updateInputBlocking, float dt) {
+  const bool pointerDown = PADinputMouseIsDown & PAD1A;
+  if (!CanUpdateDragging()) {
+    if (pointerDown && DragHoldActive && GetFlag(SF_DELUSIONACTIVE)) {
+      ActiveDragHitbox = DragHitbox::None;
+    } else {
+      ResetDraggingPress();
+    }
+    return std::make_pair(false, false);
+  }
+
+  constexpr float movementBufferWindowFraction = 0.002f;
+  constexpr float mouseAdvanceTime = 0.5f;
+  const float movementBuffer =
+      std::max(2.0f, std::min(Profile::DesignWidth, Profile::DesignHeight) *
+                         movementBufferWindowFraction);
+  std::optional<RectF> positiveHitbox;
+  std::optional<RectF> negativeHitbox;
+
+  if (DelusionState == DS_Neutral) {
+    if ((ScrWork[SW_DELUSION_LIMIT] == Delusion_Both) ||
+        (ScrWork[SW_DELUSION_LIMIT] == Delusion_PosOnly)) {
+      positiveHitbox =
+          PositiveDelusionSprite.ScaledBounds().Translate({-800, -109});
+    }
+    if ((ScrWork[SW_DELUSION_LIMIT] == Delusion_Both) ||
+        (ScrWork[SW_DELUSION_LIMIT] == Delusion_NegOnly)) {
+      negativeHitbox =
+          NegativeDelusionSprite.ScaledBounds().Translate({1696, -109});
+    }
+  } else if (DelusionState == DS_Positive) {
+    positiveHitbox = PositiveDelusionSprite.ScaledBounds()
+                         .Scale({600, 557}, {1.8f, 1.8f})
+                         .Translate({448, -109});
+  } else if (DelusionState == DS_Negative) {
+    negativeHitbox = NegativeDelusionSprite.ScaledBounds()
+                         .Scale({424, 557}, {1.8f, 1.8f})
+                         .Translate({448, -109});
+  }
+
+  const bool pointerWentDown = PADinputMouseWentDown & PAD1A;
+  const bool isTouch = Input::CurrentInputDevice == Input::Device::Touch;
+  const glm::vec2 curPos = isTouch ? Input::CurTouchPos : Input::CurMousePos;
+
+  if (Input::CurrentInputDevice == Input::Device::Mouse &&
+      ((positiveHitbox && positiveHitbox->ContainsPoint(Input::CurMousePos)) ||
+       (negativeHitbox && negativeHitbox->ContainsPoint(Input::CurMousePos)))) {
+    RequestCursor(CursorType::Pointer);
+  }
+
+  if (!pointerDown) {
+    if (DragPressPending) {
+      if (updateInputBlocking && !DragHoldActive &&
+          DragHoldTime < mouseAdvanceTime) {
+        PADinputMouseWentDown |= PAD1A;
       }
+    }
+    ResetDraggingPress();
+    return std::make_pair(false, false);
+  }
+
+  if (ActiveDragHitbox == DragHitbox::None &&
+      (pointerWentDown || DragHoldActive)) {
+    if (positiveHitbox && positiveHitbox->ContainsPoint(curPos)) {
+      ActiveDragHitbox = DragHitbox::Positive;
+    } else if (negativeHitbox && negativeHitbox->ContainsPoint(curPos)) {
+      ActiveDragHitbox = DragHitbox::Negative;
+    }
+    if (ActiveDragHitbox != DragHitbox::None && pointerWentDown) {
+      DragHoldTime = 0.0f;
+      DragPressPending = true;
+      DragHoldActive = false;
+    }
+  }
+
+  if (ActiveDragHitbox == DragHitbox::None) return std::make_pair(false, false);
+
+  if (DragPressPending) DragHoldTime += dt;
+  if (DragHoldTime >= mouseAdvanceTime ||
+      glm::length(Input::CurMousePos - Input::PrevMousePos) >= movementBuffer) {
+    DragHoldActive = true;
+    RequestCursor(CursorType::Pointer);
+  }
+
+  if (updateInputBlocking) {
+    PADinputButtonWentDown &= ~PAD1A;
+    PADinputMouseWentDown &= ~PAD1A;
+  }
+
+  if (pointerWentDown) DragStartPos.x = curPos.x;
+
+  if (!DragHoldActive) return std::make_pair(false, false);
+
+  bool dragLeftTrigger = false;
+  bool dragRightTrigger = false;
+  if (ActiveDragHitbox == DragHitbox::Positive) {
+    if (DelusionState == DS_Neutral) {
+      dragLeftTrigger =
+          curPos.x > DragStartPos.x + DragDelta;  // Select positive
     } else if (DelusionState == DS_Positive) {
-      Audio::PlayInGroup(Audio::ACG_SE, "sysse", 12, false, 0.0f);
-      ScrWork[SW_DELUSION_SPIN_COUNTER] = 64;
-      DelusionState = DS_Neutral;
+      dragRightTrigger =
+          curPos.x < DragStartPos.x - DragDelta;  // Return to neutral
     }
-  };
-
-  auto onLeftTrigger = [this]() {
+  } else if (ActiveDragHitbox == DragHitbox::Negative) {
     if (DelusionState == DS_Neutral) {
-      if (ScrWork[SW_DELUSION_LIMIT] == Delusion_Both ||
-          ScrWork[SW_DELUSION_LIMIT] == Delusion_PosOnly) {
-        Audio::PlayInGroup(Audio::ACG_SE, "sysse", 10, false, 0.0f);
-        ScrWork[SW_DELUSION_SPIN_COUNTER] = 64;
-        DelusionState = DS_Positive;
-      }
+      dragRightTrigger =
+          curPos.x < DragStartPos.x - DragDelta;  // Select negative
     } else if (DelusionState == DS_Negative) {
-      Audio::PlayInGroup(Audio::ACG_SE, "sysse", 12, false, 0.0f);
-      ScrWork[SW_DELUSION_SPIN_COUNTER] = 64;
-      DelusionState = DS_Neutral;
+      dragLeftTrigger =
+          curPos.x > DragStartPos.x + DragDelta;  // Return to neutral
     }
-  };
+  }
 
+  return std::make_pair(dragLeftTrigger, dragRightTrigger);
+}
+
+void DelusionTrigger::UpdateDragging(float dt) {
+  const auto [leftTrigger, rightTrigger] = UpdateDraggingTriggers(true, dt);
+
+  if (!leftTrigger && rightTrigger) {
+    TriggerRight();
+    ResetDraggingPress();
+  }
+  if (leftTrigger && !rightTrigger) {
+    TriggerLeft();
+    ResetDraggingPress();
+  }
+}
+
+void DelusionTrigger::Update(float dt) {
   if (!GetFlag(SF_DELUSIONACTIVE)) {
     if ((GetFlag(SF_MOVIEPLAY) && GetFlag(SF_MOVIE_DRAWWAIT)) ||
         ScrWork[SW_DELUSION_BG_COUNTER] == 0) {
@@ -163,18 +313,23 @@ void DelusionTrigger::Update(float dt) {
     ScrWork[SW_MOVIE_PLAYNO] = 0xffff;
     ScrWork[SW_MOVIE_LOADNO] = 0xffff;
   }
-  auto leftTrigger = GetControlState(CT_DelusionTriggerL);
-  auto rightTrigger = GetControlState(CT_DelusionTriggerR);
 
   if (LastDelusionState == DelusionState) {
-    if (!leftTrigger && !rightTrigger) return;
-    if (!leftTrigger && rightTrigger) {
-      onRightTrigger();
+    const bool leftTrigger = GetControlState(CT_DelusionTriggerL);
+    const bool rightTrigger = GetControlState(CT_DelusionTriggerR);
+
+    if (!(leftTrigger ^ rightTrigger)) return;
+
+    if (leftTrigger) {
+      TriggerLeft();
+      ActiveDragHitbox = DragHitbox::None;
+    } else {
+      TriggerRight();
+      ActiveDragHitbox = DragHitbox::None;
     }
-    if (leftTrigger && !rightTrigger) {
-      onLeftTrigger();
-    }
+
   } else {
+    ActiveDragHitbox = DragHitbox::None;
     if (ScrWork[SW_DELUSION_SPIN_COUNTER] != 0) {
       ScrWork[SW_DELUSION_SPIN_COUNTER] -= 2;
     }
@@ -370,7 +525,7 @@ void DelusionTrigger::Render() {
     Renderer->DrawSprite(BgOverlaySprite, RectF{0, 0, 1920, 1080});
   }
 
-  float spinAngle = MtrgAng / 65535.0f * 2.0f * std::numbers::pi_v<float>;
+  float spinAngle = ScrWorkAngleToRad(MtrgAng);
 
   int spinAlpha = (MtrgAlphaCt < 16) ? MtrgAlphaCt : 32 - MtrgAlphaCt;
   spinAlpha = (spinAlpha * 192 >> 4) + 64;

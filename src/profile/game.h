@@ -83,6 +83,7 @@ inline SubtitleConfigType SubtitleConfig = SubtitleConfigType::None;
 inline bool CloseBacklogWhenReachedEnd = true;
 inline DateFormatDef DateFormat = DateFormatType::YMD;
 inline bool HasScriptedExitLogic = false;
+inline bool HasDelusionMouseSupport = false;
 
 inline int PlatformId = 0;
 
