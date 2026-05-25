@@ -38,6 +38,7 @@ include('mo6tw/tipssystem.lua');
 include('mo6tw/vfs.lua');
 include('mo6tw/sprites.lua');
 include('common/animation.lua');
+include('common/achievementnotification.lua');
 include('mo6tw/charset.lua');
 include('mo6tw/font.lua');
 include('mo6tw/dialogue.lua');

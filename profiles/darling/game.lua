@@ -41,6 +41,7 @@ include('darling/tipssystem.lua');
 include('darling/vfs.lua');
 include('darling/sprites.lua');
 include('common/animation.lua');
+include('common/achievementnotification.lua');
 include('darling/charset.lua');
 include('darling/font.lua');
 include('darling/dialogue.lua');

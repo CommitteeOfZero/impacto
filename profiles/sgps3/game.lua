@@ -36,6 +36,7 @@ include('sgps3/tipssystem.lua');
 include('sgps3/vfs.lua');
 include('sgps3/sprites.lua');
 include('common/animation.lua');
+include('common/achievementnotification.lua');
 include('sgps3/charset.lua');
 include('sgps3/font.lua');
 include('sgps3/dialogue.lua');

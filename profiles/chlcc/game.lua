@@ -45,6 +45,7 @@ include('chlcc/tipssystem.lua');
 include('chlcc/vfs.lua');
 include('chlcc/sprites.lua');
 include('common/animation.lua');
+include('common/achievementnotification.lua');
 include('chlcc/charset.lua');
 include('common/charset.lua');
 if root.Language == "Japanese" then
@@ -52,7 +53,6 @@ if root.Language == "Japanese" then
 else
     include('chlcc/font-lb.lua');
 end
-include('common/achievementnotification.lua');
 include('chlcc/dialogue.lua');
 include('chlcc/hud/commonmenu.lua');
 include('chlcc/hud/saveicon.lua');
