@@ -53,7 +53,7 @@ VmInstruction(InstCreateThread) {
   newThread->IpOffset = labelAdr;
   thread->ScriptParam = newThread->Id;
   newThread->ScriptParam = thread->Id;
-  RunThread(newThread);
+  RunThread(newThread, dt);
   BlockCurrentScriptThread = false;
 }
 VmInstruction(InstKillThread) {

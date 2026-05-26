@@ -5,7 +5,7 @@
 #include "../io/vfs.h"
 #include <magic_enum/magic_enum.hpp>
 
-#define VmInstruction(name) void name(Sc3VmThread* thread)
+#define VmInstruction(name) void name(Sc3VmThread* thread, float dt)
 
 namespace Impacto {
 namespace Vm {
@@ -22,7 +22,7 @@ enum class InstructionSet : int {
   MO8,
   CHN,
 };
-using InstructionProc = auto (*)(Sc3VmThread* thread) -> void;
+using InstructionProc = auto (*)(Sc3VmThread* thread, float dt) -> void;
 
 int constexpr MaxLoadedScripts = 16;
 int constexpr MaxThreads = 100;
@@ -46,7 +46,7 @@ bool LoadMsb(uint32_t bufferId, uint32_t fileId);
 Sc3VmThread* CreateThread(uint32_t groupId);
 void ControlThreadGroup(ThreadGroupControlType controlType, uint32_t groupId);
 void DestroyThread(Sc3VmThread* thread);
-void RunThread(Sc3VmThread* thread);
+void RunThread(Sc3VmThread* thread, float dt);
 
 inline std::span<uint8_t> ScriptBuffers[MaxLoadedScripts];
 inline std::span<uint8_t> MsbBuffers[MaxLoadedScripts];

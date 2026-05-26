@@ -285,7 +285,7 @@ void Update(float dt) {
 
   int cnt = 0;
   while (ThreadTable[cnt]) {
-    RunThread(ThreadTable[cnt++]);
+    RunThread(ThreadTable[cnt++], dt);
   }
 
   cnt = 0;
@@ -437,7 +437,7 @@ void ControlThreadGroup(ThreadGroupControlType controlType, uint32_t groupId) {
   }
 }
 
-void RunThread(Sc3VmThread* thread) {
+void RunThread(Sc3VmThread* thread, float dt) {
   uint8_t* scrVal;
   uint32_t opcodeGrp;
   uint32_t opcode;
@@ -490,13 +490,13 @@ void RunThread(Sc3VmThread* thread) {
              scriptIp, opcodeGrp1, opcode, thread->ScriptBufferId);
 
       if (opcodeGrp1 == 0x10) {
-        OpcodeTableUser1[opcode](thread);
+        OpcodeTableUser1[opcode](thread, dt);
       } else if (opcodeGrp1 == 0x02) {
-        OpcodeTableGraph3D[opcode](thread);
+        OpcodeTableGraph3D[opcode](thread, dt);
       } else if (opcodeGrp1 == 0x01) {
-        OpcodeTableGraph[opcode](thread);
+        OpcodeTableGraph[opcode](thread, dt);
       } else if (!opcodeGrp1) {
-        OpcodeTableSystem[opcode](thread);
+        OpcodeTableSystem[opcode](thread, dt);
       } else {
         ImpLog(LogLevel::Error, LogChannel::VM,
                "Thread CRASH! Unknown opcode. Attempting recovery. Address: "
