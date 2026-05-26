@@ -2,6 +2,7 @@
 
 #include "../../text/dialoguepage.h"
 
+#include "commonmenu.h"
 #include "../../ui/tipsmenu.h"
 #include "../../ui/widgets/group.h"
 #include "../../ui/widgets/button.h"
@@ -27,7 +28,7 @@ enum TipsTabType {
   NewTips,
 };
 
-class TipsMenu : public UI::TipsMenu {
+class TipsMenu : public UI::TipsMenu, public CommonMenu {
  public:
   TipsMenu();
 

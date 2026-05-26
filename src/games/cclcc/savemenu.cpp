@@ -1,6 +1,7 @@
 #include "savemenu.h"
 
 #include "../../profile/ui/savemenu.h"
+#include "../../profile/games/cclcc/systemmenu.h"
 #include "../../renderer/renderer.h"
 #include "../../mem.h"
 #include "../../profile/scriptvars.h"
@@ -49,17 +50,22 @@ void SaveMenu::MenuButtonOnClick(Widgets::Button* target) {
   }
 }
 
-SaveMenu::SaveMenu() : UI::SaveMenu() {
-  FadeAnimation.Direction = AnimationDirection::In;
-  FadeAnimation.LoopMode = AnimationLoopMode::Stop;
-  FadeAnimation.DurationIn = FadeInDuration;
-  FadeAnimation.DurationOut = FadeOutDuration;
+SaveMenu::SaveMenu() : UI::SaveMenu(), CommonMenu(FadeAnimation) {
   PageAnimation.LoopMode = AnimationLoopMode::Stop;
   PageAnimation.DurationIn = PageSwapDuration;
 }
 
 void SaveMenu::Show() {
   auto onClick = [this](auto* btn) { return MenuButtonOnClick(btn); };
+
+  OpenedAsDirect = GetFlag(SF_SYSTEMMENUDIRECT);
+  if (!ActiveMenuType.has_value()) {
+    // remap 2 3 4 -> 0 1 2
+    ActiveMenuType =
+        magic_enum::enum_cast<SaveMenuPageType>(ScrWork[SW_SYSMENUCNO] - 2);
+  }
+
+  CommonMenu::OnShow(FadeInDuration, FadeOutDuration, FadeAnimation);
 
   if (State != Showing) {
     HasCleared = false;
@@ -266,6 +272,7 @@ void SaveMenu::Update(float dt) {
   } else if (State == Hiding && FadeAnimation.Progress == 0.0f &&
              ScrWork[SW_SYSSUBMENUCT] == 0) {
     State = Hidden;
+    ActiveMenuType = std::nullopt;
     IsFocused = false;
     if (UI::FocusedMenu) UI::FocusedMenu->IsFocused = true;
   }
@@ -306,10 +313,15 @@ void SaveMenu::Update(float dt) {
 void SaveMenu::Render() {
   if (State == Hidden) return;
 
-  const glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
+  const glm::vec4 col(1.0f, 1.0f, 1.0f,
+                      glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress));
+  const float transitionProgress =
+      OpenedAsDirect ? 1.0f : FadeAnimation.Progress;
   const glm::vec2 transitionOffset = {
-      FadeAnimation.Progress * 32 * 200 * 0.0625 - 400, 0};
+      transitionProgress * 32 * 200 * 0.0625 - 400, 0};
   const glm::vec4 maskTint = glm::vec4(1.0f);
+
+  if (OpenedAsDirect) CommonMenu::DrawBgSprite<false>(State, FadeAnimation);
 
   Renderer->DrawSprite(MenuTextSprite[*ActiveMenuType],
                        MenuTextPosition + transitionOffset, col);

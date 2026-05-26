@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../cclcc/commonmenu.h"
 #include "../../ui/backlogmenu.h"
 #include "../../ui/widgets/cc/backlogentry.h"
 #include "../../spritesheet.h"
@@ -8,7 +9,7 @@ namespace Impacto {
 namespace UI {
 namespace CC {
 
-class BacklogMenu : public UI::BacklogMenu {
+class BacklogMenu : public UI::BacklogMenu, public CCLCC::CommonMenu {
  public:
   void Show() override;
   void Hide() override;

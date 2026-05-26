@@ -1,5 +1,6 @@
 #pragma once
 
+#include "commonmenu.h"
 #include "../../ui/menu.h"
 #include "../../ui/widgets/group.h"
 #include "../../ui/widgets/button.h"
@@ -10,7 +11,7 @@ namespace Impacto {
 namespace UI {
 namespace CCLCC {
 
-class SaveMenu : public UI::SaveMenu {
+class SaveMenu : public UI::SaveMenu, public CommonMenu {
  public:
   SaveMenu();
 

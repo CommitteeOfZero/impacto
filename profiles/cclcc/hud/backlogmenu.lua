@@ -30,8 +30,8 @@ root.BacklogMenu = {
 
     FadeInDuration = 0.5,
     FadeOutDuration = 0.5,
-    FadeInDirectDuration = 0.25,
-    FadeOutDirectDuration = 0.25,
+    FadeInDirectDuration = 16/60,
+    FadeOutDirectDuration = 16/60,
 
     ScrollingSpeed = 900,
     PageUpDownHeight = 765,

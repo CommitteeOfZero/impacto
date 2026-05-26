@@ -16,6 +16,8 @@ void Configure() {
   MoveOutDuration = EnsureGetMember<float>("MoveOutDuration");
   ItemsFadeInDuration = EnsureGetMember<float>("ItemsFadeInDuration");
   ItemsFadeOutDuration = EnsureGetMember<float>("ItemsFadeOutDuration");
+  FadeInDirectDuration = EnsureGetMember<float>("FadeInDirectDuration");
+  FadeOutDirectDuration = EnsureGetMember<float>("FadeOutDirectDuration");
 
   GetMemberArray<glm::vec2>(
       std::span(MenuEntriesPositions, Profile::SystemMenu::MenuEntriesNum),

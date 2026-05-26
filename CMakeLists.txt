@@ -195,6 +195,7 @@ set(Impacto_Src
     src/games/cc/titlemenu.cpp
     src/games/cc/sysmesbox.cpp
 
+    src/games/cclcc/commonmenu.cpp
     src/games/cclcc/titlemenu.cpp
     src/games/cclcc/savemenu.cpp
     src/games/cclcc/optionsmenu.cpp
@@ -552,6 +553,7 @@ set(Impacto_Header
     src/games/cc/titlemenu.h
     src/games/cc/sysmesbox.h
 
+    src/games/cclcc/commonmenu.h
     src/games/cclcc/titlemenu.h
     src/games/cclcc/savemenu.h
     src/games/cclcc/optionsmenu.h

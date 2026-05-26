@@ -2,6 +2,7 @@
 
 #include <optional>
 #include <glm/fwd.hpp>
+#include "commonmenu.h"
 #include "../../ui/menu.h"
 #include "../../ui/widgets/group.h"
 #include "../../ui/widgets/button.h"
@@ -11,13 +12,8 @@ namespace Impacto {
 namespace UI {
 namespace CCLCC {
 
-class SystemMenu : public Menu {
+class SystemMenu : public Menu, public CommonMenu {
  public:
-  using GridVertices =
-      std::array<VertexBufferSprites,
-                 (Profile::CCLCC::SystemMenu::GridRowCount + 1) *
-                     (Profile::CCLCC::SystemMenu::GridColCount + 1)>;
-
   SystemMenu();
 
   void Init() override;
@@ -29,17 +25,14 @@ class SystemMenu : public Menu {
 
   void MenuButtonOnClick(Widgets::Button* target);
   Sprite ScreenCap;
-  glm::vec2 BGPosition{};
 
  private:
   Widgets::Group* MainItems;
   Animation MenuTransition;
-  Animation MenuFade;
+  Animation FadeAnimation;
   Animation ItemsFade;
   bool ItemsFadeComplete = false;
   std::optional<int> LastFocusedButtonId;
-
-  GridVertices Vertices;
 
   enum class MenuItems : size_t {
     Backlog,

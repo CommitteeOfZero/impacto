@@ -28,28 +28,13 @@ void BacklogMenu::MenuButtonOnClick(Widgets::BacklogEntry* target) {
 
 void BacklogMenu::Show() {
   if (State == Hidden) {
-    if (ScrWork[SW_SYSMENUALPHA] == 0x100) {
-      FadeAnimation.DurationIn = FadeInDuration;
-      FadeAnimation.DurationOut = FadeOutDuration;
-    } else {
-      FadeAnimation.DurationIn = FadeInDirectDuration;
-      FadeAnimation.DurationOut = FadeOutDirectDuration;
-    }
+    CommonMenu::OnShow(FadeInDuration, FadeOutDuration, FadeAnimation);
   }
 
   UI::BacklogMenu::Show();
 }
 
 void BacklogMenu::Hide() {
-  if (State == Shown) {
-    if (ScrWork[SW_SYSMENUALPHA] == 0x100) {
-      FadeAnimation.DurationIn = FadeInDuration;
-      FadeAnimation.DurationOut = FadeOutDuration;
-    } else {
-      FadeAnimation.DurationIn = FadeInDirectDuration;
-      FadeAnimation.DurationOut = FadeOutDirectDuration;
-    }
-  }
   Audio::Channels[Audio::AC_REV]->Stop(0.0f);
   UI::BacklogMenu::Hide();
 }
@@ -100,6 +85,8 @@ void BacklogMenu::Render() {
   int repeatHeight = BacklogBackgroundRepeatHeight;
   float backgroundY =
       (float)fmod(PageY - EntryYPadding - RenderingBounds.Y, repeatHeight);
+
+  if (OpenedAsDirect) CommonMenu::DrawBgSprite<false>(State, FadeAnimation);
   Renderer->DrawSprite(BacklogBackground, glm::vec2(0.0f, backgroundY),
                        transition);
   Renderer->DrawSprite(BacklogBackground,
