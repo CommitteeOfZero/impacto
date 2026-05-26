@@ -147,11 +147,15 @@ std::optional<av::Codec> findDecoderCodec(av::Stream const& avStream) {
   };
 
   if constexpr (MediaType == AVMEDIA_TYPE_VIDEO) {
-#ifdef __ANDROID__
     const AVCodecDescriptor* desc = avcodec_descriptor_get(codecId);
+#ifdef __ANDROID__
     const std::string decoderName = fmt::format("{}_mediacodec", desc->name);
-    result = checkDecode(av::findDecodingCodec(decoderName));
+#elif __SWITCH__
+    const std::string decoderName = fmt::format("{}_nvtegra", desc->name);
+#else
+    const std::string decoderName = desc->name;
 #endif
+    result = checkDecode(av::findDecodingCodec(decoderName));
   }
 
   if (!result) {
