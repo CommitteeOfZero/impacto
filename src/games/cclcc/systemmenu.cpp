@@ -39,6 +39,12 @@ void SystemMenu::MenuButtonOnClick(Widgets::Button* target) {
 }
 
 void SystemMenu::UpdateInput(float dt) {
+  // prevents broken state for quick exiting from/entering to direct menus
+  if (State == Hiding || State == Showing) {
+    PADinputButtonWentDown = 0;
+    PADinputMouseWentDown = 0;
+  }
+
   if (!IsFocused) return;
   const auto* const prevSelected = CurrentlyFocusedElement;
   Menu::UpdateInput(dt);
