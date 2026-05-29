@@ -1,4 +1,9 @@
 root.SpriteSheets = {
+    ["BacklogMask"] = {
+        Path = { Mount = "system", Id = 2 },
+        DesignWidth = 1920,
+        DesignHeight = 1080
+    },
     ["Data"] = {
         Path = { Mount = "system", Id = 5 },
         DesignWidth = 3072,
