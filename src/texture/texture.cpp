@@ -68,7 +68,7 @@ void Texture::LoadSolidColor(int width, int height, uint32_t color) {
       std::bit_cast<std::array<const uint8_t, sizeof(uint32_t)>>(color);
   for (size_t i = 0; i + colorArray.size() <= Buffer.size();
        i += colorArray.size()) {
-    std::ranges::copy(colorArray, Buffer.begin() + i);
+    std::memcpy(Buffer.data() + i, colorArray.data(), colorArray.size());
   }
 }
 
