@@ -84,12 +84,6 @@ root.Sprites["TipsHighlightedSprite"] = {
     Bounds = { X = 517, Y = 1208, Width = 740, Height = 40 }
 };
 
-root.SpriteSheets["TipsMask"] = {
-    Path = { Mount = "system", Id = 29 },
-    DesignWidth = 1920,
-    DesignHeight = 1080
-};
-
 root.Sprites["TipsScrollThumb"] = {
     Sheet = "Tips",
     Bounds = { X = 2016, Y = 994, Width = 11, Height = 40 }

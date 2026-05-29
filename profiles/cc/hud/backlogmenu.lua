@@ -51,12 +51,6 @@ root.Sprites["BacklogHeader"] = {
     Bounds = { X = 962, Y = 1210, Width = 542, Height = 542 },
 };
 
-root.SpriteSheets["BacklogMask"] = {
-    Path = { Mount = "system", Id = 2 },
-    DesignWidth = 1920,
-    DesignHeight = 1080
-};
-
 root.Sprites["BacklogControls"] = {
     Sheet = "Backlog",
     Bounds = { X = 0, Y = 1153, Width = 1920, Height = 57 },
