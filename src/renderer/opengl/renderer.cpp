@@ -427,8 +427,7 @@ void Renderer::DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
                                 int fadeRange, glm::mat4 spriteTransformation,
                                 glm::mat4 maskTransformation,
                                 const std::span<const glm::vec4, 4> tints,
-                                const bool isInverted,
-                                const bool isSameTexture,
+                                const bool isInverted, const bool isSameTexture,
                                 const ShaderProgramType shader) {
   if (!Drawing) {
     ImpLog(LogLevel::Error, LogChannel::Render,

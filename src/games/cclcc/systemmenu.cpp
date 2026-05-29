@@ -433,22 +433,22 @@ void SystemMenu::DrawSmoke(float opacity) {
       Sprite sourceSprite = framebufferSprite;
       RectF dest = mask.ScaledBounds().Translate(position);
       sourceSprite.Bounds = dest;
-      Renderer->DrawMaskedSprite(
-          sourceSprite, mask, dest, mask.ScaledBounds(), 256, 1,
-          glm::mat4(1.0f), glm::mat4(1.0f),
-          std::array<glm::vec4, 4>{col, col, col, col}, false, false,
-          ShaderProgramType::HardLightMaskedSprite);
+      Renderer->DrawMaskedSprite(sourceSprite, mask, dest, mask.ScaledBounds(),
+                                 256, 1, glm::mat4(1.0f), glm::mat4(1.0f),
+                                 std::array<glm::vec4, 4>{col, col, col, col},
+                                 false, false,
+                                 ShaderProgramType::HardLightMaskedSprite);
     };
 
     Sprite smokeMaskSprite = Sprite(SmokeSprite);
-    smokeMaskSprite.Bounds = RectF(
-        SmokeBounds.Width -
-            (SmokeAnimationBoundsXMax * SmokeAnimation.Progress) +
-            SmokeAnimationBoundsXOffset,
-        SmokeBounds.Y,
-        SmokeBounds.Width -
-            (SmokeAnimationBoundsXMax * (1.0f - SmokeAnimation.Progress)),
-        SmokeBounds.Height);
+    smokeMaskSprite.Bounds =
+        RectF(SmokeBounds.Width -
+                  (SmokeAnimationBoundsXMax * SmokeAnimation.Progress) +
+                  SmokeAnimationBoundsXOffset,
+              SmokeBounds.Y,
+              SmokeBounds.Width -
+                  (SmokeAnimationBoundsXMax * (1.0f - SmokeAnimation.Progress)),
+              SmokeBounds.Height);
     drawSmokeSection(smokeMaskSprite, SmokePosition);
     smokeMaskSprite.Bounds =
         RectF(SmokeBounds.X, SmokeBounds.Y,
