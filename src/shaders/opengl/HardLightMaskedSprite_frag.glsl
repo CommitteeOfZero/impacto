@@ -21,5 +21,5 @@ void main() {
     );
 
     color.rgb = mix(spriteColor.rgb, color.rgb, maskColor.a);
-    color.a = spriteColor.a * tint.a;
+    color.a = spriteColor.a * maskColor.a * tint.a;
 }

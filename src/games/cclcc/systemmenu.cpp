@@ -21,6 +21,13 @@ using namespace Impacto::Profile::SystemMenu;
 using namespace Impacto::UI::Widgets::CCLCC;
 using namespace Impacto::Input;
 
+static bool BeginSmokeFramebuffer() {
+  if (Renderer->GetFramebufferTexture(1) == 0) return false;
+  Renderer->SetFramebuffer(1);
+  Renderer->Clear(glm::vec4(0.0f));
+  return true;
+}
+
 void SystemMenu::MenuButtonOnClick(Widgets::Button* target) {
   bool targetButtonLocked = static_cast<SysMenuButton*>(target)->IsLocked;
   Audio::PlayInGroup(Audio::ACG_SE, "sysse", targetButtonLocked ? 4 : 2, false,
@@ -310,6 +317,7 @@ static void TransformImage(CornersQuad const& sprCorners,
 
 void SystemMenu::Render() {
   if (State != Hidden && !GetFlag(SF_TITLEMODE)) {
+    BeginSmokeFramebuffer();
     if (MenuTransition.IsIn()) {
     }
     glm::vec3 tint = {1.0f, 1.0f, 1.0f};
@@ -409,9 +417,53 @@ void SystemMenu::Render() {
 }
 
 void SystemMenu::DrawSmoke(float opacity) {
-  Renderer->SetBlendMode(RendererBlendMode::Additive);
   glm::vec4 col = glm::vec4(1.0f);
   col.a = opacity;
+  const int framebufferTexture = Renderer->GetFramebufferTexture(1);
+  if (framebufferTexture != 0) {
+    Renderer->SetFramebuffer(0);
+    Sprite framebufferSprite =
+        Sprite(SpriteSheet(Profile::DesignWidth, Profile::DesignHeight), 0.0f,
+               0.0f, Profile::DesignWidth, Profile::DesignHeight);
+    framebufferSprite.Sheet.Texture = framebufferTexture;
+    framebufferSprite.Sheet.IsScreenCap = true;
+    Renderer->DrawSprite(framebufferSprite, glm::mat4(1.0f), glm::vec4(1.0f));
+
+    auto drawSmokeSection = [&](Sprite const& mask, glm::vec2 position) {
+      Sprite sourceSprite = framebufferSprite;
+      RectF dest = mask.ScaledBounds().Translate(position);
+      sourceSprite.Bounds = dest;
+      Renderer->DrawMaskedSprite(
+          sourceSprite, mask, dest, mask.ScaledBounds(), 256, 1,
+          glm::mat4(1.0f), glm::mat4(1.0f),
+          std::array<glm::vec4, 4>{col, col, col, col}, false, false,
+          ShaderProgramType::HardLightMaskedSprite);
+    };
+
+    Sprite smokeMaskSprite = Sprite(SmokeSprite);
+    smokeMaskSprite.Bounds = RectF(
+        SmokeBounds.Width -
+            (SmokeAnimationBoundsXMax * SmokeAnimation.Progress) +
+            SmokeAnimationBoundsXOffset,
+        SmokeBounds.Y,
+        SmokeBounds.Width -
+            (SmokeAnimationBoundsXMax * (1.0f - SmokeAnimation.Progress)),
+        SmokeBounds.Height);
+    drawSmokeSection(smokeMaskSprite, SmokePosition);
+    smokeMaskSprite.Bounds =
+        RectF(SmokeBounds.X, SmokeBounds.Y,
+              SmokeBounds.Width -
+                  (SmokeAnimationBoundsXMax * SmokeAnimation.Progress),
+              SmokeBounds.Height);
+    drawSmokeSection(
+        smokeMaskSprite,
+        glm::vec2(SmokeBounds.Width - (SmokeAnimationBoundsXMax *
+                                       (1.0f - SmokeAnimation.Progress)),
+                  SmokePosition.y));
+    return;
+  }
+
+  Renderer->SetFramebuffer(0);
   Sprite smokeSpriteCopy = Sprite(SmokeSprite);
 
   smokeSpriteCopy.Bounds = RectF(
@@ -432,7 +484,6 @@ void SystemMenu::DrawSmoke(float opacity) {
                                      (1.0f - SmokeAnimation.Progress)),
                 SmokePosition.y),
       col);
-  Renderer->SetBlendMode(RendererBlendMode::Normal);
 }
 
 void SystemMenu::Init() {

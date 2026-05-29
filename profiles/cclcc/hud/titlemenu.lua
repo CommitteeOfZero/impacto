@@ -21,7 +21,7 @@ root.TitleMenu = {
     SmokeBounds = {X = 20, Y = 1550,  Width = 1920, Height = 500},
     SmokeAnimationBoundsXOffset = 20,
     SmokeAnimationBoundsXMax = 1919,
-    SmokeOpacityNormal = 0.15,
+    SmokeOpacityNormal = 0.25,
     SmokeAnimationDurationIn = 32,
     SmokeAnimationDurationOut = 32,
     SmokeSprite = "TitleMenuSmoke",

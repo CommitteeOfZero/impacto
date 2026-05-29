@@ -48,7 +48,7 @@ class Renderer : public BaseRenderer {
                         glm::mat4 spriteTransformation,
                         glm::mat4 maskTransformation,
                         std::span<const glm::vec4, 4> tints, bool isInverted,
-                        bool isSameTexture) override;
+                        bool isSameTexture, ShaderProgramType shader) override;
 
   void DrawMaskedBinarySprite(const Sprite& sprite, const Sprite& mask,
                               const CornersQuad& spriteDest,

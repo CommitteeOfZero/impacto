@@ -428,7 +428,8 @@ void Renderer::DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
                                 glm::mat4 maskTransformation,
                                 const std::span<const glm::vec4, 4> tints,
                                 const bool isInverted,
-                                const bool isSameTexture) {
+                                const bool isSameTexture,
+                                const ShaderProgramType shader) {
   if (!Drawing) {
     ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawMaskedSprite() called before BeginFrame()\n");
@@ -443,18 +444,35 @@ void Renderer::DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
   const float constAlpha = (1.0f - alpha / 255.0f) * alphaRange;
 
   // Set uniform variables
-  MaskedSpriteUniforms uniforms{
-      .Projection = Projection,
-      .SpriteTransformation = spriteTransformation,
-      .MaskTransformation = maskTransformation,
-      .ColorMap = 0,
-      .Mask = 2,
-      .Alpha = {alphaRange, constAlpha},
-      .IsInverted = isInverted,
-      .IsSameTexture = isSameTexture,
-  };
+  if (shader == ShaderProgramType::MaskedSprite) {
+    MaskedSpriteUniforms uniforms{
+        .Projection = Projection,
+        .SpriteTransformation = spriteTransformation,
+        .MaskTransformation = maskTransformation,
+        .ColorMap = 0,
+        .Mask = 2,
+        .Alpha = {alphaRange, constAlpha},
+        .IsInverted = isInverted,
+        .IsSameTexture = isSameTexture,
+    };
 
-  UseShader(*MaskedSpriteShaderProgram, uniforms);
+    UseShader(*MaskedSpriteShaderProgram, uniforms);
+  } else if (shader == ShaderProgramType::HardLightMaskedSprite) {
+    HardLightMaskedSpriteUniforms uniforms{
+        .Projection = Projection,
+        .SpriteTransformation = spriteTransformation,
+        .MaskTransformation = maskTransformation,
+        .ColorMap = 0,
+        .Mask = 2,
+    };
+
+    UseShader(*HardLightMaskedSpriteShaderProgram, uniforms);
+  } else {
+    ImpLog(LogLevel::Error, LogChannel::Render,
+           "DrawMaskedSprite called with unsupported shader type {}\n",
+           (int)shader);
+    return;
+  }
 
   UseTextures(std::array<std::pair<uint32_t, size_t>, 2>{
       std::pair{sprite.Sheet.Texture, 0},
@@ -464,9 +482,14 @@ void Renderer::DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
   // OK, all good, make quad
 
   CornersQuad uvDest = sprite.NormalizedBounds();
-  CornersQuad maskUVDest = RectF(0.0, 0.0, 1.0f, 1.0f);
+  CornersQuad maskUVDest = shader == ShaderProgramType::MaskedSprite
+                               ? CornersQuad(RectF(0.0, 0.0, 1.0f, 1.0f))
+                               : CornersQuad(mask.NormalizedBounds());
   if (sprite.Sheet.IsScreenCap) uvDest = FlipUvVertical(uvDest);
-  if (mask.Sheet.IsScreenCap) maskUVDest = FlipUvVertical(maskUVDest);
+  if (mask.Sheet.IsScreenCap ||
+      shader == ShaderProgramType::HardLightMaskedSprite) {
+    maskUVDest = FlipUvVertical(maskUVDest);
+  }
   InsertVerticesQuad(spriteDest, uvDest, tints, maskUVDest);
 }
 

@@ -316,7 +316,8 @@ void Renderer::DrawMaskedSprite(
     const CornersQuad& maskDest, int alpha, const int fadeRange,
     const glm::mat4 spriteTransformation, const glm::mat4 maskTransformation,
     const std::span<const glm::vec4, 4> tints, const bool isInverted,
-    const bool isSameTexture) {
+    const bool isSameTexture, const ShaderProgramType shader) {
+  (void)shader;
   if (!Drawing) {
     ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawMaskedSpriteOverlay() called before BeginFrame()\n");
