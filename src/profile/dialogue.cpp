@@ -14,6 +14,8 @@ namespace Profile {
 namespace Dialogue {
 
 static void ConfigureNametag() {
+  OldNametagPositioning =
+      TryGetMember<bool>("OldNametagPositioning").value_or(false);
   NametagCurrentType = EnsureGetMember<NametagType>("NametagCurrentType");
 
   switch (NametagCurrentType) {

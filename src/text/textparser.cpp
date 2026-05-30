@@ -400,8 +400,31 @@ void TextParser::FinishName() {
   glm::vec2 pos{};
   switch (ModeInfo.NameDispMode) {
     case RelativeToWindow:
-      pos = ModeInfo.WindowPos + ModeInfo.NamePos +
-            glm::vec2(ModeInfo.MaxNameWidth / 2.0f, 0.0f);
+      pos = ModeInfo.WindowPos + ModeInfo.NamePos;
+
+      if (OldNametagPositioning) {
+        switch (ModeInfo.NameAlignment) {
+          case Left:
+            break;
+          case Center:
+            pos.x += (ModeInfo.MaxNameWidth - nameWidth) / 2.0f;
+            break;
+          case Right:
+            pos.x += ModeInfo.MaxNameWidth - nameWidth;
+            break;
+        }
+      } else {
+        switch (ModeInfo.NameAlignment) {
+          case Left:
+            break;
+          case Center:
+            pos.x -= nameWidth / 2.0f;
+            break;
+          case Right:
+            pos.x += ModeInfo.MaxNameWidth - nameWidth;
+            break;
+        }
+      }
       break;
 
     case InText:
@@ -410,29 +433,37 @@ void TextParser::FinishName() {
       break;
 
     case FixedPos:
-      pos = ModeInfo.WindowPos + ModeInfo.NamePos +
-            glm::vec2(ModeInfo.MaxNameWidth, 0.0f);
+      pos = ModeInfo.NamePos + glm::vec2(ModeInfo.MaxNameWidth, 0.0f);
+
+      if (OldNametagPositioning) {
+        switch (ModeInfo.NameAlignment) {
+          case Left:
+            break;
+          case Center:
+            pos.x -= nameWidth / 2.0f;
+            break;
+          case Right:
+            pos.x += nameWidth;
+            break;
+        }
+      } else {
+        switch (ModeInfo.NameAlignment) {
+          case Left:
+            pos.x -= ModeInfo.MaxNameWidth;
+            break;
+          case Center:
+            pos.x -= nameWidth / 2.0f;
+            break;
+          case Right:
+            pos.x += ModeInfo.NamePos.x + ModeInfo.MaxNameWidth - nameWidth;
+            break;
+        }
+      }
       break;
 
     case Invisible:
       assert(false);
       break;
-  }
-
-  if (ModeInfo.NameDispMode != InText) {
-    switch (ModeInfo.NameAlignment) {
-      case Left:
-        pos.x -= ModeInfo.MaxNameWidth;
-        break;
-
-      case Center:
-        pos.x -= nameWidth / 2.0f;
-        break;
-
-      case Right:
-        pos.x += ModeInfo.NamePos.x + ModeInfo.MaxNameWidth - nameWidth;
-        break;
-    }
   }
 
   nameStream = Vm::Sc3Stream(NameCode.data());

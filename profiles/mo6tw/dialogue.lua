@@ -58,6 +58,7 @@ root.Dialogue = {
     ADVNameFontSize = 32,
     ADVNamePos = { X = 120, Y = 462 },
 
+    OldNametagPositioning = true,
     NametagCurrentType = NametagType.ThreePiece,
     NametagPosition = { X = 100, Y = 458 },
     NametagLeftSprite = "NametagLeftSprite",

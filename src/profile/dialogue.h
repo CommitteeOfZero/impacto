@@ -107,6 +107,7 @@ inline int PageCount;
 
 inline bool ColorTagIsUint8;
 
+inline bool OldNametagPositioning = false;
 inline NametagType NametagCurrentType = NametagType::None;
 
 inline glm::vec2 NametagPosition{};

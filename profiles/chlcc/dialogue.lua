@@ -115,6 +115,7 @@ root.Dialogue = {
     ADVNameAlignment = TextAlignment.Left,
     ADVNameFontSize = 29,
     ADVNamePos = { X = 132, Y = 470 },
+    OldNametagPositioning = true,
     NametagCurrentType = NametagType.CHLCC,
     NametagPosition = { X = -1, Y = 465 },
     NametagSprite = "NametagSprite",
