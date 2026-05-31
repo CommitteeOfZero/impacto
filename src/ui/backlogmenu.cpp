@@ -276,7 +276,7 @@ void BacklogMenu::RenderHighlight(const glm::vec2 offset) const {
     return;
 
   RectF pos;
-  const Widget& el = *CurrentlyFocusedElement;
+  const BacklogEntry& el = *static_cast<BacklogEntry*>(CurrentlyFocusedElement);
 
   switch (EntryHighlightLocation) {
     default:
@@ -287,9 +287,8 @@ void BacklogMenu::RenderHighlight(const glm::vec2 offset) const {
           Profile::Dialogue::REVBounds.Width, EntryHighlight.ScaledHeight());
       break;
     case EntryHighlightLocationType::TopLineLeftOfScreen:
-      pos = RectF(0.0f, el.Bounds.Y - EntryHighlightPadding,
-                  EntryHighlight.ScaledWidth(),
-                  EntryHighlight.ScaledHeight() + EntryHighlightPadding * 2);
+      pos = RectF(0.0f, el.Page->Glyphs[0].DestRect.Y - EntryHighlightPadding,
+                  EntryHighlight.ScaledWidth(), EntryHighlight.ScaledHeight());
       break;
     case EntryHighlightLocationType::AllLinesLeftOfScreen:
       pos = RectF(0.0f, el.Bounds.Y - EntryHighlightPadding,

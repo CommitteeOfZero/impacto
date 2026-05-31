@@ -30,7 +30,6 @@ class BacklogEntry : public Widget {
 
   std::function<void(BacklogEntry*)> OnClickHandler;
 
- protected:
   std::unique_ptr<BacklogPage> Page;
 
  private:

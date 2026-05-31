@@ -14,9 +14,14 @@ using namespace Impacto::Profile::CC::BacklogMenu;
 
 void BacklogEntry::Render() {
   if (AudioId.has_value()) {
-    RectF bounds = RectF(Bounds.X - VoiceIcon.ScaledWidth() + VoiceIconOffset.x,
-                         Bounds.Y + VoiceIconOffset.y, VoiceIcon.ScaledWidth(),
-                         VoiceIcon.ScaledHeight());
+    const glm::vec2 textPos = Page->Name.empty()
+                                  ? Page->Glyphs[0].DestRect.GetPos()
+                                  : Page->Name[0].DestRect.GetPos();
+
+    RectF bounds =
+        RectF(textPos.x - VoiceIcon.ScaledWidth() + VoiceIconOffset.x,
+              textPos.y + VoiceIconOffset.y, VoiceIcon.ScaledWidth(),
+              VoiceIcon.ScaledHeight());
     Sprite mask;
     mask.Sheet = BacklogMaskSheet;
     mask.Bounds = bounds;
