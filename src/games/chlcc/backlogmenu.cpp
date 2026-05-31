@@ -62,15 +62,6 @@ void BacklogMenu::Render() {
   Renderer->DrawSprite(BacklogBackgroundSprite, {0.0f, 0.0f + yOffset});
   CommonMenu::DrawButtonPrompt(ButtonPromptSprite, ButtonPromptPosition);
 
-  MainItems->RenderingBounds.Y += yOffset;
-  MainItems->Move({0.0f, yOffset});
-  MainItems->Render();
-  MainItems->Move({0.0f, -yOffset});
-  MainItems->RenderingBounds.Y -= yOffset;
-
-  MainScrollbar->Move({0.0f, yOffset});
-  MainScrollbar->Render();
-  MainScrollbar->Move({0.0f, -yOffset});
   if (MenuTransition.Progress > 0.34f) {
     Renderer->EnableScissor();
     Renderer->SetScissorRect(BacklogBackgroundSprite.Bounds);
