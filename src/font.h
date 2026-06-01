@@ -46,9 +46,9 @@ class BasicFont : public Font {
 
   Sprite Glyph(uint8_t row, uint8_t col) { return Glyph(row * Columns + col); }
 
-  Sprite Glyph(uint16_t id) {
-    uint8_t row = (uint8_t)(id / Columns);
-    uint8_t col = id % Columns;
+  Sprite Glyph(uint32_t id) {
+    uint16_t row = (uint16_t)(id / Columns);
+    uint16_t col = id % Columns;
     float width = AdvanceWidths[id];
     return Sprite(Sheet, col * CellWidth + 1, row * CellHeight + 1, width - 2,
                   BitmapEmHeight - 2);
@@ -78,9 +78,9 @@ class LBFont : public Font {
 
   Sprite Glyph(uint8_t row, uint8_t col) { return Glyph(row * Columns + col); }
 
-  Sprite Glyph(uint16_t id) {
-    uint8_t row = (uint8_t)(id / Columns);
-    uint8_t col = id % Columns;
+  Sprite Glyph(uint32_t id) {
+    uint16_t row = (uint16_t)(id / Columns);
+    uint16_t col = id % Columns;
     return Sprite(ForegroundSheet, col * CellWidth, row * CellHeight, CellWidth,
                   CellHeight);
   }
@@ -89,9 +89,9 @@ class LBFont : public Font {
     return OutlineGlyph(row * Columns + col);
   }
 
-  Sprite OutlineGlyph(uint16_t id) {
-    uint8_t row = (uint8_t)(id / Columns);
-    uint8_t col = id % Columns;
+  Sprite OutlineGlyph(uint32_t id) {
+    uint16_t row = (uint16_t)(id / Columns);
+    uint16_t col = id % Columns;
     return Sprite(OutlineSheet, col * OutlineCellWidth, row * OutlineCellHeight,
                   OutlineCellWidth, OutlineCellHeight);
   }

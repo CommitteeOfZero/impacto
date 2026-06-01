@@ -72,9 +72,10 @@ void TipsNotification::Update(float dt) {
   if (FadeAnimation.IsIn() && Timer.IsOut()) {
     Timer.StartIn();
     auto tipNameAdr = NotificationQueue.front();
-    auto tipsScrBufId = TipsSystem::GetTipsScriptBufferId();
-    TipName->SetText({.ScriptBufferId = tipsScrBufId, .IpOffset = tipNameAdr},
-                     FontSize, RendererOutlineMode::Full, TipNameColorIndex);
+    auto [buffers, tipsScrBufId] = TipsSystem::GetTipsScriptBufferCtx();
+    TipName->SetText(
+        {.Buffers = buffers, .BufferId = tipsScrBufId, .IpOffset = tipNameAdr},
+        FontSize, RendererOutlineMode::Full, TipNameColorIndex);
     TipName->MoveTo(
         glm::vec2(FinalNotificationPosition.x + TextPartBefore->Bounds.Width,
                   FinalNotificationPosition.y));

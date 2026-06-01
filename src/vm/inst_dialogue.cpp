@@ -417,9 +417,9 @@ VmInstruction(InstSetNGmoji) {
   PopString(endingPuncts);
   PopString(startingPuncts);
 
-  StringToken::AddFlags({thread->ScriptBufferId, startingPuncts},
+  StringToken::AddFlags({ScriptBuffers, thread->ScriptBufferId, startingPuncts},
                         +CharacterTypeFlags::WordStartingPunct);
-  StringToken::AddFlags({thread->ScriptBufferId, endingPuncts},
+  StringToken::AddFlags({ScriptBuffers, thread->ScriptBufferId, endingPuncts},
                         +CharacterTypeFlags::WordEndingPunct);
 }
 VmInstruction(InstMesRev) {
@@ -565,6 +565,7 @@ VmInstruction(InstSel) {
     case 0: {  // SelInit
       if (Profile::Vm::GameInstructionSet == InstructionSet::Dash ||
           Profile::Vm::GameInstructionSet == InstructionSet::CC ||
+          Profile::Vm::GameInstructionSet == InstructionSet::LCCSwitch ||
           Profile::Vm::GameInstructionSet == InstructionSet::MO8) {
         PopUint16(savepointid);
         // SF_MESSAVEPOINT_SSP + dialog page's field 5 in decompile?
@@ -587,19 +588,19 @@ VmInstruction(InstSel) {
       PopUint16(selStrNum);
       auto offset = ScriptGetStrAddress(thread->ScriptBufferId, selStrNum);
       UI::SelectionMenuPtr->AddChoice(
-          {.ScriptBufferId = thread->ScriptBufferId, .IpOffset = offset});
+          {.BufferId = thread->ScriptBufferId, .IpOffset = offset});
       break;
     }
     case 0x81: {
       PopMsbString(line);
       UI::SelectionMenuPtr->AddChoice(
-          {.ScriptBufferId = thread->ScriptBufferId, .IpOffset = line});
+          {.BufferId = thread->ScriptBufferId, .IpOffset = line});
     } break;
     case 2: {
       PopUint16(selStrNum);
       auto offset = ScriptGetStrAddress(thread->ScriptBufferId, selStrNum);
       UI::SelectionMenuPtr->AddChoice(
-          {.ScriptBufferId = thread->ScriptBufferId, .IpOffset = offset});
+          {.BufferId = thread->ScriptBufferId, .IpOffset = offset});
       PopExpression(arg2);
       break;
     }
@@ -607,7 +608,7 @@ VmInstruction(InstSel) {
       PopMsbString(line);
       PopExpression(arg2);
       UI::SelectionMenuPtr->AddChoice(
-          {.ScriptBufferId = thread->ScriptBufferId, .IpOffset = line});
+          {.BufferId = thread->ScriptBufferId, .IpOffset = line});
     } break;
   }
 }
@@ -743,6 +744,7 @@ VmInstruction(InstNameID) {
   switch (type) {
     case 0:
       if (Profile::Vm::GameInstructionSet == InstructionSet::CC ||
+          Profile::Vm::GameInstructionSet == InstructionSet::LCCSwitch ||
           Profile::Vm::GameInstructionSet == InstructionSet::MO8 ||
           Profile::Vm::GameInstructionSet == InstructionSet::CHN) {
         PopLocalLabel(namePlateDataBlock);
@@ -785,8 +787,8 @@ VmInstruction(InstTips) {
       uint32_t tipsDataSize =
           ScriptGetLabelSize(thread->ScriptBufferId, tipsLabelNum);
       TipsSystem::DataInit(thread->ScriptBufferId, tipsDataAdr, tipsDataSize);
-      if (Profile::Vm::GameInstructionSet == InstructionSet::CC &&
-          UI::TipsMenuPtr) {
+      if (Profile::Vm::GameInstructionSet == InstructionSet::CC ||
+          Profile::Vm::GameInstructionSet == InstructionSet::LCCSwitch) {
         UI::TipsMenuPtr->Init();
       }
     } break;
@@ -859,7 +861,7 @@ VmInstruction(InstSetRevMes) {
 
   SaveSystem::SetLineRead(scriptId, lineId);
   UI::BacklogMenuPtr->AddMessage(
-      {.ScriptBufferId = thread->ScriptBufferId, .IpOffset = line}, audioId,
+      {.BufferId = thread->ScriptBufferId, .IpOffset = line}, audioId,
       animationId);
 }
 

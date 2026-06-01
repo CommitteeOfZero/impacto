@@ -31,7 +31,7 @@ namespace Impacto {
 namespace Profile {
 namespace Dialogue {
 
-constexpr int NO_NAME = 0xffff;
+constexpr uint32_t NO_NAME = 0xffffffff;
 
 inline Sprite ADVBoxSprite;
 inline glm::vec2 ADVBoxPos;

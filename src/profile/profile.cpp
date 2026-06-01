@@ -15,6 +15,7 @@
 #include "subtitle.h"
 #include "game.h"
 #include "patch.h"
+#include "vm.h"
 #include "../text/textpage.h"
 #include "../text/text.h"
 #include "../game.h"
@@ -154,7 +155,7 @@ static void DefineEnums() {
   DefineEnum<TextAlignment>(LuaState);
   DefineEnum<GameFeature>(LuaState);
   DefineEnum<CharacterTypeFlags>(LuaState);
-  DefineEnum<Vm::InstructionSet>(LuaState);
+  DefineEnum<Impacto::Vm::InstructionSet>(LuaState);
   DefineEnum<Impacto::Game::DrawComponentType>(LuaState);
   DefineEnum<SaveSystem::SaveDataType>(LuaState);
   DefineEnum<AchievementSystem::AchievementDataType>(LuaState);
@@ -200,6 +201,7 @@ static void DefineEnums() {
   DefineEnum<Input::ControllerAxis>(LuaState);
   DefineEnum<TextModeInfo::NameDispModeType>(LuaState);
   DefineEnum<TextModeInfo::NameAlignmentType>(LuaState);
+  DefineEnum<Vm::StringUnitEncoding>(LuaState);
 }
 
 void Init() {

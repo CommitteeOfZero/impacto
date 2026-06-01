@@ -61,10 +61,11 @@ void TipsNotification::Update(const float dt) {
       !NotificationQueue.empty()) {
     // Start display animation
     const auto tipNameAdr = NotificationQueue.front();
-    const auto tipsScrBufId = TipsSystem::GetTipsScriptBufferId();
-    TipName.SetText({.ScriptBufferId = tipsScrBufId, .IpOffset = tipNameAdr},
-                    TextFontSize, RendererOutlineMode::BottomRight,
-                    static_cast<int>(TipNameColorIndex));
+    const auto [buffers, tipsScrBufId] = TipsSystem::GetTipsScriptBufferCtx();
+    TipName.SetText(
+        {.Buffers = buffers, .BufferId = tipsScrBufId, .IpOffset = tipNameAdr},
+        TextFontSize, RendererOutlineMode::BottomRight,
+        static_cast<int>(TipNameColorIndex));
     NotificationQueue.pop();
 
     TipsAnimation.StartIn(true);

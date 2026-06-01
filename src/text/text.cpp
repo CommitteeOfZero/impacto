@@ -56,7 +56,7 @@ int StringToken::Read(Vm::Sc3VmThread* ctx) {
     case STT_GetHardcodedValue:
     case STT_UnlockTip: {
       Type = (StringTokenType)c;
-      Val_Uint16 = (*ctx->GetIp() << 8) | *(ctx->GetIp() + 1);
+      Val_Int = (*ctx->GetIp() << 8) | *(ctx->GetIp() + 1);
       ctx->IpOffset += 2;
       bytesRead += 2;
       break;
@@ -98,11 +98,20 @@ int StringToken::Read(Vm::Sc3VmThread* ctx) {
       } else {
         uint16_t glyphId = (((uint16_t)c & 0x7F) << 8) | *ctx->GetIp();
         ctx->IpOffset++;
-
         Flags |= GetFlags(glyphId);
 
         Type = STT_Character;
-        Val_Uint16 = glyphId;
+        Val_Int = glyphId;
+        if (Profile::Vm::StringEncodingType ==
+            Profile::Vm::StringUnitEncoding::Uint32) {
+          Val_Int = (Val_Int << 16);
+          Val_Int |= *ctx->GetIp() << 8;
+          ctx->IpOffset++;
+          Val_Int |= *ctx->GetIp();
+          ctx->IpOffset++;
+          bytesRead += 2;
+        }
+        bytesRead++;
       }
       break;
     }
@@ -110,6 +119,92 @@ int StringToken::Read(Vm::Sc3VmThread* ctx) {
 
   return bytesRead;
 }
+
+// int StringToken::Read(Vm::Sc3Stream& stream) {
+//   Flags = 0;
+//   auto* original = stream.Data();
+//   uint8_t c = stream.ReadU8();
+//   switch (c) {
+//     case STT_LineBreak:
+//     case STT_CharacterNameStart:
+//     case STT_DialogueLineStart:
+//     case STT_Present:
+//     case STT_Present_Clear:
+//     case STT_RubyBaseStart:
+//     case STT_RubyTextStart:
+//     case STT_RubyTextEnd:
+//     case STT_PrintInParallel:
+//     case STT_CenterText:
+//     case STT_Present_0x18:
+//     case STT_AutoForward_SyncVoice:
+//     case STT_AutoForward:
+//     case STT_RubyCenterPerCharacter:
+//     case STT_AltLineBreak:
+//     case STT_EndOfString: {
+//       Type = (StringTokenType)c;
+//       break;
+//     }
+
+//     case STT_SetFontSize:
+//     case STT_SetTopMargin:
+//     case STT_SetLeftMargin:
+//     case STT_GetHardcodedValue:
+//     case STT_UnlockTip: {
+//       Type = (StringTokenType)c;
+//       Val_Int = (stream.ReadU8() << 8) | stream.ReadU8();
+//       break;
+//     }
+
+//     case STT_SetColor: {
+//       Type = (StringTokenType)c;
+//       if (ColorTagIsUint8) {
+//         Val_Expr = stream.ReadU8();
+//       } else {
+//         Vm::Sc3VmThread dummyThread;
+//         dummyThread.UseMSBBuffers = stream.IsMsb;
+//         dummyThread.SetIp(stream.Data());
+//         Val_Expr = Vm::ExpressionEval(&dummyThread);
+//       }
+//       break;
+//     }
+
+//     case STT_EvaluateExpression: {
+//       Type = (StringTokenType)c;
+//       // Figure out how to evaluate expression later, hashmap into
+//       // BufferOffsetContext maybe?
+//       int skipBytes = Vm::ExpressionSkip(stream.Data());
+//       stream.Advance(skipBytes);
+//       break;
+//     }
+
+//     default: {
+//       if (c < 0x80) {
+//         if (c == STT_Character) {
+//           ImpLog(LogLevel::Error, LogChannel::VM,
+//                  "STT_Character encountered, uh oh...");
+//         }
+//         ImpLog(LogLevel::Error, LogChannel::VM,
+//                "Encountered unrecognized token 0x{:02x} in string\n", c);
+//         Type = STT_EndOfString;
+//       } else {
+//         uint16_t glyphId = (((uint16_t)c & 0x7F) << 8) | stream.ReadU8();
+//         Flags |= GetFlags(glyphId);
+
+//         Type = STT_Character;
+//         Val_Int = (((uint16_t)c & 0x7F) << 8) | stream.ReadU8();
+//         if (Profile::Vm::StringEncodingType ==
+//             Profile::Vm::StringUnitEncoding::Uint32) {
+//           Val_Int = (Val_Int << 16) | stream.ReadU16();
+//           return 4;
+//         }
+//         return 2;
+//       }
+//       break;
+//     }
+//   }
+
+//   return stream.Data() - original;
+// }
 
 int StringToken::Read(Vm::Sc3Stream& stream) {
   uint8_t c = stream.ReadU8();
@@ -124,9 +219,13 @@ int StringToken::Read(Vm::Sc3Stream& stream) {
   } else if (c == STT_EndOfString) {
     Type = STT_EndOfString;
   } else {
-    uint16_t glyphId = (((uint16_t)c & 0x7F) << 8) | stream.ReadU8();
     Type = STT_Character;
-    Val_Uint16 = glyphId;
+    Val_Int = (((uint16_t)c & 0x7F) << 8) | stream.ReadU8();
+    if (Profile::Vm::StringEncodingType ==
+        Profile::Vm::StringUnitEncoding::Uint32) {
+      Val_Int = (Val_Int << 16) | stream.ReadU16();
+      return 4;
+    }
     return 2;
   }
   return 1;
@@ -134,22 +233,23 @@ int StringToken::Read(Vm::Sc3Stream& stream) {
 
 void StringToken::AddFlags(const Vm::BufferOffsetContext scrCtx,
                            const uint8_t flags) {
-  Vm::Sc3VmThread dummy;
-  dummy.ScriptBufferId = scrCtx.ScriptBufferId;
-  dummy.IpOffset = scrCtx.IpOffset;
+  Vm::Sc3Stream stream = &scrCtx.Buffers[scrCtx.BufferId][scrCtx.IpOffset];
 
   StringToken token;
-  token.Read(&dummy);
-  for (; token.Type != STT_EndOfString; token.Read(&dummy)) {
+  token.Read(stream);
+  for (; token.Type != STT_EndOfString; token.Read(stream)) {
     if (token.Type != STT_Character) {
-      ImpLog(LogLevel::Error, LogChannel::VM,
-             "Encountered non-character token 0x{:02x} in flag string\n",
-             static_cast<uint8_t>(token.Type));
       return;
     }
 
-    AddFlags(token.Val_Uint16, flags);
+    AddFlags(token.Val_Int, flags);
   }
+}
+
+uint16_t StringToken::GetValU16() const {
+  assert(Type != STT_Character || Profile::Vm::StringEncodingType ==
+                                      Profile::Vm::StringUnitEncoding::Uint16);
+  return static_cast<uint16_t>(Val_Int);
 }
 
 int TextGetStringLength(Vm::Sc3Stream& stream) {
@@ -231,7 +331,7 @@ std::pair<int, float> TextLayoutPlainLineHelper(
 
       case STT_Character: {
         ProcessedTextGlyph ptg;
-        ptg.CharId = token.Val_Uint16;
+        ptg.CharId = token.Val_Int;
         ptg.Colors = currentColors;
         ptg.Opacity = opacity;
 
@@ -394,7 +494,7 @@ float TextGetPlainLineWidth(Vm::Sc3VmThread* ctx, Font* font, float fontSize) {
     if (token.Type != STT_Character) continue;
 
     width += std::floor((fontSize / font->BitmapEmWidth) *
-                        font->AdvanceWidths[token.Val_Uint16]);
+                        font->AdvanceWidths[token.Val_Int]);
   }
 
   return width;
@@ -411,7 +511,7 @@ float TextGetPlainLineWidth(Vm::Sc3Stream& stream, Font* font, float fontSize,
     if (token.Type != STT_Character) continue;
 
     width += std::floor((fontSize / font->BitmapEmWidth) *
-                        font->AdvanceWidths[token.Val_Uint16]);
+                        font->AdvanceWidths[token.Val_Int]);
   }
 
   return width;
@@ -488,7 +588,7 @@ void InitNamePlateData(Vm::Sc3Stream& stream) {
   } while (stream.PeekU16() != 0xFFFF);
 }
 
-std::optional<uint32_t> GetNameId(const std::span<const uint16_t> name) {
+std::optional<uint32_t> GetNameId(const std::span<const uint32_t> name) {
   uint32_t nameHash = GetHashCode(std::span<const uint8_t>(
       std::bit_cast<uint8_t*>(name.data()), name.size_bytes()));
   if (NamePlateData.find(nameHash) != NamePlateData.end())

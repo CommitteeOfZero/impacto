@@ -199,7 +199,7 @@ void ClearListMenu::InitMainPage() {
   auto separator =
       Vm::ScriptGetTextTableStrAddress(SeparatorTable, SeparatorEntry);
   dummy.IpOffset = separator.IpOffset;
-  dummy.ScriptBufferId = separator.ScriptBufferId;
+  dummy.ScriptBufferId = separator.BufferId;
   SeparatorWidth =
       TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
 

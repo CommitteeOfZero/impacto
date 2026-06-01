@@ -1,7 +1,10 @@
 #include "tipssystem.h"
 
 #include "../profile/data/tipssystem.h"
+#include "../profile/vm.h"
 #include "../vm/vm.h"
+#include "../vm/sc3stream.h"
+#include "../text/text.h"
 #include <vector>
 
 namespace Impacto {
@@ -11,70 +14,62 @@ using namespace Impacto::Profile::TipsSystem;
 
 TipsComparator::TipsComparator(uint32_t tipsTableId, uint32_t sortStringIndex,
                                int tipIdStrIndex)
-    : SortString(nullptr), TipIdStrIndex(tipIdStrIndex) {
-  auto [scrBufId, offset] =
+    : TipIdStrIndex(tipIdStrIndex) {
+  auto [buffers, bufferId, ip] =
       Vm::ScriptGetTextTableStrAddress(tipsTableId, sortStringIndex);
-  SortString = &Vm::ScriptBuffers[scrBufId][offset];
-  int i = 0;
+  Vm::Sc3Stream sortStream = &buffers[bufferId][ip];
+
   int distance = 0;
-  while (SortString[i] != 0xFF) {
-    if (SortString[i] & 0x80) {
-      uint16_t sc3Char = SDL_SwapBE16(UnalignedRead<uint16_t>(SortString + i));
-      Sc3SortMap[sc3Char] = distance++;
-      i += 2;
+
+  while (sortStream.PeekU8() != 0xff) {
+    StringToken token;
+    token.Read(sortStream);
+    if (token.Type == STT_Character) {
+      Sc3SortMap[token.Val_Int] = distance++;
     } else {
       ImpLogSlow(LogLevel::Warning, LogChannel::VM,
-                 "TipsComparator: SC3 Tag Found in Sort String\n",
-                 SortString[i]);
-      i++;
+                 "TipsComparator: SC3 Tag Found in Sort String\n", token.Type);
     }
   }
 }
 
 bool TipsComparator::operator()(int a, int b) const {
-  auto* aRecord = TipsSystem::GetTipRecord(a);
-  auto* bRecord = TipsSystem::GetTipRecord(b);
-  uint32_t tipsScrBufId = TipsSystem::GetTipsScriptBufferId();
-  uint8_t* aString =
-      &Vm::ScriptBuffers[tipsScrBufId][aRecord->StringAdr[TipIdStrIndex]];
-  uint8_t* bString =
-      &Vm::ScriptBuffers[tipsScrBufId][bRecord->StringAdr[TipIdStrIndex]];
+  TipsBufferCtx bufferCtx = TipsSystem::GetTipsScriptBufferCtx();
+  Vm::Sc3Stream aString = TipsSystem::GetTextStringStream(a, TipIdStrIndex);
+  Vm::Sc3Stream bString = TipsSystem::GetTextStringStream(b, TipIdStrIndex);
 
-  int aIndex = 0;
-  int bIndex = 0;
+  while (aString.PeekU8() != 0xff && bString.PeekU8() != 0xff) {
+    StringToken aToken;
+    StringToken bToken;
+    aToken.Read(aString);
+    bToken.Read(bString);
 
-  while (aString[aIndex] != 0xff && bString[bIndex] != 0xff) {
-    if ((aString[aIndex] & 0x80) == 0) {
-      aIndex++;
-      continue;
-    }
-    if ((bString[bIndex] & 0x80) == 0) {
-      bIndex++;
-      continue;
-    }
-    uint16_t aSc3Char = SDL_SwapBE16(UnalignedRead<uint16_t>(aString + aIndex));
-    aIndex += 2;
-
-    uint16_t bSc3Char = SDL_SwapBE16(UnalignedRead<uint16_t>(bString + bIndex));
-    bIndex += 2;
-    if (aSc3Char != bSc3Char) {
-      auto aSortValue = Sc3SortMap.find(aSc3Char);
-      auto bSortValue = Sc3SortMap.find(bSc3Char);
+    if (aToken.Val_Int != bToken.Val_Int) {
+      auto aSortValue = Sc3SortMap.find(aToken.Val_Int);
+      auto bSortValue = Sc3SortMap.find(bToken.Val_Int);
       if (aSortValue != Sc3SortMap.end() && bSortValue != Sc3SortMap.end()) {
         return aSortValue->second < bSortValue->second;
       } else {
         ImpLogSlow(LogLevel::Error, LogChannel::VM,
                    "TipsComparator: Character Not Found in Sort String\n",
-                   aSc3Char, bSc3Char);
-        return aSc3Char < bSc3Char;
+                   aToken.Val_Int, bToken.Val_Int);
+        return aToken.Val_Int < bToken.Val_Int;
       }
     }
   }
   // If strings are all the same, return the shorter one
-  return aString[aIndex] == 0xff && bString[bIndex] != 0xff;
+  return aString.PeekU8() == 0xff && bString.PeekU8() != 0xff;
 }
 
 void Init() { Configure(); }
+
+Vm::Sc3Stream GetTextStringStream(size_t record, size_t stringIndex) {
+  if (!Implementation) return {nullptr};
+  auto [buffers, bufferId] = GetTipsScriptBufferCtx();
+  auto const& records = *GetTipRecords();
+  return Vm::Sc3Stream{
+      &buffers[bufferId][records[record].StringAdr[stringIndex]]};
+}
 
 void DataInit(uint32_t scriptBufferId, uint32_t tipsDataAdr,
               uint32_t tipsDataSize) {
@@ -137,11 +132,14 @@ size_t GetTipCount() {
   return 0;
 }
 
-uint8_t GetTipsScriptBufferId() {
-  if (Implementation) return Implementation->ScriptBufferId;
+TipsBufferCtx GetTipsScriptBufferCtx() {
+  if (Implementation)
+    return {.Buffers =
+                Profile::Vm::UseMsbStrings ? Vm::MsbBuffers : Vm::ScriptBuffers,
+            .BufferId = Implementation->ScriptBufferId};
   ImpLog(LogLevel::Warning, LogChannel::VMStub,
-         "{:s}: tips system not implemented, returning 0\n", __func__);
-  return 0;
+         "{:s}: tips system not implemented, returning empty ctx\n", __func__);
+  return TipsBufferCtx{};
 }
 
 std::vector<uint16_t>& GetNewTipsIndices() {

@@ -25,7 +25,7 @@ class TextParser {
   std::vector<RubyChunk> RubyChunks;
 
   std::vector<ProcessedTextGlyph> Name;
-  uint16_t NameId = NO_NAME;
+  uint32_t NameId = NO_NAME;
 
   std::set<size_t> ParallelStartGlyphs;
 
@@ -39,7 +39,7 @@ class TextParser {
   void FinishLine(size_t nextLineStart, bool force = false);
   void FinishName();
 
-  std::vector<uint16_t> NameCode;
+  std::vector<uint32_t> NameCode;
 
   enum class TextParsingState { Normal, Name, RubyBase, RubyAnnotation };
   TextParsingState ParsingState = TextParsingState::Normal;

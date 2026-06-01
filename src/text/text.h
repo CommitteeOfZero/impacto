@@ -62,13 +62,13 @@ struct StringToken {
  public:
   StringTokenType Type;
 
-  uint16_t Val_Uint16;
+  uint32_t Val_Int;
   int Val_Expr;
 
   uint8_t Flags{};
 
   static void AddFlags(Vm::BufferOffsetContext scrCtx, uint8_t flags);
-  static void AddFlags(uint16_t glyphId, uint8_t flags) {
+  static void AddFlags(uint32_t glyphId, uint8_t flags) {
     const auto found = FlagsMap.find(glyphId);
     if (found != FlagsMap.end()) {
       found->second |= flags;
@@ -76,7 +76,7 @@ struct StringToken {
       StringToken::FlagsMap.emplace(glyphId, flags);
     }
   }
-  static uint8_t GetFlags(uint16_t glyphId) {
+  static uint8_t GetFlags(uint32_t glyphId) {
     const auto found = FlagsMap.find(glyphId);
     return found == FlagsMap.end() ? 0 : found->second;
   }
@@ -84,8 +84,10 @@ struct StringToken {
   int Read(Vm::Sc3VmThread* ctx);
   int Read(Vm::Sc3Stream& stream);
 
+  uint16_t GetValU16() const;
+
  private:
-  static inline ankerl::unordered_dense::map<uint16_t, uint8_t> FlagsMap;
+  static inline ankerl::unordered_dense::map<uint32_t, uint8_t> FlagsMap;
 };
 
 struct DialogueColorPair {
@@ -95,7 +97,7 @@ struct DialogueColorPair {
 
 struct ProcessedTextGlyph {
   DialogueColorPair Colors;
-  uint16_t CharId;
+  uint32_t CharId;
   float Opacity;
   RectF DestRect;
 };
@@ -142,7 +144,7 @@ void TextGetSc3String(std::string_view str, std::span<uint16_t> out);
 
 inline ankerl::unordered_dense::map<uint32_t, uint32_t> NamePlateData;
 void InitNamePlateData(Vm::Sc3Stream& stream);
-std::optional<uint32_t> GetNameId(std::span<const uint16_t> name);
+std::optional<uint32_t> GetNameId(std::span<const uint32_t> name);
 void FitGlyphsForPlainLine(std::span<ProcessedTextGlyph> glyphs,
                            float containerRight);
 

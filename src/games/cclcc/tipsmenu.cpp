@@ -5,6 +5,7 @@
 #include "../../vm/vm.h"
 #include "../../inputsystem.h"
 #include "../../profile/scriptvars.h"
+#include "../../profile/vm.h"
 #include "../../profile/dialogue.h"
 #include "../../profile/ui/backlogmenu.h"
 #include "../../profile/ui/tipsmenu.h"
@@ -315,9 +316,8 @@ void TipsMenu::Init() {
 void TipsMenu::SwitchToTipId(int id) {
   if (id - 1 == CurrentlyDisplayedTipId) return;
   int actualId = SortedTipIds[id - 1];
+  auto [buffers, tipsScrBufId] = TipsSystem::GetTipsScriptBufferCtx();
   auto* record = TipsSystem::GetTipRecord(actualId);
-  uint32_t tipsScrBufId = TipsSystem::GetTipsScriptBufferId();
-
   if (record->IsLocked) {
     Audio::PlayInGroup(Audio::ACG_SE, "sysse", 4, false, 0);
     return;
@@ -325,17 +325,15 @@ void TipsMenu::SwitchToTipId(int id) {
   CurrentlyDisplayedTipId = id - 1;
 
   TipsSystem::SetTipUnreadState(actualId, false);
-  Category->SetText(
-      {.ScriptBufferId = tipsScrBufId, .IpOffset = record->StringAdr[0]},
-      (float)CategoryFontSize, RendererOutlineMode::None,
-      {TipsMenuDarkTextColor, 0});
-  Name->SetText(
-      {.ScriptBufferId = tipsScrBufId, .IpOffset = record->StringAdr[1]},
-      (float)NameFontSize, RendererOutlineMode::None,
-      {TipsMenuDarkTextColor, 0});
-  Pronunciation->SetText(
-      {.ScriptBufferId = tipsScrBufId, .IpOffset = record->StringAdr[2]},
-      (float)PronunciationFontSize, RendererOutlineMode::None, 0);
+  auto categoryStr = TipsSystem::GetTextStringStream(actualId, 0);
+  auto nameStr = TipsSystem::GetTextStringStream(actualId, 1);
+  auto pronunciationStr = TipsSystem::GetTextStringStream(actualId, 2);
+  Category->SetText(categoryStr, (float)CategoryFontSize,
+                    RendererOutlineMode::None, {TipsMenuDarkTextColor, 0});
+  Name->SetText(nameStr, (float)NameFontSize, RendererOutlineMode::None,
+                {TipsMenuDarkTextColor, 0});
+  Pronunciation->SetText(pronunciationStr, (float)PronunciationFontSize,
+                         RendererOutlineMode::None, 0);
 
   {
     uint16_t sc3StringBuffer[5];
@@ -351,8 +349,9 @@ void TipsMenu::SwitchToTipId(int id) {
   }
 
   Vm::Sc3VmThread dummy;
-  dummy.IpOffset = record->StringAdr[4];
   dummy.ScriptBufferId = tipsScrBufId;
+  dummy.UseMSBBuffers = Profile::Vm::UseMsbStrings;
+  dummy.SetIp(TipsSystem::GetTextStringStream(actualId, 4).Data());
   TextPage.Clear();
   TextPage.AddString(&dummy);
   TipViewItems.HasFocus = true;

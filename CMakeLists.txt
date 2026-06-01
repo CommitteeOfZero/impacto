@@ -718,7 +718,17 @@ set(Impacto_Header
     src/vm/inst_misc.h
     src/vm/inst_movie.h
     src/vm/inst_sound.h
+    src/vm/opcodetables_cc.h
+    src/vm/opcodetables_chlcc.h
+    src/vm/opcodetables_chn.h
+    src/vm/opcodetables_darling.h
+    src/vm/opcodetables_dash.h
+    src/vm/opcodetables_lccswitch.h
+    src/vm/opcodetables_mo6tw.h
+    src/vm/opcodetables_mo7.h
+    src/vm/opcodetables_mo8.h
     src/vm/opcodetables_rne.h
+    src/vm/opcodetables_sgps3.h
 
     src/vm/interface/scene3d.h
     src/vm/interface/input.h

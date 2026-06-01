@@ -28,7 +28,7 @@ BacklogEntry::BacklogEntry(int id, Vm::BufferOffsetContext scrCtx,
 
   Impacto::Vm::Sc3VmThread dummy;
   dummy.IpOffset = scrCtx.IpOffset;
-  dummy.ScriptBufferId = scrCtx.ScriptBufferId;
+  dummy.ScriptBufferId = scrCtx.BufferId;
   Page->AddString(&dummy);
 
   Bounds = !Page->Glyphs.empty() ? Page->Glyphs.begin()->DestRect

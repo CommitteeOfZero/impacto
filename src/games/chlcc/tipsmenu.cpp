@@ -4,6 +4,7 @@
 #include "../../mem.h"
 #include "../../profile/scriptvars.h"
 #include "../../profile/dialogue.h"
+#include "../../profile/vm.h"
 #include "../../profile/ui/tipsmenu.h"
 #include "../../profile/games/chlcc/tipsmenu.h"
 #include "../../profile/games/chlcc/commonmenu.h"
@@ -276,9 +277,9 @@ void TipsMenu::Init() {
   int currentCategoryId = -1;
 
   // String of characters by which tips are sorted, taken from _system script
-  auto [scriptBufId, catStrAddr] =
+  auto [buffers, bufferId, catStrAddr] =
       Vm::ScriptGetTextTableStrAddress(TipsStringTable, CategoryStringIndex);
-  uint8_t* categoryString = &Vm::ScriptBuffers[scriptBufId][catStrAddr];
+  uint8_t* categoryString = &buffers[bufferId][catStrAddr];
   ItemsList.Clear();
   TipViewItems.Clear();
   Group* allTipsGroup = new Group(this);
@@ -595,16 +596,15 @@ void TipsMenu::SwitchToTipId(int id) {
   CurrentTipPage = 1;
   TipsSystem::SetTipUnreadState(id, false);
   TipsSystem::SetTipNewState(id, false);
-  auto tipsScriptBufferId = TipsSystem::GetTipsScriptBufferId();
+  auto [buffers, tipsScriptBufferId] = TipsSystem::GetTipsScriptBufferCtx();
 
   auto tipRecord = TipsSystem::GetTipRecord(id);
-  Name->SetText({.ScriptBufferId = tipsScriptBufferId,
-                 .IpOffset = tipRecord->StringAdr[0]},
-                NameFontSize, RendererOutlineMode::Full, DefaultColorIndex);
-  Pronunciation->SetText({.ScriptBufferId = tipsScriptBufferId,
-                          .IpOffset = tipRecord->StringAdr[1]},
-                         PronunciationFontSize, RendererOutlineMode::Full,
-                         DefaultColorIndex);
+  auto nameStr = TipsSystem::GetTextStringStream(id, 0);
+  auto pronunciationStr = TipsSystem::GetTextStringStream(id, 1);
+  Name->SetText(nameStr, NameFontSize, RendererOutlineMode::Full,
+                DefaultColorIndex);
+  Pronunciation->SetText(pronunciationStr, PronunciationFontSize,
+                         RendererOutlineMode::Full, DefaultColorIndex);
   // Right alignment
   Name->MoveTo(NameInitialBounds.GetPos() -
                glm::vec2{Name->Bounds.Width, 0.0f});
@@ -621,8 +621,9 @@ void TipsMenu::SwitchToTipId(int id) {
 
   TextPage.Clear();
   Vm::Sc3VmThread dummy;
-  dummy.IpOffset = tipRecord->StringAdr[3];
   dummy.ScriptBufferId = tipsScriptBufferId;
+  dummy.UseMSBBuffers = Profile::Vm::UseMsbStrings;
+  dummy.IpOffset = tipRecord->StringAdr[3];
   TextPage.AddString(&dummy);
 }
 
@@ -648,9 +649,11 @@ void TipsMenu::AdvanceTipPage(TipAdvanceMode mode) {
   }
 
   TextPage.Clear();
+  auto [buffers, tipsScriptBufferId] = TipsSystem::GetTipsScriptBufferCtx();
   Vm::Sc3VmThread dummy;
+  dummy.ScriptBufferId = tipsScriptBufferId;
+  dummy.UseMSBBuffers = Profile::Vm::UseMsbStrings;
   dummy.IpOffset = currentRecord->StringAdr[3 + CurrentTipPage - 1];
-  dummy.ScriptBufferId = TipsSystem::GetTipsScriptBufferId();
   TextPage.AddString(&dummy);
   CurrentPage->SetSprite(CurrentPageSprites[CurrentTipPage]);
 }

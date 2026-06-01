@@ -172,7 +172,7 @@ void SysMesBox::Init() {
 void SysMesBox::AddMessage(Vm::BufferOffsetContext ctx) {
   Impacto::Vm::Sc3VmThread dummy;
   dummy.IpOffset = ctx.IpOffset;
-  dummy.ScriptBufferId = ctx.ScriptBufferId;
+  dummy.ScriptBufferId = ctx.BufferId;
   Messages[MessageCount] =
       TextLayoutPlainLine(&dummy, 255, Profile::Dialogue::DialogueFont,
                           TextFontSize, Profile::Dialogue::ColorTable[0], 1.0f,
@@ -188,7 +188,7 @@ void SysMesBox::AddMessage(Vm::BufferOffsetContext ctx) {
 void SysMesBox::AddChoice(Vm::BufferOffsetContext ctx) {
   Impacto::Vm::Sc3VmThread dummy;
   dummy.IpOffset = ctx.IpOffset;
-  dummy.ScriptBufferId = ctx.ScriptBufferId;
+  dummy.ScriptBufferId = ctx.BufferId;
   Choices[ChoiceCount] =
       TextLayoutPlainLine(&dummy, 255, Profile::Dialogue::DialogueFont,
                           TextFontSize, Profile::Dialogue::ColorTable[0], 1.0f,

@@ -83,7 +83,9 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, std::optional<int> voiceId,
                              bool acted, int animId, int charId) {
   TextFadeAnimation.Reset(AnimationDirection::Out);
 
-  CurrentStringAddress = {ctx->ScriptBufferId, ctx->IpOffset};
+  CurrentStringAddress = {
+      Profile::Vm::UseMsbStrings ? Vm::MsbBuffers : Vm::ScriptBuffers,
+      ctx->ScriptBufferId, ctx->IpOffset};
   AudioId = voiceId;
 
   Audio::AudioStream* audioStream = nullptr;
