@@ -38,6 +38,7 @@ set(Impacto_Src
     src/inputsystem.cpp
     src/voicetable.cpp
     src/animation.cpp
+    src/externalfont.cpp
 
     src/text/text.cpp
     src/text/typewritereffect.cpp
@@ -1061,8 +1062,24 @@ list(APPEND Impacto_Include_Dirs ${WebP_INCLUDE_DIRS})
 
 if (VCPKG_TOOLCHAIN)
     find_package(fmt CONFIG REQUIRED)
+    find_package(Freetype REQUIRED)
+    find_package(harfbuzz CONFIG REQUIRED)
 endif ()
 list(APPEND Impacto_Libs fmt::fmt)
+
+if (VCPKG_TOOLCHAIN)
+    list(APPEND Impacto_Libs
+        Freetype::Freetype
+        harfbuzz::harfbuzz
+    )
+else ()
+    pkg_check_modules(freetype2 REQUIRED IMPORTED_TARGET freetype2)
+    pkg_check_modules(harfbuzz REQUIRED IMPORTED_TARGET harfbuzz)
+    list(APPEND Impacto_Libs
+        PkgConfig::freetype2
+        PkgConfig::harfbuzz
+    )
+endif ()
 
 list(APPEND Impacto_Libs
         pugixml::pugixml
