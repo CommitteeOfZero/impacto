@@ -175,9 +175,8 @@ void TextParser::ParseStringToken<STT_Character>(const StringToken& token) {
     }
 
     case TextParsingState::RubyAnnotation: {
-      RubyChunk& curChunk = RubyChunks.back();
-      curChunk.RawText[curChunk.Length] = SDL_Swap16(token.Val_Uint16 | 0x8000);
-      curChunk.Length++;
+      RubyChunks.back().RawText.push_back(
+          SDL_Swap16(token.Val_Uint16 | 0x8000));
       return;
     }
 
@@ -255,7 +254,9 @@ void TextParser::FinishLine(const size_t nextLineStart) {
   const float rubyFontSize =
       ModeInfo.RubyGlyphSize.y * FontSize / DefaultFontSize;
   for (RubyChunk& chunk : RubyChunks) {
-    if (chunk.Length == 0 || chunk.BaseLength == 0 ||
+    const size_t chunkSize = chunk.RawText.size();
+
+    if (chunkSize == 0 || chunk.BaseLength == 0 ||
         chunk.FirstBaseCharacter < LastLineStart) {
       continue;
     }
@@ -277,40 +278,38 @@ void TextParser::FinishLine(const size_t nextLineStart) {
     // ruby base length < ruby text length: center over block (handled by
     // block align)
 
-    if (chunk.Length == chunk.BaseLength ||
-        (chunk.CenterPerCharacter && chunk.BaseLength > chunk.Length)) {
+    chunk.Text.resize(chunkSize);
+    if (chunkSize == chunk.BaseLength ||
+        (chunk.CenterPerCharacter && chunk.BaseLength > chunkSize)) {
       // center every ruby character over the base character below it
-      for (size_t j = 0; j < chunk.Length; j++) {
+      for (size_t j = 0; j < chunkSize; j++) {
         pos.x = base[j].DestRect.Center().x;
         TextLayoutPlainLine(rubyText, 1, std::span(chunk.Text.begin() + j, 1),
                             DialogueFont, rubyFontSize, CurrentColors, 1.0f,
                             pos, TextAlignment::Center);
       }
     } else {
-      TextLayoutPlainLine(rubyText, static_cast<int>(chunk.Length), chunk.Text,
+      TextLayoutPlainLine(rubyText, static_cast<int>(chunkSize), chunk.Text,
                           DialogueFont, rubyFontSize, CurrentColors, 1.0f, pos,
                           TextAlignment::Left);
       const float baseWidth =
           base.back().DestRect.Right() - base.front().DestRect.X;
       const float nonSpacedWidth =
-          chunk.Text[chunk.Length - 1].DestRect.Right() -
-          chunk.Text[0].DestRect.X;
+          chunk.Text.back().DestRect.Right() - chunk.Text.front().DestRect.X;
       const float excessWidth = baseWidth - nonSpacedWidth;
 
-      if (chunk.Length == 1) {
-        chunk.Text[0].DestRect.X += baseWidth / 2.0f;
+      if (chunkSize == 1) {
+        chunk.Text.front().DestRect.X += baseWidth / 2.0f;
       } else if (excessWidth <= 0.0f) {
         // Ruby overflows => center over base with normal spacing
         const float offsetX = (baseWidth - nonSpacedWidth) / 2.0f;
-        for (size_t rubyGlyphId = 0; rubyGlyphId < chunk.Length;
-             rubyGlyphId++) {
-          chunk.Text[rubyGlyphId].DestRect.X += offsetX;
+        for (auto& glyph : chunk.Text) {
+          glyph.DestRect.X += offsetX;
         }
       } else {
         // Evenly space out all ruby characters over the block of base text
-        const float extraSpacing = excessWidth / (chunk.Length - 1);
-        for (size_t rubyGlyphId = 0; rubyGlyphId < chunk.Length;
-             rubyGlyphId++) {
+        const float extraSpacing = excessWidth / (chunkSize - 1);
+        for (size_t rubyGlyphId = 0; rubyGlyphId < chunkSize; rubyGlyphId++) {
           chunk.Text[rubyGlyphId].DestRect.X += extraSpacing * rubyGlyphId;
         }
       }

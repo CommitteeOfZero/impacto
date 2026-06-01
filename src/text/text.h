@@ -100,19 +100,6 @@ struct ProcessedTextGlyph {
   RectF DestRect;
 };
 
-struct RubyChunk {
-  size_t FirstBaseCharacter = 0;
-  size_t Length = 0;
-  size_t BaseLength = 0;
-  std::array<ProcessedTextGlyph, 32> Text;
-  std::array<uint16_t, 32> RawText;
-  bool CenterPerCharacter = false;
-
-  void FinishBase(size_t glyphCount) {
-    BaseLength = glyphCount - FirstBaseCharacter;
-  }
-};
-
 int TextGetStringLength(Vm::Sc3Stream& stream);
 int TextGetStringLength(Vm::Sc3VmThread* ctx);
 [[maybe_unused]] int TextGetMainCharacterCount(Vm::Sc3VmThread* ctx);

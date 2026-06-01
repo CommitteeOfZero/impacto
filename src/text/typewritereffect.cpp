@@ -190,7 +190,7 @@ float TypewriterEffect::CalcRubyOpacity(const size_t rubyGlyphId,
   constexpr float glyphPropagateDuration =
       singleGlyphDuration * glyphPropagateProgress;
   const float totalDuration =
-      chunk.Length * glyphPropagateDuration +
+      chunk.RawText.size() * glyphPropagateDuration +
       (1.0f - glyphPropagateProgress) * singleGlyphDuration;
 
   const float glyphStartTime = glyphPropagateDuration * rubyGlyphId;

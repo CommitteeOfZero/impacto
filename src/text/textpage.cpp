@@ -17,8 +17,7 @@ void TextPage::Move(const glm::vec2 relativePos) {
     glyph.DestRect += relativePos;
   }
   for (RubyChunk& chunk : RubyChunks) {
-    for (ProcessedTextGlyph& glyph :
-         std::span(chunk.Text.begin(), chunk.Length)) {
+    for (ProcessedTextGlyph& glyph : chunk.Text) {
       glyph.DestRect += relativePos;
     }
   }

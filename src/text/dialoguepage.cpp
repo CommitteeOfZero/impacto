@@ -144,7 +144,8 @@ void DialoguePage::Update(float dt) {
     }
 
     for (RubyChunk& chunk : RubyChunks) {
-      for (size_t rubyGlyphId = 0; rubyGlyphId < chunk.Length; rubyGlyphId++) {
+      for (size_t rubyGlyphId = 0; rubyGlyphId < chunk.Text.size();
+           rubyGlyphId++) {
         chunk.Text[rubyGlyphId].Opacity =
             Typewriter.CalcRubyOpacity(rubyGlyphId, chunk);
       }
