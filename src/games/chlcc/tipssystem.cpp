@@ -6,6 +6,7 @@
 #include "../../profile/data/tipssystem.h"
 #include "../../profile/games/chlcc/tipsmenu.h"
 #include "../../profile/charset.h"
+#include "../../profile/vm.h"
 #include "../../ui/ui.h"
 
 namespace Impacto {
@@ -21,24 +22,21 @@ void TipsSystem::DataInit(uint32_t scriptBufferId, uint32_t tipsDataAdr,
   ScriptBufferId = (uint8_t)scriptBufferId;
   const auto scriptBuffer = ScriptBuffers[scriptBufferId];
 
-  const std::unordered_map<uint16_t, int> strIndicesMap = [&] {
-    std::unordered_map<uint16_t, int> sc3Map;
-    auto [scrBufId, offset] =
+  const std::unordered_map<uint32_t, int> strIndicesMap = [&] {
+    std::unordered_map<uint32_t, int> sc3Map;
+    auto [buffers, bufferId, offset] =
         ScriptGetTextTableStrAddress(TipsStringTable, SortStringIndex);
-
-    auto sortStr = &ScriptBuffers[scrBufId][offset];
-    size_t i = 0;
     int distance = 0;
-    while (sortStr[i] != 0xFF) {
-      if (sortStr[i] & 0x80) {
-        uint16_t currentSc3Char =
-            SDL_SwapBE16(UnalignedRead<uint16_t>(sortStr + i));
-        i += 2;
-        sc3Map.try_emplace(currentSc3Char, distance++);
+    Sc3Stream sortStream(&buffers[bufferId][offset]);
+    while (sortStream.PeekU8() != 0xff) {
+      StringToken token;
+      token.Read(sortStream);
+      if (token.Type == STT_Character) {
+        sc3Map[token.Val_Int] = distance++;
       } else {
-        ImpLogSlow(LogLevel::Error, LogChannel::VM,
-                   "TipsSorter: SC3 Tag Found in Sort String\n", sortStr[i]);
-        i++;
+        ImpLogSlow(LogLevel::Warning, LogChannel::VM,
+                   "TipsComparator: SC3 Tag Found in Sort String\n",
+                   token.Type);
       }
     }
     return sc3Map;
@@ -48,6 +46,8 @@ void TipsSystem::DataInit(uint32_t scriptBufferId, uint32_t tipsDataAdr,
   MemoryStream stream =
       MemoryStream(&scriptBuffer[tipsDataAdr], tipsDataSize, false);
   uint16_t numberOfContentStrings = ReadLE<uint16_t>(&stream);
+  auto& buffers = Profile::Vm::UseMsbStrings ? Impacto::Vm::MsbBuffers
+                                             : Impacto::Vm::ScriptBuffers;
   while (numberOfContentStrings != 255) {
     if (TipEntryCount >= MaxTipsCount) {
       ImpLog(LogLevel::Error, LogChannel::VM, "Too many tips in tips data\n");
@@ -63,13 +63,24 @@ void TipsSystem::DataInit(uint32_t scriptBufferId, uint32_t tipsDataAdr,
     };
     ReadLE<uint16_t>(&stream);  // Reads in a padding space string
     for (uint16_t i = 0; i < record.NumberOfContentStrings + 3; i++) {
-      record.StringAdr[i] =
-          ScriptGetStrAddress(scriptBufferId, ReadLE<uint16_t>(&stream));
+      uint32_t stringId = Profile::Vm::StringIdSize == 4
+                              ? ReadLE<uint32_t>(&stream)
+                              : ReadLE<uint16_t>(&stream);
+
+      record.StringAdr[i] = Profile::Vm::UseMsbStrings
+                                ? MsbGetStrAddress(scriptBufferId, stringId)
+                                : ScriptGetStrAddress(scriptBufferId, stringId);
     }
     auto sortStrIndex = record.StringAdr[2];
-    auto firstChar = SDL_SwapBE16(
-        UnalignedRead<uint16_t>(&ScriptBuffers[scriptBufferId][sortStrIndex]));
+    const uint32_t firstChar = [&] {
+      Sc3Stream charStream(&buffers[scriptBufferId][sortStrIndex]);
+      StringToken t;
+      t.Read(charStream);
+      return t.Val_Int;
+    }();
+
     auto sortIndexItr = strIndicesMap.find(firstChar);
+
     assert(sortIndexItr != strIndicesMap.end());
     record.CategoryLetterIndex =
         static_cast<uint16_t>(SortCategoryMapping->at(sortIndexItr->second));

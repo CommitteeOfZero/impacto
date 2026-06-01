@@ -63,7 +63,7 @@ struct StringToken {
  public:
   StringTokenType Type;
 
-  uint16_t Val_Uint16;
+  uint32_t Val_Int;
   int Val_Expr;
 
   uint8_t Flags{};
@@ -84,6 +84,8 @@ struct StringToken {
 
   int Read(Vm::Sc3VmThread* ctx);
   int Read(Vm::Sc3Stream& stream);
+
+  uint16_t GetValU16() const;
 
  private:
   static inline ankerl::unordered_dense::map<uint32_t, uint8_t> FlagsMap;
@@ -131,7 +133,7 @@ void TextGetSc3String(std::string_view str, std::span<uint16_t> out);
 
 inline ankerl::unordered_dense::map<uint32_t, uint32_t> NamePlateData;
 void InitNamePlateData(Vm::Sc3Stream& stream);
-std::optional<uint32_t> GetNameId(std::span<const uint16_t> name);
+std::optional<uint32_t> GetNameId(std::span<const uint32_t> name);
 void FitGlyphsForPlainLine(std::span<ProcessedTextGlyph> glyphs,
                            float containerRight);
 

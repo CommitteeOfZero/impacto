@@ -285,7 +285,7 @@ void SysMesBox::Init() {
 void SysMesBox::AddMessage(Vm::BufferOffsetContext ctx) {
   Impacto::Vm::Sc3VmThread dummy;
   dummy.IpOffset = ctx.IpOffset;
-  dummy.ScriptBufferId = ctx.ScriptBufferId;
+  dummy.ScriptBufferId = ctx.BufferId;
   Messages[MessageCount] =
       TextLayoutPlainLine(&dummy, 255, Profile::Dialogue::DialogueFont,
                           TextFontSize, Profile::Dialogue::ColorTable[10], 1.0f,
