@@ -17,29 +17,25 @@
 
 namespace Impacto {
 
-namespace {
-
-struct FreeTypeLibraryDeleter {
-  void operator()(FT_Library library) const {
-    if (library != nullptr) FT_Done_FreeType(library);
-  }
-};
-
-struct FreeTypeFaceDeleter {
-  void operator()(FT_Face face) const {
-    if (face != nullptr) FT_Done_Face(face);
-  }
-};
-
-struct HarfBuzzFontDeleter {
-  void operator()(hb_font_t* font) const {
-    if (font != nullptr) hb_font_destroy(font);
-  }
-};
-
-}  // namespace
-
 struct ExternalFont::Impl {
+  struct FreeTypeLibraryDeleter {
+    void operator()(FT_Library library) const {
+      if (library != nullptr) FT_Done_FreeType(library);
+    }
+  };
+
+  struct FreeTypeFaceDeleter {
+    void operator()(FT_Face face) const {
+      if (face != nullptr) FT_Done_Face(face);
+    }
+  };
+
+  struct HarfBuzzFontDeleter {
+    void operator()(hb_font_t* font) const {
+      if (font != nullptr) hb_font_destroy(font);
+    }
+  };
+
   std::unique_ptr<std::remove_pointer_t<FT_Library>, FreeTypeLibraryDeleter>
       FreeTypeLibrary;
   std::unique_ptr<std::remove_pointer_t<FT_Face>, FreeTypeFaceDeleter> FontFace;

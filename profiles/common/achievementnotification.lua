@@ -1,2 +1,15 @@
-root.AchievementNotificationPath = "games/common/achievementnotification.png";
-root.AchievementNotificationFontPath = "games/common/NotoSansCJKjp-Regular.otf";
+root.AchievementNotification = {
+    BackgroundPath = "games/common/achievementnotification.png",
+    FontPath = "games/common/NotoSansCJKjp-Regular.otf",
+    DisplayDuration = 5.0,
+    FadeDuration = 0.5,
+    IconSize = 64.0,
+    IconOffset = { X = 20.0, Y = 20.0 },
+    TextGap = 20.0,
+    TextRightPadding = 20.0,
+    TitleFontSize = 24.0,
+    DescriptionFontSize = 16.0,
+    TextLineGap = 6.0,
+    TextColor = 0xFFFFFF,
+    OutlineColor = 0x000000,
+};

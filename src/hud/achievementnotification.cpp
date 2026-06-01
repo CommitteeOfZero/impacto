@@ -12,28 +12,29 @@
 
 #include <algorithm>
 #include <queue>
+#include <string>
 #include <vector>
 
 namespace Impacto {
 namespace AchievementNotification {
 
-static constexpr float DefaultDisplayDuration = 5.0f;
-static constexpr float DefaultFadeDuration = 0.5f;
-static constexpr float VisualScale = 0.75f;
-static constexpr float IconSize = 64.0f;
-static constexpr glm::vec2 IconOffset = {20.0f, 20.0f};
-static constexpr float TextGap = 20.0f;
-static constexpr float TextRightPadding = 20.0f;
-static constexpr float TitleFontSize = 24.0f;
-static constexpr float DescriptionFontSize = 18.0f;
-static constexpr float TextLineGap = 6.0f;
-static constexpr uint32_t TextColor = 0xFFFFFF;
-static constexpr uint32_t OutlineColor = 0x000000;
-
 static Sprite BackgroundSprite;
 static ExternalFont NotificationFont;
 static std::vector<ExternalFontGlyph> TextGlyphs;
 static Animation FadeAnimation;
+static std::string BackgroundPath;
+static std::string FontPath;
+static float DisplayDuration;
+static float FadeDuration;
+static float IconSize;
+static glm::vec2 IconOffset;
+static float TextGap;
+static float TextRightPadding;
+static float TitleFontSize;
+static float DescriptionFontSize;
+static float TextLineGap;
+static uint32_t TextColor;
+static uint32_t OutlineColor;
 static float DisplayTimer = 0.0f;
 static int CurrentAchievementId = -1;
 static bool IsConfigured = false;
@@ -42,6 +43,34 @@ static bool TextConfigured = false;
 static std::queue<uint32_t> NotificationQueue;
 
 static void FreeTextGlyphs() { ExternalFont::FreeGlyphTextures(TextGlyphs); }
+
+static float GetEffectiveScale() {
+  const float widthScale =
+      Profile::DesignWidth / static_cast<float>(Profile::ResolutionWidth);
+  const float heightScale =
+      Profile::DesignHeight / static_cast<float>(Profile::ResolutionHeight);
+  return std::min(widthScale, heightScale);
+}
+
+static void LoadConfig() {
+  Profile::EnsurePushMemberOfType("AchievementNotification", LUA_TTABLE);
+
+  BackgroundPath = Profile::EnsureGetMember<std::string>("BackgroundPath");
+  FontPath = Profile::EnsureGetMember<std::string>("FontPath");
+  DisplayDuration = Profile::EnsureGetMember<float>("DisplayDuration");
+  FadeDuration = Profile::EnsureGetMember<float>("FadeDuration");
+  IconSize = Profile::EnsureGetMember<float>("IconSize");
+  IconOffset = Profile::EnsureGetMember<glm::vec2>("IconOffset");
+  TextGap = Profile::EnsureGetMember<float>("TextGap");
+  TextRightPadding = Profile::EnsureGetMember<float>("TextRightPadding");
+  TitleFontSize = Profile::EnsureGetMember<float>("TitleFontSize");
+  DescriptionFontSize = Profile::EnsureGetMember<float>("DescriptionFontSize");
+  TextLineGap = Profile::EnsureGetMember<float>("TextLineGap");
+  TextColor = Profile::EnsureGetMember<uint32_t>("TextColor");
+  OutlineColor = Profile::EnsureGetMember<uint32_t>("OutlineColor");
+
+  Profile::Pop();
+}
 
 static bool LoadBackground(std::string const& path) {
   Io::Stream* stream = nullptr;
@@ -83,34 +112,35 @@ static void BuildTextLine(std::string const& text, float fontSize, float left,
     glyphs = NotificationFont.ShapeLine(text, finalFontSize, width);
   }
 
-  const float lineLeft = left + std::max(0.0f, (availableWidth - width) / 2.0f);
   const glm::vec4 textTint = RgbIntToFloat(color);
   const glm::vec4 outlineTint = RgbIntToFloat(OutlineColor);
 
   NotificationFont.RenderShapedLine(glyphs, finalFontSize,
-                                    {lineLeft + 1.0f, baselineY + 1.0f},
+                                    {left + 1.0f, baselineY + 1.0f},
                                     outlineTint, TextGlyphs);
-  NotificationFont.RenderShapedLine(
-      glyphs, finalFontSize, {lineLeft, baselineY}, textTint, TextGlyphs);
+  NotificationFont.RenderShapedLine(glyphs, finalFontSize, {left, baselineY},
+                                    textTint, TextGlyphs);
 }
 
 static void BuildTextGlyphs(AchievementSystem::Achievement const& achievement) {
   FreeTextGlyphs();
   if (!TextConfigured || !NotificationFont.IsLoaded()) return;
 
-  const float backgroundWidth = BackgroundSprite.ScaledWidth() * VisualScale;
-  const float backgroundHeight = BackgroundSprite.ScaledHeight() * VisualScale;
-  const float iconRight = (IconOffset.x + IconSize) * VisualScale;
-  const float textLeft = iconRight + TextGap * VisualScale;
-  const float textRight = backgroundWidth - TextRightPadding * VisualScale;
+  const float scale = GetEffectiveScale();
+  const float backgroundWidth = BackgroundSprite.ScaledWidth() * scale;
+  const float backgroundHeight = BackgroundSprite.ScaledHeight() * scale;
+  const float iconRight = (IconOffset.x + IconSize) * scale;
+  const float textLeft = iconRight + TextGap * scale;
+  const float textRight = backgroundWidth - TextRightPadding * scale;
   const float centerY = backgroundHeight / 2.0f;
 
-  const float titleFontSize = TitleFontSize * VisualScale;
-  const float descriptionFontSize = DescriptionFontSize * VisualScale;
+  const float titleFontSize = TitleFontSize * scale;
+  const float descriptionFontSize = DescriptionFontSize * scale;
+  const float textLineGap = TextLineGap * scale;
   const float titleBaseline =
-      centerY - (descriptionFontSize + TextLineGap) / 2.0f;
+      centerY - (descriptionFontSize + textLineGap) / 2.0f;
   const float descriptionBaseline =
-      centerY + (titleFontSize + TextLineGap) / 2.0f;
+      centerY + (titleFontSize + textLineGap) / 2.0f;
   const float availableWidth = textRight - textLeft;
 
   BuildTextLine(achievement.Name(), titleFontSize, textLeft, titleBaseline,
@@ -133,7 +163,7 @@ static void StartNextNotification() {
     FreeTextGlyphs();
   }
 
-  DisplayTimer = DefaultDisplayDuration;
+  DisplayTimer = DisplayDuration;
   IsShowing = true;
   FadeAnimation.StartIn(true);
 }
@@ -148,26 +178,20 @@ void Init() {
   FreeTextGlyphs();
   NotificationFont.Reset();
 
-  FadeAnimation.DurationIn = DefaultFadeDuration;
-  FadeAnimation.DurationOut = DefaultFadeDuration;
+  LoadConfig();
+
+  FadeAnimation.DurationIn = FadeDuration;
+  FadeAnimation.DurationOut = FadeDuration;
   FadeAnimation.LoopMode = AnimationLoopMode::Stop;
 
-  std::string path;
-  if (!Profile::TryGetMember<std::string>("AchievementNotificationPath",
-                                          path)) {
-    return;
-  }
+  if (!LoadBackground(BackgroundPath)) return;
 
-  if (!LoadBackground(path)) return;
-
-  std::string fontPath;
-  if (Profile::TryGetMember<std::string>("AchievementNotificationFontPath",
-                                         fontPath)) {
+  if (!FontPath.empty()) {
     TextConfigured =
-        NotificationFont.Load(fontPath, "achievement notification font");
+        NotificationFont.Load(FontPath, "achievement notification font");
   } else {
     ImpLog(LogLevel::Warning, LogChannel::Profile,
-           "AchievementNotificationFontPath is not configured\n");
+           "Achievement notification font path is not configured\n");
   }
 
   IsConfigured = true;
@@ -197,8 +221,9 @@ void Render() {
   glm::vec4 tint(1.0f);
   tint.a = glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
 
-  const float backgroundWidth = BackgroundSprite.ScaledWidth() * VisualScale;
-  const float backgroundHeight = BackgroundSprite.ScaledHeight() * VisualScale;
+  const float scale = GetEffectiveScale();
+  const float backgroundWidth = BackgroundSprite.ScaledWidth() * scale;
+  const float backgroundHeight = BackgroundSprite.ScaledHeight() * scale;
   const glm::vec2 pos = {Profile::DesignWidth - backgroundWidth,
                          Profile::DesignHeight - backgroundHeight};
 
@@ -212,9 +237,9 @@ void Render() {
 
   const Sprite& icon = achievement->Icon();
   if (icon.ScaledWidth() > 0.0f && icon.ScaledHeight() > 0.0f) {
-    const RectF iconDest(pos.x + IconOffset.x * VisualScale,
-                         pos.y + IconOffset.y * VisualScale,
-                         IconSize * VisualScale, IconSize * VisualScale);
+    const RectF iconDest(pos.x + IconOffset.x * scale,
+                         pos.y + IconOffset.y * scale, IconSize * scale,
+                         IconSize * scale);
     Renderer->DrawSprite(icon, iconDest, tint);
   }
 
