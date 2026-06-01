@@ -75,7 +75,7 @@ void Button::SetText(Vm::BufferOffsetContext scrCtx, float fontSize,
   HasText = true;
   Impacto::Vm::Sc3VmThread dummy;
   dummy.IpOffset = scrCtx.IpOffset;
-  dummy.ScriptBufferId = scrCtx.ScriptBufferId;
+  dummy.ScriptBufferId = scrCtx.BufferId;
   Text = TextLayoutPlainLine(
       &dummy, 255, Profile::Dialogue::DialogueFont, fontSize, colorPair, 1.0f,
       glm::vec2(Bounds.X, Bounds.Y), TextAlignment::Left);

@@ -3,6 +3,7 @@
 #include "../../../renderer/renderer.h"
 #include "../../../profile/dialogue.h"
 #include "../../../profile/games/chlcc/tipsmenu.h"
+#include "../../../profile/vm.h"
 #include "../../../text/text.h"
 #include "../../../vm/vm.h"
 #include "../../../inputsystem.h"
@@ -35,7 +36,8 @@ TipsEntryButton::TipsEntryButton(int id, TipsDataRecord* tipRecord,
 
   Vm::Sc3VmThread dummy;
   dummy.IpOffset = tipRecord->StringAdr[0];
-  dummy.ScriptBufferId = TipsSystem::GetTipsScriptBufferId();
+  dummy.ScriptBufferId = TipsSystem::GetTipsScriptBufferCtx().BufferId;
+  dummy.UseMSBBuffers = Profile::Vm::UseMsbStrings;
   auto textColorIndex =
       (tipRecord->IsUnread) ? UnreadColorIndex : DefaultColorIndex;
   Text = TextLayoutPlainLine(
@@ -47,10 +49,10 @@ TipsEntryButton::TipsEntryButton(int id, TipsDataRecord* tipRecord,
 
   auto lockedScrPos =
       Vm::ScriptGetTextTableStrAddress(TipsStringTable, LockedTipsIndex);
-  dummy.IpOffset = lockedScrPos.IpOffset;
-  dummy.ScriptBufferId = lockedScrPos.ScriptBufferId;
+  Vm::Sc3Stream lockedStrStream(
+      &lockedScrPos.Buffers[lockedScrPos.BufferId][lockedScrPos.IpOffset]);
   TextLayoutPlainLine(
-      &dummy, static_cast<int>(TipLockedText.size()), TipLockedText,
+      lockedStrStream, static_cast<int>(TipLockedText.size()), TipLockedText,
       Profile::Dialogue::DialogueFont, TipListEntryFontSize,
       Profile::Dialogue::ColorTable[UnreadColorIndex], 1.0f,
       glm::vec2(Bounds.X + TipListEntryNameXOffset + TipListEntryTextOffsetX,
