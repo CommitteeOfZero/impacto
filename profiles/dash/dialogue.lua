@@ -7,16 +7,10 @@ root.Dialogue = {
     TipsMessageModeIdx = 7,
 
     REVMessageModeIdx = 9,
-    REVBounds = { X = 0, Y = 0, Width = 960, Height = 400 },
-    REVNameFontSize = 24,
     REVColor = 0,
     REVNameColor = 24,
-    REVNameOffset = 34,
-    REVNameLocation = REVNameLocationType.TopLeft,
     REVOutlineMode = 2,
     REVNameOutlineMode = 2,
-    NVLBounds = { X = 188, Y = 128, Width = 1536, Height = 600 },
-    ADVBounds = { X = 295, Y = 828, Width = 1440, Height = 270 },
     ADVBoxSprite = "ADVBox",
     ADVBoxPos = { X = 0, Y = 781 },
     FadeOutDuration = 0.33,
@@ -25,10 +19,6 @@ root.Dialogue = {
     TextFadeOutDuration = 0.33,
     DialogueBoxCurrentType = DialogueBoxType.Plain,
     NVLBoxMaxOpacity = 0.55,
-
-    ADVNameAlignment = TextAlignment.Left,
-    ADVNameFontSize = 33,
-    ADVNamePos = { X = 173, Y = 773 },
 
     NametagCurrentType = NametagType.ThreePiece,
     NametagPosition = { X = 64, Y = 768 },
@@ -43,8 +33,6 @@ root.Dialogue = {
     DialogueFont = "Default",
     SetFontSizeRatio = 1000.0,
     DefaultFontSize = 48,
-    RubyFontSize = 21,
-    RubyYOffset = -21,
     ColorTable = {
         {0xFFFFFF, 0x000000}, {0x5080FF, 0x000000},
         {0xFF7080, 0x000000}, {0xFFA0F8, 0x000000},

@@ -35,7 +35,6 @@ class BacklogEntry : public Widget {
  private:
   glm::vec2 Position;
 
-  RectF REVBounds = Profile::Dialogue::REVBounds;
   const RectF& HoverBounds;
 };
 

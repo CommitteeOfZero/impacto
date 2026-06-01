@@ -59,12 +59,6 @@ static void ConfigureNametag() {
 void Configure() {
   EnsurePushMemberOfType("Dialogue", LUA_TTABLE);
 
-  NVLBounds = EnsureGetMember<RectF>("NVLBounds");
-  ADVBounds = EnsureGetMember<RectF>("ADVBounds");
-  REVBounds = EnsureGetMember<RectF>("REVBounds");
-  TryGetMember<RectF>("SecondaryREVBounds", SecondaryREVBounds);
-  TryGetMember<RectF>("TipsBounds", TipsBounds);
-
   ADVBoxSprite = EnsureGetMember<Sprite>("ADVBoxSprite");
   ADVBoxPos = EnsureGetMember<glm::vec2>("ADVBoxPos");
 
@@ -124,23 +118,14 @@ void Configure() {
 
   NVLBoxMaxOpacity = EnsureGetMember<float>("NVLBoxMaxOpacity");
 
-  ADVNameAlignment = EnsureGetMember<TextAlignment>("ADVNameAlignment");
-
-  ADVNameFontSize = EnsureGetMember<float>("ADVNameFontSize");
-  ADVNamePos = EnsureGetMember<glm::vec2>("ADVNamePos");
-
   REVMessageModeIdx = EnsureGetMember<size_t>("REVMessageModeIdx");
-  REVNameFontSize = EnsureGetMember<float>("REVNameFontSize");
   REVColor = EnsureGetMember<int>("REVColor");
   REVNameColor = EnsureGetMember<int>("REVNameColor");
-  REVNameOffset = EnsureGetMember<float>("REVNameOffset");
-  REVNameLocation = EnsureGetMember<REVNameLocationType>("REVNameLocation");
   REVOutlineMode = RendererOutlineMode(EnsureGetMember<int>("REVOutlineMode"));
   REVNameOutlineMode =
       RendererOutlineMode(EnsureGetMember<int>("REVNameOutlineMode"));
 
   TipsMessageModeIdx = EnsureGetMember<size_t>("TipsMessageModeIdx");
-  TryGetMember<float>("TipsLineSpacing", TipsLineSpacing);
   TryGetMember<int>("TipsColorIndex", TipsColorIndex);
 
   WaitIconCurrentType =
@@ -228,8 +213,6 @@ void Configure() {
   DialogueFont = EnsureGetMember<Font*>("DialogueFont");
   SetFontSizeRatio = EnsureGetMember<float>("SetFontSizeRatio");
   DefaultFontSize = EnsureGetMember<float>("DefaultFontSize");
-  RubyFontSize = EnsureGetMember<float>("RubyFontSize");
-  RubyYOffset = EnsureGetMember<float>("RubyYOffset");
 
   MaxPageSize = EnsureGetMember<int>("MaxPageSize");
   PageCount = EnsureGetMember<int>("PageCount");

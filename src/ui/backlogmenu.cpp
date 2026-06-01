@@ -280,12 +280,14 @@ void BacklogMenu::RenderHighlight(const glm::vec2 offset) const {
 
   switch (EntryHighlightLocation) {
     default:
-    case EntryHighlightLocationType::BottomLeftOfEntry:
-      pos = RectF(
-          el.Bounds.X,
-          el.Bounds.Y + el.Bounds.Height - EntryHighlight.ScaledHeight(),
-          Profile::Dialogue::REVBounds.Width, EntryHighlight.ScaledHeight());
-      break;
+    case EntryHighlightLocationType::BottomLeftOfEntry: {
+      const float pageWidth =
+          TextModesInfo[Profile::Dialogue::REVMessageModeIdx].MaxLineWidth;
+      pos =
+          RectF(el.Bounds.X,
+                el.Bounds.Y + el.Bounds.Height - EntryHighlight.ScaledHeight(),
+                pageWidth, EntryHighlight.ScaledHeight());
+    } break;
     case EntryHighlightLocationType::TopLineLeftOfScreen:
       pos = RectF(0.0f, el.Page->Glyphs[0].DestRect.Y - EntryHighlightPadding,
                   EntryHighlight.ScaledWidth(), EntryHighlight.ScaledHeight());

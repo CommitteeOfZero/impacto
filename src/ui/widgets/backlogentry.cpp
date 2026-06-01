@@ -26,8 +26,6 @@ BacklogEntry::BacklogEntry(int id, Vm::BufferOffsetContext scrCtx,
       HoverBounds(hoverBounds) {
   Enabled = true;
 
-  REVBounds.SetPos(pos);
-
   Impacto::Vm::Sc3VmThread dummy;
   dummy.IpOffset = scrCtx.IpOffset;
   dummy.ScriptBufferId = scrCtx.ScriptBufferId;

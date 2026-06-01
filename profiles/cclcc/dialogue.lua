@@ -10,19 +10,12 @@ root.Sprites["ADVBoxMask"] = {
 
 root.Dialogue = {
     TipsMessageModeIdx = 7,
-    TipsBounds = { X = 1042, Y = 394, Width = 720, Height = 542 },
     TipsColorIndex = 10,
     REVMessageModeIdx = 9,
-    REVBounds = { X = 547, Y = 0, Width = 1043, Height = 400 },
-    REVNameFontSize = 42,
     REVColor = 10, -- Absolute guess
     REVNameColor = 0,
-    REVNameOffset = 18,
-    REVNameLocation = REVNameLocationType.LeftTop,
     REVOutlineMode = 0,
     REVNameOutlineMode = 2,
-    NVLBounds = { X = 188, Y = 128, Width = 1536, Height = 600 },
-    ADVBounds = { X = 330, Y = 800, Width = 1250, Height = 270 },
     ADVBoxSprite = "ADVBox",
     ADVBoxMask = "ADVBoxMask",
     ADVBoxEffectDuration = 10,
@@ -33,10 +26,6 @@ root.Dialogue = {
     TextFadeOutDuration = 0.33,
     DialogueBoxCurrentType = DialogueBoxType.CC,
     NVLBoxMaxOpacity = 0.55,
-
-    ADVNameAlignment = TextAlignment.Left,
-    ADVNameFontSize = 33,
-    ADVNamePos = { X = 173, Y = 773 },
 
     NametagCurrentType = NametagType.CC,
 
@@ -64,8 +53,6 @@ root.Dialogue = {
     DialogueFont = "Default",
     SetFontSizeRatio = 800.0,
     DefaultFontSize = 42,
-    RubyFontSize = 21,
-    RubyYOffset = -21,
     ColorTable = {
         {0xFFFFFF, 0x000000}, {0x5080FF, 0x000000},
         {0xFF7080, 0x000000}, {0xFFA0F8, 0x000000},

@@ -127,12 +127,15 @@ void TipsMenu::Render() {
     }();
     const glm::vec2 renderBoundsOffset =
         TipsListRenderBounds.GetPos() + animationOffset;
+    const glm::vec2 tipsRenderBoundsOffset =
+        TextModesInfo[Profile::Dialogue::TipsMessageModeIdx].WindowPos +
+        animationOffset;
 
     currentPage->MoveTo(pgOffset);
     currentPage->RenderingBounds.X = std::round(renderBoundsOffset.x);
     currentPage->RenderingBounds.Y = std::round(renderBoundsOffset.y);
     TipViewItems.MoveTo(animationOffset);
-    TextPage.MoveTo(Profile::Dialogue::TipsBounds.GetPos() + animationOffset);
+    TextPage.MoveTo(tipsRenderBoundsOffset);
     if (TipsEntriesScrollbar) {
       const glm::vec2 scrollbarOffset =
           animationOffset +

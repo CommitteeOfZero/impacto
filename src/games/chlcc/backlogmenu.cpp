@@ -2,11 +2,11 @@
 
 #include "../../profile/games/chlcc/backlogmenu.h"
 #include "../../profile/games/chlcc/commonmenu.h"
+#include "../../profile/ui/backlogmenu.h"
 #include "../../ui/widgets/chlcc/backlogentry.h"
 #include "../../profile/scriptvars.h"
 #include "../../profile/profile_internal.h"
 #include "../../renderer/renderer.h"
-#include "../../ui/ui.h"
 #include "../../audio/audiosystem.h"
 
 namespace Impacto {
@@ -17,6 +17,7 @@ using namespace Impacto::Profile::CHLCC::BacklogMenu;
 using namespace Impacto::Profile::CHLCC::CommonMenu;
 using namespace Impacto::UI::Widgets::CHLCC;
 using namespace Impacto::Profile::ScriptVars;
+using namespace Impacto::Profile::BacklogMenu;
 
 BacklogMenu::BacklogMenu() : CommonMenu(true) {}
 
@@ -59,12 +60,12 @@ void BacklogMenu::Render() {
   float yOffset = 0;
 
   yOffset = MenuTransition.GetPageOffset().y;
-  Renderer->DrawSprite(BacklogBackgroundSprite, {0.0f, 0.0f + yOffset});
+  Renderer->DrawSprite(BacklogBackground, {0.0f, 0.0f + yOffset});
   CommonMenu::DrawButtonPrompt(ButtonPromptSprite, ButtonPromptPosition);
 
   if (MenuTransition.Progress > 0.34f) {
     Renderer->EnableScissor();
-    Renderer->SetScissorRect(BacklogBackgroundSprite.Bounds);
+    Renderer->SetScissorRect(BacklogBackground.Bounds);
     Renderer->DrawSprite(MenuTitleText, LeftTitlePos);
     Renderer->DisableScissor();
     RenderHighlight({0.0f, yOffset});

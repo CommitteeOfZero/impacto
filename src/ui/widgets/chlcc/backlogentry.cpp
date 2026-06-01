@@ -39,9 +39,7 @@ BacklogEntry::BacklogEntry(int id, Vm::BufferOffsetContext scrCtx,
 void BacklogEntry::Render() {
   if (AudioId.has_value()) {
     Renderer->DrawSprite(
-        VoiceIcon,
-        glm::vec2(Profile::CHLCC::BacklogMenu::RenderingBounds.X,
-                  Bounds.Y + VoiceIconOffset.y),
+        VoiceIcon, glm::vec2(RenderingBounds.X, Bounds.Y + VoiceIconOffset.y),
         Tint);
   }
 

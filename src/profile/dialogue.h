@@ -16,12 +16,6 @@ namespace Dialogue {
 
 constexpr int NO_NAME = 0xffff;
 
-inline RectF NVLBounds;
-inline RectF ADVBounds;
-inline RectF REVBounds;
-inline RectF SecondaryREVBounds;
-inline RectF TipsBounds;
-
 inline Sprite ADVBoxSprite;
 inline glm::vec2 ADVBoxPos;
 
@@ -35,13 +29,6 @@ inline DialogueBoxType DialogueBoxCurrentType = DialogueBoxType::None;
 
 inline float NVLBoxMaxOpacity;
 
-inline TextAlignment ADVNameAlignment = TextAlignment::Left;
-inline float ADVNameFontSize;
-// Unlike most positions, this position is relative to alignment
-// e.g. if ADVNameAlignment == TextAlignment::Right, name will *end* at
-// ADVNamePos.x
-inline glm::vec2 ADVNamePos;
-
 enum class NametagType : int {
   None,
   Sprite,
@@ -50,22 +37,13 @@ enum class NametagType : int {
   CHLCC,
   CC,
 };
-enum class REVNameLocationType : int {
-  None,
-  TopLeft,
-  LeftTop,
-};
 inline size_t REVMessageModeIdx;
-inline float REVNameFontSize;
 inline int REVColor;
 inline int REVNameColor;
-inline float REVNameOffset;
-inline REVNameLocationType REVNameLocation = REVNameLocationType::None;
 inline RendererOutlineMode REVOutlineMode = RendererOutlineMode::Full;
 inline RendererOutlineMode REVNameOutlineMode = RendererOutlineMode::Full;
 
 inline size_t TipsMessageModeIdx;
-inline float TipsLineSpacing;
 inline int TipsColorIndex = 0;
 
 inline Sprite WaitIconSprite;
@@ -97,8 +75,6 @@ inline Sprite AutoSkipArrowsSprite;
 inline Font* DialogueFont;
 inline float SetFontSizeRatio;
 inline float DefaultFontSize;
-inline float RubyFontSize;
-inline float RubyYOffset;
 
 inline std::vector<DialogueColorPair> ColorTable;
 

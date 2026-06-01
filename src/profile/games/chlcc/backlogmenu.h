@@ -18,14 +18,6 @@ inline Sprite MenuTitleText;
 
 inline glm::vec2 ButtonPromptPosition;
 inline Sprite ButtonPromptSprite;
-inline Sprite BacklogBackgroundSprite;
-inline Sprite EntryHighlightSprite;
-inline Sprite VoiceIconSprite;
-inline Sprite ScrollbarThumbSprite;
-inline glm::vec2 ScrollbarPosition;
-inline glm::vec2 EntriesStart;
-inline RectF RenderingBounds;
-inline float EntryYPadding;
 
 }  // namespace BacklogMenu
 }  // namespace CHLCC
