@@ -1,5 +1,7 @@
 #pragma once
 
+#include <magic_enum/magic_enum_containers.hpp>
+
 #include "../util.h"
 #include "../spritesheet.h"
 #include "../hud/waiticondisplay.h"
@@ -8,7 +10,22 @@
 #include "../hud/dialoguebox.h"
 #include "../spriteanimation.h"
 
-#include "../text/text.h"
+#include "../text/textpage.h"
+
+namespace Impacto {
+namespace Profile {
+namespace Dialogue {
+enum class TextModeInfoFieldFlags : uint32_t;
+}
+}  // namespace Profile
+}  // namespace Impacto
+
+namespace magic_enum::customize {
+template <>
+struct enum_range<Impacto::Profile::Dialogue::TextModeInfoFieldFlags> {
+  constexpr static bool is_flags = true;
+};
+}  // namespace magic_enum::customize
 
 namespace Impacto {
 namespace Profile {
@@ -116,6 +133,33 @@ inline bool HasMenuButton = false;
 inline Sprite MenuButtonSprite;
 inline Sprite MenuButtonActiveSprite;
 inline glm::vec2 MenuButtonPosition;
+
+enum class TextModeInfoFieldFlags : uint32_t {
+  None = 0,
+  DisplayMode = 1 << 0,
+  WindowId = 1 << 1,
+  WindowPos = 1 << 2,
+  NameDispMode = 1 << 3,
+  MaxNameWidth = 1 << 4,
+  NamePos = 1 << 5,
+  NameGlyphSize = 1 << 6,
+  MaxLineWidth = 1 << 7,
+  CurrentPageId = 1 << 8,
+  WaitIconPos = 1 << 9,
+  TextGlyphSize = 1 << 10,
+  RubyGlyphSize = 1 << 11,
+  LineSpacing = 1 << 12,
+  RubyLineSpacing = 1 << 13,
+  AlwaysAddRubySpacing = 1 << 14,
+  LinefeedSpacing = 1 << 15,
+  NameAlignment = 1 << 16,
+  UseNameLengthL = 1 << 17,
+  NameLengthL = 1 << 18,
+  All = 0xFFFFFFFF,
+};
+inline std::array<magic_enum::containers::bitset<TextModeInfoFieldFlags>,
+                  TextModesInfo.size()>
+    ProfileTextModesInfoFields;
 
 void Configure();
 

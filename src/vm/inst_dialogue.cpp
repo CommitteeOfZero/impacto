@@ -321,6 +321,8 @@ VmInstruction(InstMesMain) {
   ResetInstruction;
 }
 VmInstruction(InstSetMesModeFormat) {
+  using namespace Impacto::Profile::Dialogue;
+
   struct RawMesModeInfo {
     uint16_t DisplayMode;
     uint16_t WindowId;
@@ -355,37 +357,56 @@ VmInstruction(InstSetMesModeFormat) {
   Sc3VmThread dummy;
   dummy.IpOffset = modeDataAdr;
   dummy.ScriptBufferId = thread->ScriptBufferId;
-  RawMesModeInfo* info = std::bit_cast<RawMesModeInfo*>(dummy.GetIp());
+  const RawMesModeInfo info = std::bit_cast<RawMesModeInfo>(
+      *reinterpret_cast<const uint8_t (*)[sizeof(RawMesModeInfo)]>(
+          dummy.GetIp()));
+
+  const auto profileFields = ProfileTextModesInfoFields[id];
+  TextModeInfo& dest = TextModesInfo[id];
+  const auto setVal = [profileFields](auto& member, TextModeInfoFieldFlags flag,
+                                      auto&& value) {
+    // Only set the value if it is not already set through the profile
+    if (!profileFields.test(flag)) {
+      member = std::forward<decltype(value)>(value);
+    }
+  };
 
   const glm::vec2 designScale = {Profile::DesignWidth / 1280.0f,
                                  Profile::DesignHeight / 720.0f};
-  TextModesInfo[id] = {
-      .DisplayMode = info->DisplayMode,
-      .WindowId = info->WindowId,
-      .WindowPos = glm::vec2(info->WindowPosX, info->WindowPosY) * designScale,
-      .NameDispMode =
-          static_cast<TextModeInfo::NameDispModeType>(info->NameDispMode),
-      .MaxNameWidth = info->MaxNameWidth * designScale.x,
-      .NamePos = glm::vec2(info->NamePosX, info->NamePosY) * designScale,
-      .NameGlyphSize =
-          glm::vec2(info->NameGlyphWidth, info->NameGlyphHeight) * designScale,
-      .MaxLineWidth = info->MaxLineWidth * designScale.x,
-      .CurrentPageId = info->CurrentPageId,
-      .WaitIconPos =
-          glm::vec2(info->WaitIconPosX, info->WaitIconPosY) * designScale,
-      .TextGlyphSize =
-          glm::vec2(info->TextGlyphWidth, info->TextGlyphHeight) * designScale,
-      .RubyGlyphSize =
-          glm::vec2(info->RubyGlyphWidth, info->RubyGlyphHeight) * designScale,
-      .LineSpacing = info->LineSpacing * designScale.y,
-      .RubyLineSpacing = info->RubyLineSpacing * designScale.y,
-      .AlwaysAddRubySpacing = info->RubyDispMode != 0,
-      .LinefeedSpacing = info->LinefeedSpacing * designScale.y,
-      .NameAlignment = static_cast<TextModeInfo::NameAlignmentType>(
-          info->NamePosFlags & 0b111),
-      .UseNameLengthL = (info->NamePosFlags & 0b1000) != 0,
-      .NameLengthL = info->NameLengthL,
-  };
+
+  using enum TextModeInfoFieldFlags;
+  setVal(dest.DisplayMode, DisplayMode, info.DisplayMode);
+  setVal(dest.WindowId, WindowId, info.WindowId);
+  setVal(dest.WindowPos, WindowPos,
+         glm::vec2(info.WindowPosX, info.WindowPosY) * designScale);
+  setVal(dest.NameDispMode, NameDispMode,
+         static_cast<TextModeInfo::NameDispModeType>(info.NameDispMode));
+  setVal(dest.MaxNameWidth, MaxNameWidth, info.MaxNameWidth * designScale.x);
+  setVal(dest.NamePos, NamePos,
+         glm::vec2(info.NamePosX, info.NamePosY) * designScale);
+  setVal(dest.NameGlyphSize, NameGlyphSize,
+         glm::vec2(info.NameGlyphWidth, info.NameGlyphHeight) * designScale);
+  setVal(dest.MaxLineWidth, MaxLineWidth, info.MaxLineWidth * designScale.x);
+  setVal(dest.CurrentPageId, CurrentPageId, info.CurrentPageId);
+  setVal(dest.WaitIconPos, WaitIconPos,
+         glm::vec2(info.WaitIconPosX, info.WaitIconPosY) * designScale);
+  setVal(dest.TextGlyphSize, TextGlyphSize,
+         glm::vec2(info.TextGlyphWidth, info.TextGlyphHeight) * designScale);
+  setVal(dest.RubyGlyphSize, RubyGlyphSize,
+         glm::vec2(info.RubyGlyphWidth, info.RubyGlyphHeight) * designScale);
+  setVal(dest.LineSpacing, LineSpacing, info.LineSpacing * designScale.y);
+  setVal(dest.RubyLineSpacing, RubyLineSpacing,
+         info.RubyLineSpacing * designScale.y);
+  setVal(dest.AlwaysAddRubySpacing, AlwaysAddRubySpacing,
+         info.RubyDispMode != 0);
+  setVal(dest.LinefeedSpacing, LinefeedSpacing,
+         info.LinefeedSpacing * designScale.y);
+  setVal(
+      dest.NameAlignment, NameAlignment,
+      static_cast<TextModeInfo::NameAlignmentType>(info.NamePosFlags & 0b111));
+  setVal(dest.UseNameLengthL, UseNameLengthL,
+         (info.NamePosFlags & 0b1000) != 0);
+  setVal(dest.NameLengthL, NameLengthL, info.NameLengthL);
 }  // namespace Vm
 VmInstruction(InstSetNGmoji) {
   StartInstruction;

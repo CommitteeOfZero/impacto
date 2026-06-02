@@ -56,6 +56,54 @@ static void ConfigureNametag() {
   }
 }
 
+static void ConfigureTextModesInfo() {
+  if (!TryPushMember("TextModesInfo")) return;
+  ForEachProfileArray([](uint32_t) {
+    const size_t index = EnsureGetKey<size_t>();
+    if (index >= ProfileTextModesInfoFields.size()) {
+      throw std::runtime_error(
+          fmt::format("TextModeInfo index {} out of range [0, {})", index,
+                      ProfileTextModesInfoFields.size()));
+    }
+    TextModeInfo& info = TextModesInfo[index];
+    auto& fieldInfo = ProfileTextModesInfoFields[index];
+
+    const auto tryOverride = [&fieldInfo]<typename T>(const char* const name,
+                                                      T& out) {
+      assert(magic_enum::enum_contains<TextModeInfoFieldFlags>(name));
+
+      // Only update value if it's actually defined by the profile
+      std::optional<T> member = TryGetMember<T>(name);
+      if (member.has_value()) {
+        out = *member;
+        fieldInfo.set(
+            magic_enum::enum_cast<TextModeInfoFieldFlags>(name).value());
+      }
+    };
+
+    tryOverride("DisplayMode", info.DisplayMode);
+    tryOverride("WindowId", info.WindowId);
+    tryOverride("WindowPos", info.WindowPos);
+    tryOverride("NameDispMode", info.NameDispMode);
+    tryOverride("MaxNameWidth", info.MaxNameWidth);
+    tryOverride("NamePos", info.NamePos);
+    tryOverride("NameGlyphSize", info.NameGlyphSize);
+    tryOverride("MaxLineWidth", info.MaxLineWidth);
+    tryOverride("CurrentPageId", info.CurrentPageId);
+    tryOverride("WaitIconPos", info.WaitIconPos);
+    tryOverride("TextGlyphSize", info.TextGlyphSize);
+    tryOverride("RubyGlyphSize", info.RubyGlyphSize);
+    tryOverride("LineSpacing", info.LineSpacing);
+    tryOverride("RubyLineSpacing", info.RubyLineSpacing);
+    tryOverride("AlwaysAddRubySpacing", info.AlwaysAddRubySpacing);
+    tryOverride("LinefeedSpacing", info.LinefeedSpacing);
+    tryOverride("NameAlignment", info.NameAlignment);
+    tryOverride("UseNameLengthL", info.UseNameLengthL);
+    tryOverride("NameLengthL", info.NameLengthL);
+  });
+  Pop();
+}
+
 void Configure() {
   EnsurePushMemberOfType("Dialogue", LUA_TTABLE);
 
@@ -221,6 +269,7 @@ void Configure() {
   ColorTagIsUint8 = EnsureGetMember<bool>("ColorTagIsUint8");
 
   ConfigureNametag();
+  ConfigureTextModesInfo();
 
   TryGetMember<bool>("HasSpeakerPortraits", HasSpeakerPortraits);
 

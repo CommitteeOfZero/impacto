@@ -9,7 +9,7 @@
 #include "configsystem.h"
 #include "subtitle.h"
 #include "game.h"
-#include "../text/text.h"
+#include "../text/textpage.h"
 #include "../game.h"
 #include "../ui/ui.h"
 #include "../data/savesystem.h"
@@ -215,6 +215,8 @@ void MakeLuaProfile(std::string const& name) {
   DefineEnum<Input::KeyboardScanCode>(LuaState);
   DefineEnum<Input::ControllerButton>(LuaState);
   DefineEnum<Input::ControllerAxis>(LuaState);
+  DefineEnum<TextModeInfo::NameDispModeType>(LuaState);
+  DefineEnum<TextModeInfo::NameAlignmentType>(LuaState);
 
   ImpLog(LogLevel::Info, LogChannel::Profile, "Starting profile {:s}\n", name);
 
