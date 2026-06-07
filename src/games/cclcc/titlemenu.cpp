@@ -306,6 +306,9 @@ void TitleMenu::UpdateInput(float dt) {
       }
     }
   }
+
+  if (InputLocked) return;
+
   if (CurrentSubMenu && !CurrentSubMenu->HasFocus) return;
 
   const bool buttonHighlightAnimationPlaying =
