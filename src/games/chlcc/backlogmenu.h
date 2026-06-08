@@ -18,10 +18,10 @@ class BacklogMenu : public UI::BacklogMenu, public CommonMenu {
   void Render() override;
 
   Widgets::BacklogEntry* CreateBacklogEntry(
-      int id, Vm::BufferOffsetContext scrCtx, std::optional<int> audioId,
+      Vm::BufferOffsetContext scrCtx, std::optional<int> audioId,
       int characterId, glm::vec2 pos, const RectF& hoverBounds) const override {
-    return new Widgets::CHLCC::BacklogEntry(id, scrCtx, audioId, characterId,
-                                            pos, hoverBounds);
+    return new Widgets::CHLCC::BacklogEntry(scrCtx, audioId, characterId, pos,
+                                            hoverBounds);
   }
 };
 

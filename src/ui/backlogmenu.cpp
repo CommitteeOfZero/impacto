@@ -43,19 +43,15 @@ void BacklogMenu::MenuButtonOnClick(Widgets::BacklogEntry* target) {
   }
 }
 
-BacklogMenu::BacklogMenu() {
+BacklogMenu::BacklogMenu()
+    : Entries(MaxEntryCount), ItemsHeight(EntryYPadding) {
   InputConfig = InputRate::RepeatFast;
-  MainItems = new Widgets::Group(this, EntriesStart);
-  MainItems->RenderingBounds = RenderingBounds;
-  MainItems->HoverBounds = HoverBounds;
-  MainItems->WrapFocus = false;
 
   MainScrollbar =
       new Scrollbar(0, ScrollbarPosition, 0.0f, 1.0f, &PageY, SBDIR_VERTICAL,
                     ScrollbarTrack, ScrollbarThumb, glm::vec2(0),
                     ScrollbarThumbLength, RenderingBounds, -5000);
   MainScrollbar->Enabled = false;
-  CurrentEntryPos = EntriesStart;
 
   FadeAnimation.Direction = AnimationDirection::In;
   FadeAnimation.LoopMode = AnimationLoopMode::Stop;
@@ -67,13 +63,17 @@ void BacklogMenu::Show() {
   if (State == Hidden) {
     State = Showing;
     FadeAnimation.StartIn();
-    MainItems->Show();
 
-    if (!MainItems->Children.empty()) {
-      auto el = MainItems->Children.back();
+    for (auto& entry : Entries) {
+      entry->Show();
+    }
+
+    if (!Entries.empty()) {
+      Widget* const el = Entries.front().get();
       FocusStart[FDIR_UP] = el;
       FocusStart[FDIR_DOWN] = el;
     }
+    CurrentlyFocusedElement = nullptr;
 
     if (UI::FocusedMenu != nullptr) {
       LastFocusedMenu = UI::FocusedMenu;
@@ -84,13 +84,15 @@ void BacklogMenu::Show() {
     ResetPADHoldTimer(PAD1UP | PAD1DOWN | PAD1RIGHT | PAD1LEFT);
 
     // Set scrollbar back to default position
-    if (ItemsHeight > MainItems->RenderingBounds.Height) {
+    if (ItemsHeight > RenderingBounds.Height) {
       PageY = MainScrollbar->EndValue;
       MainScrollbar->Update(0);
-      MainItems->MoveTo(glm::vec2(EntriesStart.x, PageY));
+      MoveEntriesBottomTo(std::min(RenderingBounds.Top() + ItemsHeight,
+                                   RenderingBounds.Bottom()));
     }
   }
 }
+
 void BacklogMenu::Hide() {
   if (State == Shown) {
     State = Hiding;
@@ -105,11 +107,22 @@ void BacklogMenu::Hide() {
   }
 }
 
+void BacklogMenu::MoveEntriesBottomTo(const float yPosition) {
+  if (Entries.empty()) return;
+
+  const BacklogEntry* const newestEntry = Entries.front().get();
+  const glm::vec2 offset = {
+      0.0f, yPosition - (newestEntry->Bounds.Bottom() + EntryYPadding)};
+
+  for (auto& entry : Entries) {
+    entry->Move(offset);
+  }
+}
+
 static bool IsBeyondShiftedHoverBounds(const Widget* el, float delta, bool up) {
   if (up) return el->Bounds.Y < HoverBounds.Y + delta;
 
-  return el->Bounds.Y + el->Bounds.Height >
-         HoverBounds.Y + HoverBounds.Height + delta;
+  return el->Bounds.Bottom() > HoverBounds.Bottom() + delta;
 }
 
 void BacklogMenu::UpdatePageUpDownInput(float dt) {
@@ -131,8 +144,8 @@ void BacklogMenu::UpdatePageUpDownInput(float dt) {
     MainScrollbar->ClampValue();
 
     if (!CurrentlyFocusedElement) {
-      CurrentlyFocusedElement = (dir == FDIR_UP) ? MainItems->Children.front()
-                                                 : MainItems->Children.back();
+      CurrentlyFocusedElement =
+          (dir == FDIR_UP) ? Entries.back().get() : Entries.front().get();
     }
 
     CurrentlyFocusedElement->HasFocus = false;
@@ -147,8 +160,8 @@ void BacklogMenu::UpdatePageUpDownInput(float dt) {
   } else {
     if (CurrentlyFocusedElement) CurrentlyFocusedElement->HasFocus = false;
 
-    CurrentlyFocusedElement = (dir == FDIR_UP) ? MainItems->Children.front()
-                                               : MainItems->Children.back();
+    CurrentlyFocusedElement =
+        (dir == FDIR_UP) ? Entries.back().get() : Entries.front().get();
   }
 
   CurrentlyFocusedElement->HasFocus = true;
@@ -180,7 +193,6 @@ void BacklogMenu::UpdateScrollingInput(float dt) {
   if (MainScrollbar->Enabled && focusOnEdge) {
     PageY += (dir == FDIR_UP) ? ScrollingSpeed * dt : -ScrollingSpeed * dt;
     MainScrollbar->ClampValue();
-    MainItems->Update(dt);
   }
 
   const uint32_t shouldFire = PADinputButtonRepeatDown & (PAD1DOWN | PAD1UP);
@@ -212,7 +224,27 @@ void BacklogMenu::UpdateInput(float dt) {
 
   if (!(State == Shown && IsFocused)) {
     AtBottomPrev = false;
-  } else if (Profile::CloseBacklogWhenReachedEnd) {
+    return;
+  }
+
+  if (!MainScrollbar->IsScrollHeld()) {
+    for (auto& entry : Entries) {
+      entry->UpdateInput(dt);
+
+      entry->Hovered &= entry->Bounds.Intersects(HoverBounds);
+      if (entry->Hovered &&
+          (Input::CurrentInputDevice == Input::Device::Mouse ||
+           Input::CurrentInputDevice == Input::Device::Touch)) {
+        if (CurrentlyFocusedElement && entry.get() != CurrentlyFocusedElement) {
+          CurrentlyFocusedElement->HasFocus = false;
+        }
+        CurrentlyFocusedElement = entry.get();
+        CurrentlyFocusedElement->HasFocus = true;
+      }
+    }
+  }
+
+  if (Profile::CloseBacklogWhenReachedEnd) {
     const float epsilon = std::numeric_limits<float>::epsilon();
     const bool atBottomNow = !MainScrollbar->Enabled ||
                              (PageY <= (MainScrollbar->EndValue + epsilon));
@@ -227,52 +259,43 @@ void BacklogMenu::UpdateInput(float dt) {
 void BacklogMenu::Update(float dt) {
   if (State != Hidden && State != Shown) FadeAnimation.Update(dt);
   UpdateVisibility();
-  SetFlag(SF_BACKLOG_NOLOG, MainItems->Children.empty());
+  SetFlag(SF_BACKLOG_NOLOG, Entries.empty());
 
-  if (State == Shown && IsFocused) {
-    UpdateInput(dt);
+  if (State != Shown || !IsFocused) return;
 
-    if (ItemsHeight > MainItems->RenderingBounds.Height) {
-      MainScrollbar->Enabled = true;
-      MainScrollbar->StartValue = MainItems->RenderingBounds.Y + EntryYPadding;
-      MainScrollbar->EndValue = -ItemsHeight +
-                                MainItems->RenderingBounds.Height +
-                                MainItems->RenderingBounds.Y;
-    }
+  UpdateInput(dt);
 
-    if (MainScrollbar->Enabled) {
-      MainItems->MoveTo(glm::vec2(EntriesStart.x, PageY));
-      auto lastEntry = MainItems->Children.back();
-      CurrentEntryPos.y =
-          lastEntry->Bounds.Y + lastEntry->Bounds.Height + EntryYPadding;
-    }
+  if (MainScrollbar->Enabled) {
+    MoveEntriesBottomTo(PageY + RenderingBounds.Bottom());
+  }
 
-    MainItems->Update(dt);
-    if (!MainScrollbar->IsScrollHeld()) MainItems->UpdateInput(dt);
-    MainScrollbar->Update(dt);
+  for (auto& entry : Entries) {
+    entry->Update(dt);
+  }
 
-    // Handle entry moving out of hover bounds
-    if (CurrentlyFocusedElement &&
-        !InVerticalHoverBounds(CurrentlyFocusedElement)) {
-      FocusDirection dir = (CurrentlyFocusedElement->Bounds.Y < HoverBounds.Y)
-                               ? FDIR_DOWN
-                               : FDIR_UP;
-      Widget* newFocusedElement = CurrentlyFocusedElement->GetFocus(dir);
-      while (newFocusedElement && !InVerticalHoverBounds(newFocusedElement))
-        newFocusedElement = newFocusedElement->GetFocus(dir);
+  MainScrollbar->Update(dt);
 
-      CurrentlyFocusedElement->Hovered = false;
-      CurrentlyFocusedElement->HasFocus = false;
-      CurrentlyFocusedElement = newFocusedElement;
-      if (newFocusedElement != nullptr) newFocusedElement->HasFocus = true;
-    }
+  // Handle entry moving out of hover bounds
+  if (CurrentlyFocusedElement &&
+      !InVerticalHoverBounds(CurrentlyFocusedElement)) {
+    FocusDirection dir = (CurrentlyFocusedElement->Bounds.Y < HoverBounds.Y)
+                             ? FDIR_DOWN
+                             : FDIR_UP;
+    Widget* newFocusedElement = CurrentlyFocusedElement->GetFocus(dir);
+    while (newFocusedElement && !InVerticalHoverBounds(newFocusedElement))
+      newFocusedElement = newFocusedElement->GetFocus(dir);
+
+    CurrentlyFocusedElement->Hovered = false;
+    CurrentlyFocusedElement->HasFocus = false;
+    CurrentlyFocusedElement = newFocusedElement;
+    if (newFocusedElement != nullptr) newFocusedElement->HasFocus = true;
   }
 }
 
 void BacklogMenu::RenderHighlight(const glm::vec2 offset) const {
   if (EntryHighlightLocation == EntryHighlightLocationType::None ||
       CurrentlyFocusedElement == nullptr ||
-      !MainItems->RenderingBounds.Intersects(CurrentlyFocusedElement->Bounds))
+      !RenderingBounds.Intersects(CurrentlyFocusedElement->Bounds))
     return;
 
   RectF pos;
@@ -289,7 +312,7 @@ void BacklogMenu::RenderHighlight(const glm::vec2 offset) const {
                 pageWidth, EntryHighlight.ScaledHeight());
     } break;
     case EntryHighlightLocationType::TopLineLeftOfScreen:
-      pos = RectF(0.0f, el.Page->Glyphs[0].DestRect.Y - EntryHighlightPadding,
+      pos = RectF(0.0f, el.Page.Glyphs[0].DestRect.Y - EntryHighlightPadding,
                   EntryHighlight.ScaledWidth(), EntryHighlight.ScaledHeight());
       break;
     case EntryHighlightLocationType::AllLinesLeftOfScreen:
@@ -311,40 +334,58 @@ void BacklogMenu::Render() {}
 
 void BacklogMenu::AddMessage(Vm::BufferOffsetContext scrCtx,
                              std::optional<int> audioId, int characterId) {
-  if (!GetFlag(SF_REVADDDISABLE) || ScrWork[SW_MESWIN0TYPE] == 0) {
-    auto onClick = [this](auto* btn) { return MenuButtonOnClick(btn); };
+  if (GetFlag(SF_REVADDDISABLE) && ScrWork[SW_MESWIN0TYPE] != 0) return;
 
-    Widgets::BacklogEntry* backlogEntry = CreateBacklogEntry(
-        CurrentId, scrCtx, audioId, characterId, CurrentEntryPos, HoverBounds);
-    backlogEntry->OnClickHandler = onClick;
-    MainItems->Add(backlogEntry, FDIR_DOWN);
-    CurrentId++;
+  auto onClick = [this](auto* btn) { return MenuButtonOnClick(btn); };
 
-    CurrentEntryPos.y += backlogEntry->TextHeight + EntryYPadding;
-    ItemsHeight += backlogEntry->TextHeight + EntryYPadding;
+  const glm::vec2 entryPos =
+      Entries.empty()
+          ? EntriesStart
+          : glm::vec2(EntriesStart.x,
+                      Entries.front()->Page.Glyphs.back().DestRect.Bottom() +
+                          EntryYPadding);
 
-    if (ItemsHeight > MainItems->RenderingBounds.Height) {
-      MainScrollbar->EndValue = -ItemsHeight +
-                                MainItems->RenderingBounds.Height +
-                                MainItems->RenderingBounds.Y;
-      PageY = MainScrollbar->EndValue;
-      MainItems->MoveTo(glm::vec2(EntriesStart.x, PageY));
-      CurrentEntryPos.y =
-          backlogEntry->Bounds.Y + backlogEntry->Bounds.Height + EntryYPadding;
-    }
+  BacklogEntry* const backlogEntry =
+      CreateBacklogEntry(scrCtx, audioId, characterId, entryPos, HoverBounds);
+  backlogEntry->OnClickHandler = onClick;
+
+  if (Entries.full()) {
+    ItemsHeight -= Entries.back()->Bounds.Height + EntryYPadding;
+  }
+  ItemsHeight += backlogEntry->Bounds.Height + EntryYPadding;
+
+  if (!Entries.empty()) {
+    BacklogEntry* const previousEntry = Entries.front().get();
+    backlogEntry->SetFocus(previousEntry, FDIR_UP);
+    previousEntry->SetFocus(backlogEntry, FDIR_DOWN);
+  }
+  Entries.push_front(std::unique_ptr<BacklogEntry>(backlogEntry));
+  Entries.back()->SetFocus(nullptr, FDIR_UP);
+
+  if (ItemsHeight > RenderingBounds.Height) {
+    MainScrollbar->StartValue = ItemsHeight - RenderingBounds.Height;
+    MainScrollbar->EndValue = 0.0f;
+    MainScrollbar->Enabled = true;
+    PageY = MainScrollbar->EndValue;
+
+    MoveEntriesBottomTo(RenderingBounds.Bottom());
+  } else {
+    MainScrollbar->StartValue = 0.0f;
+    MainScrollbar->EndValue = 1.0f;
+    MainScrollbar->Enabled = false;
+    PageY = MainScrollbar->StartValue;
   }
 }
 
 void BacklogMenu::Clear() {
-  MainItems->Clear();
-  MainItems->MoveTo(EntriesStart);
+  Entries.clear();
+
   PageY = 0.0f;
-  CurrentId = 0;
-  ItemsHeight = 0.0f;
+  ItemsHeight = EntryYPadding;
+
   MainScrollbar->StartValue = 0.0f;
   MainScrollbar->EndValue = 1.0f;
   MainScrollbar->Enabled = false;
-  CurrentEntryPos = EntriesStart;
 }
 
 }  // namespace UI

@@ -39,6 +39,8 @@ void Configure() {
     ScrollbarThumb = EnsureGetMember<Sprite>("ScrollbarThumbSprite");
     ScrollbarTrack = EnsureGetMember<Sprite>("ScrollbarTrackSprite");
 
+    MaxEntryCount = TryGetMember<size_t>("MaxEntryCount").value_or(400);
+
     EntryYPadding = EnsureGetMember<float>("EntryYPadding");
     EntriesStart = EnsureGetMember<glm::vec2>("EntriesStart");
     EntryHighlightOffset = EnsureGetMember<glm::vec2>("EntryHighlightOffset");

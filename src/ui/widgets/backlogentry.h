@@ -13,9 +13,8 @@ namespace Widgets {
 
 class BacklogEntry : public Widget {
  public:
-  BacklogEntry(int id, Vm::BufferOffsetContext scrCtx,
-               std::optional<int> audioId, int characterId, glm::vec2 pos,
-               const RectF& hoverBounds);
+  BacklogEntry(Vm::BufferOffsetContext scrCtx, std::optional<int> audioId,
+               int characterId, glm::vec2 pos, const RectF& hoverBounds);
 
   void UpdateInput(float dt) override;
   void Render() override;
@@ -23,14 +22,12 @@ class BacklogEntry : public Widget {
   using Widget::Move;
   void Move(glm::vec2 relativePosition) override;
 
-  int Id;
   std::optional<int> AudioId;
   int CharacterId = 0;
-  float TextHeight = 0.0f;
 
   std::function<void(BacklogEntry*)> OnClickHandler;
 
-  std::unique_ptr<BacklogPage> Page;
+  BacklogPage Page;
 
  private:
   glm::vec2 Position;

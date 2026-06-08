@@ -18,19 +18,18 @@ constexpr std::array<std::string_view, 2> NametagCommonStrings = {
     "　】",
 };
 
-BacklogEntry::BacklogEntry(int id, Vm::BufferOffsetContext scrCtx,
+BacklogEntry::BacklogEntry(Vm::BufferOffsetContext scrCtx,
                            std::optional<int> audioId, int characterId,
                            glm::vec2 pos, const RectF& hoverBounds)
-    : Widgets::BacklogEntry(id, scrCtx, audioId, characterId, pos,
-                            hoverBounds) {
-  if (!Page->Name.empty()) {
+    : Widgets::BacklogEntry(scrCtx, audioId, characterId, pos, hoverBounds) {
+  if (!Page.Name.empty()) {
     const float nameFontSize =
         TextModesInfo[Profile::Dialogue::REVMessageModeIdx].NameGlyphSize.y;
-    beforeNametagLabel.SetText(NametagCommonStrings[0], nameFontSize,
+    BeforeNametagLabel.SetText(NametagCommonStrings[0], nameFontSize,
                                Profile::Dialogue::REVNameOutlineMode,
                                Profile::Dialogue::REVNameColor);
-    nametagLabel.SetText(Page->Name, Profile::Dialogue::REVNameOutlineMode);
-    afterNametagLabel.SetText(NametagCommonStrings[1], nameFontSize,
+    NametagLabel.SetText(Page.Name, Profile::Dialogue::REVNameOutlineMode);
+    AfterNametagLabel.SetText(NametagCommonStrings[1], nameFontSize,
                               Profile::Dialogue::REVNameOutlineMode,
                               Profile::Dialogue::REVNameColor);
   }
@@ -43,19 +42,19 @@ void BacklogEntry::Render() {
         Tint);
   }
 
-  if (!Page->Name.empty()) {
-    beforeNametagLabel.MoveTo({Bounds.X, Bounds.Y});
-    nametagLabel.MoveTo(beforeNametagLabel.Bounds.TopRight());
-    afterNametagLabel.MoveTo(nametagLabel.Bounds.TopRight());
+  if (!Page.Name.empty()) {
+    BeforeNametagLabel.MoveTo({Bounds.X, Bounds.Y});
+    NametagLabel.MoveTo(BeforeNametagLabel.Bounds.TopRight());
+    AfterNametagLabel.MoveTo(NametagLabel.Bounds.TopRight());
 
-    beforeNametagLabel.Render();
-    nametagLabel.Render();
-    afterNametagLabel.Render();
+    BeforeNametagLabel.Render();
+    NametagLabel.Render();
+    AfterNametagLabel.Render();
   }
 
-  Renderer->DrawProcessedText(Page->Glyphs, Profile::Dialogue::DialogueFont,
+  Renderer->DrawProcessedText(Page.Glyphs, Profile::Dialogue::DialogueFont,
                               Tint.a, Profile::Dialogue::REVOutlineMode, true);
-  for (RubyChunk& chunk : Page->RubyChunks) {
+  for (RubyChunk& chunk : Page.RubyChunks) {
     Renderer->DrawProcessedText(chunk.Text, Profile::Dialogue::DialogueFont,
                                 Tint.a, Profile::Dialogue::REVOutlineMode,
                                 true);

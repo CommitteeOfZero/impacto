@@ -56,7 +56,9 @@ void BacklogMenu::UpdateVisibility() {
     IsFocused = false;
     if (UI::FocusedMenu) UI::FocusedMenu->IsFocused = true;
 
-    MainItems->Hide();
+    for (auto& entry : Entries) {
+      entry->Hide();
+    }
   }
 }
 
@@ -76,23 +78,26 @@ void BacklogMenu::Render() {
   const float opacity = glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
   const glm::vec4 transition(1.0f, 1.0f, 1.0f, opacity);
 
-  MainItems->Tint = transition;
-  MainScrollbar->Tint = transition;
-
   const float backgroundY =
-      static_cast<float>(fmod(PageY - EntryYPadding - RenderingBounds.Y,
-                              BacklogBackground.Bounds.Height));
+      static_cast<float>(fmod(PageY, BacklogBackground.Bounds.Height));
 
   if (OpenedAsDirect) CommonMenu::DrawBgSprite<false>(State, FadeAnimation);
 
-  for (float yPos = backgroundY; yPos <= Profile::DesignHeight;
-       yPos += BacklogBackground.Bounds.Height) {
+  for (float yPos = backgroundY - Profile::DesignHeight;
+       yPos <= Profile::DesignHeight; yPos += BacklogBackground.Bounds.Height) {
     Renderer->DrawSprite(BacklogBackground, {0.0f, yPos}, transition);
   }
 
   RenderHighlight();
   Renderer->DrawSprite(BacklogHeaderSprite, BacklogHeaderPosition, transition);
-  MainItems->Render();
+
+  for (auto& entry : Entries) {
+    if (!entry->Bounds.Intersects(RenderingBounds)) continue;
+    entry->Tint = transition;
+    entry->Render();
+  }
+
+  MainScrollbar->Tint = transition;
   MainScrollbar->Render();
 
   if (ScrWork[SW_SYSSUBMENUNO] == 1) {

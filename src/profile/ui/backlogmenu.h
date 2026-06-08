@@ -31,6 +31,8 @@ inline Sprite VoiceIcon;
 inline Sprite ScrollbarTrack;
 inline Sprite ScrollbarThumb;
 
+inline size_t MaxEntryCount;
+
 inline float EntryYPadding;
 inline glm::vec2 EntriesStart;
 inline glm::vec2 EntryHighlightOffset;

@@ -15,14 +15,23 @@ using namespace Impacto::Profile::MO6TW::BacklogMenu;
 void BacklogMenu::Render() {
   if (State == Hidden) return;
 
-  float opacity = glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
-  glm::vec4 col(1.0f, 1.0f, 1.0f, opacity);
-  MainItems->Tint = col;
-  MainScrollbar->Tint = col;
+  const float opacity = glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
+  const glm::vec4 col(1.0f, 1.0f, 1.0f, opacity);
 
   Renderer->DrawSprite(BacklogBackground, glm::vec2(0.0f), col);
   RenderHighlight();
-  MainItems->Render();
+
+  Renderer->EnableScissor();
+  Renderer->SetScissorRect(RenderingBounds);
+  for (auto& entry : Entries) {
+    if (!entry->Bounds.Intersects(RenderingBounds)) continue;
+
+    entry->Tint = col;
+    entry->Render();
+  }
+  Renderer->DisableScissor();
+
+  MainScrollbar->Tint = col;
   MainScrollbar->Render();
 }
 
@@ -35,7 +44,9 @@ void BacklogMenu::UpdateVisibility() {
     IsFocused = false;
     if (UI::FocusedMenu) UI::FocusedMenu->IsFocused = true;
 
-    MainItems->Hide();
+    for (auto& entry : Entries) {
+      entry->Hide();
+    }
   }
 }
 

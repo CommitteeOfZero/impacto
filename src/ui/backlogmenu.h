@@ -19,15 +19,16 @@ class BacklogMenu : public Menu {
   virtual void Render() override;
 
   virtual Widgets::BacklogEntry* CreateBacklogEntry(
-      int id, Vm::BufferOffsetContext scrCtx, std::optional<int> audioId,
+      Vm::BufferOffsetContext scrCtx, std::optional<int> audioId,
       int characterId, glm::vec2 pos, const RectF& hoverBounds) const {
-    return new Widgets::BacklogEntry(id, scrCtx, audioId, characterId, pos,
+    return new Widgets::BacklogEntry(scrCtx, audioId, characterId, pos,
                                      hoverBounds);
   }
 
   virtual void AddMessage(Vm::BufferOffsetContext scrCtx,
                           std::optional<int> audioId = std::nullopt,
                           int characterId = 0);
+
   virtual void MenuButtonOnClick(Widgets::BacklogEntry* target);
   void Clear();
 
@@ -36,16 +37,17 @@ class BacklogMenu : public Menu {
  protected:
   virtual void UpdateVisibility() {};
 
-  int CurrentId = 0;
+  boost::circular_buffer<std::unique_ptr<Widgets::BacklogEntry>> Entries;
+
   float ItemsHeight = 0.0f;
-  glm::vec2 CurrentEntryPos;
-  Widgets::Group* MainItems;
   Animation FadeAnimation;
   Widgets::Scrollbar* MainScrollbar;
 
   void RenderHighlight(glm::vec2 offset = {0.0f, 0.0f}) const;
   void UpdatePageUpDownInput(float dt);
   void UpdateScrollingInput(float dt);
+
+  void MoveEntriesBottomTo(float yPosition);
 
  private:
   bool AtBottomPrev = false;
