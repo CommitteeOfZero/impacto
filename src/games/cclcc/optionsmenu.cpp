@@ -4,6 +4,7 @@
 #include "../../profile/game.h"
 #include "../../profile/ui/optionsmenu.h"
 #include "../../profile/games/cclcc/optionsmenu.h"
+#include "../../profile/games/cclcc/systemmenu.h"
 #include "../../profile/scriptinput.h"
 #include "../../vm/interface/input.h"
 #include "../../ui/widgets/cclcc/optionsbinarybutton.h"
@@ -190,7 +191,7 @@ std::unique_ptr<Group> OptionsMenu::CreateVoicePage(
   return voicePage;
 }
 
-OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
+OptionsMenu::OptionsMenu() : UI::OptionsMenu(), CommonMenu(FadeAnimation) {
   PoleAnimation = Profile::CCLCC::OptionsMenu::PoleAnimation.Instantiate();
 
   PageButtons.reserve(PageCount);
@@ -215,14 +216,26 @@ OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
 }
 
 void OptionsMenu::Show() {
+  if (State != Shown) {
+    CommonMenu::OnShow(FadeInDuration, FadeOutDuration, FadeAnimation);
+  }
+
   UI::OptionsMenu::Show();
 
-  if (State != Shown) PoleAnimation.StartIn();
+  if (State != Shown) {
+    if (OpenedAsDirect) {
+      PoleAnimation.Finish(AnimationDirection::In);
+    } else {
+      PoleAnimation.StartIn();
+    }
+  }
 }
 
 void OptionsMenu::Hide() {
   if (State != Hidden) {
-    PoleAnimation.StartOut();
+    if (!OpenedAsDirect) {
+      PoleAnimation.StartOut();
+    }
 
     if (CurrentlyFocusedElement)
       static_cast<OptionsEntry*>(CurrentlyFocusedElement)->Selected = false;
@@ -245,6 +258,7 @@ void OptionsMenu::UpdateVisibility() {
              ScrWork[SW_SYSSUBMENUCT] == 0) {
     State = Hidden;
     Pages[CurrentPage]->Hide();
+    if (OpenedAsDirect) PoleAnimation.Finish(AnimationDirection::Out);
   }
 }
 
@@ -253,9 +267,12 @@ void OptionsMenu::Update(float dt) {
   PoleAnimation.Update(dt);
 
   if (!FadeAnimation.IsIn() && !FadeAnimation.IsOut()) {
-    const glm::vec2 backgroundPosition =
-        glm::vec2(0.0f, glm::mix(BackgroundFadeStartPosition.y,
-                                 BackgroundPosition.y, FadeAnimation.Progress));
+    const float bgPosY =
+        OpenedAsDirect ? BackgroundPosition.y
+                       : glm::mix(BackgroundFadeStartPosition.y,
+                                  BackgroundPosition.y, FadeAnimation.Progress);
+
+    const glm::vec2 backgroundPosition = glm::vec2(0.0f, bgPosY);
     for (std::unique_ptr<Group>& page : Pages) {
       page->MoveTo(backgroundPosition);
     }
@@ -316,49 +333,52 @@ void OptionsMenu::UpdateInput(float dt) {
 }
 
 void OptionsMenu::Render() {
-  if (State != Hidden && ScrWork[SW_SYSSUBMENUCT] > 0 &&
-      ScrWork[SW_SYSSUBMENUNO] == 5) {
-    const glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
-    const glm::vec4 maskTint =
-        col * glm::vec4{glm::vec3{1.0f}, (float)0xa0 / 0x100};
+  if (State == Hidden) return;
 
-    const glm::vec2 backgroundAnimationOffset =
-        glm::vec2(0.0f, FadeAnimation.Progress * BackgroundPosition.y +
-                            (1.0f - FadeAnimation.Progress) *
-                                BackgroundFadeStartPosition.y);
-    const glm::vec2 pagePanelPosition =
-        PagePanelPosition * FadeAnimation.Progress +
-        (1.0f - FadeAnimation.Progress) * PagePanelFadeStartPosition;
-    const glm::vec2 guidePosition =
-        GuidePosition * FadeAnimation.Progress +
-        (1.0f - FadeAnimation.Progress) * GuideFadeStartPosition;
+  const float transitionProgress =
+      OpenedAsDirect ? 1.0f : FadeAnimation.Progress;
 
-    Renderer->DrawSprite(BackgroundSprite,
-                         BackgroundPosition + backgroundAnimationOffset, col);
-    Renderer->DrawSprite(HeaderSprite,
-                         HeaderPosition + backgroundAnimationOffset, col);
+  const glm::vec4 col(1.0f, 1.0f, 1.0f,
+                      glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress));
+  const glm::vec4 maskTint =
+      col * glm::vec4{glm::vec3{1.0f}, (float)0xa0 / 0x100};
 
-    Renderer->DrawSprite(PageHeaderSprites[CurrentPage],
-                         PageHeaderPosition + backgroundAnimationOffset, col);
-    Pages[CurrentPage]->Tint = col;
-    Pages[CurrentPage]->Render();
+  const glm::vec2 backgroundAnimationOffset = glm::vec2(
+      0.0f, transitionProgress * BackgroundPosition.y +
+                (1.0f - transitionProgress) * BackgroundFadeStartPosition.y);
+  const glm::vec2 pagePanelPosition =
+      PagePanelPosition * transitionProgress +
+      (1.0f - transitionProgress) * PagePanelFadeStartPosition;
+  const glm::vec2 guidePosition =
+      GuidePosition * transitionProgress +
+      (1.0f - transitionProgress) * GuideFadeStartPosition;
 
-    Renderer->DrawSprite(PoleAnimation.CurrentSprite(), pagePanelPosition, col);
-    if (PoleAnimation.IsIn()) {
-      Renderer->DrawSprite(
-          PagePanelSprites[2 * CurrentPage],
-          PagePanelPosition + PagePanelIconOffsets[CurrentPage], col);
-    }
+  if (OpenedAsDirect) CommonMenu::DrawBgSprite<false>(State, FadeAnimation);
 
-    Renderer->DrawSprite(
-        MenuMaskSprite,
-        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-        maskTint);
+  Renderer->DrawSprite(BackgroundSprite,
+                       BackgroundPosition + backgroundAnimationOffset, col);
+  Renderer->DrawSprite(HeaderSprite, HeaderPosition + backgroundAnimationOffset,
+                       col);
 
-    const Sprite& guideSprite =
-        CurrentPage == +PageType::Voice ? VoiceGuideSprite : GuideSprite;
-    Renderer->DrawSprite(guideSprite, guidePosition, col);
+  Renderer->DrawSprite(PageHeaderSprites[CurrentPage],
+                       PageHeaderPosition + backgroundAnimationOffset, col);
+  Pages[CurrentPage]->Tint = col;
+  Pages[CurrentPage]->Render();
+
+  Renderer->DrawSprite(PoleAnimation.CurrentSprite(), pagePanelPosition, col);
+  if (PoleAnimation.IsIn()) {
+    Renderer->DrawSprite(PagePanelSprites[2 * CurrentPage],
+                         PagePanelPosition + PagePanelIconOffsets[CurrentPage],
+                         col);
   }
+
+  Renderer->DrawSprite(
+      MenuMaskSprite,
+      RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight), maskTint);
+
+  const Sprite& guideSprite =
+      CurrentPage == +PageType::Voice ? VoiceGuideSprite : GuideSprite;
+  Renderer->DrawSprite(guideSprite, guidePosition, col);
 }
 
 void OptionsMenu::Select(OptionsEntry* toSelect) {

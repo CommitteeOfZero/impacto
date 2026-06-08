@@ -1,6 +1,7 @@
 #include "helpmenu.h"
 
 #include "../../profile/games/cclcc/helpmenu.h"
+#include "../../profile/games/cclcc/systemmenu.h"
 #include "../../profile/ui/backlogmenu.h"
 #include "../../profile/dialogue.h"
 #include "../../renderer/renderer.h"
@@ -22,11 +23,7 @@ using namespace Impacto::Vm::Interface;
 
 using namespace Impacto::UI::Widgets;
 
-HelpMenu::HelpMenu() {
-  FadeAnimation.Direction = AnimationDirection::In;
-  FadeAnimation.LoopMode = AnimationLoopMode::Stop;
-  FadeAnimation.DurationIn = FadeInDuration;
-  FadeAnimation.DurationOut = FadeOutDuration;
+HelpMenu::HelpMenu() : CommonMenu(FadeAnimation) {
   NextPageAnimation.DurationIn = NextPageInDuration;
   NextPageAnimation.DurationOut = NextPageOutDuration;
 }
@@ -34,6 +31,7 @@ HelpMenu::HelpMenu() {
 void HelpMenu::Show() {
   if (State != Showing) {
     State = Showing;
+    CommonMenu::OnShow(FadeInDuration, FadeOutDuration, FadeAnimation);
 
     if (UI::FocusedMenu != 0) {
       LastFocusedMenu = UI::FocusedMenu;
@@ -49,7 +47,7 @@ void HelpMenu::Show() {
 void HelpMenu::Hide() {
   if (State != Hiding) {
     State = Hiding;
-    FadeAnimation.StartOut();
+    FadeAnimation.StartOut(true);
     NextPageAnimation.StartOut();
     Audio::PlayInGroup(Audio::ACG_SE, "sysse", 3, false, 0);
     if (LastFocusedMenu != 0) {
@@ -124,31 +122,35 @@ void HelpMenu::UpdateInput(float dt) {
 void HelpMenu::Render() {
   if (State == Hidden) return;
 
-  glm::vec4 transition(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
-  int alpha = (ScrWork[SW_SYSSUBMENUCT] * ScrWork[SW_SYSSUBMENUALPHA]) >> 5;
+  float transition = glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
   float topLeftX = 0.0f;
+
+  if (OpenedAsDirect) CommonMenu::DrawBgSprite<false>(State, FadeAnimation);
 
   if (PreviousPage != -1) {
     Renderer->DrawSprite(ManualPages[PreviousPage], glm::vec2(0.0f, 0.0f),
                          glm::vec4{1.0f});
 
-    transition = {1.0f, 1.0f, 1.0f, NextPageAnimation.Progress};
+    transition = NextPageAnimation.Progress;
     topLeftX = IsGoingNext ? NextPageAnimation.Progress * 1920.0f - 1920.0f
                            : (1.0f - NextPageAnimation.Progress) * 1920.0f;
-    Renderer->DrawSprite(
-        ManualPages[CurrentPage], glm::vec2(topLeftX, 0.0f),
-        glm::vec4{glm::vec3{transition}, transition.a * alpha / 256.0f});
+    Renderer->DrawSprite(ManualPages[CurrentPage], glm::vec2(topLeftX, 0.0f),
+                         glm::vec4{glm::vec3{1.0f}, transition});
   } else {
-    topLeftX = FadeAnimation.Progress * 32 * 200 * 0.0625f - 400.0f;
-    Renderer->DrawSprite(
-        ManualPages[CurrentPage], glm::vec2(topLeftX, 0.0f),
-        glm::vec4{glm::vec3{transition}, transition.a * alpha / 256.0f});
+    topLeftX =
+        (OpenedAsDirect ? 1.0f : transition) * 32 * 200 * 0.0625f - 400.0f;
+    Renderer->DrawSprite(ManualPages[CurrentPage], glm::vec2(topLeftX, 0.0f),
+                         glm::vec4{glm::vec3{1.0f}, transition});
   }
 
+  float maskAlpha = 0.85f;
+  if (State != Shown) {
+    maskAlpha *= glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
+  }
   Renderer->DrawSprite(
       HelpMaskSprite,
       RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-      glm::vec4{glm::vec3{transition}, 0.85f});
+      glm::vec4(glm::vec3{1.0f}, maskAlpha));
 }
 
 }  // namespace CCLCC

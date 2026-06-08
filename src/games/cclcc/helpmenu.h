@@ -1,5 +1,6 @@
 #pragma once
 
+#include "commonmenu.h"
 #include "../../ui/menu.h"
 #include "../../ui/widgets/label.h"
 
@@ -7,7 +8,7 @@ namespace Impacto {
 namespace UI {
 namespace CCLCC {
 
-class HelpMenu : public Menu {
+class HelpMenu : public Menu, public CommonMenu {
  public:
   HelpMenu();
 

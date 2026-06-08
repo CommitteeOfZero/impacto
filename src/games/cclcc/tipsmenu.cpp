@@ -9,6 +9,7 @@
 #include "../../profile/ui/backlogmenu.h"
 #include "../../profile/ui/tipsmenu.h"
 #include "../../profile/games/cclcc/tipsmenu.h"
+#include "../../profile/games/cclcc/systemmenu.h"
 #include "../../io/memorystream.h"
 #include "../../data/tipssystem.h"
 #include "../../vm/interface/input.h"
@@ -29,11 +30,7 @@ using namespace Impacto::Vm::Interface;
 using namespace Impacto::UI::Widgets;
 using namespace Impacto::UI::Widgets::CCLCC;
 
-TipsMenu::TipsMenu() : TipViewItems(this) {
-  FadeAnimation.Direction = AnimationDirection::In;
-  FadeAnimation.LoopMode = AnimationLoopMode::Stop;
-  FadeAnimation.DurationIn = FadeInDuration;
-  FadeAnimation.DurationOut = FadeOutDuration;
+TipsMenu::TipsMenu() : CommonMenu(FadeAnimation), TipViewItems(this) {
   TransitionAnimation.DurationIn = TransitionInDuration;
   TransitionAnimation.DurationOut = TransitionOutDuration;
 
@@ -86,6 +83,8 @@ void TipsMenu::Show() {
         CurrentTabType = static_cast<TipsTabType>(i);
       }
     }
+
+    CommonMenu::OnShow(FadeInDuration, FadeOutDuration, FadeAnimation);
 
     Name->Bounds.X = NamePos.x;
     Name->Bounds.Y = NamePos.y;
@@ -262,6 +261,8 @@ void TipsMenu::Render() {
                  glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress));
   glm::vec4 maskTint = fade;
   maskTint.a *= 0.85f;
+
+  if (OpenedAsDirect) CommonMenu::DrawBgSprite<false>(State, FadeAnimation);
 
   Renderer->DrawSprite(BackgroundSprite,
                        glm::vec2(0.0f, Profile::DesignHeight / 2 - LastYPos),

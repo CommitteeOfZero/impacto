@@ -1,5 +1,6 @@
 #pragma once
 
+#include "commonmenu.h"
 #include "../../ui/optionsmenu.h"
 #include "../../spriteanimation.h"
 #include "../../ui/widgets/clickarea.h"
@@ -18,7 +19,7 @@ enum class PageType : uint32_t {
   Sound = 2,
   Voice = 3,
 };
-class OptionsMenu : public UI::OptionsMenu {
+class OptionsMenu : public UI::OptionsMenu, public CommonMenu {
  public:
   OptionsMenu();
 

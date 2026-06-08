@@ -7,7 +7,7 @@
 namespace Impacto {
 namespace UI {
 
-// "Clamped" can't go outside [min,max], "Looped" loopes from last to first
+// "Clamped" can't go outside [min,max], "Looped" loops from last to first
 enum class TipAdvanceMode : uint8_t { PrevClamped, NextClamped, NextLooped };
 
 class TipsMenu : public Menu {
