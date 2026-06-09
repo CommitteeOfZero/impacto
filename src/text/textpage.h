@@ -33,16 +33,15 @@ class TextPage {
   std::vector<RubyChunk> RubyChunks;
   std::vector<ProcessedTextGlyph> Glyphs;
 
-  RectF BoxBounds;
-
-  glm::vec2 Dimensions;
-  size_t Length = 0;
+  RectF Bounds;
 
   float CurrentLineTop = 0.0f;
   float CurrentLineTopMargin = 0.0f;
 
  protected:
   TextPage() = default;
+
+  virtual RectF SetBounds();
 
   size_t LastLineStart = 0;
 };

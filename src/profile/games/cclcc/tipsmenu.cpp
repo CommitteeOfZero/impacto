@@ -28,6 +28,7 @@ void Configure() {
   TipsTextTableIndex = EnsureGetMember<int>("TipsTextTableIndex");
   TipsTextSortStringIndex = EnsureGetMember<int>("TipsTextSortStringIndex");
   TipsTextEntryLockedIndex = EnsureGetMember<int>("TipsTextEntryLockedIndex");
+  TipsTextPageHeight = EnsureGetMember<float>("TipsTextPageHeight");
 
   TipsEntryBounds = EnsureGetMember<RectF>("TipsEntryBounds");
   TipEntryNewOffset = EnsureGetMember<glm::vec2>("TipEntryNewOffset");

@@ -150,8 +150,12 @@ void TipsMenu::UpdateInput(float dt) {
     if (CurrentlyDisplayedTipId != -1) {
       int scrollDistance = 10;
       if (Input::CurMousePos != Input::PrevMousePos) {
-        MouseInTextBounds =
-            TextPage.BoxBounds.ContainsPoint(Input::CurMousePos);
+        const TextModeInfo& textModeInfo =
+            TextModesInfo[Profile::Dialogue::TipsMessageModeIdx];
+        RectF pageBounds =
+            RectF(textModeInfo.WindowPos.x, textModeInfo.WindowPos.y,
+                  textModeInfo.MaxLineWidth, TipsTextPageHeight);
+        MouseInTextBounds = pageBounds.ContainsPoint(Input::CurMousePos);
       }
 
       bool upScroll = PADinputButtonIsDown & PADcustom[32];
@@ -351,16 +355,20 @@ void TipsMenu::SwitchToTipId(int id) {
   TextPage.AddString(&dummy);
   TipViewItems.HasFocus = true;
 
-  const RectF lastGlyphBox = TextPage.Glyphs.back().DestRect;
+  const TextModeInfo& textModeInfo =
+      TextModesInfo[Profile::Dialogue::TipsMessageModeIdx];
+  const RectF pageBounds =
+      RectF(textModeInfo.WindowPos.x, textModeInfo.WindowPos.y,
+            textModeInfo.MaxLineWidth, TipsTextPageHeight);
+
   int scrollDistance =
-      static_cast<int>(lastGlyphBox.Bottom() - TextPage.BoxBounds.Bottom() +
-                       lastGlyphBox.Height);
+      static_cast<int>(TextPage.Bounds.Height - pageBounds.Height);
 
   TipPageY = 0;
   TipsScrollbar = std::make_unique<Widgets::Scrollbar>(
       0, TipsScrollStartPos, 0.0f, std::max(0.0f, (float)scrollDistance),
       &TipPageY, SBDIR_VERTICAL, TipsScrollThumbSprite, TipsScrollTrackBounds,
-      TipsScrollThumbLength, TextPage.BoxBounds, 5.0f);
+      TipsScrollThumbLength, pageBounds, 5.0f);
   TipsScrollbar->HasFocus = false;  // We want to manually control kb/pad input
 
   Audio::PlayInGroup(Audio::ACG_SE, "sysse", 2, false, 0);

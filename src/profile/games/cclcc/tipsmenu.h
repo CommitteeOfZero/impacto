@@ -18,6 +18,7 @@ inline int TipsGuideY;
 inline int TipsTextTableIndex;
 inline int TipsTextSortStringIndex;
 inline int TipsTextEntryLockedIndex;
+inline float TipsTextPageHeight;
 
 inline RectF TipsEntryBounds;
 inline glm::vec2 TipEntryNewOffset;

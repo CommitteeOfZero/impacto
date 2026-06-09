@@ -2,12 +2,16 @@
 
 #include "../profile/dialogue.h"
 
+#include <numeric>
+
 namespace Impacto {
 using namespace Impacto::Profile::Dialogue;
 
 void TextPage::Clear() {
   Glyphs.clear();
   RubyChunks.clear();
+
+  Bounds = RectF{};
 
   CurrentLineTopMargin = 0.0f;
 }
@@ -36,6 +40,24 @@ void TextPage::Render(const float alpha,
   for (RubyChunk& chunk : RubyChunks) {
     Renderer->DrawProcessedText(chunk.Text, DialogueFont, alpha, outlineMode);
   }
+}
+
+RectF TextPage::SetBounds() {
+  if (Glyphs.empty()) return Bounds = RectF{};
+
+  const auto coalesce = [](const RectF bounds,
+                           const ProcessedTextGlyph& glyph) {
+    return RectF::Coalesce(bounds, glyph.DestRect);
+  };
+
+  Bounds = Glyphs.front().DestRect;
+  Bounds = std::accumulate(Glyphs.begin() + 1, Glyphs.end(), Bounds, coalesce);
+  for (const RubyChunk& chunk : RubyChunks) {
+    Bounds =
+        std::accumulate(chunk.Text.begin(), chunk.Text.end(), Bounds, coalesce);
+  }
+
+  return Bounds;
 }
 
 }  // namespace Impacto

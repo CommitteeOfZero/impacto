@@ -28,6 +28,7 @@ root.TipsMenu = {
     TipsTextTableIndex = 2,
     TipsTextEntryLockedIndex = 7,
     TipsTextSortStringIndex = 10,
+    TipsTextPageHeight = 485,
 
     CategoryPos = { X = 1230, Y = 76},
     CategoryFontSize = 40,

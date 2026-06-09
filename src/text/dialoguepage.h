@@ -76,6 +76,9 @@ struct DialoguePage : public TextPage {
 
   void PushBacklogEntry();
 
+ protected:
+  RectF SetBounds() override;
+
  private:
   void FinishLine(Vm::Sc3VmThread* ctx, size_t nextLineStart,
                   const RectF& boxBounds, TextAlignment alignment);

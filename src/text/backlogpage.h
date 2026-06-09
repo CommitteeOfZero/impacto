@@ -15,6 +15,9 @@ struct BacklogPage : public TextPage {
 
   void Render(float alpha, RendererOutlineMode outlineMode =
                                RendererOutlineMode::Full) override;
+
+ protected:
+  RectF SetBounds() override;
 };
 
 }  // namespace Impacto

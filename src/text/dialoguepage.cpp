@@ -105,12 +105,6 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, std::optional<int> voiceId,
 
   RenderName = ScrWork[SW_MESNAMEID0 + Id] != NO_NAME || !Name.empty();
 
-  RectF boundingBox = Glyphs.empty() ? RectF() : Glyphs.begin()->DestRect;
-  for (const ProcessedTextGlyph& glyph : Glyphs) {
-    boundingBox = RectF::Coalesce(boundingBox, glyph.DestRect);
-  }
-  Dimensions = glm::vec2(boundingBox.Width, boundingBox.Height);
-
   // resetting typewriter for a new line and setting new params
   Typewriter.Reset(AnimationDirection::In);
   Typewriter.SetFirstGlyph(typeWriterStart);
@@ -130,6 +124,8 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, std::optional<int> voiceId,
   if (AdvanceMethod == AdvanceMethodType::AutoForwardSyncVoice) {
     AutoWaitTime *= 2.0f;
   }
+
+  SetBounds();
 }
 
 void DialoguePage::Update(float dt) {
@@ -251,6 +247,19 @@ void DialoguePage::PushBacklogEntry() {
   }
 
   UI::BacklogMenuPtr->AddMessage(*CurrentStringAddress, AudioId, AnimationId);
+}
+
+RectF DialoguePage::SetBounds() {
+  if (Glyphs.empty()) return Bounds = RectF{};
+  TextPage::SetBounds();
+
+  Bounds =
+      std::accumulate(Name.begin(), Name.end(), Bounds,
+                      [](const RectF bounds, const ProcessedTextGlyph& glyph) {
+                        return RectF::Coalesce(bounds, glyph.DestRect);
+                      });
+
+  return Bounds;
 }
 
 }  // namespace Impacto
