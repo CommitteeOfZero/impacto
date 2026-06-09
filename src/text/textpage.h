@@ -37,9 +37,6 @@ class TextPage {
 
   glm::vec2 Dimensions;
   size_t Length = 0;
-  float FontSize;
-
-  TextAlignment Alignment = TextAlignment::Left;
 
   float CurrentLineTop = 0.0f;
   float CurrentLineTopMargin = 0.0f;

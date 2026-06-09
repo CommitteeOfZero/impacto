@@ -20,7 +20,7 @@ root.BacklogMenu = {
     ScrollbarTrackSprite = "ScrollbarTrack",
     ScrollbarThumbLength = 59,
     ScrollbarPosition = { X = 1183, Y = 92 },
-    EntriesStart = { X = 123, Y = 105 },
+    EntriesStart = { X = 0, Y = 105 },
     RenderingBounds = { X = 87, Y = 89, Width = 1086, Height = 539 },
     EntryYPadding = 20,
     HoverBounds = { X = 75, Y = 89, Width = 1086, Height = 535 },

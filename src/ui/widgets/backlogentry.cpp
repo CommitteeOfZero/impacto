@@ -50,17 +50,7 @@ BacklogEntry::BacklogEntry(int id, Vm::BufferOffsetContext scrCtx,
   TextHeight = Bounds.Height;
   Position.y = Bounds.Y;  // Y position should
 
-  switch (Page->Alignment) {
-    default:
-    case TextAlignment::Left:
-      break;
-    case TextAlignment::Center: {
-      pos.x = REVBounds.X + (REVBounds.Width - Page->Dimensions.x) / 2;
-      break;
-    }
-  }
-
-  MoveToAnchor = Position;
+  MoveToAnchor = {0.0f, Position.y};
   MoveTo(pos);
 }
 
