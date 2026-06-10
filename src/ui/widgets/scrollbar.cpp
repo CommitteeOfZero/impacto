@@ -197,11 +197,6 @@ void Scrollbar::ClampValue() {
 void Scrollbar::Update(float dt) {
   Widget::Update(dt);
   UpdatePosition();
-
-  if (Enabled && HoveredWheelBounds &&
-      Input::CurrentInputDevice == Input::Device::Mouse) {
-    RequestCursor(CursorType::Pointer);
-  }
 }
 
 void Scrollbar::UpdatePosition() {
