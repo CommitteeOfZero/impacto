@@ -139,6 +139,7 @@ static void UpdateFromPADCode(uint32_t PADcode, PADInputType type) {
 
 void UpdatePADHoldInput(float dt) {
   constexpr float frameTime = 1 / 60.0f;
+  static uint32_t previousIsDown = 0;
 
   PADinputButtonRepeatDown = 0;
   PADinputButtonRepeatAccelDown = 0;
@@ -172,7 +173,7 @@ void UpdatePADHoldInput(float dt) {
       continue;
     }
 
-    if (PADinputButtonWentDown & PADcode) {
+    if (!(previousIsDown & PADcode)) {
       PADinputButtonRepeatDown |= PADcode;
       PADinputButtonRepeatAccelDown |= PADcode;
     }
@@ -196,6 +197,8 @@ void UpdatePADHoldInput(float dt) {
       }
     }
   }
+
+  previousIsDown = PADinputButtonIsDown;
 }
 
 void UpdateKBHoldInput(float dt) {
