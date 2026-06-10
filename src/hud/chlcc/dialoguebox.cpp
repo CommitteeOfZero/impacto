@@ -39,7 +39,7 @@ void DialogueBox::Render(const DialoguePageMode mode, const NameInfo& nameInfo,
                                  : GetScrWorkPos()) +
                             ErinBoxPos - posOfs;
 
-      Renderer->DrawSprite(ErinBoxSprite, pos, glm::vec4(1.0f));
+      Renderer->DrawSprite(ErinBoxSprite, pos, {1.0f, 1.0f, 1.0f, tint.a});
     } break;
 
     case DPM_NVL: {
