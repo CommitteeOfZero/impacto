@@ -41,7 +41,7 @@ void TextParser::Reset() {
 
 template <>
 void TextParser::ParseStringToken<STT_LineBreak>(const StringToken& token) {
-  FinishLine(Glyphs.size());
+  FinishLine(Glyphs.size(), true);
   CurrentX = 0.0f;
 }
 
@@ -242,8 +242,8 @@ void TextParser::ParseStringToken<STT_Character>(const StringToken& token) {
   }
 }
 
-void TextParser::FinishLine(const size_t nextLineStart) {
-  if (nextLineStart == LastLineStart) return;
+void TextParser::FinishLine(const size_t nextLineStart, const bool force) {
+  if (!force && nextLineStart == LastLineStart) return;
 
   const std::span<ProcessedTextGlyph> currentLine =
       std::span(Glyphs.begin() + LastLineStart, nextLineStart - LastLineStart);
@@ -347,34 +347,36 @@ void TextParser::FinishLine(const size_t nextLineStart) {
   const float normalizedFontSize = FontSize / ModeInfo.TextGlyphSize.y;
   CurrentLineTopMargin *= normalizedFontSize;
 
-  float marginXOffset = 0;
-  if (currentLine.front().DestRect.X > ModeInfo.WindowPos.x) {
-    marginXOffset =
-        (currentLine.front().DestRect.Right() - ModeInfo.WindowPos.x) *
-        (normalizedFontSize - 1.0f);
-  }
-
-  const float lastGlyphX = currentLine.back().DestRect.Right();
-  const float xAlignmentOffset = [&]() {
-    switch (Alignment) {
-      case TextAlignment::Center:
-        return (ModeInfo.MaxLineWidth - (lastGlyphX - ModeInfo.WindowPos.x)) /
-               2.0f;
-        break;
-      case TextAlignment::Right:
-        return ModeInfo.MaxLineWidth - lastGlyphX - marginXOffset;
-        break;
-      case TextAlignment::Left:
-        return marginXOffset;
-      default:
-        return 0.0f;
+  if (!currentLine.empty()) {
+    float marginXOffset = 0;
+    if (currentLine.front().DestRect.X > ModeInfo.WindowPos.x) {
+      marginXOffset =
+          (currentLine.front().DestRect.Right() - ModeInfo.WindowPos.x) *
+          (normalizedFontSize - 1.0f);
     }
-  }();
-  for (ProcessedTextGlyph& glyph : currentLine) {
-    glyph.DestRect.X += xAlignmentOffset;
-    glyph.DestRect.Y = ModeInfo.WindowPos.y + CurrentLineTop +
-                       CurrentLineTopMargin +
-                       (lineHeight - glyph.DestRect.Height);
+
+    const float lastGlyphX = currentLine.back().DestRect.Right();
+    const float xAlignmentOffset = [&]() {
+      switch (Alignment) {
+        case TextAlignment::Center:
+          return (ModeInfo.MaxLineWidth - (lastGlyphX - ModeInfo.WindowPos.x)) /
+                 2.0f;
+          break;
+        case TextAlignment::Right:
+          return ModeInfo.MaxLineWidth - lastGlyphX - marginXOffset;
+          break;
+        case TextAlignment::Left:
+          return marginXOffset;
+        default:
+          return 0.0f;
+      }
+    }();
+    for (ProcessedTextGlyph& glyph : currentLine) {
+      glyph.DestRect.X += xAlignmentOffset;
+      glyph.DestRect.Y = ModeInfo.WindowPos.y + CurrentLineTop +
+                         CurrentLineTopMargin +
+                         (lineHeight - glyph.DestRect.Height);
+    }
   }
 
   CurrentLineTop += CurrentLineTopMargin + lineHeight + ModeInfo.LineSpacing;

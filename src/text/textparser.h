@@ -36,7 +36,7 @@ class TextParser {
   template <StringTokenType T>
   void ParseStringToken(const StringToken& token);
 
-  void FinishLine(size_t nextLineStart);
+  void FinishLine(size_t nextLineStart, bool force = false);
   void FinishName();
 
   std::vector<uint16_t> NameCode;
