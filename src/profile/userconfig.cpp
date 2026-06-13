@@ -59,15 +59,9 @@ void Configure() {
   CommonSettings = EnsureGetMember<Config>("CommonSettings");
   if (ActiveGame.empty())
     ActiveGame = EnsureGetMember<std::string>("ActiveGame");
-  auto gameSettingsItr = GameSettings.find(ActiveGame);
-  if (gameSettingsItr == GameSettings.end()) {
-    ImpLog(LogLevel::Fatal, LogChannel::Profile,
-           "ActiveGame {:s} not found in Games\n", ActiveGame);
-    exit(1);
-  }
 };
 
-GameConfig const& ActiveGameSettings() { return GameSettings.at(ActiveGame); }
+GameConfig const& ActiveGameSettings() { return GameSettings[ActiveGame]; }
 
 std::string const& GetPlatformSpecificPath() {
   static const std::string result = [] {

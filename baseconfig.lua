@@ -20,6 +20,9 @@ root.BaseConfig.GameDefinitions = {
       English = root.BaseConfig.RootPatchesDir .. "/english/profiles/cclcc/patch.lua",
     }
   },
+  ["cclcc-switch"] = {
+    GameProfile = root.BaseConfig.RootProfilesDir .. "/cclcc-switch/game.lua",
+  },
   mo6tw = {
     GameProfile = root.BaseConfig.RootProfilesDir .. "/profiles/mo6tw/game.lua",
   },
