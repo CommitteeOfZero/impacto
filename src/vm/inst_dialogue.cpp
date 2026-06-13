@@ -177,7 +177,9 @@ VmInstruction(InstMes) {
   uint32_t line = MSB ? MsbGetStrAddress(thread->ScriptBufferId, lineId)
                       : ScriptGetStrAddress(thread->ScriptBufferId, lineId);
 
-  if (!(ScrWork[10 * thread->DialoguePageId + SW_MESWIN0TYPE] & (1 << 6))) {
+  if (!(ScrWork[Profile::Vm::ScrWorkMesStructSize * thread->DialoguePageId +
+                SW_MESWIN0TYPE] &
+        (1 << 6))) {
     SetFlag(SF_MESREAD, SaveSystem::IsLineRead(scriptId, lineId));
     ChkMesSkip();
   }
@@ -199,7 +201,9 @@ VmInstruction(InstMes) {
   dialoguePage.AddString(thread, audioId, acted, animationId, characterId);
   ResetInstruction;
   if (!GetFlag(SF_MESSAVEPOINT_SSP + thread->DialoguePageId)) {
-    if ((ScrWork[thread->DialoguePageId * 10 + SW_MESWIN0TYPE] & 4) == 0 &&
+    if ((ScrWork[thread->DialoguePageId * Profile::Vm::ScrWorkMesStructSize +
+                 SW_MESWIN0TYPE] &
+         4) == 0 &&
         ScrWork[SW_TITLE] != 0xffff) {
       SaveSystem::SaveMemory();
       SetFlag(SF_SAVECAPTURE, 1);

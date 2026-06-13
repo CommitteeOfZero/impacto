@@ -38,6 +38,8 @@ void Configure() {
   TryGetMember<int>("ScrWorkBgEffOffsetStructSize",
                     ScrWorkBgEffOffsetStructSize);
 
+  ScrWorkMesStructSize = TryGetMember<int>("ScrWorkMesStructSize").value_or(10);
+
   TryGetMember<int>("MaxLinkedBgBuffers", MaxLinkedBgBuffers);
   TryGetMember<int>("SystemScriptBuffer", SystemScriptBuffer);
 

@@ -5,6 +5,7 @@
 #include "../profile/configsystem.h"
 #include "../profile/dialogue.h"
 #include "../profile/games/chlcc/dialoguebox.h"
+#include "../profile/vm.h"
 
 #include "../ui/ui.h"
 #include "../data/tipssystem.h"
@@ -210,7 +211,7 @@ void DialoguePage::Render(const float alpha,
 
   glm::vec2 pos = glm::vec2(ScrWork[SW_MESWIN0POSX_OFS + 2 * Id],
                             ScrWork[SW_MESWIN0POSY_OFS + 2 * Id]);
-  if (ScrWork[SW_MESWIN0TYPE + 10 * Id] & 1) {
+  if (ScrWork[SW_MESWIN0TYPE + Profile::Vm::ScrWorkMesStructSize * Id] & 1) {
     pos += DialogueBoxInst.get()->GetScrWorkPos() - GetTextModeInfo().WindowPos;
   }
 
@@ -242,7 +243,8 @@ void DialoguePage::Show() { FadeAnimation.StartIn(true); }
 
 void DialoguePage::PushBacklogEntry() {
   if (!CurrentStringAddress.has_value() || GetFlag(SF_REVADDDISABLE) ||
-      (ScrWork[SW_MESWIN0TYPE + 10 * Id] & 0b10)) {
+      (ScrWork[SW_MESWIN0TYPE + Profile::Vm::ScrWorkMesStructSize * Id] &
+       0b10)) {
     return;
   }
 

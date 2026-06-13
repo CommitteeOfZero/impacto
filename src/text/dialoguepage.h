@@ -4,6 +4,7 @@
 #include "typewritereffect.h"
 
 #include "../profile/scriptvars.h"
+#include "../profile/vm.h"
 
 #include "../hud/dialoguebox.h"
 
@@ -52,7 +53,8 @@ struct DialoguePage : public TextPage {
 
   DialoguePageMode GetMode() const {
     using namespace Profile::ScriptVars;
-    const uint8_t mode = static_cast<uint8_t>(ScrWork[SW_MESMODE0 + 10 * Id]);
+    const uint8_t mode = static_cast<uint8_t>(
+        ScrWork[SW_MESMODE0 + Profile::Vm::ScrWorkMesStructSize * Id]);
     return *magic_enum::enum_cast<DialoguePageMode>(mode);
   }
 

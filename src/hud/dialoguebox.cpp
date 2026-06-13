@@ -47,8 +47,8 @@ std::unique_ptr<DialogueBox> DialogueBox::Create(const DialoguePage& page) {
 
 glm::vec2 DialogueBox::GetScrWorkPos() const {
   using namespace Impacto::Profile::ScriptVars;
-  const int id = ParentPage.get().Id;
-  return {ScrWork[SW_MESWIN0POSX + 10 * id], ScrWork[SW_MESWIN0POSY + 10 * id]};
+  const int offset = ParentPage.get().Id * Profile::Vm::ScrWorkMesStructSize;
+  return {ScrWork[SW_MESWIN0POSX + offset], ScrWork[SW_MESWIN0POSY + offset]};
 }
 
 PlainDialogueBox::PlainDialogueBox(const DialoguePage& page)
