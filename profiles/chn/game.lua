@@ -44,6 +44,7 @@ include('chn/tipssystem.lua');
 include('chn/vfs.lua');
 include('chn/sprites.lua');
 include('common/animation.lua');
+include('common/achievementnotification.lua');
 include('chn/charset.lua');
 include('chn/font.lua');
 --include('chn/font-lb.lua');

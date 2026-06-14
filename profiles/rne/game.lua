@@ -37,6 +37,7 @@ include('rne/tipssystem.lua');
 include('rne/vfs.lua');
 include('rne/sprites.lua');
 include('common/animation.lua');
+include('common/achievementnotification.lua');
 include('rne/charset.lua');
 --include('rne/font.lua');
 include('rne/font-lb.lua');

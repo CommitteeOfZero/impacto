@@ -53,6 +53,7 @@ include('cclcc/vfs.lua');
 include('cclcc/charset.lua');
 include('cclcc/gamespecific.lua');
 include('common/animation.lua');
+include('common/achievementnotification.lua');
 include('common/charset.lua');
 --include('cclcc/font.lua');
 --include('cclcc/font-lb.lua');

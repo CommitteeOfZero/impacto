@@ -41,6 +41,8 @@
     },
     "libwebp",
     "fmt",
+    "freetype",
+    "harfbuzz",
     "libass"
   ],
   "overrides": [

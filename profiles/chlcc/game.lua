@@ -45,6 +45,7 @@ include('chlcc/tipssystem.lua');
 include('chlcc/vfs.lua');
 include('chlcc/sprites.lua');
 include('common/animation.lua');
+include('common/achievementnotification.lua');
 include('chlcc/charset.lua');
 include('common/charset.lua');
 if root.Language == "Japanese" then

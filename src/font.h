@@ -1,5 +1,8 @@
 #pragma once
 
+#include <span>
+#include <string>
+#include <string_view>
 #include <vector>
 
 #include <magic_enum/magic_enum.hpp>
@@ -95,6 +98,43 @@ class LBFont : public Font {
     return Sprite(OutlineSheet, col * OutlineCellWidth, row * OutlineCellHeight,
                   OutlineCellWidth, OutlineCellHeight);
   }
+};
+
+struct ExternalFontShapedGlyph {
+  uint32_t GlyphIndex;
+  glm::vec2 Offset;
+  glm::vec2 Advance;
+};
+
+struct ExternalFontGlyph {
+  Sprite GlyphSprite;
+  glm::vec2 Position;
+  glm::vec4 Tint;
+};
+
+class ExternalFont {
+ public:
+  ExternalFont();
+  ~ExternalFont();
+
+  ExternalFont(ExternalFont const&) = delete;
+  ExternalFont& operator=(ExternalFont const&) = delete;
+
+  bool Load(std::string const& path, std::string const& logContext);
+  void Reset();
+  bool IsLoaded() const;
+
+  std::vector<ExternalFontShapedGlyph> ShapeLine(std::string_view text,
+                                                 float fontSize, float& width);
+  void RenderShapedLine(std::span<const ExternalFontShapedGlyph> glyphs,
+                        float fontSize, glm::vec2 origin, glm::vec4 tint,
+                        std::vector<ExternalFontGlyph>& outGlyphs);
+
+  static void FreeGlyphTextures(std::vector<ExternalFontGlyph>& glyphs);
+
+ private:
+  struct Impl;
+  Impl* FontImpl;
 };
 
 }  // namespace Impacto

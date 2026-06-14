@@ -40,6 +40,7 @@ include('dash/tipssystem.lua');
 include('dash/vfs.lua');
 include('dash/sprites.lua');
 include('common/animation.lua');
+include('common/achievementnotification.lua');
 include('dash/charset.lua');
 --include('dash/font.lua');
 include('dash/font-lb.lua');

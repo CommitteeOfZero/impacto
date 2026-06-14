@@ -43,6 +43,7 @@ include('mo7/tipssystem.lua');
 include('mo7/vfs.lua');
 include('mo7/sprites.lua');
 include('common/animation.lua');
+include('common/achievementnotification.lua');
 include('mo7/charset.lua');
 include('mo7/font.lua');
 include('mo7/dialogue.lua');

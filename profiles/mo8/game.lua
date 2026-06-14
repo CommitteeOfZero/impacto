@@ -42,6 +42,7 @@ include('mo8/tipssystem.lua');
 include('mo8/vfs.lua');
 include('mo8/sprites.lua');
 include('common/animation.lua');
+include('common/achievementnotification.lua');
 include('mo8/charset.lua');
 include('mo8/font.lua');
 --include('mo8/font-lb.lua');
