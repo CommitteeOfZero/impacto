@@ -79,6 +79,11 @@ void DelusionTrigger::UpdateHiding(float dt) {
     State = Hidden;
     Reset();
   };
+  if (GetFlag(SF_MESSKIP)) {
+    SetFlag(SF_DELUSION_UI_ANIM_WAIT, 0);
+    Reset();
+    return;
+  }
   if (AnimationState < 13) {
     AnimCounter++;
     switch (AnimationState) {
@@ -153,6 +158,10 @@ void DelusionTrigger::UpdateHiding(float dt) {
 }
 
 void DelusionTrigger::UpdateShowing(float dt) {
+  if (GetFlag(SF_MESSKIP)) {
+    Load();
+    return;
+  }
   switch (AnimationState) {
     case 0: {
       SpinRate -= 24;
@@ -539,7 +548,7 @@ void DelusionTrigger::Load() {
   UnderlayerXOffset = 20000;
   AnimCounter = 0;
   SpinAngle = 0;
-  SpinRate = 5;
+  SpinRate = -5;
   BackgroundAlpha = 256;
   TextSystem.Clear();
   switch (DelusionState) {
