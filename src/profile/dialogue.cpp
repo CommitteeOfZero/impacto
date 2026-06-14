@@ -14,6 +14,8 @@ namespace Profile {
 namespace Dialogue {
 
 static void ConfigureNametag() {
+  OldNametagPositioning =
+      TryGetMember<bool>("OldNametagPositioning").value_or(false);
   NametagCurrentType = EnsureGetMember<NametagType>("NametagCurrentType");
 
   switch (NametagCurrentType) {
@@ -54,14 +56,56 @@ static void ConfigureNametag() {
   }
 }
 
+static void ConfigureTextModesInfo() {
+  if (!TryPushMember("TextModesInfo")) return;
+  ForEachProfileArray([](uint32_t) {
+    const size_t index = EnsureGetKey<size_t>();
+    if (index >= ProfileTextModesInfoFields.size()) {
+      throw std::runtime_error(
+          fmt::format("TextModeInfo index {} out of range [0, {})", index,
+                      ProfileTextModesInfoFields.size()));
+    }
+    TextModeInfo& info = TextModesInfo[index];
+    auto& fieldInfo = ProfileTextModesInfoFields[index];
+
+    const auto tryOverride = [&fieldInfo]<typename T>(const char* const name,
+                                                      T& out) {
+      assert(magic_enum::enum_contains<TextModeInfoFieldFlags>(name));
+
+      // Only update value if it's actually defined by the profile
+      std::optional<T> member = TryGetMember<T>(name);
+      if (member.has_value()) {
+        out = *member;
+        fieldInfo.set(
+            magic_enum::enum_cast<TextModeInfoFieldFlags>(name).value());
+      }
+    };
+
+    tryOverride("DisplayMode", info.DisplayMode);
+    tryOverride("WindowId", info.WindowId);
+    tryOverride("WindowPos", info.WindowPos);
+    tryOverride("NameDispMode", info.NameDispMode);
+    tryOverride("MaxNameWidth", info.MaxNameWidth);
+    tryOverride("NamePos", info.NamePos);
+    tryOverride("NameGlyphSize", info.NameGlyphSize);
+    tryOverride("MaxLineWidth", info.MaxLineWidth);
+    tryOverride("CurrentPageId", info.CurrentPageId);
+    tryOverride("WaitIconPos", info.WaitIconPos);
+    tryOverride("TextGlyphSize", info.TextGlyphSize);
+    tryOverride("RubyGlyphSize", info.RubyGlyphSize);
+    tryOverride("LineSpacing", info.LineSpacing);
+    tryOverride("RubyLineSpacing", info.RubyLineSpacing);
+    tryOverride("AlwaysAddRubySpacing", info.AlwaysAddRubySpacing);
+    tryOverride("LinefeedSpacing", info.LinefeedSpacing);
+    tryOverride("NameAlignment", info.NameAlignment);
+    tryOverride("UseNameLengthL", info.UseNameLengthL);
+    tryOverride("NameLengthL", info.NameLengthL);
+  });
+  Pop();
+}
+
 void Configure() {
   EnsurePushMemberOfType("Dialogue", LUA_TTABLE);
-
-  NVLBounds = EnsureGetMember<RectF>("NVLBounds");
-  ADVBounds = EnsureGetMember<RectF>("ADVBounds");
-  REVBounds = EnsureGetMember<RectF>("REVBounds");
-  TryGetMember<RectF>("SecondaryREVBounds", SecondaryREVBounds);
-  TryGetMember<RectF>("TipsBounds", TipsBounds);
 
   ADVBoxSprite = EnsureGetMember<Sprite>("ADVBoxSprite");
   ADVBoxPos = EnsureGetMember<glm::vec2>("ADVBoxPos");
@@ -122,21 +166,14 @@ void Configure() {
 
   NVLBoxMaxOpacity = EnsureGetMember<float>("NVLBoxMaxOpacity");
 
-  ADVNameAlignment = EnsureGetMember<TextAlignment>("ADVNameAlignment");
-
-  ADVNameFontSize = EnsureGetMember<float>("ADVNameFontSize");
-  ADVNamePos = EnsureGetMember<glm::vec2>("ADVNamePos");
-
-  REVNameFontSize = EnsureGetMember<float>("REVNameFontSize");
+  REVMessageModeIdx = EnsureGetMember<size_t>("REVMessageModeIdx");
   REVColor = EnsureGetMember<int>("REVColor");
   REVNameColor = EnsureGetMember<int>("REVNameColor");
-  REVNameOffset = EnsureGetMember<float>("REVNameOffset");
-  REVNameLocation = EnsureGetMember<REVNameLocationType>("REVNameLocation");
   REVOutlineMode = RendererOutlineMode(EnsureGetMember<int>("REVOutlineMode"));
   REVNameOutlineMode =
       RendererOutlineMode(EnsureGetMember<int>("REVNameOutlineMode"));
 
-  TryGetMember<float>("TipsLineSpacing", TipsLineSpacing);
+  TipsMessageModeIdx = EnsureGetMember<size_t>("TipsMessageModeIdx");
   TryGetMember<int>("TipsColorIndex", TipsColorIndex);
 
   WaitIconCurrentType =
@@ -224,39 +261,15 @@ void Configure() {
   DialogueFont = EnsureGetMember<Font*>("DialogueFont");
   SetFontSizeRatio = EnsureGetMember<float>("SetFontSizeRatio");
   DefaultFontSize = EnsureGetMember<float>("DefaultFontSize");
-  RubyFontSize = EnsureGetMember<float>("RubyFontSize");
-  RubyYOffset = EnsureGetMember<float>("RubyYOffset");
 
   MaxPageSize = EnsureGetMember<int>("MaxPageSize");
   PageCount = EnsureGetMember<int>("PageCount");
 
-  {
-    EnsurePushMemberOfType("ColorTable", LUA_TTABLE);
-
-    ColorCount = (int)lua_rawlen(LuaState, -1);
-    ColorTable = new DialogueColorPair[ColorCount];
-    PushInitialIndex();
-    while (PushNextTableElement() != 0) {
-      int i = EnsureGetKey<int32_t>() - 1;
-      AssertIs(LUA_TTABLE);
-
-      auto pairSize = lua_rawlen(LuaState, -1);
-      if (pairSize != 2) {
-        ImpLog(LogLevel::Fatal, LogChannel::Profile, "Expected two colors\n");
-        Window->Shutdown();
-      }
-      ColorTable[i].TextColor = EnsureGetArrayElementByIndex<uint32_t>(0);
-      ColorTable[i].OutlineColor = EnsureGetArrayElementByIndex<uint32_t>(1);
-
-      Pop();
-    }
-
-    Pop();
-  }
-
+  ColorTable = EnsureGetMember<std::vector<DialogueColorPair>>("ColorTable");
   ColorTagIsUint8 = EnsureGetMember<bool>("ColorTagIsUint8");
 
   ConfigureNametag();
+  ConfigureTextModesInfo();
 
   TryGetMember<bool>("HasSpeakerPortraits", HasSpeakerPortraits);
 

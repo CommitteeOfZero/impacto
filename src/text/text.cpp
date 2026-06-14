@@ -148,12 +148,7 @@ void StringToken::AddFlags(const Vm::BufferOffsetContext scrCtx,
       return;
     }
 
-    const uint16_t glyphId = token.Val_Uint16;
-    if (auto it = FlagsMap.find(glyphId); it != FlagsMap.end()) {
-      it->second = it->second | flags;
-    } else {
-      FlagsMap.emplace(glyphId, flags);
-    }
+    AddFlags(token.Val_Uint16, flags);
   }
 }
 
@@ -231,7 +226,6 @@ std::pair<int, float> TextLayoutPlainLineHelper(
           token.Val_Expr = ScrWork[SW_SYSMESCOL1 + (255 - token.Val_Expr)];
         }
 
-        assert(token.Val_Expr < ColorCount);
         currentColors = ColorTable[token.Val_Expr];
       } break;
 
@@ -406,11 +400,12 @@ float TextGetPlainLineWidth(Vm::Sc3VmThread* ctx, Font* font, float fontSize) {
   return width;
 }
 
-float TextGetPlainLineWidth(Vm::Sc3Stream& stream, Font* font, float fontSize) {
+float TextGetPlainLineWidth(Vm::Sc3Stream& stream, Font* font, float fontSize,
+                            size_t maxLength) {
   StringToken token;
 
   float width = 0.0f;
-  while (true) {
+  while (maxLength-- > 0) {
     token.Read(stream);
     if (token.Type == STT_EndOfString) break;
     if (token.Type != STT_Character) continue;

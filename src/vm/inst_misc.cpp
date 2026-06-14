@@ -13,6 +13,7 @@
 #include "../ui/ui.h"
 #include "../data/savesystem.h"
 #include "../audio/audiosystem.h"
+#include "../text/dialoguepage.h"
 
 #include "../profile/vm.h"
 #include "../games/cclcc/systemmenu.h"

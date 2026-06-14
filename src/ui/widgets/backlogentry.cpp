@@ -15,61 +15,42 @@ namespace Widgets {
 using namespace Impacto::Profile::BacklogMenu;
 using namespace Impacto::Profile::ScriptVars;
 
-BacklogEntry::BacklogEntry(int id, Vm::BufferOffsetContext scrCtx, int audioId,
-                           int characterId, glm::vec2 pos,
-                           const RectF& hoverBounds)
+BacklogEntry::BacklogEntry(int id, Vm::BufferOffsetContext scrCtx,
+                           std::optional<int> audioId, int characterId,
+                           glm::vec2 pos, const RectF& hoverBounds)
     : Id(id),
       AudioId(audioId),
       CharacterId(characterId),
+      Page(std::make_unique<BacklogPage>()),
       Position(pos),
       HoverBounds(hoverBounds) {
   Enabled = true;
 
-  BacklogPage = new DialoguePage();
-  BacklogPage->Glyphs.reserve(512);
-  BacklogPage->Clear();
-  BacklogPage->Mode = DPM_REV;
-
   Impacto::Vm::Sc3VmThread dummy;
   dummy.IpOffset = scrCtx.IpOffset;
   dummy.ScriptBufferId = scrCtx.ScriptBufferId;
-  // CHLCC uses DPM_REV for the Erin DialogueBox
-  if (ScrWork[SW_MESWIN0TYPE] == 0) {
-    REVBounds.X = pos.x;
-    REVBounds.Y = pos.y;
-  }
-  BacklogPage->AddString(&dummy);
+  Page->AddString(&dummy);
 
-  TextLength = BacklogPage->Length;
-
-  Bounds = !BacklogPage->Glyphs.empty() ? BacklogPage->Glyphs.begin()->DestRect
-                                        : RectF(pos.x, pos.y, 0, 0);
-  for (const ProcessedTextGlyph& glyph : BacklogPage->Glyphs) {
+  Bounds = !Page->Glyphs.empty() ? Page->Glyphs.begin()->DestRect
+                                 : RectF(pos.x, pos.y, 0, 0);
+  for (const ProcessedTextGlyph& glyph : Page->Glyphs) {
     Bounds = RectF::Coalesce(Bounds, glyph.DestRect);
   }
+  for (const RubyChunk& chunk : Page->RubyChunks) {
+    for (const auto& glyph : chunk.Text) {
+      Bounds = RectF::Coalesce(Bounds, glyph.DestRect);
+    }
+  }
   Position.x = Bounds.X;  // X position should not take name into account
-  for (const ProcessedTextGlyph& glyph : BacklogPage->Name) {
+  for (const ProcessedTextGlyph& glyph : Page->Name) {
     Bounds = RectF::Coalesce(Bounds, glyph.DestRect);
   }
   TextHeight = Bounds.Height;
   Position.y = Bounds.Y;  // Y position should
 
-  switch (BacklogPage->Alignment) {
-    default:
-    case TextAlignment::Left:
-      break;
-    case TextAlignment::Center: {
-      const RectF& revBounds = REVBounds;
-      pos.x = revBounds.X + (revBounds.Width - BacklogPage->Dimensions.x) / 2;
-      break;
-    }
-  }
-
-  MoveToAnchor = Position;
+  MoveToAnchor = {0.0f, Position.y};
   MoveTo(pos);
 }
-
-BacklogEntry::~BacklogEntry() { delete BacklogPage; }
 
 void BacklogEntry::UpdateInput(float dt) {
   if (Enabled) {
@@ -99,11 +80,11 @@ void BacklogEntry::UpdateInput(float dt) {
 void BacklogEntry::Move(glm::vec2 relativePosition) {
   Position += relativePosition;
   Widget::Move(relativePosition);
-  BacklogPage->Move(relativePosition);
+  Page->Move(relativePosition);
 }
 
 void BacklogEntry::Render() {
-  if (AudioId != -1) {
+  if (AudioId.has_value()) {
     Renderer->DrawSprite(
         VoiceIcon,
         glm::vec2(Bounds.X - VoiceIcon.ScaledWidth(), Bounds.Y) +
@@ -111,15 +92,7 @@ void BacklogEntry::Render() {
         Tint);
   }
 
-  if (BacklogPage->HasName()) {
-    Renderer->DrawProcessedText(BacklogPage->Name,
-                                Profile::Dialogue::DialogueFont, Tint.a,
-                                Profile::Dialogue::REVNameOutlineMode);
-  }
-
-  Renderer->DrawProcessedText(BacklogPage->Glyphs,
-                              Profile::Dialogue::DialogueFont, Tint.a,
-                              Profile::Dialogue::REVOutlineMode);
+  Page->Render(Tint.a, Profile::Dialogue::REVNameOutlineMode);
 }
 
 }  // namespace Widgets

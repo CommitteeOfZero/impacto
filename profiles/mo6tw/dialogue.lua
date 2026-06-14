@@ -24,19 +24,13 @@ root.Sprites["ADVBoxDecoration"] = {
 };
 
 root.Dialogue = {
-    TipsBounds = { X = 394, Y = 263, Width = 820, Height = 370 },
+    TipsMessageModeIdx = 7,
     TipsColorIndex = 0,
-    REVBounds = { X = 163, Y = 83, Width = 960, Height = 590 },
-    REVNameFontSize = 24,
+    REVMessageModeIdx = 9,
     REVColor = 0,
     REVNameColor = 24,
-    REVNameOffset = 34,
-    REVNameLocation = REVNameLocationType.TopLeft,
     REVOutlineMode = 2,
     REVNameOutlineMode = 2,
-    TipsLineSpacing = 5,
-    NVLBounds = { X = 125, Y = 85, Width = 1024, Height = 400 },
-    ADVBounds = { X = 161, Y = 522, Width = 960, Height = 180 },
     ADVBoxSprite = "ADVBox",
     ADVBoxPos = { X = 127, Y = 500 },
     FadeOutDuration = 0.33,
@@ -52,10 +46,7 @@ root.Dialogue = {
     ADVBoxDecorationPos = { X = 1001, Y = 646 },
     NVLBoxMaxOpacity = 0.55,
 
-    ADVNameAlignment = TextAlignment.Left,
-    ADVNameFontSize = 32,
-    ADVNamePos = { X = 120, Y = 462 },
-
+    OldNametagPositioning = true,
     NametagCurrentType = NametagType.ThreePiece,
     NametagPosition = { X = 100, Y = 458 },
     NametagLeftSprite = "NametagLeftSprite",
@@ -70,8 +61,6 @@ root.Dialogue = {
     DialogueFont = "Default",
     SetFontSizeRatio = 1000.0,
     DefaultFontSize = 32,
-    RubyFontSize = 14,
-    RubyYOffset = -18,
     ColorTable = {
         {0xFFFFFF, 0x000000}, {0x5080FF, 0x000000},
         {0xFF7080, 0x000000}, {0xFFA0F8, 0x000000},

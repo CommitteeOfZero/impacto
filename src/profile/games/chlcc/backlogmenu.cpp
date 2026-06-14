@@ -20,14 +20,6 @@ void Configure() {
 
   ButtonPromptPosition = EnsureGetMember<glm::vec2>("ButtonPromptPosition");
   ButtonPromptSprite = EnsureGetMember<Sprite>("BacklogButtonPromptSprite");
-  BacklogBackgroundSprite = EnsureGetMember<Sprite>("BacklogBackgroundSprite");
-  EntryHighlightSprite = EnsureGetMember<Sprite>("EntryHighlightSprite");
-  VoiceIconSprite = EnsureGetMember<Sprite>("VoiceIconSprite");
-  ScrollbarThumbSprite = EnsureGetMember<Sprite>("ScrollbarThumbSprite");
-  ScrollbarPosition = EnsureGetMember<glm::vec2>("ScrollbarPosition");
-  EntriesStart = EnsureGetMember<glm::vec2>("EntriesStart");
-  RenderingBounds = EnsureGetMember<RectF>("RenderingBounds");
-  EntryYPadding = EnsureGetMember<float>("EntryYPadding");
 
   auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
 

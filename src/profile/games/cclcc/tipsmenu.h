@@ -18,6 +18,7 @@ inline int TipsGuideY;
 inline int TipsTextTableIndex;
 inline int TipsTextSortStringIndex;
 inline int TipsTextEntryLockedIndex;
+inline float TipsTextPageHeight;
 
 inline RectF TipsEntryBounds;
 inline glm::vec2 TipEntryNewOffset;
@@ -36,8 +37,8 @@ inline glm::vec2 CategoryPos;
 inline int CategoryFontSize;
 inline glm::vec2 NamePos;
 inline int NameFontSize;
-inline glm::vec2 PronounciationPos;
-inline int PronounciationFontSize;
+inline glm::vec2 PronunciationPos;
+inline int PronunciationFontSize;
 inline glm::vec2 NumberPos;
 inline int NumberFontSize;
 

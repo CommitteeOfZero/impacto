@@ -1,7 +1,10 @@
 #pragma once
 
-#include "text.h"
+#include "textpage.h"
 #include "typewritereffect.h"
+
+#include "../profile/scriptvars.h"
+#include "../profile/vm.h"
 
 #include "../hud/dialoguebox.h"
 
@@ -15,16 +18,16 @@ enum DialoguePageMode : uint8_t {
   DPM_TIPS = 3
 };
 
-struct DialoguePage {
+struct DialoguePage : public TextPage {
   static void Init();
 
-  int Id = 0;
-  int AnimationId = 0;
-  int NextAnimationId = 0;
-  int CharacterId = -1;
+  DialoguePage(int id) : Id(id) {}
 
-  std::array<RubyChunk, 32> RubyChunks;
-  std::vector<ProcessedTextGlyph> Glyphs;
+  int Id;
+  int CurrentVoiceCharacterId = 0;
+  int AnimationId = 0;
+  int CharacterId = 0;
+  std::optional<int> AudioId;
 
   TypewriterEffect Typewriter;
   Animation FadeAnimation;
@@ -32,17 +35,6 @@ struct DialoguePage {
 
   std::vector<ProcessedTextGlyph> Name;
   bool RenderName = false;
-
-  RectF BoxBounds;
-
-  Audio::AudioStream* CurrentVoice;
-
-  glm::vec2 Dimensions;
-  int Length;
-  float FontSize;
-
-  size_t RubyChunkCount;
-  int CurrentRubyChunk;
 
   enum class AdvanceMethodType : uint8_t {
     Skip,
@@ -56,43 +48,43 @@ struct DialoguePage {
 
   float AutoWaitTime = 0.0f;
 
-  TextAlignment Alignment = TextAlignment::Left;
-  DialoguePageMode Mode;
-
-  bool CurrentLineVoiced = false;
-
   enum class State { Initial, Showing, Hiding, Shown, Hidden };
   State GetState() const;
 
-  // TODO get rid of this
+  DialoguePageMode GetMode() const {
+    using namespace Profile::ScriptVars;
+    const uint8_t mode = static_cast<uint8_t>(
+        ScrWork[SW_MESMODE0 + Profile::Vm::ScrWorkMesStructSize * Id]);
+    return *magic_enum::enum_cast<DialoguePageMode>(mode);
+  }
+
+  const TextModeInfo& GetTextModeInfo() const {
+    return TextModesInfo[GetMode()];
+  }
+
   bool TextIsFullyOpaque();
-  void Clear();
-  void AddString(Vm::Sc3VmThread* ctx, Audio::AudioStream* voice = 0,
-                 bool acted = true, int animId = 0, int charId = -1,
-                 bool shouldUpdateCharId = false);
+  void Clear() override;
+  void AddString(Vm::Sc3VmThread* ctx,
+                 std::optional<int> voiceId = std::nullopt, bool acted = true,
+                 int animId = 0, int charId = 0);
   void Update(float dt);
-  void Move(glm::vec2 relativePos);
-  void MoveTo(glm::vec2 pos);
-  void Render();
+
+  void Move(glm::vec2 relativePos) override;
+
+  void Render(float alpha, RendererOutlineMode outlineMode =
+                               RendererOutlineMode::Full) override;
   void Hide();
   void Show();
-  bool HasName() const { return !Name.empty(); }
+
+  void PushBacklogEntry();
+
+ protected:
+  RectF SetBounds() override;
 
  private:
-  void FinishLine(Vm::Sc3VmThread* ctx, size_t nextLineStart,
-                  const RectF& boxBounds, TextAlignment alignment);
-  void EndRubyBase(int lastBaseCharacter);
+  std::unique_ptr<DialogueBox> DialogueBoxInst = DialogueBox::Create(*this);
 
-  DialoguePageMode PrevMode = DPM_ADV;
-
-  bool BuildingRubyBase;
-  size_t FirstRubyChunkOnLine;
-
-  size_t LastLineStart;
-  float CurrentLineTop;
-  float CurrentLineTopMargin;
-
-  std::unique_ptr<DialogueBox> DialogueBoxInst = DialogueBox::Create();
+  std::optional<Vm::BufferOffsetContext> CurrentStringAddress;
 };
 
 inline std::vector<DialoguePage> DialoguePages;

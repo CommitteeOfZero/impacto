@@ -10,8 +10,9 @@ namespace CHLCC {
 
 class BacklogEntry : public Widgets::BacklogEntry {
  public:
-  BacklogEntry(int id, Vm::BufferOffsetContext scrCtx, int audioId,
-               int characterId, glm::vec2 pos, const RectF& hoverBounds);
+  BacklogEntry(int id, Vm::BufferOffsetContext scrCtx,
+               std::optional<int> audioId, int characterId, glm::vec2 pos,
+               const RectF& hoverBounds);
 
   void Render() override;
 

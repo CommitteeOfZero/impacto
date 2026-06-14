@@ -28,6 +28,7 @@ root.TipsMenu = {
     TipsTextTableIndex = 2,
     TipsTextEntryLockedIndex = 7,
     TipsTextSortStringIndex = 10,
+    TipsTextPageHeight = 485,
 
     CategoryPos = { X = 1230, Y = 76},
     CategoryFontSize = 40,
@@ -35,8 +36,8 @@ root.TipsMenu = {
     NameFontSize = 54,
     NumberPos = { X = 1875, Y = 80},
     NumberFontSize = 62,
-    PronounciationPos = { X = 1020, Y = 246},
-    PronounciationFontSize = 34,
+    PronunciationPos = { X = 1020, Y = 246},
+    PronunciationFontSize = 34,
 
     TipsEntryNameUnreadColor = 0x117733, 
     TipsMenuDarkTextColor = 0x3e3e3c,

@@ -1,14 +1,14 @@
 root.Sprites["ADVBox"] = {
     Sheet = "Data",
-    Bounds = { X = 768, Y = 815, Width = 1280, Height = 206 },
+    Bounds = { X = 769, Y = 811, Width = 1278, Height = 212 },
 };
 root.Sprites["SecondaryADVBox"] = {
     Sheet = "Data",
-    Bounds = { X = 768, Y = 427, Width = 1280, Height = 206 },
+    Bounds = { X = 769, Y = 423, Width = 1278, Height = 212 },
 };
 root.Sprites["ErinBox"] = {
     Sheet = "Data",
-    Bounds = { X = 36, Y = 143, Width = 541, Height = 168 },
+    Bounds = { X = 35, Y = 142, Width = 732, Height = 225 },
 };
 root.Sprites["AutoSkipArrowsSprite"] = {
     Sheet = "Data",
@@ -24,24 +24,18 @@ root.Sprites["SkipIconSprite"] = {
 };
 
 root.Dialogue = {
-    TipsBounds = { X = 404, Y = 150, Width = 800, Height = 420 },
+    TipsMessageModeIdx = 7,
     TipsColorIndex = 0,
-    REVBounds = { X = 337, Y = 159, Width = 952, Height = 555 },
-    SecondaryREVBounds = {X = 338, Y = 159, Width = 480, Height = 106},
     ErinBoxSprite = "ErinBox",
-    ErinBoxPos = { X = 314, Y = 156 },
-    REVNameFontSize = 32,
+    ErinBoxPos = { X = -25, Y = -23 },
+    REVMessageModeIdx = 9,
     REVColor = 0,
     REVNameColor = 24,
-    REVNameOffset = 34,
-    REVNameLocation = REVNameLocationType.TopLeft,
     REVOutlineMode = 2,
     REVNameOutlineMode = 2,
-    NVLBounds = { X = 125, Y = 85, Width = 1024, Height = 400 },
-    ADVBounds = { X = 161, Y = 546, Width = 928, Height = 180 },
     ADVBoxSprite = "ADVBox",
     SecondaryADVBoxSprite =  "SecondaryADVBox",
-    ADVBoxPos = { X = -1, Y = 512 },
+    ADVBoxPos = { X = 0, Y = 508 },
     FadeOutDuration = 0.33,
     FadeInDuration = 0.33,
     TextFadeInDuration = 0.33,
@@ -62,13 +56,8 @@ root.Dialogue = {
     REVWaitIconOffset = { X = 4, Y = -4 },
     WaitIconOffset = { X = 4, Y = 4 },
     DialogueFont = "Default",
-    REVLineHeight = 24,
-    REVLineSpacing = root.Language == "Japanese" and 16 or 0,
-    REVFontSize = 24,
     SetFontSizeRatio = 1000.0,
     DefaultFontSize = 32,
-    RubyFontSize = 14,
-    RubyYOffset = -18,
     ColorTable = {
         {0xFFFFFF, 0x000000}, {0x5080FF, 0x000000},
         {0xFF7080, 0x000000}, {0xFFA0F8, 0x000000},
@@ -111,13 +100,36 @@ root.Dialogue = {
     PageCount = 3,
     ColorTagIsUint8 = false,
 
-    ADVNameAlignment = TextAlignment.Left,
-    ADVNameFontSize = 29,
-    ADVNamePos = { X = 132, Y = 470 },
+    OldNametagPositioning = true,
     NametagCurrentType = NametagType.CHLCC,
     NametagPosition = { X = -1, Y = 465 },
     NametagSprite = "NametagSprite",
-    SecondaryNametagSprite = "SecondaryNametagSprite"
+    SecondaryNametagSprite = "SecondaryNametagSprite",
+
+    TextModesInfo = root.Language == "English" and {
+        ["0"] = { -- ADV box
+            WindowPos = { X = 161, Y = 540 },
+            NamePos = { X = -440, Y = -68 },
+            NameGlyphSize = { X = 30, Y = 30 },
+            LineSpacing = 3,
+            AlwaysAddRubySpacing = false,
+        },
+        ["1"] = { -- NVL box
+            LineSpacing = 3,
+            AlwaysAddRubySpacing = false,
+        },
+        ["2"] = { -- Erin box
+            WindowPos = { X = 334, Y = 206 + 1 + 14 * 24 / 32 }, -- Adjust for ruby spacing
+            LineSpacing = 3,
+            AlwaysAddRubySpacing = false,
+        },
+        ["7"] = { -- Tips box
+            LineSpacing = 3,
+        },
+        ["9"] = { -- Backlog entry
+            LineSpacing = 3,
+        }
+    } or {},
 };
 
 MakeAnimation({

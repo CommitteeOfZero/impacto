@@ -44,9 +44,9 @@ TipsMenu::TipsMenu() : ItemsList(CDIR_HORIZONTAL), TipViewItems(this) {
   Name->Bounds = NameInitialBounds;
   TipViewItems.Add(Name);
 
-  Pronounciation = new Label();
-  Pronounciation->Bounds = PronounciationInitialBounds;
-  TipViewItems.Add(Pronounciation);
+  Pronunciation = new Label();
+  Pronunciation->Bounds = PronunciationInitialBounds;
+  TipViewItems.Add(Pronunciation);
 
   Category = new Label();
   Category->Bounds = CategoryInitialBounds;
@@ -54,8 +54,6 @@ TipsMenu::TipsMenu() : ItemsList(CDIR_HORIZONTAL), TipViewItems(this) {
 
   TextPage.Glyphs.reserve(Profile::Dialogue::MaxPageSize);
   TextPage.Clear();
-  TextPage.Mode = DPM_TIPS;
-  TextPage.FadeAnimation.Progress = 1.0f;
 }
 
 void TipsMenu::Show() {
@@ -131,9 +129,7 @@ void TipsMenu::Render() {
 
     if (CurrentlyDisplayedTipId != -1) {
       TipViewItems.Render();
-      Renderer->DrawProcessedText(TextPage.Glyphs,
-                                  Profile::Dialogue::DialogueFont, col.a,
-                                  RendererOutlineMode::Full, true);
+      TextPage.Render(col.a, RendererOutlineMode::Full);
       if (ThumbnailSprite) {
         Renderer->DrawSprite(*ThumbnailSprite, ThumbnailPosition, col);
       }
@@ -243,10 +239,10 @@ void TipsMenu::SwitchToTipId(int id) {
   Name->SetText({.ScriptBufferId = tipsScriptBufferId,
                  .IpOffset = tipRecord->StringAdr[0]},
                 NameFontSize, RendererOutlineMode::Full, DefaultColorIndex);
-  Pronounciation->SetText({.ScriptBufferId = tipsScriptBufferId,
-                           .IpOffset = tipRecord->StringAdr[1]},
-                          PronounciationFontSize, RendererOutlineMode::Full,
-                          DefaultColorIndex);
+  Pronunciation->SetText({.ScriptBufferId = tipsScriptBufferId,
+                          .IpOffset = tipRecord->StringAdr[1]},
+                         PronunciationFontSize, RendererOutlineMode::Full,
+                         DefaultColorIndex);
 
   Vm::Sc3VmThread dummy;
   dummy.IpOffset = tipRecord->StringAdr[2];

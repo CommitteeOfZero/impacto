@@ -17,7 +17,7 @@ root.BacklogMenu = {
     ScrollbarPosition = { X = 1165, Y = 98 },
     ScrollbarThumbLength = 30,
 
-    EntriesStart = { X = 163, Y = 90 },
+    EntriesStart = { X = 0, Y = 90 },
     RenderingBounds = { X = 83, Y = 83, Width = 1117, Height = 590 },
     EntryYPadding = 22,
 

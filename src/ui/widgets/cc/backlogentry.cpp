@@ -13,10 +13,15 @@ using namespace Impacto::Profile::BacklogMenu;
 using namespace Impacto::Profile::CC::BacklogMenu;
 
 void BacklogEntry::Render() {
-  if (AudioId != -1) {
-    RectF bounds = RectF(Bounds.X - VoiceIcon.ScaledWidth() + VoiceIconOffset.x,
-                         Bounds.Y + VoiceIconOffset.y, VoiceIcon.ScaledWidth(),
-                         VoiceIcon.ScaledHeight());
+  if (AudioId.has_value()) {
+    const glm::vec2 textPos = Page->Name.empty()
+                                  ? Page->Glyphs[0].DestRect.GetPos()
+                                  : Page->Name[0].DestRect.GetPos();
+
+    RectF bounds =
+        RectF(textPos.x - VoiceIcon.ScaledWidth() + VoiceIconOffset.x,
+              textPos.y + VoiceIconOffset.y, VoiceIcon.ScaledWidth(),
+              VoiceIcon.ScaledHeight());
     Sprite mask;
     mask.Sheet = BacklogMaskSheet;
     mask.Bounds = bounds;
@@ -26,15 +31,19 @@ void BacklogEntry::Render() {
                                       Tint, false, false);
   }
 
-  if (BacklogPage->HasName()) {
-    Renderer->DrawProcessedText(
-        BacklogPage->Name, Profile::Dialogue::DialogueFont, Tint.a,
-        Profile::Dialogue::REVNameOutlineMode, true, &BacklogMaskSheet);
+  Renderer->DrawProcessedText(Page->Name, Profile::Dialogue::DialogueFont,
+                              Tint.a, Profile::Dialogue::REVNameOutlineMode,
+                              true, &BacklogMaskSheet);
+
+  for (RubyChunk& chunk : Page->RubyChunks) {
+    Renderer->DrawProcessedText(chunk.Text, Profile::Dialogue::DialogueFont,
+                                Tint.a, Profile::Dialogue::REVOutlineMode, true,
+                                &BacklogMaskSheet);
   }
 
-  Renderer->DrawProcessedText(
-      BacklogPage->Glyphs, Profile::Dialogue::DialogueFont, Tint.a,
-      Profile::Dialogue::REVOutlineMode, true, &BacklogMaskSheet);
+  Renderer->DrawProcessedText(Page->Glyphs, Profile::Dialogue::DialogueFont,
+                              Tint.a, Profile::Dialogue::REVOutlineMode, true,
+                              &BacklogMaskSheet);
 }
 
 }  // namespace CC

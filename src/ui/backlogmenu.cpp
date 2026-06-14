@@ -32,13 +32,14 @@ using namespace Impacto::Vm::Interface;
 using namespace Impacto::UI::Widgets;
 
 void BacklogMenu::MenuButtonOnClick(Widgets::BacklogEntry* target) {
-  if (target->AudioId != -1) {
+  if (target->AudioId.has_value()) {
     const float volume =
         Profile::ConfigSystem::VoiceMuted[target->CharacterId]
             ? 0.0f
             : Profile::ConfigSystem::VoiceVolume[target->CharacterId];
     Audio::Channels[Audio::AC_REV]->SetVolume(volume);
-    Audio::Channels[Audio::AC_REV]->Play("voice", target->AudioId, false, 0.0f);
+    Audio::Channels[Audio::AC_REV]->Play("voice", *target->AudioId, false,
+                                         0.0f);
   }
 }
 
@@ -275,20 +276,21 @@ void BacklogMenu::RenderHighlight(const glm::vec2 offset) const {
     return;
 
   RectF pos;
-  const Widget& el = *CurrentlyFocusedElement;
+  const BacklogEntry& el = *static_cast<BacklogEntry*>(CurrentlyFocusedElement);
 
   switch (EntryHighlightLocation) {
     default:
-    case EntryHighlightLocationType::BottomLeftOfEntry:
-      pos = RectF(
-          el.Bounds.X,
-          el.Bounds.Y + el.Bounds.Height - EntryHighlight.ScaledHeight(),
-          Profile::Dialogue::REVBounds.Width, EntryHighlight.ScaledHeight());
-      break;
+    case EntryHighlightLocationType::BottomLeftOfEntry: {
+      const float pageWidth =
+          TextModesInfo[Profile::Dialogue::REVMessageModeIdx].MaxLineWidth;
+      pos =
+          RectF(el.Bounds.X,
+                el.Bounds.Y + el.Bounds.Height - EntryHighlight.ScaledHeight(),
+                pageWidth, EntryHighlight.ScaledHeight());
+    } break;
     case EntryHighlightLocationType::TopLineLeftOfScreen:
-      pos = RectF(0.0f, el.Bounds.Y - EntryHighlightPadding,
-                  EntryHighlight.ScaledWidth(),
-                  EntryHighlight.ScaledHeight() + EntryHighlightPadding * 2);
+      pos = RectF(0.0f, el.Page->Glyphs[0].DestRect.Y - EntryHighlightPadding,
+                  EntryHighlight.ScaledWidth(), EntryHighlight.ScaledHeight());
       break;
     case EntryHighlightLocationType::AllLinesLeftOfScreen:
       pos = RectF(0.0f, el.Bounds.Y - EntryHighlightPadding,
@@ -307,8 +309,8 @@ void BacklogMenu::RenderHighlight(const glm::vec2 offset) const {
 
 void BacklogMenu::Render() {}
 
-void BacklogMenu::AddMessage(Vm::BufferOffsetContext scrCtx, int audioId,
-                             int characterId) {
+void BacklogMenu::AddMessage(Vm::BufferOffsetContext scrCtx,
+                             std::optional<int> audioId, int characterId) {
   if (!GetFlag(SF_REVADDDISABLE) || ScrWork[SW_MESWIN0TYPE] == 0) {
     auto onClick = [this](auto* btn) { return MenuButtonOnClick(btn); };
 

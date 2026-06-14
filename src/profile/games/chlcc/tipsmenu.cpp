@@ -61,14 +61,14 @@ void Configure() {
   TipListYPadding = EnsureGetMember<float>("TipListYPadding");
   TipListEntryTextOffsetX = EnsureGetMember<float>("TipListEntryTextOffsetX");
 
-  PronounciationFontSize = EnsureGetMember<float>("PronounciationFontSize");
+  PronunciationFontSize = EnsureGetMember<float>("PronunciationFontSize");
   NameFontSize = EnsureGetMember<float>("NameFontSize");
 
   TipListEntryNameXOffset = EnsureGetMember<float>("TipListEntryNameXOffset");
 
   NameInitialBounds = EnsureGetMember<RectF>("NameInitialBounds");
-  PronounciationInitialBounds =
-      EnsureGetMember<RectF>("PronounciationInitialBounds");
+  PronunciationInitialBounds =
+      EnsureGetMember<RectF>("PronunciationInitialBounds");
 
   TipsListBounds = EnsureGetMember<RectF>("TipsListBounds");
   TipScrollbarPos = EnsureGetMember<glm::vec2>("TipScrollbarPos");

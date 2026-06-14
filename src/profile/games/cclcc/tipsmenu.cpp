@@ -28,6 +28,7 @@ void Configure() {
   TipsTextTableIndex = EnsureGetMember<int>("TipsTextTableIndex");
   TipsTextSortStringIndex = EnsureGetMember<int>("TipsTextSortStringIndex");
   TipsTextEntryLockedIndex = EnsureGetMember<int>("TipsTextEntryLockedIndex");
+  TipsTextPageHeight = EnsureGetMember<float>("TipsTextPageHeight");
 
   TipsEntryBounds = EnsureGetMember<RectF>("TipsEntryBounds");
   TipEntryNewOffset = EnsureGetMember<glm::vec2>("TipEntryNewOffset");
@@ -45,8 +46,8 @@ void Configure() {
   CategoryFontSize = EnsureGetMember<int>("CategoryFontSize");
   NamePos = EnsureGetMember<glm::vec2>("NamePos");
   NameFontSize = EnsureGetMember<int>("NameFontSize");
-  PronounciationPos = EnsureGetMember<glm::vec2>("PronounciationPos");
-  PronounciationFontSize = EnsureGetMember<int>("PronounciationFontSize");
+  PronunciationPos = EnsureGetMember<glm::vec2>("PronunciationPos");
+  PronunciationFontSize = EnsureGetMember<int>("PronunciationFontSize");
   NumberPos = EnsureGetMember<glm::vec2>("NumberPos");
   NumberFontSize = EnsureGetMember<int>("NumberFontSize");
 

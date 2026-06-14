@@ -35,15 +35,15 @@ TipsMenu::TipsMenu() : CommonMenu(FadeAnimation), TipViewItems(this) {
   TransitionAnimation.DurationOut = TransitionOutDuration;
 
   Name = new Label();
-  Pronounciation = new Label();
+  Pronunciation = new Label();
   Category = new Label();
   Number = new Label();
 
   Name->Bounds.X = NamePos.x;
   Name->Bounds.Y = NamePos.y;
 
-  Pronounciation->Bounds.X = PronounciationPos.x;
-  Pronounciation->Bounds.Y = PronounciationPos.y;
+  Pronunciation->Bounds.X = PronunciationPos.x;
+  Pronunciation->Bounds.Y = PronunciationPos.y;
 
   Category->Bounds.X = CategoryPos.x;
   Category->Bounds.Y = CategoryPos.y;
@@ -52,13 +52,11 @@ TipsMenu::TipsMenu() : CommonMenu(FadeAnimation), TipViewItems(this) {
   Number->Bounds.Y = NumberPos.y;
 
   TipViewItems.Add(Name);
-  TipViewItems.Add(Pronounciation);
+  TipViewItems.Add(Pronunciation);
   TipViewItems.Add(Category);
   TipViewItems.Add(Number);
 
   TextPage.Clear();
-  TextPage.Mode = DPM_TIPS;
-  TextPage.FadeAnimation.Progress = 1.0f;
 
   TipsScrollStartPos = {TipsScrollDetailsX, TipsScrollYStart};
 
@@ -89,8 +87,8 @@ void TipsMenu::Show() {
     Name->Bounds.X = NamePos.x;
     Name->Bounds.Y = NamePos.y;
 
-    Pronounciation->Bounds.X = PronounciationPos.x;
-    Pronounciation->Bounds.Y = PronounciationPos.y;
+    Pronunciation->Bounds.X = PronunciationPos.x;
+    Pronunciation->Bounds.Y = PronunciationPos.y;
 
     Category->Bounds.X = CategoryPos.x;
     Category->Bounds.Y = CategoryPos.y;
@@ -152,8 +150,12 @@ void TipsMenu::UpdateInput(float dt) {
     if (CurrentlyDisplayedTipId != -1) {
       int scrollDistance = 10;
       if (Input::CurMousePos != Input::PrevMousePos) {
-        MouseInTextBounds =
-            TextPage.BoxBounds.ContainsPoint(Input::CurMousePos);
+        const TextModeInfo& textModeInfo =
+            TextModesInfo[Profile::Dialogue::TipsMessageModeIdx];
+        RectF pageBounds =
+            RectF(textModeInfo.WindowPos.x, textModeInfo.WindowPos.y,
+                  textModeInfo.MaxLineWidth, TipsTextPageHeight);
+        MouseInTextBounds = pageBounds.ContainsPoint(Input::CurMousePos);
       }
 
       bool upScroll = PADinputButtonIsDown & PADcustom[32];
@@ -329,9 +331,9 @@ void TipsMenu::SwitchToTipId(int id) {
       {.ScriptBufferId = tipsScrBufId, .IpOffset = record->StringAdr[1]},
       (float)NameFontSize, RendererOutlineMode::None,
       {TipsMenuDarkTextColor, 0});
-  Pronounciation->SetText(
+  Pronunciation->SetText(
       {.ScriptBufferId = tipsScrBufId, .IpOffset = record->StringAdr[2]},
-      (float)PronounciationFontSize, RendererOutlineMode::None, 0);
+      (float)PronunciationFontSize, RendererOutlineMode::None, 0);
 
   {
     uint16_t sc3StringBuffer[5];
@@ -353,17 +355,20 @@ void TipsMenu::SwitchToTipId(int id) {
   TextPage.AddString(&dummy);
   TipViewItems.HasFocus = true;
 
-  auto& lastGlyph = TextPage.Glyphs.back();
+  const TextModeInfo& textModeInfo =
+      TextModesInfo[Profile::Dialogue::TipsMessageModeIdx];
+  const RectF pageBounds =
+      RectF(textModeInfo.WindowPos.x, textModeInfo.WindowPos.y,
+            textModeInfo.MaxLineWidth, TipsTextPageHeight);
+
   int scrollDistance =
-      (int)(lastGlyph.DestRect.Y + lastGlyph.DestRect.Height -
-            (TextPage.BoxBounds.Y + TextPage.BoxBounds.Height) +
-            lastGlyph.DestRect.Height);
+      static_cast<int>(TextPage.Bounds.Height - pageBounds.Height);
 
   TipPageY = 0;
   TipsScrollbar = std::make_unique<Widgets::Scrollbar>(
       0, TipsScrollStartPos, 0.0f, std::max(0.0f, (float)scrollDistance),
       &TipPageY, SBDIR_VERTICAL, TipsScrollThumbSprite, TipsScrollTrackBounds,
-      TipsScrollThumbLength, TextPage.BoxBounds, 5.0f);
+      TipsScrollThumbLength, pageBounds, 5.0f);
   TipsScrollbar->HasFocus = false;  // We want to manually control kb/pad input
 
   Audio::PlayInGroup(Audio::ACG_SE, "sysse", 2, false, 0);

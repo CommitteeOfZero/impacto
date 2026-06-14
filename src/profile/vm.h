@@ -27,6 +27,7 @@ inline int ScrWorkCaptureOffsetStructSize = 0;
 inline int ScrWorkCaptureEffectInfoStructSize = 0;
 inline int ScrWorkBgEffStructSize = 0;
 inline int ScrWorkBgEffOffsetStructSize = 0;
+inline int ScrWorkMesStructSize = 0;
 
 inline int MaxLinkedBgBuffers = 1;
 inline int SystemScriptBuffer = 1;

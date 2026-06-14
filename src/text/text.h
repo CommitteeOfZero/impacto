@@ -23,6 +23,7 @@ enum class CharacterTypeFlags : uint8_t {
   Space = (1 << 0),
   WordStartingPunct = (1 << 1),
   WordEndingPunct = (1 << 2),
+  Alphabet = (1 << 3),
 };
 
 // TODO: think about / profile memory access patterns
@@ -99,15 +100,6 @@ struct ProcessedTextGlyph {
   RectF DestRect;
 };
 
-struct RubyChunk {
-  size_t FirstBaseCharacter;
-  size_t Length;
-  size_t BaseLength;
-  std::array<ProcessedTextGlyph, 32> Text;
-  std::array<uint16_t, 32> RawText;
-  bool CenterPerCharacter;
-};
-
 int TextGetStringLength(Vm::Sc3Stream& stream);
 int TextGetStringLength(Vm::Sc3VmThread* ctx);
 [[maybe_unused]] int TextGetMainCharacterCount(Vm::Sc3VmThread* ctx);
@@ -133,7 +125,9 @@ int TextLayoutAlignment(Impacto::TextAlignment& alignment, float blockWidth,
                         float currentX, glm::vec2& pos, int characterCount,
                         std::span<Impacto::ProcessedTextGlyph> outGlyphs);
 float TextGetPlainLineWidth(Vm::Sc3VmThread* ctx, Font* font, float fontSize);
-float TextGetPlainLineWidth(Vm::Sc3Stream& stream, Font* font, float fontSize);
+float TextGetPlainLineWidth(
+    Vm::Sc3Stream& stream, Font* font, float fontSize,
+    size_t maxLength = std::numeric_limits<size_t>::max());
 int TextLayoutPlainString(std::string_view str,
                           std::span<ProcessedTextGlyph> outGlyphs, Font* font,
                           float fontSize, DialogueColorPair colors,
@@ -153,3 +147,12 @@ void FitGlyphsForPlainLine(std::span<ProcessedTextGlyph> glyphs,
                            float containerRight);
 
 }  // namespace Impacto
+
+namespace magic_enum::customize {
+template <>
+struct enum_range<Impacto::StringTokenType> {
+  constexpr static size_t prefix_length = std::string_view("STT_").size();
+  constexpr static int min = Impacto::STT_LineBreak;
+  constexpr static int max = Impacto::STT_EndOfString;
+};
+}  // namespace magic_enum::customize

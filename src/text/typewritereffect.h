@@ -2,7 +2,7 @@
 
 #include <set>
 
-#include "text.h"
+#include "textpage.h"
 #include "../animation.h"
 
 namespace Impacto {

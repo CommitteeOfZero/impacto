@@ -17,8 +17,8 @@ class BacklogMenu : public UI::BacklogMenu, public CCLCC::CommonMenu {
   void Update(float dt) override;
 
   Widgets::BacklogEntry* CreateBacklogEntry(
-      int id, Vm::BufferOffsetContext scrCtx, int audioId, int characterId,
-      glm::vec2 pos, const RectF& hoverBounds) const override {
+      int id, Vm::BufferOffsetContext scrCtx, std::optional<int> audioId,
+      int characterId, glm::vec2 pos, const RectF& hoverBounds) const override {
     return new Widgets::CC::BacklogEntry(id, scrCtx, audioId, characterId, pos,
                                          hoverBounds);
   }

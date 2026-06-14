@@ -13,11 +13,11 @@ root.BacklogMenu = {
 
     EntryHighlightSprite = "EntryHighlight",
     EntryHighlightLocation = EntryHighlightLocationType.TopLineLeftOfScreen,
-    EntryHighlightOffset = { X = 0, Y = -3 },
+    EntryHighlightOffset = { X = 0, Y = -6 },
     EntryHighlightPadding = 4.0,
 
     VoiceIconSprite = "VoiceIcon",
-    VoiceIconOffset = { X = -16, Y = 0 },
+    VoiceIconOffset = { X = -16, Y = -7 },
 
     ScrollbarTrackSprite = "ScrollbarTrack",
     ScrollbarThumbSprite = "ScrollbarThumb",

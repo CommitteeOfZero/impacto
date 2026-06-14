@@ -11,9 +11,8 @@ function AddCharsetFlag(characterString, flag)
         for targetBytePos, targetCodePoint in utf8.codes(root.CharsetInternal.CharsetStr) do
             if sourceCodePoint == targetCodePoint then
                 root.Charset.Flags[charsetIndex] = root.Charset.Flags[charsetIndex] | flag;
-                break;
             end
-            
+
             charsetIndex = charsetIndex + 1;
         end
     end
@@ -40,4 +39,9 @@ if root.CharsetInternal ~= nil and root.CharsetInternal.CharsetStr ~= nil then
     if root.CharsetInternal.WordStartingPunct ~= nil then
         AddCharsetFlag(root.CharsetInternal.WordStartingPuncts, CharacterTypeFlags.WordStartingPunct);
     end
+
+    if root.CharsetInternal.AlphabetChars == nil then
+        root.CharsetInternal.AlphabetChars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz０１２３４５６７８９ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ/／.．";
+    end
+    AddCharsetFlag(root.CharsetInternal.AlphabetChars, CharacterTypeFlags.Alphabet);
 end

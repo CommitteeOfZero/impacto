@@ -9,18 +9,13 @@ root.Sprites["ADVBoxMask"] = {
 };
 
 root.Dialogue = {
-    TipsBounds = { X = 1042, Y = 394, Width = 720, Height = 542 },
+    TipsMessageModeIdx = 7,
     TipsColorIndex = 10,
-    REVBounds = { X = 547, Y = 0, Width = 1043, Height = 400 },
-    REVNameFontSize = 42,
+    REVMessageModeIdx = 9,
     REVColor = 10, -- Absolute guess
     REVNameColor = 0,
-    REVNameOffset = 18,
-    REVNameLocation = REVNameLocationType.LeftTop,
     REVOutlineMode = 0,
     REVNameOutlineMode = 2,
-    NVLBounds = { X = 188, Y = 128, Width = 1536, Height = 600 },
-    ADVBounds = { X = 330, Y = 800, Width = 1250, Height = 270 },
     ADVBoxSprite = "ADVBox",
     ADVBoxMask = "ADVBoxMask",
     ADVBoxEffectDuration = 10,
@@ -31,10 +26,6 @@ root.Dialogue = {
     TextFadeOutDuration = 0.33,
     DialogueBoxCurrentType = DialogueBoxType.CC,
     NVLBoxMaxOpacity = 0.55,
-
-    ADVNameAlignment = TextAlignment.Left,
-    ADVNameFontSize = 33,
-    ADVNamePos = { X = 173, Y = 773 },
 
     NametagCurrentType = NametagType.CC,
 
@@ -62,8 +53,6 @@ root.Dialogue = {
     DialogueFont = "Default",
     SetFontSizeRatio = 800.0,
     DefaultFontSize = 42,
-    RubyFontSize = 21,
-    RubyYOffset = -21,
     ColorTable = {
         {0xFFFFFF, 0x000000}, {0x5080FF, 0x000000},
         {0xFF7080, 0x000000}, {0xFFA0F8, 0x000000},
@@ -104,6 +93,31 @@ root.Dialogue = {
     MaxPageSize = 2000,
     PageCount = 3,
     ColorTagIsUint8 = false,
+
+    TextModesInfo = root.Language == "English" and {
+        ["0"] = { -- ADV box
+            WindowPos = { X = 220 * 1.5, Y = (518 + 11 + 5 + 1) * 1.5 }, -- Correct for missing ruby space
+            TextGlyphSize = { X = 38, Y = 38 },
+            LineSpacing = (1 + 5 + 1) * 1.5 - 3, -- (RubySpacing + RubyHeight + LineSpacing) * 1.5 - 3
+            AlwaysAddRubySpacing = false,
+        },
+        ["1"] = { -- NVL box
+            TextGlyphSize = { X = 38, Y = 38 },
+            LineSpacing = (1 + 5 + 1) * 1.5 - 3,
+            AlwaysAddRubySpacing = false,
+        },
+        ["7"] = { -- Tips box
+            TextGlyphSize = { X = 38, Y = 38 },
+            LineSpacing = (1 + 5 + 1) * 1.5 - 3,
+            AlwaysAddRubySpacing = false,
+        },
+        ["9"] = { -- Backlog entry
+            NameGlyphSize = { X = 38, Y = 38 },
+            TextGlyphSize = { X = 38, Y = 38 },
+            LineSpacing = (1 + 5 + 1) * 1.5 - 3,
+            AlwaysAddRubySpacing = false,
+        }
+    } or {},
 };
 
 MakeAnimation({
