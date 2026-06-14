@@ -1,4 +1,5 @@
 root.AchievementNotification = {
+    Enabled = true,
     BackgroundPath = "games/common/achievementnotification.png",
     FontPath = "games/common/NotoSansCJKjp-Regular.otf",
     DisplayDuration = 5.0,

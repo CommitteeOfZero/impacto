@@ -37,6 +37,7 @@ static uint32_t TextColor;
 static uint32_t OutlineColor;
 static float DisplayTimer = 0.0f;
 static int CurrentAchievementId = -1;
+static bool IsEnabled = true;
 static bool IsConfigured = false;
 static bool IsShowing = false;
 static bool TextConfigured = false;
@@ -55,6 +56,7 @@ static float GetEffectiveScale() {
 static void LoadConfig() {
   Profile::EnsurePushMemberOfType("AchievementNotification", LUA_TTABLE);
 
+  IsEnabled = Profile::TryGetMember<bool>("Enabled").value_or(true);
   BackgroundPath = Profile::EnsureGetMember<std::string>("BackgroundPath");
   FontPath = Profile::EnsureGetMember<std::string>("FontPath");
   DisplayDuration = Profile::EnsureGetMember<float>("DisplayDuration");
@@ -174,6 +176,7 @@ static void StartNextNotification() {
 }
 
 void Init() {
+  IsEnabled = true;
   IsConfigured = false;
   DisplayTimer = 0.0f;
   CurrentAchievementId = -1;
@@ -184,6 +187,7 @@ void Init() {
   NotificationFont.Reset();
 
   LoadConfig();
+  if (!IsEnabled) return;
 
   FadeAnimation.DurationIn = FadeDuration;
   FadeAnimation.DurationOut = FadeDuration;
@@ -203,7 +207,7 @@ void Init() {
 }
 
 void Update(float dt) {
-  if (!IsConfigured) return;
+  if (!IsEnabled || !IsConfigured) return;
 
   FadeAnimation.Update(dt);
 
@@ -221,7 +225,7 @@ void Update(float dt) {
 }
 
 void Render() {
-  if (!IsConfigured || FadeAnimation.IsOut()) return;
+  if (!IsEnabled || !IsConfigured || FadeAnimation.IsOut()) return;
 
   glm::vec4 tint(1.0f);
   tint.a = glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
@@ -260,7 +264,7 @@ void Render() {
 }
 
 void Show(int achievementId) {
-  if (!IsConfigured) return;
+  if (!IsEnabled || !IsConfigured) return;
 
   NotificationQueue.push(achievementId);
   if (!IsShowing && FadeAnimation.IsOut()) {
