@@ -122,9 +122,18 @@ static void BuildTextLine(std::string const& text, float fontSize, float left,
                                     textTint, TextGlyphs);
 }
 
-static void BuildTextGlyphs(AchievementSystem::Achievement const& achievement) {
+static void BuildTextGlyphs(AchievementSystem::Achievement const* achievement,
+                            int achievementId) {
   FreeTextGlyphs();
   if (!TextConfigured || !NotificationFont.IsLoaded()) return;
+
+  std::string title = achievement != nullptr ? achievement->Name() : "";
+  std::string description =
+      achievement != nullptr ? achievement->Description() : "";
+  if (title.empty() && description.empty()) {
+    title = "Achievement " + std::to_string(achievementId);
+    description = "Achievement System not implemented.";
+  }
 
   const float scale = GetEffectiveScale();
   const float backgroundWidth = BackgroundSprite.ScaledWidth() * scale;
@@ -143,10 +152,10 @@ static void BuildTextGlyphs(AchievementSystem::Achievement const& achievement) {
       centerY + (titleFontSize + textLineGap) / 2.0f;
   const float availableWidth = textRight - textLeft;
 
-  BuildTextLine(achievement.Name(), titleFontSize, textLeft, titleBaseline,
+  BuildTextLine(title, titleFontSize, textLeft, titleBaseline, availableWidth,
+                TextColor);
+  BuildTextLine(description, descriptionFontSize, textLeft, descriptionBaseline,
                 availableWidth, TextColor);
-  BuildTextLine(achievement.Description(), descriptionFontSize, textLeft,
-                descriptionBaseline, availableWidth, TextColor);
 }
 
 static void StartNextNotification() {
@@ -157,11 +166,7 @@ static void StartNextNotification() {
 
   const AchievementSystem::Achievement* achievement =
       AchievementSystem::GetAchievement(CurrentAchievementId);
-  if (achievement != nullptr) {
-    BuildTextGlyphs(*achievement);
-  } else {
-    FreeTextGlyphs();
-  }
+  BuildTextGlyphs(achievement, CurrentAchievementId);
 
   DisplayTimer = DisplayDuration;
   IsShowing = true;
@@ -233,10 +238,9 @@ void Render() {
 
   const AchievementSystem::Achievement* achievement =
       AchievementSystem::GetAchievement(CurrentAchievementId);
-  if (achievement == nullptr) return;
-
-  const Sprite& icon = achievement->Icon();
-  if (icon.ScaledWidth() > 0.0f && icon.ScaledHeight() > 0.0f) {
+  if (achievement != nullptr && achievement->Icon().ScaledWidth() > 0.0f &&
+      achievement->Icon().ScaledHeight() > 0.0f) {
+    const Sprite& icon = achievement->Icon();
     const RectF iconDest(pos.x + IconOffset.x * scale,
                          pos.y + IconOffset.y * scale, IconSize * scale,
                          IconSize * scale);
