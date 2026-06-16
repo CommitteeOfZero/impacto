@@ -53,24 +53,221 @@ VmInstruction(InstSetMesWinPri) {
              "{:d}, unused: {:d})\n",
              arg1, arg2, unused);
 }
+
+enum class SyncType {
+  Wait = 1,
+  End = 2,
+};
+
+bool SCRcomMesSyncMain(int pageId, SyncType type, bool useAuto) {
+  DialoguePage& currentPage = DialoguePages[pageId];
+  DialoguePage::State pageState = currentPage.GetState();
+  using enum DialoguePage::State;
+  using enum DialoguePage::AdvanceMethodType;
+
+  if (type == SyncType::Wait) {
+    if (pageState == Initial || pageState == Showing) {
+      if (GetFlag(SF_MESALLSKIP)) {
+        currentPage.Typewriter.Finish();
+      } else if (GetFlag(SF_MESSKIP)) {
+        currentPage.Typewriter.CancelRequested = true;
+      }
+    }
+    if (pageState == Initial || pageState == Showing || pageState == Hiding)
+      return true;
+
+    if (pageState == Shown) {
+      const bool autoForward =
+          currentPage.AdvanceMethod == AutoForward ||
+          currentPage.AdvanceMethod == AutoForwardSyncVoice;
+      if (useAuto && autoForward) {
+        SyncAutoModeEnabled = true;
+        SyncAutoTime = currentPage.AutoWaitTime;
+      }
+    }
+    return false;
+  } else if (type == SyncType::End) {
+    switch (pageState) {
+      case Hiding:
+        return true;
+      case Shown: {
+        if (currentPage.AdvanceMethod == Skip) {
+          SetFlag(1291 + currentPage.Id, 0);
+          currentPage.Typewriter.Reset();
+          return false;
+        }
+
+        if (!SyncAutoModeEnabled) {
+          SetFlag(SF_SYSMENUDISABLE, false);
+          SetFlag(currentPage.Id + SF_SHOWWAITICON, true);
+        }
+
+        if (!GetFlag(SF_UIHIDDEN) && GetFlag(SF_MESSKIP)) {
+          currentPage.AutoWaitTime = 0.0f;
+
+          if (Profile::ConfigSystem::SkipVoice) {
+            Audio::Channels[Audio::AC_VOICE0]->Stop(0.0f);
+          }
+        }
+
+        const Audio::AudioChannelState audioState =
+            Audio::Channels[Audio::AC_VOICE0]->GetState();
+        const bool audioPlaying = audioState == Audio::ACS_Playing ||
+                                  audioState == Audio::ACS_FadingIn ||
+                                  audioState == Audio::ACS_FadingOut;
+        if (currentPage.AutoWaitTime == 0.0f &&
+            (!audioPlaying || GetFlag(SF_MESSKIP))) {
+          if (Profile::ConfigSystem::SkipVoice) {
+            Audio::Channels[Audio::AC_VOICE0]->Stop(0.0f);
+          }
+
+          SetFlag(currentPage.Id + SF_CHAANIME, false);
+          SetFlag(currentPage.Id + SF_SHOWWAITICON, false);
+          SetFlag(SF_SYSMENUDISABLE, true);
+
+          const bool revDontClear = currentPage.AdvanceMethod != PresentClear &&
+                                    currentPage.GetMode() == DPM_REV;
+          const bool advanceWithoutHiding =
+              currentPage.AdvanceMethod == Present0x18 ||
+              currentPage.AdvanceMethod == AutoForward || revDontClear;
+          if (advanceWithoutHiding) {
+            if (!revDontClear) {
+              SetFlag(SF_MESCLEAR0 + currentPage.Id, true);
+              currentPage.PushBacklogEntry();
+            }
+
+            SaveSystem::SetLineRead(ScrWork[currentPage.Id * 2 + SW_SCRIPTID],
+                                    ScrWork[currentPage.Id * 2 + SW_LINEID]);
+
+            currentPage.Typewriter.Reset();
+
+            return false;
+          }
+
+          if (GetFlag(SF_MESALLSKIP)) {
+            currentPage.TextFadeAnimation.Finish(AnimationDirection::Out);
+          } else {
+            currentPage.TextFadeAnimation.StartOut();
+          }
+        }
+        return true;
+      }
+      case Hidden:
+        currentPage.PushBacklogEntry();
+        SetFlag(SF_MESCLEAR0 + currentPage.Id, true);
+        SaveSystem::SetLineRead(ScrWork[currentPage.Id * 2 + SW_SCRIPTID],
+                                ScrWork[currentPage.Id * 2 + SW_LINEID]);
+        return false;
+      default:
+        break;
+    }
+    throw std::invalid_argument(
+        fmt::format("Invalid page state: {}", pageState));
+  }
+  throw std::invalid_argument("Invalid sync type");
+};
+
 VmInstruction(InstMesSync) {
+  using enum DialoguePage::SyncStatusType;
   StartInstruction;
 
   PopUint8(type);
+
+  const auto threadPageHandler = [&](std::invocable<size_t> auto&& callback) {
+    if (type > 10) {
+      callback(thread->DialoguePageId);
+    } else if (type == 10) {
+      PopExpression(pageId);
+      thread->DialoguePageId = pageId;
+      callback(pageId);
+    } else {
+      for (uint32_t pageId = 0; pageId < 3; pageId++) {
+        callback(pageId);
+      }
+    }
+  };
+
   switch (type) {
     case 0:
-    case 1:
-    case 2:
-    case 3:
-    case 4:
-    case 11:
-    case 12:
-    case 13:
-    case 14:
-    case 20:
-      break;
     case 10: {
-      PopExpression(unknown);
+      SyncAutoModeEnabled = false;
+      threadPageHandler([&](uint32_t pageId) {
+        DialoguePages[pageId].SyncStatus = Stopped;
+        if (DialoguePages[pageId].SyncEnabled) {
+          DialoguePages[pageId].SyncEnabled = false;
+          ++DialoguePages[pageId].SyncStatus;
+          bool windowOpen = GetFlag(pageId + SF_MESWINDOW0OPENFL);
+          if (!windowOpen) {
+            SetFlag(pageId + SF_MESWINDOW0OPENFL, 1);
+            BlockThread;
+          }
+          if (!DialoguePages[pageId].FadeAnimation.IsIn())
+            DialoguePages[pageId].Show();
+        }
+      });
+    } break;
+    case 1:
+    case 11: {
+      bool fade = false;
+      threadPageHandler([&](uint32_t pageId) {
+        if ((DialoguePages[pageId].SyncStatus != Stopped) &&
+            !DialoguePages[pageId].FadeAnimation.IsIn()) {
+          fade = true;
+        }
+      });
+      if (fade) {
+        ResetInstruction;
+        BlockThread;
+      }
+    } break;
+    case 2:
+    case 12: {
+      threadPageHandler([&](uint32_t pageId) {
+        if (DialoguePages[pageId].SyncStatus == Waiting) {
+          ++DialoguePages[pageId].SyncStatus;
+          DialoguePages[pageId].PlayLine();
+          SetFlag(SF_CHAANIME + thread->DialoguePageId, true);
+          BlockThread;
+        }
+      });
+    } break;
+    case 3:   // Wait
+    case 4:   // End
+    case 13:  // Wait2
+    case 14:  // End2
+    {
+      bool fade = false;
+      threadPageHandler([&](uint32_t pageId) {
+        SyncType syncType =
+            (type == 3) || (type == 13) ? SyncType::Wait : SyncType::End;
+        if ((syncType == SyncType::Wait &&
+             DialoguePages[pageId].SyncStatus == Playing) ||
+            (syncType == SyncType::End &&
+             DialoguePages[pageId].SyncStatus == Hiding)) {
+          fade = true;
+          bool waiting = SCRcomMesSyncMain(pageId, syncType, type < 10);
+          if (!waiting) {
+            ++DialoguePages[pageId].SyncStatus;
+          }
+        }
+      });
+      if (fade) {
+        ResetInstruction;
+        BlockThread;
+      }
+    } break;
+    case 20: {
+      bool fading = false;
+      for (uint32_t pageId = 0; pageId < 3; pageId = pageId + 1) {
+        if (DialoguePages[pageId].SyncStatus != Stopped &&
+            DialoguePages[pageId].GetState() != DialoguePage::State::Hiding) {
+          fading = true;
+        }
+      }
+      if (fading) {
+        ResetInstruction;
+        BlockThread;
+      }
     } break;
   }
 
@@ -177,6 +374,7 @@ VmInstruction(InstMes) {
   PopUint8(type);
   bool voiced = type & 1;
   bool acted = type & (1 << 1);
+  bool sync = type & (1 << 3);
   bool MSB = type & (1 << 7);
 
   std::optional<int> audioId;
@@ -187,8 +385,9 @@ VmInstruction(InstMes) {
 
   if (characterId == 32) characterId = 0;
   PopUint16(lineId);
-  uint32_t line = MSB ? MsbGetStrAddress(thread->ScriptBufferId, lineId)
-                      : ScriptGetStrAddress(thread->ScriptBufferId, lineId);
+  const uint32_t line =
+      MSB ? MsbGetStrAddress(thread->ScriptBufferId, lineId)
+          : ScriptGetStrAddress(thread->ScriptBufferId, lineId);
 
   if (!(ScrWork[Profile::Vm::ScrWorkMesStructSize * thread->DialoguePageId +
                 SW_MESWIN0TYPE] &
@@ -228,11 +427,13 @@ VmInstruction(InstMes) {
 
   thread->IpOffset = oldIp;
 
-  if (!(type & 0b1000)) {
+  if (sync) {
+    dialoguePage.SyncEnabled = true;
+  } else {
+    SetFlag(SF_SYSTEMMENUDISABLE2, false);
     SetFlag(SF_CHAANIME + thread->DialoguePageId, true);
+    dialoguePage.PlayLine();
   }
-
-  SetFlag(SF_SYSTEMMENUDISABLE2, false);
 }
 VmInstruction(InstMesMain) {
   using enum DialoguePage::AdvanceMethodType;

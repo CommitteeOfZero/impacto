@@ -86,15 +86,6 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, std::optional<int> voiceId,
   CurrentStringAddress = {ctx->ScriptBufferId, ctx->IpOffset};
   AudioId = voiceId;
 
-  Audio::AudioStream* audioStream = nullptr;
-  if (voiceId.has_value()) {
-    Io::Stream* stream;
-    IoError err = Io::VfsOpen("voice", *voiceId, &stream);
-
-    const bool playAudio = (err == IoError_OK && !GetFlag(SF_MESALLSKIP));
-    if (playAudio) audioStream = Audio::AudioStream::Create(stream);
-  }
-
   CharacterId = charId;
   ScrWork[Id + SW_ANIME0CHANO] = charId;
 
@@ -111,9 +102,19 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, std::optional<int> voiceId,
   Typewriter.SetFirstGlyph(typeWriterStart);
   Typewriter.SetGlyphCount(Glyphs.size() - typeWriterStart);
   Typewriter.SetParallelStartGlyphs(DialogueTextParserInst.ParallelStartGlyphs);
-  Typewriter.Start(AudioId.has_value());
+  UpdateGlyphsFade();
+}
 
+void DialoguePage::PlayLine() {
+  Typewriter.Start(AudioId.has_value());
   if (AudioId.has_value()) {
+    Io::Stream* stream;
+    IoError err = Io::VfsOpen("voice", *AudioId, &stream);
+
+    Audio::AudioStream* audioStream = nullptr;
+    const bool playAudio = (err == IoError_OK && !GetFlag(SF_MESALLSKIP));
+    if (playAudio) audioStream = Audio::AudioStream::Create(stream);
+
     CurrentVoiceCharacterId = AnimationId;
     if (audioStream) {
       Audio::Channels[Audio::AC_VOICE0]->Play(
@@ -136,28 +137,21 @@ void DialoguePage::Update(float dt) {
   Typewriter.Update(dt);
 
   if (Typewriter.IsPlaying() || Typewriter.IsFinished(AnimationDirection::In)) {
-    for (size_t i = 0; i < Glyphs.size(); i++) {
-      Glyphs[i].Opacity = Typewriter.CalcOpacity(i);
-    }
-
-    for (RubyChunk& chunk : RubyChunks) {
-      for (size_t rubyGlyphId = 0; rubyGlyphId < chunk.Text.size();
-           rubyGlyphId++) {
-        chunk.Text[rubyGlyphId].Opacity =
-            Typewriter.CalcRubyOpacity(rubyGlyphId, chunk);
+    UpdateGlyphsFade();
+    if (!SyncAutoModeEnabled || SyncAutoTime <= 0.0f) {
+      if (AdvanceMethod == AdvanceMethodType::AutoForwardSyncVoice) {
+        const float speed = AutoWaitTime > Typewriter.GetGlyphCount()
+                                ? Profile::ConfigSystem::TextSpeed
+                                : Profile::ConfigSystem::AutoSpeed;
+        AutoWaitTime = std::max(0.0f, AutoWaitTime - speed * dt);
+      } else if (TextIsFullyOpaque() &&
+                 (AdvanceMethod == AdvanceMethodType::AutoForward ||
+                  AutoModeEnabled)) {
+        AutoWaitTime = std::max(
+            0.0f, AutoWaitTime - Profile::ConfigSystem::AutoSpeed * dt);
       }
-    }
-
-    if (AdvanceMethod == AdvanceMethodType::AutoForwardSyncVoice) {
-      const float speed = AutoWaitTime > Typewriter.GetGlyphCount()
-                              ? Profile::ConfigSystem::TextSpeed
-                              : Profile::ConfigSystem::AutoSpeed;
-      AutoWaitTime = std::max(0.0f, AutoWaitTime - speed * dt);
-    } else if (TextIsFullyOpaque() &&
-               (AdvanceMethod == AdvanceMethodType::AutoForward ||
-                AutoModeEnabled)) {
-      AutoWaitTime =
-          std::max(0.0f, AutoWaitTime - Profile::ConfigSystem::AutoSpeed * dt);
+    } else {
+      SyncAutoTime = std::max(0.0f, SyncAutoTime - dt);
     }
   }
 
@@ -177,6 +171,20 @@ void DialoguePage::Update(float dt) {
   WaitIconDisplay::Update(dt);
   AutoIconDisplay::Update(dt);
   SkipIconDisplay::Update(dt);
+}
+
+void DialoguePage::UpdateGlyphsFade() {
+  for (size_t i = 0; i < Glyphs.size(); i++) {
+    Glyphs[i].Opacity = Typewriter.CalcOpacity(i);
+  }
+
+  for (RubyChunk& chunk : RubyChunks) {
+    for (size_t rubyGlyphId = 0; rubyGlyphId < chunk.Text.size();
+         rubyGlyphId++) {
+      chunk.Text[rubyGlyphId].Opacity =
+          Typewriter.CalcRubyOpacity(rubyGlyphId, chunk);
+    }
+  }
 }
 
 void DialoguePage::Move(const glm::vec2 relativeOffset) {

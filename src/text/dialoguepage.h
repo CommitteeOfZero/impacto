@@ -28,6 +28,15 @@ struct DialoguePage : public TextPage {
   int AnimationId = 0;
   int CharacterId = 0;
   std::optional<int> AudioId;
+  bool SyncEnabled = false;
+
+  enum class SyncStatusType : uint8_t { Stopped = 0, Waiting, Playing, Hiding };
+  friend SyncStatusType& operator++(SyncStatusType& s) {
+    s = static_cast<SyncStatusType>((+s + 1) %
+                                    magic_enum::enum_count<SyncStatusType>());
+    return s;
+  }
+  SyncStatusType SyncStatus = SyncStatusType::Stopped;
 
   TypewriterEffect Typewriter;
   Animation FadeAnimation;
@@ -68,6 +77,7 @@ struct DialoguePage : public TextPage {
                  std::optional<int> voiceId = std::nullopt, bool acted = true,
                  int animId = 0, int charId = 0);
   void Update(float dt);
+  void UpdateGlyphsFade();
 
   void Move(glm::vec2 relativePos) override;
 
@@ -77,6 +87,7 @@ struct DialoguePage : public TextPage {
   void Show();
 
   void PushBacklogEntry();
+  void PlayLine();
 
  protected:
   RectF SetBounds() override;
@@ -90,5 +101,8 @@ struct DialoguePage : public TextPage {
 inline std::vector<DialoguePage> DialoguePages;
 inline bool SkipModeEnabled = false;
 inline bool AutoModeEnabled = false;
+
+inline bool SyncAutoModeEnabled = false;
+inline float SyncAutoTime = 0.0f;
 
 }  // namespace Impacto

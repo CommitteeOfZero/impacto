@@ -11,6 +11,8 @@ struct TypewriterEffect : public Animation {
  public:
   void Start(bool voiced);
   void Update(float dt);
+  void ResetImpl(
+      std::optional<AnimationDirection> direction = std::nullopt) override;
 
   float CalcOpacity(size_t glyph);
   float CalcRubyOpacity(size_t rubyGlyphId, const RubyChunk& chunk);
