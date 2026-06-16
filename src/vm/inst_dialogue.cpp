@@ -121,6 +121,19 @@ VmInstruction(InstMesSetID) {
 
   thread->DialoguePageId = dialoguePageId;
 }
+
+VmInstruction(InstMesSetIDOld) {
+  StartInstruction;
+
+  int dialoguePageId = 0;
+
+  PopUint8(type);
+  if (type != 0) {
+    dialoguePageId = ExpressionEval(thread);
+  }
+  thread->DialoguePageId = dialoguePageId;
+}
+
 VmInstruction(InstMesCls) {
   StartInstruction;
   PopUint8(type);  // TODO: Implement types 0, 1, 2, 3, 4, 5, 6, 7, 8
