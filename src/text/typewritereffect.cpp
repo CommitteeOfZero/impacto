@@ -128,7 +128,10 @@ void TypewriterEffect::UpdateOpacity(const std::span<ProcessedTextGlyph> glyphs,
       continue;
     }
 
-    if (showInstant || Progress >= GetGlyphStartProgress(glyphIdx)) {
+    if (showInstant ||
+        (State != AnimationState::Stopped &&
+         Progress >= GetGlyphStartProgress(glyphIdx)) ||
+        IsIn()) {
       opacity = std::min(opacity + deltaOpacity, 1.0f);
       continue;
     }
@@ -155,7 +158,9 @@ void TypewriterEffect::UpdateOpacity(const std::span<ProcessedTextGlyph> glyphs,
               : glyphIdx / static_cast<float>(chunk.Text.size() - 1);
       const float startProgress =
           glm::mix(baseStartProgress, baseEndProgress, ratioInChunk);
-      if (showInstant || Progress >= startProgress) {
+      if (showInstant ||
+          (State == AnimationState::Playing && Progress >= startProgress) ||
+          IsIn()) {
         opacity = std::min(opacity + deltaOpacity, 1.0f);
         continue;
       }
@@ -196,6 +201,11 @@ float TypewriterEffect::GetGlyphStartProgress(const size_t glyphIdx) const {
   return block.Size == 1
              ? 0.0f
              : parallelBlockGlyphNo / static_cast<float>(block.Size - 1);
+}
+
+void TypewriterEffect::ResetImpl(std::optional<AnimationDirection> direction) {
+  IsCancelled = false;
+  CancelRequested = false;
 }
 
 }  // namespace Impacto
