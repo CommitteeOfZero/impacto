@@ -353,8 +353,8 @@ void DelusionTrigger::UpdateShown(float dt) {
     }
     if (ScrWork[SW_DELUSION_STATE] == DS_Positive) {
       TriggerOnTint = RgbIntToFloat(0xffb0ce);
-      if (SpinRate < 40) {
-        SpinRate = SpinRate + 2;
+      if (SpinRate > -40) {
+        SpinRate = SpinRate - 2;
         anim = true;
       }
       if (UnderlayerXRate < 2400) {
@@ -370,8 +370,8 @@ void DelusionTrigger::UpdateShown(float dt) {
       TriggerOnTint = ScrWork[SW_DELUSION_NEG_TXT_IDX]
                           ? RgbIntToFloat(0xffb0ce)
                           : RgbIntToFloat(0x2242e3);
-      if (SpinRate > -40) {
-        SpinRate = SpinRate - 2;
+      if (SpinRate < 40) {
+        SpinRate = SpinRate + 2;
         anim = true;
       }
       if (UnderlayerXRate > -2400) {
