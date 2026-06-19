@@ -30,6 +30,7 @@ set(Impacto_Src
     src/mem.cpp
     src/modelviewer.cpp
     src/characterviewer.cpp
+    src/spritesheet.cpp
     src/spriteanimation.cpp
     src/sequencedanimation.cpp
     src/background2d.cpp

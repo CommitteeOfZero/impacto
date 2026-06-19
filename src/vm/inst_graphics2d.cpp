@@ -40,6 +40,8 @@ VmInstruction(InstReleaseSurf) {
     if (Backgrounds2D[surfaceId]->Status == LoadStatus::Loaded) {
       Backgrounds2D[surfaceId]->Unload();
     }
+  } else {
+    Renderer->UnloadSurf(surfaceId);
   }
 }
 VmInstruction(InstLoadPic) {
@@ -51,21 +53,33 @@ VmInstruction(InstLoadPic) {
       LogLevel::Warning, LogChannel::VMStub,
       "STUB instruction LoadPic(surfaceId: {:d}, width: {:d}, height: {:d})\n",
       surfaceId, archiveId, fileId);
-  if (surfaceId < 8) {
-    switch (archiveId) {
-      case 0: {  // bg archive
-        if (Backgrounds2D[surfaceId]->Status == LoadStatus::Loading) {
-          ResetInstruction;
-          BlockThread;
-        } else if (ScrWork[SW_BG1NO + ScrWorkBgStructSize * surfaceId] !=
-                   fileId) {
-          ScrWork[SW_BG1NO + ScrWorkBgStructSize * surfaceId] = fileId;
-          Backgrounds2D[surfaceId]->LoadAsync(fileId);
-          ResetInstruction;
-          BlockThread;
-        }
-      } break;
-    }
+  switch (archiveId) {
+    case 0: {  // bg archive
+      if (Backgrounds2D[surfaceId]->Status == LoadStatus::Loading) {
+        ResetInstruction;
+        BlockThread;
+      } else if (ScrWork[SW_BG1NO + ScrWorkBgStructSize * surfaceId] !=
+                 fileId) {
+        ScrWork[SW_BG1NO + ScrWorkBgStructSize * surfaceId] = fileId;
+        Backgrounds2D[surfaceId]->LoadAsync(fileId);
+        ResetInstruction;
+        BlockThread;
+      }
+    } break;
+    case 2: {  // system
+      if (!SpriteLoader::Sprites.contains(surfaceId)) {
+        SpriteLoader::Sprites.emplace(surfaceId, new SpriteLoader());
+        SpriteLoader::Sprites[surfaceId]->LoadAsync(surfaceId, archiveId,
+                                                    fileId);
+        ResetInstruction;
+        BlockThread;
+      } else if (SpriteLoader::Sprites[surfaceId]->Status ==
+                 LoadStatus::Loading) {
+        ResetInstruction;
+        BlockThread;
+      }
+
+    } break;
   }
 }
 VmInstruction(InstSurfFill) {

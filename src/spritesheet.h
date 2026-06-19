@@ -1,8 +1,25 @@
 ﻿#pragma once
 
 #include "util.h"
+#include "loadable.h"
+#include "io/assetpath.h"
+#include "texture/texture.h"
+
+#include <memory>
+#include <ankerl/unordered_dense.h>
 
 namespace Impacto {
+
+struct SpriteLoader : Loadable<SpriteLoader, bool, int, int, int> {
+  inline static ankerl::unordered_dense::map<int, SpriteLoader*> Sprites;
+
+  Texture LoadedTexture{};
+  uint32_t InnerTextureId;
+
+  bool LoadSync(int surfId, int archiveId, int fileId);
+  void UnloadSync() {}
+  void MainThreadOnLoad(bool result);
+};
 
 struct SpriteSheet {
   SpriteSheet() {}
@@ -13,8 +30,9 @@ struct SpriteSheet {
   float DesignHeight = 0;
 
   glm::vec2 GetDimensions() const { return {DesignWidth, DesignHeight}; }
-
+  Io::AssetPath Path{};
   uint32_t Texture = 0;
+  bool ScriptHandled = false;
   bool IsScreenCap = false;
 };
 

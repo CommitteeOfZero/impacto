@@ -29,6 +29,9 @@ class Renderer : public BaseRenderer {
   void BeginFrame2D() override;
   void EndFrame() override;
 
+  uint32_t MapSpriteSheet(SpriteSheet const& sheet) override;
+  bool LoadSurf(int surfId, int archiveId, int fileId) override;
+  void UnloadSurf(int surfId) override;
   uint32_t SubmitTexture(TexFmt format, uint8_t* buffer, int width,
                          int height) override;
   int GetSpriteSheetImage(SpriteSheet const& sheet,
@@ -179,6 +182,8 @@ class Renderer : public BaseRenderer {
     InsertVerticesQuad(pos, uv, std::array{tint, tint, tint, tint}, maskUV);
   }
   void EnsureTopologyMode(TopologyMode newMode);
+  uint32_t UnwrapTextureId(Sprite const& sprite);
+  uint32_t UnwrapTextureId(SpriteSheet const& sheet);
 
   GLWindow* OpenGLWindow;
 

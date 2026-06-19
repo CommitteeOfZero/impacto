@@ -9,6 +9,7 @@
 #include "3d/scene.h"
 #include "yuvframe.h"
 #include "nv12frame.h"
+#include <ankerl/unordered_dense.h>
 
 #ifndef IMPACTO_DISABLE_IMGUI
 #include <imgui_custom/backends/imgui_impl_opengl3.h>
@@ -176,6 +177,67 @@ void Renderer::EndFrame() {
   Drawing = false;
 
   glBindSampler(0, 0);
+}
+
+uint32_t Renderer::MapSpriteSheet(SpriteSheet const& sheet) {
+  if (!sheet.ScriptHandled) {
+    assert(false);
+    return 0;
+  }
+  auto currentId = static_cast<uint32_t>(SheetPathToId.size());
+  SheetPathToId.emplace(sheet.Path, currentId);
+
+  return currentId;
+}
+
+bool Renderer::LoadSurf(int surfId, int archiveId, int fileId) {
+  auto path = Io::AssetPathKey{.MountId = static_cast<uint32_t>(archiveId),
+                               .Id = static_cast<uint32_t>(fileId)};
+  auto lookupTextureIdIter = SheetPathToId.find(path);
+  if (lookupTextureIdIter == SheetPathToId.end()) {
+    return false;
+  }
+  SurfToId.try_emplace(surfId, path);
+
+  auto lookupTextureId = lookupTextureIdIter->second;
+
+  Io::AssetPath pathRes = Io::AssetPathKey::KeyToAssetPath(path);
+  Io::Stream* stream;
+  IoError err = pathRes.Open(&stream);
+  if (err != IoError_OK) {
+    ImpLog(LogLevel::Fatal, LogChannel::Profile,
+           "Could not open spritesheet\n");
+    Window->Shutdown();
+  }
+
+  Texture tex{};
+  tex.Load(stream);
+  uint32_t textureId = tex.Submit();
+  delete stream;
+
+  LookupTextureIdToTexture.try_emplace(lookupTextureId, textureId);
+  return true;
+}
+
+void Renderer::UnloadSurf(int surfId) {
+  auto surfToIdIter = SurfToId.find(surfId);
+  if (surfToIdIter == SurfToId.end()) {
+    return;
+  }
+  auto idFromSurf = surfToIdIter->second;
+  auto IdFromSheetIter = SheetPathToId.find(idFromSurf);
+  if (IdFromSheetIter == SheetPathToId.end()) {
+    assert(false);
+    return;
+  }
+  auto textureId = LookupTextureIdToTexture.find(IdFromSheetIter->second);
+  if (textureId == LookupTextureIdToTexture.end()) {
+    assert(false);
+    return;
+  }
+  FreeTexture(textureId->second);
+  LookupTextureIdToTexture.erase(IdFromSheetIter->second);
+  SurfToId.erase(surfId);
 }
 
 uint32_t Renderer::SubmitTexture(TexFmt format, uint8_t* buffer, int width,
@@ -398,9 +460,10 @@ void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
 
     UseShader(*SpriteShaderProgram, uniforms);
   }
+  auto texture = UnwrapTextureId(sprite);
 
-  UseTextures(std::array<std::pair<uint32_t, size_t>, 1>{
-      std::pair{sprite.Sheet.Texture, 0}});
+  UseTextures(
+      std::array<std::pair<uint32_t, size_t>, 1>{std::pair{texture, 0}});
 
   // OK, all good, make quad
 
@@ -455,10 +518,12 @@ void Renderer::DrawMaskedSprite(const Sprite& sprite, const Sprite& mask,
   };
 
   UseShader(*MaskedSpriteShaderProgram, uniforms);
+  auto texture = UnwrapTextureId(sprite);
+  auto maskTexture = UnwrapTextureId(mask);
 
   UseTextures(std::array<std::pair<uint32_t, size_t>, 2>{
-      std::pair{sprite.Sheet.Texture, 0},
-      std::pair{mask.Sheet.Texture, 2},
+      std::pair{texture, 0},
+      std::pair{maskTexture, 2},
   });
 
   // OK, all good, make quad
@@ -495,10 +560,12 @@ void Renderer::DrawMaskedBinarySprite(
   };
 
   UseShader(*MaskedSpriteBinaryShaderProgram, uniforms);
+  auto texture = UnwrapTextureId(sprite);
+  auto maskTexture = UnwrapTextureId(mask);
 
   UseTextures(std::array<std::pair<uint32_t, size_t>, 2>{
-      std::pair{sprite.Sheet.Texture, 0},
-      std::pair{mask.Sheet.Texture, 2},
+      std::pair{texture, 0},
+      std::pair{maskTexture, 2},
   });
 
   // OK, all good, make quad
@@ -556,10 +623,12 @@ void Renderer::DrawMaskedSpriteOverlay(
 
     UseShader(*MaskedSpriteNoAlphaShaderProgram, uniforms);
   }
+  auto texture = UnwrapTextureId(sprite);
+  auto maskTexture = UnwrapTextureId(mask);
 
   UseTextures(std::array<std::pair<uint32_t, size_t>, 2>{
-      std::pair{sprite.Sheet.Texture, 0},
-      std::pair{mask.Sheet.Texture, 2},
+      std::pair{texture, 0},
+      std::pair{maskTexture, 2},
   });
 
   // OK, all good, make quad
@@ -776,13 +845,17 @@ void Renderer::DrawPrimitives(
   }
 
   if (mask == nullptr) {
-    UseTextures(std::array<std::pair<uint32_t, size_t>, 1>{
-        std::pair{sheet.Texture, 0},
-    });
+    auto texture = UnwrapTextureId(sheet);
+
+    UseTextures(
+        std::array<std::pair<uint32_t, size_t>, 1>{std::pair{texture, 0}});
   } else {
+    auto texture = UnwrapTextureId(sheet);
+    auto maskTexture = UnwrapTextureId(*mask);
+
     UseTextures(std::array<std::pair<uint32_t, size_t>, 2>{
-        std::pair{sheet.Texture, 0},
-        std::pair{mask->Texture, 2},
+        std::pair{texture, 0},
+        std::pair{maskTexture, 2},
     });
   }
 
@@ -838,9 +911,12 @@ void Renderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
 
   UseShader(*CCMessageBoxShaderProgram, uniforms);
 
+  auto texture = UnwrapTextureId(sprite);
+  auto maskTexture = UnwrapTextureId(mask);
+
   UseTextures(std::array<std::pair<uint32_t, size_t>, 2>{
-      std::pair{sprite.Sheet.Texture, 0},
-      std::pair{mask.Sheet.Texture, 2},
+      std::pair{texture, 0},
+      std::pair{maskTexture, 2},
   });
 
   // OK, all good, make quad
@@ -873,9 +949,12 @@ void Renderer::DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
 
   UseShader(*CHLCCMenuBackgroundShaderProgram, uniforms);
 
+  auto texture = UnwrapTextureId(sprite);
+  auto maskTexture = UnwrapTextureId(mask);
+
   UseTextures(std::array<std::pair<uint32_t, size_t>, 2>{
-      std::pair{sprite.Sheet.Texture, 0},
-      std::pair{mask.Sheet.Texture, 2},
+      std::pair{texture, 0},
+      std::pair{maskTexture, 2},
   });
 
   // OK, all good, make quad
@@ -906,8 +985,11 @@ void Renderer::DrawBlurredSprite(const Sprite& sprite, const CornersQuad& dest,
 
   UseShader(*GaussianBlurShaderProgram, uniforms);
 
+  auto texture = UnwrapTextureId(sprite);
+
   UseTextures(std::array<std::pair<uint32_t, size_t>, 1>{
-      std::pair{sprite.Sheet.Texture, 0}});
+      std::pair{texture, 0},
+  });
 
   // OK, all good, make quad
 
@@ -936,8 +1018,11 @@ void Renderer::DrawMosaic(const Sprite& sprite, const CornersQuad dest,
 
   UseShader(*MosaicShaderProgram, uniforms);
 
+  auto texture = UnwrapTextureId(sprite);
+
   UseTextures(std::array<std::pair<uint32_t, size_t>, 1>{
-      std::pair{sprite.Sheet.Texture, 0}});
+      std::pair{texture, 0},
+  });
 
   // OK, all good, make quad
 
@@ -1098,8 +1183,11 @@ void Renderer::DrawSubtitleGlyph(const Sprite& sprite, const CornersQuad& dest,
 
   UseShader(*SubtitleGlyphShaderProgram, uniforms);
 
+  auto texture = UnwrapTextureId(sprite);
+
   UseTextures(std::array<std::pair<uint32_t, size_t>, 1>{
-      std::pair{sprite.Sheet.Texture, 0}});
+      std::pair{texture, 0},
+  });
 
   // OK, all good, make quad
 
@@ -1214,6 +1302,21 @@ void Renderer::EnsureTopologyMode(TopologyMode newMode) {
     Flush();
     LastTopologyMode = newMode;
   }
+}
+
+uint32_t Renderer::UnwrapTextureId(Sprite const& sprite) {
+  return UnwrapTextureId(sprite.Sheet);
+}
+
+uint32_t Renderer::UnwrapTextureId(SpriteSheet const& sheet) {
+  if (!sheet.ScriptHandled) {
+    return sheet.Texture;
+  }
+  auto it = LookupTextureIdToTexture.find(sheet.Texture);
+  if (it == LookupTextureIdToTexture.end()) {
+    return 0;
+  }
+  return it->second;
 }
 
 }  // namespace OpenGL

@@ -19,7 +19,7 @@ void LoadAnimations() {
       EnsurePushMemberOfType("Frames", LUA_TTABLE);
 
       animation.FrameCount = (uint32_t)lua_rawlen(LuaState, -1);
-      animation.Frames = (Sprite*)malloc(animation.FrameCount * sizeof(Sprite));
+      animation.Frames = new Sprite[animation.FrameCount];
       PushInitialIndex();
       while (PushNextTableElement() != 0) {
         animation.Frames[EnsureGetKey<int32_t>() - 1] =
