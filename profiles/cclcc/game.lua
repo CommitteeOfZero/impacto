@@ -40,6 +40,8 @@ root.Vm = {
 
 root.PlatformId = 131072;
 
+include(root.BaseConfig.RootProfilesDir .. '/common/animation.lua');
+include(root.BaseConfig.RootProfilesDir .. '/common/charset.lua');
 include(root.BaseConfig.RootProfilesDir .. '/common/scriptinput.lua');
 include(root.BaseConfig.RootProfilesDir .. '/common/scriptvars.lua');
 
@@ -51,8 +53,6 @@ include(root.BaseConfig.RootProfilesDir .. '/cclcc/tipssystem.lua');
 include(root.BaseConfig.RootProfilesDir .. '/cclcc/vfs.lua');
 include(root.BaseConfig.RootProfilesDir .. '/cclcc/charset.lua');
 include(root.BaseConfig.RootProfilesDir .. '/cclcc/gamespecific.lua');
-include(root.BaseConfig.RootProfilesDir .. '/common/animation.lua');
-include(root.BaseConfig.RootProfilesDir .. '/common/charset.lua');
 --include(root.BaseConfig.RootProfilesDir .. '/cclcc/font.lua');
 --include(root.BaseConfig.RootProfilesDir .. '/cclcc/font-lb.lua');
 include(root.BaseConfig.RootProfilesDir .. '/cclcc/font-lb-italic.lua');

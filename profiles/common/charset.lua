@@ -3,12 +3,12 @@ root.Charset = {
     CharacterToSc3 = {}
 };
 
-function AddCharsetFlag(characterString, flag)
+function AddCharsetFlag(characterString, charsetStr, flag)
     if characterString == nil then return; end
 
     for sourceBytePos, sourceCodePoint in utf8.codes(characterString) do
         local charsetIndex = 0;
-        for targetBytePos, targetCodePoint in utf8.codes(root.CharsetInternal.CharsetStr) do
+        for targetBytePos, targetCodePoint in utf8.codes(charsetStr) do
             if sourceCodePoint == targetCodePoint then
                 root.Charset.Flags[charsetIndex] = root.Charset.Flags[charsetIndex] | flag;
             end
@@ -18,9 +18,11 @@ function AddCharsetFlag(characterString, flag)
     end
 end
 
-if root.CharsetInternal ~= nil and root.CharsetInternal.CharsetStr ~= nil then
+function UpdateCharset(charsetInternal)
+    root.Charset.Flags = {};
+    root.Charset.CharacterToSc3 = {};
     local i = 0
-    for p, c in utf8.codes(root.CharsetInternal.CharsetStr) do
+    for p, c in utf8.codes(charsetInternal.CharsetStr) do
         local high_byte = 0x80 + math.floor(i / 256);
         local low_byte = i % 256;
         local code = high_byte << 8 | low_byte;
@@ -28,20 +30,20 @@ if root.CharsetInternal ~= nil and root.CharsetInternal.CharsetStr ~= nil then
         i = i + 1
     end
 
-    for i = 0, #root.CharsetInternal.CharsetStr do root.Charset.Flags[i] = 0; end
+    for i = 0, #charsetInternal.CharsetStr do root.Charset.Flags[i] = 0; end
 
-    if root.CharsetInternal.Spaces ~= nil then
-        AddCharsetFlag(root.CharsetInternal.Spaces, CharacterTypeFlags.Space);
+    if charsetInternal.Spaces ~= nil then
+        AddCharsetFlag(charsetInternal.Spaces, charsetInternal.CharsetStr, CharacterTypeFlags.Space);
     end
-    if root.CharsetInternal.WordEndingPuncts ~= nil then
-        AddCharsetFlag(root.CharsetInternal.WordEndingPuncts, CharacterTypeFlags.WordEndingPunct);
+    if charsetInternal.WordEndingPuncts ~= nil then
+        AddCharsetFlag(charsetInternal.WordEndingPuncts, charsetInternal.CharsetStr, CharacterTypeFlags.WordEndingPunct);
     end
-    if root.CharsetInternal.WordStartingPunct ~= nil then
-        AddCharsetFlag(root.CharsetInternal.WordStartingPuncts, CharacterTypeFlags.WordStartingPunct);
+    if charsetInternal.WordStartingPunct ~= nil then
+        AddCharsetFlag(charsetInternal.WordStartingPuncts, charsetInternal.CharsetStr, CharacterTypeFlags.WordStartingPunct);
     end
 
-    if root.CharsetInternal.AlphabetChars == nil then
-        root.CharsetInternal.AlphabetChars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz０１２３４５６７８９ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ/／.．";
+    if charsetInternal.AlphabetChars == nil then
+        charsetInternal.AlphabetChars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz０１２３４５６７８９ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ/／.．";
     end
-    AddCharsetFlag(root.CharsetInternal.AlphabetChars, CharacterTypeFlags.Alphabet);
+    AddCharsetFlag(charsetInternal.AlphabetChars, charsetInternal.CharsetStr, CharacterTypeFlags.Alphabet);
 end
