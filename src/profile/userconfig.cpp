@@ -11,7 +11,8 @@ struct TryGetImpl<UserConfig::GameConfig> {
     if (!lua_istable(LuaState, -1)) return std::nullopt;
 
     return UserConfig::GameConfig{
-        .ActivePatch = TryGetMember<std::string>("ActivePatch").value_or(""),
+        .Language = TryGetMember<std::string>("Language").value_or("Japanese"),
+        .UsePatch = TryGetMember<bool>("UsePatch").value_or(false),
     };
   }
 };

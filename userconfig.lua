@@ -1,19 +1,22 @@
 root.UserConfig = {
   GameSettings = {
     chlcc = {
-      ActivePatch = "",
+      UsePatch = false,
+      Language = "Japanese",
     },
     cclcc = {
-      ActivePatch = "",
+      UsePatch = false,
+      Language = "Japanese"
     },
     mo6tw = {
-      ActivePatch = "",
+      UsePatch = false,
+      Language = "Japanese"
     },
   },
   CommonSettings = {
     ResolutionWidth = 1920,
     ResolutionHeight = 1080,
-    Fullscreen = false,
+    Fullscreen = true,
     SubtitleConfig = SubtitleConfigType.Karaoke | SubtitleConfigType.Translation,
   },
   -- ActiveGame = "cclcc"

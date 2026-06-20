@@ -6,7 +6,8 @@
 
 namespace Impacto::Profile::UserConfig {
 struct GameConfig {
-  std::string ActivePatch;
+  std::string Language;
+  bool UsePatch;
 };
 struct Config {
   int ResolutionWidth;
@@ -25,7 +26,8 @@ GameConfig const& ActiveGameSettings();
 inline ankerl::unordered_dense::map<std::string, GameConfig> GameSettings;
 inline Config CommonSettings;
 inline std::string ActiveGame;
-inline std::string PatchOverride;
+inline std::string LanguageOverride;
+inline bool UsePatchOverride = false;
 
 void Configure();
 std::string const& GetPlatformSpecificPath();

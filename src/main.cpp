@@ -38,29 +38,37 @@ extern "C" void EMSCRIPTEN_KEEPALIVE StartGame() {
 }
 #endif
 
+template <typename T>
+concept is_arg_handler =
+    std::invocable<T> || std::invocable<T, std::string_view>;
+
 static void HandleArguments(std::vector<std::string_view> args) {
   bool hasSetChannel = false;
   for (size_t i = 0; i < args.size(); ++i) {
     std::string_view arg = args[i];
+
     auto handleArgInput = [&](std::ranges::range auto supportedArgs,
-                              std::invocable<std::string_view> auto action) {
+                              is_arg_handler auto action) {
       if (std::find(std::begin(supportedArgs), std::end(supportedArgs), arg) !=
           std::end(supportedArgs)) {
-        if (i++ < args.size()) {
+        if constexpr (std::invocable<decltype(action), std::string_view>) {
+          if (i++ >= args.size()) {
+            ImpLog(LogLevel::Fatal, LogChannel::General,
+                   "Invalid number of arguments");
+            exit(1);
+          }
           std::string_view input = args[i];
           action(input);
-          return true;
-        } else {
-          ImpLog(LogLevel::Fatal, LogChannel::General,
-                 "Invalid number of arguments");
-          exit(1);
+        } else if constexpr (std::invocable<decltype(action)>) {
+          action();
         }
+        return true;
       }
       return false;
     };
     using std::literals::string_view_literals::operator""sv;
     constexpr auto make_handler =
-        [](std::invocable<std::string_view> auto fn,
+        [](is_arg_handler auto fn,
            std::convertible_to<std::string_view> auto... strs) {
           return std::pair{std::to_array<std::string_view>({strs...}), fn};
         };
@@ -93,9 +101,11 @@ static void HandleArguments(std::vector<std::string_view> args) {
             "-g", "--game"),
         make_handler(
             [&](std::string_view input) {
-              Profile::UserConfig ::PatchOverride = input;
+              Profile::UserConfig ::LanguageOverride = input;
             },
-            "-p", "--patch"),
+            "-l", "--language"),
+        make_handler([&] { Profile::UserConfig ::UsePatchOverride = true; },
+                     "-p", "--patch"),
         make_handler(
             [&](std::string_view input) { Profile::BaseConfigPath = input; },
             "-bc", "--baseconfigpath"),

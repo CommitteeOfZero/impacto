@@ -25,11 +25,11 @@ root.BaseConfig.GameDefinitions = {
 ```lua
 root.UserConfig = {
   GameSettings = {
-    chlcc = { ActivePatch = "" },
+    chlcc = { Language = "Japanese", UsePatch = false },
+    cclcc = { Language = "English", UsePatch = true},
     -- ... settings for other games
   },
-  -- Uncomment to set the default game:
-  -- ActiveGame = "cclcc"
+  ActiveGame = "cclcc"
 };
 ```
 
@@ -70,11 +70,12 @@ You can specify the game to launch using any of these methods (in priority order
 
 ## Command-line Arguments
 
-Useful flags for development and debugging:
+Useful flags for development and debugging, these settings will take precedent over settings specified in lua when applicable:
 
 ```
 impacto -g chlcc                           # Specify active game/profile
-impacto -p English                         # Specify patch override
+impacto -p                                 # Enables patch override
+impacto -l English                         # Specify language override
 impacto -ll Debug                          # Set log level (Fatal, Warning, Info, Debug)
 impacto -lc General                        # Enable specific log channel (repeat flag to specify multiple)
 impacto -lf log.txt                        # Specify Log File Path
