@@ -5,7 +5,6 @@
 namespace Impacto::Profile::Patch {
 void Configure() {
   if (TryPushMember("Patch")) {
-    Language = TryGetMember<char const*>("Language").value_or("Japanese");
     DateFormat = TryGetMember<DateFormatType>("DateFormat")
                      .value_or(DateFormatType::YMD);
     HasScriptedExitLogic =

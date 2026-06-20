@@ -25,7 +25,7 @@ struct DateFormatDef {
   DateFormatType Sel;
 };
 
-inline char const* Language;
+inline char const* PatchProfile;
 inline DateFormatDef DateFormat = DateFormatType::YMD;
 inline bool HasScriptedExitLogic = false;
 inline bool HasDelusionMouseSupport = false;

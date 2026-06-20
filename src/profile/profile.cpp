@@ -36,12 +36,6 @@ namespace Profile {
 static ankerl::unordered_dense::set<std::string, string_hash, std::equal_to<>>
     IncludedFiles;
 
-static int LuaPrint(lua_State* ctx) {
-  ImpLog(LogLevel::Info, LogChannel::Profile, "Lua: {:s}\n",
-         lua_tostring(ctx, 1));
-  return 0;
-}
-
 static void RunLuaScriptBuffer(std::span<char const> buffer) {
   if (luaL_loadbuffer(LuaState, buffer.data(), buffer.size(), buffer.data())) {
     ImpLog(LogLevel::Fatal, LogChannel::Profile,
@@ -66,6 +60,12 @@ static void RunLuaScript(const char* path) {
     exit(1);
   }
   ImpLog(LogLevel::Info, LogChannel::Profile, "Lua profile execute success\n");
+}
+
+static int LuaPrint(lua_State* ctx) {
+  ImpLog(LogLevel::Info, LogChannel::Profile, "Lua: {:s}\n",
+         lua_tostring(ctx, 1));
+  return 0;
 }
 
 static int LuaInclude(lua_State* ctx) {
@@ -116,6 +116,19 @@ static int LuaInclude(lua_State* ctx) {
   lua_pop(ctx, -1);
 
   return 0;
+}
+
+static int LuaGetPatchProfile(lua_State* ctx) {
+  if (UserConfig::GameSettings.empty()) {
+    ImpLog(LogLevel::Error, LogChannel::Profile,
+           "getPatchProfile called in profile before ready, returning empty "
+           "string");
+    lua_pushstring(ctx, "");
+    return 1;
+  }
+  auto const& patchProfile = UserConfig::ActiveGameSettings().PatchProfile;
+  lua_pushstring(ctx, patchProfile.c_str());
+  return 1;
 }
 
 template <typename Enum>
@@ -198,6 +211,8 @@ void Init() {
   lua_setglobal(LuaState, "print");
   lua_pushcfunction(LuaState, LuaInclude);
   lua_setglobal(LuaState, "include");
+  lua_pushcfunction(LuaState, LuaGetPatchProfile);
+  lua_setglobal(LuaState, "getPatchProfile");
 
   // Root profile object
   lua_createtable(LuaState, 0, 0);
@@ -229,8 +244,13 @@ void Configure() {
   BaseConfig::Configure();
   UserConfig::Configure();
 
-  if (BaseConfig::RootPatchesDir.empty() &&
-      !UserConfig::ActiveGameSettings().ActivePatch.empty()) {
+  if (!UserConfig::PatchProfileOverride.empty()) {
+    UserConfig::GameSettings.at(UserConfig::ActiveGame).UsePatch = true;
+    UserConfig::GameSettings.at(UserConfig::ActiveGame).PatchProfile =
+        UserConfig::PatchProfileOverride;
+  }
+  auto const& activeGameSettings = UserConfig::ActiveGameSettings();
+  if (BaseConfig::RootPatchesDir.empty() && activeGameSettings.UsePatch) {
     ImpLog(LogLevel::Fatal, LogChannel::Profile,
            "Patch is enabled but no patch directory is specified\n");
     exit(1);
@@ -240,17 +260,15 @@ void Configure() {
 
   std::string const& gameProfilePath = activeGameDef.GameProfile;
   RunLuaScript(gameProfilePath.c_str());
-  if (auto const& activePatch =
-          UserConfig::PatchOverride.empty()
-              ? UserConfig::ActiveGameSettings().ActivePatch
-              : UserConfig::PatchOverride;
-      !activePatch.empty()) {
-    auto patchProfilePathItr = activeGameDef.Patch.find(activePatch);
+  if (activeGameSettings.UsePatch) {
+    auto patchProfilePathItr =
+        activeGameDef.Patch.find(activeGameSettings.PatchProfile);
     if (patchProfilePathItr == activeGameDef.Patch.end()) {
-      ImpLog(LogLevel::Fatal, LogChannel::Profile,
-             "Patch is enabled but patch.lua path is missing for language {} "
-             "in game {} definition\n",
-             activePatch, UserConfig::ActiveGame);
+      ImpLog(
+          LogLevel::Fatal, LogChannel::Profile,
+          "Patch is enabled but patch.lua path is missing for patch profile {} "
+          "in game {} definition\n",
+          activeGameSettings.PatchProfile, UserConfig::ActiveGame);
       exit(1);
     }
     RunLuaScript(patchProfilePathItr->second.c_str());
