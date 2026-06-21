@@ -169,6 +169,8 @@ void DelusionTrigger::UpdateShowing(float dt) {
         AnimationState += 1;
         SpinRate = -1024;
       }
+      auto bufId = GetBufferId(ScrWork[SW_EFF_CAP_BUF2]);
+      ScrWork[SW_CAP1FADECT + bufId * Profile::Vm::ScrWorkBgStructSize] = 256;
     } break;
     case 1:
     case 3:
@@ -571,7 +573,7 @@ void DelusionTrigger::Load() {
       break;
   }
   auto bufId = GetBufferId(ScrWork[SW_EFF_CAP_BUF2]);
-  ScrWork[SW_CAP1FADECT + (bufId - 1) * Profile::Vm::ScrWorkBgStructSize] = 256;
+  ScrWork[SW_CAP1FADECT + bufId * Profile::Vm::ScrWorkBgStructSize] = 256;
 }
 
 void DelusionTrigger::Reset() {
