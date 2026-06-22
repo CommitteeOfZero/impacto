@@ -150,6 +150,7 @@ void DelusionTrigger::UpdateHiding(float dt) {
       } break;
     }
   }
+  UpdateBgFadeCT();
 }
 
 void DelusionTrigger::UpdateShowing(float dt) {
@@ -169,8 +170,6 @@ void DelusionTrigger::UpdateShowing(float dt) {
         AnimationState += 1;
         SpinRate = -1024;
       }
-      auto bufId = GetBufferId(ScrWork[SW_EFF_CAP_BUF2]);
-      ScrWork[SW_CAP1FADECT + bufId * Profile::Vm::ScrWorkBgStructSize] = 256;
     } break;
     case 1:
     case 3:
@@ -225,6 +224,7 @@ void DelusionTrigger::UpdateShowing(float dt) {
     default:
       break;
   }
+  UpdateBgFadeCT();
 }
 
 void DelusionTrigger::PlayClickSound() {
@@ -572,8 +572,7 @@ void DelusionTrigger::Load() {
       }
       break;
   }
-  auto bufId = GetBufferId(ScrWork[SW_EFF_CAP_BUF2]);
-  ScrWork[SW_CAP1FADECT + bufId * Profile::Vm::ScrWorkBgStructSize] = 256;
+  UpdateBgFadeCT();
 }
 
 void DelusionTrigger::Reset() {
@@ -594,6 +593,12 @@ void DelusionTrigger::Reset() {
   LeftHeartFade.Finish(AnimationDirection::In);
   RightHeartFade.Finish(AnimationDirection::In);
   TextSystem.Clear();
+}
+
+void DelusionTrigger::UpdateBgFadeCT() {
+  auto bufId = GetBufferId(ScrWork[SW_EFF_CAP_BUF2]);
+  ScrWork[SW_CAP1FADECT + bufId * Profile::Vm::ScrWorkBgStructSize] =
+      BackgroundAlpha;
 }
 
 DelusionTextSystem::DelusionTextSystem() {
