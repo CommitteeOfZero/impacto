@@ -1036,8 +1036,12 @@ VmInstruction(InstDelusionTriggerCHLCC) {
       inst.State = UI::Shown;
       break;
     case 2:
+      inst.SetShown();
+      BlockThread;
+      break;
     case 7:
       // handled by update
+      inst.SetHidden();
       BlockThread;
       break;
     case 0:

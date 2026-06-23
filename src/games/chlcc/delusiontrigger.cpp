@@ -79,18 +79,6 @@ void DelusionTrigger::UpdateHiding(float dt) {
     State = Hidden;
     Reset();
   };
-  if (GetFlag(SF_MESSKIP)) {
-    if (AnimCounter > 50) {
-      SetFlag(SF_DELUSION_UI_ANIM_WAIT, 0);
-      Reset();
-    } else {
-      BackgroundAlpha = 0;
-      MaskScaleFactor = 193536;
-      AnimCounter++;
-    }
-
-    return;
-  }
   if (AnimationState < 13) {
     AnimCounter++;
     switch (AnimationState) {
@@ -165,10 +153,6 @@ void DelusionTrigger::UpdateHiding(float dt) {
 }
 
 void DelusionTrigger::UpdateShowing(float dt) {
-  if (GetFlag(SF_MESSKIP)) {
-    Load();
-    return;
-  }
   switch (AnimationState) {
     case 0: {
       SpinRate += 24;
@@ -609,6 +593,21 @@ void DelusionTrigger::Reset() {
   LeftHeartFade.Finish(AnimationDirection::In);
   RightHeartFade.Finish(AnimationDirection::In);
   TextSystem.Clear();
+}
+
+void DelusionTrigger::SetHidden() {
+  if (GetFlag(SF_MESALLSKIP) && State == Hiding) {
+    Reset();
+    SetFlag(SF_DELUSION_UI_ANIM_WAIT, 0);
+  }
+}
+
+void DelusionTrigger::SetShown() {
+  if ((SkipModeEnabled ||
+       GetControlState(CT_ForceSkip, InputDownType::IsDown)) &&
+      GetFlag(SF_MESALLSKIP) && State == Showing) {
+    Load();
+  }
 }
 
 DelusionTextSystem::DelusionTextSystem() {
