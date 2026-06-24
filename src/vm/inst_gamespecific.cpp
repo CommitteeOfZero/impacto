@@ -1023,6 +1023,7 @@ VmInstruction(InstDelusionTriggerCHLCC) {
     case 1: {
       // start show
       inst.Show();
+      BlockThread;
     } break;
     case 5: {
       // restore delusion from load save
@@ -1036,12 +1037,12 @@ VmInstruction(InstDelusionTriggerCHLCC) {
       inst.State = UI::Shown;
       break;
     case 2:
-      inst.SetShown();
+      if (GetFlag(SF_MESALLSKIP)) inst.Load();
       BlockThread;
       break;
     case 7:
       // handled by update
-      inst.SetHidden();
+      if (GetFlag(SF_MESALLSKIP)) inst.Reset();
       BlockThread;
       break;
     case 0:

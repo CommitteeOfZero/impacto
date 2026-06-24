@@ -72,13 +72,6 @@ void DelusionTrigger::Hide() {
 }
 
 void DelusionTrigger::UpdateHiding(float dt) {
-  auto setHidden = [this] {
-    AnimCounter = 0;
-    AnimationState = 0;
-    SetFlag(SF_DELUSION_UI_ANIM_WAIT, 0);
-    State = Hidden;
-    Reset();
-  };
   if (AnimationState < 13) {
     AnimCounter++;
     switch (AnimationState) {
@@ -125,7 +118,7 @@ void DelusionTrigger::UpdateHiding(float dt) {
           BackgroundAlpha -= 16;
         }
         if (AnimCounter == 50) {
-          setHidden();
+          Reset();
         }
       } break;
       case 11: {
@@ -135,7 +128,7 @@ void DelusionTrigger::UpdateHiding(float dt) {
           BackgroundAlpha -= 8;
         }
         if (AnimCounter == 100) {
-          setHidden();
+          Reset();
         }
       } break;
       case 12: {
@@ -145,7 +138,7 @@ void DelusionTrigger::UpdateHiding(float dt) {
           BackgroundAlpha -= 8;
         }
         if (AnimCounter == 100) {
-          setHidden();
+          Reset();
         }
       } break;
     }
@@ -532,6 +525,7 @@ void DelusionTrigger::Render() {
 }
 
 void DelusionTrigger::Load() {
+  SetFlag(SF_DELUSION_UI_ANIM_WAIT, 0);
   State = Shown;
   ShakeState = 0;
   MaskOffsetX = 0;
@@ -576,6 +570,7 @@ void DelusionTrigger::Load() {
 }
 
 void DelusionTrigger::Reset() {
+  SetFlag(SF_DELUSION_UI_ANIM_WAIT, 0);
   State = Hidden;
   SpinAngle = 62431;
   SpinRate = 0;
@@ -593,21 +588,6 @@ void DelusionTrigger::Reset() {
   LeftHeartFade.Finish(AnimationDirection::In);
   RightHeartFade.Finish(AnimationDirection::In);
   TextSystem.Clear();
-}
-
-void DelusionTrigger::SetHidden() {
-  if (GetFlag(SF_MESALLSKIP) && State == Hiding) {
-    Reset();
-    SetFlag(SF_DELUSION_UI_ANIM_WAIT, 0);
-  }
-}
-
-void DelusionTrigger::SetShown() {
-  if ((SkipModeEnabled ||
-       GetControlState(CT_ForceSkip, InputDownType::IsDown)) &&
-      GetFlag(SF_MESALLSKIP) && State == Showing) {
-    Load();
-  }
 }
 
 DelusionTextSystem::DelusionTextSystem() {

@@ -44,8 +44,6 @@ class DelusionTrigger {
   void Render();
   void Load();
   void Reset();
-  void SetHidden();
-  void SetShown();
 
   static DelusionTrigger& GetInstance() {
     static DelusionTrigger impl;
