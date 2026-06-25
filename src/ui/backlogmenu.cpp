@@ -68,12 +68,13 @@ void BacklogMenu::Show() {
       entry->Show();
     }
 
+    if (CurrentlyFocusedElement) CurrentlyFocusedElement->HasFocus = false;
     if (!Entries.empty()) {
-      Widget* const el = Entries.front().get();
-      FocusStart[FDIR_UP] = el;
-      FocusStart[FDIR_DOWN] = el;
+      CurrentlyFocusedElement = Entries.front().get();
+      CurrentlyFocusedElement->HasFocus = true;
+    } else {
+      CurrentlyFocusedElement = nullptr;
     }
-    CurrentlyFocusedElement = nullptr;
 
     if (UI::FocusedMenu != nullptr) {
       LastFocusedMenu = UI::FocusedMenu;
@@ -143,13 +144,7 @@ void BacklogMenu::UpdatePageUpDownInput(float dt) {
     PageY += delta;
     MainScrollbar->ClampValue();
 
-    if (!CurrentlyFocusedElement) {
-      CurrentlyFocusedElement =
-          (dir == FDIR_UP) ? Entries.back().get() : Entries.front().get();
-    }
-
     CurrentlyFocusedElement->HasFocus = false;
-
     Widget* nextEl = CurrentlyFocusedElement->GetFocus(dir);
     while (nextEl &&
            IsBeyondShiftedHoverBounds(nextEl, delta, dir == FDIR_UP)) {
@@ -158,8 +153,7 @@ void BacklogMenu::UpdatePageUpDownInput(float dt) {
     }
 
   } else {
-    if (CurrentlyFocusedElement) CurrentlyFocusedElement->HasFocus = false;
-
+    CurrentlyFocusedElement->HasFocus = false;
     CurrentlyFocusedElement =
         (dir == FDIR_UP) ? Entries.back().get() : Entries.front().get();
   }
@@ -182,12 +176,8 @@ void BacklogMenu::UpdateScrollingInput(float dt) {
 
   FocusDirection dir = (held & PAD1DOWN) ? FDIR_DOWN : FDIR_UP;
 
-  bool focusOnEdge = false;
-  const Widget* nextEl = nullptr;
-  if (CurrentlyFocusedElement != nullptr) {
-    nextEl = CurrentlyFocusedElement->GetFocus(dir);
-    focusOnEdge = !InVerticalHoverBounds(nextEl);
-  }
+  const Widget* nextEl = CurrentlyFocusedElement->GetFocus(dir);
+  const bool focusOnEdge = !InVerticalHoverBounds(nextEl);
 
   // Gradual scrolling
   if (MainScrollbar->Enabled && focusOnEdge) {
@@ -218,9 +208,11 @@ void BacklogMenu::UpdateScrollingInput(float dt) {
 }
 
 void BacklogMenu::UpdateInput(float dt) {
-  MainScrollbar->UpdateInput(dt);
-  UpdatePageUpDownInput(dt);
-  UpdateScrollingInput(dt);
+  if (!Entries.empty()) {
+    MainScrollbar->UpdateInput(dt);
+    UpdatePageUpDownInput(dt);
+    UpdateScrollingInput(dt);
+  }
 
   if (State != Shown || !IsFocused) return;
 
@@ -232,9 +224,7 @@ void BacklogMenu::UpdateInput(float dt) {
       if (entry->Hovered &&
           (Input::CurrentInputDevice == Input::Device::Mouse ||
            Input::CurrentInputDevice == Input::Device::Touch)) {
-        if (CurrentlyFocusedElement && entry.get() != CurrentlyFocusedElement) {
-          CurrentlyFocusedElement->HasFocus = false;
-        }
+        CurrentlyFocusedElement->HasFocus = false;
         CurrentlyFocusedElement = entry.get();
         CurrentlyFocusedElement->HasFocus = true;
       }
