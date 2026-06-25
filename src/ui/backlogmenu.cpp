@@ -222,10 +222,7 @@ void BacklogMenu::UpdateInput(float dt) {
   UpdatePageUpDownInput(dt);
   UpdateScrollingInput(dt);
 
-  if (!(State == Shown && IsFocused)) {
-    AtBottomPrev = false;
-    return;
-  }
+  if (State != Shown || !IsFocused) return;
 
   if (!MainScrollbar->IsScrollHeld()) {
     for (auto& entry : Entries) {
@@ -245,14 +242,30 @@ void BacklogMenu::UpdateInput(float dt) {
   }
 
   if (Profile::CloseBacklogWhenReachedEnd) {
-    const float epsilon = std::numeric_limits<float>::epsilon();
+    constexpr float ScrollCloseTimerDuration = 0.2f;
+
+    constexpr float epsilon = std::numeric_limits<float>::epsilon();
     const bool atBottomNow = !MainScrollbar->Enabled ||
                              (PageY <= (MainScrollbar->EndValue + epsilon));
 
-    if (AtBottomPrev && atBottomNow && Input::MouseWheelDeltaY < 0) {
-      Vm::Interface::PADinputMouseWentDown |= Vm::Interface::PADcustom[6];
+    if (atBottomNow) {
+      const bool scrollingDown = Input::MouseWheelDeltaY < 0;
+
+      if (scrollingDown) {
+        // Cooldown timer so it doesn't immediately close once the user hits
+        // the bottom using a non-smooth mousewheel
+        if (ScrollCloseTimer == 0.0f) {
+          Vm::Interface::PADinputMouseWentDown |= Vm::Interface::PADcustom[6];
+        } else {
+          ScrollCloseTimer = ScrollCloseTimerDuration;
+        }
+
+      } else {
+        ScrollCloseTimer = std::max(ScrollCloseTimer - dt, 0.0f);
+      }
+    } else {
+      ScrollCloseTimer = ScrollCloseTimerDuration;
     }
-    AtBottomPrev = atBottomNow;
   }
 }
 

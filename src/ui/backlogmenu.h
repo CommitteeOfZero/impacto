@@ -50,7 +50,7 @@ class BacklogMenu : public Menu {
   void MoveEntriesBottomTo(float yPosition);
 
  private:
-  bool AtBottomPrev = false;
+  float ScrollCloseTimer = 0.0f;
 };
 
 }  // namespace UI
