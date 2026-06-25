@@ -389,6 +389,7 @@ void BacklogMenu::Clear() {
   MainScrollbar.StartValue = 0.0f;
   MainScrollbar.EndValue = 1.0f;
   MainScrollbar.Enabled = false;
+  MainScrollbar.Update(0.0f);
 }
 
 }  // namespace UI
