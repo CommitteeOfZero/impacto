@@ -44,14 +44,14 @@ void BacklogMenu::MenuButtonOnClick(Widgets::BacklogEntry* target) {
 }
 
 BacklogMenu::BacklogMenu()
-    : Entries(MaxEntryCount), ItemsHeight(EntryYPadding) {
+    : Entries(MaxEntryCount),
+      ItemsHeight(EntryYPadding),
+      MainScrollbar(0, ScrollbarPosition, 0.0f, 1.0f, &PageY, SBDIR_VERTICAL,
+                    ScrollbarTrack, ScrollbarThumb, glm::vec2(0),
+                    ScrollbarThumbLength, RenderingBounds, -5000) {
   InputConfig = InputRate::RepeatFast;
 
-  MainScrollbar =
-      new Scrollbar(0, ScrollbarPosition, 0.0f, 1.0f, &PageY, SBDIR_VERTICAL,
-                    ScrollbarTrack, ScrollbarThumb, glm::vec2(0),
-                    ScrollbarThumbLength, RenderingBounds, -5000);
-  MainScrollbar->Enabled = false;
+  MainScrollbar.Enabled = false;
 
   FadeAnimation.Direction = AnimationDirection::In;
   FadeAnimation.LoopMode = AnimationLoopMode::Stop;
@@ -86,8 +86,8 @@ void BacklogMenu::Show() {
 
     // Set scrollbar back to default position
     if (ItemsHeight > RenderingBounds.Height) {
-      PageY = MainScrollbar->EndValue;
-      MainScrollbar->Update(0);
+      PageY = MainScrollbar.EndValue;
+      MainScrollbar.Update(0.0f);
       MoveEntriesBottomTo(std::min(RenderingBounds.Top() + ItemsHeight,
                                    RenderingBounds.Bottom()));
     }
@@ -139,10 +139,10 @@ void BacklogMenu::UpdatePageUpDownInput(float dt) {
 
   const FocusDirection dir = (shouldFire & PAD1LEFT) ? FDIR_UP : FDIR_DOWN;
 
-  if (MainScrollbar->Enabled) {
+  if (MainScrollbar.Enabled) {
     const float delta = (dir == FDIR_UP) ? PageUpDownHeight : -PageUpDownHeight;
     PageY += delta;
-    MainScrollbar->ClampValue();
+    MainScrollbar.ClampValue();
 
     CurrentlyFocusedElement->HasFocus = false;
     Widget* nextEl = CurrentlyFocusedElement->GetFocus(dir);
@@ -180,9 +180,9 @@ void BacklogMenu::UpdateScrollingInput(float dt) {
   const bool focusOnEdge = !InVerticalHoverBounds(nextEl);
 
   // Gradual scrolling
-  if (MainScrollbar->Enabled && focusOnEdge) {
+  if (MainScrollbar.Enabled && focusOnEdge) {
     PageY += (dir == FDIR_UP) ? ScrollingSpeed * dt : -ScrollingSpeed * dt;
-    MainScrollbar->ClampValue();
+    MainScrollbar.ClampValue();
   }
 
   const uint32_t shouldFire = PADinputButtonRepeatDown & (PAD1DOWN | PAD1UP);
@@ -209,14 +209,14 @@ void BacklogMenu::UpdateScrollingInput(float dt) {
 
 void BacklogMenu::UpdateInput(float dt) {
   if (!Entries.empty()) {
-    MainScrollbar->UpdateInput(dt);
+    MainScrollbar.UpdateInput(dt);
     UpdatePageUpDownInput(dt);
     UpdateScrollingInput(dt);
   }
 
   if (State != Shown || !IsFocused) return;
 
-  if (!MainScrollbar->IsScrollHeld()) {
+  if (!MainScrollbar.IsScrollHeld()) {
     for (auto& entry : Entries) {
       entry->UpdateInput(dt);
 
@@ -235,8 +235,8 @@ void BacklogMenu::UpdateInput(float dt) {
     constexpr float ScrollCloseTimerDuration = 0.2f;
 
     constexpr float epsilon = std::numeric_limits<float>::epsilon();
-    const bool atBottomNow = !MainScrollbar->Enabled ||
-                             (PageY <= (MainScrollbar->EndValue + epsilon));
+    const bool atBottomNow =
+        !MainScrollbar.Enabled || (PageY <= (MainScrollbar.EndValue + epsilon));
 
     if (atBottomNow) {
       const bool scrollingDown = Input::MouseWheelDeltaY < 0;
@@ -268,7 +268,7 @@ void BacklogMenu::Update(float dt) {
 
   UpdateInput(dt);
 
-  if (MainScrollbar->Enabled) {
+  if (MainScrollbar.Enabled) {
     MoveEntriesBottomTo(PageY + RenderingBounds.Bottom());
   }
 
@@ -276,7 +276,7 @@ void BacklogMenu::Update(float dt) {
     entry->Update(dt);
   }
 
-  MainScrollbar->Update(dt);
+  MainScrollbar.Update(dt);
 
   // Handle entry moving out of hover bounds
   if (CurrentlyFocusedElement &&
@@ -366,17 +366,17 @@ void BacklogMenu::AddMessage(Vm::BufferOffsetContext scrCtx,
   Entries.back()->SetFocus(nullptr, FDIR_UP);
 
   if (ItemsHeight > RenderingBounds.Height) {
-    MainScrollbar->StartValue = ItemsHeight - RenderingBounds.Height;
-    MainScrollbar->EndValue = 0.0f;
-    MainScrollbar->Enabled = true;
-    PageY = MainScrollbar->EndValue;
+    MainScrollbar.StartValue = ItemsHeight - RenderingBounds.Height;
+    MainScrollbar.EndValue = 0.0f;
+    MainScrollbar.Enabled = true;
+    PageY = MainScrollbar.EndValue;
 
     MoveEntriesBottomTo(RenderingBounds.Bottom());
   } else {
-    MainScrollbar->StartValue = 0.0f;
-    MainScrollbar->EndValue = 1.0f;
-    MainScrollbar->Enabled = false;
-    PageY = MainScrollbar->StartValue;
+    MainScrollbar.StartValue = 0.0f;
+    MainScrollbar.EndValue = 1.0f;
+    MainScrollbar.Enabled = false;
+    PageY = MainScrollbar.StartValue;
   }
 }
 
@@ -386,9 +386,9 @@ void BacklogMenu::Clear() {
   PageY = 0.0f;
   ItemsHeight = EntryYPadding;
 
-  MainScrollbar->StartValue = 0.0f;
-  MainScrollbar->EndValue = 1.0f;
-  MainScrollbar->Enabled = false;
+  MainScrollbar.StartValue = 0.0f;
+  MainScrollbar.EndValue = 1.0f;
+  MainScrollbar.Enabled = false;
 }
 
 }  // namespace UI

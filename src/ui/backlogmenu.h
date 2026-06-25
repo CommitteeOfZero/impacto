@@ -41,7 +41,7 @@ class BacklogMenu : public Menu {
 
   float ItemsHeight = 0.0f;
   Animation FadeAnimation;
-  Widgets::Scrollbar* MainScrollbar;
+  Widgets::Scrollbar MainScrollbar;
 
   void RenderHighlight(glm::vec2 offset = {0.0f, 0.0f}) const;
   void UpdatePageUpDownInput(float dt);

@@ -63,11 +63,11 @@ void BacklogMenu::UpdateVisibility() {
 }
 
 void BacklogMenu::Update(float dt) {
-  float prevScrollPos = *MainScrollbar->Value;
+  float prevScrollPos = *MainScrollbar.Value;
   UI::BacklogMenu::Update(dt);
-  if (IsFocused && prevScrollPos != *MainScrollbar->Value) {
+  if (IsFocused && prevScrollPos != *MainScrollbar.Value) {
     if (auto* menu = dynamic_cast<UI::CCLCC::SystemMenu*>(UI::SystemMenuPtr)) {
-      menu->BGPosition.y += (prevScrollPos - *MainScrollbar->Value) * 0.5f;
+      menu->BGPosition.y += (prevScrollPos - *MainScrollbar.Value) * 0.5f;
     }
   }
 }
@@ -97,8 +97,8 @@ void BacklogMenu::Render() {
     entry->Render();
   }
 
-  MainScrollbar->Tint = transition;
-  MainScrollbar->Render();
+  MainScrollbar.Tint = transition;
+  MainScrollbar.Render();
 
   if (ScrWork[SW_SYSSUBMENUNO] == 1) {
     CommonMenu::DrawOverlay();

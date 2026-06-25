@@ -31,8 +31,8 @@ void BacklogMenu::Render() {
   }
   Renderer->DisableScissor();
 
-  MainScrollbar->Tint = col;
-  MainScrollbar->Render();
+  MainScrollbar.Tint = col;
+  MainScrollbar.Render();
 }
 
 void BacklogMenu::UpdateVisibility() {

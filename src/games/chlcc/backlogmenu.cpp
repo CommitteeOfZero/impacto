@@ -82,9 +82,9 @@ void BacklogMenu::Render() {
   }
   Renderer->DisableScissor();
 
-  MainScrollbar->Move({0.0f, yOffset});
-  MainScrollbar->Render();
-  MainScrollbar->Move({0.0f, -yOffset});
+  MainScrollbar.Move({0.0f, yOffset});
+  MainScrollbar.Render();
+  MainScrollbar.Move({0.0f, -yOffset});
 }
 
 void BacklogMenu::Update(float dt) {
