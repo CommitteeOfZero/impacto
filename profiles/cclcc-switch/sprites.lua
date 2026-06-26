@@ -127,7 +127,7 @@ root.SpriteSheets = {
   ["TitleChip"] = {
       Path = { Mount = "system", Id = 19 },
       DesignWidth = 2048,
-      DesignHeight = 800
+      DesignHeight = 2048
   },
   ["YesNoBG0"] = {
       Path = { Mount = "system", Id = 38 },

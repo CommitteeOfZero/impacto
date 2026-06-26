@@ -174,7 +174,6 @@ VmInstruction(InstSetFlagNew) {
       SetFlag(i, 1);
     }
   }
-  SetFlag(flagId, 1);
 }
 VmInstruction(InstResetFlag) {
   StartInstruction;
@@ -198,7 +197,6 @@ VmInstruction(InstResetFlagNew) {
       SetFlag(i, 0);
     }
   }
-  SetFlag(flagId, 0);
 }
 VmInstruction(InstCopyFlag) {
   StartInstruction;
@@ -604,6 +602,25 @@ VmInstruction(InstVoiceTableLoadMaybe) {
       break;
   }
 }
+VmInstruction(InstVoiceTableLoadNew) {
+  StartInstruction;
+  PopUint8(type);
+  PopExpression(fileId);
+
+  switch (VoiceTableData.Status) {
+    case LoadStatus::Unloaded:
+      VoiceTableData.LoadAsync(fileId);
+      ResetInstruction;
+      BlockThread;
+      break;
+    case LoadStatus::Loading:
+      ResetInstruction;
+      BlockThread;
+      break;
+    case LoadStatus::Loaded:
+      break;
+  }
+}
 VmInstruction(InstSetPadCustom) {
   StartInstruction;
   Interface::UpdatePADcustomType(Profile::ConfigSystem::ControllerType);
@@ -651,6 +668,7 @@ VmInstruction(InstSystemMes) {
       break;
     case InstructionSet::Dash:
     case InstructionSet::CC:
+    case InstructionSet::LCCSwitch:
       PopUint8(id);
       sysMesId = id;
       break;
@@ -666,7 +684,19 @@ VmInstruction(InstSystemMes) {
     return box;
   };
 
-  switch (mode) {
+  uint32_t type = mode;
+  if (type & 0x80) {
+    type -= 0x80;
+  }
+  if (type & 0x40) {
+    type -= 0x40;
+  }
+  // bool flag = type > 0xf;
+  if (type > 0x10) {
+    type -= 0x10;
+  }
+
+  switch (type) {
     case 0:  // SystemMesInit0
     case 1:  // SystemMesInit1
       UI::SysMesBox::Push(sysMesId);
@@ -678,20 +708,58 @@ VmInstruction(InstSystemMes) {
       ScrWork[SW_SYSMESANIMCTF] = 2 * box->MessageCount + 33;
     } break;
     case 3: {  // SystemMesSetMes
-      PopUint16(sysMesStrNum);
-      UI::SysMesBox* box = activeBox();
-      if (!box) break;
-      const uint32_t message =
-          ScriptGetStrAddress(thread->ScriptBufferId, sysMesStrNum);
-      box->AddMessage(
-          {.BufferId = thread->ScriptBufferId, .IpOffset = message});
+      if (mode & 0x80) {
+        PopUint8(unk02);
+        if (unk02 == 1) {
+          PopExpression(unk03);
+        }
+        int bufId;
+        if ((type >> 6 & 1) == 0) {
+          // TODO get buf id from thread field
+          bufId = 0;
+        } else {
+          bufId = ExpressionEval(thread);
+        }
+        PopMsbString(message);
+        UI::SysMesBox* box = activeBox();
+        if (!box) break;
+        // TODO: not finished
+        // box->AddMessage(
+        //    {.BufferId = thread->ScriptBufferId, .IpOffset = message});
+      } else {
+        UI::SysMesBox* box = activeBox();
+        if (!box) break;
+        PopUint16(sysMesStrNum);
+        const uint32_t message =
+            ScriptGetStrAddress(thread->ScriptBufferId, sysMesStrNum);
+        box->AddMessage(
+            {.BufferId = thread->ScriptBufferId, .IpOffset = message});
+      }
     } break;
     case 4: {  // SystemMesSetSel
-      PopUint16(sysSelStrNum);
-      UI::SysMesBox* box = activeBox();
-      if (!box) break;
-      auto message = ScriptGetStrAddress(thread->ScriptBufferId, sysSelStrNum);
-      box->AddChoice({.BufferId = thread->ScriptBufferId, .IpOffset = message});
+      if (mode & 0x80) {
+        PopUint8(unk02);
+        if (unk02 == 1) {
+          PopExpression(unk03);
+        }
+        int bufId;
+        if ((type >> 6 & 1) == 0) {
+          // TODO get buf id from thread field
+          bufId = 0;
+        } else {
+          bufId = ExpressionEval(thread);
+        }
+        PopMsbString(message);
+        UI::SysMesBox* box = activeBox();
+        if (!box) break;
+      } else {
+        PopUint16(sysSelStrNum);
+        auto message =
+            ScriptGetStrAddress(thread->ScriptBufferId, sysSelStrNum);
+        box->AddChoice(
+            {.BufferId = thread->ScriptBufferId, .IpOffset = message});
+      }
+
     } break;
     case 5: {  // SystemMesMain
       UI::SysMesBox* box = activeBox();
@@ -740,13 +808,6 @@ VmInstruction(InstSystemMes) {
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction SystemMes(mode: {:d})\n", mode);
       break;
-    case 0x83: {
-      PopMsbString(message);
-      UI::SysMesBox* box = activeBox();
-      if (!box) break;
-      box->AddMessage(
-          {.BufferId = thread->ScriptBufferId, .IpOffset = message});
-    } break;
     case 0x84: {  // SystemMesSetSel
       PopMsbString(message);
       UI::SysMesBox* box = activeBox();
@@ -935,9 +996,11 @@ VmInstruction(InstMSinit) {
         Profile::Vm::GameInstructionSet == InstructionSet::CHLCC) {
       memset(&FlagWork, 0, 500);
       memset(&ScrWork, 0, 24000);
-    } else if (Profile::Vm::GameInstructionSet == InstructionSet::CC ||
-               Profile::Vm::GameInstructionSet == InstructionSet::LCCSwitch) {
+    } else if (Profile::Vm::GameInstructionSet == InstructionSet::CC) {
       memset(&FlagWork, 0, 1000);
+      memset(&ScrWork, 0, 32000);
+    } else if (Profile::Vm::GameInstructionSet == InstructionSet::LCCSwitch) {
+      memset(&FlagWork, 0, 800);
       memset(&ScrWork, 0, 32000);
     }
 
