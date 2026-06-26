@@ -51,14 +51,15 @@ include(root.BaseConfig.RootProfilesDir .. '/common/scriptvars.lua');
 
 include(root.BaseConfig.RootProfilesDir .. '/cclcc/scriptinput.lua');
 include(root.BaseConfig.RootProfilesDir .. '/cclcc/scriptvars.lua');
+include(root.BaseConfig.RootProfilesDir .. '/cclcc-switch/scriptvars.lua');
 include(root.BaseConfig.RootProfilesDir .. '/cclcc-switch/sprites.lua');
 include(root.BaseConfig.RootProfilesDir .. '/cclcc/savedata.lua');
 include(root.BaseConfig.RootProfilesDir .. '/cclcc/tipssystem.lua');
 include(root.BaseConfig.RootProfilesDir .. '/cclcc-switch/vfs.lua');
+include(root.BaseConfig.RootProfilesDir .. '/common/charset.lua');
 include(root.BaseConfig.RootProfilesDir .. '/cclcc/charset.lua');
 include(root.BaseConfig.RootProfilesDir .. '/cclcc/gamespecific.lua');
 include(root.BaseConfig.RootProfilesDir .. '/common/animation.lua');
-include(root.BaseConfig.RootProfilesDir .. '/common/charset.lua');
 --include(root.BaseConfig.RootProfilesDir .. '/cclcc/font.lua');
 --include(root.BaseConfig.RootProfilesDir .. '/cclcc/font-lb.lua');
 include(root.BaseConfig.RootProfilesDir .. '/cclcc/font-lb-italic.lua');
