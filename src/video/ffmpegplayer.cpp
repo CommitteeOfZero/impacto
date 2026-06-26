@@ -186,9 +186,19 @@ void FFmpegPlayer::OpenCodec(std::optional<FFmpegStream<MediaType>>& streamOpt,
       decoderContext.raw()->get_format =
           [](AVCodecContext* ctx,
              const AVPixelFormat* pix_fmts) -> AVPixelFormat {
-        auto const* self = static_cast<FFmpegPlayer*>(ctx->opaque);
+        auto* self = static_cast<FFmpegPlayer*>(ctx->opaque);
         for (const auto* p = pix_fmts; *p != AV_PIX_FMT_NONE; p++) {
-          if (*p == self->HwVideoPixelFormat) return *p;
+          if (*p != self->HwVideoPixelFormat) continue;
+
+          AVBufferRef* frames_ref = nullptr;
+          if (avcodec_get_hw_frames_parameters(ctx, ctx->hw_device_ctx, *p,
+                                               &frames_ref) == 0) {
+            auto* fctx = reinterpret_cast<AVHWFramesContext*>(frames_ref->data);
+            self->SwVideoPixelFormat = fctx->sw_format;
+            av_hwframe_ctx_init(frames_ref);
+            ctx->hw_frames_ctx = frames_ref;
+          }
+          return *p;
         }
         for (const auto* p = pix_fmts; *p != AV_PIX_FMT_NONE; p++) {
           const AVPixFmtDescriptor* desc = av_pix_fmt_desc_get(*p);
@@ -309,7 +319,9 @@ void FFmpegPlayer::Play(Io::Stream* stream, bool looping, bool alpha) {
         [this](auto& videoText) {
           if constexpr (std::is_same_v<std::decay_t<decltype(videoText)>,
                                        std::monostate>) {
-            if (HwVideoPixelFormat == AV_PIX_FMT_NONE) {
+            //TODO: Sw works for cclcc switch, HW for everything else
+            if (SwVideoPixelFormat == AV_PIX_FMT_YUV420P) {
+              // if (HwVideoPixelFormat == AV_PIX_FMT_NONE) {
               VideoTexture = Renderer->CreateYUVFrame(
                   (float)VideoStream->CodecContext.width(),
                   (float)VideoStream->CodecContext.height());
@@ -745,6 +757,7 @@ void FFmpegPlayer::Update(float dt) {
       nv12Frame->Submit(frame->Frame.data(0), frame->Frame.raw()->linesize[0],
                         frame->Frame.data(1), frame->Frame.raw()->linesize[1]);
     } else if (frame->Frame.pixelFormat() == AV_PIX_FMT_YUV420P) {
+      // goes here and throws std::bad_variant_access
       auto& yuvFrame = std::get<YUVFrame*>(VideoTexture);
       yuvFrame->Submit(frame->Frame.data(0), frame->Frame.data(1),
                        frame->Frame.data(2));

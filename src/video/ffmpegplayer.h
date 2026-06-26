@@ -86,6 +86,7 @@ class FFmpegPlayer : public VideoPlayer {
   std::unique_ptr<Io::Stream> StreamPtr;
   av::FormatContext FormatContext;
   AVPixelFormat HwVideoPixelFormat = AV_PIX_FMT_NONE;
+  AVPixelFormat SwVideoPixelFormat = AV_PIX_FMT_YUV420P;
   FFmpegFileIO IoContext;
 
   Clock VideoClock;
