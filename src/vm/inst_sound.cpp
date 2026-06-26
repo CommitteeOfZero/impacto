@@ -206,7 +206,8 @@ VmInstruction(InstSysVoicePlay) {
 VmInstruction(InstSysSeload) {
   StartInstruction;
   if (Profile::Vm::GameInstructionSet == InstructionSet::MO8 ||
-      Profile::Vm::GameInstructionSet == InstructionSet::CHN) {
+      Profile::Vm::GameInstructionSet == InstructionSet::CHN ||
+      Profile::Vm::GameInstructionSet == InstructionSet::LCCSwitch) {
     PopUint8(arg1);
   }
   ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,

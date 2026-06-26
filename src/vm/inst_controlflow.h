@@ -27,6 +27,7 @@ VmInstruction(InstLoadJump);
 VmInstruction(InstSwitch);
 VmInstruction(InstCase);
 VmInstruction(InstFlagOffReturn);
+VmInstruction(UNK_00_5B);
 
 }  // namespace Vm
 

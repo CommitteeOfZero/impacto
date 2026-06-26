@@ -347,6 +347,26 @@ VmInstruction(InstFlagOffReturn) {
   }
 }
 
+// TODO: not finished, generalize flags + inst writes to some unknown global struct
+VmInstruction(UNK_00_5B) {
+  StartInstruction;
+  PopUint8(type);
+  if (type == 10) {
+    SetFlag(2037, 0);
+    return;
+  }
+  if (type != 1) {
+    if (!type) {
+      SetFlag(2037, 1);
+    }
+    return;
+  }
+
+  SetFlag(2037, 1);
+  PopExpression(unk01);
+  PopExpression(unk02);
+}
+
 }  // namespace Vm
 
 }  // namespace Impacto
