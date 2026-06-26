@@ -138,7 +138,7 @@ void Init() {
     case InstructionSet::LCCSwitch: {
       OpcodeTableSystem = OpcodeTableSystem_LCCSwitch;
       OpcodeTableGraph = OpcodeTableGraph_LCCSwitch;
-      OpcodeTableUser1 = OpcodeTableUser1_CC;
+      OpcodeTableUser1 = OpcodeTableUser1_LCCSwitch;
       OpcodeTableTitleOnly = OpcodeTableTitleOnly_LCCSwitch;
 
       break;
@@ -501,8 +501,9 @@ void RunThread(Sc3VmThread* thread, float dt) {
       opcodeGrp1 = opcodeGrp & 0x7F;
 
       ImpLog(LogLevel::Trace, LogChannel::VM,
-             "Address: {:#0x} Opcode: {:02x}:{:02x} ScriptBuffer: {:d}\n",
-             scriptIp, opcodeGrp1, opcode, thread->ScriptBufferId);
+             "Address: {:#0x} TID: {:d} Opcode: {:02x}:{:02x} ScriptBuffer: "
+             "{:d}\n",
+             scriptIp, thread->Id, opcodeGrp1, opcode, thread->ScriptBufferId);
 
       if (opcodeGrp1 == 0x20) {
         OpcodeTableTitleOnly[opcode](thread, dt);

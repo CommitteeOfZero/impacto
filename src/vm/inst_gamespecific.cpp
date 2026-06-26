@@ -1497,6 +1497,12 @@ VmInstruction(InstUnk2012CCLCC) {
              "STUB instruction Unk2012CCLCC()\n");
 }
 
+// calls PushOpenUsers and ExecuteProgram
+VmInstruction(Inst103FLCCSwitch) {
+  StartInstruction;
+  PopExpression(AppId);
+}
+
 }  // namespace Vm
 
 }  // namespace Impacto

@@ -38,6 +38,7 @@ VmInstruction(InstSave);
 VmInstruction(InstSaveOld);
 VmInstruction(InstSaveIconLoad);
 VmInstruction(InstVoiceTableLoadMaybe);
+VmInstruction(InstVoiceTableLoadNew);
 VmInstruction(InstSetPadCustom);
 VmInstruction(InstMwait);
 VmInstruction(InstTerminate);

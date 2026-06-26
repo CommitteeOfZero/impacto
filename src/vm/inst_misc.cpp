@@ -536,7 +536,6 @@ VmInstruction(InstTitleMenuNew) {
         default:
           break;
         case InstructionSet::CC:
-        case InstructionSet::LCCSwitch:
         case InstructionSet::CHN: {
           using enum UI::CC::TitleMenuMode::Mode;
 
@@ -562,6 +561,27 @@ VmInstruction(InstTitleMenuNew) {
             }
           }
         } break;
+        case InstructionSet::LCCSwitch: {
+          if (ScrWork[SW_TITLEMODE] == 3) {
+            if (!UI::TitleMenuPtr->AllowsScriptInput) {
+              ResetInstruction;
+              BlockThread;
+            }
+            // TODO: 2118 is a new var
+          } else if (ScrWork[SW_TITLEMODE] == 2 && ScrWork[2118] == 60) {
+            // Check "PRESS TO START" here
+            if (((Interface::PADinputButtonWentDown & Interface::PAD1A) ||
+                 (Interface::PADinputMouseWentDown & Interface::PAD1A))) {
+              ScrWork[SW_TITLEMODE] = 3;
+              ScrWork[SW_TITLEDISPCT] = 0;
+              ScrWork[SW_TITLEMOVIECT] = 0;
+              SetFlag(SF_TITLEEND, 1);
+            } else {
+              ScrWork[SW_TITLEMOVIECT]++;
+            }
+          }
+          break;
+        }
         case InstructionSet::MO8: {
           if (ScrWork[SW_TITLEMODE] == 1) {
             ScrWork[SW_TITLEMOVIECT] += 1;
@@ -684,6 +704,28 @@ VmInstruction(InstLoadFontMeta) {
       "STUB instruction LoadFontMeta(type: {:d}, unkId: {:d}, archiveId: "
       "{:d}, fileId: {:d})\n",
       type, unkId, archiveId, fileId);
+}
+VmInstruction(InstSaveIconState) {
+  StartInstruction;
+  PopUint8(type);
+  if (type == 10) {
+    SetFlag(SF_SAVEICON, 0);
+    SaveIconDisplay::Hide();
+    return;
+  }
+  if (type != 1) {
+    if (!type) {
+      SetFlag(SF_SAVEICON, 1);
+      SaveIconDisplay::Show();
+    }
+    return;
+  }
+
+  SetFlag(SF_SAVEICON, 1);
+  PopExpression(posX);
+  PopExpression(posY);
+  const glm::vec2 pos = {posX, posY};
+  SaveIconDisplay::ShowAt(pos);
 }
 
 }  // namespace Vm
