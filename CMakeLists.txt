@@ -390,6 +390,7 @@ set(Impacto_Src
     src/audio/atrac9audiostream.cpp
     src/audio/adxaudiostream.cpp
     src/audio/hcaaudiostream.cpp
+    src/audio/lopusaudiostream.cpp
 
     src/video/videosystem.cpp
     src/video/videoplayer.cpp
@@ -770,6 +771,7 @@ set(Impacto_Header
     src/audio/atrac9audiostream.h
     src/audio/adxaudiostream.h
     src/audio/hcaaudiostream.h
+    src/audio/lopusaudiostream.h
 
     src/video/videosystem.h
     src/video/videoplayer.h
@@ -1007,6 +1009,7 @@ else ()
     )
     find_package(Ogg CONFIG REQUIRED)
     find_package(Vorbis CONFIG REQUIRED)
+    find_package(Opus CONFIG REQUIRED)
     find_package(WebP CONFIG REQUIRED)
 
     list(APPEND Impacto_Libs
@@ -1016,6 +1019,7 @@ else ()
         Ogg::ogg
         Vorbis::vorbis
         Vorbis::vorbisfile
+        Opus::opus
     )
 
     if (NX)

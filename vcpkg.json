@@ -14,6 +14,7 @@
     "openal-soft",
     "libogg",
     "libvorbis",
+    "opus",
     "zlib",
     {
       "name": "avcpp",
