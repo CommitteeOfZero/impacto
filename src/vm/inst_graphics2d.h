@@ -12,6 +12,7 @@ VmInstruction(InstLoadPic);
 VmInstruction(InstSurfFill);
 VmInstruction(InstSCcapture);
 VmInstruction(InstBGload);
+VmInstruction(InstBGloadNew);
 VmInstruction(InstBGswap);
 VmInstruction(InstBGsetColor);
 VmInstruction(InstBGsetLink);

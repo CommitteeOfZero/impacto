@@ -47,6 +47,7 @@ VmInstruction(InstChkClearFlag);
 VmInstruction(InstScreenChange);
 VmInstruction(InstExitGame);
 VmInstruction(InstLoadFontMeta);
+VmInstruction(InstSaveIconState);
 
 }  // namespace Vm
 

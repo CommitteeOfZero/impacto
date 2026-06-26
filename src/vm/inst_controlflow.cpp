@@ -169,6 +169,19 @@ VmInstruction(InstFlagOnJump) {
     thread->IpOffset = labelAdr;
   }
 }
+
+VmInstruction(InstFlagOnJumpFar) {
+  StartInstruction;
+  PopUint8(value);
+  PopExpression(flagId);
+  PopExpression(scriptBufferId);
+  PopFarLabel(labelAdr, scriptBufferId);
+
+  if (GetFlag(flagId) == (bool)value) {
+    thread->IpOffset = labelAdr;
+  }
+}
+
 VmInstruction(InstKeyOnJump) {
   using namespace Interface;
 
@@ -348,7 +361,6 @@ VmInstruction(InstFlagOffReturn) {
     }
   }
 }
-
 }  // namespace Vm
 
 }  // namespace Impacto
