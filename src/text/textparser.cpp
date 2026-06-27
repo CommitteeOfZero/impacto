@@ -524,6 +524,9 @@ void DialogueTextParser::ParseString(Vm::Sc3VmThread* string) {
     return lut;
   }();
 
+  const size_t glyphsStart = Glyphs.size();
+  const size_t rubyChunksStart = RubyChunks.size();
+
   StringToken token;
   do {
     token.Read(string);
@@ -536,6 +539,16 @@ void DialogueTextParser::ParseString(Vm::Sc3VmThread* string) {
   NameId = NameCode.empty()
                ? NO_NAME
                : static_cast<uint16_t>(GetNameId(NameCode).value_or(NO_NAME));
+
+  for (size_t glyphIdx = glyphsStart; glyphIdx < Glyphs.size(); glyphIdx++) {
+    Glyphs[glyphIdx].Opacity = 0.0f;
+  }
+  for (size_t chunkIdx = rubyChunksStart; chunkIdx < RubyChunks.size();
+       chunkIdx++) {
+    for (auto& glyph : RubyChunks[chunkIdx].Text) {
+      glyph.Opacity = 0.0f;
+    }
+  }
 }
 
 void DialogueTextParser::ParseString(DialoguePage& page,

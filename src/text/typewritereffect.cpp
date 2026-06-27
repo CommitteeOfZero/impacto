@@ -11,12 +11,11 @@ using namespace Profile::ConfigSystem;
 using namespace Profile::Dialogue;
 
 void TypewriterEffect::Start(const bool voiced) {
-  DurationIn = 1.0f;
   Voiced = voiced;
   IsCancelled = false;
-  SkipOnSkipMode = true;
-  ProgressOnCancel = 0.0f;
   StartIn(true);
+
+  if (GlyphCount == 0) Finish();
 }
 
 void TypewriterEffect::Update(float dt) {
@@ -25,11 +24,10 @@ void TypewriterEffect::Update(float dt) {
   if (CancelRequested && !IsCancelled) {
     IsCancelled = true;
     CancelRequested = false;
-    ProgressOnCancel = Progress;
-    DurationIn = 0.25f;
+    Finish();
   }
 
-  if (!IsCancelled) {
+  if (Direction == AnimationDirection::In && !IsCancelled) {
     if (Voiced && Profile::ConfigSystem::SyncVoice) {
       // Effectively progress at the constant pace such that the line ends
       // the moment the voice line ends
@@ -70,8 +68,104 @@ void TypewriterEffect::Update(float dt) {
   UpdateImpl(dt);
 }
 
+void TypewriterEffect::UpdateOpacity(const std::span<ProcessedTextGlyph> glyphs,
+                                     const std::span<RubyChunk> rubyChunks,
+                                     const float dt) const {
+  if (GetFlag(Profile::ScriptVars::SF_MESALLSKIP)) {
+    // Show all glyphs at full opacity
+    for (auto& glyph : glyphs) {
+      glyph.Opacity = 1.0f;
+    }
+
+    for (auto& chunk : rubyChunks) {
+      for (auto& glyph : chunk.Text) {
+        glyph.Opacity = 1.0f;
+      }
+    }
+
+    return;
+  }
+
+  if (Direction == AnimationDirection::Out) {
+    // Gradually fade out all glyphs
+    for (auto& glyph : glyphs) {
+      glyph.Opacity = std::min(glyph.Opacity, Progress);
+    }
+
+    for (auto& chunk : rubyChunks) {
+      for (auto& glyph : chunk.Text) {
+        glyph.Opacity = std::min(glyph.Opacity, Progress);
+      }
+    }
+
+    return;
+  }
+
+  // Fading in:
+  // Place each parallel block's glyphs' fading start times equidistantly from
+  // each other, such that the first glyph starts fading at progress 0.0, and
+  // the last glyph starts fading at progress 1.0
+  //
+  // If the typewriter is cancelled, or the text speed is set to instant
+  // (without it being a voiced line and SyncVoice being enabled), then all
+  // glyphs should start appearing immediately
+  const bool instantTextSpeed = Profile::ConfigSystem::TextSpeed >=
+                                Profile::ConfigSystem::TextSpeedBounds.y;
+  const bool syncVoice = Voiced && Profile::ConfigSystem::SyncVoice;
+  const bool showInstant = IsCancelled || (instantTextSpeed && !syncVoice);
+
+  // Make it so a glyph fading from 0.0 -> 1.0 opacity takes
+  // TextFadeInDuration seconds
+  const float deltaOpacity = dt / TextFadeInDuration;
+
+  for (size_t glyphIdx = 0; glyphIdx < glyphs.size(); glyphIdx++) {
+    float& opacity = glyphs[glyphIdx].Opacity;
+
+    if (glyphIdx < FirstGlyph) {
+      // From a prior line of the same NVL block; keep at full opacity
+      opacity = 1.0f;
+      continue;
+    }
+
+    if (showInstant || Progress >= GetGlyphStartProgress(glyphIdx)) {
+      opacity = std::min(opacity + deltaOpacity, 1.0f);
+      continue;
+    }
+
+    opacity = 0.0f;
+  }
+
+  // Place all ruby glyphs' fading start times equidistantly from each other,
+  // such that the first glyph starts fading simultaneously with the base's
+  // first glyph, and the last glyph starts fading simultaneously with the
+  // base's last glyph
+  for (auto& chunk : rubyChunks) {
+    const float baseStartProgress =
+        GetGlyphStartProgress(chunk.FirstBaseCharacter);
+    const float baseEndProgress =
+        GetGlyphStartProgress(chunk.FirstBaseCharacter + chunk.BaseLength - 1);
+
+    for (size_t glyphIdx = 0; glyphIdx < chunk.Text.size(); glyphIdx++) {
+      float& opacity = chunk.Text[glyphIdx].Opacity;
+
+      const float ratioInChunk =
+          chunk.Text.size() == 1
+              ? 0.0f
+              : glyphIdx / static_cast<float>(chunk.Text.size() - 1);
+      const float startProgress =
+          glm::mix(baseStartProgress, baseEndProgress, ratioInChunk);
+      if (showInstant || Progress >= startProgress) {
+        opacity = std::min(opacity + deltaOpacity, 1.0f);
+        continue;
+      }
+
+      opacity = 0.0f;
+    }
+  }
+}
+
 TypewriterEffect::ParallelBlock TypewriterEffect::GetParallelBlock(
-    const size_t glyph) {
+    const size_t glyph) const {
   if (ParallelStartGlyphs.empty()) {  // No parallel blocks
     return {FirstGlyph, GlyphCount};
 
@@ -90,132 +184,17 @@ TypewriterEffect::ParallelBlock TypewriterEffect::GetParallelBlock(
   }
 }
 
-std::pair<float, float> TypewriterEffect::GetGlyphWritingProgresses(
-    const size_t glyph) {
-  const ParallelBlock block = GetParallelBlock(glyph);
+float TypewriterEffect::GetGlyphStartProgress(const size_t glyphIdx) const {
+  if (glyphIdx <= FirstGlyph) return 0.0f;
+  if (glyphIdx >= FirstGlyph + GlyphCount) {
+    return std::numeric_limits<float>::max();
+  }
 
-  const size_t parallelBlockGlyphNo = glyph - block.Start;
-
-  // We start displaying a glyph after the previous one is 25% opaque, hence
-  // totalDisplayTime = glyphCount * (0.25 * glyphDisplayTime) +
-  //                    glyphDisplayTime * 0.75
-
-  constexpr float singleGlyphDuration = 1.0f;
-  constexpr float glyphPropagateProgress = 0.25f;
-  constexpr float glyphPropagateDuration =
-      singleGlyphDuration * glyphPropagateProgress;
-  const float totalDuration =
-      block.Size * glyphPropagateDuration +
-      (1.0f - glyphPropagateProgress) * singleGlyphDuration;
-
-  const float startTime = glyphPropagateDuration * parallelBlockGlyphNo;
-  const float endTime = startTime + singleGlyphDuration;
-
-  return {startTime / totalDuration, endTime / totalDuration};
+  const ParallelBlock block = GetParallelBlock(glyphIdx);
+  const size_t parallelBlockGlyphNo = glyphIdx - block.Start;
+  return block.Size == 1
+             ? 0.0f
+             : parallelBlockGlyphNo / static_cast<float>(block.Size - 1);
 }
 
-float TypewriterEffect::CalcOpacity(size_t glyph) {
-  if (glyph < FirstGlyph) return 1.0f;
-  if (glyph >= FirstGlyph + GlyphCount) return 0.0f;
-
-  if (!IsCancelled &&
-      Profile::ConfigSystem::TextSpeed >=
-          Profile::ConfigSystem::TextSpeedBounds.y &&
-      !(Voiced && Profile::ConfigSystem::SyncVoice)) {
-    return Progress;
-  }
-
-  const auto [startProgress, endProgress] = GetGlyphWritingProgresses(glyph);
-
-  if (IsCancelled) {
-    // On cancellation, all non-opaque glyphs start appearing simultaneously
-
-    // Opaque glyphs remain opaque
-    if (ProgressOnCancel >= endProgress) return 1.0f;
-
-    // Transparent glyphs fade in according to the progress made
-    // since cancelling
-    const float cancelProgress =
-        (Progress - ProgressOnCancel) / (1.0f - ProgressOnCancel);
-    if (ProgressOnCancel <= startProgress) return cancelProgress;
-
-    // Translucent glyphs fade in further, in addition to the opacity they
-    // already had
-    const float glyphProgressBeforeCancellation =
-        (ProgressOnCancel - startProgress) / (endProgress - startProgress);
-    return glyphProgressBeforeCancellation +
-           cancelProgress * (1.0f - glyphProgressBeforeCancellation);
-  }
-
-  return std::clamp((Progress - startProgress) / (endProgress - startProgress),
-                    0.0f, 1.0f);
-}
-
-float TypewriterEffect::CalcRubyOpacity(const size_t rubyGlyphId,
-                                        const RubyChunk& chunk) {
-  // Ruby fade as a regular textbox would, with the start and end times of
-  // the animation being the start and end fade times of the ruby chunk's base
-  //
-  // On cancellation, the ruby all fade in simultaneously, like regular text
-
-  const size_t baseStart = chunk.FirstBaseCharacter;
-  const size_t baseEnd = chunk.FirstBaseCharacter + chunk.BaseLength;
-
-  // Base is already fully opaque / still fully transparent
-  if (baseEnd <= FirstGlyph) return 1.0f;
-  if (baseStart > FirstGlyph + GlyphCount) return 0.0f;
-
-  const float baseStartProgress = GetGlyphWritingProgresses(baseStart).first;
-  const float baseEndProgress = GetGlyphWritingProgresses(baseEnd - 1).second;
-
-  if (IsCancelled) {
-    if (ProgressOnCancel >= baseEndProgress) return 1.0f;
-
-    const float cancelProgress =
-        (Progress - ProgressOnCancel) / (1.0f - ProgressOnCancel);
-    if (ProgressOnCancel <= baseStartProgress) return cancelProgress;
-  } else {
-    if (Progress >= baseEndProgress) return 1.0f;
-    if (Progress <= baseStartProgress) return 0.0f;
-  }
-
-  const float baseProgressLength = baseEndProgress - baseStartProgress;
-
-  // We start displaying a glyph after the previous one is 25% opaque, hence
-  // totalDisplayTime = glyphCount * (0.25 * glyphDisplayTime) +
-  //                    glyphDisplayTime * 0.75
-
-  constexpr float singleGlyphDuration = 1.0f;
-  constexpr float glyphPropagateProgress = 0.25f;
-  constexpr float glyphPropagateDuration =
-      singleGlyphDuration * glyphPropagateProgress;
-  const float totalDuration =
-      chunk.RawText.size() * glyphPropagateDuration +
-      (1.0f - glyphPropagateProgress) * singleGlyphDuration;
-
-  const float glyphStartTime = glyphPropagateDuration * rubyGlyphId;
-  const float glyphEndTime = glyphStartTime + singleGlyphDuration;
-
-  // Convert back to progress-space
-  const float startProgress =
-      baseStartProgress + (glyphStartTime / totalDuration) * baseProgressLength;
-  const float endProgress =
-      baseStartProgress + (glyphEndTime / totalDuration) * baseProgressLength;
-
-  if (IsCancelled) {
-    if (ProgressOnCancel >= endProgress) return 1.0f;
-
-    const float cancelProgress =
-        (Progress - ProgressOnCancel) / (1.0f - ProgressOnCancel);
-    if (ProgressOnCancel <= startProgress) return cancelProgress;
-
-    const float glyphProgressBeforeCancellation =
-        (ProgressOnCancel - startProgress) / (endProgress - startProgress);
-    return glyphProgressBeforeCancellation +
-           cancelProgress * (1.0f - glyphProgressBeforeCancellation);
-  }
-
-  return std::clamp((Progress - startProgress) / (endProgress - startProgress),
-                    0.0f, 1.0f);
-}
 }  // namespace Impacto
