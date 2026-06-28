@@ -13,6 +13,7 @@ using namespace Profile::Dialogue;
 void TypewriterEffect::Start(const bool voiced) {
   Voiced = voiced;
   IsCancelled = false;
+  CancelRequested = false;
   StartIn(true);
 
   if (GlyphCount == 0) Finish();
