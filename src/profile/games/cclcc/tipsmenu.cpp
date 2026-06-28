@@ -31,6 +31,7 @@ void Configure() {
   TipsTextPageHeight = EnsureGetMember<float>("TipsTextPageHeight");
 
   TipsEntryBounds = EnsureGetMember<RectF>("TipsEntryBounds");
+  TipsEntryYPadding = EnsureGetMember<float>("TipsEntryYPadding");
   TipEntryNewOffset = EnsureGetMember<glm::vec2>("TipEntryNewOffset");
   TipsEntryHighlightOffset =
       EnsureGetMember<glm::vec2>("TipsEntryHighlightOffset");

@@ -75,7 +75,7 @@ void TipsEntryButton::Update(float dt) {
 }
 
 void TipsEntryButton::UpdateInput(float dt) {
-  if (TipsTabBounds.Intersects(Bounds) || TipsTabBounds.Contains(Bounds)) {
+  if (TipsTabBounds.Contains(Bounds)) {
     Button::UpdateInput(dt);
   } else {
     Hovered = false;

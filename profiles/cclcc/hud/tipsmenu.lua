@@ -13,7 +13,8 @@ root.TipsMenu = {
     TipsNewSprite = "TipsNewSprite",
     TipsHighlightedSprite = "TipsHighlightedSprite",
 
-    TipsEntryBounds = { X = 80, Y = 382, Width = 781, Height = 50},
+    TipsEntryBounds = { X = 80, Y = 382, Width = 781, Height = 40},
+    TipsEntryYPadding = 10,
     TipEntryNewOffset = { X = 0, Y = 1 },
     TipsEntryHighlightOffset = { X = 41, Y = 3 },
     TipsEntryNumberOffset = { X = 41, Y = 12 },

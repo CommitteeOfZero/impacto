@@ -21,6 +21,7 @@ inline int TipsTextEntryLockedIndex;
 inline float TipsTextPageHeight;
 
 inline RectF TipsEntryBounds;
+inline float TipsEntryYPadding;
 inline glm::vec2 TipEntryNewOffset;
 inline glm::vec2 TipsEntryNameOffset;
 inline glm::vec2 TipsEntryNumberOffset;
