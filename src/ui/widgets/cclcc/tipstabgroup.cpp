@@ -69,8 +69,7 @@ TipsTabGroup::TipsTabGroup(
 
   TipsScrollTrackBounds = {TipsScrollThumbSprite.Bounds.Width,
                            TipsScrollYEnd - TipsScrollYStart};
-  EntriesPerPage =
-      (int)std::ceil(TipsTabBounds.Height / TipsEntryBounds.Height);
+  EntriesPerPage = (int)std::ceil(TipsTabBounds.Height / GetEntryStride());
 }
 
 void TipsTabGroup::UpdatePageInput(float dt) {
@@ -106,7 +105,7 @@ void TipsTabGroup::UpdatePageInput(float dt) {
           if (CurrentlyFocusedElement == TipsEntriesGroup.Children.front()) {
             ScrollPosY = 0;
           } else {
-            ScrollPosY += TipsEntryBounds.Height;
+            ScrollPosY += GetEntryStride();
           }
         }
       } else {
@@ -115,7 +114,7 @@ void TipsTabGroup::UpdatePageInput(float dt) {
           if (CurrentlyFocusedElement == TipsEntriesGroup.Children.back()) {
             ScrollPosY = TipsEntriesScrollbar->EndValue;
           } else {
-            ScrollPosY -= TipsEntryBounds.Height;
+            ScrollPosY -= GetEntryStride();
           }
         }
       }
@@ -131,7 +130,7 @@ void TipsTabGroup::UpdatePageInput(float dt) {
         AdvanceFocus(FDIR_RIGHT);
         if (CurrentlyFocusedElement != prevEntry) {
           if (checkScrollBounds())
-            ScrollPosY += TipsEntryBounds.Height * EntriesPerPage;
+            ScrollPosY += GetEntryStride() * EntriesPerPage;
         } else if (CurrentlyFocusedElement ==
                    TipsEntriesGroup.Children.back()) {
           CurrentlyFocusedElement->HasFocus = false;
@@ -152,7 +151,7 @@ void TipsTabGroup::UpdatePageInput(float dt) {
         AdvanceFocus(FDIR_LEFT);
         if (CurrentlyFocusedElement != prevEntry) {
           if (checkScrollBounds())
-            ScrollPosY -= TipsEntryBounds.Height * EntriesPerPage;
+            ScrollPosY -= GetEntryStride() * EntriesPerPage;
         } else if (CurrentlyFocusedElement ==
                    TipsEntriesGroup.Children.front()) {
           CurrentlyFocusedElement->HasFocus = false;
@@ -196,10 +195,10 @@ void TipsTabGroup::Update(float dt) {
       if (oldScrollPosY != ScrollPosY) {
         float delta = oldScrollPosY - ScrollPosY;
         // taken from CHLCC
-        if (std::fmod(std::abs(delta), TipsEntryBounds.Height) >
+        if (std::fmod(std::abs(delta), GetEntryStride()) >
             std::numeric_limits<float>::epsilon()) {
-          const float newDelta = std::round(delta / TipsEntryBounds.Height) *
-                                 TipsEntryBounds.Height;
+          const float newDelta =
+              std::round(delta / GetEntryStride()) * GetEntryStride();
           ScrollPosY = oldScrollPosY - newDelta;
           delta = newDelta;
         }
@@ -208,8 +207,7 @@ void TipsTabGroup::Update(float dt) {
         if (TipsEntriesScrollbar->IsScrollHeld() && CurrentlyFocusedElement) {
           // advance focus during drag
           FocusDirection dir = (delta < 0) ? FDIR_DOWN : FDIR_UP;
-          int steps =
-              static_cast<int>(std::abs(delta) / TipsEntryBounds.Height);
+          int steps = static_cast<int>(std::abs(delta) / GetEntryStride());
           for (int i = 0; i < steps; i++) {
             AdvanceFocus(dir);
           }
@@ -270,7 +268,7 @@ void TipsTabGroup::UpdateTipsEntries(std::vector<int> const& SortedTipIds) {
     }
     bool dispNew = record.IsNew && !record.IsLocked;
     RectF buttonBounds = TipsEntryBounds;
-    buttonBounds.Y += TipsEntryButtons.size() * buttonBounds.Height;
+    buttonBounds.Y += TipsEntryButtons.size() * GetEntryStride();
     TipsEntryButton* button = new TipsEntryButton(
         tipId, sortIndex++, buttonBounds, TipsHighlightedSprite, dispNew);
     button->OnClickHandler = TipClickHandler;
@@ -294,14 +292,14 @@ void TipsTabGroup::UpdateTipsEntries(std::vector<int> const& SortedTipIds) {
     return std::ceil(numToRound / multiple) * multiple;
   };
   int scrollDistance =
-      (int)(TipsEntryBounds.Height * TipsEntryButtons.size() -
-            roundUpMultiple(TipsTabBounds.Height, TipsEntryBounds.Height));
+      (int)(GetEntryStride() * TipsEntryButtons.size() -
+            roundUpMultiple(TipsTabBounds.Height, GetEntryStride()));
 
   TipsEntriesScrollbar = std::make_unique<Scrollbar>(
       0, TipsScrollStartPos, 0.0f, std::max(0.0f, (float)scrollDistance),
       &ScrollPosY, SBDIR_VERTICAL, TipsScrollThumbSprite, TipsScrollTrackBounds,
       TipsScrollThumbLength, TipsTabBounds);
-  TipsEntriesScrollbar->Step = TipsEntryBounds.Height;
+  TipsEntriesScrollbar->Step = GetEntryStride();
   TipsEntriesGroup.RenderingBounds = TipsTabBounds;
   TipsEntriesGroup.HoverBounds = TipsTabBounds;
   TabName.Reset();

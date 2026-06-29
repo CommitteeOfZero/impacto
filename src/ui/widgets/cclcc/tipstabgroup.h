@@ -4,6 +4,7 @@
 #include "../group.h"
 #include "../../../data/tipssystem.h"
 #include "../../../games/cclcc/tipsmenu.h"
+#include "../../../profile/games/cclcc/tipsmenu.h"
 #include "tipsentrybutton.h"
 #include <vector>
 #include <memory>
@@ -40,6 +41,11 @@ class TipsTabGroup : public Menu {
   glm::vec4 Tint = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
  private:
+  static float GetEntryStride() {
+    using namespace Impacto::Profile::CCLCC::TipsMenu;
+    return TipsEntryBounds.Height + TipsEntryYPadding;
+  }
+
   Widgets::Group TipsEntriesGroup;
   TipsTabButton TabName;
   Impacto::UI::CCLCC::TipsTabType Type;
