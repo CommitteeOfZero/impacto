@@ -314,7 +314,7 @@ InstructionProc inline constexpr OpcodeTableGraph_LCCSwitch[256] = {
     InstSetRevMes,         // 01 25
     InstPlayMovieMemory,   // 01 26
     InstPlayMovie,         // 01 27
-    InstMovieMain,         // 01 28
+    InstMovieMain,         // 01 28 not a MovieMain
     InstLoadMovie,         // 01 29
     InstPlayMovieMemory,   // 01 2A
     InstSFDpause,          // 01 2B
@@ -597,7 +597,7 @@ InstructionProc inline constexpr OpcodeTableUser1_LCCSwitch[256] = {
     InstDummy,             // 10 3C
     InstDummy,             // 10 3D
     InstDummy,             // 10 3E
-    InstDummy,             // 10 3F
+    Inst103FLCCSwitch,     // 10 3F
     InstScreenChange,      // 10 40
     InstExitGame,          // 10 41
     InstDummy,             // 10 42

@@ -51,11 +51,13 @@ AudioStream* LopusAudioStream::Create(Stream* stream) {
         Io::ReadLE<int32_t>(result->BaseStream);  // number of samples
     result->LoopStart = Io::ReadLE<int32_t>(result->BaseStream);
     result->LoopEnd = Io::ReadLE<int32_t>(result->BaseStream);
+    // Loop end can be negative, that's might be the workaround
+    result->LoopEnd = result->LoopEnd < 0 ? result->Duration : result->LoopEnd;
+    result->BaseStream->Seek(dataOffset, RW_SEEK_SET);
   }
   // TODO: multistream info chunk, possible but vgstream comments say it's rare
 
   // data info chunk
-  result->BaseStream->Seek(dataOffset, RW_SEEK_SET);
   if (Io::ReadLE<uint32_t>(result->BaseStream) != 0x80000004) {
     goto fail;
   }
@@ -135,11 +137,101 @@ LopusAudioStream::~LopusAudioStream() {
   }
 }
 
-// todo
-int LopusAudioStream::Read(void* out, int samples) { return 0; }
+constexpr int kMaxFrameSamples = 5760;
 
-// todo
-void LopusAudioStream::Seek(int samples) { return; }
+// todo slop
+int LopusAudioStream::Read(void* out, int samples) {
+  if (!Decoder || samples <= 0) return 0;
+
+  int16_t* outPtr = reinterpret_cast<int16_t*>(out);
+  int written = 0;
+
+  while (written < samples) {
+    int leftoverAvailable =
+        (int)(PcmLeftover.size() / ChannelCount) - PcmLeftoverOffset;
+
+    if (leftoverAvailable > 0) {
+      int toCopy = std::min(leftoverAvailable, samples - written);
+      std::memcpy(outPtr + (size_t)written * ChannelCount,
+                  PcmLeftover.data() + (size_t)PcmLeftoverOffset * ChannelCount,
+                  (size_t)toCopy * ChannelCount * sizeof(int16_t));
+      PcmLeftoverOffset += toCopy;
+      written += toCopy;
+      continue;
+    }
+
+    if (CurrentFrameIndex >= (int)FrameTable.size()) {
+      break;
+    }
+
+    const LopusFrameTableEntry& entry = FrameTable[CurrentFrameIndex];
+    CurrentFrameIndex++;
+
+    std::vector<uint8_t> packetBuf(entry.PacketSize);
+    BaseStream->Seek(entry.PacketOffset, RW_SEEK_SET);
+    BaseStream->Read(packetBuf.data(), (int)entry.PacketSize);
+
+    PcmLeftover.assign((size_t)kMaxFrameSamples * ChannelCount, 0);
+    int decodedSamples =
+        opus_decode(Decoder, packetBuf.data(), (int32_t)entry.PacketSize,
+                    PcmLeftover.data(), kMaxFrameSamples, 0);
+    if (decodedSamples < 0) {
+      PcmLeftover.clear();
+      PcmLeftoverOffset = 0;
+      continue;
+    }
+    PcmLeftover.resize((size_t)decodedSamples * ChannelCount);
+    PcmLeftoverOffset = 0;
+    if (SkipRemaining > 0) {
+      int skip = std::min(decodedSamples, SkipRemaining);
+      PcmLeftoverOffset = skip;
+      SkipRemaining -= skip;
+    }
+  }
+
+  CurrentSample += (uint64_t)written;
+  return written;
+}
+
+// todo slop
+void LopusAudioStream::Seek(int samples) {
+  if (!Decoder || FrameTable.empty()) return;
+
+  if (samples < 0) samples = 0;
+  uint64_t targetRaw = (uint64_t)samples + PreSkipSampleCount;
+
+  auto it =
+      std::upper_bound(FrameTable.begin(), FrameTable.end(), targetRaw,
+                       [](uint64_t value, const LopusFrameTableEntry& entry) {
+                         return value < entry.SampleOffset;
+                       });
+  int frameIndex = (int)(it - FrameTable.begin()) - 1;
+  if (frameIndex < 0) frameIndex = 0;
+
+  const LopusFrameTableEntry& entry = FrameTable[frameIndex];
+
+  std::vector<uint8_t> packetBuf(entry.PacketSize);
+  BaseStream->Seek(entry.PacketOffset, RW_SEEK_SET);
+  BaseStream->Read(packetBuf.data(), (int)entry.PacketSize);
+
+  opus_decoder_ctl(Decoder, OPUS_RESET_STATE);
+
+  PcmLeftover.assign((size_t)kMaxFrameSamples * ChannelCount, 0);
+  int decodedSamples =
+      opus_decode(Decoder, packetBuf.data(), (int32_t)entry.PacketSize,
+                  PcmLeftover.data(), kMaxFrameSamples, 0);
+  if (decodedSamples < 0) decodedSamples = 0;
+  PcmLeftover.resize((size_t)decodedSamples * ChannelCount);
+
+  uint64_t intraFrameSkip =
+      targetRaw > entry.SampleOffset ? targetRaw - entry.SampleOffset : 0;
+  PcmLeftoverOffset =
+      (int)std::min<uint64_t>(intraFrameSkip, (uint64_t)decodedSamples);
+
+  SkipRemaining = 0;
+  CurrentFrameIndex = frameIndex + 1;
+  CurrentSample = (uint64_t)samples;
+}
 
 bool LopusAudioStream::_registered =
     AudioStream::AddAudioStreamCreator(&LopusAudioStream::Create);
