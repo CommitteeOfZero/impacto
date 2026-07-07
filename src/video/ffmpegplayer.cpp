@@ -319,7 +319,7 @@ void FFmpegPlayer::Play(Io::Stream* stream, bool looping, bool alpha) {
         [this](auto& videoText) {
           if constexpr (std::is_same_v<std::decay_t<decltype(videoText)>,
                                        std::monostate>) {
-            //TODO: Sw works for cclcc switch, HW for everything else
+            // TODO: Sw works for cclcc switch, HW for everything else
             if (SwVideoPixelFormat == AV_PIX_FMT_YUV420P) {
               // if (HwVideoPixelFormat == AV_PIX_FMT_NONE) {
               VideoTexture = Renderer->CreateYUVFrame(

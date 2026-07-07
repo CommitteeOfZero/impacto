@@ -562,7 +562,7 @@ VmInstruction(InstTitleMenuNew) {
             // Check "PRESS TO START" here
             if (((Interface::PADinputButtonWentDown & Interface::PAD1A) ||
                  (Interface::PADinputMouseWentDown & Interface::PAD1A))) {
-              ScrWork[SW_TITLEMODE] = 2;
+              ScrWork[SW_TITLEMODE] = 3;
               ScrWork[SW_TITLEDISPCT] = 0;
               ScrWork[SW_TITLEMOVIECT] = 0;
               SetFlag(SF_TITLEEND, 1);

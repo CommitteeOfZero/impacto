@@ -662,14 +662,22 @@ VmInstruction(InstDebugPrint) {
 VmInstruction(InstSystemMes) {
   StartInstruction;
   PopUint8(mode);
+  uint8_t unk01 = 0;
+
   switch (Profile::Vm::GameInstructionSet) {
     default:
       break;
     case InstructionSet::Dash:
     case InstructionSet::CC:
     case InstructionSet::LCCSwitch:
-      PopUint8(unk01);
+      unk01 = *thread->GetIp();
+      thread->IpOffset += 1;
+
       break;
+  }
+
+  if (unk01) {
+    //TODO
   }
 
   uint32_t type = mode;
@@ -699,12 +707,17 @@ VmInstruction(InstSystemMes) {
         if (unk02 == 1) {
           PopExpression(unk03);
         }
-        PopExpression(stringNum);
+        int bufId;
+        if ((type >> 6 & 1) == 0) {
+          // TODO get buf id from thread field
+          bufId = 0;
+        } else {
+          bufId = ExpressionEval(thread);
+        }
+        PopMsbString(message);
         // TODO: not finished
-        // message = MsbGetStrAddress(thread->ScriptBufferId, stringNum);
-
         // UI::SysMesBoxPtr->AddMessage(
-        //     {.BufferId = thread->ScriptBufferId, .IpOffset = message});
+        //    {.BufferId = thread->ScriptBufferId, .IpOffset = message});
       } else {
         PopUint16(sysMesStrNum);
         const uint32_t message =
@@ -714,10 +727,28 @@ VmInstruction(InstSystemMes) {
       }
     } break;
     case 4: {  // SystemMesSetSel
-      PopUint16(sysSelStrNum);
-      auto message = ScriptGetStrAddress(thread->ScriptBufferId, sysSelStrNum);
-      UI::SysMesBoxPtr->AddChoice(
-          {.BufferId = thread->ScriptBufferId, .IpOffset = message});
+      if (mode & 0x80) {
+        PopUint8(unk02);
+        if (unk02 == 1) {
+          PopExpression(unk03);
+        }
+        int bufId;
+        if ((type >> 6 & 1) == 0) {
+          // TODO get buf id from thread field
+          bufId = 0;
+        } else {
+          bufId = ExpressionEval(thread);
+        }
+        PopMsbString(message);
+
+      } else {
+        PopUint16(sysSelStrNum);
+        auto message =
+            ScriptGetStrAddress(thread->ScriptBufferId, sysSelStrNum);
+        UI::SysMesBoxPtr->AddChoice(
+            {.BufferId = thread->ScriptBufferId, .IpOffset = message});
+      }
+
     } break;
     case 5:  // SystemMesMain
       if (!UI::SysMesBoxPtr->ChoiceMade &&
