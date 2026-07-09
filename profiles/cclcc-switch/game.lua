@@ -31,7 +31,7 @@ root.Vm = {
     StringEncodingType = StringUnitEncoding.Uint32,
     StringIdSize = 4,
 
-    ScrWorkChaStructSize = 40,
+    ScrWorkChaStructSize = 24,
     ScrWorkChaOffsetStructSize = 10,
     ScrWorkBgStructSize = 40,
     ScrWorkBgOffsetStructSize = 10,
@@ -46,6 +46,8 @@ root.Vm = {
 
 root.PlatformId = 131072;
 
+include(root.BaseConfig.RootProfilesDir .. '/common/animation.lua');
+include(root.BaseConfig.RootProfilesDir .. '/common/charset.lua');
 include(root.BaseConfig.RootProfilesDir .. '/common/scriptinput.lua');
 include(root.BaseConfig.RootProfilesDir .. '/common/scriptvars.lua');
 
@@ -56,10 +58,8 @@ include(root.BaseConfig.RootProfilesDir .. '/cclcc-switch/sprites.lua');
 include(root.BaseConfig.RootProfilesDir .. '/cclcc/savedata.lua');
 include(root.BaseConfig.RootProfilesDir .. '/cclcc/tipssystem.lua');
 include(root.BaseConfig.RootProfilesDir .. '/cclcc-switch/vfs.lua');
-include(root.BaseConfig.RootProfilesDir .. '/common/charset.lua');
 include(root.BaseConfig.RootProfilesDir .. '/cclcc/charset.lua');
 include(root.BaseConfig.RootProfilesDir .. '/cclcc/gamespecific.lua');
-include(root.BaseConfig.RootProfilesDir .. '/common/animation.lua');
 --include(root.BaseConfig.RootProfilesDir .. '/cclcc/font.lua');
 --include(root.BaseConfig.RootProfilesDir .. '/cclcc/font-lb.lua');
 include(root.BaseConfig.RootProfilesDir .. '/cclcc/font-lb-italic.lua');
