@@ -73,24 +73,22 @@ void BacklogMenu::Update(float dt) {
 void BacklogMenu::Render() {
   if (State == Hidden) return;
 
-  float opacity = glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
-  glm::vec4 transition(1.0f, 1.0f, 1.0f, opacity);
-
-  glm::vec4 maskTint = transition;
-  maskTint.a *= (float)0xa0 / 0x100;
+  const float opacity = glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
+  const glm::vec4 transition(1.0f, 1.0f, 1.0f, opacity);
 
   MainItems->Tint = transition;
   MainScrollbar->Tint = transition;
 
-  int repeatHeight = BacklogBackgroundRepeatHeight;
-  float backgroundY =
-      (float)fmod(PageY - EntryYPadding - RenderingBounds.Y, repeatHeight);
+  const float backgroundY =
+      static_cast<float>(fmod(PageY - EntryYPadding - RenderingBounds.Y,
+                              BacklogBackground.Bounds.Height));
 
   if (OpenedAsDirect) CommonMenu::DrawBgSprite<false>(State, FadeAnimation);
-  Renderer->DrawSprite(BacklogBackground, glm::vec2(0.0f, backgroundY),
-                       transition);
-  Renderer->DrawSprite(BacklogBackground,
-                       glm::vec2(0.0f, backgroundY + repeatHeight), transition);
+
+  for (float yPos = backgroundY; yPos <= Profile::DesignHeight;
+       yPos += BacklogBackground.Bounds.Height) {
+    Renderer->DrawSprite(BacklogBackground, {0.0f, yPos}, transition);
+  }
 
   RenderHighlight();
   Renderer->DrawSprite(BacklogHeaderSprite, BacklogHeaderPosition, transition);

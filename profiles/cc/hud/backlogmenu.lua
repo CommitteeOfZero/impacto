@@ -3,7 +3,6 @@ root.BacklogMenu = {
     DrawType = DrawComponentType.SystemMenu,
 
     BacklogBackgroundSprite = "BacklogBackground",
-    BacklogBackgroundRepeatHeight = 1080,
 
     BacklogHeaderSprite = "BacklogHeader",
     BacklogHeaderPosition = { X = 0, Y = 0 },
@@ -42,7 +41,8 @@ root.BacklogMenu = {
 
 root.Sprites["BacklogBackground"] = {
     Sheet = "Backlog",
-    Bounds = { X = 0, Y = 0, Width = 1920, Height = 1100 },
+    Bounds = { X = 0, Y = 0, Width = 1920, Height = 1080 },
+    -- Height does *not* include the repeat overlap
 };
 
 root.Sprites["BacklogHeader"] = {

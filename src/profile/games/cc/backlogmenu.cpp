@@ -9,9 +9,6 @@ namespace CC {
 namespace BacklogMenu {
 
 void Configure() {
-  BacklogBackgroundRepeatHeight =
-      EnsureGetMember<int>("BacklogBackgroundRepeatHeight");
-
   BacklogHeaderSprite = EnsureGetMember<Sprite>("BacklogHeaderSprite");
   BacklogHeaderPosition = EnsureGetMember<glm::vec2>("BacklogHeaderPosition");
 
