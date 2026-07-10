@@ -45,8 +45,8 @@ void DelusionTrigger::Show() {
     State = Showing;
     DelusionState = DS_Neutral;
     MaskScaleFactor = 131072;
-    SpinAngle = 0;
-    SpinRate = 3072;
+    SpinAngle = 62431;
+    SpinRate = -3072;
     UnderlayerAlpha = 0;
     BackgroundAlpha = 0;
     AnimationState = 0;
@@ -72,13 +72,6 @@ void DelusionTrigger::Hide() {
 }
 
 void DelusionTrigger::UpdateHiding(float dt) {
-  auto setHidden = [this] {
-    AnimCounter = 0;
-    AnimationState = 0;
-    SetFlag(SF_DELUSION_UI_ANIM_WAIT, 0);
-    State = Hidden;
-    Reset();
-  };
   if (AnimationState < 13) {
     AnimCounter++;
     switch (AnimationState) {
@@ -125,27 +118,27 @@ void DelusionTrigger::UpdateHiding(float dt) {
           BackgroundAlpha -= 16;
         }
         if (AnimCounter == 50) {
-          setHidden();
+          Reset();
         }
       } break;
       case 11: {
-        SpinRate += 24;
-        MaskScaleFactor += 1536;
-        if (AnimCounter > 67) {
-          BackgroundAlpha -= 8;
-        }
-        if (AnimCounter == 100) {
-          setHidden();
-        }
-      } break;
-      case 12: {
         SpinRate -= 24;
         MaskScaleFactor += 1536;
         if (AnimCounter > 67) {
           BackgroundAlpha -= 8;
         }
         if (AnimCounter == 100) {
-          setHidden();
+          Reset();
+        }
+      } break;
+      case 12: {
+        SpinRate += 24;
+        MaskScaleFactor += 1536;
+        if (AnimCounter > 67) {
+          BackgroundAlpha -= 8;
+        }
+        if (AnimCounter == 100) {
+          Reset();
         }
       } break;
     }
@@ -155,7 +148,7 @@ void DelusionTrigger::UpdateHiding(float dt) {
 void DelusionTrigger::UpdateShowing(float dt) {
   switch (AnimationState) {
     case 0: {
-      SpinRate -= 24;
+      SpinRate += 24;
       MaskScaleFactor -= 736;
 
       if (UnderlayerAlpha < 256) {
@@ -167,7 +160,7 @@ void DelusionTrigger::UpdateShowing(float dt) {
 
       if (SpinRate == 0) {
         AnimationState += 1;
-        SpinRate = -1024;
+        SpinRate = 1024;
       }
     } break;
     case 1:
@@ -185,7 +178,7 @@ void DelusionTrigger::UpdateShowing(float dt) {
       if (AnimCounter == 15) {
         AnimationState += 1;
         AnimCounter = 0;
-        SpinRate = 1024;
+        SpinRate = -1024;
       }
     } break;
     case 4: {
@@ -193,7 +186,7 @@ void DelusionTrigger::UpdateShowing(float dt) {
       if (AnimCounter == 15) {
         AnimationState += 1;
         AnimCounter = 0;
-        SpinRate = -1024;
+        SpinRate = 1024;
       }
     } break;
     case 6: {
@@ -201,7 +194,7 @@ void DelusionTrigger::UpdateShowing(float dt) {
       if (AnimCounter == 20) {
         AnimationState += 1;
         AnimCounter = 0;
-        SpinRate = 5;
+        SpinRate = -5;
       }
     } break;
     case 7: {
@@ -215,8 +208,8 @@ void DelusionTrigger::UpdateShowing(float dt) {
     case 8: {
       MaskScaleFactor += 3072;
       if (MaskScaleFactor > 79999) {
-        AnimationState = 0;
-        AnimCounter = 0;
+        AnimationState = -1;
+        AnimCounter = -1;
         SetFlag(SF_DELUSION_UI_ANIM_WAIT, 0);
       }
     } break;
@@ -325,7 +318,8 @@ void DelusionTrigger::UpdateShown(float dt) {
              TextSystem.DelusionTextFade.IsStopped()) {
     TriggerRight();
   }
-
+  AnimationState = 0;
+  AnimCounter = 0;
   const AnimationDirection leftHeartDirection =
       (ScrWork[SW_DELUSION_STATE] == DS_Positive) ? AnimationDirection::Out
                                                   : AnimationDirection::In;
@@ -344,8 +338,8 @@ void DelusionTrigger::UpdateShown(float dt) {
     }
     if (ScrWork[SW_DELUSION_STATE] == DS_Positive) {
       TriggerOnTint = RgbIntToFloat(0xffb0ce);
-      if (SpinRate < 40) {
-        SpinRate = SpinRate + 2;
+      if (SpinRate > -40) {
+        SpinRate = SpinRate - 2;
         anim = true;
       }
       if (UnderlayerXRate < 2400) {
@@ -361,8 +355,8 @@ void DelusionTrigger::UpdateShown(float dt) {
       TriggerOnTint = ScrWork[SW_DELUSION_NEG_TXT_IDX]
                           ? RgbIntToFloat(0xffb0ce)
                           : RgbIntToFloat(0x2242e3);
-      if (SpinRate > -40) {
-        SpinRate = SpinRate - 2;
+      if (SpinRate < 40) {
+        SpinRate = SpinRate + 2;
         anim = true;
       }
       if (UnderlayerXRate > -2400) {
@@ -531,6 +525,7 @@ void DelusionTrigger::Render() {
 }
 
 void DelusionTrigger::Load() {
+  SetFlag(SF_DELUSION_UI_ANIM_WAIT, 0);
   State = Shown;
   ShakeState = 0;
   MaskOffsetX = 0;
@@ -538,8 +533,8 @@ void DelusionTrigger::Load() {
 
   UnderlayerXOffset = 20000;
   AnimCounter = 0;
-  SpinAngle = 0;
-  SpinRate = 5;
+  SpinAngle = 62431;
+  SpinRate = -5;
   BackgroundAlpha = 256;
   TextSystem.Clear();
   switch (DelusionState) {
@@ -575,8 +570,9 @@ void DelusionTrigger::Load() {
 }
 
 void DelusionTrigger::Reset() {
+  SetFlag(SF_DELUSION_UI_ANIM_WAIT, 0);
   State = Hidden;
-  SpinAngle = 0;
+  SpinAngle = 62431;
   SpinRate = 0;
   UnderlayerAlpha = 0;
   UnderlayerXOffset = 0;
