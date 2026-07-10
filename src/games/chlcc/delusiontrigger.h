@@ -63,6 +63,7 @@ class DelusionTrigger {
   bool AreHeartButtonsVisible() const;
   void RenderHeartButton(Sprite const& sprite, glm::vec2 pos, bool hovered,
                          float alpha) const;
+  void UpdateBgFadeCT();
 
   int& DelusionState;
 
