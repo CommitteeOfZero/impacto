@@ -97,9 +97,7 @@ void TitleButton::Render() {
 
       newHighlightSprite.Bounds.Width *= smoothProgress;
       Renderer->DrawSprite(newHighlightSprite,
-                           glm::vec2(Bounds.X - ItemHighlightOffsetX,
-                                     Bounds.Y - ItemHighlightOffsetY),
-                           BlinkTint);
+                           Bounds.GetPos() - ItemHighlightOffset, BlinkTint);
       glm::vec4 pointerTint =
           glm::vec4(1.0f, 1.0f, 1.0f, smoothProgress * blinkAlpha);
       Renderer->DrawSprite(

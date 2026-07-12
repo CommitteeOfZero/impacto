@@ -37,8 +37,7 @@ void Configure() {
     PressToStartAnimDurationOut =
         EnsureGetMember<float>("PressToStartAnimDurationOut");
 
-    PressToStartX = EnsureGetMember<float>("PressToStartX");
-    PressToStartY = EnsureGetMember<float>("PressToStartY");
+    PressToStartPos = EnsureGetMember<glm::vec2>("PressToStartPos");
 
     if (Type == TitleMenuType::RNE) {
       RNE::TitleMenu::Configure();

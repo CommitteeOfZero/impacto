@@ -83,7 +83,7 @@ TitleMenu::TitleMenu() {
   Sprite nullSprite = Sprite();
   nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
 
-  MenuLabel = new Widgets::Label(MenuSprite, glm::vec2(MenuX, MenuY));
+  MenuLabel = new Widgets::Label(MenuSprite, MenuPos);
 
   auto onClick = [this](Widgets::Button* target) {
     return MenuButtonOnClick(target);
@@ -110,14 +110,14 @@ TitleMenu::TitleMenu() {
   // NewGame menu button
   NewGame = new TitleButton(0, MenuEntriesSprites[0], MenuEntriesHSprites[0],
                             ItemHighlightSprite,
-                            glm::vec2((-1.0f) + ItemHighlightOffsetX,
+                            glm::vec2((-1.0f) + ItemHighlightOffset.x,
                                       (ItemYBase + (0 * ItemPadding))));
   setupBtn(NewGame, onClick, MainItems, FDIR_DOWN);
 
   // Continue menu button
   Continue = new TitleButton(
       1, MenuEntriesSprites[1], MenuEntriesHSprites[1], ItemHighlightSprite,
-      glm::vec2(ItemHighlightOffsetX, (ItemYBase + (1 * ItemPadding))));
+      glm::vec2(ItemHighlightOffset.x, (ItemYBase + (1 * ItemPadding))));
   setupBtn(
       Continue,
       [this](Widgets::Button* target) { return ContinueButtonOnClick(target); },
@@ -126,7 +126,7 @@ TitleMenu::TitleMenu() {
   // Extra menu button
   Extra = new TitleButton(
       2, MenuEntriesSprites[2], MenuEntriesHSprites[2], ItemHighlightSprite,
-      glm::vec2(ItemHighlightOffsetX, (ItemYBase + (2 * ItemPadding))));
+      glm::vec2(ItemHighlightOffset.x, (ItemYBase + (2 * ItemPadding))));
   setupBtn(
       Extra,
       [this](Widgets::Button* target) { return ExtraButtonOnClick(target); },
@@ -135,20 +135,20 @@ TitleMenu::TitleMenu() {
   // Config menu button
   Config = new TitleButton(
       30, MenuEntriesSprites[3], MenuEntriesHSprites[3], ItemHighlightSprite,
-      glm::vec2(ItemHighlightOffsetX, (ItemYBase + (3 * ItemPadding))));
+      glm::vec2(ItemHighlightOffset.x, (ItemYBase + (3 * ItemPadding))));
   setupBtn(Config, onClick, MainItems, FDIR_DOWN);
 
   // Help menu button
   Help = new TitleButton(
       40, MenuEntriesSprites[4], MenuEntriesHSprites[4], ItemHighlightSprite,
-      glm::vec2(ItemHighlightOffsetX, (ItemYBase + (4 * ItemPadding))));
+      glm::vec2(ItemHighlightOffset.x, (ItemYBase + (4 * ItemPadding))));
   setupBtn(Help, onClick, MainItems, FDIR_DOWN);
 
   if (HasScriptedExitLogic) {
     // Exit menu button (Configuration/Patch driven)
     auto* const exitPtr = new TitleButton(
         5, ExitSprite, ExitSprite, ItemHighlightSprite,
-        glm::vec2(ItemHighlightOffsetX, (ItemYBase + (5 * ItemPadding))));
+        glm::vec2(ItemHighlightOffset.x, (ItemYBase + (5 * ItemPadding))));
     Exit.emplace(*exitPtr);
     setupBtn(
         exitPtr,
@@ -616,8 +616,7 @@ void TitleMenu::Render() {
       }
 
       DrawStartButton();
-      Renderer->DrawSprite(CopyrightTextSprite,
-                           glm::vec2(CopyrightTextX, CopyrightTextY));
+      Renderer->DrawSprite(CopyrightTextSprite, CopyrightTextPos);
       Renderer->DrawQuad(
           RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
           glm::vec4(1.0f, 1.0f, 1.0f, 1.0f - ScrWork[SW_TITLEDISPCT] / 60.0f));
@@ -701,8 +700,7 @@ void TitleMenu::Render() {
                               (ScrWork[SW_TITLEDISPCT] / 32.0f));
       }
 
-      Renderer->DrawSprite(CopyrightTextSprite,
-                           glm::vec2(CopyrightTextX, CopyrightTextY));
+      Renderer->DrawSprite(CopyrightTextSprite, CopyrightTextPos);
     } break;
   }
 

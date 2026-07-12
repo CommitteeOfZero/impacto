@@ -82,8 +82,7 @@ void TitleMenu::Render() {
     if (BackgroundAnimation->IsIn()) {
       glm::vec4 col = glm::vec4(1.0f);
       col.a = glm::smoothstep(0.0f, 1.0f, PressToStartAnimation.Progress);
-      Renderer->DrawSprite(PressToStartSprite,
-                           glm::vec2(PressToStartX, PressToStartY), col);
+      Renderer->DrawSprite(PressToStartSprite, PressToStartPos, col);
 
       Renderer->DrawSprite(LineSprite, glm::vec2(LineX, LineY),
                            glm::vec4(1.0f));

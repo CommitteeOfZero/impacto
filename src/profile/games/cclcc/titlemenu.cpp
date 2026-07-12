@@ -38,12 +38,9 @@ void Configure() {
   PrimaryFadeOutDuration = EnsureGetMember<float>("PrimaryFadeOutDuration");
   SecondaryFadeInDuration = EnsureGetMember<float>("SecondaryFadeInDuration");
   SecondaryFadeOutDuration = EnsureGetMember<float>("SecondaryFadeOutDuration");
-  CopyrightTextX = EnsureGetMember<float>("CopyrightTextX");
-  CopyrightTextY = EnsureGetMember<float>("CopyrightTextY");
-  MenuX = EnsureGetMember<float>("MenuX");
-  MenuY = EnsureGetMember<float>("MenuY");
-  ItemHighlightOffsetX = EnsureGetMember<float>("ItemHighlightOffsetX");
-  ItemHighlightOffsetY = EnsureGetMember<float>("ItemHighlightOffsetY");
+  CopyrightTextPos = EnsureGetMember<glm::vec2>("CopyrightTextPos");
+  MenuPos = EnsureGetMember<glm::vec2>("MenuPos");
+  ItemHighlightOffset = EnsureGetMember<glm::vec2>("ItemHighlightOffset");
   ItemPadding = EnsureGetMember<float>("ItemPadding");
   ItemYBase = EnsureGetMember<float>("ItemYBase");
   SecondaryFirstItemHighlightOffsetX =

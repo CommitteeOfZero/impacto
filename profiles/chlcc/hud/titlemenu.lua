@@ -3,8 +3,7 @@ if root.Language == "Japanese" then languageSuffix = "" end
 
 root.TitleMenu = {
     Type = TitleMenuType.CHLCC,
-    PressToStartX = 72,
-    PressToStartY = 595,
+    PressToStartPos = { X = 72, Y = 595 },
     PressToStartAnimDurationIn = 0.5,
     PressToStartAnimDurationOut = 0.5,
     PressToStartSprite = "TitleMenuPressToStart",

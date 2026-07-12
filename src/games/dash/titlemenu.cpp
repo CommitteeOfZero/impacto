@@ -65,8 +65,7 @@ void TitleMenu::Render() {
     glm::vec4 col = glm::vec4(1.0f);
     col.a = glm::smoothstep(0.0f, 1.0f, PressToStartAnimation.Progress);
     Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f));
-    Renderer->DrawSprite(PressToStartSprite,
-                         glm::vec2(PressToStartX, PressToStartY), col);
+    Renderer->DrawSprite(PressToStartSprite, PressToStartPos, col);
   }
 }
 
