@@ -37,6 +37,14 @@ void CommonMenu::Init() {
     animation.LoopMode = AnimationLoopMode::Loop;
     animation.StartIn();
   }
+
+  const RectF viewport = Window->GetViewport();
+  Texture captureTexture;
+  captureTexture.LoadSolidColor(static_cast<int>(viewport.Width),
+                                static_cast<int>(viewport.Height), 0x00000000);
+  CaptureSprite.Sheet.Texture = captureTexture.Submit();
+  CaptureSprite.Sheet.DesignWidth = viewport.Width;
+  CaptureSprite.Sheet.DesignHeight = viewport.Height;
 }
 
 void CommonMenu::Update(const float dt) {
@@ -58,6 +66,44 @@ void CommonMenu::DrawSmoke(const float alpha) {
         SmokeSprites[layer],
         pos - glm::vec2(SmokeSprites[layer].ScaledWidth(), 0.0f), col);
   }
+}
+
+void CommonMenu::DrawOverlay(const float alpha) {
+  const glm::vec4 tint = {1.0f, 1.0f, 1.0f, alpha};
+
+  const RectF maskUvBounds = OverlaySprite.NormalizedBounds();
+  std::array<VertexBufferSprites, 4> vertices{
+      VertexBufferSprites{
+          .Position = {0.0f, 0.0f},
+          .UV = {0.0f, 0.0f},
+          .Tint = tint,
+          .MaskUV = {maskUvBounds.Left(), 1.0f - maskUvBounds.Top()},
+      },
+      VertexBufferSprites{
+          .Position = {Profile::DesignWidth, 0.0f},
+          .UV = {1.0f, 0.0f},
+          .Tint = tint,
+          .MaskUV = {maskUvBounds.Right(), 1.0f - maskUvBounds.Top()},
+      },
+      VertexBufferSprites{
+          .Position = {0.0f, Profile::DesignHeight},
+          .UV = {0.0f, 1.0f},
+          .Tint = tint,
+          .MaskUV = {maskUvBounds.Left(), 1.0f - maskUvBounds.Bottom()},
+      },
+      VertexBufferSprites{
+          .Position = {Profile::DesignWidth, Profile::DesignHeight},
+          .UV = {1.0f, 1.0f},
+          .Tint = tint,
+          .MaskUV = {maskUvBounds.Right(), 1.0f - maskUvBounds.Bottom()},
+      },
+  };
+  constexpr static std::array<uint16_t, 6> indices{0, 1, 2, 1, 2, 3};
+
+  Renderer->CaptureScreencap(CaptureSprite);
+  Renderer->DrawPrimitives(CaptureSprite.Sheet, &OverlaySprite.Sheet,
+                           ShaderProgramType::HardLightMaskedSprite, vertices,
+                           indices, {0.0f, 0.0f});
 }
 
 static auto GenerateMatrix(CornersQuad const& corners) {

@@ -17,6 +17,7 @@ class CommonMenu {
  public:
   static void Init();
   static void DrawSmoke(float alpha);
+  static void DrawOverlay(float alpha = 1.0f);
 
  protected:
   using GridVertices =
@@ -52,6 +53,8 @@ class CommonMenu {
   static inline int PrevSubMenuCt;
 
   static inline std::array<Animation, SmokeLayerCount> SmokeAnimations;
+
+  static inline Sprite CaptureSprite;
 };
 
 }  // namespace CCLCC

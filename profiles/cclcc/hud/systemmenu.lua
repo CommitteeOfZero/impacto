@@ -49,7 +49,7 @@ root.SystemMenu = {
     MenuButtonGuide = "SystemMenuButtonGuide",
     SystemMenuBG = "SystemMenuBG",
     SystemMenuFrame = "SystemMenuFrame",
-    SystemMenuMask = "SystemMenuMask",
+    OverlaySprite = "OverlaySprite",
 
     BGDispOffsetTopLeft = {X=-1200, Y= -330},
     BGDispOffsetBottomLeft = {X=-1200, Y= 2080},
@@ -162,9 +162,9 @@ root.Sprites["SystemMenuFrame"] = {
     Bounds = {X = 0, Y = 0, Width = 2252, Height = 1383}
 };
 
-root.Sprites["SystemMenuMask"] = {
+root.Sprites["OverlaySprite"] = {
     Sheet = "MenuChip",
-    Bounds = { X = 154, Y = 140, Width = 1900, Height = 1061 },
+    Bounds = { X = 155, Y = 142, Width = 1898, Height = 1058 },
 };
 
 root.Sprites["TitleMenuSmoke1"] = {
