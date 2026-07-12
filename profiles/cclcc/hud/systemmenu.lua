@@ -65,6 +65,18 @@ root.SystemMenu = {
     BGRandPosRange = {X=4095,Y=4095},
 
     BGTranslationOffset = {X=1452,Y=395},
+
+    SmokePosition = { X = 0, Y = 582 },
+    SmokeOpacityNormal = 0.25,
+    SmokeOpacitySystemMenu = 96 / 256,
+    SmokeAnimationDurations = {
+        1920 / 60,
+        1920 / 60 / 2,
+    },
+    SmokeSprites = {
+        "TitleMenuSmoke1",
+        "TitleMenuSmoke2"
+    },
 };
 
 root.Sprites["SystemMenuBG"] = {
@@ -153,4 +165,14 @@ root.Sprites["SystemMenuFrame"] = {
 root.Sprites["SystemMenuMask"] = {
     Sheet = "MenuChip",
     Bounds = { X = 154, Y = 140, Width = 1900, Height = 1061 },
+};
+
+root.Sprites["TitleMenuSmoke1"] = {
+    Sheet = "MenuChip",
+    Bounds = { X = 0, Y = 1548, Width = 1920, Height = 498 },
+};
+
+root.Sprites["TitleMenuSmoke2"] = {
+    Sheet = "MenuChip",
+    Bounds = { X = 2002, Y = 1548, Width = 1920, Height = 498 },
 };

@@ -55,6 +55,8 @@ void SystemMenu::UpdateInput(float dt) {
 }
 
 SystemMenu::SystemMenu() : CommonMenu(FadeAnimation) {
+  CommonMenu::Init();
+
   MenuTransition.Direction = AnimationDirection::In;
   MenuTransition.LoopMode = AnimationLoopMode::Stop;
   MenuTransition.DurationIn = MoveInDuration;
@@ -143,6 +145,7 @@ void SystemMenu::Hide() {
 }
 
 void SystemMenu::Update(float dt) {
+  CommonMenu::Update(dt);
   UpdateInput(dt);
 
   if (State == Shown &&

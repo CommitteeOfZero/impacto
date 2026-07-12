@@ -5,15 +5,19 @@
 #include "../../renderer/renderer.h"
 #include "../../ui/menu.h"
 
-#include "../../profile/games/cclcc/systemmenu.h"
-
 namespace Impacto {
 namespace UI {
 namespace CCLCC {
 constexpr inline int GridRowCount = 10;
 constexpr inline int GridColCount = 20;
 
+constexpr inline size_t SmokeLayerCount = 2;
+
 class CommonMenu {
+ public:
+  static void Init();
+  static void DrawSmoke(float alpha);
+
  protected:
   using GridVertices =
       std::array<VertexBufferSprites, (GridRowCount + 1) * (GridColCount + 1)>;
@@ -25,6 +29,8 @@ class CommonMenu {
   CommonMenu(Animation& fadeAnimation);
   void OnShow(float fadeInDuration, float fadeOutDuration,
               Animation& fadeAnimation);
+
+  static void Update(float dt);
 
   template <bool IsSystem>
   void DrawBgSprite(MenuState state, const Animation& fadeAnimation,
@@ -44,6 +50,8 @@ class CommonMenu {
   static inline GridVertices Vertices;
   static inline int PrevSysMenuCt;
   static inline int PrevSubMenuCt;
+
+  static inline std::array<Animation, SmokeLayerCount> SmokeAnimations;
 };
 
 }  // namespace CCLCC

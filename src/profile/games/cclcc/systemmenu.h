@@ -1,11 +1,15 @@
 #pragma once
 
 #include "../../../spritesheet.h"
+#include "../../../games/cclcc/commonmenu.h"
 
 namespace Impacto {
 namespace Profile {
 namespace CCLCC {
 namespace SystemMenu {
+
+using namespace Impacto::UI::CCLCC;
+
 constexpr inline int MenuEntriesNumMax = 16;
 
 inline Sprite SystemMenuBG;
@@ -36,6 +40,13 @@ inline glm::vec3 AngleMultiplier;
 inline glm::vec2 BGRandPosRange;
 
 inline glm::vec2 BGTranslationOffset;
+
+inline float SmokeOpacityNormal;
+inline float SmokeOpacitySystemMenu;
+inline glm::vec2 SmokePosition;
+inline std::array<Sprite, SmokeLayerCount> SmokeSprites;
+inline std::array<float, SmokeLayerCount> SmokeAnimationDurations;
+
 void Configure();
 
 }  // namespace SystemMenu

@@ -3,6 +3,7 @@
 #include "../../profile/game.h"
 #include "../../profile/scriptvars.h"
 #include "../../profile/games/cclcc/systemmenu.h"
+#include "../../profile/games/cclcc/titlemenu.h"
 
 namespace Impacto {
 namespace UI {
@@ -10,6 +11,7 @@ namespace CCLCC {
 
 using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::CCLCC::SystemMenu;
+using namespace Impacto::Profile::CCLCC::TitleMenu;
 
 CommonMenu::CommonMenu(Animation& fadeAnimation) {
   fadeAnimation.Direction = AnimationDirection::In;
@@ -25,6 +27,36 @@ void CommonMenu::OnShow(float fadeInDuration, float fadeOutDuration,
   } else {
     fadeAnimation.DurationIn = fadeInDuration;
     fadeAnimation.DurationOut = fadeOutDuration;
+  }
+}
+
+void CommonMenu::Init() {
+  for (size_t layer = 0; layer < SmokeLayerCount; layer++) {
+    Animation& animation = SmokeAnimations[layer];
+    animation.SetDuration(SmokeAnimationDurations[layer]);
+    animation.LoopMode = AnimationLoopMode::Loop;
+    animation.StartIn();
+  }
+}
+
+void CommonMenu::Update(const float dt) {
+  for (Animation& animation : SmokeAnimations) {
+    animation.Update(dt);
+  }
+}
+
+void CommonMenu::DrawSmoke(const float alpha) {
+  const glm::vec4 col = {1.0f, 1.0f, 1.0f, alpha};
+
+  for (size_t layer = 0; layer < SmokeLayerCount; layer++) {
+    const glm::vec2 pos =
+        SmokePosition + glm::vec2(SmokeSprites[layer].ScaledWidth() *
+                                      SmokeAnimations[layer].Progress,
+                                  0.0f);
+    Renderer->DrawSprite(SmokeSprites[layer], pos, col);
+    Renderer->DrawSprite(
+        SmokeSprites[layer],
+        pos - glm::vec2(SmokeSprites[layer].ScaledWidth(), 0.0f), col);
   }
 }
 
