@@ -60,7 +60,7 @@ class TitleMenu : public Menu {
   void ShowExtraItems();
   void HideExtraItems();
 
-  void DrawStartButton();
+  void DrawStartButton(float alpha = 1.0f);
 
   void MainMenuUpdate();
   void SubMenuUpdate();

@@ -628,13 +628,17 @@ void TitleMenu::Render() {
       } else {
         Renderer->DrawSprite(BackgroundSprite, {0.0f, 0.0f});
       }
-      DrawStartButton();
+
       TitleAnimationSprite.Render(-1);
 
       if (renderOverlay) {
         CommonMenu::DrawOverlay();
         CommonMenu::DrawSmoke(SmokeOpacityNormal);
       }
+
+      DrawStartButton(1.0f - TitleAnimation.Progress);
+      Renderer->DrawSprite(CopyrightTextSprite, CopyrightTextPos,
+                           {1.0f, 1.0f, 1.0f, 1.0f - TitleAnimation.Progress});
     } break;
 
     case 3: {  // MenuItems Fade In
@@ -692,15 +696,17 @@ void TitleMenu::Render() {
     } break;
 
     case 11: {  // Initial Fade In
+      const float progress = ScrWork[SW_TITLEDISPCT] / 32.0f;
+
       Renderer->DrawSprite(BackgroundSprite, {0.0f, 0.0f});
 
       if (renderOverlay) {
         CommonMenu::DrawOverlay();
-        CommonMenu::DrawSmoke(SmokeOpacityNormal *
-                              (ScrWork[SW_TITLEDISPCT] / 32.0f));
+        CommonMenu::DrawSmoke(SmokeOpacityNormal * progress);
       }
 
-      Renderer->DrawSprite(CopyrightTextSprite, CopyrightTextPos);
+      Renderer->DrawSprite(CopyrightTextSprite, CopyrightTextPos,
+                           {1.0f, 1.0f, 1.0f, progress});
     } break;
   }
 
@@ -711,6 +717,13 @@ void TitleMenu::Render() {
       RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight), col);
 }
 
+void TitleMenu::DrawStartButton(const float alpha) {
+  const float animationAlpha =
+      glm::smoothstep(0.0f, 1.0f, PressToStartAnimation.Progress);
+  const float clampedAlpha = std::max(0.0f, animationAlpha - (1.0f - alpha));
+  Renderer->DrawSprite(PressToStartSprite, PressToStartPos,
+                       {1.0f, 1.0f, 1.0f, clampedAlpha});
+}
 
 void TitleMenu::ShowContinueItems() {
   ContinueItems->Show();
