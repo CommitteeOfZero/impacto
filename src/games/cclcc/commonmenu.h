@@ -16,7 +16,10 @@ constexpr inline size_t SmokeLayerCount = 2;
 class CommonMenu {
  public:
   static void Init();
+
+  static void InitSmokePos();
   static void DrawSmoke(float alpha);
+
   static void DrawOverlay(float alpha = 1.0f);
 
  protected:

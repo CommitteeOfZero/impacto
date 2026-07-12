@@ -269,6 +269,8 @@ void SystemMenu::Init() {
   BGPosition = {CALCrnd((int)BGRandPosRange.x), CALCrnd((int)BGRandPosRange.y)};
   SetFlag(SF_SYSTEMMENUCAPTURE, true);
 
+  CommonMenu::InitSmokePos();
+
   bool backlogLockState =
       GetFlag(SF_BACKLOG_NOLOG) || GetFlag(SF_MESREVDISABLE);
   static_cast<SysMenuButton*>(

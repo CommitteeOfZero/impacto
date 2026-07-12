@@ -47,6 +47,13 @@ void CommonMenu::Init() {
   CaptureSprite.Sheet.DesignHeight = viewport.Height;
 }
 
+void CommonMenu::InitSmokePos() {
+  for (Animation& animation : SmokeAnimations) {
+    animation.Progress =
+        CALCrnd(static_cast<int>(Profile::DesignWidth)) / Profile::DesignWidth;
+  }
+}
+
 void CommonMenu::Update(const float dt) {
   for (Animation& animation : SmokeAnimations) {
     animation.Update(dt);
