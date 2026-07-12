@@ -71,7 +71,6 @@ root.YesNoTrigger = {
     YN2ChipNoS = "YN2ChipNoS",
     ChipStar = "YNChipStar",
     YNBlurMask = "YNBlurMask",
-    YNBgOverlay = "YNBgOverlay",
     YesNoData1 = data1,
     YesNoData2 = data2,
     StarRotationPeriod = 164 / 60, 
@@ -140,10 +139,6 @@ root.Sprites["YN2ChipNoS"] = {
 root.Sprites["YNChipStar"] = {
     Sheet = "YesNoChip",
     Bounds = { X = 1033.0, Y = 385.0, Width = 380, Height = 380 }
-};
-root.Sprites["YNBgOverlay"] = {
-    Sheet = "MenuChip",
-    Bounds = { X = 154.0, Y = 141.0, Width = 1900, Height = 1060 }
 };
 root.Sprites["YNBlurMask"] = {
     Sheet = "YesNoBlurMask",

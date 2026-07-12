@@ -29,7 +29,6 @@ inline Sprite YN2NoChipSmall;
 inline Sprite YN2NoChipLarge;
 inline Sprite StarChip;
 inline Sprite YesNoBlurMask;
-inline Sprite YesNoBgOverlay;
 inline float StarRotationPeriod;
 
 inline glm::vec2 BackgroundPositions[BackgroundPositionsNum];
