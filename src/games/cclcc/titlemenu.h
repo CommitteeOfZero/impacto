@@ -25,7 +25,6 @@ class TitleMenu : public Menu {
   Animation PressToStartAnimation;
   Animation PrimaryFadeAnimation;
   Animation SecondaryFadeAnimation;
-  Animation SmokeAnimation;
   Animation TitleAnimation;
   Animation SlideItemsAnimation;
   Character2D TitleAnimationSprite;
@@ -61,10 +60,7 @@ class TitleMenu : public Menu {
   void ShowExtraItems();
   void HideExtraItems();
 
-  void DrawDISwordBackground(float opacity = 1.0f);
   void DrawStartButton();
-  void DrawMainMenuBackGraphics();
-  void DrawSmoke(float opacity);
 
   void MainMenuUpdate();
   void SubMenuUpdate();

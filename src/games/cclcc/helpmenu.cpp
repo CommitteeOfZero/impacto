@@ -143,14 +143,13 @@ void HelpMenu::Render() {
                          glm::vec4{glm::vec3{1.0f}, transition});
   }
 
-  float maskAlpha = 0.85f;
-  if (State != Shown) {
-    maskAlpha *= glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
+  if (ScrWork[SW_SYSSUBMENUNO] == 11) {
+    CommonMenu::DrawOverlay();
+    if (GetFlag(SF_TITLEMODE) && State != Shown) {
+      CommonMenu::DrawSmoke(Profile::CCLCC::SystemMenu::SmokeOpacityNormal *
+                            (1.0f - FadeAnimation.Progress));
+    }
   }
-  Renderer->DrawSprite(
-      HelpMaskSprite,
-      RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-      glm::vec4(glm::vec3{1.0f}, maskAlpha));
 }
 
 }  // namespace CCLCC

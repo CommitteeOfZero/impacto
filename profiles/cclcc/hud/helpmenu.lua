@@ -6,7 +6,6 @@ root.HelpMenu = {
     NextPageInDuration = 0.4,
     NextPageOutDuration = 0.4,
     ManualPages = {},
-    HelpMaskSprite = "HelpMask",
 }
 
 local numberOfPages = root.Language == "Japanese" and 16 or 1
@@ -18,8 +17,3 @@ for i = 0, numberOfPages do
     };
     root.HelpMenu.ManualPages[#root.HelpMenu.ManualPages + 1] = "ManualPage" .. i;
 end
-
-root.Sprites["HelpMask"] = {
-    Sheet = "MenuChip",
-    Bounds = { X = 154, Y = 140, Width = 1900, Height = 1061 },
-};

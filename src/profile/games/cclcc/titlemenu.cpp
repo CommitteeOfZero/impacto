@@ -16,8 +16,6 @@ void Configure() {
   BackgroundSprite = EnsureGetMember<Sprite>("BackgroundSprite");
   MainBackgroundSprite = EnsureGetMember<Sprite>("MainBackgroundSprite");
   CopyrightTextSprite = EnsureGetMember<Sprite>("CopyrightTextSprite");
-  OverlaySprite = EnsureGetMember<Sprite>("OverlaySprite");
-  SmokeSprite = EnsureGetMember<Sprite>("SmokeSprite");
   MenuSprite = EnsureGetMember<Sprite>("MenuSprite");
   ItemHighlightSprite = EnsureGetMember<Sprite>("ItemHighlightSprite");
   LoadSprite = EnsureGetMember<Sprite>("LoadSprite");
@@ -42,19 +40,6 @@ void Configure() {
   SecondaryFadeOutDuration = EnsureGetMember<float>("SecondaryFadeOutDuration");
   CopyrightTextX = EnsureGetMember<float>("CopyrightTextX");
   CopyrightTextY = EnsureGetMember<float>("CopyrightTextY");
-  SmokeOpacityNormal = EnsureGetMember<float>("SmokeOpacityNormal");
-  SmokeX = EnsureGetMember<float>("SmokeX");
-  SmokeY = EnsureGetMember<float>("SmokeY");
-  SmokeBoundsX = EnsureGetMember<float>("SmokeBoundsX");
-  SmokeBoundsY = EnsureGetMember<float>("SmokeBoundsY");
-  SmokeBoundsWidth = EnsureGetMember<float>("SmokeBoundsWidth");
-  SmokeBoundsHeight = EnsureGetMember<float>("SmokeBoundsHeight");
-  SmokeAnimationBoundsXOffset =
-      EnsureGetMember<float>("SmokeAnimationBoundsXOffset");
-  SmokeAnimationBoundsXMax = EnsureGetMember<float>("SmokeAnimationBoundsXMax");
-  SmokeAnimationDurationIn = EnsureGetMember<float>("SmokeAnimationDurationIn");
-  SmokeAnimationDurationOut =
-      EnsureGetMember<float>("SmokeAnimationDurationOut");
   MenuX = EnsureGetMember<float>("MenuX");
   MenuY = EnsureGetMember<float>("MenuY");
   ItemHighlightOffsetX = EnsureGetMember<float>("ItemHighlightOffsetX");
@@ -101,10 +86,6 @@ void Configure() {
   menu->PrimaryFadeAnimation.DurationOut = PrimaryFadeOutDuration;
   menu->SecondaryFadeAnimation.DurationIn = SecondaryFadeInDuration;
   menu->SecondaryFadeAnimation.DurationOut = SecondaryFadeOutDuration;
-
-  menu->SmokeAnimation.LoopMode = AnimationLoopMode::Loop;
-  menu->SmokeAnimation.DurationIn = SmokeAnimationDurationIn;
-  menu->SmokeAnimation.DurationOut = SmokeAnimationDurationOut;
 
   menu->TitleAnimation.DurationIn = TitleAnimationDurationIn;
   menu->TitleAnimation.DurationOut = TitleAnimationDurationOut;

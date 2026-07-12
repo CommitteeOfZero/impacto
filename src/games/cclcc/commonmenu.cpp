@@ -282,6 +282,9 @@ void CommonMenu::DrawBgSprite(MenuState state, const Animation& fadeAnimation,
                            glm::vec3(0.0f), false, true);
     }
   }
+
+  DrawSmoke(SmokeOpacitySystemMenu *
+            std::max(0.0f, (fadeAnimation.Progress - 0.5f) / 0.5f));
 }
 template void CommonMenu::DrawBgSprite<true>(MenuState, const Animation&,
                                              std::optional<Sprite>);

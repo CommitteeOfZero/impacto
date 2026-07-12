@@ -19,7 +19,6 @@ void Configure() {
   BacklogControlsPosition =
       EnsureGetMember<glm::vec2>("BacklogControlsPosition");
 
-  MenuMaskSprite = EnsureGetMember<Sprite>("MenuMask");
   BacklogMaskSheet = EnsureGetMember<SpriteSheet>("BacklogMask");
 
   FadeInDirectDuration = EnsureGetMember<float>("FadeInDirectDuration");

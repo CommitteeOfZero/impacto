@@ -16,7 +16,6 @@ void Configure() {
   NextPageOutDuration = EnsureGetMember<float>("NextPageOutDuration");
 
   ManualPages = EnsureGetMember<std::vector<Sprite>>("ManualPages");
-  HelpMaskSprite = EnsureGetMember<Sprite>("HelpMaskSprite");
 
   auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
 

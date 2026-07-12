@@ -15,7 +15,6 @@ namespace TipsMenu {
 
 void Configure() {
   TipsGuideSprite = EnsureGetMember<Sprite>("TipsGuideSprite");
-  TipsMaskSprite = EnsureGetMember<Sprite>("TipsMaskSprite");
   TipsHighlightedSprite = EnsureGetMember<Sprite>("TipsHighlightedSprite");
   TipsHighlightedTabSprite =
       EnsureGetMember<Sprite>("TipsHighlightedTabSprite");

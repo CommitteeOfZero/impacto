@@ -30,7 +30,8 @@ void Configure() {
   SystemMenuBG = EnsureGetMember<Sprite>("SystemMenuBG");
   SystemMenuFrame = EnsureGetMember<Sprite>("SystemMenuFrame");
   MenuButtonGuide = EnsureGetMember<Sprite>("MenuButtonGuide");
-  SystemMenuMask = EnsureGetMember<Sprite>("SystemMenuMask");
+
+  OverlaySprite = EnsureGetMember<Sprite>("OverlaySprite");
 
   SmokeOpacityNormal = EnsureGetMember<float>("SmokeOpacityNormal");
   SmokeOpacitySystemMenu = EnsureGetMember<float>("SmokeOpacitySystemMenu");

@@ -71,8 +71,6 @@ void Configure() {
   LibraryIndexPosition = EnsureGetMember<glm::vec2>("LibraryIndexPosition");
   LibraryButtonGuidePosition =
       EnsureGetMember<glm::vec2>("LibraryButtonGuidePosition");
-  LibraryMaskSprite = EnsureGetMember<Sprite>("LibraryMaskSprite");
-  LibraryMaskAlpha = EnsureGetMember<float>("LibraryMaskAlpha");
 
   auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
 

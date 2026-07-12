@@ -17,7 +17,6 @@ inline glm::vec2 BacklogHeaderPosition;
 inline Sprite BacklogControlsSprite;
 inline glm::vec2 BacklogControlsPosition;
 
-inline Sprite MenuMaskSprite;
 inline SpriteSheet BacklogMaskSheet;
 
 inline float FadeInDirectDuration;

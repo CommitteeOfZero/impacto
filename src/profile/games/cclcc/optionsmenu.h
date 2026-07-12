@@ -72,8 +72,6 @@ inline Sprite PortraitSprites[PortraitCount];
 inline glm::vec2 PortraitOffset;
 inline glm::vec2 VoicePosition;
 
-inline Sprite MenuMaskSprite;
-
 void Configure();
 
 }  // namespace OptionsMenu

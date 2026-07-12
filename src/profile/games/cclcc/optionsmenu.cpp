@@ -81,8 +81,6 @@ void Configure() {
   PortraitOffset = EnsureGetMember<glm::vec2>("PortraitOffset");
   VoicePosition = EnsureGetMember<glm::vec2>("VoicePosition");
 
-  MenuMaskSprite = EnsureGetMember<Sprite>("MenuMask");
-
   auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
 
   UI::OptionsMenuPtr = new UI::CCLCC::OptionsMenu();

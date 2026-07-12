@@ -97,9 +97,13 @@ void BacklogMenu::Render() {
   MainItems->Render();
   MainScrollbar->Render();
 
-  Renderer->DrawSprite(
-      MenuMaskSprite,
-      RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight), maskTint);
+  if (ScrWork[SW_SYSSUBMENUNO] == 1) {
+    CommonMenu::DrawOverlay();
+    if (GetFlag(SF_TITLEMODE)) {
+      CommonMenu::DrawSmoke(Profile::CCLCC::SystemMenu::SmokeOpacityNormal *
+                            (1.0f - FadeAnimation.Progress));
+    }
+  }
 
   Renderer->DrawSprite(BacklogControlsSprite, BacklogControlsPosition,
                        transition);

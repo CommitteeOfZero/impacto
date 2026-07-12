@@ -229,17 +229,34 @@ void SystemMenu::Update(float dt) {
 
 void SystemMenu::Render() {
   if (State != Hidden && !GetFlag(SF_TITLEMODE)) {
-    if (MenuTransition.IsIn()) {
-    }
     glm::vec3 tint = {1.0f, 1.0f, 1.0f};
-    // Alpha goes from 0 to 1 in half the time
-    float alpha = glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
     if (!OpenedAsDirect) {
       CommonMenu::DrawBgSprite<true>(State, FadeAnimation, ScreenCap);
-      Renderer->DrawSprite(
-          SystemMenuMask,
-          RectF{0, 0, Profile::DesignWidth, Profile::DesignHeight},
-          glm::vec4{tint, alpha});
+
+      const static std::array<const Menu*, 12> submenuPtrs{
+          SaveMenuPtr,       // 0
+          BacklogMenuPtr,    // 1
+          TipsMenuPtr,       // 2
+          SaveMenuPtr,       // 3
+          SaveMenuPtr,       // 4
+          OptionsMenuPtr,    // 5
+          nullptr,           // 6
+          ClearListMenuPtr,  // 7
+          LibraryMenuPtr,    // 8
+          nullptr,           // 9
+          nullptr,           // 10
+          HelpMenuPtr,       // 11
+      };
+      const int submenuNo = ScrWork[SW_SYSSUBMENUNO];
+      const Menu* const currentActiveMenu =
+          (0 <= submenuNo && submenuNo < std::ssize(submenuPtrs))
+              ? submenuPtrs[submenuNo]
+              : nullptr;
+      if (currentActiveMenu == nullptr || currentActiveMenu->State == Hidden) {
+        const float overlayAlpha =
+            std::min(ScrWork[SW_SYSMENUCT] / 32.0f, 1.0f);
+        CommonMenu::DrawOverlay(overlayAlpha);
+      }
     }
 
     MainItems->Tint =

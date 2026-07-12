@@ -15,13 +15,14 @@ constexpr inline int MenuEntriesNumMax = 16;
 inline Sprite SystemMenuBG;
 inline Sprite MenuButtonGuide;
 inline Sprite SystemMenuFrame;
-inline Sprite SystemMenuMask;
 inline float MoveInDuration;
 inline float MoveOutDuration;
 inline float ItemsFadeInDuration;
 inline float ItemsFadeOutDuration;
 inline float FadeInDirectDuration;
 inline float FadeOutDirectDuration;
+
+inline Sprite OverlaySprite;
 
 inline glm::vec2 MenuEntriesPositions[MenuEntriesNumMax];
 inline RectF MenuEntriesButtonBounds[MenuEntriesNumMax];

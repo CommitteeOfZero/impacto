@@ -9,7 +9,6 @@ root.TipsMenu = {
     TipsGuideSprite = "TipsGuide",
     TipsGuideX = 0,
     TipsGuideY = 990,
-    TipsMaskSprite = "TipsMask",
     TipsNewSprite = "TipsNewSprite",
     TipsHighlightedSprite = "TipsHighlightedSprite",
 
@@ -61,11 +60,6 @@ root.Sprites["TipsBookLayer"] = {
 root.Sprites["TipsGuide"] = {
     Sheet = "Tips",
     Bounds = { X = 0, Y = 1152, Width = 1925, Height = 55 }
-};
-
-root.Sprites["TipsMask"] = {
-    Sheet = "MenuChip",
-    Bounds = { X = 154, Y = 140, Width = 1900, Height = 1061 },
 };
 
 -- Start of Tips Tab Name Sprites

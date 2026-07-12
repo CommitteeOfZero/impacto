@@ -284,9 +284,14 @@ void TipsMenu::Render() {
     TipsScrollbar->Render();
   }
 
-  Renderer->DrawSprite(
-      TipsMaskSprite,
-      RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight), maskTint);
+  if (ScrWork[SW_SYSSUBMENUNO] == 2) {
+    CommonMenu::DrawOverlay();
+    if (GetFlag(SF_TITLEMODE)) {
+      CommonMenu::DrawSmoke(Profile::CCLCC::SystemMenu::SmokeOpacityNormal *
+                            (1.0f - FadeAnimation.Progress));
+    }
+  }
+
   Renderer->DrawSprite(
       TipsGuideSprite,
       glm::vec2(TipsGuideX, TipsGuideY + Profile::DesignHeight / 2 - LastYPos),
