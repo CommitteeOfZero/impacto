@@ -1,6 +1,7 @@
 #include "titlemenu.h"
 
 #include "commonmenu.h"
+#include "../cc/titlemenu.h"
 #include "../../spritesheet.h"
 #include "../../renderer/renderer.h"
 #include "../../mem.h"
@@ -269,8 +270,9 @@ void TitleMenu::Hide() {
 }
 
 void TitleMenu::UpdateInput(float dt) {
-  if (ScrWork[SW_TITLEMODE] == 5 || ScrWork[SW_TITLEMODE] == 13 ||
-      ScrWork[SW_TITLEMODE] == 3) {
+  if (ScrWork[SW_TITLEMODE] == CC::TitleMenuMode::SubMenu ||
+      ScrWork[SW_TITLEMODE] == CC::TitleMenuMode::ClearList ||
+      ScrWork[SW_TITLEMODE] == CC::TitleMenuMode::Main) {
     if (!InputLocked && !PrevInputLocked) {
       if (SlideItemsAnimation.State == AnimationState::Playing ||
           SecondaryFadeAnimation.State == AnimationState::Playing ||
@@ -371,7 +373,8 @@ void TitleMenu::Update(float dt) {
   ContinueItems->Update(dt);
   ExtraItems->Update(dt);
 
-  PressToStartTransitionCaptureSet &= ScrWork[SW_TITLEMODE] == 2;
+  PressToStartTransitionCaptureSet &=
+      ScrWork[SW_TITLEMODE] == CC::TitleMenuMode::StartTransition;
 
   if (GetFlag(SF_TITLEMODE)) {
     Show();
@@ -381,31 +384,26 @@ void TitleMenu::Update(float dt) {
 
   if (State != Hidden && GetFlag(SF_TITLEMODE)) {
     switch (ScrWork[SW_TITLEMODE]) {
-      case 1: {
+      using enum CC::TitleMenuMode::Mode;
+      case PressToStart: {
         if (PressToStartAnimation.LoopMode !=
             AnimationLoopMode::ReverseDirection) {
           PressToStartAnimation.LoopMode = AnimationLoopMode::ReverseDirection;
           PressToStartAnimation.StartOut();
         }
       } break;
-      case 2: {
+      case StartTransition: {
         ExplodeScreenUpdate();
       } break;
-      case 3: {  // Main Menu Fade In
+      case Main: {
         MainMenuUpdate();
       } break;
-      case 4: {
+      case FadingOut: {
         ReturnToMenuUpdate();
       } break;
-      // TODO check if that's true
-      case 5:
-      case 13: {
+      case SubMenu:
+      case ClearList: {
         SubMenuUpdate();
-      } break;
-      case 10: {
-        ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-                   "TitleMenu::Update: Unimplemented title mode {:d}\n",
-                   ScrWork[SW_TITLEMODE]);
       } break;
     }
     if (SubMenuState == Hiding && ScrWork[SW_SYSSUBMENUCT] == 0) {
@@ -414,7 +412,7 @@ void TitleMenu::Update(float dt) {
       SubMenuState = Shown;
       IsFocused = true;
     }
-    if (ScrWork[SW_TITLEMODE] != 2) IsExploding = false;
+    IsExploding &= ScrWork[SW_TITLEMODE] == CC::TitleMenuMode::StartTransition;
   }
 }
 
@@ -618,7 +616,8 @@ void TitleMenu::Render() {
       currentActiveMenu == nullptr || currentActiveMenu->State == Hidden;
 
   switch (ScrWork[SW_TITLEMODE]) {
-    case 1: {  // Press to start
+    using enum CC::TitleMenuMode::Mode;
+    case PressToStart: {
       Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f));
 
       if (renderOverlay) {
@@ -633,7 +632,7 @@ void TitleMenu::Render() {
           glm::vec4(1.0f, 1.0f, 1.0f, 1.0f - ScrWork[SW_TITLEDISPCT] / 60.0f));
     } break;
 
-    case 2: {  // Transition between Press to start and menus
+    case StartTransition: {
       if (!PressToStartTransitionCaptureSet) {
         Renderer->DrawSprite(BackgroundSprite, {0.0f, 0.0f});
         PressToStartTransitionCaptureSet = true;
@@ -657,7 +656,7 @@ void TitleMenu::Render() {
                            {1.0f, 1.0f, 1.0f, 1.0f - TitleAnimation.Progress});
     } break;
 
-    case 3: {  // MenuItems Fade In
+    case Main: {
       Renderer->DrawSprite(MainBackgroundSprite, {0.0f, 0.0f});
 
       Extra->Tint = (GetFlag(SF_CLR_FLAG)) ? MainItems->Tint
@@ -673,7 +672,7 @@ void TitleMenu::Render() {
       }
     } break;
 
-    case 4: {
+    case FadingOut: {
       Renderer->DrawSprite(MainBackgroundSprite, {0.0f, 0.0f});
 
       Extra->Tint = (GetFlag(SF_CLR_FLAG)) ? MainItems->Tint
@@ -694,9 +693,8 @@ void TitleMenu::Render() {
           {0.0f, 0.0f, 0.0f, ScrWork[SW_TITLEDISPCT] / 32.0f});
     } break;
 
-    // TODO check if that's true
-    case 5:
-    case 13: {
+    case SubMenu:
+    case ClearList: {
       Renderer->DrawSprite(MainBackgroundSprite, {0.0f, 0.0f});
 
       MenuLabel->Render();
@@ -711,7 +709,7 @@ void TitleMenu::Render() {
       }
     } break;
 
-    case 11: {  // Initial Fade In
+    case InitialFade: {
       const float progress = ScrWork[SW_TITLEDISPCT] / 32.0f;
 
       Renderer->DrawSprite(BackgroundSprite, {0.0f, 0.0f});

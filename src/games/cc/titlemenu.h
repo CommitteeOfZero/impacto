@@ -58,6 +58,19 @@ class TitleMenu : public Menu {
   void DrawSmoke(float opacity);
 };
 
+namespace TitleMenuMode {
+enum Mode : uint8_t {
+  Invisible = 0,
+  PressToStart = 1,
+  StartTransition = 2,
+  Main = 3,
+  FadingOut = 4,
+  SubMenu = 5,
+  InitialFade = 11,
+  ClearList = 13,
+};
+}
+
 }  // namespace CC
 }  // namespace UI
 }  // namespace Impacto
