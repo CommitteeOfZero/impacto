@@ -72,28 +72,8 @@ void Configure() {
       EnsureGetMember<float>("HighlightAnimationDurationOut");
   ExtraDisabledTint = EnsureGetMember<uint32_t>("ExtraDisabledTint");
 
-  UI::CCLCC::TitleMenu* menu = new UI::CCLCC::TitleMenu();
-  menu->PressToStartAnimation.DurationIn =
-      Profile::TitleMenu::PressToStartAnimDurationIn;
-  menu->PressToStartAnimation.DurationOut =
-      Profile::TitleMenu::PressToStartAnimDurationOut;
-  menu->PressToStartAnimation.LoopMode = AnimationLoopMode::ReverseDirection;
-
-  menu->PrimaryFadeAnimation.DurationIn = PrimaryFadeInDuration;
-  menu->PrimaryFadeAnimation.DurationOut = PrimaryFadeOutDuration;
-  menu->SecondaryFadeAnimation.DurationIn = SecondaryFadeInDuration;
-  menu->SecondaryFadeAnimation.DurationOut = SecondaryFadeOutDuration;
-
-  menu->TitleAnimation.DurationIn = TitleAnimationDurationIn;
-  menu->TitleAnimation.DurationOut = TitleAnimationDurationOut;
-
-  menu->TitleAnimationSprite.MountPoint = "system";
-  menu->TitleAnimationSprite.LoadAsync(TitleAnimationFileId);
-
-  UI::TitleMenuPtr = menu;
-
+  UI::TitleMenuPtr = new UI::CCLCC::TitleMenu();
   auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
-
   UI::Menus[drawType].push_back(UI::TitleMenuPtr);
 }
 

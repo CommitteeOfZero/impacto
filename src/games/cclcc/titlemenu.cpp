@@ -75,6 +75,21 @@ void TitleMenu::ExitButtonOnClick(Widgets::Button* target) {
 }
 
 TitleMenu::TitleMenu() {
+  PressToStartAnimation.DurationIn = PressToStartAnimDurationIn;
+  PressToStartAnimation.DurationOut = PressToStartAnimDurationOut;
+  PressToStartAnimation.LoopMode = AnimationLoopMode::ReverseDirection;
+
+  PrimaryFadeAnimation.DurationIn = PrimaryFadeInDuration;
+  PrimaryFadeAnimation.DurationOut = PrimaryFadeOutDuration;
+  SecondaryFadeAnimation.DurationIn = SecondaryFadeInDuration;
+  SecondaryFadeAnimation.DurationOut = SecondaryFadeOutDuration;
+
+  TitleAnimation.DurationIn = TitleAnimationDurationIn;
+  TitleAnimation.DurationOut = TitleAnimationDurationOut;
+
+  TitleAnimationSprite.MountPoint = "system";
+  TitleAnimationSprite.LoadAsync(TitleAnimationFileId);
+
   MainItems = new Widgets::Group(this);
   ContinueItems = new Widgets::Group(this);
   ContinueItems->WrapFocus = false;
