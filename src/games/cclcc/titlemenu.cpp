@@ -203,6 +203,15 @@ TitleMenu::TitleMenu() {
   SecondaryFadeAnimation.DurationOut = SecondaryFadeOutDuration;
   SlideItemsAnimation.DurationIn = SlideItemsAnimationDurationIn;
   SlideItemsAnimation.DurationOut = SlideItemsAnimationDurationOut;
+
+  const RectF viewport = Window->GetViewport();
+  Texture pressToStartTransitionTexture;
+  pressToStartTransitionTexture.LoadSolidColor(
+      static_cast<int>(viewport.Width), static_cast<int>(viewport.Height), 0);
+  PressToStartTransitionCapture.Sheet.Texture =
+      pressToStartTransitionTexture.Submit();
+  PressToStartTransitionCapture.Sheet.DesignWidth = viewport.Width;
+  PressToStartTransitionCapture.Sheet.DesignHeight = viewport.Height;
 }
 
 void TitleMenu::Show() {
@@ -361,6 +370,8 @@ void TitleMenu::Update(float dt) {
   MenuLabel->Update(dt);
   ContinueItems->Update(dt);
   ExtraItems->Update(dt);
+
+  PressToStartTransitionCaptureSet &= ScrWork[SW_TITLEMODE] == 2;
 
   if (GetFlag(SF_TITLEMODE)) {
     Show();
@@ -623,13 +634,18 @@ void TitleMenu::Render() {
     } break;
 
     case 2: {  // Transition between Press to start and menus
-      if (IsExploding || EverExploded) {
-        Renderer->DrawSprite(MainBackgroundSprite, {0.0f, 0.0f});
-      } else {
+      if (!PressToStartTransitionCaptureSet) {
         Renderer->DrawSprite(BackgroundSprite, {0.0f, 0.0f});
+        PressToStartTransitionCaptureSet = true;
+      } else {
+        Renderer->DrawSprite(PressToStartTransitionCapture, {0.0f, 0.0f});
       }
 
+      Renderer->DrawSprite(MainBackgroundSprite, {0.0f, 0.0f},
+                           {1.0f, 1.0f, 1.0f, TitleAnimation.Progress});
       TitleAnimationSprite.Render(-1);
+
+      Renderer->CaptureScreencap(PressToStartTransitionCapture);
 
       if (renderOverlay) {
         CommonMenu::DrawOverlay();
