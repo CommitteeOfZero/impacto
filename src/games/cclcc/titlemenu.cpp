@@ -11,6 +11,7 @@
 #include "../../profile/scriptvars.h"
 #include "../../profile/game.h"
 #include "../../profile/patch.h"
+#include "../../profile/userconfig.h"
 #include "../../vm/interface/input.h"
 #include "../../audio/audiosystem.h"
 #include "../../profile/scriptinput.h"
@@ -27,6 +28,57 @@ using namespace Impacto::Profile;
 using namespace Impacto::Vm::Interface;
 
 using namespace Impacto::UI::Widgets::CCLCC;
+
+enum class TitleMenuState {
+  InitialFadeIn,
+  PressToStart,
+  Exploding,
+  MainMenu,
+  ReturnToMenu,
+  SubMenu,
+};
+
+static TitleMenuState LookupTitleMenuState(int scriptState) {
+  ImpLogSlow(LogLevel::Trace, LogChannel::General, "title menu state: {}\n",
+             scriptState);
+  if (Profile::UserConfig::ActiveGame == "cclcc-switch") {
+    switch (scriptState) {
+      case 2:
+        return TitleMenuState::PressToStart;
+      case 3:
+        return TitleMenuState::Exploding;
+      case 9:
+      case 10:
+        return TitleMenuState::MainMenu;
+      case 12:
+        return TitleMenuState::ReturnToMenu;
+      case 5:
+      case 13:
+        return TitleMenuState::SubMenu;
+      case 18:
+        return TitleMenuState::InitialFadeIn;
+    }
+  } else {
+    switch (scriptState) {
+      case 1:
+        return TitleMenuState::PressToStart;
+      case 2:
+        return TitleMenuState::Exploding;
+      case 3:
+        return TitleMenuState::MainMenu;
+      case 4:
+        return TitleMenuState::ReturnToMenu;
+      case 5:
+      case 13:
+        return TitleMenuState::SubMenu;
+      case 11:
+        return TitleMenuState::InitialFadeIn;
+    }
+  }
+  ImpLog(LogLevel::Error, LogChannel::General, "Unknown title menu state: {}\n",
+         scriptState);
+  return TitleMenuState::InitialFadeIn;
+}
 
 void TitleMenu::MenuButtonOnClick(Widgets::Button* target) {
   TitleButton* button = static_cast<TitleButton*>(target);
@@ -262,8 +314,9 @@ void TitleMenu::Hide() {
 }
 
 void TitleMenu::UpdateInput(float dt) {
-  if (ScrWork[SW_TITLEMODE] == 5 || ScrWork[SW_TITLEMODE] == 13 ||
-      ScrWork[SW_TITLEMODE] == 3) {
+  using enum TitleMenuState;
+  TitleMenuState currentState = LookupTitleMenuState(ScrWork[SW_TITLEMODE]);
+  if (currentState == SubMenu || currentState == MainMenu) {
     if (!InputLocked && !PrevInputLocked) {
       if (SlideItemsAnimation.State == AnimationState::Playing ||
           SecondaryFadeAnimation.State == AnimationState::Playing ||
@@ -372,33 +425,30 @@ void TitleMenu::Update(float dt) {
   }
 
   if (State != Hidden && GetFlag(SF_TITLEMODE)) {
-    switch (ScrWork[SW_TITLEMODE]) {
-      case 1: {
+    using enum TitleMenuState;
+    switch (LookupTitleMenuState(ScrWork[SW_TITLEMODE])) {
+      case PressToStart: {
         if (PressToStartAnimation.LoopMode !=
             AnimationLoopMode::ReverseDirection) {
           PressToStartAnimation.LoopMode = AnimationLoopMode::ReverseDirection;
           PressToStartAnimation.StartOut();
         }
       } break;
-      case 2: {
+      case Exploding: {
         ExplodeScreenUpdate();
       } break;
-      case 3: {  // Main Menu Fade In
+      case MainMenu: {  // Main Menu Fade In
         MainMenuUpdate();
       } break;
-      case 4: {
+      case ReturnToMenu: {
         ReturnToMenuUpdate();
       } break;
       // TODO check if that's true
-      case 5:
-      case 13: {
+      case SubMenu: {
         SubMenuUpdate();
       } break;
-      case 10: {
-        ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-                   "TitleMenu::Update: Unimplemented title mode {:d}\n",
-                   ScrWork[SW_TITLEMODE]);
-      } break;
+      case InitialFadeIn:
+        break;
     }
     if (SubMenuState == Hiding && ScrWork[SW_SYSSUBMENUCT] == 0) {
       SubMenuState = Hidden;
@@ -406,7 +456,9 @@ void TitleMenu::Update(float dt) {
       SubMenuState = Shown;
       IsFocused = true;
     }
-    if (ScrWork[SW_TITLEMODE] != 2) IsExploding = false;
+    if (LookupTitleMenuState(ScrWork[SW_TITLEMODE]) !=
+        TitleMenuState::Exploding)
+      IsExploding = false;
   }
 }
 
@@ -432,12 +484,12 @@ void TitleMenu::ExplodeScreenUpdate() {
   }
 
   if (TitleAnimation.IsOut() && !IsExploding) {
-    TitleAnimation.StartIn();
+    TitleAnimation.StartIn(true);
     IsExploding = true;
     EverExploded = true;
   }
   if (TitleAnimation.IsIn() && !IsExploding) {
-    TitleAnimation.StartOut();
+    TitleAnimation.StartOut(false);
     IsExploding = true;
   }
   TitleAnimationSprite.Show = true;
@@ -445,6 +497,9 @@ void TitleMenu::ExplodeScreenUpdate() {
       (int)((TitleAnimationStartFrame +
              (TitleAnimationFrameCount * TitleAnimation.Progress)) *
             65536);
+  ImpLog(LogLevel::Trace, LogChannel::General,
+         "TitleAnimation: Progress {} Face: {}\n", TitleAnimation.Progress,
+         TitleAnimationSprite.Face);
   TitleAnimationSprite.UpdateStatesToDraw();
 }
 
@@ -566,8 +621,9 @@ void TitleMenu::SubMenuUpdate() {
 
 void TitleMenu::Render() {
   if (State != Hidden && GetFlag(SF_TITLEMODE)) {
-    switch (ScrWork[SW_TITLEMODE]) {
-      case 1: {  // Press to start
+    using enum TitleMenuState;
+    switch (LookupTitleMenuState(ScrWork[SW_TITLEMODE])) {
+      case PressToStart: {  // Press to start
         DrawDISwordBackground();
         DrawStartButton();
         DrawSmoke(SmokeOpacityNormal);
@@ -578,7 +634,8 @@ void TitleMenu::Render() {
                            glm::vec4(1.0f, 1.0f, 1.0f,
                                      1.0f - ScrWork[SW_TITLEDISPCT] / 60.0f));
       } break;
-      case 2: {  // Transition between Press to start and menus
+      case Exploding: {  // Transition between Press to start
+                         // and menus
         if (IsExploding || EverExploded) {
           DrawMainMenuBackGraphics();
         } else {
@@ -588,7 +645,7 @@ void TitleMenu::Render() {
         TitleAnimationSprite.Render(-1);
         DrawSmoke(SmokeOpacityNormal);
       } break;
-      case 3: {  // MenuItems Fade In
+      case MainMenu: {  // MenuItems Fade In
         DrawMainMenuBackGraphics();
         DrawSmoke(SmokeOpacityNormal);
         Extra->Tint = (GetFlag(SF_CLR_FLAG)) ? MainItems->Tint
@@ -599,7 +656,7 @@ void TitleMenu::Render() {
         ContinueItems->Render();
         ExtraItems->Render();
       } break;
-      case 4: {
+      case ReturnToMenu: {
         DrawMainMenuBackGraphics();
         DrawSmoke(SmokeOpacityNormal);
         Extra->Tint = (GetFlag(SF_CLR_FLAG)) ? MainItems->Tint
@@ -613,8 +670,7 @@ void TitleMenu::Render() {
                            {0.0f, 0.0f, 0.0f, ScrWork[SW_TITLEDISPCT] / 32.0f});
       } break;
       // TODO check if that's true
-      case 5:
-      case 13: {
+      case SubMenu: {
         DrawMainMenuBackGraphics();
         DrawSmoke(SmokeOpacityNormal);
         MenuLabel->Render();
@@ -622,12 +678,7 @@ void TitleMenu::Render() {
         ContinueItems->Render();
         ExtraItems->Render();
       } break;
-      case 10: {
-        ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-                   "TitleMenu::Render: Unimplemented title mode {:d}\n",
-                   ScrWork[SW_TITLEMODE]);
-      } break;
-      case 11: {  // Initial Fade In
+      case InitialFadeIn: {  // Initial Fade In
         DrawDISwordBackground(ScrWork[SW_TITLEDISPCT] / 32.0f);
         DrawSmoke(ScrWork[SW_TITLEDISPCT] / 128.0f);
         Renderer->DrawSprite(CopyrightTextSprite,
