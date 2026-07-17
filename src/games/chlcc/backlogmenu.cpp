@@ -28,7 +28,7 @@ void BacklogMenu::Show() {
       FromSystemMenuTransition->StartIn();
     }
     IsFocused = true;
-    UI::BacklogMenu::Show();
+    UI::BacklogMenu<BacklogEntry>::Show();
   }
 }
 
@@ -74,11 +74,11 @@ void BacklogMenu::Render() {
   Renderer->EnableScissor();
   Renderer->SetScissorRect(RectF(RenderingBounds).Translate({0.0f, yOffset}));
   for (auto& entry : Entries) {
-    if (!entry->Bounds.Intersects(RenderingBounds)) continue;
+    if (!entry.Bounds.Intersects(RenderingBounds)) continue;
 
-    entry->Move({0.0f, yOffset});
-    entry->Render();
-    entry->Move({0.0f, -yOffset});
+    entry.Move({0.0f, yOffset});
+    entry.Render();
+    entry.Move({0.0f, -yOffset});
   }
   Renderer->DisableScissor();
 
@@ -105,7 +105,7 @@ void BacklogMenu::Update(float dt) {
     State = Hidden;
 
     for (auto& entry : Entries) {
-      entry->Hide();
+      entry.Hide();
     }
   } else if (MenuTransition.IsIn() && sysMenuCt == 10000 &&
              (systemMenuCHG == 0 || systemMenuCHG == 64) &&
@@ -114,7 +114,7 @@ void BacklogMenu::Update(float dt) {
   }
 
   if (State != Hidden) {
-    UI::BacklogMenu::Update(dt);
+    UI::BacklogMenu<BacklogEntry>::Update(dt);
     MenuTransition.Update(dt);
     FromSystemMenuTransition->Update(dt);
     if (MenuTransition.Direction == AnimationDirection::Out &&

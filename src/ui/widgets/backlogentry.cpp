@@ -17,11 +17,8 @@ using namespace Impacto::Profile::ScriptVars;
 
 BacklogEntry::BacklogEntry(Vm::BufferOffsetContext scrCtx,
                            std::optional<int> audioId, int characterId,
-                           glm::vec2 pos, const RectF& hoverBounds)
-    : AudioId(audioId),
-      CharacterId(characterId),
-      Position(pos),
-      HoverBounds(hoverBounds) {
+                           glm::vec2 pos)
+    : AudioId(audioId), CharacterId(characterId), Position(pos) {
   Enabled = true;
 
   Impacto::Vm::Sc3VmThread dummy;
@@ -52,18 +49,21 @@ BacklogEntry::BacklogEntry(Vm::BufferOffsetContext scrCtx,
 void BacklogEntry::UpdateInput(float dt) {
   if (Enabled) {
     RectF entryHoverBounds =
-        RectF(HoverBounds.X, Bounds.Y, HoverBounds.Width, Bounds.Height);
+        RectF(Profile::BacklogMenu::HoverBounds.X, Bounds.Y,
+              Profile::BacklogMenu::HoverBounds.Width, Bounds.Height);
     if (Input::CurrentInputDevice == Input::Device::Mouse) {
-      Hovered =
-          entryHoverBounds.ContainsPoint(Input::CurMousePos) &&
-          HoverBounds.Y <= Bounds.Y &&
-          (Bounds.Y + Bounds.Height) <= (HoverBounds.Y + HoverBounds.Height);
+      Hovered = entryHoverBounds.ContainsPoint(Input::CurMousePos) &&
+                Profile::BacklogMenu::HoverBounds.Y <= Bounds.Y &&
+                (Bounds.Y + Bounds.Height) <=
+                    (Profile::BacklogMenu::HoverBounds.Y +
+                     Profile::BacklogMenu::HoverBounds.Height);
     } else if (Input::CurrentInputDevice == Input::Device::Touch &&
                Input::TouchIsDown[0]) {
-      Hovered =
-          entryHoverBounds.ContainsPoint(Input::CurTouchPos) &&
-          HoverBounds.Y <= Bounds.Y &&
-          (Bounds.Y + Bounds.Height) <= (HoverBounds.Y + HoverBounds.Height);
+      Hovered = entryHoverBounds.ContainsPoint(Input::CurTouchPos) &&
+                Profile::BacklogMenu::HoverBounds.Y <= Bounds.Y &&
+                (Bounds.Y + Bounds.Height) <=
+                    (Profile::BacklogMenu::HoverBounds.Y +
+                     Profile::BacklogMenu::HoverBounds.Height);
     }
     if (HasFocus &&
         ((Hovered &&

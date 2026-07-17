@@ -20,7 +20,7 @@ using namespace Impacto::UI::Widgets::CC;
 using namespace Impacto::Profile::ScriptVars;
 
 void BacklogMenu::MenuButtonOnClick(Widgets::BacklogEntry* target) {
-  UI::BacklogMenu::MenuButtonOnClick(target);
+  UI::BacklogMenu<BacklogEntry>::MenuButtonOnClick(target);
 
   if (!target->AudioId.has_value())
     Audio::PlayInGroup(Audio::ACG_SE, "sysse", 4, false, 0.0f);
@@ -31,12 +31,12 @@ void BacklogMenu::Show() {
     CommonMenu::OnShow(FadeInDuration, FadeOutDuration, FadeAnimation);
   }
 
-  UI::BacklogMenu::Show();
+  UI::BacklogMenu<BacklogEntry>::Show();
 }
 
 void BacklogMenu::Hide() {
   Audio::Channels[Audio::AC_REV]->Stop(0.0f);
-  UI::BacklogMenu::Hide();
+  UI::BacklogMenu<BacklogEntry>::Hide();
 }
 
 void BacklogMenu::UpdateVisibility() {
@@ -57,14 +57,14 @@ void BacklogMenu::UpdateVisibility() {
     if (UI::FocusedMenu) UI::FocusedMenu->IsFocused = true;
 
     for (auto& entry : Entries) {
-      entry->Hide();
+      entry.Hide();
     }
   }
 }
 
 void BacklogMenu::Update(float dt) {
   float prevScrollPos = *MainScrollbar.Value;
-  UI::BacklogMenu::Update(dt);
+  UI::BacklogMenu<BacklogEntry>::Update(dt);
   if (IsFocused && prevScrollPos != *MainScrollbar.Value) {
     if (auto* menu = dynamic_cast<UI::CCLCC::SystemMenu*>(UI::SystemMenuPtr)) {
       menu->BGPosition.y += (prevScrollPos - *MainScrollbar.Value) * 0.5f;
@@ -92,9 +92,9 @@ void BacklogMenu::Render() {
   Renderer->DrawSprite(BacklogHeaderSprite, BacklogHeaderPosition, transition);
 
   for (auto& entry : Entries) {
-    if (!entry->Bounds.Intersects(RenderingBounds)) continue;
-    entry->Tint = transition;
-    entry->Render();
+    if (!entry.Bounds.Intersects(RenderingBounds)) continue;
+    entry.Tint = transition;
+    entry.Render();
   }
 
   MainScrollbar.Tint = transition;

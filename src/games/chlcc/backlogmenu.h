@@ -8,7 +8,8 @@ namespace Impacto {
 namespace UI {
 namespace CHLCC {
 
-class BacklogMenu : public UI::BacklogMenu, public CommonMenu {
+class BacklogMenu : public UI::BacklogMenu<Widgets::CHLCC::BacklogEntry>,
+                    public CommonMenu {
  public:
   BacklogMenu();
 
@@ -16,13 +17,6 @@ class BacklogMenu : public UI::BacklogMenu, public CommonMenu {
   void Hide() override;
   void Update(float dt) override;
   void Render() override;
-
-  Widgets::BacklogEntry* CreateBacklogEntry(
-      Vm::BufferOffsetContext scrCtx, std::optional<int> audioId,
-      int characterId, glm::vec2 pos, const RectF& hoverBounds) const override {
-    return new Widgets::CHLCC::BacklogEntry(scrCtx, audioId, characterId, pos,
-                                            hoverBounds);
-  }
 };
 
 }  // namespace CHLCC

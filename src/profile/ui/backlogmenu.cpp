@@ -23,7 +23,7 @@ void Configure() {
     Type = EnsureGetMember<BacklogMenuType>("Type");
 
     if (Type == BacklogMenuType::None) {
-      UI::BacklogMenuPtr = new UI::BacklogMenu();
+      UI::BacklogMenuPtr = new UI::BacklogMenu<Widgets::BacklogEntry>();
       UI::Menus[Game::DrawComponentType::None].push_back(UI::BacklogMenuPtr);
 
       Pop();

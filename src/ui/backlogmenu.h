@@ -8,7 +8,22 @@
 namespace Impacto {
 namespace UI {
 
-class BacklogMenu : public Menu {
+class BacklogMenuInterface : public Menu {
+ public:
+  virtual void AddMessage(Vm::BufferOffsetContext scrCtx,
+                          std::optional<int> audioId = std::nullopt,
+                          int characterId = 0) = 0;
+
+  virtual void MenuButtonOnClick(Widgets::BacklogEntry* target) = 0;
+  virtual void Clear() = 0;
+
+  float PageY = 0.0f;
+};
+
+template <typename EntryType>
+class BacklogMenu : public BacklogMenuInterface {
+  static_assert(std::derived_from<EntryType, Widgets::BacklogEntry>);
+
  public:
   BacklogMenu();
 
@@ -18,26 +33,17 @@ class BacklogMenu : public Menu {
   virtual void UpdateInput(float dt) override;
   virtual void Render() override;
 
-  virtual Widgets::BacklogEntry* CreateBacklogEntry(
-      Vm::BufferOffsetContext scrCtx, std::optional<int> audioId,
-      int characterId, glm::vec2 pos, const RectF& hoverBounds) const {
-    return new Widgets::BacklogEntry(scrCtx, audioId, characterId, pos,
-                                     hoverBounds);
-  }
+  void AddMessage(Vm::BufferOffsetContext scrCtx,
+                  std::optional<int> audioId = std::nullopt,
+                  int characterId = 0) override;
 
-  virtual void AddMessage(Vm::BufferOffsetContext scrCtx,
-                          std::optional<int> audioId = std::nullopt,
-                          int characterId = 0);
-
-  virtual void MenuButtonOnClick(Widgets::BacklogEntry* target);
-  void Clear();
-
-  float PageY = 0.0f;
+  virtual void MenuButtonOnClick(Widgets::BacklogEntry* target) override;
+  void Clear() override;
 
  protected:
   virtual void UpdateVisibility() {};
 
-  boost::circular_buffer<std::unique_ptr<Widgets::BacklogEntry>> Entries;
+  boost::circular_buffer<EntryType> Entries;
 
   float ItemsHeight = 0.0f;
   Animation FadeAnimation;

@@ -20,8 +20,8 @@ constexpr std::array<std::string_view, 2> NametagCommonStrings = {
 
 BacklogEntry::BacklogEntry(Vm::BufferOffsetContext scrCtx,
                            std::optional<int> audioId, int characterId,
-                           glm::vec2 pos, const RectF& hoverBounds)
-    : Widgets::BacklogEntry(scrCtx, audioId, characterId, pos, hoverBounds) {
+                           glm::vec2 pos)
+    : Widgets::BacklogEntry(scrCtx, audioId, characterId, pos) {
   if (!Page.Name.empty()) {
     const float nameFontSize =
         TextModesInfo[Profile::Dialogue::REVMessageModeIdx].NameGlyphSize.y;

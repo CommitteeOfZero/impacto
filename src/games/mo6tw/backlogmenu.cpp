@@ -24,10 +24,10 @@ void BacklogMenu::Render() {
   Renderer->EnableScissor();
   Renderer->SetScissorRect(RenderingBounds);
   for (auto& entry : Entries) {
-    if (!entry->Bounds.Intersects(RenderingBounds)) continue;
+    if (!entry.Bounds.Intersects(RenderingBounds)) continue;
 
-    entry->Tint = col;
-    entry->Render();
+    entry.Tint = col;
+    entry.Render();
   }
   Renderer->DisableScissor();
 
@@ -45,7 +45,7 @@ void BacklogMenu::UpdateVisibility() {
     if (UI::FocusedMenu) UI::FocusedMenu->IsFocused = true;
 
     for (auto& entry : Entries) {
-      entry->Hide();
+      entry.Hide();
     }
   }
 }
