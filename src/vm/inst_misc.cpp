@@ -530,6 +530,13 @@ VmInstruction(InstTitleMenuNew) {
     case 0:  // Init
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction TitleMenu(type: Init)\n");
+      switch (Profile::Vm::GameInstructionSet) {
+        case InstructionSet::LCCSwitch: {
+          ScrWork[SW_SYSSUBMENUCTMAX] = 32;
+        } break;
+        default: {
+        }
+      }
       break;
     case 1:  // Main
       switch (Profile::Vm::GameInstructionSet) {
@@ -562,13 +569,13 @@ VmInstruction(InstTitleMenuNew) {
           }
         } break;
         case InstructionSet::LCCSwitch: {
-          if (ScrWork[SW_TITLEMODE] == 3) {
+          if (ScrWork[SW_TITLEMODE] == 10) {
             if (!UI::TitleMenuPtr->AllowsScriptInput) {
               ResetInstruction;
               BlockThread;
             }
-            // TODO: 2118 is a new var
-          } else if (ScrWork[SW_TITLEMODE] == 2 && ScrWork[2118] == 60) {
+          } else if (ScrWork[SW_TITLEMODE] == 2 &&
+                     ScrWork[SW_TITLEDISPCT] == 60) {
             // Check "PRESS TO START" here
             if (((Interface::PADinputButtonWentDown & Interface::PAD1A) ||
                  (Interface::PADinputMouseWentDown & Interface::PAD1A))) {
