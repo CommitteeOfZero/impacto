@@ -552,13 +552,13 @@ VmInstruction(InstTitleMenuNew) {
           }
         } break;
         case InstructionSet::LCCSwitch: {
-          if (ScrWork[SW_TITLEMODE] == 3) {
+          if (ScrWork[SW_TITLEMODE] == 10) {
             if (!UI::TitleMenuPtr->AllowsScriptInput) {
               ResetInstruction;
               BlockThread;
             }
-            // TODO: 2118 is a new var
-          } else if (ScrWork[SW_TITLEMODE] == 2 && ScrWork[2118] == 60) {
+          } else if (ScrWork[SW_TITLEMODE] == 2 &&
+                     ScrWork[SW_TITLEDISPCT] == 60) {
             // Check "PRESS TO START" here
             if (((Interface::PADinputButtonWentDown & Interface::PAD1A) ||
                  (Interface::PADinputMouseWentDown & Interface::PAD1A))) {
