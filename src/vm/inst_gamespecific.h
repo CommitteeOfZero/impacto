@@ -34,7 +34,7 @@ VmInstruction(InstTwipo);
 VmInstruction(InstTwipo_Dash);
 VmInstruction(InstDelusionTriggerCHLCC);
 VmInstruction(InstYesNoTriggerCCLCC);
-VmInstruction(Inst103FLCCSwitch);
+VmInstruction(InstLaunchApp);
 VmInstruction(InstUnk103A);
 VmInstruction(InstUnk2010CCLCC);
 VmInstruction(InstUnk2011CCLCC);

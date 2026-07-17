@@ -159,6 +159,11 @@ root.SpriteSheets = {
       DesignWidth = 512,
       DesignHeight = 256
   },
+  ["Help"] = {
+      Path = { Mount = "system", Id = 22 },
+      DesignWidth = 1920,
+      DesignHeight = 1080
+  },
 };
 
 root.Sprites = {};
