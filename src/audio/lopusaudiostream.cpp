@@ -51,8 +51,14 @@ AudioStream* LopusAudioStream::Create(Stream* stream) {
         Io::ReadLE<int32_t>(result->BaseStream);  // number of samples
     result->LoopStart = Io::ReadLE<int32_t>(result->BaseStream);
     result->LoopEnd = Io::ReadLE<int32_t>(result->BaseStream);
+
+    result->LoopStart =
+        result->LoopStart > result->Duration ? 0 : result->LoopStart;
     // Loop end can be negative, that's might be the workaround
     result->LoopEnd = result->LoopEnd < 0 ? result->Duration : result->LoopEnd;
+    if (result->Duration == 0) {
+      result->Duration = result->LoopEnd;
+    }
     result->BaseStream->Seek(dataOffset, RW_SEEK_SET);
   }
   // TODO: multistream info chunk, possible but vgstream comments say it's rare
