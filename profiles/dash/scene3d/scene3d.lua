@@ -18,4 +18,4 @@ root.Scene3D = {
     AnimationParseBlacklist = {}
 };
 
-include(root.BaseConfig.RootProfilesDir .. '/dash/scene3d/characters.lua');
+include(root.BasePaths.RootProfilesDir .. '/dash/scene3d/characters.lua');

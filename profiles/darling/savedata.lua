@@ -1,4 +1,4 @@
 root.SaveData = {
     Type = SaveDataType.None,
-    SaveFilePath = root.BaseConfig.RootSavesDir .. "/darling/jpn/SYSTEM.DAT",
+    SaveFilePath = root.BasePaths.RootSavesDir .. "/darling/jpn/SYSTEM.DAT",
 };

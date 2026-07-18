@@ -3,7 +3,8 @@
 namespace Impacto {
 namespace Profile {
 
-inline std::string BaseConfigPath;
+inline std::string BasePathsPath;
+inline std::string GameDefinitionsPath;
 inline std::string UserConfigPath;
 
 void Init();

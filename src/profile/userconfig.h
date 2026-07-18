@@ -29,5 +29,4 @@ inline std::string ActiveGame;
 inline std::string PatchProfileOverride;
 
 void Configure();
-std::string const& GetPlatformSpecificPath();
 }  // namespace Impacto::Profile::UserConfig

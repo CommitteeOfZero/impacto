@@ -1,4 +1,4 @@
-include(root.BaseConfig.RootProfilesDir .. '/rne/game.lua');
+include(root.BasePaths.RootProfilesDir .. '/rne/game.lua');
 
 root.GameFeatures = GameFeature.Scene3D | GameFeature.ModelViewer | GameFeature.Audio | GameFeature.Input;
 
