@@ -24,7 +24,9 @@ if root.CharsetInternal ~= nil and root.CharsetInternal.CharsetStr ~= nil then
         local high_byte = 0x80 + math.floor(i / 256);
         local low_byte = i % 256;
         local code = high_byte << 8 | low_byte;
-        root.Charset.CharacterToSc3[utf8.char(c)] = code
+        if root.Charset.CharacterToSc3[utf8.char(c)] == nil then
+            root.Charset.CharacterToSc3[utf8.char(c)] = code;
+        end
         i = i + 1
     end
 
