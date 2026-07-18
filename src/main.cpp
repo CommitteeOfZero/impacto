@@ -107,8 +107,13 @@ static void HandleArguments(std::vector<std::string_view> args) {
         make_handler([&] { Profile::UserConfig ::UsePatchOverride = true; },
                      "-p", "--patch"),
         make_handler(
-            [&](std::string_view input) { Profile::BaseConfigPath = input; },
-            "-bc", "--baseconfigpath"),
+            [&](std::string_view input) { Profile::BasePathsPath = input; },
+            "-bp", "--basepathspath"),
+        make_handler(
+            [&](std::string_view input) {
+              Profile::GameDefinitionsPath = input;
+            },
+            "-gc", "--gamedefinitionspath"),
         make_handler(
             [&](std::string_view input) { Profile::UserConfigPath = input; },
             "-uc", "--userconfigpath"),

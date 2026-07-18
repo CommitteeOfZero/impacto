@@ -7,8 +7,9 @@
 #include "../io/physicalfilestream.h"
 #include "../log.h"
 
+#include "basepaths.h"
+#include "gamedefinitions.h"
 #include "userconfig.h"
-#include "baseconfig.h"
 #include "ui/backlogmenu.h"
 #include "dialogue.h"
 #include "configsystem.h"
@@ -222,25 +223,28 @@ void Init() {
 }
 
 void Configure() {
-  if (BaseConfigPath.empty()) {
-    BaseConfigPath = Profile::BaseConfig::GetPlatformSpecificPath();
-    if (Io::PathExists(BaseConfigPath) != IoError_OK) {
-      BaseConfigPath = "./baseconfig.lua";
+  const auto setupScriptPath = [](std::string const& fileName,
+                                  std::string& path) {
+    std::filesystem::path configDir = Io::GetPlatformConfigDir();
+    if (path.empty()) {
+      path = (configDir / fileName).string();
     }
-  }
-  if (UserConfigPath.empty()) {
-    UserConfigPath = Profile::UserConfig::GetPlatformSpecificPath();
-    if (Io::PathExists(UserConfigPath) != IoError_OK) {
-      UserConfigPath = "./userconfig.lua";
-    }
-  }
-  RunLuaScript(BaseConfigPath.c_str());
+  };
+
+  setupScriptPath("baseconfig.lua", BasePathsPath);
+  setupScriptPath("gamedefinitions.lua", GameDefinitionsPath);
+  setupScriptPath("userconfig.lua", UserConfigPath);
+
+  // Order dependent!
+  RunLuaScript(BasePathsPath.c_str());
+  RunLuaScript(GameDefinitionsPath.c_str());
   RunLuaScript(UserConfigPath.c_str());
 
   // Push the global onto the stack to load all the values later
   lua_getglobal(LuaState, "root");
 
-  BaseConfig::Configure();
+  BasePaths::Configure();
+  GameDefinition::Configure();
   UserConfig::Configure();
 
   if (UserConfig::UsePatchOverride) {
@@ -252,13 +256,12 @@ void Configure() {
         UserConfig::LanguageOverride;
   }
   auto const& activeGameSettings = UserConfig::ActiveGameSettings();
-  if (BaseConfig::RootPatchesDir.empty() && activeGameSettings.UsePatch) {
+  if (BasePaths::RootPatchesDir.empty() && activeGameSettings.UsePatch) {
     ImpLog(LogLevel::Fatal, LogChannel::Profile,
            "Patch is enabled but no patch directory is specified\n");
     exit(1);
   }
-  auto const& activeGameDef =
-      BaseConfig::GameDefinitions.at(UserConfig::ActiveGame);
+  auto const& activeGameDef = GameDefinitions.at(UserConfig::ActiveGame);
 
   std::string const& gameProfilePath = activeGameDef.GameProfile;
   RunLuaScript(gameProfilePath.c_str());
