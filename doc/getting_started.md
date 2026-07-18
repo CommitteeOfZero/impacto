@@ -8,13 +8,15 @@ On application load, a set of scripts we call *profile* is executed, generating 
 
 ## Configuration Files
 
-**`baseconfig.lua`** defines available games and their profile locations. For example:
+**`basepaths.lua`** defines paths where Impacto should look for files of different types, such as game assets, patches, game profile configurations, save locations.
+
+**`gamedefinitions.lua`** defines available games and their profile locations. For example:
 ```lua
-root.BaseConfig.GameDefinitions = {
+root.GameDefinitions = {
   chlcc = {
-    GameProfile = root.BaseConfig.RootProfilesDir .. "/chlcc/game.lua",
+    GameProfile = root.BasePaths.RootProfilesDir .. "/chlcc/game.lua",
     Patch = {
-      English = root.BaseConfig.RootPatchesDir .. "/english/profiles/chlcc/patch.lua",
+      English = root.BasePaths.RootPatchesDir .. "/english/profiles/chlcc/patch.lua",
     }
   },
   -- ... other games
@@ -35,7 +37,7 @@ root.UserConfig = {
 
 In a release environment, these files will be placed in a platform specific preferences directory. 
 
-For development purposes it will fallback to looking for these files in the same directory as the impacto executable.
+For development purposes it will fallback to looking for these files in the same directory as the impacto executable. They can also be overriden using cli arguments or the `args.txt` file
 
 ## Preparing files
 The following directories must be in the same directory as the impacto executable:
@@ -43,7 +45,7 @@ The following directories must be in the same directory as the impacto executabl
 * games - directory that contains game specific Impacto asset files
 * shaders - directory that contains shader files
 
-The following directories must be specified in `baseconfig.lua` and populated:
+The following directories must be specified in `basepaths.lua` and populated:
 * gamedata - directory containing game resource files, nested under their respective profile names
 * profiles - directory that contains profile definition files
 * patches - optional directory containing overlay resources and profile files to patch over existing game profile
@@ -79,8 +81,9 @@ impacto -l English                         # Specify language override
 impacto -ll Debug                          # Set log level (Fatal, Warning, Info, Debug)
 impacto -lc General                        # Enable specific log channel (repeat flag to specify multiple)
 impacto -lf log.txt                        # Specify Log File Path
-impacto -bc ./custom_base_config.lua       # Use custom base config path
-impacto -uc ./custom_user_config.lua       # Use custom user config path
+impacto -bp ./custom_basepaths.lua         # Use custom path to basepaths config
+impacto -gc ./custom_gamedefinitions.lua   # Use custom path to game definitions config
+impacto -uc ./custom_user_config.lua       # Use custom path to user config
 ```
 Available Log Channels:
 - None

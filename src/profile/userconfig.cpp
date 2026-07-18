@@ -69,13 +69,5 @@ void Configure() {
 
 GameConfig const& ActiveGameSettings() { return GameSettings.at(ActiveGame); }
 
-std::string const& GetPlatformSpecificPath() {
-  static const std::string result = [] {
-    std::filesystem::path configDir = Io::GetPlatformConfigDir();
-    return (configDir / "userconfig.lua").string();
-  }();
-  return result;
-}
-
 }  // namespace UserConfig
 }  // namespace Impacto::Profile

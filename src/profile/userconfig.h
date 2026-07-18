@@ -30,5 +30,4 @@ inline std::string LanguageOverride;
 inline bool UsePatchOverride = false;
 
 void Configure();
-std::string const& GetPlatformSpecificPath();
 }  // namespace Impacto::Profile::UserConfig
