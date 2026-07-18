@@ -35,20 +35,23 @@ void LoadSpritesheets() {
     SpriteSheet& sheet = SpriteSheets[name];
     sheet.DesignWidth = EnsureGetMember<float>("DesignWidth");
     sheet.DesignHeight = EnsureGetMember<float>("DesignHeight");
+    sheet.ScriptHandled = TryGetMember<bool>("ScriptHandled") == true;
+    sheet.Path = EnsureGetMember<Io::AssetPath>("Path");
 
-    Io::AssetPath asset = EnsureGetMember<Io::AssetPath>("Path");
+    if (sheet.ScriptHandled) {
+      sheet.Texture = Renderer->MapSpriteSheet(sheet);
+    } else {
+      Io::Stream* stream;
+      IoError err = sheet.Path.Open(&stream);
+      if (err != IoError_OK) {
+        ImpLog(LogLevel::Fatal, LogChannel::Profile,
+               "Could not open spritesheet {:s}\n", name);
+        Window->Shutdown();
+      }
 
-    Io::Stream* stream;
-    IoError err = asset.Open(&stream);
-    if (err != IoError_OK) {
-      ImpLog(LogLevel::Fatal, LogChannel::Profile,
-             "Could not open spritesheet {:s}\n", name);
-      Window->Shutdown();
+      futures.emplace_back(std::tuple(
+          name, std::async(std::launch::async, LoadTexture, stream, name)));
     }
-
-    futures.emplace_back(std::tuple(
-        name, std::async(std::launch::async, LoadTexture, stream, name)));
-
     Pop();
   }
 

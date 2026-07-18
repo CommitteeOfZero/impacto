@@ -76,6 +76,16 @@ class BaseRenderer {
   virtual void BeginFrame2D() = 0;
   virtual void EndFrame() = 0;
 
+  inline static ankerl::unordered_dense::map<
+      Io::AssetPath, uint32_t, Io::AssetPathHash, Io::AssetPathEqual>
+      SheetPathToId;
+  inline static ankerl::unordered_dense::map<uint32_t, uint32_t>
+      LookupTextureIdToTexture;
+  inline static ankerl::unordered_dense::map<int, Io::AssetPathKey> SurfToId;
+
+  virtual uint32_t MapSpriteSheet(SpriteSheet const& sheet) = 0;
+  virtual bool LoadSurf(int surfId, int archiveId, int fileId) = 0;
+  virtual void UnloadSurf(int surfId) = 0;
   virtual uint32_t SubmitTexture(TexFmt format, uint8_t* buffer, int width,
                                  int height) = 0;
 

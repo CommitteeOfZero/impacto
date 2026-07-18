@@ -24,6 +24,11 @@ class Renderer : public BaseRenderer {
   void BeginFrame2D() override;
   void EndFrame() override;
 
+  uint32_t MapSpriteSheet(SpriteSheet const& sheet) override { return 0; };
+  bool LoadSurf(int surfId, int archiveId, int fileId) override {
+    return false;
+  };
+  void UnloadSurf(int surfId) override {};
   uint32_t SubmitTexture(TexFmt format, uint8_t* buffer, int width,
                          int height) override;
 
