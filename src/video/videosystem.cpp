@@ -17,7 +17,7 @@ void VideoShutdown() {
 void VideoInit() {
   ImpLog(LogLevel::Info, LogChannel::Video, "Initialising video system\n");
 
-  switch (Profile::VideoPlayer) {
+  switch (Profile::Game::VideoPlayer) {
 #ifndef IMPACTO_DISABLE_FFMPEG
     case VideoPlayerType::FFmpeg: {
       for (int i = 0; i < VP_Count; i++) {

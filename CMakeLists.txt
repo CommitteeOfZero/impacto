@@ -65,7 +65,11 @@ set(Impacto_Src
 
     src/profile/profile.cpp
     src/profile/profile_internal.cpp
+    src/profile/basepaths.cpp
+    src/profile/gamedefinitions.cpp
+    src/profile/userconfig.cpp
     src/profile/game.cpp
+    src/profile/patch.cpp
     src/profile/vfs.cpp
     src/profile/scene3d.cpp
     src/profile/sprites.cpp
@@ -430,7 +434,11 @@ set(Impacto_Header
 
     src/profile/profile.h
     src/profile/profile_internal.h
+    src/profile/basepaths.h
+    src/profile/gamedefinitions.h
+    src/profile/userconfig.h
     src/profile/game.h
+    src/profile/patch.h
     src/profile/vfs.h
     src/profile/scene3d.h
     src/profile/sprites.h
@@ -1459,6 +1467,9 @@ if (NOT ANDROID)
     install(DIRECTORY src/shaders DESTINATION .)
     install(DIRECTORY profiles DESTINATION .)
     install(DIRECTORY games DESTINATION .)
+    install(FILES basepaths.lua DESTINATION .)
+    install(FILES gamedefinitions.lua DESTINATION .)
+    install(FILES userconfig.lua DESTINATION .)
 else()
     install(DIRECTORY src/shaders DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/assets)
     install(DIRECTORY profiles DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/assets)

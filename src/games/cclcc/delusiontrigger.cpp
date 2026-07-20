@@ -129,9 +129,9 @@ std::pair<bool, bool> DelusionTrigger::UpdateDraggingTriggers(
 
   constexpr float movementBufferWindowFraction = 0.002f;
   constexpr float mouseAdvanceTime = 0.5f;
-  const float movementBuffer =
-      std::max(2.0f, std::min(Profile::DesignWidth, Profile::DesignHeight) *
-                         movementBufferWindowFraction);
+  const float movementBuffer = std::max(
+      2.0f, std::min(Profile::Game::DesignWidth, Profile::Game::DesignHeight) *
+                movementBufferWindowFraction);
   std::optional<RectF> positiveHitbox;
   std::optional<RectF> negativeHitbox;
 

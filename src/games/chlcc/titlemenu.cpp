@@ -12,6 +12,7 @@
 #include "../../profile/scriptvars.h"
 #include "../../background2d.h"
 #include "../../profile/game.h"
+#include "../../profile/patch.h"
 #include <vector>
 
 namespace Impacto {
@@ -91,7 +92,7 @@ TitleMenu::TitleMenu() {
   MainItems->Add(System, FDIR_DOWN);
 
   // Exit menu button (Configuration/Patch driven)
-  if (HasScriptedExitLogic) {
+  if (Patch::HasScriptedExitLogic) {
     auto* const exitPtr =
         new TitleButton(4, ExitSprite, ExitHighlightSprite, ItemHighlightSprite,
                         glm::vec2(ItemHighlightOffset.x - 1.0f,
@@ -532,7 +533,9 @@ void TitleMenu::Render() {
     int maskAlpha = ScrWork[SW_TITLEMASKALPHA];
     glm::vec4 col = ScrWorkGetColor(SW_TITLEMASKCOLOR);
     col.a = glm::min(maskAlpha / 255.0f, 1.0f);
-    Renderer->DrawQuad(RectF{0.0f, 0.0f, DesignWidth, DesignHeight}, col);
+    Renderer->DrawQuad(RectF{0.0f, 0.0f, Profile::Game::DesignWidth,
+                             Profile::Game::DesignHeight},
+                       col);
   }
 }
 

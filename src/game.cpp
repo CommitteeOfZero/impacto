@@ -40,6 +40,7 @@
 
 #include "games/chlcc/delusiontrigger.h"
 #include "games/cclcc/delusiontrigger.h"
+#include "profile/patch.h"
 #include "profile/sprites.h"
 #include "profile/charset.h"
 #include "profile/fonts.h"
@@ -70,10 +71,11 @@ using namespace Profile::ScriptVars;
 
 namespace Game {
 
-static void Init() {
+void Init() {
   WorkQueue::Init();
 
-  Profile::LoadGameFromLua();
+  Profile::Game::Configure();
+  Profile::Patch::Configure();
 
   Io::VfsInit();
 
@@ -84,8 +86,8 @@ static void Init() {
   io.IniFilename = NULL;
   io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
   io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
-  if (+Profile::GameFeatures & +GameFeature::DebugMenu &&
-      +Profile::GameFeatures & +GameFeature::DebugMenuMultiViewport) {
+  if (+Profile::Game::GameFeatures & +GameFeature::DebugMenu &&
+      +Profile::Game::GameFeatures & +GameFeature::DebugMenuMultiViewport) {
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
   }
@@ -99,15 +101,15 @@ static void Init() {
 
   Profile::ConfigSystem::Configure();
 
-  if (+Profile::GameFeatures & +GameFeature::Audio) {
+  if (+Profile::Game::GameFeatures & +GameFeature::Audio) {
     Audio::AudioInit();
   }
 
-  if (+Profile::GameFeatures & +GameFeature::Video) {
+  if (+Profile::Game::GameFeatures & +GameFeature::Video) {
     Video::VideoInit();
   }
 
-  if (+Profile::GameFeatures & +GameFeature::Subtitles) {
+  if (+Profile::Game::GameFeatures & +GameFeature::Subtitles) {
     Profile::Subtitle::Configure();
     Subtitle::SubtitleInit();
   }
@@ -115,7 +117,7 @@ static void Init() {
   ScrWork = {};
   FlagWork = {};
 
-  if (+Profile::GameFeatures & +GameFeature::Renderer2D) {
+  if (+Profile::Game::GameFeatures & +GameFeature::Renderer2D) {
     Profile::LoadSpritesheets();
     Profile::Charset::Load();
     Profile::LoadFonts();
@@ -125,11 +127,11 @@ static void Init() {
     Background2D::Init();
     Mask2D::Init();
 
-    if (Profile::UseBgChaEffects || Profile::UseBgFrameEffects) {
+    if (Profile::Game::UseBgChaEffects || Profile::Game::UseBgFrameEffects) {
       Profile::BgEff::Load();
     }
 
-    if (Profile::UseWaveEffects) {
+    if (Profile::Game::UseWaveEffects) {
       Profile::WaveEffects::Load();
       Effects::Init();
     }
@@ -139,15 +141,15 @@ static void Init() {
 
   SetWindowIcon(Window->SDLWindow);
 
-  if (+Profile::GameFeatures & +GameFeature::ModelViewer) {
+  if (+Profile::Game::GameFeatures & +GameFeature::ModelViewer) {
     ModelViewer::Init();
   }
 
-  if (+Profile::GameFeatures & +GameFeature::CharacterViewer) {
+  if (+Profile::Game::GameFeatures & +GameFeature::CharacterViewer) {
     CharacterViewer::Init();
   }
 
-  if (+Profile::GameFeatures & +GameFeature::Sc3VirtualMachine) {
+  if (+Profile::Game::GameFeatures & +GameFeature::Sc3VirtualMachine) {
     Vm::Init();
 
     Profile::CommonMenu::Configure();
@@ -182,21 +184,16 @@ static void Init() {
   Profile::ClearProfile();
 }
 
-void InitFromProfile(std::string const& name) {
-  Profile::MakeLuaProfile(name);
-  Init();
-}
-
 void Shutdown() {
-  if (+Profile::GameFeatures & +GameFeature::Audio) {
+  if (+Profile::Game::GameFeatures & +GameFeature::Audio) {
     Audio::AudioShutdown();
   }
 
-  if (+Profile::GameFeatures & +GameFeature::Video) {
+  if (+Profile::Game::GameFeatures & +GameFeature::Video) {
     Video::VideoShutdown();
   }
 
-  if (+Profile::GameFeatures & +GameFeature::Renderer2D) {
+  if (+Profile::Game::GameFeatures & +GameFeature::Renderer2D) {
     Renderer->Shutdown();
   }
   WorkQueue::StopWorkQueue();
@@ -249,14 +246,14 @@ void UpdateSystem(float dt) {
   }
 
   SDL_Event e;
-  if (+Profile::GameFeatures & +GameFeature::Input) {
+  if (+Profile::Game::GameFeatures & +GameFeature::Input) {
     Input::BeginFrame();
     RequestCursor(CursorType::Default);
   }
 
   while (SDL_PollEvent(&e)) {
     if (e.type == SDL_QUIT) {
-      if (Profile::HasScriptedExitLogic) {
+      if (Profile::Patch::HasScriptedExitLogic) {
         Input::KeyboardButtonWentDown[SDL_SCANCODE_ESCAPE] = true;
       } else {
         ShouldQuit = true;
@@ -270,13 +267,13 @@ void UpdateSystem(float dt) {
       continue;
 #endif
 
-    if (+Profile::GameFeatures & +GameFeature::Input) {
+    if (+Profile::Game::GameFeatures & +GameFeature::Input) {
       if (Input::HandleEvent(&e)) continue;
     }
 
     WorkQueue::HandleEvent(&e);
   }
-  if (+Profile::GameFeatures & +GameFeature::Sc3VirtualMachine) {
+  if (+Profile::Game::GameFeatures & +GameFeature::Sc3VirtualMachine) {
     Vm::Interface::UpdatePADInput();
     Vm::Interface::UpdatePADHoldInput(updateInterval);
     Vm::Interface::UpdateKBHoldInput(updateInterval);
@@ -296,7 +293,7 @@ void UpdateSystem(float dt) {
     if (ScrWork[SW_GAMESTATE] & 5 && !GetFlag(SF_GAMEPAUSE)) {
       UI::GameSpecific::Update(updateInterval);
 
-      if (Profile::UseWaveEffects) {
+      if (Profile::Game::UseWaveEffects) {
         if (IsBgWaveEffectActive()) {
           Effects::WaveBG.Update(updateInterval);
         }
@@ -332,34 +329,34 @@ void Update(float dt) {
   Renderer->ImGuiBeginFrame();
 #endif
 
-  if (+Profile::GameFeatures & +GameFeature::ModelViewer) {
+  if (+Profile::Game::GameFeatures & +GameFeature::ModelViewer) {
     ModelViewer::Update(dt);
   }
 
-  if (+Profile::GameFeatures & +GameFeature::CharacterViewer) {
+  if (+Profile::Game::GameFeatures & +GameFeature::CharacterViewer) {
     CharacterViewer::Update(dt);
   }
 
-  if (+Profile::GameFeatures & +GameFeature::Audio) {
+  if (+Profile::Game::GameFeatures & +GameFeature::Audio) {
     if (AudioDeviceChanged) Audio::AudioReinit();
     Audio::AudioUpdate(dt);
   }
 
-  if (+Profile::GameFeatures & +GameFeature::Video) {
+  if (+Profile::Game::GameFeatures & +GameFeature::Video) {
     if (AudioDeviceChanged && !AudioReopenSupported) Video::ReinitAudio();
     Video::VideoUpdate(dt);
   }
 
-  if (+Profile::GameFeatures & +GameFeature::Audio &&
-      +Profile::GameFeatures & +GameFeature::Subtitles) {
+  if (+Profile::Game::GameFeatures & +GameFeature::Audio &&
+      +Profile::Game::GameFeatures & +GameFeature::Subtitles) {
     Audio::AudioSubtitlesUpdate();
   }
 
-  if (+Profile::GameFeatures & +GameFeature::Scene3D) {
+  if (+Profile::Game::GameFeatures & +GameFeature::Scene3D) {
     Renderer->Scene->Update(dt);
   }
 
-  if (+Profile::GameFeatures & +GameFeature::Renderer2D) {
+  if (+Profile::Game::GameFeatures & +GameFeature::Renderer2D) {
     for (DialoguePage& page : DialoguePages) page.Update(dt);
   }
 }
@@ -367,7 +364,7 @@ void Update(float dt) {
 static void RenderMain() {
   Background2D::LastRenderedBackground = nullptr;
   UI::GameSpecific::RenderEarlyMain();
-  for (uint32_t layer = 0; layer <= Profile::LayerCount; layer++) {
+  for (uint32_t layer = 0; layer <= Profile::Game::LayerCount; layer++) {
     if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::CC) {
       const int renderTarget = ScrWork[SW_RENDERTARGET + layer];
       if (0 <= renderTarget && renderTarget <= MaxFramebuffers) {
@@ -383,7 +380,8 @@ static void RenderMain() {
 
     // Games with <= 2 don't render their captures separately
     if (Profile::Vm::ScrWorkCaptureStructSize > 0) {
-      for (int capId = 0; capId < static_cast<int>(Profile::ScreenCaptureCount);
+      for (int capId = 0;
+           capId < static_cast<int>(Profile::Game::ScreenCaptureCount);
            capId++) {
         Screencaptures[capId].UpdateState(capId);
         Screencaptures[capId].Render(layer);
@@ -394,8 +392,8 @@ static void RenderMain() {
       Background2D::LastRenderedBackground->RenderBgEff(layer);
     }
 
-    if ((+Profile::GameFeatures & +GameFeature::Renderer2D) &&
-        !(+Profile::GameFeatures & +GameFeature::Scene3D)) {
+    if ((+Profile::Game::GameFeatures & +GameFeature::Renderer2D) &&
+        !(+Profile::Game::GameFeatures & +GameFeature::Scene3D)) {
       for (int chaId = 0; chaId < std::ssize(Characters2D); chaId++) {
         int bufId = ScrWork[SW_CHA1SURF + chaId];
         Characters2D[bufId].UpdateState(chaId);
@@ -422,8 +420,8 @@ static void RenderMain() {
                             (float)ScrWork[SW_MASK1SIZEX + maskOffset * i],
                             (float)ScrWork[SW_MASK1SIZEY + maskOffset * i]};
           if (maskRect.Width == 0.0f || maskRect.Height == 0.0f) {
-            maskRect = {0.0f, 0.0f, Profile::DesignWidth,
-                        Profile::DesignHeight};
+            maskRect = {0.0f, 0.0f, Profile::Game::DesignWidth,
+                        Profile::Game::DesignHeight};
           }
 
           glm::vec4 col = ScrWorkGetColor(SW_MASK1COLOR + maskOffset * i);
@@ -434,8 +432,8 @@ static void RenderMain() {
       }
     }
 
-    if (Profile::UseMoviePriority &&
-        (+Profile::GameFeatures & +GameFeature::Video)) {
+    if (Profile::Game::UseMoviePriority &&
+        (+Profile::Game::GameFeatures & +GameFeature::Video)) {
       int videoAlpha = 0;
       if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::CHLCC) {
         if (ScrWork[SW_MOVIEALPHA] > 0 &&
@@ -471,7 +469,7 @@ static void RenderMain() {
       Effects::Blur.Render(ScrWork[SW_FEATHERING2]);
     }
 
-    if (Profile::UseWaveEffects) {
+    if (Profile::Game::UseWaveEffects) {
       const bool isCC =
           +Profile::Vm::GameInstructionSet == +Vm::InstructionSet::CC;
       if (GetFlag(SF_BGEFF1DISP) && (!isCC || ScrWork[SW_EFF_WAVE_ALPHA])) {
@@ -497,7 +495,7 @@ static void RenderMain() {
 
     UI::GameSpecific::RenderLayer(layer);
 
-    for (size_t capId = 0; capId < Profile::ScreenCaptureCount; capId++) {
+    for (size_t capId = 0; capId < Profile::Game::ScreenCaptureCount; capId++) {
       const size_t capOffset =
           capId * Profile::Vm::ScrWorkCaptureEffectInfoStructSize;
       if (ScrWork[SW_EFF_CAP_BUF + capOffset] == 0 ||
@@ -527,15 +525,15 @@ static void RenderMain() {
 
   // MO8 uses those huge layer indexes for movie menu, it doesn't
   // actually have 4000 layers
-  if ((+Profile::GameFeatures & +GameFeature::Video) &&
-      (!Profile::UseMoviePriority ||
+  if ((+Profile::Game::GameFeatures & +GameFeature::Video) &&
+      (!Profile::Game::UseMoviePriority ||
        (Profile::Vm::GameInstructionSet == Vm::InstructionSet::MO8 &&
         (ScrWork[SW_MOVIEPRI] == 3000 || ScrWork[SW_MOVIEPRI] == 4000)))) {
     Video::VideoRender(ScrWork[SW_MOVIEALPHA] / 256.0f);
   }
 
-  if (+Profile::GameFeatures & +GameFeature::Audio &&
-      +Profile::GameFeatures & +GameFeature::Subtitles) {
+  if (+Profile::Game::GameFeatures & +GameFeature::Audio &&
+      +Profile::Game::GameFeatures & +GameFeature::Subtitles) {
     Audio::AudioSubtitlesRender();
   }
 }
@@ -545,19 +543,19 @@ void Render() {
 
   Renderer->BeginFrame();
 
-  if (+Profile::GameFeatures & +GameFeature::Scene3D) {
+  if (+Profile::Game::GameFeatures & +GameFeature::Scene3D) {
     Renderer->Scene->Render();
   }
 
   Renderer->BeginFrame2D();
 
 #ifndef IMPACTO_DISABLE_IMGUI
-  if (+Profile::GameFeatures & +GameFeature::DebugMenu) {
+  if (+Profile::Game::GameFeatures & +GameFeature::DebugMenu) {
     DebugMenu::Show();
   }
 #endif
 
-  if (+Profile::GameFeatures & +GameFeature::Renderer2D) {
+  if (+Profile::Game::GameFeatures & +GameFeature::Renderer2D) {
     if (Window->WindowDimensionsChanged) {
       Background2D::InitFrameBuffers();
     }
@@ -603,7 +601,8 @@ void Render() {
         }
         case DrawComponentType::Mask: {
           Renderer->DrawQuad(
-              RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+              RectF(0.0f, 0.0f, Profile::Game::DesignWidth,
+                    Profile::Game::DesignHeight),
               glm::vec4(0.0f, 0.0f, 0.0f, (ScrWork[SW_RESTARTMASK] / 256.0f)));
           break;
         }
@@ -651,7 +650,7 @@ void Render() {
     }
   }
 
-  if (+Profile::GameFeatures & +GameFeature::CharacterViewer) {
+  if (+Profile::Game::GameFeatures & +GameFeature::CharacterViewer) {
     if (Backgrounds2D[0]->Status == LoadStatus::Loaded) {
       Renderer->DrawSprite(
           Backgrounds2D[0]->BgSprite,

@@ -97,9 +97,10 @@ void BacklogMenu::Render() {
   MainItems->Render();
   MainScrollbar->Render();
 
-  Renderer->DrawSprite(
-      MenuMaskSprite,
-      RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight), maskTint);
+  Renderer->DrawSprite(MenuMaskSprite,
+                       RectF(0.0f, 0.0f, Profile::Game::DesignWidth,
+                             Profile::Game::DesignHeight),
+                       maskTint);
 
   Renderer->DrawSprite(BacklogControlsSprite, BacklogControlsPosition,
                        transition);

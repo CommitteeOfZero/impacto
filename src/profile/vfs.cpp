@@ -10,21 +10,12 @@ void Configure() {
 
   {
     EnsurePushMemberOfType("Mounts", LUA_TTABLE);
-
-    PushInitialIndex();
-    while (PushNextTableElement() != 0) {
-      std::string name(EnsureGetKey<std::string>());
-
-      PushInitialIndex();
-      while (PushNextTableElement() != 0) {
+    ForEachProfileTable<std::string>([](std::string const& name) {
+      ForEachProfileArray([&name](size_t index) {
         std::string file(EnsureGetArrayElement<std::string>());
         Io::VfsMount(name, file);
-        Pop();
-      }
-
-      Pop();
-    }
-
+      });
+    });
     Pop();
   }
 

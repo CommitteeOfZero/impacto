@@ -90,9 +90,10 @@ void ClearListMenu::Render() {
   Renderer->DrawSprite(ClearListBookLayerSprite, glm::vec2(0.0f, MenuOffsetY),
                        transition);
   DrawEndingSprites(transition);
-  Renderer->DrawSprite(
-      ClearListMaskSprite,
-      RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight), maskTint);
+  Renderer->DrawSprite(ClearListMaskSprite,
+                       RectF(0.0f, 0.0f, Profile::Game::DesignWidth,
+                             Profile::Game::DesignHeight),
+                       maskTint);
   Renderer->DrawSprite(ClearListGuideSprite, ClearListGuidePosition,
                        transition);
 }

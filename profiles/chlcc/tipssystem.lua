@@ -1,4 +1,4 @@
-local SortCategoryMappingJP = {
+local sortCategoryMapping = {
     0x0,  0x0,  0x1,  0x1,
     0x2,  0x2,  0x3,  0x3,
     0x4,  0x4,  0x5,  0x5,
@@ -36,10 +36,9 @@ local SortCategoryMappingJP = {
     0x4C, 0x4D, 0x4E, 0x4F,
     0x50, 0x51, 0x52, 0x53
 };
-local SortCategoryMappingEN = SortCategoryMappingJP; -- Todo
 
 root.TipsSystem = {
     Type = TipsSystemType.CHLCC,
     MaxTipsCount = 200,
-    SortCategoryMapping = (root.Language == "Japanese") and SortCategoryMappingJP or SortCategoryMappingEN,
+    SortCategoryMapping = sortCategoryMapping,
 };

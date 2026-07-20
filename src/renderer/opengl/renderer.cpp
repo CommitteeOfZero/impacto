@@ -37,7 +37,7 @@ void Renderer::Init() {
   OpenGLWindow->Init();
   Window = (BaseWindow*)OpenGLWindow;
 
-  if (+Profile::GameFeatures & +GameFeature::Scene3D) {
+  if (+Profile::Game::GameFeatures & +GameFeature::Scene3D) {
     Scene = new Scene3D(OpenGLWindow, Shaders);
     Scene->Init();
   }
@@ -138,7 +138,7 @@ void Renderer::Shutdown() {
 
   glDeleteSamplers((GLsizei)Samplers.size(), Samplers.data());
 
-  if (+Profile::GameFeatures & +GameFeature::Scene3D) {
+  if (+Profile::Game::GameFeatures & +GameFeature::Scene3D) {
     Scene->Shutdown();
   }
 }
@@ -1141,8 +1141,8 @@ void Renderer::CaptureScreencap(Sprite& sprite) {
   sprite.Sheet.DesignHeight = static_cast<float>(fbHeight);
   sprite.Bounds = RectF{0.0f, 0.0f, static_cast<float>(fbWidth),
                         static_cast<float>(fbHeight)};
-  sprite.BaseScale = {Profile::DesignWidth / fbWidth,
-                      Profile::DesignHeight / fbHeight};
+  sprite.BaseScale = {Profile::Game::DesignWidth / fbWidth,
+                      Profile::Game::DesignHeight / fbHeight};
 
   int prevReadBuffer;
   int drawBuffer;
@@ -1208,8 +1208,8 @@ void Renderer::SetScissorRect(RectF const& rect) {
   if (!ScissorEnabled) return;
 
   Rect viewport = Window->GetViewport();
-  float scale = fmin((float)Window->WindowWidth / Profile::DesignWidth,
-                     (float)Window->WindowHeight / Profile::DesignHeight);
+  float scale = fmin((float)Window->WindowWidth / Profile::Game::DesignWidth,
+                     (float)Window->WindowHeight / Profile::Game::DesignHeight);
   float rectX = rect.X * scale;
   float rectY = rect.Y * scale;
   float rectWidth = rect.Width * scale;

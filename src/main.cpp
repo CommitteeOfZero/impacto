@@ -10,6 +10,8 @@
 #include "game.h"
 #include "util.h"
 
+#include "profile/profile.h"
+#include "profile/userconfig.h"
 #include "io/physicalfilestream.h"
 
 using namespace Impacto;
@@ -36,30 +38,37 @@ extern "C" void EMSCRIPTEN_KEEPALIVE StartGame() {
 }
 #endif
 
-static std::string handleArguments(std::vector<std::string_view> args) {
-  std::string profileName;
+template <typename T>
+concept is_arg_handler =
+    std::invocable<T> || std::invocable<T, std::string_view>;
+
+static void HandleArguments(std::vector<std::string_view> args) {
   bool hasSetChannel = false;
   for (size_t i = 0; i < args.size(); ++i) {
     std::string_view arg = args[i];
+
     auto handleArgInput = [&](std::ranges::range auto supportedArgs,
-                              std::invocable<std::string_view> auto action) {
+                              is_arg_handler auto action) {
       if (std::find(std::begin(supportedArgs), std::end(supportedArgs), arg) !=
           std::end(supportedArgs)) {
-        if (i++ < args.size()) {
+        if constexpr (std::invocable<decltype(action), std::string_view>) {
+          if (i++ >= args.size()) {
+            ImpLog(LogLevel::Fatal, LogChannel::General,
+                   "Invalid number of arguments");
+            exit(1);
+          }
           std::string_view input = args[i];
           action(input);
-          return true;
-        } else {
-          ImpLog(LogLevel::Fatal, LogChannel::General,
-                 "Invalid number of arguments");
-          exit(1);
+        } else if constexpr (std::invocable<decltype(action)>) {
+          action();
         }
+        return true;
       }
       return false;
     };
     using std::literals::string_view_literals::operator""sv;
     constexpr auto make_handler =
-        [](std::invocable<std::string_view> auto fn,
+        [](is_arg_handler auto fn,
            std::convertible_to<std::string_view> auto... strs) {
           return std::pair{std::to_array<std::string_view>({strs...}), fn};
         };
@@ -85,16 +94,37 @@ static std::string handleArguments(std::vector<std::string_view> args) {
         make_handler(
             [&](std::string_view input) { g_LogLevel = StringToLevel(input); },
             "-ll", "--loglevel"),
+        make_handler(
+            [&](std::string_view input) {
+              Profile::UserConfig ::ActiveGame = input;
+            },
+            "-g", "--game"),
+        make_handler(
+            [&](std::string_view input) {
+              Profile::UserConfig ::LanguageOverride = input;
+            },
+            "-l", "--language"),
+        make_handler([&] { Profile::UserConfig ::UsePatchOverride = true; },
+                     "-p", "--patch"),
+        make_handler(
+            [&](std::string_view input) { Profile::BasePathsPath = input; },
+            "-bp", "--basepathspath"),
+        make_handler(
+            [&](std::string_view input) {
+              Profile::GameDefinitionsPath = input;
+            },
+            "-gc", "--gamedefinitionspath"),
+        make_handler(
+            [&](std::string_view input) { Profile::UserConfigPath = input; },
+            "-uc", "--userconfigpath"),
     };
 
-    const bool matched = std::apply(
+    std::apply(
         [&](auto&&... h) {
           return ((handleArgInput(h.first, h.second)) || ...);
         },
         argHandlers);
-    if (!matched) profileName = arg;
   }
-  return profileName;
 };
 
 int main(int argc, char* argv[]) {
@@ -110,7 +140,7 @@ int main(int argc, char* argv[]) {
   }
 #endif
 
-  std::string profileName;
+  std::string profilePath;
   LogInit();
   g_LogChannels = LogChannel::All;
   g_LogLevel = LogLevel::Fatal;
@@ -125,28 +155,22 @@ int main(int argc, char* argv[]) {
     arguments.push_back(argv[i]);
   }
 
-  profileName = handleArguments(arguments);
-  if (profileName.empty()) {
+  HandleArguments(arguments);
+  if (arguments.empty()) {
     Io::Stream* stream;
-    IoError err = Io::PhysicalFileStream::Create("profile.txt", &stream);
-    if (err != IoError_OK) {
-      ImpLog(LogLevel::Fatal, LogChannel::General,
-             "Couldn't open profile.txt\n");
-      exit(1);
+    IoError err = Io::PhysicalFileStream::Create("args.txt", &stream);
+    if (err == IoError_OK) {
+      std::string fileContents(stream->Meta.Size, '\0');
+      stream->Read(fileContents.data(), stream->Meta.Size);
+      arguments.clear();
+      for (auto&& part : std::views::split(fileContents, ' ')) {
+        arguments.emplace_back(
+            std::string_view(&*part.begin(), std::ranges::distance(part)));
+      }
+      HandleArguments(arguments);
+      delete stream;
     }
-    std::string fileContents;
-    fileContents.resize(stream->Meta.Size, '\0');
-    stream->Read(&fileContents[0], stream->Meta.Size);
-    arguments.clear();
-    for (auto&& part : std::views::split(fileContents, ' ')) {
-      arguments.emplace_back(
-          std::string_view(&*part.begin(), std::ranges::distance(part)));
-    }
-    profileName = handleArguments(arguments);
   }
-
-  TrimString(profileName);
-  MakeLowerCase(profileName);
 
 #ifdef EMSCRIPTEN
   // Emscripten's EGL requests a window framebuffer with antialiasing by default
@@ -156,7 +180,9 @@ int main(int argc, char* argv[]) {
   EM_ASM(EGL.antialias = false;);
 #endif
   try {
-    Game::InitFromProfile(profileName);
+    Profile::Init();
+    Profile::Configure();
+    Game::Init();
 
 #ifdef EMSCRIPTEN
     EM_ASM(OnGameLoaded(););

@@ -59,4 +59,4 @@ root.Sprites["BubbleSpriteBig"] = {
     },
 };
 
-include('chlcc/hud/delusiontrigger.lua');
+include(root.BaseConfig.RootProfilesDir .. '/chlcc/hud/delusiontrigger.lua');

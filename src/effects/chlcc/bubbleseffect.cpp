@@ -37,7 +37,8 @@ void Bubble::Render(float alphaMultiplier) {
   const float sine = std::sin(ScrWorkAngleToRad(RandAngle));
   const float xPos = Position.x + sizeF * sine * 0.5f - sizeF / 2.0f;
   RectF dest{xPos, Position.y - sizeF / 2.0f, sizeF, sizeF};
-  dest.Scale({Profile::DesignWidth / 1280.0f, Profile::DesignHeight / 720.0f},
+  dest.Scale({Profile::Game::DesignWidth / 1280.0f,
+              Profile::Game::DesignHeight / 720.0f},
              {0.0f, 0.0f});
   const float alpha = (ScrWork[SW_BUBBLES_ALPHA] * alphaMultiplier) / 256.0f;
   if (Size < 70) {

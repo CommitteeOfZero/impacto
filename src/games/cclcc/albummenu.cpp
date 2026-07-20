@@ -362,7 +362,7 @@ void AlbumMenu::UpdateCGViewer(float dt) {
   const int bufId = ScrWork[SW_BG1SURF + activeSurface];
   const auto* background2D = Backgrounds2D[bufId];
   const auto heightRatio =
-      Profile::DesignHeight / background2D->BgSprite.Sheet.DesignHeight;
+      Profile::Game::DesignHeight / background2D->BgSprite.Sheet.DesignHeight;
   if (GetFlag(SF_ALBUMLOAD) && GetFlag(SF_ALBUMLOAD_COMPLETE)) {
     SetFlag(SF_ALBUMLOAD, 0);
     SetFlag(SF_ALBUMLOAD_COMPLETE, 0);
@@ -373,9 +373,9 @@ void AlbumMenu::UpdateCGViewer(float dt) {
     CGViewer->DestRect[1].Width =
         Backgrounds2D[bufId]->BgSprite.ScaledWidth() * heightRatio;
     CGViewer->DestRect[1].X =
-        (Profile::DesignWidth - CGViewer->DestRect[1].Width) / 2;
+        (Profile::Game::DesignWidth - CGViewer->DestRect[1].Width) / 2;
     CGViewer->DestRect[1].Y =
-        (Profile::DesignHeight - CGViewer->DestRect[1].Height) / 2;
+        (Profile::Game::DesignHeight - CGViewer->DestRect[1].Height) / 2;
 
     return;
   }
@@ -451,8 +451,8 @@ void AlbumCGViewer::CGViewerPanZoom(float dt) {
   const int activeSurface = ViewBufId[1];
   const int bufId = ScrWork[SW_BG1SURF + activeSurface];
 
-  const glm::vec2 screenCenter = {Profile::DesignWidth / 2.0f,
-                                  Profile::DesignHeight / 2.0f};
+  const glm::vec2 screenCenter = {Profile::Game::DesignWidth / 2.0f,
+                                  Profile::Game::DesignHeight / 2.0f};
 
   float& x = DestRect[1].X;
   float& y = DestRect[1].Y;
@@ -461,12 +461,12 @@ void AlbumCGViewer::CGViewerPanZoom(float dt) {
 
   glm::vec2 scaleOrigin = screenCenter;
 
-  const bool touchingLeft = w > Profile::DesignWidth && x >= 0;
+  const bool touchingLeft = w > Profile::Game::DesignWidth && x >= 0;
   const bool touchingRight =
-      w > Profile::DesignWidth && x + w <= Profile::DesignWidth;
-  const bool touchingTop = h > Profile::DesignHeight && y >= 0;
+      w > Profile::Game::DesignWidth && x + w <= Profile::Game::DesignWidth;
+  const bool touchingTop = h > Profile::Game::DesignHeight && y >= 0;
   const bool touchingBottom =
-      h > Profile::DesignHeight && y + h <= Profile::DesignHeight;
+      h > Profile::Game::DesignHeight && y + h <= Profile::Game::DesignHeight;
 
   const bool scrollUp = Input::MouseWheelDeltaY > 0;
   const bool scrollDown = Input::MouseWheelDeltaY < 0;
@@ -491,7 +491,7 @@ void AlbumCGViewer::CGViewerPanZoom(float dt) {
       scaleOrigin = glm::vec2(scaleOrigin.x, y + DestRect[1].Height);
   }
 
-  const bool isWidthSnapped = std::abs(Profile::DesignWidth - w) < 5;
+  const bool isWidthSnapped = std::abs(Profile::Game::DesignWidth - w) < 5;
   const bool waitSnappedWidth =
       isWidthSnapped && (PADinputButtonIsDown & PADcustom[36] ||
                          PADinputButtonIsDown & PADcustom[37]);
@@ -502,21 +502,22 @@ void AlbumCGViewer::CGViewerPanZoom(float dt) {
   }
 
   const float initScaleFactorOut =
-      (scrollUp || w < Profile::DesignWidth) ? 0.97f : 0.99f;
+      (scrollUp || w < Profile::Game::DesignWidth) ? 0.97f : 0.99f;
   const float initScaleFactorIn =
-      (scrollDown || w < Profile::DesignWidth) ? 1.03f : 1.01f;
+      (scrollDown || w < Profile::Game::DesignWidth) ? 1.03f : 1.01f;
   // Scaling controls
   if (zoomingOut) {  // Zoom out
-    if (h > Profile::DesignHeight &&
+    if (h > Profile::Game::DesignHeight &&
         !(WasZoomHeld && waitSnappedWidth && SnapWidthHoldTime < 0.2f)) {
       float scaleFactor = initScaleFactorOut;
       const float nextHeight = h * scaleFactor;
       const float nextWidth = w * scaleFactor;
-      if (nextHeight < Profile::DesignHeight) {  // Max height
-        scaleFactor = Profile::DesignHeight / h;
+      if (nextHeight < Profile::Game::DesignHeight) {  // Max height
+        scaleFactor = Profile::Game::DesignHeight / h;
       }
-      if (w > Profile::DesignWidth && nextWidth < Profile::DesignWidth) {
-        scaleFactor = Profile::DesignWidth / w;  // Snap to width
+      if (w > Profile::Game::DesignWidth &&
+          nextWidth < Profile::Game::DesignWidth) {
+        scaleFactor = Profile::Game::DesignWidth / w;  // Snap to width
       }
       DestRect[1].Scale({scaleFactor, scaleFactor}, scaleOrigin);
     }
@@ -531,8 +532,9 @@ void AlbumCGViewer::CGViewerPanZoom(float dt) {
       if (nextScale > maxScale) {  // Max width scaling
         scaleFactor = maxScale / currentScale;
       }
-      if (w < Profile::DesignWidth && nextWidth > Profile::DesignWidth) {
-        scaleFactor = Profile::DesignWidth / w;  // Snap to width
+      if (w < Profile::Game::DesignWidth &&
+          nextWidth > Profile::Game::DesignWidth) {
+        scaleFactor = Profile::Game::DesignWidth / w;  // Snap to width
       }
       DestRect[1].Scale({scaleFactor, scaleFactor}, scaleOrigin);
     }
@@ -554,23 +556,24 @@ void AlbumCGViewer::CGViewerPanZoom(float dt) {
   // --- Clamp or center after zoom and pan ---
 
   // Horizontal adjustment
-  if (w <= Profile::DesignWidth) {
+  if (w <= Profile::Game::DesignWidth) {
     // Center if smaller
-    x = (Profile::DesignWidth - w) * 0.5f;
+    x = (Profile::Game::DesignWidth - w) * 0.5f;
   } else {
     // Clamp if larger
     if (x > 0) x = 0;
-    if (x + w < Profile::DesignWidth) x = Profile::DesignWidth - w;
+    if (x + w < Profile::Game::DesignWidth) x = Profile::Game::DesignWidth - w;
   }
 
   // Vertical adjustment
-  if (h <= Profile::DesignHeight) {
+  if (h <= Profile::Game::DesignHeight) {
     // Center if smaller
-    y = (Profile::DesignHeight - h) * 0.5f;
+    y = (Profile::Game::DesignHeight - h) * 0.5f;
   } else {
     // Clamp if larger
     if (y > 0) y = 0;
-    if (y + h < Profile::DesignHeight) y = Profile::DesignHeight - h;
+    if (y + h < Profile::Game::DesignHeight)
+      y = Profile::Game::DesignHeight - h;
   }
 }
 
@@ -652,7 +655,9 @@ void AlbumMenu::RenderCGViewer() {
   if (!CGViewer) return;
   const glm::vec4 tint(1.0f, 1.0f, 1.0f, CGViewer->TransitionDuration.Progress);
   Renderer->DrawSprite(
-      Sprite{}, RectF{0, 0, Profile::DesignWidth, Profile::DesignHeight}, tint);
+      Sprite{},
+      RectF{0, 0, Profile::Game::DesignWidth, Profile::Game::DesignHeight},
+      tint);
   const int fadingSurface = CGViewer->ViewBufId[0];
   const int activeSurface = CGViewer->ViewBufId[1];
   if (CGViewer->PageSwapAnimation.State == AnimationState::Playing) {

@@ -5,6 +5,8 @@
 #include "../renderer.h"
 #include "../../log.h"
 #include "../../profile/game.h"
+#include "../../profile/profile.h"
+#include "../../profile/userconfig.h"
 #include "../../game.h"
 
 #include "renderer.h"
@@ -38,10 +40,10 @@ void VulkanWindow::UpdateDimensions() {
 
 RectF VulkanWindow::GetViewport() {
   RectF viewport;
-  float scale = fmin((float)WindowWidth / Profile::DesignWidth,
-                     (float)WindowHeight / Profile::DesignHeight);
-  viewport.Width = Profile::DesignWidth * scale;
-  viewport.Height = Profile::DesignHeight * scale;
+  float scale = fmin((float)WindowWidth / Profile::Game::DesignWidth,
+                     (float)WindowHeight / Profile::Game::DesignHeight);
+  viewport.Width = Profile::Game::DesignWidth * scale;
+  viewport.Height = Profile::Game::DesignHeight * scale;
   viewport.X = ((float)WindowWidth - viewport.Width) / 2.0f;
   viewport.Y = ((float)WindowHeight - viewport.Height) / 2.0f;
   return viewport;
@@ -77,13 +79,15 @@ void VulkanWindow::Init() {
 #if IMPACTO_USE_SDL_HIGHDPI
   windowFlags |= SDL_WINDOW_ALLOW_HIGHDPI;
 #endif
-  if (Profile::Fullscreen) {
+  auto const& config = Profile::UserConfig::CommonSettings;
+  if (config.Fullscreen) {
     windowFlags |= SDL_WINDOW_FULLSCREEN;
   }
 
-  SDLWindow = SDL_CreateWindow(
-      Profile::WindowName, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-      Profile::ResolutionWidth, Profile::ResolutionHeight, windowFlags);
+  SDLWindow =
+      SDL_CreateWindow(Profile::Game::WindowName, SDL_WINDOWPOS_UNDEFINED,
+                       SDL_WINDOWPOS_UNDEFINED, config.ResolutionWidth,
+                       config.ResolutionHeight, windowFlags);
 
   if (SDLWindow == NULL) {
     ImpLog(LogLevel::Error, LogChannel::General,

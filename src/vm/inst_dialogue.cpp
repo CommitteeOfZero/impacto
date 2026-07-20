@@ -375,8 +375,8 @@ VmInstruction(InstSetMesModeFormat) {
     }
   };
 
-  const glm::vec2 designScale = {Profile::DesignWidth / 1280.0f,
-                                 Profile::DesignHeight / 720.0f};
+  const glm::vec2 designScale = {Profile::Game::DesignWidth / 1280.0f,
+                                 Profile::Game::DesignHeight / 720.0f};
 
   using enum TextModeInfoFieldFlags;
   setVal(dest.DisplayMode, DisplayMode, info.DisplayMode);

@@ -13,6 +13,13 @@ enum class SubtitleType : uint8_t {
   Ass,
 };
 
+enum class SubtitleConfigType : uint8_t {
+  None = 0,
+  Karaoke = 1 << 0,
+  Translation = 1 << 1,
+  All = 0xFF,
+};
+
 struct SubtitleTrackFile {
   SubtitleType Type;
   SubtitleConfigType Config;
@@ -30,3 +37,9 @@ inline std::vector<std::string> SubtitleFontsDir;
 
 void Configure();
 }  // namespace Impacto::Profile::Subtitle
+
+template <>
+struct magic_enum::customize::enum_range<
+    Impacto::Profile::Subtitle::SubtitleConfigType> {
+  static constexpr bool is_flags = true;
+};

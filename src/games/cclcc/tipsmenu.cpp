@@ -99,13 +99,13 @@ void TipsMenu::Show() {
     TipsTabs[CurrentTabType]->Show();
     TipViewItems.Show();
     if (ScrWork[SW_SYSSUBMENUCT] != 32) {
-      TipsTabs[CurrentTabType]->Move({0, Profile::DesignHeight / 2});
-      TipViewItems.Move({0, Profile::DesignHeight / 2});
-      TextPage.Move({0, Profile::DesignHeight / 2});
+      TipsTabs[CurrentTabType]->Move({0, Profile::Game::DesignHeight / 2});
+      TipViewItems.Move({0, Profile::Game::DesignHeight / 2});
+      TextPage.Move({0, Profile::Game::DesignHeight / 2});
       TransitionAnimation.StartIn();
     } else {
       TransitionAnimation.Progress = 1.0f;
-      LastYPos = Profile::DesignHeight / 2;
+      LastYPos = Profile::Game::DesignHeight / 2;
     }
     FadeAnimation.StartIn();
   }
@@ -240,16 +240,16 @@ void TipsMenu::Update(float dt) {
   };
 
   if (TransitionAnimation.State == AnimationState::Playing) {
-    float move = glm::mix(0.0f, Profile::DesignHeight / 2,
+    float move = glm::mix(0.0f, Profile::Game::DesignHeight / 2,
                           TransitionAnimation.Progress) -
                  LastYPos;
     Move({0, move});
 
   } else if (TransitionAnimation.IsIn() && LastYPos != 0) {
-    float move = Profile::DesignHeight / 2 - LastYPos;
+    float move = Profile::Game::DesignHeight / 2 - LastYPos;
     Move({0, move});
   } else if (TransitionAnimation.IsOut() &&
-             LastYPos != Profile::DesignHeight / 2 && LastYPos != 0) {
+             LastYPos != Profile::Game::DesignHeight / 2 && LastYPos != 0) {
     float move = -LastYPos;
     Move({0, move});
   }
@@ -266,9 +266,9 @@ void TipsMenu::Render() {
 
   if (OpenedAsDirect) CommonMenu::DrawBgSprite<false>(State, FadeAnimation);
 
-  Renderer->DrawSprite(BackgroundSprite,
-                       glm::vec2(0.0f, Profile::DesignHeight / 2 - LastYPos),
-                       fade);
+  Renderer->DrawSprite(
+      BackgroundSprite,
+      glm::vec2(0.0f, Profile::Game::DesignHeight / 2 - LastYPos), fade);
   TipsTabs[CurrentTabType]->Tint.a = fade.a;
   TipsTabs[CurrentTabType]->Render();
 
@@ -284,12 +284,14 @@ void TipsMenu::Render() {
     TipsScrollbar->Render();
   }
 
-  Renderer->DrawSprite(
-      TipsMaskSprite,
-      RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight), maskTint);
+  Renderer->DrawSprite(TipsMaskSprite,
+                       RectF(0.0f, 0.0f, Profile::Game::DesignWidth,
+                             Profile::Game::DesignHeight),
+                       maskTint);
   Renderer->DrawSprite(
       TipsGuideSprite,
-      glm::vec2(TipsGuideX, TipsGuideY + Profile::DesignHeight / 2 - LastYPos),
+      glm::vec2(TipsGuideX,
+                TipsGuideY + Profile::Game::DesignHeight / 2 - LastYPos),
       fade);
 }
 

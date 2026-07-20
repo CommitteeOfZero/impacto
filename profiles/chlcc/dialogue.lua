@@ -106,7 +106,7 @@ root.Dialogue = {
     NametagSprite = "NametagSprite",
     SecondaryNametagSprite = "SecondaryNametagSprite",
 
-    TextModesInfo = root.Language == "English" and {
+    TextModesInfo = getLanguage() == "English" and {
         ["0"] = { -- ADV box
             WindowPos = { X = 161, Y = 540 },
             NamePos = { X = -440, Y = -68 },

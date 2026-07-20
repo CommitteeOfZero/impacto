@@ -82,8 +82,8 @@ class Background2D : public Loadable<Background2D, bool, uint32_t> {
     glm::quat Rotation{};
     glm::vec2 Origin{};
 
-    RectF Subsection =
-        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight);
+    RectF Subsection = RectF(0.0f, 0.0f, Profile::Game::DesignWidth,
+                             Profile::Game::DesignHeight);
 
     static BgTransformState GetBgTransformState(int bgId);
     static BgTransformState GetCapTransformState(int capId);

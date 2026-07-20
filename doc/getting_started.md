@@ -6,18 +6,117 @@ To handle the complexity of the full range of MAGES. engine titles (originally d
 
 On application load, a set of scripts we call *profile* is executed, generating a (declarative) configuration specifying the chosen game's featureset (such as implemented VM instructions or the 3D scene in Robotics;Notes), parameters (like dimensions, names etc. ), asset location/use and "game objects" (menus/UI, database of 3D models in Robotics;Notes, built from primitives). `/profiles/` contains these scripts. `/src/profile/` has the host code to execute them and manually deserialize the resulting configuration into global state.
 
-## Running games
+## Configuration Files
+
+**`basepaths.lua`** defines paths where Impacto should look for files of different types, such as game assets, patches, game profile configurations, save locations.
+
+**`gamedefinitions.lua`** defines available games and their profile locations. For example:
+```lua
+root.GameDefinitions = {
+  chlcc = {
+    GameProfile = root.BasePaths.RootProfilesDir .. "/chlcc/game.lua",
+    Patch = {
+      English = root.BasePaths.RootPatchesDir .. "/english/profiles/chlcc/patch.lua",
+    }
+  },
+  -- ... other games
+};
+```
+
+**`userconfig.lua`** contains runtime settings including the active game. Set `ActiveGame` to specify which game to launch:
+```lua
+root.UserConfig = {
+  GameSettings = {
+    chlcc = { Language = "Japanese", UsePatch = false },
+    cclcc = { Language = "English", UsePatch = true},
+    -- ... settings for other games
+  },
+  ActiveGame = "cclcc"
+};
+```
+
+In a release environment, these files will be placed in a platform specific preferences directory. 
+
+For development purposes it will fallback to looking for these files in the same directory as the impacto executable. They can also be overriden using cli arguments or the `args.txt` file
+
+## Preparing files
 The following directories must be in the same directory as the impacto executable:
 
-* games - directory that contains game resource files
-* profiles - directory that contains profile definition files
+* games - directory that contains game specific Impacto asset files
 * shaders - directory that contains shader files
+
+The following directories must be specified in `basepaths.lua` and populated:
+* gamedata - directory containing game resource files, nested under their respective profile names
+* profiles - directory that contains profile definition files
+* patches - optional directory containing overlay resources and profile files to patch over existing game profile
 
 These folders can be found in the repository root. When using the *install* build step they are automatically copied to your specified install location.
 
-In order to launch a game using impacto, until UI is developed for this, you must specify the game that needs to be launched using either of these methods:
-- A file named `profile.txt` that contains the name of the profile to launch placed next to the impacto executable.
-- A command line argument with the name of the profile as the first argument after the executable name.
+For the list of required game resource files refer to the `vfs.lua` file located in desired game profile directory. The resource files should be placed in `/gamedata/<profile_name>/` directory.
+
+## Launching a Game
+
+You can specify the game to launch using any of these methods (in priority order):
+
+1. **Command-line argument** (Useful for development and debugging):
+   ```
+   impacto -g chlcc
+   impacto --game cclcc
+   ```
+
+2. **Set `ActiveGame` in `userconfig.lua`**:
+   Uncomment the line `ActiveGame = "cclcc"` to set the default game for your development session.
+
+3. **Fallback: `args.txt`** (for platforms without command-line support):
+   Create a file named `args.txt` next to the executable with the game name as content. This is useful for platforms without arguments support.
+
+## Command-line Arguments
+
+Useful flags for development and debugging, these settings will take precedent over settings specified in lua when applicable:
+
+```
+impacto -g chlcc                           # Specify active game/profile
+impacto -p                                 # Enables patch override
+impacto -l English                         # Specify language override
+impacto -ll Debug                          # Set log level (Fatal, Warning, Info, Debug)
+impacto -lc General                        # Enable specific log channel (repeat flag to specify multiple)
+impacto -lf log.txt                        # Specify Log File Path
+impacto -bp ./custom_basepaths.lua         # Use custom path to basepaths config
+impacto -gc ./custom_gamedefinitions.lua   # Use custom path to game definitions config
+impacto -uc ./custom_user_config.lua       # Use custom path to user config
+```
+Available Log Channels:
+- None
+- General
+- IO
+- Render
+- ModelLoad
+- GL
+- Renderable3D
+- TextureLoad
+- Scene
+- VM
+- Expr
+- VMStub
+- Audio
+- Profile
+- Video
+- All
+
+Available Log Levels:
+- Off
+- Fatal
+- Error
+- Warning
+- Info
+- Debug
+- Trace
+- Max
+
+Example combining multiple arguments:
+```
+impacto.exe -g chlcc -ll Debug -lc General -lc Vm
+```
 
 The following profiles are currently available:
 
@@ -30,77 +129,3 @@ The following profiles are currently available:
 * **characterviewer** - A viewer for 2D characters
 * **modelviewer** - A viewer for 3D models from Robotics;Notes Elite
 * **modelviewer-dash** - A viewer for 3D models from Robotics;Notes DaSH
-
-For the list of required game resource files refer to the `vfs.lua` file located in desired game profile directory. The resource files should be placed in `/games/<profile_name>/gamedata/` directory.
-
-## General engine information
-To get an overall understanding of how the original Mages. engine functions please refer to https://committeeofzero.gitbooks.io/mages-engine-compendium/content/
-
-## Making simple changes
-The main game loop is located in `/src/game.cpp`. The main scripting execution loop is located in `/src/vm/vm.cpp`.
-
-All of Mages. engine games use bytecode script files to define game behaviour.
-The scripting engine instructions are split into groups and implemented in their respective files, for example the instructions that alter the control flow are located in `/src/vm/inst_controlflow.cpp`.
-In order to make implementing new instructions easier, all instruction implementations use macros. A simple instruction implementation would be defined as:
-
-```cpp
-VmInstruction(InstJump) {
-  StartInstruction;
-  PopLocalLabel(labelAdr);
-  thread->Ip = labelAdr;
-}
-```
-
-After defining an instruction, it must be placed into the instruction table for the desired instruction set. Instruction set definitions are located in `/src/vm/opcodetables_*.cpp`
-
-## Making simple UI changes
-Since each game has its own custom interface, UI elements are implemented using class hierarchy. Base class implementations are located in `/src/hud/`, while specific class implementations are located in `/src/games/<game_name>/`. The UI element implementations used along with their display specifications (co-ordinates, animation parameters etc) for each game are defined by the profile configuration files, located in `/profiles/<profile_name>/hud/`.
-
-Each UI element class implements an Update functions, which updates dynamic values, and a Render function, which draws sprites on the screen. For example, you can draw a simple sprite inside the Render function by using the following function (defined in `/src/renderer2d.h`):
-
-```cpp
-Renderer->DrawSprite(Sprite, glm::vec2(X, Y));
-```
-
-Sprites are defined in profile configuration files. For example, in order to define a simple sprite that uses a texture from the system archive, do the following:
-
-1. In the apporpriate UI definition file located in `/src/profile/games/<game_name>/` define a `Sprite` (defined in `/src/spritesheet.h`) variable, for example:
-
-```cpp
-Sprite BackgroundSprite;
-```
-
-2. In profile sprites definition file located in `/profiles/<profile_name>/sprites.lua` in `root.SpriteSheets` list, define a spritesheet, for example:
-
-```lua
-["Data"] = {
-    Path: { Mount = "system", Id = 5 },
-    DesignWidth = 2048,  --Spritesheet width
-    DesignHeight = 1024  --Spritesheet height
-},
-```
-
-3. In the appropriate profile UI definition file located in `/profiles/<profile_name>/hud/` add a sprite definition to the global `root.Sprites` dictionary, for example:
-
-```lua
-root.Sprites["TitleMenuBackground"] = {
-    Sheet = "Title",
-    Bounds = { X = 0, Y = 0, Width = 1920, Height = 1080 }
-};
-```
-
-4. In the appropriate profile UI definition file located in `/profiles/<profile_name>/hud/` in the UI element object define the sprite variable, for example:
-
-```lua
-root.TitleMenu = {
-    BackgroundSpriteProfile = "TitleMenuBackground"
-};
-```
-
-5. In the appropriate UI definition file located in `/src/profile/games/<game_name>/` in the `Configure` function, get the sprite object defined in the profile UI definition file, for example:
-
-```cpp
-BackgroundSprite = EnsureGetMember<Sprite>("BackgroundSpriteProfile");
-```
-
-You can now use the defined sprite in the appropriate UI element.  

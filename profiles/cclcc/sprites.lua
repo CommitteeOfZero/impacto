@@ -151,7 +151,7 @@ root.SpriteSheets = {
     }
 };
 
-local numberOfPages = root.Language == "Japanese" and 16 or 1
+local numberOfPages = 16
 
 for i = 0, numberOfPages do
     root.SpriteSheets["ManualSheet" .. i] = {
