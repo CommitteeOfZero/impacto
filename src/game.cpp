@@ -137,8 +137,6 @@ static void Init() {
     Effects::Blur.Init();
   }
 
-  SetWindowIcon(Window->SDLWindow);
-
   if (+Profile::GameFeatures & +GameFeature::ModelViewer) {
     ModelViewer::Init();
   }
@@ -276,6 +274,13 @@ void UpdateSystem(float dt) {
 
     WorkQueue::HandleEvent(&e);
   }
+
+  static bool IsWindowIconSet = false;
+  if (!IsWindowIconSet) {
+    IsWindowIconSet = true;
+    SetWindowIcon(Window->SDLWindow);
+  }
+
   if (+Profile::GameFeatures & +GameFeature::Sc3VirtualMachine) {
     Vm::Interface::UpdatePADInput();
     Vm::Interface::UpdatePADHoldInput(updateInterval);
