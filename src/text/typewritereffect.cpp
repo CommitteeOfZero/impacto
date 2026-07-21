@@ -218,4 +218,9 @@ float TypewriterEffect::CalcRubyOpacity(const size_t rubyGlyphId,
   return std::clamp((Progress - startProgress) / (endProgress - startProgress),
                     0.0f, 1.0f);
 }
+
+void TypewriterEffect::ResetImpl(std::optional<AnimationDirection> direction) {
+  IsCancelled = false;
+  CancelRequested = false;
+}
 }  // namespace Impacto
