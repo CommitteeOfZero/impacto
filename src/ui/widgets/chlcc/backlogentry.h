@@ -10,16 +10,15 @@ namespace CHLCC {
 
 class BacklogEntry : public Widgets::BacklogEntry {
  public:
-  BacklogEntry(int id, Vm::BufferOffsetContext scrCtx,
-               std::optional<int> audioId, int characterId, glm::vec2 pos,
-               const RectF& hoverBounds);
+  BacklogEntry(Vm::BufferOffsetContext scrCtx, std::optional<int> audioId,
+               int characterId, glm::vec2 pos);
 
   void Render() override;
 
  private:
-  Label beforeNametagLabel;
-  Label nametagLabel;
-  Label afterNametagLabel;
+  Label BeforeNametagLabel;
+  Label NametagLabel;
+  Label AfterNametagLabel;
 };
 
 }  // namespace CHLCC

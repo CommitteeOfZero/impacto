@@ -892,6 +892,78 @@ FetchContent_Declare(
     EXCLUDE_FROM_ALL
 )
 
+FetchContent_Declare(
+    boost_core
+    GIT_TAG "boost-1.91.0"
+    GIT_REPOSITORY "https://github.com/boostorg/core.git"
+    SYSTEM
+    EXCLUDE_FROM_ALL
+)
+
+FetchContent_Declare(
+    boost_config
+    GIT_TAG "boost-1.91.0"
+    GIT_REPOSITORY "https://github.com/boostorg/config.git"
+    SYSTEM
+    EXCLUDE_FROM_ALL
+)
+
+FetchContent_Declare(
+    boost_throwexception
+    GIT_TAG "boost-1.91.0"
+    GIT_REPOSITORY "https://github.com/boostorg/throw_exception.git"
+    SYSTEM
+    EXCLUDE_FROM_ALL
+)
+
+FetchContent_Declare(
+    boost_assert
+    GIT_TAG "boost-1.91.0"
+    GIT_REPOSITORY "https://github.com/boostorg/assert.git"
+    SYSTEM
+    EXCLUDE_FROM_ALL
+)
+
+FetchContent_Declare(
+    boost_preprocessor
+    GIT_TAG "boost-1.91.0"
+    GIT_REPOSITORY "https://github.com/boostorg/preprocessor.git"
+    SYSTEM
+    EXCLUDE_FROM_ALL
+)
+
+FetchContent_Declare(
+    boost_move
+    GIT_TAG "boost-1.91.0"
+    GIT_REPOSITORY "https://github.com/boostorg/move.git"
+    SYSTEM
+    EXCLUDE_FROM_ALL
+)
+
+FetchContent_Declare(
+    boost_typetraits
+    GIT_TAG "boost-1.91.0"
+    GIT_REPOSITORY "https://github.com/boostorg/type_traits.git"
+    SYSTEM
+    EXCLUDE_FROM_ALL
+)
+
+FetchContent_Declare(
+    boost_conceptcheck
+    GIT_TAG "boost-1.91.0"
+    GIT_REPOSITORY "https://github.com/boostorg/concept_check.git"
+    SYSTEM
+    EXCLUDE_FROM_ALL
+)
+
+FetchContent_Declare(
+    boost_circularbuffer
+    GIT_TAG "boost-1.91.0"
+    GIT_REPOSITORY "https://github.com/boostorg/circular_buffer.git"
+    SYSTEM
+    EXCLUDE_FROM_ALL
+)
+
 if (NOT VCPKG_TOOLCHAIN)
     FetchContent_MakeAvailable(fmt)
 endif ()
@@ -903,6 +975,16 @@ FetchContent_MakeAvailable(concurrentqueue)
 FetchContent_MakeAvailable(readerwriterqueue)
 FetchContent_MakeAvailable(unordered_dense)
 FetchContent_MakeAvailable(magic_enum)
+
+FetchContent_MakeAvailable(boost_core)
+FetchContent_MakeAvailable(boost_config)
+FetchContent_MakeAvailable(boost_throwexception)
+FetchContent_MakeAvailable(boost_assert)
+FetchContent_MakeAvailable(boost_preprocessor)
+FetchContent_MakeAvailable(boost_move)
+FetchContent_MakeAvailable(boost_typetraits)
+FetchContent_MakeAvailable(boost_conceptcheck)
+FetchContent_MakeAvailable(boost_circularbuffer)
 
 if (NOT DEFINED IMPACTO_DISABLE_MMAP)
     list(APPEND Impacto_Src
@@ -1080,6 +1162,7 @@ list(APPEND Impacto_Libs
         utf8cpp
         concurrentqueue
         readerwriterqueue
+        Boost::circular_buffer
 )
 
 if (NOT DEFINED IMPACTO_DISABLE_LIBASS)

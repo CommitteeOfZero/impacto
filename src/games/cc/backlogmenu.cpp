@@ -20,7 +20,7 @@ using namespace Impacto::UI::Widgets::CC;
 using namespace Impacto::Profile::ScriptVars;
 
 void BacklogMenu::MenuButtonOnClick(Widgets::BacklogEntry* target) {
-  UI::BacklogMenu::MenuButtonOnClick(target);
+  UI::BacklogMenu<BacklogEntry>::MenuButtonOnClick(target);
 
   if (!target->AudioId.has_value())
     Audio::PlayInGroup(Audio::ACG_SE, "sysse", 4, false, 0.0f);
@@ -31,12 +31,12 @@ void BacklogMenu::Show() {
     CommonMenu::OnShow(FadeInDuration, FadeOutDuration, FadeAnimation);
   }
 
-  UI::BacklogMenu::Show();
+  UI::BacklogMenu<BacklogEntry>::Show();
 }
 
 void BacklogMenu::Hide() {
   Audio::Channels[Audio::AC_REV]->Stop(0.0f);
-  UI::BacklogMenu::Hide();
+  UI::BacklogMenu<BacklogEntry>::Hide();
 }
 
 void BacklogMenu::UpdateVisibility() {
@@ -56,16 +56,18 @@ void BacklogMenu::UpdateVisibility() {
     IsFocused = false;
     if (UI::FocusedMenu) UI::FocusedMenu->IsFocused = true;
 
-    MainItems->Hide();
+    for (auto& entry : Entries) {
+      entry.Hide();
+    }
   }
 }
 
 void BacklogMenu::Update(float dt) {
-  float prevScrollPos = *MainScrollbar->Value;
-  UI::BacklogMenu::Update(dt);
-  if (IsFocused && prevScrollPos != *MainScrollbar->Value) {
+  float prevScrollPos = *MainScrollbar.Value;
+  UI::BacklogMenu<BacklogEntry>::Update(dt);
+  if (IsFocused && prevScrollPos != *MainScrollbar.Value) {
     if (auto* menu = dynamic_cast<UI::CCLCC::SystemMenu*>(UI::SystemMenuPtr)) {
-      menu->BGPosition.y += (prevScrollPos - *MainScrollbar->Value) * 0.5f;
+      menu->BGPosition.y += (prevScrollPos - *MainScrollbar.Value) * 0.5f;
     }
   }
 }
@@ -76,24 +78,27 @@ void BacklogMenu::Render() {
   const float opacity = glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
   const glm::vec4 transition(1.0f, 1.0f, 1.0f, opacity);
 
-  MainItems->Tint = transition;
-  MainScrollbar->Tint = transition;
-
   const float backgroundY =
-      static_cast<float>(fmod(PageY - EntryYPadding - RenderingBounds.Y,
-                              BacklogBackground.Bounds.Height));
+      static_cast<float>(fmod(PageY, BacklogBackground.Bounds.Height));
 
   if (OpenedAsDirect) CommonMenu::DrawBgSprite<false>(State, FadeAnimation);
 
-  for (float yPos = backgroundY; yPos <= Profile::DesignHeight;
-       yPos += BacklogBackground.Bounds.Height) {
+  for (float yPos = backgroundY - Profile::DesignHeight;
+       yPos <= Profile::DesignHeight; yPos += BacklogBackground.Bounds.Height) {
     Renderer->DrawSprite(BacklogBackground, {0.0f, yPos}, transition);
   }
 
   RenderHighlight();
   Renderer->DrawSprite(BacklogHeaderSprite, BacklogHeaderPosition, transition);
-  MainItems->Render();
-  MainScrollbar->Render();
+
+  for (auto& entry : Entries) {
+    if (!entry.Bounds.Intersects(RenderingBounds)) continue;
+    entry.Tint = transition;
+    entry.Render();
+  }
+
+  MainScrollbar.Tint = transition;
+  MainScrollbar.Render();
 
   if (ScrWork[SW_SYSSUBMENUNO] == 1) {
     CommonMenu::DrawOverlay();

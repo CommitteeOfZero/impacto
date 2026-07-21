@@ -6,7 +6,7 @@ namespace Impacto {
 namespace UI {
 namespace MO6TW {
 
-class BacklogMenu : public UI::BacklogMenu {
+class BacklogMenu : public UI::BacklogMenu<Widgets::BacklogEntry> {
  public:
   void Render() override;
 

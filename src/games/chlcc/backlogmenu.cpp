@@ -28,7 +28,7 @@ void BacklogMenu::Show() {
       FromSystemMenuTransition->StartIn();
     }
     IsFocused = true;
-    UI::BacklogMenu::Show();
+    UI::BacklogMenu<BacklogEntry>::Show();
   }
 }
 
@@ -70,15 +70,21 @@ void BacklogMenu::Render() {
     Renderer->DisableScissor();
     RenderHighlight({0.0f, yOffset});
   }
-  MainItems->RenderingBounds.Y += yOffset;
-  MainItems->Move({0.0f, yOffset});
-  MainItems->Render();
-  MainItems->Move({0.0f, -yOffset});
-  MainItems->RenderingBounds.Y -= yOffset;
 
-  MainScrollbar->Move({0.0f, yOffset});
-  MainScrollbar->Render();
-  MainScrollbar->Move({0.0f, -yOffset});
+  Renderer->EnableScissor();
+  Renderer->SetScissorRect(RectF(RenderingBounds).Translate({0.0f, yOffset}));
+  for (auto& entry : Entries) {
+    if (!entry.Bounds.Intersects(RenderingBounds)) continue;
+
+    entry.Move({0.0f, yOffset});
+    entry.Render();
+    entry.Move({0.0f, -yOffset});
+  }
+  Renderer->DisableScissor();
+
+  MainScrollbar.Move({0.0f, yOffset});
+  MainScrollbar.Render();
+  MainScrollbar.Move({0.0f, -yOffset});
 }
 
 void BacklogMenu::Update(float dt) {
@@ -97,16 +103,18 @@ void BacklogMenu::Update(float dt) {
       systemMenuCHG == 0 && (sysMenuCt == 0 || GetFlag(SF_SYSTEMMENU)) &&
       State == Hiding) {
     State = Hidden;
-    MainItems->Hide();
+
+    for (auto& entry : Entries) {
+      entry.Hide();
+    }
   } else if (MenuTransition.IsIn() && sysMenuCt == 10000 &&
              (systemMenuCHG == 0 || systemMenuCHG == 64) &&
              GetFlag(SF_BACKLOGMENU) && State == Showing) {
     State = Shown;
-    MainItems->HasFocus = true;
   }
 
   if (State != Hidden) {
-    UI::BacklogMenu::Update(dt);
+    UI::BacklogMenu<BacklogEntry>::Update(dt);
     MenuTransition.Update(dt);
     FromSystemMenuTransition->Update(dt);
     if (MenuTransition.Direction == AnimationDirection::Out &&

@@ -129,7 +129,7 @@ inline SaveMenu* SaveMenuPtr = new SaveMenu();
 //
 inline SelectionMenu* SelectionMenuPtr = nullptr;
 inline SysMesBox* SysMesBoxPtr = nullptr;
-inline BacklogMenu* BacklogMenuPtr = nullptr;
+inline BacklogMenuInterface* BacklogMenuPtr = nullptr;
 inline TipsMenu* TipsMenuPtr = nullptr;
 inline OptionsMenu* OptionsMenuPtr = nullptr;
 

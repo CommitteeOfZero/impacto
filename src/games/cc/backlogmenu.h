@@ -9,19 +9,13 @@ namespace Impacto {
 namespace UI {
 namespace CC {
 
-class BacklogMenu : public UI::BacklogMenu, public CCLCC::CommonMenu {
+class BacklogMenu : public UI::BacklogMenu<Widgets::CC::BacklogEntry>,
+                    public CCLCC::CommonMenu {
  public:
   void Show() override;
   void Hide() override;
   void Render() override;
   void Update(float dt) override;
-
-  Widgets::BacklogEntry* CreateBacklogEntry(
-      int id, Vm::BufferOffsetContext scrCtx, std::optional<int> audioId,
-      int characterId, glm::vec2 pos, const RectF& hoverBounds) const override {
-    return new Widgets::CC::BacklogEntry(id, scrCtx, audioId, characterId, pos,
-                                         hoverBounds);
-  }
 
   void MenuButtonOnClick(Widgets::BacklogEntry* target) override;
 

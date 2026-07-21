@@ -15,38 +15,32 @@ namespace Widgets {
 using namespace Impacto::Profile::BacklogMenu;
 using namespace Impacto::Profile::ScriptVars;
 
-BacklogEntry::BacklogEntry(int id, Vm::BufferOffsetContext scrCtx,
+BacklogEntry::BacklogEntry(Vm::BufferOffsetContext scrCtx,
                            std::optional<int> audioId, int characterId,
-                           glm::vec2 pos, const RectF& hoverBounds)
-    : Id(id),
-      AudioId(audioId),
-      CharacterId(characterId),
-      Page(std::make_unique<BacklogPage>()),
-      Position(pos),
-      HoverBounds(hoverBounds) {
+                           glm::vec2 pos)
+    : AudioId(audioId), CharacterId(characterId), Position(pos) {
   Enabled = true;
 
   Impacto::Vm::Sc3VmThread dummy;
   dummy.IpOffset = scrCtx.IpOffset;
   dummy.ScriptBufferId = scrCtx.ScriptBufferId;
-  Page->AddString(&dummy);
+  Page.AddString(&dummy);
 
-  Bounds = !Page->Glyphs.empty() ? Page->Glyphs.begin()->DestRect
-                                 : RectF(pos.x, pos.y, 0, 0);
-  for (const ProcessedTextGlyph& glyph : Page->Glyphs) {
+  Bounds = !Page.Glyphs.empty() ? Page.Glyphs.begin()->DestRect
+                                : RectF(pos.x, pos.y, 0, 0);
+  for (const ProcessedTextGlyph& glyph : Page.Glyphs) {
     Bounds = RectF::Coalesce(Bounds, glyph.DestRect);
   }
-  for (const RubyChunk& chunk : Page->RubyChunks) {
+  for (const RubyChunk& chunk : Page.RubyChunks) {
     for (const auto& glyph : chunk.Text) {
       Bounds = RectF::Coalesce(Bounds, glyph.DestRect);
     }
   }
   Position.x = Bounds.X;  // X position should not take name into account
-  for (const ProcessedTextGlyph& glyph : Page->Name) {
+  for (const ProcessedTextGlyph& glyph : Page.Name) {
     Bounds = RectF::Coalesce(Bounds, glyph.DestRect);
   }
-  TextHeight = Bounds.Height;
-  Position.y = Bounds.Y;  // Y position should
+  Position.y = Bounds.Y;  // Y position should take name into account
 
   MoveToAnchor = {0.0f, Position.y};
   MoveTo(pos);
@@ -55,18 +49,21 @@ BacklogEntry::BacklogEntry(int id, Vm::BufferOffsetContext scrCtx,
 void BacklogEntry::UpdateInput(float dt) {
   if (Enabled) {
     RectF entryHoverBounds =
-        RectF(HoverBounds.X, Bounds.Y, HoverBounds.Width, Bounds.Height);
+        RectF(Profile::BacklogMenu::HoverBounds.X, Bounds.Y,
+              Profile::BacklogMenu::HoverBounds.Width, Bounds.Height);
     if (Input::CurrentInputDevice == Input::Device::Mouse) {
-      Hovered =
-          entryHoverBounds.ContainsPoint(Input::CurMousePos) &&
-          HoverBounds.Y <= Bounds.Y &&
-          (Bounds.Y + Bounds.Height) <= (HoverBounds.Y + HoverBounds.Height);
+      Hovered = entryHoverBounds.ContainsPoint(Input::CurMousePos) &&
+                Profile::BacklogMenu::HoverBounds.Y <= Bounds.Y &&
+                (Bounds.Y + Bounds.Height) <=
+                    (Profile::BacklogMenu::HoverBounds.Y +
+                     Profile::BacklogMenu::HoverBounds.Height);
     } else if (Input::CurrentInputDevice == Input::Device::Touch &&
                Input::TouchIsDown[0]) {
-      Hovered =
-          entryHoverBounds.ContainsPoint(Input::CurTouchPos) &&
-          HoverBounds.Y <= Bounds.Y &&
-          (Bounds.Y + Bounds.Height) <= (HoverBounds.Y + HoverBounds.Height);
+      Hovered = entryHoverBounds.ContainsPoint(Input::CurTouchPos) &&
+                Profile::BacklogMenu::HoverBounds.Y <= Bounds.Y &&
+                (Bounds.Y + Bounds.Height) <=
+                    (Profile::BacklogMenu::HoverBounds.Y +
+                     Profile::BacklogMenu::HoverBounds.Height);
     }
     if (HasFocus &&
         ((Hovered &&
@@ -80,7 +77,7 @@ void BacklogEntry::UpdateInput(float dt) {
 void BacklogEntry::Move(glm::vec2 relativePosition) {
   Position += relativePosition;
   Widget::Move(relativePosition);
-  Page->Move(relativePosition);
+  Page.Move(relativePosition);
 }
 
 void BacklogEntry::Render() {
@@ -92,7 +89,7 @@ void BacklogEntry::Render() {
         Tint);
   }
 
-  Page->Render(Tint.a, Profile::Dialogue::REVNameOutlineMode);
+  Page.Render(Tint.a, Profile::Dialogue::REVNameOutlineMode);
 }
 
 }  // namespace Widgets

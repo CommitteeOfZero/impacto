@@ -40,6 +40,7 @@ All third-party code mentioned above is mandatory, included in the build process
 * [pugixml](https://github.com/zeux/pugixml)
 * [UTF8-CPP](https://github.com/nemtrif/utfcpp)
 * [magic_enum](https://github.com/Neargye/magic_enum)
+* [boost](https://boost.org)
 
 **Sourcing and linkage:**
 
@@ -764,7 +765,7 @@ Copyright 2014 Melissa O'Neill <oneill@pcg-random.org>
 
 Licensed under the Apache License, Version 2.0. See below for license text.
 
-# Ryujinx
+## Ryujinx
 
 https://github.com/Ryujinx/Ryujinx/tree/eee639d6ba544fa5dd9352426d55e91bc54e157d/Ryujinx.Graphics/Graphics3d/Texture
 
@@ -999,6 +1000,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 https://github.com/libass/libass
 
 See below for license text (ISC)
+
+## boost
+
+https://boost.org
+
+See below for license text (Boost Software License, Version 1.0)
 
 # Generic license texts
 

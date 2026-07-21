@@ -14,9 +14,9 @@ using namespace Impacto::Profile::CC::BacklogMenu;
 
 void BacklogEntry::Render() {
   if (AudioId.has_value()) {
-    const glm::vec2 textPos = Page->Name.empty()
-                                  ? Page->Glyphs[0].DestRect.GetPos()
-                                  : Page->Name[0].DestRect.GetPos();
+    const glm::vec2 textPos = Page.Name.empty()
+                                  ? Page.Glyphs[0].DestRect.GetPos()
+                                  : Page.Name[0].DestRect.GetPos();
 
     RectF bounds =
         RectF(textPos.x - VoiceIcon.ScaledWidth() + VoiceIconOffset.x,
@@ -31,17 +31,17 @@ void BacklogEntry::Render() {
                                       Tint, false, false);
   }
 
-  Renderer->DrawProcessedText(Page->Name, Profile::Dialogue::DialogueFont,
+  Renderer->DrawProcessedText(Page.Name, Profile::Dialogue::DialogueFont,
                               Tint.a, Profile::Dialogue::REVNameOutlineMode,
                               true, &BacklogMaskSheet);
 
-  for (RubyChunk& chunk : Page->RubyChunks) {
+  for (RubyChunk& chunk : Page.RubyChunks) {
     Renderer->DrawProcessedText(chunk.Text, Profile::Dialogue::DialogueFont,
                                 Tint.a, Profile::Dialogue::REVOutlineMode, true,
                                 &BacklogMaskSheet);
   }
 
-  Renderer->DrawProcessedText(Page->Glyphs, Profile::Dialogue::DialogueFont,
+  Renderer->DrawProcessedText(Page.Glyphs, Profile::Dialogue::DialogueFont,
                               Tint.a, Profile::Dialogue::REVOutlineMode, true,
                               &BacklogMaskSheet);
 }
