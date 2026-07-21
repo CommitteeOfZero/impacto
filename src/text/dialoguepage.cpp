@@ -27,18 +27,20 @@ using namespace Impacto::Profile::ScriptVars;
 DialoguePage::State DialoguePage::GetState() const {
   using enum State;
 
-  if (Typewriter.IsOut()) return Initial;
-  if (Typewriter.IsPlaying()) return Showing;
-  // Typewriter is in
+  if (Typewriter.Direction == AnimationDirection::In) {
+    if (Typewriter.IsOut()) return Initial;
+    if (Typewriter.IsPlaying() || !TextIsFullyOpaque()) return Showing;
 
-  if (TextFadeAnimation.IsIn()) return Shown;
-  if (TextFadeAnimation.IsPlaying()) return Hiding;
-  // Text fade animation is out
+    // Typewriter is in
+    return Shown;
 
-  return Hidden;
+  } else {
+    if (Typewriter.IsPlaying()) return Hiding;
+
+    // Text fade animation is out
+    return Hidden;
+  }
 }
-
-bool DialoguePage::TextIsFullyOpaque() { return Typewriter.Progress == 1.0f; }
 
 void DialoguePage::Init() {
   Profile::Dialogue::Configure();
@@ -57,10 +59,9 @@ void DialoguePage::Init() {
     page.FadeAnimation.DurationOut = FadeOutDuration;
     page.FadeAnimation.SkipOnSkipMode = true;
 
-    page.TextFadeAnimation.DurationIn = TextFadeInDuration;
-    page.TextFadeAnimation.DurationOut = TextFadeOutDuration;
-    page.TextFadeAnimation.SkipOnSkipMode = true;
-    page.TextFadeAnimation.Progress = 1.0f;
+    page.Typewriter.DurationIn = 1.0f;
+    page.Typewriter.DurationOut = TextFadeOutDuration;
+    page.Typewriter.SkipOnSkipMode = true;
   }
 }
 
@@ -81,8 +82,6 @@ void DialoguePage::Clear() {
 
 void DialoguePage::AddString(Vm::Sc3VmThread* ctx, std::optional<int> voiceId,
                              bool acted, int animId, int charId) {
-  TextFadeAnimation.Reset(AnimationDirection::Out);
-
   CurrentStringAddress = {ctx->ScriptBufferId, ctx->IpOffset};
   AudioId = voiceId;
 
@@ -134,20 +133,9 @@ void DialoguePage::Update(float dt) {
   if ((ScrWork[SW_GAMESTATE] & 4) != 0) return;
 
   Typewriter.Update(dt);
+  Typewriter.UpdateOpacity(Glyphs, RubyChunks, dt);
 
-  if (Typewriter.IsPlaying() || Typewriter.IsFinished(AnimationDirection::In)) {
-    for (size_t i = 0; i < Glyphs.size(); i++) {
-      Glyphs[i].Opacity = Typewriter.CalcOpacity(i);
-    }
-
-    for (RubyChunk& chunk : RubyChunks) {
-      for (size_t rubyGlyphId = 0; rubyGlyphId < chunk.Text.size();
-           rubyGlyphId++) {
-        chunk.Text[rubyGlyphId].Opacity =
-            Typewriter.CalcRubyOpacity(rubyGlyphId, chunk);
-      }
-    }
-
+  if (Typewriter.IsPlaying() || Typewriter.IsIn()) {
     if (AdvanceMethod == AdvanceMethodType::AutoForwardSyncVoice) {
       const float speed = AutoWaitTime > Typewriter.GetGlyphCount()
                               ? Profile::ConfigSystem::TextSpeed
@@ -172,7 +160,6 @@ void DialoguePage::Update(float dt) {
 
   DialogueBoxInst->Update(dt);
   FadeAnimation.Update(dt);
-  TextFadeAnimation.Update(dt);
 
   WaitIconDisplay::Update(dt);
   AutoIconDisplay::Update(dt);
@@ -218,14 +205,11 @@ void DialoguePage::Render(const float alpha,
   Renderer->DrawProcessedText(Name, DialogueFont, opacityTint.a, opacityTint.a,
                               outlineMode, pos);
 
-  const float textFadeOpacity =
-      GetFlag(SF_MESALLSKIP) ? 1.0f
-                             : opacityTint.a * TextFadeAnimation.Progress;
-  Renderer->DrawProcessedText(Glyphs, DialogueFont, textFadeOpacity,
-                              textFadeOpacity, outlineMode, pos);
+  Renderer->DrawProcessedText(Glyphs, DialogueFont, opacityTint.a,
+                              opacityTint.a, outlineMode, pos);
   for (const RubyChunk& chunk : RubyChunks) {
-    Renderer->DrawProcessedText(chunk.Text, DialogueFont, textFadeOpacity,
-                                textFadeOpacity, outlineMode, pos);
+    Renderer->DrawProcessedText(chunk.Text, DialogueFont, opacityTint.a,
+                                opacityTint.a, outlineMode, pos);
   }
 
   // Wait icon

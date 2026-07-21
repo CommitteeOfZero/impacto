@@ -232,7 +232,7 @@ VmInstruction(InstMesMain) {
 
   if (pageState == Initial || pageState == Showing) {
     if (GetFlag(SF_MESALLSKIP)) {
-      currentPage.Typewriter.Finish();
+      currentPage.Typewriter.Finish(AnimationDirection::In);
     } else if (GetFlag(SF_MESSKIP)) {
       currentPage.Typewriter.CancelRequested = true;
     }
@@ -263,7 +263,7 @@ VmInstruction(InstMesMain) {
 
     if (currentPage.AdvanceMethod == Skip && type != 1) {
       currentPage.PushBacklogEntry();
-      currentPage.Typewriter.Reset();
+      currentPage.Typewriter.Reset(AnimationDirection::Out);
 
       return;
     }
@@ -308,16 +308,16 @@ VmInstruction(InstMesMain) {
                               ScrWork[currentPage.Id * 2 + SW_LINEID]);
 
       currentPage.PushBacklogEntry();
-      currentPage.Typewriter.Reset();
+      currentPage.Typewriter.Reset(AnimationDirection::Out);
 
       BlockThread;
       return;
     }
 
     if (GetFlag(SF_MESALLSKIP)) {
-      currentPage.TextFadeAnimation.Finish(AnimationDirection::Out);
+      currentPage.Typewriter.Finish(AnimationDirection::Out);
     } else {
-      currentPage.TextFadeAnimation.StartOut();
+      currentPage.Typewriter.StartOut(true);
     }
   }
 

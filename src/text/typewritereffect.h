@@ -12,8 +12,8 @@ struct TypewriterEffect : public Animation {
   void Start(bool voiced);
   void Update(float dt);
 
-  float CalcOpacity(size_t glyph);
-  float CalcRubyOpacity(size_t rubyGlyphId, const RubyChunk& chunk);
+  void UpdateOpacity(std::span<ProcessedTextGlyph> glyphs,
+                     std::span<RubyChunk> rubyChunks, float dt) const;
 
   void SetGlyphCount(size_t glyphCount) { GlyphCount = glyphCount; }
   size_t GetGlyphCount() const { return GlyphCount; }
@@ -21,7 +21,7 @@ struct TypewriterEffect : public Animation {
   void SetParallelStartGlyphs(const std::set<size_t>& parallelStartGlyphs) {
     ParallelStartGlyphs = parallelStartGlyphs;
   }
-  void SetFirstGlyph(size_t firstGlyph) { FirstGlyph = firstGlyph; }
+  void SetFirstGlyph(size_t firstGlyphIdx) { FirstGlyph = firstGlyphIdx; }
 
   bool CancelRequested = false;
   bool IsCancelled = false;
@@ -31,7 +31,6 @@ struct TypewriterEffect : public Animation {
   size_t GlyphCount = 0;
 
   std::set<size_t> ParallelStartGlyphs;
-  float ProgressOnCancel;
 
   bool Voiced = false;
 
@@ -39,9 +38,8 @@ struct TypewriterEffect : public Animation {
     size_t Start;
     size_t Size;
   };
-  ParallelBlock GetParallelBlock(size_t glyph);
+  ParallelBlock GetParallelBlock(size_t glyphIdx) const;
 
-  // {startProgress, endProgress}
-  std::pair<float, float> GetGlyphWritingProgresses(size_t glyph);
+  float GetGlyphStartProgress(size_t glyphIdx) const;
 };
 }  // namespace Impacto

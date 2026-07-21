@@ -31,7 +31,6 @@ struct DialoguePage : public TextPage {
 
   TypewriterEffect Typewriter;
   Animation FadeAnimation;
-  Animation TextFadeAnimation;
 
   std::vector<ProcessedTextGlyph> Name;
   bool RenderName = false;
@@ -62,7 +61,12 @@ struct DialoguePage : public TextPage {
     return TextModesInfo[GetMode()];
   }
 
-  bool TextIsFullyOpaque();
+  bool TextIsFullyOpaque() const {
+    return std::ranges::all_of(Glyphs, [](const ProcessedTextGlyph& glyph) {
+      return glyph.Opacity >= 1.0f;
+    });
+  }
+
   void Clear() override;
   void AddString(Vm::Sc3VmThread* ctx,
                  std::optional<int> voiceId = std::nullopt, bool acted = true,
