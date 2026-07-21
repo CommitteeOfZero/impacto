@@ -30,7 +30,14 @@ void Configure() {
   SystemMenuBG = EnsureGetMember<Sprite>("SystemMenuBG");
   SystemMenuFrame = EnsureGetMember<Sprite>("SystemMenuFrame");
   MenuButtonGuide = EnsureGetMember<Sprite>("MenuButtonGuide");
-  SystemMenuMask = EnsureGetMember<Sprite>("SystemMenuMask");
+
+  OverlaySprite = EnsureGetMember<Sprite>("OverlaySprite");
+
+  SmokeOpacityNormal = EnsureGetMember<float>("SmokeOpacityNormal");
+  SmokeOpacitySystemMenu = EnsureGetMember<float>("SmokeOpacitySystemMenu");
+  SmokePosition = EnsureGetMember<glm::vec2>("SmokePosition");
+  GetMemberArray<Sprite>(SmokeSprites, "SmokeSprites");
+  GetMemberArray<float>(SmokeAnimationDurations, "SmokeAnimationDurations");
 
   BGDispOffsetTopLeft = EnsureGetMember<glm::vec2>("BGDispOffsetTopLeft");
   BGDispOffsetBottomLeft = EnsureGetMember<glm::vec2>("BGDispOffsetBottomLeft");

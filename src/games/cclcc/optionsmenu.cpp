@@ -340,8 +340,6 @@ void OptionsMenu::Render() {
 
   const glm::vec4 col(1.0f, 1.0f, 1.0f,
                       glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress));
-  const glm::vec4 maskTint =
-      col * glm::vec4{glm::vec3{1.0f}, (float)0xa0 / 0x100};
 
   const glm::vec2 backgroundAnimationOffset = glm::vec2(
       0.0f, transitionProgress * BackgroundPosition.y +
@@ -372,9 +370,13 @@ void OptionsMenu::Render() {
                          col);
   }
 
-  Renderer->DrawSprite(
-      MenuMaskSprite,
-      RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight), maskTint);
+  if (ScrWork[SW_SYSSUBMENUNO] == 5) {
+    CommonMenu::DrawOverlay();
+    if (GetFlag(SF_TITLEMODE)) {
+      CommonMenu::DrawSmoke(Profile::CCLCC::SystemMenu::SmokeOpacityNormal *
+                            (1.0f - FadeAnimation.Progress));
+    }
+  }
 
   const Sprite& guideSprite =
       CurrentPage == +PageType::Voice ? VoiceGuideSprite : GuideSprite;

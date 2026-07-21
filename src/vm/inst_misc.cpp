@@ -16,6 +16,7 @@
 #include "../text/dialoguepage.h"
 
 #include "../profile/vm.h"
+#include "../games/cc/titlemenu.h"
 #include "../games/cclcc/systemmenu.h"
 #include "../games/cclcc/helpmenu.h"
 namespace Impacto {
@@ -528,12 +529,14 @@ VmInstruction(InstTitleMenuNew) {
           break;
         case InstructionSet::CC:
         case InstructionSet::CHN: {
-          if (ScrWork[SW_TITLEMODE] == 3) {
+          using enum UI::CC::TitleMenuMode::Mode;
+
+          if (ScrWork[SW_TITLEMODE] == Main) {
             if (!UI::TitleMenuPtr->AllowsScriptInput) {
               ResetInstruction;
               BlockThread;
             }
-          } else if (ScrWork[SW_TITLEMODE] == 1 &&
+          } else if (ScrWork[SW_TITLEMODE] == PressToStart &&
                      ScrWork[SW_TITLEDISPCT] ==
                          (Profile::Vm::GameInstructionSet == InstructionSet::CC
                               ? 60
@@ -541,7 +544,7 @@ VmInstruction(InstTitleMenuNew) {
             // Check "PRESS TO START" here
             if (((Interface::PADinputButtonWentDown & Interface::PAD1A) ||
                  (Interface::PADinputMouseWentDown & Interface::PAD1A))) {
-              ScrWork[SW_TITLEMODE] = 2;
+              ScrWork[SW_TITLEMODE] = StartTransition;
               ScrWork[SW_TITLEDISPCT] = 0;
               ScrWork[SW_TITLEMOVIECT] = 0;
               SetFlag(SF_TITLEEND, 1);

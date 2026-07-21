@@ -8,7 +8,6 @@ namespace CCLCC {
 namespace HelpMenu {
 
 inline std::vector<Sprite> ManualPages;
-inline Sprite HelpMaskSprite;
 
 inline float FadeInDuration;
 inline float FadeOutDuration;

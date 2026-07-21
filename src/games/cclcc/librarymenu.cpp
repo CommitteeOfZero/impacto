@@ -1,7 +1,9 @@
 #include "librarymenu.h"
 
 #include "clearlistmenu.h"
+#include "commonmenu.h"
 
+#include "../../profile/games/cclcc/systemmenu.h"
 #include "../../profile/games/cclcc/librarymenu.h"
 #include "../../profile/ui/backlogmenu.h"
 #include "../../profile/dialogue.h"
@@ -236,74 +238,75 @@ void LibraryMenu::Update(float dt) {
 }
 
 void LibraryMenu::Render() {
-  if (State != Hidden && ScrWork[SW_SYSSUBMENUCT] > 0 &&
-      ScrWork[SW_SYSSUBMENUNO] == 8) {
-    const glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
+  if (State == Hidden) return;
 
-    const glm::vec2 leftSpritesOffset{
-        (1.0f - FadeAnimation.Progress) * -LibraryTransitionPositionOffset,
-        0.0f};
+  const glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
 
-    const glm::vec2 rightSpritesOffset{
-        (1.0f - FadeAnimation.Progress) * LibraryTransitionPositionOffset,
-        0.0f};
+  const glm::vec2 leftSpritesOffset{
+      (1.0f - FadeAnimation.Progress) * -LibraryTransitionPositionOffset, 0.0f};
 
-    const float submenuFadeProgress =
-        GetMenuFromType(CurrentLibraryMenu).FadeAnimation.Progress;
-    const glm::vec4 libBgCol =
-        (CurrentLibraryMenu == LibraryMenuPageType::Sound)
-            ? col * glm::vec4{glm::vec3(1.0f), 1 - submenuFadeProgress}
-            : col;
-    Renderer->DrawSprite(LibraryBackgroundSprite,
-                         LibraryBackgroundPosition + rightSpritesOffset,
-                         libBgCol);
-    GetMenuFromType(LibraryMenuPageType::Album).Render();
-    GetMenuFromType(LibraryMenuPageType::Sound).Render();
-    GetMenuFromType(LibraryMenuPageType::Movie).Render();
-    auto* albumMenuPtr = static_cast<AlbumMenu*>(UI::AlbumMenuPtr);
-    const bool cgViewerActive =
-        CurrentLibraryMenu == LibraryMenuPageType::Album &&
-        albumMenuPtr->CGViewer;
-    Renderer->DrawSprite(LibraryIndexSprite,
-                         LibraryIndexPosition + leftSpritesOffset, col);
-    MainItems.Render();
-    Renderer->DrawSprite(
-        LibraryMaskSprite,
-        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-        glm::vec4(1.0f, 1.0f, 1.0f, FadeAnimation.Progress * LibraryMaskAlpha));
+  const glm::vec2 rightSpritesOffset{
+      (1.0f - FadeAnimation.Progress) * LibraryTransitionPositionOffset, 0.0f};
 
-    const auto* const submenuGuideSprite = [&]() -> Sprite* {
-      switch (CurrentLibraryMenu) {
-        case LibraryMenuPageType::Album:
-          if (cgViewerActive) {
-            if (albumMenuPtr->CGViewer->EnableGuide)
-              return &AlbumMenuCGViewerGuideSprite;
-            break;
-          } else
-            return &AlbumMenuGuideSprite;
-        case LibraryMenuPageType::Sound:
-          return &MusicMenuGuideSprite;
-        case LibraryMenuPageType::Movie:
-          return &MovieMenuGuideSprite;
-      }
-      return nullptr;
-    }();
-    if (cgViewerActive) {
-      albumMenuPtr->RenderCGViewer();
+  const float submenuFadeProgress =
+      GetMenuFromType(CurrentLibraryMenu).FadeAnimation.Progress;
+  const glm::vec4 libBgCol =
+      (CurrentLibraryMenu == LibraryMenuPageType::Sound)
+          ? col * glm::vec4{glm::vec3(1.0f), 1 - submenuFadeProgress}
+          : col;
+  Renderer->DrawSprite(LibraryBackgroundSprite,
+                       LibraryBackgroundPosition + rightSpritesOffset,
+                       libBgCol);
+  GetMenuFromType(LibraryMenuPageType::Album).Render();
+  GetMenuFromType(LibraryMenuPageType::Sound).Render();
+  GetMenuFromType(LibraryMenuPageType::Movie).Render();
+  auto* albumMenuPtr = static_cast<AlbumMenu*>(UI::AlbumMenuPtr);
+  const bool cgViewerActive =
+      CurrentLibraryMenu == LibraryMenuPageType::Album &&
+      albumMenuPtr->CGViewer;
+  Renderer->DrawSprite(LibraryIndexSprite,
+                       LibraryIndexPosition + leftSpritesOffset, col);
+  MainItems.Render();
+
+  const auto* const submenuGuideSprite = [&]() -> Sprite* {
+    switch (CurrentLibraryMenu) {
+      case LibraryMenuPageType::Album:
+        if (cgViewerActive) {
+          if (albumMenuPtr->CGViewer->EnableGuide)
+            return &AlbumMenuCGViewerGuideSprite;
+          break;
+        } else
+          return &AlbumMenuGuideSprite;
+      case LibraryMenuPageType::Sound:
+        return &MusicMenuGuideSprite;
+      case LibraryMenuPageType::Movie:
+        return &MovieMenuGuideSprite;
     }
+    return nullptr;
+  }();
+  if (cgViewerActive) {
+    albumMenuPtr->RenderCGViewer();
+  }
 
-    if (submenuGuideSprite) {
-      Renderer->DrawSprite(
-          *submenuGuideSprite, LibraryButtonGuidePosition + leftSpritesOffset,
-          col * glm::vec4{glm::vec3(1.0f), submenuFadeProgress});
+  if (ScrWork[SW_SYSSUBMENUNO] == 8) {
+    CommonMenu::DrawOverlay();
+    if (GetFlag(SF_TITLEMODE)) {
+      CommonMenu::DrawSmoke(Profile::CCLCC::SystemMenu::SmokeOpacityNormal *
+                            (1.0f - FadeAnimation.Progress));
     }
+  }
 
-    // This is technically a double render but menus always render after videos
-    // so what can you do.
-    if (CurrentLibraryMenu == LibraryMenuPageType::Movie &&
-        Video::Players[0]->IsPlaying) {
-      Video::VideoRender(1);
-    }
+  if (submenuGuideSprite) {
+    Renderer->DrawSprite(*submenuGuideSprite,
+                         LibraryButtonGuidePosition + leftSpritesOffset,
+                         col * glm::vec4{glm::vec3(1.0f), submenuFadeProgress});
+  }
+
+  // This is technically a double render but menus always render after videos
+  // so what can you do.
+  if (CurrentLibraryMenu == LibraryMenuPageType::Movie &&
+      Video::Players[0]->IsPlaying) {
+    Video::VideoRender(1);
   }
 }
 

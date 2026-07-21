@@ -16,8 +16,6 @@ void Configure() {
   BackgroundSprite = EnsureGetMember<Sprite>("BackgroundSprite");
   MainBackgroundSprite = EnsureGetMember<Sprite>("MainBackgroundSprite");
   CopyrightTextSprite = EnsureGetMember<Sprite>("CopyrightTextSprite");
-  OverlaySprite = EnsureGetMember<Sprite>("OverlaySprite");
-  SmokeSprite = EnsureGetMember<Sprite>("SmokeSprite");
   MenuSprite = EnsureGetMember<Sprite>("MenuSprite");
   ItemHighlightSprite = EnsureGetMember<Sprite>("ItemHighlightSprite");
   LoadSprite = EnsureGetMember<Sprite>("LoadSprite");
@@ -40,25 +38,9 @@ void Configure() {
   PrimaryFadeOutDuration = EnsureGetMember<float>("PrimaryFadeOutDuration");
   SecondaryFadeInDuration = EnsureGetMember<float>("SecondaryFadeInDuration");
   SecondaryFadeOutDuration = EnsureGetMember<float>("SecondaryFadeOutDuration");
-  CopyrightTextX = EnsureGetMember<float>("CopyrightTextX");
-  CopyrightTextY = EnsureGetMember<float>("CopyrightTextY");
-  SmokeOpacityNormal = EnsureGetMember<float>("SmokeOpacityNormal");
-  SmokeX = EnsureGetMember<float>("SmokeX");
-  SmokeY = EnsureGetMember<float>("SmokeY");
-  SmokeBoundsX = EnsureGetMember<float>("SmokeBoundsX");
-  SmokeBoundsY = EnsureGetMember<float>("SmokeBoundsY");
-  SmokeBoundsWidth = EnsureGetMember<float>("SmokeBoundsWidth");
-  SmokeBoundsHeight = EnsureGetMember<float>("SmokeBoundsHeight");
-  SmokeAnimationBoundsXOffset =
-      EnsureGetMember<float>("SmokeAnimationBoundsXOffset");
-  SmokeAnimationBoundsXMax = EnsureGetMember<float>("SmokeAnimationBoundsXMax");
-  SmokeAnimationDurationIn = EnsureGetMember<float>("SmokeAnimationDurationIn");
-  SmokeAnimationDurationOut =
-      EnsureGetMember<float>("SmokeAnimationDurationOut");
-  MenuX = EnsureGetMember<float>("MenuX");
-  MenuY = EnsureGetMember<float>("MenuY");
-  ItemHighlightOffsetX = EnsureGetMember<float>("ItemHighlightOffsetX");
-  ItemHighlightOffsetY = EnsureGetMember<float>("ItemHighlightOffsetY");
+  CopyrightTextPos = EnsureGetMember<glm::vec2>("CopyrightTextPos");
+  MenuPos = EnsureGetMember<glm::vec2>("MenuPos");
+  ItemHighlightOffset = EnsureGetMember<glm::vec2>("ItemHighlightOffset");
   ItemPadding = EnsureGetMember<float>("ItemPadding");
   ItemYBase = EnsureGetMember<float>("ItemYBase");
   SecondaryFirstItemHighlightOffsetX =
@@ -90,32 +72,8 @@ void Configure() {
       EnsureGetMember<float>("HighlightAnimationDurationOut");
   ExtraDisabledTint = EnsureGetMember<uint32_t>("ExtraDisabledTint");
 
-  UI::CCLCC::TitleMenu* menu = new UI::CCLCC::TitleMenu();
-  menu->PressToStartAnimation.DurationIn =
-      Profile::TitleMenu::PressToStartAnimDurationIn;
-  menu->PressToStartAnimation.DurationOut =
-      Profile::TitleMenu::PressToStartAnimDurationOut;
-  menu->PressToStartAnimation.LoopMode = AnimationLoopMode::ReverseDirection;
-
-  menu->PrimaryFadeAnimation.DurationIn = PrimaryFadeInDuration;
-  menu->PrimaryFadeAnimation.DurationOut = PrimaryFadeOutDuration;
-  menu->SecondaryFadeAnimation.DurationIn = SecondaryFadeInDuration;
-  menu->SecondaryFadeAnimation.DurationOut = SecondaryFadeOutDuration;
-
-  menu->SmokeAnimation.LoopMode = AnimationLoopMode::Loop;
-  menu->SmokeAnimation.DurationIn = SmokeAnimationDurationIn;
-  menu->SmokeAnimation.DurationOut = SmokeAnimationDurationOut;
-
-  menu->TitleAnimation.DurationIn = TitleAnimationDurationIn;
-  menu->TitleAnimation.DurationOut = TitleAnimationDurationOut;
-
-  menu->TitleAnimationSprite.MountPoint = "system";
-  menu->TitleAnimationSprite.LoadAsync(TitleAnimationFileId);
-
-  UI::TitleMenuPtr = menu;
-
+  UI::TitleMenuPtr = new UI::CCLCC::TitleMenu();
   auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
-
   UI::Menus[drawType].push_back(UI::TitleMenuPtr);
 }
 

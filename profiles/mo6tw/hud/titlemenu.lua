@@ -1,8 +1,7 @@
 root.TitleMenu = {
     Type = TitleMenuType.MO6TW,
     DrawType = DrawComponentType.TitleMenu,
-    PressToStartX = 497,
-    PressToStartY = 402,
+    PressToStartPos = { X = 497, Y = 402 },
     PressToStartAnimDurationIn = 0.5,
     PressToStartAnimDurationOut = 0.5,
     PressToStartSprite = "TitleMenuPressToStart",

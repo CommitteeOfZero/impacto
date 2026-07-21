@@ -1,8 +1,7 @@
 root.TitleMenu = {
     Type = TitleMenuType.CCLCC,
     DrawType = DrawComponentType.SystemMenu,
-    PressToStartX = 823,
-    PressToStartY = 749,
+    PressToStartPos = { X = 823, Y = 749 },
     PressToStartAnimDurationIn = 0.6,
     PressToStartAnimDurationOut = 0.6,
     PrimaryFadeInDuration = 0.7,
@@ -15,27 +14,11 @@ root.TitleMenu = {
     BackgroundSprite = "TitleMenuBackground",
     MainBackgroundSprite = "MainMenuBackground",
     CopyrightTextSprite = "CopyrightText",
-    CopyrightTextX = 566,
-    CopyrightTextY = 955,
-    SmokeX = 0,
-    SmokeY = 580,
-    SmokeBoundsX = 20,
-    SmokeBoundsY = 1550,
-    SmokeBoundsWidth = 1920,
-    SmokeBoundsHeight = 500,
-    SmokeAnimationBoundsXOffset = 20,
-    SmokeAnimationBoundsXMax = 1919,
-    SmokeOpacityNormal = 0.15,
-    SmokeAnimationDurationIn = 32,
-    SmokeAnimationDurationOut = 32,
-    SmokeSprite = "TitleMenuSmoke",
-    OverlaySprite = "TitleMenuOverlay",
+    CopyrightTextPos = { X = 566, Y = 955 },
     MenuSprite = "TitleMenuMenu",
-    MenuX = 27,
-    MenuY = 26,
+    MenuPos =  { X = 27, Y = 26 },
     ItemHighlightSprite = "TitleMenuItemHighlight",
-    ItemHighlightOffsetX = 174,
-    ItemHighlightOffsetY = 7,
+    ItemHighlightOffset = { X = 174, Y = 7 },
     ItemHighlightPointerSprite = "TitleMenuPointerItemHighlight",
     ItemHighlightPointerY = 89,
     ItemPadding = 56,
@@ -177,16 +160,6 @@ root.Sprites["CopyrightText"] = {
 root.Sprites["TitleMenuMenu"] = {
     Sheet = "TitleChip",
     Bounds = { X = 0, Y = 0, Width = 544, Height = 248 },
-};
-
-root.Sprites["TitleMenuOverlay"] = {
-    Sheet = "MenuChip",
-    Bounds = { X = 154, Y = 140, Width = 1900, Height = 1061 },
-};
-
-root.Sprites["TitleMenuSmoke"] = {
-    Sheet = "MenuChip",
-    Bounds = { X = 0, Y = 1638, Width = 2000, Height = 410 },
 };
 
 root.Sprites["ExitSprite"] = {

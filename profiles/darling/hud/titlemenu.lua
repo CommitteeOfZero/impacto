@@ -1,8 +1,7 @@
 root.TitleMenu = {
     Type = TitleMenuType.CHLCC,
     DrawType = DrawComponentType.SystemMenu,
-    PressToStartX = 72,
-    PressToStartY = 595,
+    PressToStartPos = { X = 72, Y = 595 },
     PressToStartAnimDurationIn = 0.5,
     PressToStartAnimDurationOut = 0.5,
     PressToStartSprite = "TitleMenuPressToStart",

@@ -1,8 +1,7 @@
 root.TitleMenu = {
     Type = TitleMenuType.MO8,
     DrawType = DrawComponentType.SystemMenu,
-    PressToStartX = 745,
-    PressToStartY = 586,
+    PressToStartPos = { X = 745, Y = 586 },
     LogoX = 560,
     LogoY = 24,
     MenuEntriesNum = 13,

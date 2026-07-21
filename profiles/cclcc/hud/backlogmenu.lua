@@ -3,7 +3,6 @@ root.BacklogMenu = {
     DrawType = DrawComponentType.SystemMenu,
 
     BacklogBackgroundSprite = "BacklogBackground",
-    BacklogBackgroundRepeatHeight = 1005,
 
     BacklogHeaderSprite = "BacklogHeader",
     BacklogHeaderPosition = { X = 0, Y = 0 },
@@ -36,14 +35,14 @@ root.BacklogMenu = {
     ScrollingSpeed = 900,
     PageUpDownHeight = 765,
 
-    MenuMask = "MenuMask",
     BacklogMask = "BacklogMask",
     HoverBounds = { X = 380, Y = 145, Width = 1230, Height = 820 }
 };
 
 root.Sprites["BacklogBackground"] = {
     Sheet = "Backlog",
-    Bounds = { X = 0, Y = 0, Width = 1920, Height = 1080 },
+    Bounds = { X = 0, Y = 0, Width = 1920, Height = 1005 },
+    -- Height does *not* include the repeat overlap
 };
 
 root.Sprites["BacklogHeader"] = {
@@ -61,11 +60,6 @@ root.Sprites["BacklogControls"] = {
     Sheet = "Backlog",
     Bounds = { X = 0, Y = 1151, Width = 1920, Height = 59 },
 }
-
-root.Sprites["MenuMask"] = {
-    Sheet = "MenuChip",
-    Bounds = { X = 154, Y = 140, Width = 1900, Height = 1061 },
-};
 
 root.Sprites["VoiceIcon"] = {
     Sheet = "Backlog",

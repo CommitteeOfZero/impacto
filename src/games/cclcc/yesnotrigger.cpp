@@ -1,4 +1,5 @@
 #include "yesnotrigger.h"
+#include "commonmenu.h"
 #include "../../profile/games/cclcc/yesnotrigger.h"
 #include "../../vm/interface/input.h"
 #include "../../audio/audiosystem.h"
@@ -340,9 +341,8 @@ void YesNoTrigger::Render() {
     Renderer->DrawSprite(*activeYesChip, yesChipDest, chipTint);
     Renderer->DrawSprite(*activeNoChip, noChipDest, chipTint);
   }
-  constexpr glm::vec4 maskTint = glm::vec4(1.0f, 1.0f, 1.0f, 160 / 256.0f);
-  Renderer->DrawSprite(YesNoBgOverlay,
-                       RectF(0, 0, bgSize.x * 0.5f, bgSize.y * 0.5f), maskTint);
+
+  CommonMenu::DrawOverlay();
 }
 
 void YesNoTrigger::Start(int type, int bgBufId, int chipsBufId) {

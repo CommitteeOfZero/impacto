@@ -9,9 +9,6 @@ namespace CC {
 namespace BacklogMenu {
 
 void Configure() {
-  BacklogBackgroundRepeatHeight =
-      EnsureGetMember<int>("BacklogBackgroundRepeatHeight");
-
   BacklogHeaderSprite = EnsureGetMember<Sprite>("BacklogHeaderSprite");
   BacklogHeaderPosition = EnsureGetMember<glm::vec2>("BacklogHeaderPosition");
 
@@ -19,7 +16,6 @@ void Configure() {
   BacklogControlsPosition =
       EnsureGetMember<glm::vec2>("BacklogControlsPosition");
 
-  MenuMaskSprite = EnsureGetMember<Sprite>("MenuMask");
   BacklogMaskSheet = EnsureGetMember<SpriteSheet>("BacklogMask");
 
   FadeInDirectDuration = EnsureGetMember<float>("FadeInDirectDuration");

@@ -49,7 +49,7 @@ root.SystemMenu = {
     MenuButtonGuide = "SystemMenuButtonGuide",
     SystemMenuBG = "SystemMenuBG",
     SystemMenuFrame = "SystemMenuFrame",
-    SystemMenuMask = "SystemMenuMask",
+    OverlaySprite = "OverlaySprite",
 
     BGDispOffsetTopLeft = {X=-1200, Y= -330},
     BGDispOffsetBottomLeft = {X=-1200, Y= 2080},
@@ -65,6 +65,18 @@ root.SystemMenu = {
     BGRandPosRange = {X=4095,Y=4095},
 
     BGTranslationOffset = {X=1452,Y=395},
+
+    SmokePosition = { X = 0, Y = 582 },
+    SmokeOpacityNormal = 0.25,
+    SmokeOpacitySystemMenu = 96 / 256,
+    SmokeAnimationDurations = {
+        1920 / 60,
+        1920 / 60 / 2,
+    },
+    SmokeSprites = {
+        "TitleMenuSmoke1",
+        "TitleMenuSmoke2"
+    },
 };
 
 root.Sprites["SystemMenuBG"] = {
@@ -150,7 +162,17 @@ root.Sprites["SystemMenuFrame"] = {
     Bounds = {X = 0, Y = 0, Width = 2252, Height = 1383}
 };
 
-root.Sprites["SystemMenuMask"] = {
+root.Sprites["OverlaySprite"] = {
     Sheet = "MenuChip",
-    Bounds = { X = 154, Y = 140, Width = 1900, Height = 1061 },
+    Bounds = { X = 155, Y = 142, Width = 1898, Height = 1058 },
+};
+
+root.Sprites["TitleMenuSmoke1"] = {
+    Sheet = "MenuChip",
+    Bounds = { X = 0, Y = 1548, Width = 1920, Height = 498 },
+};
+
+root.Sprites["TitleMenuSmoke2"] = {
+    Sheet = "MenuChip",
+    Bounds = { X = 2002, Y = 1548, Width = 1920, Height = 498 },
 };

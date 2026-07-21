@@ -20,8 +20,7 @@ inline int MenuEntriesNum;
 inline float PressToStartAnimDurationIn;
 inline float PressToStartAnimDurationOut;
 
-inline float PressToStartX;
-inline float PressToStartY;
+inline glm::vec2 PressToStartPos;
 
 void Configure();
 

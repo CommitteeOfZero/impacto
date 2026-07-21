@@ -97,8 +97,6 @@ root.ExtraMenus = {
         LibraryIndexSprite = "LibraryIndex",
         LibraryIndexPosition = { X = 0, Y = 31 },    
         LibraryButtonGuidePosition = { X = 0, Y = 989 },
-        LibraryMaskSprite = "LibraryMask",
-        LibraryMaskAlpha = 0.8,
 
         SnapPhotoSpriteHover = "SnapPhotoHover",
         SnapPhotoSpriteSelect = "SnapPhotoSelect",
@@ -233,12 +231,6 @@ root.ExtraMenus = {
         MovieDiskExtraOpHighlight = "MovieDiskExtraOpHighlight",
         MovieDiskExtraOpPlayId = 62
     }
-};
-
--- Common
-root.Sprites["LibraryMask"] = {
-    Sheet = "MenuChip",
-    Bounds = { X = 154, Y = 140, Width = 1900, Height = 1061 },
 };
 
 -- ClearList

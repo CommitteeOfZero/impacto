@@ -1279,10 +1279,10 @@ void Renderer::SetBlendMode(RendererBlendMode blendMode) {
 
   switch (blendMode) {
     case RendererBlendMode::Normal:
-      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+      glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
       return;
     case RendererBlendMode::Additive:
-      glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+      glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ONE);
       return;
     case RendererBlendMode::Premultiplied:
       glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);

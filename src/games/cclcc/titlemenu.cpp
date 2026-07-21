@@ -1,13 +1,15 @@
 #include "titlemenu.h"
 
+#include "commonmenu.h"
+#include "../cc/titlemenu.h"
 #include "../../spritesheet.h"
-
 #include "../../renderer/renderer.h"
 #include "../../mem.h"
 #include "../../inputsystem.h"
 #include "../../ui/widgets/label.h"
 #include "../../profile/ui/titlemenu.h"
 #include "../../profile/games/cclcc/titlemenu.h"
+#include "../../profile/games/cclcc/systemmenu.h"
 #include "../../profile/scriptvars.h"
 #include "../../profile/game.h"
 #include "../../vm/interface/input.h"
@@ -20,6 +22,7 @@ namespace CCLCC {
 
 using namespace Impacto::Profile::TitleMenu;
 using namespace Impacto::Profile::CCLCC::TitleMenu;
+using namespace Impacto::Profile::CCLCC::SystemMenu;
 using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile;
 
@@ -72,6 +75,21 @@ void TitleMenu::ExitButtonOnClick(Widgets::Button* target) {
 }
 
 TitleMenu::TitleMenu() {
+  PressToStartAnimation.DurationIn = PressToStartAnimDurationIn;
+  PressToStartAnimation.DurationOut = PressToStartAnimDurationOut;
+  PressToStartAnimation.LoopMode = AnimationLoopMode::ReverseDirection;
+
+  PrimaryFadeAnimation.DurationIn = PrimaryFadeInDuration;
+  PrimaryFadeAnimation.DurationOut = PrimaryFadeOutDuration;
+  SecondaryFadeAnimation.DurationIn = SecondaryFadeInDuration;
+  SecondaryFadeAnimation.DurationOut = SecondaryFadeOutDuration;
+
+  TitleAnimation.DurationIn = TitleAnimationDurationIn;
+  TitleAnimation.DurationOut = TitleAnimationDurationOut;
+
+  TitleAnimationSprite.MountPoint = "system";
+  TitleAnimationSprite.LoadAsync(TitleAnimationFileId);
+
   MainItems = new Widgets::Group(this);
   ContinueItems = new Widgets::Group(this);
   ContinueItems->WrapFocus = false;
@@ -81,7 +99,7 @@ TitleMenu::TitleMenu() {
   Sprite nullSprite = Sprite();
   nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
 
-  MenuLabel = new Widgets::Label(MenuSprite, glm::vec2(MenuX, MenuY));
+  MenuLabel = new Widgets::Label(MenuSprite, MenuPos);
 
   auto onClick = [this](Widgets::Button* target) {
     return MenuButtonOnClick(target);
@@ -108,14 +126,14 @@ TitleMenu::TitleMenu() {
   // NewGame menu button
   NewGame = new TitleButton(0, MenuEntriesSprites[0], MenuEntriesHSprites[0],
                             ItemHighlightSprite,
-                            glm::vec2((-1.0f) + ItemHighlightOffsetX,
+                            glm::vec2((-1.0f) + ItemHighlightOffset.x,
                                       (ItemYBase + (0 * ItemPadding))));
   setupBtn(NewGame, onClick, MainItems, FDIR_DOWN);
 
   // Continue menu button
   Continue = new TitleButton(
       1, MenuEntriesSprites[1], MenuEntriesHSprites[1], ItemHighlightSprite,
-      glm::vec2(ItemHighlightOffsetX, (ItemYBase + (1 * ItemPadding))));
+      glm::vec2(ItemHighlightOffset.x, (ItemYBase + (1 * ItemPadding))));
   setupBtn(
       Continue,
       [this](Widgets::Button* target) { return ContinueButtonOnClick(target); },
@@ -124,7 +142,7 @@ TitleMenu::TitleMenu() {
   // Extra menu button
   Extra = new TitleButton(
       2, MenuEntriesSprites[2], MenuEntriesHSprites[2], ItemHighlightSprite,
-      glm::vec2(ItemHighlightOffsetX, (ItemYBase + (2 * ItemPadding))));
+      glm::vec2(ItemHighlightOffset.x, (ItemYBase + (2 * ItemPadding))));
   setupBtn(
       Extra,
       [this](Widgets::Button* target) { return ExtraButtonOnClick(target); },
@@ -133,20 +151,20 @@ TitleMenu::TitleMenu() {
   // Config menu button
   Config = new TitleButton(
       30, MenuEntriesSprites[3], MenuEntriesHSprites[3], ItemHighlightSprite,
-      glm::vec2(ItemHighlightOffsetX, (ItemYBase + (3 * ItemPadding))));
+      glm::vec2(ItemHighlightOffset.x, (ItemYBase + (3 * ItemPadding))));
   setupBtn(Config, onClick, MainItems, FDIR_DOWN);
 
   // Help menu button
   Help = new TitleButton(
       40, MenuEntriesSprites[4], MenuEntriesHSprites[4], ItemHighlightSprite,
-      glm::vec2(ItemHighlightOffsetX, (ItemYBase + (4 * ItemPadding))));
+      glm::vec2(ItemHighlightOffset.x, (ItemYBase + (4 * ItemPadding))));
   setupBtn(Help, onClick, MainItems, FDIR_DOWN);
 
   if (HasScriptedExitLogic) {
     // Exit menu button (Configuration/Patch driven)
     auto* const exitPtr = new TitleButton(
         5, ExitSprite, ExitSprite, ItemHighlightSprite,
-        glm::vec2(ItemHighlightOffsetX, (ItemYBase + (5 * ItemPadding))));
+        glm::vec2(ItemHighlightOffset.x, (ItemYBase + (5 * ItemPadding))));
     Exit.emplace(*exitPtr);
     setupBtn(
         exitPtr,
@@ -199,10 +217,17 @@ TitleMenu::TitleMenu() {
   PrimaryFadeAnimation.DurationOut = PrimaryFadeOutDuration;
   SecondaryFadeAnimation.DurationIn = SecondaryFadeInDuration;
   SecondaryFadeAnimation.DurationOut = SecondaryFadeOutDuration;
-  SmokeAnimation.DurationIn = SmokeAnimationDurationIn;
-  SmokeAnimation.DurationOut = SmokeAnimationDurationOut;
   SlideItemsAnimation.DurationIn = SlideItemsAnimationDurationIn;
   SlideItemsAnimation.DurationOut = SlideItemsAnimationDurationOut;
+
+  const RectF viewport = Window->GetViewport();
+  Texture pressToStartTransitionTexture;
+  pressToStartTransitionTexture.LoadSolidColor(
+      static_cast<int>(viewport.Width), static_cast<int>(viewport.Height), 0);
+  PressToStartTransitionCapture.Sheet.Texture =
+      pressToStartTransitionTexture.Submit();
+  PressToStartTransitionCapture.Sheet.DesignWidth = viewport.Width;
+  PressToStartTransitionCapture.Sheet.DesignHeight = viewport.Height;
 }
 
 void TitleMenu::Show() {
@@ -217,7 +242,6 @@ void TitleMenu::Show() {
     AllowsScriptInput = true;
     if (PressToStartAnimation.State == AnimationState::Stopped) {
       PressToStartAnimation.StartIn(true);
-      SmokeAnimation.StartIn();
     }
   }
 }
@@ -261,8 +285,9 @@ void TitleMenu::Hide() {
 }
 
 void TitleMenu::UpdateInput(float dt) {
-  if (ScrWork[SW_TITLEMODE] == 5 || ScrWork[SW_TITLEMODE] == 13 ||
-      ScrWork[SW_TITLEMODE] == 3) {
+  if (ScrWork[SW_TITLEMODE] == CC::TitleMenuMode::SubMenu ||
+      ScrWork[SW_TITLEMODE] == CC::TitleMenuMode::ClearList ||
+      ScrWork[SW_TITLEMODE] == CC::TitleMenuMode::Main) {
     if (!InputLocked && !PrevInputLocked) {
       if (SlideItemsAnimation.State == AnimationState::Playing ||
           SecondaryFadeAnimation.State == AnimationState::Playing ||
@@ -348,7 +373,6 @@ void TitleMenu::Update(float dt) {
   PressToStartAnimation.Update(dt);
   PrimaryFadeAnimation.Update(dt);
   SecondaryFadeAnimation.Update(dt);
-  SmokeAnimation.Update(dt);
   TitleAnimation.Update(dt);
   TitleAnimationSprite.Position = {0.0f, 0.0f};
   SlideItemsAnimation.Update(dt);
@@ -364,6 +388,9 @@ void TitleMenu::Update(float dt) {
   ContinueItems->Update(dt);
   ExtraItems->Update(dt);
 
+  PressToStartTransitionCaptureSet &=
+      ScrWork[SW_TITLEMODE] == CC::TitleMenuMode::StartTransition;
+
   if (GetFlag(SF_TITLEMODE)) {
     Show();
   } else {
@@ -372,31 +399,26 @@ void TitleMenu::Update(float dt) {
 
   if (State != Hidden && GetFlag(SF_TITLEMODE)) {
     switch (ScrWork[SW_TITLEMODE]) {
-      case 1: {
+      using enum CC::TitleMenuMode::Mode;
+      case PressToStart: {
         if (PressToStartAnimation.LoopMode !=
             AnimationLoopMode::ReverseDirection) {
           PressToStartAnimation.LoopMode = AnimationLoopMode::ReverseDirection;
           PressToStartAnimation.StartOut();
         }
       } break;
-      case 2: {
+      case StartTransition: {
         ExplodeScreenUpdate();
       } break;
-      case 3: {  // Main Menu Fade In
+      case Main: {
         MainMenuUpdate();
       } break;
-      case 4: {
+      case FadingOut: {
         ReturnToMenuUpdate();
       } break;
-      // TODO check if that's true
-      case 5:
-      case 13: {
+      case SubMenu:
+      case ClearList: {
         SubMenuUpdate();
-      } break;
-      case 10: {
-        ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-                   "TitleMenu::Update: Unimplemented title mode {:d}\n",
-                   ScrWork[SW_TITLEMODE]);
       } break;
     }
     if (SubMenuState == Hiding && ScrWork[SW_SYSSUBMENUCT] == 0) {
@@ -405,7 +427,7 @@ void TitleMenu::Update(float dt) {
       SubMenuState = Shown;
       IsFocused = true;
     }
-    if (ScrWork[SW_TITLEMODE] != 2) IsExploding = false;
+    IsExploding &= ScrWork[SW_TITLEMODE] == CC::TitleMenuMode::StartTransition;
   }
 }
 
@@ -562,128 +584,174 @@ void TitleMenu::SubMenuUpdate() {
 }
 
 void TitleMenu::Render() {
-  if (State != Hidden && GetFlag(SF_TITLEMODE)) {
-    switch (ScrWork[SW_TITLEMODE]) {
-      case 1: {  // Press to start
-        DrawDISwordBackground();
-        DrawStartButton();
-        DrawSmoke(SmokeOpacityNormal);
-        Renderer->DrawSprite(CopyrightTextSprite,
-                             glm::vec2(CopyrightTextX, CopyrightTextY));
-        Renderer->DrawQuad(
-            RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-            glm::vec4(1.0f, 1.0f, 1.0f,
-                      1.0f - ScrWork[SW_TITLEDISPCT] / 60.0f));
-      } break;
-      case 2: {  // Transition between Press to start and menus
-        if (IsExploding || EverExploded) {
-          DrawMainMenuBackGraphics();
-        } else {
-          DrawDISwordBackground();
-        }
-        DrawStartButton();
-        TitleAnimationSprite.Render(-1);
-        DrawSmoke(SmokeOpacityNormal);
-      } break;
-      case 3: {  // MenuItems Fade In
-        DrawMainMenuBackGraphics();
-        DrawSmoke(SmokeOpacityNormal);
-        Extra->Tint = (GetFlag(SF_CLR_FLAG)) ? MainItems->Tint
-                                             : RgbIntToFloat(ExtraDisabledTint);
+  if (State == Hidden || !GetFlag(SF_TITLEMODE)) return;
 
-        MenuLabel->Render();
-        MainItems->Render();
-        ContinueItems->Render();
-        ExtraItems->Render();
-      } break;
-      case 4: {
-        DrawMainMenuBackGraphics();
-        DrawSmoke(SmokeOpacityNormal);
-        Extra->Tint = (GetFlag(SF_CLR_FLAG)) ? MainItems->Tint
-                                             : RgbIntToFloat(ExtraDisabledTint);
-        MenuLabel->Render();
-        MainItems->Render();
-        ContinueItems->Render();
-        ExtraItems->Render();
-        Renderer->DrawQuad(
-            RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-            {0.0f, 0.0f, 0.0f, ScrWork[SW_TITLEDISPCT] / 32.0f});
-      } break;
-      // TODO check if that's true
-      case 5:
-      case 13: {
-        DrawMainMenuBackGraphics();
-        DrawSmoke(SmokeOpacityNormal);
-        MenuLabel->Render();
-        MainItems->Render();
-        ContinueItems->Render();
-        ExtraItems->Render();
-      } break;
-      case 10: {
-        ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-                   "TitleMenu::Render: Unimplemented title mode {:d}\n",
-                   ScrWork[SW_TITLEMODE]);
-      } break;
-      case 11: {  // Initial Fade In
-        DrawDISwordBackground(ScrWork[SW_TITLEDISPCT] / 32.0f);
-        DrawSmoke(ScrWork[SW_TITLEDISPCT] / 128.0f);
-        Renderer->DrawSprite(CopyrightTextSprite,
-                             glm::vec2(CopyrightTextX, CopyrightTextY));
-      } break;
-    }
+  /*
+    We have to make sure that the drawing of the smoke and the overlay is passed
+    along between the title/system menu and the sub menu frame-perfectly.
 
-    int maskAlpha = ScrWork[SW_TITLEMASKALPHA];
-    glm::vec4 col = ScrWorkGetColor(SW_TITLEMASKCOLOR);
-    col.a = glm::min(maskAlpha / 255.0f, 1.0f);
-    Renderer->DrawQuad(
-        RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight), col);
+    Relying on ScrWork[SW_SYSSUBMENUCT] does not work for this end because the
+    menus are updated before the VM is updated, but are only rendered after the
+    VM is updated. As such, there would always be a single frame where the sub
+    menu is either Hidden too late or Showing too soon, rendering the overlay
+    either twice or not at all.
+
+    Relying on IsFocused or UI::FocusedMenu is similarly faulty because the
+    title menu is set to focused when the sub menu is still hiding (during which
+    the sub menu should still render the overlay).
+
+    I have landed on this method, which uses ScrWork[SW_SYSSUBMENUNO] to query
+    the current menu's state, and render the overlay on the title menu iff there
+    is not a sub menu active or it is not hidden. Similarly, each sub menu
+    renders the overlay iff ScrWork[SW_SYSSUBMENUNO] is its respective index.
+
+    TODO: See if ScrWork[SW_SYSSUBMENUCT] would just kinda work if the menu
+    update calls are moved to the VM instructions.
+  */
+  const static std::array<const Menu*, 12> submenuPtrs{
+      SaveMenuPtr,       // 0
+      BacklogMenuPtr,    // 1
+      TipsMenuPtr,       // 2
+      SaveMenuPtr,       // 3
+      SaveMenuPtr,       // 4
+      OptionsMenuPtr,    // 5
+      nullptr,           // 6
+      ClearListMenuPtr,  // 7
+      LibraryMenuPtr,    // 8
+      nullptr,           // 9
+      nullptr,           // 10
+      HelpMenuPtr,       // 11
+  };
+  const int submenuNo = ScrWork[SW_SYSSUBMENUNO];
+  const Menu* const currentActiveMenu =
+      (0 <= submenuNo && submenuNo < std::ssize(submenuPtrs))
+          ? submenuPtrs[submenuNo]
+          : nullptr;
+  const bool renderOverlay =
+      currentActiveMenu == nullptr || currentActiveMenu->State == Hidden;
+
+  switch (ScrWork[SW_TITLEMODE]) {
+    using enum CC::TitleMenuMode::Mode;
+    case PressToStart: {
+      Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f));
+
+      if (renderOverlay) {
+        CommonMenu::DrawOverlay();
+        CommonMenu::DrawSmoke(SmokeOpacityNormal);
+      }
+
+      DrawStartButton();
+      Renderer->DrawSprite(CopyrightTextSprite, CopyrightTextPos);
+      Renderer->DrawQuad(
+          RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+          glm::vec4(1.0f, 1.0f, 1.0f, 1.0f - ScrWork[SW_TITLEDISPCT] / 60.0f));
+    } break;
+
+    case StartTransition: {
+      if (!PressToStartTransitionCaptureSet) {
+        Renderer->DrawSprite(BackgroundSprite, {0.0f, 0.0f});
+        PressToStartTransitionCaptureSet = true;
+      } else {
+        Renderer->DrawSprite(PressToStartTransitionCapture, {0.0f, 0.0f});
+      }
+
+      Renderer->DrawSprite(MainBackgroundSprite, {0.0f, 0.0f},
+                           {1.0f, 1.0f, 1.0f, TitleAnimation.Progress});
+      TitleAnimationSprite.Render(-1);
+
+      Renderer->CaptureScreencap(PressToStartTransitionCapture);
+
+      if (renderOverlay) {
+        CommonMenu::DrawOverlay();
+        CommonMenu::DrawSmoke(SmokeOpacityNormal);
+      }
+
+      DrawStartButton(1.0f - TitleAnimation.Progress);
+      Renderer->DrawSprite(CopyrightTextSprite, CopyrightTextPos,
+                           {1.0f, 1.0f, 1.0f, 1.0f - TitleAnimation.Progress});
+    } break;
+
+    case Main: {
+      Renderer->DrawSprite(MainBackgroundSprite, {0.0f, 0.0f});
+
+      Extra->Tint = (GetFlag(SF_CLR_FLAG)) ? MainItems->Tint
+                                           : RgbIntToFloat(ExtraDisabledTint);
+      MenuLabel->Render();
+      MainItems->Render();
+      ContinueItems->Render();
+      ExtraItems->Render();
+
+      if (renderOverlay) {
+        CommonMenu::DrawOverlay();
+        CommonMenu::DrawSmoke(SmokeOpacityNormal);
+      }
+    } break;
+
+    case FadingOut: {
+      Renderer->DrawSprite(MainBackgroundSprite, {0.0f, 0.0f});
+
+      Extra->Tint = (GetFlag(SF_CLR_FLAG)) ? MainItems->Tint
+                                           : RgbIntToFloat(ExtraDisabledTint);
+      MenuLabel->Render();
+      MainItems->Render();
+      ContinueItems->Render();
+      ExtraItems->Render();
+
+      if (renderOverlay) {
+        CommonMenu::DrawOverlay();
+        CommonMenu::DrawSmoke(SmokeOpacityNormal *
+                              (1.0f - ScrWork[SW_TITLEDISPCT] / 32.0f));
+      }
+
+      Renderer->DrawQuad(
+          RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
+          {0.0f, 0.0f, 0.0f, ScrWork[SW_TITLEDISPCT] / 32.0f});
+    } break;
+
+    case SubMenu:
+    case ClearList: {
+      Renderer->DrawSprite(MainBackgroundSprite, {0.0f, 0.0f});
+
+      MenuLabel->Render();
+      MainItems->Render();
+      ContinueItems->Render();
+      ExtraItems->Render();
+
+      if (renderOverlay) {
+        CommonMenu::DrawOverlay();
+        CommonMenu::DrawSmoke(SmokeOpacityNormal *
+                              SlideItemsAnimation.Progress);
+      }
+    } break;
+
+    case InitialFade: {
+      const float progress = ScrWork[SW_TITLEDISPCT] / 32.0f;
+
+      Renderer->DrawSprite(BackgroundSprite, {0.0f, 0.0f});
+
+      if (renderOverlay) {
+        CommonMenu::DrawOverlay();
+        CommonMenu::DrawSmoke(SmokeOpacityNormal * progress);
+      }
+
+      Renderer->DrawSprite(CopyrightTextSprite, CopyrightTextPos,
+                           {1.0f, 1.0f, 1.0f, progress});
+    } break;
   }
+
+  int maskAlpha = ScrWork[SW_TITLEMASKALPHA];
+  glm::vec4 col = ScrWorkGetColor(SW_TITLEMASKCOLOR);
+  col.a = glm::min(maskAlpha / 255.0f, 1.0f);
+  Renderer->DrawQuad(
+      RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight), col);
 }
 
-void TitleMenu::DrawDISwordBackground(float opacity) {
-  Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f));
-  Renderer->DrawSprite(
-      OverlaySprite,
-      RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-      glm::vec4(1.0f));
-}
-
-void TitleMenu::DrawStartButton() {
-  glm::vec4 col = glm::vec4(1.0f);
-  col.a = glm::smoothstep(0.0f, 1.0f, PressToStartAnimation.Progress);
-  Renderer->DrawSprite(PressToStartSprite,
-                       glm::vec2(PressToStartX, PressToStartY), col);
-}
-
-void TitleMenu::DrawMainMenuBackGraphics() {
-  Renderer->DrawSprite(MainBackgroundSprite, glm::vec2(0.0f));
-  Renderer->DrawSprite(
-      OverlaySprite,
-      RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-      glm::vec4(1.0f));
-}
-
-void TitleMenu::DrawSmoke(float opacity) {
-  glm::vec4 col = glm::vec4(1.0f);
-  col.a = opacity;
-  SmokeSprite.Bounds = RectF(
-      SmokeBoundsWidth - (SmokeAnimationBoundsXMax * SmokeAnimation.Progress) +
-          SmokeAnimationBoundsXOffset,
-      SmokeBoundsY,
-      SmokeBoundsWidth -
-          (SmokeAnimationBoundsXMax * (1.0f - SmokeAnimation.Progress)),
-      SmokeBoundsHeight);
-  Renderer->DrawSprite(SmokeSprite, glm::vec2(SmokeX, SmokeY), col);
-  SmokeSprite.Bounds = RectF(
-      SmokeBoundsX, SmokeBoundsY,
-      SmokeBoundsWidth - (SmokeAnimationBoundsXMax * SmokeAnimation.Progress),
-      SmokeBoundsHeight);
-  Renderer->DrawSprite(
-      SmokeSprite,
-      glm::vec2(SmokeBoundsWidth - (SmokeAnimationBoundsXMax *
-                                    (1.0f - SmokeAnimation.Progress)),
-                SmokeY),
-      col);
+void TitleMenu::DrawStartButton(const float alpha) {
+  const float animationAlpha =
+      glm::smoothstep(0.0f, 1.0f, PressToStartAnimation.Progress);
+  const float clampedAlpha = std::max(0.0f, animationAlpha - (1.0f - alpha));
+  Renderer->DrawSprite(PressToStartSprite, PressToStartPos,
+                       {1.0f, 1.0f, 1.0f, clampedAlpha});
 }
 
 void TitleMenu::ShowContinueItems() {

@@ -15,6 +15,9 @@ namespace CCLCC {
 class TitleMenu : public Menu {
  public:
   TitleMenu();
+  ~TitleMenu() {
+    Renderer->FreeTexture(PressToStartTransitionCapture.Sheet.Texture);
+  }
 
   void Show() override;
   void Hide() override;
@@ -25,7 +28,6 @@ class TitleMenu : public Menu {
   Animation PressToStartAnimation;
   Animation PrimaryFadeAnimation;
   Animation SecondaryFadeAnimation;
-  Animation SmokeAnimation;
   Animation TitleAnimation;
   Animation SlideItemsAnimation;
   Character2D TitleAnimationSprite;
@@ -61,10 +63,7 @@ class TitleMenu : public Menu {
   void ShowExtraItems();
   void HideExtraItems();
 
-  void DrawDISwordBackground(float opacity = 1.0f);
-  void DrawStartButton();
-  void DrawMainMenuBackGraphics();
-  void DrawSmoke(float opacity);
+  void DrawStartButton(float alpha = 1.0f);
 
   void MainMenuUpdate();
   void SubMenuUpdate();
@@ -75,6 +74,9 @@ class TitleMenu : public Menu {
   bool IsExploding = false;
   bool InputLocked = false;
   bool PrevInputLocked = false;
+
+  Sprite PressToStartTransitionCapture;
+  bool PressToStartTransitionCaptureSet = false;
 };
 
 }  // namespace CCLCC

@@ -220,15 +220,16 @@ void TitleMenu::Update(float dt) {
 
   if (State != Hidden && GetFlag(SF_TITLEMODE)) {
     switch (ScrWork[SW_TITLEMODE]) {
-      case 1: {
+      using enum TitleMenuMode::Mode;
+      case PressToStart: {
         PressToStartAnimation.DurationIn = PressToStartAnimDurationIn;
         PressToStartAnimation.DurationOut = PressToStartAnimDurationOut;
       } break;
-      case 2: {
+      case StartTransition: {
         PressToStartAnimation.DurationIn = PressToStartAnimFastDurationIn;
         PressToStartAnimation.DurationOut = PressToStartAnimFastDurationOut;
       } break;
-      case 3: {
+      case Main: {
         MainItems->Update(dt);
         ContinueItems->Update(dt);
         ExtraItems->Update(dt);
@@ -250,7 +251,8 @@ void TitleMenu::Update(float dt) {
 void TitleMenu::Render() {
   if (State != Hidden && GetFlag(SF_TITLEMODE)) {
     switch (ScrWork[SW_TITLEMODE]) {
-      case 1: {  // Press to start
+      using enum TitleMenuMode::Mode;
+      case PressToStart: {
         DrawMainBackground(true);
         DrawStartButton();
         Renderer->DrawSprite(
@@ -262,7 +264,7 @@ void TitleMenu::Render() {
             glm::vec4(1.0f, 1.0f, 1.0f,
                       1.0f - ScrWork[SW_TITLEDISPCT] / 60.0f));
       } break;
-      case 2: {  // Transition between Press to start and menus
+      case StartTransition: {
         DrawMainBackground(true);
         DrawStartButton();
         Renderer->DrawSprite(
@@ -270,7 +272,7 @@ void TitleMenu::Render() {
             RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight));
         DrawSmoke(SmokeOpacityNormal);
       } break;
-      case 3: {  // Main Menu Fade In
+      case Main: {
         float backgroundBoundsY = BackgroundBoundsYNormal,
               fenceBoundsY = FenceBoundsYNormal;
         if (GetFlag(SF_CLR_TRUE_CC)) {
@@ -303,19 +305,14 @@ void TitleMenu::Render() {
         ContinueItems->Render();
         ExtraItems->Render();
       } break;
-      case 4: {
+      case FadingOut: {
       } break;
-      case 7:
-      case 8: {
-      } break;
-      case 11: {  // Initial Fade In
+      case InitialFade: {
         DrawMainBackground(ScrWork[SW_TITLEDISPCT] / 32.0f);
         Renderer->DrawSprite(
             OverlaySprite,
             RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight));
         DrawSmoke(ScrWork[SW_TITLEDISPCT] / 128.0f);
-      } break;
-      case 12: {
       } break;
     }
   }
@@ -333,8 +330,7 @@ void TitleMenu::DrawMainBackground(float opacity) {
 void TitleMenu::DrawStartButton() {
   glm::vec4 col = glm::vec4(1.0f);
   col.a = glm::smoothstep(0.0f, 1.0f, PressToStartAnimation.Progress);
-  Renderer->DrawSprite(PressToStartSprite,
-                       glm::vec2(PressToStartX, PressToStartY), col);
+  Renderer->DrawSprite(PressToStartSprite, PressToStartPos, col);
 }
 
 void TitleMenu::DrawSmoke(float opacity) {

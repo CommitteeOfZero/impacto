@@ -404,8 +404,7 @@ void TitleMenu::Render() {
                                glm::vec2(CopyrightX, CopyrightY));
           glm::vec4 col = glm::vec4(1.0f);
           col.a = glm::smoothstep(0.0f, 1.0f, PressToStartAnimation.Progress);
-          Renderer->DrawSprite(PressToStartSprite,
-                               glm::vec2(PressToStartX, PressToStartY), col);
+          Renderer->DrawSprite(PressToStartSprite, PressToStartPos, col);
         } break;
         case 2: {
           Renderer->DrawMaskedSprite(

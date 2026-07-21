@@ -10,7 +10,6 @@ root.SaveMenu = {
     FadeInDuration = 28 / 60,
     FadeOutDuration = 28 / 60,
     PageSwapDuration = 28 / 60,
-    SaveMenuMaskSprite = "SaveMenuMask",
     SaveEntryPrimaryColor = 0xF07390,
     LoadEntryPrimaryColor = 0x00A1E6,
     SaveEntrySecondaryColor = 0x5E357C,
@@ -25,11 +24,6 @@ root.SaveMenu = {
 root.Sprites["EmptyThumbnail"] = {
     Sheet = "SaveMenu",
     Bounds = { X = 0, Y = 0, Width = 0, Height = 0 }
-};
-
-root.Sprites["SaveMenuMask"] = {
-    Sheet = "MenuChip",
-    Bounds = { X = 154, Y = 140, Width = 1900, Height = 1061 },
 };
 
 local menuTypes = { "QuickLoad", "Save", "Load" }

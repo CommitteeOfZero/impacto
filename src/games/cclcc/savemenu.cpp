@@ -319,7 +319,6 @@ void SaveMenu::Render() {
       OpenedAsDirect ? 1.0f : FadeAnimation.Progress;
   const glm::vec2 transitionOffset = {
       transitionProgress * 32 * 200 * 0.0625 - 400, 0};
-  const glm::vec4 maskTint = glm::vec4(1.0f);
 
   if (OpenedAsDirect) CommonMenu::DrawBgSprite<false>(State, FadeAnimation);
 
@@ -364,9 +363,15 @@ void SaveMenu::Render() {
                          PageNumberPosition + transitionOffset, col);
   }
 
-  Renderer->DrawSprite(
-      SaveMenuMaskSprite,
-      RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight), maskTint);
+  if (ScrWork[SW_SYSSUBMENUNO] == 0 || ScrWork[SW_SYSSUBMENUNO] == 3 ||
+      ScrWork[SW_SYSSUBMENUNO] == 4) {
+    CommonMenu::DrawOverlay();
+    if (GetFlag(SF_TITLEMODE)) {
+      CommonMenu::DrawSmoke(Profile::CCLCC::SystemMenu::SmokeOpacityNormal *
+                            (1.0f - FadeAnimation.Progress));
+    }
+  }
+
   Renderer->DrawSprite(ButtonGuideSprite[*ActiveMenuType], {0, 989}, col);
 }
 

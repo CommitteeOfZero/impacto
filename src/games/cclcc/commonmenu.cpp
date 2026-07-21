@@ -3,6 +3,7 @@
 #include "../../profile/game.h"
 #include "../../profile/scriptvars.h"
 #include "../../profile/games/cclcc/systemmenu.h"
+#include "../../profile/games/cclcc/titlemenu.h"
 
 namespace Impacto {
 namespace UI {
@@ -10,6 +11,7 @@ namespace CCLCC {
 
 using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::CCLCC::SystemMenu;
+using namespace Impacto::Profile::CCLCC::TitleMenu;
 
 CommonMenu::CommonMenu(Animation& fadeAnimation) {
   fadeAnimation.Direction = AnimationDirection::In;
@@ -26,6 +28,89 @@ void CommonMenu::OnShow(float fadeInDuration, float fadeOutDuration,
     fadeAnimation.DurationIn = fadeInDuration;
     fadeAnimation.DurationOut = fadeOutDuration;
   }
+}
+
+void CommonMenu::Init() {
+  for (size_t layer = 0; layer < SmokeLayerCount; layer++) {
+    Animation& animation = SmokeAnimations[layer];
+    animation.SetDuration(SmokeAnimationDurations[layer]);
+    animation.LoopMode = AnimationLoopMode::Loop;
+    animation.StartIn();
+  }
+
+  const RectF viewport = Window->GetViewport();
+  Texture captureTexture;
+  captureTexture.LoadSolidColor(static_cast<int>(viewport.Width),
+                                static_cast<int>(viewport.Height), 0x00000000);
+  CaptureSprite.Sheet.Texture = captureTexture.Submit();
+  CaptureSprite.Sheet.DesignWidth = viewport.Width;
+  CaptureSprite.Sheet.DesignHeight = viewport.Height;
+}
+
+void CommonMenu::InitSmokePos() {
+  for (Animation& animation : SmokeAnimations) {
+    animation.Progress =
+        CALCrnd(static_cast<int>(Profile::DesignWidth)) / Profile::DesignWidth;
+  }
+}
+
+void CommonMenu::Update(const float dt) {
+  for (Animation& animation : SmokeAnimations) {
+    animation.Update(dt);
+  }
+}
+
+void CommonMenu::DrawSmoke(const float alpha) {
+  const glm::vec4 col = {1.0f, 1.0f, 1.0f, alpha};
+
+  for (size_t layer = 0; layer < SmokeLayerCount; layer++) {
+    const glm::vec2 pos =
+        SmokePosition + glm::vec2(SmokeSprites[layer].ScaledWidth() *
+                                      SmokeAnimations[layer].Progress,
+                                  0.0f);
+    Renderer->DrawSprite(SmokeSprites[layer], pos, col);
+    Renderer->DrawSprite(
+        SmokeSprites[layer],
+        pos - glm::vec2(SmokeSprites[layer].ScaledWidth(), 0.0f), col);
+  }
+}
+
+void CommonMenu::DrawOverlay(const float alpha) {
+  const glm::vec4 tint = {1.0f, 1.0f, 1.0f, alpha};
+
+  const RectF maskUvBounds = OverlaySprite.NormalizedBounds();
+  std::array<VertexBufferSprites, 4> vertices{
+      VertexBufferSprites{
+          .Position = {0.0f, 0.0f},
+          .UV = {0.0f, 0.0f},
+          .Tint = tint,
+          .MaskUV = {maskUvBounds.Left(), 1.0f - maskUvBounds.Top()},
+      },
+      VertexBufferSprites{
+          .Position = {Profile::DesignWidth, 0.0f},
+          .UV = {1.0f, 0.0f},
+          .Tint = tint,
+          .MaskUV = {maskUvBounds.Right(), 1.0f - maskUvBounds.Top()},
+      },
+      VertexBufferSprites{
+          .Position = {0.0f, Profile::DesignHeight},
+          .UV = {0.0f, 1.0f},
+          .Tint = tint,
+          .MaskUV = {maskUvBounds.Left(), 1.0f - maskUvBounds.Bottom()},
+      },
+      VertexBufferSprites{
+          .Position = {Profile::DesignWidth, Profile::DesignHeight},
+          .UV = {1.0f, 1.0f},
+          .Tint = tint,
+          .MaskUV = {maskUvBounds.Right(), 1.0f - maskUvBounds.Bottom()},
+      },
+  };
+  constexpr static std::array<uint16_t, 6> indices{0, 1, 2, 1, 2, 3};
+
+  Renderer->CaptureScreencap(CaptureSprite);
+  Renderer->DrawPrimitives(CaptureSprite.Sheet, &OverlaySprite.Sheet,
+                           ShaderProgramType::HardLightMaskedSprite, vertices,
+                           indices, {0.0f, 0.0f});
 }
 
 static auto GenerateMatrix(CornersQuad const& corners) {
@@ -204,6 +289,9 @@ void CommonMenu::DrawBgSprite(MenuState state, const Animation& fadeAnimation,
                            glm::vec3(0.0f), false, true);
     }
   }
+
+  DrawSmoke(SmokeOpacitySystemMenu *
+            std::max(0.0f, (fadeAnimation.Progress - 0.5f) / 0.5f));
 }
 template void CommonMenu::DrawBgSprite<true>(MenuState, const Animation&,
                                              std::optional<Sprite>);

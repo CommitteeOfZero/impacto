@@ -26,8 +26,8 @@ void Configure() {
 
   auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
 
-  auto clearList = new UI::CCLCC::ClearListMenu();
-  UI::Menus[drawType].push_back(clearList);
+  UI::ClearListMenuPtr = new UI::CCLCC::ClearListMenu();
+  UI::Menus[drawType].push_back(UI::ClearListMenuPtr);
 }
 
 }  // namespace ClearListMenu
