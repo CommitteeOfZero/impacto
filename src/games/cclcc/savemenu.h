@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include "commonmenu.h"
 #include "../../ui/menu.h"
 #include "../../ui/widgets/group.h"
@@ -28,6 +29,7 @@ class SaveMenu : public UI::SaveMenu, public CommonMenu {
  private:
   int PrevPage = 0;
   int CurrentPage = 0;
+  std::optional<int> LastFocusedEntry;
   Widgets::Group* MainItems[Profile::CCLCC::SaveMenu::Pages]{};
   Animation FadeAnimation;
   Animation PageAnimation;

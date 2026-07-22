@@ -203,11 +203,20 @@ void SaveMenu::UpdateInput(float dt) {
   const auto updatePage = [&](int nextPage) {
     PrevPage = CurrentPage;
     if (CurrentlyFocusedElement) {
+      LastFocusedEntry =
+          static_cast<Widgets::Button*>(CurrentlyFocusedElement)->Id %
+          (RowsPerPage * EntriesPerRow);
       CurrentlyFocusedElement->HasFocus = false;
       CurrentlyFocusedElement->Hovered = false;
     }
     CurrentPage = nextPage;
     MainItems[CurrentPage]->Show();
+    if (LastFocusedEntry) {
+      CurrentlyFocusedElement =
+          MainItems[CurrentPage]->Children[*LastFocusedEntry];
+    } else {
+      CurrentlyFocusedElement = MainItems[CurrentPage]->Children.front();
+    }
     PageAnimation.StartIn();
     Audio::PlayInGroup(Audio::ACG_SE, "sysse", 1, false, 0);
   };
@@ -215,15 +224,14 @@ void SaveMenu::UpdateInput(float dt) {
     MainItems[CurrentPage]->UpdateInput(dt);
     if (Input::MouseWheelDeltaY < 0 || PADinputButtonWentDown & PADcustom[8]) {
       updatePage((CurrentPage + 1) % Pages);
-      CurrentlyFocusedElement = MainItems[CurrentPage]->GetFocus(FDIR_UP);
       IsFocused = false;
     } else if (Input::MouseWheelDeltaY > 0 ||
                PADinputButtonWentDown & PADcustom[7]) {
       updatePage((CurrentPage - 1 + Pages) % Pages);
-      CurrentlyFocusedElement = MainItems[CurrentPage]->GetFocus(FDIR_DOWN);
       IsFocused = false;
     } else {
-      if (PADinputButtonWentDown & (PAD1DOWN | PAD1UP | PAD1RIGHT | PAD1LEFT)) {
+      if (PADinputButtonRepeatAccelDown &
+          (PAD1DOWN | PAD1UP | PAD1RIGHT | PAD1LEFT)) {
         Audio::PlayInGroup(Audio::ACG_SE, "sysse", 1, false, 0);
       }
     }

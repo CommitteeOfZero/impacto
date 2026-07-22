@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include "commonmenu.h"
 #include "../../ui/savemenu.h"
 #include "../../ui/widgets/group.h"
@@ -35,6 +36,7 @@ class SaveMenu : public UI::SaveMenu, public CommonMenu {
   int CurrentQuickSavePage = 0;
   int* CurrentPage;
   int PrevPage = 0;
+  std::optional<int> LastFocusedEntry;
 
   std::vector<Widgets::Group*> FullSavePages;
   std::vector<Widgets::Group*> QuickSavePages;
