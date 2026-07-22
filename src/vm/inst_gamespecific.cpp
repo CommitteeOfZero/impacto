@@ -1497,10 +1497,10 @@ VmInstruction(InstUnk2012CCLCC) {
              "STUB instruction Unk2012CCLCC()\n");
 }
 
-// calls PushOpenUsers and ExecuteProgram
-VmInstruction(Inst103FLCCSwitch) {
+// on switch calls PushOpenUsers and ExecuteProgram, probably platform specific
+VmInstruction(InstLaunchApp) {
   StartInstruction;
-  PopExpression(AppId);
+  PopExpression(appId);
 }
 
 }  // namespace Vm
