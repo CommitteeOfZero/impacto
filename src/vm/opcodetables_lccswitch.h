@@ -597,7 +597,7 @@ InstructionProc inline constexpr OpcodeTableUser1_LCCSwitch[256] = {
     InstDummy,             // 10 3C
     InstDummy,             // 10 3D
     InstDummy,             // 10 3E
-    Inst103FLCCSwitch,     // 10 3F
+    InstLaunchApp,         // 10 3F
     InstScreenChange,      // 10 40
     InstExitGame,          // 10 41
     InstDummy,             // 10 42

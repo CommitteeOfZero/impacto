@@ -1,1 +1,9 @@
 root.TitleMenu.TitleAnimationFileId = 36;
+root.TitleMenu.NewButtonId = 0;
+root.TitleMenu.LoadButtonId = 2;
+root.TitleMenu.QLoadButtonId = 3;
+root.TitleMenu.TipsButtonId = 9;
+root.TitleMenu.LibraryButtonId = 21; -- not this, but def should be overridden
+root.TitleMenu.EndingListButtonId = 8;
+root.TitleMenu.ConfigButtonId = 10;
+root.TitleMenu.HelpButtonId = 11;
