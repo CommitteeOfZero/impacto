@@ -66,6 +66,14 @@ root.TitleMenu = {
     HighlightAnimationDurationIn = 15/60,
     HighlightAnimationDurationOut = 15/60,
     ExtraDisabledTint = 0x703030,
+    NewButtonId = 0,
+    LoadButtonId = 10,
+    QLoadButtonId = 11,
+    TipsButtonId = 20,
+    LibraryButtonId = 21,
+    EndingListButtonId = 22,
+    ConfigButtonId = 30,
+    HelpButtonId = 40,
 };
 
 for i = 0, 4 do

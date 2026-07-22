@@ -159,8 +159,8 @@ TitleMenu::TitleMenu() {
   };
 
   // NewGame menu button
-  NewGame = new TitleButton(0, MenuEntriesSprites[0], MenuEntriesHSprites[0],
-                            ItemHighlightSprite,
+  NewGame = new TitleButton(NewButtonId, MenuEntriesSprites[0],
+                            MenuEntriesHSprites[0], ItemHighlightSprite,
                             glm::vec2((-1.0f) + ItemHighlightOffsetX,
                                       (ItemYBase + (0 * ItemPadding))));
   setupBtn(NewGame, onClick, MainItems, FDIR_DOWN);
@@ -185,13 +185,15 @@ TitleMenu::TitleMenu() {
 
   // Config menu button
   Config = new TitleButton(
-      30, MenuEntriesSprites[3], MenuEntriesHSprites[3], ItemHighlightSprite,
+      ConfigButtonId, MenuEntriesSprites[3], MenuEntriesHSprites[3],
+      ItemHighlightSprite,
       glm::vec2(ItemHighlightOffsetX, (ItemYBase + (3 * ItemPadding))));
   setupBtn(Config, onClick, MainItems, FDIR_DOWN);
 
   // Help menu button
   Help = new TitleButton(
-      40, MenuEntriesSprites[4], MenuEntriesHSprites[4], ItemHighlightSprite,
+      HelpButtonId, MenuEntriesSprites[4], MenuEntriesHSprites[4],
+      ItemHighlightSprite,
       glm::vec2(ItemHighlightOffsetX, (ItemYBase + (4 * ItemPadding))));
   setupBtn(Help, onClick, MainItems, FDIR_DOWN);
 
@@ -208,34 +210,36 @@ TitleMenu::TitleMenu() {
   }
 
   // Load secondary Continue menu button
-  Load = new TitleButton(10, LoadSprite, LoadHighlightSprite, nullSprite,
-                         glm::vec2(SecondaryFirstItemHighlightOffsetX,
-                                   (ItemYBase + (2 * ItemPadding))));
+  Load =
+      new TitleButton(LoadButtonId, LoadSprite, LoadHighlightSprite, nullSprite,
+                      glm::vec2(SecondaryFirstItemHighlightOffsetX,
+                                (ItemYBase + (2 * ItemPadding))));
   setupBtn(Load, onClick, ContinueItems, FDIR_RIGHT);
 
   // QuickLoad secondary Continue menu button
-  QuickLoad =
-      new TitleButton(11, QuickLoadSprite, QuickLoadHighlightSprite, nullSprite,
-                      glm::vec2(SecondarySecondItemHighlightOffsetX,
-                                (ItemYBase + (2 * ItemPadding))));
+  QuickLoad = new TitleButton(QLoadButtonId, QuickLoadSprite,
+                              QuickLoadHighlightSprite, nullSprite,
+                              glm::vec2(SecondarySecondItemHighlightOffsetX,
+                                        (ItemYBase + (2 * ItemPadding))));
   setupBtn(QuickLoad, onClick, ContinueItems, FDIR_RIGHT);
 
   // Tips secondary Extra menu button
-  Tips = new TitleButton(20, TipsSprite, TipsHighlightSprite, nullSprite,
-                         glm::vec2(SecondaryFirstItemHighlightOffsetX,
-                                   (ItemYBase + (3 * ItemPadding))));
+  Tips =
+      new TitleButton(TipsButtonId, TipsSprite, TipsHighlightSprite, nullSprite,
+                      glm::vec2(SecondaryFirstItemHighlightOffsetX,
+                                (ItemYBase + (3 * ItemPadding))));
   setupBtn(Tips, onClick, ExtraItems, FDIR_RIGHT);
 
   // Library secondary Extra menu button
-  Library =
-      new TitleButton(21, LibrarySprite, LibraryHighlightSprite, nullSprite,
-                      glm::vec2(SecondarySecondItemHighlightOffsetX,
-                                (ItemYBase + (3 * ItemPadding))));
+  Library = new TitleButton(LibraryButtonId, LibrarySprite,
+                            LibraryHighlightSprite, nullSprite,
+                            glm::vec2(SecondarySecondItemHighlightOffsetX,
+                                      (ItemYBase + (3 * ItemPadding))));
   setupBtn(Library, onClick, ExtraItems, FDIR_RIGHT);
 
   // EndingList secondary Extra menu button
-  EndingList = new TitleButton(22, EndingListSprite, EndingListHighlightSprite,
-                               nullSprite,
+  EndingList = new TitleButton(EndingListButtonId, EndingListSprite,
+                               EndingListHighlightSprite, nullSprite,
                                glm::vec2(SecondaryThirdItemHighlightOffsetX,
                                          (ItemYBase + (3 * ItemPadding))));
   setupBtn(EndingList, onClick, ExtraItems, FDIR_RIGHT);

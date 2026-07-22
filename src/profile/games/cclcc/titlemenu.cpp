@@ -91,6 +91,15 @@ void Configure() {
       EnsureGetMember<float>("HighlightAnimationDurationOut");
   ExtraDisabledTint = EnsureGetMember<uint32_t>("ExtraDisabledTint");
 
+  NewButtonId = EnsureGetMember<int>("NewButtonId");
+  LoadButtonId = EnsureGetMember<int>("LoadButtonId");
+  QLoadButtonId = EnsureGetMember<int>("QLoadButtonId");
+  TipsButtonId = EnsureGetMember<int>("TipsButtonId");
+  LibraryButtonId = EnsureGetMember<int>("LibraryButtonId");
+  EndingListButtonId = EnsureGetMember<int>("EndingListButtonId");
+  ConfigButtonId = EnsureGetMember<int>("ConfigButtonId");
+  HelpButtonId = EnsureGetMember<int>("HelpButtonId");
+
   UI::CCLCC::TitleMenu* menu = new UI::CCLCC::TitleMenu();
   menu->PressToStartAnimation.DurationIn =
       Profile::TitleMenu::PressToStartAnimDurationIn;

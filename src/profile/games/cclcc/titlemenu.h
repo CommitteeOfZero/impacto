@@ -67,6 +67,15 @@ inline int TitleAnimationStartFrame;
 inline int TitleAnimationFrameCount;
 inline int TitleAnimationFileId;
 
+inline int NewButtonId;
+inline int LoadButtonId;
+inline int QLoadButtonId;
+inline int TipsButtonId;
+inline int LibraryButtonId;
+inline int EndingListButtonId;
+inline int ConfigButtonId;
+inline int HelpButtonId;
+
 void Configure();
 
 }  // namespace TitleMenu

@@ -522,6 +522,13 @@ VmInstruction(InstTitleMenuNew) {
     case 0:  // Init
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction TitleMenu(type: Init)\n");
+      switch (Profile::Vm::GameInstructionSet) {
+        case InstructionSet::LCCSwitch: {
+          ScrWork[SW_SYSSUBMENUCTMAX] = 32;
+        } break;
+        default: {
+        }
+      }
       break;
     case 1:  // Main
       switch (Profile::Vm::GameInstructionSet) {
