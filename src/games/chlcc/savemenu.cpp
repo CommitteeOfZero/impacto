@@ -256,13 +256,21 @@ void SaveMenu::UpdateInput(float dt) {
   const auto updatePage = [&](int nextPage) {
     PrevPage = *CurrentPage;
     if (CurrentlyFocusedElement) {
+      LastFocusedEntry =
+          static_cast<Widgets::Button*>(CurrentlyFocusedElement)->Id %
+          EntriesPerPage;
       CurrentlyFocusedElement->HasFocus = false;
       CurrentlyFocusedElement->Hovered = false;
     }
     *CurrentPage = nextPage;
     SavePages->at(*CurrentPage)->Show();
-    SavePages->at(*CurrentPage)->Children.front()->HasFocus = true;
-    CurrentlyFocusedElement = SavePages->at(*CurrentPage)->Children.front();
+    if (LastFocusedEntry) {
+      CurrentlyFocusedElement =
+          SavePages->at(*CurrentPage)->Children[*LastFocusedEntry];
+    } else {
+      CurrentlyFocusedElement = SavePages->at(*CurrentPage)->Children.front();
+    }
+    CurrentlyFocusedElement->HasFocus = true;
   };
   if (IsFocused) {
     SavePages->at(*CurrentPage)->UpdateInput(dt);
