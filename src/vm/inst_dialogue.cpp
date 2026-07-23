@@ -412,7 +412,6 @@ VmInstruction(InstMesMain) {
 
     if (currentPage.AdvanceMethod == Skip && type != 1) {
       currentPage.PushBacklogEntry();
-      currentPage.Typewriter.Reset(AnimationDirection::Out);
 
       return;
     }
@@ -457,7 +456,6 @@ VmInstruction(InstMesMain) {
                               ScrWork[currentPage.Id * 2 + SW_LINEID]);
 
       currentPage.PushBacklogEntry();
-      currentPage.Typewriter.Reset(AnimationDirection::Out);
 
       BlockThread;
       return;
