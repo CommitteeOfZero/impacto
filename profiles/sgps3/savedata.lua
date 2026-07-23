@@ -1,4 +1,4 @@
 root.SaveData = {
     Type = SaveDataType.None,
-    SaveFilePath = root.BaseConfig.RootSavesDir .. "/sgps3/jpn/SYSTEM.DAT",
+    SaveFilePath = root.BasePaths.RootSavesDir .. "/sgps3/jpn/SYSTEM.DAT",
 };

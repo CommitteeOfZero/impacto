@@ -1,14 +1,14 @@
 root.Vfs = {
     Mounts = {
-        ["script"] = {root.BaseConfig.RootGamedataDir .. "/cc/script.cls"},
-        ["system"] = {root.BaseConfig.RootGamedataDir .. "/cc/system.mpk"},
-        ["bgm"] = {root.BaseConfig.RootGamedataDir .. "/cc/bgm.mpk"},
-        ["se"] = {root.BaseConfig.RootGamedataDir .. "/cc/se.mpk"},
-        ["sysse"] = {root.BaseConfig.RootGamedataDir .. "/cc/sysse.mpk"},
-        ["voice"] = {root.BaseConfig.RootGamedataDir .. "/cc/voice.mpk"},
-        ["bg"] = {root.BaseConfig.RootGamedataDir .. "/cc/bg.mpk"},
-        ["chara"] = {root.BaseConfig.RootGamedataDir .. "/cc/chara.mpk"},
-        ["mask"] = {root.BaseConfig.RootGamedataDir .. "/cc/mask.mpk"},
-        ["movie"] = {root.BaseConfig.RootGamedataDir .. "/cc/movie.cls"}
+        ["script"] = {root.BasePaths.RootGamedataDir .. "/cc/script.cls"},
+        ["system"] = {root.BasePaths.RootGamedataDir .. "/cc/system.mpk"},
+        ["bgm"] = {root.BasePaths.RootGamedataDir .. "/cc/bgm.mpk"},
+        ["se"] = {root.BasePaths.RootGamedataDir .. "/cc/se.mpk"},
+        ["sysse"] = {root.BasePaths.RootGamedataDir .. "/cc/sysse.mpk"},
+        ["voice"] = {root.BasePaths.RootGamedataDir .. "/cc/voice.mpk"},
+        ["bg"] = {root.BasePaths.RootGamedataDir .. "/cc/bg.mpk"},
+        ["chara"] = {root.BasePaths.RootGamedataDir .. "/cc/chara.mpk"},
+        ["mask"] = {root.BasePaths.RootGamedataDir .. "/cc/mask.mpk"},
+        ["movie"] = {root.BasePaths.RootGamedataDir .. "/cc/movie.cls"}
     }
 };

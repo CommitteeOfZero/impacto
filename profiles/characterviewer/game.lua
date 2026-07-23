@@ -1,4 +1,4 @@
-include(root.BaseConfig.RootProfilesDir .. '/chlcc/game.lua');
+include(root.BasePaths.RootProfilesDir .. '/chlcc/game.lua');
 
 root.GameFeatures = GameFeature.Renderer2D | GameFeature.CharacterViewer | GameFeature.Audio | GameFeature.Input;
 

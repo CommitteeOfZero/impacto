@@ -21,4 +21,4 @@ root.Scene3D = {
     }
 };
 
-include(root.BaseConfig.RootProfilesDir .. '/rne/scene3d/characters.lua');
+include(root.BasePaths.RootProfilesDir .. '/rne/scene3d/characters.lua');

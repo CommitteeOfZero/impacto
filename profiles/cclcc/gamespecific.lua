@@ -6,9 +6,9 @@ root.GameSpecific = {
   }
 }
 
-include(root.BaseConfig.RootProfilesDir .. '/cclcc/mapsystem.lua');
-include(root.BaseConfig.RootProfilesDir .. '/cclcc/yesnotrigger.lua');
-include(root.BaseConfig.RootProfilesDir .. '/cclcc/hud/delusiontrigger.lua');
+include(root.BasePaths.RootProfilesDir .. '/cclcc/mapsystem.lua');
+include(root.BasePaths.RootProfilesDir .. '/cclcc/yesnotrigger.lua');
+include(root.BasePaths.RootProfilesDir .. '/cclcc/hud/delusiontrigger.lua');
 
 for i = 0, 1 do
     local index = i + 1;
