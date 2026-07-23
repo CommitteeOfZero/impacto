@@ -123,23 +123,172 @@ VmInstruction(InstMesSetID) {
 }
 VmInstruction(InstMesCls) {
   StartInstruction;
-  PopUint8(type);  // TODO: Implement types 0, 1, 2, 3, 4, 5, 6, 7, 8
-  if ((type & 0xFE) != 4 && !(type & 1)) {
-    PopExpression(arg1);
-    ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-               "STUB instruction MesCls(type: {:d}, arg1: {:d})\n", type, arg1);
-  } else {
-    ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-               "STUB instruction MesCls(type: {:d})\n", type);
-  }
-  switch (type) {
-    case 1: {
+
+  const auto hidePage = [](DialoguePage& page) -> bool {
+    const DialoguePage::State pageState = page.GetState();
+    switch (pageState) {
+      using enum DialoguePage::State;
+      case Initial:
+      case Hidden:
+        return true;
+
+      case Showing:
+      case Hiding:
+        return false;
+
+      case Shown:
+        if (GetFlag(SF_MESALLSKIP)) {
+          page.Typewriter.Finish(AnimationDirection::Out);
+          page.RenderName = false;
+        } else {
+          page.Typewriter.StartOut();
+        }
+        return false;
+
+      default:
+        assert(false && "Missing page state");
+        return true;
+    }
+  };
+
+  enum class ClsType : uint8_t {
+    HidePage = 0,
+    HideAllPages = 1,
+    SetThreadPage = 2,
+    ResetAllPageFlags = 3,
+    ClearCurrentPageIfWindowHidden = 4,
+    ClearAllPagesIfWindowHidden = 5,
+    ClearPage = 6,
+    ClearAllPages = 7,
+    AdvancePage = 8,
+  };
+
+  PopUint8(type);
+  switch (static_cast<ClsType>(type)) {
+    using enum ClsType;
+
+    case HidePage: {
+      PopExpression(pageId);
+      DialoguePage& page = DialoguePages[pageId];
+
+      const bool hidden = hidePage(page);
+      if (hidden) {
+        SetFlag(SF_SHOWWAITICON + pageId, false);
+        page.RenderName = false;
+      } else {
+        ResetInstruction;
+        BlockThread;
+      }
+    } break;
+
+    case HideAllPages: {
+      bool allHidden = true;
       for (DialoguePage& page : DialoguePages) {
+        allHidden &= hidePage(page);
+      }
+
+      if (allHidden) {
+        for (DialoguePage& page : DialoguePages) {
+          page.RenderName = false;
+          SetFlag(SF_SHOWWAITICON + page.Id, false);
+        }
+      } else {
+        ResetInstruction;
+        BlockThread;
+      }
+
+    } break;
+
+    case SetThreadPage: {
+      PopExpression(pageId);
+      SetFlag(SF_MESWINDOW0OPENFL + pageId, false);
+      SetFlag(SF_SHOWWAITICON + pageId, false);
+      DialoguePages[pageId].RenderName = false;
+      thread->DialoguePageId = pageId;
+    } break;
+
+    case ResetAllPageFlags: {
+      for (DialoguePage& page : DialoguePages) {
+        page.RenderName = false;
+        SetFlag(SF_MESWINDOW0OPENFL + page.Id, false);
+        SetFlag(SF_SHOWWAITICON + page.Id, false);
+      }
+    } break;
+
+    case ClearCurrentPageIfWindowHidden: {
+      DialoguePage& page = DialoguePages[thread->DialoguePageId];
+      if (ScrWork[SW_MESWINDOW0ALPHA + page.Id] == 0) {
+        page.Clear();
+      } else {
+        ResetInstruction;
+        BlockThread;
+      }
+    } break;
+
+    case ClearAllPagesIfWindowHidden: {
+      bool allHidden = true;
+      for (size_t pageIdx = 0; pageIdx < DialoguePages.size(); pageIdx++) {
+        allHidden &= (ScrWork[SW_MESWINDOW0ALPHA + pageIdx] == 0);
+      }
+
+      if (allHidden) {
+        for (DialoguePage& page : DialoguePages) {
+          page.Clear();
+        }
+      } else {
+        ResetInstruction;
+        BlockThread;
+      }
+    } break;
+
+    case ClearPage: {
+      PopExpression(pageId);
+      SetFlag(SF_MESWINDOW0OPENFL + pageId, false);
+      ScrWork[SW_MESWINDOW0ALPHA + pageId] = 0;
+      DialoguePages[pageId].Clear();
+    } break;
+
+    case ClearAllPages: {
+      for (DialoguePage& page : DialoguePages) {
+        SetFlag(SF_MESWINDOW0OPENFL + page.Id, false);
+        ScrWork[SW_MESWINDOW0ALPHA + page.Id] = 0;
         page.Clear();
       }
-      SetFlag(SF_SHOWWAITICON, 0);
-      SetFlag(SF_SHOWWAITICON + 1, 0);
-      SetFlag(SF_SHOWWAITICON + 2, 0);
+    } break;
+
+    case AdvancePage: {
+      PopExpression(pageId);
+      DialoguePage& page = DialoguePages[pageId];
+
+      const bool hidden = hidePage(page);
+      if (!hidden) {
+        ResetInstruction;
+        BlockThread;
+        break;
+      }
+
+      SetFlag(SF_SHOWWAITICON + pageId, false);
+      SetFlag(SF_MESCLEAR0 + pageId, true);
+
+      SaveSystem::SetLineRead(ScrWork[SW_SCRIPTID + pageId * 2],
+                              ScrWork[SW_LINEID + pageId * 2]);
+
+      if (!GetFlag(SF_REVADDDISABLE)) {
+        page.PushBacklogEntry();
+      }
+    } break;
+
+    default: {
+      if (!(type & 1)) {
+        PopExpression(pageId);
+        ImpLogSlow(
+            LogLevel::Error, LogChannel::VM,
+            "Unexpected instruction type MesCls(type: {:d}, pageId: {:d})\n",
+            type, pageId);
+      } else {
+        ImpLogSlow(LogLevel::Error, LogChannel::VM,
+                   "Unexpected instruction type MesCls(type: {:d})\n", type);
+      }
     } break;
   }
 }
@@ -263,7 +412,6 @@ VmInstruction(InstMesMain) {
 
     if (currentPage.AdvanceMethod == Skip && type != 1) {
       currentPage.PushBacklogEntry();
-      currentPage.Typewriter.Reset(AnimationDirection::Out);
 
       return;
     }
@@ -308,7 +456,6 @@ VmInstruction(InstMesMain) {
                               ScrWork[currentPage.Id * 2 + SW_LINEID]);
 
       currentPage.PushBacklogEntry();
-      currentPage.Typewriter.Reset(AnimationDirection::Out);
 
       BlockThread;
       return;
