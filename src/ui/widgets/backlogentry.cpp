@@ -3,6 +3,7 @@
 #include "../../inputsystem.h"
 #include "../../mem.h"
 #include "../../profile/scriptvars.h"
+#include "../../profile/vm.h"
 #include "../../vm/interface/input.h"
 #include "../../vm/thread.h"
 #include "../../profile/dialogue.h"
@@ -24,6 +25,7 @@ BacklogEntry::BacklogEntry(Vm::BufferOffsetContext scrCtx,
   Impacto::Vm::Sc3VmThread dummy;
   dummy.IpOffset = scrCtx.IpOffset;
   dummy.ScriptBufferId = scrCtx.BufferId;
+  dummy.UseMSBBuffers = Profile::Vm::UseMsbStrings;
   Page.AddString(&dummy);
 
   Bounds = !Page.Glyphs.empty() ? Page.Glyphs.begin()->DestRect
