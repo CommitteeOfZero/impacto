@@ -1227,7 +1227,10 @@ VmInstruction(InstSetRevMes) {
     PopUint16(lineIdTemp);
     lineId = lineIdTemp;
   }
-  uint32_t line = ScriptGetStrAddress(thread->ScriptBufferId, lineId);
+
+  uint32_t line = expression
+                      ? MsbGetStrAddress(thread->ScriptBufferId, lineId)
+                      : ScriptGetStrAddress(thread->ScriptBufferId, lineId);
 
   uint32_t scriptId = LoadedScriptMetas[thread->ScriptBufferId].Id;
 
