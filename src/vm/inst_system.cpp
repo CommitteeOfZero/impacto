@@ -677,7 +677,7 @@ VmInstruction(InstSystemMes) {
   }
 
   if (unk01) {
-    //TODO
+    // TODO
   }
 
   uint32_t type = mode;
@@ -715,9 +715,8 @@ VmInstruction(InstSystemMes) {
           bufId = ExpressionEval(thread);
         }
         PopMsbString(message);
-        // TODO: not finished
-        // UI::SysMesBoxPtr->AddMessage(
-        //    {.BufferId = thread->ScriptBufferId, .IpOffset = message});
+        UI::SysMesBoxPtr->AddMessage(
+            {.BufferId = thread->ScriptBufferId, .IpOffset = message});
       } else {
         PopUint16(sysMesStrNum);
         const uint32_t message =
@@ -740,7 +739,8 @@ VmInstruction(InstSystemMes) {
           bufId = ExpressionEval(thread);
         }
         PopMsbString(message);
-
+        UI::SysMesBoxPtr->AddChoice(
+            {.BufferId = thread->ScriptBufferId, .IpOffset = message});
       } else {
         PopUint16(sysSelStrNum);
         auto message =
