@@ -723,9 +723,8 @@ VmInstruction(InstSystemMes) {
         PopMsbString(message);
         UI::SysMesBox* box = activeBox();
         if (!box) break;
-        // TODO: not finished
-        // box->AddMessage(
-        //    {.BufferId = thread->ScriptBufferId, .IpOffset = message});
+        box->AddMessage(
+            {.BufferId = thread->ScriptBufferId, .IpOffset = message});
       } else {
         UI::SysMesBox* box = activeBox();
         if (!box) break;
@@ -752,6 +751,8 @@ VmInstruction(InstSystemMes) {
         PopMsbString(message);
         UI::SysMesBox* box = activeBox();
         if (!box) break;
+        box->AddChoice(
+            {.BufferId = thread->ScriptBufferId, .IpOffset = message});
       } else {
         PopUint16(sysSelStrNum);
         auto message =
