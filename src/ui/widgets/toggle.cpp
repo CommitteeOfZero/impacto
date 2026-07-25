@@ -79,8 +79,8 @@ void Toggle::Render() {
                          glm::vec2(Bounds.X, Bounds.Y) + LabelOffset, Tint);
   }
   if (HasTextLabel) {
-    Renderer->DrawProcessedText(Label, Profile::Dialogue::DialogueFont, Tint.a,
-                                OutlineMode, true);
+    Profile::Dialogue::DialogueFont->DrawProcessedText(Label, Tint.a,
+                                                       OutlineMode, true);
   }
 }
 

@@ -64,8 +64,8 @@ void Button::Render() {
   }
 
   if (HasText) {
-    Renderer->DrawProcessedText(Text, Profile::Dialogue::DialogueFont, Tint.a,
-                                OutlineMode, true);
+    Profile::Dialogue::DialogueFont->DrawProcessedText(Text, Tint.a,
+                                                       OutlineMode, true);
   }
 }
 

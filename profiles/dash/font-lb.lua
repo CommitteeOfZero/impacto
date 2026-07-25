@@ -1,14 +1,12 @@
 root.Fonts = {
     ["Default"] = {
-        Type = FontType.LB,
+        Type = FontType.LanguageBarrier,
         ForegroundSheet = "FontLBForeground",
         OutlineSheet = "FontLBOutline",
-        Columns = 64,
-        Rows = 50,
+        ForegroundGridSize = { X = 64, Y = 50 },
         AdvanceWidths = "games/rne/font-lb/widths.bin",
         AdvanceWidthsEmWidth = 48,
         OutlineOffset = { X = -4, Y = -4 },
-        LineSpacing = 14,
     }
 };
 

@@ -2,99 +2,167 @@
 
 #include <vector>
 
-#include <magic_enum/magic_enum.hpp>
-
 #include "spritesheet.h"
+#include "text/processedtextglyph.h"
 
 namespace Impacto {
 
-enum class FontType : int {
-  Basic,
-  LB,
+enum class RendererOutlineMode : uint8_t { None, BottomRight, Full };
+
+enum class FontType : uint8_t {
+  SingleSheet,
+  LanguageBarrier,
 };
+
 class Font {
  public:
-  Font(FontType type) : Type(type) {}
-
   FontType Type;
 
-  uint8_t Columns;
-  uint8_t Rows;
-  std::vector<float> AdvanceWidths;
+  virtual size_t GetGlyphCount() const = 0;
 
-  float CellHeight;
-  float CellWidth;
+  virtual void DrawProcessedText(
+      std::span<const ProcessedTextGlyph> text, float opacity,
+      float outlineOpacity,
+      RendererOutlineMode outlineMode = RendererOutlineMode::None,
+      bool smoothstepGlyphOutline = true,
+      const SpriteSheet* maskedSheet = nullptr,
+      glm::mat4 transformation = glm::mat4(1.0f)) = 0;
+
+  void DrawProcessedText(
+      std::span<const ProcessedTextGlyph> text, float opacity = 1.0f,
+      RendererOutlineMode outlineMode = RendererOutlineMode::None,
+      bool smoothstepGlyphOpacity = true,
+      const SpriteSheet* maskedSheet = nullptr,
+      glm::mat4 transformation = glm::mat4(1.0f)) {
+    DrawProcessedText(text, opacity, opacity, outlineMode,
+                      smoothstepGlyphOpacity, maskedSheet, transformation);
+  }
+
+  void DrawProcessedText(std::span<const ProcessedTextGlyph> text,
+                         float opacity, float outlineOpacity,
+                         RendererOutlineMode outlineMode, glm::vec2 pos,
+                         bool smoothstepGlyphOpacity = true,
+                         const SpriteSheet* maskedSheet = nullptr) {
+    DrawProcessedText(text, opacity, outlineOpacity, outlineMode,
+                      smoothstepGlyphOpacity, maskedSheet,
+                      glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f)));
+  }
+
+  std::vector<float> AdvanceWidths;
 
   float BitmapEmWidth;
   float BitmapEmHeight;
 
-  float LineSpacing;
-
-  virtual void CalculateDefaultSizes() = 0;
+ protected:
+  Font(FontType type, float bitmapEmWidth, float bitmapEmHeight)
+      : Type(type),
+        BitmapEmWidth(bitmapEmWidth),
+        BitmapEmHeight(bitmapEmHeight) {}
 };
 
-class BasicFont : public Font {
+class SingleSheetFont : public Font {
  public:
-  BasicFont() : Font(FontType::Basic) {}
+  SingleSheetFont(std::optional<float> bitmapEmWidth,
+                  std::optional<float> bitmapEmHeight, SpriteSheet sheet,
+                  glm::ivec2 gridSize)
+      : Font(FontType::SingleSheet,
+             bitmapEmWidth.value_or(sheet.DesignWidth / gridSize.x),
+             bitmapEmHeight.value_or(sheet.DesignHeight / gridSize.y)),
+        Sheet(sheet),
+        GridSize(gridSize),
+        CellSize(sheet.GetDimensions() / static_cast<glm::vec2>(gridSize)) {}
+
+  size_t GetGlyphCount() const override {
+    return static_cast<size_t>(GridSize.x * GridSize.y);
+  }
+
+  void DrawProcessedText(std::span<const ProcessedTextGlyph> text,
+                         float opacity, float outlineOpacity,
+                         RendererOutlineMode outlineMode,
+                         bool smoothstepGlyphOutline,
+                         const SpriteSheet* maskedSheet,
+                         glm::mat4 transformation) override;
+
+ private:
+  Sprite GetGlyph(uint16_t id) const {
+    const uint8_t row = static_cast<uint8_t>(id / GridSize.x);
+    const uint8_t col = static_cast<uint8_t>(id % GridSize.x);
+    const float width = AdvanceWidths[id];
+
+    return Sprite(Sheet, col * CellSize.x + 1.0f, row * CellSize.y + 1.0f,
+                  width - 2.0f, BitmapEmHeight - 2.0f);
+  }
 
   SpriteSheet Sheet;
-
-  void CalculateDefaultSizes() override {
-    CellHeight = Sheet.DesignHeight / (float)Rows;
-    CellWidth = Sheet.DesignWidth / (float)Columns;
-  }
-
-  Sprite Glyph(uint8_t row, uint8_t col) { return Glyph(row * Columns + col); }
-
-  Sprite Glyph(uint16_t id) {
-    uint8_t row = (uint8_t)(id / Columns);
-    uint8_t col = id % Columns;
-    float width = AdvanceWidths[id];
-    return Sprite(Sheet, col * CellWidth + 1, row * CellHeight + 1, width - 2,
-                  BitmapEmHeight - 2);
-  }
+  glm::ivec2 GridSize;
+  glm::vec2 CellSize;
 };
 
-class LBFont : public Font {
+class LanguageBarrierFont : public Font {
  public:
-  LBFont() : Font(FontType::LB) {}
+  LanguageBarrierFont(std::optional<float> bitmapEmWidth,
+                      std::optional<float> bitmapEmHeight,
+                      SpriteSheet foregroundSheet,
+                      glm::ivec2 foregroundGridSize, SpriteSheet outlineSheet,
+                      glm::ivec2 outlineGridSize, glm::vec2 foregroundOffset,
+                      glm::vec2 outlineOffset)
+      : Font(FontType::LanguageBarrier,
+             bitmapEmWidth.value_or(foregroundSheet.DesignWidth /
+                                    foregroundGridSize.x),
+             bitmapEmHeight.value_or(foregroundSheet.DesignHeight /
+                                     foregroundGridSize.y)),
+        ForegroundSheet(foregroundSheet),
+        OutlineSheet(outlineSheet),
+        ForegroundGridSize(foregroundGridSize),
+        OutlineGridSize(outlineGridSize),
+        ForegroundCellSize(foregroundSheet.GetDimensions() /
+                           static_cast<glm::vec2>(foregroundGridSize)),
+        OutlineCellSize(outlineSheet.GetDimensions() /
+                        static_cast<glm::vec2>(outlineGridSize)),
+        ForegroundOffset(foregroundOffset),
+        OutlineOffset(outlineOffset) {}
+
+  size_t GetGlyphCount() const override {
+    return static_cast<size_t>(ForegroundGridSize.x * ForegroundGridSize.y);
+  }
+
+  void DrawProcessedText(std::span<const ProcessedTextGlyph> text,
+                         float opacity, float outlineOpacity,
+                         RendererOutlineMode outlineMode,
+                         bool smoothstepGlyphOutline,
+                         const SpriteSheet* maskedSheet,
+                         glm::mat4 transformation) override;
+
+ private:
+  Sprite GetGlyph(uint16_t id) const {
+    const uint8_t row = static_cast<uint8_t>(id / ForegroundGridSize.x);
+    const uint8_t col = static_cast<uint8_t>(id % ForegroundGridSize.x);
+
+    return Sprite(ForegroundSheet, col * ForegroundCellSize.x,
+                  row * ForegroundCellSize.y, ForegroundCellSize.x,
+                  ForegroundCellSize.y);
+  }
+
+  Sprite GetOutlineGlyph(uint16_t id) const {
+    const uint8_t row = static_cast<uint8_t>(id / OutlineGridSize.x);
+    const uint8_t col = static_cast<uint8_t>(id % OutlineGridSize.x);
+
+    return Sprite(OutlineSheet, col * OutlineCellSize.x,
+                  row * OutlineCellSize.y, OutlineCellSize.x,
+                  OutlineCellSize.y);
+  }
 
   SpriteSheet ForegroundSheet;
   SpriteSheet OutlineSheet;
 
-  float OutlineCellHeight;
-  float OutlineCellWidth;
+  glm::ivec2 ForegroundGridSize;
+  glm::ivec2 OutlineGridSize;
+
+  glm::vec2 ForegroundCellSize;
+  glm::vec2 OutlineCellSize;
 
   glm::vec2 ForegroundOffset;
   glm::vec2 OutlineOffset;
-
-  void CalculateDefaultSizes() override {
-    CellHeight = ForegroundSheet.DesignHeight / (float)Rows;
-    CellWidth = ForegroundSheet.DesignWidth / (float)Columns;
-
-    OutlineCellHeight = OutlineSheet.DesignHeight / (float)Rows;
-    OutlineCellWidth = OutlineSheet.DesignWidth / (float)Columns;
-  }
-
-  Sprite Glyph(uint8_t row, uint8_t col) { return Glyph(row * Columns + col); }
-
-  Sprite Glyph(uint16_t id) {
-    uint8_t row = (uint8_t)(id / Columns);
-    uint8_t col = id % Columns;
-    return Sprite(ForegroundSheet, col * CellWidth, row * CellHeight, CellWidth,
-                  CellHeight);
-  }
-
-  Sprite OutlineGlyph(uint8_t row, uint8_t col) {
-    return OutlineGlyph(row * Columns + col);
-  }
-
-  Sprite OutlineGlyph(uint16_t id) {
-    uint8_t row = (uint8_t)(id / Columns);
-    uint8_t col = id % Columns;
-    return Sprite(OutlineSheet, col * OutlineCellWidth, row * OutlineCellHeight,
-                  OutlineCellWidth, OutlineCellHeight);
-  }
 };
 
 }  // namespace Impacto

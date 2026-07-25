@@ -41,8 +41,8 @@ void VoidNametagDisplay::Render(const NameInfo& nameInfo,
                                 const glm::vec4 tint) {
   if (Hidden || !nameInfo.RenderWindow || nameInfo.Name.empty()) return;
 
-  Renderer->DrawProcessedText(nameInfo.Name, DialogueFont, tint.a,
-                              RendererOutlineMode::Full);
+  DialogueFont->DrawProcessedText(nameInfo.Name, tint.a,
+                                  RendererOutlineMode::Full);
 }
 
 void SpriteNametagDisplay::Render(const NameInfo& nameInfo,
@@ -51,8 +51,8 @@ void SpriteNametagDisplay::Render(const NameInfo& nameInfo,
 
   Renderer->DrawSprite(NametagSprite, NametagPosition, tint);
 
-  Renderer->DrawProcessedText(nameInfo.Name, DialogueFont, tint.a,
-                              RendererOutlineMode::Full);
+  DialogueFont->DrawProcessedText(nameInfo.Name, tint.a,
+                                  RendererOutlineMode::Full);
 }
 
 void ThreePieceNametagDisplay::Render(const NameInfo& nameInfo,
@@ -87,8 +87,8 @@ void ThreePieceNametagDisplay::Render(const NameInfo& nameInfo,
 
   Renderer->DrawSprite(NametagRightSprite, {rightX, NametagPosition.y}, tint);
 
-  Renderer->DrawProcessedText(nameInfo.Name, DialogueFont, tint.a,
-                              RendererOutlineMode::Full);
+  DialogueFont->DrawProcessedText(nameInfo.Name, tint.a,
+                                  RendererOutlineMode::Full);
 }
 
 }  // namespace Impacto

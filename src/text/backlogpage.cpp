@@ -30,7 +30,7 @@ void BacklogPage::Move(const glm::vec2 relativePos) {
 void BacklogPage::Render(const float alpha,
                          const RendererOutlineMode outlineMode) {
   TextPage::Render(alpha, outlineMode);
-  Renderer->DrawProcessedText(Name, DialogueFont, alpha, outlineMode);
+  DialogueFont->DrawProcessedText(Name, alpha, outlineMode);
 }
 
 RectF BacklogPage::SetBounds() {

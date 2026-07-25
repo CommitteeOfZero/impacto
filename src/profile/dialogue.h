@@ -4,6 +4,7 @@
 
 #include "../util.h"
 #include "../spritesheet.h"
+#include "../font.h"
 #include "../hud/waiticondisplay.h"
 #include "../hud/autoicondisplay.h"
 #include "../hud/skipicondisplay.h"

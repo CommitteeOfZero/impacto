@@ -1,15 +1,13 @@
 root.Fonts = {
     ["Default"] = {
-        Type = FontType.LB,
+        Type = FontType.LanguageBarrier,
         ForegroundSheet = "FontLBForeground",
         OutlineSheet = "FontLBOutline",
-        Columns = 64,
-        Rows = 39,
+        ForegroundGridSize = { X = 64, Y = 39 },
         AdvanceWidths = "games/chlcc/font-lb/widths.bin",
         AdvanceWidthsEmWidth = 60,
         ForegroundOffset = { X = -7, Y = 0 },
         OutlineOffset = { X = -6, Y = 1 },
-        LineSpacing = 0,
     }
 };
 

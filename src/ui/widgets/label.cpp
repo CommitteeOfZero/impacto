@@ -73,11 +73,11 @@ void Label::Update(float dt) { Widget::Update(dt); }
 void Label::Render() {
   if (IsText) {
     if (OutlineAlphaEnabled) {
-      Renderer->DrawProcessedText(Text, Profile::Dialogue::DialogueFont, Tint.a,
-                                  OutlineAlpha, OutlineMode, true);
+      Profile::Dialogue::DialogueFont->DrawProcessedText(
+          Text, Tint.a, OutlineAlpha, OutlineMode, true);
     } else {
-      Renderer->DrawProcessedText(Text, Profile::Dialogue::DialogueFont, Tint.a,
-                                  OutlineMode, true);
+      Profile::Dialogue::DialogueFont->DrawProcessedText(Text, Tint.a,
+                                                         OutlineMode, true);
     }
   } else {
     Renderer->DrawSprite(LabelSprite, Bounds, Tint);

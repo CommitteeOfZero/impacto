@@ -52,12 +52,11 @@ void BacklogEntry::Render() {
     AfterNametagLabel.Render();
   }
 
-  Renderer->DrawProcessedText(Page.Glyphs, Profile::Dialogue::DialogueFont,
-                              Tint.a, Profile::Dialogue::REVOutlineMode, true);
+  Profile::Dialogue::DialogueFont->DrawProcessedText(
+      Page.Glyphs, Tint.a, Profile::Dialogue::REVOutlineMode, true);
   for (RubyChunk& chunk : Page.RubyChunks) {
-    Renderer->DrawProcessedText(chunk.Text, Profile::Dialogue::DialogueFont,
-                                Tint.a, Profile::Dialogue::REVOutlineMode,
-                                true);
+    Profile::Dialogue::DialogueFont->DrawProcessedText(
+        chunk.Text, Tint.a, Profile::Dialogue::REVOutlineMode, true);
   }
 }
 

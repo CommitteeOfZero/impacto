@@ -276,9 +276,8 @@ void TipsMenu::Render() {
     TipViewItems.Tint.a = fade.a;
     TipViewItems.Render();
 
-    Renderer->DrawProcessedText(
-        TextPage.Glyphs, Profile::Dialogue::DialogueFont,
-        FadeAnimation.Progress, FadeAnimation.Progress,
+    Profile::Dialogue::DialogueFont->DrawProcessedText(
+        TextPage.Glyphs, FadeAnimation.Progress, FadeAnimation.Progress,
         RendererOutlineMode::None, true, &TipsMaskSheet);
 
     TipsScrollbar->Render();

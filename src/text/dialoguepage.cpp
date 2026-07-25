@@ -210,15 +210,15 @@ void DialoguePage::Render(const float alpha,
 
   if ((winType & 1 << 5) == 0) {
     if (RenderName) {
-      Renderer->DrawProcessedText(Name, DialogueFont, opacityTint.a,
-                                  opacityTint.a, outlineMode, pos);
+      DialogueFont->DrawProcessedText(Name, opacityTint.a, opacityTint.a,
+                                      outlineMode, pos);
     }
 
-    Renderer->DrawProcessedText(Glyphs, DialogueFont, opacityTint.a,
-                                opacityTint.a, outlineMode, pos);
+    DialogueFont->DrawProcessedText(Glyphs, opacityTint.a, opacityTint.a,
+                                    outlineMode, pos);
     for (const RubyChunk& chunk : RubyChunks) {
-      Renderer->DrawProcessedText(chunk.Text, DialogueFont, opacityTint.a,
-                                  opacityTint.a, outlineMode, pos);
+      DialogueFont->DrawProcessedText(chunk.Text, opacityTint.a, opacityTint.a,
+                                      outlineMode, pos);
     }
   }
 

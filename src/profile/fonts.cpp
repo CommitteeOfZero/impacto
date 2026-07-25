@@ -11,98 +11,84 @@ void LoadFonts() {
 
   PushInitialIndex();
   while (PushNextTableElement() != 0) {
-    std::string name(EnsureGetKey<std::string>());
+    const std::string name(EnsureGetKey<std::string>());
 
-    FontType type = EnsureGetMember<FontType>("Type");
+    const FontType fontType = EnsureGetMember<FontType>("Type");
 
-    Font* baseFont = nullptr;
+    const std::optional<float> bitmapEmWidth =
+        TryGetMember<float>("BitmapEmWidth");
+    const std::optional<float> bitmapEmHeight =
+        TryGetMember<float>("BitmapEmHeight");
 
-    switch (type) {
-      case FontType::Basic: {
-        BasicFont* font = new BasicFont();
-        Fonts[name] = font;
-        baseFont = font;
+    switch (fontType) {
+      using enum FontType;
+      case SingleSheet: {
+        const SpriteSheet sheet = EnsureGetMember<SpriteSheet>("Sheet");
+        const glm::ivec2 gridSize = EnsureGetMember<glm::ivec2>("GridSize");
 
-        font->Sheet = EnsureGetMember<SpriteSheet>("Sheet");
+        Fonts[name] =
+            new SingleSheetFont(bitmapEmWidth, bitmapEmHeight, sheet, gridSize);
+      } break;
 
-        break;
-      }
-      case FontType::LB: {
-        LBFont* font = new LBFont();
-        Fonts[name] = font;
-        baseFont = font;
+      case LanguageBarrier: {
+        const SpriteSheet foregroundSheet =
+            EnsureGetMember<SpriteSheet>("ForegroundSheet");
+        const SpriteSheet outlineSheet =
+            EnsureGetMember<SpriteSheet>("OutlineSheet");
 
-        font->ForegroundSheet = EnsureGetMember<SpriteSheet>("ForegroundSheet");
-        font->OutlineSheet = EnsureGetMember<SpriteSheet>("OutlineSheet");
+        const glm::ivec2 foregroundGridSize =
+            EnsureGetMember<glm::ivec2>("ForegroundGridSize");
+        const glm::ivec2 outlineGridSize =
+            TryGetMember<glm::ivec2>("OutlineGridSize")
+                .value_or(foregroundGridSize);
 
-        if (!TryGetMember<glm::vec2>("ForegroundOffset",
-                                     font->ForegroundOffset)) {
-          font->ForegroundOffset = glm::vec2(0.0f);
-        }
-        font->OutlineOffset = EnsureGetMember<glm::vec2>("OutlineOffset");
+        const glm::vec2 foregroundOffset =
+            TryGetMember<glm::vec2>("ForegroundOffset")
+                .value_or(glm::vec2(0.0f));
+        const glm::vec2 outlineOffset =
+            EnsureGetMember<glm::vec2>("OutlineOffset");
 
-        break;
-      }
+        Fonts[name] = new LanguageBarrierFont(
+            bitmapEmWidth, bitmapEmHeight, foregroundSheet, foregroundGridSize,
+            outlineSheet, outlineGridSize, foregroundOffset, outlineOffset);
+      } break;
     }
 
-    baseFont->Rows = EnsureGetMember<uint8_t>("Rows");
-    baseFont->Columns = EnsureGetMember<uint8_t>("Columns");
-
-    baseFont->CalculateDefaultSizes();
-
-    if (!TryGetMember<float>("BitmapEmWidth", baseFont->BitmapEmWidth)) {
-      baseFont->BitmapEmWidth = baseFont->CellWidth;
-    }
-
-    if (!TryGetMember<float>("BitmapEmHeight", baseFont->BitmapEmHeight)) {
-      baseFont->BitmapEmHeight = baseFont->CellHeight;
-    }
-
-    baseFont->LineSpacing = EnsureGetMember<float>("LineSpacing");
-
-    float advanceWidthsEmWidth = EnsureGetMember<float>("AdvanceWidthsEmWidth");
-    float bitmapEmWidth = baseFont->BitmapEmWidth;
-
-    baseFont->AdvanceWidths.resize(baseFont->Columns * baseFont->Rows *
-                                   sizeof(float));
-
-    float extraLetterSpacing;
-    if (!TryGetMember<float>("ExtraLetterSpacing", extraLetterSpacing)) {
-      extraLetterSpacing = 0;
-    }
-
+    Font* const baseFont = Fonts[name];
     {
       EnsurePushMember("AdvanceWidths");
 
-      auto widthTablePath = TryGet<Io::AssetPath>();
-      if (widthTablePath) {
+      const bool gotLuaArray =
+          TryGet<std::vector<float>>(baseFont->AdvanceWidths);
+
+      if (gotLuaArray) {
+        Pop();
+      } else {
+        auto widthTablePath = EnsureGet<Io::AssetPath>();
+        Pop();
+
+        const float advanceWidthsEmWidth =
+            EnsureGetMember<float>("AdvanceWidthsEmWidth");
+        const float extraLetterSpacing =
+            TryGetMember<float>("ExtraLetterSpacing").value_or(0.0f);
+
         uint8_t* widthBin;
         int64_t widthSz;
-        if (widthTablePath->Slurp((void*&)widthBin, widthSz) != IoError_OK) {
+        if (widthTablePath.Slurp((void*&)widthBin, widthSz) != IoError_OK) {
           ImpLog(LogLevel::Fatal, LogChannel::Profile,
                  "Failed to load width table file for font {:s}\n", name);
           Window->Shutdown();
         }
-        assert(widthSz == baseFont->Columns * baseFont->Rows);
-        for (uint16_t i = 0; i < widthSz; i++) {
-          baseFont->AdvanceWidths[i] =
-              ((float)widthBin[i] + extraLetterSpacing) * bitmapEmWidth /
-              advanceWidthsEmWidth;
-        }
-      } else {
-        AssertIs(LUA_TTABLE);
 
-        PushInitialIndex();
-        while (PushNextTableElement() != 0) {
-          int i = EnsureGetKey<int32_t>();
-          baseFont->AdvanceWidths[i] =
-              (EnsureGetArrayElement<float>() + extraLetterSpacing) *
-              bitmapEmWidth / advanceWidthsEmWidth;
-          Pop();
+        assert(static_cast<size_t>(widthSz) == baseFont->GetGlyphCount());
+        baseFont->AdvanceWidths.reserve(widthSz);
+
+        for (uint16_t i = 0; i < widthSz; i++) {
+          baseFont->AdvanceWidths.emplace_back(
+              static_cast<float>(widthBin[i] + extraLetterSpacing) *
+              baseFont->BitmapEmWidth / advanceWidthsEmWidth);
         }
       }
-
-      Pop();
     }
 
     Pop();
