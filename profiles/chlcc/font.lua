@@ -1,8 +1,9 @@
 root.Fonts = {
     ["Default"] = {
-        Type = FontType.SingleSheet,
-        Sheet = "Font",
-        GridSize = { X = 64, Y = 37 },
+        Type = FontType.SeparateOutlineSheet,
+        ForegroundSheet = "Font",
+        OutlineSheet = "FontOutline",
+        ForegroundGridSize = { X = 64, Y = 37 },
         AdvanceWidths = {},
         AdvanceWidthsEmWidth = 32,
     }

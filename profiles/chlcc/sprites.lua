@@ -59,6 +59,11 @@ root.SpriteSheets = {
         DesignWidth = 2048,
         DesignHeight = 1184
     },
+    ["FontOutline"] = {
+        Path = { Mount = "system", Id = 25 },
+        DesignWidth = 2048,
+        DesignHeight = 1184
+    },
     ["Main"] = {
         Path = { Mount = "system", Id = 13 },
         DesignWidth = 2048,

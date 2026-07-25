@@ -150,6 +150,132 @@ void SingleSheetFont::DrawProcessedText(
                            transformation);
 }
 
+void SeparateOutlineSheetFont::DrawProcessedText(
+    const std::span<const ProcessedTextGlyph> text, const float opacity,
+    float outlineOpacity, const RendererOutlineMode outlineMode,
+    const bool smoothstepGlyphOpacity, const SpriteSheet* const maskedSheet,
+    const glm::mat4 transformation) {
+  const std::vector<size_t> visibleGlyphIds = GetVisibleGlyphIds(text);
+  const uint16_t glyphCount = static_cast<uint16_t>(visibleGlyphIds.size());
+  if (glyphCount == 0) return;
+
+  const ShaderProgramType shader = maskedSheet == nullptr
+                                       ? ShaderProgramType::Sprite
+                                       : ShaderProgramType::MaskedSpriteNoAlpha;
+
+  const size_t vertexCount = glyphCount * 4;
+  const size_t indexCount = glyphCount * 6;
+  std::vector<VertexBufferSprites> vertices;
+  std::vector<uint16_t> indices;
+
+  const auto fillVertices = [&]<auto SeparateOutlineSheetFont::* getGlyphMethod,
+                                uint32_t DialogueColorPair::* colorMember>(
+                                glm::vec2 offset) {
+    vertices.resize(vertexCount);
+    for (size_t i = 0; i < glyphCount; i++) {
+      const ProcessedTextGlyph glyph = text[visibleGlyphIds[i]];
+
+      const CornersQuad dest = glyph.DestRect + offset;
+      const CornersQuad destUV =
+          (this->*getGlyphMethod)(glyph.CharId).NormalizedBounds();
+      const CornersQuad maskUV = CornersQuad(dest).Scale(
+          {1.0f / Window->WindowWidth, 1.0f / Window->WindowHeight},
+          {0.0f, 0.0f});
+      glm::vec4 color = RgbIntToFloat(glyph.Colors.*colorMember);
+      color.a =
+          (colorMember == &DialogueColorPair::OutlineColor ? outlineOpacity
+                                                           : opacity) *
+          (smoothstepGlyphOpacity ? glm::smoothstep(0.0f, 1.0f, glyph.Opacity)
+                                  : glyph.Opacity);
+
+      InsertQuad(std::span<VertexBufferSprites, 4>(vertices.begin() + i * 4, 4),
+                 dest, destUV, color, maskUV);
+    }
+  };
+
+  const auto fillIndices = [&indices](uint16_t glyphCount) {
+    indices.resize(glyphCount * 6);
+    for (uint16_t i = 0; i < glyphCount; i++) {
+      const uint16_t bl = i * 4;
+      const uint16_t tl = bl + 1;
+      const uint16_t tr = bl + 2;
+      const uint16_t br = bl + 3;
+
+      indices[i * 6 + 0] = bl;
+      indices[i * 6 + 1] = tl;
+      indices[i * 6 + 2] = tr;
+      indices[i * 6 + 3] = bl;
+      indices[i * 6 + 4] = tr;
+      indices[i * 6 + 5] = br;
+    }
+  };
+
+  if (outlineMode != RendererOutlineMode::None) {
+    switch (outlineMode) {
+      using enum RendererOutlineMode;
+      case Full: {
+        vertices.reserve(vertexCount * 2);
+        fillIndices(glyphCount * 2);
+
+        fillVertices.template
+        operator()<&SeparateOutlineSheetFont::GetOutlineGlyph,
+                   &DialogueColorPair::OutlineColor>({0.0f, 0.0f});
+
+        Renderer->DrawPrimitives(
+            OutlineSheet, maskedSheet, shader, vertices,
+            std::span(indices.begin(), indices.begin() + indexCount),
+            transformation);
+
+        fillVertices.template operator()<&SeparateOutlineSheetFont::GetGlyph,
+                                         &DialogueColorPair::OutlineColor>(
+            {-1.0f, -1.0f});
+
+        const auto translateVertex = [](VertexBufferSprites vertex,
+                                        const glm::vec2 offset) {
+          vertex.Position += offset;
+          return vertex;
+        };
+
+        std::transform(vertices.begin(), vertices.end(),
+                       std::back_inserter(vertices),
+                       [translateVertex](auto vertex) {
+                         return translateVertex(vertex, {2.0f, 2.0f});
+                       });
+
+        Renderer->DrawPrimitives(ForegroundSheet, maskedSheet, shader, vertices,
+                                 indices, transformation);
+
+        indices.resize(indexCount);
+      } break;
+
+      case BottomRight: {
+        fillVertices.template
+        operator()<&SeparateOutlineSheetFont::GetOutlineGlyph,
+                   &DialogueColorPair::OutlineColor>({1.0f, 1.0f});
+
+        fillIndices(glyphCount);
+
+        Renderer->DrawPrimitives(OutlineSheet, maskedSheet, shader, vertices,
+                                 indices, transformation);
+      } break;
+
+      case None: {
+        assert(false);
+      } break;
+    }
+
+  } else {
+    fillIndices(glyphCount);
+  }
+
+  fillVertices.template operator()<&SeparateOutlineSheetFont::GetGlyph,
+                                   &DialogueColorPair::TextColor>(
+      glm::vec2(0.0f));
+
+  Renderer->DrawPrimitives(ForegroundSheet, maskedSheet, shader, vertices,
+                           indices, transformation);
+}
+
 void LanguageBarrierFont::DrawProcessedText(
     const std::span<const ProcessedTextGlyph> text, const float opacity,
     const float outlineOpacity, const RendererOutlineMode outlineMode,

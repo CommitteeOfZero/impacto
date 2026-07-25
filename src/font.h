@@ -11,6 +11,7 @@ enum class RendererOutlineMode : uint8_t { None, BottomRight, Full };
 
 enum class FontType : uint8_t {
   SingleSheet,
+  SeparateOutlineSheet,
   LanguageBarrier,
 };
 
@@ -98,15 +99,36 @@ class SingleSheetFont : public Font {
   glm::vec2 CellSize;
 };
 
-class LanguageBarrierFont : public Font {
+class SeparateOutlineSheetFont : public Font {
  public:
-  LanguageBarrierFont(std::optional<float> bitmapEmWidth,
-                      std::optional<float> bitmapEmHeight,
-                      SpriteSheet foregroundSheet,
-                      glm::ivec2 foregroundGridSize, SpriteSheet outlineSheet,
-                      glm::ivec2 outlineGridSize, glm::vec2 foregroundOffset,
-                      glm::vec2 outlineOffset)
-      : Font(FontType::LanguageBarrier,
+  SeparateOutlineSheetFont(std::optional<float> bitmapEmWidth,
+                           std::optional<float> bitmapEmHeight,
+                           SpriteSheet foregroundSheet,
+                           glm::ivec2 foregroundGridSize,
+                           SpriteSheet outlineSheet, glm::ivec2 outlineGridSize)
+      : SeparateOutlineSheetFont(FontType::SeparateOutlineSheet, bitmapEmWidth,
+                                 bitmapEmHeight, foregroundSheet,
+                                 foregroundGridSize, outlineSheet,
+                                 outlineGridSize) {}
+
+  size_t GetGlyphCount() const override {
+    return static_cast<size_t>(ForegroundGridSize.x * ForegroundGridSize.y);
+  }
+
+  virtual void DrawProcessedText(std::span<const ProcessedTextGlyph> text,
+                                 float opacity, float outlineOpacity,
+                                 RendererOutlineMode outlineMode,
+                                 bool smoothstepGlyphOutline,
+                                 const SpriteSheet* maskedSheet,
+                                 glm::mat4 transformation) override;
+
+ protected:
+  SeparateOutlineSheetFont(FontType type, std::optional<float> bitmapEmWidth,
+                           std::optional<float> bitmapEmHeight,
+                           SpriteSheet foregroundSheet,
+                           glm::ivec2 foregroundGridSize,
+                           SpriteSheet outlineSheet, glm::ivec2 outlineGridSize)
+      : Font(type,
              bitmapEmWidth.value_or(foregroundSheet.DesignWidth /
                                     foregroundGridSize.x),
              bitmapEmHeight.value_or(foregroundSheet.DesignHeight /
@@ -118,7 +140,50 @@ class LanguageBarrierFont : public Font {
         ForegroundCellSize(foregroundSheet.GetDimensions() /
                            static_cast<glm::vec2>(foregroundGridSize)),
         OutlineCellSize(outlineSheet.GetDimensions() /
-                        static_cast<glm::vec2>(outlineGridSize)),
+                        static_cast<glm::vec2>(outlineGridSize)) {}
+
+  SpriteSheet ForegroundSheet;
+  SpriteSheet OutlineSheet;
+
+  glm::ivec2 ForegroundGridSize;
+  glm::ivec2 OutlineGridSize;
+
+  glm::vec2 ForegroundCellSize;
+  glm::vec2 OutlineCellSize;
+
+ private:
+  Sprite GetGlyph(uint16_t id) const {
+    const uint8_t row = static_cast<uint8_t>(id / ForegroundGridSize.x);
+    const uint8_t col = static_cast<uint8_t>(id % ForegroundGridSize.x);
+    const float width = AdvanceWidths[id];
+
+    return Sprite(ForegroundSheet, col * ForegroundCellSize.x + 1.0f,
+                  row * ForegroundCellSize.y + 1.0f, width - 2.0f,
+                  BitmapEmHeight - 2.0f);
+  }
+
+  Sprite GetOutlineGlyph(uint16_t id) const {
+    const uint8_t row = static_cast<uint8_t>(id / OutlineGridSize.x);
+    const uint8_t col = static_cast<uint8_t>(id % OutlineGridSize.x);
+    const float width = AdvanceWidths[id];
+
+    return Sprite(OutlineSheet, col * OutlineCellSize.x + 1.0f,
+                  row * OutlineCellSize.y + 1.0f, width - 2.0f,
+                  BitmapEmHeight - 2.0f);
+  }
+};
+
+class LanguageBarrierFont : public SeparateOutlineSheetFont {
+ public:
+  LanguageBarrierFont(std::optional<float> bitmapEmWidth,
+                      std::optional<float> bitmapEmHeight,
+                      SpriteSheet foregroundSheet,
+                      glm::ivec2 foregroundGridSize, SpriteSheet outlineSheet,
+                      glm::ivec2 outlineGridSize, glm::vec2 foregroundOffset,
+                      glm::vec2 outlineOffset)
+      : SeparateOutlineSheetFont(
+            FontType::LanguageBarrier, bitmapEmWidth, bitmapEmHeight,
+            foregroundSheet, foregroundGridSize, outlineSheet, outlineGridSize),
         ForegroundOffset(foregroundOffset),
         OutlineOffset(outlineOffset) {}
 
@@ -151,15 +216,6 @@ class LanguageBarrierFont : public Font {
                   row * OutlineCellSize.y, OutlineCellSize.x,
                   OutlineCellSize.y);
   }
-
-  SpriteSheet ForegroundSheet;
-  SpriteSheet OutlineSheet;
-
-  glm::ivec2 ForegroundGridSize;
-  glm::ivec2 OutlineGridSize;
-
-  glm::vec2 ForegroundCellSize;
-  glm::vec2 OutlineCellSize;
 
   glm::vec2 ForegroundOffset;
   glm::vec2 OutlineOffset;

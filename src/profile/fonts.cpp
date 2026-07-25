@@ -30,6 +30,7 @@ void LoadFonts() {
             new SingleSheetFont(bitmapEmWidth, bitmapEmHeight, sheet, gridSize);
       } break;
 
+      case SeparateOutlineSheet:
       case LanguageBarrier: {
         const SpriteSheet foregroundSheet =
             EnsureGetMember<SpriteSheet>("ForegroundSheet");
@@ -42,15 +43,24 @@ void LoadFonts() {
             TryGetMember<glm::ivec2>("OutlineGridSize")
                 .value_or(foregroundGridSize);
 
-        const glm::vec2 foregroundOffset =
-            TryGetMember<glm::vec2>("ForegroundOffset")
-                .value_or(glm::vec2(0.0f));
-        const glm::vec2 outlineOffset =
-            EnsureGetMember<glm::vec2>("OutlineOffset");
+        if (fontType == SeparateOutlineSheet) {
+          Fonts[name] = new SeparateOutlineSheetFont(
+              bitmapEmWidth, bitmapEmHeight, foregroundSheet,
+              foregroundGridSize, outlineSheet, outlineGridSize);
+        } else {
+          assert(fontType == LanguageBarrier);
 
-        Fonts[name] = new LanguageBarrierFont(
-            bitmapEmWidth, bitmapEmHeight, foregroundSheet, foregroundGridSize,
-            outlineSheet, outlineGridSize, foregroundOffset, outlineOffset);
+          const glm::vec2 foregroundOffset =
+              TryGetMember<glm::vec2>("ForegroundOffset")
+                  .value_or(glm::vec2(0.0f));
+          const glm::vec2 outlineOffset =
+              EnsureGetMember<glm::vec2>("OutlineOffset");
+
+          Fonts[name] = new LanguageBarrierFont(
+              bitmapEmWidth, bitmapEmHeight, foregroundSheet,
+              foregroundGridSize, outlineSheet, outlineGridSize,
+              foregroundOffset, outlineOffset);
+        }
       } break;
     }
 
