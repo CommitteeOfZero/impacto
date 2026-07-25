@@ -141,6 +141,7 @@ class SaveSystemBase {
   virtual void SetCheckpointId(int id) = 0;
   virtual Sprite& GetSaveThumbnail(SaveType type, int id) = 0;
   std::optional<uint8_t> GetQuickSaveOpenSlot() const;
+  int GetNewestSaveId(SaveType type) const;
   void UpdateQuickSaveRecentSortedId(int replacedSlot);
   Sprite& GetWorkingSaveThumbnail() { return WorkingSaveThumbnail; }
   int GetLockedQuickSaveCount() const;
@@ -211,6 +212,7 @@ bool GetBgmFlag(int id);
 void SetBgmFlag(int id, bool setFlag);
 void SetCheckpointId(int id);
 std::optional<uint8_t> GetQuickSaveOpenSlot();
+int GetNewestSaveId(SaveType type);
 void UpdateQuickSaveRecentSortedId(int replacedSlot);
 Sprite& GetSaveThumbnail(SaveType type, int id);
 Sprite& GetWorkingSaveThumbnail();
