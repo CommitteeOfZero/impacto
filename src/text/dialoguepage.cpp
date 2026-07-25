@@ -202,8 +202,10 @@ void DialoguePage::Render(const float alpha,
     pos += DialogueBoxInst.get()->GetScrWorkPos() - GetTextModeInfo().WindowPos;
   }
 
-  Renderer->DrawProcessedText(Name, DialogueFont, opacityTint.a, opacityTint.a,
-                              outlineMode, pos);
+  if (RenderName) {
+    Renderer->DrawProcessedText(Name, DialogueFont, opacityTint.a,
+                                opacityTint.a, outlineMode, pos);
+  }
 
   Renderer->DrawProcessedText(Glyphs, DialogueFont, opacityTint.a,
                               opacityTint.a, outlineMode, pos);
