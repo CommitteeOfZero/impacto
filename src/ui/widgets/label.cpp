@@ -74,10 +74,10 @@ void Label::Render() {
   if (IsText) {
     if (OutlineAlphaEnabled) {
       Profile::Dialogue::DialogueFont->DrawProcessedText(
-          Text, Tint.a, OutlineAlpha, OutlineMode, true);
+          Text, Tint.a, OutlineAlpha, OutlineMode);
     } else {
       Profile::Dialogue::DialogueFont->DrawProcessedText(Text, Tint.a,
-                                                         OutlineMode, true);
+                                                         OutlineMode);
     }
   } else {
     Renderer->DrawSprite(LabelSprite, Bounds, Tint);

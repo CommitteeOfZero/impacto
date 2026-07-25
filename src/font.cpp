@@ -6,6 +6,20 @@
 
 namespace Impacto {
 
+static float ApplyOpacityCurve(float opacity, OpacityCurve curve) {
+  switch (curve) {
+    using enum OpacityCurve;
+    case Linear:
+      return opacity;
+    case Smoothstep:
+      return glm::smoothstep(0.0f, 1.0f, opacity);
+    case CubedTransparency:
+      return 1.0f - std::pow(1.0f - opacity, 3.0f);
+  }
+  assert(false);
+  return opacity;
+}
+
 static std::vector<size_t> GetVisibleGlyphIds(
     std::span<const ProcessedTextGlyph> text) {
   const static RectF viewport{0.0f, 0.0f, Profile::Game::DesignWidth,
@@ -21,8 +35,7 @@ static std::vector<size_t> GetVisibleGlyphIds(
 void SingleSheetFont::DrawProcessedText(
     const std::span<const ProcessedTextGlyph> text, const float opacity,
     const float outlineOpacity, const RendererOutlineMode outlineMode,
-    const bool smoothstepGlyphOpacity, const SpriteSheet* const maskedSheet,
-    const glm::mat4 transformation) {
+    const SpriteSheet* const maskedSheet, const glm::mat4 transformation) {
   const std::vector<size_t> visibleGlyphIds = GetVisibleGlyphIds(text);
   const size_t glyphCount = visibleGlyphIds.size();
   if (glyphCount == 0) return;
@@ -57,9 +70,8 @@ void SingleSheetFont::DrawProcessedText(
         {1.0f / Window->WindowWidth, 1.0f / Window->WindowHeight},
         {0.0f, 0.0f});
     glm::vec4 color = RgbIntToFloat(glyph.Colors.TextColor);
-    color.a = opacity * (smoothstepGlyphOpacity
-                             ? glm::smoothstep(0.0f, 1.0f, glyph.Opacity)
-                             : glyph.Opacity);
+    color.a =
+        ApplyOpacityCurve(glyph.Opacity * opacity, ForegroundOpacityCurve);
 
     InsertQuad(std::span<VertexBufferSprites, 4>(vertices.begin() + i * 4, 4),
                dest, destUV, color, maskUV);
@@ -79,10 +91,8 @@ void SingleSheetFont::DrawProcessedText(
     for (size_t i = 0; i < glyphCount; i++) {
       const ProcessedTextGlyph glyph = text[visibleGlyphIds[i]];
       glm::vec4 color = RgbIntToFloat(glyph.Colors.OutlineColor);
-      color.a =
-          outlineOpacity * (smoothstepGlyphOpacity
-                                ? glm::smoothstep(0.0f, 1.0f, glyph.Opacity)
-                                : glyph.Opacity);
+      color.a = ApplyOpacityCurve(glyph.Opacity * outlineOpacity,
+                                  OutlineOpacityCurve);
       const auto glyphStart = vertices.begin() + i * 4;
       const auto glyphEnd = glyphStart + 4;
       std::transform(glyphStart, glyphEnd, glyphStart, [color](auto vertex) {
@@ -152,9 +162,8 @@ void SingleSheetFont::DrawProcessedText(
 
 void SeparateOutlineSheetFont::DrawProcessedText(
     const std::span<const ProcessedTextGlyph> text, const float opacity,
-    float outlineOpacity, const RendererOutlineMode outlineMode,
-    const bool smoothstepGlyphOpacity, const SpriteSheet* const maskedSheet,
-    const glm::mat4 transformation) {
+    const float outlineOpacity, const RendererOutlineMode outlineMode,
+    const SpriteSheet* const maskedSheet, const glm::mat4 transformation) {
   const std::vector<size_t> visibleGlyphIds = GetVisibleGlyphIds(text);
   const uint16_t glyphCount = static_cast<uint16_t>(visibleGlyphIds.size());
   if (glyphCount == 0) return;
@@ -171,6 +180,11 @@ void SeparateOutlineSheetFont::DrawProcessedText(
   const auto fillVertices = [&]<auto SeparateOutlineSheetFont::* getGlyphMethod,
                                 uint32_t DialogueColorPair::* colorMember>(
                                 glm::vec2 offset) {
+    const auto [textOpacity, opacityCurve] =
+        colorMember == &DialogueColorPair::OutlineColor
+            ? std::pair{outlineOpacity, OutlineOpacityCurve}
+            : std::pair{opacity, ForegroundOpacityCurve};
+
     vertices.resize(vertexCount);
     for (size_t i = 0; i < glyphCount; i++) {
       const ProcessedTextGlyph glyph = text[visibleGlyphIds[i]];
@@ -182,11 +196,7 @@ void SeparateOutlineSheetFont::DrawProcessedText(
           {1.0f / Window->WindowWidth, 1.0f / Window->WindowHeight},
           {0.0f, 0.0f});
       glm::vec4 color = RgbIntToFloat(glyph.Colors.*colorMember);
-      color.a =
-          (colorMember == &DialogueColorPair::OutlineColor ? outlineOpacity
-                                                           : opacity) *
-          (smoothstepGlyphOpacity ? glm::smoothstep(0.0f, 1.0f, glyph.Opacity)
-                                  : glyph.Opacity);
+      color.a = ApplyOpacityCurve(glyph.Opacity * textOpacity, opacityCurve);
 
       InsertQuad(std::span<VertexBufferSprites, 4>(vertices.begin() + i * 4, 4),
                  dest, destUV, color, maskUV);
@@ -279,8 +289,7 @@ void SeparateOutlineSheetFont::DrawProcessedText(
 void LanguageBarrierFont::DrawProcessedText(
     const std::span<const ProcessedTextGlyph> text, const float opacity,
     const float outlineOpacity, const RendererOutlineMode outlineMode,
-    const bool smoothstepGlyphOpacity, const SpriteSheet* const maskedSheet,
-    const glm::mat4 transformation) {
+    const SpriteSheet* const maskedSheet, const glm::mat4 transformation) {
   const std::vector<size_t> visibleGlyphIds = GetVisibleGlyphIds(text);
   const size_t glyphCount = visibleGlyphIds.size();
   if (glyphCount == 0) return;
@@ -313,10 +322,8 @@ void LanguageBarrierFont::DrawProcessedText(
       const ProcessedTextGlyph glyph = text[visibleGlyphIds[i]];
 
       glm::vec4 color = RgbIntToFloat(glyph.Colors.OutlineColor);
-      color.a =
-          outlineOpacity * (smoothstepGlyphOpacity
-                                ? glm::smoothstep(0.0f, 1.0f, glyph.Opacity)
-                                : glyph.Opacity);
+      color.a = ApplyOpacityCurve(glyph.Opacity * outlineOpacity,
+                                  OutlineOpacityCurve);
       const CornersQuad destUV =
           GetOutlineGlyph(glyph.CharId).NormalizedBounds();
 
@@ -372,9 +379,8 @@ void LanguageBarrierFont::DrawProcessedText(
     const CornersQuad destUV = GetGlyph(glyph.CharId).NormalizedBounds();
 
     glm::vec4 color = RgbIntToFloat(glyph.Colors.TextColor);
-    color.a = opacity * (smoothstepGlyphOpacity
-                             ? glm::smoothstep(0.0f, 1.0f, glyph.Opacity)
-                             : glyph.Opacity);
+    color.a =
+        ApplyOpacityCurve(glyph.Opacity * opacity, ForegroundOpacityCurve);
 
     const CornersQuad maskUV = CornersQuad(dest).Scale(
         {1.0f / Profile::Game::DesignWidth, 1.0f / Profile::Game::DesignHeight},

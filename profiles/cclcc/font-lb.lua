@@ -7,6 +7,8 @@ root.Fonts = {
         AdvanceWidths = "games/cc/font-lb/widths.bin",
         AdvanceWidthsEmWidth = 48,
         OutlineOffset = { X = -4, Y = -4 },
+        ForegroundOpacityCurve = OpacityCurve.Smoothstep,
+        OutlineOpacityCurve = OpacityCurve.Smoothstep,
     }
 };
 

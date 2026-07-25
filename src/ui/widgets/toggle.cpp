@@ -80,7 +80,7 @@ void Toggle::Render() {
   }
   if (HasTextLabel) {
     Profile::Dialogue::DialogueFont->DrawProcessedText(Label, Tint.a,
-                                                       OutlineMode, true);
+                                                       OutlineMode);
   }
 }
 

@@ -20,14 +20,22 @@ void LoadFonts() {
     const std::optional<float> bitmapEmHeight =
         TryGetMember<float>("BitmapEmHeight");
 
+    const OpacityCurve foregroundOpacityCurve =
+        TryGetMember<OpacityCurve>("ForegroundOpacityCurve")
+            .value_or(OpacityCurve::Linear);
+    const OpacityCurve outlineOpacityCurve =
+        TryGetMember<OpacityCurve>("OutlineOpacityCurve")
+            .value_or(OpacityCurve::Linear);
+
     switch (fontType) {
       using enum FontType;
       case SingleSheet: {
         const SpriteSheet sheet = EnsureGetMember<SpriteSheet>("Sheet");
         const glm::ivec2 gridSize = EnsureGetMember<glm::ivec2>("GridSize");
 
-        Fonts[name] =
-            new SingleSheetFont(bitmapEmWidth, bitmapEmHeight, sheet, gridSize);
+        Fonts[name] = new SingleSheetFont(bitmapEmWidth, bitmapEmHeight,
+                                          foregroundOpacityCurve,
+                                          outlineOpacityCurve, sheet, gridSize);
       } break;
 
       case SeparateOutlineSheet:
@@ -45,8 +53,9 @@ void LoadFonts() {
 
         if (fontType == SeparateOutlineSheet) {
           Fonts[name] = new SeparateOutlineSheetFont(
-              bitmapEmWidth, bitmapEmHeight, foregroundSheet,
-              foregroundGridSize, outlineSheet, outlineGridSize);
+              bitmapEmWidth, bitmapEmHeight, foregroundOpacityCurve,
+              outlineOpacityCurve, foregroundSheet, foregroundGridSize,
+              outlineSheet, outlineGridSize);
         } else {
           assert(fontType == LanguageBarrier);
 
@@ -57,9 +66,9 @@ void LoadFonts() {
               EnsureGetMember<glm::vec2>("OutlineOffset");
 
           Fonts[name] = new LanguageBarrierFont(
-              bitmapEmWidth, bitmapEmHeight, foregroundSheet,
-              foregroundGridSize, outlineSheet, outlineGridSize,
-              foregroundOffset, outlineOffset);
+              bitmapEmWidth, bitmapEmHeight, foregroundOpacityCurve,
+              outlineOpacityCurve, foregroundSheet, foregroundGridSize,
+              outlineSheet, outlineGridSize, foregroundOffset, outlineOffset);
         }
       } break;
     }

@@ -15,6 +15,12 @@ enum class FontType : uint8_t {
   LanguageBarrier,
 };
 
+enum class OpacityCurve : uint8_t {
+  Linear,
+  Smoothstep,
+  CubedTransparency,
+};
+
 class Font {
  public:
   FontType Type;
@@ -25,27 +31,23 @@ class Font {
       std::span<const ProcessedTextGlyph> text, float opacity,
       float outlineOpacity,
       RendererOutlineMode outlineMode = RendererOutlineMode::None,
-      bool smoothstepGlyphOutline = true,
       const SpriteSheet* maskedSheet = nullptr,
       glm::mat4 transformation = glm::mat4(1.0f)) = 0;
 
   void DrawProcessedText(
       std::span<const ProcessedTextGlyph> text, float opacity = 1.0f,
       RendererOutlineMode outlineMode = RendererOutlineMode::None,
-      bool smoothstepGlyphOpacity = true,
       const SpriteSheet* maskedSheet = nullptr,
       glm::mat4 transformation = glm::mat4(1.0f)) {
-    DrawProcessedText(text, opacity, opacity, outlineMode,
-                      smoothstepGlyphOpacity, maskedSheet, transformation);
+    DrawProcessedText(text, opacity, opacity, outlineMode, maskedSheet,
+                      transformation);
   }
 
   void DrawProcessedText(std::span<const ProcessedTextGlyph> text,
                          float opacity, float outlineOpacity,
                          RendererOutlineMode outlineMode, glm::vec2 pos,
-                         bool smoothstepGlyphOpacity = true,
                          const SpriteSheet* maskedSheet = nullptr) {
-    DrawProcessedText(text, opacity, outlineOpacity, outlineMode,
-                      smoothstepGlyphOpacity, maskedSheet,
+    DrawProcessedText(text, opacity, outlineOpacity, outlineMode, maskedSheet,
                       glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f)));
   }
 
@@ -54,21 +56,30 @@ class Font {
   float BitmapEmWidth;
   float BitmapEmHeight;
 
+  OpacityCurve ForegroundOpacityCurve;
+  OpacityCurve OutlineOpacityCurve;
+
  protected:
-  Font(FontType type, float bitmapEmWidth, float bitmapEmHeight)
+  Font(FontType type, float bitmapEmWidth, float bitmapEmHeight,
+       OpacityCurve foregroundOpacityCurve, OpacityCurve outlineOpacityCurve)
       : Type(type),
         BitmapEmWidth(bitmapEmWidth),
-        BitmapEmHeight(bitmapEmHeight) {}
+        BitmapEmHeight(bitmapEmHeight),
+        ForegroundOpacityCurve(foregroundOpacityCurve),
+        OutlineOpacityCurve(outlineOpacityCurve) {}
 };
 
 class SingleSheetFont : public Font {
  public:
   SingleSheetFont(std::optional<float> bitmapEmWidth,
-                  std::optional<float> bitmapEmHeight, SpriteSheet sheet,
+                  std::optional<float> bitmapEmHeight,
+                  OpacityCurve foregroundOpacityCurve,
+                  OpacityCurve outlineOpacityCurve, SpriteSheet sheet,
                   glm::ivec2 gridSize)
       : Font(FontType::SingleSheet,
              bitmapEmWidth.value_or(sheet.DesignWidth / gridSize.x),
-             bitmapEmHeight.value_or(sheet.DesignHeight / gridSize.y)),
+             bitmapEmHeight.value_or(sheet.DesignHeight / gridSize.y),
+             foregroundOpacityCurve, outlineOpacityCurve),
         Sheet(sheet),
         GridSize(gridSize),
         CellSize(sheet.GetDimensions() / static_cast<glm::vec2>(gridSize)) {}
@@ -80,7 +91,6 @@ class SingleSheetFont : public Font {
   void DrawProcessedText(std::span<const ProcessedTextGlyph> text,
                          float opacity, float outlineOpacity,
                          RendererOutlineMode outlineMode,
-                         bool smoothstepGlyphOutline,
                          const SpriteSheet* maskedSheet,
                          glm::mat4 transformation) override;
 
@@ -103,13 +113,15 @@ class SeparateOutlineSheetFont : public Font {
  public:
   SeparateOutlineSheetFont(std::optional<float> bitmapEmWidth,
                            std::optional<float> bitmapEmHeight,
+                           OpacityCurve foregroundOpacityCurve,
+                           OpacityCurve outlineOpacityCurve,
                            SpriteSheet foregroundSheet,
                            glm::ivec2 foregroundGridSize,
                            SpriteSheet outlineSheet, glm::ivec2 outlineGridSize)
-      : SeparateOutlineSheetFont(FontType::SeparateOutlineSheet, bitmapEmWidth,
-                                 bitmapEmHeight, foregroundSheet,
-                                 foregroundGridSize, outlineSheet,
-                                 outlineGridSize) {}
+      : SeparateOutlineSheetFont(
+            FontType::SeparateOutlineSheet, bitmapEmWidth, bitmapEmHeight,
+            foregroundOpacityCurve, outlineOpacityCurve, foregroundSheet,
+            foregroundGridSize, outlineSheet, outlineGridSize) {}
 
   size_t GetGlyphCount() const override {
     return static_cast<size_t>(ForegroundGridSize.x * ForegroundGridSize.y);
@@ -118,13 +130,14 @@ class SeparateOutlineSheetFont : public Font {
   virtual void DrawProcessedText(std::span<const ProcessedTextGlyph> text,
                                  float opacity, float outlineOpacity,
                                  RendererOutlineMode outlineMode,
-                                 bool smoothstepGlyphOutline,
                                  const SpriteSheet* maskedSheet,
                                  glm::mat4 transformation) override;
 
  protected:
   SeparateOutlineSheetFont(FontType type, std::optional<float> bitmapEmWidth,
                            std::optional<float> bitmapEmHeight,
+                           OpacityCurve foregroundOpacityCurve,
+                           OpacityCurve outlineOpacityCurve,
                            SpriteSheet foregroundSheet,
                            glm::ivec2 foregroundGridSize,
                            SpriteSheet outlineSheet, glm::ivec2 outlineGridSize)
@@ -132,7 +145,8 @@ class SeparateOutlineSheetFont : public Font {
              bitmapEmWidth.value_or(foregroundSheet.DesignWidth /
                                     foregroundGridSize.x),
              bitmapEmHeight.value_or(foregroundSheet.DesignHeight /
-                                     foregroundGridSize.y)),
+                                     foregroundGridSize.y),
+             foregroundOpacityCurve, outlineOpacityCurve),
         ForegroundSheet(foregroundSheet),
         OutlineSheet(outlineSheet),
         ForegroundGridSize(foregroundGridSize),
@@ -177,13 +191,16 @@ class LanguageBarrierFont : public SeparateOutlineSheetFont {
  public:
   LanguageBarrierFont(std::optional<float> bitmapEmWidth,
                       std::optional<float> bitmapEmHeight,
+                      OpacityCurve foregroundOpacityCurve,
+                      OpacityCurve outlineOpacityCurve,
                       SpriteSheet foregroundSheet,
                       glm::ivec2 foregroundGridSize, SpriteSheet outlineSheet,
                       glm::ivec2 outlineGridSize, glm::vec2 foregroundOffset,
                       glm::vec2 outlineOffset)
       : SeparateOutlineSheetFont(
             FontType::LanguageBarrier, bitmapEmWidth, bitmapEmHeight,
-            foregroundSheet, foregroundGridSize, outlineSheet, outlineGridSize),
+            foregroundOpacityCurve, outlineOpacityCurve, foregroundSheet,
+            foregroundGridSize, outlineSheet, outlineGridSize),
         ForegroundOffset(foregroundOffset),
         OutlineOffset(outlineOffset) {}
 
@@ -194,7 +211,6 @@ class LanguageBarrierFont : public SeparateOutlineSheetFont {
   void DrawProcessedText(std::span<const ProcessedTextGlyph> text,
                          float opacity, float outlineOpacity,
                          RendererOutlineMode outlineMode,
-                         bool smoothstepGlyphOutline,
                          const SpriteSheet* maskedSheet,
                          glm::mat4 transformation) override;
 

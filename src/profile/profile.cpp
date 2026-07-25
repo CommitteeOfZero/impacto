@@ -186,6 +186,7 @@ static void DefineEnums() {
   DefineEnum<DialogueBoxType>(LuaState);
   DefineEnum<UI::SysMesBoxType>(LuaState);
   DefineEnum<FontType>(LuaState);
+  DefineEnum<OpacityCurve>(LuaState);
   DefineEnum<LKMVersion>(LuaState);
   DefineEnum<ShaderProgramType>(LuaState);
   DefineEnum<ConfigSystem::AutoQuickSaveType>(LuaState);

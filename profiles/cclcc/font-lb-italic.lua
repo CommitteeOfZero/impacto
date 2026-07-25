@@ -10,6 +10,8 @@ root.Fonts = {
         OutlineOffset = { X = -13, Y = -13 },
         BitmapEmWidth = 48,
         BitmapEmHeight = 48,
+        ForegroundOpacityCurve = OpacityCurve.Smoothstep,
+        OutlineOpacityCurve = OpacityCurve.Smoothstep,
     }
 };
 

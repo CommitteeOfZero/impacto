@@ -32,17 +32,17 @@ void BacklogEntry::Render() {
   }
 
   Profile::Dialogue::DialogueFont->DrawProcessedText(
-      Page.Name, Tint.a, Profile::Dialogue::REVNameOutlineMode, true,
+      Page.Name, Tint.a, Profile::Dialogue::REVNameOutlineMode,
       &BacklogMaskSheet);
 
   for (RubyChunk& chunk : Page.RubyChunks) {
     Profile::Dialogue::DialogueFont->DrawProcessedText(
-        chunk.Text, Tint.a, Profile::Dialogue::REVOutlineMode, true,
+        chunk.Text, Tint.a, Profile::Dialogue::REVOutlineMode,
         &BacklogMaskSheet);
   }
 
   Profile::Dialogue::DialogueFont->DrawProcessedText(
-      Page.Glyphs, Tint.a, Profile::Dialogue::REVOutlineMode, true,
+      Page.Glyphs, Tint.a, Profile::Dialogue::REVOutlineMode,
       &BacklogMaskSheet);
 }
 

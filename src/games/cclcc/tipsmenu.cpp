@@ -278,7 +278,7 @@ void TipsMenu::Render() {
 
     Profile::Dialogue::DialogueFont->DrawProcessedText(
         TextPage.Glyphs, FadeAnimation.Progress, FadeAnimation.Progress,
-        RendererOutlineMode::None, true, &TipsMaskSheet);
+        RendererOutlineMode::None, &TipsMaskSheet);
 
     TipsScrollbar->Render();
   }

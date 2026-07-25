@@ -8,6 +8,8 @@ root.Fonts = {
         AdvanceWidthsEmWidth = 60,
         ForegroundOffset = { X = -7, Y = 0 },
         OutlineOffset = { X = -6, Y = 1 },
+        ForegroundOpacityCurve = OpacityCurve.Smoothstep,
+        OutlineOpacityCurve = OpacityCurve.CubedTransparency,
     }
 };
 
