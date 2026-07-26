@@ -27,6 +27,7 @@ inline glm::vec2 NoDataSpritePosition;
 
 int constexpr EntriesPerRow = 2;
 int constexpr RowsPerPage = 4;
+int constexpr EntriesPerPage = EntriesPerRow * RowsPerPage;
 inline uint32_t SaveEntryPrimaryColor;
 inline uint32_t LoadEntryPrimaryColor;
 inline uint32_t SaveEntrySecondaryColor;

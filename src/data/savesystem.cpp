@@ -5,8 +5,10 @@
 #include "../profile/vm.h"
 #include "../mem.h"
 
+#include <algorithm>
 #include <cstdint>
 #include <ctime>
+#include <ranges>
 
 namespace Impacto {
 namespace SaveSystem {
@@ -283,6 +285,13 @@ std::optional<uint8_t> GetQuickSaveOpenSlot() {
   return std::nullopt;
 }
 
+int GetNewestSaveId(SaveType type) {
+  if (Implementation) return Implementation->GetNewestSaveId(type);
+  ImpLog(LogLevel::Warning, LogChannel::VMStub,
+         "{:s}: save system not implemented, returning 0\n", __func__);
+  return 0;
+}
+
 void UpdateQuickSaveRecentSortedId(int openSlot) {
   if (Implementation)
     return Implementation->UpdateQuickSaveRecentSortedId(openSlot);
@@ -350,6 +359,14 @@ std::optional<uint8_t> SaveSystemBase::GetQuickSaveOpenSlot() const {
   }
 
   return std::nullopt;
+}
+
+int SaveSystemBase::GetNewestSaveId(SaveType type) const {
+  const auto ids = std::views::iota(0, MaxSaveEntries);
+  return *std::ranges::min_element(
+      ids, SaveRecencyComparator(), [&](int id) -> SaveFileEntryBase const& {
+        return *GetSaveEntry<SaveFileEntryBase>(type, id);
+      });
 }
 
 void SaveSystemBase::UpdateQuickSaveRecentSortedId(int replacementSlot) {

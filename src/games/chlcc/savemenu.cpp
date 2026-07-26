@@ -209,6 +209,8 @@ void SaveMenu::Show() {
       FromSystemMenuTransition->StartIn();
       SelectAnimation.StartIn(true);
     }
+    const int newestSaveId = SaveSystem::GetNewestSaveId(EntryType);
+    *CurrentPage = newestSaveId / EntriesPerPage;
     SavePages->at(*CurrentPage)->Show();
     SavePages->at(*CurrentPage)->HasFocus = false;
     State = Showing;
@@ -218,8 +220,9 @@ void SaveMenu::Show() {
     }
     IsFocused = true;
     UI::FocusedMenu = this;
-    SavePages->at(*CurrentPage)->Children.front()->HasFocus = true;
-    CurrentlyFocusedElement = SavePages->at(*CurrentPage)->Children.front();
+    CurrentlyFocusedElement =
+        SavePages->at(*CurrentPage)->Children[newestSaveId % EntriesPerPage];
+    CurrentlyFocusedElement->HasFocus = true;
   }
 }
 void SaveMenu::Hide() {
@@ -255,14 +258,16 @@ void SaveMenu::UpdateInput(float dt) {
   Menu::UpdateInput(dt);
   const auto updatePage = [&](int nextPage) {
     PrevPage = *CurrentPage;
-    if (CurrentlyFocusedElement) {
-      CurrentlyFocusedElement->HasFocus = false;
-      CurrentlyFocusedElement->Hovered = false;
-    }
+    const int focusedEntry =
+        static_cast<Widgets::Button*>(CurrentlyFocusedElement)->Id %
+        EntriesPerPage;
+    CurrentlyFocusedElement->HasFocus = false;
+    CurrentlyFocusedElement->Hovered = false;
     *CurrentPage = nextPage;
     SavePages->at(*CurrentPage)->Show();
-    SavePages->at(*CurrentPage)->Children.front()->HasFocus = true;
-    CurrentlyFocusedElement = SavePages->at(*CurrentPage)->Children.front();
+    CurrentlyFocusedElement =
+        SavePages->at(*CurrentPage)->Children[focusedEntry];
+    CurrentlyFocusedElement->HasFocus = true;
   };
   if (IsFocused) {
     SavePages->at(*CurrentPage)->UpdateInput(dt);
