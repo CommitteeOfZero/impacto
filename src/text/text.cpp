@@ -27,7 +27,7 @@ int StringToken::Read(Vm::Sc3VmThread* ctx) {
   int bytesRead = 0;
   Flags = 0;
 
-  uint8_t c = *ctx->GetIp();
+  uint8_t c = *ctx->GetIp(true);
   ctx->IpOffset++;
   bytesRead++;
   switch (c) {
@@ -57,7 +57,7 @@ int StringToken::Read(Vm::Sc3VmThread* ctx) {
     case STT_GetHardcodedValue:
     case STT_UnlockTip: {
       Type = (StringTokenType)c;
-      Val_Int = (*ctx->GetIp() << 8) | *(ctx->GetIp() + 1);
+      Val_Int = (*ctx->GetIp(true) << 8) | *(ctx->GetIp(true) + 1);
       ctx->IpOffset += 2;
       bytesRead += 2;
       break;
@@ -66,7 +66,7 @@ int StringToken::Read(Vm::Sc3VmThread* ctx) {
     case STT_SetColor: {
       Type = (StringTokenType)c;
       if (ColorTagIsUint8) {
-        Val_Expr = (*(uint8_t*)(ctx->GetIp()));
+        Val_Expr = (*(uint8_t*)(ctx->GetIp(true)));
         ctx->IpOffset += 1;
         bytesRead += 1;
       } else {
@@ -97,7 +97,7 @@ int StringToken::Read(Vm::Sc3VmThread* ctx) {
                "Encountered unrecognized token 0x{:02x} in string\n", c);
         Type = STT_EndOfString;
       } else {
-        uint16_t glyphId = (((uint16_t)c & 0x7F) << 8) | *ctx->GetIp();
+        uint16_t glyphId = (((uint16_t)c & 0x7F) << 8) | *ctx->GetIp(true);
         ctx->IpOffset++;
 
         Flags |= GetFlags(glyphId);
@@ -107,9 +107,9 @@ int StringToken::Read(Vm::Sc3VmThread* ctx) {
         if (Profile::Vm::StringEncodingType ==
             Profile::Vm::StringUnitEncoding::Uint32) {
           Val_Int = (Val_Int << 16);
-          Val_Int |= *ctx->GetIp() << 8;
+          Val_Int |= *ctx->GetIp(true) << 8;
           ctx->IpOffset++;
-          Val_Int |= *ctx->GetIp();
+          Val_Int |= *ctx->GetIp(true);
           ctx->IpOffset++;
           bytesRead += 2;
         }
@@ -400,7 +400,7 @@ void InitNamePlateData(Vm::Sc3Stream& stream) {
     size_t nameLength = (TextGetStringLength(&dummy) - 1) * 2;
     dummy.IpOffset = nameAddr;
     uint32_t nameHash =
-        GetHashCode(std::span<uint8_t>(dummy.GetIp(), nameLength));
+        GetHashCode(std::span<uint8_t>(dummy.GetIp(true), nameLength));
     NamePlateData[nameHash] = id;
   } while (stream.PeekU16() != 0xFFFF);
 }
