@@ -280,7 +280,8 @@ VmInstruction(InstMesSetID) {
   int dialoguePageId = 0;
 
   PopUint8(type);
-  switch (type) {
+  uint8_t kind = type & 0x7F;
+  switch (kind) {
     case 0: {  // SetSavePointPage0
       if (Profile::Vm::UseReturnIds) {
         PopUint16(savePointId);
@@ -531,7 +532,7 @@ VmInstruction(InstMes) {
   bool voiced = type & 1;
   bool acted = type & (1 << 1);
   bool sync = type & (1 << 3);
-  bool MSB = type & (1 << 7);
+  bool msb = type & (1 << 7);
 
   std::optional<int> audioId;
   int animationId = 0;
@@ -540,10 +541,16 @@ VmInstruction(InstMes) {
   if (acted) animationId = ExpressionEval(thread);
 
   if (characterId == 32) characterId = 0;
-  PopUint16(lineId);
-  const uint32_t line =
-      MSB ? MsbGetStrAddress(thread->ScriptBufferId, lineId)
-          : ScriptGetStrAddress(thread->ScriptBufferId, lineId);
+  int lineId;
+  uint32_t line;
+  if (msb) {
+    lineId = ExpressionEval(thread);
+    line = MsbGetStrAddress(thread->ScriptBufferId, lineId);
+  } else {
+    PopUint16(lineIdTemp);
+    lineId = lineIdTemp;
+    line = ScriptGetStrAddress(thread->ScriptBufferId, lineId);
+  }
 
   if (!(ScrWork[Profile::Vm::ScrWorkMesStructSize * thread->DialoguePageId +
                 SW_MESWIN0TYPE] &
@@ -566,7 +573,10 @@ VmInstruction(InstMes) {
 
   uint32_t oldIp = thread->IpOffset;
   thread->IpOffset = line;
+
+  thread->UseMSBBuffers = msb;
   dialoguePage.AddString(thread, audioId, acted, animationId, characterId);
+
   ResetInstruction;
   if (!GetFlag(SF_MESSAVEPOINT_SSP + thread->DialoguePageId)) {
     if (!(ScrWork[thread->DialoguePageId * Profile::Vm::ScrWorkMesStructSize +
@@ -1227,16 +1237,15 @@ VmInstruction(InstSetRevMes) {
   }
 
   int lineId;
+  uint32_t line;
   if (expression) {
     lineId = ExpressionEval(thread);
+    line = MsbGetStrAddress(thread->ScriptBufferId, lineId);
   } else {
     PopUint16(lineIdTemp);
     lineId = lineIdTemp;
+    line = ScriptGetStrAddress(thread->ScriptBufferId, lineId);
   }
-
-  uint32_t line = expression
-                      ? MsbGetStrAddress(thread->ScriptBufferId, lineId)
-                      : ScriptGetStrAddress(thread->ScriptBufferId, lineId);
 
   uint32_t scriptId = LoadedScriptMetas[thread->ScriptBufferId].Id;
 
