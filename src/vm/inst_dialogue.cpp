@@ -280,7 +280,8 @@ VmInstruction(InstMesSetID) {
   int dialoguePageId = 0;
 
   PopUint8(type);
-  switch (type) {
+  uint8_t kind = type & 0x7F;
+  switch (kind) {
     case 0: {  // SetSavePointPage0
       if (Profile::Vm::UseReturnIds) {
         PopUint16(savePointId);
@@ -540,10 +541,16 @@ VmInstruction(InstMes) {
   if (acted) animationId = ExpressionEval(thread);
 
   if (characterId == 32) characterId = 0;
-  PopUint16(lineId);
-  const uint32_t line =
-      MSB ? MsbGetStrAddress(thread->ScriptBufferId, lineId)
-          : ScriptGetStrAddress(thread->ScriptBufferId, lineId);
+  int lineId;
+  if (MSB) {
+    lineId = ExpressionEval(thread);
+  } else {
+    PopUint16(lineIdTemp);
+    lineId = lineIdTemp;
+  }
+
+  uint32_t line = MSB ? MsbGetStrAddress(thread->ScriptBufferId, lineId)
+                      : ScriptGetStrAddress(thread->ScriptBufferId, lineId);
 
   if (!(ScrWork[Profile::Vm::ScrWorkMesStructSize * thread->DialoguePageId +
                 SW_MESWIN0TYPE] &
@@ -566,7 +573,10 @@ VmInstruction(InstMes) {
 
   uint32_t oldIp = thread->IpOffset;
   thread->IpOffset = line;
+
+  thread->UseMSBBuffers = MSB;
   dialoguePage.AddString(thread, audioId, acted, animationId, characterId);
+
   ResetInstruction;
   if (!GetFlag(SF_MESSAVEPOINT_SSP + thread->DialoguePageId)) {
     if (!(ScrWork[thread->DialoguePageId * Profile::Vm::ScrWorkMesStructSize +
