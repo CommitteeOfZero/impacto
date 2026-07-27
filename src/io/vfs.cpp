@@ -6,6 +6,7 @@
 #include <ranges>
 #include "vfsarchive.h"
 #include "memorystream.h"
+#include "dummystream.h"
 #include "../log.h"
 #include "../profile/vfs.h"
 #ifndef IMPACTO_DISABLE_MMAP
@@ -19,6 +20,7 @@
 #include "lnk4archive.h"
 #include "mpkarchive.h"
 #include "textarchive.h"
+#include "fsfolderarchive.h"
 
 namespace Impacto {
 namespace Io {
@@ -45,12 +47,19 @@ static ankerl::unordered_dense::map<std::string, ArchiveList, string_hash,
 static std::shared_mutex Lock;
 
 static IoError MountInternal(std::string const& mountpoint, Stream* stream,
-                             bool invertMountOrder = false) {
+                             bool invertMountOrder = false,
+                             VfsArchiveFactory hintArchiver = nullptr) {
   VfsArchive* archive = nullptr;
+
   IoError err = IoError_Fail;
-  for (auto archiver : Archivers) {
-    err = archiver(stream, &archive);
-    if (err == IoError_OK) break;
+  if (hintArchiver) {
+    err = hintArchiver(stream, &archive);
+  }
+  if (err != IoError_OK) {
+    for (auto archiver : Archivers) {
+      err = archiver(stream, &archive);
+      if (err == IoError_OK) break;
+    }
   }
   if (err == IoError_OK) {
     archive->MountPoint = mountpoint;
@@ -101,18 +110,33 @@ IoError VfsMount(std::string const& mountpoint,
 
   Stream* archiveFile;
   IoError err;
+
+  std::error_code ec;
+
+  bool isDir = std::filesystem::is_directory(archiveFileName, ec);
+  if (ec)
+    ImpLog(LogLevel::Error, LogChannel::IO,
+           "Failed to check if {} is a directory: {}\n", archiveFileName,
+           ec.message());
+  if (isDir) {
+    DummyStream::Create(archiveFileName, &archiveFile);
+    err =
+        MountInternal(mountpoint, archiveFile, false, &FSFolderArchive::Create);
+  } else {
 #ifndef IMPACTO_DISABLE_MMAP
-  err = MemoryMappedFileStream<AccessMode::read>::Create(archiveFileName,
-                                                         &archiveFile);
+    err = MemoryMappedFileStream<AccessMode::read>::Create(archiveFileName,
+                                                           &archiveFile);
 #else
-  err = PhysicalFileStream::Create(archiveFileName, &archiveFile);
+    err = PhysicalFileStream::Create(archiveFileName, &archiveFile);
 #endif
-  if (err != IoError_OK) {
-    ImpLog(LogLevel::Debug, LogChannel::IO,
-           "Could not open physical file \"{:s}\"\n", archiveFileName);
-    return err;
+    if (err != IoError_OK) {
+      ImpLog(LogLevel::Debug, LogChannel::IO,
+             "Could not open physical file \"{:s}\"\n", archiveFileName);
+      return err;
+    }
+    err = MountInternal(mountpoint, archiveFile);
   }
-  err = MountInternal(mountpoint, archiveFile);
+
   if (err != IoError_OK) {
     delete archiveFile;
   }

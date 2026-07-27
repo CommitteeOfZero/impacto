@@ -344,6 +344,7 @@ set(Impacto_Src
     src/io/lnk4archive.cpp
     src/io/textarchive.cpp
     src/io/afsarchive.cpp
+    src/io/fsfolderarchive.cpp
 
     src/texture/texture.cpp
     src/texture/s3tc.cpp
@@ -695,11 +696,18 @@ set(Impacto_Header
     src/io/filemeta.h
     src/io/assetpath.h
     src/io/stream.h
-    src/io/vfsarchive.h
+    src/io/dummystream.h
     src/io/memorystream.h
     src/io/physicalfilestream.h
     src/io/uncompressedstream.h
     src/io/zlibstream.h
+    src/io/vfsarchive.h
+    src/io/mpkarchive.h
+    src/io/cpkarchive.h
+    src/io/lnk4archive.h
+    src/io/textarchive.h
+    src/io/afsarchive.h
+    src/io/fsfolderarchive.h
 
     src/texture/texture.h
     src/texture/s3tc.h
