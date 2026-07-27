@@ -193,7 +193,7 @@ void MakeLuaProfile(std::string const& name) {
   DefineEnum<UI::MovieMenuType>(LuaState);
   DefineEnum<UI::ActorsVoiceMenuType>(LuaState);
   DefineEnum<DateDisplay::DateDisplayType>(LuaState);
-  DefineEnum<WaitIconDisplay::WaitIconType>(LuaState);
+  DefineEnum<WaitIconType>(LuaState);
   DefineEnum<AutoIconDisplay::AutoIconType>(LuaState);
   DefineEnum<SkipIconDisplay::SkipIconType>(LuaState);
   DefineEnum<SaveIcon::SaveIconType>(LuaState);
@@ -217,6 +217,7 @@ void MakeLuaProfile(std::string const& name) {
   DefineEnum<Input::ControllerAxis>(LuaState);
   DefineEnum<TextModeInfo::NameDispModeType>(LuaState);
   DefineEnum<TextModeInfo::NameAlignmentType>(LuaState);
+  DefineEnum<TextModeInfo::WaitIconDispModeType>(LuaState);
 
   ImpLog(LogLevel::Info, LogChannel::Profile, "Starting profile {:s}\n", name);
 

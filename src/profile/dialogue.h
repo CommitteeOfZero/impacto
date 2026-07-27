@@ -63,13 +63,13 @@ inline RendererOutlineMode REVNameOutlineMode = RendererOutlineMode::Full;
 inline size_t TipsMessageModeIdx;
 inline int TipsColorIndex = 0;
 
-inline Sprite WaitIconSprite;
+inline glm::vec2 KeyWaitIconPos;
 inline glm::vec2 WaitIconOffset;
+inline Sprite WaitIconSprite;
 inline float WaitIconAnimationDuration;
 inline std::optional<SpriteAnimationDef> WaitIconSpriteAnimationDef;
 inline std::optional<FixedSpriteAnimationDef> WaitIconFixedSpriteAnimationDef;
-inline WaitIconDisplay::WaitIconType WaitIconCurrentType =
-    WaitIconDisplay::WaitIconType::None;
+inline WaitIconType WaitIconCurrentType = WaitIconType::None;
 
 inline Sprite AutoIconSprite;
 inline std::optional<SpriteAnimationDef> AutoIconSpriteAnimationDef;
@@ -144,7 +144,7 @@ enum class TextModeInfoFieldFlags : uint32_t {
   NamePos = 1 << 5,
   NameGlyphSize = 1 << 6,
   MaxLineWidth = 1 << 7,
-  CurrentPageId = 1 << 8,
+  WaitIconDispMode = 1 << 8,
   WaitIconPos = 1 << 9,
   TextGlyphSize = 1 << 10,
   RubyGlyphSize = 1 << 11,

@@ -25,7 +25,8 @@ root.Dialogue = {
     NametagSprite = "NametagSprite",
 
     WaitIconSpriteAnimation = "WaitIconSpriteAnimationDef",
-    WaitIconCurrentType = WaitIconType.SpriteAnim,
+    WaitIconCurrentType = WaitIconType.SpriteAnimation,
+    KeyWaitIconPos = { X = 0, Y = 0 }, -- TODO
     WaitIconOffset = { X = 4, Y = 4 },
 
     DialogueFont = "Default",

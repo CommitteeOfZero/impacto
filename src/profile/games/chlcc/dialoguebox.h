@@ -15,7 +15,6 @@ inline Sprite SecondaryNametagSprite;
 
 inline Sprite ErinBoxSprite;
 inline glm::vec2 ErinBoxPos;
-inline glm::vec2 REVWaitIconOffset;
 
 }  // namespace DialogueBox
 }  // namespace CHLCC

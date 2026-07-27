@@ -23,7 +23,8 @@ root.Dialogue = {
     NametagCurrentType = NametagType.None,
 
     WaitIconSpriteAnim = "WaitIconSpriteAnimationDef",
-    WaitIconCurrentType = WaitIconType.SpriteAnim,
+    WaitIconCurrentType = WaitIconType.SpriteAnimation,
+    KeyWaitIconPos = { X = 0, Y = 0 }, -- TODO
     WaitIconOffset = { X = 0, Y = 0 },
 
     DialogueFont = "Default",

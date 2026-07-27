@@ -8,6 +8,8 @@ root.Sprites["ADVBoxMask"] = {
     Bounds = { X = 0, Y = 301, Width = 1920, Height = 298 }
 };
 
+local waitIconPos = { X = 1583, Y = 907 };
+
 root.Dialogue = {
     TipsMessageModeIdx = 7,
     TipsColorIndex = 10,
@@ -37,10 +39,10 @@ root.Dialogue = {
 
     NametagShowDuration = 16 / 60;
 
-    WaitIconCurrentType = WaitIconType.SpriteAnimFixed,
+    WaitIconCurrentType = WaitIconType.FixedSpriteAnimation,
     WaitIconSpriteAnimation = "WaitIconSpriteAnimation",
-    WaitIconAnimationDuration = 0.7,
-    WaitIconOffset = { X = 1595, Y = 895 },
+    KeyWaitIconPos = waitIconPos,
+    WaitIconOffset = { X = 0, Y = 0 },
 
     AutoIconCurrentType = AutoIconType.SpriteAnimFixed,
     AutoIconSpriteAnim = "AutoIconSpriteAnimation",
@@ -131,7 +133,7 @@ MakeFixedSpriteAnimation({
     RowHeight = 185,
     Frames = 10,
     FixedFrameIdx = 6,
-    Duration = 1,
+    Duration = 5 * 2 / 60,
     Rows = 1,
     Columns = 10,
     PrimaryDirection = AnimationDirections.Right

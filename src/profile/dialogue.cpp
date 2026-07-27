@@ -56,6 +56,47 @@ static void ConfigureNametag() {
   }
 }
 
+static void ConfigureWaitIcon() {
+  WaitIconCurrentType = TryGetMember<WaitIconType>("WaitIconCurrentType")
+                            .value_or(WaitIconType::None);
+  if (WaitIconCurrentType == WaitIconType::None) {
+    KeyWaitIcon = WaitIcon::Create(nullptr);
+    return;
+  }
+
+  KeyWaitIconPos = EnsureGetMember<glm::vec2>("KeyWaitIconPos");
+  WaitIconOffset = EnsureGetMember<glm::vec2>("WaitIconOffset");
+
+  switch (WaitIconCurrentType) {
+    case WaitIconType::Sprite: {
+      WaitIconSprite = EnsureGetMember<Sprite>("WaitIconSprite");
+    } break;
+
+    case WaitIconType::SpriteAnimation: {
+      WaitIconSpriteAnimationDef.emplace(
+          EnsureGetMember<SpriteAnimationDef>("WaitIconSpriteAnimation"));
+    } break;
+
+    case WaitIconType::FixedSpriteAnimation: {
+      WaitIconFixedSpriteAnimationDef.emplace(
+          EnsureGetMember<FixedSpriteAnimationDef>("WaitIconSpriteAnimation"));
+    } break;
+
+    case WaitIconType::Rotating:
+    case WaitIconType::Rotating3D: {
+      WaitIconSprite = EnsureGetMember<Sprite>("WaitIconSprite");
+      WaitIconAnimationDuration =
+          EnsureGetMember<float>("WaitIconAnimationDuration");
+    } break;
+
+    case WaitIconType::None: {
+      assert(false);
+    } break;
+  }
+
+  KeyWaitIcon = WaitIcon::Create(nullptr);
+}
+
 static void ConfigureTextModesInfo() {
   if (!TryPushMember("TextModesInfo")) return;
   ForEachProfileArray([](uint32_t) {
@@ -89,7 +130,7 @@ static void ConfigureTextModesInfo() {
     tryOverride("NamePos", info.NamePos);
     tryOverride("NameGlyphSize", info.NameGlyphSize);
     tryOverride("MaxLineWidth", info.MaxLineWidth);
-    tryOverride("CurrentPageId", info.CurrentPageId);
+    tryOverride("WaitIconDispMode", info.WaitIconDispMode);
     tryOverride("WaitIconPos", info.WaitIconPos);
     tryOverride("TextGlyphSize", info.TextGlyphSize);
     tryOverride("RubyGlyphSize", info.RubyGlyphSize);
@@ -176,30 +217,6 @@ void Configure() {
   TipsMessageModeIdx = EnsureGetMember<size_t>("TipsMessageModeIdx");
   TryGetMember<int>("TipsColorIndex", TipsColorIndex);
 
-  WaitIconCurrentType =
-      TryGetMember<WaitIconDisplay::WaitIconType>("WaitIconCurrentType")
-          .value_or(WaitIconDisplay::WaitIconType::None);
-  if (WaitIconCurrentType != WaitIconDisplay::WaitIconType::None) {
-    switch (WaitIconCurrentType) {
-      case WaitIconDisplay::WaitIconType::SpriteAnim:
-        WaitIconSpriteAnimationDef =
-            EnsureGetMember<SpriteAnimationDef>("WaitIconSpriteAnimation");
-        break;
-      case WaitIconDisplay::WaitIconType::SpriteAnimFixed:
-        WaitIconFixedSpriteAnimationDef =
-            EnsureGetMember<FixedSpriteAnimationDef>("WaitIconSpriteAnimation");
-        break;
-      case WaitIconDisplay::WaitIconType::Fixed:
-        WaitIconSprite = EnsureGetMember<Sprite>("WaitIconSprite");
-        break;
-      default:
-        WaitIconSprite = EnsureGetMember<Sprite>("WaitIconSprite");
-        WaitIconAnimationDuration =
-            EnsureGetMember<float>("WaitIconAnimationDuration");
-    }
-    WaitIconOffset = EnsureGetMember<glm::vec2>("WaitIconOffset");
-  }
-
   AutoIconCurrentType =
       TryGetMember<AutoIconDisplay::AutoIconType>("AutoIconCurrentType")
           .value_or(AutoIconDisplay::AutoIconType::None);
@@ -266,6 +283,7 @@ void Configure() {
   ColorTagIsUint8 = EnsureGetMember<bool>("ColorTagIsUint8");
 
   ConfigureNametag();
+  ConfigureWaitIcon();
   ConfigureTextModesInfo();
 
   TryGetMember<bool>("HasSpeakerPortraits", HasSpeakerPortraits);

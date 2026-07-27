@@ -7,6 +7,7 @@
 #include "../profile/vm.h"
 
 #include "../hud/dialoguebox.h"
+#include "../hud/waiticondisplay.h"
 
 #include "../audio/audiostream.h"
 
@@ -98,6 +99,7 @@ struct DialoguePage : public TextPage {
 
  private:
   std::unique_ptr<DialogueBox> DialogueBoxInst = DialogueBox::Create(*this);
+  std::unique_ptr<WaitIcon> WaitIconInst = WaitIcon::Create(this);
 
   std::optional<Vm::BufferOffsetContext> CurrentStringAddress;
 };

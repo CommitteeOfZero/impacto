@@ -702,7 +702,7 @@ VmInstruction(InstSetMesModeFormat) {
     uint16_t NameGlyphWidth;
     uint16_t NameGlyphHeight;
     uint16_t MaxLineWidth;
-    uint16_t CurrentPageId;
+    uint16_t WaitIconDispMode;
     uint16_t WaitIconPosX;
     uint16_t WaitIconPosY;
     uint16_t TextGlyphWidth;
@@ -754,7 +754,9 @@ VmInstruction(InstSetMesModeFormat) {
   setVal(dest.NameGlyphSize, NameGlyphSize,
          glm::vec2(info.NameGlyphWidth, info.NameGlyphHeight) * designScale);
   setVal(dest.MaxLineWidth, MaxLineWidth, info.MaxLineWidth * designScale.x);
-  setVal(dest.CurrentPageId, CurrentPageId, info.CurrentPageId);
+  setVal(
+      dest.WaitIconDispMode, WaitIconDispMode,
+      static_cast<TextModeInfo::WaitIconDispModeType>(info.WaitIconDispMode));
   setVal(dest.WaitIconPos, WaitIconPos,
          glm::vec2(info.WaitIconPosX, info.WaitIconPosY) * designScale);
   setVal(dest.TextGlyphSize, TextGlyphSize,

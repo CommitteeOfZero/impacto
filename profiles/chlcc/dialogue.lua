@@ -44,7 +44,9 @@ root.Dialogue = {
     NVLBoxMaxOpacity = 0.55,
 
     WaitIconSpriteAnimation = "WaitIconSpriteAnimationDef",
-    WaitIconCurrentType = WaitIconType.SpriteAnim,
+    WaitIconCurrentType = WaitIconType.SpriteAnimation,
+    KeyWaitIconPos = { X = 1038, Y = 640 },
+    WaitIconOffset = { X = 4, Y = -28 },
 
     AutoIconCurrentType = AutoIconType.CHLCC,
     AutoIconSprite = "AutoIconSprite",
@@ -57,8 +59,6 @@ root.Dialogue = {
     SkipIconRotationSpeed = 1.5 / 3,
 
     AutoSkipArrowsSprite = "AutoSkipArrowsSprite",
-    REVWaitIconOffset = { X = 4, Y = -4 },
-    WaitIconOffset = { X = 4, Y = 4 },
     DialogueFont = "Default",
     SetFontSizeRatio = 1000.0,
     DefaultFontSize = 32,
@@ -146,7 +146,7 @@ MakeAnimation({
     FrameHeight = 34,
     RowHeight = 34,
     Frames = 8,
-    Duration = 1.5,
+    Duration = (4 * 8) / 60,
     Rows = 8,
     Columns = 1,
     PrimaryDirection = AnimationDirections.Down,

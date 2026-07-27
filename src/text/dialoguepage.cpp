@@ -45,7 +45,6 @@ DialoguePage::State DialoguePage::GetState() const {
 void DialoguePage::Init() {
   Profile::Dialogue::Configure();
 
-  WaitIconDisplay::Init();
   AutoIconDisplay::Init();
   SkipIconDisplay::Init();
 
@@ -165,7 +164,7 @@ void DialoguePage::Update(float dt) {
   DialogueBoxInst->Update(dt);
   FadeAnimation.Update(dt);
 
-  WaitIconDisplay::Update(dt);
+  WaitIconInst->Update(dt);
   AutoIconDisplay::Update(dt);
   SkipIconDisplay::Update(dt);
 }
@@ -224,12 +223,11 @@ void DialoguePage::Render(const float alpha,
     }
   }
 
-  // Wait icon
   if ((winType & 1 << 7) == 0) {
     const glm::vec2 waitIconPos =
         pos +
-        (Glyphs.empty() ? glm::vec2() : Glyphs.back().DestRect.TopRight());
-    WaitIconDisplay::Render(waitIconPos, col, GetMode(), Id);
+        (Glyphs.empty() ? glm::vec2() : Glyphs.back().DestRect.BottomRight());
+    WaitIconInst->Render(waitIconPos, col);
   }
 
   AutoIconDisplay::Render(col);

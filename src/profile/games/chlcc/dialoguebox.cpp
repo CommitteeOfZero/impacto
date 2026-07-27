@@ -14,7 +14,6 @@ void Configure() {
 
   ErinBoxSprite = EnsureGetMember<Sprite>("ErinBoxSprite");
   ErinBoxPos = EnsureGetMember<glm::vec2>("ErinBoxPos");
-  REVWaitIconOffset = EnsureGetMember<glm::vec2>("REVWaitIconOffset");
 }
 
 void ConfigureNametag() {
