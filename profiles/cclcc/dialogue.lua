@@ -46,11 +46,11 @@ root.Dialogue = {
 
     AutoIconCurrentType = AutoIconType.SpriteAnimFixed,
     AutoIconSpriteAnim = "AutoIconSpriteAnimation",
-    AutoIconOffset = { X = 1568, Y = 690 },
+    AutoIconOffset = { X = 1571, Y = 691 },
 
     SkipIconCurrentType = SkipIconType.SpriteAnimFixed,
     SkipIconSpriteAnim = "SkipIconSpriteAnimation",
-    SkipIconOffset = { X = 1688, Y = 794 },
+    SkipIconOffset = { X = 1691, Y = 791 },
 
     DialogueFont = "Default",
     SetFontSizeRatio = 800.0,
@@ -96,14 +96,33 @@ root.Dialogue = {
     PageCount = 3,
     ColorTagIsUint8 = false,
 
-    TextModesInfo = root.Language == "English" and {
+    -- MAGES. engine hardcodes FixedPos in the binary regardless of WaitIconDispMode
+    -- We force it to comply by overriding them in the profile
+    TextModesInfo = {
+        ["0"] = { -- ADV box
+            WaitIconDispMode = WaitIconDispModeType.FixedPos,
+            WaitIconPos = waitIconPos,
+        },
+        ["1"] = { -- NVL box
+            WaitIconDispMode = WaitIconDispModeType.FixedPos,
+            WaitIconPos = waitIconPos,
+        },
+    }
+};
+
+if root.Language == "English" then
+    root.Dialogue.TextModesInfo =  {
         ["0"] = { -- ADV box
             WindowPos = { X = 220 * 1.5, Y = (518 + 11 + 5 + 1) * 1.5 }, -- Correct for missing ruby space
+            WaitIconDispMode = WaitIconDispModeType.FixedPos,
+            WaitIconPos = waitIconPos,
             TextGlyphSize = { X = 38, Y = 38 },
             LineSpacing = (1 + 5 + 1) * 1.5 - 3, -- (RubySpacing + RubyHeight + LineSpacing) * 1.5 - 3
             AlwaysAddRubySpacing = false,
         },
         ["1"] = { -- NVL box
+            WaitIconDispMode = WaitIconDispModeType.FixedPos,
+            WaitIconPos = waitIconPos,
             TextGlyphSize = { X = 38, Y = 38 },
             LineSpacing = (1 + 5 + 1) * 1.5 - 3,
             AlwaysAddRubySpacing = false,
@@ -119,18 +138,18 @@ root.Dialogue = {
             LineSpacing = (1 + 5 + 1) * 1.5 - 3,
             AlwaysAddRubySpacing = false,
         }
-    } or {},
-};
+    }
+end
 
 MakeFixedSpriteAnimation({
     Name = "WaitIconSpriteAnimation",
     Sheet = "Data",
-    FirstFrameX = 864, --1114
-    FirstFrameY = 877,
-    FrameWidth = 190,
+    FirstFrameX = 853,
+    FirstFrameY = 889,
+    FrameWidth = 216,
     ColWidth = 216,
-    FrameHeight = 185,
-    RowHeight = 185,
+    FrameHeight = 216,
+    RowHeight = 216,
     Frames = 10,
     FixedFrameIdx = 6,
     Duration = 5 * 2 / 60,
@@ -142,12 +161,12 @@ MakeFixedSpriteAnimation({
 MakeFixedSpriteAnimation({
     Name = "AutoIconSpriteAnimation",
     Sheet = "Data",
-    FirstFrameX = 854,
-    FirstFrameY = 456,
-    FrameWidth = 215,
-    ColWidth = 215,
-    FrameHeight = 220,
-    RowHeight = 220,
+    FirstFrameX = 852,
+    FirstFrameY = 457,
+    FrameWidth = 216,
+    ColWidth = 216,
+    FrameHeight = 216,
+    RowHeight = 216,
     Frames = 10,
     FixedFrameIdx = 6,
     Duration = 5 * 2 / 60,
@@ -159,12 +178,12 @@ MakeFixedSpriteAnimation({
 MakeFixedSpriteAnimation({
     Name = "SkipIconSpriteAnimation",
     Sheet = "Data",
-    FirstFrameX = 854,
-    FirstFrameY = 676,
-    FrameWidth = 215,
-    ColWidth = 215,
-    FrameHeight = 220,
-    RowHeight = 220,
+    FirstFrameX = 852,
+    FirstFrameY = 673,
+    FrameWidth = 216,
+    ColWidth = 216,
+    FrameHeight = 216,
+    RowHeight = 216,
     Frames = 10,
     FixedFrameIdx = 6,
     Duration = 5 * 2 / 60,

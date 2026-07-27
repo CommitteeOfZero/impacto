@@ -12,15 +12,15 @@ root.Sprites["ErinBox"] = {
 };
 root.Sprites["AutoSkipArrowsSprite"] = {
     Sheet = "Data",
-    Bounds = { X = 174, Y = 2, Width = 62, Height = 62 },
+    Bounds = { X = 173, Y = 1, Width = 64, Height = 64 },
 };
 root.Sprites["AutoIconSprite"] = {
     Sheet = "Data",
-    Bounds = { X = 240, Y = 2, Width = 62, Height = 62 },
+    Bounds = { X = 239, Y = 1, Width = 64, Height = 64 },
 };
 root.Sprites["SkipIconSprite"] = {
     Sheet = "Data",
-    Bounds = { X = 306, Y = 2, Width = 62, Height = 62 },
+    Bounds = { X = 305, Y = 1, Width = 64, Height = 64 },
 };
 
 root.Dialogue = {
@@ -139,11 +139,11 @@ root.Dialogue = {
 MakeAnimation({
     Name = "WaitIconSpriteAnimationDef",
     Sheet = "Data",
-    FirstFrameX = 0,
+    FirstFrameX = 1,
     FirstFrameY = 97,
-    FrameWidth = 34,
-    ColWidth = 34,
-    FrameHeight = 34,
+    FrameWidth = 32,
+    ColWidth = 32,
+    FrameHeight = 32,
     RowHeight = 34,
     Frames = 8,
     Duration = (4 * 8) / 60,
