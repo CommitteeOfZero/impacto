@@ -51,12 +51,12 @@ root.Dialogue = {
     AutoIconCurrentType = AutoIconType.CHLCC,
     AutoIconSprite = "AutoIconSprite",
     AutoIconOffset = { X = 1167, Y = 630 },
-    AutoIconRotationSpeed = 0.5 / 3,
+    AutoIconRotationDuration = 119 / 60,
 
     SkipIconCurrentType = SkipIconType.CHLCC,
     SkipIconSprite = "SkipIconSprite",
     SkipIconOffset = { X = 1167, Y = 527 },
-    SkipIconRotationSpeed = 1.5 / 3,
+    SkipIconRotationDuration = 39 / 60,
 
     AutoSkipArrowsSprite = "AutoSkipArrowsSprite",
     DialogueFont = "Default",

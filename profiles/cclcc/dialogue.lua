@@ -150,7 +150,7 @@ MakeFixedSpriteAnimation({
     RowHeight = 220,
     Frames = 10,
     FixedFrameIdx = 6,
-    Duration = 0.7,
+    Duration = 5 * 2 / 60,
     Rows = 1,
     Columns = 10,
     PrimaryDirection = AnimationDirections.Right
@@ -167,7 +167,7 @@ MakeFixedSpriteAnimation({
     RowHeight = 220,
     Frames = 10,
     FixedFrameIdx = 6,
-    Duration = 0.7,
+    Duration = 5 * 2 / 60,
     Rows = 1,
     Columns = 10,
     PrimaryDirection = AnimationDirections.Right

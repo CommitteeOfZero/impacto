@@ -235,7 +235,8 @@ void Configure() {
 
     case AutoIconDisplay::AutoIconType::CHLCC:
       AutoIconSprite = EnsureGetMember<Sprite>("AutoIconSprite");
-      AutoIconRotationSpeed = EnsureGetMember<float>("AutoIconRotationSpeed");
+      AutoIconRotationDuration =
+          EnsureGetMember<float>("AutoIconRotationDuration");
       AutoSkipArrowsSprite = EnsureGetMember<Sprite>("AutoSkipArrowsSprite");
       AutoIconOffset = EnsureGetMember<glm::vec2>("AutoIconOffset");
       break;
@@ -263,7 +264,8 @@ void Configure() {
 
     case SkipIconDisplay::SkipIconType::CHLCC:
       SkipIconSprite = EnsureGetMember<Sprite>("SkipIconSprite");
-      SkipIconRotationSpeed = EnsureGetMember<float>("SkipIconRotationSpeed");
+      SkipIconRotationDuration =
+          EnsureGetMember<float>("SkipIconRotationDuration");
       SkipIconOffset = EnsureGetMember<glm::vec2>("SkipIconOffset");
       break;
 

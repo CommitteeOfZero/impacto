@@ -9,7 +9,7 @@ namespace SkipIconDisplay {
 
 static std::optional<SpriteAnimation> SpriteAnim;
 static std::optional<FixedSpriteAnimation> FixedSpriteAnim;
-static float Progress = 0.0f;
+static Animation SimpleAnimation;
 
 using namespace Impacto::Profile::Dialogue;
 
@@ -27,9 +27,14 @@ void Init() {
       FixedSpriteAnim->StartIn();
       break;
 
+    case SkipIconType::CHLCC:
+      SimpleAnimation.SetDuration(SkipIconRotationDuration);
+      SimpleAnimation.LoopMode = AnimationLoopMode::Loop;
+      SimpleAnimation.StartIn();
+      break;
+
     case SkipIconType::None:
     case SkipIconType::Fixed:
-    case SkipIconType::CHLCC:
       break;
   }
 }
@@ -57,8 +62,7 @@ void Update(float dt) {
       break;
 
     case SkipIconType::CHLCC:
-      Progress += dt * SkipIconRotationSpeed;
-      Progress -= (int)Progress;  // Progress %= 1.0f
+      SimpleAnimation.Update(dt);
       break;
 
     case SkipIconType::None:
@@ -94,13 +98,12 @@ void Render(glm::vec4 opacityTint) {
       if (SkipModeEnabled) {
         const CornersQuad arrowsDest =
             AutoSkipArrowsSprite.ScaledBounds()
-                .RotateAroundCenter(Progress * 2.0f * std::numbers::pi_v<float>)
+                .RotateAroundCenter(SimpleAnimation.Progress * 2.0f *
+                                    std::numbers::pi_v<float>)
                 .Translate(SkipIconOffset);
         Renderer->DrawSprite(AutoSkipArrowsSprite, arrowsDest, opacityTint);
 
-        Renderer->DrawSprite(SkipIconSprite,
-                             glm::vec2(SkipIconOffset.x, SkipIconOffset.y),
-                             opacityTint);
+        Renderer->DrawSprite(SkipIconSprite, SkipIconOffset, opacityTint);
       }
       break;
 

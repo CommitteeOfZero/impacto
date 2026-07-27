@@ -163,10 +163,7 @@ void DialoguePage::Update(float dt) {
 
   DialogueBoxInst->Update(dt);
   FadeAnimation.Update(dt);
-
   WaitIconInst->Update(dt);
-  AutoIconDisplay::Update(dt);
-  SkipIconDisplay::Update(dt);
 }
 
 void DialoguePage::Move(const glm::vec2 relativeOffset) {

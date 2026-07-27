@@ -9,7 +9,7 @@ namespace AutoIconDisplay {
 
 static std::optional<SpriteAnimation> SpriteAnim;
 static std::optional<FixedSpriteAnimation> FixedSpriteAnim;
-static float Progress = 0.0f;
+static Animation SimpleAnimation;
 
 using namespace Impacto::Profile::Dialogue;
 
@@ -27,9 +27,14 @@ void Init() {
       FixedSpriteAnim->StartIn();
       break;
 
+    case AutoIconType::CHLCC:
+      SimpleAnimation.SetDuration(AutoIconRotationDuration);
+      SimpleAnimation.LoopMode = AnimationLoopMode::Loop;
+      SimpleAnimation.StartIn();
+      break;
+
     case AutoIconType::None:
     case AutoIconType::Fixed:
-    case AutoIconType::CHLCC:
       break;
   }
 }
@@ -57,8 +62,7 @@ void Update(float dt) {
       break;
 
     case AutoIconType::CHLCC:
-      Progress += dt * AutoIconRotationSpeed;
-      Progress -= (int)Progress;  // Progress %= 1.0f
+      SimpleAnimation.Update(dt);
       break;
 
     case AutoIconType::None:
@@ -94,7 +98,8 @@ void Render(glm::vec4 opacityTint) {
       if (AutoModeEnabled) {
         const CornersQuad arrowsDest =
             AutoSkipArrowsSprite.ScaledBounds()
-                .RotateAroundCenter(Progress * 2.0f * std::numbers::pi_v<float>)
+                .RotateAroundCenter(SimpleAnimation.Progress * 2.0f *
+                                    std::numbers::pi_v<float>)
                 .Translate(AutoIconOffset);
         Renderer->DrawSprite(AutoSkipArrowsSprite, arrowsDest, opacityTint);
 

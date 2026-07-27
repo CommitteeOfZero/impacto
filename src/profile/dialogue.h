@@ -75,7 +75,7 @@ inline Sprite AutoIconSprite;
 inline std::optional<SpriteAnimationDef> AutoIconSpriteAnimationDef;
 inline std::optional<FixedSpriteAnimationDef> AutoIconFixedSpriteAnimationDef;
 inline glm::vec2 AutoIconOffset;
-inline float AutoIconRotationSpeed;
+inline float AutoIconRotationDuration;
 inline AutoIconDisplay::AutoIconType AutoIconCurrentType =
     AutoIconDisplay::AutoIconType::None;
 
@@ -83,7 +83,7 @@ inline Sprite SkipIconSprite;
 inline std::optional<SpriteAnimationDef> SkipIconSpriteAnimationDef;
 inline std::optional<FixedSpriteAnimationDef> SkipIconFixedSpriteAnimationDef;
 inline glm::vec2 SkipIconOffset;
-inline float SkipIconRotationSpeed;
+inline float SkipIconRotationDuration;
 inline SkipIconDisplay::SkipIconType SkipIconCurrentType =
     SkipIconDisplay::SkipIconType::None;
 

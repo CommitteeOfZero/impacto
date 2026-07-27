@@ -362,6 +362,8 @@ void Update(float dt) {
   if (+Profile::GameFeatures & +GameFeature::Renderer2D) {
     for (DialoguePage& page : DialoguePages) page.Update(dt);
     KeyWaitIcon->Update(dt);
+    AutoIconDisplay::Update(dt);
+    SkipIconDisplay::Update(dt);
   }
 }
 
