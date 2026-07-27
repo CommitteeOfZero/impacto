@@ -15,8 +15,8 @@ namespace Impacto {
 namespace WaitIconDisplay {
 
 static Animation SimpleAnim;
-static SpriteAnimation SpriteAnim;
-static FixedSpriteAnimation FixedSpriteAnim;
+static std::optional<SpriteAnimation> SpriteAnim;
+static std::optional<FixedSpriteAnimation> FixedSpriteAnim;
 
 using namespace Impacto::Profile::Dialogue;
 using namespace Impacto::Profile::ScriptVars;
@@ -27,16 +27,14 @@ void Init() {
 
   switch (WaitIconCurrentType) {
     case WaitIconType::SpriteAnim:
-      SpriteAnim = WaitIconSpriteAnim.Instantiate();
-      SpriteAnim.LoopMode = AnimationLoopMode::Loop;
-      SpriteAnim.StartIn();
+      SpriteAnim.emplace(WaitIconSpriteAnimationDef->Instantiate());
+      SpriteAnim->LoopMode = AnimationLoopMode::Loop;
+      SpriteAnim->StartIn();
       break;
 
     case WaitIconType::SpriteAnimFixed:
-      SpriteAnim = WaitIconSpriteAnim.Instantiate();
-      SpriteAnim.LoopMode = AnimationLoopMode::Stop;
-      FixedSpriteAnim = static_cast<FixedSpriteAnimation&>(SpriteAnim);
-      FixedSpriteAnim.Def->FixSpriteId = WaitIconFixedSpriteId;
+      FixedSpriteAnim.emplace(WaitIconFixedSpriteAnimationDef->Instantiate());
+      FixedSpriteAnim->LoopMode = AnimationLoopMode::Stop;
       break;
 
     default:
@@ -61,23 +59,23 @@ void Update(float dt) {
 
     case WaitIconType::SpriteAnim: {
       const bool showWaitIcon = AnyPageWaiting();
-      if (showWaitIcon && SpriteAnim.IsOut())
-        SpriteAnim.StartIn();
-      else if (!showWaitIcon && SpriteAnim.IsIn())
-        SpriteAnim.StartOut();
+      if (showWaitIcon && SpriteAnim->IsOut())
+        SpriteAnim->StartIn();
+      else if (!showWaitIcon && SpriteAnim->IsIn())
+        SpriteAnim->StartOut();
 
-      SpriteAnim.Update(dt);
+      SpriteAnim->Update(dt);
       break;
     }
 
     case WaitIconType::SpriteAnimFixed: {
       const bool showWaitIcon = AnyPageWaiting();
-      if (showWaitIcon && FixedSpriteAnim.IsOut())
-        FixedSpriteAnim.StartIn();
-      else if (!showWaitIcon && FixedSpriteAnim.IsIn())
-        FixedSpriteAnim.StartOut();
+      if (showWaitIcon && FixedSpriteAnim->IsOut())
+        FixedSpriteAnim->StartIn();
+      else if (!showWaitIcon && FixedSpriteAnim->IsIn())
+        FixedSpriteAnim->StartOut();
 
-      FixedSpriteAnim.Update(dt);
+      FixedSpriteAnim->Update(dt);
       break;
     }
 
@@ -102,13 +100,13 @@ static void RenderSpriteAnim(glm::vec2 pos, glm::vec4 opacityTint,
       offset = Impacto::Profile::CHLCC::DialogueBox::REVWaitIconOffset;
   }
 
-  Renderer->DrawSprite(SpriteAnim.CurrentSprite(), pos + offset, opacityTint);
+  Renderer->DrawSprite(SpriteAnim->CurrentSprite(), pos + offset, opacityTint);
 }
 
 static void RenderSpriteAnimFixed(glm::vec4 opacityTint) {
-  if (FixedSpriteAnim.Progress == 0.0f) return;
+  if (FixedSpriteAnim->Progress == 0.0f) return;
 
-  Renderer->DrawSprite(FixedSpriteAnim.CurrentSprite(),
+  Renderer->DrawSprite(FixedSpriteAnim->CurrentSprite(),
                        glm::vec2(WaitIconOffset.x, WaitIconOffset.y),
                        opacityTint);
 }

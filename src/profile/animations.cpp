@@ -6,26 +6,16 @@ namespace Impacto {
 namespace Profile {
 
 void LoadAnimations() {
-  EnsurePushMemberOfType("Animations", LUA_TTABLE);
+  {
+    EnsurePushMemberOfType("Animations", LUA_TTABLE);
 
-  PushInitialIndex();
-  while (PushNextTableElement() != 0) {
-    std::string name(EnsureGetKey<std::string>());
+    PushInitialIndex();
+    while (PushNextTableElement() != 0) {
+      std::string name(EnsureGetKey<std::string>());
 
-    SpriteAnimationDef& animation = Animations[name];
-    animation.Duration = EnsureGetMember<float>("Duration");
-
-    {
-      EnsurePushMemberOfType("Frames", LUA_TTABLE);
-
-      animation.FrameCount = (uint32_t)lua_rawlen(LuaState, -1);
-      animation.Frames = new Sprite[animation.FrameCount];
-      PushInitialIndex();
-      while (PushNextTableElement() != 0) {
-        animation.Frames[EnsureGetKey<int32_t>() - 1] =
-            EnsureGetArrayElement<Sprite>();
-        Pop();
-      }
+      SpriteAnimationDef& animation = Animations[name];
+      animation.Duration = EnsureGetMember<float>("Duration");
+      animation.Frames = EnsureGetMember<std::vector<Sprite>>("Frames");
 
       Pop();
     }
@@ -33,7 +23,23 @@ void LoadAnimations() {
     Pop();
   }
 
-  Pop();
+  {
+    EnsurePushMemberOfType("FixedSpriteAnimations", LUA_TTABLE);
+
+    PushInitialIndex();
+    while (PushNextTableElement() != 0) {
+      std::string name(EnsureGetKey<std::string>());
+
+      FixedSpriteAnimationDef& animation = FixedSpriteAnimations[name];
+      animation.Duration = EnsureGetMember<float>("Duration");
+      animation.Frames = EnsureGetMember<std::vector<Sprite>>("Frames");
+      animation.FixedFrameIdx = EnsureGetMember<size_t>("FixedFrameIdx");
+
+      Pop();
+    }
+
+    Pop();
+  }
 }
 
 }  // namespace Profile

@@ -182,13 +182,12 @@ void Configure() {
   if (WaitIconCurrentType != WaitIconDisplay::WaitIconType::None) {
     switch (WaitIconCurrentType) {
       case WaitIconDisplay::WaitIconType::SpriteAnim:
-        WaitIconSpriteAnim =
-            EnsureGetMember<SpriteAnimationDef>("WaitIconSpriteAnim");
+        WaitIconSpriteAnimationDef =
+            EnsureGetMember<SpriteAnimationDef>("WaitIconSpriteAnimation");
         break;
       case WaitIconDisplay::WaitIconType::SpriteAnimFixed:
-        WaitIconSpriteAnim =
-            EnsureGetMember<SpriteAnimationDef>("WaitIconSpriteAnim");
-        WaitIconFixedSpriteId = EnsureGetMember<int>("WaitIconFixedSpriteId");
+        WaitIconFixedSpriteAnimationDef =
+            EnsureGetMember<FixedSpriteAnimationDef>("WaitIconSpriteAnimation");
         break;
       case WaitIconDisplay::WaitIconType::Fixed:
         WaitIconSprite = EnsureGetMember<Sprite>("WaitIconSprite");
@@ -206,15 +205,14 @@ void Configure() {
           .value_or(AutoIconDisplay::AutoIconType::None);
   switch (AutoIconCurrentType) {
     case AutoIconDisplay::AutoIconType::SpriteAnim:
-      AutoIconSpriteAnim =
+      AutoIconSpriteAnimationDef =
           EnsureGetMember<SpriteAnimationDef>("AutoIconSpriteAnim");
       AutoIconOffset = EnsureGetMember<glm::vec2>("AutoIconOffset");
       break;
 
     case AutoIconDisplay::AutoIconType::SpriteAnimFixed:
-      AutoIconSpriteAnim =
-          EnsureGetMember<SpriteAnimationDef>("AutoIconSpriteAnim");
-      AutoIconFixedSpriteId = EnsureGetMember<int>("AutoIconFixedSpriteId");
+      AutoIconFixedSpriteAnimationDef =
+          EnsureGetMember<FixedSpriteAnimationDef>("AutoIconSpriteAnim");
       AutoIconOffset = EnsureGetMember<glm::vec2>("AutoIconOffset");
       break;
 
@@ -235,15 +233,14 @@ void Configure() {
           .value_or(SkipIconDisplay::SkipIconType::None);
   switch (SkipIconCurrentType) {
     case SkipIconDisplay::SkipIconType::SpriteAnim:
-      SkipIconSpriteAnim =
+      SkipIconSpriteAnimationDef =
           EnsureGetMember<SpriteAnimationDef>("SkipIconSpriteAnim");
       SkipIconOffset = EnsureGetMember<glm::vec2>("SkipIconOffset");
       break;
 
     case SkipIconDisplay::SkipIconType::SpriteAnimFixed:
-      SkipIconSpriteAnim =
-          EnsureGetMember<SpriteAnimationDef>("SkipIconSpriteAnim");
-      SkipIconFixedSpriteId = EnsureGetMember<int>("SkipIconFixedSpriteId");
+      SkipIconFixedSpriteAnimationDef =
+          EnsureGetMember<FixedSpriteAnimationDef>("SkipIconSpriteAnim");
       SkipIconOffset = EnsureGetMember<glm::vec2>("SkipIconOffset");
       break;
 

@@ -24,9 +24,10 @@ root.Dialogue = {
     NametagPosition = { X = 82, Y = 443 },
     NametagSprite = "NametagSprite",
 
-    WaitIconSpriteAnim = "WaitIconSpriteAnimDef",
+    WaitIconSpriteAnimation = "WaitIconSpriteAnimationDef",
     WaitIconCurrentType = WaitIconType.SpriteAnim,
     WaitIconOffset = { X = 4, Y = 4 },
+
     DialogueFont = "Default",
     SetFontSizeRatio = 1000.0,
     DefaultFontSize = 32,
@@ -73,7 +74,7 @@ root.Dialogue = {
 };
 
 MakeAnimation({
-    Name = "WaitIconSpriteAnimDef",
+    Name = "WaitIconSpriteAnimationDef",
     Sheet = "Data",
     FirstFrameX = 0,
     FirstFrameY = 96,

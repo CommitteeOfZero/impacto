@@ -18,7 +18,9 @@ MovieMenuEntryButton::MovieMenuEntryButton(int id, Sprite const& movieThumbnail,
                                            glm::vec2 thumbnailPos,
                                            glm::vec2 boxPos,
                                            bool& isMovieExtraMode)
-    : IsExtraMovieModeOn(isMovieExtraMode) {
+    : MovieBoxAnim(SelectedMovieAnimation.Instantiate()),
+      MovieBoxAnimExtra(SelectedMovieExtraAnimation.Instantiate()),
+      IsExtraMovieModeOn(isMovieExtraMode) {
   Id = id;
   NormalSprite = movieThumbnail;
   DisabledSprite = lockedMovieThumbnail;
@@ -26,12 +28,10 @@ MovieMenuEntryButton::MovieMenuEntryButton(int id, Sprite const& movieThumbnail,
   Bounds = RectF(boxPos.x, boxPos.y, MovieBox.ScaledWidth(),
                  MovieBox.ScaledHeight());
 
-  MovieBoxAnim = SelectedMovieAnimation.Instantiate();
   MovieBoxAnim.Direction = AnimationDirection::In;
   MovieBoxAnim.LoopMode = AnimationLoopMode::Loop;
   MovieBoxAnim.StartIn();
 
-  MovieBoxAnimExtra = SelectedMovieExtraAnimation.Instantiate();
   MovieBoxAnimExtra.Direction = AnimationDirection::In;
   MovieBoxAnimExtra.LoopMode = AnimationLoopMode::Loop;
   MovieBoxAnimExtra.StartIn();

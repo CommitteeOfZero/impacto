@@ -38,18 +38,18 @@ root.Dialogue = {
     NametagShowDuration = 16 / 60;
 
     WaitIconCurrentType = WaitIconType.SpriteAnimFixed,
-    WaitIconSpriteAnim = "WaitIconSpriteAnim",
+    WaitIconSpriteAnimation = "WaitIconSpriteAnimation",
     WaitIconAnimationDuration = 0.7,
     WaitIconOffset = { X = 1595, Y = 895 },
-    WaitIconFixedSpriteId = 6,
+
     AutoIconCurrentType = AutoIconType.SpriteAnimFixed,
-    AutoIconSpriteAnim = "AutoIconSpriteAnim",
+    AutoIconSpriteAnim = "AutoIconSpriteAnimation",
     AutoIconOffset = { X = 1568, Y = 690 },
-    AutoIconFixedSpriteId = 6,
+
     SkipIconCurrentType = SkipIconType.SpriteAnimFixed,
-    SkipIconSpriteAnim = "SkipIconSpriteAnim",
+    SkipIconSpriteAnim = "SkipIconSpriteAnimation",
     SkipIconOffset = { X = 1688, Y = 794 },
-    SkipIconFixedSpriteId = 6,
+
     DialogueFont = "Default",
     SetFontSizeRatio = 800.0,
     DefaultFontSize = 42,
@@ -120,8 +120,8 @@ root.Dialogue = {
     } or {},
 };
 
-MakeAnimation({
-    Name = "WaitIconSpriteAnim",
+MakeFixedSpriteAnimation({
+    Name = "WaitIconSpriteAnimation",
     Sheet = "Data",
     FirstFrameX = 864, --1114
     FirstFrameY = 877,
@@ -130,14 +130,15 @@ MakeAnimation({
     FrameHeight = 185,
     RowHeight = 185,
     Frames = 10,
+    FixedFrameIdx = 6,
     Duration = 1,
     Rows = 1,
     Columns = 10,
     PrimaryDirection = AnimationDirections.Right
 });
 
-MakeAnimation({
-    Name = "AutoIconSpriteAnim",
+MakeFixedSpriteAnimation({
+    Name = "AutoIconSpriteAnimation",
     Sheet = "Data",
     FirstFrameX = 854,
     FirstFrameY = 456,
@@ -146,14 +147,15 @@ MakeAnimation({
     FrameHeight = 220,
     RowHeight = 220,
     Frames = 10,
+    FixedFrameIdx = 6,
     Duration = 0.7,
     Rows = 1,
     Columns = 10,
     PrimaryDirection = AnimationDirections.Right
 });
 
-MakeAnimation({
-    Name = "SkipIconSpriteAnim",
+MakeFixedSpriteAnimation({
+    Name = "SkipIconSpriteAnimation",
     Sheet = "Data",
     FirstFrameX = 854,
     FirstFrameY = 676,
@@ -162,11 +164,12 @@ MakeAnimation({
     FrameHeight = 220,
     RowHeight = 220,
     Frames = 10,
+    FixedFrameIdx = 6,
     Duration = 0.7,
     Rows = 1,
     Columns = 10,
     PrimaryDirection = AnimationDirections.Right
-})
+});
 
 local nametagMainX = 0;
 local nametagMainY = 0;

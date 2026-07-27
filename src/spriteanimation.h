@@ -7,16 +7,28 @@ namespace Impacto {
 
 class SpriteAnimationDef;
 
-struct SpriteAnimation : public Animation {
-  SpriteAnimationDef* Def = 0;
+class SpriteAnimation final : public Animation {
+ public:
+  SpriteAnimation(const SpriteAnimationDef& def) : Def(def) {}
 
-  bool Exists();
-  virtual Sprite CurrentSprite() const;
+  Sprite CurrentSprite() const;
+
+  std::reference_wrapper<const SpriteAnimationDef> Def;
 };
+
+class SpriteAnimationDef {
+ public:
+  float Duration;
+  std::vector<Sprite> Frames;
+
+  SpriteAnimation Instantiate() const;
+};
+
+class FixedSpriteAnimationDef;
 
 /*
   Sprite animation that has a separate in and out animation
-  Consists of one contiguous Sprite array, with an int FixSpriteId
+  Consists of one contiguous Sprite array, with an int FixedFrameIdx
   denoting the 0-indexed id of the last frame of the in animation.
 
   If the animation is out and gets told to move in, it will play
@@ -28,28 +40,35 @@ struct SpriteAnimation : public Animation {
   and then immediately move on to the requested animation.
 
   The progress is split up such that the interval
-  [0, 1 - FixSpriteId / FrameCount] is the out animation (with 0 being fully
-  out), and the interval [1 - FixSpriteId / FrameCount, 1] is the in animation
+  [0, 1 - FixedFrameIdx / FrameCount] is the out animation (with 0 being fully
+  out), and the interval [1 - FixedFrameIdx / FrameCount, 1] is the in animation
   (with 1 being fully in).
 */
-struct FixedSpriteAnimation : public SpriteAnimation {
-  void StartInImpl(bool reset) override;
-  void StartOutImpl(bool reset) override;
-  void UpdateImpl(float dt) override;
-  Sprite CurrentSprite() const override;
+class FixedSpriteAnimation final : public Animation {
+ public:
+  FixedSpriteAnimation(const FixedSpriteAnimationDef& def) : Def(def) {}
+
+  Sprite CurrentSprite() const;
   float GetFixedSpriteProgress() const;
+
+  void StartInImpl(bool reset) override {
+    if (reset) Progress = GetFixedSpriteProgress();
+  }
+  void StartOutImpl(bool reset) override {
+    if (reset) Progress = GetFixedSpriteProgress();
+  }
+  void UpdateImpl(float dt) override;
+
+  std::reference_wrapper<const FixedSpriteAnimationDef> Def;
 };
 
-class SpriteAnimationDef {
+class FixedSpriteAnimationDef {
  public:
   float Duration;
-  int FrameCount;
-  Sprite* Frames;
+  std::vector<Sprite> Frames;
+  size_t FixedFrameIdx;
 
-  // Sprite to hold on in case of SpriteAnimFixed type
-  int FixSpriteId = 0;
-
-  SpriteAnimation Instantiate();
+  FixedSpriteAnimation Instantiate() const;
 };
 
 }  // namespace Impacto

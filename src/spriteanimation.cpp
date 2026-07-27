@@ -2,30 +2,22 @@
 
 namespace Impacto {
 
-bool SpriteAnimation::Exists() { return Def != 0; }
-
 Sprite SpriteAnimation::CurrentSprite() const {
-  int frame = (int)(Progress * (float)Def->FrameCount);
-
-  if (frame >= Def->FrameCount)
-    frame = Def->FrameCount - 1;
-  else if (frame < 0)
-    frame = 0;
-
-  return Def->Frames[frame];
+  const size_t frame = static_cast<size_t>(
+      Progress * static_cast<float>(Def.get().Frames.size()));
+  return Def.get().Frames[frame];
 }
 
-void FixedSpriteAnimation::StartInImpl(bool reset) {
-  if (reset) Progress = GetFixedSpriteProgress();
-}
+SpriteAnimation SpriteAnimationDef::Instantiate() const {
+  SpriteAnimation result(*this);
+  result.SetDuration(Duration);
 
-void FixedSpriteAnimation::StartOutImpl(bool reset) {
-  if (reset) Progress = GetFixedSpriteProgress();
+  return result;
 }
 
 void FixedSpriteAnimation::UpdateImpl(float dt) {
-  float fixedSpriteProgress = GetFixedSpriteProgress();
-  AnimationDirection animationRequest = Direction;
+  const float fixedSpriteProgress = GetFixedSpriteProgress();
+  const AnimationDirection animationRequest = Direction;
 
   if ((Progress == 1.0f && Direction == AnimationDirection::Out) ||
       (Progress == 0.0f && Direction == AnimationDirection::In)) {
@@ -50,17 +42,18 @@ void FixedSpriteAnimation::UpdateImpl(float dt) {
     dt /= fixedSpriteProgress;
   }
 
-  SpriteAnimation::UpdateImpl(dt);
+  Animation::UpdateImpl(dt);
 
   // Revert coordinate transformation and normalization
-  if (Direction == AnimationDirection::In)
+  if (Direction == AnimationDirection::In) {
     Progress = Progress * (1.0f - fixedSpriteProgress) + fixedSpriteProgress;
-  else
+  } else {
     Progress *= fixedSpriteProgress;
+  }
 
   // Start requested animation after already playing, non-requested, animation
   // has finished
-  bool progressAtExtremum = (Progress == 0.0f || Progress == 1.0f);
+  const bool progressAtExtremum = (Progress == 0.0f || Progress == 1.0f);
   if (animationRequest != Direction && progressAtExtremum) {
     Direction = animationRequest;
     State = AnimationState::Playing;
@@ -68,42 +61,37 @@ void FixedSpriteAnimation::UpdateImpl(float dt) {
 }
 
 Sprite FixedSpriteAnimation::CurrentSprite() const {
-  int frame;
-  float fixedSpriteProgress = GetFixedSpriteProgress();
+  const size_t frame = std::clamp<size_t>(
+      [this]() -> size_t {
+        const float fixedSpriteProgress = GetFixedSpriteProgress();
 
-  if (Progress > fixedSpriteProgress)  // In animation
-    frame = (int)((Progress - fixedSpriteProgress) * (float)Def->FrameCount);
-  else if (Progress < fixedSpriteProgress)  // Out animation
-    frame = (int)((1.0f - Progress) * (float)Def->FrameCount);
-  else {  // Progress = fixedSpriteProgress
-    frame = Def->FixSpriteId;
-    if (Direction == AnimationDirection::Out) frame++;
-  }
+        if (Progress > fixedSpriteProgress) {  // In animation
+          return static_cast<size_t>(
+              (Progress - fixedSpriteProgress) *
+              static_cast<float>(Def.get().Frames.size()));
+        } else if (Progress < fixedSpriteProgress) {  // Out animation
+          return static_cast<size_t>(
+              (1.0f - Progress) * static_cast<float>(Def.get().Frames.size()));
+        } else {  // Progress = fixedSpriteProgress
+          return Def.get().FixedFrameIdx +
+                 (Direction == AnimationDirection::Out);
+        }
+      }(),
+      0, Def.get().Frames.size() - 1);
 
-  if (frame >= Def->FrameCount)
-    frame = Def->FrameCount - 1;
-  else if (frame < 0)
-    frame = 0;
-
-  return Def->Frames[frame];
+  return Def.get().Frames[frame];
 }
 
 float FixedSpriteAnimation::GetFixedSpriteProgress() const {
   /* Converse because in- and out directions are reversed
     between spritesheet and implementation */
-  return 1.0f - (float)Def->FixSpriteId / Def->FrameCount;
-}
+  return 1.0f -
+         static_cast<float>(Def.get().FixedFrameIdx) / Def.get().Frames.size();
+};
 
-SpriteAnimation SpriteAnimationDef::Instantiate() {
-  SpriteAnimation result;
-  result.Def = this;
-  result.DurationIn = this->Duration;
-  result.DurationOut = this->Duration;
-
-  if (this->FixSpriteId != 0) {
-    result.Progress =
-        static_cast<FixedSpriteAnimation&>(result).GetFixedSpriteProgress();
-  }
+FixedSpriteAnimation FixedSpriteAnimationDef::Instantiate() const {
+  FixedSpriteAnimation result(*this);
+  result.SetDuration(Duration);
 
   return result;
 }

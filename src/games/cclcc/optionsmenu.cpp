@@ -191,9 +191,10 @@ std::unique_ptr<Group> OptionsMenu::CreateVoicePage(
   return voicePage;
 }
 
-OptionsMenu::OptionsMenu() : UI::OptionsMenu(), CommonMenu(FadeAnimation) {
-  PoleAnimation = Profile::CCLCC::OptionsMenu::PoleAnimation.Instantiate();
-
+OptionsMenu::OptionsMenu()
+    : UI::OptionsMenu(),
+      CommonMenu(FadeAnimation),
+      PoleAnimation(Profile::CCLCC::OptionsMenu::PoleAnimation.Instantiate()) {
   PageButtons.reserve(PageCount);
   for (int i = 0; i < PageCount; i++) {
     PageButtons.emplace_back(i, PagePanelHoverBounds[i]);

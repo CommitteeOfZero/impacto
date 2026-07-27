@@ -13,7 +13,6 @@ class DefaultSaveIconAnimation {
   Sprite BackgroundSprite;
   glm::vec2 BackgroundOffset;
   float BackgroundMaxAlpha;
-  DefaultSaveIconAnimation() = default;
   DefaultSaveIconAnimation(SpriteAnimationDef& foregroundAnimDef,
                            Sprite backgroundSprite, glm::vec2 backgroundOffset,
                            float backgroundMaxAlpha, float fadeInDuration,

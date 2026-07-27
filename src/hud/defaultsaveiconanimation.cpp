@@ -10,10 +10,10 @@ DefaultSaveIconAnimation::DefaultSaveIconAnimation(
     SpriteAnimationDef& foregroundAnimDef, Sprite backgroundSprite,
     glm::vec2 backgroundOffset, float backgroundMaxAlpha, float fadeInDuration,
     float fadeOutDuration)
-    : BackgroundSprite(backgroundSprite),
+    : ForegroundAnimation(foregroundAnimDef.Instantiate()),
+      BackgroundSprite(backgroundSprite),
       BackgroundOffset(backgroundOffset),
       BackgroundMaxAlpha(backgroundMaxAlpha) {
-  ForegroundAnimation = foregroundAnimDef.Instantiate();
   ForegroundAnimation.LoopMode = AnimationLoopMode::Loop;
 
   FadeAnimation.DurationIn = fadeInDuration;
@@ -47,8 +47,8 @@ void DefaultSaveIconAnimation::Render(glm::vec2 position) {
   // if FadeAnimation is playing, should show full visible sprite
   Renderer->DrawSprite(
       FadeAnimation.IsPlaying()
-          ? ForegroundAnimation.Def
-                ->Frames[Profile::SaveIcon::FullyVisibleSpriteIndex]
+          ? ForegroundAnimation.Def.get()
+                .Frames[Profile::SaveIcon::FullyVisibleSpriteIndex]
           : ForegroundAnimation.CurrentSprite(),
       position, col);
 }

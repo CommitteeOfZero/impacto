@@ -96,7 +96,8 @@ std::optional<T> TryGet();
 
 template <typename T>
 concept HasEntityType =
-    is_any_of_v<T, Sprite, SpriteSheet, Font*, SpriteAnimationDef>;
+    is_any_of_v<T, Sprite, SpriteSheet, Font*, SpriteAnimationDef,
+                FixedSpriteAnimationDef>;
 
 template <typename T>
   requires HasEntityType<T>
@@ -317,6 +318,8 @@ inline const auto& GetEntityMap() {
     return Fonts;
   } else if constexpr (std::is_same_v<decayedT, SpriteAnimationDef>) {
     return Animations;
+  } else if constexpr (std::is_same_v<decayedT, FixedSpriteAnimationDef>) {
+    return FixedSpriteAnimations;
   } else {
     static_assert(sizeof(T*) == 0, "Not a valid Entity type");
   }

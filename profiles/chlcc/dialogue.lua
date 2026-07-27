@@ -42,16 +42,20 @@ root.Dialogue = {
     TextFadeOutDuration = 0.33,
     DialogueBoxCurrentType = DialogueBoxType.CHLCC,
     NVLBoxMaxOpacity = 0.55,
-    WaitIconSpriteAnim = "WaitIconSpriteAnimDef",
+
+    WaitIconSpriteAnimation = "WaitIconSpriteAnimationDef",
     WaitIconCurrentType = WaitIconType.SpriteAnim,
+
     AutoIconCurrentType = AutoIconType.CHLCC,
     AutoIconSprite = "AutoIconSprite",
     AutoIconOffset = { X = 1167, Y = 630 },
     AutoIconRotationSpeed = 0.5 / 3,
+
     SkipIconCurrentType = SkipIconType.CHLCC,
     SkipIconSprite = "SkipIconSprite",
     SkipIconOffset = { X = 1167, Y = 527 },
     SkipIconRotationSpeed = 1.5 / 3,
+
     AutoSkipArrowsSprite = "AutoSkipArrowsSprite",
     REVWaitIconOffset = { X = 4, Y = -4 },
     WaitIconOffset = { X = 4, Y = 4 },
@@ -133,7 +137,7 @@ root.Dialogue = {
 };
 
 MakeAnimation({
-    Name = "WaitIconSpriteAnimDef",
+    Name = "WaitIconSpriteAnimationDef",
     Sheet = "Data",
     FirstFrameX = 0,
     FirstFrameY = 97,
