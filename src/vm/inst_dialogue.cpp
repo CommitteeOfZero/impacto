@@ -380,6 +380,8 @@ VmInstruction(InstMesCls) {
       const bool hidden = hidePage(page);
       if (hidden) {
         SetFlag(SF_SHOWWAITICON + pageId, false);
+        page.Glyphs.clear();
+        page.RubyChunks.clear();
         page.RenderName = false;
       } else {
         ResetInstruction;
@@ -396,6 +398,8 @@ VmInstruction(InstMesCls) {
       if (allHidden) {
         for (DialoguePage& page : DialoguePages) {
           page.RenderName = false;
+          page.Glyphs.clear();
+          page.RubyChunks.clear();
           SetFlag(SF_SHOWWAITICON + page.Id, false);
         }
       } else {
