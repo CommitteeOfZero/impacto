@@ -105,19 +105,52 @@ void FFmpegPlayer::Init() {
 void FFmpegPlayer::ReinitAudio() { AudioPlayer->Reinit(); }
 
 AVBufferRef* FFmpegPlayer::HwDecoderInit(const AVCodec* codec) {
+#if defined(_WIN32)
+  static constexpr auto preferenceOrder = std::to_array<AVHWDeviceType>({
+      AV_HWDEVICE_TYPE_D3D11VA,
+      AV_HWDEVICE_TYPE_DXVA2,
+  });
+#elif defined(__APPLE__)
+  static constexpr auto preferenceOrder = std::to_array<AVHWDeviceType>({
+      AV_HWDEVICE_TYPE_VIDEOTOOLBOX,
+  });
+#elif defined(__linux__)
+  static constexpr auto preferenceOrder = std::to_array<AVHWDeviceType>({
+      AV_HWDEVICE_TYPE_VAAPI,
+      AV_HWDEVICE_TYPE_VDPAU,
+  });
+#else
+  static constexpr std::array<AVHWDeviceType, 0> preferenceOrder;
+#endif
+
+  auto tryCreate = [&](auto matches) -> AVBufferRef* {
     for (int i = 0;; i++) {
       const AVCodecHWConfig* cfg = avcodec_get_hw_config(codec, i);
       if (!cfg) break;
       if (!(cfg->methods & AV_CODEC_HW_CONFIG_METHOD_HW_DEVICE_CTX)) continue;
+      if (!matches(cfg->device_type)) continue;
 
-    AVBufferRef* hw_device_ctx = NULL;
-    if (av_hwdevice_ctx_create(&hw_device_ctx, cfg->device_type, NULL, NULL,
-                               0) >= 0) {
+      AVBufferRef* hw_device_ctx = nullptr;
+      if (av_hwdevice_ctx_create(&hw_device_ctx, cfg->device_type, nullptr,
+                                 nullptr, 0) >= 0) {
         HwVideoPixelFormat = static_cast<AVPixelFormat>(cfg->pix_fmt);
         return hw_device_ctx;
       }
     }
-  return NULL;
+    return nullptr;
+  };
+
+  for (AVHWDeviceType preferred : preferenceOrder) {
+    if (AVBufferRef* ctx =
+            tryCreate([&](AVHWDeviceType t) { return t == preferred; })) {
+      return ctx;
+    }
+  }
+
+  return tryCreate([&](AVHWDeviceType t) {
+    return std::find(std::begin(preferenceOrder), std::end(preferenceOrder),
+                     t) == std::end(preferenceOrder);
+  });
 }
 
 template <AVMediaType MediaType>
@@ -581,12 +614,12 @@ void FFmpegPlayer::Decode(FFmpegStream<MediaType>& stream) {
              ec.message());
       return false;
     }
+    if constexpr (MediaType == AVMEDIA_TYPE_VIDEO) {
+      ProcessVideoFrame(f);
+    }
     if (!f) {
       if (packet.Serial == INT32_MIN) pushFrame(std::move(f));
       return false;
-    }
-    if constexpr (MediaType == AVMEDIA_TYPE_VIDEO) {
-      ProcessVideoFrame(f);
     }
     if constexpr (MediaType == AVMEDIA_TYPE_SUBTITLE) {
       auto* rawSubtitle = f.raw();
