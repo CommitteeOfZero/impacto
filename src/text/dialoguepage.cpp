@@ -183,14 +183,18 @@ void DialoguePage::Render(const float alpha,
   glm::vec4 opacityTint(1.0f);
   opacityTint.a = glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress) * alpha;
 
-  const NameInfo nameInfo{
-      .RenderWindow = RenderName,
-      .NameId = ScrWork[SW_MESNAMEID0 + Id] == NO_NAME
-                    ? std::nullopt
-                    : std::optional(ScrWork[SW_MESNAMEID0 + Id]),
-      .Name = Name,
-  };
-  DialogueBoxInst->Render(GetMode(), nameInfo, opacityTint);
+  const int winType =
+      ScrWork[SW_MESWIN0TYPE + Profile::Vm::ScrWorkMesStructSize * Id];
+  if ((winType & 1 << 3) == 0) {
+    const NameInfo nameInfo{
+        .RenderWindow = RenderName,
+        .NameId = ScrWork[SW_MESNAMEID0 + Id] == NO_NAME
+                      ? std::nullopt
+                      : std::optional(ScrWork[SW_MESNAMEID0 + Id]),
+        .Name = Name,
+    };
+    DialogueBoxInst->Render(GetMode(), nameInfo, opacityTint);
+  }
 
   // TODO: Figure out what's up with text box coloring
   glm::vec4 col = glm::vec4(1.0f);  // ScrWorkGetColor(SW_MESWINDOW_COLOR);
@@ -202,22 +206,27 @@ void DialoguePage::Render(const float alpha,
     pos += DialogueBoxInst.get()->GetScrWorkPos() - GetTextModeInfo().WindowPos;
   }
 
-  if (RenderName) {
-    Renderer->DrawProcessedText(Name, DialogueFont, opacityTint.a,
-                                opacityTint.a, outlineMode, pos);
-  }
+  if ((winType & 1 << 5) == 0) {
+    if (RenderName) {
+      Renderer->DrawProcessedText(Name, DialogueFont, opacityTint.a,
+                                  opacityTint.a, outlineMode, pos);
+    }
 
-  Renderer->DrawProcessedText(Glyphs, DialogueFont, opacityTint.a,
-                              opacityTint.a, outlineMode, pos);
-  for (const RubyChunk& chunk : RubyChunks) {
-    Renderer->DrawProcessedText(chunk.Text, DialogueFont, opacityTint.a,
+    Renderer->DrawProcessedText(Glyphs, DialogueFont, opacityTint.a,
                                 opacityTint.a, outlineMode, pos);
+    for (const RubyChunk& chunk : RubyChunks) {
+      Renderer->DrawProcessedText(chunk.Text, DialogueFont, opacityTint.a,
+                                  opacityTint.a, outlineMode, pos);
+    }
   }
 
   // Wait icon
-  const glm::vec2 waitIconPos =
-      pos + (Glyphs.empty() ? glm::vec2() : Glyphs.back().DestRect.TopRight());
-  WaitIconDisplay::Render(waitIconPos, col, GetMode(), Id);
+  if ((winType & 1 << 7) == 0) {
+    const glm::vec2 waitIconPos =
+        pos +
+        (Glyphs.empty() ? glm::vec2() : Glyphs.back().DestRect.TopRight());
+    WaitIconDisplay::Render(waitIconPos, col, GetMode(), Id);
+  }
 
   AutoIconDisplay::Render(col);
   SkipIconDisplay::Render(col);
