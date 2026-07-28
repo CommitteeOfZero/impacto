@@ -94,6 +94,9 @@ static void ConfigureWaitIcon() {
     } break;
   }
 
+  WaitIconDrawableWithoutTextbox =
+      TryGetMember<bool>("WaitIconDrawableWithoutTextbox").value_or(true);
+
   KeyWaitIcon = WaitIcon::Create(nullptr);
 }
 

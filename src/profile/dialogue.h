@@ -70,6 +70,7 @@ inline float WaitIconAnimationDuration;
 inline std::optional<SpriteAnimationDef> WaitIconSpriteAnimationDef;
 inline std::optional<FixedSpriteAnimationDef> WaitIconFixedSpriteAnimationDef;
 inline WaitIconType WaitIconCurrentType = WaitIconType::None;
+inline bool WaitIconDrawableWithoutTextbox = true;
 
 inline Sprite AutoIconSprite;
 inline std::optional<SpriteAnimationDef> AutoIconSpriteAnimationDef;

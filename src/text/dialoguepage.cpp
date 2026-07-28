@@ -185,7 +185,8 @@ void DialoguePage::Render(const float alpha,
 
   const int winType =
       ScrWork[SW_MESWIN0TYPE + Profile::Vm::ScrWorkMesStructSize * Id];
-  if ((winType & 1 << 3) == 0) {
+  const bool windowIsVisible = (winType & 1 << 3) == 0;
+  if (windowIsVisible) {
     const NameInfo nameInfo{
         .RenderWindow = RenderName,
         .NameId = ScrWork[SW_MESNAMEID0 + Id] == NO_NAME
@@ -220,7 +221,8 @@ void DialoguePage::Render(const float alpha,
     }
   }
 
-  if ((winType & 1 << 7) == 0) {
+  if ((winType & 1 << 7) == 0 &&
+      (WaitIconDrawableWithoutTextbox || windowIsVisible)) {
     const glm::vec2 waitIconPos =
         pos +
         (Glyphs.empty() ? glm::vec2() : Glyphs.back().DestRect.BottomRight());

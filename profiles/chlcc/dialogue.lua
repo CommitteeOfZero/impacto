@@ -47,6 +47,7 @@ root.Dialogue = {
     WaitIconCurrentType = WaitIconType.SpriteAnimation,
     KeyWaitIconPos = { X = 1038, Y = 640 },
     WaitIconOffset = { X = 4, Y = -28 },
+    WaitIconDrawableWithoutTextbox = false,
 
     AutoIconCurrentType = AutoIconType.CHLCC,
     AutoIconSprite = "AutoIconSprite",
