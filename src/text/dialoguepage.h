@@ -111,4 +111,20 @@ inline bool AutoModeEnabled = false;
 inline bool SyncAutoModeEnabled = false;
 inline float SyncAutoTime = 0.0f;
 
+enum class MesWinTypeBit : uint8_t {
+  UseScrWorkPos = 1 << 0,
+  DontAddToBacklog = 1 << 1,
+  DisableAutoSave = 1 << 2,
+  DontDrawWindow = 1 << 3,
+  DisableManualMessageAdvance = 1 << 4,
+  DontDrawText = 1 << 5,
+  DontSkipIfRead = 1 << 6,
+  DontDrawWaitIcon = 1 << 7,
+};
+
 }  // namespace Impacto
+
+template <>
+struct magic_enum::customize::enum_range<Impacto::MesWinTypeBit> {
+  static constexpr bool is_flags = true;
+};

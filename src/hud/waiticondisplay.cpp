@@ -54,7 +54,7 @@ bool WaitIcon::IsVisible() const {
   if ((ScrWork[SW_GAMESTATE] & (1 << 7)) != 0) return false;
   if ((ScrWork[SW_MESWIN0TYPE +
                ParentPage->Id * Profile::Vm::ScrWorkMesStructSize] &
-       (1 << 7)) != 0) {
+       +MesWinTypeBit::DontDrawWaitIcon) != 0) {
     return false;
   }
   if (ParentPage->GetTextModeInfo().WaitIconDispMode ==

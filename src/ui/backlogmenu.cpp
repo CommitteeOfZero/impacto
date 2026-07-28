@@ -353,7 +353,7 @@ template <typename EntryType>
 void BacklogMenu<EntryType>::AddMessage(Vm::BufferOffsetContext scrCtx,
                                         std::optional<int> audioId,
                                         int characterId) {
-  if (GetFlag(SF_REVADDDISABLE) && ScrWork[SW_MESWIN0TYPE] != 0) return;
+  if (GetFlag(SF_REVADDDISABLE)) return;
 
   auto onClick = [this](auto* btn) { return MenuButtonOnClick(btn); };
 

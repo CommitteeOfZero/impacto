@@ -185,7 +185,7 @@ void DialoguePage::Render(const float alpha,
 
   const int winType =
       ScrWork[SW_MESWIN0TYPE + Profile::Vm::ScrWorkMesStructSize * Id];
-  const bool windowIsVisible = (winType & 1 << 3) == 0;
+  const bool windowIsVisible = (winType & +MesWinTypeBit::DontDrawWindow) == 0;
   if (windowIsVisible) {
     const NameInfo nameInfo{
         .RenderWindow = RenderName,
@@ -203,7 +203,8 @@ void DialoguePage::Render(const float alpha,
 
   glm::vec2 pos = glm::vec2(ScrWork[SW_MESWIN0POSX_OFS + 2 * Id],
                             ScrWork[SW_MESWIN0POSY_OFS + 2 * Id]);
-  if (ScrWork[SW_MESWIN0TYPE + Profile::Vm::ScrWorkMesStructSize * Id] & 1) {
+  if (ScrWork[SW_MESWIN0TYPE + Profile::Vm::ScrWorkMesStructSize * Id] &
+      +MesWinTypeBit::UseScrWorkPos) {
     pos += DialogueBoxInst.get()->GetScrWorkPos() - GetTextModeInfo().WindowPos;
   }
 
@@ -240,7 +241,7 @@ void DialoguePage::Show() { FadeAnimation.StartIn(true); }
 void DialoguePage::PushBacklogEntry() {
   if (!CurrentStringAddress.has_value() || GetFlag(SF_REVADDDISABLE) ||
       (ScrWork[SW_MESWIN0TYPE + Profile::Vm::ScrWorkMesStructSize * Id] &
-       0b10)) {
+       +MesWinTypeBit::DontAddToBacklog)) {
     return;
   }
 

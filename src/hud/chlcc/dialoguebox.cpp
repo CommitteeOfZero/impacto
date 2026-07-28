@@ -34,10 +34,13 @@ void DialogueBox::Render(const DialoguePageMode mode, const NameInfo& nameInfo,
     } break;
 
     case DPM_REV: {
-      const glm::vec2 pos = (ScrWork[SW_MESWIN0TYPE] != 1
-                                 ? ParentPage.get().GetTextModeInfo().WindowPos
-                                 : GetScrWorkPos()) +
-                            ErinBoxPos - posOfs;
+      const glm::vec2 pos =
+          (ScrWork[SW_MESWIN0TYPE +
+                   ParentPage.get().Id * Profile::Vm::ScrWorkMesStructSize] &
+                   +MesWinTypeBit::UseScrWorkPos
+               ? GetScrWorkPos()
+               : ParentPage.get().GetTextModeInfo().WindowPos) +
+          ErinBoxPos - posOfs;
 
       Renderer->DrawSprite(ErinBoxSprite, pos, {1.0f, 1.0f, 1.0f, tint.a});
     } break;
