@@ -382,6 +382,7 @@ VmInstruction(InstMesCls) {
         SetFlag(SF_SHOWWAITICON + pageId, false);
         page.Glyphs.clear();
         page.RubyChunks.clear();
+        page.CurrentLineTop = 0.0f;
         page.RenderName = false;
       } else {
         ResetInstruction;
@@ -400,6 +401,7 @@ VmInstruction(InstMesCls) {
           page.RenderName = false;
           page.Glyphs.clear();
           page.RubyChunks.clear();
+          page.CurrentLineTop = 0.0f;
           SetFlag(SF_SHOWWAITICON + page.Id, false);
         }
       } else {
