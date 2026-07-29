@@ -30,7 +30,7 @@ root.SpriteSheets = {
       DesignHeight = 3272
   },
   ["Data"] = {
-      Path = { Mount = "system", Id = 5 },
+      Path = { Mount = "system", Id = 26 },
       DesignWidth = 3072,
       DesignHeight = 1536
   },

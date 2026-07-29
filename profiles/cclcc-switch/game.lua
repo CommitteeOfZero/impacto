@@ -67,7 +67,7 @@ include(root.BaseConfig.RootProfilesDir .. '/cclcc/dialogue.lua');
 include(root.BaseConfig.RootProfilesDir .. '/cclcc/configsystem.lua');
 include(root.BaseConfig.RootProfilesDir .. '/cclcc/bgeff.lua');
 include(root.BaseConfig.RootProfilesDir .. '/cclcc/waveeffects.lua');
-include(root.BaseConfig.RootProfilesDir .. '/cclcc/hud/saveicon.lua');
+include(root.BaseConfig.RootProfilesDir .. '/cclcc-switch/hud/saveicon.lua');
 include(root.BaseConfig.RootProfilesDir .. '/cclcc/hud/loadingdisplay.lua');
 include(root.BaseConfig.RootProfilesDir .. '/cclcc/hud/datedisplay.lua');
 include(root.BaseConfig.RootProfilesDir .. '/cclcc/hud/titlemenu.lua');
