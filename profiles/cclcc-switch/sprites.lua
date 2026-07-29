@@ -30,7 +30,7 @@ root.SpriteSheets = {
       DesignHeight = 3272
   },
   ["Data"] = {
-      Path = { Mount = "system", Id = 5 },
+      Path = { Mount = "system", Id = 26 },
       DesignWidth = 3072,
       DesignHeight = 1536
   },
@@ -67,7 +67,7 @@ root.SpriteSheets = {
   ["MenuBG"] = {
       Path = { Mount = "system", Id = 31 },
       DesignWidth = 3000,
-      DesignHeight = 1500
+      DesignHeight = 3000
   },
   ["MenuChip"] = {
       Path = { Mount = "system", Id = 11 },
