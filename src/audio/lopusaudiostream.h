@@ -29,7 +29,6 @@ class LopusAudioStream : public AudioStream {
   uint32_t DataSize = 0;
   uint32_t PreSkipSampleCount = 0;
   uint64_t TotalSampleCount = 0;
-  uint64_t CurrentSample = 0;
   std::optional<uint16_t> FrameSize = std::nullopt;
   std::vector<LopusFrameTableEntry> FrameTable;
   int CurrentFrameIndex = 0;

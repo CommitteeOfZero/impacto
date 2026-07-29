@@ -44,22 +44,16 @@ AudioStream* LopusAudioStream::Create(Stream* stream) {
   // context info chunk
   if (contextOffset && result->BaseStream->Seek(contextOffset, RW_SEEK_SET) &&
       Io::ReadLE<uint32_t>(result->BaseStream) == 0x80000003) {
-    result->BaseStream->Seek(1, RW_SEEK_CUR);  // unk
+    result->BaseStream->Seek(5, RW_SEEK_CUR);  // unk
 
     result->Loop = Io::ReadU8(result->BaseStream) != 0;
+    result->BaseStream->Seek(2, RW_SEEK_CUR);  // zeroes padding?
+
     result->Duration =
         Io::ReadLE<int32_t>(result->BaseStream);  // number of samples
     result->LoopStart = Io::ReadLE<int32_t>(result->BaseStream);
     result->LoopEnd = Io::ReadLE<int32_t>(result->BaseStream);
-
-    result->LoopStart =
-        result->LoopStart > result->Duration ? 0 : result->LoopStart;
-    // Loop end can be negative, that's might be the workaround
-    result->LoopEnd = result->LoopEnd < 0 ? result->Duration : result->LoopEnd;
-    if (result->Duration == 0) {
-      result->Duration = result->LoopEnd;
-    }
-    result->BaseStream->Seek(dataOffset, RW_SEEK_SET);
+    result->BaseStream->Seek(0x28, RW_SEEK_CUR);  // zeroes padding
   }
   // TODO: multistream info chunk, possible but vgstream comments say it's rare
 
@@ -195,7 +189,7 @@ int LopusAudioStream::Read(void* out, int samples) {
     }
   }
 
-  CurrentSample += (uint64_t)written;
+  ReadPosition += written;
   return written;
 }
 
@@ -236,7 +230,7 @@ void LopusAudioStream::Seek(int samples) {
 
   SkipRemaining = 0;
   CurrentFrameIndex = frameIndex + 1;
-  CurrentSample = (uint64_t)samples;
+  ReadPosition = samples;
 }
 
 bool LopusAudioStream::_registered =
