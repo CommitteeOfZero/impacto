@@ -283,7 +283,7 @@ InstructionProc inline constexpr OpcodeTableGraph_CHLCC[256] = {
     InstMesViewFlag,       // 01 06
     InstSetMesWinPri,      // 01 07
     InstMesSync,           // 01 08
-    InstMesSetID,          // 01 09
+    InstMesSetIDOld,       // 01 09
     InstMesCls,            // 01 0A
     InstMesVoiceWait,      // 01 0B
     InstMes,               // 01 0C

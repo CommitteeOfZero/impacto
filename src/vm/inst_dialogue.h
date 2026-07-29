@@ -10,6 +10,7 @@ VmInstruction(InstMesViewFlag);
 VmInstruction(InstSetMesWinPri);
 VmInstruction(InstMesSync);
 VmInstruction(InstMesSetID);
+VmInstruction(InstMesSetIDOld);
 VmInstruction(InstMesCls);
 VmInstruction(InstMesVoiceWait);
 VmInstruction(InstMes);
