@@ -139,7 +139,8 @@ int StringToken::Read(Vm::Sc3Stream& stream) {
     Val_Int = (((uint16_t)c & 0x7F) << 8) | stream.ReadU8();
     if (Profile::Vm::StringEncodingType ==
         Profile::Vm::StringUnitEncoding::Uint32) {
-      Val_Int = (Val_Int << 16) | stream.ReadU16();
+      Val_Int |= (uint32_t)stream.ReadU8() << 8;
+      Val_Int |= (uint32_t)stream.ReadU8();
       return 4;
     }
     return 2;
@@ -324,7 +325,7 @@ float GetTextWidth(const std::span<const ProcessedTextGlyph> text) {
 }
 
 void SquishText(const std::span<ProcessedTextGlyph> text, const float maxWidth,
-                const float anchorX) {
+                  const float anchorX) {
   const float textWidth = GetTextWidth(text);
   if (textWidth <= maxWidth) return;
 
@@ -341,38 +342,66 @@ void SquishText(const std::span<ProcessedTextGlyph> text, const float maxWidth,
                          });
 }
 
-size_t TextLayoutPlainString(const std::string_view str,
-                             const std::span<ProcessedTextGlyph> outGlyphs,
-                             const Font& font, const float fontSize,
-                             const DialogueColorPair colors,
-                             const float opacity, const glm::vec2 pos,
-                             const TextAlignment alignment) {
+  int TextLayoutPlainString(const std::string_view str,
+                               const std::span<ProcessedTextGlyph> outGlyphs,
+                               const Font& font, const float fontSize,
+                               const DialogueColorPair colors,
+                               const float opacity, const glm::vec2 pos,
+                               const TextAlignment alignment) {
+  std::string_view::iterator strIt = str.begin();
+  std::string_view::iterator strEnd = str.end();
+
   size_t sc3StrLength = utf8::distance(str.begin(), str.end()) + 1;
   assert(outGlyphs.size() == sc3StrLength - 1);
-  std::vector<uint16_t> sc3Str(sc3StrLength);
+  auto layout = [&]<typename T>() {
+    std::unique_ptr<T[]> sc3StrPtr(new T[sc3StrLength]);
 
-  TextGetSc3String(str, sc3Str);
+    TextGetSc3String(
+        str, std::span(sc3StrPtr.get(), sc3StrPtr.get() + sc3StrLength));
 
-  Vm::Sc3Stream stream(sc3Str.data());
-  return TextLayoutPlainLine(stream, outGlyphs, font, fontSize, colors, opacity,
-                             pos, alignment);
+    Vm::Sc3Stream stream(sc3StrPtr.get());
+    return TextLayoutPlainLine(stream, sc3StrLength, outGlyphs, font, fontSize,
+                               colors, opacity, pos, alignment);
+  };
+
+  if (Profile::Vm::StringEncodingType ==
+      Profile::Vm::StringUnitEncoding::Uint32) {
+    return layout.template operator()<uint32_t>();
+  } else {
+    return layout.template operator()<uint16_t>();
+  }
 }
 
 std::vector<ProcessedTextGlyph> TextLayoutPlainString(
     const std::string_view str, const Font& font, const float fontSize,
     const DialogueColorPair colors, const float opacity, const glm::vec2 pos,
     const TextAlignment alignment) {
-  const size_t stringLength = utf8::distance(str.begin(), str.end());
-  std::vector<ProcessedTextGlyph> outGlyphs(stringLength);
+  std::string_view::iterator strIt = str.begin();
+  std::string_view::iterator strEnd = str.end();
 
-  TextLayoutPlainString(str, outGlyphs, font, fontSize, colors, opacity, pos,
-                        alignment);
+  int sc3StrLength = (int)utf8::distance(strIt, strEnd) + 1;
+  auto layout = [&]<typename T>() {
+    std::unique_ptr<T[]> sc3StrPtr(new T[sc3StrLength]);
 
-  return outGlyphs;
+    TextGetSc3String(
+        str, std::span(sc3StrPtr.get(), sc3StrPtr.get() + sc3StrLength));
+
+    Vm::Sc3Stream stream(sc3StrPtr.get());
+    return TextLayoutPlainLine(stream, sc3StrLength, font, fontSize, colors,
+                               opacity, pos, alignment);
+  };
+
+  if (Profile::Vm::StringEncodingType ==
+      Profile::Vm::StringUnitEncoding::Uint32) {
+    return layout.template operator()<uint32_t>();
+  } else {
+    return layout.template operator()<uint16_t>();
+  }
 }
 
-void TextGetSc3String(const std::string_view str,
-                      const std::span<uint16_t> out) {
+template <typename T>
+  requires std::same_as<T, uint16_t> || std::same_as<T, uint32_t>
+void TextGetSc3StringImpl(std::string_view str, std::span<T> out) {
   std::string_view::iterator strIt = str.begin();
   std::string_view::iterator strEnd = str.end();
 
@@ -380,12 +409,36 @@ void TextGetSc3String(const std::string_view str,
 
   size_t sc3Idx = 0;
   while (strIt != strEnd) {
-    const auto codePoint = utf8::next(strIt, strEnd);
+   const auto codePoint = utf8::next(strIt, strEnd);
 
-    const uint16_t sc3Val = Profile::Charset::CharacterToSc3[codePoint];
-    out[sc3Idx++] = SDL_Swap16(sc3Val);
+   const uint16_t sc3Val = Profile::Charset::CharacterToSc3[codePoint];
+
+    if constexpr (std::is_same_v<T, uint32_t>) {
+      if (Profile::Vm::StringEncodingType ==
+          Profile::Vm::StringUnitEncoding::Uint32) {
+        // rebuild 16 bit LE to 32bit BE
+        uint8_t hiByte = ((sc3Val - 0x8000u) >> 8) & 0xFF;
+        uint8_t loByte = sc3Val & 0xFF;
+        uint32_t res = static_cast<uint32_t>(0x80) |
+                       (static_cast<uint32_t>(hiByte) << 16) |
+                       (static_cast<uint32_t>(loByte) << 24);
+        out[sc3Idx++] = res;
+      } else {
+        out[sc3Idx++] = SDL_Swap16(sc3Val);
+      }
+    } else {
+      out[sc3Idx++] = SDL_Swap16(sc3Val);
+    }
   }
   out[sc3Idx++] = 0xFF;
+}
+
+void TextGetSc3String(std::string_view str, std::span<uint16_t> out) {
+  TextGetSc3StringImpl(str, out);
+}
+
+void TextGetSc3String(std::string_view str, std::span<uint32_t> out) {
+  TextGetSc3StringImpl(str, out);
 }
 
 void InitNamePlateData(Vm::Sc3Stream& stream) {

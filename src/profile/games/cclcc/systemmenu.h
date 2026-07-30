@@ -12,6 +12,7 @@ using namespace Impacto::UI::CCLCC;
 
 constexpr inline int MenuEntriesNumMax = 16;
 
+inline int MaxSystemMenuCT;
 inline Sprite SystemMenuBG;
 inline Sprite SystemMenuFrame;
 inline float ItemsFadeInDuration;

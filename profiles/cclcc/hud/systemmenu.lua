@@ -67,6 +67,8 @@ root.SystemMenu = {
 
     BGTranslationOffset = {X=1452,Y=395},
 
+    MaxSystemMenuCT = 32,
+
     SmokePosition = { X = 0, Y = 582 },
     SmokeOpacityNormal = 0.25,
     SmokeOpacitySystemMenu = 96 / 256,
