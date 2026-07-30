@@ -325,12 +325,22 @@ void TipsMenu::SwitchToTipId(int id) {
                          RendererOutlineMode::None, 0);
 
   {
-    uint16_t sc3StringBuffer[4];
-    TextGetSc3String(fmt::format("{:03d}", id), sc3StringBuffer);
-    Vm::Sc3Stream stream(sc3StringBuffer);
-    stream = Vm::Sc3Stream(sc3StringBuffer);
+    auto lambda = [&]<typename T>() {
+      T sc3StringBuffer[5];
+      TextGetSc3String(fmt::format("{:03d}", id), sc3StringBuffer);
+      Vm::Sc3Stream stream(sc3StringBuffer);
+      return std::tuple<float, Vm::Sc3Stream>(
+          {TextGetPlainLineWidth(stream, Profile::Dialogue::DialogueFont,
+                                 (float)NumberFontSize),
+           Vm::Sc3Stream(sc3StringBuffer)});
+    };
+    auto [numberWidth, stream] = Profile::Vm::StringEncodingType ==
+                                         Profile::Vm::StringUnitEncoding::Uint32
+                                     ? lambda.template operator()<uint32_t>()
+                                     : lambda.template operator()<uint16_t>();
+
     Number->SetText(stream, NumberPos, (float)NumberFontSize,
-                    RendererOutlineMode::None, 0);
+      RendererOutlineMode::None, 0);
   }
 
   Vm::Sc3VmThread dummy;

@@ -241,7 +241,7 @@ VmInstruction(InstClickOnJump) {
   PopExpression(arg2);
   PopUint16(labelNum);
   uint32_t labelAdr = ScriptGetLabelAddress(thread->ScriptBufferId, labelNum);
-  if (Interface::GetControlState(arg2, Interface::InputDownType::IsDown)) {
+  if (Interface::GetControlState(arg2, Interface::InputDownType::WentDown)) {
     thread->IpOffset = labelAdr;
   }
 }

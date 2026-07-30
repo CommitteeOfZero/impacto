@@ -274,7 +274,7 @@ void SystemMenu::Init() {
       MainItems->Children[static_cast<size_t>(MenuItems::Backlog)])
       ->IsLocked = backlogLockState;
 
-  // these flag need to be recalculated after loading a game
+  // this flag needs to be recalculated after loading a game
   bool noFreeSlots = SaveSystem::MaxSaveEntries ==
                      SaveSystem::Implementation->GetLockedQuickSaveCount();
   SetFlag(SF_SAVEALLPROTECTED, noFreeSlots);
