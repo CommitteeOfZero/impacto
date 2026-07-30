@@ -131,7 +131,27 @@ size_t TextLayoutPlainString(const std::string_view str,
     DialogueColorPair colors, float opacity, glm::vec2 pos,
     TextAlignment alignment);
 
-void TextGetSc3String(const std::string_view str, std::span<uint16_t> out);
+template <typename T>
+  requires std::same_as<T, uint16_t> || std::same_as<T, uint32_t>
+void TextGetSc3String(std::string_view str, std::span<T> out);
+
+template <typename T, std::size_t N>
+  requires std::same_as<T, uint16_t> || std::same_as<T, uint32_t>
+void TextGetSc3String(std::string_view str, std::array<T, N>& out) {
+  TextGetSc3String(str, std::span<T>(out));
+}
+
+template <typename T>
+  requires std::same_as<T, uint16_t> || std::same_as<T, uint32_t>
+void TextGetSc3String(std::string_view str, std::vector<T>& out) {
+  TextGetSc3String(str, std::span<T>(out));
+}
+
+template <typename T, std::size_t N>
+  requires std::same_as<T, uint16_t> || std::same_as<T, uint32_t>
+void TextGetSc3String(std::string_view str, T (&out)[N]) {
+  TextGetSc3String(str, std::span<T>(out));
+}
 
 inline ankerl::unordered_dense::map<uint32_t, uint32_t> NamePlateData;
 void InitNamePlateData(Vm::Sc3Stream& stream);

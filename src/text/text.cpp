@@ -236,6 +236,7 @@ template std::vector<ProcessedTextGlyph> TextLayoutPlainLine(
 template std::vector<ProcessedTextGlyph> TextLayoutPlainLine(
     Vm::Sc3VmThread*&&, std::optional<size_t>, const Font&, float,
     DialogueColorPair, float, glm::vec2, TextAlignment);
+
 std::vector<ProcessedTextGlyph> TextLayoutPlainLine(
     Sc3Type auto&& stream, std::optional<size_t> maxLength, const Font& font,
     const float fontSize, const DialogueColorPair colors, const float opacity,
@@ -397,7 +398,7 @@ std::vector<ProcessedTextGlyph> TextLayoutPlainString(
 
 template <typename T>
   requires std::same_as<T, uint16_t> || std::same_as<T, uint32_t>
-void TextGetSc3StringImpl(std::string_view str, std::span<T> out) {
+void TextGetSc3String(std::string_view str, std::span<T> out) {
   std::string_view::iterator strIt = str.begin();
   std::string_view::iterator strEnd = str.end();
 
@@ -429,13 +430,8 @@ void TextGetSc3StringImpl(std::string_view str, std::span<T> out) {
   out[sc3Idx++] = 0xFF;
 }
 
-void TextGetSc3String(std::string_view str, std::span<uint16_t> out) {
-  TextGetSc3StringImpl(str, out);
-}
-
-void TextGetSc3String(std::string_view str, std::span<uint32_t> out) {
-  TextGetSc3StringImpl(str, out);
-}
+template void TextGetSc3String<uint16_t>(std::string_view, std::span<uint16_t>);
+template void TextGetSc3String<uint32_t>(std::string_view, std::span<uint32_t>);
 
 void InitNamePlateData(Vm::Sc3Stream& stream) {
   do {

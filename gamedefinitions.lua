@@ -17,6 +17,9 @@ root.GameDefinitions = {
       English = root.BasePaths.RootPatchesDir .. "/english/profiles/cclcc/patch.lua",
     }
   },
+  ["cclcc-switch"] = {
+      GameProfile = root.BasePaths.RootProfilesDir .. "/cclcc-switch/game.lua",
+    },
   mo6tw = {
     Hidden = true,
     Name = "Memories Off 6 ~T-Wave~",
