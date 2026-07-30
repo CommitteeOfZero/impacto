@@ -4,8 +4,11 @@ root.Fonts = {
         ForegroundSheet = "FontLBForeground",
         OutlineSheet = "FontLBOutline",
         ForegroundGridSize = { X = 64, Y = 125 },
-        AdvanceWidths = "games/cclcc/font-lb-italic/widths.bin",
-        AdvanceWidthsEmWidth = 48,
+        AdvanceWidthsBinary = {
+            Path = "games/cclcc/font-lb-italic/widths.bin",
+            BytesPerGlyph = 1,
+            EmWidth = 48,
+        },
         ForegroundOffset = { X = -13, Y = -13 },
         OutlineOffset = { X = -13, Y = -13 },
         BitmapEmWidth = 48,

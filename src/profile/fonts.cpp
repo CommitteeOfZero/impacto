@@ -83,40 +83,43 @@ void LoadFonts() {
     }
 
     Font* const baseFont = Fonts[name];
-    {
-      EnsurePushMember("AdvanceWidths");
 
-      const bool gotLuaArray =
-          TryGet<std::vector<float>>(baseFont->AdvanceWidths);
+    if (!TryGetMember("AdvanceWidthsTable", baseFont->AdvanceWidths)) {
+      EnsurePushMember("AdvanceWidthsBinary");
 
-      if (gotLuaArray) {
-        Pop();
-      } else {
-        auto widthTablePath = EnsureGet<Io::AssetPath>();
-        Pop();
+      auto widthTablePath = EnsureGetMember<Io::AssetPath>("Path");
+      const size_t bytesPerGlyph = EnsureGetMember<size_t>("BytesPerGlyph");
+      assert(bytesPerGlyph <= 4);
 
-        const float advanceWidthsEmWidth =
-            EnsureGetMember<float>("AdvanceWidthsEmWidth");
-        const float extraLetterSpacing =
-            TryGetMember<float>("ExtraLetterSpacing").value_or(0.0f);
+      const float emWidth = EnsureGetMember<float>("EmWidth");
+      const float extraLetterSpacing =
+          TryGetMember<float>("ExtraLetterSpacing").value_or(0.0f);
 
-        uint8_t* widthBin;
-        int64_t widthSz;
-        if (widthTablePath.Slurp((void*&)widthBin, widthSz) != IoError_OK) {
-          ImpLog(LogLevel::Fatal, LogChannel::Profile,
-                 "Failed to load width table file for font {:s}\n", name);
-          Window->Shutdown();
-        }
-
-        assert(static_cast<size_t>(widthSz) == baseFont->GetGlyphCount());
-        baseFont->AdvanceWidths.reserve(widthSz);
-
-        for (uint16_t i = 0; i < widthSz; i++) {
-          baseFont->AdvanceWidths.emplace_back(
-              static_cast<float>(widthBin[i] + extraLetterSpacing) *
-              baseFont->BitmapEmWidth / advanceWidthsEmWidth);
-        }
+      uint8_t* widthBin;
+      int64_t widthSz;
+      if (widthTablePath.Slurp((void*&)widthBin, widthSz) != IoError_OK) {
+        ImpLog(LogLevel::Fatal, LogChannel::Profile,
+               "Failed to load width table file for font {:s}\n", name);
+        Window->Shutdown();
       }
+      assert(widthSz % bytesPerGlyph == 0);
+
+      baseFont->AdvanceWidths.reserve(widthSz / bytesPerGlyph);
+      const auto readEntry = [&](size_t idx) -> uint64_t {
+        uint64_t value = 0;
+        for (size_t byte = 0; byte < bytesPerGlyph; byte++) {
+          value = (value << 8) | widthBin[idx * bytesPerGlyph + byte];
+        }
+        return value;
+      };
+
+      for (uint16_t i = 0; i < widthSz; i++) {
+        baseFont->AdvanceWidths.emplace_back(
+            static_cast<float>(readEntry(i) + extraLetterSpacing) *
+            baseFont->BitmapEmWidth / emWidth);
+      }
+
+      Pop();
     }
 
     Pop();

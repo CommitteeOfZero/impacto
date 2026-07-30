@@ -4,8 +4,11 @@ root.Fonts = {
         ForegroundSheet = "FontLBForeground",
         OutlineSheet = "FontLBOutline",
         ForegroundGridSize = { X = 64, Y = 50 },
-        AdvanceWidths = "games/rne/font-lb/widths.bin",
-        AdvanceWidthsEmWidth = 48,
+        AdvanceWidthsBinary = {
+            Path = "games/rne/font-lb/widths.bin",
+            BytesPerGlyph = 1,
+            EmWidth = 48,
+        },
         OutlineOffset = { X = -4, Y = -4 },
     }
 };

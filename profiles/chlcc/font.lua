@@ -4,7 +4,7 @@ root.Fonts = {
         ForegroundSheet = "Font",
         OutlineSheet = "FontOutline",
         ForegroundGridSize = { X = 64, Y = 37 },
-        AdvanceWidths = {},
+        AdvanceWidthsTable = {},
         AdvanceWidthsEmWidth = 32,
     }
 };
@@ -36,8 +36,8 @@ local westernAdvanceWidths = {
 
 for i = 1, (64 * 37) do
     if i <= #westernAdvanceWidths then
-        root.Fonts["Default"].AdvanceWidths[i] = westernAdvanceWidths[i];
+        root.Fonts["Default"].AdvanceWidthsTable[i] = westernAdvanceWidths[i];
     else
-        root.Fonts["Default"].AdvanceWidths[i] = root.Fonts["Default"].AdvanceWidthsEmWidth;
+        root.Fonts["Default"].AdvanceWidthsTable[i] = root.Fonts["Default"].AdvanceWidthsEmWidth;
     end
 end

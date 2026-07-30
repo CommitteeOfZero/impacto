@@ -4,8 +4,11 @@ root.Fonts = {
         ForegroundSheet = "FontLBForeground",
         OutlineSheet = "FontLBOutline",
         ForegroundGridSize = { X = 64, Y = 39 },
-        AdvanceWidths = "games/chlcc/font-lb/widths.bin",
-        AdvanceWidthsEmWidth = 60,
+        AdvanceWidthsBinary = {
+            Path = "games/chlcc/font-lb/widths.bin",
+            BytesPerGlyph = 1,
+            EmWidth = 60,
+        },
         ForegroundOffset = { X = -7, Y = 0 },
         OutlineOffset = { X = -6, Y = 1 },
         ForegroundOpacityCurve = OpacityCurve.Smoothstep,
