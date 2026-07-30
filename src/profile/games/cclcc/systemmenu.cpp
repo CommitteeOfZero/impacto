@@ -58,6 +58,8 @@ void Configure() {
 
   BGTranslationOffset = EnsureGetMember<glm::vec2>("BGTranslationOffset");
 
+  MaxSystemMenuCT = EnsureGetMember<int>("MaxSystemMenuCT");
+
   auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
 
   UI::SystemMenuPtr = new UI::CCLCC::SystemMenu();

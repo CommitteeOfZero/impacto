@@ -96,7 +96,8 @@ void SystemMenu::Show() {
     FadeAnimation.StartIn();
     // If the function was called due to a submenu opening directly,
     // then don't take over focus
-    if (!((ScrWork[SW_SYSMENUCT] == 32 && ScrWork[SW_SYSSUBMENUCT]) ||
+    if (!((ScrWork[SW_SYSMENUCT] == MaxSystemMenuCT &&
+           ScrWork[SW_SYSSUBMENUCT]) ||
           ScrWork[SW_CLRALPHA])) {
       if (UI::FocusedMenu != 0) {
         LastFocusedMenu = UI::FocusedMenu;
@@ -142,7 +143,7 @@ void SystemMenu::Update(float dt) {
   UpdateInput(dt);
 
   if (State == Shown &&
-      ((GetFlag(SF_TITLEMODE) || ScrWork[SW_SYSMENUCT] < 32) ||
+      ((GetFlag(SF_TITLEMODE) || ScrWork[SW_SYSMENUCT] < MaxSystemMenuCT) ||
        ScrWork[SW_SYSMENUALPHA] == 0)) {
     Hide();
     return;
@@ -152,7 +153,7 @@ void SystemMenu::Update(float dt) {
     Show();
     return;
   }
-  if (State == Showing && ScrWork[SW_SYSMENUCT] == 32) {
+  if (State == Showing && ScrWork[SW_SYSMENUCT] == MaxSystemMenuCT) {
     State = Shown;
     return;
   }
@@ -169,8 +170,9 @@ void SystemMenu::Update(float dt) {
         ItemsFadeComplete) {
       ItemsFade.StartOut();
       ItemsFadeComplete = false;
-    } else if (ItemsFade.IsOut() && ScrWork[SW_SYSSUBMENUCT] < 32 &&
-               State == Shown && ItemsFadeComplete) {
+    } else if (ItemsFade.IsOut() &&
+               ScrWork[SW_SYSSUBMENUCT] < MaxSystemMenuCT && State == Shown &&
+               ItemsFadeComplete) {
       ItemsFade.StartIn();
       ItemsFadeComplete = false;
     }
@@ -178,7 +180,8 @@ void SystemMenu::Update(float dt) {
     if (!ItemsFadeComplete) {
       if (ItemsFade.IsIn() && ScrWork[SW_SYSSUBMENUCT] == 0) {
         ItemsFadeComplete = true;
-      } else if (ItemsFade.IsOut() && ScrWork[SW_SYSSUBMENUCT] == 32) {
+      } else if (ItemsFade.IsOut() &&
+                 ScrWork[SW_SYSSUBMENUCT] == MaxSystemMenuCT) {
         ItemsFadeComplete = true;
       }
     }
@@ -263,6 +266,7 @@ void SystemMenu::Render() {
 }
 
 void SystemMenu::Init() {
+  ScrWork[SW_SYSMENUCTMAX] = MaxSystemMenuCT;
   BGPosition = {CALCrnd((int)BGRandPosRange.x), CALCrnd((int)BGRandPosRange.y)};
   SetFlag(SF_SYSTEMMENUCAPTURE, true);
 
@@ -274,7 +278,7 @@ void SystemMenu::Init() {
       MainItems->Children[static_cast<size_t>(MenuItems::Backlog)])
       ->IsLocked = backlogLockState;
 
-  // these flag need to be recalculated after loading a game
+  // this flag needs to be recalculated after loading a game
   bool noFreeSlots = SaveSystem::MaxSaveEntries ==
                      SaveSystem::Implementation->GetLockedQuickSaveCount();
   SetFlag(SF_SAVEALLPROTECTED, noFreeSlots);

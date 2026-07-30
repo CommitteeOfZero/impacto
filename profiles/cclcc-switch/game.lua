@@ -79,6 +79,7 @@ include(root.BaseConfig.RootProfilesDir .. '/cclcc/hud/tipsmenu.lua');
 include(root.BaseConfig.RootProfilesDir .. '/cclcc/hud/extramenus.lua');
 include(root.BaseConfig.RootProfilesDir .. '/cclcc/hud/tipsnotification.lua');
 include(root.BaseConfig.RootProfilesDir .. '/cclcc/hud/systemmenu.lua');
+include(root.BaseConfig.RootProfilesDir .. '/cclcc-switch/hud/systemmenu.lua');
 include(root.BaseConfig.RootProfilesDir .. '/cclcc/hud/savemenu.lua');
 include(root.BaseConfig.RootProfilesDir .. '/cclcc/hud/helpmenu.lua');
 
