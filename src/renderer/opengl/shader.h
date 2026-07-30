@@ -665,5 +665,41 @@ class NV12FrameShader : public Shader<NV12FrameUniforms> {
   const GLint IsAlphaLocation;
 };
 
+struct EdgeDetectedSingleSheetFontUniforms {
+  bool operator==(const EdgeDetectedSingleSheetFontUniforms& other) const =
+      default;
+
+  glm::mat4 Projection{};
+  glm::mat4 SpriteTransformation{};
+  glm::mat4 MaskTransformation{};
+
+  GLint Font;
+  GLint Mask;
+  bool HasMask = false;
+  glm::vec2 PixelOffset{};
+  GLfloat IntensityShift = 0.5f;
+  GLfloat AlphaShift = 0.1f;
+};
+
+class EdgeDetectedSingleSheetFontShader
+    : public Shader<EdgeDetectedSingleSheetFontUniforms> {
+ public:
+  EdgeDetectedSingleSheetFontShader(GLint programId);
+
+  void UploadUniforms(EdgeDetectedSingleSheetFontUniforms uniforms) override;
+
+ private:
+  const GLint ProjectionLocation;
+  const GLint SpriteTransformationLocation;
+  const GLint MaskTransformationLocation;
+
+  const GLint FontLocation;
+  const GLint MaskLocation;
+  const GLint HasMaskLocation;
+  const GLint PixelOffsetLocation;
+  const GLint IntensityShiftLocation;
+  const GLint AlphaShiftLocation;
+};
+
 }  // namespace OpenGL
 }  // namespace Impacto

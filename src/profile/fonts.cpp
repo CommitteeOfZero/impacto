@@ -29,13 +29,22 @@ void LoadFonts() {
 
     switch (fontType) {
       using enum FontType;
-      case SingleSheet: {
+      case SingleSheet:
+      case EdgeDetectedSingleSheet: {
         const SpriteSheet sheet = EnsureGetMember<SpriteSheet>("Sheet");
         const glm::ivec2 gridSize = EnsureGetMember<glm::ivec2>("GridSize");
 
-        Fonts[name] = new SingleSheetFont(bitmapEmWidth, bitmapEmHeight,
-                                          foregroundOpacityCurve,
-                                          outlineOpacityCurve, sheet, gridSize);
+        if (fontType == SingleSheet) {
+          Fonts[name] = new SingleSheetFont(
+              bitmapEmWidth, bitmapEmHeight, foregroundOpacityCurve,
+              outlineOpacityCurve, sheet, gridSize);
+        } else {
+          assert(fontType == EdgeDetectedSingleSheet);
+
+          Fonts[name] = new EdgeDetectedSingleSheetFont(
+              bitmapEmWidth, bitmapEmHeight, foregroundOpacityCurve, sheet,
+              gridSize);
+        }
       } break;
 
       case SeparateOutlineSheet:

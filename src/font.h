@@ -13,6 +13,7 @@ enum class FontType : uint8_t {
   SingleSheet,
   SeparateOutlineSheet,
   LanguageBarrier,
+  EdgeDetectedSingleSheet,
 };
 
 enum class OpacityCurve : uint8_t {
@@ -76,23 +77,36 @@ class SingleSheetFont : public Font {
                   OpacityCurve foregroundOpacityCurve,
                   OpacityCurve outlineOpacityCurve, SpriteSheet sheet,
                   glm::ivec2 gridSize)
-      : Font(FontType::SingleSheet,
-             bitmapEmWidth.value_or(sheet.DesignWidth / gridSize.x),
-             bitmapEmHeight.value_or(sheet.DesignHeight / gridSize.y),
-             foregroundOpacityCurve, outlineOpacityCurve),
-        Sheet(sheet),
-        GridSize(gridSize),
-        CellSize(sheet.GetDimensions() / static_cast<glm::vec2>(gridSize)) {}
+      : SingleSheetFont(FontType::SingleSheet, bitmapEmWidth, bitmapEmHeight,
+                        foregroundOpacityCurve, outlineOpacityCurve, sheet,
+                        gridSize) {}
 
   size_t GetGlyphCount() const override {
     return static_cast<size_t>(GridSize.x * GridSize.y);
   }
 
-  void DrawProcessedText(std::span<const ProcessedTextGlyph> text,
-                         float opacity, float outlineOpacity,
-                         RendererOutlineMode outlineMode,
-                         const SpriteSheet* maskedSheet,
-                         glm::mat4 transformation) override;
+  virtual void DrawProcessedText(std::span<const ProcessedTextGlyph> text,
+                                 float opacity, float outlineOpacity,
+                                 RendererOutlineMode outlineMode,
+                                 const SpriteSheet* maskedSheet,
+                                 glm::mat4 transformation) override;
+
+ protected:
+  SpriteSheet Sheet;
+  glm::ivec2 GridSize;
+  glm::vec2 CellSize;
+
+  SingleSheetFont(FontType fontType, std::optional<float> bitmapEmWidth,
+                  std::optional<float> bitmapEmHeight,
+                  OpacityCurve foregroundOpacityCurve,
+                  OpacityCurve outlineOpacityCurve, SpriteSheet sheet,
+                  glm::ivec2 gridSize)
+      : Font(fontType, bitmapEmWidth.value_or(sheet.DesignWidth / gridSize.x),
+             bitmapEmHeight.value_or(sheet.DesignHeight / gridSize.y),
+             foregroundOpacityCurve, outlineOpacityCurve),
+        Sheet(sheet),
+        GridSize(gridSize),
+        CellSize(sheet.GetDimensions() / static_cast<glm::vec2>(gridSize)) {}
 
  private:
   Sprite GetGlyph(uint16_t id) const {
@@ -103,10 +117,6 @@ class SingleSheetFont : public Font {
     return Sprite(Sheet, col * CellSize.x + 1.0f, row * CellSize.y + 1.0f,
                   width - 2.0f, BitmapEmHeight - 2.0f);
   }
-
-  SpriteSheet Sheet;
-  glm::ivec2 GridSize;
-  glm::vec2 CellSize;
 };
 
 class SeparateOutlineSheetFont : public Font {
@@ -187,7 +197,7 @@ class SeparateOutlineSheetFont : public Font {
   }
 };
 
-class LanguageBarrierFont : public SeparateOutlineSheetFont {
+class LanguageBarrierFont final : public SeparateOutlineSheetFont {
  public:
   LanguageBarrierFont(std::optional<float> bitmapEmWidth,
                       std::optional<float> bitmapEmHeight,
@@ -235,6 +245,33 @@ class LanguageBarrierFont : public SeparateOutlineSheetFont {
 
   glm::vec2 ForegroundOffset;
   glm::vec2 OutlineOffset;
+};
+
+class EdgeDetectedSingleSheetFont final : public SingleSheetFont {
+ public:
+  EdgeDetectedSingleSheetFont(std::optional<float> bitmapEmWidth,
+                              std::optional<float> bitmapEmHeight,
+                              OpacityCurve opacityCurve, SpriteSheet sheet,
+                              glm::ivec2 gridSize)
+      : SingleSheetFont(FontType::EdgeDetectedSingleSheet, bitmapEmWidth,
+                        bitmapEmHeight, opacityCurve, opacityCurve, sheet,
+                        gridSize) {}
+
+  void DrawProcessedText(std::span<const ProcessedTextGlyph> text,
+                         float opacity, float outlineOpacity,
+                         RendererOutlineMode outlineMode,
+                         const SpriteSheet* maskedSheet,
+                         glm::mat4 transformation) override;
+
+ private:
+  Sprite GetGlyph(uint16_t id) const {
+    const uint8_t row = static_cast<uint8_t>(id / GridSize.x);
+    const uint8_t col = static_cast<uint8_t>(id % GridSize.x);
+    const float width = AdvanceWidths[id];
+
+    return Sprite(Sheet, col * CellSize.x, row * CellSize.y, width,
+                  BitmapEmHeight);
+  }
 };
 
 }  // namespace Impacto

@@ -1,6 +1,6 @@
 root.Fonts = {
     ["Default"] = {
-        Type = FontType.SingleSheet,
+        Type = FontType.EdgeDetectedSingleSheet,
         Sheet = "Font",
         GridSize = { X = 64, Y = 117 },
         AdvanceWidths = {},
