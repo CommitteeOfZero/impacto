@@ -76,6 +76,7 @@ include(root.BaseConfig.RootProfilesDir .. '/cclcc/hud/sysmesboxdisplay.lua');
 include(root.BaseConfig.RootProfilesDir .. '/cclcc/hud/selectiondisplay.lua');
 include(root.BaseConfig.RootProfilesDir .. '/cclcc/hud/optionsmenu.lua');
 include(root.BaseConfig.RootProfilesDir .. '/cclcc/hud/tipsmenu.lua');
+include(root.BaseConfig.RootProfilesDir .. '/cclcc-switch/hud/tipsmenu.lua');
 include(root.BaseConfig.RootProfilesDir .. '/cclcc/hud/extramenus.lua');
 include(root.BaseConfig.RootProfilesDir .. '/cclcc/hud/tipsnotification.lua');
 include(root.BaseConfig.RootProfilesDir .. '/cclcc/hud/systemmenu.lua');
@@ -86,4 +87,3 @@ include(root.BaseConfig.RootProfilesDir .. '/cclcc/hud/helpmenu.lua');
 
 include(root.BaseConfig.RootProfilesDir .. '/cclcc-switch/hud/helpmenu.lua');
 include(root.BaseConfig.RootProfilesDir .. '/cclcc-switch/hud/titlemenu.lua');
-include(root.BaseConfig.RootProfilesDir .. '/cclcc-switch/hud/tipsmenu.lua');

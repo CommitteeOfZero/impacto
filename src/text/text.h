@@ -130,6 +130,7 @@ std::vector<ProcessedTextGlyph> TextLayoutPlainString(
     float blockWidth = 0.0f);
 
 void TextGetSc3String(std::string_view str, std::span<uint16_t> out);
+void TextGetSc3String(std::string_view str, std::span<uint32_t> out);
 
 inline ankerl::unordered_dense::map<uint32_t, uint32_t> NamePlateData;
 void InitNamePlateData(Vm::Sc3Stream& stream);
