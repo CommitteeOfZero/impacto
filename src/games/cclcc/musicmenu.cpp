@@ -53,6 +53,7 @@ MusicTrackButton::MusicTrackButton(int id, int position, glm::vec2 pos)
                 Bounds.Y + MusicButtonTextYOffset),
       (float)MusicTrackArtistSize, RendererOutlineMode::None,
       {MusicButtonTextColor, MusicButtonTextOutlineColor});
+  assert(0 <= position && position <= 99);
   TextLayoutPlainString(fmt::format("{:02}", position), NumberText,
                         Profile::Dialogue::DialogueFont, MusicTrackNameSize,
                         {0xfffffff, 0}, 1.0f,
