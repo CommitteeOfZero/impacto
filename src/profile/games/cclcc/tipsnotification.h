@@ -20,7 +20,7 @@ inline float TimerDuration;
 inline float MoveAnimationDuration;
 
 inline DialogueColorPair TipNameColor;
-inline int NotificationTextTableColorIndex;
+inline DialogueColorPair NotificationTextColor;
 inline float FontSize;
 
 }  // namespace TipsNotification

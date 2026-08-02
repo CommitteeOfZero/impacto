@@ -19,11 +19,9 @@ void Configure() {
   TimerDuration = EnsureGetMember<float>("TimerDuration");
 
   FontSize = EnsureGetMember<float>("FontSize");
-  TipNameColor =
-      DialogueColorPair{EnsureGetMember<uint32_t>("TipNameTextColor"),
-                        EnsureGetMember<uint32_t>("TipNameOutlineColor")};
-  NotificationTextTableColorIndex =
-      EnsureGetMember<int>("NotificationTextTableColorIndex");
+  TipNameColor = EnsureGetMember<DialogueColorPair>("TipNameColor");
+  NotificationTextColor =
+      EnsureGetMember<DialogueColorPair>("NotificationTextColor");
 }
 
 }  // namespace TipsNotification
