@@ -266,7 +266,6 @@ void SystemMenu::Render() {
 }
 
 void SystemMenu::Init() {
-  ScrWork[SW_SYSMENUCTMAX] = MaxSystemMenuCT;
   BGPosition = {CALCrnd((int)BGRandPosRange.x), CALCrnd((int)BGRandPosRange.y)};
   SetFlag(SF_SYSTEMMENUCAPTURE, true);
 

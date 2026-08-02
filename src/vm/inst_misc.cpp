@@ -6,6 +6,8 @@
 #include "interface/input.h"
 #include "../profile/scriptvars.h"
 #include "../profile/configsystem.h"
+#include "../profile/games/cclcc/systemmenu.h"
+
 #include "../game.h"
 #include "../mem.h"
 #include "../log.h"
@@ -112,6 +114,9 @@ VmInstruction(InstSystemMenu) {
           ResetInstruction;
           BlockThread;
         }
+      }
+      if (Profile::Vm::GameInstructionSet == InstructionSet::LCCSwitch) {
+        ScrWork[SW_SYSMENUCTMAX] = Profile::CCLCC::SystemMenu::MaxSystemMenuCT;
       }
 
       break;
