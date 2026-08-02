@@ -30,13 +30,13 @@ root.TipsMenu = {
     TipsTextSortStringIndex = 10,
     TipsTextPageHeight = 485,
 
-    CategoryPos = { X = 1230, Y = 76},
+    CategoryPos = { X = 826 * 1.5, Y = 76 },
     CategoryFontSize = 40,
-    NamePos = { X = 1020, Y = 170},
+    NamePos = { X = 680 * 1.5, Y = 160 },
     NameFontSize = 54,
-    NumberPos = { X = 1875, Y = 80},
+    NumberPos = { X = 1198 * 1.5, Y = 52 * 1.5 },
     NumberFontSize = 62,
-    PronunciationPos = { X = 1020, Y = 246},
+    PronunciationPos = { X = 680 * 1.5, Y = 246 },
     PronunciationFontSize = 34,
 
     TipsEntryNameUnreadColor = 0x117733, 
