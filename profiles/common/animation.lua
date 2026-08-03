@@ -1,4 +1,5 @@
 if root.Animations == nil then root.Animations = {} end
+if root.FixedSpriteAnimations == nil then root.FixedSpriteAnimations = {} end
 AnimationDirections = {
     Left = 0,
     Right = 1,
@@ -15,7 +16,7 @@ function DeleteAnimation(name)
     end
 end
 
-function MakeAnimation(desc)
+function MakeAnimationBase(desc)
     DeleteAnimation(desc.Name)
     local animation = {
         Duration = desc.Duration,
@@ -76,5 +77,17 @@ function MakeAnimation(desc)
             end
         end
     end
-    root.Animations[desc.Name] = animation
+    return animation;
+end
+
+function MakeAnimation(desc)
+    DeleteAnimation(desc.Name);
+    root.Animations[desc.Name] = MakeAnimationBase(desc);
+end
+
+function MakeFixedSpriteAnimation(desc)
+    animation = MakeAnimationBase(desc);
+    animation.FixedFrameIdx = desc.FixedFrameIdx;
+
+    root.FixedSpriteAnimations[desc.Name] = animation;
 end

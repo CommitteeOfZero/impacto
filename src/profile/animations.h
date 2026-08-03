@@ -11,6 +11,10 @@ inline ankerl::unordered_dense::map<std::string, SpriteAnimationDef,
                                     string_hash, std::equal_to<>>
     Animations;
 
+inline ankerl::unordered_dense::map<std::string, FixedSpriteAnimationDef,
+                                    string_hash, std::equal_to<>>
+    FixedSpriteAnimations;
+
 void LoadAnimations();
 
 }  // namespace Profile

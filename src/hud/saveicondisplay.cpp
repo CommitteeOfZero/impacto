@@ -11,7 +11,8 @@ using namespace Impacto::Profile::SaveIcon;
 
 static glm::vec2 Position;
 
-static std::variant<UI::DefaultSaveIconAnimation, UI::CHLCC::SaveIconAnimation>
+static std::optional<
+    std::variant<UI::DefaultSaveIconAnimation, UI::CHLCC::SaveIconAnimation>>
     IconAnimation;
 static Animation Timer;
 
@@ -22,29 +23,29 @@ void Init() {
   switch (SaveIconCurrentType) {
     default:
     case (SaveIconType::Default): {
-      IconAnimation = UI::DefaultSaveIconAnimation(
+      IconAnimation.emplace(UI::DefaultSaveIconAnimation(
           ForegroundAnimation, BackgroundSprite, BackgroundOffset,
-          BackgroundMaxAlpha, FadeInDuration, FadeOutDuration);
+          BackgroundMaxAlpha, FadeInDuration, FadeOutDuration));
       break;
     }
     case (SaveIconType::CHLCC): {
-      IconAnimation = UI::CHLCC::SaveIconAnimation(
+      IconAnimation.emplace(UI::CHLCC::SaveIconAnimation(
           ActiveAnimationDuration, FadeInDuration, FadeOutDuration,
-          std::span<Sprite, CHLCC_SAVE_ICON_SPRITES>(SaveIconSprites));
+          std::span<Sprite, CHLCC_SAVE_ICON_SPRITES>(SaveIconSprites)));
       break;
     }
   }
 }
 
 void Hide() {
-  std::visit([](auto& anim) { anim.Hide(); }, IconAnimation);
+  std::visit([](auto& anim) { anim.Hide(); }, *IconAnimation);
   IsTimed = false;
 }
 
 void Show() { ShowAt(DefaultPosition); }
 void ShowAt(glm::vec2 pos) {
   Position = pos;
-  std::visit([](auto& anim) { anim.Show(); }, IconAnimation);
+  std::visit([](auto& anim) { anim.Show(); }, *IconAnimation);
 }
 void ShowFor(float seconds) {
   Timer.LoopMode = AnimationLoopMode::Stop;
@@ -57,11 +58,11 @@ void ShowFor(float seconds) {
 void Update(float dt) {
   Timer.Update(dt);
   if (IsTimed && Timer.IsIn()) Hide();
-  std::visit([dt](auto& anim) { anim.Update(dt); }, IconAnimation);
+  std::visit([dt](auto& anim) { anim.Update(dt); }, *IconAnimation);
 }
 
 void Render() {
-  std::visit([](auto& anim) { anim.Render(Position); }, IconAnimation);
+  std::visit([](auto& anim) { anim.Render(Position); }, *IconAnimation);
 }
 
 }  // namespace SaveIconDisplay

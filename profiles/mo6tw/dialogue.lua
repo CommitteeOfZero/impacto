@@ -54,10 +54,12 @@ root.Dialogue = {
     NametagRightSprite = "NametagRightSprite",
     NametagMiddleBaseWidth = 0.0,
 
-    WaitIconCurrentType = WaitIconType.RotateZ,
+    WaitIconCurrentType = WaitIconType.Rotating3D,
     WaitIconSprite = "DialogueWaitIcon",
-    WaitIconOffset = { X = 4, Y = 4 },
     WaitIconAnimationDuration = 3.2,
+    KeyWaitIconPos = { X = 0, Y = 0 }, -- TODO
+    WaitIconOffset = { X = 4, Y = 4 },
+
     DialogueFont = "Default",
     SetFontSizeRatio = 1000.0,
     DefaultFontSize = 32,

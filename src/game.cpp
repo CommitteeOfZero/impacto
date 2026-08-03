@@ -361,6 +361,9 @@ void Update(float dt) {
 
   if (+Profile::GameFeatures & +GameFeature::Renderer2D) {
     for (DialoguePage& page : DialoguePages) page.Update(dt);
+    KeyWaitIcon->Update(dt);
+    AutoIconDisplay::Update(dt);
+    SkipIconDisplay::Update(dt);
   }
 }
 
@@ -574,6 +577,7 @@ void Render() {
               pageIt->Render(1.0f);
             }
           }
+
           // System menu capture
           if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::CC &&
               GetFlag(SF_SYSTEMMENUCAPTURE)) {
@@ -582,6 +586,8 @@ void Render() {
                     ->ScreenCap);
             SetFlag(SF_SYSTEMMENUCAPTURE, false);
           }
+
+          KeyWaitIcon->Render({0.0f, 0.0f}, glm::vec4(1.0f));
 
           if (!GetFlag(SF_UIHIDDEN) && !GetFlag(SF_MOVIEPLAY)) {
             TipsNotification::Render();

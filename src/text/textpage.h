@@ -66,7 +66,13 @@ struct TextModeInfo {
 
   float MaxLineWidth = 0;
 
-  size_t CurrentPageId = 0;
+  enum class WaitIconDispModeType : uint8_t {
+    Invisible = 0,
+    FixedPos = 1,
+    AfterLastGlyph = 2,
+    FixedXLineY = 3,
+  };
+  WaitIconDispModeType WaitIconDispMode = WaitIconDispModeType::Invisible;
   glm::vec2 WaitIconPos = {0.0f, 0.0f};
 
   glm::vec2 TextGlyphSize = {0.0f, 0.0f};

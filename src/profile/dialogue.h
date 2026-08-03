@@ -63,27 +63,28 @@ inline RendererOutlineMode REVNameOutlineMode = RendererOutlineMode::Full;
 inline size_t TipsMessageModeIdx;
 inline int TipsColorIndex = 0;
 
-inline Sprite WaitIconSprite;
-inline SpriteAnimationDef WaitIconSpriteAnim;
+inline glm::vec2 KeyWaitIconPos;
 inline glm::vec2 WaitIconOffset;
+inline Sprite WaitIconSprite;
 inline float WaitIconAnimationDuration;
-inline int WaitIconFixedSpriteId;
-inline WaitIconDisplay::WaitIconType WaitIconCurrentType =
-    WaitIconDisplay::WaitIconType::None;
+inline std::optional<SpriteAnimationDef> WaitIconSpriteAnimationDef;
+inline std::optional<FixedSpriteAnimationDef> WaitIconFixedSpriteAnimationDef;
+inline WaitIconType WaitIconCurrentType = WaitIconType::None;
+inline bool WaitIconDrawableWithoutTextbox = true;
 
 inline Sprite AutoIconSprite;
-inline SpriteAnimationDef AutoIconSpriteAnim;
+inline std::optional<SpriteAnimationDef> AutoIconSpriteAnimationDef;
+inline std::optional<FixedSpriteAnimationDef> AutoIconFixedSpriteAnimationDef;
 inline glm::vec2 AutoIconOffset;
-inline int AutoIconFixedSpriteId;
-inline float AutoIconRotationSpeed;
+inline float AutoIconRotationDuration;
 inline AutoIconDisplay::AutoIconType AutoIconCurrentType =
     AutoIconDisplay::AutoIconType::None;
 
 inline Sprite SkipIconSprite;
-inline SpriteAnimationDef SkipIconSpriteAnim;
+inline std::optional<SpriteAnimationDef> SkipIconSpriteAnimationDef;
+inline std::optional<FixedSpriteAnimationDef> SkipIconFixedSpriteAnimationDef;
 inline glm::vec2 SkipIconOffset;
-inline int SkipIconFixedSpriteId;
-inline float SkipIconRotationSpeed;
+inline float SkipIconRotationDuration;
 inline SkipIconDisplay::SkipIconType SkipIconCurrentType =
     SkipIconDisplay::SkipIconType::None;
 
@@ -144,7 +145,7 @@ enum class TextModeInfoFieldFlags : uint32_t {
   NamePos = 1 << 5,
   NameGlyphSize = 1 << 6,
   MaxLineWidth = 1 << 7,
-  CurrentPageId = 1 << 8,
+  WaitIconDispMode = 1 << 8,
   WaitIconPos = 1 << 9,
   TextGlyphSize = 1 << 10,
   RubyGlyphSize = 1 << 11,

@@ -7,31 +7,34 @@
 namespace Impacto {
 namespace SkipIconDisplay {
 
-static SpriteAnimation SpriteAnim;
-static FixedSpriteAnimation FixedSpriteAnim;
-static float Progress = 0.0f;
+static std::optional<SpriteAnimation> SpriteAnim;
+static std::optional<FixedSpriteAnimation> FixedSpriteAnim;
+static Animation SimpleAnimation;
 
 using namespace Impacto::Profile::Dialogue;
 
 void Init() {
   switch (SkipIconCurrentType) {
     case SkipIconType::SpriteAnim:
-      SpriteAnim = SkipIconSpriteAnim.Instantiate();
-      SpriteAnim.LoopMode = AnimationLoopMode::Stop;
-      SpriteAnim.StartIn();
+      SpriteAnim.emplace(SkipIconSpriteAnimationDef->Instantiate());
+      SpriteAnim->LoopMode = AnimationLoopMode::Stop;
+      SpriteAnim->StartIn();
       break;
 
     case SkipIconType::SpriteAnimFixed:
-      SpriteAnim = SkipIconSpriteAnim.Instantiate();
-      SpriteAnim.LoopMode = AnimationLoopMode::Stop;
-      FixedSpriteAnim = static_cast<FixedSpriteAnimation&>(SpriteAnim);
-      FixedSpriteAnim.Def->FixSpriteId = SkipIconFixedSpriteId;
-      FixedSpriteAnim.StartIn();
+      FixedSpriteAnim.emplace(SkipIconFixedSpriteAnimationDef->Instantiate());
+      FixedSpriteAnim->LoopMode = AnimationLoopMode::Stop;
+      FixedSpriteAnim->StartIn();
+      break;
+
+    case SkipIconType::CHLCC:
+      SimpleAnimation.SetDuration(SkipIconRotationDuration);
+      SimpleAnimation.LoopMode = AnimationLoopMode::Loop;
+      SimpleAnimation.StartIn();
       break;
 
     case SkipIconType::None:
     case SkipIconType::Fixed:
-    case SkipIconType::CHLCC:
       break;
   }
 }
@@ -39,28 +42,27 @@ void Init() {
 void Update(float dt) {
   switch (SkipIconCurrentType) {
     case SkipIconType::SpriteAnim:
-      if (SkipModeEnabled && SpriteAnim.Direction == AnimationDirection::Out)
-        SpriteAnim.StartIn();
-      if (!SkipModeEnabled && SpriteAnim.Direction == AnimationDirection::In)
-        SpriteAnim.StartOut();
+      if (SkipModeEnabled && SpriteAnim->Direction == AnimationDirection::Out)
+        SpriteAnim->StartIn();
+      if (!SkipModeEnabled && SpriteAnim->Direction == AnimationDirection::In)
+        SpriteAnim->StartOut();
 
-      SpriteAnim.Update(dt);
+      SpriteAnim->Update(dt);
       break;
 
     case SkipIconType::SpriteAnimFixed:
       if (SkipModeEnabled &&
-          FixedSpriteAnim.Direction == AnimationDirection::Out)
-        FixedSpriteAnim.StartIn();
+          FixedSpriteAnim->Direction == AnimationDirection::Out)
+        FixedSpriteAnim->StartIn();
       if (!SkipModeEnabled &&
-          FixedSpriteAnim.Direction == AnimationDirection::In)
-        FixedSpriteAnim.StartOut();
+          FixedSpriteAnim->Direction == AnimationDirection::In)
+        FixedSpriteAnim->StartOut();
 
-      FixedSpriteAnim.Update(dt);
+      FixedSpriteAnim->Update(dt);
       break;
 
     case SkipIconType::CHLCC:
-      Progress += dt * SkipIconRotationSpeed;
-      Progress -= (int)Progress;  // Progress %= 1.0f
+      SimpleAnimation.Update(dt);
       break;
 
     case SkipIconType::None:
@@ -72,9 +74,9 @@ void Update(float dt) {
 void Render(glm::vec4 opacityTint) {
   switch (SkipIconCurrentType) {
     case SkipIconType::SpriteAnim: {
-      if (!SpriteAnim.IsOut()) {
+      if (!SpriteAnim->IsOut()) {
         glm::vec4 col = glm::vec4(1.0f, 1.0f, 1.0f, opacityTint.a);
-        Renderer->DrawSprite(SpriteAnim.CurrentSprite(),
+        Renderer->DrawSprite(SpriteAnim->CurrentSprite(),
                              glm::vec2(SkipIconOffset.x, SkipIconOffset.y),
                              col);
       }
@@ -82,11 +84,11 @@ void Render(glm::vec4 opacityTint) {
     }
 
     case SkipIconType::SpriteAnimFixed:
-      if (!FixedSpriteAnim.IsOut() &&
-          !(FixedSpriteAnim.Direction == AnimationDirection::Out &&
-            FixedSpriteAnim.Progress ==
-                FixedSpriteAnim.GetFixedSpriteProgress())) {
-        Renderer->DrawSprite(FixedSpriteAnim.CurrentSprite(),
+      if (!FixedSpriteAnim->IsOut() &&
+          !(FixedSpriteAnim->Direction == AnimationDirection::Out &&
+            FixedSpriteAnim->Progress ==
+                FixedSpriteAnim->GetFixedSpriteProgress())) {
+        Renderer->DrawSprite(FixedSpriteAnim->CurrentSprite(),
                              glm::vec2(SkipIconOffset.x, SkipIconOffset.y),
                              opacityTint);
       }
@@ -96,13 +98,12 @@ void Render(glm::vec4 opacityTint) {
       if (SkipModeEnabled) {
         const CornersQuad arrowsDest =
             AutoSkipArrowsSprite.ScaledBounds()
-                .RotateAroundCenter(Progress * 2.0f * std::numbers::pi_v<float>)
+                .RotateAroundCenter(SimpleAnimation.Progress * 2.0f *
+                                    std::numbers::pi_v<float>)
                 .Translate(SkipIconOffset);
         Renderer->DrawSprite(AutoSkipArrowsSprite, arrowsDest, opacityTint);
 
-        Renderer->DrawSprite(SkipIconSprite,
-                             glm::vec2(SkipIconOffset.x, SkipIconOffset.y),
-                             opacityTint);
+        Renderer->DrawSprite(SkipIconSprite, SkipIconOffset, opacityTint);
       }
       break;
 

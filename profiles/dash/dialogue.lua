@@ -27,9 +27,11 @@ root.Dialogue = {
     NametagRightSprite = "NametagRightSprite",
     NametagMiddleBaseWidth = 0.0,
 
-    WaitIconSpriteAnim = "WaitIconSpriteAnimDef",
-    WaitIconCurrentType = WaitIconType.SpriteAnim,
+    WaitIconSpriteAnimation = "WaitIconSpriteAnimationDef",
+    WaitIconCurrentType = WaitIconType.SpriteAnimation,
     WaitIconOffset = { X = 0, Y = 0 },
+    KeyWaitIconPos = { X = 0, Y = 0 }, -- TODO
+
     DialogueFont = "Default",
     SetFontSizeRatio = 1000.0,
     DefaultFontSize = 48,
@@ -76,7 +78,7 @@ root.Dialogue = {
 };
 
 MakeAnimation({
-    Name = "WaitIconSpriteAnimDef",
+    Name = "WaitIconSpriteAnimationDef",
     Sheet = "MesBox",
     FirstFrameX = 0,
     FirstFrameY = 1919,

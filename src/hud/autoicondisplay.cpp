@@ -7,31 +7,34 @@
 namespace Impacto {
 namespace AutoIconDisplay {
 
-static SpriteAnimation SpriteAnim;
-static FixedSpriteAnimation FixedSpriteAnim;
-static float Progress = 0.0f;
+static std::optional<SpriteAnimation> SpriteAnim;
+static std::optional<FixedSpriteAnimation> FixedSpriteAnim;
+static Animation SimpleAnimation;
 
 using namespace Impacto::Profile::Dialogue;
 
 void Init() {
   switch (AutoIconCurrentType) {
     case AutoIconType::SpriteAnim:
-      SpriteAnim = AutoIconSpriteAnim.Instantiate();
-      SpriteAnim.LoopMode = AnimationLoopMode::Stop;
-      SpriteAnim.StartIn();
+      SpriteAnim.emplace(AutoIconSpriteAnimationDef->Instantiate());
+      SpriteAnim->LoopMode = AnimationLoopMode::Stop;
+      SpriteAnim->StartIn();
       break;
 
     case AutoIconType::SpriteAnimFixed:
-      SpriteAnim = AutoIconSpriteAnim.Instantiate();
-      SpriteAnim.LoopMode = AnimationLoopMode::Stop;
-      FixedSpriteAnim = static_cast<FixedSpriteAnimation&>(SpriteAnim);
-      FixedSpriteAnim.Def->FixSpriteId = AutoIconFixedSpriteId;
-      FixedSpriteAnim.StartIn();
+      FixedSpriteAnim.emplace(AutoIconFixedSpriteAnimationDef->Instantiate());
+      FixedSpriteAnim->LoopMode = AnimationLoopMode::Stop;
+      FixedSpriteAnim->StartIn();
+      break;
+
+    case AutoIconType::CHLCC:
+      SimpleAnimation.SetDuration(AutoIconRotationDuration);
+      SimpleAnimation.LoopMode = AnimationLoopMode::Loop;
+      SimpleAnimation.StartIn();
       break;
 
     case AutoIconType::None:
     case AutoIconType::Fixed:
-    case AutoIconType::CHLCC:
       break;
   }
 }
@@ -39,28 +42,27 @@ void Init() {
 void Update(float dt) {
   switch (AutoIconCurrentType) {
     case AutoIconType::SpriteAnim:
-      if (AutoModeEnabled && SpriteAnim.Direction == AnimationDirection::Out)
-        SpriteAnim.StartIn();
-      if (!AutoModeEnabled && SpriteAnim.Direction == AnimationDirection::In)
-        SpriteAnim.StartOut();
+      if (AutoModeEnabled && SpriteAnim->Direction == AnimationDirection::Out)
+        SpriteAnim->StartIn();
+      if (!AutoModeEnabled && SpriteAnim->Direction == AnimationDirection::In)
+        SpriteAnim->StartOut();
 
-      SpriteAnim.Update(dt);
+      SpriteAnim->Update(dt);
       break;
 
     case AutoIconType::SpriteAnimFixed:
       if (AutoModeEnabled &&
-          FixedSpriteAnim.Direction == AnimationDirection::Out)
-        FixedSpriteAnim.StartIn();
+          FixedSpriteAnim->Direction == AnimationDirection::Out)
+        FixedSpriteAnim->StartIn();
       if (!AutoModeEnabled &&
-          FixedSpriteAnim.Direction == AnimationDirection::In)
-        FixedSpriteAnim.StartOut();
+          FixedSpriteAnim->Direction == AnimationDirection::In)
+        FixedSpriteAnim->StartOut();
 
-      FixedSpriteAnim.Update(dt);
+      FixedSpriteAnim->Update(dt);
       break;
 
     case AutoIconType::CHLCC:
-      Progress += dt * AutoIconRotationSpeed;
-      Progress -= (int)Progress;  // Progress %= 1.0f
+      SimpleAnimation.Update(dt);
       break;
 
     case AutoIconType::None:
@@ -72,9 +74,9 @@ void Update(float dt) {
 void Render(glm::vec4 opacityTint) {
   switch (AutoIconCurrentType) {
     case AutoIconType::SpriteAnim: {
-      if (!SpriteAnim.IsOut()) {
+      if (!SpriteAnim->IsOut()) {
         glm::vec4 col = glm::vec4(1.0f, 1.0f, 1.0f, opacityTint.a);
-        Renderer->DrawSprite(SpriteAnim.CurrentSprite(),
+        Renderer->DrawSprite(SpriteAnim->CurrentSprite(),
                              glm::vec2(AutoIconOffset.x, AutoIconOffset.y),
                              col);
       }
@@ -82,11 +84,11 @@ void Render(glm::vec4 opacityTint) {
     }
 
     case AutoIconType::SpriteAnimFixed:
-      if (!FixedSpriteAnim.IsOut() &&
-          !(FixedSpriteAnim.Direction == AnimationDirection::Out &&
-            FixedSpriteAnim.Progress ==
-                FixedSpriteAnim.GetFixedSpriteProgress())) {
-        Renderer->DrawSprite(FixedSpriteAnim.CurrentSprite(),
+      if (!FixedSpriteAnim->IsOut() &&
+          !(FixedSpriteAnim->Direction == AnimationDirection::Out &&
+            FixedSpriteAnim->Progress ==
+                FixedSpriteAnim->GetFixedSpriteProgress())) {
+        Renderer->DrawSprite(FixedSpriteAnim->CurrentSprite(),
                              glm::vec2(AutoIconOffset.x, AutoIconOffset.y),
                              opacityTint);
       }
@@ -96,7 +98,8 @@ void Render(glm::vec4 opacityTint) {
       if (AutoModeEnabled) {
         const CornersQuad arrowsDest =
             AutoSkipArrowsSprite.ScaledBounds()
-                .RotateAroundCenter(Progress * 2.0f * std::numbers::pi_v<float>)
+                .RotateAroundCenter(SimpleAnimation.Progress * 2.0f *
+                                    std::numbers::pi_v<float>)
                 .Translate(AutoIconOffset);
         Renderer->DrawSprite(AutoSkipArrowsSprite, arrowsDest, opacityTint);
 

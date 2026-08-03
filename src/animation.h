@@ -20,6 +20,8 @@ constexpr AnimationDirection operator-(AnimationDirection direction) {
 
 class Animation {
  public:
+  virtual ~Animation() = default;
+
   float DurationIn = 0;
   float DurationOut = 0;
   // 0 = fully out, 1 = fully in

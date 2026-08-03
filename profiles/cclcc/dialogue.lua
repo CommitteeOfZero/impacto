@@ -8,6 +8,8 @@ root.Sprites["ADVBoxMask"] = {
     Bounds = { X = 0, Y = 301, Width = 1920, Height = 298 }
 };
 
+local waitIconPos = { X = 1583, Y = 907 };
+
 root.Dialogue = {
     TipsMessageModeIdx = 7,
     TipsColorIndex = 10,
@@ -37,19 +39,20 @@ root.Dialogue = {
 
     NametagShowDuration = 16 / 60;
 
-    WaitIconCurrentType = WaitIconType.SpriteAnimFixed,
-    WaitIconSpriteAnim = "WaitIconSpriteAnim",
-    WaitIconAnimationDuration = 0.7,
-    WaitIconOffset = { X = 1595, Y = 895 },
-    WaitIconFixedSpriteId = 6,
+    WaitIconCurrentType = WaitIconType.FixedSpriteAnimation,
+    WaitIconSpriteAnimation = "WaitIconSpriteAnimation",
+    KeyWaitIconPos = waitIconPos,
+    WaitIconOffset = { X = 0, Y = 0 },
+    WaitIconDrawableWithoutTextbox = false,
+
     AutoIconCurrentType = AutoIconType.SpriteAnimFixed,
-    AutoIconSpriteAnim = "AutoIconSpriteAnim",
-    AutoIconOffset = { X = 1568, Y = 690 },
-    AutoIconFixedSpriteId = 6,
+    AutoIconSpriteAnim = "AutoIconSpriteAnimation",
+    AutoIconOffset = { X = 1571, Y = 691 },
+
     SkipIconCurrentType = SkipIconType.SpriteAnimFixed,
-    SkipIconSpriteAnim = "SkipIconSpriteAnim",
-    SkipIconOffset = { X = 1688, Y = 794 },
-    SkipIconFixedSpriteId = 6,
+    SkipIconSpriteAnim = "SkipIconSpriteAnimation",
+    SkipIconOffset = { X = 1691, Y = 791 },
+
     DialogueFont = "Default",
     SetFontSizeRatio = 800.0,
     DefaultFontSize = 42,
@@ -94,14 +97,33 @@ root.Dialogue = {
     PageCount = 3,
     ColorTagIsUint8 = false,
 
-    TextModesInfo = root.Language == "English" and {
+    -- MAGES. engine hardcodes FixedPos in the binary regardless of WaitIconDispMode
+    -- We force it to comply by overriding them in the profile
+    TextModesInfo = {
+        ["0"] = { -- ADV box
+            WaitIconDispMode = WaitIconDispModeType.FixedPos,
+            WaitIconPos = waitIconPos,
+        },
+        ["1"] = { -- NVL box
+            WaitIconDispMode = WaitIconDispModeType.FixedPos,
+            WaitIconPos = waitIconPos,
+        },
+    }
+};
+
+if root.Language == "English" then
+    root.Dialogue.TextModesInfo =  {
         ["0"] = { -- ADV box
             WindowPos = { X = 220 * 1.5, Y = (518 + 11 + 5 + 1) * 1.5 }, -- Correct for missing ruby space
+            WaitIconDispMode = WaitIconDispModeType.FixedPos,
+            WaitIconPos = waitIconPos,
             TextGlyphSize = { X = 38, Y = 38 },
             LineSpacing = (1 + 5 + 1) * 1.5 - 3, -- (RubySpacing + RubyHeight + LineSpacing) * 1.5 - 3
             AlwaysAddRubySpacing = false,
         },
         ["1"] = { -- NVL box
+            WaitIconDispMode = WaitIconDispModeType.FixedPos,
+            WaitIconPos = waitIconPos,
             TextGlyphSize = { X = 38, Y = 38 },
             LineSpacing = (1 + 5 + 1) * 1.5 - 3,
             AlwaysAddRubySpacing = false,
@@ -117,56 +139,59 @@ root.Dialogue = {
             LineSpacing = (1 + 5 + 1) * 1.5 - 3,
             AlwaysAddRubySpacing = false,
         }
-    } or {},
-};
+    }
+end
 
-MakeAnimation({
-    Name = "WaitIconSpriteAnim",
+MakeFixedSpriteAnimation({
+    Name = "WaitIconSpriteAnimation",
     Sheet = "Data",
-    FirstFrameX = 864, --1114
-    FirstFrameY = 877,
-    FrameWidth = 190,
+    FirstFrameX = 853,
+    FirstFrameY = 889,
+    FrameWidth = 216,
     ColWidth = 216,
-    FrameHeight = 185,
-    RowHeight = 185,
+    FrameHeight = 216,
+    RowHeight = 216,
     Frames = 10,
-    Duration = 1,
+    FixedFrameIdx = 6,
+    Duration = 5 * 2 / 60,
     Rows = 1,
     Columns = 10,
     PrimaryDirection = AnimationDirections.Right
 });
 
-MakeAnimation({
-    Name = "AutoIconSpriteAnim",
+MakeFixedSpriteAnimation({
+    Name = "AutoIconSpriteAnimation",
     Sheet = "Data",
-    FirstFrameX = 854,
-    FirstFrameY = 456,
-    FrameWidth = 215,
-    ColWidth = 215,
-    FrameHeight = 220,
-    RowHeight = 220,
+    FirstFrameX = 852,
+    FirstFrameY = 457,
+    FrameWidth = 216,
+    ColWidth = 216,
+    FrameHeight = 216,
+    RowHeight = 216,
     Frames = 10,
-    Duration = 0.7,
+    FixedFrameIdx = 6,
+    Duration = 5 * 2 / 60,
     Rows = 1,
     Columns = 10,
     PrimaryDirection = AnimationDirections.Right
 });
 
-MakeAnimation({
-    Name = "SkipIconSpriteAnim",
+MakeFixedSpriteAnimation({
+    Name = "SkipIconSpriteAnimation",
     Sheet = "Data",
-    FirstFrameX = 854,
-    FirstFrameY = 676,
-    FrameWidth = 215,
-    ColWidth = 215,
-    FrameHeight = 220,
-    RowHeight = 220,
+    FirstFrameX = 852,
+    FirstFrameY = 673,
+    FrameWidth = 216,
+    ColWidth = 216,
+    FrameHeight = 216,
+    RowHeight = 216,
     Frames = 10,
-    Duration = 0.7,
+    FixedFrameIdx = 6,
+    Duration = 5 * 2 / 60,
     Rows = 1,
     Columns = 10,
     PrimaryDirection = AnimationDirections.Right
-})
+});
 
 local nametagMainX = 0;
 local nametagMainY = 0;

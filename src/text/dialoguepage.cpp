@@ -45,7 +45,6 @@ DialoguePage::State DialoguePage::GetState() const {
 void DialoguePage::Init() {
   Profile::Dialogue::Configure();
 
-  WaitIconDisplay::Init();
   AutoIconDisplay::Init();
   SkipIconDisplay::Init();
 
@@ -164,10 +163,7 @@ void DialoguePage::Update(float dt) {
 
   DialogueBoxInst->Update(dt);
   FadeAnimation.Update(dt);
-
-  WaitIconDisplay::Update(dt);
-  AutoIconDisplay::Update(dt);
-  SkipIconDisplay::Update(dt);
+  WaitIconInst->Update(dt);
 }
 
 void DialoguePage::Move(const glm::vec2 relativeOffset) {
@@ -189,7 +185,8 @@ void DialoguePage::Render(const float alpha,
 
   const int winType =
       ScrWork[SW_MESWIN0TYPE + Profile::Vm::ScrWorkMesStructSize * Id];
-  if ((winType & 1 << 3) == 0) {
+  const bool windowIsVisible = (winType & +MesWinTypeBit::DontDrawWindow) == 0;
+  if (windowIsVisible) {
     const NameInfo nameInfo{
         .RenderWindow = RenderName,
         .NameId = ScrWork[SW_MESNAMEID0 + Id] == NO_NAME
@@ -206,7 +203,8 @@ void DialoguePage::Render(const float alpha,
 
   glm::vec2 pos = glm::vec2(ScrWork[SW_MESWIN0POSX_OFS + 2 * Id],
                             ScrWork[SW_MESWIN0POSY_OFS + 2 * Id]);
-  if (ScrWork[SW_MESWIN0TYPE + Profile::Vm::ScrWorkMesStructSize * Id] & 1) {
+  if (ScrWork[SW_MESWIN0TYPE + Profile::Vm::ScrWorkMesStructSize * Id] &
+      +MesWinTypeBit::UseScrWorkPos) {
     pos += DialogueBoxInst.get()->GetScrWorkPos() - GetTextModeInfo().WindowPos;
   }
 
@@ -224,12 +222,12 @@ void DialoguePage::Render(const float alpha,
     }
   }
 
-  // Wait icon
-  if ((winType & 1 << 7) == 0) {
+  if ((winType & 1 << 7) == 0 &&
+      (WaitIconDrawableWithoutTextbox || windowIsVisible)) {
     const glm::vec2 waitIconPos =
         pos +
-        (Glyphs.empty() ? glm::vec2() : Glyphs.back().DestRect.TopRight());
-    WaitIconDisplay::Render(waitIconPos, col, GetMode(), Id);
+        (Glyphs.empty() ? glm::vec2() : Glyphs.back().DestRect.BottomRight());
+    WaitIconInst->Render(waitIconPos, col);
   }
 
   AutoIconDisplay::Render(col);
@@ -243,7 +241,7 @@ void DialoguePage::Show() { FadeAnimation.StartIn(true); }
 void DialoguePage::PushBacklogEntry() {
   if (!CurrentStringAddress.has_value() || GetFlag(SF_REVADDDISABLE) ||
       (ScrWork[SW_MESWIN0TYPE + Profile::Vm::ScrWorkMesStructSize * Id] &
-       0b10)) {
+       +MesWinTypeBit::DontAddToBacklog)) {
     return;
   }
 

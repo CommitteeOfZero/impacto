@@ -7,6 +7,7 @@
 #include "../profile/vm.h"
 
 #include "../hud/dialoguebox.h"
+#include "../hud/waiticondisplay.h"
 
 #include "../audio/audiostream.h"
 
@@ -98,6 +99,7 @@ struct DialoguePage : public TextPage {
 
  private:
   std::unique_ptr<DialogueBox> DialogueBoxInst = DialogueBox::Create(*this);
+  std::unique_ptr<WaitIcon> WaitIconInst = WaitIcon::Create(this);
 
   std::optional<Vm::BufferOffsetContext> CurrentStringAddress;
 };
@@ -109,4 +111,20 @@ inline bool AutoModeEnabled = false;
 inline bool SyncAutoModeEnabled = false;
 inline float SyncAutoTime = 0.0f;
 
+enum class MesWinTypeBit : uint8_t {
+  UseScrWorkPos = 1 << 0,
+  DontAddToBacklog = 1 << 1,
+  DisableAutoSave = 1 << 2,
+  DontDrawWindow = 1 << 3,
+  DisableManualMessageAdvance = 1 << 4,
+  DontDrawText = 1 << 5,
+  DontSkipIfRead = 1 << 6,
+  DontDrawWaitIcon = 1 << 7,
+};
+
 }  // namespace Impacto
+
+template <>
+struct magic_enum::customize::enum_range<Impacto::MesWinTypeBit> {
+  static constexpr bool is_flags = true;
+};

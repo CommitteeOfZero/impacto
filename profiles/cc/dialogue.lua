@@ -43,8 +43,7 @@ root.Dialogue = {
     NametagShowDuration = 16 / 60;
 
     WaitIconCurrentType = WaitIconType.None,
-    WaitIconSprite = "WaitIconSprite",
-    WaitIconOffset = { X = 1578, Y = 940 },
+
     AutoIconCurrentType = AutoIconType.SpriteAnim,
     AutoIconSpriteAnim = "AutoIconSpriteAnim",
     AutoIconOffset = { X = 1570, Y = 696 },

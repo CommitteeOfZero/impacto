@@ -12,15 +12,15 @@ root.Sprites["ErinBox"] = {
 };
 root.Sprites["AutoSkipArrowsSprite"] = {
     Sheet = "Data",
-    Bounds = { X = 174, Y = 2, Width = 62, Height = 62 },
+    Bounds = { X = 173, Y = 1, Width = 64, Height = 64 },
 };
 root.Sprites["AutoIconSprite"] = {
     Sheet = "Data",
-    Bounds = { X = 240, Y = 2, Width = 62, Height = 62 },
+    Bounds = { X = 239, Y = 1, Width = 64, Height = 64 },
 };
 root.Sprites["SkipIconSprite"] = {
     Sheet = "Data",
-    Bounds = { X = 306, Y = 2, Width = 62, Height = 62 },
+    Bounds = { X = 305, Y = 1, Width = 64, Height = 64 },
 };
 
 root.Dialogue = {
@@ -42,19 +42,24 @@ root.Dialogue = {
     TextFadeOutDuration = 0.33,
     DialogueBoxCurrentType = DialogueBoxType.CHLCC,
     NVLBoxMaxOpacity = 0.55,
-    WaitIconSpriteAnim = "WaitIconSpriteAnimDef",
-    WaitIconCurrentType = WaitIconType.SpriteAnim,
+
+    WaitIconSpriteAnimation = "WaitIconSpriteAnimationDef",
+    WaitIconCurrentType = WaitIconType.SpriteAnimation,
+    KeyWaitIconPos = { X = 1038, Y = 640 },
+    WaitIconOffset = { X = 4, Y = -28 },
+    WaitIconDrawableWithoutTextbox = false,
+
     AutoIconCurrentType = AutoIconType.CHLCC,
     AutoIconSprite = "AutoIconSprite",
     AutoIconOffset = { X = 1167, Y = 630 },
-    AutoIconRotationSpeed = 0.5 / 3,
+    AutoIconRotationDuration = 119 / 60,
+
     SkipIconCurrentType = SkipIconType.CHLCC,
     SkipIconSprite = "SkipIconSprite",
     SkipIconOffset = { X = 1167, Y = 527 },
-    SkipIconRotationSpeed = 1.5 / 3,
+    SkipIconRotationDuration = 39 / 60,
+
     AutoSkipArrowsSprite = "AutoSkipArrowsSprite",
-    REVWaitIconOffset = { X = 4, Y = -4 },
-    WaitIconOffset = { X = 4, Y = 4 },
     DialogueFont = "Default",
     SetFontSizeRatio = 1000.0,
     DefaultFontSize = 32,
@@ -133,16 +138,16 @@ root.Dialogue = {
 };
 
 MakeAnimation({
-    Name = "WaitIconSpriteAnimDef",
+    Name = "WaitIconSpriteAnimationDef",
     Sheet = "Data",
-    FirstFrameX = 0,
+    FirstFrameX = 1,
     FirstFrameY = 97,
-    FrameWidth = 34,
-    ColWidth = 34,
-    FrameHeight = 34,
+    FrameWidth = 32,
+    ColWidth = 32,
+    FrameHeight = 32,
     RowHeight = 34,
     Frames = 8,
-    Duration = 1.5,
+    Duration = (4 * 8) / 60,
     Rows = 8,
     Columns = 1,
     PrimaryDirection = AnimationDirections.Down,
