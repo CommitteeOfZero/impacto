@@ -54,7 +54,7 @@ include(root.BasePaths.RootProfilesDir .. '/cclcc/vfs.lua');
 include(root.BasePaths.RootProfilesDir .. '/cclcc/charset.lua');
 include(root.BasePaths.RootProfilesDir .. '/cclcc/gamespecific.lua');
 if root.Language == "English" then
-    include(root.BasePaths.RootProfilesDir .. '/cclcc/font-lb-italic.lua');
+    include(root.BasePaths.RootProfilesDir .. '/cclcc/font-lb.lua');
 else
     include(root.BasePaths.RootProfilesDir .. '/cclcc/font.lua');
 end
