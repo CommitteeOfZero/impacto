@@ -43,7 +43,6 @@ include(root.BasePaths.RootProfilesDir .. '/mo8/sprites.lua');
 include(root.BasePaths.RootProfilesDir .. '/common/animation.lua');
 include(root.BasePaths.RootProfilesDir .. '/mo8/charset.lua');
 include(root.BasePaths.RootProfilesDir .. '/mo8/font.lua');
---include(root.BasePaths.RootProfilesDir .. '/mo8/font-lb.lua');
 include(root.BasePaths.RootProfilesDir .. '/mo8/dialogue.lua');
 include(root.BasePaths.RootProfilesDir .. '/mo8/hud/saveicon.lua');
 include(root.BasePaths.RootProfilesDir .. '/mo8/hud/loadingdisplay.lua');

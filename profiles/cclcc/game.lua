@@ -53,11 +53,7 @@ include(root.BasePaths.RootProfilesDir .. '/cclcc/tipssystem.lua');
 include(root.BasePaths.RootProfilesDir .. '/cclcc/vfs.lua');
 include(root.BasePaths.RootProfilesDir .. '/cclcc/charset.lua');
 include(root.BasePaths.RootProfilesDir .. '/cclcc/gamespecific.lua');
-if root.Language == "English" then
-    include(root.BasePaths.RootProfilesDir .. '/cclcc/font-lb.lua');
-else
-    include(root.BasePaths.RootProfilesDir .. '/cclcc/font.lua');
-end
+include(root.BasePaths.RootProfilesDir .. '/cclcc/font.lua');
 include(root.BasePaths.RootProfilesDir .. '/cclcc/dialogue.lua');
 include(root.BasePaths.RootProfilesDir .. '/cclcc/configsystem.lua');
 include(root.BasePaths.RootProfilesDir .. '/cclcc/bgeff.lua');
