@@ -230,6 +230,12 @@ void Configure() {
       std::filesystem::path configDir = Io::GetPlatformConfigDir();
       path = (configDir / fileName).string();
     }
+    if (Io::PathExists(path) != IoError_OK) {
+      ImpLog(LogLevel::Warning, LogChannel::Profile,
+             "Failed to find {}, falling back to {} in engine directory.\n",
+             path, fileName);
+      path = fileName;
+    }
   };
 
   setupScriptPath("basepaths.lua", BasePathsPath);
