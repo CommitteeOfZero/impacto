@@ -52,12 +52,17 @@ static void HandleArguments(std::vector<std::string_view> args) {
       if (std::find(std::begin(supportedArgs), std::end(supportedArgs), arg) !=
           std::end(supportedArgs)) {
         if constexpr (std::invocable<decltype(action), std::string_view>) {
-          if (i++ >= args.size()) {
+          if (++i >= args.size()) {
             ImpLog(LogLevel::Fatal, LogChannel::General,
                    "Invalid number of arguments");
             exit(1);
           }
           std::string_view input = args[i];
+          if (input[0] == '-') {
+            ImpLog(LogLevel::Fatal, LogChannel::General,
+                   "Missing parameter for {}", arg);
+            exit(1);
+          }
           action(input);
         } else if constexpr (std::invocable<decltype(action)>) {
           action();
