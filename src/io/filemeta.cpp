@@ -90,10 +90,21 @@ std::string const& GetPlatformConfigDir() {
     }
     return (result / "impacto").string();
 #else
+    std::filesystem::path result;
     char* configPath = SDL_GetPrefPath("Committee of Zero", "Impacto");
-    std::string result = configPath;
-    SDL_free(configPath);
-    return result;
+    if (!configPath || *configPath == '\0') {
+      configPath = SDL_getenv("APPDATA");
+      if (!configPath || *configPath == '\0') {
+        return std::string{};
+      } else {
+        result =
+            std::filesystem::path(configPath) / "Committee of Zero" / "Impacto";
+      }
+    } else {
+      result = std::filesystem::path(configPath);
+      SDL_free(configPath);
+    }
+    return result.string();
 #endif
   }();
   return path;
