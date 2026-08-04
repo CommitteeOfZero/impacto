@@ -76,17 +76,17 @@ void TipsEntryButton::Render() {
     Renderer->DrawSprite(HighlightSprite, dest, Tint);
   }
 
-  Renderer->DrawProcessedText(TipNumber, Profile::Dialogue::DialogueFont,
-                              Tint.a, RendererOutlineMode::Full);
+  Profile::Dialogue::DialogueFont->DrawProcessedText(TipNumber, Tint.a,
+                                                     RendererOutlineMode::Full);
   if (TipEntryRecord->IsLocked) {
-    Renderer->DrawProcessedText(TipLockedText, Profile::Dialogue::DialogueFont,
-                                Tint.a, RendererOutlineMode::Full);
+    Profile::Dialogue::DialogueFont->DrawProcessedText(
+        TipLockedText, Tint.a, RendererOutlineMode::Full);
   } else {
-    Renderer->DrawProcessedText(Text, Profile::Dialogue::DialogueFont, Tint.a,
-                                RendererOutlineMode::Full);
+    Profile::Dialogue::DialogueFont->DrawProcessedText(
+        Text, Tint.a, RendererOutlineMode::Full);
     if (TipEntryRecord->IsNew) {
-      Renderer->DrawProcessedText(NewText, Profile::Dialogue::DialogueFont,
-                                  Tint.a, RendererOutlineMode::Full);
+      Profile::Dialogue::DialogueFont->DrawProcessedText(
+          NewText, Tint.a, RendererOutlineMode::Full);
     }
   }
 }

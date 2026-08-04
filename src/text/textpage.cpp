@@ -36,9 +36,9 @@ void TextPage::MoveTo(const glm::vec2 pos) {
 
 void TextPage::Render(const float alpha,
                       const RendererOutlineMode outlineMode) {
-  Renderer->DrawProcessedText(Glyphs, DialogueFont, alpha, outlineMode);
+  DialogueFont->DrawProcessedText(Glyphs, alpha, outlineMode);
   for (RubyChunk& chunk : RubyChunks) {
-    Renderer->DrawProcessedText(chunk.Text, DialogueFont, alpha, outlineMode);
+    DialogueFont->DrawProcessedText(chunk.Text, alpha, outlineMode);
   }
 }
 

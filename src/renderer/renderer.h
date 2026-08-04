@@ -14,8 +14,6 @@ namespace Impacto {
 inline GraphicsApi GraphicsApiHint;
 inline GraphicsApi ActualGraphicsApi;
 
-enum class RendererOutlineMode { None, BottomRight, Full };
-
 enum class StencilBufferMode { Off, Test, Write };
 
 enum class TopologyMode : uint8_t { Triangles, TriangleStrips };
@@ -358,6 +356,13 @@ class BaseRenderer {
                                 RectF const& dest, glm::vec4 tint, int alpha,
                                 int fadeRange, float effectCt) = 0;
 
+  virtual void DrawEdgeDetectedSingleSheetFont(
+      const SpriteSheet& sheet, const SpriteSheet* mask,
+      std::span<const VertexBufferSprites> vertices,
+      std::span<const uint16_t> indices, float intensityShift, float alphaShift,
+      glm::vec2 renderScale, glm::mat4 spriteTransformation,
+      glm::mat4 maskTransformation) = 0;
+
   virtual void DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
                                        const RectF& dest, float alpha) = 0;
 
@@ -369,44 +374,6 @@ class BaseRenderer {
   virtual void DrawMosaic(const Sprite& sprite, const CornersQuad dest,
                           float tileSize, glm::mat4 transformation,
                           glm::vec4 tint) = 0;
-
-  void DrawProcessedText_BasicFont(
-      std::span<const ProcessedTextGlyph> text, BasicFont* font, float opacity,
-      RendererOutlineMode outlineMode, bool smoothstepGlyphOpacity,
-      float outlineOpacity, SpriteSheet* maskedSheet, glm::mat4 transformation);
-
-  void DrawProcessedText_LBFont(std::span<const ProcessedTextGlyph> text,
-                                LBFont* font, float opacity,
-                                RendererOutlineMode outlineMode,
-                                bool smoothstepGlyphOpacity,
-                                float outlineOpacity, SpriteSheet* maskedSheet,
-                                glm::mat4 transformation);
-  void DrawProcessedText(
-      std::span<const ProcessedTextGlyph> text, Font* font, float opacity,
-      float outlineOpacity,
-      RendererOutlineMode outlineMode = RendererOutlineMode::None,
-      bool smoothstepGlyphOpacity = true, SpriteSheet* maskedSheet = nullptr,
-      glm::mat4 transformation = glm::mat4(1.0f));
-
-  void DrawProcessedText(
-      std::span<const ProcessedTextGlyph> text, Font* font,
-      float opacity = 1.0f,
-      RendererOutlineMode outlineMode = RendererOutlineMode::None,
-      bool smoothstepGlyphOpacity = true, SpriteSheet* maskedSheet = nullptr,
-      glm::mat4 transformation = glm::mat4(1.0f)) {
-    DrawProcessedText(text, font, opacity, opacity, outlineMode,
-                      smoothstepGlyphOpacity, maskedSheet, transformation);
-  }
-
-  void DrawProcessedText(std::span<const ProcessedTextGlyph> text, Font* font,
-                         float opacity, float outlineOpacity,
-                         RendererOutlineMode outlineMode, glm::vec2 pos,
-                         bool smoothstepGlyphOpacity = true,
-                         SpriteSheet* maskedSheet = nullptr) {
-    DrawProcessedText(text, font, opacity, outlineOpacity, outlineMode,
-                      smoothstepGlyphOpacity, maskedSheet,
-                      glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f)));
-  }
 
   virtual void DrawVideoTexture(const YUVFrame& frame, const RectF& dest,
                                 glm::vec4 tint, bool alphaVideo = false) = 0;
@@ -463,6 +430,35 @@ class BaseRenderer {
 
   Sprite RectSprite;
 };
+
+inline void InsertQuad(std::span<VertexBufferSprites, 4> vertices,
+                       CornersQuad position, CornersQuad uv, glm::vec4 tint,
+                       CornersQuad maskUV = RectF()) {
+  vertices[0] = {
+      .Position = position.BottomLeft,
+      .UV = uv.BottomLeft,
+      .Tint = tint,
+      .MaskUV = maskUV.BottomLeft,
+  };
+  vertices[1] = {
+      .Position = position.TopLeft,
+      .UV = uv.TopLeft,
+      .Tint = tint,
+      .MaskUV = maskUV.TopLeft,
+  };
+  vertices[2] = {
+      .Position = position.TopRight,
+      .UV = uv.TopRight,
+      .Tint = tint,
+      .MaskUV = maskUV.TopRight,
+  };
+  vertices[3] = {
+      .Position = position.BottomRight,
+      .UV = uv.BottomRight,
+      .Tint = tint,
+      .MaskUV = maskUV.BottomRight,
+  };
+}
 
 inline BaseRenderer* Renderer;
 inline BaseWindow* Window;

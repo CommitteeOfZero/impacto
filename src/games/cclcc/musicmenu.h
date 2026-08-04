@@ -33,7 +33,7 @@ class MusicTrackButton : public Widgets::Button {
 
  private:
   std::array<ProcessedTextGlyph, 6> LockedText;
-  std::array<ProcessedTextGlyph, 4> NumberText;
+  std::array<ProcessedTextGlyph, 2> NumberText;
   Widgets::Label ArtistName;
 };
 

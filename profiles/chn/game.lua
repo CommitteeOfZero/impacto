@@ -45,7 +45,6 @@ include(root.BasePaths.RootProfilesDir .. '/chn/sprites.lua');
 include(root.BasePaths.RootProfilesDir .. '/common/animation.lua');
 include(root.BasePaths.RootProfilesDir .. '/chn/charset.lua');
 include(root.BasePaths.RootProfilesDir .. '/chn/font.lua');
---include(root.BasePaths.RootProfilesDir .. '/chn/font-lb.lua');
 include(root.BasePaths.RootProfilesDir .. '/chn/dialogue.lua');
 include(root.BasePaths.RootProfilesDir .. '/chn/hud/saveicon.lua');
 include(root.BasePaths.RootProfilesDir .. '/chn/hud/loadingdisplay.lua');

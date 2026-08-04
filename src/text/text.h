@@ -5,8 +5,9 @@
 #include <magic_enum/magic_enum.hpp>
 #include <ankerl/unordered_dense.h>
 
-#include "../font.h"
+#include "processedtextglyph.h"
 #include "../animation.h"
+#include "../font.h"
 #include "../vm/thread.h"
 #include "../vm/sc3stream.h"
 
@@ -86,18 +87,6 @@ struct StringToken {
 
  private:
   static inline ankerl::unordered_dense::map<uint16_t, uint8_t> FlagsMap;
-};
-
-struct DialogueColorPair {
-  uint32_t TextColor;
-  uint32_t OutlineColor;
-};
-
-struct ProcessedTextGlyph {
-  DialogueColorPair Colors;
-  uint16_t CharId;
-  float Opacity;
-  RectF DestRect;
 };
 
 int TextGetStringLength(Vm::Sc3Stream& stream);

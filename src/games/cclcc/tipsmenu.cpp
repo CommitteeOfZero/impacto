@@ -39,17 +39,10 @@ TipsMenu::TipsMenu() : CommonMenu(FadeAnimation), TipViewItems(this) {
   Category = new Label();
   Number = new Label();
 
-  Name->Bounds.X = NamePos.x;
-  Name->Bounds.Y = NamePos.y;
-
-  Pronunciation->Bounds.X = PronunciationPos.x;
-  Pronunciation->Bounds.Y = PronunciationPos.y;
-
-  Category->Bounds.X = CategoryPos.x;
-  Category->Bounds.Y = CategoryPos.y;
-
-  Number->Bounds.X = NumberPos.x;
-  Number->Bounds.Y = NumberPos.y;
+  Name->Bounds.SetPos(NamePos);
+  Pronunciation->Bounds.SetPos(PronunciationPos);
+  Category->Bounds.SetPos(CategoryPos);
+  Number->Bounds.SetPos(NumberPos);
 
   TipViewItems.Add(Name);
   TipViewItems.Add(Pronunciation);
@@ -84,17 +77,10 @@ void TipsMenu::Show() {
 
     CommonMenu::OnShow(FadeInDuration, FadeOutDuration, FadeAnimation);
 
-    Name->Bounds.X = NamePos.x;
-    Name->Bounds.Y = NamePos.y;
-
-    Pronunciation->Bounds.X = PronunciationPos.x;
-    Pronunciation->Bounds.Y = PronunciationPos.y;
-
-    Category->Bounds.X = CategoryPos.x;
-    Category->Bounds.Y = CategoryPos.y;
-
-    Number->Bounds.X = NumberPos.x;
-    Number->Bounds.Y = NumberPos.y;
+    Name->Bounds.SetPos(NamePos);
+    Pronunciation->Bounds.SetPos(PronunciationPos);
+    Category->Bounds.SetPos(CategoryPos);
+    Number->Bounds.SetPos(NumberPos);
 
     TipsTabs[CurrentTabType]->Show();
     TipViewItems.Show();
@@ -276,10 +262,9 @@ void TipsMenu::Render() {
     TipViewItems.Tint.a = fade.a;
     TipViewItems.Render();
 
-    Renderer->DrawProcessedText(
-        TextPage.Glyphs, Profile::Dialogue::DialogueFont,
-        FadeAnimation.Progress, FadeAnimation.Progress,
-        RendererOutlineMode::None, true, &TipsMaskSheet);
+    Profile::Dialogue::DialogueFont->DrawProcessedText(
+        TextPage.Glyphs, FadeAnimation.Progress, FadeAnimation.Progress,
+        RendererOutlineMode::None, &TipsMaskSheet);
 
     TipsScrollbar->Render();
   }
@@ -343,12 +328,9 @@ void TipsMenu::SwitchToTipId(int id) {
 
   {
     uint16_t sc3StringBuffer[5];
-    TextGetSc3String(fmt::format("{:3d}", id), sc3StringBuffer);
+    TextGetSc3String(fmt::format("{:03d}", id), sc3StringBuffer);
     Vm::Sc3Stream stream(sc3StringBuffer);
-    float numberWidth = TextGetPlainLineWidth(
-        stream, Profile::Dialogue::DialogueFont, (float)NumberFontSize);
-    Number->Bounds.X = NumberPos.x - numberWidth;
-    Number->Bounds.Y = NumberPos.y;
+    Number->Bounds.SetPos(NumberPos);
     stream = Vm::Sc3Stream(sc3StringBuffer);
     Number->SetText(stream, (float)NumberFontSize, RendererOutlineMode::None,
                     0);

@@ -103,6 +103,8 @@ void Renderer::Init() {
   MosaicShaderProgram.emplace(Shaders.Compile("Mosaic"));
   SubtitleGlyphShaderProgram.emplace(Shaders.Compile("SubtitleGlyph"));
   NV12FrameShaderProgram.emplace(Shaders.Compile("NV12Frame"));
+  EdgeDetectedSingleSheetFontShaderProgram.emplace(
+      Shaders.Compile("EdgeDetectedSingleSheetFont"));
 
   glGenSamplers((GLsizei)Samplers.size(), Samplers.data());
   for (size_t i = 0; i < TextureUnitCount; i++) {
@@ -924,6 +926,52 @@ void Renderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
   CornersQuad uvDest = sprite.NormalizedBounds();
   if (sprite.Sheet.IsScreenCap) uvDest = FlipUvVertical(uvDest);
   InsertVerticesQuad(dest, uvDest, tint, mask.NormalizedBounds());
+}
+
+void Renderer::DrawEdgeDetectedSingleSheetFont(
+    const SpriteSheet& sheet, const SpriteSheet* const mask,
+    const std::span<const VertexBufferSprites> vertices,
+    const std::span<const uint16_t> indices, const float intensityShift,
+    const float alphaShift, const glm::vec2 renderScale,
+    const glm::mat4 spriteTransformation, const glm::mat4 maskTransformation) {
+  if (!Drawing) {
+    ImpLog(LogLevel::Error, LogChannel::Render,
+           "Renderer->DrawEdgeDetectedSingleSheetFont() called before "
+           "BeginFrame()\n");
+    return;
+  }
+  EnsureTopologyMode(TopologyMode::Triangles);
+
+  EdgeDetectedSingleSheetFontUniforms uniforms{
+      .Projection = Projection,
+      .SpriteTransformation = spriteTransformation,
+      .MaskTransformation = maskTransformation,
+      .Font = 0,
+      .Mask = 2,
+      .HasMask = mask != nullptr,
+      .PixelOffset = renderScale / sheet.GetDimensions(),
+      .IntensityShift = intensityShift,
+      .AlphaShift = alphaShift,
+  };
+
+  UseShader(*EdgeDetectedSingleSheetFontShaderProgram, uniforms);
+
+  if (mask == nullptr) {
+    auto texture = UnwrapTextureId(sheet);
+
+    UseTextures(
+        std::array<std::pair<uint32_t, size_t>, 1>{std::pair{texture, 0}});
+  } else {
+    auto texture = UnwrapTextureId(sheet);
+    auto maskTexture = UnwrapTextureId(*mask);
+
+    UseTextures(std::array<std::pair<uint32_t, size_t>, 2>{
+        std::pair{texture, 0},
+        std::pair{maskTexture, 2},
+    });
+  }
+
+  InsertVertices(vertices, indices);
 }
 
 void Renderer::DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,

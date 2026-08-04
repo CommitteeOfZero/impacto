@@ -137,7 +137,7 @@ void SaveEntryButton::Move(glm::vec2 relativePosition) {
 void SaveEntryButton::RefreshCharacterRouteText(int strIndex) {
   auto strAddr = Vm::ScriptGetTextTableStrAddress(1, strIndex);
   float fontSize = 28;
-  RendererOutlineMode outlineMode = RendererOutlineMode::Full;
+  RendererOutlineMode outlineMode = RendererOutlineMode::None;
   DialogueColorPair colorPair =
       *UI::SaveMenuPtr->ActiveMenuType == SaveMenuPageType::Save
           ? DialogueColorPair{SaveEntryPrimaryColor, SaveEntryPrimaryColor}
@@ -148,7 +148,7 @@ void SaveEntryButton::RefreshCharacterRouteText(int strIndex) {
 void SaveEntryButton::RefreshSceneTitleText(int strIndex) {
   auto strAddr = Vm::ScriptGetTextTableStrAddress(1, strIndex + 1);
   float fontSize = 28;
-  RendererOutlineMode outlineMode = RendererOutlineMode::Full;
+  RendererOutlineMode outlineMode = RendererOutlineMode::None;
   SceneTitleLabel.SetText(strAddr, fontSize, outlineMode,
                           {SaveEntrySecondaryColor, SaveEntrySecondaryColor});
 }
@@ -156,7 +156,7 @@ void SaveEntryButton::RefreshSceneTitleText(int strIndex) {
 void SaveEntryButton::RefreshSaveDateText() {
   tm const& date = SaveSystem::GetSaveDate(Type, Id);
   float fontSize = 32;
-  RendererOutlineMode outlineMode = RendererOutlineMode::Full;
+  RendererOutlineMode outlineMode = RendererOutlineMode::None;
   SaveDateLabel.SetText(
       fmt::format(fmt::runtime(Profile::Patch::DateFormat.FormattedString()),
                   date) +

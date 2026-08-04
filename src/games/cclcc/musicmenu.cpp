@@ -53,6 +53,7 @@ MusicTrackButton::MusicTrackButton(int id, int position, glm::vec2 pos)
                 Bounds.Y + MusicButtonTextYOffset),
       (float)MusicTrackArtistSize, RendererOutlineMode::None,
       {MusicButtonTextColor, MusicButtonTextOutlineColor});
+  assert(0 <= position && position <= 99);
   TextLayoutPlainString(fmt::format("{:02}", position), NumberText,
                         Profile::Dialogue::DialogueFont, MusicTrackNameSize,
                         {0xfffffff, 0}, 1.0f,
@@ -121,19 +122,16 @@ void MusicTrackButton::Render() {
       Renderer->DrawSprite(FocusedSprite, glm::vec2(Bounds.X + 113, Bounds.Y),
                            Tint);
     } else {
-      Renderer->DrawProcessedText(NumberText, Profile::Dialogue::DialogueFont,
-                                  Tint.a);
+      Profile::Dialogue::DialogueFont->DrawProcessedText(NumberText, Tint.a);
     }
     if (HasFocus) {
       Renderer->DrawSprite(HighlightSprite, glm::vec2(Bounds.X + 113, Bounds.Y),
                            Tint);
     }
     if (IsLocked) {
-      Renderer->DrawProcessedText(LockedText, Profile::Dialogue::DialogueFont,
-                                  Tint.a);
+      Profile::Dialogue::DialogueFont->DrawProcessedText(LockedText, Tint.a);
     } else {
-      Renderer->DrawProcessedText(Text, Profile::Dialogue::DialogueFont,
-                                  Tint.a);
+      Profile::Dialogue::DialogueFont->DrawProcessedText(Text, Tint.a);
       ArtistName.Render();
     }
   }

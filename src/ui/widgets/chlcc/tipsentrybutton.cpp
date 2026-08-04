@@ -91,14 +91,14 @@ void TipsEntryButton::Render() {
         Bounds.GetPos() + HighlightOffset + TipsListEntryDotOffset, Tint);
   }
 
-  Renderer->DrawProcessedText(TipNumber, Profile::Dialogue::DialogueFont,
-                              Tint.a, RendererOutlineMode::Full);
+  Profile::Dialogue::DialogueFont->DrawProcessedText(TipNumber, Tint.a,
+                                                     RendererOutlineMode::Full);
   if (TipEntryRecord->IsLocked) {
-    Renderer->DrawProcessedText(TipLockedText, Profile::Dialogue::DialogueFont,
-                                Tint.a, RendererOutlineMode::Full);
+    Profile::Dialogue::DialogueFont->DrawProcessedText(
+        TipLockedText, Tint.a, RendererOutlineMode::Full);
   } else {
-    Renderer->DrawProcessedText(Text, Profile::Dialogue::DialogueFont, Tint.a,
-                                RendererOutlineMode::Full);
+    Profile::Dialogue::DialogueFont->DrawProcessedText(
+        Text, Tint.a, RendererOutlineMode::Full);
     if (TipEntryRecord->IsNew) {
       Renderer->DrawSprite(TipsEntryNewDot,
                            Bounds.GetPos() + TipsListNewDotOffset, Tint);

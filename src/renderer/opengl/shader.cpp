@@ -787,5 +787,47 @@ void NV12FrameShader::UploadUniforms(NV12FrameUniforms newUniforms) {
   UpdateVar(newUniforms.IsAlpha, Uniforms.IsAlpha, IsAlphaLocation);
 }
 
+EdgeDetectedSingleSheetFontShader::EdgeDetectedSingleSheetFontShader(
+    GLint programId)
+    : Shader(programId),
+      ProjectionLocation(glGetUniformLocation(programId, "Projection")),
+      SpriteTransformationLocation(
+          glGetUniformLocation(programId, "SpriteTransformation")),
+      MaskTransformationLocation(
+          glGetUniformLocation(programId, "MaskTransformation")),
+      FontLocation(glGetUniformLocation(programId, "Font")),
+      MaskLocation(glGetUniformLocation(programId, "Mask")),
+      HasMaskLocation(glGetUniformLocation(programId, "HasMask")),
+      PixelOffsetLocation(glGetUniformLocation(programId, "PixelOffset")),
+      IntensityShiftLocation(glGetUniformLocation(programId, "IntensityShift")),
+      AlphaShiftLocation(glGetUniformLocation(programId, "AlphaShift")) {
+  UploadVar(Uniforms.Projection, ProjectionLocation);
+  UploadVar(Uniforms.SpriteTransformation, SpriteTransformationLocation);
+  UploadVar(Uniforms.MaskTransformation, MaskTransformationLocation);
+  UploadVar(Uniforms.Font, FontLocation);
+  UploadVar(Uniforms.Mask, MaskLocation);
+  UploadVar(Uniforms.HasMask, HasMaskLocation);
+  UploadVar(Uniforms.PixelOffset, PixelOffsetLocation);
+  UploadVar(Uniforms.IntensityShift, IntensityShiftLocation);
+  UploadVar(Uniforms.AlphaShift, AlphaShiftLocation);
+}
+
+void EdgeDetectedSingleSheetFontShader::UploadUniforms(
+    EdgeDetectedSingleSheetFontUniforms newUniforms) {
+  UpdateVar(newUniforms.Projection, Uniforms.Projection, ProjectionLocation);
+  UpdateVar(newUniforms.SpriteTransformation, Uniforms.SpriteTransformation,
+            SpriteTransformationLocation);
+  UpdateVar(newUniforms.MaskTransformation, Uniforms.MaskTransformation,
+            MaskTransformationLocation);
+
+  UpdateVar(newUniforms.Font, Uniforms.Font, FontLocation);
+  UpdateVar(newUniforms.Mask, Uniforms.Mask, MaskLocation);
+  UpdateVar(newUniforms.HasMask, Uniforms.HasMask, HasMaskLocation);
+  UpdateVar(newUniforms.PixelOffset, Uniforms.PixelOffset, PixelOffsetLocation);
+  UpdateVar(newUniforms.IntensityShift, Uniforms.IntensityShift,
+            IntensityShiftLocation);
+  UpdateVar(newUniforms.AlphaShift, Uniforms.AlphaShift, AlphaShiftLocation);
+}
+
 }  // namespace OpenGL
 }  // namespace Impacto

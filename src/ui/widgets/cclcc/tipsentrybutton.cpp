@@ -92,14 +92,14 @@ void TipsEntryButton::Render() {
     Renderer->DrawSprite(HighlightSprite, dest, Tint);
   }
 
-  Renderer->DrawProcessedText(TipNumber, Profile::Dialogue::DialogueFont,
-                              Tint.a, RendererOutlineMode::None);
+  Profile::Dialogue::DialogueFont->DrawProcessedText(TipNumber, Tint.a,
+                                                     RendererOutlineMode::None);
   if (TipEntryRecord->IsLocked) {
-    Renderer->DrawProcessedText(TipLockedText, Profile::Dialogue::DialogueFont,
-                                Tint.a, RendererOutlineMode::None);
+    Profile::Dialogue::DialogueFont->DrawProcessedText(
+        TipLockedText, Tint.a, RendererOutlineMode::None);
   } else {
-    Renderer->DrawProcessedText(Text, Profile::Dialogue::DialogueFont, Tint.a,
-                                RendererOutlineMode::None);
+    Profile::Dialogue::DialogueFont->DrawProcessedText(
+        Text, Tint.a, RendererOutlineMode::None);
     if (IsNewState) {
       Renderer->DrawSprite(TipsNewSprite,
                            glm::vec2{Bounds.X, Bounds.Y} + TipEntryNewOffset,

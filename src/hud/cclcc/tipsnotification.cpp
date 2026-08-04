@@ -28,13 +28,12 @@ TipsNotification::TipsNotification() {
       TextTableId, NotificationTextPart1MessageId);
   TextPartBefore =
       Label(textBefore, {NotificationPositionX, 0}, FontSize,
-            RendererOutlineMode::BottomRight, NotificationTextTableColorIndex);
+            RendererOutlineMode::BottomRight, NotificationTextColor);
   auto textAfter = Vm::ScriptGetTextTableStrAddress(
       TextTableId, NotificationTextPart2MessageId);
   TextPartAfter =
       Label(textAfter, {NotificationPositionX + TextPartBefore.Bounds.Width, 0},
-            FontSize, RendererOutlineMode::BottomRight,
-            NotificationTextTableColorIndex);
+            FontSize, RendererOutlineMode::BottomRight, NotificationTextColor);
   TipName = Label("", {NotificationPositionX, 0}, FontSize,
                   RendererOutlineMode::BottomRight, TipNameColor);
 

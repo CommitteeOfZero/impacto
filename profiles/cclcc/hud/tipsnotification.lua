@@ -13,10 +13,8 @@ root.TipsNotification = {
     TimerDuration = 2,
     MoveAnimationDuration = 1,
     FontSize = 26,
-    TipNameTextColor = 0x6a4ff,
-    TipNameOutlineColor = 0x35280,
-    NotificationTextTableColorIndex = 10,
-
+    TipNameColor = { 0x06a4ff, 0x035280 },
+    NotificationTextColor = { 0x080808, 0x000000 },
 };
 
 root.Sprites["TipNotificationBackground"] = {
