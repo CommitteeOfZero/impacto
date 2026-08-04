@@ -408,7 +408,22 @@ void TextParser::FinishName() {
     return;
   }
 
-  Vm::Sc3Stream nameStream(NameCode.data());
+  Vm::Sc3Stream nameStream(nullptr);
+  std::vector<uint16_t> name16bit;
+
+  if (Profile::Vm::StringEncodingType ==
+      Profile::Vm::StringUnitEncoding::Uint16) {
+    name16bit.reserve(NameCode.size());
+    std::transform(NameCode.begin(), NameCode.end(),
+                   std::back_inserter(name16bit), [](const uint32_t& elem) {
+                     return static_cast<uint16_t>(elem & 0xFFFF);
+                   });
+
+    nameStream = Vm::Sc3Stream(name16bit.data());
+  } else {
+    nameStream = Vm::Sc3Stream(NameCode.data());
+  }
+
   const float nameWidth = TextGetPlainLineWidth(
       nameStream, DialogueFont, ModeInfo.NameGlyphSize.y, NameCode.size());
 
@@ -481,7 +496,12 @@ void TextParser::FinishName() {
       break;
   }
 
-  nameStream = Vm::Sc3Stream(NameCode.data());
+  if (Profile::Vm::StringEncodingType ==
+      Profile::Vm::StringUnitEncoding::Uint16) {
+    nameStream = Vm::Sc3Stream(name16bit.data());
+  } else {
+    nameStream = Vm::Sc3Stream(NameCode.data());
+  }
   Name = TextLayoutPlainLine(nameStream, static_cast<int>(NameCode.size()),
                              DialogueFont, ModeInfo.NameGlyphSize.y,
                              ColorTable[0], 1.0f, pos, TextAlignment::Left);
