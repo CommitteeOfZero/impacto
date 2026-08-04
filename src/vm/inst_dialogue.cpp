@@ -1136,7 +1136,7 @@ VmInstruction(InstNameID) {
         PopLocalLabel(namePlateDataBlock);
         Sc3Stream namePlateData(
             &ScriptBuffers[thread->ScriptBufferId][namePlateDataBlock]);
-        if (!Profile::Vm::UseMsbStrings) InitNamePlateData(namePlateData);
+        InitNamePlateData(namePlateData);
       } else if (Profile::Vm::GameInstructionSet == InstructionSet::MO6TW) {
         PopExpression(arg1);
         PopExpression(arg2);

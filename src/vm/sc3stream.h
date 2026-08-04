@@ -28,6 +28,19 @@ class Sc3Stream {
     auto adjOffset = offset * sizeof(uint16_t);
     return (PeekU8(adjOffset + 1) << 8) | PeekU8(adjOffset);
   }
+
+  uint32_t ReadU32() {
+    uint32_t result = PeekU32();
+    Advance(4);
+    return result;
+  }
+
+  uint32_t PeekU32(int64_t offset = 0) const {
+    auto adjOffset = offset * sizeof(uint32_t);
+    return (PeekU8(adjOffset + 3) << 24) | (PeekU8(adjOffset + 2) << 16) |
+           (PeekU8(adjOffset + 1) << 8) | PeekU8(adjOffset);
+  }
+
   uint8_t PeekU8(int64_t offset = 0) const { return *(Ptr + offset); };
   uint8_t* Data() const { return Ptr; }
   void Advance(int64_t n) { Ptr += n; }

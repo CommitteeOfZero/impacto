@@ -111,9 +111,7 @@ int StringToken::Read(Vm::Sc3VmThread* ctx) {
           ctx->IpOffset++;
           Val_Int |= *ctx->GetIp();
           ctx->IpOffset++;
-          bytesRead += 2;
         }
-        bytesRead++;
       }
       break;
     }
@@ -303,8 +301,8 @@ float TextGetPlainLineWidth(Sc3Type auto&& stream, const Font& font,
     if (token.Type == STT_EndOfString) break;
     if (token.Type != STT_Character) continue;
 
-    width += (fontSize / font.BitmapEmWidth) *
-             font.GetAdvanceWidth(token.Val_Int);
+    width +=
+        (fontSize / font.BitmapEmWidth) * font.GetAdvanceWidth(token.Val_Int);
   }
 
   return width;
@@ -325,7 +323,7 @@ float GetTextWidth(const std::span<const ProcessedTextGlyph> text) {
 }
 
 void SquishText(const std::span<ProcessedTextGlyph> text, const float maxWidth,
-                  const float anchorX) {
+                const float anchorX) {
   const float textWidth = GetTextWidth(text);
   if (textWidth <= maxWidth) return;
 
@@ -342,12 +340,12 @@ void SquishText(const std::span<ProcessedTextGlyph> text, const float maxWidth,
                          });
 }
 
-  int TextLayoutPlainString(const std::string_view str,
-                               const std::span<ProcessedTextGlyph> outGlyphs,
-                               const Font& font, const float fontSize,
-                               const DialogueColorPair colors,
-                               const float opacity, const glm::vec2 pos,
-                               const TextAlignment alignment) {
+size_t TextLayoutPlainString(const std::string_view str,
+                             const std::span<ProcessedTextGlyph> outGlyphs,
+                             const Font& font, const float fontSize,
+                             const DialogueColorPair colors,
+                             const float opacity, const glm::vec2 pos,
+                             const TextAlignment alignment) {
   std::string_view::iterator strIt = str.begin();
   std::string_view::iterator strEnd = str.end();
 
@@ -360,8 +358,8 @@ void SquishText(const std::span<ProcessedTextGlyph> text, const float maxWidth,
         str, std::span(sc3StrPtr.get(), sc3StrPtr.get() + sc3StrLength));
 
     Vm::Sc3Stream stream(sc3StrPtr.get());
-    return TextLayoutPlainLine(stream, sc3StrLength, outGlyphs, font, fontSize,
-                               colors, opacity, pos, alignment);
+    return TextLayoutPlainLine(stream, outGlyphs, font, fontSize, colors,
+                               opacity, pos, alignment);
   };
 
   if (Profile::Vm::StringEncodingType ==
@@ -409,9 +407,9 @@ void TextGetSc3StringImpl(std::string_view str, std::span<T> out) {
 
   size_t sc3Idx = 0;
   while (strIt != strEnd) {
-   const auto codePoint = utf8::next(strIt, strEnd);
+    const auto codePoint = utf8::next(strIt, strEnd);
 
-   const uint16_t sc3Val = Profile::Charset::CharacterToSc3[codePoint];
+    const uint16_t sc3Val = Profile::Charset::CharacterToSc3[codePoint];
 
     if constexpr (std::is_same_v<T, uint32_t>) {
       if (Profile::Vm::StringEncodingType ==
@@ -444,23 +442,57 @@ void TextGetSc3String(std::string_view str, std::span<uint32_t> out) {
 void InitNamePlateData(Vm::Sc3Stream& stream) {
   do {
     uint16_t id = stream.ReadU16();
-    uint16_t stringId = stream.ReadU16();
+    uint32_t stringId;
+    if (Profile::Vm::StringEncodingType ==
+        Profile::Vm::StringUnitEncoding::Uint16) {
+      stringId = stream.ReadU16();
+    } else {
+      stringId = stream.ReadU32();
+    }
+
     uint32_t nameAddr =
-        Vm::ScriptGetStrAddress(Profile::Vm::SystemScriptBuffer, stringId);
+        Profile::Vm::UseMsbStrings
+            ? Vm::MsbGetStrAddress(Profile::Vm::SystemScriptBuffer, stringId)
+            : Vm::ScriptGetStrAddress(Profile::Vm::SystemScriptBuffer,
+                                      stringId);
     Vm::Sc3VmThread dummy;
     dummy.IpOffset = nameAddr;
     dummy.ScriptBufferId = Profile::Vm::SystemScriptBuffer;
-    size_t nameLength = (TextGetStringLength(&dummy) - 1) * 2;
+    dummy.UseMSBBuffers = Profile::Vm::UseMsbStrings;
+    size_t nameLength = (TextGetStringLength(&dummy) - 1);
+    if (Profile::Vm::StringEncodingType ==
+        Profile::Vm::StringUnitEncoding::Uint16) {
+      nameLength *= 2;
+    } else {
+      nameLength *= 4;
+    }
+
     dummy.IpOffset = nameAddr;
-    uint32_t nameHash =
-        GetHashCode(std::span<uint8_t>(dummy.GetIp(), nameLength));
+    auto spanned = std::span<uint8_t>(dummy.GetIp(), nameLength);
+    uint32_t nameHash = GetHashCode(spanned);
     NamePlateData[nameHash] = id;
   } while (stream.PeekU16() != 0xFFFF);
 }
 
 std::optional<uint32_t> GetNameId(const std::span<const uint32_t> name) {
-  uint32_t nameHash = GetHashCode(std::span<const uint8_t>(
-      std::bit_cast<uint8_t*>(name.data()), name.size_bytes()));
+  uint32_t nameHash;
+
+  if (Profile::Vm::StringEncodingType ==
+      Profile::Vm::StringUnitEncoding::Uint16) {
+    std::vector<uint16_t> name16bit;
+    name16bit.reserve(name.size());
+    std::transform(name.begin(), name.end(), std::back_inserter(name16bit),
+                   [](const uint32_t& elem) {
+                     return static_cast<uint16_t>(elem & 0xFFFF);
+                   });
+    nameHash = GetHashCode(
+        std::span<const uint8_t>(std::bit_cast<uint8_t*>(name16bit.data()),
+                                 name16bit.size() * sizeof(uint16_t)));
+  } else {
+    nameHash = GetHashCode(std::span<const uint8_t>(
+        std::bit_cast<uint8_t*>(name.data()), name.size_bytes()));
+  }
+
   if (NamePlateData.find(nameHash) != NamePlateData.end())
     return NamePlateData[nameHash];
   else
