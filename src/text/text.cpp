@@ -469,24 +469,8 @@ void InitNamePlateData(Vm::Sc3Stream& stream) {
 }
 
 std::optional<uint32_t> GetNameId(const std::span<const uint32_t> name) {
-  uint32_t nameHash;
-
-  if (Profile::Vm::StringEncodingType ==
-      Profile::Vm::StringUnitEncoding::Uint16) {
-    std::vector<uint16_t> name16bit;
-    name16bit.reserve(name.size());
-    std::transform(name.begin(), name.end(), std::back_inserter(name16bit),
-                   [](const uint32_t& elem) {
-                     return static_cast<uint16_t>(elem & 0xFFFF);
-                   });
-    nameHash = GetHashCode(
-        std::span<const uint8_t>(std::bit_cast<uint8_t*>(name16bit.data()),
-                                 name16bit.size() * sizeof(uint16_t)));
-  } else {
-    nameHash = GetHashCode(std::span<const uint8_t>(
-        std::bit_cast<uint8_t*>(name.data()), name.size_bytes()));
-  }
-
+  uint32_t nameHash = GetHashCode(std::span<const uint8_t>(
+      std::bit_cast<uint8_t*>(name.data()), name.size_bytes()));
   if (NamePlateData.find(nameHash) != NamePlateData.end())
     return NamePlateData[nameHash];
   else
