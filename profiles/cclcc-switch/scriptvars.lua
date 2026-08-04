@@ -8,7 +8,7 @@ local sv = root.ScriptVars;
 -- W: 3749 -> 3446
 
 -- F: 1883 -> 2663
--- F: 1207 -> 2007
+-- F: 1208 -> 2007
 -- F: 1209 -> 2008
 -- F: 1262 -> 2068
 -- F: 1804 -> 2604
@@ -97,6 +97,7 @@ sv.SF_AUTOSAVEENABLE = 2031;
 
 
 sv.SF_MESREVDISABLE = 2033;
+sv.SF_GAMEPAUSE = 2034;
 sv.SF_SYSTEMMENUDIRECT = 2039;
 
 sv.SF_MESSKIP = 2043;
