@@ -109,7 +109,6 @@ int StringToken::Read(Vm::Sc3VmThread* ctx) {
           ctx->IpOffset++;
           Val_Int |= *ctx->GetIp();
           ctx->IpOffset++;
-          bytesRead += 2;
         }
       }
       break;
@@ -618,16 +617,34 @@ void TextGetSc3String(std::string_view str, std::span<uint32_t> out) {
 void InitNamePlateData(Vm::Sc3Stream& stream) {
   do {
     uint16_t id = stream.ReadU16();
-    uint16_t stringId = stream.ReadU16();
+    uint32_t stringId;
+    if (Profile::Vm::StringEncodingType ==
+        Profile::Vm::StringUnitEncoding::Uint16) {
+      stringId = stream.ReadU16();
+    } else {
+      stringId = stream.ReadU32();
+    }
+
     uint32_t nameAddr =
-        Vm::ScriptGetStrAddress(Profile::Vm::SystemScriptBuffer, stringId);
+        Profile::Vm::UseMsbStrings
+            ? Vm::MsbGetStrAddress(Profile::Vm::SystemScriptBuffer, stringId)
+            : Vm::ScriptGetStrAddress(Profile::Vm::SystemScriptBuffer,
+                                      stringId);
     Vm::Sc3VmThread dummy;
     dummy.IpOffset = nameAddr;
     dummy.ScriptBufferId = Profile::Vm::SystemScriptBuffer;
-    int nameLength = (TextGetStringLength(&dummy) - 1) * 2;
+    dummy.UseMSBBuffers = Profile::Vm::UseMsbStrings;
+    int nameLength = (TextGetStringLength(&dummy) - 1);
+    if (Profile::Vm::StringEncodingType ==
+        Profile::Vm::StringUnitEncoding::Uint16) {
+      nameLength *= 2;
+    } else {
+      nameLength *= 4;
+    }
+
     dummy.IpOffset = nameAddr;
     auto spanned = std::span<uint8_t>(dummy.GetIp(), nameLength);
-      uint32_t nameHash = GetHashCode(spanned);
+    uint32_t nameHash = GetHashCode(spanned);
     NamePlateData[nameHash] = id;
   } while (stream.PeekU16() != 0xFFFF);
 }
@@ -643,11 +660,8 @@ std::optional<uint32_t> GetNameId(const std::span<const uint32_t> name) {
                    [](const uint32_t& elem) {
                      return static_cast<uint16_t>(elem & 0xFFFF);
                    });
-    auto bitcasted = std::bit_cast<uint8_t*>(name16bit.data());
-    auto spanned = std::span<const uint8_t>(
-        bitcasted, name16bit.size() * sizeof(uint16_t));
-
-    nameHash = GetHashCode(spanned);
+    nameHash = GetHashCode(std::span<const uint8_t>(
+        std::bit_cast<uint8_t*>(name16bit.data()), name16bit.size() * sizeof(uint16_t)));
   } else {
     nameHash = GetHashCode(std::span<const uint8_t>(
         std::bit_cast<uint8_t*>(name.data()), name.size_bytes()));
