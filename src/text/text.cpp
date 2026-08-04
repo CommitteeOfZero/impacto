@@ -111,7 +111,6 @@ int StringToken::Read(Vm::Sc3VmThread* ctx) {
           ctx->IpOffset++;
           bytesRead += 2;
         }
-        bytesRead++;
       }
       break;
     }
@@ -627,15 +626,33 @@ void InitNamePlateData(Vm::Sc3Stream& stream) {
     dummy.ScriptBufferId = Profile::Vm::SystemScriptBuffer;
     int nameLength = (TextGetStringLength(&dummy) - 1) * 2;
     dummy.IpOffset = nameAddr;
-    uint32_t nameHash =
-        GetHashCode(std::span<uint8_t>(dummy.GetIp(), nameLength));
+    auto spanned = std::span<uint8_t>(dummy.GetIp(), nameLength);
+      uint32_t nameHash = GetHashCode(spanned);
     NamePlateData[nameHash] = id;
   } while (stream.PeekU16() != 0xFFFF);
 }
 
 std::optional<uint32_t> GetNameId(const std::span<const uint32_t> name) {
-  uint32_t nameHash = GetHashCode(std::span<const uint8_t>(
-      std::bit_cast<uint8_t*>(name.data()), name.size_bytes()));
+  uint32_t nameHash;
+
+  if (Profile::Vm::StringEncodingType ==
+      Profile::Vm::StringUnitEncoding::Uint16) {
+    std::vector<uint16_t> name16bit;
+    name16bit.reserve(name.size());
+    std::transform(name.begin(), name.end(), std::back_inserter(name16bit),
+                   [](const uint32_t& elem) {
+                     return static_cast<uint16_t>(elem & 0xFFFF);
+                   });
+    auto bitcasted = std::bit_cast<uint8_t*>(name16bit.data());
+    auto spanned = std::span<const uint8_t>(
+        bitcasted, name16bit.size() * sizeof(uint16_t));
+
+    nameHash = GetHashCode(spanned);
+  } else {
+    nameHash = GetHashCode(std::span<const uint8_t>(
+        std::bit_cast<uint8_t*>(name.data()), name.size_bytes()));
+  }
+
   if (NamePlateData.find(nameHash) != NamePlateData.end())
     return NamePlateData[nameHash];
   else
