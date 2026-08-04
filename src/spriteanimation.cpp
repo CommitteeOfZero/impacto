@@ -3,8 +3,10 @@
 namespace Impacto {
 
 Sprite SpriteAnimation::CurrentSprite() const {
-  const size_t frame = static_cast<size_t>(
-      Progress * static_cast<float>(Def.get().Frames.size()));
+  const size_t frame = std::clamp<size_t>(
+      static_cast<size_t>(Progress *
+                          static_cast<float>(Def.get().Frames.size())),
+      0, Def.get().Frames.size() - 1);
   return Def.get().Frames[frame];
 }
 
