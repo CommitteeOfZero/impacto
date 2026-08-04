@@ -96,8 +96,7 @@ void SystemMenu::Show() {
     FadeAnimation.StartIn();
     // If the function was called due to a submenu opening directly,
     // then don't take over focus
-    if (!((ScrWork[SW_SYSMENUCT] == MaxSystemMenuCT &&
-           ScrWork[SW_SYSSUBMENUCT]) ||
+    if (!((ScrWork[SW_SYSMENUCT] == 32 && ScrWork[SW_SYSSUBMENUCT]) ||
           ScrWork[SW_CLRALPHA])) {
       if (UI::FocusedMenu != 0) {
         LastFocusedMenu = UI::FocusedMenu;
@@ -143,7 +142,7 @@ void SystemMenu::Update(float dt) {
   UpdateInput(dt);
 
   if (State == Shown &&
-      ((GetFlag(SF_TITLEMODE) || ScrWork[SW_SYSMENUCT] < MaxSystemMenuCT) ||
+      ((GetFlag(SF_TITLEMODE) || ScrWork[SW_SYSMENUCT] < 32) ||
        ScrWork[SW_SYSMENUALPHA] == 0)) {
     Hide();
     return;
@@ -153,7 +152,7 @@ void SystemMenu::Update(float dt) {
     Show();
     return;
   }
-  if (State == Showing && ScrWork[SW_SYSMENUCT] == MaxSystemMenuCT) {
+  if (State == Showing && ScrWork[SW_SYSMENUCT] == 32) {
     State = Shown;
     return;
   }
@@ -170,9 +169,8 @@ void SystemMenu::Update(float dt) {
         ItemsFadeComplete) {
       ItemsFade.StartOut();
       ItemsFadeComplete = false;
-    } else if (ItemsFade.IsOut() &&
-               ScrWork[SW_SYSSUBMENUCT] < MaxSystemMenuCT && State == Shown &&
-               ItemsFadeComplete) {
+    } else if (ItemsFade.IsOut() && ScrWork[SW_SYSSUBMENUCT] < 32 &&
+               State == Shown && ItemsFadeComplete) {
       ItemsFade.StartIn();
       ItemsFadeComplete = false;
     }
@@ -180,8 +178,7 @@ void SystemMenu::Update(float dt) {
     if (!ItemsFadeComplete) {
       if (ItemsFade.IsIn() && ScrWork[SW_SYSSUBMENUCT] == 0) {
         ItemsFadeComplete = true;
-      } else if (ItemsFade.IsOut() &&
-                 ScrWork[SW_SYSSUBMENUCT] == MaxSystemMenuCT) {
+      } else if (ItemsFade.IsOut() && ScrWork[SW_SYSSUBMENUCT] == 32) {
         ItemsFadeComplete = true;
       }
     }
