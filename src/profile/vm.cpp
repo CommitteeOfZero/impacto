@@ -26,7 +26,7 @@ void Configure() {
   ScrWorkBgStructSize = EnsureGetMember<int>("ScrWorkBgStructSize");
   ScrWorkBgOffsetStructSize = EnsureGetMember<int>("ScrWorkBgOffsetStructSize");
 
-  if (ScreenCaptureCount > 0) {
+  if (Game::ScreenCaptureCount > 0) {
     ScrWorkCaptureEffectInfoStructSize =
         EnsureGetMember<int>("ScrWorkCaptureEffectInfoStructSize");
     TryGetMember<int>("ScrWorkCaptureStructSize", ScrWorkCaptureStructSize);

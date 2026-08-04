@@ -329,7 +329,7 @@ void SystemMenu::UpdateTitles() {
   if (SelectAnimation.Progress < 0.362f) {
     LeftTitlePos = glm::vec2(
         MenuTitleTextPosition.x,
-        glm::mix(1.0f, Profile::DesignHeight + 1.0f,
+        glm::mix(1.0f, Profile::Game::DesignHeight + 1.0f,
                  1.01011f * std::sin(1.62223f * (SelectAnimation.Progress *
                                                  2.7604561455f) +
                                      3.152f) +

@@ -1,13 +1,13 @@
 root.Vfs = {
     Mounts = {
-        ["script"] = {"games/rne/gamedata/script.cls"},
-        ["system"] = {"games/rne/gamedata/system.cpk"},
-        ["bgm"] = {"games/rne/gamedata/bgm.cpk"},
-        ["se"] = {"games/rne/gamedata/se.cpk"},
-        ["sysse"] = {"games/rne/gamedata/sysse.dat"},
-        ["voice"] = {"games/rne/gamedata/voice.cpk"},
-        ["model"] = {"games/rne/gamedata/model.cpk"},
-        ["bg"] = {"games/rne/gamedata/bg.cpk"},
-        ["mask"] = {"games/rne/gamedata/mask.cpk"}
+        ["script"] = {root.BasePaths.RootGamedataDir .. "/rne/script.cls"},
+        ["system"] = {root.BasePaths.RootGamedataDir .. "/rne/system.cpk"},
+        ["bgm"] = {root.BasePaths.RootGamedataDir .. "/rne/bgm.cpk"},
+        ["se"] = {root.BasePaths.RootGamedataDir .. "/rne/se.cpk"},
+        ["sysse"] = {root.BasePaths.RootGamedataDir .. "/rne/sysse.dat"},
+        ["voice"] = {root.BasePaths.RootGamedataDir .. "/rne/voice.cpk"},
+        ["model"] = {root.BasePaths.RootGamedataDir .. "/rne/model.cpk"},
+        ["bg"] = {root.BasePaths.RootGamedataDir .. "/rne/bg.cpk"},
+        ["mask"] = {root.BasePaths.RootGamedataDir .. "/rne/mask.cpk"}
     }
 };

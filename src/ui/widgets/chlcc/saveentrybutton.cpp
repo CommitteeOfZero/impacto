@@ -6,6 +6,7 @@
 #include "../../../profile/games/chlcc/savemenu.h"
 #include "../../../games/chlcc/savesystem.h"
 #include "../../../profile/game.h"
+#include "../../../profile/patch.h"
 
 namespace Impacto {
 namespace UI {
@@ -244,7 +245,8 @@ void SaveEntryButton::RefreshInfo(const SaveSystem::SaveType entryType) {
       const tm& date = SaveSystem::GetSaveDate(entryType, Id);
       AddSaveDateText(
           "  " + fmt::format(
-                     fmt::runtime(Profile::DateFormat.FormattedString()), date),
+                     fmt::runtime(Profile::Patch::DateFormat.FormattedString()),
+                     date),
           18, RendererOutlineMode::BottomRight, SaveDateTextRelativePos);
       AddSaveHourText(fmt::format("  {:%H:%M:%S}", date), 18,
                       RendererOutlineMode::BottomRight,

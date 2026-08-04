@@ -6,6 +6,7 @@
 #include "../../audio/audiosystem.h"
 
 using namespace Impacto::Profile;
+using namespace Impacto::Profile::Game;
 using namespace Impacto::Profile::CHLCC::TitleMenu;
 using namespace Impacto::Audio;
 

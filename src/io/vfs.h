@@ -12,32 +12,21 @@
 
 namespace Impacto {
 namespace Io {
-
-// For transitional purposes, I'm keeping *both* VFS implementations here for
-// now.
-
-// TODO:
-// - c0data style redirection (multiple source mountpoints -> one target)
-// - Make the rest of the engine use the new VFS
-// - Configurable physical file search paths
-// - Search path reordering: For models, first mounted is good, we can configure
-// static overrides, the model CPKs get mounted later. For other things, we
-// might want to mount a patch archive when a user changes a setting in-game.
-
 // The public interface of vfs.h is threadsafe. Individual Streams are not.
 // Duplicate() them if you need to use them on multiple threads.
 
 void VfsInit();
 // Mount an archive from a physical file.
-// Files will always be loaded from the earliest-mounted archive they're found
-// in
+// Archives with the same name can be mounted several times, files will always
+// be loaded from the latest-mounted archive they're found in
 IoError VfsMount(std::string const& mountpoint,
                  std::string const& archiveFileName);
 // Mount an archive from memory. A unique filename must be specified to identify
 // files coming from this archive and to unmount it.
 IoError VfsMountMemory(std::string const& mountpoint,
                        std::string const& archiveFileName, void* memory,
-                       int64_t size, bool freeOnClose);
+                       int64_t size, bool freeOnClose,
+                       bool invertMountOrder = false);
 // archiveFileName must match the filename an archive was mounted with
 IoError VfsUnmount(std::string const& mountpoint,
                    std::string const& archiveFileName);

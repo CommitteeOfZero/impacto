@@ -292,9 +292,9 @@ void TitleMenu::Render() {
         Renderer->DrawSprite(PressToStartSprite, PressToStartPos, col);
         glm::vec4 black = glm::vec4(0.0f);
         black.a = glm::smoothstep(0.0f, 1.0f, PrimaryFadeAnimation.Progress);
-        Renderer->DrawQuad(
-            RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-            black);
+        Renderer->DrawQuad(RectF(0.0f, 0.0f, Profile::Game::DesignWidth,
+                                 Profile::Game::DesignHeight),
+                           black);
       } break;
       case 2: {  // Press to start fade
         glm::vec4 col = glm::vec4(1.0f);
@@ -321,9 +321,9 @@ void TitleMenu::Render() {
         GalleryItems->Render();
         glm::vec4 black = glm::vec4(0.0f);
         black.a = glm::smoothstep(0.0f, 1.0f, PrimaryFadeAnimation.Progress);
-        Renderer->DrawQuad(
-            RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-            black);
+        Renderer->DrawQuad(RectF(0.0f, 0.0f, Profile::Game::DesignWidth,
+                                 Profile::Game::DesignHeight),
+                           black);
       } break;
     }
   }

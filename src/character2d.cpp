@@ -27,14 +27,16 @@ bool Character2D::LoadSync(uint32_t charaId) {
   CharaTexture.Load(stream);
   delete stream;
 
-  if (Profile::CharaIsMvl) {
+  if (Profile::Game::CharaIsMvl) {
     // MVL format
     Face = charaId;
 
     err = Io::VfsOpen(MountPoint, fileId + 1, &stream);
     if (err != IoError_OK) return false;
 
-    Position = glm::vec2(Profile::DesignWidth, Profile::DesignHeight) / 2.0f;
+    Position =
+        glm::vec2(Profile::Game::DesignWidth, Profile::Game::DesignHeight) /
+        2.0f;
 
     Io::ReadLE<int>(stream);
     int stateCount = Io::ReadLE<int>(stream);
@@ -71,7 +73,7 @@ bool Character2D::LoadSync(uint32_t charaId) {
 
       stream->Seek(start, SEEK_SET);
       auto [stateItr, inserted] =
-          States.try_emplace(id, count, Profile::CharaIsMvl);
+          States.try_emplace(id, count, Profile::Game::CharaIsMvl);
       auto mvlIndicesPtr =
           std::get_if<Character2DState::MVLData>(&stateItr->second.Data)
               ->Indices.get();
@@ -104,14 +106,16 @@ bool Character2D::LoadSync(uint32_t charaId) {
 
     Face = charaId;
 
-    Position = glm::vec2(Profile::DesignWidth, Profile::DesignHeight) / 2.0f;
+    Position =
+        glm::vec2(Profile::Game::DesignWidth, Profile::Game::DesignHeight) /
+        2.0f;
 
     using StreamReadInt_t = auto (*)(Io::Stream*)->int;
     using StreamReadFloat_t = auto (*)(Io::Stream*)->float;
     StreamReadInt_t StreamReadInt;
     StreamReadFloat_t StreamReadFloat;
 
-    if (Profile::LayFileBigEndian) {
+    if (Profile::Game::LayFileBigEndian) {
       StreamReadInt = &Io::ReadBE<int>;
       StreamReadFloat = &Io::ReadBE<float>;
     } else {
@@ -128,7 +132,7 @@ bool Character2D::LoadSync(uint32_t charaId) {
 
       int64_t back = stream->Position;
       auto [stateItr, inserted] =
-          States.try_emplace(id, count, Profile::CharaIsMvl);
+          States.try_emplace(id, count, Profile::Game::CharaIsMvl);
       stream->Seek(12 * (stateCount) + 8 + (start * 16), SEEK_SET);
       for (int j = 0; j < count; j++) {
         glm::vec2 screenCoords;
@@ -136,8 +140,10 @@ bool Character2D::LoadSync(uint32_t charaId) {
         screenCoords.x = StreamReadFloat(stream);
         screenCoords.y = StreamReadFloat(stream);
 
-        txtCoords.x = StreamReadFloat(stream) * Profile::LayFileTexXMultiplier;
-        txtCoords.y = StreamReadFloat(stream) * Profile::LayFileTexYMultiplier;
+        txtCoords.x =
+            StreamReadFloat(stream) * Profile::Game::LayFileTexXMultiplier;
+        txtCoords.y =
+            StreamReadFloat(stream) * Profile::Game::LayFileTexYMultiplier;
         auto* layDataPtr =
             std::get_if<Character2DState::LAYData>(&stateItr->second.Data);
         layDataPtr->ScreenCoords[j] = screenCoords;
@@ -180,7 +186,7 @@ void Character2D::MainThreadOnLoad(bool result) {
 void Character2D::UpdateStatesToDraw() {
   if (Status != LoadStatus::Loaded) return;
 
-  if (Profile::CharaIsMvl) {
+  if (Profile::Game::CharaIsMvl) {
     MvlIndices.clear();
     StatesToDraw.clear();
     StatesToDraw.push_back((Face & 0xFFFF0000) >> 16);  // face
@@ -280,8 +286,8 @@ void Character2D::UpdateState(const int chaId) {
   const size_t structOffset = ScrWorkChaStructSize * chaId;
   const size_t structOfsOffset = ScrWorkChaOffsetStructSize * chaId;
 
-  const glm::vec2 resolutionScale = {Profile::DesignWidth / 1280.0f,
-                                     Profile::DesignHeight / 720.0f};
+  const glm::vec2 resolutionScale = {Profile::Game::DesignWidth / 1280.0f,
+                                     Profile::Game::DesignHeight / 720.0f};
 
   if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::MO6TW) {
     // If I don't do this it tries to access a label with an index of 65535,
@@ -403,7 +409,7 @@ void Character2D::UpdateState(const int chaId) {
 void Character2D::Render(const int layer) {
   if (Status != LoadStatus::Loaded || !OnLayer(layer) || !Show) return;
 
-  if (Profile::CharaIsMvl) {
+  if (Profile::Game::CharaIsMvl) {
     std::transform(MvlVertices.begin(), MvlVertices.end(), MvlVertices.begin(),
                    [this](VertexBufferSprites vertex) {
                      vertex.Tint = Tint;
@@ -415,7 +421,8 @@ void Character2D::Render(const int layer) {
         {0.0f, 0.0f}, Scale, glm::vec3(0.0f), Rotation, Position);
 
     const bool renderWithBgEffect =
-        Profile::UseBgChaEffects && Background2D::LastRenderedBackground &&
+        Profile::Game::UseBgChaEffects &&
+        Background2D::LastRenderedBackground &&
         Background2D::LastRenderedBackground->ChaBgEff.Loaded && UseBgEffect;
     if (!renderWithBgEffect) {
       Renderer->DrawPrimitives(CharaSpriteSheet, ShaderProgramType::Sprite,
@@ -424,8 +431,9 @@ void Character2D::Render(const int layer) {
     } else {
       const BgEff& bgEff = Background2D::LastRenderedBackground->ChaBgEff;
       const glm::mat4 maskTransformation =
-          glm::scale(glm::mat4(1.0f), {1.0f / Profile::DesignWidth,
-                                       1.0f / Profile::DesignHeight, 1.0f}) *
+          glm::scale(glm::mat4(1.0f),
+                     {1.0f / Profile::Game::DesignWidth,
+                      1.0f / Profile::Game::DesignHeight, 1.0f}) *
           transformation;
 
       Renderer->DrawPrimitives(CharaSpriteSheet, &bgEff.BgEffSprite.Sheet,
@@ -455,8 +463,8 @@ void Character2D::Render(const int layer) {
 }
 
 void CharacterPortrait2D::UpdateState(const int chaId) {
-  const glm::vec2 resolutionScale = {Profile::DesignWidth / 1280.0f,
-                                     Profile::DesignHeight / 720.0f};
+  const glm::vec2 resolutionScale = {Profile::Game::DesignWidth / 1280.0f,
+                                     Profile::Game::DesignHeight / 720.0f};
 
   Show = GetFlag(SF_FACEEX1DISP + chaId);
   Face = ScrWork[SW_FACEEX1FACE + 5 * chaId] << 16;

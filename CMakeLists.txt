@@ -65,7 +65,11 @@ set(Impacto_Src
 
     src/profile/profile.cpp
     src/profile/profile_internal.cpp
+    src/profile/basepaths.cpp
+    src/profile/gamedefinitions.cpp
+    src/profile/userconfig.cpp
     src/profile/game.cpp
+    src/profile/patch.cpp
     src/profile/vfs.cpp
     src/profile/scene3d.cpp
     src/profile/sprites.cpp
@@ -340,6 +344,7 @@ set(Impacto_Src
     src/io/lnk4archive.cpp
     src/io/textarchive.cpp
     src/io/afsarchive.cpp
+    src/io/fsfolderarchive.cpp
 
     src/texture/texture.cpp
     src/texture/s3tc.cpp
@@ -430,7 +435,11 @@ set(Impacto_Header
 
     src/profile/profile.h
     src/profile/profile_internal.h
+    src/profile/basepaths.h
+    src/profile/gamedefinitions.h
+    src/profile/userconfig.h
     src/profile/game.h
+    src/profile/patch.h
     src/profile/vfs.h
     src/profile/scene3d.h
     src/profile/sprites.h
@@ -687,11 +696,18 @@ set(Impacto_Header
     src/io/filemeta.h
     src/io/assetpath.h
     src/io/stream.h
-    src/io/vfsarchive.h
+    src/io/dummystream.h
     src/io/memorystream.h
     src/io/physicalfilestream.h
     src/io/uncompressedstream.h
     src/io/zlibstream.h
+    src/io/vfsarchive.h
+    src/io/mpkarchive.h
+    src/io/cpkarchive.h
+    src/io/lnk4archive.h
+    src/io/textarchive.h
+    src/io/afsarchive.h
+    src/io/fsfolderarchive.h
 
     src/texture/texture.h
     src/texture/s3tc.h
@@ -1542,6 +1558,9 @@ if (NOT ANDROID)
     install(DIRECTORY src/shaders DESTINATION .)
     install(DIRECTORY profiles DESTINATION .)
     install(DIRECTORY games DESTINATION .)
+    install(FILES basepaths.lua DESTINATION .)
+    install(FILES gamedefinitions.lua DESTINATION .)
+    install(FILES userconfig.lua DESTINATION .)
 else()
     install(DIRECTORY src/shaders DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/assets)
     install(DIRECTORY profiles DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/assets)

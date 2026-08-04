@@ -1,15 +1,15 @@
 root.Vfs = {
     Mounts = {
-        ["script"] = {"games/mo8/gamedata/script.cls"},
-        ["system"] = {"games/mo8/gamedata/system.cls"},
-        ["bgm"] = {"games/mo8/gamedata/bgm.cpk"},
-        ["se"] = {"games/mo8/gamedata/se.cpk"},
-        ["sysse"] = {"games/mo8/gamedata/sysse.cpk"},
-        ["voice"] = {"games/mo8/gamedata/voice.cpk"},
-        ["bg"] = {"games/mo8/gamedata/bg.cpk"},
-        ["chara"] = {"games/mo8/gamedata/chara.cpk"},
-        ["mask"] = {"games/mo8/gamedata/mask.cpk"},
-        ["movie"] = {"games/mo8/gamedata/movie.cls"},
-        ["face"] = {"games/mo8/gamedata/face.cpk"}
+        ["script"] = {root.BasePaths.RootGamedataDir .. "/mo8/script.cls"},
+        ["system"] = {root.BasePaths.RootGamedataDir .. "/mo8/system.cls"},
+        ["bgm"] = {root.BasePaths.RootGamedataDir .. "/mo8/bgm.cpk"},
+        ["se"] = {root.BasePaths.RootGamedataDir .. "/mo8/se.cpk"},
+        ["sysse"] = {root.BasePaths.RootGamedataDir .. "/mo8/sysse.cpk"},
+        ["voice"] = {root.BasePaths.RootGamedataDir .. "/mo8/voice.cpk"},
+        ["bg"] = {root.BasePaths.RootGamedataDir .. "/mo8/bg.cpk"},
+        ["chara"] = {root.BasePaths.RootGamedataDir .. "/mo8/chara.cpk"},
+        ["mask"] = {root.BasePaths.RootGamedataDir .. "/mo8/mask.cpk"},
+        ["movie"] = {root.BasePaths.RootGamedataDir .. "/mo8/movie.cls"},
+        ["face"] = {root.BasePaths.RootGamedataDir .. "/mo8/face.cpk"}
     }
 };

@@ -29,8 +29,9 @@ void DialogueBox::Render(const DialoguePageMode mode, const NameInfo& nameInfo,
 
   } else if (mode == DPM_NVL) {
     glm::vec4 nvlBoxTint(0.0f, 0.0f, 0.0f, tint.a * NVLBoxMaxOpacity);
-    Renderer->DrawQuad(RectF(0, 0, Profile::DesignWidth, Profile::DesignHeight),
-                       nvlBoxTint);
+    Renderer->DrawQuad(
+        RectF(0, 0, Profile::Game::DesignWidth, Profile::Game::DesignHeight),
+        nvlBoxTint);
   }
 }
 

@@ -298,7 +298,7 @@ void Update(float dt) {
 
   DrawAllThreads();
 
-  if (+Profile::GameFeatures & +GameFeature::Scene3D) {
+  if (+Profile::Game::GameFeatures & +GameFeature::Scene3D) {
     Interface::UpdateScene3D(dt);
   } else {
     Character2D::UpdateEyeMouth();

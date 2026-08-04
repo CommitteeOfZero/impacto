@@ -7,8 +7,9 @@ namespace Impacto {
 namespace Effects {
 
 MosaicEffect::MosaicEffect()
-    : CaptureSprite(SpriteSheet(Profile::DesignWidth, Profile::DesignHeight),
-                    0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight) {
+    : CaptureSprite(
+          SpriteSheet(Profile::Game::DesignWidth, Profile::Game::DesignHeight),
+          0.0f, 0.0f, Profile::Game::DesignWidth, Profile::Game::DesignHeight) {
   CaptureSprite.Sheet.IsScreenCap = true;
 }
 
@@ -20,8 +21,8 @@ void MosaicEffect::Init() {
   if (CaptureSprite.Sheet.Texture != 0) return;
 
   Texture texture{};
-  texture.LoadSolidColor(static_cast<int>(Profile::DesignWidth),
-                         static_cast<int>(Profile::DesignHeight), 0);
+  texture.LoadSolidColor(static_cast<int>(Profile::Game::DesignWidth),
+                         static_cast<int>(Profile::Game::DesignHeight), 0);
   CaptureSprite.Sheet.Texture = texture.Submit();
 }
 
@@ -32,10 +33,10 @@ void MosaicEffect::Render(float tileSize) {
 
   assert(CaptureSprite.Sheet.Texture != 0);
   Renderer->CaptureScreencap(CaptureSprite);
-  Renderer->DrawMosaic(
-      CaptureSprite,
-      RectF{0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight}, tileSize,
-      glm::mat4(1.0f), glm::vec4(1.0f));
+  Renderer->DrawMosaic(CaptureSprite,
+                       RectF{0.0f, 0.0f, Profile::Game::DesignWidth,
+                             Profile::Game::DesignHeight},
+                       tileSize, glm::mat4(1.0f), glm::vec4(1.0f));
 }
 
 }  // namespace Effects

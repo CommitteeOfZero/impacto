@@ -1,13 +1,13 @@
 root.Vfs = {
     Mounts = {
-        ["script"] = {"games/darling/gamedata/script.cls"},
-        ["system"] = {"games/darling/gamedata/system.cpk"},
-        ["bgm"] = {"games/darling/gamedata/bgm.cpk"},
-        ["se"] = {"games/darling/gamedata/se.cpk"},
-        ["voice"] = {"games/darling/gamedata/voice.cpk"},
-        ["bg"] = {"games/darling/gamedata/bg.cpk"},
-        ["chara"] = {"games/darling/gamedata/chara.cpk"},
-        ["mask"] = {"games/darling/gamedata/mask.cpk"},
-        ["movie"] = {"games/darling/gamedata/movie.cpk"}
+        ["script"] = {root.BasePaths.RootGamedataDir .. "/darling/script.cls"},
+        ["system"] = {root.BasePaths.RootGamedataDir .. "/darling/system.cpk"},
+        ["bgm"] = {root.BasePaths.RootGamedataDir .. "/darling/bgm.cpk"},
+        ["se"] = {root.BasePaths.RootGamedataDir .. "/darling/se.cpk"},
+        ["voice"] = {root.BasePaths.RootGamedataDir .. "/darling/voice.cpk"},
+        ["bg"] = {root.BasePaths.RootGamedataDir .. "/darling/bg.cpk"},
+        ["chara"] = {root.BasePaths.RootGamedataDir .. "/darling/chara.cpk"},
+        ["mask"] = {root.BasePaths.RootGamedataDir .. "/darling/mask.cpk"},
+        ["movie"] = {root.BasePaths.RootGamedataDir .. "/darling/movie.cpk"}
     }
 };

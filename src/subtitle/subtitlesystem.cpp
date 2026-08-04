@@ -7,6 +7,8 @@
 
 #include "../util.h"
 #include "../profile/game.h"
+#include "../profile/profile.h"
+#include "../profile/userconfig.h"
 #include "../profile/subtitle.h"
 #include "../log.h"
 #include "../io/physicalfilestream.h"
@@ -15,7 +17,7 @@ namespace Impacto::Subtitle {
 using namespace Profile::Subtitle;
 
 void SubtitleInit() {
-  switch (Profile::SubtitleAssBackend) {
+  switch (Profile::Game::SubtitleAssBackend) {
 #ifndef IMPACTO_DISABLE_LIBASS
     case SubtitleAssBackendType::LibAss:
       Ass::SubtitleRenderer::InitSystem();
@@ -27,14 +29,14 @@ void SubtitleInit() {
       ImpLog(LogLevel::Warning, LogChannel::Subtitle,
              "Unknown or unsupported ass subtitle backend selected!.\n");
   }
-  switch (Profile::SubtitleTextBackend) {
+  switch (Profile::Game::SubtitleTextBackend) {
     case SubtitleTextBackendType::None:
       break;
     default:
       ImpLog(LogLevel::Warning, LogChannel::Subtitle,
              "Unknown or unsupported text subtitle backend selected!.\n");
   }
-  switch (Profile::SubtitleBmpBackend) {
+  switch (Profile::Game::SubtitleBmpBackend) {
     case SubtitleBmpBackendType::None:
       break;
     default:
@@ -44,7 +46,7 @@ void SubtitleInit() {
 }
 
 SubtitlePlayer::SubtitlePlayer(float width, float height) {
-  switch (Profile::SubtitleAssBackend) {
+  switch (Profile::Game::SubtitleAssBackend) {
 #ifndef IMPACTO_DISABLE_LIBASS
     case SubtitleAssBackendType::LibAss:
       Backends[GetBackendIndex(SubtitleType::Ass)] =
@@ -54,36 +56,38 @@ SubtitlePlayer::SubtitlePlayer(float width, float height) {
     case SubtitleAssBackendType::None:
       break;
   }
-  switch (Profile::SubtitleTextBackend) {
+  switch (Profile::Game::SubtitleTextBackend) {
     case SubtitleTextBackendType::None:
       break;
   }
-  switch (Profile::SubtitleBmpBackend) {
+  switch (Profile::Game::SubtitleBmpBackend) {
     case SubtitleBmpBackendType::None:
       break;
   }
 }
 
-bool SubtitlePlayer::CanAddTrack(int trackId, SubtitleType type,
-                                 Profile::SubtitleConfigType config) const {
+bool SubtitlePlayer::CanAddTrack(
+    int trackId, SubtitleType type,
+    Profile::Subtitle::SubtitleConfigType config) const {
+  using Profile::UserConfig::CommonSettings;
   const auto& backend = Backends[GetBackendIndex(type)];
   if (!backend) {
     ImpLog(LogLevel::Warning, LogChannel::Subtitle,
            "Subtitle backend not initialized for {}", type);
     return false;
   }
-  if ((+config & +Profile::SubtitleConfig) == 0) {
+  if ((+config & +CommonSettings.SubtitleConfig) == 0) {
     ImpLog(LogLevel::Info, LogChannel::Subtitle,
            "Current subtitle mode is {}, skipping track {}, which is mode {}",
-           Profile::SubtitleConfig, trackId, config);
+           CommonSettings.SubtitleConfig, trackId, config);
     return false;
   }
   return true;
 }
 
-void SubtitlePlayer::AddTrackFile(int trackId, SubtitleType type,
-                                  std::string const& path,
-                                  Profile::SubtitleConfigType config) {
+void SubtitlePlayer::AddTrackFile(
+    int trackId, SubtitleType type, std::string const& path,
+    Profile::Subtitle::SubtitleConfigType config) {
   if (!CanAddTrack(trackId, type, config)) return;
   auto& backend = Backends[GetBackendIndex(type)];
   Io::Stream* subtitleFileStream{};

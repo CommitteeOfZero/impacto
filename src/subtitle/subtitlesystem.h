@@ -30,11 +30,11 @@ class SubtitlePlayer {
 
   template <typename Track, typename... TrackArgs>
     requires HasAddTrack<Track, TrackArgs...>
-  void AddTrack(int trackId, Profile::SubtitleConfigType config,
+  void AddTrack(int trackId, Profile::Subtitle::SubtitleConfigType config,
                 TrackArgs&&... args);
   void AddTrackFile(int trackId, Profile::Subtitle::SubtitleType type,
                     std::string const& path,
-                    Profile::SubtitleConfigType config);
+                    Profile::Subtitle::SubtitleConfigType config);
   void PushEntry(int trackId, SubtitleEntry entry);
   void UpdateElapsedTime(Video::Clock::Microseconds elapsedTime);
   void Render();
@@ -42,7 +42,7 @@ class SubtitlePlayer {
  protected:
   int8_t GetBackendIndex(Profile::Subtitle::SubtitleType type) const;
   bool CanAddTrack(int trackId, Profile::Subtitle::SubtitleType type,
-                   Profile::SubtitleConfigType config) const;
+                   Profile::Subtitle::SubtitleConfigType config) const;
 
   std::array<std::unique_ptr<SubtitleRenderer>, 3> Backends;
   ankerl::unordered_dense::map<int, Profile::Subtitle::SubtitleType>
@@ -53,9 +53,9 @@ void SubtitleInit();
 
 template <typename Track, typename... TrackArgs>
   requires HasAddTrack<Track, TrackArgs...>
-inline void SubtitlePlayer::AddTrack(int trackId,
-                                     Profile::SubtitleConfigType config,
-                                     TrackArgs&&... args) {
+inline void SubtitlePlayer::AddTrack(
+    int trackId, Profile::Subtitle::SubtitleConfigType config,
+    TrackArgs&&... args) {
   constexpr auto type = Track::BackendType::Type;
   if (!CanAddTrack(trackId, type, config)) return;
   auto* backend =

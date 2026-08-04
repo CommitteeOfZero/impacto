@@ -153,12 +153,12 @@ void RenderLayer(uint32_t layer) {
       CHLCC::EyecatchEffect::GetInstance().RenderLayer(layer);
       if (ScrWork[SW_MONITOR_SCANLINE_ENABLED] &&
           layerInt == ScrWork[SW_MONITOR_SCANLINE_PRI]) {
-        Renderer->DrawSprite(
-            MonitorScanline,
-            RectF{0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight},
-            glm::vec4{glm::vec3{1.0f}, 26 / 255.0f});
+        Renderer->DrawSprite(MonitorScanline,
+                             RectF{0.0f, 0.0f, Profile::Game::DesignWidth,
+                                   Profile::Game::DesignHeight},
+                             glm::vec4{glm::vec3{1.0f}, 26 / 255.0f});
         float y = (299 - CHLCCScanlineOffsetY) * 1000.0f / 300 - 200;
-        Renderer->DrawQuad(RectF{0.0f, y, Profile::DesignWidth, 200},
+        Renderer->DrawQuad(RectF{0.0f, y, Profile::Game::DesignWidth, 200},
                            glm::vec4{glm::vec3{0.0f}, 88 / 255.0f});
       }
       if (ScrWork[SW_BUTTERFLY_ALPHA] &&
@@ -202,11 +202,11 @@ void RenderCCButtonGuide() {
       Sprite guideSprite =
           (*UIButtonGuideSprites)[ScrWork[SW_UI_BTNGUIDE_TYPE] - 1];
       float guideXWidth =
-          (ScrWork[SW_UI_BTNGUIDE_PROG] * Profile::DesignWidth) / 32.0f;
+          (ScrWork[SW_UI_BTNGUIDE_PROG] * Profile::Game::DesignWidth) / 32.0f;
       guideSprite.Bounds.Width = guideXWidth;
       Renderer->DrawSprite(guideSprite,
                            glm::vec2{0.0f, UIButtonGuideEndDisp->Y});
-      if (guideXWidth < Profile::DesignWidth) {
+      if (guideXWidth < Profile::Game::DesignWidth) {
         Sprite guideSprite2 = guideSprite;
         std::array<glm::vec4, 4> tints = {
             glm::vec4{1.0f, 1.0f, 1.0f, 1.0f},

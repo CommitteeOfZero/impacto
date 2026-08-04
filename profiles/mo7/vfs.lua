@@ -1,13 +1,13 @@
 root.Vfs = {
     Mounts = {
-        ["script"] = {"games/mo7/gamedata/script.cls"},
-        ["system"] = {"games/mo7/gamedata/system.cpk"},
-        ["bgm"] = {"games/mo7/gamedata/bgm.cpk"},
-        ["se"] = {"games/mo7/gamedata/se.cpk"},
-        ["voice"] = {"games/mo7/gamedata/voice.cpk"},
-        ["bg"] = {"games/mo7/gamedata/bg.cpk"},
-        ["chara"] = {"games/mo7/gamedata/chara.cpk"},
-        ["mask"] = {"games/mo7/gamedata/mask.cpk"},
-        ["movie"] = {"games/mo7/gamedata/movie.cpk"}
+        ["script"] = {root.BasePaths.RootGamedataDir .. "/mo7/script.cls"},
+        ["system"] = {root.BasePaths.RootGamedataDir .. "/mo7/system.cpk"},
+        ["bgm"] = {root.BasePaths.RootGamedataDir .. "/mo7/bgm.cpk"},
+        ["se"] = {root.BasePaths.RootGamedataDir .. "/mo7/se.cpk"},
+        ["voice"] = {root.BasePaths.RootGamedataDir .. "/mo7/voice.cpk"},
+        ["bg"] = {root.BasePaths.RootGamedataDir .. "/mo7/bg.cpk"},
+        ["chara"] = {root.BasePaths.RootGamedataDir .. "/mo7/chara.cpk"},
+        ["mask"] = {root.BasePaths.RootGamedataDir .. "/mo7/mask.cpk"},
+        ["movie"] = {root.BasePaths.RootGamedataDir .. "/mo7/movie.cpk"}
     }
 };

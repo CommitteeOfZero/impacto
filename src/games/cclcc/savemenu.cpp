@@ -332,11 +332,12 @@ void SaveMenu::Render() {
   MainItems[CurrentPage]->Tint = col;
   if (PageAnimation.State == AnimationState::Playing) {
     bool isNextBelow = ((PrevPage + 1) % Pages) == CurrentPage;
-    const float currentYPos =
-        (1.0f - PageAnimation.Progress) *
-        (isNextBelow ? Profile::DesignHeight : -Profile::DesignHeight);
-    const float prevYPos = isNextBelow ? currentYPos - Profile::DesignHeight
-                                       : currentYPos + Profile::DesignHeight;
+    const float currentYPos = (1.0f - PageAnimation.Progress) *
+                              (isNextBelow ? Profile::Game::DesignHeight
+                                           : -Profile::Game::DesignHeight);
+    const float prevYPos = isNextBelow
+                               ? currentYPos - Profile::Game::DesignHeight
+                               : currentYPos + Profile::Game::DesignHeight;
     const glm::vec2 currentOffset{0, currentYPos};
     const glm::vec2 prevOffset{0, prevYPos};
 

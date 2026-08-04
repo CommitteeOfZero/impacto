@@ -125,8 +125,9 @@ void PlainDialogueBox::Render(const DialoguePageMode mode,
     assert(mode == DPM_REV);
 
     glm::vec4 nvlBoxTint(0.0f, 0.0f, 0.0f, tint.a * NVLBoxMaxOpacity);
-    Renderer->DrawQuad(RectF(0, 0, Profile::DesignWidth, Profile::DesignHeight),
-                       nvlBoxTint);
+    Renderer->DrawQuad(
+        RectF(0, 0, Profile::Game::DesignWidth, Profile::Game::DesignHeight),
+        nvlBoxTint);
   }
 }
 

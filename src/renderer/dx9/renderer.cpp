@@ -93,7 +93,7 @@ void Renderer::Init() {
   CurrentShader = ShaderSprite;
   CurrentShader->UseShader(Device);
 
-  if (+Profile::GameFeatures & +GameFeature::Scene3D) {
+  if (+Profile::Game::GameFeatures & +GameFeature::Scene3D) {
     Scene = new Scene3D(DXWindow, Device);
     Scene->Init();
   }
@@ -132,7 +132,7 @@ void Renderer::Shutdown() {
   if (!IsInit) return;
   IsInit = false;
 
-  if (+Profile::GameFeatures & +GameFeature::Scene3D) {
+  if (+Profile::Game::GameFeatures & +GameFeature::Scene3D) {
     Scene->Shutdown();
   }
 
@@ -773,8 +773,8 @@ void Renderer::CaptureScreencap(Sprite& sprite) {
   sprite.Sheet.DesignHeight = static_cast<float>(backBufferDesc.Height);
   sprite.Bounds = RectF{0.0f, 0.0f, static_cast<float>(backBufferDesc.Width),
                         static_cast<float>(backBufferDesc.Height)};
-  sprite.BaseScale = {Profile::DesignWidth / backBufferDesc.Width,
-                      Profile::DesignHeight / backBufferDesc.Height};
+  sprite.BaseScale = {Profile::Game::DesignWidth / backBufferDesc.Width,
+                      Profile::Game::DesignHeight / backBufferDesc.Height};
 
   IDirect3DTexture9* texture;
   Device->CreateTexture(backBufferDesc.Width, backBufferDesc.Height, 1,
@@ -801,8 +801,8 @@ void Renderer::EnableScissor() {
 
 void Renderer::SetScissorRect(RectF const& rect) {
   Rect viewport = Window->GetViewport();
-  float scale = fmin((float)Window->WindowWidth / Profile::DesignWidth,
-                     (float)Window->WindowHeight / Profile::DesignHeight);
+  float scale = fmin((float)Window->WindowWidth / Profile::Game::DesignWidth,
+                     (float)Window->WindowHeight / Profile::Game::DesignHeight);
   float rectX = rect.X * scale;
   float rectY = rect.Y * scale;
   float rectWidth = rect.Width * scale;
@@ -823,8 +823,8 @@ void Renderer::DisableScissor() {
 
 glm::vec2 Renderer::DesignToNDC(glm::vec2 designCoord) const {
   glm::vec2 result;
-  result.x = (designCoord.x / (Profile::DesignWidth * 0.5f)) - 1.0f;
-  result.y = 1.0f - (designCoord.y / (Profile::DesignHeight * 0.5f));
+  result.x = (designCoord.x / (Profile::Game::DesignWidth * 0.5f)) - 1.0f;
+  result.y = 1.0f - (designCoord.y / (Profile::Game::DesignHeight * 0.5f));
   return result;
 }
 

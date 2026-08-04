@@ -1,10 +1,12 @@
 #include "vfs.h"
 #include "../impacto.h"
 #include "../util.h"
-#include <vector>
+#include <deque>
 #include <mutex>
+#include <ranges>
 #include "vfsarchive.h"
 #include "memorystream.h"
+#include "dummystream.h"
 #include "../log.h"
 #include "../profile/vfs.h"
 #ifndef IMPACTO_DISABLE_MMAP
@@ -18,6 +20,7 @@
 #include "lnk4archive.h"
 #include "mpkarchive.h"
 #include "textarchive.h"
+#include "fsfolderarchive.h"
 
 namespace Impacto {
 namespace Io {
@@ -30,22 +33,41 @@ using VfsArchiveFactory = auto (*)(Stream* stream, VfsArchive** outArchive)
     -> IoError;
 
 static std::vector<VfsArchiveFactory> Archivers;
-static ankerl::unordered_dense::map<std::string,
-                                    std::vector<std::unique_ptr<VfsArchive>>,
-                                    string_hash, std::equal_to<>>
+
+// MSVC deque move constructor is not noexcept, which makes it
+// not work correctly with move only types...
+struct ArchiveList : public std::deque<std::unique_ptr<VfsArchive>> {
+  using Base = std::deque<std::unique_ptr<VfsArchive>>;
+  using Base::Base;
+  ArchiveList(ArchiveList&&) noexcept = default;
+};
+static ankerl::unordered_dense::map<std::string, ArchiveList, string_hash,
+                                    std::equal_to<>>
     Mounts;
 static std::shared_mutex Lock;
 
-static IoError MountInternal(std::string const& mountpoint, Stream* stream) {
+static IoError MountInternal(std::string const& mountpoint, Stream* stream,
+                             bool invertMountOrder = false,
+                             VfsArchiveFactory hintArchiver = nullptr) {
   VfsArchive* archive = nullptr;
+
   IoError err = IoError_Fail;
-  for (auto archiver : Archivers) {
-    err = archiver(stream, &archive);
-    if (err == IoError_OK) break;
+  if (hintArchiver) {
+    err = hintArchiver(stream, &archive);
+  }
+  if (err != IoError_OK) {
+    for (auto archiver : Archivers) {
+      err = archiver(stream, &archive);
+      if (err == IoError_OK) break;
+    }
   }
   if (err == IoError_OK) {
     archive->MountPoint = mountpoint;
-    Mounts[mountpoint].emplace_back(archive);
+    if (invertMountOrder) {
+      Mounts[mountpoint].emplace_front(archive);
+    } else {
+      Mounts[mountpoint].emplace_back(archive);
+    }
   } else {
     ImpLog(LogLevel::Error, LogChannel::IO, "No archiver supports file {:s}\n",
            stream->Meta.FileName);
@@ -88,18 +110,33 @@ IoError VfsMount(std::string const& mountpoint,
 
   Stream* archiveFile;
   IoError err;
+
+  std::error_code ec;
+
+  bool isDir = std::filesystem::is_directory(archiveFileName, ec);
+  if (ec)
+    ImpLog(LogLevel::Error, LogChannel::IO,
+           "Failed to check if {} is a directory: {}\n", archiveFileName,
+           ec.message());
+  if (isDir) {
+    DummyStream::Create(archiveFileName, &archiveFile);
+    err =
+        MountInternal(mountpoint, archiveFile, false, &FSFolderArchive::Create);
+  } else {
 #ifndef IMPACTO_DISABLE_MMAP
-  err = MemoryMappedFileStream<AccessMode::read>::Create(archiveFileName,
-                                                         &archiveFile);
+    err = MemoryMappedFileStream<AccessMode::read>::Create(archiveFileName,
+                                                           &archiveFile);
 #else
-  err = PhysicalFileStream::Create(archiveFileName, &archiveFile);
+    err = PhysicalFileStream::Create(archiveFileName, &archiveFile);
 #endif
-  if (err != IoError_OK) {
-    ImpLog(LogLevel::Debug, LogChannel::IO,
-           "Could not open physical file \"{:s}\"\n", archiveFileName);
-    return err;
+    if (err != IoError_OK) {
+      ImpLog(LogLevel::Debug, LogChannel::IO,
+             "Could not open physical file \"{:s}\"\n", archiveFileName);
+      return err;
+    }
+    err = MountInternal(mountpoint, archiveFile);
   }
-  err = MountInternal(mountpoint, archiveFile);
+
   if (err != IoError_OK) {
     delete archiveFile;
   }
@@ -108,7 +145,7 @@ IoError VfsMount(std::string const& mountpoint,
 
 IoError VfsMountMemory(std::string const& mountpoint,
                        std::string const& archiveFileName, void* memory,
-                       int64_t size, bool freeOnClose) {
+                       int64_t size, bool freeOnClose, bool invertMountOrder) {
   IoError err;
   Stream* archiveFile;
 
@@ -126,7 +163,7 @@ IoError VfsMountMemory(std::string const& mountpoint,
 
   archiveFile = new MemoryStream(memory, size, freeOnClose);
   archiveFile->Meta.FileName = archiveFileName;
-  err = MountInternal(mountpoint, archiveFile);
+  err = MountInternal(mountpoint, archiveFile, invertMountOrder);
   if (err != IoError_OK) {
     delete archiveFile;
   }
@@ -159,7 +196,7 @@ static IoError GetOrigMetaInternal(std::string const& mountpoint,
   auto it = Mounts.find(mountpoint);
   if (it == Mounts.end()) return IoError_NotFound;
 
-  for (auto& archive : it->second) {
+  for (auto& archive : it->second | std::views::reverse) {
     auto nameToId = archive->NamesToIds.find(fileName);
     if (nameToId != archive->NamesToIds.end()) {
       outMeta = archive->IdsToFiles[nameToId->second];
@@ -176,7 +213,8 @@ static IoError GetOrigMetaInternal(std::string const& mountpoint, uint32_t id,
   auto it = Mounts.find(mountpoint);
   if (it == Mounts.end()) return IoError_NotFound;
 
-  for (auto& archive : it->second) {
+  // Find file in mountpoint, giving precedent to later items in search path
+  for (auto& archive : it->second | std::views::reverse) {
     auto idToFile = archive->IdsToFiles.find(id);
     if (idToFile != archive->IdsToFiles.end()) {
       outMeta = idToFile->second;
@@ -341,8 +379,7 @@ IoError VfsListFiles(std::string const& mountpoint,
 
   outListing.clear();
 
-  // Reverse order so things first in the search path get overwritten last
-  for (auto arcIt = it->second.rbegin(); arcIt != it->second.rend(); arcIt++) {
+  for (auto arcIt = it->second.begin(); arcIt != it->second.end(); arcIt++) {
     for (auto nameToId : (*arcIt)->NamesToIds) {
       outListing[nameToId.second] = nameToId.first;
     }

@@ -51,7 +51,8 @@ void Butterfly::Render(float alphaMultiplier) {
   const float sizeF = static_cast<float>(Size);
   RectF dest{Position.x - sizeF / 2.0f, Position.y - sizeF / 2.0f, sizeF,
              sizeF};
-  dest.Scale({Profile::DesignWidth / 1280.0f, Profile::DesignHeight / 720.0f},
+  dest.Scale({Profile::Game::DesignWidth / 1280.0f,
+              Profile::Game::DesignHeight / 720.0f},
              {0.0f, 0.0f});
   const float alpha = (ScrWork[SW_BUTTERFLY_ALPHA] * alphaMultiplier) *
                       (Size / 148.0f + 1 / 2.0f) / 256.0f;

@@ -11,6 +11,7 @@
 #include "../../profile/configsystem.h"
 #include "../../profile/vm.h"
 #include "../../profile/game.h"
+#include "../../profile/patch.h"
 #include "../../audio/audiosystem.h"
 #include "../../text/dialoguepage.h"
 
@@ -259,7 +260,7 @@ void DelusionTrigger::TriggerRight() {
 }
 
 void DelusionTrigger::UpdateHeartButtons() {
-  if (!Profile::HasDelusionMouseSupport) {
+  if (!Profile::Patch::HasDelusionMouseSupport) {
     return;
   }
   if (HeartButtonFade.Progress == 0.0f) {
@@ -399,7 +400,7 @@ void DelusionTrigger::UpdateShown(float dt) {
 }
 
 void DelusionTrigger::Update(float dt) {
-  if (Profile::HasDelusionMouseSupport && State != Hidden) {
+  if (Profile::Patch::HasDelusionMouseSupport && State != Hidden) {
     if (DelusionHeartPulseDuration > 0.0f) {
       HeartPulseAnimation.Update(dt);
     }
@@ -495,15 +496,15 @@ void DelusionTrigger::Render() {
   ScaledMask.Bounds.Y = BackgroundSpriteMask.Bounds.Y - deltaHeight / 2.0f;
 
   TriggerOnTint[3] = TriggerOnTintAlpha * BackgroundAlpha / 65536.0f;
-  Renderer->DrawQuad(
-      RectF(0.0f, 0.0f, Profile::DesignWidth, Profile::DesignHeight),
-      TriggerOnTint);
+  Renderer->DrawQuad(RectF(0.0f, 0.0f, Profile::Game::DesignWidth,
+                           Profile::Game::DesignHeight),
+                     TriggerOnTint);
 
   Sprite mask = ScreenMask;
   mask.Bounds.X = UnderlayerXOffset / 1000.0f;
 
-  const RectF spriteDest = {0.0f, 0.0f, Profile::DesignWidth,
-                            Profile::DesignHeight};
+  const RectF spriteDest = {0.0f, 0.0f, Profile::Game::DesignWidth,
+                            Profile::Game::DesignHeight};
   const CornersQuad maskDest =
       ScaledMask.Bounds.RotateAroundCenter(ScrWorkAngleToRad(SpinAngle));
 
@@ -515,7 +516,8 @@ void DelusionTrigger::Render() {
   Renderer->DrawMaskedSpriteOverlay(BackgroundSprite, ScaledMask, spriteDest,
                                     maskDest, (BackgroundAlpha * 160) >> 8, 20,
                                     glm::mat4(1.0f), glm::vec4(1.0f), true);
-  if (Profile::HasDelusionMouseSupport && HeartButtonFade.Progress > 0.0f) {
+  if (Profile::Patch::HasDelusionMouseSupport &&
+      HeartButtonFade.Progress > 0.0f) {
     RenderHeartButton(LeftDelusionHeartSprite, LeftDelusionHeartPos,
                       LeftHeartClickArea.Hovered,
                       glm::mix(0.25f, 0.75f, LeftHeartFade.Progress));
@@ -625,7 +627,7 @@ void DelusionTextSystem::InitLines() {
   for (auto& line : GlyphLines) line.fill(nullptr);
   for (size_t lineIdx = 0; lineIdx < GlyphLines.size(); ++lineIdx) {
     const int pastScreenStartIndex = static_cast<int>(
-        std::ceil(Profile::DesignWidth / DelusionScaledGlyphWidth));
+        std::ceil(Profile::Game::DesignWidth / DelusionScaledGlyphWidth));
 
     size_t charOffset = pastScreenStartIndex;
     if (lineIdx != 1) charOffset = (std::rand() % 8) + pastScreenStartIndex * 2;

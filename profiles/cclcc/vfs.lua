@@ -1,16 +1,16 @@
 root.Vfs = {
     Mounts = {
-        ["bg"] = {"games/cclcc/gamedata/bg.mpk"},
-        ["bgeffect"] = {"games/cclcc/gamedata/bgeffect.mpk"},
-        ["bgm"] = {"games/cclcc/gamedata/bgm.mpk"},
-        ["chara"] = {"games/cclcc/gamedata/chara.mpk"},
-        ["manual"] = {"games/cclcc/gamedata/manual.mpk"},
-        ["mask"] = {"games/cclcc/gamedata/mask.mpk"},
-        ["movie"] = {"games/cclcc/gamedata/movie.cls"},        -- .cls generated; folder 'movie' needs manual addition
-        ["script"] = {"games/cclcc/gamedata/script.cls"},      -- .cls generated; folder 'script' needs manual addition
-        ["se"] = {"games/cclcc/gamedata/se.mpk"},
-        ["sysse"] = {"games/cclcc/gamedata/sysse.mpk"},
-        ["system"] = {"games/cclcc/gamedata/system.mpk"},
-        ["voice"] = {"games/cclcc/gamedata/voice.mpk"}
+        ["bg"] = {root.BasePaths.RootGamedataDir .. "/cclcc/bg.mpk"},
+        ["bgeffect"] = {root.BasePaths.RootGamedataDir .. "/cclcc/bgeffect.mpk"},
+        ["bgm"] = {root.BasePaths.RootGamedataDir .. "/cclcc/bgm.mpk"},
+        ["chara"] = {root.BasePaths.RootGamedataDir .. "/cclcc/chara.mpk"},
+        ["manual"] = {root.BasePaths.RootGamedataDir .. "/cclcc/manual.mpk"},
+        ["mask"] = {root.BasePaths.RootGamedataDir .. "/cclcc/mask.mpk"},
+        ["movie"] = {root.BasePaths.RootGamedataDir .. "/cclcc/movie"},
+        ["script"] = {root.BasePaths.RootGamedataDir .. "/cclcc/script"},
+        ["se"] = {root.BasePaths.RootGamedataDir .. "/cclcc/se.mpk"},
+        ["sysse"] = {root.BasePaths.RootGamedataDir .. "/cclcc/sysse.mpk"},
+        ["system"] = {root.BasePaths.RootGamedataDir .. "/cclcc/system.mpk"},
+        ["voice"] = {root.BasePaths.RootGamedataDir .. "/cclcc/voice.mpk"}
     }
 };
