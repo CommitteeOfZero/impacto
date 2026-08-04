@@ -174,7 +174,7 @@ void TextParser::ParseStringToken<STT_Character>(const StringToken& token) {
       uint32_t val{};
       if (Profile::Vm::StringEncodingType ==
           Profile::Vm::StringUnitEncoding::Uint32) {
-        val = SDL_Swap32(token.Val_Int | 0x8000);
+        val = SDL_Swap32(token.Val_Int | 0x80000000);
       } else {
         val = SDL_Swap16(static_cast<uint16_t>(token.Val_Int) | 0x8000);
       }
@@ -186,7 +186,7 @@ void TextParser::ParseStringToken<STT_Character>(const StringToken& token) {
       uint32_t val{};
       if (Profile::Vm::StringEncodingType ==
           Profile::Vm::StringUnitEncoding::Uint32) {
-        val = SDL_Swap32(token.Val_Int | 0x8000);
+        val = SDL_Swap32(token.Val_Int | 0x80000000);
       } else {
         val = SDL_Swap16(static_cast<uint16_t>(token.Val_Int) | 0x8000);
       }
