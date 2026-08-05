@@ -88,7 +88,7 @@ std::string const& GetPlatformConfigDir() {
     } else {
       result = std::filesystem::path(configPath);
     }
-    return (result / "impacto").string();
+    return (result / "Committee of Zero" / "Impacto").string();
 #else
     std::filesystem::path result;
     char* configPath = SDL_GetPrefPath("Committee of Zero", "Impacto");
