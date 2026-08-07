@@ -7,6 +7,7 @@
 #include "log.h"
 #include "inputsystem.h"
 #include "debugmenu.h"
+#include "overlay.h"
 #include "renderer/opengl/glc.h"
 
 #include "ui/ui.h"
@@ -87,8 +88,9 @@ void Init() {
   io.IniFilename = NULL;
   io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
   io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
-  if (+Profile::Game::GameFeatures & +GameFeature::DebugMenu &&
-      +Profile::Game::GameFeatures & +GameFeature::DebugMenuMultiViewport) {
+  if ((+Profile::Game::GameFeatures & +GameFeature::DebugMenu &&
+       +Profile::Game::GameFeatures & +GameFeature::DebugMenuMultiViewport) ||
+      +Profile::Game::GameFeatures & +GameFeature::Overlay) {
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
   }
@@ -147,6 +149,12 @@ void Init() {
   if (+Profile::Game::GameFeatures & +GameFeature::CharacterViewer) {
     CharacterViewer::Init();
   }
+
+#ifndef IMPACTO_DISABLE_IMGUI
+  if (+Profile::Game::GameFeatures & +GameFeature::Overlay) {
+    Overlay::Init();
+  }
+#endif
 
   if (+Profile::Game::GameFeatures & +GameFeature::Sc3VirtualMachine) {
     Vm::Init();
@@ -679,6 +687,11 @@ void Render() {
       Characters2D[0].Render(0);
     }
   }
+#ifndef IMPACTO_DISABLE_IMGUI
+  if (+Profile::Game::GameFeatures & +GameFeature::Overlay) {
+    Overlay::Show();
+  }
+#endif
   Renderer->EndFrame();
 
   Window->Draw();

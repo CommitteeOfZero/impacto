@@ -797,11 +797,12 @@ void Renderer::Init() {
   imguiInfo.QueueFamily = QueueIndices.PresentQueueIdx;
   imguiInfo.Queue = PresentQueue;
   imguiInfo.DescriptorPool = DescriptorPool;
-  imguiInfo.RenderPass = RenderPass;
-  imguiInfo.Subpass = 0;
   imguiInfo.MinImageCount = 2;
   imguiInfo.ImageCount = 2;
-  imguiInfo.MSAASamples = (VkSampleCountFlagBits)Window->MsaaCount;
+  imguiInfo.PipelineInfoMain.RenderPass = RenderPass;
+  imguiInfo.PipelineInfoMain.Subpass = 0;
+  imguiInfo.PipelineInfoMain.MSAASamples =
+      (VkSampleCountFlagBits)Window->MsaaCount;
   ImGui_ImplVulkan_Init(&imguiInfo);
 #endif
 

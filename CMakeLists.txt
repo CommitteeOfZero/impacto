@@ -876,7 +876,7 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
     FetchContent_Declare(
             ImGui
             GIT_REPOSITORY "https://github.com/ocornut/imgui.git"
-            GIT_TAG "1db579d458da29fa43376af9d88d486910d9406a"
+            GIT_TAG "v1.92.9b-docking"
     )
 
     FetchContent_MakeAvailable(ImGui)
@@ -1082,6 +1082,8 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
 
     list(APPEND Impacto_Src src/debugmenu.cpp)
     list(APPEND Impacto_Header src/debugmenu.h)
+    list(APPEND Impacto_Src src/overlay.cpp)
+    list(APPEND Impacto_Header src/overlay.h)
 
     if (NOT DEFINED IMPACTO_DISABLE_OPENGL)
         list(APPEND imgui_src
