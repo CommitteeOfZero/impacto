@@ -24,6 +24,12 @@ inline std::vector<Impacto::SaveSystem::ScriptMessageDataPair>
 inline uint16_t AlbumEvData[MaxAlbumEntries][MaxAlbumSubEntries];
 inline uint16_t AlbumData[MaxAlbumEntries][MaxAlbumSubEntries][MaxCGSprites];
 
+struct AddedLinesDataStruct {
+  size_t BitFieldOffset;
+  size_t AddedLinesPerScript;
+};
+inline std::optional<AddedLinesDataStruct> AddedLinesData;
+
 void Configure();
 
 }  // namespace SaveSystem

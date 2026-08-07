@@ -203,6 +203,28 @@ void SetTipStatus(size_t tipId, bool isLocked, bool isUnread, bool isNew) {
          "{:s}: save system not implemented\n", __func__);
 }
 
+std::optional<size_t> GetLineBitOffset(const int scriptId, const int lineId) {
+  if (std::ssize(ScriptMessageData) < scriptId) {
+    ImpLog(LogLevel::Error, LogChannel::General, "Script ID {:d} out of bounds",
+           scriptId);
+    return std::nullopt;
+  }
+
+  const bool isAdded =
+      static_cast<size_t>(lineId) >= ScriptMessageData[scriptId].LineCount;
+  if (isAdded && !AddedLinesData.has_value()) {
+    ImpLog(LogLevel::Warning, LogChannel::General,
+           "Encountered an added line without AddedLineData being supplied in "
+           "the profile.");
+    return std::nullopt;
+  }
+
+  return isAdded ? AddedLinesData->BitFieldOffset +
+                       AddedLinesData->AddedLinesPerScript * scriptId +
+                       (lineId - ScriptMessageData[scriptId].LineCount)
+                 : ScriptMessageData[scriptId].SaveDataOffset + lineId;
+}
+
 void SetLineRead(int scriptId, int lineId) {
   if (Implementation) return Implementation->SetLineRead(scriptId, lineId);
   ImpLog(LogLevel::Warning, LogChannel::VMStub,

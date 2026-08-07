@@ -201,6 +201,7 @@ uint8_t GetSaveStatus(SaveType type, int id);
 int GetSaveTitle(SaveType type, int id);
 uint32_t GetTipStatus(size_t tipId);
 void SetTipStatus(size_t tipId, bool isLocked, bool isUnread, bool isNew);
+std::optional<size_t> GetLineBitOffset(int scriptId, int lineId);
 void SetLineRead(int scriptId, int lineId);
 bool IsLineRead(int scriptId, int lineId);
 void GetReadMessagesCount(int* totalMessageCount, int* readMessageCount);

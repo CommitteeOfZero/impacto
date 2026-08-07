@@ -857,25 +857,23 @@ void SaveSystem::SetTipStatus(size_t tipId, bool isLocked, bool isUnread,
   }
 }
 
-void SaveSystem::SetLineRead(int scriptId, int lineId) {
-  if (scriptId >= 255) return;
-
-  uint32_t offset = ScriptMessageData[scriptId].SaveDataOffset + lineId;
-  if (offset == 0xFFFFFFFF) return;
+void SaveSystem::SetLineRead(const int scriptId, const int lineId) {
+  const std::optional<size_t> offset = GetLineBitOffset(scriptId, lineId);
+  if (!offset.has_value()) return;
 
   // TODO: update some ScrWorks (2003, 2005 & 2006)
 
-  MessageFlags[offset >> 3] |= Flbit[offset & 0b111];
+  MessageFlags[*offset >> 3] |= Flbit[*offset & 0b111];
 }
 
-bool SaveSystem::IsLineRead(int scriptId, int lineId) const {
-  if (scriptId >= 255) return false;
+bool SaveSystem::IsLineRead(const int scriptId, const int lineId) const {
+  const std::optional<size_t> offset = GetLineBitOffset(scriptId, lineId);
+  if (!offset.has_value()) return false;
 
-  uint32_t offset = ScriptMessageData[scriptId].SaveDataOffset + lineId;
-  uint8_t flbit = Flbit[offset & 0b111];
-  uint8_t viewed = MessageFlags[offset >> 3];
+  const uint8_t flbit = Flbit[*offset & 0b111];
+  const uint8_t viewed = MessageFlags[*offset >> 3];
 
-  return (bool)(flbit & viewed);
+  return static_cast<bool>(flbit & viewed);
 }
 
 void SaveSystem::GetReadMessagesCount(int* totalMessageCount,

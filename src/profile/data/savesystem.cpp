@@ -9,8 +9,35 @@
 
 namespace Impacto {
 namespace Profile {
-namespace SaveSystem {
 
+template <>
+struct TryGetImpl<SaveSystem::AddedLinesDataStruct> {
+  static std::optional<SaveSystem::AddedLinesDataStruct> Call() {
+    if (!lua_istable(LuaState, -1)) return std::nullopt;
+
+    const std::optional<size_t> bitFieldOffset =
+        TryGetMember<size_t>("BitFieldOffset");
+    if (!bitFieldOffset.has_value()) {
+      ImpLog(LogLevel::Fatal, LogChannel::Profile, "Missing BitFieldOffset");
+      return std::nullopt;
+    }
+
+    const std::optional<size_t> addedLinesPerScript =
+        TryGetMember<size_t>("AddedLinesPerScript");
+    if (!addedLinesPerScript.has_value()) {
+      ImpLog(LogLevel::Fatal, LogChannel::Profile,
+             "Missing AddedLinesPerScript");
+      return std::nullopt;
+    }
+
+    return SaveSystem::AddedLinesDataStruct{
+        .BitFieldOffset = *bitFieldOffset,
+        .AddedLinesPerScript = *addedLinesPerScript,
+    };
+  }
+};
+
+namespace SaveSystem {
 using namespace Impacto::SaveSystem;
 
 void Configure() {
@@ -135,6 +162,8 @@ void Configure() {
     }
     Pop();
   }
+
+  AddedLinesData = TryGetMember<AddedLinesDataStruct>("AddedLinesData");
 
   Pop();
 }
