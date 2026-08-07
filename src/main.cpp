@@ -143,6 +143,11 @@ int main(int argc, char* argv[]) {
   }
 #endif
 
+  if (char* const basePath = SDL_GetBasePath()) {
+    std::filesystem::current_path(basePath);
+    SDL_free(basePath);
+  }
+
   std::string profilePath;
   LogInit();
   g_LogChannels = LogChannel::All;
