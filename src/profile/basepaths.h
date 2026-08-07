@@ -3,6 +3,7 @@
 #include <string>
 
 namespace Impacto::Profile::BasePaths {
+inline std::string RootInstallDir;
 inline std::string RootGamedataDir;
 inline std::string RootProfilesDir;
 inline std::string RootPatchesDir;

@@ -6,6 +6,7 @@ namespace Impacto::Profile::BasePaths {
 
 void Configure() {
   EnsurePushMemberOfType("BasePaths", LUA_TTABLE);
+  RootInstallDir = EnsureGetMember<std::string>("RootInstallDir");
   RootGamedataDir = EnsureGetMember<std::string>("RootGamedataDir");
   RootProfilesDir = EnsureGetMember<std::string>("RootProfilesDir");
   RootPatchesDir = TryGetMember<std::string>("RootPatchesDir").value_or("");
