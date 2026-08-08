@@ -1434,6 +1434,7 @@ if (APPLE)
     set_target_properties(
         impacto
         PROPERTIES
+        OUTPUT_NAME "Impacto"
         MACOSX_BUNDLE_BUNDLE_NAME "Impacto"
         MACOSX_BUNDLE_BUNDLE_VERSION "${APP_VERSION}"
         MACOSX_BUNDLE_SHORT_VERSION_STRING "${APP_VERSION_SHORT}"
