@@ -226,16 +226,36 @@ std::optional<size_t> GetLineBitOffset(const int scriptId, const int lineId) {
 }
 
 void SetLineRead(int scriptId, int lineId) {
-  if (Implementation) return Implementation->SetLineRead(scriptId, lineId);
-  ImpLog(LogLevel::Warning, LogChannel::VMStub,
-         "{:s}: save system not implemented\n", __func__);
+  if (Implementation == nullptr) {
+    ImpLog(LogLevel::Warning, LogChannel::VMStub,
+           "{:s}: save system not implemented\n", __func__);
+    return;
+  }
+
+  const std::vector<std::pair<size_t, size_t>> equivalentLines =
+      GetEquivalentLines(static_cast<size_t>(scriptId),
+                         static_cast<size_t>(lineId));
+  for (const auto& [curScriptId, curLineId] : equivalentLines) {
+    Implementation->SetLineRead(static_cast<int>(curScriptId),
+                                static_cast<int>(curLineId));
+  }
 }
 
 bool IsLineRead(int scriptId, int lineId) {
-  if (Implementation) return Implementation->IsLineRead(scriptId, lineId);
-  ImpLog(LogLevel::Warning, LogChannel::VMStub,
-         "{:s}: save system not implemented, returing false\n", __func__);
-  return false;
+  if (Implementation == nullptr) {
+    ImpLog(LogLevel::Warning, LogChannel::VMStub,
+           "{:s}: save system not implemented, returning false\n", __func__);
+    return false;
+  }
+
+  const std::vector<std::pair<size_t, size_t>> equivalentLines =
+      GetEquivalentLines(static_cast<size_t>(scriptId),
+                         static_cast<size_t>(lineId));
+  return std::ranges::any_of(
+      equivalentLines, [](std::pair<size_t, size_t> line) {
+        return Implementation->IsLineRead(static_cast<int>(line.first),
+                                          static_cast<int>(line.second));
+      });
 }
 
 void GetReadMessagesCount(int* totalMessageCount, int* readMessageCount) {

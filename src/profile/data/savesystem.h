@@ -30,6 +30,9 @@ struct AddedLinesDataStruct {
 };
 inline std::optional<AddedLinesDataStruct> AddedLinesData;
 
+std::vector<std::pair<size_t, size_t>> GetEquivalentLines(size_t scriptId,
+                                                          size_t lineId);
+
 void Configure();
 
 }  // namespace SaveSystem
