@@ -154,5 +154,7 @@ root.SaveData = {
         {{416, 415}},
         {{418, 417}},
         {{419}}
-    }
+    },
 };
+
+include(root.BasePaths.RootProfilesDir .. "/chlcc/equivalentlines.lua");

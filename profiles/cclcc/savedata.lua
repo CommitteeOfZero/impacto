@@ -157,3 +157,5 @@ root.SaveData = {
         {{0x20C}},
     }
 };
+
+include(root.BasePaths.RootProfilesDir .. '/cclcc/equivalentlines.lua');
