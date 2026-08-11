@@ -203,15 +203,15 @@ void SetTipStatus(size_t tipId, bool isLocked, bool isUnread, bool isNew) {
          "{:s}: save system not implemented\n", __func__);
 }
 
-std::optional<size_t> GetLineBitOffset(const int scriptId, const int lineId) {
-  if (std::ssize(ScriptMessageData) < scriptId) {
+std::optional<size_t> GetLineBitOffset(const size_t scriptId,
+                                       const size_t lineId) {
+  if (ScriptMessageData.size() < scriptId) {
     ImpLog(LogLevel::Error, LogChannel::General, "Script ID {:d} out of bounds",
            scriptId);
     return std::nullopt;
   }
 
-  const bool isAdded =
-      static_cast<size_t>(lineId) >= ScriptMessageData[scriptId].LineCount;
+  const bool isAdded = lineId >= ScriptMessageData[scriptId].LineCount;
   if (isAdded && !AddedLinesData.has_value()) {
     ImpLog(LogLevel::Warning, LogChannel::General,
            "Encountered an added line without AddedLineData being supplied in "
@@ -225,7 +225,7 @@ std::optional<size_t> GetLineBitOffset(const int scriptId, const int lineId) {
                  : ScriptMessageData[scriptId].SaveDataOffset + lineId;
 }
 
-void SetLineRead(int scriptId, int lineId) {
+void SetLineRead(const size_t scriptId, const size_t lineId) {
   if (Implementation == nullptr) {
     ImpLog(LogLevel::Warning, LogChannel::VMStub,
            "{:s}: save system not implemented\n", __func__);
@@ -233,15 +233,13 @@ void SetLineRead(int scriptId, int lineId) {
   }
 
   const std::vector<std::pair<size_t, size_t>> equivalentLines =
-      GetEquivalentLines(static_cast<size_t>(scriptId),
-                         static_cast<size_t>(lineId));
+      GetEquivalentLines(scriptId, lineId);
   for (const auto& [curScriptId, curLineId] : equivalentLines) {
-    Implementation->SetLineRead(static_cast<int>(curScriptId),
-                                static_cast<int>(curLineId));
+    Implementation->SetLineRead(curScriptId, curLineId);
   }
 }
 
-bool IsLineRead(int scriptId, int lineId) {
+bool IsLineRead(const size_t scriptId, const size_t lineId) {
   if (Implementation == nullptr) {
     ImpLog(LogLevel::Warning, LogChannel::VMStub,
            "{:s}: save system not implemented, returning false\n", __func__);
@@ -249,12 +247,10 @@ bool IsLineRead(int scriptId, int lineId) {
   }
 
   const std::vector<std::pair<size_t, size_t>> equivalentLines =
-      GetEquivalentLines(static_cast<size_t>(scriptId),
-                         static_cast<size_t>(lineId));
+      GetEquivalentLines(scriptId, lineId);
   return std::ranges::any_of(
       equivalentLines, [](std::pair<size_t, size_t> line) {
-        return Implementation->IsLineRead(static_cast<int>(line.first),
-                                          static_cast<int>(line.second));
+        return Implementation->IsLineRead(line.first, line.second);
       });
 }
 

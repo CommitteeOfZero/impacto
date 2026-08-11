@@ -129,20 +129,7 @@ void Configure() {
 
   SaveFilePath = EnsureGetMember<std::string>("SaveFilePath");
 
-  if (TryPushMember("StoryScriptIDs")) {
-    AssertIs(LUA_TTABLE);
-
-    StoryScriptCount = (int)lua_rawlen(LuaState, -1);
-    StoryScriptIDs.resize(*StoryScriptCount);
-    PushInitialIndex();
-    while (PushNextTableElement() != 0) {
-      int i = EnsureGetKey<int32_t>() - 1;
-      StoryScriptIDs[i] = EnsureGetArrayElement<int>();
-      Pop();
-    }
-
-    Pop();
-  }
+  TryGetMember<std::vector<uint32_t>>("StoryScriptIDs", StoryScriptIDs);
 
   if (TryPushMember("ScriptMessageData")) {
     AssertIs(LUA_TTABLE);

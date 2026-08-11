@@ -545,7 +545,7 @@ void SaveSystem::SetTipStatus(size_t tipId, bool isLocked, bool isUnread,
   }
 }
 
-void SaveSystem::SetLineRead(const int scriptId, const int lineId) {
+void SaveSystem::SetLineRead(const size_t scriptId, const size_t lineId) {
   const std::optional<size_t> offset = GetLineBitOffset(scriptId, lineId);
   if (!offset.has_value()) return;
 
@@ -554,7 +554,7 @@ void SaveSystem::SetLineRead(const int scriptId, const int lineId) {
   MessageFlags[*offset >> 3] |= Flbit[*offset & 0b111];
 }
 
-bool SaveSystem::IsLineRead(const int scriptId, const int lineId) const {
+bool SaveSystem::IsLineRead(const size_t scriptId, const size_t lineId) const {
   const std::optional<size_t> offset = GetLineBitOffset(scriptId, lineId);
   if (!offset.has_value()) return false;
 
@@ -569,12 +569,12 @@ void SaveSystem::GetReadMessagesCount(int* totalMessageCount,
   *totalMessageCount = 0;
   *readMessageCount = 0;
 
-  for (int scriptId = 0; scriptId < StoryScriptCount; scriptId++) {
+  for (size_t scriptId = 0; scriptId < StoryScriptIDs.size(); scriptId++) {
     ScriptMessageDataPair script = ScriptMessageData[StoryScriptIDs[scriptId]];
     *totalMessageCount += script.LineCount;
 
     for (size_t lineId = 0; lineId < script.LineCount; lineId++) {
-      *readMessageCount += IsLineRead(scriptId, (int)lineId);
+      *readMessageCount += IsLineRead(scriptId, lineId);
     }
   }
 }
