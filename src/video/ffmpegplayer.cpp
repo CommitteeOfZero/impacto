@@ -105,18 +105,18 @@ void FFmpegPlayer::Init() {
 void FFmpegPlayer::ReinitAudio() { AudioPlayer->Reinit(); }
 
 AVBufferRef* FFmpegPlayer::HwDecoderInit(const AVCodec* codec) {
-  for (int i = 0;; i++) {
-    const AVCodecHWConfig* cfg = avcodec_get_hw_config(codec, i);
-    if (!cfg) break;
-    if (!(cfg->methods & AV_CODEC_HW_CONFIG_METHOD_HW_DEVICE_CTX)) continue;
+    for (int i = 0;; i++) {
+      const AVCodecHWConfig* cfg = avcodec_get_hw_config(codec, i);
+      if (!cfg) break;
+      if (!(cfg->methods & AV_CODEC_HW_CONFIG_METHOD_HW_DEVICE_CTX)) continue;
 
     AVBufferRef* hw_device_ctx = NULL;
     if (av_hwdevice_ctx_create(&hw_device_ctx, cfg->device_type, NULL, NULL,
                                0) >= 0) {
-      HwVideoPixelFormat = static_cast<AVPixelFormat>(cfg->pix_fmt);
-      return hw_device_ctx;
+        HwVideoPixelFormat = static_cast<AVPixelFormat>(cfg->pix_fmt);
+        return hw_device_ctx;
+      }
     }
-  }
   return NULL;
 }
 
@@ -186,13 +186,26 @@ void FFmpegPlayer::OpenCodec(std::optional<FFmpegStream<MediaType>>& streamOpt,
       decoderContext.raw()->get_format =
           [](AVCodecContext* ctx,
              const AVPixelFormat* pix_fmts) -> AVPixelFormat {
-        auto const* self = static_cast<FFmpegPlayer*>(ctx->opaque);
+        auto* self = static_cast<FFmpegPlayer*>(ctx->opaque);
         for (const auto* p = pix_fmts; *p != AV_PIX_FMT_NONE; p++) {
-          if (*p == self->HwVideoPixelFormat) return *p;
+          if (*p != self->HwVideoPixelFormat) continue;
+
+          AVBufferRef* frames_ref = nullptr;
+          if (avcodec_get_hw_frames_parameters(ctx, ctx->hw_device_ctx, *p,
+                                               &frames_ref) == 0) {
+            if (av_hwframe_ctx_init(frames_ref) == 0) {
+              ctx->hw_frames_ctx = frames_ref;
+              return *p;
+            } else {
+              av_buffer_unref(&frames_ref);
+            }
+          }
         }
         for (const auto* p = pix_fmts; *p != AV_PIX_FMT_NONE; p++) {
           const AVPixFmtDescriptor* desc = av_pix_fmt_desc_get(*p);
-          if (!(desc->flags & AV_PIX_FMT_FLAG_HWACCEL)) return *p;
+          if (!(desc->flags & AV_PIX_FMT_FLAG_HWACCEL)) {
+            return *p;
+          }
         }
         return AV_PIX_FMT_NONE;
       };
@@ -305,25 +318,6 @@ void FFmpegPlayer::Play(Io::Stream* stream, bool looping, bool alpha) {
                                   videoStreamId);
     ScrWork[SW_MOVIEFRAME] = 0;
     ScrWork[SW_MOVIETOTALFRAME] = VideoStream->Duration;
-    std::visit(
-        [this](auto& videoText) {
-          if constexpr (std::is_same_v<std::decay_t<decltype(videoText)>,
-                                       std::monostate>) {
-            if (HwVideoPixelFormat == AV_PIX_FMT_NONE) {
-              VideoTexture = Renderer->CreateYUVFrame(
-                  (float)VideoStream->CodecContext.width(),
-                  (float)VideoStream->CodecContext.height());
-            } else {
-              VideoTexture = Renderer->CreateNV12Frame(
-                  (float)VideoStream->CodecContext.width(),
-                  (float)VideoStream->CodecContext.height());
-            }
-          } else {
-            videoText->Width = (float)VideoStream->CodecContext.width();
-            videoText->Height = (float)VideoStream->CodecContext.height();
-          }
-        },
-        VideoTexture);
   }
   if (audioStream.isAudio() && audioStream.isValid()) {
     OpenCodec<AVMEDIA_TYPE_AUDIO>(AudioStream, std::move(audioStream),
@@ -521,7 +515,8 @@ void FFmpegPlayer::ProcessVideoFrame(Frame_t<AVMEDIA_TYPE_VIDEO>& avFrame) {
   auto rawFrame = avFrame.raw();
   if (rawFrame->format == AV_PIX_FMT_NONE ||
       !(av_pix_fmt_desc_get(avFrame.pixelFormat())->flags &
-        AV_PIX_FMT_FLAG_HWACCEL)) {
+        AV_PIX_FMT_FLAG_HWACCEL) ||
+      !rawFrame->buf[0]) {
     return;
   }
   AVFrame* swFrame = av_frame_alloc();
@@ -665,6 +660,7 @@ void FFmpegPlayer::Stop() {
                                         std::monostate>) {
             videoText->Release();
             VideoTexture = std::monostate{};
+            SwVideoPixelFormat = AV_PIX_FMT_NONE;
           }
         },
         VideoTexture);
@@ -740,6 +736,28 @@ void FFmpegPlayer::Update(float dt) {
     }
 
     PreviousFrameTimestamp = frame->Timestamp;
+    if (frame->Frame.pixelFormat() != SwVideoPixelFormat) {
+      SwVideoPixelFormat = frame->Frame.pixelFormat();
+      std::visit(
+          [this, &frame](auto& videoText) {
+            if constexpr (!std::is_same_v<std::decay_t<decltype(videoText)>,
+                                          std::monostate>) {
+              videoText->Release();
+            }
+
+            if (frame->Frame.pixelFormat() == AV_PIX_FMT_YUV420P) {
+              VideoTexture = Renderer->CreateYUVFrame(
+                  (float)VideoStream->CodecContext.width(),
+                  (float)VideoStream->CodecContext.height());
+            } else if (frame->Frame.pixelFormat() == AV_PIX_FMT_NV12) {
+              VideoTexture = Renderer->CreateNV12Frame(
+                  (float)VideoStream->CodecContext.width(),
+                  (float)VideoStream->CodecContext.height());
+            }
+          },
+          VideoTexture);
+    }
+
     if (frame->Frame.pixelFormat() == AV_PIX_FMT_NV12) {
       auto& nv12Frame = std::get<NV12Frame*>(VideoTexture);
       nv12Frame->Submit(frame->Frame.data(0), frame->Frame.raw()->linesize[0],
