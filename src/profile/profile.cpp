@@ -9,7 +9,7 @@
 
 #include "basepaths.h"
 #include "gamedefinitions.h"
-#include "userconfig.h"
+#include "../userconfig.h"
 #include "ui/backlogmenu.h"
 #include "dialogue.h"
 #include "configsystem.h"
@@ -243,12 +243,10 @@ void Configure() {
 
   setupScriptPath("basepaths.lua", BasePathsPath);
   setupScriptPath("gamedefinitions.lua", GameDefinitionsPath);
-  setupScriptPath("userconfig.lua", UserConfigPath);
 
   // Order dependent!
   RunLuaScript(BasePathsPath.c_str());
   RunLuaScript(GameDefinitionsPath.c_str());
-  RunLuaScript(UserConfigPath.c_str());
 
   // Push the global onto the stack to load all the values later
   lua_getglobal(LuaState, "root");
@@ -257,13 +255,8 @@ void Configure() {
   GameDefinition::Configure();
   UserConfig::Configure();
 
-  if (!UserConfig::PatchProfileOverride.empty()) {
-    UserConfig::GameSettings.at(UserConfig::ActiveGame).UsePatch = true;
-    UserConfig::GameSettings.at(UserConfig::ActiveGame).PatchProfile =
-        UserConfig::PatchProfileOverride;
-  }
-  auto const& activeGameSettings = UserConfig::ActiveGameSettings();
-  if (BasePaths::RootPatchesDir.empty() && activeGameSettings.UsePatch) {
+  auto activePatch = UserConfig::GetPatchProfile();
+  if (BasePaths::RootPatchesDir.empty() && activePatch) {
     ImpLog(LogLevel::Fatal, LogChannel::Profile,
            "Patch is enabled but no patch directory is specified\n");
     exit(1);
@@ -272,15 +265,14 @@ void Configure() {
 
   std::string const& gameProfilePath = activeGameDef.GameProfile;
   RunLuaScript(gameProfilePath.c_str());
-  if (activeGameSettings.UsePatch) {
-    auto patchProfilePathItr =
-        activeGameDef.Patch.find(activeGameSettings.PatchProfile);
+  if (activePatch) {
+    auto patchProfilePathItr = activeGameDef.Patch.find(*activePatch);
     if (patchProfilePathItr == activeGameDef.Patch.end()) {
       ImpLog(
           LogLevel::Fatal, LogChannel::Profile,
           "Patch is enabled but patch.lua path is missing for patch profile {} "
           "in game {} definition\n",
-          activeGameSettings.PatchProfile, UserConfig::ActiveGame);
+          *activePatch, UserConfig::ActiveGame);
       exit(1);
     }
     RunLuaScript(patchProfilePathItr->second.c_str());

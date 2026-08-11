@@ -10,7 +10,7 @@
 
 #include "../../profile/game.h"
 #include "../../profile/profile.h"
-#include "../../profile/userconfig.h"
+#include "../../userconfig.h"
 
 #ifndef IMPACTO_DISABLE_IMGUI
 #include <imgui_custom/backends/imgui_impl_opengl3.h>
@@ -134,7 +134,7 @@ void GLWindow::TryCreateGL(GraphicsApi api) {
 #if IMPACTO_USE_SDL_HIGHDPI
   windowFlags |= SDL_WINDOW_ALLOW_HIGHDPI;
 #endif
-  auto const& config = Profile::UserConfig::CommonSettings;
+  auto const& config = UserConfig::CommonSettings;
   if (config.Fullscreen) {
     windowFlags |= SDL_WINDOW_FULLSCREEN;
   }

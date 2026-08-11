@@ -4,7 +4,7 @@
 
 #include "ui.h"
 #include "../profile/game.h"
-#include "../profile/userconfig.h"
+#include "../userconfig.h"
 #include "../profile/vm.h"
 #include "../renderer/renderer.h"
 #include "../mem.h"
@@ -243,7 +243,7 @@ void BacklogMenu<EntryType>::UpdateInput(float dt) {
     }
   }
 
-  if (Profile::UserConfig::CommonSettings.CloseBacklogWhenReachedEnd) {
+  if (UserConfig::CommonSettings.CloseBacklogWhenReachedEnd) {
     constexpr float ScrollCloseTimerDuration = 0.2f;
 
     constexpr float epsilon = std::numeric_limits<float>::epsilon();

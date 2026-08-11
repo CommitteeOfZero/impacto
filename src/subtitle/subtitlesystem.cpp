@@ -8,7 +8,7 @@
 #include "../util.h"
 #include "../profile/game.h"
 #include "../profile/profile.h"
-#include "../profile/userconfig.h"
+#include "../userconfig.h"
 #include "../profile/subtitle.h"
 #include "../log.h"
 #include "../io/physicalfilestream.h"
@@ -69,7 +69,7 @@ SubtitlePlayer::SubtitlePlayer(float width, float height) {
 bool SubtitlePlayer::CanAddTrack(
     int trackId, SubtitleType type,
     Profile::Subtitle::SubtitleConfigType config) const {
-  using Profile::UserConfig::CommonSettings;
+  using UserConfig::CommonSettings;
   const auto& backend = Backends[GetBackendIndex(type)];
   if (!backend) {
     ImpLog(LogLevel::Warning, LogChannel::Subtitle,

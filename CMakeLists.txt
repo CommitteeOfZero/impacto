@@ -68,7 +68,7 @@ set(Impacto_Src
     src/profile/profile_internal.cpp
     src/profile/basepaths.cpp
     src/profile/gamedefinitions.cpp
-    src/profile/userconfig.cpp
+    src/userconfig.cpp
     src/profile/game.cpp
     src/profile/patch.cpp
     src/profile/vfs.cpp
@@ -439,7 +439,7 @@ set(Impacto_Header
     src/profile/profile_internal.h
     src/profile/basepaths.h
     src/profile/gamedefinitions.h
-    src/profile/userconfig.h
+    src/userconfig.h
     src/profile/game.h
     src/profile/patch.h
     src/profile/vfs.h
@@ -982,6 +982,14 @@ FetchContent_Declare(
     EXCLUDE_FROM_ALL
 )
 
+FetchContent_Declare(
+    toml11
+    GIT_REPOSITORY https://github.com/ToruNiina/toml11.git
+    GIT_TAG v4.4.0
+    SYSTEM
+    EXCLUDE_FROM_ALL
+)
+
 if (NOT VCPKG_TOOLCHAIN)
     FetchContent_MakeAvailable(fmt)
 endif ()
@@ -1003,6 +1011,7 @@ FetchContent_MakeAvailable(boost_move)
 FetchContent_MakeAvailable(boost_typetraits)
 FetchContent_MakeAvailable(boost_conceptcheck)
 FetchContent_MakeAvailable(boost_circularbuffer)
+FetchContent_MakeAvailable(toml11)
 
 if (NOT DEFINED IMPACTO_DISABLE_MMAP)
     list(APPEND Impacto_Src
@@ -1181,6 +1190,7 @@ list(APPEND Impacto_Libs
         concurrentqueue
         readerwriterqueue
         Boost::circular_buffer
+        toml11::toml11
 )
 
 if (NOT DEFINED IMPACTO_DISABLE_LIBASS)
@@ -1593,7 +1603,6 @@ if (NOT ANDROID)
     install(DIRECTORY profiles DESTINATION .)
     install(FILES basepaths.lua DESTINATION .)
     install(FILES gamedefinitions.lua DESTINATION .)
-    install(FILES userconfig.lua DESTINATION .)
 else()
     install(DIRECTORY src/shaders DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/assets)
     install(DIRECTORY profiles DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/assets)

@@ -6,7 +6,7 @@
 
 #include "../../profile/game.h"
 #include "../../profile/profile.h"
-#include "../../profile/userconfig.h"
+#include "../../userconfig.h"
 
 #include "../../game.h"
 
@@ -82,7 +82,7 @@ void DirectX9Window::Init() {
 #if IMPACTO_USE_SDL_HIGHDPI
   windowFlags |= SDL_WINDOW_ALLOW_HIGHDPI;
 #endif
-  auto const& config = Profile::UserConfig::CommonSettings;
+  auto const& config = UserConfig::CommonSettings;
   if (config.Fullscreen) {
     windowFlags |= SDL_WINDOW_FULLSCREEN;
   }

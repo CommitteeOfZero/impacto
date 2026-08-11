@@ -5,7 +5,6 @@ namespace Profile {
 
 inline std::string BasePathsPath;
 inline std::string GameDefinitionsPath;
-inline std::string UserConfigPath;
 
 void Init();
 void Configure();
