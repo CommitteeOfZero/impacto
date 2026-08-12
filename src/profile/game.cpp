@@ -31,8 +31,6 @@ void Configure() {
 
   ScreenCaptureCount = TryGetMember<size_t>("ScreenCaptureCount").value_or(0);
   TryGetMember<bool>("UseMoviePriority", UseMoviePriority);
-  TryGetMember<bool>("UseBgChaEffects", UseBgChaEffects);
-  TryGetMember<bool>("UseBgFrameEffects", UseBgFrameEffects);
   TryGetMember<bool>("UseWaveEffects", UseWaveEffects);
 
   ActiveAudioBackend =
