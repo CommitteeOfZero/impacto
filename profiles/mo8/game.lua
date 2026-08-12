@@ -6,9 +6,9 @@ root.DesignWidth = 1920;
 root.DesignHeight = 1080;
 
 root.WindowName = "Memories Off -Innocent Fille-";
-root.WindowIconPath = "games/mo8/icondata/icon.png";
-root.CursorArrowPath = "games/mo8/icondata/cursor_arrow.png";
-root.CursorPointerPath = "games/mo8/icondata/cursor_pointer.png";
+root.WindowIconPath = "resources/mo8/icondata/icon.png";
+root.CursorArrowPath = "resources/mo8/icondata/cursor_arrow.png";
+root.CursorPointerPath = "resources/mo8/icondata/cursor_pointer.png";
 
 root.CharaIsMvl = true;
 root.UseMoviePriority = true;

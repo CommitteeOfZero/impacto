@@ -13,7 +13,7 @@ root.Fonts = {
         OutlineSheet = "FontLBOutline",
         ForegroundGridSize = { X = 64, Y = 125 },
         AdvanceWidthsBinary = {
-            Path = "games/cc/font-lb/widths.bin",
+            Path = "resources/cc/font-lb/widths.bin",
             BytesPerGlyph = 1,
             EmWidth = 48,
         },
@@ -22,13 +22,13 @@ root.Fonts = {
 };
 
 root.SpriteSheets["FontLBForeground"] = {
-    Path = "games/cc/font-lb/foreground.png",
+    Path = "resources/cc/font-lb/foreground.png",
     DesignWidth = 3072,
     DesignHeight = 6000
 };
 
 root.SpriteSheets["FontLBOutline"] = {
-    Path = "games/cc/font-lb/outline.png",
+    Path = "resources/cc/font-lb/outline.png",
     DesignWidth = 3648,
     DesignHeight = 7128
 };

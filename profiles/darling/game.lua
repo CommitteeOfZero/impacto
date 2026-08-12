@@ -6,9 +6,9 @@ root.DesignWidth = 1280;
 root.DesignHeight = 720;
 
 root.WindowName = "STEINS;GATE: My Darling's Embrace";
-root.WindowIconPath = "games/darling/icondata/icon.png";
-root.CursorArrowPath = "games/darling/icondata/cursor_arrow.png";
-root.CursorPointerPath = "games/darling/icondata/cursor_pointer.png";
+root.WindowIconPath = "resources/darling/icondata/icon.png";
+root.CursorArrowPath = "resources/darling/icondata/cursor_arrow.png";
+root.CursorPointerPath = "resources/darling/icondata/cursor_pointer.png";
 
 root.CharaIsMvl = false;
 root.LayFileBigEndian = true;

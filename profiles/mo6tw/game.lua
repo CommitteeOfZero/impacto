@@ -6,9 +6,9 @@ root.DesignWidth = 1280;
 root.DesignHeight = 720;
 
 root.WindowName = "Memories Off 6 ~T-Wave~";
-root.WindowIconPath = "games/mo6tw/icondata/icon.png";
-root.CursorArrowPath = "games/mo6tw/icondata/cursor_arrow.png";
-root.CursorPointerPath = "games/mo6tw/icondata/cursor_pointer.png";
+root.WindowIconPath = "resources/mo6tw/icondata/icon.png";
+root.CursorArrowPath = "resources/mo6tw/icondata/cursor_arrow.png";
+root.CursorPointerPath = "resources/mo6tw/icondata/cursor_pointer.png";
 
 root.CharaIsMvl = false;
 root.LayFileBigEndian = true;

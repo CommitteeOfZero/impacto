@@ -240,7 +240,7 @@ jobs:
           mkdir -p "release/ci-release"
           cp impacto.nro "release/ci-release"
           cp -r profiles "release/ci-release"
-          cp -r games "release/ci-release"
+          cp -r resources "release/ci-release"
       - name: Copy Shaders
         run: cp -r src/shaders "release/ci-release"
         shell: bash

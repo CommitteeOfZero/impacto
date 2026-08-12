@@ -1557,7 +1557,7 @@ elseif(APPLE)
     install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src/shaders"
         DESTINATION "Impacto.app/Contents/Resources/"
     )
-    install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/games"
+    install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/resources"
         DESTINATION "Impacto.app/Contents/Resources/"
     )
     install(TARGETS atrac9
@@ -1588,7 +1588,7 @@ endif ()
 if (NOT ANDROID)
     if(NOT APPLE)
         install(DIRECTORY src/shaders DESTINATION .)
-        install(DIRECTORY games DESTINATION .)
+        install(DIRECTORY resources DESTINATION .)
     endif()
     install(DIRECTORY profiles DESTINATION .)
     install(FILES basepaths.lua DESTINATION .)
@@ -1597,7 +1597,7 @@ if (NOT ANDROID)
 else()
     install(DIRECTORY src/shaders DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/assets)
     install(DIRECTORY profiles DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/assets)
-    install(DIRECTORY games DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/assets PATTERN "*/gamedata/*" EXCLUDE)
+    install(DIRECTORY resources DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/assets PATTERN "*/gamedata/*" EXCLUDE)
 endif()
 
 

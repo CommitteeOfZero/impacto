@@ -6,9 +6,9 @@ root.DesignWidth = 1920;
 root.DesignHeight = 1080;
 
 root.WindowName = "CHAOS;CHILD";
-root.WindowIconPath = "games/cc/icondata/icon.png";
-root.CursorArrowPath = "games/cc/icondata/cursor_arrow.png";
-root.CursorPointerPath = "games/cc/icondata/cursor_pointer.png";
+root.WindowIconPath = "resources/cc/icondata/icon.png";
+root.CursorArrowPath = "resources/cc/icondata/cursor_arrow.png";
+root.CursorPointerPath = "resources/cc/icondata/cursor_pointer.png";
 root.UseMoviePriority = true;
 root.UseWaveEffects = true;
 

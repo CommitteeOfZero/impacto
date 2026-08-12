@@ -6,9 +6,9 @@ root.DesignWidth = 1280;
 root.DesignHeight = 720;
 
 root.WindowName = "ROBOTICS;NOTES ELITE";
-root.WindowIconPath = "games/rne/icondata/icon.png";
-root.CursorArrowPath = "games/rne/icondata/cursor_arrow.png";
-root.CursorPointerPath = "games/rne/icondata/cursor_pointer.png";
+root.WindowIconPath = "resources/rne/icondata/icon.png";
+root.CursorArrowPath = "resources/rne/icondata/cursor_arrow.png";
+root.CursorPointerPath = "resources/rne/icondata/cursor_pointer.png";
 
 root.ScreenCaptureCount = 2;
 

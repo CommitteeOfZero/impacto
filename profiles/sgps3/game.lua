@@ -6,9 +6,9 @@ root.DesignWidth = 1280;
 root.DesignHeight = 720;
 
 root.WindowName = "STEINS;GATE";
-root.WindowIconPath = "games/sgps3/icondata/icon.png";
-root.CursorArrowPath = "games/sgps3/icondata/cursor_arrow.png";
-root.CursorPointerPath = "games/sgps3/icondata/cursor_pointer.png";
+root.WindowIconPath = "resources/sgps3/icondata/icon.png";
+root.CursorArrowPath = "resources/sgps3/icondata/cursor_arrow.png";
+root.CursorPointerPath = "resources/sgps3/icondata/cursor_pointer.png";
 
 root.CharaIsMvl = false;
 root.LayFileBigEndian = true;
