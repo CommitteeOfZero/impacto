@@ -104,7 +104,8 @@ void LoadFonts() {
       }
       assert(widthSz % bytesPerGlyph == 0);
 
-      baseFont->AdvanceWidths.reserve(widthSz / bytesPerGlyph);
+      const size_t widthCount = widthSz / bytesPerGlyph;
+      baseFont->AdvanceWidths.reserve(widthCount);
       const auto readEntry = [&](size_t idx) -> uint64_t {
         uint64_t value = 0;
         for (size_t byte = 0; byte < bytesPerGlyph; byte++) {
@@ -113,7 +114,7 @@ void LoadFonts() {
         return value;
       };
 
-      for (uint16_t i = 0; i < widthSz; i++) {
+      for (size_t i = 0; i < widthCount; i++) {
         baseFont->AdvanceWidths.emplace_back(
             static_cast<float>(readEntry(i) + extraLetterSpacing) *
             baseFont->BitmapEmWidth / emWidth);
