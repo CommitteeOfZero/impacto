@@ -291,14 +291,12 @@ struct ExternalFontGlyph {
 
 class ExternalFont {
  public:
-  ExternalFont();
+  ExternalFont(std::string const& path, std::string const& logContext);
   ~ExternalFont();
 
   ExternalFont(ExternalFont const&) = delete;
   ExternalFont& operator=(ExternalFont const&) = delete;
 
-  bool Load(std::string const& path, std::string const& logContext);
-  void Reset();
   bool IsLoaded() const;
 
   std::vector<ExternalFontShapedGlyph> ShapeLine(std::string_view text,
@@ -310,6 +308,8 @@ class ExternalFont {
   static void FreeGlyphTextures(std::vector<ExternalFontGlyph>& glyphs);
 
  private:
+  void Reset();
+
   struct Impl;
   Impl* FontImpl;
 };

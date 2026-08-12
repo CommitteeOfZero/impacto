@@ -12,6 +12,8 @@
 #include "../texture/texture.h"
 
 #include <algorithm>
+#include <cassert>
+#include <optional>
 #include <queue>
 #include <string>
 #include <vector>
@@ -20,14 +22,14 @@ namespace Impacto {
 namespace AchievementNotification {
 
 static Sprite BackgroundSprite;
-static ExternalFont NotificationFont;
+static std::optional<ExternalFont> NotificationFont;
 static std::vector<ExternalFontGlyph> TextGlyphs;
 static Animation FadeAnimation;
 static float DisplayTimer = 0.0f;
-static int CurrentAchievementId = -1;
+static std::optional<int> CurrentAchievementId;
 static bool IsConfigured = false;
 static bool TextConfigured = false;
-static std::queue<uint32_t> NotificationQueue;
+static std::queue<int> NotificationQueue;
 
 using namespace Profile::AchievementNotification;
 
@@ -73,29 +75,29 @@ static void BuildTextLine(std::string const& text, float fontSize, float left,
                           uint32_t color) {
   float width = 0.0f;
   std::vector<ExternalFontShapedGlyph> glyphs =
-      NotificationFont.ShapeLine(text, fontSize, width);
+      NotificationFont->ShapeLine(text, fontSize, width);
   if (glyphs.empty()) return;
 
   float finalFontSize = fontSize;
   if (width > availableWidth && width > 0.0f) {
     finalFontSize *= availableWidth / width;
-    glyphs = NotificationFont.ShapeLine(text, finalFontSize, width);
+    glyphs = NotificationFont->ShapeLine(text, finalFontSize, width);
   }
 
   const glm::vec4 textTint = RgbIntToFloat(color);
   const glm::vec4 outlineTint = RgbIntToFloat(OutlineColor);
 
-  NotificationFont.RenderShapedLine(glyphs, finalFontSize,
-                                    {left + 1.0f, baselineY + 1.0f},
-                                    outlineTint, TextGlyphs);
-  NotificationFont.RenderShapedLine(glyphs, finalFontSize, {left, baselineY},
-                                    textTint, TextGlyphs);
+  NotificationFont->RenderShapedLine(glyphs, finalFontSize,
+                                     {left + 1.0f, baselineY + 1.0f},
+                                     outlineTint, TextGlyphs);
+  NotificationFont->RenderShapedLine(glyphs, finalFontSize, {left, baselineY},
+                                     textTint, TextGlyphs);
 }
 
 static void BuildTextGlyphs(AchievementSystem::Achievement const* achievement,
                             int achievementId) {
   FreeTextGlyphs();
-  if (!TextConfigured || !NotificationFont.IsLoaded()) return;
+  assert(TextConfigured);
 
   std::string title = achievement != nullptr ? achievement->Name() : "";
   std::string description =
@@ -131,12 +133,12 @@ static void BuildTextGlyphs(AchievementSystem::Achievement const* achievement,
 static void StartNextNotification() {
   if (NotificationQueue.empty()) return;
 
-  CurrentAchievementId = static_cast<int>(NotificationQueue.front());
+  CurrentAchievementId = NotificationQueue.front();
   NotificationQueue.pop();
 
   const AchievementSystem::Achievement* achievement =
-      AchievementSystem::GetAchievement(CurrentAchievementId);
-  BuildTextGlyphs(achievement, CurrentAchievementId);
+      AchievementSystem::GetAchievement(*CurrentAchievementId);
+  BuildTextGlyphs(achievement, *CurrentAchievementId);
 
   DisplayTimer = DisplayDuration;
   IsShowing = true;
@@ -145,7 +147,8 @@ static void StartNextNotification() {
 
 void Init() {
   FreeTextGlyphs();
-  NotificationFont.Reset();
+  NotificationFont.reset();
+  TextConfigured = false;
 
   Configure();
 
@@ -156,8 +159,8 @@ void Init() {
   if (!LoadBackground(BackgroundPath)) return;
 
   if (!FontPath.empty()) {
-    TextConfigured =
-        NotificationFont.Load(FontPath, "achievement notification font");
+    NotificationFont.emplace(FontPath, "achievement notification font");
+    TextConfigured = NotificationFont->IsLoaded();
   } else {
     ImpLog(LogLevel::Warning, LogChannel::Profile,
            "Achievement notification font path is not configured\n");
@@ -167,7 +170,7 @@ void Init() {
 }
 
 void Update(float dt) {
-  if (!IsConfigured) return;
+  assert(IsConfigured);
 
   FadeAnimation.Update(dt);
 
@@ -185,7 +188,8 @@ void Update(float dt) {
 }
 
 void Render() {
-  if (!IsConfigured || FadeAnimation.IsOut()) return;
+  assert(IsConfigured);
+  if (FadeAnimation.IsOut()) return;
 
   glm::vec4 tint(1.0f);
   tint.a = glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
@@ -201,7 +205,9 @@ void Render() {
                        tint);
 
   const AchievementSystem::Achievement* achievement =
-      AchievementSystem::GetAchievement(CurrentAchievementId);
+      CurrentAchievementId.has_value()
+          ? AchievementSystem::GetAchievement(*CurrentAchievementId)
+          : nullptr;
   if (achievement != nullptr && achievement->Icon().ScaledWidth() > 0.0f &&
       achievement->Icon().ScaledHeight() > 0.0f) {
     const Sprite& icon = achievement->Icon();
@@ -224,7 +230,7 @@ void Render() {
 }
 
 void Show(int achievementId) {
-  if (!IsConfigured) return;
+  assert(IsConfigured);
 
   NotificationQueue.push(achievementId);
   if (!IsShowing && FadeAnimation.IsOut()) {

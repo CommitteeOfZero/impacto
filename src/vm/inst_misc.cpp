@@ -55,11 +55,11 @@ VmInstruction(InstSetAchievement) {
   StartInstruction;
   PopUint8(type);
   if (type == 1) {
-    PopExpression(arg1);
-    AchievementNotification::Show(arg1);
+    PopExpression(achievementId);
+    AchievementNotification::Show(achievementId);
     ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                "STUB instruction Achievement(type: {:d}, arg1: {:d})\n", type,
-               arg1);
+               achievementId);
   } else {
     AchievementNotification::Show(type);
     ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,

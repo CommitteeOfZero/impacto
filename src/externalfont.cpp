@@ -11,6 +11,7 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
+#include <cassert>
 #include <cmath>
 #include <cstring>
 #include <memory>
@@ -43,23 +44,15 @@ struct ExternalFont::Impl {
   std::vector<uint8_t> FontData;
 };
 
-ExternalFont::ExternalFont() : FontImpl(new Impl()) {}
-
-ExternalFont::~ExternalFont() {
-  Reset();
-  delete FontImpl;
-}
-
-bool ExternalFont::Load(std::string const& path,
-                        std::string const& logContext) {
-  Reset();
-
+ExternalFont::ExternalFont(std::string const& path,
+                           std::string const& logContext)
+    : FontImpl(new Impl()) {
   Io::Stream* stream = nullptr;
   IoError err = Io::PhysicalFileStream::Create(path, &stream);
   if (err != IoError_OK) {
     ImpLog(LogLevel::Error, LogChannel::Profile, "Could not open {:s} {:s}\n",
            logContext, path);
-    return false;
+    return;
   }
 
   FontImpl->FontData.resize(stream->Meta.Size);
@@ -71,7 +64,7 @@ bool ExternalFont::Load(std::string const& path,
     ImpLog(LogLevel::Error, LogChannel::Profile, "Could not read {:s} {:s}\n",
            logContext, path);
     Reset();
-    return false;
+    return;
   }
 
   FT_Library ftLibrary = nullptr;
@@ -79,7 +72,7 @@ bool ExternalFont::Load(std::string const& path,
     ImpLog(LogLevel::Error, LogChannel::Profile,
            "Could not initialize FreeType for {:s}\n", logContext);
     Reset();
-    return false;
+    return;
   }
   FontImpl->FreeTypeLibrary.reset(ftLibrary);
 
@@ -90,7 +83,7 @@ bool ExternalFont::Load(std::string const& path,
     ImpLog(LogLevel::Error, LogChannel::Profile, "Could not load {:s} {:s}\n",
            logContext, path);
     Reset();
-    return false;
+    return;
   }
   FontImpl->FontFace.reset(face);
 
@@ -100,10 +93,12 @@ bool ExternalFont::Load(std::string const& path,
     ImpLog(LogLevel::Error, LogChannel::Profile,
            "Could not initialize HarfBuzz for {:s}\n", logContext);
     Reset();
-    return false;
   }
+}
 
-  return true;
+ExternalFont::~ExternalFont() {
+  Reset();
+  delete FontImpl;
 }
 
 void ExternalFont::Reset() {
@@ -120,7 +115,8 @@ bool ExternalFont::IsLoaded() const {
 std::vector<ExternalFontShapedGlyph> ExternalFont::ShapeLine(
     std::string_view text, float fontSize, float& width) {
   width = 0.0f;
-  if (text.empty() || !IsLoaded()) return {};
+  if (text.empty()) return {};
+  assert(IsLoaded());
 
   FT_Set_Pixel_Sizes(FontImpl->FontFace.get(), 0,
                      static_cast<FT_UInt>(std::round(fontSize)));
@@ -159,20 +155,25 @@ void ExternalFont::RenderShapedLine(
     std::span<const ExternalFontShapedGlyph> glyphs, float fontSize,
     glm::vec2 origin, glm::vec4 tint,
     std::vector<ExternalFontGlyph>& outGlyphs) {
-  if (!IsLoaded()) return;
+  assert(IsLoaded());
 
   FT_Set_Pixel_Sizes(FontImpl->FontFace.get(), 0,
                      static_cast<FT_UInt>(std::round(fontSize)));
 
   glm::vec2 pen = origin;
+  outGlyphs.reserve(outGlyphs.size() + glyphs.size());
   for (ExternalFontShapedGlyph const& glyph : glyphs) {
     if (FT_Load_Glyph(FontImpl->FontFace.get(), glyph.GlyphIndex,
                       FT_LOAD_DEFAULT) != 0) {
+      ImpLog(LogLevel::Warning, LogChannel::Profile,
+             "Could not load glyph {:d}\n", glyph.GlyphIndex);
       pen += glyph.Advance;
       continue;
     }
     if (FT_Render_Glyph(FontImpl->FontFace.get()->glyph,
                         FT_RENDER_MODE_NORMAL) != 0) {
+      ImpLog(LogLevel::Warning, LogChannel::Profile,
+             "Could not render glyph {:d}\n", glyph.GlyphIndex);
       pen += glyph.Advance;
       continue;
     }
