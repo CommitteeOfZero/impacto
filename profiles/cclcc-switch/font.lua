@@ -1,0 +1,31 @@
+root.Fonts = {
+    ["LanguageBarrier"] = {
+        Type = FontType.LanguageBarrier,
+        ForegroundSheet = "FontLBForeground",
+        OutlineSheet = "FontLBOutline",
+        ForegroundGridSize = { X = 64, Y = 125 },
+        AdvanceWidthsBinary = {
+            Path = "games/cclcc/font-lb-italic/widths.bin",
+            BytesPerGlyph = 1,
+            EmWidth = 48,
+        },
+        ForegroundOffset = { X = -13, Y = -13 },
+        OutlineOffset = { X = -13, Y = -13 },
+        BitmapEmWidth = 48,
+        BitmapEmHeight = 48,
+        ForegroundOpacityCurve = OpacityCurve.Smoothstep,
+        OutlineOpacityCurve = OpacityCurve.Smoothstep,
+    }
+};
+
+root.SpriteSheets["FontLBForeground"] = {
+    Path = "games/cclcc/font-lb-italic/foreground.png",
+    DesignWidth = 4096,
+    DesignHeight = 8000
+};
+
+root.SpriteSheets["FontLBOutline"] = {
+    Path = "games/cclcc/font-lb-italic/outline.png",
+    DesignWidth = 4096,
+    DesignHeight = 8000
+};
