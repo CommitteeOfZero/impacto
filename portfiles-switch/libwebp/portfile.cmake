@@ -1,0 +1,4 @@
+file(INSTALL "${CMAKE_CURRENT_LIST_DIR}/WebPConfig.cmake"
+     DESTINATION "${CURRENT_PACKAGES_DIR}/share/webp")
+
+set(VCPKG_POLICY_EMPTY_PACKAGE enabled)

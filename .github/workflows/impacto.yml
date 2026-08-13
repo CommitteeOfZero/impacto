@@ -228,29 +228,43 @@ jobs:
       image: ghcr.io/committeeofzero/impacto-switch:latest
     env:
       VERSION: ${{ needs.get-version.outputs.VERSION }}
+      PresetName: ci-release-switch
+      vcpkgCommitId: '62159a45e18f3a9ac0548628dcaf74fcb60c6ff9'
     steps:
       - uses: actions/checkout@v6
         with:
           ref: ${{ needs.lint.outputs.commitid }}
-      - name: Run build
-        run: |-
-          cmake . -DCMAKE_TOOLCHAIN_FILE=HorizonNX.toolchain
-          make -j2
-          elf2nro impacto impacto.nro
-          mkdir -p "release/ci-release"
-          cp impacto.nro "release/ci-release"
-          cp -r profiles "release/ci-release"
-          cp -r resources "release/ci-release"
-      - name: Copy Shaders
-        run: cp -r src/shaders "release/ci-release"
+
+      - uses: lukka/get-cmake@latest
+
+      - name: Setup vcpkg
+        uses: lukka/run-vcpkg@v11
+        id: runvcpkg
+        with:
+          vcpkgDirectory: '${{ runner.workspace }}/build/vcpkg'
+          vcpkgGitCommitId: '${{ env.vcpkgCommitId }}'
+          vcpkgJsonGlob: '**/vcpkg.json'
+
+      - name: Run CMake with vcpkg.json manifest
+        uses: lukka/run-cmake@v10
+        with:
+          cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
+          configurePreset: ${{ env.PresetName }}
+          buildPreset: ${{ env.PresetName }}
+
+      - name: Package NRO
+        run: |
+          elf2nro "release/${{ env.PresetName }}/impacto" "release/${{ env.PresetName }}/impacto.nro"
         shell: bash
+
       - name: Copy docs
         run: |
-          cp THIRDPARTY.md README.md LICENSE "release/ci-release"
+          cp THIRDPARTY.md README.md LICENSE "release/${{ env.PresetName }}"
         shell: bash
+
       - name: Archive Artifacts
         run: |
-          mv ./release/ci-release ./release/impacto
+          mv ./release/${{ env.PresetName }} ./release/impacto
           7z a -tzip -mm=Deflate -mx=9 impacto-switch-${{ env.VERSION }}${{ github.run_number }}-${{ github.sha }}.zip ./release/impacto
       - name: Upload Artifact
         uses: actions/upload-artifact@v7

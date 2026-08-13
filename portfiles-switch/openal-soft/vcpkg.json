@@ -1,0 +1,5 @@
+{
+  "name": "openal-soft",
+  "version": "1.23.1",
+  "description": "Empty overlay for the Switch build: OpenAL Soft is provided by devkitPro and resolved via find_package(OpenAL)."
+}

@@ -1,0 +1,4 @@
+file(INSTALL "${CMAKE_CURRENT_LIST_DIR}/OggConfig.cmake"
+     DESTINATION "${CURRENT_PACKAGES_DIR}/share/ogg")
+
+set(VCPKG_POLICY_EMPTY_PACKAGE enabled)
