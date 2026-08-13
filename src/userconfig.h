@@ -6,14 +6,15 @@
 
 namespace Impacto::UserConfig {
 struct GameConfig {
+  std::optional<int> ResolutionWidth;
+  std::optional<int> ResolutionHeight;
   std::string PatchProfile;
   bool UsePatch;
+  bool Fullscreen = false;
 };
 struct Config {
   int ResolutionWidth = 1280;
   int ResolutionHeight = 720;
-  bool UseNativeGameResolution = false;
-  bool Fullscreen = false;
 
   Profile::Subtitle::SubtitleConfigType SubtitleConfig =
       Profile::Subtitle::SubtitleConfigType::All;

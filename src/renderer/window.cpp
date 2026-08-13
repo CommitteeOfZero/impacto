@@ -2,6 +2,8 @@
 #include "../io/assetpath.h"
 #include "../profile/game.h"
 #include "../log.h"
+#include "../userconfig.h"
+#include "../profile/gamedefinitions.h"
 #include <stb_image.h>
 #include <memory>
 #include <vector>
@@ -202,4 +204,95 @@ void ApplyCursorForFrame() {
   }
 }
 
+void BaseWindow::CreateSDLWindow(Uint32 flags) {
+  const SDL_Rect bounds = [flags] {
+    SDL_Rect result{};
+    bool haveBounds;
+    if (flags & SDL_WINDOW_FULLSCREEN) {
+      haveBounds = SDL_GetDisplayBounds(0, &result) == 0;
+    } else {
+      haveBounds = SDL_GetDisplayUsableBounds(0, &result) == 0;
+    }
+    if (!haveBounds) {
+      ImpLog(LogLevel::Error, LogChannel::Render,
+             "Failed to get display bounds: {}.\n", SDL_GetError());
+      throw std::runtime_error("Failed to get display info.");
+    }
+    return result;
+  }();
+
+  auto clampAspectRatio = [this](int boundW, int boundH) {
+    if (WindowWidth > boundW || WindowHeight > boundH) {
+      const float aspect =
+          static_cast<float>(WindowWidth) / static_cast<float>(WindowHeight);
+      int fitW = boundW;
+      int fitH = static_cast<int>(boundW / aspect);
+      if (fitH > boundH) {
+        fitH = boundH;
+        fitW = static_cast<int>(boundH * aspect);
+      }
+      WindowWidth = fitW;
+      WindowHeight = fitH;
+    }
+  };
+
+  auto const& config = UserConfig::CommonSettings;
+  WindowWidth = config.ResolutionWidth;
+  WindowHeight = config.ResolutionHeight;
+
+  if (!UserConfig::ActiveGame.empty()) {
+    auto const& gameConfig = UserConfig::ActiveGameSettings();
+
+    if (gameConfig.ResolutionHeight.has_value() ^
+        gameConfig.ResolutionHeight.has_value()) {
+      ImpLog(LogLevel::Warning, LogChannel::Render,
+             "Only one of Resolution Height or Resolution Width is configured, "
+             "defaulting to game resolution.");
+    }
+    if (gameConfig.ResolutionWidth && gameConfig.ResolutionHeight) {
+      WindowWidth = *gameConfig.ResolutionWidth;
+      WindowHeight = *gameConfig.ResolutionHeight;
+    } else {
+      WindowWidth = static_cast<int>(Profile::Game::DesignWidth);
+      WindowHeight = static_cast<int>(Profile::Game::DesignHeight);
+    }
+    if (gameConfig.Fullscreen) {
+      flags |= SDL_WINDOW_FULLSCREEN;
+      clampAspectRatio(bounds.w, bounds.h);
+    }
+  }
+
+  flags |= SDL_WINDOW_HIDDEN;
+  SDLWindow = SDL_CreateWindow(Profile::Game::WindowName,
+                               SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+                               WindowWidth, WindowHeight, flags);
+  if (SDLWindow == NULL) {
+    ImpLog(LogLevel::Error, LogChannel::General,
+           "Window creation failed: {:s}\n", SDL_GetError());
+    throw std::runtime_error("Failed to create window");
+  }
+  SDL_GetWindowSize(SDLWindow, &WindowWidth, &WindowHeight);
+
+  if ((flags & SDL_WINDOW_FULLSCREEN) == 0) {
+    int top, left, bottom, right;
+
+    if (SDL_GetWindowBordersSize(SDLWindow, &top, &left, &bottom, &right) ==
+        0) {
+      const int targetWidth = bounds.w - (left + right);
+      const int targetHeight = bounds.h - (top + bottom);
+      clampAspectRatio(targetWidth, targetHeight);
+      const int posX = bounds.x + left + (targetWidth - WindowWidth) / 2;
+      const int posY = bounds.y + top + (targetHeight - WindowHeight) / 2;
+
+      SDL_SetWindowSize(SDLWindow, WindowWidth, WindowHeight);
+      SDL_SetWindowPosition(SDLWindow, posX, posY);
+    }
+  }
+
+  ImpLog(LogLevel::Debug, LogChannel::General,
+         "Window size (screen coords): {:d} x {:d}\n", WindowWidth,
+         WindowHeight);
+  SDL_ShowWindow(SDLWindow);
+  SDL_GetWindowSize(SDLWindow, &WindowWidth, &WindowHeight);
+}
 }  // namespace Impacto

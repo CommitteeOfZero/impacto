@@ -53,6 +53,7 @@ class BaseWindow {
   bool WindowDimensionsChanged;
 
  protected:
+  void CreateSDLWindow(Uint32 flags);
   virtual void UpdateDimensions() = 0;
   bool IsInit = false;
 

@@ -6,6 +6,7 @@
 #include "io/physicalfilestream.h"
 #include "profile/gamedefinitions.h"
 #include "log.h"
+#include "util.h"
 
 namespace toml {
 using Impacto::UserConfig::Config;
@@ -14,7 +15,6 @@ using Impacto::UserConfig::GameConfig;
 static bool AssignIfExists(toml::value const& v, std::string const& configKey,
                            auto& member) {
   using MemberType = std::decay_t<decltype(member)>;
-
   using namespace Impacto;
 
   bool exists = false;
@@ -56,13 +56,25 @@ static bool AssignIfExists(toml::value const& v, std::string const& configKey,
   return exists;
 };
 
+template <typename T>
+bool AssignIfExists(const toml::value& config, const std::string& name,
+                    std::optional<T>& member) {
+  T value;
+  if (!AssignIfExists(config, name, value)) return false;
+
+  member = std::move(value);
+  return true;
+}
+
 template <>
 struct from<GameConfig> {
   static GameConfig from_toml(const toml::value& v) {
     GameConfig gameConfig;
+    AssignIfExists(v, "ResolutionWidth", gameConfig.ResolutionWidth);
+    AssignIfExists(v, "ResolutionHeight", gameConfig.ResolutionHeight);
+    AssignIfExists(v, "FullScreen", gameConfig.Fullscreen);
     AssignIfExists(v, "UsePatch", gameConfig.UsePatch);
     AssignIfExists(v, "PatchProfile", gameConfig.PatchProfile);
-
     return gameConfig;
   }
 };
@@ -72,9 +84,6 @@ struct from<Config> {
     Config config;
     AssignIfExists(v, "ResolutionWidth", config.ResolutionWidth);
     AssignIfExists(v, "ResolutionHeight", config.ResolutionHeight);
-    AssignIfExists(v, "UseNativeGameResolution",
-                   config.UseNativeGameResolution);
-    AssignIfExists(v, "FullScreen", config.Fullscreen);
     AssignIfExists(v, "SubtitleConfig", config.SubtitleConfig);
     AssignIfExists(v, "CloseBacklogWhenReachedEnd",
                    config.CloseBacklogWhenReachedEnd);
@@ -90,10 +99,15 @@ struct into<GameConfig> {
     using value_type = toml::basic_value<TC>;
     using table_type = typename value_type::table_type;
 
-    return value_type(table_type{
+    auto table = table_type{
         {"UsePatch", f.UsePatch},
         {"PatchProfile", f.PatchProfile},
-    });
+        {"FullScreen", f.Fullscreen},
+    };
+
+    if (f.ResolutionWidth) table["ResolutionWidth"] = *f.ResolutionWidth;
+    if (f.ResolutionHeight) table["ResolutionHeight"] = *f.ResolutionHeight;
+    return value_type(std::move(table));
   }
 };
 template <>
@@ -105,9 +119,7 @@ struct into<Config> {
 
     return value_type(table_type{
         {"ResolutionWidth", config.ResolutionWidth},
-        {"ResolutionHeight", config.ResolutionWidth},
-        {"UseNativeGameResolution", config.UseNativeGameResolution},
-        {"FullScreen", config.Fullscreen},
+        {"ResolutionHeight", config.ResolutionHeight},
         {"SubtitleConfig", magic_enum::enum_flags_name(config.SubtitleConfig)},
         {"CloseBacklogWhenReachedEnd", config.CloseBacklogWhenReachedEnd},
     });
@@ -185,7 +197,7 @@ void Configure() {
   WriteUserConfig();
 };
 
-GameConfig& ActiveGameSettings() { return GameSettings.at(ActiveGame); }
+GameConfig& ActiveGameSettings() { return GameSettings[ActiveGame]; }
 
 std::optional<std::string_view> GetPatchProfile() {
   if (!PatchProfileOverride.empty()) {
@@ -207,7 +219,8 @@ void WriteUserConfig() {
   std::string fileContents(userConfigFile->Meta.Size, '\0');
   userConfigFile->Read(fileContents.data(), userConfigFile->Meta.Size);
 
-  auto parseResult = toml::try_parse_str(fileContents);
+  auto parseResult =
+      toml::try_parse_str<toml::ordered_type_config>(fileContents);
   if (parseResult.is_err()) {
     ImpLog(LogLevel::Fatal, LogChannel::Config,
            "Error parsing user config: \n");
