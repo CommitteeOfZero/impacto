@@ -833,6 +833,10 @@ endif()
 
 if(NX)
     add_compile_definitions(__SWITCH__)
+
+    if (VCPKG_TOOLCHAIN)
+        set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE BOTH)
+    endif()
 endif()
 
 # dependencies
@@ -1136,40 +1140,29 @@ else ()
         "$<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>"
         "$<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>"
     )
+    find_package(Ogg CONFIG REQUIRED)
+    find_package(Vorbis CONFIG REQUIRED)
+    find_package(WebP CONFIG REQUIRED)
+
+    list(APPEND Impacto_Libs
+        ${SDL2_LIBRARIES}
+        ZLIB::ZLIB
+        WebP::webp WebP::webpdecoder WebP::webpdemux
+        Ogg::ogg
+        Vorbis::vorbis
+        Vorbis::vorbisfile
+    )
+
     if (NX)
-        pkg_check_modules(ogg REQUIRED IMPORTED_TARGET ogg)
-        pkg_check_modules(vorbis REQUIRED IMPORTED_TARGET vorbis)
-        pkg_check_modules(vorbisfile REQUIRED IMPORTED_TARGET vorbisfile)
-        pkg_check_modules(libwebp REQUIRED IMPORTED_TARGET libwebp)
         list(APPEND Impacto_Libs
-            ${SDL2_LIBRARIES}
-            ZLIB::ZLIB
-            PkgConfig::vorbisfile
-            PkgConfig::vorbis
-            PkgConfig::ogg
-            PkgConfig::libwebp
             EGL
             glapi
             drm_nouveau
             nx
         )
-        add_definitions(-DIMPACTO_OPENAL_HAVE_ALEXT)
-    else ()
-        find_package(Ogg CONFIG REQUIRED)
-        find_package(Vorbis CONFIG REQUIRED)
-        find_package(WebP CONFIG REQUIRED)
-
-        list(APPEND Impacto_Libs
-            ${SDL2_LIBRARIES}
-            ZLIB::ZLIB
-            WebP::webp WebP::webpdecoder WebP::webpdemux
-            Ogg::ogg
-            Vorbis::vorbis
-            Vorbis::vorbisfile
-        )
-
-        add_definitions(-DIMPACTO_OPENAL_HAVE_ALEXT)
     endif ()
+
+    add_definitions(-DIMPACTO_OPENAL_HAVE_ALEXT)
 endif ()
 
 list(APPEND Impacto_Include_Dirs ${SDL2_INCLUDE_DIRS})
@@ -1305,48 +1298,17 @@ if (NOT DEFINED IMPACTO_DISABLE_FFMPEG)
         src/subtitle/ffmpegsubtitlehelper.h
     )
 
-    if (NOT VCPKG_TOOLCHAIN)
-        if(NOT BUILD_SHARED_LIBS)
-            set(AV_ENABLE_SHARED OFF CACHE BOOL "Enable shared library build (Off)" FORCE)            
-        endif()
-        set(AV_DISABLE_AVDEVICE ON CACHE INTERNAL "Disable FFMPEG AVDevice")
-        set(AV_DISABLE_AVFILTER ON CACHE INTERNAL "Disable FFMPEG AVFilter")
-        set(AV_BUILD_EXAMPLES OFF CACHE INTERNAL "Build AVCPP Examples")
-        FetchContent_Declare(
-            avcpp
-            GIT_REPOSITORY "https://github.com/h4tr3d/avcpp"
-            GIT_TAG "6bf8c76b120cf2cc448d706ea22f112017803605"
-            SYSTEM
-            GIT_SUBMODULES ""
-            PATCH_COMMAND ${AVCPP_PATCH}
-            UPDATE_DISCONNECTED 1
-        )
 
-        FetchContent_MakeAvailable(avcpp)
-        pkg_check_modules(FFmpeg REQUIRED IMPORTED_TARGET 
-            libavcodec 
-            libavutil 
-            libswscale
-            libswresample
-            libavformat 
-        )
+    find_package(FFMPEG REQUIRED)
+    list(APPEND Impacto_Include_Dirs ${FFMPEG_INCLUDE_DIRS})
+    list(APPEND Impacto_Libs ${FFMPEG_LIBRARIES})
 
-        list(APPEND Impacto_Libs
-            avcpp
-            PkgConfig::FFmpeg
-        )
-    else ()
-        find_package(FFMPEG REQUIRED)
-        list(APPEND Impacto_Include_Dirs ${FFMPEG_INCLUDE_DIRS})
-        list(APPEND Impacto_Libs ${FFMPEG_LIBRARIES})
-
-        find_package(avcpp CONFIG REQUIRED)
-        list(APPEND Impacto_Libs
-            avcpp::avcpp
-            avcpp::FFmpeg
-        )
+    find_package(avcpp CONFIG REQUIRED)
+    list(APPEND Impacto_Libs
+        avcpp::avcpp
+        avcpp::FFmpeg
+    )
         
-    endif ()
     list(APPEND Impacto_Include_Dirs ${FFMPEG_INCLUDE_DIRS})
     list(APPEND Impacto_Libs ${FFMPEG_LIBRARIES})
     pkg_check_modules(dav1d REQUIRED IMPORTED_TARGET dav1d)
