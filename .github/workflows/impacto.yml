@@ -224,12 +224,19 @@ jobs:
       - get-version
     permissions:
       contents: read
+      packages: write
     container:
       image: ghcr.io/committeeofzero/impacto-switch:latest
     env:
       VERSION: ${{ needs.get-version.outputs.VERSION }}
       PresetName: ci-release-switch
       vcpkgCommitId: '62159a45e18f3a9ac0548628dcaf74fcb60c6ff9'
+      VCPKG_FORCE_DOWNLOADED_BINARIES: 1
+      VCPKG_BINARY_SOURCES: >-
+        ${{ github.event_name == 'pull_request_target' &&
+            (github.event.pull_request.head.repo.full_name != github.repository)
+            && 'clear;nuget,https://nuget.pkg.github.com/committeeofzero/index.json,read'
+            || 'clear;nuget,https://nuget.pkg.github.com/committeeofzero/index.json,readwrite' }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -244,6 +251,29 @@ jobs:
           vcpkgDirectory: '${{ runner.workspace }}/build/vcpkg'
           vcpkgGitCommitId: '${{ env.vcpkgCommitId }}'
           vcpkgJsonGlob: '**/vcpkg.json'
+
+      - name: Configure NuGet feed via vcpkg
+        shell: bash
+        env:
+          FEED_URL: 'https://nuget.pkg.github.com/committeeofzero/index.json'
+        run: |
+          NUGET_PATH=$(vcpkg fetch nuget | tail -n 1)
+
+          if [[ "$NUGET_PATH" == *.exe && "$RUNNER_OS" != "Windows" ]]; then
+            EXEC=(mono "$NUGET_PATH")
+          else
+            EXEC=("$NUGET_PATH")
+          fi
+
+          "${EXEC[@]}" sources add \
+            -Source "${{ env.FEED_URL }}" \
+            -StorePasswordInClearText \
+            -Name GitHubPackages \
+            -UserName "GithubCI" \
+            -Password "${{ github.token }}"
+
+          "${EXEC[@]}" setapikey "${{ github.token }}" \
+            -Source "${{ env.FEED_URL }}"
 
       - name: Run CMake with vcpkg.json manifest
         uses: lukka/run-cmake@v10
