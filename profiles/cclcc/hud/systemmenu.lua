@@ -2,8 +2,8 @@ root.SystemMenu = {
     Type = SystemMenuType.CCLCC,
     DrawType = DrawComponentType.SystemMenu,
 
-    FadeInDuration = 40 / 60,
-    FadeOutDuration = 40 / 60,
+    FadeInDuration = 32 / 60,
+    FadeOutDuration = 32 / 60,
 
     FadeInDirectDuration = 16 / 60;
     FadeOutDirectDuration = 16 / 60;
