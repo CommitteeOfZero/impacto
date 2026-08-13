@@ -57,11 +57,6 @@ void SystemMenu::UpdateInput(float dt) {
 SystemMenu::SystemMenu() : CommonMenu(FadeAnimation) {
   CommonMenu::Init();
 
-  MenuTransition.Direction = AnimationDirection::In;
-  MenuTransition.LoopMode = AnimationLoopMode::Stop;
-  MenuTransition.DurationIn = MoveInDuration;
-  MenuTransition.DurationOut = MoveOutDuration;
-
   ItemsFade.Direction = AnimationDirection::In;
   ItemsFade.LoopMode = AnimationLoopMode::Stop;
   ItemsFade.DurationIn = ItemsFadeInDuration;
@@ -98,7 +93,6 @@ void SystemMenu::Show() {
     State = Showing;
 
     CommonMenu::OnShow(FadeInDuration, FadeOutDuration, FadeAnimation);
-    MenuTransition.StartIn();
     FadeAnimation.StartIn();
     // If the function was called due to a submenu opening directly,
     // then don't take over focus
@@ -132,7 +126,6 @@ void SystemMenu::Hide() {
     }
     State = Hiding;
     FadeAnimation.StartOut();
-    MenuTransition.StartOut();
     ItemsFade.StartOut();
     if (LastFocusedMenu != 0) {
       UI::FocusedMenu = LastFocusedMenu;
@@ -163,15 +156,14 @@ void SystemMenu::Update(float dt) {
     State = Shown;
     return;
   }
-  if (State == Hiding && FadeAnimation.IsOut() && MenuTransition.IsOut() &&
-      ItemsFade.IsOut() && ScrWork[SW_SYSMENUCT] == 0) {
+  if (State == Hiding && FadeAnimation.IsOut() && ItemsFade.IsOut() &&
+      ScrWork[SW_SYSMENUCT] == 0) {
     State = Hidden;
     MainItems->Hide();
     return;
   }
 
   if (State != Hidden) {
-    MenuTransition.Update(dt);
     FadeAnimation.Update(dt);
     if (ItemsFade.IsIn() && ScrWork[SW_SYSSUBMENUCT] > 0 && State == Shown &&
         ItemsFadeComplete) {

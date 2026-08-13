@@ -28,7 +28,6 @@ class SystemMenu : public Menu, public CommonMenu {
 
  private:
   Widgets::Group* MainItems;
-  Animation MenuTransition;
   Animation FadeAnimation;
   Animation ItemsFade;
   bool ItemsFadeComplete = false;

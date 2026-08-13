@@ -12,8 +12,6 @@ namespace CCLCC {
 namespace SystemMenu {
 
 void Configure() {
-  MoveInDuration = EnsureGetMember<float>("MoveInDuration");
-  MoveOutDuration = EnsureGetMember<float>("MoveOutDuration");
   ItemsFadeInDuration = EnsureGetMember<float>("ItemsFadeInDuration");
   ItemsFadeOutDuration = EnsureGetMember<float>("ItemsFadeOutDuration");
   FadeInDirectDuration = EnsureGetMember<float>("FadeInDirectDuration");

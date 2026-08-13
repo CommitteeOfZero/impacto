@@ -8,9 +8,6 @@ root.SystemMenu = {
     FadeInDirectDuration = 16 / 60;
     FadeOutDirectDuration = 16 / 60;
 
-    MoveInDuration = 40 / 60,
-    MoveOutDuration = 28 / 60,
-
     ItemsFadeInDuration = 32 / 60,
     ItemsFadeOutDuration = 32 / 60,
 
