@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include <utf8.h>
+#include <utf8cpp/utf8.h>
 
 #include "../log.h"
 #include "../animation.h"

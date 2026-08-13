@@ -41,7 +41,15 @@
     },
     "libwebp",
     "fmt",
-    "libass"
+    "libass",
+    "glm",
+    "pugixml",
+    "utfcpp",
+    "concurrentqueue",
+    "readerwriterqueue",
+    "unordered-dense",
+    "boost-circular-buffer",
+    "toml11"
   ],
   "overrides": [
     {
