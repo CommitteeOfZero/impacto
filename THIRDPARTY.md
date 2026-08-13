@@ -17,7 +17,6 @@
 * `vendor/imgui`: [Dear ImGui](https://github.com/ocornut/imgui)
 * `vendor/pcg`: [PCG Random Number Generation, Minimal C Edition](https://github.com/imneme/pcg-c-basic)
 * `vendor/squish`: [Squish](http://sjbrown.co.uk/?code=squish)
-* `vendor/utf8-cpp`: [UTF8-CPP](https://github.com/nemtrif/utfcpp)
 * `vendor/mspack`: [libmspack](https://www.cabextract.org.uk/libmspack/), only includes LZX decompressor to reduce code size
 * `vendor/mio`: [mio](https://github.com/vimpunk/mio), except for platforms without mmap support
 
