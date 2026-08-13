@@ -1,8 +1,8 @@
 FROM devkitpro/devkita64
 
 LABEL org.opencontainers.image.source https://github.com/committeeofzero/impacto
-
-RUN apt install p7zip-full -y
+RUN apt update 
+RUN apt install p7zip-full mono-complete -y
 
 # Install latest cmake
 RUN echo "Removing older version of cmake" && \
