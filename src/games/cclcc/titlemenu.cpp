@@ -13,8 +13,10 @@
 #include "../../profile/scriptvars.h"
 #include "../../profile/game.h"
 #include "../../profile/patch.h"
+#include "../../profile/vm.h"
 #include "../../profile/userconfig.h"
 #include "../../vm/interface/input.h"
+#include "../../vm/vm.h"
 #include "../../audio/audiosystem.h"
 #include "../../profile/scriptinput.h"
 
@@ -36,7 +38,8 @@ static CC::TitleMenuMode::Mode LookupTitleMenuState(int scriptState) {
   using enum CC::TitleMenuMode::Mode;
   ImpLogSlow(LogLevel::Trace, LogChannel::General, "title menu state: {}\n",
              scriptState);
-  if (Profile::UserConfig::ActiveGame == "cclcc-switch") {
+  if (Profile::Vm::GameInstructionSet ==
+      Impacto::Vm::InstructionSet::LCCSwitch) {
     switch (scriptState) {
       case 2:
         return PressToStart;
@@ -47,7 +50,8 @@ static CC::TitleMenuMode::Mode LookupTitleMenuState(int scriptState) {
         return Main;
       case 12:
         return FadingOut;
-      case 5:
+      case 5:  // idk maybe no 5 state for switch
+      case 11:
         return SubMenu;
       case 18:
         return InitialFade;
