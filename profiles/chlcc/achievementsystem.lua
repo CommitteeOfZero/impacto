@@ -1,4 +1,4 @@
 root.AchievementData = {
   Type = AchievementDataType.PS3,
-  AchievementDataPath = "games/chlcc/trophydata/TROPHY.TRP"
+  AchievementDataPath = "resources/chlcc/trophydata/TROPHY.TRP"
 }

@@ -284,9 +284,10 @@ compile_commands.json
 CMakeUserPresets.json
 vendor/avcpp
 
-games/*/gamedata
-games/*/savedata
-games/*/trophydata
+resources/*/gamedata
+resources/*/savedata
+resources/*/trophydata
 
 gamedata
+saves
 patches
