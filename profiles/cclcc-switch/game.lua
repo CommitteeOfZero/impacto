@@ -33,13 +33,13 @@ root.Vm = {
 
     ScrWorkChaStructSize = 24,
     ScrWorkChaOffsetStructSize = 10,
-    ScrWorkBgStructSize = 40,
+    ScrWorkBgStructSize = 24,
     ScrWorkBgOffsetStructSize = 10,
     ScrWorkCaptureStructSize = 20,
     ScrWorkCaptureOffsetStructSize = 10,
     ScrWorkCaptureEffectInfoStructSize = 3,
     ScrWorkBgEffStructSize = 30,
-    ScrWorkBgEffOffsetStructSize = 20,
+    ScrWorkBgEffOffsetStructSize = 18,
 
     MaxLinkedBgBuffers = 2
 };
