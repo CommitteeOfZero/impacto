@@ -191,6 +191,11 @@ void SystemMenu::Update(float dt) {
       }
     }
 
+    const float itemsMoveProgress =
+        glm::smoothstep(0.0f, 1.0f, 2.0f - 2.0f * ItemsFade.Progress) *
+        (ScrWork[SW_SYSSUBMENUCT] > 0 ? 1.0f : -1.0f);
+    MainItems->MoveTo({MenuEntriesFadeXOffset * itemsMoveProgress, 0.0f});
+
     bool savesDisabled = GetFlag(SF_SAVEDISABLE);
     bool noFreeSlots = SaveSystem::MaxSaveEntries ==
                        SaveSystem::Implementation->GetLockedQuickSaveCount();
@@ -259,8 +264,8 @@ void SystemMenu::Render() {
       }
     }
 
-    MainItems->Tint =
-        glm::vec4(tint, glm::smoothstep(0.0f, 1.0f, ItemsFade.Progress));
+    MainItems->Tint = glm::vec4(
+        tint, glm::smoothstep(0.0f, 1.0f, 2.0f * ItemsFade.Progress - 1.0f));
     MainItems->Render();
   }
 }

@@ -11,8 +11,8 @@ root.SystemMenu = {
     MoveInDuration = 40 / 60,
     MoveOutDuration = 28 / 60,
 
-    ItemsFadeInDuration = 20/60,
-    ItemsFadeOutDuration = 20/60,
+    ItemsFadeInDuration = 32 / 60,
+    ItemsFadeOutDuration = 32 / 60,
 
     Seed = 0,
 
@@ -31,6 +31,7 @@ root.SystemMenu = {
         {X=41, Y=649},
         {X=41, Y=725},
     },
+    MenuEntriesFadeXOffset = 200,
 
     MenuEntriesButtonBounds = { 
         {X=120, Y= 74, Width=228, Height=60},

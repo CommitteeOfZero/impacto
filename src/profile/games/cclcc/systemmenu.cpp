@@ -27,6 +27,8 @@ void Configure() {
       std::span(MenuEntriesButtonBounds, Profile::SystemMenu::MenuEntriesNum),
       "MenuEntriesButtonBounds");
 
+  MenuEntriesFadeXOffset = EnsureGetMember<float>("MenuEntriesFadeXOffset");
+
   SystemMenuBG = EnsureGetMember<Sprite>("SystemMenuBG");
   SystemMenuFrame = EnsureGetMember<Sprite>("SystemMenuFrame");
   MenuButtonGuide = EnsureGetMember<Sprite>("MenuButtonGuide");

@@ -26,6 +26,7 @@ inline Sprite OverlaySprite;
 
 inline glm::vec2 MenuEntriesPositions[MenuEntriesNumMax];
 inline RectF MenuEntriesButtonBounds[MenuEntriesNumMax];
+inline float MenuEntriesFadeXOffset;
 
 inline glm::vec2 BGDispOffsetTopLeft;
 inline glm::vec2 BGDispOffsetBottomLeft;
