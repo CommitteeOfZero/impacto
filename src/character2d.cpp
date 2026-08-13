@@ -4,6 +4,7 @@
 #include "io/io.h"
 #include "io/vfs.h"
 #include "util.h"
+#include "profile/data/bgeff.h"
 #include "profile/scriptvars.h"
 #include "profile/vm.h"
 #include "profile/configsystem.h"
@@ -15,6 +16,7 @@
 
 namespace Impacto {
 
+using namespace Impacto::Profile::BgEff;
 using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::Vm;
 
@@ -421,7 +423,7 @@ void Character2D::Render(const int layer) {
         {0.0f, 0.0f}, Scale, glm::vec3(0.0f), Rotation, Position);
 
     const bool renderWithBgEffect =
-        Profile::Game::UseBgChaEffects &&
+        BgChaEffectType != BgEffTypeEnum::Disabled &&
         Background2D::LastRenderedBackground &&
         Background2D::LastRenderedBackground->ChaBgEff.Loaded && UseBgEffect;
     if (!renderWithBgEffect) {
@@ -430,15 +432,29 @@ void Character2D::Render(const int layer) {
 
     } else {
       const BgEff& bgEff = Background2D::LastRenderedBackground->ChaBgEff;
-      const glm::mat4 maskTransformation =
-          glm::scale(glm::mat4(1.0f),
-                     {1.0f / Profile::Game::DesignWidth,
-                      1.0f / Profile::Game::DesignHeight, 1.0f}) *
-          transformation;
+      const static glm::mat4 maskTransformation = []() {
+        switch (BgChaEffectType) {
+          using enum BgEffTypeEnum;
+          case Disabled:
+            break;
+          case FullscreenMask:
+            return glm::scale(glm::mat4(1.0f),
+                              {1.0f / Profile::Game::DesignWidth,
+                               1.0f / Profile::Game::DesignHeight, 1.0f});
+          case TopRightQuadrantMask:
+            return TransformationMatrix(
+                glm::vec2(0.0f),
+                glm::vec2(0.5f / Profile::Game::DesignWidth,
+                          0.5f / Profile::Game::DesignHeight),
+                glm::vec3(), glm::quat(), glm::vec2(0.5f, 0.5f));
+        }
+        assert(false);
+        return glm::mat4(1.0f);
+      }();
 
-      Renderer->DrawPrimitives(CharaSpriteSheet, &bgEff.BgEffSprite.Sheet,
-                               bgEff.Shader, MvlVertices, MvlIndices,
-                               transformation, maskTransformation);
+      Renderer->DrawPrimitives(
+          CharaSpriteSheet, &bgEff.BgEffSprite.Sheet, bgEff.Shader, MvlVertices,
+          MvlIndices, transformation, maskTransformation * transformation);
     }
 
   } else {

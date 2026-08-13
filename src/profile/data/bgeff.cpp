@@ -9,8 +9,18 @@ namespace Profile {
 namespace BgEff {
 
 void Load() {
+  if (!TryPushMember("BgEffData")) return;
+  AssertIs(LUA_TTABLE);
+
+  BgFrameEffectType = EnsureGetMember<BgEffTypeEnum>("BgFrameEffectType");
+  BgChaEffectType = EnsureGetMember<BgEffTypeEnum>("BgChaEffectType");
+
+  if (BgChaEffectType == BgEffTypeEnum::Disabled &&
+      BgFrameEffectType == BgEffTypeEnum::Disabled) {
+    return;
+  }
+
   using magic_enum::enum_cast;
-  EnsurePushMemberOfType("BgEffData", LUA_TTABLE);
 
   {
     EnsurePushMemberOfType("BgEffShaderData", LUA_TTABLE);

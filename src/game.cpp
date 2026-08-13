@@ -127,9 +127,7 @@ void Init() {
     Background2D::Init();
     Mask2D::Init();
 
-    if (Profile::Game::UseBgChaEffects || Profile::Game::UseBgFrameEffects) {
-      Profile::BgEff::Load();
-    }
+    Profile::BgEff::Load();
 
     if (Profile::Game::UseWaveEffects) {
       Profile::WaveEffects::Load();

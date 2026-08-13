@@ -33,8 +33,6 @@ inline bool CharaIsMvl;
 
 inline size_t ScreenCaptureCount = 0;
 inline bool UseMoviePriority = false;
-inline bool UseBgChaEffects = false;
-inline bool UseBgFrameEffects = false;
 inline bool UseWaveEffects = false;
 
 inline float LayFileTexXMultiplier;

@@ -29,6 +29,7 @@
 #include "../hud/skipicondisplay.h"
 #include "../hud/tipsnotification.h"
 #include "../profile/hud/saveicon.h"
+#include "../profile/data/bgeff.h"
 #include "../inputsystem.h"
 
 namespace Impacto {
@@ -203,6 +204,7 @@ static void DefineEnums() {
   DefineEnum<TextModeInfo::NameDispModeType>(LuaState);
   DefineEnum<TextModeInfo::NameAlignmentType>(LuaState);
   DefineEnum<TextModeInfo::WaitIconDispModeType>(LuaState);
+  DefineEnum<BgEff::BgEffTypeEnum>(LuaState);
 }
 
 void Init() {

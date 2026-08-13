@@ -11,12 +11,14 @@
 #include "util.h"
 #include "profile/scriptvars.h"
 #include "profile/vm.h"
+#include "profile/data/bgeff.h"
 // #include "window.h"
 #include "renderer/renderer.h"
 #include "effects/wave.h"
 
 namespace Impacto {
 
+using namespace Impacto::Profile::BgEff;
 using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::Vm;
 
@@ -84,7 +86,8 @@ bool Background2D::LoadSync(uint32_t bgId) {
       delete stream;
     }
 
-    if (Profile::Game::UseBgFrameEffects && BgEffTextureIdMap.contains(bgId)) {
+    if (BgFrameEffectType != BgEffTypeEnum::Disabled &&
+        BgEffTextureIdMap.contains(bgId)) {
       std::for_each(FrameBgEffs.begin(), FrameBgEffs.end(),
                     [](auto& bgEff) { bgEff.Loaded = false; });
 
@@ -107,7 +110,8 @@ bool Background2D::LoadSync(uint32_t bgId) {
       }
     }
 
-    if (Profile::Game::UseBgChaEffects && BgEffTextureIdMap.contains(bgId)) {
+    if (BgChaEffectType != BgEffTypeEnum::Disabled &&
+        BgEffTextureIdMap.contains(bgId)) {
       ChaBgEff.Loaded = false;
 
       const int textureId = BgEffTextureIdMap[bgId][3];
@@ -142,7 +146,7 @@ void Background2D::UnloadSync() {
   BgSprite.Sheet.Texture = 0;
   BgSprite.Sheet.IsScreenCap = false;
 
-  if (Profile::Game::UseBgFrameEffects) {
+  if (BgFrameEffectType != BgEffTypeEnum::Disabled) {
     for (BgEff& bgEff : FrameBgEffs) {
       bgEff.Loaded = false;
 
@@ -153,7 +157,7 @@ void Background2D::UnloadSync() {
     }
   }
 
-  if (Profile::Game::UseBgChaEffects) {
+  if (BgChaEffectType != BgEffTypeEnum::Disabled) {
     ChaBgEff.Loaded = false;
 
     Renderer->FreeTexture(ChaBgEff.BgEffSprite.Sheet.Texture);
@@ -182,7 +186,7 @@ void Background2D::MainThreadOnLoad(bool result) {
   BgSprite.Bounds = RectF(0.0f, 0.0f, BgSprite.Sheet.DesignWidth,
                           BgSprite.Sheet.DesignHeight);
 
-  if (Profile::Game::UseBgFrameEffects) {
+  if (BgFrameEffectType != BgEffTypeEnum::Disabled) {
     for (BgEff& bgEff : FrameBgEffs) {
       if (!bgEff.Loaded) continue;
 
@@ -197,7 +201,7 @@ void Background2D::MainThreadOnLoad(bool result) {
     }
   }
 
-  if (Profile::Game::UseBgChaEffects && ChaBgEff.Loaded) {
+  if (BgChaEffectType != BgEffTypeEnum::Disabled && ChaBgEff.Loaded) {
     ChaBgEff.BgEffSprite.Sheet.Texture = ChaBgEff.BgEffTexture.Submit();
 
     ChaBgEff.BgEffSprite.Sheet.DesignWidth = (float)ChaBgEff.BgEffTexture.Width;
@@ -492,19 +496,20 @@ void Background2D::UpdateState(const int bgId) {
     }
   }
 
-  if (Profile::Game::UseBgChaEffects || Profile::Game::UseBgFrameEffects) {
+  if (BgFrameEffectType != BgEffTypeEnum::Disabled ||
+      BgChaEffectType != BgEffTypeEnum::Disabled) {
     BgEffsLayers = {ScrWork[SW_BG1EFFPRI + structOffset],
                     ScrWork[SW_BG1EFFPRI2 + structOffset]};
   }
 
-  if (Profile::Game::UseBgFrameEffects) {
+  if (BgFrameEffectType != BgEffTypeEnum::Disabled) {
     const int bgNo = ScrWork[SW_BG1NO + structOffset];
     for (size_t bgEffId = 0; bgEffId < FrameBgEffs.size(); bgEffId++) {
       FrameBgEffs[bgEffId].Shader = GetBgEffShader(bgNo, bgEffId);
     }
   }
 
-  if (Profile::Game::UseBgChaEffects) {
+  if (BgChaEffectType != BgEffTypeEnum::Disabled) {
     ChaBgEff.Shader = GetBgEffShader(ScrWork[SW_BG1NO + structOffset], 3);
   }
 }
@@ -516,7 +521,8 @@ void Background2D::Render(const int layer) {
     return;
   }
 
-  if (Profile::Game::UseBgChaEffects || Profile::Game::UseBgFrameEffects) {
+  if (BgFrameEffectType != BgEffTypeEnum::Disabled ||
+      BgChaEffectType != BgEffTypeEnum::Disabled) {
     bool renderBgEffs = false;
 
     for (size_t i = 0; i < BgEffsLayers.size(); i++) {
@@ -526,14 +532,14 @@ void Background2D::Render(const int layer) {
     if (renderBgEffs) {
       bool nonSpriteShader = false;
 
-      if (Profile::Game::UseBgFrameEffects) {
+      if (BgFrameEffectType != BgEffTypeEnum::Disabled) {
         nonSpriteShader |= std::any_of(
             FrameBgEffs.begin(), FrameBgEffs.end() - 1, [](const auto bgEff) {
               return bgEff.Shader != ShaderProgramType::Sprite;
             });
       }
 
-      if (Profile::Game::UseBgChaEffects) {
+      if (BgChaEffectType != BgEffTypeEnum::Disabled) {
         nonSpriteShader |= ChaBgEff.Shader != ShaderProgramType::Sprite;
       }
 
@@ -547,7 +553,7 @@ void Background2D::Render(const int layer) {
 }
 
 void Background2D::RenderBgEff(const int layer) {
-  if (!Profile::Game::UseBgFrameEffects || layer == 0 ||
+  if (BgFrameEffectType == BgEffTypeEnum::Disabled || layer == 0 ||
       std::find(BgEffsLayers.begin(), BgEffsLayers.end(), layer) ==
           BgEffsLayers.end()) {
     return;
@@ -562,21 +568,25 @@ void Background2D::RenderBgEff(const int layer) {
     // I am aware this leaks a texture at shutdown
   }
 
+  using enum BgEffTypeEnum;
   const std::array<VertexBufferSprites, 4> vertices{
       VertexBufferSprites{
           .Position = {0.0f, Profile::Game::DesignHeight},
           .UV = {0.0f, 1.0f},
-          .MaskUV = {0.0f, 0.0f},
+          .MaskUV = BgFrameEffectType == FullscreenMask ? glm::vec2{0.0f, 0.0f}
+                                                        : glm::vec2{0.5f, 0.0f},
       },
       VertexBufferSprites{
           .Position = {0.0f, 0.0f},
           .UV = {0.0f, 0.0f},
-          .MaskUV = {0.0f, 1.0f},
+          .MaskUV = BgFrameEffectType == FullscreenMask ? glm::vec2{0.0f, 1.0f}
+                                                        : glm::vec2{0.5f, 0.5f},
       },
       VertexBufferSprites{
           .Position = {Profile::Game::DesignWidth, 0.0f},
           .UV = {1.0f, 0.0f},
-          .MaskUV = {1.0f, 1.0f},
+          .MaskUV = BgFrameEffectType == FullscreenMask ? glm::vec2{1.0f, 1.0f}
+                                                        : glm::vec2{1.0f, 0.5f},
       },
       VertexBufferSprites{
           .Position = {Profile::Game::DesignWidth, Profile::Game::DesignHeight},
