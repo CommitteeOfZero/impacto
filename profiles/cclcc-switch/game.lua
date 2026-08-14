@@ -8,9 +8,9 @@ root.DesignWidth = 1920;
 root.DesignHeight = 1080;
 
 root.WindowName = "CHAOS;CHILD Love Chu☆Chu!!";
-root.WindowIconPath = "games/cclcc/icondata/icon.png";
-root.CursorArrowPath = "games/cclcc/icondata/cursor_arrow.png";
-root.CursorPointerPath = "games/cclcc/icondata/cursor_pointer.png";
+root.WindowIconPath = "resources/cclcc/icondata/icon.png";
+root.CursorArrowPath = "resources/cclcc/icondata/cursor_arrow.png";
+root.CursorPointerPath = "resources/cclcc/icondata/cursor_pointer.png";
 
 root.CharaIsMvl = true;
 root.UseMoviePriority = true;
@@ -78,6 +78,7 @@ include(root.BasePaths.RootProfilesDir .. '/cclcc/hud/tipsmenu.lua');
 include(root.BasePaths.RootProfilesDir .. '/cclcc-switch/hud/tipsmenu.lua');
 include(root.BasePaths.RootProfilesDir .. '/cclcc/hud/extramenus.lua');
 include(root.BasePaths.RootProfilesDir .. '/cclcc/hud/tipsnotification.lua');
+include(root.BasePaths.RootProfilesDir .. '/cclcc-switch/hud/tipsnotification.lua');
 include(root.BasePaths.RootProfilesDir .. '/cclcc/hud/systemmenu.lua');
 include(root.BasePaths.RootProfilesDir .. '/cclcc/hud/savemenu.lua');
 include(root.BasePaths.RootProfilesDir .. '/cclcc/hud/helpmenu.lua');
