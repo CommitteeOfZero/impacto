@@ -277,7 +277,8 @@ void UpdateGameState(float dt) {
     UI::CCLCC::DelusionTrigger::GetInstance().UpdateDragging(dt);
   }
   Vm::ChkMesSkip();
-  if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::CC) {
+  if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::CC ||
+      Profile::Vm::GameInstructionSet == Vm::InstructionSet::LCCSwitch) {
     UI::GameSpecific::UpdateCCButtonGuide(dt);
   }
 }
@@ -363,7 +364,8 @@ void UpdateSystem(float dt) {
           Effects::WaveBG.Update(updateInterval);
         }
         const bool isCC =
-            +Profile::Vm::GameInstructionSet == +Vm::InstructionSet::CC;
+            Profile::Vm::GameInstructionSet == Vm::InstructionSet::CC ||
+            Profile::Vm::GameInstructionSet == Vm::InstructionSet::LCCSwitch;
         if (GetFlag(SF_BGEFF1DISP) && (!isCC || ScrWork[SW_EFF_WAVE_ALPHA])) {
           Effects::WaveEFF.Update(updateInterval);
         }
@@ -431,7 +433,8 @@ static void RenderMain() {
   Background2D::LastRenderedBackground = nullptr;
   UI::GameSpecific::RenderEarlyMain();
   for (uint32_t layer = 0; layer <= Profile::Game::LayerCount; layer++) {
-    if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::CC) {
+    if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::CC ||
+        Profile::Vm::GameInstructionSet == Vm::InstructionSet::LCCSwitch) {
       const int renderTarget = ScrWork[SW_RENDERTARGET + layer];
       if (0 <= renderTarget && renderTarget <= MaxFramebuffers) {
         Renderer->SetFramebuffer(renderTarget);
@@ -537,7 +540,8 @@ static void RenderMain() {
 
     if (Profile::Game::UseWaveEffects) {
       const bool isCC =
-          +Profile::Vm::GameInstructionSet == +Vm::InstructionSet::CC;
+          Profile::Vm::GameInstructionSet == Vm::InstructionSet::CC ||
+          Profile::Vm::GameInstructionSet == Vm::InstructionSet::LCCSwitch;
       if (GetFlag(SF_BGEFF1DISP) && (!isCC || ScrWork[SW_EFF_WAVE_ALPHA])) {
         if (ScrWork[SW_EFF_WAVE_PRI] == static_cast<int>(layer)) {
           std::optional<float> alpha = std::nullopt;
@@ -640,7 +644,9 @@ void Render() {
           }
 
           // System menu capture
-          if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::CC &&
+          if ((Profile::Vm::GameInstructionSet == Vm::InstructionSet::CC ||
+               Profile::Vm::GameInstructionSet ==
+                   Vm::InstructionSet::LCCSwitch) &&
               GetFlag(SF_SYSTEMMENUCAPTURE)) {
             Renderer->CaptureScreencap(
                 static_cast<UI::CCLCC::SystemMenu*>(UI::SystemMenuPtr)
@@ -656,7 +662,9 @@ void Render() {
           break;
         }
         case DrawComponentType::Main: {
-          if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::CC &&
+          if ((Profile::Vm::GameInstructionSet == Vm::InstructionSet::CC ||
+               Profile::Vm::GameInstructionSet ==
+                   Vm::InstructionSet::LCCSwitch) &&
               !(!GetFlag(SF_SELECTMODE) ||
                 (GetFlag(SF_SYSTEMMENUCAPTURE) &&
                  ScrWork[SW_RESTARTMASK] != 0x100))) {
@@ -679,7 +687,9 @@ void Render() {
           break;
         }
         case DrawComponentType::SystemIcons: {
-          if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::CC) {
+          if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::CC ||
+              Profile::Vm::GameInstructionSet ==
+                  Vm::InstructionSet::LCCSwitch) {
             UI::GameSpecific::RenderCCButtonGuide();
           }
 

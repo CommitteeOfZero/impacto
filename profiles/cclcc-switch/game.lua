@@ -64,7 +64,7 @@ include(root.BasePaths.RootProfilesDir .. '/cclcc-switch/font.lua');
 include(root.BasePaths.RootProfilesDir .. '/cclcc/dialogue.lua');
 include(root.BasePaths.RootProfilesDir .. '/cclcc-switch/dialogue.lua');
 include(root.BasePaths.RootProfilesDir .. '/cclcc/configsystem.lua');
-include(root.BasePaths.RootProfilesDir .. '/cclcc/bgeff.lua');
+include(root.BasePaths.RootProfilesDir .. '/cclcc-switch/bgeff.lua');
 include(root.BasePaths.RootProfilesDir .. '/cclcc/waveeffects.lua');
 include(root.BasePaths.RootProfilesDir .. '/cclcc-switch/hud/saveicon.lua');
 include(root.BasePaths.RootProfilesDir .. '/cclcc/hud/loadingdisplay.lua');
