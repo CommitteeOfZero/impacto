@@ -17,6 +17,7 @@ void Load() {
 
   if (BgChaEffectType == BgEffTypeEnum::Disabled &&
       BgFrameEffectType == BgEffTypeEnum::Disabled) {
+    Pop();
     return;
   }
 
