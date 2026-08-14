@@ -34,6 +34,8 @@ inline float DesignHeight;
 
 inline int PlatformId = 0;
 
+inline bool HasInit = false;
+
 void Configure();
 }  // namespace Game
 }  // namespace Profile

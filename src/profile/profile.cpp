@@ -275,7 +275,9 @@ void Configure() {
   BasePaths::Configure();
   GameDefinition::Configure();
   UserConfig::Configure();
+}
 
+void ConfigureGameProfile() {
   auto activePatch = UserConfig::GetPatchProfile();
   if (BasePaths::RootPatchesDir.empty() && activePatch) {
     ImpLog(LogLevel::Fatal, LogChannel::Profile,

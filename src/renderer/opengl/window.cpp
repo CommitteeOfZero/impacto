@@ -47,10 +47,15 @@ void GLWindow::UpdateDimensions() {
 
 RectF GLWindow::GetViewport() {
   RectF viewport;
-  float scale = fmin((float)WindowWidth / Profile::Game::DesignWidth,
-                     (float)WindowHeight / Profile::Game::DesignHeight);
-  viewport.Width = Profile::Game::DesignWidth * scale;
-  viewport.Height = Profile::Game::DesignHeight * scale;
+  const float designWidth =
+      Profile::Game::HasInit ? Profile::Game::DesignWidth : WindowWidth;
+  const float designHeight =
+      Profile::Game::HasInit ? Profile::Game::DesignHeight : WindowHeight;
+
+  float scale = fmin((float)WindowWidth / designWidth,
+                     (float)WindowHeight / designHeight);
+  viewport.Width = designWidth * scale;
+  viewport.Height = designHeight * scale;
   viewport.X = ((float)WindowWidth - viewport.Width) / 2.0f;
   viewport.Y = ((float)WindowHeight - viewport.Height) / 2.0f;
   return viewport;
@@ -323,6 +328,14 @@ void GLWindow::Update() {
     createFBO(ReadRT, ReadRenderTexture, GL_READ_FRAMEBUFFER);
     createFBO(DrawRT, DrawRenderTexture, GL_DRAW_FRAMEBUFFER);
     GLC::InitializeFramebuffers();
+
+    GLC::BindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    for (int i = 0; i < 2; i++) {
+      glViewport(0, 0, WindowWidth, WindowHeight);
+      glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+      glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+      SDL_GL_SwapWindow(SDLWindow);
+    }
   }
 
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);

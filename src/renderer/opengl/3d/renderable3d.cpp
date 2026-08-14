@@ -59,15 +59,11 @@ static MaterialType CurrentMaterial = MT_None;
 static bool CurrentMaterialIsDepthWrite = false;
 // static bool CurrentMaterialIsBackfaceCull = false;
 
-static GLWindow* Window;
-
-void Renderable3D::Init(GLWindow* window, ShaderCompiler& shaderCompiler) {
+void Renderable3D::Init(ShaderCompiler& shaderCompiler) {
   assert(IsInit == false);
   ImpLog(LogLevel::Info, LogChannel::Renderable3D,
          "Initializing Renderable3D system\n");
   IsInit = true;
-
-  Window = window;
 
   ShaderParamMap shaderParams;
   shaderParams["ModelMaxBonesPerMesh"] = ModelMaxBonesPerMesh;

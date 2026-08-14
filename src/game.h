@@ -56,10 +56,14 @@ enum class DrawComponentType : uint8_t {
 };
 
 void Init();
+void InitGameProfile();
 void Shutdown();
 
 void Update(float dt);
 void Render();
+
+void LauncherUpdate(float dt);
+void LauncherRender();
 
 inline DrawComponentType DrawComponents[Vm::MaxThreads];
 

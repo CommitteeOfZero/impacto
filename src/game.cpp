@@ -76,11 +76,6 @@ namespace Game {
 void Init() {
   WorkQueue::Init();
 
-  Profile::Game::Configure();
-  Profile::Patch::Configure();
-
-  Io::VfsInit();
-
 #ifndef IMPACTO_DISABLE_IMGUI
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
@@ -95,10 +90,20 @@ void Init() {
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
   }
 #endif
+  InitWindow();
+  CreateRenderer();
+}
 
-  InitRenderer();
+void InitGameProfile() {
+  Profile::ConfigureGameProfile();
+  Profile::Game::Configure();
+  Profile::Patch::Configure();
+
+  Window->ApplyWindowSettings();
+  Renderer->Init();
+  Io::VfsInit();
+
   InitCursors();
-
   std::fill(std::begin(DrawComponents), std::end(DrawComponents),
             DrawComponentType::None);
 
@@ -208,6 +213,30 @@ void Shutdown() {
   }
   WorkQueue::StopWorkQueue();
   Window->Shutdown();
+}
+
+void LauncherUpdate(float dt) {
+  SDL_Event e;
+
+  while (SDL_PollEvent(&e)) {
+    if (e.type == SDL_QUIT) {
+      ShouldQuit = true;
+    }
+
+#ifndef IMPACTO_DISABLE_IMGUI
+    ImGui_ImplSDL2_ProcessEvent(&e);
+#endif
+  }
+}
+
+void LauncherRender() {
+  Window->Update();
+
+#ifndef IMPACTO_DISABLE_IMGUI
+  Renderer->ImGuiBeginFrame();
+#endif
+  Overlay::Show();
+  Window->Draw();
 }
 
 void UpdateGameState(float dt) {

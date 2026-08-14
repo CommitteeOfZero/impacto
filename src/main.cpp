@@ -17,18 +17,24 @@
 using namespace Impacto;
 
 static uint64_t t;
+static float TickDeltaTime() {
+  // TODO: Better FPS lock
+  uint64_t t2 = SDL_GetPerformanceCounter();
+  float dt = (float)(t2 - t) / (float)SDL_GetPerformanceFrequency();
+  t = t2;
+  return std::min(dt, 1.0f);
+}
 
 void GameLoop() {
-  // TODO: Better FPS lock
-  uint64_t t2;
-  float dt;
-  t2 = SDL_GetPerformanceCounter();
-  dt = ((float)(t2 - t) / (float)SDL_GetPerformanceFrequency());
-  t = t2;
-  dt = std::min(dt, 1.0f);
-
+  float dt = TickDeltaTime();
   Game::Update(dt);
   Game::Render();
+}
+
+void LauncherLoop() {
+  float dt = TickDeltaTime();
+  Game::LauncherUpdate(dt);
+  Game::LauncherRender();
 }
 
 #ifdef EMSCRIPTEN
@@ -196,6 +202,14 @@ int main(int argc, char* argv[]) {
     EM_ASM(OnGameLoaded(););
 #else
     t = SDL_GetPerformanceCounter();
+
+    while (!Game::ShouldQuit && UserConfig::GetActiveGame().empty()) {
+      LauncherLoop();
+    }
+
+    if (!Game::ShouldQuit) {
+      Game::InitGameProfile();
+    }
 
     while (!Game::ShouldQuit) {
       GameLoop();

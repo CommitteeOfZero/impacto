@@ -9,8 +9,38 @@
 #include <vector>
 #include <optional>
 #include "../inputsystem.h"
+#include "opengl/window.h"
+#include "vulkan/window.h"
+#include "dx9/window.h"
 
 namespace Impacto {
+
+void InitWindow() {
+  switch (UserConfig::AdvancedSettings.ActiveRenderer) {
+#ifndef IMPACTO_DISABLE_OPENGL
+    case RendererType::OpenGL:
+      Window = new OpenGL::GLWindow();
+      break;
+#endif
+#ifndef IMPACTO_DISABLE_VULKAN
+    case RendererType::Vulkan:
+      Window = new Vulkan::VulkanWindow();
+      break;
+#endif
+#ifndef IMPACTO_DISABLE_DX9
+    case RendererType::DirectX9:
+      Window = new DirectX9::DirectX9Window();
+      break;
+#endif
+    default:
+      ImpLog(LogLevel::Error, LogChannel::Render,
+             "Failed to create window: Unknown or unsupported renderer "
+             "selected!\n");
+      exit(1);
+  }
+
+  Window->Init();
+}
 
 void SetWindowIcon(SDL_Window* window) {
   if (!Profile::Game::WindowIconPath.has_value()) {
@@ -204,42 +234,66 @@ void ApplyCursorForFrame() {
   }
 }
 
-void BaseWindow::CreateSDLWindow(Uint32 flags) {
-  const SDL_Rect bounds = [flags] {
-    SDL_Rect result{};
-    bool haveBounds;
-    if (flags & SDL_WINDOW_FULLSCREEN) {
-      haveBounds = SDL_GetDisplayBounds(0, &result) == 0;
-    } else {
-      haveBounds = SDL_GetDisplayUsableBounds(0, &result) == 0;
-    }
-    if (!haveBounds) {
-      ImpLog(LogLevel::Error, LogChannel::Render,
-             "Failed to get display bounds: {}.\n", SDL_GetError());
-      throw std::runtime_error("Failed to get display info.");
-    }
-    return result;
-  }();
+SDL_Rect BaseWindow::GetDisplayBounds(std::optional<Uint32> flags) {
+  SDL_Rect result{};
+  bool haveBounds;
 
-  auto clampAspectRatio = [this](int boundW, int boundH) {
-    if (WindowWidth > boundW || WindowHeight > boundH) {
-      const float aspect =
-          static_cast<float>(WindowWidth) / static_cast<float>(WindowHeight);
-      int fitW = boundW;
-      int fitH = static_cast<int>(boundW / aspect);
-      if (fitH > boundH) {
-        fitH = boundH;
-        fitW = static_cast<int>(boundH * aspect);
-      }
-      WindowWidth = fitW;
-      WindowHeight = fitH;
+  Uint32 windowFlags = flags.value_or(SDL_GetWindowFlags(SDLWindow));
+  if (windowFlags & SDL_WINDOW_FULLSCREEN) {
+    haveBounds = SDL_GetDisplayBounds(0, &result) == 0;
+  } else {
+    haveBounds = SDL_GetDisplayUsableBounds(0, &result) == 0;
+  }
+  if (!haveBounds) {
+    ImpLog(LogLevel::Fatal, LogChannel::Render,
+           "Failed to get display bounds: {}.\n", SDL_GetError());
+    throw std::runtime_error("Failed to get display info.");
+  }
+  return result;
+}
+
+void BaseWindow::ClampAspectRatio(int boundW, int boundH) {
+  if (WindowWidth > boundW || WindowHeight > boundH) {
+    const float aspect =
+        static_cast<float>(WindowWidth) / static_cast<float>(WindowHeight);
+    int fitW = boundW;
+    int fitH = static_cast<int>(boundW / aspect);
+    if (fitH > boundH) {
+      fitH = boundH;
+      fitW = static_cast<int>(boundH * aspect);
     }
-  };
+    WindowWidth = fitW;
+    WindowHeight = fitH;
+  }
+}
+
+void BaseWindow::CreateSDLWindow(Uint32 flags) {
+  auto const& config = UserConfig::CommonSettings;
+  WindowWidth = config.ResolutionWidth;
+  WindowHeight = config.ResolutionHeight;
+
+  SDL_Rect bounds = GetDisplayBounds(flags);
+  ClampAspectRatio(bounds.w, bounds.h);
+  SDLWindow = SDL_CreateWindow("Impacto", SDL_WINDOWPOS_UNDEFINED,
+                               SDL_WINDOWPOS_UNDEFINED, WindowWidth,
+                               WindowHeight, flags);
+
+  if (SDLWindow == NULL) {
+    ImpLog(LogLevel::Error, LogChannel::General,
+           "Window creation failed: {:s}\n", SDL_GetError());
+    throw std::runtime_error("Failed to create window");
+  }
+  SDL_GetWindowSize(SDLWindow, &WindowWidth, &WindowHeight);
+}
+
+void BaseWindow::ApplyWindowSettings() {
+  const SDL_Rect bounds = GetDisplayBounds();
 
   auto const& config = UserConfig::CommonSettings;
   WindowWidth = config.ResolutionWidth;
   WindowHeight = config.ResolutionHeight;
 
+  bool fullscreen = false;
   if (!UserConfig::GetActiveGame().empty()) {
     auto const& gameConfig = UserConfig::ActiveGameSettings();
 
@@ -249,38 +303,34 @@ void BaseWindow::CreateSDLWindow(Uint32 flags) {
              "Only one of Resolution Height or Resolution Width is configured, "
              "defaulting to game resolution.");
     }
-    if (gameConfig.ResolutionWidth && gameConfig.ResolutionHeight) {
+    if (!gameConfig.Fullscreen && gameConfig.ResolutionWidth &&
+        gameConfig.ResolutionHeight) {
       WindowWidth = *gameConfig.ResolutionWidth;
       WindowHeight = *gameConfig.ResolutionHeight;
-    } else {
+    } else if (Profile::Game::HasInit) {
       WindowWidth = static_cast<int>(Profile::Game::DesignWidth);
       WindowHeight = static_cast<int>(Profile::Game::DesignHeight);
     }
+
     if (gameConfig.Fullscreen) {
-      flags |= SDL_WINDOW_FULLSCREEN;
-      clampAspectRatio(bounds.w, bounds.h);
+      fullscreen = true;
+      ClampAspectRatio(bounds.w, bounds.h);
     }
   }
 
-  flags |= SDL_WINDOW_HIDDEN;
-  SDLWindow = SDL_CreateWindow(Profile::Game::WindowName,
-                               SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-                               WindowWidth, WindowHeight, flags);
-  if (SDLWindow == NULL) {
-    ImpLog(LogLevel::Error, LogChannel::General,
-           "Window creation failed: {:s}\n", SDL_GetError());
-    throw std::runtime_error("Failed to create window");
-  }
-  SDL_GetWindowSize(SDLWindow, &WindowWidth, &WindowHeight);
+  SDL_SetWindowTitle(SDLWindow, Profile::Game::WindowName);
 
-  if ((flags & SDL_WINDOW_FULLSCREEN) == 0) {
+  if (fullscreen) {
+    SDL_SetWindowSize(SDLWindow, WindowWidth, WindowHeight);
+    SDL_SetWindowFullscreen(SDLWindow, SDL_WINDOW_FULLSCREEN);
+  } else {
+    SDL_SetWindowFullscreen(SDLWindow, 0);
     int top, left, bottom, right;
-
     if (SDL_GetWindowBordersSize(SDLWindow, &top, &left, &bottom, &right) ==
         0) {
       const int targetWidth = bounds.w - (left + right);
       const int targetHeight = bounds.h - (top + bottom);
-      clampAspectRatio(targetWidth, targetHeight);
+      ClampAspectRatio(targetWidth, targetHeight);
       const int posX = bounds.x + left + (targetWidth - WindowWidth) / 2;
       const int posY = bounds.y + top + (targetHeight - WindowHeight) / 2;
 
@@ -294,5 +344,6 @@ void BaseWindow::CreateSDLWindow(Uint32 flags) {
          WindowHeight);
   SDL_ShowWindow(SDLWindow);
   SDL_GetWindowSize(SDLWindow, &WindowWidth, &WindowHeight);
+  Update();
 }
 }  // namespace Impacto

@@ -109,13 +109,14 @@ void Texture::LoadPoliticalCompass() {
   }
 }
 
-uint32_t Texture::Submit() {
+uint32_t Texture::Submit(BaseRenderer* renderer) {
+  if (!renderer) renderer = Renderer;
   ImpLog(LogLevel::Debug, LogChannel::Render, "Submitting texture\n");
 
   if (Buffer.empty()) return std::numeric_limits<uint32_t>::max();
 
   uint32_t result =
-      Renderer->SubmitTexture(Format, Buffer.data(), Width, Height);
+      renderer->SubmitTexture(Format, Buffer.data(), Width, Height);
 
   // TODO I meant to do this elsewhere but we gotta do it somewhere
   Buffer.clear();

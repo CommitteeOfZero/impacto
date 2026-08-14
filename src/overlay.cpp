@@ -5,12 +5,14 @@
 #include "game.h"
 #include "log.h"
 #include "inputsystem.h"
+#include "profile/game.h"
 
 namespace Impacto::Overlay {
 
 void SetupFonts() {
   ImGuiIO& io = ImGui::GetIO();
-  constexpr const char* fontPath = "assets/NotoSansCJKjp-Regular.otf";
+  constexpr const char* fontPath =
+      "resources/common/font/NotoSansCJKjp-Regular.otf";
   ImFont* font = io.Fonts->AddFontFromFileTTF(
       fontPath, 18.0f, nullptr, io.Fonts->GetGlyphRangesJapanese());
   if (font == nullptr) {
@@ -57,13 +59,18 @@ void ShowOverlay() {
 }
 
 void Show() {
-  if ((!OverlayShown && (Input::KeyboardButtonWentDown[SDL_SCANCODE_TAB] &&
-                         (SDL_GetModState() & KMOD_SHIFT))) ||
-      (Input::ControllerButtonWentDown[SDL_CONTROLLER_BUTTON_GUIDE])) {
+  if (Profile::Game::HasInit) {
+    if ((!OverlayShown && (Input::KeyboardButtonWentDown[SDL_SCANCODE_TAB] &&
+                           (SDL_GetModState() & KMOD_SHIFT))) ||
+        (Input::ControllerButtonWentDown[SDL_CONTROLLER_BUTTON_GUIDE])) {
+      OverlayShown = true;
+    }
+    if (OverlayShown &&
+        ImGui::IsKeyChordPressed(ImGuiMod_Shift | ImGuiKey_Tab)) {
+      OverlayShown = false;
+    }
+  } else {
     OverlayShown = true;
-  }
-  if (OverlayShown && ImGui::IsKeyChordPressed(ImGuiMod_Shift | ImGuiKey_Tab)) {
-    OverlayShown = false;
   }
 
   if (OverlayShown) {
