@@ -402,7 +402,11 @@ static void RenderMain() {
       }
     }
 
-    if (Profile::Vm::ScrWorkBgEffStructSize > 0) {
+    if (Profile::Vm::ScrWorkBgEffStructSize > 0 &&
+        (Profile::BgEff::BgFrameEffectType !=
+             Profile::BgEff::BgEffTypeEnum::Disabled ||
+         Profile::BgEff::BgChaEffectType !=
+             Profile::BgEff::BgEffTypeEnum::Disabled)) {
       for (int bgId = 0; bgId < std::ssize(Backgrounds); bgId++) {
         Framebuffers[0].UpdateState(bgId);
         Framebuffers[0].Render(layer);
