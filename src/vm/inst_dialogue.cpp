@@ -1180,7 +1180,8 @@ VmInstruction(InstTips) {
     } break;
     case 1:  // TipsInit
       TipsSystem::UpdateTipRecords();
-      if (Profile::Vm::GameInstructionSet != InstructionSet::CC &&
+      if ((Profile::Vm::GameInstructionSet != InstructionSet::CC ||
+           Profile::Vm::GameInstructionSet == InstructionSet::LCCSwitch) &&
           UI::TipsMenuPtr) {
         UI::TipsMenuPtr->Init();
       }
@@ -1198,7 +1199,8 @@ VmInstruction(InstTips) {
       break;
     case 5:
       TipsSystem::UpdateTipRecords();
-      if (Profile::Vm::GameInstructionSet != InstructionSet::CC &&
+      if ((Profile::Vm::GameInstructionSet != InstructionSet::CC ||
+           Profile::Vm::GameInstructionSet == InstructionSet::LCCSwitch) &&
           UI::TipsMenuPtr) {
         UI::TipsMenuPtr->Init();
       }
