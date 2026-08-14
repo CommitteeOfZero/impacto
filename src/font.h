@@ -17,6 +17,7 @@ enum class FontType : uint8_t {
   SeparateOutlineSheet,
   LanguageBarrier,
   EdgeDetectedSingleSheet,
+  External,
 };
 
 enum class OpacityCurve : uint8_t {
@@ -28,6 +29,8 @@ enum class OpacityCurve : uint8_t {
 class Font {
  public:
   FontType Type;
+
+  virtual ~Font() = default;
 
   virtual size_t GetGlyphCount() const = 0;
 
@@ -71,6 +74,10 @@ class Font {
         BitmapEmHeight(bitmapEmHeight),
         ForegroundOpacityCurve(foregroundOpacityCurve),
         OutlineOpacityCurve(outlineOpacityCurve) {}
+
+  static float ApplyOpacityCurve(float opacity, OpacityCurve curve);
+  static std::vector<size_t> GetVisibleGlyphIds(
+      std::span<const ProcessedTextGlyph> text);
 };
 
 class SingleSheetFont : public Font {
@@ -112,7 +119,7 @@ class SingleSheetFont : public Font {
         CellSize(sheet.GetDimensions() / static_cast<glm::vec2>(gridSize)) {}
 
  private:
-  Sprite GetGlyph(uint16_t id) const {
+  Sprite GetGlyph(uint32_t id) const {
     const uint8_t row = static_cast<uint8_t>(id / GridSize.x);
     const uint8_t col = static_cast<uint8_t>(id % GridSize.x);
     const float width = AdvanceWidths[id];
@@ -179,7 +186,7 @@ class SeparateOutlineSheetFont : public Font {
   glm::vec2 OutlineCellSize;
 
  private:
-  Sprite GetGlyph(uint16_t id) const {
+  Sprite GetGlyph(uint32_t id) const {
     const uint8_t row = static_cast<uint8_t>(id / ForegroundGridSize.x);
     const uint8_t col = static_cast<uint8_t>(id % ForegroundGridSize.x);
     const float width = AdvanceWidths[id];
@@ -189,7 +196,7 @@ class SeparateOutlineSheetFont : public Font {
                   BitmapEmHeight - 2.0f);
   }
 
-  Sprite GetOutlineGlyph(uint16_t id) const {
+  Sprite GetOutlineGlyph(uint32_t id) const {
     const uint8_t row = static_cast<uint8_t>(id / OutlineGridSize.x);
     const uint8_t col = static_cast<uint8_t>(id % OutlineGridSize.x);
     const float width = AdvanceWidths[id];
@@ -228,7 +235,7 @@ class LanguageBarrierFont final : public SeparateOutlineSheetFont {
                          glm::mat4 transformation) override;
 
  private:
-  Sprite GetGlyph(uint16_t id) const {
+  Sprite GetGlyph(uint32_t id) const {
     const uint8_t row = static_cast<uint8_t>(id / ForegroundGridSize.x);
     const uint8_t col = static_cast<uint8_t>(id % ForegroundGridSize.x);
 
@@ -237,7 +244,7 @@ class LanguageBarrierFont final : public SeparateOutlineSheetFont {
                   ForegroundCellSize.y);
   }
 
-  Sprite GetOutlineGlyph(uint16_t id) const {
+  Sprite GetOutlineGlyph(uint32_t id) const {
     const uint8_t row = static_cast<uint8_t>(id / OutlineGridSize.x);
     const uint8_t col = static_cast<uint8_t>(id % OutlineGridSize.x);
 
@@ -267,7 +274,7 @@ class EdgeDetectedSingleSheetFont final : public SingleSheetFont {
                          glm::mat4 transformation) override;
 
  private:
-  Sprite GetGlyph(uint16_t id) const {
+  Sprite GetGlyph(uint32_t id) const {
     const uint8_t row = static_cast<uint8_t>(id / GridSize.x);
     const uint8_t col = static_cast<uint8_t>(id % GridSize.x);
     const float width = AdvanceWidths[id];
@@ -283,16 +290,10 @@ struct ExternalFontShapedGlyph {
   glm::vec2 Advance;
 };
 
-struct ExternalFontGlyph {
-  Sprite GlyphSprite;
-  glm::vec2 Position;
-  glm::vec4 Tint;
-};
-
-class ExternalFont {
+class ExternalFont final : public Font {
  public:
   ExternalFont(std::string const& path, std::string const& logContext);
-  ~ExternalFont();
+  ~ExternalFont() override;
 
   ExternalFont(ExternalFont const&) = delete;
   ExternalFont& operator=(ExternalFont const&) = delete;
@@ -301,13 +302,26 @@ class ExternalFont {
 
   std::vector<ExternalFontShapedGlyph> ShapeLine(std::string_view text,
                                                  float fontSize, float& width);
-  void RenderShapedLine(std::span<const ExternalFontShapedGlyph> glyphs,
-                        float fontSize, glm::vec2 origin, glm::vec4 tint,
-                        std::vector<ExternalFontGlyph>& outGlyphs);
 
-  static void FreeGlyphTextures(std::vector<ExternalFontGlyph>& glyphs);
+  size_t GetGlyphCount() const override;
+
+  using Font::DrawProcessedText;
+  void DrawProcessedText(
+      std::span<const ProcessedTextGlyph> text, float opacity,
+      float outlineOpacity,
+      RendererOutlineMode outlineMode = RendererOutlineMode::None,
+      const SpriteSheet* maskedSheet = nullptr,
+      glm::mat4 transformation = glm::mat4(1.0f)) override;
 
  private:
+  struct CachedGlyph {
+    SpriteSheet Sheet;
+    glm::vec2 Bearing{0.0f};
+    glm::vec2 Size{0.0f};
+  };
+
+  CachedGlyph const& GetOrRenderGlyph(uint32_t glyphIndex, uint32_t pixelSize);
+
   void Reset();
 
   struct Impl;

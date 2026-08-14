@@ -5,6 +5,8 @@
 #include "renderer/renderer.h"
 #include "texture/texture.h"
 
+#include <ankerl/unordered_dense.h>
+
 #include <hb-ft.h>
 #include <hb.h>
 
@@ -37,16 +39,37 @@ struct ExternalFont::Impl {
     }
   };
 
+  struct GlyphCacheKey {
+    uint32_t GlyphIndex;
+    uint32_t PixelSize;
+
+    friend bool operator==(GlyphCacheKey const&,
+                           GlyphCacheKey const&) = default;
+
+    struct hash {
+      size_t operator()(GlyphCacheKey const& k) const {
+        std::size_t seed = 0;
+        HashCombine(seed, k.GlyphIndex, k.PixelSize);
+        return seed;
+      }
+    };
+  };
+
   std::unique_ptr<std::remove_pointer_t<FT_Library>, FreeTypeLibraryDeleter>
       FreeTypeLibrary;
   std::unique_ptr<std::remove_pointer_t<FT_Face>, FreeTypeFaceDeleter> FontFace;
   std::unique_ptr<hb_font_t, HarfBuzzFontDeleter> HarfBuzzFace;
   std::vector<uint8_t> FontData;
+
+  ankerl::unordered_dense::map<GlyphCacheKey, CachedGlyph, GlyphCacheKey::hash>
+      GlyphCache;
 };
 
 ExternalFont::ExternalFont(std::string const& path,
                            std::string const& logContext)
-    : FontImpl(new Impl()) {
+    : Font(FontType::External, 1.0f, 1.0f, OpacityCurve::Linear,
+           OpacityCurve::Linear),
+      FontImpl(new Impl()) {
   Io::Stream* stream = nullptr;
   IoError err = Io::PhysicalFileStream::Create(path, &stream);
   if (err != IoError_OK) {
@@ -102,6 +125,11 @@ ExternalFont::~ExternalFont() {
 }
 
 void ExternalFont::Reset() {
+  for (auto const& [key, glyph] : FontImpl->GlyphCache) {
+    if (glyph.Sheet.Texture != 0) Renderer->FreeTexture(glyph.Sheet.Texture);
+  }
+  FontImpl->GlyphCache.clear();
+
   FontImpl->HarfBuzzFace.reset();
   FontImpl->FontFace.reset();
   FontImpl->FreeTypeLibrary.reset();
@@ -110,6 +138,11 @@ void ExternalFont::Reset() {
 
 bool ExternalFont::IsLoaded() const {
   return FontImpl->HarfBuzzFace != nullptr && FontImpl->FontFace != nullptr;
+}
+
+size_t ExternalFont::GetGlyphCount() const {
+  assert(IsLoaded());
+  return static_cast<size_t>(FontImpl->FontFace->num_glyphs);
 }
 
 std::vector<ExternalFontShapedGlyph> ExternalFont::ShapeLine(
@@ -151,74 +184,109 @@ std::vector<ExternalFontShapedGlyph> ExternalFont::ShapeLine(
   return glyphs;
 }
 
-void ExternalFont::RenderShapedLine(
-    std::span<const ExternalFontShapedGlyph> glyphs, float fontSize,
-    glm::vec2 origin, glm::vec4 tint,
-    std::vector<ExternalFontGlyph>& outGlyphs) {
-  assert(IsLoaded());
+ExternalFont::CachedGlyph const& ExternalFont::GetOrRenderGlyph(
+    uint32_t glyphIndex, uint32_t pixelSize) {
+  Impl::GlyphCacheKey key{glyphIndex, pixelSize};
+  if (auto it = FontImpl->GlyphCache.find(key);
+      it != FontImpl->GlyphCache.end()) {
+    return it->second;
+  }
+
+  CachedGlyph cached;
 
   FT_Set_Pixel_Sizes(FontImpl->FontFace.get(), 0,
-                     static_cast<FT_UInt>(std::round(fontSize)));
+                     static_cast<FT_UInt>(pixelSize));
 
-  glm::vec2 pen = origin;
-  outGlyphs.reserve(outGlyphs.size() + glyphs.size());
-  for (ExternalFontShapedGlyph const& glyph : glyphs) {
-    if (FT_Load_Glyph(FontImpl->FontFace.get(), glyph.GlyphIndex,
-                      FT_LOAD_DEFAULT) != 0) {
-      ImpLog(LogLevel::Warning, LogChannel::Profile,
-             "Could not load glyph {:d}\n", glyph.GlyphIndex);
-      pen += glyph.Advance;
-      continue;
-    }
-    if (FT_Render_Glyph(FontImpl->FontFace.get()->glyph,
-                        FT_RENDER_MODE_NORMAL) != 0) {
-      ImpLog(LogLevel::Warning, LogChannel::Profile,
-             "Could not render glyph {:d}\n", glyph.GlyphIndex);
-      pen += glyph.Advance;
-      continue;
-    }
-
+  if (FT_Load_Glyph(FontImpl->FontFace.get(), glyphIndex, FT_LOAD_DEFAULT) !=
+      0) {
+    ImpLog(LogLevel::Warning, LogChannel::Profile,
+           "Could not load glyph {:d}\n", glyphIndex);
+  } else if (FT_Render_Glyph(FontImpl->FontFace.get()->glyph,
+                             FT_RENDER_MODE_NORMAL) != 0) {
+    ImpLog(LogLevel::Warning, LogChannel::Profile,
+           "Could not render glyph {:d}\n", glyphIndex);
+  } else {
     FT_GlyphSlot slot = FontImpl->FontFace.get()->glyph;
     FT_Bitmap const& bitmap = slot->bitmap;
-    if (bitmap.width == 0 || bitmap.rows == 0) {
-      pen += glyph.Advance;
-      continue;
+    if (bitmap.width != 0 && bitmap.rows != 0) {
+      Texture texture;
+      texture.Init(TexFmt_U8, static_cast<int>(bitmap.width),
+                   static_cast<int>(bitmap.rows));
+      for (uint32_t y = 0; y < bitmap.rows; ++y) {
+        const uint8_t* srcRow =
+            bitmap.pitch >= 0
+                ? bitmap.buffer + y * bitmap.pitch
+                : bitmap.buffer + (bitmap.rows - 1 - y) * -bitmap.pitch;
+        std::span<uint8_t> dstRow =
+            std::span(texture.Buffer).subspan(y * bitmap.width, bitmap.width);
+        std::memcpy(dstRow.data(), srcRow, bitmap.width);
+      }
+
+      cached.Sheet = SpriteSheet{static_cast<float>(bitmap.width),
+                                 static_cast<float>(bitmap.rows)};
+      cached.Sheet.Texture = texture.Submit();
+      cached.Bearing = {static_cast<float>(slot->bitmap_left),
+                        -static_cast<float>(slot->bitmap_top)};
+      cached.Size = {static_cast<float>(bitmap.width),
+                     static_cast<float>(bitmap.rows)};
     }
-
-    Texture texture;
-    texture.Init(TexFmt_U8, static_cast<int>(bitmap.width),
-                 static_cast<int>(bitmap.rows));
-    for (uint32_t y = 0; y < bitmap.rows; ++y) {
-      const uint8_t* srcRow =
-          bitmap.pitch >= 0
-              ? bitmap.buffer + y * bitmap.pitch
-              : bitmap.buffer + (bitmap.rows - 1 - y) * -bitmap.pitch;
-      std::span<uint8_t> dstRow =
-          std::span(texture.Buffer).subspan(y * bitmap.width, bitmap.width);
-      std::memcpy(dstRow.data(), srcRow, bitmap.width);
-    }
-
-    SpriteSheet sheet{static_cast<float>(bitmap.width),
-                      static_cast<float>(bitmap.rows)};
-    sheet.Texture = texture.Submit();
-
-    glm::vec2 glyphPos =
-        pen + glyph.Offset + glm::vec2(slot->bitmap_left, -slot->bitmap_top);
-    outGlyphs.push_back({Sprite{sheet, 0, 0, static_cast<float>(bitmap.width),
-                                static_cast<float>(bitmap.rows)},
-                         glyphPos, tint});
-
-    pen += glyph.Advance;
   }
+
+  return FontImpl->GlyphCache.emplace(key, cached).first->second;
 }
 
-void ExternalFont::FreeGlyphTextures(std::vector<ExternalFontGlyph>& glyphs) {
-  for (ExternalFontGlyph const& glyph : glyphs) {
-    if (glyph.GlyphSprite.Sheet.Texture != 0) {
-      Renderer->FreeTexture(glyph.GlyphSprite.Sheet.Texture);
+void ExternalFont::DrawProcessedText(std::span<const ProcessedTextGlyph> text,
+                                     float opacity, float outlineOpacity,
+                                     RendererOutlineMode outlineMode,
+                                     const SpriteSheet* maskedSheet,
+                                     glm::mat4 transformation) {
+  assert(IsLoaded());
+  assert(maskedSheet == nullptr);
+
+  const std::vector<size_t> visibleGlyphIds = GetVisibleGlyphIds(text);
+  if (visibleGlyphIds.empty()) return;
+
+  const auto drawPass = [&](uint32_t DialogueColorPair::* colorMember,
+                            glm::vec2 offset) {
+    const auto [passOpacity, opacityCurve] =
+        colorMember == &DialogueColorPair::OutlineColor
+            ? std::pair{outlineOpacity, OutlineOpacityCurve}
+            : std::pair{opacity, ForegroundOpacityCurve};
+
+    for (size_t idx : visibleGlyphIds) {
+      ProcessedTextGlyph const& glyph = text[idx];
+
+      CachedGlyph const& cached = GetOrRenderGlyph(
+          glyph.CharId,
+          static_cast<uint32_t>(std::round(glyph.DestRect.Height)));
+      if (cached.Sheet.Texture == 0) continue;
+
+      const glm::vec2 pos = glm::vec2(glyph.DestRect.X, glyph.DestRect.Y) +
+                            cached.Bearing + offset;
+      const Sprite sprite(cached.Sheet, 0, 0, cached.Size.x, cached.Size.y);
+      const CornersQuad dest = sprite.ScaledBounds().Translate(pos);
+
+      glm::vec4 color = RgbIntToFloat(glyph.Colors.*colorMember);
+      color.a = ApplyOpacityCurve(glyph.Opacity * passOpacity, opacityCurve);
+
+      Renderer->DrawSubtitleGlyph(sprite, dest, transformation, color);
     }
+  };
+
+  switch (outlineMode) {
+    using enum RendererOutlineMode;
+    case Full:
+      drawPass(&DialogueColorPair::OutlineColor, {-1.0f, -1.0f});
+      drawPass(&DialogueColorPair::OutlineColor, {1.0f, 1.0f});
+      break;
+    case BottomRight:
+      drawPass(&DialogueColorPair::OutlineColor, {1.0f, 1.0f});
+      break;
+    case None:
+      break;
   }
-  glyphs.clear();
+
+  drawPass(&DialogueColorPair::TextColor, {0.0f, 0.0f});
 }
 
 }  // namespace Impacto

@@ -6,7 +6,7 @@
 
 namespace Impacto {
 
-static float ApplyOpacityCurve(float opacity, OpacityCurve curve) {
+float Font::ApplyOpacityCurve(float opacity, OpacityCurve curve) {
   switch (curve) {
     using enum OpacityCurve;
     case Linear:
@@ -20,7 +20,7 @@ static float ApplyOpacityCurve(float opacity, OpacityCurve curve) {
   return opacity;
 }
 
-static std::vector<size_t> GetVisibleGlyphIds(
+std::vector<size_t> Font::GetVisibleGlyphIds(
     std::span<const ProcessedTextGlyph> text) {
   const static RectF viewport{0.0f, 0.0f, Profile::Game::DesignWidth,
                               Profile::Game::DesignHeight};

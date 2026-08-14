@@ -80,6 +80,13 @@ void LoadFonts() {
               outlineSheet, outlineGridSize, foregroundOffset, outlineOffset);
         }
       } break;
+
+      case External:
+        ImpLog(LogLevel::Fatal, LogChannel::Profile,
+               "External fonts cannot be loaded from the profile for {:s}\n",
+               name);
+        Window->Shutdown();
+        break;
     }
 
     Font* const baseFont = Fonts[name];

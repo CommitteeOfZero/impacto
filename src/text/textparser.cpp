@@ -209,10 +209,12 @@ void TextParser::ParseStringToken<STT_Character>(const StringToken& token) {
 
           const bool prevCharacterAllowsBreak =
               breakCharacter < 1 ||
-              !(StringToken::GetFlags(Glyphs[breakCharacter - 1].CharId) &
+              !(StringToken::GetFlags(
+                    static_cast<uint16_t>(Glyphs[breakCharacter - 1].CharId)) &
                 dontBreakBeforeFlags);
           const bool curCharacterAllowsBreak =
-              !(StringToken::GetFlags(Glyphs[breakCharacter].CharId) &
+              !(StringToken::GetFlags(
+                    static_cast<uint16_t>(Glyphs[breakCharacter].CharId)) &
                 dontBreakOnFlags);
 
           if (prevCharacterAllowsBreak && curCharacterAllowsBreak) {
@@ -224,7 +226,8 @@ void TextParser::ParseStringToken<STT_Character>(const StringToken& token) {
 
         // Skip all leading whitespace on the new line
         for (; breakCharacter < Glyphs.size(); breakCharacter++) {
-          if (!(StringToken::GetFlags(Glyphs[breakCharacter].CharId) &
+          if (!(StringToken::GetFlags(
+                    static_cast<uint16_t>(Glyphs[breakCharacter].CharId)) &
                 +CharacterTypeFlags::Space)) {
             break;
           }

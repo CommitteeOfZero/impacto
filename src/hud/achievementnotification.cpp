@@ -23,7 +23,7 @@ namespace AchievementNotification {
 
 static Sprite BackgroundSprite;
 static std::optional<ExternalFont> NotificationFont;
-static std::vector<ExternalFontGlyph> TextGlyphs;
+static std::vector<ProcessedTextGlyph> TextGlyphs;
 static Animation FadeAnimation;
 static float DisplayTimer = 0.0f;
 static std::optional<int> CurrentAchievementId;
@@ -32,8 +32,6 @@ static bool TextConfigured = false;
 static std::queue<int> NotificationQueue;
 
 using namespace Profile::AchievementNotification;
-
-static void FreeTextGlyphs() { ExternalFont::FreeGlyphTextures(TextGlyphs); }
 
 static float GetEffectiveScale() {
   auto const& config = Profile::UserConfig::CommonSettings;
@@ -84,19 +82,27 @@ static void BuildTextLine(std::string const& text, float fontSize, float left,
     glyphs = NotificationFont->ShapeLine(text, finalFontSize, width);
   }
 
-  const glm::vec4 textTint = RgbIntToFloat(color);
-  const glm::vec4 outlineTint = RgbIntToFloat(OutlineColor);
+  const DialogueColorPair colors{color, OutlineColor};
 
-  NotificationFont->RenderShapedLine(glyphs, finalFontSize,
-                                     {left + 1.0f, baselineY + 1.0f},
-                                     outlineTint, TextGlyphs);
-  NotificationFont->RenderShapedLine(glyphs, finalFontSize, {left, baselineY},
-                                     textTint, TextGlyphs);
+  glm::vec2 pen{left, baselineY};
+  for (ExternalFontShapedGlyph const& glyph : glyphs) {
+    const glm::vec2 glyphPos = pen + glyph.Offset;
+
+    ProcessedTextGlyph ptg;
+    ptg.CharId = glyph.GlyphIndex;
+    ptg.Colors = colors;
+    ptg.Opacity = 1.0f;
+    ptg.DestRect =
+        RectF(glyphPos.x, glyphPos.y, glyph.Advance.x, finalFontSize);
+    TextGlyphs.push_back(ptg);
+
+    pen += glyph.Advance;
+  }
 }
 
 static void BuildTextGlyphs(AchievementSystem::Achievement const* achievement,
                             int achievementId) {
-  FreeTextGlyphs();
+  TextGlyphs.clear();
   assert(TextConfigured);
 
   std::string title = achievement != nullptr ? achievement->Name() : "";
@@ -146,7 +152,7 @@ static void StartNextNotification() {
 }
 
 void Init() {
-  FreeTextGlyphs();
+  TextGlyphs.clear();
   NotificationFont.reset();
   TextConfigured = false;
 
@@ -219,12 +225,8 @@ void Render() {
 
   if (!TextGlyphs.empty()) {
     Renderer->SetBlendMode(RendererBlendMode::Premultiplied);
-    for (ExternalFontGlyph const& glyph : TextGlyphs) {
-      glm::vec4 glyphTint = glyph.Tint;
-      glyphTint.a *= tint.a;
-      Renderer->DrawSubtitleGlyph(glyph.GlyphSprite, pos + glyph.Position,
-                                  glyphTint);
-    }
+    NotificationFont->DrawProcessedText(TextGlyphs, tint.a, tint.a,
+                                        RendererOutlineMode::BottomRight, pos);
     Renderer->SetBlendMode(RendererBlendMode::Normal);
   }
 }
