@@ -261,7 +261,7 @@ void Configure() {
            "Patch is enabled but no patch directory is specified\n");
     exit(1);
   }
-  auto const& activeGameDef = GameDefinitions.at(UserConfig::ActiveGame);
+  auto const& activeGameDef = GameDefinitions.at(UserConfig::GetActiveGame());
 
   std::string const& gameProfilePath = activeGameDef.GameProfile;
   RunLuaScript(gameProfilePath.c_str());
@@ -272,13 +272,14 @@ void Configure() {
           LogLevel::Fatal, LogChannel::Profile,
           "Patch is enabled but patch.lua path is missing for patch profile {} "
           "in game {} definition\n",
-          *activePatch, UserConfig::ActiveGame);
+          *activePatch, UserConfig::GetActiveGame());
       exit(1);
     }
     RunLuaScript(patchProfilePathItr->second.c_str());
   }
   ImpLog(LogLevel::Info, LogChannel::Profile,
-         "Profile for {:s} loaded successfully.\n", UserConfig::ActiveGame);
+         "Profile for {:s} loaded successfully.\n",
+         UserConfig::GetActiveGame());
 
   // Push the global onto the stack to load all the values later
   lua_getglobal(LuaState, "root");

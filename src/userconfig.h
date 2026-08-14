@@ -4,7 +4,39 @@
 #include <ankerl/unordered_dense.h>
 #include "profile/subtitle.h"
 
-namespace Impacto::UserConfig {
+namespace Impacto {
+
+enum class RendererType : int {
+  OpenGL,
+  Vulkan,
+  DirectX9,
+};
+
+enum class VideoPlayerType : int {
+  None,
+  FFmpeg,
+};
+
+enum class AudioBackendType : int {
+  None,
+  OpenAL,
+};
+
+enum class SubtitleAssBackendType : int {
+  None,
+  LibAss,
+};
+
+enum class SubtitleTextBackendType : int {
+  None,
+};
+
+enum class SubtitleBmpBackendType : int {
+  None,
+};
+
+namespace UserConfig {
+
 struct GameConfig {
   std::optional<int> ResolutionWidth;
   std::optional<int> ResolutionHeight;
@@ -21,17 +53,30 @@ struct Config {
 
   bool CloseBacklogWhenReachedEnd = true;
 };
+struct AdvancedConfig {
+  RendererType ActiveRenderer = RendererType::OpenGL;
+  VideoPlayerType VideoPlayer = VideoPlayerType::FFmpeg;
+  AudioBackendType ActiveAudioBackend = AudioBackendType::OpenAL;
+  SubtitleAssBackendType SubtitleAssBackend = SubtitleAssBackendType::LibAss;
+  SubtitleTextBackendType SubtitleTextBackend = SubtitleTextBackendType::None;
+  SubtitleBmpBackendType SubtitleBmpBackend = SubtitleBmpBackendType::None;
+};
 
 GameConfig& ActiveGameSettings();
 void WriteUserConfig();
 
 std::optional<std::string_view> GetPatchProfile();
+std::string const& GetActiveGame();
+void SetActiveGame(std::string activeGame);
 
 inline ankerl::unordered_dense::map<std::string, GameConfig> GameSettings;
 inline Config CommonSettings;
-inline std::string ActiveGame;
+inline AdvancedConfig AdvancedSettings;
+
+inline std::string ActiveGameOverride;
 inline std::string PatchProfileOverride;
 inline std::string UserConfigPath;
 
 void Configure();
-}  // namespace Impacto::UserConfig
+}  // namespace UserConfig
+}  // namespace Impacto

@@ -10,12 +10,6 @@
 
 namespace Impacto {
 
-enum class RendererType : int {
-  OpenGL,
-  Vulkan,
-  DirectX9,
-};
-
 enum class GameFeature : int {
   DebugMenu = (1 << 0),
   Scene3D = (1 << 1),
@@ -28,29 +22,6 @@ enum class GameFeature : int {
   Video = (1 << 8),
   Subtitles = (1 << 9),
   DebugMenuMultiViewport = (1 << 10),
-};
-
-enum class VideoPlayerType : int {
-  None,
-  FFmpeg,
-};
-
-enum class AudioBackendType : int {
-  None,
-  OpenAL,
-};
-
-enum class SubtitleAssBackendType : int {
-  None,
-  LibAss,
-};
-
-enum class SubtitleTextBackendType : int {
-  None,
-};
-
-enum class SubtitleBmpBackendType : int {
-  None,
 };
 
 namespace Game {

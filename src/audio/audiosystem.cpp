@@ -1,4 +1,5 @@
 #include "audiosystem.h"
+#include "../userconfig.h"
 #include "../log.h"
 #include "../profile/game.h"
 #include "../profile/scriptvars.h"
@@ -159,7 +160,7 @@ void AudioInit() {
   assert(IsInit == false);
   ImpLog(LogLevel::Info, LogChannel::Audio, "Initialising audio system\n");
 
-  switch (Profile::Game::ActiveAudioBackend) {
+  switch (UserConfig::AdvancedSettings.ActiveAudioBackend) {
 #ifndef IMPACTO_DISABLE_OPENAL
     case AudioBackendType::OpenAL: {
       Backend = new OpenAL::AudioBackend();

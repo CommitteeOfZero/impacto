@@ -23,6 +23,7 @@ extern "C" {
 #include <utility>
 #include "ffmpegstream.h"
 
+#include "../userconfig.h"
 #include "../log.h"
 #include "../profile/game.h"
 #include "../io/stream.h"
@@ -80,7 +81,7 @@ FFmpegPlayer::~FFmpegPlayer() { IsInit = false; }
 void FFmpegPlayer::Init() {
   assert(IsInit == false);
 
-  switch (Profile::Game::ActiveAudioBackend) {
+  switch (UserConfig::AdvancedSettings.ActiveAudioBackend) {
 #ifndef IMPACTO_DISABLE_OPENAL
     case AudioBackendType::OpenAL: {
       AudioPlayer.reset(new Audio::OpenAL::FFmpegAudioPlayer(this));

@@ -100,7 +100,9 @@ static void HandleArguments(std::vector<std::string_view> args) {
             [&](std::string_view input) { g_LogLevel = StringToLevel(input); },
             "-ll", "--loglevel"),
         make_handler(
-            [&](std::string_view input) { UserConfig ::ActiveGame = input; },
+            [&](std::string_view input) {
+              UserConfig ::ActiveGameOverride = input;
+            },
             "-g", "--game"),
         make_handler(
             [&](std::string_view input) {

@@ -240,7 +240,7 @@ void BaseWindow::CreateSDLWindow(Uint32 flags) {
   WindowWidth = config.ResolutionWidth;
   WindowHeight = config.ResolutionHeight;
 
-  if (!UserConfig::ActiveGame.empty()) {
+  if (!UserConfig::GetActiveGame().empty()) {
     auto const& gameConfig = UserConfig::ActiveGameSettings();
 
     if (gameConfig.ResolutionHeight.has_value() ^

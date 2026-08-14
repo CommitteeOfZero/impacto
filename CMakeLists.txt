@@ -904,7 +904,7 @@ FetchContent_Declare(
 
 FetchContent_Declare(
     magic_enum
-    GIT_TAG "7d87efb4a3dddbbe8caa9ca14eff05ede1102ab8"
+    GIT_TAG "591b64351ea8442f8b8fa044ff335d6943e8e6e0"
     GIT_REPOSITORY "https://github.com/Neargye/magic_enum.git"
     SYSTEM
     EXCLUDE_FROM_ALL

@@ -9,8 +9,7 @@
 #include "util.h"
 
 namespace toml {
-using Impacto::UserConfig::Config;
-using Impacto::UserConfig::GameConfig;
+using namespace Impacto::UserConfig;
 
 static bool AssignIfExists(toml::value const& v, std::string const& configKey,
                            auto& member) {
@@ -20,13 +19,11 @@ static bool AssignIfExists(toml::value const& v, std::string const& configKey,
   bool exists = false;
   try {
     if constexpr (std::is_enum_v<MemberType>) {
-      using MagicEnumRange = magic_enum::customize::enum_range<MemberType>;
-
       std::optional<MemberType> enumOpt;
       auto enumStr = toml::find<std::optional<std::string>>(v, configKey);
       exists = enumStr.has_value();
       if (enumStr) {
-        if constexpr (MagicEnumRange::is_flags)
+        if constexpr (magic_enum::is_flags_v<MemberType>)
           enumOpt = magic_enum::enum_flags_cast<MemberType>(*enumStr);
         else
           enumOpt = magic_enum::enum_cast<MemberType>(*enumStr);
@@ -93,6 +90,21 @@ struct from<Config> {
 };
 
 template <>
+struct from<AdvancedConfig> {
+  static AdvancedConfig from_toml(const toml::value& v) {
+    AdvancedConfig config;
+    AssignIfExists(v, "ActiveRenderer", config.ActiveRenderer);
+    AssignIfExists(v, "VideoPlayer", config.VideoPlayer);
+    AssignIfExists(v, "ActiveAudioBackend", config.ActiveAudioBackend);
+    AssignIfExists(v, "SubtitleAssBackend", config.SubtitleAssBackend);
+    AssignIfExists(v, "SubtitleTextBackend", config.SubtitleTextBackend);
+    AssignIfExists(v, "SubtitleBmpBackend", config.SubtitleBmpBackend);
+
+    return config;
+  }
+};
+
+template <>
 struct into<GameConfig> {
   template <typename TC>
   static toml::basic_value<TC> into_toml(const GameConfig& f) {
@@ -126,9 +138,32 @@ struct into<Config> {
   }
 };
 
+template <>
+struct into<AdvancedConfig> {
+  template <typename TC>
+  static toml::basic_value<TC> into_toml(const AdvancedConfig& config) {
+    using value_type = toml::basic_value<TC>;
+    using table_type = typename value_type::table_type;
+    return value_type(table_type{
+        {"ActiveRenderer", magic_enum::enum_name(config.ActiveRenderer)},
+        {"VideoPlayer", magic_enum::enum_name(config.VideoPlayer)},
+        {"ActiveAudioBackend",
+         magic_enum::enum_name(config.ActiveAudioBackend)},
+        {"SubtitleAssBackend",
+         magic_enum::enum_name(config.SubtitleAssBackend)},
+        {"SubtitleTextBackend",
+         magic_enum::enum_name(config.SubtitleTextBackend)},
+        {"SubtitleBmpBackend",
+         magic_enum::enum_name(config.SubtitleBmpBackend)},
+    });
+  }
+};
+
 }  // namespace toml
 
 namespace Impacto::UserConfig {
+static std::string ActiveGame;
+
 static std::unique_ptr<Io::PhysicalFileStream> openTomlFile(
     Io::PhysicalFileStream::CreateFlags flags) {
   std::unique_ptr<Io::PhysicalFileStream> userConfigFile;
@@ -186,6 +221,11 @@ void Configure() {
           tomlConfig, "GameSettings")) {
     GameSettings = std::move(*gameSettingsOpt);
   }
+  if (auto advancedSettingsOpt =
+          toml::find<std::optional<decltype(AdvancedSettings)>>(
+              tomlConfig, "AdvancedSettings")) {
+    AdvancedSettings = std::move(*advancedSettingsOpt);
+  }
 
   if (ActiveGame.empty())
     ActiveGame = toml::find_or(tomlConfig, "ActiveGame", "");
@@ -197,7 +237,16 @@ void Configure() {
   WriteUserConfig();
 };
 
-GameConfig& ActiveGameSettings() { return GameSettings[ActiveGame]; }
+GameConfig& ActiveGameSettings() { return GameSettings[GetActiveGame()]; }
+
+std::string const& GetActiveGame() {
+  if (!ActiveGameOverride.empty()) return ActiveGameOverride;
+  return ActiveGame;
+}
+
+void SetActiveGame(std::string activeGame) {
+  ActiveGame = std::move(activeGame);
+}
 
 std::optional<std::string_view> GetPatchProfile() {
   if (!PatchProfileOverride.empty()) {
@@ -235,6 +284,7 @@ void WriteUserConfig() {
   tomlConfig["ActiveGame"] = ActiveGame;
   tomlConfig["GameSettings"] = GameSettings;
   tomlConfig["CommonSettings"] = CommonSettings;
+  tomlConfig["AdvancedSettings"] = AdvancedSettings;
 
   std::string tomlContents = toml::format(tomlConfig);
   userConfigFile->Seek(0, RW_SEEK_SET);

@@ -1,6 +1,7 @@
 #include "renderer.h"
 
 #include "../profile/game.h"
+#include "../userconfig.h"
 #include "../log.h"
 
 #ifndef IMPACTO_DISABLE_OPENGL
@@ -18,7 +19,7 @@
 namespace Impacto {
 
 void InitRenderer() {
-  switch (Profile::Game::ActiveRenderer) {
+  switch (UserConfig::AdvancedSettings.ActiveRenderer) {
 #ifndef IMPACTO_DISABLE_OPENGL
     case RendererType::OpenGL:
       Renderer = new OpenGL::Renderer();
