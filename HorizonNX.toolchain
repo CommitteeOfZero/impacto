@@ -32,8 +32,8 @@ set(ENV{PKG_CONFIG_PATH} "")
 set(ENV{PKG_CONFIG_LIBDIR} "${DEVKITPRO}/portlibs/switch/lib/pkgconfig")
 set(ENV{PKG_CONFIG_SYSROOT_DIR} "${DEVKITPRO}/portlibs/switch")
 
-set(CMAKE_C_FLAGS "${CPPFLAGS} -march=armv8-a -mtune=cortex-a57 -mtp=soft -fPIC -ffunction-sections" CACHE STRING "C flags")
-set(CMAKE_CXX_FLAGS "${CPPFLAGS} ${CMAKE_C_FLAGS}" CACHE STRING "C++ flags")
+set(CMAKE_C_FLAGS_INIT "${CPPFLAGS} -march=armv8-a -mtune=cortex-a57 -mtp=soft -fPIC -ffunction-sections -ftls-model=local-exec" CACHE STRING "C flags")
+set(CMAKE_CXX_FLAGS_INIT "${CPPFLAGS} ${CMAKE_C_FLAGS_INIT}" CACHE STRING "C++ flags")
 
 if(WITH_PORTLIBS)
     list(APPEND CMAKE_FIND_ROOT_PATH ${DEVKITPRO}/devkitA64 ${DEVKITPRO} ${DEVKITPRO}/libnx ${DEVKITPRO}/portlibs/switch)
