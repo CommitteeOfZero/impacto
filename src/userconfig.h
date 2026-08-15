@@ -37,12 +37,24 @@ enum class SubtitleBmpBackendType : int {
 
 namespace UserConfig {
 
+struct CHLCCExtraConfig {
+  bool DelusionMousePatch = true;
+};
+
+struct CCLCCExtraConfig {
+  bool DelusionMousePatch = true;
+};
+
+using GameExtraConfig =
+    std::variant<std::monostate, CHLCCExtraConfig, CCLCCExtraConfig>;
 struct GameConfig {
   std::optional<int> ResolutionWidth;
   std::optional<int> ResolutionHeight;
   std::string PatchProfile;
   bool UsePatch;
   bool Fullscreen = false;
+
+  GameExtraConfig Extra;
 };
 struct Config {
   int ResolutionWidth = 1280;
