@@ -8,24 +8,32 @@ On application load, a set of scripts we call *profile* is executed, generating 
 
 ## Configuration Files
 
-**`baseconfig.lua`** defines available games and their profile locations. For example:
+**`basepaths.lua`** defines important paths for where Impacto will look for files. Later loaded profile lua files also use variables from this file.
+
+**`gamedefinitions.lua`** defines available games and their startup lua path, as well as any additional patches startup lua. For example:
 ```lua
-root.BaseConfig.GameDefinitions = {
+root.GameDefinitions = {
   chlcc = {
-    GameProfile = root.BaseConfig.RootProfilesDir .. "/chlcc/game.lua",
+    GameProfile = root.BasePaths.RootProfilesDir .. "/chlcc/game.lua",
     Patch = {
-      English = root.BaseConfig.RootPatchesDir .. "/english/profiles/chlcc/patch.lua",
+      English = root.BasePaths.RootPatchesDir .. "/english/profiles/chlcc/patch.lua",
     }
   },
   -- ... other games
 };
 ```
 
+In a release environment, the above files will be placed in a platform specific preferences directory.
+For development purposes it will prioritize looking for these files in the same directory as the Impacto executable first.
+
 **`userconfig.toml`** contains runtime settings including the active game. Change settings for specific games or common settings here.
+This file will be checked for at startup in the platform specific preferences directory, if one does not exist it will be created.
 
-In a release environment, these files will be placed in a platform specific preferences directory. 
-
-For development purposes it will fallback to looking for these files in the same directory as the impacto executable.
+On Windows the files generally are placed in "%AppData%/Committee of Zero/Impacto" 
+On Linux the files generally are placed in "$XDG_CONFIG_HOME/Committee of Zero/Impacto" 
+On Mac the files generally are placed in "~/Library/Application Support/Committee of Zero/Impacto" 
+On Android the files generally are placed in "/storage/emulated/0/Android/data/com.committeeofzero.impacto/files"
+Anything else is placed inside the same directory as the Impacto executable.
 
 ## Preparing files
 The following directories must be in the same directory as the impacto executable:
@@ -52,8 +60,8 @@ You can specify the game to launch using any of these methods (in priority order
    impacto --game cclcc
    ```
 
-2. **Set `ActiveGame` in `userconfig.lua`**:
-   Uncomment the line `ActiveGame = "<profile_name>"` to set the default game for your development session.
+2. **Set `ActiveGame` in `userconfig.toml`**:
+   Set `ActiveGame = "<profile_name>"` to set the default game for your development session.
 
 3. **Fallback: `args.txt`** (for platforms without command-line support):
    Create a file named `args.txt` next to the executable with the game name as content. This is useful for platforms without arguments support.
@@ -88,6 +96,8 @@ Available Log Channels:
 - Audio
 - Profile
 - Video
+- Subtitle
+- Config
 - All
 
 Available Log Levels:

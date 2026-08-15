@@ -22,12 +22,15 @@ struct from<T> {
     std::string errStr;
     if constexpr (magic_enum::is_flags_v<T>) {
       enumOpt = magic_enum::enum_flags_cast<T>(enumStr);
-      errStr = fmt::format(
-          "Expected a combination of following flags (join with '|'):",
-          magic_enum::enum_values<T>());
+      if (!enumOpt)
+        errStr = fmt::format(
+            "Expected a combination of following flags (join with '|'): {}",
+            magic_enum::enum_values<T>());
     } else {
       enumOpt = magic_enum::enum_cast<T>(enumStr);
-      errStr = fmt::format("Expected one of {}", magic_enum::enum_values<T>());
+      if (!enumOpt)
+        errStr =
+            fmt::format("Expected one of {}", magic_enum::enum_values<T>());
     }
 
     if (!errStr.empty()) {
