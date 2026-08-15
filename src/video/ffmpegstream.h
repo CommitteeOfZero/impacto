@@ -15,7 +15,7 @@
 #if __SWITCH__
 #define __unix__
 #endif
-#include <readerwritercircularbuffer.h>
+#include <readerwriterqueue/readerwritercircularbuffer.h>
 #if __SWITCH__
 #undef __unix__
 #endif

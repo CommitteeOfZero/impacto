@@ -835,69 +835,11 @@ if(NX)
     add_compile_definitions(__SWITCH__)
 endif()
 
-# dependencies
-FetchContent_Declare(
-    glm
-    GIT_REPOSITORY	https://github.com/g-truc/glm.git
-	GIT_TAG "1.0.1"
-    SYSTEM
-    EXCLUDE_FROM_ALL
-)
-
 FetchContent_Declare(
     libatrac9
     GIT_TAG "master"
     GIT_REPOSITORY "https://github.com/Thealexbarney/LibAtrac9.git"
     PATCH_COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/vendor/patches/LibAtrac9/CMakeLists.txt <SOURCE_DIR>/CMakeLists.txt
-    SYSTEM
-    EXCLUDE_FROM_ALL
-)
-if (NOT VCPKG_TOOLCHAIN)
-    FetchContent_Declare(
-        fmt
-        GIT_REPOSITORY "https://github.com/fmtlib/fmt.git"
-        GIT_TAG "11.1.4"
-        SYSTEM
-        EXCLUDE_FROM_ALL
-    )
-endif ()
-
-FetchContent_Declare(
-    pugixml
-    GIT_REPOSITORY "https://github.com/zeux/pugixml.git"
-    GIT_TAG "v1.14"
-    SYSTEM
-    EXCLUDE_FROM_ALL
-)
-
-FetchContent_Declare(
-    utf8cpp
-    GIT_REPOSITORY "https://github.com/nemtrif/utfcpp"
-    GIT_TAG "v4.0.5"
-    SYSTEM
-    EXCLUDE_FROM_ALL
-)
-
-FetchContent_Declare(
-    concurrentqueue
-    GIT_REPOSITORY "https://github.com/cameron314/concurrentqueue"
-    GIT_TAG "v1.0.4"
-    SYSTEM
-    EXCLUDE_FROM_ALL
-)
-
-FetchContent_Declare(
-    readerwriterqueue
-    GIT_REPOSITORY "https://github.com/cameron314/readerwriterqueue"
-    GIT_TAG "16b48ae1148284e7b40abf72167206a4390a4592"
-    SYSTEM
-    EXCLUDE_FROM_ALL
-)
-
-FetchContent_Declare(
-    unordered_dense
-    GIT_REPOSITORY "https://github.com/martinus/unordered_dense"
-    GIT_TAG "v4.5.0"
     SYSTEM
     EXCLUDE_FROM_ALL
 )
@@ -910,108 +852,8 @@ FetchContent_Declare(
     EXCLUDE_FROM_ALL
 )
 
-FetchContent_Declare(
-    boost_core
-    GIT_TAG "boost-1.91.0"
-    GIT_REPOSITORY "https://github.com/boostorg/core.git"
-    SYSTEM
-    EXCLUDE_FROM_ALL
-)
-
-FetchContent_Declare(
-    boost_config
-    GIT_TAG "boost-1.91.0"
-    GIT_REPOSITORY "https://github.com/boostorg/config.git"
-    SYSTEM
-    EXCLUDE_FROM_ALL
-)
-
-FetchContent_Declare(
-    boost_throwexception
-    GIT_TAG "boost-1.91.0"
-    GIT_REPOSITORY "https://github.com/boostorg/throw_exception.git"
-    SYSTEM
-    EXCLUDE_FROM_ALL
-)
-
-FetchContent_Declare(
-    boost_assert
-    GIT_TAG "boost-1.91.0"
-    GIT_REPOSITORY "https://github.com/boostorg/assert.git"
-    SYSTEM
-    EXCLUDE_FROM_ALL
-)
-
-FetchContent_Declare(
-    boost_preprocessor
-    GIT_TAG "boost-1.91.0"
-    GIT_REPOSITORY "https://github.com/boostorg/preprocessor.git"
-    SYSTEM
-    EXCLUDE_FROM_ALL
-)
-
-FetchContent_Declare(
-    boost_move
-    GIT_TAG "boost-1.91.0"
-    GIT_REPOSITORY "https://github.com/boostorg/move.git"
-    SYSTEM
-    EXCLUDE_FROM_ALL
-)
-
-FetchContent_Declare(
-    boost_typetraits
-    GIT_TAG "boost-1.91.0"
-    GIT_REPOSITORY "https://github.com/boostorg/type_traits.git"
-    SYSTEM
-    EXCLUDE_FROM_ALL
-)
-
-FetchContent_Declare(
-    boost_conceptcheck
-    GIT_TAG "boost-1.91.0"
-    GIT_REPOSITORY "https://github.com/boostorg/concept_check.git"
-    SYSTEM
-    EXCLUDE_FROM_ALL
-)
-
-FetchContent_Declare(
-    boost_circularbuffer
-    GIT_TAG "boost-1.91.0"
-    GIT_REPOSITORY "https://github.com/boostorg/circular_buffer.git"
-    SYSTEM
-    EXCLUDE_FROM_ALL
-)
-
-FetchContent_Declare(
-    toml11
-    GIT_REPOSITORY https://github.com/ToruNiina/toml11.git
-    GIT_TAG v4.4.0
-    SYSTEM
-    EXCLUDE_FROM_ALL
-)
-
-if (NOT VCPKG_TOOLCHAIN)
-    FetchContent_MakeAvailable(fmt)
-endif ()
-FetchContent_MakeAvailable(glm)
-FetchContent_MakeAvailable(pugixml)
-FetchContent_MakeAvailable(utf8cpp)
 FetchContent_MakeAvailable(libatrac9)
-FetchContent_MakeAvailable(concurrentqueue)
-FetchContent_MakeAvailable(readerwriterqueue)
-FetchContent_MakeAvailable(unordered_dense)
 FetchContent_MakeAvailable(magic_enum)
-
-FetchContent_MakeAvailable(boost_core)
-FetchContent_MakeAvailable(boost_config)
-FetchContent_MakeAvailable(boost_throwexception)
-FetchContent_MakeAvailable(boost_assert)
-FetchContent_MakeAvailable(boost_preprocessor)
-FetchContent_MakeAvailable(boost_move)
-FetchContent_MakeAvailable(boost_typetraits)
-FetchContent_MakeAvailable(boost_conceptcheck)
-FetchContent_MakeAvailable(boost_circularbuffer)
-FetchContent_MakeAvailable(toml11)
 
 if (NOT DEFINED IMPACTO_DISABLE_MMAP)
     list(APPEND Impacto_Src
@@ -1136,59 +978,54 @@ else ()
         "$<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>"
         "$<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>"
     )
+    find_package(Ogg CONFIG REQUIRED)
+    find_package(Vorbis CONFIG REQUIRED)
+    find_package(WebP CONFIG REQUIRED)
+
+    list(APPEND Impacto_Libs
+        ${SDL2_LIBRARIES}
+        ZLIB::ZLIB
+        WebP::webp WebP::webpdecoder WebP::webpdemux
+        Ogg::ogg
+        Vorbis::vorbis
+        Vorbis::vorbisfile
+    )
+
     if (NX)
-        pkg_check_modules(ogg REQUIRED IMPORTED_TARGET ogg)
-        pkg_check_modules(vorbis REQUIRED IMPORTED_TARGET vorbis)
-        pkg_check_modules(vorbisfile REQUIRED IMPORTED_TARGET vorbisfile)
-        pkg_check_modules(libwebp REQUIRED IMPORTED_TARGET libwebp)
         list(APPEND Impacto_Libs
-            ${SDL2_LIBRARIES}
-            ZLIB::ZLIB
-            PkgConfig::vorbisfile
-            PkgConfig::vorbis
-            PkgConfig::ogg
-            PkgConfig::libwebp
             EGL
             glapi
             drm_nouveau
             nx
         )
-        add_definitions(-DIMPACTO_OPENAL_HAVE_ALEXT)
-    else ()
-        find_package(Ogg CONFIG REQUIRED)
-        find_package(Vorbis CONFIG REQUIRED)
-        find_package(WebP CONFIG REQUIRED)
-
-        list(APPEND Impacto_Libs
-            ${SDL2_LIBRARIES}
-            ZLIB::ZLIB
-            WebP::webp WebP::webpdecoder WebP::webpdemux
-            Ogg::ogg
-            Vorbis::vorbis
-            Vorbis::vorbisfile
-        )
-
-        add_definitions(-DIMPACTO_OPENAL_HAVE_ALEXT)
     endif ()
+
+    add_definitions(-DIMPACTO_OPENAL_HAVE_ALEXT)
 endif ()
 
 list(APPEND Impacto_Include_Dirs ${SDL2_INCLUDE_DIRS})
 list(APPEND Impacto_Include_Dirs ${WebP_INCLUDE_DIRS})
 
-if (VCPKG_TOOLCHAIN)
-    find_package(fmt CONFIG REQUIRED)
-endif ()
-list(APPEND Impacto_Libs fmt::fmt)
+find_package(fmt CONFIG REQUIRED)
+find_package(glm CONFIG REQUIRED)
+find_package(Boost REQUIRED COMPONENTS circular_buffer)
+find_package(pugixml CONFIG REQUIRED)
+find_package(unordered_dense CONFIG REQUIRED)
+find_package(readerwriterqueue CONFIG REQUIRED)
+find_package(concurrentqueue CONFIG REQUIRED)
+find_package(utf8cpp CONFIG REQUIRED)
+find_package(toml11 CONFIG REQUIRED)
 
 list(APPEND Impacto_Libs
+        fmt::fmt
         pugixml::pugixml
         atrac9
         unordered_dense::unordered_dense
         magic_enum
         glm::glm
-        utf8cpp
-        concurrentqueue
-        readerwriterqueue
+        utf8cpp::utf8cpp
+        concurrentqueue::concurrentqueue
+        readerwriterqueue::readerwriterqueue
         Boost::circular_buffer
         toml11::toml11
 )
@@ -1305,48 +1142,17 @@ if (NOT DEFINED IMPACTO_DISABLE_FFMPEG)
         src/subtitle/ffmpegsubtitlehelper.h
     )
 
-    if (NOT VCPKG_TOOLCHAIN)
-        if(NOT BUILD_SHARED_LIBS)
-            set(AV_ENABLE_SHARED OFF CACHE BOOL "Enable shared library build (Off)" FORCE)            
-        endif()
-        set(AV_DISABLE_AVDEVICE ON CACHE INTERNAL "Disable FFMPEG AVDevice")
-        set(AV_DISABLE_AVFILTER ON CACHE INTERNAL "Disable FFMPEG AVFilter")
-        set(AV_BUILD_EXAMPLES OFF CACHE INTERNAL "Build AVCPP Examples")
-        FetchContent_Declare(
-            avcpp
-            GIT_REPOSITORY "https://github.com/h4tr3d/avcpp"
-            GIT_TAG "6bf8c76b120cf2cc448d706ea22f112017803605"
-            SYSTEM
-            GIT_SUBMODULES ""
-            PATCH_COMMAND ${AVCPP_PATCH}
-            UPDATE_DISCONNECTED 1
-        )
 
-        FetchContent_MakeAvailable(avcpp)
-        pkg_check_modules(FFmpeg REQUIRED IMPORTED_TARGET 
-            libavcodec 
-            libavutil 
-            libswscale
-            libswresample
-            libavformat 
-        )
+    find_package(FFMPEG REQUIRED)
+    list(APPEND Impacto_Include_Dirs ${FFMPEG_INCLUDE_DIRS})
+    list(APPEND Impacto_Libs ${FFMPEG_LIBRARIES})
 
-        list(APPEND Impacto_Libs
-            avcpp
-            PkgConfig::FFmpeg
-        )
-    else ()
-        find_package(FFMPEG REQUIRED)
-        list(APPEND Impacto_Include_Dirs ${FFMPEG_INCLUDE_DIRS})
-        list(APPEND Impacto_Libs ${FFMPEG_LIBRARIES})
-
-        find_package(avcpp CONFIG REQUIRED)
-        list(APPEND Impacto_Libs
-            avcpp::avcpp
-            avcpp::FFmpeg
-        )
+    find_package(avcpp CONFIG REQUIRED)
+    list(APPEND Impacto_Libs
+        avcpp::avcpp
+        avcpp::FFmpeg
+    )
         
-    endif ()
     list(APPEND Impacto_Include_Dirs ${FFMPEG_INCLUDE_DIRS})
     list(APPEND Impacto_Libs ${FFMPEG_LIBRARIES})
     pkg_check_modules(dav1d REQUIRED IMPORTED_TARGET dav1d)

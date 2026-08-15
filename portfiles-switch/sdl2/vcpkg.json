@@ -1,0 +1,10 @@
+{
+  "name": "sdl2",
+  "version": "2.32.10",
+  "description": "Empty overlay for the Switch build: SDL2 is provided by the devkitPro switch-sdl2 portlib.",
+  "features": {
+    "vulkan": {
+      "description": "No-op on Switch (Vulkan is disabled); the devkitPro SDL2 build already provides whatever backends it supports."
+    }
+  }
+}

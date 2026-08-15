@@ -1,0 +1,14 @@
+{
+  "name": "ffmpeg",
+  "version": "7.1.2",
+  "description": "Empty overlay for the Switch build: FFmpeg is provided by the devkitPro switch-ffmpeg portlib (libav* resolved via pkg-config).",
+  "features": {
+    "avcodec": { "description": "No-op overlay feature; provided by devkitPro switch-ffmpeg." },
+    "avformat": { "description": "No-op overlay feature; provided by devkitPro switch-ffmpeg." },
+    "swresample": { "description": "No-op overlay feature; provided by devkitPro switch-ffmpeg." },
+    "swscale": { "description": "No-op overlay feature; provided by devkitPro switch-ffmpeg." },
+    "dav1d": { "description": "No-op overlay feature; dav1d is provided by the devkitPro switch-dav1d portlib." },
+    "zlib": { "description": "No-op overlay feature; provided by devkitPro switch-ffmpeg." },
+    "vaapi": { "description": "No-op overlay feature (Linux-only in the manifest; never selected on Switch)." }
+  }
+}

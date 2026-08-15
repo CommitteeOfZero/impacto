@@ -1,0 +1,5 @@
+{
+  "name": "vulkan",
+  "version": "1.1.0",
+  "description": "Empty overlay for the Switch build: Vulkan is disabled on Switch (IMPACTO_DISABLE_VULKAN), so no Vulkan SDK is needed."
+}

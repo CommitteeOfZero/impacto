@@ -1,0 +1,5 @@
+{
+  "name": "libwebp",
+  "version": "1.4.0",
+  "description": "Empty overlay for the Switch build: libwebp is provided by the devkitPro switch-libwebp portlib."
+}

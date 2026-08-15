@@ -2,7 +2,7 @@
 #include "profile_internal.h"
 #include "../text/text.h"
 
-#include <utf8.h>
+#include <utf8cpp/utf8.h>
 
 namespace Impacto {
 namespace Profile {
