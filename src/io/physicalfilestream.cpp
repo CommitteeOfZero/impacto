@@ -6,6 +6,11 @@
 #include <algorithm>
 #include <system_error>
 
+template <>
+struct magic_enum::customize::enum_range<std::ios_base::openmode> {
+  static constexpr bool is_flags = true;
+};
+
 namespace Impacto {
 namespace Io {
 std::ios_base::openmode PhysicalFileStream::PrepareFileOpenMode(
@@ -62,6 +67,10 @@ std::ios_base::openmode PhysicalFileStream::PrepareFileOpenMode(
       return {};
     }
   }
+
+  ImpLog(LogLevel::Debug, LogChannel::IO,
+         "Opening file \"{:s}\" with flags {}\n", SourceFileName,
+         magic_enum::enum_flags_name(mode));
 
   return mode;
 }
