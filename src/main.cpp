@@ -210,7 +210,7 @@ int main(int argc, char* argv[]) {
     if (!Game::ShouldQuit) {
       Game::InitGameProfile();
     }
-
+    t = SDL_GetPerformanceCounter();
     while (!Game::ShouldQuit) {
       GameLoop();
     }
