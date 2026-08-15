@@ -29,7 +29,11 @@ void Configure() {
 
   SystemMenuBG = EnsureGetMember<Sprite>("SystemMenuBG");
   SystemMenuFrame = EnsureGetMember<Sprite>("SystemMenuFrame");
+
   MenuButtonGuide = EnsureGetMember<Sprite>("MenuButtonGuide");
+  MenuButtonGuidePos = EnsureGetMember<glm::vec2>("MenuButtonGuidePos");
+  MenuButtonGuideFadeXOffset =
+      EnsureGetMember<float>("MenuButtonGuideFadeXOffset");
 
   OverlaySprite = EnsureGetMember<Sprite>("OverlaySprite");
 

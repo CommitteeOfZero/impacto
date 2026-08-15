@@ -45,6 +45,9 @@ root.SystemMenu = {
     MenuEntriesHighlightedSprites = {},
 
     MenuButtonGuide = "SystemMenuButtonGuide",
+    MenuButtonGuidePos = { X = 0, Y = 989 };
+    MenuButtonGuideFadeXOffset = -200,
+
     SystemMenuBG = "SystemMenuBG",
     SystemMenuFrame = "SystemMenuFrame",
     OverlaySprite = "OverlaySprite",

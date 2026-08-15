@@ -44,6 +44,9 @@ class SystemMenu : public Menu, public CommonMenu {
     Help,
     ReturnTitle
   };
+
+  // Needs access to ItemsFade
+  friend void CommonMenu::DrawOverlay(float);
 };
 
 }  // namespace CCLCC
