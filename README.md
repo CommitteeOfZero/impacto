@@ -14,6 +14,8 @@ For building on Windows with Visual Studio 2019 or newer, please refer to the [b
 
 For building on Linux, see the [instructions for Ubuntu Desktop](doc/ubuntu_build.md) and adapt to your distribution if necessary.
 
+For building for the Nintendo Switch (Horizon / devkitPro), see the [Switch build instructions](doc/switch_build.md).
+
 More platforms and toolchains are known to work.
 
 ## Contributing

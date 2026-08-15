@@ -1,0 +1,4 @@
+file(INSTALL "${CMAKE_CURRENT_LIST_DIR}/VorbisConfig.cmake"
+     DESTINATION "${CURRENT_PACKAGES_DIR}/share/vorbis")
+
+set(VCPKG_POLICY_EMPTY_PACKAGE enabled)
