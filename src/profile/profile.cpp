@@ -229,16 +229,37 @@ void Init() {
 void Configure() {
   const auto setupScriptPath = [](std::string const& fileName,
                                   std::string& path) {
-    if (path.empty()) {
-      std::filesystem::path configDir = Io::GetPlatformConfigDir();
-      path = (configDir / fileName).string();
-    }
-    if (Io::PathExists(path) != IoError_OK) {
+    // Override
+    if (!path.empty()) {
+      if (Io::PathExists(path) == IoError_OK) return;
+
       ImpLog(LogLevel::Warning, LogChannel::Profile,
-             "Failed to find {}, falling back to {} in engine directory.\n",
-             path, fileName);
-      path = fileName;
+             "Failed to find override path {}, falling back.\n", path);
     }
+
+    // Engine directory
+    if (Io::PathExists(fileName) == IoError_OK) {
+      path = fileName;
+
+      ImpLog(LogLevel::Info, LogChannel::Profile, "Loading path {}.\n", path);
+      return;
+    }
+
+    // Platform Specific Dir
+    std::filesystem::path configDir = Io::GetPlatformConfigDir();
+    std::filesystem::path platformPath = configDir / fileName;
+
+    if (Io::PathExists(platformPath.string()) == IoError_OK) {
+      path = platformPath.string();
+
+      ImpLog(LogLevel::Info, LogChannel::Profile, "Loading path {}.\n", path);
+      return;
+    }
+
+    ImpLog(LogLevel::Fatal, LogChannel::Profile, "Failed to find {}.\n",
+           platformPath);
+
+    throw std::runtime_error(fmt::format("Failed to find {}", fileName));
   };
 
   setupScriptPath("basepaths.lua", BasePathsPath);
