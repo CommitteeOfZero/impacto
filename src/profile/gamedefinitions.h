@@ -11,6 +11,7 @@ struct GameDefinition {
   ankerl::unordered_dense::map<std::string, std::string, string_hash,
                                std::equal_to<>>
       Patch;
+  bool Hidden = false;
 
   static void Configure();
 };

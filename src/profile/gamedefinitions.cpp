@@ -12,6 +12,7 @@ struct TryGetImpl<GameDefinition> {
     auto patch =
         TryGetMember<decltype(GameDefinition::Patch)>("Patch").value_or(
             decltype(GameDefinition::Patch){});
+    auto hidden = TryGetMember<bool>("Hidden").value_or(false);
 
     if (!gameProfileOpt || gameProfileOpt->empty()) {
       ImpLog(LogLevel::Fatal, LogChannel::Profile,
@@ -21,6 +22,7 @@ struct TryGetImpl<GameDefinition> {
     return GameDefinition{
         .GameProfile = std::move(*gameProfileOpt),
         .Patch = std::move(patch),
+        .Hidden = hidden,
     };
   }
 };

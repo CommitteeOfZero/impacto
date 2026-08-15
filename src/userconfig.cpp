@@ -196,6 +196,7 @@ void LoadUserConfig(toml::value& tomlConfig) {
     ActiveGame = toml::find_or(tomlConfig, "ActiveGame", "");
 
   for (auto& [gameProfile, gameDef] : Profile::GameDefinitions) {
+    if (gameDef.Hidden) continue;
     auto [itr, inserted] =
         GameSettings.try_emplace(gameProfile, UserConfig::GameConfig{});
     if (inserted) {
