@@ -803,10 +803,6 @@ if (NX OR EMSCRIPTEN)
     set(BUILD_SHARED_LIBS OFF)
 endif ()
 
-if(ANDROID)
-    set(IMPACTO_DISABLE_IMGUI ON)
-endif ()
-
 if (UNIX AND NOT CYGWIN)
     set(IMPACTO_DISABLE_DX9 ON)
 endif ()
@@ -878,7 +874,6 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
             GIT_REPOSITORY "https://github.com/ocornut/imgui.git"
             GIT_TAG "v1.92.9b-docking"
     )
-
     FetchContent_MakeAvailable(ImGui)
 endif ()
 
@@ -1111,6 +1106,12 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
         PUBLIC ${imgui_Include_Dirs}
         PRIVATE ${SDL2_INCLUDE_DIRS}
     )
+
+
+    if (NX) 
+        target_compile_definitions(imgui PRIVATE IMGUI_DISABLE_DEFAULT_SHELL_FUNCTIONS=1)
+    endif ()
+
     target_link_libraries(imgui PRIVATE ${SDL2_LIBRARIES})
     list(APPEND Impacto_Lib_Targets imgui)
 endif ()

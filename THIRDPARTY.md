@@ -14,7 +14,6 @@
 * `vendor/minilua`: [minilua](https://github.com/edubart/minilua)
 * `vendor/glad`: output from [glad](https://github.com/Dav1dde/glad) generator, patched for Switch support
 * `vendor/include/stb_image.h`: [stb_image](https://github.com/nothings/stb)
-* `vendor/imgui`: [Dear ImGui](https://github.com/ocornut/imgui)
 * `vendor/pcg`: [PCG Random Number Generation, Minimal C Edition](https://github.com/imneme/pcg-c-basic)
 * `vendor/squish`: [Squish](http://sjbrown.co.uk/?code=squish)
 * `vendor/mspack`: [libmspack](https://www.cabextract.org.uk/libmspack/), only includes LZX decompressor to reduce code size
@@ -41,6 +40,7 @@ All third-party code mentioned above is mandatory, included in the build process
 * [magic_enum](https://github.com/Neargye/magic_enum)
 * [boost](https://boost.org)
 * [toml11](https://toruniina.github.io/toml11/)
+* [imgui](https://github.com/ocornut/imgui)
 
 **Sourcing and linkage:**
 

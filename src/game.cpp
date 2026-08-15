@@ -7,8 +7,11 @@
 #include "log.h"
 #include "inputsystem.h"
 #include "debugmenu.h"
-#include "overlay.h"
 #include "renderer/opengl/glc.h"
+
+#ifndef IMPACTO_DISABLE_IMGUI
+#include "overlay.h"
+#endif
 
 #include "ui/ui.h"
 #include "ui/gamespecific.h"
@@ -234,8 +237,8 @@ void LauncherRender() {
 
 #ifndef IMPACTO_DISABLE_IMGUI
   Renderer->ImGuiBeginFrame();
-#endif
   Overlay::Show();
+#endif
   Window->Draw();
 }
 
