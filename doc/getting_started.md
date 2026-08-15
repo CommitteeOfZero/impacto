@@ -21,18 +21,7 @@ root.BaseConfig.GameDefinitions = {
 };
 ```
 
-**`userconfig.lua`** contains runtime settings including the active game. Set `ActiveGame` to specify which game to launch:
-```lua
-root.UserConfig = {
-  GameSettings = {
-    chlcc = { UsePatch = false, PatchProfile = "Japanese", },
-    cclcc = { UsePatch = true, PatchProfile = "English", },
-    -- ... settings for other games
-  },
-  -- Uncomment to set the default game:
-  -- ActiveGame = "cclcc"
-};
-```
+**`userconfig.toml`** contains runtime settings including the active game. Change settings for specific games or common settings here.
 
 In a release environment, these files will be placed in a platform specific preferences directory. 
 

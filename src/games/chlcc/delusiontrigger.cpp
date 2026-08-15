@@ -14,6 +14,7 @@
 #include "../../profile/patch.h"
 #include "../../audio/audiosystem.h"
 #include "../../text/dialoguepage.h"
+#include "../../userconfig.h"
 
 namespace Impacto {
 namespace UI {
@@ -260,7 +261,10 @@ void DelusionTrigger::TriggerRight() {
 }
 
 void DelusionTrigger::UpdateHeartButtons() {
-  if (!Profile::Patch::HasDelusionMouseSupport) {
+  if (!Profile::Patch::HasDelusionMouseSupport &&
+      !std::get<UserConfig::CHLCCExtraConfig>(
+           UserConfig::ActiveGameSettings().Extra)
+           .DelusionMousePatch) {
     return;
   }
   if (HeartButtonFade.Progress == 0.0f) {
@@ -400,7 +404,11 @@ void DelusionTrigger::UpdateShown(float dt) {
 }
 
 void DelusionTrigger::Update(float dt) {
-  if (Profile::Patch::HasDelusionMouseSupport && State != Hidden) {
+  if (Profile::Patch::HasDelusionMouseSupport &&
+      std::get<UserConfig::CHLCCExtraConfig>(
+          UserConfig::ActiveGameSettings().Extra)
+          .DelusionMousePatch &&
+      State != Hidden) {
     if (DelusionHeartPulseDuration > 0.0f) {
       HeartPulseAnimation.Update(dt);
     }
@@ -517,6 +525,9 @@ void DelusionTrigger::Render() {
                                     maskDest, (BackgroundAlpha * 160) >> 8, 20,
                                     glm::mat4(1.0f), glm::vec4(1.0f), true);
   if (Profile::Patch::HasDelusionMouseSupport &&
+      !std::get<UserConfig::CHLCCExtraConfig>(
+           UserConfig::ActiveGameSettings().Extra)
+           .DelusionMousePatch &&
       HeartButtonFade.Progress > 0.0f) {
     RenderHeartButton(LeftDelusionHeartSprite, LeftDelusionHeartPos,
                       LeftHeartClickArea.Hovered,

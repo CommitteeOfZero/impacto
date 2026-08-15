@@ -6,7 +6,7 @@
 
 #include "../../profile/game.h"
 #include "../../profile/profile.h"
-#include "../../profile/userconfig.h"
+#include "../../userconfig.h"
 
 #include "../../game.h"
 
@@ -82,26 +82,8 @@ void DirectX9Window::Init() {
 #if IMPACTO_USE_SDL_HIGHDPI
   windowFlags |= SDL_WINDOW_ALLOW_HIGHDPI;
 #endif
-  auto const& config = Profile::UserConfig::CommonSettings;
-  if (config.Fullscreen) {
-    windowFlags |= SDL_WINDOW_FULLSCREEN;
-  }
 
-  SDLWindow =
-      SDL_CreateWindow(Profile::Game::WindowName, SDL_WINDOWPOS_UNDEFINED,
-                       SDL_WINDOWPOS_UNDEFINED, config.ResolutionWidth,
-                       config.ResolutionHeight, windowFlags);
-
-  if (SDLWindow == NULL) {
-    ImpLog(LogLevel::Error, LogChannel::General,
-           "Window creation failed: {:s}\n", SDL_GetError());
-    return;
-  }
-
-  SDL_GetWindowSize(SDLWindow, &WindowWidth, &WindowHeight);
-  ImpLog(LogLevel::Debug, LogChannel::General,
-         "Window size (screen coords): {:d} x {:d}\n", WindowWidth,
-         WindowHeight);
+  CreateSDLWindow(windowFlags);
 }
 
 void DirectX9Window::SetDimensions(int width, int height, int msaa,

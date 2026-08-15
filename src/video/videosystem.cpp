@@ -3,6 +3,7 @@
 #include "ffmpegplayer.h"
 #endif
 #include "../profile/game.h"
+#include "../userconfig.h"
 #include "../log.h"
 
 namespace Impacto {
@@ -17,7 +18,7 @@ void VideoShutdown() {
 void VideoInit() {
   ImpLog(LogLevel::Info, LogChannel::Video, "Initialising video system\n");
 
-  switch (Profile::Game::VideoPlayer) {
+  switch (UserConfig::AdvancedSettings.VideoPlayer) {
 #ifndef IMPACTO_DISABLE_FFMPEG
     case VideoPlayerType::FFmpeg: {
       for (int i = 0; i < VP_Count; i++) {

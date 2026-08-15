@@ -41,6 +41,7 @@ All third-party code mentioned above is mandatory, included in the build process
 * [UTF8-CPP](https://github.com/nemtrif/utfcpp)
 * [magic_enum](https://github.com/Neargye/magic_enum)
 * [boost](https://boost.org)
+* [toml11](https://toruniina.github.io/toml11/)
 
 **Sourcing and linkage:**
 
@@ -1006,6 +1007,12 @@ See below for license text (ISC)
 https://boost.org
 
 See below for license text (Boost Software License, Version 1.0)
+
+## toml11
+
+https://github.com/ToruNiina/toml11
+
+See below for license text (MIT).
 
 # Generic license texts
 

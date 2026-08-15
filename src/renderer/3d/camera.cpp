@@ -3,6 +3,7 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
 
+#include "../../userconfig.h"
 #include "../../util.h"
 #include "../../profile/scene3d.h"
 #include "../../profile/game.h"
@@ -45,7 +46,7 @@ void Camera::Recalculate() {
         CameraTransform.Matrix());  // move the world, not the camera
   }
 
-  if (Profile::Game::ActiveRenderer == RendererType::Vulkan) {
+  if (UserConfig::AdvancedSettings.ActiveRenderer == RendererType::Vulkan) {
     Projection = glm::perspectiveRH_ZO(Fov, AspectRatio, Near, Far);
     Projection[1][1] *= -1.0f;
   } else {

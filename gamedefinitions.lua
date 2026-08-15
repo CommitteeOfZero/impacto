@@ -12,24 +12,31 @@ root.GameDefinitions = {
     }
   },
   mo6tw = {
+    Hidden = true,
     GameProfile = root.BasePaths.RootProfilesDir .. "/mo6tw/game.lua",
   },
   darling = {
-      GameProfile = root.BasePaths.RootProfilesDir .. "/darling/game.lua",
+    Hidden = true,
+    GameProfile = root.BasePaths.RootProfilesDir .. "/darling/game.lua",
   },
   dash = {
-      GameProfile = root.BasePaths.RootProfilesDir .. "/dash/game.lua",
+    Hidden = true,
+    GameProfile = root.BasePaths.RootProfilesDir .. "/dash/game.lua",
   },
   rne = {
-      GameProfile = root.BasePaths.RootProfilesDir .. "/rne/game.lua",
+    Hidden = true,
+    GameProfile = root.BasePaths.RootProfilesDir .. "/rne/game.lua",
   },
   characterviewer = {
-      GameProfile = root.BasePaths.RootProfilesDir .. "/characterviewer/game.lua",
+    Hidden = true,
+    GameProfile = root.BasePaths.RootProfilesDir .. "/characterviewer/game.lua",
   },
   modelviewer = {
-      GameProfile = root.BasePaths.RootProfilesDir .. "/modelviewer/game.lua",
+    Hidden = true,
+    GameProfile = root.BasePaths.RootProfilesDir .. "/modelviewer/game.lua",
   },
   ["modelviewer-dash"] = {
-      GameProfile = root.BasePaths.RootProfilesDir .. "/modelviewer-dash/game.lua",
+    Hidden = true,
+    GameProfile = root.BasePaths.RootProfilesDir .. "/modelviewer-dash/game.lua",
   },
 };

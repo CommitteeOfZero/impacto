@@ -38,6 +38,7 @@ enum class LogChannel : uint32_t {
   Profile = (1 << 12),
   Video = (1 << 13),
   Subtitle = (1 << 14),
+  Config = (1 << 15),
   All = 0xFFFFFFFF
 };
 

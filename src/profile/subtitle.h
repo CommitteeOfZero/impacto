@@ -17,7 +17,7 @@ enum class SubtitleConfigType : uint8_t {
   None = 0,
   Karaoke = 1 << 0,
   Translation = 1 << 1,
-  All = 0xFF,
+  All = Karaoke | Translation,
 };
 
 struct SubtitleTrackFile {

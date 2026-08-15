@@ -11,8 +11,6 @@ namespace Game {
 void Configure() {
   AssertIs(LUA_TTABLE);
 
-  ActiveRenderer = EnsureGetMember<RendererType>("ActiveRenderer");
-
   LayerCount = EnsureGetMember<int>("LayerCount");
   GameFeatures = EnsureGetMember<GameFeature>("GameFeatures");
   WindowName = EnsureGetMember<char const*>("WindowName");
@@ -32,23 +30,6 @@ void Configure() {
   ScreenCaptureCount = TryGetMember<size_t>("ScreenCaptureCount").value_or(0);
   TryGetMember<bool>("UseMoviePriority", UseMoviePriority);
   TryGetMember<bool>("UseWaveEffects", UseWaveEffects);
-
-  ActiveAudioBackend =
-      TryGetMember<AudioBackendType>("AudioBackendType").value_or([] {
-#ifndef IMPACTO_DISABLE_OPENAL
-        return AudioBackendType::OpenAL;
-#else
-        return AudioBackendType::None;
-#endif
-      }());
-
-  VideoPlayer = TryGetMember<VideoPlayerType>("VideoPlayerType").value_or([] {
-#ifndef IMPACTO_DISABLE_FFMPEG
-    return VideoPlayerType::FFmpeg;
-#else
-    return VideoPlayerType::None;
-#endif
-  }());
 
   TryGetMember<int>("PlatformId", PlatformId);
 }

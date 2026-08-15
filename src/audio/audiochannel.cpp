@@ -7,6 +7,7 @@
 
 #include "../io/stream.h"
 #include "../io/vfs.h"
+#include "../userconfig.h"
 #include "../log.h"
 #include "../profile/game.h"
 
@@ -15,7 +16,7 @@ namespace Audio {
 
 std::unique_ptr<AudioChannel> AudioChannel::Create(
     AudioChannelId channelId, AudioChannelGroup channelGroup) {
-  switch (Profile::Game::ActiveAudioBackend) {
+  switch (UserConfig::AdvancedSettings.ActiveAudioBackend) {
 #ifndef IMPACTO_DISABLE_OPENAL
     case AudioBackendType::OpenAL: {
       return std::make_unique<OpenAL::OpenALAudioChannel>(channelId,

@@ -11,7 +11,7 @@
 #include "util.h"
 
 #include "profile/profile.h"
-#include "profile/userconfig.h"
+#include "userconfig.h"
 #include "io/physicalfilestream.h"
 
 using namespace Impacto;
@@ -101,12 +101,12 @@ static void HandleArguments(std::vector<std::string_view> args) {
             "-ll", "--loglevel"),
         make_handler(
             [&](std::string_view input) {
-              Profile::UserConfig ::ActiveGame = input;
+              UserConfig ::ActiveGameOverride = input;
             },
             "-g", "--game"),
         make_handler(
             [&](std::string_view input) {
-              Profile::UserConfig::PatchProfileOverride = input;
+              UserConfig::PatchProfileOverride = input;
             },
             "-p", "--patch"),
         make_handler(
@@ -118,7 +118,7 @@ static void HandleArguments(std::vector<std::string_view> args) {
             },
             "-gc", "--gamedefinitionspath"),
         make_handler(
-            [&](std::string_view input) { Profile::UserConfigPath = input; },
+            [&](std::string_view input) { UserConfig::UserConfigPath = input; },
             "-uc", "--userconfigpath"),
     };
 
