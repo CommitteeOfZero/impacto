@@ -1,4 +1,5 @@
 #include "impacto.h"
+#include <SDL3/SDL_main.h>
 
 #include <ranges>
 #include <fmt/format.h>
@@ -176,10 +177,14 @@ int main(int argc, char* argv[]) {
   }
 #endif
 
-  if (char* const basePath = SDL_GetBasePath()) {
+#ifndef __SWITCH__
+  // On Switch SDL_GetBasePath is "romfs:/" which we obviously don't want.
+  // Homebrew loader correctly sets cwd to the nro directory so it's useless
+  // anyway.
+  if (const char* const basePath = SDL_GetBasePath()) {
     std::filesystem::current_path(basePath);
-    SDL_free(basePath);
   }
+#endif
 
   std::string profilePath;
   LogInit();
@@ -209,7 +214,7 @@ int main(int argc, char* argv[]) {
 #ifdef EMSCRIPTEN
   // Emscripten's EGL requests a window framebuffer with antialiasing by default
   // (as WebGL does)
-  // Emscripten's SDL2 port fails to change this even with MSAA set to 0 in the
+  // Emscripten's SDL port fails to change this even with MSAA set to 0 in the
   // context parameters
   EM_ASM(EGL.antialias = false;);
 #endif

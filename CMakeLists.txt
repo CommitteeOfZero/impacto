@@ -887,7 +887,7 @@ if (WIN32)
     set(CMAKE_MAP_IMPORTED_CONFIG_MINSIZEREL Release)
     set(CMAKE_MAP_IMPORTED_CONFIG_RELWITHDEBINFO Release)
 
-    set(SDL2_LIBRARIES SDL2::SDL2 SDL2::SDL2main)
+    set(SDL3_LIBRARIES SDL3::SDL3)
 endif ()
 
 if (NOT NX) # avoid CMAKE_DL_LIBS for NX
@@ -904,7 +904,7 @@ if (NOT DEFINED IMPACTO_DISABLE_OPENGL)
 endif ()
 
 if(ANDROID)
-    set(SDL2_LIBRARIES SDL2::SDL2-static SDL2::SDL2main)
+    set(SDL3_LIBRARIES SDL3::SDL3)
 
     if (NOT DEFINED IMPACTO_DISABLE_OPENGL)
         find_library(GLESv3 GLESv3)
@@ -943,7 +943,7 @@ if (EMSCRIPTEN)
     # MAIN_MODULE=1 => SDL_GL_GetProcAddress falls back to dlsym() so we need dynamic linking support (...)
 
     set(IMPACTO_EMSCRIPTEN_BUILD_FLAGS "\
-        -s USE_SDL=2 \
+        -s USE_SDL=3 \
         -s USE_ZLIB=1 \
         -s USE_OGG=1 \
         -s USE_VORBIS=1 \
@@ -976,19 +976,18 @@ if (EMSCRIPTEN)
     string(REPLACE "-O2" "" CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE}")
     add_definitions(-DIMPACTO_OPENAL_HAVE_ALEXT)
 else ()
-    find_package(SDL2 CONFIG REQUIRED)
+    find_package(SDL3 CONFIG REQUIRED)
     find_package(ZLIB REQUIRED)
 
-    set(SDL2_LIBRARIES
-        "$<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>"
-        "$<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>"
+    set(SDL3_LIBRARIES
+        "$<IF:$<TARGET_EXISTS:SDL3::SDL3>,SDL3::SDL3,SDL3::SDL3-static>"
     )
     find_package(Ogg CONFIG REQUIRED)
     find_package(Vorbis CONFIG REQUIRED)
     find_package(WebP CONFIG REQUIRED)
 
     list(APPEND Impacto_Libs
-        ${SDL2_LIBRARIES}
+        ${SDL3_LIBRARIES}
         ZLIB::ZLIB
         WebP::webp WebP::webpdecoder WebP::webpdemux
         Ogg::ogg
@@ -1008,7 +1007,7 @@ else ()
     add_definitions(-DIMPACTO_OPENAL_HAVE_ALEXT)
 endif ()
 
-list(APPEND Impacto_Include_Dirs ${SDL2_INCLUDE_DIRS})
+list(APPEND Impacto_Include_Dirs ${SDL3_INCLUDE_DIRS})
 list(APPEND Impacto_Include_Dirs ${WebP_INCLUDE_DIRS})
 
 find_package(fmt CONFIG REQUIRED)
@@ -1073,7 +1072,7 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
         ${imgui_SOURCE_DIR}/imgui_tables.cpp
         ${imgui_SOURCE_DIR}/imgui_widgets.cpp
         ${imgui_SOURCE_DIR}/misc/cpp/imgui_stdlib.cpp
-        ${imgui_SOURCE_DIR}/backends/imgui_impl_sdl2.cpp
+        ${imgui_SOURCE_DIR}/backends/imgui_impl_sdl3.cpp
     )
     set(imgui_Include_Dirs
         ${imgui_SOURCE_DIR}
@@ -1092,6 +1091,9 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
         list(APPEND imgui_Include_Dirs
             vendor/imgui_custom/backends
         )
+        if (NX)
+            list(APPEND imgui_Include_Dirs "$ENV{DEVKITPRO}/portlibs/switch/include")
+        endif ()
     endif ()
 
     if (NOT DEFINED IMPACTO_DISABLE_VULKAN)
@@ -1109,15 +1111,16 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
     add_library(imgui STATIC ${imgui_src})
     target_include_directories(imgui
         PUBLIC ${imgui_Include_Dirs}
-        PRIVATE ${SDL2_INCLUDE_DIRS}
+        PRIVATE ${SDL3_INCLUDE_DIRS}
     )
 
 
-    if (NX) 
+    if (NX)
         target_compile_definitions(imgui PRIVATE IMGUI_DISABLE_DEFAULT_SHELL_FUNCTIONS=1)
     endif ()
 
-    target_link_libraries(imgui PRIVATE ${SDL2_LIBRARIES})
+    target_link_libraries(imgui PRIVATE ${SDL3_LIBRARIES} ${OpenGL_Libs})
+
     list(APPEND Impacto_Lib_Targets imgui)
 endif ()
 
@@ -1186,6 +1189,7 @@ if (NOT DEFINED IMPACTO_DISABLE_MSPACK)
         vendor/mspack/system.c
     )
     target_include_directories(mspack PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/vendor/mspack)
+    target_compile_definitions(mspack PUBLIC HAVE_INTTYPES_H=1)
     list(APPEND Impacto_Lib_Targets mspack)
 
     list(APPEND Impacto_Src src/io/lzxstream.cpp)

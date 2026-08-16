@@ -56,14 +56,14 @@ static bool ParseAt9Riff(Stream* stream, At9ContainerInfo* info) {
         if (chunkSize != 52) return false;
         uint8_t fmtData[52];
         stream->Read(fmtData, 52);
-        if (SDL_SwapLE16(*(uint16_t*)fmtData) != WaveFormatExtensible)
+        if (SDL_Swap16LE(*(uint16_t*)fmtData) != WaveFormatExtensible)
           return false;
         if (memcmp(fmtData + 24, Atrac9Guid, sizeof(Atrac9Guid)) != 0)
           return false;
 
         // yep, it's an ATRAC9 file
 
-        info->ChannelCount = SDL_SwapLE16(*(uint16_t*)(fmtData + 2));
+        info->ChannelCount = SDL_Swap16LE(*(uint16_t*)(fmtData + 2));
         if (info->ChannelCount != 1 && info->ChannelCount != 2) {
           ImpLog(
               LogLevel::Error, LogChannel::Audio,
@@ -72,7 +72,7 @@ static bool ParseAt9Riff(Stream* stream, At9ContainerInfo* info) {
           return false;
         }
 
-        info->SampleRate = SDL_SwapLE32(*(uint32_t*)(fmtData + 4));
+        info->SampleRate = SDL_Swap32LE(*(uint32_t*)(fmtData + 4));
         memcpy(info->ConfigData, fmtData + 44, 4);
 
         break;
@@ -88,8 +88,8 @@ static bool ParseAt9Riff(Stream* stream, At9ContainerInfo* info) {
         uint8_t factData[12];
         stream->Read(factData, 12);
 
-        info->SampleCount = SDL_SwapLE32(*(uint32_t*)(factData));
-        info->EncoderDelay = SDL_SwapLE32(*(uint32_t*)(factData + 8));
+        info->SampleCount = SDL_Swap32LE(*(uint32_t*)(factData));
+        info->EncoderDelay = SDL_Swap32LE(*(uint32_t*)(factData + 8));
 
         break;
       }
@@ -100,13 +100,13 @@ static bool ParseAt9Riff(Stream* stream, At9ContainerInfo* info) {
         }
         uint8_t smplData[36];
         stream->Read(smplData, 36);
-        int loopCount = SDL_SwapLE32(*(uint32_t*)(smplData + 28));
+        int loopCount = SDL_Swap32LE(*(uint32_t*)(smplData + 28));
         info->HasLoop = loopCount > 0;
         if (info->HasLoop) {
           uint8_t loopChunk[24];
           stream->Read(loopChunk, 24);
-          info->LoopStart = SDL_SwapLE32(*(uint32_t*)(loopChunk + 8));
-          info->LoopEnd = SDL_SwapLE32(*(uint32_t*)(loopChunk + 12));
+          info->LoopStart = SDL_Swap32LE(*(uint32_t*)(loopChunk + 8));
+          info->LoopEnd = SDL_Swap32LE(*(uint32_t*)(loopChunk + 12));
         }
         // skip further loop chunks
         if (loopCount > 1) stream->Seek(24 * (loopCount - 1), IoSeek::Cur);

@@ -20,7 +20,7 @@
 #include <cstdlib>
 #include <cstdint>
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <ankerl/unordered_dense.h>
 #include <span>
 #include <glm/glm.hpp>

@@ -19,7 +19,7 @@ TipsComparator::TipsComparator(uint32_t tipsTableId, uint32_t sortStringIndex,
   int distance = 0;
   while (SortString[i] != 0xFF) {
     if (SortString[i] & 0x80) {
-      uint16_t sc3Char = SDL_SwapBE16(UnalignedRead<uint16_t>(SortString + i));
+      uint16_t sc3Char = SDL_Swap16BE(UnalignedRead<uint16_t>(SortString + i));
       Sc3SortMap[sc3Char] = distance++;
       i += 2;
     } else {
@@ -52,10 +52,10 @@ bool TipsComparator::operator()(int a, int b) const {
       bIndex++;
       continue;
     }
-    uint16_t aSc3Char = SDL_SwapBE16(UnalignedRead<uint16_t>(aString + aIndex));
+    uint16_t aSc3Char = SDL_Swap16BE(UnalignedRead<uint16_t>(aString + aIndex));
     aIndex += 2;
 
-    uint16_t bSc3Char = SDL_SwapBE16(UnalignedRead<uint16_t>(bString + bIndex));
+    uint16_t bSc3Char = SDL_Swap16BE(UnalignedRead<uint16_t>(bString + bIndex));
     bIndex += 2;
     if (aSc3Char != bSc3Char) {
       auto aSortValue = Sc3SortMap.find(aSc3Char);

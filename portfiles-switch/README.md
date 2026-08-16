@@ -11,22 +11,19 @@ rebuilding libraries that devkitPro already provides — the technique from
 Non-system dependencies (e.g. `fmt`) are **not** overlaid; vcpkg builds those from
 source for the Switch triplet just like on desktop.
 
-The overlays come in two flavours.
+The overlays come in three flavours.
 
 ## 1. Pass-through overlays
 
 `portfile.cmake` is just `set(VCPKG_POLICY_EMPTY_PACKAGE enabled)` — vcpkg installs
 nothing and CMake's existing lookup already finds the devkitPro copy:
 
-| Port          | Resolved by                                             |
-|---------------|---------------------------------------------------------|
-| `sdl2`        | `find_package(SDL2 CONFIG)` → devkitPro `SDL2Config.cmake` |
-| `zlib`        | `find_package(ZLIB)` (CMake module) → devkitPro         |
-| `openal-soft` | `find_package(OpenAL)` (CMake module) → devkitPro       |
-| `libass`      | `pkg_check_modules(libass)` in impacto's CMakeLists     |
-| `ffmpeg`      | `pkg_check_modules(libav*)` in impacto's ffmpeg branch (dav1d likewise, from devkitPro `switch-dav1d`) |
-| `avcpp`       | impacto's `FetchContent` (it rides on the system ffmpeg) |
-| `vulkan`      | unused on Switch (`IMPACTO_DISABLE_VULKAN`)             |
+| Port          | Resolved by                                                                                            |
+|---------------|--------------------------------------------------------------------------------------------------------|
+| `zlib`        | `find_package(ZLIB)` (CMake module) → devkitPro                                                        |
+| `openal-soft` | `find_package(OpenAL)` (CMake module) → devkitPro                                                      |
+| `libass`      | `pkg_check_modules(libass)` in impacto's CMakeLists                                                    |
+| `vulkan`      | unused on Switch (`IMPACTO_DISABLE_VULKAN`)                                                            |
 
 ## 2. Config-emitting overlays
 
@@ -50,3 +47,13 @@ This is what lets impacto's `CMakeLists.txt` call `find_package(Ogg CONFIG)` /
 only Switch-specific link libraries left in the CMakeLists are the libnx windowing /
 GPU driver libs (`EGL`, `glapi`, `drm_nouveau`, `nx`), which are not vcpkg-managed
 dependencies.
+
+## 3. Source-built overlays
+
+devkitPro's prebuilt copies aren't usable here, so these build the real thing from
+source via `vcpkg_from_github` + `vcpkg_cmake_configure`/`install`:
+
+| Port          | Why                                                                                                     |
+|---------------|-----------------------------------------------------------------------------------------------------------|
+| `sdl3`        | No prebuilt devkitPro portlib; builds `devkitPro/SDL@switch-sdl-3.4` with `NINTENDO_SWITCH=ON`.         |
+| `openal-soft` | devkitPro's prebuilt copy only has an SDL2 backend, incompatible with SDL3. Builds `kcat/openal-soft` with `ALSOFT_BACKEND_SDL3=ON`. |

@@ -316,7 +316,10 @@ static bool ShowDisplaySettings(std::string const& selectedGame) {
     }
 
     SDL_DisplayMode maxRes{};
-    SDL_GetDisplayMode(0, 0, &maxRes);
+    if (const SDL_DisplayMode* desktopMode =
+            SDL_GetDesktopDisplayMode(SDL_GetPrimaryDisplay())) {
+      maxRes = *desktopMode;
+    }
 
     ImGui::AlignTextToFramePadding();
     ImGui::Text("Game Resolution");
@@ -688,8 +691,8 @@ void Show() {
   if (Profile::Game::HasInit) {
     if (!OverlayShown &&
         ((Input::KeyboardButtonWentDown[SDL_SCANCODE_0] &&
-          (SDL_GetModState() & KMOD_SHIFT)) ||
-         Input::ControllerButtonWentDown[SDL_CONTROLLER_BUTTON_LEFTSTICK])) {
+          (SDL_GetModState() & SDL_KMOD_SHIFT)) ||
+         Input::ControllerButtonWentDown[SDL_GAMEPAD_BUTTON_LEFT_STICK])) {
       OverlayShown = true;
     } else if (OverlayShown &&
                (ImGui::IsKeyChordPressed(ImGuiMod_Shift | ImGuiKey_0) ||

@@ -5,7 +5,7 @@
 #include "../log.h"
 #include "../util.h"
 #include "uncompressedstream.h"
-#include <SDL_endian.h>
+#include <SDL3/SDL_endian.h>
 
 namespace Impacto {
 namespace Io {
@@ -538,8 +538,8 @@ static uint32_t get_next_bits(char* input, int* offset_p, uint32_t* bit_pool_p,
 
 static IoError DecompressLayla(char* input, int64_t compressedSize,
                                char* output, int64_t uncompressedSize) {
-  int uncompressed_size = SDL_SwapLE32(*(uint32_t*)(input + 8));
-  uint32_t compressedStreamLength = SDL_SwapLE32(*(uint32_t*)(input + 12));
+  int uncompressed_size = SDL_Swap32LE(*(uint32_t*)(input + 8));
+  uint32_t compressedStreamLength = SDL_Swap32LE(*(uint32_t*)(input + 12));
   uint32_t compressedOffset = 16;
   int64_t prefixOffset = compressedOffset + compressedStreamLength;
   if (compressedSize < prefixOffset || compressedSize - prefixOffset != 0x100) {

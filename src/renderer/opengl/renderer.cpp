@@ -158,7 +158,7 @@ void Renderer::Shutdown() {
 #ifndef IMPACTO_DISABLE_IMGUI
 void Renderer::ImGuiBeginFrame() {
   ImGui_ImplOpenGL3_NewFrame();
-  ImGui_ImplSDL2_NewFrame();
+  ImGui_ImplSDL3_NewFrame();
   ImGui::NewFrame();
 }
 #endif

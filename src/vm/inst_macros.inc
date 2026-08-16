@@ -15,7 +15,7 @@
   (void)name;                                                \
   thread->IpOffset += 1;
 #define PopUint16(name)                                                   \
-  uint16_t name = SDL_SwapLE16(UnalignedRead<uint16_t>(thread->GetIp())); \
+  uint16_t name = SDL_Swap16LE(UnalignedRead<uint16_t>(thread->GetIp())); \
   /* Sometimes needed by subsequent code, silence warning */              \
   (void)name;                                                             \
   thread->IpOffset += 2;

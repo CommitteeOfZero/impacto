@@ -4,7 +4,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <algorithm>
-#include <SDL_stdinc.h>
+#include <SDL3/SDL_stdinc.h>
 #include <random>
 #include <string>
 #include <cctype>
@@ -465,7 +465,7 @@ inline glm::quat ScrWorkAngleZToQuaternion(int angle) {
 }
 
 inline glm::quat AxisAngleToQuaternion(glm::vec3 axis, float angle) {
-  return glm::quat(cos(angle / 2.0f), sin(angle / 2.0f) * axis);
+  return glm::quat(glm::cos(angle / 2.0f), glm::sin(angle / 2.0f) * axis);
 }
 
 inline bool StringEndsWith(std::string const& str, std::string const& ending) {
