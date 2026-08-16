@@ -57,7 +57,7 @@ void ImpLogImpl(LogLevel level, LogChannel channel, fmt::string_view format,
       maxChannelSize + maxTimestampSize + tailSize + 1;
   auto* line = static_cast<char*>(ImpStackAlloc(lineBufferSize));
 
-  std::string_view channelStr = ChannelToString(channel);
+  std::string_view channelStr = magic_enum::enum_name(channel);
   time_t timestamp = time(nullptr);
   auto tsFormat = fmt::format_to_n(
       line, maxTimestampSize, "[{:%Y-%m-%d %H:%M:%S}]", fmt::gmtime(timestamp));

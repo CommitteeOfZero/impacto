@@ -84,20 +84,24 @@ static void HandleArguments(std::vector<std::string_view> args) {
             "-lf", "--logfile"),
         make_handler(
             [&](std::string_view input) {
-              auto inputChannel = StringToChannel(input);
+              auto logOpt = magic_enum::enum_cast<Impacto::LogChannel>(input);
               if (!hasSetChannel) {
                 g_LogChannels = {};
                 hasSetChannel = true;
               }
-              if (inputChannel == LogChannel::None) {
-                g_LogChannels = inputChannel;
+              if (!logOpt) return;
+              if (*logOpt == LogChannel::None) {
+                g_LogChannels = *logOpt;
               } else {
-                g_LogChannels |= inputChannel;
+                g_LogChannels |= *logOpt;
               }
             },
             "-lc", "--logchannel"),
         make_handler(
-            [&](std::string_view input) { g_LogLevel = StringToLevel(input); },
+            [&](std::string_view input) {
+              if (auto logOpt = magic_enum::enum_cast<Impacto::LogLevel>(input))
+                g_LogLevel = *logOpt;
+            },
             "-ll", "--loglevel"),
         make_handler(
             [&](std::string_view input) {
