@@ -1,0 +1,5 @@
+{
+  "name": "harfbuzz",
+  "version": "12.3.2",
+  "description": "Empty overlay for the Switch build: harfbuzz is provided by the devkitPro switch-harfbuzz portlib."
+}

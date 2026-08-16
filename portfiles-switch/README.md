@@ -41,6 +41,8 @@ pkg-config and re-exports it as the **same imported targets the other platforms 
 | `libogg`    | `share/ogg/OggConfig.cmake`     | `Ogg::ogg`                            |
 | `libvorbis` | `share/vorbis/VorbisConfig.cmake` | `Vorbis::vorbis`, `Vorbis::vorbisfile` |
 | `libwebp`   | `share/webp/WebPConfig.cmake`   | `WebP::webp`, `WebP::webpdecoder`, `WebP::webpdemux` |
+| `freetype`  | `share/freetype/FreetypeConfig.cmake` | `Freetype::Freetype`             |
+| `harfbuzz`  | `share/harfbuzz/harfbuzzConfig.cmake` | `harfbuzz::harfbuzz`             |
 
 This is what lets impacto's `CMakeLists.txt` call `find_package(Ogg CONFIG)` /
 `find_package(Vorbis CONFIG)` / `find_package(WebP CONFIG)` and link `Ogg::ogg`,

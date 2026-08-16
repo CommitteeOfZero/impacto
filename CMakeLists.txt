@@ -1020,7 +1020,7 @@ find_package(readerwriterqueue CONFIG REQUIRED)
 find_package(concurrentqueue CONFIG REQUIRED)
 find_package(utf8cpp CONFIG REQUIRED)
 find_package(toml11 CONFIG REQUIRED)
-find_package(Freetype REQUIRED)
+find_package(Freetype CONFIG REQUIRED)
 find_package(harfbuzz CONFIG REQUIRED)
 
 list(APPEND Impacto_Libs

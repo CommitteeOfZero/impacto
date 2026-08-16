@@ -1,0 +1,5 @@
+{
+  "name": "freetype",
+  "version": "2.13.3",
+  "description": "Empty overlay for the Switch build: freetype is provided by the devkitPro switch-freetype portlib."
+}

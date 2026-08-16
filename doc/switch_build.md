@@ -12,7 +12,8 @@ the same `find_package(... CONFIG)` interface and imported targets on every plat
   * `libnx`, and the Switch portlibs
     (`switch-dev` group plus `switch-sdl2`, `switch-zlib`, `switch-libogg`,
     `switch-libvorbis`, `switch-libwebp`, `switch-ffmpeg`, `switch-dav1d`,
-    `switch-libass`, and `switch-openal-soft`). Install with `dkp-pacman`.
+    `switch-libass`, `switch-openal-soft`, `switch-freetype`, and
+    `switch-harfbuzz`). Install with `dkp-pacman`.
   * On Windows, WSL is recommended, since msys paths can be funky.
 * The `DEVKITPRO` environment variable pointing at your devkitPro install
   (e.g. `/opt/devkitpro`).
