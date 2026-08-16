@@ -28,7 +28,6 @@ class SystemMenu : public Menu, public CommonMenu {
 
  private:
   Widgets::Group* MainItems;
-  Animation MenuTransition;
   Animation FadeAnimation;
   Animation ItemsFade;
   bool ItemsFadeComplete = false;
@@ -45,6 +44,9 @@ class SystemMenu : public Menu, public CommonMenu {
     Help,
     ReturnTitle
   };
+
+  // Needs access to ItemsFade
+  friend void CommonMenu::DrawOverlay(float);
 };
 
 }  // namespace CCLCC

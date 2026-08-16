@@ -12,8 +12,6 @@ namespace CCLCC {
 namespace SystemMenu {
 
 void Configure() {
-  MoveInDuration = EnsureGetMember<float>("MoveInDuration");
-  MoveOutDuration = EnsureGetMember<float>("MoveOutDuration");
   ItemsFadeInDuration = EnsureGetMember<float>("ItemsFadeInDuration");
   ItemsFadeOutDuration = EnsureGetMember<float>("ItemsFadeOutDuration");
   FadeInDirectDuration = EnsureGetMember<float>("FadeInDirectDuration");
@@ -27,9 +25,15 @@ void Configure() {
       std::span(MenuEntriesButtonBounds, Profile::SystemMenu::MenuEntriesNum),
       "MenuEntriesButtonBounds");
 
+  MenuEntriesFadeXOffset = EnsureGetMember<float>("MenuEntriesFadeXOffset");
+
   SystemMenuBG = EnsureGetMember<Sprite>("SystemMenuBG");
   SystemMenuFrame = EnsureGetMember<Sprite>("SystemMenuFrame");
+
   MenuButtonGuide = EnsureGetMember<Sprite>("MenuButtonGuide");
+  MenuButtonGuidePos = EnsureGetMember<glm::vec2>("MenuButtonGuidePos");
+  MenuButtonGuideFadeXOffset =
+      EnsureGetMember<float>("MenuButtonGuideFadeXOffset");
 
   OverlaySprite = EnsureGetMember<Sprite>("OverlaySprite");
 

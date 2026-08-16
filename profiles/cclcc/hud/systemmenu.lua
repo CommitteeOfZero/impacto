@@ -2,17 +2,14 @@ root.SystemMenu = {
     Type = SystemMenuType.CCLCC,
     DrawType = DrawComponentType.SystemMenu,
 
-    FadeInDuration = 40 / 60,
-    FadeOutDuration = 40 / 60,
+    FadeInDuration = 32 / 60,
+    FadeOutDuration = 32 / 60,
 
     FadeInDirectDuration = 16 / 60;
     FadeOutDirectDuration = 16 / 60;
 
-    MoveInDuration = 40 / 60,
-    MoveOutDuration = 28 / 60,
-
-    ItemsFadeInDuration = 20/60,
-    ItemsFadeOutDuration = 20/60,
+    ItemsFadeInDuration = 32 / 60,
+    ItemsFadeOutDuration = 32 / 60,
 
     Seed = 0,
 
@@ -31,6 +28,7 @@ root.SystemMenu = {
         {X=41, Y=649},
         {X=41, Y=725},
     },
+    MenuEntriesFadeXOffset = 200,
 
     MenuEntriesButtonBounds = { 
         {X=120, Y= 74, Width=228, Height=60},
@@ -47,6 +45,9 @@ root.SystemMenu = {
     MenuEntriesHighlightedSprites = {},
 
     MenuButtonGuide = "SystemMenuButtonGuide",
+    MenuButtonGuidePos = { X = 0, Y = 989 };
+    MenuButtonGuideFadeXOffset = -200,
+
     SystemMenuBG = "SystemMenuBG",
     SystemMenuFrame = "SystemMenuFrame",
     OverlaySprite = "OverlaySprite",

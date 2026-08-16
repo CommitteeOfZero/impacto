@@ -1,9 +1,13 @@
 #include "commonmenu.h"
 
+#include "systemmenu.h"
+
 #include "../../profile/game.h"
 #include "../../profile/scriptvars.h"
 #include "../../profile/games/cclcc/systemmenu.h"
 #include "../../profile/games/cclcc/titlemenu.h"
+
+#include "../../ui/ui.h"
 
 namespace Impacto {
 namespace UI {
@@ -111,6 +115,17 @@ void CommonMenu::DrawOverlay(const float alpha) {
   Renderer->DrawPrimitives(CaptureSprite.Sheet, &OverlaySprite.Sheet,
                            ShaderProgramType::HardLightMaskedSprite, vertices,
                            indices, {0.0f, 0.0f});
+
+  const float guideTransitionProgress = glm::smoothstep(
+      0.0f, 1.0f,
+      2.0f -
+          2.0f *
+              static_cast<SystemMenu*>(UI::SystemMenuPtr)->ItemsFade.Progress);
+  Renderer->DrawSprite(
+      MenuButtonGuide,
+      MenuButtonGuidePos +
+          glm::vec2(guideTransitionProgress * MenuButtonGuideFadeXOffset, 0.0f),
+      {1.0f, 1.0f, 1.0f, 1.0f - guideTransitionProgress});
 }
 
 static auto GenerateMatrix(CornersQuad const& corners) {

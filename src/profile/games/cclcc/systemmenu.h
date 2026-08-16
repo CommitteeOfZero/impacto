@@ -13,10 +13,7 @@ using namespace Impacto::UI::CCLCC;
 constexpr inline int MenuEntriesNumMax = 16;
 
 inline Sprite SystemMenuBG;
-inline Sprite MenuButtonGuide;
 inline Sprite SystemMenuFrame;
-inline float MoveInDuration;
-inline float MoveOutDuration;
 inline float ItemsFadeInDuration;
 inline float ItemsFadeOutDuration;
 inline float FadeInDirectDuration;
@@ -26,6 +23,11 @@ inline Sprite OverlaySprite;
 
 inline glm::vec2 MenuEntriesPositions[MenuEntriesNumMax];
 inline RectF MenuEntriesButtonBounds[MenuEntriesNumMax];
+inline float MenuEntriesFadeXOffset;
+
+inline Sprite MenuButtonGuide;
+inline glm::vec2 MenuButtonGuidePos;
+inline float MenuButtonGuideFadeXOffset;
 
 inline glm::vec2 BGDispOffsetTopLeft;
 inline glm::vec2 BGDispOffsetBottomLeft;
