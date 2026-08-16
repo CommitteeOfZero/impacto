@@ -11,7 +11,7 @@ rebuilding libraries that devkitPro already provides — the technique from
 Non-system dependencies (e.g. `fmt`) are **not** overlaid; vcpkg builds those from
 source for the Switch triplet just like on desktop.
 
-The overlays come in two flavours.
+The overlays come in three flavours.
 
 ## 1. Pass-through overlays
 
@@ -20,7 +20,6 @@ nothing and CMake's existing lookup already finds the devkitPro copy:
 
 | Port          | Resolved by                                                                                            |
 |---------------|--------------------------------------------------------------------------------------------------------|
-| `sdl3`        | `find_package(SDL3 CONFIG)` → devkitPro `SDL3Config.cmake`                                             |
 | `zlib`        | `find_package(ZLIB)` (CMake module) → devkitPro                                                        |
 | `openal-soft` | `find_package(OpenAL)` (CMake module) → devkitPro                                                      |
 | `libass`      | `pkg_check_modules(libass)` in impacto's CMakeLists                                                    |

@@ -1084,6 +1084,9 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
         list(APPEND imgui_Include_Dirs
             vendor/imgui_custom/backends
         )
+        if (NX)
+            list(APPEND imgui_Include_Dirs "$ENV{DEVKITPRO}/portlibs/switch/include")
+        endif ()
     endif ()
 
     if (NOT DEFINED IMPACTO_DISABLE_VULKAN)
@@ -1104,6 +1107,9 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
         PRIVATE ${SDL3_INCLUDE_DIRS}
     )
     target_link_libraries(imgui PRIVATE ${SDL3_LIBRARIES})
+    if (NX)
+        target_compile_definitions(imgui PRIVATE IMGUI_DISABLE_DEFAULT_SHELL_FUNCTIONS)
+    endif ()
     list(APPEND Impacto_Lib_Targets imgui)
 endif ()
 
