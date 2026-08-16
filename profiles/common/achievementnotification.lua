@@ -1,6 +1,6 @@
 root.AchievementNotification = {
-    BackgroundPath = "games/common/achievementnotification.png",
-    FontPath = "games/common/NotoSansCJKjp-Regular.otf",
+    BackgroundPath = "resources/common/achievementnotification.png",
+    FontPath = "resources/common/NotoSansCJKjp-Regular.otf",
     DisplayDuration = 5.0,
     FadeDuration = 0.5,
     IconSize = 64.0,

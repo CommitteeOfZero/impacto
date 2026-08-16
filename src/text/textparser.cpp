@@ -209,12 +209,10 @@ void TextParser::ParseStringToken<STT_Character>(const StringToken& token) {
 
           const bool prevCharacterAllowsBreak =
               breakCharacter < 1 ||
-              !(StringToken::GetFlags(
-                    static_cast<uint16_t>(Glyphs[breakCharacter - 1].CharId)) &
+              !(StringToken::GetFlags(Glyphs[breakCharacter - 1].CharId) &
                 dontBreakBeforeFlags);
           const bool curCharacterAllowsBreak =
-              !(StringToken::GetFlags(
-                    static_cast<uint16_t>(Glyphs[breakCharacter].CharId)) &
+              !(StringToken::GetFlags(Glyphs[breakCharacter].CharId) &
                 dontBreakOnFlags);
 
           if (prevCharacterAllowsBreak && curCharacterAllowsBreak) {
@@ -226,8 +224,7 @@ void TextParser::ParseStringToken<STT_Character>(const StringToken& token) {
 
         // Skip all leading whitespace on the new line
         for (; breakCharacter < Glyphs.size(); breakCharacter++) {
-          if (!(StringToken::GetFlags(
-                    static_cast<uint16_t>(Glyphs[breakCharacter].CharId)) &
+          if (!(StringToken::GetFlags(Glyphs[breakCharacter].CharId) &
                 +CharacterTypeFlags::Space)) {
             break;
           }
@@ -539,9 +536,7 @@ void DialogueTextParser::ParseString(Vm::Sc3VmThread* string) {
 
   FinishLine(Glyphs.size());
 
-  NameId = NameCode.empty()
-               ? NO_NAME
-               : static_cast<uint16_t>(GetNameId(NameCode).value_or(NO_NAME));
+  NameId = NameCode.empty() ? NO_NAME : GetNameId(NameCode).value_or(NO_NAME);
 
   for (size_t glyphIdx = glyphsStart; glyphIdx < Glyphs.size(); glyphIdx++) {
     Glyphs[glyphIdx].Opacity = 0.0f;

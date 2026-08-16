@@ -69,7 +69,7 @@ struct StringToken {
   uint8_t Flags{};
 
   static void AddFlags(Vm::BufferOffsetContext scrCtx, uint8_t flags);
-  static void AddFlags(uint16_t glyphId, uint8_t flags) {
+  static void AddFlags(uint32_t glyphId, uint8_t flags) {
     const auto found = FlagsMap.find(glyphId);
     if (found != FlagsMap.end()) {
       found->second |= flags;
@@ -77,7 +77,7 @@ struct StringToken {
       StringToken::FlagsMap.emplace(glyphId, flags);
     }
   }
-  static uint8_t GetFlags(uint16_t glyphId) {
+  static uint8_t GetFlags(uint32_t glyphId) {
     const auto found = FlagsMap.find(glyphId);
     return found == FlagsMap.end() ? 0 : found->second;
   }
@@ -86,7 +86,7 @@ struct StringToken {
   int Read(Vm::Sc3Stream& stream);
 
  private:
-  static inline ankerl::unordered_dense::map<uint16_t, uint8_t> FlagsMap;
+  static inline ankerl::unordered_dense::map<uint32_t, uint8_t> FlagsMap;
 };
 
 int TextGetStringLength(Vm::Sc3Stream& stream);

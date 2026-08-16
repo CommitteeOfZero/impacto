@@ -56,12 +56,16 @@ VmInstruction(InstSetAchievement) {
   PopUint8(type);
   if (type == 1) {
     PopExpression(achievementId);
-    AchievementNotification::Show(achievementId);
-    ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-               "STUB instruction Achievement(type: {:d}, arg1: {:d})\n", type,
-               achievementId);
+    if (+Profile::Game::GameFeatures & +GameFeature::Achievements) {
+      AchievementNotification::Show(achievementId);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction Achievement(type: {:d}, arg1: {:d})\n", type,
+                 achievementId);
+    }
   } else {
-    AchievementNotification::Show(type);
+    if (+Profile::Game::GameFeatures & +GameFeature::Achievements) {
+      AchievementNotification::Show(type);
+    }
     ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                "STUB instruction Achievement(type: {:d})\n", type);
   }

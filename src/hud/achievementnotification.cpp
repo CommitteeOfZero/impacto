@@ -7,7 +7,7 @@
 #include "../log.h"
 #include "../profile/game.h"
 #include "../profile/hud/achievementnotification.h"
-#include "../profile/userconfig.h"
+#include "../userconfig.h"
 #include "../renderer/renderer.h"
 #include "../texture/texture.h"
 
@@ -34,7 +34,7 @@ static std::queue<int> NotificationQueue;
 using namespace Profile::AchievementNotification;
 
 static float GetEffectiveScale() {
-  auto const& config = Profile::UserConfig::CommonSettings;
+  auto const& config = UserConfig::CommonSettings;
   const float widthScale =
       Profile::Game::DesignWidth / static_cast<float>(config.ResolutionWidth);
   const float heightScale =
@@ -224,10 +224,8 @@ void Render() {
   }
 
   if (!TextGlyphs.empty()) {
-    Renderer->SetBlendMode(RendererBlendMode::Premultiplied);
     NotificationFont->DrawProcessedText(TextGlyphs, tint.a, tint.a,
                                         RendererOutlineMode::BottomRight, pos);
-    Renderer->SetBlendMode(RendererBlendMode::Normal);
   }
 }
 

@@ -4,18 +4,17 @@
 #include "log.h"
 #include "renderer/renderer.h"
 #include "texture/texture.h"
+#include "profile/game.h"
 
 #include <ankerl/unordered_dense.h>
 
 #include <hb-ft.h>
 #include <hb.h>
 
-#include <ft2build.h>
 #include FT_FREETYPE_H
 
 #include <cassert>
 #include <cmath>
-#include <cstring>
 #include <memory>
 
 namespace Impacto {
@@ -253,24 +252,28 @@ void ExternalFont::DrawProcessedText(std::span<const ProcessedTextGlyph> text,
             ? std::pair{outlineOpacity, OutlineOpacityCurve}
             : std::pair{opacity, ForegroundOpacityCurve};
 
+    const float viewportScale =
+        Profile::Game::DesignHeight / Window->GetViewport().Height;
+    Renderer->SetBlendMode(RendererBlendMode::Premultiplied);
     for (size_t idx : visibleGlyphIds) {
       ProcessedTextGlyph const& glyph = text[idx];
 
       CachedGlyph const& cached = GetOrRenderGlyph(
-          glyph.CharId,
-          static_cast<uint32_t>(std::round(glyph.DestRect.Height)));
+          glyph.CharId, static_cast<uint32_t>(
+                            std::round(glyph.DestRect.Height / viewportScale)));
       if (cached.Sheet.Texture == 0) continue;
 
       const glm::vec2 pos = glm::vec2(glyph.DestRect.X, glyph.DestRect.Y) +
-                            cached.Bearing + offset;
-      const Sprite sprite(cached.Sheet, 0, 0, cached.Size.x, cached.Size.y);
+                            (cached.Bearing + offset) * viewportScale;
+      const Sprite sprite(cached.Sheet, 0, 0, cached.Size.x, cached.Size.y,
+                          glm::vec2(viewportScale));
       const CornersQuad dest = sprite.ScaledBounds().Translate(pos);
 
       glm::vec4 color = RgbIntToFloat(glyph.Colors.*colorMember);
       color.a = ApplyOpacityCurve(glyph.Opacity * passOpacity, opacityCurve);
-
       Renderer->DrawSubtitleGlyph(sprite, dest, transformation, color);
     }
+    Renderer->SetBlendMode(RendererBlendMode::Normal);
   };
 
   switch (outlineMode) {
