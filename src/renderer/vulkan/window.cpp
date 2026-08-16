@@ -1,6 +1,6 @@
 #include "window.h"
 
-#include <SDL_vulkan.h>
+#include <SDL3/SDL_vulkan.h>
 
 #include "../renderer.h"
 #include "../../log.h"
@@ -16,7 +16,7 @@ namespace Vulkan {
 
 void VulkanWindow::UpdateDimensions() {
   WindowDimensionsChanged = false;
-  SDL_Vulkan_GetDrawableSize(SDLWindow, &WindowWidth, &WindowHeight);
+  SDL_GetWindowSizeInPixels(SDLWindow, &WindowWidth, &WindowHeight);
   if (WindowWidth != lastWidth || WindowHeight != lastHeight ||
       MsaaCount != lastMsaa || RenderScale != lastRenderScale) {
     WindowDimensionsChanged = true;
@@ -66,7 +66,7 @@ void VulkanWindow::Init() {
 #ifdef __ANDROID__
   SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
 #endif
-  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) != 0) {
+  if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD)) {
     ImpLog(LogLevel::Fatal, LogChannel::General,
            "SDL initialisation failed: {:s}\n", SDL_GetError());
     Shutdown();
@@ -75,9 +75,9 @@ void VulkanWindow::Init() {
 
   SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
 
-  uint32_t windowFlags = SDL_WINDOW_VULKAN;
+  SDL_WindowFlags windowFlags = SDL_WINDOW_VULKAN;
 #if IMPACTO_USE_SDL_HIGHDPI
-  windowFlags |= SDL_WINDOW_ALLOW_HIGHDPI;
+  windowFlags |= SDL_WINDOW_HIGH_PIXEL_DENSITY;
 #endif
 
   CreateSDLWindow(windowFlags);

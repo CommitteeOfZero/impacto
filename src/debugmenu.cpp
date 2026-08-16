@@ -210,8 +210,8 @@ void ShowDockableArea() {
 void Show() {
   if (((Input::KeyboardButtonIsDown[SDL_SCANCODE_LALT] &&
         Input::KeyboardButtonWentDown[SDL_SCANCODE_D]) ||
-       (Input::ControllerButtonWentDown[SDL_CONTROLLER_BUTTON_RIGHTSHOULDER] &&
-        Input::ControllerButtonWentDown[SDL_CONTROLLER_BUTTON_Y])) &&
+       (Input::ControllerButtonWentDown[SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER] &&
+        Input::ControllerButtonWentDown[SDL_GAMEPAD_BUTTON_NORTH])) &&
       !DebugMenuShown)
     DebugMenuShown = true;
 

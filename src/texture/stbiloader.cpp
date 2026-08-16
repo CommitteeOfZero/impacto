@@ -9,7 +9,9 @@ namespace TexLoad {
 int StbiRead(void* user, char* data, int size) {
   return (int)(((Io::Stream*)user)->Read(data, size));
 }
-void StbiSkip(void* user, int n) { ((Io::Stream*)user)->Seek(n, RW_SEEK_CUR); }
+void StbiSkip(void* user, int n) {
+  ((Io::Stream*)user)->Seek(n, SDL_IO_SEEK_CUR);
+}
 int StbiEof(void* user) {
   Io::Stream* stream = (Io::Stream*)user;
   return stream->Position >= stream->Meta.Size;
@@ -23,7 +25,7 @@ bool TextureLoadSTBI(Io::Stream* stream, Texture* outTexture) {
   uint8_t* image = stbi_load_from_callbacks(&StbiCallbacks, stream, &x, &y,
                                             &channels_in_file, STBI_default);
   if (image == 0) {
-    stream->Seek(0, RW_SEEK_SET);
+    stream->Seek(0, SDL_IO_SEEK_SET);
     return false;
   }
 
@@ -44,7 +46,7 @@ bool TextureLoadSTBI(Io::Stream* stream, Texture* outTexture) {
       ImpLog(LogLevel::Error, LogChannel::TextureLoad,
              "STBI: unsupported channel count {:d}\n", channels_in_file);
       free(image);
-      stream->Seek(0, RW_SEEK_SET);
+      stream->Seek(0, SDL_IO_SEEK_SET);
       return false;
     }
   }

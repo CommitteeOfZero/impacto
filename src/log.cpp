@@ -2,7 +2,7 @@
 #include <cstdarg>
 
 #include <fmt/chrono.h>
-#include <SDL_log.h>
+#include <SDL3/SDL_log.h>
 #include "log.h"
 #include "util.h"
 #include "io/physicalfilestream.h"
@@ -94,15 +94,15 @@ void SDLLogger(void* userdata, [[maybe_unused]] int category,
 void SetSDLLogger(SDL_LogOutputFunction loggingFunction) {
   [[maybe_unused]] static const bool fetchDefaultLogger = [] {
     if (!DefaultLoggingFunction) {
-      SDL_LogGetOutputFunction(&DefaultLoggingFunction, nullptr);
+      SDL_GetLogOutputFunction(&DefaultLoggingFunction, nullptr);
     }
     return true;
   }();
 
   if (loggingFunction) {
-    SDL_LogSetOutputFunction(loggingFunction, nullptr);
+    SDL_SetLogOutputFunction(loggingFunction, nullptr);
   } else {
-    SDL_LogSetOutputFunction(DefaultLoggingFunction, nullptr);
+    SDL_SetLogOutputFunction(DefaultLoggingFunction, nullptr);
   }
 }
 
@@ -124,7 +124,7 @@ void LogSetConsole(bool enabled) { LoggingToConsole = enabled; }
 
 void LogInit() {
   SetSDLLogger(SDLLogger);
-  SDL_LogSetPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_VERBOSE);
+  SDL_SetLogPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_VERBOSE);
 }
 
 #ifndef IMPACTO_DISABLE_OPENGL

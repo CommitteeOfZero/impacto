@@ -262,7 +262,7 @@ void WriteUserConfig() {
   tomlConfig["AdvancedSettings"] = AdvancedSettings;
 
   std::string tomlContents = toml::format(tomlConfig);
-  userConfigFile->Seek(0, RW_SEEK_SET);
+  userConfigFile->Seek(0, SDL_IO_SEEK_SET);
   userConfigFile->Write(tomlContents.data(), tomlContents.size());
 }
 

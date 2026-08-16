@@ -69,7 +69,7 @@ void DirectX9Window::Init() {
 #ifdef __ANDROID__
   SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
 #endif
-  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) != 0) {
+  if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD)) {
     ImpLog(LogLevel::Fatal, LogChannel::General,
            "SDL initialisation failed: {:s}\n", SDL_GetError());
     Shutdown();
@@ -78,9 +78,9 @@ void DirectX9Window::Init() {
 
   SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
 
-  uint32_t windowFlags = 0;
+  SDL_WindowFlags windowFlags = 0;
 #if IMPACTO_USE_SDL_HIGHDPI
-  windowFlags |= SDL_WINDOW_ALLOW_HIGHDPI;
+  windowFlags |= SDL_WINDOW_HIGH_PIXEL_DENSITY;
 #endif
 
   CreateSDLWindow(windowFlags);

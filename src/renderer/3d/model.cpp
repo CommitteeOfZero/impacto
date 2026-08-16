@@ -243,7 +243,7 @@ Model* Model::Load(uint32_t modelId) {
   result->Type = (ModelType)type;
 
   // Read model resource counts and offsets
-  stream->Seek(ModelFileCountsOffset, RW_SEEK_SET);
+  stream->Seek(ModelFileCountsOffset, SDL_IO_SEEK_SET);
   result->MeshCount = ReadLE<uint32_t>(stream);
   assert(result->MeshCount <= ModelMaxMeshesPerModel);
   result->BoneCount = ReadLE<uint32_t>(stream);
@@ -278,7 +278,7 @@ Model* Model::Load(uint32_t modelId) {
   for (uint32_t i = 0; i < result->MeshCount; i++) {
     int64_t seekPos = MeshInfosOffset + meshInfoSize * i;
     seekPos += meshInfoCountsOffset;
-    stream->Seek(seekPos, RW_SEEK_SET);
+    stream->Seek(seekPos, SDL_IO_SEEK_SET);
     result->VertexCount += ReadLE<int32_t>(stream);
     result->IndexCount += ReadLE<int32_t>(stream);
   }
@@ -297,7 +297,7 @@ Model* Model::Load(uint32_t modelId) {
 
   // Read mesh attributes
   for (uint32_t i = 0; i < result->MeshCount; i++) {
-    stream->Seek(MeshInfosOffset + meshInfoSize * i, RW_SEEK_SET);
+    stream->Seek(MeshInfosOffset + meshInfoSize * i, SDL_IO_SEEK_SET);
     Mesh* mesh = &result->Meshes[i];
 
     if (Profile::Scene3D::Version == LKMVersion::DaSH) {
@@ -318,7 +318,7 @@ Model* Model::Load(uint32_t modelId) {
     }
 
     mesh->MeshBone = ReadLE<int16_t>(stream);
-    stream->Seek(9, RW_SEEK_CUR);
+    stream->Seek(9, SDL_IO_SEEK_CUR);
     mesh->MorphTargetCount = ReadU8(stream);
     assert(mesh->MorphTargetCount <= ModelMaxMorphTargetsPerMesh);
     stream->Read(mesh->MorphTargetIds, ModelMaxMorphTargetsPerMesh);
@@ -329,28 +329,28 @@ Model* Model::Load(uint32_t modelId) {
     // Skip translation, rotation and scale (these sometimes don't match the
     // matrix below, which is authoritative)
     seekPos += 3 * sizeof(glm::vec3);
-    stream->Seek(seekPos, RW_SEEK_CUR);
+    stream->Seek(seekPos, SDL_IO_SEEK_CUR);
 
     glm::mat4 modelMtx;
     ReadMat4LE(&modelMtx, stream);
     mesh->ModelTransform = Transform(modelMtx);
     // Skip model matrix inverse
-    stream->Seek(sizeof(glm::mat4), RW_SEEK_CUR);
+    stream->Seek(sizeof(glm::mat4), SDL_IO_SEEK_CUR);
 
     mesh->VertexCount = ReadLE<int32_t>(stream);
     mesh->IndexCount = ReadLE<int32_t>(stream);
 
-    stream->Seek(0x68, RW_SEEK_CUR);
+    stream->Seek(0x68, SDL_IO_SEEK_CUR);
     if (Profile::Scene3D::Version == LKMVersion::DaSH) {
       // Don't ask me why there's a float for this
       mesh->HasShadowColorMap = ReadLE<float>(stream) != 0.0f;
     } else {
-      stream->Seek(4, RW_SEEK_CUR);
+      stream->Seek(4, SDL_IO_SEEK_CUR);
       mesh->HasShadowColorMap = false;
     }
     mesh->Opacity = ReadLE<float>(stream);
 
-    stream->Seek(0x14, RW_SEEK_CUR);
+    stream->Seek(0x14, SDL_IO_SEEK_CUR);
     ReadArrayLE<TT_Count>(mesh->Maps, stream);
 
     mesh->Flags = ReadLE<uint32_t>(stream);
@@ -359,7 +359,7 @@ Model* Model::Load(uint32_t modelId) {
     if (result->Type == ModelType_Background) {
       mesh->Material = MT_Background;
     } else if (Profile::Scene3D::Version == LKMVersion::DaSH) {
-      stream->Seek(3 * 4, RW_SEEK_CUR);
+      stream->Seek(3 * 4, SDL_IO_SEEK_CUR);
       mesh->Material = (MaterialType)ReadLE<int>(stream);
       assert(mesh->Material == MT_DaSH_Generic ||
              mesh->Material == MT_DaSH_Eye || mesh->Material == MT_DaSH_Face ||
@@ -380,7 +380,7 @@ Model* Model::Load(uint32_t modelId) {
     mesh->IndexOffset = CurrentIndexOffset;
 
     seekPos += meshInfoCountsOffset + 4 * sizeof(int);
-    stream->Seek(seekPos, RW_SEEK_SET);
+    stream->Seek(seekPos, SDL_IO_SEEK_SET);
     int32_t RawVertexOffset = ModelFileHeaderSize + ReadLE<int32_t>(stream);
     int32_t RawIndexOffset = ModelFileHeaderSize + ReadLE<int32_t>(stream);
 
@@ -389,7 +389,7 @@ Model* Model::Load(uint32_t modelId) {
     ReadArrayLE(mesh->BoneMap, stream, mesh->UsedBones);
 
     // Read vertex buffers
-    stream->Seek(RawVertexOffset, RW_SEEK_SET);
+    stream->Seek(RawVertexOffset, SDL_IO_SEEK_SET);
     if (result->Type == ModelType_Character) {
       if (Profile::Scene3D::Version == LKMVersion::DaSH) {
         for (uint32_t j = 0; j < mesh->VertexCount; j++) {
@@ -399,7 +399,7 @@ Model* Model::Load(uint32_t modelId) {
           // Position, then Normal
           ReadArrayLE<3 * 2>((float*)&vertex->Position, stream);
           // vec3 unk1, vec4 unk2
-          stream->Seek(7 * sizeof(float), RW_SEEK_CUR);
+          stream->Seek(7 * sizeof(float), SDL_IO_SEEK_CUR);
           // UV
           ReadVec2LE(&vertex->UV, stream);
 
@@ -413,7 +413,8 @@ Model* Model::Load(uint32_t modelId) {
 
             vertex->BoneWeights = glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
 
-            stream->Seek(4 * sizeof(uint8_t) + 4 * sizeof(float), RW_SEEK_CUR);
+            stream->Seek(4 * sizeof(uint8_t) + 4 * sizeof(float),
+                         SDL_IO_SEEK_CUR);
           }
         }
       } else {
@@ -434,7 +435,8 @@ Model* Model::Load(uint32_t modelId) {
 
             vertex->BoneWeights = glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
 
-            stream->Seek(4 * sizeof(uint8_t) + 4 * sizeof(float), RW_SEEK_CUR);
+            stream->Seek(4 * sizeof(uint8_t) + 4 * sizeof(float),
+                         SDL_IO_SEEK_CUR);
           }
         }
       }
@@ -449,7 +451,7 @@ Model* Model::Load(uint32_t modelId) {
     }
 
     // Read indices
-    stream->Seek(RawIndexOffset, RW_SEEK_SET);
+    stream->Seek(RawIndexOffset, SDL_IO_SEEK_SET);
     ReadArrayLE(result->Indices + CurrentIndexOffset, stream, mesh->IndexCount);
     CurrentIndexOffset += mesh->IndexCount;
   }
@@ -457,7 +459,7 @@ Model* Model::Load(uint32_t modelId) {
   // Read skeleton
   for (uint32_t i = 0; i < result->BoneCount; i++) {
     uint32_t seekPos = BonesOffset + boneSize * i;
-    stream->Seek(seekPos, RW_SEEK_SET);
+    stream->Seek(seekPos, SDL_IO_SEEK_SET);
     StaticBone* bone = &result->Bones[i];
 
     if (Profile::Scene3D::Version == LKMVersion::DaSH) {
@@ -475,24 +477,24 @@ Model* Model::Load(uint32_t modelId) {
       result->NamedBones[nameStr] = bone->Id;
     }
 
-    stream->Seek(2, RW_SEEK_CUR);
+    stream->Seek(2, SDL_IO_SEEK_CUR);
     bone->Parent = ReadLE<int16_t>(stream);
     if (bone->Parent < 0) {
       result->RootBones[result->RootBoneCount] = (int16_t)i;
       result->RootBoneCount++;
       assert(result->RootBoneCount < ModelMaxRootBones);
     }
-    stream->Seek(8, RW_SEEK_CUR);
+    stream->Seek(8, SDL_IO_SEEK_CUR);
     bone->ChildrenCount = ReadLE<int16_t>(stream);
     assert(bone->ChildrenCount <= ModelMaxChildrenPerBone);
 
     if (Profile::Scene3D::Version == LKMVersion::DaSH) {
-      stream->Seek(2, RW_SEEK_CUR);
+      stream->Seek(2, SDL_IO_SEEK_CUR);
     }
 
     ReadArrayLE(bone->Children, stream, bone->ChildrenCount);
     stream->Seek(BonesOffset + boneSize * i + boneBaseTransformOffset,
-                 RW_SEEK_SET);
+                 SDL_IO_SEEK_SET);
 
     glm::vec3 position, euler, scale;
     ReadVec3LE(&position, stream);
@@ -503,7 +505,7 @@ Model* Model::Load(uint32_t modelId) {
     bone->BaseTransform = Transform(position, euler, scale);
 
     // skip over bindpose
-    stream->Seek(sizeof(glm::mat4), RW_SEEK_CUR);
+    stream->Seek(sizeof(glm::mat4), SDL_IO_SEEK_CUR);
 
     ReadMat4LE(&bone->BindInverse, stream);
   }
@@ -513,7 +515,7 @@ Model* Model::Load(uint32_t modelId) {
   for (uint32_t i = 0; i < result->MorphTargetCount; i++) {
     int64_t seekPos = MorphTargetOffset + MorphTargetInfoSize * i;
     seekPos += 4;
-    stream->Seek(seekPos, RW_SEEK_SET);
+    stream->Seek(seekPos, SDL_IO_SEEK_SET);
     result->MorphVertexCount += ReadLE<int32_t>(stream);
   }
 
@@ -527,14 +529,14 @@ Model* Model::Load(uint32_t modelId) {
     target->VertexOffset = CurrentMorphVertexOffset;
     int64_t seekPos = MorphTargetOffset + MorphTargetInfoSize * i;
     seekPos += 4;
-    stream->Seek(seekPos, RW_SEEK_SET);
+    stream->Seek(seekPos, SDL_IO_SEEK_SET);
     target->VertexCount = ReadLE<int32_t>(stream);
-    stream->Seek(4, RW_SEEK_CUR);
+    stream->Seek(4, SDL_IO_SEEK_CUR);
     uint32_t RawMorphVertexOffset =
         MorphVertexOffset + ReadLE<uint32_t>(stream);
 
     // Read vertex buffers
-    stream->Seek(RawMorphVertexOffset, RW_SEEK_SET);
+    stream->Seek(RawMorphVertexOffset, SDL_IO_SEEK_SET);
     // Per morph vertex buffer: Position, then Normal
     ReadArrayLE((float*)&result->MorphVertexBuffers[CurrentMorphVertexOffset],
                 stream, 3 * 2 * target->VertexCount);
@@ -542,7 +544,7 @@ Model* Model::Load(uint32_t modelId) {
   }
 
   // Read textures
-  stream->Seek(TexturesOffset, RW_SEEK_SET);
+  stream->Seek(TexturesOffset, SDL_IO_SEEK_SET);
   for (uint32_t i = 0; i < result->TextureCount; i++) {
     uint32_t size = ReadLE<uint32_t>(stream);
     ImpLogSlow(LogLevel::Debug, LogChannel::ModelLoad,

@@ -51,9 +51,8 @@ void SetWindowIcon(SDL_Window* window) {
     return;
   }
 
-  SDL_Surface* surface =
-      SDL_CreateRGBSurfaceFrom(image, width, height, 32, width * 4, 0x000000FF,
-                               0x0000FF00, 0x00FF0000, 0xFF000000);
+  SDL_Surface* surface = SDL_CreateSurfaceFrom(
+      width, height, SDL_PIXELFORMAT_RGBA32, image, width * 4);
   if (!surface) {
     ImpLog(LogLevel::Error, LogChannel::General,
            "Could not create SDL surface for window icon from {:s}: {:s}\n",
@@ -63,7 +62,7 @@ void SetWindowIcon(SDL_Window* window) {
   }
 
   SDL_SetWindowIcon(window, surface);
-  SDL_FreeSurface(surface);
+  SDL_DestroySurface(surface);
   stbi_image_free(image);
 }
 
@@ -103,9 +102,8 @@ static SDL_Cursor* LoadCursorFromFile(const std::string& path) {
     return nullptr;
   }
 
-  SDL_Surface* surface =
-      SDL_CreateRGBSurfaceFrom(image, width, height, 32, width * 4, 0x000000FF,
-                               0x0000FF00, 0x00FF0000, 0xFF000000);
+  SDL_Surface* surface = SDL_CreateSurfaceFrom(
+      width, height, SDL_PIXELFORMAT_RGBA32, image, width * 4);
   if (!surface) {
     ImpLog(LogLevel::Error, LogChannel::General,
            "Could not create SDL surface for cursor from {:s}: {:s}\n",
@@ -121,7 +119,7 @@ static SDL_Cursor* LoadCursorFromFile(const std::string& path) {
            SDL_GetError());
   }
 
-  SDL_FreeSurface(surface);
+  SDL_DestroySurface(surface);
   stbi_image_free(image);
   return cursor;
 }
@@ -131,14 +129,14 @@ void InitCursors() {
     CursorArrow = LoadCursorFromFile(*Profile::Game::CursorArrowPath);
   }
   if (!CursorArrow) {
-    CursorArrow = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
+    CursorArrow = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_DEFAULT);
   }
 
   if (Profile::Game::CursorPointerPath.has_value()) {
     CursorPointer = LoadCursorFromFile(*Profile::Game::CursorPointerPath);
   }
   if (!CursorPointer) {
-    CursorPointer = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+    CursorPointer = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_POINTER);
   }
 
   if (CursorArrow) {
@@ -204,14 +202,15 @@ void ApplyCursorForFrame() {
   }
 }
 
-void BaseWindow::CreateSDLWindow(Uint32 flags) {
+void BaseWindow::CreateSDLWindow(SDL_WindowFlags flags) {
   const SDL_Rect bounds = [flags] {
     SDL_Rect result{};
     bool haveBounds;
+    SDL_DisplayID display = SDL_GetPrimaryDisplay();
     if (flags & SDL_WINDOW_FULLSCREEN) {
-      haveBounds = SDL_GetDisplayBounds(0, &result) == 0;
+      haveBounds = SDL_GetDisplayBounds(display, &result);
     } else {
-      haveBounds = SDL_GetDisplayUsableBounds(0, &result) == 0;
+      haveBounds = SDL_GetDisplayUsableBounds(display, &result);
     }
     if (!haveBounds) {
       ImpLog(LogLevel::Error, LogChannel::Render,
@@ -263,9 +262,8 @@ void BaseWindow::CreateSDLWindow(Uint32 flags) {
   }
 
   flags |= SDL_WINDOW_HIDDEN;
-  SDLWindow = SDL_CreateWindow(Profile::Game::WindowName,
-                               SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-                               WindowWidth, WindowHeight, flags);
+  SDLWindow = SDL_CreateWindow(Profile::Game::WindowName, WindowWidth,
+                               WindowHeight, flags);
   if (SDLWindow == NULL) {
     ImpLog(LogLevel::Error, LogChannel::General,
            "Window creation failed: {:s}\n", SDL_GetError());
@@ -276,8 +274,7 @@ void BaseWindow::CreateSDLWindow(Uint32 flags) {
   if ((flags & SDL_WINDOW_FULLSCREEN) == 0) {
     int top, left, bottom, right;
 
-    if (SDL_GetWindowBordersSize(SDLWindow, &top, &left, &bottom, &right) ==
-        0) {
+    if (SDL_GetWindowBordersSize(SDLWindow, &top, &left, &bottom, &right)) {
       const int targetWidth = bounds.w - (left + right);
       const int targetHeight = bounds.h - (top + bottom);
       clampAspectRatio(targetWidth, targetHeight);

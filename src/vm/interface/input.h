@@ -59,7 +59,7 @@ inline uint32_t PADinputMouseIsDown = 0;
 inline ankerl::unordered_dense::map<uint8_t,
                                     std::vector<Input::KeyboardScanCode>>
     KBcustom{};
-inline std::array<bool, SDL_NUM_SCANCODES> KBinputHeldDown = {false};
+inline std::array<bool, SDL_SCANCODE_COUNT> KBinputHeldDown = {false};
 
 enum ControlType {
   CT_OK = 0,

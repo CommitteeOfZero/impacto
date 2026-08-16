@@ -440,7 +440,7 @@ void SaveSystem::SaveThumbnailData() {
         uint8_t g = thumbnailBuffer[j + 1];
         uint8_t b = thumbnailBuffer[j + 2];
         uint16_t pixel = ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3);
-        pixel = SDL_SwapBE16(pixel);
+        pixel = SDL_Swap16BE(pixel);
         thumbnailData[j / 2] = pixel >> 8;
         thumbnailData[j / 2 + 1] = pixel & 0xFF;
       }

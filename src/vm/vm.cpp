@@ -532,12 +532,12 @@ uint32_t ScriptGetLabelSize(uint32_t scriptBufferId, uint32_t labelNum) {
   uint8_t* nextLabelTableEntryAdr =
       &labelTableAdr[(labelNum + 1) * sizeof(uint32_t)];
   uint32_t nextLabelTableAdrRel =
-      SDL_SwapLE32(UnalignedRead<uint32_t>(nextLabelTableEntryAdr));
+      SDL_Swap32LE(UnalignedRead<uint32_t>(nextLabelTableEntryAdr));
   uint8_t* firstLabelAdr =
       &ScriptBuffers[scriptBufferId][ScriptGetLabelAddress(scriptBufferId, 0)];
 
   if (nextLabelTableEntryAdr == firstLabelAdr || nextLabelTableAdrRel == 0) {
-    uint32_t stringTableAdrRel = SDL_SwapLE32(
+    uint32_t stringTableAdrRel = SDL_Swap32LE(
         UnalignedRead<uint32_t>(&ScriptBuffers[scriptBufferId][4]));
     return stringTableAdrRel - labelAddressRel;
   } else {
@@ -547,17 +547,17 @@ uint32_t ScriptGetLabelSize(uint32_t scriptBufferId, uint32_t labelNum) {
 
 uint32_t ScriptGetLabelAddress(uint32_t scriptBufferId, uint32_t labelNum) {
   uint8_t* labelTableAdr = (uint8_t*)&ScriptBuffers[scriptBufferId][12];
-  uint32_t labelAdrRel = SDL_SwapLE32(
+  uint32_t labelAdrRel = SDL_Swap32LE(
       UnalignedRead<uint32_t>(&labelTableAdr[labelNum * sizeof(uint32_t)]));
   return labelAdrRel;
 }
 
 uint32_t ScriptGetStrAddress(uint32_t scriptBufferId, uint32_t mesNum) {
   uint32_t stringTableAdrRel =
-      SDL_SwapLE32(UnalignedRead<uint32_t>(&ScriptBuffers[scriptBufferId][4]));
+      SDL_Swap32LE(UnalignedRead<uint32_t>(&ScriptBuffers[scriptBufferId][4]));
   uint8_t* stringTableAdr =
       (uint8_t*)&ScriptBuffers[scriptBufferId][stringTableAdrRel];
-  uint32_t stringAdrRel = SDL_SwapLE32(
+  uint32_t stringAdrRel = SDL_Swap32LE(
       UnalignedRead<uint32_t>(&stringTableAdr[mesNum * sizeof(uint32_t)]));
   return stringAdrRel;
 }
@@ -566,7 +566,7 @@ BufferOffsetContext ScriptGetTextTableStrAddress(uint32_t textTableId,
                                                  uint32_t strNum) {
   uint32_t scriptBufferId = TextTable[textTableId].scriptBufferId;
   uint32_t stringTableAdrRel =
-      SDL_SwapLE32(UnalignedRead<uint32_t>(&ScriptBuffers[scriptBufferId][4]));
+      SDL_Swap32LE(UnalignedRead<uint32_t>(&ScriptBuffers[scriptBufferId][4]));
   uint8_t* stringTableAdr =
       (uint8_t*)&ScriptBuffers[scriptBufferId][stringTableAdrRel];
 
@@ -575,31 +575,31 @@ BufferOffsetContext ScriptGetTextTableStrAddress(uint32_t textTableId,
   uint16_t mesNum =
       UnalignedRead<uint16_t>(&textTable[strNum * sizeof(uint16_t)]);
 
-  uint32_t stringAdrRel = SDL_SwapLE32(
+  uint32_t stringAdrRel = SDL_Swap32LE(
       UnalignedRead<uint32_t>(&stringTableAdr[mesNum * sizeof(uint32_t)]));
   return {scriptBufferId, stringAdrRel};
 }
 
 uint32_t ScriptGetRetAddress(uint32_t scriptBufferId, uint32_t retNum) {
   uint32_t returnTableAdrRel =
-      SDL_SwapLE32(UnalignedRead<uint32_t>(&ScriptBuffers[scriptBufferId][8]));
+      SDL_Swap32LE(UnalignedRead<uint32_t>(&ScriptBuffers[scriptBufferId][8]));
   uint8_t* returnTableAdr =
       (uint8_t*)&ScriptBuffers[scriptBufferId][returnTableAdrRel];
-  uint32_t returnAdrRel = SDL_SwapLE32(
+  uint32_t returnAdrRel = SDL_Swap32LE(
       UnalignedRead<uint32_t>(&returnTableAdr[retNum * sizeof(uint32_t)]));
   return returnAdrRel;
 }
 
 uint32_t MsbGetStrAddress(uint32_t msbBufferId, uint32_t mesNum) {
   uint32_t languageCount =
-      SDL_SwapLE32(UnalignedRead<uint32_t>(&MsbBuffers[msbBufferId][4]));
+      SDL_Swap32LE(UnalignedRead<uint32_t>(&MsbBuffers[msbBufferId][4]));
   uint32_t stringAreaStartRel =
-      SDL_SwapLE32(UnalignedRead<uint32_t>(&MsbBuffers[msbBufferId][12]));
+      SDL_Swap32LE(UnalignedRead<uint32_t>(&MsbBuffers[msbBufferId][12]));
   uint8_t* tableAdrRel = (uint8_t*)&MsbBuffers[msbBufferId][16];
 
   if (mesNum != 0) {
     while (true) {
-      uint32_t id = SDL_SwapLE32(UnalignedRead<uint32_t>(
+      uint32_t id = SDL_Swap32LE(UnalignedRead<uint32_t>(
           &tableAdrRel[(languageCount + 1) * sizeof(uint32_t)]));
       tableAdrRel += (languageCount + 1) * sizeof(uint32_t);
       if (id == mesNum) break;
@@ -607,7 +607,7 @@ uint32_t MsbGetStrAddress(uint32_t msbBufferId, uint32_t mesNum) {
   }
 
   uint32_t stringOffset =
-      SDL_SwapLE32(UnalignedRead<uint32_t>(&tableAdrRel[1 * sizeof(uint32_t)]));
+      SDL_Swap32LE(UnalignedRead<uint32_t>(&tableAdrRel[1 * sizeof(uint32_t)]));
 
   return stringAreaStartRel + stringOffset;
 }

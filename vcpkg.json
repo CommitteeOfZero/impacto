@@ -2,9 +2,9 @@
   "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
   "builtin-baseline": "62159a45e18f3a9ac0548628dcaf74fcb60c6ff9",
   "dependencies": [
-    "sdl2",
+    "sdl3",
     {
-      "name": "sdl2",
+      "name": "sdl3",
       "default-features": true,
       "features": [
         "vulkan"
@@ -57,8 +57,8 @@
       "version": "7.1.2#5"
     },
     {
-      "name": "sdl2",
-      "version": "2.32.10"
+      "name": "sdl3",
+      "version": "3.2.22"
     }
   ]
 }

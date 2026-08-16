@@ -1,0 +1,10 @@
+{
+  "name": "sdl3",
+  "version": "3.2.22",
+  "description": "Empty overlay for the Switch build: SDL3 is provided by the devkitPro switch-sdl3 portlib.",
+  "features": {
+    "vulkan": {
+      "description": "No-op on Switch (Vulkan is disabled); the devkitPro SDL3 build already provides whatever backends it supports."
+    }
+  }
+}

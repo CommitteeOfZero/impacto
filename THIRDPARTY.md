@@ -28,7 +28,7 @@ All third-party code mentioned above is mandatory, included in the build process
 * [glm](https://github.com/g-truc/glm/)
 * [LibAtrac9](https://github.com/Thealexbarney/LibAtrac9)
 * [Ogg](https://github.com/xiph/ogg)
-* [SDL2](https://libsdl.org/download-2.0.php)
+* [SDL3](https://libsdl.org/)
 * [Vorbis](https://github.com/xiph/vorbis)
 * [zlib](https://github.com/madler/zlib)
 * [libass](https://github.com/libass/libass)
@@ -47,7 +47,7 @@ All third-party code mentioned above is mandatory, included in the build process
 * Refer to individual toolchain/platform documentation for standard library licenses and default external library sourcing behaviour.
 * Emscripten, NX, Android builds use static linking for all other external libraries, other platforms use dynamic linking.
 * Some external dependencies (due to being header only libraries) are always compiled into the output executable.
-* The example Emscripten build process explicitly uses emscripten-ports packages for [Ogg](https://github.com/emscripten-ports/Ogg), [SDL2](https://github.com/emscripten-ports/SDL2), [Vorbis](https://github.com/emscripten-ports/Vorbis) and [zlib](https://github.com/emscripten-ports/zlib).
+* The example Emscripten build process explicitly uses emscripten-ports packages for [Ogg](https://github.com/emscripten-ports/Ogg), SDL3, [Vorbis](https://github.com/emscripten-ports/Vorbis) and [zlib](https://github.com/emscripten-ports/zlib).
 * Win32/MSVC, Linux, Android, Mac OS X build processes explicitly uses vcpkg packages listed in vcpkg.json, and the original authors' source distributions for other dependencies.
 * Win32 install targets copy all required DLLs except the standard C/C++ runtime libraries to the output folder.
 
@@ -789,11 +789,11 @@ Copyright (c) 2016 xdaniel (Daniel R.) / DigitalZero Domain
 
 See below for license text (MIT).
 
-## SDL2
+## SDL3
 
-system version, originally https://libsdl.org/download-2.0.php
+system version, originally https://libsdl.org/
 
-Copyright (C) 1997-2019 Sam Lantinga <slouken@libsdl.org>
+Copyright (C) 1997-2025 Sam Lantinga <slouken@libsdl.org>
 
 See below for license text (zlib).
 

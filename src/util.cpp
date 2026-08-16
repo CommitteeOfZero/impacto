@@ -272,47 +272,46 @@ std::string DumpMat4(glm::mat4* matrix, std::string_view columnSeparator,
 
 int ResizeImage(Rect const& srcRect, Rect const& dstRect,
                 std::span<uint8_t> src, std::span<uint8_t> dst) {
-  using SurfacePtr = std::unique_ptr<SDL_Surface, decltype(&SDL_FreeSurface)>;
+  using SurfacePtr =
+      std::unique_ptr<SDL_Surface, decltype(&SDL_DestroySurface)>;
   if (srcRect.Width == dstRect.Width && srcRect.Height == dstRect.Height) {
     assert(dst.size() >= src.size());
     memcpy(dst.data(), src.data(), src.size());
     return 0;
   }
-  const uint32_t sdlFormat = SDL_PIXELFORMAT_RGBA32;
+  const SDL_PixelFormat sdlFormat = SDL_PIXELFORMAT_RGBA32;
   const int bytesPerPixel = 4;
 
   assert(src.size() >=
          static_cast<size_t>(srcRect.Width * srcRect.Height * bytesPerPixel));
   SurfacePtr srcSurface(
-      SDL_CreateRGBSurfaceWithFormatFrom(
-          src.data(), srcRect.Width, srcRect.Height, bytesPerPixel * 8,
-          srcRect.Width * bytesPerPixel, sdlFormat),
-      SDL_FreeSurface);
+      SDL_CreateSurfaceFrom(srcRect.Width, srcRect.Height, sdlFormat,
+                            src.data(), srcRect.Width * bytesPerPixel),
+      SDL_DestroySurface);
   SDL_SetSurfaceBlendMode(srcSurface.get(), SDL_BLENDMODE_NONE);
   if (!srcSurface) {
     ImpLog(LogLevel::Error, LogChannel::Render,
-           "SDL_CreateRGBSurfaceWithFormatFrom failed: {:s}\n", SDL_GetError());
+           "SDL_CreateSurfaceFrom failed: {:s}\n", SDL_GetError());
     return -1;
   }
   assert(dst.size() >= static_cast<size_t>(dstRect.Width * dstRect.Height * 4));
   SurfacePtr dstSurface(
-      SDL_CreateRGBSurfaceWithFormatFrom(
-          dst.data(), dstRect.Width, dstRect.Height, bytesPerPixel * 8,
-          dstRect.Width * bytesPerPixel, sdlFormat),
-      SDL_FreeSurface);
+      SDL_CreateSurfaceFrom(dstRect.Width, dstRect.Height, sdlFormat,
+                            dst.data(), dstRect.Width * bytesPerPixel),
+      SDL_DestroySurface);
   if (!dstSurface) {
     ImpLog(LogLevel::Error, LogChannel::Render,
-           "SDL_CreateRGBSurfaceWithFormat failed: {:s}\n", SDL_GetError());
+           "SDL_CreateSurfaceFrom failed: {:s}\n", SDL_GetError());
     return -1;
   }
   SDL_SetSurfaceBlendMode(dstSurface.get(), SDL_BLENDMODE_NONE);
 
   SDL_Rect srcRectSDL = {srcRect.X, srcRect.Y, srcRect.Width, srcRect.Height};
   SDL_Rect dstRectSDL = {dstRect.X, dstRect.Y, dstRect.Width, dstRect.Height};
-  if (SDL_BlitScaled(srcSurface.get(), &srcRectSDL, dstSurface.get(),
-                     &dstRectSDL) != 0) {
-    ImpLog(LogLevel::Error, LogChannel::Render, "SDL_BlitScaled failed: {:s}\n",
-           SDL_GetError());
+  if (!SDL_BlitSurfaceScaled(srcSurface.get(), &srcRectSDL, dstSurface.get(),
+                             &dstRectSDL, SDL_SCALEMODE_LINEAR)) {
+    ImpLog(LogLevel::Error, LogChannel::Render,
+           "SDL_BlitSurfaceScaled failed: {:s}\n", SDL_GetError());
     return -1;
   }
   return 0;

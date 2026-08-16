@@ -48,7 +48,7 @@ AchievementError AchievementSystemPS3::MountAchievementFile(
   TrophyDataEntries.resize(tdh.file_count);
 
   // Skipping header padding
-  baseStream->Seek(0x24, RW_SEEK_CUR);
+  baseStream->Seek(0x24, SDL_IO_SEEK_CUR);
 
   TrophyDataEntry* tropEntry = nullptr;
 
@@ -69,7 +69,7 @@ AchievementError AchievementSystemPS3::MountAchievementFile(
     return AchievementError::Failed;
   }
 
-  baseStream->Seek(tropEntry->offset, RW_SEEK_SET);
+  baseStream->Seek(tropEntry->offset, SDL_IO_SEEK_SET);
 
   // std::string is immutable and Io::Read uses memcpy
   // Variable-length arrays aren't supported in MSVC
