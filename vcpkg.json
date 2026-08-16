@@ -49,7 +49,9 @@
     "readerwriterqueue",
     "unordered-dense",
     "boost-circular-buffer",
-    "toml11"
+    "toml11",
+    "freetype",
+    "harfbuzz"
   ],
   "overrides": [
     {

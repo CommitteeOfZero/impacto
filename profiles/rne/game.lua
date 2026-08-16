@@ -36,6 +36,7 @@ include(root.BasePaths.RootProfilesDir .. '/rne/tipssystem.lua');
 include(root.BasePaths.RootProfilesDir .. '/rne/vfs.lua');
 include(root.BasePaths.RootProfilesDir .. '/rne/sprites.lua');
 include(root.BasePaths.RootProfilesDir .. '/common/animation.lua');
+include(root.BasePaths.RootProfilesDir .. '/common/achievementnotification.lua');
 include(root.BasePaths.RootProfilesDir .. '/rne/charset.lua');
 include(root.BasePaths.RootProfilesDir .. '/rne/font.lua');
 include(root.BasePaths.RootProfilesDir .. '/rne/dialogue.lua');

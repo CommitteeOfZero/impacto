@@ -40,6 +40,7 @@ set(Impacto_Src
     src/inputsystem.cpp
     src/voicetable.cpp
     src/animation.cpp
+    src/externalfont.cpp
 
     src/text/backlogpage.cpp
     src/text/text.cpp
@@ -94,6 +95,7 @@ set(Impacto_Src
     src/profile/hud/loadingdisplay.cpp
     src/profile/hud/datedisplay.cpp
     src/profile/hud/tipsnotification.cpp
+    src/profile/hud/achievementnotification.cpp
 
     src/profile/ui/commonmenu.cpp
     src/profile/ui/systemmenu.cpp
@@ -256,6 +258,7 @@ set(Impacto_Src
     src/hud/skipicondisplay.cpp
     src/hud/waiticondisplay.cpp
     src/hud/tipsnotification.cpp
+    src/hud/achievementnotification.cpp
 
     src/hud/cc/dialoguebox.cpp
     src/hud/cc/nametagdisplay.cpp
@@ -465,6 +468,7 @@ set(Impacto_Header
     src/profile/hud/loadingdisplay.h
     src/profile/hud/datedisplay.h
     src/profile/hud/tipsnotification.h
+    src/profile/hud/achievementnotification.h
 
     src/profile/ui/commonmenu.h
     src/profile/ui/systemmenu.h
@@ -619,6 +623,7 @@ set(Impacto_Header
     src/hud/skipicondisplay.h
     src/hud/waiticondisplay.h
     src/hud/tipsnotification.h
+    src/hud/achievementnotification.h
 
     src/hud/cc/dialoguebox.h
     src/hud/cc/nametagdisplay.h
@@ -1015,6 +1020,8 @@ find_package(readerwriterqueue CONFIG REQUIRED)
 find_package(concurrentqueue CONFIG REQUIRED)
 find_package(utf8cpp CONFIG REQUIRED)
 find_package(toml11 CONFIG REQUIRED)
+find_package(Freetype CONFIG REQUIRED)
+find_package(harfbuzz CONFIG REQUIRED)
 
 list(APPEND Impacto_Libs
         fmt::fmt
@@ -1028,6 +1035,8 @@ list(APPEND Impacto_Libs
         readerwriterqueue::readerwriterqueue
         Boost::circular_buffer
         toml11::toml11
+        Freetype::Freetype
+        harfbuzz::harfbuzz
 )
 
 if (NOT DEFINED IMPACTO_DISABLE_LIBASS)
@@ -1152,7 +1161,7 @@ if (NOT DEFINED IMPACTO_DISABLE_FFMPEG)
         avcpp::avcpp
         avcpp::FFmpeg
     )
-        
+
     list(APPEND Impacto_Include_Dirs ${FFMPEG_INCLUDE_DIRS})
     list(APPEND Impacto_Libs ${FFMPEG_LIBRARIES})
     pkg_check_modules(dav1d REQUIRED IMPORTED_TARGET dav1d)

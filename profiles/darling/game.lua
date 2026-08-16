@@ -40,6 +40,7 @@ include(root.BasePaths.RootProfilesDir .. '/darling/tipssystem.lua');
 include(root.BasePaths.RootProfilesDir .. '/darling/vfs.lua');
 include(root.BasePaths.RootProfilesDir .. '/darling/sprites.lua');
 include(root.BasePaths.RootProfilesDir .. '/common/animation.lua');
+include(root.BasePaths.RootProfilesDir .. '/common/achievementnotification.lua');
 include(root.BasePaths.RootProfilesDir .. '/darling/charset.lua');
 include(root.BasePaths.RootProfilesDir .. '/darling/font.lua');
 include(root.BasePaths.RootProfilesDir .. '/darling/dialogue.lua');

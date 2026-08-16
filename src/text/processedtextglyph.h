@@ -11,7 +11,7 @@ struct DialogueColorPair {
 
 struct ProcessedTextGlyph {
   DialogueColorPair Colors;
-  uint16_t CharId;
+  uint32_t CharId;
   float Opacity;
   RectF DestRect;
 };

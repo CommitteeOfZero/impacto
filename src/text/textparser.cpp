@@ -536,9 +536,7 @@ void DialogueTextParser::ParseString(Vm::Sc3VmThread* string) {
 
   FinishLine(Glyphs.size());
 
-  NameId = NameCode.empty()
-               ? NO_NAME
-               : static_cast<uint16_t>(GetNameId(NameCode).value_or(NO_NAME));
+  NameId = NameCode.empty() ? NO_NAME : GetNameId(NameCode).value_or(NO_NAME);
 
   for (size_t glyphIdx = glyphsStart; glyphIdx < Glyphs.size(); glyphIdx++) {
     Glyphs[glyphIdx].Opacity = 0.0f;

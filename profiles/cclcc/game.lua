@@ -2,7 +2,8 @@
 
 root.LayerCount = 100;
 root.GameFeatures = GameFeature.Sc3VirtualMachine | GameFeature.Renderer2D | GameFeature.Input | GameFeature.Audio |
-                        GameFeature.Video | GameFeature.Subtitles | GameFeature.DebugMenu;
+                        GameFeature.Video | GameFeature.Subtitles | GameFeature.DebugMenu |
+                        GameFeature.Achievements;
 root.DesignWidth = 1920;
 root.DesignHeight = 1080;
 
@@ -42,6 +43,7 @@ include(root.BasePaths.RootProfilesDir .. '/common/animation.lua');
 include(root.BasePaths.RootProfilesDir .. '/common/charset.lua');
 include(root.BasePaths.RootProfilesDir .. '/common/scriptinput.lua');
 include(root.BasePaths.RootProfilesDir .. '/common/scriptvars.lua');
+include(root.BasePaths.RootProfilesDir .. '/common/achievementnotification.lua');
 
 include(root.BasePaths.RootProfilesDir .. '/cclcc/scriptinput.lua');
 include(root.BasePaths.RootProfilesDir .. '/cclcc/scriptvars.lua');
