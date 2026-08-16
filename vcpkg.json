@@ -61,6 +61,10 @@
     {
       "name": "sdl3",
       "version": "3.4.0"
+    },
+    {
+      "name": "openal-soft",
+      "version": "1.25.1"
     }
   ]
 }

@@ -916,7 +916,7 @@ if(ANDROID)
 endif ()
 
 if (NOT DEFINED IMPACTO_DISABLE_OPENAL)
-    find_package(OpenAL REQUIRED)
+    find_package(OpenAL CONFIG REQUIRED)
 
     list(APPEND Impacto_Libs
             ${OPENAL_LIBRARY}
