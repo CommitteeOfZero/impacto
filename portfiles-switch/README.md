@@ -21,7 +21,6 @@ nothing and CMake's existing lookup already finds the devkitPro copy:
 | Port          | Resolved by                                                                                            |
 |---------------|--------------------------------------------------------------------------------------------------------|
 | `zlib`        | `find_package(ZLIB)` (CMake module) → devkitPro                                                        |
-| `openal-soft` | `find_package(OpenAL)` (CMake module) → devkitPro                                                      |
 | `libass`      | `pkg_check_modules(libass)` in impacto's CMakeLists                                                    |
 | `ffmpeg`      | `pkg_check_modules(libav*)` in impacto's ffmpeg branch (dav1d likewise, from devkitPro `switch-dav1d`) |
 | `avcpp`       | impacto's `FetchContent` (it rides on the system ffmpeg)                                               |

@@ -1,5 +1,16 @@
 {
   "name": "openal-soft",
-  "version": "1.23.1",
-  "description": "Empty overlay for the Switch build: OpenAL Soft is provided by devkitPro switch-openal-soft portlib."
+  "version": "1.25.2",
+  "description": "Switch build: builds openal-soft from source with its SDL3 backend (ALSOFT_BACKEND_SDL3), since devkitPro's prebuilt switch-openal-soft only has an SDL2 backend that is ABI-incompatible with impacto's SDL3.",
+  "dependencies": [
+    {
+      "name": "vcpkg-cmake",
+      "host": true
+    },
+    {
+      "name": "vcpkg-cmake-config",
+      "host": true
+    },
+    "sdl3"
+  ]
 }
