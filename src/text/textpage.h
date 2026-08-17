@@ -27,8 +27,8 @@ class TextPage {
   virtual void Move(glm::vec2 relativePos);
   void MoveTo(glm::vec2 pos);
 
-  virtual void Render(
-      float alpha, RendererOutlineMode outlineMode = RendererOutlineMode::Full);
+  virtual void Render(float alpha, Fonts::RendererOutlineMode outlineMode =
+                                       Fonts::RendererOutlineMode::Full);
 
   std::vector<RubyChunk> RubyChunks;
   std::vector<ProcessedTextGlyph> Glyphs;

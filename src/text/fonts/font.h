@@ -5,10 +5,10 @@
 #include <string_view>
 #include <vector>
 
-#include "spritesheet.h"
-#include "text/processedtextglyph.h"
+#include "../../spritesheet.h"
+#include "../processedtextglyph.h"
 
-namespace Impacto {
+namespace Impacto::Fonts {
 
 enum class RendererOutlineMode : uint8_t { None, BottomRight, Full };
 
@@ -327,4 +327,4 @@ class ExternalFont final : public Font {
   Impl* FontImpl;
 };
 
-}  // namespace Impacto
+}  // namespace Impacto::Fonts

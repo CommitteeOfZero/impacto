@@ -38,14 +38,12 @@ set(Impacto_Src
     src/spritesheet.cpp
     src/spriteanimation.cpp
     src/sequencedanimation.cpp
-    src/font.cpp
     src/background2d.cpp
     src/mask2d.cpp
     src/character2d.cpp
     src/inputsystem.cpp
     src/voicetable.cpp
     src/animation.cpp
-    src/externalfont.cpp
 
     src/text/backlogpage.cpp
     src/text/text.cpp
@@ -54,6 +52,9 @@ set(Impacto_Src
     src/text/tipspage.cpp
     src/text/typewritereffect.cpp
     src/text/dialoguepage.cpp
+
+    src/text/fonts/externalfont.cpp
+    src/text/fonts/font.cpp
 
     src/effects/wave.cpp
     src/effects/blur.cpp
@@ -408,7 +409,6 @@ set(Impacto_Header
     src/spritesheet.h
     src/spriteanimation.h
     src/sequencedanimation.h
-    src/font.h
     src/background2d.h
     src/mask2d.h
     src/character2d.h
@@ -425,6 +425,8 @@ set(Impacto_Header
     src/text/typewritereffect.h
     src/text/dialoguepage.h
     src/text/processedtextglyph.h
+
+    src/text/fonts/font.h
 
     src/effects/wave.h
     src/effects/blur.h

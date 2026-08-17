@@ -86,8 +86,8 @@ struct DialoguePage : public TextPage {
 
   void Move(glm::vec2 relativePos) override;
 
-  void Render(float alpha, RendererOutlineMode outlineMode =
-                               RendererOutlineMode::Full) override;
+  void Render(float alpha, Fonts::RendererOutlineMode outlineMode =
+                               Fonts::RendererOutlineMode::Full) override;
   void Hide();
   void Show();
 

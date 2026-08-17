@@ -24,15 +24,17 @@ class Button : public Widget {
   virtual void Move(glm::vec2 relativePosition) override;
 
   void SetText(Vm::BufferOffsetContext scrCtx, float fontSize,
-               RendererOutlineMode outlineMode, int colorIndex = 10);
+               Fonts::RendererOutlineMode outlineMode, int colorIndex = 10);
   void SetText(Vm::BufferOffsetContext scrCtx, float fontSize,
-               RendererOutlineMode outlineMode, DialogueColorPair colorPair);
+               Fonts::RendererOutlineMode outlineMode,
+               DialogueColorPair colorPair);
   void SetText(Vm::Sc3Stream& stream, float fontSize,
-               RendererOutlineMode outlineMode, int colorIndex = 10);
+               Fonts::RendererOutlineMode outlineMode, int colorIndex = 10);
   void SetText(Vm::Sc3Stream& stream, float fontSize,
-               RendererOutlineMode outlineMode, DialogueColorPair colorPair);
+               Fonts::RendererOutlineMode outlineMode,
+               DialogueColorPair colorPair);
   virtual void SetText(std::vector<ProcessedTextGlyph> text, float textWidth,
-                       float fontSize, RendererOutlineMode outlineMode);
+                       float fontSize, Fonts::RendererOutlineMode outlineMode);
   void ClearText() {
     Text.clear();
     Bounds = {};
@@ -57,7 +59,7 @@ class Button : public Widget {
   bool HasText = false;
   std::vector<ProcessedTextGlyph> Text;
   float TextWidth = 0.0f;
-  RendererOutlineMode OutlineMode;
+  Fonts::RendererOutlineMode OutlineMode;
 };
 
 }  // namespace Widgets

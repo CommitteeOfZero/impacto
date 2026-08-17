@@ -11,6 +11,8 @@ namespace Impacto {
 namespace UI {
 namespace Widgets {
 
+using namespace Impacto::Fonts;
+
 class Label : public Widget {
  public:
   Label();

@@ -2,7 +2,7 @@
 
 #include "../animation.h"
 #include "../data/achievementsystem.h"
-#include "../font.h"
+#include "../text/fonts/font.h"
 #include "../inputsystem.h"
 #include "../io/physicalfilestream.h"
 #include "../log.h"
