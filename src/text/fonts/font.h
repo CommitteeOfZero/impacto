@@ -7,6 +7,7 @@
 
 #include "../../spritesheet.h"
 #include "../processedtextglyph.h"
+#include "../../io/assetpath.h"
 
 namespace Impacto::Fonts {
 
@@ -17,6 +18,7 @@ enum class FontType : uint8_t {
   SeparateOutlineSheet,
   LanguageBarrier,
   EdgeDetectedSingleSheet,
+  EdgeDetectedSingleVariableWidthSheet,
   External,
 };
 
@@ -278,6 +280,33 @@ class EdgeDetectedSingleSheetFont final : public SingleSheetFont {
     return Sprite(Sheet, col * CellSize.x, row * CellSize.y, width,
                   BitmapEmHeight);
   }
+};
+
+class EdgeDetectedSingleVariableWidthSheetFont final : public Font {
+ public:
+  EdgeDetectedSingleVariableWidthSheetFont(float bitmapEmWidth,
+                                           float bitmapEmHeight,
+                                           OpacityCurve opacityCurve,
+                                           SpriteSheet sheet,
+                                           Io::AssetPath& binaryPath);
+
+  void DrawProcessedText(std::span<const ProcessedTextGlyph> text,
+                         float opacity, float outlineOpacity,
+                         RendererOutlineMode outlineMode,
+                         const SpriteSheet* maskedSheet,
+                         glm::mat4 transformation) override;
+
+  float GetAdvanceWidth(uint32_t glyphId) const override {
+    return Data[glyphId].AdvanceSize.x;
+  }
+
+ private:
+  struct GlyphData {
+    Sprite GlyphSprite;
+    glm::vec2 Offset;
+    glm::vec2 AdvanceSize;
+  };
+  std::vector<GlyphData> Data;
 };
 
 struct ExternalFontShapedGlyph {

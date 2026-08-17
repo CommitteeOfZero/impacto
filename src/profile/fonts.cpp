@@ -145,6 +145,28 @@ void LoadFonts() {
         }
       } break;
 
+      case EdgeDetectedSingleVariableWidthSheet: {
+        if (!bitmapEmWidth.has_value()) {
+          throw std::runtime_error(
+              fmt::format("BitmapEmWidth field is required for "
+                          "EdgeDetectedSingleVariableWidthSheet font \"{:s}\"",
+                          name));
+        }
+        if (!bitmapEmHeight.has_value()) {
+          throw std::runtime_error(
+              fmt::format("BitmapEmHeight field is required for "
+                          "EdgeDetectedSingleVariableWidthSheet font \"{:s}\"",
+                          name));
+        }
+
+        const SpriteSheet sheet = EnsureGetMember<SpriteSheet>("Sheet");
+        Io::AssetPath binaryPath = EnsureGetMember<Io::AssetPath>("BinaryPath");
+
+        Fonts[name] = new EdgeDetectedSingleVariableWidthSheetFont(
+            *bitmapEmWidth, *bitmapEmHeight, foregroundOpacityCurve, sheet,
+            binaryPath);
+      } break;
+
       case External:
         ImpLog(LogLevel::Fatal, LogChannel::Profile,
                "External fonts cannot be loaded from the profile for {:s}\n",

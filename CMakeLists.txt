@@ -53,6 +53,7 @@ set(Impacto_Src
     src/text/typewritereffect.cpp
     src/text/dialoguepage.cpp
 
+    src/text/fonts/edgedetectedsinglevariablewidthsheetfont.cpp
     src/text/fonts/externalfont.cpp
     src/text/fonts/font.cpp
 
