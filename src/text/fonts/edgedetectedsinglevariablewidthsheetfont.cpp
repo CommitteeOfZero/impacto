@@ -60,6 +60,24 @@ EdgeDetectedSingleVariableWidthSheetFont::
   }
 }
 
+ProcessedTextGlyph EdgeDetectedSingleVariableWidthSheetFont::PlaceGlyph(
+    const uint32_t glyphId, const glm::vec2 position, const float fontSize,
+    const DialogueColorPair colors, const float opacity) const {
+  const GlyphData& glyphData = Data[glyphId];
+  const glm::vec2 fontScale =
+      fontSize / glm::vec2(BitmapEmWidth, BitmapEmHeight);
+
+  return {
+      .Colors = colors,
+      .CharId = glyphId,
+      .Opacity = opacity,
+      .DestRect = RectF(position.x + glyphData.Offset.x * fontScale.x,
+                        position.y + glyphData.Offset.y * fontScale.y,
+                        glyphData.GlyphSprite.ScaledWidth() * fontScale.x,
+                        glyphData.GlyphSprite.ScaledHeight() * fontScale.y),
+  };
+}
+
 [[nodiscard]] static std::vector<uint16_t> GetGlyphIndices(
     uint16_t glyphCount) {
   std::vector<uint16_t> indices(glyphCount * 6);

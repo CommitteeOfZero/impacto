@@ -184,21 +184,16 @@ void TextParser::ParseStringToken<STT_Character>(const StringToken& token) {
     case TextParsingState::RubyBase: {
       // TODO respect TA_Center
       // TODO what to do about left margin if text alignment is center?
-      ProcessedTextGlyph& glyph = Glyphs.emplace_back();
-      glyph.CharId = token.Val_Uint16;
-
-      glyph.Opacity = 1.0f;
-      glyph.Colors = CurrentColors;
-
-      glyph.DestRect.X = ModeInfo.WindowPos.x + CurrentX;
-      glyph.DestRect.Width = (FontSize / DialogueFont->BitmapEmWidth) *
-                             DialogueFont->GetAdvanceWidth(glyph.CharId);
-      glyph.DestRect.Height = FontSize;
-
-      CurrentX += glyph.DestRect.Width;
+      const uint32_t glyphId = token.Val_Uint16;
+      const auto& glyph = Glyphs.emplace_back(DialogueFont->PlaceGlyph(
+          glyphId, {ModeInfo.WindowPos.x + CurrentX, 0.0f}, FontSize,
+          CurrentColors, 1.0f));
+      CurrentX += DialogueFont->GetAdvanceWidth(glyphId) * FontSize /
+                  DialogueFont->BitmapEmWidth;
 
       // Line breaking
-      if (CurrentX > ModeInfo.MaxLineWidth) {
+      if (glyph.DestRect.Right() - ModeInfo.WindowPos.x >
+          ModeInfo.MaxLineWidth) {
         size_t breakCharacter = Glyphs.size() - 1;
         for (; breakCharacter > LastLineStart; breakCharacter--) {
           constexpr uint8_t dontBreakBeforeFlags =
