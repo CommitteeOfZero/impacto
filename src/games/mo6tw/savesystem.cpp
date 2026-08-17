@@ -545,27 +545,23 @@ void SaveSystem::SetTipStatus(size_t tipId, bool isLocked, bool isUnread,
   }
 }
 
-void SaveSystem::SetLineRead(int scriptId, int lineId) {
-  if (scriptId >= StoryScriptCount.value()) return;
-
-  uint32_t offset =
-      ScriptMessageData[StoryScriptIDs[scriptId]].SaveDataOffset + lineId;
-  if (offset == 0xFFFFFFFF) return;
+void SaveSystem::SetLineRead(const size_t scriptId, const size_t lineId) {
+  const std::optional<size_t> offset = GetLineBitOffset(scriptId, lineId);
+  if (!offset.has_value()) return;
 
   // TODO: update some ScrWorks (2003, 2005 & 2006)
 
-  MessageFlags[offset >> 3] |= Flbit[offset & 0b111];
+  MessageFlags[*offset >> 3] |= Flbit[*offset & 0b111];
 }
 
-bool SaveSystem::IsLineRead(int scriptId, int lineId) const {
-  if (scriptId >= StoryScriptCount.value()) return false;
+bool SaveSystem::IsLineRead(const size_t scriptId, const size_t lineId) const {
+  const std::optional<size_t> offset = GetLineBitOffset(scriptId, lineId);
+  if (!offset.has_value()) return false;
 
-  uint32_t offset =
-      ScriptMessageData[StoryScriptIDs[scriptId]].SaveDataOffset + lineId;
-  uint8_t flbit = Flbit[offset & 0b111];
-  uint8_t viewed = MessageFlags[offset >> 3];
+  const uint8_t flbit = Flbit[*offset & 0b111];
+  const uint8_t viewed = MessageFlags[*offset >> 3];
 
-  return (bool)(flbit & viewed);
+  return static_cast<bool>(flbit & viewed);
 }
 
 void SaveSystem::GetReadMessagesCount(int* totalMessageCount,
@@ -573,12 +569,12 @@ void SaveSystem::GetReadMessagesCount(int* totalMessageCount,
   *totalMessageCount = 0;
   *readMessageCount = 0;
 
-  for (int scriptId = 0; scriptId < StoryScriptCount; scriptId++) {
+  for (size_t scriptId = 0; scriptId < StoryScriptIDs.size(); scriptId++) {
     ScriptMessageDataPair script = ScriptMessageData[StoryScriptIDs[scriptId]];
     *totalMessageCount += script.LineCount;
 
     for (size_t lineId = 0; lineId < script.LineCount; lineId++) {
-      *readMessageCount += IsLineRead(scriptId, (int)lineId);
+      *readMessageCount += IsLineRead(scriptId, lineId);
     }
   }
 }

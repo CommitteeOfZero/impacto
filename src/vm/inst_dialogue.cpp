@@ -33,13 +33,15 @@ VmInstruction(InstMesViewFlag) {
     case 0: {  // Set
       PopExpression(scriptId);
       PopExpression(lineId);
-      SaveSystem::SetLineRead(scriptId, lineId);
+      SaveSystem::SetLineRead(static_cast<size_t>(scriptId),
+                              static_cast<size_t>(lineId));
     } break;
     case 1: {  // Check
       PopExpression(scrWorkEntry);
       PopExpression(scriptId);
       PopExpression(lineId);
-      ScrWork[scrWorkEntry] = SaveSystem::IsLineRead(scriptId, lineId);
+      ScrWork[scrWorkEntry] = SaveSystem::IsLineRead(
+          static_cast<size_t>(scriptId), static_cast<size_t>(lineId));
     } break;
   }
 }
@@ -137,8 +139,9 @@ static bool InstMesSyncMain(int pageId, SyncType type) {
               currentPage.PushBacklogEntry();
             }
 
-            SaveSystem::SetLineRead(ScrWork[currentPage.Id * 2 + SW_SCRIPTID],
-                                    ScrWork[currentPage.Id * 2 + SW_LINEID]);
+            SaveSystem::SetLineRead(
+                static_cast<size_t>(ScrWork[currentPage.Id * 2 + SW_SCRIPTID]),
+                static_cast<size_t>(ScrWork[currentPage.Id * 2 + SW_LINEID]));
 
             return false;
           }
@@ -154,8 +157,9 @@ static bool InstMesSyncMain(int pageId, SyncType type) {
       case Hidden:
         currentPage.PushBacklogEntry();
         SetFlag(SF_MESCLEAR0 + currentPage.Id, true);
-        SaveSystem::SetLineRead(ScrWork[currentPage.Id * 2 + SW_SCRIPTID],
-                                ScrWork[currentPage.Id * 2 + SW_LINEID]);
+        SaveSystem::SetLineRead(
+            static_cast<size_t>(ScrWork[currentPage.Id * 2 + SW_SCRIPTID]),
+            static_cast<size_t>(ScrWork[currentPage.Id * 2 + SW_LINEID]));
         return false;
       default:
         break;
@@ -482,8 +486,9 @@ VmInstruction(InstMesCls) {
       SetFlag(SF_SHOWWAITICON + pageId, false);
       SetFlag(SF_MESCLEAR0 + pageId, true);
 
-      SaveSystem::SetLineRead(ScrWork[SW_SCRIPTID + pageId * 2],
-                              ScrWork[SW_LINEID + pageId * 2]);
+      SaveSystem::SetLineRead(
+          static_cast<size_t>(ScrWork[SW_SCRIPTID + pageId * 2]),
+          static_cast<size_t>(ScrWork[SW_LINEID + pageId * 2]));
 
       if (!GetFlag(SF_REVADDDISABLE)) {
         page.PushBacklogEntry();
@@ -614,8 +619,9 @@ VmInstruction(InstMesMain) {
 
     SetFlag(SF_MESCLEAR0 + currentPage.Id, true);
 
-    SaveSystem::SetLineRead(ScrWork[currentPage.Id * 2 + SW_SCRIPTID],
-                            ScrWork[currentPage.Id * 2 + SW_LINEID]);
+    SaveSystem::SetLineRead(
+        static_cast<size_t>(ScrWork[currentPage.Id * 2 + SW_SCRIPTID]),
+        static_cast<size_t>(ScrWork[currentPage.Id * 2 + SW_LINEID]));
     return;
   }
 
@@ -668,8 +674,9 @@ VmInstruction(InstMesMain) {
         SetFlag(SF_MESCLEAR0 + currentPage.Id, true);
       }
 
-      SaveSystem::SetLineRead(ScrWork[currentPage.Id * 2 + SW_SCRIPTID],
-                              ScrWork[currentPage.Id * 2 + SW_LINEID]);
+      SaveSystem::SetLineRead(
+          static_cast<size_t>(ScrWork[currentPage.Id * 2 + SW_SCRIPTID]),
+          static_cast<size_t>(ScrWork[currentPage.Id * 2 + SW_LINEID]));
 
       currentPage.PushBacklogEntry();
 

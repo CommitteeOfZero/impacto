@@ -125,8 +125,8 @@ class SaveSystemBase {
   virtual uint32_t GetTipStatus(size_t tipId) const = 0;
   virtual void SetTipStatus(size_t tipId, bool isLocked, bool isUnread,
                             bool isNew) = 0;
-  virtual void SetLineRead(int scriptId, int lineId) = 0;
-  virtual bool IsLineRead(int scriptId, int MessageId) const = 0;
+  virtual void SetLineRead(size_t scriptId, size_t lineId) = 0;
+  virtual bool IsLineRead(size_t scriptId, size_t lineId) const = 0;
   virtual void GetReadMessagesCount(int* totalMessageCount,
                                     int* readMessageCount) const = 0;
   virtual void GetViewedEVsCount(int* totalEVCount,
@@ -201,8 +201,9 @@ uint8_t GetSaveStatus(SaveType type, int id);
 int GetSaveTitle(SaveType type, int id);
 uint32_t GetTipStatus(size_t tipId);
 void SetTipStatus(size_t tipId, bool isLocked, bool isUnread, bool isNew);
-void SetLineRead(int scriptId, int lineId);
-bool IsLineRead(int scriptId, int lineId);
+std::optional<size_t> GetLineBitOffset(size_t scriptId, size_t lineId);
+void SetLineRead(size_t scriptId, size_t lineId);
+bool IsLineRead(size_t scriptId, size_t lineId);
 void GetReadMessagesCount(int* totalMessageCount, int* readMessageCount);
 void GetViewedEVsCount(int* totalEVCount, int* viewedEVCount);
 void GetEVStatus(int evId, int* totalVariations, int* viewedVariations);

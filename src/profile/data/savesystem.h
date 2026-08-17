@@ -18,11 +18,19 @@ inline Impacto::SaveSystem::SaveDataType Type =
 inline std::string SaveFilePath;
 inline std::optional<std::string> ThumbnailFilePath;
 inline std::vector<uint32_t> StoryScriptIDs;
-inline std::optional<int> StoryScriptCount;
 inline std::vector<Impacto::SaveSystem::ScriptMessageDataPair>
     ScriptMessageData;
 inline uint16_t AlbumEvData[MaxAlbumEntries][MaxAlbumSubEntries];
 inline uint16_t AlbumData[MaxAlbumEntries][MaxAlbumSubEntries][MaxCGSprites];
+
+struct AddedLinesDataStruct {
+  size_t BitFieldOffset;
+  size_t AddedLinesPerScript;
+};
+inline std::optional<AddedLinesDataStruct> AddedLinesData;
+
+std::vector<std::pair<size_t, size_t>> GetEquivalentLines(size_t scriptId,
+                                                          size_t lineId);
 
 void Configure();
 

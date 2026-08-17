@@ -203,17 +203,55 @@ void SetTipStatus(size_t tipId, bool isLocked, bool isUnread, bool isNew) {
          "{:s}: save system not implemented\n", __func__);
 }
 
-void SetLineRead(int scriptId, int lineId) {
-  if (Implementation) return Implementation->SetLineRead(scriptId, lineId);
-  ImpLog(LogLevel::Warning, LogChannel::VMStub,
-         "{:s}: save system not implemented\n", __func__);
+std::optional<size_t> GetLineBitOffset(const size_t scriptId,
+                                       const size_t lineId) {
+  if (ScriptMessageData.size() < scriptId) {
+    ImpLog(LogLevel::Error, LogChannel::General, "Script ID {:d} out of bounds",
+           scriptId);
+    return std::nullopt;
+  }
+
+  const bool isAdded = lineId >= ScriptMessageData[scriptId].LineCount;
+  if (isAdded && !AddedLinesData.has_value()) {
+    ImpLog(LogLevel::Warning, LogChannel::General,
+           "Encountered an added line without AddedLineData being supplied in "
+           "the profile.");
+    return std::nullopt;
+  }
+
+  return isAdded ? AddedLinesData->BitFieldOffset +
+                       AddedLinesData->AddedLinesPerScript * scriptId +
+                       (lineId - ScriptMessageData[scriptId].LineCount)
+                 : ScriptMessageData[scriptId].SaveDataOffset + lineId;
 }
 
-bool IsLineRead(int scriptId, int lineId) {
-  if (Implementation) return Implementation->IsLineRead(scriptId, lineId);
-  ImpLog(LogLevel::Warning, LogChannel::VMStub,
-         "{:s}: save system not implemented, returing false\n", __func__);
-  return false;
+void SetLineRead(const size_t scriptId, const size_t lineId) {
+  if (Implementation == nullptr) {
+    ImpLog(LogLevel::Warning, LogChannel::VMStub,
+           "{:s}: save system not implemented\n", __func__);
+    return;
+  }
+
+  const std::vector<std::pair<size_t, size_t>> equivalentLines =
+      GetEquivalentLines(scriptId, lineId);
+  for (const auto& [curScriptId, curLineId] : equivalentLines) {
+    Implementation->SetLineRead(curScriptId, curLineId);
+  }
+}
+
+bool IsLineRead(const size_t scriptId, const size_t lineId) {
+  if (Implementation == nullptr) {
+    ImpLog(LogLevel::Warning, LogChannel::VMStub,
+           "{:s}: save system not implemented, returning false\n", __func__);
+    return false;
+  }
+
+  const std::vector<std::pair<size_t, size_t>> equivalentLines =
+      GetEquivalentLines(scriptId, lineId);
+  return std::ranges::any_of(
+      equivalentLines, [](std::pair<size_t, size_t> line) {
+        return Implementation->IsLineRead(line.first, line.second);
+      });
 }
 
 void GetReadMessagesCount(int* totalMessageCount, int* readMessageCount) {

@@ -9,9 +9,99 @@
 
 namespace Impacto {
 namespace Profile {
-namespace SaveSystem {
 
+template <>
+struct TryGetImpl<SaveSystem::AddedLinesDataStruct> {
+  static std::optional<SaveSystem::AddedLinesDataStruct> Call() {
+    if (!lua_istable(LuaState, -1)) return std::nullopt;
+
+    const std::optional<size_t> bitFieldOffset =
+        TryGetMember<size_t>("BitFieldOffset");
+    if (!bitFieldOffset.has_value()) {
+      ImpLog(LogLevel::Fatal, LogChannel::Profile, "Missing BitFieldOffset");
+      return std::nullopt;
+    }
+
+    const std::optional<size_t> addedLinesPerScript =
+        TryGetMember<size_t>("AddedLinesPerScript");
+    if (!addedLinesPerScript.has_value()) {
+      ImpLog(LogLevel::Fatal, LogChannel::Profile,
+             "Missing AddedLinesPerScript");
+      return std::nullopt;
+    }
+
+    return SaveSystem::AddedLinesDataStruct{
+        .BitFieldOffset = *bitFieldOffset,
+        .AddedLinesPerScript = *addedLinesPerScript,
+    };
+  }
+};
+
+namespace SaveSystem {
+struct LineRange {
+  size_t ScriptId;
+  size_t StartLineId;
+  size_t EndLineId;
+
+  size_t EquivalentLineRangesIdx = 0;
+
+  bool Intersects(const LineRange& other) const {
+    return ScriptId == other.ScriptId &&
+           !(other.EndLineId < StartLineId || EndLineId < other.StartLineId);
+  }
+};
+}  // namespace SaveSystem
+
+template <>
+struct TryGetImpl<SaveSystem::LineRange> {
+  static std::optional<SaveSystem::LineRange> Call() {
+    if (!lua_istable(LuaState, -1)) return std::nullopt;
+
+    const std::optional<size_t> scriptId = TryGetMember<size_t>("ScriptId");
+    if (!scriptId.has_value()) {
+      ImpLog(LogLevel::Fatal, LogChannel::Profile,
+             "Missing ScriptId in equivalent line range");
+      return std::nullopt;
+    }
+
+    std::optional<size_t> startLineId = TryGetMember<size_t>("StartLineId");
+    std::optional<size_t> endLineId;
+    if (!startLineId.has_value()) {
+      startLineId = TryGetMember<size_t>("LineId");
+
+      if (!startLineId.has_value()) {
+        ImpLog(LogLevel::Fatal, LogChannel::Profile,
+               "Missing LineId in equivalent line range");
+        return std::nullopt;
+      }
+
+      endLineId = startLineId;
+    } else {
+      endLineId = TryGetMember<size_t>("EndLineId");
+
+      if (!endLineId.has_value()) {
+        ImpLog(LogLevel::Fatal, LogChannel::Profile,
+               "Missing EndLineId in equivalent line range");
+        return std::nullopt;
+      }
+    }
+
+    return SaveSystem::LineRange{
+        .ScriptId = *scriptId,
+        .StartLineId = *startLineId,
+        .EndLineId = *endLineId,
+    };
+  }
+};
+
+namespace SaveSystem {
 using namespace Impacto::SaveSystem;
+
+// EquivalentRanges holds all equivalent classes between ranges.
+// ScriptRanges allows one to fetch all equivalent classes pertaining to an
+// individual script ID, for faster lookups.
+static std::vector<std::vector<LineRange>> EquivalentLineRanges;
+static std::map<size_t, std::vector<LineRange>> ScriptLineRanges;
 
 void Configure() {
   EnsurePushMemberOfType("SaveData", LUA_TTABLE);
@@ -39,20 +129,7 @@ void Configure() {
 
   SaveFilePath = EnsureGetMember<std::string>("SaveFilePath");
 
-  if (TryPushMember("StoryScriptIDs")) {
-    AssertIs(LUA_TTABLE);
-
-    StoryScriptCount = (int)lua_rawlen(LuaState, -1);
-    StoryScriptIDs.resize(*StoryScriptCount);
-    PushInitialIndex();
-    while (PushNextTableElement() != 0) {
-      int i = EnsureGetKey<int32_t>() - 1;
-      StoryScriptIDs[i] = EnsureGetArrayElement<int>();
-      Pop();
-    }
-
-    Pop();
-  }
+  TryGetMember<std::vector<uint32_t>>("StoryScriptIDs", StoryScriptIDs);
 
   if (TryPushMember("ScriptMessageData")) {
     AssertIs(LUA_TTABLE);
@@ -136,7 +213,93 @@ void Configure() {
     Pop();
   }
 
+  AddedLinesData = TryGetMember<AddedLinesDataStruct>("AddedLinesData");
+
+  if (TryPushMember("EquivalentLines")) {
+    ForEachProfileArray([](const uint32_t index) {
+      std::vector<LineRange>& equivalentRangeList =
+          EquivalentLineRanges.emplace_back(
+              EnsureGet<std::vector<LineRange>>());
+      if (equivalentRangeList.size() < 2) {
+        ImpLog(LogLevel::Warning, LogChannel::Profile,
+               "Equivalent range list of size < 2 loaded from the profile");
+        EquivalentLineRanges.pop_back();
+        return;
+      }
+
+      const size_t rangeLength = equivalentRangeList.front().EndLineId -
+                                 equivalentRangeList.front().StartLineId;
+      for (auto curIt = equivalentRangeList.begin();
+           curIt != equivalentRangeList.end(); curIt++) {
+        if (curIt->EndLineId < curIt->StartLineId) {
+          throw std::runtime_error(fmt::format(
+              "EndLineId < StartLineId for equivalent line range [{:d}, "
+              "{:d}] of script {:d}",
+              curIt->StartLineId, curIt->EndLineId, curIt->ScriptId));
+        }
+
+        if (curIt->EndLineId - curIt->StartLineId != rangeLength) {
+          throw std::runtime_error(fmt::format(
+              "Expected range length {:d} for equivalent line range [{:d}, "
+              "{:d}] of script {:d}",
+              rangeLength, curIt->StartLineId, curIt->EndLineId,
+              curIt->ScriptId));
+        }
+
+        // Ranges may not intersect because a single binary search pass is used
+        // to identify the equivalent lines
+        std::vector<LineRange>& scriptVector =
+            ScriptLineRanges.try_emplace(curIt->ScriptId).first->second;
+        if (const auto intersected =
+                std::ranges::find_if(scriptVector,
+                                     [curIt](const auto& other) {
+                                       return curIt->Intersects(other);
+                                     });
+            intersected != scriptVector.end()) {
+          throw std::runtime_error(fmt::format(
+              "Line range [{:d}, {:d}] of script {:d} intersects with line "
+              "range [{:d}, {:d}]",
+              curIt->StartLineId, curIt->EndLineId, curIt->ScriptId,
+              intersected->StartLineId, intersected->EndLineId));
+        }
+
+        curIt->EquivalentLineRangesIdx = EquivalentLineRanges.size() - 1;
+        scriptVector.emplace_back(*curIt);
+      }
+    });
+
+    // Sort the ranges in ScriptLineRanges to be able to binary search
+    for (auto& [scriptId, lineRanges] : ScriptLineRanges) {
+      std::ranges::sort(lineRanges, std::less<size_t>(), &LineRange::EndLineId);
+    }
+
+    Pop();
+  }
+
   Pop();
+}
+
+std::vector<std::pair<size_t, size_t>> GetEquivalentLines(const size_t scriptId,
+                                                          const size_t lineId) {
+  const auto scriptLineRangesIt = ScriptLineRanges.find(scriptId);
+  if (scriptLineRangesIt == ScriptLineRanges.end()) return {{scriptId, lineId}};
+
+  const std::vector<LineRange>& scriptLineRanges = scriptLineRangesIt->second;
+  const auto lineRange = std::ranges::lower_bound(
+      scriptLineRanges, lineId, std::less<size_t>(), &LineRange::EndLineId);
+  if (lineRange == scriptLineRanges.end() || lineId < lineRange->StartLineId) {
+    return {{scriptId, lineId}};
+  }
+
+  const size_t offset = lineId - lineRange->StartLineId;
+  std::vector<std::pair<size_t, size_t>> equivalentLines;
+  std::ranges::transform(
+      EquivalentLineRanges[lineRange->EquivalentLineRangesIdx],
+      std::back_inserter(equivalentLines), [offset](const auto& range) {
+        return std::pair{range.ScriptId, range.StartLineId + offset};
+      });
+
+  return equivalentLines;
 }
 
 }  // namespace SaveSystem

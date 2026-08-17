@@ -64,8 +64,8 @@ class SaveSystem : public SaveSystemBase {
   void SetTipStatus(size_t tipId, bool isLocked, bool isUnread,
                     bool isNew) override;
 
-  void SetLineRead(int scriptId, int lineId) override;
-  bool IsLineRead(int scriptId, int lineId) const override;
+  void SetLineRead(size_t scriptId, size_t lineId) override;
+  bool IsLineRead(size_t scriptId, size_t lineId) const override;
   void GetReadMessagesCount(int* totalMessageCount,
                             int* readMessageCount) const override;
 
