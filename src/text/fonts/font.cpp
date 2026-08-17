@@ -1,8 +1,8 @@
 #include "font.h"
 
-#include "log.h"
-#include "profile/game.h"
-#include "renderer/renderer.h"
+#include "../../log.h"
+#include "../../profile/game.h"
+#include "../../renderer/renderer.h"
 
 namespace Impacto {
 

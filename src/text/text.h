@@ -6,12 +6,14 @@
 #include <ankerl/unordered_dense.h>
 
 #include "processedtextglyph.h"
+#include "fonts/font.h"
 #include "../animation.h"
-#include "../font.h"
 #include "../vm/thread.h"
 #include "../vm/sc3stream.h"
 
 namespace Impacto {
+
+using namespace Impacto::Fonts;
 
 enum class TextAlignment : int {
   Left = 0,

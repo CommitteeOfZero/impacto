@@ -1,10 +1,10 @@
 #include "font.h"
 
-#include "io/physicalfilestream.h"
-#include "log.h"
-#include "renderer/renderer.h"
-#include "texture/texture.h"
-#include "profile/game.h"
+#include "../../io/physicalfilestream.h"
+#include "../../log.h"
+#include "../../renderer/renderer.h"
+#include "../../texture/texture.h"
+#include "../../profile/game.h"
 
 #include <ankerl/unordered_dense.h>
 
