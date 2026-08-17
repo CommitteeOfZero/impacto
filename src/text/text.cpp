@@ -387,8 +387,8 @@ float TextGetPlainLineWidth(Vm::Sc3VmThread* ctx, Font* font, float fontSize) {
     if (token.Type == STT_EndOfString) break;
     if (token.Type != STT_Character) continue;
 
-    width += std::floor((fontSize / font->BitmapEmWidth) *
-                        font->GetAdvanceWidth(token.Val_Uint16));
+    width += (fontSize / font->BitmapEmWidth) *
+             font->GetAdvanceWidth(token.Val_Uint16);
   }
 
   return width;
@@ -404,8 +404,8 @@ float TextGetPlainLineWidth(Vm::Sc3Stream& stream, Font* font, float fontSize,
     if (token.Type == STT_EndOfString) break;
     if (token.Type != STT_Character) continue;
 
-    width += std::floor((fontSize / font->BitmapEmWidth) *
-                        font->GetAdvanceWidth(token.Val_Uint16));
+    width += (fontSize / font->BitmapEmWidth) *
+             font->GetAdvanceWidth(token.Val_Uint16);
   }
 
   return width;
