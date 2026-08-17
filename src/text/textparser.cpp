@@ -331,13 +331,6 @@ void TextParser::FinishLine(const size_t nextLineStart, const bool force) {
     }
   }
 
-  // Glyphs of different font sizes are bottom-aligned within the line
-  const float lineHeight =
-      std::accumulate(currentLine.begin(), currentLine.end(), FontSize,
-                      [](float lhs, const auto& rhs) {
-                        return std::max(lhs, rhs.DestRect.Height);
-                      });
-
   // completely trial and error guess
   const float normalizedFontSize = FontSize / ModeInfo.TextGlyphSize.y;
   CurrentLineTopMargin *= normalizedFontSize;
@@ -368,13 +361,12 @@ void TextParser::FinishLine(const size_t nextLineStart, const bool force) {
     }();
     for (ProcessedTextGlyph& glyph : currentLine) {
       glyph.DestRect.X += xAlignmentOffset;
-      glyph.DestRect.Y = ModeInfo.WindowPos.y + CurrentLineTop +
-                         CurrentLineTopMargin +
-                         (lineHeight - glyph.DestRect.Height);
+      glyph.DestRect.Y +=
+          ModeInfo.WindowPos.y + CurrentLineTop + CurrentLineTopMargin;
     }
   }
 
-  CurrentLineTop += CurrentLineTopMargin + lineHeight + ModeInfo.LineSpacing;
+  CurrentLineTop += CurrentLineTopMargin + FontSize + ModeInfo.LineSpacing;
   CurrentLineTopMargin = 0.0f;
 
   LastLineStart = nextLineStart;
