@@ -238,7 +238,7 @@ std::pair<int, float> TextLayoutPlainLineHelper(
         ptg.DestRect.X = currentX;
         ptg.DestRect.Y = pos.y;
         ptg.DestRect.Width = std::floor((fontSize / font->BitmapEmWidth) *
-                                        font->AdvanceWidths[ptg.CharId]);
+                                        font->GetAdvanceWidth(ptg.CharId));
         ptg.DestRect.Height = fontSize;
 
         currentX += ptg.DestRect.Width;
@@ -394,7 +394,7 @@ float TextGetPlainLineWidth(Vm::Sc3VmThread* ctx, Font* font, float fontSize) {
     if (token.Type != STT_Character) continue;
 
     width += std::floor((fontSize / font->BitmapEmWidth) *
-                        font->AdvanceWidths[token.Val_Uint16]);
+                        font->GetAdvanceWidth(token.Val_Uint16));
   }
 
   return width;
@@ -411,7 +411,7 @@ float TextGetPlainLineWidth(Vm::Sc3Stream& stream, Font* font, float fontSize,
     if (token.Type != STT_Character) continue;
 
     width += std::floor((fontSize / font->BitmapEmWidth) *
-                        font->AdvanceWidths[token.Val_Uint16]);
+                        font->GetAdvanceWidth(token.Val_Uint16));
   }
 
   return width;

@@ -56,7 +56,7 @@ class Font {
                       glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f)));
   }
 
-  std::vector<float> AdvanceWidths;
+  virtual float GetAdvanceWidth(uint32_t glyphId) const = 0;
 
   float BitmapEmWidth;
   float BitmapEmHeight;
@@ -80,14 +80,13 @@ class Font {
 
 class SingleSheetFont : public Font {
  public:
-  SingleSheetFont(std::optional<float> bitmapEmWidth,
-                  std::optional<float> bitmapEmHeight,
+  SingleSheetFont(float bitmapEmWidth, float bitmapEmHeight,
                   OpacityCurve foregroundOpacityCurve,
                   OpacityCurve outlineOpacityCurve, SpriteSheet sheet,
-                  glm::ivec2 gridSize)
+                  glm::ivec2 gridSize, std::vector<float>&& advanceWidths)
       : SingleSheetFont(FontType::SingleSheet, bitmapEmWidth, bitmapEmHeight,
                         foregroundOpacityCurve, outlineOpacityCurve, sheet,
-                        gridSize) {}
+                        gridSize, std::move(advanceWidths)) {}
 
   virtual void DrawProcessedText(std::span<const ProcessedTextGlyph> text,
                                  float opacity, float outlineOpacity,
@@ -95,22 +94,27 @@ class SingleSheetFont : public Font {
                                  const SpriteSheet* maskedSheet,
                                  glm::mat4 transformation) override;
 
+  virtual float GetAdvanceWidth(uint32_t glyphId) const override {
+    return AdvanceWidths[glyphId];
+  }
+
  protected:
   SpriteSheet Sheet;
   glm::ivec2 GridSize;
   glm::vec2 CellSize;
 
-  SingleSheetFont(FontType fontType, std::optional<float> bitmapEmWidth,
-                  std::optional<float> bitmapEmHeight,
+  std::vector<float> AdvanceWidths;
+
+  SingleSheetFont(FontType fontType, float bitmapEmWidth, float bitmapEmHeight,
                   OpacityCurve foregroundOpacityCurve,
                   OpacityCurve outlineOpacityCurve, SpriteSheet sheet,
-                  glm::ivec2 gridSize)
-      : Font(fontType, bitmapEmWidth.value_or(sheet.DesignWidth / gridSize.x),
-             bitmapEmHeight.value_or(sheet.DesignHeight / gridSize.y),
-             foregroundOpacityCurve, outlineOpacityCurve),
+                  glm::ivec2 gridSize, std::vector<float>&& advanceWidths)
+      : Font(fontType, bitmapEmWidth, bitmapEmHeight, foregroundOpacityCurve,
+             outlineOpacityCurve),
         Sheet(sheet),
         GridSize(gridSize),
-        CellSize(sheet.GetDimensions() / static_cast<glm::vec2>(gridSize)) {}
+        CellSize(sheet.GetDimensions() / static_cast<glm::vec2>(gridSize)),
+        AdvanceWidths(std::move(advanceWidths)) {}
 
  private:
   Sprite GetGlyph(uint32_t id) const {
@@ -125,17 +129,18 @@ class SingleSheetFont : public Font {
 
 class SeparateOutlineSheetFont : public Font {
  public:
-  SeparateOutlineSheetFont(std::optional<float> bitmapEmWidth,
-                           std::optional<float> bitmapEmHeight,
+  SeparateOutlineSheetFont(float bitmapEmWidth, float bitmapEmHeight,
                            OpacityCurve foregroundOpacityCurve,
                            OpacityCurve outlineOpacityCurve,
                            SpriteSheet foregroundSheet,
                            glm::ivec2 foregroundGridSize,
-                           SpriteSheet outlineSheet, glm::ivec2 outlineGridSize)
-      : SeparateOutlineSheetFont(
-            FontType::SeparateOutlineSheet, bitmapEmWidth, bitmapEmHeight,
-            foregroundOpacityCurve, outlineOpacityCurve, foregroundSheet,
-            foregroundGridSize, outlineSheet, outlineGridSize) {}
+                           SpriteSheet outlineSheet, glm::ivec2 outlineGridSize,
+                           std::vector<float>&& advanceWidths)
+      : SeparateOutlineSheetFont(FontType::SeparateOutlineSheet, bitmapEmWidth,
+                                 bitmapEmHeight, foregroundOpacityCurve,
+                                 outlineOpacityCurve, foregroundSheet,
+                                 foregroundGridSize, outlineSheet,
+                                 outlineGridSize, std::move(advanceWidths)) {}
 
   virtual void DrawProcessedText(std::span<const ProcessedTextGlyph> text,
                                  float opacity, float outlineOpacity,
@@ -143,20 +148,21 @@ class SeparateOutlineSheetFont : public Font {
                                  const SpriteSheet* maskedSheet,
                                  glm::mat4 transformation) override;
 
+  virtual float GetAdvanceWidth(uint32_t glyphId) const override {
+    return AdvanceWidths[glyphId];
+  }
+
  protected:
-  SeparateOutlineSheetFont(FontType type, std::optional<float> bitmapEmWidth,
-                           std::optional<float> bitmapEmHeight,
+  SeparateOutlineSheetFont(FontType type, float bitmapEmWidth,
+                           float bitmapEmHeight,
                            OpacityCurve foregroundOpacityCurve,
                            OpacityCurve outlineOpacityCurve,
                            SpriteSheet foregroundSheet,
                            glm::ivec2 foregroundGridSize,
-                           SpriteSheet outlineSheet, glm::ivec2 outlineGridSize)
-      : Font(type,
-             bitmapEmWidth.value_or(foregroundSheet.DesignWidth /
-                                    foregroundGridSize.x),
-             bitmapEmHeight.value_or(foregroundSheet.DesignHeight /
-                                     foregroundGridSize.y),
-             foregroundOpacityCurve, outlineOpacityCurve),
+                           SpriteSheet outlineSheet, glm::ivec2 outlineGridSize,
+                           std::vector<float>&& advanceWidths)
+      : Font(type, bitmapEmWidth, bitmapEmHeight, foregroundOpacityCurve,
+             outlineOpacityCurve),
         ForegroundSheet(foregroundSheet),
         OutlineSheet(outlineSheet),
         ForegroundGridSize(foregroundGridSize),
@@ -164,7 +170,8 @@ class SeparateOutlineSheetFont : public Font {
         ForegroundCellSize(foregroundSheet.GetDimensions() /
                            static_cast<glm::vec2>(foregroundGridSize)),
         OutlineCellSize(outlineSheet.GetDimensions() /
-                        static_cast<glm::vec2>(outlineGridSize)) {}
+                        static_cast<glm::vec2>(outlineGridSize)),
+        AdvanceWidths(std::move(advanceWidths)) {}
 
   SpriteSheet ForegroundSheet;
   SpriteSheet OutlineSheet;
@@ -174,6 +181,8 @@ class SeparateOutlineSheetFont : public Font {
 
   glm::vec2 ForegroundCellSize;
   glm::vec2 OutlineCellSize;
+
+  std::vector<float> AdvanceWidths;
 
  private:
   Sprite GetGlyph(uint32_t id) const {
@@ -199,18 +208,19 @@ class SeparateOutlineSheetFont : public Font {
 
 class LanguageBarrierFont final : public SeparateOutlineSheetFont {
  public:
-  LanguageBarrierFont(std::optional<float> bitmapEmWidth,
-                      std::optional<float> bitmapEmHeight,
+  LanguageBarrierFont(float bitmapEmWidth, float bitmapEmHeight,
                       OpacityCurve foregroundOpacityCurve,
                       OpacityCurve outlineOpacityCurve,
                       SpriteSheet foregroundSheet,
                       glm::ivec2 foregroundGridSize, SpriteSheet outlineSheet,
-                      glm::ivec2 outlineGridSize, glm::vec2 foregroundOffset,
-                      glm::vec2 outlineOffset)
-      : SeparateOutlineSheetFont(
-            FontType::LanguageBarrier, bitmapEmWidth, bitmapEmHeight,
-            foregroundOpacityCurve, outlineOpacityCurve, foregroundSheet,
-            foregroundGridSize, outlineSheet, outlineGridSize),
+                      glm::ivec2 outlineGridSize,
+                      std::vector<float>&& advanceWidths,
+                      glm::vec2 foregroundOffset, glm::vec2 outlineOffset)
+      : SeparateOutlineSheetFont(FontType::LanguageBarrier, bitmapEmWidth,
+                                 bitmapEmHeight, foregroundOpacityCurve,
+                                 outlineOpacityCurve, foregroundSheet,
+                                 foregroundGridSize, outlineSheet,
+                                 outlineGridSize, std::move(advanceWidths)),
         ForegroundOffset(foregroundOffset),
         OutlineOffset(outlineOffset) {}
 
@@ -245,13 +255,13 @@ class LanguageBarrierFont final : public SeparateOutlineSheetFont {
 
 class EdgeDetectedSingleSheetFont final : public SingleSheetFont {
  public:
-  EdgeDetectedSingleSheetFont(std::optional<float> bitmapEmWidth,
-                              std::optional<float> bitmapEmHeight,
+  EdgeDetectedSingleSheetFont(float bitmapEmWidth, float bitmapEmHeight,
                               OpacityCurve opacityCurve, SpriteSheet sheet,
-                              glm::ivec2 gridSize)
+                              glm::ivec2 gridSize,
+                              std::vector<float>&& advanceWidths)
       : SingleSheetFont(FontType::EdgeDetectedSingleSheet, bitmapEmWidth,
                         bitmapEmHeight, opacityCurve, opacityCurve, sheet,
-                        gridSize) {}
+                        gridSize, std::move(advanceWidths)) {}
 
   void DrawProcessedText(std::span<const ProcessedTextGlyph> text,
                          float opacity, float outlineOpacity,
@@ -296,6 +306,11 @@ class ExternalFont final : public Font {
       RendererOutlineMode outlineMode = RendererOutlineMode::None,
       const SpriteSheet* maskedSheet = nullptr,
       glm::mat4 transformation = glm::mat4(1.0f)) override;
+
+  float GetAdvanceWidth(uint32_t glyphId) const override {
+    assert(false && "TODO: Implement");
+    return BitmapEmWidth;
+  }
 
  private:
   struct CachedGlyph {
