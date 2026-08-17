@@ -8,8 +8,11 @@
     </security>
   </trustInfo>
   <asmv3:application>
-    <asmv3:windowsSettings xmlns="http://schemas.microsoft.com/SMI/2005/WindowsSettings">
+    <asmv3:windowsSettings
+        xmlns="http://schemas.microsoft.com/SMI/2005/WindowsSettings"
+        xmlns:ws2="http://schemas.microsoft.com/SMI/2019/WindowsSettings">
       <dpiAware>true/pm</dpiAware>
+      <ws2:activeCodePage>UTF-8</ws2:activeCodePage>
     </asmv3:windowsSettings>
   </asmv3:application>
 </assembly>
