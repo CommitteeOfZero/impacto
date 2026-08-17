@@ -192,7 +192,7 @@ void TextParser::ParseStringToken<STT_Character>(const StringToken& token) {
 
       glyph.DestRect.X = ModeInfo.WindowPos.x + CurrentX;
       glyph.DestRect.Width = (FontSize / DialogueFont->BitmapEmWidth) *
-                             DialogueFont->AdvanceWidths[glyph.CharId];
+                             DialogueFont->GetAdvanceWidth(glyph.CharId);
       glyph.DestRect.Height = FontSize;
 
       CurrentX += glyph.DestRect.Width;
