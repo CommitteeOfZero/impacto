@@ -89,16 +89,16 @@ root.Input.PADtoMS = {
 -- Controller
 local BTN = ControllerButton;
 root.Input.PADtoGP = {
-    [root.PADinput.PAD1A]            = BTN.A,
-    [root.PADinput.PAD1B]            = BTN.B,
-    [root.PADinput.PAD1X]            = BTN.X,
-    [root.PADinput.PAD1Y]            = BTN.Y,
+    [root.PADinput.PAD1A]            = BTN.SOUTH,
+    [root.PADinput.PAD1B]            = BTN.EAST,
+    [root.PADinput.PAD1X]            = BTN.WEST,
+    [root.PADinput.PAD1Y]            = BTN.NORTH,
     [root.PADinput.PAD1SELECT]       = BTN.BACK,
     [root.PADinput.PAD1START]        = BTN.START,
-    [root.PADinput.PAD1L3]           = BTN.LEFTSTICK,
-    [root.PADinput.PAD1R3]           = BTN.RIGHTSTICK,
-    [root.PADinput.PAD1L1]           = BTN.LEFTSHOULDER,
-    [root.PADinput.PAD1R1]           = BTN.RIGHTSHOULDER,
+    [root.PADinput.PAD1L3]           = BTN.LEFT_STICK,
+    [root.PADinput.PAD1R3]           = BTN.RIGHT_STICK,
+    [root.PADinput.PAD1L1]           = BTN.LEFT_SHOULDER,
+    [root.PADinput.PAD1R1]           = BTN.RIGHT_SHOULDER,
     [root.PADinput.PAD1UP_DIRECT]    = BTN.DPAD_UP,
     [root.PADinput.PAD1DOWN_DIRECT]  = BTN.DPAD_DOWN,
     [root.PADinput.PAD1LEFT_DIRECT]  = BTN.DPAD_LEFT,
@@ -116,8 +116,8 @@ root.Input.PADtoGPA = {
     [root.PADinput.PAD1DOWN_RS]  = {AXIS.RIGHTY,      DIR.POS},  -- Right stick Y axis
     [root.PADinput.PAD1LEFT_RS]  = {AXIS.RIGHTX,      DIR.NEG},  -- Right stick X axis
     [root.PADinput.PAD1RIGHT_RS] = {AXIS.RIGHTX,      DIR.POS},  -- Right stick X axis
-    [root.PADinput.PAD1L2]       = {AXIS.TRIGGERLEFT,  DIR.POS},  -- Left trigger
-    [root.PADinput.PAD1R2]       = {AXIS.TRIGGERRIGHT, DIR.POS},  -- Right trigger
+    [root.PADinput.PAD1L2]       = {AXIS.LEFT_TRIGGER,  DIR.POS},  -- Left trigger
+    [root.PADinput.PAD1R2]       = {AXIS.RIGHT_TRIGGER, DIR.POS},  -- Right trigger
 };
 
 

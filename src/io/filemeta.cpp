@@ -68,7 +68,7 @@ IoError GetFilePermissions(std::string const& path,
 std::string const& GetPlatformConfigDir() {
   static const std::string path = [] {
 #if defined(__ANDROID__)  // prefer external storage dir for easier user access
-    const char* configPath = SDL_AndroidGetExternalStoragePath();
+    const char* configPath = SDL_GetAndroidExternalStoragePath();
     if (!configPath) {
       ImpLog(LogLevel::Fatal, LogChannel::IO,
              "Failed to get Android external storage path, error: {}\n",
@@ -91,18 +91,19 @@ std::string const& GetPlatformConfigDir() {
     return (result / "Committee of Zero" / "Impacto").string();
 #else
     std::filesystem::path result;
-    char* configPath = SDL_GetPrefPath("Committee of Zero", "Impacto");
-    if (!configPath || *configPath == '\0') {
-      configPath = SDL_getenv("APPDATA");
-      if (!configPath || *configPath == '\0') {
+    char* prefPath = SDL_GetPrefPath("Committee of Zero", "Impacto");
+    if (!prefPath || *prefPath == '\0') {
+      if (prefPath) SDL_free(prefPath);
+      const char* appDataPath = SDL_getenv("APPDATA");
+      if (!appDataPath || *appDataPath == '\0') {
         return std::string{};
       } else {
-        result =
-            std::filesystem::path(configPath) / "Committee of Zero" / "Impacto";
+        result = std::filesystem::path(appDataPath) / "Committee of Zero" /
+                 "Impacto";
       }
     } else {
-      result = std::filesystem::path(configPath);
-      SDL_free(configPath);
+      result = std::filesystem::path(prefPath);
+      SDL_free(prefPath);
     }
     return result.string();
 #endif

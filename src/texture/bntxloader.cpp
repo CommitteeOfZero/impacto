@@ -261,14 +261,14 @@ bool TextureLoadBNTX(Stream* stream, Texture* outTexture) {
   // Read metadata
 
   if (ReadBE<uint32_t>(stream) != magic) {
-    stream->Seek(0, RW_SEEK_SET);
+    stream->Seek(0, SDL_IO_SEEK_SET);
     return false;
   }
   bool result = false;
   ImpLogSlow(LogLevel::Debug, LogChannel::TextureLoad,
              "Loading BNTX texture\n");
 
-  stream->Seek(4, RW_SEEK_CUR);
+  stream->Seek(4, SDL_IO_SEEK_CUR);
   // uint64_t BnTxSignature = ReadLE<uint64_t>(stream);
   uint32_t DataLength = ReadLE<uint32_t>(stream);
   (void)DataLength;
@@ -378,7 +378,7 @@ bool TextureLoadBNTX(Stream* stream, Texture* outTexture) {
       ImpLog(LogLevel::Debug, LogChannel::General, "{:d}\n", mipOffset);
     }*/
 
-    stream->Seek(BaseOffset, RW_SEEK_SET);
+    stream->Seek(BaseOffset, SDL_IO_SEEK_SET);
 
     uint8_t* dataBuff = (uint8_t*)malloc(DataLength);
     stream->Read(dataBuff, DataLength);

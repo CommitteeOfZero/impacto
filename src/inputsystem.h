@@ -28,18 +28,18 @@ inline int MouseWheelDeltaY = 0;
 inline glm::vec2 PrevTouchPos = glm::vec2(0.0f);
 inline glm::vec2 CurTouchPos = glm::vec2(0.0f);
 
-inline float ControllerAxisValue[SDL_CONTROLLER_AXIS_MAX];
+inline float ControllerAxisValue[SDL_GAMEPAD_AXIS_COUNT];
 
 inline bool MouseButtonWentDown[MouseButtonsMax] = {false};
 inline bool MouseButtonIsDown[MouseButtonsMax] = {false};
-inline bool ControllerButtonWentDown[SDL_CONTROLLER_BUTTON_MAX] = {false};
-inline bool ControllerButtonIsDown[SDL_CONTROLLER_BUTTON_MAX] = {false};
-inline bool ControllerAxisIsDownLight[SDL_CONTROLLER_AXIS_MAX] = {false};
-inline bool ControllerAxisWentDownLight[SDL_CONTROLLER_AXIS_MAX] = {false};
-inline bool ControllerAxisIsDownHeavy[SDL_CONTROLLER_AXIS_MAX] = {false};
-inline bool ControllerAxisWentDownHeavy[SDL_CONTROLLER_AXIS_MAX] = {false};
-inline bool KeyboardButtonWentDown[SDL_NUM_SCANCODES] = {false};
-inline bool KeyboardButtonIsDown[SDL_NUM_SCANCODES] = {false};
+inline bool ControllerButtonWentDown[SDL_GAMEPAD_BUTTON_COUNT] = {false};
+inline bool ControllerButtonIsDown[SDL_GAMEPAD_BUTTON_COUNT] = {false};
+inline bool ControllerAxisIsDownLight[SDL_GAMEPAD_AXIS_COUNT] = {false};
+inline bool ControllerAxisWentDownLight[SDL_GAMEPAD_AXIS_COUNT] = {false};
+inline bool ControllerAxisIsDownHeavy[SDL_GAMEPAD_AXIS_COUNT] = {false};
+inline bool ControllerAxisWentDownHeavy[SDL_GAMEPAD_AXIS_COUNT] = {false};
+inline bool KeyboardButtonWentDown[SDL_SCANCODE_COUNT] = {false};
+inline bool KeyboardButtonIsDown[SDL_SCANCODE_COUNT] = {false};
 
 // TODO multitouch
 inline bool TouchIsDown[FingerTapMax]{};
@@ -48,8 +48,8 @@ inline bool TouchWentDown[FingerTapMax]{};
 // Using statements to ensure that types are coming from this header (for
 // consistent magic enum range specialization).
 using KeyboardScanCode = SDL_Scancode;
-using ControllerButton = SDL_GameControllerButton;
-using ControllerAxis = SDL_GameControllerAxis;
+using ControllerButton = SDL_GamepadButton;
+using ControllerAxis = SDL_GamepadAxis;
 
 }  // namespace Input
 }  // namespace Impacto
@@ -73,7 +73,7 @@ enum_type_name<Impacto::Input::KeyboardScanCode>() noexcept {
 template <>
 struct enum_range<Impacto::Input::ControllerButton> {
   static constexpr size_t prefix_length =
-      std::string_view("SDL_CONTROLLER_BUTTON_").size();
+      std::string_view("SDL_GAMEPAD_BUTTON_").size();
 };
 template <>
 constexpr customize_t
@@ -84,7 +84,7 @@ enum_type_name<Impacto::Input::ControllerButton>() noexcept {
 template <>
 struct enum_range<Impacto::Input::ControllerAxis> {
   static constexpr size_t prefix_length =
-      std::string_view("SDL_CONTROLLER_AXIS_").size();
+      std::string_view("SDL_GAMEPAD_AXIS_").size();
 };
 template <>
 constexpr customize_t

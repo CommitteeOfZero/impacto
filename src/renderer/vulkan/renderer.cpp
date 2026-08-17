@@ -1,6 +1,6 @@
 #include "renderer.h"
 
-#include <SDL_vulkan.h>
+#include <SDL3/SDL_vulkan.h>
 #include <set>
 
 #include "../../profile/game.h"
@@ -87,11 +87,11 @@ void DestroyDebugUtilsMessengerEXT(VkInstance instance,
 }
 
 void Renderer::CreateInstance() {
-  unsigned int extensionCount = 0;
-  SDL_Vulkan_GetInstanceExtensions(Window->SDLWindow, &extensionCount, nullptr);
-  std::vector<const char*> extensionNames(extensionCount);
-  SDL_Vulkan_GetInstanceExtensions(Window->SDLWindow, &extensionCount,
-                                   extensionNames.data());
+  Uint32 extensionCount = 0;
+  char const* const* sdlExtensionNames =
+      SDL_Vulkan_GetInstanceExtensions(&extensionCount);
+  std::vector<const char*> extensionNames(sdlExtensionNames,
+                                          sdlExtensionNames + extensionCount);
 
   VkApplicationInfo appInfo = {};
   appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -249,8 +249,8 @@ void Renderer::CreateLogicalDevice() {
 }
 
 void Renderer::CreateSurface() {
-  if (SDL_Vulkan_CreateSurface(Window->SDLWindow, Instance, &Surface) !=
-      SDL_TRUE) {
+  if (!SDL_Vulkan_CreateSurface(Window->SDLWindow, Instance, nullptr,
+                                &Surface)) {
     ImpLog(LogLevel::Error, LogChannel::Render, "Failed to create surface!");
     Window->Shutdown();
   }
@@ -269,7 +269,7 @@ void Renderer::CreateSwapChain() {
       PhysicalDevice, Surface, &surfaceFormatsCount, surfaceFormats.data());
 
   int width, height = 0;
-  SDL_Vulkan_GetDrawableSize(Window->SDLWindow, &width, &height);
+  SDL_GetWindowSizeInPixels(Window->SDLWindow, &width, &height);
 
   SwapChainExtent.width = width;
   SwapChainExtent.height = height;
@@ -788,7 +788,7 @@ void Renderer::Init() {
 
 #ifndef IMPACTO_DISABLE_IMGUI
   // Setup Platform/Renderer backends
-  ImGui_ImplSDL2_InitForVulkan(VkWindow->SDLWindow);
+  ImGui_ImplSDL3_InitForVulkan(VkWindow->SDLWindow);
 
   ImGui_ImplVulkan_InitInfo imguiInfo = {};
   imguiInfo.Instance = Instance;
@@ -857,7 +857,7 @@ void Renderer::Shutdown() {
 #ifndef IMPACTO_DISABLE_IMGUI
 void Renderer::ImGuiBeginFrame() {
   ImGui_ImplVulkan_NewFrame();
-  ImGui_ImplSDL2_NewFrame();
+  ImGui_ImplSDL3_NewFrame();
   ImGui::NewFrame();
 }
 #endif

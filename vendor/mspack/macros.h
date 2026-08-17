@@ -11,14 +11,7 @@
 #define MSPACK_MACROS_H 1
 
 /* define LD and LU as printf-format for signed and unsigned long offsets */
-#if HAVE_INTTYPES_H
-# include <inttypes.h>
-#else
-# define PRId64 "lld"
-# define PRIu64 "llu"
-# define PRId32 "ld"
-# define PRIu32 "lu"
-#endif
+#include <inttypes.h>
 
 #if SIZEOF_OFF_T >= 8
 # define LD PRId64

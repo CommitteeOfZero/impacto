@@ -32,7 +32,7 @@ void TipsSystem::DataInit(uint32_t scriptBufferId, uint32_t tipsDataAdr,
     while (sortStr[i] != 0xFF) {
       if (sortStr[i] & 0x80) {
         uint16_t currentSc3Char =
-            SDL_SwapBE16(UnalignedRead<uint16_t>(sortStr + i));
+            SDL_Swap16BE(UnalignedRead<uint16_t>(sortStr + i));
         i += 2;
         sc3Map.try_emplace(currentSc3Char, distance++);
       } else {
@@ -67,7 +67,7 @@ void TipsSystem::DataInit(uint32_t scriptBufferId, uint32_t tipsDataAdr,
           ScriptGetStrAddress(scriptBufferId, ReadLE<uint16_t>(&stream));
     }
     auto sortStrIndex = record.StringAdr[2];
-    auto firstChar = SDL_SwapBE16(
+    auto firstChar = SDL_Swap16BE(
         UnalignedRead<uint16_t>(&ScriptBuffers[scriptBufferId][sortStrIndex]));
     auto sortIndexItr = strIndicesMap.find(firstChar);
     assert(sortIndexItr != strIndicesMap.end());

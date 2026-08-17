@@ -1,5 +1,5 @@
 #include "inputsystem.h"
-#include <SDL_timer.h>
+#include <SDL3/SDL_timer.h>
 // #include "window.h"
 #include <ankerl/unordered_dense.h>
 #include "renderer/renderer.h"
@@ -40,63 +40,62 @@ static glm::vec2 SDLMouseCoordsToDesign(int x, int y) {
 
 bool HandleEvent(SDL_Event const* ev) {
   switch (ev->type) {
-    case SDL_CONTROLLERDEVICEADDED: {
-      SDL_ControllerDeviceEvent const* evt = &ev->cdevice;
+    case SDL_EVENT_GAMEPAD_ADDED: {
+      SDL_GamepadDeviceEvent const* evt = &ev->gdevice;
       CurrentInputDevice = Device::Controller;
-      SDL_GameControllerOpen(evt->which);
+      SDL_OpenGamepad(evt->which);
       return true;
       break;
     }
-    case SDL_MOUSEMOTION: {
+    case SDL_EVENT_MOUSE_MOTION: {
       SDL_MouseMotionEvent const* evt = &ev->motion;
-      CurMousePos = SDLMouseCoordsToDesign(evt->x, evt->y);
+      CurMousePos = SDLMouseCoordsToDesign((int)evt->x, (int)evt->y);
       CurrentInputDevice = Device::Mouse;
       return true;
       break;
     }
-    case SDL_MOUSEBUTTONDOWN:
-    case SDL_MOUSEBUTTONUP: {
+    case SDL_EVENT_MOUSE_BUTTON_DOWN:
+    case SDL_EVENT_MOUSE_BUTTON_UP: {
       SDL_MouseButtonEvent const* evt = &ev->button;
-      CurMousePos = SDLMouseCoordsToDesign(evt->x, evt->y);
+      CurMousePos = SDLMouseCoordsToDesign((int)evt->x, (int)evt->y);
       CurrentInputDevice = Device::Mouse;
       MouseButtonWentDown[evt->button] =
-          (evt->state == SDL_PRESSED && !MouseButtonIsDown[evt->button]);
-      MouseButtonIsDown[evt->button] = evt->state == SDL_PRESSED;
+          (evt->down && !MouseButtonIsDown[evt->button]);
+      MouseButtonIsDown[evt->button] = evt->down;
       return true;
       break;
     }
     // TODO respect direction?
-    case SDL_MOUSEWHEEL: {
+    case SDL_EVENT_MOUSE_WHEEL: {
       SDL_MouseWheelEvent const* evt = &ev->wheel;
       CurrentInputDevice = Device::Mouse;
-      MouseWheelDeltaX += evt->x;
-      MouseWheelDeltaY += evt->y;
+      MouseWheelDeltaX += (int)evt->x;
+      MouseWheelDeltaY += (int)evt->y;
       return true;
       break;
     }
-    case SDL_KEYDOWN:
-    case SDL_KEYUP: {
+    case SDL_EVENT_KEY_DOWN:
+    case SDL_EVENT_KEY_UP: {
       SDL_KeyboardEvent const* evt = &ev->key;
       CurrentInputDevice = Device::Keyboard;
-      KeyboardButtonWentDown[evt->keysym.scancode] =
-          (evt->state == SDL_PRESSED &&
-           !KeyboardButtonIsDown[evt->keysym.scancode]);
-      KeyboardButtonIsDown[evt->keysym.scancode] = evt->state == SDL_PRESSED;
+      KeyboardButtonWentDown[evt->scancode] =
+          (evt->down && !KeyboardButtonIsDown[evt->scancode]);
+      KeyboardButtonIsDown[evt->scancode] = evt->down;
       return true;
       break;
     }
-    case SDL_CONTROLLERBUTTONDOWN:
-    case SDL_CONTROLLERBUTTONUP: {
-      SDL_ControllerButtonEvent const* evt = &ev->cbutton;
+    case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
+    case SDL_EVENT_GAMEPAD_BUTTON_UP: {
+      SDL_GamepadButtonEvent const* evt = &ev->gbutton;
       CurrentInputDevice = Device::Controller;
       ControllerButtonWentDown[evt->button] =
-          (evt->state == SDL_PRESSED && !ControllerButtonIsDown[evt->button]);
-      ControllerButtonIsDown[evt->button] = evt->state == SDL_PRESSED;
+          (evt->down && !ControllerButtonIsDown[evt->button]);
+      ControllerButtonIsDown[evt->button] = evt->down;
       return true;
       break;
     }
-    case SDL_CONTROLLERAXISMOTION: {
-      SDL_ControllerAxisEvent const* evt = &ev->caxis;
+    case SDL_EVENT_GAMEPAD_AXIS_MOTION: {
+      SDL_GamepadAxisEvent const* evt = &ev->gaxis;
       float newVal = (float)evt->value / (float)INT16_MAX;
       float newWeight = fabsf(newVal);
       float oldWeight = fabsf(ControllerAxisValue[evt->axis]);
@@ -120,10 +119,10 @@ bool HandleEvent(SDL_Event const* ev) {
       return true;
       break;
     }
-    case SDL_FINGERMOTION: {
+    case SDL_EVENT_FINGER_MOTION: {
       SDL_TouchFingerEvent const* evt = &ev->tfinger;
       CurrentInputDevice = Device::Touch;
-      if (CurrentFingers[0] == evt->fingerId &&
+      if (CurrentFingers[0] == evt->fingerID &&
           TouchIsDown[0 && TouchIsDown[1]]) {
         CurTouchPos =
             SDLMouseCoordsToDesign((int)(evt->x * (float)Window->WindowWidth),
@@ -132,7 +131,7 @@ bool HandleEvent(SDL_Event const* ev) {
       return true;
       break;
     }
-    case SDL_FINGERDOWN: {
+    case SDL_EVENT_FINGER_DOWN: {
       SDL_TouchFingerEvent const* evt = &ev->tfinger;
       CurrentInputDevice = Device::Touch;
       for (int8_t i = 0; i < FingerTapMax; ++i) {
@@ -140,7 +139,7 @@ bool HandleEvent(SDL_Event const* ev) {
           CurTouchPos = SDLMouseCoordsToDesign(
               (int)(evt->x * (float)Window->WindowWidth),
               (int)(evt->y * (float)Window->WindowHeight));
-          CurrentFingers[i] = evt->fingerId;
+          CurrentFingers[i] = evt->fingerID;
           TouchIsDown[i] = true;
           TouchWentDown[i] = true;
           break;
@@ -149,11 +148,11 @@ bool HandleEvent(SDL_Event const* ev) {
       return true;
       break;
     }
-    case SDL_FINGERUP: {
+    case SDL_EVENT_FINGER_UP: {
       SDL_TouchFingerEvent const* evt = &ev->tfinger;
       CurrentInputDevice = Device::Touch;
       for (int8_t i = 0; i < FingerTapMax; ++i) {
-        if (CurrentFingers[i] == evt->fingerId && TouchIsDown[i]) {
+        if (CurrentFingers[i] == evt->fingerID && TouchIsDown[i]) {
           CurTouchPos = SDLMouseCoordsToDesign(
               (int)(evt->x * (float)Window->WindowWidth),
               (int)(evt->y * (float)Window->WindowHeight));

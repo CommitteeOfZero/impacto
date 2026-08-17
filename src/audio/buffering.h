@@ -67,7 +67,7 @@ class Buffering {
     if (currentBuffer != buffer) {
       // seek base stream
       stream->BaseStream->Seek(
-          StreamDataOffset + buffer * EncodedBytesPerBuffer, RW_SEEK_SET);
+          StreamDataOffset + buffer * EncodedBytesPerBuffer, SDL_IO_SEEK_SET);
       stream->ReadPosition = buffer * SamplesPerBuffer;
       DecodedSamplesAvailable = 0;
       DecodedSamplesConsumed = 0;

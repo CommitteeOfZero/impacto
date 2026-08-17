@@ -7,9 +7,9 @@ namespace Impacto {
 namespace TexLoad {
 
 bool TextureLoadWebP(Io::Stream* stream, Texture* outTexture) {
-  stream->Seek(0, RW_SEEK_END);
+  stream->Seek(0, SDL_IO_SEEK_END);
   size_t dataSize = stream->Position;
-  stream->Seek(0, RW_SEEK_SET);
+  stream->Seek(0, SDL_IO_SEEK_SET);
   uint8_t* rawData = (uint8_t*)malloc(dataSize);
   stream->Read(rawData, dataSize);
 
@@ -17,7 +17,7 @@ bool TextureLoadWebP(Io::Stream* stream, Texture* outTexture) {
   int res = WebPGetInfo(rawData, dataSize, &width, &height);
 
   if (!res) {
-    stream->Seek(0, RW_SEEK_SET);
+    stream->Seek(0, SDL_IO_SEEK_SET);
     free(rawData);
     return false;
   }
@@ -26,7 +26,7 @@ bool TextureLoadWebP(Io::Stream* stream, Texture* outTexture) {
   auto status = WebPGetFeatures(rawData, dataSize, &features);
 
   if (status != VP8_STATUS_OK) {
-    stream->Seek(0, RW_SEEK_SET);
+    stream->Seek(0, SDL_IO_SEEK_SET);
     free(rawData);
     return false;
   }
@@ -41,7 +41,7 @@ bool TextureLoadWebP(Io::Stream* stream, Texture* outTexture) {
   }
 
   if (image == 0) {
-    stream->Seek(0, RW_SEEK_SET);
+    stream->Seek(0, SDL_IO_SEEK_SET);
     free(rawData);
     return false;
   }

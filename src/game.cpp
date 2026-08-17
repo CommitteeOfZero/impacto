@@ -254,7 +254,7 @@ void UpdateSystem(float dt) {
   }
 
   while (SDL_PollEvent(&e)) {
-    if (e.type == SDL_QUIT) {
+    if (e.type == SDL_EVENT_QUIT) {
       if (Profile::Patch::HasScriptedExitLogic) {
         Input::KeyboardButtonWentDown[SDL_SCANCODE_ESCAPE] = true;
       } else {
@@ -264,7 +264,7 @@ void UpdateSystem(float dt) {
 
 #ifndef IMPACTO_DISABLE_IMGUI
     ImGuiIO& io = ImGui::GetIO();
-    if (ImGui_ImplSDL2_ProcessEvent(&e) &&
+    if (ImGui_ImplSDL3_ProcessEvent(&e) &&
         (io.WantCaptureKeyboard || io.WantCaptureMouse))
       continue;
 #endif

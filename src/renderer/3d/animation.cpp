@@ -52,7 +52,7 @@ Target GetTarget(Stream* stream, Model* model) {
   if (Profile::Scene3D::Version == LKMVersion::DaSH) {
     stream->Read(result.Name, 32);
 
-    stream->Seek(2 * sizeof(uint16_t), RW_SEEK_CUR);
+    stream->Seek(2 * sizeof(uint16_t), SDL_IO_SEEK_CUR);
 
     std::string nameStr = std::string((char*)result.Name);
     if (model->NamedBones.count(nameStr) != 0) {
@@ -95,7 +95,7 @@ ModelAnimation* ModelAnimation::Load(Stream* stream, Model* model,
              "Loading animation {:d} ({:s}) for model {:d}\n", animId,
              result->Name, model->Id);
 
-  stream->Seek(HeaderDurationOffset, RW_SEEK_SET);
+  stream->Seek(HeaderDurationOffset, SDL_IO_SEEK_SET);
   result->Duration =
       ReadLE<float>(stream) / Profile::Scene3D::AnimationDesignFrameRate;
   uint32_t trackCount = ReadLE<uint32_t>(stream);
@@ -123,7 +123,7 @@ ModelAnimation* ModelAnimation::Load(Stream* stream, Model* model,
     ImpLogSlow(LogLevel::Trace, LogChannel::ModelLoad,
                "Pass 1 for track {:d}\n", i);
 
-    stream->Seek(tracksOffset + trackSize * i, RW_SEEK_SET);
+    stream->Seek(tracksOffset + trackSize * i, SDL_IO_SEEK_SET);
     Target target = GetTarget(stream, model);
     if (target.Type == TargetType_Bone) {
       if (TrackForBone[target.Id] != -1) {
@@ -146,7 +146,7 @@ ModelAnimation* ModelAnimation::Load(Stream* stream, Model* model,
       if (Profile::Scene3D::Version == LKMVersion::DaSH) seekPos += 32;
       // Skip id, targetType, unknown ushort and visibility
       seekPos += (4 * sizeof(uint16_t));
-      stream->Seek(seekPos, RW_SEEK_SET);
+      stream->Seek(seekPos, SDL_IO_SEEK_SET);
 
       // Read coord offsets/counts, so far, so normal...
 
@@ -161,7 +161,7 @@ ModelAnimation* ModelAnimation::Load(Stream* stream, Model* model,
       }
 
       // Skip rotates
-      stream->Seek(3 * sizeof(uint16_t), RW_SEEK_CUR);
+      stream->Seek(3 * sizeof(uint16_t), SDL_IO_SEEK_CUR);
 
       ReadArrayLE<(BKT_Count - BKT_ScaleX)>(track->KeyCounts + BKT_ScaleX,
                                             stream);
@@ -190,7 +190,7 @@ ModelAnimation* ModelAnimation::Load(Stream* stream, Model* model,
       if (Profile::Scene3D::Version == LKMVersion::DaSH) seekPos += 32;
       // Skip id, targetType, unknown ushort
       seekPos += 3 * sizeof(uint16_t);
-      stream->Seek(seekPos, RW_SEEK_SET);
+      stream->Seek(seekPos, SDL_IO_SEEK_SET);
 
       uint16_t visibilityCount = ReadLE<uint16_t>(stream);
       int visibilityOffset = currentCoordOffset;
@@ -199,7 +199,7 @@ ModelAnimation* ModelAnimation::Load(Stream* stream, Model* model,
                  "Visibility count {:d} offset 0x{:08x}\n", visibilityCount,
                  visibilityOffset);
 
-      stream->Seek(0x1E, RW_SEEK_CUR);
+      stream->Seek(0x1E, SDL_IO_SEEK_CUR);
 
       uint16_t morphTargetCount = ReadLE<uint16_t>(stream);
       ImpLogSlow(LogLevel::Trace, LogChannel::ModelLoad,
@@ -211,7 +211,7 @@ ModelAnimation* ModelAnimation::Load(Stream* stream, Model* model,
       // Skip name
       if (Profile::Scene3D::Version == LKMVersion::DaSH) seekPos += 32;
       seekPos += 0x48;
-      stream->Seek(seekPos, RW_SEEK_SET);
+      stream->Seek(seekPos, SDL_IO_SEEK_SET);
 
       uint16_t morphInfluenceCounts[AnimMaxMorphTargetsPerTrack];
       int morphInfluenceOffsets[AnimMaxMorphTargetsPerTrack];
@@ -273,7 +273,7 @@ ModelAnimation* ModelAnimation::Load(Stream* stream, Model* model,
   int currentBoneTrack = 0;
   for (uint32_t i = 0; i < trackCount; i++) {
     uint32_t seekPos = tracksOffset + trackSize * i;
-    stream->Seek(seekPos, RW_SEEK_SET);
+    stream->Seek(seekPos, SDL_IO_SEEK_SET);
     Target target = GetTarget(stream, model);
     if (target.Type == TargetType_Bone) {
       if (static_cast<int32_t>(i) != TrackForBone[target.Id]) continue;
@@ -286,7 +286,7 @@ ModelAnimation* ModelAnimation::Load(Stream* stream, Model* model,
 
       seekPos = tracksOffset + trackSize * i;
       seekPos += (trackCountsOffset + STT_RotateX * sizeof(uint16_t));
-      stream->Seek(seekPos, RW_SEEK_SET);
+      stream->Seek(seekPos, SDL_IO_SEEK_SET);
 
       uint16_t rawRotXCount = ReadLE<uint16_t>(stream);
       uint16_t rawRotYCount = ReadLE<uint16_t>(stream);
@@ -299,7 +299,7 @@ ModelAnimation* ModelAnimation::Load(Stream* stream, Model* model,
 
       seekPos = tracksOffset + trackSize * i;
       seekPos += (trackOffsetsOffset + STT_RotateX * sizeof(uint32_t));
-      stream->Seek(seekPos, RW_SEEK_SET);
+      stream->Seek(seekPos, SDL_IO_SEEK_SET);
 
       int rawRotXOffset = ReadLE<int>(stream) + HeaderSize;
       int rawRotYOffset = ReadLE<int>(stream) + HeaderSize;
@@ -315,11 +315,11 @@ ModelAnimation* ModelAnimation::Load(Stream* stream, Model* model,
           (CoordKeyframe*)malloc(sizeof(CoordKeyframe) * rawRotYCount);
       CoordKeyframe* rotZBuffer =
           (CoordKeyframe*)malloc(sizeof(CoordKeyframe) * rawRotZCount);
-      stream->Seek(rawRotXOffset, RW_SEEK_SET);
+      stream->Seek(rawRotXOffset, SDL_IO_SEEK_SET);
       ReadArrayLE((float*)rotXBuffer, stream, 2 * rawRotXCount);
-      stream->Seek(rawRotYOffset, RW_SEEK_SET);
+      stream->Seek(rawRotYOffset, SDL_IO_SEEK_SET);
       ReadArrayLE((float*)rotYBuffer, stream, 2 * rawRotYCount);
-      stream->Seek(rawRotZOffset, RW_SEEK_SET);
+      stream->Seek(rawRotZOffset, SDL_IO_SEEK_SET);
       ReadArrayLE((float*)rotZBuffer, stream, 2 * rawRotZCount);
 
       glm::vec3 currentEuler = glm::vec3(0.0f);
@@ -420,7 +420,7 @@ ModelAnimation* ModelAnimation::Load(Stream* stream, Model* model,
   currentCoordOffset = 0;
   for (uint32_t i = 0; i < trackCount; i++) {
     uint32_t seekPos = tracksOffset + trackSize * i;
-    stream->Seek(seekPos, RW_SEEK_SET);
+    stream->Seek(seekPos, SDL_IO_SEEK_SET);
     Target target = GetTarget(stream, model);
     if (target.Type == TargetType_Bone) {
       if (static_cast<int32_t>(i) != TrackForBone[target.Id]) continue;
@@ -435,14 +435,14 @@ ModelAnimation* ModelAnimation::Load(Stream* stream, Model* model,
 
         seekPos = tracksOffset + trackSize * i;
         seekPos += trackCountsOffset + sizeof(uint16_t) * j;
-        stream->Seek(seekPos, RW_SEEK_SET);
+        stream->Seek(seekPos, SDL_IO_SEEK_SET);
         uint16_t currentKeyframeCount = ReadLE<uint16_t>(stream);
         seekPos = tracksOffset + trackSize * i;
         seekPos += trackOffsetsOffset + sizeof(uint32_t) * j;
-        stream->Seek(seekPos, RW_SEEK_SET);
+        stream->Seek(seekPos, SDL_IO_SEEK_SET);
         uint32_t currentKeyframeOffset = ReadLE<uint32_t>(stream);
 
-        stream->Seek(HeaderSize + currentKeyframeOffset, RW_SEEK_SET);
+        stream->Seek(HeaderSize + currentKeyframeOffset, SDL_IO_SEEK_SET);
 
         ReadArrayLE((float*)(result->CoordKeyframes + currentCoordOffset),
                     stream, 2 * currentKeyframeCount);
@@ -484,18 +484,18 @@ ModelAnimation* ModelAnimation::Load(Stream* stream, Model* model,
       seekPos = tracksOffset + trackSize * i;
       // Skip id, targetType, unknown ushort
       seekPos += trackCountsOffset;
-      stream->Seek(seekPos, RW_SEEK_SET);
+      stream->Seek(seekPos, SDL_IO_SEEK_SET);
 
       uint16_t visibilityCount = ReadLE<uint16_t>(stream);
 
-      stream->Seek(0x1E, RW_SEEK_CUR);
+      stream->Seek(0x1E, SDL_IO_SEEK_CUR);
       uint16_t morphTargetCount = ReadLE<uint16_t>(stream);
 
       seekPos = tracksOffset + trackSize * i;
       // Skip name
       if (Profile::Scene3D::Version == LKMVersion::DaSH) seekPos += 32;
       seekPos += 0x48;
-      stream->Seek(seekPos, RW_SEEK_SET);
+      stream->Seek(seekPos, SDL_IO_SEEK_SET);
 
       uint16_t morphInfluenceCounts[AnimMaxMorphTargetsPerTrack];
       ReadArrayLE(morphInfluenceCounts, stream, morphTargetCount);
@@ -503,9 +503,9 @@ ModelAnimation* ModelAnimation::Load(Stream* stream, Model* model,
       // Visibility data
       seekPos = tracksOffset + trackSize * i;
       seekPos += trackOffsetsOffset;
-      stream->Seek(seekPos, RW_SEEK_SET);
+      stream->Seek(seekPos, SDL_IO_SEEK_SET);
       int rawVisibilityOffset = ReadLE<int>(stream);
-      stream->Seek(HeaderSize + rawVisibilityOffset, RW_SEEK_SET);
+      stream->Seek(HeaderSize + rawVisibilityOffset, SDL_IO_SEEK_SET);
 
       ReadArrayLE((float*)(result->CoordKeyframes + currentCoordOffset), stream,
                   2 * visibilityCount);
@@ -522,11 +522,11 @@ ModelAnimation* ModelAnimation::Load(Stream* stream, Model* model,
       // Skip name
       if (Profile::Scene3D::Version == LKMVersion::DaSH) seekPos += 32;
       seekPos += 0xA8;
-      stream->Seek(seekPos, RW_SEEK_SET);
+      stream->Seek(seekPos, SDL_IO_SEEK_SET);
       int rawInfluenceOffsets[16];
       ReadArrayLE(rawInfluenceOffsets, stream, morphTargetCount);
       for (int j = 0; j < morphTargetCount; j++) {
-        stream->Seek(HeaderSize + rawInfluenceOffsets[j], RW_SEEK_SET);
+        stream->Seek(HeaderSize + rawInfluenceOffsets[j], SDL_IO_SEEK_SET);
         ReadArrayLE((float*)(result->CoordKeyframes + currentCoordOffset),
                     stream, morphInfluenceCounts[j] * 2);
         for (CoordKeyframe* key = result->CoordKeyframes + currentCoordOffset;

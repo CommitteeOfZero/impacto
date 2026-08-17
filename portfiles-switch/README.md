@@ -11,22 +11,20 @@ rebuilding libraries that devkitPro already provides — the technique from
 Non-system dependencies (e.g. `fmt`) are **not** overlaid; vcpkg builds those from
 source for the Switch triplet just like on desktop.
 
-The overlays come in two flavours.
+The overlays come in three flavours.
 
 ## 1. Pass-through overlays
 
 `portfile.cmake` is just `set(VCPKG_POLICY_EMPTY_PACKAGE enabled)` — vcpkg installs
 nothing and CMake's existing lookup already finds the devkitPro copy:
 
-| Port          | Resolved by                                             |
-|---------------|---------------------------------------------------------|
-| `sdl2`        | `find_package(SDL2 CONFIG)` → devkitPro `SDL2Config.cmake` |
-| `zlib`        | `find_package(ZLIB)` (CMake module) → devkitPro         |
-| `openal-soft` | `find_package(OpenAL)` (CMake module) → devkitPro       |
-| `libass`      | `pkg_check_modules(libass)` in impacto's CMakeLists     |
+| Port          | Resolved by                                                                                            |
+|---------------|--------------------------------------------------------------------------------------------------------|
+| `zlib`        | `find_package(ZLIB)` (CMake module) → devkitPro                                                        |
+| `libass`      | `pkg_check_modules(libass)` in impacto's CMakeLists                                                    |
 | `ffmpeg`      | `pkg_check_modules(libav*)` in impacto's ffmpeg branch (dav1d likewise, from devkitPro `switch-dav1d`) |
-| `avcpp`       | impacto's `FetchContent` (it rides on the system ffmpeg) |
-| `vulkan`      | unused on Switch (`IMPACTO_DISABLE_VULKAN`)             |
+| `avcpp`       | impacto's `FetchContent` (it rides on the system ffmpeg)                                               |
+| `vulkan`      | unused on Switch (`IMPACTO_DISABLE_VULKAN`)                                                            |
 
 ## 2. Config-emitting overlays
 

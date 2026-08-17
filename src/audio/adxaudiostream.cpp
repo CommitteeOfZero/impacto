@@ -71,7 +71,7 @@ bool AdxAudioStream::DecodeBuffer() {
 
   for (int c = 0; c < ChannelCount; c++) {
     /* the +1 becomes important on quiet ADXs */
-    int scale = SDL_SwapBE16(*(uint16_t*)input) + 1;
+    int scale = SDL_Swap16BE(*(uint16_t*)input) + 1;
     input += 2;
 
     for (int i = 0; i < SamplesPerBuffer; i++) {
@@ -98,12 +98,12 @@ static bool ParseAdxHeader(Stream* stream, AdxHeaderInfo* info) {
   stream->Read(header, 0x34);
 
   // first magic
-  if (SDL_SwapBE16(*(uint16_t*)header) != 0x8000) return false;
+  if (SDL_Swap16BE(*(uint16_t*)header) != 0x8000) return false;
 
-  info->StreamDataOffset = SDL_SwapBE16(*(uint16_t*)(header + 2)) + 4;
+  info->StreamDataOffset = SDL_Swap16BE(*(uint16_t*)(header + 2)) + 4;
 
   // second magic
-  stream->Seek(info->StreamDataOffset - 6, RW_SEEK_SET);
+  stream->Seek(info->StreamDataOffset - 6, SDL_IO_SEEK_SET);
   char const magic[] = "(c)CRI";
   char fileMagic[6];
   stream->Read(fileMagic, 6);
@@ -135,11 +135,11 @@ static bool ParseAdxHeader(Stream* stream, AdxHeaderInfo* info) {
     return false;
   }
 
-  info->SampleRate = SDL_SwapBE32(*(uint32_t*)(header + 8));
+  info->SampleRate = SDL_Swap32BE(*(uint32_t*)(header + 8));
 
-  info->SampleCount = SDL_SwapBE32(*(uint32_t*)(header + 12));
+  info->SampleCount = SDL_Swap32BE(*(uint32_t*)(header + 12));
 
-  info->Highpass = SDL_SwapBE16(*(uint16_t*)(header + 16));
+  info->Highpass = SDL_Swap16BE(*(uint16_t*)(header + 16));
 
   if (header[18] != 4) {
     ImpLog(LogLevel::Error, LogChannel::Audio,
@@ -157,17 +157,17 @@ static bool ParseAdxHeader(Stream* stream, AdxHeaderInfo* info) {
   int HistOffset = 0x18;
   int HistSize = std::max(8, 4 * info->ChannelCount);
 
-  info->Hist1_L = SDL_SwapBE16(*(uint16_t*)(header + HistOffset));
-  info->Hist2_L = SDL_SwapBE16(*(uint16_t*)(header + HistOffset + 2));
-  info->Hist1_R = SDL_SwapBE16(*(uint16_t*)(header + HistOffset + 4));
-  info->Hist2_R = SDL_SwapBE16(*(uint16_t*)(header + HistOffset + 6));
+  info->Hist1_L = SDL_Swap16BE(*(uint16_t*)(header + HistOffset));
+  info->Hist2_L = SDL_Swap16BE(*(uint16_t*)(header + HistOffset + 2));
+  info->Hist1_R = SDL_Swap16BE(*(uint16_t*)(header + HistOffset + 4));
+  info->Hist2_R = SDL_Swap16BE(*(uint16_t*)(header + HistOffset + 6));
 
   int LoopOffset = HistOffset + HistSize;
   int LoopSize = 0x18;
   if (LoopOffset + LoopSize <= info->StreamDataOffset) {
     info->HasLoop = true;
-    info->LoopStart = SDL_SwapBE32(*(uint32_t*)(header + LoopOffset + 8));
-    info->LoopEnd = SDL_SwapBE32(*(uint32_t*)(header + LoopOffset + 16));
+    info->LoopStart = SDL_Swap32BE(*(uint32_t*)(header + LoopOffset + 8));
+    info->LoopEnd = SDL_Swap32BE(*(uint32_t*)(header + LoopOffset + 16));
   } else {
     info->HasLoop = false;
   }
@@ -192,7 +192,7 @@ fail:
     result->BaseStream = 0;
     delete result;
   }
-  stream->Seek(0, RW_SEEK_SET);
+  stream->Seek(0, SDL_IO_SEEK_SET);
   return 0;
 }
 AdxAudioStream::~AdxAudioStream() {}
@@ -214,7 +214,7 @@ void AdxAudioStream::InitWithInfo(AdxHeaderInfo* info) {
 
   BitDepth = 16;
 
-  BaseStream->Seek(StreamDataOffset, RW_SEEK_SET);
+  BaseStream->Seek(StreamDataOffset, SDL_IO_SEEK_SET);
 }
 
 int AdxAudioStream::Read(void* buffer, int samples) {

@@ -202,7 +202,7 @@ void UpdatePADHoldInput(float dt) {
 }
 
 void UpdateKBHoldInput(float dt) {
-  static std::array<float, SDL_NUM_SCANCODES> KBIsDownTime{};
+  static std::array<float, SDL_SCANCODE_COUNT> KBIsDownTime{};
   constexpr float frameTime = 1 / 60.0f;
   for (size_t i = 0; i < KBinputHeldDown.size(); i++) {
     if (Input::KeyboardButtonIsDown[i]) {

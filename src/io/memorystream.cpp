@@ -35,11 +35,11 @@ int64_t MemoryStream::Write(const void* buffer, int64_t sz, size_t cnt) {
 
 int64_t MemoryStream::Seek(int64_t offset, int origin) {
   int64_t newPos = Position;
-  if (origin == RW_SEEK_SET) {
+  if (origin == SDL_IO_SEEK_SET) {
     newPos = offset;
-  } else if (origin == RW_SEEK_CUR) {
+  } else if (origin == SDL_IO_SEEK_CUR) {
     newPos += offset;
-  } else if (origin == RW_SEEK_END) {
+  } else if (origin == SDL_IO_SEEK_END) {
     newPos = Meta.Size - offset;
   } else {
     return IoError_Fail;

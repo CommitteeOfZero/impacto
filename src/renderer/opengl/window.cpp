@@ -1,7 +1,7 @@
 #include "window.h"
 
 #include <glad/glad.h>
-#include <SDL_opengl.h>
+#include <SDL3/SDL_opengl.h>
 
 #include "../renderer.h"
 
@@ -21,9 +21,13 @@
 namespace Impacto {
 namespace OpenGL {
 
+static void* SDLGLGetProcAddressForGlad(const char* name) {
+  return (void*)SDL_GL_GetProcAddress(name);
+}
+
 void GLWindow::UpdateDimensions() {
   WindowDimensionsChanged = false;
-  SDL_GL_GetDrawableSize(SDLWindow, &WindowWidth, &WindowHeight);
+  SDL_GetWindowSizeInPixels(SDLWindow, &WindowWidth, &WindowHeight);
   if (WindowWidth != lastWidth || WindowHeight != lastHeight ||
       MsaaCount != lastMsaa || RenderScale != lastRenderScale) {
     WindowDimensionsChanged = true;
@@ -130,9 +134,9 @@ void GLWindow::TryCreateGL(GraphicsApi api) {
 #endif
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, contextFlags);
 
-  uint32_t windowFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
+  SDL_WindowFlags windowFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
 #if IMPACTO_USE_SDL_HIGHDPI
-  windowFlags |= SDL_WINDOW_ALLOW_HIGHDPI;
+  windowFlags |= SDL_WINDOW_HIGH_PIXEL_DENSITY;
 #endif
 
   CreateSDLWindow(windowFlags);
@@ -147,7 +151,7 @@ void GLWindow::TryCreateGL(GraphicsApi api) {
   }
 
 #ifndef IMPACTO_DISABLE_IMGUI
-  ImGui_ImplSDL2_InitForOpenGL(SDLWindow, GLContext);
+  ImGui_ImplSDL3_InitForOpenGL(SDLWindow, GLContext);
   ImGui_ImplOpenGL3_Init();
 #endif
 }
@@ -160,7 +164,7 @@ void GLWindow::Init() {
 #ifdef __ANDROID__
   SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
 #endif
-  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) != 0) {
+  if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD)) {
     ImpLog(LogLevel::Fatal, LogChannel::General,
            "SDL initialisation failed: {:s}\n", SDL_GetError());
     Shutdown();
@@ -201,9 +205,9 @@ void GLWindow::Init() {
 
   bool gladOk;
   if (ActualGraphicsApi == GfxApi_GL) {
-    gladOk = gladLoadGLLoader(SDL_GL_GetProcAddress);
+    gladOk = gladLoadGLLoader(SDLGLGetProcAddressForGlad);
   } else {
-    gladOk = gladLoadGLES2Loader(SDL_GL_GetProcAddress);
+    gladOk = gladLoadGLES2Loader(SDLGLGetProcAddressForGlad);
   }
   if (!gladOk) {
     ImpLog(LogLevel::Fatal, LogChannel::General,
@@ -375,7 +379,7 @@ void GLWindow::Draw() {
 
 void GLWindow::Shutdown() {
   CleanFBOs();
-  SDL_GL_DeleteContext(GLContext);
+  SDL_GL_DestroyContext(GLContext);
   SDL_DestroyWindow(SDLWindow);
   SDL_Quit();
   // TODO move exit to users

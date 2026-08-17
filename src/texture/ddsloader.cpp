@@ -200,7 +200,7 @@ bool internal_readimg(Stream* stream, uint8_t* dst, int w, int h, int d) {
 }
 
 bool TextureLoadDDS(Stream* stream, Texture* outTexture) {
-  stream->Seek(0, RW_SEEK_SET);
+  stream->Seek(0, SDL_IO_SEEK_SET);
 
   m_dds.fourCC = ReadLE<uint32_t>(stream);
   m_dds.size = ReadLE<uint32_t>(stream);
@@ -212,7 +212,7 @@ bool TextureLoadDDS(Stream* stream, Texture* outTexture) {
   m_dds.mipmaps = ReadLE<uint32_t>(stream);
 
   // advance the file pointer by 44 bytes (reserved fields)
-  stream->Seek(44, RW_SEEK_CUR);
+  stream->Seek(44, SDL_IO_SEEK_CUR);
 
   // pixel format struct
   m_dds.fmt.size = ReadLE<uint32_t>(stream);
@@ -229,7 +229,7 @@ bool TextureLoadDDS(Stream* stream, Texture* outTexture) {
   m_dds.caps.flags2 = ReadLE<uint32_t>(stream);
 
   // advance the file pointer by 12 bytes (reserved fields)
-  stream->Seek(12, RW_SEEK_CUR);
+  stream->Seek(12, SDL_IO_SEEK_CUR);
 
   // sanity checks - valid 4CC, correct struct sizes and flags which should
   // be always present, regardless of the image type, size etc., also check
@@ -241,7 +241,7 @@ bool TextureLoadDDS(Stream* stream, Texture* outTexture) {
        !(m_dds.caps.flags1 & DDS_CAPS1_COMPLEX && m_dds.flags & DDS_DEPTH)) ||
       (m_dds.caps.flags2 & DDS_CAPS2_CUBEMAP &&
        !(m_dds.caps.flags1 & DDS_CAPS1_COMPLEX))) {
-    stream->Seek(0, RW_SEEK_SET);
+    stream->Seek(0, SDL_IO_SEEK_SET);
     return false;
   }
 
@@ -253,7 +253,7 @@ bool TextureLoadDDS(Stream* stream, Texture* outTexture) {
       (!(m_dds.fmt.flags & DDS_PF_FOURCC) &&
        !((m_dds.fmt.flags & DDS_PF_RGB) | (m_dds.fmt.flags & DDS_PF_LUMINANCE) |
          (m_dds.fmt.flags & DDS_PF_ALPHA)))) {
-    stream->Seek(0, RW_SEEK_SET);
+    stream->Seek(0, SDL_IO_SEEK_SET);
     return false;
   }
 
@@ -262,7 +262,7 @@ bool TextureLoadDDS(Stream* stream, Texture* outTexture) {
   if (m_dds.fmt.flags & DDS_PF_FOURCC && m_dds.fmt.fourCC != DDS_4CC_DXT1 &&
       m_dds.fmt.fourCC != DDS_4CC_DXT2 && m_dds.fmt.fourCC != DDS_4CC_DXT3 &&
       m_dds.fmt.fourCC != DDS_4CC_DXT4 && m_dds.fmt.fourCC != DDS_4CC_DXT5) {
-    stream->Seek(0, RW_SEEK_SET);
+    stream->Seek(0, SDL_IO_SEEK_SET);
     return false;
   }
 
