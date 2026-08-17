@@ -230,18 +230,12 @@ std::pair<int, float> TextLayoutPlainLineHelper(
       } break;
 
       case STT_Character: {
-        ProcessedTextGlyph ptg;
-        ptg.CharId = token.Val_Uint16;
-        ptg.Colors = currentColors;
-        ptg.Opacity = opacity;
+        const uint32_t glyphId = token.Val_Uint16;
 
-        ptg.DestRect.X = currentX;
-        ptg.DestRect.Y = pos.y;
-        ptg.DestRect.Width = std::floor((fontSize / font->BitmapEmWidth) *
-                                        font->GetAdvanceWidth(ptg.CharId));
-        ptg.DestRect.Height = fontSize;
-
-        currentX += ptg.DestRect.Width;
+        ProcessedTextGlyph ptg = font->PlaceGlyph(
+            glyphId, {currentX, pos.y}, fontSize, currentColors, opacity);
+        currentX +=
+            font->GetAdvanceWidth(glyphId) * fontSize / font->BitmapEmWidth;
 
         *outIt++ = ptg;
         characterCount++;

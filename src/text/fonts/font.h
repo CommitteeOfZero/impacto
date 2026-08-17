@@ -58,6 +58,11 @@ class Font {
                       glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f)));
   }
 
+  virtual ProcessedTextGlyph PlaceGlyph(uint32_t glyphId, glm::vec2 position,
+                                        float fontSize,
+                                        DialogueColorPair colors,
+                                        float opacity) const = 0;
+
   virtual float GetAdvanceWidth(uint32_t glyphId) const = 0;
 
   float BitmapEmWidth;
@@ -95,6 +100,11 @@ class SingleSheetFont : public Font {
                                  RendererOutlineMode outlineMode,
                                  const SpriteSheet* maskedSheet,
                                  glm::mat4 transformation) override;
+
+  virtual ProcessedTextGlyph PlaceGlyph(uint32_t glyphId, glm::vec2 position,
+                                        float fontSize,
+                                        DialogueColorPair colors,
+                                        float opacity) const override;
 
   virtual float GetAdvanceWidth(uint32_t glyphId) const override {
     return AdvanceWidths[glyphId];
@@ -149,6 +159,11 @@ class SeparateOutlineSheetFont : public Font {
                                  RendererOutlineMode outlineMode,
                                  const SpriteSheet* maskedSheet,
                                  glm::mat4 transformation) override;
+
+  virtual ProcessedTextGlyph PlaceGlyph(uint32_t glyphId, glm::vec2 position,
+                                        float fontSize,
+                                        DialogueColorPair colors,
+                                        float opacity) const override;
 
   virtual float GetAdvanceWidth(uint32_t glyphId) const override {
     return AdvanceWidths[glyphId];
@@ -296,6 +311,11 @@ class EdgeDetectedSingleVariableWidthSheetFont final : public Font {
                          const SpriteSheet* maskedSheet,
                          glm::mat4 transformation) override;
 
+  virtual ProcessedTextGlyph PlaceGlyph(uint32_t glyphId, glm::vec2 position,
+                                        float fontSize,
+                                        DialogueColorPair colors,
+                                        float opacity) const override;
+
   float GetAdvanceWidth(uint32_t glyphId) const override {
     return Data[glyphId].AdvanceSize.x;
   }
@@ -335,6 +355,14 @@ class ExternalFont final : public Font {
       RendererOutlineMode outlineMode = RendererOutlineMode::None,
       const SpriteSheet* maskedSheet = nullptr,
       glm::mat4 transformation = glm::mat4(1.0f)) override;
+
+  virtual ProcessedTextGlyph PlaceGlyph(uint32_t glyphId, glm::vec2 position,
+                                        float fontSize,
+                                        DialogueColorPair colors,
+                                        float opacity) const override {
+    assert(false && "TODO: Implement");
+    return ProcessedTextGlyph();
+  }
 
   float GetAdvanceWidth(uint32_t glyphId) const override {
     assert(false && "TODO: Implement");
