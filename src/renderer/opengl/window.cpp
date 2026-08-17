@@ -135,7 +135,7 @@ void GLWindow::TryCreateGL(GraphicsApi api) {
 #endif
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, contextFlags);
 
-  uint32_t windowFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
+  uint32_t windowFlags = SDL_WINDOW_OPENGL;
 #if IMPACTO_USE_SDL_HIGHDPI
   windowFlags |= SDL_WINDOW_ALLOW_HIGHDPI;
 #endif

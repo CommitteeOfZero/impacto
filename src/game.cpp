@@ -95,6 +95,10 @@ void Init() {
 #endif
   InitWindow();
   CreateRenderer();
+
+#ifndef IMPACTO_DISABLE_IMGUI
+  Overlay::Init();
+#endif
 }
 
 void InitGameProfile() {
@@ -157,12 +161,6 @@ void InitGameProfile() {
   if (+Profile::Game::GameFeatures & +GameFeature::CharacterViewer) {
     CharacterViewer::Init();
   }
-
-#ifndef IMPACTO_DISABLE_IMGUI
-  if (+Profile::Game::GameFeatures & +GameFeature::Overlay) {
-    Overlay::Init();
-  }
-#endif
 
   if (+Profile::Game::GameFeatures & +GameFeature::Sc3VirtualMachine) {
     Vm::Init();

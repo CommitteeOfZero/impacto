@@ -3,6 +3,7 @@
 #include <string>
 #include <ankerl/unordered_dense.h>
 #include "profile/subtitle.h"
+#include "log.h"
 
 namespace Impacto {
 
@@ -36,34 +37,22 @@ enum class SubtitleBmpBackendType : int {
 };
 
 namespace UserConfig {
-
-struct CHLCCExtraConfig {
-  bool DelusionMousePatch = true;
-};
-
-struct CCLCCExtraConfig {
-  bool DelusionMousePatch = true;
-};
-
-using GameExtraConfig =
-    std::variant<std::monostate, CHLCCExtraConfig, CCLCCExtraConfig>;
 struct GameConfig {
   std::optional<int> ResolutionWidth;
   std::optional<int> ResolutionHeight;
   std::string PatchProfile;
   bool UsePatch;
   bool Fullscreen = false;
-
-  GameExtraConfig Extra;
 };
 struct Config {
   int ResolutionWidth = 1280;
   int ResolutionHeight = 720;
 
-  Profile::Subtitle::SubtitleConfigType SubtitleConfig =
-      Profile::Subtitle::SubtitleConfigType::All;
-
-  bool CloseBacklogWhenReachedEnd = true;
+  std::string LogFile = "Impacto_Log.txt";
+  LogLevel LogLvl = LogLevel::Error;
+  LogChannel LogChannels = LogChannel::All;
+  bool LoggingToConsole = false;
+  bool LoggingToFile = false;
 };
 struct AdvancedConfig {
   RendererType ActiveRenderer = RendererType::OpenGL;
@@ -72,6 +61,24 @@ struct AdvancedConfig {
   SubtitleAssBackendType SubtitleAssBackend = SubtitleAssBackendType::LibAss;
   SubtitleTextBackendType SubtitleTextBackend = SubtitleTextBackendType::None;
   SubtitleBmpBackendType SubtitleBmpBackend = SubtitleBmpBackendType::None;
+};
+
+struct CHLCCEnhancements {
+  bool DelusionMousePatch = true;
+};
+
+struct CCLCCEnhancements {
+  bool DelusionMousePatch = true;
+};
+
+struct EnhancementsConfig {
+  Profile::Subtitle::SubtitleConfigType SubtitleConfig =
+      Profile::Subtitle::SubtitleConfigType::All;
+
+  bool CloseBacklogWhenReachedEnd = true;
+
+  CHLCCEnhancements CHLCC;
+  CCLCCEnhancements CCLCC;
 };
 
 GameConfig& ActiveGameSettings();
@@ -84,10 +91,14 @@ void SetActiveGame(std::string activeGame);
 inline ankerl::unordered_dense::map<std::string, GameConfig> GameSettings;
 inline Config CommonSettings;
 inline AdvancedConfig AdvancedSettings;
+inline EnhancementsConfig EnhancementsSettings;
 
 inline std::string ActiveGameOverride;
 inline std::string PatchProfileOverride;
 inline std::string UserConfigPath;
+
+inline bool OverrideLogChannels;
+inline bool OverrideLogLevel;
 
 void Configure();
 }  // namespace UserConfig

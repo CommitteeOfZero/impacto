@@ -234,10 +234,7 @@ std::pair<bool, bool> DelusionTrigger::UpdateDraggingTriggers(
 }
 
 void DelusionTrigger::UpdateDragging(float dt) {
-  if (!std::get<UserConfig::CCLCCExtraConfig>(
-           UserConfig::ActiveGameSettings().Extra)
-           .DelusionMousePatch)
-    return;
+  if (!UserConfig::EnhancementsSettings.CCLCC.DelusionMousePatch) return;
   const auto [leftTrigger, rightTrigger] = UpdateDraggingTriggers(true, dt);
 
   if (!leftTrigger && rightTrigger) {

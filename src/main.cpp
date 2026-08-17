@@ -51,7 +51,6 @@ concept is_arg_handler =
     std::invocable<T> || std::invocable<T, std::string_view>;
 
 static void HandleArguments(std::vector<std::string_view> args) {
-  bool hasSetChannel = false;
   for (size_t i = 0; i < args.size(); ++i) {
     std::string_view arg = args[i];
 
@@ -88,7 +87,11 @@ static void HandleArguments(std::vector<std::string_view> args) {
 
     const auto argHandlers = std::tuple{
         make_handler(
-            [&](std::string_view input) { LogSetFile(std::string(input)); },
+            [&](std::string_view input) {
+              Impacto::UserConfig::CommonSettings.LogFile = std::string(input);
+              Impacto::UserConfig::CommonSettings.LoggingToFile = true;
+              LogInitFile();
+            },
             "-lf", "--logfile"),
         make_handler(
             [&](std::string_view input) {
@@ -102,14 +105,16 @@ static void HandleArguments(std::vector<std::string_view> args) {
                                  ", "));
                 exit(1);
               };
-              if (!hasSetChannel) {
-                g_LogChannels = {};
-                hasSetChannel = true;
+              auto& logChannels =
+                  Impacto::UserConfig::CommonSettings.LogChannels;
+              if (!Impacto::UserConfig::OverrideLogChannels) {
+                logChannels = {};
+                Impacto::UserConfig::OverrideLogChannels = true;
               }
               if (*logChannelOpt == LogChannel::None) {
-                g_LogChannels = *logChannelOpt;
+                logChannels = *logChannelOpt;
               } else {
-                g_LogChannels |= *logChannelOpt;
+                logChannels |= *logChannelOpt;
               }
             },
             "-lc", "--logchannel"),
@@ -123,7 +128,7 @@ static void HandleArguments(std::vector<std::string_view> args) {
                        magic_enum::enum_names<Impacto::LogLevel>());
                 exit(1);
               }
-              g_LogLevel = *logLevelOpt;
+              Impacto::UserConfig::CommonSettings.LogLvl = *logLevelOpt;
             },
             "-ll", "--loglevel"),
 
@@ -178,12 +183,11 @@ int main(int argc, char* argv[]) {
 
   std::string profilePath;
   LogInit();
-  g_LogChannels = LogChannel::All;
-  g_LogLevel = LogLevel::Fatal;
 #if __SWITCH__
-  LogSetFile("Impacto_Log.txt");
+  UserConfig::CommonSettings.LoggingToFile = true;
+  LogInitFile();
 #else
-  LogSetConsole(true);
+  UserConfig::CommonSettings.LoggingToConsole = true;
 #endif
 
   std::vector<std::string_view> arguments;

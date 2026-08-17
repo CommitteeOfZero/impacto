@@ -40,7 +40,7 @@ enum class LogChannel : uint32_t {
   Subtitle = (1 << 14),
   Config = (1 << 15),
   Overlay = (1 << 16),
-  All = 0xFFFFFFFF
+  All = std::numeric_limits<uint32_t>::max(),
 };
 
 constexpr std::string ChannelToString(LogChannel channel);
@@ -71,12 +71,7 @@ constexpr LogChannel& operator^=(LogChannel& channel, LogChannel other) {
   return channel;
 }
 
-inline LogLevel g_LogLevel = LogLevel::Off;
-inline LogChannel g_LogChannels = LogChannel::None;
-inline bool LoggingToConsole = false;
-inline bool LoggingToFile = false;
-
-void LogSetFile(std::string const& path);
+void LogInitFile();
 void LogSetConsole(bool enabled);
 void LogInit();
 bool CheckLogConfig(LogLevel level, LogChannel channel);

@@ -95,7 +95,7 @@ void Renderer::CreateInstance() {
 
   VkApplicationInfo appInfo = {};
   appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-  appInfo.pApplicationName = Profile::Game::WindowName;
+  appInfo.pApplicationName = Profile::Game::WindowName.c_str();
   appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
   appInfo.pEngineName = "impacto";
   appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);

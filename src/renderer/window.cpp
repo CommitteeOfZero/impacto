@@ -303,8 +303,7 @@ void BaseWindow::ApplyWindowSettings() {
              "Only one of Resolution Height or Resolution Width is configured, "
              "defaulting to game resolution.");
     }
-    if (!gameConfig.Fullscreen && gameConfig.ResolutionWidth &&
-        gameConfig.ResolutionHeight) {
+    if (gameConfig.ResolutionWidth && gameConfig.ResolutionHeight) {
       WindowWidth = *gameConfig.ResolutionWidth;
       WindowHeight = *gameConfig.ResolutionHeight;
     } else if (Profile::Game::HasInit) {
@@ -318,7 +317,7 @@ void BaseWindow::ApplyWindowSettings() {
     }
   }
 
-  SDL_SetWindowTitle(SDLWindow, Profile::Game::WindowName);
+  SDL_SetWindowTitle(SDLWindow, Profile::Game::WindowName.c_str());
 
   if (fullscreen) {
     SDL_SetWindowSize(SDLWindow, WindowWidth, WindowHeight);
