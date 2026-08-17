@@ -139,11 +139,6 @@ bool ExternalFont::IsLoaded() const {
   return FontImpl->HarfBuzzFace != nullptr && FontImpl->FontFace != nullptr;
 }
 
-size_t ExternalFont::GetGlyphCount() const {
-  assert(IsLoaded());
-  return static_cast<size_t>(FontImpl->FontFace->num_glyphs);
-}
-
 std::vector<ExternalFontShapedGlyph> ExternalFont::ShapeLine(
     std::string_view text, float fontSize, float& width) {
   width = 0.0f;

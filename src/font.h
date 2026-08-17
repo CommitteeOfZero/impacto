@@ -32,8 +32,6 @@ class Font {
 
   virtual ~Font() = default;
 
-  virtual size_t GetGlyphCount() const = 0;
-
   virtual void DrawProcessedText(
       std::span<const ProcessedTextGlyph> text, float opacity,
       float outlineOpacity,
@@ -91,10 +89,6 @@ class SingleSheetFont : public Font {
                         foregroundOpacityCurve, outlineOpacityCurve, sheet,
                         gridSize) {}
 
-  size_t GetGlyphCount() const override {
-    return static_cast<size_t>(GridSize.x * GridSize.y);
-  }
-
   virtual void DrawProcessedText(std::span<const ProcessedTextGlyph> text,
                                  float opacity, float outlineOpacity,
                                  RendererOutlineMode outlineMode,
@@ -142,10 +136,6 @@ class SeparateOutlineSheetFont : public Font {
             FontType::SeparateOutlineSheet, bitmapEmWidth, bitmapEmHeight,
             foregroundOpacityCurve, outlineOpacityCurve, foregroundSheet,
             foregroundGridSize, outlineSheet, outlineGridSize) {}
-
-  size_t GetGlyphCount() const override {
-    return static_cast<size_t>(ForegroundGridSize.x * ForegroundGridSize.y);
-  }
 
   virtual void DrawProcessedText(std::span<const ProcessedTextGlyph> text,
                                  float opacity, float outlineOpacity,
@@ -224,10 +214,6 @@ class LanguageBarrierFont final : public SeparateOutlineSheetFont {
         ForegroundOffset(foregroundOffset),
         OutlineOffset(outlineOffset) {}
 
-  size_t GetGlyphCount() const override {
-    return static_cast<size_t>(ForegroundGridSize.x * ForegroundGridSize.y);
-  }
-
   void DrawProcessedText(std::span<const ProcessedTextGlyph> text,
                          float opacity, float outlineOpacity,
                          RendererOutlineMode outlineMode,
@@ -302,8 +288,6 @@ class ExternalFont final : public Font {
 
   std::vector<ExternalFontShapedGlyph> ShapeLine(std::string_view text,
                                                  float fontSize, float& width);
-
-  size_t GetGlyphCount() const override;
 
   using Font::DrawProcessedText;
   void DrawProcessedText(
