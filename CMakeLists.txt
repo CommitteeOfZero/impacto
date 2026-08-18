@@ -1368,7 +1368,33 @@ target_precompile_headers(impacto PRIVATE
 if (ANDROID)
     install(TARGETS impacto LIBRARY DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/jniLibs/${CMAKE_ANDROID_ARCH_ABI})
 elseif (NX)
-    install(TARGETS impacto RUNTIME DESTINATION .)
+    find_program(ELF2NRO elf2nro HINTS "$ENV{DEVKITPRO}/tools/bin")
+    find_program(NACPTOOL nacptool HINTS "$ENV{DEVKITPRO}/tools/bin")
+
+    if (NOT ELF2NRO OR NOT NACPTOOL)
+        message(FATAL_ERROR "elf2nro/nacptool not found")
+    endif()
+
+    set(IMPACTO_NACP "${CMAKE_CURRENT_BINARY_DIR}/impacto.nacp")
+    set(IMPACTO_NRO  "${CMAKE_CURRENT_BINARY_DIR}/impacto.nro")
+
+    add_custom_command(
+        OUTPUT ${IMPACTO_NACP}
+        COMMAND ${NACPTOOL} --create "Impacto" "Committee of Zero" "${APP_VERSION}" ${IMPACTO_NACP}
+        VERBATIM
+    )
+
+    add_custom_command(
+        OUTPUT ${IMPACTO_NRO}
+        COMMAND ${ELF2NRO} $<TARGET_FILE:impacto> ${IMPACTO_NRO}
+                --nacp=${IMPACTO_NACP}
+        DEPENDS impacto ${IMPACTO_NACP}
+        VERBATIM
+    )
+
+    add_custom_target(impacto_nro ALL DEPENDS ${IMPACTO_NRO})
+
+    install(FILES ${IMPACTO_NRO} DESTINATION .)
 elseif (WIN32)
     install(TARGETS impacto RUNTIME DESTINATION .)
     install(FILES $<TARGET_RUNTIME_DLLS:impacto> DESTINATION .)

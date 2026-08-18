@@ -209,6 +209,10 @@ int main(int argc, char* argv[]) {
     ImpLog(LogLevel::Fatal, LogChannel::General,
            "Fatal error occured: {}, exiting!\n", e.what());
     exit(1);
+  } catch (...) {
+    ImpLog(LogLevel::Fatal, LogChannel::General,
+           "Unknown error occured, exiting!\n");
+    exit(1);
   }
   return 0;
 }

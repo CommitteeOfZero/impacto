@@ -282,11 +282,6 @@ jobs:
           configurePreset: ${{ env.PresetName }}
           buildPreset: ${{ env.PresetName }}
 
-      - name: Package NRO
-        run: |
-          elf2nro "release/${{ env.PresetName }}/impacto" "release/${{ env.PresetName }}/impacto.nro"
-        shell: bash
-
       - name: Copy docs
         run: |
           cp THIRDPARTY.md README.md LICENSE "release/${{ env.PresetName }}"
