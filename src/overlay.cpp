@@ -407,13 +407,10 @@ void ShowOverlay() {
       selectedGame = UserConfig::GetActiveGame();
     }
 
-    const bool showStart = !Profile::Game::HasInit && !selectedGame.empty();
-
     float footerHeight = ImGui::GetStyle().ItemSpacing.y +
                          ImGui::GetStyle().SeparatorSize +
                          ImGui::GetFrameHeightWithSpacing();
-    ImGui::BeginChild("TabRegion",
-                      ImVec2(0, -footerHeight * (showStart ? 2 : 1)), 0);
+    ImGui::BeginChild("TabRegion", ImVec2(0, -footerHeight), 0);
     if (ImGui::BeginTabBar("MainTabs")) {
       if (ImGui::BeginTabItem("About")) {
         ImGui::Text("Committee of Zero");
@@ -465,11 +462,13 @@ void ShowOverlay() {
       }
     }
 
+#ifndef NDEBUG
     static bool showDemo = false;
     if (ImGui::Button("Toggle Demo")) {
       showDemo = !showDemo;
     }
     if (showDemo) ImGui::ShowDemoWindow();
+#endif
   }
   ImGui::End();
 }
