@@ -100,7 +100,7 @@ TOML11_DEFINE_CONVERSION_NON_INTRUSIVE(
   ResolutionHeight,
   PatchProfile,
   UsePatch,
-  Fullscreen
+  Display
 )
 
 TOML11_DEFINE_CONVERSION_NON_INTRUSIVE(

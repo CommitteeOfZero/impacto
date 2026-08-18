@@ -144,8 +144,10 @@ static bool ShowDisplaySettings(std::string const& selectedGame) {
       if (gameSettings.ResolutionWidth && gameSettings.ResolutionHeight) {
         currentResolution = fmt::format("{}x{}", *gameSettings.ResolutionWidth,
                                         *gameSettings.ResolutionHeight);
-        wasUpdated = true;
+      } else {
+        currentResolution = "Native Game Res";
       }
+      wasUpdated = true;
       updatedResolution = false;
     }
 
@@ -157,6 +159,8 @@ static bool ShowDisplaySettings(std::string const& selectedGame) {
     ImGui::SameLine();
     ImGui::SetNextItemWidth(comboWidth);
     if (ImGui::BeginCombo("##ChooseResolution", currentResolution.c_str())) {
+      ImGui::Selectable("Native Game Res", !gameSettings.ResolutionWidth ||
+                                               !gameSettings.ResolutionHeight);
       for (auto&& [display, value] : resolutionOptions) {
         if (value.x > maxRes.w || value.y > maxRes.h) continue;
         bool isSelected = gameSettings.ResolutionWidth == value.x &&
@@ -173,7 +177,18 @@ static bool ShowDisplaySettings(std::string const& selectedGame) {
 
     ImGui::SameLine();
 
-    wasUpdated |= ImGui::Checkbox("Fullscreen", &gameSettings.Fullscreen);
+    auto dispModeRadio = [&](char const* const label, DisplayMode mode) {
+      if (ImGui::RadioButton(label, gameSettings.Display == mode)) {
+        wasUpdated = true;
+        gameSettings.Display = mode;
+      }
+    };
+
+    dispModeRadio("Windowed", DisplayMode::Windowed);
+    ImGui::SameLine();
+    dispModeRadio("Fullscreen", DisplayMode::Fullscreen);
+    ImGui::SameLine();
+    dispModeRadio("Borderless", DisplayMode::Borderless);
   }
 
   return wasUpdated;

@@ -293,7 +293,8 @@ void BaseWindow::ApplyWindowSettings() {
   WindowWidth = config.ResolutionWidth;
   WindowHeight = config.ResolutionHeight;
 
-  bool fullscreen = false;
+  DisplayMode dispMode = DisplayMode::Windowed;
+
   if (!UserConfig::GetActiveGame().empty()) {
     auto const& gameConfig = UserConfig::ActiveGameSettings();
 
@@ -310,18 +311,17 @@ void BaseWindow::ApplyWindowSettings() {
       WindowWidth = static_cast<int>(Profile::Game::DesignWidth);
       WindowHeight = static_cast<int>(Profile::Game::DesignHeight);
     }
-
-    if (gameConfig.Fullscreen) {
-      fullscreen = true;
-      ClampAspectRatio(bounds.w, bounds.h);
-    }
+    dispMode = gameConfig.Display;
   }
 
   SDL_SetWindowTitle(SDLWindow, Profile::Game::WindowName.c_str());
 
-  if (fullscreen) {
+  if (dispMode == DisplayMode::Fullscreen) {
     SDL_SetWindowSize(SDLWindow, WindowWidth, WindowHeight);
     SDL_SetWindowFullscreen(SDLWindow, SDL_WINDOW_FULLSCREEN);
+  } else if (dispMode == DisplayMode::Borderless) {
+    SDL_SetWindowSize(SDLWindow, WindowWidth, WindowHeight);
+    SDL_SetWindowFullscreen(SDLWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
   } else {
     SDL_SetWindowFullscreen(SDLWindow, 0);
     int top, left, bottom, right;

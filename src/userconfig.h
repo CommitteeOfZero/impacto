@@ -2,6 +2,7 @@
 
 #include <string>
 #include <ankerl/unordered_dense.h>
+#include "renderer/window.h"
 #include "profile/subtitle.h"
 #include "log.h"
 
@@ -42,7 +43,14 @@ struct GameConfig {
   std::optional<int> ResolutionHeight;
   std::string PatchProfile;
   bool UsePatch;
-  bool Fullscreen = false;
+  DisplayMode Display = GetDefaultDispMode();
+
+  static DisplayMode GetDefaultDispMode() {
+#if defined(__SWITCH__) || defined(__ANDROID__)
+    return DisplayMode::Borderless;
+#endif
+    return DisplayMode::Windowed;
+  }
 };
 struct Config {
   int ResolutionWidth = 1280;

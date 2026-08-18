@@ -5,6 +5,7 @@
 
 namespace Impacto {
 
+enum class DisplayMode { Windowed, Fullscreen, Borderless };
 enum class CursorType { Default, Pointer };
 inline CursorType ActiveCursorType = CursorType::Default;
 
