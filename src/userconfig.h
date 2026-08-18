@@ -59,8 +59,8 @@ struct Config {
   std::string LogFile = "Impacto_Log.txt";
   LogLevel LogLvl = LogLevel::Error;
   LogChannel LogChannels = LogChannel::All;
-  bool LoggingToConsole = false;
-  bool LoggingToFile = false;
+  bool LoggingToConsole = true;
+  bool LoggingToFile = true;
 };
 struct AdvancedConfig {
   RendererType ActiveRenderer = RendererType::OpenGL;
@@ -106,7 +106,6 @@ inline std::string PatchProfileOverride;
 inline std::string UserConfigPath;
 
 inline bool OverrideLogChannels;
-inline bool OverrideLogLevel;
 
 void Configure();
 }  // namespace UserConfig

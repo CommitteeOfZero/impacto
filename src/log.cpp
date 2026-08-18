@@ -118,20 +118,25 @@ void LogInitFile() {
 
   using CF = Io::PhysicalFileStream::CreateFlagsMode;
   Io::Stream* stream;
-  IoError err = Io::PhysicalFileStream::Create(
-      UserConfig::CommonSettings.LogFile, &stream,
-      CF::CREATE | CF::CREATE_DIRS | CF::WRITE | CF::UNBUFFERED);
-  if (err != IoError_OK) {
-    ImpLog(LogLevel::Error, LogChannel::IO,
-           "Failed to open save file for writing\n");
-    return;
+  if (!FileLogStream ||
+      FileLogStream->Meta.FileName != UserConfig::CommonSettings.LogFile) {
+    IoError err = Io::PhysicalFileStream::Create(
+        UserConfig::CommonSettings.LogFile, &stream,
+        CF::CREATE | CF::CREATE_DIRS | CF::WRITE | CF::UNBUFFERED |
+            CF::TRUNCATE);
+    if (err != IoError_OK) {
+      ImpLog(LogLevel::Error, LogChannel::IO,
+             "Failed to open save file for writing\n");
+      return;
+    }
+    FileLogStream.reset(stream);
   }
-  FileLogStream.reset(stream);
 }
 
 void LogInit() {
   SetSDLLogger(SDLLogger);
   SDL_LogSetPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_VERBOSE);
+  LogInitFile();
 }
 
 #ifndef IMPACTO_DISABLE_OPENGL
