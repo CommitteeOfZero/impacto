@@ -242,6 +242,21 @@ void LoadUserConfig(toml::value& tomlConfig) {
   ImpLog(LogLevel::Info, LogChannel::Config, "Loaded user config\n");
 };
 
+void RestoreSettingsDefaults() {
+  // Enhancements is excluded since that's in a separate tab
+  ActiveGame = decltype(ActiveGame){};
+  CommonSettings = decltype(CommonSettings){};
+  AdvancedSettings = decltype(AdvancedSettings){};
+  GameSettings = decltype(GameSettings){};
+
+  for (auto& [gameProfile, gameDef] : Profile::GameDefinitions) {
+    if (gameDef.Hidden) continue;
+    GameSettings.try_emplace(gameProfile, UserConfig::GameConfig{});
+  }
+
+  LogInitFile();
+}
+
 GameConfig& ActiveGameSettings() { return GameSettings[GetActiveGame()]; }
 
 std::string const& GetActiveGame() {

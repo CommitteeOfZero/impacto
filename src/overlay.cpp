@@ -321,9 +321,11 @@ static void ShowSettingsPage(std::string const& selectedGame) {
     ImGui::SameLine();
   }
   if (ImGui::Button(restoreDefaultsLabel)) {
+    UserConfig::RestoreSettingsDefaults();
   }
   ImGui::SameLine();
   if (ImGui::Button(saveConfigLabel)) {
+    UserConfig::WriteUserConfig();
   }
 }
 
@@ -378,9 +380,12 @@ static void ShowEnhancementsPage(std::string const& selectedGame) {
   ImGui::SetCursorPosX(ImGui::GetCursorPosX() +
                        ImGui::GetContentRegionAvail().x - buttonsWidth);
   if (ImGui::Button(restoreDefaultsLabel)) {
+    UserConfig::EnhancementsSettings =
+        decltype(UserConfig::EnhancementsSettings){};
   }
   ImGui::SameLine();
   if (ImGui::Button(saveConfigLabel)) {
+    UserConfig::WriteUserConfig();
   }
 }
 

@@ -91,6 +91,7 @@ struct EnhancementsConfig {
 
 GameConfig& ActiveGameSettings();
 void WriteUserConfig();
+void RestoreSettingsDefaults();
 
 std::optional<std::string_view> GetPatchProfile();
 std::string const& GetActiveGame();
