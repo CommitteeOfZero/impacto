@@ -26,7 +26,7 @@ TipsEntryButton::TipsEntryButton(int id, TipsDataRecord* tipRecord,
   HasText = true;
   HighlightOffset = {0.0f, 0.0f};
   TextLayoutPlainString(fmt::format("{:3d}.", id + 1), TipNumber,
-                        Profile::Dialogue::DialogueFont, TipListEntryFontSize,
+                        *Profile::Dialogue::DialogueFont, TipListEntryFontSize,
                         Profile::Dialogue::ColorTable[DefaultColorIndex], 1.0f,
                         glm::vec2(Bounds.X + TipListEntryNameXOffset - 5.0f +
                                       TipListEntryTextOffsetX,
@@ -39,7 +39,7 @@ TipsEntryButton::TipsEntryButton(int id, TipsDataRecord* tipRecord,
   auto textColorIndex =
       (tipRecord->IsUnread) ? UnreadColorIndex : DefaultColorIndex;
   Text = TextLayoutPlainLine(
-      &dummy, 255, Profile::Dialogue::DialogueFont, TipListEntryFontSize,
+      &dummy, 255, *Profile::Dialogue::DialogueFont, TipListEntryFontSize,
       Profile::Dialogue::ColorTable[textColorIndex], 1.0f,
       glm::vec2(Bounds.X + TipListEntryNameXOffset + TipListEntryTextOffsetX,
                 Bounds.Y),
@@ -50,9 +50,9 @@ TipsEntryButton::TipsEntryButton(int id, TipsDataRecord* tipRecord,
   dummy.IpOffset = lockedScrPos.IpOffset;
   dummy.ScriptBufferId = lockedScrPos.ScriptBufferId;
   TextLayoutPlainLine(
-      &dummy, static_cast<int>(TipLockedText.size()), TipLockedText,
-      Profile::Dialogue::DialogueFont, TipListEntryFontSize,
-      Profile::Dialogue::ColorTable[UnreadColorIndex], 1.0f,
+      &dummy, TipLockedText, *Profile::Dialogue::DialogueFont,
+      TipListEntryFontSize, Profile::Dialogue::ColorTable[UnreadColorIndex],
+      1.0f,
       glm::vec2(Bounds.X + TipListEntryNameXOffset + TipListEntryTextOffsetX,
                 Bounds.Y),
       TextAlignment::Left);

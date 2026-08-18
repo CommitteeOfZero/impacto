@@ -1,8 +1,8 @@
 #include "font.h"
 
-#include "log.h"
-#include "profile/game.h"
-#include "renderer/renderer.h"
+#include "../../log.h"
+#include "../../profile/game.h"
+#include "../../renderer/renderer.h"
 
 namespace Impacto {
 
@@ -48,6 +48,21 @@ static void FillGlyphIndices(std::vector<uint16_t>& indices,
     indices[i * 6 + 4] = tr;
     indices[i * 6 + 5] = br;
   }
+}
+
+ProcessedTextGlyph SingleSheetFont::PlaceGlyph(const uint32_t glyphId,
+                                               const glm::vec2 position,
+                                               const float fontSize,
+                                               const DialogueColorPair colors,
+                                               const float opacity) const {
+  return ProcessedTextGlyph{
+      .Colors = colors,
+      .CharId = glyphId,
+      .Opacity = opacity,
+      .DestRect =
+          RectF(position.x, position.y,
+                (fontSize / BitmapEmWidth) * AdvanceWidths[glyphId], fontSize),
+  };
 }
 
 void SingleSheetFont::DrawProcessedText(
@@ -162,6 +177,19 @@ void SingleSheetFont::DrawProcessedText(
                                        : ShaderProgramType::MaskedSpriteNoAlpha;
   Renderer->DrawPrimitives(Sheet, maskedSheet, shader, vertices, indices,
                            transformation);
+}
+
+ProcessedTextGlyph SeparateOutlineSheetFont::PlaceGlyph(
+    const uint32_t glyphId, const glm::vec2 position, const float fontSize,
+    const DialogueColorPair colors, const float opacity) const {
+  return ProcessedTextGlyph{
+      .Colors = colors,
+      .CharId = glyphId,
+      .Opacity = opacity,
+      .DestRect =
+          RectF(position.x, position.y,
+                (fontSize / BitmapEmWidth) * AdvanceWidths[glyphId], fontSize),
+  };
 }
 
 void SeparateOutlineSheetFont::DrawProcessedText(

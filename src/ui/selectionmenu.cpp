@@ -35,7 +35,7 @@ void SelectionMenu::AddChoice(Vm::BufferOffsetContext ctx) {
   dummy.IpOffset = ctx.IpOffset;
   dummy.ScriptBufferId = ctx.ScriptBufferId;
   Choices[ChoiceCount] = TextLayoutPlainLine(
-      &dummy, 255, Profile::Dialogue::DialogueFont,
+      &dummy, 255, *Profile::Dialogue::DialogueFont,
       Profile::Dialogue::DefaultFontSize, Profile::Dialogue::ColorTable[0],
       1.0f, glm::vec2(0.0f, 0.0f), TextAlignment::Left);
 

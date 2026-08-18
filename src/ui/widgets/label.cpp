@@ -152,7 +152,7 @@ void Label::SetText(Vm::Sc3Stream& stream, float fontSize,
   IsText = true;
   FontSize = fontSize;
   Text = TextLayoutPlainLine(
-      stream, 255, Profile::Dialogue::DialogueFont, fontSize, colorPair, 1.0f,
+      stream, 255, *Profile::Dialogue::DialogueFont, fontSize, colorPair, 1.0f,
       glm::vec2(Bounds.X, Bounds.Y), TextAlignment::Left);
   OutlineMode = outlineMode;
   TextWidth = 0.0f;
@@ -173,7 +173,7 @@ void Label::SetText(Vm::BufferOffsetContext scrCtx, float fontSize,
   dummy.ScriptBufferId = scrCtx.ScriptBufferId;
   FontSize = fontSize;
   Text = TextLayoutPlainLine(
-      &dummy, 255, Profile::Dialogue::DialogueFont, fontSize, colorPair, 1.0f,
+      &dummy, 255, *Profile::Dialogue::DialogueFont, fontSize, colorPair, 1.0f,
       glm::vec2(Bounds.X, Bounds.Y), TextAlignment::Left, maxWidth);
   OutlineMode = outlineMode;
   TextWidth = 0.0f;
@@ -189,8 +189,8 @@ void Label::SetText(std::string_view str, float fontSize,
                     RendererOutlineMode outlineMode,
                     DialogueColorPair colorPair) {
   IsText = true;
-  Text = TextLayoutPlainString(str, Profile::Dialogue::DialogueFont, fontSize,
-                               colorPair, 1.0f, glm::vec2(Bounds.X, Bounds.Y),
+  Text = TextLayoutPlainString(str, *Profile::Dialogue::DialogueFont, fontSize,
+                               colorPair, 1.0f, Bounds.GetPos(),
                                TextAlignment::Left);
   OutlineMode = outlineMode;
   TextWidth = 0.0f;

@@ -6,6 +6,52 @@
 namespace Impacto {
 namespace Profile {
 
+static std::vector<float> EnsureGetAdvanceWidths(const std::string_view name,
+                                                 float bitmapEmWidth) {
+  std::vector<float> advanceWidths;
+
+  if (!TryGetMember("AdvanceWidthsTable", advanceWidths)) {
+    EnsurePushMember("AdvanceWidthsBinary");
+
+    auto widthTablePath = EnsureGetMember<Io::AssetPath>("Path");
+    const size_t bytesPerGlyph = EnsureGetMember<size_t>("BytesPerGlyph");
+    assert(bytesPerGlyph <= 4);
+
+    const float emWidth = EnsureGetMember<float>("EmWidth");
+    const float extraLetterSpacing =
+        TryGetMember<float>("ExtraLetterSpacing").value_or(0.0f);
+
+    uint8_t* widthBin;
+    int64_t widthSz;
+    if (widthTablePath.Slurp((void*&)widthBin, widthSz) != IoError_OK) {
+      ImpLog(LogLevel::Fatal, LogChannel::Profile,
+             "Failed to load width table file for font {:s}\n", name);
+      Window->Shutdown();
+    }
+    assert(widthSz % bytesPerGlyph == 0);
+
+    const size_t widthCount = widthSz / bytesPerGlyph;
+    advanceWidths.reserve(widthCount);
+    const auto readEntry = [&](size_t idx) -> uint64_t {
+      uint64_t value = 0;
+      for (size_t byte = 0; byte < bytesPerGlyph; byte++) {
+        value = (value << 8) | widthBin[idx * bytesPerGlyph + byte];
+      }
+      return value;
+    };
+
+    for (size_t i = 0; i < widthCount; i++) {
+      advanceWidths.emplace_back(
+          static_cast<float>(readEntry(i) + extraLetterSpacing) *
+          bitmapEmWidth / emWidth);
+    }
+
+    Pop();
+  }
+
+  return advanceWidths;
+}
+
 void LoadFonts() {
   EnsurePushMemberOfType("Fonts", LUA_TTABLE);
 
@@ -15,10 +61,8 @@ void LoadFonts() {
 
     const FontType fontType = EnsureGetMember<FontType>("Type");
 
-    const std::optional<float> bitmapEmWidth =
-        TryGetMember<float>("BitmapEmWidth");
-    const std::optional<float> bitmapEmHeight =
-        TryGetMember<float>("BitmapEmHeight");
+    std::optional<float> bitmapEmWidth = TryGetMember<float>("BitmapEmWidth");
+    std::optional<float> bitmapEmHeight = TryGetMember<float>("BitmapEmHeight");
 
     const OpacityCurve foregroundOpacityCurve =
         TryGetMember<OpacityCurve>("ForegroundOpacityCurve")
@@ -34,16 +78,24 @@ void LoadFonts() {
         const SpriteSheet sheet = EnsureGetMember<SpriteSheet>("Sheet");
         const glm::ivec2 gridSize = EnsureGetMember<glm::ivec2>("GridSize");
 
+        if (!bitmapEmWidth.has_value()) {
+          bitmapEmWidth.emplace(sheet.DesignWidth / gridSize.x);
+        }
+        if (!bitmapEmHeight.has_value()) {
+          bitmapEmHeight.emplace(sheet.DesignHeight / gridSize.y);
+        }
+
         if (fontType == SingleSheet) {
           Fonts[name] = new SingleSheetFont(
-              bitmapEmWidth, bitmapEmHeight, foregroundOpacityCurve,
-              outlineOpacityCurve, sheet, gridSize);
+              *bitmapEmWidth, *bitmapEmHeight, foregroundOpacityCurve,
+              outlineOpacityCurve, sheet, gridSize,
+              EnsureGetAdvanceWidths(name, *bitmapEmWidth));
         } else {
           assert(fontType == EdgeDetectedSingleSheet);
 
           Fonts[name] = new EdgeDetectedSingleSheetFont(
-              bitmapEmWidth, bitmapEmHeight, foregroundOpacityCurve, sheet,
-              gridSize);
+              *bitmapEmWidth, *bitmapEmHeight, foregroundOpacityCurve, sheet,
+              gridSize, EnsureGetAdvanceWidths(name, *bitmapEmWidth));
         }
       } break;
 
@@ -60,11 +112,21 @@ void LoadFonts() {
             TryGetMember<glm::ivec2>("OutlineGridSize")
                 .value_or(foregroundGridSize);
 
+        if (!bitmapEmWidth.has_value()) {
+          bitmapEmWidth.emplace(foregroundSheet.DesignWidth /
+                                foregroundGridSize.x);
+        }
+        if (!bitmapEmHeight.has_value()) {
+          bitmapEmHeight.emplace(foregroundSheet.DesignHeight /
+                                 foregroundGridSize.y);
+        }
+
         if (fontType == SeparateOutlineSheet) {
           Fonts[name] = new SeparateOutlineSheetFont(
-              bitmapEmWidth, bitmapEmHeight, foregroundOpacityCurve,
+              *bitmapEmWidth, *bitmapEmHeight, foregroundOpacityCurve,
               outlineOpacityCurve, foregroundSheet, foregroundGridSize,
-              outlineSheet, outlineGridSize);
+              outlineSheet, outlineGridSize,
+              EnsureGetAdvanceWidths(name, *bitmapEmWidth));
         } else {
           assert(fontType == LanguageBarrier);
 
@@ -75,10 +137,34 @@ void LoadFonts() {
               EnsureGetMember<glm::vec2>("OutlineOffset");
 
           Fonts[name] = new LanguageBarrierFont(
-              bitmapEmWidth, bitmapEmHeight, foregroundOpacityCurve,
+              *bitmapEmWidth, *bitmapEmHeight, foregroundOpacityCurve,
               outlineOpacityCurve, foregroundSheet, foregroundGridSize,
-              outlineSheet, outlineGridSize, foregroundOffset, outlineOffset);
+              outlineSheet, outlineGridSize,
+              EnsureGetAdvanceWidths(name, *bitmapEmWidth), foregroundOffset,
+              outlineOffset);
         }
+      } break;
+
+      case EdgeDetectedSingleVariableWidthSheet: {
+        if (!bitmapEmWidth.has_value()) {
+          throw std::runtime_error(
+              fmt::format("BitmapEmWidth field is required for "
+                          "EdgeDetectedSingleVariableWidthSheet font \"{:s}\"",
+                          name));
+        }
+        if (!bitmapEmHeight.has_value()) {
+          throw std::runtime_error(
+              fmt::format("BitmapEmHeight field is required for "
+                          "EdgeDetectedSingleVariableWidthSheet font \"{:s}\"",
+                          name));
+        }
+
+        const SpriteSheet sheet = EnsureGetMember<SpriteSheet>("Sheet");
+        Io::AssetPath binaryPath = EnsureGetMember<Io::AssetPath>("BinaryPath");
+
+        Fonts[name] = new EdgeDetectedSingleVariableWidthSheetFont(
+            *bitmapEmWidth, *bitmapEmHeight, foregroundOpacityCurve, sheet,
+            binaryPath);
       } break;
 
       case External:
@@ -87,47 +173,6 @@ void LoadFonts() {
                name);
         Window->Shutdown();
         break;
-    }
-
-    Font* const baseFont = Fonts[name];
-
-    if (!TryGetMember("AdvanceWidthsTable", baseFont->AdvanceWidths)) {
-      EnsurePushMember("AdvanceWidthsBinary");
-
-      auto widthTablePath = EnsureGetMember<Io::AssetPath>("Path");
-      const size_t bytesPerGlyph = EnsureGetMember<size_t>("BytesPerGlyph");
-      assert(bytesPerGlyph <= 4);
-
-      const float emWidth = EnsureGetMember<float>("EmWidth");
-      const float extraLetterSpacing =
-          TryGetMember<float>("ExtraLetterSpacing").value_or(0.0f);
-
-      uint8_t* widthBin;
-      int64_t widthSz;
-      if (widthTablePath.Slurp((void*&)widthBin, widthSz) != IoError_OK) {
-        ImpLog(LogLevel::Fatal, LogChannel::Profile,
-               "Failed to load width table file for font {:s}\n", name);
-        Window->Shutdown();
-      }
-      assert(widthSz % bytesPerGlyph == 0);
-
-      const size_t widthCount = widthSz / bytesPerGlyph;
-      baseFont->AdvanceWidths.reserve(widthCount);
-      const auto readEntry = [&](size_t idx) -> uint64_t {
-        uint64_t value = 0;
-        for (size_t byte = 0; byte < bytesPerGlyph; byte++) {
-          value = (value << 8) | widthBin[idx * bytesPerGlyph + byte];
-        }
-        return value;
-      };
-
-      for (size_t i = 0; i < widthCount; i++) {
-        baseFont->AdvanceWidths.emplace_back(
-            static_cast<float>(readEntry(i) + extraLetterSpacing) *
-            baseFont->BitmapEmWidth / emWidth);
-      }
-
-      Pop();
     }
 
     Pop();

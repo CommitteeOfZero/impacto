@@ -25,31 +25,31 @@ TipsEntryButton::TipsEntryButton(int id, TipsDataRecord* tipRecord,
   HighlightOffset = TipListEntryHighlightOffset;
   PrevUnreadState = TipEntryRecord->IsUnread;
   TextLayoutPlainString(fmt::format("{:3d}.", tipRecord->Id + 1), TipNumber,
-                        Profile::Dialogue::DialogueFont, TipListEntryFontSize,
+                        *Profile::Dialogue::DialogueFont, TipListEntryFontSize,
                         Profile::Dialogue::ColorTable[DefaultColorIndex], 1.0f,
                         glm::vec2(Bounds.X, Bounds.Y), TextAlignment::Left);
   Vm::Sc3VmThread dummy;
   dummy.IpOffset = tipRecord->StringAdr[0];
   dummy.ScriptBufferId = TipsSystem::GetTipsScriptBufferId();
   Text = TextLayoutPlainLine(
-      &dummy, 255, Profile::Dialogue::DialogueFont, TipListEntryFontSize,
+      &dummy, 255, *Profile::Dialogue::DialogueFont, TipListEntryFontSize,
       Profile::Dialogue::ColorTable[DefaultColorIndex], 1.0f,
       glm::vec2(Bounds.X + TipListEntryNameXOffset, Bounds.Y),
       TextAlignment::Left);
-  TextLayoutPlainString(TipListEntryNewText, NewText,
-                        Profile::Dialogue::DialogueFont, TipListEntryFontSize,
-                        Profile::Dialogue::ColorTable[DefaultColorIndex], 1.0f,
-                        glm::vec2(Bounds.X + TipListEntryNewOffset, Bounds.Y),
-                        TextAlignment::Left);
+  NewText = TextLayoutPlainString(
+      TipListEntryNewText, *Profile::Dialogue::DialogueFont,
+      TipListEntryFontSize, Profile::Dialogue::ColorTable[DefaultColorIndex],
+      1.0f, glm::vec2(Bounds.X + TipListEntryNewOffset, Bounds.Y),
+      TextAlignment::Left);
   auto lockedScrPos = Vm::ScriptGetTextTableStrAddress(TipListEntryLockedTable,
                                                        TipListEntryLockedIndex);
   dummy.IpOffset = lockedScrPos.IpOffset;
   dummy.ScriptBufferId = lockedScrPos.ScriptBufferId;
-  TextLayoutPlainLine(&dummy, 3, TipLockedText, Profile::Dialogue::DialogueFont,
-                      TipListEntryFontSize,
-                      Profile::Dialogue::ColorTable[UnreadColorIndex], 1.0f,
-                      glm::vec2(Bounds.X + TipListEntryNameXOffset, Bounds.Y),
-                      TextAlignment::Left);
+  TipLockedText = TextLayoutPlainLine(
+      &dummy, 255, *Profile::Dialogue::DialogueFont, TipListEntryFontSize,
+      Profile::Dialogue::ColorTable[UnreadColorIndex], 1.0f,
+      glm::vec2(Bounds.X + TipListEntryNameXOffset, Bounds.Y),
+      TextAlignment::Left);
 }
 
 void TipsEntryButton::Update(float dt) {

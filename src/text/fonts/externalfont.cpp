@@ -1,10 +1,10 @@
 #include "font.h"
 
-#include "io/physicalfilestream.h"
-#include "log.h"
-#include "renderer/renderer.h"
-#include "texture/texture.h"
-#include "profile/game.h"
+#include "../../io/physicalfilestream.h"
+#include "../../log.h"
+#include "../../renderer/renderer.h"
+#include "../../texture/texture.h"
+#include "../../profile/game.h"
 
 #include <ankerl/unordered_dense.h>
 
@@ -137,11 +137,6 @@ void ExternalFont::Reset() {
 
 bool ExternalFont::IsLoaded() const {
   return FontImpl->HarfBuzzFace != nullptr && FontImpl->FontFace != nullptr;
-}
-
-size_t ExternalFont::GetGlyphCount() const {
-  assert(IsLoaded());
-  return static_cast<size_t>(FontImpl->FontFace->num_glyphs);
 }
 
 std::vector<ExternalFontShapedGlyph> ExternalFont::ShapeLine(

@@ -13,8 +13,8 @@ struct BacklogPage : public TextPage {
 
   void Move(glm::vec2 relativePos) override;
 
-  void Render(float alpha, RendererOutlineMode outlineMode =
-                               RendererOutlineMode::Full) override;
+  void Render(float alpha, Fonts::RendererOutlineMode outlineMode =
+                               Fonts::RendererOutlineMode::Full) override;
 
  protected:
   RectF SetBounds() override;

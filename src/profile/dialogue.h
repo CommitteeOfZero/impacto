@@ -4,7 +4,7 @@
 
 #include "../util.h"
 #include "../spritesheet.h"
-#include "../font.h"
+#include "../text/fonts/font.h"
 #include "../hud/waiticondisplay.h"
 #include "../hud/autoicondisplay.h"
 #include "../hud/skipicondisplay.h"
@@ -31,6 +31,8 @@ struct enum_range<Impacto::Profile::Dialogue::TextModeInfoFieldFlags> {
 namespace Impacto {
 namespace Profile {
 namespace Dialogue {
+
+using namespace Impacto::Fonts;
 
 constexpr int NO_NAME = 0xffff;
 
@@ -91,7 +93,7 @@ inline SkipIconDisplay::SkipIconType SkipIconCurrentType =
 
 inline Sprite AutoSkipArrowsSprite;
 
-inline Font* DialogueFont;
+inline Fonts::Font* DialogueFont;
 inline float SetFontSizeRatio;
 inline float DefaultFontSize;
 

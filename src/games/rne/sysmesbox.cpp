@@ -287,7 +287,7 @@ void SysMesBox::AddMessage(Vm::BufferOffsetContext ctx) {
   dummy.IpOffset = ctx.IpOffset;
   dummy.ScriptBufferId = ctx.ScriptBufferId;
   Messages[MessageCount] =
-      TextLayoutPlainLine(&dummy, 255, Profile::Dialogue::DialogueFont,
+      TextLayoutPlainLine(&dummy, 255, *Profile::Dialogue::DialogueFont,
                           TextFontSize, Profile::Dialogue::ColorTable[10], 1.0f,
                           glm::vec2(TextX, 0.0f), TextAlignment::Left);
   float mesLen = 0.0f;
