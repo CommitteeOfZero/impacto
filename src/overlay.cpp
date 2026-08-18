@@ -276,8 +276,13 @@ static bool ShowDisplaySettings(std::string const& selectedGame) {
     ImGui::SameLine();
     ImGui::SetNextItemWidth(comboWidth);
     if (ImGui::BeginCombo("##ChooseResolution", currentResolution.c_str())) {
-      ImGui::Selectable("Native Game Res", !gameSettings.ResolutionWidth ||
-                                               !gameSettings.ResolutionHeight);
+      bool isNativeRes =
+          !gameSettings.ResolutionWidth || !gameSettings.ResolutionHeight;
+      if (ImGui::Selectable("Native Game Res", isNativeRes)) {
+        gameSettings.ResolutionWidth.reset();
+        gameSettings.ResolutionHeight.reset();
+      }
+      if (isNativeRes) ImGui::SetItemDefaultFocus();
       for (auto&& [display, value] : resolutionOptions) {
         if (value.x > maxRes.w || value.y > maxRes.h) continue;
         bool isSelected = gameSettings.ResolutionWidth == value.x &&
