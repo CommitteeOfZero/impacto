@@ -23,10 +23,104 @@ struct ImgData {
 };
 static ankerl::unordered_dense::map<std::string, ImgData> iconTextureMap;
 
+void SetupStyle() {
+  ImGuiStyle& style = ImGui::GetStyle();
+
+  style.WindowRounding = 0.0f;
+  style.ChildRounding = 0.0f;
+  style.PopupRounding = 0.0f;
+  style.FrameRounding = 0.0f;
+  style.ScrollbarRounding = 0.0f;
+  style.GrabRounding = 0.0f;
+  style.TabRounding = 0.0f;
+  style.DragDropTargetRounding = 0.0f;
+
+  style.WindowBorderSize = 0.0f;
+  style.ChildBorderSize = 1.0f;
+  style.PopupBorderSize = 1.0f;
+  style.FrameBorderSize = 1.0f;
+  style.TabBorderSize = 1.0f;
+  style.SeparatorTextBorderSize = 1.0f;
+
+  constexpr ImVec4 white{1.0f, 1.0f, 1.0f, 1.0f};
+  constexpr ImVec4 black{0.0f, 0.0f, 0.0f, 1.0f};
+  constexpr ImVec4 transparent{0.0f, 0.0f, 0.0f, 0.0f};
+  constexpr ImVec4 blackTranslucent{0.0f, 0.0f, 0.0f, 0.85f};
+  constexpr ImVec4 grayLow{0.16f, 0.16f, 0.16f, 1.0f};
+  constexpr ImVec4 grayMid{0.32f, 0.32f, 0.32f, 1.0f};
+  constexpr ImVec4 grayHigh{0.55f, 0.55f, 0.55f, 1.0f};
+  constexpr ImVec4 whiteFaint{1.0f, 1.0f, 1.0f, 0.35f};
+
+  ImVec4* colors = style.Colors;
+  colors[ImGuiCol_Text] = white;
+  colors[ImGuiCol_TextDisabled] = grayHigh;
+  colors[ImGuiCol_TextLink] = white;
+  colors[ImGuiCol_TextSelectedBg] = whiteFaint;
+  colors[ImGuiCol_WindowBg] = blackTranslucent;
+  colors[ImGuiCol_ChildBg] = transparent;
+  colors[ImGuiCol_PopupBg] = blackTranslucent;
+  colors[ImGuiCol_Border] = white;
+  colors[ImGuiCol_BorderShadow] = transparent;
+  colors[ImGuiCol_FrameBg] = black;
+  colors[ImGuiCol_FrameBgHovered] = grayLow;
+  colors[ImGuiCol_FrameBgActive] = grayMid;
+  colors[ImGuiCol_TitleBg] = black;
+  colors[ImGuiCol_TitleBgActive] = black;
+  colors[ImGuiCol_TitleBgCollapsed] = black;
+  colors[ImGuiCol_MenuBarBg] = black;
+  colors[ImGuiCol_ScrollbarBg] = black;
+  colors[ImGuiCol_ScrollbarGrab] = white;
+  colors[ImGuiCol_ScrollbarGrabHovered] = grayHigh;
+  colors[ImGuiCol_ScrollbarGrabActive] = grayMid;
+  colors[ImGuiCol_CheckMark] = white;
+  colors[ImGuiCol_CheckboxSelectedBg] = grayLow;
+  colors[ImGuiCol_SliderGrab] = white;
+  colors[ImGuiCol_SliderGrabActive] = grayHigh;
+  colors[ImGuiCol_Button] = black;
+  colors[ImGuiCol_ButtonHovered] = grayLow;
+  colors[ImGuiCol_ButtonActive] = grayMid;
+  colors[ImGuiCol_Header] = grayLow;
+  colors[ImGuiCol_HeaderHovered] = grayMid;
+  colors[ImGuiCol_HeaderActive] = grayHigh;
+  colors[ImGuiCol_Separator] = white;
+  colors[ImGuiCol_SeparatorHovered] = white;
+  colors[ImGuiCol_SeparatorActive] = white;
+  colors[ImGuiCol_ResizeGrip] = white;
+  colors[ImGuiCol_ResizeGripHovered] = grayHigh;
+  colors[ImGuiCol_ResizeGripActive] = grayMid;
+  colors[ImGuiCol_InputTextCursor] = white;
+  colors[ImGuiCol_Tab] = black;
+  colors[ImGuiCol_TabHovered] = grayMid;
+  colors[ImGuiCol_TabSelected] = grayLow;
+  colors[ImGuiCol_TabSelectedOverline] = white;
+  colors[ImGuiCol_TabDimmed] = black;
+  colors[ImGuiCol_TabDimmedSelected] = grayLow;
+  colors[ImGuiCol_TabDimmedSelectedOverline] = grayHigh;
+  colors[ImGuiCol_DockingPreview] = whiteFaint;
+  colors[ImGuiCol_DockingEmptyBg] = black;
+  colors[ImGuiCol_PlotLines] = white;
+  colors[ImGuiCol_PlotLinesHovered] = grayHigh;
+  colors[ImGuiCol_PlotHistogram] = white;
+  colors[ImGuiCol_PlotHistogramHovered] = grayHigh;
+  colors[ImGuiCol_TableHeaderBg] = black;
+  colors[ImGuiCol_TableBorderStrong] = white;
+  colors[ImGuiCol_TableBorderLight] = grayHigh;
+  colors[ImGuiCol_TableRowBg] = black;
+  colors[ImGuiCol_TableRowBgAlt] = grayLow;
+  colors[ImGuiCol_TreeLines] = grayHigh;
+  colors[ImGuiCol_DragDropTarget] = white;
+  colors[ImGuiCol_DragDropTargetBg] = grayLow;
+  colors[ImGuiCol_UnsavedMarker] = white;
+  colors[ImGuiCol_NavCursor] = white;
+  colors[ImGuiCol_NavWindowingHighlight] = whiteFaint;
+  colors[ImGuiCol_NavWindowingDimBg] = ImVec4{1.0f, 1.0f, 1.0f, 0.2f};
+  colors[ImGuiCol_ModalWindowDimBg] = ImVec4{1.0f, 1.0f, 1.0f, 0.2f};
+}
+
 void SetupFonts() {
   ImGuiIO& io = ImGui::GetIO();
   constexpr const char* fontPath =
-      "resources/common/font/NotoSansCJKjp-Regular.otf";
+      "resources/common/font/NotoSansCJKjp-Bold.otf";
   ImFont* font = io.Fonts->AddFontFromFileTTF(
       fontPath, 24.0f, nullptr, io.Fonts->GetGlyphRangesJapanese());
   if (font == nullptr) {
@@ -61,6 +155,7 @@ void SetupIcons() {
 void Init() {
   if (HasInit) return;
 
+  SetupStyle();
   SetupFonts();
   SetupIcons();
   HasInit = true;
