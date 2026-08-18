@@ -532,7 +532,12 @@ void ShowOverlay() {
         ImGui::EndTabItem();
       }
 
-      if (ImGui::BeginTabItem("Achievements")) {
+      ImGuiTabItemFlags achievementsTabFlags = 0;
+      if (OpenToAchievementsTab) {
+        achievementsTabFlags |= ImGuiTabItemFlags_SetSelected;
+        OpenToAchievementsTab = false;
+      }
+      if (ImGui::BeginTabItem("Achievements", nullptr, achievementsTabFlags)) {
         ImGui::TextWrapped("List achievements here.");
         ImGui::EndTabItem();
       }

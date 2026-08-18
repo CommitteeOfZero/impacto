@@ -3,15 +3,15 @@
 #include "../animation.h"
 #include "../data/achievementsystem.h"
 #include "../font.h"
+#include "../inputsystem.h"
 #include "../io/physicalfilestream.h"
 #include "../log.h"
+#include "../overlay.h"
 #include "../profile/game.h"
 #include "../profile/hud/achievementnotification.h"
-#include "../userconfig.h"
 #include "../renderer/renderer.h"
 #include "../texture/texture.h"
 
-#include <algorithm>
 #include <cassert>
 #include <optional>
 #include <queue>
@@ -33,13 +33,11 @@ static std::queue<int> NotificationQueue;
 
 using namespace Profile::AchievementNotification;
 
-static float GetEffectiveScale() {
-  auto const& config = UserConfig::CommonSettings;
-  const float widthScale =
-      Profile::Game::DesignWidth / static_cast<float>(config.ResolutionWidth);
-  const float heightScale =
-      Profile::Game::DesignHeight / static_cast<float>(config.ResolutionHeight);
-  return std::min(widthScale, heightScale);
+static RectF GetNotificationRect() {
+  const float width = BackgroundSprite.ScaledWidth() * Scale;
+  const float height = BackgroundSprite.ScaledHeight() * Scale;
+  return RectF(Profile::Game::DesignWidth - width,
+               Profile::Game::DesignHeight - height, width, height);
 }
 
 static bool LoadBackground(std::string const& path) {
@@ -113,17 +111,15 @@ static void BuildTextGlyphs(AchievementSystem::Achievement const* achievement,
     description = "Achievement System not implemented.";
   }
 
-  const float scale = GetEffectiveScale();
-  const float backgroundWidth = BackgroundSprite.ScaledWidth() * scale;
-  const float backgroundHeight = BackgroundSprite.ScaledHeight() * scale;
-  const float iconRight = (IconOffset.x + IconSize) * scale;
-  const float textLeft = iconRight + TextGap * scale;
-  const float textRight = backgroundWidth - TextRightPadding * scale;
-  const float centerY = backgroundHeight / 2.0f;
+  const RectF rect = GetNotificationRect();
+  const float iconRight = (IconOffset.x + IconSize) * Scale;
+  const float textLeft = iconRight + TextGap * Scale;
+  const float textRight = rect.Width - TextRightPadding * Scale;
+  const float centerY = rect.Height / 2.0f;
 
-  const float titleFontSize = TitleFontSize * scale;
-  const float descriptionFontSize = DescriptionFontSize * scale;
-  const float textLineGap = TextLineGap * scale;
+  const float titleFontSize = TitleFontSize * Scale;
+  const float descriptionFontSize = DescriptionFontSize * Scale;
+  const float textLineGap = TextLineGap * Scale;
   const float titleBaseline =
       centerY - (descriptionFontSize + textLineGap) / 2.0f;
   const float descriptionBaseline =
@@ -191,6 +187,12 @@ void Update(float dt) {
   if (!IsShowing && FadeAnimation.IsOut()) {
     StartNextNotification();
   }
+
+  if (!FadeAnimation.IsOut() && Input::MouseButtonWentDown[SDL_BUTTON_LEFT] &&
+      GetNotificationRect().ContainsPoint(Input::CurMousePos)) {
+    Overlay::OverlayShown = true;
+    Overlay::OpenToAchievementsTab = true;
+  }
 }
 
 void Render() {
@@ -200,15 +202,10 @@ void Render() {
   glm::vec4 tint(1.0f);
   tint.a = glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress);
 
-  const float scale = GetEffectiveScale();
-  const float backgroundWidth = BackgroundSprite.ScaledWidth() * scale;
-  const float backgroundHeight = BackgroundSprite.ScaledHeight() * scale;
-  const glm::vec2 pos = {Profile::Game::DesignWidth - backgroundWidth,
-                         Profile::Game::DesignHeight - backgroundHeight};
+  const RectF rect = GetNotificationRect();
+  const glm::vec2 pos = {rect.X, rect.Y};
 
-  Renderer->DrawSprite(BackgroundSprite,
-                       RectF(pos.x, pos.y, backgroundWidth, backgroundHeight),
-                       tint);
+  Renderer->DrawSprite(BackgroundSprite, rect, tint);
 
   const AchievementSystem::Achievement* achievement =
       CurrentAchievementId.has_value()
@@ -217,9 +214,9 @@ void Render() {
   if (achievement != nullptr && achievement->Icon().ScaledWidth() > 0.0f &&
       achievement->Icon().ScaledHeight() > 0.0f) {
     const Sprite& icon = achievement->Icon();
-    const RectF iconDest(pos.x + IconOffset.x * scale,
-                         pos.y + IconOffset.y * scale, IconSize * scale,
-                         IconSize * scale);
+    const RectF iconDest(pos.x + IconOffset.x * Scale,
+                         pos.y + IconOffset.y * Scale, IconSize * Scale,
+                         IconSize * Scale);
     Renderer->DrawSprite(icon, iconDest, tint);
   }
 

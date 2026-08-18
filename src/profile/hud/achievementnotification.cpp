@@ -10,6 +10,7 @@ void Configure() {
 
   BackgroundPath = EnsureGetMember<std::string>("BackgroundPath");
   FontPath = EnsureGetMember<std::string>("FontPath");
+  Scale = EnsureGetMember<float>("Scale");
   DisplayDuration = EnsureGetMember<float>("DisplayDuration");
   FadeDuration = EnsureGetMember<float>("FadeDuration");
   IconSize = EnsureGetMember<float>("IconSize");
