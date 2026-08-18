@@ -11,6 +11,7 @@
 #include "profile/gamedefinitions.h"
 #include "profile/basepaths.h"
 #include "userconfig.h"
+#include "version.h"
 
 namespace Impacto::Overlay {
 
@@ -410,6 +411,13 @@ void ShowOverlay() {
                       ImVec2(0, -footerHeight * (showStart ? 2 : 1)), 0);
     if (ImGui::BeginTabBar("MainTabs")) {
       if (ImGui::BeginTabItem("About")) {
+        ImGui::Text("Committee of Zero");
+        ImGui::SameLine();
+        ImGui::TextLinkOpenURL("Technical Support",
+                               "https://discord.com/invite/rq4GGCh");
+        ImGui::Text("Impacto Version %d.%d.%d", VERSION_MAJOR, VERSION_MINOR,
+                    VERSION_PATCH);
+        ImGui::Text("OS: %s", SDL_GetPlatform());
         ImGui::Text("%.3f ms/frame (%.1f FPS)",
                     1000.0f / ImGui::GetIO().Framerate,
                     ImGui::GetIO().Framerate);

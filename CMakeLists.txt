@@ -12,7 +12,12 @@ if(APPLE)
     set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0")
 endif()
 
-project("impacto")
+file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/VERSION" APP_VERSION)
+string(STRIP "${APP_VERSION}" APP_VERSION)
+string(REGEX REPLACE "\\.$" "" APP_VERSION "${APP_VERSION}")
+
+project("impacto" VERSION ${APP_VERSION})
+SET(APP_VERSION_SHORT)
 
 include(FetchContent)
 find_package(PkgConfig)
@@ -1244,10 +1249,7 @@ if (NOT DEFINED IMPACTO_DISABLE_DX9)
     )
 endif ()
 
-file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/VERSION" APP_VERSION)
-string(STRIP "${APP_VERSION}" APP_VERSION)
-string(REGEX REPLACE "\\.$" "" APP_VERSION "${APP_VERSION}")
-string(REGEX REPLACE "\\.[0-9]+$" "" APP_VERSION_SHORT "${APP_VERSION}")
+configure_file(src/version.h.in ${PROJECT_BINARY_DIR}/include/version.h)
 
 if(ANDROID)
     add_library(impacto SHARED ${Impacto_Src} ${Impacto_Header})
@@ -1264,8 +1266,8 @@ if (APPLE)
         PROPERTIES
         OUTPUT_NAME "Impacto"
         MACOSX_BUNDLE_BUNDLE_NAME "Impacto"
-        MACOSX_BUNDLE_BUNDLE_VERSION "${APP_VERSION}"
-        MACOSX_BUNDLE_SHORT_VERSION_STRING "${APP_VERSION_SHORT}"
+        MACOSX_BUNDLE_BUNDLE_VERSION "${PROJECT_VERSION}"
+        MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}"
         MACOSX_BUNDLE_GUI_IDENTIFIER "com.committeeofzero.impacto"
         INSTALL_RPATH "@executable_path/../Frameworks"
         BUILD_WITH_INSTALL_RPATH TRUE
