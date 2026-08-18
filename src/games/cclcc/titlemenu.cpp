@@ -14,7 +14,6 @@
 #include "../../profile/game.h"
 #include "../../profile/patch.h"
 #include "../../profile/vm.h"
-#include "../../profile/userconfig.h"
 #include "../../vm/interface/input.h"
 #include "../../vm/vm.h"
 #include "../../audio/audiosystem.h"
