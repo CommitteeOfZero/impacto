@@ -12,6 +12,7 @@
 #include "profile/basepaths.h"
 #include "userconfig.h"
 #include "version.h"
+#include "io/physicalfilestream.h"
 
 namespace Impacto::Overlay {
 
@@ -19,8 +20,6 @@ static bool HasInit = false;
 
 struct ImgData {
   uint32_t Texture;
-  uint32_t Width;
-  uint32_t Height;
 };
 static ankerl::unordered_dense::map<std::string, ImgData> iconTextureMap;
 
@@ -39,7 +38,7 @@ void SetupFonts() {
 void SetupIcons() {
   for (auto&& [gameKey, gameDef] : Profile::GameDefinitions) {
     using std::filesystem::path;
-    auto iconPath = (path("resources") / gameKey / "icons" / "icon.png");
+    auto iconPath = (path("resources") / gameKey / "icondata" / "icon.png");
     if (Io::PathExists(iconPath.string()) == IoError_NotFound) continue;
 
     Io::Stream* stream;
@@ -53,8 +52,6 @@ void SetupIcons() {
     t.Load(stream);
     ImgData img{
         .Texture = t.Submit(),
-        .Width = t.Width,
-        .Height = t.Height,
     };
     iconTextureMap.try_emplace(gameKey, img);
     delete stream;
@@ -71,26 +68,34 @@ void Init() {
 
 static void ShowGamePicker(std::string& selectedGame) {
   constexpr float comboWidth = 200.0f;
+  constexpr float iconSize = 36.0f;
   constexpr auto label = "Choose Game";
   if (ImGui::BeginTable("##ChooseGameTable", 3)) {
     ImGui::TableSetupColumn("##left", ImGuiTableColumnFlags_WidthStretch);
     ImGui::TableSetupColumn("##mid", ImGuiTableColumnFlags_WidthFixed,
                             ImGui::CalcTextSize(label).x +
-                                ImGui::GetStyle().ItemSpacing.x + comboWidth);
+                                ImGui::GetStyle().ItemSpacing.x + comboWidth +
+                                iconSize);
     ImGui::TableSetupColumn("##right", ImGuiTableColumnFlags_WidthStretch);
 
     ImGui::TableNextRow();
     ImGui::TableSetColumnIndex(1);
 
-    ImGui::AlignTextToFramePadding();
-    ImGui::Text(label);
-    ImGui::SameLine();
-    ImGui::SetNextItemWidth(comboWidth);
-
     bool isSelected = false;
     bool isOpening = ImGui::IsWindowAppearing();
 
-    if (ImGui::BeginCombo("##ChooseGame", selectedGame.c_str())) {
+    auto showIcon = [](std::string const& game) {
+      if (auto iconTxtItr = iconTextureMap.find(game);
+          iconTxtItr != iconTextureMap.end()) {
+        auto const& img = iconTxtItr->second;
+        ImGui::Image((ImTextureID)(intptr_t)img.Texture,
+                     ImVec2{iconSize, iconSize});
+        ImGui::SameLine();
+      }
+    };
+    showIcon(selectedGame);
+    ImGui::SetNextItemWidth(comboWidth);
+    if (ImGui::BeginCombo("Choose Game", selectedGame.c_str())) {
       for (auto&& [gameKey, gameDef] : Profile::GameDefinitions) {
         using std::filesystem::path;
         if (gameDef.Hidden) continue;
@@ -103,14 +108,9 @@ static void ShowGamePicker(std::string& selectedGame) {
         }
         isSelected = selectedGame == gameKey;
 
-        if (auto iconTxtItr = iconTextureMap.find(gameKey);
-            iconTxtItr != iconTextureMap.end()) {
-          ImGui::Image(
-              (ImTextureID)(intptr_t)iconTxtItr->second.Texture,
-              ImVec2{iconTxtItr->second.Width, iconTxtItr->second.Height});
-          ImGui::SameLine();
-        }
-        if (ImGui::Selectable(gameKey.c_str(), isSelected))
+        showIcon(gameKey);
+        if (ImGui::Selectable(gameKey.c_str(), isSelected, 0,
+                              ImVec2{0, iconSize}))
           selectedGame = gameKey;
         if (isSelected) ImGui::SetItemDefaultFocus();
       }
@@ -414,7 +414,7 @@ void ShowOverlay() {
         ImGui::Text("Committee of Zero");
         ImGui::SameLine();
         ImGui::TextLinkOpenURL("Technical Support",
-                               "https://discord.com/invite/rq4GGCh");
+                               "https://discord.gg/hRtvaYawg6");
         ImGui::Text("Impacto Version %d.%d.%d", VERSION_MAJOR, VERSION_MINOR,
                     VERSION_PATCH);
         ImGui::Text("OS: %s", SDL_GetPlatform());
