@@ -41,7 +41,7 @@ MusicTrackButton::MusicTrackButton(int id, int position, glm::vec2 pos)
       MusicStringTableId, MusicStringLockedIndex);
   Vm::Sc3VmThread dummy;
   dummy.SetIp(lockedSc3Text);
-  TextLayoutPlainLine(&dummy, 6, LockedText, Profile::Dialogue::DialogueFont,
+  TextLayoutPlainLine(&dummy, LockedText, *Profile::Dialogue::DialogueFont,
                       MusicTrackNameSize,
                       {MusicButtonTextColor, MusicButtonTextOutlineColor}, 1.0f,
                       glm::vec2(Bounds.X + MusicTrackNameOffsetX,
@@ -55,7 +55,7 @@ MusicTrackButton::MusicTrackButton(int id, int position, glm::vec2 pos)
       {MusicButtonTextColor, MusicButtonTextOutlineColor});
   assert(0 <= position && position <= 99);
   TextLayoutPlainString(fmt::format("{:02}", position), NumberText,
-                        Profile::Dialogue::DialogueFont, MusicTrackNameSize,
+                        *Profile::Dialogue::DialogueFont, MusicTrackNameSize,
                         {0xfffffff, 0}, 1.0f,
                         glm::vec2(Bounds.X + MusicTrackNumberOffsetX,
                                   Bounds.Y + MusicButtonTextYOffset),

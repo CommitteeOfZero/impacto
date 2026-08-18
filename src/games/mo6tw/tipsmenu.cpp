@@ -248,7 +248,7 @@ void TipsMenu::SwitchToTipId(int id) {
   dummy.IpOffset = tipRecord->StringAdr[2];
   dummy.ScriptBufferId = tipsScriptBufferId;
   float categoryWidth = TextGetPlainLineWidth(
-      &dummy, Profile::Dialogue::DialogueFont, CategoryFontSize);
+      &dummy, *Profile::Dialogue::DialogueFont, CategoryFontSize);
   Category->Bounds.X = CategoryEndX - categoryWidth;
   Category->SetText({.ScriptBufferId = tipsScriptBufferId,
                      .IpOffset = tipRecord->StringAdr[2]},

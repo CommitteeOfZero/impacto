@@ -77,7 +77,7 @@ void Button::SetText(Vm::BufferOffsetContext scrCtx, float fontSize,
   dummy.IpOffset = scrCtx.IpOffset;
   dummy.ScriptBufferId = scrCtx.ScriptBufferId;
   Text = TextLayoutPlainLine(
-      &dummy, 255, Profile::Dialogue::DialogueFont, fontSize, colorPair, 1.0f,
+      &dummy, 255, *Profile::Dialogue::DialogueFont, fontSize, colorPair, 1.0f,
       glm::vec2(Bounds.X, Bounds.Y), TextAlignment::Left);
   OutlineMode = outlineMode;
   TextWidth = 0.0f;
@@ -98,7 +98,7 @@ void Button::SetText(Vm::Sc3Stream& stream, float fontSize,
                      DialogueColorPair colorPair) {
   HasText = true;
   Text = TextLayoutPlainLine(
-      stream, 255, Profile::Dialogue::DialogueFont, fontSize, colorPair, 1.0f,
+      stream, 255, *Profile::Dialogue::DialogueFont, fontSize, colorPair, 1.0f,
       glm::vec2(Bounds.X, Bounds.Y), TextAlignment::Left);
   OutlineMode = outlineMode;
   for (const ProcessedTextGlyph& glyph : Text) {

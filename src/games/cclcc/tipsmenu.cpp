@@ -327,7 +327,7 @@ void TipsMenu::SwitchToTipId(int id) {
       (float)PronunciationFontSize, RendererOutlineMode::None, 0);
 
   {
-    uint16_t sc3StringBuffer[5];
+    uint16_t sc3StringBuffer[4];
     TextGetSc3String(fmt::format("{:03d}", id), sc3StringBuffer);
     Vm::Sc3Stream stream(sc3StringBuffer);
     Number->Bounds.SetPos(NumberPos);

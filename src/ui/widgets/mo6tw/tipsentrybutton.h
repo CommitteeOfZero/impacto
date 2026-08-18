@@ -18,9 +18,9 @@ class TipsEntryButton : public Widgets::Button {
   Impacto::TipsSystem::TipsDataRecord* TipEntryRecord;
 
  private:
-  std::array<ProcessedTextGlyph, 3> TipNumber;
-  std::array<ProcessedTextGlyph, 3> TipLockedText;
-  std::array<ProcessedTextGlyph, 3> NewText;
+  std::array<ProcessedTextGlyph, 4> TipNumber;
+  std::vector<ProcessedTextGlyph> TipLockedText;
+  std::vector<ProcessedTextGlyph> NewText;
 
   bool PrevUnreadState;
 };
