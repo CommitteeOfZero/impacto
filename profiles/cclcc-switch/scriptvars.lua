@@ -17,7 +17,9 @@ local sv = root.ScriptVars;
 
 -- W 2100 same
 -- W 2068 same
--- W 4300 same 
+-- W 4300 same
+
+-- BG stucts and offsets are the same
 
 sv.SW_LINEID = 2199;
 sv.SW_SCRIPTID= 2200;
@@ -87,10 +89,6 @@ sv.SW_BGMVOL = 4323;
 sv.SW_SEVOL = 4324; -- inferred
 sv.SW_SELNO = 4325; -- inferred
 
-
-sv.SW_BGLINK = 4430;
-sv.SW_BGLINK2 = 4431;
--- other BG SW vars seems to be exactly the same
 sv.SW_SCRIPTNO0=4336;
 sv.SW_SCRIPTNO1=4337;
 sv.SW_SCRIPTNO2=4338;
@@ -107,6 +105,8 @@ sv.SW_SCRIPTNO12=4348;
 sv.SW_SCRIPTNO13=4349;
 sv.SW_SCRIPTNO14=4350;
 sv.SW_SCRIPTNO15=4351;
+sv.SW_MESWIN0TYPE = 4355;
+sv.SW_MESMODE0  = 4356;
 sv.SW_MASK1COLOR = 4390;
 sv.SW_MASK1ALPHA = 4391;
 sv.SW_MASK1PRI = 4392;
@@ -114,6 +114,9 @@ sv.SW_MASK1POSX = 4393;
 sv.SW_MASK1POSY = 4394;
 sv.SW_MASK1SIZEX = 4395;
 sv.SW_MASK1SIZEY = 4396;
+
+sv.SW_BGLINK = 4430;
+sv.SW_BGLINK2 = 4431;
 
 sv.SW_CAP1POSX=4692;
 sv.SW_CAP1POSY=4693;
