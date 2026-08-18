@@ -1,7 +1,8 @@
 #include "overlay.h"
 
 #include <imgui.h>
-#include <charconv>
+#include <algorithm>
+#include <vector>
 #include <ankerl/unordered_dense.h>
 
 #include "game.h"
@@ -22,6 +23,11 @@ struct ImgData {
   uint32_t Texture;
 };
 static ankerl::unordered_dense::map<std::string, ImgData> iconTextureMap;
+
+static std::string GetGameDisplayName(std::string const& gameKey) {
+  auto const& name = Profile::GameDefinitions.at(gameKey).Name;
+  return name.empty() ? gameKey : name;
+}
 
 void SetupStyle() {
   ImGuiStyle& style = ImGui::GetStyle();
@@ -162,9 +168,23 @@ void Init() {
 }
 
 static void ShowGamePicker(std::string& selectedGame) {
-  constexpr float comboWidth = 200.0f;
+  constexpr float comboWidth = 340.0f;
   constexpr float iconSize = 36.0f;
   constexpr auto label = "Choose Game";
+
+  std::vector<std::string> gameKeys;
+  for (auto&& [key, def] : Profile::GameDefinitions) {
+    using std::filesystem::path;
+    if (def.Hidden) continue;
+    if (Io::PathExists(
+            (path(Profile::BasePaths::RootGamedataDir) / key).string()) ==
+        IoError_NotFound)
+      continue;
+    gameKeys.push_back(key);
+  }
+  std::ranges::sort(gameKeys, std::ranges::less{}, [](auto const& key) {
+    return Profile::GameDefinitions.at(key).LauncherOrderId;
+  });
 
   if (ImGui::BeginTable("##ChooseGameTable", 3)) {
     ImGui::TableSetupColumn("##left", ImGuiTableColumnFlags_WidthStretch);
@@ -188,18 +208,15 @@ static void ShowGamePicker(std::string& selectedGame) {
     };
     showIcon(selectedGame);
     ImGui::SetNextItemWidth(comboWidth);
-    if (ImGui::BeginCombo("Choose Game", selectedGame.c_str())) {
-      for (auto&& [gameKey, gameDef] : Profile::GameDefinitions) {
-        using std::filesystem::path;
-        if (gameDef.Hidden) continue;
-        if (Io::PathExists((path(Profile::BasePaths::RootGamedataDir) / gameKey)
-                               .string()) == IoError_NotFound)
-          continue;
-        const bool isSelected = selectedGame == gameKey;
-        showIcon(gameKey);
-        if (ImGui::Selectable(gameKey.c_str(), isSelected, 0,
+    std::string previewName =
+        selectedGame.empty() ? std::string() : GetGameDisplayName(selectedGame);
+    if (ImGui::BeginCombo("Choose Game", previewName.c_str())) {
+      for (auto&& key : gameKeys) {
+        const bool isSelected = selectedGame == key;
+        showIcon(key);
+        if (ImGui::Selectable(GetGameDisplayName(key).c_str(), isSelected, 0,
                               ImVec2{0, iconSize})) {
-          selectedGame = gameKey;
+          selectedGame = key;
         }
         if (isSelected) ImGui::SetItemDefaultFocus();
       }

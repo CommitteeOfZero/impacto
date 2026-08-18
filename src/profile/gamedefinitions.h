@@ -8,10 +8,12 @@ namespace Impacto::Profile {
 
 struct GameDefinition {
   std::string GameProfile;
+  std::string Name;
   ankerl::unordered_dense::map<std::string, std::string, string_hash,
                                std::equal_to<>>
       Patch;
   bool Hidden = false;
+  int LauncherOrderId = 99;
 
   static void Configure();
 };

@@ -9,10 +9,12 @@ struct TryGetImpl<GameDefinition> {
     if (!lua_istable(LuaState, -1)) return std::nullopt;
 
     auto gameProfileOpt = TryGetMember<std::string>("GameProfile");
+    auto name = TryGetMember<std::string>("Name").value_or("");
     auto patch =
         TryGetMember<decltype(GameDefinition::Patch)>("Patch").value_or(
             decltype(GameDefinition::Patch){});
     auto hidden = TryGetMember<bool>("Hidden").value_or(false);
+    auto launcherOrderId = TryGetMember<int>("LauncherOrderId").value_or(0);
 
     if (!gameProfileOpt || gameProfileOpt->empty()) {
       ImpLog(LogLevel::Fatal, LogChannel::Profile,
@@ -21,8 +23,10 @@ struct TryGetImpl<GameDefinition> {
     }
     return GameDefinition{
         .GameProfile = std::move(*gameProfileOpt),
+        .Name = std::move(name),
         .Patch = std::move(patch),
         .Hidden = hidden,
+        .LauncherOrderId = launcherOrderId,
     };
   }
 };
