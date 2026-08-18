@@ -349,7 +349,7 @@ static void ShowEnhancementsPage(std::string const& selectedGame) {
 
       bool karaOn =
           magic_enum::enum_flags_test(enhancements.SubtitleConfig, Karaoke);
-      if (ImGui::Checkbox("Karaoke", &tlOn)) {
+      if (ImGui::Checkbox("Karaoke", &karaOn)) {
         if (karaOn) enhancements.SubtitleConfig |= Karaoke;
         if (!karaOn) enhancements.SubtitleConfig &= ~Karaoke;
       }
@@ -412,6 +412,21 @@ void ShowOverlay() {
                          ImGui::GetFrameHeightWithSpacing();
     ImGui::BeginChild("TabRegion", ImVec2(0, -footerHeight), 0);
     if (ImGui::BeginTabBar("MainTabs")) {
+      if (ImGui::BeginTabItem("Settings")) {
+        ShowSettingsPage(selectedGame);
+        ImGui::EndTabItem();
+      }
+
+      if (ImGui::BeginTabItem("Enhancements")) {
+        ShowEnhancementsPage(selectedGame);
+        ImGui::EndTabItem();
+      }
+
+      if (ImGui::BeginTabItem("Achievements")) {
+        ImGui::TextWrapped("List achievements here.");
+        ImGui::EndTabItem();
+      }
+
       if (ImGui::BeginTabItem("About")) {
         ImGui::Text("Committee of Zero");
         ImGui::SameLine();
@@ -423,19 +438,6 @@ void ShowOverlay() {
         ImGui::Text("%.3f ms/frame (%.1f FPS)",
                     1000.0f / ImGui::GetIO().Framerate,
                     ImGui::GetIO().Framerate);
-        ImGui::EndTabItem();
-      }
-      if (ImGui::BeginTabItem("Settings")) {
-        ShowSettingsPage(selectedGame);
-        ImGui::EndTabItem();
-      }
-
-      if (ImGui::BeginTabItem("Enhancements")) {
-        ShowEnhancementsPage(selectedGame);
-        ImGui::EndTabItem();
-      }
-      if (ImGui::BeginTabItem("Achievements")) {
-        ImGui::TextWrapped("List achievements here.");
         ImGui::EndTabItem();
       }
       ImGui::EndTabBar();
