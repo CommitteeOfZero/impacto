@@ -49,6 +49,8 @@ template <>
 void TextParser::ParseStringToken<STT_CharacterNameStart>(
     const StringToken& token) {
   NameCode.reserve(64);
+  NameCode.clear();
+  NameCode.emplace_back(STT_EndOfString);
   ParsingState = TextParsingState::Name;
 }
 
@@ -170,7 +172,8 @@ template <>
 void TextParser::ParseStringToken<STT_Character>(const StringToken& token) {
   switch (ParsingState) {
     case TextParsingState::Name: {
-      NameCode.emplace_back(SDL_Swap16(token.Val_Uint16 | 0x8000));
+      NameCode.back() = SDL_Swap16(token.Val_Uint16 | 0x8000);
+      NameCode.emplace_back(STT_EndOfString);
       return;
     }
 
@@ -279,14 +282,13 @@ void TextParser::FinishLine(const size_t nextLineStart, const bool force) {
       // center every ruby character over the base character below it
       for (size_t j = 0; j < chunkSize; j++) {
         pos.x = base[j].DestRect.Center().x;
-        TextLayoutPlainLine(rubyText, 1, std::span(chunk.Text.begin() + j, 1),
-                            DialogueFont, rubyFontSize, CurrentColors, 1.0f,
+        TextLayoutPlainLine(rubyText, std::span(chunk.Text.begin() + j, 1),
+                            *DialogueFont, rubyFontSize, CurrentColors, 1.0f,
                             pos, TextAlignment::Center);
       }
     } else {
-      TextLayoutPlainLine(rubyText, static_cast<int>(chunkSize), chunk.Text,
-                          DialogueFont, rubyFontSize, CurrentColors, 1.0f, pos,
-                          TextAlignment::Left);
+      TextLayoutPlainLine(rubyText, chunk.Text, *DialogueFont, rubyFontSize,
+                          CurrentColors, 1.0f, pos, TextAlignment::Left);
       const float baseWidth =
           base.back().DestRect.Right() - base.front().DestRect.X;
       const float nonSpacedWidth =
@@ -377,13 +379,13 @@ void TextParser::FinishName() {
   using enum TextModeInfo::NameAlignmentType;
 
   if (ModeInfo.NameDispMode == Invisible || ModeInfo.MaxNameWidth == 0.0f ||
-      NameCode.empty()) {
+      NameCode.size() <= 1) {
     return;
   }
 
   Vm::Sc3Stream nameStream(NameCode.data());
-  const float nameWidth = TextGetPlainLineWidth(
-      nameStream, DialogueFont, ModeInfo.NameGlyphSize.y, NameCode.size());
+  const float nameWidth = TextGetPlainLineWidth(nameStream, *DialogueFont,
+                                                ModeInfo.NameGlyphSize.y);
 
   glm::vec2 pos{};
   switch (ModeInfo.NameDispMode) {
@@ -455,10 +457,10 @@ void TextParser::FinishName() {
   }
 
   nameStream = Vm::Sc3Stream(NameCode.data());
-  Name = TextLayoutPlainLine(nameStream, static_cast<int>(NameCode.size()),
-                             DialogueFont, ModeInfo.NameGlyphSize.y,
-                             ColorTable[0], 1.0f, pos, TextAlignment::Left);
-  assert(NameCode.size() == Name.size());
+  Name = TextLayoutPlainLine(nameStream, NameCode.size() - 1, *DialogueFont,
+                             ModeInfo.NameGlyphSize.y, ColorTable[0], 1.0f, pos,
+                             TextAlignment::Left);
+  assert(NameCode.size() - 1 == Name.size());
 
   if (ModeInfo.NameDispMode == InText) {
     CurrentLineTop += ModeInfo.NameGlyphSize.y + ModeInfo.LineSpacing;
@@ -523,7 +525,10 @@ void DialogueTextParser::ParseString(Vm::Sc3VmThread* string) {
 
   FinishLine(Glyphs.size());
 
-  NameId = NameCode.empty() ? NO_NAME : GetNameId(NameCode).value_or(NO_NAME);
+  NameId = NameCode.size() <= 1
+               ? NO_NAME
+               : GetNameId(std::span(NameCode.begin(), NameCode.end() - 1))
+                     .value_or(NO_NAME);
 
   for (size_t glyphIdx = glyphsStart; glyphIdx < Glyphs.size(); glyphIdx++) {
     Glyphs[glyphIdx].Opacity = 0.0f;

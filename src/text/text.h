@@ -91,51 +91,48 @@ struct StringToken {
   static inline ankerl::unordered_dense::map<uint32_t, uint8_t> FlagsMap;
 };
 
-int TextGetStringLength(Vm::Sc3Stream& stream);
-int TextGetStringLength(Vm::Sc3VmThread* ctx);
-[[maybe_unused]] int TextGetMainCharacterCount(Vm::Sc3VmThread* ctx);
-int TextLayoutPlainLine(Vm::Sc3Stream& stream, int stringLength,
-                        std::span<ProcessedTextGlyph> outGlyphs, Font* font,
-                        float fontSize, DialogueColorPair colors, float opacity,
-                        glm::vec2 pos, TextAlignment alignment,
-                        float blockWidth = 0.0f);
-int TextLayoutPlainLine(Vm::Sc3VmThread* ctx, int stringLength,
-                        std::span<ProcessedTextGlyph> outGlyphs, Font* font,
-                        float fontSize, DialogueColorPair colors, float opacity,
-                        glm::vec2 pos, TextAlignment alignment,
-                        float blockWidth = 0.0f);
-std::vector<ProcessedTextGlyph> TextLayoutPlainLine(
-    Vm::Sc3Stream& stream, int maxLength, Font* font, float fontSize,
-    DialogueColorPair colors, float opacity, glm::vec2 pos,
-    TextAlignment alignment, float blockWidth = 0.0f);
-std::vector<ProcessedTextGlyph> TextLayoutPlainLine(
-    Vm::Sc3VmThread* thd, int maxLength, Font* font, float fontSize,
-    DialogueColorPair colors, float opacity, glm::vec2 pos,
-    TextAlignment alignment, float blockWidth = 0.0f);
-int TextLayoutAlignment(Impacto::TextAlignment& alignment, float blockWidth,
-                        float currentX, glm::vec2& pos, int characterCount,
-                        std::span<Impacto::ProcessedTextGlyph> outGlyphs);
-float TextGetPlainLineWidth(Vm::Sc3VmThread* ctx, Font* font, float fontSize);
-float TextGetPlainLineWidth(
-    Vm::Sc3Stream& stream, Font* font, float fontSize,
-    size_t maxLength = std::numeric_limits<size_t>::max());
-int TextLayoutPlainString(std::string_view str,
-                          std::span<ProcessedTextGlyph> outGlyphs, Font* font,
-                          float fontSize, DialogueColorPair colors,
-                          float opacity, glm::vec2 pos, TextAlignment alignment,
-                          float blockWidth = 0.0f);
-std::vector<ProcessedTextGlyph> TextLayoutPlainString(
-    std::string_view str, Font* font, float fontSize, DialogueColorPair colors,
-    float opacity, glm::vec2 pos, TextAlignment alignment,
-    float blockWidth = 0.0f);
+template <typename T>
+concept Sc3Type =
+    (std::is_lvalue_reference_v<T> &&
+     std::is_base_of_v<Vm::Sc3Stream, std::remove_reference_t<T>>) ||
+    std::is_same_v<std::decay_t<T>, Vm::Sc3VmThread*>;
 
-void TextGetSc3String(std::string_view str, std::span<uint16_t> out);
+size_t TextLayoutPlainLine(Sc3Type auto&& stream,
+                           std::span<ProcessedTextGlyph> outGlyphs,
+                           const Font& font, float fontSize,
+                           DialogueColorPair colors, float opacity,
+                           glm::vec2 pos, TextAlignment alignment,
+                           float blockWidth = 0.0f);
+
+[[nodiscard]] std::vector<ProcessedTextGlyph> TextLayoutPlainLine(
+    Sc3Type auto&& stream, std::optional<size_t> maxLength, const Font& font,
+    float fontSize, DialogueColorPair colors, float opacity, glm::vec2 pos,
+    TextAlignment alignment, float blockWidth = 0.0f);
+
+void TextLayoutAlignment(TextAlignment alignment, const float posX,
+                         std::span<Impacto::ProcessedTextGlyph> outGlyphs,
+                         float blockWidth = 0.0f);
+
+[[nodiscard]] float TextGetPlainLineWidth(Sc3Type auto&& stream,
+                                          const Font& font, float fontSize);
+
+size_t TextLayoutPlainString(const std::string_view str,
+                             std::span<ProcessedTextGlyph> outGlyphs,
+                             const Font& font, float fontSize,
+                             DialogueColorPair colors, float opacity,
+                             glm::vec2 pos, TextAlignment alignment,
+                             float blockWidth = 0.0f);
+
+[[nodiscard]] std::vector<ProcessedTextGlyph> TextLayoutPlainString(
+    const std::string_view str, const Font& font, float fontSize,
+    DialogueColorPair colors, float opacity, glm::vec2 pos,
+    TextAlignment alignment, float blockWidth = 0.0f);
+
+void TextGetSc3String(const std::string_view str, std::span<uint16_t> out);
 
 inline ankerl::unordered_dense::map<uint32_t, uint32_t> NamePlateData;
 void InitNamePlateData(Vm::Sc3Stream& stream);
 std::optional<uint32_t> GetNameId(std::span<const uint16_t> name);
-void FitGlyphsForPlainLine(std::span<ProcessedTextGlyph> glyphs,
-                           float containerRight);
 
 }  // namespace Impacto
 

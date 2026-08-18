@@ -86,7 +86,7 @@ void Toggle::Render() {
 
 void Toggle::SetText(Vm::Sc3Stream& stream, float fontSize,
                      RendererOutlineMode outlineMode) {
-  Label = TextLayoutPlainLine(stream, 255, Profile::Dialogue::DialogueFont,
+  Label = TextLayoutPlainLine(stream, 255, *Profile::Dialogue::DialogueFont,
                               fontSize, Profile::Dialogue::ColorTable[10], 1.0f,
                               glm::vec2(Bounds.X, Bounds.Y) + LabelOffset,
                               TextAlignment::Left);

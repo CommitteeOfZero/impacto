@@ -30,8 +30,8 @@ AlbumThumbnailButton::AlbumThumbnailButton(
   TextGetSc3String(variationsCount, sc3StringBuffer);
   Vm::Sc3Stream stream(sc3StringBuffer);
 
-  InfoTextWidth = TextGetPlainLineWidth(stream, Profile::Dialogue::DialogueFont,
-                                        ThumbnailButtonTextFontSize);
+  InfoTextWidth = TextGetPlainLineWidth(
+      stream, *Profile::Dialogue::DialogueFont, ThumbnailButtonTextFontSize);
   stream = Vm::Sc3Stream(sc3StringBuffer);
   InfoText = new Label(
       stream,

@@ -45,12 +45,12 @@ void SaveEntryButton::AddSceneTitleText(Vm::BufferOffsetContext strAdr,
   dummy.SetIp(strAdr);
   if (EntryActive) {
     SceneTitle = TextLayoutPlainLine(
-        &dummy, 255, Profile::Dialogue::DialogueFont, fontSize,
+        &dummy, 255, *Profile::Dialogue::DialogueFont, fontSize,
         Profile::Dialogue::ColorTable[0], 1.0f,
         glm::vec2(Bounds.X + 228.0f, Bounds.Y + 10.0f), TextAlignment::Left);
   } else {
     SceneTitle = TextLayoutPlainLine(
-        &dummy, 255, Profile::Dialogue::DialogueFont, fontSize,
+        &dummy, 255, *Profile::Dialogue::DialogueFont, fontSize,
         Profile::Dialogue::ColorTable[0], 1.0f,
         glm::vec2(Bounds.X + 228.0f, Bounds.Y + 50.0f), TextAlignment::Left);
   }
@@ -61,7 +61,7 @@ void SaveEntryButton::AddPlayTimeHintText(Vm::BufferOffsetContext strAdr,
   Vm::Sc3VmThread dummy;
   dummy.SetIp(strAdr);
   PlayTimeHint = TextLayoutPlainLine(
-      &dummy, 255, Profile::Dialogue::DialogueFont, fontSize,
+      &dummy, 255, *Profile::Dialogue::DialogueFont, fontSize,
       Profile::Dialogue::ColorTable[0], 1.0f,
       glm::vec2(Bounds.X + 238.0f, Bounds.Y + 45.0f), TextAlignment::Left);
 }
@@ -71,7 +71,7 @@ void SaveEntryButton::AddPlayTimeText(Vm::BufferOffsetContext strAdr,
   Vm::Sc3VmThread dummy;
   dummy.SetIp(strAdr);
   PlayTime = TextLayoutPlainLine(
-      &dummy, 255, Profile::Dialogue::DialogueFont, fontSize,
+      &dummy, 255, *Profile::Dialogue::DialogueFont, fontSize,
       Profile::Dialogue::ColorTable[0], 1.0f,
       glm::vec2(Bounds.X + 372.0f, Bounds.Y + 61.0f), TextAlignment::Left);
 }
@@ -81,7 +81,7 @@ void SaveEntryButton::AddSaveDateHintText(Vm::BufferOffsetContext strAdr,
   Vm::Sc3VmThread dummy;
   dummy.SetIp(strAdr);
   SaveDateHint = TextLayoutPlainLine(
-      &dummy, 255, Profile::Dialogue::DialogueFont, fontSize,
+      &dummy, 255, *Profile::Dialogue::DialogueFont, fontSize,
       Profile::Dialogue::ColorTable[0], 1.0f,
       glm::vec2(Bounds.X + 238.0f, Bounds.Y + 75.0f), TextAlignment::Left);
 }
@@ -91,7 +91,7 @@ void SaveEntryButton::AddSaveDateText(Vm::BufferOffsetContext strAdr,
   Vm::Sc3VmThread dummy;
   dummy.SetIp(strAdr);
   SaveDate = TextLayoutPlainLine(
-      &dummy, 255, Profile::Dialogue::DialogueFont, fontSize,
+      &dummy, 255, *Profile::Dialogue::DialogueFont, fontSize,
       Profile::Dialogue::ColorTable[0], 1.0f,
       glm::vec2(Bounds.X + 283.0f, Bounds.Y + 93.0f), TextAlignment::Left);
 }

@@ -247,7 +247,7 @@ void SysMesBox::AddMessage(Vm::BufferOffsetContext ctx) {
   dummy.ScriptBufferId = ctx.ScriptBufferId;
 
   Messages[MessageCount] =
-      TextLayoutPlainLine(&dummy, 255, Profile::Dialogue::DialogueFont,
+      TextLayoutPlainLine(&dummy, 255, *Profile::Dialogue::DialogueFont,
                           TextFontSize, Profile::Dialogue::ColorTable[0], 1.0f,
                           glm::vec2(TextX, 0.0f), TextAlignment::Left);
   if (!Messages[MessageCount].empty()) {
@@ -265,7 +265,7 @@ void SysMesBox::AddChoice(Vm::BufferOffsetContext ctx) {
   dummy.IpOffset = ctx.IpOffset;
   dummy.ScriptBufferId = ctx.ScriptBufferId;
   Choices[ChoiceCount] =
-      TextLayoutPlainLine(&dummy, 255, Profile::Dialogue::DialogueFont,
+      TextLayoutPlainLine(&dummy, 255, *Profile::Dialogue::DialogueFont,
                           TextFontSize, Profile::Dialogue::ColorTable[0], 1.0f,
                           glm::vec2(TextX, 0.0f), TextAlignment::Left);
   if (!Choices[ChoiceCount].empty()) {
