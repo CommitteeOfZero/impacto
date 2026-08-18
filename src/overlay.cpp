@@ -475,12 +475,12 @@ void ShowOverlay() {
 
 void Show() {
   if (Profile::Game::HasInit) {
-    if ((!OverlayShown && (Input::KeyboardButtonWentDown[SDL_SCANCODE_TAB] &&
-                           (SDL_GetModState() & KMOD_SHIFT))) ||
-        (Input::ControllerButtonWentDown[SDL_CONTROLLER_BUTTON_GUIDE])) {
+    if ((!OverlayShown && (Input::KeyboardButtonWentDown[SDL_SCANCODE_ESCAPE] &&
+                           (SDL_GetModState() & KMOD_LSHIFT))) ||
+        (Input::ControllerButtonWentDown[SDL_CONTROLLER_BUTTON_LEFTSTICK])) {
       OverlayShown = true;
     } else if (OverlayShown &&
-               ImGui::IsKeyChordPressed(ImGuiMod_Shift | ImGuiKey_Tab)) {
+               ImGui::IsKeyChordPressed(ImGuiMod_Shift | ImGuiKey_Escape)) {
       OverlayShown = false;
     }
   } else {
