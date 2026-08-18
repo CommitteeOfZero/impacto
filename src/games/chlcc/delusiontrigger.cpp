@@ -261,7 +261,7 @@ void DelusionTrigger::TriggerRight() {
 }
 
 void DelusionTrigger::UpdateHeartButtons() {
-  if (!Profile::Patch::HasDelusionMouseSupport &&
+  if (!Profile::Patch::HasDelusionMouseSupport ||
       !UserConfig::EnhancementsSettings.CHLCC.DelusionMousePatch) {
     return;
   }
