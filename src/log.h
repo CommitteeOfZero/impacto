@@ -43,6 +43,9 @@ enum class LogChannel : uint32_t {
   All = 0xFFFFFFFF
 };
 
+constexpr std::string ChannelToString(LogChannel channel);
+constexpr std::optional<LogChannel> StringToChannel(std::string_view channel);
+
 constexpr LogChannel operator~(LogChannel channel) {
   return static_cast<LogChannel>(~to_underlying(channel));
 }
@@ -66,104 +69,6 @@ constexpr LogChannel& operator&=(LogChannel& channel, LogChannel other) {
 constexpr LogChannel& operator^=(LogChannel& channel, LogChannel other) {
   channel = channel ^ other;
   return channel;
-}
-
-constexpr auto ChannelToString(LogChannel channel) {
-  using enum LogChannel;
-  switch (channel) {
-    case None:
-      return "None";
-    case General:
-      return "General";
-    case IO:
-      return "IO";
-    case Render:
-      return "Render";
-    case ModelLoad:
-      return "ModelLoad";
-    case GL:
-      return "GL";
-    case Renderable3D:
-      return "Renderable3D";
-    case TextureLoad:
-      return "TextureLoad";
-    case Scene:
-      return "Scene";
-    case VM:
-      return "VM";
-    case VMStub:
-      return "VMStub";
-    case Expr:
-      return "Expr";
-    case Audio:
-      return "Audio";
-    case Profile:
-      return "Profile";
-    case Video:
-      return "Video";
-    default:
-      return "";
-  }
-}
-
-constexpr auto LevelToString(LogLevel level) {
-  using enum LogLevel;
-  switch (level) {
-    case Off:
-      return "Off";
-    case Fatal:
-      return "Fatal";
-    case Error:
-      return "Error";
-    case Warning:
-      return "Warning";
-    case Info:
-      return "Info";
-    case Debug:
-      return "Debug";
-    case Trace:
-      return "Trace";
-    default:
-      return "";
-  }
-}
-
-constexpr auto StringToChannel(std::string_view channel) {
-  using enum LogChannel;
-  if (channel == "None") return None;
-  if (channel == "General") return General;
-  if (channel == "IO") return IO;
-  if (channel == "Render") return Render;
-  if (channel == "ModelLoad") return ModelLoad;
-  if (channel == "GL") return GL;
-  if (channel == "Renderable3D") return Renderable3D;
-  if (channel == "TextureLoad") return TextureLoad;
-  if (channel == "Scene") return Scene;
-  if (channel == "VM") return VM;
-  if (channel == "Expr") return Expr;
-  if (channel == "VMStub") return VMStub;
-  if (channel == "Audio") return Audio;
-  if (channel == "Profile") return Profile;
-  if (channel == "Video") return Video;
-  if (channel == "All")
-    return All;
-  else
-    return None;
-}
-
-constexpr auto StringToLevel(std::string_view level) {
-  using enum LogLevel;
-  if (level == "Off") return Off;
-  if (level == "Fatal") return Fatal;
-  if (level == "Error") return Error;
-  if (level == "Warning") return Warning;
-  if (level == "Info") return Info;
-  if (level == "Debug") return Debug;
-  if (level == "Trace") return Trace;
-  if (level == "Max")
-    return Max;
-  else
-    return Off;
 }
 
 inline LogLevel g_LogLevel = LogLevel::Off;
@@ -201,3 +106,32 @@ void GLAPIENTRY LogGLMessageCallback(GLenum source, GLenum type, GLuint id,
 #endif
 
 }  // namespace Impacto
+
+namespace magic_enum::customize {
+template <>
+struct enum_range<Impacto::LogChannel> {
+  constexpr static bool is_flags = true;
+};
+}  // namespace magic_enum::customize
+
+constexpr std::string Impacto::ChannelToString(LogChannel channel) {
+  using enum Impacto::LogChannel;
+  switch (channel) {
+    case None:
+      return "None";
+    case All:
+      return "All";
+    default:
+      return magic_enum::enum_flags_name(channel);
+  }
+}
+
+constexpr std::optional<Impacto::LogChannel> Impacto::StringToChannel(
+    std::string_view channel) {
+  using enum Impacto::LogChannel;
+  if (channel == "None") return None;
+  if (channel == "All")
+    return All;
+  else
+    return magic_enum::enum_flags_cast<LogChannel>(channel);
+}

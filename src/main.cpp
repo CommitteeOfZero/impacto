@@ -1,6 +1,8 @@
 #include "impacto.h"
 
 #include <ranges>
+#include <fmt/format.h>
+#include <fmt/ranges.h>
 
 #ifdef EMSCRIPTEN
 #include <emscripten.h>
@@ -90,21 +92,41 @@ static void HandleArguments(std::vector<std::string_view> args) {
             "-lf", "--logfile"),
         make_handler(
             [&](std::string_view input) {
-              auto inputChannel = StringToChannel(input);
+              std::optional<Impacto::LogChannel> logChannelOpt =
+                  StringToChannel(input);
+              if (!logChannelOpt) {
+                ImpLog(LogLevel::Fatal, LogChannel::General,
+                       "Invalid log channel \"{}\", expected one of {}, All!\n",
+                       input,
+                       fmt::join(magic_enum::enum_names<Impacto::LogChannel>(),
+                                 ", "));
+                exit(1);
+              };
               if (!hasSetChannel) {
                 g_LogChannels = {};
                 hasSetChannel = true;
               }
-              if (inputChannel == LogChannel::None) {
-                g_LogChannels = inputChannel;
+              if (*logChannelOpt == LogChannel::None) {
+                g_LogChannels = *logChannelOpt;
               } else {
-                g_LogChannels |= inputChannel;
+                g_LogChannels |= *logChannelOpt;
               }
             },
             "-lc", "--logchannel"),
         make_handler(
-            [&](std::string_view input) { g_LogLevel = StringToLevel(input); },
+            [&](std::string_view input) {
+              auto logLevelOpt =
+                  magic_enum::enum_cast<Impacto::LogLevel>(input);
+              if (!logLevelOpt) {
+                ImpLog(LogLevel::Fatal, LogChannel::General,
+                       "Invalid log level \"{}\", expected one of {}!\n", input,
+                       magic_enum::enum_names<Impacto::LogLevel>());
+                exit(1);
+              }
+              g_LogLevel = *logLevelOpt;
+            },
             "-ll", "--loglevel"),
+
         make_handler(
             [&](std::string_view input) {
               UserConfig ::ActiveGameOverride = input;
