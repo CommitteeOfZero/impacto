@@ -771,7 +771,6 @@ static void ShowSprite(const Sprite* sprite) {
 }
 
 void ShowObjects() {
-  ImGui::ShowDemoWindow();
   ImGui::PushItemWidth(10.0f * ImGui::GetFontSize());
 
   if (SpritesBySpriteSheet.size() == 0) {
