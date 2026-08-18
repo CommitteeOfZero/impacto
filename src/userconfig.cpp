@@ -312,7 +312,7 @@ void WriteUserConfig() {
 
   ImpLog(LogLevel::Debug, LogChannel::Config, "Writing user config to file\n");
 
-  userConfigFile->Seek(0, RW_SEEK_SET);
+  userConfigFile = openTomlFile(CF::WRITE | CF::CREATE | CF::TRUNCATE);
   userConfigFile->Write(tomlContents.data(), tomlContents.size());
   ImpLog(LogLevel::Info, LogChannel::Config, "Saved user config\n");
 }
