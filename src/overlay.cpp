@@ -70,6 +70,7 @@ static void ShowGamePicker(std::string& selectedGame) {
   constexpr float comboWidth = 200.0f;
   constexpr float iconSize = 36.0f;
   constexpr auto label = "Choose Game";
+
   if (ImGui::BeginTable("##ChooseGameTable", 3)) {
     ImGui::TableSetupColumn("##left", ImGuiTableColumnFlags_WidthStretch);
     ImGui::TableSetupColumn("##mid", ImGuiTableColumnFlags_WidthFixed,
@@ -80,9 +81,6 @@ static void ShowGamePicker(std::string& selectedGame) {
 
     ImGui::TableNextRow();
     ImGui::TableSetColumnIndex(1);
-
-    bool isSelected = false;
-    bool isOpening = ImGui::IsWindowAppearing();
 
     auto showIcon = [](std::string const& game) {
       if (auto iconTxtItr = iconTextureMap.find(game);
@@ -102,16 +100,12 @@ static void ShowGamePicker(std::string& selectedGame) {
         if (Io::PathExists((path(Profile::BasePaths::RootGamedataDir) / gameKey)
                                .string()) == IoError_NotFound)
           continue;
-        if (isOpening) {
-          selectedGame = gameKey;
-          isOpening = false;
-        }
-        isSelected = selectedGame == gameKey;
-
+        const bool isSelected = selectedGame == gameKey;
         showIcon(gameKey);
         if (ImGui::Selectable(gameKey.c_str(), isSelected, 0,
-                              ImVec2{0, iconSize}))
+                              ImVec2{0, iconSize})) {
           selectedGame = gameKey;
+        }
         if (isSelected) ImGui::SetItemDefaultFocus();
       }
       ImGui::EndCombo();
@@ -139,14 +133,18 @@ static bool ShowDisplaySettings(std::string const& selectedGame) {
       std::pair{"3840x2160", glm::ivec2{3840, 2160}},
   });
 
-  static bool updatedResolution = false;
   bool wasUpdated = false;
   ImGui::Spacing();
   if (ImGui::CollapsingHeader("Display Settings",
                               ImGuiTreeNodeFlags_DefaultOpen)) {
     static std::string currentResolution;
 
-    if (currentResolution.empty() || updatedResolution) {
+    static std::optional<int> lastResWidth;
+    static std::optional<int> lastResHeight;
+
+    if (currentResolution.empty() ||
+        lastResWidth != gameSettings.ResolutionWidth ||
+        lastResHeight != gameSettings.ResolutionHeight) {
       if (gameSettings.ResolutionWidth && gameSettings.ResolutionHeight) {
         currentResolution = fmt::format("{}x{}", *gameSettings.ResolutionWidth,
                                         *gameSettings.ResolutionHeight);
@@ -154,7 +152,8 @@ static bool ShowDisplaySettings(std::string const& selectedGame) {
         currentResolution = "Native Game Res";
       }
       wasUpdated = true;
-      updatedResolution = false;
+      lastResWidth = gameSettings.ResolutionWidth;
+      lastResHeight = gameSettings.ResolutionHeight;
     }
 
     SDL_DisplayMode maxRes{};
@@ -172,7 +171,6 @@ static bool ShowDisplaySettings(std::string const& selectedGame) {
         bool isSelected = gameSettings.ResolutionWidth == value.x &&
                           gameSettings.ResolutionHeight == value.y;
         if (ImGui::Selectable(display, isSelected)) {
-          updatedResolution = true;
           gameSettings.ResolutionWidth = value.x;
           gameSettings.ResolutionHeight = value.y;
         }

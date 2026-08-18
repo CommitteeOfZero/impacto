@@ -232,9 +232,6 @@ void LoadUserConfig(toml::value& tomlConfig) {
     EnhancementsSettings = std::move(*enhancementsSettingsOpt);
   }
 
-  if (ActiveGame.empty())
-    ActiveGame = toml::find_or(tomlConfig, "ActiveGame", "");
-
   for (auto& [gameProfile, gameDef] : Profile::GameDefinitions) {
     if (gameDef.Hidden) continue;
     GameSettings.try_emplace(gameProfile, UserConfig::GameConfig{});
@@ -244,7 +241,6 @@ void LoadUserConfig(toml::value& tomlConfig) {
 
 void RestoreSettingsDefaults() {
   // Enhancements is excluded since that's in a separate tab
-  ActiveGame = decltype(ActiveGame){};
   CommonSettings = decltype(CommonSettings){};
   AdvancedSettings = decltype(AdvancedSettings){};
   GameSettings = decltype(GameSettings){};
@@ -259,10 +255,7 @@ void RestoreSettingsDefaults() {
 
 GameConfig& ActiveGameSettings() { return GameSettings[GetActiveGame()]; }
 
-std::string const& GetActiveGame() {
-  if (!ActiveGameOverride.empty()) return ActiveGameOverride;
-  return ActiveGame;
-}
+std::string const& GetActiveGame() { return ActiveGame; }
 
 void SetActiveGame(std::string activeGame) {
   ActiveGame = std::move(activeGame);
@@ -309,7 +302,6 @@ void WriteUserConfig() {
 
   ImpLog(LogLevel::Debug, LogChannel::Config,
          "Serializing current configuration\n");
-  tomlConfig["ActiveGame"] = ActiveGame;
   tomlConfig["GameSettings"] = GameSettings;
   tomlConfig["CommonSettings"] = CommonSettings;
   tomlConfig["AdvancedSettings"] = AdvancedSettings;

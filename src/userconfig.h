@@ -102,7 +102,6 @@ inline Config CommonSettings;
 inline AdvancedConfig AdvancedSettings;
 inline EnhancementsConfig EnhancementsSettings;
 
-inline std::string ActiveGameOverride;
 inline std::string PatchProfileOverride;
 inline std::string UserConfigPath;
 
