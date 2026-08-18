@@ -103,6 +103,7 @@ static std::unique_ptr<Io::PhysicalFileStream> openTomlFile(
 static GameExtraConfig MakeDefaultExtra(std::string const& gameId) {
   if (gameId == "chlcc") return CHLCCExtraConfig{};
   if (gameId == "cclcc") return CCLCCExtraConfig{};
+  if (gameId == "cclcc-switch") return CCLCCExtraConfig{};
   return std::monostate{};
 }
 
