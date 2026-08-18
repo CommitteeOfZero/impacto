@@ -9,6 +9,7 @@
 #include "inputsystem.h"
 #include "profile/game.h"
 #include "profile/gamedefinitions.h"
+#include "profile/basepaths.h"
 #include "userconfig.h"
 
 namespace Impacto::Overlay {
@@ -90,7 +91,11 @@ static void ShowGamePicker(std::string& selectedGame) {
 
     if (ImGui::BeginCombo("##ChooseGame", selectedGame.c_str())) {
       for (auto&& [gameKey, gameDef] : Profile::GameDefinitions) {
+        using std::filesystem::path;
         if (gameDef.Hidden) continue;
+        if (Io::PathExists((path(Profile::BasePaths::RootGamedataDir) / gameKey)
+                               .string()) == IoError_NotFound)
+          continue;
         if (isOpening) {
           selectedGame = gameKey;
           isOpening = false;
