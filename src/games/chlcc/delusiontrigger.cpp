@@ -521,7 +521,7 @@ void DelusionTrigger::Render() {
                                     maskDest, (BackgroundAlpha * 160) >> 8, 20,
                                     glm::mat4(1.0f), glm::vec4(1.0f), true);
   if (Profile::Patch::HasDelusionMouseSupport &&
-      !UserConfig::EnhancementsSettings.CHLCC.DelusionMousePatch &&
+      UserConfig::EnhancementsSettings.CHLCC.DelusionMousePatch &&
       HeartButtonFade.Progress > 0.0f) {
     RenderHeartButton(LeftDelusionHeartSprite, LeftDelusionHeartPos,
                       LeftHeartClickArea.Hovered,
