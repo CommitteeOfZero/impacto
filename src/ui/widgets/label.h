@@ -22,11 +22,9 @@ class Label : public Widget {
   Label(std::span<ProcessedTextGlyph> str, float textWidth, float fontSize,
         RendererOutlineMode outlineMode);
   Label(Vm::BufferOffsetContext scrCtx, glm::vec2 pos, float fontSize,
-        RendererOutlineMode outlineMode, int colorIndex = 10,
-        float maxWidth = 0.0f);
+        RendererOutlineMode outlineMode, int colorIndex = 10);
   Label(Vm::BufferOffsetContext scrCtx, glm::vec2 pos, float fontSize,
-        RendererOutlineMode outlineMode, DialogueColorPair colorPair,
-        float maxWidth = 0.0f);
+        RendererOutlineMode outlineMode, DialogueColorPair colorPair);
   Label(Vm::Sc3Stream& stream, glm::vec2 pos, float fontSize,
         RendererOutlineMode outlineMode, int colorIndex = 10);
   Label(Vm::Sc3Stream& stream, glm::vec2 pos, float fontSize,
@@ -53,8 +51,7 @@ class Label : public Widget {
   void SetText(Vm::BufferOffsetContext scrCtx, float fontSize,
                RendererOutlineMode outlineMode, int colorIndex = 10);
   void SetText(Vm::BufferOffsetContext scrCtx, float fontSize,
-               RendererOutlineMode outlineMode, DialogueColorPair colorPair,
-               float maxWidth = 0.0f);
+               RendererOutlineMode outlineMode, DialogueColorPair colorPair);
   void SetText(std::string_view str, float fontSize,
                RendererOutlineMode outlineMode, int colorIndex = 10);
   void SetText(std::string_view str, float fontSize,

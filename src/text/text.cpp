@@ -164,13 +164,12 @@ void StringToken::AddFlags(const Vm::BufferOffsetContext scrCtx,
 template size_t TextLayoutPlainLine(Vm::Sc3VmThread*&&,
                                     std::span<ProcessedTextGlyph>, const Font&,
                                     float, DialogueColorPair, float, glm::vec2,
-                                    TextAlignment, float);
+                                    TextAlignment);
 size_t TextLayoutPlainLine(Sc3Type auto&& stream,
                            const std::span<ProcessedTextGlyph> outGlyphs,
                            const Font& font, const float fontSize,
                            const DialogueColorPair colors, const float opacity,
-                           const glm::vec2 pos, const TextAlignment alignment,
-                           const float blockWidth) {
+                           const glm::vec2 pos, const TextAlignment alignment) {
   size_t characterCount = 0;
   StringToken token;
 
@@ -206,8 +205,7 @@ size_t TextLayoutPlainLine(Sc3Type auto&& stream,
   }
 
   if (characterCount > 0) {
-    TextLayoutAlignment(alignment, pos.x, outGlyphs.subspan(0, characterCount),
-                        blockWidth);
+    TextLayoutAlignment(alignment, pos.x, outGlyphs.subspan(0, characterCount));
   }
 
   return characterCount;
@@ -215,54 +213,38 @@ size_t TextLayoutPlainLine(Sc3Type auto&& stream,
 
 template std::vector<ProcessedTextGlyph> TextLayoutPlainLine(
     Vm::Sc3Stream&, std::optional<size_t>, const Font&, float,
-    DialogueColorPair, float, glm::vec2, TextAlignment, float);
+    DialogueColorPair, float, glm::vec2, TextAlignment);
 template std::vector<ProcessedTextGlyph> TextLayoutPlainLine(
     Vm::Sc3VmThread*&&, std::optional<size_t>, const Font&, float,
-    DialogueColorPair, float, glm::vec2, TextAlignment, float);
+    DialogueColorPair, float, glm::vec2, TextAlignment);
 std::vector<ProcessedTextGlyph> TextLayoutPlainLine(
     Sc3Type auto&& stream, std::optional<size_t> maxLength, const Font& font,
     const float fontSize, const DialogueColorPair colors, const float opacity,
-    const glm::vec2 pos, const TextAlignment alignment,
-    const float blockWidth) {
+    const glm::vec2 pos, const TextAlignment alignment) {
   if (!maxLength.has_value()) {
     auto lengthStream = stream;
     maxLength.emplace(TextGetStringLength(lengthStream));
   }
 
   std::vector<ProcessedTextGlyph> outGlyphs(*maxLength);
-  const size_t glyphCount =
-      TextLayoutPlainLine(stream, outGlyphs, font, fontSize, colors, opacity,
-                          pos, alignment, blockWidth);
+  const size_t glyphCount = TextLayoutPlainLine(
+      stream, outGlyphs, font, fontSize, colors, opacity, pos, alignment);
   outGlyphs.resize(glyphCount);
 
   if (!outGlyphs.empty()) {
-    TextLayoutAlignment(alignment, pos.x, outGlyphs, blockWidth);
+    TextLayoutAlignment(alignment, pos.x, outGlyphs);
   }
 
   return outGlyphs;
 }
 
 void TextLayoutAlignment(TextAlignment alignment, float posX,
-                         const std::span<ProcessedTextGlyph> outGlyphs,
-                         const float blockWidth) {
-  assert(!(alignment == TextAlignment::Block && blockWidth == 0.0f) &&
-         "Forgot to specify blockWidth for Block alignment");
+                         const std::span<ProcessedTextGlyph> outGlyphs) {
   if (outGlyphs.empty()) return;
 
   const float left = outGlyphs.front().DestRect.Left();
   const float right = outGlyphs.back().DestRect.Right();
   const float textWidth = right - left;
-
-  // Block alignment:
-  //
-  //  l  i  n  e
-  // block__below
-  //
-  // If block below is shorter than line, line is just centered over the block
-  if (alignment == TextAlignment::Block && blockWidth < textWidth) {
-    posX += blockWidth / 2.0f;
-    alignment = TextAlignment::Center;
-  }
 
   switch (alignment) {
     case TextAlignment::Left: {
@@ -286,17 +268,6 @@ void TextLayoutAlignment(TextAlignment alignment, float posX,
       const float offset = posX - textWidth / 2.0f;
       for (ProcessedTextGlyph& glyph : outGlyphs) {
         glyph.DestRect.X += offset;
-      }
-    } break;
-
-    case TextAlignment::Block: {
-      // posX is left
-      const float offset = posX - left;
-      const float glyphSpacing =
-          (blockWidth - textWidth) / (outGlyphs.size() - 1);
-
-      for (size_t idx = 0; idx < outGlyphs.size(); idx++) {
-        outGlyphs[idx].DestRect.X += offset + glyphSpacing * idx;
       }
     } break;
   }
@@ -326,8 +297,7 @@ size_t TextLayoutPlainString(const std::string_view str,
                              const Font& font, const float fontSize,
                              const DialogueColorPair colors,
                              const float opacity, const glm::vec2 pos,
-                             const TextAlignment alignment,
-                             const float blockWidth) {
+                             const TextAlignment alignment) {
   size_t sc3StrLength = utf8::distance(str.begin(), str.end()) + 1;
   assert(outGlyphs.size() == sc3StrLength - 1);
   std::vector<uint16_t> sc3Str(sc3StrLength);
@@ -336,18 +306,18 @@ size_t TextLayoutPlainString(const std::string_view str,
 
   Vm::Sc3Stream stream(sc3Str.data());
   return TextLayoutPlainLine(stream, outGlyphs, font, fontSize, colors, opacity,
-                             pos, alignment, blockWidth);
+                             pos, alignment);
 }
 
 std::vector<ProcessedTextGlyph> TextLayoutPlainString(
     const std::string_view str, const Font& font, const float fontSize,
     const DialogueColorPair colors, const float opacity, const glm::vec2 pos,
-    const TextAlignment alignment, const float blockWidth) {
+    const TextAlignment alignment) {
   const size_t stringLength = utf8::distance(str.begin(), str.end());
   std::vector<ProcessedTextGlyph> outGlyphs(stringLength);
 
   TextLayoutPlainString(str, outGlyphs, font, fontSize, colors, opacity, pos,
-                        alignment, blockWidth);
+                        alignment);
 
   return outGlyphs;
 }

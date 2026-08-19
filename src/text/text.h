@@ -19,7 +19,6 @@ enum class TextAlignment : int {
   Left = 0,
   Center,
   Right,
-  Block,  // Block alignment only supported for ruby
 };
 
 enum class CharacterTypeFlags : uint8_t {
@@ -100,17 +99,15 @@ size_t TextLayoutPlainLine(Sc3Type auto&& stream,
                            std::span<ProcessedTextGlyph> outGlyphs,
                            const Font& font, float fontSize,
                            DialogueColorPair colors, float opacity,
-                           glm::vec2 pos, TextAlignment alignment,
-                           float blockWidth = 0.0f);
+                           glm::vec2 pos, TextAlignment alignment);
 
 [[nodiscard]] std::vector<ProcessedTextGlyph> TextLayoutPlainLine(
     Sc3Type auto&& stream, std::optional<size_t> maxLength, const Font& font,
     float fontSize, DialogueColorPair colors, float opacity, glm::vec2 pos,
-    TextAlignment alignment, float blockWidth = 0.0f);
+    TextAlignment alignment);
 
 void TextLayoutAlignment(TextAlignment alignment, const float posX,
-                         std::span<Impacto::ProcessedTextGlyph> outGlyphs,
-                         float blockWidth = 0.0f);
+                         std::span<Impacto::ProcessedTextGlyph> outGlyphs);
 
 [[nodiscard]] float TextGetPlainLineWidth(Sc3Type auto&& stream,
                                           const Font& font, float fontSize);
@@ -119,13 +116,12 @@ size_t TextLayoutPlainString(const std::string_view str,
                              std::span<ProcessedTextGlyph> outGlyphs,
                              const Font& font, float fontSize,
                              DialogueColorPair colors, float opacity,
-                             glm::vec2 pos, TextAlignment alignment,
-                             float blockWidth = 0.0f);
+                             glm::vec2 pos, TextAlignment alignment);
 
 [[nodiscard]] std::vector<ProcessedTextGlyph> TextLayoutPlainString(
     const std::string_view str, const Font& font, float fontSize,
     DialogueColorPair colors, float opacity, glm::vec2 pos,
-    TextAlignment alignment, float blockWidth = 0.0f);
+    TextAlignment alignment);
 
 void TextGetSc3String(const std::string_view str, std::span<uint16_t> out);
 
