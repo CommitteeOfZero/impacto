@@ -726,9 +726,9 @@ VmInstruction(InstSystemMes) {
         box->AddMessage(
             {.BufferId = thread->ScriptBufferId, .IpOffset = message});
       } else {
+        PopUint16(sysMesStrNum);
         UI::SysMesBox* box = activeBox();
         if (!box) break;
-        PopUint16(sysMesStrNum);
         const uint32_t message =
             ScriptGetStrAddress(thread->ScriptBufferId, sysMesStrNum);
         box->AddMessage(
@@ -809,12 +809,6 @@ VmInstruction(InstSystemMes) {
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction SystemMes(mode: {:d})\n", mode);
       break;
-    case 0x84: {  // SystemMesSetSel
-      PopMsbString(message);
-      UI::SysMesBox* box = activeBox();
-      if (!box) break;
-      box->AddChoice({.BufferId = thread->ScriptBufferId, .IpOffset = message});
-    } break;
     default:
       ImpLog(LogLevel::Warning, LogChannel::VMStub,
              "Unknown mode for instruction SystemMes(mode: {:d})\n", mode);
