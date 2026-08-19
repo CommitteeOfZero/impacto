@@ -188,10 +188,13 @@ void Update(float dt) {
     StartNextNotification();
   }
 
-  if (!FadeAnimation.IsOut() && Input::MouseButtonWentDown[SDL_BUTTON_LEFT] &&
+  if (!Overlay::OverlayShown && !FadeAnimation.IsOut() &&
       GetNotificationRect().ContainsPoint(Input::CurMousePos)) {
-    Overlay::OverlayShown = true;
-    Overlay::OpenToAchievementsTab = true;
+    RequestCursor(CursorType::Pointer);
+    if (Input::MouseButtonWentDown[SDL_BUTTON_LEFT]) {
+      Overlay::OverlayShown = true;
+      Overlay::OpenToAchievementsTab = true;
+    }
   }
 }
 

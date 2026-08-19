@@ -95,6 +95,7 @@ void Init() {
 #endif
   InitWindow();
   CreateRenderer();
+  InitCursors();
 
 #ifndef IMPACTO_DISABLE_IMGUI
   Overlay::Init();
@@ -219,6 +220,8 @@ void Shutdown() {
 void LauncherUpdate(float dt) {
   SDL_Event e;
 
+  RequestCursor(CursorType::Default);
+
   while (SDL_PollEvent(&e)) {
     if (e.type == SDL_QUIT) {
       ShouldQuit = true;
@@ -237,6 +240,9 @@ void LauncherRender() {
   Renderer->ImGuiBeginFrame();
   Overlay::Show();
 #endif
+
+  ApplyCursorForFrame();
+
   Window->Draw();
 }
 
@@ -353,8 +359,6 @@ void UpdateSystem(float dt) {
     }
 
     Vm::Update(updateInterval);
-
-    ApplyCursorForFrame();
   }
   UpdateSecondCounter -= updateInterval;
 }
@@ -722,6 +726,9 @@ void Render() {
     Overlay::Show();
   }
 #endif
+
+  ApplyCursorForFrame();
+
   Renderer->EndFrame();
 
   Window->Draw();

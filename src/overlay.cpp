@@ -591,6 +591,10 @@ void ShowOverlay() {
     }
     if (showDemo) ImGui::ShowDemoWindow();
 #endif
+
+    if (ImGui::IsAnyItemHovered()) {
+      RequestCursor(CursorType::Pointer);
+    }
   }
   ImGui::End();
 }
