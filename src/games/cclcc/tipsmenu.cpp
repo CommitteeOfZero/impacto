@@ -101,7 +101,10 @@ void TipsMenu::Hide() {
   if (State != Hidden) {
     State = Hiding;
     FadeAnimation.StartOut();
-    Audio::PlayInGroup(Audio::ACG_SE, "sysse", 3, false, 0);
+    // Switch has this sfx played in the script
+    if (Profile::Vm::GameInstructionSet != Vm::InstructionSet::LCCSwitch) {
+      Audio::PlayInGroup(Audio::ACG_SE, "sysse", 3, false, 0);
+    }
     if (ScrWork[SW_SYSSUBMENUCT] != 0) {
       TransitionAnimation.StartOut();
     } else {
@@ -287,6 +290,7 @@ void TipsMenu::Render() {
 
 void TipsMenu::Init() {
   auto* TipRecords = TipsSystem::GetTipRecords();
+  SortedTipIds.clear();
   std::transform(
       TipRecords->begin(), TipRecords->end(), std::back_inserter(SortedTipIds),
       [](TipsSystem::TipsDataRecord const& record) { return record.Id; });
