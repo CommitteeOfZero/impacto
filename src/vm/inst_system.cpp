@@ -790,11 +790,6 @@ VmInstruction(InstSystemMes) {
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction SystemMes(mode: {:d})\n", mode);
       break;
-    case 0x84: {  // SystemMesSetSel
-      PopMsbString(message);
-      UI::SysMesBoxPtr->AddChoice(
-          {.BufferId = thread->ScriptBufferId, .IpOffset = message});
-    } break;
     default:
       ImpLog(LogLevel::Warning, LogChannel::VMStub,
              "Unknown mode for instruction SystemMes(mode: {:d})\n", mode);

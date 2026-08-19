@@ -266,6 +266,7 @@ void SysMesBox::AddChoice(Vm::BufferOffsetContext ctx) {
   Impacto::Vm::Sc3VmThread dummy;
   dummy.IpOffset = ctx.IpOffset;
   dummy.ScriptBufferId = ctx.BufferId;
+  dummy.UseMSBBuffers = Profile::Vm::UseMsbStrings;
   Choices[ChoiceCount] =
       TextLayoutPlainLine(&dummy, 255, Profile::Dialogue::DialogueFont,
                           TextFontSize, Profile::Dialogue::ColorTable[0], 1.0f,
