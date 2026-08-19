@@ -49,6 +49,28 @@ void Label::SetText(std::vector<ProcessedTextGlyph>&& str,
   OutlineMode = outlineMode;
   Text = std::move(str);
 
+  if (Text.empty()) {
+    Bounds = RectF(Bounds.X, Bounds.Y, 0.0f, 0.0f);
+  } else {
+    for (ProcessedTextGlyph& glyph : Text) {
+      glyph.DestRect += Bounds.GetPos();
+    }
+
+    const RectF textBounds =
+        std::reduce(Text.begin() + 1, Text.end(), Text.front(),
+                    [](auto lhs, const auto& rhs) {
+                      lhs.DestRect =
+                          RectF::Coalesce(lhs.DestRect, rhs.DestRect);
+                      return lhs;
+                    })
+            .DestRect;
+
+    // Preserve Bounds.GetPos() as being the position of the Label object
+    Bounds.SetSize(
+        glm::max(textBounds.GetSize() + textBounds.GetPos() - Bounds.GetPos(),
+                 glm::vec2(0.0f)));
+  }
+
   Bounds = Text.empty()
                ? RectF()
                : std::reduce(Text.begin() + 1, Text.end(), Text.front(),

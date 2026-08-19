@@ -74,7 +74,7 @@ class Label final : public Widget {
   void ClearText() {
     Text.clear();
     IsText = false;
-    Bounds = {};
+    Bounds = RectF(Bounds.X, Bounds.Y, 0.0f, 0.0f);
   }
 
   size_t GetTextLength() const { return Text.size(); }
