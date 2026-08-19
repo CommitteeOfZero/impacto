@@ -62,7 +62,8 @@ void TipsNotification::Update(const float dt) {
     // Start display animation
     const auto tipNameAdr = NotificationQueue.front();
     const auto tipsScrBufId = TipsSystem::GetTipsScriptBufferId();
-    TipName.SetText({.ScriptBufferId = tipsScrBufId, .IpOffset = tipNameAdr},
+    TipName.SetText(Vm::BufferOffsetContext{.ScriptBufferId = tipsScrBufId,
+                                            .IpOffset = tipNameAdr},
                     TextFontSize, RendererOutlineMode::BottomRight,
                     static_cast<int>(TipNameColorIndex));
     NotificationQueue.pop();

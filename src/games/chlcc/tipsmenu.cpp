@@ -598,13 +598,13 @@ void TipsMenu::SwitchToTipId(int id) {
   auto tipsScriptBufferId = TipsSystem::GetTipsScriptBufferId();
 
   auto tipRecord = TipsSystem::GetTipRecord(id);
-  Name->SetText({.ScriptBufferId = tipsScriptBufferId,
-                 .IpOffset = tipRecord->StringAdr[0]},
+  Name->SetText(Vm::BufferOffsetContext{.ScriptBufferId = tipsScriptBufferId,
+                                        .IpOffset = tipRecord->StringAdr[0]},
                 NameFontSize, RendererOutlineMode::Full, DefaultColorIndex);
-  Pronunciation->SetText({.ScriptBufferId = tipsScriptBufferId,
-                          .IpOffset = tipRecord->StringAdr[1]},
-                         PronunciationFontSize, RendererOutlineMode::Full,
-                         DefaultColorIndex);
+  Pronunciation->SetText(
+      Vm::BufferOffsetContext{.ScriptBufferId = tipsScriptBufferId,
+                              .IpOffset = tipRecord->StringAdr[1]},
+      PronunciationFontSize, RendererOutlineMode::Full, DefaultColorIndex);
   // Right alignment
   Name->MoveTo(NameInitialBounds.GetPos() -
                glm::vec2{Name->Bounds.Width, 0.0f});

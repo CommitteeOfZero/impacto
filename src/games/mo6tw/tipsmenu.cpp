@@ -236,13 +236,13 @@ void TipsMenu::SwitchToTipId(int id) {
   auto tipsScriptBufferId = TipsSystem::GetTipsScriptBufferId();
 
   auto tipRecord = TipsSystem::GetTipRecord(id);
-  Name->SetText({.ScriptBufferId = tipsScriptBufferId,
-                 .IpOffset = tipRecord->StringAdr[0]},
+  Name->SetText(Vm::BufferOffsetContext{.ScriptBufferId = tipsScriptBufferId,
+                                        .IpOffset = tipRecord->StringAdr[0]},
                 NameFontSize, RendererOutlineMode::Full, DefaultColorIndex);
-  Pronunciation->SetText({.ScriptBufferId = tipsScriptBufferId,
-                          .IpOffset = tipRecord->StringAdr[1]},
-                         PronunciationFontSize, RendererOutlineMode::Full,
-                         DefaultColorIndex);
+  Pronunciation->SetText(
+      Vm::BufferOffsetContext{.ScriptBufferId = tipsScriptBufferId,
+                              .IpOffset = tipRecord->StringAdr[1]},
+      PronunciationFontSize, RendererOutlineMode::Full, DefaultColorIndex);
 
   Vm::Sc3VmThread dummy;
   dummy.IpOffset = tipRecord->StringAdr[2];
@@ -250,10 +250,10 @@ void TipsMenu::SwitchToTipId(int id) {
   float categoryWidth = TextGetPlainLineWidth(
       &dummy, *Profile::Dialogue::DialogueFont, CategoryFontSize);
   Category->Bounds.X = CategoryEndX - categoryWidth;
-  Category->SetText({.ScriptBufferId = tipsScriptBufferId,
-                     .IpOffset = tipRecord->StringAdr[2]},
-                    CategoryFontSize, RendererOutlineMode::Full,
-                    DefaultColorIndex);
+  Category->SetText(
+      Vm::BufferOffsetContext{.ScriptBufferId = tipsScriptBufferId,
+                              .IpOffset = tipRecord->StringAdr[2]},
+      CategoryFontSize, RendererOutlineMode::Full, DefaultColorIndex);
   if (tipRecord->ThumbnailIndex != 0xFFFF)
     ThumbnailSprite = &TipThumbnails[tipRecord->ThumbnailIndex];
   else

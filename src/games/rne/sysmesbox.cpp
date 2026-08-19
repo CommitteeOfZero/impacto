@@ -41,8 +41,7 @@ void SysMesBox::Show() {
       glyph.DestRect.Y = textBeginY + (i * TextLineHeight);
     }
 
-    Label* message = new Label(Messages[i], MessageWidths[i], TextFontSize,
-                               RendererOutlineMode::None);
+    Label* message = new Label(Messages[i], RendererOutlineMode::None);
 
     MessageItems->Add(message, FDIR_DOWN);
   }

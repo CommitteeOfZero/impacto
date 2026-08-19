@@ -314,16 +314,17 @@ void TipsMenu::SwitchToTipId(int id) {
   CurrentlyDisplayedTipId = id - 1;
 
   TipsSystem::SetTipUnreadState(actualId, false);
-  Category->SetText(
-      {.ScriptBufferId = tipsScrBufId, .IpOffset = record->StringAdr[0]},
-      (float)CategoryFontSize, RendererOutlineMode::None,
-      {TipsMenuDarkTextColor, 0});
-  Name->SetText(
-      {.ScriptBufferId = tipsScrBufId, .IpOffset = record->StringAdr[1]},
-      (float)NameFontSize, RendererOutlineMode::None,
-      {TipsMenuDarkTextColor, 0});
+  Category->SetText(Vm::BufferOffsetContext{.ScriptBufferId = tipsScrBufId,
+                                            .IpOffset = record->StringAdr[0]},
+                    (float)CategoryFontSize, RendererOutlineMode::None,
+                    {TipsMenuDarkTextColor, 0});
+  Name->SetText(Vm::BufferOffsetContext{.ScriptBufferId = tipsScrBufId,
+                                        .IpOffset = record->StringAdr[1]},
+                (float)NameFontSize, RendererOutlineMode::None,
+                {TipsMenuDarkTextColor, 0});
   Pronunciation->SetText(
-      {.ScriptBufferId = tipsScrBufId, .IpOffset = record->StringAdr[2]},
+      Vm::BufferOffsetContext{.ScriptBufferId = tipsScrBufId,
+                              .IpOffset = record->StringAdr[2]},
       (float)PronunciationFontSize, RendererOutlineMode::None, 0);
 
   {
