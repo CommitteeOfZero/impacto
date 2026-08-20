@@ -5,13 +5,13 @@
 #include "expression.h"
 #include "interface/input.h"
 #include "../profile/scriptvars.h"
-#include "../profile/configsystem.h"
 #include "../game.h"
 #include "../mem.h"
 #include "../log.h"
 #include "../hud/saveicondisplay.h"
 #include "../ui/ui.h"
 #include "../data/savesystem.h"
+#include "../data/achievementsystem.h"
 #include "../audio/audiosystem.h"
 #include "../text/dialoguepage.h"
 #include "../hud/achievementnotification.h"
@@ -57,17 +57,14 @@ VmInstruction(InstSetAchievement) {
   if (type == 1) {
     PopExpression(achievementId);
     if (+Profile::Game::GameFeatures & +GameFeature::Achievements) {
-      AchievementNotification::Show(achievementId);
-      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-                 "STUB instruction Achievement(type: {:d}, arg1: {:d})\n", type,
-                 achievementId);
+      if (AchievementSystem::UnlockAchievement(achievementId)) {
+        AchievementNotification::Show(achievementId);
+      }
     }
   } else {
     if (+Profile::Game::GameFeatures & +GameFeature::Achievements) {
       AchievementNotification::Show(type);
     }
-    ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-               "STUB instruction Achievement(type: {:d})\n", type);
   }
 }
 VmInstruction(InstSetPlayer) {
