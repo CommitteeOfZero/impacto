@@ -1,11 +1,8 @@
 #pragma once
 
 #include "commonmenu.h"
-#include "animations/menutransition.h"
 #include "../../ui/menu.h"
 #include "../../ui/widgets/group.h"
-#include "../../ui/widgets/button.h"
-#include "../../ui/widgets/carousel.h"
 #include "../../ui/widgets/label.h"
 
 #include "../../profile/games/chlcc/trophymenu.h"
@@ -25,12 +22,18 @@ class TrophyMenu : public Menu, public CommonMenu {
   void Render();
 
  private:
-  Impacto::UI::Widgets::Group
-      MainItems[Impacto::Profile::CHLCC::TrophyMenu::MaxTrophyPages] = {
-          this, this, this, this, this, this, this, this, this};
+  Widgets::Group MainItems[Profile::CHLCC::TrophyMenu::MaxTrophyPages] = {
+      this, this, this, this, this, this, this, this, this};
   int CurrentPage = 0;
 
-  Impacto::UI::Widgets::Label TrophyCountHintLabel;
+  Widgets::Label TrophyCountHintLabel;
+
+  Widgets::Label PlatinumCountLabel;
+  Widgets::Label GoldCountLabel;
+  Widgets::Label SilverCountLabel;
+  Widgets::Label BronzeCountLabel;
+
+  void UpdateRarityCounts();
 };
 
 }  // namespace CHLCC
