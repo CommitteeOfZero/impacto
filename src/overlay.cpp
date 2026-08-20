@@ -29,6 +29,40 @@ static std::string GetGameDisplayName(std::string const& gameKey) {
   return name.empty() ? gameKey : name;
 }
 
+static ImVec4 GetAccentColor(std::string const& gameKey) {
+  auto gameDefIt = Profile::GameDefinitions.find(gameKey);
+  uint32_t theme = gameDefIt != Profile::GameDefinitions.end()
+                       ? gameDefIt->second.LauncherTheme
+                       : 0xFFFFFF;
+  glm::vec4 rgb = RgbIntToFloat(theme);
+  return ImVec4{rgb.r, rgb.g, rgb.b, rgb.a};
+}
+
+static int PushAccentColors(std::string const& gameKey) {
+  static constexpr ImGuiCol_ accentSlots[] = {
+      ImGuiCol_Border,
+      ImGuiCol_CheckMark,
+      ImGuiCol_SliderGrab,
+      ImGuiCol_Separator,
+      ImGuiCol_SeparatorHovered,
+      ImGuiCol_SeparatorActive,
+      ImGuiCol_ResizeGrip,
+      ImGuiCol_ScrollbarGrab,
+      ImGuiCol_InputTextCursor,
+      ImGuiCol_TabSelectedOverline,
+      ImGuiCol_PlotLines,
+      ImGuiCol_PlotHistogram,
+      ImGuiCol_TableBorderStrong,
+      ImGuiCol_DragDropTarget,
+      ImGuiCol_UnsavedMarker,
+      ImGuiCol_NavCursor,
+  };
+
+  ImVec4 accent = GetAccentColor(gameKey);
+  for (auto slot : accentSlots) ImGui::PushStyleColor(slot, accent);
+  return std::size(accentSlots);
+}
+
 void SetupStyle() {
   ImGuiStyle& style = ImGui::GetStyle();
 
@@ -521,6 +555,7 @@ void ShowOverlay() {
     } else {
       selectedGame = UserConfig::GetActiveGame();
     }
+    int accentColorCount = PushAccentColors(selectedGame);
 
     float footerHeight = ImGui::GetStyle().ItemSpacing.y +
                          ImGui::GetStyle().SeparatorSize +
@@ -595,6 +630,8 @@ void ShowOverlay() {
     if (ImGui::IsAnyItemHovered()) {
       RequestCursor(CursorType::Pointer);
     }
+
+    ImGui::PopStyleColor(accentColorCount);
   }
   ImGui::End();
 }

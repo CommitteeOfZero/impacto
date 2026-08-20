@@ -14,6 +14,7 @@ struct GameDefinition {
       Patch;
   bool Hidden = false;
   int LauncherOrderId = 99;
+  uint32_t LauncherTheme = 0xFFFFFF;
 
   static void Configure();
 };

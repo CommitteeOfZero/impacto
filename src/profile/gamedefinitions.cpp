@@ -1,7 +1,6 @@
 #include "gamedefinitions.h"
 
 #include "profile_internal.h"
-#include "../io/filemeta.h"
 namespace Impacto::Profile {
 template <>
 struct TryGetImpl<GameDefinition> {
@@ -14,7 +13,9 @@ struct TryGetImpl<GameDefinition> {
         TryGetMember<decltype(GameDefinition::Patch)>("Patch").value_or(
             decltype(GameDefinition::Patch){});
     auto hidden = TryGetMember<bool>("Hidden").value_or(false);
-    auto launcherOrderId = TryGetMember<int>("LauncherOrderId").value_or(0);
+    auto launcherOrderId = TryGetMember<int>("LauncherOrderId").value_or(99);
+    auto launcherTheme =
+        TryGetMember<uint32_t>("LauncherTheme").value_or(0xFFFFFF);
 
     if (!gameProfileOpt || gameProfileOpt->empty()) {
       ImpLog(LogLevel::Fatal, LogChannel::Profile,
@@ -27,6 +28,7 @@ struct TryGetImpl<GameDefinition> {
         .Patch = std::move(patch),
         .Hidden = hidden,
         .LauncherOrderId = launcherOrderId,
+        .LauncherTheme = launcherTheme,
     };
   }
 };
