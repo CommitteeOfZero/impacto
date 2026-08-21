@@ -627,6 +627,12 @@ void ShowOverlay() {
     if (showDemo) ImGui::ShowDemoWindow();
 #endif
 
+    ImVec2 mouseDelta = ImGui::GetIO().MouseDelta;
+    if (ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows) &&
+        (mouseDelta.x != 0.0f || mouseDelta.y != 0.0f)) {
+      Input::CurrentInputDevice = Input::Device::Mouse;
+    }
+
     if (ImGui::IsAnyItemHovered()) {
       RequestCursor(CursorType::Pointer);
     }
