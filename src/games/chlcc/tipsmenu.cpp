@@ -309,12 +309,10 @@ void TipsMenu::Init() {
 
   auto createCategory = [&](auto labelText, float yPos) {
     Label* categoryLabel = new Label();
-    categoryLabel->Bounds.X = TipListEntryBounds.X;
-    categoryLabel->Bounds.Y = yPos;
-    categoryLabel->Bounds.X += 5;
-    categoryLabel->SetText(labelText, TipListEntryFontSize,
-                           RendererOutlineMode::Full, 0);
-    categoryLabel->Bounds.X -= 5;
+    categoryLabel->SetText(labelText, {TipListEntryBounds.X + 5, yPos},
+                           TipListEntryFontSize, RendererOutlineMode::Full, 0);
+    categoryLabel->Bounds.X -= 5.0f;
+    categoryLabel->Bounds.Width += 5.0f;
     return categoryLabel;
   };
   {

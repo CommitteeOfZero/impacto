@@ -40,10 +40,10 @@ void SysMesBox::Show() {
   for (int i = 0; i < MessageCount; i++) {
     if (Messages[i].empty()) continue;
 
-    diff = Messages[i][0].DestRect.X - (TextX - (maxWidth / 2.0f));
+    diff = Messages[i][0].Position.x - (TextX - (maxWidth / 2.0f));
     for (ProcessedTextGlyph& glyph : Messages[i]) {
-      glyph.DestRect.X -= diff;
-      glyph.DestRect.Y = TextMiddleY + (i * TextLineHeight);
+      glyph.MoveTo(
+          {glyph.Position.x - diff, TextMiddleY + (i * TextLineHeight)});
     }
 
     Label* message = new Label(Messages[i], RendererOutlineMode::Full);
@@ -63,10 +63,9 @@ void SysMesBox::Show() {
   float tempChoiceX = ChoiceX;
 
   for (int i = 0; i < ChoiceCount; i++) {
-    diff = Choices[i][0].DestRect.X - tempChoiceX;
+    diff = Choices[i][0].Position.x - tempChoiceX;
     for (ProcessedTextGlyph& glyph : Choices[i]) {
-      glyph.DestRect.X -= diff;
-      glyph.DestRect.Y = ChoiceY;
+      glyph.MoveTo({glyph.Position.x - diff, ChoiceY});
     }
 
     Button* choice = new Button(
@@ -173,11 +172,7 @@ void SysMesBox::AddMessage(Vm::BufferOffsetContext ctx) {
       TextLayoutPlainLine(&dummy, 255, *Profile::Dialogue::DialogueFont,
                           TextFontSize, Profile::Dialogue::ColorTable[0], 1.0f,
                           glm::vec2(TextX, 0.0f), TextAlignment::Left);
-  float mesLen = 0.0f;
-  for (const ProcessedTextGlyph& glyph : Messages[MessageCount]) {
-    mesLen += glyph.DestRect.Width;
-  }
-  MessageWidths[MessageCount] = mesLen;
+  MessageWidths[MessageCount] = GetTextWidth(Messages[MessageCount]);
   MessageCount++;
 }
 
@@ -189,11 +184,7 @@ void SysMesBox::AddChoice(Vm::BufferOffsetContext ctx) {
       TextLayoutPlainLine(&dummy, 255, *Profile::Dialogue::DialogueFont,
                           TextFontSize, Profile::Dialogue::ColorTable[0], 1.0f,
                           glm::vec2(TextX, 0.0f), TextAlignment::Left);
-  float mesLen = 0.0f;
-  for (const ProcessedTextGlyph& choice : Choices[ChoiceCount]) {
-    mesLen += choice.DestRect.Width;
-  }
-  ChoiceWidths[ChoiceCount] = mesLen;
+  ChoiceWidths[ChoiceCount] = GetTextWidth(Choices[ChoiceCount]);
   ChoiceCount++;
 }
 

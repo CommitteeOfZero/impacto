@@ -222,9 +222,6 @@ void MusicMenu::Render() {
     MainScrollbar.MoveTo(ScrollbarPosition + offset);
 
     MainItems->MoveTo(offsetScroll);
-    for (auto button : MainItems->Children)
-      static_cast<Widgets::CHLCC::TrackSelectButton*>(button)->MoveTracks(
-          offsetScroll);
   }
   MainItems->Render();
   MainScrollbar.Render();
@@ -386,10 +383,6 @@ void MusicMenu::UpdateInput(float dt) {
       }
       glm::vec2 itemsPos = {0, -ScrollY};
       MainItems->MoveTo(itemsPos);
-      for (auto child : MainItems->Children) {
-        auto button = static_cast<Widgets::CHLCC::TrackSelectButton*>(child);
-        button->MoveTracks(itemsPos);
-      }
 
       if (MainScrollbar.IsScrollHeld() && CurrentlyFocusedElement) {
         // advance focus during drag

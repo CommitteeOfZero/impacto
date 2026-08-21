@@ -170,7 +170,7 @@ void DialoguePage::Move(const glm::vec2 relativeOffset) {
   TextPage::Move(relativeOffset);
 
   for (ProcessedTextGlyph& glyph : Name) {
-    glyph.DestRect += relativeOffset;
+    glyph.Move(relativeOffset);
   }
 }
 
@@ -252,11 +252,9 @@ RectF DialoguePage::SetBounds() {
   if (Glyphs.empty()) return Bounds = RectF{};
   TextPage::SetBounds();
 
-  Bounds =
-      std::accumulate(Name.begin(), Name.end(), Bounds,
-                      [](const RectF bounds, const ProcessedTextGlyph& glyph) {
-                        return RectF::Coalesce(bounds, glyph.DestRect);
-                      });
+  if (!Name.empty()) {
+    Bounds = RectF::Coalesce(Bounds, GetTextBounds(Name));
+  }
 
   return Bounds;
 }

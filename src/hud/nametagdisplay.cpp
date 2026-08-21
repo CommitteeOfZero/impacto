@@ -61,13 +61,8 @@ void ThreePieceNametagDisplay::Render(const NameInfo& nameInfo,
 
   Renderer->DrawSprite(NametagLeftSprite, NametagPosition, tint);
 
-  const RectF nameBounds = std::accumulate(
-      nameInfo.Name.begin() + 1, nameInfo.Name.end(), nameInfo.Name[0].DestRect,
-      [](const RectF rect, const ProcessedTextGlyph& glyph) {
-        return RectF::Coalesce(rect, glyph.DestRect);
-      });
-  float rightX =
-      NametagPosition.x + NametagLeftSprite.ScaledWidth() + nameBounds.Width;
+  float rightX = NametagPosition.x + NametagLeftSprite.ScaledWidth() +
+                 GetTextWidth(nameInfo.Name);
 
   if (NametagCurrentType == NametagType::ThreePiece) {
     rightX -= NametagMiddleBaseWidth;

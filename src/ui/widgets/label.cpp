@@ -31,7 +31,7 @@ void Label::Render() {
 
 void Label::Move(glm::vec2 relativePosition) {
   for (ProcessedTextGlyph& glyph : Text) {
-    glyph.DestRect += relativePosition;
+    glyph.Move(relativePosition);
   }
   Widget::Move(relativePosition);
 }

@@ -9,7 +9,7 @@ namespace UI {
 namespace Widgets {
 namespace CHLCC {
 
-class TrackSelectButton : public Button {
+class TrackSelectButton final : public Button {
  public:
   TrackSelectButton(int id, Sprite const& focused, glm::vec2 pos,
                     glm::vec2 numOffset, glm::vec2 trackOffset,
@@ -17,7 +17,8 @@ class TrackSelectButton : public Button {
   void SetTrackText(Vm::BufferOffsetContext strAdr);
   void SetArtistText(Vm::BufferOffsetContext strAdr);
   void Render() override;
-  void MoveTracks(glm::vec2 baseline);
+
+  void Move(glm::vec2 offset) override;
 
  private:
   Label TrackNum;

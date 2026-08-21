@@ -44,10 +44,11 @@ void TrackSelectButton::Render() {
   Artist.Render();
 }
 
-void TrackSelectButton::MoveTracks(glm::vec2 baseline) {
-  TrackNum.MoveTo(TrackNumPos + baseline);
-  TrackName.MoveTo(TrackTextPos + baseline);
-  Artist.MoveTo(ArtistTextPos + baseline);
+void TrackSelectButton::Move(const glm::vec2 offset) {
+  Button::Move(offset);
+  TrackNum.Move(offset);
+  TrackName.Move(offset);
+  Artist.Move(offset);
 }
 
 }  // namespace CHLCC

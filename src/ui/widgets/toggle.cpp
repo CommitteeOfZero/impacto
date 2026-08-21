@@ -92,9 +92,7 @@ void Toggle::SetText(Vm::Sc3Stream& stream, float fontSize,
                               TextAlignment::Left);
   OutlineMode = outlineMode;
   FontSize = fontSize;
-  for (const ProcessedTextGlyph& glyph : Label) {
-    TextWidth += glyph.DestRect.Width;
-  }
+  TextWidth = GetTextWidth(Label);
 }
 
 }  // namespace Widgets

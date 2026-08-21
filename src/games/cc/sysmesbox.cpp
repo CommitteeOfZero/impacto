@@ -247,14 +247,8 @@ void SysMesBox::AddMessage(Vm::BufferOffsetContext ctx) {
       TextLayoutPlainLine(&dummy, 255, *Profile::Dialogue::DialogueFont,
                           TextFontSize, Profile::Dialogue::ColorTable[0], 1.0f,
                           glm::vec2(TextX, 0.0f), TextAlignment::Left);
-  if (!Messages[MessageCount].empty()) {
-    float mesLen = 0.0f;
-    for (size_t i = 0; i < Messages[MessageCount].size(); i++) {
-      mesLen += Messages[MessageCount][i].DestRect.Width;
-    }
-    MessageWidths[MessageCount] = mesLen;
-    MessageCount++;
-  }
+  MessageWidths[MessageCount] = GetTextWidth(Messages[MessageCount]);
+  MessageCount++;
 }
 
 void SysMesBox::AddChoice(Vm::BufferOffsetContext ctx) {

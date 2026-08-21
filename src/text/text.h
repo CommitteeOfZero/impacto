@@ -112,6 +112,9 @@ void TextLayoutAlignment(TextAlignment alignment, const float posX,
 [[nodiscard]] float TextGetPlainLineWidth(Sc3Type auto&& stream,
                                           const Font& font, float fontSize);
 
+[[nodiscard]] RectF GetTextBounds(std::span<const ProcessedTextGlyph> text);
+[[nodiscard]] float GetTextWidth(std::span<const ProcessedTextGlyph> text);
+
 size_t TextLayoutPlainString(const std::string_view str,
                              std::span<ProcessedTextGlyph> outGlyphs,
                              const Font& font, float fontSize,

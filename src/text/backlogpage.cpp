@@ -23,7 +23,7 @@ void BacklogPage::Move(const glm::vec2 relativePos) {
   TextPage::Move(relativePos);
 
   for (ProcessedTextGlyph& glyph : Name) {
-    glyph.DestRect += relativePos;
+    glyph.Move(relativePos);
   }
 }
 
@@ -37,11 +37,9 @@ RectF BacklogPage::SetBounds() {
   if (Glyphs.empty()) return Bounds = RectF{};
   TextPage::SetBounds();
 
-  Bounds =
-      std::accumulate(Name.begin(), Name.end(), Bounds,
-                      [](const RectF bounds, const ProcessedTextGlyph& glyph) {
-                        return RectF::Coalesce(bounds, glyph.DestRect);
-                      });
+  if (!Name.empty()) {
+    Bounds = RectF::Coalesce(Bounds, GetTextBounds(Name));
+  }
 
   return Bounds;
 }

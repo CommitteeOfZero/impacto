@@ -75,6 +75,7 @@ ProcessedTextGlyph EdgeDetectedSingleVariableWidthSheetFont::PlaceGlyph(
                         position.y + glyphData.Offset.y * fontScale.y,
                         glyphData.GlyphSprite.ScaledWidth() * fontScale.x,
                         glyphData.GlyphSprite.ScaledHeight() * fontScale.y),
+      .Position = position,
   };
 }
 

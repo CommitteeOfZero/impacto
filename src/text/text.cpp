@@ -1,6 +1,7 @@
 #include "text.h"
 
 #include <memory>
+#include <numeric>
 
 #include <utf8cpp/utf8.h>
 
@@ -242,32 +243,30 @@ void TextLayoutAlignment(TextAlignment alignment, float posX,
                          const std::span<ProcessedTextGlyph> outGlyphs) {
   if (outGlyphs.empty()) return;
 
-  const float left = outGlyphs.front().DestRect.Left();
-  const float right = outGlyphs.back().DestRect.Right();
-  const float textWidth = right - left;
+  const RectF bounds = GetTextBounds(outGlyphs);
 
   switch (alignment) {
     case TextAlignment::Left: {
       // posX is left
-      const float offset = posX - left;
+      const float offset = posX - bounds.Left();
       for (ProcessedTextGlyph& glyph : outGlyphs) {
-        glyph.DestRect.X += offset;
+        glyph.Move({offset, 0.0f});
       }
     } break;
 
     case TextAlignment::Right: {
       // posX is right
-      const float offset = posX - right;
+      const float offset = posX - bounds.Right();
       for (ProcessedTextGlyph& glyph : outGlyphs) {
-        glyph.DestRect.X += offset;
+        glyph.Move({offset, 0.0f});
       }
     } break;
 
     case TextAlignment::Center: {
       // posX is center
-      const float offset = posX - textWidth / 2.0f;
+      const float offset = posX - bounds.Width / 2.0f;
       for (ProcessedTextGlyph& glyph : outGlyphs) {
-        glyph.DestRect.X += offset;
+        glyph.Move({offset, 0.0f});
       }
     } break;
   }
@@ -290,6 +289,20 @@ float TextGetPlainLineWidth(Sc3Type auto&& stream, const Font& font,
   }
 
   return width;
+}
+
+RectF GetTextBounds(const std::span<const ProcessedTextGlyph> text) {
+  return text.empty()
+             ? RectF()
+             : std::accumulate(
+                   text.begin() + 1, text.end(), text.front().DestRect,
+                   [](const RectF rect, const ProcessedTextGlyph& glyph) {
+                     return RectF::Coalesce(rect, glyph.DestRect);
+                   });
+}
+
+float GetTextWidth(const std::span<const ProcessedTextGlyph> text) {
+  return GetTextBounds(text).Width;
 }
 
 size_t TextLayoutPlainString(const std::string_view str,

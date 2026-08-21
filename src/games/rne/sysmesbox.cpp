@@ -279,11 +279,7 @@ void SysMesBox::AddMessage(Vm::BufferOffsetContext ctx) {
       TextLayoutPlainLine(&dummy, 255, *Profile::Dialogue::DialogueFont,
                           TextFontSize, Profile::Dialogue::ColorTable[10], 1.0f,
                           glm::vec2(TextX, 0.0f), TextAlignment::Left);
-  float mesLen = 0.0f;
-  for (const ProcessedTextGlyph& glyph : Messages[MessageCount]) {
-    mesLen += glyph.DestRect.Width;
-  }
-  MessageWidths[MessageCount] = mesLen;
+  MessageWidths[MessageCount] = GetTextWidth(Messages[MessageCount]);
   MessageCount++;
 }
 

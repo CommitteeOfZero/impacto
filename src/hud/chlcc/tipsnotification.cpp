@@ -80,10 +80,8 @@ void TipsNotification::Update(const float dt) {
         std::sin(SlideAnimation.Progress * std::numbers::pi_v<float> / 2.0f);
     TextPartBefore.MoveTo(TextTargetPosition * slideProgress +
                           TextStartPosition * (1.0f - slideProgress));
-    TipName.MoveTo(TextPartBefore.Bounds.GetPos() +
-                   glm::vec2(TextPartBefore.Bounds.Width, 0.0f));
-    TextPartAfter.MoveTo(TipName.Bounds.GetPos() +
-                         glm::vec2(TipName.Bounds.Width, 0.0f));
+    TipName.MoveTo(TextPartBefore.Bounds.TopRight());
+    TextPartAfter.MoveTo(TipName.Bounds.TopRight());
 
     // Don't fade out if not the last entry in the queue,
     // and don't fade in if not the first

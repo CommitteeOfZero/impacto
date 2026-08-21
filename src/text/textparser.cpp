@@ -266,7 +266,7 @@ void TextParser::FinishLine(const size_t nextLineStart, const bool force) {
     const std::span<const ProcessedTextGlyph> base =
         std::span(Glyphs.begin() + chunk.FirstBaseCharacter, chunk.BaseLength);
     glm::vec2 pos =
-        glm::vec2(base.front().DestRect.X,
+        glm::vec2(base.front().Position.x,
                   ModeInfo.WindowPos.y + CurrentLineTop + CurrentLineTopMargin +
                       (ModeInfo.RubyGlyphSize.y - rubyFontSize));
 
@@ -289,25 +289,24 @@ void TextParser::FinishLine(const size_t nextLineStart, const bool force) {
     } else {
       TextLayoutPlainLine(rubyText, chunk.Text, *DialogueFont, rubyFontSize,
                           CurrentColors, 1.0f, pos, TextAlignment::Left);
-      const float baseWidth =
-          base.back().DestRect.Right() - base.front().DestRect.X;
+      const float baseWidth = GetTextWidth(base);
       const float nonSpacedWidth =
           chunk.Text.back().DestRect.Right() - chunk.Text.front().DestRect.X;
       const float excessWidth = baseWidth - nonSpacedWidth;
 
       if (chunkSize == 1) {
-        chunk.Text.front().DestRect.X += baseWidth / 2.0f;
+        chunk.Text.front().Move({baseWidth / 2.0f, 0.0f});
       } else if (excessWidth <= 0.0f) {
         // Ruby overflows => center over base with normal spacing
         const float offsetX = (baseWidth - nonSpacedWidth) / 2.0f;
         for (auto& glyph : chunk.Text) {
-          glyph.DestRect.X += offsetX;
+          glyph.Move({offsetX, 0.0f});
         }
       } else {
         // Evenly space out all ruby characters over the block of base text
         const float extraSpacing = excessWidth / (chunkSize - 1);
         for (size_t rubyGlyphId = 0; rubyGlyphId < chunkSize; rubyGlyphId++) {
-          chunk.Text[rubyGlyphId].DestRect.X += extraSpacing * rubyGlyphId;
+          chunk.Text[rubyGlyphId].Move({extraSpacing * rubyGlyphId, 0.0f});
         }
       }
 
@@ -328,7 +327,7 @@ void TextParser::FinishLine(const size_t nextLineStart, const bool force) {
         ModeInfo.NameDispMode ==
             TextModeInfo::NameDispModeType::RelativeToWindow) {
       for (auto& glyph : Name) {
-        glyph.DestRect.Y += ModeInfo.RubyLineSpacing + rubyHeight;
+        glyph.Move({0.0f, ModeInfo.RubyLineSpacing + rubyHeight});
       }
     }
   }
@@ -338,22 +337,21 @@ void TextParser::FinishLine(const size_t nextLineStart, const bool force) {
   CurrentLineTopMargin *= normalizedFontSize;
 
   if (!currentLine.empty()) {
+    const RectF bounds = GetTextBounds(currentLine);
     float marginXOffset = 0;
-    if (currentLine.front().DestRect.X > ModeInfo.WindowPos.x) {
+    if (currentLine.front().Position.x > ModeInfo.WindowPos.x) {
       marginXOffset =
           (currentLine.front().DestRect.Right() - ModeInfo.WindowPos.x) *
           (normalizedFontSize - 1.0f);
     }
 
-    const float lastGlyphX = currentLine.back().DestRect.Right();
     const float xAlignmentOffset = [&]() {
       switch (Alignment) {
         case TextAlignment::Center:
-          return (ModeInfo.MaxLineWidth - (lastGlyphX - ModeInfo.WindowPos.x)) /
-                 2.0f;
+          return (ModeInfo.MaxLineWidth - bounds.Width) / 2.0f;
           break;
         case TextAlignment::Right:
-          return ModeInfo.MaxLineWidth - lastGlyphX - marginXOffset;
+          return ModeInfo.MaxLineWidth - bounds.Right() - marginXOffset;
           break;
         case TextAlignment::Left:
           return marginXOffset;
@@ -362,9 +360,8 @@ void TextParser::FinishLine(const size_t nextLineStart, const bool force) {
       }
     }();
     for (ProcessedTextGlyph& glyph : currentLine) {
-      glyph.DestRect.X += xAlignmentOffset;
-      glyph.DestRect.Y +=
-          ModeInfo.WindowPos.y + CurrentLineTop + CurrentLineTopMargin;
+      glyph.Move({xAlignmentOffset, ModeInfo.WindowPos.y + CurrentLineTop +
+                                        CurrentLineTopMargin});
     }
   }
 

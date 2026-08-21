@@ -83,8 +83,7 @@ void MusicTrackButton::Move(glm::vec2 relativePos) {
   const auto moveGlyphs = [&](std::span<ProcessedTextGlyph> glyphs,
                               glm::vec2 offset) {
     for (auto& glyph : glyphs) {
-      glyph.DestRect.X += offset.x;
-      glyph.DestRect.Y += offset.y;
+      glyph.Move(offset);
     }
   };
   const auto move = [&](glm::vec2 offset) {

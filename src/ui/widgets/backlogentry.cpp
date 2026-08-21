@@ -26,19 +26,13 @@ BacklogEntry::BacklogEntry(Vm::BufferOffsetContext scrCtx,
   dummy.ScriptBufferId = scrCtx.ScriptBufferId;
   Page.AddString(&dummy);
 
-  Bounds = !Page.Glyphs.empty() ? Page.Glyphs.begin()->DestRect
-                                : RectF(pos.x, pos.y, 0, 0);
-  for (const ProcessedTextGlyph& glyph : Page.Glyphs) {
-    Bounds = RectF::Coalesce(Bounds, glyph.DestRect);
-  }
+  Bounds = GetTextBounds(Page.Glyphs);
   for (const RubyChunk& chunk : Page.RubyChunks) {
-    for (const auto& glyph : chunk.Text) {
-      Bounds = RectF::Coalesce(Bounds, glyph.DestRect);
-    }
+    Bounds = RectF::Coalesce(Bounds, GetTextBounds(chunk.Text));
   }
   Position.x = Bounds.X;  // X position should not take name into account
-  for (const ProcessedTextGlyph& glyph : Page.Name) {
-    Bounds = RectF::Coalesce(Bounds, glyph.DestRect);
+  if (!Page.Name.empty()) {
+    Bounds = RectF::Coalesce(Bounds, GetTextBounds(Page.Name));
   }
   Position.y = Bounds.Y;  // Y position should take name into account
 

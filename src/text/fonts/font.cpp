@@ -62,6 +62,7 @@ ProcessedTextGlyph SingleSheetFont::PlaceGlyph(const uint32_t glyphId,
       .DestRect =
           RectF(position.x, position.y,
                 (fontSize / BitmapEmWidth) * AdvanceWidths[glyphId], fontSize),
+      .Position = position,
   };
 }
 
@@ -189,6 +190,7 @@ ProcessedTextGlyph SeparateOutlineSheetFont::PlaceGlyph(
       .DestRect =
           RectF(position.x, position.y,
                 (fontSize / BitmapEmWidth) * AdvanceWidths[glyphId], fontSize),
+      .Position = position,
   };
 }
 
