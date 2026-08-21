@@ -20,6 +20,40 @@ enum class SubtitleConfigType : uint8_t {
   All = Karaoke | Translation,
 };
 
+constexpr SubtitleConfigType operator~(SubtitleConfigType config) {
+  return static_cast<SubtitleConfigType>(~to_underlying(config));
+}
+constexpr SubtitleConfigType operator|(SubtitleConfigType config,
+                                       SubtitleConfigType other) {
+  return static_cast<SubtitleConfigType>(to_underlying(config) |
+                                         to_underlying(other));
+}
+constexpr SubtitleConfigType operator&(SubtitleConfigType config,
+                                       SubtitleConfigType other) {
+  return static_cast<SubtitleConfigType>(to_underlying(config) &
+                                         to_underlying(other));
+}
+constexpr SubtitleConfigType operator^(SubtitleConfigType config,
+                                       SubtitleConfigType other) {
+  return static_cast<SubtitleConfigType>(to_underlying(config) ^
+                                         to_underlying(other));
+}
+constexpr SubtitleConfigType& operator|=(SubtitleConfigType& config,
+                                         SubtitleConfigType other) {
+  config = config | other;
+  return config;
+}
+constexpr SubtitleConfigType& operator&=(SubtitleConfigType& config,
+                                         SubtitleConfigType other) {
+  config = config & other;
+  return config;
+}
+constexpr SubtitleConfigType& operator^=(SubtitleConfigType& config,
+                                         SubtitleConfigType other) {
+  config = config ^ other;
+  return config;
+}
+
 struct SubtitleTrackFile {
   SubtitleType Type;
   SubtitleConfigType Config;

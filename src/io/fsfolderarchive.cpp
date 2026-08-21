@@ -11,10 +11,6 @@
 namespace Impacto {
 namespace Io {
 
-struct TextMetaEntry : FileMeta {
-  std::string FullPath;
-};
-
 IoError FSFolderArchive::Open(FileMeta* file, Stream** outStream) {
   TextMetaEntry* entry = (TextMetaEntry*)file;
   IoError err = PhysicalFileStream::Create(entry->FullPath, outStream);

@@ -243,7 +243,7 @@ void BacklogMenu<EntryType>::UpdateInput(float dt) {
     }
   }
 
-  if (UserConfig::CommonSettings.CloseBacklogWhenReachedEnd) {
+  if (UserConfig::EnhancementsSettings.CloseBacklogWhenReachedEnd) {
     constexpr float ScrollCloseTimerDuration = 0.2f;
 
     constexpr float epsilon = std::numeric_limits<float>::epsilon();

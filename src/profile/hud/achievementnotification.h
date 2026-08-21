@@ -10,6 +10,7 @@ namespace AchievementNotification {
 
 inline std::string BackgroundPath;
 inline std::string FontPath;
+inline float Scale;
 inline float DisplayDuration;
 inline float FadeDuration;
 inline float IconSize;

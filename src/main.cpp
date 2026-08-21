@@ -1,6 +1,8 @@
 #include "impacto.h"
 
 #include <ranges>
+#include <fmt/format.h>
+#include <fmt/ranges.h>
 
 #ifdef EMSCRIPTEN
 #include <emscripten.h>
@@ -17,18 +19,24 @@
 using namespace Impacto;
 
 static uint64_t t;
+static float TickDeltaTime() {
+  // TODO: Better FPS lock
+  uint64_t t2 = SDL_GetPerformanceCounter();
+  float dt = (float)(t2 - t) / (float)SDL_GetPerformanceFrequency();
+  t = t2;
+  return std::min(dt, 1.0f);
+}
 
 void GameLoop() {
-  // TODO: Better FPS lock
-  uint64_t t2;
-  float dt;
-  t2 = SDL_GetPerformanceCounter();
-  dt = ((float)(t2 - t) / (float)SDL_GetPerformanceFrequency());
-  t = t2;
-  dt = std::min(dt, 1.0f);
-
+  float dt = TickDeltaTime();
   Game::Update(dt);
   Game::Render();
+}
+
+void LauncherLoop() {
+  float dt = TickDeltaTime();
+  Game::LauncherUpdate(dt);
+  Game::LauncherRender();
 }
 
 #ifdef EMSCRIPTEN
@@ -43,7 +51,6 @@ concept is_arg_handler =
     std::invocable<T> || std::invocable<T, std::string_view>;
 
 static void HandleArguments(std::vector<std::string_view> args) {
-  bool hasSetChannel = false;
   for (size_t i = 0; i < args.size(); ++i) {
     std::string_view arg = args[i];
 
@@ -80,28 +87,54 @@ static void HandleArguments(std::vector<std::string_view> args) {
 
     const auto argHandlers = std::tuple{
         make_handler(
-            [&](std::string_view input) { LogSetFile(std::string(input)); },
+            [&](std::string_view input) {
+              Impacto::UserConfig::CommonSettings.LogFile = std::string(input);
+              Impacto::UserConfig::CommonSettings.LoggingToFile = true;
+              LogInitFile();
+            },
             "-lf", "--logfile"),
         make_handler(
             [&](std::string_view input) {
-              auto inputChannel = StringToChannel(input);
-              if (!hasSetChannel) {
-                g_LogChannels = {};
-                hasSetChannel = true;
+              std::optional<Impacto::LogChannel> logChannelOpt =
+                  StringToChannel(input);
+              if (!logChannelOpt) {
+                ImpLog(LogLevel::Fatal, LogChannel::General,
+                       "Invalid log channel \"{}\", expected one of {}, All!\n",
+                       input,
+                       fmt::join(magic_enum::enum_names<Impacto::LogChannel>(),
+                                 ", "));
+                exit(1);
+              };
+              auto& logChannels =
+                  Impacto::UserConfig::CommonSettings.LogChannels;
+              if (!Impacto::UserConfig::OverrideLogChannels) {
+                logChannels = {};
+                Impacto::UserConfig::OverrideLogChannels = true;
               }
-              if (inputChannel == LogChannel::None) {
-                g_LogChannels = inputChannel;
+              if (*logChannelOpt == LogChannel::None) {
+                logChannels = *logChannelOpt;
               } else {
-                g_LogChannels |= inputChannel;
+                logChannels |= *logChannelOpt;
               }
             },
             "-lc", "--logchannel"),
         make_handler(
-            [&](std::string_view input) { g_LogLevel = StringToLevel(input); },
+            [&](std::string_view input) {
+              auto logLevelOpt =
+                  magic_enum::enum_cast<Impacto::LogLevel>(input);
+              if (!logLevelOpt) {
+                ImpLog(LogLevel::Fatal, LogChannel::General,
+                       "Invalid log level \"{}\", expected one of {}!\n", input,
+                       magic_enum::enum_names<Impacto::LogLevel>());
+                exit(1);
+              }
+              Impacto::UserConfig::CommonSettings.LogLvl = *logLevelOpt;
+            },
             "-ll", "--loglevel"),
+
         make_handler(
             [&](std::string_view input) {
-              UserConfig ::ActiveGameOverride = input;
+              UserConfig ::SetActiveGame(std::string(input));
             },
             "-g", "--game"),
         make_handler(
@@ -150,13 +183,6 @@ int main(int argc, char* argv[]) {
 
   std::string profilePath;
   LogInit();
-  g_LogChannels = LogChannel::All;
-  g_LogLevel = LogLevel::Fatal;
-#if __SWITCH__
-  LogSetFile("Impacto_Log.txt");
-#else
-  LogSetConsole(true);
-#endif
 
   std::vector<std::string_view> arguments;
   for (int i = 1; i < argc; ++i) {
@@ -197,6 +223,14 @@ int main(int argc, char* argv[]) {
 #else
     t = SDL_GetPerformanceCounter();
 
+    while (!Game::ShouldQuit && UserConfig::GetActiveGame().empty()) {
+      LauncherLoop();
+    }
+
+    if (!Game::ShouldQuit) {
+      Game::InitGameProfile();
+    }
+    t = SDL_GetPerformanceCounter();
     while (!Game::ShouldQuit) {
       GameLoop();
     }

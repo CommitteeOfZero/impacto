@@ -22,6 +22,7 @@
 #include "../ui/ui.h"
 #include "../data/savesystem.h"
 #include "../data/achievementsystem.h"
+#include "../data/achievementsystemcommon.h"
 #include "../data/tipssystem.h"
 #include "../hud/datedisplay.h"
 #include "../hud/waiticondisplay.h"
@@ -160,6 +161,7 @@ static void DefineEnums() {
   DefineEnum<Impacto::Game::DrawComponentType>(LuaState);
   DefineEnum<SaveSystem::SaveDataType>(LuaState);
   DefineEnum<AchievementSystem::AchievementDataType>(LuaState);
+  DefineEnum<AchievementSystem::AchievementRarity>(LuaState);
   DefineEnum<TipsSystem::TipsSystemType>(LuaState);
   DefineEnum<UI::CommonMenuType>(LuaState);
   DefineEnum<UI::SystemMenuType>(LuaState);
@@ -275,7 +277,9 @@ void Configure() {
   BasePaths::Configure();
   GameDefinition::Configure();
   UserConfig::Configure();
+}
 
+void ConfigureGameProfile() {
   auto activePatch = UserConfig::GetPatchProfile();
   if (BasePaths::RootPatchesDir.empty() && activePatch) {
     ImpLog(LogLevel::Fatal, LogChannel::Profile,

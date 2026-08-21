@@ -1,9 +1,15 @@
 
 
 root.LayerCount = 100;
-root.GameFeatures = GameFeature.Sc3VirtualMachine | GameFeature.Renderer2D | GameFeature.Input | 
-    GameFeature.Audio | GameFeature.Video |  GameFeature.Subtitles | GameFeature.DebugMenu |
-    GameFeature.Achievements;
+root.GameFeatures = GameFeature.Sc3VirtualMachine |
+                    GameFeature.Renderer2D |
+                    GameFeature.Input |
+                    GameFeature.Audio |
+                    GameFeature.Video |
+                    GameFeature.Subtitles |
+                    GameFeature.DebugMenu |
+                    GameFeature.Achievements |
+                    GameFeature.Overlay;
 root.DesignWidth = 1280;
 root.DesignHeight = 720;
 
@@ -40,7 +46,7 @@ include(root.BasePaths.RootProfilesDir .. '/common/scriptvars.lua');
 include(root.BasePaths.RootProfilesDir .. '/chlcc/scriptinput.lua');
 include(root.BasePaths.RootProfilesDir .. '/chlcc/scriptvars.lua');
 include(root.BasePaths.RootProfilesDir .. '/chlcc/savedata.lua');
-include(root.BasePaths.RootProfilesDir .. '/chlcc/achievementsystem.lua');
+-- include(root.BasePaths.RootProfilesDir .. '/chlcc/achievementsystem.lua');
 include(root.BasePaths.RootProfilesDir .. '/chlcc/tipssystem.lua');
 include(root.BasePaths.RootProfilesDir .. '/chlcc/vfs.lua');
 include(root.BasePaths.RootProfilesDir .. '/chlcc/sprites.lua');
@@ -67,3 +73,4 @@ include(root.BasePaths.RootProfilesDir .. '/chlcc/hud/extramenus.lua');
 include(root.BasePaths.RootProfilesDir .. '/chlcc/hud/trophymenu.lua');
 include(root.BasePaths.RootProfilesDir .. '/chlcc/gamespecific.lua');
 include(root.BasePaths.RootProfilesDir .. '/chlcc/waveeffects.lua');
+-- include(root.BasePaths.RootProfilesDir .. '/chlcc/subtitle.lua');

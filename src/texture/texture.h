@@ -5,6 +5,7 @@
 #include "../io/stream.h"
 
 namespace Impacto {
+class BaseRenderer;
 
 enum TexFmt { TexFmt_RGB, TexFmt_RGBA, TexFmt_U8 };
 
@@ -22,7 +23,7 @@ struct Texture {
   void LoadSolidColor(int width, int height, uint32_t color = 0xFFFFFFFF);
   void LoadCheckerboard();
   void LoadPoliticalCompass();
-  uint32_t Submit();
+  uint32_t Submit(BaseRenderer* renderer = nullptr);
 
   using TextureLoader = auto (*)(Io::Stream* stream, Texture* texture) -> bool;
   static bool AddTextureLoader(TextureLoader c);

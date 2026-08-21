@@ -5,9 +5,11 @@
 
 namespace Impacto {
 
+enum class DisplayMode { Windowed, Fullscreen, Borderless };
 enum class CursorType { Default, Pointer };
 inline CursorType ActiveCursorType = CursorType::Default;
 
+void InitWindow();
 void SetWindowIcon(SDL_Window* window);
 void InitCursors();
 void RequestCursor(CursorType type);
@@ -34,6 +36,7 @@ class BaseWindow {
   virtual void Update() = 0;
   virtual void Draw() = 0;
   virtual void Shutdown() = 0;
+  void ApplyWindowSettings();
 
   SDL_Window* SDLWindow;
 
@@ -61,6 +64,10 @@ class BaseWindow {
   int lastHeight = -1;
   int lastMsaa = 0;
   float lastRenderScale = 1.0f;
+
+ private:
+  SDL_Rect GetDisplayBounds(std::optional<Uint32> flags = std::nullopt);
+  void ClampAspectRatio(int boundW, int boundH);
 };
 
 }  // namespace Impacto

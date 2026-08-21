@@ -18,7 +18,7 @@
 
 namespace Impacto {
 
-void InitRenderer() {
+void CreateRenderer() {
   switch (UserConfig::AdvancedSettings.ActiveRenderer) {
 #ifndef IMPACTO_DISABLE_OPENGL
     case RendererType::OpenGL:
@@ -40,8 +40,6 @@ void InitRenderer() {
              "Unknown or unsupported renderer selected!\n");
       exit(1);
   }
-
-  Renderer->Init();
 }
 
 void BaseRenderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
