@@ -30,7 +30,6 @@ class SaveEntryButton : public Widgets::Button {
   void RefreshInfo();
   void ToggleLock();
 
-  void AddNormalSpriteLabel(Sprite norm, glm::vec2 pos);
   void RefreshSaveDateText();
   void RefreshSceneTitleText(int strIndex);
   void RefreshCharacterRouteText(int strIndex);
@@ -40,7 +39,6 @@ class SaveEntryButton : public Widgets::Button {
   int SaveStatus;
   SaveSystem::SaveType Type;
 
-  Label NormalSpriteLabel;
   Label FocusedSpriteLabel;
   Label LockedSymbol;
   Label Thumbnail;

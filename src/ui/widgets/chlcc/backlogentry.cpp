@@ -25,13 +25,14 @@ BacklogEntry::BacklogEntry(Vm::BufferOffsetContext scrCtx,
   if (!Page.Name.empty()) {
     const float nameFontSize =
         TextModesInfo[Profile::Dialogue::REVMessageModeIdx].NameGlyphSize.y;
-    BeforeNametagLabel.SetText(NametagCommonStrings[0], nameFontSize,
-                               Profile::Dialogue::REVNameOutlineMode,
-                               Profile::Dialogue::REVNameColor);
-    NametagLabel.SetText(Page.Name, Profile::Dialogue::REVNameOutlineMode);
-    AfterNametagLabel.SetText(NametagCommonStrings[1], nameFontSize,
-                              Profile::Dialogue::REVNameOutlineMode,
-                              Profile::Dialogue::REVNameColor);
+    BeforeNametagLabel.SetText(
+        NametagCommonStrings[0], {0.0f, 0.0f}, nameFontSize,
+        Profile::Dialogue::REVNameOutlineMode, Profile::Dialogue::REVNameColor);
+    NametagLabel.SetText(Page.Name, {0.0f, 0.0f},
+                         Profile::Dialogue::REVNameOutlineMode);
+    AfterNametagLabel.SetText(
+        NametagCommonStrings[1], {0.0f, 0.0f}, nameFontSize,
+        Profile::Dialogue::REVNameOutlineMode, Profile::Dialogue::REVNameColor);
   }
 }
 

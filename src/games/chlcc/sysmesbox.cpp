@@ -46,13 +46,10 @@ void SysMesBox::Show() {
   for (int i = 0; i < MessageCount; i++) {
     if (Messages[i].empty()) continue;
 
-    diff = Messages[i][0].DestRect.X - (TextX - (maxWidth / 2.0f));
-    for (ProcessedTextGlyph& glyph : Messages[i]) {
-      glyph.DestRect.X -= diff;
-      glyph.DestRect.Y = TextMiddleY + (i * TextLineHeight);
-    }
-
-    Label* message = new Label(Messages[i], RendererOutlineMode::Full);
+    Label* message =
+        new Label(Messages[i],
+                  {TextX - maxWidth / 2.0f, TextMiddleY + i * TextLineHeight},
+                  RendererOutlineMode::Full);
 
     MessageItems->Add(message, FDIR_DOWN);
   }

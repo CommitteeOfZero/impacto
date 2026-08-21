@@ -316,25 +316,25 @@ void TipsMenu::SwitchToTipId(int id) {
   TipsSystem::SetTipUnreadState(actualId, false);
   Category->SetText(Vm::BufferOffsetContext{.ScriptBufferId = tipsScrBufId,
                                             .IpOffset = record->StringAdr[0]},
-                    (float)CategoryFontSize, RendererOutlineMode::None,
-                    {TipsMenuDarkTextColor, 0});
+                    CategoryPos, (float)CategoryFontSize,
+                    RendererOutlineMode::None, {TipsMenuDarkTextColor, 0});
   Name->SetText(Vm::BufferOffsetContext{.ScriptBufferId = tipsScrBufId,
                                         .IpOffset = record->StringAdr[1]},
-                (float)NameFontSize, RendererOutlineMode::None,
+                NamePos, (float)NameFontSize, RendererOutlineMode::None,
                 {TipsMenuDarkTextColor, 0});
   Pronunciation->SetText(
       Vm::BufferOffsetContext{.ScriptBufferId = tipsScrBufId,
                               .IpOffset = record->StringAdr[2]},
-      (float)PronunciationFontSize, RendererOutlineMode::None, 0);
+      PronunciationPos, (float)PronunciationFontSize, RendererOutlineMode::None,
+      0);
 
   {
     uint16_t sc3StringBuffer[4];
     TextGetSc3String(fmt::format("{:03d}", id), sc3StringBuffer);
     Vm::Sc3Stream stream(sc3StringBuffer);
-    Number->Bounds.SetPos(NumberPos);
     stream = Vm::Sc3Stream(sc3StringBuffer);
-    Number->SetText(stream, (float)NumberFontSize, RendererOutlineMode::None,
-                    0);
+    Number->SetText(stream, NumberPos, (float)NumberFontSize,
+                    RendererOutlineMode::None, 0);
   }
 
   Vm::Sc3VmThread dummy;

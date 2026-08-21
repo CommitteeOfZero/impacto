@@ -46,7 +46,10 @@ void SysMesBox::Show() {
           {glyph.Position.x - diff, TextMiddleY + (i * TextLineHeight)});
     }
 
-    Label* message = new Label(Messages[i], RendererOutlineMode::Full);
+    Label* message =
+        new Label(Messages[i],
+                  {TextX - maxWidth / 2.0f, TextMiddleY + i * TextLineHeight},
+                  RendererOutlineMode::Full);
 
     MessageItems->Add(message, FDIR_DOWN);
   }

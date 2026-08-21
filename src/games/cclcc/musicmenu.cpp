@@ -388,12 +388,10 @@ void MusicMenu::PlayTrack(size_t index) {
 
   const glm::vec2 playingNamePos =
       MusicNowPlayingNotificationPos + MusicNowPlayingNotificationTrackOffset;
-  NowPlayingTrackName.Bounds.X = playingNamePos.x;
-  NowPlayingTrackName.Bounds.Y = playingNamePos.y;
   NowPlayingTrackName.SetText(
       Vm::ScriptGetTextTableStrAddress(MusicStringTableId,
                                        (uint32_t)(2 * index + 6)),
-      (float)MusicNowPlayingNotificationTrackFontSize,
+      playingNamePos, (float)MusicNowPlayingNotificationTrackFontSize,
       RendererOutlineMode::None,
       {MusicNowPlayingTextColor, MusicNowPlayingTextOutlineColor});
   NowPlayingTrackName.Show();

@@ -36,12 +36,9 @@ void SysMesBox::Show() {
 
   float textBeginY = TextMiddleY - (TextMarginY * (4 + MessageCount));
   for (int i = 0; i < MessageCount; i++) {
-    for (ProcessedTextGlyph& glyph : Messages[i]) {
-      if (glyph.CharId == 0) break;
-      glyph.DestRect.Y = textBeginY + (i * TextLineHeight);
-    }
-
-    Label* message = new Label(Messages[i], RendererOutlineMode::None);
+    Label* message =
+        new Label(Messages[i], {0.0f, textBeginY + i * TextLineHeight},
+                  RendererOutlineMode::None);
 
     MessageItems->Add(message, FDIR_DOWN);
   }

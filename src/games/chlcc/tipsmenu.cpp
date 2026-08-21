@@ -422,11 +422,9 @@ void TipsMenu::Init() {
                 TipsScrollThumb.ScaledHeight(), TipsListBounds);
   TipsEntriesScrollbar->Step = TipListYPadding;
   Name = new Label();
-  Name->Bounds = NameInitialBounds;
   TipViewItems.Add(Name);
 
   Pronunciation = new Label();
-  Pronunciation->Bounds = PronunciationInitialBounds;
   TipViewItems.Add(Pronunciation);
 
   // Number label
@@ -437,7 +435,6 @@ void TipsMenu::Init() {
   TipViewItems.Add(NumberText);
   // Tip number
   Number = new Label();
-  Number->Bounds = NumberBounds;
   TipViewItems.Add(Number);
   // Tip page separator
   auto* const pageSeparator =
@@ -598,11 +595,13 @@ void TipsMenu::SwitchToTipId(int id) {
   auto tipRecord = TipsSystem::GetTipRecord(id);
   Name->SetText(Vm::BufferOffsetContext{.ScriptBufferId = tipsScriptBufferId,
                                         .IpOffset = tipRecord->StringAdr[0]},
-                NameFontSize, RendererOutlineMode::Full, DefaultColorIndex);
+                {0.0f, 0.0f}, NameFontSize, RendererOutlineMode::Full,
+                DefaultColorIndex);
   Pronunciation->SetText(
       Vm::BufferOffsetContext{.ScriptBufferId = tipsScriptBufferId,
                               .IpOffset = tipRecord->StringAdr[1]},
-      PronunciationFontSize, RendererOutlineMode::Full, DefaultColorIndex);
+      {0.0f, 0.0f}, PronunciationFontSize, RendererOutlineMode::Full,
+      DefaultColorIndex);
   // Right alignment
   Name->MoveTo(NameInitialBounds.GetPos() -
                glm::vec2{Name->Bounds.Width, 0.0f});
@@ -611,8 +610,8 @@ void TipsMenu::SwitchToTipId(int id) {
 
   const int sortedTipId =
       static_cast<TipsEntryButton*>(CurrentlyFocusedElement)->Id;
-  Number->SetText(fmt::format("{:4d}", sortedTipId + 1), NumberFontSize,
-                  RendererOutlineMode::Full, DefaultColorIndex);
+  Number->SetText(fmt::format("{:4d}", sortedTipId + 1), NumberBounds.GetPos(),
+                  NumberFontSize, RendererOutlineMode::Full, DefaultColorIndex);
 
   CurrentPage->SetSprite(CurrentPageSprites[CurrentTipPage]);
   TotalPages->SetSprite(TotalPageSprites[tipRecord->NumberOfContentStrings]);

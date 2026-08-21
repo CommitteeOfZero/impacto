@@ -25,20 +25,19 @@ class Label final : public Widget {
 
   Label(Sprite const& label, glm::vec2 pos);
 
-  Label(std::vector<ProcessedTextGlyph>&& str,
+  Label(std::vector<ProcessedTextGlyph>&& str, glm::vec2 pos,
         RendererOutlineMode outlineMode) {
-    SetText(std::move(str), outlineMode);
+    SetText(std::move(str), pos, outlineMode);
   }
-  Label(std::span<const ProcessedTextGlyph> str,
+  Label(std::span<const ProcessedTextGlyph> str, glm::vec2 pos,
         RendererOutlineMode outlineMode)
-      : Label(std::vector<ProcessedTextGlyph>(str.begin(), str.end()),
+      : Label(std::vector<ProcessedTextGlyph>(str.begin(), str.end()), pos,
               outlineMode) {}
 
   Label(LabelStringType auto str, glm::vec2 pos, float fontSize,
         RendererOutlineMode outlineMode, DialogueColorPair colorPair)
       : FontSize(fontSize) {
-    Bounds = RectF(pos.x, pos.y, 0.0f, FontSize);
-    SetText(str, fontSize, outlineMode, colorPair);
+    SetText(str, pos, fontSize, outlineMode, colorPair);
   }
 
   Label(LabelStringType auto str, glm::vec2 pos, float fontSize,
@@ -54,18 +53,18 @@ class Label final : public Widget {
 
   void SetSprite(Sprite const& label);
 
-  void SetText(std::vector<ProcessedTextGlyph>&& str,
+  void SetText(std::vector<ProcessedTextGlyph>&& str, glm::vec2 pos,
                RendererOutlineMode outlineMode);
-  void SetText(std::span<const ProcessedTextGlyph> str,
+  void SetText(std::span<const ProcessedTextGlyph> str, glm::vec2 pos,
                RendererOutlineMode outlineMode) {
-    SetText(std::vector<ProcessedTextGlyph>(str.begin(), str.end()),
+    SetText(std::vector<ProcessedTextGlyph>(str.begin(), str.end()), pos,
             outlineMode);
   }
 
-  void SetText(LabelStringType auto str, float fontSize,
+  void SetText(LabelStringType auto str, glm::vec2 pos, float fontSize,
                RendererOutlineMode outlineMode, DialogueColorPair colorPair);
 
-  void SetText(LabelStringType auto str, float fontSize,
+  void SetText(LabelStringType auto str, glm::vec2 pos, float fontSize,
                RendererOutlineMode outlineMode, size_t colorIndex = 10) {
     SetText(str, pos, fontSize, outlineMode,
             Profile::Dialogue::ColorTable[colorIndex]);

@@ -36,7 +36,6 @@ void SysMesBox::Show() {
   auto onClick = [this](auto* btn) { return ChoiceItemOnClick(btn); };
 
   float textBeginY = (TextMiddleY - TextMarginY * MessageCount) / 2.0f;
-  float diff;
   float maxWidth = FLT_MIN;
   for (int i = 0; i < MessageCount; i++) {
     if (maxWidth < MessageWidths[i]) maxWidth = MessageWidths[i];
@@ -45,13 +44,10 @@ void SysMesBox::Show() {
   for (int i = 0; i < MessageCount; i++) {
     if (Messages[i].empty()) continue;
 
-    diff = Messages[i][0].DestRect.X - ((TextX - maxWidth) / 2.0f);
-    for (size_t j = 0; j < Messages[i].size(); j++) {
-      Messages[i][j].DestRect.X -= diff;
-      Messages[i][j].DestRect.Y = textBeginY + (TextLineHeight * i);
-    }
-
-    Label* message = new Label(Messages[i], RendererOutlineMode::Full);
+    Label* message = new Label(
+        Messages[i],
+        {(TextX - maxWidth) / 2.0f, textBeginY + (TextLineHeight * i)},
+        RendererOutlineMode::Full);
 
     MessageItems->Add(message, FDIR_DOWN);
   }
