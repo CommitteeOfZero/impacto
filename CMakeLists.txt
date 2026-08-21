@@ -1427,6 +1427,7 @@ else()
     install(DIRECTORY src/shaders DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/assets)
     install(DIRECTORY profiles DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/assets)
     install(DIRECTORY resources DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/assets PATTERN "*/gamedata/*" EXCLUDE)
+    install(FILES gamedefinitions.lua DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/assets)
 endif()
 
 
