@@ -22,8 +22,8 @@ void SysMesBox::ChoiceItemOnClick(Button* target) {
 }
 
 void SysMesBox::Show() {
-  MessageItems = new Widgets::Group(this);
-  ChoiceItems = new Widgets::Group(this);
+  MessageItems = std::make_unique<Widgets::Group>(this);
+  ChoiceItems = std::make_unique<Widgets::Group>(this);
 
   Sprite nullSprite = Sprite();
   nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);

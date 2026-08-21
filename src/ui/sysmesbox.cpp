@@ -3,11 +3,6 @@
 namespace Impacto {
 namespace UI {
 
-SysMesBox::~SysMesBox() {
-  delete MessageItems;
-  delete ChoiceItems;
-}
-
 void SysMesBox::Show() {}
 void SysMesBox::Hide() {}
 void SysMesBox::Update(float dt) {}
