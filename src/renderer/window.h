@@ -68,6 +68,7 @@ class BaseWindow {
  private:
   SDL_Rect GetDisplayBounds(std::optional<Uint32> flags = std::nullopt);
   void ClampAspectRatio(int boundW, int boundH);
+  void SetWindowedSizing();
 };
 
 }  // namespace Impacto

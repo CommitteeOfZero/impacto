@@ -267,13 +267,28 @@ void BaseWindow::ClampAspectRatio(int boundW, int boundH) {
   }
 }
 
+void BaseWindow::SetWindowedSizing() {
+  int top, left, bottom, right;
+  SDL_SetWindowFullscreen(SDLWindow, 0);
+  SDL_Rect bounds = GetDisplayBounds(0);
+  ClampAspectRatio(bounds.w, bounds.h);
+  if (SDL_GetWindowBordersSize(SDLWindow, &top, &left, &bottom, &right) == 0) {
+    const int targetWidth = bounds.w - (left + right);
+    const int targetHeight = bounds.h - (top + bottom);
+    ClampAspectRatio(targetWidth, targetHeight);
+    const int posX = bounds.x + left + (targetWidth - WindowWidth) / 2;
+    const int posY = bounds.y + top + (targetHeight - WindowHeight) / 2;
+
+    SDL_SetWindowSize(SDLWindow, WindowWidth, WindowHeight);
+    SDL_SetWindowPosition(SDLWindow, posX, posY);
+  }
+}
+
 void BaseWindow::CreateSDLWindow(Uint32 flags) {
   auto const& config = UserConfig::CommonSettings;
   WindowWidth = config.ResolutionWidth;
   WindowHeight = config.ResolutionHeight;
 
-  SDL_Rect bounds = GetDisplayBounds(flags);
-  ClampAspectRatio(bounds.w, bounds.h);
   SDLWindow = SDL_CreateWindow("Impacto", SDL_WINDOWPOS_UNDEFINED,
                                SDL_WINDOWPOS_UNDEFINED, WindowWidth,
                                WindowHeight, flags);
@@ -284,11 +299,10 @@ void BaseWindow::CreateSDLWindow(Uint32 flags) {
     throw std::runtime_error("Failed to create window");
   }
   SDL_GetWindowSize(SDLWindow, &WindowWidth, &WindowHeight);
+  SetWindowedSizing();
 }
 
 void BaseWindow::ApplyWindowSettings() {
-  const SDL_Rect bounds = GetDisplayBounds();
-
   auto const& config = UserConfig::CommonSettings;
   WindowWidth = config.ResolutionWidth;
   WindowHeight = config.ResolutionHeight;
@@ -323,19 +337,7 @@ void BaseWindow::ApplyWindowSettings() {
     SDL_SetWindowSize(SDLWindow, WindowWidth, WindowHeight);
     SDL_SetWindowFullscreen(SDLWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
   } else {
-    SDL_SetWindowFullscreen(SDLWindow, 0);
-    int top, left, bottom, right;
-    if (SDL_GetWindowBordersSize(SDLWindow, &top, &left, &bottom, &right) ==
-        0) {
-      const int targetWidth = bounds.w - (left + right);
-      const int targetHeight = bounds.h - (top + bottom);
-      ClampAspectRatio(targetWidth, targetHeight);
-      const int posX = bounds.x + left + (targetWidth - WindowWidth) / 2;
-      const int posY = bounds.y + top + (targetHeight - WindowHeight) / 2;
-
-      SDL_SetWindowSize(SDLWindow, WindowWidth, WindowHeight);
-      SDL_SetWindowPosition(SDLWindow, posX, posY);
-    }
+    SetWindowedSizing();
   }
 
   ImpLog(LogLevel::Debug, LogChannel::General,
