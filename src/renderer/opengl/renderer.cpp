@@ -27,27 +27,17 @@ static CornersQuad FlipUvVertical(CornersQuad quad) {
   return quad;
 }
 
-void Renderer::Init() {
-  if (IsInit) return;
-  ImpLog(LogLevel::Info, LogChannel::Render,
-         "Initializing Renderer2D system\n");
-  IsInit = true;
-
-  OpenGLWindow = new GLWindow();
-  OpenGLWindow->Init();
-  Window = (BaseWindow*)OpenGLWindow;
-
-  if (+Profile::Game::GameFeatures & +GameFeature::Scene3D) {
-    Scene = new Scene3D(OpenGLWindow, Shaders);
-    Scene->Init();
-  }
-
+Renderer::Renderer() {
+  OpenGLWindow = static_cast<GLWindow*>(Window);
   // Generate buffers
   glGenBuffers(1, &VBO);
   glGenBuffers(1, &IBO);
   glGenVertexArrays(1, &VAOSprites);
 
   GLC::InitializeFramebuffers();
+  const float width = static_cast<float>(Window->WindowWidth);
+  const float height = static_cast<float>(Window->WindowHeight);
+  Projection = glm::ortho(0.0f, width, height, 0.0f, -width, width);
 
   // Specify vertex layouts
   glBindVertexArray(VAOSprites);
@@ -67,7 +57,7 @@ void Renderer::Init() {
   Texture rectTexture;
   rectTexture.Load1x1(0xFF, 0xFF, 0xFF, 0xFF);
   SpriteSheet rectSheet(1.0f, 1.0f);
-  rectSheet.Texture = rectTexture.Submit();
+  rectSheet.Texture = rectTexture.Submit(this);
   RectSprite = Sprite(rectSheet, 0.0f, 0.0f, 1.0f, 1.0f);
 
   // Set up shaders
@@ -123,13 +113,10 @@ void Renderer::Init() {
   glBindSampler(0, Samplers[0]);
 }
 
-void Renderer::Shutdown() {
-  if (!IsInit) return;
+Renderer::~Renderer() {
   if (VBO) glDeleteBuffers(1, &VBO);
   if (IBO) glDeleteBuffers(1, &IBO);
   if (VAOSprites) glDeleteVertexArrays(1, &VAOSprites);
-  if (RectSprite.Sheet.Texture) glDeleteTextures(1, &RectSprite.Sheet.Texture);
-  IsInit = false;
 
   GLC::DeleteFramebuffers((GLsizei)GLC::Framebuffers.size(),
                           GLC::Framebuffers.data());
@@ -139,10 +126,33 @@ void Renderer::Shutdown() {
                         GLC::StencilBuffers.data());
 
   glDeleteSamplers((GLsizei)Samplers.size(), Samplers.data());
+}
+
+void Renderer::Init() {
+  if (IsInit) return;
+  ImpLog(LogLevel::Info, LogChannel::Render,
+         "Initializing Renderer2D system\n");
+
+  if (+Profile::Game::GameFeatures & +GameFeature::Scene3D) {
+    Scene = new Scene3D(OpenGLWindow, Shaders);
+    Scene->Init();
+  }
+
+  Projection =
+      glm::ortho(0.0f, Profile::Game::DesignWidth, Profile::Game::DesignHeight,
+                 0.0f, -Profile::Game::DesignWidth, Profile::Game::DesignWidth);
+
+  IsInit = true;
+}
+
+void Renderer::Shutdown() {
+  if (!IsInit) return;
+  if (RectSprite.Sheet.Texture) glDeleteTextures(1, &RectSprite.Sheet.Texture);
 
   if (+Profile::Game::GameFeatures & +GameFeature::Scene3D) {
     Scene->Shutdown();
   }
+  IsInit = false;
 }
 
 #ifndef IMPACTO_DISABLE_IMGUI
@@ -1256,8 +1266,13 @@ void Renderer::SetScissorRect(RectF const& rect) {
   if (!ScissorEnabled) return;
 
   Rect viewport = Window->GetViewport();
-  float scale = fmin((float)Window->WindowWidth / Profile::Game::DesignWidth,
-                     (float)Window->WindowHeight / Profile::Game::DesignHeight);
+  float scale =
+      static_cast<float>(std::min(Window->WindowWidth, Window->WindowHeight));
+
+  if (Profile::Game::HasInit) {
+    scale = std::min(Window->WindowWidth / Profile::Game::DesignWidth,
+                     Window->WindowHeight / Profile::Game::DesignHeight);
+  }
   float rectX = rect.X * scale;
   float rectY = rect.Y * scale;
   float rectWidth = rect.Width * scale;

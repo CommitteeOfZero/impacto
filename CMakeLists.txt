@@ -12,7 +12,12 @@ if(APPLE)
     set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0")
 endif()
 
-project("impacto")
+file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/VERSION" APP_VERSION)
+string(STRIP "${APP_VERSION}" APP_VERSION)
+string(REGEX REPLACE "\\.$" "" APP_VERSION "${APP_VERSION}")
+
+project("impacto" VERSION ${APP_VERSION})
+SET(APP_VERSION_SHORT)
 
 include(FetchContent)
 find_package(PkgConfig)
@@ -803,10 +808,6 @@ if (NX OR EMSCRIPTEN)
     set(BUILD_SHARED_LIBS OFF)
 endif ()
 
-if(ANDROID)
-    set(IMPACTO_DISABLE_IMGUI ON)
-endif ()
-
 if (UNIX AND NOT CYGWIN)
     set(IMPACTO_DISABLE_DX9 ON)
 endif ()
@@ -876,9 +877,8 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
     FetchContent_Declare(
             ImGui
             GIT_REPOSITORY "https://github.com/ocornut/imgui.git"
-            GIT_TAG "1db579d458da29fa43376af9d88d486910d9406a"
+            GIT_TAG "v1.92.9b-docking"
     )
-
     FetchContent_MakeAvailable(ImGui)
 endif ()
 
@@ -1082,6 +1082,8 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
 
     list(APPEND Impacto_Src src/debugmenu.cpp)
     list(APPEND Impacto_Header src/debugmenu.h)
+    list(APPEND Impacto_Src src/overlay.cpp)
+    list(APPEND Impacto_Header src/overlay.h)
 
     if (NOT DEFINED IMPACTO_DISABLE_OPENGL)
         list(APPEND imgui_src
@@ -1109,6 +1111,12 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
         PUBLIC ${imgui_Include_Dirs}
         PRIVATE ${SDL2_INCLUDE_DIRS}
     )
+
+
+    if (NX) 
+        target_compile_definitions(imgui PRIVATE IMGUI_DISABLE_DEFAULT_SHELL_FUNCTIONS=1)
+    endif ()
+
     target_link_libraries(imgui PRIVATE ${SDL2_LIBRARIES})
     list(APPEND Impacto_Lib_Targets imgui)
 endif ()
@@ -1241,10 +1249,7 @@ if (NOT DEFINED IMPACTO_DISABLE_DX9)
     )
 endif ()
 
-file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/VERSION" APP_VERSION)
-string(STRIP "${APP_VERSION}" APP_VERSION)
-string(REGEX REPLACE "\\.$" "" APP_VERSION "${APP_VERSION}")
-string(REGEX REPLACE "\\.[0-9]+$" "" APP_VERSION_SHORT "${APP_VERSION}")
+configure_file(src/version.h.in ${PROJECT_BINARY_DIR}/include/version.h)
 
 if(ANDROID)
     add_library(impacto SHARED ${Impacto_Src} ${Impacto_Header})
@@ -1261,8 +1266,8 @@ if (APPLE)
         PROPERTIES
         OUTPUT_NAME "Impacto"
         MACOSX_BUNDLE_BUNDLE_NAME "Impacto"
-        MACOSX_BUNDLE_BUNDLE_VERSION "${APP_VERSION}"
-        MACOSX_BUNDLE_SHORT_VERSION_STRING "${APP_VERSION_SHORT}"
+        MACOSX_BUNDLE_BUNDLE_VERSION "${PROJECT_VERSION}"
+        MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}"
         MACOSX_BUNDLE_GUI_IDENTIFIER "com.committeeofzero.impacto"
         INSTALL_RPATH "@executable_path/../Frameworks"
         BUILD_WITH_INSTALL_RPATH TRUE

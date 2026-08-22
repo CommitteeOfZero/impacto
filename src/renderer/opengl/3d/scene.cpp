@@ -26,7 +26,7 @@ void Scene3D::Init() {
     Renderables[i] = new Renderable3D();
   }
 
-  Renderable3D::Init(Window, Shaders);
+  Renderable3D::Init(Shaders);
 
   MainCamera.Init();
 

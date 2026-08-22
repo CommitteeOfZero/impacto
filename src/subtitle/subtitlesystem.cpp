@@ -69,17 +69,17 @@ SubtitlePlayer::SubtitlePlayer(float width, float height) {
 bool SubtitlePlayer::CanAddTrack(
     int trackId, SubtitleType type,
     Profile::Subtitle::SubtitleConfigType config) const {
-  using UserConfig::CommonSettings;
+  using UserConfig::EnhancementsSettings;
   const auto& backend = Backends[GetBackendIndex(type)];
   if (!backend) {
     ImpLog(LogLevel::Warning, LogChannel::Subtitle,
            "Subtitle backend not initialized for {}", type);
     return false;
   }
-  if ((+config & +CommonSettings.SubtitleConfig) == 0) {
+  if ((+config & +EnhancementsSettings.SubtitleConfig) == 0) {
     ImpLog(LogLevel::Info, LogChannel::Subtitle,
            "Current subtitle mode is {}, skipping track {}, which is mode {}",
-           CommonSettings.SubtitleConfig, trackId, config);
+           EnhancementsSettings.SubtitleConfig, trackId, config);
     return false;
   }
   return true;

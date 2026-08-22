@@ -1,9 +1,15 @@
 
 
 root.LayerCount = 100;
-root.GameFeatures = GameFeature.Sc3VirtualMachine | GameFeature.Renderer2D | GameFeature.Input | GameFeature.Audio |
-                        GameFeature.Video | GameFeature.Subtitles | GameFeature.DebugMenu |
-                        GameFeature.Achievements;
+root.GameFeatures = GameFeature.Sc3VirtualMachine |
+                    GameFeature.Renderer2D |
+                    GameFeature.Input |
+                    GameFeature.Audio |
+                    GameFeature.Video |
+                    GameFeature.Subtitles |
+                    GameFeature.DebugMenu |
+                    GameFeature.Achievements |
+                    GameFeature.Overlay;
 root.DesignWidth = 1920;
 root.DesignHeight = 1080;
 
