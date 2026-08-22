@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <vector>
 #include <ankerl/unordered_dense.h>
+#include <magic_enum/magic_enum_containers.hpp>
 
 #include "game.h"
 #include "log.h"
@@ -18,6 +19,7 @@
 namespace Impacto::Overlay {
 
 static bool HasInit = false;
+static std::optional<OverlayTab> ActiveTab;
 
 struct ImgData {
   uint32_t Texture;
@@ -562,27 +564,33 @@ void ShowOverlay() {
                          ImGui::GetFrameHeightWithSpacing();
     ImGui::BeginChild("TabRegion", ImVec2(0, -footerHeight), 0);
     if (ImGui::BeginTabBar("MainTabs")) {
-      if (ImGui::BeginTabItem("Settings")) {
+      magic_enum::containers::array<OverlayTab, ImGuiTabItemFlags> tabFlags{};
+
+      if (RequestedTab != ActiveTab) {
+        ActiveTab = RequestedTab;
+        if (ActiveTab.has_value())
+          tabFlags[*ActiveTab] |= ImGuiTabItemFlags_SetSelected;
+      }
+
+      if (ImGui::BeginTabItem("Settings", nullptr,
+                              tabFlags[OverlayTab::Settings])) {
         ShowSettingsPage(selectedGame);
         ImGui::EndTabItem();
       }
 
-      if (ImGui::BeginTabItem("Enhancements")) {
+      if (ImGui::BeginTabItem("Enhancements", nullptr,
+                              tabFlags[OverlayTab::Enhancements])) {
         ShowEnhancementsPage(selectedGame);
         ImGui::EndTabItem();
       }
 
-      ImGuiTabItemFlags achievementsTabFlags = 0;
-      if (OpenToAchievementsTab) {
-        achievementsTabFlags |= ImGuiTabItemFlags_SetSelected;
-        OpenToAchievementsTab = false;
-      }
-      if (ImGui::BeginTabItem("Achievements", nullptr, achievementsTabFlags)) {
+      if (ImGui::BeginTabItem("Achievements", nullptr,
+                              tabFlags[OverlayTab::Achievements])) {
         ImGui::TextWrapped("List achievements here.");
         ImGui::EndTabItem();
       }
 
-      if (ImGui::BeginTabItem("About")) {
+      if (ImGui::BeginTabItem("About", nullptr, tabFlags[OverlayTab::About])) {
         ImGui::Text("Committee of Zero");
         ImGui::SameLine();
         ImGui::TextLinkOpenURL("Technical Support",

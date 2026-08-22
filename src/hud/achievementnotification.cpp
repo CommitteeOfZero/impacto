@@ -193,7 +193,7 @@ void Update(float dt) {
     RequestCursor(CursorType::Pointer);
     if (Input::MouseButtonWentDown[SDL_BUTTON_LEFT]) {
       Overlay::OverlayShown = true;
-      Overlay::OpenToAchievementsTab = true;
+      Overlay::RequestedTab = Overlay::OverlayTab::Achievements;
     }
   }
 }
