@@ -768,7 +768,8 @@ set(Impacto_Header
 
 if (WIN32)
     list(APPEND Impacto_Src
-        src/manifest_windows.manifest
+        windows/manifest_windows.manifest
+        windows/app.rc
     )
 endif ()
 
