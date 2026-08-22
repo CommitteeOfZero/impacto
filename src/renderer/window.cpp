@@ -281,6 +281,10 @@ void BaseWindow::SetWindowedSizing() {
 
     SDL_SetWindowSize(SDLWindow, WindowWidth, WindowHeight);
     SDL_SetWindowPosition(SDLWindow, posX, posY);
+  } else {
+    SDL_SetWindowSize(SDLWindow, WindowWidth, WindowHeight);
+    SDL_SetWindowPosition(SDLWindow, SDL_WINDOWPOS_UNDEFINED,
+                          SDL_WINDOWPOS_UNDEFINED);
   }
 }
 
