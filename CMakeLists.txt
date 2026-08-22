@@ -911,7 +911,7 @@ if(ANDROID)
         list(APPEND Impacto_Libs
             GLESv3
         )
-        
+
     endif ()
 endif ()
 
@@ -979,7 +979,7 @@ else ()
     find_package(SDL2 CONFIG REQUIRED)
     find_package(ZLIB REQUIRED)
 
-    set(SDL2_LIBRARIES 
+    set(SDL2_LIBRARIES
         "$<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>"
         "$<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>"
     )
@@ -1042,7 +1042,7 @@ list(APPEND Impacto_Libs
 if (NOT DEFINED IMPACTO_DISABLE_LIBASS)
     list(APPEND Impacto_Src src/subtitle/ass/subtitlerenderer.cpp)
     list(APPEND Impacto_Header src/subtitle/ass/subtitlerenderer.h)
-    
+
     pkg_check_modules(ass REQUIRED IMPORTED_TARGET GLOBAL libass)
     # Libass links libc++ which overrides the static stllib linkage 
     if(ANDROID)
@@ -1050,7 +1050,7 @@ if (NOT DEFINED IMPACTO_DISABLE_LIBASS)
         set(CLEANED_ASS_LINK_LIBS "")
         foreach(LIB_PATH IN LISTS ASS_LINK_LIBS)
             get_filename_component(LIB_NAME "${LIB_PATH}" NAME)
-            
+
             # Check if the filename starts with "libc++." or "libc++_"
             if(NOT ("${LIB_NAME}" MATCHES "^libc\\+\\+\\." OR "${LIB_NAME}" MATCHES "^libc\\+\\+_"))
                 list(APPEND CLEANED_ASS_LINK_LIBS "${LIB_PATH}")
@@ -1256,6 +1256,13 @@ else()
 endif()
 
 if (APPLE)
+    set(MACOSX_BUNDLE_ICON_FILE icon.icns)
+    set(APP_ICON_MACOS "${CMAKE_SOURCE_DIR}/resources/common/icon.icns")
+    set_source_files_properties(${APP_ICON_MACOS} PROPERTIES
+            MACOSX_PACKAGE_LOCATION "Resources"
+    )
+    target_sources(impacto PRIVATE ${APP_ICON_MACOS})
+
     set_target_properties(
         impacto
         PROPERTIES
@@ -1264,6 +1271,7 @@ if (APPLE)
         MACOSX_BUNDLE_BUNDLE_VERSION "${APP_VERSION}"
         MACOSX_BUNDLE_SHORT_VERSION_STRING "${APP_VERSION_SHORT}"
         MACOSX_BUNDLE_GUI_IDENTIFIER "com.committeeofzero.impacto"
+        MACOSX_BUNDLE_ICON_FILE "icon.icns"
         INSTALL_RPATH "@executable_path/../Frameworks"
         BUILD_WITH_INSTALL_RPATH TRUE
     )
@@ -1359,7 +1367,7 @@ configure_file(src/config.h.in ${PROJECT_BINARY_DIR}/include/config.h)
 target_include_directories(impacto SYSTEM BEFORE PRIVATE ${Impacto_Include_Dirs})
 target_include_directories(impacto PRIVATE ${PROJECT_BINARY_DIR}/include)
 
-target_precompile_headers(impacto PRIVATE 
+target_precompile_headers(impacto PRIVATE
     "$<$<COMPILE_LANGUAGE:CXX>:${CMAKE_SOURCE_DIR}/src/pch.h>"
 )
 
@@ -1399,7 +1407,7 @@ elseif (WIN32)
     install(TARGETS impacto RUNTIME DESTINATION .)
     install(FILES $<TARGET_RUNTIME_DLLS:impacto> DESTINATION .)
     x_vcpkg_install_local_dependencies(TARGETS impacto DESTINATION .)
-elseif(APPLE)    
+elseif(APPLE)
     install(TARGETS impacto
             BUNDLE  DESTINATION .
             RUNTIME DESTINATION .
@@ -1421,7 +1429,7 @@ else()
             PROPERTY INSTALL_RPATH
             "$ORIGIN/"
             "$ORIGIN/lib"
-            )  
+            )
     endif()
 
     LIST(APPEND post_exclude_regexes "^/lib" "^/usr" "^/bin" "libvulkan\\.so(\\..*)?")
