@@ -27,8 +27,8 @@ public class ImpactoActivity extends SDLActivity {
      */
     @Override
     protected String[] getLibraries() {
-        return new String[]{
-            "impacto"
+        return new String[] {
+                "impacto"
         };
     }
 
@@ -50,6 +50,29 @@ public class ImpactoActivity extends SDLActivity {
         if (reset) {
             copyAssetFolder("games", externalFilesDir.getAbsolutePath() + "/" + "games");
             copyAssetFolder("profiles", externalFilesDir.getAbsolutePath() + "/" + "profiles");
+
+            // Todo: User customizable paths using the startup activity screen
+            // Will need to use file descriptor technique outlined here:
+            // https://stackoverflow.com/a/58304368/27686485
+            // then we get cannonical path and write it.
+            String basepathsContents = String.format("""
+                    root.BasePaths = {
+                        RootInstallDir = "%s",
+                        RootGamedataDir = "%s/gamedata",
+                        RootProfilesDir = "%s/profiles",
+                        RootPatchesDir = "%s/patches",
+                        RootSavesDir = "%s/saves",
+                    };
+                    """, "./", externalFilesDir.getAbsolutePath(), externalFilesDir.getAbsolutePath(),
+                    externalFilesDir.getAbsolutePath(), externalFilesDir.getAbsolutePath());
+
+            copyAssetFile("gamedefinitions.lua", externalFilesDir.getAbsolutePath() + "/" + "gamedefinitions.lua");
+            File basepaths = new File(externalFilesDir.getAbsolutePath(), "basepaths.lua");
+            try (FileOutputStream fos = new FileOutputStream(basepaths)) {
+                fos.write(basepathsContents.getBytes());
+            } catch (IOException e) {
+                Log.e("FileStatus", "Error creating or writing basepaths", e);
+            }
         }
         super.onCreate(savedInstanceState);
     }

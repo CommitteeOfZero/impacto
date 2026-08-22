@@ -291,3 +291,5 @@ resources/*/trophydata
 gamedata
 saves
 patches
+
+/basepaths.lua
