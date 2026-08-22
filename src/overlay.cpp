@@ -540,6 +540,21 @@ static void ShowEnhancementsPage(std::string const& selectedGame) {
   }
 }
 
+static void ShowCloseButton() {
+  ImVec2 closeButtonSize(27, 27);
+
+  ImGui::SetCursorPos(
+      ImVec2(ImGui::GetContentRegionAvail().x - closeButtonSize.x, 0.0f));
+  ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
+  ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.5f, 0.0f));
+  if (ImGui::Button("×", closeButtonSize)) {
+    OverlayShown = false;
+  }
+
+  ImGui::PopStyleVar();
+  ImGui::PopStyleVar();
+}
+
 void ShowOverlay() {
   constexpr ImGuiWindowFlags windowFlags =
       ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove |
@@ -563,6 +578,7 @@ void ShowOverlay() {
                          ImGui::GetStyle().SeparatorSize +
                          ImGui::GetFrameHeightWithSpacing();
     ImGui::BeginChild("TabRegion", ImVec2(0, -footerHeight), 0);
+    ImGui::SetNextItemAllowOverlap();
     if (ImGui::BeginTabBar("MainTabs")) {
       magic_enum::containers::array<OverlayTab, ImGuiTabItemFlags> tabFlags{};
 
@@ -605,6 +621,7 @@ void ShowOverlay() {
       }
       ImGui::EndTabBar();
     }
+    if (Profile::Game::HasInit) ShowCloseButton();
     ImGui::EndChild();
 
     if (!Profile::Game::HasInit && !selectedGame.empty()) {
