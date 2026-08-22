@@ -308,8 +308,21 @@ void UpdateSystem(float dt) {
 
 #ifndef IMPACTO_DISABLE_IMGUI
     ImGuiIO& io = ImGui::GetIO();
-    if (ImGui_ImplSDL2_ProcessEvent(&e) &&
-        (io.WantCaptureKeyboard || io.WantCaptureMouse))
+    const bool isImguiEvent = [&e] {
+      switch (e.type) {
+        case SDL_CONTROLLERBUTTONDOWN:
+        case SDL_CONTROLLERBUTTONUP:
+        case SDL_CONTROLLERAXISMOTION:
+        case SDL_FINGERMOTION:
+        case SDL_FINGERDOWN:
+        case SDL_FINGERUP:
+          return true;
+        default:
+          return ImGui_ImplSDL2_ProcessEvent(&e);
+      }
+    }();
+    if (isImguiEvent &&
+        (io.WantCaptureKeyboard || io.WantCaptureMouse || io.NavActive))
       continue;
 #endif
 
