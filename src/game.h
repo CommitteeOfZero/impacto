@@ -23,6 +23,7 @@ enum class GameFeature : int {
   Subtitles = (1 << 9),
   DebugMenuMultiViewport = (1 << 10),
   Achievements = (1 << 11),
+  Overlay = (1 << 12),
 };
 
 namespace Game {
@@ -55,10 +56,14 @@ enum class DrawComponentType : uint8_t {
 };
 
 void Init();
+void InitGameProfile();
 void Shutdown();
 
 void Update(float dt);
 void Render();
+
+void LauncherUpdate(float dt);
+void LauncherRender();
 
 inline DrawComponentType DrawComponents[Vm::MaxThreads];
 

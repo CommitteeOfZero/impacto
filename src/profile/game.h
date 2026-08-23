@@ -12,7 +12,7 @@ namespace Game {
 inline uint32_t LayerCount;
 inline GameFeature GameFeatures;
 
-inline char const* WindowName;
+inline std::string WindowName;
 inline std::optional<std::string> WindowIconPath;
 inline std::optional<std::string> CursorArrowPath;
 inline std::optional<std::string> CursorPointerPath;
@@ -33,6 +33,8 @@ inline float DesignWidth;
 inline float DesignHeight;
 
 inline int PlatformId = 0;
+
+inline bool HasInit = false;
 
 void Configure();
 }  // namespace Game

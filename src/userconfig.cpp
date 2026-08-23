@@ -60,23 +60,87 @@ struct into<T> {
   }
 };
 
-}  // namespace toml
-TOML11_DEFINE_CONVERSION_NON_INTRUSIVE(Impacto::UserConfig::CHLCCExtraConfig,
-                                       DelusionMousePatch)
-TOML11_DEFINE_CONVERSION_NON_INTRUSIVE(Impacto::UserConfig::CCLCCExtraConfig,
-                                       DelusionMousePatch)
+template <>
+struct from<Impacto::LogChannel> {
+  static Impacto::LogChannel from_toml(const toml::value& v) {
+    auto enumStr = toml::get<std::string_view>(v);
 
-TOML11_DEFINE_CONVERSION_NON_INTRUSIVE(Impacto::UserConfig::GameConfig,
-                                       ResolutionWidth, ResolutionHeight,
-                                       PatchProfile, UsePatch, Fullscreen)
-TOML11_DEFINE_CONVERSION_NON_INTRUSIVE(Impacto::UserConfig::Config,
-                                       ResolutionWidth, ResolutionHeight,
-                                       SubtitleConfig,
-                                       CloseBacklogWhenReachedEnd)
-TOML11_DEFINE_CONVERSION_NON_INTRUSIVE(Impacto::UserConfig::AdvancedConfig,
-                                       ActiveRenderer, VideoPlayer,
-                                       ActiveAudioBackend, SubtitleAssBackend,
-                                       SubtitleTextBackend, SubtitleBmpBackend)
+    std::optional<Impacto::LogChannel> channelOpt =
+        Impacto::StringToChannel(enumStr);
+
+    if (!channelOpt) {
+      std::string errStr = fmt::format(
+          "Expected one of {}, All!\n", enumStr,
+          fmt::join(magic_enum::enum_names<Impacto::LogChannel>(), ", "));
+      auto err = toml::make_error_info(errStr, v, "but got invalid value");
+      throw toml::type_error(toml::format_error("", err), v.location());
+    }
+
+    return *channelOpt;
+  }
+};
+
+template <>
+struct into<Impacto::LogChannel> {
+  template <typename TC>
+  static toml::basic_value<TC> into_toml(const Impacto::LogChannel& v) {
+    using value_type = toml::basic_value<TC>;
+    using string_type = typename value_type::string_type;
+
+    return value_type(string_type{Impacto::ChannelToString(v)});
+  }
+};
+
+}  // namespace toml
+
+// clang-format off
+TOML11_DEFINE_CONVERSION_NON_INTRUSIVE(
+  Impacto::UserConfig::GameConfig,
+  ResolutionWidth,
+  ResolutionHeight,
+  PatchProfile,
+  UsePatch,
+  Display
+)
+
+TOML11_DEFINE_CONVERSION_NON_INTRUSIVE(
+  Impacto::UserConfig::Config, 
+  ResolutionWidth, 
+  ResolutionHeight,
+  LogFile,
+  LogLvl,
+  LogChannels,
+  LoggingToConsole,
+  LoggingToFile
+)
+
+TOML11_DEFINE_CONVERSION_NON_INTRUSIVE(
+  Impacto::UserConfig::AdvancedConfig,
+  ActiveRenderer,
+  VideoPlayer,
+  ActiveAudioBackend,
+  SubtitleAssBackend,
+  SubtitleTextBackend,
+  SubtitleBmpBackend
+)
+
+TOML11_DEFINE_CONVERSION_NON_INTRUSIVE(
+  Impacto::UserConfig::CHLCCEnhancements,
+  DelusionMousePatch
+)
+TOML11_DEFINE_CONVERSION_NON_INTRUSIVE(
+  Impacto::UserConfig::CCLCCEnhancements,
+  DelusionMousePatch
+)
+TOML11_DEFINE_CONVERSION_NON_INTRUSIVE(
+  Impacto::UserConfig::EnhancementsConfig,
+  SubtitleConfig,
+  CloseBacklogWhenReachedEnd,
+  CHLCC,
+  CCLCC
+)
+
+// clang-format on
 
 namespace Impacto::UserConfig {
 
@@ -98,46 +162,6 @@ static std::unique_ptr<Io::PhysicalFileStream> openTomlFile(
 
   userConfigFile.reset(static_cast<Io::PhysicalFileStream*>(stream));
   return userConfigFile;
-}
-
-static GameExtraConfig MakeDefaultExtra(std::string const& gameId) {
-  if (gameId == "chlcc") return CHLCCExtraConfig{};
-  if (gameId == "cclcc") return CCLCCExtraConfig{};
-  return std::monostate{};
-}
-
-static toml::value SerializeGameConfig(std::string const& gameId,
-                                       GameConfig const& cfg) {
-  toml::value v = cfg;
-
-  std::visit(
-      [&]<typename T>(T const& e) {
-        if constexpr (!std::is_same_v<T, std::monostate>) {
-          v["Extra"] = e;
-        }
-      },
-      cfg.Extra);
-
-  return v;
-}
-
-static GameConfig DeserializeGameConfig(std::string const& gameId,
-                                        toml::value const& v) {
-  GameConfig cfg = toml::get<GameConfig>(v);
-
-  GameExtraConfig extra = MakeDefaultExtra(gameId);
-  if (v.contains("Extra")) {
-    std::visit(
-        [&]<typename T>(T& e) {
-          if constexpr (!std::is_same_v<T, std::monostate>) {
-            e = toml::find<T>(v, "Extra");
-          }
-        },
-        extra);
-  }
-  cfg.Extra = extra;
-
-  return cfg;
 }
 
 void Configure() {
@@ -189,39 +213,49 @@ void LoadUserConfig(toml::value& tomlConfig) {
           toml::find<std::optional<decltype(CommonSettings)>>(
               tomlConfig, "CommonSettings")) {
     CommonSettings = std::move(*commonSettingsOpt);
+    LogInitFile();
   }
-  if (auto gameSettingsOpt =
-          toml::find<std::optional<toml::table>>(tomlConfig, "GameSettings")) {
-    for (auto const& [gameId, gameValue] : *gameSettingsOpt) {
-      GameSettings.emplace(gameId, DeserializeGameConfig(gameId, gameValue));
-    }
+  if (auto gameSettingsOpt = toml::find<std::optional<decltype(GameSettings)>>(
+          tomlConfig, "GameSettings")) {
+    GameSettings = std::move(*gameSettingsOpt);
   }
+
   if (auto advancedSettingsOpt =
           toml::find<std::optional<decltype(AdvancedSettings)>>(
               tomlConfig, "AdvancedSettings")) {
     AdvancedSettings = std::move(*advancedSettingsOpt);
   }
 
-  if (ActiveGame.empty())
-    ActiveGame = toml::find_or(tomlConfig, "ActiveGame", "");
+  if (auto enhancementsSettingsOpt =
+          toml::find<std::optional<decltype(EnhancementsSettings)>>(
+              tomlConfig, "EnhancementsSettings")) {
+    EnhancementsSettings = std::move(*enhancementsSettingsOpt);
+  }
 
   for (auto& [gameProfile, gameDef] : Profile::GameDefinitions) {
     if (gameDef.Hidden) continue;
-    auto [itr, inserted] =
-        GameSettings.try_emplace(gameProfile, UserConfig::GameConfig{});
-    if (inserted) {
-      itr->second.Extra = MakeDefaultExtra(gameProfile);
-    }
+    GameSettings.try_emplace(gameProfile, UserConfig::GameConfig{});
   }
   ImpLog(LogLevel::Info, LogChannel::Config, "Loaded user config\n");
 };
 
+void RestoreSettingsDefaults() {
+  // Enhancements is excluded since that's in a separate tab
+  CommonSettings = decltype(CommonSettings){};
+  AdvancedSettings = decltype(AdvancedSettings){};
+  GameSettings = decltype(GameSettings){};
+
+  for (auto& [gameProfile, gameDef] : Profile::GameDefinitions) {
+    if (gameDef.Hidden) continue;
+    GameSettings.try_emplace(gameProfile, UserConfig::GameConfig{});
+  }
+
+  LogInitFile();
+}
+
 GameConfig& ActiveGameSettings() { return GameSettings[GetActiveGame()]; }
 
-std::string const& GetActiveGame() {
-  if (!ActiveGameOverride.empty()) return ActiveGameOverride;
-  return ActiveGame;
-}
+std::string const& GetActiveGame() { return ActiveGame; }
 
 void SetActiveGame(std::string activeGame) {
   ActiveGame = std::move(activeGame);
@@ -268,23 +302,17 @@ void WriteUserConfig() {
 
   ImpLog(LogLevel::Debug, LogChannel::Config,
          "Serializing current configuration\n");
-  tomlConfig["ActiveGame"] = ActiveGame;
-  toml::value gameSettingsTable = toml::table{};
-  for (auto const& [gameId, cfg] : GameSettings) {
-    ImpLog(LogLevel::Debug, LogChannel::Config, "Serializing config for {}\n",
-           gameId);
-    gameSettingsTable[gameId] = SerializeGameConfig(gameId, cfg);
-  }
-  tomlConfig["GameSettings"] = gameSettingsTable;
+  tomlConfig["GameSettings"] = GameSettings;
   tomlConfig["CommonSettings"] = CommonSettings;
   tomlConfig["AdvancedSettings"] = AdvancedSettings;
+  tomlConfig["EnhancementsSettings"] = EnhancementsSettings;
 
   ImpLog(LogLevel::Debug, LogChannel::Config, "Formatting TOML String\n");
   std::string tomlContents = toml::format(tomlConfig, toml::spec::v(1, 1, 0));
 
   ImpLog(LogLevel::Debug, LogChannel::Config, "Writing user config to file\n");
 
-  userConfigFile->Seek(0, RW_SEEK_SET);
+  userConfigFile = openTomlFile(CF::WRITE | CF::CREATE | CF::TRUNCATE);
   userConfigFile->Write(tomlContents.data(), tomlContents.size());
   ImpLog(LogLevel::Info, LogChannel::Config, "Saved user config\n");
 }

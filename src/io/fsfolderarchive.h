@@ -7,7 +7,9 @@
 namespace Impacto {
 namespace Io {
 
-struct TextMetaEntry;
+struct TextMetaEntry : FileMeta {
+  std::string FullPath;
+};
 
 class FSFolderArchive : public VfsArchive {
  public:

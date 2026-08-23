@@ -63,6 +63,7 @@ enum class RendererBlurDirection { Horizontal, Vertical };
 
 class BaseRenderer {
  public:
+  virtual ~BaseRenderer() = default;
   virtual void Init() = 0;
   virtual void Shutdown() = 0;
 
@@ -463,6 +464,6 @@ inline void InsertQuad(std::span<VertexBufferSprites, 4> vertices,
 inline BaseRenderer* Renderer;
 inline BaseWindow* Window;
 
-void InitRenderer();
+void CreateRenderer();
 
 }  // namespace Impacto

@@ -18,6 +18,8 @@ int constexpr NkMaxElementMemory = 128 * 1024;
 
 class Renderer : public BaseRenderer {
  public:
+  Renderer();
+  ~Renderer();
   void Init() override;
   void Shutdown() override;
 
@@ -224,9 +226,7 @@ class Renderer : public BaseRenderer {
   std::vector<uint16_t> IndexBuffer;
 
   std::array<GLuint, TextureUnitCount> Samplers;
-  const glm::mat4 Projection =
-      glm::ortho(0.0f, Profile::Game::DesignWidth, Profile::Game::DesignHeight,
-                 0.0f, -Profile::Game::DesignWidth, Profile::Game::DesignWidth);
+  glm::mat4 Projection;
 
   static constexpr size_t MaxVertexCount =
       1024 * 1024 / sizeof(VertexBufferSprites);

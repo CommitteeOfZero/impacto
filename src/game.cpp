@@ -9,6 +9,10 @@
 #include "debugmenu.h"
 #include "renderer/opengl/glc.h"
 
+#ifndef IMPACTO_DISABLE_IMGUI
+#include "overlay.h"
+#endif
+
 #include "ui/ui.h"
 #include "ui/gamespecific.h"
 
@@ -75,11 +79,6 @@ namespace Game {
 void Init() {
   WorkQueue::Init();
 
-  Profile::Game::Configure();
-  Profile::Patch::Configure();
-
-  Io::VfsInit();
-
 #ifndef IMPACTO_DISABLE_IMGUI
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
@@ -87,16 +86,32 @@ void Init() {
   io.IniFilename = NULL;
   io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
   io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
-  if (+Profile::Game::GameFeatures & +GameFeature::DebugMenu &&
-      +Profile::Game::GameFeatures & +GameFeature::DebugMenuMultiViewport) {
+  if ((+Profile::Game::GameFeatures & +GameFeature::DebugMenu &&
+       +Profile::Game::GameFeatures & +GameFeature::DebugMenuMultiViewport) ||
+      +Profile::Game::GameFeatures & +GameFeature::Overlay) {
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
   }
 #endif
-
-  InitRenderer();
+  InitWindow();
+  CreateRenderer();
   InitCursors();
 
+#ifndef IMPACTO_DISABLE_IMGUI
+  Overlay::Init();
+#endif
+}
+
+void InitGameProfile() {
+  Profile::ConfigureGameProfile();
+  Profile::Game::Configure();
+  Profile::Patch::Configure();
+
+  Window->ApplyWindowSettings();
+  Renderer->Init();
+  Io::VfsInit();
+
+  InitCursors();
   std::fill(std::begin(DrawComponents), std::end(DrawComponents),
             DrawComponentType::None);
 
@@ -202,6 +217,35 @@ void Shutdown() {
   Window->Shutdown();
 }
 
+void LauncherUpdate(float dt) {
+  SDL_Event e;
+
+  RequestCursor(CursorType::Default);
+
+  while (SDL_PollEvent(&e)) {
+    if (e.type == SDL_QUIT) {
+      ShouldQuit = true;
+    }
+
+#ifndef IMPACTO_DISABLE_IMGUI
+    ImGui_ImplSDL2_ProcessEvent(&e);
+#endif
+  }
+}
+
+void LauncherRender() {
+  Window->Update();
+
+#ifndef IMPACTO_DISABLE_IMGUI
+  Renderer->ImGuiBeginFrame();
+  Overlay::Show();
+#endif
+
+  ApplyCursorForFrame();
+
+  Window->Draw();
+}
+
 void UpdateGameState(float dt) {
   static float UpdateSecondCounter = 0.0f;
   UpdateSecondCounter += dt;
@@ -264,8 +308,21 @@ void UpdateSystem(float dt) {
 
 #ifndef IMPACTO_DISABLE_IMGUI
     ImGuiIO& io = ImGui::GetIO();
-    if (ImGui_ImplSDL2_ProcessEvent(&e) &&
-        (io.WantCaptureKeyboard || io.WantCaptureMouse))
+    const bool isImguiEvent = [&e] {
+      switch (e.type) {
+        case SDL_CONTROLLERBUTTONDOWN:
+        case SDL_CONTROLLERBUTTONUP:
+        case SDL_CONTROLLERAXISMOTION:
+        case SDL_FINGERMOTION:
+        case SDL_FINGERDOWN:
+        case SDL_FINGERUP:
+          return true;
+        default:
+          return ImGui_ImplSDL2_ProcessEvent(&e);
+      }
+    }();
+    if (isImguiEvent &&
+        (io.WantCaptureKeyboard || io.WantCaptureMouse || io.NavActive))
       continue;
 #endif
 
@@ -315,8 +372,6 @@ void UpdateSystem(float dt) {
     }
 
     Vm::Update(updateInterval);
-
-    ApplyCursorForFrame();
   }
   UpdateSecondCounter -= updateInterval;
 }
@@ -679,6 +734,14 @@ void Render() {
       Characters2D[0].Render(0);
     }
   }
+#ifndef IMPACTO_DISABLE_IMGUI
+  if (+Profile::Game::GameFeatures & +GameFeature::Overlay) {
+    Overlay::Show();
+  }
+#endif
+
+  ApplyCursorForFrame();
+
   Renderer->EndFrame();
 
   Window->Draw();

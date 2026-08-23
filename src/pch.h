@@ -26,3 +26,4 @@
 #include <glm/glm.hpp>
 #include <magic_enum/magic_enum.hpp>
 #include <boost/circular_buffer.hpp>
+#include <fmt/format.h>

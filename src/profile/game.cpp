@@ -10,10 +10,9 @@ namespace Profile {
 namespace Game {
 void Configure() {
   AssertIs(LUA_TTABLE);
-
   LayerCount = EnsureGetMember<int>("LayerCount");
   GameFeatures = EnsureGetMember<GameFeature>("GameFeatures");
-  WindowName = EnsureGetMember<char const*>("WindowName");
+  WindowName = EnsureGetMember<std::string>("WindowName");
   WindowIconPath = TryGetMember<std::string>("WindowIconPath");
   CursorArrowPath = TryGetMember<std::string>("CursorArrowPath");
   CursorPointerPath = TryGetMember<std::string>("CursorPointerPath");
@@ -32,6 +31,8 @@ void Configure() {
   TryGetMember<bool>("UseWaveEffects", UseWaveEffects);
 
   TryGetMember<int>("PlatformId", PlatformId);
+
+  HasInit = true;
 }
 }  // namespace Game
 }  // namespace Profile
