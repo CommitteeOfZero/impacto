@@ -305,6 +305,24 @@ float GetTextWidth(const std::span<const ProcessedTextGlyph> text) {
   return GetTextBounds(text).Width;
 }
 
+void SquishText(const std::span<ProcessedTextGlyph> text, const float maxWidth,
+                const float anchorX) {
+  const float textWidth = GetTextWidth(text);
+  if (textWidth <= maxWidth) return;
+
+  const float squishFactor = maxWidth / textWidth;
+  const auto squishPos = [squishFactor, anchorX](float val) {
+    return (val - anchorX) * squishFactor + anchorX;
+  };
+  std::ranges::transform(text, text.begin(),
+                         [&squishPos, squishFactor](ProcessedTextGlyph glyph) {
+                           glyph.Position.x = squishPos(glyph.Position.x);
+                           glyph.DestRect.X = squishPos(glyph.DestRect.X);
+                           glyph.DestRect.Width *= squishFactor;
+                           return glyph;
+                         });
+}
+
 size_t TextLayoutPlainString(const std::string_view str,
                              const std::span<ProcessedTextGlyph> outGlyphs,
                              const Font& font, const float fontSize,

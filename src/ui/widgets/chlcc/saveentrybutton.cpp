@@ -87,9 +87,17 @@ void SaveEntryButton::AddSceneTitleText(Vm::BufferOffsetContext strAdr,
                                         RendererOutlineMode outlineMode,
                                         glm::vec2 relativeTitlePosition,
                                         int colorIndex) {
-  SceneTitle =
-      Label(strAdr, glm::vec2(Bounds.X, Bounds.Y) + relativeTitlePosition,
-            fontSize, outlineMode, colorIndex);
+  Vm::Sc3VmThread dummy{};
+  dummy.ScriptBufferId = strAdr.ScriptBufferId;
+  dummy.IpOffset = strAdr.IpOffset;
+  std::vector<ProcessedTextGlyph> text =
+      TextLayoutPlainLine(&dummy, 255, *Profile::Dialogue::DialogueFont,
+                          fontSize, Profile::Dialogue::ColorTable[colorIndex],
+                          1.0f, {0.0f, 0.0f}, TextAlignment::Left);
+
+  SquishText(text, MaxTitleWidth, 0.0f);
+  SceneTitle.SetText(std::move(text), Bounds.GetPos() + relativeTitlePosition,
+                     outlineMode);
 }
 
 void SaveEntryButton::AddPlayTimeHintText(Vm::BufferOffsetContext strAdr,

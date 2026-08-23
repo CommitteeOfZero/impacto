@@ -115,6 +115,9 @@ void TextLayoutAlignment(TextAlignment alignment, const float posX,
 [[nodiscard]] RectF GetTextBounds(std::span<const ProcessedTextGlyph> text);
 [[nodiscard]] float GetTextWidth(std::span<const ProcessedTextGlyph> text);
 
+void SquishText(std::span<ProcessedTextGlyph> text, float maxWidth,
+                float anchorX);
+
 size_t TextLayoutPlainString(const std::string_view str,
                              std::span<ProcessedTextGlyph> outGlyphs,
                              const Font& font, float fontSize,
