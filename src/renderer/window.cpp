@@ -272,7 +272,15 @@ void BaseWindow::SetWindowedSizing() {
   SDL_SetWindowFullscreen(SDLWindow, 0);
   SDL_Rect bounds = GetDisplayBounds(0);
   ClampAspectRatio(bounds.w, bounds.h);
-  if (SDL_GetWindowBordersSize(SDLWindow, &top, &left, &bottom, &right) == 0) {
+  bool hasWindowBorders =
+      SDL_GetWindowBordersSize(SDLWindow, &top, &left, &bottom, &right) == 0;
+
+#ifdef __APPLE__
+  hasWindowBorders = true;
+  top = 28;
+#endif
+
+  if (hasWindowBorders) {
     const int targetWidth = bounds.w - (left + right);
     const int targetHeight = bounds.h - (top + bottom);
     ClampAspectRatio(targetWidth, targetHeight);
