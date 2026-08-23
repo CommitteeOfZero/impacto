@@ -8,11 +8,12 @@ uniform sampler2D Font;
 uniform sampler2D Mask;
 uniform bool HasMask;
 uniform vec2 PixelOffset;
+uniform float DifferenceFactor;
 uniform float IntensityShift;
 uniform float AlphaShift;
 
 float getIntensity(float texValue, float valueShift, float difference) {
-    float intensity = clamp(0.5 + (texValue - valueShift) / (2.0 * difference), 0.0, 1.0);
+    float intensity = clamp(0.5 + (texValue - valueShift) / (2.0 * difference * DifferenceFactor), 0.0, 1.0);
     return (3.0 - 2.0 * intensity) * pow(intensity, 2.0);
 }
 

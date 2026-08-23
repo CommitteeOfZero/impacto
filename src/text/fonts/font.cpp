@@ -437,28 +437,30 @@ void EdgeDetectedSingleSheetFont::DrawProcessedText(
     }
   };
 
-  float intensityShift = 0.5f;
-  float alphaShift = 0.1f;
+  float curIntensityShift = 0.5f;
+  float curAlphaShift = 0.1f;
 
+  constexpr float noOutlineIntensityShift = -2.0f;
+  constexpr float noOutlineAlphaShift = 0.5f;
   switch (outlineMode) {
     using enum RendererOutlineMode;
     case None: {
-      intensityShift = -2.0f;
-      alphaShift = 0.5f;
+      curIntensityShift = noOutlineIntensityShift;
+      curAlphaShift = noOutlineAlphaShift;
 
       FillGlyphIndices(indices, static_cast<uint16_t>(glyphCount));
     } break;
 
     case Full: {
-      intensityShift = 0.5f;
-      alphaShift = 0.1f;
+      curIntensityShift = IntensityShift;
+      curAlphaShift = AlphaShift;
 
       FillGlyphIndices(indices, static_cast<uint16_t>(glyphCount));
     } break;
 
     case BottomRight: {
-      intensityShift = -2.0f;
-      alphaShift = 0.5f;
+      curIntensityShift = noOutlineIntensityShift;
+      curAlphaShift = noOutlineAlphaShift;
 
       FillGlyphIndices(indices, static_cast<uint16_t>(glyphCount * 2));
       insertVertices(&DialogueColorPair::OutlineColor, {1.0f, 1.0f});
@@ -472,8 +474,9 @@ void EdgeDetectedSingleSheetFont::DrawProcessedText(
       text.begin()->DestRect.GetSize();
 
   Renderer->DrawEdgeDetectedSingleSheetFont(
-      Sheet, maskedSheet, vertices, indices, intensityShift, alphaShift,
-      renderScale, transformation, glm::mat4(1.0f));
+      Sheet, maskedSheet, vertices, indices, DifferenceFactor,
+      curIntensityShift, curAlphaShift, renderScale, transformation,
+      glm::mat4(1.0f));
 }
 
 }  // namespace Impacto

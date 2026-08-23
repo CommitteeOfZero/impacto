@@ -6,13 +6,15 @@
 namespace Impacto::Fonts {
 
 EdgeDetectedSingleVariableWidthSheetFont::
-    EdgeDetectedSingleVariableWidthSheetFont(float bitmapEmWidth,
-                                             float bitmapEmHeight,
-                                             OpacityCurve opacityCurve,
-                                             SpriteSheet sheet,
-                                             Io::AssetPath& binaryPath)
+    EdgeDetectedSingleVariableWidthSheetFont(
+        float bitmapEmWidth, float bitmapEmHeight, OpacityCurve opacityCurve,
+        SpriteSheet sheet, Io::AssetPath& binaryPath, float differenceFactor,
+        float intensityShift, float alphaShift)
     : Font(FontType::EdgeDetectedSingleVariableWidthSheet, bitmapEmWidth,
-           bitmapEmHeight, opacityCurve, opacityCurve) {
+           bitmapEmHeight, opacityCurve, opacityCurve),
+      DifferenceFactor(differenceFactor),
+      IntensityShift(intensityShift),
+      AlphaShift(alphaShift) {
   const std::unique_ptr<Io::Stream> stream([&binaryPath]() {
     Io::Stream* streamPtr;
     const IoError err = binaryPath.Open(&streamPtr);
@@ -138,28 +140,30 @@ void EdgeDetectedSingleVariableWidthSheetFont::DrawProcessedText(
     }
   };
 
-  float intensityShift = 0.5f;
-  float alphaShift = 0.1f;
+  float curIntensityShift = 0.48f;
+  float curAlphaShift = 0.36f;
 
+  constexpr float noOutlineIntensityShift = -2.0f;
+  constexpr float noOutlineAlphaShift = 0.5f;
   switch (outlineMode) {
     using enum RendererOutlineMode;
     case None: {
-      intensityShift = -2.0f;
-      alphaShift = 0.5f;
+      curIntensityShift = noOutlineIntensityShift;
+      curAlphaShift = noOutlineAlphaShift;
 
       indices = GetGlyphIndices(static_cast<uint16_t>(glyphCount));
     } break;
 
     case Full: {
-      intensityShift = 0.5f;
-      alphaShift = 0.3f;
+      curIntensityShift = IntensityShift;
+      curAlphaShift = AlphaShift;
 
       indices = GetGlyphIndices(static_cast<uint16_t>(glyphCount));
     } break;
 
     case BottomRight: {
-      intensityShift = -2.0f;
-      alphaShift = 0.5f;
+      curIntensityShift = noOutlineIntensityShift;
+      curAlphaShift = noOutlineAlphaShift;
 
       indices = GetGlyphIndices(static_cast<uint16_t>(glyphCount * 2));
       insertVertices(&DialogueColorPair::OutlineColor, {1.0f, 1.0f});
@@ -174,7 +178,8 @@ void EdgeDetectedSingleVariableWidthSheetFont::DrawProcessedText(
 
   Renderer->DrawEdgeDetectedSingleSheetFont(
       Data.front().GlyphSprite.Sheet, maskedSheet, vertices, indices,
-      intensityShift, alphaShift, renderScale, transformation, glm::mat4(1.0f));
+      DifferenceFactor, curIntensityShift, curAlphaShift, renderScale,
+      transformation, glm::mat4(1.0f));
 }
 
 }  // namespace Impacto::Fonts

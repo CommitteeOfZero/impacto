@@ -799,6 +799,8 @@ EdgeDetectedSingleSheetFontShader::EdgeDetectedSingleSheetFontShader(
       MaskLocation(glGetUniformLocation(programId, "Mask")),
       HasMaskLocation(glGetUniformLocation(programId, "HasMask")),
       PixelOffsetLocation(glGetUniformLocation(programId, "PixelOffset")),
+      DifferenceFactorLocation(
+          glGetUniformLocation(programId, "DifferenceFactor")),
       IntensityShiftLocation(glGetUniformLocation(programId, "IntensityShift")),
       AlphaShiftLocation(glGetUniformLocation(programId, "AlphaShift")) {
   UploadVar(Uniforms.Projection, ProjectionLocation);
@@ -808,6 +810,7 @@ EdgeDetectedSingleSheetFontShader::EdgeDetectedSingleSheetFontShader(
   UploadVar(Uniforms.Mask, MaskLocation);
   UploadVar(Uniforms.HasMask, HasMaskLocation);
   UploadVar(Uniforms.PixelOffset, PixelOffsetLocation);
+  UploadVar(Uniforms.DifferenceFactor, DifferenceFactorLocation);
   UploadVar(Uniforms.IntensityShift, IntensityShiftLocation);
   UploadVar(Uniforms.AlphaShift, AlphaShiftLocation);
 }
@@ -824,6 +827,8 @@ void EdgeDetectedSingleSheetFontShader::UploadUniforms(
   UpdateVar(newUniforms.Mask, Uniforms.Mask, MaskLocation);
   UpdateVar(newUniforms.HasMask, Uniforms.HasMask, HasMaskLocation);
   UpdateVar(newUniforms.PixelOffset, Uniforms.PixelOffset, PixelOffsetLocation);
+  UpdateVar(newUniforms.DifferenceFactor, Uniforms.DifferenceFactor,
+            DifferenceFactorLocation);
   UpdateVar(newUniforms.IntensityShift, Uniforms.IntensityShift,
             IntensityShiftLocation);
   UpdateVar(newUniforms.AlphaShift, Uniforms.AlphaShift, AlphaShiftLocation);

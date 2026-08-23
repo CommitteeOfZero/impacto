@@ -8,6 +8,9 @@ root.Fonts = {
             BytesPerGlyph = 2,
             EmWidth = 32,
         },
+        DifferenceFactor = 1.0,
+        IntensityShift = 0.5,
+        AlphaShift = 0.1,
     },
 
     ["Default2"] = {
@@ -19,6 +22,9 @@ root.Fonts = {
             BytesPerGlyph = 2,
             EmWidth = 32,
         },
+        DifferenceFactor = 1.0,
+        IntensityShift = 0.5,
+        AlphaShift = 0.1,
     },
 
     ["LanguageBarrier"] = {

@@ -941,9 +941,10 @@ void Renderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
 void Renderer::DrawEdgeDetectedSingleSheetFont(
     const SpriteSheet& sheet, const SpriteSheet* const mask,
     const std::span<const VertexBufferSprites> vertices,
-    const std::span<const uint16_t> indices, const float intensityShift,
-    const float alphaShift, const glm::vec2 renderScale,
-    const glm::mat4 spriteTransformation, const glm::mat4 maskTransformation) {
+    const std::span<const uint16_t> indices, const float differenceFactor,
+    const float intensityShift, const float alphaShift,
+    const glm::vec2 renderScale, const glm::mat4 spriteTransformation,
+    const glm::mat4 maskTransformation) {
   if (!Drawing) {
     ImpLog(LogLevel::Error, LogChannel::Render,
            "Renderer->DrawEdgeDetectedSingleSheetFont() called before "
@@ -960,6 +961,7 @@ void Renderer::DrawEdgeDetectedSingleSheetFont(
       .Mask = 2,
       .HasMask = mask != nullptr,
       .PixelOffset = renderScale / sheet.GetDimensions(),
+      .DifferenceFactor = differenceFactor,
       .IntensityShift = intensityShift,
       .AlphaShift = alphaShift,
   };

@@ -275,10 +275,15 @@ class EdgeDetectedSingleSheetFont final : public SingleSheetFont {
   EdgeDetectedSingleSheetFont(float bitmapEmWidth, float bitmapEmHeight,
                               OpacityCurve opacityCurve, SpriteSheet sheet,
                               glm::ivec2 gridSize,
-                              std::vector<float>&& advanceWidths)
+                              std::vector<float>&& advanceWidths,
+                              float differenceFactor, float intensityShift,
+                              float alphaShift)
       : SingleSheetFont(FontType::EdgeDetectedSingleSheet, bitmapEmWidth,
                         bitmapEmHeight, opacityCurve, opacityCurve, sheet,
-                        gridSize, std::move(advanceWidths)) {}
+                        gridSize, std::move(advanceWidths)),
+        DifferenceFactor(differenceFactor),
+        IntensityShift(intensityShift),
+        AlphaShift(alphaShift) {}
 
   void DrawProcessedText(std::span<const ProcessedTextGlyph> text,
                          float opacity, float outlineOpacity,
@@ -295,15 +300,18 @@ class EdgeDetectedSingleSheetFont final : public SingleSheetFont {
     return Sprite(Sheet, col * CellSize.x, row * CellSize.y, width,
                   BitmapEmHeight);
   }
+
+  float DifferenceFactor = 1.0f;
+  float IntensityShift = 0.5f;
+  float AlphaShift = 0.1f;
 };
 
 class EdgeDetectedSingleVariableWidthSheetFont final : public Font {
  public:
-  EdgeDetectedSingleVariableWidthSheetFont(float bitmapEmWidth,
-                                           float bitmapEmHeight,
-                                           OpacityCurve opacityCurve,
-                                           SpriteSheet sheet,
-                                           Io::AssetPath& binaryPath);
+  EdgeDetectedSingleVariableWidthSheetFont(
+      float bitmapEmWidth, float bitmapEmHeight, OpacityCurve opacityCurve,
+      SpriteSheet sheet, Io::AssetPath& binaryPath, float differenceFactor,
+      float intensityShift, float alphaShift);
 
   void DrawProcessedText(std::span<const ProcessedTextGlyph> text,
                          float opacity, float outlineOpacity,
@@ -327,6 +335,10 @@ class EdgeDetectedSingleVariableWidthSheetFont final : public Font {
     glm::vec2 AdvanceSize;
   };
   std::vector<GlyphData> Data;
+
+  float DifferenceFactor = 0.8f;
+  float IntensityShift = 0.48f;
+  float AlphaShift = 0.36f;
 };
 
 struct ExternalFontShapedGlyph {

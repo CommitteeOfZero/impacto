@@ -93,9 +93,15 @@ void LoadFonts() {
         } else {
           assert(fontType == EdgeDetectedSingleSheet);
 
+          const float differenceFactor =
+              EnsureGetMember<float>("DifferenceFactor");
+          const float intensityShift = EnsureGetMember<float>("IntensityShift");
+          const float alphaShift = EnsureGetMember<float>("AlphaShift");
+
           Fonts[name] = new EdgeDetectedSingleSheetFont(
               *bitmapEmWidth, *bitmapEmHeight, foregroundOpacityCurve, sheet,
-              gridSize, EnsureGetAdvanceWidths(name, *bitmapEmWidth));
+              gridSize, EnsureGetAdvanceWidths(name, *bitmapEmWidth),
+              differenceFactor, intensityShift, alphaShift);
         }
       } break;
 
@@ -159,12 +165,17 @@ void LoadFonts() {
                           name));
         }
 
+        const float differenceFactor =
+            EnsureGetMember<float>("DifferenceFactor");
+        const float intensityShift = EnsureGetMember<float>("IntensityShift");
+        const float alphaShift = EnsureGetMember<float>("AlphaShift");
+
         const SpriteSheet sheet = EnsureGetMember<SpriteSheet>("Sheet");
         Io::AssetPath binaryPath = EnsureGetMember<Io::AssetPath>("BinaryPath");
 
         Fonts[name] = new EdgeDetectedSingleVariableWidthSheetFont(
             *bitmapEmWidth, *bitmapEmHeight, foregroundOpacityCurve, sheet,
-            binaryPath);
+            binaryPath, differenceFactor, intensityShift, alphaShift);
       } break;
 
       case External:
