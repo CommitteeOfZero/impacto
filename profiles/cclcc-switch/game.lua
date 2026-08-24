@@ -56,6 +56,7 @@ include(root.BasePaths.RootProfilesDir .. '/cclcc/scriptvars.lua');
 include(root.BasePaths.RootProfilesDir .. '/cclcc-switch/scriptvars.lua');
 include(root.BasePaths.RootProfilesDir .. '/cclcc-switch/sprites.lua');
 include(root.BasePaths.RootProfilesDir .. '/cclcc/savedata.lua');
+include(root.BasePaths.RootProfilesDir .. '/cclcc-switch/savedata.lua');
 include(root.BasePaths.RootProfilesDir .. '/cclcc/tipssystem.lua');
 include(root.BasePaths.RootProfilesDir .. '/cclcc-switch/vfs.lua');
 include(root.BasePaths.RootProfilesDir .. '/cclcc/charset.lua');

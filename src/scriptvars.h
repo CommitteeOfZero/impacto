@@ -37,8 +37,12 @@ V(SW_SYSTEMMENUALPHA)
 V(SW_SYSMENUCT)
 V(SW_SYSMENUALPHA)
 V(SW_SYSSUBMENUCT)
-V(SW_SYSSUBMENUCTMAX)  // appeared in the LCC switch
-V(SW_SYSMENUCTMAX)     // appeared in the LCC switch
+V(SW_SYSSUBMENUCTMAX)     // appeared in the LCC switch
+V(SW_SYSMENUCTMAX)        // appeared in the LCC switch
+V(SW_PIC_ARCHIVENO1)      // appeared in the LCC switch
+V(SW_PIC_REQ_ARCHIVENO1)  // appeared in the LCC switch
+V(SW_PIC_FILENO1)         // appeared in the LCC switch
+V(SW_PIC_REQ_FILENO1)     // appeared in the LCC switch
 V(SW_SYSSUBMENUNO)
 V(SW_SYSSUBMENUALPHA)
 V(SW_CLRALPHA)
