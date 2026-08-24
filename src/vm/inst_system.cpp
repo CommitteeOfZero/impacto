@@ -1111,6 +1111,12 @@ VmInstruction(InstMSinit) {
     ScrWork[SW_INTROVOICE] = 999;
   }
 
+  if (Profile::Vm::GameInstructionSet == InstructionSet::LCCSwitch) {
+    for (int i = 0; i < 8; i++) {
+      ScrWork[SW_PIC_REQ_ARCHIVENO1 + 2 * i] = 0xFFFF;
+    }
+  }
+
   if (initType == 0 || initType == 1) {
     for (int i = 0; i < std::ssize(DialoguePages); i++) {
       DialoguePages[i].Clear();

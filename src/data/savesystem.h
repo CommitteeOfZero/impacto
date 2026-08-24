@@ -18,6 +18,7 @@ enum class SaveDataType : int {
   None,
   CHLCC,
   CCLCC,
+  CCLCC_SWITCH,
   MO6TW,
 };
 enum SaveFlagsMode { WriteProtect = 1 };

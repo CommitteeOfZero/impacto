@@ -228,6 +228,7 @@ set(Impacto_Src
     src/games/cclcc/delusiontrigger.cpp
     src/games/cclcc/yesnotrigger.cpp
     src/games/cclcc/savesystem.cpp
+    src/games/cclcc/savesystem_switch.cpp
     src/games/cclcc/systemmenu.cpp
     src/games/cclcc/helpmenu.cpp
 

@@ -7,13 +7,14 @@
 #include <optional>
 
 namespace Impacto {
-namespace CCLCC {
+namespace CCLCC_Switch {
 
 using namespace Impacto::SaveSystem;
 
-constexpr size_t SaveEntrySize = 0x1b110;
-constexpr size_t SystemSaveSize = 0x387c;
-constexpr int SaveFileSize = SaveEntrySize * MaxSaveEntries * 2 + SystemSaveSize;
+constexpr size_t SaveEntrySize = 0x1F9E8;
+constexpr size_t SystemSaveSize = 0x20E2E;
+constexpr int SaveFileSize =
+    SaveEntrySize * MaxSaveEntries * 2 + SystemSaveSize;
 
 constexpr int SaveThumbnailWidth = 240;
 constexpr int SaveThumbnailHeight = 135;
@@ -23,12 +24,12 @@ constexpr int SaveThumbnailSize =
 
 class SaveFileEntry : public SaveFileEntryBase {
  public:
-  std::array<uint8_t, 50> FlagWorkScript1;   // 50 bytes from &FlagWork[50]
-  std::array<uint8_t, 100> FlagWorkScript2;  // 100 bytes from &FlagWork[300]
-  std::array<int, 600> ScrWorkScript1;       // 2400 bytes from &ScrWork[1000]
+  std::array<uint8_t, 150> FlagWorkScript1;  // 150 bytes from &FlagWork[50]
+  std::array<uint8_t, 100> FlagWorkScript2;  // 100 bytes from &FlagWork[400]
+  std::array<int, 800> ScrWorkScript1;       // 3200 bytes from &ScrWork[1000]
   std::array<int, 3000> ScrWorkScript2;      // 12000 bytes from &ScrWork[4300]
   std::array<uint8_t, 0x6ac8> MapLoadData;
-  std::array<uint8_t, 0x54> YesNoData;
+  std::array<uint8_t, 0x68> YesNoData;
   std::array<int, 303>
       WaveData;  // 3 wave types * 20 waves * 5 fields + 3 counts
   std::array<uint8_t, SaveThumbnailSize> ThumbnailData;
@@ -90,12 +91,12 @@ class SaveSystem : public SaveSystemBase {
 
  private:
   uint8_t GameExtraData[1024];
-  uint8_t MessageFlags[10000];
+  uint8_t MessageFlags[0x20000];
   std::array<uint8_t, SystemSaveSize> SystemData;
-  bool EVFlags[1200];
-  uint8_t BGMFlags[200];
+  bool EVFlags[1280];
+  uint8_t BGMFlags[256];
   std::optional<SaveFileEntry> WorkingSaveEntry;
 };
 
-}  // namespace CCLCC
+}  // namespace CCLCC_Switch
 }  // namespace Impacto
