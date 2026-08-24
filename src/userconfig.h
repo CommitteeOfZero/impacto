@@ -10,8 +10,7 @@ namespace Impacto {
 
 enum class RendererType : int {
   OpenGL,
-  Vulkan,
-  DirectX9,
+  Bgfx,
 };
 
 enum class VideoPlayerType : int {
