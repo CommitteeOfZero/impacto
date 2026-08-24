@@ -7,12 +7,6 @@
 #ifndef IMPACTO_DISABLE_OPENGL
 #include "opengl/renderer.h"
 #endif
-#ifndef IMPACTO_DISABLE_VULKAN
-#include "vulkan/renderer.h"
-#endif
-#ifndef IMPACTO_DISABLE_DX9
-#include "dx9/renderer.h"
-#endif
 
 #include <numeric>
 
@@ -23,16 +17,6 @@ void CreateRenderer() {
 #ifndef IMPACTO_DISABLE_OPENGL
     case RendererType::OpenGL:
       Renderer = new OpenGL::Renderer();
-      break;
-#endif
-#ifndef IMPACTO_DISABLE_VULKAN
-    case RendererType::Vulkan:
-      Renderer = new Vulkan::Renderer();
-      break;
-#endif
-#ifndef IMPACTO_DISABLE_DX9
-    case RendererType::DirectX9:
-      Renderer = new DirectX9::Renderer();
       break;
 #endif
     default:
