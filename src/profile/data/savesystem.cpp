@@ -4,6 +4,7 @@
 #include "../../renderer/renderer.h"
 
 #include "../../games/cclcc/savesystem.h"
+#include "../../games/cclcc/savesystem_switch.h"
 #include "../../games/chlcc/savesystem.h"
 #include "../../games/mo6tw/savesystem.h"
 
@@ -120,6 +121,9 @@ void Configure() {
       break;
     case SaveDataType::CCLCC:
       Implementation = new Impacto::CCLCC::SaveSystem();
+      break;
+    case SaveDataType::CCLCC_SWITCH:
+      Implementation = new Impacto::CCLCC_Switch::SaveSystem();
       break;
     case SaveDataType::None:
       ImpLog(LogLevel::Warning, LogChannel::Profile,
