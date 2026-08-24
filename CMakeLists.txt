@@ -806,8 +806,6 @@ set(Impacto_Lib_Targets
 )
 
 if (NX OR EMSCRIPTEN)
-    set(IMPACTO_DISABLE_VULKAN ON)
-    set(IMPACTO_DISABLE_DX9 ON)
     set(IMPACTO_DISABLE_MMAP ON)
     set(BUILD_SHARED_LIBS OFF)
 endif ()
@@ -1208,63 +1206,6 @@ if (NOT DEFINED IMPACTO_DISABLE_MSPACK)
 
     list(APPEND Impacto_Src src/io/lzxstream.cpp)
     list(APPEND Impacto_Header src/io/lzxstream.h)
-endif ()
-
-if (NOT DEFINED IMPACTO_DISABLE_VULKAN)
-    list(APPEND Impacto_Src
-        src/renderer/vulkan/window.cpp
-        src/renderer/vulkan/renderer.cpp
-        src/renderer/vulkan/pipeline.cpp
-        src/renderer/vulkan/utils.cpp
-        src/renderer/vulkan/yuvframe.cpp
-        src/renderer/vulkan/nv12frame.cpp
-        src/renderer/vulkan/3d/renderable3d.cpp
-        src/renderer/vulkan/3d/scene.cpp
-    )
-    list(APPEND Impacto_Header
-        src/renderer/vulkan/window.h
-        src/renderer/vulkan/renderer.h
-        src/renderer/vulkan/pipeline.h
-        src/renderer/vulkan/utils.h
-        src/renderer/vulkan/yuvframe.h
-        src/renderer/vulkan/nv12frame.h
-        src/renderer/vulkan/3d/renderable3d.h
-        src/renderer/vulkan/3d/scene.h
-    )
-
-    find_package(Vulkan REQUIRED)
-
-    list(APPEND Impacto_Libs
-            ${Vulkan_LIBRARIES}
-    )
-    list(APPEND Impacto_Include_Dirs ${Vulkan_INCLUDE_DIRS})
-endif ()
-
-if (NOT DEFINED IMPACTO_DISABLE_DX9)
-    list(APPEND Impacto_Src
-        src/renderer/dx9/renderer.cpp
-        src/renderer/dx9/window.cpp
-        src/renderer/dx9/shader.cpp
-        src/renderer/dx9/yuvframe.cpp
-        src/renderer/dx9/nv12frame.cpp
-        src/renderer/dx9/3d/scene.cpp
-        src/renderer/dx9/3d/renderable3d.cpp
-    )
-    list(APPEND Impacto_Header
-        src/renderer/dx9/utils.h
-        src/renderer/dx9/renderer.h
-        src/renderer/dx9/window.h
-        src/renderer/dx9/shader.h
-        src/renderer/dx9/yuvframe.h
-        src/renderer/dx9/nv12frame.h
-        src/renderer/dx9/3d/scene.h
-        src/renderer/dx9/3d/renderable3d.h
-    )
-
-    list(APPEND Impacto_Libs
-            d3d9
-            d3dcompiler
-    )
 endif ()
 
 configure_file(src/version.h.in ${PROJECT_BINARY_DIR}/include/version.h)

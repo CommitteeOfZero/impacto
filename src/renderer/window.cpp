@@ -10,8 +10,6 @@
 #include <optional>
 #include "../inputsystem.h"
 #include "opengl/window.h"
-#include "vulkan/window.h"
-#include "dx9/window.h"
 
 namespace Impacto {
 
@@ -20,16 +18,6 @@ void InitWindow() {
 #ifndef IMPACTO_DISABLE_OPENGL
     case RendererType::OpenGL:
       Window = new OpenGL::GLWindow();
-      break;
-#endif
-#ifndef IMPACTO_DISABLE_VULKAN
-    case RendererType::Vulkan:
-      Window = new Vulkan::VulkanWindow();
-      break;
-#endif
-#ifndef IMPACTO_DISABLE_DX9
-    case RendererType::DirectX9:
-      Window = new DirectX9::DirectX9Window();
       break;
 #endif
     default:
