@@ -1,5 +1,5 @@
 root.SaveData = {
-    Type = SaveDataType.CCLCC,
+    Type = SaveDataType.CCLCC_PS4,
     SaveFilePath = root.BasePaths.RootSavesDir .. "/cclcc/jpn/SAVEDATA.DAT",
     ScriptMessageData={ -- Pairs of line count and offset into read flags array
         {0x0, 0x0}, {0x6b, 0x0}, {0x8b, 0x6b}, {0x7e, 0xf6}, {0x144, 0x174}, {0x42, 0x2b8},

@@ -30,9 +30,9 @@ using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::Vm;
 using namespace Impacto::Profile::ConfigSystem;
 
-uint32_t CalculateChecksum(std::span<const uint8_t> bufferData,
-                           uint16_t initSum = 0, uint16_t initXor = 0,
-                           bool swapSrcBytes = false) {
+uint32_t SaveSystem::CalculateChecksum(std::span<const uint8_t> bufferData,
+                                       uint16_t initSum, uint16_t initXor,
+                                       bool swapSrcBytes) {
   // Initialize checksum variables
 
   uint32_t checksumSum = initSum;
@@ -53,50 +53,15 @@ uint32_t CalculateChecksum(std::span<const uint8_t> bufferData,
   return result;
 }
 
-SaveError SaveSystem::CheckSaveFile() const {
-  std::error_code ec;
-
-  IoError existsState = Io::PathExists(SaveFilePath);
-  if (existsState == IoError_NotFound) {
-    return SaveError::NotFound;
-  } else if (existsState == IoError_Fail) {
-    ImpLog(LogLevel::Error, LogChannel::IO,
-           "Failed to check if save file exists, error: \"{:s}\"\n",
-           ec.message());
-    return SaveError::Failed;
-  }
-
-  auto saveFileSize = Io::GetFileSize(SaveFilePath);
-  if (saveFileSize == IoError_Fail) {
-    ImpLog(LogLevel::Error, LogChannel::IO,
-           "Failed to get save file size, error: \"{:s}\"\n", ec.message());
-    return SaveError::Failed;
-  } else if (saveFileSize != SaveFileSize) {
-    return SaveError::Corrupted;
-  }
-
-  Io::FilePermissionsFlags perms;
-  IoError permsState = Io::GetFilePermissions(SaveFilePath, perms);
-  using enum Io::FilePermissionsFlags;
-  if (permsState == IoError_Fail) {
-    ImpLog(LogLevel::Error, LogChannel::IO,
-           "Failed to get save file permissions, error: \"{:s}\"\n",
-           ec.message());
-    return SaveError::Failed;
-  } else if ((perms & owner_read) == none || (perms & owner_write) == none) {
-    return SaveError::WrongUser;
-  }
-
-  return SaveError::OK;
-}
-
 void SaveSystem::InitializeSystemData() {
-  std::fill(SystemData.begin(), SystemData.end(), 0x00);
+  auto& l = GetSaveLayout();
+  auto systemData = GetSystemData();
+  std::fill(systemData.begin(), systemData.end(), 0x00);
 
   Io::MemoryStream stream =
-      Io::MemoryStream(SystemData.data(), SystemData.size(), false);
+      Io::MemoryStream(systemData.data(), systemData.size(), false);
 
-  stream.Seek(0x8AC, SEEK_SET);
+  stream.Seek(l.ConfigOffset, SEEK_SET);
   Io::WriteLE(&stream, (Uint16)(Default::TextSpeed * 60));
   Io::WriteLE(&stream, (Uint16)(Default::AutoSpeed * 60));
   Io::WriteLE(&stream, (Uint8)(Default::GroupVolumes[Audio::ACG_Voice] *
@@ -113,25 +78,21 @@ void SaveSystem::InitializeSystemData() {
   Io::WriteLE(&stream, Default::SyncVoice);
   Io::WriteLE(&stream, !Default::SkipRead);
 
-  stream.Seek(0x8BE, SEEK_SET);
+  stream.Seek(l.VoiceOffset, SEEK_SET);
   for (size_t i = 0; i < 33; i++) Io::WriteLE(&stream, !Default::VoiceMuted[i]);
   for (size_t i = 0; i < 33; i++)
     Io::WriteLE(&stream, (Uint8)(Default::VoiceVolume[i] * 128));
 
-  stream.Seek(0x901, SEEK_SET);
+  stream.Seek(l.SkipVoiceOffset, SEEK_SET);
   Io::WriteLE(&stream, Default::SkipVoice);
   Io::WriteLE(&stream, Default::ShowTipsNotification);
 
-  stream.Seek(0x905, SEEK_SET);
+  stream.Seek(l.AdvanceTextOffset, SEEK_SET);
   Io::WriteLE(&stream, Default::AdvanceTextOnDirectionalInput);
   Io::WriteLE(&stream, Default::DirectionalInputForTrigger);
   Io::WriteLE(&stream, Default::TriggerStopSkip);
 
-  std::for_each_n(QuickSaveEntries, MaxSaveEntries,
-                  [](auto& ptr) { ptr = new SaveFileEntry(); });
-  std::for_each_n(FullSaveEntries, MaxSaveEntries,
-                  [](auto& ptr) { ptr = new SaveFileEntry(); });
-  WorkingSaveEntry = SaveFileEntry();
+  InitSaveSlots();
 
   const RectF viewport = Window->GetViewport();
   WorkingSaveThumbnail.Sheet = SpriteSheet(viewport.Width, viewport.Height);
@@ -146,6 +107,7 @@ void SaveSystem::InitializeSystemData() {
 
 void SaveSystem::LoadEntryBuffer(Io::MemoryStream& stream, SaveFileEntry& entry,
                                  SaveType saveType, Texture& tex) {
+  auto& l = GetSaveLayout();
   entry.Status = Io::ReadLE<uint8_t>(&stream);
   Io::ReadLE<uint8_t>(&stream);
   uint16_t checksumSum = Io::ReadLE<uint16_t>(&stream);
@@ -177,20 +139,9 @@ void SaveSystem::LoadEntryBuffer(Io::MemoryStream& stream, SaveFileEntry& entry,
   entry.SaveType = Io::ReadLE<uint32_t>(&stream);
   assert(stream.Position == 0x28);
   stream.Seek(0x58, SEEK_CUR);
-  Io::ReadArrayLE<uint8_t>(entry.FlagWorkScript1.data(), &stream,
-                           entry.FlagWorkScript1.size());
-  assert(stream.Position == 178);
-  Io::ReadArrayLE<uint8_t>(entry.FlagWorkScript2.data(), &stream,
-                           entry.FlagWorkScript2.size());
-  Io::ReadLE<uint16_t>(&stream);
-  assert(stream.Position == 280);
-  Io::ReadArrayLE<int>(entry.ScrWorkScript1.data(), &stream,
-                       entry.ScrWorkScript1.size());
-  assert(stream.Position == 2680);
-  Io::ReadArrayLE<int>(entry.ScrWorkScript2.data(), &stream,
-                       entry.ScrWorkScript2.size());
+  ReadWorkScriptData(stream, entry);
 
-  assert(stream.Position == 0x3958);
+  assert(stream.Position == l.MainThreadOffset);
   entry.MainThreadExecPriority = Io::ReadLE<uint32_t>(&stream);
   entry.MainThreadGroupId = Io::ReadLE<uint32_t>(&stream);
   entry.MainThreadWaitCounter = Io::ReadLE<uint32_t>(&stream);
@@ -206,32 +157,33 @@ void SaveSystem::LoadEntryBuffer(Io::MemoryStream& stream, SaveFileEntry& entry,
     entry.MainThreadReturnBufIds[j] = Io::ReadLE<uint32_t>(&stream);
   }
   Io::ReadLE<uint32_t>(&stream);
-  assert(stream.Position == 0x39bc);
+  assert(stream.Position == l.MainThreadBufIdOffset);
   entry.MainThreadScriptBufferId = Io::ReadLE<uint32_t>(&stream);
   Io::ReadArrayBE<int>(entry.MainThreadVariables.data(), &stream, 16);
   entry.MainThreadDialoguePageId = Io::ReadLE<uint32_t>(&stream);
-  assert(stream.Position == 0x3a04);
-  Io::ReadArrayLE<int>(entry.WaveData.data(), &stream, entry.WaveData.size());
-  assert(stream.Position == 0x3ec0);
-  Io::ReadArrayLE<uint8_t>(entry.MapLoadData.data(), &stream,
-                           entry.MapLoadData.size());
-  Io::ReadArrayLE<uint8_t>(entry.YesNoData.data(), &stream,
-                           entry.YesNoData.size());
+  assert(stream.Position == l.WaveOffset);
+  ReadWaveData(stream, entry);
+  assert(stream.Position == l.MapLoadOffset);
+  Io::ReadArrayLE<uint8_t>(entry.GetMapLoadData().data(), &stream,
+                           entry.GetMapLoadData().size());
+  Io::ReadArrayLE<uint8_t>(entry.GetYesNoData().data(), &stream,
+                           entry.GetYesNoData().size());
 
+  auto width = static_cast<float>(l.ThumbnailWidth);
+  auto height = static_cast<float>(l.ThumbnailHeight);
   Sprite& thumbnail = entry.SaveThumbnail;
-  thumbnail.Sheet = SpriteSheet(SaveThumbnailWidth, SaveThumbnailHeight);
-  thumbnail.Bounds = RectF(0.0f, 0.0f, SaveThumbnailWidth, SaveThumbnailHeight);
+  thumbnail.Sheet = SpriteSheet(width, height);
+  thumbnail.Bounds = RectF(0.0f, 0.0f, width, height);
 
-  tex.Init(TexFmt_RGB, SaveThumbnailWidth, SaveThumbnailHeight);
+  tex.Init(TexFmt_RGB, l.ThumbnailWidth, l.ThumbnailHeight);
 
-  int thumbnailPadding = 0xA14;
-  stream.Seek(thumbnailPadding, SEEK_CUR);
-  Io::ReadArrayLE<uint8_t>(entry.ThumbnailData.data(), &stream,
-                           entry.ThumbnailData.size());
+  stream.Seek(l.ThumbnailPadding, SEEK_CUR);
+  Io::ReadArrayLE<uint8_t>(entry.GetThumbnailData().data(), &stream,
+                           entry.GetThumbnailData().size());
 
-  for (size_t i = 0; i < entry.ThumbnailData.size() / 2; i++) {
-    uint16_t pixel =
-        entry.ThumbnailData[i * 2] | (entry.ThumbnailData[i * 2 + 1] << 8);
+  for (size_t i = 0; i < entry.GetThumbnailData().size() / 2; i++) {
+    uint16_t pixel = entry.GetThumbnailData()[i * 2] |
+                     (entry.GetThumbnailData()[i * 2 + 1] << 8);
     uint8_t r = (pixel & 0xF800) >> 8;
     uint8_t g = (uint8_t)((pixel & 0x07E0) >> 3);
     uint8_t b = (pixel & 0x001F) << 3;
@@ -241,82 +193,13 @@ void SaveSystem::LoadEntryBuffer(Io::MemoryStream& stream, SaveFileEntry& entry,
   }
 }
 
-SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
-  Io::Stream* stream;
-  IoError err = Io::PhysicalFileStream::Create(SaveFilePath, &stream);
-  switch (err) {
-    case IoError_NotFound:
-      return SaveError::NotFound;
-    case IoError_Fail:
-    case IoError_Eof:
-      return SaveError::Corrupted;
-    case IoError_OK:
-      break;
-  };
-  const RectF viewport = Window->GetViewport();
-  WorkingSaveEntry = std::optional<SaveFileEntry>(SaveFileEntry());
-  WorkingSaveThumbnail.Sheet = SpriteSheet(viewport.Width, viewport.Height);
-  WorkingSaveThumbnail.Bounds.SetSize(viewport.GetSize());
-
-  QueuedTexture txt{
-      .Id = std::ref(WorkingSaveThumbnail.Sheet.Texture),
-  };
-  txt.Tex.LoadSolidColor((int)WorkingSaveThumbnail.Bounds.Width,
-                         (int)WorkingSaveThumbnail.Bounds.Height, 0x000000);
-  textures.push_back(txt);
-
-  Io::ReadArrayLE<uint8_t>(SystemData.data(), stream, SystemData.size());
-  /*
-  uint32_t systemSaveChecksum =
-      CalculateChecksum(std::span(SystemData).subspan(4));
-  */
-
-  int lockedQuickSaveSlots = 0;
-  textures.reserve(MaxSaveEntries * 2);
-  for (auto& entryArray : {FullSaveEntries, QuickSaveEntries}) {
-    SaveType saveType =
-        (entryArray == QuickSaveEntries) ? SaveType::Quick : SaveType::Full;
-    [[maybe_unused]] int64_t saveDataPos = stream->Position;
-    for (int i = 0; i < MaxSaveEntries; i++) {
-      assert(stream->Position - saveDataPos ==
-             static_cast<int>(SaveEntrySize) * i);
-      entryArray[i] = new SaveFileEntry();
-
-      std::array<uint8_t, SaveEntrySize> entrySlotBuf;
-      Io::ReadArrayLE<uint8_t>(entrySlotBuf.data(), stream,
-                               entrySlotBuf.size());
-      Io::MemoryStream saveEntryDataStream(entrySlotBuf.data(),
-                                           entrySlotBuf.size(), false);
-
-      QueuedTexture tex{
-          .Id = std::ref(entryArray[i]->SaveThumbnail.Sheet.Texture),
-      };
-      LoadEntryBuffer(saveEntryDataStream,
-                      static_cast<SaveFileEntry&>(*entryArray[i]), saveType,
-                      tex.Tex);
-      if (saveType == SaveType::Quick) {
-        lockedQuickSaveSlots +=
-            static_cast<SaveFileEntry&>(*entryArray[i]).Flags & WriteProtect;
-      }
-      textures.push_back(tex);
-
-      // Todo, validate checksum?
-    }
-  }
-  SetLockedQuickSaveCount(lockedQuickSaveSlots);
-  SetFlag(SF_SAVEALLPROTECTED, LockedQuickSaveCount == MaxSaveEntries);
-
-  delete stream;
-  return SaveError::OK;
-}
-
 void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
                                        int autoSaveType) {
   auto* entry = GetSaveEntry<SaveFileEntry>(type, id);
   if (entry != nullptr && !(entry->Flags & WriteProtect)) {
     Renderer->FreeTexture(entry->SaveThumbnail.Sheet.Texture);
     uint8_t savedFlags = entry->Flags;
-    *entry = *WorkingSaveEntry;
+    UpdateWorkingSaveEntry(entry);
     entry->Flags = savedFlags;
     if (type == SaveType::Quick) {
       entry->SaveType = autoSaveType;
@@ -326,13 +209,13 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
     auto captureBuffer =
         Renderer->GetSpriteSheetImage(WorkingSaveThumbnail.Sheet);
 
+    auto& l = GetSaveLayout();
+    auto width = static_cast<float>(l.ThumbnailWidth);
+    auto height = static_cast<float>(l.ThumbnailHeight);
     Texture tex;
-    tex.Init(TexFmt_RGBA, SaveThumbnailWidth, SaveThumbnailHeight);
-
-    entry->SaveThumbnail.Sheet =
-        SpriteSheet(SaveThumbnailWidth, SaveThumbnailHeight);
-    entry->SaveThumbnail.Bounds =
-        RectF(0.0f, 0.0f, SaveThumbnailWidth, SaveThumbnailHeight);
+    tex.Init(TexFmt_RGBA, l.ThumbnailWidth, l.ThumbnailHeight);
+    entry->SaveThumbnail.Sheet = SpriteSheet(width, height);
+    entry->SaveThumbnail.Bounds = RectF(0.0f, 0.0f, width, height);
 
     int result =
         ResizeImage(WorkingSaveThumbnail.Bounds, entry->SaveThumbnail.Bounds,
@@ -347,6 +230,7 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
 
 void SaveSystem::SaveEntryBuffer(Io::MemoryStream& memoryStream,
                                  SaveFileEntry& entry, SaveType saveType) {
+  [[maybe_unused]] auto& l = GetSaveLayout();
   Io::WriteLE<uint16_t>(&memoryStream, entry.Status);
   Io::WriteLE<uint32_t>(&memoryStream, entry.Checksum);
   Io::WriteLE<uint16_t>(&memoryStream, 0);
@@ -368,20 +252,8 @@ void SaveSystem::SaveEntryBuffer(Io::MemoryStream& memoryStream,
   Io::WriteLE<uint32_t>(&memoryStream, entry.SaveType);
   assert(memoryStream.Position == 0x28);
   memoryStream.Seek(0x58, SEEK_CUR);
-  Io::WriteArrayLE<uint8_t>(entry.FlagWorkScript1.data(), &memoryStream,
-                            entry.FlagWorkScript1.size());
-  assert(memoryStream.Position == 178);
-  Io::WriteArrayLE<uint8_t>(entry.FlagWorkScript2.data(), &memoryStream,
-                            entry.FlagWorkScript2.size());
-  Io::WriteLE<uint16_t>(&memoryStream, 0);
-  assert(memoryStream.Position == 280);
-  Io::WriteArrayLE<int>(entry.ScrWorkScript1.data(), &memoryStream,
-                        entry.ScrWorkScript1.size());
-  assert(memoryStream.Position == 2680);
-  Io::WriteArrayLE<int>(entry.ScrWorkScript2.data(), &memoryStream,
-                        entry.ScrWorkScript2.size());
-
-  assert(memoryStream.Position == 0x3958);
+  WriteWorkScriptData(memoryStream, entry);
+  assert(memoryStream.Position == l.MainThreadOffset);
   Io::WriteLE<uint32_t>(&memoryStream, entry.MainThreadExecPriority);
   Io::WriteLE<uint32_t>(&memoryStream, entry.MainThreadGroupId);
   Io::WriteLE<uint32_t>(&memoryStream, entry.MainThreadWaitCounter);
@@ -397,39 +269,36 @@ void SaveSystem::SaveEntryBuffer(Io::MemoryStream& memoryStream,
     Io::WriteLE<uint32_t>(&memoryStream, entry.MainThreadReturnBufIds[j]);
   }
   Io::WriteLE<uint32_t>(&memoryStream, 0);
-  assert(memoryStream.Position == 0x39bc);
+  assert(memoryStream.Position == l.MainThreadBufIdOffset);
   Io::WriteLE<uint32_t>(&memoryStream, entry.MainThreadScriptBufferId);
   Io::WriteArrayBE<int>(entry.MainThreadVariables.data(), &memoryStream, 16);
   Io::WriteLE<uint32_t>(&memoryStream, entry.MainThreadDialoguePageId);
-  assert(memoryStream.Position == 0x3a04);
-  Io::WriteArrayLE<int>(entry.WaveData.data(), &memoryStream,
-                        entry.WaveData.size());
-  assert(memoryStream.Position == 0x3ec0);
-  Io::WriteArrayLE<uint8_t>(entry.MapLoadData.data(), &memoryStream,
-                            entry.MapLoadData.size());
-  Io::WriteArrayLE<uint8_t>(entry.YesNoData.data(), &memoryStream,
-                            entry.YesNoData.size());
+  assert(memoryStream.Position == l.WaveOffset);
+  WriteWaveData(memoryStream, entry);
 
-  int thumbnailPadding = 0xA14;
-  memoryStream.Seek(thumbnailPadding, SEEK_CUR);
+  assert(memoryStream.Position == l.MapLoadOffset);
+  Io::WriteArrayLE<uint8_t>(entry.GetMapLoadData().data(), &memoryStream,
+                            entry.GetMapLoadData().size());
+  Io::WriteArrayLE<uint8_t>(entry.GetYesNoData().data(), &memoryStream,
+                            entry.GetYesNoData().size());
 
-  Io::WriteArrayLE<uint8_t>(entry.ThumbnailData.data(), &memoryStream,
-                            entry.ThumbnailData.size());
+  memoryStream.Seek(l.ThumbnailPadding, SEEK_CUR);
+  Io::WriteArrayLE<uint8_t>(entry.GetThumbnailData().data(), &memoryStream,
+                            entry.GetThumbnailData().size());
 }
 
 void SaveSystem::SaveThumbnailData() {
-  std::vector<uint8_t> thumbnailBuffer(SaveThumbnailSize * 2);
+  auto& l = GetSaveLayout();
+  auto saveThumbnailSize = l.ThumbnailWidth * l.ThumbnailHeight * 2;
+  std::vector<uint8_t> thumbnailBuffer(saveThumbnailSize * 2);
 
   for (auto* entryArray : {FullSaveEntries, QuickSaveEntries}) {
     for (int i = 0; i < MaxSaveEntries; i++) {
-      SaveFileEntry* entry = (SaveFileEntry*)entryArray[i];
+      SaveFileEntry* entry = static_cast<SaveFileEntry*>(entryArray[i]);
       if (entry->Status == 0) continue;
 
       Renderer->GetSpriteSheetImage(entry->SaveThumbnail.Sheet,
                                     thumbnailBuffer);
-
-      std::array<uint8_t, SaveThumbnailSize>& thumbnailData =
-          entry->ThumbnailData;
 
       for (size_t j = 0; j < thumbnailBuffer.size(); j += 4) {
         uint8_t r = thumbnailBuffer[j];
@@ -437,16 +306,18 @@ void SaveSystem::SaveThumbnailData() {
         uint8_t b = thumbnailBuffer[j + 2];
         uint16_t pixel = ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3);
         pixel = SDL_Swap16BE(pixel);
-        thumbnailData[j / 2] = pixel >> 8;
-        thumbnailData[j / 2 + 1] = pixel & 0xFF;
+        entry->GetThumbnailData()[j / 2] = pixel >> 8;
+        entry->GetThumbnailData()[j / 2 + 1] = pixel & 0xFF;
       }
     }
   }
 }
 
 SaveError SaveSystem::LoadSystemData() {
+  auto& l = GetSaveLayout();
+  auto systemData = GetSystemData();
   Io::MemoryStream stream =
-      Io::MemoryStream(SystemData.data(), SystemData.size(), false);
+      Io::MemoryStream(systemData.data(), systemData.size(), false);
 
   /*
   uint16_t systemSum = Io::ReadLE<uint16_t>(&stream);
@@ -455,14 +326,14 @@ SaveError SaveSystem::LoadSystemData() {
   stream.Seek(0x14, SEEK_SET);
 
   stream.Seek(0x80, SEEK_SET);
-  Io::ReadArrayLE<uint8_t>(&FlagWork[100], &stream, 50);
-  Io::ReadArrayLE<uint8_t>(&FlagWork[460], &stream, 40);
+  Io::ReadArrayLE<uint8_t>(&FlagWork[l.SysFlagWorkDst1], &stream, 50);
+  Io::ReadArrayLE<uint8_t>(&FlagWork[l.SysFlagWorkDst2], &stream, 40);
   stream.Seek(0xDC, SEEK_SET);
-  Io::ReadArrayLE<int>(&ScrWork[1600], &stream, 400);
+  Io::ReadArrayLE<int>(&ScrWork[l.SysScrWorkDst1], &stream, l.SysScrWorkLen1);
   Io::ReadArrayLE<int>(&ScrWork[2000], &stream, 100);
 
   // Config settings
-  stream.Seek(0x8AC, SEEK_SET);
+  stream.Seek(l.ConfigOffset, SEEK_SET);
   TextSpeed = Io::ReadLE<Uint16>(&stream) / 60.0f;
   AutoSpeed = Io::ReadLE<Uint16>(&stream) / 60.0f;
   stream.Seek(1, SEEK_CUR);  // VOICE2vol
@@ -474,40 +345,31 @@ SaveError SaveSystem::LoadSystemData() {
   SyncVoice = Io::ReadLE<bool>(&stream);
   SkipRead = !Io::ReadLE<bool>(&stream);
 
-  stream.Seek(0x8BE, SEEK_SET);
+  stream.Seek(l.VoiceOffset, SEEK_SET);
   for (size_t i = 0; i < 33; i++) VoiceMuted[i] = !Io::ReadLE<bool>(&stream);
   for (size_t i = 0; i < 33; i++)
     VoiceVolume[i] = Io::ReadLE<Uint8>(&stream) / 128.0f;
 
-  stream.Seek(0x901, SEEK_SET);
+  stream.Seek(l.SkipVoiceOffset, SEEK_SET);
   SkipVoice = Io::ReadLE<bool>(&stream);
   ShowTipsNotification = Io::ReadLE<bool>(&stream);
 
-  stream.Seek(0x905, SEEK_SET);
+  stream.Seek(l.AdvanceTextOffset, SEEK_SET);
   AdvanceTextOnDirectionalInput = Io::ReadLE<bool>(&stream);
   DirectionalInputForTrigger = Io::ReadLE<bool>(&stream);
   TriggerStopSkip = Io::ReadLE<bool>(&stream);
 
-  stream.Seek(0xbce, SEEK_SET);
-  Io::ReadArrayLE<uint8_t>(QuickSaveRecentSortedId.data(), &stream,
-                           QuickSaveRecentSortedId.size());
-  std::array<uint8_t, MaxSaveEntries> sortedIdFreq{};
-
-  // backwards compat with older saves
-  for (uint8_t qsSlotId : QuickSaveRecentSortedId) {
-    if (sortedIdFreq[qsSlotId]++ > 1) {
-      std::iota(QuickSaveRecentSortedId.begin(), QuickSaveRecentSortedId.end(),
-                0);
-      std::ranges::sort(QuickSaveRecentSortedId,
-                        Impacto::SaveSystem::SaveRecencyComparator(),
-                        [this](int id) { return *QuickSaveEntries[id]; });
-      break;
-    }
+  if (l.QuickSortedIdIsLoaded) {
+    stream.Seek(l.QuickSortedIdOffset, SEEK_SET);
+    Io::ReadArrayLE<uint8_t>(QuickSaveRecentSortedId.data(), &stream,
+                             QuickSaveRecentSortedId.size());
   }
 
   // EV Flags
-  stream.Seek(0xC0E, SEEK_SET);
-  for (int i = 0; i < 150; i++) {
+  stream.Seek(l.EVFlagsOffset, SEEK_SET);
+  auto EVFlags = GetEVFlags();
+  size_t max = EVFlags.size() >> 3;
+  for (size_t i = 0; i < max; i++) {
     auto val = Io::ReadU8(&stream);
     EVFlags[8 * i] = val & 1;
     EVFlags[8 * i + 1] = (val & 2) != 0;
@@ -519,35 +381,42 @@ SaveError SaveSystem::LoadSystemData() {
     EVFlags[8 * i + 7] = val >> 7;
   }
 
-  stream.Seek(0xCA4, SEEK_SET);
-  Io::ReadArrayLE<uint8_t>(BGMFlags, &stream, 200);
+  stream.Seek(l.BgmFlagsOffset, SEEK_SET);
+  ReadBGMFlags(stream);
 
-  stream.Seek(0xd6c, SEEK_SET);
-  Io::ReadArrayLE<uint8_t>(MessageFlags, &stream, 10000);
+  stream.Seek(l.MessageFlagsOffset, SEEK_SET);
+  auto messageFlags = GetMessageFlags();
+  Io::ReadArrayLE<uint8_t>(messageFlags.data(), &stream, messageFlags.size());
 
   // EPnewList goes here
 
-  stream.Seek(0x347c, SEEK_SET);
-  Io::ReadArrayLE<uint8_t>(GameExtraData, &stream, 1024);
+  stream.Seek(l.ExtraDataOffset, SEEK_SET);
+  auto gameExtraData = GetGameExtraData();
+  Io::ReadArrayLE<uint8_t>(gameExtraData.data(), &stream, gameExtraData.size());
 
   return SaveError::OK;
 }
 
 void SaveSystem::SaveSystemData() {
+  auto& l = GetSaveLayout();
+  auto systemData = GetSystemData();
   Io::MemoryStream systemSaveStream =
-      Io::MemoryStream(SystemData.data(), SystemData.size(), false);
+      Io::MemoryStream(systemData.data(), systemData.size(), false);
 
   systemSaveStream.Seek(0x14, SEEK_SET);
 
   systemSaveStream.Seek(0x80, SEEK_SET);
-  Io::WriteArrayLE<uint8_t>(&FlagWork[100], &systemSaveStream, 50);
-  Io::WriteArrayLE<uint8_t>(&FlagWork[460], &systemSaveStream, 40);
+  Io::WriteArrayLE<uint8_t>(&FlagWork[l.SysFlagWorkDst1], &systemSaveStream,
+                            50);
+  Io::WriteArrayLE<uint8_t>(&FlagWork[l.SysFlagWorkDst2], &systemSaveStream,
+                            40);
   systemSaveStream.Seek(0xDC, SEEK_SET);
-  Io::WriteArrayLE<int>(&ScrWork[1600], &systemSaveStream, 400);
+  Io::WriteArrayLE<int>(&ScrWork[l.SysScrWorkDst1], &systemSaveStream,
+                        l.SysScrWorkLen1);
   Io::WriteArrayLE<int>(&ScrWork[2000], &systemSaveStream, 100);
 
   // Config settings
-  systemSaveStream.Seek(0x8AC, SEEK_SET);
+  systemSaveStream.Seek(l.ConfigOffset, SEEK_SET);
   Io::WriteLE(&systemSaveStream, (Uint16)(TextSpeed * 60));
   Io::WriteLE(&systemSaveStream, (Uint16)(AutoSpeed * 60));
   Io::WriteLE(
@@ -568,28 +437,30 @@ void SaveSystem::SaveSystemData() {
   Io::WriteLE(&systemSaveStream, SyncVoice);
   Io::WriteLE(&systemSaveStream, !SkipRead);
 
-  systemSaveStream.Seek(0x8BE, SEEK_SET);
+  systemSaveStream.Seek(l.VoiceOffset, SEEK_SET);
   for (size_t i = 0; i < 33; i++)
     Io::WriteLE(&systemSaveStream, !VoiceMuted[i]);
   for (size_t i = 0; i < 33; i++)
     Io::WriteLE(&systemSaveStream, (Uint8)(VoiceVolume[i] * 128));
 
-  systemSaveStream.Seek(0x901, SEEK_SET);
+  systemSaveStream.Seek(l.SkipVoiceOffset, SEEK_SET);
   Io::WriteLE(&systemSaveStream, SkipVoice);
   Io::WriteLE(&systemSaveStream, ShowTipsNotification);
 
-  systemSaveStream.Seek(0x905, SEEK_SET);
+  systemSaveStream.Seek(l.AdvanceTextOffset, SEEK_SET);
   Io::WriteLE(&systemSaveStream, AdvanceTextOnDirectionalInput);
   Io::WriteLE(&systemSaveStream, DirectionalInputForTrigger);
   Io::WriteLE(&systemSaveStream, TriggerStopSkip);
 
-  systemSaveStream.Seek(0xbce, SEEK_SET);
+  systemSaveStream.Seek(l.QuickSortedIdOffset, SEEK_SET);
   Io::WriteArrayLE<uint8_t>(QuickSaveRecentSortedId.data(), &systemSaveStream,
                             QuickSaveRecentSortedId.size());
 
   // EV Flags
-  systemSaveStream.Seek(0xC0E, SEEK_SET);
-  for (int i = 0; i < 150; i++) {
+  systemSaveStream.Seek(l.EVFlagsOffset, SEEK_SET);
+  auto EVFlags = GetEVFlags();
+  size_t max = EVFlags.size() >> 3;
+  for (size_t i = 0; i < max; i++) {
     const uint8_t evByte = (static_cast<uint8_t>(EVFlags[8 * i])) |
                            (static_cast<uint8_t>(EVFlags[8 * i + 1]) << 1) |
                            (static_cast<uint8_t>(EVFlags[8 * i + 2]) << 2) |
@@ -601,73 +472,20 @@ void SaveSystem::SaveSystemData() {
     Io::WriteLE<uint8_t>(&systemSaveStream, evByte);
   }
 
-  systemSaveStream.Seek(0xCA4, SEEK_SET);
-  Io::WriteArrayLE<uint8_t>(BGMFlags, &systemSaveStream, 200);
+  systemSaveStream.Seek(l.BgmFlagsOffset, SEEK_SET);
+  WriteBGMFlags(systemSaveStream);
 
-  systemSaveStream.Seek(0xd6c, SEEK_SET);
-  Io::WriteArrayLE<uint8_t>(MessageFlags, &systemSaveStream, 10000);
+  systemSaveStream.Seek(l.MessageFlagsOffset, SEEK_SET);
+  auto messageFlags = GetMessageFlags();
+  Io::WriteArrayLE<uint8_t>(messageFlags.data(), &systemSaveStream,
+                            messageFlags.size());
 
   // EPnewList goes here
 
-  systemSaveStream.Seek(0x347c, SEEK_SET);
-  Io::WriteArrayLE<uint8_t>(GameExtraData, &systemSaveStream, 1024);
-}
-
-SaveError SaveSystem::WriteSaveFile() {
-  using CF = Io::PhysicalFileStream::CreateFlagsMode;
-  Io::Stream* stream;
-  IoError err = Io::PhysicalFileStream::Create(
-      SaveFilePath, &stream, CF::CREATE | CF::CREATE_DIRS | CF::WRITE);
-  if (err != IoError_OK) {
-    ImpLog(LogLevel::Error, LogChannel::IO,
-           "Failed to open save file for writing\n");
-    return SaveError::Failed;
-  }
-
-  stream->Seek(0, SEEK_SET);
-  Io::MemoryStream systemSaveStream =
-      Io::MemoryStream(SystemData.data(), SystemData.size(), false);
-  uint32_t systemChecksum = CalculateChecksum(std::span(SystemData).subspan(4));
-  systemSaveStream.Seek(0, SEEK_SET);
-  Io::WriteLE<uint16_t>(&systemSaveStream, systemChecksum >> 16);
-  Io::WriteLE<uint16_t>(&systemSaveStream, systemChecksum & 0xFFFF);
-  Io::WriteArrayLE<uint8_t>(SystemData.data(), stream, SystemData.size());
-  // End system data
-  for (auto* entryArray : {FullSaveEntries, QuickSaveEntries}) {
-    SaveType saveType =
-        (entryArray == QuickSaveEntries) ? SaveType::Quick : SaveType::Full;
-    [[maybe_unused]] int64_t saveDataPos = stream->Position;
-    for (int i = 0; i < MaxSaveEntries; i++) {
-      SaveFileEntry* entry = (SaveFileEntry*)entryArray[i];
-      if (entry == nullptr || entry->Status == 0) {
-        Io::WriteLE<uint8_t>(stream, 0, SaveEntrySize);
-      } else {
-        assert(stream->Position - saveDataPos ==
-               static_cast<int>(SaveEntrySize) * i);
-        std::array<uint8_t, SaveEntrySize> entrySlotBuf{};
-        Io::MemoryStream saveEntryMemoryStream(entrySlotBuf.data(),
-                                               entrySlotBuf.size(), false);
-        SaveEntryBuffer(saveEntryMemoryStream, *entry, saveType);
-        uint32_t entryCheckSum = CalculateChecksum(
-            std::span(entrySlotBuf).subspan(6, 23029 * 2), 18198, 5250, false);
-        saveEntryMemoryStream.Seek(2, SEEK_SET);
-        Io::WriteLE<uint16_t>(&saveEntryMemoryStream, entryCheckSum >> 16);
-        Io::WriteLE<uint16_t>(&saveEntryMemoryStream, entryCheckSum & 0xFFFF);
-        Io::WriteArrayLE<uint8_t>(entrySlotBuf.data(), stream,
-                                  entrySlotBuf.size());
-      }
-    }
-  }
-  delete stream;
-  return SaveError::OK;
-}
-
-uint32_t SaveSystem::GetSavePlayTime(SaveType type, int id) const {
-  return GetSaveEntry<SaveFileEntry>(type, id)->PlayTime;
-}
-
-uint8_t SaveSystem::GetSaveFlags(SaveType type, int id) const {
-  return GetSaveEntry<SaveFileEntry>(type, id)->Flags;
+  systemSaveStream.Seek(l.ExtraDataOffset, SEEK_SET);
+  auto gameExtraData = GetGameExtraData();
+  Io::WriteArrayLE<uint8_t>(gameExtraData.data(), &systemSaveStream,
+                            gameExtraData.size());
 }
 
 void SaveSystem::SetSaveFlags(SaveType type, int id, uint8_t flags) {
@@ -692,8 +510,18 @@ tm const& SaveSystem::GetSaveDate(SaveType type, int id) const {
   return GetSaveEntry<SaveFileEntry>(type, id)->SaveDate;
 }
 
+uint32_t SaveSystem::GetSavePlayTime(SaveType type, int id) const {
+  return GetSaveEntry<SaveFileEntry>(type, id)->PlayTime;
+}
+
+uint8_t SaveSystem::GetSaveFlags(SaveType type, int id) const {
+  return GetSaveEntry<SaveFileEntry>(type, id)->Flags;
+}
+
 void SaveSystem::SaveMemory() {
   if (WorkingSaveEntry) {
+    auto& l = GetSaveLayout();
+
     WorkingSaveEntry->Status = 1;
 
     const tm timeinfo = CurrentDateTime();
@@ -701,18 +529,22 @@ void SaveSystem::SaveMemory() {
     WorkingSaveEntry->PlayTime = ScrWork[SW_PLAYTIME];
     WorkingSaveEntry->SwTitle = ScrWork[SW_TITLE];
 
-    std::copy(FlagWork.begin() + 50,
-              FlagWork.begin() + 50 + WorkingSaveEntry->FlagWorkScript1.size(),
-              WorkingSaveEntry->FlagWorkScript1.begin());
-    std::copy(FlagWork.begin() + 300,
-              FlagWork.begin() + 300 + WorkingSaveEntry->FlagWorkScript2.size(),
-              WorkingSaveEntry->FlagWorkScript2.begin());
-    std::copy(ScrWork.begin() + 1000,
-              ScrWork.begin() + 1000 + WorkingSaveEntry->ScrWorkScript1.size(),
-              WorkingSaveEntry->ScrWorkScript1.begin());
-    std::copy(ScrWork.begin() + 4300,
-              ScrWork.begin() + 4300 + WorkingSaveEntry->ScrWorkScript2.size(),
-              WorkingSaveEntry->ScrWorkScript2.begin());
+    std::copy(
+        FlagWork.begin() + 50,
+        FlagWork.begin() + 50 + WorkingSaveEntry->GetFlagWorkScript1().size(),
+        WorkingSaveEntry->GetFlagWorkScript1().begin());
+    std::copy(FlagWork.begin() + l.FlagWork2Src,
+              FlagWork.begin() + l.FlagWork2Src +
+                  WorkingSaveEntry->GetFlagWorkScript2().size(),
+              WorkingSaveEntry->GetFlagWorkScript2().begin());
+    std::copy(
+        ScrWork.begin() + 1000,
+        ScrWork.begin() + 1000 + WorkingSaveEntry->GetScrWorkScript1().size(),
+        WorkingSaveEntry->GetScrWorkScript1().begin());
+    std::copy(
+        ScrWork.begin() + 4300,
+        ScrWork.begin() + 4300 + WorkingSaveEntry->GetScrWorkScript2().size(),
+        WorkingSaveEntry->GetScrWorkScript2().begin());
 
     int threadId = ScrWork[SW_MAINTHDP];
     Sc3VmThread* thd = &ThreadPool[threadId & 0x7FFFFFFF];
@@ -734,20 +566,11 @@ void SaveSystem::SaveMemory() {
       WorkingSaveEntry->MainThreadDialoguePageId = thd->DialoguePageId;
     }
     UI::CCLCC::MapSystem::GetInstance().MapSave(
-        WorkingSaveEntry->MapLoadData.data());
+        WorkingSaveEntry->GetMapLoadData().data());
     UI::CCLCC::YesNoTrigger::GetInstance().Save(
-        WorkingSaveEntry->YesNoData.data());
-    WaveSave(std::span(WorkingSaveEntry->WaveData));
+        WorkingSaveEntry->GetYesNoData().data());
+    WaveSave(WorkingSaveEntry->GetWaveData());
   }
-}
-
-void SaveSystem::LoadEntry(SaveType type, int id) {
-  if (!WorkingSaveEntry) {
-    ImpLog(LogLevel::Error, LogChannel::IO,
-           "Failed to load save memory: no working save\n");
-    return;
-  }
-  WorkingSaveEntry = *GetSaveEntry<SaveFileEntry>(type, id);
 }
 
 void SaveSystem::LoadMemoryNew(LoadProcess load) {
@@ -757,36 +580,28 @@ void SaveSystem::LoadMemoryNew(LoadProcess load) {
     return;
   }
   if (load == LoadProcess::Vars) {
+    auto& l = GetSaveLayout();
+
     ScrWork[SW_PLAYTIME] = WorkingSaveEntry->PlayTime;
     ScrWork[SW_TITLE] = WorkingSaveEntry->SwTitle;
     ScrWork[SW_AUTOSAVERESTART] = WorkingSaveEntry->SaveType;
 
-    std::ranges::copy(WorkingSaveEntry->FlagWorkScript1, FlagWork.begin() + 50);
-    std::ranges::copy(WorkingSaveEntry->FlagWorkScript2,
-                      FlagWork.begin() + 300);
-    std::ranges::copy(WorkingSaveEntry->ScrWorkScript1, ScrWork.begin() + 1000);
-    std::ranges::copy(WorkingSaveEntry->ScrWorkScript2, ScrWork.begin() + 4300);
+    std::ranges::copy(WorkingSaveEntry->GetFlagWorkScript1(),
+                      FlagWork.begin() + 50);
+    std::ranges::copy(WorkingSaveEntry->GetFlagWorkScript2(),
+                      FlagWork.begin() + l.FlagWork2Src);
+    std::ranges::copy(WorkingSaveEntry->GetScrWorkScript1(),
+                      ScrWork.begin() + 1000);
+    std::ranges::copy(WorkingSaveEntry->GetScrWorkScript2(),
+                      ScrWork.begin() + 4300);
 
     UI::CCLCC::MapSystem::GetInstance().MapLoad(
-        WorkingSaveEntry->MapLoadData.data());
+        WorkingSaveEntry->GetMapLoadData().data());
     UI::CCLCC::YesNoTrigger::GetInstance().Load(
-        WorkingSaveEntry->YesNoData.data());
-    WaveLoad(std::span(WorkingSaveEntry->WaveData));
+        WorkingSaveEntry->GetYesNoData().data());
+    WaveLoad(WorkingSaveEntry->GetWaveData());
 
-    // TODO: What to do about this mess I wonder...
-    ScrWork[SW_SVSENO] = ScrWork[SW_SEREQNO];
-    ScrWork[SW_SVSENO + 1] = ScrWork[SW_SEREQNO + 1];
-    ScrWork[SW_SVSENO + 2] = ScrWork[SW_SEREQNO + 2];
-    ScrWork[SW_SVBGMNO] = ScrWork[SW_BGMREQNO];
-    ScrWork[SW_SVBGM2NO] = ScrWork[SW_BGMREQNO2];
-    ScrWork[SW_SVSCRNO1] = ScrWork[SW_SCRIPTNO2];
-    ScrWork[SW_SVSCRNO2] = ScrWork[SW_SCRIPTNO3];
-    ScrWork[SW_SVSCRNO3] = ScrWork[SW_SCRIPTNO4];
-    ScrWork[SW_SVSCRNO4] = ScrWork[SW_SCRIPTNO5];
-    for (int i = 0; i < 8; i++) {
-      ScrWork[SW_SVBGNO1 + i] = ScrWork[SW_BG1NO + i * ScrWorkBgStructSize];
-      ScrWork[SW_SVCHANO1 + i] = ScrWork[SW_CHA1NO + i * ScrWorkChaStructSize];
-    }
+    LoadScrWork();
   } else if (ScrWork[SW_MAINTHDP] != 0) {
     int threadId = ScrWork[SW_MAINTHDP];
     Sc3VmThread* thd = &ThreadPool[threadId & 0x7FFFFFFF];
@@ -824,50 +639,55 @@ int SaveSystem::GetSaveTitle(SaveType type, int id) const {
 }
 
 uint32_t SaveSystem::GetTipStatus(size_t tipId) const {
+  auto gameExtraData = GetGameExtraData();
   tipId *= 3;
-  uint8_t lockStatus = (GameExtraData[tipId >> 3] & Flbit[tipId & 7]) != 0;
+  uint8_t lockStatus = (gameExtraData[tipId >> 3] & Flbit[tipId & 7]) != 0;
   uint8_t newStatus =
-      (GameExtraData[(tipId + 1) >> 3] & Flbit[(tipId + 1) & 7]) != 0;
+      (gameExtraData[(tipId + 1) >> 3] & Flbit[(tipId + 1) & 7]) != 0;
   uint8_t unreadStatus =
-      (GameExtraData[(tipId + 2) >> 3] & Flbit[(tipId + 2) & 7]) != 0;
+      (gameExtraData[(tipId + 2) >> 3] & Flbit[(tipId + 2) & 7]) != 0;
   return (lockStatus | (unreadStatus << 1)) | (newStatus << 2);
 }
 
 void SaveSystem::SetTipStatus(size_t tipId, bool isLocked, bool isUnread,
                               bool isNew) {
+  auto gameExtraData = GetGameExtraData();
   tipId *= 3;
   if (isLocked) {
-    GameExtraData[tipId >> 3] &= ~(Flbit[tipId & 7]);
+    gameExtraData[tipId >> 3] &= ~(Flbit[tipId & 7]);
   } else {
-    GameExtraData[tipId >> 3] |= Flbit[tipId & 7];
+    gameExtraData[tipId >> 3] |= Flbit[tipId & 7];
   }
   if (isUnread) {
-    GameExtraData[(tipId + 2) >> 3] &= ~(Flbit[(tipId + 2) & 7]);
+    gameExtraData[(tipId + 2) >> 3] &= ~(Flbit[(tipId + 2) & 7]);
   } else {
-    GameExtraData[(tipId + 2) >> 3] |= Flbit[(tipId + 2) & 7];
+    gameExtraData[(tipId + 2) >> 3] |= Flbit[(tipId + 2) & 7];
   }
   if (isNew) {
-    GameExtraData[(tipId + 1) >> 3] &= ~(Flbit[(tipId + 1) & 7]);
+    gameExtraData[(tipId + 1) >> 3] &= ~(Flbit[(tipId + 1) & 7]);
   } else {
-    GameExtraData[(tipId + 1) >> 3] |= Flbit[(tipId + 1) & 7];
+    gameExtraData[(tipId + 1) >> 3] |= Flbit[(tipId + 1) & 7];
   }
 }
 
 void SaveSystem::SetLineRead(const size_t scriptId, const size_t lineId) {
   const std::optional<size_t> offset = GetLineBitOffset(scriptId, lineId);
+
   if (!offset.has_value()) return;
+  auto messageFlags = GetMessageFlags();
 
   // TODO: update some ScrWorks (2003, 2005 & 2006)
 
-  MessageFlags[*offset >> 3] |= Flbit[*offset & 0b111];
+  messageFlags[*offset >> 3] |= Flbit[*offset & 0b111];
 }
 
 bool SaveSystem::IsLineRead(const size_t scriptId, const size_t lineId) const {
   const std::optional<size_t> offset = GetLineBitOffset(scriptId, lineId);
   if (!offset.has_value()) return false;
+  auto messageFlags = GetMessageFlags();
 
   const uint8_t flbit = Flbit[*offset & 0b111];
-  const uint8_t viewed = MessageFlags[*offset >> 3];
+  const uint8_t viewed = messageFlags[*offset >> 3];
 
   return static_cast<bool>(flbit & viewed);
 }
@@ -889,6 +709,7 @@ void SaveSystem::GetReadMessagesCount(int* totalMessageCount,
 
 void SaveSystem::GetViewedEVsCount(int* totalEVCount,
                                    int* viewedEVCount) const {
+  auto EVFlags = GetEVFlags();
   for (int i = 0; i < MaxAlbumEntries; i++) {
     if (AlbumEvData[i][0] == 0xFFFF) break;
     for (int j = 0; j < MaxAlbumSubEntries; j++) {
@@ -900,6 +721,7 @@ void SaveSystem::GetViewedEVsCount(int* totalEVCount,
 }
 void SaveSystem::GetEVStatus(int evId, int* totalVariations,
                              int* viewedVariations) const {
+  auto EVFlags = GetEVFlags();
   *totalVariations = 0;
   *viewedVariations = 0;
   for (int i = 0; i < MaxAlbumSubEntries; i++) {
@@ -909,16 +731,27 @@ void SaveSystem::GetEVStatus(int evId, int* totalVariations,
   }
 }
 
-void SaveSystem::SetEVStatus(int id) { EVFlags[id] = true; }
+void SaveSystem::SetEVStatus(int id) {
+  auto EVFlags = GetEVFlags();
+  EVFlags[id] = true;
+}
 
 bool SaveSystem::GetEVVariationIsUnlocked(size_t evId,
                                           size_t variationIdx) const {
   if (AlbumEvData[evId][variationIdx] == 0xFFFF) return false;
+  auto EVFlags = GetEVFlags();
+
   return EVFlags[AlbumEvData[evId][variationIdx]];
 }
 
-bool SaveSystem::GetBgmFlag(int id) const { return BGMFlags[id]; }
-void SaveSystem::SetBgmFlag(int id, bool flag) { BGMFlags[id] = flag; }
+bool SaveSystem::GetBgmFlag(int id) const {
+  auto BGMFlags = GetBGMFlags();
+  return BGMFlags[id];
+}
+void SaveSystem::SetBgmFlag(int id, bool flag) {
+  auto BGMFlags = GetBGMFlags();
+  BGMFlags[id] = flag;
+}
 
 void SaveSystem::SetCheckpointId(int id) {
   if (WorkingSaveEntry) WorkingSaveEntry->MainThreadIp = id;

@@ -89,7 +89,30 @@ class SaveFileWriter : public Loadable<SaveFileWriter, SaveError> {
   }
 };
 
-static std::variant<SaveFileLoader, SaveFileChecker, SaveFileWriter> Loader;
+class QuickSaveFileWriter : public Loadable<QuickSaveFileWriter, SaveError> {
+  friend Loadable<QuickSaveFileWriter, SaveError>;
+
+ protected:
+  void UnloadSync() {}
+  SaveError LoadSync() {
+    return Implementation ? Implementation->WriteQuickSaveFile()
+                          : SaveError::Failed;
+  }
+
+  void MainThreadOnLoad(SaveError result) {
+    // Let's not report errors until we finalize the implementation
+    if (Profile::Vm::GameInstructionSet != Vm::InstructionSet::CC &&
+        Profile::Vm::GameInstructionSet != Vm::InstructionSet::CHLCC) {
+      result = SaveError::OK;
+    }
+
+    ScrWork[SW_SAVEERRORCODE] = (int)result;
+  }
+};
+
+static std::variant<SaveFileLoader, SaveFileChecker, SaveFileWriter,
+                    QuickSaveFileWriter>
+    Loader;
 
 template <typename TLoader>
 void ExecuteLoader() {
@@ -108,6 +131,7 @@ LoadStatus GetLoadStatus() {
 void MountSaveFile() { ExecuteLoader<SaveFileLoader>(); }
 void CheckSaveFile() { ExecuteLoader<SaveFileChecker>(); }
 void WriteSaveFile() { ExecuteLoader<SaveFileWriter>(); }
+void WriteQuickSaveFile() { ExecuteLoader<QuickSaveFileWriter>(); }
 
 void InitializeSystemData() {
   if (Implementation) Implementation->InitializeSystemData();
