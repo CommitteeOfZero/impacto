@@ -941,13 +941,8 @@ void SaveSystem::WaveSave(std::span<int> data) {
     data[offset++] = WaveBG.WaveData[i].Phase;
     data[offset++] = WaveBG.WaveData[i].SpatialFrequency;
   }
-  for (size_t i = 0; i < 20; i++) {
-    data[offset++] = WaveEFF.WaveData[i].Flags;
-    data[offset++] = WaveEFF.WaveData[i].Amplitude;
-    data[offset++] = WaveEFF.WaveData[i].TemporalFrequency;
-    data[offset++] = WaveEFF.WaveData[i].Phase;
-    data[offset++] = WaveEFF.WaveData[i].SpatialFrequency;
-  }
+  data[offset++] = WaveBG.WaveCount;
+
   for (size_t i = 0; i < 20; i++) {
     data[offset++] = WaveCHA.WaveData[i].Flags;
     data[offset++] = WaveCHA.WaveData[i].Amplitude;
@@ -955,10 +950,16 @@ void SaveSystem::WaveSave(std::span<int> data) {
     data[offset++] = WaveCHA.WaveData[i].Phase;
     data[offset++] = WaveCHA.WaveData[i].SpatialFrequency;
   }
-
-  data[offset++] = WaveBG.WaveCount;
-  data[offset++] = WaveEFF.WaveCount;
   data[offset++] = WaveCHA.WaveCount;
+
+  for (size_t i = 0; i < 20; i++) {
+    data[offset++] = WaveEFF.WaveData[i].Flags;
+    data[offset++] = WaveEFF.WaveData[i].Amplitude;
+    data[offset++] = WaveEFF.WaveData[i].TemporalFrequency;
+    data[offset++] = WaveEFF.WaveData[i].Phase;
+    data[offset++] = WaveEFF.WaveData[i].SpatialFrequency;
+  }
+  data[offset++] = WaveEFF.WaveCount;
 }
 
 void SaveSystem::WaveLoad(std::span<const int> data) const {
@@ -970,13 +971,8 @@ void SaveSystem::WaveLoad(std::span<const int> data) const {
     WaveBG.WaveData[i].Phase = data[offset++];
     WaveBG.WaveData[i].SpatialFrequency = data[offset++];
   }
-  for (size_t i = 0; i < 20; i++) {
-    WaveEFF.WaveData[i].Flags = data[offset++];
-    WaveEFF.WaveData[i].Amplitude = data[offset++];
-    WaveEFF.WaveData[i].TemporalFrequency = data[offset++];
-    WaveEFF.WaveData[i].Phase = data[offset++];
-    WaveEFF.WaveData[i].SpatialFrequency = data[offset++];
-  }
+  WaveBG.WaveCount = data[offset++];
+
   for (size_t i = 0; i < 20; i++) {
     WaveCHA.WaveData[i].Flags = data[offset++];
     WaveCHA.WaveData[i].Amplitude = data[offset++];
@@ -984,10 +980,16 @@ void SaveSystem::WaveLoad(std::span<const int> data) const {
     WaveCHA.WaveData[i].Phase = data[offset++];
     WaveCHA.WaveData[i].SpatialFrequency = data[offset++];
   }
-
-  WaveBG.WaveCount = data[offset++];
-  WaveEFF.WaveCount = data[offset++];
   WaveCHA.WaveCount = data[offset++];
+
+  for (size_t i = 0; i < 20; i++) {
+    WaveEFF.WaveData[i].Flags = data[offset++];
+    WaveEFF.WaveData[i].Amplitude = data[offset++];
+    WaveEFF.WaveData[i].TemporalFrequency = data[offset++];
+    WaveEFF.WaveData[i].Phase = data[offset++];
+    WaveEFF.WaveData[i].SpatialFrequency = data[offset++];
+  }
+  WaveEFF.WaveCount = data[offset++];
 }
 
 }  // namespace CCLCC
