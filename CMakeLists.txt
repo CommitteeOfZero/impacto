@@ -1157,8 +1157,12 @@ if (NOT DEFINED IMPACTO_DISABLE_OPENGL)
         src/renderer/opengl/3d/renderable3d.h
         src/renderer/opengl/3d/scene.h
     )
-
 endif ()
+
+if (NOT DEFINED IMPACTO_DISABLE_BGFX)
+    find_package(bgfx CONFIG REQUIRED)
+    list(APPEND Impacto_Libs bgfx::bgfx)
+endif()
 
 if (NOT DEFINED IMPACTO_DISABLE_FFMPEG)
     list(APPEND Impacto_Src
