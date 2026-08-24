@@ -1,6 +1,7 @@
 #include "yesnotrigger.h"
 #include "commonmenu.h"
 #include "../../profile/games/cclcc/yesnotrigger.h"
+#include "../../profile/vm.h"
 #include "../../vm/interface/input.h"
 #include "../../audio/audiosystem.h"
 #include "../../renderer/renderer.h"
@@ -34,10 +35,19 @@ int YesNoTrigger::Load(uint8_t* data) {
   BgSpritePos = glm::vec2(bgSpritePosX, bgSpritePosY);
   memcpy(&BgSpriteScale, data + dataSize, sizeof(float));
   dataSize += 16;
+  if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::LCCSwitch) {
+    // controls prompt alpha CT
+    // memcpy(&AlphaCT, data + dataSize, sizeof(int))
+    dataSize += 4;
+  }
   memcpy(&BgTransition, data + dataSize, sizeof(float));
   dataSize += 4;
   memcpy(&State, data + dataSize, sizeof(YesNoState));
   dataSize += 4;
+  if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::LCCSwitch) {
+    // padding
+    dataSize += 4;
+  }
   // PS4 has 64-bit pointers, vita has 32-bit pointers...
   dataSize += sizeof(void*);
   memcpy(&CurArrIndex, data + dataSize, sizeof(int));
@@ -46,7 +56,12 @@ int YesNoTrigger::Load(uint8_t* data) {
   dataSize += 4;
   dataSize += sizeof(void*);  // buffer pointer in their struct
   dataSize += 8;
-  assert(dataSize == 0x60);
+
+  if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::LCCSwitch) {
+    assert(dataSize == 0x68);
+  } else {
+    assert(dataSize == 0x60);
+  }
   if (State != YesNoState::None && State != YesNoState::Complete) {
     switch (BgType) {
       case BGType::BG0:
@@ -93,10 +108,19 @@ int YesNoTrigger::Save(uint8_t* data) {
   dataSize += 4;
   memcpy(data + dataSize, &BgSpriteScale, sizeof(float));
   dataSize += 16;
+  if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::LCCSwitch) {
+    // controls prompt alpha CT
+    // memcpy(data + dataSize, &BgSpriteScale, sizeof(int))
+    dataSize += 4;
+  }
   memcpy(data + dataSize, &BgTransition, sizeof(float));
   dataSize += 4;
   memcpy(data + dataSize, &State, sizeof(YesNoState));
   dataSize += 4;
+  if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::LCCSwitch) {
+    // padding
+    dataSize += 4;
+  }
   dataSize += sizeof(void*);
   memcpy(data + dataSize, &CurArrIndex, sizeof(int));
   dataSize += 4;
@@ -105,7 +129,11 @@ int YesNoTrigger::Save(uint8_t* data) {
   dataSize += sizeof(void*);  // buffer pointer in their struct
   dataSize += 8;
 
-  assert(dataSize == 0x60);
+  if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::LCCSwitch) {
+    assert(dataSize == 0x68);
+  } else {
+    assert(dataSize == 0x60);
+  }
   return dataSize;
 }
 
