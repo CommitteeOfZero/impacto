@@ -886,8 +886,6 @@ if (WIN32)
     # Workaround for RelWithDebInfo builds not installing all the libraries
     set(CMAKE_MAP_IMPORTED_CONFIG_MINSIZEREL Release)
     set(CMAKE_MAP_IMPORTED_CONFIG_RELWITHDEBINFO Release)
-
-    set(SDL3_LIBRARIES SDL3::SDL3)
 endif ()
 
 if (NOT NX) # avoid CMAKE_DL_LIBS for NX
@@ -901,19 +899,30 @@ list(APPEND Impacto_Include_Dirs ${CMAKE_CURRENT_SOURCE_DIR}/vendor/include)
 
 if (NOT DEFINED IMPACTO_DISABLE_OPENGL)
     list(APPEND Impacto_Include_Dirs ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glad/include)
-endif ()
 
-if(ANDROID)
-    set(SDL3_LIBRARIES SDL3::SDL3)
-
-    if (NOT DEFINED IMPACTO_DISABLE_OPENGL)
-        find_library(GLESv3 GLESv3)
-        list(APPEND Impacto_Libs
-            GLESv3
+    if (ANDROID OR NX)
+        set(OpenGL_Libs
+            OpenGL::GLES3
+            OpenGL::EGL
         )
-
+        set(OpenGL_Components
+            GLES3
+            EGL
+        )
+    else()
+        set(OpenGL_Libs
+            OpenGL::GL
+        )
+        set(OpenGL_Components
+            OpenGL
+        )
     endif ()
+    find_package(OpenGL COMPONENTS ${OpenGL_Components})
+    list(APPEND Impacto_Libs
+        ${OpenGL_Libs}
+    )
 endif ()
+
 
 if (NOT DEFINED IMPACTO_DISABLE_OPENAL)
     find_package(OpenAL CONFIG REQUIRED)
@@ -1091,9 +1100,6 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
         list(APPEND imgui_Include_Dirs
             vendor/imgui_custom/backends
         )
-        if (NX)
-            list(APPEND imgui_Include_Dirs "$ENV{DEVKITPRO}/portlibs/switch/include")
-        endif ()
     endif ()
 
     if (NOT DEFINED IMPACTO_DISABLE_VULKAN)
