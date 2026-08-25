@@ -9,12 +9,16 @@
 #include "game.h"
 #include "log.h"
 #include "inputsystem.h"
+#include "mem.h"
 #include "profile/game.h"
 #include "profile/gamedefinitions.h"
 #include "profile/basepaths.h"
+#include "profile/scriptvars.h"
 #include "userconfig.h"
 #include "version.h"
 #include "io/physicalfilestream.h"
+
+using namespace Impacto::Profile::ScriptVars;
 
 namespace Impacto::Overlay {
 
@@ -29,6 +33,13 @@ static ankerl::unordered_dense::map<std::string, ImgData> iconTextureMap;
 static std::string GetGameDisplayName(std::string const& gameKey) {
   auto const& name = Profile::GameDefinitions.at(gameKey).Name;
   return name.empty() ? gameKey : name;
+}
+
+static void ShowPlayTime(char const* label, int totalSeconds) {
+  int hours = totalSeconds / 3600;
+  int minutes = (totalSeconds % 3600) / 60;
+  int seconds = totalSeconds % 60;
+  ImGui::Text("%s: %02d:%02d:%02d", label, hours, minutes, seconds);
 }
 
 static ImVec4 GetAccentColor(std::string const& gameKey) {
@@ -617,6 +628,12 @@ void ShowOverlay() {
         ImGui::Text("%.3f ms/frame (%.1f FPS)",
                     1000.0f / ImGui::GetIO().Framerate,
                     ImGui::GetIO().Framerate);
+        if (Profile::Game::HasInit) {
+          ImGui::Separator();
+          ImGui::Text("%s", GetGameDisplayName(selectedGame).c_str());
+          ShowPlayTime("Current Session Play Time", ScrWork[SW_PLAYTIME]);
+          ShowPlayTime("Total Play Time", ScrWork[SW_TOTALPLAYTIME]);
+        }
         ImGui::EndTabItem();
       }
       ImGui::EndTabBar();
