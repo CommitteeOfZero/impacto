@@ -18,12 +18,18 @@ root.GameDefinitions = {
     }
   },
   ["cclcc-switch"] = {
-      GameProfile = root.BasePaths.RootProfilesDir .. "/cclcc-switch/game.lua",
-    },
+    Name = "CHAOS;CHILD Love Chu☆Chu!! (Switch)",
+    LauncherOrderId = 4,
+    LauncherTheme = 0xFF7698,
+    GameProfile = root.BasePaths.RootProfilesDir .. "/cclcc-switch/game.lua",
+    Patch = {
+      English = root.BasePaths.RootPatchesDir .. "/english/profiles/cclcc-switch/patch.lua",
+    }
+  },
   mo6tw = {
     Hidden = true,
     Name = "Memories Off 6 ~T-Wave~",
-    LauncherOrderId = 5,
+    LauncherOrderId = 6,
     GameProfile = root.BasePaths.RootProfilesDir .. "/mo6tw/game.lua",
   },
   darling = {
@@ -35,7 +41,7 @@ root.GameDefinitions = {
   dash = {
     Hidden = true,
     Name = "ROBOTICS;NOTES DaSH",
-    LauncherOrderId = 4,
+    LauncherOrderId = 5,
     GameProfile = root.BasePaths.RootProfilesDir .. "/dash/game.lua",
   },
   rne = {
@@ -47,19 +53,19 @@ root.GameDefinitions = {
   characterviewer = {
     Hidden = true,
     Name = "Character Viewer",
-    LauncherOrderId = 6,
+    LauncherOrderId = 7,
     GameProfile = root.BasePaths.RootProfilesDir .. "/characterviewer/game.lua",
   },
   modelviewer = {
     Hidden = true,
     Name = "Model Viewer",
-    LauncherOrderId = 7,
+    LauncherOrderId = 8,
     GameProfile = root.BasePaths.RootProfilesDir .. "/modelviewer/game.lua",
   },
   ["modelviewer-dash"] = {
     Hidden = true,
     Name = "Model Viewer DaSH",
-    LauncherOrderId = 8,
+    LauncherOrderId = 9,
     GameProfile = root.BasePaths.RootProfilesDir .. "/modelviewer-dash/game.lua",
   },
 };
