@@ -69,8 +69,8 @@ bool HandleEvent(SDL_Event const* ev) {
     case SDL_EVENT_MOUSE_WHEEL: {
       SDL_MouseWheelEvent const* evt = &ev->wheel;
       CurrentInputDevice = Device::Mouse;
-      MouseWheelDeltaX += (int)evt->x;
-      MouseWheelDeltaY += (int)evt->y;
+      MouseWheelDeltaX += evt->x;
+      MouseWheelDeltaY += evt->y;
       return true;
       break;
     }

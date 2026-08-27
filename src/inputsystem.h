@@ -21,8 +21,8 @@ inline Device CurrentInputDevice = Device::Mouse;
 inline glm::vec2 PrevMousePos = glm::vec2(0.0f);
 inline glm::vec2 CurMousePos = glm::vec2(0.0f);
 
-inline int MouseWheelDeltaX = 0;
-inline int MouseWheelDeltaY = 0;
+inline float MouseWheelDeltaX = 0;
+inline float MouseWheelDeltaY = 0;
 
 // TODO multitouch
 inline glm::vec2 PrevTouchPos = glm::vec2(0.0f);

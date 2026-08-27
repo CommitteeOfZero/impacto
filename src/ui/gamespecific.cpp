@@ -265,7 +265,7 @@ static void UpdateCCAtChanScrollbar() {
     const int conversion = (int)(Input::CurMousePos.y * slope + offset);
 
     if (Input::CurrentInputDevice == Input::Device::Mouse) {
-      ScrWork[SW_BG1POSY] -= Input::MouseWheelDeltaY * 16;
+      ScrWork[SW_BG1POSY] -= static_cast<int>(Input::MouseWheelDeltaY * 16.0f);
       mouseHover = thumbBounds.ContainsPoint(Input::CurMousePos);
       if (mouseHover) {
         if (Input::MouseButtonWentDown[SDL_BUTTON_LEFT]) {
