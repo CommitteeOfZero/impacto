@@ -134,7 +134,7 @@ static void HandleArguments(std::vector<std::string_view> args) {
 
         make_handler(
             [&](std::string_view input) {
-              UserConfig ::SetActiveGame(std::string(input));
+              UserConfig::SetActiveGame(std::string(input));
             },
             "-g", "--game"),
         make_handler(

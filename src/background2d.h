@@ -166,7 +166,7 @@ class Background2D : public Loadable<Background2D, bool, uint32_t> {
           &Background2D::RenderRegular,         // 37
           &Background2D::RenderRegular,         // 38
           &Background2D::RenderRegular,         // 39
-      };
+  };
 };
 
 class Capture2D : public Background2D {
