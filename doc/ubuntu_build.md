@@ -28,9 +28,9 @@ Once this is done, from now on you can just enter the impacto directory and buil
 ```shell
 cd impacto
 # for building release /w symbols build
-cmake --preset Release && cmake --build --preset x64-Release
+cmake --preset Release && cmake --build --preset Release
 # for building debug build
-cmake --preset Debug && cmake --build --preset x64-Debug
+cmake --preset Debug && cmake --build --preset Debug
 ```
 Once built, files should be installed to the `install` directory. Follow instructions in [getting_started](doc/getting_started.md) on where to place game files and resources.
 
