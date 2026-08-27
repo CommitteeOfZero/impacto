@@ -6,12 +6,12 @@
 #include "io.h"
 
 #ifdef __ANDROID__
-#include <SDL2/SDL_system.h>
+#include <SDL3/SDL_system.h>
 // Safe to bind to const ref, since temporaries have their lifetimes extended
 #define GetSystemDependentPath(filePath)                                   \
-  ((filePath.rfind(SDL_AndroidGetExternalStoragePath(), 0) ==              \
+  ((filePath.rfind(SDL_GetAndroidExternalStoragePath(), 0) ==              \
     std::string::npos)                                                     \
-       ? SDL_AndroidGetExternalStoragePath() + std::string("/") + filePath \
+       ? SDL_GetAndroidExternalStoragePath() + std::string("/") + filePath \
        : filePath)
 #else
 #define GetSystemDependentPath(filePath) filePath
@@ -27,6 +27,8 @@ struct FileMeta {
   uint32_t Id = 0;
   int64_t Size = 0;
 };
+
+typedef enum { Set, Cur, End } IoSeek;
 
 // TODO: use our own perms enum
 using FilePermissionsFlags = std::filesystem::perms;

@@ -14,7 +14,7 @@ IoError LzxStream::Create(Stream* baseStream, int64_t offset, int64_t size,
   Stream* dup;
   int64_t err = baseStream->Duplicate(&dup);
   if (err != IoError_OK) return (IoError)err;
-  err = dup->Seek(offset, RW_SEEK_SET);
+  err = dup->Seek(offset, IoSeek::Set);
   if (err != offset) {
     delete dup;
     return IoError_Fail;
@@ -28,7 +28,7 @@ IoError LzxStream::Create(Stream* baseStream, int64_t offset, int64_t size,
     return IoError_Fail;
   }
 
-  err = dup->Seek(12, RW_SEEK_CUR);
+  err = dup->Seek(12, IoSeek::Cur);
   if (err < IoError_OK) {
     delete dup;
     return (IoError)err;
@@ -74,13 +74,13 @@ int64_t LzxStream::Read(void* buffer, int64_t sz) {
 int64_t LzxStream::Seek(int64_t offset, int origin) {
   const int64_t absPos = [&]() {
     switch (origin) {
-      case RW_SEEK_SET:
+      case IoSeek::Set:
         return offset;
 
-      case RW_SEEK_CUR:
+      case IoSeek::Cur:
         return Position + offset;
 
-      case RW_SEEK_END:
+      case IoSeek::End:
         return Meta.Size - offset;
 
       default:
@@ -95,7 +95,7 @@ int64_t LzxStream::Seek(int64_t offset, int origin) {
       Position = 0;
       CompressedPosition = 0;
       UncompressedPosition = 0;
-      BaseStream->Seek(CompressedOffset, RW_SEEK_SET);
+      BaseStream->Seek(CompressedOffset, IoSeek::Set);
     }
     err = DiscardSeekBuffered(absPos);
   }

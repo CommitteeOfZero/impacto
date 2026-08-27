@@ -7,7 +7,7 @@
 #endif
 #include "vfs.h"
 #include "../util.h"
-#include <SDL_endian.h>
+#include <SDL3/SDL_endian.h>
 
 namespace Impacto {
 namespace Io {
@@ -80,7 +80,7 @@ IoError Lnk4Archive::Create(Stream* stream, VfsArchive** outArchive) {
   fileCount = 0;
   for (uint32_t* it = rawToc; it < rawToc + (maxFileCount * 2); it += 2) {
     // first file starts at 0
-    if (SDL_SwapLE32(*it) == 0 && it != rawToc) break;
+    if (SDL_Swap32LE(*it) == 0 && it != rawToc) break;
     fileCount++;
   }
 
@@ -95,8 +95,8 @@ IoError Lnk4Archive::Create(Stream* stream, VfsArchive** outArchive) {
     result->TOC[i].FileName = fileName;
     result->TOC[i].Id = i;
     result->TOC[i].Offset =
-        SDL_SwapLE32(rawToc[i * 2]) * offsetBlockSize + dataOffset;
-    result->TOC[i].Size = SDL_SwapLE32(rawToc[i * 2 + 1]) * blockSize;
+        SDL_Swap32LE(rawToc[i * 2]) * offsetBlockSize + dataOffset;
+    result->TOC[i].Size = SDL_Swap32LE(rawToc[i * 2 + 1]) * blockSize;
     result->IdsToFiles[i] = &result->TOC[i];
     result->NamesToIds[result->TOC[i].FileName] = i;
   }
@@ -108,7 +108,7 @@ IoError Lnk4Archive::Create(Stream* stream, VfsArchive** outArchive) {
   return IoError_OK;
 
 fail:
-  stream->Seek(0, RW_SEEK_SET);
+  stream->Seek(0, IoSeek::Set);
   if (result) delete result;
   if (rawToc) ImpStackFree(rawToc);
   return IoError_Fail;

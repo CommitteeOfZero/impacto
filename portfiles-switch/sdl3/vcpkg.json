@@ -1,0 +1,20 @@
+{
+  "name": "sdl3",
+  "version-date": "2026-02-01",
+  "description": "Switch build: builds devkitPro's SDL3-for-Switch fork.",
+  "dependencies": [
+    {
+      "name": "vcpkg-cmake",
+      "host": true
+    },
+    {
+      "name": "vcpkg-cmake-config",
+      "host": true
+    }
+  ],
+  "features": {
+    "vulkan": {
+      "description": "No-op on Switch (Vulkan is disabled)."
+    }
+  }
+}

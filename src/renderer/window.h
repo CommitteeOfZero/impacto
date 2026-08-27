@@ -1,6 +1,6 @@
 #pragma once
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include "../util.h"
 
 namespace Impacto {
@@ -46,7 +46,7 @@ class BaseWindow {
   int WindowHeight = 0;
 
   // OS window dimensions * DpiScaleX/Y => WindowWidth/Height (real pixels)
-  // Always 1 unless high DPI support is SDL_WINDOW_ALLOW_HIGHDPI
+  // Always 1 unless high DPI support is SDL_WINDOW_HIGH_PIXEL_DENSITY
   float DpiScaleX = 1.0f;
   float DpiScaleY = 1.0f;
 
@@ -56,7 +56,7 @@ class BaseWindow {
   bool WindowDimensionsChanged;
 
  protected:
-  void CreateSDLWindow(Uint32 flags);
+  void CreateSDLWindow(SDL_WindowFlags flags);
   virtual void UpdateDimensions() = 0;
   bool IsInit = false;
 
@@ -66,7 +66,8 @@ class BaseWindow {
   float lastRenderScale = 1.0f;
 
  private:
-  SDL_Rect GetDisplayBounds(std::optional<Uint32> flags = std::nullopt);
+  SDL_Rect GetDisplayBounds(
+      std::optional<SDL_WindowFlags> flags = std::nullopt);
   void ClampAspectRatio(int boundW, int boundH);
   void SetWindowedSizing();
 };

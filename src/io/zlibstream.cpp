@@ -18,7 +18,7 @@ IoError ZlibStream::Create(Stream* baseStream, int64_t compressedOffset,
   Stream* dup;
   int64_t err = baseStream->Duplicate(&dup);
   if (err != IoError_OK) return (IoError)err;
-  err = dup->Seek(compressedOffset, RW_SEEK_SET);
+  err = dup->Seek(compressedOffset, IoSeek::Set);
   if (err != compressedOffset) {
     delete dup;
     return IoError_Fail;
@@ -55,13 +55,13 @@ int64_t ZlibStream::Read(void* buffer, int64_t sz) {
 int64_t ZlibStream::Seek(int64_t offset, int origin) {
   const int64_t absPos = [&]() {
     switch (origin) {
-      case RW_SEEK_SET:
+      case IoSeek::Set:
         return offset;
 
-      case RW_SEEK_CUR:
+      case IoSeek::Cur:
         return Position + offset;
 
-      case RW_SEEK_END:
+      case IoSeek::End:
         return Meta.Size - offset;
 
       default:
@@ -76,7 +76,7 @@ int64_t ZlibStream::Seek(int64_t offset, int origin) {
       Position = 0;
       inflateReset(&ZlibState);
       Init();
-      BaseStream->Seek(CompressedOffset, RW_SEEK_SET);
+      BaseStream->Seek(CompressedOffset, IoSeek::Set);
     }
     err = DiscardSeekBuffered(absPos);
   }
@@ -90,7 +90,7 @@ IoError ZlibStream::Duplicate(Stream** outStream) {
   Stream* dup;
   int64_t err = BaseStream->Duplicate(&dup);
   if (err != IoError_OK) return (IoError)err;
-  err = dup->Seek(CompressedOffset, RW_SEEK_SET);
+  err = dup->Seek(CompressedOffset, IoSeek::Set);
   if (err != CompressedOffset) {
     delete dup;
     return IoError_Fail;
@@ -106,7 +106,7 @@ IoError ZlibStream::Duplicate(Stream** outStream) {
     delete result;
     return IoError_Fail;
   }
-  err = result->Seek(Position, RW_SEEK_SET);
+  err = result->Seek(Position, IoSeek::Set);
   if (err != Position) {
     delete result;
     return IoError_Fail;

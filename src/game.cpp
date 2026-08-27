@@ -223,12 +223,12 @@ void LauncherUpdate(float dt) {
   RequestCursor(CursorType::Default);
 
   while (SDL_PollEvent(&e)) {
-    if (e.type == SDL_QUIT) {
+    if (e.type == SDL_EVENT_QUIT) {
       ShouldQuit = true;
     }
 
 #ifndef IMPACTO_DISABLE_IMGUI
-    ImGui_ImplSDL2_ProcessEvent(&e);
+    ImGui_ImplSDL3_ProcessEvent(&e);
 #endif
   }
 }
@@ -298,7 +298,7 @@ void UpdateSystem(float dt) {
   }
 
   while (SDL_PollEvent(&e)) {
-    if (e.type == SDL_QUIT) {
+    if (e.type == SDL_EVENT_QUIT) {
       if (Profile::Patch::HasScriptedExitLogic) {
         Input::KeyboardButtonWentDown[SDL_SCANCODE_ESCAPE] = true;
       } else {
@@ -310,15 +310,15 @@ void UpdateSystem(float dt) {
     ImGuiIO& io = ImGui::GetIO();
     const bool isImguiEvent = [&e] {
       switch (e.type) {
-        case SDL_CONTROLLERBUTTONDOWN:
-        case SDL_CONTROLLERBUTTONUP:
-        case SDL_CONTROLLERAXISMOTION:
-        case SDL_FINGERMOTION:
-        case SDL_FINGERDOWN:
-        case SDL_FINGERUP:
+        case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
+        case SDL_EVENT_GAMEPAD_BUTTON_UP:
+        case SDL_EVENT_GAMEPAD_AXIS_MOTION:
+        case SDL_EVENT_FINGER_MOTION:
+        case SDL_EVENT_FINGER_DOWN:
+        case SDL_EVENT_FINGER_UP:
           return true;
         default:
-          return ImGui_ImplSDL2_ProcessEvent(&e);
+          return ImGui_ImplSDL3_ProcessEvent(&e);
       }
     }();
     if (isImguiEvent &&

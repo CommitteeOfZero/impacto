@@ -1,6 +1,5 @@
 #include "renderer.h"
 
-#include <SDL_syswm.h>
 #include <array>
 
 #include "../../profile/game.h"
@@ -28,10 +27,9 @@ void Renderer::Init() {
 
   Interface = Direct3DCreate9(D3D_SDK_VERSION);
 
-  SDL_SysWMinfo wmInfo;
-  SDL_VERSION(&wmInfo.version);
-  SDL_GetWindowWMInfo(Window->SDLWindow, &wmInfo);
-  HWND hWnd = wmInfo.info.win.window;
+  HWND hWnd =
+      (HWND)SDL_GetPointerProperty(SDL_GetWindowProperties(Window->SDLWindow),
+                                   SDL_PROP_WINDOW_WIN32_HWND_POINTER, NULL);
 
   D3DPRESENT_PARAMETERS d3dpp{};
   d3dpp.Windowed = TRUE;
@@ -123,7 +121,7 @@ void Renderer::Init() {
 
 #ifndef IMPACTO_DISABLE_IMGUI
   // Setup Platform/Renderer backends
-  ImGui_ImplSDL2_InitForD3D(DXWindow->SDLWindow);
+  ImGui_ImplSDL3_InitForD3D(DXWindow->SDLWindow);
   ImGui_ImplDX9_Init(Device);
 #endif
 }
@@ -145,7 +143,7 @@ void Renderer::Shutdown() {
 #ifndef IMPACTO_DISABLE_IMGUI
 void Renderer::ImGuiBeginFrame() {
   ImGui_ImplDX9_NewFrame();
-  ImGui_ImplSDL2_NewFrame();
+  ImGui_ImplSDL3_NewFrame();
   ImGui::NewFrame();
 }
 #endif

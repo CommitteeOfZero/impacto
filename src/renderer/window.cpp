@@ -81,9 +81,8 @@ void SetWindowIcon(SDL_Window* window) {
     return;
   }
 
-  SDL_Surface* surface =
-      SDL_CreateRGBSurfaceFrom(image, width, height, 32, width * 4, 0x000000FF,
-                               0x0000FF00, 0x00FF0000, 0xFF000000);
+  SDL_Surface* surface = SDL_CreateSurfaceFrom(
+      width, height, SDL_PIXELFORMAT_RGBA32, image, width * 4);
   if (!surface) {
     ImpLog(LogLevel::Error, LogChannel::General,
            "Could not create SDL surface for window icon from {:s}: {:s}\n",
@@ -93,7 +92,7 @@ void SetWindowIcon(SDL_Window* window) {
   }
 
   SDL_SetWindowIcon(window, surface);
-  SDL_FreeSurface(surface);
+  SDL_DestroySurface(surface);
   stbi_image_free(image);
 }
 
@@ -133,9 +132,8 @@ static SDL_Cursor* LoadCursorFromFile(const std::string& path) {
     return nullptr;
   }
 
-  SDL_Surface* surface =
-      SDL_CreateRGBSurfaceFrom(image, width, height, 32, width * 4, 0x000000FF,
-                               0x0000FF00, 0x00FF0000, 0xFF000000);
+  SDL_Surface* surface = SDL_CreateSurfaceFrom(
+      width, height, SDL_PIXELFORMAT_RGBA32, image, width * 4);
   if (!surface) {
     ImpLog(LogLevel::Error, LogChannel::General,
            "Could not create SDL surface for cursor from {:s}: {:s}\n",
@@ -151,7 +149,7 @@ static SDL_Cursor* LoadCursorFromFile(const std::string& path) {
            SDL_GetError());
   }
 
-  SDL_FreeSurface(surface);
+  SDL_DestroySurface(surface);
   stbi_image_free(image);
   return cursor;
 }
@@ -161,14 +159,14 @@ void InitCursors() {
     CursorArrow = LoadCursorFromFile(*Profile::Game::CursorArrowPath);
   }
   if (!CursorArrow) {
-    CursorArrow = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
+    CursorArrow = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_DEFAULT);
   }
 
   if (Profile::Game::CursorPointerPath.has_value()) {
     CursorPointer = LoadCursorFromFile(*Profile::Game::CursorPointerPath);
   }
   if (!CursorPointer) {
-    CursorPointer = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+    CursorPointer = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_POINTER);
   }
 
   if (CursorArrow) {
@@ -234,15 +232,16 @@ void ApplyCursorForFrame() {
   }
 }
 
-SDL_Rect BaseWindow::GetDisplayBounds(std::optional<Uint32> flags) {
+SDL_Rect BaseWindow::GetDisplayBounds(std::optional<SDL_WindowFlags> flags) {
   SDL_Rect result{};
   bool haveBounds;
 
-  Uint32 windowFlags = flags.value_or(SDL_GetWindowFlags(SDLWindow));
+  SDL_WindowFlags windowFlags = flags.value_or(SDL_GetWindowFlags(SDLWindow));
+  SDL_DisplayID display = SDL_GetDisplayForWindow(SDLWindow);
   if (windowFlags & SDL_WINDOW_FULLSCREEN) {
-    haveBounds = SDL_GetDisplayBounds(0, &result) == 0;
+    haveBounds = SDL_GetDisplayBounds(display, &result);
   } else {
-    haveBounds = SDL_GetDisplayUsableBounds(0, &result) == 0;
+    haveBounds = SDL_GetDisplayUsableBounds(display, &result);
   }
   if (!haveBounds) {
     ImpLog(LogLevel::Fatal, LogChannel::Render,
@@ -269,11 +268,11 @@ void BaseWindow::ClampAspectRatio(int boundW, int boundH) {
 
 void BaseWindow::SetWindowedSizing() {
   int top, left, bottom, right;
-  SDL_SetWindowFullscreen(SDLWindow, 0);
+  SDL_SetWindowFullscreen(SDLWindow, false);
   SDL_Rect bounds = GetDisplayBounds(0);
   ClampAspectRatio(bounds.w, bounds.h);
   bool hasWindowBorders =
-      SDL_GetWindowBordersSize(SDLWindow, &top, &left, &bottom, &right) == 0;
+      SDL_GetWindowBordersSize(SDLWindow, &top, &left, &bottom, &right);
 
 #ifdef __APPLE__
   hasWindowBorders = true;
@@ -296,14 +295,12 @@ void BaseWindow::SetWindowedSizing() {
   }
 }
 
-void BaseWindow::CreateSDLWindow(Uint32 flags) {
+void BaseWindow::CreateSDLWindow(SDL_WindowFlags flags) {
   auto const& config = UserConfig::CommonSettings;
   WindowWidth = config.ResolutionWidth;
   WindowHeight = config.ResolutionHeight;
 
-  SDLWindow = SDL_CreateWindow("Impacto", SDL_WINDOWPOS_UNDEFINED,
-                               SDL_WINDOWPOS_UNDEFINED, WindowWidth,
-                               WindowHeight, flags);
+  SDLWindow = SDL_CreateWindow("Impacto", WindowWidth, WindowHeight, flags);
 
   if (SDLWindow == NULL) {
     ImpLog(LogLevel::Error, LogChannel::General,
@@ -344,10 +341,17 @@ void BaseWindow::ApplyWindowSettings() {
 
   if (dispMode == DisplayMode::Fullscreen) {
     SDL_SetWindowSize(SDLWindow, WindowWidth, WindowHeight);
-    SDL_SetWindowFullscreen(SDLWindow, SDL_WINDOW_FULLSCREEN);
+    SDL_DisplayMode closest{};
+    if (SDL_GetClosestFullscreenDisplayMode(SDL_GetDisplayForWindow(SDLWindow),
+                                            WindowWidth, WindowHeight, 0.0f,
+                                            false, &closest)) {
+      SDL_SetWindowFullscreenMode(SDLWindow, &closest);
+    }
+    SDL_SetWindowFullscreen(SDLWindow, true);
   } else if (dispMode == DisplayMode::Borderless) {
     SDL_SetWindowSize(SDLWindow, WindowWidth, WindowHeight);
-    SDL_SetWindowFullscreen(SDLWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
+    SDL_SetWindowFullscreenMode(SDLWindow, NULL);
+    SDL_SetWindowFullscreen(SDLWindow, true);
   } else {
     SetWindowedSizing();
   }

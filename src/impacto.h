@@ -8,7 +8,7 @@
 
 #include "config.h"
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #ifndef IMPACTO_DISABLE_OPENGL
 #include <glad/glad.h>
@@ -16,7 +16,7 @@
 
 #ifndef IMPACTO_DISABLE_IMGUI
 #include <imgui.h>
-#include <imgui_impl_sdl2.h>
+#include <imgui_impl_sdl3.h>
 #endif
 
 #include <fmt/base.h>

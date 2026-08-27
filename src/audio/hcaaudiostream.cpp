@@ -59,7 +59,7 @@ fail:
     result->BaseStream = 0;
     delete result;
   }
-  stream->Seek(0, RW_SEEK_SET);
+  stream->Seek(0, IoSeek::Set);
   return 0;
 }
 

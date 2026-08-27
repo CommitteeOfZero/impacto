@@ -173,8 +173,9 @@ std::optional<av::Codec> findDecoderCodec(av::Stream const& avStream) {
             return LogChannel::General;
         }
       }();
+      const char* name = codec.name();
       ImpLog(LogLevel::Error, channel, "Unsupported codec: {}!\n",
-             codec.name());
+             name ? name : "<not found>");
       return std::nullopt;
     }
     return std::optional<av::Codec>{std::move(codec)};

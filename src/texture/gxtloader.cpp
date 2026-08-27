@@ -161,7 +161,7 @@ bool GXTLoadSubtexture(Stream* stream, Texture* outTexture,
                        SubtextureHeader* stx, uint8_t* p4Palettes,
                        uint8_t* p8Palettes, uint32_t p4count) {
   *outTexture = Texture();
-  stream->Seek(stx->Offset, RW_SEEK_SET);
+  stream->Seek(stx->Offset, IoSeek::Set);
   uint32_t baseFormat = (stx->Format & 0xFF000000U);
   uint32_t channelOrder = (stx->Format & 0x0000FFFFU);
 
@@ -358,7 +358,7 @@ bool TextureLoadGXT(Stream* stream, Texture* outTexture) {
   // Read metadata
 
   if (ReadBE<uint32_t>(stream) != magic) {
-    stream->Seek(0, RW_SEEK_SET);
+    stream->Seek(0, IoSeek::Set);
     return false;
   }
 
@@ -375,7 +375,7 @@ bool TextureLoadGXT(Stream* stream, Texture* outTexture) {
   uint32_t p4Count = ReadLE<uint32_t>(stream);
   uint32_t p8Count = ReadLE<uint32_t>(stream);
   // padding
-  stream->Seek(4, RW_SEEK_CUR);
+  stream->Seek(4, IoSeek::Cur);
 
   ImpLogSlow(LogLevel::Debug, LogChannel::TextureLoad,
              "GXT version=0x{:08x}, subtextureCount=0x{:08x}, "
@@ -397,9 +397,9 @@ bool TextureLoadGXT(Stream* stream, Texture* outTexture) {
   stx.MipmapCount = ReadLE<uint16_t>(stream);
   assert(stx.MipmapCount == 1);
   // subtexture header padding
-  stream->Seek(2, RW_SEEK_CUR);
+  stream->Seek(2, IoSeek::Cur);
 
-  stream->Seek(stx.Size, RW_SEEK_CUR);
+  stream->Seek(stx.Size, IoSeek::Cur);
 
   ImpLogSlow(
       LogLevel::Debug, LogChannel::TextureLoad,

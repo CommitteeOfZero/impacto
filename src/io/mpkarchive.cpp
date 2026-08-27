@@ -75,7 +75,7 @@ IoError MpkArchive::Create(Stream* stream, VfsArchive** outArchive) {
   result->IdsToFiles.reserve(FileCount);
   result->TOC = new MpkMetaEntry[FileCount];
 
-  stream->Seek(0x40, RW_SEEK_SET);
+  stream->Seek(0x40, IoSeek::Set);
   for (uint32_t i = 0; i < FileCount; i++) {
     uint32_t Compression = ReadLE<uint32_t>(stream);
     uint32_t Id = ReadLE<uint32_t>(stream);
@@ -84,7 +84,7 @@ IoError MpkArchive::Create(Stream* stream, VfsArchive** outArchive) {
       ImpLog(LogLevel::Error, LogChannel::IO,
              "Unknown MPK compression type {:d} on file {:d}\n", Id,
              Compression);
-      stream->Seek(0x100 - 8, RW_SEEK_SET);
+      stream->Seek(0x100 - 8, IoSeek::Set);
       continue;
     }
 
@@ -117,7 +117,7 @@ IoError MpkArchive::Create(Stream* stream, VfsArchive** outArchive) {
   return IoError_OK;
 
 fail:
-  stream->Seek(0, RW_SEEK_SET);
+  stream->Seek(0, IoSeek::Set);
   if (result) delete result;
   return IoError_Fail;
 }

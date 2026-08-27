@@ -4,7 +4,7 @@
 #include "uncompressedstream.h"
 #include "vfs.h"
 #include "../util.h"
-#include <SDL_endian.h>
+#include <SDL3/SDL_endian.h>
 
 namespace Impacto {
 namespace Io {
@@ -65,8 +65,8 @@ IoError AfsArchive::Create(Stream* stream, VfsArchive** outArchive) {
     snprintf(fileName, 6, "%05i", i);
     result->TOC[i].FileName = fileName;
     result->TOC[i].Id = i;
-    result->TOC[i].Offset = SDL_SwapLE32(rawToc[i * 2]);
-    result->TOC[i].Size = SDL_SwapLE32(rawToc[i * 2 + 1]);
+    result->TOC[i].Offset = SDL_Swap32LE(rawToc[i * 2]);
+    result->TOC[i].Size = SDL_Swap32LE(rawToc[i * 2 + 1]);
     result->IdsToFiles[i] = &result->TOC[i];
     result->NamesToIds[result->TOC[i].FileName] = i;
   }
@@ -78,7 +78,7 @@ IoError AfsArchive::Create(Stream* stream, VfsArchive** outArchive) {
   return IoError_OK;
 
 fail:
-  stream->Seek(0, RW_SEEK_SET);
+  stream->Seek(0, IoSeek::Set);
   if (result) delete result;
   if (rawToc) ImpStackFree(rawToc);
   return IoError_Fail;

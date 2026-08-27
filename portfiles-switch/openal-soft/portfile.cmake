@@ -1,1 +1,68 @@
-set(VCPKG_POLICY_EMPTY_PACKAGE enabled)
+vcpkg_from_github(
+    OUT_SOURCE_PATH SOURCE_PATH
+    REPO kcat/openal-soft
+    REF "1.25.2"
+    SHA512 d3790aedce0bdb0b348b35f917dec0626de2486f5967c9160cf2d50d5c2a00ff264ff73133ac6a0aa9207e8e5042e5d4fcc663c1e733df8e733647e843c39b25
+    HEAD_REF master
+)
+
+vcpkg_cmake_configure(
+    SOURCE_PATH "${SOURCE_PATH}"
+    OPTIONS
+        -DLIBTYPE=STATIC
+        -DALSOFT_UTILS=OFF
+        -DALSOFT_EXAMPLES=OFF
+        -DALSOFT_TESTS=OFF
+        -DALSOFT_INSTALL_CONFIG=OFF
+        -DALSOFT_INSTALL_HRTF_DATA=OFF
+        -DALSOFT_INSTALL_AMBDEC_PRESETS=OFF
+        -DALSOFT_NO_CONFIG_UTIL=ON
+        -DALSOFT_UPDATE_BUILD_VERSION=OFF
+        -DALSOFT_BACKEND_SDL3=ON
+        -DALSOFT_REQUIRE_SDL3=ON
+        -DALSOFT_BACKEND_ALSA=OFF
+        -DALSOFT_BACKEND_OSS=OFF
+        -DALSOFT_BACKEND_SOLARIS=OFF
+        -DALSOFT_BACKEND_SNDIO=OFF
+        -DALSOFT_BACKEND_WINMM=OFF
+        -DALSOFT_BACKEND_DSOUND=OFF
+        -DALSOFT_BACKEND_WASAPI=OFF
+        -DALSOFT_BACKEND_JACK=OFF
+        -DALSOFT_BACKEND_PIPEWIRE=OFF
+        -DALSOFT_BACKEND_PULSEAUDIO=OFF
+        -DALSOFT_BACKEND_COREAUDIO=OFF
+        -DALSOFT_BACKEND_OBOE=OFF
+        -DALSOFT_BACKEND_OPENSL=OFF
+        -DALSOFT_BACKEND_PORTAUDIO=OFF
+        -DALSOFT_BACKEND_WAVE=ON
+    MAYBE_UNUSED_VARIABLES
+        ALSOFT_BACKEND_ALSA
+        ALSOFT_BACKEND_OSS
+        ALSOFT_BACKEND_SOLARIS
+        ALSOFT_BACKEND_SNDIO
+        ALSOFT_BACKEND_WINMM
+        ALSOFT_BACKEND_DSOUND
+        ALSOFT_BACKEND_WASAPI
+        ALSOFT_BACKEND_COREAUDIO
+        ALSOFT_BACKEND_OBOE
+        ALSOFT_BACKEND_OPENSL
+)
+
+vcpkg_cmake_install()
+vcpkg_copy_pdbs()
+vcpkg_cmake_config_fixup(CONFIG_PATH "lib/cmake/OpenAL")
+vcpkg_fixup_pkgconfig()
+
+foreach(HEADER IN ITEMS al.h alc.h)
+    vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/include/AL/${HEADER}" "defined(AL_LIBTYPE_STATIC)" "1")
+endforeach()
+
+file(REMOVE_RECURSE
+    "${CURRENT_PACKAGES_DIR}/debug/include"
+    "${CURRENT_PACKAGES_DIR}/debug/share"
+)
+
+file(READ "${SOURCE_PATH}/common/pffft.cpp" pffft_license)
+string(REGEX REPLACE "[*]/.*" "*/\n" pffft_license "${pffft_license}")
+file(WRITE "${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-rel/pffft Notice" "${pffft_license}")
+vcpkg_install_copyright(FILE_LIST "${SOURCE_PATH}/COPYING" "${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-rel/pffft Notice")

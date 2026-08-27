@@ -116,13 +116,13 @@ int64_t PhysicalFileStream::Seek(int64_t offset, int origin) {
   }
   const int64_t absPos = [&]() {
     switch (origin) {
-      case RW_SEEK_SET:
+      case IoSeek::Set:
         return offset;
 
-      case RW_SEEK_CUR:
+      case IoSeek::Cur:
         return Position + offset;
 
-      case RW_SEEK_END:
+      case IoSeek::End:
         return Meta.Size - offset;
 
       default:
@@ -161,7 +161,7 @@ IoError PhysicalFileStream::Duplicate(Stream** outStream) {
     delete result;
     return IoError_Fail;
   }
-  if (result->Seek(Position, RW_SEEK_SET) < 0) {
+  if (result->Seek(Position, IoSeek::Set) < 0) {
     ImpLog(LogLevel::Error, LogChannel::IO,
            "Seek failed for file \"{:s}\" with error: \"{:s}\"\n",
            SourceFileName, std::generic_category().message(errno));

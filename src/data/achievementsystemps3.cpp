@@ -12,6 +12,7 @@
 int constexpr ICON_START = 3;
 int constexpr ICON_SIZE = 240;
 
+using namespace Impacto::Io;
 using namespace Impacto::Profile::AchievementSystem;
 
 namespace Impacto {
@@ -48,7 +49,7 @@ AchievementError AchievementSystemPS3::MountAchievementFile(
   TrophyDataEntries.resize(tdh.file_count);
 
   // Skipping header padding
-  baseStream->Seek(0x24, RW_SEEK_CUR);
+  baseStream->Seek(0x24, IoSeek::Cur);
 
   TrophyDataEntry* tropEntry = nullptr;
 
@@ -69,7 +70,7 @@ AchievementError AchievementSystemPS3::MountAchievementFile(
     return AchievementError::Failed;
   }
 
-  baseStream->Seek(tropEntry->offset, RW_SEEK_SET);
+  baseStream->Seek(tropEntry->offset, IoSeek::Set);
 
   // std::string is immutable and Io::Read uses memcpy
   // Variable-length arrays aren't supported in MSVC

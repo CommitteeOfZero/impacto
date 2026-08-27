@@ -2,7 +2,7 @@
 #include <cstdarg>
 
 #include <fmt/chrono.h>
-#include <SDL_log.h>
+#include <SDL3/SDL_log.h>
 #include "userconfig.h"
 #include "log.h"
 #include "util.h"
@@ -77,7 +77,8 @@ void LogToFile(void* userdata, [[maybe_unused]] int category,
                SDL_LogPriority priority, const char* message) {
   if (!FileLogStream) return;
   static constexpr const char* SDL_priority_prefixes[] = {
-      NULL, "VERBOSE", "DEBUG", "INFO", "WARN", "ERROR", "CRITICAL"};
+      "INVALID", "TRACE", "VERBOSE", "DEBUG",
+      "INFO",    "WARN",  "ERROR",   "CRITICAL"};
 
   std::string logBuf =
       fmt::format("{:s}: {:s}\n", SDL_priority_prefixes[priority], message);
@@ -97,15 +98,15 @@ void SDLLogger(void* userdata, [[maybe_unused]] int category,
 void SetSDLLogger(SDL_LogOutputFunction loggingFunction) {
   [[maybe_unused]] static const bool fetchDefaultLogger = [] {
     if (!DefaultLoggingFunction) {
-      SDL_LogGetOutputFunction(&DefaultLoggingFunction, nullptr);
+      SDL_GetLogOutputFunction(&DefaultLoggingFunction, nullptr);
     }
     return true;
   }();
 
   if (loggingFunction) {
-    SDL_LogSetOutputFunction(loggingFunction, nullptr);
+    SDL_SetLogOutputFunction(loggingFunction, nullptr);
   } else {
-    SDL_LogSetOutputFunction(DefaultLoggingFunction, nullptr);
+    SDL_SetLogOutputFunction(DefaultLoggingFunction, nullptr);
   }
 }
 
@@ -135,7 +136,7 @@ void LogInitFile() {
 
 void LogInit() {
   SetSDLLogger(SDLLogger);
-  SDL_LogSetPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_VERBOSE);
+  SDL_SetLogPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_VERBOSE);
   LogInitFile();
 }
 

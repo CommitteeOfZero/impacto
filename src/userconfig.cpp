@@ -104,8 +104,8 @@ TOML11_DEFINE_CONVERSION_NON_INTRUSIVE(
 )
 
 TOML11_DEFINE_CONVERSION_NON_INTRUSIVE(
-  Impacto::UserConfig::Config, 
-  ResolutionWidth, 
+  Impacto::UserConfig::Config,
+  ResolutionWidth,
   ResolutionHeight,
   LogFile,
   LogLvl,

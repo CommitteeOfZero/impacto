@@ -146,7 +146,7 @@ jobs:
     - name: Install Dependencies Linux
       run: |
         sudo apt-get update
-        sudo apt-get install nasm libx11-dev libxft-dev libxext-dev libwayland-dev libxkbcommon-dev libegl1-mesa-dev libibus-1.0-dev libxrandr-dev libltdl-dev mono-complete autoconf autoconf-archive automake libtool libdrm-dev
+        sudo apt-get install nasm libx11-dev libxft-dev libxext-dev libwayland-dev libxkbcommon-dev libegl1-mesa-dev libibus-1.0-dev libxrandr-dev libltdl-dev mono-complete autoconf autoconf-archive automake libtool libdrm-dev libasound2-dev libpulse-dev libaudio-dev libfribidi-dev libjack-dev libsndio-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev libxtst-dev libxkbcommon-dev libdrm-dev libgbm-dev libgl1-mesa-dev libgles2-mesa-dev libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev libthai-dev libusb-1.0-0-dev libpipewire-0.3-dev libdecor-0-dev liburing-dev
       if: matrix.os_name == 'linux' || matrix.os_name == 'android'
     - name: Install Dependencies Mac
       run: brew install nasm mono
