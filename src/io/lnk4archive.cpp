@@ -108,7 +108,7 @@ IoError Lnk4Archive::Create(Stream* stream, VfsArchive** outArchive) {
   return IoError_OK;
 
 fail:
-  stream->Seek(0, RW_SEEK_SET);
+  stream->Seek(0, IoSeek::Set);
   if (result) delete result;
   if (rawToc) ImpStackFree(rawToc);
   return IoError_Fail;

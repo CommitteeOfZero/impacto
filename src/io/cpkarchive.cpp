@@ -70,14 +70,14 @@ static std::string ReadString(int64_t stringsOffset, Stream* utfStream) {
 
   int64_t retAddr = utfStream->Position;
 
-  utfStream->Seek(stringAddr, RW_SEEK_SET);
+  utfStream->Seek(stringAddr, IoSeek::Set);
 
   char ch;
   std::string output;
   while ((ch = ReadU8(utfStream)) != 0x00) {
     output.push_back(ch);
   }
-  utfStream->Seek(retAddr, RW_SEEK_SET);
+  utfStream->Seek(retAddr, IoSeek::Set);
   return output;
 }
 
@@ -90,7 +90,7 @@ static bool ReadUtfBlock(
       std::make_unique<MemoryStream>(utfBlock.data(), utfBlock.size(), false);
   if (ReadBE<uint32_t>(utfStream.get()) != utfMagic) {
     DecryptUtfBlock(utfBlock.data(), utfBlock.size());
-    utfStream->Seek(0, RW_SEEK_SET);
+    utfStream->Seek(0, IoSeek::Set);
     if (ReadBE<uint32_t>(utfStream.get()) != utfMagic) {
       ImpLog(LogLevel::Trace, LogChannel::IO, "Error reading CPK UTF table\n");
       return false;
@@ -98,7 +98,7 @@ static bool ReadUtfBlock(
   }
 
   // uint32_t tableSize = ReadBE<uint32_t>(utfStream);
-  utfStream->Seek(4, RW_SEEK_CUR);
+  utfStream->Seek(4, IoSeek::Cur);
   int64_t rowsOffset = ReadBE<uint32_t>(utfStream.get());
   int64_t stringsOffset = ReadBE<uint32_t>(utfStream.get());
   int64_t dataOffset = ReadBE<uint32_t>(utfStream.get());
@@ -108,7 +108,7 @@ static bool ReadUtfBlock(
   dataOffset += 8;
 
   // uint32_t tableNameOffset = ReadBE<uint32_t>(UtfStream);
-  utfStream->Seek(4, RW_SEEK_CUR);
+  utfStream->Seek(4, IoSeek::Cur);
   uint16_t numColumns = ReadBE<uint16_t>(utfStream.get());
   uint16_t rowLength = ReadBE<uint16_t>(utfStream.get());
   uint32_t numRows = ReadBE<uint32_t>(utfStream.get());
@@ -171,9 +171,9 @@ static bool ReadUtfBlock(
           uint64_t dataSize = ReadBE<uint32_t>(utfStream.get());
           uint64_t retAddr = utfStream->Position;
           std::vector<uint8_t> dataBuf(dataSize + sizeof(uint64_t));
-          utfStream->Seek(dataPos, RW_SEEK_SET);
+          utfStream->Seek(dataPos, IoSeek::Set);
           utfStream->Read(dataBuf.data(), dataSize);
-          utfStream->Seek(retAddr, RW_SEEK_SET);
+          utfStream->Seek(retAddr, IoSeek::Set);
           cell = std::move(dataBuf);
         }
       } break;
@@ -195,7 +195,7 @@ static bool ReadUtfBlock(
   }
 
   for (uint32_t i = 0; i < numRows; i++) {
-    utfStream->Seek(rowsOffset + (i * rowLength), RW_SEEK_SET);
+    utfStream->Seek(rowsOffset + (i * rowLength), IoSeek::Set);
     ankerl::unordered_dense::map<std::string, CpkCell, string_hash,
                                  std::equal_to<>>
         row;
@@ -225,13 +225,13 @@ CpkMetaEntry* CpkArchive::GetFileListEntry(uint32_t id) {
 
 IoError CpkArchive::ReadItoc(int64_t itocOffset, int64_t contentOffset,
                              uint16_t align) {
-  BaseStream->Seek(itocOffset, RW_SEEK_SET);
+  BaseStream->Seek(itocOffset, IoSeek::Set);
   const uint32_t itocMagic = 0x49544F43;
   if (ReadBE<uint32_t>(BaseStream) != itocMagic) {
     ImpLog(LogLevel::Trace, LogChannel::IO, "Error reading CPK ITOC\n");
     return IoError_Fail;
   }
-  BaseStream->Seek(4, RW_SEEK_CUR);
+  BaseStream->Seek(4, IoSeek::Cur);
   uint64_t utfSize = ReadLE<uint64_t>(BaseStream);
   std::vector<uint8_t> utfBlock(utfSize);
   BaseStream->Read(utfBlock.data(), utfSize);
@@ -322,13 +322,13 @@ IoError CpkArchive::ReadItoc(int64_t itocOffset, int64_t contentOffset,
 }
 
 IoError CpkArchive::ReadToc(int64_t tocOffset, int64_t contentOffset) {
-  BaseStream->Seek(tocOffset, RW_SEEK_SET);
+  BaseStream->Seek(tocOffset, IoSeek::Set);
   const uint32_t tocMagic = 0x544F4320;
   if (ReadBE<uint32_t>(BaseStream) != tocMagic) {
     ImpLog(LogLevel::Trace, LogChannel::IO, "Error reading CPK TOC\n");
     return IoError_Fail;
   }
-  BaseStream->Seek(4, RW_SEEK_CUR);
+  BaseStream->Seek(4, IoSeek::Cur);
   uint64_t utfSize = ReadLE<uint64_t>(BaseStream);
   std::vector<uint8_t> utfBlock(utfSize);
   BaseStream->Read(utfBlock.data(), utfSize);
@@ -376,13 +376,13 @@ IoError CpkArchive::ReadToc(int64_t tocOffset, int64_t contentOffset) {
 }
 
 IoError CpkArchive::ReadEtoc(int64_t etocOffset) {
-  BaseStream->Seek(etocOffset, RW_SEEK_SET);
+  BaseStream->Seek(etocOffset, IoSeek::Set);
   const uint32_t etocMagic = 0x45544F43;
   if (ReadBE<uint32_t>(BaseStream) != etocMagic) {
     ImpLog(LogLevel::Trace, LogChannel::IO, "Error reading CPK ETOC\n");
     return IoError_Fail;
   }
-  BaseStream->Seek(4, RW_SEEK_CUR);
+  BaseStream->Seek(4, IoSeek::Cur);
   uint64_t utfSize = ReadLE<uint64_t>(BaseStream);
   std::vector<uint8_t> utfBlock(utfSize);
   BaseStream->Read(utfBlock.data(), utfSize);
@@ -412,7 +412,7 @@ IoError CpkArchive::Create(Stream* stream, VfsArchive** outArchive) {
   uint16_t alignVal;
 
   auto errorHandler = [&] {
-    stream->Seek(0, RW_SEEK_SET);
+    stream->Seek(0, IoSeek::Set);
     if (result) delete result;
     return IoError_Fail;
   };
@@ -479,7 +479,7 @@ IoError CpkArchive::Open(FileMeta* file, Stream** outStream) {
   CpkMetaEntry* entry = (CpkMetaEntry*)file;
 
   IoError err;
-  BaseStream->Seek(entry->Offset, RW_SEEK_SET);
+  BaseStream->Seek(entry->Offset, IoSeek::Set);
   uint32_t const laylaMagic1 = 0x4352494C;
   uint32_t const laylaMagic2 = 0x41594C41;
 
@@ -600,7 +600,7 @@ IoError CpkArchive::Slurp(FileMeta* file, void*& outBuffer, int64_t& outSize) {
     return IoError_Fail;
   }
 
-  int64_t pos = BaseStream->Seek(entry->Offset, RW_SEEK_SET);
+  int64_t pos = BaseStream->Seek(entry->Offset, IoSeek::Set);
   if (pos != entry->Offset) {
     ImpLog(LogLevel::Error, LogChannel::IO,
            "CPK failed to seek when slurping compressed file \"{:s}\" in "

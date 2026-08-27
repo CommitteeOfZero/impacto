@@ -95,7 +95,7 @@ static bool ParseAt9Riff(Stream* stream, At9ContainerInfo* info) {
       }
       case smplMagic: {
         if (chunkSize < 36) {
-          stream->Seek(chunkSize, RW_SEEK_CUR);
+          stream->Seek(chunkSize, IoSeek::Cur);
           break;
         }
         uint8_t smplData[36];
@@ -109,7 +109,7 @@ static bool ParseAt9Riff(Stream* stream, At9ContainerInfo* info) {
           info->LoopEnd = SDL_SwapLE32(*(uint32_t*)(loopChunk + 12));
         }
         // skip further loop chunks
-        if (loopCount > 1) stream->Seek(24 * (loopCount - 1), RW_SEEK_CUR);
+        if (loopCount > 1) stream->Seek(24 * (loopCount - 1), IoSeek::Cur);
         break;
       }
       case dataMagic: {
@@ -117,7 +117,7 @@ static bool ParseAt9Riff(Stream* stream, At9ContainerInfo* info) {
         goto breakLoop;
       }
       default: {
-        stream->Seek(chunkSize, RW_SEEK_CUR);
+        stream->Seek(chunkSize, IoSeek::Cur);
         break;
       }
     }
@@ -179,7 +179,7 @@ fail:
     result->BaseStream = 0;
     delete result;
   }
-  stream->Seek(0, RW_SEEK_SET);
+  stream->Seek(0, IoSeek::Set);
   return 0;
 }
 
@@ -210,7 +210,7 @@ void Atrac9AudioStream::InitWithInfo(At9ContainerInfo* container,
          "LoopStart={:d}, LoopEnd={:d}\n",
          Duration, SampleRate, ChannelCount, LoopStart, LoopEnd);
 
-  BaseStream->Seek(StreamDataOffset, RW_SEEK_SET);
+  BaseStream->Seek(StreamDataOffset, IoSeek::Set);
   Seek(EncoderDelay);
 }
 

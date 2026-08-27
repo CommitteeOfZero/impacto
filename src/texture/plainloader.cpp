@@ -18,11 +18,11 @@ enum PlainPixelMode : uint32_t {
 };
 
 bool TextureIsPlain(Stream* stream) {
-  stream->Seek(4, RW_SEEK_SET);
+  stream->Seek(4, IoSeek::Set);
   uint32_t mode = ReadLE<uint32_t>(stream);
   bool result = (mode == Plain_8Bit_Paletted || mode == Plain_32Bit_ARGB ||
                  mode == Plain_8Bit_Alpha1 || mode == Plain_8Bit_Alpha2);
-  stream->Seek(0, RW_SEEK_SET);
+  stream->Seek(0, IoSeek::Set);
   return result;
 }
 

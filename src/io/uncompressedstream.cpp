@@ -13,7 +13,7 @@ IoError UncompressedStream::Create(Stream* baseStream, int64_t baseStreamOffset,
   Stream* dup;
   int64_t err = baseStream->Duplicate(&dup);
   if (err != IoError_OK) return (IoError)err;
-  err = dup->Seek(baseStreamOffset, RW_SEEK_SET);
+  err = dup->Seek(baseStreamOffset, IoSeek::Set);
   if (err < 0) {
     delete dup;
     return (IoError)err;
@@ -38,15 +38,15 @@ int64_t UncompressedStream::Read(void* buffer, int64_t sz) {
 
 int64_t UncompressedStream::Seek(int64_t offset, int origin) {
   int64_t newPosInBase = IoError_Fail;
-  if (origin == RW_SEEK_SET && (offset >= 0 && offset <= Meta.Size)) {
-    newPosInBase = BaseStream->Seek(BaseStreamOffset + offset, RW_SEEK_SET);
-  } else if (origin == RW_SEEK_CUR &&
+  if (origin == IoSeek::Set && (offset >= 0 && offset <= Meta.Size)) {
+    newPosInBase = BaseStream->Seek(BaseStreamOffset + offset, IoSeek::Set);
+  } else if (origin == IoSeek::Cur &&
              (Position + offset >= 0 && Position + offset <= Meta.Size)) {
-    newPosInBase = BaseStream->Seek(offset, RW_SEEK_CUR);
-  } else if (origin == RW_SEEK_END && (offset >= 0 && offset <= Meta.Size)) {
+    newPosInBase = BaseStream->Seek(offset, IoSeek::Cur);
+  } else if (origin == IoSeek::End && (offset >= 0 && offset <= Meta.Size)) {
     int64_t end = BaseStreamOffset + Meta.Size;
     int64_t ourEndFromBaseEnd = BaseStream->Meta.Size - end;
-    newPosInBase = BaseStream->Seek(ourEndFromBaseEnd + offset, RW_SEEK_END);
+    newPosInBase = BaseStream->Seek(ourEndFromBaseEnd + offset, IoSeek::End);
   }
   if (newPosInBase < 0) return newPosInBase;
   Position = newPosInBase - BaseStreamOffset;

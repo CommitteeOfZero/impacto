@@ -3,6 +3,8 @@
 #include <algorithm>
 #include "../impacto.h"
 
+using namespace Impacto::Io;
+
 namespace Impacto {
 namespace Audio {
 
@@ -67,7 +69,7 @@ class Buffering {
     if (currentBuffer != buffer) {
       // seek base stream
       stream->BaseStream->Seek(
-          StreamDataOffset + buffer * EncodedBytesPerBuffer, RW_SEEK_SET);
+          StreamDataOffset + buffer * EncodedBytesPerBuffer, IoSeek::Set);
       stream->ReadPosition = buffer * SamplesPerBuffer;
       DecodedSamplesAvailable = 0;
       DecodedSamplesConsumed = 0;

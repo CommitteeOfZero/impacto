@@ -103,7 +103,7 @@ static bool ParseAdxHeader(Stream* stream, AdxHeaderInfo* info) {
   info->StreamDataOffset = SDL_SwapBE16(*(uint16_t*)(header + 2)) + 4;
 
   // second magic
-  stream->Seek(info->StreamDataOffset - 6, RW_SEEK_SET);
+  stream->Seek(info->StreamDataOffset - 6, IoSeek::Set);
   char const magic[] = "(c)CRI";
   char fileMagic[6];
   stream->Read(fileMagic, 6);
@@ -192,7 +192,7 @@ fail:
     result->BaseStream = 0;
     delete result;
   }
-  stream->Seek(0, RW_SEEK_SET);
+  stream->Seek(0, IoSeek::Set);
   return 0;
 }
 AdxAudioStream::~AdxAudioStream() {}
@@ -214,7 +214,7 @@ void AdxAudioStream::InitWithInfo(AdxHeaderInfo* info) {
 
   BitDepth = 16;
 
-  BaseStream->Seek(StreamDataOffset, RW_SEEK_SET);
+  BaseStream->Seek(StreamDataOffset, IoSeek::Set);
 }
 
 int AdxAudioStream::Read(void* buffer, int samples) {

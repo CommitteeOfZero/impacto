@@ -3,13 +3,15 @@
 #include "../log.h"
 #include <webp/decode.h>
 
+using namespace Impacto::Io;
+
 namespace Impacto {
 namespace TexLoad {
 
 bool TextureLoadWebP(Io::Stream* stream, Texture* outTexture) {
-  stream->Seek(0, RW_SEEK_END);
+  stream->Seek(0, IoSeek::End);
   size_t dataSize = stream->Position;
-  stream->Seek(0, RW_SEEK_SET);
+  stream->Seek(0, IoSeek::Set);
   uint8_t* rawData = (uint8_t*)malloc(dataSize);
   stream->Read(rawData, dataSize);
 
@@ -17,7 +19,7 @@ bool TextureLoadWebP(Io::Stream* stream, Texture* outTexture) {
   int res = WebPGetInfo(rawData, dataSize, &width, &height);
 
   if (!res) {
-    stream->Seek(0, RW_SEEK_SET);
+    stream->Seek(0, IoSeek::Set);
     free(rawData);
     return false;
   }
@@ -26,7 +28,7 @@ bool TextureLoadWebP(Io::Stream* stream, Texture* outTexture) {
   auto status = WebPGetFeatures(rawData, dataSize, &features);
 
   if (status != VP8_STATUS_OK) {
-    stream->Seek(0, RW_SEEK_SET);
+    stream->Seek(0, IoSeek::Set);
     free(rawData);
     return false;
   }
@@ -41,7 +43,7 @@ bool TextureLoadWebP(Io::Stream* stream, Texture* outTexture) {
   }
 
   if (image == 0) {
-    stream->Seek(0, RW_SEEK_SET);
+    stream->Seek(0, IoSeek::Set);
     free(rawData);
     return false;
   }

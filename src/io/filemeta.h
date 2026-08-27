@@ -28,6 +28,8 @@ struct FileMeta {
   int64_t Size = 0;
 };
 
+typedef enum { Set, Cur, End } IoSeek;
+
 // TODO: use our own perms enum
 using FilePermissionsFlags = std::filesystem::perms;
 

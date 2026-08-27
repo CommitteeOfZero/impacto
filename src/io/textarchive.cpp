@@ -74,7 +74,7 @@ IoError TextArchive::Create(Stream* stream, VfsArchive** outArchive) {
       ImpLog(LogLevel::Trace, LogChannel::IO, "Actually a binary MPK\n");
       goto fail;
     }
-    stream->Seek(0, RW_SEEK_SET);
+    stream->Seek(0, IoSeek::Set);
   } else {
     ImpLog(LogLevel::Trace, LogChannel::IO, "Not a text archive\n");
     goto fail;
@@ -173,7 +173,7 @@ IoError TextArchive::Create(Stream* stream, VfsArchive** outArchive) {
   return IoError_OK;
 
 fail:
-  stream->Seek(0, RW_SEEK_SET);
+  stream->Seek(0, IoSeek::Set);
   if (result) delete result;
   return IoError_Fail;
 }
