@@ -9,6 +9,7 @@
 #include <avcpp/timestamp.h>
 #include <avcpp/packet.h>
 #include <avcpp/rational.h>
+#include <libavcodec/avcodec.h>
 
 extern "C" {
 #include <libavutil/avutil.h>
@@ -99,6 +100,16 @@ void FFmpegPlayer::Init() {
   av::init();
   // av::set_logging_level("debug");
   AudioPlayer->Init();
+
+  void* ctx = NULL;
+  const AVCodec* currentCodec = nullptr;
+  currentCodec = av_codec_iterate(&ctx);
+  while (currentCodec != NULL) {
+    if (!av_codec_is_encoder(currentCodec)) {
+      currentCodec = av_codec_iterate(&ctx);
+      ImpLog(LogLevel::Info, LogChannel::Video, "{}", currentCodec->name);
+    }
+  }
 
   IsInit = true;
 }
