@@ -344,6 +344,9 @@ void UpdateSystem(float dt) {
         menu->Update(updateInterval);
       }
     }
+    for (auto const& [id, box] : UI::SysMesBox::MsgBoxes) {
+      box->Update(updateInterval);
+    }
 
     UI::GameSpecific::NonGameplayUpdate(updateInterval);
     SaveIconDisplay::Update(updateInterval);
@@ -694,6 +697,9 @@ void Render() {
           break;
         }
         case DrawComponentType::SystemMessage: {
+          for (auto const& [id, box] : UI::SysMesBox::MsgBoxes) {
+            box->Render();
+          }
           break;
         }
         case DrawComponentType::SaveIcon: {

@@ -23,6 +23,7 @@
 #include "../profile/scriptinput.h"
 #include "../profile/scriptvars.h"
 #include "../profile/dialogue.h"
+#include "../ui/ui.h"
 
 namespace Impacto {
 namespace Vm {
@@ -367,6 +368,8 @@ static void DrawAllThreads() {
 }
 
 void DestroyThread(Sc3VmThread* thread) {
+  UI::SysMesBox::Pop(thread->Id);
+
   if (ThreadGroupHeads[thread->GroupId] == thread) {
     ThreadGroupHeads[thread->GroupId] = thread->NextContext;
   } else if (ThreadGroupTails[thread->GroupId] == thread) {

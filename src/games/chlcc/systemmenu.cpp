@@ -157,7 +157,7 @@ void SystemMenu::Update(float dt) {
   // this branch is only for hiding sub items when menu is open
   if (isSysMenuOpen && State == Shown) {
     if (UI::FocusedMenu != this && SubItemsState == Shown &&
-        UI::SysMesBoxPtr->State == UI::MenuState::Hidden) {
+        UI::SysMesBox::MsgBoxes.empty()) {
       const bool isLoading = GetFlag(SF_RESTARTMASK);
       SubItemsHide(isLoading);
     } else if (UI::FocusedMenu == this && SubItemsState == Hidden) {
