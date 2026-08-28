@@ -24,6 +24,8 @@ class SysMesBox : public UI::SysMesBox {
   UI::Widgets::Button* WidgetOK;
   UI::Widgets::Button* WidgetYes;
   UI::Widgets::Button* WidgetNo;
+
+  float BoxAnimCount = 0.0f;
 };
 
 }  // namespace CC

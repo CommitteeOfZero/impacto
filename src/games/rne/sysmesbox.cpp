@@ -20,16 +20,6 @@ using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::SysMesBox;
 using namespace Impacto::Profile::RNE::SysMesBox;
 
-static float BoxAnimCount = 0.0f;
-static float BoxTopY = 0.0f;
-static float BoxBottomY = 0.0f;
-static float LineLength = 0.0f;
-static float BoxHeight = 0.0f;
-static float BoxProgressCount = 0.0f;
-static float ButtonYesX = 0.0f;
-static float ButtonRightX = 0.0f;
-static int TextStartCount = 0;
-
 void SysMesBox::ChoiceItemOnClick(Button* target) {
   ScrWork[SW_SYSSEL] = target->Id;
   ChoiceMade = true;
