@@ -768,7 +768,8 @@ set(Impacto_Header
 
 if (WIN32)
     list(APPEND Impacto_Src
-        src/manifest_windows.manifest
+        windows/manifest_windows.manifest
+        windows/app.rc
     )
 endif ()
 
@@ -1411,6 +1412,7 @@ elseif (NX)
         OUTPUT ${IMPACTO_NRO}
         COMMAND ${ELF2NRO} $<TARGET_FILE:impacto> ${IMPACTO_NRO}
                 --nacp=${IMPACTO_NACP}
+                --icon=${CMAKE_SOURCE_DIR}/resources/common/icons/icon.png
         DEPENDS impacto ${IMPACTO_NACP}
         VERBATIM
     )
