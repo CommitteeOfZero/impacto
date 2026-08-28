@@ -8,7 +8,7 @@ On application load, a set of scripts we call *profile* is executed, generating 
 
 ## Configuration Files
 
-**`basepaths.lua`** defines important paths for where Impacto will look for files. Later loaded profile lua files also use variables from this file.
+**`basepaths.lua`** defines important paths for where Impacto will look for files. Later loaded profile lua files also use variables from this file. `basepaths.lua.sample` describes its schema.
 
 **`gamedefinitions.lua`** defines available games and their startup lua path, as well as any additional patches startup lua. For example:
 ```lua
