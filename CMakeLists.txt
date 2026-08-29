@@ -1412,7 +1412,7 @@ elseif (NX)
         OUTPUT ${IMPACTO_NRO}
         COMMAND ${ELF2NRO} $<TARGET_FILE:impacto> ${IMPACTO_NRO}
                 --nacp=${IMPACTO_NACP}
-                --icon=${CMAKE_SOURCE_DIR}/resources/common/icons/icon.png
+                --icon=${CMAKE_SOURCE_DIR}/resources/common/icons/icon.jpg
         DEPENDS impacto ${IMPACTO_NACP}
         VERBATIM
     )
