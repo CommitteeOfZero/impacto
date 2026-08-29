@@ -467,6 +467,8 @@ static void ShowCommonSettings() {
     ImGui::Spacing();
 
     auto& commonSettings = UserConfig::CommonSettings;
+    ImGui::Checkbox("Swap Confirm/Cancel Buttons",
+                    &commonSettings.SwapConfirmCancelButtons);
     ImGui::Checkbox("Log to Console", &commonSettings.LoggingToConsole);
     if (ImGui::Checkbox("Log to File", &commonSettings.LoggingToFile)) {
       LogInitFile();
@@ -907,6 +909,8 @@ void ShowOverlay() {
 }
 
 void Show() {
+  ImGui::GetIO().ConfigNavSwapGamepadButtons = Input::FaceButtonsFlipped();
+
   if (Profile::Game::HasInit) {
     if (!OverlayShown &&
         ((Input::KeyboardButtonWentDown[SDL_SCANCODE_0] &&

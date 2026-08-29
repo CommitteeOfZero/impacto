@@ -18,6 +18,7 @@ bool HandleEvent(SDL_Event const* ev);
 void ClearFlicks();
 void ClearPinchGesture();
 void ClearTouch();
+bool FaceButtonsFlipped();
 
 inline Device CurrentInputDevice = Device::Mouse;
 
