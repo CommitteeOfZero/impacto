@@ -5,11 +5,53 @@
 #include "renderer/renderer.h"
 
 #include "profile/game.h"
+#include "userconfig.h"
 
 namespace Impacto {
 namespace Input {
 
 static std::array<SDL_FingerID, 2> CurrentFingers{};
+
+static bool HardwareFaceButtonsAreSwapped(SDL_Gamepad* gamepad) {
+  if (gamepad == nullptr) return false;
+
+  return SDL_GetGamepadButtonLabel(gamepad, SDL_GAMEPAD_BUTTON_SOUTH) ==
+         SDL_GAMEPAD_BUTTON_LABEL_B;
+}
+
+static SDL_GamepadButton NormalizeFaceButton(SDL_JoystickID which,
+                                             SDL_GamepadButton button) {
+  auto swapSouthEast = [](SDL_GamepadButton button) {
+    return button == SDL_GAMEPAD_BUTTON_SOUTH ? SDL_GAMEPAD_BUTTON_EAST
+                                              : SDL_GAMEPAD_BUTTON_SOUTH;
+  };
+
+  if (button != SDL_GAMEPAD_BUTTON_SOUTH && button != SDL_GAMEPAD_BUTTON_EAST) {
+    return button;
+  }
+
+  if (HardwareFaceButtonsAreSwapped(SDL_GetGamepadFromID(which))) {
+    button = swapSouthEast(button);
+  }
+
+  if (UserConfig::CommonSettings.SwapConfirmCancelButtons) {
+    button = swapSouthEast(button);
+  }
+
+  return button;
+}
+
+bool FaceButtonsFlipped() {
+  bool flipped = false;
+  int count = 0;
+  if (SDL_JoystickID* ids = SDL_GetGamepads(&count)) {
+    if (count > 0)
+      flipped = HardwareFaceButtonsAreSwapped(SDL_GetGamepadFromID(ids[0]));
+    SDL_free(ids);
+  }
+  if (UserConfig::CommonSettings.SwapConfirmCancelButtons) flipped = !flipped;
+  return flipped;
+}
 
 void BeginFrame() {
   memset(ControllerButtonWentDown, false, sizeof(ControllerButtonWentDown));
@@ -88,9 +130,12 @@ bool HandleEvent(SDL_Event const* ev) {
     case SDL_EVENT_GAMEPAD_BUTTON_UP: {
       SDL_GamepadButtonEvent const* evt = &ev->gbutton;
       CurrentInputDevice = Device::Controller;
-      ControllerButtonWentDown[evt->button] =
-          (evt->down && !ControllerButtonIsDown[evt->button]);
-      ControllerButtonIsDown[evt->button] = evt->down;
+      SDL_GamepadButton button = NormalizeFaceButton(
+          evt->which, static_cast<SDL_GamepadButton>(evt->button));
+
+      ControllerButtonWentDown[button] =
+          (evt->down && !ControllerButtonIsDown[button]);
+      ControllerButtonIsDown[button] = evt->down;
       return true;
       break;
     }

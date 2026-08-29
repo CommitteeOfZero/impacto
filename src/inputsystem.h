@@ -15,6 +15,7 @@ int constexpr FingerTapMax = 2;
 
 void BeginFrame();
 bool HandleEvent(SDL_Event const* ev);
+bool FaceButtonsFlipped();
 
 inline Device CurrentInputDevice = Device::Mouse;
 
