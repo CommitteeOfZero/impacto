@@ -156,7 +156,7 @@ void TipsMenu::Render() {
     if (CurrentlyDisplayedTipId != -1) {
       TipViewItems.Tint.a = alpha;
       TipViewItems.Render();
-      TextPage.Render(alpha, RendererOutlineMode::Full);
+      TextPage.Render(alpha, RendererOutlineMode::BottomRight);
     }
     if (TipsEntriesScrollbar) {
       TipsEntriesScrollbar->Tint.a = alpha;
@@ -309,8 +309,9 @@ void TipsMenu::Init() {
 
   auto createCategory = [&](auto labelText, float yPos) {
     Label* categoryLabel = new Label();
-    categoryLabel->SetText(labelText, {TipListEntryBounds.X + 5, yPos},
-                           TipListEntryFontSize, RendererOutlineMode::Full, 0);
+    categoryLabel->SetText(labelText, {TipListEntryBounds.X + 5.0f, yPos},
+                           TipListEntryFontSize,
+                           RendererOutlineMode::BottomRight, 0);
     categoryLabel->Bounds.X -= 5.0f;
     categoryLabel->Bounds.Width += 5.0f;
     return categoryLabel;
@@ -430,8 +431,8 @@ void TipsMenu::Init() {
   // Number label
   NumberText = new Label(
       Vm::ScriptGetTextTableStrAddress(TipsStringTable, NumberLabelStrIndex),
-      NumberLabelPosition, NumberLabelFontSize, RendererOutlineMode::Full,
-      DefaultColorIndex);
+      NumberLabelPosition, NumberLabelFontSize,
+      RendererOutlineMode::BottomRight, DefaultColorIndex);
   TipViewItems.Add(NumberText);
   // Tip number
   Number = new Label();
@@ -595,12 +596,12 @@ void TipsMenu::SwitchToTipId(int id) {
   auto tipRecord = TipsSystem::GetTipRecord(id);
   Name->SetText(Vm::BufferOffsetContext{.ScriptBufferId = tipsScriptBufferId,
                                         .IpOffset = tipRecord->StringAdr[0]},
-                {0.0f, 0.0f}, NameFontSize, RendererOutlineMode::Full,
+                {0.0f, 0.0f}, NameFontSize, RendererOutlineMode::BottomRight,
                 DefaultColorIndex);
   Pronunciation->SetText(
       Vm::BufferOffsetContext{.ScriptBufferId = tipsScriptBufferId,
                               .IpOffset = tipRecord->StringAdr[1]},
-      {0.0f, 0.0f}, PronunciationFontSize, RendererOutlineMode::Full,
+      {0.0f, 0.0f}, PronunciationFontSize, RendererOutlineMode::BottomRight,
       DefaultColorIndex);
   // Right alignment
   Name->MoveTo(NameInitialBounds.GetPos() -
@@ -611,7 +612,8 @@ void TipsMenu::SwitchToTipId(int id) {
   const int sortedTipId =
       static_cast<TipsEntryButton*>(CurrentlyFocusedElement)->Id;
   Number->SetText(fmt::format("{:4d}", sortedTipId + 1), NumberBounds.GetPos(),
-                  NumberFontSize, RendererOutlineMode::Full, DefaultColorIndex);
+                  NumberFontSize, RendererOutlineMode::BottomRight,
+                  DefaultColorIndex);
 
   CurrentPage->SetSprite(CurrentPageSprites[CurrentTipPage]);
   TotalPages->SetSprite(TotalPageSprites[tipRecord->NumberOfContentStrings]);

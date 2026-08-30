@@ -276,13 +276,13 @@ void SeparateOutlineSheetFont::DrawProcessedText(
       } break;
 
       case BottomRight: {
-        fillVertices.template
-        operator()<&SeparateOutlineSheetFont::GetOutlineGlyph,
-                   &DialogueColorPair::OutlineColor>({1.0f, 1.0f});
+        fillVertices.template operator()<&SeparateOutlineSheetFont::GetGlyph,
+                                         &DialogueColorPair::OutlineColor>(
+            {1.0f, 1.0f});
 
         FillGlyphIndices(indices, glyphCount);
 
-        Renderer->DrawPrimitives(OutlineSheet, maskedSheet, shader, vertices,
+        Renderer->DrawPrimitives(ForegroundSheet, maskedSheet, shader, vertices,
                                  indices, transformation);
       } break;
 
