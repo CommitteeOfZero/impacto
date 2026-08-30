@@ -517,7 +517,7 @@ VmInstruction(InstMapSystem) {
     case 0xA: {
       PopExpression(arg1);
       PopExpression(arg2);
-      inst.MapGetPos(arg1, arg2, ScrWork[6365], ScrWork[6366]);
+      inst.MapGetPos(arg1, arg2, ScrWork[SW_MAP_DST_POS_X], ScrWork[SW_MAP_DST_POS_Y]);
 
     } break;
     case 0xB: {
@@ -597,8 +597,8 @@ VmInstruction(InstMapSystem) {
           LogLevel::Warning, LogChannel::VMStub,
           "STUB instruction MapZoomInit(arg1: {:d}, arg2: {:d}, arg3: {:d})\n",
           arg1, arg2, arg3);
-      if (arg1 != ScrWork[6363] || arg2 != ScrWork[6364] ||
-          arg3 != ScrWork[6362]) {
+      if (arg1 != ScrWork[SW_MAP_POS_X] || arg2 != ScrWork[SW_MAP_POS_Y] ||
+          arg3 != ScrWork[SW_MAP_ZOOM]) {
         inst.MapZoomInit(arg1, arg2, arg3);
       } else {
         thread->IpOffset += 3;
@@ -620,8 +620,8 @@ VmInstruction(InstMapSystem) {
           LogLevel::Warning, LogChannel::VMStub,
           "STUB instruction MapZoomInit2(arg1: {:d}, arg2: {:d}, arg3: {:d})\n",
           arg1, arg2, arg3);
-      if (arg1 != ScrWork[6363] || arg2 != ScrWork[6364] ||
-          arg3 != ScrWork[6362]) {
+      if (arg1 != ScrWork[SW_MAP_POS_X] || arg2 != ScrWork[SW_MAP_POS_Y] ||
+          arg3 != ScrWork[SW_MAP_ZOOM]) {
         inst.MapZoomInit2(arg1, arg2);
       } else {
         thread->IpOffset += 3;
@@ -637,8 +637,8 @@ VmInstruction(InstMapSystem) {
       PopExpression(arg1);
       PopExpression(arg2);
       PopExpression(arg3);
-      if (arg1 != ScrWork[6363] || arg2 != ScrWork[6364] ||
-          arg3 != ScrWork[6362]) {
+      if (arg1 != ScrWork[SW_MAP_POS_X] || arg2 != ScrWork[SW_MAP_POS_Y] ||
+          arg3 != ScrWork[SW_MAP_ZOOM]) {
         if (!inst.MapZoomInit3(arg1, arg2, arg3)) {
           thread->IpOffset += 3;
         }
@@ -650,8 +650,8 @@ VmInstruction(InstMapSystem) {
       PopExpression(arg1);
       PopExpression(arg2);
       PopExpression(arg3);
-      if (arg1 != ScrWork[6363] || arg2 != ScrWork[6364] ||
-          arg3 != ScrWork[6362]) {
+      if (arg1 != ScrWork[SW_MAP_POS_X] || arg2 != ScrWork[SW_MAP_POS_Y] ||
+          arg3 != ScrWork[SW_MAP_ZOOM]) {
         if (!inst.MapMoveAnimeInit2(arg1, arg2, arg3)) {
           thread->IpOffset += 3;
         }

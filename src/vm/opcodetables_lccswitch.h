@@ -589,8 +589,8 @@ InstructionProc inline constexpr OpcodeTableUser1_LCCSwitch[256] = {
     InstTitleMenuNew,      // 10 34
     InstDummy,             // 10 35
     InstBGeffect,          // 10 36
-    InstMapSystem,         // 10 37
-    InstMtrg,              // 10 38
+    InstMtrg,              // 10 37
+    InstMapSystem,         // 10 38
     InstTwipo_Dash,        // 10 39
     InstYesNoTriggerCCLCC, // 10 3A
     InstDummy,             // 10 3B
