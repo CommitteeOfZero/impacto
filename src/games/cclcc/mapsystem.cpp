@@ -25,8 +25,6 @@ inline float toFlt(double d) { return static_cast<float>(d); }
 inline float toFlt(int d) { return static_cast<float>(d); }
 inline int toInt(float f) { return static_cast<int>(f); }
 
-// TODO, add the scrwork and flag indices to the scriptvars file
-
 // TODO, move this crap to the lua file
 constexpr int MapPhotoIdMap[11][4] = {
     // index 0 is map part for photos
@@ -154,9 +152,9 @@ void MapSystem::MapInit() {
   // Silence unused var warning, this table is probably going to be useful later
   (void)MapArticleOffsets;
 
-  ScrWork[6369] = 0;
-  ScrWork[6370] = 0;
-  ScrWork[6371] = 0;
+  ScrWork[SW_MAP_RENDER_ALPHA_1] = 0;
+  ScrWork[SW_MAP_RENDER_ALPHA_2] = 0;
+  ScrWork[SW_MAP_RENDER_ALPHA_3] = 0;
 
   MapPartsMax = 0;
 
@@ -171,11 +169,11 @@ void MapSystem::MapInit() {
     int i_i = static_cast<int>(i);
     MapGroup[i] = MapGroupStruct{i_i, i_i, i_i};
   }
-  SetFlag(2801, 0);
-  SetFlag(2802, 0);
-  SetFlag(2803, 0);
-  SetFlag(2804, 0);
-  SetFlag(2805, 0);
+  SetFlag(SF_MAP_RENDER_UNK1, 0);
+  SetFlag(SF_MAP_RENDER_UNK2, 0);
+  SetFlag(SF_MAP_RENDER_UNK3, 0);
+  SetFlag(SF_MAP_RENDER_UNK4, 0);
+  SetFlag(SF_MAP_NO_CLAMP, 0);
 }
 
 int MapSystem::MapLoad(uint8_t* data) {
@@ -905,7 +903,7 @@ void MapSystem::HandlePoolLeftRightNav(int maxPoolRow, int poolType,
 }
 
 bool MapSystem::MapPlayerPhotoSelect(int unused) {
-  ScrWork[6500] = 2;
+  ScrWork[SW_MAP_PHOTO_SELECT_STATE] = 2;
   int oldHover = HoverMapPoolIdx;
   if (unused == 0) {
     int poolType = MapPool[0].type;
@@ -947,10 +945,10 @@ bool MapSystem::MapPlayerPhotoSelect(int unused) {
     }
 
     if (SelectedMapPoolIdx != 0xff) {
-      ScrWork[6367] = SelectedMapPoolIdx;
-      ScrWork[6368] = MapPool[SelectedMapPoolIdx].id;
-      ScrWork[6381] = MapPool[SelectedMapPoolIdx].type;
-      ScrWork[6500] = 0;
+      ScrWork[SW_MAP_SELECTED_POOL_INDEX] = SelectedMapPoolIdx;
+      ScrWork[SW_MAP_SELECTED_POOL_ID] = MapPool[SelectedMapPoolIdx].id;
+      ScrWork[SW_MAP_SELECTED_POOL_TYPE] = MapPool[SelectedMapPoolIdx].type;
+      ScrWork[SW_MAP_PHOTO_SELECT_STATE] = 0;
       MapPool[SelectedMapPoolIdx].button.HasFocus = false;
       HoverMapPoolIdx = 0xff;
       SelectedMapPoolIdx = 0xff;
@@ -980,7 +978,7 @@ void getMapPos(float newSize, float newX, float newY, float& setX, float& setY,
   float offsetMapX = newX - mapWidth * 0.5f;
   float offsetMapY = newY - mapHeight * 0.5f;
 
-  if (!GetFlag(2805)) {
+  if (!GetFlag(SF_MAP_NO_CLAMP)) {
     if (offsetMapX > MapBgSprite.Sheet.DesignWidth - mapWidth)
       offsetMapX = MapBgSprite.Sheet.DesignWidth - mapWidth;
 
@@ -1016,8 +1014,8 @@ void MapSystem::MapZoomInit(int mapX, int mapY, int size) {
                                     toFlt(size * 4)};
 
   float zoomSize = 0.0f;
-  getMapPos(toFlt(ScrWork[6362]), toFlt(ScrWork[6363]), toFlt(ScrWork[6364]),
-            MapPosTransitions[MapZoom].Start.x,
+  getMapPos(toFlt(ScrWork[SW_MAP_ZOOM]), toFlt(ScrWork[SW_MAP_POS_X]),
+            toFlt(ScrWork[SW_MAP_POS_Y]), MapPosTransitions[MapZoom].Start.x,
             MapPosTransitions[MapZoom].Start.y, zoomSize, toFlt(mapX) / 1280.0f,
             toFlt(mapY) / 720.0f);
 
@@ -1100,10 +1098,11 @@ bool MapSystem::MapZoomMain() {
       MapPosTransitions[MapZoom].Current.size =
           MapPosTransitions[MapZoom].End.size;
   }
-  ScrWork[6362] = (toInt(MapPosTransitions[MapZoom].Current.size) + 5) / 4;
-  float clampedSize = (ScrWork[6362] < 100)   ? 100.0f
-                      : (ScrWork[6362] > 800) ? 800.0f
-                                              : ScrWork[6362];
+  ScrWork[SW_MAP_ZOOM] =
+      (toInt(MapPosTransitions[MapZoom].Current.size) + 5) / 4;
+  float clampedSize = (ScrWork[SW_MAP_ZOOM] < 100)   ? 100.0f
+                      : (ScrWork[SW_MAP_ZOOM] > 800) ? 800.0f
+                                                     : ScrWork[SW_MAP_ZOOM];
   float newMapPosX = MapPosTransitions[MapZoom].Current.x -
                      (MapPosTransitions[MapZoom].End.x / 1920.0f + -0.5f) *
                          (MapBgSprite.Sheet.DesignWidth * 100.0f) / clampedSize;
@@ -1113,8 +1112,8 @@ bool MapSystem::MapZoomMain() {
                          (MapBgSprite.Sheet.DesignHeight * 100.0f) /
                          clampedSize;
 
-  ScrWork[6363] = static_cast<int>(newMapPosX);
-  ScrWork[6364] = static_cast<int>(newMapPosY);
+  ScrWork[SW_MAP_POS_X] = static_cast<int>(newMapPosX);
+  ScrWork[SW_MAP_POS_Y] = static_cast<int>(newMapPosY);
   return toInt(MapPosTransitions[MapZoom].End.size) ==
          toInt(MapPosTransitions[MapZoom].Current.size);
 }
@@ -1179,10 +1178,12 @@ bool MapSystem::MapZoomMain3() {
        MapPosTransitions[MapZoom3].Start.y) *
           ((float)MapZoomCt / MapZoomCtMax);
 
-  ScrWork[6362] =
+  ScrWork[SW_MAP_ZOOM] =
       static_cast<int>((MapPosTransitions[MapZoom3].Current.size + 5) / 10);
-  ScrWork[6363] = static_cast<int>(MapPosTransitions[MapZoom3].Current.x);
-  ScrWork[6364] = static_cast<int>(MapPosTransitions[MapZoom3].Current.y);
+  ScrWork[SW_MAP_POS_X] =
+      static_cast<int>(MapPosTransitions[MapZoom3].Current.x);
+  ScrWork[SW_MAP_POS_Y] =
+      static_cast<int>(MapPosTransitions[MapZoom3].Current.y);
   return MapZoomCt == MapZoomCtMax;
 }
 bool MapSystem::MapZoomInit3(int setMapX, int setMapY, int setMapSize,
@@ -1196,8 +1197,8 @@ bool MapSystem::MapZoomInit3(int setMapX, int setMapY, int setMapSize,
   float zoomSize = 0.0f;
   float mapX = 0.0f;
   float mapY = 0.0f;
-  getMapPos(toFlt(ScrWork[6362]), toFlt(ScrWork[6363]), toFlt(ScrWork[6364]),
-            mapX, mapY, zoomSize, 0.5, 0.5);
+  getMapPos(toFlt(ScrWork[SW_MAP_ZOOM]), toFlt(ScrWork[SW_MAP_POS_X]),
+            toFlt(ScrWork[SW_MAP_POS_Y]), mapX, mapY, zoomSize, 0.5, 0.5);
   MapPosTransitions[MapZoom3].Start.size = 10 * zoomSize;
   MapPosTransitions[MapZoom3].Start.x = mapX;
   MapPosTransitions[MapZoom3].Start.y = mapY;
@@ -1298,24 +1299,24 @@ bool MapSystem::MapZoomInit3(int setMapX, int setMapY, int setMapSize,
 bool MapSystem::MapMoveAnimeInit2(int setMapX, int setMapY,
                                   int setTransitionSize) {
   MapMoveMode = 0;
-  if (!setTransitionSize || ScrWork[6362] < setTransitionSize) {
-    setTransitionSize = ScrWork[6362];
+  if (!setTransitionSize || ScrWork[SW_MAP_ZOOM] < setTransitionSize) {
+    setTransitionSize = ScrWork[SW_MAP_ZOOM];
   }
-  getMapPos(toFlt(ScrWork[6362]), toFlt(ScrWork[6363]), toFlt(ScrWork[6364]),
-            MapPosTransitions[MapMove2].Start.x,
+  getMapPos(toFlt(ScrWork[SW_MAP_ZOOM]), toFlt(ScrWork[SW_MAP_POS_X]),
+            toFlt(ScrWork[SW_MAP_POS_Y]), MapPosTransitions[MapMove2].Start.x,
             MapPosTransitions[MapMove2].Start.y,
             MapPosTransitions[MapMove2].Start.size, 0.5f, 0.5f);
-  getMapPos(toFlt(ScrWork[6362]), toFlt(setMapX), toFlt(setMapY),
+  getMapPos(toFlt(ScrWork[SW_MAP_ZOOM]), toFlt(setMapX), toFlt(setMapY),
             MapPosTransitions[MapMove2].End.x,
             MapPosTransitions[MapMove2].End.y,
             MapPosTransitions[MapMove2].End.size, 0.5, 0.5);
-  if (setTransitionSize == ScrWork[6362]) {
+  if (setTransitionSize == ScrWork[SW_MAP_ZOOM]) {
     MapMoveMode = 99;
     return MapZoomInit3(static_cast<int>(MapPosTransitions[MapMove2].End.x),
                         static_cast<int>(MapPosTransitions[MapMove2].End.y), 0);
   } else {
-    float MapMoveCenterPosX = (setMapX + ScrWork[6363]) * 0.5f;
-    float MapMoveCenterPosY = (setMapY + ScrWork[6364]) * 0.5f;
+    float MapMoveCenterPosX = (setMapX + ScrWork[SW_MAP_POS_X]) * 0.5f;
+    float MapMoveCenterPosY = (setMapY + ScrWork[SW_MAP_POS_Y]) * 0.5f;
     float MapMoveLimitSize = 0;
     getMapPos(toFlt(setTransitionSize), MapMoveCenterPosX, MapMoveCenterPosY,
               MapMoveCenterPosX, MapMoveCenterPosY, MapMoveLimitSize, 0.5, 0.5);
@@ -1852,19 +1853,20 @@ void MapSystem::MapPartsSort() {
 }
 
 void MapSystem::MapSetPos(float dt) {
-  float mapScaler = (ScrWork[6362] < 100)   ? 100.0f
-                    : (ScrWork[6362] > 800) ? 800.0f
-                                            : toFlt(ScrWork[6362]);
+  float mapScaler = (ScrWork[SW_MAP_ZOOM] < 100) ? 100.0f
+                    : (ScrWork[SW_MAP_ZOOM] > 800)
+                        ? 800.0f
+                        : toFlt(ScrWork[SW_MAP_ZOOM]);
   float MapSheetWidth = MapBgSprite.Sheet.DesignWidth;
   float MapSheetHeight = MapBgSprite.Sheet.DesignHeight;
 
   MapBGWidth = MapBgSprite.Sheet.DesignWidth * 100.0f / mapScaler;
   MapBGHeight = MapBgSprite.Sheet.DesignHeight * 100.0f / mapScaler;
 
-  MapPosX = ScrWork[6363] - MapBGWidth / 2;
-  MapPosY = ScrWork[6364] - MapBGHeight / 2;
+  MapPosX = ScrWork[SW_MAP_POS_X] - MapBGWidth / 2;
+  MapPosY = ScrWork[SW_MAP_POS_Y] - MapBGHeight / 2;
 
-  if (!GetFlag(2805)) {
+  if (!GetFlag(SF_MAP_NO_CLAMP)) {
     if (MapPosX > MapSheetWidth - MapBGWidth) {
       MapPosX = MapSheetWidth - MapBGWidth;
     }
@@ -1967,13 +1969,13 @@ void MapSystem::MapFadeMain(float dt) {
 }
 
 void MapSystem::Update(float dt) {
-  if (ScrWork[SW_MAP_ALPHA] && GetFlag(2800)) {
+  if (ScrWork[SW_MAP_ALPHA] && GetFlag(SF_MAPENABLE)) {
     MapSetPos(dt);
   }
 }
 
 void MapSystem::Render() {
-  if (!GetFlag(2800)) {
+  if (!GetFlag(SF_MAPENABLE)) {
     return;
   }
   // Render map bg
