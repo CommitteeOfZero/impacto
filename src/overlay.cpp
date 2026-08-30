@@ -277,6 +277,7 @@ static void ShowGamePicker(std::string& selectedGame) {
   ImGui::Spacing();
 }
 
+#ifndef __SWITCH__
 static bool ShowDisplaySettings(std::string const& selectedGame) {
   auto& gameSettings = UserConfig::GameSettings.at(selectedGame);
 
@@ -364,6 +365,7 @@ static bool ShowDisplaySettings(std::string const& selectedGame) {
 
   return wasUpdated;
 }
+#endif  // !__SWITCH__
 
 static void ShowPatchSettings(std::string const& selectedGame) {
   constexpr float comboWidth = 200.0f;
@@ -455,9 +457,11 @@ static void ShowSettingsPage(std::string const& selectedGame) {
     ShowCommonSettings();
     ImGui::Spacing();
     if (!selectedGame.empty()) {
+#ifndef __SWITCH__
       displayChanged |= ShowDisplaySettings(selectedGame);
 
       ImGui::Spacing();
+#endif
 
       ShowPatchSettings(selectedGame);
     }
