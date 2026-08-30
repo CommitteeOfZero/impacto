@@ -515,11 +515,10 @@ static void ShowSettingsPage(std::string const& selectedGame) {
     ShowCommonSettings();
     ImGui::Spacing();
     if (!selectedGame.empty()) {
-#if !defined(__ANDROID__)
+#if !defined(__ANDROID__) && !defined(__SWITCH__)
       displayChanged |= ShowDisplaySettings(selectedGame);
-#endif
-
       ImGui::Spacing();
+#endif
 
       ShowPatchSettings(selectedGame);
     }
