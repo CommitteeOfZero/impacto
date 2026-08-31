@@ -131,6 +131,10 @@ AVBufferRef* FFmpegPlayer::HwDecoderInit(const AVCodec* codec) {
       AV_HWDEVICE_TYPE_VAAPI,
       AV_HWDEVICE_TYPE_VDPAU,
   });
+#elif defined(__SWITCH__)
+  static constexpr auto preferenceOrder = std::to_array<AVHWDeviceType>({
+      AV_HWDEVICE_TYPE_NVTEGRA,
+  });
 #else
   static constexpr std::array<AVHWDeviceType, 0> preferenceOrder;
 #endif
@@ -196,8 +200,6 @@ std::optional<av::Codec> findDecoderCodec(av::Stream const& avStream) {
     const AVCodecDescriptor* desc = avcodec_descriptor_get(codecId);
 #ifdef __ANDROID__
     const std::string decoderName = fmt::format("{}_mediacodec", desc->name);
-#elif __SWITCH__
-    const std::string decoderName = fmt::format("{}_nvtegra", desc->name);
 #else
     const std::string decoderName = desc->name;
 #endif
