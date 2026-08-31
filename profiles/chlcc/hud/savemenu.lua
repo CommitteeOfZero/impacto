@@ -55,15 +55,16 @@ root.SaveMenu = {
     },
     SelectDataText = {},
     EntryNumberHintTextRelativePos = {X = 209, Y = 10},
-    EntryNumberTextRelativePos = {X = 249, Y = 10},
+    EntryNumberTextRelativePos = {X = 246, Y = 10},
     SceneTitleTextRelativePos = {X = 209, Y = 35},
     NoDataTextRelativePos = {X = 299, Y = 45},
     PlayTimeHintTextRelativePos = {X = 259, Y = 67},
-    PlayTimeTextRelativePos = {X = 400, Y = 67},
+    PlayTimeTextRelativePos = {X = 509, Y = 67},
     SaveDateHintTextRelativePos = {X = 259, Y = 84},
-    SaveDateTextRelativePos = {X = 325, Y = 84},
-    SaveHourTextRelativePos = {X = 402, Y = 84},
-    MaxTitleWidth = 306,
+    SaveDateTextRelativePos = {X = 430, Y = 84},
+    SaveHourTextRelativePos = {X = 509, Y = 84},
+    MaxTitleWidth = 312,
+    MaxDateTimeWidth = 78,
 };
 
 root.Sprites["PinkCircle"] = {

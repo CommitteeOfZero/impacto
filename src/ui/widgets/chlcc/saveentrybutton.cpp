@@ -111,9 +111,14 @@ void SaveEntryButton::AddPlayTimeHintText(Vm::BufferOffsetContext strAdr,
 void SaveEntryButton::AddPlayTimeText(std::string_view str, float fontSize,
                                       RendererOutlineMode outlineMode,
                                       glm::vec2 relativePosition) {
-  // Spacing is currently set for the C;HLCC font, more or less
-  PlayTime = Label(str, glm::vec2(Bounds.X, Bounds.Y) + relativePosition,
-                   fontSize, outlineMode, IsLocked ? 69 : 0);
+  std::vector<ProcessedTextGlyph> text =
+      TextLayoutPlainString(str, *Profile::Dialogue::DialogueFont, fontSize,
+                            Profile::Dialogue::ColorTable[IsLocked ? 69 : 0],
+                            1.0f, {0.0f, 0.0f}, TextAlignment::Right);
+  SquishText(text, MaxDateTimeWidth, 0.0f);
+
+  PlayTime.SetText(std::move(text), Bounds.GetPos() + relativePosition,
+                   outlineMode, TextAlignment::Right);
 }
 
 void SaveEntryButton::AddSaveDateHintText(Vm::BufferOffsetContext strAdr,
@@ -127,17 +132,27 @@ void SaveEntryButton::AddSaveDateHintText(Vm::BufferOffsetContext strAdr,
 void SaveEntryButton::AddSaveDateText(std::string_view str, float fontSize,
                                       RendererOutlineMode outlineMode,
                                       glm::vec2 relativePosition) {
-  // Spacing is currently set for the C;HLCC font, more or less
-  SaveDate = Label(str, glm::vec2(Bounds.X, Bounds.Y) + relativePosition,
-                   fontSize, outlineMode, IsLocked ? 69 : 0);
+  std::vector<ProcessedTextGlyph> text =
+      TextLayoutPlainString(str, *Profile::Dialogue::DialogueFont, fontSize,
+                            Profile::Dialogue::ColorTable[IsLocked ? 69 : 0],
+                            1.0f, {0.0f, 0.0f}, TextAlignment::Right);
+  SquishText(text, MaxDateTimeWidth, 0.0f);
+
+  SaveDate.SetText(std::move(text), Bounds.GetPos() + relativePosition,
+                   outlineMode, TextAlignment::Right);
 }
 
 void SaveEntryButton::AddSaveHourText(std::string_view str, float fontSize,
                                       RendererOutlineMode outlineMode,
                                       glm::vec2 relativePosition) {
-  // Spacing is currently set for the C;HLCC font, more or less
-  SaveHour = Label(str, glm::vec2(Bounds.X, Bounds.Y) + relativePosition,
-                   fontSize, outlineMode, IsLocked ? 69 : 0);
+  std::vector<ProcessedTextGlyph> text =
+      TextLayoutPlainString(str, *Profile::Dialogue::DialogueFont, fontSize,
+                            Profile::Dialogue::ColorTable[IsLocked ? 69 : 0],
+                            1.0f, {0.0f, 0.0f}, TextAlignment::Right);
+  SquishText(text, MaxDateTimeWidth, 0.0f);
+
+  SaveHour.SetText(std::move(text), Bounds.GetPos() + relativePosition,
+                   outlineMode, TextAlignment::Right);
 }
 
 void SaveEntryButton::AddThumbnail(Sprite thumbnail, glm::vec2 pos) {
@@ -242,21 +257,19 @@ void SaveEntryButton::RefreshInfo(const SaveSystem::SaveType entryType) {
       const uint32_t hours = time / 3600;
       const uint32_t minutes = (time % 3600) / 60;
       const uint32_t seconds = (time % 3600) % 60;
-      AddPlayTimeText(fmt::format("{:3}:{:02}:{:02}", hours, minutes, seconds),
+      AddPlayTimeText(fmt::format("{:d}:{:02}:{:02}", hours, minutes, seconds),
                       18, RendererOutlineMode::BottomRight,
-                      {PlayTimeTextRelativePos.x + (float)((hours < 10) * 10),
-                       PlayTimeTextRelativePos.y});
+                      PlayTimeTextRelativePos);
 
       AddSaveDateHintText(Vm::ScriptGetTextTableStrAddress(0, 3), 18,
                           RendererOutlineMode::BottomRight,
                           SaveDateHintTextRelativePos);
       const tm& date = SaveSystem::GetSaveDate(entryType, Id);
       AddSaveDateText(
-          "  " + fmt::format(
-                     fmt::runtime(Profile::Patch::DateFormat.FormattedString()),
-                     date),
+          fmt::format(
+              fmt::runtime(Profile::Patch::DateFormat.FormattedString()), date),
           18, RendererOutlineMode::BottomRight, SaveDateTextRelativePos);
-      AddSaveHourText(fmt::format("  {:%H:%M:%S}", date), 18,
+      AddSaveHourText(fmt::format("{:%H:%M:%S}", date), 18,
                       RendererOutlineMode::BottomRight,
                       SaveHourTextRelativePos);
 
