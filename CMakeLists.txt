@@ -1368,13 +1368,8 @@ option(IMPACTO_GL_DEBUG
 "Use an OpenGL debug context and log messages"
 ${IMPACTO_GL_DEBUG_DEFAULT})
 
-if (EMSCRIPTEN)
-    set(IMPACTO_HAVE_THREADS OFF)
-    set(IMPACTO_USE_SDL_HIGHDPI ON)
-else ()
-    set(IMPACTO_HAVE_THREADS ON)
-    set(IMPACTO_USE_SDL_HIGHDPI OFF)
-endif ()
+option(IMPACTO_HAVE_THREADS "Multithreading support" ON)
+option(IMPACTO_USE_SDL_HIGHDPI "High DPI support" ON)
 
 # Enable Hot Reload for MSVC compilers if supported.
 if (POLICY CMP0141)
