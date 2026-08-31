@@ -15,6 +15,15 @@ void InitCursors();
 void RequestCursor(CursorType type);
 void ApplyCursorForFrame();
 
+inline DisplayMode GetDefaultDispMode() {
+#if defined(__ANDROID__)
+  return DisplayMode::Borderless;
+#elif defined(__SWITCH__)
+  return DisplayMode::Fullscreen;
+#endif
+  return DisplayMode::Windowed;
+}
+
 enum GraphicsApi {
   GfxApi_GL,
   // Forces the use of a GLES driver (e.g. ANGLE on Windows)
@@ -28,10 +37,11 @@ class BaseWindow {
   virtual void Init() = 0;
   virtual void SetDimensions(int width, int height, int msaa,
                              float renderScale) = 0;
-  // Aspect ratio corrected viewport in window coordinates
-  virtual RectF GetViewport() = 0;
+  // Aspect ratio corrected viewport in pixel window coordinates
+  RectF GetViewport();
+  RectF GetLogicalViewport();
   // Aspect ratio corrected viewport in window coordinates scaled by RenderScale
-  virtual RectF GetScaledViewport() = 0;
+  RectF GetScaledViewport();
   virtual void SwapRTs() = 0;
   virtual void Update() = 0;
   virtual void Draw() = 0;
@@ -45,10 +55,7 @@ class BaseWindow {
   int WindowWidth = 0;
   int WindowHeight = 0;
 
-  // OS window dimensions * DpiScaleX/Y => WindowWidth/Height (real pixels)
-  // Always 1 unless high DPI support is SDL_WINDOW_HIGH_PIXEL_DENSITY
-  float DpiScaleX = 1.0f;
-  float DpiScaleY = 1.0f;
+  float DpiScale = 1.0f;
 
   int MsaaCount = 4;
   float RenderScale = 1.0f;
@@ -56,7 +63,7 @@ class BaseWindow {
   bool WindowDimensionsChanged;
 
  protected:
-  void CreateSDLWindow(SDL_WindowFlags flags);
+  bool CreateSDLWindow(SDL_WindowFlags flags);
   virtual void UpdateDimensions() = 0;
   bool IsInit = false;
 

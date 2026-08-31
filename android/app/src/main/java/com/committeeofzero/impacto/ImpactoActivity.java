@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.content.SharedPreferences;
@@ -14,8 +15,6 @@ import android.content.SharedPreferences;
 import org.libsdl.app.SDLActivity;
 
 public class ImpactoActivity extends SDLActivity {
-    SharedPreferences prefs = null;
-
     /**
      * This method is called by SDL before loading the native shared libraries.
      * It can be overridden to provide names of shared libraries to be loaded.
@@ -34,45 +33,34 @@ public class ImpactoActivity extends SDLActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        prefs = this.getPreferences(Context.MODE_PRIVATE);
         File externalFilesDir = getExternalFilesDir(null);
-        File resetFile = new File(externalFilesDir, ".reset");
-        boolean reset = prefs.getBoolean("firstRun", true);
-        if (resetFile.exists()) {
-            resetFile.delete();
-            reset = true;
+
+        // Todo: User customizable paths using the startup activity screen
+        // Will need to use file descriptor technique outlined here:
+        // https://stackoverflow.com/a/58304368/27686485
+        // then we get cannonical path and write it.
+        String basepathsContents = String.format("""
+                root.BasePaths = {
+                    RootInstallDir = "%s",
+                    RootGamedataDir = "%s/gamedata",
+                    RootProfilesDir = "%s/profiles",
+                    RootPatchesDir = "%s/patches",
+                    RootSavesDir = "%s/saves",
+                };
+                """, "./", externalFilesDir.getAbsolutePath(), externalFilesDir.getAbsolutePath(),
+                externalFilesDir.getAbsolutePath(), externalFilesDir.getAbsolutePath());
+        File basepaths = new File(externalFilesDir.getAbsolutePath(), "basepaths.lua");
+        try (FileOutputStream fos = new FileOutputStream(basepaths)) {
+            fos.write(basepathsContents.getBytes());
+        } catch (IOException e) {
+            Log.e("FileStatus", "Error creating or writing basepaths", e);
         }
 
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putBoolean("firstRun", false);
-        editor.apply();
-        copyAssetFolder("shaders", getFilesDir().getAbsolutePath() + "/" + "shaders");
-        if (reset) {
-            copyAssetFolder("games", externalFilesDir.getAbsolutePath() + "/" + "games");
+        if(isFirstInstall() || isUpdated()) {
+            copyAssetFolder("resources", getFilesDir().getAbsolutePath() + "/" + "resources");
             copyAssetFolder("profiles", externalFilesDir.getAbsolutePath() + "/" + "profiles");
 
-            // Todo: User customizable paths using the startup activity screen
-            // Will need to use file descriptor technique outlined here:
-            // https://stackoverflow.com/a/58304368/27686485
-            // then we get cannonical path and write it.
-            String basepathsContents = String.format("""
-                    root.BasePaths = {
-                        RootInstallDir = "%s",
-                        RootGamedataDir = "%s/gamedata",
-                        RootProfilesDir = "%s/profiles",
-                        RootPatchesDir = "%s/patches",
-                        RootSavesDir = "%s/saves",
-                    };
-                    """, "./", externalFilesDir.getAbsolutePath(), externalFilesDir.getAbsolutePath(),
-                    externalFilesDir.getAbsolutePath(), externalFilesDir.getAbsolutePath());
-
             copyAssetFile("gamedefinitions.lua", externalFilesDir.getAbsolutePath() + "/" + "gamedefinitions.lua");
-            File basepaths = new File(externalFilesDir.getAbsolutePath(), "basepaths.lua");
-            try (FileOutputStream fos = new FileOutputStream(basepaths)) {
-                fos.write(basepathsContents.getBytes());
-            } catch (IOException e) {
-                Log.e("FileStatus", "Error creating or writing basepaths", e);
-            }
         }
         super.onCreate(savedInstanceState);
     }
@@ -116,6 +104,38 @@ public class ImpactoActivity extends SDLActivity {
             return true;
         } catch (IOException e) {
             Log.e(null, "Failed to copy file \"" + srcName + ", error: \"" + e.getMessage() + "\"\n.");
+            return false;
+        }
+    }
+
+    // https://stackoverflow.com/a/34194960/27686485
+    public boolean isFirstInstall() {
+        try {
+            long firstInstallTime = getPackageManager().getPackageInfo(getPackageName(), 0).firstInstallTime;
+            long lastUpdateTime = getPackageManager().getPackageInfo(getPackageName(), 0).lastUpdateTime;
+            return firstInstallTime == lastUpdateTime;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+            return true;
+        }
+    }
+
+    public boolean isUpdated() {
+        try {
+            SharedPreferences prefs = this.getSharedPreferences("impacto", Context.MODE_PRIVATE);
+
+            long firstInstallTime = getPackageManager().getPackageInfo(getPackageName(), 0).firstInstallTime;
+
+
+            long lastUpdateTime = getPackageManager().getPackageInfo(getPackageName(), 0).lastUpdateTime;
+            long prevUpdateTime = prefs.getLong("lastUpdateTime", lastUpdateTime);
+
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putLong("lastUpdateTime", lastUpdateTime);
+            editor.apply();
+            return firstInstallTime != lastUpdateTime;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
             return false;
         }
     }

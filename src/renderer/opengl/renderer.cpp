@@ -1191,18 +1191,13 @@ void Renderer::CaptureScreencap(Sprite& sprite) {
   Flush();
   sprite.Sheet.IsScreenCap = true;
 
-  int fbWidth, fbHeight;
-  glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH,
-                               &fbWidth);
-  glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT,
-                               &fbHeight);
+  RectF viewport = Window->GetViewport();
 
-  sprite.Sheet.DesignWidth = static_cast<float>(fbWidth);
-  sprite.Sheet.DesignHeight = static_cast<float>(fbHeight);
-  sprite.Bounds = RectF{0.0f, 0.0f, static_cast<float>(fbWidth),
-                        static_cast<float>(fbHeight)};
-  sprite.BaseScale = {Profile::Game::DesignWidth / fbWidth,
-                      Profile::Game::DesignHeight / fbHeight};
+  sprite.Sheet.DesignWidth = viewport.Width;
+  sprite.Sheet.DesignHeight = viewport.Height;
+  sprite.Bounds = RectF{0.0f, 0.0f, viewport.Width, viewport.Height};
+  sprite.BaseScale = {Profile::Game::DesignWidth / viewport.Width,
+                      Profile::Game::DesignHeight / viewport.Height};
 
   int prevReadBuffer;
   int drawBuffer;
@@ -1214,7 +1209,9 @@ void Renderer::CaptureScreencap(Sprite& sprite) {
 
   GLC::BindFramebuffer(GL_READ_FRAMEBUFFER, drawBuffer);
   glBindTexture(GL_TEXTURE_2D, sprite.Sheet.Texture);
-  glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, fbWidth, fbHeight, 0);
+  glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0,
+                   static_cast<GLsizei>(viewport.Width),
+                   static_cast<GLsizei>(viewport.Height), 0);
 
   glBindTexture(GL_TEXTURE_2D, prevTextureBinding);
   GLC::BindFramebuffer(GL_READ_FRAMEBUFFER, prevReadBuffer);

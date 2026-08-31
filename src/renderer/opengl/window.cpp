@@ -37,37 +37,9 @@ void GLWindow::UpdateDimensions() {
   lastHeight = WindowHeight;
   lastMsaa = MsaaCount;
   lastRenderScale = RenderScale;
+  DpiScale = SDL_GetWindowDisplayScale(SDLWindow);
 
-  int osWindowWidth, osWindowHeight;
-  SDL_GetWindowSize(SDLWindow, &osWindowWidth, &osWindowHeight);
-  DpiScaleX = (float)WindowWidth / (float)osWindowWidth;
-  DpiScaleY = (float)WindowHeight / (float)osWindowHeight;
   // SDL_SetWindowInputFocus(SDLWindow);
-}
-
-RectF GLWindow::GetViewport() {
-  RectF viewport;
-  const float designWidth =
-      Profile::Game::HasInit ? Profile::Game::DesignWidth : WindowWidth;
-  const float designHeight =
-      Profile::Game::HasInit ? Profile::Game::DesignHeight : WindowHeight;
-
-  float scale = fmin((float)WindowWidth / designWidth,
-                     (float)WindowHeight / designHeight);
-  viewport.Width = designWidth * scale;
-  viewport.Height = designHeight * scale;
-  viewport.X = ((float)WindowWidth - viewport.Width) / 2.0f;
-  viewport.Y = ((float)WindowHeight - viewport.Height) / 2.0f;
-  return viewport;
-}
-
-RectF GLWindow::GetScaledViewport() {
-  RectF viewport = GetViewport();
-  viewport.Width *= RenderScale;
-  viewport.Height *= RenderScale;
-  viewport.X *= RenderScale;
-  viewport.Y *= RenderScale;
-  return viewport;
 }
 
 void GLWindow::TryCreateGL(GraphicsApi api) {
@@ -136,11 +108,7 @@ void GLWindow::TryCreateGL(GraphicsApi api) {
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, contextFlags);
 
   SDL_WindowFlags windowFlags = SDL_WINDOW_OPENGL;
-#if IMPACTO_USE_SDL_HIGHDPI
-  windowFlags |= SDL_WINDOW_HIGH_PIXEL_DENSITY;
-#endif
-
-  CreateSDLWindow(windowFlags);
+  if (!CreateSDLWindow(windowFlags)) return;
 
   GLContext = SDL_GL_CreateContext(SDLWindow);
   if (GLContext == NULL) {
@@ -171,8 +139,6 @@ void GLWindow::Init() {
     Shutdown();
     return;
   }
-
-  SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
 
   switch (GraphicsApiHint) {
     case GfxApi_GL:
@@ -267,8 +233,7 @@ void GLWindow::SetDimensions(int width, int height, int msaa,
          width, height, msaa, renderScale);
   assert(width > 0 && height > 0 && msaa >= 0 && renderScale > 0.0f);
 
-  SDL_SetWindowSize(SDLWindow, (int)((float)width / DpiScaleX),
-                    (int)((float)height / DpiScaleY));
+  SDL_SetWindowSize(SDLWindow, width, height);
 
   MsaaCount = msaa;
   RenderScale = renderScale;
@@ -362,11 +327,6 @@ void GLWindow::Update() {
 }
 
 void GLWindow::Draw() {
-#ifndef IMPACTO_DISABLE_IMGUI
-  ImGui::Render();
-  ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-#endif
-
   GLC::BindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
   GLC::BindFramebuffer(GL_READ_FRAMEBUFFER, DrawRT);
 
@@ -378,6 +338,8 @@ void GLWindow::Draw() {
                     GL_NEAREST);
 
 #ifndef IMPACTO_DISABLE_IMGUI
+  ImGui::Render();
+  ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
   if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
     ImGui::UpdatePlatformWindows();
     ImGui::RenderPlatformWindowsDefault();

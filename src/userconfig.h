@@ -44,13 +44,6 @@ struct GameConfig {
   std::string PatchProfile;
   bool UsePatch;
   DisplayMode Display = GetDefaultDispMode();
-
-  static DisplayMode GetDefaultDispMode() {
-#if defined(__SWITCH__) || defined(__ANDROID__)
-    return DisplayMode::Borderless;
-#endif
-    return DisplayMode::Windowed;
-  }
 };
 struct Config {
   int ResolutionWidth = 1280;
