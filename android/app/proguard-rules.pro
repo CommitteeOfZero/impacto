@@ -28,3 +28,8 @@
    public static *** **(...); 
    public *** **(...); 
 }
+
+-keep class com.committeeofzero.impacto.** {
+   public static *** **(...);
+   public *** **(...);
+  }

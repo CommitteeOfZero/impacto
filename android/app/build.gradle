@@ -62,6 +62,7 @@ android {
 }
 
 dependencies {
+    implementation 'androidx.documentfile:documentfile:1.1.0'
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.appcompat:appcompat:1.8.0'
 }
