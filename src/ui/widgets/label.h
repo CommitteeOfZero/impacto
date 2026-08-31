@@ -54,20 +54,24 @@ class Label final : public Widget {
   void SetSprite(Sprite const& label);
 
   void SetText(std::vector<ProcessedTextGlyph>&& str, glm::vec2 pos,
-               RendererOutlineMode outlineMode);
+               RendererOutlineMode outlineMode,
+               TextAlignment alignment = TextAlignment::Left);
   void SetText(std::span<const ProcessedTextGlyph> str, glm::vec2 pos,
-               RendererOutlineMode outlineMode) {
+               RendererOutlineMode outlineMode,
+               TextAlignment alignment = TextAlignment::Left) {
     SetText(std::vector<ProcessedTextGlyph>(str.begin(), str.end()), pos,
-            outlineMode);
+            outlineMode, alignment);
   }
 
   void SetText(LabelStringType auto str, glm::vec2 pos, float fontSize,
-               RendererOutlineMode outlineMode, DialogueColorPair colorPair);
+               RendererOutlineMode outlineMode, DialogueColorPair colorPair,
+               TextAlignment alignment = TextAlignment::Left);
 
   void SetText(LabelStringType auto str, glm::vec2 pos, float fontSize,
-               RendererOutlineMode outlineMode, size_t colorIndex = 10) {
+               RendererOutlineMode outlineMode, size_t colorIndex = 10,
+               TextAlignment alignment = TextAlignment::Left) {
     SetText(str, pos, fontSize, outlineMode,
-            Profile::Dialogue::ColorTable[colorIndex]);
+            Profile::Dialogue::ColorTable[colorIndex], alignment);
   }
 
   void ClearText() {

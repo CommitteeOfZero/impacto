@@ -44,7 +44,7 @@ void Label::SetSprite(Sprite const& label) {
 }
 
 void Label::SetText(std::vector<ProcessedTextGlyph>&& str, glm::vec2 pos,
-                    RendererOutlineMode outlineMode) {
+                    RendererOutlineMode outlineMode, TextAlignment alignment) {
   IsText = true;
   OutlineMode = outlineMode;
   Text = std::move(str);
@@ -52,12 +52,25 @@ void Label::SetText(std::vector<ProcessedTextGlyph>&& str, glm::vec2 pos,
   if (Text.empty()) {
     Bounds = RectF(pos.x, pos.y, 0.0f, 0.0f);
   } else {
-    const glm::vec2 textOffset = pos - Text.front().Position;
+    RectF textBounds = GetTextBounds(Text);
+    const glm::vec2 curTextPos = [alignment, textBounds]() {
+      switch (alignment) {
+        case TextAlignment::Left:
+          return textBounds.TopLeft();
+        case TextAlignment::Center:
+          return glm::vec2(textBounds.Center().x, textBounds.Top());
+        case TextAlignment::Right:
+          return textBounds.TopRight();
+      }
+      assert(false);
+      return textBounds.TopLeft();
+    }();
+
+    const glm::vec2 textOffset = pos - curTextPos;
     for (ProcessedTextGlyph& glyph : Text) {
       glyph.Move(textOffset);
     }
-
-    const RectF textBounds = GetTextBounds(Text);
+    textBounds += textOffset;
 
     // Preserve Bounds.GetPos() as being the position of the Label object
     Bounds.SetPos(pos);
@@ -68,7 +81,7 @@ void Label::SetText(std::vector<ProcessedTextGlyph>&& str, glm::vec2 pos,
 
 void Label::SetText(LabelStringType auto str, glm::vec2 pos, float fontSize,
                     RendererOutlineMode outlineMode,
-                    DialogueColorPair colorPair) {
+                    DialogueColorPair colorPair, TextAlignment alignment) {
   std::vector<ProcessedTextGlyph> text;
   if constexpr (std::is_same_v<std::decay_t<decltype(str)>,
                                Vm::BufferOffsetContext>) {
@@ -90,21 +103,25 @@ void Label::SetText(LabelStringType auto str, glm::vec2 pos, float fontSize,
                                TextAlignment::Left);
   }
 
-  SetText(std::move(text), pos, outlineMode);
+  SetText(std::move(text), pos, outlineMode, alignment);
 }
 
 template void Label::SetText(Vm::BufferOffsetContext, glm::vec2, float,
-                             RendererOutlineMode, DialogueColorPair);
+                             RendererOutlineMode, DialogueColorPair,
+                             TextAlignment);
 template void Label::SetText(Vm::Sc3Stream, glm::vec2, float,
-                             RendererOutlineMode, DialogueColorPair);
+                             RendererOutlineMode, DialogueColorPair,
+                             TextAlignment);
 template void Label::SetText(Vm::Sc3Stream&, glm::vec2, float,
-                             RendererOutlineMode, DialogueColorPair);
+                             RendererOutlineMode, DialogueColorPair,
+                             TextAlignment);
 template void Label::SetText(const std::string_view, glm::vec2, float,
-                             RendererOutlineMode, DialogueColorPair);
+                             RendererOutlineMode, DialogueColorPair,
+                             TextAlignment);
 template void Label::SetText(std::string, glm::vec2, float, RendererOutlineMode,
-                             DialogueColorPair);
+                             DialogueColorPair, TextAlignment);
 template void Label::SetText(const char*, glm::vec2, float, RendererOutlineMode,
-                             DialogueColorPair);
+                             DialogueColorPair, TextAlignment);
 
 }  // namespace Widgets
 }  // namespace UI
