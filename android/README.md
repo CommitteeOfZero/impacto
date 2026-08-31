@@ -21,8 +21,10 @@ run ./gradlew assemble in impacto/android
 apks will be created in impacto/android/distribution/android/app/outputs/apk
 
 # Preparing impacto
-Game assets should be copied to the `/sdcard/Android/data/com.committeeofzero.impacto/files/games` folder, see [Getting Started](/doc/getting_started.md).
-Upon running the application for the first time, bundled files will be copied to the `/sdcard/Android/data/com.committeeofzero.impacto/files/` folder. This will also occur when impacto detects a .reset file in the same directory.
+Game assets can be copied to the `/sdcard/Android/data/com.committeeofzero.impacto/files/games` folder, or a user selectable directory. 
+If choosing a custom directory, a prompt to enable the manage all files permission will be given and it will need to be enabled. 
+See [Getting Started](/doc/getting_started.md) for more information about files needed.
+Upon running the application for the first time, bundled files will be copied to the `/sdcard/Android/data/com.committeeofzero.impacto/files/` folder.
 
 # Debugging
 Override the CMake preset and set CMAKE_BUILD_TYPE to DEBUG (-DCMAKE_BUILD_TYPE=DEBUG in command line or override with user preset) 
