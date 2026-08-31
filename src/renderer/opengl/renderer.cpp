@@ -300,9 +300,12 @@ uint32_t Renderer::SubmitTexture(TexFmt format, uint8_t* buffer, int width,
 
 int Renderer::GetSpriteSheetImage(SpriteSheet const& sheet,
                                   std::span<uint8_t> outBuffer) {
-  const size_t bufferSize =
-      static_cast<size_t>(sheet.DesignWidth * sheet.DesignHeight * 4);
+  const size_t width = static_cast<size_t>(sheet.DesignWidth);
+  const size_t height = static_cast<size_t>(sheet.DesignHeight);
+  const size_t rowBytes = width * 4;
+  const size_t bufferSize = rowBytes * height;
   assert(outBuffer.size() >= bufferSize);
+
   glBindTexture(GL_TEXTURE_2D, sheet.Texture);
 
   GLuint fbo;
@@ -310,20 +313,17 @@ int Renderer::GetSpriteSheetImage(SpriteSheet const& sheet,
   glBindFramebuffer(GL_FRAMEBUFFER, fbo);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
                          sheet.Texture, 0);
-  glReadPixels(0, 0, (GLsizei)sheet.DesignWidth, (GLsizei)sheet.DesignHeight,
+  glReadPixels(0, 0, static_cast<GLsizei>(width), static_cast<GLsizei>(height),
                GL_RGBA, GL_UNSIGNED_BYTE, outBuffer.data());
 
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
   glDeleteFramebuffers(1, &fbo);
 
   if (sheet.IsScreenCap) {
-    auto itr = outBuffer.begin();
-    auto revItr = std::make_reverse_iterator(itr + bufferSize);
-    while (itr < revItr.base() - (size_t)(sheet.DesignWidth * 4)) {
-      std::swap_ranges(itr, itr + (size_t)sheet.DesignWidth * 4,
-                       revItr.base() - ((size_t)sheet.DesignWidth * 4));
-      itr += (size_t)sheet.DesignWidth * 4;
-      revItr += (size_t)sheet.DesignWidth * 4;
+    uint8_t* data = outBuffer.data();
+    for (size_t top = 0, bottom = height - 1; top < bottom; ++top, --bottom) {
+      std::swap_ranges(data + top * rowBytes, data + (top + 1) * rowBytes,
+                       data + bottom * rowBytes);
     }
   }
 
@@ -1191,18 +1191,13 @@ void Renderer::CaptureScreencap(Sprite& sprite) {
   Flush();
   sprite.Sheet.IsScreenCap = true;
 
-  int fbWidth, fbHeight;
-  glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH,
-                               &fbWidth);
-  glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT,
-                               &fbHeight);
+  RectF viewport = Window->GetViewport();
 
-  sprite.Sheet.DesignWidth = static_cast<float>(fbWidth);
-  sprite.Sheet.DesignHeight = static_cast<float>(fbHeight);
-  sprite.Bounds = RectF{0.0f, 0.0f, static_cast<float>(fbWidth),
-                        static_cast<float>(fbHeight)};
-  sprite.BaseScale = {Profile::Game::DesignWidth / fbWidth,
-                      Profile::Game::DesignHeight / fbHeight};
+  sprite.Sheet.DesignWidth = viewport.Width;
+  sprite.Sheet.DesignHeight = viewport.Height;
+  sprite.Bounds = RectF{0.0f, 0.0f, viewport.Width, viewport.Height};
+  sprite.BaseScale = {Profile::Game::DesignWidth / viewport.Width,
+                      Profile::Game::DesignHeight / viewport.Height};
 
   int prevReadBuffer;
   int drawBuffer;
@@ -1214,7 +1209,21 @@ void Renderer::CaptureScreencap(Sprite& sprite) {
 
   GLC::BindFramebuffer(GL_READ_FRAMEBUFFER, drawBuffer);
   glBindTexture(GL_TEXTURE_2D, sprite.Sheet.Texture);
-  glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, fbWidth, fbHeight, 0);
+
+  if (sprite.Sheet.DesignWidth != viewport.Width ||
+      sprite.Sheet.DesignHeight != viewport.Height) {
+    glDeleteTextures(1, &sprite.Sheet.Texture);
+    glGenTextures(1, &sprite.Sheet.Texture);
+    glBindTexture(GL_TEXTURE_2D, sprite.Sheet.Texture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                    GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 16);
+  }
+
+  glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0,
+                   static_cast<GLsizei>(viewport.Width),
+                   static_cast<GLsizei>(viewport.Height), 0);
 
   glBindTexture(GL_TEXTURE_2D, prevTextureBinding);
   GLC::BindFramebuffer(GL_READ_FRAMEBUFFER, prevReadBuffer);

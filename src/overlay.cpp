@@ -1,6 +1,7 @@
 #include "overlay.h"
 
 #include <imgui.h>
+#include <imgui_scroll_drag.h>
 #include <algorithm>
 #include <vector>
 #include <ankerl/unordered_dense.h>
@@ -78,6 +79,7 @@ static int PushAccentColors(std::string const& gameKey) {
 
 void SetupStyle() {
   ImGuiStyle& style = ImGui::GetStyle();
+  style.ScaleAllSizes(Window->DpiScale);
 
   style.WindowRounding = 0.0f;
   style.ChildRounding = 0.0f;
@@ -174,8 +176,9 @@ void SetupFonts() {
   ImGuiIO& io = ImGui::GetIO();
   constexpr const char* fontPath =
       "resources/common/font/NotoSansCJKjp-Bold.otf";
-  ImFont* font = io.Fonts->AddFontFromFileTTF(
-      fontPath, 24.0f, nullptr, io.Fonts->GetGlyphRangesJapanese());
+  ImFont* font =
+      io.Fonts->AddFontFromFileTTF(fontPath, 24.0f * Window->DpiScale, nullptr,
+                                   io.Fonts->GetGlyphRangesJapanese());
   if (font == nullptr) {
     ImpLog(LogLevel::Error, LogChannel::Overlay, "Failed to load font: {}",
            fontPath);
@@ -215,8 +218,8 @@ void Init() {
 }
 
 static void ShowGamePicker(std::string& selectedGame) {
-  constexpr float comboWidth = 340.0f;
-  constexpr float iconSize = 36.0f;
+  const float comboWidth = 340.0f * Window->DpiScale;
+  const float iconSize = 36.0f * Window->DpiScale;
   constexpr auto label = "Choose Game";
 
   std::vector<std::string> gameKeys;
@@ -244,7 +247,7 @@ static void ShowGamePicker(std::string& selectedGame) {
     ImGui::TableNextRow();
     ImGui::TableSetColumnIndex(1);
 
-    auto showIcon = [](std::string const& game) {
+    auto showIcon = [iconSize](std::string const& game) {
       if (auto iconTxtItr = iconTextureMap.find(game);
           iconTxtItr != iconTextureMap.end()) {
         auto const& img = iconTxtItr->second;
@@ -280,7 +283,7 @@ static void ShowGamePicker(std::string& selectedGame) {
 static bool ShowDisplaySettings(std::string const& selectedGame) {
   auto& gameSettings = UserConfig::GameSettings.at(selectedGame);
 
-  constexpr float comboWidth = 200.0f;
+  const float comboWidth = 200.0f * Window->DpiScale;
 
   constexpr static auto resolutionOptions = std::to_array({
       std::pair{"1024x576", glm::ivec2{1024, 576}},
@@ -366,7 +369,7 @@ static bool ShowDisplaySettings(std::string const& selectedGame) {
 }
 
 static void ShowPatchSettings(std::string const& selectedGame) {
-  constexpr float comboWidth = 200.0f;
+  const float comboWidth = 200.0f * Window->DpiScale;
 
   auto& gameSettings = UserConfig::GameSettings.at(selectedGame);
   auto const& gameDef = Profile::GameDefinitions.at(selectedGame);
@@ -400,7 +403,7 @@ static void ShowPatchSettings(std::string const& selectedGame) {
 }
 
 static void ShowCommonSettings() {
-  constexpr float comboWidth = 200.0f;
+  const float comboWidth = 200.0f * Window->DpiScale;
 
   if (ImGui::CollapsingHeader("General Settings",
                               ImGuiTreeNodeFlags_DefaultOpen)) {
@@ -459,6 +462,8 @@ static void ShowSettingsPage(std::string const& selectedGame) {
 
       ShowPatchSettings(selectedGame);
     }
+    ImGui::ScrollWhenDraggingOnVoid(ImVec2{0.0f, -ImGui::GetIO().MouseDelta.y},
+                                    ImGuiMouseButton_Left);
   }
   ImGui::EndChild();
 
@@ -533,6 +538,8 @@ static void ShowEnhancementsPage(std::string const& selectedGame) {
                       &enhancements.CHLCC.DelusionMousePatch);
     }
   }
+  ImGui::ScrollWhenDraggingOnVoid(ImVec2{0.0f, -ImGui::GetIO().MouseDelta.y},
+                                  ImGuiMouseButton_Left);
   ImGui::EndChild();
 
   constexpr auto restoreDefaultsLabel = "Restore Defaults";
@@ -555,7 +562,7 @@ static void ShowEnhancementsPage(std::string const& selectedGame) {
 }
 
 static void ShowCloseButton() {
-  ImVec2 closeButtonSize(27, 27);
+  ImVec2 closeButtonSize(27 * Window->DpiScale, 27 * Window->DpiScale);
 
   ImGui::SetCursorPos(
       ImVec2(ImGui::GetContentRegionAvail().x - closeButtonSize.x, 0.0f));
@@ -646,7 +653,7 @@ void ShowOverlay() {
 
     if (!Profile::Game::HasInit && !selectedGame.empty()) {
       ImGui::Separator();
-      float buttonWidth = 120.0f;
+      float buttonWidth = 120.0f * Window->DpiScale;
       if (ImGui::BeginTable("StartButtonCenterTable", 3)) {
         ImGui::TableSetupColumn("##left", ImGuiTableColumnFlags_WidthStretch);
         ImGui::TableSetupColumn("##mid", ImGuiTableColumnFlags_WidthFixed,

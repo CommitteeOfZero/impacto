@@ -5,22 +5,20 @@
 namespace Impacto {
 namespace Io {
 
-int64_t GetFileSize(std::string const& path) {
-  const std::string& filePath = GetSystemDependentPath(path);
+int64_t GetFileSize(std::string const& filePath) {
   std::error_code ec;
   uintmax_t result = std::filesystem::file_size(filePath, ec);
   if (ec) {
     ImpLog(LogLevel::Error, LogChannel::IO,
-           "Error getting file size of file \"{:s}\", error: \"{:s}\"\n", path,
-           ec.message());
+           "Error getting file size of file \"{:s}\", error: \"{:s}\"\n",
+           filePath, ec.message());
     return IoError_Fail;
   }
   // Hopefully no one has a file of size between int64_t max and uint64_t max
   return static_cast<int64_t>(result);
 }
 
-IoError PathExists(std::string const& path) {
-  const std::string& filePath = GetSystemDependentPath(path);
+IoError PathExists(std::string const& filePath) {
   std::error_code ec;
   bool result = std::filesystem::exists(filePath, ec);
   if (ec) {
@@ -33,10 +31,9 @@ IoError PathExists(std::string const& path) {
   return result == false ? IoError_NotFound : IoError_OK;
 }
 
-int8_t CreateDirectories(std::string const& path, bool createParent) {
+int8_t CreateDirectories(std::string const& filePath, bool createParent) {
   using Path = std::filesystem::path;
   std::error_code ec;
-  const std::string& filePath = GetSystemDependentPath(path);
   const auto parentPath = Path(filePath).parent_path();
   if (createParent && parentPath.empty()) return IoError_OK;
   const auto dirPath = createParent ? parentPath : Path(filePath);
@@ -50,10 +47,9 @@ int8_t CreateDirectories(std::string const& path, bool createParent) {
   return result;
 }
 
-IoError GetFilePermissions(std::string const& path,
+IoError GetFilePermissions(std::string const& filePath,
                            FilePermissionsFlags& flags) {
   std::error_code ec;
-  const std::string& filePath = GetSystemDependentPath(path);
   flags = std::filesystem::status(filePath, ec).permissions();
   if (ec) {
     ImpLog(LogLevel::Error, LogChannel::IO,

@@ -124,8 +124,13 @@ void ShowSingleWindow() {
   if (ImGui::Begin("Debug Menu", &DebugMenuShown)) {
     ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate,
                 ImGui::GetIO().Framerate);
-    ImGui::Text("Cursor Pos: (%.1f,%.1f)", ImGui::GetIO().MousePos.x,
-                ImGui::GetIO().MousePos.y);
+    const auto lgcViewPort = Window->GetLogicalViewport();
+    const float mouseX = (ImGui::GetIO().MousePos.x - lgcViewPort.X) *
+                         (Profile::Game::DesignWidth / lgcViewPort.Width);
+    const float mouseY = (ImGui::GetIO().MousePos.y - lgcViewPort.Y) *
+                         (Profile::Game::DesignHeight / lgcViewPort.Height);
+
+    ImGui::Text("Cursor Pos: (%.1f,%.1f)", mouseX, mouseY);
 
     if (ImGui::BeginTabBar("DebugTabBar", ImGuiTabBarFlags_None)) {
       if (ImGui::BeginTabItem("\"Debug Editer\"")) {

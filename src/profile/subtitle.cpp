@@ -33,10 +33,6 @@ void Configure() {
     SubtitleFontsDir =
         TryGetMember<decltype(SubtitleFontsDir)>("SubtitleFontsDir")
             .value_or(SubtitleFontsDir);
-    for (auto& dir : SubtitleFontsDir) {
-      dir = GetSystemDependentPath(dir);
-    }
-
     Pop();
   }
 }
