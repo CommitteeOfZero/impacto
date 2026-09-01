@@ -810,8 +810,11 @@ if (NX OR EMSCRIPTEN)
     set(BUILD_SHARED_LIBS OFF)
 endif ()
 
-if (UNIX AND NOT CYGWIN)
-    set(IMPACTO_DISABLE_DX9 ON)
+if (NOT WIN32 AND NOT CYGWIN)
+    set(IMPACTO_DISABLE_DIRECT3D ON)
+endif()
+if (NOT APPLE)
+    set(IMPACTO_DISABLE_METAL ON)
 endif ()
 
 if (IMPACTO_ASAN)
@@ -1110,9 +1113,38 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
         )
     endif ()
 
-    if (NOT DEFINED IMPACTO_DISABLE_DX9)
+    if (NOT DEFINED IMPACTO_DISABLE_DIRECT3D)
         list(APPEND imgui_src
-            ${imgui_SOURCE_DIR}/backends/imgui_impl_dx9.cpp
+            ${imgui_SOURCE_DIR}/backends/imgui_impl_dx12.cpp
+        )
+    endif ()
+
+    if (NOT DEFINED IMPACTO_DISABLE_METAL)
+        list(APPEND imgui_src
+            ${imgui_SOURCE_DIR}/backends/imgui_impl_metal.mm
+        )
+    endif ()
+
+    if (NOT DEFINED IMPACTO_DISABLE_BGFX)
+        FetchContent_Declare(
+            imgui_impl_bgfx
+            URL https://gist.github.com/Madman10K/0ffc9ba203333d3580d467d972bbf8b6/archive/9110d39e126dbd557ad1ff5147526ffeaeb7267c.zip
+        )
+        FetchContent_MakeAvailable(imgui_impl_bgfx)
+        file(DOWNLOAD
+            https://raw.githubusercontent.com/pr0g/sdl-bgfx-imgui-starter/8cff6aef7d14a16b820254f646e2f22535925d8d/bgfx-imgui/fs_ocornut_imgui.bin.h
+            ${imgui_impl_bgfx_SOURCE_DIR}/fs_ocornut_imgui.bin.h
+        )
+        file(DOWNLOAD
+            https://raw.githubusercontent.com/pr0g/sdl-bgfx-imgui-starter/8cff6aef7d14a16b820254f646e2f22535925d8d/bgfx-imgui/vs_ocornut_imgui.bin.h
+            ${imgui_impl_bgfx_SOURCE_DIR}/vs_ocornut_imgui.bin.h
+        )
+
+        list(APPEND imgui_src
+            ${imgui_impl_bgfx_SOURCE_DIR}/imgui_impl_bgfx.cpp
+        )
+        list(APPEND imgui_Include_Dirs
+            ${imgui_impl_bgfx_SOURCE_DIR}
         )
     endif ()
 
@@ -1128,6 +1160,10 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
     endif ()
 
     target_link_libraries(imgui PRIVATE ${SDL3_LIBRARIES} ${OpenGL_Libs})
+
+    if (NOT DEFINED IMPACTO_DISABLE_BGFX)
+        target_link_libraries(imgui PUBLIC bgfx::bgfx PRIVATE bgfx::bx)
+    endif ()
 
     list(APPEND Impacto_Lib_Targets imgui)
 endif ()
@@ -1160,6 +1196,15 @@ endif ()
 if (NOT DEFINED IMPACTO_DISABLE_BGFX)
     find_package(bgfx CONFIG REQUIRED)
     list(APPEND Impacto_Libs bgfx::bgfx)
+
+    list(APPEND Impacto_Src
+        src/renderer/bgfx/renderer.cpp
+        src/renderer/bgfx/window.cpp
+    )
+    list(APPEND Impacto_Header
+        src/renderer/bgfx/renderer.h
+        src/renderer/bgfx/window.h
+    )
 endif()
 
 if (NOT DEFINED IMPACTO_DISABLE_FFMPEG)
