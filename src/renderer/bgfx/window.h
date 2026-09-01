@@ -9,17 +9,17 @@ class Window final : public BaseWindow {
   void Init() override;
 
   void SetDimensions(int width, int height, int msaa,
-                     float renderScale) override {};
+                     float renderScale) override;
 
-  void Update() override {}
+  void Update() override;
 
   void SwapRTs() override {}
   void Draw() override;
 
-  void Shutdown() override {}
+  void Shutdown() override;
 
  private:
-  void UpdateDimensions() override {}
+  void UpdateDimensions() override;
 };
 
 }  // namespace Impacto::Bgfx
