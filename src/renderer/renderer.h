@@ -309,13 +309,11 @@ class BaseRenderer {
                               TopologyMode topology = TopologyMode::Triangles,
                               bool textureWrapRepeat = false) = 0;
 
-  virtual void DrawPrimitives(const SpriteSheet& sheet,
-                              ShaderProgramType shaderType,
-                              std::span<const VertexBufferSprites> vertices,
-                              std::span<const uint16_t> indices,
-                              glm::mat4 transformation = glm::mat4(1.0f),
-                              bool inverted = false,
-                              bool textureWrapRepeat = false) {
+  void DrawPrimitives(const SpriteSheet& sheet, ShaderProgramType shaderType,
+                      std::span<const VertexBufferSprites> vertices,
+                      std::span<const uint16_t> indices,
+                      glm::mat4 transformation = glm::mat4(1.0f),
+                      bool inverted = false, bool textureWrapRepeat = false) {
     DrawPrimitives(sheet, nullptr, shaderType, vertices, indices,
                    transformation, glm::mat4(1.0f), inverted,
                    TopologyMode::Triangles, textureWrapRepeat);

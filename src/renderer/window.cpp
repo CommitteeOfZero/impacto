@@ -11,13 +11,34 @@
 #include "../inputsystem.h"
 #include "opengl/window.h"
 
+#ifndef IMPACTO_DISABLE_BGFX
+#include "bgfx/window.h"
+#endif
+
 namespace Impacto {
 
 void InitWindow() {
   switch (UserConfig::AdvancedSettings.ActiveRenderer) {
 #ifndef IMPACTO_DISABLE_OPENGL
-    case RendererType::OpenGL:
+    case RendererType::OpenGLLegacy:
       Window = new OpenGL::GLWindow();
+      break;
+#endif
+#ifndef IMPACTO_DISABLE_BGFX
+#ifndef IMPACTO_DISABLE_OPENGL
+    case RendererType::OpenGL:
+    case RendererType::OpenGLES:
+#endif
+#ifndef IMPACTO_DISABLE_VULKAN
+    case RendererType::Vulkan:
+#endif
+#ifndef IMPACTO_DISABLE_DIRECT3D
+    case RendererType::Direct3D:
+#endif
+#ifndef IMPACTO_DISABLE_METAL
+    case RendererType::Metal:
+#endif
+      Window = new Bgfx::Window();
       break;
 #endif
     default:
