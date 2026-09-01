@@ -29,9 +29,5 @@ Override the CMake preset and set CMAKE_BUILD_TYPE to DEBUG (-DCMAKE_BUILD_TYPE=
 to build with debug symbols first.
 In Android Studio, open the impacto/android folder
 Make sure the explorer is set to view Project or Project files and not Android so cpp files are actually visible.
-Edit the run configuratio
-- Go to debugger:
-- Add <absolute_path_to_impacto>/android/app/src/main/cpp/impacto to symbol directories
-- In LLDB Startup Commands, add the following so symbols get mapped to correct files
-`settings append target.source-map <absolute_path_to_impacto> <absolute_path_to_impacto>/android/app/src/main/cpp/impacto`
-Breakpoints should work now properly in C++ files when debugging
+Run in debug configuration.
+Set breakpoints in files located in the app/src/main/cpp/impacto symlink.
