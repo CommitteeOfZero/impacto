@@ -33,8 +33,10 @@ void Configure() {
 
   auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
 
-  UI::SysMesBoxPtr = new UI::MO6TW::SysMesBox();
-  UI::Menus[drawType].push_back(UI::SysMesBoxPtr);
+  UI::SysMesBox::DrawType = drawType;
+  UI::SysMesBox::Factory = []() -> UI::SysMesBox* {
+    return new UI::MO6TW::SysMesBox();
+  };
 }
 
 }  // namespace SysMesBox

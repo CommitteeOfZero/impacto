@@ -566,69 +566,94 @@ VmInstruction(InstDebugPrint) {
 VmInstruction(InstSystemMes) {
   StartInstruction;
   PopUint8(mode);
+  uint32_t sysMesId = thread->Id;
   switch (Profile::Vm::GameInstructionSet) {
     default:
       break;
     case InstructionSet::Dash:
     case InstructionSet::CC:
-      PopUint8(unk01);
+      PopUint8(id);
+      sysMesId = id;
       break;
   }
+
+  auto activeBox = [&]() -> UI::SysMesBox* {
+    UI::SysMesBox* box = UI::SysMesBox::Current(sysMesId);
+    if (!box) {
+      ImpLog(LogLevel::Warning, LogChannel::VM,
+             "SystemMes(mode: {:d}) on thread {:d} with no active box\n", mode,
+             thread->Id);
+    }
+    return box;
+  };
 
   switch (mode) {
     case 0:  // SystemMesInit0
     case 1:  // SystemMesInit1
-      UI::SysMesBoxPtr->Init();
+      UI::SysMesBox::Push(sysMesId);
       break;
     case 2: {  // SystemMesInit2
       PopExpression(sysMesInit2Arg);
-      ScrWork[SW_SYSMESANIMCTF] = 2 * UI::SysMesBoxPtr->MessageCount + 33;
+      UI::SysMesBox* box = activeBox();
+      if (!box) break;
+      ScrWork[SW_SYSMESANIMCTF] = 2 * box->MessageCount + 33;
     } break;
     case 3: {  // SystemMesSetMes
       PopUint16(sysMesStrNum);
+      UI::SysMesBox* box = activeBox();
+      if (!box) break;
       const uint32_t message =
           ScriptGetStrAddress(thread->ScriptBufferId, sysMesStrNum);
-      UI::SysMesBoxPtr->AddMessage(
+      box->AddMessage(
           {.ScriptBufferId = thread->ScriptBufferId, .IpOffset = message});
     } break;
     case 4: {  // SystemMesSetSel
       PopUint16(sysSelStrNum);
+      UI::SysMesBox* box = activeBox();
+      if (!box) break;
       auto message = ScriptGetStrAddress(thread->ScriptBufferId, sysSelStrNum);
-      UI::SysMesBoxPtr->AddChoice(
+      box->AddChoice(
           {.ScriptBufferId = thread->ScriptBufferId, .IpOffset = message});
     } break;
-    case 5:  // SystemMesMain
-      if (!UI::SysMesBoxPtr->ChoiceMade &&
-          (UI::SysMesBoxPtr->ChoiceCount > 0)) {
+    case 5: {  // SystemMesMain
+      UI::SysMesBox* box = activeBox();
+      if (!box) break;
+      if (!box->ChoiceMade && (box->ChoiceCount > 0)) {
         ResetInstruction;
         BlockThread;
-      } else if (UI::SysMesBoxPtr->ChoiceCount == 0 &&
+      } else if (box->ChoiceCount == 0 &&
                  !(Interface::PADinputButtonWentDown & Interface::PAD1A ||
                    Interface::PADinputMouseWentDown & Interface::PAD1A)) {
         ResetInstruction;
         BlockThread;
       }
-      break;
-    case 6:  // SystemMesFadeIn
-      if (UI::SysMesBoxPtr->State == UI::MenuState::Hidden) {
-        UI::SysMesBoxPtr->Show();
+    } break;
+    case 6: {  // SystemMesFadeIn
+      UI::SysMesBox* box = activeBox();
+      if (!box) break;
+      if (box->State == UI::MenuState::Hidden) {
+        box->Show();
         ResetInstruction;
         BlockThread;
-      } else if (UI::SysMesBoxPtr->State != UI::MenuState::Shown) {
-        ResetInstruction;
-        BlockThread;
-      }
-      break;
-    case 7:  // SystemMesFadeOut
-      if (UI::SysMesBoxPtr->State == UI::MenuState::Shown) {
-        UI::SysMesBoxPtr->Hide();
-        ResetInstruction;
-        BlockThread;
-      } else if (UI::SysMesBoxPtr->State != UI::MenuState::Hidden) {
+      } else if (box->State != UI::MenuState::Shown) {
         ResetInstruction;
         BlockThread;
       }
-      break;
+    } break;
+    case 7: {  // SystemMesFadeOut
+      UI::SysMesBox* box = activeBox();
+      if (!box) break;
+      if (box->State == UI::MenuState::Shown) {
+        box->Hide();
+        ResetInstruction;
+        BlockThread;
+      } else if (box->State != UI::MenuState::Hidden) {
+        ResetInstruction;
+        BlockThread;
+      } else {
+        UI::SysMesBox::Pop(sysMesId);
+      }
+    } break;
     case 8:
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction SystemMes(mode: {:d})\n", mode);
@@ -639,12 +664,16 @@ VmInstruction(InstSystemMes) {
       break;
     case 0x83: {
       PopMsbString(message);
-      UI::SysMesBoxPtr->AddMessage(
+      UI::SysMesBox* box = activeBox();
+      if (!box) break;
+      box->AddMessage(
           {.ScriptBufferId = thread->ScriptBufferId, .IpOffset = message});
     } break;
     case 0x84: {  // SystemMesSetSel
       PopMsbString(message);
-      UI::SysMesBoxPtr->AddChoice(
+      UI::SysMesBox* box = activeBox();
+      if (!box) break;
+      box->AddChoice(
           {.ScriptBufferId = thread->ScriptBufferId, .IpOffset = message});
     } break;
     default:

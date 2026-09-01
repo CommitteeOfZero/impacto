@@ -23,6 +23,16 @@ class SysMesBox : public UI::SysMesBox {
   UI::Widgets::Button* WidgetOK;
   UI::Widgets::Button* WidgetYes;
   UI::Widgets::Button* WidgetNo;
+
+  float BoxAnimCount = 0.0f;
+  float BoxTopY = 0.0f;
+  float BoxBottomY = 0.0f;
+  float LineLength = 0.0f;
+  float BoxHeight = 0.0f;
+  float BoxProgressCount = 0.0f;
+  float ButtonYesX = 0.0f;
+  float ButtonRightX = 0.0f;
+  int TextStartCount = 0;
 };
 
 }  // namespace RNE

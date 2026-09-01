@@ -20,8 +20,6 @@ using namespace Impacto::Profile::SysMesBox;
 using namespace Impacto::Profile::CC::SysMesBox;
 using namespace Impacto::Vm::Interface;
 
-static float BoxAnimCount = 0.0f;
-
 void SysMesBox::ChoiceItemOnClick(Button* target) {
   ScrWork[SW_SYSSEL] = target->Id;
   Audio::PlayInGroup(Audio::ACG_SE, "sysse", 2, false, 0);
