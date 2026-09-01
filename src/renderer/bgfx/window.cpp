@@ -37,6 +37,13 @@ void Window::Init() {
   CreateSDLWindow(windowFlags);
 }
 
+void Window::Shutdown() {
+  SDL_DestroyWindow(SDLWindow);
+  SDL_Quit();
+  // TODO: move exit to users
+  exit(0);
+}
+
 void Window::Draw() {
 #ifndef IMPACTO_DISABLE_IMGUI
   ImGui::Render();
@@ -61,6 +68,40 @@ RectF Window::GetViewport() {
   viewport.Y = (WindowHeight - viewport.Height) / 2.0f;
 
   return viewport;
+}
+
+void Window::Update() { UpdateDimensions(); }
+
+void Window::SetDimensions(int width, int height, int msaa, float renderScale) {
+  ImpLog(LogLevel::Info, LogChannel::General,
+         "Attempting to change window dimensions to {:d} x {:d}, {:d}x MSAA, "
+         "render scale {:f}\n",
+         width, height, msaa, renderScale);
+  assert(width > 0 && height > 0 && msaa >= 0 && renderScale > 0.0f);
+
+  SDL_SetWindowSize(SDLWindow, static_cast<int>(width / DpiScaleX),
+                    static_cast<int>(height / DpiScaleY));
+
+  MsaaCount = msaa;
+  RenderScale = renderScale;
+}
+
+void Window::UpdateDimensions() {
+  WindowDimensionsChanged = false;
+
+  SDL_GetWindowSizeInPixels(SDLWindow, &WindowWidth, &WindowHeight);
+  if (WindowWidth != lastWidth || WindowHeight != lastHeight) {
+    WindowDimensionsChanged = true;
+    ImpLog(LogLevel::Debug, LogChannel::General,
+           "Drawable size (pixels): {:d} x {:d}\n", WindowWidth, WindowHeight);
+  }
+  lastWidth = WindowWidth;
+  lastHeight = WindowHeight;
+
+  int osWindowWidth, osWindowHeight;
+  SDL_GetWindowSize(SDLWindow, &osWindowWidth, &osWindowHeight);
+  DpiScaleX = static_cast<float>(WindowWidth) / osWindowWidth;
+  DpiScaleY = static_cast<float>(WindowHeight) / osWindowHeight;
 }
 
 RectF Window::GetScaledViewport() {
