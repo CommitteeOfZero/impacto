@@ -9,6 +9,7 @@
 #include <avcpp/timestamp.h>
 #include <avcpp/packet.h>
 #include <avcpp/rational.h>
+#include <libavcodec/avcodec.h>
 
 extern "C" {
 #include <libavutil/avutil.h>
@@ -100,6 +101,16 @@ void FFmpegPlayer::Init() {
   // av::set_logging_level("debug");
   AudioPlayer->Init();
 
+  void* ctx = NULL;
+  const AVCodec* currentCodec = nullptr;
+  currentCodec = av_codec_iterate(&ctx);
+  while (currentCodec != NULL) {
+    if (!av_codec_is_encoder(currentCodec)) {
+      currentCodec = av_codec_iterate(&ctx);
+      ImpLog(LogLevel::Info, LogChannel::Video, "{}", currentCodec->name);
+    }
+  }
+
   IsInit = true;
 }
 
@@ -119,6 +130,10 @@ AVBufferRef* FFmpegPlayer::HwDecoderInit(const AVCodec* codec) {
   static constexpr auto preferenceOrder = std::to_array<AVHWDeviceType>({
       AV_HWDEVICE_TYPE_VAAPI,
       AV_HWDEVICE_TYPE_VDPAU,
+  });
+#elif defined(__SWITCH__)
+  static constexpr auto preferenceOrder = std::to_array<AVHWDeviceType>({
+      AV_HWDEVICE_TYPE_NVTEGRA,
   });
 #else
   static constexpr std::array<AVHWDeviceType, 0> preferenceOrder;
@@ -185,8 +200,6 @@ std::optional<av::Codec> findDecoderCodec(av::Stream const& avStream) {
     const AVCodecDescriptor* desc = avcodec_descriptor_get(codecId);
 #ifdef __ANDROID__
     const std::string decoderName = fmt::format("{}_mediacodec", desc->name);
-#elif __SWITCH__
-    const std::string decoderName = fmt::format("{}_nvtegra", desc->name);
 #else
     const std::string decoderName = desc->name;
 #endif
