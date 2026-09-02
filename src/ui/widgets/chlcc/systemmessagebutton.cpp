@@ -51,8 +51,7 @@ void SystemMessageButton::SetText(std::vector<ProcessedTextGlyph> text,
   OutlineMode = outlineMode;
   HighlightOffset = glm::vec2(0.0f, -1.0f);
 
-  Bounds = RectF(Text[0].DestRect.X, Text[0].DestRect.Y, TextWidth, fontSize) +
-           HighlightOffset;
+  Bounds = GetTextBounds(Text) + HighlightOffset;
 
   const glm::vec2 leftSize = LeftHighlightSprite.ScaledBounds().GetSize();
   const float leftWidth = std::round(leftSize.x * fontSize / leftSize.y);

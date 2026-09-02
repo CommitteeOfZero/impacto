@@ -15,7 +15,7 @@
 #include "sprites.h"
 #include "fonts.h"
 #include "../spritesheet.h"
-#include "../font.h"
+#include "../text/fonts/font.h"
 #include "../spriteanimation.h"
 
 namespace Impacto {

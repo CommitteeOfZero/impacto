@@ -64,7 +64,8 @@ void TrophyMenu::Show() {
       TrophyCountHintLabel.SetText(
           Vm::ScriptGetTextTableStrAddress(TrophyCountHintTextTableId,
                                            TrophyCountHintStringNum),
-          TrophyCountFontSize, RendererOutlineMode::Full, 0);
+          TrophyCountHintLabelPos, TrophyCountFontSize,
+          RendererOutlineMode::Full, 0);
     }
   }
 }

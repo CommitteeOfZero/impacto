@@ -1,8 +1,8 @@
 #include "font.h"
 
-#include "log.h"
-#include "profile/game.h"
-#include "renderer/renderer.h"
+#include "../../log.h"
+#include "../../profile/game.h"
+#include "../../renderer/renderer.h"
 
 namespace Impacto {
 
@@ -48,6 +48,22 @@ static void FillGlyphIndices(std::vector<uint16_t>& indices,
     indices[i * 6 + 4] = tr;
     indices[i * 6 + 5] = br;
   }
+}
+
+ProcessedTextGlyph SingleSheetFont::PlaceGlyph(const uint32_t glyphId,
+                                               const glm::vec2 position,
+                                               const float fontSize,
+                                               const DialogueColorPair colors,
+                                               const float opacity) const {
+  return ProcessedTextGlyph{
+      .Colors = colors,
+      .CharId = glyphId,
+      .Opacity = opacity,
+      .DestRect =
+          RectF(position.x, position.y,
+                (fontSize / BitmapEmWidth) * AdvanceWidths[glyphId], fontSize),
+      .Position = position,
+  };
 }
 
 void SingleSheetFont::DrawProcessedText(
@@ -164,6 +180,20 @@ void SingleSheetFont::DrawProcessedText(
                            transformation);
 }
 
+ProcessedTextGlyph SeparateOutlineSheetFont::PlaceGlyph(
+    const uint32_t glyphId, const glm::vec2 position, const float fontSize,
+    const DialogueColorPair colors, const float opacity) const {
+  return ProcessedTextGlyph{
+      .Colors = colors,
+      .CharId = glyphId,
+      .Opacity = opacity,
+      .DestRect =
+          RectF(position.x, position.y,
+                (fontSize / BitmapEmWidth) * AdvanceWidths[glyphId], fontSize),
+      .Position = position,
+  };
+}
+
 void SeparateOutlineSheetFont::DrawProcessedText(
     const std::span<const ProcessedTextGlyph> text, const float opacity,
     const float outlineOpacity, const RendererOutlineMode outlineMode,
@@ -246,13 +276,13 @@ void SeparateOutlineSheetFont::DrawProcessedText(
       } break;
 
       case BottomRight: {
-        fillVertices.template
-        operator()<&SeparateOutlineSheetFont::GetOutlineGlyph,
-                   &DialogueColorPair::OutlineColor>({1.0f, 1.0f});
+        fillVertices.template operator()<&SeparateOutlineSheetFont::GetGlyph,
+                                         &DialogueColorPair::OutlineColor>(
+            {1.0f, 1.0f});
 
         FillGlyphIndices(indices, glyphCount);
 
-        Renderer->DrawPrimitives(OutlineSheet, maskedSheet, shader, vertices,
+        Renderer->DrawPrimitives(ForegroundSheet, maskedSheet, shader, vertices,
                                  indices, transformation);
       } break;
 
@@ -407,28 +437,30 @@ void EdgeDetectedSingleSheetFont::DrawProcessedText(
     }
   };
 
-  float intensityShift = 0.5f;
-  float alphaShift = 0.1f;
+  float curIntensityShift = 0.5f;
+  float curAlphaShift = 0.1f;
 
+  constexpr float noOutlineIntensityShift = -2.0f;
+  constexpr float noOutlineAlphaShift = 0.5f;
   switch (outlineMode) {
     using enum RendererOutlineMode;
     case None: {
-      intensityShift = -2.0f;
-      alphaShift = 0.5f;
+      curIntensityShift = noOutlineIntensityShift;
+      curAlphaShift = noOutlineAlphaShift;
 
       FillGlyphIndices(indices, static_cast<uint16_t>(glyphCount));
     } break;
 
     case Full: {
-      intensityShift = 0.5f;
-      alphaShift = 0.1f;
+      curIntensityShift = IntensityShift;
+      curAlphaShift = AlphaShift;
 
       FillGlyphIndices(indices, static_cast<uint16_t>(glyphCount));
     } break;
 
     case BottomRight: {
-      intensityShift = -2.0f;
-      alphaShift = 0.5f;
+      curIntensityShift = noOutlineIntensityShift;
+      curAlphaShift = noOutlineAlphaShift;
 
       FillGlyphIndices(indices, static_cast<uint16_t>(glyphCount * 2));
       insertVertices(&DialogueColorPair::OutlineColor, {1.0f, 1.0f});
@@ -437,13 +469,25 @@ void EdgeDetectedSingleSheetFont::DrawProcessedText(
 
   insertVertices(&DialogueColorPair::TextColor, {0.0f, 0.0f});
 
+  // Define the text's render scale based on the relative size of the first
+  // character with a width and height greater than zero
+  // (Spaces can be defined in the spritesheet as a zero-sized sprite)
+  const auto firstCharWithDefinedSize =
+      std::ranges::find_if(text, [this](const auto& glyph) {
+        return glm::all(
+            glm::greaterThan(glm::min(GetGlyph(glyph.CharId).Bounds.GetSize(),
+                                      glyph.DestRect.GetSize()),
+                             {0.0f, 0.0f}));
+      });
+  if (firstCharWithDefinedSize == text.end()) return;
   const glm::vec2 renderScale =
-      GetGlyph(text.begin()->CharId).Bounds.GetSize() /
-      text.begin()->DestRect.GetSize();
+      GetGlyph(firstCharWithDefinedSize->CharId).Bounds.GetSize() /
+      firstCharWithDefinedSize->DestRect.GetSize();
 
   Renderer->DrawEdgeDetectedSingleSheetFont(
-      Sheet, maskedSheet, vertices, indices, intensityShift, alphaShift,
-      renderScale, transformation, glm::mat4(1.0f));
+      Sheet, maskedSheet, vertices, indices, DifferenceFactor,
+      curIntensityShift, curAlphaShift, renderScale, transformation,
+      glm::mat4(1.0f));
 }
 
 }  // namespace Impacto

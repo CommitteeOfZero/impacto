@@ -35,16 +35,11 @@ void SelectionMenu::AddChoice(Vm::BufferOffsetContext ctx) {
   dummy.IpOffset = ctx.IpOffset;
   dummy.ScriptBufferId = ctx.ScriptBufferId;
   Choices[ChoiceCount] = TextLayoutPlainLine(
-      &dummy, 255, Profile::Dialogue::DialogueFont,
+      &dummy, 255, *Profile::Dialogue::DialogueFont,
       Profile::Dialogue::DefaultFontSize, Profile::Dialogue::ColorTable[0],
       1.0f, glm::vec2(0.0f, 0.0f), TextAlignment::Left);
 
-  float mesLen = 0.0f;
-  for (const ProcessedTextGlyph& glyph : Choices[ChoiceCount]) {
-    mesLen += glyph.DestRect.Width;
-  }
-
-  ChoiceWidths[ChoiceCount] = mesLen;
+  ChoiceWidths[ChoiceCount] = GetTextWidth(Choices[ChoiceCount]);
   ChoiceCount++;
 }
 
@@ -68,8 +63,7 @@ void SelectionMenu::Show() {
 
       diff = (Profile::Game::DesignWidth - ChoiceWidths[i]) / 2.0f;
       for (ProcessedTextGlyph& glyph : Choices[i]) {
-        glyph.DestRect.X += diff;
-        glyph.DestRect.Y = choiceY;
+        glyph.MoveTo({glyph.Position.x + diff, choiceY});
       }
 
       if (Choices[i][0].DestRect.X < ChoiceXMin)
@@ -104,8 +98,7 @@ void SelectionMenu::Show() {
     for (int i = 0; i < ChoiceCount; i++) {
       diff = (Profile::Game::DesignWidth - ChoiceWidths[i]) / 2.0f;
       for (ProcessedTextGlyph& glyph : Choices[i]) {
-        glyph.DestRect.X += diff;
-        glyph.DestRect.Y = choiceY;
+        glyph.MoveTo({glyph.Position.x + diff, choiceY});
       }
       choiceY += SelectionYSpacing;
 

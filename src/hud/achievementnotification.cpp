@@ -2,7 +2,7 @@
 
 #include "../animation.h"
 #include "../data/achievementsystem.h"
-#include "../font.h"
+#include "../text/fonts/font.h"
 #include "../inputsystem.h"
 #include "../io/physicalfilestream.h"
 #include "../log.h"
@@ -86,13 +86,13 @@ static void BuildTextLine(std::string const& text, float fontSize, float left,
   for (ExternalFontShapedGlyph const& glyph : glyphs) {
     const glm::vec2 glyphPos = pen + glyph.Offset;
 
-    ProcessedTextGlyph ptg;
-    ptg.CharId = glyph.GlyphIndex;
-    ptg.Colors = colors;
-    ptg.Opacity = 1.0f;
-    ptg.DestRect =
-        RectF(glyphPos.x, glyphPos.y, glyph.Advance.x, finalFontSize);
-    TextGlyphs.push_back(ptg);
+    TextGlyphs.push_back({
+        .Colors = colors,
+        .CharId = glyph.GlyphIndex,
+        .Opacity = 1.0f,
+        .DestRect = {glyphPos.x, glyphPos.y, glyph.Advance.x, finalFontSize},
+        .Position = pen,
+    });
 
     pen += glyph.Advance;
   }

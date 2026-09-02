@@ -6,69 +6,82 @@
 #include "../widget.h"
 #include "../../text/text.h"
 #include "../../renderer/renderer.h"
+#include "../../profile/dialogue.h"
 
 namespace Impacto {
 namespace UI {
 namespace Widgets {
 
-class Label : public Widget {
+using namespace Impacto::Fonts;
+
+template <typename T>
+concept LabelStringType =
+    is_any_of_v<std::decay_t<T>, Vm::BufferOffsetContext, Vm::Sc3Stream> ||
+    std::is_convertible_v<T, const std::string_view>;
+
+class Label final : public Widget {
  public:
   Label();
-  Label(Sprite const& label, glm::vec2 pos);
-  Label(std::vector<ProcessedTextGlyph> str, float textWidth, float fontSize,
-        RendererOutlineMode outlineMode);
-  Label(std::span<ProcessedTextGlyph> str, float textWidth, float fontSize,
-        RendererOutlineMode outlineMode);
-  Label(Vm::BufferOffsetContext scrCtx, glm::vec2 pos, float fontSize,
-        RendererOutlineMode outlineMode, int colorIndex = 10,
-        float maxWidth = 0.0f);
-  Label(Vm::BufferOffsetContext scrCtx, glm::vec2 pos, float fontSize,
-        RendererOutlineMode outlineMode, DialogueColorPair colorPair,
-        float maxWidth = 0.0f);
-  Label(Vm::Sc3Stream& stream, glm::vec2 pos, float fontSize,
-        RendererOutlineMode outlineMode, int colorIndex = 10);
-  Label(Vm::Sc3Stream& stream, glm::vec2 pos, float fontSize,
-        RendererOutlineMode outlineMode, DialogueColorPair colorPair);
-  Label(std::string_view str, glm::vec2 pos, float fontSize,
-        RendererOutlineMode outlineMode, int colorIndex = 10);
-  Label(std::string_view str, glm::vec2 pos, float fontSize,
-        RendererOutlineMode outlineMode, DialogueColorPair colorPair);
 
-  void Update(float dt) override;
-  void UpdateInput(float dt) override;
+  Label(Sprite const& label, glm::vec2 pos);
+
+  Label(std::vector<ProcessedTextGlyph>&& str, glm::vec2 pos,
+        RendererOutlineMode outlineMode) {
+    SetText(std::move(str), pos, outlineMode);
+  }
+  Label(std::span<const ProcessedTextGlyph> str, glm::vec2 pos,
+        RendererOutlineMode outlineMode)
+      : Label(std::vector<ProcessedTextGlyph>(str.begin(), str.end()), pos,
+              outlineMode) {}
+
+  Label(LabelStringType auto str, glm::vec2 pos, float fontSize,
+        RendererOutlineMode outlineMode, DialogueColorPair colorPair)
+      : FontSize(fontSize) {
+    SetText(str, pos, fontSize, outlineMode, colorPair);
+  }
+
+  Label(LabelStringType auto str, glm::vec2 pos, float fontSize,
+        RendererOutlineMode outlineMode, size_t colorIndex)
+      : Label(str, pos, fontSize, outlineMode,
+              Profile::Dialogue::ColorTable[colorIndex]) {}
+
+  void UpdateInput(float dt) override {}
   void Render() override;
 
   using Widget::Move;
   void Move(glm::vec2 relativePosition) override;
 
   void SetSprite(Sprite const& label);
-  void SetText(std::vector<ProcessedTextGlyph> text, float textWidth,
-               float fontSize, RendererOutlineMode outlineMode);
-  void SetText(std::span<ProcessedTextGlyph> str, float textWidth,
-               float fontSize, RendererOutlineMode outlineMode);
-  void SetText(std::span<ProcessedTextGlyph> str,
-               RendererOutlineMode outlineMode);
-  void SetText(Vm::BufferOffsetContext scrCtx, float fontSize,
-               RendererOutlineMode outlineMode, int colorIndex = 10);
-  void SetText(Vm::BufferOffsetContext scrCtx, float fontSize,
+
+  void SetText(std::vector<ProcessedTextGlyph>&& str, glm::vec2 pos,
+               RendererOutlineMode outlineMode,
+               TextAlignment alignment = TextAlignment::Left);
+  void SetText(std::span<const ProcessedTextGlyph> str, glm::vec2 pos,
+               RendererOutlineMode outlineMode,
+               TextAlignment alignment = TextAlignment::Left) {
+    SetText(std::vector<ProcessedTextGlyph>(str.begin(), str.end()), pos,
+            outlineMode, alignment);
+  }
+
+  void SetText(LabelStringType auto str, glm::vec2 pos, float fontSize,
                RendererOutlineMode outlineMode, DialogueColorPair colorPair,
-               float maxWidth = 0.0f);
-  void SetText(std::string_view str, float fontSize,
-               RendererOutlineMode outlineMode, int colorIndex = 10);
-  void SetText(std::string_view str, float fontSize,
-               RendererOutlineMode outlineMode, DialogueColorPair colorPair);
+               TextAlignment alignment = TextAlignment::Left);
+
+  void SetText(LabelStringType auto str, glm::vec2 pos, float fontSize,
+               RendererOutlineMode outlineMode, size_t colorIndex = 10,
+               TextAlignment alignment = TextAlignment::Left) {
+    SetText(str, pos, fontSize, outlineMode,
+            Profile::Dialogue::ColorTable[colorIndex], alignment);
+  }
+
   void ClearText() {
     Text.clear();
     IsText = false;
-    Bounds = {};
+    Bounds = RectF(Bounds.X, Bounds.Y, 0.0f, 0.0f);
   }
-  void SetText(Vm::Sc3Stream& stream, float fontSize,
-               RendererOutlineMode outlineMode, int colorIndex = 10);
-  void SetText(Vm::Sc3Stream& stream, float fontSize,
-               RendererOutlineMode outlineMode, DialogueColorPair colorPair);
 
-  size_t GetTextLength() { return Text.size(); }
-  float GetFontSize() { return FontSize; }
+  size_t GetTextLength() const { return Text.size(); }
+  float GetFontSize() const { return FontSize; }
 
   float OutlineAlpha = 1.0f;
   bool OutlineAlphaEnabled = false;

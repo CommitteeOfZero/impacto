@@ -201,12 +201,12 @@ void ClearListMenu::InitMainPage() {
   dummy.IpOffset = separator.IpOffset;
   dummy.ScriptBufferId = separator.ScriptBufferId;
   SeparatorWidth =
-      TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
+      TextGetPlainLineWidth(&dummy, *Profile::Dialogue::DialogueFont, FontSize);
 
   // Ending count
   TextGetSc3String(fmt::to_string(EndingCount), sc3StringBuffer);
   EndingCountWidth = TextGetPlainLineWidth(
-      sc3StrStream, Profile::Dialogue::DialogueFont, FontSize);
+      sc3StrStream, *Profile::Dialogue::DialogueFont, FontSize);
   sc3StrStream = Vm::Sc3Stream(sc3StringBuffer);
   MainPage->Add(new Label(
       sc3StrStream,
@@ -228,7 +228,7 @@ void ClearListMenu::InitMainPage() {
   // Scene count
   TextGetSc3String(fmt::to_string(SceneCount), sc3StringBuffer);
   SceneCountWidth = TextGetPlainLineWidth(
-      sc3StrStream, Profile::Dialogue::DialogueFont, FontSize);
+      sc3StrStream, *Profile::Dialogue::DialogueFont, FontSize);
   sc3StrStream = Vm::Sc3Stream(sc3StringBuffer);
   MainPage->Add(new Label(sc3StrStream,
                           glm::vec2((ScenesLabelPosition.x - SceneCountWidth) +
@@ -256,7 +256,7 @@ void ClearListMenu::InitMainPage() {
   TextGetSc3String(fmt::to_string(totalCount), sc3StringBuffer);
   sc3StrStream = Vm::Sc3Stream(sc3StringBuffer);
   AlbumCountWidth = TextGetPlainLineWidth(
-      sc3StrStream, Profile::Dialogue::DialogueFont, FontSize);
+      sc3StrStream, *Profile::Dialogue::DialogueFont, FontSize);
   sc3StrStream = Vm::Sc3Stream(sc3StringBuffer);
   MainPage->Add(new Label(
       sc3StrStream,
@@ -279,7 +279,7 @@ void ClearListMenu::InitMainPage() {
                                                       PlayTimeSecondsTextEntry);
   dummy.SetIp(secondsText);
   SecondsTextWidth =
-      TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
+      TextGetPlainLineWidth(&dummy, *Profile::Dialogue::DialogueFont, FontSize);
   MainPage->Add(new Label(secondsText,
                           glm::vec2(PlayTimeLabelPosition.x - SecondsTextWidth +
                                         PlayTimeSecondsTextPosition.x,
@@ -291,7 +291,7 @@ void ClearListMenu::InitMainPage() {
                                                       PlayTimeMinutesTextEntry);
   dummy.SetIp(minutesText);
   MinutesTextWidth =
-      TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
+      TextGetPlainLineWidth(&dummy, *Profile::Dialogue::DialogueFont, FontSize);
   MainPage->Add(
       new Label(minutesText,
                 glm::vec2(PlayTimeLabelPosition.x - SecondsTextWidth -
@@ -303,7 +303,7 @@ void ClearListMenu::InitMainPage() {
                                                     PlayTimeHoursTextEntry);
   dummy.SetIp(hoursText);
   HoursTextWidth =
-      TextGetPlainLineWidth(&dummy, Profile::Dialogue::DialogueFont, FontSize);
+      TextGetPlainLineWidth(&dummy, *Profile::Dialogue::DialogueFont, FontSize);
   HoursText = new Label(
       hoursText,
       glm::vec2(PlayTimeLabelPosition.x - SecondsTextWidth - MinutesTextWidth -
@@ -337,15 +337,15 @@ void ClearListMenu::UpdateEndingCount() {
   }
   TextGetSc3String(fmt::format("{:2}", unlockedEndingCount), sc3StringBuffer);
   float unlockedEndingCountWidth =
-      TextGetPlainLineWidth(stream, Profile::Dialogue::DialogueFont, FontSize);
+      TextGetPlainLineWidth(stream, *Profile::Dialogue::DialogueFont, FontSize);
   stream = Vm::Sc3Stream(sc3StringBuffer);
-  UnlockedEndingCount->Bounds.X =
+  const glm::vec2 unlockedEndingCountPos = {
       (EndingsLabelPosition.x -
        (EndingCountWidth + SeparatorWidth + unlockedEndingCountWidth)) +
-      EndingCountPosition.x;
-  UnlockedEndingCount->Bounds.Y = EndingCountPosition.y;
-  UnlockedEndingCount->SetText(stream, FontSize, RendererOutlineMode::None,
-                               ClearListColorIndex);
+          EndingCountPosition.x,
+      EndingCountPosition.y};
+  UnlockedEndingCount->SetText(stream, unlockedEndingCountPos, FontSize,
+                               RendererOutlineMode::None, ClearListColorIndex);
 }
 
 void ClearListMenu::UpdateSceneCount() {
@@ -357,15 +357,15 @@ void ClearListMenu::UpdateSceneCount() {
   }
   TextGetSc3String(fmt::to_string(unlockedSceneCount), sc3StringBuffer);
   float unlockedSceneCountWidth =
-      TextGetPlainLineWidth(stream, Profile::Dialogue::DialogueFont, FontSize);
+      TextGetPlainLineWidth(stream, *Profile::Dialogue::DialogueFont, FontSize);
   stream = Vm::Sc3Stream(sc3StringBuffer);
-  UnlockedSceneCount->Bounds.X =
+  const glm::vec2 unlockedSceneCountPos = {
       (ScenesLabelPosition.x -
        (SceneCountWidth + SeparatorWidth + unlockedSceneCountWidth)) +
-      SceneCountPosition.x;
-  UnlockedSceneCount->Bounds.Y = SceneCountPosition.y;
-  UnlockedSceneCount->SetText(stream, FontSize, RendererOutlineMode::None,
-                              ClearListColorIndex);
+          SceneCountPosition.x,
+      SceneCountPosition.y};
+  UnlockedSceneCount->SetText(stream, unlockedSceneCountPos, FontSize,
+                              RendererOutlineMode::None, ClearListColorIndex);
 }
 
 void ClearListMenu::UpdateAlbumCount() {
@@ -376,15 +376,15 @@ void ClearListMenu::UpdateAlbumCount() {
   SaveSystem::GetViewedEVsCount(&totalCount, &unlockedCount);
   TextGetSc3String(fmt::to_string(unlockedCount), sc3StringBuffer);
   float unlockedAlbumCountWidth =
-      TextGetPlainLineWidth(stream, Profile::Dialogue::DialogueFont, FontSize);
+      TextGetPlainLineWidth(stream, *Profile::Dialogue::DialogueFont, FontSize);
   stream = Vm::Sc3Stream(sc3StringBuffer);
-  UnlockedAlbumCount->Bounds.X =
+  const glm::vec2 unlockedAlbumCountPos = {
       (AlbumLabelPosition.x -
        (AlbumCountWidth + SeparatorWidth + unlockedAlbumCountWidth)) +
-      AlbumCountPosition.x;
-  UnlockedAlbumCount->Bounds.Y = AlbumCountPosition.y;
-  UnlockedAlbumCount->SetText(stream, FontSize, RendererOutlineMode::None,
-                              ClearListColorIndex);
+          AlbumCountPosition.x,
+      AlbumCountPosition.y};
+  UnlockedAlbumCount->SetText(stream, unlockedAlbumCountPos, FontSize,
+                              RendererOutlineMode::None, ClearListColorIndex);
 }
 
 void ClearListMenu::UpdateCompletionPercentage() {
@@ -397,14 +397,14 @@ void ClearListMenu::UpdateCompletionPercentage() {
   float readPercentage = readMessageCount / (float)totalMessageCount * 100.0f;
   TextGetSc3String(fmt::format("{:.2f}%", readPercentage), sc3StringBuffer);
   float percentageWidth =
-      TextGetPlainLineWidth(stream, Profile::Dialogue::DialogueFont, FontSize);
+      TextGetPlainLineWidth(stream, *Profile::Dialogue::DialogueFont, FontSize);
   stream = Vm::Sc3Stream(sc3StringBuffer);
 
-  CompletionPercentage->Bounds.X =
-      CompletionLabelPosition.x - percentageWidth + CompletionPosition.x;
-  CompletionPercentage->Bounds.Y = CompletionPosition.y;
-  CompletionPercentage->SetText(stream, FontSize, RendererOutlineMode::None,
-                                ClearListColorIndex);
+  const glm::vec2 completionPercentagePos = {
+      CompletionLabelPosition.x - percentageWidth + CompletionPosition.x,
+      CompletionPosition.y};
+  CompletionPercentage->SetText(stream, completionPercentagePos, FontSize,
+                                RendererOutlineMode::None, ClearListColorIndex);
 }
 
 void ClearListMenu::UpdatePlayTime() {
@@ -417,25 +417,26 @@ void ClearListMenu::UpdatePlayTime() {
 
   TextGetSc3String(fmt::format("{:2d}", seconds), sc3StringBuffer);
   float secondsWidth =
-      TextGetPlainLineWidth(stream, Profile::Dialogue::DialogueFont, FontSize);
+      TextGetPlainLineWidth(stream, *Profile::Dialogue::DialogueFont, FontSize);
   stream = Vm::Sc3Stream(sc3StringBuffer);
-  PlaySeconds->Bounds.X = PlayTimeLabelPosition.x -
-                          (SecondsTextWidth + secondsWidth) +
-                          PlayTimeSecondsPosition.x;
-  PlaySeconds->Bounds.Y = PlayTimeSecondsPosition.y;
-  PlaySeconds->SetText(stream, FontSize, RendererOutlineMode::None,
-                       ClearListColorIndex);
+  const glm::vec2 playSecondsPos = {PlayTimeLabelPosition.x -
+                                        (SecondsTextWidth + secondsWidth) +
+                                        PlayTimeSecondsPosition.x,
+                                    PlayTimeSecondsPosition.y};
+  PlaySeconds->SetText(stream, playSecondsPos, FontSize,
+                       RendererOutlineMode::None, ClearListColorIndex);
   TextGetSc3String(fmt::format("{:2d}", minutes), sc3StringBuffer);
   stream = Vm::Sc3Stream(sc3StringBuffer);
   float minutesWidth =
-      TextGetPlainLineWidth(stream, Profile::Dialogue::DialogueFont, FontSize);
+      TextGetPlainLineWidth(stream, *Profile::Dialogue::DialogueFont, FontSize);
   stream = Vm::Sc3Stream(sc3StringBuffer);
-  PlayMinutes->Bounds.X = PlayTimeLabelPosition.x -
-                          (SecondsTextWidth + MinutesTextWidth + minutesWidth) +
-                          PlayTimeMinutesPosition.x;
-  PlayMinutes->Bounds.Y = PlayTimeMinutesPosition.y;
-  PlayMinutes->SetText(stream, FontSize, RendererOutlineMode::None,
-                       ClearListColorIndex);
+  const glm::vec2 playMinutesPos = {
+      PlayTimeLabelPosition.x -
+          (SecondsTextWidth + MinutesTextWidth + minutesWidth) +
+          PlayTimeMinutesPosition.x,
+      PlayTimeMinutesPosition.y};
+  PlayMinutes->SetText(stream, playMinutesPos, FontSize,
+                       RendererOutlineMode::None, ClearListColorIndex);
 
   if (hours != 0) {
     HoursText->Tint.a = FadeAnimation.Progress;
@@ -443,14 +444,14 @@ void ClearListMenu::UpdatePlayTime() {
     TextGetSc3String(fmt::format("{:2d}", hours), sc3StringBuffer);
     stream = Vm::Sc3Stream(sc3StringBuffer);
     float hoursWidth = TextGetPlainLineWidth(
-        stream, Profile::Dialogue::DialogueFont, FontSize);
+        stream, *Profile::Dialogue::DialogueFont, FontSize);
     stream = Vm::Sc3Stream(sc3StringBuffer);
-    PlayHours->Bounds.X = PlayTimeLabelPosition.x - SecondsTextWidth -
-                          MinutesTextWidth - (HoursTextWidth + hoursWidth) +
-                          PlayTimeHoursPosition.x;
-    PlayHours->Bounds.Y = PlayTimeHoursPosition.y;
-    PlayHours->SetText(stream, FontSize, RendererOutlineMode::None,
-                       ClearListColorIndex);
+    const glm::vec2 playHoursPos = {
+        PlayTimeLabelPosition.x - SecondsTextWidth - MinutesTextWidth -
+            (HoursTextWidth + hoursWidth) + PlayTimeHoursPosition.x,
+        PlayTimeHoursPosition.y};
+    PlayHours->SetText(stream, playHoursPos, FontSize,
+                       RendererOutlineMode::None, ClearListColorIndex);
   } else {
     PlayHours->Tint.a = 0.0f;
     HoursText->Tint.a = 0.0f;

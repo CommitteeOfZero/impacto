@@ -49,6 +49,8 @@ template <>
 void TextParser::ParseStringToken<STT_CharacterNameStart>(
     const StringToken& token) {
   NameCode.reserve(64);
+  NameCode.clear();
+  NameCode.emplace_back(STT_EndOfString);
   ParsingState = TextParsingState::Name;
 }
 
@@ -170,7 +172,8 @@ template <>
 void TextParser::ParseStringToken<STT_Character>(const StringToken& token) {
   switch (ParsingState) {
     case TextParsingState::Name: {
-      NameCode.emplace_back(SDL_Swap16(token.Val_Uint16 | 0x8000));
+      NameCode.back() = SDL_Swap16(token.Val_Uint16 | 0x8000);
+      NameCode.emplace_back(STT_EndOfString);
       return;
     }
 
@@ -184,21 +187,16 @@ void TextParser::ParseStringToken<STT_Character>(const StringToken& token) {
     case TextParsingState::RubyBase: {
       // TODO respect TA_Center
       // TODO what to do about left margin if text alignment is center?
-      ProcessedTextGlyph& glyph = Glyphs.emplace_back();
-      glyph.CharId = token.Val_Uint16;
-
-      glyph.Opacity = 1.0f;
-      glyph.Colors = CurrentColors;
-
-      glyph.DestRect.X = ModeInfo.WindowPos.x + CurrentX;
-      glyph.DestRect.Width = (FontSize / DialogueFont->BitmapEmWidth) *
-                             DialogueFont->AdvanceWidths[glyph.CharId];
-      glyph.DestRect.Height = FontSize;
-
-      CurrentX += glyph.DestRect.Width;
+      const uint32_t glyphId = token.Val_Uint16;
+      const auto& glyph = Glyphs.emplace_back(DialogueFont->PlaceGlyph(
+          glyphId, {ModeInfo.WindowPos.x + CurrentX, 0.0f}, FontSize,
+          CurrentColors, 1.0f));
+      CurrentX += DialogueFont->GetAdvanceWidth(glyphId) * FontSize /
+                  DialogueFont->BitmapEmWidth;
 
       // Line breaking
-      if (CurrentX > ModeInfo.MaxLineWidth) {
+      if (glyph.DestRect.Right() - ModeInfo.WindowPos.x >
+          ModeInfo.MaxLineWidth) {
         size_t breakCharacter = Glyphs.size() - 1;
         for (; breakCharacter > LastLineStart; breakCharacter--) {
           constexpr uint8_t dontBreakBeforeFlags =
@@ -268,7 +266,7 @@ void TextParser::FinishLine(const size_t nextLineStart, const bool force) {
     const std::span<const ProcessedTextGlyph> base =
         std::span(Glyphs.begin() + chunk.FirstBaseCharacter, chunk.BaseLength);
     glm::vec2 pos =
-        glm::vec2(base.front().DestRect.X,
+        glm::vec2(base.front().Position.x,
                   ModeInfo.WindowPos.y + CurrentLineTop + CurrentLineTopMargin +
                       (ModeInfo.RubyGlyphSize.y - rubyFontSize));
 
@@ -284,33 +282,31 @@ void TextParser::FinishLine(const size_t nextLineStart, const bool force) {
       // center every ruby character over the base character below it
       for (size_t j = 0; j < chunkSize; j++) {
         pos.x = base[j].DestRect.Center().x;
-        TextLayoutPlainLine(rubyText, 1, std::span(chunk.Text.begin() + j, 1),
-                            DialogueFont, rubyFontSize, CurrentColors, 1.0f,
+        TextLayoutPlainLine(rubyText, std::span(chunk.Text.begin() + j, 1),
+                            *DialogueFont, rubyFontSize, CurrentColors, 1.0f,
                             pos, TextAlignment::Center);
       }
     } else {
-      TextLayoutPlainLine(rubyText, static_cast<int>(chunkSize), chunk.Text,
-                          DialogueFont, rubyFontSize, CurrentColors, 1.0f, pos,
-                          TextAlignment::Left);
-      const float baseWidth =
-          base.back().DestRect.Right() - base.front().DestRect.X;
+      TextLayoutPlainLine(rubyText, chunk.Text, *DialogueFont, rubyFontSize,
+                          CurrentColors, 1.0f, pos, TextAlignment::Left);
+      const float baseWidth = GetTextWidth(base);
       const float nonSpacedWidth =
           chunk.Text.back().DestRect.Right() - chunk.Text.front().DestRect.X;
       const float excessWidth = baseWidth - nonSpacedWidth;
 
       if (chunkSize == 1) {
-        chunk.Text.front().DestRect.X += baseWidth / 2.0f;
+        chunk.Text.front().Move({baseWidth / 2.0f, 0.0f});
       } else if (excessWidth <= 0.0f) {
         // Ruby overflows => center over base with normal spacing
         const float offsetX = (baseWidth - nonSpacedWidth) / 2.0f;
         for (auto& glyph : chunk.Text) {
-          glyph.DestRect.X += offsetX;
+          glyph.Move({offsetX, 0.0f});
         }
       } else {
         // Evenly space out all ruby characters over the block of base text
         const float extraSpacing = excessWidth / (chunkSize - 1);
         for (size_t rubyGlyphId = 0; rubyGlyphId < chunkSize; rubyGlyphId++) {
-          chunk.Text[rubyGlyphId].DestRect.X += extraSpacing * rubyGlyphId;
+          chunk.Text[rubyGlyphId].Move({extraSpacing * rubyGlyphId, 0.0f});
         }
       }
 
@@ -331,39 +327,31 @@ void TextParser::FinishLine(const size_t nextLineStart, const bool force) {
         ModeInfo.NameDispMode ==
             TextModeInfo::NameDispModeType::RelativeToWindow) {
       for (auto& glyph : Name) {
-        glyph.DestRect.Y += ModeInfo.RubyLineSpacing + rubyHeight;
+        glyph.Move({0.0f, ModeInfo.RubyLineSpacing + rubyHeight});
       }
     }
   }
-
-  // Glyphs of different font sizes are bottom-aligned within the line
-  const float lineHeight =
-      std::accumulate(currentLine.begin(), currentLine.end(), FontSize,
-                      [](float lhs, const auto& rhs) {
-                        return std::max(lhs, rhs.DestRect.Height);
-                      });
 
   // completely trial and error guess
   const float normalizedFontSize = FontSize / ModeInfo.TextGlyphSize.y;
   CurrentLineTopMargin *= normalizedFontSize;
 
   if (!currentLine.empty()) {
+    const RectF bounds = GetTextBounds(currentLine);
     float marginXOffset = 0;
-    if (currentLine.front().DestRect.X > ModeInfo.WindowPos.x) {
+    if (currentLine.front().Position.x > ModeInfo.WindowPos.x) {
       marginXOffset =
           (currentLine.front().DestRect.Right() - ModeInfo.WindowPos.x) *
           (normalizedFontSize - 1.0f);
     }
 
-    const float lastGlyphX = currentLine.back().DestRect.Right();
     const float xAlignmentOffset = [&]() {
       switch (Alignment) {
         case TextAlignment::Center:
-          return (ModeInfo.MaxLineWidth - (lastGlyphX - ModeInfo.WindowPos.x)) /
-                 2.0f;
+          return (ModeInfo.MaxLineWidth - bounds.Width) / 2.0f;
           break;
         case TextAlignment::Right:
-          return ModeInfo.MaxLineWidth - lastGlyphX - marginXOffset;
+          return ModeInfo.MaxLineWidth - bounds.Right() - marginXOffset;
           break;
         case TextAlignment::Left:
           return marginXOffset;
@@ -372,14 +360,12 @@ void TextParser::FinishLine(const size_t nextLineStart, const bool force) {
       }
     }();
     for (ProcessedTextGlyph& glyph : currentLine) {
-      glyph.DestRect.X += xAlignmentOffset;
-      glyph.DestRect.Y = ModeInfo.WindowPos.y + CurrentLineTop +
-                         CurrentLineTopMargin +
-                         (lineHeight - glyph.DestRect.Height);
+      glyph.Move({xAlignmentOffset, ModeInfo.WindowPos.y + CurrentLineTop +
+                                        CurrentLineTopMargin});
     }
   }
 
-  CurrentLineTop += CurrentLineTopMargin + lineHeight + ModeInfo.LineSpacing;
+  CurrentLineTop += CurrentLineTopMargin + FontSize + ModeInfo.LineSpacing;
   CurrentLineTopMargin = 0.0f;
 
   LastLineStart = nextLineStart;
@@ -390,13 +376,13 @@ void TextParser::FinishName() {
   using enum TextModeInfo::NameAlignmentType;
 
   if (ModeInfo.NameDispMode == Invisible || ModeInfo.MaxNameWidth == 0.0f ||
-      NameCode.empty()) {
+      NameCode.size() <= 1) {
     return;
   }
 
   Vm::Sc3Stream nameStream(NameCode.data());
-  const float nameWidth = TextGetPlainLineWidth(
-      nameStream, DialogueFont, ModeInfo.NameGlyphSize.y, NameCode.size());
+  const float nameWidth = TextGetPlainLineWidth(nameStream, *DialogueFont,
+                                                ModeInfo.NameGlyphSize.y);
 
   glm::vec2 pos{};
   switch (ModeInfo.NameDispMode) {
@@ -468,10 +454,10 @@ void TextParser::FinishName() {
   }
 
   nameStream = Vm::Sc3Stream(NameCode.data());
-  Name = TextLayoutPlainLine(nameStream, static_cast<int>(NameCode.size()),
-                             DialogueFont, ModeInfo.NameGlyphSize.y,
-                             ColorTable[0], 1.0f, pos, TextAlignment::Left);
-  assert(NameCode.size() == Name.size());
+  Name = TextLayoutPlainLine(nameStream, NameCode.size() - 1, *DialogueFont,
+                             ModeInfo.NameGlyphSize.y, ColorTable[0], 1.0f, pos,
+                             TextAlignment::Left);
+  assert(NameCode.size() - 1 == Name.size());
 
   if (ModeInfo.NameDispMode == InText) {
     CurrentLineTop += ModeInfo.NameGlyphSize.y + ModeInfo.LineSpacing;
@@ -536,7 +522,10 @@ void DialogueTextParser::ParseString(Vm::Sc3VmThread* string) {
 
   FinishLine(Glyphs.size());
 
-  NameId = NameCode.empty() ? NO_NAME : GetNameId(NameCode).value_or(NO_NAME);
+  NameId = NameCode.size() <= 1
+               ? NO_NAME
+               : GetNameId(std::span(NameCode.begin(), NameCode.end() - 1))
+                     .value_or(NO_NAME);
 
   for (size_t glyphIdx = glyphsStart; glyphIdx < Glyphs.size(); glyphIdx++) {
     Glyphs[glyphIdx].Opacity = 0.0f;

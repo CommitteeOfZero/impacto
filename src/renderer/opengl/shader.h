@@ -677,6 +677,7 @@ struct EdgeDetectedSingleSheetFontUniforms {
   GLint Mask;
   bool HasMask = false;
   glm::vec2 PixelOffset{};
+  GLfloat DifferenceFactor = 1.0f;
   GLfloat IntensityShift = 0.5f;
   GLfloat AlphaShift = 0.1f;
 };
@@ -697,6 +698,7 @@ class EdgeDetectedSingleSheetFontShader
   const GLint MaskLocation;
   const GLint HasMaskLocation;
   const GLint PixelOffsetLocation;
+  const GLint DifferenceFactorLocation;
   const GLint IntensityShiftLocation;
   const GLint AlphaShiftLocation;
 };

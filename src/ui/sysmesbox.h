@@ -15,7 +15,7 @@ namespace UI {
 
 class SysMesBox : public Menu {
  public:
-  virtual ~SysMesBox();
+  virtual ~SysMesBox() = default;
 
   virtual void Show() override;
   virtual void Hide() override;
@@ -40,8 +40,8 @@ class SysMesBox : public Menu {
   static void Pop(uint32_t id);
 
  protected:
-  Widgets::Group* MessageItems = nullptr;
-  Widgets::Group* ChoiceItems = nullptr;
+  std::unique_ptr<Widgets::Group> MessageItems;
+  std::unique_ptr<Widgets::Group> ChoiceItems;
 
   float BoxOpacity;
   std::array<std::vector<ProcessedTextGlyph>, 8> Messages;

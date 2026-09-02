@@ -29,8 +29,8 @@ void SysMesBox::ChoiceItemOnClick(Button* target) {
 }
 
 void SysMesBox::Show() {
-  MessageItems = new Widgets::Group(this);
-  ChoiceItems = new Widgets::Group(this);
+  MessageItems = std::make_unique<Widgets::Group>(this);
+  ChoiceItems = std::make_unique<Widgets::Group>(this);
 
   Sprite nullSprite = Sprite();
   nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
@@ -46,14 +46,10 @@ void SysMesBox::Show() {
   for (int i = 0; i < MessageCount; i++) {
     if (Messages[i].empty()) continue;
 
-    diff = Messages[i][0].DestRect.X - (TextX - (maxWidth / 2.0f));
-    for (ProcessedTextGlyph& glyph : Messages[i]) {
-      glyph.DestRect.X -= diff;
-      glyph.DestRect.Y = TextMiddleY + (i * TextLineHeight);
-    }
-
-    Label* message = new Label(Messages[i], MessageWidths[i], TextFontSize,
-                               RendererOutlineMode::Full);
+    Label* message =
+        new Label(Messages[i],
+                  {TextX - maxWidth / 2.0f, TextMiddleY + i * TextLineHeight},
+                  RendererOutlineMode::Full);
 
     MessageItems->Add(message, FDIR_DOWN);
   }
@@ -70,10 +66,9 @@ void SysMesBox::Show() {
   float tempChoiceX = ChoiceX;
 
   for (int i = 0; i < ChoiceCount; i++) {
-    diff = Choices[i][0].DestRect.X - tempChoiceX;
+    diff = Choices[i][0].Position.x - tempChoiceX;
     for (ProcessedTextGlyph& choice : Choices[i]) {
-      choice.DestRect.X -= diff;
-      choice.DestRect.Y = ChoiceY;
+      choice.MoveTo({choice.Position.x - diff, ChoiceY});
     }
 
     Button* choice = new SystemMessageButton(
@@ -201,14 +196,10 @@ void SysMesBox::AddMessage(Vm::BufferOffsetContext ctx) {
   dummy.IpOffset = ctx.IpOffset;
   dummy.ScriptBufferId = ctx.ScriptBufferId;
   Messages[MessageCount] =
-      TextLayoutPlainLine(&dummy, 255, Profile::Dialogue::DialogueFont,
+      TextLayoutPlainLine(&dummy, 255, *Profile::Dialogue::DialogueFont,
                           TextFontSize, Profile::Dialogue::ColorTable[0], 1.0f,
                           glm::vec2(TextX, 0.0f), TextAlignment::Left);
-  float mesLen = 0.0f;
-  for (size_t i = 0; i < Messages[MessageCount].size(); i++) {
-    mesLen += Messages[MessageCount][i].DestRect.Width;
-  }
-  MessageWidths[MessageCount] = mesLen;
+  MessageWidths[MessageCount] = GetTextWidth(Messages[MessageCount]);
   MessageCount++;
 }
 
@@ -217,17 +208,10 @@ void SysMesBox::AddChoice(Vm::BufferOffsetContext ctx) {
   dummy.IpOffset = ctx.IpOffset;
   dummy.ScriptBufferId = ctx.ScriptBufferId;
   Choices[ChoiceCount] =
-      TextLayoutPlainLine(&dummy, 255, Profile::Dialogue::DialogueFont,
+      TextLayoutPlainLine(&dummy, 255, *Profile::Dialogue::DialogueFont,
                           TextFontSize, Profile::Dialogue::ColorTable[0], 1.0f,
                           glm::vec2(TextX, 0.0f), TextAlignment::Left);
-  float mesLen = 0.0f;
-  if (Choices[ChoiceCount].size() != 0) {
-    const RectF firstGlyph = Choices[ChoiceCount][0].DestRect;
-    const size_t lastIndex = Choices[ChoiceCount].size() - 1;
-    const RectF lastGlyph = Choices[ChoiceCount][lastIndex].DestRect;
-    mesLen = lastGlyph.X + lastGlyph.Width - firstGlyph.X;
-  }
-  ChoiceWidths[ChoiceCount] = mesLen;
+  ChoiceWidths[ChoiceCount] = GetTextWidth(Choices[ChoiceCount]);
   ChoiceCount++;
 }
 

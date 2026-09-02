@@ -77,14 +77,10 @@ void Button::SetText(Vm::BufferOffsetContext scrCtx, float fontSize,
   dummy.IpOffset = scrCtx.IpOffset;
   dummy.ScriptBufferId = scrCtx.ScriptBufferId;
   Text = TextLayoutPlainLine(
-      &dummy, 255, Profile::Dialogue::DialogueFont, fontSize, colorPair, 1.0f,
+      &dummy, 255, *Profile::Dialogue::DialogueFont, fontSize, colorPair, 1.0f,
       glm::vec2(Bounds.X, Bounds.Y), TextAlignment::Left);
   OutlineMode = outlineMode;
-  TextWidth = 0.0f;
-  for (const ProcessedTextGlyph& glyph : Text) {
-    TextWidth += glyph.DestRect.Width;
-  }
-  Bounds = RectF(Text[0].DestRect.X, Text[0].DestRect.Y, TextWidth, fontSize);
+  Bounds = GetTextBounds(Text);
   HoverBounds = Bounds;
 }
 void Button::SetText(Vm::BufferOffsetContext scrCtx, float fontSize,
@@ -98,13 +94,10 @@ void Button::SetText(Vm::Sc3Stream& stream, float fontSize,
                      DialogueColorPair colorPair) {
   HasText = true;
   Text = TextLayoutPlainLine(
-      stream, 255, Profile::Dialogue::DialogueFont, fontSize, colorPair, 1.0f,
+      stream, 255, *Profile::Dialogue::DialogueFont, fontSize, colorPair, 1.0f,
       glm::vec2(Bounds.X, Bounds.Y), TextAlignment::Left);
   OutlineMode = outlineMode;
-  for (const ProcessedTextGlyph& glyph : Text) {
-    TextWidth += glyph.DestRect.Width;
-  }
-  Bounds = RectF(Text[0].DestRect.X, Text[0].DestRect.Y, TextWidth, fontSize);
+  Bounds = GetTextBounds(Text);
   HoverBounds = Bounds;
 }
 
@@ -120,14 +113,14 @@ void Button::SetText(std::vector<ProcessedTextGlyph> text, float textWidth,
   Text = std::move(text);
   TextWidth = textWidth;
   OutlineMode = outlineMode;
-  Bounds = RectF(Text[0].DestRect.X, Text[0].DestRect.Y, TextWidth, fontSize);
+  Bounds = GetTextBounds(Text);
   HoverBounds = Bounds;
 }
 
 void Button::Move(glm::vec2 relativePosition) {
   if (HasText) {
     for (ProcessedTextGlyph& glyph : Text) {
-      glyph.DestRect += relativePosition;
+      glyph.Move(relativePosition);
     }
   }
   Widget::Move(relativePosition);

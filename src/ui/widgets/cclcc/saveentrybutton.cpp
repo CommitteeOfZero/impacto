@@ -41,25 +41,12 @@ SaveEntryButton::SaveEntryButton(int id, Sprite const& focusedBox,
   Thumbnail.Bounds.X = Bounds.X + relativeThumbnailPosition.x;
   Thumbnail.Bounds.Y = Bounds.Y + relativeThumbnailPosition.y;
 
-  glm::vec2 relativeTitlePosition = {310, 39};
-  CharacterRouteLabel.Bounds.X = Bounds.X + relativeTitlePosition.x;
-  CharacterRouteLabel.Bounds.Y = Bounds.Y + relativeTitlePosition.y;
-
-  SceneTitleLabel.Bounds.X = Bounds.X + relativeTitlePosition.x;
-  SceneTitleLabel.Bounds.Y = Bounds.Y + relativeTitlePosition.y + 30;
-
-  glm::vec2 relativeTimePosition{315, 147};
-  SaveDateLabel.Bounds.X = Bounds.X + relativeTimePosition.x;
-  SaveDateLabel.Bounds.Y = Bounds.Y + relativeTimePosition.y;
-
   SaveEntryButton::Update(0);
 }
 
 void SaveEntryButton::Render() {
   const glm::vec2 scale = {Bounds.Width / HighlightSprite.ScaledWidth(), 1.0f};
 
-  NormalSpriteLabel.Tint = Tint;
-  NormalSpriteLabel.Render();
   if (HasFocus) {
     FocusedSpriteLabel.Tint = Tint;
     FocusedSpriteLabel.Render();
@@ -123,7 +110,6 @@ int SaveEntryButton::GetPage() const { return Page; }
 
 void SaveEntryButton::Move(glm::vec2 relativePosition) {
   Button::Move(relativePosition);
-  NormalSpriteLabel.Move(relativePosition);
   FocusedSpriteLabel.Move(relativePosition);
   LockedSymbol.Move(relativePosition);
   CharacterRouteLabel.Move(relativePosition);
@@ -142,14 +128,17 @@ void SaveEntryButton::RefreshCharacterRouteText(int strIndex) {
       *UI::SaveMenuPtr->ActiveMenuType == SaveMenuPageType::Save
           ? DialogueColorPair{SaveEntryPrimaryColor, SaveEntryPrimaryColor}
           : DialogueColorPair{LoadEntryPrimaryColor, LoadEntryPrimaryColor};
-  CharacterRouteLabel.SetText(strAddr, fontSize, outlineMode, colorPair);
+  CharacterRouteLabel.SetText(strAddr,
+                              Bounds.GetPos() + glm::vec2(310.0f, 39.0f),
+                              fontSize, outlineMode, colorPair);
 }
 
 void SaveEntryButton::RefreshSceneTitleText(int strIndex) {
   auto strAddr = Vm::ScriptGetTextTableStrAddress(1, strIndex + 1);
   float fontSize = 28;
   RendererOutlineMode outlineMode = RendererOutlineMode::None;
-  SceneTitleLabel.SetText(strAddr, fontSize, outlineMode,
+  SceneTitleLabel.SetText(strAddr, Bounds.GetPos() + glm::vec2(310.0f, 69.0f),
+                          fontSize, outlineMode,
                           {SaveEntrySecondaryColor, SaveEntrySecondaryColor});
 }
 
@@ -161,7 +150,7 @@ void SaveEntryButton::RefreshSaveDateText() {
       fmt::format(fmt::runtime(Profile::Patch::DateFormat.FormattedString()),
                   date) +
           fmt::format(" {:%H:%M:%S}", date),
-      fontSize, outlineMode,
+      Bounds.GetPos() + glm::vec2(315.0f, 147.0f), fontSize, outlineMode,
       {SaveEntrySecondaryColor, SaveEntrySecondaryColor});
 }
 

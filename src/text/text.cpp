@@ -1,6 +1,7 @@
 #include "text.h"
 
 #include <memory>
+#include <numeric>
 
 #include <utf8cpp/utf8.h>
 
@@ -152,69 +153,31 @@ void StringToken::AddFlags(const Vm::BufferOffsetContext scrCtx,
   }
 }
 
-int TextGetStringLength(Vm::Sc3Stream& stream) {
-  int result = 0;
+[[nodiscard]] static size_t TextGetStringLength(Sc3Type auto&& stream) {
+  size_t result = 0;
   StringToken token;
   do {
     result += token.Read(stream);
   } while (token.Type != STT_EndOfString);
   return result;
 }
-int TextGetStringLength(Vm::Sc3VmThread* ctx) {
-  int result = 0;
-  StringToken token;
-  do {
-    result += token.Read(ctx);
-  } while (token.Type != STT_EndOfString);
-  return result;
-}
 
-int TextGetMainCharacterCount(Vm::Sc3VmThread* ctx) {
-  int result = 0;
-  StringToken token;
-  bool isMain = true;
-  do {
-    token.Read(ctx);
-    switch (token.Type) {
-      case STT_CharacterNameStart:
-      case STT_RubyTextStart: {
-        isMain = false;
-        break;
-      }
-      case STT_DialogueLineStart: {
-        isMain = true;
-        break;
-      }
-      case STT_Character: {
-        if (isMain) result++;
-        break;
-      }
-      default:
-        // Probably safe to ignore this
-        break;
-    }
-  } while (token.Type != STT_EndOfString);
-  return result;
-}
-
-template <typename T>
-concept Sc3Type =
-    (std::is_lvalue_reference_v<T> &&
-     std::is_base_of_v<Vm::Sc3Stream, std::remove_reference_t<T>>) ||
-    std::is_same_v<std::decay_t<T>, Vm::Sc3VmThread*>;
-
-std::pair<int, float> TextLayoutPlainLineHelper(
-    Sc3Type auto&& sc3, int stringLength,
-    std::output_iterator<ProcessedTextGlyph> auto outIt, Font* font,
-    float fontSize, DialogueColorPair colors, float opacity, glm::vec2 pos,
-    TextAlignment alignment, float blockWidth) {
+template size_t TextLayoutPlainLine(Vm::Sc3VmThread*&&,
+                                    std::span<ProcessedTextGlyph>, const Font&,
+                                    float, DialogueColorPair, float, glm::vec2,
+                                    TextAlignment);
+size_t TextLayoutPlainLine(Sc3Type auto&& stream,
+                           const std::span<ProcessedTextGlyph> outGlyphs,
+                           const Font& font, const float fontSize,
+                           const DialogueColorPair colors, const float opacity,
+                           const glm::vec2 pos, const TextAlignment alignment) {
   size_t characterCount = 0;
   StringToken token;
 
-  float currentX = 0;
+  float currentX = 0.0f;
   DialogueColorPair currentColors = colors;
-  for (int i = 0; i < stringLength; i++) {
-    token.Read(sc3);
+  for (auto curGlyph = outGlyphs.begin(); curGlyph != outGlyphs.end();) {
+    token.Read(stream);
     if (token.Type == STT_EndOfString) break;
 
     switch (token.Type) {
@@ -230,245 +193,181 @@ std::pair<int, float> TextLayoutPlainLineHelper(
       } break;
 
       case STT_Character: {
-        ProcessedTextGlyph ptg;
-        ptg.CharId = token.Val_Uint16;
-        ptg.Colors = currentColors;
-        ptg.Opacity = opacity;
+        const uint32_t glyphId = token.Val_Uint16;
 
-        ptg.DestRect.X = currentX;
-        ptg.DestRect.Y = pos.y;
-        ptg.DestRect.Width = std::floor((fontSize / font->BitmapEmWidth) *
-                                        font->AdvanceWidths[ptg.CharId]);
-        ptg.DestRect.Height = fontSize;
-
-        currentX += ptg.DestRect.Width;
-
-        *outIt++ = ptg;
+        *curGlyph = font.PlaceGlyph(glyphId, {currentX, pos.y}, fontSize,
+                                    currentColors, opacity);
+        curGlyph++;
+        currentX +=
+            font.GetAdvanceWidth(glyphId) * fontSize / font.BitmapEmWidth;
         characterCount++;
       } break;
     }
   }
-  // currentX is now line width
-  // If you want to align, you can pass a span or vector to the alignment
-  // function
-  return {static_cast<int>(characterCount), currentX};
-}
 
-int TextLayoutPlainLine(Vm::Sc3Stream& stream, int stringLength,
-                        std::span<ProcessedTextGlyph> outGlyphs, Font* font,
-                        float fontSize, DialogueColorPair colors, float opacity,
-                        glm::vec2 pos, TextAlignment alignment,
-                        float blockWidth) {
-  auto [count, currentX] = TextLayoutPlainLineHelper(
-      stream, stringLength, outGlyphs.begin(), font, fontSize, colors, opacity,
-      pos, alignment, blockWidth);
-  assert(outGlyphs.size() >= static_cast<size_t>(count));
-  TextLayoutAlignment(alignment, blockWidth, currentX, pos, count, outGlyphs);
-  return count;
-}
-
-std::vector<ProcessedTextGlyph> TextLayoutPlainLine(
-    Vm::Sc3Stream& stream, int maxLength, Font* font, float fontSize,
-    DialogueColorPair colors, float opacity, glm::vec2 pos,
-    TextAlignment alignment, float blockWidth) {
-  std::vector<ProcessedTextGlyph> outGlyphs;
-  outGlyphs.reserve(maxLength);
-  auto [count, currentX] = TextLayoutPlainLineHelper(
-      stream, maxLength, std::back_inserter(outGlyphs), font, fontSize, colors,
-      opacity, pos, alignment, blockWidth);
-  TextLayoutAlignment(alignment, blockWidth, currentX, pos, count, outGlyphs);
-  return outGlyphs;
-}
-
-int TextLayoutPlainLine(Vm::Sc3VmThread* thd, int stringLength,
-                        std::span<ProcessedTextGlyph> outGlyphs, Font* font,
-                        float fontSize, DialogueColorPair colors, float opacity,
-                        glm::vec2 pos, TextAlignment alignment,
-                        float blockWidth) {
-  auto [count, currentX] = TextLayoutPlainLineHelper(
-      thd, stringLength, outGlyphs.begin(), font, fontSize, colors, opacity,
-      pos, alignment, blockWidth);
-  assert(outGlyphs.size() >= static_cast<size_t>(count));
-  TextLayoutAlignment(alignment, blockWidth, currentX, pos, count, outGlyphs);
-  return count;
-}
-
-std::vector<ProcessedTextGlyph> TextLayoutPlainLine(
-    Vm::Sc3VmThread* thd, int maxLength, Font* font, float fontSize,
-    DialogueColorPair colors, float opacity, glm::vec2 pos,
-    TextAlignment alignment, float blockWidth) {
-  std::vector<ProcessedTextGlyph> outGlyphs;
-  outGlyphs.reserve(maxLength);
-  auto [count, currentX] = TextLayoutPlainLineHelper(
-      thd, maxLength, std::back_inserter(outGlyphs), font, fontSize, colors,
-      opacity, pos, alignment, blockWidth);
-  TextLayoutAlignment(alignment, blockWidth, currentX, pos, count, outGlyphs);
-  if (blockWidth > 0.0f) {
-    float containerRight = pos.x + blockWidth;
-    FitGlyphsForPlainLine(outGlyphs, containerRight);
-  }
-  return outGlyphs;
-}
-
-void FitGlyphsForPlainLine(std::span<ProcessedTextGlyph> glyphs,
-                           float containerRight) {
-  if (glyphs.empty()) return;
-
-  float lineLeft = glyphs.front().DestRect.X;
-  float lineRight = glyphs.back().DestRect.Right();
-
-  if (lineRight <= containerRight) return;
-
-  float totalWidth = lineRight - lineLeft;
-  float availableWidth = containerRight - lineLeft;
-  float scale = availableWidth / totalWidth;
-
-  for (auto& glyph : glyphs) {
-    float localX = glyph.DestRect.X - lineLeft;
-    glyph.DestRect.X = lineLeft + localX * scale;
-    glyph.DestRect.Width = glyph.DestRect.Width * scale;
-  }
-}
-
-int TextLayoutAlignment(Impacto::TextAlignment& alignment, float blockWidth,
-                        float currentX, glm::vec2& pos, int characterCount,
-                        std::span<Impacto::ProcessedTextGlyph> outGlyphs) {
-  // Block alignment:
-  //
-  //  l  i  n  e
-  // block__below
-  //
-  // If block below is shorter than line, line is just centered over the block
-
-  if (alignment == TextAlignment::Block && blockWidth < currentX) {
-    pos.x += blockWidth / 2.0f;
-    alignment = TextAlignment::Center;
-  }
-
-  switch (alignment) {
-    case TextAlignment::Left: {
-      // pos is top left
-      for (int i = 0; i < characterCount; i++) {
-        outGlyphs[i].DestRect.X += pos.x;
-      }
-      break;
-    }
-    case TextAlignment::Right: {
-      // pos is top right
-      for (int i = 0; i < characterCount; i++) {
-        outGlyphs[i].DestRect.X += (pos.x - currentX);
-      }
-      break;
-    }
-    case TextAlignment::Center: {
-      // pos is top center
-      for (int i = 0; i < characterCount; i++) {
-        outGlyphs[i].DestRect.X += (pos.x - (currentX / 2.0f));
-      }
-      break;
-    }
-    case TextAlignment::Block: {
-      float blockSpacing = blockWidth / (float)currentX;
-      if (characterCount >= 1) {
-        outGlyphs[0].DestRect.X +=
-            pos.x + blockSpacing / 2.0f - outGlyphs[0].DestRect.Width / 2.0f;
-      }
-      for (int i = 1; i < characterCount; i++) {
-        outGlyphs[i].DestRect.X +=
-            blockSpacing - outGlyphs[i].DestRect.Width / 2.0f;
-      }
-      break;
-    }
+  if (characterCount > 0) {
+    TextLayoutAlignment(alignment, pos.x, outGlyphs.subspan(0, characterCount));
   }
 
   return characterCount;
 }
 
-float TextGetPlainLineWidth(Vm::Sc3VmThread* ctx, Font* font, float fontSize) {
+template std::vector<ProcessedTextGlyph> TextLayoutPlainLine(
+    Vm::Sc3Stream&, std::optional<size_t>, const Font&, float,
+    DialogueColorPair, float, glm::vec2, TextAlignment);
+template std::vector<ProcessedTextGlyph> TextLayoutPlainLine(
+    Vm::Sc3VmThread*&&, std::optional<size_t>, const Font&, float,
+    DialogueColorPair, float, glm::vec2, TextAlignment);
+std::vector<ProcessedTextGlyph> TextLayoutPlainLine(
+    Sc3Type auto&& stream, std::optional<size_t> maxLength, const Font& font,
+    const float fontSize, const DialogueColorPair colors, const float opacity,
+    const glm::vec2 pos, const TextAlignment alignment) {
+  if (!maxLength.has_value()) {
+    auto lengthStream = stream;
+    maxLength.emplace(TextGetStringLength(lengthStream));
+  }
+
+  std::vector<ProcessedTextGlyph> outGlyphs(*maxLength);
+  const size_t glyphCount = TextLayoutPlainLine(
+      stream, outGlyphs, font, fontSize, colors, opacity, pos, alignment);
+  outGlyphs.resize(glyphCount);
+
+  if (!outGlyphs.empty()) {
+    TextLayoutAlignment(alignment, pos.x, outGlyphs);
+  }
+
+  return outGlyphs;
+}
+
+void TextLayoutAlignment(TextAlignment alignment, float posX,
+                         const std::span<ProcessedTextGlyph> outGlyphs) {
+  if (outGlyphs.empty()) return;
+
+  const RectF bounds = GetTextBounds(outGlyphs);
+
+  switch (alignment) {
+    case TextAlignment::Left: {
+      // posX is left
+      const float offset = posX - bounds.Left();
+      for (ProcessedTextGlyph& glyph : outGlyphs) {
+        glyph.Move({offset, 0.0f});
+      }
+    } break;
+
+    case TextAlignment::Right: {
+      // posX is right
+      const float offset = posX - bounds.Right();
+      for (ProcessedTextGlyph& glyph : outGlyphs) {
+        glyph.Move({offset, 0.0f});
+      }
+    } break;
+
+    case TextAlignment::Center: {
+      // posX is center
+      const float offset = posX - bounds.Width / 2.0f;
+      for (ProcessedTextGlyph& glyph : outGlyphs) {
+        glyph.Move({offset, 0.0f});
+      }
+    } break;
+  }
+}
+
+template float TextGetPlainLineWidth(Vm::Sc3Stream&, const Font&, float);
+template float TextGetPlainLineWidth(Vm::Sc3VmThread*&&, const Font&, float);
+float TextGetPlainLineWidth(Sc3Type auto&& stream, const Font& font,
+                            const float fontSize) {
   StringToken token;
 
   float width = 0.0f;
   while (true) {
-    token.Read(ctx);
-    if (token.Type == STT_EndOfString) break;
-    if (token.Type != STT_Character) continue;
-
-    width += std::floor((fontSize / font->BitmapEmWidth) *
-                        font->AdvanceWidths[token.Val_Uint16]);
-  }
-
-  return width;
-}
-
-float TextGetPlainLineWidth(Vm::Sc3Stream& stream, Font* font, float fontSize,
-                            size_t maxLength) {
-  StringToken token;
-
-  float width = 0.0f;
-  while (maxLength-- > 0) {
     token.Read(stream);
     if (token.Type == STT_EndOfString) break;
     if (token.Type != STT_Character) continue;
 
-    width += std::floor((fontSize / font->BitmapEmWidth) *
-                        font->AdvanceWidths[token.Val_Uint16]);
+    width += (fontSize / font.BitmapEmWidth) *
+             font.GetAdvanceWidth(token.Val_Uint16);
   }
 
   return width;
 }
 
-int TextLayoutPlainString(std::string_view str,
-                          std::span<ProcessedTextGlyph> outGlyphs, Font* font,
-                          float fontSize, DialogueColorPair colors,
-                          float opacity, glm::vec2 pos, TextAlignment alignment,
-                          float blockWidth) {
-  std::string_view::iterator strIt = str.begin();
-  std::string_view::iterator strEnd = str.end();
+RectF GetTextBounds(const std::span<const ProcessedTextGlyph> text) {
+  return text.empty()
+             ? RectF()
+             : std::accumulate(
+                   text.begin() + 1, text.end(), text.front().DestRect,
+                   [](const RectF rect, const ProcessedTextGlyph& glyph) {
+                     return RectF::Coalesce(rect, glyph.DestRect);
+                   });
+}
 
-  int sc3StrLength = (int)utf8::distance(strIt, strEnd) + 1;
-  std::unique_ptr<uint16_t[]> sc3StrPtr(new uint16_t[sc3StrLength]);
+float GetTextWidth(const std::span<const ProcessedTextGlyph> text) {
+  return GetTextBounds(text).Width;
+}
 
-  TextGetSc3String(str,
-                   std::span(sc3StrPtr.get(), sc3StrPtr.get() + sc3StrLength));
+void SquishText(const std::span<ProcessedTextGlyph> text, const float maxWidth,
+                const float anchorX) {
+  const float textWidth = GetTextWidth(text);
+  if (textWidth <= maxWidth) return;
 
-  Vm::Sc3Stream stream(sc3StrPtr.get());
-  return TextLayoutPlainLine(stream, sc3StrLength, outGlyphs, font, fontSize,
-                             colors, opacity, pos, alignment, blockWidth);
+  const float squishFactor = maxWidth / textWidth;
+  const auto squishPos = [squishFactor, anchorX](float val) {
+    return (val - anchorX) * squishFactor + anchorX;
+  };
+  std::ranges::transform(text, text.begin(),
+                         [&squishPos, squishFactor](ProcessedTextGlyph glyph) {
+                           glyph.Position.x = squishPos(glyph.Position.x);
+                           glyph.DestRect.X = squishPos(glyph.DestRect.X);
+                           glyph.DestRect.Width *= squishFactor;
+                           return glyph;
+                         });
+}
+
+size_t TextLayoutPlainString(const std::string_view str,
+                             const std::span<ProcessedTextGlyph> outGlyphs,
+                             const Font& font, const float fontSize,
+                             const DialogueColorPair colors,
+                             const float opacity, const glm::vec2 pos,
+                             const TextAlignment alignment) {
+  size_t sc3StrLength = utf8::distance(str.begin(), str.end()) + 1;
+  assert(outGlyphs.size() == sc3StrLength - 1);
+  std::vector<uint16_t> sc3Str(sc3StrLength);
+
+  TextGetSc3String(str, sc3Str);
+
+  Vm::Sc3Stream stream(sc3Str.data());
+  return TextLayoutPlainLine(stream, outGlyphs, font, fontSize, colors, opacity,
+                             pos, alignment);
 }
 
 std::vector<ProcessedTextGlyph> TextLayoutPlainString(
-    std::string_view str, Font* font, float fontSize, DialogueColorPair colors,
-    float opacity, glm::vec2 pos, TextAlignment alignment, float blockWidth) {
-  std::string_view::iterator strIt = str.begin();
-  std::string_view::iterator strEnd = str.end();
+    const std::string_view str, const Font& font, const float fontSize,
+    const DialogueColorPair colors, const float opacity, const glm::vec2 pos,
+    const TextAlignment alignment) {
+  const size_t stringLength = utf8::distance(str.begin(), str.end());
+  std::vector<ProcessedTextGlyph> outGlyphs(stringLength);
 
-  int sc3StrLength = (int)utf8::distance(strIt, strEnd) + 1;
-  std::unique_ptr<uint16_t[]> sc3StrPtr(new uint16_t[sc3StrLength]);
+  TextLayoutPlainString(str, outGlyphs, font, fontSize, colors, opacity, pos,
+                        alignment);
 
-  TextGetSc3String(str,
-                   std::span(sc3StrPtr.get(), sc3StrPtr.get() + sc3StrLength));
-
-  Vm::Sc3Stream stream(sc3StrPtr.get());
-  return TextLayoutPlainLine(stream, sc3StrLength, font, fontSize, colors,
-                             opacity, pos, alignment, blockWidth);
+  return outGlyphs;
 }
 
-void TextGetSc3String(std::string_view str, std::span<uint16_t> out) {
+void TextGetSc3String(const std::string_view str,
+                      const std::span<uint16_t> out) {
   std::string_view::iterator strIt = str.begin();
   std::string_view::iterator strEnd = str.end();
 
-  [[maybe_unused]] size_t sc3StrLength = (int)utf8::distance(strIt, strEnd) + 1;
-  assert(sc3StrLength <= out.size());
+  assert(static_cast<size_t>(utf8::distance(strIt, strEnd)) + 1 <= out.size());
+
   size_t sc3Idx = 0;
   while (strIt != strEnd) {
-    auto codePoint = utf8::next(strIt, strEnd);
+    const auto codePoint = utf8::next(strIt, strEnd);
 
-    uint16_t sc3Val = Profile::Charset::CharacterToSc3[codePoint];
+    const uint16_t sc3Val = Profile::Charset::CharacterToSc3[codePoint];
     out[sc3Idx++] = SDL_Swap16(sc3Val);
   }
   out[sc3Idx++] = 0xFF;
-
-  assert(sc3Idx == sc3StrLength);
 }
 
 void InitNamePlateData(Vm::Sc3Stream& stream) {
@@ -480,7 +379,7 @@ void InitNamePlateData(Vm::Sc3Stream& stream) {
     Vm::Sc3VmThread dummy;
     dummy.IpOffset = nameAddr;
     dummy.ScriptBufferId = Profile::Vm::SystemScriptBuffer;
-    int nameLength = (TextGetStringLength(&dummy) - 1) * 2;
+    size_t nameLength = (TextGetStringLength(&dummy) - 1) * 2;
     dummy.IpOffset = nameAddr;
     uint32_t nameHash =
         GetHashCode(std::span<uint8_t>(dummy.GetIp(), nameLength));

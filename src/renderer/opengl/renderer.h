@@ -87,9 +87,9 @@ class Renderer : public BaseRenderer {
   void DrawEdgeDetectedSingleSheetFont(
       const SpriteSheet& sheet, const SpriteSheet* mask,
       std::span<const VertexBufferSprites> vertices,
-      std::span<const uint16_t> indices, float intensityShift, float alphaShift,
-      glm::vec2 renderScale, glm::mat4 spriteTransformation,
-      glm::mat4 maskTransformation) override;
+      std::span<const uint16_t> indices, float differenceFactor,
+      float intensityShift, float alphaShift, glm::vec2 renderScale,
+      glm::mat4 spriteTransformation, glm::mat4 maskTransformation) override;
 
   void DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
                                const RectF& dest, float alpha) override;

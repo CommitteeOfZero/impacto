@@ -18,11 +18,11 @@ void TextPage::Clear() {
 
 void TextPage::Move(const glm::vec2 relativePos) {
   for (ProcessedTextGlyph& glyph : Glyphs) {
-    glyph.DestRect += relativePos;
+    glyph.Move(relativePos);
   }
   for (RubyChunk& chunk : RubyChunks) {
     for (ProcessedTextGlyph& glyph : chunk.Text) {
-      glyph.DestRect += relativePos;
+      glyph.Move(relativePos);
     }
   }
 }
@@ -30,7 +30,7 @@ void TextPage::Move(const glm::vec2 relativePos) {
 void TextPage::MoveTo(const glm::vec2 pos) {
   if (Glyphs.empty()) return;
 
-  const glm::vec2 relativePos = pos - Glyphs[0].DestRect.GetPos();
+  const glm::vec2 relativePos = pos - Glyphs.front().Position;
   Move(relativePos);
 }
 
@@ -45,16 +45,9 @@ void TextPage::Render(const float alpha,
 RectF TextPage::SetBounds() {
   if (Glyphs.empty()) return Bounds = RectF{};
 
-  const auto coalesce = [](const RectF bounds,
-                           const ProcessedTextGlyph& glyph) {
-    return RectF::Coalesce(bounds, glyph.DestRect);
-  };
-
-  Bounds = Glyphs.front().DestRect;
-  Bounds = std::accumulate(Glyphs.begin() + 1, Glyphs.end(), Bounds, coalesce);
+  Bounds = GetTextBounds(Glyphs);
   for (const RubyChunk& chunk : RubyChunks) {
-    Bounds =
-        std::accumulate(chunk.Text.begin(), chunk.Text.end(), Bounds, coalesce);
+    Bounds = RectF::Coalesce(Bounds, GetTextBounds(chunk.Text));
   }
 
   return Bounds;

@@ -178,12 +178,11 @@ void TipsMenu::Init() {
           &sortString[currentCategoryId * sizeof(uint16_t)]);
 
       Label* categoryLabel = new Label();
-      categoryLabel->Bounds.X = TipListEntryBounds.X;
-      categoryLabel->Bounds.Y = currentY;
       Vm::Sc3Stream categoryStrStream(
           reinterpret_cast<uint8_t*>(CategoryString));
-      categoryLabel->SetText(categoryStrStream, TipListEntryFontSize,
-                             RendererOutlineMode::Full, 0);
+      categoryLabel->SetText(
+          categoryStrStream, {TipListEntryBounds.X, currentY},
+          TipListEntryFontSize, RendererOutlineMode::Full, 0);
       pageItems->Add(categoryLabel);
       currentY += TipListYPadding;
     }
@@ -236,38 +235,42 @@ void TipsMenu::SwitchToTipId(int id) {
   auto tipsScriptBufferId = TipsSystem::GetTipsScriptBufferId();
 
   auto tipRecord = TipsSystem::GetTipRecord(id);
-  Name->SetText({.ScriptBufferId = tipsScriptBufferId,
-                 .IpOffset = tipRecord->StringAdr[0]},
-                NameFontSize, RendererOutlineMode::Full, DefaultColorIndex);
-  Pronunciation->SetText({.ScriptBufferId = tipsScriptBufferId,
-                          .IpOffset = tipRecord->StringAdr[1]},
-                         PronunciationFontSize, RendererOutlineMode::Full,
-                         DefaultColorIndex);
+  Name->SetText(Vm::BufferOffsetContext{.ScriptBufferId = tipsScriptBufferId,
+                                        .IpOffset = tipRecord->StringAdr[0]},
+                NameInitialBounds.GetPos(), NameFontSize,
+                RendererOutlineMode::Full, DefaultColorIndex);
+  Pronunciation->SetText(
+      Vm::BufferOffsetContext{.ScriptBufferId = tipsScriptBufferId,
+                              .IpOffset = tipRecord->StringAdr[1]},
+      PronunciationInitialBounds.GetPos(), PronunciationFontSize,
+      RendererOutlineMode::Full, DefaultColorIndex);
 
   Vm::Sc3VmThread dummy;
   dummy.IpOffset = tipRecord->StringAdr[2];
   dummy.ScriptBufferId = tipsScriptBufferId;
   float categoryWidth = TextGetPlainLineWidth(
-      &dummy, Profile::Dialogue::DialogueFont, CategoryFontSize);
-  Category->Bounds.X = CategoryEndX - categoryWidth;
-  Category->SetText({.ScriptBufferId = tipsScriptBufferId,
-                     .IpOffset = tipRecord->StringAdr[2]},
-                    CategoryFontSize, RendererOutlineMode::Full,
-                    DefaultColorIndex);
+      &dummy, *Profile::Dialogue::DialogueFont, CategoryFontSize);
+  Category->SetText(
+      Vm::BufferOffsetContext{.ScriptBufferId = tipsScriptBufferId,
+                              .IpOffset = tipRecord->StringAdr[2]},
+      {CategoryEndX - categoryWidth, CategoryInitialBounds.Y}, CategoryFontSize,
+      RendererOutlineMode::Full, DefaultColorIndex);
   if (tipRecord->ThumbnailIndex != 0xFFFF)
     ThumbnailSprite = &TipThumbnails[tipRecord->ThumbnailIndex];
   else
     ThumbnailSprite = &TipTextOnlyThumbnail;
 
-  Number->SetText(fmt::format("{:4d}", tipRecord->Id + 1), NumberFontSize,
+  Number->SetText(fmt::format("{:4d}", tipRecord->Id + 1),
+                  NumberBounds.GetPos(), NumberFontSize,
                   RendererOutlineMode::Full, DefaultColorIndex);
 
-  CurrentPage->SetText(fmt::to_string(CurrentTipPage), PageSeparatorFontSize,
+  CurrentPage->SetText(fmt::to_string(CurrentTipPage),
+                       CurrentPageBounds.GetPos(), PageSeparatorFontSize,
                        RendererOutlineMode::Full, DefaultColorIndex);
 
   TotalPages->SetText(fmt::to_string(tipRecord->NumberOfContentStrings),
-                      PageSeparatorFontSize, RendererOutlineMode::Full,
-                      DefaultColorIndex);
+                      TotalPagesBounds.GetPos(), PageSeparatorFontSize,
+                      RendererOutlineMode::Full, DefaultColorIndex);
 
   TextPage.Clear();
   dummy.IpOffset = tipRecord->StringAdr[3];
@@ -301,7 +304,8 @@ void TipsMenu::AdvanceTipPage(TipAdvanceMode mode) {
   dummy.IpOffset = currentRecord->StringAdr[2 + CurrentTipPage];
   dummy.ScriptBufferId = TipsSystem::GetTipsScriptBufferId();
   TextPage.AddString(&dummy);
-  CurrentPage->SetText(fmt::to_string(CurrentTipPage), PageSeparatorFontSize,
+  CurrentPage->SetText(fmt::to_string(CurrentTipPage),
+                       CurrentPageBounds.GetPos(), PageSeparatorFontSize,
                        RendererOutlineMode::Full, DefaultColorIndex);
 }
 
