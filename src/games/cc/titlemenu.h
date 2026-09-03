@@ -68,6 +68,7 @@ enum Mode : uint8_t {
   SubMenu = 5,
   InitialFade = 11,
   ClearList = 13,
+  FadingIn = 16    //used in CCLCC switch
 };
 }
 

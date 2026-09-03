@@ -725,16 +725,18 @@ VmInstruction(InstSystemMes) {
         PopMsbString(message);
         UI::SysMesBox* box = activeBox();
         if (!box) break;
-        box->AddMessage(
-            {.BufferId = thread->ScriptBufferId, .IpOffset = message});
+        box->AddMessage({.Buffers = {},
+                         .BufferId = thread->ScriptBufferId,
+                         .IpOffset = message});
       } else {
         PopUint16(sysMesStrNum);
         UI::SysMesBox* box = activeBox();
         if (!box) break;
         const uint32_t message =
             ScriptGetStrAddress(thread->ScriptBufferId, sysMesStrNum);
-        box->AddMessage(
-            {.BufferId = thread->ScriptBufferId, .IpOffset = message});
+        box->AddMessage({.Buffers = {},
+                         .BufferId = thread->ScriptBufferId,
+                         .IpOffset = message});
       }
     } break;
     case 4: {  // SystemMesSetSel
@@ -754,14 +756,18 @@ VmInstruction(InstSystemMes) {
         PopMsbString(message);
         UI::SysMesBox* box = activeBox();
         if (!box) break;
-        box->AddChoice(
-            {.BufferId = thread->ScriptBufferId, .IpOffset = message});
+        box->AddChoice({.Buffers = {},
+                        .BufferId = thread->ScriptBufferId,
+                        .IpOffset = message});
       } else {
         PopUint16(sysSelStrNum);
         auto message =
             ScriptGetStrAddress(thread->ScriptBufferId, sysSelStrNum);
-        box->AddChoice(
-            {.BufferId = thread->ScriptBufferId, .IpOffset = message});
+        UI::SysMesBox* box = activeBox();
+        if (!box) break;
+        box->AddChoice({.Buffers = {},
+                        .BufferId = thread->ScriptBufferId,
+                        .IpOffset = message});
       }
 
     } break;
@@ -1067,9 +1073,15 @@ VmInstruction(InstMSinit) {
 
   if (initType == 2) {
     UI::BacklogMenuPtr->Clear();
-    memset(&FlagWork, 0, 100);
-    memset(&FlagWork[150], 0, 75);
-    memset(&FlagWork[300], 0, 100);
+    if (Profile::Vm::GameInstructionSet == InstructionSet::LCCSwitch) {
+      memset(&FlagWork, 0, 200);
+      memset(&FlagWork[250], 0, 75);
+      memset(&FlagWork[400], 0, 100);
+    } else {
+      memset(&FlagWork, 0, 100);
+      memset(&FlagWork[150], 0, 75);
+      memset(&FlagWork[300], 0, 100);
+    }
 
     if (Profile::Vm::GameInstructionSet == InstructionSet::MO6TW ||
         Profile::Vm::GameInstructionSet == InstructionSet::CHLCC) {
