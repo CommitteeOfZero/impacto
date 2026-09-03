@@ -40,6 +40,8 @@ static CC::TitleMenuMode::Mode LookupTitleMenuState(int scriptState) {
   if (Profile::Vm::GameInstructionSet ==
       Impacto::Vm::InstructionSet::LCCSwitch) {
     switch (scriptState) {
+      case 0:
+        return Invisible;
       case 2:
         return PressToStart;
       case 3:
@@ -49,16 +51,19 @@ static CC::TitleMenuMode::Mode LookupTitleMenuState(int scriptState) {
         return Main;
       case 12:
         return FadingOut;
-      case 5:  // idk maybe no 5 state for switch
       case 11:
         return SubMenu;
       case 18:
         return InitialFade;
       case 13:
         return ClearList;
+      case 16:
+        return FadingIn;
     }
   } else {
     switch (scriptState) {
+      case 0:
+        return Invisible;
       case 1:
         return PressToStart;
       case 2:
@@ -751,6 +756,7 @@ void TitleMenu::Render() {
       }
     } break;
 
+    case FadingIn:
     case FadingOut: {
       Renderer->DrawSprite(MainBackgroundSprite, {0.0f, 0.0f});
 
@@ -766,10 +772,13 @@ void TitleMenu::Render() {
         CommonMenu::DrawSmoke(SmokeOpacityNormal *
                               (1.0f - ScrWork[SW_TITLEDISPCT] / 32.0f));
       }
+      // FadingIn is used only on switch and it increments CT instead on decrementing in that FSM state
+      const auto ct = (mode == FadingOut) ? ScrWork[SW_TITLEDISPCT]
+                                          : 32 - ScrWork[SW_TITLEDISPCT];
 
       Renderer->DrawQuad(RectF(0.0f, 0.0f, Profile::Game::DesignWidth,
                                Profile::Game::DesignHeight),
-                         {0.0f, 0.0f, 0.0f, ScrWork[SW_TITLEDISPCT] / 32.0f});
+                         {0.0f, 0.0f, 0.0f, ct / 32.0f});
     } break;
 
     case SubMenu:
