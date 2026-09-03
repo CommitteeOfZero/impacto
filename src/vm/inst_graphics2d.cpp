@@ -136,8 +136,8 @@ VmInstruction(InstBGloadNew) {
     } while ((*thread->GetIp()) != '\0');
     thread->IpOffset++;
   }
-  int actualBufId = GetBufferId(bufferId);
-  int bgBufId = ScrWork[SW_BG1SURF + actualBufId];
+  const int actualBufId = GetBufferId(bufferId);
+  const int bgBufId = ScrWork[SW_BG1SURF + actualBufId];
   if (Backgrounds2D[bgBufId]->Status == LoadStatus::Loading) {
     ResetInstruction;
     BlockThread;
