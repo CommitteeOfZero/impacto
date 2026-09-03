@@ -40,11 +40,12 @@ root.Vm = {
     ScrWorkCaptureEffectInfoStructSize = 3,
     ScrWorkBgEffStructSize = 30,
     ScrWorkBgEffOffsetStructSize = 18,
+    ScrWorkMesStructSize = 7,
 
     MaxLinkedBgBuffers = 2
 };
 
-root.PlatformId = 131072;
+root.PlatformId = 0x100000; -- switch, important scripts
 
 include(root.BasePaths.RootProfilesDir .. '/common/animation.lua');
 include(root.BasePaths.RootProfilesDir .. '/common/charset.lua');

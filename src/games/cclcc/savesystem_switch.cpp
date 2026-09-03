@@ -357,7 +357,6 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
   }
 }
 
-//  todo
 void SaveSystem::SaveEntryBuffer(Io::MemoryStream& memoryStream,
                                  SaveFileEntry& entry, SaveType saveType) {
   Io::WriteLE<uint16_t>(&memoryStream, entry.Status);
@@ -827,8 +826,9 @@ void SaveSystem::LoadMemoryNew(LoadProcess load) {
     }
     for (int i = 0; i < 10; i++) {
       const auto charOffset = i * ScrWorkChaStructSize;
+
       ScrWork[SW_SVCHANO1 + i] = ScrWork[SW_CHA1NO + charOffset] +
-                                 ScrWork[SW_CHA1FACE + charOffset] * 0x10000;
+                                 (ScrWork[SW_CHA1FACE + charOffset] << 16);
     }
 
     for (int i = 0; i < 8; i++) {

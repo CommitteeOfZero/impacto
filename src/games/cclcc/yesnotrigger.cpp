@@ -152,7 +152,7 @@ void YesNoTrigger::UpdateYesNoPos(float startX, float startY, float startScale,
 
 void YesNoTrigger::Update(float dt) {
   if (ScrWork[SW_SYSSUBMENUCT] != 0 || ScrWork[SW_SYSMENUCT] != 0 ||
-      ScrWork[6433] == 0 || !HasStarted) {
+      ScrWork[SW_YESNO_CT] == 0 || !HasStarted) {
     return;
   }
 
@@ -240,11 +240,11 @@ void YesNoTrigger::Update(float dt) {
       break;
   }
   BgSpriteScale = std::clamp(BgSpriteScale, 1.0f, 3.0f);
-  ScrWork[6434] = TargetArrIndex;
+  ScrWork[SW_YESNO_TARGET_INDEX] = TargetArrIndex;
 }
 
 void YesNoTrigger::Render() {
-  if (ScrWork[6433] == 0 || Display == false) {
+  if (ScrWork[SW_YESNO_CT] == 0 || Display == false) {
     return;
   }
 
@@ -255,7 +255,7 @@ void YesNoTrigger::Render() {
   const float bgYOffset =
       (bgSize.y - bgHeight) / 2.0f - 46.0f * (BgSpriteScale - 1.0f) * 0.5f;
   const float alpha =
-      std::clamp(static_cast<float>(ScrWork[6433] << 3), 0.0f, 255.0f);
+      std::clamp(static_cast<float>(ScrWork[SW_YESNO_CT] << 3), 0.0f, 255.0f);
   const glm::vec4 bgtint = glm::vec4(1.0f, 1.0f, 1.0f, alpha / 255.0f);
   ActiveBackground.Bounds =
       Rect(static_cast<int>(BgSpritePos.x + bgXOffset),
@@ -476,7 +476,7 @@ void YesNoTrigger::ChooseSelected() {
   DispSel = false;
   AllowInput = false;
   Selection = YesNoSelect::NONE;
-  ScrWork[6432] = to_underlying(Selection);
+  ScrWork[SW_YESNO_SELECTED] = to_underlying(Selection);
   Audio::PlayInGroup(Audio::ACG_SE, "sysse", 2, false, 0.0f);
 }
 

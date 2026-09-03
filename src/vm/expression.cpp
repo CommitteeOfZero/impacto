@@ -216,8 +216,11 @@ int ExpressionNode::Evaluate(Sc3VmThread* thd) {
       break;
     case ET_ImmediateValue:
       return Value;
-    case ET_FuncGlobalVars:
-      return ScrWork[RightExpr->Evaluate(thd)];
+    case ET_FuncGlobalVars: {
+      int index = RightExpr->Evaluate(thd);
+      index = std::clamp(index, 0, ScrWorkSize);
+      return ScrWork[index];
+    }
     case ET_FuncFlags:
       return GetFlag(RightExpr->Evaluate(thd));
     case ET_FuncDataAccess:
@@ -315,9 +318,11 @@ void ExpressionNode::AssignValue(Sc3VmThread* thd) {
   int index = LeftExpr->RightExpr->Evaluate(thd);
 
   switch (LeftExpr->ExprType) {
-    case ET_FuncGlobalVars:
-      ScrWork[index] = leftVal;
-      break;
+    case ET_FuncGlobalVars: {
+      if (index >= 0 && index < ScrWorkSize) {
+        ScrWork[index] = leftVal;
+      }
+    } break;
     case ET_FuncFlags:
       SetFlag(index, leftVal);
       break;
