@@ -757,6 +757,8 @@ VmInstruction(InstSystemMes) {
         PopUint16(sysSelStrNum);
         auto message =
             ScriptGetStrAddress(thread->ScriptBufferId, sysSelStrNum);
+        UI::SysMesBox* box = activeBox();
+        if (!box) break;
         box->AddChoice(
             {.BufferId = thread->ScriptBufferId, .IpOffset = message});
       }
@@ -1064,9 +1066,15 @@ VmInstruction(InstMSinit) {
 
   if (initType == 2) {
     UI::BacklogMenuPtr->Clear();
-    memset(&FlagWork, 0, 100);
-    memset(&FlagWork[150], 0, 75);
-    memset(&FlagWork[300], 0, 100);
+    if (Profile::Vm::GameInstructionSet == InstructionSet::LCCSwitch) {
+      memset(&FlagWork, 0, 200);
+      memset(&FlagWork[250], 0, 75);
+      memset(&FlagWork[400], 0, 100);
+    } else {
+      memset(&FlagWork, 0, 100);
+      memset(&FlagWork[150], 0, 75);
+      memset(&FlagWork[300], 0, 100);
+    }
 
     if (Profile::Vm::GameInstructionSet == InstructionSet::MO6TW ||
         Profile::Vm::GameInstructionSet == InstructionSet::CHLCC) {
