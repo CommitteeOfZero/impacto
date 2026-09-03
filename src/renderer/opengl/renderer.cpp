@@ -281,6 +281,13 @@ uint32_t Renderer::SubmitTexture(TexFmt format, uint8_t* buffer, int width,
       case TexFmt_U8:
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         return {GL_R8, GL_RED};
+      case TexFmt_U8A:
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 2);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_R, GL_RED);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_A, GL_GREEN);
+        return {GL_RG8, GL_RG};
 
       default:
         throw std::invalid_argument(
