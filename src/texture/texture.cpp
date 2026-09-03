@@ -42,6 +42,8 @@ void Texture::Init(TexFmt format, int width, int height) {
         return width * height * 4;
       case TexFmt_RGB:
         return width * height * 3;
+      case TexFmt_U8A:
+        return width * height * 2;
       case TexFmt_U8:
         return width * height;
       default:
