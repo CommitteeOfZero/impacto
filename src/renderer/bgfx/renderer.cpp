@@ -5,9 +5,12 @@
 
 #include <bgfx/platform.h>
 #include <imgui_impl_bgfx.h>
+#include <glm/gtc/type_ptr.hpp>
 
 namespace Impacto::Bgfx {
 
+constexpr bgfx::ViewId RENDER_VIEW = 0;   // Uses render dimensions
+constexpr bgfx::ViewId DISPLAY_VIEW = 1;  // Uses viewport dimensions
 constexpr bgfx::ViewId IMGUI_VIEW = 255;
 
 Renderer::Renderer() {
@@ -95,6 +98,13 @@ Renderer::Renderer() {
     throw std::runtime_error(errorMsg);
   }
 
+  BackBufferFrameBuffer = FrameBuffer::CreateBackBufferFrameBuffer();
+
+  ViewMatrix = glm::mat4(1.0f);
+  BackBufferProjectionMatrix = glm::ortho(
+      0.0f, static_cast<float>(UserConfig::CommonSettings.ResolutionWidth),
+      static_cast<float>(UserConfig::CommonSettings.ResolutionHeight), 0.0f);
+
   Indices.resize(100);
   IndexBuffer = bgfx::createDynamicIndexBuffer(
       static_cast<uint32_t>(Indices.size()), BGFX_BUFFER_ALLOW_RESIZE);
@@ -153,11 +163,45 @@ Renderer::Renderer() {
   }
 }
 
-void Renderer::BeginFrame() {}
+void Renderer::Init() {
+  DrawFrameBuffer =
+      FrameBuffer(static_cast<uint16_t>(Profile::Game::DesignWidth),
+                  static_cast<uint16_t>(Profile::Game::DesignHeight));
+
+  ProjectionMatrix =
+      glm::ortho(0.0f, Profile::Game::DesignWidth, Profile::Game::DesignHeight,
+                 0.0f, -Profile::Game::DesignWidth, Profile::Game::DesignWidth);
+}
+
+void Renderer::BeginFrame() {
+  bgfx::reset(static_cast<uint32_t>(Window->WindowWidth),
+              static_cast<uint32_t>(Window->WindowHeight), BGFX_RESET_VSYNC);
+
+  constexpr uint32_t black = 0xff000000;
+  bgfx::setViewClear(DISPLAY_VIEW, BGFX_CLEAR_COLOR, black);
+  bgfx::setViewRect(DISPLAY_VIEW, 0, 0,
+                    static_cast<uint16_t>(Window->WindowWidth),
+                    static_cast<uint16_t>(Window->WindowHeight));
+  bgfx::setViewTransform(DISPLAY_VIEW, glm::value_ptr(ViewMatrix),
+                         glm::value_ptr(BackBufferProjectionMatrix));
+  bgfx::setViewFrameBuffer(DISPLAY_VIEW, BackBufferFrameBuffer);
+
+  bgfx::touch(DISPLAY_VIEW);
+}
 
 void Renderer::BeginFrame2D() {
-  bgfx::reset(UserConfig::CommonSettings.ResolutionWidth,
-              UserConfig::CommonSettings.ResolutionHeight, BGFX_RESET_VSYNC);
+  constexpr uint32_t transparentWhite = 0x00FFFFFF;
+  bgfx::setViewClear(RENDER_VIEW,
+                     BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH | BGFX_CLEAR_STENCIL,
+                     transparentWhite);
+  bgfx::setViewRect(RENDER_VIEW, 0, 0,
+                    static_cast<uint16_t>(Profile::Game::DesignWidth),
+                    static_cast<uint16_t>(Profile::Game::DesignHeight));
+  bgfx::setViewTransform(RENDER_VIEW, glm::value_ptr(ViewMatrix),
+                         glm::value_ptr(ProjectionMatrix));
+  bgfx::setViewFrameBuffer(RENDER_VIEW, DrawFrameBuffer);
+
+  bgfx::touch(RENDER_VIEW);
 }
 
 void Renderer::EndFrame() {}

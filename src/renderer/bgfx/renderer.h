@@ -2,7 +2,7 @@
 
 #include "../renderer.h"
 
-#include <bgfx/bgfx.h>
+#include "framebuffer.h"
 
 namespace Impacto::Bgfx {
 
@@ -10,7 +10,7 @@ class Renderer final : public BaseRenderer {
  public:
   Renderer();
   ~Renderer() = default;
-  void Init() override {}
+  void Init() override;
   void Shutdown() override;
 
 #ifndef IMPACTO_DISABLE_IMGUI
@@ -127,12 +127,19 @@ class Renderer final : public BaseRenderer {
  private:
   void Flush() override {}
 
+  FrameBuffer BackBufferFrameBuffer;
+  FrameBuffer DrawFrameBuffer;
+
   bgfx::DynamicIndexBufferHandle IndexBuffer;
   bgfx::DynamicVertexBufferHandle VertexBuffer;
   std::vector<uint16_t> Indices;
   std::vector<VertexBufferSprites> Vertices;
 
   bgfx::VertexLayout VertexBufferSpritesLayout;
+
+  glm::mat4 ViewMatrix;
+  glm::mat4 ProjectionMatrix;
+  glm::mat4 BackBufferProjectionMatrix;
 };
 
 }  // namespace Impacto::Bgfx
