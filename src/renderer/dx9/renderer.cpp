@@ -222,6 +222,8 @@ uint32_t Renderer::SubmitTexture(TexFmt format, uint8_t* buffer, int width,
     case TexFmt_U8:
       imageSize = width * height;
       imageFormat = D3DFMT_A8;
+    default: {
+    }
   }
 
   IDirect3DTexture9* texture;
