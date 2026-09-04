@@ -52,7 +52,15 @@
     "toml11",
     "freetype",
     "harfbuzz",
-    "bgfx"
+    "bgfx",
+    {
+      "name": "bgfx",
+      "host": true,
+      "default-features": false,
+      "features": [
+        "tools"
+      ]
+    }
   ],
   "overrides": [
     {
