@@ -3,6 +3,9 @@
 #include "../renderer.h"
 
 #include "framebuffer.h"
+#include "shader.h"
+
+#include <magic_enum/magic_enum_containers.hpp>
 
 namespace Impacto::Bgfx {
 
@@ -140,6 +143,9 @@ class Renderer final : public BaseRenderer {
   glm::mat4 ViewMatrix;
   glm::mat4 ProjectionMatrix;
   glm::mat4 BackBufferProjectionMatrix;
+
+  magic_enum::containers::array<ShaderProgramType, std::optional<ShaderProgram>>
+      ShaderPrograms;
 };
 
 }  // namespace Impacto::Bgfx
