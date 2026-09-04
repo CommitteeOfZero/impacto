@@ -1200,11 +1200,13 @@ if (NOT DEFINED IMPACTO_DISABLE_BGFX)
     list(APPEND Impacto_Src
         src/renderer/bgfx/framebuffer.cpp
         src/renderer/bgfx/renderer.cpp
+        src/renderer/bgfx/shader.cpp
         src/renderer/bgfx/window.cpp
     )
     list(APPEND Impacto_Header
         src/renderer/bgfx/framebuffer.h
         src/renderer/bgfx/renderer.h
+        src/renderer/bgfx/shader.h
         src/renderer/bgfx/window.h
     )
 
