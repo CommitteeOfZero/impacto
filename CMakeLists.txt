@@ -1207,6 +1207,28 @@ if (NOT DEFINED IMPACTO_DISABLE_BGFX)
         src/renderer/bgfx/renderer.h
         src/renderer/bgfx/window.h
     )
+
+    set(Bgfx_Vertex_Shaders
+        src/shaders/bgfx/source/vs_sprite.sc
+    )
+    set(Bgfx_Fragment_Shaders
+        src/shaders/bgfx/source/fs_sprite.sc
+    )
+
+    bgfx_compile_shaders(
+        TYPE VERTEX
+        SHADERS ${Bgfx_Vertex_Shaders}
+        VARYING_DEF ${CMAKE_SOURCE_DIR}/src/shaders/bgfx/source/varying.def.sc
+        OUTPUT_DIR src/shaders/bgfx
+    )
+    bgfx_compile_shaders(
+        TYPE FRAGMENT
+        SHADERS ${Bgfx_Fragment_Shaders}
+        VARYING_DEF ${CMAKE_SOURCE_DIR}/src/shaders/bgfx/source/varying.def.sc
+        OUTPUT_DIR src/shaders/bgfx
+    )
+
+    list(APPEND Impacto_Src ${Bgfx_Vertex_Shaders} ${Bgfx_Fragment_Shaders})
 endif()
 
 if (NOT DEFINED IMPACTO_DISABLE_FFMPEG)
@@ -1425,8 +1447,10 @@ elseif(APPLE)
             RUNTIME DESTINATION .
             RESOURCE DESTINATION .
     )
-    install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src/shaders"
+    install(
+        DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src/shaders" "${PROJECT_BINARY_DIR}/src/shaders"
         DESTINATION "Impacto.app/Contents/Resources/"
+        PATTERN "bgfx/source" EXCLUDE
     )
     install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/resources"
         DESTINATION "Impacto.app/Contents/Resources/"
@@ -1458,7 +1482,11 @@ endif ()
 
 if (NOT ANDROID)
     if(NOT APPLE)
-        install(DIRECTORY src/shaders DESTINATION .)
+        install(
+            DIRECTORY src/shaders ${PROJECT_BINARY_DIR}/src/shaders
+            DESTINATION .
+            PATTERN "bgfx/source" EXCLUDE
+        )
         install(DIRECTORY resources DESTINATION .)
     endif()
     install(DIRECTORY profiles DESTINATION .)
@@ -1470,10 +1498,12 @@ if (NOT ANDROID)
         install(FILES ${CMAKE_SOURCE_DIR}/basepaths.lua.sample DESTINATION . RENAME basepaths.lua)
     endif()
 else()
-    install(DIRECTORY src/shaders DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/assets)
+    install(
+        DIRECTORY src/shaders ${PROJECT_BINARY_DIR}/src/shaders
+        DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/assets
+        PATTERN "bgfx/source" EXCLUDE
+    )
     install(DIRECTORY profiles DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/assets)
     install(DIRECTORY resources DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/assets PATTERN "*/gamedata/*" EXCLUDE)
     install(FILES gamedefinitions.lua DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/assets)
 endif()
-
-
