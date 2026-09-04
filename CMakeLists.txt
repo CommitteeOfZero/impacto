@@ -1086,10 +1086,13 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
         ${imgui_SOURCE_DIR}/imgui_widgets.cpp
         ${imgui_SOURCE_DIR}/misc/cpp/imgui_stdlib.cpp
         ${imgui_SOURCE_DIR}/backends/imgui_impl_sdl3.cpp
+        vendor/imgui_custom/imgui_scroll_drag.cpp
+        vendor/imgui_custom/imgui_scroll_drag.h
     )
     set(imgui_Include_Dirs
         ${imgui_SOURCE_DIR}
         ${imgui_SOURCE_DIR}/backends
+        vendor/imgui_custom
     )
 
     list(APPEND Impacto_Src src/debugmenu.cpp)
