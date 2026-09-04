@@ -10,26 +10,35 @@
 #include <optional>
 #include "../inputsystem.h"
 #include "opengl/window.h"
-#include "vulkan/window.h"
-#include "dx9/window.h"
+
+#ifndef IMPACTO_DISABLE_BGFX
+#include "bgfx/window.h"
+#endif
 
 namespace Impacto {
 
 void InitWindow() {
   switch (UserConfig::AdvancedSettings.ActiveRenderer) {
 #ifndef IMPACTO_DISABLE_OPENGL
-    case RendererType::OpenGL:
+    case RendererType::OpenGLLegacy:
       Window = new OpenGL::GLWindow();
       break;
 #endif
+#ifndef IMPACTO_DISABLE_BGFX
+#ifndef IMPACTO_DISABLE_OPENGL
+    case RendererType::OpenGL:
+    case RendererType::OpenGLES:
+#endif
 #ifndef IMPACTO_DISABLE_VULKAN
     case RendererType::Vulkan:
-      Window = new Vulkan::VulkanWindow();
-      break;
 #endif
-#ifndef IMPACTO_DISABLE_DX9
-    case RendererType::DirectX9:
-      Window = new DirectX9::DirectX9Window();
+#ifndef IMPACTO_DISABLE_DIRECT3D
+    case RendererType::Direct3D:
+#endif
+#ifndef IMPACTO_DISABLE_METAL
+    case RendererType::Metal:
+#endif
+      Window = new Bgfx::Window();
       break;
 #endif
     default:

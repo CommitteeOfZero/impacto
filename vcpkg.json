@@ -51,7 +51,13 @@
     "boost-circular-buffer",
     "toml11",
     "freetype",
-    "harfbuzz"
+    "harfbuzz",
+    {
+      "name": "bgfx",
+      "features": [
+        "tools"
+      ]
+    }
   ],
   "overrides": [
     {

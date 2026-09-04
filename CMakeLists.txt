@@ -806,14 +806,15 @@ set(Impacto_Lib_Targets
 )
 
 if (NX OR EMSCRIPTEN)
-    set(IMPACTO_DISABLE_VULKAN ON)
-    set(IMPACTO_DISABLE_DX9 ON)
     set(IMPACTO_DISABLE_MMAP ON)
     set(BUILD_SHARED_LIBS OFF)
 endif ()
 
-if (UNIX AND NOT CYGWIN)
-    set(IMPACTO_DISABLE_DX9 ON)
+if (NOT WIN32 AND NOT CYGWIN)
+    set(IMPACTO_DISABLE_DIRECT3D ON)
+endif()
+if (NOT APPLE)
+    set(IMPACTO_DISABLE_METAL ON)
 endif ()
 
 if (IMPACTO_ASAN)
@@ -1112,9 +1113,38 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
         )
     endif ()
 
-    if (NOT DEFINED IMPACTO_DISABLE_DX9)
+    if (NOT DEFINED IMPACTO_DISABLE_DIRECT3D)
         list(APPEND imgui_src
-            ${imgui_SOURCE_DIR}/backends/imgui_impl_dx9.cpp
+            ${imgui_SOURCE_DIR}/backends/imgui_impl_dx12.cpp
+        )
+    endif ()
+
+    if (NOT DEFINED IMPACTO_DISABLE_METAL)
+        list(APPEND imgui_src
+            ${imgui_SOURCE_DIR}/backends/imgui_impl_metal.mm
+        )
+    endif ()
+
+    if (NOT DEFINED IMPACTO_DISABLE_BGFX)
+        FetchContent_Declare(
+            imgui_impl_bgfx
+            URL https://gist.github.com/Madman10K/0ffc9ba203333d3580d467d972bbf8b6/archive/9110d39e126dbd557ad1ff5147526ffeaeb7267c.zip
+        )
+        FetchContent_MakeAvailable(imgui_impl_bgfx)
+        file(DOWNLOAD
+            https://raw.githubusercontent.com/pr0g/sdl-bgfx-imgui-starter/8cff6aef7d14a16b820254f646e2f22535925d8d/bgfx-imgui/fs_ocornut_imgui.bin.h
+            ${imgui_impl_bgfx_SOURCE_DIR}/fs_ocornut_imgui.bin.h
+        )
+        file(DOWNLOAD
+            https://raw.githubusercontent.com/pr0g/sdl-bgfx-imgui-starter/8cff6aef7d14a16b820254f646e2f22535925d8d/bgfx-imgui/vs_ocornut_imgui.bin.h
+            ${imgui_impl_bgfx_SOURCE_DIR}/vs_ocornut_imgui.bin.h
+        )
+
+        list(APPEND imgui_src
+            ${imgui_impl_bgfx_SOURCE_DIR}/imgui_impl_bgfx.cpp
+        )
+        list(APPEND imgui_Include_Dirs
+            ${imgui_impl_bgfx_SOURCE_DIR}
         )
     endif ()
 
@@ -1130,6 +1160,10 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
     endif ()
 
     target_link_libraries(imgui PRIVATE ${SDL3_LIBRARIES} ${OpenGL_Libs})
+
+    if (NOT DEFINED IMPACTO_DISABLE_BGFX)
+        target_link_libraries(imgui PUBLIC bgfx::bgfx PRIVATE bgfx::bx)
+    endif ()
 
     list(APPEND Impacto_Lib_Targets imgui)
 endif ()
@@ -1157,8 +1191,47 @@ if (NOT DEFINED IMPACTO_DISABLE_OPENGL)
         src/renderer/opengl/3d/renderable3d.h
         src/renderer/opengl/3d/scene.h
     )
-
 endif ()
+
+if (NOT DEFINED IMPACTO_DISABLE_BGFX)
+    find_package(bgfx CONFIG REQUIRED)
+    list(APPEND Impacto_Libs bgfx::bgfx)
+
+    list(APPEND Impacto_Src
+        src/renderer/bgfx/framebuffer.cpp
+        src/renderer/bgfx/renderer.cpp
+        src/renderer/bgfx/shader.cpp
+        src/renderer/bgfx/window.cpp
+    )
+    list(APPEND Impacto_Header
+        src/renderer/bgfx/framebuffer.h
+        src/renderer/bgfx/renderer.h
+        src/renderer/bgfx/shader.h
+        src/renderer/bgfx/window.h
+    )
+
+    set(Bgfx_Vertex_Shaders
+        src/shaders/bgfx/source/vs_sprite.sc
+    )
+    set(Bgfx_Fragment_Shaders
+        src/shaders/bgfx/source/fs_sprite.sc
+    )
+
+    bgfx_compile_shaders(
+        TYPE VERTEX
+        SHADERS ${Bgfx_Vertex_Shaders}
+        VARYING_DEF ${CMAKE_SOURCE_DIR}/src/shaders/bgfx/source/varying.def.sc
+        OUTPUT_DIR src/shaders/bgfx
+    )
+    bgfx_compile_shaders(
+        TYPE FRAGMENT
+        SHADERS ${Bgfx_Fragment_Shaders}
+        VARYING_DEF ${CMAKE_SOURCE_DIR}/src/shaders/bgfx/source/varying.def.sc
+        OUTPUT_DIR src/shaders/bgfx
+    )
+
+    list(APPEND Impacto_Src ${Bgfx_Vertex_Shaders} ${Bgfx_Fragment_Shaders})
+endif()
 
 if (NOT DEFINED IMPACTO_DISABLE_FFMPEG)
     list(APPEND Impacto_Src
@@ -1204,63 +1277,6 @@ if (NOT DEFINED IMPACTO_DISABLE_MSPACK)
 
     list(APPEND Impacto_Src src/io/lzxstream.cpp)
     list(APPEND Impacto_Header src/io/lzxstream.h)
-endif ()
-
-if (NOT DEFINED IMPACTO_DISABLE_VULKAN)
-    list(APPEND Impacto_Src
-        src/renderer/vulkan/window.cpp
-        src/renderer/vulkan/renderer.cpp
-        src/renderer/vulkan/pipeline.cpp
-        src/renderer/vulkan/utils.cpp
-        src/renderer/vulkan/yuvframe.cpp
-        src/renderer/vulkan/nv12frame.cpp
-        src/renderer/vulkan/3d/renderable3d.cpp
-        src/renderer/vulkan/3d/scene.cpp
-    )
-    list(APPEND Impacto_Header
-        src/renderer/vulkan/window.h
-        src/renderer/vulkan/renderer.h
-        src/renderer/vulkan/pipeline.h
-        src/renderer/vulkan/utils.h
-        src/renderer/vulkan/yuvframe.h
-        src/renderer/vulkan/nv12frame.h
-        src/renderer/vulkan/3d/renderable3d.h
-        src/renderer/vulkan/3d/scene.h
-    )
-
-    find_package(Vulkan REQUIRED)
-
-    list(APPEND Impacto_Libs
-            ${Vulkan_LIBRARIES}
-    )
-    list(APPEND Impacto_Include_Dirs ${Vulkan_INCLUDE_DIRS})
-endif ()
-
-if (NOT DEFINED IMPACTO_DISABLE_DX9)
-    list(APPEND Impacto_Src
-        src/renderer/dx9/renderer.cpp
-        src/renderer/dx9/window.cpp
-        src/renderer/dx9/shader.cpp
-        src/renderer/dx9/yuvframe.cpp
-        src/renderer/dx9/nv12frame.cpp
-        src/renderer/dx9/3d/scene.cpp
-        src/renderer/dx9/3d/renderable3d.cpp
-    )
-    list(APPEND Impacto_Header
-        src/renderer/dx9/utils.h
-        src/renderer/dx9/renderer.h
-        src/renderer/dx9/window.h
-        src/renderer/dx9/shader.h
-        src/renderer/dx9/yuvframe.h
-        src/renderer/dx9/nv12frame.h
-        src/renderer/dx9/3d/scene.h
-        src/renderer/dx9/3d/renderable3d.h
-    )
-
-    list(APPEND Impacto_Libs
-            d3d9
-            d3dcompiler
-    )
 endif ()
 
 configure_file(src/version.h.in ${PROJECT_BINARY_DIR}/include/version.h)
@@ -1433,8 +1449,10 @@ elseif(APPLE)
             RUNTIME DESTINATION .
             RESOURCE DESTINATION .
     )
-    install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src/shaders"
+    install(
+        DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src/shaders" "${PROJECT_BINARY_DIR}/src/shaders"
         DESTINATION "Impacto.app/Contents/Resources/"
+        PATTERN "bgfx/source" EXCLUDE
     )
     install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/resources"
         DESTINATION "Impacto.app/Contents/Resources/"
@@ -1466,7 +1484,11 @@ endif ()
 
 if (NOT ANDROID)
     if(NOT APPLE)
-        install(DIRECTORY src/shaders DESTINATION .)
+        install(
+            DIRECTORY src/shaders ${PROJECT_BINARY_DIR}/src/shaders
+            DESTINATION .
+            PATTERN "bgfx/source" EXCLUDE
+        )
         install(DIRECTORY resources DESTINATION .)
     endif()
     install(DIRECTORY profiles DESTINATION .)
@@ -1478,10 +1500,12 @@ if (NOT ANDROID)
         install(FILES ${CMAKE_SOURCE_DIR}/basepaths.lua.sample DESTINATION . RENAME basepaths.lua)
     endif()
 else()
-    install(DIRECTORY src/shaders DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/assets)
+    install(
+        DIRECTORY src/shaders ${PROJECT_BINARY_DIR}/src/shaders
+        DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/assets
+        PATTERN "bgfx/source" EXCLUDE
+    )
     install(DIRECTORY profiles DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/assets)
     install(DIRECTORY resources DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/assets PATTERN "*/gamedata/*" EXCLUDE)
     install(FILES gamedefinitions.lua DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/assets)
 endif()
-
-
