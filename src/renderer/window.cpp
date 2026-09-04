@@ -295,20 +295,71 @@ void BaseWindow::SetWindowedSizing() {
   }
 }
 
-void BaseWindow::CreateSDLWindow(SDL_WindowFlags flags) {
+RectF BaseWindow::GetViewport() {
+  RectF viewport;
+
+  const float designWidth =
+      Profile::Game::HasInit ? Profile::Game::DesignWidth : WindowWidth;
+  const float designHeight =
+      Profile::Game::HasInit ? Profile::Game::DesignHeight : WindowHeight;
+
+  float scale = fmin((float)WindowWidth / designWidth,
+                     (float)WindowHeight / designHeight);
+  viewport.Width = designWidth * scale;
+  viewport.Height = designHeight * scale;
+  viewport.X = ((float)WindowWidth - viewport.Width) / 2.0f;
+  viewport.Y = ((float)WindowHeight - viewport.Height) / 2.0f;
+  return viewport;
+}
+
+RectF BaseWindow::GetLogicalViewport() {
+  RectF viewport;
+  int lgcWindowWidth, lgcWindowHeight;
+  SDL_GetWindowSize(SDLWindow, &lgcWindowWidth, &lgcWindowHeight);
+
+  float scale = fmin((float)lgcWindowWidth / Profile::Game::DesignWidth,
+                     (float)lgcWindowHeight / Profile::Game::DesignHeight);
+  viewport.Width = Profile::Game::DesignWidth * scale;
+  viewport.Height = Profile::Game::DesignHeight * scale;
+  viewport.X = ((float)lgcWindowWidth - viewport.Width) / 2.0f;
+  viewport.Y = ((float)lgcWindowHeight - viewport.Height) / 2.0f;
+  return viewport;
+}
+
+RectF BaseWindow::GetScaledViewport() {
+  RectF viewport = GetViewport();
+  viewport.Width *= RenderScale;
+  viewport.Height *= RenderScale;
+  viewport.X *= RenderScale;
+  viewport.Y *= RenderScale;
+  return viewport;
+}
+
+bool BaseWindow::CreateSDLWindow(SDL_WindowFlags flags) {
   auto const& config = UserConfig::CommonSettings;
   WindowWidth = config.ResolutionWidth;
   WindowHeight = config.ResolutionHeight;
+
+#if IMPACTO_USE_SDL_HIGHDPI
+  flags |= SDL_WINDOW_HIGH_PIXEL_DENSITY;
+#endif
 
   SDLWindow = SDL_CreateWindow("Impacto", WindowWidth, WindowHeight, flags);
 
   if (SDLWindow == NULL) {
     ImpLog(LogLevel::Error, LogChannel::General,
            "Window creation failed: {:s}\n", SDL_GetError());
-    throw std::runtime_error("Failed to create window");
+    return false;
   }
-  SDL_GetWindowSize(SDLWindow, &WindowWidth, &WindowHeight);
+  SDL_GetWindowSizeInPixels(SDLWindow, &WindowWidth, &WindowHeight);
+#ifdef __ANDROID__
+  SDL_SetWindowFullscreen(SDLWindow, true);
+#else
   SetWindowedSizing();
+#endif
+
+  DpiScale = SDL_GetWindowDisplayScale(SDLWindow);
+  return true;
 }
 
 void BaseWindow::ApplyWindowSettings() {
@@ -316,7 +367,7 @@ void BaseWindow::ApplyWindowSettings() {
   WindowWidth = config.ResolutionWidth;
   WindowHeight = config.ResolutionHeight;
 
-  DisplayMode dispMode = DisplayMode::Windowed;
+  DisplayMode dispMode = GetDefaultDispMode();
 
   if (!UserConfig::GetActiveGame().empty()) {
     auto const& gameConfig = UserConfig::ActiveGameSettings();
@@ -360,7 +411,8 @@ void BaseWindow::ApplyWindowSettings() {
          "Window size (screen coords): {:d} x {:d}\n", WindowWidth,
          WindowHeight);
   SDL_ShowWindow(SDLWindow);
-  SDL_GetWindowSize(SDLWindow, &WindowWidth, &WindowHeight);
+  SDL_GetWindowSizeInPixels(SDLWindow, &WindowWidth, &WindowHeight);
+  DpiScale = SDL_GetWindowDisplayScale(SDLWindow);
   Update();
 }
 }  // namespace Impacto

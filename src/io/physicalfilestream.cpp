@@ -68,8 +68,7 @@ std::ios_base::openmode PhysicalFileStream::PrepareFileOpenMode(
 
 IoError PhysicalFileStream::Create(std::string const& fileName, Stream** out,
                                    CreateFlags flags) {
-  PhysicalFileStream* result =
-      new PhysicalFileStream(GetSystemDependentPath(fileName), flags);
+  PhysicalFileStream* result = new PhysicalFileStream(fileName, flags);
   if (auto err = result->ErrorCode; err != IoError_OK) {
     ImpLog(LogLevel::Error, LogChannel::IO, "Failed to open file \"{:s}\"\n",
            result->SourceFileName);

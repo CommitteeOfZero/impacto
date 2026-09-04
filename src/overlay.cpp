@@ -1,15 +1,21 @@
 #include "overlay.h"
 
 #include <imgui.h>
+#include <imgui_scroll_drag.h>
 #include <algorithm>
 #include <vector>
 #include <ankerl/unordered_dense.h>
 #include <magic_enum/magic_enum_containers.hpp>
 
+#ifdef __ANDROID__
+#include <jni.h>
+#endif
+
 #include "game.h"
 #include "log.h"
 #include "inputsystem.h"
 #include "mem.h"
+#include "profile/profile.h"
 #include "profile/game.h"
 #include "profile/gamedefinitions.h"
 #include "profile/basepaths.h"
@@ -29,6 +35,62 @@ struct ImgData {
   uint32_t Texture;
 };
 static ankerl::unordered_dense::map<std::string, ImgData> iconTextureMap;
+
+#ifdef __ANDROID__
+static void ShowDirectoryPicker() {
+  JNIEnv* env = (JNIEnv*)SDL_GetAndroidJNIEnv();
+  jobject activity = (jobject)SDL_GetAndroidActivity();
+  jclass clazz = env->GetObjectClass(activity);
+
+  jmethodID chooseDir = env->GetMethodID(clazz, "chooseDirectory", "()V");
+  if (chooseDir) {
+    env->CallVoidMethod(activity, chooseDir);
+  } else {
+    env->ExceptionDescribe();
+    env->ExceptionClear();
+    throw std::runtime_error("Failed to call JNI method chooseDirectory");
+  }
+
+  env->DeleteLocalRef(activity);
+  env->DeleteLocalRef(clazz);
+}
+
+static std::string GetChosenDir() {
+  std::string result;
+  JNIEnv* env = (JNIEnv*)SDL_GetAndroidJNIEnv();
+  jobject activity = (jobject)SDL_GetAndroidActivity();
+  jclass clazz = env->GetObjectClass(activity);
+
+  jmethodID getChosenDir =
+      env->GetMethodID(clazz, "getChosenDirectory", "()Ljava/lang/String;");
+  if (getChosenDir) {
+    jobject chosenDirObj = env->CallObjectMethod(activity, getChosenDir);
+    if (chosenDirObj) {
+      auto chosenDir = static_cast<jstring>(chosenDirObj);
+      const char* cStr = env->GetStringUTFChars(chosenDir, nullptr);
+      result = cStr;
+      env->ReleaseStringUTFChars(chosenDir, cStr);
+      env->DeleteLocalRef(chosenDirObj);
+    }
+  }
+
+  env->DeleteLocalRef(activity);
+  env->DeleteLocalRef(clazz);
+  return result;
+}
+
+static void ShowDirectoryPickerButton() {
+  if (ImGui::Button("Choose Directory")) {
+    ShowDirectoryPicker();
+    Profile::Configure();
+  }
+  ImGui::SameLine();
+  ImGui::Text("%s", GetChosenDir().c_str());
+
+  ImGui::Separator();
+  ImGui::Spacing();
+}
+#endif
 
 static std::string GetGameDisplayName(std::string const& gameKey) {
   auto const& name = Profile::GameDefinitions.at(gameKey).Name;
@@ -78,6 +140,7 @@ static int PushAccentColors(std::string const& gameKey) {
 
 void SetupStyle() {
   ImGuiStyle& style = ImGui::GetStyle();
+  style.ScaleAllSizes(Window->DpiScale);
 
   style.WindowRounding = 0.0f;
   style.ChildRounding = 0.0f;
@@ -174,8 +237,9 @@ void SetupFonts() {
   ImGuiIO& io = ImGui::GetIO();
   constexpr const char* fontPath =
       "resources/common/font/NotoSansCJKjp-Bold.otf";
-  ImFont* font = io.Fonts->AddFontFromFileTTF(
-      fontPath, 24.0f, nullptr, io.Fonts->GetGlyphRangesJapanese());
+  ImFont* font =
+      io.Fonts->AddFontFromFileTTF(fontPath, 24.0f * Window->DpiScale, nullptr,
+                                   io.Fonts->GetGlyphRangesJapanese());
   if (font == nullptr) {
     ImpLog(LogLevel::Error, LogChannel::Overlay, "Failed to load font: {}",
            fontPath);
@@ -215,8 +279,8 @@ void Init() {
 }
 
 static void ShowGamePicker(std::string& selectedGame) {
-  constexpr float comboWidth = 340.0f;
-  constexpr float iconSize = 36.0f;
+  const float comboWidth = 340.0f * Window->DpiScale;
+  const float iconSize = 36.0f * Window->DpiScale;
   constexpr auto label = "Choose Game";
 
   std::vector<std::string> gameKeys;
@@ -244,7 +308,7 @@ static void ShowGamePicker(std::string& selectedGame) {
     ImGui::TableNextRow();
     ImGui::TableSetColumnIndex(1);
 
-    auto showIcon = [](std::string const& game) {
+    auto showIcon = [iconSize](std::string const& game) {
       if (auto iconTxtItr = iconTextureMap.find(game);
           iconTxtItr != iconTextureMap.end()) {
         auto const& img = iconTxtItr->second;
@@ -280,7 +344,7 @@ static void ShowGamePicker(std::string& selectedGame) {
 static bool ShowDisplaySettings(std::string const& selectedGame) {
   auto& gameSettings = UserConfig::GameSettings.at(selectedGame);
 
-  constexpr float comboWidth = 200.0f;
+  const float comboWidth = 200.0f * Window->DpiScale;
 
   constexpr static auto resolutionOptions = std::to_array({
       std::pair{"1024x576", glm::ivec2{1024, 576}},
@@ -366,7 +430,7 @@ static bool ShowDisplaySettings(std::string const& selectedGame) {
 }
 
 static void ShowPatchSettings(std::string const& selectedGame) {
-  constexpr float comboWidth = 200.0f;
+  const float comboWidth = 200.0f * Window->DpiScale;
 
   auto& gameSettings = UserConfig::GameSettings.at(selectedGame);
   auto const& gameDef = Profile::GameDefinitions.at(selectedGame);
@@ -400,7 +464,7 @@ static void ShowPatchSettings(std::string const& selectedGame) {
 }
 
 static void ShowCommonSettings() {
-  constexpr float comboWidth = 200.0f;
+  const float comboWidth = 200.0f * Window->DpiScale;
 
   if (ImGui::CollapsingHeader("General Settings",
                               ImGuiTreeNodeFlags_DefaultOpen)) {
@@ -459,6 +523,8 @@ static void ShowSettingsPage(std::string const& selectedGame) {
 
       ShowPatchSettings(selectedGame);
     }
+    ImGui::ScrollWhenDraggingOnVoid(ImVec2{0.0f, -ImGui::GetIO().MouseDelta.y},
+                                    ImGuiMouseButton_Left);
   }
   ImGui::EndChild();
 
@@ -533,6 +599,8 @@ static void ShowEnhancementsPage(std::string const& selectedGame) {
                       &enhancements.CHLCC.DelusionMousePatch);
     }
   }
+  ImGui::ScrollWhenDraggingOnVoid(ImVec2{0.0f, -ImGui::GetIO().MouseDelta.y},
+                                  ImGuiMouseButton_Left);
   ImGui::EndChild();
 
   constexpr auto restoreDefaultsLabel = "Restore Defaults";
@@ -555,7 +623,7 @@ static void ShowEnhancementsPage(std::string const& selectedGame) {
 }
 
 static void ShowCloseButton() {
-  ImVec2 closeButtonSize(27, 27);
+  ImVec2 closeButtonSize(27 * Window->DpiScale, 27 * Window->DpiScale);
 
   ImGui::SetCursorPos(
       ImVec2(ImGui::GetContentRegionAvail().x - closeButtonSize.x, 0.0f));
@@ -581,10 +649,18 @@ void ShowOverlay() {
 
   static std::string selectedGame;
   if (ImGui::Begin("Overlay##DockArea", &OverlayShown, windowFlags)) {
-    if (!Profile::Game::HasInit) {  // Game selection
-      ShowGamePicker(selectedGame);
-    } else {
-      selectedGame = UserConfig::GetActiveGame();
+    bool isReady = true;
+#ifdef __ANDROID__
+    ShowDirectoryPickerButton();
+    isReady = !GetChosenDir().empty();
+#endif
+
+    if (isReady) {
+      if (!Profile::Game::HasInit) {  // Game selection
+        ShowGamePicker(selectedGame);
+      } else {
+        selectedGame = UserConfig::GetActiveGame();
+      }
     }
     int accentColorCount = PushAccentColors(selectedGame);
 
@@ -614,7 +690,8 @@ void ShowOverlay() {
         ImGui::EndTabItem();
       }
 
-      if (ImGui::BeginTabItem("Achievements", nullptr,
+      if (!selectedGame.empty() &&
+          ImGui::BeginTabItem("Achievements", nullptr,
                               tabFlags[OverlayTab::Achievements])) {
         ImGui::TextWrapped("List achievements here.");
         ImGui::EndTabItem();
@@ -646,7 +723,7 @@ void ShowOverlay() {
 
     if (!Profile::Game::HasInit && !selectedGame.empty()) {
       ImGui::Separator();
-      float buttonWidth = 120.0f;
+      float buttonWidth = 120.0f * Window->DpiScale;
       if (ImGui::BeginTable("StartButtonCenterTable", 3)) {
         ImGui::TableSetupColumn("##left", ImGuiTableColumnFlags_WidthStretch);
         ImGui::TableSetupColumn("##mid", ImGuiTableColumnFlags_WidthFixed,
