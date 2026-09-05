@@ -1,7 +1,6 @@
 #include "trophymenu.h"
 #include "../../profile_internal.h"
 #include "../../../log.h"
-#include "../../../text/text.h"
 
 #include "../../ui/trophymenu.h"
 #include "../../../game.h"
@@ -35,6 +34,9 @@ void Configure() {
   SilverTrophyPos = EnsureGetMember<glm::vec2>("SilverTrophyPos");
   BronzeTrophySprite = EnsureGetMember<Sprite>("BronzeTrophySprite");
   BronzeTrophyPos = EnsureGetMember<glm::vec2>("BronzeTrophyPos");
+
+  RarityCountOffset = EnsureGetMember<glm::vec2>("RarityCountOffset");
+  RarityCountFontSize = EnsureGetMember<float>("RarityCountFontSize");
 
   DefaultTrophyIconSprite = EnsureGetMember<Sprite>("DefaultTrophyIconSprite");
   TrophyEntryCardSprite = EnsureGetMember<Sprite>("TrophyEntryCardSprite");

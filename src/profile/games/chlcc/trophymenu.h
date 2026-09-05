@@ -29,6 +29,9 @@ inline glm::vec2 SilverTrophyPos;
 inline Sprite BronzeTrophySprite;
 inline glm::vec2 BronzeTrophyPos;
 
+inline glm::vec2 RarityCountOffset;
+inline float RarityCountFontSize;
+
 inline Sprite DefaultTrophyIconSprite;
 inline Sprite TrophyEntryCardSprite;
 inline Sprite TrophyEntriesBorderSprite;
