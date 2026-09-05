@@ -1026,7 +1026,7 @@ list(APPEND Impacto_Include_Dirs ${WebP_INCLUDE_DIRS})
 
 find_package(fmt CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
-find_package(Boost REQUIRED COMPONENTS circular_buffer)
+find_package(Boost REQUIRED COMPONENTS circular_buffer pfr)
 find_package(pugixml CONFIG REQUIRED)
 find_package(unordered_dense CONFIG REQUIRED)
 find_package(readerwriterqueue CONFIG REQUIRED)
@@ -1047,6 +1047,7 @@ list(APPEND Impacto_Libs
         concurrentqueue::concurrentqueue
         readerwriterqueue::readerwriterqueue
         Boost::circular_buffer
+        Boost::pfr
         toml11::toml11
         Freetype::Freetype
         harfbuzz::harfbuzz
@@ -1200,7 +1201,6 @@ if (NOT DEFINED IMPACTO_DISABLE_BGFX)
     list(APPEND Impacto_Src
         src/renderer/bgfx/framebuffer.cpp
         src/renderer/bgfx/renderer.cpp
-        src/renderer/bgfx/shader.cpp
         src/renderer/bgfx/window.cpp
     )
     list(APPEND Impacto_Header
@@ -1208,6 +1208,8 @@ if (NOT DEFINED IMPACTO_DISABLE_BGFX)
         src/renderer/bgfx/renderer.h
         src/renderer/bgfx/shader.h
         src/renderer/bgfx/window.h
+
+        src/renderer/bgfx/shaders/sprite.h
     )
 
     set(Bgfx_Vertex_Shaders

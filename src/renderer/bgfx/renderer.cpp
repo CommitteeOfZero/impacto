@@ -133,8 +133,10 @@ Renderer::Renderer() {
     throw std::runtime_error(errorMsg);
   }
 
-  ShaderPrograms[ShaderProgramType::Sprite] =
-      ShaderProgram::Create("vs_sprite", "fs_sprite");
+  {
+    using enum ShaderProgramType;
+    SpriteShader = ShaderProgram<Sprite>::Create("vs_sprite", "fs_sprite");
+  }
 
   ImGui_Implbgfx_Init(IMGUI_VIEW);
   switch (UserConfig::AdvancedSettings.ActiveRenderer) {
