@@ -15,6 +15,7 @@
 #include "profile/gamedefinitions.h"
 #include "profile/basepaths.h"
 #include "profile/scriptvars.h"
+#include "profile/patch.h"
 #include "userconfig.h"
 #include "version.h"
 #include "io/physicalfilestream.h"
@@ -635,6 +636,22 @@ static void ShowAchievementsPage() {
       ImGui::EndGroup();
     }
     ImGui::EndChild();
+
+    if (unlocked) {
+      tm const& unlockDate = GetAchievementUnlockDate(id);
+      std::string dateText = fmt::format(
+          "{} {:%H:%M:%S}",
+          fmt::format(
+              fmt::runtime(Profile::Patch::DateFormat.FormattedString()),
+              unlockDate),
+          unlockDate);
+      const ImVec2 padding = ImGui::GetStyle().WindowPadding;
+      const ImVec2 dateSize = ImGui::CalcTextSize(dateText.c_str());
+      const ImVec2 datePos{cardMax.x - dateSize.x - padding.x,
+                           cardMin.y + padding.y};
+      ImGui::GetWindowDrawList()->AddText(
+          datePos, ImGui::GetColorU32(ImGuiCol_Text), dateText.c_str());
+    }
 
     if (hidden && cardHovered) {
       RequestCursor(CursorType::Pointer);

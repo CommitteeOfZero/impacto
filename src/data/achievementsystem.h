@@ -1,5 +1,6 @@
 #pragma once
 
+#include <ctime>
 #include <magic_enum/magic_enum.hpp>
 #include "../spritesheet.h"
 #include "../loadable.h"
@@ -58,6 +59,7 @@ size_t GetAchievementCount();
 
 bool IsAchievementUnlocked(int id);
 bool UnlockAchievement(int id);
+tm const& GetAchievementUnlockDate(int id);
 
 }  // namespace AchievementSystem
 }  // namespace Impacto
