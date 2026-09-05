@@ -144,8 +144,7 @@ class Renderer final : public BaseRenderer {
   glm::mat4 ProjectionMatrix;
   glm::mat4 BackBufferProjectionMatrix;
 
-  magic_enum::containers::array<ShaderProgramType, std::optional<ShaderProgram>>
-      ShaderPrograms;
+  std::optional<ShaderProgram<ShaderProgramType::Sprite>> SpriteShader;
 };
 
 }  // namespace Impacto::Bgfx
