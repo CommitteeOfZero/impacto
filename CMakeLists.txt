@@ -1213,26 +1213,55 @@ if (NOT DEFINED IMPACTO_DISABLE_BGFX)
     )
 
     set(Bgfx_Vertex_Shaders
-        src/shaders/bgfx/source/vs_sprite.sc
+        src/shaders/bgfx/vs_sprite.sc
     )
     set(Bgfx_Fragment_Shaders
-        src/shaders/bgfx/source/fs_sprite.sc
+        src/shaders/bgfx/fs_sprite.sc
     )
+
+    set(Bgfx_Shaders ${Bgfx_Vertex_Shaders} ${Bgfx_Fragment_Shaders})
 
     bgfx_compile_shaders(
         TYPE VERTEX
         SHADERS ${Bgfx_Vertex_Shaders}
-        VARYING_DEF ${CMAKE_SOURCE_DIR}/src/shaders/bgfx/source/varying.def.sc
-        OUTPUT_DIR src/shaders/bgfx
+        VARYING_DEF ${CMAKE_SOURCE_DIR}/src/shaders/bgfx/varying.def.sc
+        OUTPUT_DIR "include/bgfx/shaders"
+        AS_HEADERS
     )
     bgfx_compile_shaders(
         TYPE FRAGMENT
         SHADERS ${Bgfx_Fragment_Shaders}
-        VARYING_DEF ${CMAKE_SOURCE_DIR}/src/shaders/bgfx/source/varying.def.sc
-        OUTPUT_DIR src/shaders/bgfx
+        VARYING_DEF ${CMAKE_SOURCE_DIR}/src/shaders/bgfx/varying.def.sc
+        OUTPUT_DIR "include/bgfx/shaders"
+        AS_HEADERS
     )
 
-    list(APPEND Impacto_Src ${Bgfx_Vertex_Shaders} ${Bgfx_Fragment_Shaders})
+    add_library(bgfx_shaders INTERFACE ${Bgfx_Shaders})
+    list(APPEND Impacto_Lib_Targets bgfx_shaders)
+
+    # Automatically stamp out headers for including the shader source code.
+    #
+    # * /include/bgfx/shaders/<shader_lang> includes header files for each shader,
+    #   containing the compiled shader binaries in an array.
+    #
+    # * /include/bgfx/shaders/<shader_name>.sc.h conditionally includes these compiled
+    #   shader binaries based on which rendering backends are enabled, and stores them
+    #   in an array of spans for easier access.
+    #   These files are based on the /src/renderer/bgfx/shaders/shaders.h.in template file.
+    #
+    # * /include/bgfx/shader_contents.h includes all shader headers and should be included
+    #   in the renderer implementation to access the shader source code.
+    set(shader_content_header "#pragma once\n")
+    foreach (shader IN LISTS Bgfx_Shaders)
+        string(REGEX MATCH "[^\\/]*$" SHADER_NAME ${shader})
+        string(REGEX MATCH "^[^\.]*" SHADER_BASE_NAME ${SHADER_NAME})
+        configure_file(
+            src/renderer/bgfx/shaders/shaders.h.in
+            "${CMAKE_BINARY_DIR}/include/bgfx/shaders/${SHADER_NAME}.h"
+        )
+        string(APPEND shader_content_header "#include \"shaders/${SHADER_NAME}.h\"\n")
+    endforeach()
+    file(WRITE ${CMAKE_BINARY_DIR}/include/bgfx/shader_content.h ${shader_content_header})
 endif()
 
 if (NOT DEFINED IMPACTO_DISABLE_FFMPEG)
@@ -1324,7 +1353,7 @@ list(APPEND Impacto_Libs ${Impacto_Lib_Targets})
 target_link_libraries(impacto PRIVATE ${Impacto_Libs})
 
 target_compile_options(impacto PRIVATE "$<$<C_COMPILER_ID:MSVC>:/utf-8>")
-target_compile_options(impacto PRIVATE "$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
+target_compile_options(impacto PRIVATE "$<$<CXX_COMPILER_ID:MSVC>:/utf-8;/Zc:__cplusplus>")
 
 if (IMPACTO_WARNINGS)
     if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
@@ -1452,9 +1481,9 @@ elseif(APPLE)
             RESOURCE DESTINATION .
     )
     install(
-        DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src/shaders" "${PROJECT_BINARY_DIR}/src/shaders"
+        DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src/shaders"
         DESTINATION "Impacto.app/Contents/Resources/"
-        PATTERN "bgfx/source" EXCLUDE
+        PATTERN "bgfx" EXCLUDE
     )
     install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/resources"
         DESTINATION "Impacto.app/Contents/Resources/"
@@ -1487,9 +1516,9 @@ endif ()
 if (NOT ANDROID)
     if(NOT APPLE)
         install(
-            DIRECTORY src/shaders ${PROJECT_BINARY_DIR}/src/shaders
+            DIRECTORY src/shaders
             DESTINATION .
-            PATTERN "bgfx/source" EXCLUDE
+            PATTERN "bgfx" EXCLUDE
         )
         install(DIRECTORY resources DESTINATION .)
     endif()
@@ -1503,9 +1532,9 @@ if (NOT ANDROID)
     endif()
 else()
     install(
-        DIRECTORY src/shaders ${PROJECT_BINARY_DIR}/src/shaders
+        DIRECTORY src/shaders
         DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/assets
-        PATTERN "bgfx/source" EXCLUDE
+        PATTERN "bgfx" EXCLUDE
     )
     install(DIRECTORY profiles DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/assets)
     install(DIRECTORY resources DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/assets PATTERN "*/gamedata/*" EXCLUDE)
