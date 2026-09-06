@@ -7,11 +7,9 @@
 #ifndef IMPACTO_DISABLE_OPENGL
 #include "opengl/renderer.h"
 #endif
-#ifndef IMPACTO_DISABLE_VULKAN
-#include "vulkan/renderer.h"
-#endif
-#ifndef IMPACTO_DISABLE_DX9
-#include "dx9/renderer.h"
+
+#ifndef IMPACTO_DISABLE_BGFX
+#include "bgfx/renderer.h"
 #endif
 
 #include <numeric>
@@ -21,20 +19,27 @@ namespace Impacto {
 void CreateRenderer() {
   switch (UserConfig::AdvancedSettings.ActiveRenderer) {
 #ifndef IMPACTO_DISABLE_OPENGL
-    case RendererType::OpenGL:
+    case RendererType::OpenGLLegacy:
       Renderer = new OpenGL::Renderer();
       break;
 #endif
+#ifndef IMPACTO_DISABLE_BGFX
+#ifndef IMPACTO_DISABLE_OPENGL
+    case RendererType::OpenGL:
+    case RendererType::OpenGLES:
+#endif
 #ifndef IMPACTO_DISABLE_VULKAN
     case RendererType::Vulkan:
-      Renderer = new Vulkan::Renderer();
-      break;
 #endif
-#ifndef IMPACTO_DISABLE_DX9
-    case RendererType::DirectX9:
-      Renderer = new DirectX9::Renderer();
-      break;
+#ifndef IMPACTO_DISABLE_DIRECT3D
+    case RendererType::Direct3D:
 #endif
+#ifndef IMPACTO_DISABLE_METAL
+    case RendererType::Metal:
+#endif
+      Renderer = new Bgfx::Renderer();
+      break;
+#endif  // IMPACTO_DISABLE_BGFX
     default:
       ImpLog(LogLevel::Error, LogChannel::Render,
              "Unknown or unsupported renderer selected!\n");
