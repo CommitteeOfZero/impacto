@@ -1,0 +1,50 @@
+#pragma once
+
+#include <bgfx/embedded_shader.h>
+
+namespace Impacto::Bgfx {
+
+// clang-format off
+#ifndef IMPACTO_DISABLE_OPENGL
+#include "glsl/@SHADER_NAME@.bin.h"
+#include "essl/@SHADER_NAME@.bin.h"
+#endif
+
+#ifndef IMPACTO_DISABLE_DIRECT3D
+#include "dx10/@SHADER_NAME@.bin.h"
+#include "dx11/@SHADER_NAME@.bin.h"
+#endif
+
+#ifndef IMPACTO_DISABLE_METAL
+#include "metal/@SHADER_NAME@.bin.h"
+#endif
+
+#ifndef IMPACTO_DISABLE_VULKAN
+#include "spirv/@SHADER_NAME@.bin.h"
+#endif
+
+const inline bgfx::EmbeddedShader @SHADER_BASE_NAME@_shader = {
+    "@SHADER_BASE_NAME@",
+    {
+#ifndef IMPACTO_DISABLE_DIRECT3D
+        BGFX_EMBEDDED_SHADER_DXBC (bgfx::RendererType::Direct3D11, @SHADER_BASE_NAME@)
+        BGFX_EMBEDDED_SHADER_DXBC (bgfx::RendererType::Direct3D12, @SHADER_BASE_NAME@)
+#endif
+#ifndef IMPACTO_DISABLE_METAL
+        BGFX_EMBEDDED_SHADER_METAL(bgfx::RendererType::Metal,      @SHADER_BASE_NAME@)
+#endif
+#ifndef IMPACTO_DISABLE_OPENGL
+        BGFX_EMBEDDED_SHADER_ESSL (bgfx::RendererType::OpenGLES,   @SHADER_BASE_NAME@)
+        BGFX_EMBEDDED_SHADER_GLSL (bgfx::RendererType::OpenGL,     @SHADER_BASE_NAME@)
+#endif
+#ifndef IMPACTO_DISABLE_VULKAN
+        BGFX_EMBEDDED_SHADER_SPIRV(bgfx::RendererType::Vulkan,     @SHADER_BASE_NAME@)
+#endif
+        { bgfx::RendererType::Noop, (const uint8_t*)"VSH\x5\x0\x0\x0\x0\x0\x0", 10 },
+        { bgfx::RendererType::Count, NULL, 0 }
+    }
+};
+
+// clang-format on
+
+}  // namespace Impacto::Bgfx

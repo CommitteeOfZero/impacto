@@ -3,6 +3,8 @@
 #include "../../log.h"
 #include "../../userconfig.h"
 
+#include <bgfx/shader_content.h>
+
 #include <bgfx/platform.h>
 #include <imgui_impl_bgfx.h>
 #include <glm/gtc/type_ptr.hpp>
@@ -135,7 +137,7 @@ Renderer::Renderer() {
 
   {
     using enum ShaderProgramType;
-    SpriteShader = ShaderProgram<Sprite>::Create("vs_sprite", "fs_sprite");
+    SpriteShader.emplace(vs_sprite_shader, fs_sprite_shader);
   }
 
   ImGui_Implbgfx_Init(IMGUI_VIEW);
