@@ -5,13 +5,33 @@
 #include "renderer/renderer.h"
 
 #include "profile/game.h"
+#include "log.h"
 
 namespace Impacto {
 namespace Input {
+static constexpr std::chrono::milliseconds LongPressTime(500);
+// nonscaled pixels
+static constexpr float MaxTapSlop = 8.0f;
+// nonscaled pixels per second
+static constexpr std::chrono::milliseconds TapGroupWindow(80);
 
-static std::array<SDL_FingerID, 2> CurrentFingers{};
+struct TouchState {
+  SDL_FingerID FingerId;
+  glm::vec2 StartPos;
+  glm::vec2 LastPos;
+  std::chrono::nanoseconds StartTime;
+  bool Tappable;
+};
+static std::array<std::optional<TouchState>, 3> CurrentFingers{};
+
+struct PendingTapGroup {
+  std::chrono::nanoseconds FirstUpTime;
+  int8_t Count = 0;
+};
+static std::optional<PendingTapGroup> PendingTaps;
 
 void BeginFrame() {
+  using std::chrono::nanoseconds;
   memset(ControllerButtonWentDown, false, sizeof(ControllerButtonWentDown));
   memset(ControllerAxisWentDownLight, false,
          sizeof(ControllerAxisWentDownLight));
@@ -19,13 +39,25 @@ void BeginFrame() {
          sizeof(ControllerAxisWentDownHeavy));
   memset(MouseButtonWentDown, false, sizeof(MouseButtonWentDown));
   memset(KeyboardButtonWentDown, false, sizeof(KeyboardButtonWentDown));
-  TouchWentDown[0] = false;
-  TouchWentDown[1] = false;
-
   PrevMousePos = CurMousePos;
-  PrevTouchPos = CurTouchPos;
 
   MouseWheelDeltaX = MouseWheelDeltaY = 0;
+
+  TouchTapCount = 0;
+  if (PendingTaps && nanoseconds(SDL_GetTicksNS()) - PendingTaps->FirstUpTime >
+                         TapGroupWindow) {
+    TouchTapCount = PendingTaps->Count;
+    PendingTaps.reset();
+  }
+  const bool isTouchHeld = CurrentFingers[0].has_value() &&
+                           ((CurrentFingers[0]->StartTime + LongPressTime <=
+                             nanoseconds(SDL_GetTicksNS())) ||
+                            !CurrentFingers[0]->Tappable);
+  if (!TouchHeldDown && isTouchHeld) {
+    CurrentFingers[0]->Tappable = false;
+    InitMousePos = CurMousePos;
+  }
+  TouchHeldDown = isTouchHeld;
 }
 
 static glm::vec2 SDLMouseCoordsToDesign(int x, int y) {
@@ -39,6 +71,24 @@ static glm::vec2 SDLMouseCoordsToDesign(int x, int y) {
   return result;
 }
 
+static void HandleTaps(SDL_TouchFingerEvent const& evt, bool tappable,
+                       TouchState const& liftedFinger) {
+  using namespace std::chrono;
+  const nanoseconds now = nanoseconds(evt.timestamp);
+  const nanoseconds elapsedTime = now - liftedFinger.StartTime;
+  if (tappable && elapsedTime < LongPressTime) {
+    if (!PendingTaps || (now - PendingTaps->FirstUpTime) > TapGroupWindow) {
+      PendingTaps = PendingTapGroup{now, 1};
+    } else {
+      PendingTaps->Count++;
+    }
+    if (PendingTaps->Count == 1) {
+      CurMousePos = liftedFinger.StartPos;
+      InitMousePos = liftedFinger.StartPos;
+    }
+  }
+}
+
 bool HandleEvent(SDL_Event const* ev) {
   switch (ev->type) {
     case SDL_EVENT_GAMEPAD_ADDED: {
@@ -46,25 +96,26 @@ bool HandleEvent(SDL_Event const* ev) {
       CurrentInputDevice = Device::Controller;
       SDL_OpenGamepad(evt->which);
       return true;
-      break;
     }
     case SDL_EVENT_MOUSE_MOTION: {
       SDL_MouseMotionEvent const* evt = &ev->motion;
       CurMousePos = SDLMouseCoordsToDesign((int)evt->x, (int)evt->y);
       CurrentInputDevice = Device::Mouse;
       return true;
-      break;
     }
     case SDL_EVENT_MOUSE_BUTTON_DOWN:
     case SDL_EVENT_MOUSE_BUTTON_UP: {
       SDL_MouseButtonEvent const* evt = &ev->button;
+      if (evt->which == SDL_TOUCH_MOUSEID) return true;
+      if (!MouseButtonIsDown[evt->button] && evt->down) {
+        InitMousePos = SDLMouseCoordsToDesign((int)evt->x, (int)evt->y);
+      }
       CurMousePos = SDLMouseCoordsToDesign((int)evt->x, (int)evt->y);
       CurrentInputDevice = Device::Mouse;
       MouseButtonWentDown[evt->button] =
           (evt->down && !MouseButtonIsDown[evt->button]);
       MouseButtonIsDown[evt->button] = evt->down;
       return true;
-      break;
     }
     // TODO respect direction?
     case SDL_EVENT_MOUSE_WHEEL: {
@@ -73,7 +124,6 @@ bool HandleEvent(SDL_Event const* ev) {
       MouseWheelDeltaX += evt->x;
       MouseWheelDeltaY += evt->y;
       return true;
-      break;
     }
     case SDL_EVENT_KEY_DOWN:
     case SDL_EVENT_KEY_UP: {
@@ -83,7 +133,6 @@ bool HandleEvent(SDL_Event const* ev) {
           (evt->down && !KeyboardButtonIsDown[evt->scancode]);
       KeyboardButtonIsDown[evt->scancode] = evt->down;
       return true;
-      break;
     }
     case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
     case SDL_EVENT_GAMEPAD_BUTTON_UP: {
@@ -93,7 +142,6 @@ bool HandleEvent(SDL_Event const* ev) {
           (evt->down && !ControllerButtonIsDown[evt->button]);
       ControllerButtonIsDown[evt->button] = evt->down;
       return true;
-      break;
     }
     case SDL_EVENT_GAMEPAD_AXIS_MOTION: {
       SDL_GamepadAxisEvent const* evt = &ev->gaxis;
@@ -118,52 +166,77 @@ bool HandleEvent(SDL_Event const* ev) {
       ControllerAxisIsDownHeavy[evt->axis] = axisIsDownHeavy;
       ControllerAxisValue[evt->axis] = newVal;
       return true;
-      break;
     }
     case SDL_EVENT_FINGER_MOTION: {
       SDL_TouchFingerEvent const* evt = &ev->tfinger;
       CurrentInputDevice = Device::Touch;
-      if (CurrentFingers[0] == evt->fingerID &&
-          TouchIsDown[0 && TouchIsDown[1]]) {
-        CurTouchPos =
-            SDLMouseCoordsToDesign((int)(evt->x * (float)Window->WindowWidth),
-                                   (int)(evt->y * (float)Window->WindowHeight));
+      int fingerCount = 0;
+      TouchState* touchState = nullptr;
+      for (auto& finger : CurrentFingers) {
+        if (!finger.has_value()) continue;
+        fingerCount++;
+        if (finger->FingerId == evt->fingerID) {
+          touchState = std::addressof(*finger);
+          touchState->LastPos = SDLMouseCoordsToDesign(
+              (int)(evt->x * (float)Window->WindowWidth),
+              (int)(evt->y * (float)Window->WindowHeight));
+          touchState->Tappable &=
+              glm::distance(touchState->StartPos, touchState->LastPos) <=
+              MaxTapSlop * Window->DpiScale;
+        }
       }
+      if (touchState && fingerCount == 1) {
+        CurMousePos = touchState->LastPos;
+      }
+
       return true;
-      break;
     }
     case SDL_EVENT_FINGER_DOWN: {
       SDL_TouchFingerEvent const* evt = &ev->tfinger;
       CurrentInputDevice = Device::Touch;
-      for (int8_t i = 0; i < FingerTapMax; ++i) {
-        if (!TouchIsDown[i]) {
-          CurTouchPos = SDLMouseCoordsToDesign(
-              (int)(evt->x * (float)Window->WindowWidth),
-              (int)(evt->y * (float)Window->WindowHeight));
-          CurrentFingers[i] = evt->fingerID;
-          TouchIsDown[i] = true;
-          TouchWentDown[i] = true;
-          break;
-        }
+
+      auto freeFingerSlot =
+          std::find_if(CurrentFingers.begin(), CurrentFingers.end(),
+                       [](std::optional<TouchState> const& finger) {
+                         return !finger.has_value();
+                       });
+      if (freeFingerSlot == CurrentFingers.end()) {
+        return true;
       }
+      freeFingerSlot->emplace(TouchState{
+          .FingerId = evt->fingerID,
+          .StartPos = SDLMouseCoordsToDesign(
+              (int)(evt->x * (float)Window->WindowWidth),
+              (int)(evt->y * (float)Window->WindowHeight)),
+          .LastPos = SDLMouseCoordsToDesign(
+              (int)(evt->x * (float)Window->WindowWidth),
+              (int)(evt->y * (float)Window->WindowHeight)),
+          .StartTime = std::chrono::nanoseconds(evt->timestamp),
+          .Tappable = true,
+      });
       return true;
-      break;
     }
     case SDL_EVENT_FINGER_UP: {
       SDL_TouchFingerEvent const* evt = &ev->tfinger;
       CurrentInputDevice = Device::Touch;
-      for (int8_t i = 0; i < FingerTapMax; ++i) {
-        if (CurrentFingers[i] == evt->fingerID && TouchIsDown[i]) {
-          CurTouchPos = SDLMouseCoordsToDesign(
-              (int)(evt->x * (float)Window->WindowWidth),
-              (int)(evt->y * (float)Window->WindowHeight));
-          TouchIsDown[i] = false;
-        }
+      auto liftedFingerItr = CurrentFingers.end();
+      bool tappable = true;
+      for (auto itr = CurrentFingers.begin(); itr != CurrentFingers.end();
+           ++itr) {
+        if (!itr->has_value()) continue;
+        if ((*itr)->FingerId == evt->fingerID) liftedFingerItr = itr;
+
+        tappable &= (*itr)->Tappable;
+      }
+      if (liftedFingerItr != CurrentFingers.end()) {
+        if (tappable) HandleTaps(*evt, tappable, *(*liftedFingerItr));
+        liftedFingerItr->reset();
+        // Shift all fingers after the lifted one to the left
+        std::rotate(liftedFingerItr, std::next(liftedFingerItr),
+                    CurrentFingers.end());
       }
       return true;
-      break;
     }
-
     default:
       return false;
   }

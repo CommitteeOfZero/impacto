@@ -39,20 +39,18 @@ void TipsTabButton::Reset() {
 }
 
 void TipsTabButton::UpdateInput(float dt) {
-  if (Enabled) {
-    if (Input::CurrentInputDevice == Input::Device::Mouse &&
-        Input::PrevMousePos != Input::CurMousePos) {
-      Hovered = Bounds.ContainsPoint(Input::CurMousePos);
-    } else if (Input::CurrentInputDevice == Input::Device::Touch &&
-               Input::TouchIsDown[0] &&
-               Input::PrevTouchPos != Input::CurTouchPos) {
-      Hovered = Bounds.ContainsPoint(Input::CurTouchPos);
-    }
-    if (OnClickHandler && HasFocus &&
-        ((Hovered &&
-          Vm::Interface::PADinputMouseWentDown & Vm::Interface::PAD1A))) {
-      OnClickHandler(this);
-    }
+  using namespace Impacto::Vm::Interface;
+
+  if (!Enabled) return;
+  const bool useCursor = (Input::CurrentInputDevice == Input::Device::Mouse ||
+                          Input::CurrentInputDevice == Input::Device::Touch);
+  if (useCursor && Input::PrevMousePos != Input::CurMousePos) {
+    Hovered = Bounds.ContainsPoint(Input::CurMousePos);
+  }
+
+  if (OnClickHandler && HasFocus && Hovered &&
+      GetControlState(ControlType::OK, InputDownType::WentDown)) {
+    OnClickHandler(this);
   }
 }
 

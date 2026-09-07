@@ -80,30 +80,28 @@ void SystemMenuEntryButton::Update(float dt) {
 }
 
 void SystemMenuEntryButton::UpdateInput(float dt) {
-  if (Enabled) {
-    constexpr float rotationAngle = -15.0f * std::numbers::pi_v<float> / 180.0f;
-    const RectF& bounds = (HoverBounds != RectF{}) ? HoverBounds : Bounds;
-    glm::vec2 center = bounds.Center();
-    glm::vec2 rotatedPos;
-    if (Input::CurrentInputDevice == Input::Device::Mouse &&
-        Input::PrevMousePos != Input::CurMousePos) {
-      rotatedPos = RotatePoint(Input::CurMousePos, center, rotationAngle);
-      Hovered = bounds.ContainsPoint(rotatedPos);
-    } else if (Input::CurrentInputDevice == Input::Device::Touch &&
-               Input::TouchIsDown[0] &&
-               Input::PrevTouchPos != Input::CurTouchPos) {
-      rotatedPos = RotatePoint(Input::CurTouchPos, center, rotationAngle);
-      Hovered = bounds.ContainsPoint(rotatedPos);
-    }
-    if (OnClickHandler && HasFocus &&
-        ((Hovered &&
-          Vm::Interface::PADinputMouseWentDown & Vm::Interface::PAD1A) ||
-         (Vm::Interface::PADinputButtonWentDown & Vm::Interface::PAD1A))) {
-      OnClickHandler(this);
-      if (IsLocked) return;
-      // reset animation only if it's not playing already
-      StarAnimation.StartIn(StarAnimation.State != AnimationState::Playing);
-    }
+  using namespace Impacto::Vm::Interface;
+
+  if (!Enabled) return;
+  constexpr float rotationAngle = -15.0f * std::numbers::pi_v<float> / 180.0f;
+  const RectF& bounds = (HoverBounds != RectF{}) ? HoverBounds : Bounds;
+  glm::vec2 center = bounds.Center();
+  glm::vec2 rotatedPos;
+  const bool useCursor = (Input::CurrentInputDevice == Input::Device::Mouse ||
+                          Input::CurrentInputDevice == Input::Device::Touch);
+  if (useCursor && Input::PrevMousePos != Input::CurMousePos) {
+    rotatedPos = RotatePoint(Input::CurMousePos, center, rotationAngle);
+    Hovered = bounds.ContainsPoint(rotatedPos);
+  }
+  const bool isClicked =
+      GetControlState(ControlType::OK, InputDownType::WentDown);
+
+  if (OnClickHandler && HasFocus && isClicked &&
+      (!useCursor || (Hovered && bounds.ContainsPoint(Input::InitMousePos)))) {
+    OnClickHandler(this);
+    if (IsLocked) return;
+    // reset animation only if it's not playing already
+    StarAnimation.StartIn(StarAnimation.State != AnimationState::Playing);
   }
 }
 

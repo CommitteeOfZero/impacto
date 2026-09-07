@@ -26,20 +26,21 @@ Button::Button(int id, Sprite const& norm, Sprite const& focused,
 }
 
 void Button::UpdateInput(float dt) {
-  if (Enabled) {
-    const RectF& bounds = (HoverBounds != RectF{}) ? HoverBounds : Bounds;
-    if (Input::CurrentInputDevice == Input::Device::Mouse) {
-      Hovered = bounds.ContainsPoint(Input::CurMousePos);
-    } else if (Input::CurrentInputDevice == Input::Device::Touch &&
-               Input::TouchIsDown[0]) {
-      Hovered = bounds.ContainsPoint(Input::CurTouchPos);
-    }
-    if (OnClickHandler && HasFocus &&
-        ((Hovered &&
-          Vm::Interface::PADinputMouseWentDown & Vm::Interface::PAD1A) ||
-         (Vm::Interface::PADinputButtonWentDown & Vm::Interface::PAD1A))) {
-      OnClickHandler(this);
-    }
+  using namespace Impacto::Vm::Interface;
+
+  if (!Enabled) return;
+  const RectF& bounds = (HoverBounds != RectF{}) ? HoverBounds : Bounds;
+  const bool useCursor = (Input::CurrentInputDevice == Input::Device::Mouse ||
+                          Input::CurrentInputDevice == Input::Device::Touch);
+  if (useCursor && Input::PrevMousePos != Input::CurMousePos) {
+    Hovered = bounds.ContainsPoint(Input::CurMousePos);
+  }
+
+  const bool isClicked =
+      GetControlState(ControlType::OK, InputDownType::WentDown);
+  if (OnClickHandler && HasFocus && isClicked &&
+      (!useCursor || (Hovered && bounds.ContainsPoint(Input::InitMousePos)))) {
+    OnClickHandler(this);
   }
 }
 
