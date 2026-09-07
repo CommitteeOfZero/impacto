@@ -30,6 +30,17 @@ enum class RendererType : int {
 #endif
 };
 
+constexpr inline RendererType DefaultRendererType =
+#if defined(SDL_PLATFORM_WIN32)
+    RendererType::Direct3D;
+#elif defined(SDL_PLATFORM_MACOS)
+    RendererType::Metal;
+#elif defined(SDL_PLATFORM_ANDROID)
+    RendererType::OpenGLES;
+#else
+    RendererType::Vulkan;
+#endif
+
 enum class VideoPlayerType : int {
   None,
   FFmpeg,
@@ -72,7 +83,7 @@ struct Config {
   bool LoggingToFile = GetDefaultLogToFile();
 };
 struct AdvancedConfig {
-  RendererType ActiveRenderer = RendererType::OpenGL;
+  RendererType ActiveRenderer = DefaultRendererType;
   VideoPlayerType VideoPlayer = VideoPlayerType::FFmpeg;
   AudioBackendType ActiveAudioBackend = AudioBackendType::OpenAL;
   SubtitleAssBackendType SubtitleAssBackend = SubtitleAssBackendType::LibAss;
