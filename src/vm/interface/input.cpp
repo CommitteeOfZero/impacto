@@ -232,6 +232,14 @@ void UpdatePADInput() {
     UpdateFromPADCode(PADcode, PADInputType::IsDown);
   }
 
+  if (Input::MouseWheelDeltaY < 0) {
+    auto kbBtnItr = KBcustom.find(52);
+    if (kbBtnItr != KBcustom.end()) {
+      for (auto scancode : kbBtnItr->second)
+        Input::KeyboardButtonWentDown[scancode] = true;
+    }
+  }
+
   for (auto const& [PADcode, mouseButton] : PADToMouse) {
     if (mouseButton == SDL_BUTTON_LEFT) {
       if (Input::TouchTapCount == 1) PADinputMouseWentDown |= PADcode;
