@@ -238,10 +238,12 @@ void DelusionTrigger::UpdateDragging(float dt) {
   if (!leftTrigger && rightTrigger) {
     TriggerRight();
     ResetDraggingPress();
+    Input::ClearFlicks();
   }
   if (leftTrigger && !rightTrigger) {
     TriggerLeft();
     ResetDraggingPress();
+    Input::ClearFlicks();
   }
 }
 
