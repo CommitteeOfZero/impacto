@@ -16,6 +16,7 @@ inline int constexpr FingerTapMax = 3;
 void BeginFrame();
 bool HandleEvent(SDL_Event const* ev);
 void ClearFlicks();
+void ClearPinchGesture();
 
 inline Device CurrentInputDevice = Device::Mouse;
 
@@ -45,6 +46,15 @@ inline bool TouchFlickLeft = false;
 inline bool TouchFlickRight = false;
 inline bool TouchFlickDown = false;
 inline bool TouchFlickUp = false;
+inline bool TouchPinchIn = false;
+
+struct PinchState {
+  std::chrono::nanoseconds StartTime;
+  float CurrentScale = 1.0f;
+  float CummulativeScale = 1.0f;
+  glm::vec2 MidPoint = {};
+};
+inline std::optional<PinchState> CurrentPinch{};
 
 // Using statements to ensure that types are coming from this header (for
 // consistent magic enum range specialization).

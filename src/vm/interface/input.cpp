@@ -236,7 +236,8 @@ void UpdatePADInput() {
     if (mouseButton == SDL_BUTTON_LEFT) {
       if (Input::TouchTapCount == 1) PADinputMouseWentDown |= PADcode;
       if (Input::TouchHeldDown) PADinputMouseIsDown |= PADcode;
-    } else if (mouseButton == SDL_BUTTON_RIGHT && Input::TouchTapCount == 2)
+    } else if (mouseButton == SDL_BUTTON_RIGHT &&
+               (Input::TouchTapCount == 2 || Input::TouchPinchIn))
       PADinputMouseWentDown |= PADcode;
   }
 }

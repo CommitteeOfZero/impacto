@@ -34,12 +34,7 @@ struct PendingTapGroup {
   int8_t Count = 0;
 };
 static std::optional<PendingTapGroup> PendingTaps;
-
-struct PinchState {
-  std::chrono::nanoseconds StartTime;
-  float CummulativeScale;
-};
-static std::optional<PinchState> CurrentPinch{};
+static bool NoPinchGesture = false;
 
 void BeginFrame() {
   using std::chrono::nanoseconds;
@@ -73,6 +68,7 @@ void BeginFrame() {
   TouchFlickRight = false;
   TouchFlickDown = false;
   TouchFlickUp = false;
+  TouchPinchIn = false;
 }
 
 static glm::vec2 SDLMouseCoordsToDesign(int x, int y) {
@@ -233,7 +229,13 @@ bool HandleEvent(SDL_Event const* ev) {
           touchState->Tappable &=
               glm::distance(touchState->StartPos, touchState->LastPos) <=
               MaxTapSlop * Window->DpiScale;
-          if (CurrentPinch.has_value()) touchState->Flickable = false;
+        }
+      }
+      if (CurrentPinch.has_value()) {
+        ClearFlicks();
+        if (CurrentFingers[0] && CurrentFingers[1]) {
+          CurrentPinch->MidPoint =
+              (CurrentFingers[0]->LastPos + CurrentFingers[1]->LastPos) / 2.0f;
         }
       }
       if (touchState && fingerCount == 1) {
@@ -302,6 +304,36 @@ bool HandleEvent(SDL_Event const* ev) {
       }
       return true;
     }
+    case SDL_EVENT_PINCH_BEGIN: {
+      SDL_PinchFingerEvent const* evt = &ev->pinch;
+      CurrentInputDevice = Device::Touch;
+      CurrentPinch.emplace(PinchState{
+          .StartTime = std::chrono::nanoseconds(evt->timestamp),
+      });
+      return true;
+    }
+    case SDL_EVENT_PINCH_UPDATE: {
+      SDL_PinchFingerEvent const* evt = &ev->pinch;
+      CurrentInputDevice = Device::Touch;
+      CurrentPinch.value().CurrentScale = evt->scale;
+      CurrentPinch.value().CummulativeScale *= evt->scale;
+      return true;
+    }
+    case SDL_EVENT_PINCH_END: {
+      using namespace std::chrono;
+      SDL_PinchFingerEvent const* evt = &ev->pinch;
+      CurrentInputDevice = Device::Touch;
+      const nanoseconds elapsedTime =
+          nanoseconds(evt->timestamp) - CurrentPinch.value().StartTime;
+      if (elapsedTime < PinchInMaxTime &&
+          CurrentPinch->CummulativeScale <= PinchInMaxScale &&
+          !NoPinchGesture) {
+        TouchPinchIn = true;
+      }
+      CurrentPinch.reset();
+      NoPinchGesture = false;
+      return true;
+    }
     default:
       return false;
   }
@@ -313,6 +345,8 @@ void ClearFlicks() {
     finger->Flickable = false;
   }
 }
+
+void ClearPinchGesture() { NoPinchGesture = true; }
 
 }  // namespace Input
 }  // namespace Impacto
