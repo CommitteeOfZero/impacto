@@ -191,7 +191,8 @@ void Update(float dt) {
   if (!Overlay::OverlayShown && !FadeAnimation.IsOut() &&
       GetNotificationRect().ContainsPoint(Input::CurMousePos)) {
     RequestCursor(CursorType::Pointer);
-    if (Input::MouseButtonWentDown[SDL_BUTTON_LEFT]) {
+    if (Input::MouseButtonWentDown[SDL_BUTTON_LEFT] ||
+        Input::TouchTapCount == 1) {
       Overlay::OverlayShown = true;
       Overlay::RequestedTab = Overlay::OverlayTab::Achievements;
     }

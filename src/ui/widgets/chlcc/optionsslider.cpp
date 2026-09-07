@@ -87,19 +87,15 @@ void OptionsSlider::Update(float dt) {
 }
 
 void OptionsSlider::UpdateInput(float dt) {
-  static bool slidingByMouse = false;
-
-    slidingByMouse |=
+  const bool slidingByMouse =
       Slider.GetTrackBounds().ContainsPoint(Input::InitMousePos) &&
-      (Input::MouseButtonWentDown[SDL_BUTTON_LEFT] ||
-       Input::TouchTapCount == 1);
-    slidingByMouse &=
-      Input::MouseButtonIsDown[SDL_BUTTON_LEFT] || Input::TouchHeldDown;
+      (Input::MouseButtonIsDown[SDL_BUTTON_LEFT] || Input::TouchHeldDown);
 
   OptionsEntry::UpdateInput(dt);
 
   Slider.HasFocus = HasFocus;
-  Slider.UpdateInput(dt);
+  if (Input::CurrentInputDevice != Input::Device::Touch || slidingByMouse)
+    Slider.UpdateInput(dt);
   Slider.ClampValue();
 
   if (MuteClickArea) MuteClickArea->UpdateInput(dt);

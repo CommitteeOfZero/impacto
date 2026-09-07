@@ -97,7 +97,7 @@ void HelpMenu::UpdateInput(float dt) {
 
   bool prevBtnPressed =
       ((PADinputButtonWentDown | PADinputMouseWentDown) & PADcustom[38]) ||
-      Input::MouseWheelDeltaY < 0;
+      Input::MouseWheelDeltaY < 0 || Input::TouchFlickDown;
   if (State == Shown && prevBtnPressed && FadeAnimation.Progress == 1.0f) {
     PreviousPage = CurrentPage;
     CurrentPage =
@@ -109,7 +109,7 @@ void HelpMenu::UpdateInput(float dt) {
 
   bool nextBtnPressed =
       ((PADinputButtonWentDown | PADinputMouseWentDown) & PADcustom[39]) ||
-      Input::MouseWheelDeltaY > 0;
+      Input::MouseWheelDeltaY > 0 || Input::TouchFlickUp;
   if (State == Shown && nextBtnPressed && FadeAnimation.Progress == 1.0f) {
     PreviousPage = CurrentPage;
     CurrentPage = (CurrentPage + 1) % ManualPages.size();

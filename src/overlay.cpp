@@ -769,7 +769,8 @@ void Show() {
     if (!OverlayShown &&
         ((Input::KeyboardButtonWentDown[SDL_SCANCODE_0] &&
           (SDL_GetModState() & SDL_KMOD_SHIFT)) ||
-         Input::ControllerButtonWentDown[SDL_GAMEPAD_BUTTON_LEFT_STICK])) {
+         Input::ControllerButtonWentDown[SDL_GAMEPAD_BUTTON_LEFT_STICK] ||
+         Input::TouchTapCount == 3)) {
       OverlayShown = true;
     } else if (OverlayShown &&
                (ImGui::IsKeyChordPressed(ImGuiMod_Shift | ImGuiKey_0) ||

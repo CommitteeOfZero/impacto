@@ -286,7 +286,8 @@ bool GetControlState(ControlType::ControlTypeEnum controlId,
     case MainMenu:
       return padInputDown & PADcustom[10];
     case Backlog:
-      return padInputDown & PADcustom[12];
+      return padInputDown & PADcustom[12] || Input::TouchFlickDown ||
+             Input::MouseWheelDeltaY < 0.0f;
     case Tips:
       return false;
     case MovieCancel:

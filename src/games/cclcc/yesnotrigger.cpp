@@ -152,7 +152,8 @@ void YesNoTrigger::Update(float dt) {
     case YesNoState::MainInput:
       if (AllowInput) {
         DispSel = true;
-        if (Input::CurrentInputDevice == Input::Device::Mouse) {
+        if (Input::CurrentInputDevice == Input::Device::Mouse ||
+            Input::CurrentInputDevice == Input::Device::Touch) {
           if (NoClickArea.Hovered) {
             // folded that way on purpose,if two areas are both hovered
             // they will be switching constantly

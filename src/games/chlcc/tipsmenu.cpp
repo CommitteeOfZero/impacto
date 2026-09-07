@@ -55,6 +55,7 @@ void TipsMenu::HandlePageChange(Widget* cur, Widget* next) {
         0.0f, GetEndScroll(static_cast<Group*>(next)), &TipsEntryScrollPos,
         SBDIR_VERTICAL, TipsScrollTrack, TipsScrollThumb, {0.0f, -4.0f},
         TipsScrollThumb.ScaledHeight(), TipsListBounds);
+    TipsEntriesScrollbar->SetScrollAreaBounds(TipsListBounds);
     TipsEntriesScrollbar->Step = TipListYPadding;
   }
 }
@@ -177,7 +178,8 @@ void TipsMenu::UpdateInput(float dt) {
         AdvanceTipPage(TipAdvanceMode::NextLooped);
       }
 
-      if (Input::CurrentInputDevice == Input::Device::Mouse) {
+      if (Input::CurrentInputDevice == Input::Device::Mouse ||
+          Input::CurrentInputDevice == Input::Device::Touch) {
         const RectF tipBox(CurrentTipBackgroundPosition.x,
                            CurrentTipBackgroundPosition.y,
                            CurrentTipBackgroundSprite.Bounds.Width,
@@ -187,6 +189,12 @@ void TipsMenu::UpdateInput(float dt) {
           if (Input::MouseWheelDeltaY > 0.0f) {
             AdvanceTipPage(TipAdvanceMode::PrevClamped);
           } else if (Input::MouseWheelDeltaY < 0.0f) {
+            AdvanceTipPage(TipAdvanceMode::NextClamped);
+          }
+        } else if (tipBox.ContainsPoint(Input::InitMousePos)) {
+          if (Input::TouchFlickDown) {
+            AdvanceTipPage(TipAdvanceMode::PrevClamped);
+          } else if (Input::TouchFlickUp) {
             AdvanceTipPage(TipAdvanceMode::NextClamped);
           }
         }
@@ -421,6 +429,7 @@ void TipsMenu::Init() {
                 0.0f, GetEndScroll(allTipsGroup), &TipsEntryScrollPos,
                 SBDIR_VERTICAL, TipsScrollTrack, TipsScrollThumb, {0.0f, 0.0f},
                 TipsScrollThumb.ScaledHeight(), TipsListBounds);
+  TipsEntriesScrollbar->SetScrollAreaBounds(TipsListBounds);
   TipsEntriesScrollbar->Step = TipListYPadding;
   Name = new Label();
   TipViewItems.Add(Name);

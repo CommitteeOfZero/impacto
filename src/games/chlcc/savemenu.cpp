@@ -271,10 +271,16 @@ void SaveMenu::UpdateInput(float dt) {
   };
   if (IsFocused) {
     SavePages->at(*CurrentPage)->UpdateInput(dt);
-    if (Input::MouseWheelDeltaY < 0 || PADinputButtonWentDown & PADcustom[8]) {
+
+    const bool nextPage = Input::MouseWheelDeltaY < 0 ||
+                          PADinputButtonWentDown & PADcustom[8] ||
+                          Input::TouchFlickUp || Input::TouchFlickLeft;
+    const bool prevPage = Input::MouseWheelDeltaY > 0 ||
+                          PADinputButtonWentDown & PADcustom[7] ||
+                          Input::TouchFlickDown || Input::TouchFlickRight;
+    if (nextPage) {
       updatePage((*CurrentPage + 1) % Pages);
-    } else if (Input::MouseWheelDeltaY > 0 ||
-               PADinputButtonWentDown & PADcustom[7]) {
+    } else if (prevPage) {
       updatePage((*CurrentPage - 1 + Pages) % Pages);
     }
 
