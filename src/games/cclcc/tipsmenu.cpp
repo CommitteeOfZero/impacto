@@ -358,6 +358,7 @@ void TipsMenu::SwitchToTipId(int id) {
       0, TipsScrollStartPos, 0.0f, std::max(0.0f, (float)scrollDistance),
       &TipPageY, SBDIR_VERTICAL, TipsScrollThumbSprite, TipsScrollTrackBounds,
       TipsScrollThumbLength, pageBounds, 5.0f);
+  TipsScrollbar->SetScrollAreaBounds(pageBounds);
   TipsScrollbar->HasFocus = false;  // We want to manually control kb/pad input
 
   Audio::PlayInGroup(Audio::ACG_SE, "sysse", 2, false, 0);

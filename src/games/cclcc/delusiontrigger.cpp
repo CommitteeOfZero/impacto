@@ -110,7 +110,6 @@ bool DelusionTrigger::CanUpdateDragging() const {
 
 void DelusionTrigger::ResetDraggingPress() {
   ActiveDragHitbox = DragHitbox::None;
-  DragStartPos = glm::vec2(0.0f);
   DragHoldTime = 0.0f;
   DragPressPending = false;
   DragHoldActive = false;
@@ -157,7 +156,8 @@ std::pair<bool, bool> DelusionTrigger::UpdateDraggingTriggers(
                          .Translate({448, -109});
   }
 
-  const bool pointerWentDown = PADinputMouseWentDown & PAD1A;
+  const bool pointerWentDown =
+      PADinputMouseWentDown & PAD1A || Input::TouchHeldDown;
 
   if (Input::CurrentInputDevice == Input::Device::Mouse &&
       ((positiveHitbox && positiveHitbox->ContainsPoint(Input::CurMousePos)) ||
@@ -178,10 +178,10 @@ std::pair<bool, bool> DelusionTrigger::UpdateDraggingTriggers(
 
   if (ActiveDragHitbox == DragHitbox::None &&
       (pointerWentDown || DragHoldActive)) {
-    if (positiveHitbox && positiveHitbox->ContainsPoint(Input::CurMousePos)) {
+    if (positiveHitbox && positiveHitbox->ContainsPoint(Input::InitMousePos)) {
       ActiveDragHitbox = DragHitbox::Positive;
     } else if (negativeHitbox &&
-               negativeHitbox->ContainsPoint(Input::CurMousePos)) {
+               negativeHitbox->ContainsPoint(Input::InitMousePos)) {
       ActiveDragHitbox = DragHitbox::Negative;
     }
     if (ActiveDragHitbox != DragHitbox::None && pointerWentDown) {
@@ -205,27 +205,26 @@ std::pair<bool, bool> DelusionTrigger::UpdateDraggingTriggers(
     PADinputMouseWentDown &= ~PAD1A;
   }
 
-  if (pointerWentDown) DragStartPos.x = Input::CurMousePos.x;
-
   if (!DragHoldActive) return std::make_pair(false, false);
 
   bool dragLeftTrigger = false;
   bool dragRightTrigger = false;
   if (ActiveDragHitbox == DragHitbox::Positive) {
     if (DelusionState == DS_Neutral) {
-      dragLeftTrigger =
-          Input::CurMousePos.x > DragStartPos.x + DragDelta;  // Select positive
+      dragLeftTrigger = Input::CurMousePos.x >
+                        Input::InitMousePos.x + DragDelta;  // Select positive
     } else if (DelusionState == DS_Positive) {
-      dragRightTrigger = Input::CurMousePos.x <
-                         DragStartPos.x - DragDelta;  // Return to neutral
+      dragRightTrigger =
+          Input::CurMousePos.x <
+          Input::InitMousePos.x - DragDelta;  // Return to neutral
     }
   } else if (ActiveDragHitbox == DragHitbox::Negative) {
     if (DelusionState == DS_Neutral) {
-      dragRightTrigger =
-          Input::CurMousePos.x < DragStartPos.x - DragDelta;  // Select negative
+      dragRightTrigger = Input::CurMousePos.x <
+                         Input::InitMousePos.x - DragDelta;  // Select negative
     } else if (DelusionState == DS_Negative) {
       dragLeftTrigger = Input::CurMousePos.x >
-                        DragStartPos.x + DragDelta;  // Return to neutral
+                        Input::InitMousePos.x + DragDelta;  // Return to neutral
     }
   }
 

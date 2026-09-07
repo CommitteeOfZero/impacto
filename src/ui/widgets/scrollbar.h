@@ -31,6 +31,7 @@ class Scrollbar : public Widget {
   virtual void UpdateInput(float dt) override;
   virtual void Update(float dt) override;
   virtual void Render() override;
+  void SetScrollAreaBounds(RectF const& bounds) { ScrollAreaBounds = bounds; }
 
   void Hide() override;
 
@@ -66,6 +67,7 @@ class Scrollbar : public Widget {
   RectF TrackBounds;
   RectF ThumbBounds;
   RectF ScrollWheelBounds;
+  RectF ScrollAreaBounds;
   float ThumbLength;
   bool ScrollHeld = false;
   int LastScrollPos = 0;

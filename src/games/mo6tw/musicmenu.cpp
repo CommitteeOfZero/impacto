@@ -78,6 +78,7 @@ MusicMenu::MusicMenu() {
       0, ScrollbarPosition, ScrollbarStart,
       ScrollbarStart - totalHeight + ItemsWindowRenderingBounds.Height,
       &MusicListY, SBDIR_VERTICAL, ScrollbarTrack, ScrollbarThumb);
+  scrollbar->SetScrollAreaBounds(MainItems->HoverBounds);
   BackgroundItems->Add(scrollbar);
 
   pos = TimerInitialPosition;

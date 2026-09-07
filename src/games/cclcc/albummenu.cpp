@@ -546,7 +546,8 @@ void AlbumCGViewer::CGViewerPanZoom(float dt) {
   if (PADinputButtonIsDown & PADcustom[2]) x += 30.0f;  // LEFT
   if (PADinputButtonIsDown & PADcustom[3]) x -= 30.0f;  // RIGHT
 
-  if (ClickHoldTime > 0.1 && PADinputMouseIsDown & PAD1A) {
+  if (ClickHoldTime > 0.1 &&
+      (PADinputMouseIsDown & PAD1A || Input::TouchHeldDown)) {
     const glm::vec2 mouseDelta = Input::CurMousePos - Input::PrevMousePos;
     x += mouseDelta.x;
     y += mouseDelta.y;
@@ -598,13 +599,14 @@ void AlbumMenu::UpdateThumbnail(float dt) {
   const uint8_t prevPg = ActivePage;
   if (AlbumPgChangeAnimation.IsOut()) {
     PrevPage = prevPg;
-    if (PADinputButtonWentDown & PADcustom[7] || Input::MouseWheelDeltaY > 0) {
+    if (PADinputButtonWentDown & PADcustom[7] || Input::MouseWheelDeltaY > 0 ||
+        Input::TouchFlickRight) {
       ActivePage = (ActivePage == 0)
                        ? static_cast<uint8_t>(ThumbnailPages.size()) - 1
                        : ActivePage - 1;
       updatePages(PrevPage, ActivePage);
     } else if (PADinputButtonWentDown & PADcustom[8] ||
-               Input::MouseWheelDeltaY < 0) {
+               Input::MouseWheelDeltaY < 0 || Input::TouchFlickLeft) {
       ActivePage = (ActivePage + 1) % ThumbnailPages.size();
       updatePages(PrevPage, ActivePage);
     }

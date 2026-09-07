@@ -297,6 +297,7 @@ void TipsTabGroup::UpdateTipsEntries(std::vector<int> const& SortedTipIds) {
       0, TipsScrollStartPos, 0.0f, std::max(0.0f, (float)scrollDistance),
       &ScrollPosY, SBDIR_VERTICAL, TipsScrollThumbSprite, TipsScrollTrackBounds,
       TipsScrollThumbLength, TipsTabBounds);
+  TipsEntriesScrollbar->SetScrollAreaBounds(TipsTabBounds);
   TipsEntriesScrollbar->Step = GetEntryStride();
   TipsEntriesGroup.RenderingBounds = TipsTabBounds;
   TipsEntriesGroup.HoverBounds = TipsTabBounds;
