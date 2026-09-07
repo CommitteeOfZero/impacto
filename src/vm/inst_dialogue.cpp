@@ -1236,6 +1236,8 @@ VmInstruction(InstSetRevMes) {
 }
 
 void ChkMesSkip() {
+  static bool swipeSkipAll = false;
+
   bool mesSkip = false;
   bool mesAllSkip = false;
 
@@ -1254,16 +1256,22 @@ void ChkMesSkip() {
       mesAllSkip = true;
     };
 
-    if (Interface::PADinputButtonWentDown & Interface::PADcustom[8]) {
+    if (Interface::PADinputButtonWentDown & Interface::PADcustom[8] ||
+        Input::TouchFlickRight) {
       SkipModeEnabled = !SkipModeEnabled;
+    }
+    if (!SkipModeEnabled) swipeSkipAll = false;
+    if (Input::TouchFlickLeft) {
+      swipeSkipAll = !swipeSkipAll;
+      SkipModeEnabled = swipeSkipAll;
     }
 
     if (Interface::PADinputButtonWentDown & Interface::PADcustom[9]) {
       AutoModeEnabled = !AutoModeEnabled;
     }
 
-    if (SkipModeEnabled &&
-        (!Profile::ConfigSystem::SkipRead || GetFlag(SF_MESREAD))) {
+    if (SkipModeEnabled && (!Profile::ConfigSystem::SkipRead ||
+                            GetFlag(SF_MESREAD) || swipeSkipAll)) {
       mesSkip = true;
       mesAllSkip = true;
     }
