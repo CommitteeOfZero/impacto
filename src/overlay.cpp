@@ -360,6 +360,31 @@ static bool ShowDisplaySettings(std::string const& selectedGame) {
     dispModeRadio("Fullscreen", DisplayMode::Fullscreen);
     ImGui::SameLine();
     dispModeRadio("Borderless", DisplayMode::Borderless);
+
+    ImGui::AlignTextToFramePadding();
+    ImGui::Text("Renderer Backend");
+    if (Profile::Game::HasInit) {
+      ImGui::SameLine();
+      ImGui::Text("(Will apply on next launch)");
+    }
+    ImGui::SameLine();
+    ImGui::SetNextItemWidth(comboWidth);
+    auto& activeRenderer = UserConfig::AdvancedSettings.ActiveRenderer;
+    if (ImGui::BeginCombo("##ChooseRenderer",
+                          magic_enum::enum_name(activeRenderer).data())) {
+      constexpr static auto rendererBackends =
+          magic_enum::enum_entries<RendererType>();
+      for (const auto& [type, name] : rendererBackends) {
+        bool isSelected = activeRenderer == type;
+        if (ImGui::Selectable(name.data(), isSelected)) {
+          wasUpdated |= activeRenderer != type;
+          activeRenderer = type;
+        }
+
+        if (isSelected) ImGui::SetItemDefaultFocus();
+      }
+      ImGui::EndCombo();
+    }
   }
 
   return wasUpdated;
