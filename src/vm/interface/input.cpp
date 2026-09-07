@@ -232,9 +232,13 @@ void UpdatePADInput() {
     UpdateFromPADCode(PADcode, PADInputType::IsDown);
   }
 
-  if (Input::TouchTapCount == 2) PADinputMouseWentDown |= PAD1B;
-  else if (Input::TouchTapCount == 1) PADinputMouseWentDown |= PAD1A;
-  if (Input::TouchHeldDown) PADinputMouseIsDown |= PAD1A;
+  for (auto const& [PADcode, mouseButton] : PADToMouse) {
+    if (mouseButton == SDL_BUTTON_LEFT) {
+      if (Input::TouchTapCount == 1) PADinputMouseWentDown |= PADcode;
+      if (Input::TouchHeldDown) PADinputMouseIsDown |= PADcode;
+    } else if (mouseButton == SDL_BUTTON_RIGHT && Input::TouchTapCount == 2)
+      PADinputMouseWentDown |= PADcode;
+  }
 }
 
 // TODO: Make this configurable per game
