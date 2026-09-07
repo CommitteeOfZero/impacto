@@ -44,7 +44,8 @@ void OptionGroup::UpdateInput(float dt) {
         item->UpdateInput(dt);
       }
 
-      if (!mouseInput && (GetControlState(CT_OK) || GetControlState(CT_Back))) {
+      if (!mouseInput && (GetControlState(ControlType::OK) ||
+                          GetControlState(ControlType::Back))) {
         GroupEntered = false;
         MenuContext->CurrentlyFocusedElement->HasFocus = false;
         MenuContext->CurrentlyFocusedElement = this;
@@ -57,7 +58,7 @@ void OptionGroup::UpdateInput(float dt) {
     if (HasFocus) {
       GroupEntered = false;
 
-      if (!mouseInput && GetControlState(CT_OK)) {
+      if (!mouseInput && GetControlState(ControlType::OK)) {
         GroupEntered = true;
         if (Items.size() > 0) {
           MenuContext->CurrentlyFocusedElement->HasFocus = false;

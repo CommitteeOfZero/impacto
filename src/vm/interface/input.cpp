@@ -241,7 +241,8 @@ void UpdatePADInput() {
 
 // TODO: Make this configurable per game
 // I have no idea why they have a million things for controls...
-bool GetControlState(int controlId, InputDownType downType) {
+bool GetControlState(ControlType::ControlTypeEnum controlId,
+                     InputDownType downType) {
   using namespace Impacto::Profile::ConfigSystem;
 
   uint32_t padInputDown = GetPadInputButtonDown(downType);
@@ -251,38 +252,39 @@ bool GetControlState(int controlId, InputDownType downType) {
     padInputDown |= Interface::PADinputMouseWentDown;
   }
 
+  using namespace ControlType;
   switch (controlId) {
-    case CT_OK:
+    case OK:
       return padInputDown & PADcustom[5];
-    case CT_Back:
+    case Back:
       return padInputDown & PADcustom[6];
-    case CT_HIDE:
+    case Hide:
       return PADcustom[11] ? (PADcustom[11] & PADinputButtonWentDown)
                            : (PADcustom[6] & PADinputButtonWentDown);
-    case CT_NextMessage:
+    case NextMessage:
       return padInputDown & PADcustom[23];
-    case CT_ForceSkip:
+    case ForceSkip:
       return padInputDown & PADcustom[7];
-    case CT_SkipMode:
+    case SkipMode:
       return padInputDown & PADcustom[8];
-    case CT_AutoMode:
+    case AutoMode:
       return padInputDown & PADcustom[9];
-    case CT_QuickSave:
+    case QuickSave:
       return padInputDown & PADcustom[13];
-    case CT_MainMenu:
+    case MainMenu:
       return padInputDown & PADcustom[10];
-    case CT_Backlog:
+    case Backlog:
       return padInputDown & PADcustom[12];
-    case CT_Tips:
+    case Tips:
       return false;
-    case CT_MovieCancel:
-    case CT_LogoSkip:
+    case MovieCancel:
+    case LogoSkip:
       return padInputDown & PADcustom[14];
-    case CT_ResetOptions:
+    case ResetOptions:
       return padInputDown & PAD1Y;
-    case CT_DelusionTriggerL:
+    case DelusionTriggerL:
       return padInputDown & PADcustom[36 + 2 * DirectionalInputForTrigger];
-    case CT_DelusionTriggerR:
+    case DelusionTriggerR:
       return padInputDown & PADcustom[37 + 2 * DirectionalInputForTrigger];
     default:
       return false;
