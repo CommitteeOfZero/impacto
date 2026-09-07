@@ -89,13 +89,12 @@ void OptionsSlider::Update(float dt) {
 void OptionsSlider::UpdateInput(float dt) {
   static bool slidingByMouse = false;
 
-  slidingByMouse |=
-      (Slider.GetTrackBounds().ContainsPoint(Input::CurMousePos) &&
-       Input::MouseButtonWentDown[SDL_BUTTON_LEFT]) ||
-      (Slider.GetTrackBounds().ContainsPoint(Input::CurTouchPos) &&
-       Input::TouchWentDown[0]);
-  slidingByMouse &=
-      Input::MouseButtonIsDown[SDL_BUTTON_LEFT] || Input::TouchIsDown[0];
+    slidingByMouse |=
+      Slider.GetTrackBounds().ContainsPoint(Input::InitMousePos) &&
+      (Input::MouseButtonWentDown[SDL_BUTTON_LEFT] ||
+       Input::TouchTapCount == 1);
+    slidingByMouse &=
+      Input::MouseButtonIsDown[SDL_BUTTON_LEFT] || Input::TouchHeldDown;
 
   OptionsEntry::UpdateInput(dt);
 

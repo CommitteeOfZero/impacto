@@ -41,30 +41,28 @@ BacklogEntry::BacklogEntry(Vm::BufferOffsetContext scrCtx,
 }
 
 void BacklogEntry::UpdateInput(float dt) {
-  if (Enabled) {
-    RectF entryHoverBounds =
-        RectF(Profile::BacklogMenu::HoverBounds.X, Bounds.Y,
-              Profile::BacklogMenu::HoverBounds.Width, Bounds.Height);
-    if (Input::CurrentInputDevice == Input::Device::Mouse) {
-      Hovered = entryHoverBounds.ContainsPoint(Input::CurMousePos) &&
-                Profile::BacklogMenu::HoverBounds.Y <= Bounds.Y &&
-                (Bounds.Y + Bounds.Height) <=
-                    (Profile::BacklogMenu::HoverBounds.Y +
-                     Profile::BacklogMenu::HoverBounds.Height);
-    } else if (Input::CurrentInputDevice == Input::Device::Touch &&
-               Input::TouchIsDown[0]) {
-      Hovered = entryHoverBounds.ContainsPoint(Input::CurTouchPos) &&
-                Profile::BacklogMenu::HoverBounds.Y <= Bounds.Y &&
-                (Bounds.Y + Bounds.Height) <=
-                    (Profile::BacklogMenu::HoverBounds.Y +
-                     Profile::BacklogMenu::HoverBounds.Height);
-    }
-    if (HasFocus &&
-        ((Hovered &&
-          Vm::Interface::PADinputMouseWentDown & Vm::Interface::PAD1A) ||
-         (Vm::Interface::PADinputButtonWentDown & Vm::Interface::PAD1A))) {
-      OnClickHandler(this);
-    }
+  using namespace Impacto::Vm::Interface;
+
+  if (!Enabled) return;
+  const RectF entryHoverBounds =
+      RectF(Profile::BacklogMenu::HoverBounds.X, Bounds.Y,
+            Profile::BacklogMenu::HoverBounds.Width, Bounds.Height);
+  const bool useCursor = (Input::CurrentInputDevice == Input::Device::Mouse ||
+                          Input::CurrentInputDevice == Input::Device::Touch);
+
+  if (useCursor && Input::PrevMousePos != Input::CurMousePos) {
+    Hovered = entryHoverBounds.ContainsPoint(Input::CurMousePos) &&
+              Profile::BacklogMenu::HoverBounds.Y <= Bounds.Y &&
+              (Bounds.Y + Bounds.Height) <=
+                  (Profile::BacklogMenu::HoverBounds.Y +
+                   Profile::BacklogMenu::HoverBounds.Height);
+  }
+  const bool isClicked =
+      GetControlState(ControlType::OK, InputDownType::WentDown);
+
+  if (HasFocus && isClicked &&
+      (!useCursor || (Hovered && Bounds.ContainsPoint(Input::InitMousePos)))) {
+    OnClickHandler(this);
   }
 }
 

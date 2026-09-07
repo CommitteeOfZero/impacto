@@ -30,12 +30,12 @@ void OptionGroup::Update(float dt) {
 
 void OptionGroup::UpdateInput(float dt) {
   if (Enabled) {
-    bool mouseInput = Input::CurrentInputDevice == Input::Device::Mouse ||
-                      Input::CurrentInputDevice == Input::Device::Touch;
+    const bool useCursor = (Input::CurrentInputDevice == Input::Device::Mouse ||
+                            Input::CurrentInputDevice == Input::Device::Touch);
 
-    if (GroupEntered || mouseInput) {
+    if (GroupEntered || useCursor) {
       for (const auto& item : Items) {
-        if (item->Enabled && item->Hovered && mouseInput) {
+        if (item->Enabled && item->Hovered && useCursor) {
           if (MenuContext->CurrentlyFocusedElement)
             MenuContext->CurrentlyFocusedElement->HasFocus = false;
           item->HasFocus = true;
@@ -44,8 +44,8 @@ void OptionGroup::UpdateInput(float dt) {
         item->UpdateInput(dt);
       }
 
-      if (!mouseInput && (GetControlState(ControlType::OK) ||
-                          GetControlState(ControlType::Back))) {
+      if (!useCursor && (GetControlState(ControlType::OK) ||
+                         GetControlState(ControlType::Back))) {
         GroupEntered = false;
         MenuContext->CurrentlyFocusedElement->HasFocus = false;
         MenuContext->CurrentlyFocusedElement = this;
@@ -58,7 +58,7 @@ void OptionGroup::UpdateInput(float dt) {
     if (HasFocus) {
       GroupEntered = false;
 
-      if (!mouseInput && GetControlState(ControlType::OK)) {
+      if (!useCursor && GetControlState(ControlType::OK)) {
         GroupEntered = true;
         if (Items.size() > 0) {
           MenuContext->CurrentlyFocusedElement->HasFocus = false;
@@ -68,13 +68,8 @@ void OptionGroup::UpdateInput(float dt) {
       }
     }
 
-    if (Input::CurrentInputDevice == Input::Device::Mouse &&
-        Input::PrevMousePos != Input::CurMousePos) {
+    if (useCursor && Input::PrevMousePos != Input::CurMousePos) {
       Hovered = Bounds.ContainsPoint(Input::CurMousePos);
-    } else if (Input::CurrentInputDevice == Input::Device::Mouse &&
-               Input::TouchIsDown[0] &&
-               Input::PrevTouchPos != Input::CurTouchPos) {
-      Hovered = Bounds.ContainsPoint(Input::CurTouchPos);
     }
   }
 }

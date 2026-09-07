@@ -7,26 +7,23 @@ namespace Impacto {
 namespace Input {
 enum class Device { Mouse, Keyboard, Touch, Controller };
 
-float constexpr ControllerAxisLightThreshold = 0.3f;
-float constexpr ControllerAxisHeavyThreshold = 0.8f;
+inline float constexpr ControllerAxisLightThreshold = 0.3f;
+inline float constexpr ControllerAxisHeavyThreshold = 0.8f;
 
-int constexpr MouseButtonsMax = SDL_BUTTON_X2 + 1;
-int constexpr FingerTapMax = 2;
+inline int constexpr MouseButtonsMax = SDL_BUTTON_X2 + 1;
+inline int constexpr FingerTapMax = 3;
 
 void BeginFrame();
 bool HandleEvent(SDL_Event const* ev);
 
 inline Device CurrentInputDevice = Device::Mouse;
 
+inline glm::vec2 InitMousePos = glm::vec2(0.0f);
 inline glm::vec2 PrevMousePos = glm::vec2(0.0f);
 inline glm::vec2 CurMousePos = glm::vec2(0.0f);
 
 inline float MouseWheelDeltaX = 0;
 inline float MouseWheelDeltaY = 0;
-
-// TODO multitouch
-inline glm::vec2 PrevTouchPos = glm::vec2(0.0f);
-inline glm::vec2 CurTouchPos = glm::vec2(0.0f);
 
 inline float ControllerAxisValue[SDL_GAMEPAD_AXIS_COUNT];
 
@@ -41,9 +38,8 @@ inline bool ControllerAxisWentDownHeavy[SDL_GAMEPAD_AXIS_COUNT] = {false};
 inline bool KeyboardButtonWentDown[SDL_SCANCODE_COUNT] = {false};
 inline bool KeyboardButtonIsDown[SDL_SCANCODE_COUNT] = {false};
 
-// TODO multitouch
-inline bool TouchIsDown[FingerTapMax]{};
-inline bool TouchWentDown[FingerTapMax]{};
+inline int8_t TouchTapCount = 0;
+inline bool TouchHeldDown = false;
 
 // Using statements to ensure that types are coming from this header (for
 // consistent magic enum range specialization).
