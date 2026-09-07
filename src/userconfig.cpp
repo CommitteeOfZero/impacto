@@ -111,7 +111,8 @@ TOML11_DEFINE_CONVERSION_NON_INTRUSIVE(
   LogLvl,
   LogChannels,
   LoggingToConsole,
-  LoggingToFile
+  LoggingToFile,
+  SwapConfirmCancelButtons
 )
 
 TOML11_DEFINE_CONVERSION_NON_INTRUSIVE(
