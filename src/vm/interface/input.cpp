@@ -262,7 +262,8 @@ bool GetControlState(ControlType::ControlTypeEnum controlId,
       return padInputDown & PADcustom[6];
     case Hide:
       return PADcustom[11] ? (PADcustom[11] & PADinputButtonWentDown)
-                           : (PADcustom[6] & PADinputButtonWentDown);
+                           : (PADcustom[6] & PADinputButtonWentDown) ||
+                                 Input::TouchFlickUp;
     case NextMessage:
       return padInputDown & PADcustom[23];
     case ForceSkip:
