@@ -1246,9 +1246,9 @@ void ChkMesSkip() {
   }
 
   if ((ScrWork[SW_GAMESTATE] & 0b101) == 0b001 && !GetFlag(SF_UIHIDDEN)) {
-    mesSkip |= Interface::GetControlState(Interface::CT_NextMessage);
+    mesSkip |= Interface::GetControlState(Interface::ControlType::NextMessage);
 
-    if (Interface::GetControlState(Interface::CT_ForceSkip,
+    if (Interface::GetControlState(Interface::ControlType::ForceSkip,
                                    Interface::InputDownType::IsDown)) {
       mesSkip = true;
       mesAllSkip = true;

@@ -348,7 +348,7 @@ void OptionsMenu::Update(float dt) {
       GoToPage((CurrentPage + 1) % Pages.size());
   }
 
-  if (GetControlState(CT_Back)) {
+  if (GetControlState(ControlType::Back)) {
     SetFlag(SF_SUBMENUEXIT, true);
   }
 }

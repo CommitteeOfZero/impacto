@@ -317,8 +317,8 @@ void DelusionTrigger::Update(float dt) {
   }
 
   if (LastDelusionState == DelusionState) {
-    const bool leftTrigger = GetControlState(CT_DelusionTriggerL);
-    const bool rightTrigger = GetControlState(CT_DelusionTriggerR);
+    const bool leftTrigger = GetControlState(ControlType::DelusionTriggerL);
+    const bool rightTrigger = GetControlState(ControlType::DelusionTriggerR);
 
     if (!(leftTrigger ^ rightTrigger)) return;
 

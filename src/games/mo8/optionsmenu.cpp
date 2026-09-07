@@ -296,7 +296,7 @@ void OptionsMenu::UpdateVisibility() {
 void OptionsMenu::UpdateInput(float dt) {
   UI::OptionsMenu::UpdateInput(dt);
 
-  if (GetControlState(CT_Back)) SetFlag(SF_SUBMENUEXIT, true);
+  if (GetControlState(ControlType::Back)) SetFlag(SF_SUBMENUEXIT, true);
 }
 
 void OptionsMenu::Update(float dt) {

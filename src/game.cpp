@@ -261,7 +261,7 @@ void UpdateGameState(float dt) {
 
   if ((ScrWork[SW_GAMESTATE] & 5) == 1 && !GetFlag(SF_SYSTEMMENUDISABLE) &&
       !GetFlag(SF_GAMEPAUSE) && !GetFlag(SF_SYSMENUDISABLE) &&
-      Vm::Interface::GetControlState(8)) {
+      Vm::Interface::GetControlState(Vm::Interface::ControlType::Hide)) {
     // Some more stuff here?
     if ((GetFlag(SF_MESWINDOW0OPENFL) &&
          DialoguePages[0].TextIsFullyOpaque()) ||

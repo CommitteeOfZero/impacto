@@ -61,31 +61,33 @@ inline ankerl::unordered_dense::map<uint8_t,
     KBcustom{};
 inline std::array<bool, SDL_SCANCODE_COUNT> KBinputHeldDown = {false};
 
-enum ControlType {
-  CT_OK = 0,
-  CT_Back = 2,
-  CT_HIDE = 8,
-  CT_NextMessage = 21,
-  CT_ForceSkip = 22,
-  CT_SkipMode = 23,
-  CT_AutoMode = 24,
-  CT_QuickSave = 26,
-  CT_MainMenu = 28,
-  CT_Backlog = 29,
-  CT_Tips = 30,
-  CT_MovieCancel = 38,
-  CT_LogoSkip = 39,
-  CT_ResetOptions = 40,
-  CT_DelusionTriggerL = 41,
-  CT_DelusionTriggerR = 42,
+namespace ControlType {
+enum ControlTypeEnum {
+  OK = 0,
+  Back = 2,
+  Hide = 8,
+  NextMessage = 21,
+  ForceSkip = 22,
+  SkipMode = 23,
+  AutoMode = 24,
+  QuickSave = 26,
+  MainMenu = 28,
+  Backlog = 29,
+  Tips = 30,
+  MovieCancel = 38,
+  LogoSkip = 39,
+  ResetOptions = 40,
+  DelusionTriggerL = 41,
+  DelusionTriggerR = 42,
 };
+}
 
 uint32_t GetPadInputButtonDown(InputDownType downType);
 void UpdatePADInput();
 void UpdatePADHoldInput(float dt);
 void ResetPADHoldTimer(uint32_t PADcode);
 void UpdatePADcustomType(int type);
-bool GetControlState(int controlId,
+bool GetControlState(ControlType::ControlTypeEnum controlId,
                      InputDownType downType = InputDownType::WentDown);
 void UpdateKBInput();
 void UpdateKBHoldInput(float dt);

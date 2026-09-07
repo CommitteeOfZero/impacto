@@ -347,7 +347,7 @@ void TitleMenu::UpdateSubMenu(Animation* showAnimation,
       showAnimation->StartIn();
     }
   } else if (showAnimation->IsIn() &&
-             Vm::Interface::GetControlState(Vm::Interface::CT_Back)) {
+             Vm::Interface::GetControlState(Vm::Interface::ControlType::Back)) {
     Audio::PlayInGroup(Audio::ACG_SE, "sysse", 3, false, 0.0f);
     showAnimation->StartOut();
   }
