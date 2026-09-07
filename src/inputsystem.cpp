@@ -13,6 +13,10 @@ static constexpr std::chrono::milliseconds LongPressTime(500);
 // nonscaled pixels
 static constexpr float MaxTapSlop = 8.0f;
 // nonscaled pixels per second
+static constexpr float FlingMinVelocity = 50.0f;
+static constexpr float FlingMaxVelocity = 5000.0f;
+static constexpr float PinchInMaxScale = 0.7f;
+static constexpr std::chrono::milliseconds PinchInMaxTime(500);
 static constexpr std::chrono::milliseconds TapGroupWindow(80);
 
 struct TouchState {
@@ -21,6 +25,7 @@ struct TouchState {
   glm::vec2 LastPos;
   std::chrono::nanoseconds StartTime;
   bool Tappable;
+  bool Flickable;
 };
 static std::array<std::optional<TouchState>, 3> CurrentFingers{};
 
@@ -29,6 +34,12 @@ struct PendingTapGroup {
   int8_t Count = 0;
 };
 static std::optional<PendingTapGroup> PendingTaps;
+
+struct PinchState {
+  std::chrono::nanoseconds StartTime;
+  float CummulativeScale;
+};
+static std::optional<PinchState> CurrentPinch{};
 
 void BeginFrame() {
   using std::chrono::nanoseconds;
@@ -58,6 +69,10 @@ void BeginFrame() {
     InitMousePos = CurMousePos;
   }
   TouchHeldDown = isTouchHeld;
+  TouchFlickLeft = false;
+  TouchFlickRight = false;
+  TouchFlickDown = false;
+  TouchFlickUp = false;
 }
 
 static glm::vec2 SDLMouseCoordsToDesign(int x, int y) {
@@ -86,6 +101,41 @@ static void HandleTaps(SDL_TouchFingerEvent const& evt, bool tappable,
       CurMousePos = liftedFinger.StartPos;
       InitMousePos = liftedFinger.StartPos;
     }
+  }
+}
+
+static void HandleFlicks(SDL_TouchFingerEvent const& evt, bool tappable,
+                         TouchState const& liftedFinger) {
+  using namespace std::chrono;
+  using SecondsFlt = duration<float>;
+
+  const nanoseconds elapsedTime =
+      nanoseconds(evt.timestamp) - liftedFinger.StartTime;
+
+  const glm::vec2 liftedPos =
+      SDLMouseCoordsToDesign((int)(evt.x * (float)Window->WindowWidth),
+                             (int)(evt.y * (float)Window->WindowHeight));
+
+  const glm::vec2 deltaPos = liftedPos - liftedFinger.StartPos;
+  const glm::vec2 deltaPosPerSecond =
+      deltaPos / duration_cast<SecondsFlt>(elapsedTime).count();
+  const glm::vec2 deltaPosPerSecondAbs = glm::abs(deltaPosPerSecond);
+
+  if (deltaPosPerSecondAbs.x > deltaPosPerSecondAbs.y &&
+      deltaPosPerSecondAbs.x >= FlingMinVelocity * Window->DpiScale &&
+      deltaPosPerSecondAbs.x <= FlingMaxVelocity * Window->DpiScale) {
+    if (deltaPosPerSecond.x < 0)
+      TouchFlickLeft = true;
+    else if (deltaPosPerSecond.x > 0)
+      TouchFlickRight = true;
+  }
+  if (deltaPosPerSecondAbs.y > deltaPosPerSecondAbs.x &&
+      deltaPosPerSecondAbs.y >= FlingMinVelocity * Window->DpiScale &&
+      deltaPosPerSecondAbs.y <= FlingMaxVelocity * Window->DpiScale) {
+    if (deltaPosPerSecond.y < 0)
+      TouchFlickUp = true;
+    else if (deltaPosPerSecond.y > 0)
+      TouchFlickDown = true;
   }
 }
 
@@ -183,6 +233,7 @@ bool HandleEvent(SDL_Event const* ev) {
           touchState->Tappable &=
               glm::distance(touchState->StartPos, touchState->LastPos) <=
               MaxTapSlop * Window->DpiScale;
+          if (CurrentPinch.has_value()) touchState->Flickable = false;
         }
       }
       if (touchState && fingerCount == 1) {
@@ -213,6 +264,7 @@ bool HandleEvent(SDL_Event const* ev) {
               (int)(evt->y * (float)Window->WindowHeight)),
           .StartTime = std::chrono::nanoseconds(evt->timestamp),
           .Tappable = true,
+          .Flickable = true,
       });
       return true;
     }
@@ -221,15 +273,28 @@ bool HandleEvent(SDL_Event const* ev) {
       CurrentInputDevice = Device::Touch;
       auto liftedFingerItr = CurrentFingers.end();
       bool tappable = true;
+      bool flickable = true;
       for (auto itr = CurrentFingers.begin(); itr != CurrentFingers.end();
            ++itr) {
         if (!itr->has_value()) continue;
         if ((*itr)->FingerId == evt->fingerID) liftedFingerItr = itr;
 
         tappable &= (*itr)->Tappable;
+        flickable &= (*itr)->Flickable;
       }
       if (liftedFingerItr != CurrentFingers.end()) {
-        if (tappable) HandleTaps(*evt, tappable, *(*liftedFingerItr));
+        if (tappable)
+          HandleTaps(*evt, tappable, *(*liftedFingerItr));
+        else if (!tappable && flickable) {
+          HandleFlicks(*evt, flickable, *(*liftedFingerItr));
+        }
+
+        ImpLog(LogLevel::Debug, LogChannel::General,
+               "Touch event: tap count: {}, flick left: {}, flick right: {}, "
+               "flick up: {}, flick down: {}",
+               TouchTapCount, TouchFlickLeft, TouchFlickRight, TouchFlickUp,
+               TouchFlickDown);
+
         liftedFingerItr->reset();
         // Shift all fingers after the lifted one to the left
         std::rotate(liftedFingerItr, std::next(liftedFingerItr),
@@ -239,6 +304,13 @@ bool HandleEvent(SDL_Event const* ev) {
     }
     default:
       return false;
+  }
+}
+
+void ClearFlicks() {
+  for (auto& finger : CurrentFingers) {
+    if (!finger.has_value()) continue;
+    finger->Flickable = false;
   }
 }
 

@@ -15,6 +15,7 @@ inline int constexpr FingerTapMax = 3;
 
 void BeginFrame();
 bool HandleEvent(SDL_Event const* ev);
+void ClearFlicks();
 
 inline Device CurrentInputDevice = Device::Mouse;
 
@@ -40,6 +41,10 @@ inline bool KeyboardButtonIsDown[SDL_SCANCODE_COUNT] = {false};
 
 inline int8_t TouchTapCount = 0;
 inline bool TouchHeldDown = false;
+inline bool TouchFlickLeft = false;
+inline bool TouchFlickRight = false;
+inline bool TouchFlickDown = false;
+inline bool TouchFlickUp = false;
 
 // Using statements to ensure that types are coming from this header (for
 // consistent magic enum range specialization).
