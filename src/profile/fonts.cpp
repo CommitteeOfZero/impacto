@@ -24,9 +24,8 @@ static std::vector<float> EnsureGetAdvanceWidths(const std::string_view name,
     uint8_t* widthBin;
     int64_t widthSz;
     if (widthTablePath.Slurp((void*&)widthBin, widthSz) != IoError_OK) {
-      ImpLog(LogLevel::Fatal, LogChannel::Profile,
-             "Failed to load width table file for font {:s}\n", name);
-      Window->Shutdown();
+      Panic(LogChannel::Profile,
+            "Failed to load width table file for font {:s}\n", name);
     }
     assert(widthSz % bytesPerGlyph == 0);
 
@@ -179,10 +178,9 @@ void LoadFonts() {
       } break;
 
       case External:
-        ImpLog(LogLevel::Fatal, LogChannel::Profile,
-               "External fonts cannot be loaded from the profile for {:s}\n",
-               name);
-        Window->Shutdown();
+        Panic(LogChannel::Profile,
+              "External fonts cannot be loaded from the profile for {:s}\n",
+              name);
         break;
     }
 

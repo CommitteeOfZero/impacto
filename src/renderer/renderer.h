@@ -459,8 +459,8 @@ inline void InsertQuad(std::span<VertexBufferSprites, 4> vertices,
   };
 }
 
-inline BaseRenderer* Renderer;
-inline BaseWindow* Window;
+inline std::unique_ptr<BaseRenderer> Renderer;
+inline std::unique_ptr<BaseWindow> Window;
 
 void CreateRenderer();
 
