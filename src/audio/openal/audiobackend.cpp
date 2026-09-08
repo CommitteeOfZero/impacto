@@ -25,7 +25,7 @@ void AL_APIENTRY DefaultDeviceChangedEventCallback(
 bool AudioBackend::Init() {
   AlcDevice = alcOpenDevice(NULL);
   if (!AlcDevice) {
-    ImpLog(LogLevel::Fatal, LogChannel::Audio,
+    ImpLog(LogLevel::Error, LogChannel::Audio,
            "Could not create OpenAL device\n");
     return false;
   }

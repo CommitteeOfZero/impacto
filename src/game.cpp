@@ -205,7 +205,7 @@ void InitGameProfile() {
   Profile::ClearProfile();
 }
 
-void Shutdown() {
+void Shutdown(const int exitCode) {
   if (+Profile::Game::GameFeatures & +GameFeature::Audio) {
     Audio::AudioShutdown();
   }
@@ -214,11 +214,12 @@ void Shutdown() {
     Video::VideoShutdown();
   }
 
-  if (+Profile::Game::GameFeatures & +GameFeature::Renderer2D) {
-    Renderer->Shutdown();
-  }
   WorkQueue::StopWorkQueue();
-  Window->Shutdown();
+
+  Renderer.reset();
+  Window.reset();
+
+  exit(exitCode);
 }
 
 void LauncherUpdate(float dt) {

@@ -105,10 +105,8 @@ GLuint ShaderCompiler::Attach(GLuint program, GLenum shaderType,
 
   GLuint shader = glCreateShader(shaderType);
   if (!shader) {
-    ImpLog(LogLevel::Fatal, LogChannel::Render,
-           "Failed to create shader object\n");
     SDL_free(source);
-    return 0;
+    Panic(LogChannel::Render, "Failed to create shader object\n");
   }
 
   const GLchar* codeParts[4];
@@ -136,12 +134,9 @@ GLuint ShaderCompiler::Attach(GLuint program, GLenum shaderType,
   glGetShaderiv(shader, GL_COMPILE_STATUS, &result);
   if (!result) {
     glGetShaderInfoLog(shader, sizeof(errorLog), NULL, errorLog);
-    ImpLog(LogLevel::Fatal, LogChannel::Render,
-           "Error compiling shader: {:s}\n", errorLog);
     SDL_free(source);
     glDeleteShader(shader);
-    assert(0);
-    return 0;
+    Panic(LogChannel::Render, "Error compiling shader: {:s}\n", errorLog);
   }
 
   glAttachShader(program, shader);
@@ -154,9 +149,7 @@ GLuint ShaderCompiler::Attach(GLuint program, GLenum shaderType,
 GLuint ShaderCompiler::Compile(char const* name, ShaderParamMap const& params) {
   GLuint program = glCreateProgram();
   if (!program) {
-    ImpLog(LogLevel::Fatal, LogChannel::Render,
-           "Could not create shader program\n");
-    return program;
+    Panic(LogChannel::Render, "Could not create shader program\n");
   }
 
   ImpLog(LogLevel::Debug, LogChannel::Render, "Compiling shader \"{:s}\"\n",
@@ -194,12 +187,10 @@ GLuint ShaderCompiler::Compile(char const* name, ShaderParamMap const& params) {
   if (!fs) {
     static GLchar errorLog[1024] = {};
     glGetProgramInfoLog(program, sizeof(errorLog), NULL, errorLog);
-    ImpLog(LogLevel::Fatal, LogChannel::Render,
-           "Error linking shader program: {:s}\n", errorLog);
     glDeleteShader(vs);
     glDeleteProgram(program);
     ImpStackFree(paramStr);
-    return 0;
+    Panic(LogChannel::Render, "Error linking shader program: {:s}\n", errorLog);
   }
 
   ImpStackFree(paramStr);
@@ -217,10 +208,8 @@ GLuint ShaderCompiler::Compile(char const* name, ShaderParamMap const& params) {
   glGetProgramiv(program, GL_LINK_STATUS, &result);
   if (!result) {
     glGetProgramInfoLog(program, sizeof(errorLog), NULL, errorLog);
-    ImpLog(LogLevel::Fatal, LogChannel::Render,
-           "Error linking shader program: {:s}\n", errorLog);
     glDeleteProgram(program);
-    return 0;
+    Panic(LogChannel::Render, "Error linking shader program: {:s}\n", errorLog);
   }
 
   // TODO: Figure out why this actually doesn't work on macOS
@@ -229,10 +218,9 @@ GLuint ShaderCompiler::Compile(char const* name, ShaderParamMap const& params) {
   glGetProgramiv(program, GL_VALIDATE_STATUS, &result);
   if (!result) {
     glGetProgramInfoLog(program, sizeof(errorLog), NULL, errorLog);
-    ImpLog(LogLevel::Fatal, LogChannel::Render,
-           "ShaderCompiler program failed to validate: {:s}\n", errorLog);
     glDeleteProgram(program);
-    return 0;
+    Panic(LogChannel::Render,
+          "ShaderCompiler program failed to validate: {:s}\n", errorLog);
   }
 #endif
 

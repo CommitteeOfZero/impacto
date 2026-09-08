@@ -6,6 +6,8 @@ namespace Impacto::Bgfx {
 
 class Window final : public BaseWindow {
  public:
+  ~Window() { Shutdown(); }
+
   void Init() override;
 
   void SetDimensions(int width, int height, int msaa,
