@@ -41,10 +41,9 @@ struct UniformHandle {
   UniformHandle& operator=(UniformHandle&& other) {
     if (this == &other) return *this;
     Reset();
-    if (!other.Handle.has_value()) return *this;
 
     Handle = other.Handle;
-    other.Handle.reset();
+    other.Handle.idx = bgfx::kInvalidHandle;
 
     return *this;
   }
@@ -52,23 +51,21 @@ struct UniformHandle {
   UniformHandle(const char* name, bgfx::UniformType::Enum type,
                 uint16_t num = 1)
       : Handle(bgfx::createUniform(name, type, num)) {
-    assert(bgfx::isValid(*Handle));
+    assert(bgfx::isValid(Handle));
   }
 
   bgfx::UniformHandle GetHandle() {
-    assert(bgfx::isValid(*Handle));
-    return *Handle;
+    assert(bgfx::isValid(Handle));
+    return Handle;
   }
   operator bgfx::UniformHandle() { return GetHandle(); }
 
  private:
-  std::optional<bgfx::UniformHandle> Handle;
+  bgfx::UniformHandle Handle = {bgfx::kInvalidHandle};
 
   void Reset() {
-    if (!Handle.has_value()) return;
-
-    bgfx::destroy(*Handle);
-    Handle.reset();
+    if (bgfx::isValid(Handle)) bgfx::destroy(Handle);
+    Handle.idx = bgfx::kInvalidHandle;
   }
 };
 
