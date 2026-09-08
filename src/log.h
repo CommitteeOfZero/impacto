@@ -4,7 +4,7 @@
 #include "util.h"
 #include "game.h"
 
-#ifndef IMPACTO_DISABLE_OPENGL
+#if defined(IMPACTO_RENDERER_OPENGL) || defined(IMPACTO_RENDERER_OPENGLES)
 #include <glad/glad.h>
 #endif
 
@@ -96,7 +96,7 @@ void ImpLog(LogLevel level, LogChannel channel, fmt::format_string<T...> format,
 #define ImpLogSlow(...) (void)0
 #endif
 
-#ifndef IMPACTO_DISABLE_OPENGL
+#if defined(IMPACTO_RENDERER_OPENGL) || defined(IMPACTO_RENDERER_OPENGLES)
 void GLAPIENTRY LogGLMessageCallback(GLenum source, GLenum type, GLuint id,
                                      GLenum severity, GLsizei length,
                                      const GLchar* message,

@@ -10,36 +10,43 @@
 #include <span>
 
 enum class RendererType : int {
-#ifndef IMPACTO_DISABLE_BGFX
-#ifndef IMPACTO_DISABLE_OPENGL
+#ifdef IMPACTO_RENDERER_OPENGL
+  OpenGLLegacy,
+#ifdef IMPACTO_RENDERER_BGFX
   OpenGL,
+#endif
+#endif
+#ifdef IMPACTO_RENDERER_OPENGLES
   OpenGLES,
 #endif
-#ifndef IMPACTO_DISABLE_VULKAN
+#ifdef IMPACTO_RENDERER_VULKAN
   Vulkan,
 #endif
-#ifndef IMPACTO_DISABLE_DIRECT3D
-  Direct3D,
+#ifdef IMPACTO_RENDERER_DIRECT3D11
+  Direct3D11,
 #endif
-#ifndef IMPACTO_DISABLE_METAL
+#ifdef IMPACTO_RENDERER_DIRECT3D12
+  Direct3D12,
+#endif
+#ifdef IMPACTO_RENDERER_METAL
   Metal,
-#endif
-#endif
-
-#ifndef IMPACTO_DISABLE_OPENGL
-  OpenGLLegacy,
 #endif
 };
 
 constexpr inline RendererType DefaultRendererType =
-#if defined(SDL_PLATFORM_WIN32)
-    RendererType::Direct3D;
-#elif defined(SDL_PLATFORM_MACOS)
+#if defined(SDL_PLATFORM_LINUX)
+    RendererType::Vulkan;
+#elif defined(SDL_PLATFORM_WINDOWS)
+    RendererType::Direct3D12;
+#elif defined(SDL_PLATFORM_APPLE)
     RendererType::Metal;
 #elif defined(SDL_PLATFORM_ANDROID)
     RendererType::OpenGLES;
-#else
+#elif defined(__SWITCH__)
     RendererType::Vulkan;
+#else
+    RendererType{};
+static_assert(false && "No default renderer supplied for target renderer");
 #endif
 
 namespace Impacto {

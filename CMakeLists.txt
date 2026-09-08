@@ -810,11 +810,35 @@ if (NX OR EMSCRIPTEN)
     set(BUILD_SHARED_LIBS OFF)
 endif ()
 
-if (NOT WIN32 AND NOT CYGWIN)
-    set(IMPACTO_DISABLE_DIRECT3D ON)
-endif()
-if (NOT APPLE)
-    set(IMPACTO_DISABLE_METAL ON)
+if (LINUX)
+    set(IMPACTO_RENDERER_VULKAN ON)
+    set(IMPACTO_RENDERER_OPENGL ON)
+    set(IMPACTO_RENDERER_OPENGLES ON)
+elseif (WIN32 OR CYGWIN)
+    set(IMPACTO_RENDERER_VULKAN ON)
+    set(IMPACTO_RENDERER_OPENGL ON)
+    set(IMPACTO_RENDERER_OPENGLES ON)
+    set(IMPACTO_RENDERER_DIRECT3D11 ON)
+    set(IMPACTO_RENDERER_DIRECT3D12 ON)
+elseif (APPLE)
+    set(IMPACTO_RENDERER_VULKAN ON)
+    set(IMPACTO_RENDERER_METAL ON)
+elseif (ANDROID)
+    set(IMPACTO_RENDERER_VULKAN ON)
+    set(IMPACTO_RENDERER_OPENGLES ON)
+elseif (NX)
+    set(IMPACTO_RENDERER_VULKAN ON)
+else ()
+    message(FATAL_ERROR "No renderer backends supplied for target platform")
+endif ()
+
+if (IMPACTO_RENDERER_VULKAN OR
+    IMPACTO_RENDERER_OPENGL OR
+    IMPACTO_RENDERER_OPENGLES OR
+    IMPACTO_RENDERER_DIRECT3D11 OR
+    IMPACTO_RENDERER_DIRECT3D12 OR
+    IMPACTO_RENDERER_METAL)
+    set(IMPACTO_RENDERER_BGFX ON)
 endif ()
 
 if (IMPACTO_ASAN)
@@ -902,7 +926,7 @@ endif ()
 list(APPEND Impacto_Include_Dirs ${CMAKE_CURRENT_SOURCE_DIR}/vendor)
 list(APPEND Impacto_Include_Dirs ${CMAKE_CURRENT_SOURCE_DIR}/vendor/include)
 
-if (NOT DEFINED IMPACTO_DISABLE_OPENGL)
+if (IMPACTO_RENDERER_OPENGL OR IMPACTO_RENDERER_OPENGLES)
     list(APPEND Impacto_Include_Dirs ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glad/include)
 
     if (ANDROID OR NX)
@@ -1099,7 +1123,7 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
     list(APPEND Impacto_Src src/overlay.cpp)
     list(APPEND Impacto_Header src/overlay.h)
 
-    if (NOT DEFINED IMPACTO_DISABLE_OPENGL)
+    if (IMPACTO_RENDERER_OPENGL OR IMPACTO_RENDERER_OPENGLES)
         list(APPEND imgui_src
             vendor/imgui_custom/backends/imgui_impl_opengl3.cpp
         )
@@ -1108,25 +1132,31 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
         )
     endif ()
 
-    if (NOT DEFINED IMPACTO_DISABLE_VULKAN)
+    if (IMPACTO_RENDERER_VULKAN)
         list(APPEND imgui_src
             ${imgui_SOURCE_DIR}/backends/imgui_impl_vulkan.cpp
         )
     endif ()
 
-    if (NOT DEFINED IMPACTO_DISABLE_DIRECT3D)
+    if (IMPACTO_RENDERER_DIRECT3D11)
+        list(APPEND imgui_src
+            ${imgui_SOURCE_DIR}/backends/imgui_impl_dx11.cpp
+        )
+    endif ()
+
+    if (IMPACTO_RENDERER_DIRECT3D12)
         list(APPEND imgui_src
             ${imgui_SOURCE_DIR}/backends/imgui_impl_dx12.cpp
         )
     endif ()
 
-    if (NOT DEFINED IMPACTO_DISABLE_METAL)
+    if (IMPACTO_RENDERER_METAL)
         list(APPEND imgui_src
             ${imgui_SOURCE_DIR}/backends/imgui_impl_metal.mm
         )
     endif ()
 
-    if (NOT DEFINED IMPACTO_DISABLE_BGFX)
+    if (IMPACTO_RENDERER_BGFX)
         FetchContent_Declare(
             imgui_impl_bgfx
             URL https://gist.github.com/Madman10K/0ffc9ba203333d3580d467d972bbf8b6/archive/9110d39e126dbd557ad1ff5147526ffeaeb7267c.zip
@@ -1162,14 +1192,14 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
 
     target_link_libraries(imgui PRIVATE ${SDL3_LIBRARIES} ${OpenGL_Libs})
 
-    if (NOT DEFINED IMPACTO_DISABLE_BGFX)
+    if (IMPACTO_RENDERER_BGFX)
         target_link_libraries(imgui PUBLIC bgfx::bgfx PRIVATE bgfx::bx)
     endif ()
 
     list(APPEND Impacto_Lib_Targets imgui)
 endif ()
 
-if (NOT DEFINED IMPACTO_DISABLE_OPENGL)
+if (IMPACTO_RENDERER_OPENGL OR IMPACTO_RENDERER_OPENGLES)
     list(APPEND Impacto_Src
         src/renderer/opengl/window.cpp
         src/renderer/opengl/renderer.cpp
@@ -1194,7 +1224,7 @@ if (NOT DEFINED IMPACTO_DISABLE_OPENGL)
     )
 endif ()
 
-if (NOT DEFINED IMPACTO_DISABLE_BGFX)
+if (IMPACTO_RENDERER_BGFX)
     find_package(bgfx CONFIG REQUIRED)
     list(APPEND Impacto_Libs bgfx::bgfx)
 
