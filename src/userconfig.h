@@ -8,39 +8,6 @@
 
 namespace Impacto {
 
-enum class RendererType : int {
-#ifndef IMPACTO_DISABLE_BGFX
-#ifndef IMPACTO_DISABLE_OPENGL
-  OpenGL,
-  OpenGLES,
-#endif
-#ifndef IMPACTO_DISABLE_VULKAN
-  Vulkan,
-#endif
-#ifndef IMPACTO_DISABLE_DIRECT3D
-  Direct3D,
-#endif
-#ifndef IMPACTO_DISABLE_METAL
-  Metal,
-#endif
-#endif
-
-#ifndef IMPACTO_DISABLE_OPENGL
-  OpenGLLegacy,
-#endif
-};
-
-constexpr inline RendererType DefaultRendererType =
-#if defined(SDL_PLATFORM_WIN32)
-    RendererType::Direct3D;
-#elif defined(SDL_PLATFORM_MACOS)
-    RendererType::Metal;
-#elif defined(SDL_PLATFORM_ANDROID)
-    RendererType::OpenGLES;
-#else
-    RendererType::Vulkan;
-#endif
-
 enum class VideoPlayerType : int {
   None,
   FFmpeg,
