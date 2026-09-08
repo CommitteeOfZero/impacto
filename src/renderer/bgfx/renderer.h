@@ -4,8 +4,11 @@
 
 #include "framebuffer.h"
 #include "shader.h"
+#include "texture.h"
 
 #include <magic_enum/magic_enum_containers.hpp>
+
+#include <map>
 
 namespace Impacto::Bgfx {
 
@@ -29,16 +32,14 @@ class Renderer final : public BaseRenderer {
   uint32_t MapSpriteSheet(SpriteSheet const& sheet) override { return 0; }
   bool LoadSurf(int surfId, int archiveId, int fileId) override { return true; }
   void UnloadSurf(int surfId) override {}
-  uint32_t SubmitTexture(TexFmt format, uint8_t* buffer, int width,
-                         int height) override {
-    return 0;
-  }
+  uint32_t SubmitTexture(TexFmt format, std::span<const uint8_t> buffer,
+                         int width, int height) override;
 
   int GetSpriteSheetImage(SpriteSheet const& sheet,
                           std::span<uint8_t> outBuffer) override {
     return 0;
   }
-  void FreeTexture(uint32_t id) override {}
+  void FreeTexture(uint32_t id) override;
   YUVFrame* CreateYUVFrame(float width, float height) override {
     return nullptr;
   }
@@ -154,6 +155,8 @@ class Renderer final : public BaseRenderer {
   glm::mat4 BackBufferProjectionMatrix;
 
   std::optional<ShaderProgram<ShaderProgramType::Sprite>> SpriteShader;
+
+  std::map<uint32_t, Texture> Textures;
 };
 
 }  // namespace Impacto::Bgfx
