@@ -7,7 +7,10 @@
 #include "log.h"
 #include "inputsystem.h"
 #include "debugmenu.h"
+
+#if defined(IMPACTO_RENDERER_OPENGL) || defined(IMPACTO_RENDERER_OPENGLES)
 #include "renderer/opengl/glc.h"
+#endif
 
 #ifndef IMPACTO_DISABLE_IMGUI
 #include "overlay.h"
