@@ -272,6 +272,24 @@ void Renderer::ImGuiBeginFrame() {
 }
 #endif
 
+uint32_t Renderer::SubmitTexture(const TexFmt format,
+                                 const std::span<const uint8_t> buffer,
+                                 const int width, const int height) {
+  static uint32_t curTextureId = 0;
+  const uint32_t textureId = curTextureId++;
+
+  Textures.emplace(textureId,
+                   Texture(format, buffer, static_cast<size_t>(width),
+                           static_cast<size_t>(height)));
+
+  return textureId;
+}
+
+void Renderer::FreeTexture(const uint32_t id) {
+  assert(Textures.contains(id));
+  Textures.erase(id);
+}
+
 void Renderer::Shutdown() {
   if (bgfx::isValid(IndexBuffer)) bgfx::destroy(IndexBuffer);
   IndexBuffer.idx = bgfx::kInvalidHandle;
