@@ -383,6 +383,10 @@ void GLWindow::Draw() {
 }
 
 void GLWindow::Shutdown() {
+#ifndef IMPACTO_DISABLE_IMGUI
+  ImGui_ImplOpenGL3_Shutdown();
+#endif
+
   CleanFBOs();
   SDL_GL_DestroyContext(GLContext);
   SDL_DestroyWindow(SDLWindow);

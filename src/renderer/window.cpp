@@ -18,6 +18,8 @@
 namespace Impacto {
 
 void InitWindow() {
+  Window.reset();
+
   switch (UserConfig::AdvancedSettings.ActiveRenderer) {
 #ifndef IMPACTO_DISABLE_OPENGL
     case RendererType::OpenGLLegacy:

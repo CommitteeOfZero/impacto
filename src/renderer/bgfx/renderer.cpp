@@ -6,8 +6,11 @@
 #include <bgfx/shader_content.h>
 
 #include <bgfx/platform.h>
-#include <imgui_impl_bgfx.h>
 #include <glm/gtc/type_ptr.hpp>
+
+#ifndef IMPACTO_DISABLE_IMGUI
+#include <imgui_impl_bgfx.h>
+#endif
 
 namespace Impacto::Bgfx {
 
@@ -172,6 +175,38 @@ void Renderer::Init() {
                  0.0f, -Profile::Game::DesignWidth, Profile::Game::DesignWidth);
 }
 
+RendererType Renderer::GetType() const {
+  switch (bgfx::getRendererType()) {
+    using enum bgfx::RendererType::Enum;
+#ifndef IMPACTO_DISABLE_DIRECT3D
+    case Direct3D11:
+    case Direct3D12:
+      return RendererType::Direct3D;
+#endif
+#ifndef IMPACTO_DISABLE_METAL
+    case Metal:
+      return RendererType::Metal;
+#endif
+#ifndef IMPACTO_DISABLE_OPENGL
+    case OpenGLES:
+      return RendererType::OpenGLES;
+    case OpenGL:
+      return RendererType::OpenGL;
+#endif
+#ifndef IMPACTO_DISABLE_VULKAN
+    case Vulkan:
+      return RendererType::Vulkan;
+#endif
+
+    default:
+      break;
+  }
+
+  Panic(LogChannel::Render, "Unexpected bgfx renderer \"{:s}\"\n",
+        bgfx::getRendererName(bgfx::getRendererType()));
+  return RendererType{};
+}
+
 void Renderer::BeginFrame() {
   bgfx::reset(static_cast<uint32_t>(Window->WindowWidth),
               static_cast<uint32_t>(Window->WindowHeight), BGFX_RESET_VSYNC);
@@ -225,8 +260,6 @@ void Renderer::Shutdown() {
   ImGui_Implbgfx_Shutdown();
   ImGui::DestroyContext();
 #endif
-
-  bgfx::shutdown();
 }
 
 }  // namespace Impacto::Bgfx

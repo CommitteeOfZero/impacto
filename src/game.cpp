@@ -40,6 +40,8 @@
 #include "effects/blur.h"
 #include "effects/mosaic.h"
 
+#include "userconfig.h"
+
 #include "profile/profile.h"
 #include "profile/game.h"
 
@@ -76,8 +78,9 @@ using namespace Profile::ScriptVars;
 
 namespace Game {
 
-void Init() {
-  WorkQueue::Init();
+static void InitRenderer() {
+  Renderer.reset();
+  Window.reset();
 
 #ifndef IMPACTO_DISABLE_IMGUI
   IMGUI_CHECKVERSION();
@@ -93,16 +96,28 @@ void Init() {
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
   }
 #endif
+
   InitWindow();
   CreateRenderer();
-  InitCursors();
 
 #ifndef IMPACTO_DISABLE_IMGUI
   Overlay::Init();
 #endif
 }
 
+void Init() {
+  WorkQueue::Init();
+
+  InitRenderer();
+  InitCursors();
+}
+
 void InitGameProfile() {
+  if (UserConfig::AdvancedSettings.ActiveRenderer != Renderer->GetType()) {
+    // If the active renderer was changed in the launcher, re-init renderer
+    InitRenderer();
+  }
+
   Profile::ConfigureGameProfile();
   Profile::Game::Configure();
   Profile::Patch::Configure();
