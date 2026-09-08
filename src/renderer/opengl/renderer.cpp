@@ -28,7 +28,7 @@ static CornersQuad FlipUvVertical(CornersQuad quad) {
 }
 
 Renderer::Renderer() {
-  OpenGLWindow = static_cast<GLWindow*>(Window);
+  OpenGLWindow = static_cast<GLWindow*>(Window.get());
   // Generate buffers
   glGenBuffers(1, &VBO);
   glGenBuffers(1, &IBO);
@@ -217,9 +217,7 @@ bool Renderer::LoadSurf(int surfId, int archiveId, int fileId) {
   Io::Stream* stream;
   IoError err = pathRes.Open(&stream);
   if (err != IoError_OK) {
-    ImpLog(LogLevel::Fatal, LogChannel::Profile,
-           "Could not open spritesheet\n");
-    Window->Shutdown();
+    Panic(LogChannel::Profile, "Could not open spritesheet\n");
   }
 
   Texture tex{};

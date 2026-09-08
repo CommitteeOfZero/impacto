@@ -71,10 +71,8 @@ Renderer::Renderer() {
         SDL_GetWindowProperties(Window->SDLWindow),
         SDL_PROP_WINDOW_WAYLAND_SURFACE_POINTER, nullptr);
   } else {
-    const std::string errorMsg = fmt::format(
-        "Unsupported video driver \"{:s}\"", SDL_GetCurrentVideoDriver());
-    ImpLog(LogLevel::Fatal, LogChannel::Render, "{:s}", errorMsg);
-    throw std::runtime_error(errorMsg);
+    Panic(LogChannel::Render, "Unsupported video driver \"{:s}\"",
+          SDL_GetCurrentVideoDriver());
   }
 #elif defined(SDL_PLATFORM_ANDROID)
   initStruct.platformData.nwh =
@@ -95,9 +93,7 @@ Renderer::Renderer() {
 #endif
 
   if (!bgfx::init(initStruct)) {
-    constexpr const char* errorMsg = "Failed to initialize BGFX";
-    ImpLog(LogLevel::Fatal, LogChannel::Render, errorMsg);
-    throw std::runtime_error(errorMsg);
+    Panic(LogChannel::Render, "Failed to initialize BGFX");
   }
 
   BackBufferFrameBuffer = FrameBuffer::CreateBackBufferFrameBuffer();
@@ -111,9 +107,7 @@ Renderer::Renderer() {
   IndexBuffer = bgfx::createDynamicIndexBuffer(
       static_cast<uint32_t>(Indices.size()), BGFX_BUFFER_ALLOW_RESIZE);
   if (!bgfx::isValid(IndexBuffer)) {
-    constexpr const char* errorMsg = "Failed to create index buffer";
-    ImpLog(LogLevel::Fatal, LogChannel::Render, errorMsg);
-    throw std::runtime_error(errorMsg);
+    Panic(LogChannel::Render, "Failed to create index buffer");
   }
 
   VertexBufferSpritesLayout.begin()
@@ -130,9 +124,7 @@ Renderer::Renderer() {
           static_cast<uint32_t>(Vertices.size() * sizeof(VertexBufferSprites))),
       VertexBufferSpritesLayout);
   if (!bgfx::isValid(VertexBuffer)) {
-    constexpr const char* errorMsg = "Failed to create vertex buffer";
-    ImpLog(LogLevel::Fatal, LogChannel::Render, errorMsg);
-    throw std::runtime_error(errorMsg);
+    Panic(LogChannel::Render, "Failed to create vertex buffer");
   }
 
   {

@@ -12,7 +12,7 @@ namespace Impacto::Bgfx {
 class Renderer final : public BaseRenderer {
  public:
   Renderer();
-  ~Renderer() = default;
+  ~Renderer() { Shutdown(); }
   void Init() override;
   void Shutdown() override;
 

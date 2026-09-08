@@ -828,9 +828,9 @@ void Renderable3D::MainThreadOnLoad() {
   for (uint32_t i = 0; i < StaticModel->TextureCount; i++) {
     TexBuffers[i] = StaticModel->Textures[i].Submit();
     if (TexBuffers[i] == 0) {
-      ImpLog(LogLevel::Fatal, LogChannel::Renderable3D,
-             "Submitting texture {:d} for model {:d} failed\n", i,
-             StaticModel->Id);
+      Panic(LogChannel::Renderable3D,
+            "Submitting texture {:d} for model {:d} failed\n", i,
+            StaticModel->Id);
     }
   }
 

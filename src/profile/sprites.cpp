@@ -44,9 +44,7 @@ void LoadSpritesheets() {
       Io::Stream* stream;
       IoError err = sheet.Path.Open(&stream);
       if (err != IoError_OK) {
-        ImpLog(LogLevel::Fatal, LogChannel::Profile,
-               "Could not open spritesheet {:s}\n", name);
-        Window->Shutdown();
+        Panic(LogChannel::Profile, "Could not open spritesheet {:s}\n", name);
       }
 
       futures.emplace_back(std::tuple(

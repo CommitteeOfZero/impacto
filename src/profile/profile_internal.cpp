@@ -54,9 +54,7 @@ bool TryPushMember(char const* name) {
 void EnsurePushMember(char const* name) {
   bool success = TryPushMember(name);
   if (!success) {
-    std::string error = fmt::format("Expected member {:s}", name);
-    ImpLog(LogLevel::Fatal, LogChannel::Profile, "{:s}\n", error);
-    throw std::runtime_error(error);
+    Panic(LogChannel::Profile, "Expected member {:s}", name);
   }
 }
 
@@ -68,10 +66,8 @@ void EnsurePushMemberOfType(char const* name, int type) {
 void AssertIs(int type) {
   int actualType = lua_type(LuaState, -1);
   if (actualType != type) {
-    std::string error =
-        fmt::format("Unexpected type {}, expected {}", actualType, type);
-    ImpLog(LogLevel::Fatal, LogChannel::Profile, "{:s}\n", error);
-    throw std::runtime_error(error);
+    Panic(LogChannel::Profile, "Unexpected type {}, expected {}", actualType,
+          type);
   }
 }
 

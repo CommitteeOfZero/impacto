@@ -7,6 +7,8 @@ namespace OpenGL {
 
 class GLWindow : public BaseWindow {
  public:
+  ~GLWindow() { Shutdown(); }
+
   void Init() override;
   void SetDimensions(int width, int height, int msaa,
                      float renderScale) override;

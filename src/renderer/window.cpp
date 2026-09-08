@@ -21,7 +21,7 @@ void InitWindow() {
   switch (UserConfig::AdvancedSettings.ActiveRenderer) {
 #ifndef IMPACTO_DISABLE_OPENGL
     case RendererType::OpenGLLegacy:
-      Window = new OpenGL::GLWindow();
+      Window = std::make_unique<OpenGL::GLWindow>();
       break;
 #endif
 #ifndef IMPACTO_DISABLE_BGFX
@@ -38,14 +38,13 @@ void InitWindow() {
 #ifndef IMPACTO_DISABLE_METAL
     case RendererType::Metal:
 #endif
-      Window = new Bgfx::Window();
+      Window = std::make_unique<Bgfx::Window>();
       break;
 #endif
     default:
-      ImpLog(LogLevel::Error, LogChannel::Render,
-             "Failed to create window: Unknown or unsupported renderer "
-             "selected!\n");
-      exit(1);
+      Panic(LogChannel::Render,
+            "Failed to create window: Unknown or unsupported renderer "
+            "selected!\n");
   }
 
   Window->Init();
@@ -253,9 +252,8 @@ SDL_Rect BaseWindow::GetDisplayBounds(std::optional<SDL_WindowFlags> flags) {
     haveBounds = SDL_GetDisplayUsableBounds(display, &result);
   }
   if (!haveBounds) {
-    ImpLog(LogLevel::Fatal, LogChannel::Render,
-           "Failed to get display bounds: {}.\n", SDL_GetError());
-    throw std::runtime_error("Failed to get display info.");
+    Panic(LogChannel::Render, "Failed to get display bounds: {}.\n",
+          SDL_GetError());
   }
   return result;
 }
