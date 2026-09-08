@@ -33,7 +33,7 @@ class ShaderProgram {
   operator bgfx::ProgramHandle() { return GetProgramHandle(); }
 
   [[nodiscard]] bgfx::ProgramHandle GetProgramHandle() {
-    assert(IsInit && bgfx::isValid(ProgramHandle));
+    assert(bgfx::isValid(ProgramHandle));
     return ProgramHandle;
   }
 
@@ -42,12 +42,10 @@ class ShaderProgram {
   }
 
  private:
-  bool IsInit = false;
+  bgfx::ProgramHandle ProgramHandle = {bgfx::kInvalidHandle};
 
-  bgfx::ProgramHandle ProgramHandle;
-
-  bgfx::ShaderHandle VertexShader;
-  bgfx::ShaderHandle FragmentShader;
+  bgfx::ShaderHandle VertexShader = {bgfx::kInvalidHandle};
+  bgfx::ShaderHandle FragmentShader = {bgfx::kInvalidHandle};
 
   void Reset(bool cleanUpResources);
 
@@ -59,9 +57,7 @@ ShaderProgram<type>& ShaderProgram<type>::operator=(
     ShaderProgram<type>&& other) {
   if (&other == this) return *this;
   Reset(true);
-  if (!other.IsInit) return *this;
 
-  IsInit = true;
   ProgramHandle = other.ProgramHandle;
   VertexShader = other.VertexShader;
   FragmentShader = other.FragmentShader;
@@ -86,18 +82,17 @@ ShaderProgram<type>::ShaderProgram(const bgfx::EmbeddedShader& vertexShader,
   assert(bgfx::isValid(ProgramHandle));
 
   ShaderUniformsState.emplace(ProgramHandle);
-
-  IsInit = true;
 }
 
 template <ShaderProgramType type>
 void ShaderProgram<type>::Reset(bool cleanUpResources) {
-  if (!IsInit) return;
-  IsInit = false;
-
   if (cleanUpResources) {
-    bgfx::destroy(ProgramHandle);
+    if (bgfx::isValid(ProgramHandle)) bgfx::destroy(ProgramHandle);
   }
+
+  ProgramHandle.idx = bgfx::kInvalidHandle;
+  VertexShader.idx = bgfx::kInvalidHandle;
+  FragmentShader.idx = bgfx::kInvalidHandle;
 }
 
 }  // namespace Impacto::Bgfx

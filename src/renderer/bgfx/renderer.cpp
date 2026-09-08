@@ -273,8 +273,11 @@ void Renderer::ImGuiBeginFrame() {
 #endif
 
 void Renderer::Shutdown() {
-  bgfx::destroy(IndexBuffer);
-  bgfx::destroy(VertexBuffer);
+  if (bgfx::isValid(IndexBuffer)) bgfx::destroy(IndexBuffer);
+  IndexBuffer.idx = bgfx::kInvalidHandle;
+
+  if (bgfx::isValid(VertexBuffer)) bgfx::destroy(VertexBuffer);
+  VertexBuffer.idx = bgfx::kInvalidHandle;
 
 #ifndef IMPACTO_DISABLE_IMGUI
   ImGui_ImplSDL3_Shutdown();

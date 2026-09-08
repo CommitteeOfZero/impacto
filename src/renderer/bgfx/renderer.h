@@ -142,8 +142,8 @@ class Renderer final : public BaseRenderer {
   FrameBuffer BackBufferFrameBuffer;
   FrameBuffer DrawFrameBuffer;
 
-  bgfx::DynamicIndexBufferHandle IndexBuffer;
-  bgfx::DynamicVertexBufferHandle VertexBuffer;
+  bgfx::DynamicIndexBufferHandle IndexBuffer = {bgfx::kInvalidHandle};
+  bgfx::DynamicVertexBufferHandle VertexBuffer = {bgfx::kInvalidHandle};
   std::vector<uint16_t> Indices;
   std::vector<VertexBufferSprites> Vertices;
 
