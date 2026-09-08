@@ -31,7 +31,6 @@ using namespace Impacto::Profile::ScriptVars;
 
 namespace Impacto::Overlay {
 
-static bool HasInit = false;
 static std::optional<OverlayTab> ActiveTab;
 
 struct ImgData {
@@ -265,12 +264,9 @@ void SetupIcons() {
 }
 
 void Init() {
-  if (HasInit) return;
-
   SetupStyle();
   SetupFonts();
   SetupIcons();
-  HasInit = true;
 }
 
 static void ShowGamePicker(std::string& selectedGame) {
