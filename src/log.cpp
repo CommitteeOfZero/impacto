@@ -140,7 +140,7 @@ void LogInit() {
   LogInitFile();
 }
 
-#ifndef IMPACTO_DISABLE_OPENGL
+#if defined(IMPACTO_RENDERER_OPENGL) || defined(IMPACTO_RENDERER_OPENGLES)
 void GLAPIENTRY LogGLMessageCallback(GLenum source, GLenum type, GLuint id,
                                      GLenum severity, GLsizei length,
                                      const GLchar* message,

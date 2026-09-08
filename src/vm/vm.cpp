@@ -132,8 +132,7 @@ void Init() {
       break;
     }
     default: {
-      ImpLog(LogLevel::Fatal, LogChannel::VM, "Unsupported instruction set\n");
-      Window->Shutdown();
+      Panic(LogChannel::VM, "Unsupported instruction set\n");
       break;
     }
   }

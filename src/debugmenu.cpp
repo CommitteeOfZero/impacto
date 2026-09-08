@@ -758,7 +758,9 @@ static ankerl::unordered_dense::map<uint32_t, std::vector<std::string>>
     SpritesBySpriteSheet;
 
 static void ShowSprite(const Sprite* sprite) {
-  if (UserConfig::AdvancedSettings.ActiveRenderer == RendererType::OpenGL) {
+#if defined(IMPACTO_RENDERER_OPENGL) || defined(IMPACTO_RENDERER_OPENGLES)
+  if (UserConfig::AdvancedSettings.ActiveRenderer ==
+      RendererType::OpenGLLegacy) {
     float texWidth = sprite->Sheet.DesignWidth;
     float texHeight = sprite->Sheet.DesignHeight;
     ImGui::Image(
@@ -768,6 +770,7 @@ static void ShowSprite(const Sprite* sprite) {
         ImVec2((sprite->Bounds.X + sprite->Bounds.Width) / texWidth,
                (sprite->Bounds.Y + sprite->Bounds.Height) / texHeight));
   }
+#endif
 }
 
 void ShowObjects() {
@@ -785,15 +788,17 @@ void ShowObjects() {
         ImGui::PushID(spriteSheet.second.Texture);
         float texWidth = spriteSheet.second.DesignWidth * 0.4f;
         float texHeight = spriteSheet.second.DesignHeight * 0.4f;
-        // Only OpenGL for now
+// Only OpenGL for now
+#if defined(IMPACTO_RENDERER_OPENGL) || defined(IMPACTO_RENDERER_OPENGLES)
         if (UserConfig::AdvancedSettings.ActiveRenderer ==
-            RendererType::OpenGL) {
+            RendererType::OpenGLLegacy) {
           ImVec2 pos = ImGui::GetCursorScreenPos();
           ImGui::Image((ImTextureID)(intptr_t)spriteSheet.second.Texture,
                        ImVec2(texWidth, texHeight));
           ImageTooltip(pos, (ImTextureID)(intptr_t)spriteSheet.second.Texture,
                        texWidth, texHeight);
         }
+#endif
 
         ImGui::Spacing();
         ImGui::BulletText("Texture: (width: %f, height: %f)",
@@ -835,9 +840,10 @@ void ShowObjects() {
         if (Backgrounds[i].Status == LoadStatus::Loaded) {
           float texWidth = Backgrounds[i].BgSprite.Sheet.DesignWidth * 0.4f;
           float texHeight = Backgrounds[i].BgSprite.Sheet.DesignHeight * 0.4f;
-          // Only OpenGL for now
+// Only OpenGL for now
+#if defined(IMPACTO_RENDERER_OPENGL) || defined(IMPACTO_RENDERER_OPENGLES)
           if (UserConfig::AdvancedSettings.ActiveRenderer ==
-              RendererType::OpenGL) {
+              RendererType::OpenGLLegacy) {
             ImVec2 pos = ImGui::GetCursorScreenPos();
             ImGui::Image(
                 (ImTextureID)(intptr_t)Backgrounds[i].BgSprite.Sheet.Texture,
@@ -847,6 +853,7 @@ void ShowObjects() {
                 (ImTextureID)(intptr_t)Backgrounds[i].BgSprite.Sheet.Texture,
                 texWidth, texHeight);
           }
+#endif
         }
 
         ImGui::Spacing();
@@ -890,9 +897,10 @@ void ShowObjects() {
           float texWidth = Characters2D[i].CharaSprite.Sheet.DesignWidth * 0.4f;
           float texHeight =
               Characters2D[i].CharaSprite.Sheet.DesignHeight * 0.4f;
-          // Only OpenGL for now
+// Only OpenGL for now
+#if defined(IMPACTO_RENDERER_OPENGL) || defined(IMPACTO_RENDERER_OPENGLES)
           if (UserConfig::AdvancedSettings.ActiveRenderer ==
-              RendererType::OpenGL) {
+              RendererType::OpenGLLegacy) {
             ImVec2 pos = ImGui::GetCursorScreenPos();
             ImGui::Image((ImTextureID)(intptr_t)Characters2D[i]
                              .CharaSprite.Sheet.Texture,
@@ -902,6 +910,7 @@ void ShowObjects() {
                              .CharaSprite.Sheet.Texture,
                          texWidth, texHeight);
           }
+#endif
         }
 
         ImGui::Spacing();

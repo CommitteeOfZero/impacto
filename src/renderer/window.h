@@ -25,6 +25,8 @@ enum GraphicsApi {
 
 class BaseWindow {
  public:
+  virtual ~BaseWindow() = default;
+
   virtual void Init() = 0;
   virtual void SetDimensions(int width, int height, int msaa,
                              float renderScale) = 0;

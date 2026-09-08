@@ -84,9 +84,9 @@ void AlbumMenu::SetThumbnailDirections() {
       case FDIR_RIGHT:
         return RIGHT;
     }
-    ImpLog(LogLevel::Fatal, LogChannel::General,
-           "Invalid FocusDirection value: {}", static_cast<int>(dir));
-    exit(1);
+    Panic(LogChannel::General, "Invalid FocusDirection value: {}",
+          static_cast<int>(dir));
+    return GridDirection{};
   };
 
   for (auto& page : ThumbnailPages) {

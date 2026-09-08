@@ -9,34 +9,52 @@
 #include <vector>
 #include <optional>
 #include "../inputsystem.h"
+
+#if defined(IMPACTO_RENDERER_OPENGL) || defined(IMPACTO_RENDERER_OPENGLES)
 #include "opengl/window.h"
-#include "vulkan/window.h"
-#include "dx9/window.h"
+#endif
+
+#ifdef IMPACTO_RENDERER_BGFX
+#include "bgfx/window.h"
+#endif
 
 namespace Impacto {
 
 void InitWindow() {
+  Window.reset();
+
   switch (UserConfig::AdvancedSettings.ActiveRenderer) {
-#ifndef IMPACTO_DISABLE_OPENGL
+#if defined(IMPACTO_RENDERER_OPENGL) || defined(IMPACTO_RENDERER_OPENGLES)
+    case RendererType::OpenGLLegacy:
+      Window = std::make_unique<OpenGL::GLWindow>();
+      break;
+#endif
+#ifdef IMPACTO_RENDERER_BGFX
+#ifdef IMPACTO_RENDERER_OPENGL
     case RendererType::OpenGL:
-      Window = new OpenGL::GLWindow();
-      break;
 #endif
-#ifndef IMPACTO_DISABLE_VULKAN
+#ifdef IMPACTO_RENDERER_OPENGLES
+    case RendererType::OpenGLES:
+#endif
+#ifdef IMPACTO_RENDERER_VULKAN
     case RendererType::Vulkan:
-      Window = new Vulkan::VulkanWindow();
-      break;
 #endif
-#ifndef IMPACTO_DISABLE_DX9
-    case RendererType::DirectX9:
-      Window = new DirectX9::DirectX9Window();
+#ifdef IMPACTO_RENDERER_DIRECT3D11
+    case RendererType::Direct3D11:
+#endif
+#ifdef IMPACTO_RENDERER_DIRECT3D12
+    case RendererType::Direct3D12:
+#endif
+#ifdef IMPACTO_RENDERER_METAL
+    case RendererType::Metal:
+#endif
+      Window = std::make_unique<Bgfx::Window>();
       break;
 #endif
     default:
-      ImpLog(LogLevel::Error, LogChannel::Render,
-             "Failed to create window: Unknown or unsupported renderer "
-             "selected!\n");
-      exit(1);
+      Panic(LogChannel::Render,
+            "Failed to create window: Unknown or unsupported renderer "
+            "selected!\n");
   }
 
   Window->Init();
@@ -244,9 +262,8 @@ SDL_Rect BaseWindow::GetDisplayBounds(std::optional<SDL_WindowFlags> flags) {
     haveBounds = SDL_GetDisplayUsableBounds(display, &result);
   }
   if (!haveBounds) {
-    ImpLog(LogLevel::Fatal, LogChannel::Render,
-           "Failed to get display bounds: {}.\n", SDL_GetError());
-    throw std::runtime_error("Failed to get display info.");
+    Panic(LogChannel::Render, "Failed to get display bounds: {}.\n",
+          SDL_GetError());
   }
   return result;
 }

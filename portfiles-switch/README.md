@@ -23,7 +23,7 @@ nothing and CMake's existing lookup already finds the devkitPro copy:
 |---------------|--------------------------------------------------------------------------------------------------------|
 | `zlib`        | `find_package(ZLIB)` (CMake module) → devkitPro                                                        |
 | `libass`      | `pkg_check_modules(libass)` in impacto's CMakeLists                                                    |
-| `vulkan`      | unused on Switch (`IMPACTO_DISABLE_VULKAN`)                                                            |
+| `vulkan`      | unused on Switch                                                                                       |
 
 ## 2. Config-emitting overlays
 

@@ -9,6 +9,46 @@
 #include "nv12frame.h"
 #include <span>
 
+enum class RendererType : int {
+#ifdef IMPACTO_RENDERER_OPENGL
+  OpenGLLegacy,
+#ifdef IMPACTO_RENDERER_BGFX
+  OpenGL,
+#endif
+#endif
+#ifdef IMPACTO_RENDERER_OPENGLES
+  OpenGLES,
+#endif
+#ifdef IMPACTO_RENDERER_VULKAN
+  Vulkan,
+#endif
+#ifdef IMPACTO_RENDERER_DIRECT3D11
+  Direct3D11,
+#endif
+#ifdef IMPACTO_RENDERER_DIRECT3D12
+  Direct3D12,
+#endif
+#ifdef IMPACTO_RENDERER_METAL
+  Metal,
+#endif
+};
+
+constexpr inline RendererType DefaultRendererType =
+#if defined(SDL_PLATFORM_LINUX)
+    RendererType::Vulkan;
+#elif defined(SDL_PLATFORM_WINDOWS)
+    RendererType::Direct3D12;
+#elif defined(SDL_PLATFORM_APPLE)
+    RendererType::Metal;
+#elif defined(SDL_PLATFORM_ANDROID)
+    RendererType::OpenGLES;
+#elif defined(__SWITCH__)
+    RendererType::Vulkan;
+#else
+    RendererType{};
+static_assert(false && "No default renderer supplied for target renderer");
+#endif
+
 namespace Impacto {
 
 inline GraphicsApi GraphicsApiHint;
@@ -67,6 +107,8 @@ class BaseRenderer {
   virtual void Init() = 0;
   virtual void Shutdown() = 0;
 
+  virtual RendererType GetType() const = 0;
+
 #ifndef IMPACTO_DISABLE_IMGUI
   virtual void ImGuiBeginFrame() = 0;
 #endif
@@ -85,8 +127,8 @@ class BaseRenderer {
   virtual uint32_t MapSpriteSheet(SpriteSheet const& sheet) = 0;
   virtual bool LoadSurf(int surfId, int archiveId, int fileId) = 0;
   virtual void UnloadSurf(int surfId) = 0;
-  virtual uint32_t SubmitTexture(TexFmt format, uint8_t* buffer, int width,
-                                 int height) = 0;
+  virtual uint32_t SubmitTexture(TexFmt format, std::span<const uint8_t> buffer,
+                                 int width, int height) = 0;
 
   std::vector<uint8_t> GetSpriteSheetImage(SpriteSheet const& sheet) {
     std::vector<uint8_t> result(
@@ -309,13 +351,11 @@ class BaseRenderer {
                               TopologyMode topology = TopologyMode::Triangles,
                               bool textureWrapRepeat = false) = 0;
 
-  virtual void DrawPrimitives(const SpriteSheet& sheet,
-                              ShaderProgramType shaderType,
-                              std::span<const VertexBufferSprites> vertices,
-                              std::span<const uint16_t> indices,
-                              glm::mat4 transformation = glm::mat4(1.0f),
-                              bool inverted = false,
-                              bool textureWrapRepeat = false) {
+  void DrawPrimitives(const SpriteSheet& sheet, ShaderProgramType shaderType,
+                      std::span<const VertexBufferSprites> vertices,
+                      std::span<const uint16_t> indices,
+                      glm::mat4 transformation = glm::mat4(1.0f),
+                      bool inverted = false, bool textureWrapRepeat = false) {
     DrawPrimitives(sheet, nullptr, shaderType, vertices, indices,
                    transformation, glm::mat4(1.0f), inverted,
                    TopologyMode::Triangles, textureWrapRepeat);
@@ -461,8 +501,8 @@ inline void InsertQuad(std::span<VertexBufferSprites, 4> vertices,
   };
 }
 
-inline BaseRenderer* Renderer;
-inline BaseWindow* Window;
+inline std::unique_ptr<BaseRenderer> Renderer;
+inline std::unique_ptr<BaseWindow> Window;
 
 void CreateRenderer();
 
