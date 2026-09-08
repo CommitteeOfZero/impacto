@@ -61,15 +61,11 @@ static void HandleArguments(std::vector<std::string_view> args) {
           std::end(supportedArgs)) {
         if constexpr (std::invocable<decltype(action), std::string_view>) {
           if (++i >= args.size()) {
-            ImpLog(LogLevel::Fatal, LogChannel::General,
-                   "Invalid number of arguments");
-            exit(1);
+            Panic(LogChannel::General, "Invalid number of arguments");
           }
           std::string_view input = args[i];
           if (input[0] == '-') {
-            ImpLog(LogLevel::Fatal, LogChannel::General,
-                   "Missing parameter for {}", arg);
-            exit(1);
+            Panic(LogChannel::General, "Missing parameter for {}", arg);
           }
           action(input);
         } else if constexpr (std::invocable<decltype(action)>) {
@@ -99,12 +95,11 @@ static void HandleArguments(std::vector<std::string_view> args) {
               std::optional<Impacto::LogChannel> logChannelOpt =
                   StringToChannel(input);
               if (!logChannelOpt) {
-                ImpLog(LogLevel::Fatal, LogChannel::General,
-                       "Invalid log channel \"{}\", expected one of {}, All!\n",
-                       input,
-                       fmt::join(magic_enum::enum_names<Impacto::LogChannel>(),
-                                 ", "));
-                exit(1);
+                Panic(LogChannel::General,
+                      "Invalid log channel \"{}\", expected one of {}, All!\n",
+                      input,
+                      fmt::join(magic_enum::enum_names<Impacto::LogChannel>(),
+                                ", "));
               };
               auto& logChannels =
                   Impacto::UserConfig::CommonSettings.LogChannels;
@@ -124,10 +119,9 @@ static void HandleArguments(std::vector<std::string_view> args) {
               auto logLevelOpt =
                   magic_enum::enum_cast<Impacto::LogLevel>(input);
               if (!logLevelOpt) {
-                ImpLog(LogLevel::Fatal, LogChannel::General,
-                       "Invalid log level \"{}\", expected one of {}!\n", input,
-                       magic_enum::enum_names<Impacto::LogLevel>());
-                exit(1);
+                Panic(LogChannel::General,
+                      "Invalid log level \"{}\", expected one of {}!\n", input,
+                      magic_enum::enum_names<Impacto::LogLevel>());
               }
               Impacto::UserConfig::CommonSettings.LogLvl = *logLevelOpt;
             },
@@ -245,13 +239,10 @@ int main(int argc, char* argv[]) {
     Game::Shutdown();
 #endif
   } catch (std::exception const& e) {
-    ImpLog(LogLevel::Fatal, LogChannel::General,
-           "Fatal error occured: {}, exiting!\n", e.what());
-    exit(1);
+    Panic(LogChannel::General, "Fatal error occurred: {}, exiting!\n",
+          e.what());
   } catch (...) {
-    ImpLog(LogLevel::Fatal, LogChannel::General,
-           "Unknown error occured, exiting!\n");
-    exit(1);
+    Panic(LogChannel::General, "Unknown error occurred, exiting!\n");
   }
   return 0;
 }

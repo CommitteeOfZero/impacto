@@ -166,10 +166,8 @@ void GLWindow::Init() {
   SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
 #endif
   if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD)) {
-    ImpLog(LogLevel::Fatal, LogChannel::General,
-           "SDL initialisation failed: {:s}\n", SDL_GetError());
-    Shutdown();
-    return;
+    Panic(LogChannel::General, "SDL initialisation failed: {:s}\n",
+          SDL_GetError());
   }
 
   SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
@@ -193,10 +191,8 @@ void GLWindow::Init() {
   }
 
   if (GLContext == NULL) {
-    ImpLog(LogLevel::Fatal, LogChannel::General,
-           "All options for OpenGL context creation failed\n");
-    Shutdown();
-    return;
+    Panic(LogChannel::General,
+          "All options for OpenGL context creation failed\n");
   }
 
   SDL_GetWindowSize(SDLWindow, &WindowWidth, &WindowHeight);
@@ -213,9 +209,7 @@ void GLWindow::Init() {
         reinterpret_cast<GLADloadproc>(SDL_GL_GetProcAddress));
   }
   if (!gladOk) {
-    ImpLog(LogLevel::Fatal, LogChannel::General,
-           "GLAD initialisation failed\n");
-    Shutdown();
+    Panic(LogChannel::General, "GLAD initialisation failed\n");
   }
 
   // At the time of writing, this is on by default on Intel on Windows until we
@@ -393,8 +387,6 @@ void GLWindow::Shutdown() {
   SDL_GL_DestroyContext(GLContext);
   SDL_DestroyWindow(SDLWindow);
   SDL_Quit();
-  // TODO move exit to users
-  exit(0);
 }
 
 }  // namespace OpenGL

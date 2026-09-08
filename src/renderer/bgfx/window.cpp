@@ -17,10 +17,8 @@ void Window::Init() {
   ImpLog(LogLevel::Info, LogChannel::General, "Creating bgfx window\n");
 
   if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD)) {
-    std::string errorMsg =
-        fmt::format("SDL initialization failed: {:s}\n", SDL_GetError());
-    ImpLog(LogLevel::Fatal, LogChannel::General, "{:s}", errorMsg);
-    throw std::runtime_error(errorMsg);
+    Panic(LogChannel::General, "SDL initialization failed: {:s}\n",
+          SDL_GetError());
   }
 
 #ifdef SDL_PLATFORM_ANDROID
@@ -40,8 +38,6 @@ void Window::Init() {
 void Window::Shutdown() {
   SDL_DestroyWindow(SDLWindow);
   SDL_Quit();
-  // TODO: move exit to users
-  exit(0);
 }
 
 void Window::Draw() {

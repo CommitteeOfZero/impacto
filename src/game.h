@@ -57,7 +57,7 @@ enum class DrawComponentType : uint8_t {
 
 void Init();
 void InitGameProfile();
-void Shutdown();
+void Shutdown(int exitCode = EXIT_SUCCESS);
 
 void Update(float dt);
 void Render();

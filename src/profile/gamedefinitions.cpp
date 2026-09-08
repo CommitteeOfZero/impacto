@@ -18,7 +18,7 @@ struct TryGetImpl<GameDefinition> {
         TryGetMember<uint32_t>("LauncherTheme").value_or(0xFFFFFF);
 
     if (!gameProfileOpt || gameProfileOpt->empty()) {
-      ImpLog(LogLevel::Fatal, LogChannel::Profile,
+      ImpLog(LogLevel::Error, LogChannel::Profile,
              "Missing GameProfile path\n");
       return std::nullopt;
     }

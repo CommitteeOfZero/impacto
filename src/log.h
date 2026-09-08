@@ -2,12 +2,15 @@
 
 #include "impacto.h"
 #include "util.h"
+#include "game.h"
 
 #ifndef IMPACTO_DISABLE_OPENGL
 #include <glad/glad.h>
 #endif
 
 #include <magic_enum/magic_enum_format.hpp>
+
+#include <source_location>
 
 namespace Impacto {
 enum class LogLevel {
@@ -99,6 +102,20 @@ void GLAPIENTRY LogGLMessageCallback(GLenum source, GLenum type, GLuint id,
                                      const GLchar* message,
                                      const void* userParam);
 #endif
+
+#define Panic(logChannel, ...)                                             \
+  {                                                                        \
+    constexpr std::source_location _source_location =                      \
+        std::source_location::current();                                   \
+    Impacto::ImpLog(Impacto::LogLevel::Fatal, logChannel,                  \
+                    "Fatal error occurred at {:s}({:d}:{:d}) in {:s}",     \
+                    _source_location.file_name(), _source_location.line(), \
+                    _source_location.column(),                             \
+                    _source_location.function_name());                     \
+  }                                                                        \
+  Impacto::ImpLog(Impacto::LogLevel::Fatal,                                \
+                  logChannel __VA_OPT__(, ) __VA_ARGS__);                  \
+  Impacto::Game::Shutdown(EXIT_FAILURE)
 
 }  // namespace Impacto
 

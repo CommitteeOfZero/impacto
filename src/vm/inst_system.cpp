@@ -552,9 +552,7 @@ VmInstruction(InstTerminate) {
   StartInstruction;
 
   ImpLog(LogLevel::Info, LogChannel::VM, "VM requested shutdown!\n");
-  Window->Shutdown();
-  // BlockThread;
-  // ResetInstruction;
+  Game::Shutdown();
 }
 VmInstruction(InstDebugPrint) {
   StartInstruction;
