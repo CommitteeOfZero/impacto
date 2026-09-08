@@ -10,7 +10,7 @@
 
 #include <SDL3/SDL.h>
 
-#ifndef IMPACTO_DISABLE_OPENGL
+#if defined(IMPACTO_RENDERER_OPENGL) || defined(IMPACTO_RENDERER_OPENGLES)
 #include <glad/glad.h>
 #endif
 

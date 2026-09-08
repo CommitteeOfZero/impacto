@@ -23,21 +23,27 @@ Renderer::Renderer() {
 
   initStruct.type = []() -> bgfx::RendererType::Enum {
     switch (UserConfig::AdvancedSettings.ActiveRenderer) {
-#ifndef IMPACTO_DISABLE_OPENGL
+#ifdef IMPACTO_RENDERER_OPENGL
       case RendererType::OpenGL:
         return bgfx::RendererType::OpenGL;
+#endif
+#ifdef IMPACTO_RENDERER_OPENGLES
       case RendererType::OpenGLES:
         return bgfx::RendererType::OpenGLES;
 #endif
-#ifndef IMPACTO_DISABLE_VULKAN
+#ifdef IMPACTO_RENDERER_VULKAN
       case RendererType::Vulkan:
         return bgfx::RendererType::Vulkan;
 #endif
-#ifndef IMPACTO_DISABLE_DIRECT3D
-      case RendererType::Direct3D:
+#ifdef IMPACTO_RENDERER_DIRECT3D11
+      case RendererType::Direct3D11:
+        return bgfx::RendererType::Direct3D11;
+#endif
+#ifdef IMPACTO_RENDERER_DIRECT3D12
+      case RendererType::Direct3D12:
         return bgfx::RendererType::Direct3D12;
 #endif
-#ifndef IMPACTO_DISABLE_METAL
+#ifdef IMPACTO_RENDERER_METAL
       case RendererType::Metal:
         return bgfx::RendererType::Metal;
 #endif
@@ -137,23 +143,32 @@ Renderer::Renderer() {
 
   ImGui_Implbgfx_Init(IMGUI_VIEW);
   switch (UserConfig::AdvancedSettings.ActiveRenderer) {
-#ifndef IMPACTO_DISABLE_OPENGL
+#ifdef IMPACTO_RENDERER_OPENGL
     case RendererType::OpenGL:
+      ImGui_ImplSDL3_InitForOpenGL(Window->SDLWindow, nullptr);
+      break;
+#endif
+#ifdef IMPACTO_RENDERER_OPENGLES
     case RendererType::OpenGLES:
       ImGui_ImplSDL3_InitForOpenGL(Window->SDLWindow, nullptr);
       break;
 #endif
-#ifndef IMPACTO_DISABLE_VULKAN
+#ifdef IMPACTO_RENDERER_VULKAN
     case RendererType::Vulkan:
       ImGui_ImplSDL3_InitForVulkan(Window->SDLWindow);
       break;
 #endif
-#ifndef IMPACTO_DISABLE_DIRECT3D
-    case RendererType::Direct3D:
+#ifdef IMPACTO_RENDERER_DIRECT3D11
+    case RendererType::Direct3D11:
       ImGui_ImplSDL3_InitForD3D(Window->SDLWindow);
       break;
 #endif
-#ifndef IMPACTO_DISABLE_METAL
+#ifdef IMPACTO_RENDERER_DIRECT3D12
+    case RendererType::Direct3D12:
+      ImGui_ImplSDL3_InitForD3D(Window->SDLWindow);
+      break;
+#endif
+#ifdef IMPACTO_RENDERER_METAL
     case RendererType::Metal:
       ImGui_ImplSDL3_InitForMetal(Window->SDLWindow);
       break;
@@ -178,22 +193,28 @@ void Renderer::Init() {
 RendererType Renderer::GetType() const {
   switch (bgfx::getRendererType()) {
     using enum bgfx::RendererType::Enum;
-#ifndef IMPACTO_DISABLE_DIRECT3D
+#ifdef IMPACTO_RENDERER_DIRECT3D11
     case Direct3D11:
-    case Direct3D12:
-      return RendererType::Direct3D;
+      return RendererType::Direct3D11;
+      break;
 #endif
-#ifndef IMPACTO_DISABLE_METAL
+#ifdef IMPACTO_RENDERER_DIRECT3D12
+    case Direct3D12:
+      return RendererType::Direct3D12;
+#endif
+#ifdef IMPACTO_RENDERER_METAL
     case Metal:
       return RendererType::Metal;
 #endif
-#ifndef IMPACTO_DISABLE_OPENGL
-    case OpenGLES:
-      return RendererType::OpenGLES;
+#ifdef IMPACTO_RENDERER_OPENGL
     case OpenGL:
       return RendererType::OpenGL;
 #endif
-#ifndef IMPACTO_DISABLE_VULKAN
+#ifdef IMPACTO_RENDERER_OPENGLES
+    case OpenGLES:
+      return RendererType::OpenGLES;
+#endif
+#ifdef IMPACTO_RENDERER_VULKAN
     case Vulkan:
       return RendererType::Vulkan;
 #endif
