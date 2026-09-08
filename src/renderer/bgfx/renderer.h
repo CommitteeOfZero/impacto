@@ -16,6 +16,8 @@ class Renderer final : public BaseRenderer {
   void Init() override;
   void Shutdown() override;
 
+  RendererType GetType() const override;
+
 #ifndef IMPACTO_DISABLE_IMGUI
   void ImGuiBeginFrame() override;
 #endif
@@ -129,6 +131,13 @@ class Renderer final : public BaseRenderer {
 
  private:
   void Flush() override {}
+
+  // Only call bgfx::shutdown after all managed objects in this class have been
+  // default-destructed
+  struct BgfxHandleStruct {
+    ~BgfxHandleStruct() { bgfx::shutdown(); }
+  };
+  BgfxHandleStruct BgfxHandle;
 
   FrameBuffer BackBufferFrameBuffer;
   FrameBuffer DrawFrameBuffer;
