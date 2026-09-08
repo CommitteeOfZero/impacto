@@ -127,8 +127,8 @@ class BaseRenderer {
   virtual uint32_t MapSpriteSheet(SpriteSheet const& sheet) = 0;
   virtual bool LoadSurf(int surfId, int archiveId, int fileId) = 0;
   virtual void UnloadSurf(int surfId) = 0;
-  virtual uint32_t SubmitTexture(TexFmt format, uint8_t* buffer, int width,
-                                 int height) = 0;
+  virtual uint32_t SubmitTexture(TexFmt format, std::span<const uint8_t> buffer,
+                                 int width, int height) = 0;
 
   std::vector<uint8_t> GetSpriteSheetImage(SpriteSheet const& sheet) {
     std::vector<uint8_t> result(

@@ -115,8 +115,7 @@ uint32_t Texture::Submit(BaseRenderer* renderer) {
 
   if (Buffer.empty()) return std::numeric_limits<uint32_t>::max();
 
-  uint32_t result =
-      renderer->SubmitTexture(Format, Buffer.data(), Width, Height);
+  uint32_t result = renderer->SubmitTexture(Format, Buffer, Width, Height);
 
   // TODO I meant to do this elsewhere but we gotta do it somewhere
   Buffer.clear();

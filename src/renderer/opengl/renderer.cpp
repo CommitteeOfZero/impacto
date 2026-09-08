@@ -250,8 +250,8 @@ void Renderer::UnloadSurf(int surfId) {
   SurfToId.erase(surfId);
 }
 
-uint32_t Renderer::SubmitTexture(TexFmt format, uint8_t* buffer, int width,
-                                 int height) {
+uint32_t Renderer::SubmitTexture(TexFmt format, std::span<const uint8_t> buffer,
+                                 int width, int height) {
   GLint prevBound;
   uint32_t result;
   glGetIntegerv(GL_TEXTURE_BINDING_2D, &prevBound);
@@ -286,7 +286,7 @@ uint32_t Renderer::SubmitTexture(TexFmt format, uint8_t* buffer, int width,
     }
   }();
   glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, texFormat,
-               GL_UNSIGNED_BYTE, buffer);
+               GL_UNSIGNED_BYTE, buffer.data());
 
   // Build mip chain
   // TODO do this ourselves outside of Submit(), this can easily cause a
