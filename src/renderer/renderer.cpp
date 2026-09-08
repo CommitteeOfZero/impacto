@@ -20,7 +20,7 @@ void CreateRenderer() {
   switch (UserConfig::AdvancedSettings.ActiveRenderer) {
 #ifndef IMPACTO_DISABLE_OPENGL
     case RendererType::OpenGLLegacy:
-      Renderer = new OpenGL::Renderer();
+      Renderer = std::make_unique<OpenGL::Renderer>();
       break;
 #endif
 #ifndef IMPACTO_DISABLE_BGFX
@@ -37,13 +37,11 @@ void CreateRenderer() {
 #ifndef IMPACTO_DISABLE_METAL
     case RendererType::Metal:
 #endif
-      Renderer = new Bgfx::Renderer();
+      Renderer = std::make_unique<Bgfx::Renderer>();
       break;
 #endif  // IMPACTO_DISABLE_BGFX
     default:
-      ImpLog(LogLevel::Error, LogChannel::Render,
-             "Unknown or unsupported renderer selected!\n");
-      exit(1);
+      Panic(LogChannel::Render, "Unknown or unsupported renderer selected!\n");
   }
 }
 

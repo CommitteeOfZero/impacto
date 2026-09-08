@@ -20,14 +20,14 @@ struct TryGetImpl<SaveSystem::AddedLinesDataStruct> {
     const std::optional<size_t> bitFieldOffset =
         TryGetMember<size_t>("BitFieldOffset");
     if (!bitFieldOffset.has_value()) {
-      ImpLog(LogLevel::Fatal, LogChannel::Profile, "Missing BitFieldOffset");
+      ImpLog(LogLevel::Error, LogChannel::Profile, "Missing BitFieldOffset");
       return std::nullopt;
     }
 
     const std::optional<size_t> addedLinesPerScript =
         TryGetMember<size_t>("AddedLinesPerScript");
     if (!addedLinesPerScript.has_value()) {
-      ImpLog(LogLevel::Fatal, LogChannel::Profile,
+      ImpLog(LogLevel::Error, LogChannel::Profile,
              "Missing AddedLinesPerScript");
       return std::nullopt;
     }
@@ -61,7 +61,7 @@ struct TryGetImpl<SaveSystem::LineRange> {
 
     const std::optional<size_t> scriptId = TryGetMember<size_t>("ScriptId");
     if (!scriptId.has_value()) {
-      ImpLog(LogLevel::Fatal, LogChannel::Profile,
+      ImpLog(LogLevel::Error, LogChannel::Profile,
              "Missing ScriptId in equivalent line range");
       return std::nullopt;
     }
@@ -72,7 +72,7 @@ struct TryGetImpl<SaveSystem::LineRange> {
       startLineId = TryGetMember<size_t>("LineId");
 
       if (!startLineId.has_value()) {
-        ImpLog(LogLevel::Fatal, LogChannel::Profile,
+        ImpLog(LogLevel::Error, LogChannel::Profile,
                "Missing LineId in equivalent line range");
         return std::nullopt;
       }
@@ -82,7 +82,7 @@ struct TryGetImpl<SaveSystem::LineRange> {
       endLineId = TryGetMember<size_t>("EndLineId");
 
       if (!endLineId.has_value()) {
-        ImpLog(LogLevel::Fatal, LogChannel::Profile,
+        ImpLog(LogLevel::Error, LogChannel::Profile,
                "Missing EndLineId in equivalent line range");
         return std::nullopt;
       }
@@ -150,8 +150,7 @@ void Configure() {
       AssertIs(LUA_TTABLE);
       auto pairSize = lua_rawlen(LuaState, -1);
       if (pairSize != 2) {
-        ImpLog(LogLevel::Fatal, LogChannel::Profile, "Expected two values\n");
-        Window->Shutdown();
+        Panic(LogChannel::Profile, "Expected two values\n");
       }
       ScriptMessageData[i].LineCount =
           EnsureGetArrayElementByIndex<uint32_t>(0);
