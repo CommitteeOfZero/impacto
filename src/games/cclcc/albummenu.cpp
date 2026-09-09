@@ -471,8 +471,8 @@ void AlbumCGViewer::CGViewerPanZoom(float dt) {
   const bool scrollUp = Input::MouseWheelDeltaY > 0;
   const bool scrollDown = Input::MouseWheelDeltaY < 0;
 
-  const bool zoomingOut = (PADinputButtonIsDown & PADcustom[36]) || scrollUp;
-  const bool zoomingIn = (PADinputButtonIsDown & PADcustom[37]) || scrollDown;
+  bool zoomingOut = (PADinputButtonIsDown & PADcustom[36]) || scrollUp;
+  bool zoomingIn = (PADinputButtonIsDown & PADcustom[37]) || scrollDown;
 
   if (zoomingOut) {
     if (touchingLeft && touchingTop && touchingRight && touchingBottom)
@@ -505,11 +505,22 @@ void AlbumCGViewer::CGViewerPanZoom(float dt) {
       (scrollUp || w < Profile::Game::DesignWidth) ? 0.97f : 0.99f;
   const float initScaleFactorIn =
       (scrollDown || w < Profile::Game::DesignWidth) ? 1.03f : 1.01f;
+  float scaleFactor = zoomingIn    ? initScaleFactorIn
+                      : zoomingOut ? initScaleFactorOut
+                                   : 1.0f;
+
+  if (Input::CurrentPinch.has_value()) {
+    scaleFactor = Input::CurrentPinch->CurrentScale;
+    scaleOrigin = Input::CurrentPinch->MidPoint;
+    zoomingIn = scaleFactor > 1.0f;
+    zoomingOut = scaleFactor < 1.0f;
+  }
+  Input::ClearPinchGesture();
+
   // Scaling controls
   if (zoomingOut) {  // Zoom out
     if (h > Profile::Game::DesignHeight &&
         !(WasZoomHeld && waitSnappedWidth && SnapWidthHoldTime < 0.2f)) {
-      float scaleFactor = initScaleFactorOut;
       const float nextHeight = h * scaleFactor;
       const float nextWidth = w * scaleFactor;
       if (nextHeight < Profile::Game::DesignHeight) {  // Max height
@@ -526,7 +537,6 @@ void AlbumCGViewer::CGViewerPanZoom(float dt) {
     const float currentScale = w / Backgrounds2D[bufId]->BgSprite.Bounds.Width;
     if (currentScale < maxScale &&
         !(WasZoomHeld && waitSnappedWidth && SnapWidthHoldTime < 0.2f)) {
-      float scaleFactor = initScaleFactorIn;
       float nextScale = currentScale * scaleFactor;
       const float nextWidth = w * scaleFactor;
       if (nextScale > maxScale) {  // Max width scaling
@@ -540,6 +550,7 @@ void AlbumCGViewer::CGViewerPanZoom(float dt) {
     }
   }
   WasZoomHeld = zoomingOut || zoomingIn;
+
   // Pan controls
   if (PADinputButtonIsDown & PADcustom[0]) y += 30.0f;  // UP
   if (PADinputButtonIsDown & PADcustom[1]) y -= 30.0f;  // DOWN

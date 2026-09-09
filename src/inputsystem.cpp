@@ -301,6 +301,12 @@ bool HandleEvent(SDL_Event const* ev) {
         // Shift all fingers after the lifted one to the left
         std::rotate(liftedFingerItr, std::next(liftedFingerItr),
                     CurrentFingers.end());
+
+        // Avoid sudden jump when lifting finger.
+        if (CurrentFingers[0].has_value() && !CurrentFingers[1].has_value()) {
+          CurMousePos = CurrentFingers[0]->LastPos;
+          PrevMousePos = CurMousePos;
+        }
       }
       return true;
     }
