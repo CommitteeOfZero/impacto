@@ -63,6 +63,9 @@ static void ShowDirectoryPickerButton() {
   if (directory != lastKnownDir) {
     lastKnownDir = directory;
     Profile::Configure();
+    UserConfig::CommonSettings.LogFile = GetDefaultLogFile();
+    LogInitFile();
+
   } else if (lastKnownDir.empty()) {
     lastKnownDir = directory;
   }

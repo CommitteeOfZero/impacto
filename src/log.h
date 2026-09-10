@@ -75,6 +75,9 @@ void LogInitFile();
 void LogSetConsole(bool enabled);
 void LogInit();
 bool CheckLogConfig(LogLevel level, LogChannel channel);
+bool GetDefaultLogToConsole();
+bool GetDefaultLogToFile();
+std::string GetDefaultLogFile();
 
 void ImpLogImpl(LogLevel level, LogChannel channel, fmt::string_view format,
                 fmt::format_args args, size_t tailSize);
@@ -129,4 +132,18 @@ constexpr std::optional<Impacto::LogChannel> Impacto::StringToChannel(
     return All;
   else
     return magic_enum::enum_flags_cast<LogChannel>(channel);
+}
+
+inline bool Impacto::GetDefaultLogToConsole() {
+#if defined(__ANDROID__)
+  return true;
+#endif
+  return false;
+}
+
+inline bool Impacto::GetDefaultLogToFile() {
+#if defined(__SWITCH__)
+  return true;
+#endif
+  return false;
 }
