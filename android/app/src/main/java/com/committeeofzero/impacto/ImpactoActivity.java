@@ -167,13 +167,15 @@ public class ImpactoActivity extends SDLActivity {
 
         if (chosenDir != null) {
             SharedPreferences prefs = this.getSharedPreferences("impacto", Context.MODE_PRIVATE);
-            String uriString = prefs.getString(SharedPrefsChosenDirKey, null);
-            if(uriString == null) return;
-            DocumentFile pickedDir = DocumentFile.fromTreeUri(getApplicationContext(), Uri.parse(uriString));
-            if(pickedDir == null) return;
-            if(pickedDir.findFile("gamedata") == null) pickedDir.createDirectory("gamedata");
-            if(pickedDir.findFile("patches") == null) pickedDir.createDirectory("patches");
-            if(pickedDir.findFile("saves") == null) pickedDir.createDirectory("saves");
+            try {
+                Files.createDirectories(Paths.get(chosenDir, "gamedata"));
+                Files.createDirectories(Paths.get(chosenDir, "patches"));
+                Files.createDirectories(Paths.get(chosenDir, "saves"));
+                Path nomedia = Paths.get(chosenDir, ".nomedia");
+                if (!Files.exists(nomedia)) Files.createFile(nomedia);
+            } catch (IOException e) {
+                Log.e("IO", "Error creating or writing directories", e);
+            }
         }
     }
 
@@ -225,8 +227,9 @@ public class ImpactoActivity extends SDLActivity {
         try {
             ParcelFileDescriptor parcelFileDescriptor = getContentResolver().openFileDescriptor(tree.getUri(), "r");
             String resolvedPath = fdToPath.apply(parcelFileDescriptor);
-            if(resolvedPath != null) {
+            if (resolvedPath != null) {
                 result = resolvedPath;
+                closeCachedFd();
                 cachedFd = parcelFileDescriptor;
             }
         } catch (FileNotFoundException e) {
@@ -260,9 +263,35 @@ public class ImpactoActivity extends SDLActivity {
             if (oldUriString != null && !oldUriString.equals(uri.toString())) {
                 revokeUriPermission(Uri.parse(oldUriString), Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
             }
-            cachedFd = null;
+            closeCachedFd();
             updateBasePaths();
         }
         super.onActivityResult(requestCode, resultCode, resultData);
+    }
+
+    public void resetChosenDir() {
+        SharedPreferences prefs = this.getSharedPreferences("impacto", Context.MODE_PRIVATE);
+        String oldUriString = prefs.getString(SharedPrefsChosenDirKey, null);
+        if (oldUriString != null) {
+            revokeUriPermission(Uri.parse(oldUriString), Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        }
+
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.remove(SharedPrefsChosenDirKey);
+        editor.apply();
+
+        closeCachedFd();
+        updateBasePaths();
+    }
+
+    private void closeCachedFd() {
+        if (cachedFd != null) {
+            try {
+                cachedFd.close();
+            } catch (IOException e) {
+                Log.e("IO", "Error closing cached fd", e);
+            }
+        }
+        cachedFd = null;
     }
 }

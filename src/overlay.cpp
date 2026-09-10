@@ -23,6 +23,7 @@
 #include "userconfig.h"
 #include "version.h"
 #include "io/physicalfilestream.h"
+#include "io/filemeta.h"
 
 using namespace Impacto::Profile::ScriptVars;
 
@@ -55,37 +56,26 @@ static void ShowDirectoryPicker() {
   env->DeleteLocalRef(clazz);
 }
 
-static std::string GetChosenDir() {
-  std::string result;
-  JNIEnv* env = (JNIEnv*)SDL_GetAndroidJNIEnv();
-  jobject activity = (jobject)SDL_GetAndroidActivity();
-  jclass clazz = env->GetObjectClass(activity);
+static void ShowDirectoryPickerButton() {
+  static std::string lastKnownDir;
+  auto const& directory = Io::GetAndroidChosenDir();
 
-  jmethodID getChosenDir =
-      env->GetMethodID(clazz, "getChosenDirectory", "()Ljava/lang/String;");
-  if (getChosenDir) {
-    jobject chosenDirObj = env->CallObjectMethod(activity, getChosenDir);
-    if (chosenDirObj) {
-      auto chosenDir = static_cast<jstring>(chosenDirObj);
-      const char* cStr = env->GetStringUTFChars(chosenDir, nullptr);
-      result = cStr;
-      env->ReleaseStringUTFChars(chosenDir, cStr);
-      env->DeleteLocalRef(chosenDirObj);
-    }
+  if (directory != lastKnownDir) {
+    lastKnownDir = directory;
+    Profile::Configure();
+  } else if (lastKnownDir.empty()) {
+    lastKnownDir = directory;
   }
 
-  env->DeleteLocalRef(activity);
-  env->DeleteLocalRef(clazz);
-  return result;
-}
-
-static void ShowDirectoryPickerButton() {
-  if (ImGui::Button("Choose Directory")) {
-    ShowDirectoryPicker();
-    Profile::Configure();
+  if (ImGui::Button("Default Directory")) {
+    Io::ResetAndroidChosenDir();
   }
   ImGui::SameLine();
-  ImGui::Text("%s", GetChosenDir().c_str());
+  if (ImGui::Button("Choose Directory")) {
+    ShowDirectoryPicker();
+  }
+  ImGui::SameLine();
+  ImGui::Text("%s", directory.c_str());
 
   ImGui::Separator();
   ImGui::Spacing();
@@ -652,7 +642,7 @@ void ShowOverlay() {
     bool isReady = true;
 #ifdef __ANDROID__
     if (!Profile::Game::HasInit) ShowDirectoryPickerButton();
-    isReady = !GetChosenDir().empty();
+    isReady = !Io::GetAndroidChosenDir().empty();
 #endif
 
     if (isReady) {

@@ -2,6 +2,10 @@
 #include "../log.h"
 #include <system_error>
 
+#ifdef __ANDROID__
+#include <jni.h>
+#endif
+
 namespace Impacto {
 namespace Io {
 
@@ -99,6 +103,48 @@ std::string const& GetPlatformConfigDir() {
   }();
   return path;
 }
+
+#ifdef __ANDROID__
+std::string GetAndroidChosenDir() {
+  std::string result;
+  JNIEnv* env = (JNIEnv*)SDL_GetAndroidJNIEnv();
+  if (!env) return result;  // JVM not ready yet, bail out safely
+  jobject activity = (jobject)SDL_GetAndroidActivity();
+  if (!activity) return result;
+  jclass clazz = env->GetObjectClass(activity);
+
+  jmethodID getChosenDir =
+      env->GetMethodID(clazz, "getChosenDirectory", "()Ljava/lang/String;");
+  if (getChosenDir) {
+    jobject chosenDirObj = env->CallObjectMethod(activity, getChosenDir);
+    if (chosenDirObj) {
+      auto chosenDir = static_cast<jstring>(chosenDirObj);
+      const char* cStr = env->GetStringUTFChars(chosenDir, nullptr);
+      result = cStr;
+      env->ReleaseStringUTFChars(chosenDir, cStr);
+      env->DeleteLocalRef(chosenDirObj);
+    }
+  }
+
+  env->DeleteLocalRef(activity);
+  env->DeleteLocalRef(clazz);
+  return result;
+}
+
+void ResetAndroidChosenDir() {
+  JNIEnv* env = (JNIEnv*)SDL_GetAndroidJNIEnv();
+  jobject activity = (jobject)SDL_GetAndroidActivity();
+  jclass clazz = env->GetObjectClass(activity);
+
+  jmethodID resetChosenDir = env->GetMethodID(clazz, "resetChosenDir", "()V");
+  if (resetChosenDir) {
+    env->CallObjectMethod(activity, resetChosenDir);
+  }
+
+  env->DeleteLocalRef(activity);
+  env->DeleteLocalRef(clazz);
+}
+#endif
 
 }  // namespace Io
 }  // namespace Impacto
