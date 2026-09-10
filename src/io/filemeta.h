@@ -28,5 +28,11 @@ IoError GetFilePermissions(std::string const& path,
                            FilePermissionsFlags& flags);
 
 std::string const& GetPlatformConfigDir();
+
+#ifdef __ANDROID__
+std::string GetAndroidChosenDir();
+void ResetAndroidChosenDir();
+#endif
+
 }  // namespace Io
 }  // namespace Impacto
