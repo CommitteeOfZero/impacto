@@ -49,11 +49,11 @@ struct Config {
   int ResolutionWidth = 1280;
   int ResolutionHeight = 720;
 
-  std::string LogFile = "Impacto_Log.txt";
-  LogLevel LogLvl = LogLevel::Error;
+  std::string LogFile = GetDefaultLogFile();
+  LogLevel LogLvl = LogLevel::Warning;
   LogChannel LogChannels = LogChannel::All;
-  bool LoggingToConsole = true;
-  bool LoggingToFile = true;
+  bool LoggingToConsole = GetDefaultLogToConsole();
+  bool LoggingToFile = GetDefaultLogToFile();
 };
 struct AdvancedConfig {
   RendererType ActiveRenderer = RendererType::OpenGL;

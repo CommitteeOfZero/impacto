@@ -140,6 +140,30 @@ void LogInit() {
   LogInitFile();
 }
 
+std::string GetDefaultLogFile() {
+  constexpr std::string_view logFileName = "Impacto_Log.txt";
+  std::filesystem::path result;
+#if defined(__SWITCH__)
+  return std::string(logFileName);
+#elif defined(__ANDROID__)
+  result = Io::GetAndroidChosenDir();
+  return (result / logFileName).string();
+#else
+  char* prefPath = SDL_GetPrefPath("Committee of Zero", "Impacto");
+  if (!prefPath || *prefPath == '\0') {
+    ImpLog(LogLevel::Error, LogChannel::IO,
+           "Failed to get writable preferences path, error: {}\n",
+           SDL_GetError());
+    if (prefPath) SDL_free(prefPath);
+    return {};
+  } else {
+    result = std::filesystem::path(prefPath);
+    SDL_free(prefPath);
+  }
+  return (result / logFileName).string();
+#endif
+}
+
 #ifndef IMPACTO_DISABLE_OPENGL
 void GLAPIENTRY LogGLMessageCallback(GLenum source, GLenum type, GLuint id,
                                      GLenum severity, GLsizei length,
