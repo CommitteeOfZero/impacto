@@ -306,6 +306,7 @@ void UpdateSystem(float dt) {
       }
     }
 
+    if (HandleWindowEvents(&e)) continue;
 #ifndef IMPACTO_DISABLE_IMGUI
     ImGuiIO& io = ImGui::GetIO();
     const bool isImguiEvent = [&e] {

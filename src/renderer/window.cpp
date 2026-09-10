@@ -416,4 +416,15 @@ void BaseWindow::ApplyWindowSettings() {
   RecreateFBOs = true;
   Update();
 }
+
+bool HandleWindowEvents(SDL_Event const* evt) {
+  switch (evt->type) {
+    case SDL_EVENT_WINDOW_FOCUS_LOST:
+    case SDL_EVENT_WINDOW_HIDDEN:
+      Input::ClearTouch();
+      return true;
+    default:
+      return false;
+  }
+}
 }  // namespace Impacto

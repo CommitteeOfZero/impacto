@@ -354,5 +354,11 @@ void ClearFlicks() {
 
 void ClearPinchGesture() { NoPinchGesture = true; }
 
+void ClearTouch() {
+  for (auto& finger : CurrentFingers) finger.reset();
+  PendingTaps.reset();
+  ClearPinchGesture();
+}
+
 }  // namespace Input
 }  // namespace Impacto

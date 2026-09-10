@@ -14,6 +14,7 @@ void SetWindowIcon(SDL_Window* window);
 void InitCursors();
 void RequestCursor(CursorType type);
 void ApplyCursorForFrame();
+bool HandleWindowEvents(SDL_Event const* evt);
 
 inline DisplayMode GetDefaultDispMode() {
 #if defined(__ANDROID__)
