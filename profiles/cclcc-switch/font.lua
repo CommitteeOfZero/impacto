@@ -1,31 +1,23 @@
 root.Fonts = {
-    ["LanguageBarrier"] = {
-        Type = FontType.LanguageBarrier,
-        ForegroundSheet = "FontLBForeground",
-        OutlineSheet = "FontLBOutline",
-        ForegroundGridSize = { X = 64, Y = 125 },
-        AdvanceWidthsBinary = {
-            Path = "resources/cclcc/font-lb-italic/widths.bin",
-            BytesPerGlyph = 1,
-            EmWidth = 48,
-        },
-        ForegroundOffset = { X = -13, Y = -13 },
-        OutlineOffset = { X = -13, Y = -13 },
-        BitmapEmWidth = 48,
-        BitmapEmHeight = 48,
-        ForegroundOpacityCurve = OpacityCurve.Smoothstep,
-        OutlineOpacityCurve = OpacityCurve.Smoothstep,
-    }
-};
-
-root.SpriteSheets["FontLBForeground"] = {
-    Path = "resources/cclcc/font-lb-italic/foreground.png",
-    DesignWidth = 4096,
-    DesignHeight = 8000
-};
-
-root.SpriteSheets["FontLBOutline"] = {
-    Path = "resources/cclcc/font-lb-italic/outline.png",
-    DesignWidth = 4096,
-    DesignHeight = 8000
+    ["Default"] = {
+        Type = FontType.EdgeDetectedSingleVariableWidthSheet,
+        Sheet = "Font",
+        BinaryPath = {Mount = "system", Id = 7},
+        BitmapEmWidth = 53,
+        BitmapEmHeight = 53,
+        DifferenceFactor = 0.8,
+        IntensityShift = 0.48,
+        AlphaShift = 0.36
+    },
+    
+    ["Default2"] = {
+        Type = FontType.EdgeDetectedSingleVariableWidthSheet,
+        Sheet = "Font",
+        BinaryPath = {Mount = "system", Id = 9},
+        BitmapEmWidth = 53,
+        BitmapEmHeight = 53,
+        DifferenceFactor = 0.8,
+        IntensityShift = 0.48,
+        AlphaShift = 0.36
+    },
 };
