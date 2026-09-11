@@ -47,9 +47,10 @@ bool DelusionTrigger::Show(int bgOverlayBgBufferId, int circlesBgBufferId,
   ScrWork[SW_DELUSION_SPIN_COUNTER] = 0x40;
   ScrWork[SW_DELUSION_LIMIT] = availableDelusions;
   SetFlag(SF_DELUSIONACTIVE, 1);
-  ScrWork[6344] = 48;
+  ScrWork[SW_MOVIE_SHADER] = 48;
   SetFlag(SF_DELUSIONSELECTED, 0);
-  ScrWork[6418] = 960;
+  // TODO: Ps Vita only
+  // ScrWork[6418] = 960;
   ResetDraggingPress();
   if (!Video::Players[0]->IsPlaying) {
     ScrWork[SW_DELUSION_BG_COUNTER] = 32;
@@ -59,7 +60,7 @@ bool DelusionTrigger::Show(int bgOverlayBgBufferId, int circlesBgBufferId,
 
 void DelusionTrigger::Hide() {
   SetFlag(SF_DELUSIONACTIVE, 0);
-  ScrWork[6344] = 0;
+  ScrWork[SW_MOVIE_SHADER] = 0;
   ResetDraggingPress();
 }
 
