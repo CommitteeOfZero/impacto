@@ -3,6 +3,7 @@
 #include "../../../renderer/renderer.h"
 #include "../../../profile/dialogue.h"
 #include "../../../profile/games/cclcc/tipsmenu.h"
+#include "../../../profile/vm.h"
 #include "../../../text/text.h"
 #include "../../../vm/vm.h"
 #include "../../../inputsystem.h"
@@ -34,7 +35,8 @@ TipsEntryButton::TipsEntryButton(int tipId, int dispId, RectF const& dest,
                         glm::vec2(Bounds.X, Bounds.Y) + TipsEntryNumberOffset,
                         TextAlignment::Left);
   Vm::Sc3VmThread dummy;
-  dummy.ScriptBufferId = TipsSystem::GetTipsScriptBufferId();
+  dummy.ScriptBufferId = TipsSystem::GetTipsScriptBufferCtx().BufferId;
+  dummy.UseMSBBuffers = Profile::Vm::UseMsbStrings;
   glm::vec2 nameDest = glm::vec2(Bounds.X, Bounds.Y) + TipsEntryNameOffset;
   dummy.IpOffset = TipEntryRecord->StringAdr[1];
   HasText = true;
@@ -45,9 +47,11 @@ TipsEntryButton::TipsEntryButton(int tipId, int dispId, RectF const& dest,
                              (float)TipsEntryNameFontSize, {initColorName, 0},
                              1.0f, nameDest, TextAlignment::Left);
 
-  dummy.IpOffset = Vm::ScriptGetStrAddress(TipsSystem::GetTipsScriptBufferId(),
-                                           TipsTextEntryLockedIndex);
-  TextLayoutPlainLine(&dummy, TipLockedText, *Profile::Dialogue::DialogueFont,
+  auto [buffers, bufferId, lockedStrAddr] = Vm::ScriptGetTextTableStrAddress(
+      TipsTextTableIndex, TipsTextEntryLockedIndex);
+  Vm::Sc3Stream lockedStrStream(&buffers[bufferId][lockedStrAddr]);
+  TextLayoutPlainLine(lockedStrStream, TipLockedText,
+                      *Profile::Dialogue::DialogueFont,
                       (float)TipsEntryNameFontSize, {initColorName, 0}, 1.0f,
                       nameDest, TextAlignment::Left);
   HighlightOffset = TipsEntryHighlightOffset;

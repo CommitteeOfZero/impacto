@@ -87,7 +87,7 @@ void Label::SetText(LabelStringType auto str, glm::vec2 pos, float fontSize,
                                Vm::BufferOffsetContext>) {
     Impacto::Vm::Sc3VmThread dummy;
     dummy.IpOffset = str.IpOffset;
-    dummy.ScriptBufferId = str.ScriptBufferId;
+    dummy.ScriptBufferId = str.BufferId;
     text = TextLayoutPlainLine(&dummy, 255, *Profile::Dialogue::DialogueFont,
                                fontSize, colorPair, 1.0f, glm::vec2(0.0f),
                                TextAlignment::Left);

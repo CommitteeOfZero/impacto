@@ -9,8 +9,10 @@ namespace Vm {
 
 class Sc3Stream {
  public:
+  Sc3Stream(uint32_t* ptr) : Ptr(reinterpret_cast<uint8_t*>(ptr)) {}
   Sc3Stream(uint16_t* ptr) : Ptr(reinterpret_cast<uint8_t*>(ptr)) {}
   Sc3Stream(uint8_t* ptr) : Ptr(ptr) {}
+  Sc3Stream(std::nullptr_t ptr) : Ptr(ptr) {}
   uint8_t ReadU8() {
     uint8_t result = PeekU8();
     Advance(1);

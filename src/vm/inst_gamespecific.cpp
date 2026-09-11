@@ -1467,6 +1467,36 @@ VmInstruction(InstMtrg) {
   BlockThread;
 }
 
+VmInstruction(InstUnk2010CCLCC) {
+  StartInstruction;
+  PopUint8(type);
+  if ((type | 0x20) == 0x20) {
+    PopExpression(arg1);
+  }
+
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction Unk2010CCLCC(type: {:d})\n", type);
+}
+
+VmInstruction(InstUnk2011CCLCC) {
+  StartInstruction;
+  PopUint8(type);
+  if (type != 0) {
+    return;
+  }
+
+  // Show shop app info?
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction Unk2011CCLCC(type: {:d})\n", type);
+}
+
+VmInstruction(InstUnk2012CCLCC) {
+  StartInstruction;
+  PopUint8(_);
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction Unk2012CCLCC()\n");
+}
+
 }  // namespace Vm
 
 }  // namespace Impacto
