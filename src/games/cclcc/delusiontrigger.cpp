@@ -47,7 +47,7 @@ bool DelusionTrigger::Show(int bgOverlayBgBufferId, int circlesBgBufferId,
   ScrWork[SW_DELUSION_SPIN_COUNTER] = 0x40;
   ScrWork[SW_DELUSION_LIMIT] = availableDelusions;
   SetFlag(SF_DELUSIONACTIVE, 1);
-  ScrWork[6344] = 48;
+  ScrWork[6344] = 48; // 5791
   SetFlag(SF_DELUSIONSELECTED, 0);
   ScrWork[6418] = 960;
   ResetDraggingPress();
@@ -59,7 +59,7 @@ bool DelusionTrigger::Show(int bgOverlayBgBufferId, int circlesBgBufferId,
 
 void DelusionTrigger::Hide() {
   SetFlag(SF_DELUSIONACTIVE, 0);
-  ScrWork[6344] = 0;
+  ScrWork[6344] = 0; // 5791
   ResetDraggingPress();
 }
 
