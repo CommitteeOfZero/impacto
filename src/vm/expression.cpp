@@ -104,6 +104,27 @@ int ExpressionEval(Sc3VmThread* thd) {
   return root == nullptr ? 0 : rootPtr->Evaluate(thd);
 }
 
+int ExpressionSkip(uint8_t* ip) {
+  uint8_t* ipLocal = ip;
+  while (*ipLocal != 0) {
+    if ((*ipLocal & 0x80) == 0) {
+      ipLocal = ipLocal + 2;
+    } else {
+      uint8_t b = *ipLocal & 0x60;
+      if ((*ipLocal & 0x60) == 0) {
+        ipLocal = ipLocal + 2;
+      } else if (b == 0x20) {
+        ipLocal = ipLocal + 3;
+      } else if (b == 0x40) {
+        ipLocal = ipLocal + 4;
+      } else if (b == 0x60) {
+        ipLocal = ipLocal + 6;
+      }
+    }
+  }
+  return (int)(ipLocal + 1 - ip);
+}
+
 int ExpressionNode::Evaluate(Sc3VmThread* thd) {
   int leftVal, rightVal;
 

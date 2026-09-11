@@ -9,6 +9,7 @@
 #include "../../profile/ui/backlogmenu.h"
 #include "../../profile/ui/tipsmenu.h"
 #include "../../profile/games/mo6tw/tipsmenu.h"
+#include "../../profile/vm.h"
 #include "../../ui/widgets/mo6tw/tipsentrybutton.h"
 #include "../../data/tipssystem.h"
 #include "../../vm/interface/input.h"
@@ -142,9 +143,9 @@ void TipsMenu::Init() {
   int currentPage = 0, currentCategoryId = -1;
 
   // String of characters by which tips are sorted, taken from _system script
-  auto [scriptBufId, sortStrAddr] =
+  auto [buffers, bufferId, sortStrAddr] =
       Vm::ScriptGetTextTableStrAddress(SortStringTable, SortStringIndex);
-  uint8_t* sortString = &Vm::ScriptBuffers[scriptBufId][sortStrAddr];
+  uint8_t* sortString = &buffers[bufferId][sortStrAddr];
   auto recordCount = TipsSystem::GetTipCount();
 
   float currentY = TipListInitialY;
@@ -232,29 +233,34 @@ void TipsMenu::SwitchToTipId(int id) {
   CurrentTipPage = 1;
   TipsSystem::SetTipUnreadState(id, false);
   TipsSystem::SetTipNewState(id, false);
-  auto tipsScriptBufferId = TipsSystem::GetTipsScriptBufferId();
+  auto [buffers, tipsScriptBufferId] = TipsSystem::GetTipsScriptBufferCtx();
 
   auto tipRecord = TipsSystem::GetTipRecord(id);
-  Name->SetText(Vm::BufferOffsetContext{.ScriptBufferId = tipsScriptBufferId,
-                                        .IpOffset = tipRecord->StringAdr[0]},
+  Name->SetText(Vm::BufferOffsetContext{.Buffers = buffers,
+                 .BufferId = tipsScriptBufferId,
+                 .IpOffset = tipRecord->StringAdr[0]},
                 NameInitialBounds.GetPos(), NameFontSize,
                 RendererOutlineMode::Full, DefaultColorIndex);
   Pronunciation->SetText(
-      Vm::BufferOffsetContext{.ScriptBufferId = tipsScriptBufferId,
-                              .IpOffset = tipRecord->StringAdr[1]},
-      PronunciationInitialBounds.GetPos(), PronunciationFontSize,
-      RendererOutlineMode::Full, DefaultColorIndex);
+    Vm::BufferOffsetContext{.Buffers = buffers,
+                          .BufferId = tipsScriptBufferId,
+                          .IpOffset = tipRecord->StringAdr[1]},
+    PronunciationInitialBounds.GetPos(), PronunciationFontSize,
+    RendererOutlineMode::Full, DefaultColorIndex);
 
   Vm::Sc3VmThread dummy;
   dummy.IpOffset = tipRecord->StringAdr[2];
   dummy.ScriptBufferId = tipsScriptBufferId;
+  dummy.UseMSBBuffers = Profile::Vm::UseMsbStrings;
   float categoryWidth = TextGetPlainLineWidth(
       &dummy, *Profile::Dialogue::DialogueFont, CategoryFontSize);
+  Category->Bounds.X = CategoryEndX - categoryWidth;
   Category->SetText(
-      Vm::BufferOffsetContext{.ScriptBufferId = tipsScriptBufferId,
-                              .IpOffset = tipRecord->StringAdr[2]},
-      {CategoryEndX - categoryWidth, CategoryInitialBounds.Y}, CategoryFontSize,
-      RendererOutlineMode::Full, DefaultColorIndex);
+    Vm::BufferOffsetContext{.Buffers = buffers,
+                     .BufferId = tipsScriptBufferId,
+                     .IpOffset = tipRecord->StringAdr[2]},
+  {CategoryEndX - categoryWidth, CategoryInitialBounds.Y}, CategoryFontSize, RendererOutlineMode::Full,
+                    DefaultColorIndex);
   if (tipRecord->ThumbnailIndex != 0xFFFF)
     ThumbnailSprite = &TipThumbnails[tipRecord->ThumbnailIndex];
   else
@@ -301,8 +307,8 @@ void TipsMenu::AdvanceTipPage(TipAdvanceMode mode) {
 
   TextPage.Clear();
   Vm::Sc3VmThread dummy;
+  dummy.ScriptBufferId = TipsSystem::GetTipsScriptBufferCtx().BufferId;
   dummy.IpOffset = currentRecord->StringAdr[2 + CurrentTipPage];
-  dummy.ScriptBufferId = TipsSystem::GetTipsScriptBufferId();
   TextPage.AddString(&dummy);
   CurrentPage->SetText(fmt::to_string(CurrentTipPage),
                        CurrentPageBounds.GetPos(), PageSeparatorFontSize,

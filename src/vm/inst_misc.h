@@ -46,6 +46,7 @@ VmInstruction(InstSetSceneViewFlag);
 VmInstruction(InstChkClearFlag);
 VmInstruction(InstScreenChange);
 VmInstruction(InstExitGame);
+VmInstruction(InstLoadFontMeta);
 
 }  // namespace Vm
 
