@@ -5,6 +5,7 @@
 #include <array>
 #include <magic_enum/magic_enum.hpp>
 #include "../log.h"
+#include "../vm/sc3stream.h"
 
 namespace Impacto {
 namespace TipsSystem {
@@ -40,20 +41,23 @@ class TipsSystemBase {
   virtual void SetTipNewState(size_t id, bool state) = 0;
 
   virtual bool GetTipLockedState(size_t id) = 0;
-
   std::vector<TipsDataRecord> Records;
   std::vector<uint16_t> NewTipsIndices;
   size_t TipEntryCount = 0;
   uint8_t ScriptBufferId = 0;
 };
 
+struct TipsBufferCtx {
+  std::span<std::span<uint8_t>> Buffers;
+  uint8_t BufferId;
+};
+
 struct TipsComparator {
   TipsComparator(uint32_t tipsTableId, uint32_t sortStringIndex,
                  int tipIdStrIndex);
   bool operator()(int a, int b) const;
-  uint8_t* SortString;
   int TipIdStrIndex;
-  ankerl::unordered_dense::map<uint16_t, int> Sc3SortMap;
+  ankerl::unordered_dense::map<uint32_t, int> Sc3SortMap;
 };
 
 inline std::unique_ptr<TipsSystemBase> Implementation;
@@ -65,13 +69,14 @@ void UpdateTipRecords();
 void SetTipLockedState(size_t id, bool state);
 void SetTipUnreadState(size_t id, bool state);
 void SetTipNewState(size_t id, bool state);
-uint8_t GetTipsScriptBufferId();
+TipsBufferCtx GetTipsScriptBufferCtx();
 bool GetTipLockedState(size_t id);
 
 std::vector<TipsDataRecord>* GetTipRecords();
 TipsDataRecord* GetTipRecord(size_t id);
 size_t GetTipCount();
 std::vector<uint16_t>& GetNewTipsIndices();
+Vm::Sc3Stream GetTextStringStream(size_t record, size_t stringIndex);
 
 }  // namespace TipsSystem
 }  // namespace Impacto

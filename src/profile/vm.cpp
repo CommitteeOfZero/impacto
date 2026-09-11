@@ -19,6 +19,9 @@ void Configure() {
   TryGetMember<bool>("UseMsbStrings", UseMsbStrings);
   TryGetMember<bool>("UseSeparateMsbArchive", UseSeparateMsbArchive);
   TryGetMember<bool>("RestartMaskUsesThreadAlpha", RestartMaskUsesThreadAlpha);
+  TryGetMember<decltype(StringEncodingType)>("StringEncodingType",
+                                             StringEncodingType);
+  TryGetMember<uint8_t>("StringIdSize", StringIdSize);
 
   ScrWorkChaStructSize = EnsureGetMember<int>("ScrWorkChaStructSize");
   ScrWorkChaOffsetStructSize =
