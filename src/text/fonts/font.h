@@ -130,8 +130,8 @@ class SingleSheetFont : public Font {
 
  private:
   Sprite GetGlyph(uint32_t id) const {
-    const uint8_t row = static_cast<uint8_t>(id / GridSize.x);
-    const uint8_t col = static_cast<uint8_t>(id % GridSize.x);
+    const uint16_t row = static_cast<uint16_t>(id / GridSize.x);
+    const uint16_t col = static_cast<uint16_t>(id % GridSize.x);
     const float width = AdvanceWidths[id];
 
     return Sprite(Sheet, col * CellSize.x + 1.0f, row * CellSize.y + 1.0f,
@@ -203,8 +203,8 @@ class SeparateOutlineSheetFont : public Font {
 
  private:
   Sprite GetGlyph(uint32_t id) const {
-    const uint8_t row = static_cast<uint8_t>(id / ForegroundGridSize.x);
-    const uint8_t col = static_cast<uint8_t>(id % ForegroundGridSize.x);
+    const uint16_t row = static_cast<uint16_t>(id / ForegroundGridSize.x);
+    const uint16_t col = static_cast<uint16_t>(id % ForegroundGridSize.x);
     const float width = AdvanceWidths[id];
 
     return Sprite(ForegroundSheet, col * ForegroundCellSize.x + 1.0f,
@@ -213,8 +213,8 @@ class SeparateOutlineSheetFont : public Font {
   }
 
   Sprite GetOutlineGlyph(uint32_t id) const {
-    const uint8_t row = static_cast<uint8_t>(id / OutlineGridSize.x);
-    const uint8_t col = static_cast<uint8_t>(id % OutlineGridSize.x);
+    const uint16_t row = static_cast<uint16_t>(id / OutlineGridSize.x);
+    const uint16_t col = static_cast<uint16_t>(id % OutlineGridSize.x);
     const float width = AdvanceWidths[id];
 
     return Sprite(OutlineSheet, col * OutlineCellSize.x + 1.0f,
@@ -249,8 +249,8 @@ class LanguageBarrierFont final : public SeparateOutlineSheetFont {
 
  private:
   Sprite GetGlyph(uint32_t id) const {
-    const uint8_t row = static_cast<uint8_t>(id / ForegroundGridSize.x);
-    const uint8_t col = static_cast<uint8_t>(id % ForegroundGridSize.x);
+    const uint16_t row = static_cast<uint16_t>(id / ForegroundGridSize.x);
+    const uint16_t col = static_cast<uint16_t>(id % ForegroundGridSize.x);
 
     return Sprite(ForegroundSheet, col * ForegroundCellSize.x,
                   row * ForegroundCellSize.y, ForegroundCellSize.x,
@@ -258,8 +258,8 @@ class LanguageBarrierFont final : public SeparateOutlineSheetFont {
   }
 
   Sprite GetOutlineGlyph(uint32_t id) const {
-    const uint8_t row = static_cast<uint8_t>(id / OutlineGridSize.x);
-    const uint8_t col = static_cast<uint8_t>(id % OutlineGridSize.x);
+    const uint16_t row = static_cast<uint16_t>(id / OutlineGridSize.x);
+    const uint16_t col = static_cast<uint16_t>(id % OutlineGridSize.x);
 
     return Sprite(OutlineSheet, col * OutlineCellSize.x,
                   row * OutlineCellSize.y, OutlineCellSize.x,
@@ -293,8 +293,8 @@ class EdgeDetectedSingleSheetFont final : public SingleSheetFont {
 
  private:
   Sprite GetGlyph(uint32_t id) const {
-    const uint8_t row = static_cast<uint8_t>(id / GridSize.x);
-    const uint8_t col = static_cast<uint8_t>(id % GridSize.x);
+    const uint16_t row = static_cast<uint16_t>(id / GridSize.x);
+    const uint16_t col = static_cast<uint16_t>(id % GridSize.x);
     const float width = AdvanceWidths[id];
 
     return Sprite(Sheet, col * CellSize.x, row * CellSize.y, width,

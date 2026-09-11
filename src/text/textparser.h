@@ -39,7 +39,7 @@ class TextParser {
   void FinishLine(size_t nextLineStart, bool force = false);
   void FinishName();
 
-  std::vector<uint16_t> NameCode;
+  std::vector<uint32_t> NameCode;
 
   enum class TextParsingState { Normal, Name, RubyBase, RubyAnnotation };
   TextParsingState ParsingState = TextParsingState::Normal;

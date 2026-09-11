@@ -21,6 +21,7 @@ enum class InstructionSet : int {
   SGPS3,
   MO8,
   CHN,
+  LCCSwitch,
 };
 using InstructionProc = auto (*)(Sc3VmThread* thread, float dt) -> void;
 

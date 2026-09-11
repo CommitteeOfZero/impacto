@@ -19,6 +19,11 @@
   /* Sometimes needed by subsequent code, silence warning */              \
   (void)name;                                                             \
   thread->IpOffset += 2;
+#define PopUint32(name)                                                   \
+  uint32_t name = SDL_SwapLE32(UnalignedRead<uint32_t>(thread->GetIp())); \
+  /* Sometimes needed by subsequent code, silence warning */              \
+  (void)name;                                                             \
+  thread->IpOffset += 4;
 #define PopLocalLabel(name)                                         \
   uint32_t name;                                                    \
   {                                                                 \
@@ -34,6 +39,24 @@
   }                                                         \
   (void)0
 #define PopExpression(name) [[maybe_unused]] int name = ExpressionEval(thread)
+#define PopStringId(name)                            \
+  uint32_t name;                                     \
+  {                                                  \
+    if (Profile::Vm::StringIdSize == 2) {            \
+      PopUint16(stringId_);                          \
+      name = stringId_;                              \
+    } else if (Profile::Vm::StringIdSize == 4) {     \
+      PopUint32(stringId_);                          \
+      name = stringId_;                              \
+    } else {                                         \
+      ImpLogSlow(LogLevel::Error, LogChannel::VM,    \
+                 "Unsupported StringIdSize: {:d}\n", \
+                 Profile::Vm::StringIdSize);         \
+      name = std::numeric_limits<uint32_t>::max();   \
+    }                                                \
+  }                                                  \
+  (void)0
+
 #define PopString(name)                                            \
   uint32_t name;                                                   \
   {                                                                \
