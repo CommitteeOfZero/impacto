@@ -1423,7 +1423,7 @@ VmInstruction(InstMtrg) {
         SetFlag(SF_MOVIELOADPLAYFL, 0);
         ScrWork[SW_MOVIE_PLAYNO] = 0xffff;
         ScrWork[SW_MOVIE_LOADNO] = 0xffff;
-        ScrWork[6344] = 0;
+        ScrWork[SW_MOVIE_SHADER] = 0;
         return;
       }
       if (GetFlag(SF_MESALLSKIP)) {
@@ -1435,7 +1435,7 @@ VmInstruction(InstMtrg) {
         SetFlag(SF_MOVIELOADPLAYFL, 0);
         ScrWork[SW_MOVIE_PLAYNO] = 0xffff;
         ScrWork[SW_MOVIE_LOADNO] = 0xffff;
-        ScrWork[6344] = 0;
+        ScrWork[SW_MOVIE_SHADER] = 0;
         return;
       }
     } break;
