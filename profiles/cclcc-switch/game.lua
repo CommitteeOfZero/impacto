@@ -23,10 +23,13 @@ root.ScreenCaptureCount = 2;
 root.Vm = {
     StartScript = 2,
     StartScriptBuffer = 0,
-    GameInstructionSet = InstructionSet.CC,
+    GameInstructionSet = InstructionSet.LCCSwitch,
     
     UseMsbStrings = true;
-    UseReturnIds = true,
+    UseReturnIds = true;
+    UseSeparateMsbArchive = true;
+    StringEncodingType = StringUnitEncoding.Uint32,
+    StringIdSize = 4,
 
     ScrWorkChaStructSize = 40,
     ScrWorkChaOffsetStructSize = 10,
@@ -81,3 +84,4 @@ include(root.BaseConfig.RootProfilesDir .. '/cclcc/hud/helpmenu.lua');
 
 include(root.BaseConfig.RootProfilesDir .. '/cclcc-switch/hud/helpmenu.lua');
 include(root.BaseConfig.RootProfilesDir .. '/cclcc-switch/hud/titlemenu.lua');
+include(root.BaseConfig.RootProfilesDir .. '/cclcc-switch/hud/tipsmenu.lua');

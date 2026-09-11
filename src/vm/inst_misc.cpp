@@ -98,7 +98,8 @@ VmInstruction(InstSystemMenu) {
   switch (mode) {
     case 0:
       if (Profile::Vm::GameInstructionSet == InstructionSet::MO6TW) {
-      } else if (Profile::Vm::GameInstructionSet == InstructionSet::CC) {
+      } else if (Profile::Vm::GameInstructionSet == InstructionSet::CC ||
+                 Profile::Vm::GameInstructionSet == InstructionSet::LCCSwitch) {
         auto* sysMenuPtr =
             static_cast<UI::CCLCC::SystemMenu*>(UI::SystemMenuPtr);
         sysMenuPtr->Init();
@@ -530,6 +531,7 @@ VmInstruction(InstTitleMenuNew) {
         default:
           break;
         case InstructionSet::CC:
+        case InstructionSet::LCCSwitch:
         case InstructionSet::CHN: {
           using enum UI::CC::TitleMenuMode::Mode;
 
@@ -540,9 +542,9 @@ VmInstruction(InstTitleMenuNew) {
             }
           } else if (ScrWork[SW_TITLEMODE] == PressToStart &&
                      ScrWork[SW_TITLEDISPCT] ==
-                         (Profile::Vm::GameInstructionSet == InstructionSet::CC
-                              ? 60
-                              : 400)) {
+                         (Profile::Vm::GameInstructionSet == InstructionSet::CHN
+                              ? 400
+                              : 60)) {
             // Check "PRESS TO START" here
             if (((Interface::PADinputButtonWentDown & Interface::PAD1A) ||
                  (Interface::PADinputMouseWentDown & Interface::PAD1A))) {
@@ -654,6 +656,29 @@ VmInstruction(InstScreenChange) { StartInstruction; }
 VmInstruction(InstExitGame) {
   StartInstruction;
   Game::ShouldQuit = true;
+}
+
+VmInstruction(InstLoadFontMeta) {
+  StartInstruction;
+  PopUint8(type);
+
+  PopExpression(unkId);
+  PopExpression(archiveId);
+  PopExpression(fileId);
+
+  if (type != 0) {
+    ExpressionEval(thread);
+    ExpressionEval(thread);
+    ExpressionEval(thread);
+    ExpressionEval(thread);
+    ExpressionEval(thread);
+    ExpressionEval(thread);
+  }
+  ImpLogSlow(
+      LogLevel::Warning, LogChannel::VMStub,
+      "STUB instruction LoadFontMeta(type: {:d}, unkId: {:d}, archiveId: "
+      "{:d}, fileId: {:d})\n",
+      type, unkId, archiveId, fileId);
 }
 
 }  // namespace Vm

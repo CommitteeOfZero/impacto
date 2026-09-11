@@ -10,15 +10,19 @@ VmInstruction(InstDummy);
 
 VmInstruction(InstEnd);
 VmInstruction(InstCreateThread);
+VmInstruction(InstCreateThreadNew);
 VmInstruction(InstKillThread);
 VmInstruction(InstReset);
 VmInstruction(InstScriptLoad);
+VmInstruction(InstScriptLoadNew);
 VmInstruction(InstWait);
 VmInstruction(InstHalt);
 VmInstruction(InstGetLabelAdr);
 VmInstruction(InstFlagOnWait);
 VmInstruction(InstSetFlag);
+VmInstruction(InstSetFlagNew);
 VmInstruction(InstResetFlag);
+VmInstruction(InstResetFlagNew);
 VmInstruction(InstCopyFlag);
 VmInstruction(InstKeyWait);
 VmInstruction(InstKeyWaitTimer);
@@ -58,6 +62,7 @@ VmInstruction(InstDebugData);
 VmInstruction(InstAutoSave);
 VmInstruction(InstAutoSaveOld);
 VmInstruction(InstLoadFontWidths);
+VmInstruction(InstCPUBoostMode);
 
 }  // namespace Vm
 

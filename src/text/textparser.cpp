@@ -103,7 +103,7 @@ void TextParser::ParseStringToken<STT_RubyTextEnd>(const StringToken& token) {
 
 template <>
 void TextParser::ParseStringToken<STT_SetFontSize>(const StringToken& token) {
-  FontSize = ModeInfo.TextGlyphSize.y * (token.Val_Uint16 / SetFontSizeRatio);
+  FontSize = ModeInfo.TextGlyphSize.y * (token.Val_Int / SetFontSizeRatio);
 }
 
 template <>
@@ -119,12 +119,12 @@ void TextParser::ParseStringToken<STT_CenterText>(const StringToken& token) {
 
 template <>
 void TextParser::ParseStringToken<STT_SetTopMargin>(const StringToken& token) {
-  CurrentLineTopMargin = token.Val_Uint16;
+  CurrentLineTopMargin = static_cast<float>(token.Val_Int);
 }
 
 template <>
 void TextParser::ParseStringToken<STT_SetLeftMargin>(const StringToken& token) {
-  float addX = token.Val_Uint16;
+  float addX = static_cast<float>(token.Val_Int);
   if (CurrentX + addX > ModeInfo.MaxLineWidth) {
     FinishLine(Glyphs.size());
     addX -= (ModeInfo.MaxLineWidth - CurrentX);
@@ -139,11 +139,12 @@ void TextParser::ParseStringToken<STT_SetLeftMargin>(const StringToken& token) {
 
 template <>
 void TextParser::ParseStringToken<STT_UnlockTip>(const StringToken& token) {
-  if (!TipsSystem::GetTipLockedState(token.Val_Uint16)) return;
+  if (!TipsSystem::GetTipLockedState(token.Val_Int)) return;
 
-  TipsSystem::SetTipLockedState(token.Val_Uint16, false);
-  TipsNotification::AddTip(token.Val_Uint16);
-  TipsSystem::GetNewTipsIndices().push_back(token.Val_Uint16);
+  TipsSystem::SetTipLockedState(token.Val_Int, false);
+  TipsNotification::AddTip(token.Val_Int);
+  TipsSystem::GetNewTipsIndices().push_back(
+      static_cast<uint16_t>(token.Val_Int));
 }
 
 template <>
@@ -172,14 +173,27 @@ template <>
 void TextParser::ParseStringToken<STT_Character>(const StringToken& token) {
   switch (ParsingState) {
     case TextParsingState::Name: {
-      NameCode.back() = SDL_Swap16(token.Val_Uint16 | 0x8000);
+      uint32_t val{};
+      if (Profile::Vm::StringEncodingType ==
+          Profile::Vm::StringUnitEncoding::Uint32) {
+        val = SDL_Swap32(token.Val_Int | 0x8000);
+      } else {
+        val = SDL_Swap16(static_cast<uint16_t>(token.Val_Int) | 0x8000);
+      }
+      NameCode.back() = val;
       NameCode.emplace_back(STT_EndOfString);
       return;
     }
 
     case TextParsingState::RubyAnnotation: {
-      RubyChunks.back().RawText.push_back(
-          SDL_Swap16(token.Val_Uint16 | 0x8000));
+      uint32_t val{};
+      if (Profile::Vm::StringEncodingType ==
+          Profile::Vm::StringUnitEncoding::Uint32) {
+        val = SDL_Swap32(token.Val_Int | 0x8000);
+      } else {
+        val = SDL_Swap16(static_cast<uint16_t>(token.Val_Int) | 0x8000);
+      }
+      RubyChunks.back().RawText.push_back(val);
       return;
     }
 
@@ -187,7 +201,7 @@ void TextParser::ParseStringToken<STT_Character>(const StringToken& token) {
     case TextParsingState::RubyBase: {
       // TODO respect TA_Center
       // TODO what to do about left margin if text alignment is center?
-      const uint32_t glyphId = token.Val_Uint16;
+      const uint32_t glyphId = token.Val_Int;
       const auto& glyph = Glyphs.emplace_back(DialogueFont->PlaceGlyph(
           glyphId, {ModeInfo.WindowPos.x + CurrentX, 0.0f}, FontSize,
           CurrentColors, 1.0f));
