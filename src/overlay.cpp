@@ -334,7 +334,8 @@ static void ShowGamePicker(std::string& selectedGame) {
   ImGui::Spacing();
 }
 
-static bool ShowDisplaySettings(std::string const& selectedGame) {
+[[maybe_unused]] static bool ShowDisplaySettings(
+    std::string const& selectedGame) {
   auto& gameSettings = UserConfig::GameSettings.at(selectedGame);
 
   const float comboWidth = 200.0f * Window->DpiScale;
@@ -510,7 +511,9 @@ static void ShowSettingsPage(std::string const& selectedGame) {
     ShowCommonSettings();
     ImGui::Spacing();
     if (!selectedGame.empty()) {
+#if !defined(__ANDROID__)
       displayChanged |= ShowDisplaySettings(selectedGame);
+#endif
 
       ImGui::Spacing();
 
