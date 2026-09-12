@@ -631,129 +631,160 @@ static void ShowCloseButton() {
 }
 
 void ShowOverlay() {
-  constexpr ImGuiWindowFlags windowFlags =
+  constexpr ImGuiWindowFlags wrapperWindowFlags =
       ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove |
       ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
-      ImGuiWindowFlags_NoScrollbar;
+      ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoDecoration |
+      ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoSavedSettings;
   const ImGuiViewport* viewport = ImGui::GetMainViewport();
   ImGui::SetNextWindowPos(viewport->WorkPos);
   ImGui::SetNextWindowSize(viewport->WorkSize);
   ImGui::SetNextWindowViewport(viewport->ID);
+  ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+  if (ImGui::Begin("WindowWrapper", &OverlayShown, wrapperWindowFlags)) {
+    constexpr ImGuiWindowFlags innerWindowFlags =
+        ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove |
+        ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
+        ImGuiWindowFlags_NoScrollbar;
 
-  static std::string selectedGame;
-  if (ImGui::Begin("Overlay##DockArea", &OverlayShown, windowFlags)) {
-    bool isReady = true;
+    ImVec2 windowPos = viewport->WorkPos;
+    ImVec2 windowSize = viewport->WorkSize;
+
+    if (SDL_Rect windowSafeBounds;
+        SDL_GetWindowSafeArea(Window->SDLWindow, &windowSafeBounds)) {
+      windowPos.x = windowSafeBounds.x;
+      windowPos.y = windowSafeBounds.y;
+      windowSize.x = windowSafeBounds.w;
+      windowSize.y = windowSafeBounds.h;
+    } else {
+      ImpLog(LogLevel::Error, LogChannel::Overlay,
+             "Failed to get window safe area, {}", SDL_GetError());
+    }
+    ImGui::SetNextWindowPos(windowPos);
+    ImGui::SetNextWindowSize(windowSize);
+
+    static std::string selectedGame;
+    if (ImGui::Begin("Overlay##DockArea", nullptr, innerWindowFlags)) {
+      bool isReady = true;
 #ifdef __ANDROID__
-    if (!Profile::Game::HasInit) ShowDirectoryPickerButton();
-    isReady = !Io::GetAndroidChosenDir().empty();
+      if (!Profile::Game::HasInit) ShowDirectoryPickerButton();
+      isReady = !Io::GetAndroidChosenDir().empty();
 #endif
 
-    if (isReady) {
-      if (!Profile::Game::HasInit) {  // Game selection
-        ShowGamePicker(selectedGame);
-      } else {
-        selectedGame = UserConfig::GetActiveGame();
-      }
-    }
-    int accentColorCount = PushAccentColors(selectedGame);
-
-    float footerHeight = ImGui::GetStyle().ItemSpacing.y +
-                         ImGui::GetStyle().SeparatorSize +
-                         ImGui::GetFrameHeightWithSpacing();
-    ImGui::BeginChild("TabRegion", ImVec2(0, -footerHeight), 0);
-    ImGui::SetNextItemAllowOverlap();
-    if (ImGui::BeginTabBar("MainTabs")) {
-      magic_enum::containers::array<OverlayTab, ImGuiTabItemFlags> tabFlags{};
-
-      if (RequestedTab != ActiveTab) {
-        ActiveTab = RequestedTab;
-        if (ActiveTab.has_value())
-          tabFlags[*ActiveTab] |= ImGuiTabItemFlags_SetSelected;
-      }
-
-      if (ImGui::BeginTabItem("Settings", nullptr,
-                              tabFlags[OverlayTab::Settings])) {
-        ShowSettingsPage(selectedGame);
-        ImGui::EndTabItem();
-      }
-
-      if (ImGui::BeginTabItem("Enhancements", nullptr,
-                              tabFlags[OverlayTab::Enhancements])) {
-        ShowEnhancementsPage(selectedGame);
-        ImGui::EndTabItem();
-      }
-
-      if (!selectedGame.empty() &&
-          ImGui::BeginTabItem("Achievements", nullptr,
-                              tabFlags[OverlayTab::Achievements])) {
-        ImGui::TextWrapped("List achievements here.");
-        ImGui::EndTabItem();
-      }
-
-      if (ImGui::BeginTabItem("About", nullptr, tabFlags[OverlayTab::About])) {
-        ImGui::Text("Committee of Zero");
-        ImGui::SameLine();
-        ImGui::TextLinkOpenURL("Technical Support",
-                               "https://discord.gg/hRtvaYawg6");
-        ImGui::Text("Impacto Version %d.%d.%d", VERSION_MAJOR, VERSION_MINOR,
-                    VERSION_PATCH);
-        ImGui::Text("OS: %s", SDL_GetPlatform());
-        ImGui::Text("%.3f ms/frame (%.1f FPS)",
-                    1000.0f / ImGui::GetIO().Framerate,
-                    ImGui::GetIO().Framerate);
-        if (Profile::Game::HasInit) {
-          ImGui::Separator();
-          ImGui::Text("%s", GetGameDisplayName(selectedGame).c_str());
-          ShowPlayTime("Current Session Play Time", ScrWork[SW_PLAYTIME]);
-          ShowPlayTime("Total Play Time", ScrWork[SW_TOTALPLAYTIME]);
+      if (isReady) {
+        if (!Profile::Game::HasInit) {  // Game selection
+          ShowGamePicker(selectedGame);
+        } else {
+          selectedGame = UserConfig::GetActiveGame();
         }
-        ImGui::EndTabItem();
       }
-      ImGui::EndTabBar();
-    }
-    if (Profile::Game::HasInit) ShowCloseButton();
-    ImGui::EndChild();
+      int accentColorCount = PushAccentColors(selectedGame);
 
-    if (!Profile::Game::HasInit && !selectedGame.empty()) {
-      ImGui::Separator();
-      float buttonWidth = 120.0f * Window->DpiScale;
-      if (ImGui::BeginTable("StartButtonCenterTable", 3)) {
-        ImGui::TableSetupColumn("##left", ImGuiTableColumnFlags_WidthStretch);
-        ImGui::TableSetupColumn("##mid", ImGuiTableColumnFlags_WidthFixed,
-                                buttonWidth);
-        ImGui::TableSetupColumn("##right", ImGuiTableColumnFlags_WidthStretch);
+      static float cachedFooterHeight = ImGui::GetStyle().ItemSpacing.y +
+                                        ImGui::GetStyle().SeparatorSize +
+                                        ImGui::GetFrameHeightWithSpacing();
+      ImGui::BeginChild("TabRegion", ImVec2(0, -cachedFooterHeight), 0);
+      ImGui::SetNextItemAllowOverlap();
+      if (ImGui::BeginTabBar("MainTabs")) {
+        magic_enum::containers::array<OverlayTab, ImGuiTabItemFlags> tabFlags{};
 
-        ImGui::TableNextRow();
-        ImGui::TableSetColumnIndex(1);
-        if (ImGui::Button("Start Game", ImVec2(buttonWidth, 0))) {
-          UserConfig::SetActiveGame(selectedGame);
-          OverlayShown = false;
+        if (RequestedTab != ActiveTab) {
+          ActiveTab = RequestedTab;
+          if (ActiveTab.has_value())
+            tabFlags[*ActiveTab] |= ImGuiTabItemFlags_SetSelected;
         }
 
-        ImGui::EndTable();
+        if (ImGui::BeginTabItem("Settings", nullptr,
+                                tabFlags[OverlayTab::Settings])) {
+          ShowSettingsPage(selectedGame);
+          ImGui::EndTabItem();
+        }
+
+        if (ImGui::BeginTabItem("Enhancements", nullptr,
+                                tabFlags[OverlayTab::Enhancements])) {
+          ShowEnhancementsPage(selectedGame);
+          ImGui::EndTabItem();
+        }
+
+        if (!selectedGame.empty() &&
+            ImGui::BeginTabItem("Achievements", nullptr,
+                                tabFlags[OverlayTab::Achievements])) {
+          ImGui::TextWrapped("List achievements here.");
+          ImGui::EndTabItem();
+        }
+
+        if (ImGui::BeginTabItem("About", nullptr,
+                                tabFlags[OverlayTab::About])) {
+          ImGui::Text("Committee of Zero");
+          ImGui::SameLine();
+          ImGui::TextLinkOpenURL("Technical Support",
+                                 "https://discord.gg/hRtvaYawg6");
+          ImGui::Text("Impacto Version %d.%d.%d", VERSION_MAJOR, VERSION_MINOR,
+                      VERSION_PATCH);
+          ImGui::Text("OS: %s", SDL_GetPlatform());
+          ImGui::Text("%.3f ms/frame (%.1f FPS)",
+                      1000.0f / ImGui::GetIO().Framerate,
+                      ImGui::GetIO().Framerate);
+          if (Profile::Game::HasInit) {
+            ImGui::Separator();
+            ImGui::Text("%s", GetGameDisplayName(selectedGame).c_str());
+            ShowPlayTime("Current Session Play Time", ScrWork[SW_PLAYTIME]);
+            ShowPlayTime("Total Play Time", ScrWork[SW_TOTALPLAYTIME]);
+          }
+          ImGui::EndTabItem();
+        }
+        ImGui::EndTabBar();
       }
-    }
+      if (Profile::Game::HasInit) ShowCloseButton();
+      ImGui::EndChild();
+
+      const float footerStartY = ImGui::GetCursorScreenPos().y;
+      if (!Profile::Game::HasInit && !selectedGame.empty()) {
+        ImGui::Separator();
+        float buttonWidth = 120.0f * Window->DpiScale;
+        if (ImGui::BeginTable("StartButtonCenterTable", 3)) {
+          ImGui::TableSetupColumn("##left", ImGuiTableColumnFlags_WidthStretch);
+          ImGui::TableSetupColumn("##mid", ImGuiTableColumnFlags_WidthFixed,
+                                  buttonWidth);
+          ImGui::TableSetupColumn("##right",
+                                  ImGuiTableColumnFlags_WidthStretch);
+
+          ImGui::TableNextRow();
+          ImGui::TableSetColumnIndex(1);
+          if (ImGui::Button("Start Game", ImVec2(buttonWidth, 0))) {
+            UserConfig::SetActiveGame(selectedGame);
+            OverlayShown = false;
+          }
+
+          ImGui::EndTable();
+        }
+      }
 
 #ifndef NDEBUG
-    static bool showDemo = false;
-    if (ImGui::Button("Toggle Demo")) {
-      showDemo = !showDemo;
-    }
-    if (showDemo) ImGui::ShowDemoWindow();
+      static bool showDemo = false;
+      if (ImGui::Button("Toggle Demo")) {
+        showDemo = !showDemo;
+      }
+      if (showDemo) ImGui::ShowDemoWindow();
 #endif
+      const float footerEndY = ImGui::GetCursorScreenPos().y;
+      cachedFooterHeight = footerEndY - footerStartY;
 
-    ImVec2 mouseDelta = ImGui::GetIO().MouseDelta;
-    if (ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows) &&
-        (mouseDelta.x != 0.0f || mouseDelta.y != 0.0f)) {
-      Input::CurrentInputDevice = Input::Device::Mouse;
+      ImVec2 mouseDelta = ImGui::GetIO().MouseDelta;
+      if (ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows) &&
+          (mouseDelta.x != 0.0f || mouseDelta.y != 0.0f)) {
+        Input::CurrentInputDevice = Input::Device::Mouse;
+      }
+
+      if (ImGui::IsAnyItemHovered()) {
+        RequestCursor(CursorType::Pointer);
+      }
+
+      ImGui::PopStyleColor(accentColorCount);
     }
-
-    if (ImGui::IsAnyItemHovered()) {
-      RequestCursor(CursorType::Pointer);
-    }
-
-    ImGui::PopStyleColor(accentColorCount);
+    ImGui::End();
   }
+  ImGui::PopStyleVar();
   ImGui::End();
 }
 
