@@ -291,7 +291,9 @@ VmInstruction(InstControlOnJump) {
   PopUint8(controlStateTarget);
   PopExpression(controlId);
   PopLocalLabel(labelAdr);
-  if ((bool)controlStateTarget == Interface::GetControlState(controlId)) {
+  if ((bool)controlStateTarget ==
+      Interface::GetControlState(
+          static_cast<Interface::ControlType::ControlTypeEnum>(controlId))) {
     thread->IpOffset = labelAdr;
   }
 }

@@ -1,8 +1,9 @@
 #include "memorymappedfilestream.h"
 #include "../log.h"
 
-#include <cstring>
 #include <algorithm>
+#include <cstring>
+#include <mutex>
 #include <system_error>
 
 namespace Impacto {
@@ -10,8 +11,7 @@ namespace Io {
 template <AccessMode M>
 IoError MemoryMappedFileStream<M>::Create(std::string const& fileName,
                                           Stream** out) {
-  MemoryMappedFileStream* result =
-      new MemoryMappedFileStream(GetSystemDependentPath(fileName));
+  MemoryMappedFileStream* result = new MemoryMappedFileStream(fileName);
   result->Meta.Size = GetFileSize(result->SourceFileName);
   if (result->Meta.Size == IoError_Fail) {
     delete result;

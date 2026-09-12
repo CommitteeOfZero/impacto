@@ -1,15 +1,21 @@
 #include "overlay.h"
 
 #include <imgui.h>
+#include <imgui_scroll_drag.h>
 #include <algorithm>
 #include <vector>
 #include <ankerl/unordered_dense.h>
 #include <magic_enum/magic_enum_containers.hpp>
 
+#ifdef __ANDROID__
+#include <jni.h>
+#endif
+
 #include "game.h"
 #include "log.h"
 #include "inputsystem.h"
 #include "mem.h"
+#include "profile/profile.h"
 #include "profile/game.h"
 #include "profile/gamedefinitions.h"
 #include "profile/basepaths.h"
@@ -17,6 +23,7 @@
 #include "userconfig.h"
 #include "version.h"
 #include "io/physicalfilestream.h"
+#include "io/filemeta.h"
 
 using namespace Impacto::Profile::ScriptVars;
 
@@ -29,6 +36,54 @@ struct ImgData {
   uint32_t Texture;
 };
 static ankerl::unordered_dense::map<std::string, ImgData> iconTextureMap;
+
+#ifdef __ANDROID__
+static void ShowDirectoryPicker() {
+  JNIEnv* env = (JNIEnv*)SDL_GetAndroidJNIEnv();
+  jobject activity = (jobject)SDL_GetAndroidActivity();
+  jclass clazz = env->GetObjectClass(activity);
+
+  jmethodID chooseDir = env->GetMethodID(clazz, "chooseDirectory", "()V");
+  if (chooseDir) {
+    env->CallVoidMethod(activity, chooseDir);
+  } else {
+    env->ExceptionDescribe();
+    env->ExceptionClear();
+    throw std::runtime_error("Failed to call JNI method chooseDirectory");
+  }
+
+  env->DeleteLocalRef(activity);
+  env->DeleteLocalRef(clazz);
+}
+
+static void ShowDirectoryPickerButton() {
+  static std::string lastKnownDir;
+  auto const& directory = Io::GetAndroidChosenDir();
+
+  if (directory != lastKnownDir) {
+    lastKnownDir = directory;
+    Profile::Configure();
+    UserConfig::CommonSettings.LogFile = GetDefaultLogFile();
+    LogInitFile();
+
+  } else if (lastKnownDir.empty()) {
+    lastKnownDir = directory;
+  }
+
+  if (ImGui::Button("Default Directory")) {
+    Io::ResetAndroidChosenDir();
+  }
+  ImGui::SameLine();
+  if (ImGui::Button("Choose Directory")) {
+    ShowDirectoryPicker();
+  }
+  ImGui::SameLine();
+  ImGui::Text("%s", directory.c_str());
+
+  ImGui::Separator();
+  ImGui::Spacing();
+}
+#endif
 
 static std::string GetGameDisplayName(std::string const& gameKey) {
   auto const& name = Profile::GameDefinitions.at(gameKey).Name;
@@ -78,6 +133,7 @@ static int PushAccentColors(std::string const& gameKey) {
 
 void SetupStyle() {
   ImGuiStyle& style = ImGui::GetStyle();
+  style.ScaleAllSizes(Window->DpiScale);
 
   style.WindowRounding = 0.0f;
   style.ChildRounding = 0.0f;
@@ -174,8 +230,9 @@ void SetupFonts() {
   ImGuiIO& io = ImGui::GetIO();
   constexpr const char* fontPath =
       "resources/common/font/NotoSansCJKjp-Bold.otf";
-  ImFont* font = io.Fonts->AddFontFromFileTTF(
-      fontPath, 24.0f, nullptr, io.Fonts->GetGlyphRangesJapanese());
+  ImFont* font =
+      io.Fonts->AddFontFromFileTTF(fontPath, 24.0f * Window->DpiScale, nullptr,
+                                   io.Fonts->GetGlyphRangesJapanese());
   if (font == nullptr) {
     ImpLog(LogLevel::Error, LogChannel::Overlay, "Failed to load font: {}",
            fontPath);
@@ -215,8 +272,8 @@ void Init() {
 }
 
 static void ShowGamePicker(std::string& selectedGame) {
-  constexpr float comboWidth = 340.0f;
-  constexpr float iconSize = 36.0f;
+  const float comboWidth = 340.0f * Window->DpiScale;
+  const float iconSize = 36.0f * Window->DpiScale;
   constexpr auto label = "Choose Game";
 
   std::vector<std::string> gameKeys;
@@ -244,7 +301,7 @@ static void ShowGamePicker(std::string& selectedGame) {
     ImGui::TableNextRow();
     ImGui::TableSetColumnIndex(1);
 
-    auto showIcon = [](std::string const& game) {
+    auto showIcon = [iconSize](std::string const& game) {
       if (auto iconTxtItr = iconTextureMap.find(game);
           iconTxtItr != iconTextureMap.end()) {
         auto const& img = iconTxtItr->second;
@@ -277,10 +334,11 @@ static void ShowGamePicker(std::string& selectedGame) {
   ImGui::Spacing();
 }
 
-static bool ShowDisplaySettings(std::string const& selectedGame) {
+[[maybe_unused]] static bool ShowDisplaySettings(
+    std::string const& selectedGame) {
   auto& gameSettings = UserConfig::GameSettings.at(selectedGame);
 
-  constexpr float comboWidth = 200.0f;
+  const float comboWidth = 200.0f * Window->DpiScale;
 
   constexpr static auto resolutionOptions = std::to_array({
       std::pair{"1024x576", glm::ivec2{1024, 576}},
@@ -366,7 +424,7 @@ static bool ShowDisplaySettings(std::string const& selectedGame) {
 }
 
 static void ShowPatchSettings(std::string const& selectedGame) {
-  constexpr float comboWidth = 200.0f;
+  const float comboWidth = 200.0f * Window->DpiScale;
 
   auto& gameSettings = UserConfig::GameSettings.at(selectedGame);
   auto const& gameDef = Profile::GameDefinitions.at(selectedGame);
@@ -400,7 +458,7 @@ static void ShowPatchSettings(std::string const& selectedGame) {
 }
 
 static void ShowCommonSettings() {
-  constexpr float comboWidth = 200.0f;
+  const float comboWidth = 200.0f * Window->DpiScale;
 
   if (ImGui::CollapsingHeader("General Settings",
                               ImGuiTreeNodeFlags_DefaultOpen)) {
@@ -453,12 +511,16 @@ static void ShowSettingsPage(std::string const& selectedGame) {
     ShowCommonSettings();
     ImGui::Spacing();
     if (!selectedGame.empty()) {
+#if !defined(__ANDROID__)
       displayChanged |= ShowDisplaySettings(selectedGame);
+#endif
 
       ImGui::Spacing();
 
       ShowPatchSettings(selectedGame);
     }
+    ImGui::ScrollWhenDraggingOnVoid(ImVec2{0.0f, -ImGui::GetIO().MouseDelta.y},
+                                    ImGuiMouseButton_Left);
   }
   ImGui::EndChild();
 
@@ -533,6 +595,8 @@ static void ShowEnhancementsPage(std::string const& selectedGame) {
                       &enhancements.CHLCC.DelusionMousePatch);
     }
   }
+  ImGui::ScrollWhenDraggingOnVoid(ImVec2{0.0f, -ImGui::GetIO().MouseDelta.y},
+                                  ImGuiMouseButton_Left);
   ImGui::EndChild();
 
   constexpr auto restoreDefaultsLabel = "Restore Defaults";
@@ -555,7 +619,7 @@ static void ShowEnhancementsPage(std::string const& selectedGame) {
 }
 
 static void ShowCloseButton() {
-  ImVec2 closeButtonSize(27, 27);
+  ImVec2 closeButtonSize(27 * Window->DpiScale, 27 * Window->DpiScale);
 
   ImGui::SetCursorPos(
       ImVec2(ImGui::GetContentRegionAvail().x - closeButtonSize.x, 0.0f));
@@ -570,120 +634,160 @@ static void ShowCloseButton() {
 }
 
 void ShowOverlay() {
-  constexpr ImGuiWindowFlags windowFlags =
+  constexpr ImGuiWindowFlags wrapperWindowFlags =
       ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove |
       ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
-      ImGuiWindowFlags_NoScrollbar;
+      ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoDecoration |
+      ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoSavedSettings;
   const ImGuiViewport* viewport = ImGui::GetMainViewport();
   ImGui::SetNextWindowPos(viewport->WorkPos);
   ImGui::SetNextWindowSize(viewport->WorkSize);
   ImGui::SetNextWindowViewport(viewport->ID);
+  ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+  if (ImGui::Begin("WindowWrapper", &OverlayShown, wrapperWindowFlags)) {
+    constexpr ImGuiWindowFlags innerWindowFlags =
+        ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove |
+        ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
+        ImGuiWindowFlags_NoScrollbar;
 
-  static std::string selectedGame;
-  if (ImGui::Begin("Overlay##DockArea", &OverlayShown, windowFlags)) {
-    if (!Profile::Game::HasInit) {  // Game selection
-      ShowGamePicker(selectedGame);
+    ImVec2 windowPos = viewport->WorkPos;
+    ImVec2 windowSize = viewport->WorkSize;
+
+    if (SDL_Rect windowSafeBounds;
+        SDL_GetWindowSafeArea(Window->SDLWindow, &windowSafeBounds)) {
+      windowPos.x = windowSafeBounds.x;
+      windowPos.y = windowSafeBounds.y;
+      windowSize.x = windowSafeBounds.w;
+      windowSize.y = windowSafeBounds.h;
     } else {
-      selectedGame = UserConfig::GetActiveGame();
+      ImpLog(LogLevel::Error, LogChannel::Overlay,
+             "Failed to get window safe area, {}", SDL_GetError());
     }
-    int accentColorCount = PushAccentColors(selectedGame);
+    ImGui::SetNextWindowPos(windowPos);
+    ImGui::SetNextWindowSize(windowSize);
 
-    float footerHeight = ImGui::GetStyle().ItemSpacing.y +
-                         ImGui::GetStyle().SeparatorSize +
-                         ImGui::GetFrameHeightWithSpacing();
-    ImGui::BeginChild("TabRegion", ImVec2(0, -footerHeight), 0);
-    ImGui::SetNextItemAllowOverlap();
-    if (ImGui::BeginTabBar("MainTabs")) {
-      magic_enum::containers::array<OverlayTab, ImGuiTabItemFlags> tabFlags{};
-
-      if (RequestedTab != ActiveTab) {
-        ActiveTab = RequestedTab;
-        if (ActiveTab.has_value())
-          tabFlags[*ActiveTab] |= ImGuiTabItemFlags_SetSelected;
-      }
-
-      if (ImGui::BeginTabItem("Settings", nullptr,
-                              tabFlags[OverlayTab::Settings])) {
-        ShowSettingsPage(selectedGame);
-        ImGui::EndTabItem();
-      }
-
-      if (ImGui::BeginTabItem("Enhancements", nullptr,
-                              tabFlags[OverlayTab::Enhancements])) {
-        ShowEnhancementsPage(selectedGame);
-        ImGui::EndTabItem();
-      }
-
-      if (ImGui::BeginTabItem("Achievements", nullptr,
-                              tabFlags[OverlayTab::Achievements])) {
-        ImGui::TextWrapped("List achievements here.");
-        ImGui::EndTabItem();
-      }
-
-      if (ImGui::BeginTabItem("About", nullptr, tabFlags[OverlayTab::About])) {
-        ImGui::Text("Committee of Zero");
-        ImGui::SameLine();
-        ImGui::TextLinkOpenURL("Technical Support",
-                               "https://discord.gg/hRtvaYawg6");
-        ImGui::Text("Impacto Version %d.%d.%d", VERSION_MAJOR, VERSION_MINOR,
-                    VERSION_PATCH);
-        ImGui::Text("OS: %s", SDL_GetPlatform());
-        ImGui::Text("%.3f ms/frame (%.1f FPS)",
-                    1000.0f / ImGui::GetIO().Framerate,
-                    ImGui::GetIO().Framerate);
-        if (Profile::Game::HasInit) {
-          ImGui::Separator();
-          ImGui::Text("%s", GetGameDisplayName(selectedGame).c_str());
-          ShowPlayTime("Current Session Play Time", ScrWork[SW_PLAYTIME]);
-          ShowPlayTime("Total Play Time", ScrWork[SW_TOTALPLAYTIME]);
-        }
-        ImGui::EndTabItem();
-      }
-      ImGui::EndTabBar();
-    }
-    if (Profile::Game::HasInit) ShowCloseButton();
-    ImGui::EndChild();
-
-    if (!Profile::Game::HasInit && !selectedGame.empty()) {
-      ImGui::Separator();
-      float buttonWidth = 120.0f;
-      if (ImGui::BeginTable("StartButtonCenterTable", 3)) {
-        ImGui::TableSetupColumn("##left", ImGuiTableColumnFlags_WidthStretch);
-        ImGui::TableSetupColumn("##mid", ImGuiTableColumnFlags_WidthFixed,
-                                buttonWidth);
-        ImGui::TableSetupColumn("##right", ImGuiTableColumnFlags_WidthStretch);
-
-        ImGui::TableNextRow();
-        ImGui::TableSetColumnIndex(1);
-        if (ImGui::Button("Start Game", ImVec2(buttonWidth, 0))) {
-          UserConfig::SetActiveGame(selectedGame);
-          OverlayShown = false;
-        }
-
-        ImGui::EndTable();
-      }
-    }
-
-#ifndef NDEBUG
-    static bool showDemo = false;
-    if (ImGui::Button("Toggle Demo")) {
-      showDemo = !showDemo;
-    }
-    if (showDemo) ImGui::ShowDemoWindow();
+    static std::string selectedGame;
+    if (ImGui::Begin("Overlay##DockArea", nullptr, innerWindowFlags)) {
+      bool isReady = true;
+#ifdef __ANDROID__
+      if (!Profile::Game::HasInit) ShowDirectoryPickerButton();
+      isReady = !Io::GetAndroidChosenDir().empty();
 #endif
 
-    ImVec2 mouseDelta = ImGui::GetIO().MouseDelta;
-    if (ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows) &&
-        (mouseDelta.x != 0.0f || mouseDelta.y != 0.0f)) {
-      Input::CurrentInputDevice = Input::Device::Mouse;
-    }
+      if (isReady) {
+        if (!Profile::Game::HasInit) {  // Game selection
+          ShowGamePicker(selectedGame);
+        } else {
+          selectedGame = UserConfig::GetActiveGame();
+        }
+      }
+      int accentColorCount = PushAccentColors(selectedGame);
 
-    if (ImGui::IsAnyItemHovered()) {
-      RequestCursor(CursorType::Pointer);
-    }
+      static float cachedFooterHeight = ImGui::GetStyle().ItemSpacing.y +
+                                        ImGui::GetStyle().SeparatorSize +
+                                        ImGui::GetFrameHeightWithSpacing();
+      ImGui::BeginChild("TabRegion", ImVec2(0, -cachedFooterHeight), 0);
+      ImGui::SetNextItemAllowOverlap();
+      if (ImGui::BeginTabBar("MainTabs")) {
+        magic_enum::containers::array<OverlayTab, ImGuiTabItemFlags> tabFlags{};
 
-    ImGui::PopStyleColor(accentColorCount);
+        if (RequestedTab != ActiveTab) {
+          ActiveTab = RequestedTab;
+          if (ActiveTab.has_value())
+            tabFlags[*ActiveTab] |= ImGuiTabItemFlags_SetSelected;
+        }
+
+        if (ImGui::BeginTabItem("Settings", nullptr,
+                                tabFlags[OverlayTab::Settings])) {
+          ShowSettingsPage(selectedGame);
+          ImGui::EndTabItem();
+        }
+
+        if (ImGui::BeginTabItem("Enhancements", nullptr,
+                                tabFlags[OverlayTab::Enhancements])) {
+          ShowEnhancementsPage(selectedGame);
+          ImGui::EndTabItem();
+        }
+
+        if (!selectedGame.empty() &&
+            ImGui::BeginTabItem("Achievements", nullptr,
+                                tabFlags[OverlayTab::Achievements])) {
+          ImGui::TextWrapped("List achievements here.");
+          ImGui::EndTabItem();
+        }
+
+        if (ImGui::BeginTabItem("About", nullptr,
+                                tabFlags[OverlayTab::About])) {
+          ImGui::Text("Committee of Zero");
+          ImGui::SameLine();
+          ImGui::TextLinkOpenURL("Technical Support",
+                                 "https://discord.gg/hRtvaYawg6");
+          ImGui::Text("Impacto Version %d.%d.%d", VERSION_MAJOR, VERSION_MINOR,
+                      VERSION_PATCH);
+          ImGui::Text("OS: %s", SDL_GetPlatform());
+          ImGui::Text("%.3f ms/frame (%.1f FPS)",
+                      1000.0f / ImGui::GetIO().Framerate,
+                      ImGui::GetIO().Framerate);
+          if (Profile::Game::HasInit) {
+            ImGui::Separator();
+            ImGui::Text("%s", GetGameDisplayName(selectedGame).c_str());
+            ShowPlayTime("Current Session Play Time", ScrWork[SW_PLAYTIME]);
+            ShowPlayTime("Total Play Time", ScrWork[SW_TOTALPLAYTIME]);
+          }
+          ImGui::EndTabItem();
+        }
+        ImGui::EndTabBar();
+      }
+      if (Profile::Game::HasInit) ShowCloseButton();
+      ImGui::EndChild();
+
+      const float footerStartY = ImGui::GetCursorScreenPos().y;
+      if (!Profile::Game::HasInit && !selectedGame.empty()) {
+        ImGui::Separator();
+        float buttonWidth = 120.0f * Window->DpiScale;
+        if (ImGui::BeginTable("StartButtonCenterTable", 3)) {
+          ImGui::TableSetupColumn("##left", ImGuiTableColumnFlags_WidthStretch);
+          ImGui::TableSetupColumn("##mid", ImGuiTableColumnFlags_WidthFixed,
+                                  buttonWidth);
+          ImGui::TableSetupColumn("##right",
+                                  ImGuiTableColumnFlags_WidthStretch);
+
+          ImGui::TableNextRow();
+          ImGui::TableSetColumnIndex(1);
+          if (ImGui::Button("Start Game", ImVec2(buttonWidth, 0))) {
+            UserConfig::SetActiveGame(selectedGame);
+            OverlayShown = false;
+          }
+
+          ImGui::EndTable();
+        }
+      }
+
+#ifndef NDEBUG
+      static bool showDemo = false;
+      if (ImGui::Button("Toggle Demo")) {
+        showDemo = !showDemo;
+      }
+      if (showDemo) ImGui::ShowDemoWindow();
+#endif
+      const float footerEndY = ImGui::GetCursorScreenPos().y;
+      cachedFooterHeight = footerEndY - footerStartY;
+
+      ImVec2 mouseDelta = ImGui::GetIO().MouseDelta;
+      if (ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows) &&
+          (mouseDelta.x != 0.0f || mouseDelta.y != 0.0f)) {
+        Input::CurrentInputDevice = Input::Device::Mouse;
+      }
+
+      if (ImGui::IsAnyItemHovered()) {
+        RequestCursor(CursorType::Pointer);
+      }
+
+      ImGui::PopStyleColor(accentColorCount);
+    }
+    ImGui::End();
   }
+  ImGui::PopStyleVar();
   ImGui::End();
 }
 
@@ -692,7 +796,8 @@ void Show() {
     if (!OverlayShown &&
         ((Input::KeyboardButtonWentDown[SDL_SCANCODE_0] &&
           (SDL_GetModState() & SDL_KMOD_SHIFT)) ||
-         Input::ControllerButtonWentDown[SDL_GAMEPAD_BUTTON_LEFT_STICK])) {
+         Input::ControllerButtonWentDown[SDL_GAMEPAD_BUTTON_LEFT_STICK] ||
+         Input::TouchTapCount == 3)) {
       OverlayShown = true;
     } else if (OverlayShown &&
                (ImGui::IsKeyChordPressed(ImGuiMod_Shift | ImGuiKey_0) ||

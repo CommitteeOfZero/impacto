@@ -23,11 +23,13 @@ using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::Vm;
 
 void Background2D::InitFrameBuffers() {
-  [[maybe_unused]] RectF viewPort = Window->GetViewport();
+  RectF viewPort = Window->GetViewport();
   for (size_t i = 0; i < Framebuffers.max_size(); i++) {
-    Framebuffers[i].BgSprite = Sprite(
-        SpriteSheet(Profile::Game::DesignWidth, Profile::Game::DesignHeight),
-        0.0f, 0.0f, Profile::Game::DesignWidth, Profile::Game::DesignHeight);
+    Framebuffers[i].BgSprite =
+        Sprite(SpriteSheet(viewPort.Width, viewPort.Height), 0.0f, 0.0f,
+               viewPort.Width, viewPort.Height,
+               {Profile::Game::DesignWidth / viewPort.Width,
+                Profile::Game::DesignHeight / viewPort.Height});
     Framebuffers[i].BgSprite.Sheet.Texture =
         Renderer->GetFramebufferTexture(i + 1);
 
@@ -41,10 +43,15 @@ void Background2D::Init() {
     Backgrounds2D[i] = &Backgrounds[i];
   }
 
-  const auto initCapture = [](Capture2D& capture) {
+  const RectF viewport = Window->GetViewport();
+  const auto initCapture = [&viewport](Capture2D& capture) {
     capture.BgSprite.Sheet.IsScreenCap = true;
-    capture.LoadSolidColor(0xFF000000, Window->WindowWidth,
-                           Window->WindowHeight);
+    capture.LoadSolidColor(0xFF000000, static_cast<int>(viewport.Width),
+                           static_cast<int>(viewport.Height));
+    capture.BgSprite.Bounds.SetSize(viewport.GetSize());
+    capture.BgSprite.BaseScale = {
+        Profile::Game::DesignWidth / viewport.Width,
+        Profile::Game::DesignHeight / viewport.Height};
     capture.Status = LoadStatus::Loaded;
   };
   for (Capture2D& capture : Screencaptures) initCapture(capture);
@@ -52,20 +59,14 @@ void Background2D::Init() {
 
   ShaderScreencapture.BgSprite.Sheet.IsScreenCap = true;
   InitFrameBuffers();
+  ShaderScreencapture.LoadSolidColor(0xFF000000,
+                                     static_cast<int>(viewport.Width),
+                                     static_cast<int>(viewport.Height));
+  ShaderScreencapture.BgSprite.Bounds.SetSize(viewport.GetSize());
+  ShaderScreencapture.BgSprite.BaseScale = {
+      Profile::Game::DesignWidth / viewport.Width,
+      Profile::Game::DesignHeight / viewport.Height};
 
-  for (size_t i = 0; i < Framebuffers.max_size(); i++) {
-    Framebuffers[i].BgSprite = Sprite(
-        SpriteSheet(Profile::Game::DesignWidth, Profile::Game::DesignHeight),
-        0.0f, 0.0f, Profile::Game::DesignWidth, Profile::Game::DesignHeight);
-    Framebuffers[i].BgSprite.Sheet.Texture =
-        Renderer->GetFramebufferTexture(i + 1);
-
-    Framebuffers[i].Status = LoadStatus::Loaded;
-    Framebuffers[i].BgSprite.Sheet.IsScreenCap = true;
-  }
-
-  ShaderScreencapture.LoadSolidColor(0xFF000000, Window->WindowWidth,
-                                     Window->WindowHeight);
   ShaderScreencapture.Status = LoadStatus::Loaded;
 }
 
@@ -562,9 +563,13 @@ void Background2D::RenderBgEff(const int layer) {
   static Sprite frameSprite{};
   if (frameSprite.Sheet.Texture == 0) {
     Texture frameTexture{};
-    frameTexture.LoadSolidColor(Window->WindowWidth, Window->WindowHeight,
-                                0x00000000);
+    const RectF viewport = Window->GetViewport();
+    frameTexture.LoadSolidColor(static_cast<int>(viewport.Width),
+                                static_cast<int>(viewport.Height), 0x00000000);
     frameSprite.Sheet.Texture = frameTexture.Submit();
+    frameSprite.Bounds.SetSize(viewport.GetSize());
+    frameSprite.BaseScale = {Profile::Game::DesignWidth / viewport.Width,
+                             Profile::Game::DesignHeight / viewport.Height};
     // I am aware this leaks a texture at shutdown
   }
 

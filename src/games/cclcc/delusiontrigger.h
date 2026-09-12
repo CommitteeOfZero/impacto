@@ -40,7 +40,6 @@ class DelusionTrigger {
   int& DelusionState;
   int LastDelusionState = 0xFF;
   DragHitbox ActiveDragHitbox = DragHitbox::None;
-  glm::vec2 DragStartPos = glm::vec2(0.0f);
   float DragHoldTime = 0.0f;
   bool DragPressPending = false;
   bool DragHoldActive = false;

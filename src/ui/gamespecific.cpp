@@ -264,7 +264,16 @@ static void UpdateCCAtChanScrollbar() {
     const float offset = bgYRange.first - (mouseYRange.first * slope);
     const int conversion = (int)(Input::CurMousePos.y * slope + offset);
 
-    if (Input::CurrentInputDevice == Input::Device::Mouse) {
+    if (Input::CurrentInputDevice == Input::Device::Mouse ||
+        Input::CurrentInputDevice == Input::Device::Touch) {
+      if (Input::MouseWheelDeltaY < 0) {
+        auto kbBtnItr = Vm::Interface::KBcustom.find(52);
+        if (kbBtnItr != Vm::Interface::KBcustom.end()) {
+          for (auto scancode : kbBtnItr->second)
+            Input::KeyboardButtonWentDown[scancode] = false;
+        }
+      }
+
       ScrWork[SW_BG1POSY] -= static_cast<int>(Input::MouseWheelDeltaY * 16.0f);
       mouseHover = thumbBounds.ContainsPoint(Input::CurMousePos);
       if (mouseHover) {

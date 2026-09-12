@@ -219,11 +219,12 @@ void SaveMenu::UpdateInput(float dt) {
   };
   if (IsFocused) {
     MainItems[CurrentPage]->UpdateInput(dt);
-    if (Input::MouseWheelDeltaY < 0 || PADinputButtonWentDown & PADcustom[8]) {
+    if (Input::MouseWheelDeltaY < 0 || PADinputButtonWentDown & PADcustom[8] ||
+        Input::TouchFlickUp) {
       updatePage((CurrentPage + 1) % Pages);
       IsFocused = false;
     } else if (Input::MouseWheelDeltaY > 0 ||
-               PADinputButtonWentDown & PADcustom[7]) {
+               PADinputButtonWentDown & PADcustom[7] || Input::TouchFlickDown) {
       updatePage((CurrentPage - 1 + Pages) % Pages);
       IsFocused = false;
     } else {

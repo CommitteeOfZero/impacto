@@ -177,13 +177,15 @@ int main(int argc, char* argv[]) {
   }
 #endif
 
-#ifndef __SWITCH__
+#if defined(__ANDROID__)
+  if (const char* const basePath = SDL_GetAndroidInternalStoragePath())
+    std::filesystem::current_path(basePath);
+#elif !defined(__SWITCH__)
   // On Switch SDL_GetBasePath is "romfs:/" which we obviously don't want.
   // Homebrew loader correctly sets cwd to the nro directory so it's useless
   // anyway.
-  if (const char* const basePath = SDL_GetBasePath()) {
+  if (const char* const basePath = SDL_GetBasePath())
     std::filesystem::current_path(basePath);
-  }
 #endif
 
   std::string profilePath;

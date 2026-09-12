@@ -1236,6 +1236,8 @@ VmInstruction(InstSetRevMes) {
 }
 
 void ChkMesSkip() {
+  static bool swipeSkipAll = false;
+
   bool mesSkip = false;
   bool mesAllSkip = false;
 
@@ -1246,24 +1248,30 @@ void ChkMesSkip() {
   }
 
   if ((ScrWork[SW_GAMESTATE] & 0b101) == 0b001 && !GetFlag(SF_UIHIDDEN)) {
-    mesSkip |= Interface::GetControlState(Interface::CT_NextMessage);
+    mesSkip |= Interface::GetControlState(Interface::ControlType::NextMessage);
 
-    if (Interface::GetControlState(Interface::CT_ForceSkip,
+    if (Interface::GetControlState(Interface::ControlType::ForceSkip,
                                    Interface::InputDownType::IsDown)) {
       mesSkip = true;
       mesAllSkip = true;
     };
 
-    if (Interface::PADinputButtonWentDown & Interface::PADcustom[8]) {
+    if (Interface::PADinputButtonWentDown & Interface::PADcustom[8] ||
+        Input::TouchFlickRight) {
       SkipModeEnabled = !SkipModeEnabled;
+    }
+    if (!SkipModeEnabled) swipeSkipAll = false;
+    if (Input::TouchFlickLeft) {
+      swipeSkipAll = !swipeSkipAll;
+      SkipModeEnabled = swipeSkipAll;
     }
 
     if (Interface::PADinputButtonWentDown & Interface::PADcustom[9]) {
       AutoModeEnabled = !AutoModeEnabled;
     }
 
-    if (SkipModeEnabled &&
-        (!Profile::ConfigSystem::SkipRead || GetFlag(SF_MESREAD))) {
+    if (SkipModeEnabled && (!Profile::ConfigSystem::SkipRead ||
+                            GetFlag(SF_MESREAD) || swipeSkipAll)) {
       mesSkip = true;
       mesAllSkip = true;
     }

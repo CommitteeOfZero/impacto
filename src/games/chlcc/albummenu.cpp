@@ -192,10 +192,12 @@ void AlbumMenu::UpdateInput(float dt) {
     if (IsFocused && !ShowCgViewer) {
       const auto albumPages = AlbumPages + GetFlag(SF_CONGRATULATED);
       if (Input::MouseWheelDeltaY < 0 ||
-          PADinputButtonWentDown & PADcustom[8]) {
+          PADinputButtonWentDown & PADcustom[8] || Input::TouchFlickUp ||
+          Input::TouchFlickLeft) {
         updatePage((CurrentPage + 1) % albumPages);
       } else if (Input::MouseWheelDeltaY > 0 ||
-                 PADinputButtonWentDown & PADcustom[7]) {
+                 PADinputButtonWentDown & PADcustom[7] ||
+                 Input::TouchFlickDown || Input::TouchFlickRight) {
         updatePage((CurrentPage - 1 + albumPages) % albumPages);
       }
     }

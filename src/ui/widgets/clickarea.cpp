@@ -19,21 +19,19 @@ ClickArea::ClickArea(int id, RectF bounds,
 }
 
 void ClickArea::UpdateInput(float dt) {
-  if (!Enabled) return;
+  using namespace Impacto::Vm::Interface;
 
-  if (Input::CurrentInputDevice == Input::Device::Mouse &&
-      ((Input::PrevMousePos != Input::CurMousePos &&
-        !(Vm::Interface::PADinputMouseIsDown & Vm::Interface::PAD1A)) ||
-       Vm::Interface::PADinputMouseWentDown)) {
+  if (!Enabled) return;
+  const bool useCursor = (Input::CurrentInputDevice == Input::Device::Mouse ||
+                          Input::CurrentInputDevice == Input::Device::Touch);
+  if (useCursor && Input::PrevMousePos != Input::CurMousePos) {
     Hovered = Bounds.ContainsPoint(Input::CurMousePos);
-  } else if (Input::CurrentInputDevice == Input::Device::Touch &&
-             Input::TouchIsDown[0] &&
-             Input::PrevTouchPos != Input::CurTouchPos) {
-    Hovered = Bounds.ContainsPoint(Input::CurTouchPos);
   }
 
-  if (Clickable && Hovered &&
-      Vm::Interface::PADinputMouseWentDown & Vm::Interface::PAD1A) {
+  const bool isClicked =
+      GetControlState(ControlType::OK, InputDownType::WentDown);
+  if (Clickable && isClicked &&
+      (!useCursor || (Hovered && Bounds.ContainsPoint(Input::InitMousePos)))) {
     OnClickHandler(this);
   }
 }
@@ -43,11 +41,8 @@ void ClickArea::Show() {
 
   switch (Input::CurrentInputDevice) {
     case Input::Device::Mouse:
-      Hovered = Bounds.ContainsPoint(Input::CurMousePos);
-      break;
-
     case Input::Device::Touch:
-      Hovered = Bounds.ContainsPoint(Input::CurTouchPos);
+      Hovered = Bounds.ContainsPoint(Input::CurMousePos);
       break;
 
     case Input::Device::Keyboard:

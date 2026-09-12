@@ -30,32 +30,9 @@ void VulkanWindow::UpdateDimensions() {
   lastMsaa = MsaaCount;
   lastRenderScale = RenderScale;
 
-  int osWindowWidth, osWindowHeight;
-  SDL_GetWindowSize(SDLWindow, &osWindowWidth, &osWindowHeight);
-  DpiScaleX = (float)WindowWidth / (float)osWindowWidth;
-  DpiScaleY = (float)WindowHeight / (float)osWindowHeight;
+  DpiScale = SDL_GetWindowDisplayScale(SDLWindow);
   // SDL_SetWindowInputFocus(SDLWindow);
   MainRendererInstance->RecreateSwapChain();
-}
-
-RectF VulkanWindow::GetViewport() {
-  RectF viewport;
-  float scale = fmin((float)WindowWidth / Profile::Game::DesignWidth,
-                     (float)WindowHeight / Profile::Game::DesignHeight);
-  viewport.Width = Profile::Game::DesignWidth * scale;
-  viewport.Height = Profile::Game::DesignHeight * scale;
-  viewport.X = ((float)WindowWidth - viewport.Width) / 2.0f;
-  viewport.Y = ((float)WindowHeight - viewport.Height) / 2.0f;
-  return viewport;
-}
-
-RectF VulkanWindow::GetScaledViewport() {
-  RectF viewport = GetViewport();
-  viewport.Width *= RenderScale;
-  viewport.Height *= RenderScale;
-  viewport.X *= RenderScale;
-  viewport.Y *= RenderScale;
-  return viewport;
 }
 
 void VulkanWindow::Init() {
@@ -73,13 +50,7 @@ void VulkanWindow::Init() {
     return;
   }
 
-  SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
-
   SDL_WindowFlags windowFlags = SDL_WINDOW_VULKAN;
-#if IMPACTO_USE_SDL_HIGHDPI
-  windowFlags |= SDL_WINDOW_HIGH_PIXEL_DENSITY;
-#endif
-
   CreateSDLWindow(windowFlags);
 }
 
