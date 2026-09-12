@@ -310,6 +310,25 @@ bool HandleEvent(SDL_Event const* ev) {
       }
       return true;
     }
+    case SDL_EVENT_FINGER_CANCELED: {
+      SDL_TouchFingerEvent const* evt = &ev->tfinger;
+      CurrentInputDevice = Device::Touch;
+      auto liftedFingerItr =
+          std::find_if(CurrentFingers.begin(), CurrentFingers.end(),
+                       [&](std::optional<TouchState> const& f) {
+                         return f.has_value() && f->FingerId == evt->fingerID;
+                       });
+      if (liftedFingerItr != CurrentFingers.end()) {
+        liftedFingerItr->reset();
+        std::rotate(liftedFingerItr, std::next(liftedFingerItr),
+                    CurrentFingers.end());
+        if (CurrentFingers[0].has_value() && !CurrentFingers[1].has_value()) {
+          CurMousePos = CurrentFingers[0]->LastPos;
+          PrevMousePos = CurMousePos;
+        }
+      }
+      return true;
+    }
     case SDL_EVENT_PINCH_BEGIN: {
       SDL_PinchFingerEvent const* evt = &ev->pinch;
       CurrentInputDevice = Device::Touch;
