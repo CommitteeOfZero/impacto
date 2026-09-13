@@ -12,7 +12,6 @@ FrameBuffer& FrameBuffer::operator=(FrameBuffer&& other) {
 
   FrameBufferHandle = other.FrameBufferHandle;
   ColorAttachment = other.ColorAttachment;
-  DepthStencilAttachment = other.DepthStencilAttachment;
 
   other.Reset(false);
 
@@ -24,19 +23,10 @@ FrameBuffer::~FrameBuffer() { Reset(true); }
 FrameBuffer::FrameBuffer(const uint16_t width, const uint16_t height)
     : ColorAttachment(bgfx::createTexture2D(width, height, false, 1,
                                             bgfx::TextureFormat::RGBA8,
-                                            BGFX_TEXTURE_RT)),
-      DepthStencilAttachment(bgfx::createTexture2D(width, height, false, 1,
-                                                   bgfx::TextureFormat::D24S8,
-                                                   BGFX_TEXTURE_RT)) {
+                                            BGFX_TEXTURE_RT)) {
   assert(bgfx::isValid(ColorAttachment));
-  assert(bgfx::isValid(DepthStencilAttachment));
 
-  std::array<bgfx::Attachment, 2> attachments;
-  attachments[0].init(ColorAttachment);
-  attachments[1].init(DepthStencilAttachment);
-
-  FrameBufferHandle = bgfx::createFrameBuffer(
-      static_cast<uint8_t>(attachments.size()), attachments.data(), true);
+  FrameBufferHandle = bgfx::createFrameBuffer(1, &ColorAttachment, true);
   assert(bgfx::isValid(FrameBufferHandle));
 }
 
@@ -62,7 +52,6 @@ void FrameBuffer::Reset(bool cleanUpResources) {
 
   FrameBufferHandle.idx = bgfx::kInvalidHandle;
   ColorAttachment.idx = bgfx::kInvalidHandle;
-  DepthStencilAttachment.idx = bgfx::kInvalidHandle;
 }
 
 }  // namespace Impacto::Bgfx

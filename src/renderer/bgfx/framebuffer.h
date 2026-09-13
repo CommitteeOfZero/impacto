@@ -42,7 +42,6 @@ class FrameBuffer {
  private:
   bgfx::FrameBufferHandle FrameBufferHandle = {bgfx::kInvalidHandle};
   bgfx::TextureHandle ColorAttachment = {bgfx::kInvalidHandle};
-  bgfx::TextureHandle DepthStencilAttachment = {bgfx::kInvalidHandle};
 
   void Reset(bool cleanUpResources);
 };
