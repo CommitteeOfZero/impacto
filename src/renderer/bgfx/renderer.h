@@ -131,7 +131,10 @@ class Renderer final : public BaseRenderer {
   void Clear(glm::vec4 color) override {}
 
  private:
-  void Flush() override {}
+  void Flush() override;
+
+  void InsertVertices(std::span<const uint16_t> indices,
+                      std::span<const VertexBufferSprites> vertices);
 
   // Only call bgfx::shutdown after all managed objects in this class have been
   // default-destructed
@@ -140,6 +143,16 @@ class Renderer final : public BaseRenderer {
   };
   BgfxHandleStruct BgfxHandle;
 
+  struct CommandBuffer {
+    std::reference_wrapper<ShaderProgramInterface> ShaderProgram;
+
+    glm::mat4 Transformation = glm::mat4(1.0f);
+
+    RendererBlendMode BlendMode = RendererBlendMode::Normal;
+  };
+  void SetState(const CommandBuffer& state);
+  std::optional<CommandBuffer> CurrentState = std::nullopt;
+
   FrameBuffer DrawFrameBuffer;
 
   bgfx::DynamicIndexBufferHandle IndexBuffer = {bgfx::kInvalidHandle};
@@ -147,11 +160,10 @@ class Renderer final : public BaseRenderer {
   std::vector<uint16_t> Indices;
   std::vector<VertexBufferSprites> Vertices;
 
-  bgfx::VertexLayout VertexBufferSpritesLayout;
+  bgfx::IndexBufferHandle BackBufferIndexBuffer = {bgfx::kInvalidHandle};
+  bgfx::VertexBufferHandle BackBufferVertexBuffer = {bgfx::kInvalidHandle};
 
-  glm::mat4 ViewMatrix;
-  glm::mat4 ProjectionMatrix;
-  glm::mat4 BackBufferProjectionMatrix;
+  bgfx::VertexLayout VertexBufferSpritesLayout;
 
   std::optional<
       ShaderProgram<VertexShaderType::Sprite, FragmentShaderType::Sprite>>
