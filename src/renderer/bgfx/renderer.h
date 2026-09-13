@@ -50,7 +50,7 @@ class Renderer final : public BaseRenderer {
   void DrawSprite(Sprite const& sprite, CornersQuad const& dest,
                   glm::mat4 transformation, std::span<const glm::vec4, 4> tints,
                   glm::vec3 colorShift, bool inverted, bool disableBlend,
-                  bool textureWrapRepeat) override {}
+                  bool textureWrapRepeat) override;
 
   void DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
                         CornersQuad const& spriteDest,
