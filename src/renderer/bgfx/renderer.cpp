@@ -109,7 +109,6 @@ Renderer::Renderer() {
   bgfx::setViewTransform(DISPLAY_VIEW, glm::value_ptr(identityMatrix),
                          glm::value_ptr(identityMatrix));
 
-  ViewMatrix = glm::mat4(1.0f);
   constexpr uint32_t black = 0x000000ff;
   bgfx::setViewClear(DISPLAY_VIEW, BGFX_CLEAR_COLOR, black);
 
@@ -117,9 +116,8 @@ Renderer::Renderer() {
   bgfx::setViewClear(RENDER_VIEW, BGFX_CLEAR_COLOR | BGFX_CLEAR_STENCIL,
                      transparentWhite);
 
-  Indices.resize(100);
-  IndexBuffer = bgfx::createDynamicIndexBuffer(
-      static_cast<uint32_t>(Indices.size()), BGFX_BUFFER_ALLOW_RESIZE);
+  IndexBuffer = bgfx::createDynamicIndexBuffer(static_cast<uint32_t>(0),
+                                               BGFX_BUFFER_ALLOW_RESIZE);
   if (!bgfx::isValid(IndexBuffer)) {
     Panic(LogChannel::Render, "Failed to create index buffer");
   }
@@ -131,12 +129,9 @@ Renderer::Renderer() {
       .add(bgfx::Attrib::TexCoord1, 2, bgfx::AttribType::Float)
       .end();
 
-  Vertices.resize(100);
-  VertexBuffer = bgfx::createDynamicVertexBuffer(
-      bgfx::copy(
-          Vertices.data(),
-          static_cast<uint32_t>(Vertices.size() * sizeof(VertexBufferSprites))),
-      VertexBufferSpritesLayout);
+  VertexBuffer = bgfx::createDynamicVertexBuffer(static_cast<uint32_t>(0),
+                                                 VertexBufferSpritesLayout,
+                                                 BGFX_BUFFER_ALLOW_RESIZE);
   if (!bgfx::isValid(VertexBuffer)) {
     Panic(LogChannel::Render, "Failed to create vertex buffer");
   }
@@ -188,9 +183,32 @@ void Renderer::Init() {
       FrameBuffer(static_cast<uint16_t>(Profile::Game::DesignWidth),
                   static_cast<uint16_t>(Profile::Game::DesignHeight));
 
-  ProjectionMatrix =
+  const glm::mat4 projectionMatrix =
       glm::ortho(0.0f, Profile::Game::DesignWidth, Profile::Game::DesignHeight,
                  0.0f, -Profile::Game::DesignWidth, Profile::Game::DesignWidth);
+  constexpr static glm::mat4 identityMatrix(1.0f);
+  bgfx::setViewTransform(RENDER_VIEW, glm::value_ptr(identityMatrix),
+                         glm::value_ptr(projectionMatrix));
+
+  bgfx::setViewRect(RENDER_VIEW, 0, 0,
+                    static_cast<uint16_t>(Profile::Game::DesignWidth),
+                    static_cast<uint16_t>(Profile::Game::DesignHeight));
+
+  constexpr static std::array<uint16_t, 6> backBufferIndices = {
+      0, 1, 3, 1, 2, 3,
+  };
+  BackBufferIndexBuffer = bgfx::createIndexBuffer(
+      bgfx::copy(backBufferIndices.data(), sizeof(backBufferIndices)));
+
+  constexpr static std::array<VertexBufferSprites, 4> backBufferVertices = {
+      VertexBufferSprites{.Position = {-1.0f, +1.0f}, .UV = {0.0f, 0.0f}},
+      VertexBufferSprites{.Position = {-1.0f, -1.0f}, .UV = {0.0f, 1.0f}},
+      VertexBufferSprites{.Position = {+1.0f, -1.0f}, .UV = {1.0f, 1.0f}},
+      VertexBufferSprites{.Position = {+1.0f, +1.0f}, .UV = {1.0f, 0.0f}},
+  };
+  BackBufferVertexBuffer = bgfx::createVertexBuffer(
+      bgfx::copy(backBufferVertices.data(), sizeof(backBufferVertices)),
+      VertexBufferSpritesLayout);
 }
 
 RendererType Renderer::GetType() const {
@@ -228,41 +246,39 @@ RendererType Renderer::GetType() const {
 
   Panic(LogChannel::Render, "Unexpected bgfx renderer \"{:s}\"\n",
         bgfx::getRendererName(bgfx::getRendererType()));
-  return RendererType{};
 }
 
 void Renderer::BeginFrame() {
   bgfx::reset(static_cast<uint32_t>(Window->WindowWidth),
               static_cast<uint32_t>(Window->WindowHeight), BGFX_RESET_VSYNC);
 
-  constexpr uint32_t black = 0xff000000;
-  bgfx::setViewClear(DISPLAY_VIEW, BGFX_CLEAR_COLOR, black);
   bgfx::setViewRect(DISPLAY_VIEW, 0, 0,
                     static_cast<uint16_t>(Window->WindowWidth),
                     static_cast<uint16_t>(Window->WindowHeight));
-  bgfx::setViewTransform(DISPLAY_VIEW, glm::value_ptr(ViewMatrix),
-                         glm::value_ptr(BackBufferProjectionMatrix));
-  bgfx::setViewFrameBuffer(DISPLAY_VIEW, BackBufferFrameBuffer);
 
   bgfx::touch(DISPLAY_VIEW);
 }
 
 void Renderer::BeginFrame2D() {
-  constexpr uint32_t transparentWhite = 0x00FFFFFF;
-  bgfx::setViewClear(RENDER_VIEW,
-                     BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH | BGFX_CLEAR_STENCIL,
-                     transparentWhite);
-  bgfx::setViewRect(RENDER_VIEW, 0, 0,
-                    static_cast<uint16_t>(Profile::Game::DesignWidth),
-                    static_cast<uint16_t>(Profile::Game::DesignHeight));
-  bgfx::setViewTransform(RENDER_VIEW, glm::value_ptr(ViewMatrix),
-                         glm::value_ptr(ProjectionMatrix));
   bgfx::setViewFrameBuffer(RENDER_VIEW, DrawFrameBuffer);
 
   bgfx::touch(RENDER_VIEW);
 }
 
-void Renderer::EndFrame() {}
+void Renderer::EndFrame() {
+  Flush();
+
+  SetState({
+      .ShaderProgram = *SpriteShader,
+  });
+
+  bgfx::setIndexBuffer(BackBufferIndexBuffer);
+  bgfx::setVertexBuffer(0, BackBufferVertexBuffer);
+
+  SpriteShader->SubmitUniforms({}, {.Texture = DrawFrameBuffer.GetTexture()});
+
+  bgfx::submit(DISPLAY_VIEW, *SpriteShader);
+}
 
 #ifndef IMPACTO_DISABLE_IMGUI
 void Renderer::ImGuiBeginFrame() {
@@ -299,11 +315,105 @@ void Renderer::Shutdown() {
   if (bgfx::isValid(VertexBuffer)) bgfx::destroy(VertexBuffer);
   VertexBuffer.idx = bgfx::kInvalidHandle;
 
+  if (bgfx::isValid(BackBufferIndexBuffer)) {
+    bgfx::destroy(BackBufferIndexBuffer);
+  }
+  BackBufferIndexBuffer.idx = bgfx::kInvalidHandle;
+
+  if (bgfx::isValid(BackBufferVertexBuffer)) {
+    bgfx::destroy(BackBufferVertexBuffer);
+  }
+  BackBufferVertexBuffer.idx = bgfx::kInvalidHandle;
+
 #ifndef IMPACTO_DISABLE_IMGUI
   ImGui_ImplSDL3_Shutdown();
   ImGui_Implbgfx_Shutdown();
   ImGui::DestroyContext();
 #endif
+}
+
+void Renderer::Flush() {
+  assert(Indices.empty() == Vertices.empty());
+  if (Indices.empty() || !CurrentState.has_value()) return;
+
+  bgfx::update(IndexBuffer, 0,
+               bgfx::copy(Indices.data(),
+                          static_cast<uint32_t>(Indices.size() *
+                                                sizeof(Indices.front()))));
+  bgfx::update(VertexBuffer, 0,
+               bgfx::copy(Vertices.data(),
+                          static_cast<uint32_t>(Vertices.size() *
+                                                sizeof(Vertices.front()))));
+
+  bgfx::setIndexBuffer(IndexBuffer);
+  bgfx::setVertexBuffer(0, VertexBuffer);
+
+  bgfx::submit(RENDER_VIEW, CurrentState->ShaderProgram.get());
+
+  Indices.clear();
+  Vertices.clear();
+}
+
+void Renderer::InsertVertices(
+    const std::span<const uint16_t> indices,
+    const std::span<const VertexBufferSprites> vertices) {
+  assert(indices.empty() == vertices.empty());
+  if (indices.empty()) return;
+
+  static uint16_t curIndex = 0;
+  if (Indices.empty()) curIndex = 0;
+
+  Indices.resize(Indices.size() + indices.size());
+  std::ranges::transform(
+      indices, Indices.begin() + (Indices.size() - indices.size()),
+      [&](const uint16_t index) { return index + curIndex; });
+  curIndex += std::ranges::max(indices) + 1;
+
+  Vertices.insert(Vertices.end(), vertices.begin(), vertices.end());
+}
+
+void Renderer::SetState(const CommandBuffer& newState) {
+  uint64_t stateFlags =
+      BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A | BGFX_STATE_DEPTH_TEST_ALWAYS;
+  bool differentStateFlags = !CurrentState.has_value();
+
+  if (!CurrentState.has_value() ||
+      CurrentState->Transformation != newState.Transformation) {
+    Flush();
+    bgfx::setTransform(glm::value_ptr(newState.Transformation));
+  }
+
+  if (CurrentState.has_value() &&
+      &CurrentState->ShaderProgram.get() != &newState.ShaderProgram.get()) {
+    Flush();
+  }
+
+  if (!CurrentState.has_value() ||
+      CurrentState->BlendMode != newState.BlendMode) {
+    Flush();
+    differentStateFlags = true;
+  }
+  switch (newState.BlendMode) {
+    using enum RendererBlendMode;
+    case Normal:
+      stateFlags |= BGFX_STATE_BLEND_FUNC_SEPARATE(
+          BGFX_STATE_BLEND_SRC_ALPHA, BGFX_STATE_BLEND_INV_SRC_ALPHA,
+          BGFX_STATE_BLEND_ONE, BGFX_STATE_BLEND_ONE);
+      break;
+    case Additive:
+      stateFlags |= BGFX_STATE_BLEND_FUNC_SEPARATE(
+          BGFX_STATE_BLEND_SRC_ALPHA, BGFX_STATE_BLEND_ONE,
+          BGFX_STATE_BLEND_ONE, BGFX_STATE_BLEND_ONE);
+      break;
+    case Premultiplied:
+      stateFlags |= BGFX_STATE_BLEND_NORMAL;
+      break;
+  }
+
+  if (differentStateFlags) Flush();
+  bgfx::setState(stateFlags);
+
+  CurrentState = newState;
 }
 
 }  // namespace Impacto::Bgfx
