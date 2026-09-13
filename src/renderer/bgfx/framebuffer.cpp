@@ -30,21 +30,6 @@ FrameBuffer::FrameBuffer(const uint16_t width, const uint16_t height)
   assert(bgfx::isValid(FrameBufferHandle));
 }
 
-FrameBuffer FrameBuffer::CreateBackBufferFrameBuffer() {
-  FrameBuffer frameBuffer;
-
-  frameBuffer.ColorAttachment =
-      bgfx::createTexture2D(bgfx::BackbufferRatio::Equal, false, 1,
-                            bgfx::TextureFormat::RGBA8, BGFX_TEXTURE_RT);
-  assert(bgfx::isValid(frameBuffer.ColorAttachment));
-
-  frameBuffer.FrameBufferHandle =
-      bgfx::createFrameBuffer(1, &frameBuffer.ColorAttachment, true);
-  assert(bgfx::isValid(frameBuffer.FrameBufferHandle));
-
-  return frameBuffer;
-}
-
 void FrameBuffer::Reset(bool cleanUpResources) {
   if (cleanUpResources) {
     if (bgfx::isValid(FrameBufferHandle)) bgfx::destroy(FrameBufferHandle);
