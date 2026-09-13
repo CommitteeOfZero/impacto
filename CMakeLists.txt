@@ -1244,7 +1244,8 @@ if (IMPACTO_RENDERER_BGFX)
         src/renderer/bgfx/texture.h
         src/renderer/bgfx/window.h
 
-        src/renderer/bgfx/shaders/sprite.h
+        src/renderer/bgfx/shaders/vs_sprite.h
+        src/renderer/bgfx/shaders/fs_sprite.h
     )
 
     set(Bgfx_Vertex_Shaders

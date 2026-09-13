@@ -12,33 +12,48 @@
 
 #include "../../log.h"
 
-#include "shaders/sprite.h"
+#include "shaders/vs_sprite.h"
+#include "shaders/fs_sprite.h"
 
 namespace Impacto::Bgfx {
 
-template <ShaderProgramType type>
-class ShaderProgram {
+class ShaderProgramInterface {
  public:
-  ShaderProgram() = delete;
-  ShaderProgram(const ShaderProgram<type>&) = delete;
-  ShaderProgram(ShaderProgram<type>&& other) { *this = std::move(other); }
-  ~ShaderProgram() { Reset(true); }
-
-  ShaderProgram<type>& operator=(const ShaderProgram<type>&) = delete;
-  ShaderProgram<type>& operator=(ShaderProgram<type>&&);
-
-  ShaderProgram(const bgfx::EmbeddedShader& vertexShader,
-                const bgfx::EmbeddedShader& fragmentShader);
-
   operator bgfx::ProgramHandle() { return GetProgramHandle(); }
 
-  [[nodiscard]] bgfx::ProgramHandle GetProgramHandle() {
+  [[nodiscard]] virtual bgfx::ProgramHandle GetProgramHandle() = 0;
+};
+
+template <VertexShaderType vertexShaderType,
+          FragmentShaderType fragmentShaderType>
+class ShaderProgram final : public ShaderProgramInterface {
+ public:
+  ShaderProgram() = delete;
+  ShaderProgram(const ShaderProgram<vertexShaderType, fragmentShaderType>&) =
+      delete;
+  ShaderProgram(ShaderProgram<vertexShaderType, fragmentShaderType>&& other) {
+    *this = std::move(other);
+  }
+  ~ShaderProgram() { Reset(true); }
+
+  ShaderProgram<vertexShaderType, fragmentShaderType>& operator=(
+      const ShaderProgram<vertexShaderType, fragmentShaderType>&) = delete;
+  ShaderProgram<vertexShaderType, fragmentShaderType>& operator=(
+      ShaderProgram<vertexShaderType, fragmentShaderType>&&);
+
+  ShaderProgram(const bgfx::EmbeddedShader& vertexShader,
+                const bgfx::EmbeddedShader& fragmentShader,
+                std::function<void()> flush);
+
+  [[nodiscard]] bgfx::ProgramHandle GetProgramHandle() override {
     assert(bgfx::isValid(ProgramHandle));
     return ProgramHandle;
   }
 
-  void SubmitUniforms(const Uniforms<type>& newUniforms) {
-    ShaderUniformsState->Submit(newUniforms);
+  void SubmitUniforms(const Uniforms<vertexShaderType>& newVertexUniforms,
+                      const Uniforms<fragmentShaderType>& newFragmentUniforms) {
+    VertexUniformsState->Submit(newVertexUniforms);
+    FragmentUniformsState->Submit(newFragmentUniforms);
   }
 
  private:
@@ -49,12 +64,15 @@ class ShaderProgram {
 
   void Reset(bool cleanUpResources);
 
-  std::optional<UniformsState<type>> ShaderUniformsState;
+  std::optional<UniformsState<vertexShaderType>> VertexUniformsState;
+  std::optional<UniformsState<fragmentShaderType>> FragmentUniformsState;
 };
 
-template <ShaderProgramType type>
-ShaderProgram<type>& ShaderProgram<type>::operator=(
-    ShaderProgram<type>&& other) {
+template <VertexShaderType vertexShaderType,
+          FragmentShaderType fragmentShaderType>
+ShaderProgram<vertexShaderType, fragmentShaderType>&
+ShaderProgram<vertexShaderType, fragmentShaderType>::operator=(
+    ShaderProgram<vertexShaderType, fragmentShaderType>&& other) {
   if (&other == this) return *this;
   Reset(true);
 
@@ -62,14 +80,20 @@ ShaderProgram<type>& ShaderProgram<type>::operator=(
   VertexShader = other.VertexShader;
   FragmentShader = other.FragmentShader;
 
+  VertexUniformsState = std::move(other.VertexUniformsState);
+  FragmentUniformsState = std::move(other.FragmentUniformsState);
+
   other.Reset(false);
 
   return *this;
 }
 
-template <ShaderProgramType type>
-ShaderProgram<type>::ShaderProgram(const bgfx::EmbeddedShader& vertexShader,
-                                   const bgfx::EmbeddedShader& fragmentShader) {
+template <VertexShaderType vertexShaderType,
+          FragmentShaderType fragmentShaderType>
+ShaderProgram<vertexShaderType, fragmentShaderType>::ShaderProgram(
+    const bgfx::EmbeddedShader& vertexShader,
+    const bgfx::EmbeddedShader& fragmentShader,
+    const std::function<void()> flush) {
   VertexShader = bgfx::createEmbeddedShader(
       &vertexShader, bgfx::getRendererType(), vertexShader.name);
   assert(bgfx::isValid(VertexShader));
@@ -81,11 +105,14 @@ ShaderProgram<type>::ShaderProgram(const bgfx::EmbeddedShader& vertexShader,
   ProgramHandle = bgfx::createProgram(VertexShader, FragmentShader, true);
   assert(bgfx::isValid(ProgramHandle));
 
-  ShaderUniformsState.emplace(ProgramHandle);
+  VertexUniformsState.emplace(ProgramHandle, flush);
+  FragmentUniformsState.emplace(ProgramHandle, flush);
 }
 
-template <ShaderProgramType type>
-void ShaderProgram<type>::Reset(bool cleanUpResources) {
+template <VertexShaderType vertexShaderType,
+          FragmentShaderType fragmentShaderType>
+void ShaderProgram<vertexShaderType, fragmentShaderType>::Reset(
+    bool cleanUpResources) {
   if (cleanUpResources) {
     if (bgfx::isValid(ProgramHandle)) bgfx::destroy(ProgramHandle);
   }
@@ -93,6 +120,9 @@ void ShaderProgram<type>::Reset(bool cleanUpResources) {
   ProgramHandle.idx = bgfx::kInvalidHandle;
   VertexShader.idx = bgfx::kInvalidHandle;
   FragmentShader.idx = bgfx::kInvalidHandle;
+
+  VertexUniformsState.reset();
+  FragmentUniformsState.reset();
 }
 
 }  // namespace Impacto::Bgfx
