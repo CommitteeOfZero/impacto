@@ -2,32 +2,82 @@
 
 #include <glm/gtc/type_ptr.hpp>
 #include <boost/pfr.hpp>
+#include <bgfx/bgfx.h>
 
 #include "../renderer.h"
 
+inline bool operator!=(const bgfx::TextureHandle& lhs,
+                       const bgfx::TextureHandle& rhs) {
+  return lhs.idx != rhs.idx;
+}
+
 namespace Impacto::Bgfx {
 
-template <ShaderProgramType type>
+enum class VertexShaderType {
+  Sprite,
+};
+enum class FragmentShaderType {
+  Sprite,
+};
+
+template <typename T>
+concept ShaderType = std::is_same_v<T, VertexShaderType> ||
+                     std::is_same_v<T, FragmentShaderType>;
+
+template <ShaderType auto type>
 struct Uniforms;
 
-template <ShaderProgramType type>
+template <ShaderType auto type>
 struct UniformHandles;
 
-template <ShaderProgramType type>
+template <ShaderType auto type>
 class UniformsState {
  public:
   UniformsState() = delete;
-  UniformsState(bgfx::ProgramHandle program) : Program(program) {
+  UniformsState(bgfx::ProgramHandle program, std::function<void()> flush)
+      : Program(program), Flush(flush) {
     Submit(Uniforms<type>{});
   }
 
-  void Submit(const Uniforms<type>& newUniforms);
+  void Submit(const Uniforms<type>& newUniforms) {
+    constexpr static auto uniformNames =
+        boost::pfr::names_as_array<Uniforms<type>>();
+    constexpr static auto handleNames =
+        boost::pfr::names_as_array<UniformHandles<type>>();
+    static_assert(uniformNames.size() == handleNames.size());
+
+    const auto updateUniform = [&]<std::size_t UniformIdx> {
+      constexpr auto handleIt =
+          std::ranges::find(handleNames, uniformNames[UniformIdx]);
+      static_assert(handleIt != handleNames.end() &&
+                    "Uniform and UniformHandles struct need to share the same "
+                    "member names");
+      constexpr size_t handleIdx = std::distance(handleNames.begin(), handleIt);
+
+      if (!CurrentUniforms.has_value() ||
+          boost::pfr::get<UniformIdx>(*CurrentUniforms) !=
+              boost::pfr::get<UniformIdx>(newUniforms)) {
+        if (CurrentUniforms.has_value()) Flush();
+
+        SetUniform(boost::pfr::get<handleIdx>(Handles),
+                   boost::pfr::get<UniformIdx>(newUniforms));
+      }
+    };
+
+    [&]<std::size_t... Is>(std::index_sequence<Is...>) {
+      (updateUniform.template operator()<Is>(), ...);
+    }(std::make_index_sequence<uniformNames.size()>{});
+
+    CurrentUniforms = newUniforms;
+  }
 
  private:
   std::optional<Uniforms<type>> CurrentUniforms;
   UniformHandles<type> Handles;
 
   bgfx::ProgramHandle Program;
+
+  std::function<void()> Flush;
 };
 
 struct UniformHandle {
@@ -35,7 +85,7 @@ struct UniformHandle {
   UniformHandle() = delete;
   UniformHandle(const UniformHandle&) = delete;
   UniformHandle(UniformHandle&& other) { *this = std::move(other); }
-  ~UniformHandle() { Reset(); }
+  virtual ~UniformHandle() { Reset(); }
 
   UniformHandle& operator=(const UniformHandle&) = delete;
   UniformHandle& operator=(UniformHandle&& other) {
@@ -60,7 +110,7 @@ struct UniformHandle {
   }
   operator bgfx::UniformHandle() { return GetHandle(); }
 
- private:
+ protected:
   bgfx::UniformHandle Handle = {bgfx::kInvalidHandle};
 
   void Reset() {
@@ -69,36 +119,16 @@ struct UniformHandle {
   }
 };
 
-template <ShaderProgramType type>
-void UniformsState<type>::Submit(const Uniforms<type>& newUniforms) {
-  constexpr static auto uniformNames =
-      boost::pfr::names_as_array<Uniforms<type>>();
-  constexpr static auto handleNames =
-      boost::pfr::names_as_array<UniformHandles<type>>();
-  static_assert(uniformNames.size() == handleNames.size());
+struct SamplerHandle final : public UniformHandle {
+ public:
+  SamplerHandle(const char* name, uint8_t stage)
+      : UniformHandle(name, bgfx::UniformType::Sampler, 1), Stage(stage) {}
 
-  const auto updateUniform = [&]<std::size_t UniformIdx> {
-    constexpr auto handleIt =
-        std::ranges::find(handleNames, uniformNames[UniformIdx]);
-    static_assert(handleIt != handleNames.end() &&
-                  "Uniform and UniformHandles struct need to share the same "
-                  "member names");
-    constexpr size_t handleIdx = std::distance(handleNames.begin(), handleIt);
+  uint8_t GetStage() const { return Stage; }
 
-    if (!CurrentUniforms.has_value() ||
-        boost::pfr::get<UniformIdx>(*CurrentUniforms) !=
-            boost::pfr::get<UniformIdx>(newUniforms)) {
-      SetUniform(boost::pfr::get<handleIdx>(Handles),
-                 boost::pfr::get<UniformIdx>(newUniforms));
-    }
-  };
-
-  [&]<std::size_t... Is>(std::index_sequence<Is...>) {
-    (updateUniform.template operator()<Is>(), ...);
-  }(std::make_index_sequence<uniformNames.size()>{});
-
-  CurrentUniforms = newUniforms;
-}
+ private:
+  uint8_t Stage;
+};
 
 template <typename T>
 constexpr bgfx::UniformType::Enum GetUniformType();
@@ -138,12 +168,22 @@ inline void SetUniform(bgfx::UniformHandle handle, const float& value) {
   SetUniform(handle, glm::vec1(value));
 }
 
-#define DECLARE_UNIFORM_HANDLE(shaderProgramType, memberName, uniformName,     \
-                               num)                                            \
-  UniformHandle memberName = UniformHandle(                                    \
-      #uniformName,                                                            \
-      GetUniformType<decltype(Uniforms<ShaderProgramType::shaderProgramType>:: \
-                                  memberName)>(),                              \
-      num)
+template <>
+inline void SetUniform(bgfx::UniformHandle handle,
+                       const bgfx::TextureHandle& value) {
+  bgfx::setTexture(0, handle, value);
+}
+
+#define DECLARE_UNIFORM_HANDLE(shaderType, memberName, uniformName) \
+  UniformHandle memberName = UniformHandle(                         \
+      #uniformName,                                                 \
+      GetUniformType<decltype(Uniforms<shaderType>::memberName)>())
+
+#define DECLARE_SAMPLER_HANDLE(shaderType, memberName, uniformName, stage) \
+  static_assert(                                                           \
+      std::is_same_v<bgfx::TextureHandle,                                  \
+                     decltype(Uniforms<shaderType>::memberName)> &&        \
+      "Sampler uniforms need to have uniform type bgfx::TextureHandle");   \
+  SamplerHandle memberName = SamplerHandle(#uniformName, stage)
 
 }  // namespace Impacto::Bgfx

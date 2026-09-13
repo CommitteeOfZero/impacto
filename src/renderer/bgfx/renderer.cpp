@@ -136,10 +136,8 @@ Renderer::Renderer() {
     Panic(LogChannel::Render, "Failed to create vertex buffer");
   }
 
-  {
-    using enum ShaderProgramType;
-    SpriteShader.emplace(vs_sprite_shader, fs_sprite_shader);
-  }
+  const auto flush = [this]() { Flush(); };
+  SpriteShader.emplace(vs_sprite_shader, fs_sprite_shader, flush);
 
   ImGui_Implbgfx_Init(IMGUI_VIEW);
   switch (UserConfig::AdvancedSettings.ActiveRenderer) {
