@@ -251,6 +251,21 @@ bool HandleEvent(SDL_Event const* ev) {
       SDL_TouchFingerEvent const* evt = &ev->tfinger;
       CurrentInputDevice = Device::Touch;
 
+      // More stale finger handling
+      int fingerCount = 0;
+      if (SDL_Finger** fingers =
+              SDL_GetTouchFingers(evt->touchID, &fingerCount)) {
+        SDL_free(fingers);
+      }
+
+      const auto trackedCount = std::count_if(
+          CurrentFingers.begin(), CurrentFingers.end(),
+          [](std::optional<TouchState> const& f) { return f.has_value(); });
+      if (trackedCount >= fingerCount) {
+        for (auto& finger : CurrentFingers) finger.reset();
+        PendingTaps.reset();
+      }
+
       auto freeFingerSlot =
           std::find_if(CurrentFingers.begin(), CurrentFingers.end(),
                        [](std::optional<TouchState> const& finger) {
