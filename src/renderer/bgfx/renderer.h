@@ -134,7 +134,8 @@ class Renderer final : public BaseRenderer {
   void Flush() override;
 
   void InsertVertices(std::span<const uint16_t> indices,
-                      std::span<const VertexBufferSprites> vertices);
+                      std::span<const VertexBufferSprites> vertices,
+                      bool flipVertically);
 
   // Only call bgfx::shutdown after all managed objects in this class have been
   // default-destructed
