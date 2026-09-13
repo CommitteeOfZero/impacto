@@ -140,7 +140,6 @@ class Renderer final : public BaseRenderer {
   };
   BgfxHandleStruct BgfxHandle;
 
-  FrameBuffer BackBufferFrameBuffer;
   FrameBuffer DrawFrameBuffer;
 
   bgfx::DynamicIndexBufferHandle IndexBuffer = {bgfx::kInvalidHandle};
