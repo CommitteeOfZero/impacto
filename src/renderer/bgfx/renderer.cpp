@@ -273,6 +273,24 @@ void Renderer::BeginFrame2D() {
 void Renderer::EndFrame() {
   Flush();
 
+  assert(Indices.empty() == Vertices.empty());
+  if (!Indices.empty()) {
+    bgfx::update(IndexBuffer, 0,
+                 bgfx::copy(Indices.data(),
+                            static_cast<uint32_t>(Indices.size() *
+                                                  sizeof(Indices.front()))));
+    bgfx::update(VertexBuffer, 0,
+                 bgfx::copy(Vertices.data(),
+                            static_cast<uint32_t>(Vertices.size() *
+                                                  sizeof(Vertices.front()))));
+
+    Indices.clear();
+    Vertices.clear();
+
+    CurFrameIndexBufferOffset = 0;
+    CurFrameVertexBufferOffset = 0;
+  }
+
   SetState({
       .ShaderProgram = *SpriteShader,
   });
@@ -338,25 +356,21 @@ void Renderer::Shutdown() {
 }
 
 void Renderer::Flush() {
-  assert(Indices.empty() == Vertices.empty());
-  if (Indices.empty() || !CurrentState.has_value()) return;
+  const bool empty = Indices.size() == CurFrameIndexBufferOffset;
+  assert(empty == (Vertices.size() == CurFrameVertexBufferOffset));
+  if (empty || !CurrentState.has_value()) return;
 
-  bgfx::update(IndexBuffer, 0,
-               bgfx::copy(Indices.data(),
-                          static_cast<uint32_t>(Indices.size() *
-                                                sizeof(Indices.front()))));
-  bgfx::update(VertexBuffer, 0,
-               bgfx::copy(Vertices.data(),
-                          static_cast<uint32_t>(Vertices.size() *
-                                                sizeof(Vertices.front()))));
+  bgfx::setIndexBuffer(
+      IndexBuffer, static_cast<uint32_t>(CurFrameIndexBufferOffset),
+      static_cast<uint32_t>(Indices.size() - CurFrameIndexBufferOffset));
+  bgfx::setVertexBuffer(
+      0, VertexBuffer, static_cast<uint32_t>(CurFrameVertexBufferOffset),
+      static_cast<uint32_t>(Vertices.size() - CurFrameVertexBufferOffset));
 
-  bgfx::setIndexBuffer(IndexBuffer);
-  bgfx::setVertexBuffer(0, VertexBuffer);
+  CurFrameIndexBufferOffset = Indices.size();
+  CurFrameVertexBufferOffset = Vertices.size();
 
   bgfx::submit(RENDER_VIEW, CurrentState->ShaderProgram.get());
-
-  Indices.clear();
-  Vertices.clear();
 }
 
 void Renderer::InsertVertices(
@@ -366,7 +380,7 @@ void Renderer::InsertVertices(
   if (indices.empty()) return;
 
   static uint16_t curIndex = 0;
-  if (Indices.empty()) curIndex = 0;
+  if (Indices.size() == CurFrameIndexBufferOffset) curIndex = 0;
 
   Indices.resize(Indices.size() + indices.size());
   std::ranges::transform(
