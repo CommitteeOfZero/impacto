@@ -139,6 +139,11 @@ Renderer::Renderer() {
   const auto flush = [this]() { Flush(); };
   SpriteShader.emplace(vs_sprite_shader, fs_sprite_shader, flush);
 
+  RectSprite = Sprite(SpriteSheet(1.0f, 1.0f), 0.0f, 0.0f, 1.0f, 1.0f);
+  RectSprite.Sheet.Texture =
+      SubmitTexture(TexFmt::TexFmt_RGBA,
+                    std::array<uint8_t, 4>{0xFF, 0xFF, 0xFF, 0xFF}, 1, 1);
+
   ImGui_Implbgfx_Init(IMGUI_VIEW);
   switch (UserConfig::AdvancedSettings.ActiveRenderer) {
 #ifdef IMPACTO_RENDERER_OPENGL
