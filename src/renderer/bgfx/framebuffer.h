@@ -20,8 +20,6 @@ class FrameBuffer {
 
   FrameBuffer(uint16_t width, uint16_t height);
 
-  [[nodiscard]] static FrameBuffer CreateBackBufferFrameBuffer();
-
   operator bgfx::FrameBufferHandle() { return GetFrameBufferHandle(); }
 
   [[nodiscard]] bgfx::FrameBufferHandle GetFrameBufferHandle() {
