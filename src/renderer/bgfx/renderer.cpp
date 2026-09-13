@@ -105,17 +105,11 @@ Renderer::Renderer() {
     Panic(LogChannel::Render, "Failed to initialize BGFX");
   }
 
-  BackBufferFrameBuffer = FrameBuffer::CreateBackBufferFrameBuffer();
-
   constexpr static glm::mat4 identityMatrix(1.0f);
   bgfx::setViewTransform(DISPLAY_VIEW, glm::value_ptr(identityMatrix),
                          glm::value_ptr(identityMatrix));
 
   ViewMatrix = glm::mat4(1.0f);
-  BackBufferProjectionMatrix = glm::ortho(
-      0.0f, static_cast<float>(UserConfig::CommonSettings.ResolutionWidth),
-      static_cast<float>(UserConfig::CommonSettings.ResolutionHeight), 0.0f);
-
   constexpr uint32_t black = 0x000000ff;
   bgfx::setViewClear(DISPLAY_VIEW, BGFX_CLEAR_COLOR, black);
 
