@@ -11,7 +11,7 @@ namespace Impacto::Bgfx {
 
 class Texture {
  public:
-  Texture() = delete;
+  Texture() = default;
   Texture(Texture&) = delete;
   Texture(Texture&& other) { *this = std::move(other); }
   ~Texture() { Reset(true); }
