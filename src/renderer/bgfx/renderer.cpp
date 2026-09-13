@@ -416,4 +416,55 @@ void Renderer::SetState(const CommandBuffer& newState) {
   CurrentState = newState;
 }
 
+void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
+                          const glm::mat4 transformation,
+                          const std::span<const glm::vec4, 4> tints,
+                          const glm::vec3 colorShift, const bool inverted,
+                          const bool disableBlend,
+                          const bool textureWrapRepeat) {
+  if (std::ranges::all_of(
+          tints, [](float alpha) { return alpha <= 0.0f; }, &glm::vec4::a)) {
+    return;
+  }
+
+  SetState({
+      .ShaderProgram = *SpriteShader,
+      .Transformation = transformation,
+  });
+
+  SpriteShader->SubmitUniforms({},
+                               {
+                                   .Texture = Textures[sprite.Sheet.Texture],
+                                   .ColorShift = colorShift,
+                               });
+
+  const RectF normalizedBounds = sprite.NormalizedBounds();
+
+  constexpr static std::array<uint16_t, 6> indices = {0, 1, 3, 1, 2, 3};
+  const std::array<VertexBufferSprites, 4> vertices = {
+      VertexBufferSprites{
+          .Position = dest.TopLeft,
+          .UV = normalizedBounds.TopLeft(),
+          .Tint = tints[0],
+      },
+      VertexBufferSprites{
+          .Position = dest.BottomLeft,
+          .UV = normalizedBounds.BottomLeft(),
+          .Tint = tints[1],
+      },
+      VertexBufferSprites{
+          .Position = dest.BottomRight,
+          .UV = normalizedBounds.BottomRight(),
+          .Tint = tints[2],
+      },
+      VertexBufferSprites{
+          .Position = dest.TopRight,
+          .UV = normalizedBounds.TopRight(),
+          .Tint = tints[3],
+      },
+  };
+
+  InsertVertices(indices, vertices);
+}
+
 }  // namespace Impacto::Bgfx
