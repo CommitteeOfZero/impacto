@@ -154,7 +154,9 @@ class Renderer final : public BaseRenderer {
   glm::mat4 ProjectionMatrix;
   glm::mat4 BackBufferProjectionMatrix;
 
-  std::optional<ShaderProgram<ShaderProgramType::Sprite>> SpriteShader;
+  std::optional<
+      ShaderProgram<VertexShaderType::Sprite, FragmentShaderType::Sprite>>
+      SpriteShader;
 
   std::map<uint32_t, Texture> Textures;
 };
