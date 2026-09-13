@@ -184,6 +184,8 @@ Renderer::Renderer() {
 }
 
 void Renderer::Init() {
+  [[maybe_unused]] const RendererType type = GetType();
+
   DrawFrameBuffer =
       FrameBuffer(static_cast<uint16_t>(Profile::Game::DesignWidth),
                   static_cast<uint16_t>(Profile::Game::DesignHeight));
@@ -203,16 +205,35 @@ void Renderer::Init() {
       0, 1, 3, 1, 2, 3,
   };
   BackBufferIndexBuffer = bgfx::createIndexBuffer(
-      bgfx::copy(backBufferIndices.data(), sizeof(backBufferIndices)));
+      bgfx::makeRef(backBufferIndices.data(), sizeof(backBufferIndices)));
 
+  const bool shouldFlip = false
+#ifdef IMPACTO_RENDERER_OPENGL
+                          || type == RendererType::OpenGL
+#endif
+#ifdef IMPACTO_RENDERER_OPENGLES
+                          || type == RendererType::OpenGLES
+#endif
+      ;
   constexpr static std::array<VertexBufferSprites, 4> backBufferVertices = {
       VertexBufferSprites{.Position = {-1.0f, +1.0f}, .UV = {0.0f, 0.0f}},
       VertexBufferSprites{.Position = {-1.0f, -1.0f}, .UV = {0.0f, 1.0f}},
       VertexBufferSprites{.Position = {+1.0f, -1.0f}, .UV = {1.0f, 1.0f}},
       VertexBufferSprites{.Position = {+1.0f, +1.0f}, .UV = {1.0f, 0.0f}},
   };
+  constexpr static std::array<VertexBufferSprites, 4>
+      flippedBackBufferVertices = {
+          VertexBufferSprites{.Position = {-1.0f, -1.0f}, .UV = {0.0f, 0.0f}},
+          VertexBufferSprites{.Position = {-1.0f, +1.0f}, .UV = {0.0f, 1.0f}},
+          VertexBufferSprites{.Position = {+1.0f, +1.0f}, .UV = {1.0f, 1.0f}},
+          VertexBufferSprites{.Position = {+1.0f, -1.0f}, .UV = {1.0f, 0.0f}},
+  };
+  const std::span<const VertexBufferSprites, 4> correctBackBufferVertices =
+      shouldFlip ? flippedBackBufferVertices : backBufferVertices;
   BackBufferVertexBuffer = bgfx::createVertexBuffer(
-      bgfx::copy(backBufferVertices.data(), sizeof(backBufferVertices)),
+      bgfx::makeRef(
+          correctBackBufferVertices.data(),
+          static_cast<uint32_t>(correctBackBufferVertices.size_bytes())),
       VertexBufferSpritesLayout);
 }
 
@@ -373,9 +394,22 @@ void Renderer::Flush() {
   bgfx::submit(RENDER_VIEW, CurrentState->ShaderProgram.get());
 }
 
+static bool ShouldFlip(const Sprite& sprite) {
+  [[maybe_unused]] const RendererType rendererType =
+      Impacto::Renderer->GetType();
+  return sprite.Sheet.IsScreenCap && (false
+#ifdef IMPACTO_RENDERER_OPENGL
+                                      || rendererType == RendererType::OpenGL
+#endif
+#ifdef IMPACTO_RENDERER_OPENGLES
+                                      || rendererType == RendererType::OpenGLES
+#endif
+                                     );
+}
+
 void Renderer::InsertVertices(
     const std::span<const uint16_t> indices,
-    const std::span<const VertexBufferSprites> vertices) {
+    const std::span<const VertexBufferSprites> vertices, bool flipVertically) {
   assert(indices.empty() == vertices.empty());
   if (indices.empty()) return;
 
@@ -388,7 +422,17 @@ void Renderer::InsertVertices(
       [&](const uint16_t index) { return index + curIndex; });
   curIndex += std::ranges::max(indices) + 1;
 
-  Vertices.insert(Vertices.end(), vertices.begin(), vertices.end());
+  if (!flipVertically) {
+    Vertices.insert(Vertices.end(), vertices.begin(), vertices.end());
+  } else {
+    Vertices.resize(Vertices.size() + vertices.size());
+    std::ranges::transform(
+        vertices, Vertices.begin() + (Vertices.size() - vertices.size()),
+        [](VertexBufferSprites vertex) {
+          vertex.Position.y = Profile::Game::DesignHeight - vertex.Position.y;
+          return vertex;
+        });
+  }
 }
 
 void Renderer::SetState(const CommandBuffer& newState) {
@@ -483,7 +527,7 @@ void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
       },
   };
 
-  InsertVertices(indices, vertices);
+  InsertVertices(indices, vertices, ShouldFlip(sprite));
 }
 
 }  // namespace Impacto::Bgfx
