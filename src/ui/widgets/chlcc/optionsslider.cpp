@@ -13,6 +13,18 @@ namespace CHLCC {
 using namespace Impacto::Vm::Interface;
 using namespace Impacto::Profile::CHLCC::OptionsMenu;
 
+void OptionsSlider::OnMutedClick(ClickArea const* clickArea) {
+  if (*Slider.Value == Slider.StartValue) {
+    *Slider.Value = BeforeMutedProgress;
+  } else {
+    BeforeMutedProgress = *Slider.Value;
+    *Slider.Value = Slider.StartValue;
+  }
+
+  OldProgress = *Slider.Value;
+  Changing = false;
+};
+
 OptionsSlider::OptionsSlider(float& value, const float min, const float max,
                              const Sprite bar, const Sprite fill,
                              const glm::vec2 topRight, const RectF hoverBounds,
@@ -39,19 +51,10 @@ OptionsSlider::OptionsSlider(float& value, const float min, const float max,
     const RectF clickRect(clickAreaPos.x, clickAreaPos.y,
                           MutedSprite->ScaledWidth(),
                           MutedSprite->ScaledHeight());
-    const auto onClick = [this](const auto* clickArea) {
-      if (*this->Slider.Value == this->Slider.StartValue) {
-        *this->Slider.Value = this->BeforeMutedProgress;
-      } else {
-        this->BeforeMutedProgress = *this->Slider.Value;
-        *this->Slider.Value = this->Slider.StartValue;
-      }
 
-      this->OldProgress = *this->Slider.Value;
-      this->Changing = false;
-    };
-
-    MuteClickArea = ClickArea(0, clickRect, onClick);
+    MuteClickArea = ClickArea(0, clickRect, [this](auto const* clickArea) {
+      OnMutedClick(clickArea);
+    });
   }
 }
 
@@ -98,9 +101,14 @@ void OptionsSlider::UpdateInput(float dt) {
     Slider.UpdateInput(dt);
   Slider.ClampValue();
 
-  if (MuteClickArea) MuteClickArea->UpdateInput(dt);
-
   Changing |= *Slider.Value != OldProgress;
+
+  if (MuteClickArea) {
+    MuteClickArea->UpdateInput(dt);
+    if (HasFocus && !Changing && PADinputButtonWentDown & PAD1A)
+      OnMutedClick(&(*MuteClickArea));
+  }
+
   if (Changing && (PADinputButtonWentDown & PAD1A || slidingByMouse)) {
     UpdateValue();
   }
