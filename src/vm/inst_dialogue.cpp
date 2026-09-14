@@ -549,7 +549,7 @@ VmInstruction(InstMes) {
                 SW_MESWIN0TYPE] &
         +MesWinTypeBit::DontSkipIfRead)) {
     SetFlag(SF_MESREAD, SaveSystem::IsLineRead(scriptId, lineId));
-    ChkMesSkip();
+    ChkMesSkip(dt);
   }
 
   ScrWork[2 * dialoguePage.Id + SW_LINEID] = lineId;
@@ -1235,7 +1235,10 @@ VmInstruction(InstSetRevMes) {
       animationId);
 }
 
-void ChkMesSkip() {
+void ChkMesSkip(float dt) {
+  static bool swipeSkipAll = false;
+  static float touchHoldTimeS = 0.0f;
+
   bool mesSkip = false;
   bool mesAllSkip = false;
 
@@ -1246,24 +1249,46 @@ void ChkMesSkip() {
   }
 
   if ((ScrWork[SW_GAMESTATE] & 0b101) == 0b001 && !GetFlag(SF_UIHIDDEN)) {
-    mesSkip |= Interface::GetControlState(Interface::CT_NextMessage);
+    mesSkip |= Interface::GetControlState(Interface::ControlType::NextMessage);
 
-    if (Interface::GetControlState(Interface::CT_ForceSkip,
+    if (Interface::GetControlState(Interface::ControlType::ForceSkip,
                                    Interface::InputDownType::IsDown)) {
       mesSkip = true;
       mesAllSkip = true;
     };
 
-    if (Interface::PADinputButtonWentDown & Interface::PADcustom[8]) {
+    if (Interface::PADinputButtonWentDown & Interface::PADcustom[8] ||
+        Input::TouchFlickRight) {
       SkipModeEnabled = !SkipModeEnabled;
     }
+    if (!SkipModeEnabled) swipeSkipAll = false;
+    if (Input::TouchFlickLeft) {
+      swipeSkipAll = !swipeSkipAll;
+      SkipModeEnabled = swipeSkipAll;
+    }
+
+    constexpr static float maxHoldDistancePx = 8;
+    constexpr static float minHoldTimeS = 0.3f;
 
     if (Interface::PADinputButtonWentDown & Interface::PADcustom[9]) {
       AutoModeEnabled = !AutoModeEnabled;
     }
 
-    if (SkipModeEnabled &&
-        (!Profile::ConfigSystem::SkipRead || GetFlag(SF_MESREAD))) {
+    if (Input::TouchHeldDown &&
+        glm::distance(Input::InitMousePos, Input::CurMousePos) <
+            maxHoldDistancePx * Window->DpiScale) {
+      if (touchHoldTimeS > minHoldTimeS) {
+        AutoModeEnabled = !AutoModeEnabled;
+        touchHoldTimeS = -1.0f;
+      } else if (touchHoldTimeS >= 0.0f)
+        touchHoldTimeS += dt;
+
+    } else {
+      touchHoldTimeS = 0.0f;
+    }
+
+    if (SkipModeEnabled && (!Profile::ConfigSystem::SkipRead ||
+                            GetFlag(SF_MESREAD) || swipeSkipAll)) {
       mesSkip = true;
       mesAllSkip = true;
     }

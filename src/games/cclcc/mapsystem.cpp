@@ -912,7 +912,8 @@ bool MapSystem::MapPlayerPhotoSelect(int unused) {
     int maxPoolRow =
         (poolType == 3) ? 2 : 3;  // 3 per row for photo, 2 for articles
 
-    if (Impacto::Input::CurrentInputDevice == Input::Device::Mouse) {
+    if (Input::CurrentInputDevice == Input::Device::Mouse ||
+        Input::CurrentInputDevice == Input::Device::Touch) {
       for (size_t i = 0; i < MapPool.size(); i++) {
         if (MapPool[i].id != 0xff && MapPool[i].button.Enabled) {
           MapPool[i].button.UpdateInput(0.0f);

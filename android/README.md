@@ -21,17 +21,15 @@ run ./gradlew assemble in impacto/android
 apks will be created in impacto/android/distribution/android/app/outputs/apk
 
 # Preparing impacto
-Game assets should be copied to the `/sdcard/Android/data/com.committeeofzero.impacto/files/games` folder, see [Getting Started](/doc/getting_started.md).
-Upon running the application for the first time, bundled files will be copied to the `/sdcard/Android/data/com.committeeofzero.impacto/files/` folder. This will also occur when impacto detects a .reset file in the same directory.
+Game assets can be copied to the `/sdcard/Android/data/com.committeeofzero.impacto/files/games` folder, or a user selectable directory. 
+If choosing a custom directory, a prompt to enable the manage all files permission will be given and it will need to be enabled. 
+See [Getting Started](/doc/getting_started.md) for more information about files needed.
+Upon running the application for the first time, bundled files will be copied to the `/sdcard/Android/data/com.committeeofzero.impacto/files/` folder.
 
 # Debugging
 Override the CMake preset and set CMAKE_BUILD_TYPE to DEBUG (-DCMAKE_BUILD_TYPE=DEBUG in command line or override with user preset) 
 to build with debug symbols first.
 In Android Studio, open the impacto/android folder
 Make sure the explorer is set to view Project or Project files and not Android so cpp files are actually visible.
-Edit the run configuratio
-- Go to debugger:
-- Add <absolute_path_to_impacto>/android/app/src/main/cpp/impacto to symbol directories
-- In LLDB Startup Commands, add the following so symbols get mapped to correct files
-`settings append target.source-map <absolute_path_to_impacto> <absolute_path_to_impacto>/android/app/src/main/cpp/impacto`
-Breakpoints should work now properly in C++ files when debugging
+Run in debug configuration.
+Set breakpoints in files located in the app/src/main/cpp/impacto symlink.

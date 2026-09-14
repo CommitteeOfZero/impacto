@@ -115,6 +115,7 @@ MusicMenu::MusicMenu() : CommonMenu(false) {
       0, ScrollbarPosition, 0.0f, GetEndScroll(MainItems), &ScrollY,
       ScrollbarDirection::SBDIR_VERTICAL, ScrollThumbSprite, ScrollTrackBounds,
       ScrollThumbSprite.ScaledHeight(), TrackListBounds, 1.0f);
+  MainScrollbar.SetScrollAreaBounds(TrackListBounds);
   MainScrollbar.Step = TrackOffset.y;
 
   // Everything in last page points to last element

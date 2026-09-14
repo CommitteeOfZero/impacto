@@ -298,9 +298,9 @@ void OptionsMenu::UpdatePageInput(float dt) {
 
   if (PageTransitionAnimation.IsPlaying()) return;
 
-  if (Input::MouseWheelDeltaY > 0.0f) {
+  if (Input::MouseWheelDeltaY > 0.0f || Input::TouchFlickUp) {
     GoToPage((CurrentPage + Pages.size() - 1) % Pages.size());
-  } else if (Input::MouseWheelDeltaY < 0.0f) {
+  } else if (Input::MouseWheelDeltaY < 0.0f || Input::TouchFlickDown) {
     GoToPage((CurrentPage + 1) % Pages.size());
   }
 }

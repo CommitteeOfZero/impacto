@@ -97,65 +97,83 @@ Scrollbar::Scrollbar(int id, glm::vec2 pos, float start, float end,
 }
 
 void Scrollbar::UpdateInput(float dt) {
-  if (Enabled) {
-    if (HasFocus) {
-      switch (Direction) {
-        case SBDIR_VERTICAL:
-          if (PADinputButtonIsDown & PAD1DOWN) {
-            *Value += Step;
-          } else if (PADinputButtonIsDown & PAD1UP) {
-            *Value -= Step;
-          }
-          break;
-        case SBDIR_HORIZONTAL:
-          if (PADinputButtonIsDown & PAD1RIGHT) {
-            *Value += Step;
-          } else if (PADinputButtonIsDown & PAD1LEFT) {
-            *Value -= Step;
-          }
-          break;
-      }
+  if (!Enabled) return;
+  if (HasFocus) {
+    switch (Direction) {
+      case SBDIR_VERTICAL:
+        if (PADinputButtonIsDown & PAD1DOWN) {
+          *Value += Step;
+        } else if (PADinputButtonIsDown & PAD1UP) {
+          *Value -= Step;
+        }
+        break;
+      case SBDIR_HORIZONTAL:
+        if (PADinputButtonIsDown & PAD1RIGHT) {
+          *Value += Step;
+        } else if (PADinputButtonIsDown & PAD1LEFT) {
+          *Value -= Step;
+        }
+        break;
+    }
+  }
+
+  if (Input::PrevMousePos != Input::CurMousePos) {
+    Hovered = TrackBounds.ContainsPoint(Input::CurMousePos) ||
+              ThumbBounds.ContainsPoint(Input::CurMousePos);
+    HoveredWheelBounds = ScrollWheelBounds.ContainsPoint(Input::CurMousePos);
+  }
+  ScrollHeld =
+      (Input::MouseButtonIsDown[SDL_BUTTON_LEFT] || Input::TouchHeldDown) &&
+      (TrackBounds.ContainsPoint(Input::InitMousePos) ||
+       ThumbBounds.ContainsPoint(Input::InitMousePos));
+
+  if (ScrollHeld) {
+    float mouseP, trackP1, trackP2;
+    switch (Direction) {
+      case SBDIR_VERTICAL:
+        mouseP = Input::CurMousePos.y;
+        trackP1 = TrackBounds.Y;
+        trackP2 = TrackBounds.Height;
+        break;
+
+      case SBDIR_HORIZONTAL:
+        mouseP = Input::CurMousePos.x;
+        trackP1 = TrackBounds.X;
+        trackP2 = TrackBounds.Width;
+        break;
+
+      default:
+        throw std::runtime_error(
+            fmt::format("Unexpected scrollbar direction {}", (int)Direction));
     }
 
-    if (Input::PrevMousePos != Input::CurMousePos) {
-      Hovered = TrackBounds.ContainsPoint(Input::CurMousePos) ||
-                ThumbBounds.ContainsPoint(Input::CurMousePos);
-      HoveredWheelBounds = ScrollWheelBounds.ContainsPoint(Input::CurMousePos);
-    }
-    if (Hovered && Input::MouseButtonWentDown[SDL_BUTTON_LEFT]) {
-      ScrollHeld = true;
-    }
-    if (Input::MouseButtonIsDown[SDL_BUTTON_LEFT] && ScrollHeld) {
-      float mouseP, trackP1, trackP2;
-      switch (Direction) {
-        case SBDIR_VERTICAL:
-          mouseP = Input::CurMousePos.y;
-          trackP1 = TrackBounds.Y;
-          trackP2 = TrackBounds.Height;
-          break;
+    float thumbNormalizedLength =
+        (trackP2 - ThumbLength) / (EndValue - StartValue);
+    *Value = StartValue + ((mouseP - (trackP1 + ThumbLength / 2.0f)) /
+                           thumbNormalizedLength);
+    ClampValue();
+  }
 
-        case SBDIR_HORIZONTAL:
-          mouseP = Input::CurMousePos.x;
-          trackP1 = TrackBounds.X;
-          trackP2 = TrackBounds.Width;
-          break;
+  if (HoveredWheelBounds && Input::MouseWheelDeltaY) {
+    *Value -= Input::MouseWheelDeltaY * WheelSpeedMultiplier * Step;
+    ClampValue();
+  }
 
-        default:
-          throw std::runtime_error(
-              fmt::format("Unexpected scrollbar direction {}", (int)Direction));
-      }
+  if (Input::CurrentInputDevice == Input::Device::Touch &&
+      Input::TouchHeldDown) {
+    if (ScrollAreaBounds.ContainsPoint(Input::InitMousePos)) {
+      const float delta = [this] {
+        switch (Direction) {
+          case SBDIR_VERTICAL:
+            return Input::CurMousePos.y - Input::PrevMousePos.y;
+          case SBDIR_HORIZONTAL:
+            return Input::CurMousePos.x - Input::PrevMousePos.x;
+        }
+        throw std::runtime_error(
+            fmt::format("Unexpected scrollbar direction {}", (int)Direction));
+      }();
 
-      float thumbNormalizedLength =
-          (trackP2 - ThumbLength) / (EndValue - StartValue);
-      *Value = StartValue + ((mouseP - (trackP1 + ThumbLength / 2.0f)) /
-                             thumbNormalizedLength);
-      ClampValue();
-    } else {
-      ScrollHeld = false;
-    }
-
-    if (HoveredWheelBounds && Input::MouseWheelDeltaY) {
-      *Value -= Input::MouseWheelDeltaY * WheelSpeedMultiplier * Step;
+      *Value -= (delta * WheelSpeedMultiplier / std::abs(WheelSpeedMultiplier));
       ClampValue();
     }
   }

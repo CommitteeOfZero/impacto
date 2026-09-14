@@ -77,6 +77,8 @@ using namespace Profile::ScriptVars;
 namespace Game {
 
 void Init() {
+  SDL_SetHint(SDL_HINT_MOUSE_TOUCH_EVENTS, "0");
+
   WorkQueue::Init();
 
 #ifndef IMPACTO_DISABLE_IMGUI
@@ -261,7 +263,7 @@ void UpdateGameState(float dt) {
 
   if ((ScrWork[SW_GAMESTATE] & 5) == 1 && !GetFlag(SF_SYSTEMMENUDISABLE) &&
       !GetFlag(SF_GAMEPAUSE) && !GetFlag(SF_SYSMENUDISABLE) &&
-      Vm::Interface::GetControlState(8)) {
+      Vm::Interface::GetControlState(Vm::Interface::ControlType::Hide)) {
     // Some more stuff here?
     if ((GetFlag(SF_MESWINDOW0OPENFL) &&
          DialoguePages[0].TextIsFullyOpaque()) ||
@@ -276,7 +278,7 @@ void UpdateGameState(float dt) {
   if (Profile::GameSpecific::GameSpecificType == UI::GameSpecificType::CCLCC) {
     UI::CCLCC::DelusionTrigger::GetInstance().UpdateDragging(dt);
   }
-  Vm::ChkMesSkip();
+  Vm::ChkMesSkip(dt);
   if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::CC) {
     UI::GameSpecific::UpdateCCButtonGuide(dt);
   }
@@ -306,6 +308,7 @@ void UpdateSystem(float dt) {
       }
     }
 
+    if (HandleWindowEvents(&e)) continue;
 #ifndef IMPACTO_DISABLE_IMGUI
     ImGuiIO& io = ImGui::GetIO();
     const bool isImguiEvent = [&e] {

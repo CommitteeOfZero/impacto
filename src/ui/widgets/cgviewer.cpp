@@ -39,7 +39,7 @@ void CgViewer::Hide() {
 }
 
 void CgViewer::UpdateInput(float dt) {
-  const auto isLMBDown = PADinputMouseIsDown & PAD1A;
+  const auto isLMBDown = PADinputMouseIsDown & PAD1A || Input::TouchHeldDown;
   if (isLMBDown) {
     Position[CurrentVariation] += Input::CurMousePos - Input::PrevMousePos;
   }
@@ -64,6 +64,12 @@ void CgViewer::UpdateInput(float dt) {
   if (PADinputButtonIsDown & PAD1R1) {
     Scale += ScaleStep;
   }
+
+  if (Input::CurrentPinch.has_value()) {
+    Scale *= Input::CurrentPinch->CurrentScale;
+  }
+  Input::ClearPinchGesture();
+
   Scale = std::max(Scale, MinScale[CurrentVariation]);
 
   if ((PADinputButtonIsDown & (PAD1LEFT | PAD1RIGHT | PAD1UP | PAD1DOWN)) ||
@@ -113,7 +119,8 @@ void CgViewer::UpdateInput(float dt) {
     }
   }
 
-  if (PADinputButtonWentDown & PAD1A || mouseAdvance) {
+  if (PADinputButtonWentDown & PAD1A || mouseAdvance ||
+      Input::TouchTapCount == 1) {
     while (true) {
       if (static_cast<int>(CurrentVariation + 1) == VariationCount) {
         if (OnVariationEndHandler) {

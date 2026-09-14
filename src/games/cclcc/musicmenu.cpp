@@ -292,6 +292,27 @@ void MusicMenu::UpdateInput(float dt) {
     }
     ModeButton.UpdateInput(dt);
 
+    constexpr float moveAnimationTime = 0.3f;
+
+    if (Input::TouchHeldDown) {
+      const float dy = Input::CurMousePos.y - Input::PrevMousePos.y;
+      MainItems.Move({0.0f, dy});
+      BGWidget.Move({0.0f, dy});
+      QueuedMove.reset();
+    } else if (WasTouchHeldDown) {
+      const float totalDragY = Input::CurMousePos.y - Input::InitMousePos.y;
+      const float height = MusicButtonBounds.Height;
+      const int steps = static_cast<int>(std::round(totalDragY / height));
+      const float leftover = totalDragY - steps * height;
+
+      MainItems.Move({0.0f, -leftover});
+      BGWidget.Move({0.0f, -leftover});
+      for (int i = 0; i < std::abs(steps); ++i)
+        AdvanceFocus(steps < 0 ? FocusDirection::FDIR_UP
+                               : FocusDirection::FDIR_DOWN);
+    }
+    WasTouchHeldDown = Input::TouchHeldDown;
+
     const uint32_t btnUp = PADcustom[0];
     const uint32_t btnDown = PADcustom[1];
     const bool upScroll = Input::MouseWheelDeltaY > 0;
@@ -323,7 +344,7 @@ void MusicMenu::UpdateInput(float dt) {
       TurboMoved =
           (HoldTimer > MusicDirectionalHoldTime) || upScroll || downScroll;
       const float animationSpeed =
-          TurboMoved ? MusicDirectionalFocusTimeInterval : 0.3f;
+          TurboMoved ? MusicDirectionalFocusTimeInterval : moveAnimationTime;
 
       MainItems.Move({0.0f, -deltaY}, animationSpeed);
       BGWidget.Move({0.0f, -deltaY}, animationSpeed);

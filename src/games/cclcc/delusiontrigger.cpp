@@ -110,7 +110,6 @@ bool DelusionTrigger::CanUpdateDragging() const {
 
 void DelusionTrigger::ResetDraggingPress() {
   ActiveDragHitbox = DragHitbox::None;
-  DragStartPos = glm::vec2(0.0f);
   DragHoldTime = 0.0f;
   DragPressPending = false;
   DragHoldActive = false;
@@ -157,9 +156,8 @@ std::pair<bool, bool> DelusionTrigger::UpdateDraggingTriggers(
                          .Translate({448, -109});
   }
 
-  const bool pointerWentDown = PADinputMouseWentDown & PAD1A;
-  const bool isTouch = Input::CurrentInputDevice == Input::Device::Touch;
-  const glm::vec2 curPos = isTouch ? Input::CurTouchPos : Input::CurMousePos;
+  const bool pointerWentDown =
+      PADinputMouseWentDown & PAD1A || Input::TouchHeldDown;
 
   if (Input::CurrentInputDevice == Input::Device::Mouse &&
       ((positiveHitbox && positiveHitbox->ContainsPoint(Input::CurMousePos)) ||
@@ -180,9 +178,10 @@ std::pair<bool, bool> DelusionTrigger::UpdateDraggingTriggers(
 
   if (ActiveDragHitbox == DragHitbox::None &&
       (pointerWentDown || DragHoldActive)) {
-    if (positiveHitbox && positiveHitbox->ContainsPoint(curPos)) {
+    if (positiveHitbox && positiveHitbox->ContainsPoint(Input::InitMousePos)) {
       ActiveDragHitbox = DragHitbox::Positive;
-    } else if (negativeHitbox && negativeHitbox->ContainsPoint(curPos)) {
+    } else if (negativeHitbox &&
+               negativeHitbox->ContainsPoint(Input::InitMousePos)) {
       ActiveDragHitbox = DragHitbox::Negative;
     }
     if (ActiveDragHitbox != DragHitbox::None && pointerWentDown) {
@@ -206,27 +205,26 @@ std::pair<bool, bool> DelusionTrigger::UpdateDraggingTriggers(
     PADinputMouseWentDown &= ~PAD1A;
   }
 
-  if (pointerWentDown) DragStartPos.x = curPos.x;
-
   if (!DragHoldActive) return std::make_pair(false, false);
 
   bool dragLeftTrigger = false;
   bool dragRightTrigger = false;
   if (ActiveDragHitbox == DragHitbox::Positive) {
     if (DelusionState == DS_Neutral) {
-      dragLeftTrigger =
-          curPos.x > DragStartPos.x + DragDelta;  // Select positive
+      dragLeftTrigger = Input::CurMousePos.x >
+                        Input::InitMousePos.x + DragDelta;  // Select positive
     } else if (DelusionState == DS_Positive) {
       dragRightTrigger =
-          curPos.x < DragStartPos.x - DragDelta;  // Return to neutral
+          Input::CurMousePos.x <
+          Input::InitMousePos.x - DragDelta;  // Return to neutral
     }
   } else if (ActiveDragHitbox == DragHitbox::Negative) {
     if (DelusionState == DS_Neutral) {
-      dragRightTrigger =
-          curPos.x < DragStartPos.x - DragDelta;  // Select negative
+      dragRightTrigger = Input::CurMousePos.x <
+                         Input::InitMousePos.x - DragDelta;  // Select negative
     } else if (DelusionState == DS_Negative) {
-      dragLeftTrigger =
-          curPos.x > DragStartPos.x + DragDelta;  // Return to neutral
+      dragLeftTrigger = Input::CurMousePos.x >
+                        Input::InitMousePos.x + DragDelta;  // Return to neutral
     }
   }
 
@@ -240,10 +238,12 @@ void DelusionTrigger::UpdateDragging(float dt) {
   if (!leftTrigger && rightTrigger) {
     TriggerRight();
     ResetDraggingPress();
+    Input::ClearFlicks();
   }
   if (leftTrigger && !rightTrigger) {
     TriggerLeft();
     ResetDraggingPress();
+    Input::ClearFlicks();
   }
 }
 
@@ -317,8 +317,8 @@ void DelusionTrigger::Update(float dt) {
   }
 
   if (LastDelusionState == DelusionState) {
-    const bool leftTrigger = GetControlState(CT_DelusionTriggerL);
-    const bool rightTrigger = GetControlState(CT_DelusionTriggerR);
+    const bool leftTrigger = GetControlState(ControlType::DelusionTriggerL);
+    const bool rightTrigger = GetControlState(ControlType::DelusionTriggerR);
 
     if (!(leftTrigger ^ rightTrigger)) return;
 

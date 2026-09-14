@@ -70,6 +70,8 @@ class MusicMenu : public LibrarySubmenu {
   MusicModeButton ModeButton;
   float HoldTimer = 0.0f;
   bool TurboMoved = false;
+  bool WasTouchHeldDown = false;
+
   void PlayTrack(size_t index);
   void StopMusic();
   void ResetShuffle();

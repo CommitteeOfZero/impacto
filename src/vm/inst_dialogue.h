@@ -30,7 +30,7 @@ VmInstruction(InstNameID);
 VmInstruction(InstTips);
 VmInstruction(InstSetRevMes);
 
-void ChkMesSkip();
+void ChkMesSkip(float dt);
 
 }  // namespace Vm
 

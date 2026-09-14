@@ -566,6 +566,7 @@ void ClearListMenu::InitSceneTitlePage() {
       0, ScrollbarPosition, ScrollbarStart,
       ScrollbarStart - totalHeight + ScrollAreaHeight, &SceneListY,
       SBDIR_VERTICAL, ScrollbarTrack, ScrollbarThumb);
+  scrollbar->SetScrollAreaBounds(SceneTitleItems->HoverBounds);
   SceneTitlePage->Add(scrollbar);
 
   MainItems->Add(SceneTitlePage);

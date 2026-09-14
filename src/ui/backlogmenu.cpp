@@ -58,6 +58,7 @@ BacklogMenu<EntryType>::BacklogMenu()
   InputConfig = InputRate::RepeatFast;
 
   MainScrollbar.Enabled = false;
+  MainScrollbar.SetScrollAreaBounds(HoverBounds);
 
   FadeAnimation.Direction = AnimationDirection::In;
   FadeAnimation.LoopMode = AnimationLoopMode::Stop;

@@ -200,7 +200,7 @@ VmInstruction(InstMovieMain) {
       }
 
       if (!player.CancelFlag ||
-          !Interface::GetControlState(Interface::CT_MovieCancel)) {
+          !Interface::GetControlState(Interface::ControlType::MovieCancel)) {
         if (GetFlag(SF_MOVIEPLAY + playerId)) {
           ResetInstruction;
           BlockThread;
@@ -241,7 +241,7 @@ VmInstruction(InstMovieMain) {
     case 3:
     case 23: {  // StopWait
       if (player.CancelFlag &&
-          Interface::GetControlState(Interface::CT_MovieCancel)) {
+          Interface::GetControlState(Interface::ControlType::MovieCancel)) {
         SetFlag(SF_MOVIEPLAY + playerId, false);
         SetFlag(SF_MOVIECANCEL + playerId, true);
         BlockThread;
@@ -276,7 +276,7 @@ VmInstruction(InstMovieMain) {
       }
 
       if (player.CancelFlag &&
-          Interface::GetControlState(Interface::CT_MovieCancel)) {
+          Interface::GetControlState(Interface::ControlType::MovieCancel)) {
         SetFlag(SF_MOVIEPLAY + playerId, true);
         SetFlag(SF_MOVIECANCEL + playerId, true);
         BlockThread;
