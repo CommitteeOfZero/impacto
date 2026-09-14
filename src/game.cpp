@@ -276,7 +276,7 @@ void UpdateGameState(float dt) {
   if (Profile::GameSpecific::GameSpecificType == UI::GameSpecificType::CCLCC) {
     UI::CCLCC::DelusionTrigger::GetInstance().UpdateDragging(dt);
   }
-  Vm::ChkMesSkip();
+  Vm::ChkMesSkip(dt);
   if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::CC) {
     UI::GameSpecific::UpdateCCButtonGuide(dt);
   }

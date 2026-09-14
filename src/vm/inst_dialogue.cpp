@@ -549,7 +549,7 @@ VmInstruction(InstMes) {
                 SW_MESWIN0TYPE] &
         +MesWinTypeBit::DontSkipIfRead)) {
     SetFlag(SF_MESREAD, SaveSystem::IsLineRead(scriptId, lineId));
-    ChkMesSkip();
+    ChkMesSkip(dt);
   }
 
   ScrWork[2 * dialoguePage.Id + SW_LINEID] = lineId;
@@ -1235,8 +1235,9 @@ VmInstruction(InstSetRevMes) {
       animationId);
 }
 
-void ChkMesSkip() {
+void ChkMesSkip(float dt) {
   static bool swipeSkipAll = false;
+  static float touchHoldTimeS = 0.0f;
 
   bool mesSkip = false;
   bool mesAllSkip = false;
@@ -1266,8 +1267,24 @@ void ChkMesSkip() {
       SkipModeEnabled = swipeSkipAll;
     }
 
+    constexpr static float maxHoldDistancePx = 8;
+    constexpr static float minHoldTimeS = 0.3f;
+
     if (Interface::PADinputButtonWentDown & Interface::PADcustom[9]) {
       AutoModeEnabled = !AutoModeEnabled;
+    }
+
+    if (Input::TouchHeldDown &&
+        glm::distance(Input::InitMousePos, Input::CurMousePos) <
+            maxHoldDistancePx * Window->DpiScale) {
+      if (touchHoldTimeS > minHoldTimeS) {
+        AutoModeEnabled = !AutoModeEnabled;
+        touchHoldTimeS = -1.0f;
+      } else if (touchHoldTimeS >= 0.0f)
+        touchHoldTimeS += dt;
+
+    } else {
+      touchHoldTimeS = 0.0f;
     }
 
     if (SkipModeEnabled && (!Profile::ConfigSystem::SkipRead ||
