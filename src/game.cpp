@@ -77,6 +77,8 @@ using namespace Profile::ScriptVars;
 namespace Game {
 
 void Init() {
+  SDL_SetHint(SDL_HINT_MOUSE_TOUCH_EVENTS, "0");
+
   WorkQueue::Init();
 
 #ifndef IMPACTO_DISABLE_IMGUI
