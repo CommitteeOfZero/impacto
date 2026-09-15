@@ -82,7 +82,7 @@ class Renderer final : public BaseRenderer {
                       std::span<const uint16_t> indices,
                       glm::mat4 spriteTransformation,
                       glm::mat4 maskTransformation, bool inverted,
-                      TopologyMode topology, bool textureWrapRepeat) override {}
+                      TopologyMode topology, bool textureWrapRepeat) override;
 
   void DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
                         RectF const& dest, glm::vec4 tint, int alpha,

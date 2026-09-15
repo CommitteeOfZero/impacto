@@ -394,17 +394,21 @@ void Renderer::Flush() {
   bgfx::submit(RENDER_VIEW, CurrentState->ShaderProgram.get());
 }
 
-static bool ShouldFlip(const Sprite& sprite) {
+static bool ShouldFlip(const SpriteSheet& sheet) {
   [[maybe_unused]] const RendererType rendererType =
       Impacto::Renderer->GetType();
-  return sprite.Sheet.IsScreenCap && (false
+  return sheet.IsScreenCap && (false
 #ifdef IMPACTO_RENDERER_OPENGL
-                                      || rendererType == RendererType::OpenGL
+                               || rendererType == RendererType::OpenGL
 #endif
 #ifdef IMPACTO_RENDERER_OPENGLES
-                                      || rendererType == RendererType::OpenGLES
+                               || rendererType == RendererType::OpenGLES
 #endif
-                                     );
+                              );
+}
+
+static bool ShouldFlip(const Sprite& sprite) {
+  return ShouldFlip(sprite.Sheet);
 }
 
 void Renderer::InsertVertices(
@@ -528,6 +532,36 @@ void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
   };
 
   InsertVertices(indices, vertices, ShouldFlip(sprite));
+}
+
+void Renderer::DrawPrimitives(
+    const SpriteSheet& sheet, const SpriteSheet* const mask,
+    const ShaderProgramType shaderType,
+    const std::span<const VertexBufferSprites> vertices,
+    const std::span<const uint16_t> indices,
+    const glm::mat4 spriteTransformation, const glm::mat4 maskTransformation,
+    const bool inverted, const TopologyMode topology,
+    const bool textureWrapRepeat) {
+  ShaderProgramInterface* const shader = [&]() -> ShaderProgramInterface* {
+    switch (shaderType) {
+      case ShaderProgramType::Sprite:
+        SpriteShader->SubmitUniforms({},
+                                     {.s_texture = Textures[sheet.Texture]});
+        return &*SpriteShader;
+      default:
+        break;
+    }
+    return nullptr;
+  }();
+
+  if (shader == nullptr) return;
+
+  SetState({
+      .ShaderProgram = *shader,
+      .Transformation = spriteTransformation,
+  });
+
+  InsertVertices(indices, vertices, ShouldFlip(sheet));
 }
 
 }  // namespace Impacto::Bgfx
