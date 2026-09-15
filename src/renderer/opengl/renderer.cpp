@@ -28,7 +28,7 @@ static CornersQuad FlipUvVertical(CornersQuad quad) {
 }
 
 Renderer::Renderer() {
-  OpenGLWindow = static_cast<GLWindow*>(Window);
+  OpenGLWindow = static_cast<GLWindow*>(Window.get());
   // Generate buffers
   glGenBuffers(1, &VBO);
   glGenBuffers(1, &IBO);
@@ -217,9 +217,7 @@ bool Renderer::LoadSurf(int surfId, int archiveId, int fileId) {
   Io::Stream* stream;
   IoError err = pathRes.Open(&stream);
   if (err != IoError_OK) {
-    ImpLog(LogLevel::Fatal, LogChannel::Profile,
-           "Could not open spritesheet\n");
-    Window->Shutdown();
+    Panic(LogChannel::Profile, "Could not open spritesheet\n");
   }
 
   Texture tex{};
@@ -252,8 +250,8 @@ void Renderer::UnloadSurf(int surfId) {
   SurfToId.erase(surfId);
 }
 
-uint32_t Renderer::SubmitTexture(TexFmt format, uint8_t* buffer, int width,
-                                 int height) {
+uint32_t Renderer::SubmitTexture(TexFmt format, std::span<const uint8_t> buffer,
+                                 int width, int height) {
   GLint prevBound;
   uint32_t result;
   glGetIntegerv(GL_TEXTURE_BINDING_2D, &prevBound);
@@ -288,7 +286,7 @@ uint32_t Renderer::SubmitTexture(TexFmt format, uint8_t* buffer, int width,
     }
   }();
   glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, texFormat,
-               GL_UNSIGNED_BYTE, buffer);
+               GL_UNSIGNED_BYTE, buffer.data());
 
   // Build mip chain
   // TODO do this ourselves outside of Submit(), this can easily cause a

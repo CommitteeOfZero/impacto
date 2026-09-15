@@ -8,12 +8,6 @@
 
 namespace Impacto {
 
-enum class RendererType : int {
-  OpenGL,
-  Vulkan,
-  DirectX9,
-};
-
 enum class VideoPlayerType : int {
   None,
   FFmpeg,
@@ -56,7 +50,7 @@ struct Config {
   bool LoggingToFile = GetDefaultLogToFile();
 };
 struct AdvancedConfig {
-  RendererType ActiveRenderer = RendererType::OpenGL;
+  RendererType ActiveRenderer = DefaultRendererType;
   VideoPlayerType VideoPlayer = VideoPlayerType::FFmpeg;
   AudioBackendType ActiveAudioBackend = AudioBackendType::OpenAL;
   SubtitleAssBackendType SubtitleAssBackend = SubtitleAssBackendType::LibAss;

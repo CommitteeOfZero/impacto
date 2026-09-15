@@ -7,7 +7,10 @@
 #include "log.h"
 #include "inputsystem.h"
 #include "debugmenu.h"
+
+#if defined(IMPACTO_RENDERER_OPENGL) || defined(IMPACTO_RENDERER_OPENGLES)
 #include "renderer/opengl/glc.h"
+#endif
 
 #ifndef IMPACTO_DISABLE_IMGUI
 #include "overlay.h"
@@ -39,6 +42,8 @@
 #include "effects/wave.h"
 #include "effects/blur.h"
 #include "effects/mosaic.h"
+
+#include "userconfig.h"
 
 #include "profile/profile.h"
 #include "profile/game.h"
@@ -76,10 +81,9 @@ using namespace Profile::ScriptVars;
 
 namespace Game {
 
-void Init() {
-  SDL_SetHint(SDL_HINT_MOUSE_TOUCH_EVENTS, "0");
-
-  WorkQueue::Init();
+static void InitRenderer() {
+  Renderer.reset();
+  Window.reset();
 
 #ifndef IMPACTO_DISABLE_IMGUI
   IMGUI_CHECKVERSION();
@@ -95,16 +99,30 @@ void Init() {
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
   }
 #endif
+
   InitWindow();
   CreateRenderer();
-  InitCursors();
 
 #ifndef IMPACTO_DISABLE_IMGUI
   Overlay::Init();
 #endif
 }
 
+void Init() {
+  SDL_SetHint(SDL_HINT_MOUSE_TOUCH_EVENTS, "0");
+
+  WorkQueue::Init();
+
+  InitRenderer();
+  InitCursors();
+}
+
 void InitGameProfile() {
+  if (UserConfig::AdvancedSettings.ActiveRenderer != Renderer->GetType()) {
+    // If the active renderer was changed in the launcher, re-init renderer
+    InitRenderer();
+  }
+
   Profile::ConfigureGameProfile();
   Profile::Game::Configure();
   Profile::Patch::Configure();
@@ -203,7 +221,7 @@ void InitGameProfile() {
   Profile::ClearProfile();
 }
 
-void Shutdown() {
+void Shutdown(const int exitCode) {
   if (+Profile::Game::GameFeatures & +GameFeature::Audio) {
     Audio::AudioShutdown();
   }
@@ -212,11 +230,12 @@ void Shutdown() {
     Video::VideoShutdown();
   }
 
-  if (+Profile::Game::GameFeatures & +GameFeature::Renderer2D) {
-    Renderer->Shutdown();
-  }
   WorkQueue::StopWorkQueue();
-  Window->Shutdown();
+
+  Renderer.reset();
+  Window.reset();
+
+  exit(exitCode);
 }
 
 void LauncherUpdate(float dt) {

@@ -4,14 +4,12 @@
 #include "../userconfig.h"
 #include "../log.h"
 
-#ifndef IMPACTO_DISABLE_OPENGL
+#if defined(IMPACTO_RENDERER_OPENGL) || defined(IMPACTO_RENDERER_OPENGLES)
 #include "opengl/renderer.h"
 #endif
-#ifndef IMPACTO_DISABLE_VULKAN
-#include "vulkan/renderer.h"
-#endif
-#ifndef IMPACTO_DISABLE_DX9
-#include "dx9/renderer.h"
+
+#ifdef IMPACTO_RENDERER_BGFX
+#include "bgfx/renderer.h"
 #endif
 
 #include <numeric>
@@ -19,26 +17,38 @@
 namespace Impacto {
 
 void CreateRenderer() {
+  Renderer.reset();
+
   switch (UserConfig::AdvancedSettings.ActiveRenderer) {
-#ifndef IMPACTO_DISABLE_OPENGL
+#if defined(IMPACTO_RENDERER_OPENGL) || defined(IMPACTO_RENDERER_OPENGLES)
+    case RendererType::OpenGLLegacy:
+      Renderer = std::make_unique<OpenGL::Renderer>();
+      break;
+#endif
+#ifdef IMPACTO_RENDERER_BGFX
+#ifdef IMPACTO_RENDERER_OPENGL
     case RendererType::OpenGL:
-      Renderer = new OpenGL::Renderer();
-      break;
 #endif
-#ifndef IMPACTO_DISABLE_VULKAN
+#ifdef IMPACTO_RENDERER_OPENGLES
+    case RendererType::OpenGLES:
+#endif
+#ifdef IMPACTO_RENDERER_VULKAN
     case RendererType::Vulkan:
-      Renderer = new Vulkan::Renderer();
-      break;
 #endif
-#ifndef IMPACTO_DISABLE_DX9
-    case RendererType::DirectX9:
-      Renderer = new DirectX9::Renderer();
-      break;
+#ifdef IMPACTO_RENDERER_DIRECT3D11
+    case RendererType::Direct3D11:
 #endif
+#ifdef IMPACTO_RENDERER_DIRECT3D12
+    case RendererType::Direct3D12:
+#endif
+#ifdef IMPACTO_RENDERER_METAL
+    case RendererType::Metal:
+#endif
+      Renderer = std::make_unique<Bgfx::Renderer>();
+      break;
+#endif  // IMPACTO_RENDERER_BGFX
     default:
-      ImpLog(LogLevel::Error, LogChannel::Render,
-             "Unknown or unsupported renderer selected!\n");
-      exit(1);
+      Panic(LogChannel::Render, "Unknown or unsupported renderer selected!\n");
   }
 }
 

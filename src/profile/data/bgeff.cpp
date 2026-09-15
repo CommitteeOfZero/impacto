@@ -32,10 +32,9 @@ void Load() {
 
       auto arraySize = lua_rawlen(LuaState, -1);
       if (arraySize != 5) {
-        ImpLog(LogLevel::Fatal, LogChannel::Profile,
-               "Expected five entries in shader definition defined; got {:d}\n",
-               arraySize);
-        Window->Shutdown();
+        Panic(LogChannel::Profile,
+              "Expected five entries in shader definition defined; got {:d}\n",
+              arraySize);
       }
 
       Background2D::BgEffShaderMap.emplace(
@@ -65,11 +64,9 @@ void Load() {
 
       auto arraySize = lua_rawlen(LuaState, -1);
       if (arraySize != 5) {
-        ImpLog(
-            LogLevel::Fatal, LogChannel::Profile,
-            "Expected five entries in texture id mapping defined; got {:d}\n",
-            arraySize);
-        Window->Shutdown();
+        Panic(LogChannel::Profile,
+              "Expected five entries in texture id mapping defined; got {:d}\n",
+              arraySize);
       }
 
       Background2D::BgEffTextureIdMap.emplace(

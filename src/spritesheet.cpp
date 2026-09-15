@@ -1,5 +1,7 @@
 #include "spritesheet.h"
 #include "renderer/renderer.h"
+#include "log.h"
+
 #include <mutex>
 #include <shared_mutex>
 
@@ -26,7 +28,8 @@ bool SpriteLoader::LoadSync(int surfId, int archiveId, int fileId) {
   Io::Stream* stream;
   IoError err = pathRes.Open(&stream);
   if (err != IoError_OK) {
-    Window->Shutdown();
+    Panic(LogChannel::IO, "Failed to open asset [MountId: {:d}, Id: {:d}]",
+          archiveId, fileId);
   }
 
   LoadedTexture.Load(stream);

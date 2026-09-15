@@ -49,9 +49,19 @@
     "readerwriterqueue",
     "unordered-dense",
     "boost-circular-buffer",
+    "boost-pfr",
     "toml11",
     "freetype",
-    "harfbuzz"
+    "harfbuzz",
+    "bgfx",
+    {
+      "name": "bgfx",
+      "host": true,
+      "default-features": false,
+      "features": [
+        "tools"
+      ]
+    }
   ],
   "overrides": [
     {
