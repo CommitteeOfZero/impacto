@@ -105,8 +105,8 @@ ShaderProgram<vertexShaderType, fragmentShaderType>::ShaderProgram(
   ProgramHandle = bgfx::createProgram(VertexShader, FragmentShader, true);
   assert(bgfx::isValid(ProgramHandle));
 
-  VertexUniformsState.emplace(ProgramHandle, flush);
-  FragmentUniformsState.emplace(ProgramHandle, flush);
+  VertexUniformsState.emplace(VertexShader, flush);
+  FragmentUniformsState.emplace(FragmentShader, flush);
 }
 
 template <VertexShaderType vertexShaderType,
