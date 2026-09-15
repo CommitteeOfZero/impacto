@@ -354,8 +354,8 @@ RectF BaseWindow::GetScaledViewport() {
 
 bool BaseWindow::CreateSDLWindow(SDL_WindowFlags flags) {
   auto const& config = UserConfig::CommonSettings;
-  WindowWidth = config.ResolutionWidth;
-  WindowHeight = config.ResolutionHeight;
+  WindowWidth = config.WindowWidth;
+  WindowHeight = config.WindowHeight;
 
 #if IMPACTO_USE_SDL_HIGHDPI
   flags |= SDL_WINDOW_HIGH_PIXEL_DENSITY;
@@ -381,27 +381,26 @@ bool BaseWindow::CreateSDLWindow(SDL_WindowFlags flags) {
 
 void BaseWindow::ApplyWindowSettings() {
   auto const& config = UserConfig::CommonSettings;
-  WindowWidth = config.ResolutionWidth;
-  WindowHeight = config.ResolutionHeight;
+  WindowWidth = config.WindowWidth;
+  WindowHeight = config.WindowHeight;
 
   DisplayMode dispMode = GetDefaultDispMode();
 
   if (!UserConfig::GetActiveGame().empty()) {
     auto const& gameConfig = UserConfig::ActiveGameSettings();
 
-    if (gameConfig.ResolutionHeight.has_value() ^
-        gameConfig.ResolutionHeight.has_value()) {
+    if (gameConfig.WindowWidth.has_value() ^
+        gameConfig.WindowWidth.has_value()) {
       ImpLog(LogLevel::Warning, LogChannel::Render,
-             "Only one of Resolution Height or Resolution Width is configured, "
-             "defaulting to game resolution.");
+             "Only one of Window Height or Window Width is configured, "
+             "defaulting to application settings.");
     }
-    if (gameConfig.ResolutionWidth && gameConfig.ResolutionHeight) {
-      WindowWidth = *gameConfig.ResolutionWidth;
-      WindowHeight = *gameConfig.ResolutionHeight;
-    } else if (Profile::Game::HasInit) {
-      WindowWidth = static_cast<int>(Profile::Game::DesignWidth);
-      WindowHeight = static_cast<int>(Profile::Game::DesignHeight);
+
+    if (gameConfig.WindowWidth && gameConfig.WindowHeight) {
+      WindowWidth = *gameConfig.WindowWidth;
+      WindowHeight = *gameConfig.WindowHeight;
     }
+
     dispMode = gameConfig.Display;
   }
 
@@ -432,6 +431,8 @@ void BaseWindow::ApplyWindowSettings() {
   DpiScale = SDL_GetWindowDisplayScale(SDLWindow);
   RecreateFBOs = true;
   Update();
+
+  Renderer->UpdateResolution();
 }
 
 bool HandleWindowEvents(SDL_Event const* evt) {

@@ -35,13 +35,16 @@ namespace UserConfig {
 struct GameConfig {
   std::optional<int> ResolutionWidth;
   std::optional<int> ResolutionHeight;
+  std::optional<int> WindowWidth;
+  std::optional<int> WindowHeight;
+
   std::string PatchProfile;
   bool UsePatch;
   DisplayMode Display = GetDefaultDispMode();
 };
 struct Config {
-  int ResolutionWidth = 1280;
-  int ResolutionHeight = 720;
+  int WindowWidth = 1280;
+  int WindowHeight = 720;
 
   std::string LogFile = GetDefaultLogFile();
   LogLevel LogLvl = LogLevel::Warning;

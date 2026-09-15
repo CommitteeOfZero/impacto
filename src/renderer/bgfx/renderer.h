@@ -19,6 +19,8 @@ class Renderer final : public BaseRenderer {
   void Init() override;
   void Shutdown() override;
 
+  void UpdateResolution() override;
+
   RendererType GetType() const override;
 
 #ifndef IMPACTO_DISABLE_IMGUI
@@ -155,6 +157,7 @@ class Renderer final : public BaseRenderer {
   std::optional<CommandBuffer> CurrentState = std::nullopt;
 
   FrameBuffer DrawFrameBuffer;
+  glm::ivec2 Resolution;
 
   bgfx::DynamicIndexBufferHandle IndexBuffer = {bgfx::kInvalidHandle};
   bgfx::DynamicVertexBufferHandle VertexBuffer = {bgfx::kInvalidHandle};

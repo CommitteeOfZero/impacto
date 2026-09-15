@@ -57,8 +57,8 @@ Renderer::Renderer() {
          "Initializing BGFX with {:s} backend",
          magic_enum::enum_name(initStruct.type));
 
-  initStruct.resolution.width = UserConfig::CommonSettings.ResolutionWidth;
-  initStruct.resolution.height = UserConfig::CommonSettings.ResolutionHeight;
+  initStruct.resolution.width = UserConfig::CommonSettings.WindowWidth;
+  initStruct.resolution.height = UserConfig::CommonSettings.WindowHeight;
   initStruct.resolution.reset = BGFX_RESET_VSYNC;
 #if defined(SDL_PLATFORM_WIN32)
   initStruct.platformData.nwh =
@@ -186,9 +186,9 @@ Renderer::Renderer() {
 void Renderer::Init() {
   [[maybe_unused]] const RendererType type = GetType();
 
-  DrawFrameBuffer =
-      FrameBuffer(static_cast<uint16_t>(Profile::Game::DesignWidth),
-                  static_cast<uint16_t>(Profile::Game::DesignHeight));
+  UpdateResolution();
+  DrawFrameBuffer = FrameBuffer(static_cast<uint16_t>(Resolution.x),
+                                static_cast<uint16_t>(Resolution.y));
 
   const glm::mat4 projectionMatrix =
       glm::ortho(0.0f, Profile::Game::DesignWidth, Profile::Game::DesignHeight,
@@ -196,10 +196,6 @@ void Renderer::Init() {
   constexpr static glm::mat4 identityMatrix(1.0f);
   bgfx::setViewTransform(RENDER_VIEW, glm::value_ptr(identityMatrix),
                          glm::value_ptr(projectionMatrix));
-
-  bgfx::setViewRect(RENDER_VIEW, 0, 0,
-                    static_cast<uint16_t>(Profile::Game::DesignWidth),
-                    static_cast<uint16_t>(Profile::Game::DesignHeight));
 
   constexpr static std::array<uint16_t, 6> backBufferIndices = {
       0, 1, 3, 1, 2, 3,
@@ -235,6 +231,26 @@ void Renderer::Init() {
           correctBackBufferVertices.data(),
           static_cast<uint32_t>(correctBackBufferVertices.size_bytes())),
       VertexBufferSpritesLayout);
+}
+
+void Renderer::UpdateResolution() {
+  const auto& gameConfig = UserConfig::ActiveGameSettings();
+
+  if (gameConfig.ResolutionWidth.has_value() !=
+      gameConfig.ResolutionHeight.has_value()) {
+    ImpLog(LogLevel::Warning, LogChannel::Render,
+           "Only one of Resolution Height or Resolution Width is configured, "
+           "defaulting to native game resolution.");
+  }
+
+  // Queue up new resolution for seamless switching between the end of the
+  // current frame and the start of the next
+  Resolution =
+      gameConfig.ResolutionWidth.has_value() &&
+              gameConfig.ResolutionHeight.has_value()
+          ? glm::ivec2{*gameConfig.ResolutionWidth,
+                       *gameConfig.ResolutionHeight}
+          : glm::ivec2{Profile::Game::DesignWidth, Profile::Game::DesignHeight};
 }
 
 RendererType Renderer::GetType() const {
@@ -286,7 +302,14 @@ void Renderer::BeginFrame() {
 }
 
 void Renderer::BeginFrame2D() {
+  if (DrawFrameBuffer.GetSize() != Resolution) {
+    DrawFrameBuffer = FrameBuffer(static_cast<uint16_t>(Resolution.x),
+                                  static_cast<uint16_t>(Resolution.y));
+  }
+
   bgfx::setViewFrameBuffer(RENDER_VIEW, DrawFrameBuffer);
+  bgfx::setViewRect(RENDER_VIEW, 0, 0, static_cast<uint16_t>(Resolution.x),
+                    static_cast<uint16_t>(Resolution.y));
 
   bgfx::touch(RENDER_VIEW);
 }

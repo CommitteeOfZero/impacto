@@ -23,6 +23,8 @@ class Renderer : public BaseRenderer {
   void Init() override;
   void Shutdown() override;
 
+  void UpdateResolution() override {}
+
   RendererType GetType() const override { return RendererType::OpenGLLegacy; }
 
 #ifndef IMPACTO_DISABLE_IMGUI

@@ -107,6 +107,8 @@ class BaseRenderer {
   virtual void Init() = 0;
   virtual void Shutdown() = 0;
 
+  virtual void UpdateResolution() = 0;
+
   virtual RendererType GetType() const = 0;
 
 #ifndef IMPACTO_DISABLE_IMGUI
