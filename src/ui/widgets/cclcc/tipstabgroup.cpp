@@ -48,8 +48,9 @@ void TipsTabButton::UpdateInput(float dt) {
     Hovered = Bounds.ContainsPoint(Input::CurMousePos);
   }
 
-  if (OnClickHandler && HasFocus &&
-      GetControlState(ControlType::OK, InputDownType::WentDown)) {
+  if (OnClickHandler && HasFocus && Hovered &&
+          (Vm::Interface::PADinputMouseWentDown & Vm::Interface::PAD1A) ||
+      Input::TouchTapCount == 1) {
     OnClickHandler(this);
   }
 }
