@@ -9,6 +9,7 @@
 #include "stream.h"
 #include <ankerl/unordered_dense.h>
 #include <map>
+#include "fsfolderarchive.h"
 
 namespace Impacto {
 namespace Io {
@@ -19,8 +20,10 @@ void VfsInit();
 // Mount an archive from a physical file.
 // Archives with the same name can be mounted several times, files will always
 // be loaded from the latest-mounted archive they're found in
-IoError VfsMount(std::string const& mountpoint,
-                 std::string const& archiveFileName);
+// in case other parameters can be provided, extend with std::variant
+IoError VfsMount(
+    std::string const& mountpoint, std::string const& archiveFileName,
+    std::optional<FolderArchiveParameters> parameters = std::nullopt);
 // Mount an archive from memory. A unique filename must be specified to identify
 // files coming from this archive and to unmount it.
 IoError VfsMountMemory(std::string const& mountpoint,
