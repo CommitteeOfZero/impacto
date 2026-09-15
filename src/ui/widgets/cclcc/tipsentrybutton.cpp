@@ -50,10 +50,10 @@ TipsEntryButton::TipsEntryButton(int tipId, int dispId, RectF const& dest,
   auto [buffers, bufferId, lockedStrAddr] = Vm::ScriptGetTextTableStrAddress(
       TipsTextTableIndex, TipsTextEntryLockedIndex);
   Vm::Sc3Stream lockedStrStream(&buffers[bufferId][lockedStrAddr]);
-  TextLayoutPlainLine(lockedStrStream, TipLockedText,
-                      *Profile::Dialogue::DialogueFont,
-                      (float)TipsEntryNameFontSize, {initColorName, 0}, 1.0f,
-                      nameDest, TextAlignment::Left);
+  TipLockedText = TextLayoutPlainLine(
+      lockedStrStream, 255, *Profile::Dialogue::DialogueFont,
+      (float)TipsEntryNameFontSize, {initColorName, 0}, 1.0f, nameDest,
+      TextAlignment::Left);
   HighlightOffset = TipsEntryHighlightOffset;
   Bounds = dest;
   HoverBounds = dest;
