@@ -330,15 +330,25 @@ void TipsMenu::SwitchToTipId(int id) {
                          RendererOutlineMode::None, 0);
 
   {
+    using Buffer =
+        std::variant<std::array<uint16_t, 4>, std::array<uint32_t, 4>>;
+
+    Buffer sc3StringBuffer =
+        Profile::Vm::StringEncodingType ==
+                Profile::Vm::StringUnitEncoding::Uint32
+            ? Buffer(std::in_place_type<std::array<uint32_t, 4>>)
+            : Buffer(std::in_place_type<std::array<uint16_t, 4>>);
+
     auto lambda = [&]<typename T>() {
-      T sc3StringBuffer[5];
-      TextGetSc3String(fmt::format("{:03d}", id), sc3StringBuffer);
-      Vm::Sc3Stream stream(sc3StringBuffer);
-      return std::tuple<float, Vm::Sc3Stream>(
-          {TextGetPlainLineWidth(stream, *Profile::Dialogue::DialogueFont,
-                                 (float)NumberFontSize),
-           Vm::Sc3Stream(sc3StringBuffer)});
+      auto& buf = std::get<std::array<T, 4>>(sc3StringBuffer);
+      TextGetSc3String(fmt::format("{:03d}", id), buf);
+      Vm::Sc3Stream stream(buf.data());
+      return std::make_tuple(
+          TextGetPlainLineWidth(stream, *Profile::Dialogue::DialogueFont,
+                                (float)NumberFontSize),
+          Vm::Sc3Stream(buf.data()));
     };
+
     auto [numberWidth, stream] = Profile::Vm::StringEncodingType ==
                                          Profile::Vm::StringUnitEncoding::Uint32
                                      ? lambda.template operator()<uint32_t>()
@@ -351,7 +361,7 @@ void TipsMenu::SwitchToTipId(int id) {
   Vm::Sc3VmThread dummy;
   dummy.ScriptBufferId = tipsScrBufId;
   dummy.UseMSBBuffers = Profile::Vm::UseMsbStrings;
-  dummy.SetIp(TipsSystem::GetTextStringStream(actualId, 4).Data());
+  dummy.SetIp(TipsSystem::GetTextStringStream(actualId, 4).Data(), true);
   TextPage.Clear();
   TextPage.AddString(&dummy);
   TipViewItems.HasFocus = true;
