@@ -551,6 +551,18 @@ struct TryGetImpl<DialogueColorPair> {
   static std::optional<DialogueColorPair> Call();
 };
 
+template <>
+struct TryGetImpl<Io::FolderArchiveParameters> {
+  static std::optional<Io::FolderArchiveParameters> Call() {
+    if (!lua_istable(LuaState, -1)) return std::nullopt;
+
+    Io::FolderArchiveParameters result;
+    result.OrderFilePath = TryGetMember<std::string>("Order");
+    result.WhitelistPattern = TryGetMember<std::string>("Whitelist");
+    return result;
+  }
+};
+
 template <typename T>
 inline void GetArray(std::span<T> out) {
   size_t actualCount = static_cast<size_t>(lua_rawlen(LuaState, -1));
