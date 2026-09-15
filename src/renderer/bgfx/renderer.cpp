@@ -12,6 +12,11 @@
 #include <imgui_impl_bgfx.h>
 #endif
 
+#ifdef __SWITCH__
+extern "C" {
+#include <switch/display/native_window.h>
+}
+#endif
 namespace Impacto::Bgfx {
 
 constexpr bgfx::ViewId RENDER_VIEW = 0;   // Uses render dimensions
@@ -91,6 +96,8 @@ Renderer::Renderer() {
   initStruct.platformData.nwh =
       SDL_GetPointerProperty(SDL_GetWindowProperties(Window->SDLWindow),
                              SDL_PROP_WINDOW_COCOA_WINDOW_POINTER, nullptr);
+#elif defined(SDL_PLATFORM_SWITCH)
+  initStruct.platformData.nwh = nwindowGetDefault();
 #else
   static_assert(false && "We have not implemented BGFX for this platform");
 #endif

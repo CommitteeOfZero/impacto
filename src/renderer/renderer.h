@@ -40,10 +40,8 @@ constexpr inline RendererType DefaultRendererType =
     RendererType::Direct3D12;
 #elif defined(SDL_PLATFORM_APPLE)
     RendererType::Metal;
-#elif defined(SDL_PLATFORM_ANDROID)
+#elif defined(SDL_PLATFORM_ANDROID) || defined(__SWITCH__)
     RendererType::OpenGLES;
-#elif defined(__SWITCH__)
-    RendererType::Vulkan;
 #else
     RendererType{};
 static_assert(false && "No default renderer supplied for target renderer");

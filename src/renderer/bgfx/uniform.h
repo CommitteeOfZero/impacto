@@ -124,7 +124,8 @@ class UniformsState {
       bgfx::UniformInfo info;
       bgfx::getUniformInfo({handle}, info);
 
-      const auto uniformIt = std::ranges::find(uniformNames, info.name);
+      const auto uniformIt =
+          std::ranges::find(uniformNames, std::string_view{info.name});
       assert(uniformIt != uniformNames.end() &&
              "Uniforms struct needs to share the same uniform names as "
              "the shader source code");
