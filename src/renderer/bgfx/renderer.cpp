@@ -319,7 +319,7 @@ void Renderer::EndFrame() {
   bgfx::setIndexBuffer(BackBufferIndexBuffer);
   bgfx::setVertexBuffer(0, BackBufferVertexBuffer);
 
-  SpriteShader->SubmitUniforms({}, {.Texture = DrawFrameBuffer.GetTexture()});
+  SpriteShader->SubmitUniforms({}, {.s_texture = DrawFrameBuffer.GetTexture()});
 
   bgfx::submit(DISPLAY_VIEW, *SpriteShader);
 }
@@ -497,8 +497,8 @@ void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
 
   SpriteShader->SubmitUniforms({},
                                {
-                                   .Texture = Textures[sprite.Sheet.Texture],
-                                   .ColorShift = colorShift,
+                                   .s_texture = Textures[sprite.Sheet.Texture],
+                                   .u_colorShift = colorShift,
                                });
 
   const RectF normalizedBounds = sprite.NormalizedBounds();
