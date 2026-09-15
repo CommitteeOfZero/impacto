@@ -53,8 +53,8 @@ class BaseWindow {
 
   SDL_Window* SDLWindow;
 
-  // Raw dimensions without aspect ratio correction. Only use for
-  // setting/determining resolution and drawing to window framebuffer!
+  // Raw dimensions without aspect ratio correction. Only use for drawing to
+  // window framebuffer!
   int WindowWidth = 0;
   int WindowHeight = 0;
 

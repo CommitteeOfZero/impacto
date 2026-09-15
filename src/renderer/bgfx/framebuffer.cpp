@@ -23,7 +23,8 @@ FrameBuffer::~FrameBuffer() { Reset(true); }
 FrameBuffer::FrameBuffer(const uint16_t width, const uint16_t height)
     : ColorAttachment(bgfx::createTexture2D(width, height, false, 1,
                                             bgfx::TextureFormat::RGBA8,
-                                            BGFX_TEXTURE_RT)) {
+                                            BGFX_TEXTURE_RT)),
+      Size(width, height) {
   assert(bgfx::isValid(ColorAttachment));
 
   FrameBufferHandle = bgfx::createFrameBuffer(1, &ColorAttachment, true);
