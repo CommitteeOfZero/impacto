@@ -1,6 +1,7 @@
 #pragma once
 
 #include <bgfx/bgfx.h>
+#include <glm/glm.hpp>
 
 #include <cassert>
 #include <span>
@@ -37,9 +38,13 @@ class FrameBuffer {
     return bgfx::getTexture(FrameBufferHandle, 0);
   }
 
+  [[nodiscard]] glm::ivec2 GetSize() const { return Size; }
+
  private:
   bgfx::FrameBufferHandle FrameBufferHandle = {bgfx::kInvalidHandle};
   bgfx::TextureHandle ColorAttachment = {bgfx::kInvalidHandle};
+
+  glm::ivec2 Size;
 
   void Reset(bool cleanUpResources);
 };
