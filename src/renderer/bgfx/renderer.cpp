@@ -110,11 +110,8 @@ Renderer::Renderer() {
                          glm::value_ptr(identityMatrix));
 
   constexpr uint32_t black = 0x000000ff;
+  bgfx::setViewClear(RENDER_VIEW, BGFX_CLEAR_COLOR | BGFX_CLEAR_STENCIL, black);
   bgfx::setViewClear(DISPLAY_VIEW, BGFX_CLEAR_COLOR, black);
-
-  constexpr uint32_t transparentWhite = 0xffffff00;
-  bgfx::setViewClear(RENDER_VIEW, BGFX_CLEAR_COLOR | BGFX_CLEAR_STENCIL,
-                     transparentWhite);
 
   IndexBuffer = bgfx::createDynamicIndexBuffer(static_cast<uint32_t>(0),
                                                BGFX_BUFFER_ALLOW_RESIZE);
@@ -343,6 +340,7 @@ void Renderer::EndFrame() {
   bgfx::setVertexBuffer(0, BackBufferVertexBuffer);
 
   SpriteShader->SubmitUniforms({}, {.s_texture = DrawFrameBuffer.GetTexture()});
+  bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_DEPTH_TEST_ALWAYS);
 
   bgfx::submit(DISPLAY_VIEW, *SpriteShader);
 }
@@ -414,6 +412,29 @@ void Renderer::Flush() {
   CurFrameIndexBufferOffset = Indices.size();
   CurFrameVertexBufferOffset = Vertices.size();
 
+  {
+    uint64_t stateFlags = BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A;
+
+    switch (CurrentState->BlendMode) {
+      using enum RendererBlendMode;
+      case Normal:
+        stateFlags |= BGFX_STATE_BLEND_FUNC_SEPARATE(
+            BGFX_STATE_BLEND_SRC_ALPHA, BGFX_STATE_BLEND_INV_SRC_ALPHA,
+            BGFX_STATE_BLEND_ONE, BGFX_STATE_BLEND_ONE);
+        break;
+      case Additive:
+        stateFlags |= BGFX_STATE_BLEND_FUNC_SEPARATE(
+            BGFX_STATE_BLEND_SRC_ALPHA, BGFX_STATE_BLEND_ONE,
+            BGFX_STATE_BLEND_ONE, BGFX_STATE_BLEND_ONE);
+        break;
+      case Premultiplied:
+        stateFlags |= BGFX_STATE_BLEND_NORMAL;
+        break;
+    }
+
+    bgfx::setState(stateFlags);
+  }
+
   bgfx::submit(RENDER_VIEW, CurrentState->ShaderProgram.get());
 }
 
@@ -463,10 +484,6 @@ void Renderer::InsertVertices(
 }
 
 void Renderer::SetState(const CommandBuffer& newState) {
-  uint64_t stateFlags =
-      BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A | BGFX_STATE_DEPTH_TEST_ALWAYS;
-  bool differentStateFlags = !CurrentState.has_value();
-
   if (!CurrentState.has_value() ||
       CurrentState->Transformation != newState.Transformation) {
     Flush();
@@ -481,27 +498,7 @@ void Renderer::SetState(const CommandBuffer& newState) {
   if (!CurrentState.has_value() ||
       CurrentState->BlendMode != newState.BlendMode) {
     Flush();
-    differentStateFlags = true;
   }
-  switch (newState.BlendMode) {
-    using enum RendererBlendMode;
-    case Normal:
-      stateFlags |= BGFX_STATE_BLEND_FUNC_SEPARATE(
-          BGFX_STATE_BLEND_SRC_ALPHA, BGFX_STATE_BLEND_INV_SRC_ALPHA,
-          BGFX_STATE_BLEND_ONE, BGFX_STATE_BLEND_ONE);
-      break;
-    case Additive:
-      stateFlags |= BGFX_STATE_BLEND_FUNC_SEPARATE(
-          BGFX_STATE_BLEND_SRC_ALPHA, BGFX_STATE_BLEND_ONE,
-          BGFX_STATE_BLEND_ONE, BGFX_STATE_BLEND_ONE);
-      break;
-    case Premultiplied:
-      stateFlags |= BGFX_STATE_BLEND_NORMAL;
-      break;
-  }
-
-  if (differentStateFlags) Flush();
-  bgfx::setState(stateFlags);
 
   CurrentState = newState;
 }
