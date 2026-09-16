@@ -9,9 +9,9 @@ namespace CCLCC {
 
 class SysMenuButton final : public Widgets::Button {
  public:
-  SysMenuButton(int id, Sprite const& norm, Sprite const& focused,
-                Sprite const& highlight, glm::vec2 pos, RectF buttonBounds)
-      : Widgets::Button(id, norm, focused, highlight, pos, buttonBounds),
+  SysMenuButton(int id, Sprite norm, Sprite highlight, glm::vec2 pos,
+                RectF buttonBounds)
+      : Widgets::Button(id, norm, std::nullopt, highlight, pos, buttonBounds),
         RenderPos(pos) {}
 
   void Render() override;

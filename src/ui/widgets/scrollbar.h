@@ -15,17 +15,19 @@ class Scrollbar : public Widget {
   Scrollbar(int id, glm::vec2 pos, float start, float end, float* value,
             ScrollbarDirection dir, glm::vec2 trackBounds);
   Scrollbar(int id, glm::vec2 pos, float start, float end, float* value,
-            ScrollbarDirection dir, Sprite const& thumb, glm::vec2 trackBounds,
-            float thumbLength, RectF wheelBounds = RectF(),
-            float wheelSpeedMultiplier = 1.0f);
+            ScrollbarDirection dir, std::optional<Sprite> thumb,
+            glm::vec2 trackBounds, float thumbLength,
+            RectF wheelBounds = RectF(), float wheelSpeedMultiplier = 1.0f);
   Scrollbar(int id, glm::vec2 pos, float start, float end, float* value,
-            ScrollbarDirection dir, Sprite const& track, Sprite const& thumb,
+            ScrollbarDirection dir, Sprite const& track,
+            std::optional<Sprite> thumb,
             glm::vec2 thumbOffset = glm::vec2(0.0f, 0.0f),
             float thumbLength = 0.0f, RectF wheelBounds = RectF(),
             float wheelSpeedMultiplier = 1.0f);
   Scrollbar(int id, glm::vec2 pos, float start, float end, float* value,
-            ScrollbarDirection dir, Sprite const& track, Sprite const& thumb,
-            Sprite const& fill, glm::vec2 thumbOffset = glm::vec2(0.0f, 0.0f),
+            ScrollbarDirection dir, Sprite const& track,
+            std::optional<Sprite> thumb, Sprite const& fill,
+            glm::vec2 thumbOffset = glm::vec2(0.0f, 0.0f),
             float thumbLength = 0.0f, RectF wheelBounds = RectF(),
             float wheelSpeedMultiplier = 1.0f);
   virtual void UpdateInput(float dt) override;
@@ -48,7 +50,7 @@ class Scrollbar : public Widget {
 
   int Id;
   ScrollbarDirection Direction;
-  Sprite ThumbSprite;
+  std::optional<Sprite> ThumbSprite;
   std::optional<Sprite> TrackSprite;
   std::optional<Sprite> FillSprite;
   float Length;

@@ -71,13 +71,11 @@ OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
 
   PageControls = new Group(this);
   PageControls->FocusLock = false;
-  Sprite nullSprite = Sprite();
-  nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
   auto nextPage = new Button(0, NextButtonSprite, NextButtonHighlightedSprite,
-                             nullSprite, NextButtonPosition);
+                             std::nullopt, NextButtonPosition);
   nextPage->OnClickHandler = nextPageOnClick;
   auto previousPage =
-      new Button(0, BackButtonSprite, BackButtonHighlightedSprite, nullSprite,
+      new Button(0, BackButtonSprite, BackButtonHighlightedSprite, std::nullopt,
                  BackButtonPosition);
   previousPage->OnClickHandler = previousPageOnClick;
   PageControls->Add(nextPage);
@@ -101,7 +99,7 @@ OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
   for (int i = 0; i < TextSpeedOptionsNum; i++) {
     auto toggle = new Toggle(
         i, &MessageSpeedValues[i], TextSpeedOptionsHSprites[i],
-        TextSpeedOptionsSprites[i], nullSprite, glm::vec2(0.0f), false);
+        TextSpeedOptionsSprites[i], std::nullopt, glm::vec2(0.0f), false);
     toggle->OnClickHandler = textSpeedOnClick;
     textSpeedOptions->AddOption(toggle);
   }
@@ -118,7 +116,7 @@ OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
   for (int i = 0; i < AutoModeOptionsNum; i++) {
     auto toggle = new Toggle(
         i, &AutoModeWaitTimeValues[i], AutoModeOptionsHSprites[i],
-        AutoModeOptionsSprites[i], nullSprite, glm::vec2(0.0f), false);
+        AutoModeOptionsSprites[i], std::nullopt, glm::vec2(0.0f), false);
     toggle->OnClickHandler = autoModeWaitTimeOnClick;
     autoModeOptions->AddOption(toggle);
   }
@@ -132,7 +130,7 @@ OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
                       ButtonHighlight, currentPos, OptionGroupItemsOffset);
   for (int i = 0; i < SkipModeOptionsNum; i++) {
     auto toggle = new Toggle(i, &SkipModeValues[i], SkipModeOptionsHSprites[i],
-                             SkipModeOptionsSprites[i], nullSprite,
+                             SkipModeOptionsSprites[i], std::nullopt,
                              glm::vec2(0.0f), false);
     toggle->OnClickHandler = skipModeOnClick;
     skipModeOptions->AddOption(toggle);
@@ -153,7 +151,7 @@ OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
   for (int i = 0; i < SoundModeOptionsNum; i++) {
     voiceSyncOptions->AddOption(new Toggle(
         i, &FalseValue, SoundModeOptionsHSprites[i], SoundModeOptionsSprites[i],
-        nullSprite, glm::vec2(0.0f), false));
+        std::nullopt, glm::vec2(0.0f), false));
   }
   soundPage1->Add(voiceSyncOptions, FDIR_DOWN);
   currentPos += ListPadding;
@@ -165,7 +163,7 @@ OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
   for (int i = 0; i < SoundModeOptionsNum; i++) {
     voiceSkipOptions->AddOption(new Toggle(
         i, &FalseValue, SoundModeOptionsHSprites[i], SoundModeOptionsSprites[i],
-        nullSprite, glm::vec2(0.0f), false));
+        std::nullopt, glm::vec2(0.0f), false));
   }
   soundPage1->Add(voiceSkipOptions, FDIR_DOWN);
   currentPos += ListPadding;
@@ -177,7 +175,7 @@ OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
   for (int i = 0; i < SoundModeOptionsNum; i++) {
     voiceHighlightOptions->AddOption(new Toggle(
         i, &FalseValue, SoundModeOptionsHSprites[i], SoundModeOptionsSprites[i],
-        nullSprite, glm::vec2(0.0f), false));
+        std::nullopt, glm::vec2(0.0f), false));
   }
   soundPage1->Add(voiceHighlightOptions, FDIR_DOWN);
   Pages.push_back(std::move(soundPage1));
@@ -190,11 +188,11 @@ OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
 
   // BGM volume options
   auto bgmVolumeOptions =
-      new OptionGroup(this, BgmVolumeLabel, BgmVolumeLabelH, nullSprite,
+      new OptionGroup(this, BgmVolumeLabel, BgmVolumeLabelH, std::nullopt,
                       currentPos, OptionGroupSliderOffset);
   auto bgmVolumeSlider = new Scrollbar(
       0, glm::vec2(0.0f), 0.0f, 1.0f, &Audio::GroupVolumes[Audio::ACG_BGM],
-      SBDIR_HORIZONTAL, SliderTrackSprite, nullSprite, SliderFillSprite);
+      SBDIR_HORIZONTAL, SliderTrackSprite, Sprite(), SliderFillSprite);
   bgmVolumeOptions->AddOption(bgmVolumeSlider);
   bgmVolumeSlider->FillBeforeTrack = true;
   soundPage2->Add(bgmVolumeOptions, FDIR_DOWN);
@@ -202,11 +200,11 @@ OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
 
   // Voice volume options
   auto voiceVolumeOptions =
-      new OptionGroup(this, VoiceVolumeLabel, VoiceVolumeLabelH, nullSprite,
+      new OptionGroup(this, VoiceVolumeLabel, VoiceVolumeLabelH, std::nullopt,
                       currentPos, OptionGroupSliderOffset);
   auto voiceVolumeSlider = new Scrollbar(
       0, glm::vec2(0.0f), 0.0f, 1.0f, &Audio::GroupVolumes[Audio::ACG_Voice],
-      SBDIR_HORIZONTAL, SliderTrackSprite, nullSprite, SliderFillSprite);
+      SBDIR_HORIZONTAL, SliderTrackSprite, std::nullopt, SliderFillSprite);
   voiceVolumeOptions->AddOption(voiceVolumeSlider);
   voiceVolumeSlider->FillBeforeTrack = true;
   soundPage2->Add(voiceVolumeOptions, FDIR_DOWN);
@@ -214,11 +212,11 @@ OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
 
   // SE volume options
   auto seVolumeOptions =
-      new OptionGroup(this, SeVolumeLabel, SeVolumeLabelH, nullSprite,
+      new OptionGroup(this, SeVolumeLabel, SeVolumeLabelH, std::nullopt,
                       currentPos, OptionGroupSliderOffset);
   auto seVolumeSlider = new Scrollbar(
       0, glm::vec2(0.0f), 0.0f, 1.0f, &Audio::GroupVolumes[Audio::ACG_SE],
-      SBDIR_HORIZONTAL, SliderTrackSprite, nullSprite, SliderFillSprite);
+      SBDIR_HORIZONTAL, SliderTrackSprite, std::nullopt, SliderFillSprite);
   seVolumeOptions->AddOption(seVolumeSlider);
   seVolumeSlider->FillBeforeTrack = true;
   soundPage2->Add(seVolumeOptions, FDIR_DOWN);
@@ -227,17 +225,17 @@ OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
   // SYSSE volume options
   auto systemSeVolumeOptions =
       new OptionGroup(this, SystemSeVolumeLabel, SystemSeVolumeLabelH,
-                      nullSprite, currentPos, OptionGroupSliderOffset);
+                      std::nullopt, currentPos, OptionGroupSliderOffset);
   auto systemSeVolumeSlider = new Scrollbar(
       0, glm::vec2(0.0f), 0.0f, 1.0f, &Audio::GroupVolumes[Audio::ACG_SE],
-      SBDIR_HORIZONTAL, SliderTrackSprite, nullSprite, SliderFillSprite);
+      SBDIR_HORIZONTAL, SliderTrackSprite, std::nullopt, SliderFillSprite);
   systemSeVolumeOptions->AddOption(systemSeVolumeSlider);
   systemSeVolumeSlider->FillBeforeTrack = true;
   soundPage2->Add(systemSeVolumeOptions, FDIR_DOWN);
   currentPos += ListPadding;
   auto characterVoiceButton =
       new Button(0, CharacterVoiceVolumeLabel, CharacterVoiceVolumeLabelH,
-                 nullSprite, currentPos);
+                 std::nullopt, currentPos);
   soundPage2->Add(characterVoiceButton, FDIR_DOWN);
   Pages.push_back(std::move(soundPage2));
   currentPos = ListStartingPosition;
@@ -254,7 +252,7 @@ OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
   for (int i = 0; i < QuickSaveOptionsNum; i++) {
     quickSaveOptions->AddOption(new Toggle(
         i, &FalseValue, QuickSaveOptionsHSprites[i], QuickSaveOptionsSprites[i],
-        nullSprite, glm::vec2(0.0f), false));
+        std::nullopt, glm::vec2(0.0f), false));
   }
   otherPage->Add(quickSaveOptions, FDIR_DOWN);
   Pages.push_back(std::move(otherPage));

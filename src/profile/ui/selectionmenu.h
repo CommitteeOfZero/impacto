@@ -16,8 +16,8 @@ inline Sprite PlainSelectionFrameRightSide;
 inline Sprite PlainSelectionFrameBottomRight;
 inline Sprite PlainSelectionFrameBottomSide;
 inline Sprite PlainSelectionFrameMiddle;
-inline Sprite SelectionHighlight;
-inline Sprite SelectionFocused;
+inline std::optional<Sprite> SelectionHighlight;
+inline std::optional<Sprite> SelectionFocused;
 
 inline int SelectionMaxCount;
 inline float SelectionBackgroundX;

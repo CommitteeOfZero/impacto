@@ -18,15 +18,15 @@ ActorsVoiceButton::ActorsVoiceButton(int id, Sprite const& norm,
   LockedSprite = locked;
   LockedHighlightSprite = lockedHighlight;
   Enabled = true;
-  Bounds = RectF(pos.x, pos.y, NormalSprite.ScaledWidth(),
-                 NormalSprite.ScaledHeight());
+  Bounds = RectF(pos.x, pos.y, NormalSprite->ScaledWidth(),
+                 NormalSprite->ScaledHeight());
 }
 
 void ActorsVoiceButton::Render() {
   if (IsLocked) {
-    Renderer->DrawSprite(LockedSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
+    Renderer->DrawSprite(*LockedSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
   } else {
-    Renderer->DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
+    Renderer->DrawSprite(*NormalSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
   }
   if (HasFocus) {
     if (IsLocked) {
@@ -34,7 +34,7 @@ void ActorsVoiceButton::Render() {
                            Tint);
 
     } else {
-      Renderer->DrawSprite(HighlightSprite, glm::vec2(Bounds.X, Bounds.Y),
+      Renderer->DrawSprite(*HighlightSprite, glm::vec2(Bounds.X, Bounds.Y),
                            Tint);
     }
   }

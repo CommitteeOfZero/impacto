@@ -9,9 +9,8 @@ namespace MO6TW {
 
 class SaveEntryButton : public Widgets::Button {
  public:
-  SaveEntryButton(int id, Sprite const& norm, Sprite const& focused,
-                  Sprite const& highlight, glm::vec2 pos)
-      : Widgets::Button(id, norm, focused, highlight, pos) {}
+  SaveEntryButton(int id, Sprite norm, Sprite focused, glm::vec2 pos)
+      : Widgets::Button(id, norm, focused, std::nullopt, pos) {}
   void Render() override;
   void AddPlayTimeHintText(Vm::BufferOffsetContext strAdr, float fontSize,
                            bool outline);

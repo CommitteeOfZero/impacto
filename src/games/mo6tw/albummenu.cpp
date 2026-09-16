@@ -104,16 +104,13 @@ AlbumMenu::AlbumMenu() {
 
   Arrows = new Group(this);
   Arrows->FocusLock = false;
-  Sprite nullSprite = Sprite();
-  nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
-  ArrowUpButton = new Button(0, ArrowUp, ArrowUp, nullSprite, ArrowUpPosition);
-  ArrowUpButton->DisabledSprite = nullSprite;
+  ArrowUpButton =
+      new Button(0, ArrowUp, ArrowUp, std::nullopt, ArrowUpPosition);
   ArrowUpButton->OnClickHandler = [this](auto* btn) {
     return ArrowUpOnClick(btn);
   };
   ArrowDownButton =
-      new Button(1, ArrowDown, ArrowDown, nullSprite, ArrowDownPosition);
-  ArrowDownButton->DisabledSprite = nullSprite;
+      new Button(1, ArrowDown, ArrowDown, std::nullopt, ArrowDownPosition);
   ArrowDownButton->OnClickHandler = [this](auto* btn) {
     return ArrowDownOnClick(btn);
   };

@@ -19,8 +19,8 @@ AlbumCharacterButton::AlbumCharacterButton(int id, Sprite const& norm,
   LockedSprite = locked;
   LockedHighlightSprite = lockedHighlight;
   Enabled = true;
-  Bounds = RectF(pos.x, pos.y, NormalSprite.ScaledWidth(),
-                 NormalSprite.ScaledHeight());
+  Bounds = RectF(pos.x, pos.y, NormalSprite->ScaledWidth(),
+                 NormalSprite->ScaledHeight());
 
   HighlightAnimation.Direction = AnimationDirection::In;
   HighlightAnimation.LoopMode = AnimationLoopMode::ReverseDirection;
@@ -35,9 +35,9 @@ void AlbumCharacterButton::Update(float dt) {
 
 void AlbumCharacterButton::Render() {
   if (IsLocked) {
-    Renderer->DrawSprite(LockedSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
+    Renderer->DrawSprite(*LockedSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
   } else {
-    Renderer->DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
+    Renderer->DrawSprite(*NormalSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
   }
 
   glm::vec4 col = Tint;
@@ -47,7 +47,8 @@ void AlbumCharacterButton::Render() {
       Renderer->DrawSprite(LockedHighlightSprite, glm::vec2(Bounds.X, Bounds.Y),
                            col);
     } else {
-      Renderer->DrawSprite(HighlightSprite, glm::vec2(Bounds.X, Bounds.Y), col);
+      Renderer->DrawSprite(*HighlightSprite, glm::vec2(Bounds.X, Bounds.Y),
+                           col);
     }
   }
 }
