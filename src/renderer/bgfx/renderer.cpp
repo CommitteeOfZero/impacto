@@ -141,7 +141,9 @@ Renderer::Renderer() {
   }
 
   const auto flush = [this]() { Flush(); };
+  NV12FrameShader.emplace(vs_sprite_shader, fs_nv12frame_shader, flush);
   SpriteShader.emplace(vs_sprite_shader, fs_sprite_shader, flush);
+  YUVFrameShader.emplace(vs_sprite_shader, fs_yuvframe_shader, flush);
 
   RectSprite = Sprite(SpriteSheet(1.0f, 1.0f), 0.0f, 0.0f, 1.0f, 1.0f);
   RectSprite.Sheet.Texture =
@@ -397,6 +399,20 @@ void Renderer::FreeTexture(const uint32_t id) {
   Textures.erase(id);
 }
 
+Impacto::YUVFrame* Renderer::CreateYUVFrame(const float width,
+                                            const float height) {
+  YUVFrame* const frame = new YUVFrame();
+  frame->Init(width, height);
+  return static_cast<Impacto::YUVFrame*>(frame);
+}
+
+Impacto::NV12Frame* Renderer::CreateNV12Frame(const float width,
+                                              const float height) {
+  NV12Frame* const frame = new NV12Frame();
+  frame->Init(width, height);
+  return static_cast<Impacto::NV12Frame*>(frame);
+}
+
 void Renderer::Shutdown() {
   if (bgfx::isValid(IndexBuffer)) bgfx::destroy(IndexBuffer);
   IndexBuffer.idx = bgfx::kInvalidHandle;
@@ -580,6 +596,39 @@ void Renderer::DrawPrimitives(
   });
 
   InsertVertices(indices, vertices, ShouldFlip(sheet));
+}
+
+void Renderer::DrawVideoTexture(const Impacto::YUVFrame& frame,
+                                const RectF& dest, const glm::vec4 tint,
+                                const bool alphaVideo) {
+  SetState({
+      .ShaderProgram = *YUVFrameShader,
+  });
+
+  YUVFrameShader->SubmitUniforms({}, {
+                                         .s_luma = *Textures[frame.LumaId],
+                                         .s_cb = *Textures[frame.CbId],
+                                         .s_cr = *Textures[frame.CrId],
+                                         .u_isAlpha = alphaVideo,
+                                     });
+
+  InsertQuad(dest, RectF(0.0f, 0.0f, 1.0f, 1.0f), tint, false);
+}
+
+void Renderer::DrawVideoTexture(const Impacto::NV12Frame& frame,
+                                const RectF& dest, const glm::vec4 tint,
+                                const bool alphaVideo) {
+  SetState({
+      .ShaderProgram = *NV12FrameShader,
+  });
+
+  NV12FrameShader->SubmitUniforms({}, {
+                                          .s_luma = *Textures[frame.LumaId],
+                                          .s_cbCr = *Textures[frame.CbCrId],
+                                          .u_isAlpha = alphaVideo,
+                                      });
+
+  InsertQuad(dest, RectF(0.0f, 0.0f, 1.0f, 1.0f), tint, false);
 }
 
 void Renderer::InsertQuad(const CornersQuad dest, const CornersQuad uvs,
