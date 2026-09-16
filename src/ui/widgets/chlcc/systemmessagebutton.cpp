@@ -7,22 +7,19 @@ namespace UI {
 namespace Widgets {
 namespace CHLCC {
 
-SystemMessageButton::SystemMessageButton(int id, Sprite const& norm,
-                                         Sprite const& focused,
-                                         Sprite const& highlightLeft,
-                                         Sprite const& highlightMiddle,
-                                         Sprite const& highlightRight,
-                                         glm::vec2 pos, RectF hoverBounds)
-    : Button(id, norm, focused, highlightMiddle, pos, hoverBounds) {
-  LeftHighlightSprite = highlightLeft;
-  RightHighlightSprite = highlightRight;
-}
+SystemMessageButton::SystemMessageButton(int id, Sprite highlightLeft,
+                                         Sprite highlightMiddle,
+                                         Sprite highlightRight, glm::vec2 pos,
+                                         RectF hoverBounds)
+    : Button(id, std::nullopt, std::nullopt, highlightMiddle, pos, hoverBounds),
+      LeftHighlightSprite(highlightLeft),
+      RightHighlightSprite(highlightRight) {}
 
 void SystemMessageButton::Render() {
   if (HasFocus) {
     const RectF middleDest =
-        HighlightSprite.ScaledBounds()
-            .Scale({Bounds.Width / HighlightSprite.ScaledWidth(), 1.0f},
+        HighlightSprite->ScaledBounds()
+            .Scale({Bounds.Width / HighlightSprite->ScaledWidth(), 1.0f},
                    {0.0f, 0.0f})
             .Translate(Bounds.GetPos());
     const RectF leftDest =
@@ -32,7 +29,7 @@ void SystemMessageButton::Render() {
         RightHighlightSprite.ScaledBounds().Translate(RightHighlightPos);
 
     Renderer->DrawSprite(LeftHighlightSprite, leftDest, Tint);
-    Renderer->DrawSprite(HighlightSprite, middleDest, Tint);
+    Renderer->DrawSprite(*HighlightSprite, middleDest, Tint);
     Renderer->DrawSprite(RightHighlightSprite, rightDest, Tint);
   }
 

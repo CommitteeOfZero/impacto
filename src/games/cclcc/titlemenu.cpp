@@ -165,9 +165,6 @@ TitleMenu::TitleMenu() {
   ExtraItems = new Widgets::Group(this);
   ExtraItems->WrapFocus = false;
 
-  Sprite nullSprite = Sprite();
-  nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
-
   MenuLabel = new Widgets::Label(MenuSprite, MenuPos);
 
   auto onClick = [this](Widgets::Button* target) {
@@ -244,36 +241,36 @@ TitleMenu::TitleMenu() {
   }
 
   // Load secondary Continue menu button
-  Load =
-      new TitleButton(LoadButtonId, LoadSprite, LoadHighlightSprite, nullSprite,
-                      glm::vec2(SecondaryFirstItemHighlightOffsetX,
-                                (ItemYBase + (2 * ItemPadding))));
+  Load = new TitleButton(LoadButtonId, LoadSprite, LoadHighlightSprite,
+                         std::nullopt,
+                         glm::vec2(SecondaryFirstItemHighlightOffsetX,
+                                   (ItemYBase + (2 * ItemPadding))));
   setupBtn(Load, onClick, ContinueItems, FDIR_RIGHT);
 
   // QuickLoad secondary Continue menu button
   QuickLoad = new TitleButton(QLoadButtonId, QuickLoadSprite,
-                              QuickLoadHighlightSprite, nullSprite,
+                              QuickLoadHighlightSprite, std::nullopt,
                               glm::vec2(SecondarySecondItemHighlightOffsetX,
                                         (ItemYBase + (2 * ItemPadding))));
   setupBtn(QuickLoad, onClick, ContinueItems, FDIR_RIGHT);
 
   // Tips secondary Extra menu button
-  Tips =
-      new TitleButton(TipsButtonId, TipsSprite, TipsHighlightSprite, nullSprite,
-                      glm::vec2(SecondaryFirstItemHighlightOffsetX,
-                                (ItemYBase + (3 * ItemPadding))));
+  Tips = new TitleButton(TipsButtonId, TipsSprite, TipsHighlightSprite,
+                         std::nullopt,
+                         glm::vec2(SecondaryFirstItemHighlightOffsetX,
+                                   (ItemYBase + (3 * ItemPadding))));
   setupBtn(Tips, onClick, ExtraItems, FDIR_RIGHT);
 
   // Library secondary Extra menu button
   Library = new TitleButton(LibraryButtonId, LibrarySprite,
-                            LibraryHighlightSprite, nullSprite,
+                            LibraryHighlightSprite, std::nullopt,
                             glm::vec2(SecondarySecondItemHighlightOffsetX,
                                       (ItemYBase + (3 * ItemPadding))));
   setupBtn(Library, onClick, ExtraItems, FDIR_RIGHT);
 
   // EndingList secondary Extra menu button
   EndingList = new TitleButton(EndingListButtonId, EndingListSprite,
-                               EndingListHighlightSprite, nullSprite,
+                               EndingListHighlightSprite, std::nullopt,
                                glm::vec2(SecondaryThirdItemHighlightOffsetX,
                                          (ItemYBase + (3 * ItemPadding))));
   setupBtn(EndingList, onClick, ExtraItems, FDIR_RIGHT);

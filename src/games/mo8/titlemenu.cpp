@@ -58,9 +58,6 @@ TitleMenu::TitleMenu() {
   };
   auto galleryOnClick = [this](auto* btn) { return GalleryButtonOnClick(btn); };
 
-  Sprite nullSprite = Sprite();
-  nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
-
   // New Game menu button
   NewGame = new Button(0, MenuEntriesSprites[NewGameSpriteIndex],
                        MenuEntriesHSprites[NewGameSpriteIndex],

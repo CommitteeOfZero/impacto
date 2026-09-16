@@ -41,7 +41,6 @@ class MusicMenu : public Menu {
   Widgets::Label* CurrentlyPlaying;
   Widgets::Label* PlaybackModeLabel;
   Animation FadeAnimation;
-  Sprite NullSprite;
 
   float MusicListY;
   MusicPlaybackMode PlaybackMode = MPM_One;

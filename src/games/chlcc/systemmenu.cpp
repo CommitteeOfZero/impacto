@@ -57,7 +57,7 @@ SystemMenu::SystemMenu() : CommonMenu(false) {
   for (int i = 0; i < MenuEntriesNum; i++) {
     SystemMenuEntryButton* menuButton = new SystemMenuEntryButton(
         i, MenuEntriesSprites[i], MenuEntriesSprites[i],
-        RgbIntToFloat(FocusTint), Sprite(), MenuEntriesPositions[i],
+        RgbIntToFloat(FocusTint), MenuEntriesPositions[i],
         RectF(
             MenuEntriesPositions[i].x - 30,
             (i + 1) * MenuSelectionDotMultiplier + MenuSelectionPosition.y - 14,
