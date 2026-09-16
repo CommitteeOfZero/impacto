@@ -10,17 +10,14 @@ namespace MO6TW {
 
 class ImageThumbnailButton : public Widgets::Button {
  public:
-  ImageThumbnailButton(int id, Sprite const& norm, Sprite const& disabled,
-                       Sprite const& focusedTopLeft,
-                       Sprite const& focusedTopRight,
-                       Sprite const& focusedBottomLeft,
-                       Sprite const& focusedBottomRight, glm::vec2 pos);
-  ImageThumbnailButton(int id, Sprite const& normTopPart,
-                       Sprite const& normBottomPart, Sprite const& disabled,
-                       Sprite const& focusedTopLeft,
-                       Sprite const& focusedTopRight,
-                       Sprite const& focusedBottomLeft,
-                       Sprite const& focusedBottomRight, glm::vec2 pos);
+  ImageThumbnailButton(int id, Sprite norm, std::optional<Sprite> disabled,
+                       Sprite focusedTopLeft, Sprite focusedTopRight,
+                       Sprite focusedBottomLeft, Sprite focusedBottomRight,
+                       glm::vec2 pos);
+  ImageThumbnailButton(int id, Sprite normTopPart, Sprite normBottomPart,
+                       std::optional<Sprite> disabled, Sprite focusedTopLeft,
+                       Sprite focusedTopRight, Sprite focusedBottomLeft,
+                       Sprite focusedBottomRight, glm::vec2 pos);
   void Update(float dt) override;
   void Render() override;
 

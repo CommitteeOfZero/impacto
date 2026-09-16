@@ -45,17 +45,17 @@ SaveEntryButton::SaveEntryButton(int id, Sprite const& focusedBox,
 }
 
 void SaveEntryButton::Render() {
-  const glm::vec2 scale = {Bounds.Width / HighlightSprite.ScaledWidth(), 1.0f};
+  const glm::vec2 scale = {Bounds.Width / HighlightSprite->ScaledWidth(), 1.0f};
 
   if (HasFocus) {
     FocusedSpriteLabel.Tint = Tint;
     FocusedSpriteLabel.Render();
 
     const RectF highlightDest =
-        HighlightSprite.ScaledBounds()
+        HighlightSprite->ScaledBounds()
             .Scale(scale, {0.0f, 0.0f})
             .Translate(Bounds.GetPos() + HighlightOffset);
-    Renderer->DrawSprite(HighlightSprite, highlightDest, Tint);
+    Renderer->DrawSprite(*HighlightSprite, highlightDest, Tint);
   }
 
   const RectF numberDigitDest =

@@ -32,12 +32,9 @@ SystemMenu::SystemMenu() {
 
   auto onClick = [this](auto* btn) { return MenuButtonOnClick(btn); };
 
-  Sprite nullSprite = Sprite();
-  nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
-
   for (int i = 0; i < MenuEntriesNum; i++) {
     SysMenuButton* menuButton = new SysMenuButton(
-        i, MenuEntriesSprites[i], nullSprite, MenuEntriesHSprites[i],
+        i, MenuEntriesSprites[i], MenuEntriesHSprites[i],
         glm::vec2(*MenuEntriesX,
                   *MenuEntriesFirstY + (*MenuEntriesYPadding * i)));
 
@@ -139,7 +136,7 @@ void SystemMenu::Update(float dt) {
     item->Tint.a = glm::smoothstep(
         0.0f, 1.0f, 1.0f - (idx + 1) * (1.0f - EntriesMoveAnimation.Progress));
     Button* button = (Button*)item;
-    button->HighlightSprite.Bounds.Width =
+    button->HighlightSprite->Bounds.Width =
         MenuEntriesTargetWidth * HighlightAnimation.Progress;
     idx++;
   }

@@ -14,17 +14,20 @@ void TitleButton::Render() {
   white.a = Tint.a;
 
   if (HasFocus && Enabled) {
-    Renderer->DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y + 1.0f),
+    Renderer->DrawSprite(*FocusedSprite, glm::vec2(Bounds.X, Bounds.Y + 1.0f),
                          black);
-    Renderer->DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y), white);
+    Renderer->DrawSprite(*FocusedSprite, glm::vec2(Bounds.X, Bounds.Y), white);
   } else if (Enabled) {
-    Renderer->DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y + 1.0f),
+    Renderer->DrawSprite(*NormalSprite, glm::vec2(Bounds.X, Bounds.Y + 1.0f),
                          black);
-    Renderer->DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y), white);
+    Renderer->DrawSprite(*NormalSprite, glm::vec2(Bounds.X, Bounds.Y), white);
   } else {
-    Renderer->DrawSprite(DisabledSprite, glm::vec2(Bounds.X, Bounds.Y + 1.0f),
-                         black);
-    Renderer->DrawSprite(DisabledSprite, glm::vec2(Bounds.X, Bounds.Y), white);
+    if (DisabledSprite.has_value()) {
+      Renderer->DrawSprite(*DisabledSprite,
+                           glm::vec2(Bounds.X, Bounds.Y + 1.0f), black);
+      Renderer->DrawSprite(*DisabledSprite, glm::vec2(Bounds.X, Bounds.Y),
+                           white);
+    }
   }
 }
 

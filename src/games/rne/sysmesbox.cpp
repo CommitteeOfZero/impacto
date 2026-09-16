@@ -29,9 +29,6 @@ void SysMesBox::Show() {
   MessageItems = std::make_unique<Widgets::Group>(this);
   ChoiceItems = std::make_unique<Widgets::Group>(this);
 
-  Sprite nullSprite = Sprite();
-  nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
-
   auto onClick = [this](auto* btn) { return ChoiceItemOnClick(btn); };
 
   float textBeginY = TextMiddleY - (TextMarginY * (4 + MessageCount));
@@ -44,17 +41,17 @@ void SysMesBox::Show() {
   }
 
   if (ChoiceCount == 1) {
-    WidgetOK = new Button(0, ButtonOK, ButtonOKHighlighted, nullSprite,
+    WidgetOK = new Button(0, ButtonOK, ButtonOKHighlighted, std::nullopt,
                           glm::vec2(ButtonRightX, 0.0f));
     WidgetOK->OnClickHandler = onClick;
     ChoiceItems->Add(WidgetOK, FDIR_RIGHT);
 
   } else if (ChoiceCount == 2) {
-    WidgetYes = new Button(0, ButtonYes, ButtonYesHighlighted, nullSprite,
+    WidgetYes = new Button(0, ButtonYes, ButtonYesHighlighted, std::nullopt,
                            glm::vec2(ButtonYesX, 0.0f));
     WidgetYes->OnClickHandler = onClick;
     ChoiceItems->Add(WidgetYes, FDIR_RIGHT);
-    WidgetNo = new Button(1, ButtonNo, ButtonNoHighlighted, nullSprite,
+    WidgetNo = new Button(1, ButtonNo, ButtonNoHighlighted, std::nullopt,
                           glm::vec2(ButtonRightX, 0.0f));
     WidgetNo->OnClickHandler = onClick;
     ChoiceItems->Add(WidgetNo, FDIR_LEFT);
@@ -157,12 +154,13 @@ void SysMesBox::Update(float dt) {
       float buttonYesSpriteWidth = ButtonYWidthBase + labelButtonSpriteOffsetX;
       if (buttonYesSpriteWidth > ButtonWidth)
         buttonYesSpriteWidth = ButtonWidth;
-      WidgetYes->NormalSprite.Bounds = RectF(
-          WidgetYes->NormalSprite.Bounds.X, WidgetYes->NormalSprite.Bounds.Y,
-          buttonYesSpriteWidth, WidgetYes->NormalSprite.Bounds.Height);
-      WidgetYes->FocusedSprite.Bounds = RectF(
-          WidgetYes->FocusedSprite.Bounds.X, WidgetYes->FocusedSprite.Bounds.Y,
-          buttonYesSpriteWidth, WidgetYes->FocusedSprite.Bounds.Height);
+      WidgetYes->NormalSprite->Bounds = RectF(
+          WidgetYes->NormalSprite->Bounds.X, WidgetYes->NormalSprite->Bounds.Y,
+          buttonYesSpriteWidth, WidgetYes->NormalSprite->Bounds.Height);
+      WidgetYes->FocusedSprite->Bounds =
+          RectF(WidgetYes->FocusedSprite->Bounds.X,
+                WidgetYes->FocusedSprite->Bounds.Y, buttonYesSpriteWidth,
+                WidgetYes->FocusedSprite->Bounds.Height);
       ButtonYesX = ButtonYesDisplayXBase - labelButtonSpriteOffsetX;
       WidgetYes->MoveTo(glm::vec2(ButtonYesX, BoxBottomY - ButtonYOffset));
     }
@@ -173,21 +171,23 @@ void SysMesBox::Update(float dt) {
       if (buttonRightSpriteWidth > ButtonWidth)
         buttonRightSpriteWidth = ButtonWidth;
       if (WidgetNo) {
-        WidgetNo->NormalSprite.Bounds = RectF(
-            WidgetNo->NormalSprite.Bounds.X, WidgetNo->NormalSprite.Bounds.Y,
-            buttonRightSpriteWidth, WidgetNo->NormalSprite.Bounds.Height);
-        WidgetNo->FocusedSprite.Bounds = RectF(
-            WidgetNo->FocusedSprite.Bounds.X, WidgetNo->FocusedSprite.Bounds.Y,
-            buttonRightSpriteWidth, WidgetNo->FocusedSprite.Bounds.Height);
+        WidgetNo->NormalSprite->Bounds = RectF(
+            WidgetNo->NormalSprite->Bounds.X, WidgetNo->NormalSprite->Bounds.Y,
+            buttonRightSpriteWidth, WidgetNo->NormalSprite->Bounds.Height);
+        WidgetNo->FocusedSprite->Bounds =
+            RectF(WidgetNo->FocusedSprite->Bounds.X,
+                  WidgetNo->FocusedSprite->Bounds.Y, buttonRightSpriteWidth,
+                  WidgetNo->FocusedSprite->Bounds.Height);
         WidgetNo->MoveTo(glm::vec2(ButtonRightX, BoxBottomY - ButtonYOffset));
       }
       if (WidgetOK) {
-        WidgetOK->NormalSprite.Bounds = RectF(
-            WidgetOK->NormalSprite.Bounds.X, WidgetOK->NormalSprite.Bounds.Y,
-            buttonRightSpriteWidth, WidgetOK->NormalSprite.Bounds.Height);
-        WidgetOK->FocusedSprite.Bounds = RectF(
-            WidgetOK->FocusedSprite.Bounds.X, WidgetOK->FocusedSprite.Bounds.Y,
-            buttonRightSpriteWidth, WidgetOK->FocusedSprite.Bounds.Height);
+        WidgetOK->NormalSprite->Bounds = RectF(
+            WidgetOK->NormalSprite->Bounds.X, WidgetOK->NormalSprite->Bounds.Y,
+            buttonRightSpriteWidth, WidgetOK->NormalSprite->Bounds.Height);
+        WidgetOK->FocusedSprite->Bounds =
+            RectF(WidgetOK->FocusedSprite->Bounds.X,
+                  WidgetOK->FocusedSprite->Bounds.Y, buttonRightSpriteWidth,
+                  WidgetOK->FocusedSprite->Bounds.Height);
         WidgetOK->MoveTo(glm::vec2(ButtonRightX, BoxBottomY - ButtonYOffset));
       }
     }
