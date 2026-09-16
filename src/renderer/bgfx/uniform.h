@@ -6,13 +6,24 @@
 #include <set>
 
 #include "../renderer.h"
-
-inline bool operator!=(const bgfx::TextureHandle& lhs,
-                       const bgfx::TextureHandle& rhs) {
-  return lhs.idx != rhs.idx;
-}
+#include "texture.h"
 
 namespace Impacto::Bgfx {
+
+template <uint8_t stage>
+struct SamplerUniform {
+  SamplerUniform() = default;
+  SamplerUniform(bgfx::TextureHandle handle) : Handle(handle) {}
+  SamplerUniform(Texture& texture) : Handle(texture.GetTextureHandle()) {}
+
+  bgfx::TextureHandle Handle = {bgfx::kInvalidHandle};
+
+  bool operator==(const SamplerUniform<stage>& other) const {
+    return Handle.idx == other.Handle.idx;
+  }
+
+  constexpr uint8_t GetStage() { return stage; }
+};
 
 template <typename T>
 constexpr bgfx::UniformType::Enum GetUniformType();
@@ -26,15 +37,24 @@ constexpr bgfx::UniformType::Enum GetUniformType() {
 }
 
 template <>
-constexpr bgfx::UniformType::Enum GetUniformType<bgfx::TextureHandle>() {
-  return bgfx::UniformType::Sampler;
+constexpr bgfx::UniformType::Enum GetUniformType<float>() {
+  return bgfx::UniformType::Vec4;
+}
+
+template <>
+constexpr bgfx::UniformType::Enum GetUniformType<bool>() {
+  return bgfx::UniformType::Vec4;
 }
 
 template <typename T>
-void SetUniform(bgfx::UniformHandle handle, const T& value);
+  requires requires(T sampler) {
+    { SamplerUniform(sampler) } -> std::same_as<T>;
+  }
+constexpr bgfx::UniformType::Enum GetUniformType() {
+  return bgfx::UniformType::Sampler;
+}
 
-template <>
-inline void SetUniform(bgfx::UniformHandle handle, const glm::vec4& value) {
+inline void SetUniform(bgfx::UniformHandle handle, glm::vec4 value) {
   static_assert(GetUniformType<std::decay_t<decltype(value)>>() ==
                 bgfx::UniformType::Vec4);
 
@@ -52,18 +72,21 @@ inline void SetUniform(bgfx::UniformHandle handle, const T& value) {
   bgfx::setUniform(handle, glm::value_ptr(vec4), 1);
 }
 
-template <>
-inline void SetUniform(bgfx::UniformHandle handle, const float& value) {
+inline void SetUniform(bgfx::UniformHandle handle, float value) {
   SetUniform(handle, glm::vec1(value));
 }
 
-template <>
+inline void SetUniform(bgfx::UniformHandle handle, bool value) {
+  SetUniform(handle, value ? 1.0f : 0.0f);
+}
+
+template <uint8_t stage>
 inline void SetUniform(bgfx::UniformHandle handle,
-                       const bgfx::TextureHandle& value) {
+                       SamplerUniform<stage> value) {
   static_assert(GetUniformType<std::decay_t<decltype(value)>>() ==
                 bgfx::UniformType::Sampler);
 
-  bgfx::setTexture(0, handle, value);
+  bgfx::setTexture(stage, handle, value.Handle);
 }
 
 enum class VertexShaderType {
