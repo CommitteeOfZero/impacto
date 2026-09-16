@@ -200,3 +200,25 @@
  /*
  ** -----------------------------------------------------------------------------
  ** Determine target CPU
+--- a/bimg/3rdparty/astc-encoder/source/astcenc_internal.h
++++ b/bimg/3rdparty/astc-encoder/source/astcenc_internal.h
+@@ -30,6 +30,7 @@
+ #endif
+ #include <cstdlib>
+ #include <limits>
++#include <malloc.h>
+ 
+ #include "astcenc.h"
+ #include "astcenc_mathlib.h"
+@@ -2197,8 +2197,10 @@
+ 
+ #if defined(_WIN32)
+        ptr = _aligned_malloc(size, real_align);
++#elif defined(HAVE_POSIX_MEMALIGN)
++  error = posix_memalign(&ptr, real_align, size);
+ #else
+-       error = posix_memalign(&ptr, real_align, size);
++  ptr = memalign(real_align, size);
+ #endif
+ 
+        if (error || (!ptr))

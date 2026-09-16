@@ -19,6 +19,7 @@ the same `find_package(... CONFIG)` interface and imported targets on every plat
   (e.g. `/opt/devkitpro`).
 * A **vcpkg** checkout, with the `VCPKG_ROOT` environment variable pointing at it.
 * **CMake** ≥ 3.31 and **Ninja**.
+* Additional host dependencies may be needed, see [`Switch Dockerfile`](../docker/impacto-switch/Dockerfile) for an always up-to-date version
 
 ## Building
 
