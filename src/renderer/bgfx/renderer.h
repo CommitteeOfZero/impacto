@@ -139,6 +139,15 @@ class Renderer final : public BaseRenderer {
                       std::span<const VertexBufferSprites> vertices,
                       bool flipVertically);
 
+  void InsertQuad(CornersQuad dest, CornersQuad uvs,
+                  std::span<const glm::vec4, 4> tints, bool flipVertically,
+                  CornersQuad maskUvs = RectF{});
+  void InsertQuad(CornersQuad dest, CornersQuad uvs, glm::vec4 tint,
+                  bool flipVertically, CornersQuad maskUvs = RectF{}) {
+    InsertQuad(dest, uvs, std::array<glm::vec4, 4>{tint, tint, tint, tint},
+               flipVertically, maskUvs);
+  }
+
   // Only call bgfx::shutdown after all managed objects in this class have been
   // default-destructed
   struct BgfxHandleStruct {
@@ -174,6 +183,10 @@ class Renderer final : public BaseRenderer {
   std::optional<
       ShaderProgram<VertexShaderType::Sprite, FragmentShaderType::Sprite>>
       SpriteShader;
+
+  std::map<uint32_t, std::unique_ptr<Texture>> Textures;
+  decltype(Textures)::iterator DeclareTexture(
+      std::unique_ptr<Texture>&& texture);
 
   std::map<uint32_t, Texture> Textures;
 };

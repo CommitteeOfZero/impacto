@@ -365,14 +365,31 @@ void Renderer::ImGuiBeginFrame() {
 uint32_t Renderer::SubmitTexture(const TexFmt format,
                                  const std::span<const uint8_t> buffer,
                                  const int width, const int height) {
+  const bgfx::TextureFormat::Enum bgfxFormat = [format]() {
+    switch (format) {
+      case TexFmt::TexFmt_U8:
+        return bgfx::TextureFormat::R8;
+      case TexFmt::TexFmt_RGB:
+        return bgfx::TextureFormat::RGB8;
+      case TexFmt::TexFmt_RGBA:
+        return bgfx::TextureFormat::RGBA8;
+    }
+    Panic(LogChannel::Render, "Unexpected texture format \"{:s}\"",
+          magic_enum::enum_name(format));
+  }();
+
+  return DeclareTexture(std::make_unique<Texture>(bgfxFormat, buffer,
+                                                  static_cast<size_t>(width),
+                                                  static_cast<size_t>(height)))
+      ->first;
+}
+
+decltype(Renderer::Textures)::iterator Renderer::DeclareTexture(
+    std::unique_ptr<Texture>&& texture) {
   static uint32_t curTextureId = 1;
   const uint32_t textureId = curTextureId++;
 
-  Textures.emplace(textureId,
-                   Texture(format, buffer, static_cast<size_t>(width),
-                           static_cast<size_t>(height)));
-
-  return textureId;
+  return Textures.emplace(textureId, std::move(texture)).first;
 }
 
 void Renderer::FreeTexture(const uint32_t id) {
@@ -528,37 +545,11 @@ void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
 
   SpriteShader->SubmitUniforms({},
                                {
-                                   .s_texture = Textures[sprite.Sheet.Texture],
+                                   .s_texture = *Textures[sprite.Sheet.Texture],
                                    .u_colorShift = colorShift,
                                });
 
-  const RectF normalizedBounds = sprite.NormalizedBounds();
-
-  constexpr static std::array<uint16_t, 6> indices = {0, 1, 3, 1, 2, 3};
-  const std::array<VertexBufferSprites, 4> vertices = {
-      VertexBufferSprites{
-          .Position = dest.TopLeft,
-          .UV = normalizedBounds.TopLeft(),
-          .Tint = tints[0],
-      },
-      VertexBufferSprites{
-          .Position = dest.BottomLeft,
-          .UV = normalizedBounds.BottomLeft(),
-          .Tint = tints[1],
-      },
-      VertexBufferSprites{
-          .Position = dest.BottomRight,
-          .UV = normalizedBounds.BottomRight(),
-          .Tint = tints[2],
-      },
-      VertexBufferSprites{
-          .Position = dest.TopRight,
-          .UV = normalizedBounds.TopRight(),
-          .Tint = tints[3],
-      },
-  };
-
-  InsertVertices(indices, vertices, ShouldFlip(sprite));
+  InsertQuad(dest, sprite.NormalizedBounds(), tints, ShouldFlip(sprite));
 }
 
 void Renderer::DrawPrimitives(
@@ -573,7 +564,7 @@ void Renderer::DrawPrimitives(
     switch (shaderType) {
       case ShaderProgramType::Sprite:
         SpriteShader->SubmitUniforms({},
-                                     {.s_texture = Textures[sheet.Texture]});
+                                     {.s_texture = *Textures[sheet.Texture]});
         return &*SpriteShader;
       default:
         break;
@@ -589,6 +580,41 @@ void Renderer::DrawPrimitives(
   });
 
   InsertVertices(indices, vertices, ShouldFlip(sheet));
+}
+
+void Renderer::InsertQuad(const CornersQuad dest, const CornersQuad uvs,
+                          const std::span<const glm::vec4, 4> tints,
+                          const bool flipVertically,
+                          const CornersQuad maskUvs) {
+  constexpr static std::array<uint16_t, 6> indices = {0, 1, 3, 1, 2, 3};
+  const std::array<VertexBufferSprites, 4> vertices = {
+      VertexBufferSprites{
+          .Position = dest.TopLeft,
+          .UV = uvs.TopLeft,
+          .Tint = tints[0],
+          .MaskUV = maskUvs.TopLeft,
+      },
+      VertexBufferSprites{
+          .Position = dest.BottomLeft,
+          .UV = uvs.BottomLeft,
+          .Tint = tints[1],
+          .MaskUV = maskUvs.BottomLeft,
+      },
+      VertexBufferSprites{
+          .Position = dest.BottomRight,
+          .UV = uvs.BottomRight,
+          .Tint = tints[2],
+          .MaskUV = maskUvs.BottomRight,
+      },
+      VertexBufferSprites{
+          .Position = dest.TopRight,
+          .UV = uvs.TopRight,
+          .Tint = tints[3],
+          .MaskUV = maskUvs.TopRight,
+      },
+  };
+
+  InsertVertices(indices, vertices, flipVertically);
 }
 
 }  // namespace Impacto::Bgfx
