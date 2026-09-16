@@ -6,7 +6,7 @@ namespace Impacto::Bgfx {
 
 template <>
 struct Uniforms<FragmentShaderType::Sprite> {
-  bgfx::TextureHandle s_texture = {bgfx::kInvalidHandle};
+  SamplerUniform<0> s_texture;
   glm::vec3 u_colorShift = glm::vec3(0.0f);
 };
 
