@@ -10,8 +10,8 @@ namespace UI {
 namespace Widgets {
 
 Toggle::Toggle(int id, bool* value, Sprite const& enabled,
-               Sprite const& disabled, Sprite const& highlight, glm::vec2 pos,
-               bool isCheckbox) {
+               Sprite const& disabled, std::optional<Sprite> highlight,
+               glm::vec2 pos, bool isCheckbox) {
   Id = id;
   Value = value;
   EnabledSprite = enabled;
@@ -23,17 +23,19 @@ Toggle::Toggle(int id, bool* value, Sprite const& enabled,
 }
 
 Toggle::Toggle(int id, bool* value, Sprite const& enabled,
-               Sprite const& disabled, Sprite const& highlight, glm::vec2 pos,
-               bool isCheckbox, Vm::Sc3Stream& stream, glm::vec2 labelOfs,
-               float fontSize, RendererOutlineMode outlineMode)
+               Sprite const& disabled, std::optional<Sprite> highlight,
+               glm::vec2 pos, bool isCheckbox, Vm::Sc3Stream& stream,
+               glm::vec2 labelOfs, float fontSize,
+               RendererOutlineMode outlineMode)
     : Toggle(id, value, enabled, disabled, highlight, pos, isCheckbox) {
   HasTextLabel = true;
   SetText(stream, fontSize, outlineMode);
 }
 
 Toggle::Toggle(int id, bool* value, Sprite const& enabled,
-               Sprite const& disabled, Sprite const& highlight, glm::vec2 pos,
-               bool isCheckbox, Sprite const& label, glm::vec2 labelOfs)
+               Sprite const& disabled, std::optional<Sprite> highlight,
+               glm::vec2 pos, bool isCheckbox, Sprite const& label,
+               glm::vec2 labelOfs)
     : Toggle(id, value, enabled, disabled, highlight, pos, isCheckbox) {
   HasSpriteLabel = true;
   LabelSprite = label;
@@ -67,10 +69,10 @@ void Toggle::Render() {
   if (*Value) {
     Renderer->DrawSprite(EnabledSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
   }
-  if (HasFocus) {
+  if (HasFocus && HighlightSprite.has_value()) {
     auto tint = Tint;
     if (IsCheckbox) tint.a *= 0.5f;
-    Renderer->DrawSprite(HighlightSprite, glm::vec2(Bounds.X, Bounds.Y), tint);
+    Renderer->DrawSprite(*HighlightSprite, glm::vec2(Bounds.X, Bounds.Y), tint);
   }
   if (HasSpriteLabel) {
     Renderer->DrawSprite(LabelSprite,

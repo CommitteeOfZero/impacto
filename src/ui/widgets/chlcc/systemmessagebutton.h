@@ -9,10 +9,8 @@ namespace CHLCC {
 
 class SystemMessageButton : public Button {
  public:
-  SystemMessageButton(int id, Sprite const& norm, Sprite const& focused,
-                      Sprite const& highlightLeft,
-                      Sprite const& highlightMiddle,
-                      Sprite const& highlightRight, glm::vec2 pos,
+  SystemMessageButton(int id, Sprite highlightLeft, Sprite highlightMiddle,
+                      Sprite highlightRight, glm::vec2 pos,
                       RectF hoverBounds = RectF{});
 
   virtual void Render() override;

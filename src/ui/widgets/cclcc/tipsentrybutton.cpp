@@ -20,7 +20,7 @@ using namespace Impacto::Profile::CCLCC::TipsMenu;
 
 TipsEntryButton::TipsEntryButton(int tipId, int dispId, RectF const& dest,
                                  Sprite const& highlight, bool isNew)
-    : Button(dispId, Sprite(), highlight, highlight, {dest.X, dest.Y}),
+    : Button(dispId, std::nullopt, highlight, highlight, {dest.X, dest.Y}),
       IsNewState(isNew) {
   Id = dispId;
   TipEntryRecord = TipsSystem::GetTipRecord(tipId);
@@ -84,11 +84,11 @@ void TipsEntryButton::UpdateInput(float dt) {
 void TipsEntryButton::Render() {
   if (HasFocus) {
     const RectF dest =
-        HighlightSprite.ScaledBounds()
-            .Scale({Bounds.Width / HighlightSprite.ScaledWidth(), 1.0f},
+        HighlightSprite->ScaledBounds()
+            .Scale({Bounds.Width / HighlightSprite->ScaledWidth(), 1.0f},
                    {0.0f, 0.0f})
             .Translate(Bounds.GetPos() + HighlightOffset);
-    Renderer->DrawSprite(HighlightSprite, dest, Tint);
+    Renderer->DrawSprite(*HighlightSprite, dest, Tint);
   }
 
   Profile::Dialogue::DialogueFont->DrawProcessedText(TipNumber, Tint.a,

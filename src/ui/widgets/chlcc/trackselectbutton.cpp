@@ -12,7 +12,7 @@ TrackSelectButton::TrackSelectButton(int id, Sprite const& focused,
                                      glm::vec2 pos, glm::vec2 numOffset,
                                      glm::vec2 trackOffset,
                                      glm::vec2 artistOffset)
-    : Button(id, Sprite(), focused, Sprite(), pos),
+    : Button(id, std::nullopt, focused, std::nullopt, pos),
       TrackNumPos(pos + numOffset),
       TrackTextPos(pos + trackOffset),
       ArtistTextPos(pos + artistOffset) {
@@ -20,7 +20,7 @@ TrackSelectButton::TrackSelectButton(int id, Sprite const& focused,
   TrackNum = Label(label, TrackNumPos, 20, RendererOutlineMode::None, 0);
   HasText = true;
   Bounds =
-      RectF(pos.x, pos.y, FocusedSprite.Bounds.Width - pos.x, TrackOffset.y);
+      RectF(pos.x, pos.y, FocusedSprite->Bounds.Width - pos.x, TrackOffset.y);
 }
 
 void TrackSelectButton::SetTrackText(Vm::BufferOffsetContext strAdr) {
@@ -35,8 +35,9 @@ void TrackSelectButton::Render() {
   if (HasFocus) {
     // adjusts sprite height to prevent visual bug tied to mouse support (1px of
     // out of bounds highlight sprite can be visible)
-    RectF dest = RectF(0, Bounds.Y, FocusedSprite.ScaledWidth(), TrackOffset.y);
-    Renderer->DrawSprite(FocusedSprite, dest);
+    RectF dest =
+        RectF(0, Bounds.Y, FocusedSprite->ScaledWidth(), TrackOffset.y);
+    Renderer->DrawSprite(*FocusedSprite, dest);
   }
 
   TrackNum.Render();

@@ -32,12 +32,8 @@ void Configure() {
   PlainSelectionFrameMiddle =
       EnsureGetMember<Sprite>("PlainSelectionFrameMiddleSprite");
 
-  Sprite nullSprite = Sprite();
-  nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
-  SelectionHighlight = nullSprite;
-  TryGetMember<Sprite>("SelectionHighlightSprite", SelectionHighlight);
-  SelectionFocused = nullSprite;
-  TryGetMember<Sprite>("SelectionFocusedSprite", SelectionFocused);
+  SelectionHighlight = TryGetMember<Sprite>("SelectionHighlightSprite");
+  SelectionFocused = TryGetMember<Sprite>("SelectionFocusedSprite");
 
   TryGetMember<bool>("HighlightTextOnly", HighlightTextOnly);
 

@@ -9,10 +9,11 @@ namespace Widgets {
 
 Label::Label() {}
 
-Label::Label(Sprite const& label, glm::vec2 pos)
+Label::Label(std::optional<Sprite> label, glm::vec2 pos)
     : IsText(false), LabelSprite(label) {
-  Bounds = RectF(pos.x, pos.y, LabelSprite.ScaledWidth(),
-                 LabelSprite.ScaledHeight());
+  Bounds = RectF(pos.x, pos.y,
+                 LabelSprite.has_value() ? LabelSprite->ScaledWidth() : 0.0f,
+                 LabelSprite.has_value() ? LabelSprite->ScaledHeight() : 0.0f);
 }
 
 void Label::Render() {
@@ -25,7 +26,9 @@ void Label::Render() {
                                                          OutlineMode);
     }
   } else {
-    Renderer->DrawSprite(LabelSprite, Bounds, Tint);
+    if (LabelSprite.has_value()) {
+      Renderer->DrawSprite(*LabelSprite, Bounds, Tint);
+    }
   }
 }
 
@@ -36,11 +39,12 @@ void Label::Move(glm::vec2 relativePosition) {
   Widget::Move(relativePosition);
 }
 
-void Label::SetSprite(Sprite const& label) {
+void Label::SetSprite(std::optional<Sprite> label) {
   IsText = false;
   LabelSprite = label;
-  Bounds = RectF(Bounds.X, Bounds.Y, LabelSprite.Bounds.Width,
-                 LabelSprite.Bounds.Height);
+  Bounds = RectF(Bounds.X, Bounds.Y,
+                 LabelSprite.has_value() ? LabelSprite->Bounds.Width : 0.0f,
+                 LabelSprite.has_value() ? LabelSprite->Bounds.Height : 0.0f);
 }
 
 void Label::SetText(std::vector<ProcessedTextGlyph>&& str, glm::vec2 pos,

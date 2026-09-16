@@ -118,14 +118,14 @@ void MusicTrackButton::Render() {
       Renderer->DrawSprite(
           MusicButtonPlayingSprite,
           MusicButtonPlayingDispOffset + glm::vec2(Bounds.X, Bounds.Y), Tint);
-      Renderer->DrawSprite(FocusedSprite, glm::vec2(Bounds.X + 113, Bounds.Y),
+      Renderer->DrawSprite(*FocusedSprite, glm::vec2(Bounds.X + 113, Bounds.Y),
                            Tint);
     } else {
       Profile::Dialogue::DialogueFont->DrawProcessedText(NumberText, Tint.a);
     }
     if (HasFocus) {
-      Renderer->DrawSprite(HighlightSprite, glm::vec2(Bounds.X + 113, Bounds.Y),
-                           Tint);
+      Renderer->DrawSprite(*HighlightSprite,
+                           glm::vec2(Bounds.X + 113, Bounds.Y), Tint);
     }
     if (IsLocked) {
       Profile::Dialogue::DialogueFont->DrawProcessedText(LockedText, Tint.a);
