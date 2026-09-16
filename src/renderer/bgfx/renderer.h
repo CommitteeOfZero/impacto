@@ -6,6 +6,9 @@
 #include "shader.h"
 #include "texture.h"
 
+#include "video/nv12frame.h"
+#include "video/yuvframe.h"
+
 #include <magic_enum/magic_enum_containers.hpp>
 
 #include <map>
@@ -42,12 +45,8 @@ class Renderer final : public BaseRenderer {
     return 0;
   }
   void FreeTexture(uint32_t id) override;
-  YUVFrame* CreateYUVFrame(float width, float height) override {
-    return nullptr;
-  }
-  NV12Frame* CreateNV12Frame(float width, float height) override {
-    return nullptr;
-  }
+  Impacto::YUVFrame* CreateYUVFrame(float width, float height) override;
+  Impacto::NV12Frame* CreateNV12Frame(float width, float height) override;
 
   void DrawSprite(Sprite const& sprite, CornersQuad const& dest,
                   glm::mat4 transformation, std::span<const glm::vec4, 4> tints,
@@ -108,10 +107,10 @@ class Renderer final : public BaseRenderer {
   void DrawMosaic(Sprite const& sprite, CornersQuad dest, float tileSize,
                   glm::mat4 transformation, glm::vec4 tint) override {}
 
-  void DrawVideoTexture(YUVFrame const& frame, RectF const& dest,
-                        glm::vec4 tint, bool alphaVideo) override {}
-  void DrawVideoTexture(NV12Frame const& frame, RectF const& dest,
-                        glm::vec4 tint, bool alphaVideo) override {}
+  void DrawVideoTexture(Impacto::YUVFrame const& frame, RectF const& dest,
+                        glm::vec4 tint, bool alphaVideo) override;
+  void DrawVideoTexture(Impacto::NV12Frame const& frame, RectF const& dest,
+                        glm::vec4 tint, bool alphaVideo) override;
 
   void DrawSubtitleGlyph(Sprite const& sprite, CornersQuad const& dest,
                          glm::mat4 transformation, glm::vec4 tint) override {}
@@ -181,14 +180,21 @@ class Renderer final : public BaseRenderer {
   bgfx::VertexLayout VertexBufferSpritesLayout;
 
   std::optional<
+      ShaderProgram<VertexShaderType::Sprite, FragmentShaderType::NV12Frame>>
+      NV12FrameShader;
+  std::optional<
       ShaderProgram<VertexShaderType::Sprite, FragmentShaderType::Sprite>>
       SpriteShader;
+  std::optional<
+      ShaderProgram<VertexShaderType::Sprite, FragmentShaderType::YUVFrame>>
+      YUVFrameShader;
 
   std::map<uint32_t, std::unique_ptr<Texture>> Textures;
   decltype(Textures)::iterator DeclareTexture(
       std::unique_ptr<Texture>&& texture);
 
-  std::map<uint32_t, Texture> Textures;
+  friend class NV12Frame;
+  friend class YUVFrame;
 };
 
 }  // namespace Impacto::Bgfx

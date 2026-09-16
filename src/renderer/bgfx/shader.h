@@ -13,7 +13,9 @@
 #include "../../log.h"
 
 #include "shaders/vs_sprite.h"
+#include "shaders/fs_nv12frame.h"
 #include "shaders/fs_sprite.h"
+#include "shaders/fs_yuvframe.h"
 
 namespace Impacto::Bgfx {
 
