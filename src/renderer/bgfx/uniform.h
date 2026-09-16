@@ -93,7 +93,9 @@ enum class VertexShaderType {
   Sprite,
 };
 enum class FragmentShaderType {
+  NV12Frame,
   Sprite,
+  YUVFrame,
 };
 
 template <typename T>
@@ -121,10 +123,12 @@ class UniformsState {
     std::ranges::transform(unorderedHandles,
                            std::inserter(uniqueHandles, uniqueHandles.end()),
                            &bgfx::UniformHandle::idx);
-    assert(uniqueHandles.size() == UniformCount &&
-           "The number of uniforms defined in shader code is not equal to the "
-           "number of uniforms defined in the struct. (Some types in the "
-           "shader code may be illegal!)");
+    assert(
+        uniqueHandles.size() == UniformCount &&
+        "The number of uniforms defined in shader code is not equal to the "
+        "number of uniforms defined in the struct."
+        "Tips: Some types in the shader code may be illegal."
+        "Global constants can also be counted as uniforms on some backends.");
 
     constexpr static auto uniformNames =
         boost::pfr::names_as_array<Uniforms<type>>();

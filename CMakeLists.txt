@@ -1237,6 +1237,9 @@ if (IMPACTO_RENDERER_BGFX)
         src/renderer/bgfx/renderer.cpp
         src/renderer/bgfx/texture.cpp
         src/renderer/bgfx/window.cpp
+
+        src/renderer/bgfx/video/nv12frame.cpp
+        src/renderer/bgfx/video/yuvframe.cpp
     )
     list(APPEND Impacto_Header
         src/renderer/bgfx/framebuffer.h
@@ -1246,14 +1249,21 @@ if (IMPACTO_RENDERER_BGFX)
         src/renderer/bgfx/window.h
 
         src/renderer/bgfx/shaders/vs_sprite.h
+        src/renderer/bgfx/shaders/fs_nv12frame.h
         src/renderer/bgfx/shaders/fs_sprite.h
+        src/renderer/bgfx/shaders/fs_yuvframe.h
+
+        src/renderer/bgfx/video/nv12frame.h
+        src/renderer/bgfx/video/yuvframe.h
     )
 
     set(Bgfx_Vertex_Shaders
         src/shaders/bgfx/vs_sprite.sc
     )
     set(Bgfx_Fragment_Shaders
+        src/shaders/bgfx/fs_nv12frame.sc
         src/shaders/bgfx/fs_sprite.sc
+        src/shaders/bgfx/fs_yuvframe.sc
     )
 
     set(Bgfx_Shaders ${Bgfx_Vertex_Shaders} ${Bgfx_Fragment_Shaders})
