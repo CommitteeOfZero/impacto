@@ -395,6 +395,7 @@ decltype(Renderer::Textures)::iterator Renderer::DeclareTexture(
 }
 
 void Renderer::FreeTexture(const uint32_t id) {
+  if (id == 0) return;
   assert(Textures.contains(id));
   Textures.erase(id);
 }
