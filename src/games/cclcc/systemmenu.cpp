@@ -66,13 +66,13 @@ SystemMenu::SystemMenu() : CommonMenu(FadeAnimation) {
 
   MainItems = new Widgets::Group(this);
 
-  ScreenCap.Sheet =
-      SpriteSheet((float)Window->WindowWidth, (float)Window->WindowHeight);
+  const RectF viewport = Window->GetViewport();
+  ScreenCap.Sheet = SpriteSheet(viewport.Width, viewport.Height);
   Texture tex;
-  tex.LoadSolidColor(Window->WindowWidth, Window->WindowHeight, 0x000000);
+  tex.LoadSolidColor(static_cast<int>(viewport.Width),
+                     static_cast<int>(viewport.Height), 0x000000);
   ScreenCap.Sheet.Texture = tex.Submit();
-  ScreenCap.Bounds.Width = ScreenCap.Sheet.DesignWidth;
-  ScreenCap.Bounds.Height = ScreenCap.Sheet.DesignHeight;
+  ScreenCap.Bounds.SetSize(viewport.GetSize());
 
   for (int i = 0; i < MenuEntriesNum; i++) {
     SysMenuButton* menuButton = new SysMenuButton(

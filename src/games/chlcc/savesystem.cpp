@@ -173,14 +173,12 @@ void SaveSystem::InitializeSystemData() {
                   [](auto& ptr) { ptr = new SaveFileEntry(); });
   std::for_each_n(FullSaveEntries, MaxSaveEntries,
                   [](auto& ptr) { ptr = new SaveFileEntry(); });
-  WorkingSaveEntry = new SaveFileEntry();
 
-  WorkingSaveThumbnail.Sheet =
-      SpriteSheet(static_cast<float>(Window->WindowWidth),
-                  static_cast<float>(Window->WindowHeight));
+  const RectF viewport = Window->GetViewport();
+  WorkingSaveEntry = new SaveFileEntry();
+  WorkingSaveThumbnail.Sheet = SpriteSheet(viewport.Width, viewport.Height);
   WorkingSaveThumbnail.Bounds =
-      RectF(0.0f, 0.0f, static_cast<float>(Window->WindowWidth),
-            static_cast<float>(Window->WindowHeight));
+      RectF(0.0f, 0.0f, viewport.Width, viewport.Height);
 
   Texture workingSaveTexture = Texture();
   workingSaveTexture.LoadSolidColor(
@@ -521,11 +519,12 @@ SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
       break;
   };
 
+  const RectF viewport = Window->GetViewport();
+
   WorkingSaveEntry = new SaveFileEntry();
-  WorkingSaveThumbnail.Sheet =
-      SpriteSheet((float)Window->WindowWidth, (float)Window->WindowHeight);
-  WorkingSaveThumbnail.Bounds = RectF(0.0f, 0.0f, (float)Window->WindowWidth,
-                                      (float)Window->WindowHeight);
+  WorkingSaveThumbnail.Sheet = SpriteSheet(viewport.Width, viewport.Height);
+  WorkingSaveThumbnail.Bounds =
+      RectF(0.0f, 0.0f, viewport.Width, viewport.Height);
 
   QueuedTexture txt{
       .Id = std::ref(WorkingSaveThumbnail.Sheet.Texture),

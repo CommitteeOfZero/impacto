@@ -87,7 +87,7 @@ void SingleSheetFont::DrawProcessedText(
     const CornersQuad dest = glyph.DestRect;
     const CornersQuad destUV = GetGlyph(glyph.CharId).NormalizedBounds();
     const CornersQuad maskUV = CornersQuad(dest).Scale(
-        {1.0f / Window->WindowWidth, 1.0f / Window->WindowHeight},
+        {1.0f / Profile::Game::DesignWidth, 1.0f / Profile::Game::DesignHeight},
         {0.0f, 0.0f});
     glm::vec4 color = RgbIntToFloat(glyph.Colors.TextColor);
     color.a =
@@ -226,9 +226,10 @@ void SeparateOutlineSheetFont::DrawProcessedText(
       const CornersQuad dest = glyph.DestRect + offset;
       const CornersQuad destUV =
           (this->*getGlyphMethod)(glyph.CharId).NormalizedBounds();
-      const CornersQuad maskUV = CornersQuad(dest).Scale(
-          {1.0f / Window->WindowWidth, 1.0f / Window->WindowHeight},
-          {0.0f, 0.0f});
+      const CornersQuad maskUV =
+          CornersQuad(dest).Scale({1.0f / Profile::Game::DesignWidth,
+                                   1.0f / Profile::Game::DesignHeight},
+                                  {0.0f, 0.0f});
       glm::vec4 color = RgbIntToFloat(glyph.Colors.*colorMember);
       color.a = ApplyOpacityCurve(glyph.Opacity * textOpacity, opacityCurve);
 
@@ -426,9 +427,10 @@ void EdgeDetectedSingleSheetFont::DrawProcessedText(
 
       const CornersQuad dest = glyph.DestRect + offset;
       const CornersQuad destUV = GetGlyph(glyph.CharId).NormalizedBounds();
-      const CornersQuad maskUV = CornersQuad(dest).Scale(
-          {1.0f / Window->WindowWidth, 1.0f / Window->WindowHeight},
-          {0.0f, 0.0f});
+      const CornersQuad maskUV =
+          CornersQuad(dest).Scale({1.0f / Profile::Game::DesignWidth,
+                                   1.0f / Profile::Game::DesignHeight},
+                                  {0.0f, 0.0f});
       glm::vec4 color = RgbIntToFloat(glyph.Colors.*colorMember);
       color.a = ApplyOpacityCurve(glyph.Opacity * textOpacity, opacityCurve);
 
