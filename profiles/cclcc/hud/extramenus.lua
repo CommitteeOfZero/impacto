@@ -229,7 +229,8 @@ root.ExtraMenus = {
         MovieExtraVideosEnabled = true,
         MovieDiskExtraOp = "MovieDiskExtraOp",
         MovieDiskExtraOpHighlight = "MovieDiskExtraOpHighlight",
-        MovieDiskExtraOpPlayId = 62
+        MovieDiskExtraOpPlayId = 62,
+        LibraryMenuId = 8
     }
 };
 

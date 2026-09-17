@@ -154,7 +154,7 @@ void LibraryMenu::Update(float dt) {
   if (ScrWork[SW_SYSSUBMENUCT] < 32 && State == Shown) {
     Hide();
   } else if (ScrWork[SW_SYSSUBMENUCT] > 0 && State == Hidden &&
-             (ScrWork[SW_SYSSUBMENUNO] == 8)) {
+             (ScrWork[SW_SYSSUBMENUNO] == LibraryMenuId)) {
     Show();
   }
   const auto* albumMenuPtr = static_cast<AlbumMenu*>(UI::AlbumMenuPtr);
@@ -163,7 +163,7 @@ void LibraryMenu::Update(float dt) {
   const bool cgViewerActive =
       CurrentLibraryMenu == LibraryMenuPageType::Album &&
       albumMenuPtr->CGViewer;
-  if (State == Shown && ScrWork[SW_SYSSUBMENUNO] == 8) {
+  if (State == Shown && ScrWork[SW_SYSSUBMENUNO] == LibraryMenuId) {
     if (!moviePlaying && !cgViewerActive) {
       UpdateInput(dt);
       if ((Vm::Interface::PADinputButtonWentDown & Vm::Interface::PAD1B) ||
@@ -288,7 +288,7 @@ void LibraryMenu::Render() {
     albumMenuPtr->RenderCGViewer();
   }
 
-  if (ScrWork[SW_SYSSUBMENUNO] == 8) {
+  if (ScrWork[SW_SYSSUBMENUNO] == LibraryMenuId) {
     CommonMenu::DrawOverlay();
     if (GetFlag(SF_TITLEMODE)) {
       CommonMenu::DrawSmoke(Profile::CCLCC::SystemMenu::SmokeOpacityNormal *
