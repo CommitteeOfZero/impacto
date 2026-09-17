@@ -9,6 +9,10 @@
 #include <emscripten.h>
 #endif
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 #include "log.h"
 #include "game.h"
 #include "util.h"

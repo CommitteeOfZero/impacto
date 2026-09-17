@@ -4,10 +4,6 @@
 #include "util.h"
 #include "game.h"
 
-#if defined(IMPACTO_RENDERER_OPENGL) || defined(IMPACTO_RENDERER_OPENGLES)
-#include <glad/glad.h>
-#endif
-
 #include <magic_enum/magic_enum_format.hpp>
 
 #include <source_location>
@@ -97,13 +93,6 @@ void ImpLog(LogLevel level, LogChannel channel, fmt::format_string<T...> format,
 #define ImpLogSlow ImpLog
 #else
 #define ImpLogSlow(...) (void)0
-#endif
-
-#if defined(IMPACTO_RENDERER_OPENGL) || defined(IMPACTO_RENDERER_OPENGLES)
-void GLAPIENTRY LogGLMessageCallback(GLenum source, GLenum type, GLuint id,
-                                     GLenum severity, GLsizei length,
-                                     const GLchar* message,
-                                     const void* userParam);
 #endif
 
 #define Panic(logChannel, ...)                                             \
