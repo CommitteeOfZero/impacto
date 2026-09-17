@@ -20,7 +20,7 @@ local sv = root.ScriptVars;
 -- W 2100 same
 -- W 2068 same
 
--- BG stucts and offsets are the same
+-- BG structs and offsets are the same
 
 sv.SW_ATCHAN_SCROLL_MAX = 1404;
 sv.SW_LINEID = 2199;
