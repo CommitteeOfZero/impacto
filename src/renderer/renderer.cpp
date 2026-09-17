@@ -4,10 +4,6 @@
 #include "../userconfig.h"
 #include "../log.h"
 
-#if defined(IMPACTO_RENDERER_OPENGL) || defined(IMPACTO_RENDERER_OPENGLES)
-#include "opengl/renderer.h"
-#endif
-
 #ifdef IMPACTO_RENDERER_BGFX
 #include "bgfx/renderer.h"
 #endif
@@ -20,11 +16,6 @@ void CreateRenderer() {
   Renderer.reset();
 
   switch (UserConfig::AdvancedSettings.ActiveRenderer) {
-#if defined(IMPACTO_RENDERER_OPENGL) || defined(IMPACTO_RENDERER_OPENGLES)
-    case RendererType::OpenGLLegacy:
-      Renderer = std::make_unique<OpenGL::Renderer>();
-      break;
-#endif
 #ifdef IMPACTO_RENDERER_BGFX
 #ifdef IMPACTO_RENDERER_OPENGL
     case RendererType::OpenGL:

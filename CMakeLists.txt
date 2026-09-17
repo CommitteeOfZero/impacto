@@ -827,7 +827,6 @@ elseif (ANDROID)
     set(IMPACTO_RENDERER_VULKAN ON)
     set(IMPACTO_RENDERER_OPENGLES ON)
 elseif (NX)
-    set(IMPACTO_RENDERER_VULKAN OFF)
     set(IMPACTO_RENDERER_OPENGLES ON)
 else ()
     message(FATAL_ERROR "No renderer backends supplied for target platform")
@@ -927,33 +926,6 @@ endif ()
 list(APPEND Impacto_Include_Dirs ${CMAKE_CURRENT_SOURCE_DIR}/vendor)
 list(APPEND Impacto_Include_Dirs ${CMAKE_CURRENT_SOURCE_DIR}/vendor/include)
 
-if (IMPACTO_RENDERER_OPENGL OR IMPACTO_RENDERER_OPENGLES)
-    list(APPEND Impacto_Include_Dirs ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glad/include)
-
-    if (ANDROID OR NX)
-        set(OpenGL_Libs
-            OpenGL::GLES3
-            OpenGL::EGL
-        )
-        set(OpenGL_Components
-            GLES3
-            EGL
-        )
-    else()
-        set(OpenGL_Libs
-            OpenGL::GL
-        )
-        set(OpenGL_Components
-            OpenGL
-        )
-    endif ()
-    find_package(OpenGL COMPONENTS ${OpenGL_Components})
-    list(APPEND Impacto_Libs
-        ${OpenGL_Libs}
-    )
-endif ()
-
-
 if (NOT DEFINED IMPACTO_DISABLE_OPENAL)
     find_package(OpenAL CONFIG REQUIRED)
 
@@ -994,7 +966,6 @@ if (EMSCRIPTEN)
         -g4 \
         --preload-file ${CMAKE_CURRENT_SOURCE_DIR}/profiles@/profiles \
         --preload-file ${CMAKE_CURRENT_SOURCE_DIR}/games@/games \
-        --preload-file ${CMAKE_CURRENT_SOURCE_DIR}/src/shaders@/shaders \
     ")
     if ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
         set(IMPACTO_EMSCRIPTEN_BUILD_FLAGS "${IMPACTO_EMSCRIPTEN_BUILD_FLAGS} \
@@ -1194,7 +1165,7 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
         target_compile_definitions(imgui PRIVATE IMGUI_DISABLE_DEFAULT_SHELL_FUNCTIONS=1)
     endif ()
 
-    target_link_libraries(imgui PRIVATE ${SDL3_LIBRARIES} ${OpenGL_Libs})
+    target_link_libraries(imgui PRIVATE ${SDL3_LIBRARIES})
 
     if (IMPACTO_RENDERER_BGFX)
         target_link_libraries(imgui PUBLIC bgfx::bgfx PRIVATE bgfx::bx)
@@ -1203,34 +1174,23 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
     list(APPEND Impacto_Lib_Targets imgui)
 endif ()
 
-if (IMPACTO_RENDERER_OPENGL OR IMPACTO_RENDERER_OPENGLES)
-    list(APPEND Impacto_Src
-        src/renderer/opengl/window.cpp
-        src/renderer/opengl/renderer.cpp
-        src/renderer/opengl/shader.cpp
-        src/renderer/opengl/glc.cpp
-        src/renderer/opengl/yuvframe.cpp
-        src/renderer/opengl/nv12frame.cpp
-        src/renderer/opengl/3d/renderable3d.cpp
-        src/renderer/opengl/3d/scene.cpp
-
-        vendor/glad/src/glad.c
-    )
-    list(APPEND Impacto_Header
-        src/renderer/opengl/window.h
-        src/renderer/opengl/renderer.h
-        src/renderer/opengl/shader.h
-        src/renderer/opengl/glc.h
-        src/renderer/opengl/yuvframe.h
-        src/renderer/opengl/nv12frame.h
-        src/renderer/opengl/3d/renderable3d.h
-        src/renderer/opengl/3d/scene.h
-    )
-endif ()
-
 if (IMPACTO_RENDERER_BGFX)
     find_package(bgfx CONFIG REQUIRED)
     list(APPEND Impacto_Libs bgfx::bgfx)
+
+    if (ANDROID AND IMPACTO_RENDERER_OPENGLES)
+        set(OpenGL_Libs
+            OpenGL::GLES3
+            OpenGL::EGL
+        )
+        set(OpenGL_Components
+            GLES3
+            EGL
+        )
+
+        find_package(OpenGL COMPONENTS ${OpenGL_Components})
+        list(APPEND Impacto_Libs ${OpenGL_Libs})
+    endif ()
 
     list(APPEND Impacto_Src
         src/renderer/bgfx/framebuffer.cpp
@@ -1459,7 +1419,7 @@ option(IMPACTO_ENABLE_SLOW_LOG
 "Compile log statements that get hit very frequently or are in a hot path"
 ${IMPACTO_ENABLE_SLOW_LOG_DEFAULT})
 option(IMPACTO_GL_DEBUG
-"Use an OpenGL debug context and log messages"
+"Use a debug context and log renderer messages"
 ${IMPACTO_GL_DEBUG_DEFAULT})
 
 option(IMPACTO_HAVE_THREADS "Multithreading support" ON)
@@ -1522,11 +1482,6 @@ elseif(APPLE)
             RUNTIME DESTINATION .
             RESOURCE DESTINATION .
     )
-    install(
-        DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src/shaders"
-        DESTINATION "Impacto.app/Contents/Resources/"
-        PATTERN "bgfx" EXCLUDE
-    )
     install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/resources"
         DESTINATION "Impacto.app/Contents/Resources/"
     )
@@ -1557,11 +1512,6 @@ endif ()
 
 if (NOT ANDROID)
     if(NOT APPLE)
-        install(
-            DIRECTORY src/shaders
-            DESTINATION .
-            PATTERN "bgfx" EXCLUDE
-        )
         install(DIRECTORY resources DESTINATION .)
     endif()
     install(DIRECTORY profiles DESTINATION .)
@@ -1573,11 +1523,6 @@ if (NOT ANDROID)
         install(FILES ${CMAKE_SOURCE_DIR}/basepaths.lua.sample DESTINATION . RENAME basepaths.lua)
     endif()
 else()
-    install(
-        DIRECTORY src/shaders
-        DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/assets
-        PATTERN "bgfx" EXCLUDE
-    )
     install(DIRECTORY profiles DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/assets)
     install(DIRECTORY resources DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/assets PATTERN "*/gamedata/*" EXCLUDE)
     install(FILES gamedefinitions.lua DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/assets)
