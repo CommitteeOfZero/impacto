@@ -35,8 +35,8 @@ class Renderer final : public BaseRenderer {
   void EndFrame() override;
 
   uint32_t MapSpriteSheet(SpriteSheet const& sheet) override { return 0; }
-  bool LoadSurf(int surfId, int archiveId, int fileId) override { return true; }
   void UnloadSurf(int surfId) override {}
+
   uint32_t SubmitTexture(TexFmt format, std::span<const uint8_t> buffer,
                          int width, int height) override;
 
