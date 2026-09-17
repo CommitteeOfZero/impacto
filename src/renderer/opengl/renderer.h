@@ -38,7 +38,6 @@ class Renderer : public BaseRenderer {
                         glm::vec4 color = glm::vec4(0.0f)) override;
 
   uint32_t MapSpriteSheet(SpriteSheet const& sheet) override;
-  bool LoadSurf(int surfId, int archiveId, int fileId) override;
   void UnloadSurf(int surfId) override;
   uint32_t SubmitTexture(TexFmt format, std::span<const uint8_t> buffer,
                          int width, int height) override;
