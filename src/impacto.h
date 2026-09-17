@@ -10,10 +10,6 @@
 
 #include <SDL3/SDL.h>
 
-#if defined(IMPACTO_RENDERER_OPENGL) || defined(IMPACTO_RENDERER_OPENGLES)
-#include <glad/glad.h>
-#endif
-
 #ifndef IMPACTO_DISABLE_IMGUI
 #include <imgui.h>
 #include <imgui_impl_sdl3.h>

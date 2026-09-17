@@ -827,7 +827,6 @@ elseif (ANDROID)
     set(IMPACTO_RENDERER_VULKAN ON)
     set(IMPACTO_RENDERER_OPENGLES ON)
 elseif (NX)
-    set(IMPACTO_RENDERER_VULKAN OFF)
     set(IMPACTO_RENDERER_OPENGLES ON)
 else ()
     message(FATAL_ERROR "No renderer backends supplied for target platform")
@@ -926,33 +925,6 @@ endif ()
 
 list(APPEND Impacto_Include_Dirs ${CMAKE_CURRENT_SOURCE_DIR}/vendor)
 list(APPEND Impacto_Include_Dirs ${CMAKE_CURRENT_SOURCE_DIR}/vendor/include)
-
-if (IMPACTO_RENDERER_OPENGL OR IMPACTO_RENDERER_OPENGLES)
-    list(APPEND Impacto_Include_Dirs ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glad/include)
-
-    if (ANDROID OR NX)
-        set(OpenGL_Libs
-            OpenGL::GLES3
-            OpenGL::EGL
-        )
-        set(OpenGL_Components
-            GLES3
-            EGL
-        )
-    else()
-        set(OpenGL_Libs
-            OpenGL::GL
-        )
-        set(OpenGL_Components
-            OpenGL
-        )
-    endif ()
-    find_package(OpenGL COMPONENTS ${OpenGL_Components})
-    list(APPEND Impacto_Libs
-        ${OpenGL_Libs}
-    )
-endif ()
-
 
 if (NOT DEFINED IMPACTO_DISABLE_OPENAL)
     find_package(OpenAL CONFIG REQUIRED)
@@ -1194,38 +1166,13 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
         target_compile_definitions(imgui PRIVATE IMGUI_DISABLE_DEFAULT_SHELL_FUNCTIONS=1)
     endif ()
 
-    target_link_libraries(imgui PRIVATE ${SDL3_LIBRARIES} ${OpenGL_Libs})
+    target_link_libraries(imgui PRIVATE ${SDL3_LIBRARIES})
 
     if (IMPACTO_RENDERER_BGFX)
         target_link_libraries(imgui PUBLIC bgfx::bgfx PRIVATE bgfx::bx)
     endif ()
 
     list(APPEND Impacto_Lib_Targets imgui)
-endif ()
-
-if (IMPACTO_RENDERER_OPENGL OR IMPACTO_RENDERER_OPENGLES)
-    list(APPEND Impacto_Src
-        src/renderer/opengl/window.cpp
-        src/renderer/opengl/renderer.cpp
-        src/renderer/opengl/shader.cpp
-        src/renderer/opengl/glc.cpp
-        src/renderer/opengl/yuvframe.cpp
-        src/renderer/opengl/nv12frame.cpp
-        src/renderer/opengl/3d/renderable3d.cpp
-        src/renderer/opengl/3d/scene.cpp
-
-        vendor/glad/src/glad.c
-    )
-    list(APPEND Impacto_Header
-        src/renderer/opengl/window.h
-        src/renderer/opengl/renderer.h
-        src/renderer/opengl/shader.h
-        src/renderer/opengl/glc.h
-        src/renderer/opengl/yuvframe.h
-        src/renderer/opengl/nv12frame.h
-        src/renderer/opengl/3d/renderable3d.h
-        src/renderer/opengl/3d/scene.h
-    )
 endif ()
 
 if (IMPACTO_RENDERER_BGFX)
@@ -1459,7 +1406,7 @@ option(IMPACTO_ENABLE_SLOW_LOG
 "Compile log statements that get hit very frequently or are in a hot path"
 ${IMPACTO_ENABLE_SLOW_LOG_DEFAULT})
 option(IMPACTO_GL_DEBUG
-"Use an OpenGL debug context and log messages"
+"Use a debug context and log renderer messages"
 ${IMPACTO_GL_DEBUG_DEFAULT})
 
 option(IMPACTO_HAVE_THREADS "Multithreading support" ON)
