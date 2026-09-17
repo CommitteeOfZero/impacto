@@ -10,10 +10,6 @@
 #include <optional>
 #include "../inputsystem.h"
 
-#if defined(IMPACTO_RENDERER_OPENGL) || defined(IMPACTO_RENDERER_OPENGLES)
-#include "opengl/window.h"
-#endif
-
 #ifdef IMPACTO_RENDERER_BGFX
 #include "bgfx/window.h"
 #endif
@@ -24,11 +20,6 @@ void InitWindow() {
   Window.reset();
 
   switch (UserConfig::AdvancedSettings.ActiveRenderer) {
-#if defined(IMPACTO_RENDERER_OPENGL) || defined(IMPACTO_RENDERER_OPENGLES)
-    case RendererType::OpenGLLegacy:
-      Window = std::make_unique<OpenGL::GLWindow>();
-      break;
-#endif
 #ifdef IMPACTO_RENDERER_BGFX
 #ifdef IMPACTO_RENDERER_OPENGL
     case RendererType::OpenGL:

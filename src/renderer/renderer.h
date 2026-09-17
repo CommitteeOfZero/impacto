@@ -10,9 +10,6 @@
 #include <span>
 
 enum class RendererType : int {
-#if defined(IMPACTO_RENDERER_OPENGL) || defined(IMPACTO_RENDERER_OPENGLES)
-  OpenGLLegacy,
-#endif
 #ifdef IMPACTO_RENDERER_OPENGL
   OpenGL,
 #endif
