@@ -1179,6 +1179,20 @@ if (IMPACTO_RENDERER_BGFX)
     find_package(bgfx CONFIG REQUIRED)
     list(APPEND Impacto_Libs bgfx::bgfx)
 
+    if (ANDROID AND IMPACTO_RENDERER_OPENGLES)
+        set(OpenGL_Libs
+            OpenGL::GLES3
+            OpenGL::EGL
+        )
+        set(OpenGL_Components
+            GLES3
+            EGL
+        )
+
+        find_package(OpenGL COMPONENTS ${OpenGL_Components})
+        list(APPEND Impacto_Libs ${OpenGL_Libs})
+    endif ()
+
     list(APPEND Impacto_Src
         src/renderer/bgfx/framebuffer.cpp
         src/renderer/bgfx/renderer.cpp
