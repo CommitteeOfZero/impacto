@@ -112,6 +112,7 @@ inline bool MovieExtraVideosEnabled;
 inline Sprite MovieDiskExtraOp;
 inline Sprite MovieDiskExtraOpHighlight;
 inline int MovieDiskExtraOpPlayId;
+inline int LibraryMenuId;
 
 inline Sprite AlbumMenuGuideSprite;
 inline Sprite AlbumMenuCGViewerGuideSprite;

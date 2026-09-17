@@ -5,6 +5,7 @@
 #include "../../profile/scriptvars.h"
 #include "../../vm/interface/input.h"
 #include "../../vm/thread.h"
+#include "../../profile/vm.h"
 #include "../../profile/dialogue.h"
 
 namespace Impacto {
@@ -77,6 +78,7 @@ void Button::SetText(Vm::BufferOffsetContext scrCtx, float fontSize,
   Impacto::Vm::Sc3VmThread dummy;
   dummy.IpOffset = scrCtx.IpOffset;
   dummy.ScriptBufferId = scrCtx.BufferId;
+  dummy.UseMSBBuffers = Profile::Vm::UseMsbStrings;
   Text = TextLayoutPlainLine(
       &dummy, 255, *Profile::Dialogue::DialogueFont, fontSize, colorPair, 1.0f,
       glm::vec2(Bounds.X, Bounds.Y), TextAlignment::Left);
