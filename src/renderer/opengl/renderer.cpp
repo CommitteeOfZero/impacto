@@ -202,33 +202,6 @@ uint32_t Renderer::MapSpriteSheet(SpriteSheet const& sheet) {
   return currentId;
 }
 
-bool Renderer::LoadSurf(int surfId, int archiveId, int fileId) {
-  auto path = Io::AssetPathKey{.MountId = static_cast<uint32_t>(archiveId),
-                               .Id = static_cast<uint32_t>(fileId)};
-  auto lookupTextureIdIter = SheetPathToId.find(path);
-  if (lookupTextureIdIter == SheetPathToId.end()) {
-    return false;
-  }
-  SurfToId.try_emplace(surfId, path);
-
-  auto lookupTextureId = lookupTextureIdIter->second;
-
-  Io::AssetPath pathRes = Io::AssetPathKey::KeyToAssetPath(path);
-  Io::Stream* stream;
-  IoError err = pathRes.Open(&stream);
-  if (err != IoError_OK) {
-    Panic(LogChannel::Profile, "Could not open spritesheet\n");
-  }
-
-  Texture tex{};
-  tex.Load(stream);
-  uint32_t textureId = tex.Submit();
-  delete stream;
-
-  LookupTextureIdToTexture.try_emplace(lookupTextureId, textureId);
-  return true;
-}
-
 void Renderer::UnloadSurf(int surfId) {
   auto surfToIdIter = SurfToId.find(surfId);
   if (surfToIdIter == SurfToId.end()) {
