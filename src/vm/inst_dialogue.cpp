@@ -742,7 +742,7 @@ VmInstruction(InstSetMesModeFormat) {
   dummy.IpOffset = modeDataAdr;
   dummy.ScriptBufferId = thread->ScriptBufferId;
   const RawMesModeInfo info = std::bit_cast<RawMesModeInfo>(
-      *reinterpret_cast<const uint8_t(*)[sizeof(RawMesModeInfo)]>(
+      *reinterpret_cast<const uint8_t (*)[sizeof(RawMesModeInfo)]>(
           dummy.GetIp()));
 
   const auto profileFields = ProfileTextModesInfoFields[id];

@@ -45,11 +45,11 @@ TipsEntryButton::TipsEntryButton(int id, TipsDataRecord* tipRecord,
                                                        TipListEntryLockedIndex);
   dummy.IpOffset = lockedScrPos.IpOffset;
   dummy.ScriptBufferId = lockedScrPos.BufferId;
-  TipLockedText = TextLayoutPlainLine(&dummy, 255, *Profile::Dialogue::DialogueFont,
-                      TipListEntryFontSize,
-                      Profile::Dialogue::ColorTable[UnreadColorIndex], 1.0f,
-                      glm::vec2(Bounds.X + TipListEntryNameXOffset, Bounds.Y),
-                      TextAlignment::Left);
+  TipLockedText = TextLayoutPlainLine(
+      &dummy, 255, *Profile::Dialogue::DialogueFont, TipListEntryFontSize,
+      Profile::Dialogue::ColorTable[UnreadColorIndex], 1.0f,
+      glm::vec2(Bounds.X + TipListEntryNameXOffset, Bounds.Y),
+      TextAlignment::Left);
 }
 
 void TipsEntryButton::Update(float dt) {

@@ -301,8 +301,8 @@ float TextGetPlainLineWidth(Sc3Type auto&& stream, const Font& font,
     if (token.Type == STT_EndOfString) break;
     if (token.Type != STT_Character) continue;
 
-    width += (fontSize / font.BitmapEmWidth) *
-             font.GetAdvanceWidth(token.Val_Int);
+    width +=
+        (fontSize / font.BitmapEmWidth) * font.GetAdvanceWidth(token.Val_Int);
   }
 
   return width;

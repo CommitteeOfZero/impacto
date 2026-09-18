@@ -237,16 +237,16 @@ void TipsMenu::SwitchToTipId(int id) {
 
   auto tipRecord = TipsSystem::GetTipRecord(id);
   Name->SetText(Vm::BufferOffsetContext{.Buffers = buffers,
-                 .BufferId = tipsScriptBufferId,
-                 .IpOffset = tipRecord->StringAdr[0]},
+                                        .BufferId = tipsScriptBufferId,
+                                        .IpOffset = tipRecord->StringAdr[0]},
                 NameInitialBounds.GetPos(), NameFontSize,
                 RendererOutlineMode::Full, DefaultColorIndex);
   Pronunciation->SetText(
-    Vm::BufferOffsetContext{.Buffers = buffers,
-                          .BufferId = tipsScriptBufferId,
-                          .IpOffset = tipRecord->StringAdr[1]},
-    PronunciationInitialBounds.GetPos(), PronunciationFontSize,
-    RendererOutlineMode::Full, DefaultColorIndex);
+      Vm::BufferOffsetContext{.Buffers = buffers,
+                              .BufferId = tipsScriptBufferId,
+                              .IpOffset = tipRecord->StringAdr[1]},
+      PronunciationInitialBounds.GetPos(), PronunciationFontSize,
+      RendererOutlineMode::Full, DefaultColorIndex);
 
   Vm::Sc3VmThread dummy;
   dummy.IpOffset = tipRecord->StringAdr[2];
@@ -256,11 +256,11 @@ void TipsMenu::SwitchToTipId(int id) {
       &dummy, *Profile::Dialogue::DialogueFont, CategoryFontSize);
   Category->Bounds.X = CategoryEndX - categoryWidth;
   Category->SetText(
-    Vm::BufferOffsetContext{.Buffers = buffers,
-                     .BufferId = tipsScriptBufferId,
-                     .IpOffset = tipRecord->StringAdr[2]},
-  {CategoryEndX - categoryWidth, CategoryInitialBounds.Y}, CategoryFontSize, RendererOutlineMode::Full,
-                    DefaultColorIndex);
+      Vm::BufferOffsetContext{.Buffers = buffers,
+                              .BufferId = tipsScriptBufferId,
+                              .IpOffset = tipRecord->StringAdr[2]},
+      {CategoryEndX - categoryWidth, CategoryInitialBounds.Y}, CategoryFontSize,
+      RendererOutlineMode::Full, DefaultColorIndex);
   if (tipRecord->ThumbnailIndex != 0xFFFF)
     ThumbnailSprite = &TipThumbnails[tipRecord->ThumbnailIndex];
   else
