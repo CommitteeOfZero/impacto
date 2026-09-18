@@ -41,12 +41,10 @@ SaveMenu::SaveMenu() : UI::SaveMenu() {
 
   PageControls = new Group(this);
   PageControls->FocusLock = false;
-  Sprite nullSprite = Sprite();
-  nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
   auto nextPage = new Button(0, NextButtonSprite, NextButtonHighlightedSprite,
-                             nullSprite, NextButtonPosition);
+                             std::nullopt, NextButtonPosition);
   auto previousPage =
-      new Button(0, BackButtonSprite, BackButtonHighlightedSprite, nullSprite,
+      new Button(0, BackButtonSprite, BackButtonHighlightedSprite, std::nullopt,
                  BackButtonPosition);
   PageControls->Add(nextPage);
   PageControls->Add(previousPage);

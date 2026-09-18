@@ -10,8 +10,9 @@ namespace Widgets {
 using namespace Impacto::Vm::Interface;
 
 OptionGroup::OptionGroup(Menu* menuContext, Sprite const& background,
-                         Sprite const& highlight, Sprite const& itemHighlight,
-                         glm::vec2 pos, glm::vec2 itemsOffset) {
+                         Sprite const& highlight,
+                         std::optional<Sprite> itemHighlight, glm::vec2 pos,
+                         glm::vec2 itemsOffset) {
   MenuContext = menuContext;
   BackgroundSprite = background;
   BackgroundHSprite = highlight;
@@ -84,8 +85,8 @@ void OptionGroup::Render() {
     item->Tint = Tint;
     item->Render();
 
-    if (GroupEntered && item->HasFocus) {
-      Renderer->DrawSprite(ItemHighlightSprite,
+    if (GroupEntered && item->HasFocus && ItemHighlightSprite.has_value()) {
+      Renderer->DrawSprite(*ItemHighlightSprite,
                            glm::vec2(item->Bounds.X, item->Bounds.Y), Tint);
     }
   }

@@ -29,7 +29,6 @@ using namespace Impacto::Profile::ScriptVars;
 
 namespace Impacto::Overlay {
 
-static bool HasInit = false;
 static std::optional<OverlayTab> ActiveTab;
 
 struct ImgData {
@@ -263,12 +262,9 @@ void SetupIcons() {
 }
 
 void Init() {
-  if (HasInit) return;
-
   SetupStyle();
   SetupFonts();
   SetupIcons();
-  HasInit = true;
 }
 
 static void ShowGamePicker(std::string& selectedGame) {
@@ -354,54 +350,97 @@ static void ShowGamePicker(std::string& selectedGame) {
   ImGui::Spacing();
   if (ImGui::CollapsingHeader("Display Settings",
                               ImGuiTreeNodeFlags_DefaultOpen)) {
-    static std::string currentResolution;
-
-    static std::optional<int> lastResWidth;
-    static std::optional<int> lastResHeight;
-
-    if (currentResolution.empty() ||
-        lastResWidth != gameSettings.ResolutionWidth ||
-        lastResHeight != gameSettings.ResolutionHeight) {
-      if (gameSettings.ResolutionWidth && gameSettings.ResolutionHeight) {
-        currentResolution = fmt::format("{}x{}", *gameSettings.ResolutionWidth,
-                                        *gameSettings.ResolutionHeight);
-      } else {
-        currentResolution = "Native Game Res";
-      }
-      wasUpdated = true;
-      lastResWidth = gameSettings.ResolutionWidth;
-      lastResHeight = gameSettings.ResolutionHeight;
-    }
-
     SDL_DisplayMode maxRes{};
     if (const SDL_DisplayMode* desktopMode =
             SDL_GetDesktopDisplayMode(SDL_GetPrimaryDisplay())) {
       maxRes = *desktopMode;
     }
 
-    ImGui::AlignTextToFramePadding();
-    ImGui::Text("Game Resolution");
-    ImGui::SameLine();
-    ImGui::SetNextItemWidth(comboWidth);
-    if (ImGui::BeginCombo("##ChooseResolution", currentResolution.c_str())) {
-      bool isNativeRes =
-          !gameSettings.ResolutionWidth || !gameSettings.ResolutionHeight;
-      if (ImGui::Selectable("Native Game Res", isNativeRes)) {
-        gameSettings.ResolutionWidth.reset();
-        gameSettings.ResolutionHeight.reset();
-      }
-      if (isNativeRes) ImGui::SetItemDefaultFocus();
-      for (auto&& [display, value] : resolutionOptions) {
-        if (value.x > maxRes.w || value.y > maxRes.h) continue;
-        bool isSelected = gameSettings.ResolutionWidth == value.x &&
-                          gameSettings.ResolutionHeight == value.y;
-        if (ImGui::Selectable(display, isSelected)) {
-          gameSettings.ResolutionWidth = value.x;
-          gameSettings.ResolutionHeight = value.y;
+    {
+      static std::string currentResolution;
+
+      static std::optional<int> lastResWidth;
+      static std::optional<int> lastResHeight;
+
+      if (currentResolution.empty() ||
+          lastResWidth != gameSettings.ResolutionWidth ||
+          lastResHeight != gameSettings.ResolutionHeight) {
+        if (gameSettings.ResolutionWidth && gameSettings.ResolutionHeight) {
+          currentResolution =
+              fmt::format("{}x{}", *gameSettings.ResolutionWidth,
+                          *gameSettings.ResolutionHeight);
+        } else {
+          currentResolution = "Native Game Res";
         }
-        if (isSelected) ImGui::SetItemDefaultFocus();
+        wasUpdated = true;
+        lastResWidth = gameSettings.ResolutionWidth;
+        lastResHeight = gameSettings.ResolutionHeight;
       }
-      ImGui::EndCombo();
+
+      ImGui::AlignTextToFramePadding();
+      ImGui::Text("Game Resolution");
+      ImGui::SameLine();
+      ImGui::SetNextItemWidth(comboWidth);
+      if (ImGui::BeginCombo("##ChooseResolution", currentResolution.c_str())) {
+        bool isNativeRes =
+            !gameSettings.ResolutionWidth || !gameSettings.ResolutionHeight;
+        if (ImGui::Selectable("Native Game Res", isNativeRes)) {
+          gameSettings.ResolutionWidth.reset();
+          gameSettings.ResolutionHeight.reset();
+        }
+        if (isNativeRes) ImGui::SetItemDefaultFocus();
+        for (auto&& [display, value] : resolutionOptions) {
+          if (value.x > maxRes.w || value.y > maxRes.h) continue;
+          bool isSelected = gameSettings.ResolutionWidth == value.x &&
+                            gameSettings.ResolutionHeight == value.y;
+          if (ImGui::Selectable(display, isSelected)) {
+            gameSettings.ResolutionWidth = value.x;
+            gameSettings.ResolutionHeight = value.y;
+          }
+          if (isSelected) ImGui::SetItemDefaultFocus();
+        }
+        ImGui::EndCombo();
+      }
+    }
+
+    {
+      static std::string currentWindowSize;
+
+      static int lastWindowWidth;
+      static int lastWindowHeight;
+
+      if (currentWindowSize.empty() ||
+          lastWindowWidth != gameSettings.WindowWidth ||
+          lastWindowHeight != gameSettings.WindowHeight) {
+        if (!gameSettings.WindowWidth || !gameSettings.WindowHeight) {
+          gameSettings.WindowWidth = UserConfig::CommonSettings.WindowWidth;
+          gameSettings.WindowHeight = UserConfig::CommonSettings.WindowHeight;
+        }
+
+        currentWindowSize = fmt::format("{}x{}", *gameSettings.WindowWidth,
+                                        *gameSettings.WindowHeight);
+
+        wasUpdated = true;
+        lastWindowWidth = *gameSettings.WindowWidth;
+        lastWindowHeight = *gameSettings.WindowHeight;
+      }
+
+      ImGui::Text("Window Size");
+      ImGui::SameLine();
+      ImGui::SetNextItemWidth(comboWidth);
+      if (ImGui::BeginCombo("##ChooseWindowSize", currentWindowSize.c_str())) {
+        for (auto&& [display, value] : resolutionOptions) {
+          if (value.x > maxRes.w || value.y > maxRes.h) continue;
+          bool isSelected = gameSettings.WindowWidth == value.x &&
+                            gameSettings.WindowHeight == value.y;
+          if (ImGui::Selectable(display, isSelected)) {
+            gameSettings.WindowWidth = value.x;
+            gameSettings.WindowHeight = value.y;
+          }
+          if (isSelected) ImGui::SetItemDefaultFocus();
+        }
+        ImGui::EndCombo();
+      }
     }
 
     ImGui::SameLine();
@@ -418,6 +457,31 @@ static void ShowGamePicker(std::string& selectedGame) {
     dispModeRadio("Fullscreen", DisplayMode::Fullscreen);
     ImGui::SameLine();
     dispModeRadio("Borderless", DisplayMode::Borderless);
+
+    ImGui::AlignTextToFramePadding();
+    ImGui::Text("Renderer Backend");
+    if (Profile::Game::HasInit) {
+      ImGui::SameLine();
+      ImGui::Text("(Will apply on next launch)");
+    }
+    ImGui::SameLine();
+    ImGui::SetNextItemWidth(comboWidth);
+    auto& activeRenderer = UserConfig::AdvancedSettings.ActiveRenderer;
+    if (ImGui::BeginCombo("##ChooseRenderer",
+                          magic_enum::enum_name(activeRenderer).data())) {
+      constexpr static auto rendererBackends =
+          magic_enum::enum_entries<RendererType>();
+      for (const auto& [type, name] : rendererBackends) {
+        bool isSelected = activeRenderer == type;
+        if (ImGui::Selectable(name.data(), isSelected)) {
+          wasUpdated |= activeRenderer != type;
+          activeRenderer = type;
+        }
+
+        if (isSelected) ImGui::SetItemDefaultFocus();
+      }
+      ImGui::EndCombo();
+    }
   }
 
   return wasUpdated;

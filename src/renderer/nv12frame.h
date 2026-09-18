@@ -8,8 +8,9 @@ class NV12Frame {
  public:
   float Width;
   float Height;
-  uint32_t LumaId;
-  uint32_t CbCrId;
+
+  uint32_t LumaId = 0;
+  uint32_t CbCrId = 0;
 
   virtual void Init(float width, float height) = 0;
 

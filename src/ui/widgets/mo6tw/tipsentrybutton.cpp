@@ -69,11 +69,11 @@ void TipsEntryButton::Update(float dt) {
 void TipsEntryButton::Render() {
   if (HasFocus) {
     const RectF dest =
-        HighlightSprite.ScaledBounds()
-            .Scale({Bounds.Width / HighlightSprite.ScaledWidth(), 1.0f},
+        HighlightSprite->ScaledBounds()
+            .Scale({Bounds.Width / HighlightSprite->ScaledWidth(), 1.0f},
                    {0.0f, 0.0f})
             .Translate(Bounds.GetPos() + HighlightOffset);
-    Renderer->DrawSprite(HighlightSprite, dest, Tint);
+    Renderer->DrawSprite(*HighlightSprite, dest, Tint);
   }
 
   Profile::Dialogue::DialogueFont->DrawProcessedText(TipNumber, Tint.a,

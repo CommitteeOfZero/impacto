@@ -55,28 +55,28 @@ PlainDialogueBox::PlainDialogueBox(const DialoguePage& page)
     : DialogueBox(page) {
   using namespace UI::Widgets;
 
-  Sprite nullSprite = Sprite();
-  nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
-
   if (HasAutoButton) {
-    ControlButtons.emplace_back(std::make_unique<Button>(
-        0, AutoButtonSprite, AutoButtonSprite, nullSprite, AutoButtonPosition));
+    ControlButtons.emplace_back(
+        std::make_unique<Button>(0, AutoButtonSprite, AutoButtonSprite,
+                                 std::nullopt, AutoButtonPosition));
   }
 
   if (HasSkipButton) {
-    ControlButtons.emplace_back(std::make_unique<Button>(
-        0, SkipButtonSprite, SkipButtonSprite, nullSprite, SkipButtonPosition));
+    ControlButtons.emplace_back(
+        std::make_unique<Button>(0, SkipButtonSprite, SkipButtonSprite,
+                                 std::nullopt, SkipButtonPosition));
   }
 
   if (HasBacklogButton) {
     ControlButtons.emplace_back(
         std::make_unique<Button>(0, BacklogButtonSprite, BacklogButtonSprite,
-                                 nullSprite, BacklogButtonPosition));
+                                 std::nullopt, BacklogButtonPosition));
   }
 
   if (HasMenuButton) {
-    ControlButtons.emplace_back(std::make_unique<Button>(
-        0, MenuButtonSprite, MenuButtonSprite, nullSprite, MenuButtonPosition));
+    ControlButtons.emplace_back(
+        std::make_unique<Button>(0, MenuButtonSprite, MenuButtonSprite,
+                                 std::nullopt, MenuButtonPosition));
   }
 }
 

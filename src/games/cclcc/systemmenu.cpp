@@ -75,9 +75,9 @@ SystemMenu::SystemMenu() : CommonMenu(FadeAnimation) {
   ScreenCap.Bounds.SetSize(viewport.GetSize());
 
   for (int i = 0; i < MenuEntriesNum; i++) {
-    SysMenuButton* menuButton = new SysMenuButton(
-        i, MenuEntriesSprites[i], Sprite(), MenuEntriesHSprites[i],
-        MenuEntriesPositions[i], MenuEntriesButtonBounds[i]);
+    SysMenuButton* menuButton =
+        new SysMenuButton(i, MenuEntriesSprites[i], MenuEntriesHSprites[i],
+                          MenuEntriesPositions[i], MenuEntriesButtonBounds[i]);
 
     menuButton->OnClickHandler = onClick;
     MainItems->Add(menuButton, FDIR_DOWN);

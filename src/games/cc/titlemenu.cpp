@@ -65,9 +65,6 @@ TitleMenu::TitleMenu() {
   };
   auto extraOnClick = [this](auto* btn) { return ExtraButtonOnClick(btn); };
 
-  Sprite nullSprite = Sprite();
-  nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
-
   // NewGame menu button
   NewGame = new TitleButton(
       0, MenuEntriesSprites[0], MenuEntriesHSprites[0], ItemHighlightSprite,
@@ -109,7 +106,7 @@ TitleMenu::TitleMenu() {
   MainItems->Add(Help, FDIR_DOWN);
 
   // Load secondary Continue menu button
-  Load = new TitleButton(10, LoadSprite, LoadHighlightSprite, nullSprite,
+  Load = new TitleButton(10, LoadSprite, LoadHighlightSprite, std::nullopt,
                          glm::vec2(((SecondaryFirstItemHighlightOffsetX)) +
                                        SecondaryFirstItemHighlightOffsetX,
                                    (ItemYBase + (2 * ItemPadding))));
@@ -118,17 +115,17 @@ TitleMenu::TitleMenu() {
   ContinueItems->Add(Load, FDIR_RIGHT);
 
   // QuickLoad secondary Continue menu button
-  QuickLoad =
-      new TitleButton(11, QuickLoadSprite, QuickLoadHighlightSprite, nullSprite,
-                      glm::vec2(((SecondarySecondItemHighlightOffsetX)) +
-                                    SecondarySecondItemHighlightOffsetX,
-                                (ItemYBase + (2 * ItemPadding))));
+  QuickLoad = new TitleButton(
+      11, QuickLoadSprite, QuickLoadHighlightSprite, std::nullopt,
+      glm::vec2(((SecondarySecondItemHighlightOffsetX)) +
+                    SecondarySecondItemHighlightOffsetX,
+                (ItemYBase + (2 * ItemPadding))));
   QuickLoad->OnClickHandler = onClick;
   QuickLoad->IsSubButton = true;
   ContinueItems->Add(QuickLoad, FDIR_RIGHT);
 
   // Tips secondary Extra menu button
-  Tips = new TitleButton(30, TipsSprite, TipsHighlightSprite, nullSprite,
+  Tips = new TitleButton(30, TipsSprite, TipsHighlightSprite, std::nullopt,
                          glm::vec2(((SecondaryFirstItemHighlightOffsetX)) +
                                        SecondaryFirstItemHighlightOffsetX,
                                    (ItemYBase + (3 * ItemPadding))));
@@ -138,7 +135,7 @@ TitleMenu::TitleMenu() {
 
   // Library secondary Extra menu button
   Library =
-      new TitleButton(31, LibrarySprite, LibraryHighlightSprite, nullSprite,
+      new TitleButton(31, LibrarySprite, LibraryHighlightSprite, std::nullopt,
                       glm::vec2(((SecondarySecondItemHighlightOffsetX)) +
                                     SecondarySecondItemHighlightOffsetX,
                                 (ItemYBase + (3 * ItemPadding))));
@@ -148,7 +145,7 @@ TitleMenu::TitleMenu() {
 
   // EndingList secondary Extra menu button
   EndingList = new TitleButton(
-      32, EndingListSprite, EndingListHighlightSprite, nullSprite,
+      32, EndingListSprite, EndingListHighlightSprite, std::nullopt,
       glm::vec2(((SecondaryThirdItemHighlightOffsetX)) +
                     SecondaryThirdItemHighlightOffsetX,
                 (ItemYBase + (3 * ItemPadding))));

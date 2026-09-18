@@ -25,12 +25,11 @@ using namespace Impacto::UI::CCLCC;
 
 TipsTabButton::TipsTabButton(
     TipsTabType type, std::function<void(Widgets::Button*)> onClickHandler)
-
     : Button(
-          type, TipsHighlightedTabSprite, Sprite(), Sprite(),
+          type, TipsHighlightedTabSprite, std::nullopt, std::nullopt,
           TipsTabNameDisplay + glm::vec2(type * TipsHighlightedTabAdder, 0)) {
   OnClickHandler = std::move(onClickHandler);
-  NormalSprite.Bounds.X += type * TipsHighlightedTabAdder;
+  NormalSprite->Bounds.X += type * TipsHighlightedTabAdder;
 }
 
 void TipsTabButton::Reset() {

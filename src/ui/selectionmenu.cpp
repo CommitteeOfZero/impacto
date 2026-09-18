@@ -46,9 +46,6 @@ void SelectionMenu::AddChoice(Vm::BufferOffsetContext ctx) {
 void SelectionMenu::Show() {
   ChoiceItems = new Widgets::Group(this);
 
-  Sprite nullSprite = Sprite();
-  nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
-
   auto onClick = [this](auto* btn) { return ChoiceItemOnClick(btn); };
 
   if (IsPlain) {
@@ -74,7 +71,7 @@ void SelectionMenu::Show() {
       choiceY += Profile::Dialogue::DefaultFontSize + PlainSelectionYSpacing;
 
       Button* choice = new Button(
-          i, nullSprite, nullSprite, SelectionHighlight,
+          i, std::nullopt, std::nullopt, SelectionHighlight,
           glm::vec2(Choices[i][0].DestRect.X, Choices[i][0].DestRect.Y));
 
       choice->SetText(Choices[i], ChoiceWidths[i],
@@ -103,7 +100,7 @@ void SelectionMenu::Show() {
       choiceY += SelectionYSpacing;
 
       Button* choice = new Button(
-          i, nullSprite, SelectionFocused, SelectionHighlight,
+          i, std::nullopt, SelectionFocused, SelectionHighlight,
           glm::vec2(Choices[i][0].DestRect.X, Choices[i][0].DestRect.Y));
 
       choice->SetText(Choices[i], ChoiceWidths[i],
