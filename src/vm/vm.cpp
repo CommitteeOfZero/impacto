@@ -151,13 +151,13 @@ void Init() {
   }
 
   for (int i = 0; i < MaxThreads - 1; i++) {
-    memset(&ThreadPool[i], 0, sizeof(Sc3VmThread));
+    ThreadPool[i] = {};
     ThreadPool[i].NextFreeContext = &ThreadPool[i + 1];
     ThreadPool[i].Id = i;
   }
 
   NextFreeThreadCtx = ThreadPool;
-  memset(&ThreadPool[MaxThreads - 1], 0, sizeof(Sc3VmThread));
+  ThreadPool[MaxThreads - 1] = {};
   ThreadPool[MaxThreads - 1].Id = MaxThreads - 1;
 
   for (int i = 0; i < MaxThreadGroups; i++) {
@@ -397,7 +397,7 @@ void DestroyThread(Sc3VmThread* thread) {
   }
   --ThreadGroupCount[thread->GroupId];
   int id = thread->Id;
-  memset(thread, 0, sizeof(Sc3VmThread));
+  thread = new Sc3VmThread{};
   thread->Id = id;
   thread->NextFreeContext = NextFreeThreadCtx;
   NextFreeThreadCtx = thread;
