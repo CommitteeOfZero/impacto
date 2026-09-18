@@ -74,10 +74,12 @@ void TipsNotification::Update(float dt) {
     auto tipNameAdr = NotificationQueue.front();
     auto [buffers, tipsScrBufId] = TipsSystem::GetTipsScriptBufferCtx();
     TipName->SetText(
-        Vm::BufferOffsetContext{.Buffers = buffers, .BufferId = tipsScrBufId, .IpOffset = tipNameAdr},
+        Vm::BufferOffsetContext{.Buffers = buffers,
+                                .BufferId = tipsScrBufId,
+                                .IpOffset = tipNameAdr},
         {FinalNotificationPosition.x + TextPartBefore->Bounds.Width,
-          FinalNotificationPosition.y},
-          FontSize, RendererOutlineMode::Full, TipNameColorIndex);
+         FinalNotificationPosition.y},
+        FontSize, RendererOutlineMode::Full, TipNameColorIndex);
     TipName->MoveTo(
         glm::vec2(FinalNotificationPosition.x + TextPartBefore->Bounds.Width,
                   FinalNotificationPosition.y));

@@ -612,8 +612,8 @@ void TipsMenu::SwitchToTipId(int id) {
   auto tipRecord = TipsSystem::GetTipRecord(id);
   auto nameStr = TipsSystem::GetTextStringStream(id, 0);
   auto pronunciationStr = TipsSystem::GetTextStringStream(id, 1);
-  Name->SetText(nameStr, {0.0f, 0.0f}, NameFontSize, RendererOutlineMode::BottomRight,
-                DefaultColorIndex);
+  Name->SetText(nameStr, {0.0f, 0.0f}, NameFontSize,
+                RendererOutlineMode::BottomRight, DefaultColorIndex);
   Pronunciation->SetText(pronunciationStr, {0.0f, 0.0f}, PronunciationFontSize,
                          RendererOutlineMode::BottomRight, DefaultColorIndex);
   // Right alignment

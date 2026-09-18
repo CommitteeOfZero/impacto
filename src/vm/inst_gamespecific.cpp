@@ -517,7 +517,8 @@ VmInstruction(InstMapSystem) {
     case 0xA: {
       PopExpression(arg1);
       PopExpression(arg2);
-      inst.MapGetPos(arg1, arg2, ScrWork[SW_MAP_DST_POS_X], ScrWork[SW_MAP_DST_POS_Y]);
+      inst.MapGetPos(arg1, arg2, ScrWork[SW_MAP_DST_POS_X],
+                     ScrWork[SW_MAP_DST_POS_Y]);
 
     } break;
     case 0xB: {

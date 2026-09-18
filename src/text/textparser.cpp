@@ -410,7 +410,8 @@ void TextParser::FinishName() {
     nameStream = Vm::Sc3Stream(NameCode.data());
   }
 
-  const float nameWidth = TextGetPlainLineWidth(nameStream, *DialogueFont, ModeInfo.NameGlyphSize.y);
+  const float nameWidth = TextGetPlainLineWidth(nameStream, *DialogueFont,
+                                                ModeInfo.NameGlyphSize.y);
 
   glm::vec2 pos{};
   switch (ModeInfo.NameDispMode) {
