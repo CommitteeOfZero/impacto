@@ -772,7 +772,8 @@ void TitleMenu::Render() {
         CommonMenu::DrawSmoke(SmokeOpacityNormal *
                               (1.0f - ScrWork[SW_TITLEDISPCT] / 32.0f));
       }
-      // FadingIn is used only on switch and it increments CT instead on decrementing in that FSM state
+      // FadingIn is used only on switch and it increments CT instead on
+      // decrementing in that FSM state
       const auto ct = (mode == FadingOut) ? ScrWork[SW_TITLEDISPCT]
                                           : 32 - ScrWork[SW_TITLEDISPCT];
 

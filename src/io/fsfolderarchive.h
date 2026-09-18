@@ -23,8 +23,8 @@ class FSFolderArchive : public VfsArchive {
                         std::optional<FolderArchiveParameters> params);
 
  private:
-  static IoError SortTOCLexicographically(FSFolderArchive* result,
-                                       std::filesystem::path const& rootPath);
+  static IoError SortTOCLexicographically(
+      FSFolderArchive* result, std::filesystem::path const& rootPath);
   static IoError SortTOCByOrderFile(FSFolderArchive* result,
                                     VfsArchive** orderLines);
   std::vector<TextMetaEntry> TOC;

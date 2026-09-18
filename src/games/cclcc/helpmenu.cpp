@@ -103,8 +103,7 @@ void HelpMenu::UpdateInput(float dt) {
         Input::MouseWheelDeltaY < 0 || Input::TouchFlickLeft;
     if (State == Shown && prevBtnPressed && FadeAnimation.Progress == 1.0f) {
       PreviousPage = CurrentPage;
-      CurrentPage =
-          (int)((CurrentPage - 1 + manualPages) % manualPages);
+      CurrentPage = (int)((CurrentPage - 1 + manualPages) % manualPages);
       FadeAnimation.StartIn(true);
       NextPageAnimation.StartIn(true);
       IsGoingNext = false;

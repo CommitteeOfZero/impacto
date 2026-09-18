@@ -44,13 +44,13 @@ void* Sc3VmThread::GetMemberPointer(uint32_t offset) {
   }
 }
 
-  uint8_t* Sc3VmThread::GetIp(bool isString) const {
+uint8_t* Sc3VmThread::GetIp(bool isString) const {
   auto const& buffer = isString && UseMSBBuffers
                            ? MsbBuffers[ScriptBufferId]
                            : ScriptBuffers[ScriptBufferId];
   return &buffer[IpOffset];
 }
-  void Sc3VmThread::SetIp(uint8_t* ptr, bool isString) {
+void Sc3VmThread::SetIp(uint8_t* ptr, bool isString) {
   auto const& buffer = isString && UseMSBBuffers
                            ? MsbBuffers[ScriptBufferId]
                            : ScriptBuffers[ScriptBufferId];

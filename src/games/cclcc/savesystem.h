@@ -13,7 +13,8 @@ using namespace Impacto::SaveSystem;
 
 constexpr size_t SaveEntrySize = 0x1b110;
 constexpr size_t SystemSaveSize = 0x387c;
-constexpr int SaveFileSize = SaveEntrySize * MaxSaveEntries * 2 + SystemSaveSize;
+constexpr int SaveFileSize =
+    SaveEntrySize * MaxSaveEntries * 2 + SystemSaveSize;
 
 constexpr int SaveThumbnailWidth = 240;
 constexpr int SaveThumbnailHeight = 135;
