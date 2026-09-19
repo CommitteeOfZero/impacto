@@ -1,5 +1,7 @@
 #include "label.h"
 #include "../../vm/thread.h"
+#include "../../profile/dialogue.h"
+#include "../../profile/vm.h"
 
 #include <numeric>
 
@@ -87,7 +89,8 @@ void Label::SetText(LabelStringType auto str, glm::vec2 pos, float fontSize,
                                Vm::BufferOffsetContext>) {
     Impacto::Vm::Sc3VmThread dummy;
     dummy.IpOffset = str.IpOffset;
-    dummy.ScriptBufferId = str.ScriptBufferId;
+    dummy.ScriptBufferId = str.BufferId;
+    dummy.UseMSBBuffers = Profile::Vm::UseMsbStrings;
     text = TextLayoutPlainLine(&dummy, 255, *Profile::Dialogue::DialogueFont,
                                fontSize, colorPair, 1.0f, glm::vec2(0.0f),
                                TextAlignment::Left);

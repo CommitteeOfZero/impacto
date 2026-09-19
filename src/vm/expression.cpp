@@ -104,6 +104,27 @@ int ExpressionEval(Sc3VmThread* thd) {
   return root == nullptr ? 0 : rootPtr->Evaluate(thd);
 }
 
+int ExpressionSkip(uint8_t* ip) {
+  uint8_t* ipLocal = ip;
+  while (*ipLocal != 0) {
+    if ((*ipLocal & 0x80) == 0) {
+      ipLocal = ipLocal + 2;
+    } else {
+      uint8_t b = *ipLocal & 0x60;
+      if ((*ipLocal & 0x60) == 0) {
+        ipLocal = ipLocal + 2;
+      } else if (b == 0x20) {
+        ipLocal = ipLocal + 3;
+      } else if (b == 0x40) {
+        ipLocal = ipLocal + 4;
+      } else if (b == 0x60) {
+        ipLocal = ipLocal + 6;
+      }
+    }
+  }
+  return (int)(ipLocal + 1 - ip);
+}
+
 int ExpressionNode::Evaluate(Sc3VmThread* thd) {
   int leftVal, rightVal;
 
@@ -195,8 +216,11 @@ int ExpressionNode::Evaluate(Sc3VmThread* thd) {
       break;
     case ET_ImmediateValue:
       return Value;
-    case ET_FuncGlobalVars:
-      return ScrWork[RightExpr->Evaluate(thd)];
+    case ET_FuncGlobalVars: {
+      int index = RightExpr->Evaluate(thd);
+      index = std::clamp(index, 0, ScrWorkSize);
+      return ScrWork[index];
+    }
     case ET_FuncFlags:
       return GetFlag(RightExpr->Evaluate(thd));
     case ET_FuncDataAccess:
@@ -294,9 +318,11 @@ void ExpressionNode::AssignValue(Sc3VmThread* thd) {
   int index = LeftExpr->RightExpr->Evaluate(thd);
 
   switch (LeftExpr->ExprType) {
-    case ET_FuncGlobalVars:
-      ScrWork[index] = leftVal;
-      break;
+    case ET_FuncGlobalVars: {
+      if (index >= 0 && index < ScrWorkSize) {
+        ScrWork[index] = leftVal;
+      }
+    } break;
     case ET_FuncFlags:
       SetFlag(index, leftVal);
       break;

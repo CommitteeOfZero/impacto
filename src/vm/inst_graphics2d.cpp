@@ -105,7 +105,7 @@ VmInstruction(InstBGload) {
   StartInstruction;
   PopExpression(bufferId);
   PopExpression(backgroundId);
-  int actualBufId = GetBufferId(bufferId);
+  int actualBufId = bufferId > 0 ? GetBufferId(bufferId) : 0;
   int bgBufId = ScrWork[SW_BG1SURF + actualBufId];
   if (Backgrounds2D[bgBufId]->Status == LoadStatus::Loading) {
     ResetInstruction;
@@ -113,6 +113,40 @@ VmInstruction(InstBGload) {
   } else if (ScrWork[SW_BG1NO + ScrWorkBgStructSize * actualBufId] !=
              backgroundId) {
     ScrWork[SW_BG1NO + ScrWorkBgStructSize * actualBufId] = backgroundId;
+    Backgrounds2D[bgBufId]->LoadAsync(backgroundId);
+    ResetInstruction;
+    BlockThread;
+  }
+}
+// TODO: not finished
+VmInstruction(InstBGloadNew) {
+  StartInstruction;
+  PopUint8(type);
+  PopExpression(bufferId);
+  PopExpression(backgroundId);
+  if ((type & 0x7f) == 0x10) {
+    PopExpression(unk01);
+  }
+  [[maybe_unused]]
+  char* name = nullptr;
+  if (type & 0x80) {
+    name = reinterpret_cast<char*>(thread->GetIp());
+    do {
+      thread->IpOffset++;
+    } while ((*thread->GetIp()) != '\0');
+    thread->IpOffset++;
+  }
+  const int actualBufId = GetBufferId(bufferId);
+  const int bgBufId = ScrWork[SW_BG1SURF + actualBufId];
+  // remove flags from value, it can be used in the script computations
+  const int actualBgNo =
+      backgroundId != -1 ? backgroundId & 0x00FFFFFF : backgroundId;
+  if (Backgrounds2D[bgBufId]->Status == LoadStatus::Loading) {
+    ResetInstruction;
+    BlockThread;
+  } else if (ScrWork[SW_BG1NO + ScrWorkBgStructSize * actualBufId] !=
+             actualBgNo) {
+    ScrWork[SW_BG1NO + ScrWorkBgStructSize * actualBufId] = actualBgNo;
     Backgrounds2D[bgBufId]->LoadAsync(backgroundId);
     ResetInstruction;
     BlockThread;

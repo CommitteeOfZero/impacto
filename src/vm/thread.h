@@ -47,7 +47,8 @@ enum ThreadMemberOffset {
 };
 
 struct BufferOffsetContext {
-  uint32_t ScriptBufferId;
+  std::span<std::span<uint8_t>> Buffers;
+  uint32_t BufferId;
   uint32_t IpOffset;
 };
 
@@ -80,10 +81,11 @@ struct Sc3VmThread {
   uint32_t Temp2;
   uint32_t Variables[MaxThreadVars];
   uint32_t DialoguePageId;
+  bool UseMSBBuffers = false;
 
   void* GetMemberPointer(uint32_t offset);
-  uint8_t* GetIp() const;
-  void SetIp(uint8_t* ptr);
+  uint8_t* GetIp(bool isString = false) const;
+  void SetIp(uint8_t* ptr, bool isString = false);
   void SetIp(BufferOffsetContext ctx);
 };
 

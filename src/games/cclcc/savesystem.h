@@ -12,7 +12,9 @@ namespace CCLCC {
 using namespace Impacto::SaveSystem;
 
 constexpr size_t SaveEntrySize = 0x1b110;
-constexpr int SaveFileSize = SaveEntrySize * MaxSaveEntries * 2 + 0x387c;
+constexpr size_t SystemSaveSize = 0x387c;
+constexpr int SaveFileSize =
+    SaveEntrySize * MaxSaveEntries * 2 + SystemSaveSize;
 
 constexpr int SaveThumbnailWidth = 240;
 constexpr int SaveThumbnailHeight = 135;
@@ -90,7 +92,7 @@ class SaveSystem : public SaveSystemBase {
  private:
   uint8_t GameExtraData[1024];
   uint8_t MessageFlags[10000];
-  std::array<uint8_t, 0x387c> SystemData;
+  std::array<uint8_t, SystemSaveSize> SystemData;
   bool EVFlags[1200];
   uint8_t BGMFlags[200];
   std::optional<SaveFileEntry> WorkingSaveEntry;

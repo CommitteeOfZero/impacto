@@ -13,7 +13,9 @@
 #include "../../profile/scriptvars.h"
 #include "../../profile/game.h"
 #include "../../profile/patch.h"
+#include "../../profile/vm.h"
 #include "../../vm/interface/input.h"
+#include "../../vm/vm.h"
 #include "../../audio/audiosystem.h"
 #include "../../profile/scriptinput.h"
 
@@ -30,6 +32,58 @@ using namespace Impacto::Profile;
 using namespace Impacto::Vm::Interface;
 
 using namespace Impacto::UI::Widgets::CCLCC;
+
+static CC::TitleMenuMode::Mode LookupTitleMenuState(int scriptState) {
+  using enum CC::TitleMenuMode::Mode;
+  ImpLogSlow(LogLevel::Trace, LogChannel::General, "title menu state: {}\n",
+             scriptState);
+  if (Profile::Vm::GameInstructionSet ==
+      Impacto::Vm::InstructionSet::LCCSwitch) {
+    switch (scriptState) {
+      case 0:
+        return Invisible;
+      case 2:
+        return PressToStart;
+      case 3:
+        return StartTransition;
+      case 9:
+      case 10:
+        return Main;
+      case 12:
+        return FadingOut;
+      case 11:
+        return SubMenu;
+      case 18:
+        return InitialFade;
+      case 13:
+        return ClearList;
+      case 16:
+        return FadingIn;
+    }
+  } else {
+    switch (scriptState) {
+      case 0:
+        return Invisible;
+      case 1:
+        return PressToStart;
+      case 2:
+        return StartTransition;
+      case 3:
+        return Main;
+      case 4:
+        return FadingOut;
+      case 5:
+        return SubMenu;
+      case 11:
+        return InitialFade;
+      case 13:
+        return ClearList;
+    }
+  }
+  ImpLog(LogLevel::Error, LogChannel::General, "Unknown title menu state: {}\n",
+         scriptState);
+  return InitialFade;
+}
 
 void TitleMenu::MenuButtonOnClick(Widgets::Button* target) {
   TitleButton* button = static_cast<TitleButton*>(target);
@@ -125,8 +179,8 @@ TitleMenu::TitleMenu() {
   };
 
   // NewGame menu button
-  NewGame = new TitleButton(0, MenuEntriesSprites[0], MenuEntriesHSprites[0],
-                            ItemHighlightSprite,
+  NewGame = new TitleButton(NewButtonId, MenuEntriesSprites[0],
+                            MenuEntriesHSprites[0], ItemHighlightSprite,
                             glm::vec2((-1.0f) + ItemHighlightOffset.x,
                                       (ItemYBase + (0 * ItemPadding))));
   setupBtn(NewGame, onClick, MainItems, FDIR_DOWN);
@@ -151,13 +205,15 @@ TitleMenu::TitleMenu() {
 
   // Config menu button
   Config = new TitleButton(
-      30, MenuEntriesSprites[3], MenuEntriesHSprites[3], ItemHighlightSprite,
+      ConfigButtonId, MenuEntriesSprites[3], MenuEntriesHSprites[3],
+      ItemHighlightSprite,
       glm::vec2(ItemHighlightOffset.x, (ItemYBase + (3 * ItemPadding))));
   setupBtn(Config, onClick, MainItems, FDIR_DOWN);
 
   // Help menu button
   Help = new TitleButton(
-      40, MenuEntriesSprites[4], MenuEntriesHSprites[4], ItemHighlightSprite,
+      HelpButtonId, MenuEntriesSprites[4], MenuEntriesHSprites[4],
+      ItemHighlightSprite,
       glm::vec2(ItemHighlightOffset.x, (ItemYBase + (4 * ItemPadding))));
   setupBtn(Help, onClick, MainItems, FDIR_DOWN);
 
@@ -174,34 +230,36 @@ TitleMenu::TitleMenu() {
   }
 
   // Load secondary Continue menu button
-  Load = new TitleButton(10, LoadSprite, LoadHighlightSprite, nullSprite,
-                         glm::vec2(SecondaryFirstItemHighlightOffsetX,
-                                   (ItemYBase + (2 * ItemPadding))));
+  Load =
+      new TitleButton(LoadButtonId, LoadSprite, LoadHighlightSprite, nullSprite,
+                      glm::vec2(SecondaryFirstItemHighlightOffsetX,
+                                (ItemYBase + (2 * ItemPadding))));
   setupBtn(Load, onClick, ContinueItems, FDIR_RIGHT);
 
   // QuickLoad secondary Continue menu button
-  QuickLoad =
-      new TitleButton(11, QuickLoadSprite, QuickLoadHighlightSprite, nullSprite,
-                      glm::vec2(SecondarySecondItemHighlightOffsetX,
-                                (ItemYBase + (2 * ItemPadding))));
+  QuickLoad = new TitleButton(QLoadButtonId, QuickLoadSprite,
+                              QuickLoadHighlightSprite, nullSprite,
+                              glm::vec2(SecondarySecondItemHighlightOffsetX,
+                                        (ItemYBase + (2 * ItemPadding))));
   setupBtn(QuickLoad, onClick, ContinueItems, FDIR_RIGHT);
 
   // Tips secondary Extra menu button
-  Tips = new TitleButton(20, TipsSprite, TipsHighlightSprite, nullSprite,
-                         glm::vec2(SecondaryFirstItemHighlightOffsetX,
-                                   (ItemYBase + (3 * ItemPadding))));
+  Tips =
+      new TitleButton(TipsButtonId, TipsSprite, TipsHighlightSprite, nullSprite,
+                      glm::vec2(SecondaryFirstItemHighlightOffsetX,
+                                (ItemYBase + (3 * ItemPadding))));
   setupBtn(Tips, onClick, ExtraItems, FDIR_RIGHT);
 
   // Library secondary Extra menu button
-  Library =
-      new TitleButton(21, LibrarySprite, LibraryHighlightSprite, nullSprite,
-                      glm::vec2(SecondarySecondItemHighlightOffsetX,
-                                (ItemYBase + (3 * ItemPadding))));
+  Library = new TitleButton(LibraryButtonId, LibrarySprite,
+                            LibraryHighlightSprite, nullSprite,
+                            glm::vec2(SecondarySecondItemHighlightOffsetX,
+                                      (ItemYBase + (3 * ItemPadding))));
   setupBtn(Library, onClick, ExtraItems, FDIR_RIGHT);
 
   // EndingList secondary Extra menu button
-  EndingList = new TitleButton(22, EndingListSprite, EndingListHighlightSprite,
-                               nullSprite,
+  EndingList = new TitleButton(EndingListButtonId, EndingListSprite,
+                               EndingListHighlightSprite, nullSprite,
                                glm::vec2(SecondaryThirdItemHighlightOffsetX,
                                          (ItemYBase + (3 * ItemPadding))));
   setupBtn(EndingList, onClick, ExtraItems, FDIR_RIGHT);
@@ -286,9 +344,11 @@ void TitleMenu::Hide() {
 }
 
 void TitleMenu::UpdateInput(float dt) {
-  if (ScrWork[SW_TITLEMODE] == CC::TitleMenuMode::SubMenu ||
-      ScrWork[SW_TITLEMODE] == CC::TitleMenuMode::ClearList ||
-      ScrWork[SW_TITLEMODE] == CC::TitleMenuMode::Main) {
+  auto currentState = LookupTitleMenuState(ScrWork[SW_TITLEMODE]);
+
+  if (currentState == CC::TitleMenuMode::SubMenu ||
+      currentState == CC::TitleMenuMode::ClearList ||
+      currentState == CC::TitleMenuMode::Main) {
     if (!InputLocked && !PrevInputLocked) {
       if (SlideItemsAnimation.State == AnimationState::Playing ||
           SecondaryFadeAnimation.State == AnimationState::Playing ||
@@ -388,9 +448,10 @@ void TitleMenu::Update(float dt) {
   MenuLabel->Update(dt);
   ContinueItems->Update(dt);
   ExtraItems->Update(dt);
+  auto mode = LookupTitleMenuState(ScrWork[SW_TITLEMODE]);
 
   PressToStartTransitionCaptureSet &=
-      ScrWork[SW_TITLEMODE] == CC::TitleMenuMode::StartTransition;
+      mode == CC::TitleMenuMode::StartTransition;
 
   if (GetFlag(SF_TITLEMODE)) {
     Show();
@@ -399,7 +460,7 @@ void TitleMenu::Update(float dt) {
   }
 
   if (State != Hidden && GetFlag(SF_TITLEMODE)) {
-    switch (ScrWork[SW_TITLEMODE]) {
+    switch (mode) {
       using enum CC::TitleMenuMode::Mode;
       case PressToStart: {
         if (PressToStartAnimation.LoopMode !=
@@ -421,6 +482,10 @@ void TitleMenu::Update(float dt) {
       case ClearList: {
         SubMenuUpdate();
       } break;
+      default: {
+        ImpLog(LogLevel::Error, LogChannel::General,
+               "Unexpected title menu state: {}\n", mode);
+      }
     }
     if (SubMenuState == Hiding && ScrWork[SW_SYSSUBMENUCT] == 0) {
       SubMenuState = Hidden;
@@ -428,7 +493,7 @@ void TitleMenu::Update(float dt) {
       SubMenuState = Shown;
       IsFocused = true;
     }
-    IsExploding &= ScrWork[SW_TITLEMODE] == CC::TitleMenuMode::StartTransition;
+    IsExploding &= mode == CC::TitleMenuMode::StartTransition;
   }
 }
 
@@ -454,12 +519,12 @@ void TitleMenu::ExplodeScreenUpdate() {
   }
 
   if (TitleAnimation.IsOut() && !IsExploding) {
-    TitleAnimation.StartIn();
+    TitleAnimation.StartIn(true);
     IsExploding = true;
     EverExploded = true;
   }
   if (TitleAnimation.IsIn() && !IsExploding) {
-    TitleAnimation.StartOut();
+    TitleAnimation.StartOut(false);
     IsExploding = true;
   }
   TitleAnimationSprite.Show = true;
@@ -632,8 +697,8 @@ void TitleMenu::Render() {
           : nullptr;
   const bool renderOverlay =
       currentActiveMenu == nullptr || currentActiveMenu->State == Hidden;
-
-  switch (ScrWork[SW_TITLEMODE]) {
+  auto mode = LookupTitleMenuState(ScrWork[SW_TITLEMODE]);
+  switch (mode) {
     using enum CC::TitleMenuMode::Mode;
     case PressToStart: {
       Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f));
@@ -691,6 +756,7 @@ void TitleMenu::Render() {
       }
     } break;
 
+    case FadingIn:
     case FadingOut: {
       Renderer->DrawSprite(MainBackgroundSprite, {0.0f, 0.0f});
 
@@ -706,10 +772,14 @@ void TitleMenu::Render() {
         CommonMenu::DrawSmoke(SmokeOpacityNormal *
                               (1.0f - ScrWork[SW_TITLEDISPCT] / 32.0f));
       }
+      // FadingIn is used only on switch and it increments CT instead on
+      // decrementing in that FSM state
+      const auto ct = (mode == FadingOut) ? ScrWork[SW_TITLEDISPCT]
+                                          : 32 - ScrWork[SW_TITLEDISPCT];
 
       Renderer->DrawQuad(RectF(0.0f, 0.0f, Profile::Game::DesignWidth,
                                Profile::Game::DesignHeight),
-                         {0.0f, 0.0f, 0.0f, ScrWork[SW_TITLEDISPCT] / 32.0f});
+                         {0.0f, 0.0f, 0.0f, ct / 32.0f});
     } break;
 
     case SubMenu:
@@ -741,6 +811,10 @@ void TitleMenu::Render() {
       Renderer->DrawSprite(CopyrightTextSprite, CopyrightTextPos,
                            {1.0f, 1.0f, 1.0f, progress});
     } break;
+    default: {
+      ImpLog(LogLevel::Error, LogChannel::General,
+             "Unexpected title menu state: {}\n", mode);
+    }
   }
 
   int maskAlpha = ScrWork[SW_TITLEMASKALPHA];

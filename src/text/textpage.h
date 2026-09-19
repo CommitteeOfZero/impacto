@@ -10,7 +10,7 @@ struct RubyChunk {
   size_t FirstBaseCharacter = 0;
   size_t BaseLength = 0;
   std::vector<ProcessedTextGlyph> Text;
-  std::vector<uint16_t> RawText;
+  std::vector<uint32_t> RawText;
   bool CenterPerCharacter = false;
 
   void FinishBase(size_t glyphCount) {

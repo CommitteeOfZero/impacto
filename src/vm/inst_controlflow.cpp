@@ -241,13 +241,12 @@ VmInstruction(InstClickOnJump) {
   PopExpression(arg2);
   PopUint16(labelNum);
   uint32_t labelAdr = ScriptGetLabelAddress(thread->ScriptBufferId, labelNum);
-  if (Input::KeyboardButtonWentDown[SDL_SCANCODE_D]) {
+  Interface::ControlType::ControlTypeEnum controlType =
+      static_cast<Interface::ControlType::ControlTypeEnum>(arg2);
+  if (Interface::GetControlState(controlType,
+                                 Interface::InputDownType::WentDown)) {
     thread->IpOffset = labelAdr;
   }
-  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-             "STUB instruction ClickOnJump(arg1: {:d}, arg2: {:d}, "
-             "labelNum: {:d})\n",
-             arg1, arg2, labelNum);
 }
 VmInstruction(InstKeyboardOnJump) {
   using namespace Interface;
@@ -348,7 +347,6 @@ VmInstruction(InstFlagOffReturn) {
     }
   }
 }
-
 }  // namespace Vm
 
 }  // namespace Impacto

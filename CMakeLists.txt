@@ -230,6 +230,7 @@ set(Impacto_Src
     src/games/cclcc/delusiontrigger.cpp
     src/games/cclcc/yesnotrigger.cpp
     src/games/cclcc/savesystem.cpp
+    src/games/cclcc/savesystem_switch.cpp
     src/games/cclcc/systemmenu.cpp
     src/games/cclcc/helpmenu.cpp
 
@@ -390,6 +391,7 @@ set(Impacto_Src
     src/audio/atrac9audiostream.cpp
     src/audio/adxaudiostream.cpp
     src/audio/hcaaudiostream.cpp
+    src/audio/lopusaudiostream.cpp
 
     src/video/videosystem.cpp
     src/video/videoplayer.cpp
@@ -744,7 +746,17 @@ set(Impacto_Header
     src/vm/inst_misc.h
     src/vm/inst_movie.h
     src/vm/inst_sound.h
+    src/vm/opcodetables_cc.h
+    src/vm/opcodetables_chlcc.h
+    src/vm/opcodetables_chn.h
+    src/vm/opcodetables_darling.h
+    src/vm/opcodetables_dash.h
+    src/vm/opcodetables_lccswitch.h
+    src/vm/opcodetables_mo6tw.h
+    src/vm/opcodetables_mo7.h
+    src/vm/opcodetables_mo8.h
     src/vm/opcodetables_rne.h
+    src/vm/opcodetables_sgps3.h
 
     src/vm/interface/scene3d.h
     src/vm/interface/input.h
@@ -760,6 +772,7 @@ set(Impacto_Header
     src/audio/atrac9audiostream.h
     src/audio/adxaudiostream.h
     src/audio/hcaaudiostream.h
+    src/audio/lopusaudiostream.h
 
     src/video/videosystem.h
     src/video/videoplayer.h
@@ -997,6 +1010,7 @@ else ()
     )
     find_package(Ogg CONFIG REQUIRED)
     find_package(Vorbis CONFIG REQUIRED)
+    find_package(Opus CONFIG REQUIRED)
     find_package(WebP CONFIG REQUIRED)
 
     list(APPEND Impacto_Libs
@@ -1006,6 +1020,7 @@ else ()
         Ogg::ogg
         Vorbis::vorbis
         Vorbis::vorbisfile
+        Opus::opus
     )
 
     if (NX)
