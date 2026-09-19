@@ -129,7 +129,6 @@ void SubtitleRenderTrack::UpdateSubtitleGlyphs(ASS_Image* images) {
   }
 
   for (const auto& key : removalKeys) {
-    Renderer->FreeTexture(GlyphTextures[key]);
     GlyphTextures.erase(key);
   }
 }

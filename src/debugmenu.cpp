@@ -759,14 +759,14 @@ void ShowScriptDebugger() {
   ImGui::PopItemWidth();
 }
 
-static ankerl::unordered_dense::map<uint32_t, std::vector<std::string>>
+static ankerl::unordered_dense::map<uint64_t, std::vector<std::string>>
     SpritesBySpriteSheet;
 
 static void ShowSprite(const Sprite* sprite) {
   float texWidth = sprite->Sheet.DesignWidth;
   float texHeight = sprite->Sheet.DesignHeight;
   ImGui::Image(
-      (ImTextureID)(intptr_t)sprite->Sheet.Texture,
+      static_cast<ImTextureID>(sprite->Sheet.Texture->GetTextureId()),
       ImVec2(sprite->Bounds.Width, sprite->Bounds.Height),
       ImVec2(sprite->Bounds.X / texWidth, sprite->Bounds.Y / texHeight),
       ImVec2((sprite->Bounds.X + sprite->Bounds.Width) / texWidth,
@@ -778,20 +778,25 @@ void ShowObjects() {
 
   if (SpritesBySpriteSheet.size() == 0) {
     for (const auto& sprite : Profile::Sprites) {
-      SpritesBySpriteSheet[sprite.second.Sheet.Texture].push_back(sprite.first);
+      SpritesBySpriteSheet[sprite.second.Sheet.Texture->GetTextureId()]
+          .push_back(sprite.first);
     }
   }
 
   if (ImGui::TreeNode("SpriteSheets")) {
     for (const auto& spriteSheet : Profile::SpriteSheets) {
       if (ImGui::TreeNode(spriteSheet.first.c_str())) {
-        ImGui::PushID(spriteSheet.second.Texture);
+        ImGui::PushID(
+            static_cast<int>(spriteSheet.second.Texture->GetTextureId()));
         float texWidth = spriteSheet.second.DesignWidth * 0.4f;
         float texHeight = spriteSheet.second.DesignHeight * 0.4f;
         ImVec2 pos = ImGui::GetCursorScreenPos();
-        ImGui::Image((ImTextureID)(intptr_t)spriteSheet.second.Texture,
+        ImGui::Image(static_cast<ImTextureID>(
+                         spriteSheet.second.Texture->GetTextureId()),
                      ImVec2(texWidth, texHeight));
-        ImageTooltip(pos, (ImTextureID)(intptr_t)spriteSheet.second.Texture,
+        ImageTooltip(pos,
+                     static_cast<ImTextureID>(
+                         spriteSheet.second.Texture->GetTextureId()),
                      texWidth, texHeight);
 
         ImGui::Spacing();
@@ -801,7 +806,8 @@ void ShowObjects() {
 
         if (ImGui::TreeNode("Sprites")) {
           for (const auto& spriteName :
-               SpritesBySpriteSheet[spriteSheet.second.Texture]) {
+               SpritesBySpriteSheet[spriteSheet.second.Texture
+                                        ->GetTextureId()]) {
             const auto& sprite = Profile::Sprites[spriteName];
             if (ImGui::TreeNode(spriteName.c_str())) {
               ShowSprite(&sprite);
@@ -836,10 +842,13 @@ void ShowObjects() {
           float texHeight = Backgrounds[i].BgSprite.Sheet.DesignHeight * 0.4f;
           ImVec2 pos = ImGui::GetCursorScreenPos();
           ImGui::Image(
-              (ImTextureID)(intptr_t)Backgrounds[i].BgSprite.Sheet.Texture,
+              static_cast<ImTextureID>(
+                  Backgrounds[i].BgSprite.Sheet.Texture->GetTextureId()),
               ImVec2(texWidth, texHeight));
           ImageTooltip(
-              pos, (ImTextureID)(intptr_t)Backgrounds[i].BgSprite.Sheet.Texture,
+              pos,
+              static_cast<ImTextureID>(
+                  Backgrounds[i].BgSprite.Sheet.Texture->GetTextureId()),
               texWidth, texHeight);
         }
 
@@ -886,11 +895,13 @@ void ShowObjects() {
               Characters2D[i].CharaSprite.Sheet.DesignHeight * 0.4f;
           ImVec2 pos = ImGui::GetCursorScreenPos();
           ImGui::Image(
-              (ImTextureID)(intptr_t)Characters2D[i].CharaSprite.Sheet.Texture,
+              static_cast<ImTextureID>(
+                  Characters2D[i].CharaSprite.Sheet.Texture->GetTextureId()),
               ImVec2(texWidth, texHeight));
           ImageTooltip(
               pos,
-              (ImTextureID)(intptr_t)Characters2D[i].CharaSprite.Sheet.Texture,
+              static_cast<ImTextureID>(
+                  Characters2D[i].CharaSprite.Sheet.Texture->GetTextureId()),
               texWidth, texHeight);
         }
 

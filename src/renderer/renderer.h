@@ -1,13 +1,14 @@
 #pragma once
 
 #include "window.h"
+#include "textureref.h"
 
 #include "3d/scene.h"
 #include "../spritesheet.h"
 #include "../text/text.h"
-#include "yuvframe.h"
-#include "nv12frame.h"
-#include <span>
+
+#include "video/yuvframe.h"
+#include "video/nv12frame.h"
 
 enum class RendererType : int {
 #ifdef IMPACTO_RENDERER_OPENGL
@@ -121,10 +122,13 @@ class BaseRenderer {
       LookupTextureIdToTexture;
   inline static ankerl::unordered_dense::map<int, Io::AssetPathKey> SurfToId;
 
-  virtual uint32_t MapSpriteSheet(SpriteSheet const& sheet) = 0;
+  virtual std::unique_ptr<TextureRef> MapSpriteSheet(
+      SpriteSheet const& sheet) = 0;
   virtual void UnloadSurf(int surfId) = 0;
-  virtual uint32_t SubmitTexture(TexFmt format, std::span<const uint8_t> buffer,
-                                 int width, int height) = 0;
+
+  virtual std::unique_ptr<TextureRef> SubmitTexture(
+      TexFmt format, std::span<const uint8_t> buffer,
+      glm::vec<2, size_t> dimensions) = 0;
 
   std::vector<uint8_t> GetSpriteSheetImage(SpriteSheet const& sheet) {
     std::vector<uint8_t> result(
@@ -135,9 +139,6 @@ class BaseRenderer {
 
   virtual int GetSpriteSheetImage(SpriteSheet const& sheet,
                                   std::span<uint8_t> outBuffer) = 0;
-  virtual void FreeTexture(uint32_t id) = 0;
-  virtual YUVFrame* CreateYUVFrame(float width, float height) = 0;
-  virtual NV12Frame* CreateNV12Frame(float width, float height) = 0;
 
   virtual void DrawSprite(const Sprite& sprite, const CornersQuad& dest,
                           glm::mat4 transformation,
@@ -429,7 +430,7 @@ class BaseRenderer {
   virtual void CaptureScreencap(Sprite& sprite) = 0;
 
   virtual void SetFramebuffer(size_t buffer) = 0;
-  virtual int GetFramebufferTexture(size_t buffer) = 0;
+  virtual std::unique_ptr<TextureRef> GetFramebufferTexture(size_t buffer) = 0;
 
   virtual void EnableScissor() = 0;
   virtual void SetScissorRect(RectF const& rect) = 0;
@@ -447,6 +448,9 @@ class BaseRenderer {
 
  protected:
   virtual void Flush() = 0;
+
+  virtual std::unique_ptr<MutableTextureRef> DeclareMutableTexture(
+      TexFmt format, glm::vec<2, size_t> dimensions) = 0;
 
   static void QuadSetUV(CornersQuad spriteBounds, glm::vec2 designDimensions,
                         glm::vec2* uvs, size_t stride);
@@ -466,6 +470,9 @@ class BaseRenderer {
   }
 
   Sprite RectSprite;
+
+  friend class YUVFrame;
+  friend class NV12Frame;
 };
 
 inline void InsertQuad(std::span<VertexBufferSprites, 4> vertices,

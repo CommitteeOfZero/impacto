@@ -146,9 +146,10 @@ Renderer::Renderer() {
   YUVFrameShader.emplace(vs_sprite_shader, fs_yuvframe_shader, flush);
 
   RectSprite = Sprite(SpriteSheet(1.0f, 1.0f), 0.0f, 0.0f, 1.0f, 1.0f);
-  RectSprite.Sheet.Texture =
+  RectSprite.Sheet.Texture = std::shared_ptr<Impacto::TextureRef>(
       SubmitTexture(TexFmt::TexFmt_RGBA,
-                    std::array<uint8_t, 4>{0xFF, 0xFF, 0xFF, 0xFF}, 1, 1);
+                    std::array<uint8_t, 4>{0xFF, 0xFF, 0xFF, 0xFF}, {1, 1})
+          .release());
 
   ImGui_Implbgfx_Init(IMGUI_VIEW);
   switch (UserConfig::AdvancedSettings.ActiveRenderer) {
@@ -364,54 +365,28 @@ void Renderer::ImGuiBeginFrame() {
 }
 #endif
 
-uint32_t Renderer::SubmitTexture(const TexFmt format,
-                                 const std::span<const uint8_t> buffer,
-                                 const int width, const int height) {
-  const bgfx::TextureFormat::Enum bgfxFormat = [format]() {
-    switch (format) {
-      case TexFmt::TexFmt_U8:
-        return bgfx::TextureFormat::R8;
-      case TexFmt::TexFmt_RGB:
-        return bgfx::TextureFormat::RGB8;
-      case TexFmt::TexFmt_RGBA:
-        return bgfx::TextureFormat::RGBA8;
-    }
-    Panic(LogChannel::Render, "Unexpected texture format \"{:s}\"",
-          magic_enum::enum_name(format));
-  }();
+std::unique_ptr<Impacto::TextureRef> Renderer::SubmitTexture(
+    const TexFmt format, const std::span<const uint8_t> buffer,
+    const glm::vec<2, size_t> dimensions) {
+  const std::unique_ptr<Texture>& texture = *DeclareTexture(
+      std::make_unique<Texture>(TexFmtConversion[format], buffer, dimensions));
 
-  return DeclareTexture(std::make_unique<Texture>(bgfxFormat, buffer,
-                                                  static_cast<size_t>(width),
-                                                  static_cast<size_t>(height)))
-      ->first;
+  return std::make_unique<Bgfx::PlainTextureRef>(*texture);
 }
 
 decltype(Renderer::Textures)::iterator Renderer::DeclareTexture(
     std::unique_ptr<Texture>&& texture) {
-  static uint32_t curTextureId = 1;
-  const uint32_t textureId = curTextureId++;
-
-  return Textures.emplace(textureId, std::move(texture)).first;
+  return Textures.emplace(std::move(texture)).first;
 }
 
-void Renderer::FreeTexture(const uint32_t id) {
-  if (id == 0) return;
-  assert(Textures.contains(id));
-  Textures.erase(id);
-}
-
-Impacto::YUVFrame* Renderer::CreateYUVFrame(const float width,
-                                            const float height) {
-  YUVFrame* const frame = new YUVFrame();
-  frame->Init(width, height);
-  return static_cast<Impacto::YUVFrame*>(frame);
-}
-
-Impacto::NV12Frame* Renderer::CreateNV12Frame(const float width,
-                                              const float height) {
-  NV12Frame* const frame = new NV12Frame();
-  frame->Init(width, height);
-  return static_cast<Impacto::NV12Frame*>(frame);
+std::unique_ptr<Impacto::MutableTextureRef> Renderer::DeclareMutableTexture(
+    const TexFmt format, const glm::vec<2, size_t> dimensions) {
+  MutableTexture& texture =
+      **MutableTextures
+            .emplace(std::make_unique<Bgfx::MutableTexture>(
+                TexFmtConversion[format], dimensions))
+            .first;
+  return std::make_unique<Bgfx::MutableTextureRef>(texture);
 }
 
 void Renderer::Shutdown() {
@@ -482,14 +457,17 @@ void Renderer::Flush() {
 static bool ShouldFlip(const SpriteSheet& sheet) {
   [[maybe_unused]] const RendererType rendererType =
       Impacto::Renderer->GetType();
-  return sheet.IsScreenCap && (false
+  return static_cast<Bgfx::TextureRef*>(sheet.Texture.get())
+             ->GetTexture()
+             .IsScreenCap() &&
+         (false
 #ifdef IMPACTO_RENDERER_OPENGL
-                               || rendererType == RendererType::OpenGL
+          || rendererType == RendererType::OpenGL
 #endif
 #ifdef IMPACTO_RENDERER_OPENGLES
-                               || rendererType == RendererType::OpenGLES
+          || rendererType == RendererType::OpenGLES
 #endif
-                              );
+         );
 }
 
 static bool ShouldFlip(const Sprite& sprite) {
@@ -560,11 +538,10 @@ void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
       .Transformation = transformation,
   });
 
-  SpriteShader->SubmitUniforms({},
-                               {
-                                   .s_texture = *Textures[sprite.Sheet.Texture],
-                                   .u_colorShift = colorShift,
-                               });
+  SpriteShader->SubmitUniforms({}, {
+                                       .s_texture = *sprite.Sheet.Texture,
+                                       .u_colorShift = colorShift,
+                                   });
 
   InsertQuad(dest, sprite.NormalizedBounds(), tints, ShouldFlip(sprite));
 }
@@ -580,8 +557,7 @@ void Renderer::DrawPrimitives(
   ShaderProgramInterface* const shader = [&]() -> ShaderProgramInterface* {
     switch (shaderType) {
       case ShaderProgramType::Sprite:
-        SpriteShader->SubmitUniforms({},
-                                     {.s_texture = *Textures[sheet.Texture]});
+        SpriteShader->SubmitUniforms({}, {.s_texture = *sheet.Texture});
         return &*SpriteShader;
       default:
         break;
@@ -607,9 +583,9 @@ void Renderer::DrawVideoTexture(const Impacto::YUVFrame& frame,
   });
 
   YUVFrameShader->SubmitUniforms({}, {
-                                         .s_luma = *Textures[frame.LumaId],
-                                         .s_cb = *Textures[frame.CbId],
-                                         .s_cr = *Textures[frame.CrId],
+                                         .s_luma = frame.GetLuma(),
+                                         .s_cb = frame.GetCb(),
+                                         .s_cr = frame.GetCr(),
                                          .u_isAlpha = alphaVideo,
                                      });
 
@@ -624,8 +600,8 @@ void Renderer::DrawVideoTexture(const Impacto::NV12Frame& frame,
   });
 
   NV12FrameShader->SubmitUniforms({}, {
-                                          .s_luma = *Textures[frame.LumaId],
-                                          .s_cbCr = *Textures[frame.CbCrId],
+                                          .s_luma = frame.GetLuma(),
+                                          .s_cbCr = frame.GetCbCr(),
                                           .u_isAlpha = alphaVideo,
                                       });
 

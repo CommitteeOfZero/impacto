@@ -9,8 +9,7 @@ Texture& Texture::operator=(Texture&& other) {
   Reset(true);
 
   Handle = other.Handle;
-  Width = other.Width;
-  Height = other.Height;
+  Dimensions = other.Dimensions;
 
   other.Reset(false);
 
@@ -18,16 +17,16 @@ Texture& Texture::operator=(Texture&& other) {
 }
 
 Texture::Texture(const bgfx::TextureFormat::Enum format,
-                 const std::span<const uint8_t> data, const size_t width,
-                 const size_t height)
-    : Width(width), Height(height) {
+                 const std::span<const uint8_t> data,
+                 const glm::vec<2, size_t> dimensions)
+    : Dimensions(dimensions) {
   constexpr uint64_t textureFlags = BGFX_SAMPLER_MIN_ANISOTROPIC |  //
                                     BGFX_SAMPLER_MAG_ANISOTROPIC |  //
                                     BGFX_SAMPLER_UVW_CLAMP;
 
   Handle = bgfx::createTexture2D(
-      static_cast<uint16_t>(width), static_cast<uint16_t>(height), false, 1,
-      format, textureFlags,
+      static_cast<uint16_t>(dimensions.x), static_cast<uint16_t>(dimensions.y),
+      false, 1, format, textureFlags,
       bgfx::copy(data.data(), static_cast<uint32_t>(data.size_bytes())));
 
   if (!bgfx::isValid(Handle)) {
@@ -45,16 +44,15 @@ void Texture::Reset(const bool cleanUpResources) {
 }
 
 MutableTexture::MutableTexture(const bgfx::TextureFormat::Enum format,
-                               const size_t width, const size_t height) {
-  Width = width;
-  Height = height;
+                               const glm::vec<2, size_t> dimensions) {
+  Dimensions = dimensions;
 
   constexpr uint64_t textureFlags = BGFX_SAMPLER_MIN_ANISOTROPIC |  //
                                     BGFX_SAMPLER_MAG_ANISOTROPIC |  //
                                     BGFX_SAMPLER_UVW_CLAMP;
 
-  Handle = bgfx::createTexture2D(static_cast<uint16_t>(width),
-                                 static_cast<uint16_t>(height), false, 1,
+  Handle = bgfx::createTexture2D(static_cast<uint16_t>(dimensions.x),
+                                 static_cast<uint16_t>(dimensions.y), false, 1,
                                  format, textureFlags, nullptr);
 
   if (!bgfx::isValid(Handle)) {
@@ -64,14 +62,14 @@ MutableTexture::MutableTexture(const bgfx::TextureFormat::Enum format,
 }
 
 void MutableTexture::Update(const std::span<const uint8_t> data,
-                            const uint16_t stride) {
+                            const uint16_t rowStride) {
   assert(bgfx::isValid(Handle));
 
   bgfx::updateTexture2D(
-      Handle, 0, 0, 0, 0, static_cast<uint16_t>(Width),
-      static_cast<uint16_t>(Height),
+      Handle, 0, 0, 0, 0, static_cast<uint16_t>(Dimensions.x),
+      static_cast<uint16_t>(Dimensions.y),
       bgfx::copy(data.data(), static_cast<uint32_t>(data.size_bytes())),
-      stride);
+      rowStride);
 }
 
 }  // namespace Impacto::Bgfx
