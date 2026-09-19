@@ -39,7 +39,11 @@ bool SpriteLoader::LoadSync(int surfId, int archiveId, int fileId) {
 
 void SpriteLoader::MainThreadOnLoad(bool result) {
   if (!result) return;
+  // TODO: Reimplement dynamic spritesheet loading
+  /*
   Renderer->LookupTextureIdToTexture.try_emplace(InnerTextureId,
                                                  LoadedTexture.Submit());
+  */
 }
+
 }  // namespace Impacto

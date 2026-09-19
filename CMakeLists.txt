@@ -65,7 +65,11 @@ set(Impacto_Src
     src/effects/chlcc/eyecatch.cpp
 
     src/renderer/renderer.cpp
+    src/renderer/textureref.cpp
     src/renderer/window.cpp
+
+    src/renderer/video/nv12frame.cpp
+    src/renderer/video/yuvframe.cpp
 
     src/data/savesystem.cpp
     src/data/tipssystem.cpp
@@ -442,9 +446,11 @@ set(Impacto_Header
     src/effects/chlcc/eyecatch.h
 
     src/renderer/renderer.h
+    src/renderer/textureref.h
     src/renderer/window.h
-    src/renderer/yuvframe.h
-    src/renderer/nv12frame.h
+
+    src/renderer/video/nv12frame.h
+    src/renderer/video/yuvframe.h
 
     src/data/savesystem.h
     src/data/tipssystem.h
@@ -1217,24 +1223,19 @@ if (IMPACTO_RENDERER_BGFX)
         src/renderer/bgfx/renderer.cpp
         src/renderer/bgfx/texture.cpp
         src/renderer/bgfx/window.cpp
-
-        src/renderer/bgfx/video/nv12frame.cpp
-        src/renderer/bgfx/video/yuvframe.cpp
     )
     list(APPEND Impacto_Header
         src/renderer/bgfx/framebuffer.h
         src/renderer/bgfx/renderer.h
         src/renderer/bgfx/shader.h
         src/renderer/bgfx/texture.h
+        src/renderer/bgfx/textureref.h
         src/renderer/bgfx/window.h
 
         src/renderer/bgfx/shaders/vs_sprite.h
         src/renderer/bgfx/shaders/fs_nv12frame.h
         src/renderer/bgfx/shaders/fs_sprite.h
         src/renderer/bgfx/shaders/fs_yuvframe.h
-
-        src/renderer/bgfx/video/nv12frame.h
-        src/renderer/bgfx/video/yuvframe.h
     )
 
     set(Bgfx_Vertex_Shaders

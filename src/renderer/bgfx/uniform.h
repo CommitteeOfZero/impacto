@@ -7,6 +7,7 @@
 
 #include "../renderer.h"
 #include "texture.h"
+#include "textureref.h"
 
 namespace Impacto::Bgfx {
 
@@ -14,7 +15,7 @@ template <uint8_t stage>
 struct SamplerUniform {
   SamplerUniform() = default;
   SamplerUniform(bgfx::TextureHandle handle) : Handle(handle) {}
-  SamplerUniform(Texture& texture) : Handle(texture.GetTextureHandle()) {}
+  SamplerUniform(const Texture& texture) : Handle(texture.GetTextureHandle()) {}
 
   bgfx::TextureHandle Handle = {bgfx::kInvalidHandle};
 

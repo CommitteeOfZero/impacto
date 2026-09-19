@@ -4,10 +4,7 @@
 
 #include "framebuffer.h"
 #include "shader.h"
-#include "texture.h"
-
-#include "video/nv12frame.h"
-#include "video/yuvframe.h"
+#include "textureref.h"
 
 #include <magic_enum/magic_enum_containers.hpp>
 
@@ -24,7 +21,7 @@ class Renderer final : public BaseRenderer {
 
   void UpdateResolution() override;
 
-  RendererType GetType() const override;
+  [[nodiscard]] RendererType GetType() const override;
 
 #ifndef IMPACTO_DISABLE_IMGUI
   void ImGuiBeginFrame() override;
@@ -34,19 +31,20 @@ class Renderer final : public BaseRenderer {
   void BeginFrame2D() override;
   void EndFrame() override;
 
-  uint32_t MapSpriteSheet(SpriteSheet const& sheet) override { return 0; }
+  [[nodiscard]] Impacto::TextureRef MapSpriteSheet(
+      SpriteSheet const& sheet) override {
+    return Impacto::TextureRef{};
+  }
   void UnloadSurf(int surfId) override {}
 
-  uint32_t SubmitTexture(TexFmt format, std::span<const uint8_t> buffer,
-                         int width, int height) override;
+  [[nodiscard]] Impacto::TextureRef SubmitTexture(
+      TexFmt format, std::span<const uint8_t> buffer,
+      glm::vec<2, size_t> dimensions) override;
 
-  int GetSpriteSheetImage(SpriteSheet const& sheet,
-                          std::span<uint8_t> outBuffer) override {
+  [[nodiscard]] int GetSpriteSheetImage(SpriteSheet const& sheet,
+                                        std::span<uint8_t> outBuffer) override {
     return 0;
   }
-  void FreeTexture(uint32_t id) override;
-  Impacto::YUVFrame* CreateYUVFrame(float width, float height) override;
-  Impacto::NV12Frame* CreateNV12Frame(float width, float height) override;
 
   void DrawSprite(Sprite const& sprite, CornersQuad const& dest,
                   glm::mat4 transformation, std::span<const glm::vec4, 4> tints,
@@ -118,7 +116,9 @@ class Renderer final : public BaseRenderer {
   void CaptureScreencap(Sprite& sprite) override {}
 
   void SetFramebuffer(size_t buffer) override {}
-  int GetFramebufferTexture(size_t buffer) override { return 0; }
+  Impacto::TextureRef GetFramebufferTexture(size_t buffer) override {
+    return Impacto::TextureRef{};
+  }
 
   void EnableScissor() override {}
   void SetScissorRect(RectF const& rect) override {}
@@ -145,6 +145,11 @@ class Renderer final : public BaseRenderer {
                   bool flipVertically, CornersQuad maskUvs = RectF{}) {
     InsertQuad(dest, uvs, std::array<glm::vec4, 4>{tint, tint, tint, tint},
                flipVertically, maskUvs);
+  }
+
+  bool ShouldFlip(const SpriteSheet& sheet) const;
+  bool ShouldFlip(const Sprite& sprite) const {
+    return ShouldFlip(sprite.Sheet);
   }
 
   // Only call bgfx::shutdown after all managed objects in this class have been
@@ -189,12 +194,20 @@ class Renderer final : public BaseRenderer {
       ShaderProgram<VertexShaderType::Sprite, FragmentShaderType::YUVFrame>>
       YUVFrameShader;
 
-  std::map<uint32_t, std::unique_ptr<Texture>> Textures;
+  std::map<uint64_t, std::pair<std::unique_ptr<Bgfx::Texture>, size_t>>
+      Textures;
+
   decltype(Textures)::iterator DeclareTexture(
       std::unique_ptr<Texture>&& texture);
 
-  friend class NV12Frame;
-  friend class YUVFrame;
+  [[nodiscard]] Impacto::MutableTextureRef DeclareMutableTexture(
+      TexFmt format, glm::vec<2, size_t> dimensions) override;
+
+  void AlterRefCount(Impacto::TextureRefInterface* texture,
+                     int difference) override;
+
+  [[nodiscard]] const Texture& GetTexture(
+      const Impacto::TextureRefInterface& textureRef) const;
 };
 
 }  // namespace Impacto::Bgfx
