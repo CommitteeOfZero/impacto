@@ -161,10 +161,9 @@ bool Character2D::LoadSync(uint32_t charaId) {
 }
 
 void Character2D::UnloadSync() {
-  Renderer->FreeTexture(CharaSpriteSheet.Texture);
+  CharaSpriteSheet.Texture = TextureRef{};
   CharaSpriteSheet.DesignHeight = 0.0f;
   CharaSpriteSheet.DesignWidth = 0.0f;
-  CharaSpriteSheet.Texture = 0;
   Show = false;
   std::fill(Layers.begin(), Layers.end(), -1);
   MvlVertices.clear();

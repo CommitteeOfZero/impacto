@@ -34,7 +34,7 @@ namespace Impacto::Overlay {
 static std::optional<OverlayTab> ActiveTab;
 
 struct ImgData {
-  uint32_t Texture;
+  TextureRef Texture;
 };
 static ankerl::unordered_dense::map<std::string, ImgData> iconTextureMap;
 
@@ -255,10 +255,7 @@ void SetupIcons() {
     };
     Texture t;
     t.Load(stream);
-    ImgData img{
-        .Texture = t.Submit(),
-    };
-    iconTextureMap.try_emplace(gameKey, img);
+    iconTextureMap.try_emplace(gameKey, ImgData{.Texture = t.Submit()});
     delete stream;
   }
 }
@@ -303,7 +300,7 @@ static void ShowGamePicker(std::string& selectedGame) {
       if (auto iconTxtItr = iconTextureMap.find(game);
           iconTxtItr != iconTextureMap.end()) {
         auto const& img = iconTxtItr->second;
-        ImGui::Image((ImTextureID)(intptr_t)img.Texture,
+        ImGui::Image(static_cast<ImTextureID>(img.Texture->GetTextureId()),
                      ImVec2{iconSize, iconSize});
         ImGui::SameLine();
       }
@@ -731,10 +728,11 @@ static void ShowAchievementsPage() {
         RectF uv = icon.NormalizedBounds();
         ImVec4 tint = unlocked ? ImVec4{1.0f, 1.0f, 1.0f, 1.0f}
                                : ImVec4{0.25f, 0.25f, 0.25f, 1.0f};
-        ImGui::Image((ImTextureID)(intptr_t)icon.Sheet.Texture,
-                     ImVec2{iconSize, iconSize}, ImVec2{uv.X, uv.Y},
-                     ImVec2{uv.Right(), uv.Bottom()}, tint,
-                     ImVec4{0.0f, 0.0f, 0.0f, 0.0f});
+        ImGui::Image(
+            static_cast<ImTextureID>(icon.Sheet.Texture->GetTextureId()),
+            ImVec2{iconSize, iconSize}, ImVec2{uv.X, uv.Y},
+            ImVec2{uv.Right(), uv.Bottom()}, tint,
+            ImVec4{0.0f, 0.0f, 0.0f, 0.0f});
       } else {
         ImGui::Dummy(ImVec2{iconSize, iconSize});
       }

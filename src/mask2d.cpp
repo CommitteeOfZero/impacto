@@ -38,10 +38,9 @@ bool Mask2D::LoadSync(uint32_t maskId) {
 }
 
 void Mask2D::UnloadSync() {
-  Renderer->FreeTexture(MaskSpriteSheet.Texture);
+  MaskSpriteSheet.Texture = TextureRef{};
   MaskSpriteSheet.DesignHeight = 0.0f;
   MaskSpriteSheet.DesignWidth = 0.0f;
-  MaskSpriteSheet.Texture = 0;
 }
 
 }  // namespace Impacto

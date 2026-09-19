@@ -22,7 +22,6 @@ EyecatchEffect::EyecatchEffect() {
   SpriteSheet sheetStarsMask(Profile::Game::DesignWidth,
                              Profile::Game::DesignHeight);
   sheetStarsMask.Texture = textureStarsMask.Submit();
-  sheetStarsMask.IsScreenCap = true;
   StarsMask = Sprite(sheetStarsMask, 0, 0, Profile::Game::DesignWidth,
                      Profile::Game::DesignHeight);
 }
