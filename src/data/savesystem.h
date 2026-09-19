@@ -50,7 +50,7 @@ struct ScriptMessageDataPair {
 
 // A delayed Texture::Submit() operation to be executed on the main thread
 struct QueuedTexture {
-  std::reference_wrapper<uint32_t> Id;
+  std::shared_ptr<TextureRef> Reference;
   Texture Tex{};
 };
 

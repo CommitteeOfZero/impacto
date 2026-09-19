@@ -4,6 +4,7 @@
 #include "loadable.h"
 #include "io/assetpath.h"
 #include "texture/texture.h"
+#include "renderer/textureref.h"
 
 #include <memory>
 #include <ankerl/unordered_dense.h>
@@ -30,10 +31,11 @@ struct SpriteSheet {
   float DesignHeight = 0;
 
   glm::vec2 GetDimensions() const { return {DesignWidth, DesignHeight}; }
+
   Io::AssetPath Path{};
-  uint32_t Texture = 0;
   bool ScriptHandled = false;
-  bool IsScreenCap = false;
+
+  std::shared_ptr<TextureRef> Texture = nullptr;
 };
 
 // TODO replace BaseScale with scaled width/height and unscaled width/height

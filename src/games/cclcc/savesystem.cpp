@@ -259,7 +259,7 @@ SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
   WorkingSaveThumbnail.Bounds.SetSize(viewport.GetSize());
 
   QueuedTexture txt{
-      .Id = std::ref(WorkingSaveThumbnail.Sheet.Texture),
+      .Reference = WorkingSaveThumbnail.Sheet.Texture,
   };
   txt.Tex.LoadSolidColor((int)WorkingSaveThumbnail.Bounds.Width,
                          (int)WorkingSaveThumbnail.Bounds.Height, 0x000000);
@@ -289,7 +289,7 @@ SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
                                            entrySlotBuf.size(), false);
 
       QueuedTexture tex{
-          .Id = std::ref(entryArray[i]->SaveThumbnail.Sheet.Texture),
+          .Reference = entryArray[i]->SaveThumbnail.Sheet.Texture,
       };
       LoadEntryBuffer(saveEntryDataStream,
                       static_cast<SaveFileEntry&>(*entryArray[i]), saveType,
@@ -314,7 +314,7 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
                                        int autoSaveType) {
   auto* entry = GetSaveEntry<SaveFileEntry>(type, id);
   if (entry != nullptr && !(entry->Flags & WriteProtect)) {
-    Renderer->FreeTexture(entry->SaveThumbnail.Sheet.Texture);
+    entry->SaveThumbnail.Sheet.Texture = nullptr;
     uint8_t savedFlags = entry->Flags;
     *entry = *WorkingSaveEntry;
     entry->Flags = savedFlags;

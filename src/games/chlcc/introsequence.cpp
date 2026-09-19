@@ -20,7 +20,6 @@ IntroSequence::IntroSequence() {
                                          static_cast<int>(viewport.Height), 0);
   SpriteSheet fallingStarsMaskSheet(viewport.Width, viewport.Height);
   fallingStarsMaskSheet.Texture = fallingStarsMaskTexture.Submit();
-  fallingStarsMaskSheet.IsScreenCap = true;
   FallingStarsMask =
       Sprite(fallingStarsMaskSheet, 0, 0, viewport.Width, viewport.Height);
 
@@ -96,10 +95,6 @@ IntroSequence::IntroSequence() {
 
   CopyrightAnimation.SetDuration(IntroCopyrightAnimationDuration);
   IntroAnimation.AddAnimation(CopyrightAnimation);
-}
-
-IntroSequence::~IntroSequence() {
-  Renderer->FreeTexture(FallingStarsMask.Sheet.Texture);
 }
 
 void IntroSequence::Reset() { IntroAnimation.Reset(); }

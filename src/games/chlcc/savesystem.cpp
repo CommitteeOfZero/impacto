@@ -527,7 +527,7 @@ SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
       RectF(0.0f, 0.0f, viewport.Width, viewport.Height);
 
   QueuedTexture txt{
-      .Id = std::ref(WorkingSaveThumbnail.Sheet.Texture),
+      .Reference = WorkingSaveThumbnail.Sheet.Texture,
   };
   txt.Tex.LoadSolidColor((int)WorkingSaveThumbnail.Bounds.Width,
                          (int)WorkingSaveThumbnail.Bounds.Height, 0x000000);
@@ -650,7 +650,7 @@ SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
       }
 
       QueuedTexture texture{
-          .Id = std::ref(entry->SaveThumbnail.Sheet.Texture),
+          .Reference = entry->SaveThumbnail.Sheet.Texture,
       };
       texture.Tex.Init(TexFmt_RGB, SaveThumbnailWidth, SaveThumbnailHeight);
 

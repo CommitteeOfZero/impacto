@@ -9,7 +9,6 @@ class BlurEffect {
   void Init();
 
   BlurEffect();
-  ~BlurEffect();
 
  private:
   Sprite BlurSprite;
