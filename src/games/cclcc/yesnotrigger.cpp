@@ -36,7 +36,7 @@ int YesNoTrigger::Load(uint8_t* data) {
   memcpy(&BgSpriteScale, data + dataSize, sizeof(float));
   dataSize += 16;
   if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::LCCSwitch) {
-    // controls prompt alpha CT
+    // TODO: controls prompt alpha CT
     // memcpy(&AlphaCT, data + dataSize, sizeof(int))
     dataSize += 4;
   }
@@ -48,7 +48,7 @@ int YesNoTrigger::Load(uint8_t* data) {
     // padding
     dataSize += 4;
   }
-  // PS4 has 64-bit pointers, vita has 32-bit pointers...
+  // Switch/PS4 has 64-bit pointers, vita has 32-bit pointers...
   dataSize += sizeof(void*);
   memcpy(&CurArrIndex, data + dataSize, sizeof(int));
   dataSize += 4;
