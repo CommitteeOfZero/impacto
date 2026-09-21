@@ -361,7 +361,7 @@ void TipsMenu::SwitchToTipId(int id) {
   Vm::Sc3VmThread dummy;
   dummy.ScriptBufferId = tipsScrBufId;
   dummy.UseMSBBuffers = Profile::Vm::UseMsbStrings;
-  dummy.SetIp(TipsSystem::GetTextStringStream(actualId, 4).Data(), true);
+  dummy.SetStringIp(TipsSystem::GetTextStringStream(actualId, 4).Data());
   TextPage.Clear();
   TextPage.AddString(&dummy);
   TipViewItems.HasFocus = true;
