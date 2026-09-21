@@ -21,7 +21,7 @@ root.CursorPointerPath = "resources/cclcc/icondata/cursor_pointer.png";
 
 root.CharaIsMvl = true;
 root.UseMoviePriority = true;
-root.UseBgChaEffects = true;
+root.UseBgChaEffects = false;
 root.UseBgFrameEffects = false;
 root.UseWaveEffects = true;
 
