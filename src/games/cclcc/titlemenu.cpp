@@ -33,50 +33,64 @@ using namespace Impacto::Vm::Interface;
 
 using namespace Impacto::UI::Widgets::CCLCC;
 
-static CC::TitleMenuMode::Mode LookupTitleMenuState(int scriptState) {
-  using enum CC::TitleMenuMode::Mode;
+// game version agnostic
+enum TitleMenuState : uint8_t {
+  Invisible,
+  PressToStart,
+  StartTransition,
+  Main,
+  FadingOut,
+  SubMenu,
+  InitialFade,
+  ClearList,
+  FadingIn
+};
+
+static TitleMenuState LookupTitleMenuState(int scriptState) {
   ImpLogSlow(LogLevel::Trace, LogChannel::General, "title menu state: {}\n",
              scriptState);
   if (Profile::Vm::GameInstructionSet ==
       Impacto::Vm::InstructionSet::LCCSwitch) {
+    using namespace UI::CC::TitleMenuMode::Switch;
     switch (scriptState) {
-      case 0:
+      case Mode::Invisible:
         return Invisible;
-      case 2:
+      case Mode::PressToStart:
         return PressToStart;
-      case 3:
+      case Mode::StartTransition:
         return StartTransition;
       case 9:
-      case 10:
+      case Mode::Main:
         return Main;
-      case 12:
+      case Mode::FadingOut:
         return FadingOut;
-      case 11:
+      case Mode::SubMenu:
         return SubMenu;
-      case 18:
+      case Mode::InitialFade:
         return InitialFade;
-      case 13:
+      case Mode::ClearList:
         return ClearList;
-      case 16:
+      case Mode::FadingIn:
         return FadingIn;
     }
   } else {
     switch (scriptState) {
-      case 0:
+      using namespace UI::CC::TitleMenuMode::PS4;
+      case Mode::Invisible:
         return Invisible;
-      case 1:
+      case Mode::PressToStart:
         return PressToStart;
-      case 2:
+      case Mode::StartTransition:
         return StartTransition;
-      case 3:
+      case Mode::Main:
         return Main;
-      case 4:
+      case Mode::FadingOut:
         return FadingOut;
-      case 5:
+      case Mode::SubMenu:
         return SubMenu;
-      case 11:
+      case Mode::InitialFade:
         return InitialFade;
-      case 13:
+      case Mode::ClearList:
         return ClearList;
     }
   }
@@ -346,9 +360,8 @@ void TitleMenu::Hide() {
 void TitleMenu::UpdateInput(float dt) {
   auto currentState = LookupTitleMenuState(ScrWork[SW_TITLEMODE]);
 
-  if (currentState == CC::TitleMenuMode::SubMenu ||
-      currentState == CC::TitleMenuMode::ClearList ||
-      currentState == CC::TitleMenuMode::Main) {
+  if (currentState == SubMenu || currentState == ClearList ||
+      currentState == Main) {
     if (!InputLocked && !PrevInputLocked) {
       if (SlideItemsAnimation.State == AnimationState::Playing ||
           SecondaryFadeAnimation.State == AnimationState::Playing ||
@@ -450,8 +463,7 @@ void TitleMenu::Update(float dt) {
   ExtraItems->Update(dt);
   auto mode = LookupTitleMenuState(ScrWork[SW_TITLEMODE]);
 
-  PressToStartTransitionCaptureSet &=
-      mode == CC::TitleMenuMode::StartTransition;
+  PressToStartTransitionCaptureSet &= mode == StartTransition;
 
   if (GetFlag(SF_TITLEMODE)) {
     Show();
@@ -461,7 +473,6 @@ void TitleMenu::Update(float dt) {
 
   if (State != Hidden && GetFlag(SF_TITLEMODE)) {
     switch (mode) {
-      using enum CC::TitleMenuMode::Mode;
       case PressToStart: {
         if (PressToStartAnimation.LoopMode !=
             AnimationLoopMode::ReverseDirection) {
@@ -493,7 +504,7 @@ void TitleMenu::Update(float dt) {
       SubMenuState = Shown;
       IsFocused = true;
     }
-    IsExploding &= mode == CC::TitleMenuMode::StartTransition;
+    IsExploding &= mode == StartTransition;
   }
 }
 
@@ -699,7 +710,6 @@ void TitleMenu::Render() {
       currentActiveMenu == nullptr || currentActiveMenu->State == Hidden;
   auto mode = LookupTitleMenuState(ScrWork[SW_TITLEMODE]);
   switch (mode) {
-    using enum CC::TitleMenuMode::Mode;
     case PressToStart: {
       Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f));
 

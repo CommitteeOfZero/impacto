@@ -59,6 +59,7 @@ class TitleMenu : public Menu {
 };
 
 namespace TitleMenuMode {
+namespace PS4 {
 enum Mode : uint8_t {
   Invisible = 0,
   PressToStart = 1,
@@ -67,10 +68,24 @@ enum Mode : uint8_t {
   FadingOut = 4,
   SubMenu = 5,
   InitialFade = 11,
-  ClearList = 13,
-  FadingIn = 16  // used in CCLCC switch
+  ClearList = 13
 };
 }
+namespace Switch {
+enum Mode : uint8_t {
+  Invisible = 0,
+  PressToStart = 2,
+  StartTransition = 3,
+  Main = 10,
+  SubMenu = 11,
+  FadingOut = 12,
+  ClearList = 13,
+  FadingIn = 16,
+  InitialFade = 18,
+};
+}
+
+}  // namespace TitleMenuMode
 
 }  // namespace CC
 }  // namespace UI
