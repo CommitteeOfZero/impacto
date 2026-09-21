@@ -547,16 +547,31 @@ VmInstruction(InstTitleMenuNew) {
       switch (Profile::Vm::GameInstructionSet) {
         default:
           break;
+        case InstructionSet::LCCSwitch:
         case InstructionSet::CC:
         case InstructionSet::CHN: {
-          using enum UI::CC::TitleMenuMode::Mode;
+          int mainState;
+          int startTransitionState;
+          int pressToStartState;
 
-          if (ScrWork[SW_TITLEMODE] == Main) {
+          if (Profile::Vm::GameInstructionSet == InstructionSet::LCCSwitch) {
+            using enum UI::CC::TitleMenuMode::Switch::Mode;
+            mainState = Main;
+            pressToStartState = PressToStart;
+            startTransitionState = StartTransition;
+          } else {
+            using enum UI::CC::TitleMenuMode::PS4::Mode;
+            mainState = Main;
+            pressToStartState = PressToStart;
+            startTransitionState = StartTransition;
+          }
+
+          if (ScrWork[SW_TITLEMODE] == mainState) {
             if (!UI::TitleMenuPtr->AllowsScriptInput) {
               ResetInstruction;
               BlockThread;
             }
-          } else if (ScrWork[SW_TITLEMODE] == PressToStart &&
+          } else if (ScrWork[SW_TITLEMODE] == pressToStartState &&
                      ScrWork[SW_TITLEDISPCT] ==
                          (Profile::Vm::GameInstructionSet == InstructionSet::CHN
                               ? 400
@@ -564,7 +579,7 @@ VmInstruction(InstTitleMenuNew) {
             // Check "PRESS TO START" here
             if (((Interface::PADinputButtonWentDown & Interface::PAD1A) ||
                  (Interface::PADinputMouseWentDown & Interface::PAD1A))) {
-              ScrWork[SW_TITLEMODE] = StartTransition;
+              ScrWork[SW_TITLEMODE] = startTransitionState;
               ScrWork[SW_TITLEDISPCT] = 0;
               ScrWork[SW_TITLEMOVIECT] = 0;
               SetFlag(SF_TITLEEND, 1);
@@ -573,27 +588,6 @@ VmInstruction(InstTitleMenuNew) {
             }
           }
         } break;
-        case InstructionSet::LCCSwitch: {
-          if (ScrWork[SW_TITLEMODE] == 10) {
-            if (!UI::TitleMenuPtr->AllowsScriptInput) {
-              ResetInstruction;
-              BlockThread;
-            }
-          } else if (ScrWork[SW_TITLEMODE] == 2 &&
-                     ScrWork[SW_TITLEDISPCT] == 60) {
-            // Check "PRESS TO START" here
-            if (((Interface::PADinputButtonWentDown & Interface::PAD1A) ||
-                 (Interface::PADinputMouseWentDown & Interface::PAD1A))) {
-              ScrWork[SW_TITLEMODE] = 3;
-              ScrWork[SW_TITLEDISPCT] = 0;
-              ScrWork[SW_TITLEMOVIECT] = 0;
-              SetFlag(SF_TITLEEND, 1);
-            } else {
-              ScrWork[SW_TITLEMOVIECT]++;
-            }
-          }
-          break;
-        }
         case InstructionSet::MO8: {
           if (ScrWork[SW_TITLEMODE] == 1) {
             ScrWork[SW_TITLEMOVIECT] += 1;

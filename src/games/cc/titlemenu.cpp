@@ -220,7 +220,7 @@ void TitleMenu::Update(float dt) {
 
   if (State != Hidden && GetFlag(SF_TITLEMODE)) {
     switch (ScrWork[SW_TITLEMODE]) {
-      using enum TitleMenuMode::Mode;
+      using enum TitleMenuMode::PS4::Mode;
       case PressToStart: {
         PressToStartAnimation.DurationIn = PressToStartAnimDurationIn;
         PressToStartAnimation.DurationOut = PressToStartAnimDurationOut;
@@ -251,7 +251,7 @@ void TitleMenu::Update(float dt) {
 void TitleMenu::Render() {
   if (State != Hidden && GetFlag(SF_TITLEMODE)) {
     switch (ScrWork[SW_TITLEMODE]) {
-      using enum TitleMenuMode::Mode;
+      using enum TitleMenuMode::PS4::Mode;
       case PressToStart: {
         DrawMainBackground(true);
         DrawStartButton();
