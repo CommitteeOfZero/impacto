@@ -1,10 +1,12 @@
-root.HelpMenu.ManualPages = {};
-
-local numberOfPages = root.Language == "English" and 1 or 16
-
-for i = 0, numberOfPages do
-    root.Sprites["ManualPage" .. i] = nil
-end
+root.HelpMenu = {
+    DrawType = DrawComponentType.SystemMenu,
+    Type = HelpMenuType.CCLCC,
+    FadeInDuration = 32/60,
+    FadeOutDuration = 32/60,
+    NextPageInDuration = 0.4,
+    NextPageOutDuration = 0.4,
+    ManualPages = {},
+}
 
 root.Sprites["ManualPage0"] ={
         Sheet = "Help",

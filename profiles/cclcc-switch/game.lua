@@ -2,8 +2,15 @@
 root.ActiveRenderer = RendererType.OpenGL;
 
 root.LayerCount = 100;
-root.GameFeatures = GameFeature.Sc3VirtualMachine | GameFeature.Renderer2D | GameFeature.Input | GameFeature.Audio |
-                        GameFeature.Video | GameFeature.Subtitles | GameFeature.DebugMenu;
+root.GameFeatures = GameFeature.Sc3VirtualMachine |
+                    GameFeature.Renderer2D |
+                    GameFeature.Input |
+                    GameFeature.Audio |
+                    GameFeature.Video |
+                    GameFeature.Subtitles |
+                    GameFeature.DebugMenu |
+                    GameFeature.Achievements |
+                    GameFeature.Overlay;
 root.DesignWidth = 1920;
 root.DesignHeight = 1080;
 
@@ -48,6 +55,7 @@ root.Vm = {
 root.PlatformId = 0x100000; -- switch, important for scripts
 
 include(root.BasePaths.RootProfilesDir .. '/common/animation.lua');
+include(root.BasePaths.RootProfilesDir .. '/common/achievementnotification.lua');
 include(root.BasePaths.RootProfilesDir .. '/common/charset.lua');
 include(root.BasePaths.RootProfilesDir .. '/common/scriptinput.lua');
 include(root.BasePaths.RootProfilesDir .. '/common/scriptvars.lua');
@@ -84,8 +92,5 @@ include(root.BasePaths.RootProfilesDir .. '/cclcc/hud/tipsnotification.lua');
 include(root.BasePaths.RootProfilesDir .. '/cclcc-switch/hud/tipsnotification.lua');
 include(root.BasePaths.RootProfilesDir .. '/cclcc/hud/systemmenu.lua');
 include(root.BasePaths.RootProfilesDir .. '/cclcc/hud/savemenu.lua');
-include(root.BasePaths.RootProfilesDir .. '/cclcc/hud/helpmenu.lua');
-
-
 include(root.BasePaths.RootProfilesDir .. '/cclcc-switch/hud/helpmenu.lua');
 include(root.BasePaths.RootProfilesDir .. '/cclcc-switch/hud/titlemenu.lua');
