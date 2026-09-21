@@ -218,6 +218,10 @@ int ExpressionNode::Evaluate(Sc3VmThread* thd) {
       return Value;
     case ET_FuncGlobalVars: {
       int index = RightExpr->Evaluate(thd);
+      if (index < 0 || index >= ScrWorkSize) {
+        ImpLogSlow(LogLevel::Warning, LogChannel::Expr,
+                   "Tried to access oob ScrWork[{}]\n", index);
+      }
       index = std::clamp(index, 0, ScrWorkSize);
       return ScrWork[index];
     }
@@ -321,6 +325,9 @@ void ExpressionNode::AssignValue(Sc3VmThread* thd) {
     case ET_FuncGlobalVars: {
       if (index >= 0 && index < ScrWorkSize) {
         ScrWork[index] = leftVal;
+      } else {
+        ImpLogSlow(LogLevel::Warning, LogChannel::Expr,
+                   "Tried to access oob ScrWork[{}]\n", index);
       }
     } break;
     case ET_FuncFlags:
