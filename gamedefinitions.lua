@@ -9,7 +9,7 @@ root.GameDefinitions = {
     }
   },
   cclcc = {
-    Name = "CHAOS;CHILD Love Chu☆Chu!!",
+    Name = "CHAOS;CHILD Love Chu☆Chu!! (PS4)",
     LauncherOrderId = 3,
     LauncherTheme = 0xFF7698,
     GameProfile = root.BasePaths.RootProfilesDir .. "/cclcc/game.lua",
