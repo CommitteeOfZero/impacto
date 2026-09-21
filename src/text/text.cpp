@@ -137,6 +137,7 @@ int StringToken::Read(Vm::Sc3Stream& stream) {
     Val_Int = (((uint16_t)c & 0x7F) << 8) | stream.ReadU8();
     if (Profile::Vm::StringEncodingType ==
         Profile::Vm::StringUnitEncoding::Uint32) {
+      Val_Int <<= 16;
       Val_Int |= (uint32_t)stream.ReadU8() << 8;
       Val_Int |= (uint32_t)stream.ReadU8();
       return 4;
