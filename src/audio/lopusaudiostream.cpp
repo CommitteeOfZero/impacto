@@ -23,7 +23,7 @@ AudioStream* LopusAudioStream::Create(Stream* stream) {
   {
     const uint16_t frameSize =
         Io::ReadLE<uint16_t>(result->BaseStream);  // frame size, 0 if VBR
-    if (frameSize) {
+    if (frameSize != 0) {
       result->FrameSize = frameSize;
     }
   }
@@ -42,7 +42,8 @@ AudioStream* LopusAudioStream::Create(Stream* stream) {
   result->BaseStream->Seek(2, IoSeek::Cur);  // padding
 
   // context info chunk
-  if (contextOffset && result->BaseStream->Seek(contextOffset, IoSeek::Set) &&
+  if (contextOffset != 0 &&
+      result->BaseStream->Seek(contextOffset, IoSeek::Set) == contextOffset &&
       Io::ReadLE<uint32_t>(result->BaseStream) == 0x80000003) {
     result->BaseStream->Seek(5, IoSeek::Cur);  // unk
 
@@ -131,16 +132,16 @@ LopusAudioStream::~LopusAudioStream() {
   }
 }
 
-constexpr int kMaxFrameSamples = 5760;
-
 int LopusAudioStream::DecodeFrame(int frameIndex) {
+  static constexpr size_t kMaxFrameSamples = 5760;
+
   const LopusFrameTableEntry& entry = FrameTable[frameIndex];
 
   std::vector<uint8_t> packetBuf(entry.PacketSize);
   BaseStream->Seek(entry.PacketOffset, IoSeek::Set);
   BaseStream->Read(packetBuf.data(), (int)entry.PacketSize);
 
-  PcmLeftover.assign((size_t)kMaxFrameSamples * ChannelCount, 0);
+  PcmLeftover.assign(kMaxFrameSamples * ChannelCount, 0);
   return opus_decode(Decoder, packetBuf.data(), (int32_t)entry.PacketSize,
                      PcmLeftover.data(), kMaxFrameSamples, 0);
 }
