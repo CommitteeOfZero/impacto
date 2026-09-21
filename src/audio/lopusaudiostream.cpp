@@ -31,6 +31,7 @@ AudioStream* LopusAudioStream::Create(Stream* stream) {
 
   // non standard sample rate case
   if (result->SampleRate != 48000) {
+    assert(false);
     result->SampleRate = 48000;
   }
   result->DataOffset = Io::ReadLE<uint32_t>(result->BaseStream);
