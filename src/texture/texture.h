@@ -7,7 +7,7 @@
 namespace Impacto {
 class BaseRenderer;
 
-enum TexFmt { TexFmt_RGB, TexFmt_RGBA, TexFmt_U8, TexFmt_U8A };
+enum TexFmt { TexFmt_RGB, TexFmt_RGBA, TexFmt_U8, TexFmt_UA8 };
 
 struct Texture {
   int Width = 0;
