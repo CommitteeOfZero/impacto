@@ -397,7 +397,7 @@ void DestroyThread(Sc3VmThread* thread) {
   }
   --ThreadGroupCount[thread->GroupId];
   int id = thread->Id;
-  thread = new Sc3VmThread{};
+  *thread = Sc3VmThread{};
   thread->Id = id;
   thread->NextFreeContext = NextFreeThreadCtx;
   NextFreeThreadCtx = thread;
