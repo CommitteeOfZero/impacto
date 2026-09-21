@@ -85,8 +85,8 @@ VmInstruction(InstCreateThreadNew) {
   BlockCurrentScriptThread = false;
 
   ImpLogSlow(LogLevel::Trace, LogChannel::VM,
-             "STUB instruction CreateThread(threadId: {:d}, name: {})\n",
-             newThread->Id, threadName ? threadName : "unname");
+             "CreateThread(threadId: {:d}, name: {})\n", newThread->Id,
+             threadName ? threadName : "unname");
 }
 VmInstruction(InstKillThread) {
   StartInstruction;
