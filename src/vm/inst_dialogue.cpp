@@ -532,7 +532,7 @@ VmInstruction(InstMes) {
   bool voiced = type & 1;
   bool acted = type & (1 << 1);
   bool sync = type & (1 << 3);
-  bool MSB = type & (1 << 7);
+  bool msb = type & (1 << 7);
 
   std::optional<int> audioId;
   int animationId = 0;
@@ -542,14 +542,14 @@ VmInstruction(InstMes) {
 
   if (characterId == 32) characterId = 0;
   int lineId;
-  if (MSB) {
+  if (msb) {
     lineId = ExpressionEval(thread);
   } else {
     PopUint16(lineIdTemp);
     lineId = lineIdTemp;
   }
 
-  uint32_t line = MSB ? MsbGetStrAddress(thread->ScriptBufferId, lineId)
+  uint32_t line = msb ? MsbGetStrAddress(thread->ScriptBufferId, lineId)
                       : ScriptGetStrAddress(thread->ScriptBufferId, lineId);
 
   if (!(ScrWork[Profile::Vm::ScrWorkMesStructSize * thread->DialoguePageId +
@@ -574,7 +574,7 @@ VmInstruction(InstMes) {
   uint32_t oldIp = thread->IpOffset;
   thread->IpOffset = line;
 
-  thread->UseMSBBuffers = MSB;
+  thread->UseMSBBuffers = msb;
   dialoguePage.AddString(thread, audioId, acted, animationId, characterId);
 
   ResetInstruction;
