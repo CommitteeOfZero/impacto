@@ -84,9 +84,12 @@ struct Sc3VmThread {
   bool UseMSBBuffers = false;
 
   void* GetMemberPointer(uint32_t offset);
-  uint8_t* GetIp(bool isString = false) const;
-  void SetIp(uint8_t* ptr, bool isString = false);
+  uint8_t* GetIp() const;
+  uint8_t* GetStringIp() const;
+  void SetIp(uint8_t* ptr);
   void SetIp(BufferOffsetContext ctx);
+  void SetStringIp(uint8_t* ptr);
+  void SetStringIp(BufferOffsetContext ctx);
 };
 
 }  // namespace Vm
