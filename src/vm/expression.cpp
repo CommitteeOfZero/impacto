@@ -70,11 +70,10 @@ struct ExprToken {
 class ExpressionNode {
  public:
   ExprTokenType ExprType;
+  int Value;
 
   std::unique_ptr<ExpressionNode> LeftExpr;
   std::unique_ptr<ExpressionNode> RightExpr;
-
-  int Value;
 
   int Evaluate(Sc3VmThread* thd);
   void AssignValue(Sc3VmThread* thd);
@@ -82,20 +81,31 @@ class ExpressionNode {
 
 class ExpressionParser {
  public:
-  ExpressionParser(Sc3VmThread* thd);
+  ExpressionParser(Sc3VmThread* thd, bool isString);
   ExpressionNode* ParseSubExpression(int minPrecidence);
 
  private:
-  int CurrentToken;
   std::vector<ExprToken> Tokens;
+  int CurrentToken;
+  bool IsString;
+
   void GetTokens(Sc3VmThread* thd);
 
   ExpressionNode* ParseTerm();
+  uint8_t GetIp(Sc3VmThread* thd) const;
 };
 
-int ExpressionEval(Sc3VmThread* thd) {
+uint8_t ExpressionParser::GetIp(Sc3VmThread* thd) const {
+  if (IsString) {
+    return *thd->GetStringIp();
+  } else {
+    return *thd->GetIp();
+  }
+}
+
+int ExpressionEval(Sc3VmThread* thd, bool isString) {
   std::unique_ptr<ExpressionParser> parser =
-      std::make_unique<ExpressionParser>(thd);
+      std::make_unique<ExpressionParser>(thd, isString);
 
   ExpressionNode* root = parser->ParseSubExpression(0);
   std::unique_ptr<ExpressionNode> rootPtr =
@@ -351,7 +361,8 @@ void ExpressionNode::AssignValue(Sc3VmThread* thd) {
   }
 }
 
-ExpressionParser::ExpressionParser(Sc3VmThread* thd) {
+ExpressionParser::ExpressionParser(Sc3VmThread* thd, bool isString = false) {
+  this->IsString = isString;
   GetTokens(thd);
   CurrentToken = 0;
 }
@@ -476,18 +487,18 @@ ExpressionNode* ExpressionParser::ParseTerm() {
 void ExpressionParser::GetTokens(Sc3VmThread* thd) {
   ExprToken curToken;
 
-  if (*thd->GetIp()) {
+  if (GetIp(thd)) {
     do {
-      int8_t tokenType = *thd->GetIp();
+      int8_t tokenType = GetIp(thd);
       if (tokenType >= 0) {
         curToken.Type = (ExprTokenType)tokenType;
         thd->IpOffset++;
-        curToken.Precedence = *(thd->GetIp());
+        curToken.Precedence = GetIp(thd);
         thd->IpOffset++;
         curToken.Value = 0;
         Tokens.push_back(curToken);
       } else {
-        uint8_t* immValue = thd->GetIp();
+        uint8_t* immValue = IsString ? thd->GetStringIp() : thd->GetIp();
         curToken.Type = ET_ImmediateValue;
         switch (tokenType & 0x60) {
           case 0:
@@ -515,10 +526,10 @@ void ExpressionParser::GetTokens(Sc3VmThread* thd) {
             break;
         }
         thd->IpOffset++;
-        curToken.Precedence = *(thd->GetIp());
+        curToken.Precedence = GetIp(thd);
         Tokens.push_back(curToken);
       }
-    } while (*thd->GetIp());
+    } while (GetIp(thd));
   }
 
   thd->IpOffset++;
