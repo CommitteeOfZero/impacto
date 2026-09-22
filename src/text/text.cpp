@@ -72,7 +72,7 @@ int StringToken::Read(Vm::Sc3VmThread* ctx) {
       } else {
         uint32_t oldIp = ctx->IpOffset;
         // TODO is this really okay to do in parsing code?
-        Val_Expr = Vm::ExpressionEval(ctx);
+        Val_Expr = Vm::ExpressionEval(ctx, true);
         bytesRead += (int)(ctx->IpOffset - oldIp);
       }
       break;
@@ -82,7 +82,7 @@ int StringToken::Read(Vm::Sc3VmThread* ctx) {
       Type = (StringTokenType)c;
       uint32_t oldIp = ctx->IpOffset;
       // TODO is this really okay to do in parsing code?
-      Val_Expr = Vm::ExpressionEval(ctx);
+      Val_Expr = Vm::ExpressionEval(ctx, true);
       bytesRead += (int)(ctx->IpOffset - oldIp);
       break;
     }
@@ -454,15 +454,24 @@ void InitNamePlateData(Vm::Sc3Stream& stream) {
     dummy.ScriptBufferId = Profile::Vm::SystemScriptBuffer;
     dummy.UseMSBBuffers = Profile::Vm::UseMsbStrings;
     size_t nameLength = (TextGetStringLength(&dummy) - 1);
+    dummy.IpOffset = nameAddr;
+
+    std::vector<uint32_t> vec;
+    std::span<const uint8_t> spanned;
     if (Profile::Vm::StringEncodingType ==
         Profile::Vm::StringUnitEncoding::Uint16) {
-      nameLength *= 2;
+      vec.reserve(nameLength);
+      auto ptr = std::span<const uint16_t>(
+          reinterpret_cast<const uint16_t*>(dummy.GetStringIp()), nameLength);
+      for (auto num : ptr) {
+        vec.push_back(static_cast<uint32_t>(num));
+      }
+      spanned = std::span<const uint8_t>(
+          reinterpret_cast<const uint8_t*>(vec.data()), nameLength * 4);
     } else {
-      nameLength *= 4;
+      spanned = std::span<uint8_t>(dummy.GetStringIp(), nameLength * 4);
     }
 
-    dummy.IpOffset = nameAddr;
-    auto spanned = std::span<uint8_t>(dummy.GetStringIp(), nameLength);
     uint32_t nameHash = GetHashCode(spanned);
     NamePlateData[nameHash] = id;
   } while (stream.PeekU16() != 0xFFFF);
