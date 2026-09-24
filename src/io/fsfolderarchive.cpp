@@ -110,14 +110,14 @@ IoError FSFolderArchive::Create(Stream* stream, VfsArchive** outArchive,
   result->BaseStream = stream;
   std::optional<std::regex> whitelistRegex;
 
-  if (params && params->whitelistPattern) {
+  if (params && params->WhitelistPattern) {
     try {
-      whitelistRegex.emplace(*params->whitelistPattern,
+      whitelistRegex.emplace(*params->WhitelistPattern,
                              std::regex::ECMAScript | std::regex::icase);
     } catch (std::regex_error const& e) {
       ImpLog(LogLevel::Error, LogChannel::IO,
              "Invalid whitelist pattern \"{:s}\": {:s}\n",
-             *params->whitelistPattern, e.what());
+             *params->WhitelistPattern, e.what());
       return IoError_Fail;
     }
   }
@@ -161,10 +161,10 @@ IoError FSFolderArchive::Create(Stream* stream, VfsArchive** outArchive,
     return code;
   }
 
-  if (params && params->orderFilePath) {
+  if (params && params->OrderFilePath) {
     Stream* orderFile;
     IoError err;
-    std::string const& orderFileName = *(params->orderFilePath);
+    std::string const& orderFileName = *(params->OrderFilePath);
 #ifndef IMPACTO_DISABLE_MMAP
     err = MemoryMappedFileStream<AccessMode::read>::Create(orderFileName,
                                                            &orderFile);
@@ -174,6 +174,7 @@ IoError FSFolderArchive::Create(Stream* stream, VfsArchive** outArchive,
     if (err != IoError_OK) {
       ImpLog(LogLevel::Debug, LogChannel::IO,
              "Could not open physical file \"{:s}\"\n", orderFileName);
+      delete result;
       return err;
     }
 
