@@ -430,6 +430,9 @@ void TextGetSc3String(std::string_view str, std::span<T> out) {
   out[sc3Idx++] = 0xFF;
 }
 
+template void TextGetSc3String<uint16_t>(std::string_view, std::span<uint16_t>);
+template void TextGetSc3String<uint32_t>(std::string_view, std::span<uint32_t>);
+
 void InitNamePlateData(Vm::Sc3Stream& stream) {
   do {
     uint16_t id = stream.ReadU16();
