@@ -3,6 +3,7 @@
 #include "dialoguepage.h"
 #include "backlogpage.h"
 #include "tipspage.h"
+#include <variant>
 
 #include "../profile/dialogue.h"
 
@@ -14,6 +15,7 @@ enum class TextParserType { Dialogue, Backlog, Tips };
 
 class TextParser {
  public:
+  TextParser();
   virtual ~TextParser() = default;
 
   virtual void ParseString(Vm::Sc3VmThread* string) = 0;
@@ -39,7 +41,7 @@ class TextParser {
   void FinishLine(size_t nextLineStart, bool force = false);
   void FinishName();
 
-  std::vector<uint32_t> NameCode;
+  std::variant<std::vector<uint16_t>, std::vector<uint32_t>> NameCode;
 
   enum class TextParsingState { Normal, Name, RubyBase, RubyAnnotation };
   TextParsingState ParsingState = TextParsingState::Normal;
@@ -89,8 +91,8 @@ class TipsTextParser : public TextParser {
   void ParseString(TipsPage& page, Vm::Sc3VmThread* string);
 };
 
-inline DialogueTextParser DialogueTextParserInst;
-inline BacklogTextParser BacklogTextParserInst;
-inline TipsTextParser TipsTextParserInst;
+inline DialogueTextParser* DialogueTextParserInst = nullptr;
+inline BacklogTextParser* BacklogTextParserInst = nullptr;
+inline TipsTextParser* TipsTextParserInst = nullptr;
 
 }  // namespace Impacto

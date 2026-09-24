@@ -93,7 +93,7 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, std::optional<int> voiceId,
 
   const size_t typeWriterStart = Glyphs.size();
 
-  DialogueTextParserInst.ParseString(*this, ctx);
+  DialogueTextParserInst->ParseString(*this, ctx);
 
   RenderName =
       ScrWork[SW_MESNAMEID0 + Id] != static_cast<int>(NO_NAME) || !Name.empty();
@@ -102,7 +102,8 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, std::optional<int> voiceId,
   Typewriter.Reset(AnimationDirection::In);
   Typewriter.SetFirstGlyph(typeWriterStart);
   Typewriter.SetGlyphCount(Glyphs.size() - typeWriterStart);
-  Typewriter.SetParallelStartGlyphs(DialogueTextParserInst.ParallelStartGlyphs);
+  Typewriter.SetParallelStartGlyphs(
+      DialogueTextParserInst->ParallelStartGlyphs);
 }
 
 void DialoguePage::PlayLine() {
