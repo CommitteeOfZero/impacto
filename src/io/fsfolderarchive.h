@@ -10,8 +10,8 @@ namespace Io {
 struct TextMetaEntry;
 
 struct FolderArchiveParameters {
-  std::optional<std::string> orderFilePath;
-  std::optional<std::string> whitelistPattern;
+  std::optional<std::string> OrderFilePath;
+  std::optional<std::string> WhitelistPattern;
 };
 
 class FSFolderArchive : public VfsArchive {

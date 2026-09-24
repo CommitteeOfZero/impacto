@@ -557,8 +557,8 @@ struct TryGetImpl<Io::FolderArchiveParameters> {
     if (!lua_istable(LuaState, -1)) return std::nullopt;
 
     Io::FolderArchiveParameters result;
-    result.orderFilePath = TryGetMember<std::string>("Order");
-    result.whitelistPattern = TryGetMember<std::string>("Whitelist");
+    result.OrderFilePath = TryGetMember<std::string>("Order");
+    result.WhitelistPattern = TryGetMember<std::string>("Whitelist");
     return result;
   }
 };
