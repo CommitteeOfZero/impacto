@@ -542,15 +542,15 @@ VmInstruction(InstMes) {
 
   if (characterId == 32) characterId = 0;
   int lineId;
+  uint32_t line;
   if (msb) {
     lineId = ExpressionEval(thread);
+    line = MsbGetStrAddress(thread->ScriptBufferId, lineId);
   } else {
     PopUint16(lineIdTemp);
     lineId = lineIdTemp;
+    line = ScriptGetStrAddress(thread->ScriptBufferId, lineId);
   }
-
-  uint32_t line = msb ? MsbGetStrAddress(thread->ScriptBufferId, lineId)
-                      : ScriptGetStrAddress(thread->ScriptBufferId, lineId);
 
   if (!(ScrWork[Profile::Vm::ScrWorkMesStructSize * thread->DialoguePageId +
                 SW_MESWIN0TYPE] &
@@ -1237,16 +1237,15 @@ VmInstruction(InstSetRevMes) {
   }
 
   int lineId;
+  uint32_t line;
   if (expression) {
     lineId = ExpressionEval(thread);
+    line = MsbGetStrAddress(thread->ScriptBufferId, lineId);
   } else {
     PopUint16(lineIdTemp);
     lineId = lineIdTemp;
+    line = ScriptGetStrAddress(thread->ScriptBufferId, lineId);
   }
-
-  uint32_t line = expression
-                      ? MsbGetStrAddress(thread->ScriptBufferId, lineId)
-                      : ScriptGetStrAddress(thread->ScriptBufferId, lineId);
 
   uint32_t scriptId = LoadedScriptMetas[thread->ScriptBufferId].Id;
 
