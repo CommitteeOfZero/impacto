@@ -5,6 +5,7 @@
 #include "../../vm/vm.h"
 #include "../../inputsystem.h"
 #include "../../profile/scriptvars.h"
+#include "../../profile/vm.h"
 #include "../../profile/dialogue.h"
 #include "../../profile/ui/backlogmenu.h"
 #include "../../profile/ui/tipsmenu.h"
@@ -100,7 +101,10 @@ void TipsMenu::Hide() {
   if (State != Hidden) {
     State = Hiding;
     FadeAnimation.StartOut();
-    Audio::PlayInGroup(Audio::ACG_SE, "sysse", 3, false, 0);
+    // Switch has this sfx played in the script
+    if (Profile::Vm::GameInstructionSet != Vm::InstructionSet::LCCSwitch) {
+      Audio::PlayInGroup(Audio::ACG_SE, "sysse", 3, false, 0);
+    }
     if (ScrWork[SW_SYSSUBMENUCT] != 0) {
       TransitionAnimation.StartOut();
     } else {
@@ -286,6 +290,7 @@ void TipsMenu::Render() {
 
 void TipsMenu::Init() {
   auto* TipRecords = TipsSystem::GetTipRecords();
+  SortedTipIds.clear();
   std::transform(
       TipRecords->begin(), TipRecords->end(), std::back_inserter(SortedTipIds),
       [](TipsSystem::TipsDataRecord const& record) { return record.Id; });
@@ -304,9 +309,8 @@ void TipsMenu::Init() {
 void TipsMenu::SwitchToTipId(int id) {
   if (id - 1 == CurrentlyDisplayedTipId) return;
   int actualId = SortedTipIds[id - 1];
+  auto [buffers, tipsScrBufId] = TipsSystem::GetTipsScriptBufferCtx();
   auto* record = TipsSystem::GetTipRecord(actualId);
-  uint32_t tipsScrBufId = TipsSystem::GetTipsScriptBufferId();
-
   if (record->IsLocked) {
     Audio::PlayInGroup(Audio::ACG_SE, "sysse", 4, false, 0);
     return;
@@ -314,32 +318,46 @@ void TipsMenu::SwitchToTipId(int id) {
   CurrentlyDisplayedTipId = id - 1;
 
   TipsSystem::SetTipUnreadState(actualId, false);
-  Category->SetText(Vm::BufferOffsetContext{.ScriptBufferId = tipsScrBufId,
-                                            .IpOffset = record->StringAdr[0]},
-                    CategoryPos, (float)CategoryFontSize,
+  auto categoryStr = TipsSystem::GetTextStringStream(actualId, 0);
+  auto nameStr = TipsSystem::GetTextStringStream(actualId, 1);
+  auto pronunciationStr = TipsSystem::GetTextStringStream(actualId, 2);
+  Category->SetText(categoryStr, CategoryPos, (float)CategoryFontSize,
                     RendererOutlineMode::None, {TipsMenuDarkTextColor, 0});
-  Name->SetText(Vm::BufferOffsetContext{.ScriptBufferId = tipsScrBufId,
-                                        .IpOffset = record->StringAdr[1]},
-                NamePos, (float)NameFontSize, RendererOutlineMode::None,
-                {TipsMenuDarkTextColor, 0});
-  Pronunciation->SetText(
-      Vm::BufferOffsetContext{.ScriptBufferId = tipsScrBufId,
-                              .IpOffset = record->StringAdr[2]},
-      PronunciationPos, (float)PronunciationFontSize, RendererOutlineMode::None,
-      0);
+  Name->SetText(nameStr, NamePos, (float)NameFontSize,
+                RendererOutlineMode::None, {TipsMenuDarkTextColor, 0});
+  Pronunciation->SetText(pronunciationStr, PronunciationPos,
+                         (float)PronunciationFontSize,
+                         RendererOutlineMode::None, 0);
 
   {
-    uint16_t sc3StringBuffer[4];
-    TextGetSc3String(fmt::format("{:03d}", id), sc3StringBuffer);
-    Vm::Sc3Stream stream(sc3StringBuffer);
-    stream = Vm::Sc3Stream(sc3StringBuffer);
+    using Buffer =
+        std::variant<std::array<uint16_t, 4>, std::array<uint32_t, 4>>;
+
+    Buffer sc3StringBuffer =
+        Profile::Vm::StringEncodingType ==
+                Profile::Vm::StringUnitEncoding::Uint32
+            ? Buffer(std::in_place_type<std::array<uint32_t, 4>>)
+            : Buffer(std::in_place_type<std::array<uint16_t, 4>>);
+
+    auto lambda = [&]<typename T>() {
+      auto& buf = std::get<std::array<T, 4>>(sc3StringBuffer);
+      TextGetSc3String(fmt::format("{:03d}", id), buf);
+      return Vm::Sc3Stream(buf.data());
+    };
+
+    auto stream = Profile::Vm::StringEncodingType ==
+                          Profile::Vm::StringUnitEncoding::Uint32
+                      ? lambda.template operator()<uint32_t>()
+                      : lambda.template operator()<uint16_t>();
+
     Number->SetText(stream, NumberPos, (float)NumberFontSize,
                     RendererOutlineMode::None, 0);
   }
 
   Vm::Sc3VmThread dummy;
-  dummy.IpOffset = record->StringAdr[4];
   dummy.ScriptBufferId = tipsScrBufId;
+  dummy.UseMSBBuffers = Profile::Vm::UseMsbStrings;
+  dummy.SetStringIp(TipsSystem::GetTextStringStream(actualId, 4).Data());
   TextPage.Clear();
   TextPage.AddString(&dummy);
   TipViewItems.HasFocus = true;

@@ -20,7 +20,6 @@
 #include "lnk4archive.h"
 #include "mpkarchive.h"
 #include "textarchive.h"
-#include "fsfolderarchive.h"
 
 namespace Impacto {
 namespace Io {
@@ -31,6 +30,8 @@ concept FileId = std::convertible_to<T, uint32_t> ||
 
 using VfsArchiveFactory = auto (*)(Stream* stream, VfsArchive** outArchive)
     -> IoError;
+using VfsArchiveFactoryFn =
+    std::function<IoError(Stream* stream, VfsArchive** outArchive)>;
 
 static std::vector<VfsArchiveFactory> Archivers;
 
@@ -48,7 +49,7 @@ static std::shared_mutex Lock;
 
 static IoError MountInternal(std::string const& mountpoint, Stream* stream,
                              bool invertMountOrder = false,
-                             VfsArchiveFactory hintArchiver = nullptr) {
+                             VfsArchiveFactoryFn hintArchiver = nullptr) {
   VfsArchive* archive = nullptr;
 
   IoError err = IoError_Fail;
@@ -96,7 +97,8 @@ void VfsInit() {
 }
 
 IoError VfsMount(std::string const& mountpoint,
-                 std::string const& archiveFileName) {
+                 std::string const& archiveFileName,
+                 std::optional<FolderArchiveParameters> parameters) {
   ImpLog(LogLevel::Debug, LogChannel::IO,
          "Trying to mount \"{:s}\" on mountpoint \"{:s}\"\n", archiveFileName,
          mountpoint);
@@ -118,10 +120,26 @@ IoError VfsMount(std::string const& mountpoint,
     ImpLog(LogLevel::Error, LogChannel::IO,
            "Failed to check if {} is a directory: {}\n", archiveFileName,
            ec.message());
+
+  if (parameters && !isDir) {
+    ImpLog(LogLevel::Warning, LogChannel::IO,
+           "Folder archive params for \"{:s}\" are specified, but it is not a "
+           "directory, "
+           "parameters will be ignored\n",
+           archiveFileName);
+  }
+
   if (isDir) {
     DummyStream::Create(archiveFileName, &archiveFile);
-    err =
-        MountInternal(mountpoint, archiveFile, false, &FSFolderArchive::Create);
+    FolderArchiveParameters params =
+        parameters.value_or(FolderArchiveParameters{});
+
+    VfsArchiveFactoryFn factory = [params](Stream* stream,
+                                           VfsArchive** outArchive) {
+      return FSFolderArchive::Create(stream, outArchive, params);
+    };
+
+    err = MountInternal(mountpoint, archiveFile, false, factory);
   } else {
 #ifndef IMPACTO_DISABLE_MMAP
     err = MemoryMappedFileStream<AccessMode::read>::Create(archiveFileName,

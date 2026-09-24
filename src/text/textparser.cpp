@@ -14,12 +14,21 @@ namespace Impacto {
 using namespace Profile::Dialogue;
 using namespace Profile::ScriptVars;
 
+TextParser::TextParser() {
+  if (Profile::Vm::StringEncodingType ==
+      Profile::Vm::StringUnitEncoding::Uint32) {
+    NameCode = std::vector<uint32_t>();
+  } else {
+    NameCode = std::vector<uint16_t>();
+  }
+}
+
 void TextParser::Reset() {
   Glyphs.clear();
   RubyChunks.clear();
 
   Name.clear();
-  NameCode.clear();
+  std::visit([](auto& v) { v.clear(); }, NameCode);
   NameId = NO_NAME;
 
   AdvanceMethod = DialoguePage::AdvanceMethodType::Skip;
@@ -48,9 +57,13 @@ void TextParser::ParseStringToken<STT_LineBreak>(const StringToken& token) {
 template <>
 void TextParser::ParseStringToken<STT_CharacterNameStart>(
     const StringToken& token) {
-  NameCode.reserve(64);
-  NameCode.clear();
-  NameCode.emplace_back(STT_EndOfString);
+  std::visit(
+      [](auto& v) {
+        v.reserve(64);
+        v.clear();
+        v.emplace_back(STT_EndOfString);
+      },
+      NameCode);
   ParsingState = TextParsingState::Name;
 }
 
@@ -103,7 +116,7 @@ void TextParser::ParseStringToken<STT_RubyTextEnd>(const StringToken& token) {
 
 template <>
 void TextParser::ParseStringToken<STT_SetFontSize>(const StringToken& token) {
-  FontSize = ModeInfo.TextGlyphSize.y * (token.Val_Uint16 / SetFontSizeRatio);
+  FontSize = ModeInfo.TextGlyphSize.y * (token.Val_Int / SetFontSizeRatio);
 }
 
 template <>
@@ -119,12 +132,12 @@ void TextParser::ParseStringToken<STT_CenterText>(const StringToken& token) {
 
 template <>
 void TextParser::ParseStringToken<STT_SetTopMargin>(const StringToken& token) {
-  CurrentLineTopMargin = token.Val_Uint16;
+  CurrentLineTopMargin = static_cast<float>(token.Val_Int);
 }
 
 template <>
 void TextParser::ParseStringToken<STT_SetLeftMargin>(const StringToken& token) {
-  float addX = token.Val_Uint16;
+  float addX = static_cast<float>(token.Val_Int);
   if (CurrentX + addX > ModeInfo.MaxLineWidth) {
     FinishLine(Glyphs.size());
     addX -= (ModeInfo.MaxLineWidth - CurrentX);
@@ -139,11 +152,12 @@ void TextParser::ParseStringToken<STT_SetLeftMargin>(const StringToken& token) {
 
 template <>
 void TextParser::ParseStringToken<STT_UnlockTip>(const StringToken& token) {
-  if (!TipsSystem::GetTipLockedState(token.Val_Uint16)) return;
+  if (!TipsSystem::GetTipLockedState(token.Val_Int)) return;
 
-  TipsSystem::SetTipLockedState(token.Val_Uint16, false);
-  TipsNotification::AddTip(token.Val_Uint16);
-  TipsSystem::GetNewTipsIndices().push_back(token.Val_Uint16);
+  TipsSystem::SetTipLockedState(token.Val_Int, false);
+  TipsNotification::AddTip(token.Val_Int);
+  TipsSystem::GetNewTipsIndices().push_back(
+      static_cast<uint16_t>(token.Val_Int));
 }
 
 template <>
@@ -172,14 +186,31 @@ template <>
 void TextParser::ParseStringToken<STT_Character>(const StringToken& token) {
   switch (ParsingState) {
     case TextParsingState::Name: {
-      NameCode.back() = SDL_Swap16(token.Val_Uint16 | 0x8000);
-      NameCode.emplace_back(STT_EndOfString);
+      std::visit(
+          [&](auto& v) {
+            using T = typename std::decay_t<decltype(v)>::value_type;
+
+            if constexpr (std::is_same_v<T, uint32_t>) {
+              v.back() = SDL_Swap32(token.Val_Int | 0x80000000u);
+            } else if constexpr (std::is_same_v<T, uint16_t>) {
+              v.back() =
+                  SDL_Swap16(static_cast<uint16_t>(token.Val_Int) | 0x8000u);
+            }
+            v.emplace_back(STT_EndOfString);
+          },
+          NameCode);
       return;
     }
 
     case TextParsingState::RubyAnnotation: {
-      RubyChunks.back().RawText.push_back(
-          SDL_Swap16(token.Val_Uint16 | 0x8000));
+      uint32_t val{};
+      if (Profile::Vm::StringEncodingType ==
+          Profile::Vm::StringUnitEncoding::Uint32) {
+        val = SDL_Swap32(token.Val_Int | 0x80000000);
+      } else {
+        val = SDL_Swap16(static_cast<uint16_t>(token.Val_Int) | 0x8000);
+      }
+      RubyChunks.back().RawText.push_back(val);
       return;
     }
 
@@ -187,7 +218,7 @@ void TextParser::ParseStringToken<STT_Character>(const StringToken& token) {
     case TextParsingState::RubyBase: {
       // TODO respect TA_Center
       // TODO what to do about left margin if text alignment is center?
-      const uint32_t glyphId = token.Val_Uint16;
+      const uint32_t glyphId = token.Val_Int;
       const auto& glyph = Glyphs.emplace_back(DialogueFont->PlaceGlyph(
           glyphId, {ModeInfo.WindowPos.x + CurrentX, 0.0f}, FontSize,
           CurrentColors, 1.0f));
@@ -375,12 +406,16 @@ void TextParser::FinishName() {
   using enum TextModeInfo::NameDispModeType;
   using enum TextModeInfo::NameAlignmentType;
 
+  size_t nameCodeSize = std::visit([](auto& v) { return v.size(); }, NameCode);
+
   if (ModeInfo.NameDispMode == Invisible || ModeInfo.MaxNameWidth == 0.0f ||
-      NameCode.size() <= 1) {
+      nameCodeSize <= 1) {
     return;
   }
 
-  Vm::Sc3Stream nameStream(NameCode.data());
+  Vm::Sc3Stream nameStream =
+      std::visit([](auto& v) { return Vm::Sc3Stream(v.data()); }, NameCode);
+
   const float nameWidth = TextGetPlainLineWidth(nameStream, *DialogueFont,
                                                 ModeInfo.NameGlyphSize.y);
 
@@ -453,11 +488,13 @@ void TextParser::FinishName() {
       break;
   }
 
-  nameStream = Vm::Sc3Stream(NameCode.data());
-  Name = TextLayoutPlainLine(nameStream, NameCode.size() - 1, *DialogueFont,
+  nameStream =
+      std::visit([](auto& v) { return Vm::Sc3Stream(v.data()); }, NameCode);
+  Name = TextLayoutPlainLine(nameStream, nameCodeSize - 1, *DialogueFont,
                              ModeInfo.NameGlyphSize.y, ColorTable[0], 1.0f, pos,
                              TextAlignment::Left);
-  assert(NameCode.size() - 1 == Name.size());
+  nameCodeSize = std::visit([](auto& v) { return v.size(); }, NameCode);
+  assert(nameCodeSize - 1 == Name.size());
 
   if (ModeInfo.NameDispMode == InText) {
     CurrentLineTop += ModeInfo.NameGlyphSize.y + ModeInfo.LineSpacing;
@@ -466,7 +503,7 @@ void TextParser::FinishName() {
 
 void DialogueTextParser::ParseString(Vm::Sc3VmThread* string) {
   using TokenParserProc = auto (TextParser::*)(const StringToken&)->void;
-  constexpr static auto tokenParserLUT = []() {
+  static auto tokenParserLUT = []() {
     magic_enum::containers::array<StringTokenType, TokenParserProc> lut;
     lut.fill(nullptr);
 
@@ -521,11 +558,16 @@ void DialogueTextParser::ParseString(Vm::Sc3VmThread* string) {
   } while (token.Type != STT_EndOfString);
 
   FinishLine(Glyphs.size());
+  size_t nameCodeSize = std::visit([](auto& v) { return v.size(); }, NameCode);
 
-  NameId = NameCode.size() <= 1
+  NameId = nameCodeSize <= 1
                ? NO_NAME
-               : GetNameId(std::span(NameCode.begin(), NameCode.end() - 1))
-                     .value_or(NO_NAME);
+               : std::visit(
+                     [](auto& v) {
+                       return GetNameId(std::span(v.begin(), v.end() - 1))
+                           .value_or(NO_NAME);
+                     },
+                     NameCode);
 
   for (size_t glyphIdx = glyphsStart; glyphIdx < Glyphs.size(); glyphIdx++) {
     Glyphs[glyphIdx].Opacity = 0.0f;
@@ -553,7 +595,7 @@ void DialogueTextParser::ParseString(DialoguePage& page,
 
   ParseString(string);
 
-  ScrWork[SW_MESNAMEID0 + page.Id] = DialogueTextParserInst.NameId;
+  ScrWork[SW_MESNAMEID0 + page.Id] = DialogueTextParserInst->NameId;
 
   Glyphs.swap(page.Glyphs);
   RubyChunks.swap(page.RubyChunks);
@@ -565,7 +607,7 @@ void DialogueTextParser::ParseString(DialoguePage& page,
 
 void BacklogTextParser::ParseString(Vm::Sc3VmThread* string) {
   using TokenParserProc = auto (TextParser::*)(const StringToken&)->void;
-  constexpr static auto tokenParserLUT = []() {
+  static auto tokenParserLUT = []() {
     magic_enum::containers::array<StringTokenType, TokenParserProc> lut;
     lut.fill(nullptr);
 
@@ -624,7 +666,7 @@ void BacklogTextParser::ParseString(BacklogPage& page,
 
 void TipsTextParser::ParseString(Vm::Sc3VmThread* string) {
   using TokenParserProc = auto (TextParser::*)(const StringToken&)->void;
-  constexpr static auto tokenParserLUT = []() {
+  static auto tokenParserLUT = []() {
     magic_enum::containers::array<StringTokenType, TokenParserProc> lut;
     lut.fill(nullptr);
 

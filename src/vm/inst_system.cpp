@@ -57,6 +57,37 @@ VmInstruction(InstCreateThread) {
   RunThread(newThread, dt);
   BlockCurrentScriptThread = false;
 }
+
+VmInstruction(InstCreateThreadNew) {
+  StartInstruction;
+  PopUint8(type);
+  PopExpression(groupId);
+  PopExpression(scriptBufferId);
+  PopFarLabel(labelAdr, scriptBufferId);
+
+  [[maybe_unused]]
+  char* threadName = nullptr;
+  if (type & 0x80) {
+    threadName = reinterpret_cast<char*>(thread->GetIp());
+    do {
+      thread->IpOffset++;
+    } while ((*thread->GetIp()) != '\0');
+    thread->IpOffset++;
+  }
+
+  Sc3VmThread* newThread = CreateThread(groupId);
+  newThread->GroupId = groupId;
+  newThread->ScriptBufferId = scriptBufferId;
+  newThread->IpOffset = labelAdr;
+  thread->ScriptParam = newThread->Id;
+  newThread->ScriptParam = thread->Id;
+  RunThread(newThread, dt);
+  BlockCurrentScriptThread = false;
+
+  ImpLogSlow(LogLevel::Trace, LogChannel::VM,
+             "CreateThread(threadId: {:d}, name: {})\n", newThread->Id,
+             threadName ? threadName : "unname");
+}
 VmInstruction(InstKillThread) {
   StartInstruction;
   PopExpression(threadId);
@@ -71,6 +102,17 @@ VmInstruction(InstReset) {
 }
 VmInstruction(InstScriptLoad) {
   StartInstruction;
+  PopExpression(bufferId);
+  PopExpression(scriptId);
+  if (Profile::Vm::UseMsbStrings) {
+    LoadMsb(bufferId, scriptId);
+    if (!Profile::Vm::UseSeparateMsbArchive) scriptId += 1;
+  }
+  LoadScript(bufferId, scriptId);
+}
+VmInstruction(InstScriptLoadNew) {
+  StartInstruction;
+  PopUint8(type);
   PopExpression(bufferId);
   PopExpression(scriptId);
   if (Profile::Vm::UseMsbStrings) {
@@ -116,10 +158,46 @@ VmInstruction(InstSetFlag) {
   PopExpression(flagId);
   SetFlag(flagId, 1);
 }
+VmInstruction(InstSetFlagNew) {
+  StartInstruction;
+  PopUint8(type);
+  PopExpression(flagId);
+  if (flagId < 0) return;
+  if (type == 0) {
+    SetFlag(flagId, 1);
+  } else {
+    PopExpression(range);
+    if (type == 1) {
+      range = flagId + range;
+    }
+    // type 1: [flagId, flagId+range), type 2: [flagId, range)
+    for (uint32_t i = flagId; i < static_cast<uint32_t>(range); i++) {
+      SetFlag(i, 1);
+    }
+  }
+}
 VmInstruction(InstResetFlag) {
   StartInstruction;
   PopExpression(flagId);
   SetFlag(flagId, 0);
+}
+VmInstruction(InstResetFlagNew) {
+  StartInstruction;
+  PopUint8(type);
+  PopExpression(flagId);
+  if (flagId < 0) return;
+  if (type == 0) {
+    SetFlag(flagId, 0);
+  } else {
+    PopExpression(range);
+    if (type == 0) {
+      range = flagId + range;
+    }
+    // type 1: [flagId, flagId+range), type 2: [flagId, range)
+    for (uint32_t i = flagId; i < static_cast<uint32_t>(range); i++) {
+      SetFlag(i, 0);
+    }
+  }
 }
 VmInstruction(InstCopyFlag) {
   StartInstruction;
@@ -525,6 +603,25 @@ VmInstruction(InstVoiceTableLoadMaybe) {
       break;
   }
 }
+VmInstruction(InstVoiceTableLoadNew) {
+  StartInstruction;
+  PopUint8(type);
+  PopExpression(fileId);
+
+  switch (VoiceTableData.Status) {
+    case LoadStatus::Unloaded:
+      VoiceTableData.LoadAsync(fileId);
+      ResetInstruction;
+      BlockThread;
+      break;
+    case LoadStatus::Loading:
+      ResetInstruction;
+      BlockThread;
+      break;
+    case LoadStatus::Loaded:
+      break;
+  }
+}
 VmInstruction(InstSetPadCustom) {
   StartInstruction;
   Interface::UpdatePADcustomType(Profile::ConfigSystem::ControllerType);
@@ -567,11 +664,13 @@ VmInstruction(InstSystemMes) {
   StartInstruction;
   PopUint8(mode);
   uint32_t sysMesId = thread->Id;
+  const bool useMsb = mode & 0x80;
   switch (Profile::Vm::GameInstructionSet) {
     default:
       break;
     case InstructionSet::Dash:
     case InstructionSet::CC:
+    case InstructionSet::LCCSwitch:
       PopUint8(id);
       sysMesId = id;
       break;
@@ -587,7 +686,19 @@ VmInstruction(InstSystemMes) {
     return box;
   };
 
-  switch (mode) {
+  uint32_t type = mode;
+  if (useMsb) {
+    type -= 0x80;
+  }
+  if (type & 0x40) {
+    type -= 0x40;
+  }
+  // bool flag = type > 0xf;
+  if (type > 0x10) {
+    type -= 0x10;
+  }
+
+  switch (type) {
     case 0:  // SystemMesInit0
     case 1:  // SystemMesInit1
       UI::SysMesBox::Push(sysMesId);
@@ -598,22 +709,44 @@ VmInstruction(InstSystemMes) {
       if (!box) break;
       ScrWork[SW_SYSMESANIMCTF] = 2 * box->MessageCount + 33;
     } break;
-    case 3: {  // SystemMesSetMes
-      PopUint16(sysMesStrNum);
-      UI::SysMesBox* box = activeBox();
-      if (!box) break;
-      const uint32_t message =
-          ScriptGetStrAddress(thread->ScriptBufferId, sysMesStrNum);
-      box->AddMessage(
-          {.ScriptBufferId = thread->ScriptBufferId, .IpOffset = message});
-    } break;
+    case 3:  // SystemMesSetMes
+      [[fallthrough]];
     case 4: {  // SystemMesSetSel
-      PopUint16(sysSelStrNum);
+      uint32_t message;
+
+      if (useMsb) {
+        PopUint8(unk02);
+        if (unk02 == 1) {
+          PopExpression(unk03);
+        }
+        [[maybe_unused]]
+        int bufId;
+        if ((type >> 6 & 1) == 0) {
+          // TODO get buf id from thread field
+          bufId = 0;
+        } else {
+          bufId = ExpressionEval(thread);
+        }
+
+        PopExpression(stringNum);
+        message = MsbGetStrAddress(thread->ScriptBufferId, stringNum);
+      } else {
+        PopUint16(sysSelStrNum);
+        message = ScriptGetStrAddress(thread->ScriptBufferId, sysSelStrNum);
+      }
+
       UI::SysMesBox* box = activeBox();
       if (!box) break;
-      auto message = ScriptGetStrAddress(thread->ScriptBufferId, sysSelStrNum);
-      box->AddChoice(
-          {.ScriptBufferId = thread->ScriptBufferId, .IpOffset = message});
+      if (type == 3) {
+        box->AddMessage({.Buffers = {},
+                         .BufferId = thread->ScriptBufferId,
+                         .IpOffset = message});
+        break;
+      }
+      box->AddChoice({.Buffers = {},
+                      .BufferId = thread->ScriptBufferId,
+                      .IpOffset = message});
+
     } break;
     case 5: {  // SystemMesMain
       UI::SysMesBox* box = activeBox();
@@ -662,20 +795,6 @@ VmInstruction(InstSystemMes) {
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction SystemMes(mode: {:d})\n", mode);
       break;
-    case 0x83: {
-      PopMsbString(message);
-      UI::SysMesBox* box = activeBox();
-      if (!box) break;
-      box->AddMessage(
-          {.ScriptBufferId = thread->ScriptBufferId, .IpOffset = message});
-    } break;
-    case 0x84: {  // SystemMesSetSel
-      PopMsbString(message);
-      UI::SysMesBox* box = activeBox();
-      if (!box) break;
-      box->AddChoice(
-          {.ScriptBufferId = thread->ScriptBufferId, .IpOffset = message});
-    } break;
     default:
       ImpLog(LogLevel::Warning, LogChannel::VMStub,
              "Unknown mode for instruction SystemMes(mode: {:d})\n", mode);
@@ -861,6 +980,9 @@ VmInstruction(InstMSinit) {
     } else if (Profile::Vm::GameInstructionSet == InstructionSet::CC) {
       memset(&FlagWork, 0, 1000);
       memset(&ScrWork, 0, 32000);
+    } else if (Profile::Vm::GameInstructionSet == InstructionSet::LCCSwitch) {
+      memset(&FlagWork, 0, 800);
+      memset(&ScrWork, 0, 32000);
     }
 
     ScrWork[SW_SYSMESALPHA] = 255;
@@ -928,9 +1050,15 @@ VmInstruction(InstMSinit) {
 
   if (initType == 2) {
     UI::BacklogMenuPtr->Clear();
-    memset(&FlagWork, 0, 100);
-    memset(&FlagWork[150], 0, 75);
-    memset(&FlagWork[300], 0, 100);
+    if (Profile::Vm::GameInstructionSet == InstructionSet::LCCSwitch) {
+      memset(&FlagWork, 0, 200);
+      memset(&FlagWork[250], 0, 75);
+      memset(&FlagWork[400], 0, 100);
+    } else {
+      memset(&FlagWork, 0, 100);
+      memset(&FlagWork[150], 0, 75);
+      memset(&FlagWork[300], 0, 100);
+    }
 
     if (Profile::Vm::GameInstructionSet == InstructionSet::MO6TW ||
         Profile::Vm::GameInstructionSet == InstructionSet::CHLCC) {
@@ -992,6 +1120,12 @@ VmInstruction(InstMSinit) {
 
   if (Profile::Vm::GameInstructionSet == InstructionSet::CHLCC) {
     ScrWork[SW_INTROVOICE] = 999;
+  }
+
+  if (Profile::Vm::GameInstructionSet == InstructionSet::LCCSwitch) {
+    for (int i = 0; i < 8; i++) {
+      ScrWork[SW_PIC_REQ_ARCHIVENO1 + 2 * i] = 0xFFFF;
+    }
   }
 
   if (initType == 0 || initType == 1) {
@@ -1251,6 +1385,13 @@ VmInstruction(InstLoadFontWidths) {
              "STUB instruction LoadFontWidths(fontId: {:d}, archiveId: {:d}, "
              "fileId: {:d})\n",
              fontId, archiveId, fileId);
+}
+
+VmInstruction(InstCPUBoostMode) {
+  StartInstruction;
+  PopUint8(arg1);
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction CPUBoostMode(arg1: {:d})\n", arg1);
 }
 
 }  // namespace Vm

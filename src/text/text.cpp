@@ -27,7 +27,7 @@ int StringToken::Read(Vm::Sc3VmThread* ctx) {
   int bytesRead = 0;
   Flags = 0;
 
-  uint8_t c = *ctx->GetIp();
+  uint8_t c = *ctx->GetStringIp();
   ctx->IpOffset++;
   bytesRead++;
   switch (c) {
@@ -57,7 +57,7 @@ int StringToken::Read(Vm::Sc3VmThread* ctx) {
     case STT_GetHardcodedValue:
     case STT_UnlockTip: {
       Type = (StringTokenType)c;
-      Val_Uint16 = (*ctx->GetIp() << 8) | *(ctx->GetIp() + 1);
+      Val_Int = (*ctx->GetStringIp() << 8) | *(ctx->GetStringIp() + 1);
       ctx->IpOffset += 2;
       bytesRead += 2;
       break;
@@ -66,13 +66,13 @@ int StringToken::Read(Vm::Sc3VmThread* ctx) {
     case STT_SetColor: {
       Type = (StringTokenType)c;
       if (ColorTagIsUint8) {
-        Val_Expr = (*(uint8_t*)(ctx->GetIp()));
+        Val_Expr = (*(uint8_t*)(ctx->GetStringIp()));
         ctx->IpOffset += 1;
         bytesRead += 1;
       } else {
         uint32_t oldIp = ctx->IpOffset;
         // TODO is this really okay to do in parsing code?
-        Val_Expr = Vm::ExpressionEval(ctx);
+        Val_Expr = Vm::ExpressionEval(ctx, true);
         bytesRead += (int)(ctx->IpOffset - oldIp);
       }
       break;
@@ -82,7 +82,7 @@ int StringToken::Read(Vm::Sc3VmThread* ctx) {
       Type = (StringTokenType)c;
       uint32_t oldIp = ctx->IpOffset;
       // TODO is this really okay to do in parsing code?
-      Val_Expr = Vm::ExpressionEval(ctx);
+      Val_Expr = Vm::ExpressionEval(ctx, true);
       bytesRead += (int)(ctx->IpOffset - oldIp);
       break;
     }
@@ -97,13 +97,21 @@ int StringToken::Read(Vm::Sc3VmThread* ctx) {
                "Encountered unrecognized token 0x{:02x} in string\n", c);
         Type = STT_EndOfString;
       } else {
-        uint16_t glyphId = (((uint16_t)c & 0x7F) << 8) | *ctx->GetIp();
+        uint16_t glyphId = (((uint16_t)c & 0x7F) << 8) | *ctx->GetStringIp();
         ctx->IpOffset++;
 
         Flags |= GetFlags(glyphId);
 
         Type = STT_Character;
-        Val_Uint16 = glyphId;
+        Val_Int = glyphId;
+        if (Profile::Vm::StringEncodingType ==
+            Profile::Vm::StringUnitEncoding::Uint32) {
+          Val_Int = (Val_Int << 16);
+          Val_Int |= *ctx->GetStringIp() << 8;
+          ctx->IpOffset++;
+          Val_Int |= *ctx->GetStringIp();
+          ctx->IpOffset++;
+        }
       }
       break;
     }
@@ -125,9 +133,15 @@ int StringToken::Read(Vm::Sc3Stream& stream) {
   } else if (c == STT_EndOfString) {
     Type = STT_EndOfString;
   } else {
-    uint16_t glyphId = (((uint16_t)c & 0x7F) << 8) | stream.ReadU8();
     Type = STT_Character;
-    Val_Uint16 = glyphId;
+    Val_Int = (((uint16_t)c & 0x7F) << 8) | stream.ReadU8();
+    if (Profile::Vm::StringEncodingType ==
+        Profile::Vm::StringUnitEncoding::Uint32) {
+      Val_Int <<= 16;
+      Val_Int |= (uint32_t)stream.ReadU8() << 8;
+      Val_Int |= (uint32_t)stream.ReadU8();
+      return 4;
+    }
     return 2;
   }
   return 1;
@@ -135,13 +149,11 @@ int StringToken::Read(Vm::Sc3Stream& stream) {
 
 void StringToken::AddFlags(const Vm::BufferOffsetContext scrCtx,
                            const uint8_t flags) {
-  Vm::Sc3VmThread dummy;
-  dummy.ScriptBufferId = scrCtx.ScriptBufferId;
-  dummy.IpOffset = scrCtx.IpOffset;
+  Vm::Sc3Stream stream = &scrCtx.Buffers[scrCtx.BufferId][scrCtx.IpOffset];
 
   StringToken token;
-  token.Read(&dummy);
-  for (; token.Type != STT_EndOfString; token.Read(&dummy)) {
+  token.Read(stream);
+  for (; token.Type != STT_EndOfString; token.Read(stream)) {
     if (token.Type != STT_Character) {
       ImpLog(LogLevel::Error, LogChannel::VM,
              "Encountered non-character token 0x{:02x} in flag string\n",
@@ -149,8 +161,14 @@ void StringToken::AddFlags(const Vm::BufferOffsetContext scrCtx,
       return;
     }
 
-    AddFlags(token.Val_Uint16, flags);
+    AddFlags(token.Val_Int, flags);
   }
+}
+
+uint16_t StringToken::GetValU16() const {
+  assert(Type != STT_Character || Profile::Vm::StringEncodingType ==
+                                      Profile::Vm::StringUnitEncoding::Uint16);
+  return static_cast<uint16_t>(Val_Int);
 }
 
 [[nodiscard]] static size_t TextGetStringLength(Sc3Type auto&& stream) {
@@ -193,7 +211,7 @@ size_t TextLayoutPlainLine(Sc3Type auto&& stream,
       } break;
 
       case STT_Character: {
-        const uint32_t glyphId = token.Val_Uint16;
+        const uint32_t glyphId = token.Val_Int;
 
         *curGlyph = font.PlaceGlyph(glyphId, {currentX, pos.y}, fontSize,
                                     currentColors, opacity);
@@ -218,6 +236,7 @@ template std::vector<ProcessedTextGlyph> TextLayoutPlainLine(
 template std::vector<ProcessedTextGlyph> TextLayoutPlainLine(
     Vm::Sc3VmThread*&&, std::optional<size_t>, const Font&, float,
     DialogueColorPair, float, glm::vec2, TextAlignment);
+
 std::vector<ProcessedTextGlyph> TextLayoutPlainLine(
     Sc3Type auto&& stream, std::optional<size_t> maxLength, const Font& font,
     const float fontSize, const DialogueColorPair colors, const float opacity,
@@ -284,8 +303,8 @@ float TextGetPlainLineWidth(Sc3Type auto&& stream, const Font& font,
     if (token.Type == STT_EndOfString) break;
     if (token.Type != STT_Character) continue;
 
-    width += (fontSize / font.BitmapEmWidth) *
-             font.GetAdvanceWidth(token.Val_Uint16);
+    width +=
+        (fontSize / font.BitmapEmWidth) * font.GetAdvanceWidth(token.Val_Int);
   }
 
   return width;
@@ -331,30 +350,55 @@ size_t TextLayoutPlainString(const std::string_view str,
                              const TextAlignment alignment) {
   size_t sc3StrLength = utf8::distance(str.begin(), str.end()) + 1;
   assert(outGlyphs.size() == sc3StrLength - 1);
-  std::vector<uint16_t> sc3Str(sc3StrLength);
+  auto layout = [&]<typename T>() {
+    std::unique_ptr<T[]> sc3StrPtr(new T[sc3StrLength]);
 
-  TextGetSc3String(str, sc3Str);
+    TextGetSc3String(
+        str, std::span(sc3StrPtr.get(), sc3StrPtr.get() + sc3StrLength));
 
-  Vm::Sc3Stream stream(sc3Str.data());
-  return TextLayoutPlainLine(stream, outGlyphs, font, fontSize, colors, opacity,
-                             pos, alignment);
+    Vm::Sc3Stream stream(sc3StrPtr.get());
+    return TextLayoutPlainLine(stream, outGlyphs, font, fontSize, colors,
+                               opacity, pos, alignment);
+  };
+
+  if (Profile::Vm::StringEncodingType ==
+      Profile::Vm::StringUnitEncoding::Uint32) {
+    return layout.template operator()<uint32_t>();
+  } else {
+    return layout.template operator()<uint16_t>();
+  }
 }
 
 std::vector<ProcessedTextGlyph> TextLayoutPlainString(
     const std::string_view str, const Font& font, const float fontSize,
     const DialogueColorPair colors, const float opacity, const glm::vec2 pos,
     const TextAlignment alignment) {
-  const size_t stringLength = utf8::distance(str.begin(), str.end());
-  std::vector<ProcessedTextGlyph> outGlyphs(stringLength);
+  std::string_view::iterator strIt = str.begin();
+  std::string_view::iterator strEnd = str.end();
 
-  TextLayoutPlainString(str, outGlyphs, font, fontSize, colors, opacity, pos,
-                        alignment);
+  int sc3StrLength = (int)utf8::distance(strIt, strEnd) + 1;
+  auto layout = [&]<typename T>() {
+    std::unique_ptr<T[]> sc3StrPtr(new T[sc3StrLength]);
 
-  return outGlyphs;
+    TextGetSc3String(
+        str, std::span(sc3StrPtr.get(), sc3StrPtr.get() + sc3StrLength));
+
+    Vm::Sc3Stream stream(sc3StrPtr.get());
+    return TextLayoutPlainLine(stream, sc3StrLength, font, fontSize, colors,
+                               opacity, pos, alignment);
+  };
+
+  if (Profile::Vm::StringEncodingType ==
+      Profile::Vm::StringUnitEncoding::Uint32) {
+    return layout.template operator()<uint32_t>();
+  } else {
+    return layout.template operator()<uint16_t>();
+  }
 }
 
-void TextGetSc3String(const std::string_view str,
-                      const std::span<uint16_t> out) {
+template <typename T>
+  requires std::same_as<T, uint16_t> || std::same_as<T, uint32_t>
+void TextGetSc3String(std::string_view str, std::span<T> out) {
   std::string_view::iterator strIt = str.begin();
   std::string_view::iterator strEnd = str.end();
 
@@ -365,34 +409,78 @@ void TextGetSc3String(const std::string_view str,
     const auto codePoint = utf8::next(strIt, strEnd);
 
     const uint16_t sc3Val = Profile::Charset::CharacterToSc3[codePoint];
-    out[sc3Idx++] = SDL_Swap16(sc3Val);
+
+    if constexpr (std::is_same_v<T, uint32_t>) {
+      if (Profile::Vm::StringEncodingType ==
+          Profile::Vm::StringUnitEncoding::Uint32) {
+        // rebuild 16 bit LE to 32bit BE
+        uint8_t hiByte = ((sc3Val - 0x8000u) >> 8) & 0xFF;
+        uint8_t loByte = sc3Val & 0xFF;
+        uint32_t res = static_cast<uint32_t>(0x80) |
+                       (static_cast<uint32_t>(hiByte) << 16) |
+                       (static_cast<uint32_t>(loByte) << 24);
+        out[sc3Idx++] = res;
+      } else {
+        out[sc3Idx++] = SDL_Swap16(sc3Val);
+      }
+    } else {
+      out[sc3Idx++] = SDL_Swap16(sc3Val);
+    }
   }
   out[sc3Idx++] = 0xFF;
 }
 
+template void TextGetSc3String<uint16_t>(std::string_view, std::span<uint16_t>);
+template void TextGetSc3String<uint32_t>(std::string_view, std::span<uint32_t>);
+
 void InitNamePlateData(Vm::Sc3Stream& stream) {
   do {
     uint16_t id = stream.ReadU16();
-    uint16_t stringId = stream.ReadU16();
+    uint32_t stringId;
+    if (Profile::Vm::StringEncodingType ==
+        Profile::Vm::StringUnitEncoding::Uint16) {
+      stringId = stream.ReadU16();
+    } else {
+      stringId = stream.ReadU32();
+    }
+
     uint32_t nameAddr =
-        Vm::ScriptGetStrAddress(Profile::Vm::SystemScriptBuffer, stringId);
+        Profile::Vm::UseMsbStrings
+            ? Vm::MsbGetStrAddress(Profile::Vm::SystemScriptBuffer, stringId)
+            : Vm::ScriptGetStrAddress(Profile::Vm::SystemScriptBuffer,
+                                      stringId);
     Vm::Sc3VmThread dummy;
     dummy.IpOffset = nameAddr;
     dummy.ScriptBufferId = Profile::Vm::SystemScriptBuffer;
-    size_t nameLength = (TextGetStringLength(&dummy) - 1) * 2;
+    dummy.UseMSBBuffers = Profile::Vm::UseMsbStrings;
+    size_t nameLength = (TextGetStringLength(&dummy) - 1);
+    if (Profile::Vm::StringEncodingType ==
+        Profile::Vm::StringUnitEncoding::Uint16) {
+      nameLength *= 2;
+    } else {
+      nameLength *= 4;
+    }
+
     dummy.IpOffset = nameAddr;
-    uint32_t nameHash =
-        GetHashCode(std::span<uint8_t>(dummy.GetIp(), nameLength));
+    auto spanned = std::span<uint8_t>(dummy.GetStringIp(), nameLength);
+    uint32_t nameHash = GetHashCode(spanned);
     NamePlateData[nameHash] = id;
   } while (stream.PeekU16() != 0xFFFF);
 }
 
-std::optional<uint32_t> GetNameId(const std::span<const uint16_t> name) {
+template <typename T>
+  requires std::same_as<T, uint16_t> || std::same_as<T, uint32_t>
+std::optional<uint32_t> GetNameId(std::span<T> name) {
   uint32_t nameHash = GetHashCode(std::span<const uint8_t>(
       std::bit_cast<uint8_t*>(name.data()), name.size_bytes()));
+
   if (NamePlateData.find(nameHash) != NamePlateData.end())
     return NamePlateData[nameHash];
   else
     return std::nullopt;
 }
+
+template std::optional<uint32_t> GetNameId<uint16_t>(std::span<uint16_t>);
+template std::optional<uint32_t> GetNameId<uint32_t>(std::span<uint32_t>);
+
 }  // namespace Impacto

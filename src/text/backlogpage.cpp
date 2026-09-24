@@ -14,7 +14,7 @@ void BacklogPage::Clear() {
 
 void BacklogPage::AddString(Vm::Sc3VmThread* const ctx) {
   Clear();
-  BacklogTextParserInst.ParseString(*this, ctx);
+  BacklogTextParserInst->ParseString(*this, ctx);
 
   SetBounds();
 }
