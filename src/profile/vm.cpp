@@ -1,5 +1,7 @@
 #include "vm.h"
 #include "profile_internal.h"
+#include "../text/textparser.h"
+
 #include "game.h"
 
 namespace Impacto {
@@ -50,6 +52,11 @@ void Configure() {
                     SpeakerPortraitsScrWorkOffset);
 
   Pop();
+
+  // should be initialized after StringEncodingType
+  DialogueTextParserInst = new DialogueTextParser();
+  BacklogTextParserInst = new BacklogTextParser();
+  TipsTextParserInst = new TipsTextParser();
 }
 
 }  // namespace Vm
