@@ -98,9 +98,9 @@ InstructionProc inline constexpr OpcodeTableSystem_LCCSwitch[256] = {
     InstPressStartNew,        // 00 50
     InstGlobalSystemMessage,  // 00 51
     InstUnk0052,              // 00 52
-    InstClickOnJump,          // 00 53
+    InstControlOnJump,        // 00 53
     InstKeyboardOnJump,       // 00 54
-    InstControlOnJump,        // 00 55
+    InstFlagOnJumpFar,        // 00 55
     InstGetControl,           // 00 56
     InstDummy,                // 00 57
     InstDummy,                // 00 58
