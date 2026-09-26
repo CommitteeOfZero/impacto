@@ -32,9 +32,6 @@ void SysMesBox::Show() {
   MessageItems = std::make_unique<Widgets::Group>(this);
   ChoiceItems = std::make_unique<Widgets::Group>(this);
 
-  Sprite nullSprite = Sprite();
-  nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
-
   auto onClick = [this](auto* btn) { return ChoiceItemOnClick(btn); };
 
   float diff = 0.0f;
@@ -72,8 +69,7 @@ void SysMesBox::Show() {
     }
 
     Button* choice = new SystemMessageButton(
-        i, nullSprite, nullSprite, SelectionLeftPart, SelectionMiddlePart,
-        SelectionRightPart,
+        i, SelectionLeftPart, SelectionMiddlePart, SelectionRightPart,
         glm::vec2(Choices[i][0].DestRect.X, Choices[i][0].DestRect.Y));
     choice->HighlightOffset = glm::vec2(HighlightXOffset, HighlightYOffset);
 

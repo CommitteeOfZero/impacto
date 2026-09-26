@@ -35,10 +35,8 @@ MovieMenu::MovieMenu() {
 
   auto pos = InitialItemPosition;
 
-  Sprite nullSprite = Sprite();
-  nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
   auto firstOp = new Widgets::MO6TW::ImageThumbnailButton(
-      0, FirstOPTopPartSprite, FirstOPBottomPartSprite, nullSprite,
+      0, FirstOPTopPartSprite, FirstOPBottomPartSprite, std::nullopt,
       SelectionHighlightTopLeft, SelectionHighlightTopRight,
       SelectionHighlightBottomLeft, SelectionHighlightBottomRight, pos);
   firstOp->OnClickHandler = onClick;
@@ -47,7 +45,7 @@ MovieMenu::MovieMenu() {
   pos.x += ItemOffset.x;
 
   auto secondOp = new Widgets::MO6TW::ImageThumbnailButton(
-      1, SecondOPTopPartSprite, SecondOPBottomPartSprite, nullSprite,
+      1, SecondOPTopPartSprite, SecondOPBottomPartSprite, std::nullopt,
       SelectionHighlightTopLeft, SelectionHighlightTopRight,
       SelectionHighlightBottomLeft, SelectionHighlightBottomRight, pos);
   secondOp->OnClickHandler = onClick;

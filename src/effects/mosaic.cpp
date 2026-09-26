@@ -10,15 +10,10 @@ MosaicEffect::MosaicEffect()
     : CaptureSprite(
           SpriteSheet(Profile::Game::DesignWidth, Profile::Game::DesignHeight),
           0.0f, 0.0f, Profile::Game::DesignWidth, Profile::Game::DesignHeight) {
-  CaptureSprite.Sheet.IsScreenCap = true;
-}
-
-MosaicEffect::~MosaicEffect() {
-  if (Renderer) Renderer->FreeTexture(CaptureSprite.Sheet.Texture);
 }
 
 void MosaicEffect::Init() {
-  if (CaptureSprite.Sheet.Texture != 0) return;
+  if (CaptureSprite.Sheet.Texture.IsValid()) return;
 
   Texture texture{};
   texture.LoadSolidColor(static_cast<int>(Profile::Game::DesignWidth),
@@ -31,7 +26,7 @@ void MosaicEffect::Render(float tileSize) {
 
   tileSize = std::min(tileSize, 20.0f);
 
-  assert(CaptureSprite.Sheet.Texture != 0);
+  assert(CaptureSprite.Sheet.Texture.IsValid());
   Renderer->CaptureScreencap(CaptureSprite);
   Renderer->DrawMosaic(CaptureSprite,
                        RectF{0.0f, 0.0f, Profile::Game::DesignWidth,

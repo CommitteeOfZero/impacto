@@ -251,10 +251,10 @@ void DelusionTrigger::Update(float dt) {
   if (!GetFlag(SF_DELUSIONACTIVE)) {
     if ((GetFlag(SF_MOVIEPLAY) && GetFlag(SF_MOVIE_DRAWWAIT)) ||
         ScrWork[SW_DELUSION_BG_COUNTER] == 0) {
-      if (BgOverlaySprite.Sheet.Texture) BgOverlaySprite = Sprite{};
-      if (PositiveDelusionSprite.Sheet.Texture)
+      if (BgOverlaySprite.Sheet.Texture.IsValid()) BgOverlaySprite = Sprite{};
+      if (PositiveDelusionSprite.Sheet.Texture.IsValid())
         PositiveDelusionSprite.Sheet = SpriteSheet{};
-      if (NegativeDelusionSprite.Sheet.Texture)
+      if (NegativeDelusionSprite.Sheet.Texture.IsValid())
         NegativeDelusionSprite.Sheet = SpriteSheet{};
       return;
     }
@@ -267,7 +267,7 @@ void DelusionTrigger::Update(float dt) {
     MtrgAlphaCt = (MtrgAlphaCt + 1) & 0x1f;
     MtrgAng = (MtrgAng + 100) & 0xffff;
 
-    if (BgOverlaySprite.Sheet.Texture == 0) {
+    if (!BgOverlaySprite.Sheet.Texture.IsValid()) {
       int bgOverlayBGIdx =
           ScrWork[SW_BG1SURF + GetBufferId(ScrWork[SW_DELUSION_OVERLAY_BUF])];
       BgOverlaySprite = Backgrounds2D[bgOverlayBGIdx]->BgSprite;
@@ -275,11 +275,11 @@ void DelusionTrigger::Update(float dt) {
 
     int delusionCirclesBGIdx =
         ScrWork[SW_BG1SURF + GetBufferId(ScrWork[SW_DELUSION_CIRCLE_BUF])];
-    if (PositiveDelusionSprite.Sheet.Texture == 0) {
+    if (!PositiveDelusionSprite.Sheet.Texture.IsValid()) {
       PositiveDelusionSprite.Sheet =
           Backgrounds2D[delusionCirclesBGIdx]->BgSprite.Sheet;
     }
-    if (NegativeDelusionSprite.Sheet.Texture == 0) {
+    if (!NegativeDelusionSprite.Sheet.Texture.IsValid()) {
       NegativeDelusionSprite.Sheet =
           Backgrounds2D[delusionCirclesBGIdx]->BgSprite.Sheet;
     }

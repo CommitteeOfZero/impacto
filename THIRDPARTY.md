@@ -12,7 +12,6 @@
 * `src/video/ffmpegplayer.cpp`: syncing code based on [FFplay](https://github.com/FFmpeg/FFmpeg/blob/master/fftools/ffplay.c)
 * `vendor/clHCA`: part of [vgmstream](https://github.com/losnoco/vgmstream)
 * `vendor/minilua`: [minilua](https://github.com/edubart/minilua)
-* `vendor/glad`: output from [glad](https://github.com/Dav1dde/glad) generator, patched for Switch support
 * `vendor/include/stb_image.h`: [stb_image](https://github.com/nothings/stb)
 * `vendor/pcg`: [PCG Random Number Generation, Minimal C Edition](https://github.com/imneme/pcg-c-basic)
 * `vendor/squish`: [Squish](http://sjbrown.co.uk/?code=squish)
@@ -663,15 +662,6 @@ https://github.com/martinus/unordered_dense
 
 Copyright (c) 2022 Martin Leitner-Ankerl
 See below for license text (MIT).
-
-## glad
-
-Generated with https://github.com/Dav1dde/glad/tree/v0.1.27
-
->     What's the license of glad generated code? #101
->     Any of Public Domain, WTFPL or CC0.
-
-See below for license text (CC0).
 
 ## glm
 

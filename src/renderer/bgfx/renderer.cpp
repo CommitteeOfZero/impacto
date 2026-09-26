@@ -1,0 +1,704 @@
+#include "renderer.h"
+
+#include "../../log.h"
+#include "../../userconfig.h"
+
+#include <bgfx/shader_content.h>
+
+#include <bgfx/platform.h>
+#include <glm/gtc/type_ptr.hpp>
+
+#ifndef IMPACTO_DISABLE_IMGUI
+#include <imgui_impl_bgfx.h>
+#endif
+
+#ifdef __SWITCH__
+extern "C" {
+#include <switch/display/native_window.h>
+}
+#endif
+namespace Impacto::Bgfx {
+
+constexpr bgfx::ViewId RENDER_VIEW = 0;   // Uses render dimensions
+constexpr bgfx::ViewId DISPLAY_VIEW = 1;  // Uses viewport dimensions
+constexpr bgfx::ViewId IMGUI_VIEW = 255;
+
+Renderer::Renderer() {
+  bgfx::Init initStruct{};
+
+  initStruct.type = []() -> bgfx::RendererType::Enum {
+    switch (UserConfig::AdvancedSettings.ActiveRenderer) {
+#ifdef IMPACTO_RENDERER_OPENGL
+      case RendererType::OpenGL:
+        return bgfx::RendererType::OpenGL;
+#endif
+#ifdef IMPACTO_RENDERER_OPENGLES
+      case RendererType::OpenGLES:
+        return bgfx::RendererType::OpenGLES;
+#endif
+#ifdef IMPACTO_RENDERER_VULKAN
+      case RendererType::Vulkan:
+        return bgfx::RendererType::Vulkan;
+#endif
+#ifdef IMPACTO_RENDERER_DIRECT3D11
+      case RendererType::Direct3D11:
+        return bgfx::RendererType::Direct3D11;
+#endif
+#ifdef IMPACTO_RENDERER_DIRECT3D12
+      case RendererType::Direct3D12:
+        return bgfx::RendererType::Direct3D12;
+#endif
+#ifdef IMPACTO_RENDERER_METAL
+      case RendererType::Metal:
+        return bgfx::RendererType::Metal;
+#endif
+
+      default:
+        assert(false && "Unsupported bgfx render type");
+        return bgfx::RendererType::Count;  // Have bgfx choose
+    }
+  }();
+  ImpLog(LogLevel::Info, LogChannel::Render,
+         "Initializing BGFX with {:s} backend",
+         magic_enum::enum_name(initStruct.type));
+
+  initStruct.resolution.width = UserConfig::CommonSettings.WindowWidth;
+  initStruct.resolution.height = UserConfig::CommonSettings.WindowHeight;
+  initStruct.resolution.reset = BGFX_RESET_VSYNC;
+#if defined(SDL_PLATFORM_WIN32)
+  initStruct.platformData.nwh =
+      SDL_GetPointerProperty(SDL_GetWindowProperties(Window->SDLWindow),
+                             SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr);
+#elif defined(SDL_PLATFORM_LINUX)
+  if (SDL_strcmp(SDL_GetCurrentVideoDriver(), "x11") == 0) {
+    initStruct.platformData.ndt =
+        SDL_GetPointerProperty(SDL_GetWindowProperties(Window->SDLWindow),
+                               SDL_PROP_WINDOW_X11_DISPLAY_POINTER, nullptr);
+    initStruct.platformData.nwh = std::bit_cast<void*>(
+        SDL_GetNumberProperty(SDL_GetWindowProperties(Window->SDLWindow),
+                              SDL_PROP_WINDOW_X11_WINDOW_NUMBER, 0));
+  } else if (SDL_strcmp(SDL_GetCurrentVideoDriver(), "wayland") == 0) {
+    initStruct.platformData.ndt = SDL_GetPointerProperty(
+        SDL_GetWindowProperties(Window->SDLWindow),
+        SDL_PROP_WINDOW_WAYLAND_DISPLAY_POINTER, nullptr);
+    initStruct.platformData.nwh = SDL_GetPointerProperty(
+        SDL_GetWindowProperties(Window->SDLWindow),
+        SDL_PROP_WINDOW_WAYLAND_SURFACE_POINTER, nullptr);
+  } else {
+    Panic(LogChannel::Render, "Unsupported video driver \"{:s}\"",
+          SDL_GetCurrentVideoDriver());
+  }
+#elif defined(SDL_PLATFORM_ANDROID)
+  initStruct.platformData.nwh =
+      SDL_GetPointerProperty(SDL_GetWindowProperties(Window->SDLWindow),
+                             SDL_PROP_WINDOW_ANDROID_WINDOW_POINTER, nullptr);
+#elif defined(SDL_PLATFORM_MACOS)
+  initStruct.platformData.nwh =
+      SDL_GetPointerProperty(SDL_GetWindowProperties(Window->SDLWindow),
+                             SDL_PROP_WINDOW_COCOA_WINDOW_POINTER, nullptr);
+#elif defined(SDL_PLATFORM_SWITCH)
+  initStruct.platformData.nwh = nwindowGetDefault();
+#else
+  static_assert(false && "We have not implemented BGFX for this platform");
+#endif
+
+#if IMPACTO_GL_DEBUG
+  initStruct.debug = true;
+#else
+  initStruct.debug = false;
+#endif
+
+  if (!bgfx::init(initStruct)) {
+    Panic(LogChannel::Render, "Failed to initialize BGFX");
+  }
+
+  constexpr static glm::mat4 identityMatrix(1.0f);
+  bgfx::setViewTransform(DISPLAY_VIEW, glm::value_ptr(identityMatrix),
+                         glm::value_ptr(identityMatrix));
+
+  constexpr uint32_t black = 0x000000ff;
+  bgfx::setViewClear(RENDER_VIEW, BGFX_CLEAR_COLOR | BGFX_CLEAR_STENCIL, black);
+  bgfx::setViewClear(DISPLAY_VIEW, BGFX_CLEAR_COLOR, black);
+
+  IndexBuffer = bgfx::createDynamicIndexBuffer(static_cast<uint32_t>(0),
+                                               BGFX_BUFFER_ALLOW_RESIZE);
+  if (!bgfx::isValid(IndexBuffer)) {
+    Panic(LogChannel::Render, "Failed to create index buffer");
+  }
+
+  VertexBufferSpritesLayout.begin()
+      .add(bgfx::Attrib::Position, 2, bgfx::AttribType::Float)
+      .add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float)
+      .add(bgfx::Attrib::Color0, 4, bgfx::AttribType::Float, true)
+      .add(bgfx::Attrib::TexCoord1, 2, bgfx::AttribType::Float)
+      .end();
+
+  VertexBuffer = bgfx::createDynamicVertexBuffer(static_cast<uint32_t>(0),
+                                                 VertexBufferSpritesLayout,
+                                                 BGFX_BUFFER_ALLOW_RESIZE);
+  if (!bgfx::isValid(VertexBuffer)) {
+    Panic(LogChannel::Render, "Failed to create vertex buffer");
+  }
+
+  const auto flush = [this]() { Flush(); };
+  NV12FrameShader.emplace(vs_sprite_shader, fs_nv12frame_shader, flush);
+  SpriteShader.emplace(vs_sprite_shader, fs_sprite_shader, flush);
+  YUVFrameShader.emplace(vs_sprite_shader, fs_yuvframe_shader, flush);
+
+  RectSprite = Sprite(SpriteSheet(1.0f, 1.0f), 0.0f, 0.0f, 1.0f, 1.0f);
+  RectSprite.Sheet.Texture =
+      SubmitTexture(TexFmt::TexFmt_RGBA,
+                    std::array<uint8_t, 4>{0xFF, 0xFF, 0xFF, 0xFF}, {1, 1});
+
+  ImGui_Implbgfx_Init(IMGUI_VIEW);
+  switch (UserConfig::AdvancedSettings.ActiveRenderer) {
+#ifdef IMPACTO_RENDERER_OPENGL
+    case RendererType::OpenGL:
+      ImGui_ImplSDL3_InitForOpenGL(Window->SDLWindow, nullptr);
+      break;
+#endif
+#ifdef IMPACTO_RENDERER_OPENGLES
+    case RendererType::OpenGLES:
+      ImGui_ImplSDL3_InitForOpenGL(Window->SDLWindow, nullptr);
+      break;
+#endif
+#ifdef IMPACTO_RENDERER_VULKAN
+    case RendererType::Vulkan:
+      ImGui_ImplSDL3_InitForVulkan(Window->SDLWindow);
+      break;
+#endif
+#ifdef IMPACTO_RENDERER_DIRECT3D11
+    case RendererType::Direct3D11:
+      ImGui_ImplSDL3_InitForD3D(Window->SDLWindow);
+      break;
+#endif
+#ifdef IMPACTO_RENDERER_DIRECT3D12
+    case RendererType::Direct3D12:
+      ImGui_ImplSDL3_InitForD3D(Window->SDLWindow);
+      break;
+#endif
+#ifdef IMPACTO_RENDERER_METAL
+    case RendererType::Metal:
+      ImGui_ImplSDL3_InitForMetal(Window->SDLWindow);
+      break;
+#endif
+
+    default:
+      assert(false);
+      break;
+  }
+}
+
+void Renderer::Init() {
+  [[maybe_unused]] const RendererType type = GetType();
+
+  UpdateResolution();
+  DrawFrameBuffer = FrameBuffer(static_cast<uint16_t>(Resolution.x),
+                                static_cast<uint16_t>(Resolution.y));
+
+  const glm::mat4 projectionMatrix =
+      glm::ortho(0.0f, Profile::Game::DesignWidth, Profile::Game::DesignHeight,
+                 0.0f, -Profile::Game::DesignWidth, Profile::Game::DesignWidth);
+  constexpr static glm::mat4 identityMatrix(1.0f);
+  bgfx::setViewTransform(RENDER_VIEW, glm::value_ptr(identityMatrix),
+                         glm::value_ptr(projectionMatrix));
+
+  constexpr static std::array<uint16_t, 6> backBufferIndices = {
+      0, 1, 3, 1, 2, 3,
+  };
+  BackBufferIndexBuffer = bgfx::createIndexBuffer(
+      bgfx::makeRef(backBufferIndices.data(), sizeof(backBufferIndices)));
+
+  const bool shouldFlip = false
+#ifdef IMPACTO_RENDERER_OPENGL
+                          || type == RendererType::OpenGL
+#endif
+#ifdef IMPACTO_RENDERER_OPENGLES
+                          || type == RendererType::OpenGLES
+#endif
+      ;
+  constexpr static std::array<VertexBufferSprites, 4> backBufferVertices = {
+      VertexBufferSprites{.Position = {-1.0f, +1.0f}, .UV = {0.0f, 0.0f}},
+      VertexBufferSprites{.Position = {-1.0f, -1.0f}, .UV = {0.0f, 1.0f}},
+      VertexBufferSprites{.Position = {+1.0f, -1.0f}, .UV = {1.0f, 1.0f}},
+      VertexBufferSprites{.Position = {+1.0f, +1.0f}, .UV = {1.0f, 0.0f}},
+  };
+  constexpr static std::array<VertexBufferSprites, 4>
+      flippedBackBufferVertices = {
+          VertexBufferSprites{.Position = {-1.0f, -1.0f}, .UV = {0.0f, 0.0f}},
+          VertexBufferSprites{.Position = {-1.0f, +1.0f}, .UV = {0.0f, 1.0f}},
+          VertexBufferSprites{.Position = {+1.0f, +1.0f}, .UV = {1.0f, 1.0f}},
+          VertexBufferSprites{.Position = {+1.0f, -1.0f}, .UV = {1.0f, 0.0f}},
+  };
+  const std::span<const VertexBufferSprites, 4> correctBackBufferVertices =
+      shouldFlip ? flippedBackBufferVertices : backBufferVertices;
+  BackBufferVertexBuffer = bgfx::createVertexBuffer(
+      bgfx::makeRef(
+          correctBackBufferVertices.data(),
+          static_cast<uint32_t>(correctBackBufferVertices.size_bytes())),
+      VertexBufferSpritesLayout);
+}
+
+void Renderer::UpdateResolution() {
+  const auto& gameConfig = UserConfig::ActiveGameSettings();
+
+  if (gameConfig.ResolutionWidth.has_value() !=
+      gameConfig.ResolutionHeight.has_value()) {
+    ImpLog(LogLevel::Warning, LogChannel::Render,
+           "Only one of Resolution Height or Resolution Width is configured, "
+           "defaulting to native game resolution.");
+  }
+
+  // Queue up new resolution for seamless switching between the end of the
+  // current frame and the start of the next
+  Resolution =
+      gameConfig.ResolutionWidth.has_value() &&
+              gameConfig.ResolutionHeight.has_value()
+          ? glm::ivec2{*gameConfig.ResolutionWidth,
+                       *gameConfig.ResolutionHeight}
+          : glm::ivec2{Profile::Game::DesignWidth, Profile::Game::DesignHeight};
+}
+
+RendererType Renderer::GetType() const {
+  switch (bgfx::getRendererType()) {
+    using enum bgfx::RendererType::Enum;
+#ifdef IMPACTO_RENDERER_DIRECT3D11
+    case Direct3D11:
+      return RendererType::Direct3D11;
+      break;
+#endif
+#ifdef IMPACTO_RENDERER_DIRECT3D12
+    case Direct3D12:
+      return RendererType::Direct3D12;
+#endif
+#ifdef IMPACTO_RENDERER_METAL
+    case Metal:
+      return RendererType::Metal;
+#endif
+#ifdef IMPACTO_RENDERER_OPENGL
+    case OpenGL:
+      return RendererType::OpenGL;
+#endif
+#ifdef IMPACTO_RENDERER_OPENGLES
+    case OpenGLES:
+      return RendererType::OpenGLES;
+#endif
+#ifdef IMPACTO_RENDERER_VULKAN
+    case Vulkan:
+      return RendererType::Vulkan;
+#endif
+
+    default:
+      break;
+  }
+
+  Panic(LogChannel::Render, "Unexpected bgfx renderer \"{:s}\"\n",
+        bgfx::getRendererName(bgfx::getRendererType()));
+}
+
+void Renderer::BeginFrame() {
+  bgfx::reset(static_cast<uint32_t>(Window->WindowWidth),
+              static_cast<uint32_t>(Window->WindowHeight), BGFX_RESET_VSYNC);
+
+  bgfx::setViewRect(DISPLAY_VIEW, 0, 0,
+                    static_cast<uint16_t>(Window->WindowWidth),
+                    static_cast<uint16_t>(Window->WindowHeight));
+
+  bgfx::touch(DISPLAY_VIEW);
+}
+
+void Renderer::BeginFrame2D() {
+  if (DrawFrameBuffer.GetSize() != Resolution) {
+    DrawFrameBuffer = FrameBuffer(static_cast<uint16_t>(Resolution.x),
+                                  static_cast<uint16_t>(Resolution.y));
+  }
+
+  bgfx::setViewFrameBuffer(RENDER_VIEW, DrawFrameBuffer);
+  bgfx::setViewRect(RENDER_VIEW, 0, 0, static_cast<uint16_t>(Resolution.x),
+                    static_cast<uint16_t>(Resolution.y));
+
+  bgfx::touch(RENDER_VIEW);
+}
+
+void Renderer::EndFrame() {
+  Flush();
+
+  assert(Indices.empty() == Vertices.empty());
+  if (!Indices.empty()) {
+    bgfx::update(IndexBuffer, 0,
+                 bgfx::copy(Indices.data(),
+                            static_cast<uint32_t>(Indices.size() *
+                                                  sizeof(Indices.front()))));
+    bgfx::update(VertexBuffer, 0,
+                 bgfx::copy(Vertices.data(),
+                            static_cast<uint32_t>(Vertices.size() *
+                                                  sizeof(Vertices.front()))));
+
+    Indices.clear();
+    Vertices.clear();
+
+    CurFrameIndexBufferOffset = 0;
+    CurFrameVertexBufferOffset = 0;
+  }
+
+  SetState({
+      .ShaderProgram = *SpriteShader,
+  });
+
+  bgfx::setIndexBuffer(BackBufferIndexBuffer);
+  bgfx::setVertexBuffer(0, BackBufferVertexBuffer);
+
+  SpriteShader->SubmitUniforms({}, {.s_texture = DrawFrameBuffer.GetTexture()});
+  bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_DEPTH_TEST_ALWAYS);
+
+  bgfx::submit(DISPLAY_VIEW, *SpriteShader);
+}
+
+#ifndef IMPACTO_DISABLE_IMGUI
+void Renderer::ImGuiBeginFrame() {
+  ImGui_Implbgfx_NewFrame();
+  ImGui_ImplSDL3_NewFrame();
+  ImGui::NewFrame();
+
+  bgfx::touch(IMGUI_VIEW);
+}
+#endif
+
+Impacto::TextureRef Renderer::SubmitTexture(
+    const TexFmt format, const std::span<const uint8_t> buffer,
+    const glm::vec<2, size_t> dimensions) {
+  const decltype(Textures)::iterator textureIt =
+      DeclareTexture(Texture(TexFmtConversion[format], buffer, dimensions));
+
+  const size_t textureMapId = textureIt->first;
+  Texture& texture = textureIt->second.first;
+
+  return Impacto::TextureRef(new Bgfx::PlainTextureRef(textureMapId, texture));
+}
+
+decltype(Renderer::Textures)::iterator Renderer::DeclareTexture(
+    Texture&& texture) {
+  static size_t curTextureId = 1;
+  assert(!Textures.contains(curTextureId));
+
+  return Textures.emplace(curTextureId++, std::pair{std::move(texture), 1})
+      .first;
+}
+
+Impacto::MutableTextureRef Renderer::DeclareMutableTexture(
+    const TexFmt format, const glm::vec<2, size_t> dimensions) {
+  static size_t curTextureId = 1;
+  assert(!MutableTextures.contains(curTextureId));
+
+  Bgfx::MutableTexture& texture =
+      MutableTextures
+          .emplace(curTextureId,
+                   std::pair{Bgfx::MutableTexture(TexFmtConversion[format],
+                                                  dimensions),
+                             1})
+          .first->second.first;
+  return Impacto::MutableTextureRef(
+      new Bgfx::MutableTextureRef(curTextureId++, texture));
+}
+
+void Renderer::Shutdown() {
+  if (bgfx::isValid(IndexBuffer)) bgfx::destroy(IndexBuffer);
+  IndexBuffer.idx = bgfx::kInvalidHandle;
+
+  if (bgfx::isValid(VertexBuffer)) bgfx::destroy(VertexBuffer);
+  VertexBuffer.idx = bgfx::kInvalidHandle;
+
+  if (bgfx::isValid(BackBufferIndexBuffer)) {
+    bgfx::destroy(BackBufferIndexBuffer);
+  }
+  BackBufferIndexBuffer.idx = bgfx::kInvalidHandle;
+
+  if (bgfx::isValid(BackBufferVertexBuffer)) {
+    bgfx::destroy(BackBufferVertexBuffer);
+  }
+  BackBufferVertexBuffer.idx = bgfx::kInvalidHandle;
+
+#ifndef IMPACTO_DISABLE_IMGUI
+  ImGui_ImplSDL3_Shutdown();
+  ImGui_Implbgfx_Shutdown();
+  ImGui::DestroyContext();
+#endif
+}
+
+void Renderer::Flush() {
+  const bool empty = Indices.size() == CurFrameIndexBufferOffset;
+  assert(empty == (Vertices.size() == CurFrameVertexBufferOffset));
+  if (empty || !CurrentState.has_value()) return;
+
+  bgfx::setIndexBuffer(
+      IndexBuffer, static_cast<uint32_t>(CurFrameIndexBufferOffset),
+      static_cast<uint32_t>(Indices.size() - CurFrameIndexBufferOffset));
+  bgfx::setVertexBuffer(
+      0, VertexBuffer, static_cast<uint32_t>(CurFrameVertexBufferOffset),
+      static_cast<uint32_t>(Vertices.size() - CurFrameVertexBufferOffset));
+
+  CurFrameIndexBufferOffset = Indices.size();
+  CurFrameVertexBufferOffset = Vertices.size();
+
+  {
+    uint64_t stateFlags = BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A;
+
+    switch (CurrentState->BlendMode) {
+      using enum RendererBlendMode;
+      case Normal:
+        stateFlags |= BGFX_STATE_BLEND_FUNC_SEPARATE(
+            BGFX_STATE_BLEND_SRC_ALPHA, BGFX_STATE_BLEND_INV_SRC_ALPHA,
+            BGFX_STATE_BLEND_ONE, BGFX_STATE_BLEND_ONE);
+        break;
+      case Additive:
+        stateFlags |= BGFX_STATE_BLEND_FUNC_SEPARATE(
+            BGFX_STATE_BLEND_SRC_ALPHA, BGFX_STATE_BLEND_ONE,
+            BGFX_STATE_BLEND_ONE, BGFX_STATE_BLEND_ONE);
+        break;
+      case Premultiplied:
+        stateFlags |= BGFX_STATE_BLEND_NORMAL;
+        break;
+    }
+
+    bgfx::setState(stateFlags);
+  }
+
+  bgfx::submit(RENDER_VIEW, CurrentState->ShaderProgram.get());
+}
+
+static bool ShouldFlip(const SpriteSheet& sheet) {
+  [[maybe_unused]] const RendererType rendererType =
+      Impacto::Renderer->GetType();
+  return TextureRefInterface::ToBgfxTextureRefInterface(*sheet.Texture.Get())
+             .GetTexture()
+             .IsScreenCap() &&
+         (false
+#ifdef IMPACTO_RENDERER_OPENGL
+          || rendererType == RendererType::OpenGL
+#endif
+#ifdef IMPACTO_RENDERER_OPENGLES
+          || rendererType == RendererType::OpenGLES
+#endif
+         );
+}
+
+static bool ShouldFlip(const Sprite& sprite) {
+  return ShouldFlip(sprite.Sheet);
+}
+
+void Renderer::InsertVertices(
+    const std::span<const uint16_t> indices,
+    const std::span<const VertexBufferSprites> vertices, bool flipVertically) {
+  assert(indices.empty() == vertices.empty());
+  if (indices.empty()) return;
+
+  static uint16_t curIndex = 0;
+  if (Indices.size() == CurFrameIndexBufferOffset) curIndex = 0;
+
+  Indices.resize(Indices.size() + indices.size());
+  std::ranges::transform(
+      indices, Indices.begin() + (Indices.size() - indices.size()),
+      [&](const uint16_t index) { return index + curIndex; });
+  curIndex += std::ranges::max(indices) + 1;
+
+  if (!flipVertically) {
+    Vertices.insert(Vertices.end(), vertices.begin(), vertices.end());
+  } else {
+    Vertices.resize(Vertices.size() + vertices.size());
+    std::ranges::transform(
+        vertices, Vertices.begin() + (Vertices.size() - vertices.size()),
+        [](VertexBufferSprites vertex) {
+          vertex.Position.y = Profile::Game::DesignHeight - vertex.Position.y;
+          return vertex;
+        });
+  }
+}
+
+void Renderer::SetState(const CommandBuffer& newState) {
+  if (!CurrentState.has_value() ||
+      CurrentState->Transformation != newState.Transformation) {
+    Flush();
+    bgfx::setTransform(glm::value_ptr(newState.Transformation));
+  }
+
+  if (CurrentState.has_value() &&
+      &CurrentState->ShaderProgram.get() != &newState.ShaderProgram.get()) {
+    Flush();
+  }
+
+  if (!CurrentState.has_value() ||
+      CurrentState->BlendMode != newState.BlendMode) {
+    Flush();
+  }
+
+  CurrentState = newState;
+}
+
+void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
+                          const glm::mat4 transformation,
+                          const std::span<const glm::vec4, 4> tints,
+                          const glm::vec3 colorShift, const bool inverted,
+                          const bool disableBlend,
+                          const bool textureWrapRepeat) {
+  if (std::ranges::all_of(
+          tints, [](float alpha) { return alpha <= 0.0f; }, &glm::vec4::a)) {
+    return;
+  }
+
+  SetState({
+      .ShaderProgram = *SpriteShader,
+      .Transformation = transformation,
+  });
+
+  SpriteShader->SubmitUniforms({}, {
+                                       .s_texture = sprite.Sheet.Texture.Get(),
+                                       .u_colorShift = colorShift,
+                                   });
+
+  InsertQuad(dest, sprite.NormalizedBounds(), tints, ShouldFlip(sprite));
+}
+
+void Renderer::DrawPrimitives(
+    const SpriteSheet& sheet, const SpriteSheet* const mask,
+    const ShaderProgramType shaderType,
+    const std::span<const VertexBufferSprites> vertices,
+    const std::span<const uint16_t> indices,
+    const glm::mat4 spriteTransformation, const glm::mat4 maskTransformation,
+    const bool inverted, const TopologyMode topology,
+    const bool textureWrapRepeat) {
+  ShaderProgramInterface* const shader = [&]() -> ShaderProgramInterface* {
+    switch (shaderType) {
+      case ShaderProgramType::Sprite:
+        SpriteShader->SubmitUniforms({}, {.s_texture = sheet.Texture.Get()});
+        return &*SpriteShader;
+      default:
+        break;
+    }
+    return nullptr;
+  }();
+
+  if (shader == nullptr) return;
+
+  SetState({
+      .ShaderProgram = *shader,
+      .Transformation = spriteTransformation,
+  });
+
+  InsertVertices(indices, vertices, ShouldFlip(sheet));
+}
+
+void Renderer::DrawVideoTexture(const Impacto::YUVFrame& frame,
+                                const RectF& dest, const glm::vec4 tint,
+                                const bool alphaVideo) {
+  SetState({
+      .ShaderProgram = *YUVFrameShader,
+  });
+
+  YUVFrameShader->SubmitUniforms({}, {
+                                         .s_luma = frame.GetLuma(),
+                                         .s_cb = frame.GetCb(),
+                                         .s_cr = frame.GetCr(),
+                                         .u_isAlpha = alphaVideo,
+                                     });
+
+  InsertQuad(dest, RectF(0.0f, 0.0f, 1.0f, 1.0f), tint, false);
+}
+
+void Renderer::DrawVideoTexture(const Impacto::NV12Frame& frame,
+                                const RectF& dest, const glm::vec4 tint,
+                                const bool alphaVideo) {
+  SetState({
+      .ShaderProgram = *NV12FrameShader,
+  });
+
+  NV12FrameShader->SubmitUniforms({}, {
+                                          .s_luma = frame.GetLuma(),
+                                          .s_cbCr = frame.GetCbCr(),
+                                          .u_isAlpha = alphaVideo,
+                                      });
+
+  InsertQuad(dest, RectF(0.0f, 0.0f, 1.0f, 1.0f), tint, false);
+}
+
+void Renderer::InsertQuad(const CornersQuad dest, const CornersQuad uvs,
+                          const std::span<const glm::vec4, 4> tints,
+                          const bool flipVertically,
+                          const CornersQuad maskUvs) {
+  constexpr static std::array<uint16_t, 6> indices = {0, 1, 3, 1, 2, 3};
+  const std::array<VertexBufferSprites, 4> vertices = {
+      VertexBufferSprites{
+          .Position = dest.TopLeft,
+          .UV = uvs.TopLeft,
+          .Tint = tints[0],
+          .MaskUV = maskUvs.TopLeft,
+      },
+      VertexBufferSprites{
+          .Position = dest.BottomLeft,
+          .UV = uvs.BottomLeft,
+          .Tint = tints[1],
+          .MaskUV = maskUvs.BottomLeft,
+      },
+      VertexBufferSprites{
+          .Position = dest.BottomRight,
+          .UV = uvs.BottomRight,
+          .Tint = tints[2],
+          .MaskUV = maskUvs.BottomRight,
+      },
+      VertexBufferSprites{
+          .Position = dest.TopRight,
+          .UV = uvs.TopRight,
+          .Tint = tints[3],
+          .MaskUV = maskUvs.TopRight,
+      },
+  };
+
+  InsertVertices(indices, vertices, flipVertically);
+}
+
+void Renderer::AlterRefCount(Impacto::TextureRefInterface* texture,
+                             int difference) {
+  assert(texture != nullptr);
+  if (difference == 0) return;
+
+  const Bgfx::TextureRefInterface& bgfxTexture =
+      TextureRefInterface::ToBgfxTextureRefInterface(*texture);
+
+  const auto updateRefCount = [&]<typename T>() {
+    static_assert(is_any_of_v<T, Bgfx::Texture, Bgfx::MutableTexture>);
+
+    std::map<size_t, std::pair<T, size_t>>* map = nullptr;
+    if constexpr (std::is_same_v<T, Bgfx::Texture>) {
+      map = &Textures;
+    } else {
+      map = &MutableTextures;
+    }
+
+    const auto textureIt = map->find(bgfxTexture.GetTextureMapId());
+    assert(textureIt != map->end() &&
+           "Tried to alter the refcount of an already deleted texture.");
+    size_t& refCount = textureIt->second.second;
+
+    if (difference < 0 && static_cast<size_t>(-difference) > refCount) {
+      refCount = 0;
+    } else {
+      refCount += difference;
+    }
+
+    if (refCount == 0) {
+      map->erase(textureIt);
+      delete texture;
+    }
+  };
+
+  switch (bgfxTexture.GetBgfxType()) {
+    using enum Bgfx::TextureRefType;
+    case Plain:
+      updateRefCount.template operator()<Bgfx::Texture>();
+      break;
+    case Mutable:
+      updateRefCount.template operator()<Bgfx::MutableTexture>();
+      break;
+  }
+}
+
+}  // namespace Impacto::Bgfx

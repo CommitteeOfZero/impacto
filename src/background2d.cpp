@@ -34,7 +34,6 @@ void Background2D::InitFrameBuffers() {
         Renderer->GetFramebufferTexture(i + 1);
 
     Framebuffers[i].Status = LoadStatus::Loaded;
-    Framebuffers[i].BgSprite.Sheet.IsScreenCap = true;
   }
 }
 
@@ -45,7 +44,6 @@ void Background2D::Init() {
 
   const RectF viewport = Window->GetViewport();
   const auto initCapture = [&viewport](Capture2D& capture) {
-    capture.BgSprite.Sheet.IsScreenCap = true;
     capture.LoadSolidColor(0xFF000000, static_cast<int>(viewport.Width),
                            static_cast<int>(viewport.Height));
     capture.BgSprite.Bounds.SetSize(viewport.GetSize());
@@ -57,7 +55,6 @@ void Background2D::Init() {
   for (Capture2D& capture : Screencaptures) initCapture(capture);
   initCapture(MaskCapture);
 
-  ShaderScreencapture.BgSprite.Sheet.IsScreenCap = true;
   InitFrameBuffers();
   ShaderScreencapture.LoadSolidColor(0xFF000000,
                                      static_cast<int>(viewport.Width),
@@ -141,30 +138,26 @@ void Background2D::LoadSolidColor(uint32_t color, int width, int height) {
 }
 
 void Background2D::UnloadSync() {
-  Renderer->FreeTexture(BgSprite.Sheet.Texture);
+  BgSprite.Sheet.Texture = TextureRef{};
   BgSprite.Sheet.DesignHeight = 0.0f;
   BgSprite.Sheet.DesignWidth = 0.0f;
-  BgSprite.Sheet.Texture = 0;
-  BgSprite.Sheet.IsScreenCap = false;
 
   if (BgFrameEffectType != BgEffTypeEnum::Disabled) {
     for (BgEff& bgEff : FrameBgEffs) {
       bgEff.Loaded = false;
 
-      Renderer->FreeTexture(bgEff.BgEffSprite.Sheet.Texture);
+      bgEff.BgEffSprite.Sheet.Texture = TextureRef{};
       bgEff.BgEffSprite.Sheet.DesignHeight = 0.0f;
       bgEff.BgEffSprite.Sheet.DesignWidth = 0.0f;
-      bgEff.BgEffSprite.Sheet.Texture = 0;
     }
   }
 
   if (BgChaEffectType != BgEffTypeEnum::Disabled) {
     ChaBgEff.Loaded = false;
 
-    Renderer->FreeTexture(ChaBgEff.BgEffSprite.Sheet.Texture);
+    ChaBgEff.BgEffSprite.Sheet.Texture = TextureRef{};
     ChaBgEff.BgEffSprite.Sheet.DesignHeight = 0.0f;
     ChaBgEff.BgEffSprite.Sheet.DesignWidth = 0.0f;
-    ChaBgEff.BgEffSprite.Sheet.Texture = 0;
   }
 
   Show = false;
@@ -561,7 +554,7 @@ void Background2D::RenderBgEff(const int layer) {
   }
 
   static Sprite frameSprite{};
-  if (frameSprite.Sheet.Texture == 0) {
+  if (!frameSprite.Sheet.Texture.IsValid()) {
     Texture frameTexture{};
     const RectF viewport = Window->GetViewport();
     frameTexture.LoadSolidColor(static_cast<int>(viewport.Width),

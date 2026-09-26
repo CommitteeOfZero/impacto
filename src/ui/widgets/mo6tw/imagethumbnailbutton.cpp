@@ -10,13 +10,10 @@ namespace MO6TW {
 
 using namespace Impacto::Profile::MO6TW::MovieMenu;
 
-ImageThumbnailButton::ImageThumbnailButton(int id, Sprite const& norm,
-                                           Sprite const& disabled,
-                                           Sprite const& focusedTopLeft,
-                                           Sprite const& focusedTopRight,
-                                           Sprite const& focusedBottomLeft,
-                                           Sprite const& focusedBottomRight,
-                                           glm::vec2 pos) {
+ImageThumbnailButton::ImageThumbnailButton(
+    int id, Sprite norm, std::optional<Sprite> disabled, Sprite focusedTopLeft,
+    Sprite focusedTopRight, Sprite focusedBottomLeft, Sprite focusedBottomRight,
+    glm::vec2 pos) {
   Id = id;
   NormalSprite = norm;
   DisabledSprite = disabled;
@@ -25,8 +22,8 @@ ImageThumbnailButton::ImageThumbnailButton(int id, Sprite const& norm,
   HighlightBottomLeft = focusedBottomLeft;
   HighlightBottomRight = focusedBottomRight;
   Enabled = true;
-  Bounds = RectF(pos.x, pos.y, NormalSprite.ScaledWidth(),
-                 NormalSprite.ScaledHeight());
+  Bounds = RectF(pos.x, pos.y, NormalSprite->ScaledWidth(),
+                 NormalSprite->ScaledHeight());
 
   HighlightAnimation.Direction = AnimationDirection::In;
   HighlightAnimation.LoopMode = AnimationLoopMode::Loop;
@@ -35,17 +32,17 @@ ImageThumbnailButton::ImageThumbnailButton(int id, Sprite const& norm,
 }
 
 ImageThumbnailButton::ImageThumbnailButton(
-    int id, Sprite const& normTopPart, Sprite const& normBottomPart,
-    Sprite const& disabled, Sprite const& focusedTopLeft,
-    Sprite const& focusedTopRight, Sprite const& focusedBottomLeft,
-    Sprite const& focusedBottomRight, glm::vec2 pos)
+    int id, Sprite normTopPart, Sprite normBottomPart,
+    std::optional<Sprite> disabled, Sprite focusedTopLeft,
+    Sprite focusedTopRight, Sprite focusedBottomLeft, Sprite focusedBottomRight,
+    glm::vec2 pos)
     : ImageThumbnailButton(id, normTopPart, disabled, focusedTopLeft,
                            focusedTopRight, focusedBottomLeft,
                            focusedBottomRight, pos) {
   IsSplit = true;
   BottomPart = normBottomPart;
-  Bounds = RectF(pos.x, pos.y, NormalSprite.ScaledWidth(),
-                 NormalSprite.ScaledHeight() + BottomPart.ScaledHeight());
+  Bounds = RectF(pos.x, pos.y, NormalSprite->ScaledWidth(),
+                 NormalSprite->ScaledHeight() + BottomPart.ScaledHeight());
 }
 
 void ImageThumbnailButton::Update(float dt) {
@@ -55,14 +52,17 @@ void ImageThumbnailButton::Update(float dt) {
 
 void ImageThumbnailButton::Render() {
   if (!IsLocked) {
-    Renderer->DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
+    Renderer->DrawSprite(*NormalSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
     if (IsSplit) {
       Renderer->DrawSprite(
           BottomPart,
-          glm::vec2(Bounds.X, Bounds.Y + NormalSprite.ScaledHeight()), Tint);
+          glm::vec2(Bounds.X, Bounds.Y + NormalSprite->ScaledHeight()), Tint);
     }
   } else {
-    Renderer->DrawSprite(DisabledSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
+    if (DisabledSprite.has_value()) {
+      Renderer->DrawSprite(*DisabledSprite, glm::vec2(Bounds.X, Bounds.Y),
+                           Tint);
+    }
   }
   if (HasFocus) {
     auto offset = 2.0f * glm::step(0.5f, HighlightAnimation.Progress);

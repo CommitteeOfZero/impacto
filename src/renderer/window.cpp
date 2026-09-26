@@ -9,34 +9,43 @@
 #include <vector>
 #include <optional>
 #include "../inputsystem.h"
-#include "opengl/window.h"
-#include "vulkan/window.h"
-#include "dx9/window.h"
+
+#ifdef IMPACTO_RENDERER_BGFX
+#include "bgfx/window.h"
+#endif
 
 namespace Impacto {
 
 void InitWindow() {
+  Window.reset();
+
   switch (UserConfig::AdvancedSettings.ActiveRenderer) {
-#ifndef IMPACTO_DISABLE_OPENGL
+#ifdef IMPACTO_RENDERER_BGFX
+#ifdef IMPACTO_RENDERER_OPENGL
     case RendererType::OpenGL:
-      Window = new OpenGL::GLWindow();
-      break;
 #endif
-#ifndef IMPACTO_DISABLE_VULKAN
+#ifdef IMPACTO_RENDERER_OPENGLES
+    case RendererType::OpenGLES:
+#endif
+#ifdef IMPACTO_RENDERER_VULKAN
     case RendererType::Vulkan:
-      Window = new Vulkan::VulkanWindow();
-      break;
 #endif
-#ifndef IMPACTO_DISABLE_DX9
-    case RendererType::DirectX9:
-      Window = new DirectX9::DirectX9Window();
+#ifdef IMPACTO_RENDERER_DIRECT3D11
+    case RendererType::Direct3D11:
+#endif
+#ifdef IMPACTO_RENDERER_DIRECT3D12
+    case RendererType::Direct3D12:
+#endif
+#ifdef IMPACTO_RENDERER_METAL
+    case RendererType::Metal:
+#endif
+      Window = std::make_unique<Bgfx::Window>();
       break;
 #endif
     default:
-      ImpLog(LogLevel::Error, LogChannel::Render,
-             "Failed to create window: Unknown or unsupported renderer "
-             "selected!\n");
-      exit(1);
+      Panic(LogChannel::Render,
+            "Failed to create window: Unknown or unsupported renderer "
+            "selected!\n");
   }
 
   Window->Init();
@@ -244,9 +253,8 @@ SDL_Rect BaseWindow::GetDisplayBounds(std::optional<SDL_WindowFlags> flags) {
     haveBounds = SDL_GetDisplayUsableBounds(display, &result);
   }
   if (!haveBounds) {
-    ImpLog(LogLevel::Fatal, LogChannel::Render,
-           "Failed to get display bounds: {}.\n", SDL_GetError());
-    throw std::runtime_error("Failed to get display info.");
+    Panic(LogChannel::Render, "Failed to get display bounds: {}.\n",
+          SDL_GetError());
   }
   return result;
 }
@@ -337,8 +345,8 @@ RectF BaseWindow::GetScaledViewport() {
 
 bool BaseWindow::CreateSDLWindow(SDL_WindowFlags flags) {
   auto const& config = UserConfig::CommonSettings;
-  WindowWidth = config.ResolutionWidth;
-  WindowHeight = config.ResolutionHeight;
+  WindowWidth = config.WindowWidth;
+  WindowHeight = config.WindowHeight;
 
 #if IMPACTO_USE_SDL_HIGHDPI
   flags |= SDL_WINDOW_HIGH_PIXEL_DENSITY;
@@ -364,27 +372,26 @@ bool BaseWindow::CreateSDLWindow(SDL_WindowFlags flags) {
 
 void BaseWindow::ApplyWindowSettings() {
   auto const& config = UserConfig::CommonSettings;
-  WindowWidth = config.ResolutionWidth;
-  WindowHeight = config.ResolutionHeight;
+  WindowWidth = config.WindowWidth;
+  WindowHeight = config.WindowHeight;
 
   DisplayMode dispMode = GetDefaultDispMode();
 
   if (!UserConfig::GetActiveGame().empty()) {
     auto const& gameConfig = UserConfig::ActiveGameSettings();
 
-    if (gameConfig.ResolutionHeight.has_value() ^
-        gameConfig.ResolutionHeight.has_value()) {
+    if (gameConfig.WindowWidth.has_value() ^
+        gameConfig.WindowWidth.has_value()) {
       ImpLog(LogLevel::Warning, LogChannel::Render,
-             "Only one of Resolution Height or Resolution Width is configured, "
-             "defaulting to game resolution.");
+             "Only one of Window Height or Window Width is configured, "
+             "defaulting to application settings.");
     }
-    if (gameConfig.ResolutionWidth && gameConfig.ResolutionHeight) {
-      WindowWidth = *gameConfig.ResolutionWidth;
-      WindowHeight = *gameConfig.ResolutionHeight;
-    } else if (Profile::Game::HasInit) {
-      WindowWidth = static_cast<int>(Profile::Game::DesignWidth);
-      WindowHeight = static_cast<int>(Profile::Game::DesignHeight);
+
+    if (gameConfig.WindowWidth && gameConfig.WindowHeight) {
+      WindowWidth = *gameConfig.WindowWidth;
+      WindowHeight = *gameConfig.WindowHeight;
     }
+
     dispMode = gameConfig.Display;
   }
 
@@ -415,6 +422,8 @@ void BaseWindow::ApplyWindowSettings() {
   DpiScale = SDL_GetWindowDisplayScale(SDLWindow);
   RecreateFBOs = true;
   Update();
+
+  Renderer->UpdateResolution();
 }
 
 bool HandleWindowEvents(SDL_Event const* evt) {

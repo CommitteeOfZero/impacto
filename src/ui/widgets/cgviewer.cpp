@@ -234,7 +234,6 @@ void CgViewer::RenderVariation(size_t variation, glm::vec4 col) const {
       SpriteSheet(Profile::Game::DesignWidth, Profile::Game::DesignHeight),
       0.0f, 0.0f, Profile::Game::DesignWidth, Profile::Game::DesignHeight);
   linkedSprite.Sheet.Texture = Renderer->GetFramebufferTexture(1);
-  linkedSprite.Sheet.IsScreenCap = true;
   Renderer->SetFramebuffer(0);
   Renderer->DrawSprite(linkedSprite, glm::mat4(1.0f), col);
 }
@@ -327,10 +326,9 @@ void CgViewer::Clear() {
     for (int j = 0; j < CgCount[i]; j++) {
       if (CgSpriteSheets[i][j].DesignWidth != 0.0f &&
           CgSpriteSheets[i][j].DesignHeight != 0.0f) {
-        Renderer->FreeTexture(CgSpriteSheets[i][j].Texture);
         CgSpriteSheets[i][j].DesignHeight = 0.0f;
         CgSpriteSheets[i][j].DesignWidth = 0.0f;
-        CgSpriteSheets[i][j].Texture = 0;
+        CgSpriteSheets[i][j].Texture = TextureRef{};
       }
     }
   }

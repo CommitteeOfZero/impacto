@@ -13,16 +13,18 @@ namespace Widgets {
 
 using namespace Impacto::Profile::ScriptVars;
 
-Button::Button(int id, Sprite const& norm, Sprite const& focused,
-               Sprite const& highlight, glm::vec2 pos, RectF hoverBounds) {
+Button::Button(int id, std::optional<Sprite> normal,
+               std::optional<Sprite> focused, std::optional<Sprite> highlight,
+               glm::vec2 pos, RectF hoverBounds)
+    : NormalSprite(normal),
+      FocusedSprite(focused),
+      HighlightSprite(highlight),
+      HoverBounds(hoverBounds) {
   Enabled = true;
   Id = id;
-  NormalSprite = norm;
-  FocusedSprite = focused;
-  HighlightSprite = highlight;
-  Bounds = RectF(pos.x, pos.y, NormalSprite.Bounds.Width,
-                 NormalSprite.Bounds.Height);
-  HoverBounds = hoverBounds;
+  Bounds = RectF(pos.x, pos.y,
+                 NormalSprite.has_value() ? NormalSprite->Bounds.Width : 0.0f,
+                 NormalSprite.has_value() ? NormalSprite->Bounds.Height : 0.0f);
 }
 
 void Button::UpdateInput(float dt) {
@@ -45,23 +47,32 @@ void Button::UpdateInput(float dt) {
 }
 
 void Button::Render() {
-  if (HasFocus) {
+  if (HasFocus && HighlightSprite.has_value()) {
     const RectF dest =
-        HighlightSprite.ScaledBounds()
-            .Scale({Bounds.Width / HighlightSprite.ScaledWidth(), 1.0f},
+        HighlightSprite->ScaledBounds()
+            .Scale({Bounds.Width / HighlightSprite->ScaledWidth(), 1.0f},
                    {0.0f, 0.0f})
             .Translate(Bounds.GetPos() + HighlightOffset);
-    Renderer->DrawSprite(HighlightSprite, dest, Tint);
+    Renderer->DrawSprite(*HighlightSprite, dest, Tint);
   }
 
   if (IsLocked) {
-    Renderer->DrawSprite(LockedSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
+    if (LockedSprite.has_value()) {
+      Renderer->DrawSprite(*LockedSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
+    }
   } else if (HasFocus && Enabled) {
-    Renderer->DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
+    if (FocusedSprite.has_value()) {
+      Renderer->DrawSprite(*FocusedSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
+    }
   } else if (Enabled) {
-    Renderer->DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
+    if (NormalSprite.has_value()) {
+      Renderer->DrawSprite(*NormalSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
+    }
   } else {
-    Renderer->DrawSprite(DisabledSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
+    if (DisabledSprite.has_value()) {
+      Renderer->DrawSprite(*DisabledSprite, glm::vec2(Bounds.X, Bounds.Y),
+                           Tint);
+    }
   }
 
   if (HasText) {

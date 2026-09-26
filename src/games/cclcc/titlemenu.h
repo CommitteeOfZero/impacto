@@ -15,9 +15,6 @@ namespace CCLCC {
 class TitleMenu : public Menu {
  public:
   TitleMenu();
-  ~TitleMenu() {
-    Renderer->FreeTexture(PressToStartTransitionCapture.Sheet.Texture);
-  }
 
   void Show() override;
   void Hide() override;

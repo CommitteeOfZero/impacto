@@ -18,7 +18,7 @@ class LibraryMenuButton : public Widgets::Button {
   LibraryMenuButton(int id, Sprite const& hovered, Sprite const& selected,
                     glm::vec2 pos, Animation& blinkAnimation)
       : Widgets::Button(
-            id, Sprite(), selected, hovered, pos,
+            id, std::nullopt, selected, hovered, pos,
             RectF(pos.x, pos.y, hovered.Bounds.Width, hovered.Bounds.Height)),
         BlinkAnimation(blinkAnimation) {
     Bounds = HoverBounds;
@@ -28,7 +28,7 @@ class LibraryMenuButton : public Widgets::Button {
       return;
     }
     if (Selected) {
-      Renderer->DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
+      Renderer->DrawSprite(*FocusedSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
     } else if (HasFocus) {
       using namespace Profile::CCLCC::LibraryMenu;
 
@@ -36,7 +36,7 @@ class LibraryMenuButton : public Widgets::Button {
                                         (1.0f - ButtonBlinkTintMinimum) +
                                     ButtonBlinkTintMinimum,
                                 1};
-      Renderer->DrawSprite(HighlightSprite, glm::vec2(Bounds.X, Bounds.Y),
+      Renderer->DrawSprite(*HighlightSprite, glm::vec2(Bounds.X, Bounds.Y),
                            Tint * blinkMask);
     }
   }

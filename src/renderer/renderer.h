@@ -1,13 +1,49 @@
 #pragma once
 
 #include "window.h"
+#include "textureref.h"
 
 #include "3d/scene.h"
 #include "../spritesheet.h"
 #include "../text/text.h"
-#include "yuvframe.h"
-#include "nv12frame.h"
-#include <span>
+
+#include "video/yuvframe.h"
+#include "video/nv12frame.h"
+
+enum class RendererType : int {
+#ifdef IMPACTO_RENDERER_OPENGL
+  OpenGL,
+#endif
+#ifdef IMPACTO_RENDERER_OPENGLES
+  OpenGLES,
+#endif
+#ifdef IMPACTO_RENDERER_VULKAN
+  Vulkan,
+#endif
+#ifdef IMPACTO_RENDERER_DIRECT3D11
+  Direct3D11,
+#endif
+#ifdef IMPACTO_RENDERER_DIRECT3D12
+  Direct3D12,
+#endif
+#ifdef IMPACTO_RENDERER_METAL
+  Metal,
+#endif
+};
+
+constexpr inline RendererType DefaultRendererType =
+#if defined(SDL_PLATFORM_LINUX)
+    RendererType::Vulkan;
+#elif defined(SDL_PLATFORM_WINDOWS)
+    RendererType::Direct3D12;
+#elif defined(SDL_PLATFORM_APPLE)
+    RendererType::Metal;
+#elif defined(SDL_PLATFORM_ANDROID) || defined(__SWITCH__)
+    RendererType::OpenGLES;
+#else
+    RendererType{};
+static_assert(false && "No default renderer supplied for target renderer");
+#endif
 
 namespace Impacto {
 
@@ -67,6 +103,10 @@ class BaseRenderer {
   virtual void Init() = 0;
   virtual void Shutdown() = 0;
 
+  virtual void UpdateResolution() = 0;
+
+  virtual RendererType GetType() const = 0;
+
 #ifndef IMPACTO_DISABLE_IMGUI
   virtual void ImGuiBeginFrame() = 0;
 #endif
@@ -82,11 +122,12 @@ class BaseRenderer {
       LookupTextureIdToTexture;
   inline static ankerl::unordered_dense::map<int, Io::AssetPathKey> SurfToId;
 
-  virtual uint32_t MapSpriteSheet(SpriteSheet const& sheet) = 0;
-  virtual bool LoadSurf(int surfId, int archiveId, int fileId) = 0;
+  [[nodiscard]] virtual TextureRef MapSpriteSheet(SpriteSheet const& sheet) = 0;
   virtual void UnloadSurf(int surfId) = 0;
-  virtual uint32_t SubmitTexture(TexFmt format, uint8_t* buffer, int width,
-                                 int height) = 0;
+
+  [[nodiscard]] virtual TextureRef SubmitTexture(
+      TexFmt format, std::span<const uint8_t> buffer,
+      glm::vec<2, size_t> dimensions) = 0;
 
   std::vector<uint8_t> GetSpriteSheetImage(SpriteSheet const& sheet) {
     std::vector<uint8_t> result(
@@ -97,9 +138,6 @@ class BaseRenderer {
 
   virtual int GetSpriteSheetImage(SpriteSheet const& sheet,
                                   std::span<uint8_t> outBuffer) = 0;
-  virtual void FreeTexture(uint32_t id) = 0;
-  virtual YUVFrame* CreateYUVFrame(float width, float height) = 0;
-  virtual NV12Frame* CreateNV12Frame(float width, float height) = 0;
 
   virtual void DrawSprite(const Sprite& sprite, const CornersQuad& dest,
                           glm::mat4 transformation,
@@ -309,13 +347,11 @@ class BaseRenderer {
                               TopologyMode topology = TopologyMode::Triangles,
                               bool textureWrapRepeat = false) = 0;
 
-  virtual void DrawPrimitives(const SpriteSheet& sheet,
-                              ShaderProgramType shaderType,
-                              std::span<const VertexBufferSprites> vertices,
-                              std::span<const uint16_t> indices,
-                              glm::mat4 transformation = glm::mat4(1.0f),
-                              bool inverted = false,
-                              bool textureWrapRepeat = false) {
+  void DrawPrimitives(const SpriteSheet& sheet, ShaderProgramType shaderType,
+                      std::span<const VertexBufferSprites> vertices,
+                      std::span<const uint16_t> indices,
+                      glm::mat4 transformation = glm::mat4(1.0f),
+                      bool inverted = false, bool textureWrapRepeat = false) {
     DrawPrimitives(sheet, nullptr, shaderType, vertices, indices,
                    transformation, glm::mat4(1.0f), inverted,
                    TopologyMode::Triangles, textureWrapRepeat);
@@ -393,7 +429,7 @@ class BaseRenderer {
   virtual void CaptureScreencap(Sprite& sprite) = 0;
 
   virtual void SetFramebuffer(size_t buffer) = 0;
-  virtual int GetFramebufferTexture(size_t buffer) = 0;
+  virtual TextureRef GetFramebufferTexture(size_t buffer) = 0;
 
   virtual void EnableScissor() = 0;
   virtual void SetScissorRect(RectF const& rect) = 0;
@@ -411,6 +447,11 @@ class BaseRenderer {
 
  protected:
   virtual void Flush() = 0;
+
+  [[nodiscard]] virtual MutableTextureRef DeclareMutableTexture(
+      TexFmt format, glm::vec<2, size_t> dimensions) = 0;
+
+  virtual void AlterRefCount(TextureRefInterface* texture, int difference) = 0;
 
   static void QuadSetUV(CornersQuad spriteBounds, glm::vec2 designDimensions,
                         glm::vec2* uvs, size_t stride);
@@ -430,6 +471,11 @@ class BaseRenderer {
   }
 
   Sprite RectSprite;
+
+  friend struct TextureRef;
+  friend struct MutableTextureRef;
+  friend class YUVFrame;
+  friend class NV12Frame;
 };
 
 inline void InsertQuad(std::span<VertexBufferSprites, 4> vertices,
@@ -461,8 +507,8 @@ inline void InsertQuad(std::span<VertexBufferSprites, 4> vertices,
   };
 }
 
-inline BaseRenderer* Renderer;
-inline BaseWindow* Window;
+inline std::unique_ptr<BaseRenderer> Renderer;
+inline std::unique_ptr<BaseWindow> Window;
 
 void CreateRenderer();
 

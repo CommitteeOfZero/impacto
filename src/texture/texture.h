@@ -4,10 +4,14 @@
 #include <vector>
 #include "../io/stream.h"
 
+#include "../renderer/textureref.h"
+
+#include <magic_enum/magic_enum.hpp>
+
 namespace Impacto {
 class BaseRenderer;
 
-enum TexFmt { TexFmt_RGB, TexFmt_RGBA, TexFmt_U8 };
+enum TexFmt { TexFmt_RGB, TexFmt_RGBA, TexFmt_U8, TexFmt_RG8 };
 
 struct Texture {
   int Width = 0;
@@ -23,7 +27,7 @@ struct Texture {
   void LoadSolidColor(int width, int height, uint32_t color = 0xFFFFFFFF);
   void LoadCheckerboard();
   void LoadPoliticalCompass();
-  uint32_t Submit(BaseRenderer* renderer = nullptr);
+  TextureRef Submit(BaseRenderer* renderer = nullptr);
 
   using TextureLoader = auto (*)(Io::Stream* stream, Texture* texture) -> bool;
   static bool AddTextureLoader(TextureLoader c);
@@ -33,3 +37,11 @@ struct Texture {
 };
 
 }  // namespace Impacto
+
+template <>
+struct magic_enum::customize::enum_range<Impacto::TexFmt> {
+  static constexpr int min = 0;
+  static constexpr int max = 0xff;
+  static constexpr int prefix_length =
+      static_cast<int>(std::string_view("TexFmt_").length());
+};

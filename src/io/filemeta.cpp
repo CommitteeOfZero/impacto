@@ -70,10 +70,9 @@ std::string const& GetPlatformConfigDir() {
 #if defined(__ANDROID__)  // prefer external storage dir for easier user access
     const char* configPath = SDL_GetAndroidExternalStoragePath();
     if (!configPath) {
-      ImpLog(LogLevel::Fatal, LogChannel::IO,
-             "Failed to get Android external storage path, error: {}\n",
-             SDL_GetError());
-      exit(1);
+      Panic(LogChannel::IO,
+            "Failed to get Android external storage path, error: {}\n",
+            SDL_GetError());
     }
     return configPath;
 #elif defined(__unix__)  // prefer .config over .local/share

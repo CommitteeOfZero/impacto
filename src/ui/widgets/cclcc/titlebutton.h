@@ -10,8 +10,8 @@ namespace CCLCC {
 
 class TitleButton : public Widgets::Button {
  public:
-  TitleButton(int id, Sprite const& norm, Sprite const& focused,
-              Sprite const& highlight, glm::vec2 pos);
+  TitleButton(int id, Sprite norm, Sprite focused,
+              std::optional<Sprite> highlight, glm::vec2 pos);
   void Render() override;
   void Update(float dt) override;
   void UpdateInput(float dt) override;
