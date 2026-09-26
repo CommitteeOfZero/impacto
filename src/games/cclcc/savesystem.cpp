@@ -258,12 +258,14 @@ SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
   WorkingSaveThumbnail.Sheet = SpriteSheet(viewport.Width, viewport.Height);
   WorkingSaveThumbnail.Bounds.SetSize(viewport.GetSize());
 
-  QueuedTexture txt{
-      .Reference = WorkingSaveThumbnail.Sheet.Texture,
-  };
-  txt.Tex.LoadSolidColor((int)WorkingSaveThumbnail.Bounds.Width,
-                         (int)WorkingSaveThumbnail.Bounds.Height, 0x000000);
-  textures.push_back(txt);
+  {
+    QueuedTexture txt{
+        .Reference = WorkingSaveThumbnail.Sheet.Texture,
+    };
+    txt.Tex.LoadSolidColor((int)WorkingSaveThumbnail.Bounds.Width,
+                           (int)WorkingSaveThumbnail.Bounds.Height, 0x000000);
+    textures.emplace_back(std::move(txt));
+  }
 
   Io::ReadArrayLE<uint8_t>(SystemData.data(), stream, SystemData.size());
   /*
@@ -298,7 +300,7 @@ SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
         lockedQuickSaveSlots +=
             static_cast<SaveFileEntry&>(*entryArray[i]).Flags & WriteProtect;
       }
-      textures.push_back(tex);
+      textures.emplace_back(std::move(tex));
 
       // Todo, validate checksum?
     }
@@ -314,7 +316,7 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
                                        int autoSaveType) {
   auto* entry = GetSaveEntry<SaveFileEntry>(type, id);
   if (entry != nullptr && !(entry->Flags & WriteProtect)) {
-    entry->SaveThumbnail.Sheet.Texture = nullptr;
+    entry->SaveThumbnail.Sheet.Texture = TextureRef{};
     uint8_t savedFlags = entry->Flags;
     *entry = *WorkingSaveEntry;
     entry->Flags = savedFlags;

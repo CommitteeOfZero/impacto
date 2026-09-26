@@ -125,7 +125,7 @@ ExternalFont::~ExternalFont() {
 
 void ExternalFont::Reset() {
   for (auto& [key, glyph] : FontImpl->GlyphCache) {
-    glyph.Sheet.Texture = nullptr;
+    glyph.Sheet.Texture = TextureRef{};
   }
   FontImpl->GlyphCache.clear();
 
@@ -256,7 +256,7 @@ void ExternalFont::DrawProcessedText(std::span<const ProcessedTextGlyph> text,
       CachedGlyph const& cached = GetOrRenderGlyph(
           glyph.CharId, static_cast<uint32_t>(
                             std::round(glyph.DestRect.Height / viewportScale)));
-      if (cached.Sheet.Texture == nullptr) continue;
+      if (!cached.Sheet.Texture.IsValid()) continue;
 
       const glm::vec2 pos = glm::vec2(glyph.DestRect.X, glyph.DestRect.Y) +
                             (cached.Bearing + offset) * viewportScale;

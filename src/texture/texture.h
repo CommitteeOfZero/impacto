@@ -27,7 +27,7 @@ struct Texture {
   void LoadSolidColor(int width, int height, uint32_t color = 0xFFFFFFFF);
   void LoadCheckerboard();
   void LoadPoliticalCompass();
-  std::unique_ptr<TextureRef> Submit(BaseRenderer* renderer = nullptr);
+  TextureRef Submit(BaseRenderer* renderer = nullptr);
 
   using TextureLoader = auto (*)(Io::Stream* stream, Texture* texture) -> bool;
   static bool AddTextureLoader(TextureLoader c);

@@ -32,7 +32,7 @@ namespace Impacto::Overlay {
 static std::optional<OverlayTab> ActiveTab;
 
 struct ImgData {
-  std::unique_ptr<TextureRef> Texture;
+  TextureRef Texture;
 };
 static ankerl::unordered_dense::map<std::string, ImgData> iconTextureMap;
 
@@ -298,7 +298,7 @@ static void ShowGamePicker(std::string& selectedGame) {
       if (auto iconTxtItr = iconTextureMap.find(game);
           iconTxtItr != iconTextureMap.end()) {
         auto const& img = iconTxtItr->second;
-        ImGui::Image(static_cast<ImTextureID>(img.Texture->GetTextureId()),
+        ImGui::Image(static_cast<ImTextureID>(img.Texture.GetTextureId()),
                      ImVec2{iconSize, iconSize});
         ImGui::SameLine();
       }

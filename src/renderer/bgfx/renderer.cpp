@@ -146,10 +146,9 @@ Renderer::Renderer() {
   YUVFrameShader.emplace(vs_sprite_shader, fs_yuvframe_shader, flush);
 
   RectSprite = Sprite(SpriteSheet(1.0f, 1.0f), 0.0f, 0.0f, 1.0f, 1.0f);
-  RectSprite.Sheet.Texture = std::shared_ptr<Impacto::TextureRef>(
+  RectSprite.Sheet.Texture =
       SubmitTexture(TexFmt::TexFmt_RGBA,
-                    std::array<uint8_t, 4>{0xFF, 0xFF, 0xFF, 0xFF}, {1, 1})
-          .release());
+                    std::array<uint8_t, 4>{0xFF, 0xFF, 0xFF, 0xFF}, {1, 1});
 
   ImGui_Implbgfx_Init(IMGUI_VIEW);
   switch (UserConfig::AdvancedSettings.ActiveRenderer) {
@@ -365,28 +364,41 @@ void Renderer::ImGuiBeginFrame() {
 }
 #endif
 
-std::unique_ptr<Impacto::TextureRef> Renderer::SubmitTexture(
+Impacto::TextureRef Renderer::SubmitTexture(
     const TexFmt format, const std::span<const uint8_t> buffer,
     const glm::vec<2, size_t> dimensions) {
-  const std::unique_ptr<Texture>& texture = *DeclareTexture(
-      std::make_unique<Texture>(TexFmtConversion[format], buffer, dimensions));
+  const decltype(Textures)::iterator textureIt =
+      DeclareTexture(Texture(TexFmtConversion[format], buffer, dimensions));
 
-  return std::make_unique<Bgfx::PlainTextureRef>(*texture);
+  const size_t textureMapId = textureIt->first;
+  Texture& texture = textureIt->second.first;
+
+  return Impacto::TextureRef(new Bgfx::PlainTextureRef(textureMapId, texture));
 }
 
 decltype(Renderer::Textures)::iterator Renderer::DeclareTexture(
-    std::unique_ptr<Texture>&& texture) {
-  return Textures.emplace(std::move(texture)).first;
+    Texture&& texture) {
+  static size_t curTextureId = 1;
+  assert(!Textures.contains(curTextureId));
+
+  return Textures.emplace(curTextureId++, std::pair{std::move(texture), 1})
+      .first;
 }
 
-std::unique_ptr<Impacto::MutableTextureRef> Renderer::DeclareMutableTexture(
+Impacto::MutableTextureRef Renderer::DeclareMutableTexture(
     const TexFmt format, const glm::vec<2, size_t> dimensions) {
-  MutableTexture& texture =
-      **MutableTextures
-            .emplace(std::make_unique<Bgfx::MutableTexture>(
-                TexFmtConversion[format], dimensions))
-            .first;
-  return std::make_unique<Bgfx::MutableTextureRef>(texture);
+  static size_t curTextureId = 1;
+  assert(!MutableTextures.contains(curTextureId));
+
+  Bgfx::MutableTexture& texture =
+      MutableTextures
+          .emplace(curTextureId,
+                   std::pair{Bgfx::MutableTexture(TexFmtConversion[format],
+                                                  dimensions),
+                             1})
+          .first->second.first;
+  return Impacto::MutableTextureRef(
+      new Bgfx::MutableTextureRef(curTextureId++, texture));
 }
 
 void Renderer::Shutdown() {
@@ -457,8 +469,8 @@ void Renderer::Flush() {
 static bool ShouldFlip(const SpriteSheet& sheet) {
   [[maybe_unused]] const RendererType rendererType =
       Impacto::Renderer->GetType();
-  return static_cast<Bgfx::TextureRef*>(sheet.Texture.get())
-             ->GetTexture()
+  return TextureRefInterface::ToBgfxTextureRefInterface(*sheet.Texture.Get())
+             .GetTexture()
              .IsScreenCap() &&
          (false
 #ifdef IMPACTO_RENDERER_OPENGL
@@ -539,7 +551,7 @@ void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
   });
 
   SpriteShader->SubmitUniforms({}, {
-                                       .s_texture = *sprite.Sheet.Texture,
+                                       .s_texture = sprite.Sheet.Texture.Get(),
                                        .u_colorShift = colorShift,
                                    });
 
@@ -557,7 +569,7 @@ void Renderer::DrawPrimitives(
   ShaderProgramInterface* const shader = [&]() -> ShaderProgramInterface* {
     switch (shaderType) {
       case ShaderProgramType::Sprite:
-        SpriteShader->SubmitUniforms({}, {.s_texture = *sheet.Texture});
+        SpriteShader->SubmitUniforms({}, {.s_texture = sheet.Texture.Get()});
         return &*SpriteShader;
       default:
         break;
@@ -641,6 +653,52 @@ void Renderer::InsertQuad(const CornersQuad dest, const CornersQuad uvs,
   };
 
   InsertVertices(indices, vertices, flipVertically);
+}
+
+void Renderer::AlterRefCount(Impacto::TextureRefInterface* texture,
+                             int difference) {
+  assert(texture != nullptr);
+  if (difference == 0) return;
+
+  const Bgfx::TextureRefInterface& bgfxTexture =
+      TextureRefInterface::ToBgfxTextureRefInterface(*texture);
+
+  const auto updateRefCount = [&]<typename T>() {
+    static_assert(is_any_of_v<T, Bgfx::Texture, Bgfx::MutableTexture>);
+
+    std::map<size_t, std::pair<T, size_t>>* map = nullptr;
+    if constexpr (std::is_same_v<T, Bgfx::Texture>) {
+      map = &Textures;
+    } else {
+      map = &MutableTextures;
+    }
+
+    const auto textureIt = map->find(bgfxTexture.GetTextureMapId());
+    assert(textureIt != map->end() &&
+           "Tried to alter the refcount of an already deleted texture.");
+    size_t& refCount = textureIt->second.second;
+
+    if (difference < 0 && static_cast<size_t>(-difference) > refCount) {
+      refCount = 0;
+    } else {
+      refCount += difference;
+    }
+
+    if (refCount == 0) {
+      map->erase(textureIt);
+      delete texture;
+    }
+  };
+
+  switch (bgfxTexture.GetBgfxType()) {
+    using enum Bgfx::TextureRefType;
+    case Plain:
+      updateRefCount.template operator()<Bgfx::Texture>();
+      break;
+    case Mutable:
+      updateRefCount.template operator()<Bgfx::MutableTexture>();
+      break;
+  }
 }
 
 }  // namespace Impacto::Bgfx

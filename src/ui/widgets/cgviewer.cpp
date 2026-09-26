@@ -328,7 +328,7 @@ void CgViewer::Clear() {
           CgSpriteSheets[i][j].DesignHeight != 0.0f) {
         CgSpriteSheets[i][j].DesignHeight = 0.0f;
         CgSpriteSheets[i][j].DesignWidth = 0.0f;
-        CgSpriteSheets[i][j].Texture = nullptr;
+        CgSpriteSheets[i][j].Texture = TextureRef{};
       }
     }
   }

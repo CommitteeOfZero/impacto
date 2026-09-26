@@ -15,14 +15,14 @@ template <uint8_t stage>
 struct SamplerUniform {
   SamplerUniform() = default;
   SamplerUniform(bgfx::TextureHandle handle) : Handle(handle) {}
-  SamplerUniform(Texture& texture) : Handle(texture.GetTextureHandle()) {}
+  SamplerUniform(const Texture& texture) : Handle(texture.GetTextureHandle()) {}
 
-  SamplerUniform(Impacto::TextureRef& texture)
-      : SamplerUniform(static_cast<Bgfx::TextureRef*>(&texture)->GetTexture()) {
-  }
-  SamplerUniform(Impacto::MutableTextureRef& texture)
+  SamplerUniform(const Impacto::TextureRefInterface& texture)
       : SamplerUniform(
-            static_cast<Bgfx::MutableTextureRef*>(&texture)->GetTexture()) {}
+            Bgfx::TextureRefInterface::ToBgfxTextureRefInterface(texture)
+                .GetTexture()) {}
+  SamplerUniform(const Impacto::TextureRefInterface* texture)
+      : SamplerUniform(*texture) {}
 
   bgfx::TextureHandle Handle = {bgfx::kInvalidHandle};
 

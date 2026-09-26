@@ -122,11 +122,10 @@ class BaseRenderer {
       LookupTextureIdToTexture;
   inline static ankerl::unordered_dense::map<int, Io::AssetPathKey> SurfToId;
 
-  virtual std::unique_ptr<TextureRef> MapSpriteSheet(
-      SpriteSheet const& sheet) = 0;
+  [[nodiscard]] virtual TextureRef MapSpriteSheet(SpriteSheet const& sheet) = 0;
   virtual void UnloadSurf(int surfId) = 0;
 
-  virtual std::unique_ptr<TextureRef> SubmitTexture(
+  [[nodiscard]] virtual TextureRef SubmitTexture(
       TexFmt format, std::span<const uint8_t> buffer,
       glm::vec<2, size_t> dimensions) = 0;
 
@@ -430,7 +429,7 @@ class BaseRenderer {
   virtual void CaptureScreencap(Sprite& sprite) = 0;
 
   virtual void SetFramebuffer(size_t buffer) = 0;
-  virtual std::unique_ptr<TextureRef> GetFramebufferTexture(size_t buffer) = 0;
+  virtual TextureRef GetFramebufferTexture(size_t buffer) = 0;
 
   virtual void EnableScissor() = 0;
   virtual void SetScissorRect(RectF const& rect) = 0;
@@ -449,8 +448,10 @@ class BaseRenderer {
  protected:
   virtual void Flush() = 0;
 
-  virtual std::unique_ptr<MutableTextureRef> DeclareMutableTexture(
+  [[nodiscard]] virtual MutableTextureRef DeclareMutableTexture(
       TexFmt format, glm::vec<2, size_t> dimensions) = 0;
+
+  virtual void AlterRefCount(TextureRefInterface* texture, int difference) = 0;
 
   static void QuadSetUV(CornersQuad spriteBounds, glm::vec2 designDimensions,
                         glm::vec2* uvs, size_t stride);
@@ -471,6 +472,8 @@ class BaseRenderer {
 
   Sprite RectSprite;
 
+  friend struct TextureRef;
+  friend struct MutableTextureRef;
   friend class YUVFrame;
   friend class NV12Frame;
 };

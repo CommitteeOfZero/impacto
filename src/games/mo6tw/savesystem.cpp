@@ -92,12 +92,14 @@ SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
   WorkingSaveThumbnail.Bounds =
       RectF(0.0f, 0.0f, viewport.Width, viewport.Height);
 
-  QueuedTexture txt = {
-      .Reference = WorkingSaveThumbnail.Sheet.Texture,
-  };
-  txt.Tex.LoadSolidColor((int)WorkingSaveThumbnail.Bounds.Width,
-                         (int)WorkingSaveThumbnail.Bounds.Height, 0x000000);
-  textures.push_back(txt);
+  {
+    QueuedTexture txt = {
+        .Reference = WorkingSaveThumbnail.Sheet.Texture,
+    };
+    txt.Tex.LoadSolidColor((int)WorkingSaveThumbnail.Bounds.Width,
+                           (int)WorkingSaveThumbnail.Bounds.Height, 0x000000);
+    textures.push_back(std::move(txt));
+  }
 
   Io::ReadArrayLE<uint8_t>(SystemData.data(), stream, SystemData.size());
 
@@ -227,7 +229,7 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
 
   if (WorkingSaveEntry != 0) {
     if (entry != 0 && !(entry->Flags & WriteProtect)) {
-      entry->SaveThumbnail.Sheet.Texture = nullptr;
+      entry->SaveThumbnail.Sheet.Texture = TextureRef{};
       if (type == SaveType::Quick) {
         entry->SaveType = autoSaveType;
         UpdateQuickSaveRecentSortedId(id);

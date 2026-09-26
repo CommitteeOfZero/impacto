@@ -27,8 +27,8 @@ class Texture {
   Texture(bgfx::TextureFormat::Enum format, std::span<const uint8_t> data,
           glm::vec<2, size_t> dimensions);
 
-  operator bgfx::TextureHandle() { return GetTextureHandle(); }
-  bgfx::TextureHandle GetTextureHandle() {
+  operator bgfx::TextureHandle() const { return GetTextureHandle(); }
+  bgfx::TextureHandle GetTextureHandle() const {
     assert(bgfx::isValid(Handle));
     return Handle;
   }
