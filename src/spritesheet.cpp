@@ -45,4 +45,5 @@ void SpriteLoader::MainThreadOnLoad(bool result) {
                                                  LoadedTexture.Submit());
   */
 }
+
 }  // namespace Impacto

@@ -93,7 +93,7 @@ void SubtitleRenderTrack::UpdateSubtitleGlyphs(ASS_Image* images) {
   ankerl::unordered_dense::set<GlyphKey, GlyphKey::hash> removalKeys;
   std::transform(GlyphTextures.begin(), GlyphTextures.end(),
                  std::inserter(removalKeys, removalKeys.end()),
-                 [](auto pair) { return pair.first; });
+                 [](auto& pair) { return pair.first; });
   SubtitleGlyphs.clear();
 
   // Hash the bitmap coverage & some ass_img metadata, then cache the texture

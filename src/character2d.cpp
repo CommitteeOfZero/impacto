@@ -161,7 +161,7 @@ bool Character2D::LoadSync(uint32_t charaId) {
 }
 
 void Character2D::UnloadSync() {
-  CharaSpriteSheet.Texture = nullptr;
+  CharaSpriteSheet.Texture = TextureRef{};
   CharaSpriteSheet.DesignHeight = 0.0f;
   CharaSpriteSheet.DesignWidth = 0.0f;
   Show = false;

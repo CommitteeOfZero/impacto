@@ -109,14 +109,13 @@ void Texture::LoadPoliticalCompass() {
   }
 }
 
-std::unique_ptr<TextureRef> Texture::Submit(BaseRenderer* renderer) {
+TextureRef Texture::Submit(BaseRenderer* renderer) {
   if (!renderer) renderer = Renderer.get();
   ImpLog(LogLevel::Debug, LogChannel::Render, "Submitting texture\n");
 
   if (Buffer.empty()) return nullptr;
 
-  std::unique_ptr<TextureRef> result =
-      renderer->SubmitTexture(Format, Buffer, {Width, Height});
+  TextureRef result = renderer->SubmitTexture(Format, Buffer, {Width, Height});
 
   Buffer.clear();
 

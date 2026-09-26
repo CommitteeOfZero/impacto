@@ -23,7 +23,14 @@ struct SpriteLoader : Loadable<SpriteLoader, bool, int, int, int> {
 };
 
 struct SpriteSheet {
-  SpriteSheet() {}
+  SpriteSheet() = default;
+  SpriteSheet(const SpriteSheet& other) = default;
+  SpriteSheet(SpriteSheet&&) = default;
+  ~SpriteSheet() = default;
+
+  SpriteSheet& operator=(const SpriteSheet&) = default;
+  SpriteSheet& operator=(SpriteSheet&&) = default;
+
   SpriteSheet(float width, float height)
       : DesignWidth(width), DesignHeight(height) {}
 
@@ -35,7 +42,7 @@ struct SpriteSheet {
   Io::AssetPath Path{};
   bool ScriptHandled = false;
 
-  std::shared_ptr<TextureRef> Texture = nullptr;
+  TextureRef Texture{};
 };
 
 // TODO replace BaseScale with scaled width/height and unscaled width/height

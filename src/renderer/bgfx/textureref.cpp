@@ -7,46 +7,41 @@ namespace Impacto::Bgfx {
 PlainTextureRef& PlainTextureRef::operator=(PlainTextureRef&& other) {
   if (&other == this) return *this;
 
+  TextureMapId = other.TextureMapId;
   TextureObject = other.TextureObject;
+  Dimensions = other.Dimensions;
+
+  other.TextureMapId = 0;
   other.TextureObject = nullptr;
 
   return *this;
-}
-
-PlainTextureRef::~PlainTextureRef() {
-  if (TextureObject == nullptr) return;
-  Bgfx::Renderer* const renderer =
-      static_cast<Bgfx::Renderer*>(Impacto::Renderer.get());
-
-  const auto textureIt = std::ranges::find(renderer->Textures, TextureObject,
-                                           &std::unique_ptr<Texture>::get);
-  assert(textureIt != renderer->Textures.end() && "Double free");
-  renderer->Textures.erase(textureIt);  // Also cleans up the texture
-
-  TextureObject = nullptr;
 }
 
 MutableTextureRef& MutableTextureRef::operator=(MutableTextureRef&& other) {
   if (&other == this) return *this;
 
+  TextureMapId = other.TextureMapId;
   TextureObject = other.TextureObject;
+  Dimensions = other.Dimensions;
+
+  other.TextureMapId = 0;
   other.TextureObject = nullptr;
 
   return *this;
 }
 
-MutableTextureRef::~MutableTextureRef() {
-  if (TextureObject == nullptr) return;
-  Bgfx::Renderer* const renderer =
-      static_cast<Bgfx::Renderer*>(Impacto::Renderer.get());
+const Bgfx::TextureRefInterface& TextureRefInterface::ToBgfxTextureRefInterface(
+    const Impacto::TextureRefInterface& texture) {
+  switch (texture.GetType()) {
+    using enum Impacto::TextureRefType;
+    case Plain:
+      return static_cast<const Bgfx::PlainTextureRef&>(texture);
+    case Mutable:
+      return static_cast<const Bgfx::MutableTextureRef&>(texture);
+  }
 
-  const auto textureIt =
-      std::ranges::find(renderer->MutableTextures, TextureObject,
-                        &std::unique_ptr<Bgfx::MutableTexture>::get);
-  assert(textureIt != renderer->MutableTextures.end() && "Double free");
-  renderer->MutableTextures.erase(textureIt);  // Also cleans up the texture
-
-  TextureObject = nullptr;
+  Panic(LogChannel::General, "Unexpected texture ref type \"{:s}\"",
+        magic_enum::enum_name(texture.GetType()));
 }
 
 }  // namespace Impacto::Bgfx

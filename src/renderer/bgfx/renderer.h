@@ -31,13 +31,13 @@ class Renderer final : public BaseRenderer {
   void BeginFrame2D() override;
   void EndFrame() override;
 
-  [[nodiscard]] std::unique_ptr<Impacto::TextureRef> MapSpriteSheet(
+  [[nodiscard]] Impacto::TextureRef MapSpriteSheet(
       SpriteSheet const& sheet) override {
     return nullptr;
   }
   void UnloadSurf(int surfId) override {}
 
-  [[nodiscard]] std::unique_ptr<Impacto::TextureRef> SubmitTexture(
+  [[nodiscard]] Impacto::TextureRef SubmitTexture(
       TexFmt format, std::span<const uint8_t> buffer,
       glm::vec<2, size_t> dimensions) override;
 
@@ -116,9 +116,8 @@ class Renderer final : public BaseRenderer {
   void CaptureScreencap(Sprite& sprite) override {}
 
   void SetFramebuffer(size_t buffer) override {}
-  std::unique_ptr<Impacto::TextureRef> GetFramebufferTexture(
-      size_t buffer) override {
-    return nullptr;
+  Impacto::TextureRef GetFramebufferTexture(size_t buffer) override {
+    return Impacto::TextureRef{};
   }
 
   void EnableScissor() override {}
@@ -190,13 +189,15 @@ class Renderer final : public BaseRenderer {
       ShaderProgram<VertexShaderType::Sprite, FragmentShaderType::YUVFrame>>
       YUVFrameShader;
 
-  std::set<std::unique_ptr<Texture>> Textures;
-  decltype(Textures)::iterator DeclareTexture(
-      std::unique_ptr<Texture>&& texture);
+  std::map<size_t, std::pair<Bgfx::Texture, size_t>> Textures;
+  decltype(Textures)::iterator DeclareTexture(Texture&& texture);
 
-  std::set<std::unique_ptr<Bgfx::MutableTexture>> MutableTextures;
-  [[nodiscard]] std::unique_ptr<Impacto::MutableTextureRef>
-  DeclareMutableTexture(TexFmt format, glm::vec<2, size_t> dimensions) override;
+  std::map<size_t, std::pair<Bgfx::MutableTexture, size_t>> MutableTextures;
+  [[nodiscard]] Impacto::MutableTextureRef DeclareMutableTexture(
+      TexFmt format, glm::vec<2, size_t> dimensions) override;
+
+  void AlterRefCount(Impacto::TextureRefInterface* texture,
+                     int difference) override;
 
   friend class Bgfx::PlainTextureRef;
   friend class Bgfx::MutableTextureRef;

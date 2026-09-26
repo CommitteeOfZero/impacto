@@ -18,7 +18,7 @@ BlurEffect::BlurEffect()
 }
 
 void BlurEffect::Init() {
-  if (BlurSprite.Sheet.Texture != nullptr) return;
+  if (BlurSprite.Sheet.Texture.IsValid()) return;
 
   Texture texture{};
   texture.LoadSolidColor(static_cast<int>(Profile::Game::DesignWidth),

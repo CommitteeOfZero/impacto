@@ -65,6 +65,7 @@ set(Impacto_Src
     src/effects/chlcc/eyecatch.cpp
 
     src/renderer/renderer.cpp
+    src/renderer/textureref.cpp
     src/renderer/window.cpp
 
     src/renderer/video/nv12frame.cpp

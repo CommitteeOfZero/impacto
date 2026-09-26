@@ -30,8 +30,8 @@ void Background2D::InitFrameBuffers() {
                viewPort.Width, viewPort.Height,
                {Profile::Game::DesignWidth / viewPort.Width,
                 Profile::Game::DesignHeight / viewPort.Height});
-    Framebuffers[i].BgSprite.Sheet.Texture = std::shared_ptr<TextureRef>(
-        Renderer->GetFramebufferTexture(i + 1).release());
+    Framebuffers[i].BgSprite.Sheet.Texture =
+        Renderer->GetFramebufferTexture(i + 1);
 
     Framebuffers[i].Status = LoadStatus::Loaded;
   }
@@ -138,7 +138,7 @@ void Background2D::LoadSolidColor(uint32_t color, int width, int height) {
 }
 
 void Background2D::UnloadSync() {
-  BgSprite.Sheet.Texture = nullptr;
+  BgSprite.Sheet.Texture = TextureRef{};
   BgSprite.Sheet.DesignHeight = 0.0f;
   BgSprite.Sheet.DesignWidth = 0.0f;
 
@@ -146,7 +146,7 @@ void Background2D::UnloadSync() {
     for (BgEff& bgEff : FrameBgEffs) {
       bgEff.Loaded = false;
 
-      bgEff.BgEffSprite.Sheet.Texture = nullptr;
+      bgEff.BgEffSprite.Sheet.Texture = TextureRef{};
       bgEff.BgEffSprite.Sheet.DesignHeight = 0.0f;
       bgEff.BgEffSprite.Sheet.DesignWidth = 0.0f;
     }
@@ -155,7 +155,7 @@ void Background2D::UnloadSync() {
   if (BgChaEffectType != BgEffTypeEnum::Disabled) {
     ChaBgEff.Loaded = false;
 
-    ChaBgEff.BgEffSprite.Sheet.Texture = nullptr;
+    ChaBgEff.BgEffSprite.Sheet.Texture = TextureRef{};
     ChaBgEff.BgEffSprite.Sheet.DesignHeight = 0.0f;
     ChaBgEff.BgEffSprite.Sheet.DesignWidth = 0.0f;
   }
@@ -554,7 +554,7 @@ void Background2D::RenderBgEff(const int layer) {
   }
 
   static Sprite frameSprite{};
-  if (frameSprite.Sheet.Texture == nullptr) {
+  if (!frameSprite.Sheet.Texture.IsValid()) {
     Texture frameTexture{};
     const RectF viewport = Window->GetViewport();
     frameTexture.LoadSolidColor(static_cast<int>(viewport.Width),

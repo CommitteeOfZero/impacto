@@ -766,7 +766,7 @@ static void ShowSprite(const Sprite* sprite) {
   float texWidth = sprite->Sheet.DesignWidth;
   float texHeight = sprite->Sheet.DesignHeight;
   ImGui::Image(
-      static_cast<ImTextureID>(sprite->Sheet.Texture->GetTextureId()),
+      static_cast<ImTextureID>(sprite->Sheet.Texture.GetTextureId()),
       ImVec2(sprite->Bounds.Width, sprite->Bounds.Height),
       ImVec2(sprite->Bounds.X / texWidth, sprite->Bounds.Y / texHeight),
       ImVec2((sprite->Bounds.X + sprite->Bounds.Width) / texWidth,
@@ -778,7 +778,7 @@ void ShowObjects() {
 
   if (SpritesBySpriteSheet.size() == 0) {
     for (const auto& sprite : Profile::Sprites) {
-      SpritesBySpriteSheet[sprite.second.Sheet.Texture->GetTextureId()]
+      SpritesBySpriteSheet[sprite.second.Sheet.Texture.GetTextureId()]
           .push_back(sprite.first);
     }
   }
@@ -787,17 +787,17 @@ void ShowObjects() {
     for (const auto& spriteSheet : Profile::SpriteSheets) {
       if (ImGui::TreeNode(spriteSheet.first.c_str())) {
         ImGui::PushID(
-            static_cast<int>(spriteSheet.second.Texture->GetTextureId()));
+            static_cast<int>(spriteSheet.second.Texture.GetTextureId()));
         float texWidth = spriteSheet.second.DesignWidth * 0.4f;
         float texHeight = spriteSheet.second.DesignHeight * 0.4f;
         ImVec2 pos = ImGui::GetCursorScreenPos();
-        ImGui::Image(static_cast<ImTextureID>(
-                         spriteSheet.second.Texture->GetTextureId()),
-                     ImVec2(texWidth, texHeight));
-        ImageTooltip(pos,
-                     static_cast<ImTextureID>(
-                         spriteSheet.second.Texture->GetTextureId()),
-                     texWidth, texHeight);
+        ImGui::Image(
+            static_cast<ImTextureID>(spriteSheet.second.Texture.GetTextureId()),
+            ImVec2(texWidth, texHeight));
+        ImageTooltip(
+            pos,
+            static_cast<ImTextureID>(spriteSheet.second.Texture.GetTextureId()),
+            texWidth, texHeight);
 
         ImGui::Spacing();
         ImGui::BulletText("Texture: (width: %f, height: %f)",
@@ -807,7 +807,7 @@ void ShowObjects() {
         if (ImGui::TreeNode("Sprites")) {
           for (const auto& spriteName :
                SpritesBySpriteSheet[spriteSheet.second.Texture
-                                        ->GetTextureId()]) {
+                                        .GetTextureId()]) {
             const auto& sprite = Profile::Sprites[spriteName];
             if (ImGui::TreeNode(spriteName.c_str())) {
               ShowSprite(&sprite);
@@ -843,12 +843,12 @@ void ShowObjects() {
           ImVec2 pos = ImGui::GetCursorScreenPos();
           ImGui::Image(
               static_cast<ImTextureID>(
-                  Backgrounds[i].BgSprite.Sheet.Texture->GetTextureId()),
+                  Backgrounds[i].BgSprite.Sheet.Texture.GetTextureId()),
               ImVec2(texWidth, texHeight));
           ImageTooltip(
               pos,
               static_cast<ImTextureID>(
-                  Backgrounds[i].BgSprite.Sheet.Texture->GetTextureId()),
+                  Backgrounds[i].BgSprite.Sheet.Texture.GetTextureId()),
               texWidth, texHeight);
         }
 
@@ -896,12 +896,12 @@ void ShowObjects() {
           ImVec2 pos = ImGui::GetCursorScreenPos();
           ImGui::Image(
               static_cast<ImTextureID>(
-                  Characters2D[i].CharaSprite.Sheet.Texture->GetTextureId()),
+                  Characters2D[i].CharaSprite.Sheet.Texture.GetTextureId()),
               ImVec2(texWidth, texHeight));
           ImageTooltip(
               pos,
               static_cast<ImTextureID>(
-                  Characters2D[i].CharaSprite.Sheet.Texture->GetTextureId()),
+                  Characters2D[i].CharaSprite.Sheet.Texture.GetTextureId()),
               texWidth, texHeight);
         }
 
