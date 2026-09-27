@@ -114,6 +114,8 @@ void Configure() {
       EnsureGetMember<float>("IntroPanningAnimationDuration");
 
   IntroBouncingStarSprite = EnsureGetMember<Sprite>("IntroBouncingStarSprite");
+  IntroBouncingStarBaseYOffset =
+      EnsureGetMember<float>("IntroBouncingStarBaseYOffset");
   IntroStarBounceAnimationDuration =
       EnsureGetMember<float>("IntroBouncingStarAnimationDuration");
 
