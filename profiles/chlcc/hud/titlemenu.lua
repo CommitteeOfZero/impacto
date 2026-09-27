@@ -27,6 +27,7 @@ root.TitleMenu = {
     IntroPanningAnimationDuration = 2.1,
     IntroAfterPanningWaitDuration = 0.8,
     IntroBouncingStarSprite = "StarLogo",
+    IntroBouncingStarBaseYOffset = 128,
     IntroBouncingStarAnimationDuration = 3.73;
     IntroExplodingStarSprite = "IntroSmallStar",
     IntroExplodingStarAnimationDuration = 1.067,
