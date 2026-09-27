@@ -117,6 +117,7 @@ class SaveSystemBase {
 
   virtual void SaveThumbnailData() = 0;
   virtual SaveError WriteSaveFile() = 0;
+  virtual SaveError WriteQuickSaveFile() { return SaveError::OK; };
   virtual uint32_t GetSavePlayTime(SaveType type, int id) const = 0;
   virtual uint8_t GetSaveFlags(SaveType type, int id) const = 0;
   virtual void SetSaveFlags(SaveType type, int id, uint8_t flags) = 0;
@@ -194,6 +195,7 @@ void LoadEntry(SaveType type, int id);
 void LoadMemoryNew(LoadProcess process);
 void FlushWorkingSaveEntry(SaveType type, int id, int autoSaveType = 0);
 void WriteSaveFile();
+void WriteQuickSaveFile();
 uint32_t GetSavePlayTime(SaveType type, int id);
 uint8_t GetSaveFlags(SaveType type, int id);
 void SetSaveFlags(SaveType type, int id, uint8_t flags);
