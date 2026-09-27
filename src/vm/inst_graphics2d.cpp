@@ -138,15 +138,12 @@ VmInstruction(InstBGloadNew) {
   }
   const int actualBufId = GetBufferId(bufferId);
   const int bgBufId = ScrWork[SW_BG1SURF + actualBufId];
-  // remove flags from value, it can be used in the script computations
-  const int actualBgNo =
-      backgroundId != -1 ? backgroundId & 0x00FFFFFF : backgroundId;
   if (Backgrounds2D[bgBufId]->Status == LoadStatus::Loading) {
     ResetInstruction;
     BlockThread;
   } else if (ScrWork[SW_BG1NO + ScrWorkBgStructSize * actualBufId] !=
-             actualBgNo) {
-    ScrWork[SW_BG1NO + ScrWorkBgStructSize * actualBufId] = actualBgNo;
+             backgroundId) {
+    ScrWork[SW_BG1NO + ScrWorkBgStructSize * actualBufId] = backgroundId;
     Backgrounds2D[bgBufId]->LoadAsync(backgroundId);
     ResetInstruction;
     BlockThread;
