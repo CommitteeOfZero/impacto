@@ -14,6 +14,7 @@ inline Impacto::AchievementSystem::AchievementDataType Type =
     Impacto::AchievementSystem::AchievementDataType::None;
 
 inline std::string AchievementDataPath;
+inline std::string HiddenIconPath;
 
 struct AchievementDef {
   std::string Name;

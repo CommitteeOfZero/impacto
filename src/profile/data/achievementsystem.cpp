@@ -45,6 +45,8 @@ void Configure() {
         Achievements =
             EnsureGetMember<std::vector<AchievementDef>>("Achievements");
         AchievementDataPath = EnsureGetMember<std::string>("AchievementSystem");
+        HiddenIconPath =
+            TryGetMember<std::string>("HiddenIconPath").value_or(std::string());
         Implementation = new AchievementSystemCommon();
         break;
 

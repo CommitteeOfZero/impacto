@@ -30,8 +30,10 @@ class CommonAchievement : public Achievement {
 
  public:
   CommonAchievement(std::string name, std::string description, bool hidden,
-                    AchievementRarity rarity, Sprite const& icon)
-      : Achievement(std::move(name), std::move(description), hidden, icon),
+                    AchievementRarity rarity, Sprite const& icon,
+                    Sprite const& hiddenIcon)
+      : Achievement(std::move(name), std::move(description), hidden, icon,
+                    hiddenIcon),
         rarity(rarity) {}
 
   AchievementRarity Rarity() const { return rarity; }

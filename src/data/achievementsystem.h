@@ -22,22 +22,25 @@ enum class AchievementError {
 class Achievement {
  public:
   Achievement(std::string name, std::string description, bool hidden,
-              const Sprite& icon)
+              const Sprite& icon, const Sprite& hiddenIcon)
       : name(std::move(name)),
         description(std::move(description)),
         hidden(hidden),
-        icon(icon) {}
+        icon(icon),
+        hiddenIcon(hiddenIcon) {}
 
   std::string const& Name() const { return name; }
   std::string const& Description() const { return description; }
   bool Hidden() const { return hidden; }
   Sprite const& Icon() const { return icon; }
+  Sprite const& HiddenIcon() const { return hiddenIcon; }
 
  protected:
   std::string name;
   std::string description;
   bool hidden;
   Sprite icon;
+  Sprite hiddenIcon;
 };
 
 class AchievementSystemBase {

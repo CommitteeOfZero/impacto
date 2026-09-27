@@ -669,8 +669,8 @@ static void ShowAchievementsPage() {
                           ImGuiChildFlags_Borders,
                           ImGuiWindowFlags_NoScrollbar |
                               ImGuiWindowFlags_NoScrollWithMouse)) {
-      Sprite const& icon = ach->Icon();
-      if (revealed && icon.Sheet.Texture != 0) {
+      Sprite const& icon = unlocked ? ach->Icon() : ach->HiddenIcon();
+      if (icon.Sheet.Texture != 0) {
         RectF uv = icon.NormalizedBounds();
         ImVec4 tint = unlocked ? ImVec4{1.0f, 1.0f, 1.0f, 1.0f}
                                : ImVec4{0.25f, 0.25f, 0.25f, 1.0f};

@@ -44,8 +44,41 @@ AchievementError AchievementSystemCommon::MountAchievementFile(
     queuedAchievements.push_back(std::move(queued));
   }
 
-  mainThreadCallback = [this, queuedAchievements =
-                                  std::move(queuedAchievements)]() mutable {
+  Texture hiddenTexture;
+  bool hasHiddenTexture = false;
+  std::string const& hiddenIconPath =
+      Profile::AchievementSystem::HiddenIconPath;
+  if (!hiddenIconPath.empty()) {
+    Io::Stream* hiddenIconStream = nullptr;
+    IoError err =
+        Io::PhysicalFileStream::Create(hiddenIconPath, &hiddenIconStream);
+    if (err != IoError_OK) {
+      ImpLog(LogLevel::Warning, LogChannel::IO,
+             "Couldn't open hidden achievement icon {:s}\n", hiddenIconPath);
+    } else {
+      if (hiddenTexture.Load(hiddenIconStream)) {
+        hasHiddenTexture = true;
+      } else {
+        ImpLog(LogLevel::Warning, LogChannel::TextureLoad,
+               "Couldn't load hidden achievement icon {:s}\n", hiddenIconPath);
+      }
+      delete hiddenIconStream;
+    }
+  }
+
+  mainThreadCallback = [this,
+                        queuedAchievements = std::move(queuedAchievements),
+                        hiddenTexture = std::move(hiddenTexture),
+                        hasHiddenTexture]() mutable {
+    Sprite hiddenIcon;
+    if (hasHiddenTexture) {
+      SpriteSheet sheet(static_cast<float>(hiddenTexture.Width),
+                        static_cast<float>(hiddenTexture.Height));
+      sheet.Texture = hiddenTexture.Submit();
+      hiddenIcon =
+          Sprite(sheet, 0.0f, 0.0f, sheet.DesignWidth, sheet.DesignHeight);
+    }
+
     Achievements.clear();
     Achievements.reserve(queuedAchievements.size());
     for (QueuedAchievement& queued : queuedAchievements) {
@@ -58,7 +91,7 @@ AchievementError AchievementSystemCommon::MountAchievementFile(
       }
       Achievements.push_back(std::make_unique<CommonAchievement>(
           std::move(queued.name), std::move(queued.description), queued.hidden,
-          queued.rarity, icon));
+          queued.rarity, icon, hiddenIcon));
     }
   };
 
