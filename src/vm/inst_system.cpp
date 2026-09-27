@@ -638,19 +638,22 @@ VmInstruction(InstVoiceTableLoadNew) {
   StartInstruction;
   PopUint8(type);
   PopExpression(fileId);
-
-  switch (VoiceTableData.Status) {
-    case LoadStatus::Unloaded:
-      VoiceTableData.LoadAsync(fileId);
-      ResetInstruction;
-      BlockThread;
-      break;
-    case LoadStatus::Loading:
-      ResetInstruction;
-      BlockThread;
-      break;
-    case LoadStatus::Loaded:
-      break;
+  if (type == 0) {
+    switch (VoiceTableData.Status) {
+      case LoadStatus::Unloaded:
+        VoiceTableData.LoadAsync(fileId);
+        ResetInstruction;
+        BlockThread;
+        break;
+      case LoadStatus::Loading:
+        ResetInstruction;
+        BlockThread;
+        break;
+      case LoadStatus::Loaded:
+        break;
+    }
+  } else {
+    // TODO: "voice len table"
   }
 }
 VmInstruction(InstSetPadCustom) {
