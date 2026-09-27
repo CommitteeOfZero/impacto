@@ -11,7 +11,9 @@ namespace Impacto {
 namespace UI {
 namespace CHLCC {
 
-enum class TitleDispCtState : uint8_t {
+namespace TitleMenuMode {
+namespace PS3 {
+enum Mode : uint8_t {
   IntroAnimation = 0,
   PressStart = 1,
   EmptyBackground = 2,
@@ -25,6 +27,15 @@ enum class TitleDispCtState : uint8_t {
   SystemSubEntriesFading = 11,
   SystemSubEntriesControl = 12,
 };
+}  // namespace PS3
+
+namespace Switch {
+enum Mode : uint8_t {
+  IntroAnimation = 0,
+  PressStart = 2,
+};
+}  // namespace Switch
+}  // namespace TitleMenuMode
 
 class TitleMenu : public Menu {
  public:
