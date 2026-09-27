@@ -1156,6 +1156,7 @@ VmInstruction(InstMSinit) {
   if (Profile::Vm::GameInstructionSet == InstructionSet::LCCSwitch) {
     for (int i = 0; i < 8; i++) {
       ScrWork[SW_PIC_REQ_ARCHIVENO1 + 2 * i] = 0xFFFF;
+      ScrWork[SW_PIC_REQ_FILENO1 + 2 * i] = 0xFFFF;
     }
   }
 
