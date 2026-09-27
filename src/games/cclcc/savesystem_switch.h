@@ -12,13 +12,12 @@ namespace CCLCC_Switch {
 using namespace Impacto::SaveSystem;
 
 constexpr size_t SaveEntrySize = 0x1F9E8;
-constexpr size_t SystemSaveSize = 0x20E2E;
-constexpr int SaveFileSize =
-    SaveEntrySize * MaxSaveEntries * 2 + SystemSaveSize;
+constexpr size_t SystemSaveSize = 0x21020;
+constexpr int SaveFileSize = SaveEntrySize * MaxSaveEntries;
 
 constexpr int SaveThumbnailWidth = 240;
 constexpr int SaveThumbnailHeight = 135;
-// CCLCC PS4 Save thumbnails are 240x135 RGB16
+// CCLCC Switch Save thumbnails are 240x135 RGB16
 constexpr int SaveThumbnailSize =
     SaveThumbnailWidth * SaveThumbnailHeight * 4 / 2;
 
@@ -58,6 +57,7 @@ class SaveSystem : public SaveSystemBase {
   void LoadMemoryNew(LoadProcess load) override;
 
   SaveError WriteSaveFile() override;
+  SaveError WriteQuickSaveFile() override;
   uint32_t GetSavePlayTime(SaveType type, int id) const override;
   uint8_t GetSaveFlags(SaveType type, int id) const override;
   void SetSaveFlags(SaveType type, int id, uint8_t flags) override;

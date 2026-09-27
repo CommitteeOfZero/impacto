@@ -123,6 +123,9 @@ void Configure() {
       Implementation = new Impacto::CCLCC::SaveSystem();
       break;
     case SaveDataType::CCLCC_SWITCH:
+      SystemDataPath = EnsureGetMember<std::string>("SystemDataPath");
+      QuickDataPath = EnsureGetMember<std::string>("QuickDataPath");
+
       Implementation = new Impacto::CCLCC_Switch::SaveSystem();
       break;
     case SaveDataType::None:

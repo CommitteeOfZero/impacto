@@ -345,7 +345,8 @@ VmInstruction(InstSave) {
   StartInstruction;
   PopUint8(type);
   switch (type) {  // TODO: Types 1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 19, 40,
-                   // 41, 45, 46, 47, 50, 51, 52, 53, 71, 88, 89, 150, 151
+                   // 41, 45, 46, 47, 50, 51, 52, 53, 71, 88, 89, 150, 151,
+                   // 210, 211
     case 0: {
       SaveSystem::SaveSystemData();
       break;
@@ -391,8 +392,26 @@ VmInstruction(InstSave) {
         PopExpression(unused3);
         PopExpression(unused4);
       }
+
+      if (Profile::Vm::GameInstructionSet != InstructionSet::LCCSwitch) {
+        SetFlag(SF_SAVE_UNK1, 1);
+      }
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction Save(type: {:d})\n", type);
+      break;
+    }
+    case 45: {
+      SetFlag(SF_SAVE_UNK2, 1);
+      break;
+    }
+    case 46: {
+      SetFlag(SF_SAVE_UNK3, 1);
+      break;
+    }
+    case 1:
+    case 41:
+    case 47: {
+      ScrWork[SW_SAVEERRORCODE] = 0;
       break;
     }
     case 60: {
@@ -438,10 +457,23 @@ VmInstruction(InstSave) {
       }
       break;
     }
+    case 200: {
+      SetFlag(SF_SAVEICON, true);
+      SaveSystem::WriteQuickSaveFile();
+      break;
+    }
+    case 201: {
+      if (SaveSystem::GetLoadStatus() == LoadStatus::Loading) {
+        ResetInstruction;
+        BlockThread;
+      } else {
+        SetFlag(SF_SAVEICON, false);
+      }
+    }
+
     case 86:  // NOOP by design
     case 87:  // NOOP by design
       break;
-    case 1:
     case 2:
     case 3:
     case 6:
@@ -452,10 +484,6 @@ VmInstruction(InstSave) {
     case 11:
     case 12:
     case 19:
-    case 41:
-    case 45:
-    case 46:
-    case 47:
     case 50:
     case 51:
     case 52:
@@ -464,6 +492,9 @@ VmInstruction(InstSave) {
     case 89:
     case 150:
     case 151:
+    case 210:
+    case 211:
+
       break;
     default: {
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
@@ -1285,12 +1316,15 @@ VmInstruction(InstAutoSave) {
 
       ScrWork[SW_AUTOSAVERESTART] = 0;
     } break;
-
+    case 40: {
+      if (GetFlag(SF_SAVE_UNK1)) break;
+      SetFlag(SF_SAVE_UNK1, 1);
+      ScrWork[SW_AUTOSAVERESTART] = 0;
+    } break;
     case 0xff: {
       SetFlag(SF_SAVECAPTURE, 1);
       BlockThread;
     } break;
-
     case 2:
     default:
       ImpLog(LogLevel::Warning, LogChannel::VM,
