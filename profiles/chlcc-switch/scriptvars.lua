@@ -1,0 +1,9 @@
+local sv = root.ScriptVars;
+
+sv.SF_TITLEMODE = 2049;
+sv.SF_BG1DISP = 3200;
+sv.SW_TITLECT = 2118;
+sv.SW_BG1PRI2 = 2418;
+sv.SW_MASK1COLOR = 4390;
+sv.SW_MASK1ALPHA = 4391;
+sv.SW_MASK1PRI = 4392;

@@ -8,6 +8,11 @@ root.GameDefinitions = {
       English = root.BasePaths.RootPatchesDir .. "/english/profiles/chlcc/patch.lua",
     }
   },
+  ["chlcc-switch"] = {
+    Hidden = true,
+    Name = "CHAOS;HEAD Love Chu☆Chu! (Switch)",
+    GameProfile = root.BasePaths.RootProfilesDir .. "/chlcc-switch/game.lua",
+  },
   cclcc = {
     Name = "CHAOS;CHILD Love Chu☆Chu!! (PS4)",
     LauncherOrderId = 3,
