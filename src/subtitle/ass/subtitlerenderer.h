@@ -79,7 +79,7 @@ class SubtitleRenderTrack {
 
   std::vector<SubtitleEntry> Entries;
   std::vector<SubtitleGlyph> SubtitleGlyphs;
-  ankerl::unordered_dense::map<GlyphKey, TextureRef, GlyphKey::hash>
+  ankerl::unordered_dense::map<GlyphKey, PlainTextureRef, GlyphKey::hash>
       GlyphTextures;
 
   std::reference_wrapper<SubtitleRenderer> SubRenderer;

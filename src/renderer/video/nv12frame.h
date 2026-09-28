@@ -18,24 +18,30 @@ class NV12Frame final : public TextureRefInterface {
 
   [[nodiscard]] bool IsValid() const override;
 
+  [[nodiscard]] glm::vec<2, size_t> GetDimensions() const override {
+    return Dimensions;
+  }
+
   [[nodiscard]] uint64_t GetTextureId() const override {
     assert(IsValid());
-    return LumaTexture.GetTextureId();
+    return LumaTexture->GetTextureId();
   }
 
   void Submit(std::span<const uint8_t> luma, size_t lumaRowStride,
               std::span<const uint8_t> cbCr, size_t cbCrRowStride);
 
-  [[nodiscard]] MutableTextureRefInterface* GetLuma() const {
+  [[nodiscard]] MutableTextureRefInterface& GetLuma() const {
     assert(IsValid());
-    return LumaTexture.Get();
+    return *LumaTexture;
   }
-  [[nodiscard]] MutableTextureRefInterface* GetCbCr() const {
+  [[nodiscard]] MutableTextureRefInterface& GetCbCr() const {
     assert(IsValid());
-    return CbCrTexture.Get();
+    return *CbCrTexture;
   }
 
  private:
+  glm::vec<2, size_t> Dimensions = {0, 0};
+
   MutableTextureRef LumaTexture;
   MutableTextureRef CbCrTexture;
 };

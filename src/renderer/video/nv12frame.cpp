@@ -19,8 +19,8 @@ void NV12Frame::Submit(const std::span<const uint8_t> luma,
                        const size_t lumaRowStride,
                        const std::span<const uint8_t> cbCr,
                        const size_t cbCrRowStride) {
-  LumaTexture.Update(luma, lumaRowStride);
-  CbCrTexture.Update(cbCr, cbCrRowStride);
+  LumaTexture->Update(luma, lumaRowStride);
+  CbCrTexture->Update(cbCr, cbCrRowStride);
 }
 
 }  // namespace Impacto

@@ -17,13 +17,6 @@ struct SamplerUniform {
   SamplerUniform(bgfx::TextureHandle handle) : Handle(handle) {}
   SamplerUniform(const Texture& texture) : Handle(texture.GetTextureHandle()) {}
 
-  SamplerUniform(const Impacto::TextureRefInterface& texture)
-      : SamplerUniform(
-            Bgfx::TextureRefInterface::ToBgfxTextureRefInterface(texture)
-                .GetTexture()) {}
-  SamplerUniform(const Impacto::TextureRefInterface* texture)
-      : SamplerUniform(*texture) {}
-
   bgfx::TextureHandle Handle = {bgfx::kInvalidHandle};
 
   bool operator==(const SamplerUniform<stage>& other) const {
