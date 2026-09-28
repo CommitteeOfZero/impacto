@@ -125,7 +125,7 @@ ExternalFont::~ExternalFont() {
 
 void ExternalFont::Reset() {
   for (auto& [key, glyph] : FontImpl->GlyphCache) {
-    glyph.Sheet.Texture = TextureRef{};
+    glyph.Sheet.Texture = PlainTextureRef{};
   }
   FontImpl->GlyphCache.clear();
 

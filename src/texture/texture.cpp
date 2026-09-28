@@ -109,13 +109,14 @@ void Texture::LoadPoliticalCompass() {
   }
 }
 
-TextureRef Texture::Submit(BaseRenderer* renderer) {
+PlainTextureRef Texture::Submit(BaseRenderer* renderer) {
   if (!renderer) renderer = Renderer.get();
   ImpLog(LogLevel::Debug, LogChannel::Render, "Submitting texture\n");
 
-  if (Buffer.empty()) return nullptr;
+  assert(!Buffer.empty());
 
-  TextureRef result = renderer->SubmitTexture(Format, Buffer, {Width, Height});
+  PlainTextureRef result =
+      renderer->SubmitTexture(Format, Buffer, {Width, Height});
 
   Buffer.clear();
 

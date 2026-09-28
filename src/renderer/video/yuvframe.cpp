@@ -20,9 +20,9 @@ bool YUVFrame::IsValid() const {
 void YUVFrame::Submit(const std::span<const uint8_t> luma,
                       const std::span<const uint8_t> cb,
                       const std::span<const uint8_t> cr) {
-  LumaTexture.Update(luma, Dimensions.x);
-  CbTexture.Update(cb, Dimensions.x / 2);
-  CrTexture.Update(cr, Dimensions.x / 2);
+  LumaTexture->Update(luma, Dimensions.x);
+  CbTexture->Update(cb, Dimensions.x / 2);
+  CrTexture->Update(cr, Dimensions.x / 2);
 }
 
 }  // namespace Impacto

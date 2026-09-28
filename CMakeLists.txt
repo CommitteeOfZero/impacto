@@ -1203,7 +1203,6 @@ if (IMPACTO_RENDERER_BGFX)
         src/renderer/bgfx/framebuffer.cpp
         src/renderer/bgfx/renderer.cpp
         src/renderer/bgfx/texture.cpp
-        src/renderer/bgfx/textureref.cpp
         src/renderer/bgfx/window.cpp
     )
     list(APPEND Impacto_Header

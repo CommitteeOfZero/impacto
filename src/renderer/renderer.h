@@ -122,10 +122,11 @@ class BaseRenderer {
       LookupTextureIdToTexture;
   inline static ankerl::unordered_dense::map<int, Io::AssetPathKey> SurfToId;
 
-  [[nodiscard]] virtual TextureRef MapSpriteSheet(SpriteSheet const& sheet) = 0;
+  [[nodiscard]] virtual PlainTextureRef MapSpriteSheet(
+      SpriteSheet const& sheet) = 0;
   virtual void UnloadSurf(int surfId) = 0;
 
-  [[nodiscard]] virtual TextureRef SubmitTexture(
+  [[nodiscard]] virtual PlainTextureRef SubmitTexture(
       TexFmt format, std::span<const uint8_t> buffer,
       glm::vec<2, size_t> dimensions) = 0;
 
@@ -429,7 +430,7 @@ class BaseRenderer {
   virtual void CaptureScreencap(Sprite& sprite) = 0;
 
   virtual void SetFramebuffer(size_t buffer) = 0;
-  virtual TextureRef GetFramebufferTexture(size_t buffer) = 0;
+  virtual PlainTextureRef GetFramebufferTexture(size_t buffer) = 0;
 
   virtual void EnableScissor() = 0;
   virtual void SetScissorRect(RectF const& rect) = 0;
@@ -472,8 +473,10 @@ class BaseRenderer {
 
   Sprite RectSprite;
 
-  friend struct TextureRef;
-  friend struct MutableTextureRef;
+  template <typename T>
+    requires TextureRefInterfaceType<T>
+  friend class TextureRef;
+
   friend class YUVFrame;
   friend class NV12Frame;
 };

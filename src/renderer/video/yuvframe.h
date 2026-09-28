@@ -18,28 +18,34 @@ class YUVFrame final : public TextureRefInterface {
 
   [[nodiscard]] bool IsValid() const override;
 
+  [[nodiscard]] glm::vec<2, size_t> GetDimensions() const override {
+    return Dimensions;
+  }
+
   [[nodiscard]] uint64_t GetTextureId() const override {
     assert(IsValid());
-    return LumaTexture.GetTextureId();
+    return LumaTexture->GetTextureId();
   }
 
   void Submit(std::span<const uint8_t> luma, std::span<const uint8_t> cb,
               std::span<const uint8_t> cr);
 
-  [[nodiscard]] MutableTextureRefInterface* GetLuma() const {
+  [[nodiscard]] MutableTextureRefInterface& GetLuma() const {
     assert(IsValid());
-    return LumaTexture.Get();
+    return *LumaTexture;
   }
-  [[nodiscard]] MutableTextureRefInterface* GetCb() const {
+  [[nodiscard]] MutableTextureRefInterface& GetCb() const {
     assert(IsValid());
-    return CbTexture.Get();
+    return *CbTexture;
   }
-  [[nodiscard]] MutableTextureRefInterface* GetCr() const {
+  [[nodiscard]] MutableTextureRefInterface& GetCr() const {
     assert(IsValid());
-    return CrTexture.Get();
+    return *CrTexture;
   }
 
  private:
+  glm::vec<2, size_t> Dimensions = {0, 0};
+
   MutableTextureRef LumaTexture;
   MutableTextureRef CbTexture;
   MutableTextureRef CrTexture;

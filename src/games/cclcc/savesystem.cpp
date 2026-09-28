@@ -316,7 +316,7 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
                                        int autoSaveType) {
   auto* entry = GetSaveEntry<SaveFileEntry>(type, id);
   if (entry != nullptr && !(entry->Flags & WriteProtect)) {
-    entry->SaveThumbnail.Sheet.Texture = TextureRef{};
+    entry->SaveThumbnail.Sheet.Texture = PlainTextureRef{};
     uint8_t savedFlags = entry->Flags;
     *entry = *WorkingSaveEntry;
     entry->Flags = savedFlags;

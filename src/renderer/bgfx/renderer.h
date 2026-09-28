@@ -8,7 +8,7 @@
 
 #include <magic_enum/magic_enum_containers.hpp>
 
-#include <set>
+#include <map>
 
 namespace Impacto::Bgfx {
 
@@ -31,13 +31,13 @@ class Renderer final : public BaseRenderer {
   void BeginFrame2D() override;
   void EndFrame() override;
 
-  [[nodiscard]] Impacto::TextureRef MapSpriteSheet(
+  [[nodiscard]] Impacto::PlainTextureRef MapSpriteSheet(
       SpriteSheet const& sheet) override {
-    return nullptr;
+    return Impacto::PlainTextureRef{};
   }
   void UnloadSurf(int surfId) override {}
 
-  [[nodiscard]] Impacto::TextureRef SubmitTexture(
+  [[nodiscard]] Impacto::PlainTextureRef SubmitTexture(
       TexFmt format, std::span<const uint8_t> buffer,
       glm::vec<2, size_t> dimensions) override;
 
@@ -116,8 +116,8 @@ class Renderer final : public BaseRenderer {
   void CaptureScreencap(Sprite& sprite) override {}
 
   void SetFramebuffer(size_t buffer) override {}
-  Impacto::TextureRef GetFramebufferTexture(size_t buffer) override {
-    return Impacto::TextureRef{};
+  Impacto::PlainTextureRef GetFramebufferTexture(size_t buffer) override {
+    return Impacto::PlainTextureRef{};
   }
 
   void EnableScissor() override {}
@@ -145,6 +145,11 @@ class Renderer final : public BaseRenderer {
                   bool flipVertically, CornersQuad maskUvs = RectF{}) {
     InsertQuad(dest, uvs, std::array<glm::vec4, 4>{tint, tint, tint, tint},
                flipVertically, maskUvs);
+  }
+
+  bool ShouldFlip(const SpriteSheet& sheet) const;
+  bool ShouldFlip(const Sprite& sprite) const {
+    return ShouldFlip(sprite.Sheet);
   }
 
   // Only call bgfx::shutdown after all managed objects in this class have been
@@ -189,18 +194,20 @@ class Renderer final : public BaseRenderer {
       ShaderProgram<VertexShaderType::Sprite, FragmentShaderType::YUVFrame>>
       YUVFrameShader;
 
-  std::map<size_t, std::pair<Bgfx::Texture, size_t>> Textures;
-  decltype(Textures)::iterator DeclareTexture(Texture&& texture);
+  std::map<uint64_t, std::pair<std::unique_ptr<Bgfx::Texture>, size_t>>
+      Textures;
 
-  std::map<size_t, std::pair<Bgfx::MutableTexture, size_t>> MutableTextures;
+  decltype(Textures)::iterator DeclareTexture(
+      std::unique_ptr<Texture>&& texture);
+
   [[nodiscard]] Impacto::MutableTextureRef DeclareMutableTexture(
       TexFmt format, glm::vec<2, size_t> dimensions) override;
 
   void AlterRefCount(Impacto::TextureRefInterface* texture,
                      int difference) override;
 
-  friend class Bgfx::PlainTextureRef;
-  friend class Bgfx::MutableTextureRef;
+  [[nodiscard]] const Texture& GetTexture(
+      const Impacto::TextureRefInterface& textureRef) const;
 };
 
 }  // namespace Impacto::Bgfx
