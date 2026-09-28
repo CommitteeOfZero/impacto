@@ -260,7 +260,9 @@ VmInstruction(InstHelp) {
   PopUint8(type);
   switch (type) {
     case 0:  // Init
-      SetFlag(SF_HELPMENU, true);
+      SetFlag(SF_MANUALLOAD, false);
+      SetFlag(SF_MANUALLOAD_COMPLETE, true);  // preloaded
+      SetFlag(SF_MANUALLOAD_END, false);
       break;
     case 1:  // Main
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
@@ -375,22 +377,19 @@ VmInstruction(InstSaveMenu) {
       UI::SaveMenuPtr->ActiveMenuType =
           magic_enum::enum_cast<UI::SaveMenuPageType>(arg1);
       ScrWork[SW_SAVEFILESTATUS] = 0;
-      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-                 "STUB instruction SaveMenu(type: SaveMenuInit)\n");
+
+      // Block input during animation
+      if (UI::SaveMenuPtr->State == UI::MenuState::Hiding ||
+          UI::SaveMenuPtr->State == UI::MenuState::Showing) {
+        ResetInstruction;
+        BlockThread;
+      }
     } break;
     case 1:  // SaveMenuMain
-      if (!UI::SaveMenuPtr->ChoiceMade) {
-        if (!((Interface::PADinputButtonWentDown & Interface::PAD1B) ||
-              (Interface::PADinputMouseWentDown & Interface::PAD1B))) {
-          ResetInstruction;
-          BlockThread;
-        }
-      } else {
+      if (UI::SaveMenuPtr->ChoiceMade) {
         UI::SaveMenuPtr->ChoiceMade = false;
         Interface::PADinputButtonWentDown |= Interface::PAD1A;
       }
-      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-                 "STUB instruction SaveMenu(type: SaveMenuMain)\n");
       break;
     case 2:  // SaveResetThumnail
       if (UI::SaveMenuPtr) UI::SaveMenuPtr->RefreshCurrentEntryInfo();
@@ -428,26 +427,25 @@ VmInstruction(InstSaveMenuOld) {
       UI::SaveMenuPtr->ActiveMenuType =
           magic_enum::enum_cast<UI::SaveMenuPageType>(arg1);
       ScrWork[SW_SAVEFILESTATUS] = 0;
-      if (UI::SaveMenuPtr) UI::SaveMenuPtr->Init();
-    } break;
-    case 1:
-      if (!UI::SaveMenuPtr->ChoiceMade) {
-        if (!((Interface::PADinputButtonWentDown & Interface::PAD1B) ||
-              (Interface::PADinputMouseWentDown & Interface::PAD1B))) {
+      if (UI::SaveMenuPtr) {
+        UI::SaveMenuPtr->Init();
+
+        // Block input during animation
+        if (UI::SaveMenuPtr->State == UI::MenuState::Hiding ||
+            UI::SaveMenuPtr->State == UI::MenuState::Showing) {
           ResetInstruction;
           BlockThread;
         }
-      } else {
+      }
+    } break;
+    case 1:
+      if (UI::SaveMenuPtr->ChoiceMade) {
         UI::SaveMenuPtr->ChoiceMade = false;
         Interface::PADinputButtonWentDown |= Interface::PAD1A;
       }
-      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-                 "STUB instruction SaveMenu(type: {:d})\n", type);
       break;
     case 2: {
       if (UI::SaveMenuPtr) UI::SaveMenuPtr->RefreshCurrentEntryInfo();
-      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-                 "STUB instruction SaveMenu(type: {:d})\n", type);
     } break;
     case 10: {
       PopUint8(arg1);
