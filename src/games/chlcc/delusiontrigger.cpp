@@ -517,9 +517,11 @@ void DelusionTrigger::Render() {
       glm::vec4(1.0f, 1.0f, 1.0f, (BackgroundAlpha * 160) / 65536.0f));
 
   TextSystem.Render();
-  Renderer->DrawMaskedSpriteOverlay(BackgroundSprite, ScaledMask, spriteDest,
-                                    maskDest, (BackgroundAlpha * 160) >> 8, 20,
-                                    glm::mat4(1.0f), glm::vec4(1.0f), true);
+  Renderer->DrawMaskedSprite(
+      {BackgroundSprite, BackgroundSpriteMask, maskDest, spriteDest},
+      {.Alpha = (BackgroundAlpha * 160) >> 8,
+       .FadeRange = 20,
+       .IsInverted = true});
   if (Profile::Patch::HasDelusionMouseSupport &&
       UserConfig::EnhancementsSettings.CHLCC.DelusionMousePatch &&
       HeartButtonFade.Progress > 0.0f) {
