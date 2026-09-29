@@ -465,18 +465,17 @@ void Renderer::Flush() {
   bgfx::submit(RENDER_VIEW, CurrentState->ShaderProgram.get());
 }
 
-bool Renderer::ShouldFlip(const SpriteSheet& sheet) const {
+bool Renderer::ShouldFlip(const Texture& texture) const {
   [[maybe_unused]] const RendererType rendererType =
       Impacto::Renderer->GetType();
-  return GetTexture(*sheet.Texture).IsScreenCap() &&
-         (false
+  return texture.IsScreenCap() && (false
 #ifdef IMPACTO_RENDERER_OPENGL
-          || rendererType == RendererType::OpenGL
+                                   || rendererType == RendererType::OpenGL
 #endif
 #ifdef IMPACTO_RENDERER_OPENGLES
-          || rendererType == RendererType::OpenGLES
+                                   || rendererType == RendererType::OpenGLES
 #endif
-         );
+                                  );
 }
 
 void Renderer::InsertVertices(
@@ -543,13 +542,65 @@ void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
       .Transformation = transformation,
   });
 
-  SpriteShader->SubmitUniforms(
-      {}, {
-              .s_texture = GetTexture(*sprite.Sheet.Texture),
-              .u_colorShift = colorShift,
-          });
+  const Texture& texture = GetTexture(*sprite.Sheet.Texture);
 
-  InsertQuad(dest, sprite.NormalizedBounds(), tints, ShouldFlip(sprite));
+  SpriteShader->SubmitUniforms({}, {
+                                       .s_texture = texture,
+                                       .u_colorShift = colorShift,
+                                   });
+
+  InsertQuad(dest, sprite.NormalizedBounds(), tints, ShouldFlip(texture));
+}
+
+void Renderer::DrawMaskedSprite(const PositionedMaskedSprite& spriteInfo,
+                                const MaskedSpriteConfig& config) {
+  SetState({
+      .ShaderProgram = *MaskedSpriteShader,
+      .Transformation = spriteInfo.Transformation,
+  });
+
+  const Texture& texture = GetTexture(spriteInfo.Texture);
+  const Texture& maskTexture = GetTexture(spriteInfo.MaskTexture);
+
+  MaskedSpriteShader->SubmitUniforms(
+      {
+          .u_maskTransformation = spriteInfo.MaskTransformation,
+      },
+      {
+          .s_texture = texture,
+          .s_mask = maskTexture,
+          .u_alpha = glm::vec2(config.Alpha, config.FadeRange),
+          .u_isInverted = config.IsInverted,
+          .u_isSameTexture = texture == maskTexture,
+      });
+
+  InsertVertices(spriteInfo.GetIndices(), spriteInfo.GetVertices(),
+                 ShouldFlip(texture));
+}
+
+void Renderer::DrawMaskedSpriteNoAlpha(
+    const PositionedMaskedSprite& spriteInfo,
+    const MaskedSpriteNoAlphaConfig& config) {
+  SetState({
+      .ShaderProgram = *MaskedSpriteNoAlphaShader,
+      .Transformation = spriteInfo.Transformation,
+  });
+
+  const Texture& texture = GetTexture(spriteInfo.Texture);
+
+  MaskedSpriteNoAlphaShader->SubmitUniforms(
+      {
+          .u_maskTransformation = spriteInfo.MaskTransformation,
+      },
+      {
+          .s_texture = texture,
+          .s_mask = GetTexture(spriteInfo.MaskTexture),
+          .u_alpha = glm::vec2(config.Alpha, config.FadeRange),
+          .u_isInverted = config.IsInverted,
+      });
+
+  InsertVertices(spriteInfo.GetIndices(), spriteInfo.GetVertices(),
+                 ShouldFlip(texture));
 }
 
 void Renderer::DrawPrimitives(
@@ -560,11 +611,12 @@ void Renderer::DrawPrimitives(
     const glm::mat4 spriteTransformation, const glm::mat4 maskTransformation,
     const bool inverted, const TopologyMode topology,
     const bool textureWrapRepeat) {
+  const Texture& texture = GetTexture(*sheet.Texture);
+
   ShaderProgramInterface* const shader = [&]() -> ShaderProgramInterface* {
     switch (shaderType) {
       case ShaderProgramType::Sprite:
-        SpriteShader->SubmitUniforms({},
-                                     {.s_texture = GetTexture(*sheet.Texture)});
+        SpriteShader->SubmitUniforms({}, {.s_texture = texture});
         return &*SpriteShader;
       default:
         break;
@@ -579,7 +631,7 @@ void Renderer::DrawPrimitives(
       .Transformation = spriteTransformation,
   });
 
-  InsertVertices(indices, vertices, ShouldFlip(sheet));
+  InsertVertices(indices, vertices, ShouldFlip(texture));
 }
 
 void Renderer::DrawVideoTexture(const Impacto::YUVFrame& frame,

@@ -1,10 +1,9 @@
 #pragma once
 
 #include "window.h"
-#include "textureref.h"
+#include "positionedsprite.h"
 
 #include "3d/scene.h"
-#include "../spritesheet.h"
 #include "../text/text.h"
 
 #include "video/yuvframe.h"
@@ -52,25 +51,7 @@ inline GraphicsApi ActualGraphicsApi;
 
 enum class StencilBufferMode { Off, Test, Write };
 
-enum class TopologyMode : uint8_t { Triangles, TriangleStrips };
-
 constexpr inline int MaxFramebuffers = 10;
-
-struct VertexBufferSprites {
-  glm::vec2 Position = {0.0f, 0.0f};
-  glm::vec2 UV = {0.0f, 0.0f};
-  glm::vec4 Tint = glm::vec4(1.0f);
-  glm::vec2 MaskUV = {0.0f, 0.0f};
-};
-
-struct PrimitiveData {
-  std::span<VertexBufferSprites> Vertices;
-  std::span<uint16_t> Indices;
-  template <typename T, typename U>
-  operator std::tuple<T, U>() {
-    return std::tuple<T, U>{Vertices, Indices};
-  }
-};
 
 enum class ShaderProgramType : int {
   AdditiveMaskedSprite,
@@ -246,96 +227,22 @@ class BaseRenderer {
         std::array<glm::vec4, 4>{tint, tint, tint, tint}, isInverted);
   }
 
-  virtual void DrawMaskedSpriteOverlay(
-      const Sprite& sprite, const Sprite& mask, const CornersQuad& spriteDest,
-      const CornersQuad& maskDest, int alpha, int fadeRange,
-      glm::mat4 spriteTransformation, glm::mat4 maskTransformation,
-      std::span<const glm::vec4, 4> tints, bool isInverted = false,
-      bool useMaskAlpha = true) = 0;
+  struct MaskedSpriteConfig {
+    int Alpha;
+    int FadeRange;
+    bool IsInverted = false;
+  };
+  virtual void DrawMaskedSprite(const PositionedMaskedSprite& spriteInfo,
+                                const MaskedSpriteConfig& config) = 0;
 
-  void DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
-                               const CornersQuad& spriteDest,
-                               const CornersQuad& maskDest, int alpha,
-                               int fadeRange, glm::mat4 spriteTransformation,
-                               glm::mat4 maskTransformation,
-                               glm::vec4 tint = glm::vec4(1.0f),
-                               bool isInverted = false,
-                               bool useMaskAlpha = true) {
-    DrawMaskedSpriteOverlay(sprite, mask, spriteDest, maskDest, alpha,
-                            fadeRange, spriteTransformation, maskTransformation,
-                            std::array<glm::vec4, 4>{tint, tint, tint, tint},
-                            isInverted, useMaskAlpha);
-  }
-
-  void DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
-                               const CornersQuad& spriteDest,
-                               const CornersQuad& maskDest, int alpha,
-                               int fadeRange, glm::mat4 spriteTransformation,
-                               glm::vec4 tint = glm::vec4(1.0f),
-                               bool isInverted = false,
-                               bool useMaskAlpha = true) {
-    DrawMaskedSpriteOverlay(sprite, mask, spriteDest, maskDest, alpha,
-                            fadeRange, spriteTransformation, glm::mat4(1.0f),
-                            std::array<glm::vec4, 4>{tint, tint, tint, tint},
-                            isInverted, useMaskAlpha);
-  }
-  void DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
-                               const CornersQuad& spriteDest, int alpha,
-                               int fadeRange,
-                               glm::mat4 spriteTransformation = glm::mat4(1.0f),
-                               glm::vec4 tint = glm::vec4(1.0f),
-                               bool isInverted = false,
-                               bool useMaskAlpha = true) {
-    DrawMaskedSpriteOverlay(sprite, mask, spriteDest, spriteDest, alpha,
-                            fadeRange, spriteTransformation, glm::mat4(1.0f),
-                            std::array<glm::vec4, 4>{tint, tint, tint, tint},
-                            isInverted, useMaskAlpha);
-  }
-  void DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
-                               int alpha, int fadeRange,
-                               glm::mat4 spriteTransformation,
-                               glm::mat4 maskTransformation,
-                               glm::vec4 tint = glm::vec4(1.0f),
-                               bool isInverted = false,
-                               bool useMaskAlpha = true) {
-    DrawMaskedSpriteOverlay(sprite, mask, sprite.ScaledBounds(),
-                            mask.ScaledBounds(), alpha, fadeRange,
-                            spriteTransformation, maskTransformation,
-                            std::array<glm::vec4, 4>{tint, tint, tint, tint},
-                            isInverted, useMaskAlpha);
-  }
-  void DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
-                               int alpha, int fadeRange,
-                               glm::mat4 spriteTransformation,
-                               glm::vec4 tint = glm::vec4(1.0f),
-                               bool isInverted = false,
-                               bool useMaskAlpha = true) {
-    DrawMaskedSpriteOverlay(sprite, mask, alpha, fadeRange,
-                            spriteTransformation, glm::mat4(1.0f), tint,
-                            isInverted, useMaskAlpha);
-  }
-  void DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
-                               int alpha, int fadeRange,
-                               glm::vec2 spriteTopLeft, glm::vec2 maskTopLeft,
-                               glm::vec4 tint = glm::vec4(1.0f),
-                               bool isInverted = false,
-                               bool useMaskAlpha = true) {
-    DrawMaskedSpriteOverlay(sprite, mask,
-                            sprite.ScaledBounds().Translate(spriteTopLeft),
-                            mask.ScaledBounds().Translate(maskTopLeft), alpha,
-                            fadeRange, glm::mat4(1.0f), glm::mat4(1.0f),
-                            std::array<glm::vec4, 4>{tint, tint, tint, tint},
-                            isInverted, useMaskAlpha);
-  }
-  void DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
-                               int alpha, int fadeRange,
-                               glm::vec2 spriteTopLeft,
-                               glm::vec4 tint = glm::vec4(1.0f),
-                               bool isInverted = false,
-                               bool useMaskAlpha = true) {
-    DrawMaskedSpriteOverlay(sprite, mask, alpha, fadeRange, spriteTopLeft,
-                            {0.0f, 0.0f}, tint, isInverted, useMaskAlpha);
-  }
+  struct MaskedSpriteNoAlphaConfig {
+    int Alpha;
+    int FadeRange;
+    bool IsInverted = false;
+  };
+  virtual void DrawMaskedSpriteNoAlpha(
+      const PositionedMaskedSprite& spriteInfo,
+      const MaskedSpriteNoAlphaConfig& config) = 0;
 
   virtual void DrawPrimitives(const SpriteSheet& sheet, const SpriteSheet* mask,
                               ShaderProgramType shaderType,

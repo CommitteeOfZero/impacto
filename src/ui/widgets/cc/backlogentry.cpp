@@ -17,18 +17,12 @@ void BacklogEntry::Render() {
     const glm::vec2 textPos = Page.Name.empty()
                                   ? Page.Glyphs[0].DestRect.GetPos()
                                   : Page.Name[0].DestRect.GetPos();
+    const glm::vec2 voiceIconPos =
+        textPos - glm::vec2(VoiceIcon.ScaledWidth(), 0.0f) + VoiceIconOffset;
 
-    RectF bounds =
-        RectF(textPos.x - VoiceIcon.ScaledWidth() + VoiceIconOffset.x,
-              textPos.y + VoiceIconOffset.y, VoiceIcon.ScaledWidth(),
-              VoiceIcon.ScaledHeight());
-    Sprite mask;
-    mask.Sheet = BacklogMaskSheet;
-    mask.Bounds = bounds;
-
-    Renderer->DrawMaskedSpriteOverlay(VoiceIcon, mask, bounds,
-                                      (int)(Tint.a * 255), 256, glm::mat4(1.0f),
-                                      Tint, false, false);
+    Renderer->DrawMaskedSpriteNoAlpha(
+        {VoiceIcon, BacklogMaskSheet, voiceIconPos, Tint},
+        {.Alpha = (int)(Tint.a * 255), .FadeRange = 256, .IsInverted = false});
   }
 
   Profile::Dialogue::DialogueFont->DrawProcessedText(
