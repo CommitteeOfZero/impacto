@@ -440,6 +440,7 @@ set(Impacto_Header
     src/effects/chlcc/bubbleseffect.h
     src/effects/chlcc/eyecatch.h
 
+    src/renderer/positionedsprite.h
     src/renderer/renderer.h
     src/renderer/textureref.h
     src/renderer/window.h
