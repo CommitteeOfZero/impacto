@@ -141,6 +141,10 @@ Renderer::Renderer() {
   }
 
   const auto flush = [this]() { Flush(); };
+  MaskedSpriteShader.emplace(vs_maskedsprite_shader, fs_maskedsprite_shader,
+                             flush);
+  MaskedSpriteNoAlphaShader.emplace(vs_maskedsprite_shader,
+                                    fs_maskedspritenoalpha_shader, flush);
   NV12FrameShader.emplace(vs_sprite_shader, fs_nv12frame_shader, flush);
   SpriteShader.emplace(vs_sprite_shader, fs_sprite_shader, flush);
   YUVFrameShader.emplace(vs_sprite_shader, fs_yuvframe_shader, flush);
