@@ -67,13 +67,12 @@ class Renderer final : public BaseRenderer {
                               std::span<const glm::vec4, 4> tints,
                               bool isInverted) override {}
 
-  void DrawMaskedSpriteOverlay(Sprite const& sprite, Sprite const& mask,
-                               CornersQuad const& spriteDest,
-                               CornersQuad const& maskDest, int alpha,
-                               int fadeRange, glm::mat4 spriteTransformation,
-                               glm::mat4 maskTransformation,
-                               std::span<const glm::vec4, 4> tints,
-                               bool isInverted, bool useMaskAlpha) override {}
+  void DrawMaskedSprite(const PositionedMaskedSprite& spriteInfo,
+                        const MaskedSpriteConfig& config) override;
+
+  void DrawMaskedSpriteNoAlpha(
+      const PositionedMaskedSprite& spriteInfo,
+      const MaskedSpriteNoAlphaConfig& config) override;
 
   void DrawPrimitives(SpriteSheet const& sheet, SpriteSheet const* mask,
                       ShaderProgramType shaderType,
@@ -147,10 +146,7 @@ class Renderer final : public BaseRenderer {
                flipVertically, maskUvs);
   }
 
-  bool ShouldFlip(const SpriteSheet& sheet) const;
-  bool ShouldFlip(const Sprite& sprite) const {
-    return ShouldFlip(sprite.Sheet);
-  }
+  bool ShouldFlip(const Texture& texture) const;
 
   // Only call bgfx::shutdown after all managed objects in this class have been
   // default-destructed
