@@ -2,10 +2,12 @@ $input v_texcoord0, v_color0
 
 #include <bgfx_shader.sh>
 
+#include "util.sh"
+
 SAMPLER2D(s_luma, 0);
 SAMPLER2D(s_cbCr, 1);
 
-uniform vec4 u_isAlpha;
+uniform vec4 u_isAlpha; // bool
 
 vec4 getRgba(vec2 texUv) {
     mat4 yuv_to_rgb_rec601 = mtxFromRows(
@@ -26,7 +28,7 @@ vec4 getRgba(vec2 texUv) {
 }
 
 void main() {
-    if (u_isAlpha.x != 0.0) {
+    if (toBool(u_isAlpha)) {
         gl_FragColor.rgb = getRgba(vec2(v_texcoord0.x, v_texcoord0.y / 2.0)).rgb;
         gl_FragColor.a = getRgba(vec2(v_texcoord0.x, v_texcoord0.y / 2.0 + 0.5)).a;
     } else {

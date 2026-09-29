@@ -1213,16 +1213,22 @@ if (IMPACTO_RENDERER_BGFX)
         src/renderer/bgfx/textureref.h
         src/renderer/bgfx/window.h
 
+        src/renderer/bgfx/shaders/vs_maskedsprite.h
         src/renderer/bgfx/shaders/vs_sprite.h
+        src/renderer/bgfx/shaders/fs_maskedsprite.h
+        src/renderer/bgfx/shaders/fs_maskedspritenoalpha.h
         src/renderer/bgfx/shaders/fs_nv12frame.h
         src/renderer/bgfx/shaders/fs_sprite.h
         src/renderer/bgfx/shaders/fs_yuvframe.h
     )
 
     set(Bgfx_Vertex_Shaders
+        src/shaders/bgfx/vs_maskedsprite.sc
         src/shaders/bgfx/vs_sprite.sc
     )
     set(Bgfx_Fragment_Shaders
+        src/shaders/bgfx/fs_maskedsprite.sc
+        src/shaders/bgfx/fs_maskedspritenoalpha.sc
         src/shaders/bgfx/fs_nv12frame.sc
         src/shaders/bgfx/fs_sprite.sc
         src/shaders/bgfx/fs_yuvframe.sc
