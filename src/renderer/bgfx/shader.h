@@ -12,7 +12,10 @@
 
 #include "../../log.h"
 
+#include "shaders/vs_maskedsprite.h"
 #include "shaders/vs_sprite.h"
+#include "shaders/fs_maskedsprite.h"
+#include "shaders/fs_maskedspritenoalpha.h"
 #include "shaders/fs_nv12frame.h"
 #include "shaders/fs_sprite.h"
 #include "shaders/fs_yuvframe.h"

@@ -184,6 +184,12 @@ class Renderer final : public BaseRenderer {
 
   bgfx::VertexLayout VertexBufferSpritesLayout;
 
+  std::optional<ShaderProgram<VertexShaderType::MaskedSprite,
+                              FragmentShaderType::MaskedSprite>>
+      MaskedSpriteShader;
+  std::optional<ShaderProgram<VertexShaderType::MaskedSprite,
+                              FragmentShaderType::MaskedSpriteNoAlpha>>
+      MaskedSpriteNoAlphaShader;
   std::optional<
       ShaderProgram<VertexShaderType::Sprite, FragmentShaderType::NV12Frame>>
       NV12FrameShader;
