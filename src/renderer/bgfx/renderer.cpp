@@ -298,6 +298,8 @@ RendererType Renderer::GetType() const {
 }
 
 void Renderer::BeginFrame() {
+  OrphanedTextures.clear();
+
   bgfx::reset(static_cast<uint32_t>(Window->WindowWidth),
               static_cast<uint32_t>(Window->WindowHeight), BGFX_RESET_VSYNC);
 
@@ -644,12 +646,12 @@ void Renderer::InsertQuad(const CornersQuad dest, const CornersQuad uvs,
   InsertVertices(indices, vertices, flipVertically);
 }
 
-void Renderer::AlterRefCount(Impacto::TextureRefInterface* texture,
+void Renderer::AlterRefCount(Impacto::TextureRefInterface* textureRef,
                              int difference) {
-  assert(texture != nullptr);
+  assert(textureRef != nullptr);
   if (difference == 0) return;
 
-  const auto textureIt = Textures.find(texture->GetTextureId());
+  const auto textureIt = Textures.find(textureRef->GetTextureId());
   assert(textureIt != Textures.end() &&
          "Tried to alter the refcount of an already deleted texture.");
   size_t& refCount = textureIt->second.second;
@@ -658,8 +660,11 @@ void Renderer::AlterRefCount(Impacto::TextureRefInterface* texture,
   refCount += difference;
 
   if (refCount == 0) {
+    std::unique_ptr<Texture>& textureObject = textureIt->second.first;
+    OrphanedTextures.emplace_back(std::move(textureObject));
+
     Textures.erase(textureIt);
-    delete texture;
+    delete textureRef;
   }
 }
 
