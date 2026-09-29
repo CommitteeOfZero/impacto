@@ -29,6 +29,11 @@ struct SamplerUniform {
 template <typename T>
 constexpr bgfx::UniformType::Enum GetUniformType();
 
+template <>
+constexpr bgfx::UniformType::Enum GetUniformType<glm::mat4>() {
+  return bgfx::UniformType::Mat4;
+}
+
 template <typename T>
   requires requires(T vec) {
     { glm::vec{vec} } -> std::same_as<T>;
@@ -53,6 +58,13 @@ template <typename T>
   }
 constexpr bgfx::UniformType::Enum GetUniformType() {
   return bgfx::UniformType::Sampler;
+}
+
+inline void SetUniform(bgfx::UniformHandle handle, glm::mat4 value) {
+  static_assert(GetUniformType<std::decay_t<decltype(value)>>() ==
+                bgfx::UniformType::Mat4);
+
+  bgfx::setUniform(handle, glm::value_ptr(value), 1);
 }
 
 inline void SetUniform(bgfx::UniformHandle handle, glm::vec4 value) {
@@ -91,9 +103,12 @@ inline void SetUniform(bgfx::UniformHandle handle,
 }
 
 enum class VertexShaderType {
+  MaskedSprite,
   Sprite,
 };
 enum class FragmentShaderType {
+  MaskedSprite,
+  MaskedSpriteNoAlpha,
   NV12Frame,
   Sprite,
   YUVFrame,
