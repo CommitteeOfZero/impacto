@@ -1,40 +1,55 @@
 #pragma once
 
 #include "window.h"
+#include "positionedsprite.h"
 
 #include "3d/scene.h"
-#include "../spritesheet.h"
 #include "../text/text.h"
-#include "yuvframe.h"
-#include "nv12frame.h"
-#include <span>
+
+#include "video/yuvframe.h"
+#include "video/nv12frame.h"
+
+enum class RendererType : int {
+#ifdef IMPACTO_RENDERER_OPENGL
+  OpenGL,
+#endif
+#ifdef IMPACTO_RENDERER_OPENGLES
+  OpenGLES,
+#endif
+#ifdef IMPACTO_RENDERER_VULKAN
+  Vulkan,
+#endif
+#ifdef IMPACTO_RENDERER_DIRECT3D11
+  Direct3D11,
+#endif
+#ifdef IMPACTO_RENDERER_DIRECT3D12
+  Direct3D12,
+#endif
+#ifdef IMPACTO_RENDERER_METAL
+  Metal,
+#endif
+};
+
+constexpr inline RendererType DefaultRendererType =
+#if defined(SDL_PLATFORM_LINUX)
+    RendererType::Vulkan;
+#elif defined(SDL_PLATFORM_WINDOWS)
+    RendererType::Direct3D12;
+#elif defined(SDL_PLATFORM_APPLE)
+    RendererType::Metal;
+#elif defined(SDL_PLATFORM_ANDROID) || defined(__SWITCH__)
+    RendererType::OpenGLES;
+#else
+    RendererType{};
+static_assert(false && "No default renderer supplied for target renderer");
+#endif
 
 namespace Impacto {
 
 inline GraphicsApi GraphicsApiHint;
 inline GraphicsApi ActualGraphicsApi;
 
-enum class StencilBufferMode { Off, Test, Write };
-
-enum class TopologyMode : uint8_t { Triangles, TriangleStrips };
-
 constexpr inline int MaxFramebuffers = 10;
-
-struct VertexBufferSprites {
-  glm::vec2 Position = {0.0f, 0.0f};
-  glm::vec2 UV = {0.0f, 0.0f};
-  glm::vec4 Tint = glm::vec4(1.0f);
-  glm::vec2 MaskUV = {0.0f, 0.0f};
-};
-
-struct PrimitiveData {
-  std::span<VertexBufferSprites> Vertices;
-  std::span<uint16_t> Indices;
-  template <typename T, typename U>
-  operator std::tuple<T, U>() {
-    return std::tuple<T, U>{Vertices, Indices};
-  }
-};
 
 enum class ShaderProgramType : int {
   AdditiveMaskedSprite,
@@ -58,7 +73,6 @@ enum class ShaderProgramType : int {
   Mosaic,
 };
 
-enum class RendererBlendMode { Normal, Additive, Premultiplied };
 enum class RendererBlurDirection { Horizontal, Vertical };
 
 class BaseRenderer {
@@ -66,6 +80,10 @@ class BaseRenderer {
   virtual ~BaseRenderer() = default;
   virtual void Init() = 0;
   virtual void Shutdown() = 0;
+
+  virtual void UpdateResolution() = 0;
+
+  virtual RendererType GetType() const = 0;
 
 #ifndef IMPACTO_DISABLE_IMGUI
   virtual void ImGuiBeginFrame() = 0;
@@ -82,11 +100,13 @@ class BaseRenderer {
       LookupTextureIdToTexture;
   inline static ankerl::unordered_dense::map<int, Io::AssetPathKey> SurfToId;
 
-  virtual uint32_t MapSpriteSheet(SpriteSheet const& sheet) = 0;
-  virtual bool LoadSurf(int surfId, int archiveId, int fileId) = 0;
+  [[nodiscard]] virtual PlainTextureRef MapSpriteSheet(
+      SpriteSheet const& sheet) = 0;
   virtual void UnloadSurf(int surfId) = 0;
-  virtual uint32_t SubmitTexture(TexFmt format, uint8_t* buffer, int width,
-                                 int height) = 0;
+
+  [[nodiscard]] virtual PlainTextureRef SubmitTexture(
+      TexFmt format, std::span<const uint8_t> buffer,
+      glm::vec<2, size_t> dimensions) = 0;
 
   std::vector<uint8_t> GetSpriteSheetImage(SpriteSheet const& sheet) {
     std::vector<uint8_t> result(
@@ -97,9 +117,17 @@ class BaseRenderer {
 
   virtual int GetSpriteSheetImage(SpriteSheet const& sheet,
                                   std::span<uint8_t> outBuffer) = 0;
-  virtual void FreeTexture(uint32_t id) = 0;
-  virtual YUVFrame* CreateYUVFrame(float width, float height) = 0;
-  virtual NV12Frame* CreateNV12Frame(float width, float height) = 0;
+
+  struct StateConfig {
+    enum class BlendModeType : uint8_t { Normal, Additive, Premultiplied };
+    enum class StencilModeType : uint8_t { Off, Test, Write };
+
+    StateConfig() {}
+
+    BlendModeType BlendMode = BlendModeType::Normal;
+    StencilModeType StencilMode = StencilModeType::Off;
+    std::optional<RectF> ScissorRect = std::nullopt;
+  };
 
   virtual void DrawSprite(const Sprite& sprite, const CornersQuad& dest,
                           glm::mat4 transformation,
@@ -208,96 +236,23 @@ class BaseRenderer {
         std::array<glm::vec4, 4>{tint, tint, tint, tint}, isInverted);
   }
 
-  virtual void DrawMaskedSpriteOverlay(
-      const Sprite& sprite, const Sprite& mask, const CornersQuad& spriteDest,
-      const CornersQuad& maskDest, int alpha, int fadeRange,
-      glm::mat4 spriteTransformation, glm::mat4 maskTransformation,
-      std::span<const glm::vec4, 4> tints, bool isInverted = false,
-      bool useMaskAlpha = true) = 0;
+  struct MaskedSpriteConfig {
+    int Alpha;
+    int FadeRange;
+    bool IsInverted = false;
+  };
+  virtual void DrawMaskedSprite(const PositionedMaskedSprite& spriteInfo,
+                                const MaskedSpriteConfig& config,
+                                const StateConfig& stateConfig = {}) = 0;
 
-  void DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
-                               const CornersQuad& spriteDest,
-                               const CornersQuad& maskDest, int alpha,
-                               int fadeRange, glm::mat4 spriteTransformation,
-                               glm::mat4 maskTransformation,
-                               glm::vec4 tint = glm::vec4(1.0f),
-                               bool isInverted = false,
-                               bool useMaskAlpha = true) {
-    DrawMaskedSpriteOverlay(sprite, mask, spriteDest, maskDest, alpha,
-                            fadeRange, spriteTransformation, maskTransformation,
-                            std::array<glm::vec4, 4>{tint, tint, tint, tint},
-                            isInverted, useMaskAlpha);
-  }
-
-  void DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
-                               const CornersQuad& spriteDest,
-                               const CornersQuad& maskDest, int alpha,
-                               int fadeRange, glm::mat4 spriteTransformation,
-                               glm::vec4 tint = glm::vec4(1.0f),
-                               bool isInverted = false,
-                               bool useMaskAlpha = true) {
-    DrawMaskedSpriteOverlay(sprite, mask, spriteDest, maskDest, alpha,
-                            fadeRange, spriteTransformation, glm::mat4(1.0f),
-                            std::array<glm::vec4, 4>{tint, tint, tint, tint},
-                            isInverted, useMaskAlpha);
-  }
-  void DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
-                               const CornersQuad& spriteDest, int alpha,
-                               int fadeRange,
-                               glm::mat4 spriteTransformation = glm::mat4(1.0f),
-                               glm::vec4 tint = glm::vec4(1.0f),
-                               bool isInverted = false,
-                               bool useMaskAlpha = true) {
-    DrawMaskedSpriteOverlay(sprite, mask, spriteDest, spriteDest, alpha,
-                            fadeRange, spriteTransformation, glm::mat4(1.0f),
-                            std::array<glm::vec4, 4>{tint, tint, tint, tint},
-                            isInverted, useMaskAlpha);
-  }
-  void DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
-                               int alpha, int fadeRange,
-                               glm::mat4 spriteTransformation,
-                               glm::mat4 maskTransformation,
-                               glm::vec4 tint = glm::vec4(1.0f),
-                               bool isInverted = false,
-                               bool useMaskAlpha = true) {
-    DrawMaskedSpriteOverlay(sprite, mask, sprite.ScaledBounds(),
-                            mask.ScaledBounds(), alpha, fadeRange,
-                            spriteTransformation, maskTransformation,
-                            std::array<glm::vec4, 4>{tint, tint, tint, tint},
-                            isInverted, useMaskAlpha);
-  }
-  void DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
-                               int alpha, int fadeRange,
-                               glm::mat4 spriteTransformation,
-                               glm::vec4 tint = glm::vec4(1.0f),
-                               bool isInverted = false,
-                               bool useMaskAlpha = true) {
-    DrawMaskedSpriteOverlay(sprite, mask, alpha, fadeRange,
-                            spriteTransformation, glm::mat4(1.0f), tint,
-                            isInverted, useMaskAlpha);
-  }
-  void DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
-                               int alpha, int fadeRange,
-                               glm::vec2 spriteTopLeft, glm::vec2 maskTopLeft,
-                               glm::vec4 tint = glm::vec4(1.0f),
-                               bool isInverted = false,
-                               bool useMaskAlpha = true) {
-    DrawMaskedSpriteOverlay(sprite, mask,
-                            sprite.ScaledBounds().Translate(spriteTopLeft),
-                            mask.ScaledBounds().Translate(maskTopLeft), alpha,
-                            fadeRange, glm::mat4(1.0f), glm::mat4(1.0f),
-                            std::array<glm::vec4, 4>{tint, tint, tint, tint},
-                            isInverted, useMaskAlpha);
-  }
-  void DrawMaskedSpriteOverlay(const Sprite& sprite, const Sprite& mask,
-                               int alpha, int fadeRange,
-                               glm::vec2 spriteTopLeft,
-                               glm::vec4 tint = glm::vec4(1.0f),
-                               bool isInverted = false,
-                               bool useMaskAlpha = true) {
-    DrawMaskedSpriteOverlay(sprite, mask, alpha, fadeRange, spriteTopLeft,
-                            {0.0f, 0.0f}, tint, isInverted, useMaskAlpha);
-  }
+  struct MaskedSpriteNoAlphaConfig {
+    int Alpha;
+    int FadeRange;
+    bool IsInverted = false;
+  };
+  virtual void DrawMaskedSpriteNoAlpha(const PositionedMaskedSprite& spriteInfo,
+                                       const MaskedSpriteNoAlphaConfig& config,
+                                       const StateConfig& stateConfig = {}) = 0;
 
   virtual void DrawPrimitives(const SpriteSheet& sheet, const SpriteSheet* mask,
                               ShaderProgramType shaderType,
@@ -309,13 +264,11 @@ class BaseRenderer {
                               TopologyMode topology = TopologyMode::Triangles,
                               bool textureWrapRepeat = false) = 0;
 
-  virtual void DrawPrimitives(const SpriteSheet& sheet,
-                              ShaderProgramType shaderType,
-                              std::span<const VertexBufferSprites> vertices,
-                              std::span<const uint16_t> indices,
-                              glm::mat4 transformation = glm::mat4(1.0f),
-                              bool inverted = false,
-                              bool textureWrapRepeat = false) {
+  void DrawPrimitives(const SpriteSheet& sheet, ShaderProgramType shaderType,
+                      std::span<const VertexBufferSprites> vertices,
+                      std::span<const uint16_t> indices,
+                      glm::mat4 transformation = glm::mat4(1.0f),
+                      bool inverted = false, bool textureWrapRepeat = false) {
     DrawPrimitives(sheet, nullptr, shaderType, vertices, indices,
                    transformation, glm::mat4(1.0f), inverted,
                    TopologyMode::Triangles, textureWrapRepeat);
@@ -393,16 +346,16 @@ class BaseRenderer {
   virtual void CaptureScreencap(Sprite& sprite) = 0;
 
   virtual void SetFramebuffer(size_t buffer) = 0;
-  virtual int GetFramebufferTexture(size_t buffer) = 0;
+  virtual PlainTextureRef GetFramebufferTexture(size_t buffer) = 0;
 
   virtual void EnableScissor() = 0;
   virtual void SetScissorRect(RectF const& rect) = 0;
   virtual void DisableScissor() = 0;
 
-  virtual void SetStencilMode(StencilBufferMode mode) = 0;
+  virtual void SetStencilMode(StateConfig::StencilModeType mode) = 0;
   virtual void ClearStencilBuffer() = 0;
 
-  virtual void SetBlendMode(RendererBlendMode blendMode) = 0;
+  virtual void SetBlendMode(StateConfig::BlendModeType blendMode) = 0;
 
   virtual void Clear(glm::vec4 color) = 0;
 
@@ -411,6 +364,11 @@ class BaseRenderer {
 
  protected:
   virtual void Flush() = 0;
+
+  [[nodiscard]] virtual MutableTextureRef DeclareMutableTexture(
+      TexFmt format, glm::vec<2, size_t> dimensions) = 0;
+
+  virtual void AlterRefCount(TextureRefInterface* texture, int difference) = 0;
 
   static void QuadSetUV(CornersQuad spriteBounds, glm::vec2 designDimensions,
                         glm::vec2* uvs, size_t stride);
@@ -430,6 +388,13 @@ class BaseRenderer {
   }
 
   Sprite RectSprite;
+
+  template <typename T>
+    requires TextureRefInterfaceType<T>
+  friend class TextureRef;
+
+  friend class YUVFrame;
+  friend class NV12Frame;
 };
 
 inline void InsertQuad(std::span<VertexBufferSprites, 4> vertices,
@@ -461,8 +426,8 @@ inline void InsertQuad(std::span<VertexBufferSprites, 4> vertices,
   };
 }
 
-inline BaseRenderer* Renderer;
-inline BaseWindow* Window;
+inline std::unique_ptr<BaseRenderer> Renderer;
+inline std::unique_ptr<BaseWindow> Window;
 
 void CreateRenderer();
 

@@ -98,6 +98,8 @@ TOML11_DEFINE_CONVERSION_NON_INTRUSIVE(
   Impacto::UserConfig::GameConfig,
   ResolutionWidth,
   ResolutionHeight,
+  WindowWidth,
+  WindowHeight,
   PatchProfile,
   UsePatch,
   Display
@@ -105,8 +107,8 @@ TOML11_DEFINE_CONVERSION_NON_INTRUSIVE(
 
 TOML11_DEFINE_CONVERSION_NON_INTRUSIVE(
   Impacto::UserConfig::Config,
-  ResolutionWidth,
-  ResolutionHeight,
+  WindowWidth,
+  WindowHeight,
   LogFile,
   LogLvl,
   LogChannels,

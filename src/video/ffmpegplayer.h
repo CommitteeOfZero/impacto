@@ -12,7 +12,7 @@
 #include "videoplayer.h"
 #include "ffmpegstream.h"
 #include "../io/stream.h"
-#include "../renderer/yuvframe.h"
+#include "../renderer/video/yuvframe.h"
 #include "../audio/ffmpegaudioplayer.h"
 #include "../subtitle/subtitlesystem.h"
 
@@ -96,7 +96,9 @@ class FFmpegPlayer : public VideoPlayer {
 
   bool IsInit = false;
 
-  std::variant<std::monostate, YUVFrame*, NV12Frame*> VideoTexture;
+  std::variant<std::monostate, std::unique_ptr<YUVFrame>,
+               std::unique_ptr<NV12Frame>>
+      VideoTexture;
 
   bool IsAlpha = false;
   bool Looping = false;

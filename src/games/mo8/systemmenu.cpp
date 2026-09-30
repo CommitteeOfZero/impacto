@@ -36,14 +36,11 @@ SystemMenu::SystemMenu() {
 
   auto onClick = [this](auto* btn) { return MenuButtonOnClick(btn); };
 
-  Sprite nullSprite = Sprite();
-  nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
-
   for (int i = 0; i < MenuEntriesNum; i++) {
-    Button* menuButton =
-        new Button(i, MenuEntriesSprites[i], MenuEntriesHSprites[i], nullSprite,
-                   glm::vec2(*MenuEntriesX,
-                             *MenuEntriesFirstY + (*MenuEntriesYPadding * i)));
+    Button* menuButton = new Button(
+        i, MenuEntriesSprites[i], MenuEntriesHSprites[i], std::nullopt,
+        glm::vec2(*MenuEntriesX,
+                  *MenuEntriesFirstY + (*MenuEntriesYPadding * i)));
     menuButton->LockedSprite = MenuEntriesLSprites[i];
 
     menuButton->OnClickHandler = onClick;

@@ -11,7 +11,6 @@ namespace CHLCC {
 class IntroSequence {
  public:
   IntroSequence();
-  ~IntroSequence();
 
   void Update(float dt);
   void Reset();

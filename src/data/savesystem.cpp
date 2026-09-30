@@ -31,7 +31,7 @@ class SaveFileLoader : public Loadable<SaveFileLoader, SaveError> {
   void MainThreadOnLoad(SaveError result) {
     // Texture submission has to happen on the main thread
     for (QueuedTexture& texture : QueuedTextures) {
-      texture.Id.get() = texture.Tex.Submit();
+      texture.Reference = texture.Tex.Submit();
     }
 
     QueuedTextures.clear();

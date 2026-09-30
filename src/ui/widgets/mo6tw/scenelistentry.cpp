@@ -23,7 +23,7 @@ SceneListEntry::SceneListEntry(int id, Widgets::Label* number,
 }
 
 void SceneListEntry::Render() {
-  if (HasFocus) Renderer->DrawSprite(HighlightSprite, Bounds, Tint);
+  if (HasFocus) Renderer->DrawSprite(*HighlightSprite, Bounds, Tint);
   Number->Render();
   if (IsLocked) {
     LockedText->Render();

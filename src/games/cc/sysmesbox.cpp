@@ -30,9 +30,6 @@ void SysMesBox::Show() {
   MessageItems = std::make_unique<Widgets::Group>(this);
   ChoiceItems = std::make_unique<Widgets::Group>(this);
 
-  Sprite nullSprite = Sprite();
-  nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
-
   auto onClick = [this](auto* btn) { return ChoiceItemOnClick(btn); };
 
   float textBeginY = (TextMiddleY - TextMarginY * MessageCount) / 2.0f;
@@ -54,7 +51,7 @@ void SysMesBox::Show() {
 
   if (ChoiceCount == 1) {
     WidgetOK =
-        new Button(0, ButtonOK, ButtonOKHighlighted, nullSprite,
+        new Button(0, ButtonOK, ButtonOKHighlighted, std::nullopt,
                    glm::vec2(ButtonOKCenterPosX - (ButtonOK.Bounds.Width / 2),
                              ButtonOKCenterPosY - (ButtonOK.Bounds.Height / 2)),
                    ButtonOkHoverBounds);
@@ -63,14 +60,14 @@ void SysMesBox::Show() {
 
   } else if (ChoiceCount == 2) {
     WidgetYes = new Button(
-        0, ButtonYes, ButtonYesHighlighted, nullSprite,
+        0, ButtonYes, ButtonYesHighlighted, std::nullopt,
         glm::vec2(ButtonYesCenterPosX - (ButtonYes.Bounds.Width / 2),
                   ButtonYesCenterPosY - (ButtonYes.Bounds.Height / 2)),
         ButtonYesHoverBounds);
     WidgetYes->OnClickHandler = onClick;
     ChoiceItems->Add(WidgetYes, FDIR_RIGHT);
     WidgetNo =
-        new Button(1, ButtonNo, ButtonNoHighlighted, nullSprite,
+        new Button(1, ButtonNo, ButtonNoHighlighted, std::nullopt,
                    glm::vec2(ButtonNoCenterPosX - (ButtonNo.Bounds.Width / 2),
                              ButtonNoCenterPosY - (ButtonNo.Bounds.Height / 2)),
                    ButtonNoHoverBounds);
@@ -145,12 +142,12 @@ void SysMesBox::Update(float dt) {
                    ButtonYesAnimationProgressEnd);
       float scaleYes =
           ButtonScaleMax - (offsetProgress * ButtonYesNoScaleMultiplier);
-      WidgetYes->NormalSprite.BaseScale = glm::vec2(scaleYes);
-      WidgetYes->FocusedSprite.BaseScale = glm::vec2(scaleYes);
+      WidgetYes->NormalSprite->BaseScale = glm::vec2(scaleYes);
+      WidgetYes->FocusedSprite->BaseScale = glm::vec2(scaleYes);
       WidgetYes->MoveTo(glm::vec2(
-          ButtonYesCenterPosX - (WidgetYes->NormalSprite.ScaledWidth() * 0.5f),
+          ButtonYesCenterPosX - (WidgetYes->NormalSprite->ScaledWidth() * 0.5f),
           ButtonYesCenterPosY -
-              (WidgetYes->NormalSprite.ScaledHeight() * 0.5f)));
+              (WidgetYes->NormalSprite->ScaledHeight() * 0.5f)));
       WidgetYes->Tint =
           glm::vec4(1.0f, 1.0f, 1.0f, offsetProgress / ButtonYesNoAlphaDivider);
 
@@ -159,12 +156,12 @@ void SysMesBox::Update(float dt) {
         offsetProgress = animationProgress - ButtonNoAnimationProgressOffset;
         float scaleNo =
             ButtonScaleMax - (offsetProgress * ButtonYesNoScaleMultiplier);
-        WidgetNo->NormalSprite.BaseScale = glm::vec2(scaleNo);
-        WidgetNo->FocusedSprite.BaseScale = glm::vec2(scaleNo);
+        WidgetNo->NormalSprite->BaseScale = glm::vec2(scaleNo);
+        WidgetNo->FocusedSprite->BaseScale = glm::vec2(scaleNo);
         WidgetNo->MoveTo(glm::vec2(
-            ButtonNoCenterPosX - (WidgetNo->NormalSprite.ScaledWidth() * 0.5f),
+            ButtonNoCenterPosX - (WidgetNo->NormalSprite->ScaledWidth() * 0.5f),
             ButtonNoCenterPosY -
-                (WidgetNo->NormalSprite.ScaledHeight() * 0.5f)));
+                (WidgetNo->NormalSprite->ScaledHeight() * 0.5f)));
         WidgetNo->Tint = glm::vec4(1.0f, 1.0f, 1.0f,
                                    offsetProgress / ButtonYesNoAlphaDivider);
       } else {
@@ -175,11 +172,12 @@ void SysMesBox::Update(float dt) {
           (animationProgress - AnimationProgressWidgetsStartOffset);
       float scaleOk =
           ButtonScaleMax - (offsetProgress * ButtonOKScaleMultiplier);
-      WidgetOK->NormalSprite.BaseScale = glm::vec2(scaleOk);
-      WidgetOK->FocusedSprite.BaseScale = glm::vec2(scaleOk);
+      WidgetOK->NormalSprite->BaseScale = glm::vec2(scaleOk);
+      WidgetOK->FocusedSprite->BaseScale = glm::vec2(scaleOk);
       WidgetOK->MoveTo(glm::vec2(
-          ButtonOKCenterPosX - (WidgetOK->NormalSprite.ScaledWidth() * 0.5f),
-          ButtonOKCenterPosY - (WidgetOK->NormalSprite.ScaledHeight() * 0.5f)));
+          ButtonOKCenterPosX - (WidgetOK->NormalSprite->ScaledWidth() * 0.5f),
+          ButtonOKCenterPosY -
+              (WidgetOK->NormalSprite->ScaledHeight() * 0.5f)));
       WidgetOK->Tint =
           glm::vec4(1.0f, 1.0f, 1.0f, WidgetsAlphaMultiplier * offsetProgress);
     }

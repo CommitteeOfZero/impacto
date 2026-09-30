@@ -8,12 +8,6 @@
 
 namespace Impacto {
 
-enum class RendererType : int {
-  OpenGL,
-  Vulkan,
-  DirectX9,
-};
-
 enum class VideoPlayerType : int {
   None,
   FFmpeg,
@@ -41,13 +35,16 @@ namespace UserConfig {
 struct GameConfig {
   std::optional<int> ResolutionWidth;
   std::optional<int> ResolutionHeight;
+  std::optional<int> WindowWidth;
+  std::optional<int> WindowHeight;
+
   std::string PatchProfile;
   bool UsePatch;
   DisplayMode Display = GetDefaultDispMode();
 };
 struct Config {
-  int ResolutionWidth = 1280;
-  int ResolutionHeight = 720;
+  int WindowWidth = 1280;
+  int WindowHeight = 720;
 
   std::string LogFile = GetDefaultLogFile();
   LogLevel LogLvl = LogLevel::Warning;
@@ -56,7 +53,7 @@ struct Config {
   bool LoggingToFile = GetDefaultLogToFile();
 };
 struct AdvancedConfig {
-  RendererType ActiveRenderer = RendererType::OpenGL;
+  RendererType ActiveRenderer = DefaultRendererType;
   VideoPlayerType VideoPlayer = VideoPlayerType::FFmpeg;
   AudioBackendType ActiveAudioBackend = AudioBackendType::OpenAL;
   SubtitleAssBackendType SubtitleAssBackend = SubtitleAssBackendType::LibAss;

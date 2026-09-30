@@ -20,7 +20,6 @@ IntroSequence::IntroSequence() {
                                          static_cast<int>(viewport.Height), 0);
   SpriteSheet fallingStarsMaskSheet(viewport.Width, viewport.Height);
   fallingStarsMaskSheet.Texture = fallingStarsMaskTexture.Submit();
-  fallingStarsMaskSheet.IsScreenCap = true;
   FallingStarsMask =
       Sprite(fallingStarsMaskSheet, 0, 0, viewport.Width, viewport.Height);
 
@@ -96,10 +95,6 @@ IntroSequence::IntroSequence() {
 
   CopyrightAnimation.SetDuration(IntroCopyrightAnimationDuration);
   IntroAnimation.AddAnimation(CopyrightAnimation);
-}
-
-IntroSequence::~IntroSequence() {
-  Renderer->FreeTexture(FallingStarsMask.Sheet.Texture);
 }
 
 void IntroSequence::Reset() { IntroAnimation.Reset(); }
@@ -185,7 +180,8 @@ void IntroSequence::DrawBackground() const {
   glm::vec2 zoomFactor =
       designDimensions / 16.0f + designDimensions / 16.0f * 7.0f * progress;
 
-  Renderer->SetBlendMode(RendererBlendMode::Additive);
+  using BlendModeType = BaseRenderer::StateConfig::BlendModeType;
+  Renderer->SetBlendMode(BlendModeType::Additive);
 
   for (size_t i = 0; i < IntroHighlightCount; i++) {
     constexpr float scale = 1.5f;
@@ -201,7 +197,7 @@ void IntroSequence::DrawBackground() const {
     Renderer->DrawSprite(sprite, dest, glm::vec4(1.0f));
   }
 
-  Renderer->SetBlendMode(RendererBlendMode::Normal);
+  Renderer->SetBlendMode(BlendModeType::Normal);
 
   Renderer->CaptureScreencap(ShaderScreencapture.BgSprite);
 
@@ -244,7 +240,8 @@ void IntroSequence::DrawBouncingStar() const {
 }
 
 void IntroSequence::DrawExplodingStars() const {
-  Renderer->SetBlendMode(RendererBlendMode::Additive);
+  using BlendModeType = BaseRenderer::StateConfig::BlendModeType;
+  Renderer->SetBlendMode(BlendModeType::Additive);
 
   glm::vec2 origin = glm::vec2(DesignWidth, DesignHeight) / 2.0f -
                      IntroExplodingStarSprite.Bounds.GetSize() / 2.0f;
@@ -272,7 +269,7 @@ void IntroSequence::DrawExplodingStars() const {
                          {1.0f, 1.0f, 1.0f, opacity});
   }
 
-  Renderer->SetBlendMode(RendererBlendMode::Normal);
+  Renderer->SetBlendMode(BlendModeType::Normal);
 }
 
 void IntroSequence::DrawFallingStars() const {

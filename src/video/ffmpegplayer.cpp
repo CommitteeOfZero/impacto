@@ -693,7 +693,7 @@ void FFmpegPlayer::Stop() {
         [this](auto& videoText) {
           if constexpr (!std::is_same_v<std::decay_t<decltype(videoText)>,
                                         std::monostate>) {
-            videoText->Release();
+            videoText = nullptr;
             VideoTexture = std::monostate{};
             SwVideoPixelFormat = AV_PIX_FMT_NONE;
           }
@@ -775,32 +775,37 @@ void FFmpegPlayer::Update(float dt) {
       SwVideoPixelFormat = frame->Frame.pixelFormat();
       std::visit(
           [this, &frame](auto& videoText) {
-            if constexpr (!std::is_same_v<std::decay_t<decltype(videoText)>,
-                                          std::monostate>) {
-              videoText->Release();
-            }
-
             if (frame->Frame.pixelFormat() == AV_PIX_FMT_YUV420P) {
-              VideoTexture = Renderer->CreateYUVFrame(
-                  (float)VideoStream->CodecContext.width(),
-                  (float)VideoStream->CodecContext.height());
+              VideoTexture = std::make_unique<YUVFrame>(glm::vec<2, size_t>{
+                  static_cast<size_t>(VideoStream->CodecContext.width()),
+                  static_cast<size_t>(VideoStream->CodecContext.height())});
             } else if (frame->Frame.pixelFormat() == AV_PIX_FMT_NV12) {
-              VideoTexture = Renderer->CreateNV12Frame(
-                  (float)VideoStream->CodecContext.width(),
-                  (float)VideoStream->CodecContext.height());
+              VideoTexture = std::make_unique<NV12Frame>(glm::vec<2, size_t>{
+                  static_cast<size_t>(VideoStream->CodecContext.width()),
+                  static_cast<size_t>(VideoStream->CodecContext.height())});
             }
           },
           VideoTexture);
     }
 
     if (frame->Frame.pixelFormat() == AV_PIX_FMT_NV12) {
-      auto& nv12Frame = std::get<NV12Frame*>(VideoTexture);
-      nv12Frame->Submit(frame->Frame.data(0), frame->Frame.raw()->linesize[0],
-                        frame->Frame.data(1), frame->Frame.raw()->linesize[1]);
+      auto& nv12Frame = std::get<std::unique_ptr<NV12Frame>>(VideoTexture);
+      nv12Frame->Submit(std::span(frame->Frame.data(0),
+                                  frame->Frame.raw()->linesize[0] *
+                                      VideoStream->CodecContext.height()),
+                        frame->Frame.raw()->linesize[0],
+                        std::span(frame->Frame.data(1),
+                                  frame->Frame.raw()->linesize[1] *
+                                      VideoStream->CodecContext.height() / 2),
+                        frame->Frame.raw()->linesize[1]);
     } else if (frame->Frame.pixelFormat() == AV_PIX_FMT_YUV420P) {
-      auto& yuvFrame = std::get<YUVFrame*>(VideoTexture);
-      yuvFrame->Submit(frame->Frame.data(0), frame->Frame.data(1),
-                       frame->Frame.data(2));
+      auto& yuvFrame = std::get<std::unique_ptr<YUVFrame>>(VideoTexture);
+      const size_t frameSize =
+          static_cast<size_t>(VideoStream->CodecContext.width()) *
+          static_cast<size_t>(VideoStream->CodecContext.height());
+      yuvFrame->Submit(std::span(frame->Frame.data(0), frameSize),
+                       std::span(frame->Frame.data(1), frameSize / 4),
+                       std::span(frame->Frame.data(2), frameSize / 4));
     } else {
       ImpLog(LogLevel::Warning, LogChannel::Video,
              "Unsupported frame pixel format, video will not display!\n");

@@ -40,16 +40,16 @@ static ankerl::unordered_dense::set<std::string, string_hash, std::equal_to<>>
 
 static void RunLuaScriptBuffer(std::span<char const> buffer) {
   if (luaL_loadbuffer(LuaState, buffer.data(), buffer.size(), buffer.data())) {
-    ImpLog(LogLevel::Fatal, LogChannel::Profile,
-           "Lua profile compile error: {:s}\n", lua_tostring(LuaState, -1));
+    const std::string errorMsg = fmt::format(
+        "Lua profile compile error: {:s}\n", lua_tostring(LuaState, -1));
     lua_close(LuaState);
-    exit(1);
+    Panic(LogChannel::Profile, "{:s}", errorMsg);
   }
   if (lua_pcall(LuaState, 0, 0, 0)) {
-    ImpLog(LogLevel::Fatal, LogChannel::Profile,
-           "Lua profile execute error: {:s}\n", lua_tostring(LuaState, -1));
+    const std::string errorMsg = fmt::format(
+        "Lua profile execute error: {:s}\n", lua_tostring(LuaState, -1));
     lua_close(LuaState);
-    exit(1);
+    Panic(LogChannel::Profile, "{:s}", errorMsg);
   }
 }
 
@@ -57,9 +57,10 @@ static void RunLuaScript(const char* path) {
   ImpLog(LogLevel::Info, LogChannel::Profile, "Executing lua script {:s}\n",
          path);
   if (luaL_dofile(LuaState, path)) {
-    ImpLog(LogLevel::Fatal, LogChannel::Profile,
-           "Lua profile compile error: {:s}\n", lua_tostring(LuaState, -1));
-    exit(1);
+    const std::string errorMsg = fmt::format(
+        "Lua profile compile error: {:s}\n", lua_tostring(LuaState, -1));
+    lua_close(LuaState);
+    Panic(LogChannel::Profile, "{:s}", errorMsg);
   }
   ImpLog(LogLevel::Info, LogChannel::Profile, "Lua profile execute success\n");
 }
@@ -256,10 +257,7 @@ void Configure() {
       return;
     }
 
-    ImpLog(LogLevel::Fatal, LogChannel::Profile, "Failed to find {}.\n",
-           platformPath);
-
-    throw std::runtime_error(fmt::format("Failed to find {}", fileName));
+    Panic(LogChannel::Profile, "Failed to find {}.\n", platformPath);
   };
 
   setupScriptPath("basepaths.lua", BasePathsPath);
@@ -280,9 +278,8 @@ void Configure() {
 void ConfigureGameProfile() {
   auto activePatch = UserConfig::GetPatchProfile();
   if (BasePaths::RootPatchesDir.empty() && activePatch) {
-    ImpLog(LogLevel::Fatal, LogChannel::Profile,
-           "Patch is enabled but no patch directory is specified\n");
-    exit(1);
+    Panic(LogChannel::Profile,
+          "Patch is enabled but no patch directory is specified\n");
   }
   auto const& activeGameDef = GameDefinitions.at(UserConfig::GetActiveGame());
 
@@ -291,12 +288,11 @@ void ConfigureGameProfile() {
   if (activePatch) {
     auto patchProfilePathItr = activeGameDef.Patch.find(*activePatch);
     if (patchProfilePathItr == activeGameDef.Patch.end()) {
-      ImpLog(
-          LogLevel::Fatal, LogChannel::Profile,
+      Panic(
+          LogChannel::Profile,
           "Patch is enabled but patch.lua path is missing for patch profile {} "
           "in game {} definition\n",
           *activePatch, UserConfig::GetActiveGame());
-      exit(1);
     }
     RunLuaScript(patchProfilePathItr->second.c_str());
   }

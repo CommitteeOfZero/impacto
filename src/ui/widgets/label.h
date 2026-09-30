@@ -23,7 +23,7 @@ class Label final : public Widget {
  public:
   Label();
 
-  Label(Sprite const& label, glm::vec2 pos);
+  Label(std::optional<Sprite> label, glm::vec2 pos);
 
   Label(std::vector<ProcessedTextGlyph>&& str, glm::vec2 pos,
         RendererOutlineMode outlineMode) {
@@ -51,7 +51,7 @@ class Label final : public Widget {
   using Widget::Move;
   void Move(glm::vec2 relativePosition) override;
 
-  void SetSprite(Sprite const& label);
+  void SetSprite(std::optional<Sprite> label);
 
   void SetText(std::vector<ProcessedTextGlyph>&& str, glm::vec2 pos,
                RendererOutlineMode outlineMode,
@@ -88,7 +88,7 @@ class Label final : public Widget {
 
  protected:
   bool IsText;
-  Sprite LabelSprite;
+  std::optional<Sprite> LabelSprite;
   float FontSize;
   std::vector<ProcessedTextGlyph> Text;
   float TextWidth = 0.0f;

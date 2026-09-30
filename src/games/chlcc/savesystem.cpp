@@ -526,12 +526,14 @@ SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
   WorkingSaveThumbnail.Bounds =
       RectF(0.0f, 0.0f, viewport.Width, viewport.Height);
 
-  QueuedTexture txt{
-      .Id = std::ref(WorkingSaveThumbnail.Sheet.Texture),
-  };
-  txt.Tex.LoadSolidColor((int)WorkingSaveThumbnail.Bounds.Width,
-                         (int)WorkingSaveThumbnail.Bounds.Height, 0x000000);
-  textures.push_back(txt);
+  {
+    QueuedTexture txt{
+        .Reference = WorkingSaveThumbnail.Sheet.Texture,
+    };
+    txt.Tex.LoadSolidColor((int)WorkingSaveThumbnail.Bounds.Width,
+                           (int)WorkingSaveThumbnail.Bounds.Height, 0x000000);
+    textures.emplace_back(std::move(txt));
+  }
 
   stream->Seek(0x0, SEEK_SET);
   const uint8_t readFileSystemChecksumSum = Io::ReadU8(stream);
@@ -650,7 +652,7 @@ SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
       }
 
       QueuedTexture texture{
-          .Id = std::ref(entry->SaveThumbnail.Sheet.Texture),
+          .Reference = entry->SaveThumbnail.Sheet.Texture,
       };
       texture.Tex.Init(TexFmt_RGB, SaveThumbnailWidth, SaveThumbnailHeight);
 
@@ -665,7 +667,7 @@ SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
 
       texture.Tex.Buffer.assign(entry->ThumbnailData.begin(),
                                 entry->ThumbnailData.end());
-      textures.push_back(texture);
+      textures.emplace_back(std::move(texture));
 
       std::tie(calcFileThumbnailsChecksumSum, calcFileThumbnailsChecksumXor) =
           CalculateFileChecksum(entry->ThumbnailData,

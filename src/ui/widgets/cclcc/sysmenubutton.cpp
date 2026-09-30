@@ -12,12 +12,14 @@ void SysMenuButton::Render() {
   tint.a = Tint.a;
 
   if (HasFocus) {
-    Renderer->DrawSprite(HighlightSprite, RenderPos, tint);
+    Renderer->DrawSprite(*HighlightSprite, RenderPos, tint);
   } else {
     if (Enabled) {
-      Renderer->DrawSprite(NormalSprite, RenderPos, tint);
+      Renderer->DrawSprite(*NormalSprite, RenderPos, tint);
     } else {
-      Renderer->DrawSprite(DisabledSprite, RenderPos, Tint);
+      if (DisabledSprite.has_value()) {
+        Renderer->DrawSprite(*DisabledSprite, RenderPos, Tint);
+      }
     }
   }
 }

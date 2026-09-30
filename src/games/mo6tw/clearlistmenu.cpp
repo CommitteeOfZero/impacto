@@ -51,15 +51,13 @@ ClearListMenu::ClearListMenu() {
 
   Arrows = new Group(this);
   Arrows->FocusLock = false;
-  Sprite nullSprite = Sprite();
-  nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
   auto arrowLeft =
-      new Button(0, ArrowLeft, ArrowLeft, nullSprite, ArrowLeftPosition);
+      new Button(0, ArrowLeft, ArrowLeft, std::nullopt, ArrowLeftPosition);
   arrowLeft->OnClickHandler = [this](auto* btn) {
     return ArrowLeftOnClick(btn);
   };
   auto arrowRight =
-      new Button(1, ArrowRight, ArrowRight, nullSprite, ArrowRightPosition);
+      new Button(1, ArrowRight, ArrowRight, std::nullopt, ArrowRightPosition);
   arrowRight->OnClickHandler = [this](auto* btn) {
     return ArrowRightOnClick(btn);
   };

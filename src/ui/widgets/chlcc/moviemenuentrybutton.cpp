@@ -64,11 +64,11 @@ void MovieMenuEntryButton::Render() {
       Renderer->DrawSprite(MovieThumbnailExtraOp2,
                            glm::vec2(Bounds.X + 20, Bounds.Y + 16), Tint);
     } else {
-      Renderer->DrawSprite(NormalSprite,
+      Renderer->DrawSprite(*NormalSprite,
                            glm::vec2(Bounds.X + 20, Bounds.Y + 16), Tint);
     }
   } else {
-    Renderer->DrawSprite(DisabledSprite,
+    Renderer->DrawSprite(*DisabledSprite,
                          glm::vec2(Bounds.X + 20, Bounds.Y + 16), Tint);
   }
 }
