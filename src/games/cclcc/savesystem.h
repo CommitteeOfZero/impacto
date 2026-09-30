@@ -11,34 +11,78 @@ namespace CCLCC {
 
 using namespace Impacto::SaveSystem;
 
-constexpr size_t SaveEntrySize = 0x1b110;
-constexpr size_t SystemSaveSize = 0x387c;
-constexpr int SaveFileSize =
-    SaveEntrySize * MaxSaveEntries * 2 + SystemSaveSize;
+struct SaveLayout {
+  size_t ConfigOffset;
+  size_t VoiceOffset;
+  size_t SkipVoiceOffset;
+  size_t AdvanceTextOffset;
+  size_t QuickSortedIdOffset;
+  bool QuickSortedIdIsLoaded;
+  bool QuickSortedIdBackCompat;
+  size_t EVFlagsOffset;
+  size_t BgmFlagsOffset;
+  size_t MessageFlagsOffset;
+  size_t ExtraDataOffset;
 
-constexpr int SaveThumbnailWidth = 240;
-constexpr int SaveThumbnailHeight = 135;
-// CCLCC PS4 Save thumbnails are 240x135 RGB16
-constexpr int SaveThumbnailSize =
-    SaveThumbnailWidth * SaveThumbnailHeight * 4 / 2;
+  size_t SysFlagWorkDst1;
+  size_t SysFlagWorkDst2;
+  size_t SysScrWorkDst1;
+  size_t SysScrWorkLen1;
 
-class SaveFileEntry : public SaveFileEntryBase {
- public:
-  std::array<uint8_t, 50> FlagWorkScript1;   // 50 bytes from &FlagWork[50]
-  std::array<uint8_t, 100> FlagWorkScript2;  // 100 bytes from &FlagWork[300]
-  std::array<int, 600> ScrWorkScript1;       // 2400 bytes from &ScrWork[1000]
-  std::array<int, 3000> ScrWorkScript2;      // 12000 bytes from &ScrWork[4300]
-  std::array<uint8_t, 0x6ac8> MapLoadData;
-  std::array<uint8_t, 0x54> YesNoData;
+  size_t FlagWork1Len;
+  size_t FlagWork2Len;
+  int64_t FlagWork2Src;
+  size_t ScrWork1Len;
+  size_t ScrWork2Len;
+  int64_t MainThreadOffset;
+  int64_t MainThreadBufIdOffset;
+  int64_t WaveOffset;
+  int64_t MapLoadOffset;
+  int64_t ThumbnailPadding;
+
+  size_t MapLoadLen, YesNoLen;
+  int ThumbnailWidth, ThumbnailHeight;
+};
+
+struct SaveFileEntry : SaveFileEntryBase {
+  explicit SaveFileEntry(const SaveLayout& l)
+      : FlagWorkScript1(l.FlagWork1Len),
+        FlagWorkScript2(l.FlagWork2Len),
+        ScrWorkScript1(l.ScrWork1Len),
+        ScrWorkScript2(l.ScrWork2Len),
+        MapLoadData(l.MapLoadLen),
+        YesNoData(l.YesNoLen),
+        ThumbnailData(l.ThumbnailWidth * l.ThumbnailHeight * 2) {}
+
+  std::vector<uint8_t> FlagWorkScript1, FlagWorkScript2;
+  std::vector<int> ScrWorkScript1, ScrWorkScript2;
+  std::vector<uint8_t> MapLoadData, YesNoData;
   std::array<int, 303>
-      WaveData;  // 3 wave types * 20 waves * 5 fields + 3 counts
-  std::array<uint8_t, SaveThumbnailSize> ThumbnailData;
+      WaveData{};  // 3 wave types * 20 waves * 5 fields + 3 counts
+  std::vector<uint8_t> ThumbnailData;
 };
 
 class SaveSystem : public SaveSystemBase {
  public:
-  SaveError CheckSaveFile() const override;
-  SaveError MountSaveFile(std::vector<QueuedTexture>& textures) override;
+  uint32_t static CalculateChecksum(std::span<const uint8_t> bufferData,
+                                    uint16_t initSum = 0, uint16_t initXor = 0,
+                                    bool swapSrcBytes = false);
+
+  // Flags and Scr
+  virtual void WriteWorkScriptData(Io::MemoryStream& stream,
+                                   SaveFileEntry& entry) = 0;
+  virtual void ReadWorkScriptData(Io::MemoryStream& stream,
+                                  SaveFileEntry& entry) = 0;
+  virtual void WriteWaveData(Io::MemoryStream& stream,
+                             SaveFileEntry& entry) = 0;
+  virtual void ReadWaveData(Io::MemoryStream& stream, SaveFileEntry& entry) = 0;
+
+  virtual void WriteBGMFlags(Io::MemoryStream& stream) = 0;
+  virtual void ReadBGMFlags(Io::MemoryStream& stream) = 0;
+
+  virtual void LoadScrWork() = 0;
+
+  virtual SaveLayout GetSaveLayout() const = 0;
 
   SaveError LoadSystemData() override;
   void SaveSystemData() override;
@@ -56,8 +100,6 @@ class SaveSystem : public SaveSystemBase {
 
   void SaveMemory() override;
   void LoadMemoryNew(LoadProcess load) override;
-
-  SaveError WriteSaveFile() override;
   uint32_t GetSavePlayTime(SaveType type, int id) const override;
   uint8_t GetSaveFlags(SaveType type, int id) const override;
   void SetSaveFlags(SaveType type, int id, uint8_t flags) override;
@@ -89,12 +131,13 @@ class SaveSystem : public SaveSystemBase {
   void WaveSave(std::span<int> data);
   void WaveLoad(std::span<const int> data) const;
 
- private:
-  uint8_t GameExtraData[1024];
-  uint8_t MessageFlags[10000];
-  std::array<uint8_t, SystemSaveSize> SystemData;
-  bool EVFlags[1200];
-  uint8_t BGMFlags[200];
+ protected:
+  std::vector<uint8_t> GameExtraData;
+  std::vector<uint8_t> MessageFlags;
+  std::vector<uint8_t> SystemData;
+  std::vector<uint8_t> EVFlags;
+  std::vector<uint8_t> BGMFlags;
+
   std::optional<SaveFileEntry> WorkingSaveEntry;
 };
 
