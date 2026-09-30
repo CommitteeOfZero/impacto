@@ -49,8 +49,6 @@ namespace Impacto {
 inline GraphicsApi GraphicsApiHint;
 inline GraphicsApi ActualGraphicsApi;
 
-enum class StencilBufferMode { Off, Test, Write };
-
 constexpr inline int MaxFramebuffers = 10;
 
 enum class ShaderProgramType : int {
@@ -75,7 +73,6 @@ enum class ShaderProgramType : int {
   Mosaic,
 };
 
-enum class RendererBlendMode { Normal, Additive, Premultiplied };
 enum class RendererBlurDirection { Horizontal, Vertical };
 
 class BaseRenderer {
@@ -120,6 +117,17 @@ class BaseRenderer {
 
   virtual int GetSpriteSheetImage(SpriteSheet const& sheet,
                                   std::span<uint8_t> outBuffer) = 0;
+
+  struct StateConfig {
+    enum class BlendModeType : uint8_t { Normal, Additive, Premultiplied };
+    enum class StencilModeType : uint8_t { Off, Test, Write };
+
+    StateConfig() {}
+
+    BlendModeType BlendMode = BlendModeType::Normal;
+    StencilModeType StencilMode = StencilModeType::Off;
+    std::optional<RectF> ScissorRect = std::nullopt;
+  };
 
   virtual void DrawSprite(const Sprite& sprite, const CornersQuad& dest,
                           glm::mat4 transformation,
@@ -234,16 +242,17 @@ class BaseRenderer {
     bool IsInverted = false;
   };
   virtual void DrawMaskedSprite(const PositionedMaskedSprite& spriteInfo,
-                                const MaskedSpriteConfig& config) = 0;
+                                const MaskedSpriteConfig& config,
+                                const StateConfig& stateConfig = {}) = 0;
 
   struct MaskedSpriteNoAlphaConfig {
     int Alpha;
     int FadeRange;
     bool IsInverted = false;
   };
-  virtual void DrawMaskedSpriteNoAlpha(
-      const PositionedMaskedSprite& spriteInfo,
-      const MaskedSpriteNoAlphaConfig& config) = 0;
+  virtual void DrawMaskedSpriteNoAlpha(const PositionedMaskedSprite& spriteInfo,
+                                       const MaskedSpriteNoAlphaConfig& config,
+                                       const StateConfig& stateConfig = {}) = 0;
 
   virtual void DrawPrimitives(const SpriteSheet& sheet, const SpriteSheet* mask,
                               ShaderProgramType shaderType,
@@ -343,10 +352,10 @@ class BaseRenderer {
   virtual void SetScissorRect(RectF const& rect) = 0;
   virtual void DisableScissor() = 0;
 
-  virtual void SetStencilMode(StencilBufferMode mode) = 0;
+  virtual void SetStencilMode(StateConfig::StencilModeType mode) = 0;
   virtual void ClearStencilBuffer() = 0;
 
-  virtual void SetBlendMode(RendererBlendMode blendMode) = 0;
+  virtual void SetBlendMode(StateConfig::BlendModeType blendMode) = 0;
 
   virtual void Clear(glm::vec4 color) = 0;
 

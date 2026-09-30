@@ -761,18 +761,19 @@ void BackgroundEffect2D::Render(const int layer) {
   }
 
   // Draw
-  Renderer->SetStencilMode(StencilBufferMode::Write);
+  using StencilModeType = BaseRenderer::StateConfig::StencilModeType;
+  Renderer->SetStencilMode(BaseRenderer::StateConfig::StencilModeType::Write);
   Renderer->ClearStencilBuffer();
 
   Renderer->DrawConvexShape(
       std::span(Vertices.begin(), Vertices.begin() + VertexCount),
       StencilTransformation, glm::vec4(1.0f));
 
-  Renderer->SetStencilMode(StencilBufferMode::Test);
+  Renderer->SetStencilMode(StencilModeType::Test);
 
   std::invoke(BackgroundRenderTable[RenderType], this);
 
-  Renderer->SetStencilMode(StencilBufferMode::Off);
+  Renderer->SetStencilMode(StencilModeType::Off);
 }
 
 template <bool PhaseZero>

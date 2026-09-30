@@ -249,7 +249,8 @@ void ExternalFont::DrawProcessedText(std::span<const ProcessedTextGlyph> text,
 
     const float viewportScale =
         Profile::Game::DesignHeight / Window->GetViewport().Height;
-    Renderer->SetBlendMode(RendererBlendMode::Premultiplied);
+    using BlendModeType = BaseRenderer::StateConfig::BlendModeType;
+    Renderer->SetBlendMode(BlendModeType::Premultiplied);
     for (size_t idx : visibleGlyphIds) {
       ProcessedTextGlyph const& glyph = text[idx];
 
@@ -268,7 +269,7 @@ void ExternalFont::DrawProcessedText(std::span<const ProcessedTextGlyph> text,
       color.a = ApplyOpacityCurve(glyph.Opacity * passOpacity, opacityCurve);
       Renderer->DrawSubtitleGlyph(sprite, dest, transformation, color);
     }
-    Renderer->SetBlendMode(RendererBlendMode::Normal);
+    Renderer->SetBlendMode(BlendModeType::Normal);
   };
 
   switch (outlineMode) {

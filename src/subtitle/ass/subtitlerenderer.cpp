@@ -151,12 +151,13 @@ void SubtitleRenderTrack::Render() {
   }
 
   if (!SubtitleGlyphs.empty()) {
-    Renderer->SetBlendMode(RendererBlendMode::Premultiplied);
+    using BlendModeType = BaseRenderer::StateConfig::BlendModeType;
+    Renderer->SetBlendMode(BlendModeType::Premultiplied);
     for (const auto& subtitleGlyph : SubtitleGlyphs) {
       Renderer->DrawSubtitleGlyph(subtitleGlyph.GlyphSprite,
                                   subtitleGlyph.Position, subtitleGlyph.Tint);
     }
-    Renderer->SetBlendMode(RendererBlendMode::Normal);
+    Renderer->SetBlendMode(BlendModeType::Normal);
   }
 }
 
