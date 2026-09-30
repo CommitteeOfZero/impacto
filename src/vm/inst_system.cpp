@@ -119,6 +119,7 @@ VmInstruction(InstScriptLoadNew) {
     LoadMsb(bufferId, scriptId);
     if (!Profile::Vm::UseSeparateMsbArchive) scriptId += 1;
   }
+  if (type == 1) return;
   LoadScript(bufferId, scriptId);
 }
 VmInstruction(InstWait) {
