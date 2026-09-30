@@ -17,7 +17,7 @@ namespace SaveSystem {
 enum class SaveDataType : int {
   None,
   CHLCC,
-  CCLCC,
+  CCLCC_PS4,
   CCLCC_SWITCH,
   MO6TW,
 };

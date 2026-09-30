@@ -1,6 +1,6 @@
 #pragma once
-
 #include "savesystem.h"
+
 #include "../../data/savesystem.h"
 #include "../../texture/texture.h"
 #include "../../io/memorystream.h"
@@ -8,17 +8,18 @@
 #include <optional>
 
 namespace Impacto {
-namespace CCLCC_Switch {
+namespace CCLCC_PS4 {
 
 using namespace Impacto::SaveSystem;
 
-constexpr size_t SaveEntrySize = 0x1F9E8;
-constexpr size_t SystemSaveSize = 0x21020;
-constexpr int SaveFileSize = SaveEntrySize * MaxSaveEntries;
+constexpr size_t SaveEntrySize = 0x1b110;
+constexpr size_t SystemSaveSize = 0x387c;
+constexpr int SaveFileSize =
+    SaveEntrySize * MaxSaveEntries * 2 + SystemSaveSize;
 
 constexpr int SaveThumbnailWidth = 240;
 constexpr int SaveThumbnailHeight = 135;
-// CCLCC Switch Save thumbnails are 240x135 RGB16
+// CCLCC PS4 Save thumbnails are 240x135 RGB16
 constexpr int SaveThumbnailSize =
     SaveThumbnailWidth * SaveThumbnailHeight * 4 / 2;
 
@@ -26,18 +27,16 @@ class SaveSystem final : public CCLCC::SaveSystem {
  public:
   SaveSystem() {
     GameExtraData.assign(1024, 0);
-    MessageFlags.assign(0x20000, 0);
+    MessageFlags.assign(10000, 0);
     SystemData.assign(SystemSaveSize, 0);
     EVFlags.assign(1200, 0);
-    BGMFlags.assign(256, 0);
+    BGMFlags.assign(200, 0);
   }
 
   SaveError CheckSaveFile() const override;
   SaveError MountSaveFile(std::vector<QueuedTexture>& textures) override;
 
   CCLCC::SaveLayout GetSaveLayout() const override;
-
-  SaveError WriteQuickSaveFile() override;
 
   // Flags and Scr
   void WriteWorkScriptData(Io::MemoryStream& stream,
@@ -57,5 +56,5 @@ class SaveSystem final : public CCLCC::SaveSystem {
   SaveError WriteSaveFile() override;
 };
 
-}  // namespace CCLCC_Switch
+}  // namespace CCLCC_PS4
 }  // namespace Impacto
