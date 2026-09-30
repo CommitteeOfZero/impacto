@@ -68,11 +68,12 @@ class Renderer final : public BaseRenderer {
                               bool isInverted) override {}
 
   void DrawMaskedSprite(const PositionedMaskedSprite& spriteInfo,
-                        const MaskedSpriteConfig& config) override;
+                        const MaskedSpriteConfig& config,
+                        const StateConfig& stateConfig) override;
 
-  void DrawMaskedSpriteNoAlpha(
-      const PositionedMaskedSprite& spriteInfo,
-      const MaskedSpriteNoAlphaConfig& config) override;
+  void DrawMaskedSpriteNoAlpha(const PositionedMaskedSprite& spriteInfo,
+                               const MaskedSpriteNoAlphaConfig& config,
+                               const StateConfig& stateConfig) override;
 
   void DrawPrimitives(SpriteSheet const& sheet, SpriteSheet const* mask,
                       ShaderProgramType shaderType,
@@ -123,10 +124,10 @@ class Renderer final : public BaseRenderer {
   void SetScissorRect(RectF const& rect) override {}
   void DisableScissor() override {}
 
-  void SetStencilMode(StencilBufferMode mode) override {}
+  void SetStencilMode(StateConfig::StencilModeType mode) override {}
   void ClearStencilBuffer() override {}
 
-  void SetBlendMode(RendererBlendMode blendMode) override {}
+  void SetBlendMode(StateConfig::BlendModeType blendMode) override {}
 
   void Clear(glm::vec4 color) override {}
 
@@ -155,15 +156,13 @@ class Renderer final : public BaseRenderer {
   };
   BgfxHandleStruct BgfxHandle;
 
-  struct CommandBuffer {
+  struct RendererState {
+    StateConfig GenericState;
     std::reference_wrapper<ShaderProgramInterface> ShaderProgram;
-
     glm::mat4 Transformation = glm::mat4(1.0f);
-
-    RendererBlendMode BlendMode = RendererBlendMode::Normal;
   };
-  void SetState(const CommandBuffer& state);
-  std::optional<CommandBuffer> CurrentState = std::nullopt;
+  void SetState(const RendererState& state);
+  std::optional<RendererState> CurrentState = std::nullopt;
 
   FrameBuffer DrawFrameBuffer;
   glm::ivec2 Resolution;
