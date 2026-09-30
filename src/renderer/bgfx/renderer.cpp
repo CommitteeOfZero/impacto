@@ -349,6 +349,7 @@ void Renderer::EndFrame() {
   }
 
   SetState({
+      .GenericState = StateConfig{},
       .ShaderProgram = *SpriteShader,
   });
 
@@ -442,8 +443,8 @@ void Renderer::Flush() {
   {
     uint64_t stateFlags = BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A;
 
-    switch (CurrentState->BlendMode) {
-      using enum RendererBlendMode;
+    switch (CurrentState->GenericState.BlendMode) {
+      using enum StateConfig::BlendModeType;
       case Normal:
         stateFlags |= BGFX_STATE_BLEND_FUNC_SEPARATE(
             BGFX_STATE_BLEND_SRC_ALPHA, BGFX_STATE_BLEND_INV_SRC_ALPHA,
@@ -456,6 +457,25 @@ void Renderer::Flush() {
         break;
       case Premultiplied:
         stateFlags |= BGFX_STATE_BLEND_NORMAL;
+        break;
+    }
+
+    switch (CurrentState->GenericState.StencilMode) {
+      using enum StateConfig::StencilModeType;
+      case Off:
+        bgfx::setStencil(BGFX_STENCIL_NONE);
+        break;
+      case Test:
+        bgfx::setStencil(
+            BGFX_STENCIL_TEST_NOTEQUAL | BGFX_STENCIL_OP_FAIL_S_KEEP |
+            BGFX_STENCIL_OP_FAIL_Z_KEEP | BGFX_STENCIL_OP_PASS_Z_KEEP |
+            BGFX_STENCIL_FUNC_REF(0) | BGFX_STENCIL_FUNC_RMASK(0xFF));
+        break;
+      case Write:
+        bgfx::setStencil(
+            BGFX_STENCIL_TEST_NEVER | BGFX_STENCIL_OP_FAIL_S_REPLACE |
+            BGFX_STENCIL_OP_FAIL_Z_REPLACE | BGFX_STENCIL_OP_PASS_Z_REPLACE |
+            BGFX_STENCIL_FUNC_REF(1) | BGFX_STENCIL_FUNC_RMASK(0xFF));
         break;
     }
 
@@ -506,7 +526,7 @@ void Renderer::InsertVertices(
   }
 }
 
-void Renderer::SetState(const CommandBuffer& newState) {
+void Renderer::SetState(const RendererState& newState) {
   if (!CurrentState.has_value() ||
       CurrentState->Transformation != newState.Transformation) {
     Flush();
@@ -519,8 +539,29 @@ void Renderer::SetState(const CommandBuffer& newState) {
   }
 
   if (!CurrentState.has_value() ||
-      CurrentState->BlendMode != newState.BlendMode) {
+      CurrentState->GenericState.BlendMode != newState.GenericState.BlendMode) {
     Flush();
+  }
+
+  if (!CurrentState.has_value() || CurrentState->GenericState.StencilMode !=
+                                       newState.GenericState.StencilMode) {
+    Flush();
+  }
+
+  if (!CurrentState.has_value() || CurrentState->GenericState.ScissorRect !=
+                                       newState.GenericState.ScissorRect) {
+    Flush();
+
+    if (newState.GenericState.ScissorRect.has_value()) {
+      const RectF& scissorRect = *newState.GenericState.ScissorRect;
+      bgfx::setScissor(static_cast<uint16_t>(scissorRect.X),
+                       static_cast<uint16_t>(scissorRect.Y),
+                       static_cast<uint16_t>(scissorRect.Width),
+                       static_cast<uint16_t>(scissorRect.Height));
+    } else {
+      // All zeroes is defined as disable scissor
+      bgfx::setScissor(0, 0, 0, 0);
+    }
   }
 
   CurrentState = newState;
@@ -538,6 +579,7 @@ void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
   }
 
   SetState({
+      .GenericState = StateConfig{},
       .ShaderProgram = *SpriteShader,
       .Transformation = transformation,
   });
@@ -553,8 +595,10 @@ void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
 }
 
 void Renderer::DrawMaskedSprite(const PositionedMaskedSprite& spriteInfo,
-                                const MaskedSpriteConfig& config) {
+                                const MaskedSpriteConfig& config,
+                                const StateConfig& stateConfig) {
   SetState({
+      .GenericState = stateConfig,
       .ShaderProgram = *MaskedSpriteShader,
       .Transformation = spriteInfo.Transformation,
   });
@@ -578,10 +622,11 @@ void Renderer::DrawMaskedSprite(const PositionedMaskedSprite& spriteInfo,
                  ShouldFlip(texture));
 }
 
-void Renderer::DrawMaskedSpriteNoAlpha(
-    const PositionedMaskedSprite& spriteInfo,
-    const MaskedSpriteNoAlphaConfig& config) {
+void Renderer::DrawMaskedSpriteNoAlpha(const PositionedMaskedSprite& spriteInfo,
+                                       const MaskedSpriteNoAlphaConfig& config,
+                                       const StateConfig& stateConfig) {
   SetState({
+      .GenericState = stateConfig,
       .ShaderProgram = *MaskedSpriteNoAlphaShader,
       .Transformation = spriteInfo.Transformation,
   });
@@ -627,6 +672,7 @@ void Renderer::DrawPrimitives(
   if (shader == nullptr) return;
 
   SetState({
+      .GenericState = StateConfig{},
       .ShaderProgram = *shader,
       .Transformation = spriteTransformation,
   });
@@ -638,6 +684,7 @@ void Renderer::DrawVideoTexture(const Impacto::YUVFrame& frame,
                                 const RectF& dest, const glm::vec4 tint,
                                 const bool alphaVideo) {
   SetState({
+      .GenericState = StateConfig{},
       .ShaderProgram = *YUVFrameShader,
   });
 
@@ -655,6 +702,7 @@ void Renderer::DrawVideoTexture(const Impacto::NV12Frame& frame,
                                 const RectF& dest, const glm::vec4 tint,
                                 const bool alphaVideo) {
   SetState({
+      .GenericState = StateConfig{},
       .ShaderProgram = *NV12FrameShader,
   });
 
