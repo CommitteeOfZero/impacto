@@ -198,7 +198,7 @@ void SaveSystem::LoadEntryBuffer(Io::MemoryStream& stream, SaveFileEntry& entry,
 
 void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
                                        int autoSaveType) {
-  auto* entry = GetSaveEntry<SaveFileEntryBase>(type, id);
+  auto* entry = GetSaveEntry<SaveFileEntry>(type, id);
   if (entry != nullptr && !(entry->Flags & WriteProtect)) {
     Renderer->FreeTexture(entry->SaveThumbnail.Sheet.Texture);
     uint8_t savedFlags = entry->Flags;
@@ -500,7 +500,7 @@ void SaveSystem::SaveSystemData() {
 }
 
 void SaveSystem::SetSaveFlags(SaveType type, int id, uint8_t flags) {
-  auto* entry = GetSaveEntry<SaveFileEntryBase>(type, id);
+  auto* entry = GetSaveEntry<SaveFileEntry>(type, id);
 
   if (type == SaveType::Quick) {
     uint8_t currentFlags = entry->Flags;
@@ -518,15 +518,15 @@ void SaveSystem::SetSaveFlags(SaveType type, int id, uint8_t flags) {
 }
 
 tm const& SaveSystem::GetSaveDate(SaveType type, int id) const {
-  return GetSaveEntry<SaveFileEntryBase>(type, id)->SaveDate;
+  return GetSaveEntry<SaveFileEntry>(type, id)->SaveDate;
 }
 
 uint32_t SaveSystem::GetSavePlayTime(SaveType type, int id) const {
-  return GetSaveEntry<SaveFileEntryBase>(type, id)->PlayTime;
+  return GetSaveEntry<SaveFileEntry>(type, id)->PlayTime;
 }
 
 uint8_t SaveSystem::GetSaveFlags(SaveType type, int id) const {
-  return GetSaveEntry<SaveFileEntryBase>(type, id)->Flags;
+  return GetSaveEntry<SaveFileEntry>(type, id)->Flags;
 }
 
 void SaveSystem::SaveMemory() {
@@ -645,11 +645,11 @@ void SaveSystem::LoadMemoryNew(LoadProcess load) {
 }
 
 uint8_t SaveSystem::GetSaveStatus(SaveType type, int id) const {
-  return GetSaveEntry<SaveFileEntryBase>(type, id)->Status;
+  return GetSaveEntry<SaveFileEntry>(type, id)->Status;
 }
 
 int SaveSystem::GetSaveTitle(SaveType type, int id) const {
-  return GetSaveEntry<SaveFileEntryBase>(type, id)->SwTitle;
+  return GetSaveEntry<SaveFileEntry>(type, id)->SwTitle;
 }
 
 uint32_t SaveSystem::GetTipStatus(size_t tipId) const {
@@ -755,7 +755,7 @@ void SaveSystem::SetCheckpointId(int id) {
 }
 
 Sprite& SaveSystem::GetSaveThumbnail(SaveType type, int id) {
-  return GetSaveEntry<SaveFileEntryBase>(type, id)->SaveThumbnail;
+  return GetSaveEntry<SaveFileEntry>(type, id)->SaveThumbnail;
 }
 
 void SaveSystem::WaveSave(std::span<int> data) {
