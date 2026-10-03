@@ -195,6 +195,8 @@ void TextParser::ParseStringToken<STT_Character>(const StringToken& token) {
             } else if constexpr (std::is_same_v<T, uint16_t>) {
               v.back() =
                   SDL_Swap16(static_cast<uint16_t>(token.Val_Int) | 0x8000u);
+            } else {
+              static_assert(false);
             }
             v.emplace_back(STT_EndOfString);
           },
