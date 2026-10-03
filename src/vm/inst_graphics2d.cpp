@@ -44,6 +44,24 @@ VmInstruction(InstReleaseSurf) {
     Renderer->UnloadSurf(surfaceId);
   }
 }
+VmInstruction(InstReleaseSurfNew) {
+  StartInstruction;
+  PopUint8(type);
+  if (type == 1) {
+    PopExpression(surfaceId);
+    ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+               "STUB instruction ReleaseSurf(surfaceId: {:d})\n", surfaceId);
+    if (surfaceId < 8) {
+      if (Backgrounds2D[surfaceId]->Status == LoadStatus::Loaded) {
+        Backgrounds2D[surfaceId]->Unload();
+      }
+    } else {
+      Renderer->UnloadSurf(surfaceId);
+    }
+  } else {
+    // TODO: delete all surfaces
+  }
+}
 VmInstruction(InstLoadPic) {
   StartInstruction;
   PopExpression(surfaceId);
@@ -118,7 +136,6 @@ VmInstruction(InstBGload) {
     BlockThread;
   }
 }
-// TODO: not finished
 VmInstruction(InstBGloadNew) {
   StartInstruction;
   PopUint8(type);
