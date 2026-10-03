@@ -6,6 +6,8 @@
 #include "interface/input.h"
 #include "../profile/scriptvars.h"
 #include "../profile/configsystem.h"
+#include "../profile/games/cclcc/systemmenu.h"
+
 #include "../game.h"
 #include "../mem.h"
 #include "../log.h"
@@ -101,7 +103,8 @@ VmInstruction(InstSystemMenu) {
   switch (mode) {
     case 0:
       if (Profile::Vm::GameInstructionSet == InstructionSet::MO6TW) {
-      } else if (Profile::Vm::GameInstructionSet == InstructionSet::CC) {
+      } else if (Profile::Vm::GameInstructionSet == InstructionSet::CC ||
+                 Profile::Vm::GameInstructionSet == InstructionSet::LCCSwitch) {
         auto* sysMenuPtr =
             static_cast<UI::CCLCC::SystemMenu*>(UI::SystemMenuPtr);
         sysMenuPtr->Init();
@@ -111,6 +114,9 @@ VmInstruction(InstSystemMenu) {
           ResetInstruction;
           BlockThread;
         }
+      }
+      if (Profile::Vm::GameInstructionSet == InstructionSet::LCCSwitch) {
+        ScrWork[SW_SYSMENUCTMAX] = 32;
       }
 
       break;
@@ -529,29 +535,51 @@ VmInstruction(InstTitleMenuNew) {
     case 0:  // Init
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction TitleMenu(type: Init)\n");
+      switch (Profile::Vm::GameInstructionSet) {
+        case InstructionSet::LCCSwitch: {
+          ScrWork[SW_SYSSUBMENUCTMAX] = 32;
+        } break;
+        default: {
+        }
+      }
       break;
     case 1:  // Main
       switch (Profile::Vm::GameInstructionSet) {
         default:
           break;
+        case InstructionSet::LCCSwitch:
         case InstructionSet::CC:
         case InstructionSet::CHN: {
-          using enum UI::CC::TitleMenuMode::Mode;
+          int mainState;
+          int startTransitionState;
+          int pressToStartState;
 
-          if (ScrWork[SW_TITLEMODE] == Main) {
+          if (Profile::Vm::GameInstructionSet == InstructionSet::LCCSwitch) {
+            using enum UI::CC::TitleMenuMode::Switch::Mode;
+            mainState = Main;
+            pressToStartState = PressToStart;
+            startTransitionState = StartTransition;
+          } else {
+            using enum UI::CC::TitleMenuMode::PS4::Mode;
+            mainState = Main;
+            pressToStartState = PressToStart;
+            startTransitionState = StartTransition;
+          }
+
+          if (ScrWork[SW_TITLEMODE] == mainState) {
             if (!UI::TitleMenuPtr->AllowsScriptInput) {
               ResetInstruction;
               BlockThread;
             }
-          } else if (ScrWork[SW_TITLEMODE] == PressToStart &&
+          } else if (ScrWork[SW_TITLEMODE] == pressToStartState &&
                      ScrWork[SW_TITLEDISPCT] ==
-                         (Profile::Vm::GameInstructionSet == InstructionSet::CC
-                              ? 60
-                              : 400)) {
+                         (Profile::Vm::GameInstructionSet == InstructionSet::CHN
+                              ? 400
+                              : 60)) {
             // Check "PRESS TO START" here
             if (((Interface::PADinputButtonWentDown & Interface::PAD1A) ||
                  (Interface::PADinputMouseWentDown & Interface::PAD1A))) {
-              ScrWork[SW_TITLEMODE] = StartTransition;
+              ScrWork[SW_TITLEMODE] = startTransitionState;
               ScrWork[SW_TITLEDISPCT] = 0;
               ScrWork[SW_TITLEMOVIECT] = 0;
               SetFlag(SF_TITLEEND, 1);
@@ -620,7 +648,8 @@ VmInstruction(InstSetPlayMode) {
 VmInstruction(InstSetEVflag) {
   StartInstruction;
   if (Profile::Vm::GameInstructionSet == InstructionSet::MO8 ||
-      Profile::Vm::GameInstructionSet == InstructionSet::CHN) {
+      Profile::Vm::GameInstructionSet == InstructionSet::CHN ||
+      Profile::Vm::GameInstructionSet == InstructionSet::LCCSwitch) {
     PopUint8(unk01);
   }
   PopExpression(arg1);
@@ -659,6 +688,51 @@ VmInstruction(InstScreenChange) { StartInstruction; }
 VmInstruction(InstExitGame) {
   StartInstruction;
   Game::ShouldQuit = true;
+}
+
+VmInstruction(InstLoadFontMeta) {
+  StartInstruction;
+  PopUint8(type);
+
+  PopExpression(unkId);
+  PopExpression(archiveId);
+  PopExpression(fileId);
+
+  if (type != 0) {
+    ExpressionEval(thread);
+    ExpressionEval(thread);
+    ExpressionEval(thread);
+    ExpressionEval(thread);
+    ExpressionEval(thread);
+    ExpressionEval(thread);
+  }
+  ImpLogSlow(
+      LogLevel::Warning, LogChannel::VMStub,
+      "STUB instruction LoadFontMeta(type: {:d}, unkId: {:d}, archiveId: "
+      "{:d}, fileId: {:d})\n",
+      type, unkId, archiveId, fileId);
+}
+VmInstruction(InstSaveIconState) {
+  StartInstruction;
+  PopUint8(type);
+  if (type == 10) {
+    SetFlag(SF_SAVEICON, 0);
+    SaveIconDisplay::Hide();
+    return;
+  }
+  if (type != 1) {
+    if (!type) {
+      SetFlag(SF_SAVEICON, 1);
+      SaveIconDisplay::Show();
+    }
+    return;
+  }
+
+  SetFlag(SF_SAVEICON, 1);
+  PopExpression(posX);
+  PopExpression(posY);
+  const glm::vec2 pos = {posX, posY};
+  SaveIconDisplay::ShowAt(pos);
 }
 
 }  // namespace Vm

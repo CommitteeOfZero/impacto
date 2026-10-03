@@ -81,7 +81,9 @@ void DialoguePage::Clear() {
 
 void DialoguePage::AddString(Vm::Sc3VmThread* ctx, std::optional<int> voiceId,
                              bool acted, int animId, int charId) {
-  CurrentStringAddress = {ctx->ScriptBufferId, ctx->IpOffset};
+  CurrentStringAddress = {
+      Profile::Vm::UseMsbStrings ? Vm::MsbBuffers : Vm::ScriptBuffers,
+      ctx->ScriptBufferId, ctx->IpOffset};
   AudioId = voiceId;
 
   CharacterId = charId;
@@ -91,15 +93,17 @@ void DialoguePage::AddString(Vm::Sc3VmThread* ctx, std::optional<int> voiceId,
 
   const size_t typeWriterStart = Glyphs.size();
 
-  DialogueTextParserInst.ParseString(*this, ctx);
+  DialogueTextParserInst->ParseString(*this, ctx);
 
-  RenderName = ScrWork[SW_MESNAMEID0 + Id] != NO_NAME || !Name.empty();
+  RenderName =
+      ScrWork[SW_MESNAMEID0 + Id] != static_cast<int>(NO_NAME) || !Name.empty();
 
   // resetting typewriter for a new line and setting new params
   Typewriter.Reset(AnimationDirection::In);
   Typewriter.SetFirstGlyph(typeWriterStart);
   Typewriter.SetGlyphCount(Glyphs.size() - typeWriterStart);
-  Typewriter.SetParallelStartGlyphs(DialogueTextParserInst.ParallelStartGlyphs);
+  Typewriter.SetParallelStartGlyphs(
+      DialogueTextParserInst->ParallelStartGlyphs);
 }
 
 void DialoguePage::PlayLine() {
@@ -189,7 +193,7 @@ void DialoguePage::Render(const float alpha,
   if (windowIsVisible) {
     const NameInfo nameInfo{
         .RenderWindow = RenderName,
-        .NameId = ScrWork[SW_MESNAMEID0 + Id] == NO_NAME
+        .NameId = ScrWork[SW_MESNAMEID0 + Id] == static_cast<int>(NO_NAME)
                       ? std::nullopt
                       : std::optional(ScrWork[SW_MESNAMEID0 + Id]),
         .Name = Name,

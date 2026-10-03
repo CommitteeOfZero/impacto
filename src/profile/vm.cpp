@@ -1,5 +1,7 @@
 #include "vm.h"
 #include "profile_internal.h"
+#include "../text/textparser.h"
+
 #include "game.h"
 
 namespace Impacto {
@@ -19,6 +21,9 @@ void Configure() {
   TryGetMember<bool>("UseMsbStrings", UseMsbStrings);
   TryGetMember<bool>("UseSeparateMsbArchive", UseSeparateMsbArchive);
   TryGetMember<bool>("RestartMaskUsesThreadAlpha", RestartMaskUsesThreadAlpha);
+  TryGetMember<decltype(StringEncodingType)>("StringEncodingType",
+                                             StringEncodingType);
+  TryGetMember<uint8_t>("StringIdSize", StringIdSize);
 
   ScrWorkChaStructSize = EnsureGetMember<int>("ScrWorkChaStructSize");
   ScrWorkChaOffsetStructSize =
@@ -47,6 +52,11 @@ void Configure() {
                     SpeakerPortraitsScrWorkOffset);
 
   Pop();
+
+  // should be initialized after StringEncodingType
+  DialogueTextParserInst = new DialogueTextParser();
+  BacklogTextParserInst = new BacklogTextParser();
+  TipsTextParserInst = new TipsTextParser();
 }
 
 }  // namespace Vm

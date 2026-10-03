@@ -280,7 +280,8 @@ VmInstruction(InstMesSetID) {
   int dialoguePageId = 0;
 
   PopUint8(type);
-  switch (type) {
+  uint8_t kind = type & 0x7F;
+  switch (kind) {
     case 0: {  // SetSavePointPage0
       if (Profile::Vm::UseReturnIds) {
         PopUint16(savePointId);
@@ -531,7 +532,7 @@ VmInstruction(InstMes) {
   bool voiced = type & 1;
   bool acted = type & (1 << 1);
   bool sync = type & (1 << 3);
-  bool MSB = type & (1 << 7);
+  bool msb = type & (1 << 7);
 
   std::optional<int> audioId;
   int animationId = 0;
@@ -540,10 +541,16 @@ VmInstruction(InstMes) {
   if (acted) animationId = ExpressionEval(thread);
 
   if (characterId == 32) characterId = 0;
-  PopUint16(lineId);
-  const uint32_t line =
-      MSB ? MsbGetStrAddress(thread->ScriptBufferId, lineId)
-          : ScriptGetStrAddress(thread->ScriptBufferId, lineId);
+  int lineId;
+  uint32_t line;
+  if (msb) {
+    lineId = ExpressionEval(thread);
+    line = MsbGetStrAddress(thread->ScriptBufferId, lineId);
+  } else {
+    PopUint16(lineIdTemp);
+    lineId = lineIdTemp;
+    line = ScriptGetStrAddress(thread->ScriptBufferId, lineId);
+  }
 
   if (!(ScrWork[Profile::Vm::ScrWorkMesStructSize * thread->DialoguePageId +
                 SW_MESWIN0TYPE] &
@@ -566,7 +573,10 @@ VmInstruction(InstMes) {
 
   uint32_t oldIp = thread->IpOffset;
   thread->IpOffset = line;
+
+  thread->UseMSBBuffers = msb;
   dialoguePage.AddString(thread, audioId, acted, animationId, characterId);
+
   ResetInstruction;
   if (!GetFlag(SF_MESSAVEPOINT_SSP + thread->DialoguePageId)) {
     if (!(ScrWork[thread->DialoguePageId * Profile::Vm::ScrWorkMesStructSize +
@@ -789,9 +799,9 @@ VmInstruction(InstSetNGmoji) {
   PopString(endingPuncts);
   PopString(startingPuncts);
 
-  StringToken::AddFlags({thread->ScriptBufferId, startingPuncts},
+  StringToken::AddFlags({ScriptBuffers, thread->ScriptBufferId, startingPuncts},
                         +CharacterTypeFlags::WordStartingPunct);
-  StringToken::AddFlags({thread->ScriptBufferId, endingPuncts},
+  StringToken::AddFlags({ScriptBuffers, thread->ScriptBufferId, endingPuncts},
                         +CharacterTypeFlags::WordEndingPunct);
 }
 VmInstruction(InstMesRev) {
@@ -937,6 +947,7 @@ VmInstruction(InstSel) {
     case 0: {  // SelInit
       if (Profile::Vm::GameInstructionSet == InstructionSet::Dash ||
           Profile::Vm::GameInstructionSet == InstructionSet::CC ||
+          Profile::Vm::GameInstructionSet == InstructionSet::LCCSwitch ||
           Profile::Vm::GameInstructionSet == InstructionSet::MO8) {
         PopUint16(savepointid);
         // SF_MESSAVEPOINT_SSP + dialog page's field 5 in decompile?
@@ -958,28 +969,32 @@ VmInstruction(InstSel) {
     case 1: {
       PopUint16(selStrNum);
       auto offset = ScriptGetStrAddress(thread->ScriptBufferId, selStrNum);
-      UI::SelectionMenuPtr->AddChoice(
-          {.ScriptBufferId = thread->ScriptBufferId, .IpOffset = offset});
+      UI::SelectionMenuPtr->AddChoice({.Buffers = {},
+                                       .BufferId = thread->ScriptBufferId,
+                                       .IpOffset = offset});
       break;
     }
     case 0x81: {
       PopMsbString(line);
-      UI::SelectionMenuPtr->AddChoice(
-          {.ScriptBufferId = thread->ScriptBufferId, .IpOffset = line});
+      UI::SelectionMenuPtr->AddChoice({.Buffers = {},
+                                       .BufferId = thread->ScriptBufferId,
+                                       .IpOffset = line});
     } break;
     case 2: {
       PopUint16(selStrNum);
       auto offset = ScriptGetStrAddress(thread->ScriptBufferId, selStrNum);
-      UI::SelectionMenuPtr->AddChoice(
-          {.ScriptBufferId = thread->ScriptBufferId, .IpOffset = offset});
+      UI::SelectionMenuPtr->AddChoice({.Buffers = {},
+                                       .BufferId = thread->ScriptBufferId,
+                                       .IpOffset = offset});
       PopExpression(arg2);
       break;
     }
     case 0x82: {
       PopMsbString(line);
       PopExpression(arg2);
-      UI::SelectionMenuPtr->AddChoice(
-          {.ScriptBufferId = thread->ScriptBufferId, .IpOffset = line});
+      UI::SelectionMenuPtr->AddChoice({.Buffers = {},
+                                       .BufferId = thread->ScriptBufferId,
+                                       .IpOffset = line});
     } break;
   }
 }
@@ -1115,12 +1130,13 @@ VmInstruction(InstNameID) {
   switch (type) {
     case 0:
       if (Profile::Vm::GameInstructionSet == InstructionSet::CC ||
+          Profile::Vm::GameInstructionSet == InstructionSet::LCCSwitch ||
           Profile::Vm::GameInstructionSet == InstructionSet::MO8 ||
           Profile::Vm::GameInstructionSet == InstructionSet::CHN) {
         PopLocalLabel(namePlateDataBlock);
         Sc3Stream namePlateData(
             &ScriptBuffers[thread->ScriptBufferId][namePlateDataBlock]);
-        if (!Profile::Vm::UseMsbStrings) InitNamePlateData(namePlateData);
+        InitNamePlateData(namePlateData);
       } else if (Profile::Vm::GameInstructionSet == InstructionSet::MO6TW) {
         PopExpression(arg1);
         PopExpression(arg2);
@@ -1157,14 +1173,15 @@ VmInstruction(InstTips) {
       uint32_t tipsDataSize =
           ScriptGetLabelSize(thread->ScriptBufferId, tipsLabelNum);
       TipsSystem::DataInit(thread->ScriptBufferId, tipsDataAdr, tipsDataSize);
-      if (Profile::Vm::GameInstructionSet == InstructionSet::CC &&
-          UI::TipsMenuPtr) {
+      if (Profile::Vm::GameInstructionSet == InstructionSet::CC ||
+          Profile::Vm::GameInstructionSet == InstructionSet::LCCSwitch) {
         UI::TipsMenuPtr->Init();
       }
     } break;
     case 1:  // TipsInit
       TipsSystem::UpdateTipRecords();
-      if (Profile::Vm::GameInstructionSet != InstructionSet::CC &&
+      if ((Profile::Vm::GameInstructionSet != InstructionSet::CC ||
+           Profile::Vm::GameInstructionSet == InstructionSet::LCCSwitch) &&
           UI::TipsMenuPtr) {
         UI::TipsMenuPtr->Init();
       }
@@ -1182,7 +1199,8 @@ VmInstruction(InstTips) {
       break;
     case 5:
       TipsSystem::UpdateTipRecords();
-      if (Profile::Vm::GameInstructionSet != InstructionSet::CC &&
+      if ((Profile::Vm::GameInstructionSet != InstructionSet::CC ||
+           Profile::Vm::GameInstructionSet == InstructionSet::LCCSwitch) &&
           UI::TipsMenuPtr) {
         UI::TipsMenuPtr->Init();
       }
@@ -1219,20 +1237,22 @@ VmInstruction(InstSetRevMes) {
   }
 
   int lineId;
+  uint32_t line;
   if (expression) {
     lineId = ExpressionEval(thread);
+    line = MsbGetStrAddress(thread->ScriptBufferId, lineId);
   } else {
     PopUint16(lineIdTemp);
     lineId = lineIdTemp;
+    line = ScriptGetStrAddress(thread->ScriptBufferId, lineId);
   }
-  uint32_t line = ScriptGetStrAddress(thread->ScriptBufferId, lineId);
 
   uint32_t scriptId = LoadedScriptMetas[thread->ScriptBufferId].Id;
 
   SaveSystem::SetLineRead(scriptId, lineId);
   UI::BacklogMenuPtr->AddMessage(
-      {.ScriptBufferId = thread->ScriptBufferId, .IpOffset = line}, audioId,
-      animationId);
+      {.Buffers = {}, .BufferId = thread->ScriptBufferId, .IpOffset = line},
+      audioId, animationId);
 }
 
 void ChkMesSkip(float dt) {

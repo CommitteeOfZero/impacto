@@ -466,6 +466,7 @@ void Background2D::UpdateState(const int bgId) {
 
   switch (GameInstructionSet) {
     case Vm::InstructionSet::CC:
+    case Vm::InstructionSet::LCCSwitch:
       Tint = ScrWorkGetColor(SW_BG1FILTER + structOffset);
       break;
 
@@ -632,6 +633,7 @@ void Capture2D::UpdateState(const int capId) {
 
   switch (GameInstructionSet) {
     case Vm::InstructionSet::CC:
+    case Vm::InstructionSet::LCCSwitch:
       Tint = ScrWorkGetColor(SW_CAP1FILTER + structOffset);
       break;
 
@@ -655,7 +657,7 @@ void Capture2D::Render(const int layer) {
 Background2D::BgTransformState
 Background2D::BgTransformState::GetBgEffTransformState(int bgEffId) {
   assert(ScrWorkBgEffStructSize >= 30);
-  assert(ScrWorkBgEffOffsetStructSize >= 20);
+  assert(ScrWorkBgEffOffsetStructSize >= 18);
 
   const glm::vec2 resolutionScale = {Profile::Game::DesignWidth / 1280.0f,
                                      Profile::Game::DesignHeight / 720.0f};
@@ -731,6 +733,7 @@ void BackgroundEffect2D::UpdateState(const int bgId) {
   // Set tint
   switch (GameInstructionSet) {
     case Vm::InstructionSet::CC:
+    case Vm::InstructionSet::LCCSwitch:
       Tint = ScrWorkGetColor(SW_BGEFF1_FILTER + structOffset);
       break;
 

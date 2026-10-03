@@ -44,6 +44,24 @@ VmInstruction(InstReleaseSurf) {
     Renderer->UnloadSurf(surfaceId);
   }
 }
+VmInstruction(InstReleaseSurfNew) {
+  StartInstruction;
+  PopUint8(type);
+  if (type == 1) {
+    PopExpression(surfaceId);
+    ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+               "STUB instruction ReleaseSurf(surfaceId: {:d})\n", surfaceId);
+    if (surfaceId < 8) {
+      if (Backgrounds2D[surfaceId]->Status == LoadStatus::Loaded) {
+        Backgrounds2D[surfaceId]->Unload();
+      }
+    } else {
+      Renderer->UnloadSurf(surfaceId);
+    }
+  } else {
+    // TODO: delete all surfaces
+  }
+}
 VmInstruction(InstLoadPic) {
   StartInstruction;
   PopExpression(surfaceId);
@@ -105,8 +123,38 @@ VmInstruction(InstBGload) {
   StartInstruction;
   PopExpression(bufferId);
   PopExpression(backgroundId);
-  int actualBufId = GetBufferId(bufferId);
+  int actualBufId = bufferId > 0 ? GetBufferId(bufferId) : 0;
   int bgBufId = ScrWork[SW_BG1SURF + actualBufId];
+  if (Backgrounds2D[bgBufId]->Status == LoadStatus::Loading) {
+    ResetInstruction;
+    BlockThread;
+  } else if (ScrWork[SW_BG1NO + ScrWorkBgStructSize * actualBufId] !=
+             backgroundId) {
+    ScrWork[SW_BG1NO + ScrWorkBgStructSize * actualBufId] = backgroundId;
+    Backgrounds2D[bgBufId]->LoadAsync(backgroundId);
+    ResetInstruction;
+    BlockThread;
+  }
+}
+VmInstruction(InstBGloadNew) {
+  StartInstruction;
+  PopUint8(type);
+  PopExpression(bufferId);
+  PopExpression(backgroundId);
+  if ((type & 0x7f) == 0x10) {
+    PopExpression(unk01);
+  }
+  [[maybe_unused]]
+  char* name = nullptr;
+  if (type & 0x80) {
+    name = reinterpret_cast<char*>(thread->GetIp());
+    do {
+      thread->IpOffset++;
+    } while ((*thread->GetIp()) != '\0');
+    thread->IpOffset++;
+  }
+  const int actualBufId = GetBufferId(bufferId);
+  const int bgBufId = ScrWork[SW_BG1SURF + actualBufId];
   if (Backgrounds2D[bgBufId]->Status == LoadStatus::Loading) {
     ResetInstruction;
     BlockThread;

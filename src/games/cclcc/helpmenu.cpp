@@ -94,14 +94,16 @@ void HelpMenu::UpdateInput(float dt) {
     PreviousPage = -1;
     SetFlag(SF_SUBMENUEXIT, 1);
   }
-  if (ManualPages.size() > 1) {
+
+  auto manualPages = ManualPages.size();
+
+  if (manualPages > 1) {
     bool prevBtnPressed =
         ((PADinputButtonWentDown | PADinputMouseWentDown) & PADcustom[38]) ||
         Input::MouseWheelDeltaY < 0 || Input::TouchFlickLeft;
     if (State == Shown && prevBtnPressed && FadeAnimation.Progress == 1.0f) {
       PreviousPage = CurrentPage;
-      CurrentPage =
-          (int)((CurrentPage - 1 + ManualPages.size()) % ManualPages.size());
+      CurrentPage = (int)((CurrentPage - 1 + manualPages) % manualPages);
       FadeAnimation.StartIn(true);
       NextPageAnimation.StartIn(true);
       IsGoingNext = false;
@@ -112,7 +114,7 @@ void HelpMenu::UpdateInput(float dt) {
         Input::MouseWheelDeltaY > 0 || Input::TouchFlickRight;
     if (State == Shown && nextBtnPressed && FadeAnimation.Progress == 1.0f) {
       PreviousPage = CurrentPage;
-      CurrentPage = (CurrentPage + 1) % ManualPages.size();
+      CurrentPage = (CurrentPage + 1) % manualPages;
       FadeAnimation.StartIn(true);
       NextPageAnimation.StartIn(true);
       IsGoingNext = true;

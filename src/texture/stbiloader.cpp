@@ -34,6 +34,10 @@ bool TextureLoadSTBI(Io::Stream* stream, Texture* outTexture) {
       outTexture->Format = TexFmt_U8;
       break;
     }
+    case 2: {
+      outTexture->Format = TexFmt_UA8;
+      break;
+    }
     case 3: {
       outTexture->Format = TexFmt_RGB;
       break;

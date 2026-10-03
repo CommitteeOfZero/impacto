@@ -15,6 +15,10 @@ int constexpr MaxCGSprites = 4;
 inline Impacto::SaveSystem::SaveDataType Type =
     Impacto::SaveSystem::SaveDataType::None;
 
+// used for split save files of LCC DP
+inline std::optional<std::string> SystemDataPath;
+inline std::optional<std::string> QuickDataPath;
+
 inline std::string SaveFilePath;
 inline std::optional<std::string> ThumbnailFilePath;
 inline std::vector<uint32_t> StoryScriptIDs;
