@@ -23,6 +23,9 @@ root.TrophyMenu = {
     BronzeTrophySprite = "BronzeTrophy",
     BronzeTrophyPos = { X = 777, Y = 91 },
 
+    RarityCountOffset = { X = 32, Y = 8 },
+    RarityCountFontSize = 12,
+
     DefaultTrophyIconSprite = "DefaultTrophyIcon",
     TrophyEntryCardSprite = "TrophyEntryCard",
     TrophyEntriesBorderSprite = "TrophyEntriesBorder",

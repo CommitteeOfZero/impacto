@@ -1,5 +1,6 @@
 #pragma once
 
+#include <ctime>
 #include <magic_enum/magic_enum.hpp>
 #include "../spritesheet.h"
 #include "../loadable.h"
@@ -9,7 +10,7 @@ namespace AchievementSystem {
 
 enum class AchievementDataType : int {
   None,
-  PS3,
+  Common,
 };
 enum class AchievementError {
   OK = 0,
@@ -21,29 +22,31 @@ enum class AchievementError {
 class Achievement {
  public:
   Achievement(std::string name, std::string description, bool hidden,
-              const Sprite& icon)
+              const Sprite& icon, const Sprite& hiddenIcon)
       : name(std::move(name)),
         description(std::move(description)),
         hidden(hidden),
-        icon(icon) {}
+        icon(icon),
+        hiddenIcon(hiddenIcon) {}
 
   std::string const& Name() const { return name; }
   std::string const& Description() const { return description; }
   bool Hidden() const { return hidden; }
   Sprite const& Icon() const { return icon; }
+  Sprite const& HiddenIcon() const { return hiddenIcon; }
 
  protected:
   std::string name;
   std::string description;
   bool hidden;
   Sprite icon;
+  Sprite hiddenIcon;
 };
 
 class AchievementSystemBase {
  public:
   virtual AchievementError MountAchievementFile(
-      std::function<void(void)>& mainThreadCallback) = 0;
-  //  virtual bool UnlockAchievement(int id) = 0;
+      std::function<void()>& mainThreadCallback) = 0;
   virtual const Achievement* GetAchievement(int id) = 0;
   virtual size_t GetAchievementCount() const = 0;
 };
@@ -56,6 +59,10 @@ LoadStatus GetLoadStatus();
 void MountAchievementFile();
 const Achievement* GetAchievement(int id);
 size_t GetAchievementCount();
+
+bool IsAchievementUnlocked(int id);
+bool UnlockAchievement(int id);
+tm const& GetAchievementUnlockDate(int id);
 
 }  // namespace AchievementSystem
 }  // namespace Impacto
