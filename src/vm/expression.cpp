@@ -121,14 +121,19 @@ int ExpressionSkip(uint8_t* ip) {
       ipLocal = ipLocal + 2;
     } else {
       uint8_t b = *ipLocal & 0x60;
-      if ((*ipLocal & 0x60) == 0) {
-        ipLocal = ipLocal + 2;
-      } else if (b == 0x20) {
-        ipLocal = ipLocal + 3;
-      } else if (b == 0x40) {
-        ipLocal = ipLocal + 4;
-      } else if (b == 0x60) {
-        ipLocal = ipLocal + 6;
+      switch (b) {
+        case 0x00:
+          ipLocal = ipLocal + 2;
+          break;
+        case 0x20:
+          ipLocal = ipLocal + 3;
+          break;
+        case 0x40:
+          ipLocal = ipLocal + 4;
+          break;
+        case 0x60:
+          ipLocal = ipLocal + 6;
+          break;
       }
     }
   }

@@ -1,5 +1,4 @@
 #pragma once
-#pragma once
 
 #include "vm.h"
 #include "sc3stream.h"
