@@ -8,6 +8,7 @@ namespace Vm {
 
 VmInstruction(InstCreateSurf);
 VmInstruction(InstReleaseSurf);
+VmInstruction(InstReleaseSurfNew);
 VmInstruction(InstLoadPic);
 VmInstruction(InstSurfFill);
 VmInstruction(InstSCcapture);

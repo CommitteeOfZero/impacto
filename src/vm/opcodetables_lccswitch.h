@@ -275,9 +275,9 @@ InstructionProc inline constexpr OpcodeTableSystem_LCCSwitch[256] = {
 
 InstructionProc inline constexpr OpcodeTableGraph_LCCSwitch[256] = {
     InstCreateSurf,        // 01 00
-    InstReleaseSurf,       // 01 01
+    InstReleaseSurfNew,    // 01 01
     InstLoadPic,           // 01 02
-    InstReleaseSurf,       // 01 03
+    InstDummy,             // 01 03
     InstSurfFill,          // 01 04
     InstCalc,              // 01 05
     InstMesViewFlag,       // 01 06
