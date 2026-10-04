@@ -257,10 +257,10 @@ VmInstruction(InstClickOnJump) {
   if (Input::KeyboardButtonWentDown[SDL_SCANCODE_D]) {
     thread->IpOffset = labelAdr;
   }
-  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-             "STUB instruction ClickOnJump(arg1: {:d}, arg2: {:d}, "
-             "labelNum: {:d})\n",
-             arg1, arg2, labelNum);
+  ImpLog(LogLevel::Warning, LogChannel::VMStub,
+         "STUB instruction ClickOnJump(arg1: {:d}, arg2: {:d}, "
+         "labelNum: {:d})\n",
+         arg1, arg2, labelNum);
 }
 VmInstruction(InstKeyboardOnJump) {
   using namespace Interface;
