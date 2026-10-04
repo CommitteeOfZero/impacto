@@ -155,10 +155,7 @@ void TextGetSc3String(std::string_view str, T (&out)[N]) {
 
 inline ankerl::unordered_dense::map<uint32_t, uint32_t> NamePlateData;
 void InitNamePlateData(Vm::Sc3Stream& stream);
-
-template <typename T>
-  requires std::same_as<T, uint16_t> || std::same_as<T, uint32_t>
-std::optional<uint32_t> GetNameId(std::span<T> name);
+std::optional<uint32_t> GetNameId(std::span<const uint32_t> name);
 
 }  // namespace Impacto
 
