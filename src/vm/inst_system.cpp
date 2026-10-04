@@ -744,8 +744,7 @@ VmInstruction(InstSystemMes) {
       if (!box) break;
       ScrWork[SW_SYSMESANIMCTF] = 2 * box->MessageCount + 33;
     } break;
-    case 3:  // SystemMesSetMes
-      [[fallthrough]];
+    case 3:    // SystemMesSetMes
     case 4: {  // SystemMesSetSel
       uint32_t message;
 
@@ -776,12 +775,11 @@ VmInstruction(InstSystemMes) {
         box->AddMessage({.Buffers = {},
                          .BufferId = thread->ScriptBufferId,
                          .IpOffset = message});
-        break;
+      } else {
+        box->AddChoice({.Buffers = {},
+                        .BufferId = thread->ScriptBufferId,
+                        .IpOffset = message});
       }
-      box->AddChoice({.Buffers = {},
-                      .BufferId = thread->ScriptBufferId,
-                      .IpOffset = message});
-
     } break;
     case 5: {  // SystemMesMain
       UI::SysMesBox* box = activeBox();
