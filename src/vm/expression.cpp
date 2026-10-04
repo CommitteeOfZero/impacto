@@ -234,7 +234,7 @@ int ExpressionNode::Evaluate(Sc3VmThread* thd) {
     case ET_FuncGlobalVars: {
       int index = RightExpr->Evaluate(thd);
       if (index < 0 || index >= ScrWorkSize) {
-        ImpLogSlow(LogLevel::Warning, LogChannel::Expr,
+        ImpLog(LogLevel::Warning, LogChannel::Expr,
                    "Tried to access oob ScrWork[{}]\n", index);
       }
       index = std::clamp(index, 0, ScrWorkSize);
