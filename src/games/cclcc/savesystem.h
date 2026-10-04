@@ -18,7 +18,6 @@ struct SaveLayout {
   size_t AdvanceTextOffset;
   size_t QuickSortedIdOffset;
   bool QuickSortedIdIsLoaded;
-  bool QuickSortedIdBackCompat;
   size_t EVFlagsOffset;
   size_t BgmFlagsOffset;
   size_t MessageFlagsOffset;
@@ -29,37 +28,36 @@ struct SaveLayout {
   size_t SysScrWorkDst1;
   size_t SysScrWorkLen1;
 
-  size_t FlagWork1Len;
-  size_t FlagWork2Len;
   int64_t FlagWork2Src;
-  size_t ScrWork1Len;
-  size_t ScrWork2Len;
   int64_t MainThreadOffset;
   int64_t MainThreadBufIdOffset;
   int64_t WaveOffset;
   int64_t MapLoadOffset;
   int64_t ThumbnailPadding;
 
-  size_t MapLoadLen, YesNoLen;
   int ThumbnailWidth, ThumbnailHeight;
 };
-
 struct SaveFileEntry : SaveFileEntryBase {
-  explicit SaveFileEntry(const SaveLayout& l)
-      : FlagWorkScript1(l.FlagWork1Len),
-        FlagWorkScript2(l.FlagWork2Len),
-        ScrWorkScript1(l.ScrWork1Len),
-        ScrWorkScript2(l.ScrWork2Len),
-        MapLoadData(l.MapLoadLen),
-        YesNoData(l.YesNoLen),
-        ThumbnailData(l.ThumbnailWidth * l.ThumbnailHeight * 2) {}
+  virtual std::span<uint8_t> GetFlagWorkScript1() = 0;
+  virtual std::span<const uint8_t> GetFlagWorkScript1() const = 0;
+  virtual std::span<uint8_t> GetFlagWorkScript2() = 0;
+  virtual std::span<const uint8_t> GetFlagWorkScript2() const = 0;
+  virtual std::span<int> GetScrWorkScript1() = 0;
+  virtual std::span<const int> GetScrWorkScript1() const = 0;
+  virtual std::span<int> GetScrWorkScript2() = 0;
+  virtual std::span<const int> GetScrWorkScript2() const = 0;
+  virtual std::span<uint8_t> GetMapLoadData() = 0;
+  virtual std::span<const uint8_t> GetMapLoadData() const = 0;
+  virtual std::span<uint8_t> GetYesNoData() = 0;
+  virtual std::span<const uint8_t> GetYesNoData() const = 0;
+  virtual std::span<int> GetWaveData() = 0;
+  virtual std::span<const int> GetWaveData() const = 0;
+  virtual std::span<uint8_t> GetThumbnailData() = 0;
+  virtual std::span<const uint8_t> GetThumbnailData() const = 0;
 
-  std::vector<uint8_t> FlagWorkScript1, FlagWorkScript2;
-  std::vector<int> ScrWorkScript1, ScrWorkScript2;
-  std::vector<uint8_t> MapLoadData, YesNoData;
-  std::array<int, 303>
-      WaveData{};  // 3 wave types * 20 waves * 5 fields + 3 counts
-  std::vector<uint8_t> ThumbnailData;
+  virtual std::unique_ptr<SaveFileEntry> Clone() const = 0;
+
+  virtual ~SaveFileEntry() = default;
 };
 
 class SaveSystem : public SaveSystemBase {
@@ -82,7 +80,8 @@ class SaveSystem : public SaveSystemBase {
 
   virtual void LoadScrWork() = 0;
 
-  virtual SaveLayout GetSaveLayout() const = 0;
+  virtual const SaveLayout* GetSaveLayout() const = 0;
+  virtual void InitSaveSlots() = 0;
 
   SaveError LoadSystemData() override;
   void SaveSystemData() override;
@@ -95,7 +94,6 @@ class SaveSystem : public SaveSystemBase {
                        SaveType saveType, Texture& tex);
   void SaveEntryBuffer(Io::MemoryStream& memoryStream, SaveFileEntry& entry,
                        SaveType saveType);
-  void LoadEntry(SaveType type, int id) override;
   void FlushWorkingSaveEntry(SaveType type, int id, int autoSaveType) override;
 
   void SaveMemory() override;
@@ -131,14 +129,20 @@ class SaveSystem : public SaveSystemBase {
   void WaveSave(std::span<int> data);
   void WaveLoad(std::span<const int> data) const;
 
- protected:
-  std::vector<uint8_t> GameExtraData;
-  std::vector<uint8_t> MessageFlags;
-  std::vector<uint8_t> SystemData;
-  std::vector<uint8_t> EVFlags;
-  std::vector<uint8_t> BGMFlags;
+  virtual void WriteWorkingSaveEntry(SaveFileEntry* entry) = 0;
 
-  std::optional<SaveFileEntry> WorkingSaveEntry;
+ protected:
+  virtual std::span<uint8_t> GetGameExtraData() = 0;
+  virtual std::span<const uint8_t> GetGameExtraData() const = 0;
+  virtual std::span<uint8_t> GetMessageFlags() = 0;
+  virtual std::span<const uint8_t> GetMessageFlags() const = 0;
+  virtual std::span<uint8_t> GetSystemData() = 0;
+  virtual std::span<uint8_t> GetEVFlags() = 0;
+  virtual std::span<const uint8_t> GetEVFlags() const = 0;
+  virtual std::span<uint8_t> GetBGMFlags() = 0;
+  virtual std::span<const uint8_t> GetBGMFlags() const = 0;
+
+  std::unique_ptr<SaveFileEntry> WorkingSaveEntry;
 };
 
 }  // namespace CCLCC

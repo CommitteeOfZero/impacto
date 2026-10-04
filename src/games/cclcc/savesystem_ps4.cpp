@@ -37,7 +37,6 @@ static constexpr CCLCC::SaveLayout Ps4Layout{
     .AdvanceTextOffset = 0x905,
     .QuickSortedIdOffset = 0xBCE,
     .QuickSortedIdIsLoaded = true,
-    .QuickSortedIdBackCompat = true,
     .EVFlagsOffset = 0xC0E,
     .BgmFlagsOffset = 0xCA4,
     .MessageFlagsOffset = 0xD6C,
@@ -47,20 +46,14 @@ static constexpr CCLCC::SaveLayout Ps4Layout{
     .SysFlagWorkDst2 = 460,
     .SysScrWorkDst1 = 1600,
     .SysScrWorkLen1 = 400,
-
-    .FlagWork1Len = 50,   // 50 bytes from &FlagWork[50]
-    .FlagWork2Len = 100,  // 100 bytes from &FlagWork[300]
     .FlagWork2Src = 300,
-    .ScrWork1Len = 600,   // (in ints) 2400 bytes from &ScrWork[1000]
-    .ScrWork2Len = 3000,  // (in ints) 12000 bytes from &ScrWork[4300]
+
     .MainThreadOffset = 0x3958,
     .MainThreadBufIdOffset = 0x39bc,
     .WaveOffset = 0x3A04,
     .MapLoadOffset = 0x3EC0,
     .ThumbnailPadding = 0xA14,
 
-    .MapLoadLen = 0x6ac8,
-    .YesNoLen = 0x54,
     .ThumbnailWidth = 240,
     .ThumbnailHeight = 135,
 };
@@ -102,6 +95,15 @@ SaveError SaveSystem::CheckSaveFile() const {
   return SaveError::OK;
 }
 
+void SaveSystem::LoadEntry(SaveType type, int id) {
+  if (!WorkingSaveEntry) {
+    ImpLog(LogLevel::Error, LogChannel::IO,
+           "Failed to load save memory: no working save\n");
+    return;
+  }
+  WorkingSaveEntry = GetSaveEntry<SaveFileEntry>(type, id)->Clone();
+}
+
 SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
   Io::Stream* stream;
   IoError err = Io::PhysicalFileStream::Create(SaveFilePath, &stream);
@@ -114,9 +116,8 @@ SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
     case IoError_OK:
       break;
   };
-  const auto l = GetSaveLayout();
   const RectF viewport = Window->GetViewport();
-  WorkingSaveEntry = CCLCC::SaveFileEntry(l);
+  WorkingSaveEntry = std::make_unique<SaveFileEntry>(SaveFileEntry{});
   WorkingSaveThumbnail.Sheet = SpriteSheet(viewport.Width, viewport.Height);
   WorkingSaveThumbnail.Bounds.SetSize(viewport.GetSize());
 
@@ -142,7 +143,7 @@ SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
     for (int i = 0; i < MaxSaveEntries; i++) {
       assert(stream->Position - saveDataPos ==
              static_cast<int>(SaveEntrySize) * i);
-      entryArray[i] = new CCLCC::SaveFileEntry(l);
+      entryArray[i] = new SaveFileEntry();
 
       std::array<uint8_t, SaveEntrySize> entrySlotBuf;
       Io::ReadArrayLE<uint8_t>(entrySlotBuf.data(), stream,
@@ -154,12 +155,11 @@ SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
           .Id = std::ref(entryArray[i]->SaveThumbnail.Sheet.Texture),
       };
       LoadEntryBuffer(saveEntryDataStream,
-                      static_cast<CCLCC::SaveFileEntry&>(*entryArray[i]),
-                      saveType, tex.Tex);
+                      static_cast<SaveFileEntry&>(*entryArray[i]), saveType,
+                      tex.Tex);
       if (saveType == SaveType::Quick) {
         lockedQuickSaveSlots +=
-            static_cast<CCLCC::SaveFileEntry&>(*entryArray[i]).Flags &
-            WriteProtect;
+            static_cast<SaveFileEntry&>(*entryArray[i]).Flags & WriteProtect;
       }
       textures.push_back(tex);
 
@@ -198,7 +198,7 @@ SaveError SaveSystem::WriteSaveFile() {
         (entryArray == QuickSaveEntries) ? SaveType::Quick : SaveType::Full;
     [[maybe_unused]] int64_t saveDataPos = stream->Position;
     for (int i = 0; i < MaxSaveEntries; i++) {
-      CCLCC::SaveFileEntry* entry = (CCLCC::SaveFileEntry*)entryArray[i];
+      SaveFileEntry* entry = (SaveFileEntry*)entryArray[i];
       if (entry == nullptr || entry->Status == 0) {
         Io::WriteLE<uint8_t>(stream, 0, SaveEntrySize);
       } else {
@@ -222,48 +222,64 @@ SaveError SaveSystem::WriteSaveFile() {
   return SaveError::OK;
 }
 
-CCLCC::SaveLayout SaveSystem::GetSaveLayout() const { return Ps4Layout; }
+const CCLCC::SaveLayout* SaveSystem::GetSaveLayout() const {
+  return &Ps4Layout;
+}
+
+void SaveSystem::InitSaveSlots() {
+  std::for_each_n(QuickSaveEntries, MaxSaveEntries,
+                  [](auto& ptr) { ptr = new SaveFileEntry(); });
+  std::for_each_n(FullSaveEntries, MaxSaveEntries,
+                  [](auto& ptr) { ptr = new SaveFileEntry(); });
+  WorkingSaveEntry = std::make_unique<SaveFileEntry>(SaveFileEntry{});
+}
 
 void SaveSystem::ReadWorkScriptData(Io::MemoryStream& stream,
                                     CCLCC::SaveFileEntry& entry) {
-  Io::ReadArrayLE<uint8_t>(entry.FlagWorkScript1.data(), &stream,
-                           entry.FlagWorkScript1.size());
+  SaveFileEntry* localEntry = dynamic_cast<SaveFileEntry*>(&entry);
+  Io::ReadArrayLE<uint8_t>(localEntry->FlagWorkScript1.data(), &stream,
+                           localEntry->FlagWorkScript1.size());
   assert(stream.Position == 178);
-  Io::ReadArrayLE<uint8_t>(entry.FlagWorkScript2.data(), &stream,
-                           entry.FlagWorkScript2.size());
+  Io::ReadArrayLE<uint8_t>(localEntry->FlagWorkScript2.data(), &stream,
+                           localEntry->FlagWorkScript2.size());
   Io::ReadLE<uint16_t>(&stream);
   assert(stream.Position == 280);
-  Io::ReadArrayLE<int>(entry.ScrWorkScript1.data(), &stream,
-                       entry.ScrWorkScript1.size());
+  Io::ReadArrayLE<int>(localEntry->ScrWorkScript1.data(), &stream,
+                       localEntry->ScrWorkScript1.size());
   assert(stream.Position == 2680);
-  Io::ReadArrayLE<int>(entry.ScrWorkScript2.data(), &stream,
-                       entry.ScrWorkScript2.size());
+  Io::ReadArrayLE<int>(localEntry->ScrWorkScript2.data(), &stream,
+                       localEntry->ScrWorkScript2.size());
 }
 
 void SaveSystem::WriteWorkScriptData(Io::MemoryStream& stream,
                                      CCLCC::SaveFileEntry& entry) {
-  Io::WriteArrayLE<uint8_t>(entry.FlagWorkScript1.data(), &stream,
-                            entry.FlagWorkScript1.size());
+  SaveFileEntry* localEntry = dynamic_cast<SaveFileEntry*>(&entry);
+  Io::WriteArrayLE<uint8_t>(localEntry->FlagWorkScript1.data(), &stream,
+                            localEntry->FlagWorkScript1.size());
   assert(stream.Position == 178);
-  Io::WriteArrayLE<uint8_t>(entry.FlagWorkScript2.data(), &stream,
-                            entry.FlagWorkScript2.size());
+  Io::WriteArrayLE<uint8_t>(localEntry->FlagWorkScript2.data(), &stream,
+                            localEntry->FlagWorkScript2.size());
   Io::WriteLE<uint16_t>(&stream, 0);
   assert(stream.Position == 280);
-  Io::WriteArrayLE<int>(entry.ScrWorkScript1.data(), &stream,
-                        entry.ScrWorkScript1.size());
+  Io::WriteArrayLE<int>(localEntry->ScrWorkScript1.data(), &stream,
+                        localEntry->ScrWorkScript1.size());
   assert(stream.Position == 2680);
-  Io::WriteArrayLE<int>(entry.ScrWorkScript2.data(), &stream,
-                        entry.ScrWorkScript2.size());
+  Io::WriteArrayLE<int>(localEntry->ScrWorkScript2.data(), &stream,
+                        localEntry->ScrWorkScript2.size());
 }
 
 void SaveSystem::WriteWaveData(Io::MemoryStream& stream,
                                CCLCC::SaveFileEntry& entry) {
-  Io::WriteArrayLE<int>(entry.WaveData.data(), &stream, entry.WaveData.size());
+  SaveFileEntry* localEntry = dynamic_cast<SaveFileEntry*>(&entry);
+  Io::WriteArrayLE<int>(localEntry->WaveData.data(), &stream,
+                        localEntry->WaveData.size());
 };
 
 void SaveSystem::ReadWaveData(Io::MemoryStream& stream,
                               CCLCC::SaveFileEntry& entry) {
-  Io::ReadArrayLE<int>(entry.WaveData.data(), &stream, entry.WaveData.size());
+  SaveFileEntry* localEntry = dynamic_cast<SaveFileEntry*>(&entry);
+  Io::ReadArrayLE<int>(localEntry->WaveData.data(), &stream,
+                       localEntry->WaveData.size());
 };
 
 void SaveSystem::WriteBGMFlags(Io::MemoryStream& stream) {
@@ -287,6 +303,10 @@ void SaveSystem::LoadScrWork() {
     ScrWork[SW_SVBGNO1 + i] = ScrWork[SW_BG1NO + i * ScrWorkBgStructSize];
     ScrWork[SW_SVCHANO1 + i] = ScrWork[SW_CHA1NO + i * ScrWorkChaStructSize];
   }
+}
+void SaveSystem::WriteWorkingSaveEntry(CCLCC::SaveFileEntry* entry) {
+  *dynamic_cast<SaveFileEntry*>(entry) =
+      *dynamic_cast<SaveFileEntry*>(WorkingSaveEntry.get());
 }
 
 }  // namespace CCLCC_PS4
