@@ -258,9 +258,9 @@ VmInstruction(InstClickOnJump) {
     thread->IpOffset = labelAdr;
   }
   ImpLog(LogLevel::Warning, LogChannel::VMStub,
-             "STUB instruction ClickOnJump(arg1: {:d}, arg2: {:d}, "
-             "labelNum: {:d})\n",
-             arg1, arg2, labelNum);
+         "STUB instruction ClickOnJump(arg1: {:d}, arg2: {:d}, "
+         "labelNum: {:d})\n",
+         arg1, arg2, labelNum);
 }
 VmInstruction(InstKeyboardOnJump) {
   using namespace Interface;
