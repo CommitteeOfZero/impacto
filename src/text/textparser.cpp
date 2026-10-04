@@ -505,7 +505,7 @@ void TextParser::FinishName() {
 
 void DialogueTextParser::ParseString(Vm::Sc3VmThread* string) {
   using TokenParserProc = auto (TextParser::*)(const StringToken&)->void;
-  static auto tokenParserLUT = []() {
+  constexpr static auto tokenParserLUT = []() {
     magic_enum::containers::array<StringTokenType, TokenParserProc> lut;
     lut.fill(nullptr);
 
@@ -609,7 +609,7 @@ void DialogueTextParser::ParseString(DialoguePage& page,
 
 void BacklogTextParser::ParseString(Vm::Sc3VmThread* string) {
   using TokenParserProc = auto (TextParser::*)(const StringToken&)->void;
-  static auto tokenParserLUT = []() {
+  constexpr static auto tokenParserLUT = []() {
     magic_enum::containers::array<StringTokenType, TokenParserProc> lut;
     lut.fill(nullptr);
 
@@ -668,7 +668,7 @@ void BacklogTextParser::ParseString(BacklogPage& page,
 
 void TipsTextParser::ParseString(Vm::Sc3VmThread* string) {
   using TokenParserProc = auto (TextParser::*)(const StringToken&)->void;
-  static auto tokenParserLUT = []() {
+  constexpr static auto tokenParserLUT = []() {
     magic_enum::containers::array<StringTokenType, TokenParserProc> lut;
     lut.fill(nullptr);
 
