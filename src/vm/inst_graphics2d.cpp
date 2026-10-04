@@ -49,8 +49,8 @@ VmInstruction(InstReleaseSurfNew) {
   PopUint8(type);
   if (type == 1) {
     PopExpression(surfaceId);
-    ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-               "STUB instruction ReleaseSurf(surfaceId: {:d})\n", surfaceId);
+    ImpLog(LogLevel::Warning, LogChannel::VMStub,
+           "STUB instruction ReleaseSurf(surfaceId: {:d})\n", surfaceId);
     if (surfaceId < 8) {
       if (Backgrounds2D[surfaceId]->Status == LoadStatus::Loaded) {
         Backgrounds2D[surfaceId]->Unload();
