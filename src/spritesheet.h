@@ -42,7 +42,7 @@ struct SpriteSheet {
   Io::AssetPath Path{};
   bool ScriptHandled = false;
 
-  PlainTextureRef Texture{};
+  TextureRef Texture{};
 };
 
 // TODO replace BaseScale with scaled width/height and unscaled width/height

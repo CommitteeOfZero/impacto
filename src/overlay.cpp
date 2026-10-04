@@ -34,7 +34,7 @@ namespace Impacto::Overlay {
 static std::optional<OverlayTab> ActiveTab;
 
 struct ImgData {
-  PlainTextureRef Texture;
+  TextureRef Texture;
 };
 static ankerl::unordered_dense::map<std::string, ImgData> iconTextureMap;
 
@@ -727,10 +727,11 @@ static void ShowAchievementsPage() {
         RectF uv = icon.NormalizedBounds();
         ImVec4 tint = unlocked ? ImVec4{1.0f, 1.0f, 1.0f, 1.0f}
                                : ImVec4{0.25f, 0.25f, 0.25f, 1.0f};
-        ImGui::Image((ImTextureID)(intptr_t)icon.Sheet.Texture,
-                     ImVec2{iconSize, iconSize}, ImVec2{uv.X, uv.Y},
-                     ImVec2{uv.Right(), uv.Bottom()}, tint,
-                     ImVec4{0.0f, 0.0f, 0.0f, 0.0f});
+        ImGui::Image(
+            static_cast<ImTextureID>(icon.Sheet.Texture->GetTextureId()),
+            ImVec2{iconSize, iconSize}, ImVec2{uv.X, uv.Y},
+            ImVec2{uv.Right(), uv.Bottom()}, tint,
+            ImVec4{0.0f, 0.0f, 0.0f, 0.0f});
       } else {
         ImGui::Dummy(ImVec2{iconSize, iconSize});
       }

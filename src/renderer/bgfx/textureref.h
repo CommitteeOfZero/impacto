@@ -6,17 +6,20 @@
 
 namespace Impacto::Bgfx {
 
-class PlainTextureRef final : public Impacto::PlainTextureRefInterface {
+class TextureRef : public virtual Impacto::TextureRefInterface {
  public:
-  PlainTextureRef() = delete;
-  PlainTextureRef(const PlainTextureRef&) = delete;
-  PlainTextureRef(PlainTextureRef&& other) = default;
-  ~PlainTextureRef() = default;
+  TextureRef() = delete;
+  TextureRef(const TextureRef&) = delete;
+  TextureRef(TextureRef&& other) { *this = std::move(other); };
+  ~TextureRef() = default;
 
-  PlainTextureRef(Texture& texture) : TextureObject(&texture) {}
+  TextureRef(Texture& texture) : TextureObject(&texture) {}
 
-  PlainTextureRef& operator=(const PlainTextureRef&) = delete;
-  PlainTextureRef& operator=(PlainTextureRef&&) = default;
+  TextureRef& operator=(const TextureRef&) = delete;
+  TextureRef& operator=(TextureRef&& other) {
+    TextureObject = std::exchange(other.TextureObject, nullptr);
+    return *this;
+  }
 
   [[nodiscard]] bool IsValid() const override {
     return TextureObject != nullptr && TextureObject->IsValid();
@@ -43,7 +46,8 @@ class PlainTextureRef final : public Impacto::PlainTextureRefInterface {
   Texture* TextureObject = nullptr;
 };  // namespace Impacto::Bgfx
 
-class MutableTextureRef final : public Impacto::MutableTextureRefInterface {
+class MutableTextureRef final : public Impacto::MutableTextureRefInterface,
+                                public Bgfx::TextureRef {
  public:
   MutableTextureRef() = delete;
   MutableTextureRef(const MutableTextureRef&) = delete;
@@ -51,29 +55,28 @@ class MutableTextureRef final : public Impacto::MutableTextureRefInterface {
   ~MutableTextureRef() = default;
 
   MutableTextureRef(MutableTexture& texture)
-      : PlainTexture(static_cast<Texture&>(texture)) {}
+      : Bgfx::TextureRef(static_cast<Texture&>(texture)) {}
 
   MutableTextureRef& operator=(const MutableTextureRef&) = delete;
   MutableTextureRef& operator=(MutableTextureRef&&) = default;
 
-  [[nodiscard]] bool IsValid() const override { return PlainTexture.IsValid(); }
+  void Update(std::span<const uint8_t> data, size_t rowStride) override {
+    assert(IsValid());
+    static_cast<MutableTexture*>(TextureObject)
+        ->Update(data, static_cast<uint16_t>(rowStride));
+  }
+
+  [[nodiscard]] bool IsValid() const override {
+    return Bgfx::TextureRef::IsValid();
+  }
 
   [[nodiscard]] glm::vec<2, size_t> GetDimensions() const override {
-    return PlainTexture.GetDimensions();
+    return Bgfx::TextureRef::GetDimensions();
   }
 
   [[nodiscard]] uint64_t GetTextureId() const override {
-    return PlainTexture.GetTextureId();
+    return Bgfx::TextureRef::GetTextureId();
   }
-
-  void Update(std::span<const uint8_t> data, size_t rowStride) override {
-    assert(IsValid());
-    static_cast<MutableTexture&>(PlainTexture.GetTexture())
-        .Update(data, static_cast<uint16_t>(rowStride));
-  }
-
- protected:
-  Bgfx::PlainTextureRef PlainTexture;
 };
 
 }  // namespace Impacto::Bgfx

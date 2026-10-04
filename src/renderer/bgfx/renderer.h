@@ -31,13 +31,13 @@ class Renderer final : public BaseRenderer {
   void BeginFrame2D() override;
   void EndFrame() override;
 
-  [[nodiscard]] Impacto::PlainTextureRef MapSpriteSheet(
+  [[nodiscard]] Impacto::TextureRef MapSpriteSheet(
       SpriteSheet const& sheet) override {
-    return Impacto::PlainTextureRef{};
+    return Impacto::TextureRef{};
   }
   void UnloadSurf(int surfId) override {}
 
-  [[nodiscard]] Impacto::PlainTextureRef SubmitTexture(
+  [[nodiscard]] Impacto::TextureRef SubmitTexture(
       TexFmt format, std::span<const uint8_t> buffer,
       glm::vec<2, size_t> dimensions) override;
 
@@ -116,8 +116,8 @@ class Renderer final : public BaseRenderer {
   void CaptureScreencap(Sprite& sprite) override {}
 
   void SetFramebuffer(size_t buffer) override {}
-  Impacto::PlainTextureRef GetFramebufferTexture(size_t buffer) override {
-    return Impacto::PlainTextureRef{};
+  Impacto::TextureRef GetFramebufferTexture(size_t buffer) override {
+    return Impacto::TextureRef{};
   }
 
   void EnableScissor() override {}

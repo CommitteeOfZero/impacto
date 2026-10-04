@@ -229,7 +229,7 @@ void SaveSystem::FlushWorkingSaveEntry(SaveType type, int id,
 
   if (WorkingSaveEntry != 0) {
     if (entry != 0 && !(entry->Flags & WriteProtect)) {
-      entry->SaveThumbnail.Sheet.Texture = PlainTextureRef{};
+      entry->SaveThumbnail.Sheet.Texture = TextureRef{};
       if (type == SaveType::Quick) {
         entry->SaveType = autoSaveType;
         UpdateQuickSaveRecentSortedId(id);

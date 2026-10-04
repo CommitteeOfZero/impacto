@@ -4,17 +4,13 @@
 
 namespace Impacto {
 
-template <typename T>
-  requires TextureRefInterfaceType<T>
-TextureRef<T>::TextureRef(T* ptr) : Ptr(ptr) {
+TextureRef::TextureRef(TextureRefInterface* const ptr) : Ptr(ptr) {
   if (Ptr != nullptr) {
     Renderer->AlterRefCount(Ptr, +1);
   }
 }
 
-template <typename T>
-  requires TextureRefInterfaceType<T>
-TextureRef<T>& TextureRef<T>::operator=(const TextureRef<T>& other) {
+TextureRef& TextureRef::operator=(const TextureRef& other) {
   if (this == &other || Ptr == other.Ptr) return *this;
 
   if (Ptr != nullptr && Renderer != nullptr) {
@@ -30,9 +26,7 @@ TextureRef<T>& TextureRef<T>::operator=(const TextureRef<T>& other) {
   return *this;
 }
 
-template <typename T>
-  requires TextureRefInterfaceType<T>
-TextureRef<T>& TextureRef<T>::operator=(TextureRef<T>&& other) {
+TextureRef& TextureRef::operator=(TextureRef&& other) {
   if (this == &other || Ptr == other.Ptr) return *this;
 
   if (Ptr != nullptr && Renderer != nullptr) {
@@ -45,14 +39,9 @@ TextureRef<T>& TextureRef<T>::operator=(TextureRef<T>&& other) {
   return *this;
 }
 
-template <typename T>
-  requires TextureRefInterfaceType<T>
-TextureRef<T>::~TextureRef() {
+TextureRef::~TextureRef() {
   if (Ptr == nullptr || Renderer == nullptr) return;
   Renderer->AlterRefCount(Ptr, -1);
 }
-
-template class TextureRef<PlainTextureRefInterface>;
-template class TextureRef<MutableTextureRefInterface>;
 
 }  // namespace Impacto

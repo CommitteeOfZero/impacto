@@ -50,7 +50,7 @@ struct ScriptMessageDataPair {
 
 // A delayed Texture::Submit() operation to be executed on the main thread
 struct QueuedTexture {
-  PlainTextureRef Reference;
+  TextureRef Reference;
   Texture Tex{};
 };
 

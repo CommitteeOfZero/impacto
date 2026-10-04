@@ -365,7 +365,7 @@ void Renderer::ImGuiBeginFrame() {
 }
 #endif
 
-Impacto::PlainTextureRef Renderer::SubmitTexture(
+Impacto::TextureRef Renderer::SubmitTexture(
     const TexFmt format, const std::span<const uint8_t> buffer,
     const glm::vec<2, size_t> dimensions) {
   Texture& texture =
@@ -373,7 +373,7 @@ Impacto::PlainTextureRef Renderer::SubmitTexture(
                                                 buffer, dimensions))
            ->second.first;
 
-  return Impacto::PlainTextureRef(new Bgfx::PlainTextureRef(texture));
+  return Impacto::TextureRef(new Bgfx::TextureRef(texture));
 }
 
 decltype(Renderer::Textures)::iterator Renderer::DeclareTexture(

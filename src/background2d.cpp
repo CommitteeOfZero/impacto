@@ -138,7 +138,7 @@ void Background2D::LoadSolidColor(uint32_t color, int width, int height) {
 }
 
 void Background2D::UnloadSync() {
-  BgSprite.Sheet.Texture = PlainTextureRef{};
+  BgSprite.Sheet.Texture = TextureRef{};
   BgSprite.Sheet.DesignHeight = 0.0f;
   BgSprite.Sheet.DesignWidth = 0.0f;
 
@@ -146,7 +146,7 @@ void Background2D::UnloadSync() {
     for (BgEff& bgEff : FrameBgEffs) {
       bgEff.Loaded = false;
 
-      bgEff.BgEffSprite.Sheet.Texture = PlainTextureRef{};
+      bgEff.BgEffSprite.Sheet.Texture = TextureRef{};
       bgEff.BgEffSprite.Sheet.DesignHeight = 0.0f;
       bgEff.BgEffSprite.Sheet.DesignWidth = 0.0f;
     }
@@ -155,7 +155,7 @@ void Background2D::UnloadSync() {
   if (BgChaEffectType != BgEffTypeEnum::Disabled) {
     ChaBgEff.Loaded = false;
 
-    ChaBgEff.BgEffSprite.Sheet.Texture = PlainTextureRef{};
+    ChaBgEff.BgEffSprite.Sheet.Texture = TextureRef{};
     ChaBgEff.BgEffSprite.Sheet.DesignHeight = 0.0f;
     ChaBgEff.BgEffSprite.Sheet.DesignWidth = 0.0f;
   }

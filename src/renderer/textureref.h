@@ -19,44 +19,56 @@ class TextureRefInterface {
   [[nodiscard]] virtual uint64_t GetTextureId() const = 0;
 };
 
-class PlainTextureRefInterface : public TextureRefInterface {};
-
-class MutableTextureRefInterface : public TextureRefInterface {
+class MutableTextureRefInterface : public virtual TextureRefInterface {
  public:
   virtual void Update(std::span<const uint8_t> data, size_t rowStride) = 0;
 };
 
-template <typename T>
-concept TextureRefInterfaceType =
-    is_any_of_v<T, PlainTextureRefInterface, MutableTextureRefInterface>;
-
-template <typename Interface>
-  requires TextureRefInterfaceType<Interface>
 class TextureRef {
  public:
   TextureRef() = default;
-  TextureRef(const TextureRef<Interface>& other) { *this = other; }
-  TextureRef(TextureRef<Interface>&& other) { *this = std::move(other); }
-  ~TextureRef();
+  TextureRef(const TextureRef& other) { *this = other; }
+  TextureRef(TextureRef&& other) { *this = std::move(other); }
+  virtual ~TextureRef();
 
-  TextureRef(Interface* ptr);
+  TextureRef(TextureRefInterface* ptr);
 
-  TextureRef<Interface>& operator=(const TextureRef<Interface>&);
-  TextureRef<Interface>& operator=(TextureRef<Interface>&&);
+  TextureRef& operator=(const TextureRef&);
+  TextureRef& operator=(TextureRef&&);
 
-  Interface& operator*() const { return *Ptr; }
-  Interface* operator->() const { return Ptr; }
-  Interface* Get() const { return Ptr; }
+  TextureRefInterface& operator*() const { return *Ptr; }
+  TextureRefInterface* operator->() const { return Ptr; }
+  TextureRefInterface* Get() const { return Ptr; }
 
-  bool operator==(const TextureRef<Interface>&) const = default;
+  bool operator==(const TextureRef&) const = default;
 
   bool IsValid() const { return Ptr != nullptr && Ptr->IsValid(); }
 
- private:
-  Interface* Ptr = nullptr;
+ protected:
+  TextureRefInterface* Ptr = nullptr;
 };
 
-using PlainTextureRef = TextureRef<PlainTextureRefInterface>;
-using MutableTextureRef = TextureRef<MutableTextureRefInterface>;
+class MutableTextureRef final : public TextureRef {
+ public:
+  MutableTextureRef() = default;
+  MutableTextureRef(const MutableTextureRef&) = default;
+  MutableTextureRef(MutableTextureRef&&) = default;
+
+  MutableTextureRef(MutableTextureRefInterface* ptr)
+      : TextureRef(static_cast<TextureRefInterface*>(ptr)) {}
+
+  MutableTextureRef& operator=(const MutableTextureRef&) = default;
+  MutableTextureRef& operator=(MutableTextureRef&&) = default;
+
+  MutableTextureRefInterface& operator*() const {
+    return dynamic_cast<MutableTextureRefInterface&>(*Ptr);
+  }
+  MutableTextureRefInterface* operator->() const {
+    return dynamic_cast<MutableTextureRefInterface*>(Ptr);
+  }
+  MutableTextureRefInterface* Get() const {
+    return dynamic_cast<MutableTextureRefInterface*>(Ptr);
+  }
+};
 
 }  // namespace Impacto
