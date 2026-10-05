@@ -1,9 +1,10 @@
 #include "trophymenuentry.h"
 
+#include <cassert>
+
 #include "../../../data/achievementsystem.h"
 #include "../../../games/chlcc/trophymenu.h"
 #include "../../../profile/games/chlcc/trophymenu.h"
-#include "../../../profile/game.h"
 
 namespace Impacto {
 namespace UI {
@@ -19,8 +20,10 @@ TrophyMenuEntry::TrophyMenuEntry(int achievementId)
       FirstEntryPos +
       glm::vec2(0.0f, EntryHeight * (AchievementId % EntriesPerPage)));
 
-  const auto* ach = AchievementSystem::GetAchievement(AchievementId);
-  if (ach == nullptr) {
+  const auto* ach = GetAchievement(AchievementId);
+  assert(ach != nullptr);
+  const bool unlocked = IsAchievementUnlocked(AchievementId);
+  if (ach == nullptr || !unlocked) {
     NameLabel =
         Label(Vm::ScriptGetTextTableStrAddress(EntryDefaultNameTextTableId,
                                                EntryDefaultNameStringNum),

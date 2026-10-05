@@ -11,9 +11,13 @@
 #include "../../inputsystem.h"
 #include "../../vm/interface/input.h"
 #include "../../data/achievementsystem.h"
+#include "../../data/achievementsystemcommon.h"
+#include "../../profile/data/achievementsystem.h"
 #include "../../ui/widgets/chlcc/trophymenuentry.h"
 
-#include <numbers>
+#include <array>
+#include <fmt/format.h>
+#include <magic_enum/magic_enum_containers.hpp>
 
 namespace Impacto {
 namespace UI {
@@ -34,6 +38,50 @@ using namespace Impacto::UI::Widgets::CHLCC;
 TrophyMenu::TrophyMenu() : CommonMenu(true) {
   TrophyCountHintLabel.Enabled = false;
   TrophyCountHintLabel.MoveTo(TrophyCountHintLabelPos);
+
+  BronzeCountLabel.MoveTo(BronzeTrophyPos + RarityCountOffset);
+  SilverCountLabel.MoveTo(SilverTrophyPos + RarityCountOffset);
+  GoldCountLabel.MoveTo(GoldTrophyPos + RarityCountOffset);
+  PlatinumCountLabel.MoveTo(PlatinumTrophyPos + RarityCountOffset);
+}
+
+void TrophyMenu::UpdateRarityCounts() {
+  using namespace Impacto::AchievementSystem;
+
+  magic_enum::containers::array<AchievementRarity, size_t> unlockedCounts{};
+  magic_enum::containers::array<AchievementRarity, size_t> totalCounts{};
+
+  switch (Profile::AchievementSystem::Type) {
+    case AchievementDataType::Common: {
+      auto* commonImpl = static_cast<AchievementSystemCommon*>(Implementation);
+      const size_t count = GetAchievementCount();
+      for (size_t id = 0; id < count; id++) {
+        const CommonAchievement* ach =
+            commonImpl->GetAchievement(static_cast<int>(id));
+        if (ach == nullptr) continue;
+        const AchievementRarity rarity = ach->GetRarity();
+        totalCounts[rarity]++;
+        if (IsAchievementUnlocked(static_cast<int>(id)))
+          unlockedCounts[rarity]++;
+      }
+      break;
+    }
+    case AchievementDataType::None:
+      break;
+  }
+
+  const auto setCount = [&unlockedCounts, &totalCounts](
+                            Label& label, AchievementRarity rarity) {
+    label.SetText(
+        fmt::format("{:d}/{:d}", unlockedCounts[rarity], totalCounts[rarity]),
+        label.Bounds.GetPos(), RarityCountFontSize, RendererOutlineMode::Full,
+        0);
+  };
+
+  setCount(BronzeCountLabel, AchievementRarity::Bronze);
+  setCount(SilverCountLabel, AchievementRarity::Silver);
+  setCount(GoldCountLabel, AchievementRarity::Gold);
+  setCount(PlatinumCountLabel, AchievementRarity::Platinum);
 }
 
 void TrophyMenu::Show() {
@@ -43,12 +91,12 @@ void TrophyMenu::Show() {
       FromSystemMenuTransition->StartIn();
     }
     State = Showing;
-    if (UI::FocusedMenu != 0) {
-      LastFocusedMenu = UI::FocusedMenu;
+    if (FocusedMenu != 0) {
+      LastFocusedMenu = FocusedMenu;
       LastFocusedMenu->IsFocused = false;
     }
     IsFocused = true;
-    UI::FocusedMenu = this;
+    FocusedMenu = this;
 
     for (size_t i = 0; i < MaxTrophyPages; i++) {
       for (size_t j = 0; j < EntriesPerPage; j++) {
@@ -59,6 +107,7 @@ void TrophyMenu::Show() {
       }
     }
     MainItems[CurrentPage].Show();
+    UpdateRarityCounts();
     if (!TrophyCountHintLabel.Enabled) {
       TrophyCountHintLabel.Enabled = true;
       TrophyCountHintLabel.SetText(
@@ -77,10 +126,10 @@ void TrophyMenu::Hide() {
     }
     State = Hiding;
     if (LastFocusedMenu != 0) {
-      UI::FocusedMenu = LastFocusedMenu;
+      FocusedMenu = LastFocusedMenu;
       LastFocusedMenu->IsFocused = true;
     } else {
-      UI::FocusedMenu = 0;
+      FocusedMenu = 0;
     }
     IsFocused = false;
   }
@@ -88,8 +137,8 @@ void TrophyMenu::Hide() {
 
 void TrophyMenu::Render() {
   if (State == Hidden) return;
-  CommonMenu::DrawSubmenu(BackgroundColor, CircleSprite, MenuTitleText,
-                          MenuTitleTextAngle, true);
+  DrawSubmenu(BackgroundColor, CircleSprite, MenuTitleText, MenuTitleTextAngle,
+              true);
 
   if (MenuTransition.Progress < 0.22f) return;
 
@@ -105,6 +154,13 @@ void TrophyMenu::Render() {
   Renderer->DrawSprite(GoldTrophySprite, offset + GoldTrophyPos);
   Renderer->DrawSprite(SilverTrophySprite, offset + SilverTrophyPos);
   Renderer->DrawSprite(BronzeTrophySprite, offset + BronzeTrophyPos);
+
+  for (Label* countLabel : {&BronzeCountLabel, &SilverCountLabel,
+                            &GoldCountLabel, &PlatinumCountLabel}) {
+    countLabel->Move(offset);
+    countLabel->Render();
+    countLabel->Move(-offset);
+  }
 
   Renderer->DrawSprite(TrophyPageCtBoxSprite, offset + TrophyPageCtPos);
   Renderer->DrawSprite(PageNums[CurrentPage + 1], offset + CurrentPageNumPos);
