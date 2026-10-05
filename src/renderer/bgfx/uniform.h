@@ -7,7 +7,6 @@
 
 #include "../renderer.h"
 #include "texture.h"
-#include "textureref.h"
 
 namespace Impacto::Bgfx {
 
