@@ -1210,7 +1210,6 @@ if (IMPACTO_RENDERER_BGFX)
         src/renderer/bgfx/renderer.h
         src/renderer/bgfx/shader.h
         src/renderer/bgfx/texture.h
-        src/renderer/bgfx/textureref.h
         src/renderer/bgfx/window.h
 
         src/renderer/bgfx/shaders/vs_maskedsprite.h

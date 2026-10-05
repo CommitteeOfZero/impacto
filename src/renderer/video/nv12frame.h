@@ -4,7 +4,7 @@
 
 namespace Impacto {
 
-class NV12Frame final : public TextureRefInterface {
+class NV12Frame final : public TextureInterface {
  public:
   NV12Frame() = default;
   NV12Frame(const NV12Frame&) = default;
@@ -30,11 +30,11 @@ class NV12Frame final : public TextureRefInterface {
   void Submit(std::span<const uint8_t> luma, size_t lumaRowStride,
               std::span<const uint8_t> cbCr, size_t cbCrRowStride);
 
-  [[nodiscard]] MutableTextureRefInterface& GetLuma() const {
+  [[nodiscard]] MutableTextureInterface& GetLuma() const {
     assert(IsValid());
     return *LumaTexture;
   }
-  [[nodiscard]] MutableTextureRefInterface& GetCbCr() const {
+  [[nodiscard]] MutableTextureInterface& GetCbCr() const {
     assert(IsValid());
     return *CbCrTexture;
   }

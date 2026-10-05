@@ -4,7 +4,6 @@
 
 #include "framebuffer.h"
 #include "shader.h"
-#include "textureref.h"
 
 #include <magic_enum/magic_enum_containers.hpp>
 
@@ -31,13 +30,12 @@ class Renderer final : public BaseRenderer {
   void BeginFrame2D() override;
   void EndFrame() override;
 
-  [[nodiscard]] Impacto::TextureRef MapSpriteSheet(
-      SpriteSheet const& sheet) override {
-    return Impacto::TextureRef{};
+  [[nodiscard]] TextureRef MapSpriteSheet(SpriteSheet const& sheet) override {
+    return TextureRef{};
   }
   void UnloadSurf(int surfId) override {}
 
-  [[nodiscard]] Impacto::TextureRef SubmitTexture(
+  [[nodiscard]] TextureRef SubmitTexture(
       TexFmt format, std::span<const uint8_t> buffer,
       glm::vec<2, size_t> dimensions) override;
 
@@ -105,9 +103,9 @@ class Renderer final : public BaseRenderer {
   void DrawMosaic(Sprite const& sprite, CornersQuad dest, float tileSize,
                   glm::mat4 transformation, glm::vec4 tint) override {}
 
-  void DrawVideoTexture(Impacto::YUVFrame const& frame, RectF const& dest,
+  void DrawVideoTexture(YUVFrame const& frame, RectF const& dest,
                         glm::vec4 tint, bool alphaVideo) override;
-  void DrawVideoTexture(Impacto::NV12Frame const& frame, RectF const& dest,
+  void DrawVideoTexture(NV12Frame const& frame, RectF const& dest,
                         glm::vec4 tint, bool alphaVideo) override;
 
   void DrawSubtitleGlyph(Sprite const& sprite, CornersQuad const& dest,
@@ -116,8 +114,8 @@ class Renderer final : public BaseRenderer {
   void CaptureScreencap(Sprite& sprite) override {}
 
   void SetFramebuffer(size_t buffer) override {}
-  Impacto::TextureRef GetFramebufferTexture(size_t buffer) override {
-    return Impacto::TextureRef{};
+  TextureRef GetFramebufferTexture(size_t buffer) override {
+    return TextureRef{};
   }
 
   void EnableScissor() override {}
@@ -195,8 +193,7 @@ class Renderer final : public BaseRenderer {
       ShaderProgram<VertexShaderType::Sprite, FragmentShaderType::YUVFrame>>
       YUVFrameShader;
 
-  std::map<uint64_t, std::pair<std::unique_ptr<Bgfx::Texture>, size_t>>
-      Textures;
+  std::map<uint64_t, std::pair<std::unique_ptr<Texture>, size_t>> Textures;
   // This vector holds all orphaned texture objects to defer deletion until the
   // start of the next frame
   std::vector<std::unique_ptr<Bgfx::Texture>> OrphanedTextures;
@@ -204,14 +201,10 @@ class Renderer final : public BaseRenderer {
   decltype(Textures)::iterator DeclareTexture(
       std::unique_ptr<Texture>&& texture);
 
-  [[nodiscard]] Impacto::MutableTextureRef DeclareMutableTexture(
+  [[nodiscard]] MutableTextureRef DeclareMutableTexture(
       TexFmt format, glm::vec<2, size_t> dimensions) override;
 
-  void AlterRefCount(Impacto::TextureRefInterface* texture,
-                     int difference) override;
-
-  [[nodiscard]] const Texture& GetTexture(
-      const Impacto::TextureRefInterface& textureRef) const;
+  void AlterRefCount(TextureInterface* texture, int difference) override;
 };
 
 }  // namespace Impacto::Bgfx

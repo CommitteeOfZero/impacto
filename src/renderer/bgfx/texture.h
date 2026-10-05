@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../texture/texture.h"
+#include "../textureref.h"
 
 #include <bgfx/bgfx.h>
 #include <magic_enum/magic_enum_containers.hpp>
@@ -10,7 +11,7 @@
 
 namespace Impacto::Bgfx {
 
-class Texture {
+class Texture : public virtual TextureInterface {
  public:
   Texture() = default;
   Texture(Texture&) = delete;
@@ -33,9 +34,13 @@ class Texture {
     return Handle;
   }
 
-  bool IsValid() const { return bgfx::isValid(Handle); }
+  [[nodiscard]] bool IsValid() const override { return bgfx::isValid(Handle); }
 
-  glm::vec<2, size_t> GetDimensions() const { return Dimensions; }
+  [[nodiscard]] glm::vec<2, size_t> GetDimensions() const override {
+    return Dimensions;
+  }
+
+  [[nodiscard]] uint64_t GetTextureId() const override { return Handle.idx; }
 
   bool IsScreenCap() const { return ScreenCap; }
 
@@ -49,13 +54,22 @@ class Texture {
   void Reset(bool cleanUpResources);
 };
 
-class MutableTexture final : public Texture {
+class MutableTexture final : public MutableTextureInterface,
+                             public virtual Texture {
  public:
   MutableTexture() = default;
   MutableTexture(bgfx::TextureFormat::Enum format,
                  glm::vec<2, size_t> dimensions);
 
-  void Update(std::span<const uint8_t> data, uint16_t rowStride);
+  void Update(std::span<const uint8_t> data, size_t rowStride) override;
+
+  [[nodiscard]] bool IsValid() const override { return Texture::IsValid(); }
+  [[nodiscard]] glm::vec<2, size_t> GetDimensions() const override {
+    return Texture::GetDimensions();
+  }
+  [[nodiscard]] uint64_t GetTextureId() const override {
+    return Texture::GetTextureId();
+  }
 };
 
 inline constexpr auto TexFmtConversion = []() {
