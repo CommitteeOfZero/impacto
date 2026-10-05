@@ -8,9 +8,9 @@
 
 namespace Impacto {
 
-class TextureRefInterface {
+class TextureInterface {
  public:
-  virtual ~TextureRefInterface() = default;
+  virtual ~TextureInterface() = default;
 
   [[nodiscard]] virtual bool IsValid() const = 0;
 
@@ -19,7 +19,7 @@ class TextureRefInterface {
   [[nodiscard]] virtual uint64_t GetTextureId() const = 0;
 };
 
-class MutableTextureRefInterface : public virtual TextureRefInterface {
+class MutableTextureInterface : public virtual TextureInterface {
  public:
   virtual void Update(std::span<const uint8_t> data, size_t rowStride) = 0;
 };
@@ -31,21 +31,21 @@ class TextureRef {
   TextureRef(TextureRef&& other) { *this = std::move(other); }
   virtual ~TextureRef();
 
-  TextureRef(TextureRefInterface* ptr);
+  TextureRef(TextureInterface* ptr);
 
   TextureRef& operator=(const TextureRef&);
   TextureRef& operator=(TextureRef&&);
 
-  TextureRefInterface& operator*() const { return *Ptr; }
-  TextureRefInterface* operator->() const { return Ptr; }
-  TextureRefInterface* Get() const { return Ptr; }
+  TextureInterface& operator*() const { return *Ptr; }
+  TextureInterface* operator->() const { return Ptr; }
+  TextureInterface* Get() const { return Ptr; }
 
   bool operator==(const TextureRef&) const = default;
 
   bool IsValid() const { return Ptr != nullptr && Ptr->IsValid(); }
 
  protected:
-  TextureRefInterface* Ptr = nullptr;
+  TextureInterface* Ptr = nullptr;
 };
 
 class MutableTextureRef final : public TextureRef {
@@ -54,20 +54,20 @@ class MutableTextureRef final : public TextureRef {
   MutableTextureRef(const MutableTextureRef&) = default;
   MutableTextureRef(MutableTextureRef&&) = default;
 
-  MutableTextureRef(MutableTextureRefInterface* ptr)
-      : TextureRef(static_cast<TextureRefInterface*>(ptr)) {}
+  MutableTextureRef(MutableTextureInterface* ptr)
+      : TextureRef(static_cast<TextureInterface*>(ptr)) {}
 
   MutableTextureRef& operator=(const MutableTextureRef&) = default;
   MutableTextureRef& operator=(MutableTextureRef&&) = default;
 
-  MutableTextureRefInterface& operator*() const {
-    return dynamic_cast<MutableTextureRefInterface&>(*Ptr);
+  MutableTextureInterface& operator*() const {
+    return dynamic_cast<MutableTextureInterface&>(*Ptr);
   }
-  MutableTextureRefInterface* operator->() const {
-    return dynamic_cast<MutableTextureRefInterface*>(Ptr);
+  MutableTextureInterface* operator->() const {
+    return dynamic_cast<MutableTextureInterface*>(Ptr);
   }
-  MutableTextureRefInterface* Get() const {
-    return dynamic_cast<MutableTextureRefInterface*>(Ptr);
+  MutableTextureInterface* Get() const {
+    return dynamic_cast<MutableTextureInterface*>(Ptr);
   }
 };
 

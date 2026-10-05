@@ -4,7 +4,7 @@
 
 namespace Impacto {
 
-class YUVFrame final : public TextureRefInterface {
+class YUVFrame final : public TextureInterface {
  public:
   YUVFrame() = default;
   YUVFrame(const YUVFrame&) = default;
@@ -30,15 +30,15 @@ class YUVFrame final : public TextureRefInterface {
   void Submit(std::span<const uint8_t> luma, std::span<const uint8_t> cb,
               std::span<const uint8_t> cr);
 
-  [[nodiscard]] MutableTextureRefInterface& GetLuma() const {
+  [[nodiscard]] MutableTextureInterface& GetLuma() const {
     assert(IsValid());
     return *LumaTexture;
   }
-  [[nodiscard]] MutableTextureRefInterface& GetCb() const {
+  [[nodiscard]] MutableTextureInterface& GetCb() const {
     assert(IsValid());
     return *CbTexture;
   }
-  [[nodiscard]] MutableTextureRefInterface& GetCr() const {
+  [[nodiscard]] MutableTextureInterface& GetCr() const {
     assert(IsValid());
     return *CrTexture;
   }

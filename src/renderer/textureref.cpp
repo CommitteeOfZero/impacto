@@ -4,7 +4,7 @@
 
 namespace Impacto {
 
-TextureRef::TextureRef(TextureRefInterface* const ptr) : Ptr(ptr) {
+TextureRef::TextureRef(TextureInterface* const ptr) : Ptr(ptr) {
   if (Ptr != nullptr) {
     Renderer->AlterRefCount(Ptr, +1);
   }
@@ -33,8 +33,7 @@ TextureRef& TextureRef::operator=(TextureRef&& other) {
     Renderer->AlterRefCount(Ptr, -1);
   }
 
-  Ptr = other.Ptr;
-  other.Ptr = nullptr;
+  Ptr = std::exchange(other.Ptr, nullptr);
 
   return *this;
 }
