@@ -454,38 +454,32 @@ void InitNamePlateData(Vm::Sc3Stream& stream) {
     dummy.ScriptBufferId = Profile::Vm::SystemScriptBuffer;
     dummy.UseMSBBuffers = Profile::Vm::UseMsbStrings;
     size_t nameLength = (TextGetStringLength(&dummy) - 1);
+    dummy.IpOffset = nameAddr;
+
+    std::vector<uint32_t> vec;
+    std::span<const uint8_t> spanned;
     if (Profile::Vm::StringEncodingType ==
         Profile::Vm::StringUnitEncoding::Uint16) {
-      nameLength *= 2;
+      vec.reserve(nameLength);
+      auto ptr = std::span<const uint16_t>(
+          reinterpret_cast<const uint16_t*>(dummy.GetStringIp()), nameLength);
+      for (auto num : ptr) {
+        vec.push_back(static_cast<uint32_t>(num));
+      }
+      spanned = std::span<const uint8_t>(
+          reinterpret_cast<const uint8_t*>(vec.data()), nameLength * 4);
     } else {
-      nameLength *= 4;
+      spanned = std::span<uint8_t>(dummy.GetStringIp(), nameLength * 4);
     }
 
-    dummy.IpOffset = nameAddr;
-    auto spanned = std::span<uint8_t>(dummy.GetStringIp(), nameLength);
     uint32_t nameHash = GetHashCode(spanned);
     NamePlateData[nameHash] = id;
   } while (stream.PeekU16() != 0xFFFF);
 }
 
 std::optional<uint32_t> GetNameId(const std::span<const uint32_t> name) {
-  uint32_t nameHash;
-
-  if (Profile::Vm::StringEncodingType ==
-      Profile::Vm::StringUnitEncoding::Uint16) {
-    std::vector<uint16_t> name16bit;
-    name16bit.reserve(name.size());
-    std::transform(name.begin(), name.end(), std::back_inserter(name16bit),
-                   [](const uint32_t& elem) {
-                     return static_cast<uint16_t>(elem & 0xFFFF);
-                   });
-    nameHash = GetHashCode(
-        std::span<const uint8_t>(std::bit_cast<uint8_t*>(name16bit.data()),
-                                 name16bit.size() * sizeof(uint16_t)));
-  } else {
-    nameHash = GetHashCode(std::span<const uint8_t>(
-        std::bit_cast<uint8_t*>(name.data()), name.size_bytes()));
-  }
+  uint32_t nameHash = GetHashCode(std::span<const uint8_t>(
+      std::bit_cast<uint8_t*>(name.data()), name.size_bytes()));
 
   if (NamePlateData.find(nameHash) != NamePlateData.end())
     return NamePlateData[nameHash];
