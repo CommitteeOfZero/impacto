@@ -196,7 +196,7 @@ class Renderer final : public BaseRenderer {
   std::map<uint64_t, std::pair<std::unique_ptr<Texture>, size_t>> Textures;
   // This vector holds all orphaned texture objects to defer deletion until the
   // start of the next frame
-  std::vector<std::unique_ptr<Bgfx::Texture>> OrphanedTextures;
+  std::vector<std::unique_ptr<Texture>> OrphanedTextures;
 
   decltype(Textures)::iterator DeclareTexture(
       std::unique_ptr<Texture>&& texture);
