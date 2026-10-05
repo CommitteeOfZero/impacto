@@ -64,22 +64,21 @@ constexpr static inline std::array<VertexBufferSprites, 4> MakeVertices(
 
 template <typename T>
 concept PositionedSpriteTextureType = is_any_of_v<T, SpriteSheet, Sprite> ||
-                                      std::is_base_of_v<TextureRefInterface, T>;
+                                      std::is_base_of_v<TextureInterface, T>;
 
 struct PositionedSprite {
  protected:
-  static const TextureRefInterface& GetTexture(
-      const TextureRefInterface& texture) {
+  static const TextureInterface& GetTexture(const TextureInterface& texture) {
     return texture;
   }
-  static const TextureRefInterface& GetTexture(const SpriteSheet& sheet) {
+  static const TextureInterface& GetTexture(const SpriteSheet& sheet) {
     return *sheet.Texture;
   }
-  static const TextureRefInterface& GetTexture(const Sprite& sprite) {
+  static const TextureInterface& GetTexture(const Sprite& sprite) {
     return *sprite.Sheet.Texture;
   }
 
-  static glm::vec2 GetTextureSize(const TextureRefInterface& texture) {
+  static glm::vec2 GetTextureSize(const TextureInterface& texture) {
     return static_cast<glm::vec2>(texture.GetDimensions());
   }
   static glm::vec2 GetTextureSize(const SpriteSheet& sheet) {
@@ -89,7 +88,7 @@ struct PositionedSprite {
     return {sprite.ScaledWidth(), sprite.ScaledHeight()};
   }
 
-  static CornersQuad GetTextureBounds(const TextureRefInterface& texture) {
+  static CornersQuad GetTextureBounds(const TextureInterface& texture) {
     const glm::vec2 size = texture.GetDimensions();
     return RectF(0.0f, 0.0f, size.x, size.y);
   }
@@ -101,7 +100,7 @@ struct PositionedSprite {
   }
 
  public:
-  const TextureRefInterface& Texture;
+  const TextureInterface& Texture;
 
   using QuadVertices = std::array<VertexBufferSprites, 4>;
   std::variant<PrimitiveData, QuadVertices> Vertices;
@@ -187,7 +186,7 @@ struct PositionedSprite {
 };
 
 struct PositionedMaskedSprite : public PositionedSprite {
-  const TextureRefInterface& MaskTexture;
+  const TextureInterface& MaskTexture;
   glm::mat4 MaskTransformation = glm::mat4(1.0f);
 
   PositionedMaskedSprite(const PositionedSpriteTextureType auto& texture,

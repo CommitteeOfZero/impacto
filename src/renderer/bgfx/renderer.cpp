@@ -603,8 +603,9 @@ void Renderer::DrawMaskedSprite(const PositionedMaskedSprite& spriteInfo,
       .Transformation = spriteInfo.Transformation,
   });
 
-  const Texture& texture = GetTexture(spriteInfo.Texture);
-  const Texture& maskTexture = GetTexture(spriteInfo.MaskTexture);
+  const Texture& texture = dynamic_cast<const Texture&>(spriteInfo.Texture);
+  const Texture& maskTexture =
+      dynamic_cast<const Texture&>(spriteInfo.MaskTexture);
 
   MaskedSpriteShader->SubmitUniforms(
       {
@@ -631,7 +632,7 @@ void Renderer::DrawMaskedSpriteNoAlpha(const PositionedMaskedSprite& spriteInfo,
       .Transformation = spriteInfo.Transformation,
   });
 
-  const Texture& texture = GetTexture(spriteInfo.Texture);
+  const Texture& texture = dynamic_cast<const Texture&>(spriteInfo.Texture);
 
   MaskedSpriteNoAlphaShader->SubmitUniforms(
       {
@@ -639,7 +640,7 @@ void Renderer::DrawMaskedSpriteNoAlpha(const PositionedMaskedSprite& spriteInfo,
       },
       {
           .s_texture = texture,
-          .s_mask = GetTexture(spriteInfo.MaskTexture),
+          .s_mask = dynamic_cast<const Texture&>(spriteInfo.MaskTexture),
           .u_alpha = glm::vec2(config.Alpha, config.FadeRange),
           .u_isInverted = config.IsInverted,
       });
