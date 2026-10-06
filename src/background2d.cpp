@@ -827,9 +827,10 @@ void Background2D::RenderMasked() {
   maskTransformState.Origin = -maskTransformState.Position;
   maskTransformState.Scale = newScale;
 
-  Renderer->DrawMaskedSprite(RenderSprite, Masks2D[MaskNumber].MaskSprite,
-                             FadeCount, FadeRange, TransformState.ToMatrix(),
-                             maskTransformState.ToMatrix(), Tint, false, false);
+  Renderer->DrawMaskedSprite(
+      {RenderSprite, Masks2D[MaskNumber].MaskSprite, TransformState.ToMatrix(),
+       maskTransformState.ToMatrix(), Tint},
+      {.Alpha = FadeCount, .FadeRange = FadeRange});
   // also can render Linked buffers, but IDK any examples to test
 }
 
@@ -863,9 +864,10 @@ void Background2D::RenderMaskedInverted() {
   maskTransformState.Origin = -maskTransformState.Position;
   maskTransformState.Scale = newScale;
 
-  Renderer->DrawMaskedSprite(RenderSprite, Masks2D[MaskNumber].MaskSprite,
-                             FadeCount, FadeRange, TransformState.ToMatrix(),
-                             maskTransformState.ToMatrix(), Tint, true, false);
+  Renderer->DrawMaskedSprite(
+      {RenderSprite, Masks2D[MaskNumber].MaskSprite, TransformState.ToMatrix(),
+       maskTransformState.ToMatrix(), Tint},
+      {.Alpha = FadeCount, .FadeRange = FadeRange, .IsInverted = true});
 }
 
 void Background2D::RenderFade() {

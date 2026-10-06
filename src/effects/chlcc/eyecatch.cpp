@@ -60,9 +60,9 @@ void EyecatchEffect::RenderLayer(int layer) {
     if (ScrWork[SW_EYECATCH_COUNT] < 64) {
       Renderer->Clear(glm::vec4(0.0f));
       Renderer->DrawMaskedSprite(
-          Backgrounds2D[ScrWork[SW_BG1SURF + childBufId]]->BgSprite, StarsMask,
-          255, 256, glm::vec2{0.0f, 0.0f}, glm::vec2{0.0f, 0.0f},
-          glm::vec4(1.0f), false, false);
+          {Backgrounds2D[ScrWork[SW_BG1SURF + childBufId]]->BgSprite, StarsMask,
+           glm::vec2(0.0f)},
+          {.Alpha = 255, .FadeRange = 256});
 
     } else {
       Renderer->DrawSprite(

@@ -49,14 +49,6 @@ class Renderer final : public BaseRenderer {
                   glm::vec3 colorShift, bool inverted, bool disableBlend,
                   bool textureWrapRepeat) override;
 
-  void DrawMaskedSprite(Sprite const& sprite, Sprite const& mask,
-                        CornersQuad const& spriteDest,
-                        CornersQuad const& maskDest, int alpha, int fadeRange,
-                        glm::mat4 spriteTransformation,
-                        glm::mat4 maskTransformation,
-                        std::span<const glm::vec4, 4> tints, bool isInverted,
-                        bool isSameTexture) override {}
-
   void DrawMaskedBinarySprite(Sprite const& sprite, Sprite const& mask,
                               CornersQuad const& spriteDest,
                               CornersQuad const& maskDest,
