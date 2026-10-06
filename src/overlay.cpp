@@ -753,7 +753,7 @@ static void ShowAchievementsPage() {
 void ShowOverlay() {
   constexpr ImGuiWindowFlags wrapperWindowFlags =
       ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDecoration |
-      ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoSavedSettings;
+      ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoSavedSettings;
   const ImGuiViewport* viewport = ImGui::GetMainViewport();
   ImGui::SetNextWindowPos(viewport->WorkPos);
   ImGui::SetNextWindowSize(viewport->WorkSize);
