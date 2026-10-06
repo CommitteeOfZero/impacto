@@ -141,6 +141,8 @@ Renderer::Renderer() {
   }
 
   const auto flush = [this]() { Flush(); };
+  CCMessageBoxSpriteShader.emplace(vs_maskedsprite_shader,
+                                   fs_ccmessageboxsprite_shader, flush);
   MaskedSpriteShader.emplace(vs_maskedsprite_shader, fs_maskedsprite_shader,
                              flush);
   MaskedSpriteBinaryShader.emplace(vs_maskedsprite_shader,
@@ -567,6 +569,34 @@ void Renderer::SetState(const RendererState& newState) {
   }
 
   CurrentState = newState;
+}
+
+void Renderer::DrawCCMessageBox(const PositionedMaskedSprite& spriteInfo,
+                                const CCMessageBoxConfig& config,
+                                const StateConfig& stateConfig) {
+  SetState({
+      .GenericState = stateConfig,
+      .ShaderProgram = *CCMessageBoxSpriteShader,
+      .Transformation = spriteInfo.Transformation,
+  });
+
+  const Texture& texture = dynamic_cast<const Texture&>(spriteInfo.Texture);
+  const Texture& maskTexture =
+      dynamic_cast<const Texture&>(spriteInfo.MaskTexture);
+
+  CCMessageBoxSpriteShader->SubmitUniforms(
+      {
+          .u_maskTransformation = spriteInfo.MaskTransformation,
+          .u_fullscreenMask = spriteInfo.FullscreenMask,
+      },
+      {
+          .s_texture = texture,
+          .s_mask = maskTexture,
+          .u_alpha = glm::vec3(config.FadeRange, config.Alpha, config.EffectCt),
+      });
+
+  InsertVertices(spriteInfo.GetIndices(), spriteInfo.GetVertices(),
+                 ShouldFlip(texture));
 }
 
 void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,

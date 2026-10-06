@@ -236,13 +236,14 @@ class BaseRenderer {
 
   void DrawQuad(const CornersQuad& dest, glm::vec4 color);
 
-  void DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
-                        glm::vec2 topLeft, glm::vec4 tint, int alpha,
-                        int fadeRange, float effectCt,
-                        glm::vec2 scale = glm::vec2(1.0));
-  virtual void DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
-                                RectF const& dest, glm::vec4 tint, int alpha,
-                                int fadeRange, float effectCt) = 0;
+  struct CCMessageBoxConfig {
+    int Alpha;
+    int FadeRange;
+    float EffectCt;
+  };
+  virtual void DrawCCMessageBox(const PositionedMaskedSprite& spriteInfo,
+                                const CCMessageBoxConfig& config,
+                                const StateConfig& stateConfig = {}) = 0;
 
   virtual void DrawEdgeDetectedSingleSheetFont(
       const SpriteSheet& sheet, const SpriteSheet* mask,
