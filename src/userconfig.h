@@ -54,6 +54,7 @@ struct Config {
   LogChannel LogChannels = LogChannel::All;
   bool LoggingToConsole = GetDefaultLogToConsole();
   bool LoggingToFile = GetDefaultLogToFile();
+  bool SwapConfirmCancelButtons = false;
 };
 struct AdvancedConfig {
   RendererType ActiveRenderer = RendererType::OpenGL;

@@ -467,6 +467,8 @@ static void ShowCommonSettings() {
     ImGui::Spacing();
 
     auto& commonSettings = UserConfig::CommonSettings;
+    ImGui::Checkbox("Swap Confirm/Cancel Buttons",
+                    &commonSettings.SwapConfirmCancelButtons);
     ImGui::Checkbox("Log to Console", &commonSettings.LoggingToConsole);
     if (ImGui::Checkbox("Log to File", &commonSettings.LoggingToFile)) {
       LogInitFile();
@@ -513,11 +515,10 @@ static void ShowSettingsPage(std::string const& selectedGame) {
     ShowCommonSettings();
     ImGui::Spacing();
     if (!selectedGame.empty()) {
-#if !defined(__ANDROID__)
+#if !defined(__ANDROID__) && !defined(__SWITCH__)
       displayChanged |= ShowDisplaySettings(selectedGame);
-#endif
-
       ImGui::Spacing();
+#endif
 
       ShowPatchSettings(selectedGame);
     }
@@ -752,7 +753,7 @@ static void ShowAchievementsPage() {
 void ShowOverlay() {
   constexpr ImGuiWindowFlags wrapperWindowFlags =
       ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDecoration |
-      ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoSavedSettings;
+      ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoSavedSettings;
   const ImGuiViewport* viewport = ImGui::GetMainViewport();
   ImGui::SetNextWindowPos(viewport->WorkPos);
   ImGui::SetNextWindowSize(viewport->WorkSize);
@@ -907,6 +908,8 @@ void ShowOverlay() {
 }
 
 void Show() {
+  ImGui::GetIO().ConfigNavSwapGamepadButtons = Input::FaceButtonsFlipped();
+
   if (Profile::Game::HasInit) {
     if (!OverlayShown &&
         ((Input::KeyboardButtonWentDown[SDL_SCANCODE_0] &&

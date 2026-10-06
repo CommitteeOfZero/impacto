@@ -16,6 +16,7 @@
 #include "profile/profile.h"
 #include "userconfig.h"
 #include "io/physicalfilestream.h"
+#include "io/filemeta.h"
 
 using namespace Impacto;
 
@@ -197,7 +198,7 @@ int main(int argc, char* argv[]) {
   }
 
   HandleArguments(arguments);
-  if (arguments.empty()) {
+  if (arguments.empty() && Io::PathExists("args.txt") == IoError_OK) {
     Io::Stream* stream;
     IoError err = Io::PhysicalFileStream::Create("args.txt", &stream);
     if (err == IoError_OK) {
