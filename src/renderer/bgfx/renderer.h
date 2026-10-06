@@ -69,9 +69,9 @@ class Renderer final : public BaseRenderer {
                       glm::mat4 maskTransformation, bool inverted,
                       TopologyMode topology, bool textureWrapRepeat) override;
 
-  void DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
-                        RectF const& dest, glm::vec4 tint, int alpha,
-                        int fadeRange, float effectCt) override {}
+  void DrawCCMessageBox(const PositionedMaskedSprite& spriteInfo,
+                        const CCMessageBoxConfig& config,
+                        const StateConfig& stateConfig) override;
 
   void DrawEdgeDetectedSingleSheetFont(
       SpriteSheet const& sheet, SpriteSheet const* mask,
@@ -165,6 +165,9 @@ class Renderer final : public BaseRenderer {
 
   bgfx::VertexLayout VertexBufferSpritesLayout;
 
+  std::optional<ShaderProgram<VertexShaderType::MaskedSprite,
+                              FragmentShaderType::CCMessageBoxSprite>>
+      CCMessageBoxSpriteShader;
   std::optional<ShaderProgram<VertexShaderType::MaskedSprite,
                               FragmentShaderType::MaskedSprite>>
       MaskedSpriteShader;

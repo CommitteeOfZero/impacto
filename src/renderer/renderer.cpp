@@ -43,15 +43,6 @@ void CreateRenderer() {
   }
 }
 
-void BaseRenderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
-                                    glm::vec2 topLeft, glm::vec4 tint,
-                                    int alpha, int fadeRange, float effectCt,
-                                    glm::vec2 scale) {
-  const RectF dest =
-      sprite.ScaledBounds().Scale(scale, {0.0f, 0.0f}).Translate(topLeft);
-  DrawCCMessageBox(sprite, mask, dest, tint, alpha, fadeRange, effectCt);
-}
-
 void BaseRenderer::DrawConvexShape(const std::span<const glm::vec2> vertices,
                                    const glm::mat4 transformation,
                                    const glm::vec4 color) {
