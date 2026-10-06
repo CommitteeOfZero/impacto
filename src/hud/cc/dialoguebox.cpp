@@ -33,9 +33,10 @@ void DialogueBox::Render(const DialoguePageMode mode, const NameInfo& nameInfo,
                          const glm::vec4 tint) {
   switch (mode) {
     case DPM_ADV: {
-      Renderer->DrawCCMessageBox(ADVBoxSprite, ADVBoxMask, ADVBoxPos,
-                                 glm::vec4(1.0f), (int)(tint.a * 272.0f), 16,
-                                 TextBoxEffect.Progress);
+      Renderer->DrawCCMessageBox({ADVBoxSprite, ADVBoxMask, ADVBoxPos},
+                                 {.Alpha = (int)(tint.a * 272.0f),
+                                  .FadeRange = 16,
+                                  .EffectCt = TextBoxEffect.Progress});
 
       NametagDisplayInst->Render(nameInfo, tint);
     } break;

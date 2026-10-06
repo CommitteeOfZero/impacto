@@ -4,7 +4,7 @@ $input v_texcoord0, v_color0, v_texcoord1
 
 SAMPLER2D(s_texture, 0);
 SAMPLER2D(s_mask, 1);
-uniform vec4 u_alpha;   // vec3
+uniform vec4 u_alpha;   // vec3(u_alphaRange, u_alphaVal, u_effectCt)
 
 void main() {
     gl_FragColor = texture2D(s_texture, v_texcoord0);
