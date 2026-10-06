@@ -24,13 +24,16 @@ IntroSequence::IntroSequence() {
   FallingStarsMask =
       Sprite(fallingStarsMaskSheet, 0, 0, viewport.Width, viewport.Height);
 
+  const float designScaleX = DesignWidth / 1280.0f;
+  const float designScaleY = DesignHeight / 720.0f;
+
   // Randomize falling stars
   for (size_t i = 0; i < FallingStarSeeds.size(); i++) {
     auto& [origin, angle] = FallingStarSeeds[i];
 
     int random = CALCrnd(100);
-    origin.x = (float)(-120 + i * 110 + (random + 10) * 10);
-    origin.y = float((random + 10) * -10);
+    origin.x = (float)(-120 + i * 110 + (random + 10) * 10) * designScaleX;
+    origin.y = float((random + 10) * -10) * designScaleY;
 
     angle = (float)CALCrnd(8192) / 8192.0f * std::numbers::pi_v<float> * 2.0f;
   }
@@ -222,7 +225,7 @@ void IntroSequence::DrawBouncingStar() const {
   float x = DesignWidth / 2.0f - IntroBouncingStarSprite.Bounds.Width / 2.0f +
             (1.0f - StarBounceAnimation.Progress) * 0.61f * DesignWidth;
 
-  float y = DesignHeight / 2 + IntroBouncingStarSprite.Bounds.Height;
+  float y = DesignHeight / 2 + IntroBouncingStarBaseYOffset;
   if (StarBounceAnimation.Progress < 0.357f) {
     float progress = StarBounceAnimation.Progress / 0.357f;
     y -= std::sin(progress * std::numbers::pi_v<float>) * 0.664f * DesignHeight;

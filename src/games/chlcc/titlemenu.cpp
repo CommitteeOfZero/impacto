@@ -12,6 +12,7 @@
 #include "../../profile/scriptvars.h"
 #include "../../background2d.h"
 #include "../../profile/game.h"
+#include "../../profile/vm.h"
 #include "../../profile/patch.h"
 #include <vector>
 
@@ -27,6 +28,22 @@ using namespace Impacto::Profile;
 using namespace Impacto::Vm::Interface;
 
 using namespace Impacto::UI::Widgets::CHLCC;
+
+static TitleDispCtState ResolveTitleDispCtState() {
+  if (Profile::Vm::GameInstructionSet !=
+      Impacto::Vm::InstructionSet::LCCSwitch) {
+    return static_cast<TitleDispCtState>(ScrWork[SW_TITLEDISPCT]);
+  }
+
+  switch (ScrWork[SW_TITLEMOVIECT]) {
+    case 0:
+      return TitleDispCtState::IntroAnimation;
+    case 2:
+      return TitleDispCtState::PressStart;
+    default:
+      return static_cast<TitleDispCtState>(0xff);
+  }
+}
 
 void TitleMenu::MenuButtonOnClick(Widgets::Button* target) {
   target->Hovered = false;
@@ -299,6 +316,7 @@ void TitleMenu::ResetIntroSequence() {
 }
 
 void TitleMenu::Update(float dt) {
+  const auto presentationState = ResolveTitleDispCtState();
   UpdateInput(dt);
   PressToStartAnimation.Update(dt);
   SpinningCircleAnimation.Update(dt);
@@ -309,8 +327,7 @@ void TitleMenu::Update(float dt) {
   if (GetFlag(SF_TITLEMODE)) {
     Show();
   } else if (State == Shown &&
-             static_cast<TitleDispCtState>(ScrWork[SW_TITLEDISPCT]) !=
-                 TitleDispCtState::ExtraSubEntriesControl) {
+             presentationState != TitleDispCtState::ExtraSubEntriesControl) {
     // when loading/starting a game from a submenu
     Hide();
   }
@@ -337,7 +354,7 @@ void TitleMenu::Update(float dt) {
     SystemItems->UpdateInput(dt);
     SystemItems->Update(dt);
 
-    switch (static_cast<TitleDispCtState>(ScrWork[SW_TITLEDISPCT])) {
+    switch (presentationState) {
       case TitleDispCtState::IntroAnimation: {
         if (IntroSequence.IntroAnimation.IsIn() && ScrWork[SW_TITLECT] == 0) {
           ResetIntroSequence();
@@ -473,9 +490,10 @@ void TitleMenu::Update(float dt) {
 }
 
 void TitleMenu::Render() {
+  const auto presentationState = ResolveTitleDispCtState();
   if (State != Hidden && GetFlag(SF_TITLEMODE)) {
     if (ScrWork[SW_MENUCT] < 64) {
-      switch (static_cast<TitleDispCtState>(ScrWork[SW_TITLEDISPCT])) {
+      switch (presentationState) {
         case TitleDispCtState::IntroAnimation: {
           if (IntroSequence.FallingStarsAnimation.IsIn()) {
             Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f));
