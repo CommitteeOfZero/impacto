@@ -377,25 +377,25 @@ void TitleMenu::Render() {
       switch (ScrWork[SW_TITLEDISPCT]) {
         case 0:  // Initial animation
           Renderer->DrawMaskedSprite(
-              BackgroundSprite, BackgroundSprite,
-              RectF(0.0f, 0.0f, BackgroundSprite.ScaledWidth(),
-                    BackgroundSprite.ScaledHeight()),
-              (ScrWork[SW_TITLECT] * 287) / 48, 32, glm::mat4(1.0f),
-              glm::vec4(1.0f), false, true);
+              {BackgroundSprite, BackgroundSprite,
+               RectF(0.0f, 0.0f, BackgroundSprite.ScaledWidth(),
+                     BackgroundSprite.ScaledHeight())},
+              {.Alpha = (ScrWork[SW_TITLECT] * 287) / 48, .FadeRange = 32});
           if (ScrWork[SW_TITLECT] > 48) {
             Renderer->DrawMaskedSprite(
-                LogoSprite, Masks2D[17].MaskSprite,
-                RectF(LogoX, LogoY, LogoSprite.ScaledWidth(),
-                      LogoSprite.ScaledHeight()),
-                (ScrWork[SW_TITLECT] * 271 - 13008) / 32, 16);
+                {LogoSprite, Masks2D[17].MaskSprite,
+                 RectF(LogoX, LogoY, LogoSprite.ScaledWidth(),
+                       LogoSprite.ScaledHeight())},
+                {.Alpha = (ScrWork[SW_TITLECT] * 271 - 13008) / 32,
+                 .FadeRange = 16});
           }
           break;
         case 1: {  // Press to start
           Renderer->DrawMaskedSprite(
-              BackgroundSprite, BackgroundSprite,
-              RectF(0.0f, 0.0f, BackgroundSprite.ScaledWidth(),
-                    BackgroundSprite.ScaledHeight()),
-              287, 32, glm::mat4(1.0f), glm::vec4(1.0f), false, true);
+              {BackgroundSprite, BackgroundSprite,
+               RectF(0.0f, 0.0f, BackgroundSprite.ScaledWidth(),
+                     BackgroundSprite.ScaledHeight())},
+              {.Alpha = 287, .FadeRange = 32});
           Renderer->DrawSprite(LogoSprite, glm::vec2(LogoX, LogoY));
           Renderer->DrawSprite(CopyrightSprite,
                                glm::vec2(CopyrightX, CopyrightY));
@@ -405,10 +405,10 @@ void TitleMenu::Render() {
         } break;
         case 2: {
           Renderer->DrawMaskedSprite(
-              BackgroundSprite, BackgroundSprite,
-              RectF(0.0f, 0.0f, BackgroundSprite.ScaledWidth(),
-                    BackgroundSprite.ScaledHeight()),
-              287, 32, glm::mat4(1.0f), glm::vec4(1.0f), false, true);
+              {BackgroundSprite, BackgroundSprite,
+               RectF(0.0f, 0.0f, BackgroundSprite.ScaledWidth(),
+                     BackgroundSprite.ScaledHeight())},
+              {.Alpha = 287, .FadeRange = 32});
           Renderer->DrawSprite(LogoSprite, glm::vec2(LogoX, LogoY));
           Renderer->DrawSprite(CopyrightSprite,
                                glm::vec2(CopyrightX, CopyrightY));
@@ -416,72 +416,71 @@ void TitleMenu::Render() {
         case 3:    // Main Menu Fade In
         case 4: {  // Main Menu
           Renderer->DrawMaskedSprite(
-              MenuBackgroundSprite, MenuBackgroundSprite,
-              RectF(0.0f, 0.0f, MenuBackgroundSprite.ScaledWidth(),
-                    MenuBackgroundSprite.ScaledHeight()),
-              287, 32, glm::mat4(1.0f), glm::vec4(1.0f), false, true);
+              {MenuBackgroundSprite, MenuBackgroundSprite,
+               RectF(0.0f, 0.0f, MenuBackgroundSprite.ScaledWidth(),
+                     MenuBackgroundSprite.ScaledHeight())},
+              {.Alpha = 287, .FadeRange = 32});
           MainItems->Render();
         } break;
         case 5:    // Secondary menu Extra story Fade In
         case 6: {  // Secondary menu Extra story
           Renderer->DrawMaskedSprite(
-              MenuBackgroundSprite, MenuBackgroundSprite,
-              RectF(0.0f, 0.0f, MenuBackgroundSprite.ScaledWidth(),
-                    MenuBackgroundSprite.ScaledHeight()),
-              287, 32, glm::mat4(1.0f), glm::vec4(1.0f), false, true);
+              {MenuBackgroundSprite, MenuBackgroundSprite,
+               RectF(0.0f, 0.0f, MenuBackgroundSprite.ScaledWidth(),
+                     MenuBackgroundSprite.ScaledHeight())},
+              {.Alpha = 287, .FadeRange = 32});
           ExtraStoryItems->Render();
           MainItems->Render();
         } break;
         case 7:    // Secondary menu Continue Fade In
         case 8: {  // Secondary menu Continue
           Renderer->DrawMaskedSprite(
-              MenuBackgroundSprite, MenuBackgroundSprite,
-              RectF(0.0f, 0.0f, MenuBackgroundSprite.ScaledWidth(),
-                    MenuBackgroundSprite.ScaledHeight()),
-              287, 32, glm::mat4(1.0f), glm::vec4(1.0f), false, true);
+              {MenuBackgroundSprite, MenuBackgroundSprite,
+               RectF(0.0f, 0.0f, MenuBackgroundSprite.ScaledWidth(),
+                     MenuBackgroundSprite.ScaledHeight())},
+              {.Alpha = 287, .FadeRange = 32});
           ContinueItems->Render();
           MainItems->Render();
         } break;
         case 9:     // Secondary menu Memories Fade In
         case 10: {  // Secondary menu Memories
           Renderer->DrawMaskedSprite(
-              MenuBackgroundSprite, MenuBackgroundSprite,
-              RectF(0.0f, 0.0f, MenuBackgroundSprite.ScaledWidth(),
-                    MenuBackgroundSprite.ScaledHeight()),
-              287, 32, glm::mat4(1.0f), glm::vec4(1.0f), false, true);
+              {MenuBackgroundSprite, MenuBackgroundSprite,
+               RectF(0.0f, 0.0f, MenuBackgroundSprite.ScaledWidth(),
+                     MenuBackgroundSprite.ScaledHeight())},
+              {.Alpha = 287, .FadeRange = 32});
           MemoriesItems->Render();
           MainItems->Render();
         } break;
         case 11:    // Secondary menu System Fade In
         case 12: {  // Secondary menu System
           Renderer->DrawMaskedSprite(
-              MenuBackgroundSprite, MenuBackgroundSprite,
-              RectF(0.0f, 0.0f, MenuBackgroundSprite.ScaledWidth(),
-                    MenuBackgroundSprite.ScaledHeight()),
-              287, 32, glm::mat4(1.0f), glm::vec4(1.0f), false, true);
+              {MenuBackgroundSprite, MenuBackgroundSprite,
+               RectF(0.0f, 0.0f, MenuBackgroundSprite.ScaledWidth(),
+                     MenuBackgroundSprite.ScaledHeight())},
+              {.Alpha = 287, .FadeRange = 32});
           SystemItems->Render();
           MainItems->Render();
         } break;
         case 20:
         case 21: {  // Transition between Press to start and menus
           Renderer->DrawMaskedSprite(
-              BackgroundSprite, BackgroundSprite,
-              RectF(0.0f, 0.0f, BackgroundSprite.ScaledWidth(),
-                    BackgroundSprite.ScaledHeight()),
-              287, 32, glm::mat4(1.0f), glm::vec4(1.0f), false, true);
+              {BackgroundSprite, BackgroundSprite,
+               RectF(0.0f, 0.0f, BackgroundSprite.ScaledWidth(),
+                     BackgroundSprite.ScaledHeight())},
+              {.Alpha = 287, .FadeRange = 32});
           Renderer->DrawMaskedSprite(
-              LogoSprite, Masks2D[17].MaskSprite,
-              RectF(LogoX, LogoY, LogoSprite.ScaledWidth(),
-                    LogoSprite.ScaledHeight()),
-              287, 16);
+              {LogoSprite, Masks2D[17].MaskSprite,
+               RectF(LogoX, LogoY, LogoSprite.ScaledWidth(),
+                     LogoSprite.ScaledHeight())},
+              {.Alpha = 287, .FadeRange = 16});
           Renderer->DrawSprite(CopyrightSprite,
                                glm::vec2(CopyrightX, CopyrightY));
           Renderer->DrawMaskedSprite(
-              MenuBackgroundSprite, MenuBackgroundSprite,
-              RectF(0.0f, 0.0f, MenuBackgroundSprite.ScaledWidth(),
-                    MenuBackgroundSprite.ScaledHeight()),
-              (ScrWork[SW_TITLECT] * 287) / 48, 32, glm::mat4(1.0f),
-              glm::vec4(1.0f), false, true);
+              {MenuBackgroundSprite, MenuBackgroundSprite,
+               RectF(0.0f, 0.0f, MenuBackgroundSprite.ScaledWidth(),
+                     MenuBackgroundSprite.ScaledHeight())},
+              {.Alpha = (ScrWork[SW_TITLECT] * 287) / 48, .FadeRange = 32});
         } break;
       }
     }
