@@ -59,7 +59,8 @@ void Configure() {
       EnsureGetMember<uint32_t>("EntryDefaultNameTextTableId");
   EntryDefaultNameStringNum =
       EnsureGetMember<uint32_t>("EntryDefaultNameStringNum");
-  EntryLockedTextColorIndex = EnsureGetMember<size_t>("EntryLockedTextColorIndex");
+  EntryLockedTextColorIndex =
+      EnsureGetMember<size_t>("EntryLockedTextColorIndex");
 
   CurrentPageNumPos = EnsureGetMember<glm::vec2>("CurrentPageNumPos");
   PageNumSeparatorSlash =
