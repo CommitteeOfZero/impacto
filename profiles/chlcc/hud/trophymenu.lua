@@ -41,8 +41,10 @@ root.TrophyMenu = {
     EntryDescriptionOffset = { X = 218, Y = 42 },
     EntryDescriptionFontSize = 18,
     EntryIconOffset = { X = 112, Y = 4 },
+    EntryRarityIconOffset = { X = 161, Y = 42 },
     EntryDefaultNameTextTableId = 0,
     EntryDefaultNameStringNum = 19,
+    EntryLockedTextColorIndex = 60,
 
     CurrentPageNumPos = { X = 1133, Y = 65 },
     PageNumSeparatorSlashSprite = "PageNumSeparatorSlash",
