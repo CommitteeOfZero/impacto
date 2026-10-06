@@ -23,7 +23,8 @@ TrophyMenuEntry::TrophyMenuEntry(int achievementId)
   const auto* ach = GetAchievement(AchievementId);
   assert(ach != nullptr);
   const bool unlocked = IsAchievementUnlocked(AchievementId);
-  if (ach == nullptr || !unlocked) {
+  const bool revealed = unlocked || !ach->Hidden();
+  if (!revealed) {
     NameLabel =
         Label(Vm::ScriptGetTextTableStrAddress(EntryDefaultNameTextTableId,
                                                EntryDefaultNameStringNum),
@@ -39,7 +40,7 @@ TrophyMenuEntry::TrophyMenuEntry(int achievementId)
     DescriptionLabel =
         Label(ach->Description(), Bounds.GetPos() + EntryDescriptionOffset,
               EntryDescriptionFontSize, RendererOutlineMode::BottomRight, 0);
-    Icon = ach->Icon();
+    Icon = unlocked ? ach->Icon() : DefaultTrophyIconSprite;
   }
   IconDest = RectF{Bounds.X, Bounds.Y, DefaultTrophyIconSprite.ScaledWidth(),
                    DefaultTrophyIconSprite.ScaledHeight()} +
