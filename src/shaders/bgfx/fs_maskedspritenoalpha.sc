@@ -25,7 +25,7 @@ void main() {
     if (toBool(u_isInverted)) maskAlpha = 1.0f - maskAlpha;
     maskAlpha *= u_alpha.x;
     maskAlpha -= u_alpha.y;
-    maskAlpha = clamp(maskAlpha, 0.0f, 1.0f);
+    maskAlpha = saturate(maskAlpha);
 
     gl_FragColor.a *= maskAlpha;
     gl_FragColor *= v_color0;

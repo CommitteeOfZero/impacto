@@ -7,5 +7,5 @@ uniform vec4 u_colorShift; // vec3
 
 void main() {
     gl_FragColor = texture2D(s_texture, v_texcoord0) * v_color0;
-    gl_FragColor.rgb = clamp(gl_FragColor.rgb + u_colorShift.rgb, 0.0f, 1.0f);
+    gl_FragColor.rgb = saturate(gl_FragColor.rgb + u_colorShift.rgb);
 }

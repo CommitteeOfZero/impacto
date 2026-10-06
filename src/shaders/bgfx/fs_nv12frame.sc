@@ -10,11 +10,11 @@ SAMPLER2D(s_cbCr, 1);
 uniform vec4 u_isAlpha; // bool
 
 vec4 getRgba(vec2 texUv) {
-    mat4 yuv_to_rgb_rec601 = mtxFromRows(
-        vec4(1.16438,  0.00000,  1.59603, -0.87079),
-        vec4(1.16438, -0.39176, -0.81297,  0.52959),
-        vec4(1.16438,  2.01723,  0.00000, -1.08139),
-        vec4(0, 0, 0, 1)
+    const mat4 yuv_to_rgb_rec601 = mtxFromVals(
+        1.16438f,  0.00000f,  1.59603f, -0.87079f,
+        1.16438f, -0.39176f, -0.81297f,  0.52959f,
+        1.16438f,  2.01723f,  0.00000f, -1.08139f,
+        0.0f, 0.0f, 0.0f, 1.0f
     );
 
     return mul(

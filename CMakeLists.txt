@@ -1214,10 +1214,27 @@ if (IMPACTO_RENDERER_BGFX)
 
         src/renderer/bgfx/shaders/vs_maskedsprite.h
         src/renderer/bgfx/shaders/vs_sprite.h
+        src/renderer/bgfx/shaders/fs_additivemaskedsprite.h
+        src/renderer/bgfx/shaders/fs_ccmessageboxsprite.h
+        src/renderer/bgfx/shaders/fs_chlccmenubackground.h
+        src/renderer/bgfx/shaders/fs_colorburnmaskedsprite.h
+        src/renderer/bgfx/shaders/fs_colordodgemaskedsprite.h
+        src/renderer/bgfx/shaders/fs_colormaskedsprite.h
+        src/renderer/bgfx/shaders/fs_edgedetectedsinglesheetfont.h
+        src/renderer/bgfx/shaders/fs_gaussianblur.h
+        src/renderer/bgfx/shaders/fs_hardlightmaskedsprite.h
+        src/renderer/bgfx/shaders/fs_linearburnmaskedsprite.h
         src/renderer/bgfx/shaders/fs_maskedsprite.h
+        src/renderer/bgfx/shaders/fs_maskedspritebinary.h
         src/renderer/bgfx/shaders/fs_maskedspritenoalpha.h
+        src/renderer/bgfx/shaders/fs_mosaic.h
         src/renderer/bgfx/shaders/fs_nv12frame.h
+        src/renderer/bgfx/shaders/fs_overlaymaskedsprite.h
+        src/renderer/bgfx/shaders/fs_screenmaskedsprite.h
+        src/renderer/bgfx/shaders/fs_silhouette.h
+        src/renderer/bgfx/shaders/fs_softlightmaskedsprite.h
         src/renderer/bgfx/shaders/fs_sprite.h
+        src/renderer/bgfx/shaders/fs_spriteinverted.h
         src/renderer/bgfx/shaders/fs_yuvframe.h
     )
 
@@ -1226,10 +1243,27 @@ if (IMPACTO_RENDERER_BGFX)
         src/shaders/bgfx/vs_sprite.sc
     )
     set(Bgfx_Fragment_Shaders
+        src/shaders/bgfx/fs_additivemaskedsprite.sc
+        src/shaders/bgfx/fs_ccmessageboxsprite.sc
+        src/shaders/bgfx/fs_chlccmenubackground.sc
+        src/shaders/bgfx/fs_colorburnmaskedsprite.sc
+        src/shaders/bgfx/fs_colordodgemaskedsprite.sc
+        src/shaders/bgfx/fs_colormaskedsprite.sc
+        src/shaders/bgfx/fs_edgedetectedsinglesheetfont.sc
+        src/shaders/bgfx/fs_gaussianblur.sc
+        src/shaders/bgfx/fs_hardlightmaskedsprite.sc
+        src/shaders/bgfx/fs_linearburnmaskedsprite.sc
         src/shaders/bgfx/fs_maskedsprite.sc
+        src/shaders/bgfx/fs_maskedspritebinary.sc
         src/shaders/bgfx/fs_maskedspritenoalpha.sc
+        src/shaders/bgfx/fs_mosaic.sc
         src/shaders/bgfx/fs_nv12frame.sc
+        src/shaders/bgfx/fs_overlaymaskedsprite.sc
+        src/shaders/bgfx/fs_screenmaskedsprite.sc
+        src/shaders/bgfx/fs_silhouette.sc
+        src/shaders/bgfx/fs_softlightmaskedsprite.sc
         src/shaders/bgfx/fs_sprite.sc
+        src/shaders/bgfx/fs_spriteinverted.sc
         src/shaders/bgfx/fs_yuvframe.sc
     )
 

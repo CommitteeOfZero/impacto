@@ -106,10 +106,27 @@ enum class VertexShaderType {
   Sprite,
 };
 enum class FragmentShaderType {
+  AdditiveMaskedSprite,
+  CCMessageBoxSprite,
+  CHLCCMenuBackground,
+  ColorBurnMaskedSprite,
+  ColorDodgeMaskedSprite,
+  ColorMaskedSprite,
+  EdgeDetectedSingleSheetFont,
+  GaussianBlur,
+  HardLightMaskedSprite,
+  LinearBurnMaskedSprite,
   MaskedSprite,
+  MaskedSpriteBinary,
   MaskedSpriteNoAlpha,
+  Mosaic,
   NV12Frame,
+  OverlayMaskedSprite,
+  ScreenMaskedSprite,
+  Silhouette,
+  SoftLightMaskedSprite,
   Sprite,
+  SpriteInverted,
   YUVFrame,
 };
 
