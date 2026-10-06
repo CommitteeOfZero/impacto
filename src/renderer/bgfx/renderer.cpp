@@ -143,6 +143,8 @@ Renderer::Renderer() {
   const auto flush = [this]() { Flush(); };
   MaskedSpriteShader.emplace(vs_maskedsprite_shader, fs_maskedsprite_shader,
                              flush);
+  MaskedSpriteBinaryShader.emplace(vs_maskedsprite_shader,
+                                   fs_maskedspritebinary_shader, flush);
   MaskedSpriteNoAlphaShader.emplace(vs_maskedsprite_shader,
                                     fs_maskedspritenoalpha_shader, flush);
   NV12FrameShader.emplace(vs_sprite_shader, fs_nv12frame_shader, flush);
@@ -610,6 +612,7 @@ void Renderer::DrawMaskedSprite(const PositionedMaskedSprite& spriteInfo,
   MaskedSpriteShader->SubmitUniforms(
       {
           .u_maskTransformation = spriteInfo.MaskTransformation,
+          .u_fullscreenMask = spriteInfo.FullscreenMask,
       },
       {
           .s_texture = texture,
@@ -617,6 +620,32 @@ void Renderer::DrawMaskedSprite(const PositionedMaskedSprite& spriteInfo,
           .u_alpha = glm::vec2(config.Alpha, config.FadeRange),
           .u_isInverted = config.IsInverted,
           .u_isSameTexture = texture == maskTexture,
+      });
+
+  InsertVertices(spriteInfo.GetIndices(), spriteInfo.GetVertices(),
+                 ShouldFlip(texture));
+}
+
+void Renderer::DrawMaskedBinarySprite(const PositionedMaskedSprite& spriteInfo,
+                                      const MaskedBinarySpriteConfig& config,
+                                      const StateConfig& stateConfig) {
+  SetState({
+      .GenericState = stateConfig,
+      .ShaderProgram = *MaskedSpriteBinaryShader,
+      .Transformation = spriteInfo.Transformation,
+  });
+
+  const Texture& texture = dynamic_cast<const Texture&>(spriteInfo.Texture);
+
+  MaskedSpriteBinaryShader->SubmitUniforms(
+      {
+          .u_maskTransformation = spriteInfo.MaskTransformation,
+          .u_fullscreenMask = spriteInfo.FullscreenMask,
+      },
+      {
+          .s_texture = texture,
+          .s_mask = dynamic_cast<const Texture&>(spriteInfo.MaskTexture),
+          .u_isInverted = config.IsInverted,
       });
 
   InsertVertices(spriteInfo.GetIndices(), spriteInfo.GetVertices(),
@@ -637,6 +666,7 @@ void Renderer::DrawMaskedSpriteNoAlpha(const PositionedMaskedSprite& spriteInfo,
   MaskedSpriteNoAlphaShader->SubmitUniforms(
       {
           .u_maskTransformation = spriteInfo.MaskTransformation,
+          .u_fullscreenMask = spriteInfo.FullscreenMask,
       },
       {
           .s_texture = texture,

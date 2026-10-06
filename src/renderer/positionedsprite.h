@@ -188,6 +188,7 @@ struct PositionedSprite {
 struct PositionedMaskedSprite : public PositionedSprite {
   const TextureInterface& MaskTexture;
   glm::mat4 MaskTransformation = glm::mat4(1.0f);
+  bool FullscreenMask = false;
 
   PositionedMaskedSprite(const PositionedSpriteTextureType auto& texture,
                          CornersQuad textureSection,
@@ -256,6 +257,18 @@ struct PositionedMaskedSprite : public PositionedSprite {
                                RectF(0.0f, 0.0f, GetTextureSize(texture).x,
                                      GetTextureSize(texture).y),
                                transformation, maskTransformation, tint) {}
+
+  struct HaveFullscreenMask {};
+  PositionedMaskedSprite(const PositionedSpriteTextureType auto& texture,
+                         const PositionedSpriteTextureType auto& mask,
+                         glm::mat4 transformation, HaveFullscreenMask,
+                         glm::vec4 tint = glm::vec4(1.0f))
+      : PositionedMaskedSprite(texture, mask,
+                               RectF(0.0f, 0.0f, GetTextureSize(texture).x,
+                                     GetTextureSize(texture).y),
+                               transformation, glm::mat4(1.0f), tint) {
+    FullscreenMask = true;
+  }
 
   PositionedMaskedSprite(const PositionedSpriteTextureType auto& texture,
                          const PositionedSpriteTextureType auto& mask,

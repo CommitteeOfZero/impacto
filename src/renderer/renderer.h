@@ -163,22 +163,12 @@ class BaseRenderer {
                glm::mat4(1.0f), tint, glm::vec3(0.0f), inverted, disableBlend);
   }
 
-  virtual void DrawMaskedBinarySprite(
-      const Sprite& sprite, const Sprite& mask, const CornersQuad& spriteDest,
-      const CornersQuad& maskDest, glm::mat4 spriteTransformation,
-      std::optional<glm::mat4> maskTransformation,
-      std::span<const glm::vec4, 4> tints, bool isInverted = false) = 0;
-
-  void DrawMaskedBinarySprite(const Sprite& sprite, const Sprite& mask,
-                              glm::mat4 spriteTransformation,
-                              std::optional<glm::mat4> maskTransformation,
-                              glm::vec4 tint = glm::vec4(1.0f),
-                              bool isInverted = false) {
-    DrawMaskedBinarySprite(
-        sprite, mask, sprite.ScaledBounds(), mask.ScaledBounds(),
-        spriteTransformation, maskTransformation,
-        std::array<glm::vec4, 4>{tint, tint, tint, tint}, isInverted);
-  }
+  struct MaskedBinarySpriteConfig {
+    bool IsInverted = false;
+  };
+  virtual void DrawMaskedBinarySprite(const PositionedMaskedSprite& spriteInfo,
+                                      const MaskedBinarySpriteConfig& config,
+                                      const StateConfig& stateConfig = {}) = 0;
 
   struct MaskedSpriteConfig {
     int Alpha;
