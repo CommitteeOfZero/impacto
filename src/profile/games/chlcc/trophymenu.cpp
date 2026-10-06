@@ -54,10 +54,12 @@ void Configure() {
   EntryDescriptionOffset = EnsureGetMember<glm::vec2>("EntryDescriptionOffset");
   EntryDescriptionFontSize = EnsureGetMember<float>("EntryDescriptionFontSize");
   EntryIconOffset = EnsureGetMember<glm::vec2>("EntryIconOffset");
+  EntryRarityIconOffset = EnsureGetMember<glm::vec2>("EntryRarityIconOffset");
   EntryDefaultNameTextTableId =
       EnsureGetMember<uint32_t>("EntryDefaultNameTextTableId");
   EntryDefaultNameStringNum =
       EnsureGetMember<uint32_t>("EntryDefaultNameStringNum");
+  EntryLockedTextColorIndex = EnsureGetMember<size_t>("EntryLockedTextColorIndex");
 
   CurrentPageNumPos = EnsureGetMember<glm::vec2>("CurrentPageNumPos");
   PageNumSeparatorSlash =

@@ -47,8 +47,10 @@ inline float EntryNameFontSize;
 inline glm::vec2 EntryDescriptionOffset;
 inline float EntryDescriptionFontSize;
 inline glm::vec2 EntryIconOffset;
+inline glm::vec2 EntryRarityIconOffset;
 inline uint32_t EntryDefaultNameTextTableId;
 inline uint32_t EntryDefaultNameStringNum;
+inline size_t EntryLockedTextColorIndex;
 
 inline glm::vec2 CurrentPageNumPos;
 inline Sprite PageNumSeparatorSlash;
