@@ -82,8 +82,9 @@ class Renderer final : public BaseRenderer {
       const EdgeDetectedSingleSheetFontConfig& config,
       const StateConfig& stateConfig) override;
 
-  void DrawCHLCCMenuBackground(Sprite const& sprite, Sprite const& mask,
-                               RectF const& dest, float alpha) override {}
+  void DrawCHLCCMenuBackground(const PositionedMaskedSprite& spriteInfo,
+                               const CHLCCMenuBackgroundConfig& config,
+                               const StateConfig& stateConfig) override;
 
   void DrawBlurredSprite(Sprite const& sprite, CornersQuad const& dest,
                          glm::mat4 transformation,
@@ -170,6 +171,9 @@ class Renderer final : public BaseRenderer {
   std::optional<ShaderProgram<VertexShaderType::MaskedSprite,
                               FragmentShaderType::CCMessageBoxSprite>>
       CCMessageBoxSpriteShader;
+  std::optional<ShaderProgram<VertexShaderType::MaskedSprite,
+                              FragmentShaderType::CHLCCMenuBackground>>
+      CHLCCMenuBackgroundShader;
   std::optional<ShaderProgram<VertexShaderType::MaskedSprite,
                               FragmentShaderType::EdgeDetectedSingleSheetFont>>
       EdgeDetectedSingleSheetFontShader;
