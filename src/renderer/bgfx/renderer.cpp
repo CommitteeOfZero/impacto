@@ -143,6 +143,8 @@ Renderer::Renderer() {
   const auto flush = [this]() { Flush(); };
   CCMessageBoxSpriteShader.emplace(vs_maskedsprite_shader,
                                    fs_ccmessageboxsprite_shader, flush);
+  CHLCCMenuBackgroundShader.emplace(vs_maskedsprite_shader,
+                                    fs_chlccmenubackground_shader, flush);
   EdgeDetectedSingleSheetFontShader.emplace(
       vs_maskedsprite_shader, fs_edgedetectedsinglesheetfont_shader, flush);
   MaskedSpriteShader.emplace(vs_maskedsprite_shader, fs_maskedsprite_shader,
@@ -595,6 +597,33 @@ void Renderer::DrawCCMessageBox(const PositionedMaskedSprite& spriteInfo,
           .s_texture = texture,
           .s_mask = maskTexture,
           .u_alpha = glm::vec3(config.FadeRange, config.Alpha, config.EffectCt),
+      });
+
+  InsertVertices(spriteInfo.GetIndices(), spriteInfo.GetVertices(),
+                 ShouldFlip(texture));
+}
+
+void Renderer::DrawCHLCCMenuBackground(const PositionedMaskedSprite& spriteInfo,
+                                       const CHLCCMenuBackgroundConfig& config,
+                                       const StateConfig& stateConfig) {
+  SetState({
+      .GenericState = stateConfig,
+      .ShaderProgram = *CHLCCMenuBackgroundShader,
+      .Transformation = spriteInfo.Transformation,
+  });
+
+  const Texture& texture = dynamic_cast<const Texture&>(spriteInfo.Texture);
+  const Texture& maskTexture =
+      dynamic_cast<const Texture&>(spriteInfo.MaskTexture);
+
+  CHLCCMenuBackgroundShader->SubmitUniforms(
+      {
+          .u_maskTransformation = spriteInfo.MaskTransformation,
+          .u_fullscreenMask = spriteInfo.FullscreenMask,
+      },
+      {
+          .s_texture = texture,
+          .s_mask = maskTexture,
       });
 
   InsertVertices(spriteInfo.GetIndices(), spriteInfo.GetVertices(),

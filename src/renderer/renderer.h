@@ -259,8 +259,10 @@ class BaseRenderer {
       const EdgeDetectedSingleSheetFontConfig& config,
       const StateConfig& stateConfig = {}) = 0;
 
-  virtual void DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
-                                       const RectF& dest, float alpha) = 0;
+  struct CHLCCMenuBackgroundConfig {};
+  virtual void DrawCHLCCMenuBackground(const PositionedMaskedSprite& spriteInfo,
+                                       const CHLCCMenuBackgroundConfig& = {},
+                                       const StateConfig& stateConfig = {}) = 0;
 
   virtual void DrawBlurredSprite(const Sprite& sprite, const CornersQuad& dest,
                                  glm::mat4 transformation,
