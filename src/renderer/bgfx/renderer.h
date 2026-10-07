@@ -86,10 +86,9 @@ class Renderer final : public BaseRenderer {
                                const CHLCCMenuBackgroundConfig& config,
                                const StateConfig& stateConfig) override;
 
-  void DrawBlurredSprite(Sprite const& sprite, CornersQuad const& dest,
-                         glm::mat4 transformation,
-                         RendererBlurDirection blurDirection,
-                         glm::vec4 tint) override {}
+  void DrawBlurredSprite(const PositionedSprite& spriteInfo,
+                         const BlurredSpriteConfig& config,
+                         const StateConfig& stateConfig) override;
 
   void DrawMosaic(Sprite const& sprite, CornersQuad dest, float tileSize,
                   glm::mat4 transformation, glm::vec4 tint) override {}
@@ -177,6 +176,9 @@ class Renderer final : public BaseRenderer {
   std::optional<ShaderProgram<VertexShaderType::MaskedSprite,
                               FragmentShaderType::EdgeDetectedSingleSheetFont>>
       EdgeDetectedSingleSheetFontShader;
+  std::optional<
+      ShaderProgram<VertexShaderType::Sprite, FragmentShaderType::GaussianBlur>>
+      GaussianBlurShader;
   std::optional<ShaderProgram<VertexShaderType::MaskedSprite,
                               FragmentShaderType::MaskedSprite>>
       MaskedSpriteShader;
