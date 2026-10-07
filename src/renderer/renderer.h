@@ -118,22 +118,35 @@ class BaseRenderer {
                                   std::span<uint8_t> outBuffer) = 0;
 
   struct StateConfig {
-    enum class BlendModeType : uint8_t { Normal, Additive, Premultiplied };
+    enum class BlendModeType : uint8_t {
+      Normal,
+      Additive,
+      Premultiplied,
+      Disabled
+    };
     enum class StencilModeType : uint8_t { Off, Test, Write };
-
-    StateConfig() {}
 
     BlendModeType BlendMode = BlendModeType::Normal;
     StencilModeType StencilMode = StencilModeType::Off;
     std::optional<RectF> ScissorRect = std::nullopt;
   };
 
-  virtual void DrawSprite(const Sprite& sprite, const CornersQuad& dest,
-                          glm::mat4 transformation,
-                          std::span<const glm::vec4, 4> tints,
-                          glm::vec3 colorShift = glm::vec3(0.0f),
-                          bool inverted = false, bool disableBlend = false,
-                          bool textureWrapRepeat = false) = 0;
+  struct SpriteConfig {
+    glm::vec3 ColorShift = glm::vec3(0.0f);
+  };
+  virtual void DrawSprite(const PositionedSprite& spriteInfo,
+                          const SpriteConfig& config = {},
+                          const StateConfig& stateConfig = {}) = 0;
+
+  struct InvertedSpriteConfig {};
+  virtual void DrawInvertedSprite(const PositionedSprite& spriteInfo,
+                                  const InvertedSpriteConfig& config = {},
+                                  const StateConfig& stateConfig = {}) = 0;
+
+  void DrawSprite(const Sprite& sprite, const CornersQuad& dest,
+                  glm::mat4 transformation, std::span<const glm::vec4, 4> tints,
+                  glm::vec3 colorShift = glm::vec3(0.0f), bool inverted = false,
+                  bool disableBlend = false, bool textureWrapRepeat = false);
 
   void DrawSprite(const Sprite& sprite, const CornersQuad& dest,
                   glm::mat4 transformation = glm::mat4(1.0f),
