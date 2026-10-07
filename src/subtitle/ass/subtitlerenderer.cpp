@@ -154,8 +154,8 @@ void SubtitleRenderTrack::Render() {
     using BlendModeType = BaseRenderer::StateConfig::BlendModeType;
     Renderer->SetBlendMode(BlendModeType::Premultiplied);
     for (const auto& subtitleGlyph : SubtitleGlyphs) {
-      Renderer->DrawSubtitleGlyph(subtitleGlyph.GlyphSprite,
-                                  subtitleGlyph.Position, subtitleGlyph.Tint);
+      Renderer->DrawSilhouette({subtitleGlyph.GlyphSprite,
+                                subtitleGlyph.Position, subtitleGlyph.Tint});
     }
     Renderer->SetBlendMode(BlendModeType::Normal);
   }
