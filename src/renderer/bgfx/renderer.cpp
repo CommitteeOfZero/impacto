@@ -147,6 +147,7 @@ Renderer::Renderer() {
                                     fs_chlccmenubackground_shader, flush);
   EdgeDetectedSingleSheetFontShader.emplace(
       vs_maskedsprite_shader, fs_edgedetectedsinglesheetfont_shader, flush);
+  GaussianBlurShader.emplace(vs_sprite_shader, fs_gaussianblur_shader, flush);
   MaskedSpriteShader.emplace(vs_maskedsprite_shader, fs_maskedsprite_shader,
                              flush);
   MaskedSpriteBinaryShader.emplace(vs_maskedsprite_shader,
@@ -685,6 +686,28 @@ void Renderer::DrawEdgeDetectedSingleSheetFont(
           .u_strength = glm::vec3(config.DifferenceFactor,
                                   config.IntensityShift, config.AlphaShift),
       });
+
+  InsertVertices(spriteInfo.GetIndices(), spriteInfo.GetVertices(),
+                 ShouldFlip(texture));
+}
+
+void Renderer::DrawBlurredSprite(const PositionedSprite& spriteInfo,
+                                 const BlurredSpriteConfig& config,
+                                 const StateConfig& stateConfig) {
+  SetState({
+      .GenericState = stateConfig,
+      .ShaderProgram = *GaussianBlurShader,
+      .Transformation = spriteInfo.Transformation,
+  });
+
+  const Texture& texture = dynamic_cast<const Texture&>(spriteInfo.Texture);
+
+  GaussianBlurShader->SubmitUniforms(
+      {}, {
+              .s_texture = texture,
+              .u_isHorizontal =
+                  config.BlurDirection == RendererBlurDirection::Horizontal,
+          });
 
   InsertVertices(spriteInfo.GetIndices(), spriteInfo.GetVertices(),
                  ShouldFlip(texture));
