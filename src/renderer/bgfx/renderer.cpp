@@ -143,6 +143,8 @@ Renderer::Renderer() {
   const auto flush = [this]() { Flush(); };
   CCMessageBoxSpriteShader.emplace(vs_maskedsprite_shader,
                                    fs_ccmessageboxsprite_shader, flush);
+  EdgeDetectedSingleSheetFontShader.emplace(
+      vs_maskedsprite_shader, fs_edgedetectedsinglesheetfont_shader, flush);
   MaskedSpriteShader.emplace(vs_maskedsprite_shader, fs_maskedsprite_shader,
                              flush);
   MaskedSpriteBinaryShader.emplace(vs_maskedsprite_shader,
@@ -593,6 +595,66 @@ void Renderer::DrawCCMessageBox(const PositionedMaskedSprite& spriteInfo,
           .s_texture = texture,
           .s_mask = maskTexture,
           .u_alpha = glm::vec3(config.FadeRange, config.Alpha, config.EffectCt),
+      });
+
+  InsertVertices(spriteInfo.GetIndices(), spriteInfo.GetVertices(),
+                 ShouldFlip(texture));
+}
+
+void Renderer::DrawEdgeDetectedSingleSheetFont(
+    const PositionedSprite& spriteInfo,
+    const EdgeDetectedSingleSheetFontConfig& config,
+    const StateConfig& stateConfig) {
+  SetState({
+      .GenericState = stateConfig,
+      .ShaderProgram = *EdgeDetectedSingleSheetFontShader,
+      .Transformation = spriteInfo.Transformation,
+  });
+
+  const Texture& texture = dynamic_cast<const Texture&>(spriteInfo.Texture);
+
+  EdgeDetectedSingleSheetFontShader->SubmitUniforms(
+      {
+          .u_maskTransformation = glm::mat4(1.0f),
+          .u_fullscreenMask = false,
+      },
+      {
+          .s_font = texture,
+          .s_mask = bgfx::TextureHandle{bgfx::kInvalidHandle},
+          .u_hasMask = false,
+          .u_strength = glm::vec3(config.DifferenceFactor,
+                                  config.IntensityShift, config.AlphaShift),
+      });
+
+  InsertVertices(spriteInfo.GetIndices(), spriteInfo.GetVertices(),
+                 ShouldFlip(texture));
+}
+
+void Renderer::DrawEdgeDetectedSingleSheetFont(
+    const PositionedMaskedSprite& spriteInfo,
+    const EdgeDetectedSingleSheetFontConfig& config,
+    const StateConfig& stateConfig) {
+  SetState({
+      .GenericState = stateConfig,
+      .ShaderProgram = *EdgeDetectedSingleSheetFontShader,
+      .Transformation = spriteInfo.Transformation,
+  });
+
+  const Texture& texture = dynamic_cast<const Texture&>(spriteInfo.Texture);
+  const Texture& maskTexture =
+      dynamic_cast<const Texture&>(spriteInfo.MaskTexture);
+
+  EdgeDetectedSingleSheetFontShader->SubmitUniforms(
+      {
+          .u_maskTransformation = spriteInfo.MaskTransformation,
+          .u_fullscreenMask = spriteInfo.FullscreenMask,
+      },
+      {
+          .s_font = texture,
+          .s_mask = maskTexture,
+          .u_hasMask = true,
+          .u_strength = glm::vec3(config.DifferenceFactor,
+                                  config.IntensityShift, config.AlphaShift),
       });
 
   InsertVertices(spriteInfo.GetIndices(), spriteInfo.GetVertices(),

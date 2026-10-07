@@ -9,8 +9,7 @@ struct Uniforms<FragmentShaderType::EdgeDetectedSingleSheetFont> {
   SamplerUniform<0> s_font;
   SamplerUniform<1> s_mask;
   bool u_hasMask;
-  glm::vec2 u_pixelOffset;
-  glm::vec3 u_strength;
+  glm::vec3 u_strength;  // u_differenceFactor, u_intensityShift, u_alphaShift
 };
 
 }  // namespace Impacto::Bgfx
