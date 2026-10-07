@@ -264,10 +264,12 @@ class BaseRenderer {
                                        const CHLCCMenuBackgroundConfig& = {},
                                        const StateConfig& stateConfig = {}) = 0;
 
-  virtual void DrawBlurredSprite(const Sprite& sprite, const CornersQuad& dest,
-                                 glm::mat4 transformation,
-                                 RendererBlurDirection blurDirection,
-                                 glm::vec4 tint) = 0;
+  struct BlurredSpriteConfig {
+    RendererBlurDirection BlurDirection;
+  };
+  virtual void DrawBlurredSprite(const PositionedSprite& spriteInfo,
+                                 const BlurredSpriteConfig& config,
+                                 const StateConfig& stateConfig = {}) = 0;
 
   virtual void DrawMosaic(const Sprite& sprite, const CornersQuad dest,
                           float tileSize, glm::mat4 transformation,

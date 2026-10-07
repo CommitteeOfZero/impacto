@@ -39,10 +39,10 @@ void BlurEffect::Render(int iterations) {
                                           : RendererBlurDirection::Horizontal;
 
     Renderer->CaptureScreencap(BlurSprite);
-    Renderer->DrawBlurredSprite(BlurSprite,
-                                RectF{0.0f, 0.0f, Profile::Game::DesignWidth,
-                                      Profile::Game::DesignHeight},
-                                glm::mat4(1.0f), direction, glm::vec4(1.0f));
+    Renderer->DrawBlurredSprite(
+        {BlurSprite, RectF{0.0f, 0.0f, Profile::Game::DesignWidth,
+                           Profile::Game::DesignHeight}},
+        {.BlurDirection = direction});
   }
 }
 
