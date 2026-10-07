@@ -44,10 +44,13 @@ class Renderer final : public BaseRenderer {
     return 0;
   }
 
-  void DrawSprite(Sprite const& sprite, CornersQuad const& dest,
-                  glm::mat4 transformation, std::span<const glm::vec4, 4> tints,
-                  glm::vec3 colorShift, bool inverted, bool disableBlend,
-                  bool textureWrapRepeat) override;
+  void DrawSprite(const PositionedSprite& spriteInfo,
+                  const SpriteConfig& config,
+                  const StateConfig& stateConfig) override;
+
+  void DrawInvertedSprite(const PositionedSprite& spriteInfo,
+                          const InvertedSpriteConfig& config,
+                          const StateConfig& stateConfig) override;
 
   void DrawMaskedBinarySprite(const PositionedMaskedSprite& spriteInfo,
                               const MaskedBinarySpriteConfig& config,
@@ -181,6 +184,9 @@ class Renderer final : public BaseRenderer {
   std::optional<
       ShaderProgram<VertexShaderType::Sprite, FragmentShaderType::GaussianBlur>>
       GaussianBlurShader;
+  std::optional<ShaderProgram<VertexShaderType::Sprite,
+                              FragmentShaderType::SpriteInverted>>
+      InvertedSpriteShader;
   std::optional<ShaderProgram<VertexShaderType::MaskedSprite,
                               FragmentShaderType::MaskedSprite>>
       MaskedSpriteShader;

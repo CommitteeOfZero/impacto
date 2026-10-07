@@ -148,6 +148,8 @@ Renderer::Renderer() {
   EdgeDetectedSingleSheetFontShader.emplace(
       vs_maskedsprite_shader, fs_edgedetectedsinglesheetfont_shader, flush);
   GaussianBlurShader.emplace(vs_sprite_shader, fs_gaussianblur_shader, flush);
+  InvertedSpriteShader.emplace(vs_sprite_shader, fs_spriteinverted_shader,
+                               flush);
   MaskedSpriteShader.emplace(vs_maskedsprite_shader, fs_maskedsprite_shader,
                              flush);
   MaskedSpriteBinaryShader.emplace(vs_maskedsprite_shader,
@@ -469,6 +471,9 @@ void Renderer::Flush() {
       case Premultiplied:
         stateFlags |= BGFX_STATE_BLEND_NORMAL;
         break;
+      case Disabled:
+        // No blend flags means disable blending
+        break;
     }
 
     switch (CurrentState->GenericState.StencilMode) {
@@ -715,31 +720,41 @@ void Renderer::DrawBlurredSprite(const PositionedSprite& spriteInfo,
                  ShouldFlip(texture));
 }
 
-void Renderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
-                          const glm::mat4 transformation,
-                          const std::span<const glm::vec4, 4> tints,
-                          const glm::vec3 colorShift, const bool inverted,
-                          const bool disableBlend,
-                          const bool textureWrapRepeat) {
-  if (std::ranges::all_of(
-          tints, [](float alpha) { return alpha <= 0.0f; }, &glm::vec4::a)) {
-    return;
-  }
-
+void Renderer::DrawSprite(const PositionedSprite& spriteInfo,
+                          const SpriteConfig& config,
+                          const StateConfig& stateConfig) {
   SetState({
-      .GenericState = StateConfig{},
+      .GenericState = stateConfig,
       .ShaderProgram = *SpriteShader,
-      .Transformation = transformation,
+      .Transformation = spriteInfo.Transformation,
   });
 
-  const Texture& texture = dynamic_cast<const Texture&>(*sprite.Sheet.Texture);
+  const Texture& texture = dynamic_cast<const Texture&>(spriteInfo.Texture);
 
   SpriteShader->SubmitUniforms({}, {
                                        .s_texture = texture,
-                                       .u_colorShift = colorShift,
+                                       .u_colorShift = config.ColorShift,
                                    });
 
-  InsertQuad(dest, sprite.NormalizedBounds(), tints, ShouldFlip(texture));
+  InsertVertices(spriteInfo.GetIndices(), spriteInfo.GetVertices(),
+                 ShouldFlip(texture));
+}
+
+void Renderer::DrawInvertedSprite(const PositionedSprite& spriteInfo,
+                                  const InvertedSpriteConfig& config,
+                                  const StateConfig& stateConfig) {
+  SetState({
+      .GenericState = stateConfig,
+      .ShaderProgram = *InvertedSpriteShader,
+      .Transformation = spriteInfo.Transformation,
+  });
+
+  const Texture& texture = dynamic_cast<const Texture&>(spriteInfo.Texture);
+
+  InvertedSpriteShader->SubmitUniforms({}, {.s_texture = texture});
+
+  InsertVertices(spriteInfo.GetIndices(), spriteInfo.GetVertices(),
+                 ShouldFlip(texture));
 }
 
 void Renderer::DrawMaskedSprite(const PositionedMaskedSprite& spriteInfo,
