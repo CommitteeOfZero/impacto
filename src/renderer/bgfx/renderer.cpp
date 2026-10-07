@@ -154,6 +154,7 @@ Renderer::Renderer() {
                                    fs_maskedspritebinary_shader, flush);
   MaskedSpriteNoAlphaShader.emplace(vs_maskedsprite_shader,
                                     fs_maskedspritenoalpha_shader, flush);
+  MosaicShader.emplace(vs_sprite_shader, fs_mosaic_shader, flush);
   NV12FrameShader.emplace(vs_sprite_shader, fs_nv12frame_shader, flush);
   SpriteShader.emplace(vs_sprite_shader, fs_sprite_shader, flush);
   YUVFrameShader.emplace(vs_sprite_shader, fs_yuvframe_shader, flush);
@@ -818,6 +819,26 @@ void Renderer::DrawMaskedSpriteNoAlpha(const PositionedMaskedSprite& spriteInfo,
           .u_alpha = glm::vec2(config.Alpha, config.FadeRange),
           .u_isInverted = config.IsInverted,
       });
+
+  InsertVertices(spriteInfo.GetIndices(), spriteInfo.GetVertices(),
+                 ShouldFlip(texture));
+}
+
+void Renderer::DrawMosaic(const PositionedSprite& spriteInfo,
+                          const MosaicConfig& config,
+                          const StateConfig& stateConfig) {
+  SetState({
+      .GenericState = stateConfig,
+      .ShaderProgram = *MosaicShader,
+      .Transformation = spriteInfo.Transformation,
+  });
+
+  const Texture& texture = dynamic_cast<const Texture&>(spriteInfo.Texture);
+
+  MosaicShader->SubmitUniforms({}, {
+                                       .s_texture = texture,
+                                       .u_tileSize = config.TileSize,
+                                   });
 
   InsertVertices(spriteInfo.GetIndices(), spriteInfo.GetVertices(),
                  ShouldFlip(texture));
