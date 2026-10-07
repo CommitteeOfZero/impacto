@@ -43,6 +43,52 @@ void CreateRenderer() {
   }
 }
 
+void BaseRenderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
+                              const glm::mat4 transformation,
+                              const std::span<const glm::vec4, 4> tints,
+                              const glm::vec3 colorShift, const bool inverted,
+                              const bool disableBlend,
+                              const bool textureWrapRepeat) {
+  const RectF uvBounds = sprite.NormalizedBounds();
+  const std::array<VertexBufferSprites, 4> vertices{
+      VertexBufferSprites{
+          .Position = dest.BottomLeft,
+          .UV = uvBounds.BottomLeft(),
+          .Tint = tints[0],
+      },
+      VertexBufferSprites{
+          .Position = dest.TopLeft,
+          .UV = uvBounds.TopLeft(),
+          .Tint = tints[1],
+      },
+      VertexBufferSprites{
+          .Position = dest.TopRight,
+          .UV = uvBounds.TopRight(),
+          .Tint = tints[2],
+      },
+      VertexBufferSprites{
+          .Position = dest.BottomRight,
+          .UV = uvBounds.BottomRight(),
+          .Tint = tints[3],
+      },
+  };
+  constexpr std::array<uint16_t, 6> indices{0, 1, 2, 0, 2, 3};
+
+  const PositionedSprite spriteInfo{sprite, vertices, indices,
+                                    TopologyMode::Triangles, transformation};
+  const StateConfig stateConfig{
+      .BlendMode = disableBlend ? StateConfig::BlendModeType::Disabled
+                                : StateConfig::BlendModeType::Normal,
+      // TODO: Implement `textureWrapRepeat`
+  };
+
+  if (inverted) {
+    DrawInvertedSprite(spriteInfo, {}, stateConfig);
+  } else {
+    DrawSprite(spriteInfo, {.ColorShift = colorShift}, stateConfig);
+  }
+}
+
 void BaseRenderer::DrawConvexShape(const std::span<const glm::vec2> vertices,
                                    const glm::mat4 transformation,
                                    const glm::vec4 color) {
