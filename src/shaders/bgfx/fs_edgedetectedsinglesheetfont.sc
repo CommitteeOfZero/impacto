@@ -7,7 +7,6 @@ $input v_texcoord0, v_color0, v_texcoord1
 SAMPLER2D(s_font, 0);
 SAMPLER2D(s_mask, 1);
 uniform vec4 u_hasMask;     // bool
-uniform vec4 u_pixelOffset; // vec2
 uniform vec4 u_strength;    // vec3(u_differenceFactor, u_intensityShift, u_alphaShift)
 
 float getIntensity(float texValue, float valueShift, float difference) {

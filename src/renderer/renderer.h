@@ -245,12 +245,19 @@ class BaseRenderer {
                                 const CCMessageBoxConfig& config,
                                 const StateConfig& stateConfig = {}) = 0;
 
+  struct EdgeDetectedSingleSheetFontConfig {
+    float DifferenceFactor;
+    float IntensityShift;
+    float AlphaShift;
+  };
   virtual void DrawEdgeDetectedSingleSheetFont(
-      const SpriteSheet& sheet, const SpriteSheet* mask,
-      std::span<const VertexBufferSprites> vertices,
-      std::span<const uint16_t> indices, float differenceFactor,
-      float intensityShift, float alphaShift, glm::vec2 renderScale,
-      glm::mat4 spriteTransformation, glm::mat4 maskTransformation) = 0;
+      const PositionedSprite& spriteInfo,
+      const EdgeDetectedSingleSheetFontConfig& config,
+      const StateConfig& stateConfig = {}) = 0;
+  virtual void DrawEdgeDetectedSingleSheetFont(
+      const PositionedMaskedSprite& spriteInfo,
+      const EdgeDetectedSingleSheetFontConfig& config,
+      const StateConfig& stateConfig = {}) = 0;
 
   virtual void DrawCHLCCMenuBackground(const Sprite& sprite, const Sprite& mask,
                                        const RectF& dest, float alpha) = 0;

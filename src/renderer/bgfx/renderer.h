@@ -74,11 +74,13 @@ class Renderer final : public BaseRenderer {
                         const StateConfig& stateConfig) override;
 
   void DrawEdgeDetectedSingleSheetFont(
-      SpriteSheet const& sheet, SpriteSheet const* mask,
-      std::span<const VertexBufferSprites> vertices,
-      std::span<const uint16_t> indices, float differenceFactor,
-      float intensityShift, float alphaShift, glm::vec2 renderScale,
-      glm::mat4 spriteTransformation, glm::mat4 maskTransformation) override {}
+      const PositionedSprite& spriteInfo,
+      const EdgeDetectedSingleSheetFontConfig& config,
+      const StateConfig& stateConfig) override;
+  void DrawEdgeDetectedSingleSheetFont(
+      const PositionedMaskedSprite& spriteInfo,
+      const EdgeDetectedSingleSheetFontConfig& config,
+      const StateConfig& stateConfig) override;
 
   void DrawCHLCCMenuBackground(Sprite const& sprite, Sprite const& mask,
                                RectF const& dest, float alpha) override {}
@@ -168,6 +170,9 @@ class Renderer final : public BaseRenderer {
   std::optional<ShaderProgram<VertexShaderType::MaskedSprite,
                               FragmentShaderType::CCMessageBoxSprite>>
       CCMessageBoxSpriteShader;
+  std::optional<ShaderProgram<VertexShaderType::MaskedSprite,
+                              FragmentShaderType::EdgeDetectedSingleSheetFont>>
+      EdgeDetectedSingleSheetFontShader;
   std::optional<ShaderProgram<VertexShaderType::MaskedSprite,
                               FragmentShaderType::MaskedSprite>>
       MaskedSpriteShader;
