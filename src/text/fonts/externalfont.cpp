@@ -267,7 +267,7 @@ void ExternalFont::DrawProcessedText(std::span<const ProcessedTextGlyph> text,
 
       glm::vec4 color = RgbIntToFloat(glyph.Colors.*colorMember);
       color.a = ApplyOpacityCurve(glyph.Opacity * passOpacity, opacityCurve);
-      Renderer->DrawSubtitleGlyph(sprite, dest, transformation, color);
+      Renderer->DrawSilhouette({sprite, dest, transformation, color});
     }
     Renderer->SetBlendMode(BlendModeType::Normal);
   };

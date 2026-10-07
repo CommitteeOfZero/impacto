@@ -99,8 +99,9 @@ class Renderer final : public BaseRenderer {
   void DrawVideoTexture(NV12Frame const& frame, RectF const& dest,
                         glm::vec4 tint, bool alphaVideo) override;
 
-  void DrawSubtitleGlyph(Sprite const& sprite, CornersQuad const& dest,
-                         glm::mat4 transformation, glm::vec4 tint) override {}
+  void DrawSilhouette(const PositionedSprite& spriteInfo,
+                      const SilhouetteConfig& config,
+                      const StateConfig& stateConfig) override;
 
   void CaptureScreencap(Sprite& sprite) override {}
 
@@ -195,6 +196,9 @@ class Renderer final : public BaseRenderer {
   std::optional<
       ShaderProgram<VertexShaderType::Sprite, FragmentShaderType::NV12Frame>>
       NV12FrameShader;
+  std::optional<
+      ShaderProgram<VertexShaderType::Sprite, FragmentShaderType::Silhouette>>
+      SilhouetteShader;
   std::optional<
       ShaderProgram<VertexShaderType::Sprite, FragmentShaderType::Sprite>>
       SpriteShader;
