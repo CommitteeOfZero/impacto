@@ -156,6 +156,7 @@ Renderer::Renderer() {
                                     fs_maskedspritenoalpha_shader, flush);
   MosaicShader.emplace(vs_sprite_shader, fs_mosaic_shader, flush);
   NV12FrameShader.emplace(vs_sprite_shader, fs_nv12frame_shader, flush);
+  SilhouetteShader.emplace(vs_sprite_shader, fs_silhouette_shader, flush);
   SpriteShader.emplace(vs_sprite_shader, fs_sprite_shader, flush);
   YUVFrameShader.emplace(vs_sprite_shader, fs_yuvframe_shader, flush);
 
@@ -839,6 +840,23 @@ void Renderer::DrawMosaic(const PositionedSprite& spriteInfo,
                                        .s_texture = texture,
                                        .u_tileSize = config.TileSize,
                                    });
+
+  InsertVertices(spriteInfo.GetIndices(), spriteInfo.GetVertices(),
+                 ShouldFlip(texture));
+}
+
+void Renderer::DrawSilhouette(const PositionedSprite& spriteInfo,
+                              const SilhouetteConfig& config,
+                              const StateConfig& stateConfig) {
+  SetState({
+      .GenericState = stateConfig,
+      .ShaderProgram = *SilhouetteShader,
+      .Transformation = spriteInfo.Transformation,
+  });
+
+  const Texture& texture = dynamic_cast<const Texture&>(spriteInfo.Texture);
+
+  SilhouetteShader->SubmitUniforms({}, {.s_coverageMap = texture});
 
   InsertVertices(spriteInfo.GetIndices(), spriteInfo.GetVertices(),
                  ShouldFlip(texture));
