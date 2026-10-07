@@ -90,8 +90,9 @@ class Renderer final : public BaseRenderer {
                          const BlurredSpriteConfig& config,
                          const StateConfig& stateConfig) override;
 
-  void DrawMosaic(Sprite const& sprite, CornersQuad dest, float tileSize,
-                  glm::mat4 transformation, glm::vec4 tint) override {}
+  void DrawMosaic(const PositionedSprite& spriteInfo,
+                  const MosaicConfig& config,
+                  const StateConfig& stateConfig) override;
 
   void DrawVideoTexture(YUVFrame const& frame, RectF const& dest,
                         glm::vec4 tint, bool alphaVideo) override;
@@ -188,6 +189,9 @@ class Renderer final : public BaseRenderer {
   std::optional<ShaderProgram<VertexShaderType::MaskedSprite,
                               FragmentShaderType::MaskedSpriteNoAlpha>>
       MaskedSpriteNoAlphaShader;
+  std::optional<
+      ShaderProgram<VertexShaderType::Sprite, FragmentShaderType::Mosaic>>
+      MosaicShader;
   std::optional<
       ShaderProgram<VertexShaderType::Sprite, FragmentShaderType::NV12Frame>>
       NV12FrameShader;

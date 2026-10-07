@@ -271,9 +271,12 @@ class BaseRenderer {
                                  const BlurredSpriteConfig& config,
                                  const StateConfig& stateConfig = {}) = 0;
 
-  virtual void DrawMosaic(const Sprite& sprite, const CornersQuad dest,
-                          float tileSize, glm::mat4 transformation,
-                          glm::vec4 tint) = 0;
+  struct MosaicConfig {
+    float TileSize;
+  };
+  virtual void DrawMosaic(const PositionedSprite& spriteInfo,
+                          const MosaicConfig& config,
+                          const StateConfig& stateConfig = {}) = 0;
 
   virtual void DrawVideoTexture(const YUVFrame& frame, const RectF& dest,
                                 glm::vec4 tint, bool alphaVideo = false) = 0;
