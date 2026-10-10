@@ -223,10 +223,12 @@ void CommonMenu::UpdateTitles(glm::vec2 rightTitlepos, glm::vec2 leftTitlePos,
 void CommonMenu::DrawBackgroundFilter() {
   Renderer->CaptureScreencap(ShaderScreencapture.BgSprite);
   Renderer->DrawCHLCCMenuBackground(
-      ShaderScreencapture.BgSprite, BackgroundFilter,
-      RectF(0.0f, 0.0f, Profile::Game::DesignWidth,
-            Profile::Game::DesignHeight),
-      std::clamp(MenuTransition.Progress * 2.0f, 0.0f, 1.0f));
+      {ShaderScreencapture.BgSprite, BackgroundFilter,
+       RectF(0.0f, 0.0f, Profile::Game::DesignWidth,
+             Profile::Game::DesignHeight),
+       glm::mat4(1.0f), glm::mat4(1.0f),
+       glm::vec4(1.0f, 1.0f, 1.0f,
+                 std::clamp(MenuTransition.Progress * 2.0f, 0.0f, 1.0f))});
 }
 
 }  // namespace CHLCC

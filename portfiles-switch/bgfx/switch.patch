@@ -1,0 +1,224 @@
+--- b/cmake/bgfx/bgfx.cmake
++++ b/cmake/bgfx/bgfx.cmake
+@@ -176,18 +176,25 @@
+ 	)
+ endif()
+ 
++if (ANDROID OR NX OR EMSCRIPTEN)
++  find_package(OpenGL REQUIRED COMPONENTS GLES2 GLES3 EGL)
++  target_link_libraries(bgfx PUBLIC OpenGL::GLES2 OpenGL::GLES3 OpenGL::EGL)
++else()
++  find_package(OpenGL REQUIRED)
++  target_link_libraries(bgfx PUBLIC OpenGL::GL)
++endif()
++
+ if(UNIX
+    AND NOT APPLE
+    AND NOT EMSCRIPTEN
+    AND NOT ANDROID
+ )
+ 	find_package(X11 REQUIRED)
+-	find_package(OpenGL REQUIRED)
+ 	#The following commented libraries are linked by bx
+ 	#find_package(Threads REQUIRED)
+ 	#find_library(LIBRT_LIBRARIES rt)
+ 	#find_library(LIBDL_LIBRARIES dl)
+-	target_link_libraries(bgfx PUBLIC ${X11_LIBRARIES} ${OPENGL_LIBRARIES})
++	target_link_libraries(bgfx PUBLIC ${X11_LIBRARIES})
+ endif()
+ 
+ # Exclude mm files if not on OS X
+--- a/bgfx/src/config.h
++++ b/bgfx/src/config.h
+@@ -67,10 +67,9 @@
+ 					? 1 : 0)
+ #	endif // BGFX_CONFIG_RENDERER_METAL
+ 
++
+ #	ifndef BGFX_CONFIG_RENDERER_NVN
+-#		define BGFX_CONFIG_RENDERER_NVN (0 \
+-					|| BX_PLATFORM_NX      \
+-					? 1 : 0)
++#		define BGFX_CONFIG_RENDERER_NVN (0)
+ #	endif // BGFX_CONFIG_RENDERER_NVN
+ 
+ #	ifndef BGFX_CONFIG_RENDERER_OPENGL_MIN_VERSION
+@@ -104,7 +103,6 @@
+ 					|| BX_PLATFORM_ANDROID    \
+ 					|| BX_PLATFORM_LINUX      \
+ 					|| BX_PLATFORM_WINDOWS    \
+-					|| BX_PLATFORM_NX         \
+ 					|| BX_PLATFORM_OSX        \
+ 					? 1 : 0)
+ #	endif // BGFX_CONFIG_RENDERER_VULKAN
+--- a/cmake/Config.cmake.in
++++ b/cmake/Config.cmake.in
+@@ -17,6 +17,13 @@
+ 	find_dependency(glslang CONFIG REQUIRED)
+ endif()
+ 
++if (ANDROID OR NX OR EMSCRIPTEN)
++  find_dependency(OpenGL COMPONENTS GLES2 GLES3 EGL)
++else()
++  find_dependency(OpenGL)
++endif()
++
++
+ if(@BGFX_CMAKE_USER_SCRIPT_PRESENT@)
+ 	include("${CMAKE_CURRENT_LIST_DIR}/@BGFX_CMAKE_USER_SCRIPT_INSTALL_NAME@")
+ endif()
+--- a/cmake/bgfxToolUtils.cmake
++++ b/cmake/bgfxToolUtils.cmake
+@@ -382,10 +382,10 @@
+ 	function(_bgfx_shaderc_parse ARG_OUT)
+ 		cmake_parse_arguments(
+ 			ARG
+-			"DEPENDS;ANDROID;ASM_JS;IOS;LINUX;OSX;WINDOWS;ORBIS;PREPROCESS;RAW;FRAGMENT;VERTEX;COMPUTE;VERBOSE;DEBUG;DISASM;WERROR"
+-			"FILE;OUTPUT;VARYINGDEF;BIN2C;PROFILE;O"
+-			"INCLUDES;DEFINES"
+-			${ARGN}
++				"DEPENDS;ANDROID;ASM_JS;IOS;LINUX;OSX;WINDOWS;ORBIS;NX;PREPROCESS;RAW;FRAGMENT;VERTEX;COMPUTE;VERBOSE;DEBUG;DISASM;WERROR"
++				"FILE;OUTPUT;VARYINGDEF;BIN2C;PROFILE;O"
++				"INCLUDES;DEFINES"
++				${ARGN}
+ 		)
+ 		set(CLI "")
+ 
+@@ -423,7 +423,7 @@
+ 
+ 		# --platform
+ 		set(PLATFORM "")
+-		set(PLATFORMS "ANDROID;ASM_JS;IOS;LINUX;OSX;WINDOWS;ORBIS")
++		set(PLATFORMS "ANDROID;ASM_JS;IOS;LINUX;OSX;WINDOWS;ORBIS;NX")
+ 		foreach(P ${PLATFORMS})
+ 			if(ARG_${P})
+ 				if(PLATFORM)
+@@ -600,6 +600,9 @@
+ 		elseif(ORBIS) # ORBIS should be defined by a PS4 CMake toolchain
+ 			set(PLATFORM ORBIS)
+ 			list(APPEND PROFILES pssl)
++		elseif(NX)
++     set(PLATFORM NX)
++    	list(APPEND PROFILES 320_es)
+ 		else()
+ 			# pssl for Agc and Gnm renderers
+ 			# nvn for Nvn renderer
+--- a/bx/include/bx/platform.h
++++ b/bx/include/bx/platform.h
+@@ -150,6 +150,15 @@
+ #endif // BX_CPU_PPC
+ 
+ // http://sourceforge.net/apps/mediawiki/predef/index.php?title=Operating_Systems
++#if defined(__has_builtin)
++#	if __has_builtin(__is_target_os)
++#		if __is_target_os(xros)
++#			undef BX_PLATFORM_VISIONOS
++#			define BX_PLATFORM_VISIONOS 1
++#		endif
++#	endif
++#endif
++
+ #if defined(_DURANGO) || defined(_XBOX_ONE)
+ #	undef  BX_PLATFORM_XBOXONE
+ #	define BX_PLATFORM_XBOXONE 1
+@@ -196,9 +205,7 @@
+ 	|| defined(__ENVIRONMENT_TV_OS_VERSION_MIN_REQUIRED__)
+ #	undef  BX_PLATFORM_IOS
+ #	define BX_PLATFORM_IOS 1
+-#elif defined(__has_builtin) && __has_builtin(__is_target_os) && __is_target_os(xros)
+-#	undef  BX_PLATFORM_VISIONOS
+-#	define BX_PLATFORM_VISIONOS 1
++#elif BX_PLATFORM_VISIONOS
+ #elif defined(__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__)
+ #	undef  BX_PLATFORM_OSX
+ #	define BX_PLATFORM_OSX __ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__
+--- a/bx/src/os.cpp
++++ b/bx/src/os.cpp
+@@ -29,9 +29,9 @@
+ #	endif // BX_PLATFORM_*
+ 
+ #	include <time.h> // nanosleep
+-#	if !BX_PLATFORM_PS4
++#	if !(BX_PLATFORM_PS4 || BX_PLATFORM_NX)
+ #		include <dlfcn.h> // dlopen, dlclose, dlsym
+-#	endif // !BX_PLATFORM_PS4
++#	endif // !BX_PLATFORM_*
+ 
+ #	if BX_PLATFORM_ANDROID
+ #		include <malloc.h> // mallinfo
+--- a/bimg/3rdparty/nvtt/nvcore/nvcore.h
++++ b/bimg/3rdparty/nvtt/nvcore/nvcore.h
+@@ -57,6 +57,8 @@
+ #   define NV_OS_WIN32 1
+ #elif defined POSH_OS_XBOX
+ #   define NV_OS_XBOX 1
++#elif defined POSH_OS_NX
++#   define NV_OS_NX 1
+ #else
+ #   error "Unsupported OS"
+ #endif
+@@ -111,7 +113,7 @@
+ 
+ // Threading:
+ // some platforms don't implement __thread or similar for thread-local-storage
+-#if NV_OS_UNIX || NV_OS_ORBIS || NV_OS_IOS //ACStodoIOS darwin instead of ios?
++#if NV_OS_UNIX || NV_OS_ORBIS || NV_OS_IOS || NV_OS_NX //ACStodoIOS darwin instead of ios?
+ #   define NV_OS_USE_PTHREAD 1
+ #   if NV_OS_DARWIN || NV_OS_IOS
+ #       define NV_OS_HAS_TLS_QUALIFIER 0
+@@ -181,6 +183,10 @@
+ #	define NV_CPU_EMSCRIPTEN 0
+ #endif // NV_CPU_EMSCRIPTEN
+ 
++#ifndef NV_OS_NX
++#	define NV_OS_NX     0
++#endif // NV_OS_NX
++
+ // Compiler:
+ 
+ #if defined POSH_COMPILER_CLANG
+@@ -365,7 +371,7 @@
+ #       error "MSVC: Platform not supported"
+ #   endif
+ #elif NV_CC_GNUC
+-#   if NV_OS_LINUX
++#   if NV_OS_LINUX || NV_OS_NX 
+ #       include "defsgnuclinux.h"
+ #   elif NV_OS_DARWIN || NV_OS_FREEBSD || NV_OS_OPENBSD
+ #       include "defsgnucdarwin.h"
+--- a/bimg/3rdparty/nvtt/nvcore/posh.h
++++ b/bimg/3rdparty/nvtt/nvcore/posh.h
+@@ -435,6 +435,11 @@
+ #  define POSH_OS_STRING "MacOS"
+ #endif
+ 
++#if defined __NX__ || defined __SWITCH__
++#  define POSH_OS_NX 1
++#  define POSH_OS_STRING "Switch"
++#endif
++
+ /*
+ ** -----------------------------------------------------------------------------
+ ** Determine target CPU
+--- a/bimg/3rdparty/astc-encoder/source/astcenc_internal.h
++++ b/bimg/3rdparty/astc-encoder/source/astcenc_internal.h
+@@ -30,6 +30,7 @@
+ #endif
+ #include <cstdlib>
+ #include <limits>
++#include <malloc.h>
+ 
+ #include "astcenc.h"
+ #include "astcenc_mathlib.h"
+@@ -2197,8 +2197,10 @@
+ 
+ #if defined(_WIN32)
+        ptr = _aligned_malloc(size, real_align);
++#elif defined(HAVE_POSIX_MEMALIGN)
++  error = posix_memalign(&ptr, real_align, size);
+ #else
+-       error = posix_memalign(&ptr, real_align, size);
++  ptr = memalign(real_align, size);
+ #endif
+ 
+        if (error || (!ptr))

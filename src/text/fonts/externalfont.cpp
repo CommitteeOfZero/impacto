@@ -124,8 +124,8 @@ ExternalFont::~ExternalFont() {
 }
 
 void ExternalFont::Reset() {
-  for (auto const& [key, glyph] : FontImpl->GlyphCache) {
-    if (glyph.Sheet.Texture != 0) Renderer->FreeTexture(glyph.Sheet.Texture);
+  for (auto& [key, glyph] : FontImpl->GlyphCache) {
+    glyph.Sheet.Texture = TextureRef{};
   }
   FontImpl->GlyphCache.clear();
 
@@ -249,14 +249,15 @@ void ExternalFont::DrawProcessedText(std::span<const ProcessedTextGlyph> text,
 
     const float viewportScale =
         Profile::Game::DesignHeight / Window->GetViewport().Height;
-    Renderer->SetBlendMode(RendererBlendMode::Premultiplied);
+    using BlendModeType = BaseRenderer::StateConfig::BlendModeType;
+    Renderer->SetBlendMode(BlendModeType::Premultiplied);
     for (size_t idx : visibleGlyphIds) {
       ProcessedTextGlyph const& glyph = text[idx];
 
       CachedGlyph const& cached = GetOrRenderGlyph(
           glyph.CharId, static_cast<uint32_t>(
                             std::round(glyph.DestRect.Height / viewportScale)));
-      if (cached.Sheet.Texture == 0) continue;
+      if (!cached.Sheet.Texture.IsValid()) continue;
 
       const glm::vec2 pos = glm::vec2(glyph.DestRect.X, glyph.DestRect.Y) +
                             (cached.Bearing + offset) * viewportScale;
@@ -266,9 +267,9 @@ void ExternalFont::DrawProcessedText(std::span<const ProcessedTextGlyph> text,
 
       glm::vec4 color = RgbIntToFloat(glyph.Colors.*colorMember);
       color.a = ApplyOpacityCurve(glyph.Opacity * passOpacity, opacityCurve);
-      Renderer->DrawSubtitleGlyph(sprite, dest, transformation, color);
+      Renderer->DrawSilhouette({sprite, dest, transformation, color});
     }
-    Renderer->SetBlendMode(RendererBlendMode::Normal);
+    Renderer->SetBlendMode(BlendModeType::Normal);
   };
 
   switch (outlineMode) {

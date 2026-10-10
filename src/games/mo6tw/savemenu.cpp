@@ -55,8 +55,6 @@ void SaveMenu::Show() {
 
     Sprite entrySprite;
     Sprite entryHSprite;
-    Sprite nullSprite = Sprite();
-    nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
 
     switch (*ActiveMenuType) {
       case SaveMenuPageType::QuickLoad:
@@ -76,7 +74,7 @@ void SaveMenu::Show() {
     for (int i = 0; i < RowsPerPage; i++) {
       for (int j = 0; j < EntriesPerRow; j++) {
         SaveEntryButton* saveEntryButton =
-            new SaveEntryButton(id, entrySprite, entryHSprite, nullSprite,
+            new SaveEntryButton(id, entrySprite, entryHSprite,
                                 glm::vec2(EntryStartX + (j * EntryXPadding),
                                           EntryStartY + (i * EntryYPadding)));
 

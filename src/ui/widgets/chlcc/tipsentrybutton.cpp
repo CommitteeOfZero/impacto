@@ -84,7 +84,7 @@ void TipsEntryButton::Update(float dt) {
 
 void TipsEntryButton::Render() {
   if (HasFocus) {
-    Renderer->DrawSprite(HighlightSprite, Bounds.GetPos() + HighlightOffset,
+    Renderer->DrawSprite(*HighlightSprite, Bounds.GetPos() + HighlightOffset,
                          Tint);
     Renderer->DrawSprite(
         TipsEntryHighlightDot,

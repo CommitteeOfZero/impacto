@@ -13,8 +13,8 @@ namespace CCLCC {
 
 using namespace Impacto::Profile::CCLCC::TitleMenu;
 
-TitleButton::TitleButton(int id, Sprite const& norm, Sprite const& focused,
-                         Sprite const& highlight, glm::vec2 pos)
+TitleButton::TitleButton(int id, Sprite norm, Sprite focused,
+                         std::optional<Sprite> highlight, glm::vec2 pos)
     : Widgets::Button(id, norm, focused, highlight, pos) {
   HighlightAnimation.DurationIn = HighlightAnimationDurationIn;
   HighlightAnimation.DurationOut = HighlightAnimationDurationOut;
@@ -89,29 +89,34 @@ void TitleButton::Render() {
       (!IsSubButton && HighlightAnimation.State == AnimationState::Playing) ||
       ChoiceBlinkAnimation.State == AnimationState::Playing) {
     if (!IsSubButton) {  // Main buttons
-      Sprite newHighlightSprite = HighlightSprite;
       float smoothProgress =
           HighlightAnimation.State == AnimationState::Playing
               ? glm::smoothstep(0.0f, 1.0f, HighlightAnimation.Progress)
               : 1.0f;
 
-      newHighlightSprite.Bounds.Width *= smoothProgress;
-      Renderer->DrawSprite(newHighlightSprite,
-                           Bounds.GetPos() - ItemHighlightOffset, BlinkTint);
+      if (HighlightSprite.has_value()) {
+        Sprite newHighlightSprite = *HighlightSprite;
+        newHighlightSprite.Bounds.Width *= smoothProgress;
+        Renderer->DrawSprite(newHighlightSprite,
+                             Bounds.GetPos() - ItemHighlightOffset, BlinkTint);
+      }
+
       glm::vec4 pointerTint =
           glm::vec4(1.0f, 1.0f, 1.0f, smoothProgress * blinkAlpha);
       Renderer->DrawSprite(
           ItemHighlightPointerSprite,
           glm::vec2(Bounds.X - ItemHighlightPointerY, Bounds.Y), pointerTint);
-      Renderer->DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
+      Renderer->DrawSprite(*FocusedSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
     } else {  // Sub buttons
-      Renderer->DrawSprite(HighlightSprite, glm::vec2(Bounds.X, Bounds.Y),
-                           BlinkTint);
-      Renderer->DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y),
+      if (HighlightSprite.has_value()) {
+        Renderer->DrawSprite(*HighlightSprite, glm::vec2(Bounds.X, Bounds.Y),
+                             BlinkTint);
+      }
+      Renderer->DrawSprite(*FocusedSprite, glm::vec2(Bounds.X, Bounds.Y),
                            BlinkTint);
     }
   } else {
-    Renderer->DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
+    Renderer->DrawSprite(*NormalSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
   }
 }
 

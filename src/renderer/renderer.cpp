@@ -4,14 +4,8 @@
 #include "../userconfig.h"
 #include "../log.h"
 
-#ifndef IMPACTO_DISABLE_OPENGL
-#include "opengl/renderer.h"
-#endif
-#ifndef IMPACTO_DISABLE_VULKAN
-#include "vulkan/renderer.h"
-#endif
-#ifndef IMPACTO_DISABLE_DX9
-#include "dx9/renderer.h"
+#ifdef IMPACTO_RENDERER_BGFX
+#include "bgfx/renderer.h"
 #endif
 
 #include <numeric>
@@ -19,36 +13,80 @@
 namespace Impacto {
 
 void CreateRenderer() {
+  Renderer.reset();
+
   switch (UserConfig::AdvancedSettings.ActiveRenderer) {
-#ifndef IMPACTO_DISABLE_OPENGL
+#ifdef IMPACTO_RENDERER_BGFX
+#ifdef IMPACTO_RENDERER_OPENGL
     case RendererType::OpenGL:
-      Renderer = new OpenGL::Renderer();
-      break;
 #endif
-#ifndef IMPACTO_DISABLE_VULKAN
+#ifdef IMPACTO_RENDERER_OPENGLES
+    case RendererType::OpenGLES:
+#endif
+#ifdef IMPACTO_RENDERER_VULKAN
     case RendererType::Vulkan:
-      Renderer = new Vulkan::Renderer();
-      break;
 #endif
-#ifndef IMPACTO_DISABLE_DX9
-    case RendererType::DirectX9:
-      Renderer = new DirectX9::Renderer();
-      break;
+#ifdef IMPACTO_RENDERER_DIRECT3D11
+    case RendererType::Direct3D11:
 #endif
+#ifdef IMPACTO_RENDERER_DIRECT3D12
+    case RendererType::Direct3D12:
+#endif
+#ifdef IMPACTO_RENDERER_METAL
+    case RendererType::Metal:
+#endif
+      Renderer = std::make_unique<Bgfx::Renderer>();
+      break;
+#endif  // IMPACTO_RENDERER_BGFX
     default:
-      ImpLog(LogLevel::Error, LogChannel::Render,
-             "Unknown or unsupported renderer selected!\n");
-      exit(1);
+      Panic(LogChannel::Render, "Unknown or unsupported renderer selected!\n");
   }
 }
 
-void BaseRenderer::DrawCCMessageBox(Sprite const& sprite, Sprite const& mask,
-                                    glm::vec2 topLeft, glm::vec4 tint,
-                                    int alpha, int fadeRange, float effectCt,
-                                    glm::vec2 scale) {
-  const RectF dest =
-      sprite.ScaledBounds().Scale(scale, {0.0f, 0.0f}).Translate(topLeft);
-  DrawCCMessageBox(sprite, mask, dest, tint, alpha, fadeRange, effectCt);
+void BaseRenderer::DrawSprite(const Sprite& sprite, const CornersQuad& dest,
+                              const glm::mat4 transformation,
+                              const std::span<const glm::vec4, 4> tints,
+                              const glm::vec3 colorShift, const bool inverted,
+                              const bool disableBlend,
+                              const bool textureWrapRepeat) {
+  const RectF uvBounds = sprite.NormalizedBounds();
+  const std::array<VertexBufferSprites, 4> vertices{
+      VertexBufferSprites{
+          .Position = dest.BottomLeft,
+          .UV = uvBounds.BottomLeft(),
+          .Tint = tints[0],
+      },
+      VertexBufferSprites{
+          .Position = dest.TopLeft,
+          .UV = uvBounds.TopLeft(),
+          .Tint = tints[1],
+      },
+      VertexBufferSprites{
+          .Position = dest.TopRight,
+          .UV = uvBounds.TopRight(),
+          .Tint = tints[2],
+      },
+      VertexBufferSprites{
+          .Position = dest.BottomRight,
+          .UV = uvBounds.BottomRight(),
+          .Tint = tints[3],
+      },
+  };
+  constexpr std::array<uint16_t, 6> indices{0, 1, 2, 0, 2, 3};
+
+  const PositionedSprite spriteInfo{sprite, vertices, indices,
+                                    TopologyMode::Triangles, transformation};
+  const StateConfig stateConfig{
+      .BlendMode = disableBlend ? StateConfig::BlendModeType::Disabled
+                                : StateConfig::BlendModeType::Normal,
+      // TODO: Implement `textureWrapRepeat`
+  };
+
+  if (inverted) {
+    DrawInvertedSprite(spriteInfo, {}, stateConfig);
+  } else {
+    DrawSprite(spriteInfo, {.ColorShift = colorShift}, stateConfig);
+  }
 }
 
 void BaseRenderer::DrawConvexShape(const std::span<const glm::vec2> vertices,

@@ -35,6 +35,8 @@ enum GraphicsApi {
 
 class BaseWindow {
  public:
+  virtual ~BaseWindow() = default;
+
   virtual void Init() = 0;
   virtual void SetDimensions(int width, int height, int msaa,
                              float renderScale) = 0;
@@ -51,8 +53,8 @@ class BaseWindow {
 
   SDL_Window* SDLWindow;
 
-  // Raw dimensions without aspect ratio correction. Only use for
-  // setting/determining resolution and drawing to window framebuffer!
+  // Raw dimensions without aspect ratio correction. Only use for drawing to
+  // window framebuffer!
   int WindowWidth = 0;
   int WindowHeight = 0;
 

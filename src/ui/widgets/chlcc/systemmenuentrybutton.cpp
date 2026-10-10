@@ -12,12 +12,11 @@ namespace CHLCC {
 
 using namespace Profile::CHLCC::SystemMenu;
 
-SystemMenuEntryButton::SystemMenuEntryButton(int id, Sprite const& norm,
-                                             Sprite const& focused,
-                                             glm::vec4 focusTint,
-                                             Sprite const& highlight,
-                                             glm::vec2 pos, RectF hoverBounds)
-    : Button(id, norm, focused, highlight, pos, hoverBounds),
+SystemMenuEntryButton::SystemMenuEntryButton(int id, Sprite norm,
+                                             Sprite focused,
+                                             glm::vec4 focusTint, glm::vec2 pos,
+                                             RectF hoverBounds)
+    : Button(id, norm, focused, std::nullopt, pos, hoverBounds),
       FocusTint(focusTint) {
   HighlightOffset = glm::vec2(3.0f, 3.0f);
   StarAnimation.SetDuration(StarAnimationDuration);
@@ -26,7 +25,7 @@ SystemMenuEntryButton::SystemMenuEntryButton(int id, Sprite const& norm,
 void SystemMenuEntryButton::Render() {
   if (HasFocus) {
     Renderer->DrawSprite(
-        NormalSprite,
+        *NormalSprite,
         glm::vec2(Bounds.X + HighlightOffset.x, Bounds.Y + HighlightOffset.y),
         RgbIntToFloat(0x28537f));
   }
@@ -34,7 +33,7 @@ void SystemMenuEntryButton::Render() {
   glm::vec4 tint = IsLocked   ? RgbIntToFloat(0x808080)
                    : HasFocus ? FocusTint
                               : glm::vec4(1.0f);
-  Renderer->DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y), tint);
+  Renderer->DrawSprite(*NormalSprite, glm::vec2(Bounds.X, Bounds.Y), tint);
   if (!StarAnimation.IsPlaying()) return;
 
   const glm::vec2 starAnchor = glm::vec2(Bounds.X, Bounds.Y + Bounds.Height);

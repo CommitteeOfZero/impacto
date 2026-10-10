@@ -271,11 +271,9 @@ void YesNoTrigger::Render() {
   // Can't simply use ActiveBlur.Bounds due to some sprites having a
   // non-zero Y coordinate, so you don't want to additionally correct for it
   // via matrix
-  Renderer->DrawMaskedSpriteOverlay(
-      ActiveBlur, YesNoBlurMask,
-      RectF(0.0f, 0.0f, ActiveBlur.Bounds.Width, ActiveBlur.Bounds.Height),
-      YesNoBlurMask.Bounds, static_cast<int>(alpha), 255, blurTransform,
-      maskTransform, glm::vec4(1.0f), true, true);
+  Renderer->DrawMaskedSprite(
+      {ActiveBlur, YesNoBlurMask, blurTransform, maskTransform},
+      {.Alpha = static_cast<int>(alpha), .FadeRange = 255, .IsInverted = true});
 
   if (DispSel) {
     glm::vec2 yesChipPos = (DispPosArr[TargetArrIndex].ChipYesPos -

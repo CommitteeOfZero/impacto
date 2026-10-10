@@ -44,19 +44,16 @@ TitleMenu::TitleMenu() {
     return SecondaryButtonOnClick(btn);
   };
 
-  Sprite nullSprite = Sprite();
-  nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
-
   // Initial Start menu button
   InitialStart =
       new TitleButton(0, MenuEntriesSprites[0], MenuEntriesHSprites[0],
-                      nullSprite, glm::vec2(MenuEntriesX, MenuEntriesFirstY));
+                      glm::vec2(MenuEntriesX, MenuEntriesFirstY));
   InitialStart->OnClickHandler = onClick;
   MainItems->Add(InitialStart, FDIR_DOWN);
 
   // Lockable Extra Story menu button
   ExtraStory = new TitleButton(
-      1, MenuEntriesSprites[1], MenuEntriesHSprites[1], nullSprite,
+      1, MenuEntriesSprites[1], MenuEntriesHSprites[1],
       glm::vec2(MenuEntriesX, MenuEntriesFirstY + (1 * MenuEntriesYPadding)));
   ExtraStory->Enabled = false;
   ExtraStory->OnClickHandler = onClick;
@@ -65,14 +62,14 @@ TitleMenu::TitleMenu() {
 
   // Continue menu button
   Continue = new TitleButton(
-      2, MenuEntriesSprites[2], MenuEntriesHSprites[2], nullSprite,
+      2, MenuEntriesSprites[2], MenuEntriesHSprites[2],
       glm::vec2(MenuEntriesX, MenuEntriesFirstY + (2 * MenuEntriesYPadding)));
   Continue->OnClickHandler = onClick;
   MainItems->Add(Continue, FDIR_DOWN);
 
   // Lockable Memories menu button
   Memories = new TitleButton(
-      3, MenuEntriesSprites[3], MenuEntriesHSprites[3], nullSprite,
+      3, MenuEntriesSprites[3], MenuEntriesHSprites[3],
       glm::vec2(MenuEntriesX, MenuEntriesFirstY + (3 * MenuEntriesYPadding)));
   Memories->Enabled = false;
   Memories->OnClickHandler = onClick;
@@ -81,114 +78,114 @@ TitleMenu::TitleMenu() {
 
   // Encyclopedia menu button
   Encyclopedia = new TitleButton(
-      4, MenuEntriesSprites[4], MenuEntriesHSprites[4], nullSprite,
+      4, MenuEntriesSprites[4], MenuEntriesHSprites[4],
       glm::vec2(MenuEntriesX, MenuEntriesFirstY + (4 * MenuEntriesYPadding)));
   Encyclopedia->OnClickHandler = onClick;
   MainItems->Add(Encyclopedia, FDIR_DOWN);
 
   // System menu button
   System = new TitleButton(
-      5, MenuEntriesSprites[5], MenuEntriesHSprites[5], nullSprite,
+      5, MenuEntriesSprites[5], MenuEntriesHSprites[5],
       glm::vec2(MenuEntriesX, MenuEntriesFirstY + (5 * MenuEntriesYPadding)));
   System->OnClickHandler = onClick;
   MainItems->Add(System, FDIR_DOWN);
 
   // Exit menu button
   Exit = new TitleButton(
-      6, MenuEntriesSprites[6], MenuEntriesHSprites[6], nullSprite,
+      6, MenuEntriesSprites[6], MenuEntriesHSprites[6],
       glm::vec2(MenuEntriesX, MenuEntriesFirstY + (6 * MenuEntriesYPadding)));
   Exit->OnClickHandler = onClick;
   MainItems->Add(Exit, FDIR_DOWN);
 
   // Load secondary Continue menu button
   Load = new TitleButton(
-      0, MenuEntriesSprites[10], MenuEntriesHSprites[10], nullSprite,
+      0, MenuEntriesSprites[10], MenuEntriesHSprites[10],
       glm::vec2(MenuEntriesX, MenuEntriesFirstY + (3 * MenuEntriesYPadding)));
   Load->OnClickHandler = secondaryOnClick;
   ContinueItems->Add(Load, FDIR_DOWN);
 
   // Quick Load secondary Continue menu button
-  QuickLoad = new TitleButton(
-      1, MenuEntriesSprites[11], MenuEntriesHSprites[11], nullSprite,
-      glm::vec2(MenuEntriesX - 20.0f,
-                MenuEntriesFirstY + (4 * MenuEntriesYPadding)));
+  QuickLoad =
+      new TitleButton(1, MenuEntriesSprites[11], MenuEntriesHSprites[11],
+                      glm::vec2(MenuEntriesX - 20.0f,
+                                MenuEntriesFirstY + (4 * MenuEntriesYPadding)));
   QuickLoad->OnClickHandler = secondaryOnClick;
   ContinueItems->Add(QuickLoad, FDIR_DOWN);
 
   // Prologue secondary Extra Story menu button
   Prologue = new TitleButton(
-      0, MenuEntriesSprites[7], MenuEntriesHSprites[7], nullSprite,
+      0, MenuEntriesSprites[7], MenuEntriesHSprites[7],
       glm::vec2(MenuEntriesX, MenuEntriesFirstY + (2 * MenuEntriesYPadding)));
   Prologue->OnClickHandler = secondaryOnClick;
   ExtraStoryItems->Add(Prologue, FDIR_DOWN);
 
   // Otome Judge feat.Shin secondary Extra Story menu button
-  OtomeJudgeShin = new TitleButton(
-      1, MenuEntriesSprites[8], MenuEntriesHSprites[8], nullSprite,
-      glm::vec2(MenuEntriesX - 20.0f,
-                MenuEntriesFirstY + (3 * MenuEntriesYPadding)));
+  OtomeJudgeShin =
+      new TitleButton(1, MenuEntriesSprites[8], MenuEntriesHSprites[8],
+                      glm::vec2(MenuEntriesX - 20.0f,
+                                MenuEntriesFirstY + (3 * MenuEntriesYPadding)));
   OtomeJudgeShin->OnClickHandler = secondaryOnClick;
   ExtraStoryItems->Add(OtomeJudgeShin, FDIR_DOWN);
 
   // Warning secondary Extra Story menu button
-  Warning = new TitleButton(
-      2, MenuEntriesSprites[9], MenuEntriesHSprites[9], nullSprite,
-      glm::vec2(MenuEntriesX - 40.0f,
-                MenuEntriesFirstY + (4 * MenuEntriesYPadding)));
+  Warning =
+      new TitleButton(2, MenuEntriesSprites[9], MenuEntriesHSprites[9],
+                      glm::vec2(MenuEntriesX - 40.0f,
+                                MenuEntriesFirstY + (4 * MenuEntriesYPadding)));
   Warning->OnClickHandler = secondaryOnClick;
   ExtraStoryItems->Add(Warning, FDIR_DOWN);
 
   // Warning secondary Extra Story menu button
   ClearList = new TitleButton(
-      0, MenuEntriesSprites[13], MenuEntriesHSprites[13], nullSprite,
+      0, MenuEntriesSprites[13], MenuEntriesHSprites[13],
       glm::vec2(MenuEntriesX, MenuEntriesFirstY + (4 * MenuEntriesYPadding)));
   ClearList->OnClickHandler = secondaryOnClick;
   MemoriesItems->Add(ClearList, FDIR_DOWN);
 
   // Warning secondary Extra Story menu button
-  Album = new TitleButton(
-      1, MenuEntriesSprites[14], MenuEntriesHSprites[14], nullSprite,
-      glm::vec2(MenuEntriesX - 20.0f,
-                MenuEntriesFirstY + (5 * MenuEntriesYPadding)));
+  Album =
+      new TitleButton(1, MenuEntriesSprites[14], MenuEntriesHSprites[14],
+                      glm::vec2(MenuEntriesX - 20.0f,
+                                MenuEntriesFirstY + (5 * MenuEntriesYPadding)));
   Album->OnClickHandler = secondaryOnClick;
   MemoriesItems->Add(Album, FDIR_DOWN);
 
   // Warning secondary Extra Story menu button
-  Music = new TitleButton(
-      2, MenuEntriesSprites[15], MenuEntriesHSprites[15], nullSprite,
-      glm::vec2(MenuEntriesX - 40.0f,
-                MenuEntriesFirstY + (6 * MenuEntriesYPadding)));
+  Music =
+      new TitleButton(2, MenuEntriesSprites[15], MenuEntriesHSprites[15],
+                      glm::vec2(MenuEntriesX - 40.0f,
+                                MenuEntriesFirstY + (6 * MenuEntriesYPadding)));
   Music->OnClickHandler = secondaryOnClick;
   MemoriesItems->Add(Music, FDIR_DOWN);
 
   // Warning secondary Extra Story menu button
-  Movie = new TitleButton(
-      3, MenuEntriesSprites[16], MenuEntriesHSprites[16], nullSprite,
-      glm::vec2(MenuEntriesX - 60.0f,
-                MenuEntriesFirstY + (7 * MenuEntriesYPadding)));
+  Movie =
+      new TitleButton(3, MenuEntriesSprites[16], MenuEntriesHSprites[16],
+                      glm::vec2(MenuEntriesX - 60.0f,
+                                MenuEntriesFirstY + (7 * MenuEntriesYPadding)));
   Movie->OnClickHandler = secondaryOnClick;
   MemoriesItems->Add(Movie, FDIR_DOWN);
 
   // Warning secondary Extra Story menu button
-  ActorsVoice = new TitleButton(
-      4, MenuEntriesSprites[17], MenuEntriesHSprites[17], nullSprite,
-      glm::vec2(MenuEntriesX - 80.0f,
-                MenuEntriesFirstY + (8 * MenuEntriesYPadding)));
+  ActorsVoice =
+      new TitleButton(4, MenuEntriesSprites[17], MenuEntriesHSprites[17],
+                      glm::vec2(MenuEntriesX - 80.0f,
+                                MenuEntriesFirstY + (8 * MenuEntriesYPadding)));
   ActorsVoice->OnClickHandler = secondaryOnClick;
   MemoriesItems->Add(ActorsVoice, FDIR_DOWN);
 
   // Option secondary System menu button
   Option = new TitleButton(
-      0, MenuEntriesSprites[18], MenuEntriesHSprites[18], nullSprite,
+      0, MenuEntriesSprites[18], MenuEntriesHSprites[18],
       glm::vec2(MenuEntriesX, MenuEntriesFirstY + (6 * MenuEntriesYPadding)));
   Option->OnClickHandler = secondaryOnClick;
   SystemItems->Add(Option, FDIR_DOWN);
 
   // System Save secondary System menu button
-  SystemSave = new TitleButton(
-      1, MenuEntriesSprites[20], MenuEntriesHSprites[20], nullSprite,
-      glm::vec2(MenuEntriesX - 20.0f,
-                MenuEntriesFirstY + (7 * MenuEntriesYPadding)));
+  SystemSave =
+      new TitleButton(1, MenuEntriesSprites[20], MenuEntriesHSprites[20],
+                      glm::vec2(MenuEntriesX - 20.0f,
+                                MenuEntriesFirstY + (7 * MenuEntriesYPadding)));
   SystemSave->OnClickHandler = secondaryOnClick;
   SystemItems->Add(SystemSave, FDIR_DOWN);
 }
@@ -380,25 +377,25 @@ void TitleMenu::Render() {
       switch (ScrWork[SW_TITLEDISPCT]) {
         case 0:  // Initial animation
           Renderer->DrawMaskedSprite(
-              BackgroundSprite, BackgroundSprite,
-              RectF(0.0f, 0.0f, BackgroundSprite.ScaledWidth(),
-                    BackgroundSprite.ScaledHeight()),
-              (ScrWork[SW_TITLECT] * 287) / 48, 32, glm::mat4(1.0f),
-              glm::vec4(1.0f), false, true);
+              {BackgroundSprite, BackgroundSprite,
+               RectF(0.0f, 0.0f, BackgroundSprite.ScaledWidth(),
+                     BackgroundSprite.ScaledHeight())},
+              {.Alpha = (ScrWork[SW_TITLECT] * 287) / 48, .FadeRange = 32});
           if (ScrWork[SW_TITLECT] > 48) {
             Renderer->DrawMaskedSprite(
-                LogoSprite, Masks2D[17].MaskSprite,
-                RectF(LogoX, LogoY, LogoSprite.ScaledWidth(),
-                      LogoSprite.ScaledHeight()),
-                (ScrWork[SW_TITLECT] * 271 - 13008) / 32, 16);
+                {LogoSprite, Masks2D[17].MaskSprite,
+                 RectF(LogoX, LogoY, LogoSprite.ScaledWidth(),
+                       LogoSprite.ScaledHeight())},
+                {.Alpha = (ScrWork[SW_TITLECT] * 271 - 13008) / 32,
+                 .FadeRange = 16});
           }
           break;
         case 1: {  // Press to start
           Renderer->DrawMaskedSprite(
-              BackgroundSprite, BackgroundSprite,
-              RectF(0.0f, 0.0f, BackgroundSprite.ScaledWidth(),
-                    BackgroundSprite.ScaledHeight()),
-              287, 32, glm::mat4(1.0f), glm::vec4(1.0f), false, true);
+              {BackgroundSprite, BackgroundSprite,
+               RectF(0.0f, 0.0f, BackgroundSprite.ScaledWidth(),
+                     BackgroundSprite.ScaledHeight())},
+              {.Alpha = 287, .FadeRange = 32});
           Renderer->DrawSprite(LogoSprite, glm::vec2(LogoX, LogoY));
           Renderer->DrawSprite(CopyrightSprite,
                                glm::vec2(CopyrightX, CopyrightY));
@@ -408,10 +405,10 @@ void TitleMenu::Render() {
         } break;
         case 2: {
           Renderer->DrawMaskedSprite(
-              BackgroundSprite, BackgroundSprite,
-              RectF(0.0f, 0.0f, BackgroundSprite.ScaledWidth(),
-                    BackgroundSprite.ScaledHeight()),
-              287, 32, glm::mat4(1.0f), glm::vec4(1.0f), false, true);
+              {BackgroundSprite, BackgroundSprite,
+               RectF(0.0f, 0.0f, BackgroundSprite.ScaledWidth(),
+                     BackgroundSprite.ScaledHeight())},
+              {.Alpha = 287, .FadeRange = 32});
           Renderer->DrawSprite(LogoSprite, glm::vec2(LogoX, LogoY));
           Renderer->DrawSprite(CopyrightSprite,
                                glm::vec2(CopyrightX, CopyrightY));
@@ -419,72 +416,71 @@ void TitleMenu::Render() {
         case 3:    // Main Menu Fade In
         case 4: {  // Main Menu
           Renderer->DrawMaskedSprite(
-              MenuBackgroundSprite, MenuBackgroundSprite,
-              RectF(0.0f, 0.0f, MenuBackgroundSprite.ScaledWidth(),
-                    MenuBackgroundSprite.ScaledHeight()),
-              287, 32, glm::mat4(1.0f), glm::vec4(1.0f), false, true);
+              {MenuBackgroundSprite, MenuBackgroundSprite,
+               RectF(0.0f, 0.0f, MenuBackgroundSprite.ScaledWidth(),
+                     MenuBackgroundSprite.ScaledHeight())},
+              {.Alpha = 287, .FadeRange = 32});
           MainItems->Render();
         } break;
         case 5:    // Secondary menu Extra story Fade In
         case 6: {  // Secondary menu Extra story
           Renderer->DrawMaskedSprite(
-              MenuBackgroundSprite, MenuBackgroundSprite,
-              RectF(0.0f, 0.0f, MenuBackgroundSprite.ScaledWidth(),
-                    MenuBackgroundSprite.ScaledHeight()),
-              287, 32, glm::mat4(1.0f), glm::vec4(1.0f), false, true);
+              {MenuBackgroundSprite, MenuBackgroundSprite,
+               RectF(0.0f, 0.0f, MenuBackgroundSprite.ScaledWidth(),
+                     MenuBackgroundSprite.ScaledHeight())},
+              {.Alpha = 287, .FadeRange = 32});
           ExtraStoryItems->Render();
           MainItems->Render();
         } break;
         case 7:    // Secondary menu Continue Fade In
         case 8: {  // Secondary menu Continue
           Renderer->DrawMaskedSprite(
-              MenuBackgroundSprite, MenuBackgroundSprite,
-              RectF(0.0f, 0.0f, MenuBackgroundSprite.ScaledWidth(),
-                    MenuBackgroundSprite.ScaledHeight()),
-              287, 32, glm::mat4(1.0f), glm::vec4(1.0f), false, true);
+              {MenuBackgroundSprite, MenuBackgroundSprite,
+               RectF(0.0f, 0.0f, MenuBackgroundSprite.ScaledWidth(),
+                     MenuBackgroundSprite.ScaledHeight())},
+              {.Alpha = 287, .FadeRange = 32});
           ContinueItems->Render();
           MainItems->Render();
         } break;
         case 9:     // Secondary menu Memories Fade In
         case 10: {  // Secondary menu Memories
           Renderer->DrawMaskedSprite(
-              MenuBackgroundSprite, MenuBackgroundSprite,
-              RectF(0.0f, 0.0f, MenuBackgroundSprite.ScaledWidth(),
-                    MenuBackgroundSprite.ScaledHeight()),
-              287, 32, glm::mat4(1.0f), glm::vec4(1.0f), false, true);
+              {MenuBackgroundSprite, MenuBackgroundSprite,
+               RectF(0.0f, 0.0f, MenuBackgroundSprite.ScaledWidth(),
+                     MenuBackgroundSprite.ScaledHeight())},
+              {.Alpha = 287, .FadeRange = 32});
           MemoriesItems->Render();
           MainItems->Render();
         } break;
         case 11:    // Secondary menu System Fade In
         case 12: {  // Secondary menu System
           Renderer->DrawMaskedSprite(
-              MenuBackgroundSprite, MenuBackgroundSprite,
-              RectF(0.0f, 0.0f, MenuBackgroundSprite.ScaledWidth(),
-                    MenuBackgroundSprite.ScaledHeight()),
-              287, 32, glm::mat4(1.0f), glm::vec4(1.0f), false, true);
+              {MenuBackgroundSprite, MenuBackgroundSprite,
+               RectF(0.0f, 0.0f, MenuBackgroundSprite.ScaledWidth(),
+                     MenuBackgroundSprite.ScaledHeight())},
+              {.Alpha = 287, .FadeRange = 32});
           SystemItems->Render();
           MainItems->Render();
         } break;
         case 20:
         case 21: {  // Transition between Press to start and menus
           Renderer->DrawMaskedSprite(
-              BackgroundSprite, BackgroundSprite,
-              RectF(0.0f, 0.0f, BackgroundSprite.ScaledWidth(),
-                    BackgroundSprite.ScaledHeight()),
-              287, 32, glm::mat4(1.0f), glm::vec4(1.0f), false, true);
+              {BackgroundSprite, BackgroundSprite,
+               RectF(0.0f, 0.0f, BackgroundSprite.ScaledWidth(),
+                     BackgroundSprite.ScaledHeight())},
+              {.Alpha = 287, .FadeRange = 32});
           Renderer->DrawMaskedSprite(
-              LogoSprite, Masks2D[17].MaskSprite,
-              RectF(LogoX, LogoY, LogoSprite.ScaledWidth(),
-                    LogoSprite.ScaledHeight()),
-              287, 16);
+              {LogoSprite, Masks2D[17].MaskSprite,
+               RectF(LogoX, LogoY, LogoSprite.ScaledWidth(),
+                     LogoSprite.ScaledHeight())},
+              {.Alpha = 287, .FadeRange = 16});
           Renderer->DrawSprite(CopyrightSprite,
                                glm::vec2(CopyrightX, CopyrightY));
           Renderer->DrawMaskedSprite(
-              MenuBackgroundSprite, MenuBackgroundSprite,
-              RectF(0.0f, 0.0f, MenuBackgroundSprite.ScaledWidth(),
-                    MenuBackgroundSprite.ScaledHeight()),
-              (ScrWork[SW_TITLECT] * 287) / 48, 32, glm::mat4(1.0f),
-              glm::vec4(1.0f), false, true);
+              {MenuBackgroundSprite, MenuBackgroundSprite,
+               RectF(0.0f, 0.0f, MenuBackgroundSprite.ScaledWidth(),
+                     MenuBackgroundSprite.ScaledHeight())},
+              {.Alpha = (ScrWork[SW_TITLECT] * 287) / 48, .FadeRange = 32});
         } break;
       }
     }

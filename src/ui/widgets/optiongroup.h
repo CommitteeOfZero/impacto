@@ -14,7 +14,7 @@ namespace Widgets {
 class OptionGroup : public Widget {
  public:
   OptionGroup(Menu* menuContext, Sprite const& background,
-              Sprite const& highlight, Sprite const& itemHighlight,
+              Sprite const& highlight, std::optional<Sprite> itemHighlight,
               glm::vec2 pos, glm::vec2 itemsOffset);
 
   void Update(float dt) override;
@@ -35,7 +35,7 @@ class OptionGroup : public Widget {
   glm::vec2 CurrentItemPosition;
   Sprite BackgroundSprite;
   Sprite BackgroundHSprite;
-  Sprite ItemHighlightSprite;
+  std::optional<Sprite> ItemHighlightSprite;
   std::vector<Widget*> Items;
 };
 

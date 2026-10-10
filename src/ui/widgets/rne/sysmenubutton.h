@@ -9,9 +9,8 @@ namespace RNE {
 
 class SysMenuButton : public Widgets::Button {
  public:
-  SysMenuButton(int id, Sprite const& norm, Sprite const& focused,
-                Sprite const& highlight, glm::vec2 pos)
-      : Widgets::Button(id, norm, focused, highlight, pos) {}
+  SysMenuButton(int id, Sprite norm, Sprite highlight, glm::vec2 pos)
+      : Widgets::Button(id, norm, std::nullopt, highlight, pos) {}
   void Render() override;
 };
 

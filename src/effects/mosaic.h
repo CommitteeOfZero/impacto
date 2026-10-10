@@ -8,7 +8,6 @@ namespace Effects {
 class MosaicEffect {
  public:
   MosaicEffect();
-  ~MosaicEffect();
 
   void Init();
 

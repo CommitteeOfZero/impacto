@@ -172,25 +172,22 @@ void EdgeDetectedSingleVariableWidthSheetFont::DrawProcessedText(
 
   insertVertices(&DialogueColorPair::TextColor, {0.0f, 0.0f});
 
-  // Define the text's render scale based on the relative size of the first
-  // character with a width and height greater than zero
-  // (Spaces can be defined in the spritesheet as a zero-sized sprite)
-  const auto firstCharWithDefinedSize =
-      std::ranges::find_if(text, [this](const auto& glyph) {
-        return glm::all(glm::greaterThan(
-            glm::min(Data[glyph.CharId].GlyphSprite.Bounds.GetSize(),
-                     glyph.DestRect.GetSize()),
-            {0.0f, 0.0f}));
-      });
-  if (firstCharWithDefinedSize == text.end()) return;
-  const glm::vec2 renderScale =
-      Data[firstCharWithDefinedSize->CharId].GlyphSprite.Bounds.GetSize() /
-      firstCharWithDefinedSize->DestRect.GetSize();
-
-  Renderer->DrawEdgeDetectedSingleSheetFont(
-      Data.front().GlyphSprite.Sheet, maskedSheet, vertices, indices,
-      DifferenceFactor, curIntensityShift, curAlphaShift, renderScale,
-      transformation, glm::mat4(1.0f));
+  const auto drawConfig = BaseRenderer::EdgeDetectedSingleSheetFontConfig{
+      .DifferenceFactor = DifferenceFactor,
+      .IntensityShift = curIntensityShift,
+      .AlphaShift = curAlphaShift,
+  };
+  if (maskedSheet == nullptr) {
+    Renderer->DrawEdgeDetectedSingleSheetFont(
+        {Data.front().GlyphSprite.Sheet, vertices, indices,
+         TopologyMode::Triangles, transformation},
+        drawConfig);
+  } else {
+    Renderer->DrawEdgeDetectedSingleSheetFont(
+        {Data.front().GlyphSprite.Sheet, *maskedSheet, vertices, indices,
+         TopologyMode::Triangles, transformation, glm::mat4(1.0f)},
+        drawConfig);
+  }
 }
 
 }  // namespace Impacto::Fonts
