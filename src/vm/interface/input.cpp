@@ -83,10 +83,8 @@ static void UpdateFromPADCode(uint32_t PADcode, PADInputType type) {
     using enum KeyboardPadMapping::InputMode;
     KeyboardPadMapping::InputMode mask =
         (type == PADInputType::WentDown) ? Tap : Held;
-    auto kbCustomItr = KBcustom.find(kbMapping.Id);
-    if (kbCustomItr == KBcustom.end()) return false;
     return (kbMapping.Mode & mask) &&
-           std::any_of(kbCustomItr->second.begin(), kbCustomItr->second.end(),
+           GetKbCustom(kbMapping.Id,
                        [&kbDownArr](int id) { return kbDownArr[id]; });
   };
 
@@ -234,11 +232,9 @@ void UpdatePADInput() {
 
   // Sync scroll down & touch flick down with backlog keyboard key.
   if (Input::MouseWheelDeltaY < 0 || Input::TouchFlickDown) {
-    auto kbBtnItr = KBcustom.find(52);
-    if (kbBtnItr != KBcustom.end()) {
-      for (auto scancode : kbBtnItr->second)
-        Input::KeyboardButtonWentDown[scancode] = true;
-    }
+    ForEachKbCustom(52, [](Input::KeyboardScanCode scancode) {
+      Input::KeyboardButtonWentDown[scancode] = true;
+    });
   }
 
   for (auto const& [PADcode, mouseButton] : PADToMouse) {

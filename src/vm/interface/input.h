@@ -1,5 +1,6 @@
 #pragma once
 
+#include <concepts>
 #include <span>
 
 #include "../../impacto.h"
@@ -91,6 +92,21 @@ bool GetControlState(ControlType::ControlTypeEnum controlId,
                      InputDownType downType = InputDownType::WentDown);
 void UpdateKBInput();
 void UpdateKBHoldInput(float dt);
+
+template <std::predicate<Impacto::Input::KeyboardScanCode> Pred>
+bool GetKbCustom(int kbCustomId, Pred pred) {
+  auto kbCustomItr = KBcustom.find(static_cast<uint8_t>(kbCustomId));
+  if (kbCustomItr == KBcustom.end()) return false;
+  return std::any_of(kbCustomItr->second.begin(), kbCustomItr->second.end(),
+                     pred);
+}
+
+template <std::invocable<Impacto::Input::KeyboardScanCode> Func>
+void ForEachKbCustom(int kbCustomId, Func func) {
+  auto kbCustomItr = KBcustom.find(static_cast<uint8_t>(kbCustomId));
+  if (kbCustomItr == KBcustom.end()) return;
+  std::for_each(kbCustomItr->second.begin(), kbCustomItr->second.end(), func);
+}
 
 }  // namespace Interface
 }  // namespace Vm

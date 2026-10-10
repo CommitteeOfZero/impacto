@@ -799,7 +799,6 @@ VmInstruction(InstMesRev) {
   PopUint8(type);
   switch (type) {
     case 0:  // DispInit
-      UI::BacklogMenuPtr->Show();
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction SetMesModeFormat(type: DispInit)\n");
       break;
@@ -808,7 +807,6 @@ VmInstruction(InstMesRev) {
                  "STUB instruction SetMesModeFormat(type: Main)\n");
       break;
     case 2:  // AllCls
-      UI::BacklogMenuPtr->Hide();
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction SetMesModeFormat(type: AllCls)\n");
       break;
@@ -1257,7 +1255,8 @@ void ChkMesSkip(float dt) {
       mesAllSkip = true;
     };
 
-    if (Interface::PADinputButtonWentDown & Interface::PADcustom[8] ||
+    if (Interface::GetControlState(Interface::ControlType::SkipMode,
+                                   Interface::InputDownType::WentDown) ||
         Input::TouchFlickRight) {
       SkipModeEnabled = !SkipModeEnabled;
     }
@@ -1270,7 +1269,8 @@ void ChkMesSkip(float dt) {
     constexpr static float maxHoldDistancePx = 8;
     constexpr static float minHoldTimeS = 0.3f;
 
-    if (Interface::PADinputButtonWentDown & Interface::PADcustom[9]) {
+    if (Interface::GetControlState(Interface::ControlType::AutoMode,
+                                   Interface::InputDownType::WentDown)) {
       AutoModeEnabled = !AutoModeEnabled;
     }
 
