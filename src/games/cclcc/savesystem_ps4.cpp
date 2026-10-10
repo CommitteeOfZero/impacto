@@ -101,7 +101,8 @@ void SaveSystem::LoadEntry(SaveType type, int id) {
            "Failed to load save memory: no working save\n");
     return;
   }
-  WorkingSaveEntry = GetSaveEntry<SaveFileEntry>(type, id)->Clone();
+  WorkingSaveEntry =
+      std::make_unique<SaveFileEntry>(*GetSaveEntry<SaveFileEntry>(type, id));
 }
 
 SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
@@ -222,9 +223,7 @@ SaveError SaveSystem::WriteSaveFile() {
   return SaveError::OK;
 }
 
-const CCLCC::SaveLayout* SaveSystem::GetSaveLayout() const {
-  return &Ps4Layout;
-}
+const CCLCC::SaveLayout& SaveSystem::GetSaveLayout() const { return Ps4Layout; }
 
 void SaveSystem::InitSaveSlots() {
   std::for_each_n(QuickSaveEntries, MaxSaveEntries,
@@ -304,7 +303,7 @@ void SaveSystem::LoadScrWork() {
     ScrWork[SW_SVCHANO1 + i] = ScrWork[SW_CHA1NO + i * ScrWorkChaStructSize];
   }
 }
-void SaveSystem::WriteWorkingSaveEntry(CCLCC::SaveFileEntry* entry) {
+void SaveSystem::UpdateWorkingSaveEntry(CCLCC::SaveFileEntry* entry) {
   *dynamic_cast<SaveFileEntry*>(entry) =
       *dynamic_cast<SaveFileEntry*>(WorkingSaveEntry.get());
 }

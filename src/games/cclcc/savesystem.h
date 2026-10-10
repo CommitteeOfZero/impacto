@@ -55,8 +55,6 @@ struct SaveFileEntry : SaveFileEntryBase {
   virtual std::span<uint8_t> GetThumbnailData() = 0;
   virtual std::span<const uint8_t> GetThumbnailData() const = 0;
 
-  virtual std::unique_ptr<SaveFileEntry> Clone() const = 0;
-
   virtual ~SaveFileEntry() = default;
 };
 
@@ -80,7 +78,7 @@ class SaveSystem : public SaveSystemBase {
 
   virtual void LoadScrWork() = 0;
 
-  virtual const SaveLayout* GetSaveLayout() const = 0;
+  virtual const SaveLayout& GetSaveLayout() const = 0;
   virtual void InitSaveSlots() = 0;
 
   SaveError LoadSystemData() override;
@@ -129,7 +127,7 @@ class SaveSystem : public SaveSystemBase {
   void WaveSave(std::span<int> data);
   void WaveLoad(std::span<const int> data) const;
 
-  virtual void WriteWorkingSaveEntry(SaveFileEntry* entry) = 0;
+  virtual void UpdateWorkingSaveEntry(SaveFileEntry* entry) = 0;
 
  protected:
   virtual std::span<uint8_t> GetGameExtraData() = 0;

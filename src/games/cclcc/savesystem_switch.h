@@ -32,7 +32,6 @@ struct SaveFileEntry final : CCLCC::SaveFileEntry {
   std::array<uint8_t, 0x68> YesNoData{};
   std::array<int, 303> WaveData{};
   std::array<uint8_t, SaveThumbnailSize> ThumbnailData{};
-  SaveFileEntry() = default;
 
   std::span<uint8_t> GetFlagWorkScript1() override { return FlagWorkScript1; }
   std::span<uint8_t> GetFlagWorkScript2() override { return FlagWorkScript2; }
@@ -62,10 +61,6 @@ struct SaveFileEntry final : CCLCC::SaveFileEntry {
   std::span<const int> GetWaveData() const override { return WaveData; }
   std::span<const uint8_t> GetThumbnailData() const override {
     return ThumbnailData;
-  }
-
-  std::unique_ptr<CCLCC::SaveFileEntry> Clone() const override {
-    return std::make_unique<SaveFileEntry>(*this);
   }
 };
 
@@ -98,7 +93,7 @@ class SaveSystem final : public CCLCC::SaveSystem {
   SaveError MountSaveFile(std::vector<QueuedTexture>& textures) override;
   void LoadEntry(SaveType type, int id) override;
 
-  const CCLCC::SaveLayout* GetSaveLayout() const override;
+  const CCLCC::SaveLayout& GetSaveLayout() const override;
   void InitSaveSlots() override;
 
   SaveError WriteQuickSaveFile() override;
@@ -120,7 +115,7 @@ class SaveSystem final : public CCLCC::SaveSystem {
 
   SaveError WriteSaveFile() override;
 
-  void WriteWorkingSaveEntry(CCLCC::SaveFileEntry* entry) override;
+  void UpdateWorkingSaveEntry(CCLCC::SaveFileEntry* entry) override;
 };
 
 }  // namespace CCLCC_Switch

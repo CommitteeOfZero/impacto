@@ -314,7 +314,7 @@ SaveError SaveSystem::WriteSaveFile() {
 
 SaveError SaveSystem::WriteQuickSaveFile() {
   int id = QuickSaveRecentSortedId[0];
-  auto entry = GetSaveEntry<SaveFileEntry>(SaveType::Quick, 0);
+  auto* entry = GetSaveEntry<SaveFileEntry>(SaveType::Quick, 0);
 
   namespace fs = std::filesystem;
   fs::path qsavePath = *QuickDataPath;
@@ -345,8 +345,8 @@ SaveError SaveSystem::WriteQuickSaveFile() {
   return SaveError::OK;
 }
 
-const CCLCC::SaveLayout* SaveSystem::GetSaveLayout() const {
-  return &SwitchLayout;
+const CCLCC::SaveLayout& SaveSystem::GetSaveLayout() const {
+  return SwitchLayout;
 }
 
 void SaveSystem::LoadEntry(SaveType type, int id) {
@@ -355,7 +355,8 @@ void SaveSystem::LoadEntry(SaveType type, int id) {
            "Failed to load save memory: no working save\n");
     return;
   }
-  WorkingSaveEntry = GetSaveEntry<SaveFileEntry>(type, id)->Clone();
+  WorkingSaveEntry =
+      std::make_unique<SaveFileEntry>(*GetSaveEntry<SaveFileEntry>(type, id));
 }
 
 void SaveSystem::InitSaveSlots() {
@@ -474,7 +475,7 @@ void SaveSystem::LoadScrWork() {
   }
 }
 
-void SaveSystem::WriteWorkingSaveEntry(CCLCC::SaveFileEntry* entry) {
+void SaveSystem::UpdateWorkingSaveEntry(CCLCC::SaveFileEntry* entry) {
   *dynamic_cast<SaveFileEntry*>(entry) =
       *dynamic_cast<SaveFileEntry*>(WorkingSaveEntry.get());
 }
