@@ -93,6 +93,8 @@ void HelpMenu::UpdateInput(float dt) {
   if (State == Shown && backBtnPressed) {
     PreviousPage = -1;
     SetFlag(SF_SUBMENUEXIT, 1);
+    SetFlag(SF_MANUALLOAD_COMPLETE, 0);
+    SetFlag(SF_MANUALLOAD_END, 1);
   }
   if (ManualPages.size() > 1) {
     bool prevBtnPressed =
