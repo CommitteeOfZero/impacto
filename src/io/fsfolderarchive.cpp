@@ -7,9 +7,20 @@
 #include "../util.h"
 #include <sstream>
 #include <filesystem>
+#include <regex>
+#ifndef IMPACTO_DISABLE_MMAP
+#include "memorymappedfilestream.h"
+#else
+#include "physicalfilestream.h"
+#endif
+#include "textarchive.h"
 
 namespace Impacto {
 namespace Io {
+
+struct TextMetaEntry : FileMeta {
+  std::string FullPath;
+};
 
 IoError FSFolderArchive::Open(FileMeta* file, Stream** outStream) {
   TextMetaEntry* entry = (TextMetaEntry*)file;
@@ -37,18 +48,8 @@ IoError FSFolderArchive::GetCurrentSize(FileMeta* file, int64_t& outSize) {
   return IoError_OK;
 }
 
-IoError FSFolderArchive::Create(Stream* stream, VfsArchive** outArchive) {
-  namespace fs = std::filesystem;
-
-  ImpLog(LogLevel::Trace, LogChannel::IO,
-         "Trying to mount \"{:s}\" as filesystem folder archive\n",
-         stream->Meta.FileName);
-
-  FSFolderArchive* result;
-
-  result = new FSFolderArchive;
-  result->BaseStream = stream;
-
+IoError FSFolderArchive::SortTOCLexicographically(
+    FSFolderArchive* result, std::filesystem::path const& rootPath) {
   const auto pathLessComparator = [](TextMetaEntry const& a,
                                      TextMetaEntry const& b) {
     const auto toLowerPath = [](std::string p) {
@@ -56,12 +57,73 @@ IoError FSFolderArchive::Create(Stream* stream, VfsArchive** outArchive) {
         if (c >= 'A' && c <= 'Z') return static_cast<char>(std::tolower(c));
         return static_cast<char>(c);
       });
-      return fs::path(p);
+      return std::filesystem::path(p);
     };
     return toLowerPath(a.FullPath) < toLowerPath(b.FullPath);
   };
-  auto iterateDirectory =
-      [result](auto&& self, std::filesystem::path folderPath) -> IoError {
+
+  std::sort(result->TOC.begin(), result->TOC.end(), pathLessComparator);
+  return IoError_OK;
+}
+
+IoError FSFolderArchive::SortTOCByOrderFile(FSFolderArchive* result,
+                                            VfsArchive** archive) {
+  TextArchive* txtArch = dynamic_cast<TextArchive*>(*archive);
+  if (!txtArch) {
+    ImpLog(LogLevel::Error, LogChannel::IO,
+           "SortTOCByOrderFile: order file is not a valid TextArchive\n");
+    return IoError_Fail;
+  }
+
+  std::unordered_map<std::string, TextMetaEntry*> nameToEntry;
+  nameToEntry.reserve(result->TOC.size());
+  for (auto& entry : result->TOC) {
+    std::string stem = std::filesystem::path(entry.FileName).stem().string();
+    nameToEntry[stem] = &entry;
+  }
+
+  std::vector<TextMetaEntry> orderedToc;
+  orderedToc.reserve(txtArch->IdsToFiles.size());
+
+  for (auto const& [id, fileMeta] : txtArch->IdsToFiles) {
+    if (!fileMeta) continue;
+
+    auto foundIt = nameToEntry.find(fileMeta->FileName);
+    if (foundIt == nameToEntry.end()) continue;
+
+    orderedToc.push_back(*foundIt->second);
+  }
+
+  result->TOC = std::move(orderedToc);
+  return IoError_OK;
+}
+
+IoError FSFolderArchive::Create(Stream* stream, VfsArchive** outArchive,
+                                std::optional<FolderArchiveParameters> params) {
+  namespace fs = std::filesystem;
+
+  ImpLog(LogLevel::Trace, LogChannel::IO,
+         "Trying to mount \"{:s}\" as filesystem folder archive\n",
+         stream->Meta.FileName);
+
+  FSFolderArchive* result = new FSFolderArchive;
+  result->BaseStream = stream;
+  std::optional<std::regex> whitelistRegex;
+
+  if (params && params->WhitelistPattern) {
+    try {
+      whitelistRegex.emplace(*params->WhitelistPattern,
+                             std::regex::ECMAScript | std::regex::icase);
+    } catch (std::regex_error const& e) {
+      ImpLog(LogLevel::Error, LogChannel::IO,
+             "Invalid whitelist pattern \"{:s}\": {:s}\n",
+             *params->WhitelistPattern, e.what());
+      return IoError_Fail;
+    }
+  }
+
+  auto iterateDirectory = [result, &whitelistRegex](
+                              auto&& self, fs::path folderPath) -> IoError {
     std::error_code ec;
     for (const auto& dirEntry : fs::directory_iterator(folderPath, ec)) {
       if (dirEntry.is_directory()) {
@@ -72,9 +134,15 @@ IoError FSFolderArchive::Create(Stream* stream, VfsArchive** outArchive) {
       }
 
       const auto path = dirEntry.path();
+      std::string fullPath = path.string();
+
+      if (whitelistRegex && !std::regex_match(fullPath, *whitelistRegex)) {
+        continue;
+      }
+
       ec = std::error_code{};
       TextMetaEntry entry;
-      entry.FullPath = path.string();
+      entry.FullPath = fullPath;
       entry.FileName = path.filename().string();
       entry.Size = dirEntry.file_size(ec);
       if (ec) entry.Size = -1;
@@ -84,7 +152,6 @@ IoError FSFolderArchive::Create(Stream* stream, VfsArchive** outArchive) {
       ImpLog(LogLevel::Error, LogChannel::IO,
              "Failed to iterate over directory {} with error {}\n", folderPath,
              ec.message());
-      if (result) delete result;
       return IoError_Fail;
     }
     return IoError_OK;
@@ -93,7 +160,37 @@ IoError FSFolderArchive::Create(Stream* stream, VfsArchive** outArchive) {
       code != IoError_OK) {
     return code;
   }
-  std::sort(result->TOC.begin(), result->TOC.end(), pathLessComparator);
+
+  if (params && params->OrderFilePath) {
+    Stream* orderFile;
+    IoError err;
+    std::string const& orderFileName = *(params->OrderFilePath);
+#ifndef IMPACTO_DISABLE_MMAP
+    err = MemoryMappedFileStream<AccessMode::read>::Create(orderFileName,
+                                                           &orderFile);
+#else
+    err = PhysicalFileStream::Create(orderFileName, &orderFile);
+#endif
+    if (err != IoError_OK) {
+      ImpLog(LogLevel::Debug, LogChannel::IO,
+             "Could not open physical file \"{:s}\"\n", orderFileName);
+      delete result;
+      return err;
+    }
+
+    VfsArchive* orderFileArchive = nullptr;
+    TextArchive::Create(orderFile, &orderFileArchive);
+    if (auto code = SortTOCByOrderFile(result, &orderFileArchive);
+        code != IoError_OK) {
+      delete result;
+      return code;
+    }
+  } else if (auto code =
+                 SortTOCLexicographically(result, stream->Meta.FileName);
+             code != IoError_OK) {
+    delete result;
+    return code;
+  }
 
   uint32_t id = 0;
   for (auto&& entry : result->TOC) {

@@ -11,32 +11,75 @@ namespace CCLCC {
 
 using namespace Impacto::SaveSystem;
 
-constexpr size_t SaveEntrySize = 0x1b110;
-constexpr int SaveFileSize = SaveEntrySize * MaxSaveEntries * 2 + 0x387c;
+struct SaveLayout {
+  size_t ConfigOffset;
+  size_t VoiceOffset;
+  size_t SkipVoiceOffset;
+  size_t AdvanceTextOffset;
+  size_t QuickSortedIdOffset;
+  bool QuickSortedIdIsLoaded;
+  size_t EVFlagsOffset;
+  size_t BgmFlagsOffset;
+  size_t MessageFlagsOffset;
+  size_t ExtraDataOffset;
 
-constexpr int SaveThumbnailWidth = 240;
-constexpr int SaveThumbnailHeight = 135;
-// CCLCC PS4 Save thumbnails are 240x135 RGB16
-constexpr int SaveThumbnailSize =
-    SaveThumbnailWidth * SaveThumbnailHeight * 4 / 2;
+  size_t SysFlagWorkDst1;
+  size_t SysFlagWorkDst2;
+  size_t SysScrWorkDst1;
+  size_t SysScrWorkLen1;
 
-class SaveFileEntry : public SaveFileEntryBase {
- public:
-  std::array<uint8_t, 50> FlagWorkScript1;   // 50 bytes from &FlagWork[50]
-  std::array<uint8_t, 100> FlagWorkScript2;  // 100 bytes from &FlagWork[300]
-  std::array<int, 600> ScrWorkScript1;       // 2400 bytes from &ScrWork[1000]
-  std::array<int, 3000> ScrWorkScript2;      // 12000 bytes from &ScrWork[4300]
-  std::array<uint8_t, 0x6ac8> MapLoadData;
-  std::array<uint8_t, 0x54> YesNoData;
-  std::array<int, 303>
-      WaveData;  // 3 wave types * 20 waves * 5 fields + 3 counts
-  std::array<uint8_t, SaveThumbnailSize> ThumbnailData;
+  int64_t FlagWork2Src;
+  int64_t MainThreadOffset;
+  int64_t MainThreadBufIdOffset;
+  int64_t WaveOffset;
+  int64_t MapLoadOffset;
+  int64_t ThumbnailPadding;
+
+  int ThumbnailWidth, ThumbnailHeight;
+};
+struct SaveFileEntry : SaveFileEntryBase {
+  virtual std::span<uint8_t> GetFlagWorkScript1() = 0;
+  virtual std::span<const uint8_t> GetFlagWorkScript1() const = 0;
+  virtual std::span<uint8_t> GetFlagWorkScript2() = 0;
+  virtual std::span<const uint8_t> GetFlagWorkScript2() const = 0;
+  virtual std::span<int> GetScrWorkScript1() = 0;
+  virtual std::span<const int> GetScrWorkScript1() const = 0;
+  virtual std::span<int> GetScrWorkScript2() = 0;
+  virtual std::span<const int> GetScrWorkScript2() const = 0;
+  virtual std::span<uint8_t> GetMapLoadData() = 0;
+  virtual std::span<const uint8_t> GetMapLoadData() const = 0;
+  virtual std::span<uint8_t> GetYesNoData() = 0;
+  virtual std::span<const uint8_t> GetYesNoData() const = 0;
+  virtual std::span<int> GetWaveData() = 0;
+  virtual std::span<const int> GetWaveData() const = 0;
+  virtual std::span<uint8_t> GetThumbnailData() = 0;
+  virtual std::span<const uint8_t> GetThumbnailData() const = 0;
+
+  virtual ~SaveFileEntry() = default;
 };
 
 class SaveSystem : public SaveSystemBase {
  public:
-  SaveError CheckSaveFile() const override;
-  SaveError MountSaveFile(std::vector<QueuedTexture>& textures) override;
+  uint32_t static CalculateChecksum(std::span<const uint8_t> bufferData,
+                                    uint16_t initSum = 0, uint16_t initXor = 0,
+                                    bool swapSrcBytes = false);
+
+  // Flags and Scr
+  virtual void WriteWorkScriptData(Io::MemoryStream& stream,
+                                   SaveFileEntry& entry) = 0;
+  virtual void ReadWorkScriptData(Io::MemoryStream& stream,
+                                  SaveFileEntry& entry) = 0;
+  virtual void WriteWaveData(Io::MemoryStream& stream,
+                             SaveFileEntry& entry) = 0;
+  virtual void ReadWaveData(Io::MemoryStream& stream, SaveFileEntry& entry) = 0;
+
+  virtual void WriteBGMFlags(Io::MemoryStream& stream) = 0;
+  virtual void ReadBGMFlags(Io::MemoryStream& stream) = 0;
+
+  virtual void LoadScrWork() = 0;
+
+  virtual const SaveLayout& GetSaveLayout() const = 0;
+  virtual void InitSaveSlots() = 0;
 
   SaveError LoadSystemData() override;
   void SaveSystemData() override;
@@ -49,13 +92,10 @@ class SaveSystem : public SaveSystemBase {
                        SaveType saveType, Texture& tex);
   void SaveEntryBuffer(Io::MemoryStream& memoryStream, SaveFileEntry& entry,
                        SaveType saveType);
-  void LoadEntry(SaveType type, int id) override;
   void FlushWorkingSaveEntry(SaveType type, int id, int autoSaveType) override;
 
   void SaveMemory() override;
   void LoadMemoryNew(LoadProcess load) override;
-
-  SaveError WriteSaveFile() override;
   uint32_t GetSavePlayTime(SaveType type, int id) const override;
   uint8_t GetSaveFlags(SaveType type, int id) const override;
   void SetSaveFlags(SaveType type, int id, uint8_t flags) override;
@@ -87,13 +127,20 @@ class SaveSystem : public SaveSystemBase {
   void WaveSave(std::span<int> data);
   void WaveLoad(std::span<const int> data) const;
 
- private:
-  uint8_t GameExtraData[1024];
-  uint8_t MessageFlags[10000];
-  std::array<uint8_t, 0x387c> SystemData;
-  bool EVFlags[1200];
-  uint8_t BGMFlags[200];
-  std::optional<SaveFileEntry> WorkingSaveEntry;
+  virtual void UpdateWorkingSaveEntry(SaveFileEntry* entry) = 0;
+
+ protected:
+  virtual std::span<uint8_t> GetGameExtraData() = 0;
+  virtual std::span<const uint8_t> GetGameExtraData() const = 0;
+  virtual std::span<uint8_t> GetMessageFlags() = 0;
+  virtual std::span<const uint8_t> GetMessageFlags() const = 0;
+  virtual std::span<uint8_t> GetSystemData() = 0;
+  virtual std::span<uint8_t> GetEVFlags() = 0;
+  virtual std::span<const uint8_t> GetEVFlags() const = 0;
+  virtual std::span<uint8_t> GetBGMFlags() = 0;
+  virtual std::span<const uint8_t> GetBGMFlags() const = 0;
+
+  std::unique_ptr<SaveFileEntry> WorkingSaveEntry;
 };
 
 }  // namespace CCLCC

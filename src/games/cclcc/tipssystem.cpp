@@ -4,6 +4,7 @@
 #include "../../vm/vm.h"
 #include "../../io/memorystream.h"
 #include "../../profile/data/tipssystem.h"
+#include "../../profile/vm.h"
 #include "../../ui/ui.h"
 
 namespace Impacto {
@@ -34,8 +35,11 @@ void TipsSystem::DataInit(uint32_t scriptBufferId, uint32_t tipsDataAdr,
     record.Id = (uint16_t)TipEntryCount;
     record.NumberOfContentStrings = (uint16_t)numberOfContentStrings;
     for (int i = 0; i < numberOfContentStrings + 4; i++) {
-      record.StringAdr[i] =
-          ScriptGetStrAddress(scriptBufferId, ReadLE<uint16_t>(&stream));
+      auto lineId = Profile::Vm::StringIdSize == 4 ? ReadLE<uint32_t>(&stream)
+                                                   : ReadLE<uint16_t>(&stream);
+      record.StringAdr[i] = Profile::Vm::UseMsbStrings
+                                ? MsbGetStrAddress(scriptBufferId, lineId)
+                                : ScriptGetStrAddress(scriptBufferId, lineId);
     }
     Records[TipEntryCount] = std::move(record);
 

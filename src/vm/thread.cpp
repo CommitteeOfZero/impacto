@@ -53,11 +53,31 @@ void Sc3VmThread::SetIp(uint8_t* ptr) {
                    ScriptBuffers[ScriptBufferId].size());
   IpOffset = static_cast<uint32_t>(ptr - ScriptBuffers[ScriptBufferId].data());
 }
-
 void Sc3VmThread::SetIp(BufferOffsetContext ctx) {
-  assert(ctx.IpOffset < ScriptBuffers[ctx.ScriptBufferId].size());
+  assert(ctx.IpOffset < ScriptBuffers[ctx.BufferId].size());
   IpOffset = ctx.IpOffset;
-  ScriptBufferId = ctx.ScriptBufferId;
+  ScriptBufferId = ctx.BufferId;
+}
+uint8_t* Sc3VmThread::GetStringIp() const {
+  auto const& buffer = UseMSBBuffers ? MsbBuffers[ScriptBufferId]
+                                     : ScriptBuffers[ScriptBufferId];
+  return &buffer[IpOffset];
+}
+void Sc3VmThread::SetStringIp(uint8_t* ptr) {
+  auto const& buffer = UseMSBBuffers ? MsbBuffers[ScriptBufferId]
+                                     : ScriptBuffers[ScriptBufferId];
+  assert(ptr >= buffer.data() && ptr < buffer.data() + buffer.size());
+  IpOffset = static_cast<uint32_t>(ptr - buffer.data());
+}
+
+void Sc3VmThread::SetStringIp(BufferOffsetContext ctx) {
+  UseMSBBuffers =
+      ctx.Buffers[ctx.BufferId].data() == MsbBuffers[ctx.BufferId].data();
+  assert(ctx.IpOffset < (UseMSBBuffers ? MsbBuffers[ScriptBufferId]
+                                       : ScriptBuffers[ScriptBufferId])
+                            .size());
+  IpOffset = ctx.IpOffset;
+  ScriptBufferId = ctx.BufferId;
 }
 
 }  // namespace Vm

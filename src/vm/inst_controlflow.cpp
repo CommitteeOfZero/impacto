@@ -169,6 +169,19 @@ VmInstruction(InstFlagOnJump) {
     thread->IpOffset = labelAdr;
   }
 }
+
+VmInstruction(InstFlagOnJumpFar) {
+  StartInstruction;
+  PopUint8(value);
+  PopExpression(flagId);
+  PopExpression(scriptBufferId);
+  PopFarLabel(labelAdr, scriptBufferId);
+
+  if (GetFlag(flagId) == (bool)value) {
+    thread->IpOffset = labelAdr;
+  }
+}
+
 VmInstruction(InstKeyOnJump) {
   using namespace Interface;
 
@@ -244,10 +257,10 @@ VmInstruction(InstClickOnJump) {
   if (Input::KeyboardButtonWentDown[SDL_SCANCODE_D]) {
     thread->IpOffset = labelAdr;
   }
-  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
-             "STUB instruction ClickOnJump(arg1: {:d}, arg2: {:d}, "
-             "labelNum: {:d})\n",
-             arg1, arg2, labelNum);
+  ImpLog(LogLevel::Warning, LogChannel::VMStub,
+         "STUB instruction ClickOnJump(arg1: {:d}, arg2: {:d}, "
+         "labelNum: {:d})\n",
+         arg1, arg2, labelNum);
 }
 VmInstruction(InstKeyboardOnJump) {
   using namespace Interface;
@@ -348,7 +361,6 @@ VmInstruction(InstFlagOffReturn) {
     }
   }
 }
-
 }  // namespace Vm
 
 }  // namespace Impacto

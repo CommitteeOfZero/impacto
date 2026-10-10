@@ -16,6 +16,7 @@ VmInstruction(InstReturn);
 VmInstruction(InstReturnIfFlag);
 VmInstruction(InstLoop);
 VmInstruction(InstFlagOnJump);
+VmInstruction(InstFlagOnJumpFar);
 VmInstruction(InstKeyOnJump);
 VmInstruction(InstKeyOnJump_Dash);
 VmInstruction(InstClickOnJump);
