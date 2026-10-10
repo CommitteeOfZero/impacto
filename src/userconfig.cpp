@@ -149,6 +149,31 @@ static std::string ActiveGame;
 
 void LoadUserConfig(toml::value& tomlConfig);
 
+static void MergeToml(toml::value& base, const toml::value& other) {
+  if (base.is_table() && other.is_table()) {
+    for (const auto& [k, v] : other.as_table()) {
+      if (base.contains(k))
+        MergeToml(base.at(k), v);
+      else
+        base[k] = v;
+    }
+  } else {
+    base = other;
+  }
+}
+
+template <typename T>
+static T LoadConfigValueOr(const toml::value& config, const std::string& key,
+                           T defaultValue = T{}) {
+  toml::value result{defaultValue};
+  if (config.contains(key)) {
+    toml::value const& loadedCfgEntry = config.at(key);
+    MergeToml(result, loadedCfgEntry);
+  }
+
+  return toml::get<T>(result);
+}
+
 static std::unique_ptr<Io::PhysicalFileStream> openTomlFile(
     Io::PhysicalFileStream::CreateFlags flags) {
   std::unique_ptr<Io::PhysicalFileStream> userConfigFile;
@@ -210,28 +235,15 @@ void Configure() {
 void LoadUserConfig(toml::value& tomlConfig) {
   ImpLog(LogLevel::Info, LogChannel::Config, "Loading user config\n");
 
-  if (auto commonSettingsOpt =
-          toml::find<std::optional<decltype(CommonSettings)>>(
-              tomlConfig, "CommonSettings")) {
-    CommonSettings = std::move(*commonSettingsOpt);
-    LogInitFile();
-  }
-  if (auto gameSettingsOpt = toml::find<std::optional<decltype(GameSettings)>>(
-          tomlConfig, "GameSettings")) {
-    GameSettings = std::move(*gameSettingsOpt);
-  }
-
-  if (auto advancedSettingsOpt =
-          toml::find<std::optional<decltype(AdvancedSettings)>>(
-              tomlConfig, "AdvancedSettings")) {
-    AdvancedSettings = std::move(*advancedSettingsOpt);
-  }
-
-  if (auto enhancementsSettingsOpt =
-          toml::find<std::optional<decltype(EnhancementsSettings)>>(
-              tomlConfig, "EnhancementsSettings")) {
-    EnhancementsSettings = std::move(*enhancementsSettingsOpt);
-  }
+  CommonSettings =
+      LoadConfigValueOr<decltype(CommonSettings)>(tomlConfig, "CommonSettings");
+  LogInitFile();
+  GameSettings =
+      LoadConfigValueOr<decltype(GameSettings)>(tomlConfig, "GameSettings");
+  AdvancedSettings = LoadConfigValueOr<decltype(AdvancedSettings)>(
+      tomlConfig, "AdvancedSettings");
+  EnhancementsSettings = LoadConfigValueOr<decltype(EnhancementsSettings)>(
+      tomlConfig, "EnhancementsSettings");
 
   for (auto& [gameProfile, gameDef] : Profile::GameDefinitions) {
     if (gameDef.Hidden) continue;
