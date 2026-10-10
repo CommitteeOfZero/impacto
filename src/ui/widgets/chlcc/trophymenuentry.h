@@ -27,6 +27,10 @@ class TrophyMenuEntry : public Widget {
 
   Sprite Icon;
   RectF IconDest;
+
+  Sprite RarityIcon;
+  RectF RarityIconDest;
+  glm::vec4 RarityIconTint;
 };
 
 }  // namespace CHLCC
