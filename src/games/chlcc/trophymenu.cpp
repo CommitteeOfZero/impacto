@@ -49,20 +49,19 @@ void TrophyMenu::UpdateRarityCounts() {
   using namespace Impacto::AchievementSystem;
 
   magic_enum::containers::array<AchievementRarity, size_t> unlockedCounts{};
-  magic_enum::containers::array<AchievementRarity, size_t> totalCounts{};
+  size_t totalUnlocked = 0;
+  const size_t totalCount = GetAchievementCount();
 
   switch (Profile::AchievementSystem::Type) {
     case AchievementDataType::Common: {
-      auto* commonImpl = static_cast<AchievementSystemCommon*>(Implementation);
-      const size_t count = GetAchievementCount();
-      for (size_t id = 0; id < count; id++) {
-        const CommonAchievement* ach =
-            commonImpl->GetAchievement(static_cast<int>(id));
+      for (size_t id = 0; id < totalCount; id++) {
+        const Achievement* ach = GetAchievement(static_cast<int>(id));
         if (ach == nullptr) continue;
-        const AchievementRarity rarity = ach->GetRarity();
-        totalCounts[rarity]++;
-        if (IsAchievementUnlocked(static_cast<int>(id)))
-          unlockedCounts[rarity]++;
+        if (!IsAchievementUnlocked(static_cast<int>(id))) continue;
+        totalUnlocked++;
+        const CommonAchievement* commonAch =
+            static_cast<const CommonAchievement*>(ach);
+        unlockedCounts[commonAch->GetRarity()]++;
       }
       break;
     }
@@ -70,18 +69,23 @@ void TrophyMenu::UpdateRarityCounts() {
       break;
   }
 
-  const auto setCount = [&unlockedCounts, &totalCounts](
-                            Label& label, AchievementRarity rarity) {
-    label.SetText(
-        fmt::format("{:d}/{:d}", unlockedCounts[rarity], totalCounts[rarity]),
-        label.Bounds.GetPos(), RarityCountFontSize, RendererOutlineMode::Full,
-        0);
+  const auto setCount = [&unlockedCounts](Label& label,
+                                          AchievementRarity rarity) {
+    label.SetText(fmt::format("{:d}", unlockedCounts[rarity]),
+                  label.Bounds.GetPos(), RarityCountFontSize,
+                  RendererOutlineMode::Full, 0);
   };
 
   setCount(BronzeCountLabel, AchievementRarity::Bronze);
   setCount(SilverCountLabel, AchievementRarity::Silver);
   setCount(GoldCountLabel, AchievementRarity::Gold);
   setCount(PlatinumCountLabel, AchievementRarity::Platinum);
+
+  TrophyCountLabel.SetText(
+      fmt::format("{:d}/{:d}", totalUnlocked, totalCount),
+      TrophyCountHintLabelPos +
+          glm::vec2(TrophyCountHintLabel.Bounds.Width, 0.0f),
+      RarityCountFontSize, RendererOutlineMode::Full, 0);
 }
 
 void TrophyMenu::Show() {
@@ -107,7 +111,6 @@ void TrophyMenu::Show() {
       }
     }
     MainItems[CurrentPage].Show();
-    UpdateRarityCounts();
     if (!TrophyCountHintLabel.Enabled) {
       TrophyCountHintLabel.Enabled = true;
       TrophyCountHintLabel.SetText(
@@ -116,6 +119,7 @@ void TrophyMenu::Show() {
           TrophyCountHintLabelPos, TrophyCountFontSize,
           RendererOutlineMode::Full, 0);
     }
+    UpdateRarityCounts();
   }
 }
 void TrophyMenu::Hide() {
@@ -149,6 +153,10 @@ void TrophyMenu::Render() {
   TrophyCountHintLabel.Move(offset);
   TrophyCountHintLabel.Render();
   TrophyCountHintLabel.Move(-offset);
+
+  TrophyCountLabel.Move(offset);
+  TrophyCountLabel.Render();
+  TrophyCountLabel.Move(-offset);
 
   Renderer->DrawSprite(PlatinumTrophySprite, offset + PlatinumTrophyPos);
   Renderer->DrawSprite(GoldTrophySprite, offset + GoldTrophyPos);

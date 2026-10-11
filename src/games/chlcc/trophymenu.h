@@ -27,6 +27,7 @@ class TrophyMenu : public Menu, public CommonMenu {
   int CurrentPage = 0;
 
   Widgets::Label TrophyCountHintLabel;
+  Widgets::Label TrophyCountLabel;
 
   Widgets::Label PlatinumCountLabel;
   Widgets::Label GoldCountLabel;
