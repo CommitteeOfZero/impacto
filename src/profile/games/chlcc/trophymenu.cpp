@@ -79,6 +79,7 @@ void Configure() {
       EnsureGetMember<uint32_t>("TrophyCountHintStringNum");
   TrophyCountHintLabelPos =
       EnsureGetMember<glm::vec2>("TrophyCountHintLabelPos");
+  TrophyCountLabelOffset = EnsureGetMember<glm::vec2>("TrophyCountLabelOffset");
   TrophyCountFontSize = EnsureGetMember<float>("TrophyCountFontSize");
 
   auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
