@@ -69,6 +69,7 @@ class TipsMenu : public UI::TipsMenu, public CommonMenu {
   float LastYPos = 0.0f;
 
   Animation TransitionAnimation;
+  int LastSubMenuCt = 0;
 };
 
 }  // namespace CCLCC

@@ -56,6 +56,7 @@ SaveMenu::SaveMenu() : UI::SaveMenu(), CommonMenu(FadeAnimation) {
 }
 
 void SaveMenu::Show() {
+  if (State == Shown) return;
   auto onClick = [this](auto* btn) { return MenuButtonOnClick(btn); };
 
   OpenedAsDirect = GetFlag(SF_SYSTEMMENUDIRECT);
@@ -188,7 +189,7 @@ void SaveMenu::Show() {
   }
 }
 void SaveMenu::Hide() {
-  if (State != Hiding) {
+  if (State != Hidden) {
     State = Hiding;
     FadeAnimation.StartOut();
     if (LastFocusedMenu != 0) {
@@ -252,14 +253,16 @@ void SaveMenu::UpdateInput(float dt) {
 }
 
 void SaveMenu::Update(float dt) {
-  if (ScrWork[SW_SYSSUBMENUCT] < 32 && State == Shown) {
+  if (LastSubMenuCt > ScrWork[SW_SYSSUBMENUCT] &&
+      ScrWork[SW_SYSSUBMENUCT] < 32 && State != Hidden && State != Hiding) {
     Hide();
-  } else if (ScrWork[SW_SYSSUBMENUCT] > 0 && State == Hidden &&
+  } else if (LastSubMenuCt < ScrWork[SW_SYSSUBMENUCT] &&
+             ScrWork[SW_SYSSUBMENUCT] > 0 && State != Shown &&
+             State != Showing &&
              (ScrWork[SW_SYSSUBMENUNO] == 0 || ScrWork[SW_SYSSUBMENUNO] == 3 ||
               ScrWork[SW_SYSSUBMENUNO] == 4)) {
     Show();
   }
-
   if (State != Hidden) {
     FadeAnimation.Update(dt);
     PageAnimation.Update(dt);
@@ -314,6 +317,7 @@ void SaveMenu::Update(float dt) {
     IsFocused = true;
     if (CurrentlyFocusedElement) CurrentlyFocusedElement->HasFocus = true;
   }
+  LastSubMenuCt = ScrWork[SW_SYSSUBMENUCT];
 }
 
 void SaveMenu::Render() {

@@ -90,10 +90,10 @@ SystemMenu::SystemMenu() : CommonMenu(FadeAnimation) {
 void SystemMenu::Show() {
   if (State != Shown) {
     OpenedAsDirect = GetFlag(SF_SYSTEMMENUDIRECT);
-    State = Showing;
-
     CommonMenu::OnShow(FadeInDuration, FadeOutDuration, FadeAnimation);
-    FadeAnimation.StartIn();
+
+    if (State != Showing) FadeAnimation.StartIn();
+
     // If the function was called due to a submenu opening directly,
     // then don't take over focus
     if (!((ScrWork[SW_SYSMENUCT] == 32 && ScrWork[SW_SYSSUBMENUCT]) ||
@@ -104,7 +104,7 @@ void SystemMenu::Show() {
       }
       IsFocused = true;
       UI::FocusedMenu = this;
-      ItemsFade.StartIn();
+      if (State != Showing) ItemsFade.StartIn();
       MainItems->Show();
       if (LastFocusedButtonId && *LastFocusedButtonId < MenuEntriesNum) {
         CurrentlyFocusedElement = MainItems->Children[*LastFocusedButtonId];
@@ -113,6 +113,7 @@ void SystemMenu::Show() {
         AdvanceFocus(FDIR_DOWN);
       }
     }
+    State = Showing;
   }
 }
 
@@ -124,9 +125,11 @@ void SystemMenu::Hide() {
         LastFocusedButtonId = btn->Id;
       }
     }
+    if (State != Hiding) {
+      FadeAnimation.StartOut();
+      ItemsFade.StartOut();
+    }
     State = Hiding;
-    FadeAnimation.StartOut();
-    ItemsFade.StartOut();
     if (LastFocusedMenu != 0) {
       UI::FocusedMenu = LastFocusedMenu;
       LastFocusedMenu->IsFocused = true;
@@ -141,27 +144,25 @@ void SystemMenu::Update(float dt) {
   CommonMenu::Update(dt);
   UpdateInput(dt);
 
-  if (State == Shown &&
-      ((GetFlag(SF_TITLEMODE) || ScrWork[SW_SYSMENUCT] < 32) ||
+  if (State != Hidden && State != Hiding &&
+      (GetFlag(SF_TITLEMODE) ||
+       (LastSysMenuCt > ScrWork[SW_SYSMENUCT] && ScrWork[SW_SYSMENUCT] < 32) ||
        ScrWork[SW_SYSMENUALPHA] == 0)) {
     Hide();
-    return;
-  }
-  if (State == Hidden && !GetFlag(SF_TITLEMODE) &&
-      ((ScrWork[SW_SYSMENUCT] > 0) || ScrWork[SW_SYSMENUALPHA] > 0)) {
+  } else if (State != Shown && State != Showing && !GetFlag(SF_TITLEMODE) &&
+             ((LastSysMenuCt < ScrWork[SW_SYSMENUCT] &&
+               ScrWork[SW_SYSMENUCT] > 0))) {
     Show();
-    return;
   }
+
   if (State == Showing && ScrWork[SW_SYSMENUCT] == 32) {
     State = Shown;
-    return;
-  }
-  if (State == Hiding && FadeAnimation.IsOut() && ItemsFade.IsOut() &&
-      ScrWork[SW_SYSMENUCT] == 0) {
+  } else if (State == Hiding && FadeAnimation.IsOut() && ItemsFade.IsOut() &&
+             ScrWork[SW_SYSMENUCT] == 0) {
     State = Hidden;
     MainItems->Hide();
-    return;
   }
+  LastSysMenuCt = ScrWork[SW_SYSMENUCT];
 
   if (State != Hidden) {
     FadeAnimation.Update(dt);

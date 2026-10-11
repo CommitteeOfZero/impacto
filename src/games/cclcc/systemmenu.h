@@ -32,6 +32,7 @@ class SystemMenu : public Menu, public CommonMenu {
   Animation ItemsFade;
   bool ItemsFadeComplete = false;
   std::optional<int> LastFocusedButtonId;
+  int LastSysMenuCt = 0;
 
   enum class MenuItems : size_t {
     Backlog,
