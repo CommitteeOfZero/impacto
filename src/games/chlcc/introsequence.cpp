@@ -139,7 +139,7 @@ void IntroSequence::Render() {
     // Draw the new background with the mask
     Renderer->DrawMaskedSprite({BackgroundSprite, FallingStarsMask,
                                 RectF{0.0f, 0.0f, DesignWidth, DesignHeight}},
-                               {.Alpha = 255, .FadeRange = 256});
+                               {.Alpha = 255.0f, .FadeRange = 256.0f});
 
     // Draw the stars again, not to the mask this time
     DrawFallingStars();

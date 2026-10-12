@@ -22,7 +22,7 @@ void BacklogEntry::Render() {
 
     Renderer->DrawMaskedSpriteNoAlpha(
         {VoiceIcon, BacklogMaskSheet, voiceIconPos, Tint},
-        {.Alpha = (int)(Tint.a * 255), .FadeRange = 256, .IsInverted = false});
+        {.Alpha = Tint.a * 255.0f, .FadeRange = 256.0f, .IsInverted = false});
   }
 
   Profile::Dialogue::DialogueFont->DrawProcessedText(

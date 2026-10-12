@@ -519,8 +519,8 @@ void DelusionTrigger::Render() {
   TextSystem.Render();
   Renderer->DrawMaskedSprite(
       {BackgroundSprite, BackgroundSpriteMask, maskDest, spriteDest},
-      {.Alpha = (BackgroundAlpha * 160) >> 8,
-       .FadeRange = 20,
+      {.Alpha = static_cast<float>((BackgroundAlpha * 160) >> 8),
+       .FadeRange = 20.0f,
        .IsInverted = true});
   if (Profile::Patch::HasDelusionMouseSupport &&
       UserConfig::EnhancementsSettings.CHLCC.DelusionMousePatch &&

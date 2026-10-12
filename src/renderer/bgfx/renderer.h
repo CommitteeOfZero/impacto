@@ -64,14 +64,6 @@ class Renderer final : public BaseRenderer {
                                const MaskedSpriteNoAlphaConfig& config,
                                const StateConfig& stateConfig) override;
 
-  void DrawPrimitives(SpriteSheet const& sheet, SpriteSheet const* mask,
-                      ShaderProgramType shaderType,
-                      std::span<const VertexBufferSprites> vertices,
-                      std::span<const uint16_t> indices,
-                      glm::mat4 spriteTransformation,
-                      glm::mat4 maskTransformation, bool inverted,
-                      TopologyMode topology, bool textureWrapRepeat) override;
-
   void DrawCCMessageBox(const PositionedMaskedSprite& spriteInfo,
                         const CCMessageBoxConfig& config,
                         const StateConfig& stateConfig) override;
@@ -105,6 +97,42 @@ class Renderer final : public BaseRenderer {
   void DrawSilhouette(const PositionedSprite& spriteInfo,
                       const SilhouetteConfig& config,
                       const StateConfig& stateConfig) override;
+
+  void DrawAdditiveMaskedSprite(const PositionedMaskedSprite& spriteInfo,
+                                const AdditiveMaskedSpriteConfig& config,
+                                const StateConfig& stateConfig) override;
+
+  void DrawColorBurnMaskedSprite(const PositionedMaskedSprite& spriteInfo,
+                                 const ColorBurnMaskedSpriteConfig& config,
+                                 const StateConfig& stateConfig) override;
+
+  void DrawColorDodgeMaskedSprite(const PositionedMaskedSprite& spriteInfo,
+                                  const ColorDodgeMaskedSpriteConfig& config,
+                                  const StateConfig& stateConfig) override;
+
+  void DrawColorMaskedSprite(const PositionedMaskedSprite& spriteInfo,
+                             const ColorMaskedSpriteConfig& config,
+                             const StateConfig& stateConfig) override;
+
+  void DrawHardLightMaskedSprite(const PositionedMaskedSprite& spriteInfo,
+                                 const HardLightMaskedSpriteConfig& config,
+                                 const StateConfig& stateConfig) override;
+
+  void DrawLinearBurnMaskedSprite(const PositionedMaskedSprite& spriteInfo,
+                                  const LinearBurnMaskedSpriteConfig& config,
+                                  const StateConfig& stateConfig) override;
+
+  void DrawOverlayMaskedSprite(const PositionedMaskedSprite& spriteInfo,
+                               const OverlayMaskedSpriteConfig& config,
+                               const StateConfig& stateConfig) override;
+
+  void DrawScreenMaskedSprite(const PositionedMaskedSprite& spriteInfo,
+                              const ScreenMaskedSpriteConfig& config,
+                              const StateConfig& stateConfig) override;
+
+  void DrawSoftLightMaskedSprite(const PositionedMaskedSprite& spriteInfo,
+                                 const SoftLightMaskedSpriteConfig& config,
+                                 const StateConfig& stateConfig) override;
 
   void CaptureScreencap(Sprite& sprite) override {}
 
@@ -173,20 +201,38 @@ class Renderer final : public BaseRenderer {
   bgfx::VertexLayout VertexBufferSpritesLayout;
 
   std::optional<ShaderProgram<VertexShaderType::MaskedSprite,
+                              FragmentShaderType::AdditiveMaskedSprite>>
+      AdditiveMaskedSpriteShader;
+  std::optional<ShaderProgram<VertexShaderType::MaskedSprite,
                               FragmentShaderType::CCMessageBoxSprite>>
       CCMessageBoxSpriteShader;
   std::optional<ShaderProgram<VertexShaderType::MaskedSprite,
                               FragmentShaderType::CHLCCMenuBackground>>
       CHLCCMenuBackgroundShader;
   std::optional<ShaderProgram<VertexShaderType::MaskedSprite,
+                              FragmentShaderType::ColorBurnMaskedSprite>>
+      ColorBurnMaskedSpriteShader;
+  std::optional<ShaderProgram<VertexShaderType::MaskedSprite,
+                              FragmentShaderType::ColorDodgeMaskedSprite>>
+      ColorDodgeMaskedSpriteShader;
+  std::optional<ShaderProgram<VertexShaderType::MaskedSprite,
+                              FragmentShaderType::ColorMaskedSprite>>
+      ColorMaskedSpriteShader;
+  std::optional<ShaderProgram<VertexShaderType::MaskedSprite,
                               FragmentShaderType::EdgeDetectedSingleSheetFont>>
       EdgeDetectedSingleSheetFontShader;
   std::optional<
       ShaderProgram<VertexShaderType::Sprite, FragmentShaderType::GaussianBlur>>
       GaussianBlurShader;
+  std::optional<ShaderProgram<VertexShaderType::MaskedSprite,
+                              FragmentShaderType::HardLightMaskedSprite>>
+      HardLightMaskedSpriteShader;
   std::optional<ShaderProgram<VertexShaderType::Sprite,
                               FragmentShaderType::SpriteInverted>>
       InvertedSpriteShader;
+  std::optional<ShaderProgram<VertexShaderType::MaskedSprite,
+                              FragmentShaderType::LinearBurnMaskedSprite>>
+      LinearBurnMaskedSpriteShader;
   std::optional<ShaderProgram<VertexShaderType::MaskedSprite,
                               FragmentShaderType::MaskedSprite>>
       MaskedSpriteShader;
@@ -202,9 +248,18 @@ class Renderer final : public BaseRenderer {
   std::optional<
       ShaderProgram<VertexShaderType::Sprite, FragmentShaderType::NV12Frame>>
       NV12FrameShader;
+  std::optional<ShaderProgram<VertexShaderType::MaskedSprite,
+                              FragmentShaderType::OverlayMaskedSprite>>
+      OverlayMaskedSpriteShader;
+  std::optional<ShaderProgram<VertexShaderType::MaskedSprite,
+                              FragmentShaderType::ScreenMaskedSprite>>
+      ScreenMaskedSpriteShader;
   std::optional<
       ShaderProgram<VertexShaderType::Sprite, FragmentShaderType::Silhouette>>
       SilhouetteShader;
+  std::optional<ShaderProgram<VertexShaderType::MaskedSprite,
+                              FragmentShaderType::SoftLightMaskedSprite>>
+      SoftLightMaskedSpriteShader;
   std::optional<
       ShaderProgram<VertexShaderType::Sprite, FragmentShaderType::Sprite>>
       SpriteShader;

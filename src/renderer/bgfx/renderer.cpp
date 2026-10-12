@@ -141,15 +141,27 @@ Renderer::Renderer() {
   }
 
   const auto flush = [this]() { Flush(); };
+  AdditiveMaskedSpriteShader.emplace(vs_maskedsprite_shader,
+                                     fs_additivemaskedsprite_shader, flush);
   CCMessageBoxSpriteShader.emplace(vs_maskedsprite_shader,
                                    fs_ccmessageboxsprite_shader, flush);
   CHLCCMenuBackgroundShader.emplace(vs_maskedsprite_shader,
                                     fs_chlccmenubackground_shader, flush);
+  ColorBurnMaskedSpriteShader.emplace(vs_maskedsprite_shader,
+                                      fs_colorburnmaskedsprite_shader, flush);
+  ColorDodgeMaskedSpriteShader.emplace(vs_maskedsprite_shader,
+                                       fs_colordodgemaskedsprite_shader, flush);
+  ColorMaskedSpriteShader.emplace(vs_maskedsprite_shader,
+                                  fs_colormaskedsprite_shader, flush);
   EdgeDetectedSingleSheetFontShader.emplace(
       vs_maskedsprite_shader, fs_edgedetectedsinglesheetfont_shader, flush);
   GaussianBlurShader.emplace(vs_sprite_shader, fs_gaussianblur_shader, flush);
+  HardLightMaskedSpriteShader.emplace(vs_maskedsprite_shader,
+                                      fs_hardlightmaskedsprite_shader, flush);
   InvertedSpriteShader.emplace(vs_sprite_shader, fs_spriteinverted_shader,
                                flush);
+  LinearBurnMaskedSpriteShader.emplace(vs_maskedsprite_shader,
+                                       fs_linearburnmaskedsprite_shader, flush);
   MaskedSpriteShader.emplace(vs_maskedsprite_shader, fs_maskedsprite_shader,
                              flush);
   MaskedSpriteBinaryShader.emplace(vs_maskedsprite_shader,
@@ -158,7 +170,13 @@ Renderer::Renderer() {
                                     fs_maskedspritenoalpha_shader, flush);
   MosaicShader.emplace(vs_sprite_shader, fs_mosaic_shader, flush);
   NV12FrameShader.emplace(vs_sprite_shader, fs_nv12frame_shader, flush);
+  OverlayMaskedSpriteShader.emplace(vs_maskedsprite_shader,
+                                    fs_overlaymaskedsprite_shader, flush);
+  ScreenMaskedSpriteShader.emplace(vs_maskedsprite_shader,
+                                   fs_screenmaskedsprite_shader, flush);
   SilhouetteShader.emplace(vs_sprite_shader, fs_silhouette_shader, flush);
+  SoftLightMaskedSpriteShader.emplace(vs_maskedsprite_shader,
+                                      fs_softlightmaskedsprite_shader, flush);
   SpriteShader.emplace(vs_sprite_shader, fs_sprite_shader, flush);
   YUVFrameShader.emplace(vs_sprite_shader, fs_yuvframe_shader, flush);
 
@@ -877,36 +895,222 @@ void Renderer::DrawSilhouette(const PositionedSprite& spriteInfo,
                  ShouldFlip(texture));
 }
 
-void Renderer::DrawPrimitives(
-    const SpriteSheet& sheet, const SpriteSheet* const mask,
-    const ShaderProgramType shaderType,
-    const std::span<const VertexBufferSprites> vertices,
-    const std::span<const uint16_t> indices,
-    const glm::mat4 spriteTransformation, const glm::mat4 maskTransformation,
-    const bool inverted, const TopologyMode topology,
-    const bool textureWrapRepeat) {
-  const Texture& texture = dynamic_cast<const Texture&>(*sheet.Texture);
-
-  ShaderProgramInterface* const shader = [&]() -> ShaderProgramInterface* {
-    switch (shaderType) {
-      case ShaderProgramType::Sprite:
-        SpriteShader->SubmitUniforms({}, {.s_texture = texture});
-        return &*SpriteShader;
-      default:
-        break;
-    }
-    return nullptr;
-  }();
-
-  if (shader == nullptr) return;
-
+void Renderer::DrawAdditiveMaskedSprite(
+    const PositionedMaskedSprite& spriteInfo,
+    const AdditiveMaskedSpriteConfig& config, const StateConfig& stateConfig) {
   SetState({
-      .GenericState = StateConfig{},
-      .ShaderProgram = *shader,
-      .Transformation = spriteTransformation,
+      .GenericState = stateConfig,
+      .ShaderProgram = *AdditiveMaskedSpriteShader,
   });
 
-  InsertVertices(indices, vertices, ShouldFlip(texture));
+  const Texture& texture = dynamic_cast<const Texture&>(spriteInfo.Texture);
+
+  AdditiveMaskedSpriteShader->SubmitUniforms(
+      {
+          .u_maskTransformation = spriteInfo.MaskTransformation,
+          .u_fullscreenMask = spriteInfo.FullscreenMask,
+      },
+      {
+          .s_texture = texture,
+          .s_mask = dynamic_cast<const Texture&>(spriteInfo.MaskTexture),
+      });
+
+  InsertVertices(spriteInfo.GetIndices(), spriteInfo.GetVertices(),
+                 ShouldFlip(texture));
+}
+
+void Renderer::DrawColorBurnMaskedSprite(
+    const PositionedMaskedSprite& spriteInfo,
+    const ColorBurnMaskedSpriteConfig& config, const StateConfig& stateConfig) {
+  SetState({
+      .GenericState = stateConfig,
+      .ShaderProgram = *ColorBurnMaskedSpriteShader,
+  });
+
+  const Texture& texture = dynamic_cast<const Texture&>(spriteInfo.Texture);
+
+  ColorBurnMaskedSpriteShader->SubmitUniforms(
+      {
+          .u_maskTransformation = spriteInfo.MaskTransformation,
+          .u_fullscreenMask = spriteInfo.FullscreenMask,
+      },
+      {
+          .s_texture = texture,
+          .s_mask = dynamic_cast<const Texture&>(spriteInfo.MaskTexture),
+      });
+
+  InsertVertices(spriteInfo.GetIndices(), spriteInfo.GetVertices(),
+                 ShouldFlip(texture));
+}
+
+void Renderer::DrawColorDodgeMaskedSprite(
+    const PositionedMaskedSprite& spriteInfo,
+    const ColorDodgeMaskedSpriteConfig& config,
+    const StateConfig& stateConfig) {
+  SetState({
+      .GenericState = stateConfig,
+      .ShaderProgram = *ColorDodgeMaskedSpriteShader,
+  });
+
+  const Texture& texture = dynamic_cast<const Texture&>(spriteInfo.Texture);
+
+  ColorDodgeMaskedSpriteShader->SubmitUniforms(
+      {
+          .u_maskTransformation = spriteInfo.MaskTransformation,
+          .u_fullscreenMask = spriteInfo.FullscreenMask,
+      },
+      {
+          .s_texture = texture,
+          .s_mask = dynamic_cast<const Texture&>(spriteInfo.MaskTexture),
+      });
+
+  InsertVertices(spriteInfo.GetIndices(), spriteInfo.GetVertices(),
+                 ShouldFlip(texture));
+}
+
+void Renderer::DrawColorMaskedSprite(const PositionedMaskedSprite& spriteInfo,
+                                     const ColorMaskedSpriteConfig& config,
+                                     const StateConfig& stateConfig) {
+  SetState({
+      .GenericState = stateConfig,
+      .ShaderProgram = *ColorMaskedSpriteShader,
+  });
+
+  const Texture& texture = dynamic_cast<const Texture&>(spriteInfo.Texture);
+
+  ColorMaskedSpriteShader->SubmitUniforms(
+      {
+          .u_maskTransformation = spriteInfo.MaskTransformation,
+          .u_fullscreenMask = spriteInfo.FullscreenMask,
+      },
+      {
+          .s_texture = texture,
+          .s_mask = dynamic_cast<const Texture&>(spriteInfo.MaskTexture),
+      });
+
+  InsertVertices(spriteInfo.GetIndices(), spriteInfo.GetVertices(),
+                 ShouldFlip(texture));
+}
+
+void Renderer::DrawHardLightMaskedSprite(
+    const PositionedMaskedSprite& spriteInfo,
+    const HardLightMaskedSpriteConfig& config, const StateConfig& stateConfig) {
+  SetState({
+      .GenericState = stateConfig,
+      .ShaderProgram = *HardLightMaskedSpriteShader,
+  });
+
+  const Texture& texture = dynamic_cast<const Texture&>(spriteInfo.Texture);
+
+  HardLightMaskedSpriteShader->SubmitUniforms(
+      {
+          .u_maskTransformation = spriteInfo.MaskTransformation,
+          .u_fullscreenMask = spriteInfo.FullscreenMask,
+      },
+      {
+          .s_texture = texture,
+          .s_mask = dynamic_cast<const Texture&>(spriteInfo.MaskTexture),
+      });
+
+  InsertVertices(spriteInfo.GetIndices(), spriteInfo.GetVertices(),
+                 ShouldFlip(texture));
+}
+
+void Renderer::DrawLinearBurnMaskedSprite(
+    const PositionedMaskedSprite& spriteInfo,
+    const LinearBurnMaskedSpriteConfig& config,
+    const StateConfig& stateConfig) {
+  SetState({
+      .GenericState = stateConfig,
+      .ShaderProgram = *LinearBurnMaskedSpriteShader,
+  });
+
+  const Texture& texture = dynamic_cast<const Texture&>(spriteInfo.Texture);
+
+  LinearBurnMaskedSpriteShader->SubmitUniforms(
+      {
+          .u_maskTransformation = spriteInfo.MaskTransformation,
+          .u_fullscreenMask = spriteInfo.FullscreenMask,
+      },
+      {
+          .s_texture = texture,
+          .s_mask = dynamic_cast<const Texture&>(spriteInfo.MaskTexture),
+      });
+
+  InsertVertices(spriteInfo.GetIndices(), spriteInfo.GetVertices(),
+                 ShouldFlip(texture));
+}
+
+void Renderer::DrawOverlayMaskedSprite(const PositionedMaskedSprite& spriteInfo,
+                                       const OverlayMaskedSpriteConfig& config,
+                                       const StateConfig& stateConfig) {
+  SetState({
+      .GenericState = stateConfig,
+      .ShaderProgram = *OverlayMaskedSpriteShader,
+  });
+
+  const Texture& texture = dynamic_cast<const Texture&>(spriteInfo.Texture);
+
+  OverlayMaskedSpriteShader->SubmitUniforms(
+      {
+          .u_maskTransformation = spriteInfo.MaskTransformation,
+          .u_fullscreenMask = spriteInfo.FullscreenMask,
+      },
+      {
+          .s_texture = texture,
+          .s_mask = dynamic_cast<const Texture&>(spriteInfo.MaskTexture),
+      });
+
+  InsertVertices(spriteInfo.GetIndices(), spriteInfo.GetVertices(),
+                 ShouldFlip(texture));
+}
+
+void Renderer::DrawScreenMaskedSprite(const PositionedMaskedSprite& spriteInfo,
+                                      const ScreenMaskedSpriteConfig& config,
+                                      const StateConfig& stateConfig) {
+  SetState({
+      .GenericState = stateConfig,
+      .ShaderProgram = *ScreenMaskedSpriteShader,
+  });
+
+  const Texture& texture = dynamic_cast<const Texture&>(spriteInfo.Texture);
+
+  ScreenMaskedSpriteShader->SubmitUniforms(
+      {
+          .u_maskTransformation = spriteInfo.MaskTransformation,
+          .u_fullscreenMask = spriteInfo.FullscreenMask,
+      },
+      {
+          .s_texture = texture,
+          .s_mask = dynamic_cast<const Texture&>(spriteInfo.MaskTexture),
+      });
+
+  InsertVertices(spriteInfo.GetIndices(), spriteInfo.GetVertices(),
+                 ShouldFlip(texture));
+}
+
+void Renderer::DrawSoftLightMaskedSprite(
+    const PositionedMaskedSprite& spriteInfo,
+    const SoftLightMaskedSpriteConfig& config, const StateConfig& stateConfig) {
+  SetState({
+      .GenericState = stateConfig,
+      .ShaderProgram = *SoftLightMaskedSpriteShader,
+  });
+
+  const Texture& texture = dynamic_cast<const Texture&>(spriteInfo.Texture);
+
+  SoftLightMaskedSpriteShader->SubmitUniforms(
+      {
+          .u_maskTransformation = spriteInfo.MaskTransformation,
+          .u_fullscreenMask = spriteInfo.FullscreenMask,
+      },
+      {
+          .s_texture = texture,
+          .s_mask = dynamic_cast<const Texture&>(spriteInfo.MaskTexture),
+      });
+
+  InsertVertices(spriteInfo.GetIndices(), spriteInfo.GetVertices(),
+                 ShouldFlip(texture));
 }
 
 void Renderer::DrawVideoTexture(const YUVFrame& frame, const RectF& dest,

@@ -380,14 +380,16 @@ void TitleMenu::Render() {
               {BackgroundSprite, BackgroundSprite,
                RectF(0.0f, 0.0f, BackgroundSprite.ScaledWidth(),
                      BackgroundSprite.ScaledHeight())},
-              {.Alpha = (ScrWork[SW_TITLECT] * 287) / 48, .FadeRange = 32});
+              {.Alpha = static_cast<float>((ScrWork[SW_TITLECT] * 287) / 48),
+               .FadeRange = 32.0f});
           if (ScrWork[SW_TITLECT] > 48) {
             Renderer->DrawMaskedSprite(
                 {LogoSprite, Masks2D[17].MaskSprite,
                  RectF(LogoX, LogoY, LogoSprite.ScaledWidth(),
                        LogoSprite.ScaledHeight())},
-                {.Alpha = (ScrWork[SW_TITLECT] * 271 - 13008) / 32,
-                 .FadeRange = 16});
+                {.Alpha = static_cast<float>(
+                     (ScrWork[SW_TITLECT] * 271 - 13008) / 32),
+                 .FadeRange = 16.0f});
           }
           break;
         case 1: {  // Press to start
@@ -395,7 +397,7 @@ void TitleMenu::Render() {
               {BackgroundSprite, BackgroundSprite,
                RectF(0.0f, 0.0f, BackgroundSprite.ScaledWidth(),
                      BackgroundSprite.ScaledHeight())},
-              {.Alpha = 287, .FadeRange = 32});
+              {.Alpha = 287.0f, .FadeRange = 32.0f});
           Renderer->DrawSprite(LogoSprite, glm::vec2(LogoX, LogoY));
           Renderer->DrawSprite(CopyrightSprite,
                                glm::vec2(CopyrightX, CopyrightY));
@@ -408,7 +410,7 @@ void TitleMenu::Render() {
               {BackgroundSprite, BackgroundSprite,
                RectF(0.0f, 0.0f, BackgroundSprite.ScaledWidth(),
                      BackgroundSprite.ScaledHeight())},
-              {.Alpha = 287, .FadeRange = 32});
+              {.Alpha = 287.0f, .FadeRange = 32.0f});
           Renderer->DrawSprite(LogoSprite, glm::vec2(LogoX, LogoY));
           Renderer->DrawSprite(CopyrightSprite,
                                glm::vec2(CopyrightX, CopyrightY));
@@ -419,7 +421,7 @@ void TitleMenu::Render() {
               {MenuBackgroundSprite, MenuBackgroundSprite,
                RectF(0.0f, 0.0f, MenuBackgroundSprite.ScaledWidth(),
                      MenuBackgroundSprite.ScaledHeight())},
-              {.Alpha = 287, .FadeRange = 32});
+              {.Alpha = 287.0f, .FadeRange = 32.0f});
           MainItems->Render();
         } break;
         case 5:    // Secondary menu Extra story Fade In
@@ -428,7 +430,7 @@ void TitleMenu::Render() {
               {MenuBackgroundSprite, MenuBackgroundSprite,
                RectF(0.0f, 0.0f, MenuBackgroundSprite.ScaledWidth(),
                      MenuBackgroundSprite.ScaledHeight())},
-              {.Alpha = 287, .FadeRange = 32});
+              {.Alpha = 287.0f, .FadeRange = 32.0f});
           ExtraStoryItems->Render();
           MainItems->Render();
         } break;
@@ -438,7 +440,7 @@ void TitleMenu::Render() {
               {MenuBackgroundSprite, MenuBackgroundSprite,
                RectF(0.0f, 0.0f, MenuBackgroundSprite.ScaledWidth(),
                      MenuBackgroundSprite.ScaledHeight())},
-              {.Alpha = 287, .FadeRange = 32});
+              {.Alpha = 287.0f, .FadeRange = 32.0f});
           ContinueItems->Render();
           MainItems->Render();
         } break;
@@ -448,7 +450,7 @@ void TitleMenu::Render() {
               {MenuBackgroundSprite, MenuBackgroundSprite,
                RectF(0.0f, 0.0f, MenuBackgroundSprite.ScaledWidth(),
                      MenuBackgroundSprite.ScaledHeight())},
-              {.Alpha = 287, .FadeRange = 32});
+              {.Alpha = 287.0f, .FadeRange = 32.0f});
           MemoriesItems->Render();
           MainItems->Render();
         } break;
@@ -458,7 +460,7 @@ void TitleMenu::Render() {
               {MenuBackgroundSprite, MenuBackgroundSprite,
                RectF(0.0f, 0.0f, MenuBackgroundSprite.ScaledWidth(),
                      MenuBackgroundSprite.ScaledHeight())},
-              {.Alpha = 287, .FadeRange = 32});
+              {.Alpha = 287.0f, .FadeRange = 32.0f});
           SystemItems->Render();
           MainItems->Render();
         } break;
@@ -468,19 +470,20 @@ void TitleMenu::Render() {
               {BackgroundSprite, BackgroundSprite,
                RectF(0.0f, 0.0f, BackgroundSprite.ScaledWidth(),
                      BackgroundSprite.ScaledHeight())},
-              {.Alpha = 287, .FadeRange = 32});
+              {.Alpha = 287.0f, .FadeRange = 32.0f});
           Renderer->DrawMaskedSprite(
               {LogoSprite, Masks2D[17].MaskSprite,
                RectF(LogoX, LogoY, LogoSprite.ScaledWidth(),
                      LogoSprite.ScaledHeight())},
-              {.Alpha = 287, .FadeRange = 16});
+              {.Alpha = 287.0f, .FadeRange = 16.0f});
           Renderer->DrawSprite(CopyrightSprite,
                                glm::vec2(CopyrightX, CopyrightY));
           Renderer->DrawMaskedSprite(
               {MenuBackgroundSprite, MenuBackgroundSprite,
                RectF(0.0f, 0.0f, MenuBackgroundSprite.ScaledWidth(),
                      MenuBackgroundSprite.ScaledHeight())},
-              {.Alpha = (ScrWork[SW_TITLECT] * 287) / 48, .FadeRange = 32});
+              {.Alpha = static_cast<float>((ScrWork[SW_TITLECT] * 287) / 48),
+               .FadeRange = 32.0f});
         } break;
       }
     }
