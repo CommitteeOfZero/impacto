@@ -51,26 +51,18 @@ inline GraphicsApi ActualGraphicsApi;
 
 constexpr inline int MaxFramebuffers = 10;
 
-enum class ShaderProgramType : int {
+enum class ShaderProgramType : uint8_t {
   AdditiveMaskedSprite,
-  CCMessageBoxSprite,
-  CHLCCMenuBackground,
   ColorBurnMaskedSprite,
   ColorDodgeMaskedSprite,
   ColorMaskedSprite,
   HardLightMaskedSprite,
   LinearBurnMaskedSprite,
-  MaskedSprite,
-  MaskedSpriteBinary,
   MaskedSpriteNoAlpha,
   OverlayMaskedSprite,
   ScreenMaskedSprite,
   SoftLightMaskedSprite,
-  Sprite,
-  SpriteInverted,
-  YUVFrame,
-  GaussianBlur,
-  Mosaic,
+  Sprite
 };
 
 enum class RendererBlurDirection { Horizontal, Vertical };
@@ -198,8 +190,8 @@ class BaseRenderer {
       const StateConfig& stateconfig = CreateDefault<StateConfig>()) = 0;
 
   struct MaskedSpriteConfig {
-    int Alpha;
-    int FadeRange;
+    float Alpha;
+    float FadeRange;
     bool IsInverted = false;
   };
   virtual void DrawMaskedSprite(
@@ -208,54 +200,14 @@ class BaseRenderer {
       const StateConfig& stateconfig = CreateDefault<StateConfig>()) = 0;
 
   struct MaskedSpriteNoAlphaConfig {
-    int Alpha;
-    int FadeRange;
+    float Alpha;
+    float FadeRange;
     bool IsInverted = false;
   };
   virtual void DrawMaskedSpriteNoAlpha(
       const PositionedMaskedSprite& spriteInfo,
       const MaskedSpriteNoAlphaConfig& config,
       const StateConfig& stateconfig = CreateDefault<StateConfig>()) = 0;
-
-  virtual void DrawPrimitives(const SpriteSheet& sheet, const SpriteSheet* mask,
-                              ShaderProgramType shaderType,
-                              std::span<const VertexBufferSprites> vertices,
-                              std::span<const uint16_t> indices,
-                              glm::mat4 spriteTransformation = glm::mat4(1.0f),
-                              glm::mat4 maskTransformation = glm::mat4(1.0f),
-                              bool inverted = false,
-                              TopologyMode topology = TopologyMode::Triangles,
-                              bool textureWrapRepeat = false) = 0;
-
-  void DrawPrimitives(const SpriteSheet& sheet, ShaderProgramType shaderType,
-                      std::span<const VertexBufferSprites> vertices,
-                      std::span<const uint16_t> indices,
-                      glm::mat4 transformation = glm::mat4(1.0f),
-                      bool inverted = false, bool textureWrapRepeat = false) {
-    DrawPrimitives(sheet, nullptr, shaderType, vertices, indices,
-                   transformation, glm::mat4(1.0f), inverted,
-                   TopologyMode::Triangles, textureWrapRepeat);
-  }
-
-  void DrawPrimitives(const SpriteSheet& sheet, const SpriteSheet* mask,
-                      ShaderProgramType shaderType,
-                      std::span<const VertexBufferSprites> vertices,
-                      std::span<const uint16_t> indices, glm::vec2 offset,
-                      bool inverted = false, bool textureWrapRepeat = false) {
-    DrawPrimitives(sheet, mask, shaderType, vertices, indices,
-                   glm::translate(glm::mat4(1.0f), glm::vec3(offset, 0.0f)),
-                   glm::mat4(1.0f), inverted, TopologyMode::Triangles,
-                   textureWrapRepeat);
-  }
-
-  void DrawPrimitives(const SpriteSheet& sheet, ShaderProgramType shaderType,
-                      std::span<const VertexBufferSprites> vertices,
-                      std::span<const uint16_t> indices, glm::vec2 offset,
-                      bool inverted = false, bool textureWrapRepeat = false) {
-    DrawPrimitives(sheet, shaderType, vertices, indices,
-                   glm::translate(glm::mat4(1.0f), glm::vec3(offset, 0.0f)),
-                   inverted, textureWrapRepeat);
-  }
 
   void DrawConvexShape(std::span<const glm::vec2> vertices,
                        glm::mat4 transformation, glm::vec4 color);
@@ -320,6 +272,69 @@ class BaseRenderer {
       const PositionedSprite& spriteInfo,
       const SilhouetteConfig& config = CreateDefault<SilhouetteConfig>(),
       const StateConfig& stateconfig = CreateDefault<StateConfig>()) = 0;
+
+  struct AdditiveMaskedSpriteConfig {};
+  virtual void DrawAdditiveMaskedSprite(
+      const PositionedMaskedSprite& spriteInfo,
+      const AdditiveMaskedSpriteConfig& config =
+          CreateDefault<AdditiveMaskedSpriteConfig>(),
+      const StateConfig& stateConfig = CreateDefault<StateConfig>()) = 0;
+
+  struct ColorBurnMaskedSpriteConfig {};
+  virtual void DrawColorBurnMaskedSprite(
+      const PositionedMaskedSprite& spriteInfo,
+      const ColorBurnMaskedSpriteConfig& config =
+          CreateDefault<ColorBurnMaskedSpriteConfig>(),
+      const StateConfig& stateConfig = CreateDefault<StateConfig>()) = 0;
+
+  struct ColorDodgeMaskedSpriteConfig {};
+  virtual void DrawColorDodgeMaskedSprite(
+      const PositionedMaskedSprite& spriteInfo,
+      const ColorDodgeMaskedSpriteConfig& config =
+          CreateDefault<ColorDodgeMaskedSpriteConfig>(),
+      const StateConfig& stateConfig = CreateDefault<StateConfig>()) = 0;
+
+  struct ColorMaskedSpriteConfig {};
+  virtual void DrawColorMaskedSprite(
+      const PositionedMaskedSprite& spriteInfo,
+      const ColorMaskedSpriteConfig& config =
+          CreateDefault<ColorMaskedSpriteConfig>(),
+      const StateConfig& stateConfig = CreateDefault<StateConfig>()) = 0;
+
+  struct HardLightMaskedSpriteConfig {};
+  virtual void DrawHardLightMaskedSprite(
+      const PositionedMaskedSprite& spriteInfo,
+      const HardLightMaskedSpriteConfig& config =
+          CreateDefault<HardLightMaskedSpriteConfig>(),
+      const StateConfig& stateConfig = CreateDefault<StateConfig>()) = 0;
+
+  struct LinearBurnMaskedSpriteConfig {};
+  virtual void DrawLinearBurnMaskedSprite(
+      const PositionedMaskedSprite& spriteInfo,
+      const LinearBurnMaskedSpriteConfig& config =
+          CreateDefault<LinearBurnMaskedSpriteConfig>(),
+      const StateConfig& stateConfig = CreateDefault<StateConfig>()) = 0;
+
+  struct OverlayMaskedSpriteConfig {};
+  virtual void DrawOverlayMaskedSprite(
+      const PositionedMaskedSprite& spriteInfo,
+      const OverlayMaskedSpriteConfig& config =
+          CreateDefault<OverlayMaskedSpriteConfig>(),
+      const StateConfig& stateConfig = CreateDefault<StateConfig>()) = 0;
+
+  struct ScreenMaskedSpriteConfig {};
+  virtual void DrawScreenMaskedSprite(
+      const PositionedMaskedSprite& spriteInfo,
+      const ScreenMaskedSpriteConfig& config =
+          CreateDefault<ScreenMaskedSpriteConfig>(),
+      const StateConfig& stateConfig = CreateDefault<StateConfig>()) = 0;
+
+  struct SoftLightMaskedSpriteConfig {};
+  virtual void DrawSoftLightMaskedSprite(
+      const PositionedMaskedSprite& spriteInfo,
+      const SoftLightMaskedSpriteConfig& config =
+          CreateDefault<SoftLightMaskedSpriteConfig>(),
+      const StateConfig& stateConfig = CreateDefault<StateConfig>()) = 0;
 
   virtual void CaptureScreencap(Sprite& sprite) = 0;
 

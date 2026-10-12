@@ -173,11 +173,14 @@ void SingleSheetFont::DrawProcessedText(
     }
   }
 
-  const ShaderProgramType shader = maskedSheet == nullptr
-                                       ? ShaderProgramType::Sprite
-                                       : ShaderProgramType::MaskedSpriteNoAlpha;
-  Renderer->DrawPrimitives(Sheet, maskedSheet, shader, vertices, indices,
-                           transformation);
+  if (maskedSheet == nullptr) {
+    Renderer->DrawSprite(
+        {Sheet, vertices, indices, TopologyMode::Triangles, transformation});
+  } else {
+    Renderer->DrawMaskedSpriteNoAlpha({Sheet, *maskedSheet, vertices, indices,
+                                       TopologyMode::Triangles, transformation},
+                                      {.Alpha = 1.0f, .FadeRange = 0.0f});
+  }
 }
 
 ProcessedTextGlyph SeparateOutlineSheetFont::PlaceGlyph(
@@ -201,10 +204,6 @@ void SeparateOutlineSheetFont::DrawProcessedText(
   const std::vector<size_t> visibleGlyphIds = GetVisibleGlyphIds(text);
   const uint16_t glyphCount = static_cast<uint16_t>(visibleGlyphIds.size());
   if (glyphCount == 0) return;
-
-  const ShaderProgramType shader = maskedSheet == nullptr
-                                       ? ShaderProgramType::Sprite
-                                       : ShaderProgramType::MaskedSpriteNoAlpha;
 
   const size_t vertexCount = glyphCount * 4;
   const size_t indexCount = glyphCount * 6;
@@ -249,10 +248,18 @@ void SeparateOutlineSheetFont::DrawProcessedText(
         operator()<&SeparateOutlineSheetFont::GetOutlineGlyph,
                    &DialogueColorPair::OutlineColor>({0.0f, 0.0f});
 
-        Renderer->DrawPrimitives(
-            OutlineSheet, maskedSheet, shader, vertices,
-            std::span(indices.begin(), indices.begin() + indexCount),
-            transformation);
+        if (maskedSheet == nullptr) {
+          Renderer->DrawSprite(
+              {OutlineSheet, vertices,
+               std::span(indices.begin(), indices.begin() + indexCount),
+               TopologyMode::Triangles, transformation});
+        } else {
+          Renderer->DrawMaskedSpriteNoAlpha(
+              {OutlineSheet, *maskedSheet, vertices,
+               std::span(indices.begin(), indices.begin() + indexCount),
+               TopologyMode::Triangles, transformation},
+              {.Alpha = 1.0f, .FadeRange = 0.0f});
+        }
 
         fillVertices.template operator()<&SeparateOutlineSheetFont::GetGlyph,
                                          &DialogueColorPair::OutlineColor>(
@@ -270,8 +277,15 @@ void SeparateOutlineSheetFont::DrawProcessedText(
                          return translateVertex(vertex, {2.0f, 2.0f});
                        });
 
-        Renderer->DrawPrimitives(ForegroundSheet, maskedSheet, shader, vertices,
-                                 indices, transformation);
+        if (maskedSheet == nullptr) {
+          Renderer->DrawSprite({ForegroundSheet, vertices, indices,
+                                TopologyMode::Triangles, transformation});
+        } else {
+          Renderer->DrawMaskedSpriteNoAlpha(
+              {ForegroundSheet, *maskedSheet, vertices, indices,
+               TopologyMode::Triangles, transformation},
+              {.Alpha = 1.0f, .FadeRange = 0.0f});
+        }
 
         indices.resize(indexCount);
       } break;
@@ -283,8 +297,15 @@ void SeparateOutlineSheetFont::DrawProcessedText(
 
         FillGlyphIndices(indices, glyphCount);
 
-        Renderer->DrawPrimitives(ForegroundSheet, maskedSheet, shader, vertices,
-                                 indices, transformation);
+        if (maskedSheet == nullptr) {
+          Renderer->DrawSprite({ForegroundSheet, vertices, indices,
+                                TopologyMode::Triangles, transformation});
+        } else {
+          Renderer->DrawMaskedSpriteNoAlpha(
+              {ForegroundSheet, *maskedSheet, vertices, indices,
+               TopologyMode::Triangles, transformation},
+              {.Alpha = 1.0f, .FadeRange = 0.0f});
+        }
       } break;
 
       case None: {
@@ -300,8 +321,15 @@ void SeparateOutlineSheetFont::DrawProcessedText(
                                    &DialogueColorPair::TextColor>(
       glm::vec2(0.0f));
 
-  Renderer->DrawPrimitives(ForegroundSheet, maskedSheet, shader, vertices,
-                           indices, transformation);
+  if (maskedSheet == nullptr) {
+    Renderer->DrawSprite({ForegroundSheet, vertices, indices,
+                          TopologyMode::Triangles, transformation});
+  } else {
+    Renderer->DrawMaskedSpriteNoAlpha(
+        {ForegroundSheet, *maskedSheet, vertices, indices,
+         TopologyMode::Triangles, transformation},
+        {.Alpha = 1.0f, .FadeRange = 0.0f});
+  }
 }
 
 void LanguageBarrierFont::DrawProcessedText(
@@ -311,10 +339,6 @@ void LanguageBarrierFont::DrawProcessedText(
   const std::vector<size_t> visibleGlyphIds = GetVisibleGlyphIds(text);
   const size_t glyphCount = visibleGlyphIds.size();
   if (glyphCount == 0) return;
-
-  const ShaderProgramType shader = maskedSheet == nullptr
-                                       ? ShaderProgramType::Sprite
-                                       : ShaderProgramType::MaskedSpriteNoAlpha;
 
   const size_t vertexCount = glyphCount * 4;
   const size_t indexCount = glyphCount * 6;
@@ -368,8 +392,15 @@ void LanguageBarrierFont::DrawProcessedText(
                  dest, destUV, color, maskUV);
     }
 
-    Renderer->DrawPrimitives(OutlineSheet, maskedSheet, shader, vertices,
-                             indices, transformation);
+    if (maskedSheet == nullptr) {
+      Renderer->DrawSprite({OutlineSheet, vertices, indices,
+                            TopologyMode::Triangles, transformation});
+    } else {
+      Renderer->DrawMaskedSpriteNoAlpha(
+          {OutlineSheet, *maskedSheet, vertices, indices,
+           TopologyMode::Triangles, transformation},
+          {.Alpha = 1.0f, .FadeRange = 0.0f});
+    }
   }
 
   for (size_t i = 0; i < glyphCount; i++) {
@@ -395,8 +426,15 @@ void LanguageBarrierFont::DrawProcessedText(
                dest, destUV, color, maskUV);
   }
 
-  Renderer->DrawPrimitives(ForegroundSheet, maskedSheet, shader, vertices,
-                           indices, transformation);
+  if (maskedSheet == nullptr) {
+    Renderer->DrawSprite({ForegroundSheet, vertices, indices,
+                          TopologyMode::Triangles, transformation});
+  } else {
+    Renderer->DrawMaskedSpriteNoAlpha(
+        {ForegroundSheet, *maskedSheet, vertices, indices,
+         TopologyMode::Triangles, transformation},
+        {.Alpha = 1.0f, .FadeRange = 0.0f});
+  }
 }
 
 void EdgeDetectedSingleSheetFont::DrawProcessedText(

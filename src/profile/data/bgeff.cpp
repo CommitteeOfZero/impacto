@@ -40,13 +40,17 @@ void Load() {
       Background2D::BgEffShaderMap.emplace(
           EnsureGetArrayElementByIndex<int>(0),
           std::array<ShaderProgramType, 4>{
-              enum_cast<ShaderProgramType>(EnsureGetArrayElementByIndex<int>(1))
+              enum_cast<ShaderProgramType>(
+                  EnsureGetArrayElementByIndex<uint8_t>(1))
                   .value(),
-              enum_cast<ShaderProgramType>(EnsureGetArrayElementByIndex<int>(2))
+              enum_cast<ShaderProgramType>(
+                  EnsureGetArrayElementByIndex<uint8_t>(2))
                   .value(),
-              enum_cast<ShaderProgramType>(EnsureGetArrayElementByIndex<int>(3))
+              enum_cast<ShaderProgramType>(
+                  EnsureGetArrayElementByIndex<uint8_t>(3))
                   .value(),
-              enum_cast<ShaderProgramType>(EnsureGetArrayElementByIndex<int>(4))
+              enum_cast<ShaderProgramType>(
+                  EnsureGetArrayElementByIndex<uint8_t>(4))
                   .value(),
           });
       Pop();

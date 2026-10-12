@@ -310,7 +310,7 @@ void YesNoTrigger::Render() {
   // via matrix
   Renderer->DrawMaskedSprite(
       {ActiveBlur, YesNoBlurMask, blurTransform, maskTransform},
-      {.Alpha = static_cast<int>(alpha), .FadeRange = 255, .IsInverted = true});
+      {.Alpha = alpha, .FadeRange = 255.0f, .IsInverted = true});
 
   if (DispSel) {
     glm::vec2 yesChipPos = (DispPosArr[TargetArrIndex].ChipYesPos -

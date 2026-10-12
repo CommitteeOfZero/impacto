@@ -114,8 +114,8 @@ void BaseRenderer::DrawConvexShape(const std::span<const glm::vec2> vertices,
       });
 
   if (vertices.size() == 3) {
-    DrawPrimitives(RectSprite.Sheet, ShaderProgramType::Sprite,
-                   vertexAttributes, std::array<uint16_t, 3>{0, 1, 2});
+    DrawSprite({RectSprite, vertexAttributes, std::array<uint16_t, 3>{0, 1, 2},
+                TopologyMode::Triangles});
     return;
   }
 
@@ -136,8 +136,7 @@ void BaseRenderer::DrawConvexShape(const std::span<const glm::vec2> vertices,
     indices.insert(indices.end(), {centerOfMassIndex, i, nextIndex});
   }
 
-  DrawPrimitives(RectSprite.Sheet, ShaderProgramType::Sprite, vertexAttributes,
-                 indices);
+  DrawSprite({RectSprite, vertexAttributes, indices, TopologyMode::Triangles});
 }
 
 void BaseRenderer::DrawQuad(const CornersQuad& dest, const glm::vec4 color) {

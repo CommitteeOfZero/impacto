@@ -62,7 +62,7 @@ void EyecatchEffect::RenderLayer(int layer) {
       Renderer->DrawMaskedSprite(
           {Backgrounds2D[ScrWork[SW_BG1SURF + childBufId]]->BgSprite, StarsMask,
            glm::vec2(0.0f)},
-          {.Alpha = 255, .FadeRange = 256});
+          {.Alpha = 255.0f, .FadeRange = 256.0f});
 
     } else {
       Renderer->DrawSprite(
