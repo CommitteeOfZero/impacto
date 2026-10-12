@@ -75,6 +75,14 @@ enum class ShaderProgramType : int {
 
 enum class RendererBlurDirection { Horizontal, Vertical };
 
+// Workaround for compiler bugs gah (ノ｀Д´)ノ
+// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=88165
+// https://github.com/llvm/llvm-project/issues/36032
+template <typename T>
+static inline T CreateDefault() {
+  return {};
+}
+
 class BaseRenderer {
  public:
   virtual ~BaseRenderer() = default;
@@ -134,14 +142,17 @@ class BaseRenderer {
   struct SpriteConfig {
     glm::vec3 ColorShift = glm::vec3(0.0f);
   };
-  virtual void DrawSprite(const PositionedSprite& spriteInfo,
-                          const SpriteConfig& config = {},
-                          const StateConfig& stateConfig = {}) = 0;
+  virtual void DrawSprite(
+      const PositionedSprite& spriteInfo,
+      const SpriteConfig& config = CreateDefault<SpriteConfig>(),
+      const StateConfig& stateConfig = CreateDefault<StateConfig>()) = 0;
 
   struct InvertedSpriteConfig {};
-  virtual void DrawInvertedSprite(const PositionedSprite& spriteInfo,
-                                  const InvertedSpriteConfig& config = {},
-                                  const StateConfig& stateConfig = {}) = 0;
+  virtual void DrawInvertedSprite(
+      const PositionedSprite& spriteInfo,
+      const InvertedSpriteConfig& config =
+          CreateDefault<InvertedSpriteConfig>(),
+      const StateConfig& stateconfig = CreateDefault<StateConfig>()) = 0;
 
   void DrawSprite(const Sprite& sprite, const CornersQuad& dest,
                   glm::mat4 transformation, std::span<const glm::vec4, 4> tints,
@@ -179,27 +190,30 @@ class BaseRenderer {
   struct MaskedBinarySpriteConfig {
     bool IsInverted = false;
   };
-  virtual void DrawMaskedBinarySprite(const PositionedMaskedSprite& spriteInfo,
-                                      const MaskedBinarySpriteConfig& config,
-                                      const StateConfig& stateConfig = {}) = 0;
+  virtual void DrawMaskedBinarySprite(
+      const PositionedMaskedSprite& spriteInfo,
+      const MaskedBinarySpriteConfig& config,
+      const StateConfig& stateconfig = CreateDefault<StateConfig>()) = 0;
 
   struct MaskedSpriteConfig {
     int Alpha;
     int FadeRange;
     bool IsInverted = false;
   };
-  virtual void DrawMaskedSprite(const PositionedMaskedSprite& spriteInfo,
-                                const MaskedSpriteConfig& config,
-                                const StateConfig& stateConfig = {}) = 0;
+  virtual void DrawMaskedSprite(
+      const PositionedMaskedSprite& spriteInfo,
+      const MaskedSpriteConfig& config,
+      const StateConfig& stateconfig = CreateDefault<StateConfig>()) = 0;
 
   struct MaskedSpriteNoAlphaConfig {
     int Alpha;
     int FadeRange;
     bool IsInverted = false;
   };
-  virtual void DrawMaskedSpriteNoAlpha(const PositionedMaskedSprite& spriteInfo,
-                                       const MaskedSpriteNoAlphaConfig& config,
-                                       const StateConfig& stateConfig = {}) = 0;
+  virtual void DrawMaskedSpriteNoAlpha(
+      const PositionedMaskedSprite& spriteInfo,
+      const MaskedSpriteNoAlphaConfig& config,
+      const StateConfig& stateconfig = CreateDefault<StateConfig>()) = 0;
 
   virtual void DrawPrimitives(const SpriteSheet& sheet, const SpriteSheet* mask,
                               ShaderProgramType shaderType,
@@ -254,9 +268,10 @@ class BaseRenderer {
     int FadeRange;
     float EffectCt;
   };
-  virtual void DrawCCMessageBox(const PositionedMaskedSprite& spriteInfo,
-                                const CCMessageBoxConfig& config,
-                                const StateConfig& stateConfig = {}) = 0;
+  virtual void DrawCCMessageBox(
+      const PositionedMaskedSprite& spriteInfo,
+      const CCMessageBoxConfig& config,
+      const StateConfig& stateconfig = CreateDefault<StateConfig>()) = 0;
 
   struct EdgeDetectedSingleSheetFontConfig {
     float DifferenceFactor;
@@ -266,30 +281,32 @@ class BaseRenderer {
   virtual void DrawEdgeDetectedSingleSheetFont(
       const PositionedSprite& spriteInfo,
       const EdgeDetectedSingleSheetFontConfig& config,
-      const StateConfig& stateConfig = {}) = 0;
+      const StateConfig& stateconfig = CreateDefault<StateConfig>()) = 0;
   virtual void DrawEdgeDetectedSingleSheetFont(
       const PositionedMaskedSprite& spriteInfo,
       const EdgeDetectedSingleSheetFontConfig& config,
-      const StateConfig& stateConfig = {}) = 0;
+      const StateConfig& stateconfig = CreateDefault<StateConfig>()) = 0;
 
   struct CHLCCMenuBackgroundConfig {};
-  virtual void DrawCHLCCMenuBackground(const PositionedMaskedSprite& spriteInfo,
-                                       const CHLCCMenuBackgroundConfig& = {},
-                                       const StateConfig& stateConfig = {}) = 0;
+  virtual void DrawCHLCCMenuBackground(
+      const PositionedMaskedSprite& spriteInfo,
+      const CHLCCMenuBackgroundConfig& =
+          CreateDefault<CHLCCMenuBackgroundConfig>(),
+      const StateConfig& stateconfig = CreateDefault<StateConfig>()) = 0;
 
   struct BlurredSpriteConfig {
     RendererBlurDirection BlurDirection;
   };
-  virtual void DrawBlurredSprite(const PositionedSprite& spriteInfo,
-                                 const BlurredSpriteConfig& config,
-                                 const StateConfig& stateConfig = {}) = 0;
+  virtual void DrawBlurredSprite(
+      const PositionedSprite& spriteInfo, const BlurredSpriteConfig& config,
+      const StateConfig& stateconfig = CreateDefault<StateConfig>()) = 0;
 
   struct MosaicConfig {
     float TileSize;
   };
-  virtual void DrawMosaic(const PositionedSprite& spriteInfo,
-                          const MosaicConfig& config,
-                          const StateConfig& stateConfig = {}) = 0;
+  virtual void DrawMosaic(
+      const PositionedSprite& spriteInfo, const MosaicConfig& config,
+      const StateConfig& stateconfig = CreateDefault<StateConfig>()) = 0;
 
   virtual void DrawVideoTexture(const YUVFrame& frame, const RectF& dest,
                                 glm::vec4 tint, bool alphaVideo = false) = 0;
@@ -297,9 +314,10 @@ class BaseRenderer {
                                 glm::vec4 tint, bool alphaVideo = false) = 0;
 
   struct SilhouetteConfig {};
-  virtual void DrawSilhouette(const PositionedSprite& spriteInfo,
-                              const SilhouetteConfig& config = {},
-                              const StateConfig& stateConfig = {}) = 0;
+  virtual void DrawSilhouette(
+      const PositionedSprite& spriteInfo,
+      const SilhouetteConfig& config = CreateDefault<SilhouetteConfig>(),
+      const StateConfig& stateconfig = CreateDefault<StateConfig>()) = 0;
 
   virtual void CaptureScreencap(Sprite& sprite) = 0;
 
