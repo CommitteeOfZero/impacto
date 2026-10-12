@@ -44,8 +44,7 @@ void SystemMenu::UpdateInput(float dt) {
     PADinputButtonWentDown = 0;
     PADinputMouseWentDown = 0;
   }
-
-  if (!IsFocused) return;
+  if (!IsFocused || ScrWork[SW_SYSSUBMENUCT] > 0) return;
   const auto* const prevSelected = CurrentlyFocusedElement;
   Menu::UpdateInput(dt);
   MainItems->UpdateInput(dt);
