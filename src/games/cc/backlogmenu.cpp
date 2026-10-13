@@ -27,10 +27,7 @@ void BacklogMenu::MenuButtonOnClick(Widgets::BacklogEntry* target) {
 }
 
 void BacklogMenu::Show() {
-  if (State == Hidden) {
-    CommonMenu::OnShow(FadeInDuration, FadeOutDuration, FadeAnimation);
-  }
-
+  CommonMenu::OnShow(FadeInDuration, FadeOutDuration, FadeAnimation);
   UI::BacklogMenu<BacklogEntry>::Show();
 }
 
@@ -40,10 +37,12 @@ void BacklogMenu::Hide() {
 }
 
 void BacklogMenu::UpdateVisibility() {
-  if (ScrWork[SW_SYSSUBMENUCT] < 32 && State == Shown) {
+  if (LastSubMenuCt > ScrWork[SW_SYSSUBMENUCT] &&
+      ScrWork[SW_SYSSUBMENUCT] < 32 && State != Hidden && State != Hiding) {
     Hide();
-  } else if (ScrWork[SW_SYSSUBMENUCT] > 0 && State == Hidden &&
-             ScrWork[SW_SYSSUBMENUNO] == 1) {
+  } else if (LastSubMenuCt < ScrWork[SW_SYSSUBMENUCT] &&
+             ScrWork[SW_SYSSUBMENUCT] > 0 && ScrWork[SW_SYSSUBMENUNO] == 1 &&
+             State != Shown && State != Showing) {
     Show();
   }
 
@@ -60,6 +59,7 @@ void BacklogMenu::UpdateVisibility() {
       entry.Hide();
     }
   }
+  LastSubMenuCt = ScrWork[SW_SYSSUBMENUCT];
 }
 
 void BacklogMenu::Update(float dt) {

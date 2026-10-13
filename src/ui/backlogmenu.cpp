@@ -68,9 +68,9 @@ BacklogMenu<EntryType>::BacklogMenu()
 
 template <typename EntryType>
 void BacklogMenu<EntryType>::Show() {
-  if (State == Hidden) {
+  if (State != Shown) {
+    if (State != Showing) FadeAnimation.StartIn();
     State = Showing;
-    FadeAnimation.StartIn();
 
     for (auto& entry : Entries) {
       entry.Show();
@@ -104,9 +104,9 @@ void BacklogMenu<EntryType>::Show() {
 
 template <typename EntryType>
 void BacklogMenu<EntryType>::Hide() {
-  if (State == Shown) {
+  if (State != Hidden) {
+    if (State != Hiding) FadeAnimation.StartOut();
     State = Hiding;
-    FadeAnimation.StartOut();
 
     if (LastFocusedMenu != nullptr) {
       UI::FocusedMenu = LastFocusedMenu;

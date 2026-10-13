@@ -246,10 +246,12 @@ void OptionsMenu::Hide() {
 }
 
 void OptionsMenu::UpdateVisibility() {
-  if (ScrWork[SW_SYSSUBMENUCT] < 32 && State == Shown) {
+  if (LastSubMenuCt > ScrWork[SW_SYSSUBMENUCT] &&
+      ScrWork[SW_SYSSUBMENUCT] < 32 && State != Hidden && State != Hiding) {
     Hide();
-  } else if (ScrWork[SW_SYSSUBMENUCT] > 0 && State == Hidden &&
-             ScrWork[SW_SYSSUBMENUNO] == 5) {
+  } else if (LastSubMenuCt < ScrWork[SW_SYSSUBMENUCT] &&
+             ScrWork[SW_SYSSUBMENUCT] > 0 && ScrWork[SW_SYSSUBMENUNO] == 5 &&
+             State != Shown && State != Showing) {
     Show();
   }
 
@@ -261,6 +263,7 @@ void OptionsMenu::UpdateVisibility() {
     Pages[CurrentPage]->Hide();
     if (OpenedAsDirect) PoleAnimation.Finish(AnimationDirection::Out);
   }
+  LastSubMenuCt = ScrWork[SW_SYSSUBMENUCT];
 }
 
 void OptionsMenu::Update(float dt) {

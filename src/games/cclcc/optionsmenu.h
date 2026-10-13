@@ -60,6 +60,7 @@ class OptionsMenu : public UI::OptionsMenu, public CommonMenu {
   SpriteAnimation PoleAnimation;
 
   std::vector<Widgets::ClickArea> PageButtons;
+  int LastSubMenuCt = 0;
 };
 
 }  // namespace CCLCC

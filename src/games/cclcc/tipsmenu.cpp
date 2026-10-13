@@ -167,10 +167,12 @@ void TipsMenu::UpdateInput(float dt) {
 
 void TipsMenu::Update(float dt) {
   if (!HasInitialized) return;
-  if (ScrWork[SW_SYSSUBMENUCT] < 32 && State == Shown) {
+  if (LastSubMenuCt > ScrWork[SW_SYSSUBMENUCT] &&
+      ScrWork[SW_SYSSUBMENUCT] < 32 && State != Hidden && State != Hiding) {
     Hide();
-  } else if (ScrWork[SW_SYSSUBMENUCT] > 0 && State == Hidden &&
-             (ScrWork[SW_SYSSUBMENUNO] == 2)) {
+  } else if (LastSubMenuCt < ScrWork[SW_SYSSUBMENUCT] &&
+             ScrWork[SW_SYSSUBMENUCT] > 0 && State != Shown &&
+             State != Showing && (ScrWork[SW_SYSSUBMENUNO] == 2)) {
     Show();
   }
 
@@ -239,6 +241,7 @@ void TipsMenu::Update(float dt) {
     float move = -LastYPos;
     Move({0, move});
   }
+  LastSubMenuCt = ScrWork[SW_SYSSUBMENUCT];
 }
 
 void TipsMenu::Render() {

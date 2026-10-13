@@ -21,6 +21,7 @@ class BacklogMenu : public UI::BacklogMenu<Widgets::CC::BacklogEntry>,
 
  private:
   void UpdateVisibility() override;
+  int LastSubMenuCt = 0;
 };
 
 }  // namespace CC

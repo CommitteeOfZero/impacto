@@ -32,6 +32,7 @@ class SaveMenu : public UI::SaveMenu, public CommonMenu {
   Animation FadeAnimation;
   Animation PageAnimation;
   bool HasCleared = true;
+  int LastSubMenuCt = 0;
 };
 
 }  // namespace CCLCC

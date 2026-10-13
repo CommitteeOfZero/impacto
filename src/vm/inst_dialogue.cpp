@@ -799,6 +799,8 @@ VmInstruction(InstMesRev) {
   PopUint8(type);
   switch (type) {
     case 0:  // DispInit
+      if (Profile::Vm::GameInstructionSet == InstructionSet::MO6TW)
+        UI::BacklogMenuPtr->Show();
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction SetMesModeFormat(type: DispInit)\n");
       break;
@@ -807,6 +809,8 @@ VmInstruction(InstMesRev) {
                  "STUB instruction SetMesModeFormat(type: Main)\n");
       break;
     case 2:  // AllCls
+      if (Profile::Vm::GameInstructionSet == InstructionSet::MO6TW)
+        UI::BacklogMenuPtr->Hide();
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction SetMesModeFormat(type: AllCls)\n");
       break;
