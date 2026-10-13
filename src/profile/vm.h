@@ -7,6 +7,11 @@ namespace Impacto {
 namespace Profile {
 namespace Vm {
 
+enum class StringUnitEncoding : uint8_t {
+  Uint16,
+  Uint32,
+};
+
 inline uint32_t StartScript;
 inline uint32_t StartScriptBuffer;
 
@@ -33,6 +38,9 @@ inline int MaxLinkedBgBuffers = 1;
 inline int SystemScriptBuffer = 1;
 
 inline int SpeakerPortraitsScrWorkOffset = 8;
+
+inline StringUnitEncoding StringEncodingType = StringUnitEncoding::Uint16;
+inline uint8_t StringIdSize = 2;
 
 void Configure();
 

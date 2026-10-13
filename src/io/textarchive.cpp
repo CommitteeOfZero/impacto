@@ -80,9 +80,19 @@ IoError TextArchive::Create(Stream* stream, VfsArchive** outArchive) {
     goto fail;
   }
 
-  content.resize(stream->Meta.Size);
-  size = stream->Read(&content[0], stream->Meta.Size);
-  content.resize(size);
+  if (Io::ReadU8(stream) == 0xEF && Io::ReadU8(stream) == 0xBB &&
+      Io::ReadU8(stream) == 0xBF) {
+    // UTF-8 BOM
+    content.resize(stream->Meta.Size - 3);
+    size = stream->Read(&content[0], stream->Meta.Size - 3);
+    content.resize(size);
+  } else {
+    stream->Seek(0, IoSeek::Set);
+    content.resize(stream->Meta.Size);
+    size = stream->Read(&content[0], stream->Meta.Size);
+    content.resize(size);
+  }
+
   maxFileCount = std::count(content.begin(), content.end(), '\n') + 1;
 
   result = new TextArchive;
@@ -126,13 +136,16 @@ IoError TextArchive::Create(Stream* stream, VfsArchive** outArchive) {
       result->TOC[lineId].FullPath = basePath + line;
 
     } else if (type == MLP) {
+      // fullPath
       // fullPath,id
       size_t firstColLength = line.find(',');
       if (firstColLength == std::string::npos ||
-          firstColLength == line.length() - 1)
-        continue;
+          firstColLength == line.length() - 1) {
+        id = lineId;
+      } else {
+        id = std::atoi(&line[firstColLength + 1]);
+      }
       std::string fullPath = line.substr(0, firstColLength);
-      id = std::atoi(&line[firstColLength + 1]);
       size_t fileNameStart = fullPath.rfind('/') + 1;
       size_t fileNameStart2 = fullPath.rfind('\\') + 1;
       if (fileNameStart2 > fileNameStart) fileNameStart = fileNameStart2;

@@ -1,0 +1,15 @@
+root.HelpMenu = {
+    DrawType = DrawComponentType.SystemMenu,
+    Type = HelpMenuType.CCLCC,
+    FadeInDuration = 32/60,
+    FadeOutDuration = 32/60,
+    NextPageInDuration = 0.4,
+    NextPageOutDuration = 0.4,
+    ManualPages = {},
+}
+
+root.Sprites["ManualPage0"] ={
+        Sheet = "Help",
+        Bounds = { X = 0, Y = 0, Width = 1920, Height = 1080 }
+};
+root.HelpMenu.ManualPages[#root.HelpMenu.ManualPages + 1] = "ManualPage0";

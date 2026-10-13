@@ -18,6 +18,7 @@
 #include "opcodetables_cc.h"
 #include "opcodetables_sgps3.h"
 #include "opcodetables_chn.h"
+#include "opcodetables_lccswitch.h"
 #include "../profile/game.h"
 #include "../profile/vm.h"
 #include "../profile/scriptinput.h"
@@ -51,6 +52,9 @@ static const InstructionProc* OpcodeTableSystem;
 static const InstructionProc* OpcodeTableUser1;
 static const InstructionProc* OpcodeTableGraph;
 static const InstructionProc* OpcodeTableGraph3D;
+
+// Present in newer engine versions
+static const InstructionProc* OpcodeTableTitleOnly = nullptr;
 
 static void CreateThreadExecTable();
 static void SortThreadExecTable();
@@ -131,6 +135,14 @@ void Init() {
       OpcodeTableUser1 = OpcodeTableUser1_CHN;
       break;
     }
+    case InstructionSet::LCCSwitch: {
+      OpcodeTableSystem = OpcodeTableSystem_LCCSwitch;
+      OpcodeTableGraph = OpcodeTableGraph_LCCSwitch;
+      OpcodeTableUser1 = OpcodeTableUser1_LCCSwitch;
+      OpcodeTableTitleOnly = OpcodeTableTitleOnly_LCCSwitch;
+
+      break;
+    }
     default: {
       ImpLog(LogLevel::Fatal, LogChannel::VM, "Unsupported instruction set\n");
       Window->Shutdown();
@@ -139,13 +151,13 @@ void Init() {
   }
 
   for (int i = 0; i < MaxThreads - 1; i++) {
-    memset(&ThreadPool[i], 0, sizeof(Sc3VmThread));
+    ThreadPool[i] = {};
     ThreadPool[i].NextFreeContext = &ThreadPool[i + 1];
     ThreadPool[i].Id = i;
   }
 
   NextFreeThreadCtx = ThreadPool;
-  memset(&ThreadPool[MaxThreads - 1], 0, sizeof(Sc3VmThread));
+  ThreadPool[MaxThreads - 1] = {};
   ThreadPool[MaxThreads - 1].Id = MaxThreads - 1;
 
   for (int i = 0; i < MaxThreadGroups; i++) {
@@ -385,7 +397,7 @@ void DestroyThread(Sc3VmThread* thread) {
   }
   --ThreadGroupCount[thread->GroupId];
   int id = thread->Id;
-  memset(thread, 0, sizeof(Sc3VmThread));
+  *thread = Sc3VmThread{};
   thread->Id = id;
   thread->NextFreeContext = NextFreeThreadCtx;
   NextFreeThreadCtx = thread;
@@ -489,10 +501,13 @@ void RunThread(Sc3VmThread* thread, float dt) {
       opcodeGrp1 = opcodeGrp & 0x7F;
 
       ImpLog(LogLevel::Trace, LogChannel::VM,
-             "Address: {:#0x} Opcode: {:02x}:{:02x} ScriptBuffer: {:d}\n",
-             scriptIp, opcodeGrp1, opcode, thread->ScriptBufferId);
+             "Address: {:#0x} TID: {:d} Opcode: {:02x}:{:02x} ScriptBuffer: "
+             "{:d}\n",
+             scriptIp, thread->Id, opcodeGrp1, opcode, thread->ScriptBufferId);
 
-      if (opcodeGrp1 == 0x10) {
+      if (opcodeGrp1 == 0x20) {
+        OpcodeTableTitleOnly[opcode](thread, dt);
+      } else if (opcodeGrp1 == 0x10) {
         OpcodeTableUser1[opcode](thread, dt);
       } else if (opcodeGrp1 == 0x02) {
         OpcodeTableGraph3D[opcode](thread, dt);
@@ -568,19 +583,21 @@ uint32_t ScriptGetStrAddress(uint32_t scriptBufferId, uint32_t mesNum) {
 BufferOffsetContext ScriptGetTextTableStrAddress(uint32_t textTableId,
                                                  uint32_t strNum) {
   uint32_t scriptBufferId = TextTable[textTableId].scriptBufferId;
-  uint32_t stringTableAdrRel =
-      SDL_Swap32LE(UnalignedRead<uint32_t>(&ScriptBuffers[scriptBufferId][4]));
-  uint8_t* stringTableAdr =
-      (uint8_t*)&ScriptBuffers[scriptBufferId][stringTableAdrRel];
 
   auto [textScrBufId, labelOffset] = TextTable[textTableId];
   uint8_t* textTable = &ScriptBuffers[textScrBufId][labelOffset];
-  uint16_t mesNum =
-      UnalignedRead<uint16_t>(&textTable[strNum * sizeof(uint16_t)]);
+  uint32_t mesNum;
+  if (Profile::Vm::StringIdSize == 4) {
+    mesNum = UnalignedRead<uint32_t>(&textTable[strNum * sizeof(uint32_t)]);
+  } else {
+    mesNum = UnalignedRead<uint16_t>(&textTable[strNum * sizeof(uint16_t)]);
+  }
+  uint32_t stringAdrRel = Profile::Vm::UseMsbStrings
+                              ? MsbGetStrAddress(scriptBufferId, mesNum)
+                              : ScriptGetStrAddress(scriptBufferId, mesNum);
 
-  uint32_t stringAdrRel = SDL_Swap32LE(
-      UnalignedRead<uint32_t>(&stringTableAdr[mesNum * sizeof(uint32_t)]));
-  return {scriptBufferId, stringAdrRel};
+  return {Profile::Vm::UseMsbStrings ? MsbBuffers : ScriptBuffers,
+          scriptBufferId, stringAdrRel};
 }
 
 uint32_t ScriptGetRetAddress(uint32_t scriptBufferId, uint32_t retNum) {

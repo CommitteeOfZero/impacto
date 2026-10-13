@@ -88,7 +88,7 @@ void SaveEntryButton::AddSceneTitleText(Vm::BufferOffsetContext strAdr,
                                         glm::vec2 relativeTitlePosition,
                                         int colorIndex) {
   Vm::Sc3VmThread dummy{};
-  dummy.ScriptBufferId = strAdr.ScriptBufferId;
+  dummy.ScriptBufferId = strAdr.BufferId;
   dummy.IpOffset = strAdr.IpOffset;
   std::vector<ProcessedTextGlyph> text =
       TextLayoutPlainLine(&dummy, 255, *Profile::Dialogue::DialogueFont,

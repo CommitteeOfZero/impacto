@@ -358,6 +358,9 @@ void Character2D::UpdateState(const int chaId) {
     Tint.a *= ScrWork[SW_CHA1FADECT + structOffset] / 256.0f;
   }
 
+  // clamping alpha cause engine does and scripts can send garbage
+  Tint.a = std::clamp(Tint.a, 0.0f, 1.0f);
+
   Face = ScrWork[SW_CHA1FACE + structOffset] << 16;
 
   if (ScrWork[SW_CHA1ANIME_EYE + structOffset] == 0xFF) {

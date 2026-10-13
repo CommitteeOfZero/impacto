@@ -517,7 +517,8 @@ VmInstruction(InstMapSystem) {
     case 0xA: {
       PopExpression(arg1);
       PopExpression(arg2);
-      inst.MapGetPos(arg1, arg2, ScrWork[6365], ScrWork[6366]);
+      inst.MapGetPos(arg1, arg2, ScrWork[SW_MAP_DST_POS_X],
+                     ScrWork[SW_MAP_DST_POS_Y]);
 
     } break;
     case 0xB: {
@@ -597,8 +598,8 @@ VmInstruction(InstMapSystem) {
           LogLevel::Warning, LogChannel::VMStub,
           "STUB instruction MapZoomInit(arg1: {:d}, arg2: {:d}, arg3: {:d})\n",
           arg1, arg2, arg3);
-      if (arg1 != ScrWork[6363] || arg2 != ScrWork[6364] ||
-          arg3 != ScrWork[6362]) {
+      if (arg1 != ScrWork[SW_MAP_POS_X] || arg2 != ScrWork[SW_MAP_POS_Y] ||
+          arg3 != ScrWork[SW_MAP_ZOOM]) {
         inst.MapZoomInit(arg1, arg2, arg3);
       } else {
         thread->IpOffset += 3;
@@ -620,8 +621,8 @@ VmInstruction(InstMapSystem) {
           LogLevel::Warning, LogChannel::VMStub,
           "STUB instruction MapZoomInit2(arg1: {:d}, arg2: {:d}, arg3: {:d})\n",
           arg1, arg2, arg3);
-      if (arg1 != ScrWork[6363] || arg2 != ScrWork[6364] ||
-          arg3 != ScrWork[6362]) {
+      if (arg1 != ScrWork[SW_MAP_POS_X] || arg2 != ScrWork[SW_MAP_POS_Y] ||
+          arg3 != ScrWork[SW_MAP_ZOOM]) {
         inst.MapZoomInit2(arg1, arg2);
       } else {
         thread->IpOffset += 3;
@@ -637,8 +638,8 @@ VmInstruction(InstMapSystem) {
       PopExpression(arg1);
       PopExpression(arg2);
       PopExpression(arg3);
-      if (arg1 != ScrWork[6363] || arg2 != ScrWork[6364] ||
-          arg3 != ScrWork[6362]) {
+      if (arg1 != ScrWork[SW_MAP_POS_X] || arg2 != ScrWork[SW_MAP_POS_Y] ||
+          arg3 != ScrWork[SW_MAP_ZOOM]) {
         if (!inst.MapZoomInit3(arg1, arg2, arg3)) {
           thread->IpOffset += 3;
         }
@@ -650,8 +651,8 @@ VmInstruction(InstMapSystem) {
       PopExpression(arg1);
       PopExpression(arg2);
       PopExpression(arg3);
-      if (arg1 != ScrWork[6363] || arg2 != ScrWork[6364] ||
-          arg3 != ScrWork[6362]) {
+      if (arg1 != ScrWork[SW_MAP_POS_X] || arg2 != ScrWork[SW_MAP_POS_Y] ||
+          arg3 != ScrWork[SW_MAP_ZOOM]) {
         if (!inst.MapMoveAnimeInit2(arg1, arg2, arg3)) {
           thread->IpOffset += 3;
         }
@@ -1423,7 +1424,7 @@ VmInstruction(InstMtrg) {
         SetFlag(SF_MOVIELOADPLAYFL, 0);
         ScrWork[SW_MOVIE_PLAYNO] = 0xffff;
         ScrWork[SW_MOVIE_LOADNO] = 0xffff;
-        ScrWork[6344] = 0;
+        ScrWork[SW_MOVIE_SHADER] = 0;
         return;
       }
       if (GetFlag(SF_MESALLSKIP)) {
@@ -1435,7 +1436,7 @@ VmInstruction(InstMtrg) {
         SetFlag(SF_MOVIELOADPLAYFL, 0);
         ScrWork[SW_MOVIE_PLAYNO] = 0xffff;
         ScrWork[SW_MOVIE_LOADNO] = 0xffff;
-        ScrWork[6344] = 0;
+        ScrWork[SW_MOVIE_SHADER] = 0;
         return;
       }
     } break;
@@ -1465,6 +1466,42 @@ VmInstruction(InstMtrg) {
   }
   ResetInstruction;
   BlockThread;
+}
+
+VmInstruction(InstUnk2010CCLCC) {
+  StartInstruction;
+  PopUint8(type);
+  if ((type | 0x20) == 0x20) {
+    PopExpression(arg1);
+  }
+
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction Unk2010CCLCC(type: {:d})\n", type);
+}
+
+VmInstruction(InstUnk2011CCLCC) {
+  StartInstruction;
+  PopUint8(type);
+  if (type != 0) {
+    return;
+  }
+
+  // Show shop app info?
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction Unk2011CCLCC(type: {:d})\n", type);
+}
+
+VmInstruction(InstUnk2012CCLCC) {
+  StartInstruction;
+  PopUint8(_);
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction Unk2012CCLCC()\n");
+}
+
+// on switch calls PushOpenUsers and ExecuteProgram, probably platform specific
+VmInstruction(InstLaunchApp) {
+  StartInstruction;
+  PopExpression(appId);
 }
 
 }  // namespace Vm

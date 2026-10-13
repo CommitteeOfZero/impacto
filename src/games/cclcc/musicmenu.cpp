@@ -8,6 +8,7 @@
 #include "../../inputsystem.h"
 #include "../../text/text.h"
 #include "../../profile/dialogue.h"
+#include "../../profile/vm.h"
 #include "../../data/savesystem.h"
 #include "../../audio/audiosystem.h"
 
@@ -40,7 +41,9 @@ MusicTrackButton::MusicTrackButton(int id, int position, glm::vec2 pos)
   auto const lockedSc3Text = Vm::ScriptGetTextTableStrAddress(
       MusicStringTableId, MusicStringLockedIndex);
   Vm::Sc3VmThread dummy;
-  dummy.SetIp(lockedSc3Text);
+  dummy.UseMSBBuffers = Profile::Vm::UseMsbStrings;
+  dummy.IpOffset = lockedSc3Text.IpOffset;
+  dummy.ScriptBufferId = lockedSc3Text.BufferId;
   TextLayoutPlainLine(&dummy, LockedText, *Profile::Dialogue::DialogueFont,
                       MusicTrackNameSize,
                       {MusicButtonTextColor, MusicButtonTextOutlineColor}, 1.0f,
@@ -165,6 +168,14 @@ void MusicMenu::Show() {
 }
 
 void MusicMenu::Init() {
+  switch (Profile::Vm::GameInstructionSet) {
+    case Vm::InstructionSet::LCCSwitch: {
+      ScrWork[SW_SYSSUBMENUCTMAX] = 32;
+    } break;
+    default: {
+    }
+  }
+
   const auto musicOnclick = [this](Widgets::Button* target) {
     auto* musicBtn = static_cast<MusicTrackButton*>(target);
     if (musicBtn->IsLocked) {

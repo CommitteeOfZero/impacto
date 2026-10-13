@@ -26,7 +26,7 @@ class TipsEntryButton : public Widgets::Button {
 
  private:
   std::array<ProcessedTextGlyph, 4> TipNumber;
-  std::array<ProcessedTextGlyph, 5> TipLockedText;
+  std::vector<ProcessedTextGlyph> TipLockedText;
   bool PrevUnreadState;
   bool IsNewState;
 };

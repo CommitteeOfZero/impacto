@@ -102,7 +102,7 @@ void BacklogMenu::Render() {
   MainScrollbar.Render();
 
   if (ScrWork[SW_SYSSUBMENUNO] == 1) {
-    CommonMenu::DrawOverlay();
+    CommonMenu::DrawOverlay(OpenedAsDirect ? opacity : 1.0f);
     if (GetFlag(SF_TITLEMODE)) {
       CommonMenu::DrawSmoke(Profile::CCLCC::SystemMenu::SmokeOpacityNormal *
                             (1.0f - FadeAnimation.Progress));

@@ -61,9 +61,10 @@ void TipsNotification::Update(const float dt) {
       !NotificationQueue.empty()) {
     // Start display animation
     const auto tipNameAdr = NotificationQueue.front();
-    const auto tipsScrBufId = TipsSystem::GetTipsScriptBufferId();
+    const auto [buffers, tipsScrBufId] = TipsSystem::GetTipsScriptBufferCtx();
     TipName.SetText(
-        Vm::BufferOffsetContext{.ScriptBufferId = tipsScrBufId,
+        Vm::BufferOffsetContext{.Buffers = buffers,
+                                .BufferId = tipsScrBufId,
                                 .IpOffset = tipNameAdr},
         TextStartPosition + glm::vec2(TextPartBefore.Bounds.Width, 0.0f),
         TextFontSize, RendererOutlineMode::BottomRight,
