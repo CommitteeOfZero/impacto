@@ -252,6 +252,7 @@ AlbumMenu::AlbumMenu() : LibrarySubmenu() {
 }
 
 void AlbumMenu::Init() {
+  CurrentlyFocusedElement = nullptr;
   MainItems.Clear();
   ThumbnailPages.clear();
   int i = 0;

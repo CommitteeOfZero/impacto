@@ -185,6 +185,7 @@ void MusicMenu::Init() {
   // Small indie company please understand
   SaveSystem::SetBgmFlag(101, true);
   SaveSystem::SetBgmFlag(131, true);
+  CurrentlyFocusedElement = nullptr;
   MainItems.Clear();
   for (size_t pos = 1; pos <= MusicPlayIds.size(); ++pos) {
     const size_t i = (pos + MusicPlayIds.size() - 1) % MusicPlayIds.size();
