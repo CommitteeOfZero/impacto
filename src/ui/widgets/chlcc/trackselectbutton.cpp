@@ -14,8 +14,8 @@ TrackSelectButton::TrackSelectButton(int id, Sprite const& focused,
                                      glm::vec2 artistOffset)
     : Button(id, Sprite(), focused, Sprite(), pos),
       TrackNumPos(pos + numOffset),
-      TrackTextPos(pos + trackOffset),
-      ArtistTextPos(pos + artistOffset) {
+      TrackTextOffset(trackOffset),
+      ArtistTextOffset(artistOffset) {
   const std::string label = fmt::sprintf("%02d", id + 1);
   TrackNum = Label(label, TrackNumPos, 20, RendererOutlineMode::None, 0);
   HasText = true;
@@ -24,11 +24,13 @@ TrackSelectButton::TrackSelectButton(int id, Sprite const& focused,
 }
 
 void TrackSelectButton::SetTrackText(Vm::BufferOffsetContext strAdr) {
-  TrackName = Label(strAdr, TrackTextPos, 20, RendererOutlineMode::None, 0);
+  TrackName = Label(strAdr, Bounds.GetPos() + TrackTextOffset, 20,
+                    RendererOutlineMode::None, 0);
 }
 
 void TrackSelectButton::SetArtistText(Vm::BufferOffsetContext strAdr) {
-  Artist = Label(strAdr, ArtistTextPos, 20, RendererOutlineMode::None, 0);
+  Artist = Label(strAdr, Bounds.GetPos() + ArtistTextOffset, 20,
+                 RendererOutlineMode::None, 0);
 }
 
 void TrackSelectButton::Render() {

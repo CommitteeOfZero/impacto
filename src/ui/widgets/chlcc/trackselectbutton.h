@@ -25,10 +25,10 @@ class TrackSelectButton final : public Button {
   glm::vec2 TrackNumPos;
 
   Label TrackName;
-  glm::vec2 TrackTextPos;
+  glm::vec2 TrackTextOffset;
 
   Label Artist;
-  glm::vec2 ArtistTextPos;
+  glm::vec2 ArtistTextOffset;
 };
 }  // namespace CHLCC
 }  // namespace Widgets
