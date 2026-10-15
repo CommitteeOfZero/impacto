@@ -14,15 +14,6 @@ namespace Impacto {
 namespace CHLCC {
 
 IntroSequence::IntroSequence() {
-  const RectF viewport = Window->GetViewport();
-  Texture fallingStarsMaskTexture{};
-  fallingStarsMaskTexture.LoadSolidColor(static_cast<int>(viewport.Width),
-                                         static_cast<int>(viewport.Height), 0);
-  SpriteSheet fallingStarsMaskSheet(viewport.Width, viewport.Height);
-  fallingStarsMaskSheet.Texture = fallingStarsMaskTexture.Submit();
-  FallingStarsMask =
-      Sprite(fallingStarsMaskSheet, 0, 0, viewport.Width, viewport.Height);
-
   // Randomize falling stars
   for (size_t i = 0; i < FallingStarSeeds.size(); i++) {
     auto& [origin, angle] = FallingStarSeeds[i];
@@ -122,22 +113,22 @@ void IntroSequence::Render() {
   } else if (FallingStarsAnimation.State == AnimationState::Playing) {
     // Make sure the mask is the only thing in the color buffer
     Renderer->Clear(glm::vec4(0.0f));
-    Renderer->DrawSprite(FallingStarsMask,
-                         RectF{0.0f, 0.0f, DesignWidth, DesignHeight});
+    Renderer->DrawSprite(
+        {*FallingStarsMask, RectF{0.0f, 0.0f, DesignWidth, DesignHeight}});
 
     // Draw the stars over the mask
     // effectively obtaining the union
     DrawFallingStars();
 
     // Update the mask by rendering to the texture
-    Renderer->CaptureScreencap(FallingStarsMask);
+    Renderer->CaptureScreenCap(FallingStarsMask);
 
     // Draw the original background
     // this will be visible through the holes in the mask
     DrawBackground();
 
     // Draw the new background with the mask
-    Renderer->DrawMaskedSprite({BackgroundSprite, FallingStarsMask,
+    Renderer->DrawMaskedSprite({BackgroundSprite, *FallingStarsMask,
                                 RectF{0.0f, 0.0f, DesignWidth, DesignHeight}},
                                {.Alpha = 255.0f, .FadeRange = 256.0f});
 
@@ -199,15 +190,16 @@ void IntroSequence::DrawBackground() const {
 
   Renderer->SetBlendMode(BlendModeType::Normal);
 
-  Renderer->CaptureScreencap(ShaderScreencapture.BgSprite);
+  Renderer->CaptureScreenCap(ShaderScreencapture.CaptureTexture);
 
   // Cross-fade from black
   Renderer->DrawQuad(RectF{0.0f, 0.0f, DesignWidth, DesignHeight},
                      {0.0f, 0.0f, 0.0f, 1.0f});
 
   const float scale = 4 / (progress * 3 + 1);
-  RectF dest = ShaderScreencapture.BgSprite.ScaledBounds().Scale(
-      glm::vec2(scale), glm::vec2(0.0f));
+  const RectF dest =
+      RectF{0.0f, 0.0f, Profile::Game::DesignWidth, Profile::Game::DesignHeight}
+          .Scale(glm::vec2(scale), glm::vec2(0.0f));
 
   Renderer->DrawSprite(ShaderScreencapture.BgSprite, dest,
                        {1.0f, 1.0f, 1.0f, progress});

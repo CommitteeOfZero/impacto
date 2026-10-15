@@ -134,7 +134,7 @@ class Renderer final : public BaseRenderer {
                                  const SoftLightMaskedSpriteConfig& config,
                                  const StateConfig& stateConfig) override;
 
-  void CaptureScreencap(Sprite& sprite) override {}
+  void CaptureScreenCap(Impacto::MutableTextureRef& texture) override;
 
   void SetFramebuffer(size_t buffer) override {}
   TextureRef GetFramebufferTexture(size_t buffer) override {

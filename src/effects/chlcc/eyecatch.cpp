@@ -14,18 +14,6 @@ namespace Impacto {
 namespace UI {
 namespace CHLCC {
 
-EyecatchEffect::EyecatchEffect() {
-  Texture textureStarsMask{};
-  textureStarsMask.LoadSolidColor(static_cast<int>(Profile::Game::DesignWidth),
-                                  static_cast<int>(Profile::Game::DesignHeight),
-                                  0);
-  SpriteSheet sheetStarsMask(Profile::Game::DesignWidth,
-                             Profile::Game::DesignHeight);
-  sheetStarsMask.Texture = textureStarsMask.Submit();
-  StarsMask = Sprite(sheetStarsMask, 0, 0, Profile::Game::DesignWidth,
-                     Profile::Game::DesignHeight);
-}
-
 void EyecatchEffect::RenderMain() {
   if (!ScrWork[SW_EYECATCH_COUNT]) return;
   Renderer->Clear(glm::vec4(0.0f));
@@ -50,7 +38,7 @@ void EyecatchEffect::RenderMain() {
       scaleOffset += 2;
     }
   }
-  Renderer->CaptureScreencap(StarsMask);
+  Renderer->CaptureScreenCap(StarsMask);
 }
 
 void EyecatchEffect::RenderLayer(int layer) {
@@ -60,8 +48,8 @@ void EyecatchEffect::RenderLayer(int layer) {
     if (ScrWork[SW_EYECATCH_COUNT] < 64) {
       Renderer->Clear(glm::vec4(0.0f));
       Renderer->DrawMaskedSprite(
-          {Backgrounds2D[ScrWork[SW_BG1SURF + childBufId]]->BgSprite, StarsMask,
-           glm::vec2(0.0f)},
+          {Backgrounds2D[ScrWork[SW_BG1SURF + childBufId]]->BgSprite,
+           *StarsMask, glm::vec2(0.0f)},
           {.Alpha = 255.0f, .FadeRange = 256.0f});
 
     } else {

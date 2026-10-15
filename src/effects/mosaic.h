@@ -7,14 +7,10 @@ namespace Effects {
 
 class MosaicEffect {
  public:
-  MosaicEffect();
-
-  void Init();
-
   void Render(float tileSize);
 
  private:
-  Sprite CaptureSprite;
+  MutableTextureRef CaptureTexture;
 };
 
 inline MosaicEffect Mosaic;

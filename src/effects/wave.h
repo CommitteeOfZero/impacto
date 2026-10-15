@@ -53,7 +53,7 @@ class BGWave : public Wave {
 
 class EFFWave : public BGWave {
  public:
-  void Render(const Sprite& sprite);
+  void Render(const TextureInterface& sprite);
 };
 
 class CHAWave : public Wave {

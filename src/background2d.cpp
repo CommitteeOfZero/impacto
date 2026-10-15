@@ -555,19 +555,6 @@ void Background2D::RenderBgEff(const int layer) {
     return;
   }
 
-  static Sprite frameSprite{};
-  if (!frameSprite.Sheet.Texture.IsValid()) {
-    Texture frameTexture{};
-    const RectF viewport = Window->GetViewport();
-    frameTexture.LoadSolidColor(static_cast<int>(viewport.Width),
-                                static_cast<int>(viewport.Height), 0x00000000);
-    frameSprite.Sheet.Texture = frameTexture.Submit();
-    frameSprite.Bounds.SetSize(viewport.GetSize());
-    frameSprite.BaseScale = {Profile::Game::DesignWidth / viewport.Width,
-                             Profile::Game::DesignHeight / viewport.Height};
-    // I am aware this leaks a texture at shutdown
-  }
-
   using enum BgEffTypeEnum;
   const std::array<VertexBufferSprites, 4> vertices{
       VertexBufferSprites{
@@ -657,8 +644,8 @@ void Background2D::RenderBgEff(const int layer) {
       return table;
     }();
 
-    Renderer->CaptureScreencap(frameSprite);
-    shaderTable[bgEff->Shader]({frameSprite.Sheet, bgEff->BgEffSprite.Sheet,
+    MutableTextureRef frameTexture = Renderer->CaptureScreenCap();
+    shaderTable[bgEff->Shader]({*frameTexture, bgEff->BgEffSprite.Sheet,
                                 vertices, indices, TopologyMode::Triangles});
   }
 

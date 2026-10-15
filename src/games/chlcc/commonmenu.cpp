@@ -221,9 +221,9 @@ void CommonMenu::UpdateTitles(glm::vec2 rightTitlepos, glm::vec2 leftTitlePos,
 }
 
 void CommonMenu::DrawBackgroundFilter() {
-  Renderer->CaptureScreencap(ShaderScreencapture.BgSprite);
+  Renderer->CaptureScreenCap(ShaderScreencapture.CaptureTexture);
   Renderer->DrawCHLCCMenuBackground(
-      {ShaderScreencapture.BgSprite, BackgroundFilter,
+      {*ShaderScreencapture.CaptureTexture, BackgroundFilter,
        RectF(0.0f, 0.0f, Profile::Game::DesignWidth,
              Profile::Game::DesignHeight),
        glm::mat4(1.0f), glm::mat4(1.0f),

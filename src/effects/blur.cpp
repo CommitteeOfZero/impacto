@@ -11,21 +11,6 @@ namespace Effects {
 
 using namespace Impacto::Profile::ScriptVars;
 
-BlurEffect::BlurEffect()
-    : BlurSprite(
-          SpriteSheet(Profile::Game::DesignWidth, Profile::Game::DesignHeight),
-          0.0f, 0.0f, Profile::Game::DesignWidth, Profile::Game::DesignHeight) {
-}
-
-void BlurEffect::Init() {
-  if (BlurSprite.Sheet.Texture.IsValid()) return;
-
-  Texture texture{};
-  texture.LoadSolidColor(static_cast<int>(Profile::Game::DesignWidth),
-                         static_cast<int>(Profile::Game::DesignHeight), 0);
-  BlurSprite.Sheet.Texture = texture.Submit();
-}
-
 void BlurEffect::Render(int iterations) {
   if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::CHLCC) {
     iterations = std::min(iterations / 2, 8);
@@ -38,10 +23,10 @@ void BlurEffect::Render(int iterations) {
                                           ? RendererBlurDirection::Vertical
                                           : RendererBlurDirection::Horizontal;
 
-    Renderer->CaptureScreencap(BlurSprite);
+    Renderer->CaptureScreenCap(BlurSprite);
     Renderer->DrawBlurredSprite(
-        {BlurSprite, RectF{0.0f, 0.0f, Profile::Game::DesignWidth,
-                           Profile::Game::DesignHeight}},
+        {*BlurSprite, RectF{0.0f, 0.0f, Profile::Game::DesignWidth,
+                            Profile::Game::DesignHeight}},
         {.BlurDirection = direction});
   }
 }

@@ -44,7 +44,7 @@ class IntroSequence {
   void DrawSeira() const;
 
   std::array<std::pair<glm::vec2, float>, 20> FallingStarSeeds;
-  Sprite FallingStarsMask;
+  MutableTextureRef FallingStarsMask;
 };
 
 }  // namespace CHLCC

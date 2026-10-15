@@ -163,10 +163,10 @@ void BGWave::CalcPos(int startPhase, std::optional<float> alpha) {
   }
 }
 
-void EFFWave::Render(const Sprite& mask) {
+void EFFWave::Render(const TextureInterface& mask) {
   PrimitiveData primitives = GetPrimitives();
-  Renderer->DrawSprite({mask.Sheet, primitives.Vertices, primitives.Indices,
-                        primitives.Topology});
+  Renderer->DrawSprite(
+      {mask, primitives.Vertices, primitives.Indices, primitives.Topology});
 }
 
 // TODO: Not implemented

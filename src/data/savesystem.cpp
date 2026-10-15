@@ -368,13 +368,13 @@ Sprite& GetSaveThumbnail(SaveType type, int id) {
   return dummy;
 }
 
-Sprite& GetWorkingSaveThumbnail() {
+MutableTextureRef& GetWorkingSaveThumbnail() {
   if (Implementation) return Implementation->GetWorkingSaveThumbnail();
   ImpLog(LogLevel::Warning, LogChannel::VMStub,
          "{:s}: save system not implemented, returning dummy sprite\n",
          __func__);
-  static Sprite dummy;
-  return dummy;
+  static MutableTextureRef nullTexture;
+  return nullTexture;
 }
 
 bool HasQSavedOnCurrentLine() {

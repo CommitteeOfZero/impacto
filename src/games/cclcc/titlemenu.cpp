@@ -289,15 +289,6 @@ TitleMenu::TitleMenu() {
   SecondaryFadeAnimation.DurationOut = SecondaryFadeOutDuration;
   SlideItemsAnimation.DurationIn = SlideItemsAnimationDurationIn;
   SlideItemsAnimation.DurationOut = SlideItemsAnimationDurationOut;
-
-  const RectF viewport = Window->GetViewport();
-  Texture pressToStartTransitionTexture;
-  pressToStartTransitionTexture.LoadSolidColor(
-      static_cast<int>(viewport.Width), static_cast<int>(viewport.Height), 0);
-  PressToStartTransitionCapture.Sheet.Texture =
-      pressToStartTransitionTexture.Submit();
-  PressToStartTransitionCapture.Sheet.DesignWidth = viewport.Width;
-  PressToStartTransitionCapture.Sheet.DesignHeight = viewport.Height;
 }
 
 void TitleMenu::Show() {
@@ -728,14 +719,14 @@ void TitleMenu::Render() {
         Renderer->DrawSprite(BackgroundSprite, {0.0f, 0.0f});
         PressToStartTransitionCaptureSet = true;
       } else {
-        Renderer->DrawSprite(PressToStartTransitionCapture, {0.0f, 0.0f});
+        Renderer->DrawSprite({*PressToStartTransitionCapture, {0.0f, 0.0f}});
       }
 
       Renderer->DrawSprite(MainBackgroundSprite, {0.0f, 0.0f},
                            {1.0f, 1.0f, 1.0f, TitleAnimation.Progress});
       TitleAnimationSprite.Render(-1);
 
-      Renderer->CaptureScreencap(PressToStartTransitionCapture);
+      Renderer->CaptureScreenCap(PressToStartTransitionCapture);
 
       if (renderOverlay) {
         CommonMenu::DrawOverlay();

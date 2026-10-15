@@ -165,8 +165,6 @@ void InitGameProfile() {
       Profile::WaveEffects::Load();
       Effects::Init();
     }
-
-    Effects::Blur.Init();
   }
 
   SetWindowIcon(Window->SDLWindow);
@@ -210,8 +208,6 @@ void InitGameProfile() {
     Vm::Interface::UpdatePADcustomType(0);
 
     SaveSystem::InitializeSystemData();
-
-    Effects::Mosaic.Init();
   }
 
   Profile::ClearProfile();
@@ -566,10 +562,10 @@ static void RenderMain() {
           if (isCC) {
             alpha = static_cast<uint32_t>(ScrWork[SW_EFF_WAVE_ALPHA]) / 256.0f;
           }
-          Renderer->CaptureScreencap(Screencaptures[0].BgSprite);
+          Renderer->CaptureScreenCap(Screencaptures[0].CaptureTexture);
           Screencaptures[0].Status = LoadStatus::Loaded;
           Effects::WaveEFF.CalcPos(0, alpha);
-          Effects::WaveEFF.Render(Screencaptures[0].BgSprite);
+          Effects::WaveEFF.Render(*Screencaptures[0].CaptureTexture);
         }
       }
     }
@@ -591,13 +587,13 @@ static void RenderMain() {
         continue;
       }
 
-      Renderer->CaptureScreencap(Screencaptures[capId].BgSprite);
+      Renderer->CaptureScreenCap(Screencaptures[capId].CaptureTexture);
       Screencaptures[capId].Status = LoadStatus::Loaded;
     }
 
     if (GetFlag(SF_MASK_CAPTURE) &&
         ScrWork[SW_MASK_CAPTURE_PRI] == static_cast<int>(layer)) {
-      Renderer->CaptureScreencap(MaskCapture.BgSprite);
+      Renderer->CaptureScreenCap(MaskCapture.CaptureTexture);
       MaskCapture.Status = LoadStatus::Loaded;
     }
   }
@@ -606,7 +602,7 @@ static void RenderMain() {
   Renderer->SetFramebuffer(0);
 
   if (SaveSystem::Implementation) {
-    Renderer->CaptureScreencap(SaveSystem::GetWorkingSaveThumbnail());
+    Renderer->CaptureScreenCap(SaveSystem::GetWorkingSaveThumbnail());
   }
 
   DateDisplay::Render();
@@ -666,7 +662,7 @@ void Render() {
                Profile::Vm::GameInstructionSet ==
                    Vm::InstructionSet::LCCSwitch) &&
               GetFlag(SF_SYSTEMMENUCAPTURE)) {
-            Renderer->CaptureScreencap(
+            Renderer->CaptureScreenCap(
                 static_cast<UI::CCLCC::SystemMenu*>(UI::SystemMenuPtr)
                     ->ScreenCap);
             SetFlag(SF_SYSTEMMENUCAPTURE, false);

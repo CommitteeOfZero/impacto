@@ -72,7 +72,7 @@ class TitleMenu : public Menu {
   bool InputLocked = false;
   bool PrevInputLocked = false;
 
-  Sprite PressToStartTransitionCapture;
+  MutableTextureRef PressToStartTransitionCapture;
   bool PressToStartTransitionCaptureSet = false;
 };
 

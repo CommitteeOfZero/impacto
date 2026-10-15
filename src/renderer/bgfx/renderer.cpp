@@ -456,6 +456,20 @@ void Renderer::Shutdown() {
 #endif
 }
 
+void Renderer::CaptureScreenCap(Impacto::MutableTextureRef& textureContainer) {
+  if (!textureContainer.IsValid() ||
+      textureContainer->GetDimensions() !=
+          static_cast<glm::vec<2, size_t>>(DrawFrameBuffer.GetSize())) {
+    // Texture needs to be (re)allocated, either because it doesn't exist or
+    // because the resolution changed
+    textureContainer =
+        DeclareMutableTexture(TexFmt::TexFmt_RGBA, DrawFrameBuffer.GetSize());
+  }
+
+  bgfx::blit(RENDER_VIEW, GetTexture(*textureContainer).GetTextureHandle(), 0,
+             0, DrawFrameBuffer.GetColorAttachmentHandle(), 0, 0);
+}
+
 void Renderer::Flush() {
   const bool empty = Indices.size() == CurFrameIndexBufferOffset;
   assert(empty == (Vertices.size() == CurFrameVertexBufferOffset));

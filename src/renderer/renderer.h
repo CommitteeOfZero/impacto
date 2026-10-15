@@ -334,7 +334,12 @@ class BaseRenderer {
           CreateDefault<SoftLightMaskedSpriteConfig>(),
       const StateConfig& stateConfig = CreateDefault<StateConfig>()) = 0;
 
-  virtual void CaptureScreencap(Sprite& sprite) = 0;
+  virtual void CaptureScreenCap(MutableTextureRef& texture) = 0;
+  MutableTextureRef CaptureScreenCap() {
+    MutableTextureRef texture{};
+    CaptureScreenCap(texture);
+    return texture;
+  }
 
   virtual void SetFramebuffer(size_t buffer) = 0;
   virtual TextureRef GetFramebufferTexture(size_t buffer) = 0;

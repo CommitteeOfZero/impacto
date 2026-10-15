@@ -145,7 +145,7 @@ class SaveSystemBase {
   std::optional<uint8_t> GetQuickSaveOpenSlot() const;
   int GetNewestSaveId(SaveType type) const;
   void UpdateQuickSaveRecentSortedId(int replacedSlot);
-  Sprite& GetWorkingSaveThumbnail() { return WorkingSaveThumbnail; }
+  MutableTextureRef& GetWorkingSaveThumbnail() { return WorkingSaveThumbnail; }
   int GetLockedQuickSaveCount() const;
   void SetLockedQuickSaveCount(int value);
   bool HasQSavedOnCurrentLine() const;
@@ -174,7 +174,7 @@ class SaveSystemBase {
     std::iota(tmp.begin(), tmp.end(), 0);
     return tmp;
   }();
-  Sprite WorkingSaveThumbnail;
+  MutableTextureRef WorkingSaveThumbnail;
   int LockedQuickSaveCount;
   bool QuickSavedOnCurrentLine;
 };
@@ -219,7 +219,7 @@ std::optional<uint8_t> GetQuickSaveOpenSlot();
 int GetNewestSaveId(SaveType type);
 void UpdateQuickSaveRecentSortedId(int replacedSlot);
 Sprite& GetSaveThumbnail(SaveType type, int id);
-Sprite& GetWorkingSaveThumbnail();
+MutableTextureRef& GetWorkingSaveThumbnail();
 bool HasQSavedOnCurrentLine();
 void SetQSavedOnCurrentLine(bool value);
 

@@ -41,14 +41,6 @@ void CommonMenu::Init() {
     animation.LoopMode = AnimationLoopMode::Loop;
     animation.StartIn();
   }
-
-  const RectF viewport = Window->GetViewport();
-  Texture captureTexture;
-  captureTexture.LoadSolidColor(static_cast<int>(viewport.Width),
-                                static_cast<int>(viewport.Height), 0x00000000);
-  CaptureSprite.Sheet.Texture = captureTexture.Submit();
-  CaptureSprite.Sheet.DesignWidth = viewport.Width;
-  CaptureSprite.Sheet.DesignHeight = viewport.Height;
 }
 
 void CommonMenu::InitSmokePos() {
@@ -80,8 +72,8 @@ void CommonMenu::DrawSmoke(const float alpha) {
 }
 
 void CommonMenu::DrawOverlay(const float alpha) {
-  Renderer->CaptureScreencap(CaptureSprite);
-  Renderer->DrawHardLightMaskedSprite({CaptureSprite.Sheet, OverlaySprite.Sheet,
+  Renderer->CaptureScreenCap(CaptureTexture);
+  Renderer->DrawHardLightMaskedSprite({*CaptureTexture, OverlaySprite.Sheet,
                                        glm::vec2(0.0f),
                                        glm::vec4(1.0f, 1.0f, 1.0f, alpha)});
 
@@ -176,7 +168,7 @@ void CommonMenu::TransformImage(CornersQuad const& sprCorners,
 
 template <bool IsSystem>
 void CommonMenu::DrawBgSprite(MenuState state, const Animation& fadeAnimation,
-                              std::optional<Sprite> screenCap) {
+                              std::optional<MutableTextureRef> screenCap) {
   glm::vec3 tint = {1.0f, 1.0f, 1.0f};
   // Alpha goes from 0 to 1 in half the time
   float alpha = glm::smoothstep(0.0f, 1.0f, fadeAnimation.Progress);
@@ -269,7 +261,7 @@ void CommonMenu::DrawBgSprite(MenuState state, const Animation& fadeAnimation,
       return TransformImageVertex(corner, transformation, BGTranslationOffset);
     });
     if (screenCap.has_value()) {
-      Renderer->DrawSprite(*screenCap, screenCapDisp, glm::vec4(1.0f),
+      Renderer->DrawSprite(**screenCap, screenCapDisp, glm::vec4(1.0f),
                            glm::vec3(0.0f), false, true);
     }
   }
