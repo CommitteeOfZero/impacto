@@ -78,10 +78,10 @@ using namespace Profile::ScriptVars;
 namespace Game {
 
 static bool UsesCCRenderingRules() {
-  return Profile::Vm::GameInstructionSet == Vm::InstructionSet::CC ||
-         (Profile::Vm::GameInstructionSet == Vm::InstructionSet::LCCSwitch &&
-          Profile::GameSpecific::GameSpecificType ==
-              UI::GameSpecificType::CCLCC);
+  return (Profile::GameSpecific::GameSpecificType ==
+          UI::GameSpecificType::CC) ||
+         (Profile::GameSpecific::GameSpecificType ==
+          UI::GameSpecificType::CCLCC);
 }
 
 void Init() {
@@ -378,8 +378,8 @@ void UpdateSystem(float dt) {
         if (IsBgWaveEffectActive()) {
           Effects::WaveBG.Update(updateInterval);
         }
-        const bool isCC = UsesCCRenderingRules();
-        if (GetFlag(SF_BGEFF1DISP) && (!isCC || ScrWork[SW_EFF_WAVE_ALPHA])) {
+        if (GetFlag(SF_BGEFF1DISP) &&
+            (!UsesCCRenderingRules() || ScrWork[SW_EFF_WAVE_ALPHA])) {
           Effects::WaveEFF.Update(updateInterval);
         }
       }
@@ -558,11 +558,11 @@ static void RenderMain() {
     }
 
     if (Profile::Game::UseWaveEffects) {
-      const bool isCC = UsesCCRenderingRules();
-      if (GetFlag(SF_BGEFF1DISP) && (!isCC || ScrWork[SW_EFF_WAVE_ALPHA])) {
+      if (GetFlag(SF_BGEFF1DISP) &&
+          (!UsesCCRenderingRules() || ScrWork[SW_EFF_WAVE_ALPHA])) {
         if (ScrWork[SW_EFF_WAVE_PRI] == static_cast<int>(layer)) {
           std::optional<float> alpha = std::nullopt;
-          if (isCC) {
+          if (UsesCCRenderingRules()) {
             alpha = static_cast<uint32_t>(ScrWork[SW_EFF_WAVE_ALPHA]) / 256.0f;
           }
           Renderer->CaptureScreencap(Screencaptures[0].BgSprite);
