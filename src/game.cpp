@@ -77,10 +77,10 @@ using namespace Profile::ScriptVars;
 namespace Game {
 
 static bool UsesCCRenderingRules() {
-  return Profile::Vm::GameInstructionSet == Vm::InstructionSet::CC ||
-         (Profile::Vm::GameInstructionSet == Vm::InstructionSet::LCCSwitch &&
-          Profile::GameSpecific::GameSpecificType ==
-              UI::GameSpecificType::CCLCC);
+  return (Profile::GameSpecific::GameSpecificType ==
+          UI::GameSpecificType::CC) ||
+         (Profile::GameSpecific::GameSpecificType ==
+          UI::GameSpecificType::CCLCC);
 }
 
 void Init() {
