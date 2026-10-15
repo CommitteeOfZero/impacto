@@ -3,6 +3,7 @@
 #include "../util.h"
 #include <deque>
 #include <mutex>
+#include <shared_mutex>
 #include <ranges>
 #include "vfsarchive.h"
 #include "memorystream.h"
