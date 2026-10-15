@@ -119,6 +119,8 @@ void DialoguePage::PlayLine() {
     if (audioStream) {
       Audio::Channels[Audio::AC_VOICE0]->Play(
           std::unique_ptr<Audio::AudioStream>(audioStream), false, 0.0f);
+    } else if (err == IoError_OK) {
+      delete stream;
     }
   }
 
