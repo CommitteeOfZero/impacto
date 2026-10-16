@@ -2,6 +2,7 @@
 
 #include "../../ui/ui.h"
 #include "../../spritesheet.h"
+#include "../../ui/buttonprompt.h"
 
 namespace Impacto {
 namespace Profile {
@@ -11,7 +12,7 @@ int constexpr MenuEntriesNumMax = 32;
 
 inline Impacto::UI::TitleMenuType Type = Impacto::UI::TitleMenuType::None;
 
-inline Sprite PressToStartSprite;
+inline ButtonPrompt PressToStartSprite;
 inline Sprite MenuEntriesSprites[MenuEntriesNumMax];
 inline Sprite MenuEntriesHSprites[MenuEntriesNumMax];
 

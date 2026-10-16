@@ -383,9 +383,9 @@ void OptionsMenu::Render() {
     }
   }
 
-  const Sprite& guideSprite =
+  const ButtonPrompt& guidePrompt =
       CurrentPage == +PageType::Voice ? VoiceGuideSprite : GuideSprite;
-  Renderer->DrawSprite(guideSprite, guidePosition, col);
+  UI::DrawButtonPrompt(guidePrompt, guidePosition, col);
 }
 
 void OptionsMenu::Select(OptionsEntry* toSelect) {

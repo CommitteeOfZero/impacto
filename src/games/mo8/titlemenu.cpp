@@ -289,7 +289,7 @@ void TitleMenu::Render() {
         if (PressToStartAnimated) {
           col.a = glm::smoothstep(0.0f, 1.0f, PressToStartAnimation.Progress);
         }
-        Renderer->DrawSprite(PressToStartSprite, PressToStartPos, col);
+        UI::DrawButtonPrompt(PressToStartSprite, PressToStartPos, col);
         glm::vec4 black = glm::vec4(0.0f);
         black.a = glm::smoothstep(0.0f, 1.0f, PrimaryFadeAnimation.Progress);
         Renderer->DrawQuad(RectF(0.0f, 0.0f, Profile::Game::DesignWidth,
@@ -301,7 +301,7 @@ void TitleMenu::Render() {
         col.a = glm::smoothstep(
             0.0f, 1.0f,
             ScrWork[SW_TITLEDISPCT] > 0 ? PrimaryFadeAnimation.Progress : 1.0f);
-        Renderer->DrawSprite(PressToStartSprite, PressToStartPos, col);
+        UI::DrawButtonPrompt(PressToStartSprite, PressToStartPos, col);
       } break;
       case 5:
       case 6:

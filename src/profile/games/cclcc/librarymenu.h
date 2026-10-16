@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../../spritesheet.h"
+#include "../../../ui/buttonprompt.h"
 #include <magic_enum/magic_enum.hpp>
 #include <magic_enum/magic_enum_containers.hpp>
 
@@ -114,10 +115,10 @@ inline Sprite MovieDiskExtraOpHighlight;
 inline int MovieDiskExtraOpPlayId;
 inline int LibraryMenuId;
 
-inline Sprite AlbumMenuGuideSprite;
-inline Sprite AlbumMenuCGViewerGuideSprite;
-inline Sprite MusicMenuGuideSprite;
-inline Sprite MovieMenuGuideSprite;
+inline ButtonPrompt AlbumMenuGuideSprite;
+inline ButtonPrompt AlbumMenuCGViewerGuideSprite;
+inline ButtonPrompt MusicMenuGuideSprite;
+inline ButtonPrompt MovieMenuGuideSprite;
 
 inline float FadeInDuration;
 inline float FadeOutDuration;

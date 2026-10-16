@@ -37,7 +37,7 @@ void Configure() {
   HighlightDurationOut = EnsureGetMember<float>("HighlightDurationOut");
 
   ButtonBackgroundSprite = EnsureGetMember<Sprite>("ButtonBackgroundSprite");
-  ButtonPromptsSprite = EnsureGetMember<Sprite>("ButtonPromptsSprite");
+  ButtonPromptsSprite = EnsureGetMember<ButtonPrompt>("ButtonPromptsSprite");
   ButtonBackgroundStartX = EnsureGetMember<float>("ButtonBackgroundStartX");
   ButtonBackgroundX = EnsureGetMember<float>("ButtonBackgroundX");
   ButtonBackgroundY = EnsureGetMember<float>("ButtonBackgroundY");

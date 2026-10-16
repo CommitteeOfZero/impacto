@@ -240,7 +240,7 @@ void MovieMenu::Update(float dt) {
 void MovieMenu::DrawButtonPrompt() {
   // If ExtraMovieMode is usable, change the button prompt to indicate the
   // PAD1Y action is available.
-  const Sprite finalButtonPromptSprite =
+  const ButtonPrompt& finalButtonPromptSprite =
       IsExtraMoviesPresent() ? MovieButtonExtraPrompt : ButtonPromptSprite;
   const glm::vec2 finalButtonPromptPosition =
       IsExtraMoviesPresent() ? MovieButtonExtraPromptPosition

@@ -11,6 +11,8 @@ void Configure() {
         TryGetMember<bool>("HasScriptedExitLogic").value_or(false);
     HasDelusionMouseSupport =
         TryGetMember<bool>("HasDelusionMouseSupport").value_or(false);
+    UniversalButtonIcons =
+        TryGetMember<bool>("UniversalButtonIcons").value_or(false);
     Pop();
   }
 }

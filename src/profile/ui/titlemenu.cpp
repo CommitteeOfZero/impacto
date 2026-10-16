@@ -30,7 +30,7 @@ void Configure() {
                              "MenuEntriesHighlightedSprites");
     }
 
-    PressToStartSprite = EnsureGetMember<Sprite>("PressToStartSprite");
+    PressToStartSprite = EnsureGetMember<ButtonPrompt>("PressToStartSprite");
 
     PressToStartAnimDurationIn =
         EnsureGetMember<float>("PressToStartAnimDurationIn");
