@@ -29,20 +29,59 @@ using namespace Impacto::Vm::Interface;
 
 using namespace Impacto::UI::Widgets::CHLCC;
 
-static TitleDispCtState ResolveTitleDispCtState() {
-  if (Profile::Vm::GameInstructionSet !=
-      Impacto::Vm::InstructionSet::LCCSwitch) {
-    return static_cast<TitleDispCtState>(ScrWork[SW_TITLEDISPCT]);
-  }
+enum class TitleDispCtState : uint8_t {
+  IntroAnimation,
+  PressStart,
+  EmptyBackground,
+  MainEntriesFading,
+  MainEntriesControl,
+  LoadSubEntriesFading,
+  LoadSubEntriesControl,
+  ExtraSubEntriesFading,
+  ExtraSubEntriesControl,
+  SystemSubEntriesFading,
+  SystemSubEntriesControl,
+  Unknown,
+};
 
-  switch (ScrWork[SW_TITLEMOVIECT]) {
-    case 0:
-      return TitleDispCtState::IntroAnimation;
-    case 2:
-      return TitleDispCtState::PressStart;
-    default:
-      return static_cast<TitleDispCtState>(0xff);
+static TitleDispCtState ResolveTitleDispCtState() {
+  if (Profile::Vm::GameInstructionSet ==
+      Impacto::Vm::InstructionSet::LCCSwitch) {
+    using namespace TitleMenuMode::Switch;
+    switch (ScrWork[SW_TITLEMOVIECT]) {
+      case Mode::IntroAnimation:
+        return TitleDispCtState::IntroAnimation;
+      case Mode::PressStart:
+        return TitleDispCtState::PressStart;
+    }
+  } else {
+    using namespace TitleMenuMode::PS3;
+    switch (static_cast<Mode>(ScrWork[SW_TITLEDISPCT])) {
+      case Mode::IntroAnimation:
+        return TitleDispCtState::IntroAnimation;
+      case Mode::PressStart:
+        return TitleDispCtState::PressStart;
+      case Mode::EmptyBackground:
+        return TitleDispCtState::EmptyBackground;
+      case Mode::MainEntriesFading:
+        return TitleDispCtState::MainEntriesFading;
+      case Mode::MainEntriesControl:
+        return TitleDispCtState::MainEntriesControl;
+      case Mode::LoadSubEntriesFading:
+        return TitleDispCtState::LoadSubEntriesFading;
+      case Mode::LoadSubEntriesControl:
+        return TitleDispCtState::LoadSubEntriesControl;
+      case Mode::ExtraSubEntriesFading:
+        return TitleDispCtState::ExtraSubEntriesFading;
+      case Mode::ExtraSubEntriesControl:
+        return TitleDispCtState::ExtraSubEntriesControl;
+      case Mode::SystemSubEntriesFading:
+        return TitleDispCtState::SystemSubEntriesFading;
+      case Mode::SystemSubEntriesControl:
+        return TitleDispCtState::SystemSubEntriesControl;
+    }
   }
+  return TitleDispCtState::Unknown;
 }
 
 void TitleMenu::MenuButtonOnClick(Widgets::Button* target) {
