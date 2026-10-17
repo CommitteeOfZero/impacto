@@ -839,7 +839,7 @@ void TitleMenu::DrawStartButton(const float alpha) {
   const float animationAlpha =
       glm::smoothstep(0.0f, 1.0f, PressToStartAnimation.Progress);
   const float clampedAlpha = std::max(0.0f, animationAlpha - (1.0f - alpha));
-  Renderer->DrawSprite(PressToStartSprite, PressToStartPos,
+  UI::DrawButtonPrompt(PressToStartSprite, PressToStartPos,
                        {1.0f, 1.0f, 1.0f, clampedAlpha});
 }
 

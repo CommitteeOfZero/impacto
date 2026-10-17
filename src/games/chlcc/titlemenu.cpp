@@ -491,7 +491,7 @@ void TitleMenu::Render() {
           DrawTitleMenuBackGraphics();
           glm::vec4 col = glm::vec4(1.0f);
           col.a = glm::smoothstep(0.0f, 1.0f, PressToStartAnimation.Progress);
-          Renderer->DrawSprite(PressToStartSprite, PressToStartPos, col);
+          UI::DrawButtonPrompt(PressToStartSprite, PressToStartPos, col);
         } break;
         case TitleDispCtState::EmptyBackground: {
           DrawTitleMenuBackGraphics();

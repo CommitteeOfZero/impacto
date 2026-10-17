@@ -117,6 +117,7 @@ set(Impacto_Src
     src/profile/ui/trophymenu.cpp
     src/profile/ui/helpmenu.cpp
     src/profile/ui/gamespecific.cpp
+    src/profile/ui/buttonprompticons.cpp
 
     src/profile/games/rne/tilebackground.cpp
     src/profile/games/rne/systemmenu.cpp
@@ -335,6 +336,7 @@ set(Impacto_Src
     src/ui/widgets/cclcc/tipsentrybutton.cpp
     src/ui/widgets/cclcc/tipstabgroup.cpp
     src/ui/gamespecific.cpp
+    src/ui/buttonprompt.cpp
 
     src/stbi_impl.c
 
@@ -494,6 +496,7 @@ set(Impacto_Header
     src/profile/ui/trophymenu.h
     src/profile/ui/helpmenu.h
     src/profile/ui/gamespecific.h
+    src/profile/ui/buttonprompticons.h
 
     src/profile/games/rne/tilebackground.h
     src/profile/games/rne/systemmenu.h
@@ -699,6 +702,7 @@ set(Impacto_Header
     src/ui/widgets/cclcc/optionsslider.h
     src/ui/widgets/cclcc/optionsvoiceslider.h
     src/ui/gamespecific.h
+    src/ui/buttonprompt.h
 
     src/renderer/3d/camera.h
     src/renderer/3d/model.h

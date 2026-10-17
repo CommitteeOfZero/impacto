@@ -17,6 +17,7 @@
 #include "../spritesheet.h"
 #include "../text/fonts/font.h"
 #include "../spriteanimation.h"
+#include "../ui/buttonprompt.h"
 
 namespace Impacto {
 namespace Profile {
@@ -549,6 +550,16 @@ struct TryGetImpl<bool> {
 template <>
 struct TryGetImpl<DialogueColorPair> {
   static std::optional<DialogueColorPair> Call();
+};
+
+template <>
+struct TryGetImpl<ButtonPromptIcon> {
+  static std::optional<ButtonPromptIcon> Call();
+};
+
+template <>
+struct TryGetImpl<ButtonPrompt> {
+  static std::optional<ButtonPrompt> Call();
 };
 
 template <>

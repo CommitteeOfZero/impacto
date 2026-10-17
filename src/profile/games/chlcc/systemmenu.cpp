@@ -54,7 +54,7 @@ void Configure() {
       EnsureGetMember<glm::vec2>("SystemMenuRunningSelectedLabelPosition");
   MenuRunningSelectedLabelAngle =
       EnsureGetMember<float>("SystemMenuRunningSelectedLabelAngle");
-  MenuButtonPrompt = EnsureGetMember<Sprite>("SystemMenuButtonPrompt");
+  MenuButtonPrompt = EnsureGetMember<ButtonPrompt>("SystemMenuButtonPrompt");
   MenuButtonPromptPosition =
       EnsureGetMember<glm::vec2>("SystemMenuButtonPromptPosition");
   SelectedLabelSpeed = EnsureGetMember<float>("MenuSelectedLabelSpeed");

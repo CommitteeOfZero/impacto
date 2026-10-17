@@ -180,11 +180,11 @@ void Configure() {
     LibraryMenuId = EnsureGetMember<int>("LibraryMenuId");
   }
 
-  AlbumMenuGuideSprite = EnsureGetMember<Sprite>("AlbumMenuGuideSprite");
+  AlbumMenuGuideSprite = EnsureGetMember<ButtonPrompt>("AlbumMenuGuideSprite");
   AlbumMenuCGViewerGuideSprite =
-      EnsureGetMember<Sprite>("AlbumMenuCGViewerGuideSprite");
-  MusicMenuGuideSprite = EnsureGetMember<Sprite>("MusicMenuGuideSprite");
-  MovieMenuGuideSprite = EnsureGetMember<Sprite>("MovieMenuGuideSprite");
+      EnsureGetMember<ButtonPrompt>("AlbumMenuCGViewerGuideSprite");
+  MusicMenuGuideSprite = EnsureGetMember<ButtonPrompt>("MusicMenuGuideSprite");
+  MovieMenuGuideSprite = EnsureGetMember<ButtonPrompt>("MovieMenuGuideSprite");
   GetAlbumTbl();
 
   UI::LibraryMenuPtr = new UI::CCLCC::LibraryMenu();

@@ -101,6 +101,36 @@ std::optional<RectF> TryGetImpl<RectF>::Call() {
   return std::nullopt;
 }
 
+std::optional<ButtonPromptIcon> TryGetImpl<ButtonPromptIcon>::Call() {
+  if (!lua_istable(LuaState, -1)) return std::nullopt;
+  ButtonPromptIcon icon;
+  if (TryGetMember("Button", icon.Button) &&
+      TryGetMember("X", icon.Position.x) &&
+      TryGetMember("Y", icon.Position.y)) {
+    return icon;
+  }
+  return std::nullopt;
+}
+
+std::optional<ButtonPrompt> TryGetImpl<ButtonPrompt>::Call() {
+  if (auto sprite = TryGet<Sprite>()) {
+    return ButtonPrompt{.PromptSprite = *sprite};
+  }
+  if (!lua_istable(LuaState, -1)) return std::nullopt;
+
+  auto sprite = TryGetMember<Sprite>("Sprite");
+  if (!sprite) {
+    ImpLog(LogLevel::Fatal, LogChannel::Profile,
+           "Missing button prompt Sprite\n");
+    return std::nullopt;
+  }
+  return ButtonPrompt{
+      .PromptSprite = *sprite,
+      .Icons = TryGetMember<std::vector<ButtonPromptIcon>>("Icons").value_or(
+          std::vector<ButtonPromptIcon>{}),
+  };
+}
+
 std::optional<DialogueColorPair> TryGetImpl<DialogueColorPair>::Call() {
   if (!lua_istable(LuaState, -1)) return std::nullopt;
   DialogueColorPair outColor;
