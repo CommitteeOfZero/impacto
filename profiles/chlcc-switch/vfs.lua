@@ -13,7 +13,12 @@ root.Vfs = {
                 Whitelist = ".*mes.*\\.msb"
             }
         },
-        ["movie"] = { data .. "/movie.mlp" },
+        ["movie"] = {
+            {
+                Path = data .. "/movie",
+                Order = data .. "/movie.cls"
+            }
+        },
         ["script"] = {
             {
                 Path = data .. "/script",
