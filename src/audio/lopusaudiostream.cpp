@@ -58,7 +58,7 @@ AudioStream* LopusAudioStream::Create(Stream* stream) {
     result->BaseStream->Seek(0x28, IoSeek::Cur);  // zeroes padding
   }
   // TODO: multistream info chunk, possible but vgstream comment says it's rare
-  if (Io::ReadLE<uint32_t>(result->BaseStream) != 0x80000005) {
+  if (Io::ReadLE<uint32_t>(result->BaseStream) == 0x80000005) {
     ImpLog(LogLevel::Debug, LogChannel::Audio,
            "Multistream info chunk encountered, but not handled");
   }

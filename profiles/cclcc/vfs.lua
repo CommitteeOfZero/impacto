@@ -6,8 +6,18 @@ root.Vfs = {
         ["chara"] = {root.BasePaths.RootGamedataDir .. "/cclcc/chara.mpk"},
         ["manual"] = {root.BasePaths.RootGamedataDir .. "/cclcc/manual.mpk"},
         ["mask"] = {root.BasePaths.RootGamedataDir .. "/cclcc/mask.mpk"},
-        ["movie"] = {root.BasePaths.RootGamedataDir .. "/cclcc/movie"},
-        ["script"] = {root.BasePaths.RootGamedataDir .. "/cclcc/script"},
+        ["movie"] = {
+            {
+                Path = root.BasePaths.RootGamedataDir .. "/cclcc/movie",
+                Whitelist = ".*movie.*\\.mp4",
+            },
+        },
+        ["script"] = {
+            {
+                Path = root.BasePaths.RootGamedataDir .. "/cclcc/script",
+                Whitelist = ".*script.*\\.scx",
+            },
+        },
         ["se"] = {root.BasePaths.RootGamedataDir .. "/cclcc/se.mpk"},
         ["sysse"] = {root.BasePaths.RootGamedataDir .. "/cclcc/sysse.mpk"},
         ["system"] = {root.BasePaths.RootGamedataDir .. "/cclcc/system.mpk"},

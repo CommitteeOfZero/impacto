@@ -1,3 +1,5 @@
+#pragma once
+
 #include "animation.h"
 #include <vector>
 

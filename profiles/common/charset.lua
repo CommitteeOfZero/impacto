@@ -40,7 +40,7 @@ function UpdateCharset(charsetInternal)
     if charsetInternal.WordEndingPuncts ~= nil then
         AddCharsetFlag(charsetInternal.WordEndingPuncts, charsetInternal.CharsetStr, CharacterTypeFlags.WordEndingPunct);
     end
-    if charsetInternal.WordStartingPunct ~= nil then
+    if charsetInternal.WordStartingPuncts ~= nil then
         AddCharsetFlag(charsetInternal.WordStartingPuncts, charsetInternal.CharsetStr, CharacterTypeFlags.WordStartingPunct);
     end
 

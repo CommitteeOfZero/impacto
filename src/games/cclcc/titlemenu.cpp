@@ -494,7 +494,7 @@ void TitleMenu::Update(float dt) {
         SubMenuUpdate();
       } break;
       default: {
-        ImpLog(LogLevel::Error, LogChannel::General,
+        ImpLog(LogLevel::Info, LogChannel::General,
                "Unexpected title menu state: {}\n", mode);
       }
     }
@@ -822,7 +822,7 @@ void TitleMenu::Render() {
                            {1.0f, 1.0f, 1.0f, progress});
     } break;
     default: {
-      ImpLog(LogLevel::Error, LogChannel::General,
+      ImpLog(LogLevel::Info, LogChannel::General,
              "Unexpected title menu state: {}\n", mode);
     }
   }
