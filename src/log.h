@@ -40,7 +40,7 @@ enum class LogChannel : uint32_t {
   Subtitle = (1 << 14),
   Config = (1 << 15),
   Overlay = (1 << 16),
-  All = std::numeric_limits<uint32_t>::max(),
+  All = (Overlay << 1) - 1,
 };
 
 constexpr std::string ChannelToString(LogChannel channel);
@@ -127,7 +127,7 @@ constexpr std::string Impacto::ChannelToString(LogChannel channel) {
 constexpr std::optional<Impacto::LogChannel> Impacto::StringToChannel(
     std::string_view channel) {
   using enum Impacto::LogChannel;
-  if (channel == "None") return None;
+  if (channel.empty() || channel == "None") return None;
   if (channel == "All")
     return All;
   else
