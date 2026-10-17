@@ -88,7 +88,10 @@ IoError FSFolderArchive::SortTOCByOrderFile(FSFolderArchive* result,
   for (auto const& [id, fileMeta] : txtArch->IdsToFiles) {
     if (!fileMeta) continue;
 
-    auto foundIt = nameToEntry.find(fileMeta->FileName);
+    std::string orderName = fileMeta->FileName;
+    std::replace(orderName.begin(), orderName.end(), '\\', '/');
+    auto foundIt =
+        nameToEntry.find(std::filesystem::path(orderName).filename().string());
     if (foundIt == nameToEntry.end()) continue;
 
     orderedToc.push_back(*foundIt->second);
