@@ -6,10 +6,18 @@ vcpkg_from_github(
     HEAD_REF switch-sdl-3.4
 )
 
+# Temporary fix until SDL_GetPlatform supports the switch
+file(INSTALL
+    "${CMAKE_CURRENT_LIST_DIR}/SDL_begin_config_private.h"
+    "${CMAKE_CURRENT_LIST_DIR}/SDL_end_config_private.h"
+    DESTINATION "${SOURCE_PATH}/include"
+)
+
 vcpkg_cmake_configure(
     SOURCE_PATH "${SOURCE_PATH}"
     OPTIONS
         -DNINTENDO_SWITCH=ON
+        -DSDL_PLATFORM_PRIVATE=ON
         -DSDL_STATIC=ON
         -DSDL_SHARED=OFF
         -DSDL_TEST_LIBRARY=OFF
