@@ -11,7 +11,6 @@ namespace CHLCC {
 class IntroSequence {
  public:
   IntroSequence();
-  ~IntroSequence();
 
   void Update(float dt);
   void Reset();
@@ -45,7 +44,7 @@ class IntroSequence {
   void DrawSeira() const;
 
   std::array<std::pair<glm::vec2, float>, 20> FallingStarSeeds;
-  Sprite FallingStarsMask;
+  MutableTextureRef FallingStarsMask;
 };
 
 }  // namespace CHLCC

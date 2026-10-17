@@ -32,22 +32,25 @@ void Load() {
 
       auto arraySize = lua_rawlen(LuaState, -1);
       if (arraySize != 5) {
-        ImpLog(LogLevel::Fatal, LogChannel::Profile,
-               "Expected five entries in shader definition defined; got {:d}\n",
-               arraySize);
-        Window->Shutdown();
+        Panic(LogChannel::Profile,
+              "Expected five entries in shader definition defined; got {:d}\n",
+              arraySize);
       }
 
       Background2D::BgEffShaderMap.emplace(
           EnsureGetArrayElementByIndex<int>(0),
           std::array<ShaderProgramType, 4>{
-              enum_cast<ShaderProgramType>(EnsureGetArrayElementByIndex<int>(1))
+              enum_cast<ShaderProgramType>(
+                  EnsureGetArrayElementByIndex<uint8_t>(1))
                   .value(),
-              enum_cast<ShaderProgramType>(EnsureGetArrayElementByIndex<int>(2))
+              enum_cast<ShaderProgramType>(
+                  EnsureGetArrayElementByIndex<uint8_t>(2))
                   .value(),
-              enum_cast<ShaderProgramType>(EnsureGetArrayElementByIndex<int>(3))
+              enum_cast<ShaderProgramType>(
+                  EnsureGetArrayElementByIndex<uint8_t>(3))
                   .value(),
-              enum_cast<ShaderProgramType>(EnsureGetArrayElementByIndex<int>(4))
+              enum_cast<ShaderProgramType>(
+                  EnsureGetArrayElementByIndex<uint8_t>(4))
                   .value(),
           });
       Pop();
@@ -65,11 +68,9 @@ void Load() {
 
       auto arraySize = lua_rawlen(LuaState, -1);
       if (arraySize != 5) {
-        ImpLog(
-            LogLevel::Fatal, LogChannel::Profile,
-            "Expected five entries in texture id mapping defined; got {:d}\n",
-            arraySize);
-        Window->Shutdown();
+        Panic(LogChannel::Profile,
+              "Expected five entries in texture id mapping defined; got {:d}\n",
+              arraySize);
       }
 
       Background2D::BgEffTextureIdMap.emplace(

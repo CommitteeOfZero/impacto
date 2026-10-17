@@ -7,7 +7,6 @@
 #include "log.h"
 #include "inputsystem.h"
 #include "debugmenu.h"
-#include "renderer/opengl/glc.h"
 
 #ifndef IMPACTO_DISABLE_IMGUI
 #include "overlay.h"
@@ -39,6 +38,8 @@
 #include "effects/wave.h"
 #include "effects/blur.h"
 #include "effects/mosaic.h"
+
+#include "userconfig.h"
 
 #include "profile/profile.h"
 #include "profile/game.h"
@@ -76,10 +77,9 @@ using namespace Profile::ScriptVars;
 
 namespace Game {
 
-void Init() {
-  SDL_SetHint(SDL_HINT_MOUSE_TOUCH_EVENTS, "0");
-
-  WorkQueue::Init();
+static void InitRenderer() {
+  Renderer.reset();
+  Window.reset();
 
 #ifndef IMPACTO_DISABLE_IMGUI
   IMGUI_CHECKVERSION();
@@ -95,16 +95,30 @@ void Init() {
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
   }
 #endif
+
   InitWindow();
   CreateRenderer();
-  InitCursors();
 
 #ifndef IMPACTO_DISABLE_IMGUI
   Overlay::Init();
 #endif
 }
 
+void Init() {
+  SDL_SetHint(SDL_HINT_MOUSE_TOUCH_EVENTS, "0");
+
+  WorkQueue::Init();
+
+  InitRenderer();
+  InitCursors();
+}
+
 void InitGameProfile() {
+  if (UserConfig::AdvancedSettings.ActiveRenderer != Renderer->GetType()) {
+    // If the active renderer was changed in the launcher, re-init renderer
+    InitRenderer();
+  }
+
   Profile::ConfigureGameProfile();
   Profile::Game::Configure();
   Profile::Patch::Configure();
@@ -151,8 +165,6 @@ void InitGameProfile() {
       Profile::WaveEffects::Load();
       Effects::Init();
     }
-
-    Effects::Blur.Init();
   }
 
   SetWindowIcon(Window->SDLWindow);
@@ -196,14 +208,12 @@ void InitGameProfile() {
     Vm::Interface::UpdatePADcustomType(0);
 
     SaveSystem::InitializeSystemData();
-
-    Effects::Mosaic.Init();
   }
 
   Profile::ClearProfile();
 }
 
-void Shutdown() {
+void Shutdown(const int exitCode) {
   if (+Profile::Game::GameFeatures & +GameFeature::Audio) {
     Audio::AudioShutdown();
   }
@@ -212,11 +222,12 @@ void Shutdown() {
     Video::VideoShutdown();
   }
 
-  if (+Profile::Game::GameFeatures & +GameFeature::Renderer2D) {
-    Renderer->Shutdown();
-  }
   WorkQueue::StopWorkQueue();
-  Window->Shutdown();
+
+  Renderer.reset();
+  Window.reset();
+
+  exit(exitCode);
 }
 
 void LauncherUpdate(float dt) {
@@ -551,10 +562,10 @@ static void RenderMain() {
           if (isCC) {
             alpha = static_cast<uint32_t>(ScrWork[SW_EFF_WAVE_ALPHA]) / 256.0f;
           }
-          Renderer->CaptureScreencap(Screencaptures[0].BgSprite);
+          Renderer->CaptureScreenCap(Screencaptures[0].CaptureTexture);
           Screencaptures[0].Status = LoadStatus::Loaded;
           Effects::WaveEFF.CalcPos(0, alpha);
-          Effects::WaveEFF.Render(Screencaptures[0].BgSprite);
+          Effects::WaveEFF.Render(*Screencaptures[0].CaptureTexture);
         }
       }
     }
@@ -576,13 +587,13 @@ static void RenderMain() {
         continue;
       }
 
-      Renderer->CaptureScreencap(Screencaptures[capId].BgSprite);
+      Renderer->CaptureScreenCap(Screencaptures[capId].CaptureTexture);
       Screencaptures[capId].Status = LoadStatus::Loaded;
     }
 
     if (GetFlag(SF_MASK_CAPTURE) &&
         ScrWork[SW_MASK_CAPTURE_PRI] == static_cast<int>(layer)) {
-      Renderer->CaptureScreencap(MaskCapture.BgSprite);
+      Renderer->CaptureScreenCap(MaskCapture.CaptureTexture);
       MaskCapture.Status = LoadStatus::Loaded;
     }
   }
@@ -591,7 +602,7 @@ static void RenderMain() {
   Renderer->SetFramebuffer(0);
 
   if (SaveSystem::Implementation) {
-    Renderer->CaptureScreencap(SaveSystem::GetWorkingSaveThumbnail());
+    Renderer->CaptureScreenCap(SaveSystem::GetWorkingSaveThumbnail());
   }
 
   DateDisplay::Render();
@@ -651,7 +662,7 @@ void Render() {
                Profile::Vm::GameInstructionSet ==
                    Vm::InstructionSet::LCCSwitch) &&
               GetFlag(SF_SYSTEMMENUCAPTURE)) {
-            Renderer->CaptureScreencap(
+            Renderer->CaptureScreenCap(
                 static_cast<UI::CCLCC::SystemMenu*>(UI::SystemMenuPtr)
                     ->ScreenCap);
             SetFlag(SF_SYSTEMMENUCAPTURE, false);

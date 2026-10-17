@@ -1158,6 +1158,8 @@ void    ImGui_ImplOpenGL3_Shutdown()
     platform_io.ClearRendererHandlers();
     IM_DELETE(bd);
 
+    io.BackendPlatformUserData = nullptr;
+
     ImGui_ImplOpenGL3_ShutdownLoader();
 }
 

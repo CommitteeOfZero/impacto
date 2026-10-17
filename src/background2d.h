@@ -173,6 +173,8 @@ class Capture2D : public Background2D {
  public:
   void Render(int layer) override;
   void UpdateState(int capId) override;
+
+  MutableTextureRef CaptureTexture;
 };
 
 class BackgroundEffect2D : public Background2D {
@@ -193,7 +195,7 @@ inline std::array<Background2D, 8> Backgrounds;
 inline std::array<Capture2D, 2> Screencaptures;
 inline Capture2D MaskCapture;
 inline std::array<BackgroundEffect2D, MaxFramebuffers> Framebuffers;
-inline Background2D ShaderScreencapture;
+inline Capture2D ShaderScreencapture;
 
 inline ankerl::unordered_dense::map<int, Background2D*> Backgrounds2D;
 

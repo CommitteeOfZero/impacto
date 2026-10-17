@@ -10,7 +10,7 @@ glm::vec4 AlbumThumbnailButton::FocusedAlpha = glm::vec4(1.0f);
 Animation AlbumThumbnailButton::FocusedAlphaFade;
 
 void AlbumThumbnailButton::Render() {
-  Renderer->DrawSprite((IsLocked ? LockedSprite : NormalSprite),
+  Renderer->DrawSprite((IsLocked ? *LockedSprite : *NormalSprite),
                        glm::vec2(Bounds.X, Bounds.Y));
   if (!IsLocked) {
     for (int variations = 0; variations < TotalVariations; variations++) {
@@ -24,7 +24,7 @@ void AlbumThumbnailButton::Render() {
   if (HasFocus) {
     Renderer->DrawSprite(SelectionMarker,
                          glm::vec2(Bounds.X, Bounds.Y) + SelectionMarkerOffset);
-    Renderer->DrawSprite(HighlightSprite, glm::vec2(Bounds.X, Bounds.Y),
+    Renderer->DrawSprite(*HighlightSprite, glm::vec2(Bounds.X, Bounds.Y),
                          FocusedAlpha);
   }
 }

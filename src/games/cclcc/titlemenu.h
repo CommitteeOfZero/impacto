@@ -15,9 +15,6 @@ namespace CCLCC {
 class TitleMenu : public Menu {
  public:
   TitleMenu();
-  ~TitleMenu() {
-    Renderer->FreeTexture(PressToStartTransitionCapture.Sheet.Texture);
-  }
 
   void Show() override;
   void Hide() override;
@@ -75,7 +72,7 @@ class TitleMenu : public Menu {
   bool InputLocked = false;
   bool PrevInputLocked = false;
 
-  Sprite PressToStartTransitionCapture;
+  MutableTextureRef PressToStartTransitionCapture;
   bool PressToStartTransitionCaptureSet = false;
 };
 

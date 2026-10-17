@@ -10,12 +10,15 @@ namespace MO6TW {
 
 void SaveEntryButton::Render() {
   if (HasFocus) {
-    Renderer->DrawSprite(FocusedSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
+    Renderer->DrawSprite(*FocusedSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
   } else {
     if (Enabled) {
-      Renderer->DrawSprite(NormalSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
+      Renderer->DrawSprite(*NormalSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
     } else {
-      Renderer->DrawSprite(DisabledSprite, glm::vec2(Bounds.X, Bounds.Y), Tint);
+      if (DisabledSprite.has_value()) {
+        Renderer->DrawSprite(*DisabledSprite, glm::vec2(Bounds.X, Bounds.Y),
+                             Tint);
+      }
     }
   }
 

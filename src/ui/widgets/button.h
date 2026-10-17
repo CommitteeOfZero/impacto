@@ -14,8 +14,9 @@ namespace Widgets {
 class Button : public Widget {
  public:
   Button() {}
-  Button(int id, Sprite const& norm, Sprite const& focused,
-         Sprite const& highlight, glm::vec2 pos, RectF hoverBounds = RectF{});
+  Button(int id, std::optional<Sprite> normal, std::optional<Sprite> focused,
+         std::optional<Sprite> highlight, glm::vec2 pos,
+         RectF hoverBounds = RectF{});
 
   virtual void UpdateInput(float dt) override;
   virtual void Render() override;
@@ -44,11 +45,11 @@ class Button : public Widget {
 
   std::function<void(Button*)> OnClickHandler;
 
-  Sprite NormalSprite;
-  Sprite FocusedSprite;
-  Sprite HighlightSprite;
-  Sprite DisabledSprite;
-  Sprite LockedSprite;
+  std::optional<Sprite> NormalSprite;
+  std::optional<Sprite> FocusedSprite;
+  std::optional<Sprite> HighlightSprite;
+  std::optional<Sprite> DisabledSprite;
+  std::optional<Sprite> LockedSprite;
   RectF HoverBounds;
   glm::vec2 HighlightOffset = glm::vec2(0.0f, 3.0f);
 

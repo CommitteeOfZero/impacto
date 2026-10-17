@@ -24,7 +24,7 @@ class SystemMenu : public Menu, public CommonMenu {
   void Render() override;
 
   void MenuButtonOnClick(Widgets::Button* target);
-  Sprite ScreenCap;
+  MutableTextureRef ScreenCap;
 
  private:
   Widgets::Group* MainItems;

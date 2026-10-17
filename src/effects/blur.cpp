@@ -11,28 +11,6 @@ namespace Effects {
 
 using namespace Impacto::Profile::ScriptVars;
 
-BlurEffect::BlurEffect()
-    : BlurSprite(
-          SpriteSheet(Profile::Game::DesignWidth, Profile::Game::DesignHeight),
-          0.0f, 0.0f, Profile::Game::DesignWidth, Profile::Game::DesignHeight) {
-  BlurSprite.Sheet.IsScreenCap = true;
-}
-
-void BlurEffect::Init() {
-  if (BlurSprite.Sheet.Texture) {
-    Renderer->FreeTexture(BlurSprite.Sheet.Texture);
-  }
-
-  Texture texture{};
-  texture.LoadSolidColor(static_cast<int>(Profile::Game::DesignWidth),
-                         static_cast<int>(Profile::Game::DesignHeight), 0);
-  BlurSprite.Sheet.Texture = texture.Submit();
-}
-
-BlurEffect::~BlurEffect() {
-  if (Renderer) Renderer->FreeTexture(BlurSprite.Sheet.Texture);
-}
-
 void BlurEffect::Render(int iterations) {
   if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::CHLCC) {
     iterations = std::min(iterations / 2, 8);
@@ -45,11 +23,11 @@ void BlurEffect::Render(int iterations) {
                                           ? RendererBlurDirection::Vertical
                                           : RendererBlurDirection::Horizontal;
 
-    Renderer->CaptureScreencap(BlurSprite);
-    Renderer->DrawBlurredSprite(BlurSprite,
-                                RectF{0.0f, 0.0f, Profile::Game::DesignWidth,
-                                      Profile::Game::DesignHeight},
-                                glm::mat4(1.0f), direction, glm::vec4(1.0f));
+    Renderer->CaptureScreenCap(BlurSprite);
+    Renderer->DrawBlurredSprite(
+        {*BlurSprite, RectF{0.0f, 0.0f, Profile::Game::DesignWidth,
+                            Profile::Game::DesignHeight}},
+        {.BlurDirection = direction});
   }
 }
 

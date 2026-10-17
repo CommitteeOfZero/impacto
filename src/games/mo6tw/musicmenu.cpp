@@ -43,11 +43,9 @@ MusicMenu::MusicMenu() {
 
   BackgroundItems->Add(new Label(ItemsWindow, ItemsWindowPosition));
   BackgroundItems->Add(new Label(PlaybackWindow, PlaybackWindowPosition));
-  NullSprite = Sprite();
-  NullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
-  Thumbnail = new Label(NullSprite, ThumbnailPosition);
+  Thumbnail = new Label(std::nullopt, ThumbnailPosition);
   BackgroundItems->Add(Thumbnail);
-  CurrentlyPlaying = new Label(NullSprite, CurrentlyPlayingLabelPosition);
+  CurrentlyPlaying = new Label(std::nullopt, CurrentlyPlayingLabelPosition);
   BackgroundItems->Add(CurrentlyPlaying);
   PlaybackModeLabel =
       new Label(PlaybackModeLabels[PlaybackMode], PlaybackModeLabelPosition);
@@ -83,7 +81,7 @@ MusicMenu::MusicMenu() {
 
   pos = TimerInitialPosition;
   for (int i = 0; i < 8; i++) {
-    Timer->Add(new Label(NullSprite, pos));
+    Timer->Add(new Label(std::nullopt, pos));
     pos += TimerMargin;
   }
 }
@@ -240,8 +238,8 @@ void MusicMenu::SwitchToTrack(int id) {
   CurrentlyPlayingTrackId = id;
   if (id == -1) {
     Audio::Channels[Audio::AC_BGM0]->Stop(0.5f);
-    Thumbnail->SetSprite(NullSprite);
-    CurrentlyPlaying->SetSprite(NullSprite);
+    Thumbnail->SetSprite(std::nullopt);
+    CurrentlyPlaying->SetSprite(std::nullopt);
     Timer->Hide();
     return;
   }
