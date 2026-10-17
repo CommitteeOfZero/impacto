@@ -1,3 +1,7 @@
+root.TrophyMenu = {
+    Type = TrophyMenuType.None
+};
+
 include(root.BasePaths.RootProfilesDir .. '/chlcc/game.lua');
 include(root.BasePaths.RootProfilesDir .. '/chlcc-switch/scriptvars.lua');
 

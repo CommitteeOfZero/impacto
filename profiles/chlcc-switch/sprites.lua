@@ -113,10 +113,5 @@ root.SpriteSheets = {
         Path = { Mount = "system", Id = 31 },
         DesignWidth = 1920,
         DesignHeight = 2016
-    },
-    ["Trophy"] = {
-        Path = { Mount = "system", Id = 32 },
-        DesignWidth = 2048,
-        DesignHeight = 538
     }
 };
