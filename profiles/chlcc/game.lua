@@ -69,8 +69,6 @@ include(root.BasePaths.RootProfilesDir .. '/chlcc/hud/tipsmenu.lua');
 include(root.BasePaths.RootProfilesDir .. '/chlcc/hud/tipsnotification.lua');
 include(root.BasePaths.RootProfilesDir .. '/chlcc/hud/optionsmenu.lua');
 include(root.BasePaths.RootProfilesDir .. '/chlcc/hud/extramenus.lua');
-if root.TrophyMenu == nil or root.TrophyMenu.Type ~= TrophyMenuType.None then
-    include(root.BasePaths.RootProfilesDir .. '/chlcc/hud/trophymenu.lua');
-end
+include(root.BasePaths.RootProfilesDir .. '/chlcc/hud/trophymenu.lua');
 include(root.BasePaths.RootProfilesDir .. '/chlcc/gamespecific.lua');
 include(root.BasePaths.RootProfilesDir .. '/chlcc/waveeffects.lua');
