@@ -41,7 +41,6 @@ enum class TitleDispCtState : uint8_t {
   ExtraSubEntriesControl,
   SystemSubEntriesFading,
   SystemSubEntriesControl,
-  Unknown,
 };
 
 static TitleDispCtState ResolveTitleDispCtState() {
@@ -81,7 +80,12 @@ static TitleDispCtState ResolveTitleDispCtState() {
         return TitleDispCtState::SystemSubEntriesControl;
     }
   }
-  return TitleDispCtState::Unknown;
+  ImpLog(
+      LogLevel::Error, LogChannel::General, "Unknown title menu state: {}\n",
+      Profile::Vm::GameInstructionSet == Impacto::Vm::InstructionSet::LCCSwitch
+          ? ScrWork[SW_TITLEMOVIECT]
+          : ScrWork[SW_TITLEDISPCT]);
+  return TitleDispCtState::EmptyBackground;
 }
 
 void TitleMenu::MenuButtonOnClick(Widgets::Button* target) {
