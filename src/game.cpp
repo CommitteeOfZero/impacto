@@ -325,7 +325,11 @@ void UpdateSystem(float dt) {
           return ImGui_ImplSDL3_ProcessEvent(&e);
       }
     }();
-    if (isImguiEvent &&
+    // pass key button up to the app so Alt + D won't cause sticky D key
+    const bool isReleaseEvent =
+        e.type == SDL_EVENT_KEY_UP || e.type == SDL_EVENT_GAMEPAD_BUTTON_UP;
+
+    if (isImguiEvent && !isReleaseEvent &&
         (io.WantCaptureKeyboard || io.WantCaptureMouse || io.NavActive))
       continue;
 #endif
