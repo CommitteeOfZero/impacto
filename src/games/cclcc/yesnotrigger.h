@@ -43,11 +43,11 @@ class YesNoTrigger {
   Widgets::ClickArea NoClickArea;
   Sprite ActiveBackground;
   Sprite ActiveBlur;
-  Animation StarAnimation;
   std::span<YesNoPositions> DispPosArr;
   glm::vec2 BgSpritePos;
   float BgSpriteScale = 1.0f;
   float BgTransition = 0.0f;
+  float StarAngle = 0;
 
   int CurArrIndex = 0;
   int TargetArrIndex = 0;
