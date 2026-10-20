@@ -3,7 +3,6 @@
 #include <minilua/minilua.h>
 #include <initializer_list>
 #include <optional>
-#include <charconv>
 #include <system_error>
 #include <glm/glm.hpp>
 #include "../io/assetpath.h"
@@ -263,48 +262,21 @@ template <typename T>
   requires is_any_of_v<std::decay_t<T>, char const*, std::string,
                        std::string_view>
 inline std::optional<T> TryGet() {
-  if (!lua_isstring(LuaState, -1)) return std::nullopt;
+  if (lua_type(LuaState, -1) != LUA_TSTRING) return std::nullopt;
   return lua_tostring(LuaState, -1);
 }
 
 template <typename T>
   requires std::is_arithmetic_v<T> && (!is_any_of_v<T, bool, long double>)
 inline std::optional<T> TryGet() {
-  if (lua_isnumber(LuaState, -1)) {
+  if (lua_type(LuaState, -1) == LUA_TNUMBER) {
     if constexpr (std::is_integral_v<T>) {
       return static_cast<T>(lua_tointeger(LuaState, -1));
     } else {
       return static_cast<T>(lua_tonumber(LuaState, -1));
     }
   }
-  if (lua_isstring(LuaState, -1)) {
-    std::string_view inputStr = {lua_tostring(LuaState, -1)};
-    T outNumber{};
-    if constexpr (std::is_integral_v<T>) {
-      auto [ptr, ec] = std::from_chars(
-          inputStr.data(), inputStr.data() + inputStr.size(), outNumber);
-      if (ec == std::errc{}) {
-        return outNumber;
-      }
-      ImpLog(LogLevel::Warning, LogChannel::Profile,
-             "Error encountered converting {:s} to number: {:s}\n", inputStr,
-             std::make_error_code(ec).message());
-    } else {
-      char* endPtr = nullptr;
-      if constexpr (std::is_same_v<T, double>) {
-        outNumber = std::strtod(inputStr.data(), &endPtr);
-      } else if constexpr (std::is_same_v<T, float>) {
-        outNumber = std::strtof(inputStr.data(), &endPtr);
-      }
-      if (endPtr != inputStr.data()) {
-        return outNumber;
-      }
-      ImpLog(LogLevel::Warning, LogChannel::Profile,
-             "Error encountered converting {:s} to number: {:s}\n", inputStr,
-             std::error_code{errno, std::generic_category()}.message());
-    }
-  }
-  return std::nullopt;
+    return std::nullopt;
 }
 
 template <typename T>
