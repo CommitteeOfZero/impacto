@@ -6,6 +6,7 @@
 #include "../../audio/audiosystem.h"
 #include "../../renderer/renderer.h"
 #include "../../inputsystem.h"
+#include "../../util.h"
 
 namespace Impacto {
 namespace UI {
@@ -26,7 +27,11 @@ int YesNoTrigger::Load(uint8_t* data) {
   GoToNextQuestion = data[dataSize++];
   dataSize += 3;
   memcpy(&Selection, data + dataSize, sizeof(YesNoSelect));
-  dataSize += 8;
+  dataSize += 4;
+  int starAngleInt = 0;
+  memcpy(&starAngleInt, data + dataSize, sizeof(int));
+  StarAngle = static_cast<float>(starAngleInt);
+  dataSize += 4;
   float bgSpritePosX, bgSpritePosY;
   memcpy(&bgSpritePosX, data + dataSize, sizeof(float));
   dataSize += 4;
@@ -101,7 +106,10 @@ int YesNoTrigger::Save(uint8_t* data) {
   data[dataSize++] = GoToNextQuestion;
   dataSize += 3;
   memcpy(data + dataSize, &Selection, sizeof(YesNoSelect));
-  dataSize += 8;
+  dataSize += 4;
+  int starAngleInt = static_cast<int>(StarAngle);
+  memcpy(data + dataSize, &starAngleInt, sizeof(int));
+  dataSize += 4;
   memcpy(data + dataSize, &BgSpritePos.x, sizeof(float));
   dataSize += 4;
   memcpy(data + dataSize, &BgSpritePos.y, sizeof(float));
@@ -163,7 +171,8 @@ void YesNoTrigger::Update(float dt) {
   NoClickArea.UpdateInput(dt);
   NoClickArea.Update(dt);
 
-  StarAnimation.Update(dt);
+  StarAngle = std::fmod(StarAngle + StarRotationDegPerSec * dt, 360.0f);
+
   switch (State) {
     case YesNoState::Init:
       State = YesNoState::ZoomStart;
@@ -357,11 +366,9 @@ void YesNoTrigger::Render() {
 
       const glm::vec2 starTopLeft =
           activeSmallChipCenter - StarChip.Bounds.GetSize() * 0.5f;
-      const CornersQuad starDest =
-          StarChip.ScaledBounds()
-              .RotateAroundCenter(StarAnimation.Progress * 2.0f *
-                                  std::numbers::pi_v<float>)
-              .Translate(starTopLeft);
+      const CornersQuad starDest = StarChip.ScaledBounds()
+                                       .RotateAroundCenter(DegToRad(StarAngle))
+                                       .Translate(starTopLeft);
       Renderer->DrawSprite(StarChip, starDest, chipTint);
     }
 
@@ -412,10 +419,6 @@ void YesNoTrigger::Start(int type, int bgBufId, int chipsBufId) {
   DispSel = false;
   AllowInput = false;
   GoToNextQuestion = false;
-  StarAnimation.Direction = AnimationDirection::In;
-  StarAnimation.LoopMode = AnimationLoopMode::Loop;
-  StarAnimation.SkipOnSkipMode = false;
-  StarAnimation.SetDuration(StarRotationPeriod);
   auto onClick = [this](auto* area) { return AreaClick(area); };
   YesClickArea =
       Widgets::ClickArea(static_cast<int>(YesNoSelect::YES), RectF(), onClick);
@@ -429,7 +432,6 @@ void YesNoTrigger::Show() {
   Selection = YesNoSelect::NONE;
   Display = true;
   HasStarted = true;
-  StarAnimation.StartIn();
 }
 
 void YesNoTrigger::Reset() {
@@ -446,7 +448,6 @@ void YesNoTrigger::Hide() {
   Display = false;
   HasStarted = false;
   State = YesNoState::Complete;
-  StarAnimation.Stop();
 }
 
 void YesNoTrigger::AreaClick(Widgets::ClickArea* area) {

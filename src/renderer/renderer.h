@@ -94,6 +94,8 @@ class BaseRenderer {
     GetSpriteSheetImage(sheet, result);
     return result;
   };
+  virtual void ClearFramebuffer(size_t buffer,
+                                glm::vec4 color = glm::vec4(0.0f)) {}
 
   virtual int GetSpriteSheetImage(SpriteSheet const& sheet,
                                   std::span<uint8_t> outBuffer) = 0;

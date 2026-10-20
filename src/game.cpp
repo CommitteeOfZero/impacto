@@ -325,7 +325,11 @@ void UpdateSystem(float dt) {
           return ImGui_ImplSDL3_ProcessEvent(&e);
       }
     }();
-    if (isImguiEvent &&
+    // pass key button up to the app so Alt + D won't cause sticky D key
+    const bool isReleaseEvent =
+        e.type == SDL_EVENT_KEY_UP || e.type == SDL_EVENT_GAMEPAD_BUTTON_UP;
+
+    if (isImguiEvent && !isReleaseEvent &&
         (io.WantCaptureKeyboard || io.WantCaptureMouse || io.NavActive))
       continue;
 #endif
@@ -435,12 +439,19 @@ void Update(float dt) {
 static void RenderMain() {
   Background2D::LastRenderedBackground = nullptr;
   UI::GameSpecific::RenderEarlyMain();
+  std::array<bool, MaxFramebuffers + 1> cleared{};
+
   for (uint32_t layer = 0; layer <= Profile::Game::LayerCount; layer++) {
     if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::CC ||
         Profile::Vm::GameInstructionSet == Vm::InstructionSet::LCCSwitch) {
       const int renderTarget = ScrWork[SW_RENDERTARGET + layer];
       if (0 <= renderTarget && renderTarget <= MaxFramebuffers) {
         Renderer->SetFramebuffer(renderTarget);
+
+        if (!cleared[renderTarget]) {
+          Renderer->ClearFramebuffer(renderTarget);
+          cleared[renderTarget] = true;
+        }
       }
     }
 

@@ -128,6 +128,19 @@ Renderer::~Renderer() {
   glDeleteSamplers((GLsizei)Samplers.size(), Samplers.data());
 }
 
+void Renderer::ClearFramebuffer(size_t buffer, glm::vec4 color) {
+  const bool scissorWasEnabled = ScissorEnabled;
+  if (scissorWasEnabled) glDisable(GL_SCISSOR_TEST);
+
+  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+  glStencilMask(0xFF);
+
+  glClearColor(color.r, color.g, color.b, color.a);
+  glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+  if (scissorWasEnabled) glEnable(GL_SCISSOR_TEST);
+}
+
 void Renderer::Init() {
   if (IsInit) return;
   ImpLog(LogLevel::Info, LogChannel::Render,

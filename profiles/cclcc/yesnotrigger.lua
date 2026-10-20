@@ -73,7 +73,7 @@ root.YesNoTrigger = {
     YNBlurMask = "YNBlurMask",
     YesNoData1 = data1,
     YesNoData2 = data2,
-    StarRotationPeriod = 164 / 60, 
+    StarRotationDegPerSec = 360 * 60 / 164, -- 164 frames for a full 360 rotation at 60fps,
 };
 
 root.Sprites["YesNoBackground0"] = {
