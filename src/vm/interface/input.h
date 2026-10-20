@@ -5,12 +5,13 @@
 
 #include "../../impacto.h"
 #include "../../inputsystem.h"
+#include "../../util.h"
 
 namespace Impacto {
 namespace Vm {
 namespace Interface {
 // Might have to take this from lua file if older games use different consts
-enum PADinput {
+enum PADinput : uint32_t {
   PAD1UP = 0x10000,
   PAD1DOWN = 0x20000,
   PAD1LEFT = 0x40000,
@@ -40,6 +41,31 @@ enum PADinput {
   PAD1LEFT_DIRECT = 0x4,
   PAD1RIGHT_DIRECT = 0x8,
 };
+
+constexpr PADinput operator~(PADinput input) {
+  return static_cast<PADinput>(~to_underlying(input));
+}
+constexpr PADinput operator|(PADinput input, PADinput other) {
+  return static_cast<PADinput>(to_underlying(input) | to_underlying(other));
+}
+constexpr PADinput operator&(PADinput input, PADinput other) {
+  return static_cast<PADinput>(to_underlying(input) & to_underlying(other));
+}
+constexpr PADinput operator^(PADinput input, PADinput other) {
+  return static_cast<PADinput>(to_underlying(input) ^ to_underlying(other));
+}
+constexpr PADinput& operator|=(PADinput& input, PADinput other) {
+  input = input | other;
+  return input;
+}
+constexpr PADinput& operator&=(PADinput& input, PADinput other) {
+  input = input & other;
+  return input;
+}
+constexpr PADinput& operator^=(PADinput& input, PADinput other) {
+  input = input ^ other;
+  return input;
+}
 
 inline std::span<uint32_t> PADcustom;
 
@@ -111,3 +137,8 @@ void ForEachKbCustom(int kbCustomId, Func func) {
 }  // namespace Interface
 }  // namespace Vm
 }  // namespace Impacto
+
+template <>
+struct magic_enum::customize::enum_range<Impacto::Vm::Interface::PADinput> {
+  static constexpr bool is_flags = true;
+};

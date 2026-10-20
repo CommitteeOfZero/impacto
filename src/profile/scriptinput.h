@@ -4,6 +4,7 @@
 
 #include "../util.h"
 #include "../inputsystem.h"
+#include "../vm/interface/input.h"
 namespace Impacto {
 namespace Profile {
 namespace ScriptInput {
@@ -24,13 +25,17 @@ struct KeyboardPadMapping {
   InputMode Mode;
 };
 
-inline ankerl::unordered_dense::map<int, std::vector<KeyboardPadMapping>>
+inline ankerl::unordered_dense::map<Impacto::Vm::Interface::PADinput,
+                                    std::vector<KeyboardPadMapping>>
     PADToKBcustom;
-inline ankerl::unordered_dense::map<int, uint32_t> PADToMouse;
-inline ankerl::unordered_dense::map<int, Input::ControllerButton>
+inline ankerl::unordered_dense::map<Impacto::Vm::Interface::PADinput, uint32_t>
+    PADToMouse;
+inline ankerl::unordered_dense::map<Impacto::Vm::Interface::PADinput,
+                                    Input::ControllerButton>
     PADToController;
 inline ankerl::unordered_dense::map<
-    int, std::pair<Input::ControllerAxis, InputAxisDir>>
+    Impacto::Vm::Interface::PADinput,
+    std::pair<Input::ControllerAxis, InputAxisDir>>
     PADToControllerAxis;
 
 inline std::vector<uint32_t> PADcustomA;
