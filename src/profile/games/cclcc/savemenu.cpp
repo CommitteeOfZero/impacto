@@ -46,8 +46,8 @@ void Configure() {
         (menuName + "EntryHighlightedTextSprite").c_str());
     EntrySlotsSprite[menuType] =
         EnsureGetMember<Sprite>((menuName + "EntrySlotsSprite").c_str());
-    ButtonGuideSprite[menuType] =
-        EnsureGetMember<Sprite>((menuName + "ButtonGuideSprite").c_str());
+    ButtonGuideSprite[menuType] = EnsureGetMember<UI::ButtonPrompt>(
+        (menuName + "ButtonGuideSprite").c_str());
     SeparationLineSprite[menuType] =
         EnsureGetMember<Sprite>((menuName + "SeparationLineSprite").c_str());
     for (int j = 0; j < 10; j++) {

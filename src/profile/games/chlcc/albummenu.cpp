@@ -38,7 +38,7 @@ void Configure() {
   PageNumSeparatorSlashPos =
       EnsureGetMember<glm::vec2>("PageNumSeparatorSlashPos");
   GetMemberArray<Sprite>(std::span(ReachablePageNums, 10), "ReachablePageNums");
-  ButtonGuide = EnsureGetMember<Sprite>("ButtonGuide");
+  ButtonGuide = EnsureGetMember<UI::ButtonPrompt>("ButtonGuide");
   ButtonGuidePos = EnsureGetMember<glm::vec2>("ButtonGuidePos");
   SelectDataSprites = EnsureGetMember<std::vector<Sprite>>("SelectDataSprites");
   SelectDataPos = EnsureGetMember<std::vector<glm::vec2>>("SelectDataPos");
@@ -50,9 +50,9 @@ void Configure() {
   AlbumMenuTitleLeftPos = EnsureGetMember<glm::vec2>("AlbumMenuTitleLeftPos");
   AlbumMenuTitleAngle = EnsureGetMember<float>("AlbumMenuTitleAngle");
   CgViewerButtonGuideVariation =
-      EnsureGetMember<Sprite>("CgViewerButtonGuideVariation");
+      EnsureGetMember<UI::ButtonPrompt>("CgViewerButtonGuideVariation");
   CgViewerButtonGuideNoVariation =
-      EnsureGetMember<Sprite>("CgViewerButtonGuideNoVariation");
+      EnsureGetMember<UI::ButtonPrompt>("CgViewerButtonGuideNoVariation");
   CgViewerButtonGuidePos = EnsureGetMember<glm::vec2>("CgViewerButtonGuidePos");
   SelectionMarkerSprite = EnsureGetMember<Sprite>("SelectionMarkerSprite");
   SelectionMarkerRelativePos =

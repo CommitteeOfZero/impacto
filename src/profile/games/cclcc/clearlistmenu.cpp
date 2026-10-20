@@ -12,7 +12,8 @@ namespace ClearListMenu {
 void Configure() {
   ClearListBookLayerSprite =
       EnsureGetMember<Sprite>("ClearListBookLayerSprite");
-  ClearListGuideSprite = EnsureGetMember<Sprite>("ClearListGuideSprite");
+  ClearListGuideSprite =
+      EnsureGetMember<UI::ButtonPrompt>("ClearListGuideSprite");
   ClearListMaskSprite = EnsureGetMember<Sprite>("ClearListMaskSprite");
 
   GetMemberArray<Sprite>(std::span(EndingSprites, Endings), "EndingSprites");

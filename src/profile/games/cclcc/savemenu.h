@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../../spritesheet.h"
+#include "../../../ui/buttonprompt.h"
 #include "../../../ui/savemenu.h"
 #include <magic_enum/magic_enum.hpp>
 #include <magic_enum/magic_enum_containers.hpp>
@@ -40,7 +41,7 @@ inline magic_enum::containers::array<UI::SaveMenuPageType, Sprite>
     EntryHighlightedTextSprite;
 inline magic_enum::containers::array<UI::SaveMenuPageType, Sprite>
     EntrySlotsSprite;
-inline magic_enum::containers::array<UI::SaveMenuPageType, Sprite>
+inline magic_enum::containers::array<UI::SaveMenuPageType, UI::ButtonPrompt>
     ButtonGuideSprite;
 inline magic_enum::containers::array<UI::SaveMenuPageType, Sprite>
     SeparationLineSprite;

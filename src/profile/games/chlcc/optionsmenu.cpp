@@ -31,7 +31,7 @@ void Configure() {
   PageRotationAngle = EnsureGetMember<float>("PageRotationAngle");
   PageTransitionDuration = EnsureGetMember<float>("PageTransitionDuration");
 
-  ButtonPromptSprite = EnsureGetMember<Sprite>("ButtonPromptSprite");
+  ButtonPromptSprite = EnsureGetMember<UI::ButtonPrompt>("ButtonPromptSprite");
   ButtonPromptPosition = EnsureGetMember<glm::vec2>("ButtonPromptPosition");
 
   SelectedSprite = EnsureGetMember<Sprite>("SelectedSprite");

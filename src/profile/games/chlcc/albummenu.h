@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../../spritesheet.h"
+#include "../../../ui/buttonprompt.h"
 
 namespace Impacto {
 namespace Profile {
@@ -31,7 +32,7 @@ inline glm::vec2 MaxPageNumPos;
 inline Sprite PageNumSeparatorSlash;
 inline glm::vec2 PageNumSeparatorSlashPos;
 inline Sprite ReachablePageNums[10];
-inline Sprite ButtonGuide;
+inline UI::ButtonPrompt ButtonGuide;
 inline glm::vec2 ButtonGuidePos;
 inline std::vector<Sprite> SelectDataSprites;
 inline std::vector<glm::vec2> SelectDataPos;
@@ -39,8 +40,8 @@ inline Sprite AlbumMenuTitle;
 inline glm::vec2 AlbumMenuTitleRightPos;
 inline glm::vec2 AlbumMenuTitleLeftPos;
 inline float AlbumMenuTitleAngle;
-inline Sprite CgViewerButtonGuideVariation;
-inline Sprite CgViewerButtonGuideNoVariation;
+inline UI::ButtonPrompt CgViewerButtonGuideVariation;
+inline UI::ButtonPrompt CgViewerButtonGuideNoVariation;
 inline glm::vec2 CgViewerButtonGuidePos;
 inline Sprite SelectionMarkerSprite;
 inline glm::vec2 SelectionMarkerRelativePos;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../../spritesheet.h"
+#include "../../../ui/buttonprompt.h"
 
 namespace Impacto {
 namespace Profile {
@@ -31,7 +32,7 @@ inline glm::vec2 ThumbnailPositions[Endings];
 inline Sprite EndingThumbnails[Endings];
 inline Sprite LockedThumbnail;
 inline glm::vec2 ButtonPromptPosition;
-inline Sprite ButtonPromptSprite;
+inline UI::ButtonPrompt ButtonPromptSprite;
 
 void Configure();
 

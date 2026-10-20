@@ -106,3 +106,68 @@ BackgroundSprite = EnsureGetMember<Sprite>("BackgroundSpriteProfile");
 ```
 
 You can now use the defined sprite in the appropriate UI element.  
+
+## Making button prompts follow the input device
+Button prompts can show button icons that change depending on the input device that was used last. The prompt sprite is drawn without its button icons, and the icons are drawn on top of it at the positions defined in the patch profile. For example, in order to add button icons to the system menu button guide, do the following:
+
+1. In the appropriate UI definition file located in `/src/profile/games/<game_name>/` define a `UI::ButtonPrompt` (defined in `/src/ui/buttonprompt.h`) variable instead of a `Sprite`, for example:
+
+```cpp
+UI::ButtonPrompt MenuButtonGuide;
+```
+
+2. In the appropriate UI definition file located in `/src/profile/games/<game_name>/` in the `Configure` function, get the button prompt defined in the profile UI definition file, for example:
+
+```cpp
+MenuButtonGuide = EnsureGetMember<UI::ButtonPrompt>("MenuButtonGuide");
+```
+
+3. In the Render function of the UI element, draw the button prompt by using the following function (defined in `/src/ui/buttonprompt.h`), for example:
+
+```cpp
+UI::DrawButtonPrompt(MenuButtonGuide, glm::vec2(X, Y));
+```
+
+4. In the patch profile folder located in `/patches/<patch_name>/profiles/<profile_name>/` add a `buttonprompt.lua` file, and include it in the patch profile file `patch.lua`, for example:
+
+```lua
+include(root.BasePaths.RootPatchesDir .. '/english/profiles/cclcc/buttonprompt.lua');
+```
+
+5. In the patch profile file located in `/patches/<patch_name>/profiles/<profile_name>/buttonprompt.lua`, enable button icons in the `root.Patch` object, for example:
+
+```lua
+root.Patch.UniversalButtonIcons = true;
+```
+
+6. In the patch profile file located in `/patches/<patch_name>/profiles/<profile_name>/buttonprompt.lua`, add sprite definitions for the icons to the global `root.Sprites` dictionary, and assign them to controller buttons and keyboard keys in the global `root.ButtonPromptIcons` object, for example:
+
+```lua
+root.Sprites["ButtonIconSouth"] = {
+    Sheet = "ButtonIcons",
+    Bounds = { X = 0, Y = 0, Width = 30, Height = 30 }
+};
+
+root.ButtonPromptIcons = {
+    Controller = {
+        [ControllerButton.SOUTH] = "ButtonIconSouth"
+    },
+    Keyboard = {
+        [KeyboardScanCode._RETURN] = "ButtonIconKeyEnter"
+    }
+};
+```
+
+7. In the patch profile file located in `/patches/<patch_name>/profiles/<profile_name>/buttonprompt.lua`, replace the prompt sprite with a sprite without button icons, and define the icon positions, for example:
+
+```lua
+root.SystemMenu.MenuButtonGuide = {
+    Sprite = "SystemMenuButtonGuideNoIcons",
+    Icons = {
+        { Button = root.PADinput.PAD1A, X = 282, Y = 25 },
+        { Button = root.PADinput.PAD1B, X = 401, Y = 25 }
+    }
+};
+```
+
+`Button` is a game button from `root.PADinput`. Depending on the input device that was used last, the icon is chosen from the controller button or the keyboard key that the game button is bound to in `root.Input`, and it is drawn centred at `X` and `Y` relative to the top left corner of the prompt sprite. When the confirm and cancel buttons are swapped, the south and east icons are swapped as well. If no icon is defined for the bound button or key, no icon is drawn. A single sprite name can also be used instead of a table, in which case only the sprite is drawn. Without `UniversalButtonIcons`, icons are not drawn for any button prompt.

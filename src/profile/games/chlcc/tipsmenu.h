@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../../spritesheet.h"
+#include "../../../ui/buttonprompt.h"
 
 namespace Impacto {
 namespace Profile {
@@ -23,7 +24,7 @@ inline uint32_t EndOfGradientColor;
 inline glm::vec2 CurrentTipBackgroundPosition;
 inline Sprite CurrentTipBackgroundSprite;
 inline glm::vec2 ButtonPromptPosition;
-inline Sprite ButtonPromptSprite;
+inline UI::ButtonPrompt ButtonPromptSprite;
 inline int TipsStringTable;
 inline int CategoryStringIndex;
 inline int SortStringIndex;

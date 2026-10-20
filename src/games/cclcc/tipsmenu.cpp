@@ -284,7 +284,7 @@ void TipsMenu::Render() {
     }
   }
 
-  Renderer->DrawSprite(
+  UI::DrawButtonPrompt(
       TipsGuideSprite,
       glm::vec2(TipsGuideX,
                 TipsGuideY + Profile::Game::DesignHeight / 2 - LastYPos),

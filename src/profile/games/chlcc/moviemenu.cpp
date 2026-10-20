@@ -40,7 +40,7 @@ void Configure() {
                          "MoviesThumbnails");
   LockedThumbnail = EnsureGetMember<Sprite>("LockedThumbnail");
   ButtonPromptPosition = EnsureGetMember<glm::vec2>("ButtonPromptPosition");
-  ButtonPromptSprite = EnsureGetMember<Sprite>("ButtonPromptSprite");
+  ButtonPromptSprite = EnsureGetMember<UI::ButtonPrompt>("ButtonPromptSprite");
 
   MovieExtraVideosEnabled =
       TryGetMember<bool>("MovieExtraVideosEnabled").value_or(false);
@@ -52,7 +52,8 @@ void Configure() {
     MovieThumbnailExtraOp2 = EnsureGetMember<Sprite>("MovieThumbnailExtraOp2");
     MovieButtonExtraPromptPosition =
         EnsureGetMember<glm::vec2>("MovieButtonExtraPromptPosition");
-    MovieButtonExtraPrompt = EnsureGetMember<Sprite>("MovieButtonExtraPrompt");
+    MovieButtonExtraPrompt =
+        EnsureGetMember<UI::ButtonPrompt>("MovieButtonExtraPrompt");
   }
 
   auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
