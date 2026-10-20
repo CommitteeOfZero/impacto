@@ -3,7 +3,6 @@
 #include <minilua/minilua.h>
 #include <initializer_list>
 #include <optional>
-#include <charconv>
 #include <system_error>
 #include <glm/glm.hpp>
 #include "../io/assetpath.h"
@@ -96,12 +95,17 @@ std::optional<T> TryGet();
 
 template <typename T>
 concept HasEntityType =
-    is_any_of_v<T, Sprite, SpriteSheet, Font*, SpriteAnimationDef,
+    is_any_of_v<std::decay_t<T>, Sprite, SpriteSheet, Font*, SpriteAnimationDef,
                 FixedSpriteAnimationDef>;
 
 template <typename T>
   requires HasEntityType<T>
 std::optional<T> TryGet();
+
+template <typename T>
+  requires HasEntityType<T> && std::is_reference_v<T> &&
+           std::is_const_v<std::remove_reference_t<T>>
+std::optional<std::reference_wrapper<std::remove_reference_t<T>>> TryGet();
 
 // generic glm::vec getter
 template <typename T>
@@ -152,7 +156,7 @@ std::optional<E> TryGet();
 // Definitions:
 template <typename T>
 inline T EnsureGet() {
-  std::optional<T> result = TryGet<T>();
+  auto result = TryGet<T>();
 
   if (!result.has_value()) {
     ImpLog(Impacto::LogLevel::Fatal, Impacto::LogChannel::Profile,
@@ -168,6 +172,8 @@ inline T EnsureGetKey() {
   if constexpr (is_any_of_v<T, char const*, std::string_view, std::string>)
     return lua_tostring(LuaState, -2);
   else if constexpr (std::is_integral_v<T> && !std::is_same_v<T, bool>)
+    return (T)lua_tointeger(LuaState, -2);
+  else if constexpr (std::is_enum_v<T>)
     return (T)lua_tointeger(LuaState, -2);
   else if constexpr (requires(T x) {
                        {
@@ -261,45 +267,18 @@ template <typename T>
   requires is_any_of_v<std::decay_t<T>, char const*, std::string,
                        std::string_view>
 inline std::optional<T> TryGet() {
-  if (!lua_isstring(LuaState, -1)) return std::nullopt;
+  if (lua_type(LuaState, -1) != LUA_TSTRING) return std::nullopt;
   return lua_tostring(LuaState, -1);
 }
 
 template <typename T>
   requires std::is_arithmetic_v<T> && (!is_any_of_v<T, bool, long double>)
 inline std::optional<T> TryGet() {
-  if (lua_isnumber(LuaState, -1)) {
+  if (lua_type(LuaState, -1) == LUA_TNUMBER) {
     if constexpr (std::is_integral_v<T>) {
       return static_cast<T>(lua_tointeger(LuaState, -1));
     } else {
       return static_cast<T>(lua_tonumber(LuaState, -1));
-    }
-  }
-  if (lua_isstring(LuaState, -1)) {
-    std::string_view inputStr = {lua_tostring(LuaState, -1)};
-    T outNumber{};
-    if constexpr (std::is_integral_v<T>) {
-      auto [ptr, ec] = std::from_chars(
-          inputStr.data(), inputStr.data() + inputStr.size(), outNumber);
-      if (ec == std::errc{}) {
-        return outNumber;
-      }
-      ImpLog(LogLevel::Warning, LogChannel::Profile,
-             "Error encountered converting {:s} to number: {:s}\n", inputStr,
-             std::make_error_code(ec).message());
-    } else {
-      char* endPtr = nullptr;
-      if constexpr (std::is_same_v<T, double>) {
-        outNumber = std::strtod(inputStr.data(), &endPtr);
-      } else if constexpr (std::is_same_v<T, float>) {
-        outNumber = std::strtof(inputStr.data(), &endPtr);
-      }
-      if (endPtr != inputStr.data()) {
-        return outNumber;
-      }
-      ImpLog(LogLevel::Warning, LogChannel::Profile,
-             "Error encountered converting {:s} to number: {:s}\n", inputStr,
-             std::error_code{errno, std::generic_category()}.message());
     }
   }
   return std::nullopt;
@@ -335,6 +314,20 @@ inline std::optional<T> TryGet() {
   if (ref == map.end()) return std::nullopt;
 
   return ref->second;
+}
+
+template <typename T>
+  requires HasEntityType<T> && std::is_reference_v<T> &&
+           std::is_const_v<std::remove_reference_t<T>>
+inline auto TryGet()
+    -> std::optional<std::reference_wrapper<std::remove_reference_t<T>>> {
+  auto const& map = GetEntityMap<T>();
+  std::optional<std::string_view> name = TryGet<std::string_view>();
+  if (!name) return std::nullopt;
+  const auto& itr = map.find(*name);
+  if (itr == map.end()) return std::nullopt;
+
+  return itr->second;
 }
 
 // generic glm::vec getter
