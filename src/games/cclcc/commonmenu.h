@@ -38,7 +38,7 @@ class CommonMenu {
 
   template <bool IsSystem>
   void DrawBgSprite(MenuState state, const Animation& fadeAnimation,
-                    std::optional<Sprite> ScreenCap = std::nullopt);
+                    std::optional<MutableTextureRef> ScreenCap = std::nullopt);
 
  private:
   static glm::vec2 TransformImageVertex(const glm::vec2 vertex,
@@ -57,7 +57,7 @@ class CommonMenu {
 
   static inline std::array<Animation, SmokeLayerCount> SmokeAnimations;
 
-  static inline Sprite CaptureSprite;
+  static inline MutableTextureRef CaptureTexture;
 };
 
 }  // namespace CCLCC

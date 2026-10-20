@@ -159,9 +159,7 @@ inline T EnsureGet() {
   auto result = TryGet<T>();
 
   if (!result.has_value()) {
-    ImpLog(Impacto::LogLevel::Fatal, Impacto::LogChannel::Profile,
-           "Unexpected type\n");
-    Impacto::Game::Shutdown();
+    Panic(LogChannel::Profile, "Unexpected type\n");
   }
 
   return result.value();
@@ -381,8 +379,7 @@ inline std::optional<T> TryGet() {
   PushInitialIndex();
 
   const auto errorHandler = [&](std::string error) {
-    ImpLog(LogLevel::Fatal, LogChannel::Profile, "{:s}\n", error);
-    throw std::runtime_error(error);
+    Panic(LogChannel::Profile, "{:s}\n", error);
   };
 
   T out;
@@ -445,10 +442,8 @@ inline std::optional<T> TryGet() {
   T result;
   ForEachProfileArray([&]([[maybe_unused]] size_t i) {
     if (i != result.size()) {
-      std::string error = fmt::format(
-          "Unexpected key {} in lua array, expected {}", i, result.size());
-      ImpLog(LogLevel::Fatal, LogChannel::Profile, "{:s}\n", error);
-      throw std::runtime_error(error);
+      Panic(LogChannel::Profile, "Unexpected key {} in lua array, expected {}",
+            i, result.size());
     }
     result.push_back(EnsureGet<typename T::value_type>());
   });
@@ -484,8 +479,7 @@ template <typename T>
 inline std::optional<T> TryGet() {
   if (!lua_istable(LuaState, -1)) return std::nullopt;
   auto errorHandler = [](std::string error) {
-    ImpLog(LogLevel::Fatal, LogChannel::Profile, "{:s}\n", error);
-    throw std::runtime_error(error);
+    Panic(LogChannel::Profile, "{:s}\n", error);
   };
 
   T result;
@@ -560,11 +554,9 @@ template <typename T>
 inline void GetArray(std::span<T> out) {
   size_t actualCount = static_cast<size_t>(lua_rawlen(LuaState, -1));
   if (actualCount != out.size()) {
-    std::string error =
-        fmt::format("Expected to have {:d} values for array, got {:d}",
-                    out.size(), actualCount);
-    ImpLog(LogLevel::Fatal, LogChannel::Profile, "{:s}\n", error);
-    throw std::runtime_error(error);
+    Panic(LogChannel::Profile,
+          "Expected to have {:d} values for array, got {:d}", out.size(),
+          actualCount);
   }
 
   ForEachProfileArray([&](uint32_t i) { out[i] = EnsureGetArrayElement<T>(); });

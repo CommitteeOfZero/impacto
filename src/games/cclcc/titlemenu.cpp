@@ -165,9 +165,6 @@ TitleMenu::TitleMenu() {
   ExtraItems = new Widgets::Group(this);
   ExtraItems->WrapFocus = false;
 
-  Sprite nullSprite = Sprite();
-  nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
-
   MenuLabel = new Widgets::Label(MenuSprite, MenuPos);
 
   auto onClick = [this](Widgets::Button* target) {
@@ -244,36 +241,36 @@ TitleMenu::TitleMenu() {
   }
 
   // Load secondary Continue menu button
-  Load =
-      new TitleButton(LoadButtonId, LoadSprite, LoadHighlightSprite, nullSprite,
-                      glm::vec2(SecondaryFirstItemHighlightOffsetX,
-                                (ItemYBase + (2 * ItemPadding))));
+  Load = new TitleButton(LoadButtonId, LoadSprite, LoadHighlightSprite,
+                         std::nullopt,
+                         glm::vec2(SecondaryFirstItemHighlightOffsetX,
+                                   (ItemYBase + (2 * ItemPadding))));
   setupBtn(Load, onClick, ContinueItems, FDIR_RIGHT);
 
   // QuickLoad secondary Continue menu button
   QuickLoad = new TitleButton(QLoadButtonId, QuickLoadSprite,
-                              QuickLoadHighlightSprite, nullSprite,
+                              QuickLoadHighlightSprite, std::nullopt,
                               glm::vec2(SecondarySecondItemHighlightOffsetX,
                                         (ItemYBase + (2 * ItemPadding))));
   setupBtn(QuickLoad, onClick, ContinueItems, FDIR_RIGHT);
 
   // Tips secondary Extra menu button
-  Tips =
-      new TitleButton(TipsButtonId, TipsSprite, TipsHighlightSprite, nullSprite,
-                      glm::vec2(SecondaryFirstItemHighlightOffsetX,
-                                (ItemYBase + (3 * ItemPadding))));
+  Tips = new TitleButton(TipsButtonId, TipsSprite, TipsHighlightSprite,
+                         std::nullopt,
+                         glm::vec2(SecondaryFirstItemHighlightOffsetX,
+                                   (ItemYBase + (3 * ItemPadding))));
   setupBtn(Tips, onClick, ExtraItems, FDIR_RIGHT);
 
   // Library secondary Extra menu button
   Library = new TitleButton(LibraryButtonId, LibrarySprite,
-                            LibraryHighlightSprite, nullSprite,
+                            LibraryHighlightSprite, std::nullopt,
                             glm::vec2(SecondarySecondItemHighlightOffsetX,
                                       (ItemYBase + (3 * ItemPadding))));
   setupBtn(Library, onClick, ExtraItems, FDIR_RIGHT);
 
   // EndingList secondary Extra menu button
   EndingList = new TitleButton(EndingListButtonId, EndingListSprite,
-                               EndingListHighlightSprite, nullSprite,
+                               EndingListHighlightSprite, std::nullopt,
                                glm::vec2(SecondaryThirdItemHighlightOffsetX,
                                          (ItemYBase + (3 * ItemPadding))));
   setupBtn(EndingList, onClick, ExtraItems, FDIR_RIGHT);
@@ -292,15 +289,6 @@ TitleMenu::TitleMenu() {
   SecondaryFadeAnimation.DurationOut = SecondaryFadeOutDuration;
   SlideItemsAnimation.DurationIn = SlideItemsAnimationDurationIn;
   SlideItemsAnimation.DurationOut = SlideItemsAnimationDurationOut;
-
-  const RectF viewport = Window->GetViewport();
-  Texture pressToStartTransitionTexture;
-  pressToStartTransitionTexture.LoadSolidColor(
-      static_cast<int>(viewport.Width), static_cast<int>(viewport.Height), 0);
-  PressToStartTransitionCapture.Sheet.Texture =
-      pressToStartTransitionTexture.Submit();
-  PressToStartTransitionCapture.Sheet.DesignWidth = viewport.Width;
-  PressToStartTransitionCapture.Sheet.DesignHeight = viewport.Height;
 }
 
 void TitleMenu::Show() {
@@ -731,14 +719,14 @@ void TitleMenu::Render() {
         Renderer->DrawSprite(BackgroundSprite, {0.0f, 0.0f});
         PressToStartTransitionCaptureSet = true;
       } else {
-        Renderer->DrawSprite(PressToStartTransitionCapture, {0.0f, 0.0f});
+        Renderer->DrawSprite({*PressToStartTransitionCapture, {0.0f, 0.0f}});
       }
 
       Renderer->DrawSprite(MainBackgroundSprite, {0.0f, 0.0f},
                            {1.0f, 1.0f, 1.0f, TitleAnimation.Progress});
       TitleAnimationSprite.Render(-1);
 
-      Renderer->CaptureScreencap(PressToStartTransitionCapture);
+      Renderer->CaptureScreenCap(PressToStartTransitionCapture);
 
       if (renderOverlay) {
         CommonMenu::DrawOverlay();

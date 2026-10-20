@@ -7,10 +7,8 @@ namespace UI {
 namespace CHLCC {
 
 class EyecatchEffect {
-  EyecatchEffect();
-
  public:
-  Sprite StarsMask;
+  MutableTextureRef StarsMask;
 
   void RenderMain();
   void RenderLayer(int layer);

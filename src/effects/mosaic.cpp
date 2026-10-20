@@ -6,37 +6,17 @@
 namespace Impacto {
 namespace Effects {
 
-MosaicEffect::MosaicEffect()
-    : CaptureSprite(
-          SpriteSheet(Profile::Game::DesignWidth, Profile::Game::DesignHeight),
-          0.0f, 0.0f, Profile::Game::DesignWidth, Profile::Game::DesignHeight) {
-  CaptureSprite.Sheet.IsScreenCap = true;
-}
-
-MosaicEffect::~MosaicEffect() {
-  if (Renderer) Renderer->FreeTexture(CaptureSprite.Sheet.Texture);
-}
-
-void MosaicEffect::Init() {
-  if (CaptureSprite.Sheet.Texture != 0) return;
-
-  Texture texture{};
-  texture.LoadSolidColor(static_cast<int>(Profile::Game::DesignWidth),
-                         static_cast<int>(Profile::Game::DesignHeight), 0);
-  CaptureSprite.Sheet.Texture = texture.Submit();
-}
-
 void MosaicEffect::Render(float tileSize) {
   if (tileSize <= 1.0f) return;
 
   tileSize = std::min(tileSize, 20.0f);
 
-  assert(CaptureSprite.Sheet.Texture != 0);
-  Renderer->CaptureScreencap(CaptureSprite);
-  Renderer->DrawMosaic(CaptureSprite,
-                       RectF{0.0f, 0.0f, Profile::Game::DesignWidth,
-                             Profile::Game::DesignHeight},
-                       tileSize, glm::mat4(1.0f), glm::vec4(1.0f));
+  assert(CaptureTexture.IsValid());
+  Renderer->CaptureScreenCap(CaptureTexture);
+  Renderer->DrawMosaic(
+      {*CaptureTexture, RectF{0.0f, 0.0f, Profile::Game::DesignWidth,
+                              Profile::Game::DesignHeight}},
+      {.TileSize = tileSize});
 }
 
 }  // namespace Effects

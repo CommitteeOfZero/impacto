@@ -39,7 +39,8 @@ class Wave {
   virtual void CalcPos(int startPhase,
                        std::optional<float> alpha = std::nullopt) = 0;
   PrimitiveData GetPrimitives() {
-    return {std::span(Vertices), std::span(Indices)};
+    return {std::span(Vertices), std::span(Indices),
+            TopologyMode::TriangleStrips};
   };
 };
 
@@ -52,7 +53,7 @@ class BGWave : public Wave {
 
 class EFFWave : public BGWave {
  public:
-  void Render(const Sprite& sprite);
+  void Render(const TextureInterface& sprite);
 };
 
 class CHAWave : public Wave {

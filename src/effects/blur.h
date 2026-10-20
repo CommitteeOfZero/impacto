@@ -6,13 +6,9 @@ namespace Effects {
 class BlurEffect {
  public:
   void Render(int iterations);
-  void Init();
-
-  BlurEffect();
-  ~BlurEffect();
 
  private:
-  Sprite BlurSprite;
+  MutableTextureRef BlurSprite;
 };
 
 inline BlurEffect Blur;

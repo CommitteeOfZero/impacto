@@ -93,7 +93,7 @@ void SubtitleRenderTrack::UpdateSubtitleGlyphs(ASS_Image* images) {
   ankerl::unordered_dense::set<GlyphKey, GlyphKey::hash> removalKeys;
   std::transform(GlyphTextures.begin(), GlyphTextures.end(),
                  std::inserter(removalKeys, removalKeys.end()),
-                 [](auto pair) { return pair.first; });
+                 [](auto& pair) { return pair.first; });
   SubtitleGlyphs.clear();
 
   // Hash the bitmap coverage & some ass_img metadata, then cache the texture
@@ -129,7 +129,6 @@ void SubtitleRenderTrack::UpdateSubtitleGlyphs(ASS_Image* images) {
   }
 
   for (const auto& key : removalKeys) {
-    Renderer->FreeTexture(GlyphTextures[key]);
     GlyphTextures.erase(key);
   }
 }
@@ -152,12 +151,13 @@ void SubtitleRenderTrack::Render() {
   }
 
   if (!SubtitleGlyphs.empty()) {
-    Renderer->SetBlendMode(RendererBlendMode::Premultiplied);
+    using BlendModeType = BaseRenderer::StateConfig::BlendModeType;
+    Renderer->SetBlendMode(BlendModeType::Premultiplied);
     for (const auto& subtitleGlyph : SubtitleGlyphs) {
-      Renderer->DrawSubtitleGlyph(subtitleGlyph.GlyphSprite,
-                                  subtitleGlyph.Position, subtitleGlyph.Tint);
+      Renderer->DrawSilhouette({subtitleGlyph.GlyphSprite,
+                                subtitleGlyph.Position, subtitleGlyph.Tint});
     }
-    Renderer->SetBlendMode(RendererBlendMode::Normal);
+    Renderer->SetBlendMode(BlendModeType::Normal);
   }
 }
 

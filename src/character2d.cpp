@@ -1,5 +1,7 @@
 #include "character2d.h"
 
+#include <magic_enum/magic_enum_containers.hpp>
+
 #include "mem.h"
 #include "io/io.h"
 #include "io/vfs.h"
@@ -161,10 +163,9 @@ bool Character2D::LoadSync(uint32_t charaId) {
 }
 
 void Character2D::UnloadSync() {
-  Renderer->FreeTexture(CharaSpriteSheet.Texture);
+  CharaSpriteSheet.Texture = TextureRef{};
   CharaSpriteSheet.DesignHeight = 0.0f;
   CharaSpriteSheet.DesignWidth = 0.0f;
-  CharaSpriteSheet.Texture = 0;
   Show = false;
   std::fill(Layers.begin(), Layers.end(), -1);
   MvlVertices.clear();
@@ -430,8 +431,8 @@ void Character2D::Render(const int layer) {
         Background2D::LastRenderedBackground &&
         Background2D::LastRenderedBackground->ChaBgEff.Loaded && UseBgEffect;
     if (!renderWithBgEffect) {
-      Renderer->DrawPrimitives(CharaSpriteSheet, ShaderProgramType::Sprite,
-                               MvlVertices, MvlIndices, transformation);
+      Renderer->DrawSprite({CharaSpriteSheet, MvlVertices, MvlIndices,
+                            TopologyMode::Triangles, transformation});
 
     } else {
       const BgEff& bgEff = Background2D::LastRenderedBackground->ChaBgEff;
@@ -455,9 +456,69 @@ void Character2D::Render(const int layer) {
         return glm::mat4(1.0f);
       }();
 
-      Renderer->DrawPrimitives(
-          CharaSpriteSheet, &bgEff.BgEffSprite.Sheet, bgEff.Shader, MvlVertices,
-          MvlIndices, transformation, maskTransformation * transformation);
+      const static auto shaderTable = []() {
+        using enum ShaderProgramType;
+        magic_enum::containers::array<
+            ShaderProgramType,
+            std::function<void(const PositionedMaskedSprite&)>>
+            table;
+        static_assert(table.size() == 11);
+
+        table[AdditiveMaskedSprite] =
+            [](const PositionedMaskedSprite& spriteInfo) {
+              Renderer->DrawAdditiveMaskedSprite(spriteInfo);
+            };
+        table[ColorBurnMaskedSprite] =
+            [](const PositionedMaskedSprite& spriteInfo) {
+              Renderer->DrawColorBurnMaskedSprite(spriteInfo);
+            };
+        table[ColorDodgeMaskedSprite] =
+            [](const PositionedMaskedSprite& spriteInfo) {
+              Renderer->DrawColorDodgeMaskedSprite(spriteInfo);
+            };
+        table[ColorMaskedSprite] =
+            [](const PositionedMaskedSprite& spriteInfo) {
+              Renderer->DrawColorMaskedSprite(spriteInfo);
+            };
+        table[HardLightMaskedSprite] =
+            [](const PositionedMaskedSprite& spriteInfo) {
+              Renderer->DrawHardLightMaskedSprite(spriteInfo);
+            };
+        table[LinearBurnMaskedSprite] =
+            [](const PositionedMaskedSprite& spriteInfo) {
+              Renderer->DrawLinearBurnMaskedSprite(spriteInfo);
+            };
+        table[MaskedSpriteNoAlpha] =
+            [](const PositionedMaskedSprite& spriteInfo) {
+              Renderer->DrawMaskedSpriteNoAlpha(
+                  spriteInfo, {.Alpha = 1.0f, .FadeRange = 0.0f});
+            };
+        table[OverlayMaskedSprite] =
+            [](const PositionedMaskedSprite& spriteInfo) {
+              Renderer->DrawOverlayMaskedSprite(spriteInfo);
+            };
+        table[ScreenMaskedSprite] =
+            [](const PositionedMaskedSprite& spriteInfo) {
+              Renderer->DrawScreenMaskedSprite(spriteInfo);
+            };
+        table[SoftLightMaskedSprite] =
+            [](const PositionedMaskedSprite& spriteInfo) {
+              Renderer->DrawSoftLightMaskedSprite(spriteInfo);
+            };
+        table[Sprite] = [](const PositionedMaskedSprite& spriteInfo) {
+          Renderer->DrawSprite({spriteInfo.Texture, spriteInfo.GetVertices(),
+                                spriteInfo.GetIndices(),
+                                spriteInfo.GetTopologyMode(),
+                                spriteInfo.Transformation});
+        };
+
+        return table;
+      }();
+
+      shaderTable[bgEff.Shader]({CharaSpriteSheet, bgEff.BgEffSprite.Sheet,
+                                 MvlVertices, MvlIndices,
+                                 TopologyMode::Triangles, transformation,
+                                 maskTransformation * transformation});
     }
 
   } else {
