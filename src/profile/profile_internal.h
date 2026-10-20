@@ -168,6 +168,8 @@ inline T EnsureGetKey() {
   if constexpr (is_any_of_v<T, char const*, std::string_view, std::string>)
     return lua_tostring(LuaState, -2);
   else if constexpr (std::is_integral_v<T> && !std::is_same_v<T, bool>)
+return (T)lua_tointeger(LuaState, -2);
+  else if constexpr (std::is_enum_v<T>)
     return (T)lua_tointeger(LuaState, -2);
   else if constexpr (requires(T x) {
                        {
