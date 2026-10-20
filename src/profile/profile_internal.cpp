@@ -104,8 +104,7 @@ std::optional<RectF> TryGetImpl<RectF>::Call() {
 std::optional<UI::ButtonPromptIcon> TryGetImpl<UI::ButtonPromptIcon>::Call() {
   if (!lua_istable(LuaState, -1)) return std::nullopt;
   UI::ButtonPromptIcon icon;
-  if (TryGetMember("Button", icon.Button) &&
-      TryGetMember("X", icon.Position.x) &&
+  if (TryGetMember("Key", icon.Key) && TryGetMember("X", icon.Position.x) &&
       TryGetMember("Y", icon.Position.y)) {
     return icon;
   }

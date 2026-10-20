@@ -2,14 +2,17 @@
 
 #include <limits>
 #include <vector>
+#include <variant>
 
 #include "../spritesheet.h"
+#include "../vm/interface/input.h"
 
 namespace Impacto {
 namespace UI {
 
 struct ButtonPromptIcon {
-  uint32_t Button = 0;
+  using KeyType = std::variant<std::string, Vm::Interface::PADinput>;
+  KeyType Key{};
   glm::vec2 Position = glm::vec2(0.0f);
 };
 
