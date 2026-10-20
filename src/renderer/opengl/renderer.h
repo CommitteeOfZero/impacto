@@ -30,6 +30,8 @@ class Renderer : public BaseRenderer {
   void BeginFrame() override;
   void BeginFrame2D() override;
   void EndFrame() override;
+  void ClearFramebuffer(size_t buffer,
+                        glm::vec4 color = glm::vec4(0.0f)) override;
 
   uint32_t MapSpriteSheet(SpriteSheet const& sheet) override;
   bool LoadSurf(int surfId, int archiveId, int fileId) override;

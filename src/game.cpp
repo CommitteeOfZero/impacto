@@ -435,12 +435,19 @@ void Update(float dt) {
 static void RenderMain() {
   Background2D::LastRenderedBackground = nullptr;
   UI::GameSpecific::RenderEarlyMain();
+  std::array<bool, MaxFramebuffers + 1> cleared{};
+
   for (uint32_t layer = 0; layer <= Profile::Game::LayerCount; layer++) {
     if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::CC ||
         Profile::Vm::GameInstructionSet == Vm::InstructionSet::LCCSwitch) {
       const int renderTarget = ScrWork[SW_RENDERTARGET + layer];
       if (0 <= renderTarget && renderTarget <= MaxFramebuffers) {
         Renderer->SetFramebuffer(renderTarget);
+
+        if (!cleared[renderTarget]) {
+          Renderer->ClearFramebuffer(renderTarget);
+          cleared[renderTarget] = true;
+        }
       }
     }
 
