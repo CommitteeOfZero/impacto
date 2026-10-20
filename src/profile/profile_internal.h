@@ -95,12 +95,17 @@ std::optional<T> TryGet();
 
 template <typename T>
 concept HasEntityType =
-    is_any_of_v<T, Sprite, SpriteSheet, Font*, SpriteAnimationDef,
+    is_any_of_v<std::decay_t<T>, Sprite, SpriteSheet, Font*, SpriteAnimationDef,
                 FixedSpriteAnimationDef>;
 
 template <typename T>
   requires HasEntityType<T>
 std::optional<T> TryGet();
+
+template <typename T>
+  requires HasEntityType<T> && std::is_reference_v<T> &&
+           std::is_const_v<std::remove_reference_t<T>>
+std::optional<std::reference_wrapper<std::remove_reference_t<T>>> TryGet();
 
 // generic glm::vec getter
 template <typename T>
@@ -151,7 +156,7 @@ std::optional<E> TryGet();
 // Definitions:
 template <typename T>
 inline T EnsureGet() {
-  std::optional<T> result = TryGet<T>();
+  auto result = TryGet<T>();
 
   if (!result.has_value()) {
     ImpLog(Impacto::LogLevel::Fatal, Impacto::LogChannel::Profile,
@@ -167,7 +172,7 @@ inline T EnsureGetKey() {
   if constexpr (is_any_of_v<T, char const*, std::string_view, std::string>)
     return lua_tostring(LuaState, -2);
   else if constexpr (std::is_integral_v<T> && !std::is_same_v<T, bool>)
-return (T)lua_tointeger(LuaState, -2);
+    return (T)lua_tointeger(LuaState, -2);
   else if constexpr (std::is_enum_v<T>)
     return (T)lua_tointeger(LuaState, -2);
   else if constexpr (requires(T x) {
@@ -276,7 +281,7 @@ inline std::optional<T> TryGet() {
       return static_cast<T>(lua_tonumber(LuaState, -1));
     }
   }
-    return std::nullopt;
+  return std::nullopt;
 }
 
 template <typename T>
@@ -309,6 +314,20 @@ inline std::optional<T> TryGet() {
   if (ref == map.end()) return std::nullopt;
 
   return ref->second;
+}
+
+template <typename T>
+  requires HasEntityType<T> && std::is_reference_v<T> &&
+           std::is_const_v<std::remove_reference_t<T>>
+inline auto TryGet()
+    -> std::optional<std::reference_wrapper<std::remove_reference_t<T>>> {
+  auto const& map = GetEntityMap<T>();
+  std::optional<std::string_view> name = TryGet<std::string_view>();
+  if (!name) return std::nullopt;
+  const auto& itr = map.find(*name);
+  if (itr == map.end()) return std::nullopt;
+
+  return itr->second;
 }
 
 // generic glm::vec getter
