@@ -39,7 +39,7 @@ void Configure() {
   ButtonPromptPosition = EnsureGetMember<glm::vec2>("ButtonPromptPosition");
   ButtonPromptSprite = EnsureGetMember<Sprite>("ButtonPromptSprite");
 
-  auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
+  auto drawType = EnsureGetMember<Impacto::Game::DrawComponentType>("DrawType");
 
   auto clearList = new UI::CHLCC::ClearListMenu();
   UI::Menus[drawType].push_back(clearList);

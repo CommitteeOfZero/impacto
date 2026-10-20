@@ -10,6 +10,9 @@
 #include "../../data/tipssystem.h"
 #include "../../ui/menu.h"
 
+namespace MO6TWTipsNotificationProfile = ::Impacto::Profile::TipsNotification;
+namespace MO6TWNotificationVm = ::Impacto::Vm;
+
 namespace Impacto {
 namespace MO6TW {
 
@@ -20,8 +23,8 @@ using namespace Impacto::UI;
 using namespace Impacto::UI::Widgets;
 
 TipsNotification::TipsNotification() {
-  FadeAnimation.DurationIn = FadeInDuration;
-  FadeAnimation.DurationOut = FadeOutDuration;
+  FadeAnimation.DurationIn = MO6TWTipsNotificationProfile::FadeInDuration;
+  FadeAnimation.DurationOut = MO6TWTipsNotificationProfile::FadeOutDuration;
 
   Timer.DurationIn = TimerDuration;
   Timer.LoopMode = AnimationLoopMode::Stop;
@@ -36,18 +39,18 @@ TipsNotification::TipsNotification() {
   Notification->VisibilityState = Shown;
   Notification->HasFocus = false;
 
-  auto textAlert =
-      Vm::ScriptGetTextTableStrAddress(TextTableId, NotificationAlertMessageId);
+  auto textAlert = MO6TWNotificationVm::ScriptGetTextTableStrAddress(
+      TextTableId, NotificationAlertMessageId);
   TextAlert = new Label(textAlert, AlertPosition, FontSize,
                         RendererOutlineMode::Full, AlertTextColorIndex);
   AlertTitle->Add(TextAlert);
 
-  auto textBefore = Vm::ScriptGetTextTableStrAddress(
+  auto textBefore = MO6TWNotificationVm::ScriptGetTextTableStrAddress(
       TextTableId, NotificationTextPart1MessageId);
   TextPartBefore = new Label(textBefore, FinalNotificationPosition, FontSize,
                              RendererOutlineMode::Full, 0);
   Notification->Add(TextPartBefore);
-  auto textAfter = Vm::ScriptGetTextTableStrAddress(
+  auto textAfter = MO6TWNotificationVm::ScriptGetTextTableStrAddress(
       TextTableId, NotificationTextPart2MessageId);
   TextPartAfter = new Label(
       textAfter,
@@ -72,11 +75,12 @@ void TipsNotification::Update(float dt) {
   if (FadeAnimation.IsIn() && Timer.IsOut()) {
     Timer.StartIn();
     auto tipNameAdr = NotificationQueue.front();
-    auto [buffers, tipsScrBufId] = TipsSystem::GetTipsScriptBufferCtx();
+    auto [buffers, tipsScrBufId] =
+        Impacto::TipsSystem::GetTipsScriptBufferCtx();
     TipName->SetText(
-        Vm::BufferOffsetContext{.Buffers = buffers,
-                                .BufferId = tipsScrBufId,
-                                .IpOffset = tipNameAdr},
+        Impacto::Vm::BufferOffsetContext{.Buffers = buffers,
+                                         .BufferId = tipsScrBufId,
+                                         .IpOffset = tipNameAdr},
         {FinalNotificationPosition.x + TextPartBefore->Bounds.Width,
          FinalNotificationPosition.y},
         FontSize, RendererOutlineMode::Full, TipNameColorIndex);
@@ -114,7 +118,7 @@ void TipsNotification::Render() {
 }
 
 void TipsNotification::AddTip(int tipId) {
-  const auto* const record = TipsSystem::GetTipRecord(tipId);
+  const auto* const record = Impacto::TipsSystem::GetTipRecord(tipId);
   NotificationQueue.push(record->StringAdr[0]);
 }
 

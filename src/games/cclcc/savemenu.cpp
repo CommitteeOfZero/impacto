@@ -14,6 +14,9 @@
 #include "../../games/cclcc/savesystem.h"
 #include "../../audio/audiosystem.h"
 
+namespace CCLCCSaveProfile = ::Impacto::Profile::SaveMenu;
+namespace CCLCCSaveSystem = ::Impacto::SaveSystem;
+
 namespace Impacto {
 namespace UI {
 namespace CCLCC {
@@ -26,21 +29,21 @@ using namespace Impacto::UI::Widgets::CCLCC;
 Widget* EntryGrid[Pages][RowsPerPage][EntriesPerRow];
 
 void SaveMenu::MenuButtonOnClick(Widgets::Button* target) {
-  Impacto::SaveSystem::SaveType saveType =
+  CCLCCSaveSystem::SaveType saveType =
       *ActiveMenuType == SaveMenuPageType::QuickLoad
-          ? SaveSystem::SaveType::Quick
-          : SaveSystem::SaveType::Full;
-  int SaveStatus = SaveSystem::GetSaveStatus(saveType, target->Id);
+          ? CCLCCSaveSystem::SaveType::Quick
+          : CCLCCSaveSystem::SaveType::Full;
+  int SaveStatus = CCLCCSaveSystem::GetSaveStatus(saveType, target->Id);
   if (SaveStatus == 1 || *ActiveMenuType == SaveMenuPageType::Save) {
     ScrWork[SW_SAVEFILENO] = target->Id;
     ScrWork[SW_SAVEFILETYPE] = (int)saveType;
     ScrWork[SW_SAVEFILESTATUS] =
-        SaveSystem::GetSaveStatus(saveType, ScrWork[SW_SAVEFILENO]);
+        CCLCCSaveSystem::GetSaveStatus(saveType, ScrWork[SW_SAVEFILENO]);
 
     ChoiceMade = true;
     SetFlag(SF_SAVEPROTECTED,
-            SaveSystem::GetSaveFlags(saveType, ScrWork[SW_SAVEFILENO]) &
-                SaveSystem::SaveFlagsMode::WriteProtect);
+            CCLCCSaveSystem::GetSaveFlags(saveType, ScrWork[SW_SAVEFILENO]) &
+                CCLCCSaveSystem::SaveFlagsMode::WriteProtect);
   }
   if ((*ActiveMenuType == SaveMenuPageType::Load ||
        *ActiveMenuType == SaveMenuPageType::QuickLoad) &&
@@ -66,17 +69,18 @@ void SaveMenu::Show() {
         magic_enum::enum_cast<SaveMenuPageType>(ScrWork[SW_SYSMENUCNO] - 2);
   }
 
-  CommonMenu::OnShow(FadeInDuration, FadeOutDuration, FadeAnimation);
+  CommonMenu::OnShow(CCLCCSaveProfile::FadeInDuration,
+                     CCLCCSaveProfile::FadeOutDuration, FadeAnimation);
 
   if (State != Showing) {
     HasCleared = false;
     State = Showing;
     FadeAnimation.StartIn();
     int id = 0;
-    Impacto::SaveSystem::SaveType saveType =
+    CCLCCSaveSystem::SaveType saveType =
         *ActiveMenuType == SaveMenuPageType::QuickLoad
-            ? SaveSystem::SaveType::Quick
-            : SaveSystem::SaveType::Full;
+            ? CCLCCSaveSystem::SaveType::Quick
+            : CCLCCSaveSystem::SaveType::Full;
 
     for (int p = 0; p < Pages; ++p) {
       MainItems[p] = new Widgets::Group(this);
@@ -174,7 +178,7 @@ void SaveMenu::Show() {
         }
       }
     }
-    const int newestSaveId = SaveSystem::GetNewestSaveId(saveType);
+    const int newestSaveId = CCLCCSaveSystem::GetNewestSaveId(saveType);
     CurrentPage = newestSaveId / EntriesPerPage;
     PrevPage = CurrentPage;
     MainItems[CurrentPage]->Show();
@@ -203,7 +207,7 @@ void SaveMenu::Hide() {
 }
 
 void SaveMenu::UpdateInput(float dt) {
-  using namespace Vm::Interface;
+  using namespace Impacto::Vm::Interface;
   Menu::UpdateInput(dt);
   const auto updatePage = [&](int nextPage) {
     PrevPage = CurrentPage;
@@ -236,12 +240,12 @@ void SaveMenu::UpdateInput(float dt) {
     }
 
     if (CurrentlyFocusedElement && (PADinputButtonWentDown & PAD1Y)) {
-      Impacto::SaveSystem::SaveType saveType =
+      CCLCCSaveSystem::SaveType saveType =
           *ActiveMenuType == SaveMenuPageType::QuickLoad
-              ? SaveSystem::SaveType::Quick
-              : SaveSystem::SaveType::Full;
+              ? CCLCCSaveSystem::SaveType::Quick
+              : CCLCCSaveSystem::SaveType::Full;
       auto saveButton = static_cast<SaveEntryButton*>(CurrentlyFocusedElement);
-      if (SaveSystem::GetSaveStatus(saveType, saveButton->Id) == 1) {
+      if (CCLCCSaveSystem::GetSaveStatus(saveType, saveButton->Id) == 1) {
         saveButton->ToggleLock();
         saveButton->RefreshInfo();
         Audio::PlayInGroup(Audio::ACG_SE, "sysse", 2, false, 0);

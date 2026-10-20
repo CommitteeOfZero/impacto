@@ -25,7 +25,7 @@ void Configure() {
   SystemMenuX = EnsureGetMember<float>("SystemMenuX");
   SystemMenuY = EnsureGetMember<float>("SystemMenuY");
 
-  auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
+  auto drawType = EnsureGetMember<Impacto::Game::DrawComponentType>("DrawType");
 
   UI::SystemMenuPtr = new UI::MO8::SystemMenu();
   UI::Menus[drawType].push_back(UI::SystemMenuPtr);

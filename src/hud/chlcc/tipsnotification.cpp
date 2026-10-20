@@ -5,6 +5,9 @@
 #include "../../data/tipssystem.h"
 #include "../../profile/game.h"
 
+namespace CHLCCTipsNotificationProfile = ::Impacto::Profile::TipsNotification;
+namespace CHLCCNotificationVm = ::Impacto::Vm;
+
 namespace Impacto {
 namespace CHLCC {
 
@@ -13,19 +16,19 @@ using namespace Impacto::Profile::CHLCC::TipsNotification;
 using namespace Impacto::UI::Widgets;
 
 TipsNotification::TipsNotification() {
-  const auto headerText =
-      Vm::ScriptGetTextTableStrAddress(TextTableId, HeaderMessageId);
+  const auto headerText = CHLCCNotificationVm::ScriptGetTextTableStrAddress(
+      TextTableId, HeaderMessageId);
   Header = Label(headerText, HeaderPosition, HeaderFontSize,
                  RendererOutlineMode::BottomRight, HeaderColor);
   Header.OutlineAlphaEnabled = true;
 
-  const auto beforeText = Vm::ScriptGetTextTableStrAddress(
+  const auto beforeText = CHLCCNotificationVm::ScriptGetTextTableStrAddress(
       TextTableId, NotificationTextPart1MessageId);
   TextPartBefore = Label(beforeText, TextStartPosition, TextFontSize,
                          RendererOutlineMode::BottomRight, 0);
   TextPartBefore.OutlineAlphaEnabled = true;
 
-  const auto afterText = Vm::ScriptGetTextTableStrAddress(
+  const auto afterText = CHLCCNotificationVm::ScriptGetTextTableStrAddress(
       TextTableId, NotificationTextPart2MessageId);
   TextPartAfter =
       Label(afterText,
@@ -39,8 +42,8 @@ TipsNotification::TipsNotification() {
       static_cast<int>(TipNameColorIndex));
   TipName.OutlineAlphaEnabled = true;
 
-  FadeAnimation.DurationIn = FadeInDuration;
-  FadeAnimation.DurationOut = FadeOutDuration;
+  FadeAnimation.DurationIn = CHLCCTipsNotificationProfile::FadeInDuration;
+  FadeAnimation.DurationOut = CHLCCTipsNotificationProfile::FadeOutDuration;
 
   FadeOutAnimation = FadeAnimation;
 
@@ -61,11 +64,12 @@ void TipsNotification::Update(const float dt) {
       !NotificationQueue.empty()) {
     // Start display animation
     const auto tipNameAdr = NotificationQueue.front();
-    const auto [buffers, tipsScrBufId] = TipsSystem::GetTipsScriptBufferCtx();
+    const auto [buffers, tipsScrBufId] =
+        Impacto::TipsSystem::GetTipsScriptBufferCtx();
     TipName.SetText(
-        Vm::BufferOffsetContext{.Buffers = buffers,
-                                .BufferId = tipsScrBufId,
-                                .IpOffset = tipNameAdr},
+        Impacto::Vm::BufferOffsetContext{.Buffers = buffers,
+                                         .BufferId = tipsScrBufId,
+                                         .IpOffset = tipNameAdr},
         TextStartPosition + glm::vec2(TextPartBefore.Bounds.Width, 0.0f),
         TextFontSize, RendererOutlineMode::BottomRight,
         static_cast<int>(TipNameColorIndex));
@@ -125,7 +129,7 @@ void TipsNotification::AddTip(const int tipId) {
   FirstInQueue |= TipsAnimation.State == AnimationState::Stopped &&
                   NotificationQueue.empty();
 
-  const auto* const record = TipsSystem::GetTipRecord(tipId);
+  const auto* const record = Impacto::TipsSystem::GetTipRecord(tipId);
   NotificationQueue.push(record->StringAdr[0]);
 }
 

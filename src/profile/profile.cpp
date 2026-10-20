@@ -34,6 +34,8 @@
 #include "../profile/data/bgeff.h"
 #include "../inputsystem.h"
 
+namespace Achievement = ::Impacto::AchievementSystem;
+
 namespace Impacto {
 namespace Profile {
 
@@ -160,10 +162,10 @@ static void DefineEnums() {
   DefineEnum<CharacterTypeFlags>(LuaState);
   DefineEnum<Impacto::Vm::InstructionSet>(LuaState);
   DefineEnum<Impacto::Game::DrawComponentType>(LuaState);
-  DefineEnum<SaveSystem::SaveDataType>(LuaState);
-  DefineEnum<AchievementSystem::AchievementDataType>(LuaState);
-  DefineEnum<AchievementSystem::AchievementRarity>(LuaState);
-  DefineEnum<TipsSystem::TipsSystemType>(LuaState);
+  DefineEnum<Impacto::SaveSystem::SaveDataType>(LuaState);
+  DefineEnum<::Achievement::AchievementDataType>(LuaState);
+  DefineEnum<::Achievement::AchievementRarity>(LuaState);
+  DefineEnum<Impacto::TipsSystem::TipsSystemType>(LuaState);
   DefineEnum<UI::CommonMenuType>(LuaState);
   DefineEnum<UI::SystemMenuType>(LuaState);
   DefineEnum<UI::TitleMenuType>(LuaState);

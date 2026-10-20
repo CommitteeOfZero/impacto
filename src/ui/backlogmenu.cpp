@@ -25,6 +25,8 @@
 #include "widgets/cc/backlogentry.h"
 #include "widgets/chlcc/backlogentry.h"
 
+namespace BacklogProfile = Impacto::Profile::BacklogMenu;
+
 namespace Impacto {
 namespace UI {
 
@@ -62,8 +64,8 @@ BacklogMenu<EntryType>::BacklogMenu()
 
   FadeAnimation.Direction = AnimationDirection::In;
   FadeAnimation.LoopMode = AnimationLoopMode::Stop;
-  FadeAnimation.DurationIn = FadeInDuration;
-  FadeAnimation.DurationOut = FadeOutDuration;
+  FadeAnimation.DurationIn = BacklogProfile::FadeInDuration;
+  FadeAnimation.DurationOut = BacklogProfile::FadeOutDuration;
 }
 
 template <typename EntryType>

@@ -30,7 +30,7 @@ void Configure() {
   BoxRightBaseWidth = EnsureGetMember<float>("BoxRightBaseWidth");
   BoxRightRemainPad = EnsureGetMember<float>("BoxRightRemainPad");
 
-  auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
+  auto drawType = EnsureGetMember<Impacto::Game::DrawComponentType>("DrawType");
 
   UI::SysMesBox::DrawType = drawType;
   UI::SysMesBox::Factory = []() -> UI::SysMesBox* {

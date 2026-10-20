@@ -19,7 +19,7 @@ void Configure() {
       Profile::TitleMenu::PressToStartAnimDurationOut;
   PressToStartAnimation.LoopMode = AnimationLoopMode::ReverseDirection;
 
-  auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
+  auto drawType = EnsureGetMember<Impacto::Game::DrawComponentType>("DrawType");
 
   UI::TitleMenuPtr = new UI::Dash::TitleMenu();
   UI::Menus[drawType].push_back(UI::TitleMenuPtr);

@@ -1,3 +1,5 @@
+#pragma once
+
 #include <vector>
 #include "../renderer/renderer.h"
 #include "../profile/data/waveeffects.h"

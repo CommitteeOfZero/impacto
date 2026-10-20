@@ -18,6 +18,11 @@
 #include "../../audio/audiosystem.h"
 
 #include "../../ui/widgets/cclcc/tipstabgroup.h"
+namespace CCLCCTipsProfile = ::Impacto::Profile::TipsMenu;
+namespace CCLCCVmProfile = ::Impacto::Profile::Vm;
+namespace CCLCCTipsSystem = ::Impacto::TipsSystem;
+namespace CCLCCTipsVm = ::Impacto::Vm;
+
 namespace Impacto {
 namespace UI {
 namespace CCLCC {
@@ -76,7 +81,8 @@ void TipsMenu::Show() {
       }
     }
 
-    CommonMenu::OnShow(FadeInDuration, FadeOutDuration, FadeAnimation);
+    CommonMenu::OnShow(CCLCCTipsProfile::FadeInDuration,
+                       CCLCCTipsProfile::FadeOutDuration, FadeAnimation);
 
     Name->Bounds.SetPos(NamePos);
     Pronunciation->Bounds.SetPos(PronunciationPos);
@@ -102,7 +108,8 @@ void TipsMenu::Hide() {
     State = Hiding;
     FadeAnimation.StartOut();
     // Switch has this sfx played in the script
-    if (Profile::Vm::GameInstructionSet != Vm::InstructionSet::LCCSwitch) {
+    if (Profile::Vm::GameInstructionSet !=
+        Impacto::Vm::InstructionSet::LCCSwitch) {
       Audio::PlayInGroup(Audio::ACG_SE, "sysse", 3, false, 0);
     }
     if (ScrWork[SW_SYSSUBMENUCT] != 0) {
@@ -260,7 +267,7 @@ void TipsMenu::Render() {
   if (OpenedAsDirect) CommonMenu::DrawBgSprite<false>(State, FadeAnimation);
 
   Renderer->DrawSprite(
-      BackgroundSprite,
+      Profile::TipsMenu::BackgroundSprite,
       glm::vec2(0.0f, Profile::Game::DesignHeight / 2 - LastYPos), fade);
   TipsTabs[CurrentTabType]->Tint.a = fade.a;
   TipsTabs[CurrentTabType]->Render();
@@ -292,14 +299,14 @@ void TipsMenu::Render() {
 }
 
 void TipsMenu::Init() {
-  auto* TipRecords = TipsSystem::GetTipRecords();
+  auto* TipRecords = CCLCCTipsSystem::GetTipRecords();
   SortedTipIds.clear();
   std::transform(
       TipRecords->begin(), TipRecords->end(), std::back_inserter(SortedTipIds),
-      [](TipsSystem::TipsDataRecord const& record) { return record.Id; });
+      [](CCLCCTipsSystem::TipsDataRecord const& record) { return record.Id; });
   std::sort(SortedTipIds.begin(), SortedTipIds.end(),
-            TipsSystem::TipsComparator(TipsTextTableIndex,
-                                       TipsTextSortStringIndex, 3));
+            CCLCCTipsSystem::TipsComparator(TipsTextTableIndex,
+                                            TipsTextSortStringIndex, 3));
   for (int i = 0; i < TabCount; i++) {
     TipsTabType type = static_cast<TipsTabType>(i);
     TipsTabs[i] = new TipsTabGroup(
@@ -312,18 +319,18 @@ void TipsMenu::Init() {
 void TipsMenu::SwitchToTipId(int id) {
   if (id - 1 == CurrentlyDisplayedTipId) return;
   int actualId = SortedTipIds[id - 1];
-  auto [buffers, tipsScrBufId] = TipsSystem::GetTipsScriptBufferCtx();
-  auto* record = TipsSystem::GetTipRecord(actualId);
+  auto [buffers, tipsScrBufId] = CCLCCTipsSystem::GetTipsScriptBufferCtx();
+  auto* record = CCLCCTipsSystem::GetTipRecord(actualId);
   if (record->IsLocked) {
     Audio::PlayInGroup(Audio::ACG_SE, "sysse", 4, false, 0);
     return;
   }
   CurrentlyDisplayedTipId = id - 1;
 
-  TipsSystem::SetTipUnreadState(actualId, false);
-  auto categoryStr = TipsSystem::GetTextStringStream(actualId, 0);
-  auto nameStr = TipsSystem::GetTextStringStream(actualId, 1);
-  auto pronunciationStr = TipsSystem::GetTextStringStream(actualId, 2);
+  CCLCCTipsSystem::SetTipUnreadState(actualId, false);
+  auto categoryStr = CCLCCTipsSystem::GetTextStringStream(actualId, 0);
+  auto nameStr = CCLCCTipsSystem::GetTextStringStream(actualId, 1);
+  auto pronunciationStr = CCLCCTipsSystem::GetTextStringStream(actualId, 2);
   Category->SetText(categoryStr, CategoryPos, (float)CategoryFontSize,
                     RendererOutlineMode::None, {TipsMenuDarkTextColor, 0});
   Name->SetText(nameStr, NamePos, (float)NameFontSize,
@@ -337,19 +344,19 @@ void TipsMenu::SwitchToTipId(int id) {
         std::variant<std::array<uint16_t, 4>, std::array<uint32_t, 4>>;
 
     Buffer sc3StringBuffer =
-        Profile::Vm::StringEncodingType ==
-                Profile::Vm::StringUnitEncoding::Uint32
+        CCLCCVmProfile::StringEncodingType ==
+                CCLCCVmProfile::StringUnitEncoding::Uint32
             ? Buffer(std::in_place_type<std::array<uint32_t, 4>>)
             : Buffer(std::in_place_type<std::array<uint16_t, 4>>);
 
     auto lambda = [&]<typename T>() {
       auto& buf = std::get<std::array<T, 4>>(sc3StringBuffer);
       TextGetSc3String(fmt::format("{:03d}", id), buf);
-      return Vm::Sc3Stream(buf.data());
+      return CCLCCTipsVm::Sc3Stream(buf.data());
     };
 
-    auto stream = Profile::Vm::StringEncodingType ==
-                          Profile::Vm::StringUnitEncoding::Uint32
+    auto stream = CCLCCVmProfile::StringEncodingType ==
+                          CCLCCVmProfile::StringUnitEncoding::Uint32
                       ? lambda.template operator()<uint32_t>()
                       : lambda.template operator()<uint16_t>();
 
@@ -357,10 +364,10 @@ void TipsMenu::SwitchToTipId(int id) {
                     RendererOutlineMode::None, 0);
   }
 
-  Vm::Sc3VmThread dummy;
+  CCLCCTipsVm::Sc3VmThread dummy;
   dummy.ScriptBufferId = tipsScrBufId;
-  dummy.UseMSBBuffers = Profile::Vm::UseMsbStrings;
-  dummy.SetStringIp(TipsSystem::GetTextStringStream(actualId, 4).Data());
+  dummy.UseMSBBuffers = CCLCCVmProfile::UseMsbStrings;
+  dummy.SetStringIp(CCLCCTipsSystem::GetTextStringStream(actualId, 4).Data());
   TextPage.Clear();
   TextPage.AddString(&dummy);
   TipViewItems.HasFocus = true;

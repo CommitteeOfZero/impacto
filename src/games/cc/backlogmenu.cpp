@@ -10,6 +10,8 @@
 
 #include "../cclcc/systemmenu.h"
 
+namespace CCBacklogProfile = ::Impacto::Profile::BacklogMenu;
+
 namespace Impacto {
 namespace UI {
 namespace CC {
@@ -27,7 +29,8 @@ void BacklogMenu::MenuButtonOnClick(Widgets::BacklogEntry* target) {
 }
 
 void BacklogMenu::Show() {
-  CommonMenu::OnShow(FadeInDuration, FadeOutDuration, FadeAnimation);
+  CommonMenu::OnShow(CCBacklogProfile::FadeInDuration,
+                     CCBacklogProfile::FadeOutDuration, FadeAnimation);
   UI::BacklogMenu<BacklogEntry>::Show();
 }
 

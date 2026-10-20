@@ -81,7 +81,7 @@ void Configure() {
       EnsureGetMember<glm::vec2>("TrophyCountHintLabelPos");
   TrophyCountFontSize = EnsureGetMember<float>("TrophyCountFontSize");
 
-  auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
+  auto drawType = EnsureGetMember<Impacto::Game::DrawComponentType>("DrawType");
 
   assert(MaxTrophyPages * EntriesPerPage >=
          AchievementSystem::GetAchievementCount());

@@ -358,7 +358,8 @@ void OptionsMenu::Render() {
 
   glm::vec4 col(1.0f, 1.0f, 1.0f,
                 glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress));
-  Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f, 0.0f), col);
+  Renderer->DrawSprite(Profile::MO6TW::OptionsMenu::BackgroundSprite,
+                       glm::vec2(0.0f, 0.0f), col);
 
   switch (CurrentPage) {
     case 0: {

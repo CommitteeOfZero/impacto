@@ -16,6 +16,8 @@
 #include "../../ui/widgets/cclcc/librarymenubutton.h"
 #include "../../audio/audiosystem.h"
 
+namespace CCLCCLibraryProfile = ::Impacto::Profile::CCLCC::LibraryMenu;
+
 namespace Impacto {
 namespace UI {
 namespace CCLCC {
@@ -106,8 +108,8 @@ LibraryMenu::LibraryMenu() : MainItems(this) {
 
   FadeAnimation.Direction = AnimationDirection::In;
   FadeAnimation.LoopMode = AnimationLoopMode::Stop;
-  FadeAnimation.DurationIn = FadeInDuration;
-  FadeAnimation.DurationOut = FadeOutDuration;
+  FadeAnimation.DurationIn = CCLCCLibraryProfile::FadeInDuration;
+  FadeAnimation.DurationOut = CCLCCLibraryProfile::FadeOutDuration;
   ButtonBlinkAnimation.Direction = AnimationDirection::In;
   ButtonBlinkAnimation.LoopMode = AnimationLoopMode::ReverseDirection;
   ButtonBlinkAnimation.SetDuration(ButtonBlinkDuration);

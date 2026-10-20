@@ -5,13 +5,13 @@
 #include "../../background2d.h"
 #include "../../audio/audiosystem.h"
 
+namespace Impacto {
+namespace CHLCC {
+
 using namespace Impacto::Profile;
 using namespace Impacto::Profile::Game;
 using namespace Impacto::Profile::CHLCC::TitleMenu;
 using namespace Impacto::Audio;
-
-namespace Impacto {
-namespace CHLCC {
 
 IntroSequence::IntroSequence() {
   const RectF viewport = Window->GetViewport();

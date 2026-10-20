@@ -59,7 +59,7 @@ void Configure() {
       EnsureGetMember<glm::vec2>("SelectionMarkerRelativePos");
   CgFadeDuration = EnsureGetMember<float>("CgFadeDuration");
 
-  auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
+  auto drawType = EnsureGetMember<Impacto::Game::DrawComponentType>("DrawType");
 
   UI::AlbumMenuPtr = new UI::CHLCC::AlbumMenu();
   UI::Menus[drawType].push_back(UI::AlbumMenuPtr);

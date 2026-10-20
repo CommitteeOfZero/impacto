@@ -22,7 +22,6 @@ namespace CHLCC {
 using namespace Impacto::Profile::TitleMenu;
 using namespace Impacto::Profile::CHLCC::TitleMenu;
 using namespace Impacto::Profile::ScriptVars;
-using namespace Impacto::Profile;
 
 using namespace Impacto::Vm::Interface;
 
@@ -92,7 +91,7 @@ TitleMenu::TitleMenu() {
   MainItems->Add(System, FDIR_DOWN);
 
   // Exit menu button (Configuration/Patch driven)
-  if (Patch::HasScriptedExitLogic) {
+  if (Profile::Patch::HasScriptedExitLogic) {
     auto* const exitPtr =
         new TitleButton(4, ExitSprite, ExitHighlightSprite, ItemHighlightSprite,
                         glm::vec2(ItemHighlightOffset.x - 1.0f,

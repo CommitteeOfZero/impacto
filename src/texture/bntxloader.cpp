@@ -75,7 +75,7 @@ uint8_t* UnSwizzle(int width, int height, int blkWidth, int blkHeight, int bpp,
   return result;
 }
 
-static uint64_t const magic = 0x424E5458;
+static uint64_t const bntxMagic = 0x424E5458;
 
 int BPPbyFormat(TextureFormatType format) {
   switch (format) {
@@ -260,7 +260,7 @@ uint8_t* BCnDecompress(uint8_t* dataBuff, TextureNX element, int n) {
 bool TextureLoadBNTX(Stream* stream, Texture* outTexture) {
   // Read metadata
 
-  if (ReadBE<uint32_t>(stream) != magic) {
+  if (ReadBE<uint32_t>(stream) != bntxMagic) {
     stream->Seek(0, IoSeek::Set);
     return false;
   }
@@ -461,7 +461,7 @@ bool TextureLoadBNTX(Stream* stream, Texture* outTexture) {
   return result;
 }  // namespace TexLoad
 
-static bool _registered = Texture::AddTextureLoader(&TextureLoadBNTX);
+static bool bntxRegistered = Texture::AddTextureLoader(&TextureLoadBNTX);
 
 }  // namespace TexLoad
 }  // namespace Impacto

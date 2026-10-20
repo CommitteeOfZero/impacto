@@ -13,7 +13,7 @@ namespace MO8 {
 namespace OptionsMenu {
 
 void Configure() {
-  auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
+  auto drawType = EnsureGetMember<Impacto::Game::DrawComponentType>("DrawType");
 
   BackgroundSprite = EnsureGetMember<Sprite>("BackgroundSprite");
 

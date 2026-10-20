@@ -11,6 +11,8 @@
 #include "../../vm/interface/input.h"
 #include "../../profile/game.h"
 
+namespace CCLCCClearListProfile = ::Impacto::Profile::CCLCC::ClearListMenu;
+
 namespace Impacto {
 namespace UI {
 namespace CCLCC {
@@ -25,8 +27,8 @@ using namespace Impacto::UI::Widgets;
 ClearListMenu::ClearListMenu() {
   FadeAnimation.Direction = AnimationDirection::In;
   FadeAnimation.LoopMode = AnimationLoopMode::Stop;
-  FadeAnimation.DurationIn = FadeInDuration;
-  FadeAnimation.DurationOut = FadeOutDuration;
+  FadeAnimation.DurationIn = CCLCCClearListProfile::FadeInDuration;
+  FadeAnimation.DurationOut = CCLCCClearListProfile::FadeOutDuration;
 }
 
 void ClearListMenu::Show() {

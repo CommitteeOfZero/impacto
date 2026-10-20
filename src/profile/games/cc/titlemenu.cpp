@@ -101,7 +101,7 @@ void Configure() {
   menu->MoveLeftAnimation.DurationOut = MoveLeftAnimationDurationOut;
   UI::TitleMenuPtr = menu;
 
-  auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
+  auto drawType = EnsureGetMember<Impacto::Game::DrawComponentType>("DrawType");
 
   UI::Menus[drawType].push_back(UI::TitleMenuPtr);
 }

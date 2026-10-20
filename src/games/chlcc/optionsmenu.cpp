@@ -18,6 +18,8 @@
 #include "../../profile/configsystem.h"
 #include "../../audio/audiosystem.h"
 
+namespace CHLCCOptionsProfile = ::Impacto::Profile::CHLCC::OptionsMenu;
+
 namespace Impacto {
 namespace UI {
 namespace CHLCC {
@@ -259,11 +261,14 @@ void OptionsMenu::RenderPage(const size_t pageId, const glm::vec2 offset) {
 
 void OptionsMenu::Render() {
   if (State == Hidden) return;
-  CommonMenu::DrawSubmenu(BackgroundColor, CircleSprite, MenuTitleText,
-                          MenuTitleTextAngle);
+  CommonMenu::DrawSubmenu(CHLCCOptionsProfile::BackgroundColor,
+                          CHLCCOptionsProfile::CircleSprite,
+                          CHLCCOptionsProfile::MenuTitleText,
+                          CHLCCOptionsProfile::MenuTitleTextAngle);
   if (FadeAnimation.Progress < 0.22f) return;
 
-  DrawButtonPrompt(ButtonPromptSprite, ButtonPromptPosition);
+  DrawButtonPrompt(CHLCCOptionsProfile::ButtonPromptSprite,
+                   CHLCCOptionsProfile::ButtonPromptPosition);
 
   glm::vec2 showPageOffset = MenuTransition.GetPageOffset();
   if ((CurrentlyFocusedElement != nullptr || !MenuTransition.IsIn()) &&
@@ -392,7 +397,8 @@ void OptionsMenu::Update(float dt) {
     }
     TitleFade.Update(dt);
 
-    UpdateTitles(MenuTitleTextRightPosition, glm::vec2(0));
+    UpdateTitles(Profile::CHLCC::OptionsMenu::MenuTitleTextRightPosition,
+                 glm::vec2(0));
     MenuTransition.Update(dt);
     UpdatePageTransitionAnimation(dt);
     UpdateSelectedLabel(dt);

@@ -15,6 +15,8 @@
 #include <cstdint>
 #include <numeric>
 
+namespace CHLCCSaveTipsSystem = ::Impacto::TipsSystem;
+
 namespace Impacto {
 namespace CHLCC {
 
@@ -304,13 +306,15 @@ void SaveSystem::SaveSystemData() {
   Io::WriteArrayLE<uint8_t>(MessageFlags.data(), &stream, MessageFlags.size());
 
   stream.Seek(0x332c, SEEK_SET);
-  Io::WriteArrayBE<uint16_t>(TipsSystem::GetNewTipsIndices().data(), &stream,
-                             TipsSystem::GetNewTipsIndices().size());
+  Io::WriteArrayBE<uint16_t>(CHLCCSaveTipsSystem::GetNewTipsIndices().data(),
+                             &stream,
+                             CHLCCSaveTipsSystem::GetNewTipsIndices().size());
   Io::WriteBE<uint16_t>(&stream, 0,
-                        299 - TipsSystem::GetNewTipsIndices().size());
+                        299 - CHLCCSaveTipsSystem::GetNewTipsIndices().size());
   stream.Seek(0x3582, SEEK_SET);
   Io::WriteLE<uint16_t>(
-      &stream, static_cast<uint16_t>(TipsSystem::GetNewTipsIndices().size()));
+      &stream,
+      static_cast<uint16_t>(CHLCCSaveTipsSystem::GetNewTipsIndices().size()));
 
   stream.Seek(0x3584, SEEK_SET);
   Io::WriteArrayLE<uint8_t>(GameExtraData.data(), &stream,
@@ -495,10 +499,11 @@ SaveError SaveSystem::LoadSystemData() {
 
   stream.Seek(0x3582, SEEK_SET);
   uint16_t newTipsCount = Io::ReadLE<uint16_t>(&stream);
-  TipsSystem::GetNewTipsIndices() = std::vector<uint16_t>(newTipsCount);
+  CHLCCSaveTipsSystem::GetNewTipsIndices() =
+      std::vector<uint16_t>(newTipsCount);
   stream.Seek(0x332c, SEEK_SET);
-  Io::ReadArrayBE<uint16_t>(TipsSystem::GetNewTipsIndices().data(), &stream,
-                            newTipsCount);
+  Io::ReadArrayBE<uint16_t>(CHLCCSaveTipsSystem::GetNewTipsIndices().data(),
+                            &stream, newTipsCount);
 
   stream.Seek(0x3584, SEEK_SET);
   Io::ReadArrayLE<uint8_t>(GameExtraData.data(), &stream, GameExtraData.size());

@@ -9,6 +9,8 @@
 #include "../../ui/widgets/button.h"
 #include "../../audio/audiosystem.h"
 
+namespace MO8SystemProfile = ::Impacto::Profile::SystemMenu;
+
 namespace Impacto {
 namespace UI {
 namespace MO8 {
@@ -39,11 +41,13 @@ SystemMenu::SystemMenu() {
   Sprite nullSprite = Sprite();
   nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
 
-  for (int i = 0; i < MenuEntriesNum; i++) {
+  for (int i = 0; i < MO8SystemProfile::MenuEntriesNum; i++) {
     Button* menuButton =
-        new Button(i, MenuEntriesSprites[i], MenuEntriesHSprites[i], nullSprite,
-                   glm::vec2(*MenuEntriesX,
-                             *MenuEntriesFirstY + (*MenuEntriesYPadding * i)));
+        new Button(i, MO8SystemProfile::MenuEntriesSprites[i],
+                   MO8SystemProfile::MenuEntriesHSprites[i], nullSprite,
+                   glm::vec2(*MO8SystemProfile::MenuEntriesX,
+                             *MO8SystemProfile::MenuEntriesFirstY +
+                                 (*MO8SystemProfile::MenuEntriesYPadding * i)));
     menuButton->LockedSprite = MenuEntriesLSprites[i];
 
     menuButton->OnClickHandler = onClick;
@@ -52,8 +56,8 @@ SystemMenu::SystemMenu() {
 
   FadeAnimation.Direction = AnimationDirection::In;
   FadeAnimation.LoopMode = AnimationLoopMode::Stop;
-  FadeAnimation.DurationIn = FadeInDuration;
-  FadeAnimation.DurationOut = FadeOutDuration;
+  FadeAnimation.DurationIn = MO8SystemProfile::FadeInDuration;
+  FadeAnimation.DurationOut = MO8SystemProfile::FadeOutDuration;
 }
 
 void SystemMenu::Show() {
@@ -68,7 +72,8 @@ void SystemMenu::Show() {
     IsFocused = true;
     UI::FocusedMenu = this;
 
-    if (LastFocusedButtonId && *LastFocusedButtonId < MenuEntriesNum) {
+    if (LastFocusedButtonId &&
+        *LastFocusedButtonId < Impacto::Profile::SystemMenu::MenuEntriesNum) {
       CurrentlyFocusedElement = MainItems->Children[*LastFocusedButtonId];
       CurrentlyFocusedElement->HasFocus = true;
     }

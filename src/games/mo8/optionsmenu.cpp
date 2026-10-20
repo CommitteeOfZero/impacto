@@ -8,6 +8,8 @@
 #include "../../vm/interface/input.h"
 #include "../../audio/audiosystem.h"
 
+namespace MO8OptionsProfile = ::Impacto::Profile::OptionsMenu;
+
 namespace Impacto {
 namespace UI {
 namespace MO8 {
@@ -61,8 +63,8 @@ void OptionsMenu::SkipModeOnClick(Widgets::Toggle* target) {
 OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
   PageFadeAnimation.Direction = AnimationDirection::In;
   PageFadeAnimation.LoopMode = AnimationLoopMode::Stop;
-  PageFadeAnimation.DurationIn = FadeInDuration;
-  PageFadeAnimation.DurationOut = FadeOutDuration;
+  PageFadeAnimation.DurationIn = MO8OptionsProfile::FadeInDuration;
+  PageFadeAnimation.DurationOut = MO8OptionsProfile::FadeOutDuration;
 
   auto nextPageOnClick = [this](auto* btn) { return NextPageOnClick(btn); };
   auto previousPageOnClick = [this](auto* btn) {
@@ -320,7 +322,8 @@ void OptionsMenu::Render() {
 
   glm::vec4 col(1.0f, 1.0f, 1.0f,
                 glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress));
-  Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f, 0.0f), col);
+  Renderer->DrawSprite(Profile::MO8::OptionsMenu::BackgroundSprite,
+                       glm::vec2(0.0f, 0.0f), col);
 
   std::unique_ptr<Group>& currentPage = Pages[CurrentPage];
   if (PageFadeAnimation.State == AnimationState::Playing) {

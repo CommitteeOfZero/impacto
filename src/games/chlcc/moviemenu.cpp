@@ -10,6 +10,8 @@
 #include "../../profile/games/chlcc/commonmenu.h"
 #include "../../ui/widgets/chlcc/moviemenuentrybutton.h"
 
+namespace CHLCCMovieProfile = ::Impacto::Profile::CHLCC::MovieMenu;
+
 namespace Impacto {
 namespace UI {
 namespace CHLCC {
@@ -69,12 +71,13 @@ MovieMenu::MovieMenu() : CommonMenu(false) {
   MovieItems = new Widgets::Group(this);
 
   for (int i = 0; i < 10; i++) {
-    glm::vec2 thumbnailPosition(ThumbnailPositions[i].x,
-                                ThumbnailPositions[i].y);
-    glm::vec2 boxPosition(BoxPositions[i].x, BoxPositions[i].y);
+    glm::vec2 thumbnailPosition(CHLCCMovieProfile::ThumbnailPositions[i].x,
+                                CHLCCMovieProfile::ThumbnailPositions[i].y);
+    glm::vec2 boxPosition(CHLCCMovieProfile::BoxPositions[i].x,
+                          CHLCCMovieProfile::BoxPositions[i].y);
     MovieMenuEntryButton* movieMenuEntryButton = new MovieMenuEntryButton(
-        i, MoviesThumbnails[i], LockedThumbnail, thumbnailPosition, boxPosition,
-        IsExtraMovieModeOn);
+        i, MoviesThumbnails[i], CHLCCMovieProfile::LockedThumbnail,
+        thumbnailPosition, boxPosition, IsExtraMovieModeOn);
     movieMenuEntryButton->OnClickHandler = onClick;
     MovieItems->Add(movieMenuEntryButton, FDIR_DOWN);
   }
@@ -163,8 +166,10 @@ void MovieMenu::Hide() {
 
 void MovieMenu::Render() {
   if (State == Hidden) return;
-  CommonMenu::DrawSubmenu(BackgroundColor, CircleSprite, MenuTitleText,
-                          MenuTitleTextAngle, true);
+  CommonMenu::DrawSubmenu(CHLCCMovieProfile::BackgroundColor,
+                          CHLCCMovieProfile::CircleSprite,
+                          CHLCCMovieProfile::MenuTitleText,
+                          CHLCCMovieProfile::MenuTitleTextAngle, true);
 
   if (MenuTransition.Progress <= 0.22f) return;
 
@@ -172,7 +177,7 @@ void MovieMenu::Render() {
 
   MovieItems->MoveTo(pageOffset);
   MovieItems->Render();
-  glm::vec2 listPosition = ListPosition + pageOffset;
+  glm::vec2 listPosition = CHLCCMovieProfile::ListPosition + pageOffset;
   Renderer->DrawSprite(MovieList, listPosition);
   DrawButtonPrompt();
   SelectAnimation.Draw(SelectMovie, SelectMoviePos, pageOffset);
@@ -233,7 +238,8 @@ void MovieMenu::Update(float dt) {
     }
     MovieItems->Update(dt);
     TitleFade.Update(dt);
-    UpdateTitles(MenuTitleTextRightPosition, MenuTitleTextLeftPosition);
+    UpdateTitles(CHLCCMovieProfile::MenuTitleTextRightPosition,
+                 CHLCCMovieProfile::MenuTitleTextLeftPosition);
   }
 }
 
@@ -241,10 +247,11 @@ void MovieMenu::DrawButtonPrompt() {
   // If ExtraMovieMode is usable, change the button prompt to indicate the
   // PAD1Y action is available.
   const Sprite finalButtonPromptSprite =
-      IsExtraMoviesPresent() ? MovieButtonExtraPrompt : ButtonPromptSprite;
+      IsExtraMoviesPresent() ? MovieButtonExtraPrompt
+                             : CHLCCMovieProfile::ButtonPromptSprite;
   const glm::vec2 finalButtonPromptPosition =
       IsExtraMoviesPresent() ? MovieButtonExtraPromptPosition
-                             : ButtonPromptPosition;
+                             : CHLCCMovieProfile::ButtonPromptPosition;
 
   CommonMenu::DrawButtonPrompt(finalButtonPromptSprite,
                                finalButtonPromptPosition);

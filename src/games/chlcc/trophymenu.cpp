@@ -19,6 +19,8 @@
 #include <fmt/format.h>
 #include <magic_enum/magic_enum_containers.hpp>
 
+namespace CHLCCTrophyProfile = ::Impacto::Profile::CHLCC::TrophyMenu;
+
 namespace Impacto {
 namespace UI {
 namespace CHLCC {
@@ -53,7 +55,8 @@ void TrophyMenu::UpdateRarityCounts() {
 
   switch (Profile::AchievementSystem::Type) {
     case AchievementDataType::Common: {
-      auto* commonImpl = static_cast<AchievementSystemCommon*>(Implementation);
+      auto* commonImpl = static_cast<AchievementSystemCommon*>(
+          AchievementSystem::Implementation);
       const size_t count = GetAchievementCount();
       for (size_t id = 0; id < count; id++) {
         const CommonAchievement* ach =
@@ -99,8 +102,8 @@ void TrophyMenu::Show() {
     FocusedMenu = this;
 
     for (size_t i = 0; i < MaxTrophyPages; i++) {
-      for (size_t j = 0; j < EntriesPerPage; j++) {
-        const size_t index = i * EntriesPerPage + j;
+      for (size_t j = 0; j < CHLCCTrophyProfile::EntriesPerPage; j++) {
+        const size_t index = i * CHLCCTrophyProfile::EntriesPerPage + j;
         if (index >= AchievementSystem::GetAchievementCount()) break;
         TrophyMenuEntry* entry = new TrophyMenuEntry(static_cast<int>(index));
         MainItems[i].Add(entry);
@@ -137,14 +140,17 @@ void TrophyMenu::Hide() {
 
 void TrophyMenu::Render() {
   if (State == Hidden) return;
-  DrawSubmenu(BackgroundColor, CircleSprite, MenuTitleText, MenuTitleTextAngle,
-              true);
+  DrawSubmenu(CHLCCTrophyProfile::BackgroundColor,
+              CHLCCTrophyProfile::CircleSprite,
+              CHLCCTrophyProfile::MenuTitleText,
+              CHLCCTrophyProfile::MenuTitleTextAngle, true);
 
   if (MenuTransition.Progress < 0.22f) return;
 
   glm::vec2 offset = MenuTransition.GetPageOffset();
 
-  DrawButtonPrompt(ButtonPromptSprite, ButtonPromptPosition);
+  DrawButtonPrompt(CHLCCTrophyProfile::ButtonPromptSprite,
+                   CHLCCTrophyProfile::ButtonPromptPosition);
 
   TrophyCountHintLabel.Move(offset);
   TrophyCountHintLabel.Render();
@@ -163,10 +169,12 @@ void TrophyMenu::Render() {
   }
 
   Renderer->DrawSprite(TrophyPageCtBoxSprite, offset + TrophyPageCtPos);
-  Renderer->DrawSprite(PageNums[CurrentPage + 1], offset + CurrentPageNumPos);
-  Renderer->DrawSprite(PageNumSeparatorSlash, offset + PageNumSeparatorPos);
-  Renderer->DrawSprite(ReachablePageNums[MaxTrophyPages],
-                       offset + MaxPageNumPos);
+  Renderer->DrawSprite(CHLCCTrophyProfile::PageNums[CurrentPage + 1],
+                       offset + CHLCCTrophyProfile::CurrentPageNumPos);
+  Renderer->DrawSprite(CHLCCTrophyProfile::PageNumSeparatorSlash,
+                       offset + CHLCCTrophyProfile::PageNumSeparatorPos);
+  Renderer->DrawSprite(CHLCCTrophyProfile::ReachablePageNums[MaxTrophyPages],
+                       offset + CHLCCTrophyProfile::MaxPageNumPos);
 
   MainItems[CurrentPage].Move(offset);
   MainItems[CurrentPage].Render();
@@ -232,7 +240,8 @@ void TrophyMenu::Update(float dt) {
       TitleFade.StartIn();
     }
     TitleFade.Update(dt);
-    UpdateTitles(MenuTitleTextRightPosition, MenuTitleTextLeftPosition);
+    UpdateTitles(CHLCCTrophyProfile::MenuTitleTextRightPosition,
+                 CHLCCTrophyProfile::MenuTitleTextLeftPosition);
   }
 }
 

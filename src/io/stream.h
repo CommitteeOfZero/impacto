@@ -30,14 +30,14 @@ class Stream {
 };
 
 inline uint8_t ReadU8(Stream* stream) {
-  uint8_t result;
+  uint8_t result{};
   stream->Read(&result, 1);
   return result;
 }
 
 template <typename T>
 inline T ReadWithoutSwap(Stream* stream) {
-  T result;
+  T result{};
   stream->Read(&result, sizeof(T));
   return result;
 }
@@ -81,7 +81,7 @@ inline T SwapHelper(T value) {
 
 template <typename T>
 inline T ReadSwap(Stream* stream) {
-  T result;
+  T result{};
   stream->Read(&result, sizeof(T));
   return SwapHelper(result);
 }

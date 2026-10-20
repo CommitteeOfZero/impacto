@@ -14,6 +14,8 @@
 #include "../../data/tipssystem.h"
 #include "../../vm/interface/input.h"
 
+namespace MO6TWTipsProfile = ::Impacto::Profile::TipsMenu;
+
 namespace Impacto {
 namespace UI {
 namespace MO6TW {
@@ -35,8 +37,8 @@ void TipsMenu::TipOnClick(Button* target) {
 TipsMenu::TipsMenu() : ItemsList(CDIR_HORIZONTAL), TipViewItems(this) {
   FadeAnimation.Direction = AnimationDirection::In;
   FadeAnimation.LoopMode = AnimationLoopMode::Stop;
-  FadeAnimation.DurationIn = FadeInDuration;
-  FadeAnimation.DurationOut = FadeOutDuration;
+  FadeAnimation.DurationIn = MO6TWTipsProfile::FadeInDuration;
+  FadeAnimation.DurationOut = MO6TWTipsProfile::FadeOutDuration;
 
   TipViewItems.FocusLock = false;
   TipViewItems.VisibilityState = Shown;
@@ -125,7 +127,8 @@ void TipsMenu::Update(float dt) {
 void TipsMenu::Render() {
   if (State != Hidden && ScrWork[SW_TIPSALPHA] > 0) {
     glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
-    Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f), col);
+    Renderer->DrawSprite(Profile::TipsMenu::BackgroundSprite, glm::vec2(0.0f),
+                         col);
     ItemsList.Render();
 
     if (CurrentlyDisplayedTipId != -1) {

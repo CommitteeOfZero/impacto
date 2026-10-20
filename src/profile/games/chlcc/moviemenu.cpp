@@ -55,7 +55,7 @@ void Configure() {
     MovieButtonExtraPrompt = EnsureGetMember<Sprite>("MovieButtonExtraPrompt");
   }
 
-  auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
+  auto drawType = EnsureGetMember<Impacto::Game::DrawComponentType>("DrawType");
 
   UI::Menus[drawType].push_back(new UI::CHLCC::MovieMenu());
 }

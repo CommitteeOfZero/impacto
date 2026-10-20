@@ -12,6 +12,9 @@
 #include "../../ui/widgets/cclcc/optionsvoiceslider.h"
 #include "../../audio/audiosystem.h"
 
+namespace CCLCCOptionsProfile = ::Impacto::Profile::CCLCC::OptionsMenu;
+namespace CCLCCCommonOptionsProfile = ::Impacto::Profile::OptionsMenu;
+
 namespace Impacto {
 namespace UI {
 namespace CCLCC {
@@ -195,8 +198,8 @@ OptionsMenu::OptionsMenu()
     : UI::OptionsMenu(),
       CommonMenu(FadeAnimation),
       PoleAnimation(Profile::CCLCC::OptionsMenu::PoleAnimation.Instantiate()) {
-  PageButtons.reserve(PageCount);
-  for (int i = 0; i < PageCount; i++) {
+  PageButtons.reserve(CCLCCOptionsProfile::PageCount);
+  for (int i = 0; i < CCLCCOptionsProfile::PageCount; i++) {
     PageButtons.emplace_back(i, PagePanelHoverBounds[i]);
   }
 
@@ -207,7 +210,7 @@ OptionsMenu::OptionsMenu()
     return Highlight(btn);
   };
 
-  Pages.reserve(PageCount);
+  Pages.reserve(CCLCCOptionsProfile::PageCount);
   Pages.emplace_back(CreateBasicPage(select, highlight));
   Pages.emplace_back(CreateTextPage(select, highlight));
   Pages.emplace_back(CreateSoundPage(select, highlight));
@@ -218,7 +221,9 @@ OptionsMenu::OptionsMenu()
 
 void OptionsMenu::Show() {
   if (State != Shown) {
-    CommonMenu::OnShow(FadeInDuration, FadeOutDuration, FadeAnimation);
+    CommonMenu::OnShow(CCLCCCommonOptionsProfile::FadeInDuration,
+                       CCLCCCommonOptionsProfile::FadeOutDuration,
+                       FadeAnimation);
   }
 
   UI::OptionsMenu::Show();
@@ -353,12 +358,12 @@ void OptionsMenu::Render() {
       PagePanelPosition * transitionProgress +
       (1.0f - transitionProgress) * PagePanelFadeStartPosition;
   const glm::vec2 guidePosition =
-      GuidePosition * transitionProgress +
+      CCLCCOptionsProfile::GuidePosition * transitionProgress +
       (1.0f - transitionProgress) * GuideFadeStartPosition;
 
   if (OpenedAsDirect) CommonMenu::DrawBgSprite<false>(State, FadeAnimation);
 
-  Renderer->DrawSprite(BackgroundSprite,
+  Renderer->DrawSprite(CCLCCOptionsProfile::BackgroundSprite,
                        BackgroundPosition + backgroundAnimationOffset, col);
   Renderer->DrawSprite(HeaderSprite, HeaderPosition + backgroundAnimationOffset,
                        col);

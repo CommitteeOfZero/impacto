@@ -12,6 +12,10 @@
 #include "../../ui/widgets/chlcc/trackselectbutton.h"
 #include "../../profile/games/chlcc/commonmenu.h"
 
+namespace CHLCCMusicProfile = ::Impacto::Profile::CHLCC::MusicMenu;
+namespace CHLCCMusicSaveSystem = ::Impacto::SaveSystem;
+namespace CHLCCMusicVm = ::Impacto::Vm;
+
 namespace Impacto {
 namespace UI {
 namespace CHLCC {
@@ -132,10 +136,10 @@ MusicMenu::MusicMenu() : CommonMenu(false) {
 
 void MusicMenu::Init() {
   for (const auto presetFlag : PresetBgmFlags) {
-    SaveSystem::SetBgmFlag(presetFlag, true);
+    CHLCCMusicSaveSystem::SetBgmFlag(presetFlag, true);
   }
   if (GetFlag(SF_CLR_AYASE)) {
-    SaveSystem::SetBgmFlag(AyaseEndingBgmId, true);
+    CHLCCMusicSaveSystem::SetBgmFlag(AyaseEndingBgmId, true);
   }
 
   const std::array<int, 7> endingFlags = {
@@ -143,14 +147,15 @@ void MusicMenu::Init() {
       SF_CLR_SENA, SF_CLR_KOZUE,  SF_CLR_SEIRA};
   const bool gotRequiredEndings = std::ranges::all_of(endingFlags, GetFlag);
   if (gotRequiredEndings) {
-    SaveSystem::SetBgmFlag(NormalEndingBgmId, true);
+    CHLCCMusicSaveSystem::SetBgmFlag(NormalEndingBgmId, true);
   }
 
   for (size_t i = 0; i < DstBgmPairedFlag.size(); i++) {
     const int dstFlagId = DstBgmPairedFlag[i];
-    const bool flagValue = SaveSystem::GetBgmFlag(dstFlagId) ||
-                           SaveSystem::GetBgmFlag(SrcBgmPairedFlag[i]);
-    SaveSystem::SetBgmFlag(dstFlagId, flagValue);
+    const bool flagValue =
+        CHLCCMusicSaveSystem::GetBgmFlag(dstFlagId) ||
+        CHLCCMusicSaveSystem::GetBgmFlag(SrcBgmPairedFlag[i]);
+    CHLCCMusicSaveSystem::SetBgmFlag(dstFlagId, flagValue);
   }
 }
 
@@ -203,7 +208,8 @@ void MusicMenu::Hide() {
 
 void MusicMenu::Render() {
   if (State == Hidden) return;
-  CommonMenu::DrawSubmenu(BackgroundColor, CircleSprite, SoundLibraryTitle,
+  CommonMenu::DrawSubmenu(CHLCCMusicProfile::BackgroundColor,
+                          CHLCCMusicProfile::CircleSprite, SoundLibraryTitle,
                           SoundLibraryTitleAngle);
 
   if (MenuTransition.Progress <= 0.22f) return;
@@ -255,7 +261,8 @@ void MusicMenu::Render() {
       Renderer->DrawSprite(HighlightStar, targetPos);
     }
   }
-  DrawButtonPrompt(ButtonPromptSprite, ButtonPromptPosition);
+  DrawButtonPrompt(CHLCCMusicProfile::ButtonPromptSprite,
+                   CHLCCMusicProfile::ButtonPromptPosition);
 }
 
 void MusicMenu::Update(float dt) {
@@ -418,15 +425,16 @@ void MusicMenu::UpdateEntries() {
     auto button = static_cast<Widgets::CHLCC::TrackSelectButton*>(
         MainItems->Children[idx]);
 
-    if (!SaveSystem::GetBgmFlag(Playlist[button->Id])) {
-      button->SetTrackText(Vm::ScriptGetTextTableStrAddress(0, 15));
+    if (!Impacto::SaveSystem::GetBgmFlag(Playlist[button->Id])) {
+      button->SetTrackText(CHLCCMusicVm::ScriptGetTextTableStrAddress(0, 15));
       continue;
     }
 
     button->OnClickHandler = onClick;
-    button->SetTrackText(Vm::ScriptGetTextTableStrAddress(4, (int)idx * 3));
+    button->SetTrackText(
+        CHLCCMusicVm::ScriptGetTextTableStrAddress(4, (int)idx * 3));
     button->SetArtistText(
-        Vm::ScriptGetTextTableStrAddress(4, (int)idx * 3 + 1));
+        CHLCCMusicVm::ScriptGetTextTableStrAddress(4, (int)idx * 3 + 1));
   }
 }
 
@@ -442,11 +450,12 @@ void MusicMenu::SwitchToTrack(std::optional<int> id) {
     return;
   }
   if (!NowPlayingAnimation.IsIn()) NowPlayingAnimation.StartIn();
-  CurrentlyPlayingTrackName = Label(
-      Vm::ScriptGetTextTableStrAddress(4, CurrentlyPlayingTrackId.value() * 3),
-      NowPlayingPos + PlayingTrackOffset, 32, RendererOutlineMode::None, 0);
+  CurrentlyPlayingTrackName = Label(CHLCCMusicVm::ScriptGetTextTableStrAddress(
+                                        4, CurrentlyPlayingTrackId.value() * 3),
+                                    NowPlayingPos + PlayingTrackOffset, 32,
+                                    RendererOutlineMode::None, 0);
   CurrentlyPlayingTrackArtist =
-      Label(Vm::ScriptGetTextTableStrAddress(
+      Label(CHLCCMusicVm::ScriptGetTextTableStrAddress(
                 4, CurrentlyPlayingTrackId.value() * 3 + 2),
             NowPlayingPos + PlayingTrackArtistOffset, 20,
             RendererOutlineMode::None, 0);
@@ -457,7 +466,7 @@ void MusicMenu::SwitchToTrack(std::optional<int> id) {
 }
 
 inline int MusicMenu::GetNextTrackId(int id) {
-  while (!SaveSystem::GetBgmFlag(Playlist[id])) {
+  while (!Impacto::SaveSystem::GetBgmFlag(Playlist[id])) {
     id += 1;
     if (id == MusicTrackCount) {
       if (PlaybackMode == MusicPlaybackMode::RepeatPlaylist) {

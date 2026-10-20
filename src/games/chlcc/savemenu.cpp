@@ -13,6 +13,8 @@
 #include "../../data/savesystem.h"
 #include "../../profile/game.h"
 
+namespace CHLCCSaveSystem = ::Impacto::SaveSystem;
+
 namespace Impacto {
 namespace UI {
 namespace CHLCC {
@@ -27,15 +29,15 @@ using namespace Impacto::UI::Widgets::CHLCC;
 Widget* EntryGrid[EntriesPerPage];
 
 void SaveMenu::MenuButtonOnClick(Widgets::Button* target) {
-  if ((SaveSystem::GetSaveStatus(EntryType, target->Id) == 1) ||
+  if ((CHLCCSaveSystem::GetSaveStatus(EntryType, target->Id) == 1) ||
       *ActiveMenuType == SaveMenuPageType::Save) {
     ScrWork[SW_SAVEFILENO] = target->Id;
     ScrWork[SW_SAVEFILESTATUS] =
-        SaveSystem::GetSaveStatus(EntryType, ScrWork[SW_SAVEFILENO]);
+        CHLCCSaveSystem::GetSaveStatus(EntryType, ScrWork[SW_SAVEFILENO]);
 
     SetFlag(SF_SAVEPROTECTED,
-            SaveSystem::GetSaveFlags(EntryType, ScrWork[SW_SAVEFILENO]) &
-                SaveSystem::SaveFlagsMode::WriteProtect);
+            CHLCCSaveSystem::GetSaveFlags(EntryType, ScrWork[SW_SAVEFILENO]) &
+                CHLCCSaveSystem::SaveFlagsMode::WriteProtect);
     ChoiceMade = true;
   }
 }
@@ -168,7 +170,7 @@ void SaveMenu::Init() {
 
   switch (*ActiveMenuType) {
     case SaveMenuPageType::QuickLoad:
-      EntryType = SaveSystem::SaveType::Quick;
+      EntryType = CHLCCSaveSystem::SaveType::Quick;
       SavePages = &QuickSavePages;
       BackgroundColor = QuickLoadBackgroundColor;
       CircleSprite = QuickLoadCircle;
@@ -176,7 +178,7 @@ void SaveMenu::Init() {
       CurrentPage = &CurrentQuickSavePage;
       break;
     case SaveMenuPageType::Save:
-      EntryType = SaveSystem::SaveType::Full;
+      EntryType = CHLCCSaveSystem::SaveType::Full;
       SavePages = &FullSavePages;
       BackgroundColor = SaveBackgroundColor;
       CircleSprite = SaveCircle;
@@ -184,7 +186,7 @@ void SaveMenu::Init() {
       CurrentPage = &CurrentFullSavePage;
       break;
     case SaveMenuPageType::Load:
-      EntryType = SaveSystem::SaveType::Full;
+      EntryType = CHLCCSaveSystem::SaveType::Full;
       SavePages = &FullSavePages;
       BackgroundColor = LoadBackgroundColor;
       CircleSprite = LoadCircle;
@@ -209,7 +211,7 @@ void SaveMenu::Show() {
       FromSystemMenuTransition->StartIn();
       SelectAnimation.StartIn(true);
     }
-    const int newestSaveId = SaveSystem::GetNewestSaveId(EntryType);
+    const int newestSaveId = Impacto::SaveSystem::GetNewestSaveId(EntryType);
     *CurrentPage = newestSaveId / EntriesPerPage;
     SavePages->at(*CurrentPage)->Show();
     SavePages->at(*CurrentPage)->HasFocus = false;
@@ -254,7 +256,7 @@ void SaveMenu::Hide() {
 }
 
 void SaveMenu::UpdateInput(float dt) {
-  using namespace Vm::Interface;
+  using namespace Impacto::Vm::Interface;
   Menu::UpdateInput(dt);
   const auto updatePage = [&](int nextPage) {
     PrevPage = *CurrentPage;
@@ -286,7 +288,7 @@ void SaveMenu::UpdateInput(float dt) {
 
     if (CurrentlyFocusedElement && (PADinputButtonWentDown & PAD1Y)) {
       auto saveButton = static_cast<SaveEntryButton*>(CurrentlyFocusedElement);
-      if (SaveSystem::GetSaveStatus(EntryType, saveButton->Id) == 1) {
+      if (Impacto::SaveSystem::GetSaveStatus(EntryType, saveButton->Id) == 1) {
         saveButton->ToggleLock(EntryType);
         saveButton->RefreshInfo(EntryType);
         SetFlag(SF_SAVEPROTECTCHANGED, 1);

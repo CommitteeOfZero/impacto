@@ -58,7 +58,7 @@ bool TextureLoadWebP(Io::Stream* stream, Texture* outTexture) {
   return true;
 }
 
-static bool _registered = Texture::AddTextureLoader(&TextureLoadWebP);
+static bool webpRegistered = Texture::AddTextureLoader(&TextureLoadWebP);
 
 }  // namespace TexLoad
 }  // namespace Impacto

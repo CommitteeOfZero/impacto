@@ -12,6 +12,8 @@
 #include "../../inputsystem.h"
 #include "../../audio/audiosystem.h"
 
+namespace CCLCCDialogueProfile = ::Impacto::Profile::Dialogue;
+
 namespace Impacto {
 namespace UI {
 namespace CCLCC {
@@ -31,7 +33,8 @@ HelpMenu::HelpMenu() : CommonMenu(FadeAnimation) {
 void HelpMenu::Show() {
   if (State != Showing) {
     State = Showing;
-    CommonMenu::OnShow(FadeInDuration, FadeOutDuration, FadeAnimation);
+    CommonMenu::OnShow(CCLCCDialogueProfile::FadeInDuration,
+                       CCLCCDialogueProfile::FadeOutDuration, FadeAnimation);
 
     if (UI::FocusedMenu != 0) {
       LastFocusedMenu = UI::FocusedMenu;

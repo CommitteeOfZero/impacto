@@ -59,7 +59,7 @@ void Configure() {
   TextDecorationBottomYOffset =
       EnsureGetMember<float>("TextDecorationBottomYOffset");
 
-  auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
+  auto drawType = EnsureGetMember<Impacto::Game::DrawComponentType>("DrawType");
 
   UI::SysMesBox::DrawType = drawType;
   UI::SysMesBox::Factory = []() -> UI::SysMesBox* {

@@ -21,7 +21,7 @@ void Configure() {
   ButtonPromptPosition = EnsureGetMember<glm::vec2>("ButtonPromptPosition");
   ButtonPromptSprite = EnsureGetMember<Sprite>("BacklogButtonPromptSprite");
 
-  auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
+  auto drawType = EnsureGetMember<Impacto::Game::DrawComponentType>("DrawType");
 
   UI::BacklogMenuPtr = new UI::CHLCC::BacklogMenu();
   UI::Menus[drawType].push_back(UI::BacklogMenuPtr);

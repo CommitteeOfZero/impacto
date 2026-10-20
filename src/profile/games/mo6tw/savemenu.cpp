@@ -35,7 +35,7 @@ void Configure() {
   LoadEntryHighlightedSprite =
       EnsureGetMember<Sprite>("LoadEntryHighlightedSprite");
 
-  auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
+  auto drawType = EnsureGetMember<Impacto::Game::DrawComponentType>("DrawType");
 
   UI::SaveMenuPtr = new UI::MO6TW::SaveMenu();
   UI::Menus[drawType].push_back(UI::SaveMenuPtr);

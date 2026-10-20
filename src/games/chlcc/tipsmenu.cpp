@@ -16,6 +16,10 @@
 
 #include <numeric>
 
+namespace CHLCCTipsProfile = ::Impacto::Profile::CHLCC::TipsMenu;
+namespace CHLCCTipsSystem = ::Impacto::TipsSystem;
+namespace CHLCCTipsMenuVm = ::Impacto::Vm;
+
 namespace Impacto {
 namespace UI {
 namespace CHLCC {
@@ -31,7 +35,7 @@ using namespace Impacto::Vm::Interface;
 using namespace Impacto::UI::Widgets;
 using namespace Impacto::UI::Widgets::CHLCC;
 
-static float GetEndScroll(Group* tipsItemsGroup) {
+static float GetTipsMenuEndScroll(Group* tipsItemsGroup) {
   if (tipsItemsGroup->Children.empty() || tipsItemsGroup->Children.size() == 1)
     return 0.0f;
   const Widget* lastItem = tipsItemsGroup->Children.back();
@@ -53,9 +57,9 @@ void TipsMenu::HandlePageChange(Widget* cur, Widget* next) {
     TipsEntryScrollPos = 0.0f;
     TipsEntriesScrollbar = Scrollbar(
         0, {TipsListBounds.X + TipsListBounds.Width - 3.0f, TipsListBounds.Y},
-        0.0f, GetEndScroll(static_cast<Group*>(next)), &TipsEntryScrollPos,
-        SBDIR_VERTICAL, TipsScrollTrack, TipsScrollThumb, {0.0f, -4.0f},
-        TipsScrollThumb.ScaledHeight(), TipsListBounds);
+        0.0f, GetTipsMenuEndScroll(static_cast<Group*>(next)),
+        &TipsEntryScrollPos, SBDIR_VERTICAL, TipsScrollTrack, TipsScrollThumb,
+        {0.0f, -4.0f}, TipsScrollThumb.ScaledHeight(), TipsListBounds);
     TipsEntriesScrollbar->SetScrollAreaBounds(TipsListBounds);
     TipsEntriesScrollbar->Step = TipListYPadding;
   }
@@ -116,8 +120,9 @@ void TipsMenu::Hide() {
 
 void TipsMenu::Render() {
   if (State == Hidden) return;
-  CommonMenu::DrawSubmenu(BackgroundColor, CircleSprite, MenuTitleText,
-                          MenuTitleTextAngle);
+  CommonMenu::DrawSubmenu(
+      CHLCCTipsProfile::BackgroundColor, CHLCCTipsProfile::CircleSprite,
+      CHLCCTipsProfile::MenuTitleText, CHLCCTipsProfile::MenuTitleTextAngle);
   const glm::vec2 animationOffset = MenuTransition.GetPageOffset();
 
   if (MenuTransition.State != AnimationState::Stopped) {
@@ -148,7 +153,7 @@ void TipsMenu::Render() {
 
   DrawTipsTree();
   SelectAnimation.Draw(SelectWordSprites, SelectWordPos, animationOffset);
-  DrawLeftTitle(MenuTitleText);
+  DrawLeftTitle(CHLCCTipsProfile::MenuTitleText);
 
   if (MenuTransition.Progress > 0.34) {
     // Alpha goes from 0 to 1 in half the time
@@ -166,7 +171,8 @@ void TipsMenu::Render() {
     }
   }
 
-  DrawButtonPrompt(ButtonPromptSprite, ButtonPromptPosition);
+  DrawButtonPrompt(CHLCCTipsProfile::ButtonPromptSprite,
+                   CHLCCTipsProfile::ButtonPromptPosition);
 }
 
 void TipsMenu::UpdateInput(float dt) {
@@ -232,10 +238,10 @@ void TipsMenu::Update(float dt) {
     (*ItemsList.GetCurrent())->Hide();
     TipViewItems.Hide();
 
-    for (const auto tipNewId : TipsSystem::GetNewTipsIndices()) {
-      TipsSystem::SetTipNewState(tipNewId, false);
+    for (const auto tipNewId : CHLCCTipsSystem::GetNewTipsIndices()) {
+      CHLCCTipsSystem::SetTipNewState(tipNewId, false);
     }
-    TipsSystem::GetNewTipsIndices().resize(0);
+    CHLCCTipsSystem::GetNewTipsIndices().resize(0);
     CurrentlyDisplayedTipId = -1;
     if (LastFocusedMenu) LastFocusedMenu->IsFocused = true;
   } else if (MenuTransition.IsIn() && sysMenuCt == 10000 &&
@@ -260,7 +266,8 @@ void TipsMenu::Update(float dt) {
       TitleFade.StartIn();
     }
     TitleFade.Update(dt);
-    UpdateTitles(MenuTitleTextRightPosition, MenuTitleTextLeftPosition);
+    UpdateTitles(CHLCCTipsProfile::MenuTitleTextRightPosition,
+                 CHLCCTipsProfile::MenuTitleTextLeftPosition);
     if (TipsEntriesScrollbar) {
       TipsEntriesScrollbar->Update(dt);
     }
@@ -292,7 +299,8 @@ void TipsMenu::Init() {
 
   // String of characters by which tips are sorted, taken from _system script
   auto [buffers, bufferId, catStrAddr] =
-      Vm::ScriptGetTextTableStrAddress(TipsStringTable, CategoryStringIndex);
+      CHLCCTipsMenuVm::ScriptGetTextTableStrAddress(TipsStringTable,
+                                                    CategoryStringIndex);
   uint8_t* categoryString = &buffers[bufferId][catStrAddr];
   ItemsList.Clear();
   TipViewItems.Clear();
@@ -304,17 +312,17 @@ void TipsMenu::Init() {
   ItemsList.Add(allTipsGroup);
   TipsEntryScrollPos = 0;
   // Sorting tip records
-  auto& records = *TipsSystem::GetTipRecords();
-  const auto recordCount = TipsSystem::GetTipCount();
+  auto& records = *CHLCCTipsSystem::GetTipRecords();
+  const auto recordCount = CHLCCTipsSystem::GetTipCount();
   auto indexes = [recordCount] {
     std::vector<int> result(recordCount);
     std::iota(result.begin(), result.end(), 0);
-    std::ranges::sort(result, TipsSystem::TipsComparator(TipsStringTable,
-                                                         SortStringIndex, 2));
+    std::ranges::sort(result, CHLCCTipsSystem::TipsComparator(
+                                  TipsStringTable, SortStringIndex, 2));
     return result;
   }();
   auto sortedView = std::ranges::views::transform(
-      indexes, [&records](size_t i) -> TipsSystem::TipsDataRecord& {
+      indexes, [&records](size_t i) -> CHLCCTipsSystem::TipsDataRecord& {
         return records[i];
       });
   std::vector<int> sortedIndicesMap(recordCount);
@@ -348,7 +356,7 @@ void TipsMenu::Init() {
           CategoryStringBuffer[1] = UnalignedRead<uint16_t>(
               &categoryString[currentCategoryId * sizeof(uint16_t)]);
         }
-        Vm::Sc3Stream categoryStrStream(
+        CHLCCTipsMenuVm::Sc3Stream categoryStrStream(
             reinterpret_cast<uint8_t*>(CategoryStringBuffer.data()));
         allTipsGroup->Add(createCategory(categoryStrStream, currentY));
         currentY += TipListYPadding;
@@ -368,15 +376,16 @@ void TipsMenu::Init() {
   {
     float currentY = TipListEntryBounds.Y;
     auto* newTipsGroup = new Group(this);
-    newTipsGroup->Add(createCategory(
-        Vm::ScriptGetTextTableStrAddress(TipsStringTable, NewLabelStrIndex),
-        currentY));
+    newTipsGroup->Add(
+        createCategory(CHLCCTipsMenuVm::ScriptGetTextTableStrAddress(
+                           TipsStringTable, NewLabelStrIndex),
+                       currentY));
     currentY += TipListYPadding;
 
     auto newRecordsView =
         std::ranges::views::transform(
-            TipsSystem::GetNewTipsIndices(),
-            [&records](size_t i) -> TipsSystem::TipsDataRecord& {
+            CHLCCTipsSystem::GetNewTipsIndices(),
+            [&records](size_t i) -> CHLCCTipsSystem::TipsDataRecord& {
               return records[i];
             }) |
         std::views::reverse;
@@ -405,9 +414,10 @@ void TipsMenu::Init() {
     float currentY = TipListEntryBounds.Y;
 
     Group* unreadTipsGroup = new Group(this);
-    unreadTipsGroup->Add(createCategory(
-        Vm::ScriptGetTextTableStrAddress(TipsStringTable, UnreadLabelStrIndex),
-        currentY));
+    unreadTipsGroup->Add(
+        createCategory(CHLCCTipsMenuVm::ScriptGetTextTableStrAddress(
+                           TipsStringTable, UnreadLabelStrIndex),
+                       currentY));
     currentY += TipListYPadding;
     for (auto& record : sortedView) {
       if (!record.IsUnread || record.IsLocked) {
@@ -433,7 +443,7 @@ void TipsMenu::Init() {
 
   TipsEntriesScrollbar =
       Scrollbar(0, {TipsListBounds.X + TipsListBounds.Width, TipsListBounds.Y},
-                0.0f, GetEndScroll(allTipsGroup), &TipsEntryScrollPos,
+                0.0f, GetTipsMenuEndScroll(allTipsGroup), &TipsEntryScrollPos,
                 SBDIR_VERTICAL, TipsScrollTrack, TipsScrollThumb, {0.0f, 0.0f},
                 TipsScrollThumb.ScaledHeight(), TipsListBounds);
   TipsEntriesScrollbar->SetScrollAreaBounds(TipsListBounds);
@@ -445,10 +455,10 @@ void TipsMenu::Init() {
   TipViewItems.Add(Pronunciation);
 
   // Number label
-  NumberText = new Label(
-      Vm::ScriptGetTextTableStrAddress(TipsStringTable, NumberLabelStrIndex),
-      NumberLabelPosition, NumberLabelFontSize,
-      RendererOutlineMode::BottomRight, DefaultColorIndex);
+  NumberText = new Label(CHLCCTipsMenuVm::ScriptGetTextTableStrAddress(
+                             TipsStringTable, NumberLabelStrIndex),
+                         NumberLabelPosition, NumberLabelFontSize,
+                         RendererOutlineMode::BottomRight, DefaultColorIndex);
   TipViewItems.Add(NumberText);
   // Tip number
   Number = new Label();
@@ -483,7 +493,7 @@ void TipsMenu::Init() {
 }
 
 void TipsMenu::UpdatePageInput(float dt) {
-  using namespace Vm::Interface;
+  using namespace Impacto::Vm::Interface;
   if (!IsFocused) return;
   auto prevEntry = CurrentlyFocusedElement;
   const float oldScrollPos = TipsEntryScrollPos;
@@ -605,13 +615,14 @@ void TipsMenu::DrawTipsTree() {
 void TipsMenu::SwitchToTipId(int id) {
   CurrentlyDisplayedTipId = id;
   CurrentTipPage = 1;
-  TipsSystem::SetTipUnreadState(id, false);
-  TipsSystem::SetTipNewState(id, false);
-  auto [buffers, tipsScriptBufferId] = TipsSystem::GetTipsScriptBufferCtx();
+  CHLCCTipsSystem::SetTipUnreadState(id, false);
+  CHLCCTipsSystem::SetTipNewState(id, false);
+  auto [buffers, tipsScriptBufferId] =
+      CHLCCTipsSystem::GetTipsScriptBufferCtx();
 
-  auto tipRecord = TipsSystem::GetTipRecord(id);
-  auto nameStr = TipsSystem::GetTextStringStream(id, 0);
-  auto pronunciationStr = TipsSystem::GetTextStringStream(id, 1);
+  auto tipRecord = CHLCCTipsSystem::GetTipRecord(id);
+  auto nameStr = CHLCCTipsSystem::GetTextStringStream(id, 0);
+  auto pronunciationStr = CHLCCTipsSystem::GetTextStringStream(id, 1);
   Name->SetText(nameStr, {0.0f, 0.0f}, NameFontSize,
                 RendererOutlineMode::BottomRight, DefaultColorIndex);
   Pronunciation->SetText(pronunciationStr, {0.0f, 0.0f}, PronunciationFontSize,
@@ -632,7 +643,7 @@ void TipsMenu::SwitchToTipId(int id) {
   TotalPages->SetSprite(TotalPageSprites[tipRecord->NumberOfContentStrings]);
 
   TextPage.Clear();
-  Vm::Sc3VmThread dummy;
+  Impacto::Vm::Sc3VmThread dummy;
   dummy.ScriptBufferId = tipsScriptBufferId;
   dummy.UseMSBBuffers = Profile::Vm::UseMsbStrings;
   dummy.IpOffset = tipRecord->StringAdr[3];
@@ -640,7 +651,7 @@ void TipsMenu::SwitchToTipId(int id) {
 }
 
 void TipsMenu::AdvanceTipPage(TipAdvanceMode mode) {
-  auto currentRecord = TipsSystem::GetTipRecord(CurrentlyDisplayedTipId);
+  auto currentRecord = CHLCCTipsSystem::GetTipRecord(CurrentlyDisplayedTipId);
   const int numberOfContentStrings =
       static_cast<int>(currentRecord->NumberOfContentStrings);
   if (numberOfContentStrings == 1) return;
@@ -661,8 +672,9 @@ void TipsMenu::AdvanceTipPage(TipAdvanceMode mode) {
   }
 
   TextPage.Clear();
-  auto [buffers, tipsScriptBufferId] = TipsSystem::GetTipsScriptBufferCtx();
-  Vm::Sc3VmThread dummy;
+  auto [buffers, tipsScriptBufferId] =
+      CHLCCTipsSystem::GetTipsScriptBufferCtx();
+  Impacto::Vm::Sc3VmThread dummy;
   dummy.ScriptBufferId = tipsScriptBufferId;
   dummy.UseMSBBuffers = Profile::Vm::UseMsbStrings;
   dummy.IpOffset = currentRecord->StringAdr[3 + CurrentTipPage - 1];

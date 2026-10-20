@@ -14,6 +14,9 @@
 #include "../../profile/scriptvars.h"
 #include "../../background2d.h"
 
+namespace RNETitleProfile = ::Impacto::Profile::RNE::TitleMenu;
+namespace RNETileBackground = ::Impacto::RNE;
+
 namespace Impacto {
 namespace UI {
 namespace RNE {
@@ -28,27 +31,30 @@ TitleMenu::TitleMenu() {}
 
 void TitleMenu::Show() {
   if (State == Hidden) {
-    if (BackgroundAnimation) {
-      Impacto::RNE::TileBackground* background =
-          (Impacto::RNE::TileBackground*)BackgroundAnimation;
+    if (RNETitleProfile::BackgroundAnimation) {
+      RNETileBackground::TileBackground* background =
+          (RNETileBackground::TileBackground*)
+              RNETitleProfile::BackgroundAnimation;
       Backgrounds2D[TitleBgBufferId]->BgSprite.BaseScale =
           glm::vec2(1280.0f / 960.0f, 720.0f / 544.0f);
       background->BackgroundSprite = Backgrounds2D[TitleBgBufferId]->BgSprite;
-      BackgroundAnimation->StartIn();
+      RNETitleProfile::BackgroundAnimation->StartIn();
     }
     State = Showing;
   }
 }
 void TitleMenu::Hide() {
   if (State == Shown) {
-    if (BackgroundAnimation) BackgroundAnimation->StartOut();
+    if (RNETitleProfile::BackgroundAnimation)
+      RNETitleProfile::BackgroundAnimation->StartOut();
     State = Hiding;
   }
 }
 void TitleMenu::Update(float dt) {
   UpdateInput(dt);
 
-  if (BackgroundAnimation) BackgroundAnimation->Update(dt);
+  if (RNETitleProfile::BackgroundAnimation)
+    RNETitleProfile::BackgroundAnimation->Update(dt);
   PreTitleItemsAnimation.Update(dt);
   PressToStartAnimation.Update(dt);
   if (GetFlag(SF_TITLEMODE)) {
@@ -58,7 +64,7 @@ void TitleMenu::Update(float dt) {
   }
 
   if (State == Showing) {
-    if (BackgroundAnimation->IsIn()) {
+    if (RNETitleProfile::BackgroundAnimation->IsIn()) {
       if (PreTitleItemsAnimation.IsOut()) PreTitleItemsAnimation.StartIn();
       if (PreTitleItemsAnimation.IsIn() &&
           PressToStartAnimation.State == AnimationState::Stopped)
@@ -73,13 +79,14 @@ void TitleMenu::Update(float dt) {
     EliteSprite.Bounds.Height = (EliteHeight * PreTitleItemsAnimation.Progress);
 
   } else if (State == Hiding) {
-    if (BackgroundAnimation->IsOut()) State = Hidden;
+    if (RNETitleProfile::BackgroundAnimation->IsOut()) State = Hidden;
   }
 }
 void TitleMenu::Render() {
   if (State != Hidden && GetFlag(SF_TITLEMODE)) {
-    if (BackgroundAnimation) BackgroundAnimation->Render();
-    if (BackgroundAnimation->IsIn()) {
+    if (RNETitleProfile::BackgroundAnimation)
+      RNETitleProfile::BackgroundAnimation->Render();
+    if (RNETitleProfile::BackgroundAnimation->IsIn()) {
       glm::vec4 col = glm::vec4(1.0f);
       col.a = glm::smoothstep(0.0f, 1.0f, PressToStartAnimation.Progress);
       Renderer->DrawSprite(PressToStartSprite, PressToStartPos, col);

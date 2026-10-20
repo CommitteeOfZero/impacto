@@ -1344,10 +1344,14 @@ else ()
     message(STATUS "NOT enabling compiler warnings, consider enabling them when developing")
 endif ()
 
+option(IMPACTO_UNITY_BUILD "Build the Impacto target using CMake Unity Build" ON)
+
 # compiler/dependency configuration
 target_compile_options(impacto PRIVATE ${Impacto_Compile_Options})
 set_property(TARGET impacto ${Impacto_Lib_Targets} PROPERTY CXX_STANDARD 20)
 set_property(TARGET impacto PROPERTY CXX_SCAN_FOR_MODULES OFF)
+set_property(TARGET impacto PROPERTY UNITY_BUILD ${IMPACTO_UNITY_BUILD})
+set_property(TARGET impacto PROPERTY UNITY_BUILD_BATCH_SIZE 8)
 
 # Hot reload for MSVC
 if(NOT IMPACTO_ASAN)

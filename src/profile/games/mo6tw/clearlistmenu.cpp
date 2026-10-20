@@ -102,7 +102,7 @@ void Configure() {
   FadeInDuration = EnsureGetMember<float>("FadeInDuration");
   FadeOutDuration = EnsureGetMember<float>("FadeOutDuration");
 
-  auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
+  auto drawType = EnsureGetMember<Impacto::Game::DrawComponentType>("DrawType");
 
   auto clearList = new UI::MO6TW::ClearListMenu();
   UI::Menus[drawType].push_back(clearList);

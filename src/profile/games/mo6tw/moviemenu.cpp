@@ -52,7 +52,7 @@ void Configure() {
   FadeInDuration = EnsureGetMember<float>("FadeInDuration");
   FadeOutDuration = EnsureGetMember<float>("FadeOutDuration");
 
-  auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
+  auto drawType = EnsureGetMember<Impacto::Game::DrawComponentType>("DrawType");
 
   UI::Menus[drawType].push_back(new UI::MO6TW::MovieMenu());
 }

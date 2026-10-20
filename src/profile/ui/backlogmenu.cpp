@@ -24,7 +24,8 @@ void Configure() {
 
     if (Type == BacklogMenuType::None) {
       UI::BacklogMenuPtr = new UI::BacklogMenu<Widgets::BacklogEntry>();
-      UI::Menus[Game::DrawComponentType::None].push_back(UI::BacklogMenuPtr);
+      UI::Menus[Impacto::Game::DrawComponentType::None].push_back(
+          UI::BacklogMenuPtr);
 
       Pop();
       return;

@@ -9,6 +9,9 @@
 #include "../../profile/games/cclcc/tipsnotification.h"
 #include "../../data/tipssystem.h"
 
+namespace CCLCCTipsNotificationProfile = ::Impacto::Profile::TipsNotification;
+namespace CCLCCNotificationVm = ::Impacto::Vm;
+
 namespace Impacto {
 namespace CCLCC {
 
@@ -18,18 +21,18 @@ using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::UI::Widgets;
 
 TipsNotification::TipsNotification() {
-  FadeAnimation.DurationIn = FadeInDuration;
-  FadeAnimation.DurationOut = FadeOutDuration;
+  FadeAnimation.DurationIn = CCLCCTipsNotificationProfile::FadeInDuration;
+  FadeAnimation.DurationOut = CCLCCTipsNotificationProfile::FadeOutDuration;
 
   Timer.DurationIn = TimerDuration;
   Timer.LoopMode = AnimationLoopMode::Stop;
 
-  auto textBefore = Vm::ScriptGetTextTableStrAddress(
+  auto textBefore = CCLCCNotificationVm::ScriptGetTextTableStrAddress(
       TextTableId, NotificationTextPart1MessageId);
   TextPartBefore =
       Label(textBefore, {NotificationPositionX, 0}, FontSize,
             RendererOutlineMode::BottomRight, NotificationTextColor);
-  auto textAfter = Vm::ScriptGetTextTableStrAddress(
+  auto textAfter = CCLCCNotificationVm::ScriptGetTextTableStrAddress(
       TextTableId, NotificationTextPart2MessageId);
   TextPartAfter =
       Label(textAfter, {NotificationPositionX + TextPartBefore.Bounds.Width, 0},
@@ -52,10 +55,11 @@ void TipsNotification::Update(float dt) {
 
   auto UpdateNotificationDisplay = [&]() {
     auto tipNameAdr = NotificationQueue.front();
-    auto [buffers, tipsScrBufId] = TipsSystem::GetTipsScriptBufferCtx();
-    TipName.SetText(Vm::BufferOffsetContext{.Buffers = buffers,
-                                            .BufferId = tipsScrBufId,
-                                            .IpOffset = tipNameAdr},
+    auto [buffers, tipsScrBufId] =
+        Impacto::TipsSystem::GetTipsScriptBufferCtx();
+    TipName.SetText(Impacto::Vm::BufferOffsetContext{.Buffers = buffers,
+                                                     .BufferId = tipsScrBufId,
+                                                     .IpOffset = tipNameAdr},
                     {NotificationPositionX, 0.0f}, FontSize,
                     RendererOutlineMode::BottomRight, TipNameColor);
     Timer.DurationIn = TimerDuration + TipName.GetTextLength() * 0.1f;
@@ -102,7 +106,7 @@ void TipsNotification::Render() {
 }
 
 void TipsNotification::AddTip(int tipId) {
-  const auto* const record = TipsSystem::GetTipRecord(tipId);
+  const auto* const record = Impacto::TipsSystem::GetTipRecord(tipId);
   NotificationQueue.push(record->StringAdr[1]);
 }
 

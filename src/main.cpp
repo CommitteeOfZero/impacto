@@ -20,12 +20,13 @@
 
 using namespace Impacto;
 
-static uint64_t t;
+static uint64_t lastPerfCounter;
 static float TickDeltaTime() {
   // TODO: Better FPS lock
   uint64_t t2 = SDL_GetPerformanceCounter();
-  float dt = (float)(t2 - t) / (float)SDL_GetPerformanceFrequency();
-  t = t2;
+  float dt =
+      (float)(t2 - lastPerfCounter) / (float)SDL_GetPerformanceFrequency();
+  lastPerfCounter = t2;
   return std::min(dt, 1.0f);
 }
 
@@ -229,7 +230,7 @@ int main(int argc, char* argv[]) {
 #ifdef EMSCRIPTEN
     EM_ASM(OnGameLoaded(););
 #else
-    t = SDL_GetPerformanceCounter();
+    lastPerfCounter = SDL_GetPerformanceCounter();
 
     while (!Game::ShouldQuit && UserConfig::GetActiveGame().empty()) {
       LauncherLoop();
@@ -238,7 +239,7 @@ int main(int argc, char* argv[]) {
     if (!Game::ShouldQuit) {
       Game::InitGameProfile();
     }
-    t = SDL_GetPerformanceCounter();
+    lastPerfCounter = SDL_GetPerformanceCounter();
     while (!Game::ShouldQuit) {
       GameLoop();
     }

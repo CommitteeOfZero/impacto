@@ -10,6 +10,8 @@
 #include "../../ui/widgets/cclcc/sysmenubutton.h"
 #include "../../audio/audiosystem.h"
 
+namespace CCLCCSystemProfile = ::Impacto::Profile::SystemMenu;
+
 namespace Impacto {
 namespace UI {
 namespace CCLCC {
@@ -73,23 +75,25 @@ SystemMenu::SystemMenu() : CommonMenu(FadeAnimation) {
   ScreenCap.Sheet.Texture = tex.Submit();
   ScreenCap.Bounds.SetSize(viewport.GetSize());
 
-  for (int i = 0; i < MenuEntriesNum; i++) {
-    SysMenuButton* menuButton = new SysMenuButton(
-        i, MenuEntriesSprites[i], Sprite(), MenuEntriesHSprites[i],
-        MenuEntriesPositions[i], MenuEntriesButtonBounds[i]);
+  for (int i = 0; i < CCLCCSystemProfile::MenuEntriesNum; i++) {
+    SysMenuButton* menuButton =
+        new SysMenuButton(i, CCLCCSystemProfile::MenuEntriesSprites[i],
+                          Sprite(), CCLCCSystemProfile::MenuEntriesHSprites[i],
+                          MenuEntriesPositions[i], MenuEntriesButtonBounds[i]);
 
     menuButton->OnClickHandler = onClick;
     MainItems->Add(menuButton, FDIR_DOWN);
   }
-  MainItems->Children[0]->SetFocus(MainItems->Children[MenuEntriesNum - 1],
-                                   FDIR_UP);
-  MainItems->Children[MenuEntriesNum - 1]->SetFocus(MainItems->Children[0],
-                                                    FDIR_DOWN);
+  MainItems->Children[0]->SetFocus(
+      MainItems->Children[CCLCCSystemProfile::MenuEntriesNum - 1], FDIR_UP);
+  MainItems->Children[CCLCCSystemProfile::MenuEntriesNum - 1]->SetFocus(
+      MainItems->Children[0], FDIR_DOWN);
 }
 void SystemMenu::Show() {
   if (State != Shown) {
     OpenedAsDirect = GetFlag(SF_SYSTEMMENUDIRECT);
-    CommonMenu::OnShow(FadeInDuration, FadeOutDuration, FadeAnimation);
+    CommonMenu::OnShow(CCLCCSystemProfile::FadeInDuration,
+                       CCLCCSystemProfile::FadeOutDuration, FadeAnimation);
 
     if (State != Showing) FadeAnimation.StartIn();
 
@@ -105,7 +109,8 @@ void SystemMenu::Show() {
       UI::FocusedMenu = this;
       if (State != Showing) ItemsFade.StartIn();
       MainItems->Show();
-      if (LastFocusedButtonId && *LastFocusedButtonId < MenuEntriesNum) {
+      if (LastFocusedButtonId &&
+          *LastFocusedButtonId < CCLCCSystemProfile::MenuEntriesNum) {
         CurrentlyFocusedElement = MainItems->Children[*LastFocusedButtonId];
         CurrentlyFocusedElement->HasFocus = true;
       } else if (!CurrentlyFocusedElement) {

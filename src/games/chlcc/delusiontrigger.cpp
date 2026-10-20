@@ -16,6 +16,9 @@
 #include "../../text/dialoguepage.h"
 #include "../../userconfig.h"
 
+namespace CHLCCDelusionTriggerProfile =
+    ::Impacto::Profile::CHLCC::DelusionTrigger;
+
 namespace Impacto {
 namespace UI {
 namespace CHLCC {
@@ -481,23 +484,31 @@ void DelusionTrigger::RenderHeartButton(Sprite const& sprite, glm::vec2 pos,
 
 void DelusionTrigger::Render() {
   if (State == Hidden) return;
-  Sprite ScaledMask = BackgroundSpriteMask;
+  Sprite ScaledMask = CHLCCDelusionTriggerProfile::BackgroundSpriteMask;
   constexpr float aspect_ratio = 1280.0f / 720.0f;
 
-  float newWidth = BackgroundSpriteMask.Bounds.Width * 65535.0f /
-                   MaskScaleFactor * aspect_ratio * 0.7f;
+  float newWidth =
+      CHLCCDelusionTriggerProfile::BackgroundSpriteMask.Bounds.Width *
+      65535.0f / MaskScaleFactor * aspect_ratio * 0.7f;
   float newHeight =
-      BackgroundSpriteMask.Bounds.Height * 65535.0f / MaskScaleFactor * 0.7f;
+      CHLCCDelusionTriggerProfile::BackgroundSpriteMask.Bounds.Height *
+      65535.0f / MaskScaleFactor * 0.7f;
 
-  float deltaWidth = newWidth - BackgroundSpriteMask.Bounds.Width;
-  float deltaHeight = newHeight - BackgroundSpriteMask.Bounds.Height;
+  float deltaWidth =
+      newWidth - CHLCCDelusionTriggerProfile::BackgroundSpriteMask.Bounds.Width;
+  float deltaHeight =
+      newHeight -
+      CHLCCDelusionTriggerProfile::BackgroundSpriteMask.Bounds.Height;
 
   ScaledMask.Bounds.Width = newWidth;
   ScaledMask.Bounds.Height = newHeight;
 
   ScaledMask.Bounds.X =
-      MaskOffsetX + BackgroundSpriteMask.Bounds.X - deltaWidth / 2.0f;
-  ScaledMask.Bounds.Y = BackgroundSpriteMask.Bounds.Y - deltaHeight / 2.0f;
+      MaskOffsetX + CHLCCDelusionTriggerProfile::BackgroundSpriteMask.Bounds.X -
+      deltaWidth / 2.0f;
+  ScaledMask.Bounds.Y =
+      CHLCCDelusionTriggerProfile::BackgroundSpriteMask.Bounds.Y -
+      deltaHeight / 2.0f;
 
   TriggerOnTint[3] = TriggerOnTintAlpha * BackgroundAlpha / 65536.0f;
   Renderer->DrawQuad(RectF(0.0f, 0.0f, Profile::Game::DesignWidth,
@@ -517,9 +528,10 @@ void DelusionTrigger::Render() {
       glm::vec4(1.0f, 1.0f, 1.0f, (BackgroundAlpha * 160) / 65536.0f));
 
   TextSystem.Render();
-  Renderer->DrawMaskedSpriteOverlay(BackgroundSprite, ScaledMask, spriteDest,
-                                    maskDest, (BackgroundAlpha * 160) >> 8, 20,
-                                    glm::mat4(1.0f), glm::vec4(1.0f), true);
+  Renderer->DrawMaskedSpriteOverlay(
+      CHLCCDelusionTriggerProfile::BackgroundSprite, ScaledMask, spriteDest,
+      maskDest, (BackgroundAlpha * 160) >> 8, 20, glm::mat4(1.0f),
+      glm::vec4(1.0f), true);
   if (Profile::Patch::HasDelusionMouseSupport &&
       UserConfig::EnhancementsSettings.CHLCC.DelusionMousePatch &&
       HeartButtonFade.Progress > 0.0f) {

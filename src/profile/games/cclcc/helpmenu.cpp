@@ -17,7 +17,7 @@ void Configure() {
 
   ManualPages = EnsureGetMember<std::vector<Sprite>>("ManualPages");
 
-  auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
+  auto drawType = EnsureGetMember<Impacto::Game::DrawComponentType>("DrawType");
 
   UI::HelpMenuPtr = new UI::CCLCC::HelpMenu();
   UI::Menus[drawType].push_back(UI::HelpMenuPtr);

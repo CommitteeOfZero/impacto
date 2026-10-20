@@ -5,6 +5,8 @@
 #include "../profile/scriptinput.h"
 #include "../vm/interface/input.h"
 
+namespace OptionsProfile = ::Impacto::Profile::OptionsMenu;
+
 namespace Impacto {
 namespace UI {
 
@@ -17,8 +19,8 @@ OptionsMenu::OptionsMenu()
     : PADinputButtonHoldMask(PAD1UP | PAD1DOWN | PAD1LEFT | PAD1RIGHT) {
   FadeAnimation.Direction = AnimationDirection::In;
   FadeAnimation.LoopMode = AnimationLoopMode::Stop;
-  FadeAnimation.DurationIn = FadeInDuration;
-  FadeAnimation.DurationOut = FadeOutDuration;
+  FadeAnimation.DurationIn = OptionsProfile::FadeInDuration;
+  FadeAnimation.DurationOut = OptionsProfile::FadeOutDuration;
   FadeAnimation.SkipOnSkipMode = false;
 }
 

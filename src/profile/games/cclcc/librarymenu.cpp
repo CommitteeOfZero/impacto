@@ -72,7 +72,7 @@ void Configure() {
   LibraryButtonGuidePosition =
       EnsureGetMember<glm::vec2>("LibraryButtonGuidePosition");
 
-  auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
+  auto drawType = EnsureGetMember<Impacto::Game::DrawComponentType>("DrawType");
 
   SnapPhotoSpriteHover = EnsureGetMember<Sprite>("SnapPhotoSpriteHover");
   SnapPhotoSpriteSelect = EnsureGetMember<Sprite>("SnapPhotoSpriteSelect");

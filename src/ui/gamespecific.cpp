@@ -21,12 +21,12 @@
 #include "../audio/audiosystem.h"
 #include "../vm/interface/input.h"
 
-using namespace Impacto::Profile::GameSpecific;
-using namespace Impacto::Profile::ScriptVars;
-
 namespace Impacto {
 namespace UI {
 namespace GameSpecific {
+
+using namespace Impacto::Profile::GameSpecific;
+using namespace Impacto::Profile::ScriptVars;
 
 static float CHLCCScanlineOffsetY = 0.0f;
 static void UpdateCCAtChanScrollbar();
@@ -34,16 +34,16 @@ static void UpdateCCAtChanScrollbar();
 void Init() {
   switch (Profile::GameSpecific::GameSpecificType) {
     case GameSpecificType::CHLCC: {
-      CHLCC::DelusionTrigger::GetInstance().Reset();
-      CHLCC::ButterflyEffect::GetInstance().Init();
-      CHLCC::BubblesEffect::GetInstance().Init();
+      Impacto::UI::CHLCC::DelusionTrigger::GetInstance().Reset();
+      Impacto::UI::CHLCC::ButterflyEffect::GetInstance().Init();
+      Impacto::UI::CHLCC::BubblesEffect::GetInstance().Init();
     } break;
     case GameSpecificType::CC: {
     } break;
     case GameSpecificType::CCLCC: {
-      CCLCC::DelusionTrigger::GetInstance();
-      CCLCC::YesNoTrigger::GetInstance();
-      CCLCC::MapSystem::GetInstance();
+      Impacto::UI::CCLCC::DelusionTrigger::GetInstance();
+      Impacto::UI::CCLCC::YesNoTrigger::GetInstance();
+      Impacto::UI::CCLCC::MapSystem::GetInstance();
     } break;
     case GameSpecificType::RNE:
       break;
@@ -74,9 +74,9 @@ void NonGameplayUpdate(float dt) {
 void Update(float dt) {
   switch (Profile::GameSpecific::GameSpecificType) {
     case GameSpecificType::CHLCC: {
-      CHLCC::DelusionTrigger::GetInstance().Update(dt);
-      CHLCC::ButterflyEffect::GetInstance().Update(dt);
-      CHLCC::BubblesEffect::GetInstance().Update(dt);
+      Impacto::UI::CHLCC::DelusionTrigger::GetInstance().Update(dt);
+      Impacto::UI::CHLCC::ButterflyEffect::GetInstance().Update(dt);
+      Impacto::UI::CHLCC::BubblesEffect::GetInstance().Update(dt);
       CHLCCScanlineOffsetY = fmod(dt * 60 + CHLCCScanlineOffsetY, 300.0f);
     } break;
     case GameSpecificType::CC: {
@@ -86,9 +86,9 @@ void Update(float dt) {
     case GameSpecificType::CCLCC: {
       UpdateCCButtonGuide(dt);
       UpdateCCAtChanScrollbar();
-      CCLCC::YesNoTrigger::GetInstance().Update(dt);
-      CCLCC::DelusionTrigger::GetInstance().Update(dt);
-      CCLCC::MapSystem::GetInstance().Update(dt);
+      Impacto::UI::CCLCC::YesNoTrigger::GetInstance().Update(dt);
+      Impacto::UI::CCLCC::DelusionTrigger::GetInstance().Update(dt);
+      Impacto::UI::CCLCC::MapSystem::GetInstance().Update(dt);
     } break;
     case GameSpecificType::RNE:
       break;
@@ -102,7 +102,7 @@ void Update(float dt) {
 void RenderEarlyMain() {
   switch (Profile::GameSpecific::GameSpecificType) {
     case GameSpecificType::CHLCC: {
-      CHLCC::EyecatchEffect::GetInstance().RenderMain();
+      Impacto::UI::CHLCC::EyecatchEffect::GetInstance().RenderMain();
     } break;
     case GameSpecificType::Dash:
     case GameSpecificType::RNE:
@@ -116,7 +116,7 @@ void RenderEarlyMain() {
 void RenderMain() {
   switch (Profile::GameSpecific::GameSpecificType) {
     case GameSpecificType::CHLCC: {
-      CHLCC::DelusionTrigger::GetInstance().Render();
+      Impacto::UI::CHLCC::DelusionTrigger::GetInstance().Render();
     } break;
     case GameSpecificType::Dash: {
       /////////// DaSH hack kind of? ///////
@@ -150,7 +150,7 @@ void RenderLayer(uint32_t layer) {
   int layerInt = static_cast<int>(layer);
   switch (Profile::GameSpecific::GameSpecificType) {
     case GameSpecificType::CHLCC: {
-      CHLCC::EyecatchEffect::GetInstance().RenderLayer(layer);
+      Impacto::UI::CHLCC::EyecatchEffect::GetInstance().RenderLayer(layer);
       if (ScrWork[SW_MONITOR_SCANLINE_ENABLED] &&
           layerInt == ScrWork[SW_MONITOR_SCANLINE_PRI]) {
         Renderer->DrawSprite(MonitorScanline,
@@ -163,10 +163,10 @@ void RenderLayer(uint32_t layer) {
       }
       if (ScrWork[SW_BUTTERFLY_ALPHA] &&
           layerInt == ScrWork[SW_BUTTERFLY_PRI]) {
-        CHLCC::ButterflyEffect::GetInstance().Render();
+        Impacto::UI::CHLCC::ButterflyEffect::GetInstance().Render();
       }
       if (ScrWork[SW_BUBBLES_ALPHA] && layerInt == ScrWork[SW_BUBBLES_PRI]) {
-        CHLCC::BubblesEffect::GetInstance().Render();
+        Impacto::UI::CHLCC::BubblesEffect::GetInstance().Render();
       }
 
       if (GetFlag(SF_TITLEMODE) && ScrWork[SW_TITLE_PRI] == layerInt) {
@@ -178,13 +178,13 @@ void RenderLayer(uint32_t layer) {
     } break;
     case GameSpecificType::CCLCC: {
       if (ScrWork[SW_MAP_PRI] == layerInt && ScrWork[SW_MAP_ALPHA]) {
-        CCLCC::MapSystem::GetInstance().Render();
+        Impacto::UI::CCLCC::MapSystem::GetInstance().Render();
       }
 
       if (ScrWork[SW_DELUSION_PRI] == layerInt)
-        CCLCC::DelusionTrigger::GetInstance().Render();
+        Impacto::UI::CCLCC::DelusionTrigger::GetInstance().Render();
       if (ScrWork[SW_YESNO_PRI] == layerInt) {
-        CCLCC::YesNoTrigger::GetInstance().Render();
+        Impacto::UI::CCLCC::YesNoTrigger::GetInstance().Render();
       }
     } break;
     case GameSpecificType::RNE:

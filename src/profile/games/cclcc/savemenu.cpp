@@ -13,7 +13,7 @@ namespace CCLCC {
 namespace SaveMenu {
 
 void Configure() {
-  auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
+  auto drawType = EnsureGetMember<Impacto::Game::DrawComponentType>("DrawType");
 
   EntryStartXL = EnsureGetMember<float>("EntryStartXL");
   EntryStartXR = EnsureGetMember<float>("EntryStartXR");

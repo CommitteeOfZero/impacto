@@ -42,7 +42,7 @@ void Configure() {
   PrimaryFadeAnimDuration = EnsureGetMember<float>("PrimaryFadeAnimDuration");
   ItemFadeAnimDuration = EnsureGetMember<float>("ItemFadeAnimDuration");
 
-  auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
+  auto drawType = EnsureGetMember<Impacto::Game::DrawComponentType>("DrawType");
 
   UI::MO8::TitleMenu* menu = new UI::MO8::TitleMenu();
   menu->PrimaryFadeAnimation.DurationIn = PrimaryFadeAnimDuration;

@@ -187,7 +187,7 @@ void SetSaveFlags(SaveType type, int id, uint8_t flags) {
 }
 
 tm const& GetSaveDate(SaveType type, int id) {
-  const static tm t = [] {
+  const static tm fallbackSaveDate = [] {
     tm tmStruct{};
     tmStruct.tm_mday = 1;
     return tmStruct;
@@ -196,7 +196,7 @@ tm const& GetSaveDate(SaveType type, int id) {
   if (Implementation) return Implementation->GetSaveDate(type, id);
   ImpLog(LogLevel::Warning, LogChannel::VMStub,
          "{:s}: save system not implemented, returning dummy time\n", __func__);
-  return t;
+  return fallbackSaveDate;
 }
 
 uint8_t GetSaveStatus(SaveType type, int id) {

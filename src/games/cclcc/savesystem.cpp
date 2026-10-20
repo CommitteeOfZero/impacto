@@ -121,14 +121,14 @@ void SaveSystem::LoadEntryBuffer(Io::MemoryStream& stream, SaveFileEntry& entry,
   uint8_t saveSecond = Io::ReadLE<uint8_t>(&stream);
   uint8_t saveMinute = Io::ReadLE<uint8_t>(&stream);
   uint8_t saveHour = Io::ReadLE<uint8_t>(&stream);
-  std::tm t{};
-  t.tm_sec = saveSecond;
-  t.tm_min = saveMinute;
-  t.tm_hour = saveHour;
-  t.tm_mday = saveDay;
-  t.tm_mon = saveMonth - 1;
-  t.tm_year = saveYear - 1900;
-  entry.SaveDate = t;
+  std::tm saveTime{};
+  saveTime.tm_sec = saveSecond;
+  saveTime.tm_min = saveMinute;
+  saveTime.tm_hour = saveHour;
+  saveTime.tm_mday = saveDay;
+  saveTime.tm_mon = saveMonth - 1;
+  saveTime.tm_year = saveYear - 1900;
+  entry.SaveDate = saveTime;
 
   Io::ReadLE<uint8_t>(&stream);
   entry.PlayTime = Io::ReadLE<uint32_t>(&stream);

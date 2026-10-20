@@ -7,6 +7,8 @@
 #include "../../mem.h"
 #include "../../renderer/renderer.h"
 
+namespace MO6TWSysMesBoxProfile = ::Impacto::Profile::SysMesBox;
+
 namespace Impacto {
 namespace UI {
 namespace MO6TW {
@@ -164,8 +166,8 @@ void SysMesBox::Init() {
   MessageCount = 0;
   ChoiceCount = 0;
 
-  FadeAnimation.DurationIn = FadeInDuration;
-  FadeAnimation.DurationOut = FadeOutDuration;
+  FadeAnimation.DurationIn = MO6TWSysMesBoxProfile::FadeInDuration;
+  FadeAnimation.DurationOut = MO6TWSysMesBoxProfile::FadeOutDuration;
   FadeAnimation.Direction = AnimationDirection::In;
   FadeAnimation.LoopMode = AnimationLoopMode::Stop;
 }

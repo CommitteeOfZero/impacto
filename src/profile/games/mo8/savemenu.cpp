@@ -36,7 +36,7 @@ void Configure() {
       EnsureGetMember<Sprite>("BackButtonHighlightedSprite");
   BackButtonPosition = EnsureGetMember<glm::vec2>("BackButtonPosition");
 
-  auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
+  auto drawType = EnsureGetMember<Impacto::Game::DrawComponentType>("DrawType");
 
   UI::SaveMenuPtr = new UI::MO8::SaveMenu();
   UI::Menus[drawType].push_back(UI::SaveMenuPtr);

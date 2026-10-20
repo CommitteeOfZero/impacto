@@ -312,7 +312,7 @@ bool TextureLoadDDS(Stream* stream, Texture* outTexture) {
   return true;
 }
 
-static bool _registered = Texture::AddTextureLoader(&TextureLoadDDS);
+static bool ddsRegistered = Texture::AddTextureLoader(&TextureLoadDDS);
 
 }  // namespace Gxm
 }  // namespace Impacto

@@ -8,6 +8,8 @@
 #include "../../inputsystem.h"
 #include "../../ui/widgets/button.h"
 
+namespace MO6TWSystemMenuProfile = ::Impacto::Profile::SystemMenu;
+
 namespace Impacto {
 namespace UI {
 namespace MO6TW {
@@ -42,8 +44,8 @@ SystemMenu::SystemMenu() {
 
   FadeAnimation.Direction = AnimationDirection::In;
   FadeAnimation.LoopMode = AnimationLoopMode::Stop;
-  FadeAnimation.DurationIn = FadeInDuration;
-  FadeAnimation.DurationOut = FadeOutDuration;
+  FadeAnimation.DurationIn = MO6TWSystemMenuProfile::FadeInDuration;
+  FadeAnimation.DurationOut = MO6TWSystemMenuProfile::FadeOutDuration;
 }
 
 void SystemMenu::Show() {

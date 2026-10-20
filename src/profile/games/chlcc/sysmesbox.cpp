@@ -35,7 +35,7 @@ void Configure() {
   LoadingStarsFadeDuration = EnsureGetMember<float>("LoadingStarsFadeDuration");
   LoadingStarsPosition = EnsureGetMember<glm::vec2>("LoadingStarsPosition");
 
-  auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
+  auto drawType = EnsureGetMember<Impacto::Game::DrawComponentType>("DrawType");
 
   UI::SysMesBox::DrawType = drawType;
   UI::SysMesBox::Factory = []() -> UI::SysMesBox* {

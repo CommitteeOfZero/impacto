@@ -50,7 +50,7 @@ void Configure() {
   FadeAnimationDurationInOut =
       EnsureGetMember<float>("FadeAnimationDurationInOut");
 
-  auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
+  auto drawType = EnsureGetMember<Impacto::Game::DrawComponentType>("DrawType");
 
   UI::SelectionMenuPtr = new UI::SelectionMenu();
   UI::Menus[drawType].push_back(UI::SelectionMenuPtr);

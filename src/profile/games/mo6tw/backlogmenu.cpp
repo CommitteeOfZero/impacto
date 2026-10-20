@@ -9,7 +9,7 @@ namespace MO6TW {
 namespace BacklogMenu {
 
 void Configure() {
-  auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
+  auto drawType = EnsureGetMember<Impacto::Game::DrawComponentType>("DrawType");
 
   UI::BacklogMenuPtr = new UI::MO6TW::BacklogMenu();
   UI::Menus[drawType].push_back(UI::BacklogMenuPtr);

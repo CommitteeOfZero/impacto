@@ -60,7 +60,7 @@ bool TipsComparator::operator()(int a, int b) const {
   return aString.PeekU8() == 0xff && bString.PeekU8() != 0xff;
 }
 
-void Init() { Configure(); }
+void Init() { Impacto::Profile::TipsSystem::Configure(); }
 
 Vm::Sc3Stream GetTextStringStream(size_t record, size_t stringIndex) {
   if (!Implementation) return {nullptr};

@@ -9,6 +9,8 @@
 #include "../../util.h"
 #include "../../ui/widgets/chlcc/systemmessagebutton.h"
 
+namespace CHLCCSysMesBoxProfile = ::Impacto::Profile::SysMesBox;
+
 namespace Impacto {
 namespace UI {
 namespace CHLCC {
@@ -185,13 +187,13 @@ void SysMesBox::Init() {
   MessageCount = 0;
   ChoiceCount = 0;
 
-  FadeAnimation.DurationIn = FadeInDuration;
-  FadeAnimation.DurationOut = FadeOutDuration;
+  FadeAnimation.DurationIn = CHLCCSysMesBoxProfile::FadeInDuration;
+  FadeAnimation.DurationOut = CHLCCSysMesBoxProfile::FadeOutDuration;
   FadeAnimation.Direction = AnimationDirection::In;
   FadeAnimation.LoopMode = AnimationLoopMode::Stop;
 }
 
-void SysMesBox::AddMessage(Vm::BufferOffsetContext ctx) {
+void SysMesBox::AddMessage(Impacto::Vm::BufferOffsetContext ctx) {
   Impacto::Vm::Sc3VmThread dummy;
   dummy.IpOffset = ctx.IpOffset;
   dummy.ScriptBufferId = ctx.BufferId;
@@ -203,7 +205,7 @@ void SysMesBox::AddMessage(Vm::BufferOffsetContext ctx) {
   MessageCount++;
 }
 
-void SysMesBox::AddChoice(Vm::BufferOffsetContext ctx) {
+void SysMesBox::AddChoice(Impacto::Vm::BufferOffsetContext ctx) {
   Impacto::Vm::Sc3VmThread dummy;
   dummy.IpOffset = ctx.IpOffset;
   dummy.ScriptBufferId = ctx.BufferId;

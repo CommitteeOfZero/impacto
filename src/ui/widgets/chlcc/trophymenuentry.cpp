@@ -20,7 +20,9 @@ TrophyMenuEntry::TrophyMenuEntry(int achievementId)
     : AchievementId(achievementId) {
   Bounds.SetPos(
       FirstEntryPos +
-      glm::vec2(0.0f, EntryHeight * (AchievementId % EntriesPerPage)));
+      glm::vec2(0.0f,
+                EntryHeight * (AchievementId %
+                               Profile::CHLCC::TrophyMenu::EntriesPerPage)));
 
   const auto* ach = GetAchievement(AchievementId);
   assert(ach != nullptr);
@@ -54,7 +56,8 @@ TrophyMenuEntry::TrophyMenuEntry(int achievementId)
   AchievementRarity rarity = AchievementRarity::Bronze;
   if (Profile::AchievementSystem::Type == AchievementDataType::Common) {
     if (const CommonAchievement* commonAch =
-            static_cast<AchievementSystemCommon*>(Implementation)
+            static_cast<AchievementSystemCommon*>(
+                AchievementSystem::Implementation)
                 ->GetAchievement(AchievementId)) {
       rarity = commonAch->GetRarity();
     }

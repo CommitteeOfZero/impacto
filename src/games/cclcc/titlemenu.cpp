@@ -27,7 +27,6 @@ using namespace Impacto::Profile::TitleMenu;
 using namespace Impacto::Profile::CCLCC::TitleMenu;
 using namespace Impacto::Profile::CCLCC::SystemMenu;
 using namespace Impacto::Profile::ScriptVars;
-using namespace Impacto::Profile;
 
 using namespace Impacto::Vm::Interface;
 
@@ -231,7 +230,7 @@ TitleMenu::TitleMenu() {
       glm::vec2(ItemHighlightOffset.x, (ItemYBase + (4 * ItemPadding))));
   setupBtn(Help, onClick, MainItems, FDIR_DOWN);
 
-  if (Patch::HasScriptedExitLogic) {
+  if (Impacto::Profile::Patch::HasScriptedExitLogic) {
     // Exit menu button (Configuration/Patch driven)
     auto* const exitPtr = new TitleButton(
         5, ExitSprite, ExitSprite, ItemHighlightSprite,

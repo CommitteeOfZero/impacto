@@ -63,7 +63,7 @@ bool TextureLoadSTBI(Io::Stream* stream, Texture* outTexture) {
   return true;
 }
 
-static bool _registered = Texture::AddTextureLoader(&TextureLoadSTBI);
+static bool stbiRegistered = Texture::AddTextureLoader(&TextureLoadSTBI);
 
 }  // namespace TexLoad
 }  // namespace Impacto

@@ -6,6 +6,8 @@
 #include "../../mem.h"
 #include "../../profile/scriptvars.h"
 
+namespace MO6TWMovieProfile = ::Impacto::Profile::MO6TW::MovieMenu;
+
 namespace Impacto {
 namespace UI {
 namespace MO6TW {
@@ -25,8 +27,8 @@ void MovieMenu::MovieButtonOnClick(Button* target) {
 MovieMenu::MovieMenu() {
   FadeAnimation.Direction = AnimationDirection::In;
   FadeAnimation.LoopMode = AnimationLoopMode::Stop;
-  FadeAnimation.DurationIn = FadeInDuration;
-  FadeAnimation.DurationOut = FadeOutDuration;
+  FadeAnimation.DurationIn = MO6TWMovieProfile::FadeInDuration;
+  FadeAnimation.DurationOut = MO6TWMovieProfile::FadeOutDuration;
 
   MainItems = new Group(this);
   MainItems->WrapFocus = false;
@@ -159,7 +161,8 @@ void MovieMenu::Render() {
   if (State == Hidden) return;
 
   glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
-  Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f, 0.0f), col);
+  Renderer->DrawSprite(Profile::MO6TW::MovieMenu::BackgroundSprite,
+                       glm::vec2(0.0f, 0.0f), col);
   MainItems->Tint = col;
   MainItems->Render();
 }

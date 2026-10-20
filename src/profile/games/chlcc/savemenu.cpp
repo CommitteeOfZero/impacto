@@ -87,7 +87,7 @@ void Configure() {
   MaxTitleWidth = EnsureGetMember<float>("MaxTitleWidth");
   MaxDateTimeWidth = EnsureGetMember<float>("MaxDateTimeWidth");
 
-  auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
+  auto drawType = EnsureGetMember<Impacto::Game::DrawComponentType>("DrawType");
 
   UI::SaveMenuPtr = new UI::CHLCC::SaveMenu();
   UI::Menus[drawType].push_back(UI::SaveMenuPtr);

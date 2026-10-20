@@ -7,6 +7,8 @@
 #include "../../mem.h"
 #include "../../renderer/renderer.h"
 
+namespace DarlingSysMesBoxProfile = ::Impacto::Profile::SysMesBox;
+
 namespace Impacto {
 namespace UI {
 namespace Darling {
@@ -161,8 +163,8 @@ void SysMesBox::Init() {
   MessageCount = 0;
   ChoiceCount = 0;
 
-  FadeAnimation.DurationIn = FadeInDuration;
-  FadeAnimation.DurationOut = FadeOutDuration;
+  FadeAnimation.DurationIn = DarlingSysMesBoxProfile::FadeInDuration;
+  FadeAnimation.DurationOut = DarlingSysMesBoxProfile::FadeOutDuration;
   FadeAnimation.Direction = AnimationDirection::In;
   FadeAnimation.LoopMode = AnimationLoopMode::Stop;
 }

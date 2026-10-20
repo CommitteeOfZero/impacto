@@ -11,6 +11,8 @@
 #include "../../vm/interface/input.h"
 #include "../../audio/audiosystem.h"
 
+namespace CCSysMesBoxProfile = ::Impacto::Profile::SysMesBox;
+
 namespace Impacto {
 namespace UI {
 namespace CC {
@@ -229,8 +231,8 @@ void SysMesBox::Init() {
   MessageCount = 0;
   ChoiceCount = 0;
 
-  FadeAnimation.DurationIn = FadeInDuration;
-  FadeAnimation.DurationOut = FadeOutDuration;
+  FadeAnimation.DurationIn = CCSysMesBoxProfile::FadeInDuration;
+  FadeAnimation.DurationOut = CCSysMesBoxProfile::FadeOutDuration;
   FadeAnimation.Direction = AnimationDirection::In;
   FadeAnimation.LoopMode = AnimationLoopMode::Stop;
 }
