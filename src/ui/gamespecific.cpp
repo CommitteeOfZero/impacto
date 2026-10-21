@@ -1,11 +1,7 @@
 #include "gamespecific.h"
 #include "../profile/game.h"
-#include "../profile/vm.h"
 #include "../profile/scene3d.h"
-#include "../profile/sprites.h"
 #include "../profile/ui/gamespecific.h"
-#include "../profile/games/cclcc/delusiontrigger.h"
-#include "../profile/games/chlcc/delusiontrigger.h"
 
 #include "../games/chlcc/delusiontrigger.h"
 #include "../effects/chlcc/butterflyeffect.h"
@@ -16,10 +12,10 @@
 #include "../games/cclcc/yesnotrigger.h"
 #include "../games/cclcc/mapsystem.h"
 
-#include "../background2d.h"
 #include "../inputsystem.h"
 #include "../audio/audiosystem.h"
 #include "../vm/interface/input.h"
+#include "../profile/vm.h"
 
 using namespace Impacto::Profile::GameSpecific;
 using namespace Impacto::Profile::ScriptVars;

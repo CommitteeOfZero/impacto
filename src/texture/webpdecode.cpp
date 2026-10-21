@@ -1,6 +1,5 @@
 #include "texture.h"
 #include "../io/stream.h"
-#include "../log.h"
 #include <webp/decode.h>
 
 using namespace Impacto::Io;

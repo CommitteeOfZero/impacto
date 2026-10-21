@@ -1,7 +1,6 @@
 #include "basepaths.h"
 
 #include "profile_internal.h"
-#include "../io/filemeta.h"
 namespace Impacto::Profile::BasePaths {
 
 void Configure() {

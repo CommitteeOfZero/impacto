@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../../../animation.h"
-#include "../../../renderer/renderer.h"
 
 namespace Impacto {
 namespace UI {

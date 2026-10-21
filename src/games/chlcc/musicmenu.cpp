@@ -10,13 +10,11 @@
 #include "../../inputsystem.h"
 #include "../../audio/audiosystem.h"
 #include "../../ui/widgets/chlcc/trackselectbutton.h"
-#include "../../profile/games/chlcc/commonmenu.h"
 
 namespace Impacto {
 namespace UI {
 namespace CHLCC {
 
-using namespace Impacto::Profile::CHLCC::CommonMenu;
 using namespace Impacto::Profile::CHLCC::MusicMenu;
 using namespace Impacto::Profile::ScriptVars;
 

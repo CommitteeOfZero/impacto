@@ -5,7 +5,6 @@
 #include "../../profile/game.h"
 #include "../../profile/scriptvars.h"
 #include "../../profile/games/cclcc/systemmenu.h"
-#include "../../profile/games/cclcc/titlemenu.h"
 
 #include "../../ui/ui.h"
 
@@ -15,7 +14,6 @@ namespace CCLCC {
 
 using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::CCLCC::SystemMenu;
-using namespace Impacto::Profile::CCLCC::TitleMenu;
 
 CommonMenu::CommonMenu(Animation& fadeAnimation) {
   fadeAnimation.Direction = AnimationDirection::In;

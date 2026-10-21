@@ -1,11 +1,8 @@
 #include "saveentrybutton.h"
 
-#include "../../../renderer/renderer.h"
 #include "../../../profile/dialogue.h"
 #include "../../../profile/ui/savemenu.h"
 #include "../../../profile/games/chlcc/savemenu.h"
-#include "../../../games/chlcc/savesystem.h"
-#include "../../../profile/game.h"
 #include "../../../profile/patch.h"
 
 namespace Impacto {

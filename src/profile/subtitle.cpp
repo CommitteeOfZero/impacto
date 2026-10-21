@@ -1,5 +1,4 @@
 #include "subtitle.h"
-#include "../io/filemeta.h"
 #include "profile_internal.h"
 namespace Impacto::Profile {
 template <>

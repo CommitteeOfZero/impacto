@@ -6,8 +6,6 @@
 #include "../../profile/dialogue.h"
 #include "../../profile/game.h"
 #include "../../profile/games/cc/dialoguebox.h"
-#include "../../mem.h"
-#include "../../profile/scriptvars.h"
 #include "../../log.h"
 
 namespace Impacto {

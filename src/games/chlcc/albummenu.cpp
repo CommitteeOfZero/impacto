@@ -2,7 +2,6 @@
 
 #include "../../profile/games/chlcc/albummenu.h"
 #include "../../profile/scriptvars.h"
-#include "../../profile/profile_internal.h"
 #include "../../renderer/renderer.h"
 #include "../../ui/ui.h"
 #include "../../inputsystem.h"

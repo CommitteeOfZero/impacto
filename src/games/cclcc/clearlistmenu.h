@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../../ui/menu.h"
-#include "../../ui/widgets/label.h"
 
 namespace Impacto {
 namespace UI {

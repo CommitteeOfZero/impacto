@@ -1,10 +1,7 @@
 #pragma once
 
-#include <string>
-
 #include "../button.h"
 #include "../label.h"
-#include "../../../renderer/renderer.h"
 #include "../../../data/savesystem.h"
 
 namespace Impacto {

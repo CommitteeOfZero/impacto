@@ -2,18 +2,15 @@
 
 #include "../../profile/games/chlcc/moviemenu.h"
 #include "../../profile/scriptvars.h"
-#include "../../profile/profile_internal.h"
 #include "../../renderer/renderer.h"
 #include "../../ui/ui.h"
 #include "../../vm/interface/input.h"
 #include "../../audio/audiosystem.h"
-#include "../../profile/games/chlcc/commonmenu.h"
 #include "../../ui/widgets/chlcc/moviemenuentrybutton.h"
 
 namespace Impacto {
 namespace UI {
 namespace CHLCC {
-using namespace Impacto::Profile::CHLCC::CommonMenu;
 using namespace Impacto::Profile::CHLCC::MovieMenu;
 using namespace Impacto::Profile::ScriptVars;
 

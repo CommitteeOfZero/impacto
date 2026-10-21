@@ -2,12 +2,10 @@
 
 #include <span>
 #include <array>
-#include <magic_enum/magic_enum.hpp>
 #include <ankerl/unordered_dense.h>
 
 #include "processedtextglyph.h"
 #include "fonts/font.h"
-#include "../animation.h"
 #include "../vm/thread.h"
 #include "../vm/sc3stream.h"
 

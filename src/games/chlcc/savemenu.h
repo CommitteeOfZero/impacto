@@ -5,13 +5,10 @@
 #include "../../ui/widgets/group.h"
 #include "../../ui/widgets/button.h"
 #include "../../data/savesystem.h"
-#include "../../ui/widgets/chlcc/saveentrybutton.h"
 
 namespace Impacto {
 namespace UI {
 namespace CHLCC {
-
-using namespace Impacto::UI::Widgets::CHLCC;
 
 class SaveMenu : public UI::SaveMenu, public CommonMenu {
  public:

@@ -1,15 +1,11 @@
 #pragma once
 
-#include "../../text/dialoguepage.h"
+#include "../../animation.h"
 
 #include "commonmenu.h"
 #include "../../ui/tipsmenu.h"
 #include "../../ui/widgets/group.h"
 #include "../../ui/widgets/button.h"
-#include "../../ui/widgets/carousel.h"
-#include "../../ui/widgets/label.h"
-#include "../../data/tipssystem.h"
-#include "../../ui/widgets/cclcc/tipsentrybutton.h"
 #include "../../ui/widgets/scrollbar.h"
 #include <vector>
 #include <memory>

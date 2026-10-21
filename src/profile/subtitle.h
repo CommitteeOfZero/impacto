@@ -1,8 +1,9 @@
 #pragma once
 #include <ankerl/unordered_dense.h>
 #include <string>
-#include <magic_enum/magic_enum.hpp>
-#include "game.h"
+#include <variant>
+
+#include "../util.h"
 
 namespace Impacto::Profile::Subtitle {
 

@@ -1,5 +1,4 @@
 #include "patch.h"
-#include "profile.h"
 #include "profile_internal.h"
 
 namespace Impacto::Profile::Patch {

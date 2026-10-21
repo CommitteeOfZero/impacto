@@ -1,6 +1,7 @@
 #pragma once
 
 #include "optionsentry.h"
+#include "../../../spritesheet.h"
 
 namespace Impacto {
 namespace UI {

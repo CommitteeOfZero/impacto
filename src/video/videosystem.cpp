@@ -2,7 +2,6 @@
 #ifndef IMPACTO_DISABLE_FFMPEG
 #include "ffmpegplayer.h"
 #endif
-#include "../profile/game.h"
 #include "../userconfig.h"
 #include "../log.h"
 

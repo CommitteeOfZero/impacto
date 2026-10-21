@@ -1,6 +1,5 @@
 #include "titlemenu.h"
 #include "../profile_internal.h"
-#include "../games/rne/tilebackground.h"
 #include "../games/rne/titlemenu.h"
 #include "../games/dash/titlemenu.h"
 #include "../games/chlcc/titlemenu.h"
@@ -8,7 +7,6 @@
 #include "../games/mo8/titlemenu.h"
 #include "../games/cc/titlemenu.h"
 #include "../games/cclcc/titlemenu.h"
-#include "../../log.h"
 
 namespace Impacto {
 namespace Profile {

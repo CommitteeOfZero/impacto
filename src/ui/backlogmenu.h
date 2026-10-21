@@ -1,7 +1,6 @@
 #pragma once
 
 #include "menu.h"
-#include "widgets/group.h"
 #include "widgets/backlogentry.h"
 #include "widgets/scrollbar.h"
 

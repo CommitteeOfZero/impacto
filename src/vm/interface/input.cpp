@@ -1,13 +1,8 @@
 #include "input.h"
 
-#include "../../impacto.h"
-#include "../../mem.h"
 #include "../../inputsystem.h"
 #include "../../profile/configsystem.h"
-#include "../../animation.h"
-#include "../../profile/vm.h"
 #include "../../profile/scriptinput.h"
-#include "../../profile/scriptvars.h"
 #include "../../profile/profile_internal.h"
 
 namespace Impacto {

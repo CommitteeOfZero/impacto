@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../button.h"
-#include "../../../profile/dialogue.h"
 #include "../label.h"
 
 namespace Impacto {

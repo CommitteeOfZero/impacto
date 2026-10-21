@@ -9,7 +9,6 @@
 #include "../io/vfs.h"
 #include "../userconfig.h"
 #include "../log.h"
-#include "../profile/game.h"
 
 namespace Impacto {
 namespace Audio {

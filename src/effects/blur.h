@@ -1,3 +1,5 @@
+#pragma once
+
 #include "../spritesheet.h"
 
 namespace Impacto {

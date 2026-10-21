@@ -1,7 +1,7 @@
 #pragma once
 
 #include <avcpp/codeccontext.h>
-#include <avcpp/ffmpeg.h>
+// #include <avcpp/ffmpeg.h>
 
 // Since these are basically extension classes for avcpp, we'll use their naming
 // conventions for it for consistency

@@ -1,9 +1,6 @@
 #pragma once
 
 #include "vfsarchive.h"
-#include "memorystream.h"
-#include <vector>
-#include <ankerl/unordered_dense.h>
 
 namespace Impacto {
 namespace Io {

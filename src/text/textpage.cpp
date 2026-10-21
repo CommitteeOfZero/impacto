@@ -2,8 +2,6 @@
 
 #include "../profile/dialogue.h"
 
-#include <numeric>
-
 namespace Impacto {
 using namespace Impacto::Profile::Dialogue;
 

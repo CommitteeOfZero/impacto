@@ -1,7 +1,5 @@
 #pragma once
 
-#include "../impacto.h"
-
 namespace Impacto {
 
 class NV12Frame {

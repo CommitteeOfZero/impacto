@@ -5,7 +5,6 @@
 #include "io/assetpath.h"
 #include "texture/texture.h"
 
-#include <memory>
 #include <ankerl/unordered_dense.h>
 
 namespace Impacto {

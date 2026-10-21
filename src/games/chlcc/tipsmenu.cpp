@@ -7,7 +7,6 @@
 #include "../../profile/vm.h"
 #include "../../profile/ui/tipsmenu.h"
 #include "../../profile/games/chlcc/tipsmenu.h"
-#include "../../profile/games/chlcc/commonmenu.h"
 
 #include "../../data/tipssystem.h"
 #include "../../vm/interface/input.h"
@@ -19,8 +18,6 @@
 namespace Impacto {
 namespace UI {
 namespace CHLCC {
-
-using namespace Impacto::Profile::CHLCC::CommonMenu;
 
 using namespace Impacto::Profile::TipsMenu;
 using namespace Impacto::Profile::CHLCC::TipsMenu;

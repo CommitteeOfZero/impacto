@@ -1,6 +1,5 @@
 #pragma once
-
-#include "../../../spritesheet.h"
+#include "../../../util.h"
 
 namespace Impacto {
 namespace Profile {

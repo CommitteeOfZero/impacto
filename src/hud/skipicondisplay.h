@@ -1,9 +1,6 @@
 #pragma once
 
-#include <magic_enum/magic_enum.hpp>
 #include <glm/glm.hpp>
-
-#include "dialoguebox.h"
 
 namespace Impacto {
 namespace SkipIconDisplay {

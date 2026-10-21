@@ -1,8 +1,6 @@
 #include "loadingdisplay.h"
 
-#include "../impacto.h"
 #include "../renderer/renderer.h"
-#include "../game.h"
 #include "../mem.h"
 #include "../profile/scriptvars.h"
 #include "../spriteanimation.h"

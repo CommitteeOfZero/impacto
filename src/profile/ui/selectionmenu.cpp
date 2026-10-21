@@ -1,8 +1,6 @@
 #include "selectionmenu.h"
 #include "../profile_internal.h"
 #include "../../ui/ui.h"
-// #include "../../window.h"
-#include "../../renderer/renderer.h"
 #include "../../game.h"
 
 namespace Impacto {

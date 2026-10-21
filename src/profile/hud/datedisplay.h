@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../sprites.h"
-#include "../../hud/datedisplay.h"
 
 namespace Impacto {
 namespace Profile {

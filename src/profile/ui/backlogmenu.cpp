@@ -1,7 +1,6 @@
 #include "backlogmenu.h"
 #include "../profile_internal.h"
 #include "../../ui/ui.h"
-#include "../../log.h"
 #include "../../game.h"
 
 #include "../../ui/widgets/backlogentry.h"

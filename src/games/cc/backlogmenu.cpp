@@ -2,9 +2,11 @@
 
 #include "../../profile/game.h"
 #include "../../ui/backlogmenu.h"
+#include "../../ui/ui.h"
 #include "../../ui/widgets/cc/backlogentry.h"
 #include "../../profile/ui/backlogmenu.h"
 #include "../../profile/games/cc/backlogmenu.h"
+#include "../../profile/games/cclcc/systemmenu.h"
 #include "../../profile/scriptvars.h"
 #include "../../audio/audiosystem.h"
 

@@ -1,7 +1,5 @@
 #include "systemmenu.h"
 #include "../../profile_internal.h"
-#include "../../../renderer/renderer.h"
-#include "../../../log.h"
 
 #include "../../../games/cclcc/systemmenu.h"
 #include "../../ui/systemmenu.h"

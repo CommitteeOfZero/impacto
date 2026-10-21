@@ -5,6 +5,7 @@
 #include "../../renderer/renderer.h"
 #include "../../mem.h"
 #include "../../profile/scriptvars.h"
+#include "../../ui/widgets/mo6tw/imagethumbnailbutton.h"
 
 namespace Impacto {
 namespace UI {

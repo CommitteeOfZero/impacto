@@ -1,20 +1,18 @@
 #include "backlogmenu.h"
 
 #include "../../profile/games/chlcc/backlogmenu.h"
-#include "../../profile/games/chlcc/commonmenu.h"
 #include "../../profile/ui/backlogmenu.h"
 #include "../../ui/widgets/chlcc/backlogentry.h"
 #include "../../profile/scriptvars.h"
-#include "../../profile/profile_internal.h"
 #include "../../renderer/renderer.h"
 #include "../../audio/audiosystem.h"
+#include "../../ui/ui.h"
 
 namespace Impacto {
 namespace UI {
 namespace CHLCC {
 
 using namespace Impacto::Profile::CHLCC::BacklogMenu;
-using namespace Impacto::Profile::CHLCC::CommonMenu;
 using namespace Impacto::UI::Widgets::CHLCC;
 using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::BacklogMenu;

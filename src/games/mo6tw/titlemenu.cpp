@@ -2,8 +2,6 @@
 
 #include "../../renderer/renderer.h"
 #include "../../mem.h"
-#include "../../inputsystem.h"
-#include "../../ui/widgets/label.h"
 #include "../../profile/ui/titlemenu.h"
 #include "../../profile/games/mo6tw/titlemenu.h"
 #include "../../profile/scriptvars.h"

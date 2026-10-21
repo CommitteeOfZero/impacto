@@ -1,9 +1,8 @@
 #include "musicmenu.h"
 
-#include <numeric>
-#include "../../ui/ui.h"
+#include "../../ui/widgets/button.h"
+#include "../../ui/widgets/label.h"
 #include "../../profile/games/cclcc/librarymenu.h"
-#include "../../video/videosystem.h"
 #include "../../vm/interface/input.h"
 #include "../../inputsystem.h"
 #include "../../text/text.h"

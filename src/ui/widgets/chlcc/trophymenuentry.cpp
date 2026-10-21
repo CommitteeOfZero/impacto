@@ -4,7 +4,6 @@
 
 #include "../../../data/achievementsystem.h"
 #include "../../../data/achievementsystemcommon.h"
-#include "../../../games/chlcc/trophymenu.h"
 #include "../../../profile/data/achievementsystem.h"
 #include "../../../profile/games/chlcc/trophymenu.h"
 

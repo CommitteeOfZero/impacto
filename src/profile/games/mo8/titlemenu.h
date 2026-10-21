@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../../spritesheet.h"
-#include "../../../games/mo8/titlemenu.h"
+#include "../../../animation.h"
 
 namespace Impacto {
 namespace Profile {

@@ -1,5 +1,4 @@
 #include "ffmpegstream.h"
-#include "ffmpegplayer.h"
 
 namespace Impacto {
 namespace Video {

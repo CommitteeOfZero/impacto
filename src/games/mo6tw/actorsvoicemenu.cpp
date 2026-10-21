@@ -5,8 +5,8 @@
 #include "../../renderer/renderer.h"
 #include "../../mem.h"
 #include "../../profile/scriptvars.h"
-#include "../../data/savesystem.h"
 #include "../../background2d.h"
+#include "../../ui/widgets/mo6tw/actorsvoicebutton.h"
 
 namespace Impacto {
 namespace UI {

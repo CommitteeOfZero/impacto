@@ -1,11 +1,9 @@
 #include "savesystem.h"
 
 #include "../../io/stream.h"
-#include "../../io/physicalfilestream.h"
 #include "../../mem.h"
 #include "../../vm/vm.h"
 #include "../../profile/data/savesystem.h"
-#include "../../profile/scriptvars.h"
 #include "../../profile/vm.h"
 #include "../../renderer/renderer.h"
 #include "../../profile/configsystem.h"
@@ -17,8 +15,8 @@
 
 #include <cstdint>
 #include <ctime>
-#include <system_error>
-#include <ranges>
+#include <array>
+#include <span>
 
 namespace Impacto {
 namespace CCLCC {

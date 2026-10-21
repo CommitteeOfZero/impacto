@@ -1,8 +1,5 @@
 ﻿#pragma once
 
-#include "../io/io.h"
-#include "texture.h"
-
 namespace Impacto {
 namespace TexLoad {
 enum TextureType {

@@ -5,7 +5,6 @@
 #include "../../renderer/renderer.h"
 #include "../../mem.h"
 #include "../../profile/scriptvars.h"
-#include "../../inputsystem.h"
 #include "../../ui/widgets/button.h"
 #include "../../ui/widgets/mo6tw/saveentrybutton.h"
 #include "../../data/savesystem.h"

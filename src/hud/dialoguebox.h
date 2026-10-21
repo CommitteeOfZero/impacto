@@ -1,10 +1,7 @@
 #pragma once
 
-#include <magic_enum/magic_enum.hpp>
-#include <optional>
 #include <ankerl/unordered_dense.h>
 
-#include "../text/text.h"
 #include "../ui/widgets/button.h"
 #include "nametagdisplay.h"
 

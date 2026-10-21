@@ -5,7 +5,6 @@
 #ifndef IMPACTO_DISABLE_MSPACK
 #include "lzxstream.h"
 #endif
-#include "vfs.h"
 #include "../util.h"
 #include <SDL3/SDL_endian.h>
 

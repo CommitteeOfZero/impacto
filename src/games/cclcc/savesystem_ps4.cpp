@@ -3,32 +3,22 @@
 #include "../../io/stream.h"
 #include "../../io/physicalfilestream.h"
 #include "../../mem.h"
-#include "../../vm/vm.h"
 #include "../../profile/data/savesystem.h"
 #include "../../profile/scriptvars.h"
 #include "../../profile/vm.h"
 #include "../../renderer/renderer.h"
-#include "../../profile/configsystem.h"
-#include "../../effects/wave.h"
-#include "../../audio/audiosystem.h"
-
-#include "mapsystem.h"
-#include "yesnotrigger.h"
 
 #include <cstdint>
-#include <ctime>
 #include <system_error>
-#include <ranges>
+#include <array>
+#include <span>
 
 namespace Impacto {
 namespace CCLCC_PS4 {
 
-using namespace Impacto::Vm;
-using namespace Impacto::Effects;
 using namespace Impacto::Profile::SaveSystem;
 using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::Vm;
-using namespace Impacto::Profile::ConfigSystem;
 
 static constexpr CCLCC::SaveLayout Ps4Layout{
     .ConfigOffset = 0x8AC,

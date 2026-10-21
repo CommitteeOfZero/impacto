@@ -2,7 +2,6 @@
 
 #include "../dialoguebox.h"
 #include "../../animation.h"
-#include "../../spriteanimation.h"
 
 namespace Impacto {
 namespace CC {

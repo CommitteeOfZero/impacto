@@ -2,7 +2,6 @@
 #include "../../profile_internal.h"
 #include "../../../ui/ui.h"
 #include "../../../games/mo6tw/clearlistmenu.h"
-#include "../../../text/text.h"
 #include "../../../game.h"
 
 namespace Impacto {

@@ -3,7 +3,6 @@
 #include "../../ui/menu.h"
 #include "../../ui/widgets/group.h"
 #include "../../ui/widgets/button.h"
-#include "../../ui/widgets/mo6tw/actorsvoicebutton.h"
 
 namespace Impacto {
 namespace UI {

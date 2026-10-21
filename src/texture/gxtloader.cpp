@@ -2,6 +2,7 @@
 
 #include "../log.h"
 #include "../util.h"
+#include "texture.h"
 
 #include "s3tc.h"
 

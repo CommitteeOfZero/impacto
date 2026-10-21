@@ -3,7 +3,6 @@
 #include <concepts>
 #include <span>
 
-#include "../../impacto.h"
 #include "../../inputsystem.h"
 
 namespace Impacto {

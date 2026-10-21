@@ -2,7 +2,6 @@
 
 #include "stream.h"
 #include "buffering.h"
-#include "../log.h"
 
 namespace Impacto {
 namespace Io {

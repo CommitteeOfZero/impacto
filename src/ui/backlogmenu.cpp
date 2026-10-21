@@ -3,23 +3,16 @@
 #include <limits>
 
 #include "ui.h"
-#include "../profile/game.h"
 #include "../userconfig.h"
-#include "../profile/vm.h"
 #include "../renderer/renderer.h"
 #include "../mem.h"
 #include "../vm/interface/input.h"
 #include "../profile/scriptvars.h"
-#include "../profile/scriptinput.h"
 #include "../profile/dialogue.h"
 #include "../profile/configsystem.h"
 #include "../profile/ui/backlogmenu.h"
-#include "../profile/ui/systemmenu.h"
-#include "../profile/games/mo6tw/backlogmenu.h"
 #include "../profile/games/cc/backlogmenu.h"
-#include "../profile/games/cclcc/systemmenu.h"
 #include "../inputsystem.h"
-#include "../io/vfs.h"
 #include "../audio/audiosystem.h"
 
 #include "widgets/cc/backlogentry.h"
@@ -29,7 +22,6 @@ namespace Impacto {
 namespace UI {
 
 using namespace Impacto::Profile::ScriptVars;
-using namespace Impacto::Profile::ScriptInput;
 using namespace Impacto::Profile::BacklogMenu;
 using namespace Impacto::Vm::Interface;
 

@@ -3,13 +3,10 @@
 #include "commonmenu.h"
 #include "../../profile/games/cclcc/systemmenu.h"
 #include "../../profile/games/cclcc/clearlistmenu.h"
-#include "../../profile/ui/backlogmenu.h"
-#include "../../profile/dialogue.h"
+#include "../../ui/ui.h"
 #include "../../renderer/renderer.h"
 #include "../../mem.h"
 #include "../../profile/scriptvars.h"
-#include "../../vm/interface/input.h"
-#include "../../profile/game.h"
 
 namespace Impacto {
 namespace UI {
@@ -17,8 +14,6 @@ namespace CCLCC {
 
 using namespace Impacto::Profile::CCLCC::ClearListMenu;
 using namespace Impacto::Profile::ScriptVars;
-
-using namespace Impacto::Vm::Interface;
 
 using namespace Impacto::UI::Widgets;
 

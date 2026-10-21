@@ -1,7 +1,6 @@
 #pragma once
 
 #include "stream.h"
-#include <fstream>
 #include <cstddef>
 #include <shared_mutex>
 #include <variant>

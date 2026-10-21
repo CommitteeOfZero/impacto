@@ -6,8 +6,6 @@
 #endif
 
 #include "../util.h"
-#include "../profile/game.h"
-#include "../profile/profile.h"
 #include "../userconfig.h"
 #include "../profile/subtitle.h"
 #include "../log.h"

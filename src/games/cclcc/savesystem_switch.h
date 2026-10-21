@@ -2,10 +2,7 @@
 
 #include "savesystem.h"
 #include "../../data/savesystem.h"
-#include "../../texture/texture.h"
 #include "../../io/memorystream.h"
-#include "../../spritesheet.h"
-#include <optional>
 
 namespace Impacto {
 namespace CCLCC_Switch {

@@ -6,7 +6,6 @@
 #include "../../vm/interface/input.h"
 #include "../../inputsystem.h"
 #include "../../profile/ui/systemmenu.h"
-#include "../../profile/game.h"
 #include "../../ui/widgets/cclcc/sysmenubutton.h"
 #include "../../audio/audiosystem.h"
 

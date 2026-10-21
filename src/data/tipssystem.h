@@ -3,7 +3,6 @@
 
 #include <vector>
 #include <array>
-#include <magic_enum/magic_enum.hpp>
 #include "../log.h"
 #include "../vm/sc3stream.h"
 

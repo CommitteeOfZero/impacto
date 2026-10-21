@@ -2,7 +2,6 @@
 
 #include "../button.h"
 #include "../group.h"
-#include "../../../data/tipssystem.h"
 #include "../../../games/cclcc/tipsmenu.h"
 #include "../../../profile/games/cclcc/tipsmenu.h"
 #include "tipsentrybutton.h"

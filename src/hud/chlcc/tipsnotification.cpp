@@ -3,7 +3,6 @@
 #include "../../profile/hud/tipsnotification.h"
 #include "../../profile/games/chlcc/tipsnotification.h"
 #include "../../data/tipssystem.h"
-#include "../../profile/game.h"
 
 namespace Impacto {
 namespace CHLCC {

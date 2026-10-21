@@ -6,12 +6,8 @@
 #include "../../renderer/renderer.h"
 #include "../../mem.h"
 #include "../../profile/scriptvars.h"
-#include "../../profile/ui/backlogmenu.h"
 #include "../../profile/ui/optionsmenu.h"
 #include "../../profile/games/chlcc/optionsmenu.h"
-#include "../../profile/games/chlcc/commonmenu.h"
-#include "../../data/tipssystem.h"
-#include "../../vm/interface/input.h"
 #include "../../inputsystem.h"
 #include "../../profile/game.h"
 
@@ -22,13 +18,10 @@ namespace Impacto {
 namespace UI {
 namespace CHLCC {
 
-using namespace Impacto::Profile::CHLCC::CommonMenu;
 using namespace Impacto::Profile::OptionsMenu;
 using namespace Impacto::Profile::CHLCC::OptionsMenu;
 using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::ConfigSystem;
-
-using namespace Impacto::Vm::Interface;
 
 using namespace Impacto::UI::Widgets;
 using namespace Impacto::UI::Widgets::CHLCC;

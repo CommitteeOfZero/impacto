@@ -1,11 +1,7 @@
 #include "delusiontrigger.h"
 #include "../../profile_internal.h"
-#include "../../../log.h"
 
-#include "../../../game.h"
-#include "../../../ui/ui.h"
 #include "../../../games/chlcc/delusiontrigger.h"
-#include "../../game.h"
 #include "../../patch.h"
 
 namespace Impacto {

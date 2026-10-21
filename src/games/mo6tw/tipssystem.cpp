@@ -4,7 +4,6 @@
 #include "../../vm/vm.h"
 #include "../../io/memorystream.h"
 #include "../../profile/data/tipssystem.h"
-#include "../../ui/ui.h"
 
 namespace Impacto {
 namespace MO6TW {

@@ -2,7 +2,6 @@
 #include "../profile_internal.h"
 #include "../games/chlcc/trophymenu.h"
 #include "../../ui/ui.h"
-#include "../../log.h"
 
 namespace Impacto {
 namespace Profile {

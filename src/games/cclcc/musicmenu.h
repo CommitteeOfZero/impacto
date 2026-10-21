@@ -4,6 +4,7 @@
 #include "librarysubmenus.h"
 #include "../../profile/games/cclcc/librarymenu.h"
 #include "../../ui/widget.h"
+#include "../../ui/widgets/label.h"
 
 namespace Impacto {
 namespace UI {

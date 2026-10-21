@@ -1,12 +1,8 @@
 #pragma once
 
-#include <string>
-#include <functional>
-
 #include "../../../profile/games/cclcc/librarymenu.h"
 #include "../../../animation.h"
 #include "../button.h"
-#include "../label.h"
 
 namespace Impacto {
 namespace UI {

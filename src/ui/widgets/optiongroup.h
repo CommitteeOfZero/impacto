@@ -4,8 +4,6 @@
 #include "scrollbar.h"
 #include "../widget.h"
 #include "../menu.h"
-#include "../../text/text.h"
-#include "../../renderer/renderer.h"
 
 namespace Impacto {
 namespace UI {

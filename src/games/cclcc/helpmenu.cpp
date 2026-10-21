@@ -2,13 +2,12 @@
 
 #include "../../profile/games/cclcc/helpmenu.h"
 #include "../../profile/games/cclcc/systemmenu.h"
-#include "../../profile/ui/backlogmenu.h"
-#include "../../profile/dialogue.h"
+#include "../../profile/scriptvars.h"
+#include "../../audio/audiocommon.h"
 #include "../../renderer/renderer.h"
 #include "../../mem.h"
-#include "../../profile/scriptvars.h"
+#include "../../ui/ui.h"
 #include "../../vm/interface/input.h"
-#include "../../profile/game.h"
 #include "../../inputsystem.h"
 #include "../../audio/audiosystem.h"
 

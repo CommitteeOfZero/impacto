@@ -2,7 +2,6 @@
 
 #include "../../profile/ui/savemenu.h"
 #include "../../profile/games/chlcc/savemenu.h"
-#include "../../profile/games/chlcc/commonmenu.h"
 #include "../../renderer/renderer.h"
 #include "../../mem.h"
 #include "../../profile/scriptvars.h"
@@ -19,7 +18,6 @@ namespace CHLCC {
 
 using namespace Impacto::Profile::SaveMenu;
 using namespace Impacto::Profile::CHLCC::SaveMenu;
-using namespace Impacto::Profile::CHLCC::CommonMenu;
 using namespace Impacto::Profile::ScriptVars;
 
 using namespace Impacto::UI::Widgets::CHLCC;

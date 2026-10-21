@@ -1,10 +1,7 @@
 #pragma once
 
-#include "../../ui/widgets/button.h"
+#include "../../animation.h"
 #include "../../ui/widgets/group.h"
-#include "../../ui/widgets/label.h"
-#include <vector>
-#include <memory>
 
 namespace Impacto {
 namespace UI {

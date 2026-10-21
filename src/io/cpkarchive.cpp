@@ -1,6 +1,7 @@
 #include "cpkarchive.h"
 
 #include <variant>
+#include "memorystream.h"
 
 #include "../log.h"
 #include "../util.h"

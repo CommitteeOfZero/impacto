@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../impacto.h"
 #include <ankerl/unordered_dense.h>
 
 namespace Impacto {

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../impacto.h"
 #include <vector>
 #include "../io/stream.h"
 

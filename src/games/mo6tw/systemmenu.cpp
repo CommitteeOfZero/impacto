@@ -5,7 +5,6 @@
 #include "../../renderer/renderer.h"
 #include "../../mem.h"
 #include "../../profile/scriptvars.h"
-#include "../../inputsystem.h"
 #include "../../ui/widgets/button.h"
 
 namespace Impacto {

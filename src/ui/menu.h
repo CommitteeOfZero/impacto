@@ -1,7 +1,5 @@
 #pragma once
 
-#include <vector>
-#include "../impacto.h"
 #include "widget.h"
 #include "../game.h"
 

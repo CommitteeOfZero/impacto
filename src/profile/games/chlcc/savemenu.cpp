@@ -1,13 +1,10 @@
 #include "savemenu.h"
 #include "../../profile_internal.h"
-#include "../../../log.h"
 
 #include "../../ui/savemenu.h"
 #include "../../../game.h"
 #include "../../../ui/ui.h"
 #include "../../../games/chlcc/savemenu.h"
-
-#include "albummenu.h"
 
 namespace Impacto {
 namespace Profile {

@@ -5,7 +5,6 @@
 #include "../../io/memorystream.h"
 #include "../../profile/data/tipssystem.h"
 #include "../../profile/games/chlcc/tipsmenu.h"
-#include "../../profile/charset.h"
 #include "../../profile/vm.h"
 #include "../../ui/ui.h"
 

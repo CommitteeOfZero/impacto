@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../dialoguebox.h"
-#include "../../animation.h"
 
 namespace Impacto {
 namespace CHLCC {

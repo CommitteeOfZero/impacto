@@ -2,7 +2,6 @@
 
 #include <queue>
 
-#include <magic_enum/magic_enum.hpp>
 #include "../animation.h"
 
 namespace Impacto {

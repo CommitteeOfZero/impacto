@@ -12,7 +12,6 @@
 #include "../log.h"
 #include "../profile/scriptvars.h"
 #include "../profile/vm.h"
-#include "../vm/vm.h"
 #include "../character2d.h"
 
 namespace Impacto {

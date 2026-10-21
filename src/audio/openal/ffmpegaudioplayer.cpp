@@ -1,7 +1,6 @@
 #include "ffmpegaudioplayer.h"
 #include "../../video/ffmpegplayer.h"
 #include "../audiosystem.h"
-#include <mutex>
 #include <avcpp/audioresampler.h>
 #include <avcpp/timestamp.h>
 

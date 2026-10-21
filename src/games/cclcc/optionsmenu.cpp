@@ -1,11 +1,9 @@
 #include "optionsmenu.h"
 
 #include "../../profile/configsystem.h"
-#include "../../profile/game.h"
 #include "../../profile/ui/optionsmenu.h"
 #include "../../profile/games/cclcc/optionsmenu.h"
 #include "../../profile/games/cclcc/systemmenu.h"
-#include "../../profile/scriptinput.h"
 #include "../../vm/interface/input.h"
 #include "../../ui/widgets/cclcc/optionsbinarybutton.h"
 #include "../../ui/widgets/cclcc/optionsslider.h"

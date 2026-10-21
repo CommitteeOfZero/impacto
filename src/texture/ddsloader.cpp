@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 // https://github.com/OpenImageIO/oiio/blob/master/LICENSE.md
 
-#include <string>
-
-#include "../log.h"
-
 #include "ddsloader.h"
 
 #include <squish/squish.h>

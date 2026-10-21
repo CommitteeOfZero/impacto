@@ -1,7 +1,6 @@
 #pragma once
 
 #include "videoplayer.h"
-#include "../impacto.h"
 
 namespace Impacto {
 namespace Video {

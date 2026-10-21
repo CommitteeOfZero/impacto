@@ -5,7 +5,6 @@
 #include "../../io/memorystream.h"
 #include "../../profile/data/tipssystem.h"
 #include "../../profile/vm.h"
-#include "../../ui/ui.h"
 
 namespace Impacto {
 namespace CCLCC {

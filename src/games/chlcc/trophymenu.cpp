@@ -6,7 +6,6 @@
 #include "../../profile/scriptvars.h"
 #include "../../profile/ui/trophymenu.h"
 #include "../../profile/games/chlcc/trophymenu.h"
-#include "../../profile/games/chlcc/commonmenu.h"
 
 #include "../../inputsystem.h"
 #include "../../vm/interface/input.h"
@@ -23,12 +22,10 @@ namespace Impacto {
 namespace UI {
 namespace CHLCC {
 
-using namespace Impacto::Profile::CHLCC::CommonMenu;
-
 using namespace Impacto::Profile::TrophyMenu;
 using namespace Impacto::Profile::CHLCC::TrophyMenu;
 using namespace Impacto::Profile::ScriptVars;
-using namespace Impacto::Profile::GameSpecific;
+// using namespace Impacto::Profile::GameSpecific;
 
 using namespace Impacto::Vm::Interface;
 

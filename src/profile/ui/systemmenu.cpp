@@ -1,14 +1,11 @@
 #include "systemmenu.h"
 #include "../profile_internal.h"
-#include "../games/rne/tilebackground.h"
 #include "../games/rne/systemmenu.h"
 #include "../games/mo6tw/systemmenu.h"
 #include "../games/chlcc/systemmenu.h"
 #include "../games/mo8/systemmenu.h"
 #include "../games/cclcc/systemmenu.h"
 #include "../../ui/ui.h"
-#include "../../log.h"
-#include "../../renderer/renderer.h"
 
 namespace Impacto {
 namespace Profile {

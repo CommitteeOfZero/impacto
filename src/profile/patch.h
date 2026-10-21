@@ -1,7 +1,5 @@
 #pragma once
 
-#include "subtitle.h"
-
 namespace Impacto::Profile::Patch {
 enum class DateFormatType : uint8_t {
   DMY,

@@ -1,9 +1,9 @@
 #include "backlogmenu.h"
 
 #include "../../ui/backlogmenu.h"
+#include "../../ui/ui.h"
 #include "../../profile/ui/backlogmenu.h"
 #include "../../profile/games/mo6tw/backlogmenu.h"
-#include "../../profile/games/mo6tw/systemmenu.h"
 
 namespace Impacto {
 namespace UI {

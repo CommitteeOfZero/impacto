@@ -3,8 +3,6 @@
 #include "../../profile/dialogue.h"
 #include "../../profile/vm.h"
 
-#include <numeric>
-
 namespace Impacto {
 namespace UI {
 namespace Widgets {

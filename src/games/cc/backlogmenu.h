@@ -3,7 +3,6 @@
 #include "../cclcc/commonmenu.h"
 #include "../../ui/backlogmenu.h"
 #include "../../ui/widgets/cc/backlogentry.h"
-#include "../../spritesheet.h"
 
 namespace Impacto {
 namespace UI {

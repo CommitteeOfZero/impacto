@@ -2,7 +2,6 @@
 
 #include "../log.h"
 #include "uncompressedstream.h"
-#include "vfs.h"
 #include "../util.h"
 #include <SDL3/SDL_endian.h>
 

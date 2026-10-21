@@ -2,7 +2,6 @@
 
 #include <optional>
 #include "menu.h"
-#include "../text/text.h"
 #include "../data/savesystem.h"
 
 namespace Impacto {

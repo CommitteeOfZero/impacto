@@ -1,16 +1,10 @@
 #include "tipstabgroup.h"
 
-#include "../../../renderer/renderer.h"
-#include "../../../profile/dialogue.h"
-#include "../../../profile/ui/tipsmenu.h"
 #include "../../../profile/games/cclcc/tipsmenu.h"
 #include "../../../inputsystem.h"
 #include "../../../audio/audiosystem.h"
 #include "../../../vm/interface/input.h"
-#include "../../../ui/ui.h"
-#include "../../../text/text.h"
-#include "../../../vm/vm.h"
-#include "../../../profile/game.h"
+#include "../../../audio/audiocommon.h"
 #include <cmath>
 #include <limits>
 

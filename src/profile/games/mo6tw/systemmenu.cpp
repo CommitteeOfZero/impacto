@@ -1,6 +1,5 @@
 #include "systemmenu.h"
 #include "../../profile_internal.h"
-#include "../../../log.h"
 
 #include "../../ui/systemmenu.h"
 #include "../../../game.h"

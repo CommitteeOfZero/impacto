@@ -1,6 +1,7 @@
 #include "musicmenu.h"
 
-#include "../../profile/ui/extramenus.h"
+#include "../../ui/ui.h"
+#include "../../ui/widgets/scrollbar.h"
 #include "../../profile/games/mo6tw/musicmenu.h"
 #include "../../profile/ui/backlogmenu.h"
 #include "../../renderer/renderer.h"

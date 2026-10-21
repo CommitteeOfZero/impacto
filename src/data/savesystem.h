@@ -1,9 +1,7 @@
 #pragma once
 #include "../impacto.h"
-#include "../vm/vm.h"
+#include "../util.h"
 
-#include <string>
-#include <magic_enum/magic_enum.hpp>
 #include <ctime>
 #include <numeric>
 #include "../log.h"
