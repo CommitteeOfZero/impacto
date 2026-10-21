@@ -57,5 +57,11 @@ void ReinitAudio() {
   }
 }
 
+void SetAudioOutput(Audio::AudioOutputId output) {
+  for (int i = 0; i < VP_Count; i++) {
+    Players[i]->SetAudioOutput(output);
+  }
+}
+
 }  // namespace Video
 }  // namespace Impacto

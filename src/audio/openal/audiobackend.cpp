@@ -2,6 +2,8 @@
 
 #include "../../log.h"
 
+#include <array>
+
 namespace Impacto {
 namespace Audio {
 namespace OpenAL {
@@ -16,11 +18,35 @@ static LPALCEVENTCONTROLSOFT EventControlFunc = 0;
 #if ALC_SOFT_reopen_device
 static LPALCREOPENDEVICESOFT ReopenSoftFunc = 0;
 #endif
-void AL_APIENTRY DefaultDeviceChangedEventCallback(
+#if ALC_EXT_thread_local_context
+static PFNALCSETTHREADCONTEXTPROC SetThreadContextFunc = 0;
+static PFNALCGETTHREADCONTEXTPROC GetThreadContextFunc = 0;
+#endif
+
+struct OutputDevice {
+  ALCdevice* Device = 0;
+  ALCcontext* Context = 0;
+};
+static std::array<OutputDevice, AO_Count> Outputs;
+
+#if ALC_SOFT_system_events
+void AL_APIENTRY AudioBackend::SystemEventCallback(
     ALCenum eventType, ALCenum deviceType, ALCdevice* device, ALCsizei length,
     const ALCchar* message, void* userParam) {
-  *(bool*)userParam = true;
+  if (deviceType != ALC_PLAYBACK_DEVICE_SOFT) return;
+
+  AudioBackend* backend = static_cast<AudioBackend*>(userParam);
+  switch (eventType) {
+    case ALC_EVENT_TYPE_DEFAULT_DEVICE_CHANGED_SOFT:
+      backend->DeviceChanged = true;
+      break;
+    case ALC_EVENT_TYPE_DEVICE_ADDED_SOFT:
+    case ALC_EVENT_TYPE_DEVICE_REMOVED_SOFT:
+      backend->DeviceListChanged = true;
+      break;
+  }
 }
+#endif
 
 bool AudioBackend::Init() {
   AlcDevice = alcOpenDevice(NULL);
@@ -57,7 +83,8 @@ bool AudioBackend::Reinit() {
     }
   }
 #endif
-  Shutdown();
+  if (AlcContext) alcDestroyContext(AlcContext);
+  if (AlcDevice) alcCloseDevice(AlcDevice);
   AlcDevice = alcOpenDevice(NULL);
   if (!AlcDevice) {
     ImpLog(LogLevel::Fatal, LogChannel::Audio,
@@ -75,6 +102,9 @@ bool AudioBackend::Reinit() {
 }
 
 void AudioBackend::Shutdown() {
+  for (int i = 0; i < AO_Count; i++) {
+    CloseOutput((AudioOutputId)i);
+  }
   if (AlcContext) alcDestroyContext(AlcContext);
   if (AlcDevice) alcCloseDevice(AlcDevice);
 }
@@ -90,21 +120,109 @@ bool AudioBackend::ReopenSupported() {
 #endif
 }
 
+std::vector<std::string> AudioBackend::GetPlaybackDevices() {
+  ALCenum specifier = ALC_DEVICE_SPECIFIER;
+#if ALC_ENUMERATE_ALL_EXT
+  if (alcIsExtensionPresent(NULL, "ALC_ENUMERATE_ALL_EXT") == AL_TRUE) {
+    specifier = ALC_ALL_DEVICES_SPECIFIER;
+  }
+#endif
+
+  std::vector<std::string> devices;
+  for (const ALCchar* name = alcGetString(NULL, specifier); name && *name;
+       name += devices.back().size() + 1) {
+    devices.emplace_back(name);
+  }
+  return devices;
+}
+
+bool AudioBackend::DidDeviceListChanged() {
+  return DeviceListChanged.exchange(false);
+}
+
+bool AudioBackend::OpenOutput(AudioOutputId output,
+                              std::string const& deviceName) {
+  if (output == AO_Main) return false;
+
+#if ALC_EXT_thread_local_context
+  if (!SetThreadContextFunc || !GetThreadContextFunc) {
+    ImpLog(LogLevel::Error, LogChannel::Audio,
+           "No thread local context support, cannot open audio output on "
+           "{:s}\n",
+           deviceName);
+    return false;
+  }
+
+  CloseOutput(output);
+  OutputDevice& outputDevice = Outputs[output];
+  outputDevice.Device = alcOpenDevice(deviceName.c_str());
+  if (!outputDevice.Device) {
+    ImpLog(LogLevel::Error, LogChannel::Audio,
+           "Could not open OpenAL device {:s}\n", deviceName);
+    return false;
+  }
+  outputDevice.Context = alcCreateContext(outputDevice.Device, NULL);
+  if (!outputDevice.Context) {
+    ImpLog(LogLevel::Error, LogChannel::Audio,
+           "Failed to create OpenAL context on {:s}\n", deviceName);
+    CloseOutput(output);
+    return false;
+  }
+  return true;
+#else
+  return false;
+#endif
+}
+
+void AudioBackend::CloseOutput(AudioOutputId output) {
+  if (output == AO_Main) return;
+
+  OutputDevice& outputDevice = Outputs[output];
+  if (outputDevice.Context) alcDestroyContext(outputDevice.Context);
+  if (outputDevice.Device) alcCloseDevice(outputDevice.Device);
+  outputDevice = {};
+}
+
+bool AudioBackend::IsOutputOpen(AudioOutputId output) {
+  if (output == AO_Main) return AlcContext != 0;
+
+  OutputDevice const& outputDevice = Outputs[output];
+  if (!outputDevice.Context) return false;
+#if ALC_EXT_disconnect
+  ALCint connected = AL_TRUE;
+  alcGetIntegerv(outputDevice.Device, ALC_CONNECTED, 1, &connected);
+  return connected == AL_TRUE;
+#else
+  return true;
+#endif
+}
+
 void AudioBackend::InitAlextFunctions() {
+#if ALC_EXT_thread_local_context
+  if (alcIsExtensionPresent(NULL, "ALC_EXT_thread_local_context") == AL_TRUE) {
+    SetThreadContextFunc = (PFNALCSETTHREADCONTEXTPROC)alcGetProcAddress(
+        NULL, "alcSetThreadContext");
+    GetThreadContextFunc = (PFNALCGETTHREADCONTEXTPROC)alcGetProcAddress(
+        NULL, "alcGetThreadContext");
+  }
+#endif
 #if ALC_SOFT_system_events
   if (alcIsExtensionPresent(AlcDevice, "ALC_SOFT_system_events") == AL_TRUE) {
     EventControlFunc = (LPALCEVENTCONTROLSOFT)alcGetProcAddress(
         AlcDevice, "alcEventControlSOFT");
     if (EventControlFunc) {
-      const ALCenum eventType{ALC_EVENT_TYPE_DEFAULT_DEVICE_CHANGED_SOFT};
-      EventControlFunc(1, &eventType, AL_TRUE);
+      const std::array<ALCenum, 3> eventTypes{
+          ALC_EVENT_TYPE_DEFAULT_DEVICE_CHANGED_SOFT,
+          ALC_EVENT_TYPE_DEVICE_ADDED_SOFT,
+          ALC_EVENT_TYPE_DEVICE_REMOVED_SOFT,
+      };
+      EventControlFunc((ALCsizei)eventTypes.size(), eventTypes.data(), AL_TRUE);
     }
 
     EventCallBackFunc = (LPALCEVENTCALLBACKSOFT)alcGetProcAddress(
         AlcDevice, "alcEventCallbackSOFT");
     if (EventCallBackFunc) {
-      EventCallBackFunc((ALCEVENTPROCTYPESOFT)DefaultDeviceChangedEventCallback,
-                        &DeviceChanged);
+      EventCallBackFunc((ALCEVENTPROCTYPESOFT)SystemEventCallback, this);
     }
 #if ALC_SOFT_reopen_device
     if (alcIsExtensionPresent(AlcDevice, "ALC_SOFT_reopen_device") ==
@@ -119,6 +237,23 @@ void AudioBackend::InitAlextFunctions() {
     }
 #endif
   }
+#endif
+}
+
+ScopedOutputContext::ScopedOutputContext(AudioOutputId output) {
+#if ALC_EXT_thread_local_context
+  if (!SetThreadContextFunc || !GetThreadContextFunc) return;
+
+  ALCcontext* context = output == AO_Main ? nullptr : Outputs[output].Context;
+  PreviousContext = GetThreadContextFunc();
+  if (context == PreviousContext) return;
+  Bound = SetThreadContextFunc(context) == AL_TRUE;
+#endif
+}
+
+ScopedOutputContext::~ScopedOutputContext() {
+#if ALC_EXT_thread_local_context
+  if (Bound) SetThreadContextFunc(PreviousContext);
 #endif
 }
 

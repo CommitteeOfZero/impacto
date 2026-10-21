@@ -105,6 +105,10 @@ void FFmpegPlayer::Init() {
 
 void FFmpegPlayer::ReinitAudio() { AudioPlayer->Reinit(); }
 
+void FFmpegPlayer::SetAudioOutput(Audio::AudioOutputId output) {
+  AudioPlayer->SetOutput(output);
+}
+
 AVBufferRef* FFmpegPlayer::HwDecoderInit(const AVCodec* codec) {
 #if defined(_WIN32)
   static constexpr auto preferenceOrder = std::to_array<AVHWDeviceType>({

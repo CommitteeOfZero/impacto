@@ -23,6 +23,8 @@ enum AudioChannelId {
   AC_Count
 };
 
+enum AudioOutputId { AO_Main, AO_Controller, AO_Count };
+
 enum AudioChannelState {
   ACS_Stopped,
   ACS_Playing,

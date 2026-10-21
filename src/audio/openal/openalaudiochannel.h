@@ -19,6 +19,7 @@ class OpenALAudioChannel : public Audio::AudioChannel {
   void Resume() override;
 
   void Reinit() override;
+  void SetOutput(AudioOutputId output) override;
   void Update(float dt) override;
 
   float PositionInSeconds() const override;
@@ -40,6 +41,9 @@ class OpenALAudioChannel : public Audio::AudioChannel {
 
   bool PlaybackStarted = false;
 
+  void CreateSource();
+  void DeleteSource();
+  size_t PlaybackPosition() const;
   void EndPlayback();
   void UpdateGain();
   void UpdateFade(float dt);
