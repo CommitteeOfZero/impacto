@@ -1,10 +1,12 @@
 #include "audiosystem.h"
+#include "controlleraudio.h"
 #include "../userconfig.h"
 #include "../log.h"
 #include "../profile/game.h"
 #include "../profile/scriptvars.h"
 #include "../profile/configsystem.h"
 #include "../text/dialoguepage.h"
+#include "../video/videosystem.h"
 
 #ifndef IMPACTO_DISABLE_OPENAL
 #include "openal/audiobackend.h"
@@ -148,11 +150,101 @@ void ResumeChannelGroup(AudioChannelGroup group) {
   }
 }
 
+static std::string ControllerOutputDevice;
+
+static bool IsPlayedOnController(AudioChannelId id) {
+  auto const& config = UserConfig::CommonSettings.ControllerAudio;
+  switch (id) {
+    case AC_SE0:
+    case AC_SE1:
+    case AC_SE2:
+      return config.SE;
+    case AC_VOICE0:
+    case AC_VOICE1:
+    case AC_VOICE2:
+    case AC_REV:
+      return config.Voice;
+    case AC_BGM0:
+    case AC_BGM1:
+    case AC_BGM2:
+      return config.BGM;
+    case AC_SSE0:
+    case AC_SSE1:
+    case AC_SSE2:
+    case AC_SSE3:
+      return config.SSE;
+    case AC_Count:
+      break;
+  }
+  return false;
+}
+
+static bool IsControllerAudioUsed() {
+  bool used = UserConfig::CommonSettings.ControllerAudio.Movie;
+  for (int i = 0; i < AC_Count; i++) {
+    used |= IsPlayedOnController((AudioChannelId)i);
+  }
+  return used;
+}
+
+static void SetMovieOutput(AudioOutputId output) {
+  if (+Profile::Game::GameFeatures & +GameFeature::Video) {
+    Video::SetAudioOutput(output);
+  }
+}
+
+static void CloseControllerOutput() {
+  for (int i = 0; i < AC_Count; i++) {
+    if (Channels[i]->GetOutput() == AO_Controller) {
+      Channels[i]->SetOutput(AO_Main);
+    }
+  }
+  SetMovieOutput(AO_Main);
+  Backend->CloseOutput(AO_Controller);
+
+  ImpLog(LogLevel::Info, LogChannel::Audio,
+         "Stopped playing controller audio on {:s}\n", ControllerOutputDevice);
+  ControllerOutputDevice.clear();
+}
+
+static void UpdateControllerOutput(bool deviceListChanged) {
+  std::string const& device = ControllerAudio::GetDevice();
+
+  if (device == ControllerOutputDevice) {
+    const bool reopen = deviceListChanged && !device.empty() &&
+                        !Backend->IsOutputOpen(AO_Controller);
+    if (!reopen) return;
+  }
+
+  if (!ControllerOutputDevice.empty()) CloseControllerOutput();
+  ControllerOutputDevice = device;
+  if (!ControllerOutputDevice.empty() &&
+      Backend->OpenOutput(AO_Controller, ControllerOutputDevice)) {
+    ImpLog(LogLevel::Info, LogChannel::Audio,
+           "Playing controller audio on {:s}\n", ControllerOutputDevice);
+  }
+}
+
+static void UpdateChannelOutputs() {
+  const AudioOutputId controllerOutput =
+      Backend->IsOutputOpen(AO_Controller) ? AO_Controller : AO_Main;
+  for (int i = 0; i < AC_Count; i++) {
+    const AudioOutputId output =
+        IsPlayedOnController((AudioChannelId)i) ? controllerOutput : AO_Main;
+    if (Channels[i]->GetOutput() != output) Channels[i]->SetOutput(output);
+  }
+  SetMovieOutput(UserConfig::CommonSettings.ControllerAudio.Movie
+                     ? controllerOutput
+                     : AO_Main);
+}
+
 void AudioShutdown() {
   for (int i = 0; i < AC_Count; i++) {
     Channels[i] = nullptr;
   }
   IsInit = false;
+  SetMovieOutput(AO_Main);
+  ControllerAudio::Shutdown();
   Backend->Shutdown();
 }
 
@@ -176,6 +268,8 @@ void AudioInit() {
   }
 
   if (!Backend->Init()) return;
+  ControllerOutputDevice.clear();
+  ControllerAudio::Init();
   for (int i = AC_SE0; i <= AC_SE2; i++)
     Channels[i] = AudioChannel::Create((AudioChannelId)i, ACG_SE);
   for (int i = AC_VOICE0; i <= AC_REV; i++)
@@ -197,14 +291,9 @@ void AudioReinit() {
     if (Backend->ReopenSupported()) return;
   }
 
-  for (int i = AC_SE0; i <= AC_SE2; i++) Channels[i]->Reinit();
-  for (int i = AC_VOICE0; i <= AC_REV; i++) Channels[i]->Reinit();
-  for (int i = AC_BGM0; i <= AC_BGM2; i++) Channels[i]->Reinit();
-
-  Channels[AC_SSE0]->Reinit();
-  Channels[AC_SSE1]->Reinit();
-  Channels[AC_SSE2]->Reinit();
-  Channels[AC_SSE3]->Reinit();
+  for (int i = 0; i < AC_Count; i++) {
+    if (Channels[i]->GetOutput() == AO_Main) Channels[i]->Reinit();
+  }
 }
 
 void AudioSubtitlesStart(AudioChannel* channel) {
@@ -251,6 +340,11 @@ void PlayInGroup(AudioChannelGroup group, std::string const& mountpoint,
 }
 
 void AudioUpdate(float dt) {
+  const bool deviceListChanged = Backend->DidDeviceListChanged();
+  ControllerAudio::Update(dt, IsControllerAudioUsed(), deviceListChanged);
+  UpdateControllerOutput(deviceListChanged);
+  UpdateChannelOutputs();
+
   // Set voice modifier for each voice channel
   for (int i = AC_VOICE0; i <= AC_VOICE2; i++) {
     const int charId = DialoguePages[i - AC_VOICE0].CurrentVoiceCharacterId;
