@@ -35,8 +35,8 @@ void TipsMenu::TipOnClick(Button* target) {
 TipsMenu::TipsMenu() : ItemsList(CDIR_HORIZONTAL), TipViewItems(this) {
   FadeAnimation.Direction = AnimationDirection::In;
   FadeAnimation.LoopMode = AnimationLoopMode::Stop;
-  FadeAnimation.DurationIn = FadeInDuration;
-  FadeAnimation.DurationOut = FadeOutDuration;
+  FadeAnimation.DurationIn = Profile::TipsMenu::FadeInDuration;
+  FadeAnimation.DurationOut = Profile::TipsMenu::FadeOutDuration;
 
   TipViewItems.FocusLock = false;
   TipViewItems.VisibilityState = Shown;
@@ -125,14 +125,16 @@ void TipsMenu::Update(float dt) {
 void TipsMenu::Render() {
   if (State != Hidden && ScrWork[SW_TIPSALPHA] > 0) {
     glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
-    Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f), col);
+    Renderer->DrawSprite(Profile::TipsMenu::BackgroundSprite, glm::vec2(0.0f),
+                         col);
     ItemsList.Render();
 
     if (CurrentlyDisplayedTipId != -1) {
       TipViewItems.Render();
       TextPage.Render(col.a, RendererOutlineMode::Full);
       if (ThumbnailSprite) {
-        Renderer->DrawSprite(*ThumbnailSprite, ThumbnailPosition, col);
+        Renderer->DrawSprite(*ThumbnailSprite,
+                             Profile::MO6TW::TipsMenu::ThumbnailPosition, col);
       }
     }
   }

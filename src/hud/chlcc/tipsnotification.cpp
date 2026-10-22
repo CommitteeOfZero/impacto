@@ -38,8 +38,8 @@ TipsNotification::TipsNotification() {
       static_cast<int>(TipNameColorIndex));
   TipName.OutlineAlphaEnabled = true;
 
-  FadeAnimation.DurationIn = FadeInDuration;
-  FadeAnimation.DurationOut = FadeOutDuration;
+  FadeAnimation.DurationIn = Profile::TipsNotification::FadeInDuration;
+  FadeAnimation.DurationOut = Profile::TipsNotification::FadeOutDuration;
 
   FadeOutAnimation = FadeAnimation;
 

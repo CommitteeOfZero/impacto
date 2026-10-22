@@ -353,9 +353,9 @@ bool GXTLoadSubtexture(Stream* stream, Texture* outTexture,
   return true;
 }
 
-static uint32_t const magic = 0x47585400;
-
 bool TextureLoadGXT(Stream* stream, Texture* outTexture) {
+  uint32_t constexpr magic = 0x47585400;
+
   // Read metadata
 
   if (ReadBE<uint32_t>(stream) != magic) {
@@ -434,7 +434,7 @@ bool TextureLoadGXT(Stream* stream, Texture* outTexture) {
   return result;
 }
 
-static bool _registered = Texture::AddTextureLoader(&TextureLoadGXT);
+static bool _registeredGXT = Texture::AddTextureLoader(&TextureLoadGXT);
 
 }  // namespace TexLoad
 }  // namespace Impacto

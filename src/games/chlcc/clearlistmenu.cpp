@@ -7,6 +7,8 @@
 #include "../../data/savesystem.h"
 #include "../../data/tipssystem.h"
 
+namespace CHLCCClearListProfile = Impacto::Profile::CHLCC::ClearListMenu;
+
 namespace Impacto {
 namespace UI {
 namespace CHLCC {
@@ -52,8 +54,10 @@ void ClearListMenu::Hide() {
 
 void ClearListMenu::Render() {
   if (State == Hidden) return;
-  CommonMenu::DrawSubmenu(BackgroundColor, CircleSprite, MenuTitleText,
-                          MenuTitleTextAngle, true);
+  CommonMenu::DrawSubmenu(CHLCCClearListProfile::BackgroundColor,
+                          CHLCCClearListProfile::CircleSprite,
+                          CHLCCClearListProfile::MenuTitleText,
+                          CHLCCClearListProfile::MenuTitleTextAngle, true);
 
   if (MenuTransition.Progress < 0.22f) return;
   float yOffset = MenuTransition.GetPageOffset().y;
@@ -65,7 +69,8 @@ void ClearListMenu::Render() {
   DrawTIPSCount(yOffset);
   DrawAlbumCompletion(yOffset);
   DrawEndingTree(yOffset);
-  CommonMenu::DrawButtonPrompt(ButtonPromptSprite, ButtonPromptPosition);
+  CommonMenu::DrawButtonPrompt(CHLCCClearListProfile::ButtonPromptSprite,
+                               CHLCCClearListProfile::ButtonPromptPosition);
 }
 
 void ClearListMenu::Update(float dt) {
@@ -161,7 +166,7 @@ inline void ClearListMenu::DrawTIPSCount(float yOffset) {
 
 inline void ClearListMenu::DrawAlbumCompletion(float yOffset) {
   int totalCount = 0, unlockedCount = 0;
-  SaveSystem::GetViewedEVsCount(&totalCount, &unlockedCount);
+  Impacto::SaveSystem::GetViewedEVsCount(&totalCount, &unlockedCount);
   // The 9 bonus CGs after 100% completion don't count
   totalCount -= 9;
   unlockedCount = unlockedCount <= totalCount ? unlockedCount : totalCount;

@@ -5,11 +5,11 @@
 #include "../../renderer/renderer.h"
 #include "../../mem.h"
 #include "../../profile/scriptvars.h"
-#include "../../inputsystem.h"
 #include "../../ui/widgets/button.h"
 #include "../../data/savesystem.h"
 #include "../../vm/interface/input.h"
-#include "../../vm/vm.h"
+
+namespace MO8SaveProfile = Impacto::Profile::MO8::SaveMenu;
 
 namespace Impacto {
 namespace UI {
@@ -36,18 +36,20 @@ void SaveMenu::MenuButtonOnClick(Widgets::Button* target) {
 SaveMenu::SaveMenu() : UI::SaveMenu() {
   FadeAnimation.Direction = AnimationDirection::In;
   FadeAnimation.LoopMode = AnimationLoopMode::Stop;
-  FadeAnimation.DurationIn = FadeInDuration;
-  FadeAnimation.DurationOut = FadeOutDuration;
+  FadeAnimation.DurationIn = Profile::SaveMenu::FadeInDuration;
+  FadeAnimation.DurationOut = Profile::SaveMenu::FadeOutDuration;
 
   PageControls = new Group(this);
   PageControls->FocusLock = false;
   Sprite nullSprite = Sprite();
   nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
-  auto nextPage = new Button(0, NextButtonSprite, NextButtonHighlightedSprite,
-                             nullSprite, NextButtonPosition);
+  auto nextPage = new Button(0, MO8SaveProfile::NextButtonSprite,
+                             MO8SaveProfile::NextButtonHighlightedSprite,
+                             nullSprite, MO8SaveProfile::NextButtonPosition);
   auto previousPage =
-      new Button(0, BackButtonSprite, BackButtonHighlightedSprite, nullSprite,
-                 BackButtonPosition);
+      new Button(0, MO8SaveProfile::BackButtonSprite,
+                 MO8SaveProfile::BackButtonHighlightedSprite, nullSprite,
+                 MO8SaveProfile::BackButtonPosition);
   PageControls->Add(nextPage);
   PageControls->Add(previousPage);
   PageControls->VisibilityState = Shown;

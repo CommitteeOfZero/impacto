@@ -24,7 +24,7 @@ void Configure() {
 
   ClearListGuidePosition = EnsureGetMember<glm::vec2>("ClearListGuidePosition");
 
-  auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
+  auto drawType = EnsureGetMember<Impacto::Game::DrawComponentType>("DrawType");
 
   UI::ClearListMenuPtr = new UI::CCLCC::ClearListMenu();
   UI::Menus[drawType].push_back(UI::ClearListMenuPtr);

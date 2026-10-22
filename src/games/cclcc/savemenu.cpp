@@ -202,7 +202,7 @@ void SaveMenu::Hide() {
 }
 
 void SaveMenu::UpdateInput(float dt) {
-  using namespace Vm::Interface;
+  using namespace Impacto::Vm::Interface;
   Menu::UpdateInput(dt);
   const auto updatePage = [&](int nextPage) {
     PrevPage = CurrentPage;

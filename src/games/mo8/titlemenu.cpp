@@ -19,6 +19,9 @@ namespace Impacto {
 namespace UI {
 namespace MO8 {
 
+namespace CommonTitleMenu = Impacto::Profile::TitleMenu;
+namespace MO8TitleMenuProfile = Impacto::Profile::MO8::TitleMenu;
+
 using namespace Impacto::Profile::TitleMenu;
 using namespace Impacto::Profile::MO8::TitleMenu;
 using namespace Impacto::Profile::ScriptVars;
@@ -62,37 +65,45 @@ TitleMenu::TitleMenu() {
   nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
 
   // New Game menu button
-  NewGame = new Button(0, MenuEntriesSprites[NewGameSpriteIndex],
-                       MenuEntriesHSprites[NewGameSpriteIndex],
-                       MenuEntriesHSprites[NewGameSpriteIndex + 1],
-                       glm::vec2(MenuEntriesX, MenuEntriesFirstY));
+  NewGame =
+      new Button(0, CommonTitleMenu::MenuEntriesSprites[NewGameSpriteIndex],
+                 CommonTitleMenu::MenuEntriesHSprites[NewGameSpriteIndex],
+                 CommonTitleMenu::MenuEntriesHSprites[NewGameSpriteIndex + 1],
+                 glm::vec2(MO8TitleMenuProfile::MenuEntriesX,
+                           MO8TitleMenuProfile::MenuEntriesFirstY));
   NewGame->OnClickHandler = onClick;
   NewGame->HighlightOffset = glm::vec2(0.0f);
   MainItems->Add(NewGame, FDIR_DOWN);
   // Continue menu button
-  Continue = new Button(
-      0, MenuEntriesSprites[ContinueSpriteIndex],
-      MenuEntriesHSprites[ContinueSpriteIndex],
-      MenuEntriesHSprites[NewGameSpriteIndex + 1],
-      glm::vec2(MenuEntriesX, MenuEntriesFirstY + (1 * MenuEntriesYPadding)));
+  Continue =
+      new Button(0, CommonTitleMenu::MenuEntriesSprites[ContinueSpriteIndex],
+                 CommonTitleMenu::MenuEntriesHSprites[ContinueSpriteIndex],
+                 CommonTitleMenu::MenuEntriesHSprites[NewGameSpriteIndex + 1],
+                 glm::vec2(MO8TitleMenuProfile::MenuEntriesX,
+                           MO8TitleMenuProfile::MenuEntriesFirstY +
+                               (1 * MO8TitleMenuProfile::MenuEntriesYPadding)));
   Continue->OnClickHandler = continueOnClick;
   Continue->HighlightOffset = glm::vec2(0.0f);
   MainItems->Add(Continue, FDIR_DOWN);
   // Options menu button
-  Options = new Button(
-      20, MenuEntriesSprites[OptionSpriteIndex],
-      MenuEntriesHSprites[OptionSpriteIndex],
-      MenuEntriesHSprites[NewGameSpriteIndex + 1],
-      glm::vec2(MenuEntriesX, MenuEntriesFirstY + (2 * MenuEntriesYPadding)));
+  Options =
+      new Button(20, CommonTitleMenu::MenuEntriesSprites[OptionSpriteIndex],
+                 CommonTitleMenu::MenuEntriesHSprites[OptionSpriteIndex],
+                 CommonTitleMenu::MenuEntriesHSprites[NewGameSpriteIndex + 1],
+                 glm::vec2(MO8TitleMenuProfile::MenuEntriesX,
+                           MO8TitleMenuProfile::MenuEntriesFirstY +
+                               (2 * MO8TitleMenuProfile::MenuEntriesYPadding)));
   Options->OnClickHandler = onClick;
   Options->HighlightOffset = glm::vec2(0.0f);
   MainItems->Add(Options, FDIR_DOWN);
   //  Gallery menu button
-  Gallery = new Button(
-      0, MenuEntriesSprites[GallerySpriteIndex],
-      MenuEntriesHSprites[GallerySpriteIndex],
-      MenuEntriesHSprites[NewGameSpriteIndex + 1],
-      glm::vec2(MenuEntriesX, MenuEntriesFirstY + (3 * MenuEntriesYPadding)));
+  Gallery =
+      new Button(0, CommonTitleMenu::MenuEntriesSprites[GallerySpriteIndex],
+                 CommonTitleMenu::MenuEntriesHSprites[GallerySpriteIndex],
+                 CommonTitleMenu::MenuEntriesHSprites[NewGameSpriteIndex + 1],
+                 glm::vec2(MO8TitleMenuProfile::MenuEntriesX,
+                           MO8TitleMenuProfile::MenuEntriesFirstY +
+                               (3 * MO8TitleMenuProfile::MenuEntriesYPadding)));
   Gallery->OnClickHandler = galleryOnClick;
   Gallery->HighlightOffset = glm::vec2(0.0f);
   Gallery->Enabled = false;
@@ -100,19 +111,23 @@ TitleMenu::TitleMenu() {
 
   // Continue buttons
   // Load button
-  Load = new Button(10, MenuEntriesSprites[LoadSpriteIndex],
-                    MenuEntriesHSprites[LoadSpriteIndex],
-                    MenuEntriesHSprites[NewGameSpriteIndex + 1],
-                    glm::vec2(MenuEntriesX, MenuEntriesFirstY));
+  Load =
+      new Button(10, CommonTitleMenu::MenuEntriesSprites[LoadSpriteIndex],
+                 CommonTitleMenu::MenuEntriesHSprites[LoadSpriteIndex],
+                 CommonTitleMenu::MenuEntriesHSprites[NewGameSpriteIndex + 1],
+                 glm::vec2(MO8TitleMenuProfile::MenuEntriesX,
+                           MO8TitleMenuProfile::MenuEntriesFirstY));
   Load->OnClickHandler = onClick;
   Load->HighlightOffset = glm::vec2(0.0f);
   ContinueItems->Add(Load, FDIR_DOWN);
   // Quick load button
-  QuickLoad = new Button(
-      11, MenuEntriesSprites[QuickLoadSpriteIndex],
-      MenuEntriesHSprites[QuickLoadSpriteIndex],
-      MenuEntriesHSprites[NewGameSpriteIndex + 1],
-      glm::vec2(MenuEntriesX, MenuEntriesFirstY + (1 * MenuEntriesYPadding)));
+  QuickLoad =
+      new Button(11, CommonTitleMenu::MenuEntriesSprites[QuickLoadSpriteIndex],
+                 CommonTitleMenu::MenuEntriesHSprites[QuickLoadSpriteIndex],
+                 CommonTitleMenu::MenuEntriesHSprites[NewGameSpriteIndex + 1],
+                 glm::vec2(MO8TitleMenuProfile::MenuEntriesX,
+                           MO8TitleMenuProfile::MenuEntriesFirstY +
+                               (1 * MO8TitleMenuProfile::MenuEntriesYPadding)));
   QuickLoad->OnClickHandler = onClick;
   QuickLoad->HighlightOffset = glm::vec2(0.0f);
   ContinueItems->Add(QuickLoad, FDIR_DOWN);
@@ -120,69 +135,76 @@ TitleMenu::TitleMenu() {
   int index = 0;
   // Gallery buttons
   // Album button
-  AlbumButton =
-      new Button(30, MenuEntriesSprites[AlbumSpriteIndex],
-                 MenuEntriesHSprites[AlbumSpriteIndex],
-                 MenuEntriesHSprites[NewGameSpriteIndex + 1],
-                 glm::vec2(MenuEntriesX, MenuEntriesGalleryFirstY +
-                                             (index * MenuEntriesYPadding)));
+  AlbumButton = new Button(
+      30, CommonTitleMenu::MenuEntriesSprites[AlbumSpriteIndex],
+      CommonTitleMenu::MenuEntriesHSprites[AlbumSpriteIndex],
+      CommonTitleMenu::MenuEntriesHSprites[NewGameSpriteIndex + 1],
+      glm::vec2(MO8TitleMenuProfile::MenuEntriesX,
+                MenuEntriesGalleryFirstY +
+                    (index * MO8TitleMenuProfile::MenuEntriesYPadding)));
   AlbumButton->OnClickHandler = onClick;
   AlbumButton->HighlightOffset = glm::vec2(0.0f);
   GalleryItems->Add(AlbumButton, FDIR_DOWN);
   index++;
   // Music button
-  MusicButton =
-      new Button(31, MenuEntriesSprites[MusicSpriteIndex],
-                 MenuEntriesHSprites[MusicSpriteIndex],
-                 MenuEntriesHSprites[NewGameSpriteIndex + 1],
-                 glm::vec2(MenuEntriesX, MenuEntriesGalleryFirstY +
-                                             (index * MenuEntriesYPadding)));
+  MusicButton = new Button(
+      31, CommonTitleMenu::MenuEntriesSprites[MusicSpriteIndex],
+      CommonTitleMenu::MenuEntriesHSprites[MusicSpriteIndex],
+      CommonTitleMenu::MenuEntriesHSprites[NewGameSpriteIndex + 1],
+      glm::vec2(MO8TitleMenuProfile::MenuEntriesX,
+                MenuEntriesGalleryFirstY +
+                    (index * MO8TitleMenuProfile::MenuEntriesYPadding)));
   MusicButton->OnClickHandler = onClick;
   MusicButton->HighlightOffset = glm::vec2(0.0f);
   GalleryItems->Add(MusicButton, FDIR_DOWN);
   index++;
   // Clear List button
-  ClearListButton =
-      new Button(32, MenuEntriesSprites[ClearListSpriteIndex],
-                 MenuEntriesHSprites[ClearListSpriteIndex],
-                 MenuEntriesHSprites[NewGameSpriteIndex + 1],
-                 glm::vec2(MenuEntriesX, MenuEntriesGalleryFirstY +
-                                             (index * MenuEntriesYPadding)));
+  ClearListButton = new Button(
+      32, CommonTitleMenu::MenuEntriesSprites[ClearListSpriteIndex],
+      CommonTitleMenu::MenuEntriesHSprites[ClearListSpriteIndex],
+      CommonTitleMenu::MenuEntriesHSprites[NewGameSpriteIndex + 1],
+      glm::vec2(MO8TitleMenuProfile::MenuEntriesX,
+                MenuEntriesGalleryFirstY +
+                    (index * MO8TitleMenuProfile::MenuEntriesYPadding)));
   ClearListButton->OnClickHandler = onClick;
   ClearListButton->HighlightOffset = glm::vec2(0.0f);
   GalleryItems->Add(ClearListButton, FDIR_DOWN);
   index++;
   // Warning button
-  WarningButton =
-      new Button(33, MenuEntriesSprites[WarningSpriteIndex],
-                 MenuEntriesHSprites[WarningSpriteIndex],
-                 MenuEntriesHSprites[NewGameSpriteIndex + 1],
-                 glm::vec2(MenuEntriesX, MenuEntriesGalleryFirstY +
-                                             (index * MenuEntriesYPadding)));
+  WarningButton = new Button(
+      33, CommonTitleMenu::MenuEntriesSprites[WarningSpriteIndex],
+      CommonTitleMenu::MenuEntriesHSprites[WarningSpriteIndex],
+      CommonTitleMenu::MenuEntriesHSprites[NewGameSpriteIndex + 1],
+      glm::vec2(MO8TitleMenuProfile::MenuEntriesX,
+                MenuEntriesGalleryFirstY +
+                    (index * MO8TitleMenuProfile::MenuEntriesYPadding)));
   WarningButton->OnClickHandler = onClick;
   WarningButton->HighlightOffset = glm::vec2(0.0f);
   GalleryItems->Add(WarningButton, FDIR_DOWN);
   index++;
   if (HasAdditional) {
     // Additional button
-    AdditionalButton =
-        new Button(34, MenuEntriesSprites[AdditionalSpriteIndex],
-                   MenuEntriesHSprites[AdditionalSpriteIndex],
-                   MenuEntriesHSprites[NewGameSpriteIndex + 1],
-                   glm::vec2(MenuEntriesX, MenuEntriesGalleryFirstY +
-                                               (index * MenuEntriesYPadding)));
+    AdditionalButton = new Button(
+        34, CommonTitleMenu::MenuEntriesSprites[AdditionalSpriteIndex],
+        CommonTitleMenu::MenuEntriesHSprites[AdditionalSpriteIndex],
+        CommonTitleMenu::MenuEntriesHSprites[NewGameSpriteIndex + 1],
+        glm::vec2(MO8TitleMenuProfile::MenuEntriesX,
+                  MenuEntriesGalleryFirstY +
+                      (index * MO8TitleMenuProfile::MenuEntriesYPadding)));
     AdditionalButton->OnClickHandler = onClick;
     AdditionalButton->HighlightOffset = glm::vec2(0.0f);
     GalleryItems->Add(AdditionalButton, FDIR_DOWN);
     index++;
   }
   // DLC button
-  DLCButton =
-      new Button(35 - (!HasAdditional), MenuEntriesSprites[DLCSpriteIndex],
-                 MenuEntriesHSprites[DLCSpriteIndex],
-                 MenuEntriesHSprites[NewGameSpriteIndex + 1],
-                 glm::vec2(MenuEntriesX, MenuEntriesGalleryFirstY +
-                                             (index * MenuEntriesYPadding)));
+  DLCButton = new Button(
+      35 - (!HasAdditional),
+      CommonTitleMenu::MenuEntriesSprites[DLCSpriteIndex],
+      CommonTitleMenu::MenuEntriesHSprites[DLCSpriteIndex],
+      CommonTitleMenu::MenuEntriesHSprites[NewGameSpriteIndex + 1],
+      glm::vec2(MO8TitleMenuProfile::MenuEntriesX,
+                MenuEntriesGalleryFirstY +
+                    (index * MO8TitleMenuProfile::MenuEntriesYPadding)));
   DLCButton->OnClickHandler = onClick;
   DLCButton->HighlightOffset = glm::vec2(0.0f);
   GalleryItems->Add(DLCButton, FDIR_DOWN);
@@ -280,7 +302,8 @@ void TitleMenu::Update(float dt) {
 
 void TitleMenu::Render() {
   if (State != Hidden && GetFlag(SF_TITLEMODE)) {
-    Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f));
+    Renderer->DrawSprite(MO8TitleMenuProfile::BackgroundSprite,
+                         glm::vec2(0.0f));
     Renderer->DrawSprite(LogoSprite, glm::vec2(LogoPositionX, LogoPositionY));
     switch (ScrWork[SW_TITLEMODE]) {
       case 0:

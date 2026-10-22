@@ -30,9 +30,9 @@ static void UpdateCCAtChanScrollbar();
 void Init() {
   switch (Profile::GameSpecific::GameSpecificType) {
     case GameSpecificType::CHLCC: {
-      CHLCC::DelusionTrigger::GetInstance().Reset();
-      CHLCC::ButterflyEffect::GetInstance().Init();
-      CHLCC::BubblesEffect::GetInstance().Init();
+      UI::CHLCC::DelusionTrigger::GetInstance().Reset();
+      UI::CHLCC::ButterflyEffect::GetInstance().Init();
+      UI::CHLCC::BubblesEffect::GetInstance().Init();
     } break;
     case GameSpecificType::CC: {
     } break;
@@ -70,9 +70,9 @@ void NonGameplayUpdate(float dt) {
 void Update(float dt) {
   switch (Profile::GameSpecific::GameSpecificType) {
     case GameSpecificType::CHLCC: {
-      CHLCC::DelusionTrigger::GetInstance().Update(dt);
-      CHLCC::ButterflyEffect::GetInstance().Update(dt);
-      CHLCC::BubblesEffect::GetInstance().Update(dt);
+      UI::CHLCC::DelusionTrigger::GetInstance().Update(dt);
+      UI::CHLCC::ButterflyEffect::GetInstance().Update(dt);
+      UI::CHLCC::BubblesEffect::GetInstance().Update(dt);
       CHLCCScanlineOffsetY = fmod(dt * 60 + CHLCCScanlineOffsetY, 300.0f);
     } break;
     case GameSpecificType::CC: {
@@ -98,7 +98,7 @@ void Update(float dt) {
 void RenderEarlyMain() {
   switch (Profile::GameSpecific::GameSpecificType) {
     case GameSpecificType::CHLCC: {
-      CHLCC::EyecatchEffect::GetInstance().RenderMain();
+      UI::CHLCC::EyecatchEffect::GetInstance().RenderMain();
     } break;
     case GameSpecificType::Dash:
     case GameSpecificType::RNE:
@@ -112,7 +112,7 @@ void RenderEarlyMain() {
 void RenderMain() {
   switch (Profile::GameSpecific::GameSpecificType) {
     case GameSpecificType::CHLCC: {
-      CHLCC::DelusionTrigger::GetInstance().Render();
+      UI::CHLCC::DelusionTrigger::GetInstance().Render();
     } break;
     case GameSpecificType::Dash: {
       /////////// DaSH hack kind of? ///////
@@ -146,7 +146,7 @@ void RenderLayer(uint32_t layer) {
   int layerInt = static_cast<int>(layer);
   switch (Profile::GameSpecific::GameSpecificType) {
     case GameSpecificType::CHLCC: {
-      CHLCC::EyecatchEffect::GetInstance().RenderLayer(layer);
+      UI::CHLCC::EyecatchEffect::GetInstance().RenderLayer(layer);
       if (ScrWork[SW_MONITOR_SCANLINE_ENABLED] &&
           layerInt == ScrWork[SW_MONITOR_SCANLINE_PRI]) {
         Renderer->DrawSprite(MonitorScanline,
@@ -159,10 +159,10 @@ void RenderLayer(uint32_t layer) {
       }
       if (ScrWork[SW_BUTTERFLY_ALPHA] &&
           layerInt == ScrWork[SW_BUTTERFLY_PRI]) {
-        CHLCC::ButterflyEffect::GetInstance().Render();
+        UI::CHLCC::ButterflyEffect::GetInstance().Render();
       }
       if (ScrWork[SW_BUBBLES_ALPHA] && layerInt == ScrWork[SW_BUBBLES_PRI]) {
-        CHLCC::BubblesEffect::GetInstance().Render();
+        UI::CHLCC::BubblesEffect::GetInstance().Render();
       }
 
       if (GetFlag(SF_TITLEMODE) && ScrWork[SW_TITLE_PRI] == layerInt) {

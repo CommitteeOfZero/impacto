@@ -5,7 +5,6 @@
 #include "../../renderer/renderer.h"
 #include "../../mem.h"
 #include "../../profile/scriptvars.h"
-#include "../../inputsystem.h"
 #include "../../ui/widgets/button.h"
 #include "../../audio/audiosystem.h"
 
@@ -39,11 +38,13 @@ SystemMenu::SystemMenu() {
   Sprite nullSprite = Sprite();
   nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
 
-  for (int i = 0; i < MenuEntriesNum; i++) {
-    Button* menuButton =
-        new Button(i, MenuEntriesSprites[i], MenuEntriesHSprites[i], nullSprite,
-                   glm::vec2(*MenuEntriesX,
-                             *MenuEntriesFirstY + (*MenuEntriesYPadding * i)));
+  for (int i = 0; i < Profile::SystemMenu::MenuEntriesNum; i++) {
+    Button* menuButton = new Button(
+        i, Profile::SystemMenu::MenuEntriesSprites[i],
+        Profile::SystemMenu::MenuEntriesHSprites[i], nullSprite,
+        glm::vec2(*Profile::SystemMenu::MenuEntriesX,
+                  *Profile::SystemMenu::MenuEntriesFirstY +
+                      (*Profile::SystemMenu::MenuEntriesYPadding * i)));
     menuButton->LockedSprite = MenuEntriesLSprites[i];
 
     menuButton->OnClickHandler = onClick;
@@ -52,8 +53,8 @@ SystemMenu::SystemMenu() {
 
   FadeAnimation.Direction = AnimationDirection::In;
   FadeAnimation.LoopMode = AnimationLoopMode::Stop;
-  FadeAnimation.DurationIn = FadeInDuration;
-  FadeAnimation.DurationOut = FadeOutDuration;
+  FadeAnimation.DurationIn = Profile::SystemMenu::FadeInDuration;
+  FadeAnimation.DurationOut = Profile::SystemMenu::FadeOutDuration;
 }
 
 void SystemMenu::Show() {
@@ -68,7 +69,8 @@ void SystemMenu::Show() {
     IsFocused = true;
     UI::FocusedMenu = this;
 
-    if (LastFocusedButtonId && *LastFocusedButtonId < MenuEntriesNum) {
+    if (LastFocusedButtonId &&
+        *LastFocusedButtonId < Profile::SystemMenu::MenuEntriesNum) {
       CurrentlyFocusedElement = MainItems->Children[*LastFocusedButtonId];
       CurrentlyFocusedElement->HasFocus = true;
     }

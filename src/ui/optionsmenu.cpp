@@ -14,8 +14,8 @@ OptionsMenu::OptionsMenu()
     : PADinputButtonHoldMask(PAD1UP | PAD1DOWN | PAD1LEFT | PAD1RIGHT) {
   FadeAnimation.Direction = AnimationDirection::In;
   FadeAnimation.LoopMode = AnimationLoopMode::Stop;
-  FadeAnimation.DurationIn = FadeInDuration;
-  FadeAnimation.DurationOut = FadeOutDuration;
+  FadeAnimation.DurationIn = Profile::OptionsMenu::FadeInDuration;
+  FadeAnimation.DurationOut = Profile::OptionsMenu::FadeOutDuration;
   FadeAnimation.SkipOnSkipMode = false;
 }
 

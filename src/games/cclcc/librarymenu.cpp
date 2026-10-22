@@ -106,8 +106,8 @@ LibraryMenu::LibraryMenu() : MainItems(this) {
 
   FadeAnimation.Direction = AnimationDirection::In;
   FadeAnimation.LoopMode = AnimationLoopMode::Stop;
-  FadeAnimation.DurationIn = FadeInDuration;
-  FadeAnimation.DurationOut = FadeOutDuration;
+  FadeAnimation.DurationIn = Profile::CCLCC::LibraryMenu::FadeInDuration;
+  FadeAnimation.DurationOut = Profile::CCLCC::LibraryMenu::FadeOutDuration;
   ButtonBlinkAnimation.Direction = AnimationDirection::In;
   ButtonBlinkAnimation.LoopMode = AnimationLoopMode::ReverseDirection;
   ButtonBlinkAnimation.SetDuration(ButtonBlinkDuration);

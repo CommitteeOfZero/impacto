@@ -16,8 +16,8 @@ using namespace Impacto::UI;
 using namespace Impacto::UI::Widgets;
 
 TipsNotification::TipsNotification() {
-  FadeAnimation.DurationIn = FadeInDuration;
-  FadeAnimation.DurationOut = FadeOutDuration;
+  FadeAnimation.DurationIn = Profile::TipsNotification::FadeInDuration;
+  FadeAnimation.DurationOut = Profile::TipsNotification::FadeOutDuration;
 
   Timer.DurationIn = TimerDuration;
   Timer.LoopMode = AnimationLoopMode::Stop;

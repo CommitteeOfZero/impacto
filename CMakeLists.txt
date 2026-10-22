@@ -1282,6 +1282,59 @@ if (NOT DEFINED IMPACTO_DISABLE_DX9)
     )
 endif ()
 
+set(IMPACTO_UNITY_BATCH_SIZE 8 CACHE STRING "Files per unity batch")
+
+function(impacto_unity_group_for source out_var)
+    if (IS_ABSOLUTE "${source}")
+        file(RELATIVE_PATH source "${CMAKE_SOURCE_DIR}" "${source}")
+    endif ()
+    get_filename_component(dir "${source}" DIRECTORY)
+
+    if (source MATCHES "^src/profile/games/([^/]+)/")
+        set(group "profile_game_${CMAKE_MATCH_1}")
+    elseif (source MATCHES "^src/games/([^/]+)/")
+        set(group "game_${CMAKE_MATCH_1}")
+    else ()
+        string(REGEX REPLACE "^src(/|$)" "" dir "${dir}")
+        if (dir STREQUAL "")
+            set(group "core")
+        else ()
+            string(REPLACE "/" "__" group "${dir}")
+        endif ()
+    endif ()
+
+    set(${out_var} "${group}" PARENT_SCOPE)
+endfunction()
+
+function(impacto_assign_unity_groups sources)
+    set(batch_size "${IMPACTO_UNITY_BATCH_SIZE}")
+    if (ARGC GREATER 1)
+        set(batch_size "${ARGV1}")
+    endif ()
+    if (NOT batch_size MATCHES "^[1-9][0-9]*$")
+        message(FATAL_ERROR
+            "Unity batch size must be a positive integer, got '${batch_size}'")
+    endif ()
+
+    set(sorted_sources ${sources})
+    list(SORT sorted_sources) 
+
+    foreach (source IN LISTS sorted_sources)
+        impacto_unity_group_for("${source}" group)
+
+        if (NOT DEFINED _count_${group})
+            set(_count_${group} 0)
+        endif ()
+        math(EXPR batch "${_count_${group}} / ${batch_size} + 1")
+        math(EXPR _count_${group} "${_count_${group}} + 1")
+
+        set_source_files_properties("${source}" PROPERTIES
+            UNITY_GROUP "${group}_${batch}")
+    endforeach ()
+endfunction()
+
+impacto_assign_unity_groups("${Impacto_Src}")
+
 configure_file(src/version.h.in ${PROJECT_BINARY_DIR}/include/version.h)
 
 if(ANDROID)
@@ -1292,6 +1345,10 @@ elseif(APPLE)
 else()
     add_executable(impacto ${Impacto_Src} ${Impacto_Header})
 endif()
+
+option(IMPACTO_UNITY_BUILD "Build the Impacto target using CMake Unity Build" ON)
+set_property(TARGET impacto PROPERTY UNITY_BUILD ${IMPACTO_UNITY_BUILD})
+set_property(TARGET impacto PROPERTY UNITY_BUILD_MODE GROUP)
 
 if (APPLE)
     set(MACOSX_BUNDLE_ICON_FILE icon.icns)
@@ -1497,5 +1554,3 @@ else()
     install(DIRECTORY resources DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/assets PATTERN "*/gamedata/*" EXCLUDE)
     install(FILES gamedefinitions.lua DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/assets)
 endif()
-
-

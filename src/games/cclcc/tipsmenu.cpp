@@ -74,7 +74,8 @@ void TipsMenu::Show() {
       }
     }
 
-    CommonMenu::OnShow(FadeInDuration, FadeOutDuration, FadeAnimation);
+    CommonMenu::OnShow(Profile::TipsMenu::FadeInDuration,
+                       Profile::TipsMenu::FadeOutDuration, FadeAnimation);
 
     Name->Bounds.SetPos(NamePos);
     Pronunciation->Bounds.SetPos(PronunciationPos);
@@ -100,7 +101,8 @@ void TipsMenu::Hide() {
     State = Hiding;
     FadeAnimation.StartOut();
     // Switch has this sfx played in the script
-    if (Profile::Vm::GameInstructionSet != Vm::InstructionSet::LCCSwitch) {
+    if (Profile::Vm::GameInstructionSet !=
+        Impacto::Vm::InstructionSet::LCCSwitch) {
       Audio::PlayInGroup(Audio::ACG_SE, "sysse", 3, false, 0);
     }
     if (ScrWork[SW_SYSSUBMENUCT] != 0) {
@@ -258,7 +260,7 @@ void TipsMenu::Render() {
   if (OpenedAsDirect) CommonMenu::DrawBgSprite<false>(State, FadeAnimation);
 
   Renderer->DrawSprite(
-      BackgroundSprite,
+      Profile::TipsMenu::BackgroundSprite,
       glm::vec2(0.0f, Profile::Game::DesignHeight / 2 - LastYPos), fade);
   TipsTabs[CurrentTabType]->Tint.a = fade.a;
   TipsTabs[CurrentTabType]->Render();
@@ -290,14 +292,17 @@ void TipsMenu::Render() {
 }
 
 void TipsMenu::Init() {
+  namespace TipsSystem = Impacto::TipsSystem;
   auto* TipRecords = TipsSystem::GetTipRecords();
   SortedTipIds.clear();
-  std::transform(
-      TipRecords->begin(), TipRecords->end(), std::back_inserter(SortedTipIds),
-      [](TipsSystem::TipsDataRecord const& record) { return record.Id; });
+  std::transform(TipRecords->begin(), TipRecords->end(),
+                 std::back_inserter(SortedTipIds),
+                 [](Impacto::TipsSystem::TipsDataRecord const& record) {
+                   return record.Id;
+                 });
   std::sort(SortedTipIds.begin(), SortedTipIds.end(),
-            TipsSystem::TipsComparator(TipsTextTableIndex,
-                                       TipsTextSortStringIndex, 3));
+            Impacto::TipsSystem::TipsComparator(TipsTextTableIndex,
+                                                TipsTextSortStringIndex, 3));
   for (int i = 0; i < TabCount; i++) {
     TipsTabType type = static_cast<TipsTabType>(i);
     TipsTabs[i] = new TipsTabGroup(
@@ -308,6 +313,8 @@ void TipsMenu::Init() {
 }
 
 void TipsMenu::SwitchToTipId(int id) {
+  namespace TipsSystem = Impacto::TipsSystem;
+
   if (id - 1 == CurrentlyDisplayedTipId) return;
   int actualId = SortedTipIds[id - 1];
   auto [buffers, tipsScrBufId] = TipsSystem::GetTipsScriptBufferCtx();
@@ -343,7 +350,7 @@ void TipsMenu::SwitchToTipId(int id) {
     auto lambda = [&]<typename T>() {
       auto& buf = std::get<std::array<T, 4>>(sc3StringBuffer);
       TextGetSc3String(fmt::format("{:03d}", id), buf);
-      return Vm::Sc3Stream(buf.data());
+      return Impacto::Vm::Sc3Stream(buf.data());
     };
 
     auto stream = Profile::Vm::StringEncodingType ==
@@ -355,7 +362,7 @@ void TipsMenu::SwitchToTipId(int id) {
                     RendererOutlineMode::None, 0);
   }
 
-  Vm::Sc3VmThread dummy;
+  Impacto::Vm::Sc3VmThread dummy;
   dummy.ScriptBufferId = tipsScrBufId;
   dummy.UseMSBBuffers = Profile::Vm::UseMsbStrings;
   dummy.SetStringIp(TipsSystem::GetTextStringStream(actualId, 4).Data());

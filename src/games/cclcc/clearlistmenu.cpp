@@ -20,8 +20,8 @@ using namespace Impacto::UI::Widgets;
 ClearListMenu::ClearListMenu() {
   FadeAnimation.Direction = AnimationDirection::In;
   FadeAnimation.LoopMode = AnimationLoopMode::Stop;
-  FadeAnimation.DurationIn = FadeInDuration;
-  FadeAnimation.DurationOut = FadeOutDuration;
+  FadeAnimation.DurationIn = Profile::CCLCC::ClearListMenu::FadeInDuration;
+  FadeAnimation.DurationOut = Profile::CCLCC::ClearListMenu::FadeOutDuration;
 }
 
 void ClearListMenu::Show() {

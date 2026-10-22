@@ -7,7 +7,7 @@
 namespace Impacto {
 namespace Io {
 
-struct TextMetaEntry;
+struct FSFolderTextMetaEntry;
 
 struct FolderArchiveParameters {
   std::optional<std::string> OrderFilePath;
@@ -27,7 +27,7 @@ class FSFolderArchive : public VfsArchive {
       FSFolderArchive* result, std::filesystem::path const& rootPath);
   static IoError SortTOCByOrderFile(FSFolderArchive* result,
                                     VfsArchive** orderLines);
-  std::vector<TextMetaEntry> TOC;
+  std::vector<FSFolderTextMetaEntry> TOC;
 };
 
 }  // namespace Io

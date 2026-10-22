@@ -12,6 +12,8 @@
 #include "../../audio/audiosystem.h"
 #include "../../vm/interface/input.h"
 
+namespace MO6TWMusicProfile = Impacto::Profile::MO6TW::MusicMenu;
+
 namespace Impacto {
 namespace UI {
 namespace MO6TW {
@@ -32,8 +34,8 @@ void MusicMenu::MusicButtonOnClick(Button* target) {
 MusicMenu::MusicMenu() {
   FadeAnimation.Direction = AnimationDirection::In;
   FadeAnimation.LoopMode = AnimationLoopMode::Stop;
-  FadeAnimation.DurationIn = FadeInDuration;
-  FadeAnimation.DurationOut = FadeOutDuration;
+  FadeAnimation.DurationIn = MO6TWMusicProfile::FadeInDuration;
+  FadeAnimation.DurationOut = MO6TWMusicProfile::FadeOutDuration;
 
   MainItems = new Group(this);
   MainItems->WrapFocus = false;
@@ -46,7 +48,7 @@ MusicMenu::MusicMenu() {
   BackgroundItems->Add(new Label(PlaybackWindow, PlaybackWindowPosition));
   NullSprite = Sprite();
   NullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
-  Thumbnail = new Label(NullSprite, ThumbnailPosition);
+  Thumbnail = new Label(NullSprite, MO6TWMusicProfile::ThumbnailPosition);
   BackgroundItems->Add(Thumbnail);
   CurrentlyPlaying = new Label(NullSprite, CurrentlyPlayingLabelPosition);
   BackgroundItems->Add(CurrentlyPlaying);
@@ -70,15 +72,18 @@ MusicMenu::MusicMenu() {
     pos += MusicListMargin;
   }
 
-  MusicListY = ScrollbarStart;
+  MusicListY = MO6TWMusicProfile::ScrollbarStart;
   float totalHeight = MusicListMargin.y * (MusicTrackCount + 1);
   MainItems->Bounds =
       RectF(MusicListInitialPosition.x, MusicListInitialPosition.y,
             ItemNames[0].ScaledWidth(), totalHeight);
   auto scrollbar = new Scrollbar(
-      0, ScrollbarPosition, ScrollbarStart,
-      ScrollbarStart - totalHeight + ItemsWindowRenderingBounds.Height,
-      &MusicListY, SBDIR_VERTICAL, ScrollbarTrack, ScrollbarThumb);
+      0, MO6TWMusicProfile::ScrollbarPosition,
+      MO6TWMusicProfile::ScrollbarStart,
+      MO6TWMusicProfile::ScrollbarStart - totalHeight +
+          ItemsWindowRenderingBounds.Height,
+      &MusicListY, SBDIR_VERTICAL, MO6TWMusicProfile::ScrollbarTrack,
+      MO6TWMusicProfile::ScrollbarThumb);
   scrollbar->SetScrollAreaBounds(MainItems->HoverBounds);
   BackgroundItems->Add(scrollbar);
 
@@ -203,7 +208,8 @@ void MusicMenu::Render() {
   if (State == Hidden) return;
 
   glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
-  Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f, 0.0f), col);
+  Renderer->DrawSprite(MO6TWMusicProfile::BackgroundSprite,
+                       glm::vec2(0.0f, 0.0f), col);
   BackgroundItems->Tint = col;
   BackgroundItems->Render();
   MainItems->Tint = col;
@@ -249,7 +255,7 @@ void MusicMenu::SwitchToTrack(int id) {
 
   Audio::Channels[Audio::AC_BGM0]->Play("bgm", Playlist[id],
                                         PlaybackMode == MPM_RepeatOne, 0.5f);
-  Thumbnail->SetSprite(Thumbnails[id]);
+  Thumbnail->SetSprite(MO6TWMusicProfile::Thumbnails[id]);
   CurrentlyPlaying->SetSprite(ItemNames[id]);
   Timer->Show();
 }

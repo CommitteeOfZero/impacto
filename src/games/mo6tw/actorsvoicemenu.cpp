@@ -8,6 +8,8 @@
 #include "../../background2d.h"
 #include "../../ui/widgets/mo6tw/actorsvoicebutton.h"
 
+namespace MO6TWActorsVoiceProfile = Impacto::Profile::MO6TW::ActorsVoiceMenu;
+
 namespace Impacto {
 namespace UI {
 namespace MO6TW {
@@ -26,14 +28,14 @@ void ActorsVoiceMenu::VoiceButtonOnClick(Button* target) {
 ActorsVoiceMenu::ActorsVoiceMenu() {
   FadeAnimation.Direction = AnimationDirection::In;
   FadeAnimation.LoopMode = AnimationLoopMode::Stop;
-  FadeAnimation.DurationIn = FadeInDuration;
-  FadeAnimation.DurationOut = FadeOutDuration;
+  FadeAnimation.DurationIn = MO6TWActorsVoiceProfile::FadeInDuration;
+  FadeAnimation.DurationOut = MO6TWActorsVoiceProfile::FadeOutDuration;
 
   MainItems = new Group(this);
 
   auto onClick = [this](auto* btn) { return VoiceButtonOnClick(btn); };
 
-  auto pos = InitialItemPosition;
+  auto pos = MO6TWActorsVoiceProfile::InitialItemPosition;
 
   for (int i = 0; i < ActorsVoiceCount; i++) {
     auto button = new Widgets::MO6TW::ActorsVoiceButton(
@@ -42,7 +44,7 @@ ActorsVoiceMenu::ActorsVoiceMenu() {
     button->OnClickHandler = onClick;
 
     MainItems->Add(button, FDIR_DOWN);
-    pos += ItemOffset;
+    pos += MO6TWActorsVoiceProfile::ItemOffset;
   }
 }
 
@@ -110,7 +112,8 @@ void ActorsVoiceMenu::Render() {
   if (State == Hidden) return;
 
   glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
-  Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f, 0.0f), col);
+  Renderer->DrawSprite(MO6TWActorsVoiceProfile::BackgroundSprite,
+                       glm::vec2(0.0f, 0.0f), col);
   MainItems->Tint = col;
   MainItems->Render();
   if (ScrWork[SW_ACTORVOICE_CUR] != 255) {

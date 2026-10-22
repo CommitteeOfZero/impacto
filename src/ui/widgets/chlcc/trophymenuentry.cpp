@@ -7,6 +7,8 @@
 #include "../../../profile/data/achievementsystem.h"
 #include "../../../profile/games/chlcc/trophymenu.h"
 
+namespace CHLCCTrophyProfile = Impacto::Profile::CHLCC::TrophyMenu;
+
 namespace Impacto {
 namespace UI {
 namespace Widgets {
@@ -17,65 +19,73 @@ using namespace Impacto::AchievementSystem;
 
 TrophyMenuEntry::TrophyMenuEntry(int achievementId)
     : AchievementId(achievementId) {
-  Bounds.SetPos(
-      FirstEntryPos +
-      glm::vec2(0.0f, EntryHeight * (AchievementId % EntriesPerPage)));
+  Bounds.SetPos(CHLCCTrophyProfile::FirstEntryPos +
+                glm::vec2(0.0f, CHLCCTrophyProfile::EntryHeight *
+                                    (AchievementId %
+                                     CHLCCTrophyProfile::EntriesPerPage)));
 
   const auto* ach = GetAchievement(AchievementId);
   assert(ach != nullptr);
   const bool unlocked = IsAchievementUnlocked(AchievementId);
   const bool revealed = unlocked || !ach->Hidden();
-  const size_t textColorIndex = unlocked ? 0 : EntryLockedTextColorIndex;
+  const size_t textColorIndex =
+      unlocked ? 0 : CHLCCTrophyProfile::EntryLockedTextColorIndex;
   if (!revealed) {
-    NameLabel =
-        Label(Vm::ScriptGetTextTableStrAddress(EntryDefaultNameTextTableId,
-                                               EntryDefaultNameStringNum),
-              Bounds.GetPos() + EntryNameOffset, EntryNameFontSize,
-              RendererOutlineMode::BottomRight, textColorIndex);
-    DescriptionLabel = Label("", Bounds.GetPos() + EntryDescriptionOffset,
-                             EntryDescriptionFontSize,
-                             RendererOutlineMode::BottomRight, textColorIndex);
-    Icon = DefaultTrophyIconSprite;
-  } else {
-    NameLabel =
-        Label(ach->Name(), Bounds.GetPos() + EntryNameOffset, EntryNameFontSize,
-              RendererOutlineMode::BottomRight, textColorIndex);
+    NameLabel = Label(Vm::ScriptGetTextTableStrAddress(
+                          CHLCCTrophyProfile::EntryDefaultNameTextTableId,
+                          CHLCCTrophyProfile::EntryDefaultNameStringNum),
+                      Bounds.GetPos() + CHLCCTrophyProfile::EntryNameOffset,
+                      CHLCCTrophyProfile::EntryNameFontSize,
+                      RendererOutlineMode::BottomRight, textColorIndex);
     DescriptionLabel =
-        Label(ach->Description(), Bounds.GetPos() + EntryDescriptionOffset,
-              EntryDescriptionFontSize, RendererOutlineMode::BottomRight,
-              textColorIndex);
-    Icon = unlocked ? ach->Icon() : DefaultTrophyIconSprite;
+        Label("", Bounds.GetPos() + CHLCCTrophyProfile::EntryDescriptionOffset,
+              CHLCCTrophyProfile::EntryDescriptionFontSize,
+              RendererOutlineMode::BottomRight, textColorIndex);
+    Icon = CHLCCTrophyProfile::DefaultTrophyIconSprite;
+  } else {
+    NameLabel = Label(ach->Name(),
+                      Bounds.GetPos() + CHLCCTrophyProfile::EntryNameOffset,
+                      CHLCCTrophyProfile::EntryNameFontSize,
+                      RendererOutlineMode::BottomRight, textColorIndex);
+    DescriptionLabel =
+        Label(ach->Description(),
+              Bounds.GetPos() + CHLCCTrophyProfile::EntryDescriptionOffset,
+              CHLCCTrophyProfile::EntryDescriptionFontSize,
+              RendererOutlineMode::BottomRight, textColorIndex);
+    Icon = unlocked ? ach->Icon() : CHLCCTrophyProfile::DefaultTrophyIconSprite;
   }
-  IconDest = RectF{Bounds.X, Bounds.Y, DefaultTrophyIconSprite.ScaledWidth(),
-                   DefaultTrophyIconSprite.ScaledHeight()} +
-             EntryIconOffset;
+  IconDest = RectF{Bounds.X, Bounds.Y,
+                   CHLCCTrophyProfile::DefaultTrophyIconSprite.ScaledWidth(),
+                   CHLCCTrophyProfile::DefaultTrophyIconSprite.ScaledHeight()} +
+             CHLCCTrophyProfile::EntryIconOffset;
 
   AchievementRarity rarity = AchievementRarity::Bronze;
   if (Profile::AchievementSystem::Type == AchievementDataType::Common) {
     if (const CommonAchievement* commonAch =
-            static_cast<AchievementSystemCommon*>(Implementation)
+            static_cast<AchievementSystemCommon*>(
+                AchievementSystem::Implementation)
                 ->GetAchievement(AchievementId)) {
       rarity = commonAch->GetRarity();
     }
   }
   switch (rarity) {
     case AchievementRarity::Platinum:
-      RarityIcon = PlatinumTrophySprite;
+      RarityIcon = CHLCCTrophyProfile::PlatinumTrophySprite;
       break;
     case AchievementRarity::Gold:
-      RarityIcon = GoldTrophySprite;
+      RarityIcon = CHLCCTrophyProfile::GoldTrophySprite;
       break;
     case AchievementRarity::Silver:
-      RarityIcon = SilverTrophySprite;
+      RarityIcon = CHLCCTrophyProfile::SilverTrophySprite;
       break;
     case AchievementRarity::Bronze:
     default:
-      RarityIcon = BronzeTrophySprite;
+      RarityIcon = CHLCCTrophyProfile::BronzeTrophySprite;
       break;
   }
   RarityIconDest = RectF{Bounds.X, Bounds.Y, RarityIcon.ScaledWidth(),
                          RarityIcon.ScaledHeight()} +
-                   EntryRarityIconOffset;
+                   CHLCCTrophyProfile::EntryRarityIconOffset;
   RarityIconTint = revealed ? glm::vec4{1.0f, 1.0f, 1.0f, 1.0f}
                             : glm::vec4{0.0f, 0.0f, 0.0f, 1.0f};
 };

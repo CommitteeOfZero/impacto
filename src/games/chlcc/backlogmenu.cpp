@@ -8,6 +8,8 @@
 #include "../../audio/audiosystem.h"
 #include "../../ui/ui.h"
 
+namespace CHLCCBacklogProfile = Impacto::Profile::CHLCC::BacklogMenu;
+
 namespace Impacto {
 namespace UI {
 namespace CHLCC {
@@ -26,7 +28,7 @@ void BacklogMenu::Show() {
       FromSystemMenuTransition->StartIn();
     }
     IsFocused = true;
-    UI::BacklogMenu<BacklogEntry>::Show();
+    Impacto::UI::BacklogMenu<Impacto::UI::Widgets::CHLCC::BacklogEntry>::Show();
   }
 }
 
@@ -50,8 +52,10 @@ void BacklogMenu::Hide() {
 
 void BacklogMenu::Render() {
   if (State == Hidden) return;
-  CommonMenu::DrawSubmenu(BackgroundColor, CircleSprite, MenuTitleText,
-                          MenuTitleTextAngle);
+  CommonMenu::DrawSubmenu(CHLCCBacklogProfile::BackgroundColor,
+                          CHLCCBacklogProfile::CircleSprite,
+                          CHLCCBacklogProfile::MenuTitleText,
+                          CHLCCBacklogProfile::MenuTitleTextAngle);
 
   if (MenuTransition.Progress < 0.22f) return;
 
@@ -59,12 +63,13 @@ void BacklogMenu::Render() {
 
   yOffset = MenuTransition.GetPageOffset().y;
   Renderer->DrawSprite(BacklogBackground, {0.0f, 0.0f + yOffset});
-  CommonMenu::DrawButtonPrompt(ButtonPromptSprite, ButtonPromptPosition);
+  CommonMenu::DrawButtonPrompt(CHLCCBacklogProfile::ButtonPromptSprite,
+                               CHLCCBacklogProfile::ButtonPromptPosition);
 
   if (MenuTransition.Progress > 0.34f) {
     Renderer->EnableScissor();
     Renderer->SetScissorRect(BacklogBackground.Bounds);
-    Renderer->DrawSprite(MenuTitleText, LeftTitlePos);
+    Renderer->DrawSprite(CHLCCBacklogProfile::MenuTitleText, LeftTitlePos);
     Renderer->DisableScissor();
     RenderHighlight({0.0f, yOffset});
   }
@@ -112,7 +117,8 @@ void BacklogMenu::Update(float dt) {
   }
 
   if (State != Hidden) {
-    UI::BacklogMenu<BacklogEntry>::Update(dt);
+    Impacto::UI::BacklogMenu<Impacto::UI::Widgets::CHLCC::BacklogEntry>::Update(
+        dt);
     MenuTransition.Update(dt);
     FromSystemMenuTransition->Update(dt);
     if (MenuTransition.Direction == AnimationDirection::Out &&
@@ -124,7 +130,8 @@ void BacklogMenu::Update(float dt) {
       TitleFade.StartIn();
     }
     TitleFade.Update(dt);
-    UpdateTitles(MenuTitleTextRightPosition, MenuTitleTextLeftPosition, false);
+    UpdateTitles(CHLCCBacklogProfile::MenuTitleTextRightPosition,
+                 CHLCCBacklogProfile::MenuTitleTextLeftPosition, false);
   }
 }
 }  // namespace CHLCC

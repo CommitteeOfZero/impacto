@@ -7,6 +7,8 @@ namespace Impacto {
 namespace UI {
 namespace CHLCC {
 
+using namespace Impacto::Vm;
+
 struct SysMesBoxStar {
   float Angle;
   float RotationSpeed;
@@ -22,8 +24,8 @@ class SysMesBox : public UI::SysMesBox {
   virtual void Render() override;
 
   virtual void Init() override;
-  virtual void AddMessage(Vm::BufferOffsetContext ctx) override;
-  virtual void AddChoice(Vm::BufferOffsetContext ctx) override;
+  virtual void AddMessage(BufferOffsetContext ctx) override;
+  virtual void AddChoice(BufferOffsetContext ctx) override;
 
  private:
   std::array<SysMesBoxStar, 14> LoadingStars;

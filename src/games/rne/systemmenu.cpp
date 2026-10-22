@@ -6,13 +6,14 @@
 #include "../../renderer/renderer.h"
 #include "../../mem.h"
 #include "../../profile/scriptvars.h"
-#include "../../inputsystem.h"
 #include "../../ui/widgets/button.h"
 #include "../../ui/widgets/rne/sysmenubutton.h"
 
 namespace Impacto {
 namespace UI {
 namespace RNE {
+
+namespace RNESysMenuProfile = Impacto::Profile::RNE::SystemMenu;
 
 using namespace Impacto::Profile::SystemMenu;
 using namespace Impacto::Profile::RNE::SystemMenu;
@@ -35,9 +36,10 @@ SystemMenu::SystemMenu() {
   Sprite nullSprite = Sprite();
   nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
 
-  for (int i = 0; i < MenuEntriesNum; i++) {
+  for (int i = 0; i < Profile::SystemMenu::MenuEntriesNum; i++) {
     SysMenuButton* menuButton = new SysMenuButton(
-        i, MenuEntriesSprites[i], nullSprite, MenuEntriesHSprites[i],
+        i, Profile::SystemMenu::MenuEntriesSprites[i], nullSprite,
+        Profile::SystemMenu::MenuEntriesHSprites[i],
         glm::vec2(*MenuEntriesX,
                   *MenuEntriesFirstY + (*MenuEntriesYPadding * i)));
 
@@ -49,7 +51,8 @@ SystemMenu::SystemMenu() {
 void SystemMenu::Show() {
   if (State != Shown) {
     State = Showing;
-    if (BackgroundAnimation) BackgroundAnimation->StartIn();
+    if (RNESysMenuProfile::BackgroundAnimation)
+      RNESysMenuProfile::BackgroundAnimation->StartIn();
 
     MainItems->Show();
     if (UI::FocusedMenu != 0) {
@@ -59,7 +62,8 @@ void SystemMenu::Show() {
     IsFocused = true;
     UI::FocusedMenu = this;
 
-    if (LastFocusedButtonId && *LastFocusedButtonId < MenuEntriesNum) {
+    if (LastFocusedButtonId &&
+        *LastFocusedButtonId < Profile::SystemMenu::MenuEntriesNum) {
       CurrentlyFocusedElement = MainItems->Children[*LastFocusedButtonId];
       CurrentlyFocusedElement->HasFocus = true;
     }
@@ -103,10 +107,12 @@ void SystemMenu::Update(float dt) {
   SkyMoveAnimation.Update(dt);
   EntriesMoveAnimation.Update(dt);
   HighlightAnimation.Update(dt);
-  if (BackgroundAnimation) BackgroundAnimation->Update(dt);
+  if (RNESysMenuProfile::BackgroundAnimation)
+    RNESysMenuProfile::BackgroundAnimation->Update(dt);
 
   if (State == Showing) {
-    if (BackgroundAnimation->Progress >= SkyInStartProgress) {
+    if (RNESysMenuProfile::BackgroundAnimation->Progress >=
+        SkyInStartProgress) {
       if (SkyMoveAnimation.IsOut()) SkyMoveAnimation.StartIn();
       if (EntriesMoveAnimation.IsOut()) EntriesMoveAnimation.StartIn();
     }
@@ -116,14 +122,16 @@ void SystemMenu::Update(float dt) {
     if (HighlightAnimation.IsIn()) State = Shown;
   } else if (State == Hiding) {
     if (HighlightAnimation.IsOut()) {
-      if (BackgroundAnimation && BackgroundAnimation->IsIn())
-        BackgroundAnimation->StartOut();
+      if (RNESysMenuProfile::BackgroundAnimation &&
+          RNESysMenuProfile::BackgroundAnimation->IsIn())
+        RNESysMenuProfile::BackgroundAnimation->StartOut();
     }
-    if (BackgroundAnimation->Progress <= SkyOutStartProgress) {
+    if (RNESysMenuProfile::BackgroundAnimation->Progress <=
+        SkyOutStartProgress) {
       if (SkyMoveAnimation.IsIn()) SkyMoveAnimation.StartOut();
       if (EntriesMoveAnimation.IsIn()) EntriesMoveAnimation.StartOut();
     }
-    if (BackgroundAnimation->IsOut()) State = Hidden;
+    if (RNESysMenuProfile::BackgroundAnimation->IsOut()) State = Hidden;
   }
   ButtonBackgroundSprite.Bounds.X =
       ButtonBackgroundSprStartX -
@@ -156,7 +164,8 @@ void SystemMenu::Update(float dt) {
 
 void SystemMenu::Render() {
   if (State != Hidden && ScrWork[SW_SYSMENUALPHA] > 0) {
-    if (BackgroundAnimation) BackgroundAnimation->Render();
+    if (RNESysMenuProfile::BackgroundAnimation)
+      RNESysMenuProfile::BackgroundAnimation->Render();
     glm::vec4 colSky(1.0f);
     colSky.a = glm::smoothstep(0.0f, 1.0f, SkyMoveAnimation.Progress);
 

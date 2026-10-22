@@ -18,14 +18,16 @@
 #include <fmt/format.h>
 #include <magic_enum/magic_enum_containers.hpp>
 
+namespace CHLCCTrophyProfile = Impacto::Profile::CHLCC::TrophyMenu;
+
 namespace Impacto {
 namespace UI {
 namespace CHLCC {
 
+using namespace Impacto::Vm;
 using namespace Impacto::Profile::TrophyMenu;
 using namespace Impacto::Profile::CHLCC::TrophyMenu;
 using namespace Impacto::Profile::ScriptVars;
-// using namespace Impacto::Profile::GameSpecific;
 
 using namespace Impacto::Vm::Interface;
 
@@ -48,9 +50,10 @@ void TrophyMenu::UpdateRarityCounts() {
   magic_enum::containers::array<AchievementRarity, size_t> unlockedCounts{};
   magic_enum::containers::array<AchievementRarity, size_t> totalCounts{};
 
-  switch (Profile::AchievementSystem::Type) {
+  switch (Impacto::Profile::AchievementSystem::Type) {
     case AchievementDataType::Common: {
-      auto* commonImpl = static_cast<AchievementSystemCommon*>(Implementation);
+      auto* commonImpl = static_cast<AchievementSystemCommon*>(
+          Impacto::AchievementSystem::Implementation);
       const size_t count = GetAchievementCount();
       for (size_t id = 0; id < count; id++) {
         const CommonAchievement* ach =
@@ -96,9 +99,9 @@ void TrophyMenu::Show() {
     FocusedMenu = this;
 
     for (size_t i = 0; i < MaxTrophyPages; i++) {
-      for (size_t j = 0; j < EntriesPerPage; j++) {
-        const size_t index = i * EntriesPerPage + j;
-        if (index >= AchievementSystem::GetAchievementCount()) break;
+      for (size_t j = 0; j < CHLCCTrophyProfile::EntriesPerPage; j++) {
+        const size_t index = i * CHLCCTrophyProfile::EntriesPerPage + j;
+        if (index >= Impacto::AchievementSystem::GetAchievementCount()) break;
         TrophyMenuEntry* entry = new TrophyMenuEntry(static_cast<int>(index));
         MainItems[i].Add(entry);
       }
@@ -108,8 +111,8 @@ void TrophyMenu::Show() {
     if (!TrophyCountHintLabel.Enabled) {
       TrophyCountHintLabel.Enabled = true;
       TrophyCountHintLabel.SetText(
-          Vm::ScriptGetTextTableStrAddress(TrophyCountHintTextTableId,
-                                           TrophyCountHintStringNum),
+          Impacto::Vm::ScriptGetTextTableStrAddress(TrophyCountHintTextTableId,
+                                                    TrophyCountHintStringNum),
           TrophyCountHintLabelPos, TrophyCountFontSize,
           RendererOutlineMode::Full, 0);
     }
@@ -134,14 +137,17 @@ void TrophyMenu::Hide() {
 
 void TrophyMenu::Render() {
   if (State == Hidden) return;
-  DrawSubmenu(BackgroundColor, CircleSprite, MenuTitleText, MenuTitleTextAngle,
-              true);
+  DrawSubmenu(CHLCCTrophyProfile::BackgroundColor,
+              CHLCCTrophyProfile::CircleSprite,
+              CHLCCTrophyProfile::MenuTitleText,
+              CHLCCTrophyProfile::MenuTitleTextAngle, true);
 
   if (MenuTransition.Progress < 0.22f) return;
 
   glm::vec2 offset = MenuTransition.GetPageOffset();
 
-  DrawButtonPrompt(ButtonPromptSprite, ButtonPromptPosition);
+  DrawButtonPrompt(CHLCCTrophyProfile::ButtonPromptSprite,
+                   CHLCCTrophyProfile::ButtonPromptPosition);
 
   TrophyCountHintLabel.Move(offset);
   TrophyCountHintLabel.Render();
@@ -160,10 +166,11 @@ void TrophyMenu::Render() {
   }
 
   Renderer->DrawSprite(TrophyPageCtBoxSprite, offset + TrophyPageCtPos);
-  Renderer->DrawSprite(PageNums[CurrentPage + 1], offset + CurrentPageNumPos);
+  Renderer->DrawSprite(PageNums[CurrentPage + 1],
+                       offset + CHLCCTrophyProfile::CurrentPageNumPos);
   Renderer->DrawSprite(PageNumSeparatorSlash, offset + PageNumSeparatorPos);
   Renderer->DrawSprite(ReachablePageNums[MaxTrophyPages],
-                       offset + MaxPageNumPos);
+                       offset + CHLCCTrophyProfile::MaxPageNumPos);
 
   MainItems[CurrentPage].Move(offset);
   MainItems[CurrentPage].Render();
@@ -229,7 +236,8 @@ void TrophyMenu::Update(float dt) {
       TitleFade.StartIn();
     }
     TitleFade.Update(dt);
-    UpdateTitles(MenuTitleTextRightPosition, MenuTitleTextLeftPosition);
+    UpdateTitles(CHLCCTrophyProfile::MenuTitleTextRightPosition,
+                 CHLCCTrophyProfile::MenuTitleTextLeftPosition);
   }
 }
 

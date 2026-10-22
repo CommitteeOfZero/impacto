@@ -65,7 +65,7 @@ void Configure() {
   TransitionInDuration = EnsureGetMember<float>("TransitionInDuration");
   TransitionOutDuration = EnsureGetMember<float>("TransitionOutDuration");
 
-  auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
+  auto drawType = EnsureGetMember<Impacto::Game::DrawComponentType>("DrawType");
 
   UI::TipsMenuPtr = new UI::CCLCC::TipsMenu();
   UI::Menus[drawType].push_back(UI::TipsMenuPtr);

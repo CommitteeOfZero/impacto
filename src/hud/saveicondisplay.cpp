@@ -19,18 +19,21 @@ static Animation Timer;
 static bool IsTimed = false;
 
 void Init() {
-  Configure();
+  namespace SaveIconProfile = Profile::SaveIcon;
+  SaveIconProfile::Configure();
   switch (SaveIconCurrentType) {
     default:
     case (SaveIconType::Default): {
       IconAnimation.emplace(UI::DefaultSaveIconAnimation(
           ForegroundAnimation, BackgroundSprite, BackgroundOffset,
-          BackgroundMaxAlpha, FadeInDuration, FadeOutDuration));
+          BackgroundMaxAlpha, SaveIconProfile::FadeInDuration,
+          SaveIconProfile::FadeOutDuration));
       break;
     }
     case (SaveIconType::CHLCC): {
       IconAnimation.emplace(UI::CHLCC::SaveIconAnimation(
-          ActiveAnimationDuration, FadeInDuration, FadeOutDuration,
+          ActiveAnimationDuration, SaveIconProfile::FadeInDuration,
+          SaveIconProfile::FadeOutDuration,
           std::span<Sprite, CHLCC_SAVE_ICON_SPRITES>(SaveIconSprites)));
       break;
     }
