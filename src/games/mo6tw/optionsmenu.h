@@ -2,7 +2,6 @@
 
 #include "../../ui/optionsmenu.h"
 #include "../../ui/widgets/group.h"
-#include "../../ui/widgets/button.h"
 #include "../../ui/widgets/scrollbar.h"
 #include "../../ui/widgets/toggle.h"
 

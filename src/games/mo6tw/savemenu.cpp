@@ -5,7 +5,6 @@
 #include "../../renderer/renderer.h"
 #include "../../mem.h"
 #include "../../profile/scriptvars.h"
-#include "../../inputsystem.h"
 #include "../../ui/widgets/button.h"
 #include "../../ui/widgets/mo6tw/saveentrybutton.h"
 #include "../../data/savesystem.h"
@@ -42,8 +41,8 @@ void SaveMenu::MenuButtonOnClick(Widgets::Button* target) {
 SaveMenu::SaveMenu() : UI::SaveMenu() {
   FadeAnimation.Direction = AnimationDirection::In;
   FadeAnimation.LoopMode = AnimationLoopMode::Stop;
-  FadeAnimation.DurationIn = FadeInDuration;
-  FadeAnimation.DurationOut = FadeOutDuration;
+  FadeAnimation.DurationIn = Profile::SaveMenu::FadeInDuration;
+  FadeAnimation.DurationOut = Profile::SaveMenu::FadeOutDuration;
 }
 
 void SaveMenu::Show() {
@@ -75,10 +74,11 @@ void SaveMenu::Show() {
     int id = 0;
     for (int i = 0; i < RowsPerPage; i++) {
       for (int j = 0; j < EntriesPerRow; j++) {
-        SaveEntryButton* saveEntryButton =
-            new SaveEntryButton(id, entrySprite, entryHSprite, nullSprite,
-                                glm::vec2(EntryStartX + (j * EntryXPadding),
-                                          EntryStartY + (i * EntryYPadding)));
+        SaveEntryButton* saveEntryButton = new SaveEntryButton(
+            id, entrySprite, entryHSprite, nullSprite,
+            glm::vec2(
+                EntryStartX + (j * EntryXPadding),
+                EntryStartY + (i * Profile::MO6TW::SaveMenu::EntryYPadding)));
 
         saveEntryButton->OnClickHandler = onClick;
         saveEntryButton->DisabledSprite = entrySprite;

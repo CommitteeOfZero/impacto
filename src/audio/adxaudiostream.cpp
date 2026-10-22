@@ -1,6 +1,5 @@
 #include "adxaudiostream.h"
 
-#include "../util.h"
 #include "../log.h"
 
 #include <algorithm>

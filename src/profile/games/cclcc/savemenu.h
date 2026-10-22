@@ -2,7 +2,6 @@
 
 #include "../../../spritesheet.h"
 #include "../../../ui/savemenu.h"
-#include <magic_enum/magic_enum.hpp>
 #include <magic_enum/magic_enum_containers.hpp>
 
 namespace Impacto {

@@ -4,7 +4,6 @@
 #include "../menu.h"
 
 #include <vector>
-#include <magic_enum/magic_enum.hpp>
 
 namespace Impacto {
 namespace UI {

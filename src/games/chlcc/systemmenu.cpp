@@ -16,6 +16,8 @@
 #include "../../profile/games/chlcc/tipsmenu.h"
 #include "../../profile/games/chlcc/trophymenu.h"
 
+namespace CHLCCSysMenuProfile = Impacto::Profile::CHLCC::SystemMenu;
+
 namespace Impacto {
 namespace UI {
 namespace CHLCC {
@@ -54,10 +56,11 @@ SystemMenu::SystemMenu() : CommonMenu(false) {
 
   MainItems = new Widgets::Group(this);
 
-  for (int i = 0; i < MenuEntriesNum; i++) {
+  for (int i = 0; i < Profile::SystemMenu::MenuEntriesNum; i++) {
     SystemMenuEntryButton* menuButton = new SystemMenuEntryButton(
-        i, MenuEntriesSprites[i], MenuEntriesSprites[i],
-        RgbIntToFloat(FocusTint), Sprite(), MenuEntriesPositions[i],
+        i, Profile::SystemMenu::MenuEntriesSprites[i],
+        Profile::SystemMenu::MenuEntriesSprites[i], RgbIntToFloat(FocusTint),
+        Sprite(), MenuEntriesPositions[i],
         RectF(
             MenuEntriesPositions[i].x - 30,
             (i + 1) * MenuSelectionDotMultiplier + MenuSelectionPosition.y - 14,
@@ -66,10 +69,10 @@ SystemMenu::SystemMenu() : CommonMenu(false) {
     menuButton->OnClickHandler = onClick;
     MainItems->Add(menuButton, FDIR_DOWN);
   }
-  MainItems->Children[0]->SetFocus(MainItems->Children[MenuEntriesNum - 1],
-                                   FDIR_UP);
-  MainItems->Children[MenuEntriesNum - 1]->SetFocus(MainItems->Children[0],
-                                                    FDIR_DOWN);
+  MainItems->Children[0]->SetFocus(
+      MainItems->Children[Profile::SystemMenu::MenuEntriesNum - 1], FDIR_UP);
+  MainItems->Children[Profile::SystemMenu::MenuEntriesNum - 1]->SetFocus(
+      MainItems->Children[0], FDIR_DOWN);
 }
 
 void SystemMenu::Show() {
@@ -86,8 +89,9 @@ void SystemMenu::Show() {
     SubItemShow();
   }
 
-  bool noFreeSlots = SaveSystem::MaxSaveEntries ==
-                     SaveSystem::Implementation->GetLockedQuickSaveCount();
+  bool noFreeSlots =
+      Impacto::SaveSystem::MaxSaveEntries ==
+      Impacto::SaveSystem::Implementation->GetLockedQuickSaveCount();
   SetFlag(SF_SAVEALLPROTECTED, noFreeSlots);
 }
 
@@ -136,7 +140,8 @@ void SystemMenu::SubItemShow() {
     MainItems->Show();
     SelectAnimation.StartIn(true);
   }
-  if (LastFocusedButtonId && *LastFocusedButtonId < MenuEntriesNum) {
+  if (LastFocusedButtonId &&
+      *LastFocusedButtonId < Profile::SystemMenu::MenuEntriesNum) {
     CurrentlyFocusedElement = MainItems->Children[*LastFocusedButtonId];
     CurrentlyFocusedElement->HasFocus = true;
   } else if (!CurrentlyFocusedElement) {
@@ -207,10 +212,12 @@ void SystemMenu::Update(float dt) {
     UpdateTitles();
 
     bool savesDisabled = GetFlag(SF_SAVEDISABLE);
-    bool noFreeSlots = SaveSystem::MaxSaveEntries ==
-                       SaveSystem::Implementation->GetLockedQuickSaveCount();
-    bool quickSaveLockState =
-        savesDisabled || SaveSystem::HasQSavedOnCurrentLine() || noFreeSlots;
+    bool noFreeSlots =
+        Impacto::SaveSystem::MaxSaveEntries ==
+        Impacto::SaveSystem::Implementation->GetLockedQuickSaveCount();
+    bool quickSaveLockState = savesDisabled ||
+                              Impacto::SaveSystem::HasQSavedOnCurrentLine() ||
+                              noFreeSlots;
     static_cast<SystemMenuEntryButton*>(
         MainItems->Children[static_cast<size_t>(MenuItems::QuickSave)])
         ->IsLocked = quickSaveLockState;
@@ -256,8 +263,9 @@ void SystemMenu::Update(float dt) {
 
 void SystemMenu::Render() {
   if (State == Hidden) return;
-  CommonMenu::DrawSysMenu(GetCurrentBgColor(), CircleSprite, MainMenuTitleText,
-                          MenuTitleTextAngle);
+  CommonMenu::DrawSysMenu(GetCurrentBgColor(),
+                          CHLCCSysMenuProfile::CircleSprite, MainMenuTitleText,
+                          CHLCCSysMenuProfile::MenuTitleTextAngle);
   if (SubItemsState == Hidden) return;
 
   if (MenuTransition.Progress < 0.22f) return;
@@ -367,7 +375,8 @@ void SystemMenu::UpdateRightTitle() {
 }
 
 glm::vec4 SystemMenu::GetCurrentBgColor() {
-  const glm::vec4 sourceColor = RgbIntToFloat(BackgroundColor);
+  const glm::vec4 sourceColor =
+      RgbIntToFloat(CHLCCSysMenuProfile::BackgroundColor);
   if (UI::FocusedMenu != this) {
     if (GetFlag(SF_BACKLOGMENU)) {
       CurrentColor = Profile::CHLCC::BacklogMenu::BackgroundColor;
@@ -380,7 +389,7 @@ glm::vec4 SystemMenu::GetCurrentBgColor() {
     } else if (GetFlag(SF_ACHIEVEMENTMENU)) {
       CurrentColor = Profile::CHLCC::TrophyMenu::BackgroundColor;
     } else {
-      CurrentColor = BackgroundColor;
+      CurrentColor = CHLCCSysMenuProfile::BackgroundColor;
     }
   }
   glm::vec4 targetColor = RgbIntToFloat(CurrentColor);

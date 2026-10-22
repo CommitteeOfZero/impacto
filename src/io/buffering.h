@@ -2,7 +2,6 @@
 
 #include "stream.h"
 #include <algorithm>
-#include <string.h>
 
 namespace Impacto {
 namespace Io {

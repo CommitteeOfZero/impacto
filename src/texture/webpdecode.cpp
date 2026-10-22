@@ -1,6 +1,5 @@
 #include "texture.h"
 #include "../io/stream.h"
-#include "../log.h"
 #include <webp/decode.h>
 
 using namespace Impacto::Io;
@@ -58,7 +57,7 @@ bool TextureLoadWebP(Io::Stream* stream, Texture* outTexture) {
   return true;
 }
 
-static bool _registered = Texture::AddTextureLoader(&TextureLoadWebP);
+static bool _registeredWebP = Texture::AddTextureLoader(&TextureLoadWebP);
 
 }  // namespace TexLoad
 }  // namespace Impacto

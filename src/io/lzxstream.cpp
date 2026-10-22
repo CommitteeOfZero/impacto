@@ -2,6 +2,7 @@
 
 #include "system.h"
 #include "lzx.h"
+#include "../log.h"
 
 namespace Impacto {
 namespace Io {

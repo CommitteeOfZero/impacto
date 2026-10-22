@@ -1,13 +1,10 @@
 #include "carousel.h"
 #include "../../vm/interface/input.h"
-#include "../../profile/scriptinput.h"
-#include "../../inputsystem.h"
 
 namespace Impacto {
 namespace UI {
 namespace Widgets {
 
-using namespace Impacto::Profile::ScriptInput;
 using namespace Impacto::Vm::Interface;
 
 Carousel::Carousel(CarouselDirection dir) {

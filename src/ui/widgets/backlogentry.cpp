@@ -1,8 +1,6 @@
 #include "backlogentry.h"
 #include "../../renderer/renderer.h"
 #include "../../inputsystem.h"
-#include "../../mem.h"
-#include "../../profile/scriptvars.h"
 #include "../../profile/vm.h"
 #include "../../vm/interface/input.h"
 #include "../../vm/thread.h"

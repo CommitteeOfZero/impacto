@@ -6,7 +6,6 @@
 #include "../../vm/interface/input.h"
 #include "../../inputsystem.h"
 #include "../../profile/ui/systemmenu.h"
-#include "../../profile/game.h"
 #include "../../ui/widgets/cclcc/sysmenubutton.h"
 #include "../../audio/audiosystem.h"
 
@@ -73,23 +72,25 @@ SystemMenu::SystemMenu() : CommonMenu(FadeAnimation) {
   ScreenCap.Sheet.Texture = tex.Submit();
   ScreenCap.Bounds.SetSize(viewport.GetSize());
 
-  for (int i = 0; i < MenuEntriesNum; i++) {
-    SysMenuButton* menuButton = new SysMenuButton(
-        i, MenuEntriesSprites[i], Sprite(), MenuEntriesHSprites[i],
-        MenuEntriesPositions[i], MenuEntriesButtonBounds[i]);
+  for (int i = 0; i < Profile::SystemMenu::MenuEntriesNum; i++) {
+    SysMenuButton* menuButton =
+        new SysMenuButton(i, Profile::SystemMenu::MenuEntriesSprites[i],
+                          Sprite(), Profile::SystemMenu::MenuEntriesHSprites[i],
+                          MenuEntriesPositions[i], MenuEntriesButtonBounds[i]);
 
     menuButton->OnClickHandler = onClick;
     MainItems->Add(menuButton, FDIR_DOWN);
   }
-  MainItems->Children[0]->SetFocus(MainItems->Children[MenuEntriesNum - 1],
-                                   FDIR_UP);
-  MainItems->Children[MenuEntriesNum - 1]->SetFocus(MainItems->Children[0],
-                                                    FDIR_DOWN);
+  MainItems->Children[0]->SetFocus(
+      MainItems->Children[Profile::SystemMenu::MenuEntriesNum - 1], FDIR_UP);
+  MainItems->Children[Profile::SystemMenu::MenuEntriesNum - 1]->SetFocus(
+      MainItems->Children[0], FDIR_DOWN);
 }
 void SystemMenu::Show() {
   if (State != Shown) {
     OpenedAsDirect = GetFlag(SF_SYSTEMMENUDIRECT);
-    CommonMenu::OnShow(FadeInDuration, FadeOutDuration, FadeAnimation);
+    CommonMenu::OnShow(Profile::SystemMenu::FadeInDuration,
+                       Profile::SystemMenu::FadeOutDuration, FadeAnimation);
 
     if (State != Showing) FadeAnimation.StartIn();
 
@@ -105,7 +106,8 @@ void SystemMenu::Show() {
       UI::FocusedMenu = this;
       if (State != Showing) ItemsFade.StartIn();
       MainItems->Show();
-      if (LastFocusedButtonId && *LastFocusedButtonId < MenuEntriesNum) {
+      if (LastFocusedButtonId &&
+          *LastFocusedButtonId < Profile::SystemMenu::MenuEntriesNum) {
         CurrentlyFocusedElement = MainItems->Children[*LastFocusedButtonId];
         CurrentlyFocusedElement->HasFocus = true;
       } else if (!CurrentlyFocusedElement) {
@@ -189,10 +191,11 @@ void SystemMenu::Update(float dt) {
     MainItems->MoveTo({MenuEntriesFadeXOffset * itemsMoveProgress, 0.0f});
 
     bool savesDisabled = GetFlag(SF_SAVEDISABLE);
-    bool noFreeSlots = SaveSystem::MaxSaveEntries ==
-                       SaveSystem::Implementation->GetLockedQuickSaveCount();
-    bool quickSaveLockState =
-        savesDisabled || noFreeSlots || SaveSystem::HasQSavedOnCurrentLine();
+    bool noFreeSlots =
+        Impacto::SaveSystem::MaxSaveEntries ==
+        Impacto::SaveSystem::Implementation->GetLockedQuickSaveCount();
+    bool quickSaveLockState = savesDisabled || noFreeSlots ||
+                              Impacto::SaveSystem::HasQSavedOnCurrentLine();
     static_cast<UI::CCLCC::SysMenuButton*>(
         MainItems->Children[static_cast<size_t>(MenuItems::QuickSave)])
         ->IsLocked = quickSaveLockState;
@@ -275,8 +278,9 @@ void SystemMenu::Init() {
       ->IsLocked = backlogLockState;
 
   // this flag needs to be recalculated after loading a game
-  bool noFreeSlots = SaveSystem::MaxSaveEntries ==
-                     SaveSystem::Implementation->GetLockedQuickSaveCount();
+  bool noFreeSlots =
+      Impacto::SaveSystem::MaxSaveEntries ==
+      Impacto::SaveSystem::Implementation->GetLockedQuickSaveCount();
   SetFlag(SF_SAVEALLPROTECTED, noFreeSlots);
 }
 

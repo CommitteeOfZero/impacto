@@ -1,6 +1,5 @@
 #include "animations.h"
 #include "profile_internal.h"
-#include "../log.h"
 
 namespace Impacto {
 namespace Profile {

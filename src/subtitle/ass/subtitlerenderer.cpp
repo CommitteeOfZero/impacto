@@ -1,11 +1,9 @@
 #include "subtitlerenderer.h"
 
 #include <ass/ass.h>
-#include <glm/gtc/type_ptr.hpp>
 #include "../../log.h"
 #include "../../renderer/renderer.h"
 #include "../../profile/subtitle.h"
-#include "../../profile/game.h"
 
 namespace Impacto {
 namespace Subtitle {

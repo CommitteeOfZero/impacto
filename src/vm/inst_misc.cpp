@@ -5,6 +5,7 @@
 #include "expression.h"
 #include "interface/input.h"
 #include "../profile/scriptvars.h"
+#include "../profile/game.h"
 #include "../profile/configsystem.h"
 #include "../profile/games/cclcc/systemmenu.h"
 

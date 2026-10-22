@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../../../spritesheet.h"
-#include "../../../games/mo6tw/sysmesbox.h"
 
 namespace Impacto {
 namespace Profile {

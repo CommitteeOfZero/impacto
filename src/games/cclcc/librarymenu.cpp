@@ -5,14 +5,14 @@
 
 #include "../../profile/games/cclcc/systemmenu.h"
 #include "../../profile/games/cclcc/librarymenu.h"
-#include "../../profile/ui/backlogmenu.h"
-#include "../../profile/dialogue.h"
+#include "../../audio/audiocommon.h"
 #include "../../renderer/renderer.h"
 #include "../../mem.h"
 #include "../../video/videosystem.h"
 #include "../../profile/scriptvars.h"
 #include "../../vm/interface/input.h"
 #include "../../profile/game.h"
+#include "../../ui/ui.h"
 #include "../../ui/widgets/cclcc/librarymenubutton.h"
 #include "../../audio/audiosystem.h"
 
@@ -106,8 +106,8 @@ LibraryMenu::LibraryMenu() : MainItems(this) {
 
   FadeAnimation.Direction = AnimationDirection::In;
   FadeAnimation.LoopMode = AnimationLoopMode::Stop;
-  FadeAnimation.DurationIn = FadeInDuration;
-  FadeAnimation.DurationOut = FadeOutDuration;
+  FadeAnimation.DurationIn = Profile::CCLCC::LibraryMenu::FadeInDuration;
+  FadeAnimation.DurationOut = Profile::CCLCC::LibraryMenu::FadeOutDuration;
   ButtonBlinkAnimation.Direction = AnimationDirection::In;
   ButtonBlinkAnimation.LoopMode = AnimationLoopMode::ReverseDirection;
   ButtonBlinkAnimation.SetDuration(ButtonBlinkDuration);

@@ -2,7 +2,6 @@
 #include "../../profile_internal.h"
 #include "../../../ui/ui.h"
 #include "../../../games/cclcc/librarymenu.h"
-#include "../../../text/text.h"
 #include "../../../game.h"
 
 namespace Impacto {
@@ -72,7 +71,7 @@ void Configure() {
   LibraryButtonGuidePosition =
       EnsureGetMember<glm::vec2>("LibraryButtonGuidePosition");
 
-  auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
+  auto drawType = EnsureGetMember<Impacto::Game::DrawComponentType>("DrawType");
 
   SnapPhotoSpriteHover = EnsureGetMember<Sprite>("SnapPhotoSpriteHover");
   SnapPhotoSpriteSelect = EnsureGetMember<Sprite>("SnapPhotoSpriteSelect");

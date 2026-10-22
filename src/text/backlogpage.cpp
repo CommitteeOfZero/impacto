@@ -2,8 +2,6 @@
 
 #include "textparser.h"
 
-#include <numeric>
-
 namespace Impacto {
 
 void BacklogPage::Clear() {

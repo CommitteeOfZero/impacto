@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../nametagdisplay.h"
+#include "../../animation.h"
 
 namespace Impacto {
 namespace CC {

@@ -1,5 +1,4 @@
 #include "clock.h"
-#include "../impacto.h"
 
 namespace Impacto::Video {
 

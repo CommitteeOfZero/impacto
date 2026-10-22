@@ -15,9 +15,9 @@
 #include "log.h"
 #include "inputsystem.h"
 #include "mem.h"
-#include "profile/profile.h"
 #include "profile/game.h"
 #include "profile/gamedefinitions.h"
+#include "profile/profile.h"
 #include "profile/basepaths.h"
 #include "profile/scriptvars.h"
 #include "profile/patch.h"
@@ -254,10 +254,10 @@ void SetupIcons() {
              iconPath);
       continue;
     };
-    Texture t;
-    t.Load(stream);
+    Texture iconTexture;
+    iconTexture.Load(stream);
     ImgData img{
-        .Texture = t.Submit(),
+        .Texture = iconTexture.Submit(),
     };
     iconTextureMap.try_emplace(gameKey, img);
     delete stream;

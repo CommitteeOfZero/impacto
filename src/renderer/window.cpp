@@ -3,7 +3,6 @@
 #include "../profile/game.h"
 #include "../log.h"
 #include "../userconfig.h"
-#include "../profile/gamedefinitions.h"
 #include <stb_image.h>
 #include <memory>
 #include <vector>

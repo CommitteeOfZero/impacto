@@ -2,7 +2,6 @@
 
 #include "../../profile_internal.h"
 #include "../../dialogue.h"
-#include "../../../hud/chlcc/nametagdisplay.h"
 
 namespace Impacto {
 namespace Profile {

@@ -1,13 +1,12 @@
 #include "saveentrybutton.h"
 
 #include "../../../renderer/renderer.h"
-#include "../../../profile/dialogue.h"
 #include "../../../profile/games/cclcc/savemenu.h"
 #include "../../../vm/vm.h"
 #include "../../../ui/ui.h"
-#include "../../../profile/game.h"
 #include "../../../profile/patch.h"
 #include <fmt/format.h>
+#include <magic_enum/magic_enum_containers.hpp>
 
 namespace Impacto {
 namespace UI {

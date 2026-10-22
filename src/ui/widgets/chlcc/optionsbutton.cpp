@@ -2,7 +2,6 @@
 
 #include "../../../profile/games/chlcc/optionsmenu.h"
 #include "../../../renderer/renderer.h"
-#include "../../../inputsystem.h"
 #include "../../../vm/interface/input.h"
 #include "../../../log.h"
 

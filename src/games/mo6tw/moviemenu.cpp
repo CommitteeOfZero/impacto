@@ -1,10 +1,12 @@
 #include "moviemenu.h"
 
-#include "../../profile/ui/extramenus.h"
 #include "../../profile/games/mo6tw/moviemenu.h"
 #include "../../renderer/renderer.h"
 #include "../../mem.h"
 #include "../../profile/scriptvars.h"
+#include "../../ui/widgets/mo6tw/imagethumbnailbutton.h"
+
+namespace MO6TWMovieProfile = Impacto::Profile::MO6TW::MovieMenu;
 
 namespace Impacto {
 namespace UI {
@@ -25,15 +27,15 @@ void MovieMenu::MovieButtonOnClick(Button* target) {
 MovieMenu::MovieMenu() {
   FadeAnimation.Direction = AnimationDirection::In;
   FadeAnimation.LoopMode = AnimationLoopMode::Stop;
-  FadeAnimation.DurationIn = FadeInDuration;
-  FadeAnimation.DurationOut = FadeOutDuration;
+  FadeAnimation.DurationIn = MO6TWMovieProfile::FadeInDuration;
+  FadeAnimation.DurationOut = MO6TWMovieProfile::FadeOutDuration;
 
   MainItems = new Group(this);
   MainItems->WrapFocus = false;
 
   auto onClick = [this](auto* btn) { return MovieButtonOnClick(btn); };
 
-  auto pos = InitialItemPosition;
+  auto pos = MO6TWMovieProfile::InitialItemPosition;
 
   Sprite nullSprite = Sprite();
   nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
@@ -44,7 +46,7 @@ MovieMenu::MovieMenu() {
   firstOp->OnClickHandler = onClick;
   MainItems->Add(firstOp, FDIR_RIGHT);
 
-  pos.x += ItemOffset.x;
+  pos.x += MO6TWMovieProfile::ItemOffset.x;
 
   auto secondOp = new Widgets::MO6TW::ImageThumbnailButton(
       1, SecondOPTopPartSprite, SecondOPBottomPartSprite, nullSprite,
@@ -53,7 +55,7 @@ MovieMenu::MovieMenu() {
   secondOp->OnClickHandler = onClick;
   MainItems->Add(secondOp, FDIR_RIGHT);
 
-  pos.x += ItemOffset.x;
+  pos.x += MO6TWMovieProfile::ItemOffset.x;
 
   int row = 1;
   int totalRows = ItemCount / ItemsPerRow + (ItemCount % ItemsPerRow != 0);
@@ -71,10 +73,10 @@ MovieMenu::MovieMenu() {
 
     if ((i + 1) % ItemsPerRow == 0) {
       row += 1;
-      pos.x = InitialItemPosition.x;
-      pos.y += ItemOffset.y;
+      pos.x = MO6TWMovieProfile::InitialItemPosition.x;
+      pos.y += MO6TWMovieProfile::ItemOffset.y;
     } else {
-      pos.x += ItemOffset.x;
+      pos.x += MO6TWMovieProfile::ItemOffset.x;
     }
   }
 
@@ -159,7 +161,8 @@ void MovieMenu::Render() {
   if (State == Hidden) return;
 
   glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
-  Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f, 0.0f), col);
+  Renderer->DrawSprite(MO6TWMovieProfile::BackgroundSprite,
+                       glm::vec2(0.0f, 0.0f), col);
   MainItems->Tint = col;
   MainItems->Render();
 }

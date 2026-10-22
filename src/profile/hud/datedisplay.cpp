@@ -1,7 +1,5 @@
 #include "datedisplay.h"
 #include "../profile_internal.h"
-#include "../../log.h"
-#include "../../renderer/renderer.h"
 #include "../../hud/rne/datedisplay.h"
 
 namespace Impacto {

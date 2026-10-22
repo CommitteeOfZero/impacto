@@ -1,6 +1,5 @@
 #include "bgeff.h"
 
-#include <map>
 #include "../profile_internal.h"
 #include "../../background2d.h"
 

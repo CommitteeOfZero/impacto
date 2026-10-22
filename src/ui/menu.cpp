@@ -1,6 +1,5 @@
 #include "menu.h"
 #include "ui.h"
-#include "../inputsystem.h"
 #include "../vm/interface/input.h"
 
 namespace Impacto {

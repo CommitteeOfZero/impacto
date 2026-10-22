@@ -1,9 +1,6 @@
 #pragma once
-#include "../../animation.h"
 #include "../../spritesheet.h"
 
-#include <array>
-#include <magic_enum/magic_enum.hpp>
 #include "../../ui/widgets/clickarea.h"
 
 namespace Impacto {

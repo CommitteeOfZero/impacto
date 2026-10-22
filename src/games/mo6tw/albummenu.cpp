@@ -11,6 +11,8 @@
 #include "../../ui/widgets/mo6tw/albumthumbnailbutton.h"
 #include "../../profile/data/savesystem.h"
 
+namespace MO6TWAlbumProfile = Impacto::Profile::MO6TW::AlbumMenu;
+
 namespace Impacto {
 namespace UI {
 namespace MO6TW {
@@ -45,12 +47,12 @@ void AlbumMenu::OnCgVariationEnd(Widgets::CgViewer* target) {
 AlbumMenu::AlbumMenu() {
   FadeAnimation.Direction = AnimationDirection::In;
   FadeAnimation.LoopMode = AnimationLoopMode::Stop;
-  FadeAnimation.DurationIn = FadeInDuration;
-  FadeAnimation.DurationOut = FadeOutDuration;
+  FadeAnimation.DurationIn = MO6TWAlbumProfile::FadeInDuration;
+  FadeAnimation.DurationOut = MO6TWAlbumProfile::FadeOutDuration;
 
   ArrowsAnimation.Direction = AnimationDirection::In;
   ArrowsAnimation.LoopMode = AnimationLoopMode::ReverseDirection;
-  ArrowsAnimation.SetDuration(ArrowsAnimationDuration);
+  ArrowsAnimation.SetDuration(MO6TWAlbumProfile::ArrowsAnimationDuration);
   ArrowsAnimation.StartIn();
 
   CgViewerWidget = new CgViewer();
@@ -95,7 +97,8 @@ AlbumMenu::AlbumMenu() {
     }
     auto button = new Widgets::MO6TW::AlbumCharacterButton(
         idx, *sprite, *lockedSprite, *highlightedSprite,
-        *highlightedLockedSprite, pos, HighlightAnimationDuration);
+        *highlightedLockedSprite, pos,
+        MO6TWAlbumProfile::HighlightAnimationDuration);
     button->OnClickHandler = characterOnClick;
     MainItems->Add(button, FDIR_DOWN);
     pos += ButtonMargin;
@@ -241,7 +244,8 @@ void AlbumMenu::Render() {
   if (State == Hidden) return;
 
   glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
-  Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f, 0.0f), col);
+  Renderer->DrawSprite(MO6TWAlbumProfile::BackgroundSprite,
+                       glm::vec2(0.0f, 0.0f), col);
   MainItems->Tint = col;
   MainItems->Render();
   SecondaryItems->Tint = col;
@@ -310,7 +314,8 @@ void AlbumMenu::LoadCharacter(int id) {
     int totalEvVariations, viewedEvVariations;
     SaveSystem::GetEVStatus(i, &totalEvVariations, &viewedEvVariations);
     auto button = new Widgets::MO6TW::AlbumThumbnailButton(
-        i, Thumbnails[i], LockedThumbnail, ThumbnailHighlightTopLeft,
+        i, MO6TWAlbumProfile::Thumbnails[i], MO6TWAlbumProfile::LockedThumbnail,
+        MO6TWAlbumProfile::ThumbnailHighlightTopLeft,
         ThumbnailHighlightTopRight, ThumbnailHighlightBottomLeft,
         ThumbnailHighlightBottomRight, ThumbnailBorder, viewedEvVariations,
         totalEvVariations, pos);

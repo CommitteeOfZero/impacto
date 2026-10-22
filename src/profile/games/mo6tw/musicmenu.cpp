@@ -3,10 +3,7 @@
 #include "../../../ui/ui.h"
 
 #include "../../../games/mo6tw/musicmenu.h"
-#include "../../../text/text.h"
 #include "../../../game.h"
-// #include "../../../window.h"
-#include "../../../renderer/renderer.h"
 
 namespace Impacto {
 namespace Profile {

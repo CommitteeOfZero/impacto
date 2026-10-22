@@ -6,7 +6,6 @@
 #include "../../ui/menu.h"
 #include "../../ui/widgets/group.h"
 #include "../../ui/widgets/button.h"
-#include "../../profile/games/cclcc/systemmenu.h"
 
 namespace Impacto {
 namespace UI {

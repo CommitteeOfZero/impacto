@@ -3,12 +3,12 @@
 #include "inst_macros.inc"
 
 #include "expression.h"
+#include "../profile/game.h"
 #include "../profile/scriptvars.h"
 #include "../profile/configsystem.h"
 #include "../profile/dialogue.h"
 #include "../mem.h"
 #include "../log.h"
-#include "../audio/audiostream.h"
 #include "../profile/vm.h"
 #include "../hud/saveicondisplay.h"
 #include "../hud/tipsnotification.h"

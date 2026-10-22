@@ -1,7 +1,5 @@
 #include "zlibstream.h"
 
-#include "../log.h"
-
 namespace Impacto {
 namespace Io {
 

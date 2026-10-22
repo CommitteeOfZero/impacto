@@ -2,7 +2,6 @@
 #include "../../renderer/renderer.h"
 #include "../../inputsystem.h"
 #include "../../vm/interface/input.h"
-#include "../../renderer/window.h"
 
 namespace Impacto {
 namespace UI {

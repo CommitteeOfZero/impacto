@@ -1,11 +1,9 @@
 #include "optionsmenu.h"
 
 #include "../../profile/configsystem.h"
-#include "../../profile/game.h"
 #include "../../profile/ui/optionsmenu.h"
 #include "../../profile/games/cclcc/optionsmenu.h"
 #include "../../profile/games/cclcc/systemmenu.h"
-#include "../../profile/scriptinput.h"
 #include "../../vm/interface/input.h"
 #include "../../ui/widgets/cclcc/optionsbinarybutton.h"
 #include "../../ui/widgets/cclcc/optionsslider.h"
@@ -218,7 +216,8 @@ OptionsMenu::OptionsMenu()
 
 void OptionsMenu::Show() {
   if (State != Shown) {
-    CommonMenu::OnShow(FadeInDuration, FadeOutDuration, FadeAnimation);
+    CommonMenu::OnShow(Profile::OptionsMenu::FadeInDuration,
+                       Profile::OptionsMenu::FadeOutDuration, FadeAnimation);
   }
 
   UI::OptionsMenu::Show();
@@ -353,12 +352,12 @@ void OptionsMenu::Render() {
       PagePanelPosition * transitionProgress +
       (1.0f - transitionProgress) * PagePanelFadeStartPosition;
   const glm::vec2 guidePosition =
-      GuidePosition * transitionProgress +
+      Profile::CCLCC::OptionsMenu::GuidePosition * transitionProgress +
       (1.0f - transitionProgress) * GuideFadeStartPosition;
 
   if (OpenedAsDirect) CommonMenu::DrawBgSprite<false>(State, FadeAnimation);
 
-  Renderer->DrawSprite(BackgroundSprite,
+  Renderer->DrawSprite(Profile::CCLCC::OptionsMenu::BackgroundSprite,
                        BackgroundPosition + backgroundAnimationOffset, col);
   Renderer->DrawSprite(HeaderSprite, HeaderPosition + backgroundAnimationOffset,
                        col);

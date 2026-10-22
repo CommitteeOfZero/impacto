@@ -6,8 +6,6 @@
 #include "../../../profile/vm.h"
 #include "../../../text/text.h"
 #include "../../../vm/vm.h"
-#include "../../../inputsystem.h"
-#include "../../../vm/interface/input.h"
 
 namespace Impacto {
 namespace UI {

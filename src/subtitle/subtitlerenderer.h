@@ -1,11 +1,7 @@
 #pragma once
 
-#include <vector>
-#include <libavcodec/avcodec.h>
-#include <avcpp/timestamp.h>
 #include <ankerl/unordered_dense.h>
 #include <memory>
-#include <concepts>
 #include <variant>
 
 #include "../video/clock.h"

@@ -1,4 +1,4 @@
-#include "datedisplay.h"
+#include "tipsnotification.h"
 
 #include "../profile/configsystem.h"
 #include "../profile/hud/tipsnotification.h"

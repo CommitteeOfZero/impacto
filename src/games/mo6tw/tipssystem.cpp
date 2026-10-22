@@ -4,7 +4,6 @@
 #include "../../vm/vm.h"
 #include "../../io/memorystream.h"
 #include "../../profile/data/tipssystem.h"
-#include "../../ui/ui.h"
 
 namespace Impacto {
 namespace MO6TW {
@@ -54,7 +53,7 @@ void TipsSystem::UpdateTipRecords() {
   if (TipEntryCount != 0) {
     for (size_t i = 0; i < TipEntryCount; i++) {
       auto record = &Records[i];
-      auto tipStatus = SaveSystem::GetTipStatus(record->Id);
+      auto tipStatus = Impacto::SaveSystem::GetTipStatus(record->Id);
       record->IsLocked = (tipStatus & 1) == 0;
       record->IsUnread = (tipStatus & 2) == 0;
       record->IsNew = (tipStatus & 4) == 0;
@@ -64,20 +63,20 @@ void TipsSystem::UpdateTipRecords() {
 
 void TipsSystem::SetTipLockedState(size_t id, bool state) {
   Records[id].IsLocked = state;
-  SaveSystem::SetTipStatus(id, Records[id].IsLocked, Records[id].IsUnread,
-                           Records[id].IsNew);
+  Impacto::SaveSystem::SetTipStatus(id, Records[id].IsLocked,
+                                    Records[id].IsUnread, Records[id].IsNew);
 }
 
 void TipsSystem::SetTipUnreadState(size_t id, bool state) {
   Records[id].IsUnread = state;
-  SaveSystem::SetTipStatus(id, Records[id].IsLocked, Records[id].IsUnread,
-                           Records[id].IsNew);
+  Impacto::SaveSystem::SetTipStatus(id, Records[id].IsLocked,
+                                    Records[id].IsUnread, Records[id].IsNew);
 }
 
 void TipsSystem::SetTipNewState(size_t id, bool state) {
   Records[id].IsNew = state;
-  SaveSystem::SetTipStatus(id, Records[id].IsLocked, Records[id].IsUnread,
-                           Records[id].IsNew);
+  Impacto::SaveSystem::SetTipStatus(id, Records[id].IsLocked,
+                                    Records[id].IsUnread, Records[id].IsNew);
 }
 
 bool TipsSystem::GetTipLockedState(size_t id) { return Records[id].IsLocked; }

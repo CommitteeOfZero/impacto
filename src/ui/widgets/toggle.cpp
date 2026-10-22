@@ -1,5 +1,4 @@
 #include "toggle.h"
-#include "../../vm/thread.h"
 #include "../../profile/dialogue.h"
 #include "../../renderer/renderer.h"
 #include "../../inputsystem.h"

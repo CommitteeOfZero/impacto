@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../../../spritesheet.h"
-#include "../../../games/chlcc/titlemenu.h"
 
 namespace Impacto {
 namespace Profile {

@@ -1,6 +1,7 @@
 #pragma once
 
-#include "../../../text/text.h"
+#include "../../../text/processedtextglyph.h"
+#include "../../../util.h"
 
 namespace Impacto {
 namespace Profile {

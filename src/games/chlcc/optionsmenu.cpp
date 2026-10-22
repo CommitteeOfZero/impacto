@@ -6,29 +6,24 @@
 #include "../../renderer/renderer.h"
 #include "../../mem.h"
 #include "../../profile/scriptvars.h"
-#include "../../profile/ui/backlogmenu.h"
 #include "../../profile/ui/optionsmenu.h"
 #include "../../profile/games/chlcc/optionsmenu.h"
-#include "../../profile/games/chlcc/commonmenu.h"
-#include "../../data/tipssystem.h"
-#include "../../vm/interface/input.h"
 #include "../../inputsystem.h"
 #include "../../profile/game.h"
 
 #include "../../profile/configsystem.h"
 #include "../../audio/audiosystem.h"
 
+namespace CHLCCOptionsProfile = Impacto::Profile::CHLCC::OptionsMenu;
+
 namespace Impacto {
 namespace UI {
 namespace CHLCC {
 
-using namespace Impacto::Profile::CHLCC::CommonMenu;
 using namespace Impacto::Profile::OptionsMenu;
 using namespace Impacto::Profile::CHLCC::OptionsMenu;
 using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::ConfigSystem;
-
-using namespace Impacto::Vm::Interface;
 
 using namespace Impacto::UI::Widgets;
 using namespace Impacto::UI::Widgets::CHLCC;
@@ -259,11 +254,14 @@ void OptionsMenu::RenderPage(const size_t pageId, const glm::vec2 offset) {
 
 void OptionsMenu::Render() {
   if (State == Hidden) return;
-  CommonMenu::DrawSubmenu(BackgroundColor, CircleSprite, MenuTitleText,
-                          MenuTitleTextAngle);
+  CommonMenu::DrawSubmenu(CHLCCOptionsProfile::BackgroundColor,
+                          CHLCCOptionsProfile::CircleSprite,
+                          CHLCCOptionsProfile::MenuTitleText,
+                          CHLCCOptionsProfile::MenuTitleTextAngle);
   if (FadeAnimation.Progress < 0.22f) return;
 
-  DrawButtonPrompt(ButtonPromptSprite, ButtonPromptPosition);
+  DrawButtonPrompt(CHLCCOptionsProfile::ButtonPromptSprite,
+                   CHLCCOptionsProfile::ButtonPromptPosition);
 
   glm::vec2 showPageOffset = MenuTransition.GetPageOffset();
   if ((CurrentlyFocusedElement != nullptr || !MenuTransition.IsIn()) &&
@@ -392,7 +390,7 @@ void OptionsMenu::Update(float dt) {
     }
     TitleFade.Update(dt);
 
-    UpdateTitles(MenuTitleTextRightPosition, glm::vec2(0));
+    UpdateTitles(CHLCCOptionsProfile::MenuTitleTextRightPosition, glm::vec2(0));
     MenuTransition.Update(dt);
     UpdatePageTransitionAnimation(dt);
     UpdateSelectedLabel(dt);

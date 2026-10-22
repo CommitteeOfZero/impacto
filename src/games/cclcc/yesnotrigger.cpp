@@ -12,7 +12,7 @@ namespace Impacto {
 namespace UI {
 namespace CCLCC {
 using namespace Profile::CCLCC::YesNoTrigger;
-using namespace Vm::Interface;
+using namespace Impacto::Vm::Interface;
 using namespace Impacto::Profile::ScriptVars;
 
 int YesNoTrigger::Load(uint8_t* data) {
@@ -40,7 +40,8 @@ int YesNoTrigger::Load(uint8_t* data) {
   BgSpritePos = glm::vec2(bgSpritePosX, bgSpritePosY);
   memcpy(&BgSpriteScale, data + dataSize, sizeof(float));
   dataSize += 16;
-  if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::LCCSwitch) {
+  if (Profile::Vm::GameInstructionSet ==
+      Impacto::Vm::InstructionSet::LCCSwitch) {
     // TODO: controls prompt alpha CT
     // memcpy(&AlphaCT, data + dataSize, sizeof(int))
     dataSize += 4;
@@ -49,7 +50,8 @@ int YesNoTrigger::Load(uint8_t* data) {
   dataSize += 4;
   memcpy(&State, data + dataSize, sizeof(YesNoState));
   dataSize += 4;
-  if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::LCCSwitch) {
+  if (Profile::Vm::GameInstructionSet ==
+      Impacto::Vm::InstructionSet::LCCSwitch) {
     // padding
     dataSize += 4;
   }
@@ -62,7 +64,8 @@ int YesNoTrigger::Load(uint8_t* data) {
   dataSize += sizeof(void*);  // buffer pointer in their struct
   dataSize += 8;
 
-  if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::LCCSwitch) {
+  if (Profile::Vm::GameInstructionSet ==
+      Impacto::Vm::InstructionSet::LCCSwitch) {
     assert(dataSize == 0x68);
   } else {
     assert(dataSize == 0x60);
@@ -116,7 +119,8 @@ int YesNoTrigger::Save(uint8_t* data) {
   dataSize += 4;
   memcpy(data + dataSize, &BgSpriteScale, sizeof(float));
   dataSize += 16;
-  if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::LCCSwitch) {
+  if (Profile::Vm::GameInstructionSet ==
+      Impacto::Vm::InstructionSet::LCCSwitch) {
     // controls prompt alpha CT
     // memcpy(data + dataSize, &BgSpriteScale, sizeof(int))
     dataSize += 4;
@@ -125,7 +129,8 @@ int YesNoTrigger::Save(uint8_t* data) {
   dataSize += 4;
   memcpy(data + dataSize, &State, sizeof(YesNoState));
   dataSize += 4;
-  if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::LCCSwitch) {
+  if (Profile::Vm::GameInstructionSet ==
+      Impacto::Vm::InstructionSet::LCCSwitch) {
     // padding
     dataSize += 4;
   }
@@ -137,7 +142,8 @@ int YesNoTrigger::Save(uint8_t* data) {
   dataSize += sizeof(void*);  // buffer pointer in their struct
   dataSize += 8;
 
-  if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::LCCSwitch) {
+  if (Profile::Vm::GameInstructionSet ==
+      Impacto::Vm::InstructionSet::LCCSwitch) {
     assert(dataSize == 0x68);
   } else {
     assert(dataSize == 0x60);

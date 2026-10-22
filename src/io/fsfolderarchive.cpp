@@ -18,12 +18,12 @@
 namespace Impacto {
 namespace Io {
 
-struct TextMetaEntry : FileMeta {
+struct FSFolderTextMetaEntry : FileMeta {
   std::string FullPath;
 };
 
 IoError FSFolderArchive::Open(FileMeta* file, Stream** outStream) {
-  TextMetaEntry* entry = (TextMetaEntry*)file;
+  FSFolderTextMetaEntry* entry = (FSFolderTextMetaEntry*)file;
   IoError err = PhysicalFileStream::Create(entry->FullPath, outStream);
   if (err != IoError_OK) {
     ImpLog(LogLevel::Error, LogChannel::IO,
@@ -35,7 +35,7 @@ IoError FSFolderArchive::Open(FileMeta* file, Stream** outStream) {
 }
 
 IoError FSFolderArchive::GetCurrentSize(FileMeta* file, int64_t& outSize) {
-  TextMetaEntry* entry = (TextMetaEntry*)file;
+  FSFolderTextMetaEntry* entry = (FSFolderTextMetaEntry*)file;
   std::error_code ec;
   outSize = std::filesystem::file_size(entry->FullPath, ec);
   if (ec) {
@@ -50,8 +50,8 @@ IoError FSFolderArchive::GetCurrentSize(FileMeta* file, int64_t& outSize) {
 
 IoError FSFolderArchive::SortTOCLexicographically(
     FSFolderArchive* result, std::filesystem::path const& rootPath) {
-  const auto pathLessComparator = [](TextMetaEntry const& a,
-                                     TextMetaEntry const& b) {
+  const auto pathLessComparator = [](FSFolderTextMetaEntry const& a,
+                                     FSFolderTextMetaEntry const& b) {
     const auto toLowerPath = [](std::string p) {
       std::transform(p.begin(), p.end(), p.begin(), [](unsigned char c) {
         if (c >= 'A' && c <= 'Z') return static_cast<char>(std::tolower(c));
@@ -75,14 +75,14 @@ IoError FSFolderArchive::SortTOCByOrderFile(FSFolderArchive* result,
     return IoError_Fail;
   }
 
-  std::unordered_map<std::string, TextMetaEntry*> nameToEntry;
+  std::unordered_map<std::string, FSFolderTextMetaEntry*> nameToEntry;
   nameToEntry.reserve(result->TOC.size());
   for (auto& entry : result->TOC) {
     std::string stem = std::filesystem::path(entry.FileName).stem().string();
     nameToEntry[stem] = &entry;
   }
 
-  std::vector<TextMetaEntry> orderedToc;
+  std::vector<FSFolderTextMetaEntry> orderedToc;
   orderedToc.reserve(txtArch->IdsToFiles.size());
 
   for (auto const& [id, fileMeta] : txtArch->IdsToFiles) {
@@ -141,7 +141,7 @@ IoError FSFolderArchive::Create(Stream* stream, VfsArchive** outArchive,
       }
 
       ec = std::error_code{};
-      TextMetaEntry entry;
+      FSFolderTextMetaEntry entry;
       entry.FullPath = fullPath;
       entry.FileName = path.filename().string();
       entry.Size = dirEntry.file_size(ec);

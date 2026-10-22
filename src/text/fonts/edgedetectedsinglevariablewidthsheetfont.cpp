@@ -1,6 +1,5 @@
 #include "font.h"
 
-#include "../../io/physicalfilestream.h"
 #include "../../renderer/renderer.h"
 
 namespace Impacto::Fonts {

@@ -4,7 +4,6 @@
 
 #include "../clickarea.h"
 #include "../../widget.h"
-#include "../../../spritesheet.h"
 
 namespace Impacto {
 namespace UI {

@@ -4,12 +4,9 @@
 #include "../profile/vm.h"
 #include "../renderer/renderer.h"
 #include "../vm/vm.h"
-#include "../profile/scriptvars.h"
 
 namespace Impacto {
 namespace Effects {
-
-using namespace Impacto::Profile::ScriptVars;
 
 BlurEffect::BlurEffect()
     : BlurSprite(

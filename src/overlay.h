@@ -1,4 +1,4 @@
-
+#pragma once
 
 namespace Impacto::Overlay {
 enum class OverlayTab : int8_t {

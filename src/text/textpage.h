@@ -1,8 +1,6 @@
 #pragma once
 
 #include "text.h"
-#include "../audio/audiostream.h"
-#include "../renderer/renderer.h"
 
 namespace Impacto {
 

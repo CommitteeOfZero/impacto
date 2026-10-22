@@ -5,7 +5,6 @@
 #include "../../renderer/renderer.h"
 #include "../../mem.h"
 #include "../../profile/scriptvars.h"
-#include "../../inputsystem.h"
 #include "../../ui/widgets/button.h"
 
 namespace Impacto {
@@ -29,12 +28,14 @@ SystemMenu::SystemMenu() {
 
   auto onClick = [this](auto* btn) { return MenuButtonOnClick(btn); };
 
-  for (int i = 0; i < MenuEntriesNum; i++) {
-    Button* menuButton =
-        new Button(i, MenuEntriesSprites[i], MenuEntriesSprites[i],
-                   MenuEntriesHighlightedSprite,
-                   glm::vec2(*MenuEntriesX,
-                             *MenuEntriesFirstY + (*MenuEntriesYPadding * i)));
+  for (int i = 0; i < Profile::SystemMenu::MenuEntriesNum; i++) {
+    Button* menuButton = new Button(
+        i, Profile::SystemMenu::MenuEntriesSprites[i],
+        Profile::SystemMenu::MenuEntriesSprites[i],
+        MenuEntriesHighlightedSprite,
+        glm::vec2(*Profile::SystemMenu::MenuEntriesX,
+                  *Profile::SystemMenu::MenuEntriesFirstY +
+                      (*Profile::SystemMenu::MenuEntriesYPadding * i)));
 
     menuButton->OnClickHandler = onClick;
     MainItems->Add(menuButton, FDIR_DOWN);
@@ -42,8 +43,8 @@ SystemMenu::SystemMenu() {
 
   FadeAnimation.Direction = AnimationDirection::In;
   FadeAnimation.LoopMode = AnimationLoopMode::Stop;
-  FadeAnimation.DurationIn = FadeInDuration;
-  FadeAnimation.DurationOut = FadeOutDuration;
+  FadeAnimation.DurationIn = Profile::SystemMenu::FadeInDuration;
+  FadeAnimation.DurationOut = Profile::SystemMenu::FadeOutDuration;
 }
 
 void SystemMenu::Show() {
@@ -57,7 +58,8 @@ void SystemMenu::Show() {
     }
     IsFocused = true;
     UI::FocusedMenu = this;
-    if (LastFocusedButtonId && *LastFocusedButtonId < MenuEntriesNum) {
+    if (LastFocusedButtonId &&
+        *LastFocusedButtonId < Profile::SystemMenu::MenuEntriesNum) {
       CurrentlyFocusedElement = MainItems->Children[*LastFocusedButtonId];
       CurrentlyFocusedElement->HasFocus = true;
     }

@@ -1,6 +1,5 @@
 #include "savemenu.h"
 #include "../../profile_internal.h"
-#include "../../../log.h"
 
 #include "../../ui/savemenu.h"
 #include "../../../game.h"
@@ -13,7 +12,7 @@ namespace CCLCC {
 namespace SaveMenu {
 
 void Configure() {
-  auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
+  auto drawType = EnsureGetMember<Impacto::Game::DrawComponentType>("DrawType");
 
   EntryStartXL = EnsureGetMember<float>("EntryStartXL");
   EntryStartXR = EnsureGetMember<float>("EntryStartXR");

@@ -1,7 +1,5 @@
 #include "texture.h"
 
-#include <string.h>
-
 #include "../log.h"
 
 #include "../renderer/renderer.h"

@@ -9,6 +9,7 @@
 #include <avcpp/timestamp.h>
 
 #include "clock.h"
+#include "../game.h"
 #include "videoplayer.h"
 #include "ffmpegstream.h"
 #include "../io/stream.h"

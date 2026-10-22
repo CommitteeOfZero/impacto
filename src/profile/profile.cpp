@@ -1,7 +1,7 @@
 #include "profile.h"
 
 #include <algorithm>
-#include <ranges>
+#include <span>
 #include <ankerl/unordered_dense.h>
 #include "profile_internal.h"
 #include "../io/physicalfilestream.h"
@@ -14,7 +14,6 @@
 #include "dialogue.h"
 #include "configsystem.h"
 #include "subtitle.h"
-#include "game.h"
 #include "patch.h"
 #include "vm.h"
 #include "../text/textpage.h"

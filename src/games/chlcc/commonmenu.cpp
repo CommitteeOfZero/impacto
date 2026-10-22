@@ -2,7 +2,6 @@
 
 #include "../../renderer/renderer.h"
 #include "../../profile/games/chlcc/commonmenu.h"
-#include "../../vm/interface/input.h"
 #include "../../profile/scriptvars.h"
 #include "../../profile/game.h"
 #include "../../background2d.h"
@@ -13,7 +12,6 @@ namespace CHLCC {
 
 using namespace Impacto::Profile::CHLCC::CommonMenu;
 using namespace Impacto::Profile::ScriptVars;
-using namespace Impacto::Vm::Interface;
 
 CommonMenu::CommonMenu(bool canGoFromSysMenu) {
   TitleFade.Direction = AnimationDirection::In;

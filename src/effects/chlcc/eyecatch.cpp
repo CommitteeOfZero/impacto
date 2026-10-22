@@ -2,7 +2,6 @@
 
 #include "../../profile/ui/gamespecific.h"
 #include "../../renderer/renderer.h"
-#include "../../spritesheet.h"
 #include "../../profile/game.h"
 #include "../../background2d.h"
 #include "../../util.h"

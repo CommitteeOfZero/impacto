@@ -229,8 +229,8 @@ void SysMesBox::Init() {
   MessageCount = 0;
   ChoiceCount = 0;
 
-  FadeAnimation.DurationIn = FadeInDuration;
-  FadeAnimation.DurationOut = FadeOutDuration;
+  FadeAnimation.DurationIn = Impacto::Profile::SysMesBox::FadeInDuration;
+  FadeAnimation.DurationOut = Impacto::Profile::SysMesBox::FadeOutDuration;
   FadeAnimation.Direction = AnimationDirection::In;
   FadeAnimation.LoopMode = AnimationLoopMode::Stop;
 }

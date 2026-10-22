@@ -2,7 +2,6 @@
 
 #include "io/io.h"
 #include "io/vfs.h"
-#include "log.h"
 
 namespace Impacto {
 bool VoiceTable::LoadSync(uint32_t id) {

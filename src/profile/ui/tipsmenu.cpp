@@ -3,8 +3,6 @@
 #include "../games/mo6tw/tipsmenu.h"
 #include "../games/chlcc/tipsmenu.h"
 #include "../games/cclcc/tipsmenu.h"
-#include "../../ui/ui.h"
-#include "../../log.h"
 
 namespace Impacto {
 namespace Profile {

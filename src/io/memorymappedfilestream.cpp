@@ -2,7 +2,6 @@
 #include "../log.h"
 
 #include <algorithm>
-#include <cstring>
 #include <mutex>
 #include <system_error>
 

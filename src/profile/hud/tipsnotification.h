@@ -1,8 +1,5 @@
 #pragma once
 
-#include "../sprites.h"
-#include "../../hud/tipsnotification.h"
-
 namespace Impacto {
 namespace Profile {
 namespace TipsNotification {

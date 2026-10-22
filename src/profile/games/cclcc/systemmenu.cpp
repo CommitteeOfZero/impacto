@@ -1,7 +1,5 @@
 #include "systemmenu.h"
 #include "../../profile_internal.h"
-#include "../../../renderer/renderer.h"
-#include "../../../log.h"
 
 #include "../../../games/cclcc/systemmenu.h"
 #include "../../ui/systemmenu.h"
@@ -58,7 +56,7 @@ void Configure() {
 
   BGTranslationOffset = EnsureGetMember<glm::vec2>("BGTranslationOffset");
 
-  auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
+  auto drawType = EnsureGetMember<Impacto::Game::DrawComponentType>("DrawType");
 
   UI::SystemMenuPtr = new UI::CCLCC::SystemMenu();
   UI::Menus[drawType].push_back(UI::SystemMenuPtr);

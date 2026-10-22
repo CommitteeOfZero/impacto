@@ -2,7 +2,6 @@
 
 #include <magic_enum/magic_enum_containers.hpp>
 
-#include "../util.h"
 #include "../spritesheet.h"
 #include "../text/fonts/font.h"
 #include "../hud/waiticondisplay.h"

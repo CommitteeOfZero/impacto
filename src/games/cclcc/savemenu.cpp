@@ -11,7 +11,6 @@
 #include "../../ui/widgets/cclcc/saveentrybutton.h"
 #include "../../data/savesystem.h"
 #include "../../profile/game.h"
-#include "../../games/cclcc/savesystem.h"
 #include "../../audio/audiosystem.h"
 
 namespace Impacto {
@@ -203,7 +202,7 @@ void SaveMenu::Hide() {
 }
 
 void SaveMenu::UpdateInput(float dt) {
-  using namespace Vm::Interface;
+  using namespace Impacto::Vm::Interface;
   Menu::UpdateInput(dt);
   const auto updatePage = [&](int nextPage) {
     PrevPage = CurrentPage;

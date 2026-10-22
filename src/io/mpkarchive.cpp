@@ -4,7 +4,6 @@
 #include <ankerl/unordered_dense.h>
 #include "zlibstream.h"
 #include "uncompressedstream.h"
-#include "vfs.h"
 
 namespace Impacto {
 namespace Io {

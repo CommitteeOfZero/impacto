@@ -1,7 +1,5 @@
 #include "yesnotrigger.h"
-#include "../../../log.h"
 #include "../../profile_internal.h"
-#include "../../../renderer/renderer.h"
 
 namespace Impacto {
 namespace Profile {

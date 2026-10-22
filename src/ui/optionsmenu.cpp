@@ -1,15 +1,12 @@
 #include "optionsmenu.h"
 
-#include "../profile/game.h"
 #include "../profile/ui/optionsmenu.h"
-#include "../profile/scriptinput.h"
 #include "../vm/interface/input.h"
 
 namespace Impacto {
 namespace UI {
 
 using namespace Impacto::Profile::OptionsMenu;
-using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::UI::Widgets;
 using namespace Impacto::Vm::Interface;
 
@@ -17,8 +14,8 @@ OptionsMenu::OptionsMenu()
     : PADinputButtonHoldMask(PAD1UP | PAD1DOWN | PAD1LEFT | PAD1RIGHT) {
   FadeAnimation.Direction = AnimationDirection::In;
   FadeAnimation.LoopMode = AnimationLoopMode::Stop;
-  FadeAnimation.DurationIn = FadeInDuration;
-  FadeAnimation.DurationOut = FadeOutDuration;
+  FadeAnimation.DurationIn = Profile::OptionsMenu::FadeInDuration;
+  FadeAnimation.DurationOut = Profile::OptionsMenu::FadeOutDuration;
   FadeAnimation.SkipOnSkipMode = false;
 }
 

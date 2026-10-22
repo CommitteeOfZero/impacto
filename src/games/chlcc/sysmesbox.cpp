@@ -13,6 +13,7 @@ namespace Impacto {
 namespace UI {
 namespace CHLCC {
 
+using namespace Impacto::Vm;
 using namespace Impacto::UI::Widgets;
 using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Profile::SysMesBox;
@@ -185,14 +186,14 @@ void SysMesBox::Init() {
   MessageCount = 0;
   ChoiceCount = 0;
 
-  FadeAnimation.DurationIn = FadeInDuration;
-  FadeAnimation.DurationOut = FadeOutDuration;
+  FadeAnimation.DurationIn = Profile::SysMesBox::FadeInDuration;
+  FadeAnimation.DurationOut = Profile::SysMesBox::FadeOutDuration;
   FadeAnimation.Direction = AnimationDirection::In;
   FadeAnimation.LoopMode = AnimationLoopMode::Stop;
 }
 
-void SysMesBox::AddMessage(Vm::BufferOffsetContext ctx) {
-  Impacto::Vm::Sc3VmThread dummy;
+void SysMesBox::AddMessage(BufferOffsetContext ctx) {
+  Sc3VmThread dummy;
   dummy.IpOffset = ctx.IpOffset;
   dummy.ScriptBufferId = ctx.BufferId;
   Messages[MessageCount] =
@@ -203,8 +204,8 @@ void SysMesBox::AddMessage(Vm::BufferOffsetContext ctx) {
   MessageCount++;
 }
 
-void SysMesBox::AddChoice(Vm::BufferOffsetContext ctx) {
-  Impacto::Vm::Sc3VmThread dummy;
+void SysMesBox::AddChoice(BufferOffsetContext ctx) {
+  Sc3VmThread dummy;
   dummy.IpOffset = ctx.IpOffset;
   dummy.ScriptBufferId = ctx.BufferId;
   Choices[ChoiceCount] =

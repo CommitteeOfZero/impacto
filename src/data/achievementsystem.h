@@ -1,7 +1,6 @@
 #pragma once
 
 #include <ctime>
-#include <magic_enum/magic_enum.hpp>
 #include "../spritesheet.h"
 #include "../loadable.h"
 

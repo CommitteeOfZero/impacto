@@ -16,7 +16,6 @@
 #include "../profile/vm.h"
 
 #include "../vm/expression.h"
-#include "../vm/interface/input.h"
 #include "../vm/sc3stream.h"
 
 namespace Impacto {

@@ -2,13 +2,13 @@
 
 #include "../../renderer/renderer.h"
 #include "../../mem.h"
-#include "../../inputsystem.h"
-#include "../../ui/widgets/label.h"
 #include "../../profile/ui/titlemenu.h"
 #include "../../profile/games/mo6tw/titlemenu.h"
 #include "../../profile/scriptvars.h"
 #include "../../profile/game.h"
 #include "../../mask2d.h"
+
+namespace MO6TWTitleProfile = Impacto::Profile::MO6TW::TitleMenu;
 
 namespace Impacto {
 namespace UI {
@@ -47,17 +47,23 @@ TitleMenu::TitleMenu() {
   Sprite nullSprite = Sprite();
   nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
 
+  const float menuEntriesX = MO6TWTitleProfile::MenuEntriesX;
+  const float menuEntriesFirstY = MO6TWTitleProfile::MenuEntriesFirstY;
+  const float menuEntriesYPadding = MO6TWTitleProfile::MenuEntriesYPadding;
+
   // Initial Start menu button
   InitialStart =
-      new TitleButton(0, MenuEntriesSprites[0], MenuEntriesHSprites[0],
-                      nullSprite, glm::vec2(MenuEntriesX, MenuEntriesFirstY));
+      new TitleButton(0, Profile::TitleMenu::MenuEntriesSprites[0],
+                      Profile::TitleMenu::MenuEntriesHSprites[0], nullSprite,
+                      glm::vec2(menuEntriesX, menuEntriesFirstY));
   InitialStart->OnClickHandler = onClick;
   MainItems->Add(InitialStart, FDIR_DOWN);
 
   // Lockable Extra Story menu button
   ExtraStory = new TitleButton(
-      1, MenuEntriesSprites[1], MenuEntriesHSprites[1], nullSprite,
-      glm::vec2(MenuEntriesX, MenuEntriesFirstY + (1 * MenuEntriesYPadding)));
+      1, Profile::TitleMenu::MenuEntriesSprites[1],
+      Profile::TitleMenu::MenuEntriesHSprites[1], nullSprite,
+      glm::vec2(menuEntriesX, menuEntriesFirstY + (1 * menuEntriesYPadding)));
   ExtraStory->Enabled = false;
   ExtraStory->OnClickHandler = onClick;
   ExtraStory->DisabledSprite = MenuItemLockedSprite;
@@ -65,15 +71,17 @@ TitleMenu::TitleMenu() {
 
   // Continue menu button
   Continue = new TitleButton(
-      2, MenuEntriesSprites[2], MenuEntriesHSprites[2], nullSprite,
-      glm::vec2(MenuEntriesX, MenuEntriesFirstY + (2 * MenuEntriesYPadding)));
+      2, Profile::TitleMenu::MenuEntriesSprites[2],
+      Profile::TitleMenu::MenuEntriesHSprites[2], nullSprite,
+      glm::vec2(menuEntriesX, menuEntriesFirstY + (2 * menuEntriesYPadding)));
   Continue->OnClickHandler = onClick;
   MainItems->Add(Continue, FDIR_DOWN);
 
   // Lockable Memories menu button
   Memories = new TitleButton(
-      3, MenuEntriesSprites[3], MenuEntriesHSprites[3], nullSprite,
-      glm::vec2(MenuEntriesX, MenuEntriesFirstY + (3 * MenuEntriesYPadding)));
+      3, Profile::TitleMenu::MenuEntriesSprites[3],
+      Profile::TitleMenu::MenuEntriesHSprites[3], nullSprite,
+      glm::vec2(menuEntriesX, menuEntriesFirstY + (3 * menuEntriesYPadding)));
   Memories->Enabled = false;
   Memories->OnClickHandler = onClick;
   Memories->DisabledSprite = MenuItemLockedSprite;
@@ -81,114 +89,129 @@ TitleMenu::TitleMenu() {
 
   // Encyclopedia menu button
   Encyclopedia = new TitleButton(
-      4, MenuEntriesSprites[4], MenuEntriesHSprites[4], nullSprite,
-      glm::vec2(MenuEntriesX, MenuEntriesFirstY + (4 * MenuEntriesYPadding)));
+      4, Profile::TitleMenu::MenuEntriesSprites[4],
+      Profile::TitleMenu::MenuEntriesHSprites[4], nullSprite,
+      glm::vec2(menuEntriesX, menuEntriesFirstY + (4 * menuEntriesYPadding)));
   Encyclopedia->OnClickHandler = onClick;
   MainItems->Add(Encyclopedia, FDIR_DOWN);
 
   // System menu button
   System = new TitleButton(
-      5, MenuEntriesSprites[5], MenuEntriesHSprites[5], nullSprite,
-      glm::vec2(MenuEntriesX, MenuEntriesFirstY + (5 * MenuEntriesYPadding)));
+      5, Profile::TitleMenu::MenuEntriesSprites[5],
+      Profile::TitleMenu::MenuEntriesHSprites[5], nullSprite,
+      glm::vec2(menuEntriesX, menuEntriesFirstY + (5 * menuEntriesYPadding)));
   System->OnClickHandler = onClick;
   MainItems->Add(System, FDIR_DOWN);
 
   // Exit menu button
   Exit = new TitleButton(
-      6, MenuEntriesSprites[6], MenuEntriesHSprites[6], nullSprite,
-      glm::vec2(MenuEntriesX, MenuEntriesFirstY + (6 * MenuEntriesYPadding)));
+      6, Profile::TitleMenu::MenuEntriesSprites[6],
+      Profile::TitleMenu::MenuEntriesHSprites[6], nullSprite,
+      glm::vec2(menuEntriesX, menuEntriesFirstY + (6 * menuEntriesYPadding)));
   Exit->OnClickHandler = onClick;
   MainItems->Add(Exit, FDIR_DOWN);
 
   // Load secondary Continue menu button
   Load = new TitleButton(
-      0, MenuEntriesSprites[10], MenuEntriesHSprites[10], nullSprite,
-      glm::vec2(MenuEntriesX, MenuEntriesFirstY + (3 * MenuEntriesYPadding)));
+      0, Profile::TitleMenu::MenuEntriesSprites[10],
+      Profile::TitleMenu::MenuEntriesHSprites[10], nullSprite,
+      glm::vec2(menuEntriesX, menuEntriesFirstY + (3 * menuEntriesYPadding)));
   Load->OnClickHandler = secondaryOnClick;
   ContinueItems->Add(Load, FDIR_DOWN);
 
   // Quick Load secondary Continue menu button
-  QuickLoad = new TitleButton(
-      1, MenuEntriesSprites[11], MenuEntriesHSprites[11], nullSprite,
-      glm::vec2(MenuEntriesX - 20.0f,
-                MenuEntriesFirstY + (4 * MenuEntriesYPadding)));
+  QuickLoad =
+      new TitleButton(1, Profile::TitleMenu::MenuEntriesSprites[11],
+                      Profile::TitleMenu::MenuEntriesHSprites[11], nullSprite,
+                      glm::vec2(menuEntriesX - 20.0f,
+                                menuEntriesFirstY + (4 * menuEntriesYPadding)));
   QuickLoad->OnClickHandler = secondaryOnClick;
   ContinueItems->Add(QuickLoad, FDIR_DOWN);
 
   // Prologue secondary Extra Story menu button
   Prologue = new TitleButton(
-      0, MenuEntriesSprites[7], MenuEntriesHSprites[7], nullSprite,
-      glm::vec2(MenuEntriesX, MenuEntriesFirstY + (2 * MenuEntriesYPadding)));
+      0, Profile::TitleMenu::MenuEntriesSprites[7],
+      Profile::TitleMenu::MenuEntriesHSprites[7], nullSprite,
+      glm::vec2(menuEntriesX, menuEntriesFirstY + (2 * menuEntriesYPadding)));
   Prologue->OnClickHandler = secondaryOnClick;
   ExtraStoryItems->Add(Prologue, FDIR_DOWN);
 
   // Otome Judge feat.Shin secondary Extra Story menu button
-  OtomeJudgeShin = new TitleButton(
-      1, MenuEntriesSprites[8], MenuEntriesHSprites[8], nullSprite,
-      glm::vec2(MenuEntriesX - 20.0f,
-                MenuEntriesFirstY + (3 * MenuEntriesYPadding)));
+  OtomeJudgeShin =
+      new TitleButton(1, Profile::TitleMenu::MenuEntriesSprites[8],
+                      Profile::TitleMenu::MenuEntriesHSprites[8], nullSprite,
+                      glm::vec2(menuEntriesX - 20.0f,
+                                menuEntriesFirstY + (3 * menuEntriesYPadding)));
   OtomeJudgeShin->OnClickHandler = secondaryOnClick;
   ExtraStoryItems->Add(OtomeJudgeShin, FDIR_DOWN);
 
   // Warning secondary Extra Story menu button
-  Warning = new TitleButton(
-      2, MenuEntriesSprites[9], MenuEntriesHSprites[9], nullSprite,
-      glm::vec2(MenuEntriesX - 40.0f,
-                MenuEntriesFirstY + (4 * MenuEntriesYPadding)));
+  Warning =
+      new TitleButton(2, Profile::TitleMenu::MenuEntriesSprites[9],
+                      Profile::TitleMenu::MenuEntriesHSprites[9], nullSprite,
+                      glm::vec2(menuEntriesX - 40.0f,
+                                menuEntriesFirstY + (4 * menuEntriesYPadding)));
   Warning->OnClickHandler = secondaryOnClick;
   ExtraStoryItems->Add(Warning, FDIR_DOWN);
 
   // Warning secondary Extra Story menu button
   ClearList = new TitleButton(
-      0, MenuEntriesSprites[13], MenuEntriesHSprites[13], nullSprite,
-      glm::vec2(MenuEntriesX, MenuEntriesFirstY + (4 * MenuEntriesYPadding)));
+      0, Profile::TitleMenu::MenuEntriesSprites[13],
+      Profile::TitleMenu::MenuEntriesHSprites[13], nullSprite,
+      glm::vec2(menuEntriesX, menuEntriesFirstY + (4 * menuEntriesYPadding)));
   ClearList->OnClickHandler = secondaryOnClick;
   MemoriesItems->Add(ClearList, FDIR_DOWN);
 
   // Warning secondary Extra Story menu button
-  Album = new TitleButton(
-      1, MenuEntriesSprites[14], MenuEntriesHSprites[14], nullSprite,
-      glm::vec2(MenuEntriesX - 20.0f,
-                MenuEntriesFirstY + (5 * MenuEntriesYPadding)));
+  Album =
+      new TitleButton(1, Profile::TitleMenu::MenuEntriesSprites[14],
+                      Profile::TitleMenu::MenuEntriesHSprites[14], nullSprite,
+                      glm::vec2(menuEntriesX - 20.0f,
+                                menuEntriesFirstY + (5 * menuEntriesYPadding)));
   Album->OnClickHandler = secondaryOnClick;
   MemoriesItems->Add(Album, FDIR_DOWN);
 
   // Warning secondary Extra Story menu button
-  Music = new TitleButton(
-      2, MenuEntriesSprites[15], MenuEntriesHSprites[15], nullSprite,
-      glm::vec2(MenuEntriesX - 40.0f,
-                MenuEntriesFirstY + (6 * MenuEntriesYPadding)));
+  Music =
+      new TitleButton(2, Profile::TitleMenu::MenuEntriesSprites[15],
+                      Profile::TitleMenu::MenuEntriesHSprites[15], nullSprite,
+                      glm::vec2(menuEntriesX - 40.0f,
+                                menuEntriesFirstY + (6 * menuEntriesYPadding)));
   Music->OnClickHandler = secondaryOnClick;
   MemoriesItems->Add(Music, FDIR_DOWN);
 
   // Warning secondary Extra Story menu button
-  Movie = new TitleButton(
-      3, MenuEntriesSprites[16], MenuEntriesHSprites[16], nullSprite,
-      glm::vec2(MenuEntriesX - 60.0f,
-                MenuEntriesFirstY + (7 * MenuEntriesYPadding)));
+  Movie =
+      new TitleButton(3, Profile::TitleMenu::MenuEntriesSprites[16],
+                      Profile::TitleMenu::MenuEntriesHSprites[16], nullSprite,
+                      glm::vec2(menuEntriesX - 60.0f,
+                                menuEntriesFirstY + (7 * menuEntriesYPadding)));
   Movie->OnClickHandler = secondaryOnClick;
   MemoriesItems->Add(Movie, FDIR_DOWN);
 
   // Warning secondary Extra Story menu button
-  ActorsVoice = new TitleButton(
-      4, MenuEntriesSprites[17], MenuEntriesHSprites[17], nullSprite,
-      glm::vec2(MenuEntriesX - 80.0f,
-                MenuEntriesFirstY + (8 * MenuEntriesYPadding)));
+  ActorsVoice =
+      new TitleButton(4, Profile::TitleMenu::MenuEntriesSprites[17],
+                      Profile::TitleMenu::MenuEntriesHSprites[17], nullSprite,
+                      glm::vec2(menuEntriesX - 80.0f,
+                                menuEntriesFirstY + (8 * menuEntriesYPadding)));
   ActorsVoice->OnClickHandler = secondaryOnClick;
   MemoriesItems->Add(ActorsVoice, FDIR_DOWN);
 
   // Option secondary System menu button
   Option = new TitleButton(
-      0, MenuEntriesSprites[18], MenuEntriesHSprites[18], nullSprite,
-      glm::vec2(MenuEntriesX, MenuEntriesFirstY + (6 * MenuEntriesYPadding)));
+      0, Profile::TitleMenu::MenuEntriesSprites[18],
+      Profile::TitleMenu::MenuEntriesHSprites[18], nullSprite,
+      glm::vec2(menuEntriesX, menuEntriesFirstY + (6 * menuEntriesYPadding)));
   Option->OnClickHandler = secondaryOnClick;
   SystemItems->Add(Option, FDIR_DOWN);
 
   // System Save secondary System menu button
-  SystemSave = new TitleButton(
-      1, MenuEntriesSprites[20], MenuEntriesHSprites[20], nullSprite,
-      glm::vec2(MenuEntriesX - 20.0f,
-                MenuEntriesFirstY + (7 * MenuEntriesYPadding)));
+  SystemSave =
+      new TitleButton(1, Profile::TitleMenu::MenuEntriesSprites[20],
+                      Profile::TitleMenu::MenuEntriesHSprites[20], nullSprite,
+                      glm::vec2(menuEntriesX - 20.0f,
+                                menuEntriesFirstY + (7 * menuEntriesYPadding)));
   SystemSave->OnClickHandler = secondaryOnClick;
   SystemItems->Add(SystemSave, FDIR_DOWN);
 }
@@ -263,6 +286,8 @@ void TitleMenu::Update(float dt) {
       MemoriesItems->UpdateInput(dt);
     }
 
+    const float menuEntriesYPadding = MO6TWTitleProfile::MenuEntriesYPadding;
+
     switch (ScrWork[SW_TITLEDISPCT]) {
       case 0: {
         // When returning to title menu from loading a game we need to hide the
@@ -276,14 +301,14 @@ void TitleMenu::Update(float dt) {
                         SecondaryMenuAnimTarget.y));
 
           Memories->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                                   -ContinueItemCount * MenuEntriesYPadding));
+                                   -ContinueItemCount * menuEntriesYPadding));
           Encyclopedia->Move(
               glm::vec2(SecondaryMenuAnimUnderX,
-                        -ContinueItemCount * MenuEntriesYPadding));
+                        -ContinueItemCount * menuEntriesYPadding));
           System->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                                 -ContinueItemCount * MenuEntriesYPadding));
+                                 -ContinueItemCount * menuEntriesYPadding));
           Exit->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                               -ContinueItemCount * MenuEntriesYPadding));
+                               -ContinueItemCount * menuEntriesYPadding));
           ContinueItems->Hide();
         }
         if (ExtraStoryItems->VisibilityState != Hidden) {
@@ -297,16 +322,16 @@ void TitleMenu::Update(float dt) {
               -(SecondaryMenuAnimTarget.x + (2 * SecondaryMenuPadding)),
               SecondaryMenuAnimTarget.y));
           Continue->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                                   -ExtraStoryItemCount * MenuEntriesYPadding));
+                                   -ExtraStoryItemCount * menuEntriesYPadding));
           Memories->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                                   -ExtraStoryItemCount * MenuEntriesYPadding));
+                                   -ExtraStoryItemCount * menuEntriesYPadding));
           Encyclopedia->Move(
               glm::vec2(SecondaryMenuAnimUnderX,
-                        -ExtraStoryItemCount * MenuEntriesYPadding));
+                        -ExtraStoryItemCount * menuEntriesYPadding));
           System->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                                 -ExtraStoryItemCount * MenuEntriesYPadding));
+                                 -ExtraStoryItemCount * menuEntriesYPadding));
           Exit->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                               -ExtraStoryItemCount * MenuEntriesYPadding));
+                               -ExtraStoryItemCount * menuEntriesYPadding));
           ExtraStoryItems->Hide();
         }
       } break;
@@ -380,9 +405,11 @@ void TitleMenu::Render() {
       switch (ScrWork[SW_TITLEDISPCT]) {
         case 0:  // Initial animation
           Renderer->DrawMaskedSprite(
-              BackgroundSprite, BackgroundSprite,
-              RectF(0.0f, 0.0f, BackgroundSprite.ScaledWidth(),
-                    BackgroundSprite.ScaledHeight()),
+              MO6TWTitleProfile::BackgroundSprite,
+              MO6TWTitleProfile::BackgroundSprite,
+              RectF(0.0f, 0.0f,
+                    MO6TWTitleProfile::BackgroundSprite.ScaledWidth(),
+                    MO6TWTitleProfile::BackgroundSprite.ScaledHeight()),
               (ScrWork[SW_TITLECT] * 287) / 48, 32, glm::mat4(1.0f),
               glm::vec4(1.0f), false, true);
           if (ScrWork[SW_TITLECT] > 48) {
@@ -395,9 +422,11 @@ void TitleMenu::Render() {
           break;
         case 1: {  // Press to start
           Renderer->DrawMaskedSprite(
-              BackgroundSprite, BackgroundSprite,
-              RectF(0.0f, 0.0f, BackgroundSprite.ScaledWidth(),
-                    BackgroundSprite.ScaledHeight()),
+              MO6TWTitleProfile::BackgroundSprite,
+              MO6TWTitleProfile::BackgroundSprite,
+              RectF(0.0f, 0.0f,
+                    MO6TWTitleProfile::BackgroundSprite.ScaledWidth(),
+                    MO6TWTitleProfile::BackgroundSprite.ScaledHeight()),
               287, 32, glm::mat4(1.0f), glm::vec4(1.0f), false, true);
           Renderer->DrawSprite(LogoSprite, glm::vec2(LogoX, LogoY));
           Renderer->DrawSprite(CopyrightSprite,
@@ -408,9 +437,11 @@ void TitleMenu::Render() {
         } break;
         case 2: {
           Renderer->DrawMaskedSprite(
-              BackgroundSprite, BackgroundSprite,
-              RectF(0.0f, 0.0f, BackgroundSprite.ScaledWidth(),
-                    BackgroundSprite.ScaledHeight()),
+              MO6TWTitleProfile::BackgroundSprite,
+              MO6TWTitleProfile::BackgroundSprite,
+              RectF(0.0f, 0.0f,
+                    MO6TWTitleProfile::BackgroundSprite.ScaledWidth(),
+                    MO6TWTitleProfile::BackgroundSprite.ScaledHeight()),
               287, 32, glm::mat4(1.0f), glm::vec4(1.0f), false, true);
           Renderer->DrawSprite(LogoSprite, glm::vec2(LogoX, LogoY));
           Renderer->DrawSprite(CopyrightSprite,
@@ -468,9 +499,11 @@ void TitleMenu::Render() {
         case 20:
         case 21: {  // Transition between Press to start and menus
           Renderer->DrawMaskedSprite(
-              BackgroundSprite, BackgroundSprite,
-              RectF(0.0f, 0.0f, BackgroundSprite.ScaledWidth(),
-                    BackgroundSprite.ScaledHeight()),
+              MO6TWTitleProfile::BackgroundSprite,
+              MO6TWTitleProfile::BackgroundSprite,
+              RectF(0.0f, 0.0f,
+                    MO6TWTitleProfile::BackgroundSprite.ScaledWidth(),
+                    MO6TWTitleProfile::BackgroundSprite.ScaledHeight()),
               287, 32, glm::mat4(1.0f), glm::vec4(1.0f), false, true);
           Renderer->DrawMaskedSprite(
               LogoSprite, Masks2D[17].MaskSprite,
@@ -503,6 +536,8 @@ void TitleMenu::ShowExtraStoryItems() {
   ExtraStoryItems->Tint.a = 0.0f;
   MainItems->HasFocus = false;
 
+  const float menuEntriesYPadding = MO6TWTitleProfile::MenuEntriesYPadding;
+
   SecondaryFadeAnimation.StartIn();
 
   Prologue->Move(SecondaryMenuAnimTarget, SecondaryMenuAnimDuration);
@@ -516,23 +551,25 @@ void TitleMenu::ShowExtraStoryItems() {
       SecondaryMenuAnimDuration);
 
   Continue->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                           ExtraStoryItemCount * MenuEntriesYPadding),
+                           ExtraStoryItemCount * menuEntriesYPadding),
                  SecondaryMenuAnimDuration);
   Memories->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                           ExtraStoryItemCount * MenuEntriesYPadding),
+                           ExtraStoryItemCount * menuEntriesYPadding),
                  SecondaryMenuAnimDuration);
   Encyclopedia->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                               ExtraStoryItemCount * MenuEntriesYPadding),
+                               ExtraStoryItemCount * menuEntriesYPadding),
                      SecondaryMenuAnimDuration);
   System->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                         ExtraStoryItemCount * MenuEntriesYPadding),
+                         ExtraStoryItemCount * menuEntriesYPadding),
                SecondaryMenuAnimDuration);
   Exit->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                       ExtraStoryItemCount * MenuEntriesYPadding),
+                       ExtraStoryItemCount * menuEntriesYPadding),
              SecondaryMenuAnimDuration);
 }
 
 void TitleMenu::HideExtraStoryItems() {
+  const float menuEntriesYPadding = MO6TWTitleProfile::MenuEntriesYPadding;
+
   SecondaryFadeAnimation.StartOut();
 
   Prologue->Move(-SecondaryMenuAnimTarget, SecondaryMenuAnimDuration);
@@ -546,23 +583,25 @@ void TitleMenu::HideExtraStoryItems() {
       SecondaryMenuAnimDuration);
 
   Continue->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                           -ExtraStoryItemCount * MenuEntriesYPadding),
+                           -ExtraStoryItemCount * menuEntriesYPadding),
                  SecondaryMenuAnimDuration);
   Memories->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                           -ExtraStoryItemCount * MenuEntriesYPadding),
+                           -ExtraStoryItemCount * menuEntriesYPadding),
                  SecondaryMenuAnimDuration);
   Encyclopedia->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                               -ExtraStoryItemCount * MenuEntriesYPadding),
+                               -ExtraStoryItemCount * menuEntriesYPadding),
                      SecondaryMenuAnimDuration);
   System->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                         -ExtraStoryItemCount * MenuEntriesYPadding),
+                         -ExtraStoryItemCount * menuEntriesYPadding),
                SecondaryMenuAnimDuration);
   Exit->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                       -ExtraStoryItemCount * MenuEntriesYPadding),
+                       -ExtraStoryItemCount * menuEntriesYPadding),
              SecondaryMenuAnimDuration);
 }
 
 void TitleMenu::ShowContinueItems() {
+  const float menuEntriesYPadding = MO6TWTitleProfile::MenuEntriesYPadding;
+
   ContinueItems->Show();
   ContinueItems->Tint.a = 0.0f;
   MainItems->HasFocus = false;
@@ -575,20 +614,22 @@ void TitleMenu::ShowContinueItems() {
                   SecondaryMenuAnimDuration);
 
   Memories->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                           ContinueItemCount * MenuEntriesYPadding),
+                           ContinueItemCount * menuEntriesYPadding),
                  SecondaryMenuAnimDuration);
   Encyclopedia->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                               ContinueItemCount * MenuEntriesYPadding),
+                               ContinueItemCount * menuEntriesYPadding),
                      SecondaryMenuAnimDuration);
   System->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                         ContinueItemCount * MenuEntriesYPadding),
+                         ContinueItemCount * menuEntriesYPadding),
                SecondaryMenuAnimDuration);
   Exit->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                       ContinueItemCount * MenuEntriesYPadding),
+                       ContinueItemCount * menuEntriesYPadding),
              SecondaryMenuAnimDuration);
 }
 
 void TitleMenu::HideContinueItems() {
+  const float menuEntriesYPadding = MO6TWTitleProfile::MenuEntriesYPadding;
+
   SecondaryFadeAnimation.StartOut();
 
   Load->Move(-SecondaryMenuAnimTarget, SecondaryMenuAnimDuration);
@@ -597,20 +638,22 @@ void TitleMenu::HideContinueItems() {
                   SecondaryMenuAnimDuration);
 
   Memories->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                           -ContinueItemCount * MenuEntriesYPadding),
+                           -ContinueItemCount * menuEntriesYPadding),
                  SecondaryMenuAnimDuration);
   Encyclopedia->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                               -ContinueItemCount * MenuEntriesYPadding),
+                               -ContinueItemCount * menuEntriesYPadding),
                      SecondaryMenuAnimDuration);
   System->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                         -ContinueItemCount * MenuEntriesYPadding),
+                         -ContinueItemCount * menuEntriesYPadding),
                SecondaryMenuAnimDuration);
   Exit->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                       -ContinueItemCount * MenuEntriesYPadding),
+                       -ContinueItemCount * menuEntriesYPadding),
              SecondaryMenuAnimDuration);
 }
 
 void TitleMenu::ShowMemoriesItems() {
+  const float menuEntriesYPadding = MO6TWTitleProfile::MenuEntriesYPadding;
+
   MemoriesItems->Show();
   MemoriesItems->Tint.a = 0.0f;
   MainItems->HasFocus = false;
@@ -633,17 +676,19 @@ void TitleMenu::ShowMemoriesItems() {
       SecondaryMenuAnimDuration);
 
   Encyclopedia->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                               MemoriesItemCount * MenuEntriesYPadding),
+                               MemoriesItemCount * menuEntriesYPadding),
                      SecondaryMenuAnimDuration);
   System->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                         MemoriesItemCount * MenuEntriesYPadding),
+                         MemoriesItemCount * menuEntriesYPadding),
                SecondaryMenuAnimDuration);
   Exit->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                       MemoriesItemCount * MenuEntriesYPadding),
+                       MemoriesItemCount * menuEntriesYPadding),
              SecondaryMenuAnimDuration);
 }
 
 void TitleMenu::HideMemoriesItems() {
+  const float menuEntriesYPadding = MO6TWTitleProfile::MenuEntriesYPadding;
+
   SecondaryFadeAnimation.StartOut();
 
   ClearList->Move(-SecondaryMenuAnimTarget, SecondaryMenuAnimDuration);
@@ -664,13 +709,13 @@ void TitleMenu::HideMemoriesItems() {
       SecondaryMenuAnimDuration);
 
   Encyclopedia->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                               -MemoriesItemCount * MenuEntriesYPadding),
+                               -MemoriesItemCount * menuEntriesYPadding),
                      SecondaryMenuAnimDuration);
   System->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                         -MemoriesItemCount * MenuEntriesYPadding),
+                         -MemoriesItemCount * menuEntriesYPadding),
                SecondaryMenuAnimDuration);
   Exit->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                       -MemoriesItemCount * MenuEntriesYPadding),
+                       -MemoriesItemCount * menuEntriesYPadding),
              SecondaryMenuAnimDuration);
 }
 
@@ -687,7 +732,8 @@ void TitleMenu::ShowSystemItems() {
                    SecondaryMenuAnimDuration);
 
   Exit->Move(
-      glm::vec2(SecondaryMenuAnimUnderX, SystemItemCount * MenuEntriesYPadding),
+      glm::vec2(SecondaryMenuAnimUnderX,
+                SystemItemCount * MO6TWTitleProfile::MenuEntriesYPadding),
       SecondaryMenuAnimDuration);
 }
 
@@ -700,9 +746,10 @@ void TitleMenu::HideSystemItems() {
                 SecondaryMenuAnimTarget.y),
       SecondaryMenuAnimDuration);
 
-  Exit->Move(glm::vec2(SecondaryMenuAnimUnderX,
-                       -SystemItemCount * MenuEntriesYPadding),
-             SecondaryMenuAnimDuration);
+  Exit->Move(
+      glm::vec2(SecondaryMenuAnimUnderX,
+                -SystemItemCount * MO6TWTitleProfile::MenuEntriesYPadding),
+      SecondaryMenuAnimDuration);
 }
 
 }  // namespace MO6TW

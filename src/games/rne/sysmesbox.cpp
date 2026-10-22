@@ -11,6 +11,8 @@
 #include "../../audio/audiochannel.h"
 #include "../../audio/audiosystem.h"
 
+namespace RNESysMesBoxCommonProfile = Impacto::Profile::SysMesBox;
+
 namespace Impacto {
 namespace UI {
 namespace RNE {
@@ -216,7 +218,7 @@ void SysMesBox::Render() {
         glm::vec4(1.0f, 1.0f, 1.0f, 0.75f));
     Renderer->DrawSprite(BoxDecorationTop,
                          glm::vec2(BoxDisplayX, BoxTopY - 3.0f), col);
-    if (Type == SysMesBoxType::Dash) {
+    if (Impacto::Profile::SysMesBox::Type == SysMesBoxType::Dash) {
       Renderer->DrawSprite(
           BoxDecorationBottom,
           glm::vec2(BoxDisplayX,
@@ -262,8 +264,8 @@ void SysMesBox::Init() {
   MessageCount = 0;
   ChoiceCount = 0;
 
-  FadeAnimation.DurationIn = FadeInDuration;
-  FadeAnimation.DurationOut = FadeOutDuration;
+  FadeAnimation.DurationIn = RNESysMesBoxCommonProfile::FadeInDuration;
+  FadeAnimation.DurationOut = RNESysMesBoxCommonProfile::FadeOutDuration;
   FadeAnimation.Direction = AnimationDirection::In;
   FadeAnimation.LoopMode = AnimationLoopMode::Stop;
 }

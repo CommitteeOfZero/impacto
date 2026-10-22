@@ -1,7 +1,6 @@
 #include "sysmesbox.h"
 #include "../../profile_internal.h"
 
-#include "../../../ui/ui.h"
 #include "../../../games/rne/sysmesbox.h"
 #include "../../../game.h"
 

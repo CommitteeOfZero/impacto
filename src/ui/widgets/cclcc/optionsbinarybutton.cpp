@@ -3,7 +3,6 @@
 #include "../../../profile/games/cclcc/optionsmenu.h"
 #include "../../../renderer/renderer.h"
 #include "../../../vm/interface/input.h"
-#include "../../../inputsystem.h"
 #include "../../../audio/audiosystem.h"
 
 using namespace Impacto::Profile::CCLCC::OptionsMenu;

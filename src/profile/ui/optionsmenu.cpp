@@ -5,7 +5,6 @@
 #include "../games/chlcc/optionsmenu.h"
 #include "../games/cclcc/optionsmenu.h"
 #include "../../ui/ui.h"
-#include "../../log.h"
 
 namespace Impacto {
 namespace Profile {

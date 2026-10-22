@@ -14,6 +14,8 @@
 #include "../../data/savesystem.h"
 #include "../../ui/widgets/mo6tw/scenelistentry.h"
 
+namespace MO6TWClearListProfile = Impacto::Profile::MO6TW::ClearListMenu;
+
 namespace Impacto {
 namespace UI {
 namespace MO6TW {
@@ -32,12 +34,12 @@ void ClearListMenu::ArrowRightOnClick(Button* target) { MainItems->Next(); }
 ClearListMenu::ClearListMenu() {
   FadeAnimation.Direction = AnimationDirection::In;
   FadeAnimation.LoopMode = AnimationLoopMode::Stop;
-  FadeAnimation.DurationIn = FadeInDuration;
-  FadeAnimation.DurationOut = FadeOutDuration;
+  FadeAnimation.DurationIn = MO6TWClearListProfile::FadeInDuration;
+  FadeAnimation.DurationOut = MO6TWClearListProfile::FadeOutDuration;
 
   ArrowsAnimation.Direction = AnimationDirection::In;
   ArrowsAnimation.LoopMode = AnimationLoopMode::ReverseDirection;
-  ArrowsAnimation.SetDuration(ArrowsAnimationDuration);
+  ArrowsAnimation.SetDuration(MO6TWClearListProfile::ArrowsAnimationDuration);
   ArrowsAnimation.StartIn();
 
   MainItems = new Carousel(
@@ -163,7 +165,8 @@ void ClearListMenu::Render() {
   if (State == Hidden) return;
 
   glm::vec4 col(1.0f, 1.0f, 1.0f, FadeAnimation.Progress);
-  Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f, 0.0f), col);
+  Renderer->DrawSprite(MO6TWClearListProfile::BackgroundSprite,
+                       glm::vec2(0.0f, 0.0f), col);
   MainItems->Tint = col;
   MainItems->Render();
   Arrows->Tint =
@@ -561,11 +564,13 @@ void ClearListMenu::InitSceneTitlePage() {
             SceneTitleItemsWidth, totalHeight);
   SceneTitlePage->Add(SceneTitleItems);
 
-  SceneListY = ScrollbarStart;
+  SceneListY = MO6TWClearListProfile::ScrollbarStart;
   auto scrollbar = new Scrollbar(
-      0, ScrollbarPosition, ScrollbarStart,
-      ScrollbarStart - totalHeight + ScrollAreaHeight, &SceneListY,
-      SBDIR_VERTICAL, ScrollbarTrack, ScrollbarThumb);
+      0, MO6TWClearListProfile::ScrollbarPosition,
+      MO6TWClearListProfile::ScrollbarStart,
+      MO6TWClearListProfile::ScrollbarStart - totalHeight + ScrollAreaHeight,
+      &SceneListY, SBDIR_VERTICAL, MO6TWClearListProfile::ScrollbarTrack,
+      MO6TWClearListProfile::ScrollbarThumb);
   scrollbar->SetScrollAreaBounds(SceneTitleItems->HoverBounds);
   SceneTitlePage->Add(scrollbar);
 

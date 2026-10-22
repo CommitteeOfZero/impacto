@@ -1,16 +1,11 @@
 #pragma once
 
 #include <thread>
-#include <memory>
-#include <type_traits>
 
 #include <avcpp/codeccontext.h>
 #include <avcpp/stream.h>
 #include <avcpp/frame.h>
 #include <avcpp/packet.h>
-
-#include "../impacto.h"
-#include "clock.h"
 
 #if __SWITCH__
 #define __unix__

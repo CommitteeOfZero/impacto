@@ -1,6 +1,5 @@
 #include "optionsmenu.h"
 #include "../../profile_internal.h"
-#include "../../../log.h"
 
 #include "../../ui/optionsmenu.h"
 #include "../../../game.h"
@@ -81,7 +80,7 @@ void Configure() {
   PortraitOffset = EnsureGetMember<glm::vec2>("PortraitOffset");
   VoicePosition = EnsureGetMember<glm::vec2>("VoicePosition");
 
-  auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
+  auto drawType = EnsureGetMember<Impacto::Game::DrawComponentType>("DrawType");
 
   UI::OptionsMenuPtr = new UI::CCLCC::OptionsMenu();
   UI::Menus[drawType].push_back(UI::OptionsMenuPtr);

@@ -1,10 +1,6 @@
 #include "tipsnotification.h"
 
-#include "../../profile/scriptvars.h"
-#include "../../impacto.h"
 #include "../../mem.h"
-#include "../../renderer/renderer.h"
-#include "../../game.h"
 #include "../../profile/hud/tipsnotification.h"
 #include "../../profile/games/mo6tw/tipsnotification.h"
 #include "../../data/tipssystem.h"
@@ -20,8 +16,8 @@ using namespace Impacto::UI;
 using namespace Impacto::UI::Widgets;
 
 TipsNotification::TipsNotification() {
-  FadeAnimation.DurationIn = FadeInDuration;
-  FadeAnimation.DurationOut = FadeOutDuration;
+  FadeAnimation.DurationIn = Profile::TipsNotification::FadeInDuration;
+  FadeAnimation.DurationOut = Profile::TipsNotification::FadeOutDuration;
 
   Timer.DurationIn = TimerDuration;
   Timer.LoopMode = AnimationLoopMode::Stop;

@@ -6,7 +6,6 @@
 #include "../../mem.h"
 #include "../../inputsystem.h"
 #include "../../vm/interface/input.h"
-#include "../../ui/widgets/label.h"
 #include "../../profile/ui/titlemenu.h"
 #include "../../profile/games/chlcc/titlemenu.h"
 #include "../../profile/scriptvars.h"

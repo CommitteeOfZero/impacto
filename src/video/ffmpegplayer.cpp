@@ -1,7 +1,7 @@
 #include "ffmpegplayer.h"
 
 #include <avcpp/av.h>
-#include <avcpp/avtime.h>
+// #include <avcpp/avtime.h>
 #include <avcpp/avutils.h>
 #include <avcpp/codec.h>
 #include <avcpp/formatcontext.h>
@@ -12,7 +12,7 @@
 
 extern "C" {
 #include <libavutil/avutil.h>
-#include <libavutil/time.h>
+// #include <libavutil/time.h>
 }
 
 #include <algorithm>
@@ -36,6 +36,7 @@ extern "C" {
 #ifndef IMPACTO_DISABLE_LIBASS
 #include "../subtitle/ass/subtitlerenderer.h"
 #endif
+#include "../mem.h"
 
 namespace Impacto {
 namespace Video {

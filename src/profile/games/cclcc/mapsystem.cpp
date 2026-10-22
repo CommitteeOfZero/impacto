@@ -1,8 +1,6 @@
 #include "mapsystem.h"
 #include "../../profile_internal.h"
 
-#include "../../../game.h"
-#include "../../../ui/ui.h"
 #include "../../../games/cclcc/mapsystem.h"
 
 namespace Impacto {

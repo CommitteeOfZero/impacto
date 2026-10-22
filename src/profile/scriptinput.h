@@ -2,7 +2,6 @@
 
 #include <ankerl/unordered_dense.h>
 
-#include "../util.h"
 #include "../inputsystem.h"
 namespace Impacto {
 namespace Profile {

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "impacto.h"
 #include <glm/glm.hpp>
 
 namespace Impacto {

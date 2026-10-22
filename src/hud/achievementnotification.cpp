@@ -152,7 +152,7 @@ void Init() {
   NotificationFont.reset();
   TextConfigured = false;
 
-  Configure();
+  Profile::AchievementNotification::Configure();
 
   FadeAnimation.DurationIn = FadeDuration;
   FadeAnimation.DurationOut = FadeDuration;

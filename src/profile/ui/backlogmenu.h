@@ -1,8 +1,6 @@
 #pragma once
 
-#include "../../ui/ui.h"
 #include "../../spritesheet.h"
-#include <magic_enum/magic_enum.hpp>
 
 namespace Impacto {
 namespace Profile {

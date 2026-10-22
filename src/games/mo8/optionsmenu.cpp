@@ -12,6 +12,8 @@ namespace Impacto {
 namespace UI {
 namespace MO8 {
 
+namespace MO8OptionsProfile = Profile::MO8::OptionsMenu;
+
 using namespace Impacto::Profile::OptionsMenu;
 using namespace Impacto::Profile::MO8::OptionsMenu;
 using namespace Impacto::Profile::ScriptVars;
@@ -61,8 +63,8 @@ void OptionsMenu::SkipModeOnClick(Widgets::Toggle* target) {
 OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
   PageFadeAnimation.Direction = AnimationDirection::In;
   PageFadeAnimation.LoopMode = AnimationLoopMode::Stop;
-  PageFadeAnimation.DurationIn = FadeInDuration;
-  PageFadeAnimation.DurationOut = FadeOutDuration;
+  PageFadeAnimation.DurationIn = Profile::OptionsMenu::FadeInDuration;
+  PageFadeAnimation.DurationOut = Profile::OptionsMenu::FadeOutDuration;
 
   auto nextPageOnClick = [this](auto* btn) { return NextPageOnClick(btn); };
   auto previousPageOnClick = [this](auto* btn) {
@@ -73,12 +75,14 @@ OptionsMenu::OptionsMenu() : UI::OptionsMenu() {
   PageControls->FocusLock = false;
   Sprite nullSprite = Sprite();
   nullSprite.Bounds = RectF(0.0f, 0.0f, 0.0f, 0.0f);
-  auto nextPage = new Button(0, NextButtonSprite, NextButtonHighlightedSprite,
-                             nullSprite, NextButtonPosition);
+  auto nextPage = new Button(0, MO8OptionsProfile::NextButtonSprite,
+                             MO8OptionsProfile::NextButtonHighlightedSprite,
+                             nullSprite, MO8OptionsProfile::NextButtonPosition);
   nextPage->OnClickHandler = nextPageOnClick;
   auto previousPage =
-      new Button(0, BackButtonSprite, BackButtonHighlightedSprite, nullSprite,
-                 BackButtonPosition);
+      new Button(0, MO8OptionsProfile::BackButtonSprite,
+                 MO8OptionsProfile::BackButtonHighlightedSprite, nullSprite,
+                 MO8OptionsProfile::BackButtonPosition);
   previousPage->OnClickHandler = previousPageOnClick;
   PageControls->Add(nextPage);
   PageControls->Add(previousPage);
@@ -320,7 +324,8 @@ void OptionsMenu::Render() {
 
   glm::vec4 col(1.0f, 1.0f, 1.0f,
                 glm::smoothstep(0.0f, 1.0f, FadeAnimation.Progress));
-  Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f, 0.0f), col);
+  Renderer->DrawSprite(MO8OptionsProfile::BackgroundSprite,
+                       glm::vec2(0.0f, 0.0f), col);
 
   std::unique_ptr<Group>& currentPage = Pages[CurrentPage];
   if (PageFadeAnimation.State == AnimationState::Playing) {

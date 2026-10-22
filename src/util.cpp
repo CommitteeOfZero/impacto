@@ -1,6 +1,5 @@
 #include "util.h"
 
-#include "profile/game.h"
 #include "log.h"
 #include <memory>
 #include <ctime>

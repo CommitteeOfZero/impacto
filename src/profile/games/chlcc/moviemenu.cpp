@@ -3,7 +3,6 @@
 #include "../../../ui/ui.h"
 
 #include "../../../games/chlcc/moviemenu.h"
-#include "../../../renderer/renderer.h"
 
 namespace Impacto {
 namespace Profile {

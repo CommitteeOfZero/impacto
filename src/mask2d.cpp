@@ -1,6 +1,5 @@
 #include "mask2d.h"
 
-#include "io/memorystream.h"
 #include "io/vfs.h"
 #include "util.h"
 #include "profile/game.h"

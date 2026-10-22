@@ -2,8 +2,6 @@
 
 #include "../../../renderer/renderer.h"
 #include "../../../profile/games/chlcc/moviemenu.h"
-#include "../../../games/chlcc/moviemenu.h"
-#include "../../../profile/scriptvars.h"
 
 namespace Impacto {
 namespace UI {

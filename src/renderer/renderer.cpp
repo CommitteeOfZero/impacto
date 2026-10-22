@@ -1,6 +1,5 @@
 #include "renderer.h"
 
-#include "../profile/game.h"
 #include "../userconfig.h"
 #include "../log.h"
 

@@ -2,7 +2,6 @@
 
 #include "../../profile/games/chlcc/albummenu.h"
 #include "../../profile/scriptvars.h"
-#include "../../profile/profile_internal.h"
 #include "../../renderer/renderer.h"
 #include "../../ui/ui.h"
 #include "../../inputsystem.h"
@@ -12,6 +11,8 @@
 #include "../../vm/interface/input.h"
 
 #include "../../ui/widgets/group.h"
+
+namespace CHLCCAlbumProfile = Impacto::Profile::CHLCC::AlbumMenu;
 
 namespace Impacto {
 namespace UI {
@@ -34,7 +35,7 @@ void AlbumMenu::OnCgVariationEnd(Widgets::CgViewer* target) {
 void AlbumMenu::CgOnClick(Widgets::Button* target) {
   if (!target->IsLocked) {
     int total, viewed = 0;
-    SaveSystem::GetEVStatus(target->Id, &total, &viewed);
+    Impacto::SaveSystem::GetEVStatus(target->Id, &total, &viewed);
 
     ShowCgViewer = true;
     CgViewerWidget->LoadCgSprites((size_t)target->Id, "bg",
@@ -67,13 +68,15 @@ AlbumMenu::AlbumMenu() : CommonMenu(false) {
     for (int i = 0; i < 3; i++) {
       for (int j = 0; j < 3; j++) {
         auto button = new AlbumThumbnailButton(
-            (EntriesPerPage * k + 3 * i + j),
-            (AlbumThumbnails[EntriesPerPage * k + 3 * i + j]),
+            (CHLCCAlbumProfile::EntriesPerPage * k + 3 * i + j),
+            (AlbumThumbnails[CHLCCAlbumProfile::EntriesPerPage * k + 3 * i +
+                             j]),
             ThumbnailHighlight, ThumbnailHighlight,
             glm::vec2(ThumbnailTemplatePosition.x + ThumbnailOffset.x * j,
                       ThumbnailTemplatePosition.y + ThumbnailOffset.y * i),
             0, 0, VariationUnlocked, VariationLocked, VariationTemplateOffset,
-            LockedCG, SelectionMarkerSprite, SelectionMarkerRelativePos);
+            LockedCG, CHLCCAlbumProfile::SelectionMarkerSprite,
+            SelectionMarkerRelativePos);
         button->OnClickHandler = cgOnClick;
         page->Add(button);
       }
@@ -87,9 +90,9 @@ void AlbumMenu::Init() {
     return;
   }
 
-  const auto start = AlbumPages * EntriesPerPage;
-  for (int i = start; i < start + EntriesPerPage; i++) {
-    SaveSystem::SetEVStatus(i);
+  const auto start = AlbumPages * CHLCCAlbumProfile::EntriesPerPage;
+  for (int i = start; i < start + CHLCCAlbumProfile::EntriesPerPage; i++) {
+    Impacto::SaveSystem::Implementation->SetEVStatus(i);
   }
 }
 
@@ -134,7 +137,8 @@ void AlbumMenu::Hide() {
 
 void AlbumMenu::Render() {
   if (State == Hidden) return;
-  CommonMenu::DrawSubmenu(BackgroundColor, CircleSprite, AlbumMenuTitle,
+  CommonMenu::DrawSubmenu(CHLCCAlbumProfile::BackgroundColor,
+                          CHLCCAlbumProfile::CircleSprite, AlbumMenuTitle,
                           AlbumMenuTitleAngle, true);
 
   if (MenuTransition.Progress < 0.22f) return;
@@ -165,7 +169,7 @@ void AlbumMenu::Render() {
 }
 
 void AlbumMenu::UpdateInput(float dt) {
-  using namespace Vm::Interface;
+  using namespace Impacto::Vm::Interface;
   if (!ShowCgViewer) Menu::UpdateInput(dt);
   if (State == Shown) {
     CgViewerGroup->UpdateInput(dt);
@@ -255,9 +259,10 @@ void AlbumMenu::Update(float dt) {
       CgViewerGroup->Update(dt);
     } else {
       auto button = static_cast<AlbumThumbnailButton*>(CurrentlyFocusedElement);
-      if (button != nullptr && (button->Id / EntriesPerPage != CurrentPage)) {
+      const int32_t entriesPerPage = CHLCCAlbumProfile::EntriesPerPage;
+      if (button != nullptr && (button->Id / entriesPerPage != CurrentPage)) {
         Pages[CurrentPage]->Hide();
-        CurrentPage = button->Id / EntriesPerPage;
+        CurrentPage = button->Id / entriesPerPage;
         Pages[CurrentPage]->Show();
         button->HasFocus = true;
         CurrentlyFocusedElement = button;
@@ -272,11 +277,13 @@ void AlbumMenu::UpdatePages() {
   int viewedVariations = 0;
   int lastNonEmptyPage = 0;
   const int32_t albumPages = AlbumPages + GetFlag(SF_CONGRATULATED);
-  for (int i = 0; i < albumPages * EntriesPerPage; i++) {
-    SaveSystem::GetEVStatus(i, &totalVariations, &viewedVariations);
-    const size_t currentPage = i / EntriesPerPage;
+  const int32_t entriesPerPage = CHLCCAlbumProfile::EntriesPerPage;
+  for (int i = 0; i < albumPages * entriesPerPage; i++) {
+    Impacto::SaveSystem::Implementation->GetEVStatus(i, &totalVariations,
+                                                     &viewedVariations);
+    const size_t currentPage = i / entriesPerPage;
     static_cast<AlbumThumbnailButton*>(
-        Pages[currentPage]->Children[i % EntriesPerPage])
+        Pages[currentPage]->Children[i % entriesPerPage])
         ->UpdateVariations(totalVariations, viewedVariations);
 
     if (viewedVariations > 0) {
@@ -285,30 +292,30 @@ void AlbumMenu::UpdatePages() {
   }
   MaxReachablePage = lastNonEmptyPage + 1;
 
-  for (int i = 0; i < EntriesPerPage * MaxReachablePage; i++) {
+  for (int i = 0; i < entriesPerPage * MaxReachablePage; i++) {
     int nextChild = ((i + 1) + ((i + 1) % 3 == 0) * 6) %
-                    (EntriesPerPage * MaxReachablePage);
-    Pages[i / EntriesPerPage]->Children[i % EntriesPerPage]->SetFocus(
-        Pages[nextChild / EntriesPerPage]->Children[nextChild % EntriesPerPage],
+                    (entriesPerPage * MaxReachablePage);
+    Pages[i / entriesPerPage]->Children[i % entriesPerPage]->SetFocus(
+        Pages[nextChild / entriesPerPage]->Children[nextChild % entriesPerPage],
         FDIR_RIGHT);
 
     nextChild = (i - 1) - (i % 3 == 0) * 6;
-    nextChild = (nextChild < 0) * EntriesPerPage * MaxReachablePage + nextChild;
-    Pages[i / EntriesPerPage]->Children[i % EntriesPerPage]->SetFocus(
-        Pages[nextChild / EntriesPerPage]->Children[nextChild % EntriesPerPage],
+    nextChild = (nextChild < 0) * entriesPerPage * MaxReachablePage + nextChild;
+    Pages[i / entriesPerPage]->Children[i % entriesPerPage]->SetFocus(
+        Pages[nextChild / entriesPerPage]->Children[nextChild % entriesPerPage],
         FDIR_LEFT);
 
     nextChild =
-        (i + 3) % EntriesPerPage + (i / EntriesPerPage) * EntriesPerPage;
-    Pages[i / EntriesPerPage]->Children[i % EntriesPerPage]->SetFocus(
-        Pages[i / EntriesPerPage]->Children[nextChild % EntriesPerPage],
+        (i + 3) % entriesPerPage + (i / entriesPerPage) * entriesPerPage;
+    Pages[i / entriesPerPage]->Children[i % entriesPerPage]->SetFocus(
+        Pages[i / entriesPerPage]->Children[nextChild % entriesPerPage],
         FDIR_DOWN);
 
     nextChild =
-        (i - 3 < EntriesPerPage * (i / EntriesPerPage)) * EntriesPerPage + i -
+        (i - 3 < entriesPerPage * (i / entriesPerPage)) * entriesPerPage + i -
         3;
-    Pages[i / EntriesPerPage]->Children[i % EntriesPerPage]->SetFocus(
-        Pages[i / EntriesPerPage]->Children[nextChild % EntriesPerPage],
+    Pages[i / entriesPerPage]->Children[i % entriesPerPage]->SetFocus(
+        Pages[i / entriesPerPage]->Children[nextChild % entriesPerPage],
         FDIR_UP);
   }
 }
@@ -316,11 +323,12 @@ void AlbumMenu::UpdatePages() {
 inline void AlbumMenu::DrawPage() {
   glm::vec2 offset = MenuTransition.GetPageOffset();
   Renderer->DrawSprite(PageCountLabel, PageLabelPosition + offset);
-  Renderer->DrawSprite(PageNums[CurrentPage + 1], CurrentPageNumPos + offset);
+  Renderer->DrawSprite(PageNums[CurrentPage + 1],
+                       CHLCCAlbumProfile::CurrentPageNumPos + offset);
   Renderer->DrawSprite(PageNumSeparatorSlash,
-                       PageNumSeparatorSlashPos + offset);
+                       CHLCCAlbumProfile::PageNumSeparatorSlashPos + offset);
   Renderer->DrawSprite(ReachablePageNums[MaxReachablePage],
-                       MaxPageNumPos + offset);
+                       CHLCCAlbumProfile::MaxPageNumPos + offset);
 
   for (int i = 0; i < 3; i++) {
     for (int j = 0; j < 3; j++) {

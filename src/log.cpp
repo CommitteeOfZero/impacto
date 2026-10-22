@@ -1,5 +1,3 @@
-#include <time.h>
-#include <cstdarg>
 
 #include <fmt/chrono.h>
 #include <SDL3/SDL_log.h>

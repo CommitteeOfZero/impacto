@@ -3,7 +3,6 @@
 #include "../../profile/hud/tipsnotification.h"
 #include "../../profile/games/chlcc/tipsnotification.h"
 #include "../../data/tipssystem.h"
-#include "../../profile/game.h"
 
 namespace Impacto {
 namespace CHLCC {
@@ -39,8 +38,8 @@ TipsNotification::TipsNotification() {
       static_cast<int>(TipNameColorIndex));
   TipName.OutlineAlphaEnabled = true;
 
-  FadeAnimation.DurationIn = FadeInDuration;
-  FadeAnimation.DurationOut = FadeOutDuration;
+  FadeAnimation.DurationIn = Profile::TipsNotification::FadeInDuration;
+  FadeAnimation.DurationOut = Profile::TipsNotification::FadeOutDuration;
 
   FadeOutAnimation = FadeAnimation;
 
