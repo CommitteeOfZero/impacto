@@ -1,0 +1,11 @@
+--- a/libavcodec/bink2.c
++++ b/libavcodec/bink2.c
+@@ -359,7 +359,7 @@
+     }
+     c->flags = AV_RL32(avctx->extradata);
+     av_log(avctx, AV_LOG_DEBUG, "flags: 0x%X\n", c->flags);
+-    c->has_alpha = c->flags & BINK_FLAG_ALPHA;
++    c->has_alpha = !!(c->flags & BINK_FLAG_ALPHA);
+     c->avctx = avctx;
+     c->slice_ctx[0] = c;
+ 
