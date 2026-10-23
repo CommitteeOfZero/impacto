@@ -23,6 +23,8 @@
 #include "../games/cc/titlemenu.h"
 #include "../games/cclcc/systemmenu.h"
 #include "../games/cclcc/helpmenu.h"
+#include "../video/videosystem.h"
+#include "../io/vfs.h"
 namespace Impacto {
 
 namespace Vm {
@@ -545,6 +547,7 @@ VmInstruction(InstTitleMenuNew) {
           break;
         case InstructionSet::LCCSwitch:
         case InstructionSet::CC:
+        case InstructionSet::SG0:
         case InstructionSet::CHN: {
           int mainState;
           int startTransitionState;
@@ -562,6 +565,17 @@ VmInstruction(InstTitleMenuNew) {
             startTransitionState = StartTransition;
           }
 
+          if (Profile::Vm::GameInstructionSet == InstructionSet::SG0 &&
+              +Profile::Game::GameFeatures & +GameFeature::Video &&
+              !Video::Players[0]->IsPlaying) {
+            // Keep the title movie looping.
+            constexpr int TitleMovieId = 32;
+            Io::Stream* stream;
+            if (Io::VfsOpen("movie", TitleMovieId, &stream) == IoError_OK) {
+              ScrWork[SW_MOVIEPRI] = 1;
+              Video::Players[0]->Play(stream, true, false);
+            }
+          }
           if (ScrWork[SW_TITLEMODE] == mainState) {
             if (!UI::TitleMenuPtr->AllowsScriptInput) {
               ResetInstruction;

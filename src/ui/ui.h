@@ -42,6 +42,7 @@ enum class SysMesBoxType : int {
   MO6TW,
   Darling,
   CC,
+  SG0,
 };
 enum class TitleMenuType : int {
   None,
@@ -52,6 +53,7 @@ enum class TitleMenuType : int {
   MO8,
   CC,
   CCLCC,
+  SG0,
 };
 enum class OptionsMenuType : int {
   None,

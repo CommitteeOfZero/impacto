@@ -8,6 +8,7 @@
 #include "../games/mo8/titlemenu.h"
 #include "../games/cc/titlemenu.h"
 #include "../games/cclcc/titlemenu.h"
+#include "../games/sg0/titlemenu.h"
 #include "../../log.h"
 
 namespace Impacto {
@@ -53,6 +54,8 @@ void Configure() {
       CC::TitleMenu::Configure();
     } else if (Type == TitleMenuType::CCLCC) {
       CCLCC::TitleMenu::Configure();
+    } else if (Type == TitleMenuType::SG0) {
+      SG0::TitleMenu::Configure();
     }
 
     // if (Implementation != 0) {

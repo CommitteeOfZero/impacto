@@ -13,6 +13,7 @@ enum class BacklogMenuType : int {
   MO6TW,
   CHLCC,
   CC,
+  SG0,
 };
 enum class EntryHighlightLocationType : int {
   None,

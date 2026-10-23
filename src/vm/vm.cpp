@@ -19,6 +19,7 @@
 #include "opcodetables_sgps3.h"
 #include "opcodetables_chn.h"
 #include "opcodetables_lccswitch.h"
+#include "opcodetables_sg0.h"
 #include "../profile/game.h"
 #include "../profile/vm.h"
 #include "../profile/scriptinput.h"
@@ -141,6 +142,12 @@ void Init() {
       OpcodeTableUser1 = OpcodeTableUser1_LCCSwitch;
       OpcodeTableTitleOnly = OpcodeTableTitleOnly_LCCSwitch;
 
+      break;
+    }
+    case InstructionSet::SG0: {
+      OpcodeTableSystem = OpcodeTableSystem_SG0;
+      OpcodeTableGraph = OpcodeTableGraph_SG0;
+      OpcodeTableUser1 = OpcodeTableUser1_SG0;
       break;
     }
     default: {

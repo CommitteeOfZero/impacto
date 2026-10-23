@@ -145,6 +145,9 @@ set(Impacto_Src
     src/profile/games/cc/backlogmenu.cpp
     src/profile/games/cc/dialoguebox.cpp
     src/profile/games/cc/titlemenu.cpp
+    src/profile/games/sg0/titlemenu.cpp
+    src/profile/games/sg0/sysmesbox.cpp
+    src/profile/games/sg0/backlogmenu.cpp
     src/profile/games/cc/sysmesbox.cpp
 
     src/profile/games/cclcc/systemmenu.cpp
@@ -212,6 +215,9 @@ set(Impacto_Src
 
     src/games/cc/backlogmenu.cpp
     src/games/cc/titlemenu.cpp
+    src/games/sg0/titlemenu.cpp
+    src/games/sg0/sysmesbox.cpp
+    src/games/sg0/backlogmenu.cpp
     src/games/cc/sysmesbox.cpp
 
     src/games/cclcc/commonmenu.cpp
@@ -522,6 +528,9 @@ set(Impacto_Header
     src/profile/games/cc/backlogmenu.h
     src/profile/games/cc/dialoguebox.h
     src/profile/games/cc/titlemenu.h
+    src/profile/games/sg0/titlemenu.h
+    src/profile/games/sg0/sysmesbox.h
+    src/profile/games/sg0/backlogmenu.h
     src/profile/games/cc/sysmesbox.h
 
     src/profile/games/cclcc/titlemenu.h
@@ -586,6 +595,9 @@ set(Impacto_Header
     src/games/chlcc/introsequence.h
 
     src/games/cc/titlemenu.h
+    src/games/sg0/titlemenu.h
+    src/games/sg0/sysmesbox.h
+    src/games/sg0/backlogmenu.h
     src/games/cc/sysmesbox.h
 
     src/games/cclcc/commonmenu.h

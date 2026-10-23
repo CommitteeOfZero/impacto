@@ -706,6 +706,7 @@ VmInstruction(InstSystemMes) {
     case InstructionSet::Dash:
     case InstructionSet::CC:
     case InstructionSet::LCCSwitch:
+    case InstructionSet::SG0:
       PopUint8(id);
       sysMesId = id;
       break;
@@ -1010,7 +1011,8 @@ VmInstruction(InstMSinit) {
         Profile::Vm::GameInstructionSet == InstructionSet::CHLCC) {
       memset(&FlagWork, 0, 500);
       memset(&ScrWork, 0, 24000);
-    } else if (Profile::Vm::GameInstructionSet == InstructionSet::CC) {
+    } else if (Profile::Vm::GameInstructionSet == InstructionSet::CC ||
+               Profile::Vm::GameInstructionSet == InstructionSet::SG0) {
       memset(&FlagWork, 0, 1000);
       memset(&ScrWork, 0, 32000);
     } else if (Profile::Vm::GameInstructionSet == InstructionSet::LCCSwitch) {

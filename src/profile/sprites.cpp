@@ -4,6 +4,7 @@
 #include "../log.h"
 #include "../renderer/renderer.h"
 #include "../texture/texture.h"
+#include <algorithm>
 #include <future>
 
 namespace Impacto {
@@ -21,6 +22,39 @@ static Texture LoadTexture(Io::Stream* stream, std::string name) {
   delete stream;
 
   return texture;
+}
+
+// SG0 Steam splits its font atlas into two textures (font_a, font_b).
+// Stack them back into one sheet.
+static Texture LoadStackedTexture(Io::Stream* firstStream,
+                                  Io::Stream* continuationStream,
+                                  std::string name, int firstHeight,
+                                  int height) {
+  Texture first = LoadTexture(firstStream, name);
+  Texture continuation = LoadTexture(continuationStream, name + " (continued)");
+
+  if (firstHeight <= 0 || firstHeight > first.Height)
+    firstHeight = first.Height;
+  const size_t firstPixels = static_cast<size_t>(first.Width) * first.Height;
+  if (first.Width != continuation.Width ||
+      first.Format != continuation.Format || firstPixels == 0 ||
+      height <= firstHeight || height > firstHeight + continuation.Height) {
+    ImpLog(LogLevel::Error, LogChannel::Profile,
+           "Spritesheet {:s} pages cannot be stacked to height {:d}, using "
+           "the first page only\n",
+           name, height);
+    return first;
+  }
+
+  const size_t bytesPerPixel = first.Buffer.size() / firstPixels;
+  const size_t rowBytes = static_cast<size_t>(first.Width) * bytesPerPixel;
+  Texture stacked{};
+  stacked.Init(first.Format, first.Width, height);
+  std::copy_n(first.Buffer.begin(), firstHeight * rowBytes,
+              stacked.Buffer.begin());
+  std::copy_n(continuation.Buffer.begin(), (height - firstHeight) * rowBytes,
+              stacked.Buffer.begin() + firstHeight * rowBytes);
+  return stacked;
 }
 
 void LoadSpritesheets() {
@@ -49,8 +83,23 @@ void LoadSpritesheets() {
         Window->Shutdown();
       }
 
-      futures.emplace_back(std::tuple(
-          name, std::async(std::launch::async, LoadTexture, stream, name)));
+      if (auto continuationPath =
+              TryGetMember<Io::AssetPath>("ContinuationPath")) {
+        Io::Stream* continuationStream;
+        if (continuationPath->Open(&continuationStream) != IoError_OK) {
+          ImpLog(LogLevel::Fatal, LogChannel::Profile,
+                 "Could not open spritesheet {:s} continuation page\n", name);
+          Window->Shutdown();
+        }
+        futures.emplace_back(std::tuple(
+            name, std::async(std::launch::async, LoadStackedTexture, stream,
+                             continuationStream, name,
+                             TryGetMember<int>("FirstPageHeight").value_or(0),
+                             static_cast<int>(sheet.DesignHeight))));
+      } else {
+        futures.emplace_back(std::tuple(
+            name, std::async(std::launch::async, LoadTexture, stream, name)));
+      }
     }
     Pop();
   }

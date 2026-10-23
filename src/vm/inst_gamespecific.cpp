@@ -763,6 +763,115 @@ VmInstruction(InstPhoneSG) {
     }
   }
 }
+// SG0 operand layouts agree with sc3ntist's ZeroDisassembler.cpp.
+
+// 00 35: like InstSignIn, but SG0 encodes a one-byte argument.
+VmInstruction(InstSignInSG0) {
+  StartInstruction;
+  PopUint8(arg1);
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction SignInSG0(arg1: {:d})\n", arg1);
+}
+
+// 00 4C: u8 type, type 0 takes one expression.
+VmInstruction(InstUnk004CSG0) {
+  StartInstruction;
+  PopUint8(type);
+  if (type == 0) {
+    PopExpression(arg1);
+    ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+               "STUB instruction Unk004CSG0(type: {:d}, arg1: {:d})\n", type,
+               arg1);
+  } else {
+    ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+               "STUB instruction Unk004CSG0(type: {:d})\n", type);
+  }
+}
+
+// 00 50: u8 type; types 0 and 2 take two labels, type 3 takes three.
+// Types 0 and 3 jump to their first label, like InstPressStartNew.
+VmInstruction(InstPressStartSG0) {
+  StartInstruction;
+  PopUint8(type);
+  switch (type) {
+    case 0:
+    case 2: {
+      PopUint16(label1Num);
+      PopUint16(label2Num);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction PressStartSG0(type: {:d}, label1: {:d}, "
+                 "label2: {:d})\n",
+                 type, label1Num, label2Num);
+      if (type == 0) {
+        thread->IpOffset =
+            ScriptGetLabelAddress(thread->ScriptBufferId, label1Num);
+      }
+    } break;
+    case 3: {
+      PopUint16(label1Num);
+      PopUint16(label2Num);
+      PopUint16(label3Num);
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction PressStartSG0(type: {:d}, label1: {:d}, "
+                 "label2: {:d}, label3: {:d})\n",
+                 type, label1Num, label2Num, label3Num);
+      thread->IpOffset =
+          ScriptGetLabelAddress(thread->ScriptBufferId, label1Num);
+    } break;
+    default:
+      ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+                 "STUB instruction PressStartSG0(type: {:d})\n", type);
+      break;
+  }
+}
+
+// 10 37: SG0 phone. Type 0 names seven data blocks; 0xA and 0xD name code.
+VmInstruction(InstPhoneSG0) {
+  StartInstruction;
+  PopUint8(type);
+  switch (type) {
+    case 0x00:
+      for (int i = 0; i < 7; i++) {
+        PopUint16(labelNum);
+        (void)labelNum;
+      }
+      break;
+    case 0x0A:
+    case 0x32: {
+      PopUint16(labelNum);
+      (void)labelNum;
+    } break;
+    case 0x0C: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+    } break;
+    case 0x0D: {
+      PopExpression(arg1);
+      PopUint16(labelNum);
+      (void)labelNum;
+    } break;
+    case 0x0F:
+    case 0x2E: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+      PopExpression(arg3);
+    } break;
+    case 0x2A:
+    case 0x2B:
+    case 0x2C:
+    case 0x2D:
+    case 0x30: {
+      PopExpression(arg1);
+    } break;
+    case 0x31: {
+      PopExpression(arg1);
+      PopExpression(arg2);
+    } break;
+  }
+  ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
+             "STUB instruction PhoneSG0(type: {:d})\n", type);
+}
+
 VmInstruction(InstMail) {
   StartInstruction;
   PopUint8(type);

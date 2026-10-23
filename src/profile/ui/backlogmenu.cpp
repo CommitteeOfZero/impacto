@@ -9,6 +9,7 @@
 #include "../games/mo6tw/backlogmenu.h"
 #include "../games/chlcc/backlogmenu.h"
 #include "../games/cc/backlogmenu.h"
+#include "../games/sg0/backlogmenu.h"
 
 namespace Impacto {
 namespace Profile {
@@ -68,6 +69,10 @@ void Configure() {
 
       case BacklogMenuType::CC:
         CC::BacklogMenu::Configure();
+        break;
+
+      case BacklogMenuType::SG0:
+        SG0::BacklogMenu::Configure();
         break;
 
       case BacklogMenuType::None:

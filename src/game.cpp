@@ -372,6 +372,7 @@ void UpdateSystem(float dt) {
         }
         const bool isCC =
             Profile::Vm::GameInstructionSet == Vm::InstructionSet::CC ||
+            Profile::Vm::GameInstructionSet == Vm::InstructionSet::SG0 ||
             Profile::Vm::GameInstructionSet == Vm::InstructionSet::LCCSwitch;
         if (GetFlag(SF_BGEFF1DISP) && (!isCC || ScrWork[SW_EFF_WAVE_ALPHA])) {
           Effects::WaveEFF.Update(updateInterval);
@@ -443,6 +444,7 @@ static void RenderMain() {
 
   for (uint32_t layer = 0; layer <= Profile::Game::LayerCount; layer++) {
     if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::CC ||
+        Profile::Vm::GameInstructionSet == Vm::InstructionSet::SG0 ||
         Profile::Vm::GameInstructionSet == Vm::InstructionSet::LCCSwitch) {
       const int renderTarget = ScrWork[SW_RENDERTARGET + layer];
       if (0 <= renderTarget && renderTarget <= MaxFramebuffers) {
@@ -555,6 +557,7 @@ static void RenderMain() {
     if (Profile::Game::UseWaveEffects) {
       const bool isCC =
           Profile::Vm::GameInstructionSet == Vm::InstructionSet::CC ||
+          Profile::Vm::GameInstructionSet == Vm::InstructionSet::SG0 ||
           Profile::Vm::GameInstructionSet == Vm::InstructionSet::LCCSwitch;
       if (GetFlag(SF_BGEFF1DISP) && (!isCC || ScrWork[SW_EFF_WAVE_ALPHA])) {
         if (ScrWork[SW_EFF_WAVE_PRI] == static_cast<int>(layer)) {
@@ -677,6 +680,7 @@ void Render() {
         }
         case DrawComponentType::Main: {
           if ((Profile::Vm::GameInstructionSet == Vm::InstructionSet::CC ||
+               Profile::Vm::GameInstructionSet == Vm::InstructionSet::SG0 ||
                Profile::Vm::GameInstructionSet ==
                    Vm::InstructionSet::LCCSwitch) &&
               !(!GetFlag(SF_SELECTMODE) ||
@@ -702,6 +706,7 @@ void Render() {
         }
         case DrawComponentType::SystemIcons: {
           if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::CC ||
+              Profile::Vm::GameInstructionSet == Vm::InstructionSet::SG0 ||
               Profile::Vm::GameInstructionSet ==
                   Vm::InstructionSet::LCCSwitch) {
             UI::GameSpecific::RenderCCButtonGuide();

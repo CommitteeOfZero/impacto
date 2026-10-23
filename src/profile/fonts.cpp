@@ -86,10 +86,15 @@ void LoadFonts() {
         }
 
         if (fontType == SingleSheet) {
-          Fonts[name] = new SingleSheetFont(
+          auto* font = new SingleSheetFont(
               *bitmapEmWidth, *bitmapEmHeight, foregroundOpacityCurve,
               outlineOpacityCurve, sheet, gridSize,
               EnsureGetAdvanceWidths(name, *bitmapEmWidth));
+          std::vector<float> leftBearings;
+          if (TryGetMember("LeftBearingsTable", leftBearings)) {
+            font->SetLeftBearings(std::move(leftBearings));
+          }
+          Fonts[name] = font;
         } else {
           assert(fontType == EdgeDetectedSingleSheet);
 
