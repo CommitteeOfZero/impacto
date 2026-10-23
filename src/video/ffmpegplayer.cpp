@@ -1,5 +1,6 @@
 #include "ffmpegplayer.h"
 
+#include <array>
 #include <avcpp/av.h>
 #include <avcpp/avtime.h>
 #include <avcpp/avutils.h>
@@ -786,6 +787,11 @@ void FFmpegPlayer::Update(float dt) {
               VideoTexture = Renderer->CreateYUVFrame(
                   (float)VideoStream->CodecContext.width(),
                   (float)VideoStream->CodecContext.height());
+            } else if (frame->Frame.pixelFormat() == AV_PIX_FMT_YUVA420P) {
+              VideoTexture = Renderer->CreateYUVFrame(
+                  (float)VideoStream->CodecContext.width(),
+                  (float)VideoStream->CodecContext.height() *
+                      (IsAlpha ? 2.0f : 1.0f));
             } else if (frame->Frame.pixelFormat() == AV_PIX_FMT_NV12) {
               VideoTexture = Renderer->CreateNV12Frame(
                   (float)VideoStream->CodecContext.width(),
@@ -800,9 +806,15 @@ void FFmpegPlayer::Update(float dt) {
       nv12Frame->Submit(frame->Frame.data(0), frame->Frame.raw()->linesize[0],
                         frame->Frame.data(1), frame->Frame.raw()->linesize[1]);
     } else if (frame->Frame.pixelFormat() == AV_PIX_FMT_YUV420P) {
-      auto& yuvFrame = std::get<YUVFrame*>(VideoTexture);
-      yuvFrame->Submit(frame->Frame.data(0), frame->Frame.data(1),
-                       frame->Frame.data(2));
+      if (frame->Frame.raw()->color_range == AVCOL_RANGE_JPEG) {
+        SubmitRepackedFrame(frame->Frame.raw());
+      } else {
+        auto& yuvFrame = std::get<YUVFrame*>(VideoTexture);
+        yuvFrame->Submit(frame->Frame.data(0), frame->Frame.data(1),
+                         frame->Frame.data(2));
+      }
+    } else if (frame->Frame.pixelFormat() == AV_PIX_FMT_YUVA420P) {
+      SubmitRepackedFrame(frame->Frame.raw());
     } else {
       ImpLog(LogLevel::Warning, LogChannel::Video,
              "Unsupported frame pixel format, video will not display!\n");
@@ -814,6 +826,60 @@ void FFmpegPlayer::Update(float dt) {
     VideoStream->FrameQueue.wait_dequeue(unusedFrame);
     PlaybackStarted = true;
   }
+}
+
+void FFmpegPlayer::SubmitRepackedFrame(const AVFrame* frame) {
+  // Lookup tables from full range to video range.
+  static const auto tables = [] {
+    std::array<std::array<uint8_t, 256>, 4> t{};
+    for (int v = 0; v < 256; v++) {
+      t[0][v] = static_cast<uint8_t>(v);
+      t[1][v] = static_cast<uint8_t>(16 + (v * 219 + 127) / 255);
+      t[2][v] = static_cast<uint8_t>(
+          128 + ((v - 128) * 224 + (v >= 128 ? 127 : -127)) / 255);
+    }
+    t[3] = t[1];
+    return t;
+  }();
+  const bool fullRange = frame->color_range == AVCOL_RANGE_JPEG;
+  const auto& lumaTable = tables[fullRange ? 1 : 0];
+  const auto& chromaTable = tables[fullRange ? 2 : 0];
+
+  const int width = frame->width;
+  const int height = frame->height;
+  const int chromaWidth = (width + 1) / 2;
+  const int chromaHeight = (height + 1) / 2;
+  const bool withAlpha = IsAlpha && frame->format == AV_PIX_FMT_YUVA420P;
+  const int halves = withAlpha ? 2 : 1;
+  PackedLuma.resize(static_cast<size_t>(width) * height * halves);
+  PackedCb.assign(static_cast<size_t>(chromaWidth) * chromaHeight * halves,
+                  128);
+  PackedCr.assign(PackedCb.size(), 128);
+
+  const auto copyPlane = [](uint8_t* dst, const uint8_t* src, int srcStride,
+                            int rowBytes, int rows,
+                            const std::array<uint8_t, 256>& table) {
+    for (int y = 0; y < rows; y++) {
+      const uint8_t* in = src + static_cast<size_t>(y) * srcStride;
+      uint8_t* out = dst + static_cast<size_t>(y) * rowBytes;
+      for (int x = 0; x < rowBytes; x++) out[x] = table[in[x]];
+    }
+  };
+  copyPlane(PackedLuma.data(), frame->data[0], frame->linesize[0], width,
+            height, lumaTable);
+  copyPlane(PackedCb.data(), frame->data[1], frame->linesize[1], chromaWidth,
+            chromaHeight, chromaTable);
+  copyPlane(PackedCr.data(), frame->data[2], frame->linesize[2], chromaWidth,
+            chromaHeight, chromaTable);
+  if (withAlpha) {
+    // The shader reads alpha through its YUV matrix, so store it as
+    // video-range luma.
+    copyPlane(PackedLuma.data() + static_cast<size_t>(width) * height,
+              frame->data[3], frame->linesize[3], width, height, tables[3]);
+  }
+
+  std::get<YUVFrame*>(VideoTexture)
+      ->Submit(PackedLuma.data(), PackedCb.data(), PackedCr.data());
 }
 
 void FFmpegPlayer::UpdateSubtitles() {
