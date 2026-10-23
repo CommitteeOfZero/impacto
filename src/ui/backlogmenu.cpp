@@ -359,12 +359,16 @@ void BacklogMenu<EntryType>::AddMessage(Vm::BufferOffsetContext scrCtx,
 
   auto onClick = [this](auto* btn) { return MenuButtonOnClick(btn); };
 
+  // SG0 adds empty entries with SetRevMes.
+  const auto entryBottom = [](const EntryType& entry) {
+    return entry.Page.Glyphs.empty()
+               ? entry.Bounds.Bottom()
+               : entry.Page.Glyphs.back().DestRect.Bottom();
+  };
   const glm::vec2 entryPos =
-      Entries.empty()
-          ? EntriesStart
-          : glm::vec2(EntriesStart.x,
-                      Entries.front().Page.Glyphs.back().DestRect.Bottom() +
-                          EntryYPadding);
+      Entries.empty() ? EntriesStart
+                      : glm::vec2(EntriesStart.x,
+                                  entryBottom(Entries.front()) + EntryYPadding);
 
   if (Entries.full()) {
     ItemsHeight -= Entries.back().Bounds.Height + EntryYPadding;
