@@ -68,6 +68,7 @@
 #include "profile/ui/helpmenu.h"
 #include "profile/data/bgeff.h"
 #include "profile/ui/gamespecific.h"
+#include "profile/ui/buttonprompticons.h"
 #include "profile/subtitle.h"
 
 namespace Impacto {
@@ -137,6 +138,7 @@ void InitGameProfile() {
 
   if (+Profile::Game::GameFeatures & +GameFeature::Renderer2D) {
     Profile::LoadSpritesheets();
+    Profile::ButtonPromptIcons::Configure();
     Profile::Charset::Load();
     Profile::LoadFonts();
     Profile::LoadAnimations();

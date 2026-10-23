@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../../spritesheet.h"
+#include "../../../ui/buttonprompt.h"
 
 namespace Impacto {
 namespace Profile {
@@ -21,7 +22,7 @@ inline Sprite MenuTitleText;
 inline float PageRotationAngle;
 inline float PageTransitionDuration;
 
-inline Sprite ButtonPromptSprite;
+inline UI::ButtonPrompt ButtonPromptSprite;
 inline glm::vec2 ButtonPromptPosition;
 
 inline Sprite SelectedSprite;

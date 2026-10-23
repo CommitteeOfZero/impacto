@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../../spritesheet.h"
+#include "../../../ui/buttonprompt.h"
 #include "../../../spriteanimation.h"
 
 namespace Impacto {
@@ -51,8 +52,8 @@ inline Sprite OffSprite;
 inline Sprite YesSprite;
 inline Sprite NoSprite;
 
-inline Sprite GuideSprite;
-inline Sprite VoiceGuideSprite;
+inline UI::ButtonPrompt GuideSprite;
+inline UI::ButtonPrompt VoiceGuideSprite;
 inline glm::vec2 GuidePosition;
 inline glm::vec2 GuideFadeStartPosition;
 

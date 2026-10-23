@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../../spritesheet.h"
+#include "../../../ui/buttonprompt.h"
 
 namespace Impacto {
 namespace Profile {
@@ -11,7 +12,7 @@ int constexpr Endings = 10;
 
 inline Sprite ClearListBookLayerSprite;
 inline Sprite ClearListCompleteBookLayerSprite;
-inline Sprite ClearListGuideSprite;
+inline UI::ButtonPrompt ClearListGuideSprite;
 inline Sprite ClearListMaskSprite;
 
 inline Sprite EndingSprites[Endings];

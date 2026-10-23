@@ -21,7 +21,7 @@ void Configure() {
   // Get common gamespecific UI elements
   if (GameSpecificType == GameSpecificType::CCLCC) {
     UIButtonGuideSprites =
-        EnsureGetMember<std::vector<Sprite>>("UIButtonGuideSprites");
+        EnsureGetMember<std::vector<UI::ButtonPrompt>>("UIButtonGuideSprites");
     UIButtonGuideEndDisp = EnsureGetMember<RectF>("UIButtonGuideEndDisp");
   }
   if (GameSpecificType == GameSpecificType::CHLCC) {

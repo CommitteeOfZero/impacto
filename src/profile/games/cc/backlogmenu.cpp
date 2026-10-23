@@ -12,7 +12,8 @@ void Configure() {
   BacklogHeaderSprite = EnsureGetMember<Sprite>("BacklogHeaderSprite");
   BacklogHeaderPosition = EnsureGetMember<glm::vec2>("BacklogHeaderPosition");
 
-  BacklogControlsSprite = EnsureGetMember<Sprite>("BacklogControlsSprite");
+  BacklogControlsSprite =
+      EnsureGetMember<UI::ButtonPrompt>("BacklogControlsSprite");
   BacklogControlsPosition =
       EnsureGetMember<glm::vec2>("BacklogControlsPosition");
 

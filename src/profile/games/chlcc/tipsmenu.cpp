@@ -32,7 +32,7 @@ void Configure() {
   CurrentTipBackgroundSprite =
       EnsureGetMember<Sprite>("CurrentTipBackgroundSprite");
   ButtonPromptPosition = EnsureGetMember<glm::vec2>("ButtonPromptPosition");
-  ButtonPromptSprite = EnsureGetMember<Sprite>("ButtonPromptSprite");
+  ButtonPromptSprite = EnsureGetMember<UI::ButtonPrompt>("ButtonPromptSprite");
 
   TipsStringTable = EnsureGetMember<int>("TipsStringTable");
   CategoryStringIndex = EnsureGetMember<int>("CategoryStringIndex");

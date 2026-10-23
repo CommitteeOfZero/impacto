@@ -29,6 +29,7 @@ inline char const* PatchProfile;
 inline DateFormatDef DateFormat = DateFormatType::YMD;
 inline bool HasScriptedExitLogic = false;
 inline bool HasDelusionMouseSupport = false;
+inline bool UniversalButtonIcons = false;
 
 void Configure();
 

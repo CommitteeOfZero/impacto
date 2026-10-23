@@ -19,7 +19,8 @@ void Configure() {
   MenuTitleText = EnsureGetMember<Sprite>("MenuTitleText");
 
   ButtonPromptPosition = EnsureGetMember<glm::vec2>("ButtonPromptPosition");
-  ButtonPromptSprite = EnsureGetMember<Sprite>("BacklogButtonPromptSprite");
+  ButtonPromptSprite =
+      EnsureGetMember<UI::ButtonPrompt>("BacklogButtonPromptSprite");
 
   auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
 

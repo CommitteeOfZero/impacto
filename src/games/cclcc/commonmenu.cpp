@@ -121,7 +121,7 @@ void CommonMenu::DrawOverlay(const float alpha) {
       2.0f -
           2.0f *
               static_cast<SystemMenu*>(UI::SystemMenuPtr)->ItemsFade.Progress);
-  Renderer->DrawSprite(
+  UI::DrawButtonPrompt(
       MenuButtonGuide,
       MenuButtonGuidePos +
           glm::vec2(guideTransitionProgress * MenuButtonGuideFadeXOffset, 0.0f),

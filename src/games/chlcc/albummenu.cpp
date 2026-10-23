@@ -150,16 +150,16 @@ void AlbumMenu::Render() {
     float progress = CgViewerWidget->GetVariationFadeProgress();
     float alpha = glm::smoothstep(1.0f, 0.0f, progress);
 
-    Renderer->DrawSprite(CgViewerButtonGuideVariation, CgViewerButtonGuidePos,
+    UI::DrawButtonPrompt(CgViewerButtonGuideVariation, CgViewerButtonGuidePos,
                          glm::vec4(1.0f, 1.0f, 1.0f, alpha));
-    Renderer->DrawSprite(CgViewerButtonGuideNoVariation, CgViewerButtonGuidePos,
+    UI::DrawButtonPrompt(CgViewerButtonGuideNoVariation, CgViewerButtonGuidePos,
                          glm::vec4(1.0f, 1.0f, 1.0f, 1.0f - alpha));
   } else {
     float alpha = glm::smoothstep(0.0f, 1.0f, 1.0f - ButtonGuideFade.Progress);
-    auto sprite = CgViewerWidget->IsOnLastVariation()
-                      ? CgViewerButtonGuideNoVariation
-                      : CgViewerButtonGuideVariation;
-    Renderer->DrawSprite(sprite, CgViewerButtonGuidePos,
+    const ButtonPrompt& prompt = CgViewerWidget->IsOnLastVariation()
+                                     ? CgViewerButtonGuideNoVariation
+                                     : CgViewerButtonGuideVariation;
+    UI::DrawButtonPrompt(prompt, CgViewerButtonGuidePos,
                          glm::vec4(1.0f, 1.0f, 1.0f, alpha));
   }
 }

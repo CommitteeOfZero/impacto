@@ -58,7 +58,7 @@ void Configure() {
   MaxPageNumPos = EnsureGetMember<glm::vec2>("MaxPageNumPos");
   MaxPageNumSprite = EnsureGetMember<Sprite>("MaxPageNum");
   ButtonPromptPosition = EnsureGetMember<glm::vec2>("ButtonPromptPosition");
-  ButtonPromptSprite = EnsureGetMember<Sprite>("ButtonPrompt");
+  ButtonPromptSprite = EnsureGetMember<UI::ButtonPrompt>("ButtonPrompt");
   SelectDataTextPositions =
       EnsureGetMember<std::vector<glm::vec2>>("SelectDataTextPositions");
   SelectDataTextSprites =

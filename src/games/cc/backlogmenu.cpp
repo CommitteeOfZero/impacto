@@ -109,7 +109,7 @@ void BacklogMenu::Render() {
     }
   }
 
-  Renderer->DrawSprite(BacklogControlsSprite, BacklogControlsPosition,
+  UI::DrawButtonPrompt(BacklogControlsSprite, BacklogControlsPosition,
                        transition);
 }
 

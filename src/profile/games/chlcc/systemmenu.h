@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../../spritesheet.h"
+#include "../../../ui/buttonprompt.h"
 
 namespace Impacto {
 namespace Profile {
@@ -36,7 +37,7 @@ inline int SelectMenuHeaderCount;
 inline Sprite MenuRunningSelectedLabel;
 inline glm::vec2 MenuRunningSelectedLabelPosition;
 inline float MenuRunningSelectedLabelAngle;
-inline Sprite MenuButtonPrompt;
+inline UI::ButtonPrompt MenuButtonPrompt;
 inline glm::vec2 MenuButtonPromptPosition;
 inline glm::vec2 MenuTitleTextRightPosition;
 inline glm::vec2 MenuCHLCCLabelPosition;

@@ -182,7 +182,7 @@ void SystemMenu::Render() {
         glm::vec4(1.0f));
 
     if (SkyMoveAnimation.IsIn()) {
-      Renderer->DrawSprite(ButtonPromptsSprite,
+      UI::DrawButtonPrompt(ButtonPromptsSprite,
                            glm::vec2(ButtonBackgroundX, ButtonBackgroundY),
                            glm::vec4(1.0f));
     }

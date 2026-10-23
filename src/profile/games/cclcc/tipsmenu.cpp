@@ -14,7 +14,7 @@ namespace CCLCC {
 namespace TipsMenu {
 
 void Configure() {
-  TipsGuideSprite = EnsureGetMember<Sprite>("TipsGuideSprite");
+  TipsGuideSprite = EnsureGetMember<UI::ButtonPrompt>("TipsGuideSprite");
   TipsHighlightedSprite = EnsureGetMember<Sprite>("TipsHighlightedSprite");
   TipsHighlightedTabSprite =
       EnsureGetMember<Sprite>("TipsHighlightedTabSprite");
