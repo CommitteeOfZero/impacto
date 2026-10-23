@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 // https://github.com/OpenImageIO/oiio/blob/master/LICENSE.md
 
+#include <mutex>
 #include <string>
 
 #include "../log.h"
@@ -200,6 +201,10 @@ bool internal_readimg(Stream* stream, uint8_t* dst, int w, int h, int d) {
 }
 
 bool TextureLoadDDS(Stream* stream, Texture* outTexture) {
+  // The decoder state is global and spritesheets load concurrently.
+  static std::mutex loaderMutex;
+  std::lock_guard<std::mutex> lock(loaderMutex);
+
   stream->Seek(0, IoSeek::Set);
 
   m_dds.fourCC = ReadLE<uint32_t>(stream);
