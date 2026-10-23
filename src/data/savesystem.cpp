@@ -55,13 +55,19 @@ class SaveFileChecker : public Loadable<SaveFileChecker, SaveError> {
  protected:
   void UnloadSync() {}
   SaveError LoadSync() {
-    return Implementation ? Implementation->CheckSaveFile() : SaveError::Failed;
+    if (Implementation) return Implementation->CheckSaveFile();
+    // Without a save implementation STEINS;GATE 0 boots as a fresh install:
+    // its startup script then creates new system data instead of loading it.
+    return Profile::Vm::GameInstructionSet == Vm::InstructionSet::SG0
+               ? SaveError::NotFound
+               : SaveError::Failed;
   }
 
   void MainThreadOnLoad(SaveError result) {
     // Let's not report errors until we finalize the implementation
     if (Profile::Vm::GameInstructionSet != Vm::InstructionSet::CC &&
-        Profile::Vm::GameInstructionSet != Vm::InstructionSet::CHLCC) {
+        Profile::Vm::GameInstructionSet != Vm::InstructionSet::CHLCC &&
+        Profile::Vm::GameInstructionSet != Vm::InstructionSet::SG0) {
       result = SaveError::OK;
     }
 

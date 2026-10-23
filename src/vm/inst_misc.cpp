@@ -23,6 +23,10 @@
 #include "../games/cc/titlemenu.h"
 #include "../games/cclcc/systemmenu.h"
 #include "../games/cclcc/helpmenu.h"
+#include "../games/sg0/librarymenu.h"
+#include "../games/sg0/cutin.h"
+#include "../video/videosystem.h"
+#include "../io/vfs.h"
 namespace Impacto {
 
 namespace Vm {
@@ -112,6 +116,9 @@ VmInstruction(InstSystemMenu) {
           ResetInstruction;
           BlockThread;
         }
+      }
+      if (Profile::Vm::GameInstructionSet == InstructionSet::SG0) {
+        UI::SystemMenuPtr->Init();
       }
       if (Profile::Vm::GameInstructionSet == InstructionSet::LCCSwitch) {
         ScrWork[SW_SYSMENUCTMAX] = 32;
@@ -327,6 +334,11 @@ VmInstruction(InstAlbum) {
                  "STUB instruction Album(type: EXmenuInit)\n");
       break;
     case 1:  // EXmenuMain
+      if (auto* library =
+              dynamic_cast<UI::SG0::LibraryMenu*>(UI::LibraryMenuPtr)) {
+        library->MainTick();
+        break;
+      }
       ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
                  "STUB instruction Album(type: EXmenuMain)\n");
       break;
@@ -378,8 +390,16 @@ VmInstruction(InstSaveMenu) {
   switch (type) {
     case 0: {  // SaveMenuInit
       PopUint8(arg1);
-      UI::SaveMenuPtr->ActiveMenuType =
-          magic_enum::enum_cast<UI::SaveMenuPageType>(arg1);
+      if (Profile::Vm::GameInstructionSet == InstructionSet::SG0) {
+        // STEINS;GATE 0 numbers the pages load 0, save 1, quick load 2.
+        constexpr UI::SaveMenuPageType sg0Pages[] = {
+            UI::SaveMenuPageType::Load, UI::SaveMenuPageType::Save,
+            UI::SaveMenuPageType::QuickLoad};
+        if (arg1 < 3) UI::SaveMenuPtr->ActiveMenuType = sg0Pages[arg1];
+      } else {
+        UI::SaveMenuPtr->ActiveMenuType =
+            magic_enum::enum_cast<UI::SaveMenuPageType>(arg1);
+      }
       ScrWork[SW_SAVEFILESTATUS] = 0;
 
       // Block input during animation
@@ -545,6 +565,7 @@ VmInstruction(InstTitleMenuNew) {
           break;
         case InstructionSet::LCCSwitch:
         case InstructionSet::CC:
+        case InstructionSet::SG0:
         case InstructionSet::CHN: {
           int mainState;
           int startTransitionState;
@@ -562,6 +583,20 @@ VmInstruction(InstTitleMenuNew) {
             startTransitionState = StartTransition;
           }
 
+          if (Profile::Vm::GameInstructionSet == InstructionSet::SG0 &&
+              +Profile::Game::GameFeatures & +GameFeature::Video &&
+              !Video::Players[0]->IsPlaying) {
+            // SG0's title runs over intro.bk2 (_Startup_win plays it once,
+            // on movie layer 1, before entering the title loop). Keep it
+            // looping while the title is up, also after the EXTRA movie
+            // library has played a movie on layer 3000/4000.
+            constexpr int TitleMovieId = 32;
+            Io::Stream* stream;
+            if (Io::VfsOpen("movie", TitleMovieId, &stream) == IoError_OK) {
+              ScrWork[SW_MOVIEPRI] = 1;
+              Video::Players[0]->Play(stream, true, false);
+            }
+          }
           if (ScrWork[SW_TITLEMODE] == mainState) {
             if (!UI::TitleMenuPtr->AllowsScriptInput) {
               ResetInstruction;
@@ -659,6 +694,11 @@ VmInstruction(InstSetCutin) {
   PopExpression(arg1);
   PopExpression(arg2);
   PopExpression(arg3);
+  if (Profile::Vm::GameInstructionSet == InstructionSet::SG0 &&
+      type < SG0::Cutins.size()) {
+    SG0::Cutins[type] = {.Enabled = arg1 != 0, .BufferMask = arg2};
+    return;
+  }
   ImpLogSlow(LogLevel::Warning, LogChannel::VMStub,
              "STUB instruction SetCutin(type: {:d}, arg1: {:d}, arg2: {:d}, "
              "arg3: {:d})\n",

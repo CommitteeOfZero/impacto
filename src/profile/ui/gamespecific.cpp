@@ -6,6 +6,7 @@
 #include "../games/cclcc/delusiontrigger.h"
 #include "../games/cclcc/yesnotrigger.h"
 #include "../games/cclcc/mapsystem.h"
+#include "../games/sg0/phone.h"
 
 namespace Impacto {
 namespace Profile {
@@ -54,6 +55,9 @@ void Configure() {
     case GameSpecificType::RNE:
       break;
     case GameSpecificType::Dash:
+      break;
+    case GameSpecificType::SG0:
+      SG0::Phone::Configure();
       break;
     case GameSpecificType::None:
       break;

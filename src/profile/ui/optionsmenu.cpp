@@ -4,6 +4,7 @@
 #include "../games/mo8/optionsmenu.h"
 #include "../games/chlcc/optionsmenu.h"
 #include "../games/cclcc/optionsmenu.h"
+#include "../games/sg0/optionsmenu.h"
 #include "../../ui/ui.h"
 #include "../../log.h"
 
@@ -37,6 +38,10 @@ void Configure() {
 
       case OptionsMenuType::CCLCC:
         CCLCC::OptionsMenu::Configure();
+        break;
+
+      case OptionsMenuType::SG0:
+        SG0::OptionsMenu::Configure();
         break;
 
       case OptionsMenuType::None:

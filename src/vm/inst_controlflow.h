@@ -12,6 +12,8 @@ VmInstruction(InstIf);
 VmInstruction(InstCall);
 VmInstruction(InstJumpFar);
 VmInstruction(InstCallFar);
+VmInstruction(InstCallIfFlag);
+VmInstruction(InstCallFarIfFlag);
 VmInstruction(InstReturn);
 VmInstruction(InstReturnIfFlag);
 VmInstruction(InstLoop);

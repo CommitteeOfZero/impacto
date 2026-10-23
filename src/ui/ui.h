@@ -26,6 +26,7 @@ enum class SystemMenuType : int {
   CHLCC,
   MO8,
   CCLCC,
+  SG0,
 };
 enum class SaveMenuType : int {
   None,
@@ -33,6 +34,7 @@ enum class SaveMenuType : int {
   MO8,
   CHLCC,
   CCLCC,
+  SG0,
 };
 enum class SysMesBoxType : int {
   None,
@@ -42,6 +44,7 @@ enum class SysMesBoxType : int {
   MO6TW,
   Darling,
   CC,
+  SG0,
 };
 enum class TitleMenuType : int {
   None,
@@ -52,6 +55,7 @@ enum class TitleMenuType : int {
   MO8,
   CC,
   CCLCC,
+  SG0,
 };
 enum class OptionsMenuType : int {
   None,
@@ -59,22 +63,26 @@ enum class OptionsMenuType : int {
   MO8,
   CHLCC,
   CCLCC,
+  SG0,
 };
 enum class TipsMenuType : int {
   None,
   MO6TW,
   CHLCC,
   CCLCC,
+  SG0,
 };
 enum class ClearListMenuType : int {
   None,
   MO6TW,
   CHLCC,
   CCLCC,
+  SG0,
 };
 enum class LibraryMenuType : int {
   None,
   CCLCC,
+  SG0,
 };
 enum class AlbumMenuType : int {
   None,
@@ -102,6 +110,7 @@ enum class TrophyMenuType : int {
 enum class HelpMenuType : int {
   None,
   CCLCC,
+  SG0,
 };
 enum class GameSpecificType : int {
   None,
@@ -110,6 +119,7 @@ enum class GameSpecificType : int {
   CCLCC,
   RNE,
   Dash,
+  SG0,
 };
 int constexpr MaxExtraMenus = 10;
 

@@ -12,6 +12,8 @@
 #include "../games/chlcc/moviemenu.h"
 #include "../games/chlcc/musicmenu.h"
 #include "../games/chlcc/albummenu.h"
+#include "../games/sg0/librarymenu.h"
+#include "../games/sg0/clearlistmenu.h"
 
 namespace Impacto {
 namespace Profile {
@@ -28,6 +30,8 @@ void Configure() {
 
       if (LibraryMenuType == LibraryMenuType::CCLCC) {
         CCLCC::LibraryMenu::Configure();
+      } else if (LibraryMenuType == LibraryMenuType::SG0) {
+        SG0::LibraryMenu::Configure();
       }
 
       Pop();
@@ -42,6 +46,8 @@ void Configure() {
         CCLCC::ClearListMenu::Configure();
       } else if (ClearListType == ClearListMenuType::CHLCC) {
         CHLCC::ClearListMenu::Configure();
+      } else if (ClearListType == ClearListMenuType::SG0) {
+        SG0::ClearListMenu::Configure();
       }
 
       Pop();

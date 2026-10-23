@@ -49,6 +49,7 @@ void Init() {
       break;
     case GameSpecificType::Dash:
       break;
+    case GameSpecificType::SG0:
     case GameSpecificType::None:
       break;
   }
@@ -65,6 +66,7 @@ void NonGameplayUpdate(float dt) {
     case GameSpecificType::RNE:
     case GameSpecificType::CC:
     case GameSpecificType::CCLCC:
+    case GameSpecificType::SG0:
     case GameSpecificType::None:
       break;
   }
@@ -94,6 +96,7 @@ void Update(float dt) {
       break;
     case GameSpecificType::Dash:
       break;
+    case GameSpecificType::SG0:
     case GameSpecificType::None:
       break;
   }
@@ -108,6 +111,7 @@ void RenderEarlyMain() {
     case GameSpecificType::RNE:
     case GameSpecificType::CC:
     case GameSpecificType::CCLCC:
+    case GameSpecificType::SG0:
     case GameSpecificType::None:
       break;
   }
@@ -141,6 +145,7 @@ void RenderMain() {
       break;
     case GameSpecificType::CCLCC:
       break;
+    case GameSpecificType::SG0:
     case GameSpecificType::None:
       break;
   }
@@ -191,6 +196,7 @@ void RenderLayer(uint32_t layer) {
       break;
     case GameSpecificType::Dash:
       break;
+    case GameSpecificType::SG0:
     case GameSpecificType::None:
       break;
   }

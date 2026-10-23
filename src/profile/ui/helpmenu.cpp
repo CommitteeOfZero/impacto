@@ -1,6 +1,7 @@
 #include "helpmenu.h"
 #include "../profile_internal.h"
 #include "../games/cclcc/helpmenu.h"
+#include "../games/sg0/helpmenu.h"
 #include "../../ui/ui.h"
 #include "../../log.h"
 
@@ -18,6 +19,8 @@ void Configure() {
 
     if (Type == HelpMenuType::CCLCC) {
       CCLCC::HelpMenu::Configure();
+    } else if (Type == HelpMenuType::SG0) {
+      SG0::HelpMenu::Configure();
     }
 
     Pop();

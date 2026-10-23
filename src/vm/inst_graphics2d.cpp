@@ -130,6 +130,8 @@ VmInstruction(InstBGload) {
     BlockThread;
   } else if (ScrWork[SW_BG1NO + ScrWorkBgStructSize * actualBufId] !=
              backgroundId) {
+    ImpLog(LogLevel::Debug, LogChannel::VM, "BGload buffer {:d} bg {:d}\n",
+           bufferId, backgroundId);
     ScrWork[SW_BG1NO + ScrWorkBgStructSize * actualBufId] = backgroundId;
     Backgrounds2D[bgBufId]->LoadAsync(backgroundId);
     ResetInstruction;

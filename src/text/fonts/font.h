@@ -116,7 +116,16 @@ class SingleSheetFont : public Font {
   glm::vec2 CellSize;
 
   std::vector<float> AdvanceWidths;
+  // Optional: where each glyph's ink starts in its cell. The glyph is then
+  // sampled from there, so narrow glyphs sit next to their neighbours.
+  std::vector<float> LeftBearings;
 
+ public:
+  void SetLeftBearings(std::vector<float>&& leftBearings) {
+    LeftBearings = std::move(leftBearings);
+  }
+
+ protected:
   SingleSheetFont(FontType fontType, float bitmapEmWidth, float bitmapEmHeight,
                   OpacityCurve foregroundOpacityCurve,
                   OpacityCurve outlineOpacityCurve, SpriteSheet sheet,
@@ -134,6 +143,10 @@ class SingleSheetFont : public Font {
     const uint16_t col = static_cast<uint16_t>(id % GridSize.x);
     const float width = AdvanceWidths[id];
 
+    if (id < LeftBearings.size()) {
+      return Sprite(Sheet, col * CellSize.x + LeftBearings[id],
+                    row * CellSize.y + 1.0f, width, BitmapEmHeight - 2.0f);
+    }
     return Sprite(Sheet, col * CellSize.x + 1.0f, row * CellSize.y + 1.0f,
                   width - 2.0f, BitmapEmHeight - 2.0f);
   }

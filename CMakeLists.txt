@@ -145,6 +145,17 @@ set(Impacto_Src
     src/profile/games/cc/backlogmenu.cpp
     src/profile/games/cc/dialoguebox.cpp
     src/profile/games/cc/titlemenu.cpp
+    src/profile/games/sg0/titlemenu.cpp
+    src/profile/games/sg0/savemenu.cpp
+    src/profile/games/sg0/sysmesbox.cpp
+    src/profile/games/sg0/phone.cpp
+    src/profile/games/sg0/systemmenu.cpp
+    src/profile/games/sg0/helpmenu.cpp
+    src/profile/games/sg0/backlogmenu.cpp
+    src/profile/games/sg0/tipsmenu.cpp
+    src/profile/games/sg0/optionsmenu.cpp
+    src/profile/games/sg0/librarymenu.cpp
+    src/profile/games/sg0/clearlistmenu.cpp
     src/profile/games/cc/sysmesbox.cpp
 
     src/profile/games/cclcc/systemmenu.cpp
@@ -212,6 +223,19 @@ set(Impacto_Src
 
     src/games/cc/backlogmenu.cpp
     src/games/cc/titlemenu.cpp
+    src/games/sg0/titlemenu.cpp
+    src/games/sg0/savemenu.cpp
+    src/games/sg0/sysmesbox.cpp
+    src/games/sg0/phone.cpp
+    src/games/sg0/rine.cpp
+    src/games/sg0/systemmenu.cpp
+    src/games/sg0/helpmenu.cpp
+    src/games/sg0/backlogmenu.cpp
+    src/games/sg0/tipsmenu.cpp
+    src/games/sg0/optionsmenu.cpp
+    src/games/sg0/librarymenu.cpp
+    src/games/sg0/clearlistmenu.cpp
+    src/games/sg0/cutin.cpp
     src/games/cc/sysmesbox.cpp
 
     src/games/cclcc/commonmenu.cpp
@@ -522,6 +546,17 @@ set(Impacto_Header
     src/profile/games/cc/backlogmenu.h
     src/profile/games/cc/dialoguebox.h
     src/profile/games/cc/titlemenu.h
+    src/profile/games/sg0/titlemenu.h
+    src/profile/games/sg0/savemenu.h
+    src/profile/games/sg0/sysmesbox.h
+    src/profile/games/sg0/phone.h
+    src/profile/games/sg0/systemmenu.h
+    src/profile/games/sg0/helpmenu.h
+    src/profile/games/sg0/backlogmenu.h
+    src/profile/games/sg0/tipsmenu.h
+    src/profile/games/sg0/optionsmenu.h
+    src/profile/games/sg0/librarymenu.h
+    src/profile/games/sg0/clearlistmenu.h
     src/profile/games/cc/sysmesbox.h
 
     src/profile/games/cclcc/titlemenu.h
@@ -586,6 +621,20 @@ set(Impacto_Header
     src/games/chlcc/introsequence.h
 
     src/games/cc/titlemenu.h
+    src/games/sg0/titlemenu.h
+    src/games/sg0/savemenu.h
+    src/games/sg0/sysmesbox.h
+    src/games/sg0/phone.h
+    src/games/sg0/rine.h
+    src/games/sg0/systemmenu.h
+    src/games/sg0/helpmenu.h
+    src/games/sg0/backlogmenu.h
+    src/games/sg0/tipsmenu.h
+    src/games/sg0/optionsmenu.h
+    src/games/sg0/librarymenu.h
+    src/games/sg0/clearlistmenu.h
+    src/games/sg0/cutin.h
+    src/games/sg0/fullwidth.h
     src/games/cc/sysmesbox.h
 
     src/games/cclcc/commonmenu.h

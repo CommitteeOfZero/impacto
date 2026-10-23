@@ -3,6 +3,7 @@
 #include "../games/mo6tw/tipsmenu.h"
 #include "../games/chlcc/tipsmenu.h"
 #include "../games/cclcc/tipsmenu.h"
+#include "../games/sg0/tipsmenu.h"
 #include "../../ui/ui.h"
 #include "../../log.h"
 
@@ -31,6 +32,8 @@ void Configure() {
       CHLCC::TipsMenu::Configure();
     } else if (Type == TipsMenuType::CCLCC) {
       CCLCC::TipsMenu::Configure();
+    } else if (Type == TipsMenuType::SG0) {
+      SG0::TipsMenu::Configure();
     } else {
       UI::TipsMenuPtr = new UI::TipsMenu();
     }

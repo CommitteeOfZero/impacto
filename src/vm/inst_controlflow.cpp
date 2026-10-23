@@ -99,6 +99,59 @@ VmInstruction(InstCallFar) {
            "CallFar error, call stack overflow.\n");
   }
 }
+// SG0: Call / CallFar guarded by a flag, operands
+// (u8 value, expr flagId, label[, ...], u16 returnId). The return id is always
+// present in the bytecode, so it is consumed even when the call is not taken.
+// Every SG0 use is CallIfFlag(1, flag, label), whose callee clears that flag,
+// so the call is taken when GetFlag(flagId) == value (as in InstFlagOnJump).
+VmInstruction(InstCallIfFlag) {
+  StartInstruction;
+  PopUint8(value);
+  PopExpression(flagId);
+  PopLocalLabel(labelAdr);
+  PopUint16(retNum);
+
+  if (GetFlag(flagId) != (bool)value) return;
+
+  if (thread->CallStackDepth == MaxCallStackDepth) {
+    ImpLog(LogLevel::Error, LogChannel::VM,
+           "CallIfFlag error, call stack overflow.\n");
+    return;
+  }
+  if (Profile::Vm::UseReturnIds) {
+    thread->ReturnIds[thread->CallStackDepth] = retNum;
+  } else {
+    thread->ReturnAddresses[thread->CallStackDepth] = thread->IpOffset;
+  }
+  thread->ReturnScriptBufferIds[thread->CallStackDepth++] =
+      thread->ScriptBufferId;
+  thread->IpOffset = labelAdr;
+}
+VmInstruction(InstCallFarIfFlag) {
+  StartInstruction;
+  PopUint8(value);
+  PopExpression(flagId);
+  PopExpression(scriptBufferId);
+  PopFarLabel(labelAdr, scriptBufferId);
+  PopUint16(retNum);
+
+  if (GetFlag(flagId) != (bool)value) return;
+
+  if (thread->CallStackDepth == MaxCallStackDepth) {
+    ImpLog(LogLevel::Error, LogChannel::VM,
+           "CallFarIfFlag error, call stack overflow.\n");
+    return;
+  }
+  if (Profile::Vm::UseReturnIds) {
+    thread->ReturnIds[thread->CallStackDepth] = retNum;
+  } else {
+    thread->ReturnAddresses[thread->CallStackDepth] = thread->IpOffset;
+  }
+  thread->ReturnScriptBufferIds[thread->CallStackDepth++] =
+      thread->ScriptBufferId;
+  thread->IpOffset = labelAdr;
+  thread->ScriptBufferId = scriptBufferId;
+}
 VmInstruction(InstReturn) {
   StartInstruction;
   if (thread->CallStackDepth) {
@@ -254,6 +307,17 @@ VmInstruction(InstClickOnJump) {
   PopExpression(arg2);
   PopUint16(labelNum);
   uint32_t labelAdr = ScriptGetLabelAddress(thread->ScriptBufferId, labelNum);
+  if (Profile::Vm::GameInstructionSet == InstructionSet::SG0) {
+    // SG0 passes a mouse button mask: 1 left, 2 right; 0x200000 (logo and
+    // title waits) skips on a left click as well.
+    const bool left = Input::MouseButtonWentDown[SDL_BUTTON_LEFT];
+    const bool right = Input::MouseButtonWentDown[SDL_BUTTON_RIGHT];
+    if (((arg2 & 1) && left) || ((arg2 & 2) && right) ||
+        ((arg2 & 0x200000) && left)) {
+      thread->IpOffset = labelAdr;
+    }
+    return;
+  }
   if (Input::KeyboardButtonWentDown[SDL_SCANCODE_D]) {
     thread->IpOffset = labelAdr;
   }

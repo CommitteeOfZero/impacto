@@ -4,6 +4,7 @@
 #include "../log.h"
 #include "../renderer/renderer.h"
 #include "../texture/texture.h"
+#include <algorithm>
 #include <future>
 
 namespace Impacto {
@@ -21,6 +22,42 @@ static Texture LoadTexture(Io::Stream* stream, std::string name) {
   delete stream;
 
   return texture;
+}
+
+// Some ports split one atlas across two textures at the platform's maximum
+// texture size (e.g. STEINS;GATE 0 Steam font_a/font_b). Stack the
+// continuation page under the first one and crop to the sheet's design height
+// so sprite coordinates stay those of the original single atlas.
+static Texture LoadStackedTexture(Io::Stream* firstStream,
+                                  Io::Stream* continuationStream,
+                                  std::string name, int firstHeight,
+                                  int height) {
+  Texture first = LoadTexture(firstStream, name);
+  Texture continuation = LoadTexture(continuationStream, name + " (continued)");
+
+  // Pages may end in padding: only the first firstHeight rows are used.
+  if (firstHeight <= 0 || firstHeight > first.Height)
+    firstHeight = first.Height;
+  const size_t firstPixels = static_cast<size_t>(first.Width) * first.Height;
+  if (first.Width != continuation.Width ||
+      first.Format != continuation.Format || firstPixels == 0 ||
+      height <= firstHeight || height > firstHeight + continuation.Height) {
+    ImpLog(LogLevel::Error, LogChannel::Profile,
+           "Spritesheet {:s} pages cannot be stacked to height {:d}, using "
+           "the first page only\n",
+           name, height);
+    return first;
+  }
+
+  const size_t bytesPerPixel = first.Buffer.size() / firstPixels;
+  const size_t rowBytes = static_cast<size_t>(first.Width) * bytesPerPixel;
+  Texture stacked{};
+  stacked.Init(first.Format, first.Width, height);
+  std::copy_n(first.Buffer.begin(), firstHeight * rowBytes,
+              stacked.Buffer.begin());
+  std::copy_n(continuation.Buffer.begin(), (height - firstHeight) * rowBytes,
+              stacked.Buffer.begin() + firstHeight * rowBytes);
+  return stacked;
 }
 
 void LoadSpritesheets() {
@@ -49,8 +86,23 @@ void LoadSpritesheets() {
         Window->Shutdown();
       }
 
-      futures.emplace_back(std::tuple(
-          name, std::async(std::launch::async, LoadTexture, stream, name)));
+      if (auto continuationPath =
+              TryGetMember<Io::AssetPath>("ContinuationPath")) {
+        Io::Stream* continuationStream;
+        if (continuationPath->Open(&continuationStream) != IoError_OK) {
+          ImpLog(LogLevel::Fatal, LogChannel::Profile,
+                 "Could not open spritesheet {:s} continuation page\n", name);
+          Window->Shutdown();
+        }
+        futures.emplace_back(std::tuple(
+            name, std::async(std::launch::async, LoadStackedTexture, stream,
+                             continuationStream, name,
+                             TryGetMember<int>("FirstPageHeight").value_or(0),
+                             static_cast<int>(sheet.DesignHeight))));
+      } else {
+        futures.emplace_back(std::tuple(
+            name, std::async(std::launch::async, LoadTexture, stream, name)));
+      }
     }
     Pop();
   }

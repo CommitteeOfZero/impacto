@@ -104,6 +104,8 @@ VmInstruction(InstScriptLoad) {
   StartInstruction;
   PopExpression(bufferId);
   PopExpression(scriptId);
+  ImpLog(LogLevel::Debug, LogChannel::VM,
+         "ScriptLoad buffer {:d} script {:d}\n", bufferId, scriptId);
   if (Profile::Vm::UseMsbStrings) {
     LoadMsb(bufferId, scriptId);
     if (!Profile::Vm::UseSeparateMsbArchive) scriptId += 1;
@@ -706,6 +708,7 @@ VmInstruction(InstSystemMes) {
     case InstructionSet::Dash:
     case InstructionSet::CC:
     case InstructionSet::LCCSwitch:
+    case InstructionSet::SG0:
       PopUint8(id);
       sysMesId = id;
       break;
@@ -1010,7 +1013,8 @@ VmInstruction(InstMSinit) {
         Profile::Vm::GameInstructionSet == InstructionSet::CHLCC) {
       memset(&FlagWork, 0, 500);
       memset(&ScrWork, 0, 24000);
-    } else if (Profile::Vm::GameInstructionSet == InstructionSet::CC) {
+    } else if (Profile::Vm::GameInstructionSet == InstructionSet::CC ||
+               Profile::Vm::GameInstructionSet == InstructionSet::SG0) {
       memset(&FlagWork, 0, 1000);
       memset(&ScrWork, 0, 32000);
     } else if (Profile::Vm::GameInstructionSet == InstructionSet::LCCSwitch) {
@@ -1213,6 +1217,11 @@ VmInstruction(InstAutoSave) {
       SaveSystem::FlushWorkingSaveEntry(SaveSystem::SaveType::Quick,
                                         *quicksaveEntries, saveType);
       SaveSystem::SaveThumbnailData();
+      // SG0's scripts never write the save file after a quick save, so persist
+      // it here (asynchronously) or it would be lost when the game closes.
+      if (Profile::Vm::GameInstructionSet == InstructionSet::SG0) {
+        SaveSystem::WriteSaveFile();
+      }
     }
   };
 

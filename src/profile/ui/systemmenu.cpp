@@ -6,6 +6,7 @@
 #include "../games/chlcc/systemmenu.h"
 #include "../games/mo8/systemmenu.h"
 #include "../games/cclcc/systemmenu.h"
+#include "../games/sg0/systemmenu.h"
 #include "../../ui/ui.h"
 #include "../../log.h"
 #include "../../renderer/renderer.h"
@@ -51,6 +52,8 @@ void Configure() {
       MO8::SystemMenu::Configure();
     } else if (Type == SystemMenuType::CCLCC) {
       CCLCC::SystemMenu::Configure();
+    } else if (Type == SystemMenuType::SG0) {
+      SG0::SystemMenu::Configure();
     }
 
     Pop();

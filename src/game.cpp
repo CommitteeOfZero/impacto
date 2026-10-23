@@ -36,6 +36,9 @@
 #include "hud/tipsnotification.h"
 #include "hud/achievementnotification.h"
 #include "games/cclcc/systemmenu.h"
+#include "games/sg0/phone.h"
+#include "games/sg0/systemmenu.h"
+#include "games/sg0/cutin.h"
 #include "effects/wave.h"
 #include "effects/blur.h"
 #include "effects/mosaic.h"
@@ -344,6 +347,7 @@ void UpdateSystem(float dt) {
     Vm::Interface::UpdatePADInput();
     Vm::Interface::UpdatePADHoldInput(updateInterval);
     Vm::Interface::UpdateKBHoldInput(updateInterval);
+    if (UI::SG0::PhonePtr) UI::SG0::PhonePtr->TakeInput(updateInterval);
     UpdateGameState(updateInterval);
 
     for (DrawComponentType value :
@@ -372,6 +376,7 @@ void UpdateSystem(float dt) {
         }
         const bool isCC =
             Profile::Vm::GameInstructionSet == Vm::InstructionSet::CC ||
+            Profile::Vm::GameInstructionSet == Vm::InstructionSet::SG0 ||
             Profile::Vm::GameInstructionSet == Vm::InstructionSet::LCCSwitch;
         if (GetFlag(SF_BGEFF1DISP) && (!isCC || ScrWork[SW_EFF_WAVE_ALPHA])) {
           Effects::WaveEFF.Update(updateInterval);
@@ -443,6 +448,7 @@ static void RenderMain() {
 
   for (uint32_t layer = 0; layer <= Profile::Game::LayerCount; layer++) {
     if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::CC ||
+        Profile::Vm::GameInstructionSet == Vm::InstructionSet::SG0 ||
         Profile::Vm::GameInstructionSet == Vm::InstructionSet::LCCSwitch) {
       const int renderTarget = ScrWork[SW_RENDERTARGET + layer];
       if (0 <= renderTarget && renderTarget <= MaxFramebuffers) {
@@ -473,6 +479,10 @@ static void RenderMain() {
 
     if (Background2D::LastRenderedBackground != nullptr) {
       Background2D::LastRenderedBackground->RenderBgEff(layer);
+    }
+
+    if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::SG0) {
+      SG0::RenderCutins(static_cast<int>(layer));
     }
 
     if ((+Profile::Game::GameFeatures & +GameFeature::Renderer2D) &&
@@ -555,6 +565,7 @@ static void RenderMain() {
     if (Profile::Game::UseWaveEffects) {
       const bool isCC =
           Profile::Vm::GameInstructionSet == Vm::InstructionSet::CC ||
+          Profile::Vm::GameInstructionSet == Vm::InstructionSet::SG0 ||
           Profile::Vm::GameInstructionSet == Vm::InstructionSet::LCCSwitch;
       if (GetFlag(SF_BGEFF1DISP) && (!isCC || ScrWork[SW_EFF_WAVE_ALPHA])) {
         if (ScrWork[SW_EFF_WAVE_PRI] == static_cast<int>(layer)) {
@@ -666,6 +677,13 @@ void Render() {
                 static_cast<UI::CCLCC::SystemMenu*>(UI::SystemMenuPtr)
                     ->ScreenCap);
             SetFlag(SF_SYSTEMMENUCAPTURE, false);
+          } else if (Profile::Vm::GameInstructionSet ==
+                         Vm::InstructionSet::SG0 &&
+                     GetFlag(SF_SYSTEMMENUCAPTURE) && UI::SystemMenuPtr) {
+            Renderer->CaptureScreencap(
+                static_cast<UI::SG0::SystemMenu*>(UI::SystemMenuPtr)
+                    ->ScreenCap);
+            SetFlag(SF_SYSTEMMENUCAPTURE, false);
           }
 
           KeyWaitIcon->Render({0.0f, 0.0f}, glm::vec4(1.0f));
@@ -677,6 +695,7 @@ void Render() {
         }
         case DrawComponentType::Main: {
           if ((Profile::Vm::GameInstructionSet == Vm::InstructionSet::CC ||
+               Profile::Vm::GameInstructionSet == Vm::InstructionSet::SG0 ||
                Profile::Vm::GameInstructionSet ==
                    Vm::InstructionSet::LCCSwitch) &&
               !(!GetFlag(SF_SELECTMODE) ||
@@ -702,6 +721,7 @@ void Render() {
         }
         case DrawComponentType::SystemIcons: {
           if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::CC ||
+              Profile::Vm::GameInstructionSet == Vm::InstructionSet::SG0 ||
               Profile::Vm::GameInstructionSet ==
                   Vm::InstructionSet::LCCSwitch) {
             UI::GameSpecific::RenderCCButtonGuide();
@@ -743,6 +763,15 @@ void Render() {
       for (auto const& menu : UI::Menus[DrawComponents[i]]) {
         menu->Render();
       }
+    }
+    // SG0 plays movies outside the story (EXTRA > MOVIE LIBRARY) on movie
+    // priorities above every scene layer (3000, 4000): draw those over the
+    // whole frame.
+    if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::SG0 &&
+        +Profile::Game::GameFeatures & +GameFeature::Video &&
+        ScrWork[SW_MOVIEPRI] > static_cast<int>(Profile::Game::LayerCount) &&
+        ScrWork[SW_MOVIEALPHA] > 0) {
+      Video::VideoRender(ScrWork[SW_MOVIEALPHA] / 256.0f);
     }
     if (+Profile::Game::GameFeatures & +GameFeature::Achievements) {
       AchievementNotification::Render();

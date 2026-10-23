@@ -4,6 +4,7 @@
 #include "../games/mo8/savemenu.h"
 #include "../games/chlcc/savemenu.h"
 #include "../games/cclcc/savemenu.h"
+#include "../games/sg0/savemenu.h"
 #include "../../ui/ui.h"
 
 namespace Impacto {
@@ -31,6 +32,8 @@ void Configure() {
       CCLCC::SaveMenu::Configure();
     } else if (Type == SaveMenuType::MO8) {
       MO8::SaveMenu::Configure();
+    } else if (Type == SaveMenuType::SG0) {
+      SG0::SaveMenu::Configure();
     }
 
     Pop();

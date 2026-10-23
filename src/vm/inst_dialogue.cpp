@@ -950,7 +950,8 @@ VmInstruction(InstSel) {
       if (Profile::Vm::GameInstructionSet == InstructionSet::Dash ||
           Profile::Vm::GameInstructionSet == InstructionSet::CC ||
           Profile::Vm::GameInstructionSet == InstructionSet::LCCSwitch ||
-          Profile::Vm::GameInstructionSet == InstructionSet::MO8) {
+          Profile::Vm::GameInstructionSet == InstructionSet::MO8 ||
+          Profile::Vm::GameInstructionSet == InstructionSet::SG0) {
         PopUint16(savepointid);
         // SF_MESSAVEPOINT_SSP + dialog page's field 5 in decompile?
         // if (GetFlag(SF_MESSAVEPOINT_SSP + thread->DialoguePageId) == 0) {
@@ -1134,7 +1135,8 @@ VmInstruction(InstNameID) {
       if (Profile::Vm::GameInstructionSet == InstructionSet::CC ||
           Profile::Vm::GameInstructionSet == InstructionSet::LCCSwitch ||
           Profile::Vm::GameInstructionSet == InstructionSet::MO8 ||
-          Profile::Vm::GameInstructionSet == InstructionSet::CHN) {
+          Profile::Vm::GameInstructionSet == InstructionSet::CHN ||
+          Profile::Vm::GameInstructionSet == InstructionSet::SG0) {
         PopLocalLabel(namePlateDataBlock);
         Sc3Stream namePlateData(
             &ScriptBuffers[thread->ScriptBufferId][namePlateDataBlock]);
