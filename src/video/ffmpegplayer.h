@@ -4,6 +4,7 @@
 #include <memory>
 #include <thread>
 #include <optional>
+#include <vector>
 
 #include <avcpp/formatcontext.h>
 #include <avcpp/timestamp.h>
@@ -99,6 +100,14 @@ class FFmpegPlayer : public VideoPlayer {
   std::variant<std::monostate, YUVFrame*, NV12Frame*> VideoTexture;
 
   bool IsAlpha = false;
+  // Frames the video shader cannot take as they are get repacked: full-range
+  // YUV (all of SG0's Bink 2 movies) is scaled to the video range the shader
+  // converts from, and YUVA420P (Bink 2 with alpha) gets the alpha video
+  // layout, picture rows on top and alpha as luma below.
+  void SubmitRepackedFrame(const AVFrame* frame);
+  std::vector<uint8_t> PackedLuma;
+  std::vector<uint8_t> PackedCb;
+  std::vector<uint8_t> PackedCr;
   bool Looping = false;
   bool ReaderEOF = false;
   bool PlaybackStarted = false;
