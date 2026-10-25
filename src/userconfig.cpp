@@ -105,6 +105,14 @@ TOML11_DEFINE_CONVERSION_NON_INTRUSIVE(
 )
 
 TOML11_DEFINE_CONVERSION_NON_INTRUSIVE(
+  Impacto::UserConfig::ControllerAudioConfig,
+  BGM,
+  Voice,
+  SE,
+  SSE,
+  Movie
+)
+TOML11_DEFINE_CONVERSION_NON_INTRUSIVE(
   Impacto::UserConfig::Config,
   ResolutionWidth,
   ResolutionHeight,
@@ -113,7 +121,8 @@ TOML11_DEFINE_CONVERSION_NON_INTRUSIVE(
   LogChannels,
   LoggingToConsole,
   LoggingToFile,
-  SwapConfirmCancelButtons
+  SwapConfirmCancelButtons,
+  ControllerAudio
 )
 
 TOML11_DEFINE_CONVERSION_NON_INTRUSIVE(

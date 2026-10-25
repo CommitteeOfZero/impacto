@@ -46,6 +46,13 @@ struct GameConfig {
   bool UseVSync = true;
   DisplayMode Display = GetDefaultDispMode();
 };
+struct ControllerAudioConfig {
+  bool BGM = false;
+  bool Voice = false;
+  bool SE = false;
+  bool SSE = false;
+  bool Movie = false;
+};
 struct Config {
   int ResolutionWidth = 1280;
   int ResolutionHeight = 720;
@@ -56,6 +63,8 @@ struct Config {
   bool LoggingToConsole = GetDefaultLogToConsole();
   bool LoggingToFile = GetDefaultLogToFile();
   bool SwapConfirmCancelButtons = false;
+
+  ControllerAudioConfig ControllerAudio;
 };
 struct AdvancedConfig {
   RendererType ActiveRenderer = RendererType::OpenGL;

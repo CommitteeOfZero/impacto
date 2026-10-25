@@ -1,4 +1,5 @@
 #include "ffmpegaudioplayer.h"
+#include "audiobackend.h"
 #include "../../video/ffmpegplayer.h"
 #include "../audiosystem.h"
 #include <mutex>
@@ -19,6 +20,7 @@ namespace Audio {
 namespace OpenAL {
 
 FFmpegAudioPlayer::~FFmpegAudioPlayer() {
+  ScopedOutputContext context(Output);
   alSourceStop(ALSource);
   av_freep(&AudioBuffer[0]);
   swr_free(&AudioConvertContext);
@@ -26,24 +28,44 @@ FFmpegAudioPlayer::~FFmpegAudioPlayer() {
   alDeleteSources(1, &ALSource);
 }
 
-void FFmpegAudioPlayer::Init() {
+void FFmpegAudioPlayer::CreateSource() {
   alGenSources(1, &ALSource);
   alSourcef(ALSource, AL_PITCH, 1);
   alSourcef(ALSource, AL_GAIN, 1);
   alSource3f(ALSource, AL_POSITION, 0, 0, 0);
   alSource3f(ALSource, AL_VELOCITY, 0, 0, 0);
   alSourcei(ALSource, AL_LOOPING, AL_FALSE);
+}
+
+void FFmpegAudioPlayer::Init() {
+  ScopedOutputContext context(Output);
+  CreateSource();
 
   alGenBuffers(AudioBufferCount, BufferIds);
 }
 
 void FFmpegAudioPlayer::Reinit() {
-  alGenSources(1, &ALSource);
-  alSourcef(ALSource, AL_PITCH, 1);
-  alSourcef(ALSource, AL_GAIN, 1);
-  alSource3f(ALSource, AL_POSITION, 0, 0, 0);
-  alSource3f(ALSource, AL_VELOCITY, 0, 0, 0);
-  alSourcei(ALSource, AL_LOOPING, AL_FALSE);
+  if (Output != AO_Main) return;
+
+  CreateSource();
+
+  alGenBuffers(AudioBufferCount, BufferIds);
+  First = true;
+}
+
+void FFmpegAudioPlayer::SetOutput(AudioOutputId output) {
+  if (output == Output) return;
+
+  std::lock_guard<std::mutex> lock(SourceMutex);
+  {
+    ScopedOutputContext context(Output);
+    alDeleteSources(1, &ALSource);
+    alDeleteBuffers(AudioBufferCount, BufferIds);
+  }
+
+  Output = output;
+  ScopedOutputContext context(Output);
+  CreateSource();
 
   alGenBuffers(AudioBufferCount, BufferIds);
   First = true;
@@ -68,14 +90,19 @@ void FFmpegAudioPlayer::InitConvertContext(AVCodecContext* codecCtx) {
                                      AV_SAMPLE_FMT_S16, 0);
 }
 
-void FFmpegAudioPlayer::Stop() { alSourceStop(ALSource); }
+void FFmpegAudioPlayer::Stop() {
+  std::lock_guard<std::mutex> lock(SourceMutex);
+  ScopedOutputContext context(Output);
+  alSourceStop(ALSource);
+}
 
 void FFmpegAudioPlayer::Unload() {
   Stop();
+  ScopedOutputContext context(Output);
   alSourcei(ALSource, AL_BUFFER, 0);
   av_freep(&AudioBuffer[0]);
   alDeleteSources(1, &ALSource);
-  alGenSources(1, &ALSource);
+  CreateSource();
   First = true;
 }
 
@@ -131,6 +158,7 @@ void FFmpegAudioPlayer::FillAudioBuffers() {
 
 void FFmpegAudioPlayer::Process() {
   using namespace std::chrono_literals;
+  ScopedOutputContext context(Output);
   float gain = Audio::MasterVolume * Audio::GroupVolumes[Audio::ACG_Movie];
   alSourcef(ALSource, AL_GAIN, gain);
 
