@@ -2,6 +2,7 @@
 
 #include "../impacto.h"
 #include "../io/stream.h"
+#include "../audio/audiocommon.h"
 
 #include <vector>
 
@@ -18,6 +19,7 @@ class VideoPlayer {
   virtual void Seek(int64_t pos) {};
 
   virtual void ReinitAudio() {};
+  virtual void SetAudioOutput(Audio::AudioOutputId output) {};
   virtual void Update(float dt) {};
   virtual void Render(float videoAlpha) {};
 
