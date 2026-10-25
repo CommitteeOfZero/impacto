@@ -345,7 +345,7 @@ root.Sprites["LoveMovieSelect"] = {
 -- Album Menu
 root.Sprites["AlbumMenuCGViewerGuide"] = {
     Sheet = "LibraryMenu",
-    Bounds = { X = 0, Y = 1880, Width = 1920, Height = 59 },
+    Bounds = { X = 0, Y = 1881, Width = 1920, Height = 59 },
 };
 
 root.Sprites["AlbumMenuGuide"] = {
@@ -379,7 +379,7 @@ root.Sprites["MovieDiskExtraOpHighlight"] = {
 
 root.Sprites["MovieMenuGuide"] = {
     Sheet = "MovMenu",
-    Bounds = { X = 0, Y = 1169, Width = 1920, Height = 59 },
+    Bounds = { X = 0, Y = 1170, Width = 1920, Height = 59 },
 };
 
 
@@ -387,7 +387,7 @@ root.Sprites["MovieMenuGuide"] = {
 
 root.Sprites["MusicMenuGuide"] = {
     Sheet = "MusicMenu",
-    Bounds = { X = 0, Y = 1292, Width = 1920, Height = 59 },
+    Bounds = { X = 0, Y = 1293, Width = 1920, Height = 59 },
 };
 root.Sprites["MusicItemsBackground"] = {
     Sheet = "MusicMenu",

@@ -54,7 +54,7 @@ root.OptionsMenu = {
 
     GuideSprite = "OptionsGuide",
     VoiceGuideSprite = "OptionsVoiceGuide",
-    GuidePosition = { X = 0, Y = 986 },
+    GuidePosition = { X = 0, Y = 989 },
     GuideFadeStartPosition = { X = 0, Y = 1375 },
 
     EntriesStartPosition = { X = 419, Y = 313 },
@@ -141,12 +141,12 @@ root.Sprites["OptionsNo"] = {
 
 root.Sprites["OptionsGuide"] = {
     Sheet = "Config",
-    Bounds = { X = 0, Y = 2476, Width = 1926, Height = 57 }
+    Bounds = { X = 0, Y = 2479, Width = 1926, Height = 57 }
 };
 
 root.Sprites["OptionsVoiceGuide"] = {
     Sheet = "Config",
-    Bounds = { X = 0, Y = 2416, Width = 1926, Height = 57 }
+    Bounds = { X = 0, Y = 2419, Width = 1926, Height = 57 }
 };
 
 for i = 0, 3 do

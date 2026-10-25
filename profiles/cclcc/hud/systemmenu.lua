@@ -155,7 +155,7 @@ end
 
 root.Sprites["SystemMenuButtonGuide"] = {
     Sheet = "MenuChip",
-    Bounds = {X = 0, Y = 1384, Width = 1920, Height = 59}
+    Bounds = {X = 0, Y = 1385, Width = 1920, Height = 59}
 };
 
 root.Sprites["SystemMenuFrame"] = {

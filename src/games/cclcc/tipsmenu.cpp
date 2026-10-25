@@ -286,8 +286,9 @@ void TipsMenu::Render() {
 
   UI::DrawButtonPrompt(
       TipsGuideSprite,
-      glm::vec2(TipsGuideX,
-                TipsGuideY + Profile::Game::DesignHeight / 2 - LastYPos),
+      glm::vec2(
+          TipsGuidePosition.x,
+          TipsGuidePosition.y + Profile::Game::DesignHeight / 2 - LastYPos),
       fade);
 }
 

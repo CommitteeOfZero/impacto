@@ -8,7 +8,7 @@ root.BacklogMenu = {
     BacklogHeaderPosition = { X = 0, Y = 0 },
 
     BacklogControlsSprite = "BacklogControls",
-    BacklogControlsPosition = { X = 0, Y = 986 },
+    BacklogControlsPosition = { X = 0, Y = 989 },
 
     EntryHighlightSprite = "EntryHighlight",
     EntryHighlightLocation = EntryHighlightLocationType.TopLineLeftOfScreen,
@@ -52,7 +52,7 @@ root.Sprites["BacklogHeader"] = {
 
 root.Sprites["BacklogControls"] = {
     Sheet = "Backlog",
-    Bounds = { X = 0, Y = 1151, Width = 1920, Height = 59 },
+    Bounds = { X = 0, Y = 1154, Width = 1920, Height = 59 },
 }
 
 root.Sprites["VoiceIcon"] = {

@@ -21,8 +21,7 @@ void Configure() {
   TipsNewSprite = EnsureGetMember<Sprite>("TipsNewSprite");
   TipsHighlightedTabAdder = EnsureGetMember<int>("TipsHighlightedTabAdder");
 
-  TipsGuideX = EnsureGetMember<int>("TipsGuideX");
-  TipsGuideY = EnsureGetMember<int>("TipsGuideY");
+  TipsGuidePosition = EnsureGetMember<glm::vec2>("TipsGuidePosition");
 
   TipsTextTableIndex = EnsureGetMember<int>("TipsTextTableIndex");
   TipsTextSortStringIndex = EnsureGetMember<int>("TipsTextSortStringIndex");

@@ -13,7 +13,7 @@ root.SaveMenu = {
     SaveEntryPrimaryColor = 0xF07390,
     LoadEntryPrimaryColor = 0x00A1E6,
     SaveEntrySecondaryColor = 0x5E357C,
-    GuidePosition = {X = 1314, Y = 867},
+    GuidePosition = {X = 0, Y = 989},
     MenuTextPosition = {X = 11, Y = 10}, 
     SlotsBackgroundPosition = {X = 135, Y = 0}, 
     PageNumberPosition = {X = 1314, Y = 867},
