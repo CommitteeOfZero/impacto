@@ -2,6 +2,7 @@
 
 #include "../renderer.h"
 
+#include "bgfxhandle.h"
 #include "framebuffer.h"
 #include "shader.h"
 
@@ -172,10 +173,10 @@ class Renderer final : public BaseRenderer {
 
   // Only call bgfx::shutdown after all managed objects in this class have been
   // default-destructed
-  struct BgfxHandleStruct {
-    ~BgfxHandleStruct() { bgfx::shutdown(); }
+  struct BgfxContextHandleStruct {
+    ~BgfxContextHandleStruct() { bgfx::shutdown(); }
   };
-  BgfxHandleStruct BgfxHandle;
+  BgfxContextHandleStruct BgfxContextHandle;
 
   struct RendererState {
     StateConfig GenericState;
@@ -188,15 +189,15 @@ class Renderer final : public BaseRenderer {
   FrameBuffer DrawFrameBuffer;
   glm::ivec2 Resolution;
 
-  bgfx::DynamicIndexBufferHandle IndexBuffer = {bgfx::kInvalidHandle};
-  bgfx::DynamicVertexBufferHandle VertexBuffer = {bgfx::kInvalidHandle};
+  BgfxHandle<bgfx::DynamicIndexBufferHandle> IndexBuffer;
+  BgfxHandle<bgfx::DynamicVertexBufferHandle> VertexBuffer;
   std::vector<uint16_t> Indices;
   std::vector<VertexBufferSprites> Vertices;
   size_t CurFrameIndexBufferOffset = 0;
   size_t CurFrameVertexBufferOffset = 0;
 
-  bgfx::IndexBufferHandle BackBufferIndexBuffer = {bgfx::kInvalidHandle};
-  bgfx::VertexBufferHandle BackBufferVertexBuffer = {bgfx::kInvalidHandle};
+  BgfxHandle<bgfx::IndexBufferHandle> BackBufferIndexBuffer;
+  BgfxHandle<bgfx::VertexBufferHandle> BackBufferVertexBuffer;
 
   bgfx::VertexLayout VertexBufferSpritesLayout;
 

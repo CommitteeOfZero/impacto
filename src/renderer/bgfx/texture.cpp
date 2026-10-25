@@ -4,18 +4,6 @@
 
 namespace Impacto::Bgfx {
 
-Texture& Texture::operator=(Texture&& other) {
-  if (this == &other) return *this;
-  Reset(true);
-
-  Handle = other.Handle;
-  Dimensions = other.Dimensions;
-
-  other.Reset(false);
-
-  return *this;
-}
-
 Texture::Texture(const bgfx::TextureFormat::Enum format,
                  const std::span<const uint8_t> data,
                  const glm::vec<2, size_t> dimensions)
@@ -29,18 +17,10 @@ Texture::Texture(const bgfx::TextureFormat::Enum format,
       false, 1, format, textureFlags,
       bgfx::copy(data.data(), static_cast<uint32_t>(data.size_bytes())));
 
-  if (!bgfx::isValid(Handle)) {
+  if (!Handle.IsValid()) {
     ImpLog(LogLevel::Error, LogChannel::Render, "Failed to create texture.");
     assert(false);
   }
-}
-
-void Texture::Reset(const bool cleanUpResources) {
-  if (cleanUpResources) {
-    if (bgfx::isValid(Handle)) bgfx::destroy(Handle);
-  }
-
-  Handle.idx = bgfx::kInvalidHandle;
 }
 
 MutableTexture::MutableTexture(const bgfx::TextureFormat::Enum format,
@@ -55,7 +35,7 @@ MutableTexture::MutableTexture(const bgfx::TextureFormat::Enum format,
                                  static_cast<uint16_t>(dimensions.y), false, 1,
                                  format, textureFlags, nullptr);
 
-  if (!bgfx::isValid(Handle)) {
+  if (!Handle.IsValid()) {
     ImpLog(LogLevel::Error, LogChannel::Render, "Failed to create texture.");
     assert(false);
   }
@@ -63,7 +43,7 @@ MutableTexture::MutableTexture(const bgfx::TextureFormat::Enum format,
 
 void MutableTexture::Update(const std::span<const uint8_t> data,
                             const size_t rowStride) {
-  assert(bgfx::isValid(Handle));
+  assert(Handle.IsValid());
 
   bgfx::updateTexture2D(
       Handle, 0, 0, 0, 0, static_cast<uint16_t>(Dimensions.x),

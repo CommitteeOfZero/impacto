@@ -1,5 +1,6 @@
 #pragma once
 
+#include "bgfxhandle.h"
 #include "../../texture/texture.h"
 #include "../textureref.h"
 
@@ -15,43 +16,47 @@ class Texture : public virtual TextureInterface {
  public:
   Texture() = default;
   Texture(Texture&) = delete;
-  Texture(Texture&& other) { *this = std::move(other); }
-  virtual ~Texture() { Reset(true); }
-
-  Texture& operator=(Texture&) = delete;
-  Texture& operator=(Texture&&);
-
-  bool operator==(const Texture& other) const {
-    return other.Handle.idx == Handle.idx;
-  }
-
+  Texture(Texture&& other) = default;
   Texture(bgfx::TextureFormat::Enum format, std::span<const uint8_t> data,
           glm::vec<2, size_t> dimensions);
+  virtual ~Texture() = default;
 
-  operator bgfx::TextureHandle() const { return GetTextureHandle(); }
-  bgfx::TextureHandle GetTextureHandle() const {
-    assert(bgfx::isValid(Handle));
+  Texture& operator=(Texture&) = delete;
+  Texture& operator=(Texture&&) = default;
+
+  [[nodiscard]] bool operator==(const Texture& other) const {
+    return other.Handle == Handle;
+  }
+  [[nodiscard]] bool operator!=(const Texture& other) const {
+    return !(*this == other);
+  }
+
+  [[nodiscard]] operator bgfx::TextureHandle() const {
+    return GetTextureHandle();
+  }
+  [[nodiscard]] bgfx::TextureHandle GetTextureHandle() const {
+    assert(Handle.IsValid());
     return Handle;
   }
 
-  [[nodiscard]] bool IsValid() const override { return bgfx::isValid(Handle); }
+  [[nodiscard]] bool IsValid() const override { return Handle.IsValid(); }
 
   [[nodiscard]] glm::vec<2, size_t> GetDimensions() const override {
     return Dimensions;
   }
 
-  [[nodiscard]] uint64_t GetTextureId() const override { return Handle.idx; }
+  [[nodiscard]] uint64_t GetTextureId() const override {
+    return Handle.Get().idx;
+  }
 
-  bool IsScreenCap() const { return ScreenCap; }
+  [[nodiscard]] bool IsScreenCap() const { return ScreenCap; }
 
  protected:
-  bgfx::TextureHandle Handle = {bgfx::kInvalidHandle};
+  BgfxHandle<bgfx::TextureHandle> Handle;
 
   glm::vec<2, size_t> Dimensions = {0, 0};
 
   bool ScreenCap = false;
-
-  void Reset(bool cleanUpResources);
 };
 
 class MutableTexture final : public MutableTextureInterface,

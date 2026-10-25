@@ -1,5 +1,7 @@
 #pragma once
 
+#include "bgfxhandle.h"
+
 #include <bgfx/bgfx.h>
 #include <bgfx/embedded_shader.h>
 #include <SDL3/SDL_iostream.h>
@@ -41,7 +43,7 @@ namespace Impacto::Bgfx {
 
 class ShaderProgramInterface {
  public:
-  operator bgfx::ProgramHandle() { return GetProgramHandle(); }
+  [[nodiscard]] operator bgfx::ProgramHandle() { return GetProgramHandle(); }
 
   [[nodiscard]] virtual bgfx::ProgramHandle GetProgramHandle() = 0;
 };
@@ -53,22 +55,21 @@ class ShaderProgram final : public ShaderProgramInterface {
   ShaderProgram() = delete;
   ShaderProgram(const ShaderProgram<vertexShaderType, fragmentShaderType>&) =
       delete;
-  ShaderProgram(ShaderProgram<vertexShaderType, fragmentShaderType>&& other) {
-    *this = std::move(other);
-  }
-  ~ShaderProgram() { Reset(true); }
+  ShaderProgram(ShaderProgram<vertexShaderType, fragmentShaderType>&&) =
+      default;
+  ~ShaderProgram() = default;
 
   ShaderProgram<vertexShaderType, fragmentShaderType>& operator=(
       const ShaderProgram<vertexShaderType, fragmentShaderType>&) = delete;
   ShaderProgram<vertexShaderType, fragmentShaderType>& operator=(
-      ShaderProgram<vertexShaderType, fragmentShaderType>&&);
+      ShaderProgram<vertexShaderType, fragmentShaderType>&&) = default;
 
   ShaderProgram(const bgfx::EmbeddedShader& vertexShader,
                 const bgfx::EmbeddedShader& fragmentShader,
                 std::function<void()> flush);
 
   [[nodiscard]] bgfx::ProgramHandle GetProgramHandle() override {
-    assert(bgfx::isValid(ProgramHandle));
+    assert(ProgramHandle.IsValid());
     return ProgramHandle;
   }
 
@@ -79,36 +80,14 @@ class ShaderProgram final : public ShaderProgramInterface {
   }
 
  private:
-  bgfx::ProgramHandle ProgramHandle = {bgfx::kInvalidHandle};
+  BgfxHandle<bgfx::ProgramHandle> ProgramHandle;
 
-  bgfx::ShaderHandle VertexShader = {bgfx::kInvalidHandle};
-  bgfx::ShaderHandle FragmentShader = {bgfx::kInvalidHandle};
-
-  void Reset(bool cleanUpResources);
+  BgfxHandle<bgfx::ShaderHandle> VertexShader;
+  BgfxHandle<bgfx::ShaderHandle> FragmentShader;
 
   std::optional<UniformsState<vertexShaderType>> VertexUniformsState;
   std::optional<UniformsState<fragmentShaderType>> FragmentUniformsState;
 };
-
-template <VertexShaderType vertexShaderType,
-          FragmentShaderType fragmentShaderType>
-ShaderProgram<vertexShaderType, fragmentShaderType>&
-ShaderProgram<vertexShaderType, fragmentShaderType>::operator=(
-    ShaderProgram<vertexShaderType, fragmentShaderType>&& other) {
-  if (&other == this) return *this;
-  Reset(true);
-
-  ProgramHandle = other.ProgramHandle;
-  VertexShader = other.VertexShader;
-  FragmentShader = other.FragmentShader;
-
-  VertexUniformsState = std::move(other.VertexUniformsState);
-  FragmentUniformsState = std::move(other.FragmentUniformsState);
-
-  other.Reset(false);
-
-  return *this;
-}
 
 template <VertexShaderType vertexShaderType,
           FragmentShaderType fragmentShaderType>
@@ -118,33 +97,17 @@ ShaderProgram<vertexShaderType, fragmentShaderType>::ShaderProgram(
     const std::function<void()> flush) {
   VertexShader = bgfx::createEmbeddedShader(
       &vertexShader, bgfx::getRendererType(), vertexShader.name);
-  assert(bgfx::isValid(VertexShader));
+  assert(VertexShader.IsValid());
 
   FragmentShader = bgfx::createEmbeddedShader(
       &fragmentShader, bgfx::getRendererType(), fragmentShader.name);
-  assert(bgfx::isValid(FragmentShader));
+  assert(FragmentShader.IsValid());
 
   ProgramHandle = bgfx::createProgram(VertexShader, FragmentShader, true);
-  assert(bgfx::isValid(ProgramHandle));
+  assert(ProgramHandle.IsValid());
 
   VertexUniformsState.emplace(VertexShader, flush);
   FragmentUniformsState.emplace(FragmentShader, flush);
-}
-
-template <VertexShaderType vertexShaderType,
-          FragmentShaderType fragmentShaderType>
-void ShaderProgram<vertexShaderType, fragmentShaderType>::Reset(
-    bool cleanUpResources) {
-  if (cleanUpResources) {
-    if (bgfx::isValid(ProgramHandle)) bgfx::destroy(ProgramHandle);
-  }
-
-  ProgramHandle.idx = bgfx::kInvalidHandle;
-  VertexShader.idx = bgfx::kInvalidHandle;
-  FragmentShader.idx = bgfx::kInvalidHandle;
-
-  VertexUniformsState.reset();
-  FragmentUniformsState.reset();
 }
 
 }  // namespace Impacto::Bgfx

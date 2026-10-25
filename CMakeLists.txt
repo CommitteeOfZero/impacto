@@ -1226,6 +1226,7 @@ if (IMPACTO_RENDERER_BGFX)
         src/renderer/bgfx/window.cpp
     )
     list(APPEND Impacto_Header
+        src/renderer/bgfx/bgfxhandle.h
         src/renderer/bgfx/framebuffer.h
         src/renderer/bgfx/renderer.h
         src/renderer/bgfx/shader.h

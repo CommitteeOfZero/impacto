@@ -1,5 +1,7 @@
 #pragma once
 
+#include "bgfxhandle.h"
+
 #include <bgfx/bgfx.h>
 #include <glm/glm.hpp>
 
@@ -13,40 +15,39 @@ class FrameBuffer {
  public:
   FrameBuffer() = default;
   FrameBuffer(const FrameBuffer&) = delete;
-  FrameBuffer(FrameBuffer&&);
-  ~FrameBuffer();
+  FrameBuffer(FrameBuffer&&) = default;
+  ~FrameBuffer() = default;
 
   FrameBuffer& operator=(const FrameBuffer&) = delete;
-  FrameBuffer& operator=(FrameBuffer&&);
+  FrameBuffer& operator=(FrameBuffer&&) = default;
 
   FrameBuffer(uint16_t width, uint16_t height);
 
-  operator bgfx::FrameBufferHandle() { return GetFrameBufferHandle(); }
-
+  [[nodiscard]] operator bgfx::FrameBufferHandle() {
+    return GetFrameBufferHandle();
+  }
   [[nodiscard]] bgfx::FrameBufferHandle GetFrameBufferHandle() {
-    assert(bgfx::isValid(FrameBufferHandle));
+    assert(FrameBufferHandle.IsValid());
     return FrameBufferHandle;
   }
 
   [[nodiscard]] bgfx::TextureHandle GetColorAttachmentHandle() {
-    assert(bgfx::isValid(ColorAttachment));
+    assert(ColorAttachment.IsValid());
     return ColorAttachment;
   }
 
   [[nodiscard]] bgfx::TextureHandle GetTexture() {
-    assert(bgfx::isValid(FrameBufferHandle));
+    assert(FrameBufferHandle.IsValid());
     return bgfx::getTexture(FrameBufferHandle, 0);
   }
 
   [[nodiscard]] glm::ivec2 GetSize() const { return Size; }
 
  private:
-  bgfx::FrameBufferHandle FrameBufferHandle = {bgfx::kInvalidHandle};
-  bgfx::TextureHandle ColorAttachment = {bgfx::kInvalidHandle};
+  BgfxHandle<bgfx::FrameBufferHandle> FrameBufferHandle;
+  BgfxHandle<bgfx::TextureHandle> ColorAttachment;
 
   glm::ivec2 Size;
-
-  void Reset(bool cleanUpResources);
 };
 
 }  // namespace Impacto::Bgfx

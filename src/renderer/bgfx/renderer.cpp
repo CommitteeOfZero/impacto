@@ -122,7 +122,7 @@ Renderer::Renderer() {
 
   IndexBuffer = bgfx::createDynamicIndexBuffer(static_cast<uint32_t>(0),
                                                BGFX_BUFFER_ALLOW_RESIZE);
-  if (!bgfx::isValid(IndexBuffer)) {
+  if (!IndexBuffer.IsValid()) {
     Panic(LogChannel::Render, "Failed to create index buffer");
   }
 
@@ -136,7 +136,7 @@ Renderer::Renderer() {
   VertexBuffer = bgfx::createDynamicVertexBuffer(static_cast<uint32_t>(0),
                                                  VertexBufferSpritesLayout,
                                                  BGFX_BUFFER_ALLOW_RESIZE);
-  if (!bgfx::isValid(VertexBuffer)) {
+  if (!VertexBuffer.IsValid()) {
     Panic(LogChannel::Render, "Failed to create vertex buffer");
   }
 
@@ -433,22 +433,6 @@ MutableTextureRef Renderer::DeclareMutableTexture(
 }
 
 void Renderer::Shutdown() {
-  if (bgfx::isValid(IndexBuffer)) bgfx::destroy(IndexBuffer);
-  IndexBuffer.idx = bgfx::kInvalidHandle;
-
-  if (bgfx::isValid(VertexBuffer)) bgfx::destroy(VertexBuffer);
-  VertexBuffer.idx = bgfx::kInvalidHandle;
-
-  if (bgfx::isValid(BackBufferIndexBuffer)) {
-    bgfx::destroy(BackBufferIndexBuffer);
-  }
-  BackBufferIndexBuffer.idx = bgfx::kInvalidHandle;
-
-  if (bgfx::isValid(BackBufferVertexBuffer)) {
-    bgfx::destroy(BackBufferVertexBuffer);
-  }
-  BackBufferVertexBuffer.idx = bgfx::kInvalidHandle;
-
 #ifndef IMPACTO_DISABLE_IMGUI
   ImGui_ImplSDL3_Shutdown();
   ImGui_Implbgfx_Shutdown();
