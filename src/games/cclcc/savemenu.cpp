@@ -383,7 +383,7 @@ void SaveMenu::Render() {
     }
   }
 
-  Renderer->DrawSprite(ButtonGuideSprite[*ActiveMenuType], {0, 989}, col);
+  UI::DrawButtonPrompt(ButtonGuideSprite[*ActiveMenuType], {0, 989}, col);
 }
 
 void SaveMenu::RefreshCurrentEntryInfo() {

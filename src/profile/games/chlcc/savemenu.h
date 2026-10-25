@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../../spritesheet.h"
+#include "../../../ui/buttonprompt.h"
 
 namespace Impacto {
 namespace Profile {
@@ -52,7 +53,7 @@ inline Sprite PageNumSeparatorSlashSprite;
 inline glm::vec2 MaxPageNumPos;
 inline Sprite MaxPageNumSprite;
 inline glm::vec2 ButtonPromptPosition;
-inline Sprite ButtonPromptSprite;
+inline UI::ButtonPrompt ButtonPromptSprite;
 inline std::vector<glm::vec2> SelectDataTextPositions;
 inline std::vector<Sprite> SelectDataTextSprites;
 

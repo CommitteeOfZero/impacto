@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../../spritesheet.h"
+#include "../../../ui/buttonprompt.h"
 #include "../../../games/cclcc/commonmenu.h"
 
 namespace Impacto {
@@ -25,7 +26,7 @@ inline glm::vec2 MenuEntriesPositions[MenuEntriesNumMax];
 inline RectF MenuEntriesButtonBounds[MenuEntriesNumMax];
 inline float MenuEntriesFadeXOffset;
 
-inline Sprite MenuButtonGuide;
+inline UI::ButtonPrompt MenuButtonGuide;
 inline glm::vec2 MenuButtonGuidePos;
 inline float MenuButtonGuideFadeXOffset;
 

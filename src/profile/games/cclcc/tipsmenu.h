@@ -1,13 +1,14 @@
 #pragma once
 
 #include "../../../spritesheet.h"
+#include "../../../ui/buttonprompt.h"
 
 namespace Impacto {
 namespace Profile {
 namespace CCLCC {
 namespace TipsMenu {
 
-inline Sprite TipsGuideSprite;
+inline UI::ButtonPrompt TipsGuideSprite;
 inline Sprite TipsHighlightedSprite;
 inline Sprite TipsNewSprite;
 

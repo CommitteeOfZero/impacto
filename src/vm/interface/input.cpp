@@ -51,7 +51,7 @@ static float PADAccel2Clock = 0.0f;
 
 enum class PADInputType { WentDown, IsDown };
 
-static void UpdateFromPADCode(uint32_t PADcode, PADInputType type) {
+static void UpdateFromPADCode(PADinput PADcode, PADInputType type) {
   const auto KBcustomMappings = PADToKBcustom.find(PADcode);
   const auto GPcode = PADToController.find(PADcode);
   const auto GPAcode = PADToControllerAxis.find(PADcode);
@@ -106,7 +106,7 @@ static void UpdateFromPADCode(uint32_t PADcode, PADInputType type) {
     return false;
   };
 
-  const auto checkPadDirectional = [](auto PADcode) {
+  const auto checkPadDirectional = [&PADcode]() {
     if (PADcode == PAD1UP_DIRECT || PADcode == PAD1UP_RS ||
         PADcode == PAD1UP_LS)
       PADcode |= PAD1UP;
@@ -130,7 +130,7 @@ static void UpdateFromPADCode(uint32_t PADcode, PADInputType type) {
           (float)GPAcode->second.second * Input::ControllerAxisLightThreshold)
     padInputButton |= PADcode;
   if (isKbDown || isGpDown || isGPAxisDown) {
-    padInputButton |= checkPadDirectional(PADcode);
+    padInputButton |= checkPadDirectional();
   }
   if (isMsDown) padInputMouse |= PADcode;
 }
@@ -224,8 +224,8 @@ void UpdatePADInput() {
   PADinputMouseWentDown = 0;
   PADinputButtonIsDown = 0;
   PADinputMouseIsDown = 0;
-  for (int i = 0; i < 32; i++) {
-    uint32_t PADcode = 1 << (uint8_t)i;
+  for (uint32_t i = 0; i < 32; i++) {
+    auto PADcode = static_cast<PADinput>(1u << (uint8_t)i);
     UpdateFromPADCode(PADcode, PADInputType::WentDown);
     UpdateFromPADCode(PADcode, PADInputType::IsDown);
   }

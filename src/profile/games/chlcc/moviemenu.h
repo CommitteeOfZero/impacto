@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../../spritesheet.h"
+#include "../../../ui/buttonprompt.h"
 #include "../../../spriteanimation.h"
 
 namespace Impacto {
@@ -32,7 +33,7 @@ inline glm::vec2 ThumbnailPositions[Movies];
 inline Sprite MoviesThumbnails[Movies];
 inline Sprite LockedThumbnail;
 inline glm::vec2 ButtonPromptPosition;
-inline Sprite ButtonPromptSprite;
+inline UI::ButtonPrompt ButtonPromptSprite;
 
 inline bool MovieExtraVideosEnabled;
 inline SpriteAnimationDef SelectedMovieExtraAnimation;
@@ -40,7 +41,7 @@ inline Sprite MovieBoxExtra;
 inline Sprite MovieThumbnailExtraOp;
 inline Sprite MovieThumbnailExtraOp2;
 inline glm::vec2 MovieButtonExtraPromptPosition;
-inline Sprite MovieButtonExtraPrompt;
+inline UI::ButtonPrompt MovieButtonExtraPrompt;
 
 void Configure();
 

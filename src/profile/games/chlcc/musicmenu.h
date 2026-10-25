@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../../spritesheet.h"
+#include "../../../ui/buttonprompt.h"
 
 namespace Impacto {
 namespace Profile {
@@ -43,7 +44,7 @@ inline std::array<int, MusicTrackCount> Playlist;
 inline std::vector<Sprite> SelectSoundSprites;
 inline std::vector<glm::vec2> SelectSoundPos;
 inline glm::vec2 ButtonPromptPosition;
-inline Sprite ButtonPromptSprite;
+inline UI::ButtonPrompt ButtonPromptSprite;
 inline Sprite ScrollThumbSprite;
 inline glm::vec2 ScrollbarPosition;
 inline glm::vec2 ScrollTrackBounds;

@@ -99,7 +99,7 @@ void ClearListMenu::Render() {
     }
   }
 
-  Renderer->DrawSprite(ClearListGuideSprite, ClearListGuidePosition,
+  UI::DrawButtonPrompt(ClearListGuideSprite, ClearListGuidePosition,
                        transition);
 }
 

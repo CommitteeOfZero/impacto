@@ -21,7 +21,7 @@ void Configure() {
   TrackHighlight = EnsureGetMember<Sprite>("TrackHighlight");
   TrackNumRelativePos = EnsureGetMember<glm::vec2>("TrackNumRelativePos");
   ButtonPromptPosition = EnsureGetMember<glm::vec2>("ButtonPromptPosition");
-  ButtonPromptSprite = EnsureGetMember<Sprite>("ButtonPromptSprite");
+  ButtonPromptSprite = EnsureGetMember<UI::ButtonPrompt>("ButtonPromptSprite");
   PlaymodeRepeatPos = EnsureGetMember<glm::vec2>("PlaymodeRepeatPos");
   PlaymodeAllPos = EnsureGetMember<glm::vec2>("PlaymodeAllPos");
   PlaymodeRepeat = EnsureGetMember<Sprite>("PlaymodeRepeat");

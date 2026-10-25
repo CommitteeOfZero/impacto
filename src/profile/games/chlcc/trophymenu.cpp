@@ -24,7 +24,7 @@ void Configure() {
   MenuTitleText = EnsureGetMember<Sprite>("MenuTitleText");
 
   ButtonPromptPosition = EnsureGetMember<glm::vec2>("ButtonPromptPosition");
-  ButtonPromptSprite = EnsureGetMember<Sprite>("ButtonPromptSprite");
+  ButtonPromptSprite = EnsureGetMember<UI::ButtonPrompt>("ButtonPromptSprite");
 
   PlatinumTrophySprite = EnsureGetMember<Sprite>("PlatinumTrophySprite");
   PlatinumTrophyPos = EnsureGetMember<glm::vec2>("PlatinumTrophyPos");

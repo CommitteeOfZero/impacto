@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../../spritesheet.h"
+#include "../../../ui/buttonprompt.h"
 #include "../../../games/rne/systemmenu.h"
 
 namespace Impacto {
@@ -12,7 +13,7 @@ inline Sprite SkyBackgroundSprite;
 inline Sprite SkyArrowSprite;
 inline Sprite SkyTextSprite;
 inline Sprite ButtonBackgroundSprite;
-inline Sprite ButtonPromptsSprite;
+inline UI::ButtonPrompt ButtonPromptsSprite;
 inline float ButtonBackgroundStartX;
 inline float ButtonBackgroundX;
 inline float ButtonBackgroundY;

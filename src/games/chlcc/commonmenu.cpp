@@ -132,7 +132,7 @@ void CommonMenu::DrawRedBar() const {
   }
 }
 
-void CommonMenu::DrawButtonPrompt(const Sprite& buttonPromptSprite,
+void CommonMenu::DrawButtonPrompt(const ButtonPrompt& buttonPrompt,
                                   glm::vec2 buttonPromptPos,
                                   std::optional<Animation> animation) {
   const Animation promptAnimation = animation.value_or(MenuTransition);
@@ -142,13 +142,12 @@ void CommonMenu::DrawButtonPrompt(const Sprite& buttonPromptSprite,
       ButtonPromptAnimationDuration / MenuTransitionDuration;
   const float endProgress = startProgress + progressDuration;
   if (promptAnimation.Progress >= endProgress) {
-    Renderer->DrawSprite(buttonPromptSprite, buttonPromptPos);
+    UI::DrawButtonPrompt(buttonPrompt, buttonPromptPos);
   } else if (promptAnimation.Progress >= startProgress) {
     const float progress =
         (promptAnimation.Progress - startProgress) / progressDuration;
-    Renderer->DrawSprite(
-        buttonPromptSprite,
-        glm::mix(ButtonPromptStartPosition, buttonPromptPos, progress));
+    UI::DrawButtonPrompt(buttonPrompt, glm::mix(ButtonPromptStartPosition,
+                                                buttonPromptPos, progress));
   }
 }
 

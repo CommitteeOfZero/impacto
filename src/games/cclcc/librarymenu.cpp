@@ -268,7 +268,7 @@ void LibraryMenu::Render() {
                        LibraryIndexPosition + leftSpritesOffset, col);
   MainItems.Render();
 
-  const auto* const submenuGuideSprite = [&]() -> Sprite* {
+  const auto* const submenuGuideSprite = [&]() -> const ButtonPrompt* {
     switch (CurrentLibraryMenu) {
       case LibraryMenuPageType::Album:
         if (cgViewerActive) {
@@ -297,7 +297,7 @@ void LibraryMenu::Render() {
   }
 
   if (submenuGuideSprite) {
-    Renderer->DrawSprite(*submenuGuideSprite,
+    UI::DrawButtonPrompt(*submenuGuideSprite,
                          LibraryButtonGuidePosition + leftSpritesOffset,
                          col * glm::vec4{glm::vec3(1.0f), submenuFadeProgress});
   }

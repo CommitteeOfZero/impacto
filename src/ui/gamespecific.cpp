@@ -199,8 +199,9 @@ void RenderLayer(uint32_t layer) {
 void RenderCCButtonGuide() {
   if (!GetFlag(SF_UIHIDDEN) && !GetFlag(2487)) {
     if (ScrWork[SW_UI_BTNGUIDE_PROG] != 0) {
-      Sprite guideSprite =
+      const ButtonPrompt& guidePrompt =
           (*UIButtonGuideSprites)[ScrWork[SW_UI_BTNGUIDE_TYPE] - 1];
+      Sprite guideSprite = guidePrompt.PromptSprite;
       float guideXWidth =
           (ScrWork[SW_UI_BTNGUIDE_PROG] * Profile::Game::DesignWidth) / 32.0f;
       guideSprite.Bounds.Width = guideXWidth;
@@ -222,6 +223,9 @@ void RenderCCButtonGuide() {
         Renderer->DrawSprite(guideSprite2, dest, glm::mat4(1.0f), tints,
                              glm::vec3(0.0f), false);
       }
+      DrawButtonPromptIcons(guidePrompt,
+                            glm::vec2{0.0f, UIButtonGuideEndDisp->Y},
+                            glm::vec4(1.0f), guideXWidth);
     }
   }
 }

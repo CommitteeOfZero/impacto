@@ -37,7 +37,7 @@ void Configure() {
                          "EndingThumbnails");
   LockedThumbnail = EnsureGetMember<Sprite>("LockedThumbnail");
   ButtonPromptPosition = EnsureGetMember<glm::vec2>("ButtonPromptPosition");
-  ButtonPromptSprite = EnsureGetMember<Sprite>("ButtonPromptSprite");
+  ButtonPromptSprite = EnsureGetMember<UI::ButtonPrompt>("ButtonPromptSprite");
 
   auto drawType = EnsureGetMember<Game::DrawComponentType>("DrawType");
 

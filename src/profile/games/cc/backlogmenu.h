@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../../spritesheet.h"
+#include "../../../ui/buttonprompt.h"
 
 namespace Impacto {
 namespace Profile {
@@ -12,7 +13,7 @@ void Configure();
 inline Sprite BacklogHeaderSprite;
 inline glm::vec2 BacklogHeaderPosition;
 
-inline Sprite BacklogControlsSprite;
+inline UI::ButtonPrompt BacklogControlsSprite;
 inline glm::vec2 BacklogControlsPosition;
 
 inline SpriteSheet BacklogMaskSheet;

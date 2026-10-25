@@ -4,6 +4,7 @@
 #include "../../impacto.h"
 #include "../../animation.h"
 #include "../../spritesheet.h"
+#include "../../ui/buttonprompt.h"
 
 #include "animations/selectprompt.h"
 #include "animations/menutransition.h"
@@ -31,7 +32,7 @@ class CommonMenu {
   void DrawBackgroundFilter();
 
   virtual void DrawButtonPrompt(
-      const Sprite& buttonPromptSprite, glm::vec2 buttonPromptPos,
+      const ButtonPrompt& buttonPrompt, glm::vec2 buttonPromptPos,
       std::optional<Animation> animation = std::nullopt);
   virtual void UpdateTitles(glm::vec2 rightTitlepos, glm::vec2 leftTitlePos,
                             bool vertical = true);

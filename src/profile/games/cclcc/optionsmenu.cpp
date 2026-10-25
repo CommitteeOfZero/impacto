@@ -56,8 +56,8 @@ void Configure() {
   YesSprite = EnsureGetMember<Sprite>("YesSprite");
   NoSprite = EnsureGetMember<Sprite>("NoSprite");
 
-  GuideSprite = EnsureGetMember<Sprite>("GuideSprite");
-  VoiceGuideSprite = EnsureGetMember<Sprite>("VoiceGuideSprite");
+  GuideSprite = EnsureGetMember<UI::ButtonPrompt>("GuideSprite");
+  VoiceGuideSprite = EnsureGetMember<UI::ButtonPrompt>("VoiceGuideSprite");
   GuidePosition = EnsureGetMember<glm::vec2>("GuidePosition");
   GuideFadeStartPosition = EnsureGetMember<glm::vec2>("GuideFadeStartPosition");
 
