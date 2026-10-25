@@ -287,12 +287,15 @@ void Renderer::UpdateResolution() {
 
   // Queue up new resolution for seamless switching between the end of the
   // current frame and the start of the next
-  Resolution =
-      gameConfig.ResolutionWidth.has_value() &&
-              gameConfig.ResolutionHeight.has_value()
-          ? glm::ivec2{*gameConfig.ResolutionWidth,
-                       *gameConfig.ResolutionHeight}
-          : glm::ivec2{Profile::Game::DesignWidth, Profile::Game::DesignHeight};
+  Resolution = gameConfig.ResolutionWidth.has_value() &&
+                       gameConfig.ResolutionHeight.has_value()
+                   ? glm::vec<2, size_t>{static_cast<size_t>(
+                                             *gameConfig.ResolutionWidth),
+                                         static_cast<size_t>(
+                                             *gameConfig.ResolutionHeight)}
+                   : glm::vec<2, size_t>{
+                         static_cast<size_t>(Profile::Game::DesignWidth),
+                         static_cast<size_t>(Profile::Game::DesignHeight)};
 }
 
 RendererType Renderer::GetType() const {
@@ -346,7 +349,8 @@ void Renderer::BeginFrame() {
 }
 
 void Renderer::BeginFrame2D() {
-  if (DrawFrameBuffer.GetSize() != Resolution) {
+  if (static_cast<glm::vec<2, size_t>>(DrawFrameBuffer.GetSize()) !=
+      Resolution) {
     DrawFrameBuffer = FrameBuffer(static_cast<uint16_t>(Resolution.x),
                                   static_cast<uint16_t>(Resolution.y));
   }

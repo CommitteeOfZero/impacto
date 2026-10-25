@@ -3,7 +3,7 @@
 #include "bgfxhandle.h"
 
 #include <bgfx/bgfx.h>
-#include <glm/glm.hpp>
+#include <glm/ext/vector_uint2_sized.hpp>
 
 #include <cassert>
 #include <span>
@@ -41,13 +41,13 @@ class FrameBuffer {
     return bgfx::getTexture(FrameBufferHandle, 0);
   }
 
-  [[nodiscard]] glm::ivec2 GetSize() const { return Size; }
+  [[nodiscard]] glm::u16vec2 GetSize() const { return Size; }
 
  private:
   BgfxHandle<bgfx::FrameBufferHandle> FrameBufferHandle;
   BgfxHandle<bgfx::TextureHandle> ColorAttachment;
 
-  glm::ivec2 Size;
+  glm::u16vec2 Size;
 };
 
 }  // namespace Impacto::Bgfx

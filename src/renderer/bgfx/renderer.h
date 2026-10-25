@@ -187,7 +187,7 @@ class Renderer final : public BaseRenderer {
   std::optional<RendererState> CurrentState = std::nullopt;
 
   FrameBuffer DrawFrameBuffer;
-  glm::ivec2 Resolution;
+  glm::vec<2, size_t> Resolution;
 
   BgfxHandle<bgfx::DynamicIndexBufferHandle> IndexBuffer;
   BgfxHandle<bgfx::DynamicVertexBufferHandle> VertexBuffer;
