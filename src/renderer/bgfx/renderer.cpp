@@ -120,6 +120,9 @@ Renderer::Renderer() {
   bgfx::setViewClear(RENDER_VIEW, BGFX_CLEAR_COLOR | BGFX_CLEAR_STENCIL, black);
   bgfx::setViewClear(DISPLAY_VIEW, BGFX_CLEAR_COLOR, black);
 
+  bgfx::setViewMode(RENDER_VIEW, bgfx::ViewMode::Sequential);
+  bgfx::setViewMode(DISPLAY_VIEW, bgfx::ViewMode::Sequential);
+
   IndexBuffer = bgfx::createDynamicIndexBuffer(static_cast<uint32_t>(0),
                                                BGFX_BUFFER_ALLOW_RESIZE);
   if (!IndexBuffer.IsValid()) {
