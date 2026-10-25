@@ -55,10 +55,9 @@ include(root.BasePaths.RootProfilesDir .. '/common/animation.lua');
 include(root.BasePaths.RootProfilesDir .. '/common/achievementnotification.lua');
 include(root.BasePaths.RootProfilesDir .. '/common/charset.lua');
 include(root.BasePaths.RootProfilesDir .. '/common/scriptinput.lua');
-include(root.BasePaths.RootProfilesDir .. '/common/scriptvars.lua');
+include(root.BasePaths.RootProfilesDir .. '/common/scriptvars-switch.lua');
 
 include(root.BasePaths.RootProfilesDir .. '/chlcc/scriptinput.lua');
-include(root.BasePaths.RootProfilesDir .. '/chlcc/scriptvars.lua');
 include(root.BasePaths.RootProfilesDir .. '/chlcc-switch/scriptvars.lua');
 
 root.Sprites = {};
