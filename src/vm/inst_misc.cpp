@@ -114,7 +114,7 @@ VmInstruction(InstSystemMenu) {
         }
       }
       if (Profile::Vm::GameInstructionSet == InstructionSet::LCCSwitch) {
-        ScrWork[SW_SYSMENUCTMAX] = 32;
+        ScrWork[LCCSwitch::SW_SYSMENUCTMAX] = 32;
       }
 
       break;
@@ -533,7 +533,7 @@ VmInstruction(InstTitleMenuNew) {
                  "STUB instruction TitleMenu(type: Init)\n");
       switch (Profile::Vm::GameInstructionSet) {
         case InstructionSet::LCCSwitch: {
-          ScrWork[SW_SYSSUBMENUCTMAX] = 32;
+          ScrWork[LCCSwitch::SW_SYSSUBMENUCTMAX] = 32;
         } break;
         default: {
         }

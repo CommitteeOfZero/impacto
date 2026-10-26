@@ -470,8 +470,10 @@ void SaveSystem::LoadScrWork() {
   }
 
   for (int i = 0; i < 8; i++) {
-    ScrWork[SW_PIC_ARCHIVENO1 + i] = ScrWork[SW_PIC_REQ_ARCHIVENO1 + 2 * i];
-    ScrWork[SW_PIC_FILENO1 + i] = ScrWork[SW_PIC_REQ_FILENO1 + 2 * i];
+    ScrWork[LCCSwitch::SW_PIC_ARCHIVENO1 + i] =
+        ScrWork[LCCSwitch::SW_PIC_REQ_ARCHIVENO1 + 2 * i];
+    ScrWork[LCCSwitch::SW_PIC_FILENO1 + i] =
+        ScrWork[LCCSwitch::SW_PIC_REQ_FILENO1 + 2 * i];
   }
 }
 

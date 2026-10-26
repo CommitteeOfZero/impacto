@@ -170,7 +170,7 @@ void MusicMenu::Show() {
 void MusicMenu::Init() {
   switch (Profile::Vm::GameInstructionSet) {
     case Vm::InstructionSet::LCCSwitch: {
-      ScrWork[SW_SYSSUBMENUCTMAX] = 32;
+      ScrWork[LCCSwitch::SW_SYSSUBMENUCTMAX] = 32;
     } break;
     default: {
     }
