@@ -9,7 +9,12 @@ namespace ScriptVars {
 void Configure() {
   EnsurePushMemberOfType("ScriptVars", LUA_TTABLE);
 
-#define V(var) var = TryGetMember<int>(#var).value_or(-1);
+  // clang-format off
+  #define V(var, ...)                                              \
+  __VA_OPT__(if (TryPushMember(#__VA_ARGS__)) {; AssertIs(LUA_TTABLE);) \
+  __VA_OPT__(__VA_ARGS__::) var = EnsureGetMember<int>(#var);   \
+  __VA_OPT__(Pop();})
+  // clang-format on
 #include "../scriptvars.h"
 #undef V
 

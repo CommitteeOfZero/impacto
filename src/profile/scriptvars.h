@@ -6,7 +6,14 @@ namespace Impacto {
 namespace Profile {
 namespace ScriptVars {
 
-#define V(var) inline int var;
+// clang-format off
+#define V(var, ...)                   \
+  __VA_OPT__(namespace __VA_ARGS__ {) \
+  inline int var;                     \
+  __VA_OPT__(})
+// clang-format on
+
+inline int var;
 #include "../scriptvars.h"
 #undef V
 
