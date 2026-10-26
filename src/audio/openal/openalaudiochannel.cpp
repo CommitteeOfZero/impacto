@@ -1,4 +1,5 @@
 #include "openalaudiochannel.h"
+#include "audiobackend.h"
 #include "../audiosystem.h"
 #include "../audiostream.h"
 
@@ -25,17 +26,21 @@ OpenALAudioChannel::OpenALAudioChannel(AudioChannelId id,
       HostBuffer(std::vector(AudioBufferSize, (uint8_t)0)) {
   BufferStartPositions.fill(0);
 
-  alGenBuffers((ALsizei)AudioBuffers.size(), AudioBuffers.data());
-  alGenSources(1, &Source);
-
-  alSourcef(Source, AL_PITCH, 1);
-  alSource3f(Source, AL_POSITION, 0, 0, 0);
-  alSource3f(Source, AL_VELOCITY, 0, 0, 0);
-  alSourcei(Source, AL_LOOPING, AL_FALSE);
-  UpdateGain();
+  ScopedOutputContext context(Output);
+  CreateSource();
 }
 
 void OpenALAudioChannel::Reinit() {
+  ScopedOutputContext context(Output);
+  CreateSource();
+}
+
+OpenALAudioChannel::~OpenALAudioChannel() {
+  ScopedOutputContext context(Output);
+  DeleteSource();
+}
+
+void OpenALAudioChannel::CreateSource() {
   alGenBuffers((ALsizei)AudioBuffers.size(), AudioBuffers.data());
   alGenSources(1, &Source);
 
@@ -46,13 +51,44 @@ void OpenALAudioChannel::Reinit() {
   UpdateGain();
 }
 
-OpenALAudioChannel::~OpenALAudioChannel() {
+void OpenALAudioChannel::DeleteSource() {
   alDeleteSources(1, &Source);
   alDeleteBuffers((ALsizei)AudioBuffers.size(), AudioBuffers.data());
 }
 
+void OpenALAudioChannel::SetOutput(AudioOutputId output) {
+  if (output == Output) return;
+
+  size_t position = 0;
+  {
+    ScopedOutputContext context(Output);
+    if (Stream) position = PlaybackPosition();
+    DeleteSource();
+  }
+
+  Output = output;
+  ScopedOutputContext context(Output);
+  CreateSource();
+
+  FirstQueuedBufferIndex = 0;
+  BufferStartPositions.fill(0);
+  PlaybackStarted = false;
+  if (!Stream) return;
+
+  int samplePosition = (int)position;
+  if (Looping && samplePosition >= Stream->LoopEnd) {
+    samplePosition = Stream->LoopStart + (samplePosition - Stream->LoopEnd);
+  }
+  if (!Looping && samplePosition >= Stream->Duration) {
+    EndPlayback();
+    return;
+  }
+  Stream->Seek(samplePosition);
+}
+
 void OpenALAudioChannel::Play(std::unique_ptr<AudioStream> stream, bool loop,
                               float fadeInDuration) {
+  ScopedOutputContext context(Output);
   EndPlayback();
 
   Stream = std::move(stream);
@@ -67,6 +103,7 @@ void OpenALAudioChannel::Play(std::unique_ptr<AudioStream> stream, bool loop,
 void OpenALAudioChannel::Stop(float fadeOutDuration) {
   if (State == ACS_Stopped) return;
 
+  ScopedOutputContext context(Output);
   if (fadeOutDuration == 0 || State == ACS_Paused) {
     EndPlayback();
     return;
@@ -111,17 +148,22 @@ void OpenALAudioChannel::Resume() {
   State = ACS_Playing;
 }
 
-float OpenALAudioChannel::PositionInSeconds() const {
-  if (Stream == nullptr) return 0.0f;
-
+size_t OpenALAudioChannel::PlaybackPosition() const {
   int offset;
   alGetSourcei(Source, AL_SAMPLE_OFFSET, &offset);
 
-  size_t position = BufferStartPositions[FirstQueuedBufferIndex] + offset;
-  return (float)position / Stream->SampleRate;
+  return BufferStartPositions[FirstQueuedBufferIndex] + offset;
+}
+
+float OpenALAudioChannel::PositionInSeconds() const {
+  if (Stream == nullptr) return 0.0f;
+
+  ScopedOutputContext context(Output);
+  return (float)PlaybackPosition() / Stream->SampleRate;
 }
 
 void OpenALAudioChannel::Update(float dt) {
+  ScopedOutputContext context(Output);
   UpdateFade(dt);
 
   if (State == ACS_Playing || State == ACS_FadingIn || State == ACS_FadingOut) {

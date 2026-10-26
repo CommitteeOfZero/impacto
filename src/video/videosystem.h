@@ -15,5 +15,6 @@ void VideoUpdate(float dt);
 void VideoRender(float videoAlpha);
 void VideoShutdown();
 void ReinitAudio();
+void SetAudioOutput(Audio::AudioOutputId output);
 }  // namespace Video
 }  // namespace Impacto

@@ -4,6 +4,8 @@
 
 #include "../ffmpegaudioplayer.h"
 
+#include <mutex>
+
 namespace Impacto {
 namespace Audio {
 namespace OpenAL {
@@ -19,12 +21,16 @@ class FFmpegAudioPlayer : public Audio::FFmpegAudioPlayer {
   void FillAudioBuffers() override;
   void Process() override;
   void Reinit() override;
+  void SetOutput(AudioOutputId output) override;
 
   void Stop() override;
   void Unload() override;
 
  private:
+  void CreateSource();
+
   ALCuint ALSource;
+  std::mutex SourceMutex;
   static int constexpr AudioBufferSize = 256 * 8192;
   static int constexpr AudioBufferCount = 3;
   ALuint BufferIds[AudioBufferCount];

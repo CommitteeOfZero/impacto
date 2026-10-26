@@ -1,5 +1,6 @@
 #pragma once
 
+#include "audiocommon.h"
 #include "../video/ffmpegstream.h"
 #include "../video/clock.h"
 
@@ -20,6 +21,7 @@ class FFmpegAudioPlayer {
   virtual void FillAudioBuffers() {};
   virtual void Process() {};
   virtual void Reinit() {};
+  virtual void SetOutput(AudioOutputId output) { Output = output; };
 
   virtual void Stop() {};
   virtual void Unload() {};
@@ -27,6 +29,8 @@ class FFmpegAudioPlayer {
   Video::Clock& GetClock() { return AudioClock; };
 
  protected:
+  AudioOutputId Output = AO_Main;
+
   uint8_t** AudioBuffer = 0;
   int AudioLinesize;
 
