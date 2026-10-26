@@ -12,8 +12,7 @@ inline UI::ButtonPrompt TipsGuideSprite;
 inline Sprite TipsHighlightedSprite;
 inline Sprite TipsNewSprite;
 
-inline int TipsGuideX;
-inline int TipsGuideY;
+inline glm::vec2 TipsGuidePosition;
 
 inline int TipsTextTableIndex;
 inline int TipsTextSortStringIndex;

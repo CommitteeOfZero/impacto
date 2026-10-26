@@ -7,8 +7,7 @@ root.TipsMenu = {
     TransitionOutDuration = 0.4,
     BackgroundSprite = "TipsBookLayer",
     TipsGuideSprite = "TipsGuide",
-    TipsGuideX = 0,
-    TipsGuideY = 990,
+    TipsGuidePosition = { X = 0, Y = 989},
     TipsNewSprite = "TipsNewSprite",
     TipsHighlightedSprite = "TipsHighlightedSprite",
 
