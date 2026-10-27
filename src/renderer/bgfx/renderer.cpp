@@ -7,6 +7,8 @@
 
 #include <bgfx/platform.h>
 #include <glm/gtc/type_ptr.hpp>
+#include <boost/pfr.hpp>
+#include <utility>
 
 #ifndef IMPACTO_DISABLE_IMGUI
 #include <imgui_impl_bgfx.h>
@@ -341,6 +343,10 @@ RendererType Renderer::GetType() const {
 void Renderer::BeginFrame() {
   OrphanedTextures.clear();
 
+  assert(PersistentState.AllDisabled() &&
+         "Some persistent state is still held from the previous frame. Make "
+         "sure to disable any persistent state when done using it.");
+
   bgfx::reset(static_cast<uint32_t>(Window->WindowWidth),
               static_cast<uint32_t>(Window->WindowHeight), BGFX_RESET_VSYNC);
 
@@ -551,7 +557,14 @@ void Renderer::InsertVertices(
   }
 }
 
-void Renderer::SetState(const RendererState& newState) {
+void Renderer::SetState(RendererState newState) {
+  if (PersistentState.ScissorRect) {
+    newState.GenericState.ScissorRect = *PersistentState.ScissorRect;
+  }
+  if (PersistentState.StencilMode) {
+    newState.GenericState.StencilMode = *PersistentState.StencilMode;
+  }
+
   if (!CurrentState.has_value() ||
       CurrentState->Transformation != newState.Transformation) {
     Flush();
@@ -1139,6 +1152,19 @@ void Renderer::DrawVideoTexture(const NV12Frame& frame, const RectF& dest,
   InsertQuad(dest, RectF(0.0f, 0.0f, 1.0f, 1.0f), tint, false);
 }
 
+void Renderer::SetScissorRect(std::optional<RectF> rect) {
+  PersistentState.ScissorRect = rect;
+}
+
+void Renderer::SetStencilMode(
+    std::optional<StateConfig::StencilModeType> mode) {
+  PersistentState.StencilMode = mode;
+}
+
+void Renderer::ClearStencilBuffer() {
+  bgfx::setViewClear(RENDER_VIEW, BGFX_CLEAR_STENCIL);
+}
+
 void Renderer::InsertQuad(const CornersQuad dest, const CornersQuad uvs,
                           const std::span<const glm::vec4, 4> tints,
                           const bool flipVertically,
@@ -1193,6 +1219,19 @@ void Renderer::AlterRefCount(TextureInterface* const texture,
 
     Textures.erase(textureIt);
   }
+}
+
+bool Renderer::PersistentRendererState::AllDisabled() const {
+  constexpr static size_t memberCount =
+      boost::pfr::names_as_array<Renderer::PersistentRendererState>().size();
+
+  const auto isEmpty = [&]<std::size_t MemberIdx> -> bool {
+    return !boost::pfr::get<MemberIdx>(*this).has_value();
+  };
+
+  return [&]<std::size_t... Is>(std::index_sequence<Is...>) {
+    return (isEmpty.template operator()<Is>() && ...);
+  }(std::make_index_sequence<memberCount>{});
 }
 
 }  // namespace Impacto::Bgfx

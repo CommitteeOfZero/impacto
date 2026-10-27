@@ -833,7 +833,7 @@ void BackgroundEffect2D::Render(const int layer) {
 
   std::invoke(BackgroundRenderTable[RenderType], this);
 
-  Renderer->SetStencilMode(StencilModeType::Off);
+  Renderer->SetStencilMode(std::nullopt);
 }
 
 template <bool PhaseZero>

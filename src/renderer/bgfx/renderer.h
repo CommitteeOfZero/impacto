@@ -142,14 +142,11 @@ class Renderer final : public BaseRenderer {
     return TextureRef{};
   }
 
-  void EnableScissor() override {}
-  void SetScissorRect(RectF const& rect) override {}
-  void DisableScissor() override {}
+  void SetScissorRect(std::optional<RectF> rect) override;
 
-  void SetStencilMode(StateConfig::StencilModeType mode) override {}
-  void ClearStencilBuffer() override {}
-
-  void SetBlendMode(StateConfig::BlendModeType blendMode) override {}
+  void SetStencilMode(
+      std::optional<StateConfig::StencilModeType> mode) override;
+  void ClearStencilBuffer() override;
 
   void Clear(glm::vec4 color) override {}
 
@@ -183,8 +180,16 @@ class Renderer final : public BaseRenderer {
     std::reference_wrapper<ShaderProgramInterface> ShaderProgram;
     glm::mat4 Transformation = glm::mat4(1.0f);
   };
-  void SetState(const RendererState& state);
+  void SetState(RendererState state);
   std::optional<RendererState> CurrentState = std::nullopt;
+
+  struct PersistentRendererState {
+    std::optional<RectF> ScissorRect = std::nullopt;
+    std::optional<StateConfig::StencilModeType> StencilMode = std::nullopt;
+
+    [[nodiscard]] bool AllDisabled() const;
+  };
+  PersistentRendererState PersistentState = {};
 
   FrameBuffer DrawFrameBuffer;
   glm::vec<2, size_t> Resolution;

@@ -180,9 +180,6 @@ void IntroSequence::DrawBackground() const {
   glm::vec2 zoomFactor =
       designDimensions / 16.0f + designDimensions / 16.0f * 7.0f * progress;
 
-  using BlendModeType = BaseRenderer::StateConfig::BlendModeType;
-  Renderer->SetBlendMode(BlendModeType::Additive);
-
   for (size_t i = 0; i < IntroHighlightCount; i++) {
     constexpr float scale = 1.5f;
     const Sprite& sprite = IntroHighlightSprites[i];
@@ -194,10 +191,10 @@ void IntroSequence::DrawBackground() const {
                      .Scale(glm::vec2(scale), glm::vec2(0.0f))
                      .Translate(position);
 
-    Renderer->DrawSprite(sprite, dest, glm::vec4(1.0f));
+    Renderer->DrawSprite(
+        {sprite, dest}, {},
+        {.BlendMode = BaseRenderer::StateConfig::BlendModeType::Additive});
   }
-
-  Renderer->SetBlendMode(BlendModeType::Normal);
 
   Renderer->CaptureScreencap(ShaderScreencapture.BgSprite);
 
@@ -240,9 +237,6 @@ void IntroSequence::DrawBouncingStar() const {
 }
 
 void IntroSequence::DrawExplodingStars() const {
-  using BlendModeType = BaseRenderer::StateConfig::BlendModeType;
-  Renderer->SetBlendMode(BlendModeType::Additive);
-
   glm::vec2 origin = glm::vec2(DesignWidth, DesignHeight) / 2.0f -
                      IntroExplodingStarSprite.Bounds.GetSize() / 2.0f;
 
@@ -265,11 +259,13 @@ void IntroSequence::DrawExplodingStars() const {
                            .Translate(position)
                            .RotateAroundCenter(angle);
 
-    Renderer->DrawSprite(IntroExplodingStarSprite, dest,
-                         {1.0f, 1.0f, 1.0f, opacity});
+    Renderer->DrawSprite(
+        {IntroExplodingStarSprite,
+         dest,
+         glm::mat4(1.0f),
+         {1.0f, 1.0f, 1.0f, opacity}},
+        {}, {.BlendMode = BaseRenderer::StateConfig::BlendModeType::Additive});
   }
-
-  Renderer->SetBlendMode(BlendModeType::Normal);
 }
 
 void IntroSequence::DrawFallingStars() const {

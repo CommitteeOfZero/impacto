@@ -249,8 +249,6 @@ void ExternalFont::DrawProcessedText(std::span<const ProcessedTextGlyph> text,
 
     const float viewportScale =
         Profile::Game::DesignHeight / Window->GetViewport().Height;
-    using BlendModeType = BaseRenderer::StateConfig::BlendModeType;
-    Renderer->SetBlendMode(BlendModeType::Premultiplied);
     for (size_t idx : visibleGlyphIds) {
       ProcessedTextGlyph const& glyph = text[idx];
 
@@ -267,9 +265,11 @@ void ExternalFont::DrawProcessedText(std::span<const ProcessedTextGlyph> text,
 
       glm::vec4 color = RgbIntToFloat(glyph.Colors.*colorMember);
       color.a = ApplyOpacityCurve(glyph.Opacity * passOpacity, opacityCurve);
-      Renderer->DrawSilhouette({sprite, dest, transformation, color});
+      Renderer->DrawSilhouette(
+          {sprite, dest, transformation, color}, {},
+          {.BlendMode =
+               BaseRenderer::StateConfig::BlendModeType::Premultiplied});
     }
-    Renderer->SetBlendMode(BlendModeType::Normal);
   };
 
   switch (outlineMode) {

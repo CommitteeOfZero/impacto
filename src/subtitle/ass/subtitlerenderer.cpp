@@ -150,14 +150,11 @@ void SubtitleRenderTrack::Render() {
     }
   }
 
-  if (!SubtitleGlyphs.empty()) {
-    using BlendModeType = BaseRenderer::StateConfig::BlendModeType;
-    Renderer->SetBlendMode(BlendModeType::Premultiplied);
-    for (const auto& subtitleGlyph : SubtitleGlyphs) {
-      Renderer->DrawSilhouette({subtitleGlyph.GlyphSprite,
-                                subtitleGlyph.Position, subtitleGlyph.Tint});
-    }
-    Renderer->SetBlendMode(BlendModeType::Normal);
+  for (const auto& subtitleGlyph : SubtitleGlyphs) {
+    Renderer->DrawSilhouette(
+        {subtitleGlyph.GlyphSprite, subtitleGlyph.Position, subtitleGlyph.Tint},
+        {},
+        {.BlendMode = BaseRenderer::StateConfig::BlendModeType::Premultiplied});
   }
 }
 

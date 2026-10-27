@@ -21,7 +21,6 @@ void BacklogMenu::Render() {
   Renderer->DrawSprite(BacklogBackground, glm::vec2(0.0f), col);
   RenderHighlight();
 
-  Renderer->EnableScissor();
   Renderer->SetScissorRect(RenderingBounds);
   for (auto& entry : Entries) {
     if (!entry.Bounds.Intersects(RenderingBounds)) continue;
@@ -29,7 +28,7 @@ void BacklogMenu::Render() {
     entry.Tint = col;
     entry.Render();
   }
-  Renderer->DisableScissor();
+  Renderer->SetScissorRect(std::nullopt);
 
   MainScrollbar.Tint = col;
   MainScrollbar.Render();

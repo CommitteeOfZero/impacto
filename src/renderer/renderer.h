@@ -341,14 +341,11 @@ class BaseRenderer {
   virtual void SetFramebuffer(size_t buffer) = 0;
   virtual TextureRef GetFramebufferTexture(size_t buffer) = 0;
 
-  virtual void EnableScissor() = 0;
-  virtual void SetScissorRect(RectF const& rect) = 0;
-  virtual void DisableScissor() = 0;
+  virtual void SetScissorRect(std::optional<RectF> rect) = 0;
 
-  virtual void SetStencilMode(StateConfig::StencilModeType mode) = 0;
+  virtual void SetStencilMode(
+      std::optional<StateConfig::StencilModeType> mode) = 0;
   virtual void ClearStencilBuffer() = 0;
-
-  virtual void SetBlendMode(StateConfig::BlendModeType blendMode) = 0;
 
   virtual void Clear(glm::vec4 color) = 0;
 
