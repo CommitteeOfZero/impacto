@@ -85,6 +85,16 @@ struct PositionedSprite {
     return sheet.GetDimensions();
   }
   static glm::vec2 GetTextureSize(const Sprite& sprite) {
+    return GetTextureSize(sprite.Sheet);
+  }
+
+  static glm::vec2 GetSpriteSize(const TextureInterface& texture) {
+    return GetTextureSize(texture);
+  }
+  static glm::vec2 GetSpriteSize(const SpriteSheet& texture) {
+    return GetTextureSize(texture);
+  }
+  static glm::vec2 GetSpriteSize(const Sprite& sprite) {
     return {sprite.ScaledWidth(), sprite.ScaledHeight()};
   }
 
@@ -115,10 +125,10 @@ struct PositionedSprite {
   }
 
   std::span<const uint16_t> GetIndices() const {
+    constexpr static std::array<uint16_t, 6> rectIndices{0, 1, 2, 0, 2, 3};
     return std::holds_alternative<PrimitiveData>(Vertices)
                ? std::get<PrimitiveData>(Vertices).Indices
-               : std::span<const uint16_t>(
-                     std::array<uint16_t, 6>{0, 1, 2, 0, 2, 3});
+               : std::span<const uint16_t>(rectIndices);
   }
 
   TopologyMode GetTopologyMode() const {
@@ -154,17 +164,16 @@ struct PositionedSprite {
 
   PositionedSprite(const PositionedSpriteTextureType auto& texture,
                    glm::vec2 position, glm::vec4 tint = glm::vec4(1.0f))
-      : PositionedSprite(
-            texture,
-            RectF(position.x, position.y, GetTextureSize(texture).x,
-                  GetTextureSize(texture).y),
-            glm::mat4(1.0f), tint) {}
+      : PositionedSprite(texture,
+                         RectF(position.x, position.y, GetSpriteSize(texture).x,
+                               GetSpriteSize(texture).y),
+                         glm::mat4(1.0f), tint) {}
 
   PositionedSprite(const PositionedSpriteTextureType auto& texture,
                    glm::mat4 transformation, glm::vec4 tint = glm::vec4(1.0f))
       : PositionedSprite(texture,
-                         RectF(0.0f, 0.0f, GetTextureSize(texture).x,
-                               GetTextureSize(texture).y),
+                         RectF(0.0f, 0.0f, GetSpriteSize(texture).x,
+                               GetSpriteSize(texture).y),
                          transformation, tint) {}
 
   PositionedSprite(const PositionedSpriteTextureType auto& texture,
@@ -245,8 +254,8 @@ struct PositionedMaskedSprite : public PositionedSprite {
                          glm::vec2 position, glm::vec4 tint = glm::vec4(1.0f))
       : PositionedMaskedSprite(
             texture, mask,
-            RectF(position.x, position.y, GetTextureSize(texture).x,
-                  GetTextureSize(texture).y),
+            RectF(position.x, position.y, GetSpriteSize(texture).x,
+                  GetSpriteSize(texture).y),
             glm::mat4(1.0f), glm::mat4(1.0f), tint) {}
 
   PositionedMaskedSprite(const PositionedSpriteTextureType auto& texture,
@@ -254,8 +263,8 @@ struct PositionedMaskedSprite : public PositionedSprite {
                          glm::mat4 transformation, glm::mat4 maskTransformation,
                          glm::vec4 tint = glm::vec4(1.0f))
       : PositionedMaskedSprite(texture, mask,
-                               RectF(0.0f, 0.0f, GetTextureSize(texture).x,
-                                     GetTextureSize(texture).y),
+                               RectF(0.0f, 0.0f, GetSpriteSize(texture).x,
+                                     GetSpriteSize(texture).y),
                                transformation, maskTransformation, tint) {}
 
   struct HaveFullscreenMask {};
@@ -264,8 +273,8 @@ struct PositionedMaskedSprite : public PositionedSprite {
                          glm::mat4 transformation, HaveFullscreenMask,
                          glm::vec4 tint = glm::vec4(1.0f))
       : PositionedMaskedSprite(texture, mask,
-                               RectF(0.0f, 0.0f, GetTextureSize(texture).x,
-                                     GetTextureSize(texture).y),
+                               RectF(0.0f, 0.0f, GetSpriteSize(texture).x,
+                                     GetSpriteSize(texture).y),
                                transformation, glm::mat4(1.0f), tint) {
     FullscreenMask = true;
   }
