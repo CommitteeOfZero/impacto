@@ -639,7 +639,9 @@ void Renderer::DrawCCMessageBox(const PositionedMaskedSprite& spriteInfo,
       {
           .s_texture = texture,
           .s_mask = maskTexture,
-          .u_alpha = glm::vec3(config.FadeRange, config.Alpha, config.EffectCt),
+          .u_alpha = glm::vec3(256.0f / config.FadeRange,
+                               (255.0f - config.Alpha) / config.FadeRange,
+                               config.EffectCt),
       });
 
   InsertVertices(spriteInfo.GetIndices(), spriteInfo.GetVertices(),
