@@ -137,10 +137,9 @@ class Renderer final : public BaseRenderer {
 
   void CaptureScreencap(Sprite& sprite) override {}
 
-  void SetFramebuffer(size_t buffer) override {}
-  TextureRef GetFramebufferTexture(size_t buffer) override {
-    return TextureRef{};
-  }
+  void SetFrameBuffer(size_t frameBufferId) override;
+  TextureRef GetFrameBufferTexture(size_t frameBufferId) override;
+  void ClearFrameBuffer(size_t buffer, glm::vec4 color) override {}
 
   void SetScissorRect(std::optional<RectF> rect) override;
 
@@ -191,7 +190,8 @@ class Renderer final : public BaseRenderer {
   };
   PersistentRendererState PersistentState = {};
 
-  FrameBuffer DrawFrameBuffer;
+  constexpr static size_t DrawFrameBufferIdx = 0;
+  std::array<FrameBuffer, FrameBufferCount> FrameBuffers;
   glm::vec<2, size_t> Resolution;
 
   BgfxHandle<bgfx::DynamicIndexBufferHandle> IndexBuffer;

@@ -32,7 +32,7 @@ void Background2D::InitFrameBuffers() {
                {Profile::Game::DesignWidth / viewPort.Width,
                 Profile::Game::DesignHeight / viewPort.Height});
     Framebuffers[i].BgSprite.Sheet.Texture =
-        Renderer->GetFramebufferTexture(i + 1);
+        Renderer->GetFrameBufferTexture(i + 1);
 
     Framebuffers[i].Status = LoadStatus::Loaded;
   }

@@ -456,17 +456,18 @@ void Update(float dt) {
 static void RenderMain() {
   Background2D::LastRenderedBackground = nullptr;
   UI::GameSpecific::RenderEarlyMain();
-  std::array<bool, MaxFramebuffers + 1> cleared{};
+  std::array<bool, FrameBufferCount> cleared{};
 
   for (uint32_t layer = 0; layer <= Profile::Game::LayerCount; layer++) {
     if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::CC ||
         Profile::Vm::GameInstructionSet == Vm::InstructionSet::LCCSwitch) {
       const int renderTarget = ScrWork[SW_RENDERTARGET + layer];
-      if (0 <= renderTarget && renderTarget <= MaxFramebuffers) {
-        Renderer->SetFramebuffer(renderTarget);
+      if (0 <= renderTarget &&
+          static_cast<size_t>(renderTarget) < FrameBufferCount) {
+        Renderer->SetFrameBuffer(renderTarget);
 
         if (!cleared[renderTarget]) {
-          Renderer->ClearFramebuffer(renderTarget);
+          Renderer->ClearFrameBuffer(renderTarget);
           cleared[renderTarget] = true;
         }
       }
@@ -616,7 +617,7 @@ static void RenderMain() {
   }
   UI::GameSpecific::RenderMain();
 
-  Renderer->SetFramebuffer(0);
+  Renderer->SetFrameBuffer(0);
 
   if (SaveSystem::Implementation) {
     Renderer->CaptureScreencap(SaveSystem::GetWorkingSaveThumbnail());

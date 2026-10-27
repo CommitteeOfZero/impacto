@@ -192,7 +192,7 @@ class BackgroundEffect2D : public Background2D {
 inline std::array<Background2D, 8> Backgrounds;
 inline std::array<Capture2D, 2> Screencaptures;
 inline Capture2D MaskCapture;
-inline std::array<BackgroundEffect2D, MaxFramebuffers> Framebuffers;
+inline std::array<BackgroundEffect2D, FrameBufferCount - 1> Framebuffers;
 inline Background2D ShaderScreencapture;
 
 inline ankerl::unordered_dense::map<int, Background2D*> Backgrounds2D;

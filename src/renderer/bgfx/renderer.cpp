@@ -230,8 +230,10 @@ void Renderer::Init() {
   [[maybe_unused]] const RendererType type = GetType();
 
   UpdateResolution();
-  DrawFrameBuffer = FrameBuffer(static_cast<uint16_t>(Resolution.x),
-                                static_cast<uint16_t>(Resolution.y));
+  for (FrameBuffer& frameBuffer : FrameBuffers) {
+    frameBuffer = FrameBuffer(static_cast<uint16_t>(Resolution.x),
+                              static_cast<uint16_t>(Resolution.y));
+  }
 
   const glm::mat4 projectionMatrix =
       glm::ortho(0.0f, Profile::Game::DesignWidth, Profile::Game::DesignHeight,
@@ -358,13 +360,14 @@ void Renderer::BeginFrame() {
 }
 
 void Renderer::BeginFrame2D() {
-  if (static_cast<glm::vec<2, size_t>>(DrawFrameBuffer.GetSize()) !=
-      Resolution) {
-    DrawFrameBuffer = FrameBuffer(static_cast<uint16_t>(Resolution.x),
-                                  static_cast<uint16_t>(Resolution.y));
+  for (FrameBuffer& frameBuffer : FrameBuffers) {
+    if (static_cast<glm::vec<2, size_t>>(frameBuffer.GetSize()) != Resolution) {
+      frameBuffer = FrameBuffer(static_cast<uint16_t>(Resolution.x),
+                                static_cast<uint16_t>(Resolution.y));
+    }
   }
 
-  bgfx::setViewFrameBuffer(RENDER_VIEW, DrawFrameBuffer);
+  bgfx::setViewFrameBuffer(RENDER_VIEW, FrameBuffers[DrawFrameBufferIdx]);
   bgfx::setViewRect(RENDER_VIEW, 0, 0, static_cast<uint16_t>(Resolution.x),
                     static_cast<uint16_t>(Resolution.y));
 
@@ -400,7 +403,9 @@ void Renderer::EndFrame() {
   bgfx::setIndexBuffer(BackBufferIndexBuffer);
   bgfx::setVertexBuffer(0, BackBufferVertexBuffer);
 
-  SpriteShader->SubmitUniforms({}, {.s_texture = DrawFrameBuffer.GetTexture()});
+  SpriteShader->SubmitUniforms(
+      {}, {.s_texture =
+               FrameBuffers[DrawFrameBufferIdx].GetColorAttachmentHandle()});
   bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_DEPTH_TEST_ALWAYS);
 
   bgfx::submit(DISPLAY_VIEW, *SpriteShader);
@@ -603,6 +608,14 @@ void Renderer::SetState(RendererState newState) {
   }
 
   CurrentState = newState;
+}
+
+void Renderer::SetFrameBuffer(size_t frameBufferId) {
+  bgfx::setViewFrameBuffer(RENDER_VIEW, FrameBuffers[frameBufferId]);
+}
+
+TextureRef Renderer::GetFrameBufferTexture(size_t frameBufferId) {
+  return TextureRef(&FrameBuffers[frameBufferId].GetTexture());
 }
 
 void Renderer::DrawCCMessageBox(const PositionedMaskedSprite& spriteInfo,

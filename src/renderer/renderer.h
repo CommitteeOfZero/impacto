@@ -49,7 +49,7 @@ namespace Impacto {
 inline GraphicsApi GraphicsApiHint;
 inline GraphicsApi ActualGraphicsApi;
 
-constexpr inline int MaxFramebuffers = 10;
+constexpr inline size_t FrameBufferCount = 11;
 
 enum class ShaderProgramType : uint8_t {
   AdditiveMaskedSprite,
@@ -113,8 +113,6 @@ class BaseRenderer {
     GetSpriteSheetImage(sheet, result);
     return result;
   };
-  virtual void ClearFramebuffer(size_t buffer,
-                                glm::vec4 color = glm::vec4(0.0f)) {}
 
   virtual int GetSpriteSheetImage(SpriteSheet const& sheet,
                                   std::span<uint8_t> outBuffer) = 0;
@@ -338,8 +336,10 @@ class BaseRenderer {
 
   virtual void CaptureScreencap(Sprite& sprite) = 0;
 
-  virtual void SetFramebuffer(size_t buffer) = 0;
-  virtual TextureRef GetFramebufferTexture(size_t buffer) = 0;
+  virtual void SetFrameBuffer(size_t buffer) = 0;
+  virtual TextureRef GetFrameBufferTexture(size_t buffer) = 0;
+  virtual void ClearFrameBuffer(size_t buffer,
+                                glm::vec4 color = glm::vec4(0.0f)) = 0;
 
   virtual void SetScissorRect(std::optional<RectF> rect) = 0;
 

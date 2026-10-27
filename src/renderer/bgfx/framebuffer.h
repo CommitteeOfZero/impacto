@@ -1,6 +1,7 @@
 #pragma once
 
 #include "bgfxhandle.h"
+#include "texture.h"
 
 #include <bgfx/bgfx.h>
 #include <glm/ext/vector_uint2_sized.hpp>
@@ -36,9 +37,9 @@ class FrameBuffer {
     return ColorAttachment;
   }
 
-  [[nodiscard]] bgfx::TextureHandle GetTexture() {
-    assert(FrameBufferHandle.IsValid());
-    return bgfx::getTexture(FrameBufferHandle, 0);
+  [[nodiscard]] NonOwnedTexture& GetTexture() {
+    assert(TextureObject.IsValid());
+    return TextureObject;
   }
 
   [[nodiscard]] glm::u16vec2 GetSize() const { return Size; }
@@ -46,6 +47,9 @@ class FrameBuffer {
  private:
   BgfxHandle<bgfx::FrameBufferHandle> FrameBufferHandle;
   BgfxHandle<bgfx::TextureHandle> ColorAttachment;
+  BgfxHandle<bgfx::TextureHandle> StencilAttachment;
+
+  NonOwnedTexture TextureObject;
 
   glm::u16vec2 Size;
 };
