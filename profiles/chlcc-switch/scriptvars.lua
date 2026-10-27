@@ -26,7 +26,7 @@ sv.SF_MESSAVEPOINT_SSP = 2076;
 sv.SF_EXTRA_ENA = 1618;
 
 
--- stub, these were cut in the switch release
+-- TODO: stub, these were cut in the switch release
 sv.SF_BACKLOGMENU = 0;
 sv.SF_SAVEMENU = 0;
 sv.SF_OPTIONMENU = 0;
