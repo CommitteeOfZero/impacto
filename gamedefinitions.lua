@@ -9,7 +9,6 @@ root.GameDefinitions = {
     }
   },
   ["chlcc-switch"] = {
-    Hidden = true,
     Name = "CHAOS;HEAD Love Chu☆Chu! (Switch)",
     GameProfile = root.BasePaths.RootProfilesDir .. "/chlcc-switch/game.lua",
   },

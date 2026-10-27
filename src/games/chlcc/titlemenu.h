@@ -6,6 +6,7 @@
 #include "../../ui/widgets/button.h"
 #include "../../ui/widgets/chlcc/titlebutton.h"
 #include "introsequence.h"
+#include <functional>
 
 namespace Impacto {
 namespace UI {
@@ -33,18 +34,19 @@ namespace Switch {
 enum Mode : uint8_t {
   IntroAnimation = 0,
   PressStart = 2,
+  EmptyBackground = 3,
+  MainEntriesFading = 9,
+  MainEntriesControl = 10,
 };
 }  // namespace Switch
 }  // namespace TitleMenuMode
 
 class TitleMenu : public Menu {
  public:
-  TitleMenu();
-
   void Show() override;
   void Hide() override;
-  void Update(float dt) override;
-  void Render() override;
+  // void Update(float dt) override;
+  // void Render() override;
 
   Animation PressToStartAnimation;
   Animation PrimaryFadeAnimation;
@@ -52,14 +54,20 @@ class TitleMenu : public Menu {
   Animation SpinningCircleAnimation;
   Animation SpinningCircleFlashingAnimation;
 
-  void MenuButtonOnClick(Widgets::Button* target);
-  void SecondaryButtonOnClick(Widgets::Button* target);
   void ExitButtonOnClick(Widgets::Button* target);
 
   void DrawTitleMenuBackGraphics() const;
   void DrawSpinningCircle(float alpha) const;
 
- private:
+ protected:
+  using ButtonClickHandler = std::function<void(Widgets::Button*)>;
+
+  TitleMenu();
+  virtual void MenuButtonOnClick(Widgets::Button* target) = 0;
+  void CreateLoadItems(const ButtonClickHandler& onClick);
+  void CreateLockedExtraItems(const ButtonClickHandler& onClick);
+  void CreateUnlockedExtraItems(const ButtonClickHandler& onClick);
+
   Widgets::Group* MainItems;
   Widgets::CHLCC::TitleButton* Start;
   Widgets::CHLCC::TitleButton* Load;

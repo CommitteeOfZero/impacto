@@ -7,6 +7,8 @@
 #include "../../patch.h"
 #include "../../../ui/ui.h"
 #include "../../../games/chlcc/titlemenu.h"
+#include "../../../games/chlcc/titlemenu_ps3.h"
+#include "../../../games/chlcc/titlemenu_switch.h"
 
 namespace Impacto {
 namespace Profile {
@@ -186,7 +188,43 @@ void Configure() {
   IntroAfterPanningWaitDuration =
       EnsureGetMember<float>("IntroAfterPanningWaitDuration");
 
-  UI::CHLCC::TitleMenu* menu = new UI::CHLCC::TitleMenu();
+  NewButtonId = EnsureGetMember<int>("NewButtonId");
+  PrimLoadButtonId = EnsureGetMember<int>("PrimLoadButtonId");
+  ExtraButtonId = EnsureGetMember<int>("ExtraButtonId");
+  SystemButtonId = EnsureGetMember<int>("SystemButtonId");
+  LoadButtonId = EnsureGetMember<int>("LoadButtonId");
+  QLoadButtonId = EnsureGetMember<int>("QLoadButtonId");
+  EndingListButtonId = EnsureGetMember<int>("EndingListButtonId");
+  CGButtonId = EnsureGetMember<int>("CGButtonId");
+  SoundButtonId = EnsureGetMember<int>("SoundButtonId");
+  MovieButtonId = EnsureGetMember<int>("MovieButtonId");
+  TipsButtonId = EnsureGetMember<int>("TipsButtonId");
+  LockedTipsButtonId =
+      TryGetMember<int>("LockedTipsButtonId").value_or(TipsButtonId);
+  // PS3 specific
+  ConfigButtonId = TryGetMember<int>("ConfigButtonId");
+  SystemSaveButtonId = TryGetMember<int>("SystemSaveButtonId");
+  TrophyButtonId = TryGetMember<int>("TrophyButtonId");
+  LockedTrophyButtonId = TryGetMember<int>("LockedTrophyButtonId");
+  // Switch specific
+  CostumeButtonId = TryGetMember<int>("CostumeButtonId");
+  HelpButtonId = TryGetMember<int>("HelpButtonId");
+  // Patch dependent
+  ExitButtonId = TryGetMember<int>("ExitButtonId");
+
+  UI::CHLCC::TitleMenu* menu;
+  if (Profile::TitleMenu::Type == UI::TitleMenuType::CHLCC_Switch) {
+    menu = new UI::CHLCC_Switch::TitleMenu();
+    auto drawType =
+        EnsureGetMember<Impacto::Game::DrawComponentType>("DrawType");
+    UI::Menus[drawType].push_back(menu);
+  } else {
+    // Setting TitleMenuPtr and not pushing to UI::Menus, so it will be drawn on
+    // layer, required for proper draw order with restart mask
+    menu = new UI::CHLCC_PS3::TitleMenu();
+    UI::TitleMenuPtr = menu;
+  }
+
   menu->PressToStartAnimation.DurationIn =
       Profile::TitleMenu::PressToStartAnimDurationIn;
   menu->PressToStartAnimation.DurationOut =
@@ -204,8 +242,6 @@ void Configure() {
 
   menu->SpinningCircleFlashingAnimation.LoopMode =
       AnimationLoopMode::ReverseDirection;
-
-  UI::TitleMenuPtr = menu;
 }
 
 }  // namespace TitleMenu

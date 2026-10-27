@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../../spritesheet.h"
+#include <optional>
 #include "../../../games/chlcc/titlemenu.h"
 
 namespace Impacto {
@@ -147,6 +148,25 @@ inline float IntroLogoPopOutAnimationDelay;
 
 inline float IntroCopyrightAnimationDuration;
 
+inline int NewButtonId;
+inline int PrimLoadButtonId;
+inline int ExtraButtonId;
+inline int SystemButtonId;
+inline int LoadButtonId;
+inline int QLoadButtonId;
+inline int EndingListButtonId;
+inline int CGButtonId;
+inline int SoundButtonId;
+inline int MovieButtonId;
+inline int TipsButtonId;
+inline int LockedTipsButtonId;
+inline std::optional<int> ConfigButtonId;
+inline std::optional<int> SystemSaveButtonId;
+inline std::optional<int> TrophyButtonId;
+inline std::optional<int> LockedTrophyButtonId;
+inline std::optional<int> CostumeButtonId;
+inline std::optional<int> HelpButtonId;
+inline std::optional<int> ExitButtonId;
 }  // namespace TitleMenu
 }  // namespace CHLCC
 }  // namespace Profile

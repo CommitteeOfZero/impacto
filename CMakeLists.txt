@@ -192,6 +192,8 @@ set(Impacto_Src
 
     src/games/chlcc/commonmenu.cpp
     src/games/chlcc/titlemenu.cpp
+    src/games/chlcc/titlemenu_ps3.cpp
+    src/games/chlcc/titlemenu_switch.cpp
     src/games/chlcc/savemenu.cpp
     src/games/chlcc/sysmesbox.cpp
     src/games/chlcc/animations/selectprompt.cpp
@@ -569,6 +571,8 @@ set(Impacto_Header
 
     src/games/chlcc/commonmenu.h
     src/games/chlcc/titlemenu.h
+    src/games/chlcc/titlemenu_ps3.h
+    src/games/chlcc/titlemenu_switch.h
     src/games/chlcc/savemenu.h
     src/games/chlcc/sysmesbox.h
     src/games/chlcc/animations/selectprompt.h
