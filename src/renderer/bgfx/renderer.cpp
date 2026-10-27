@@ -918,6 +918,7 @@ void Renderer::DrawAdditiveMaskedSprite(
   SetState({
       .GenericState = stateConfig,
       .ShaderProgram = *AdditiveMaskedSpriteShader,
+      .Transformation = spriteInfo.Transformation,
   });
 
   const Texture& texture = dynamic_cast<const Texture&>(spriteInfo.Texture);
@@ -942,6 +943,7 @@ void Renderer::DrawColorBurnMaskedSprite(
   SetState({
       .GenericState = stateConfig,
       .ShaderProgram = *ColorBurnMaskedSpriteShader,
+      .Transformation = spriteInfo.Transformation,
   });
 
   const Texture& texture = dynamic_cast<const Texture&>(spriteInfo.Texture);
@@ -967,6 +969,7 @@ void Renderer::DrawColorDodgeMaskedSprite(
   SetState({
       .GenericState = stateConfig,
       .ShaderProgram = *ColorDodgeMaskedSpriteShader,
+      .Transformation = spriteInfo.Transformation,
   });
 
   const Texture& texture = dynamic_cast<const Texture&>(spriteInfo.Texture);
@@ -991,6 +994,7 @@ void Renderer::DrawColorMaskedSprite(const PositionedMaskedSprite& spriteInfo,
   SetState({
       .GenericState = stateConfig,
       .ShaderProgram = *ColorMaskedSpriteShader,
+      .Transformation = spriteInfo.Transformation,
   });
 
   const Texture& texture = dynamic_cast<const Texture&>(spriteInfo.Texture);
@@ -1015,6 +1019,7 @@ void Renderer::DrawHardLightMaskedSprite(
   SetState({
       .GenericState = stateConfig,
       .ShaderProgram = *HardLightMaskedSpriteShader,
+      .Transformation = spriteInfo.Transformation,
   });
 
   const Texture& texture = dynamic_cast<const Texture&>(spriteInfo.Texture);
@@ -1040,6 +1045,7 @@ void Renderer::DrawLinearBurnMaskedSprite(
   SetState({
       .GenericState = stateConfig,
       .ShaderProgram = *LinearBurnMaskedSpriteShader,
+      .Transformation = spriteInfo.Transformation,
   });
 
   const Texture& texture = dynamic_cast<const Texture&>(spriteInfo.Texture);
@@ -1064,6 +1070,7 @@ void Renderer::DrawOverlayMaskedSprite(const PositionedMaskedSprite& spriteInfo,
   SetState({
       .GenericState = stateConfig,
       .ShaderProgram = *OverlayMaskedSpriteShader,
+      .Transformation = spriteInfo.Transformation,
   });
 
   const Texture& texture = dynamic_cast<const Texture&>(spriteInfo.Texture);
@@ -1088,6 +1095,7 @@ void Renderer::DrawScreenMaskedSprite(const PositionedMaskedSprite& spriteInfo,
   SetState({
       .GenericState = stateConfig,
       .ShaderProgram = *ScreenMaskedSpriteShader,
+      .Transformation = spriteInfo.Transformation,
   });
 
   const Texture& texture = dynamic_cast<const Texture&>(spriteInfo.Texture);
@@ -1112,6 +1120,7 @@ void Renderer::DrawSoftLightMaskedSprite(
   SetState({
       .GenericState = stateConfig,
       .ShaderProgram = *SoftLightMaskedSpriteShader,
+      .Transformation = spriteInfo.Transformation,
   });
 
   const Texture& texture = dynamic_cast<const Texture&>(spriteInfo.Texture);
