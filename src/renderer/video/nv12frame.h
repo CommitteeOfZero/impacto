@@ -40,6 +40,8 @@ class NV12Frame final : public TextureInterface {
   }
 
  private:
+  void AlterRefCount(int difference) override {}
+
   glm::vec<2, size_t> Dimensions = {0, 0};
 
   MutableTextureRef LumaTexture;

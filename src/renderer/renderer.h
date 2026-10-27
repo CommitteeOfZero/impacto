@@ -358,8 +358,6 @@ class BaseRenderer {
   [[nodiscard]] virtual MutableTextureRef DeclareMutableTexture(
       TexFmt format, glm::vec<2, size_t> dimensions) = 0;
 
-  virtual void AlterRefCount(TextureInterface* texture, int difference) = 0;
-
   static void QuadSetUV(CornersQuad spriteBounds, glm::vec2 designDimensions,
                         glm::vec2* uvs, size_t stride);
 
@@ -378,8 +376,6 @@ class BaseRenderer {
   }
 
   Sprite RectSprite;
-
-  friend class TextureRef;
 
   friend class YUVFrame;
   friend class NV12Frame;

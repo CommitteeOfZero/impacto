@@ -284,7 +284,7 @@ class Renderer final : public BaseRenderer {
   [[nodiscard]] MutableTextureRef DeclareMutableTexture(
       TexFmt format, glm::vec<2, size_t> dimensions) override;
 
-  void AlterRefCount(TextureInterface* texture, int difference) override;
+  friend class Texture;
 };
 
 }  // namespace Impacto::Bgfx

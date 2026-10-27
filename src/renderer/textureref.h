@@ -17,6 +17,10 @@ class TextureInterface {
   [[nodiscard]] virtual glm::vec<2, size_t> GetDimensions() const = 0;
 
   [[nodiscard]] virtual uint64_t GetTextureId() const = 0;
+
+ private:
+  virtual void AlterRefCount(int difference) = 0;
+  friend class TextureRef;
 };
 
 class MutableTextureInterface : public virtual TextureInterface {

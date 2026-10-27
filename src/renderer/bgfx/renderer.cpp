@@ -1200,27 +1200,6 @@ void Renderer::InsertQuad(const CornersQuad dest, const CornersQuad uvs,
   InsertVertices(indices, vertices, flipVertically);
 }
 
-void Renderer::AlterRefCount(TextureInterface* const texture,
-                             const int difference) {
-  assert(texture != nullptr);
-  if (difference == 0) return;
-
-  const auto textureIt = Textures.find(texture->GetTextureId());
-  assert(textureIt != Textures.end() &&
-         "Tried to alter the refcount of an already deleted texture.");
-  size_t& refCount = textureIt->second.second;
-
-  assert(difference >= 0 || static_cast<size_t>(-difference) <= refCount);
-  refCount += difference;
-
-  if (refCount == 0) {
-    std::unique_ptr<Texture>& textureObject = textureIt->second.first;
-    OrphanedTextures.emplace_back(std::move(textureObject));
-
-    Textures.erase(textureIt);
-  }
-}
-
 bool Renderer::PersistentRendererState::AllDisabled() const {
   constexpr static size_t memberCount =
       boost::pfr::names_as_array<Renderer::PersistentRendererState>().size();

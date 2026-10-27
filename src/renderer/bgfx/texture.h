@@ -52,6 +52,8 @@ class Texture : public virtual TextureInterface {
   [[nodiscard]] bool IsScreenCap() const { return ScreenCap; }
 
  protected:
+  virtual void AlterRefCount(int difference) override;
+
   BgfxHandle<bgfx::TextureHandle> Handle;
 
   glm::vec<2, size_t> Dimensions = {0, 0};
@@ -75,6 +77,25 @@ class MutableTexture final : public MutableTextureInterface,
   [[nodiscard]] uint64_t GetTextureId() const override {
     return Texture::GetTextureId();
   }
+
+ private:
+  void AlterRefCount(int difference) override {
+    Texture::AlterRefCount(difference);
+  }
+};
+
+class NonOwnedTexture final : public Texture {
+ public:
+  NonOwnedTexture() = default;
+  NonOwnedTexture(NonOwnedTexture&&) = default;
+  NonOwnedTexture(bgfx::TextureHandle texture, glm::vec<2, size_t> dimensions,
+                  bool isScreenCap = false);
+  ~NonOwnedTexture();
+
+  NonOwnedTexture& operator=(NonOwnedTexture&&) = default;
+
+ private:
+  void AlterRefCount(int difference) override {}
 };
 
 inline constexpr auto TexFmtConversion = []() {
