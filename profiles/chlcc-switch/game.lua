@@ -11,7 +11,7 @@ root.GameFeatures = GameFeature.Sc3VirtualMachine |
 root.DesignWidth = 1920;
 root.DesignHeight = 1080;
 
-root.WindowName = "CHAOS;HEAD Love Chu☆Chu! (Switch)";
+root.WindowName = "CHAOS;HEAD Love Chu☆Chu!";
 root.WindowIconPath = "resources/chlcc/icondata/icon.png";
 root.CursorArrowPath = "resources/chlcc/icondata/cursor_arrow.png";
 root.CursorPointerPath = "resources/chlcc/icondata/cursor_pointer.png";
