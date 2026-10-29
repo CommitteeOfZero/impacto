@@ -67,10 +67,10 @@ root.Sprites["StarLogo"].Bounds = { X = 932, Y = 1391, Width = 98, Height = 102 
 
 root.Sprites["ExclMarkLogo"].Bounds = { X = 1252, Y = 1351, Width = 111, Height = 120 };
 
-root.Sprites["CopyrightText"].Bounds = { X = 2053, Y = 1427, Width = 484, Height = 17 };
+root.Sprites["CopyrightText"].Bounds = { X = 2053, Y = 1427, Width = 484, Height = 20 };
 root.Sprites["CopyrightText"].BaseScale = { X = 4 / 3, Y = 4 / 3 };
 
-root.Sprites["SpinningCircle"].Bounds = { X = 2083, Y = 34, Width = 956, Height = 957 };
+root.Sprites["SpinningCircle"].Bounds = { X = 2049, Y = 2, Width = 1023, Height = 1023 };
 
 root.Sprites["TitleMenuIntroBackground"].Bounds = { X = 0, Y = 0, Width = 1920, Height = 1080 };
 
