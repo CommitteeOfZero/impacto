@@ -48,7 +48,6 @@ root.Vm = {
     ScrWorkBgEffStructSize = 30,
     ScrWorkBgEffOffsetStructSize = 18,
     ScrWorkMesStructSize = 7,
-
     MaxLinkedBgBuffers = 2
 };
 
@@ -58,10 +57,8 @@ include(root.BasePaths.RootProfilesDir .. '/common/animation.lua');
 include(root.BasePaths.RootProfilesDir .. '/common/achievementnotification.lua');
 include(root.BasePaths.RootProfilesDir .. '/common/charset.lua');
 include(root.BasePaths.RootProfilesDir .. '/common/scriptinput.lua');
-include(root.BasePaths.RootProfilesDir .. '/common/scriptvars.lua');
+include(root.BasePaths.RootProfilesDir .. '/common/scriptvars-switch.lua');
 
-include(root.BasePaths.RootProfilesDir .. '/cclcc/scriptinput.lua');
-include(root.BasePaths.RootProfilesDir .. '/cclcc/scriptvars.lua');
 include(root.BasePaths.RootProfilesDir .. '/cclcc-switch/scriptvars.lua');
 include(root.BasePaths.RootProfilesDir .. '/cclcc-switch/sprites.lua');
 include(root.BasePaths.RootProfilesDir .. '/cclcc/savedata.lua');
