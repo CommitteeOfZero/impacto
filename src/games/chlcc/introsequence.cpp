@@ -20,7 +20,6 @@ IntroSequence::IntroSequence() {
                                          static_cast<int>(viewport.Height), 0);
   SpriteSheet fallingStarsMaskSheet(viewport.Width, viewport.Height);
   fallingStarsMaskSheet.Texture = fallingStarsMaskTexture.Submit();
-  fallingStarsMaskSheet.IsScreenCap = true;
   FallingStarsMask =
       Sprite(fallingStarsMaskSheet, 0, 0, viewport.Width, viewport.Height);
 
@@ -98,10 +97,6 @@ IntroSequence::IntroSequence() {
   IntroAnimation.AddAnimation(CopyrightAnimation);
 }
 
-IntroSequence::~IntroSequence() {
-  Renderer->FreeTexture(FallingStarsMask.Sheet.Texture);
-}
-
 void IntroSequence::Reset() { IntroAnimation.Reset(); }
 
 void IntroSequence::Update(float dt) {
@@ -142,9 +137,9 @@ void IntroSequence::Render() {
     DrawBackground();
 
     // Draw the new background with the mask
-    Renderer->DrawMaskedSprite(BackgroundSprite, FallingStarsMask,
-                               RectF{0.0f, 0.0f, DesignWidth, DesignHeight},
-                               255, 256);
+    Renderer->DrawMaskedSprite({BackgroundSprite, FallingStarsMask,
+                                RectF{0.0f, 0.0f, DesignWidth, DesignHeight}},
+                               {.Alpha = 255.0f, .FadeRange = 256.0f});
 
     // Draw the stars again, not to the mask this time
     DrawFallingStars();
@@ -185,8 +180,6 @@ void IntroSequence::DrawBackground() const {
   glm::vec2 zoomFactor =
       designDimensions / 16.0f + designDimensions / 16.0f * 7.0f * progress;
 
-  Renderer->SetBlendMode(RendererBlendMode::Additive);
-
   for (size_t i = 0; i < IntroHighlightCount; i++) {
     constexpr float scale = 1.5f;
     const Sprite& sprite = IntroHighlightSprites[i];
@@ -198,10 +191,10 @@ void IntroSequence::DrawBackground() const {
                      .Scale(glm::vec2(scale), glm::vec2(0.0f))
                      .Translate(position);
 
-    Renderer->DrawSprite(sprite, dest, glm::vec4(1.0f));
+    Renderer->DrawSprite(
+        {sprite, dest}, {},
+        {.BlendMode = BaseRenderer::StateConfig::BlendModeType::Additive});
   }
-
-  Renderer->SetBlendMode(RendererBlendMode::Normal);
 
   Renderer->CaptureScreencap(ShaderScreencapture.BgSprite);
 
@@ -244,8 +237,6 @@ void IntroSequence::DrawBouncingStar() const {
 }
 
 void IntroSequence::DrawExplodingStars() const {
-  Renderer->SetBlendMode(RendererBlendMode::Additive);
-
   glm::vec2 origin = glm::vec2(DesignWidth, DesignHeight) / 2.0f -
                      IntroExplodingStarSprite.Bounds.GetSize() / 2.0f;
 
@@ -268,11 +259,13 @@ void IntroSequence::DrawExplodingStars() const {
                            .Translate(position)
                            .RotateAroundCenter(angle);
 
-    Renderer->DrawSprite(IntroExplodingStarSprite, dest,
-                         {1.0f, 1.0f, 1.0f, opacity});
+    Renderer->DrawSprite(
+        {IntroExplodingStarSprite,
+         dest,
+         glm::mat4(1.0f),
+         {1.0f, 1.0f, 1.0f, opacity}},
+        {}, {.BlendMode = BaseRenderer::StateConfig::BlendModeType::Additive});
   }
-
-  Renderer->SetBlendMode(RendererBlendMode::Normal);
 }
 
 void IntroSequence::DrawFallingStars() const {

@@ -9,9 +9,8 @@ namespace MO6TW {
 
 class TitleButton : public Widgets::Button {
  public:
-  TitleButton(int id, Sprite const& norm, Sprite const& focused,
-              Sprite const& highlight, glm::vec2 pos)
-      : Widgets::Button(id, norm, focused, highlight, pos) {}
+  TitleButton(int id, Sprite norm, Sprite focused, glm::vec2 pos)
+      : Widgets::Button(id, norm, focused, std::nullopt, pos) {}
   void Render() override;
 };
 

@@ -15,22 +15,15 @@ BlurEffect::BlurEffect()
     : BlurSprite(
           SpriteSheet(Profile::Game::DesignWidth, Profile::Game::DesignHeight),
           0.0f, 0.0f, Profile::Game::DesignWidth, Profile::Game::DesignHeight) {
-  BlurSprite.Sheet.IsScreenCap = true;
 }
 
 void BlurEffect::Init() {
-  if (BlurSprite.Sheet.Texture) {
-    Renderer->FreeTexture(BlurSprite.Sheet.Texture);
-  }
+  if (BlurSprite.Sheet.Texture.IsValid()) return;
 
   Texture texture{};
   texture.LoadSolidColor(static_cast<int>(Profile::Game::DesignWidth),
                          static_cast<int>(Profile::Game::DesignHeight), 0);
   BlurSprite.Sheet.Texture = texture.Submit();
-}
-
-BlurEffect::~BlurEffect() {
-  if (Renderer) Renderer->FreeTexture(BlurSprite.Sheet.Texture);
 }
 
 void BlurEffect::Render(int iterations) {
@@ -46,10 +39,10 @@ void BlurEffect::Render(int iterations) {
                                           : RendererBlurDirection::Horizontal;
 
     Renderer->CaptureScreencap(BlurSprite);
-    Renderer->DrawBlurredSprite(BlurSprite,
-                                RectF{0.0f, 0.0f, Profile::Game::DesignWidth,
-                                      Profile::Game::DesignHeight},
-                                glm::mat4(1.0f), direction, glm::vec4(1.0f));
+    Renderer->DrawBlurredSprite(
+        {BlurSprite, RectF{0.0f, 0.0f, Profile::Game::DesignWidth,
+                           Profile::Game::DesignHeight}},
+        {.BlurDirection = direction});
   }
 }
 

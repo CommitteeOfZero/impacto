@@ -106,7 +106,6 @@ void Group::Update(float dt) {
 
 void Group::Render() {
   if (VisibilityState != Hidden) {
-    Renderer->EnableScissor();
     Renderer->SetScissorRect(RenderingBounds);
     for (const auto& el : Children) {
       auto tint = el->Tint;
@@ -114,7 +113,7 @@ void Group::Render() {
       el->Render();
       el->Tint = tint;
     }
-    Renderer->DisableScissor();
+    Renderer->SetScissorRect(std::nullopt);
   }
 }
 

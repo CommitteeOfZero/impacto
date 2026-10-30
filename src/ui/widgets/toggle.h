@@ -13,13 +13,13 @@ namespace Widgets {
 class Toggle : public Widget {
  public:
   Toggle(int id, bool* value, Sprite const& enabled, Sprite const& disabled,
-         Sprite const& highlight, glm::vec2 pos, bool isCheckbox);
+         std::optional<Sprite> highlight, glm::vec2 pos, bool isCheckbox);
   Toggle(int id, bool* value, Sprite const& enabled, Sprite const& disabled,
-         Sprite const& highlight, glm::vec2 pos, bool isCheckbox,
+         std::optional<Sprite> highlight, glm::vec2 pos, bool isCheckbox,
          Vm::Sc3Stream& stream, glm::vec2 labelOfs, float fontSize,
          RendererOutlineMode outlineMode);
   Toggle(int id, bool* value, Sprite const& enabled, Sprite const& disabled,
-         Sprite const& highlight, glm::vec2 pos, bool isCheckbox,
+         std::optional<Sprite> highlight, glm::vec2 pos, bool isCheckbox,
          Sprite const& label, glm::vec2 labelOfs);
 
   void Update(float dt) override;
@@ -36,7 +36,7 @@ class Toggle : public Widget {
 
   Sprite EnabledSprite;
   Sprite DisabledSprite;
-  Sprite HighlightSprite;
+  std::optional<Sprite> HighlightSprite;
 
   bool IsCheckbox = false;
 

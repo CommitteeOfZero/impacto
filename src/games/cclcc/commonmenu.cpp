@@ -80,41 +80,10 @@ void CommonMenu::DrawSmoke(const float alpha) {
 }
 
 void CommonMenu::DrawOverlay(const float alpha) {
-  const glm::vec4 tint = {1.0f, 1.0f, 1.0f, alpha};
-
-  const RectF maskUvBounds = OverlaySprite.NormalizedBounds();
-  std::array<VertexBufferSprites, 4> vertices{
-      VertexBufferSprites{
-          .Position = {0.0f, 0.0f},
-          .UV = {0.0f, 0.0f},
-          .Tint = tint,
-          .MaskUV = {maskUvBounds.Left(), 1.0f - maskUvBounds.Top()},
-      },
-      VertexBufferSprites{
-          .Position = {Profile::Game::DesignWidth, 0.0f},
-          .UV = {1.0f, 0.0f},
-          .Tint = tint,
-          .MaskUV = {maskUvBounds.Right(), 1.0f - maskUvBounds.Top()},
-      },
-      VertexBufferSprites{
-          .Position = {0.0f, Profile::Game::DesignHeight},
-          .UV = {0.0f, 1.0f},
-          .Tint = tint,
-          .MaskUV = {maskUvBounds.Left(), 1.0f - maskUvBounds.Bottom()},
-      },
-      VertexBufferSprites{
-          .Position = {Profile::Game::DesignWidth, Profile::Game::DesignHeight},
-          .UV = {1.0f, 1.0f},
-          .Tint = tint,
-          .MaskUV = {maskUvBounds.Right(), 1.0f - maskUvBounds.Bottom()},
-      },
-  };
-  constexpr static std::array<uint16_t, 6> indices{0, 1, 2, 1, 2, 3};
-
   Renderer->CaptureScreencap(CaptureSprite);
-  Renderer->DrawPrimitives(CaptureSprite.Sheet, &OverlaySprite.Sheet,
-                           ShaderProgramType::HardLightMaskedSprite, vertices,
-                           indices, {0.0f, 0.0f});
+  Renderer->DrawHardLightMaskedSprite({CaptureSprite.Sheet, OverlaySprite.Sheet,
+                                       glm::vec2(0.0f),
+                                       glm::vec4(1.0f, 1.0f, 1.0f, alpha)});
 
   const float guideTransitionProgress = glm::smoothstep(
       0.0f, 1.0f,
@@ -273,10 +242,9 @@ void CommonMenu::DrawBgSprite(MenuState state, const Animation& fadeAnimation,
     return result;
   }();
 
-  Renderer->DrawPrimitives(SystemMenuBG.Sheet, nullptr,
-                           ShaderProgramType::Sprite, Vertices, indices,
-                           glm::mat4(1.0f), glm::mat4(1.0f), false,
-                           TopologyMode::TriangleStrips, true);
+  // TODO: Texturewraprepeat
+  Renderer->DrawSprite(
+      {SystemMenuBG.Sheet, Vertices, indices, TopologyMode::TriangleStrips});
 
   if constexpr (IsSystem) {
     CornersQuad frameDisp = {

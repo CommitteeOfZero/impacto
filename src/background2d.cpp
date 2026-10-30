@@ -3,6 +3,7 @@
 #include <ranges>
 #include <numeric>
 #include <glm/ext/quaternion_exponential.hpp>
+#include <magic_enum/magic_enum_containers.hpp>
 
 #include "mask2d.h"
 #include "mem.h"
@@ -31,10 +32,9 @@ void Background2D::InitFrameBuffers() {
                {Profile::Game::DesignWidth / viewPort.Width,
                 Profile::Game::DesignHeight / viewPort.Height});
     Framebuffers[i].BgSprite.Sheet.Texture =
-        Renderer->GetFramebufferTexture(i + 1);
+        Renderer->GetFrameBufferTexture(i + 1);
 
     Framebuffers[i].Status = LoadStatus::Loaded;
-    Framebuffers[i].BgSprite.Sheet.IsScreenCap = true;
   }
 }
 
@@ -45,7 +45,6 @@ void Background2D::Init() {
 
   const RectF viewport = Window->GetViewport();
   const auto initCapture = [&viewport](Capture2D& capture) {
-    capture.BgSprite.Sheet.IsScreenCap = true;
     capture.LoadSolidColor(0xFF000000, static_cast<int>(viewport.Width),
                            static_cast<int>(viewport.Height));
     capture.BgSprite.Bounds.SetSize(viewport.GetSize());
@@ -57,7 +56,6 @@ void Background2D::Init() {
   for (Capture2D& capture : Screencaptures) initCapture(capture);
   initCapture(MaskCapture);
 
-  ShaderScreencapture.BgSprite.Sheet.IsScreenCap = true;
   InitFrameBuffers();
   ShaderScreencapture.LoadSolidColor(0xFF000000,
                                      static_cast<int>(viewport.Width),
@@ -141,30 +139,26 @@ void Background2D::LoadSolidColor(uint32_t color, int width, int height) {
 }
 
 void Background2D::UnloadSync() {
-  Renderer->FreeTexture(BgSprite.Sheet.Texture);
+  BgSprite.Sheet.Texture = TextureRef{};
   BgSprite.Sheet.DesignHeight = 0.0f;
   BgSprite.Sheet.DesignWidth = 0.0f;
-  BgSprite.Sheet.Texture = 0;
-  BgSprite.Sheet.IsScreenCap = false;
 
   if (BgFrameEffectType != BgEffTypeEnum::Disabled) {
     for (BgEff& bgEff : FrameBgEffs) {
       bgEff.Loaded = false;
 
-      Renderer->FreeTexture(bgEff.BgEffSprite.Sheet.Texture);
+      bgEff.BgEffSprite.Sheet.Texture = TextureRef{};
       bgEff.BgEffSprite.Sheet.DesignHeight = 0.0f;
       bgEff.BgEffSprite.Sheet.DesignWidth = 0.0f;
-      bgEff.BgEffSprite.Sheet.Texture = 0;
     }
   }
 
   if (BgChaEffectType != BgEffTypeEnum::Disabled) {
     ChaBgEff.Loaded = false;
 
-    Renderer->FreeTexture(ChaBgEff.BgEffSprite.Sheet.Texture);
+    ChaBgEff.BgEffSprite.Sheet.Texture = TextureRef{};
     ChaBgEff.BgEffSprite.Sheet.DesignHeight = 0.0f;
     ChaBgEff.BgEffSprite.Sheet.DesignWidth = 0.0f;
-    ChaBgEff.BgEffSprite.Sheet.Texture = 0;
   }
 
   Show = false;
@@ -562,7 +556,7 @@ void Background2D::RenderBgEff(const int layer) {
   }
 
   static Sprite frameSprite{};
-  if (frameSprite.Sheet.Texture == 0) {
+  if (!frameSprite.Sheet.Texture.IsValid()) {
     Texture frameTexture{};
     const RectF viewport = Window->GetViewport();
     frameTexture.LoadSolidColor(static_cast<int>(viewport.Width),
@@ -607,9 +601,65 @@ void Background2D::RenderBgEff(const int layer) {
        bgEff++) {
     if (!bgEff->Loaded) continue;
 
+    const static auto shaderTable = []() {
+      using enum ShaderProgramType;
+      magic_enum::containers::array<
+          ShaderProgramType, std::function<void(const PositionedMaskedSprite&)>>
+          table;
+      static_assert(table.size() == 11);
+
+      table[AdditiveMaskedSprite] =
+          [](const PositionedMaskedSprite& spriteInfo) {
+            Renderer->DrawAdditiveMaskedSprite(spriteInfo);
+          };
+      table[ColorBurnMaskedSprite] =
+          [](const PositionedMaskedSprite& spriteInfo) {
+            Renderer->DrawColorBurnMaskedSprite(spriteInfo);
+          };
+      table[ColorDodgeMaskedSprite] =
+          [](const PositionedMaskedSprite& spriteInfo) {
+            Renderer->DrawColorDodgeMaskedSprite(spriteInfo);
+          };
+      table[ColorMaskedSprite] = [](const PositionedMaskedSprite& spriteInfo) {
+        Renderer->DrawColorMaskedSprite(spriteInfo);
+      };
+      table[HardLightMaskedSprite] =
+          [](const PositionedMaskedSprite& spriteInfo) {
+            Renderer->DrawHardLightMaskedSprite(spriteInfo);
+          };
+      table[LinearBurnMaskedSprite] =
+          [](const PositionedMaskedSprite& spriteInfo) {
+            Renderer->DrawLinearBurnMaskedSprite(spriteInfo);
+          };
+      table[MaskedSpriteNoAlpha] =
+          [](const PositionedMaskedSprite& spriteInfo) {
+            Renderer->DrawMaskedSpriteNoAlpha(
+                spriteInfo, {.Alpha = 1.0f, .FadeRange = 0.0f});
+          };
+      table[OverlayMaskedSprite] =
+          [](const PositionedMaskedSprite& spriteInfo) {
+            Renderer->DrawOverlayMaskedSprite(spriteInfo);
+          };
+      table[ScreenMaskedSprite] = [](const PositionedMaskedSprite& spriteInfo) {
+        Renderer->DrawScreenMaskedSprite(spriteInfo);
+      };
+      table[SoftLightMaskedSprite] =
+          [](const PositionedMaskedSprite& spriteInfo) {
+            Renderer->DrawSoftLightMaskedSprite(spriteInfo);
+          };
+      table[Sprite] = [](const PositionedMaskedSprite& spriteInfo) {
+        Renderer->DrawSprite({spriteInfo.Texture, spriteInfo.GetVertices(),
+                              spriteInfo.GetIndices(),
+                              spriteInfo.GetTopologyMode(),
+                              spriteInfo.Transformation});
+      };
+
+      return table;
+    }();
+
     Renderer->CaptureScreencap(frameSprite);
-    Renderer->DrawPrimitives(frameSprite.Sheet, &bgEff->BgEffSprite.Sheet,
-                             bgEff->Shader, vertices, indices);
+    shaderTable[bgEff->Shader]({frameSprite.Sheet, bgEff->BgEffSprite.Sheet,
+                                vertices, indices, TopologyMode::Triangles});
   }
 
   LastRenderedBackground = nullptr;
@@ -771,18 +821,19 @@ void BackgroundEffect2D::Render(const int layer) {
   }
 
   // Draw
-  Renderer->SetStencilMode(StencilBufferMode::Write);
+  using StencilModeType = BaseRenderer::StateConfig::StencilModeType;
+  Renderer->SetStencilMode(BaseRenderer::StateConfig::StencilModeType::Write);
   Renderer->ClearStencilBuffer();
 
   Renderer->DrawConvexShape(
       std::span(Vertices.begin(), Vertices.begin() + VertexCount),
       StencilTransformation, glm::vec4(1.0f));
 
-  Renderer->SetStencilMode(StencilBufferMode::Test);
+  Renderer->SetStencilMode(StencilModeType::Test);
 
   std::invoke(BackgroundRenderTable[RenderType], this);
 
-  Renderer->SetStencilMode(StencilBufferMode::Off);
+  Renderer->SetStencilMode(std::nullopt);
 }
 
 template <bool PhaseZero>
@@ -801,11 +852,11 @@ void Background2D::RenderBgWave() {
 
   PrimitiveData primitives = Effects::WaveBG.GetPrimitives();
 
-  Renderer->DrawPrimitives(
-      RenderSprite.Sheet, &Masks2D[MaskNumber].MaskSprite.Sheet,
-      ShaderProgramType::MaskedSprite, primitives.Vertices, primitives.Indices,
-      TransformState.ToMatrix(), glm::mat4(1.0f), false,
-      TopologyMode::TriangleStrips);
+  Renderer->DrawMaskedSprite(
+      {RenderSprite.Sheet, Masks2D[MaskNumber].MaskSprite.Sheet,
+       primitives.Vertices, primitives.Indices, primitives.Topology,
+       TransformState.ToMatrix()},
+      {.Alpha = 1.0f, .FadeRange = 0.0f});
 }
 
 void Background2D::RenderRegular() {
@@ -836,16 +887,19 @@ void Background2D::RenderMasked() {
   maskTransformState.Origin = -maskTransformState.Position;
   maskTransformState.Scale = newScale;
 
-  Renderer->DrawMaskedSprite(RenderSprite, Masks2D[MaskNumber].MaskSprite,
-                             FadeCount, FadeRange, TransformState.ToMatrix(),
-                             maskTransformState.ToMatrix(), Tint, false, false);
+  Renderer->DrawMaskedSprite(
+      {RenderSprite, Masks2D[MaskNumber].MaskSprite, TransformState.ToMatrix(),
+       maskTransformState.ToMatrix(), Tint},
+      {.Alpha = static_cast<float>(FadeCount),
+       .FadeRange = static_cast<float>(FadeRange)});
   // also can render Linked buffers, but IDK any examples to test
 }
 
 void Background2D::RenderCaptureMasked() {
-  Renderer->DrawMaskedBinarySprite(RenderSprite, MaskCapture.BgSprite,
-                                   TransformState.ToMatrix(), std::nullopt,
-                                   Tint, false);
+  Renderer->DrawMaskedBinarySprite(
+      {RenderSprite, MaskCapture.BgSprite, TransformState.ToMatrix(),
+       PositionedMaskedSprite::HaveFullscreenMask{}, Tint},
+      {});
   for (int i = 0; i < MaxLinkedBgBuffers; i++) {
     if (Links[i].Direction != LinkDirection::Off &&
         Links[i].LinkedBuffer != nullptr) {
@@ -853,9 +907,11 @@ void Background2D::RenderCaptureMasked() {
           TransformationMatrix(TransformState.Origin, TransformState.Scale,
                                {TransformState.Origin, 0.0f},
                                TransformState.Rotation, Links[i].DisplayCoords);
-      Renderer->DrawMaskedBinarySprite(Links[i].LinkedBuffer->RenderSprite,
-                                       MaskCapture.BgSprite, linkTransformation,
-                                       std::nullopt, Tint, false);
+      Renderer->DrawMaskedBinarySprite(
+          {Links[i].LinkedBuffer->RenderSprite, MaskCapture.BgSprite,
+           linkTransformation, PositionedMaskedSprite::HaveFullscreenMask{},
+           Tint},
+          {});
     }
   }
 }
@@ -872,9 +928,12 @@ void Background2D::RenderMaskedInverted() {
   maskTransformState.Origin = -maskTransformState.Position;
   maskTransformState.Scale = newScale;
 
-  Renderer->DrawMaskedSprite(RenderSprite, Masks2D[MaskNumber].MaskSprite,
-                             FadeCount, FadeRange, TransformState.ToMatrix(),
-                             maskTransformState.ToMatrix(), Tint, true, false);
+  Renderer->DrawMaskedSprite(
+      {RenderSprite, Masks2D[MaskNumber].MaskSprite, TransformState.ToMatrix(),
+       maskTransformState.ToMatrix(), Tint},
+      {.Alpha = static_cast<float>(FadeCount),
+       .FadeRange = static_cast<float>(FadeRange),
+       .IsInverted = true});
 }
 
 void Background2D::RenderFade() {
@@ -1062,8 +1121,8 @@ void Background2D::RenderExplode() {
     return tempIndices;
   }();
 
-  Renderer->DrawPrimitives(RenderSprite.Sheet, ShaderProgramType::Sprite,
-                           vertices, indices, glm::mat4(1.0f));
+  Renderer->DrawSprite(
+      {RenderSprite.Sheet, vertices, indices, TopologyMode::Triangles});
 }
 
 bool IsBgWaveEffectActive() {

@@ -29,9 +29,10 @@ Scrollbar::Scrollbar(int id, glm::vec2 pos, float start, float end,
 }
 
 Scrollbar::Scrollbar(int id, glm::vec2 pos, float start, float end,
-                     float* value, ScrollbarDirection dir, Sprite const& thumb,
-                     glm::vec2 trackBounds, float thumbLength,
-                     RectF wheelBounds, float wheelSpeedMultiplier)
+                     float* value, ScrollbarDirection dir,
+                     std::optional<Sprite> thumb, glm::vec2 trackBounds,
+                     float thumbLength, RectF wheelBounds,
+                     float wheelSpeedMultiplier)
     : Id(id),
       Direction(dir),
       ThumbSprite(thumb),
@@ -51,7 +52,7 @@ Scrollbar::Scrollbar(int id, glm::vec2 pos, float start, float end,
 
 Scrollbar::Scrollbar(int id, glm::vec2 pos, float start, float end,
                      float* value, ScrollbarDirection dir, Sprite const& track,
-                     Sprite const& thumb, glm::vec2 thumbOffset,
+                     std::optional<Sprite> thumb, glm::vec2 thumbOffset,
                      float thumbLength, RectF wheelBounds,
                      float wheelSpeedMultiplier)
     : Id(id),
@@ -71,23 +72,28 @@ Scrollbar::Scrollbar(int id, glm::vec2 pos, float start, float end,
   Bounds.SetPos(pos);
   Length = Direction == SBDIR_VERTICAL ? TrackSprite->Bounds.Height
                                        : TrackSprite->Bounds.Width;
-  ThumbBounds =
-      RectF(0.0f, 0.0f, ThumbSprite.ScaledWidth(), ThumbSprite.ScaledHeight());
-  if (Direction == SBDIR_VERTICAL) {
-    ThumbBounds.X = (TrackBounds.X + (TrackBounds.Width / 2.0f)) -
-                    (ThumbSprite.ScaledWidth() / 2.0f);
-    ThumbBounds.Y = TrackBounds.Y - (ThumbSprite.ScaledHeight() / 2.0f);
-  } else if (Direction == SBDIR_HORIZONTAL) {
-    ThumbBounds.X = TrackBounds.X - (ThumbSprite.ScaledWidth() / 2.0f);
-    ThumbBounds.Y = (TrackBounds.Y + (TrackBounds.Height / 2.0f)) -
-                    (ThumbSprite.ScaledHeight() / 2.0f);
+  if (ThumbSprite.has_value()) {
+    ThumbBounds = RectF(0.0f, 0.0f, ThumbSprite->ScaledWidth(),
+                        ThumbSprite->ScaledHeight());
+    if (Direction == SBDIR_VERTICAL) {
+      ThumbBounds.X = (TrackBounds.X + (TrackBounds.Width / 2.0f)) -
+                      (ThumbSprite->ScaledWidth() / 2.0f);
+      ThumbBounds.Y = TrackBounds.Y - (ThumbSprite->ScaledHeight() / 2.0f);
+    } else if (Direction == SBDIR_HORIZONTAL) {
+      ThumbBounds.X = TrackBounds.X - (ThumbSprite->ScaledWidth() / 2.0f);
+      ThumbBounds.Y = (TrackBounds.Y + (TrackBounds.Height / 2.0f)) -
+                      (ThumbSprite->ScaledHeight() / 2.0f);
+    }
+  } else {
+    ThumbBounds = RectF();
   }
+
   UpdatePosition();
 }
 
 Scrollbar::Scrollbar(int id, glm::vec2 pos, float start, float end,
                      float* value, ScrollbarDirection dir, Sprite const& track,
-                     Sprite const& thumb, Sprite const& fill,
+                     std::optional<Sprite> thumb, Sprite const& fill,
                      glm::vec2 thumbOffset, float thumbLength,
                      RectF wheelBounds, float wheelSpeedMultiplier)
     : Scrollbar(id, pos, start, end, value, dir, track, thumb, thumbOffset,
@@ -191,8 +197,11 @@ void Scrollbar::Render() {
     Renderer->DrawSprite(*FillSprite, glm::vec2(TrackBounds.X, TrackBounds.Y),
                          Tint);
   }
-  Renderer->DrawSprite(ThumbSprite, glm::vec2(ThumbBounds.X, ThumbBounds.Y),
-                       Tint);
+
+  if (ThumbSprite.has_value()) {
+    Renderer->DrawSprite(*ThumbSprite, glm::vec2(ThumbBounds.X, ThumbBounds.Y),
+                         Tint);
+  }
 }
 
 void Scrollbar::Hide() {
@@ -230,19 +239,23 @@ void Scrollbar::UpdatePosition() {
   float thumbNormalizedProgress =
       (TrackProgress / Length) * (Length - ThumbLength);
   if (Direction == SBDIR_VERTICAL) {
-    ThumbBounds.X = (TrackBounds.X + (TrackBounds.Width / 2.0f)) -
-                    (ThumbSprite.ScaledWidth() / 2.0f);
-    ThumbBounds.Y =
-        (TrackBounds.Y + ThumbLength / 2.0f + thumbNormalizedProgress) -
-        (ThumbSprite.ScaledHeight() / 2.0f);
+    if (ThumbSprite.has_value()) {
+      ThumbBounds.X = (TrackBounds.X + (TrackBounds.Width / 2.0f)) -
+                      (ThumbSprite->ScaledWidth() / 2.0f);
+      ThumbBounds.Y =
+          (TrackBounds.Y + ThumbLength / 2.0f + thumbNormalizedProgress) -
+          (ThumbSprite->ScaledHeight() / 2.0f);
+    }
 
     if (FillSprite) FillSprite->Bounds.Height = TrackProgress;
   } else if (Direction == SBDIR_HORIZONTAL) {
-    ThumbBounds.X =
-        (TrackBounds.X + ThumbLength / 2.0f + thumbNormalizedProgress) -
-        (ThumbSprite.ScaledWidth() / 2.0f);
-    ThumbBounds.Y = (TrackBounds.Y + (TrackBounds.Height / 2.0f)) -
-                    (ThumbSprite.ScaledHeight() / 2.0f);
+    if (ThumbSprite.has_value()) {
+      ThumbBounds.X =
+          (TrackBounds.X + ThumbLength / 2.0f + thumbNormalizedProgress) -
+          (ThumbSprite->ScaledWidth() / 2.0f);
+      ThumbBounds.Y = (TrackBounds.Y + (TrackBounds.Height / 2.0f)) -
+                      (ThumbSprite->ScaledHeight() / 2.0f);
+    }
 
     if (FillSprite) FillSprite->Bounds.Width = TrackProgress;
   }

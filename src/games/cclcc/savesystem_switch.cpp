@@ -139,7 +139,7 @@ SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
   WorkingSaveThumbnail.Bounds.SetSize(viewport.GetSize());
 
   QueuedTexture txt{
-      .Id = std::ref(WorkingSaveThumbnail.Sheet.Texture),
+      .Reference = WorkingSaveThumbnail.Sheet.Texture,
   };
   txt.Tex.LoadSolidColor((int)WorkingSaveThumbnail.Bounds.Width,
                          (int)WorkingSaveThumbnail.Bounds.Height, 0x000000);
@@ -168,7 +168,7 @@ SaveError SaveSystem::MountSaveFile(std::vector<QueuedTexture>& textures) {
                                          entrySlotBuf.size(), false);
 
     QueuedTexture tex{
-        .Id = std::ref(entries[i]->SaveThumbnail.Sheet.Texture),
+        .Reference = entries[i]->SaveThumbnail.Sheet.Texture,
     };
     LoadEntryBuffer(saveEntryDataStream,
                     static_cast<SaveFileEntry&>(*entries[i]), saveType,

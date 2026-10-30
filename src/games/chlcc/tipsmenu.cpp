@@ -577,11 +577,10 @@ void TipsMenu::DrawTipsTree() {
       }
     }
 
-    Renderer->EnableScissor();
-    Renderer->SetScissorRect(currentPage->RenderingBounds);
-    Renderer->DrawSprite(barSprite, pos);
-    Renderer->DrawSprite(lineSprite, linePos);
-    Renderer->DisableScissor();
+    Renderer->DrawSprite({barSprite.get(), pos}, {},
+                         {.ScissorRect = currentPage->RenderingBounds});
+    Renderer->DrawSprite({lineSprite.get(), linePos}, {},
+                         {.ScissorRect = currentPage->RenderingBounds});
     if (lastViewable && widget != currentPage->Children.back())
       Renderer->DrawSprite(TipsLeftLineEnd,
                            linePos + glm::vec2{0, TipListYPadding});

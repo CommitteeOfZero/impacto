@@ -64,14 +64,11 @@ void BacklogMenu::Render() {
   CommonMenu::DrawButtonPrompt(ButtonPromptSprite, ButtonPromptPosition);
 
   if (MenuTransition.Progress > 0.34f) {
-    Renderer->EnableScissor();
-    Renderer->SetScissorRect(BacklogBackground.Bounds);
-    Renderer->DrawSprite(MenuTitleText, LeftTitlePos);
-    Renderer->DisableScissor();
+    Renderer->DrawSprite({MenuTitleText, LeftTitlePos}, {},
+                         {.ScissorRect = BacklogBackground.Bounds});
     RenderHighlight({0.0f, yOffset});
   }
 
-  Renderer->EnableScissor();
   Renderer->SetScissorRect(RectF(RenderingBounds).Translate({0.0f, yOffset}));
   for (auto& entry : Entries) {
     if (!entry.Bounds.Intersects(RenderingBounds)) continue;
@@ -80,7 +77,7 @@ void BacklogMenu::Render() {
     entry.Render();
     entry.Move({0.0f, -yOffset});
   }
-  Renderer->DisableScissor();
+  Renderer->SetScissorRect(std::nullopt);
 
   MainScrollbar.Move({0.0f, yOffset});
   MainScrollbar.Render();

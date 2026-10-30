@@ -110,7 +110,6 @@ void TipsNotification::Update(const float dt) {
 void TipsNotification::Render() {
   if (TipsAnimation.State == AnimationState::Stopped) return;
 
-  Renderer->EnableScissor();
   Renderer->SetScissorRect(RenderBounds);
 
   Header.Render();
@@ -118,7 +117,7 @@ void TipsNotification::Render() {
   TipName.Render();
   TextPartAfter.Render();
 
-  Renderer->DisableScissor();
+  Renderer->SetScissorRect(std::nullopt);
 }
 
 void TipsNotification::AddTip(const int tipId) {
