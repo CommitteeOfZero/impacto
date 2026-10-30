@@ -4,7 +4,6 @@
 #include "../../userconfig.h"
 
 #include <bgfx/shader_content.h>
-
 #include <bgfx/platform.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <boost/pfr.hpp>
@@ -21,9 +20,12 @@ extern "C" {
 #endif
 namespace Impacto::Bgfx {
 
-constexpr bgfx::ViewId RENDER_VIEW = 0;   // Uses render dimensions
-constexpr bgfx::ViewId DISPLAY_VIEW = 1;  // Uses viewport dimensions
+// Uses viewport dimensions
 constexpr bgfx::ViewId IMGUI_VIEW = 255;
+constexpr bgfx::ViewId DISPLAY_VIEW = IMGUI_VIEW - 1;
+// Uses render dimensions
+constexpr bgfx::ViewId LAST_RENDER_VIEW = DISPLAY_VIEW - 1;
+constexpr bgfx::ViewId FIRST_RENDER_VIEW = 0;
 
 Renderer::Renderer() {
   bgfx::Init initStruct{};
@@ -117,12 +119,7 @@ Renderer::Renderer() {
   constexpr static glm::mat4 identityMatrix(1.0f);
   bgfx::setViewTransform(DISPLAY_VIEW, glm::value_ptr(identityMatrix),
                          glm::value_ptr(identityMatrix));
-
-  constexpr uint32_t black = 0x000000ff;
-  bgfx::setViewClear(RENDER_VIEW, BGFX_CLEAR_COLOR | BGFX_CLEAR_STENCIL, black);
-  bgfx::setViewClear(DISPLAY_VIEW, BGFX_CLEAR_COLOR, black);
-
-  bgfx::setViewMode(RENDER_VIEW, bgfx::ViewMode::Sequential);
+  bgfx::setViewClear(DISPLAY_VIEW, BGFX_CLEAR_COLOR);
   bgfx::setViewMode(DISPLAY_VIEW, bgfx::ViewMode::Sequential);
 
   IndexBuffer = bgfx::createDynamicIndexBuffer(static_cast<uint32_t>(0),
@@ -234,13 +231,6 @@ void Renderer::Init() {
     frameBuffer = FrameBuffer(static_cast<uint16_t>(Resolution.x),
                               static_cast<uint16_t>(Resolution.y));
   }
-
-  const glm::mat4 projectionMatrix =
-      glm::ortho(0.0f, Profile::Game::DesignWidth, Profile::Game::DesignHeight,
-                 0.0f, -Profile::Game::DesignWidth, Profile::Game::DesignWidth);
-  constexpr static glm::mat4 identityMatrix(1.0f);
-  bgfx::setViewTransform(RENDER_VIEW, glm::value_ptr(identityMatrix),
-                         glm::value_ptr(projectionMatrix));
 
   constexpr static std::array<uint16_t, 6> backBufferIndices = {
       0, 1, 3, 1, 2, 3,
@@ -367,11 +357,8 @@ void Renderer::BeginFrame2D() {
     }
   }
 
-  bgfx::setViewFrameBuffer(RENDER_VIEW, FrameBuffers[DrawFrameBufferIdx]);
-  bgfx::setViewRect(RENDER_VIEW, 0, 0, static_cast<uint16_t>(Resolution.x),
-                    static_cast<uint16_t>(Resolution.y));
-
-  bgfx::touch(RENDER_VIEW);
+  ClearedFrameBuffers.fill(false);
+  SetRenderView(FIRST_RENDER_VIEW, DrawFrameBufferIdx);
 }
 
 void Renderer::EndFrame() {
@@ -470,6 +457,8 @@ void Renderer::Flush() {
       0, VertexBuffer, static_cast<uint32_t>(CurFrameVertexBufferOffset),
       static_cast<uint32_t>(Vertices.size() - CurFrameVertexBufferOffset));
 
+  bgfx::setTransform(glm::value_ptr(CurrentState->Transformation));
+
   CurFrameIndexBufferOffset = Indices.size();
   CurFrameVertexBufferOffset = Vertices.size();
 
@@ -518,7 +507,7 @@ void Renderer::Flush() {
     bgfx::setState(stateFlags);
   }
 
-  bgfx::submit(RENDER_VIEW, CurrentState->ShaderProgram.get());
+  bgfx::submit(CurrentView, CurrentState->ShaderProgram.get());
 }
 
 bool Renderer::ShouldFlip(const Texture& texture) const {
@@ -573,7 +562,6 @@ void Renderer::SetState(RendererState newState) {
   if (!CurrentState.has_value() ||
       CurrentState->Transformation != newState.Transformation) {
     Flush();
-    bgfx::setTransform(glm::value_ptr(newState.Transformation));
   }
 
   if (CurrentState.has_value() &&
@@ -607,11 +595,16 @@ void Renderer::SetState(RendererState newState) {
     }
   }
 
+  if (RequestedFrameBufferId != CurrentFrameBufferId) {
+    Flush();
+    SetRenderView(CurrentView + 1, RequestedFrameBufferId);
+  }
+
   CurrentState = newState;
 }
 
-void Renderer::SetFrameBuffer(size_t frameBufferId) {
-  bgfx::setViewFrameBuffer(RENDER_VIEW, FrameBuffers[frameBufferId]);
+void Renderer::SetFrameBuffer(size_t newFrameBufferId) {
+  RequestedFrameBufferId = newFrameBufferId;
 }
 
 TextureRef Renderer::GetFrameBufferTexture(size_t frameBufferId) {
@@ -1186,7 +1179,7 @@ void Renderer::SetStencilMode(
 }
 
 void Renderer::ClearStencilBuffer() {
-  bgfx::setViewClear(RENDER_VIEW, BGFX_CLEAR_STENCIL);
+  bgfx::setViewClear(CurrentView, BGFX_CLEAR_STENCIL);
 }
 
 void Renderer::InsertQuad(const CornersQuad dest, const CornersQuad uvs,
@@ -1222,6 +1215,46 @@ void Renderer::InsertQuad(const CornersQuad dest, const CornersQuad uvs,
   };
 
   InsertVertices(indices, vertices, flipVertically);
+}
+
+void Renderer::SetRenderView(const bgfx::ViewId newRenderView,
+                             const size_t frameBufferId) {
+  assert(FIRST_RENDER_VIEW <= newRenderView &&
+         newRenderView <= LAST_RENDER_VIEW);
+
+  InitRenderView(newRenderView);
+  if (newRenderView == CurrentView) return;
+
+  bgfx::setViewFrameBuffer(newRenderView, FrameBuffers[frameBufferId]);
+  bgfx::setViewRect(newRenderView, 0, 0, static_cast<uint16_t>(Resolution.x),
+                    static_cast<uint16_t>(Resolution.y));
+
+  if (!ClearedFrameBuffers[frameBufferId]) {
+    bgfx::setViewClear(newRenderView, BGFX_CLEAR_COLOR | BGFX_CLEAR_STENCIL);
+    ClearedFrameBuffers[frameBufferId] = true;
+  }
+
+  bgfx::touch(newRenderView);
+
+  RequestedFrameBufferId = frameBufferId;
+  CurrentFrameBufferId = frameBufferId;
+
+  CurrentView = newRenderView;
+}
+
+void Renderer::InitRenderView(const bgfx::ViewId viewId) {
+  static std::set<bgfx::ViewId> initializedViews;
+  const bool alreadyInitialized = initializedViews.insert(viewId).second;
+  if (alreadyInitialized) return;
+
+  bgfx::setViewMode(viewId, bgfx::ViewMode::Sequential);
+
+  const glm::mat4 projectionMatrix =
+      glm::ortho(0.0f, Profile::Game::DesignWidth, Profile::Game::DesignHeight,
+                 0.0f, -Profile::Game::DesignWidth, Profile::Game::DesignWidth);
+  constexpr static glm::mat4 identityMatrix(1.0f);
+  bgfx::setViewTransform(viewId, glm::value_ptr(identityMatrix),
+                         glm::value_ptr(projectionMatrix));
 }
 
 bool Renderer::PersistentRendererState::AllDisabled() const {

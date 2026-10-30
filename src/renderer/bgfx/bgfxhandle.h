@@ -49,8 +49,15 @@ struct BgfxHandle {
     return *this;
   }
 
+  [[nodiscard]] bool operator==(const T& other) const {
+    return Handle.idx == other.idx;
+  }
+  [[nodiscard]] bool operator!=(const T& other) const {
+    return !(*this == other);
+  }
+
   [[nodiscard]] bool operator==(const BgfxHandle<T>& other) const {
-    return Handle.idx == other.Handle.idx;
+    return *this == other.Handle;
   }
   [[nodiscard]] bool operator!=(const BgfxHandle<T>& other) const {
     return !(*this == other);

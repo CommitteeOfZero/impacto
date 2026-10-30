@@ -139,7 +139,6 @@ class Renderer final : public BaseRenderer {
 
   void SetFrameBuffer(size_t frameBufferId) override;
   TextureRef GetFrameBufferTexture(size_t frameBufferId) override;
-  void ClearFrameBuffer(size_t buffer, glm::vec4 color) override {}
 
   void SetScissorRect(std::optional<RectF> rect) override;
 
@@ -167,6 +166,10 @@ class Renderer final : public BaseRenderer {
 
   bool ShouldFlip(const Texture& texture) const;
 
+  bgfx::ViewId CurrentView = 0;
+  void SetRenderView(bgfx::ViewId newRenderView, size_t frameBufferId);
+  void InitRenderView(bgfx::ViewId viewId);
+
   // Only call bgfx::shutdown after all managed objects in this class have been
   // default-destructed
   struct BgfxContextHandleStruct {
@@ -192,6 +195,9 @@ class Renderer final : public BaseRenderer {
 
   constexpr static size_t DrawFrameBufferIdx = 0;
   std::array<FrameBuffer, FrameBufferCount> FrameBuffers;
+  size_t CurrentFrameBufferId = std::numeric_limits<size_t>::max();
+  size_t RequestedFrameBufferId = std::numeric_limits<size_t>::max();
+  std::array<bool, FrameBufferCount> ClearedFrameBuffers;
   glm::vec<2, size_t> Resolution;
 
   BgfxHandle<bgfx::DynamicIndexBufferHandle> IndexBuffer;

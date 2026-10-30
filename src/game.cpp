@@ -456,7 +456,6 @@ void Update(float dt) {
 static void RenderMain() {
   Background2D::LastRenderedBackground = nullptr;
   UI::GameSpecific::RenderEarlyMain();
-  std::array<bool, FrameBufferCount> cleared{};
 
   for (uint32_t layer = 0; layer <= Profile::Game::LayerCount; layer++) {
     if (Profile::Vm::GameInstructionSet == Vm::InstructionSet::CC ||
@@ -465,11 +464,6 @@ static void RenderMain() {
       if (0 <= renderTarget &&
           static_cast<size_t>(renderTarget) < FrameBufferCount) {
         Renderer->SetFrameBuffer(renderTarget);
-
-        if (!cleared[renderTarget]) {
-          Renderer->ClearFrameBuffer(renderTarget);
-          cleared[renderTarget] = true;
-        }
       }
     }
 

@@ -338,8 +338,6 @@ class BaseRenderer {
 
   virtual void SetFrameBuffer(size_t buffer) = 0;
   virtual TextureRef GetFrameBufferTexture(size_t buffer) = 0;
-  virtual void ClearFrameBuffer(size_t buffer,
-                                glm::vec4 color = glm::vec4(0.0f)) = 0;
 
   virtual void SetScissorRect(std::optional<RectF> rect) = 0;
 
