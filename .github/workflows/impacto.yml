@@ -104,7 +104,7 @@ jobs:
             (github.event.pull_request.head.repo.full_name != github.repository)
             && 'clear;nuget,https://nuget.pkg.github.com/committeeofzero/index.json,read'
             || 'clear;nuget,https://nuget.pkg.github.com/committeeofzero/index.json,readwrite' }}
-      vcpkgCommitId: '62159a45e18f3a9ac0548628dcaf74fcb60c6ff9'
+      vcpkgCommitId: 'fa9a5b330aed997a68310ed56418617b87a3b83d'
       PresetName: ${{ (matrix.os_name == 'android') && 'ci-release-android' || 'ci-release' }}
       VERSION: ${{ needs.get-version.outputs.VERSION }}
       VCPKG_FORCE_DOWNLOADED_BINARIES: 1
@@ -230,7 +230,7 @@ jobs:
     env:
       VERSION: ${{ needs.get-version.outputs.VERSION }}
       PresetName: ci-release-switch
-      vcpkgCommitId: '62159a45e18f3a9ac0548628dcaf74fcb60c6ff9'
+      vcpkgCommitId: 'fa9a5b330aed997a68310ed56418617b87a3b83d'
       VCPKG_FORCE_DOWNLOADED_BINARIES: 1
       VCPKG_BINARY_SOURCES: >-
         ${{ github.event_name == 'pull_request_target' &&
