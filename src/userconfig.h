@@ -43,6 +43,7 @@ struct GameConfig {
   std::optional<int> ResolutionHeight;
   std::string PatchProfile;
   bool UsePatch;
+  bool UseVSync = true;
   DisplayMode Display = GetDefaultDispMode();
 };
 struct Config {
@@ -84,6 +85,7 @@ struct EnhancementsConfig {
 };
 
 GameConfig& ActiveGameSettings();
+bool GetEffectiveVSync();
 void WriteUserConfig();
 void RestoreSettingsDefaults();
 

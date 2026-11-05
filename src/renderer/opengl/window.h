@@ -10,6 +10,7 @@ class GLWindow : public BaseWindow {
   void Init() override;
   void SetDimensions(int width, int height, int msaa,
                      float renderScale) override;
+  void SetVSync(bool vsync) override;
   void SwapRTs() override;
   void Update() override;
   void Draw() override;
