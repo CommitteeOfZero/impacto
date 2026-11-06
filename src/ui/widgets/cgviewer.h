@@ -14,6 +14,7 @@ namespace Widgets {
 
 int constexpr MaxCgViewerCgs = 3;
 int constexpr MaxCgViewerVariations = 15;
+float constexpr MaxScale = 1.5f;
 
 class CgViewer : public Widget {
  public:

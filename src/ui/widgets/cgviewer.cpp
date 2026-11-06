@@ -58,10 +58,10 @@ void CgViewer::UpdateInput(float dt) {
   }
 
   Scale += Input::MouseWheelDeltaY / ScrollwheelDeltaDivider;
-  if (PADinputButtonIsDown & PAD1L1) {
+  if (PADinputButtonIsDown & PAD1X) {
     Scale -= ScaleStep;
   }
-  if (PADinputButtonIsDown & PAD1R1) {
+  if (PADinputButtonIsDown & PAD1Y) {
     Scale += ScaleStep;
   }
 
@@ -70,7 +70,7 @@ void CgViewer::UpdateInput(float dt) {
   }
   Input::ClearPinchGesture();
 
-  Scale = std::max(Scale, MinScale[CurrentVariation]);
+  Scale = std::clamp(Scale, MinScale[CurrentVariation], MaxScale);
 
   if ((PADinputButtonIsDown & (PAD1LEFT | PAD1RIGHT | PAD1UP | PAD1DOWN)) ||
       isLMBDown) {
@@ -140,7 +140,7 @@ void CgViewer::UpdateInput(float dt) {
 
     if (sameOrientation) {
       Position[CurrentVariation] = Position[CurrentVariation - 1];
-      Scale = std::max(PrevScale, MinScale[CurrentVariation]);
+      Scale = std::clamp(PrevScale, MinScale[CurrentVariation], MaxScale);
     } else {
       Position[CurrentVariation] =
           HorizontalRendering[CurrentVariation]
