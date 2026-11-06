@@ -1117,8 +1117,15 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
 
     list(APPEND Impacto_Src src/debugmenu.cpp)
     list(APPEND Impacto_Header src/debugmenu.h)
-    list(APPEND Impacto_Src src/overlay.cpp)
-    list(APPEND Impacto_Header src/overlay.h)
+
+    list(APPEND Impacto_Src
+        src/overlay/overlay.cpp
+        src/overlay/settingspage.cpp
+    )
+    list(APPEND Impacto_Header
+        src/overlay/overlay.h
+        src/overlay/settingspage.h
+    )
 
     if (NOT DEFINED IMPACTO_DISABLE_OPENGL)
         list(APPEND imgui_src
