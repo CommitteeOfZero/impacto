@@ -337,33 +337,48 @@ void MusicMenu::UpdateInput(float dt) {
   }
   if (State == Shown) {
     const float prevScrollPos = ScrollY;
-    auto checkScrollBounds = [&]() {
-      return !TrackListBounds.Intersects(CurrentlyFocusedElement->Bounds);
+    auto currentItemOutOfBounds = [&]() {
+      const auto itemY = std::round(CurrentlyFocusedElement->Bounds.Y);
+      return itemY < TrackListBounds.Y ||
+             (TrackListBounds.Y + TrackListBounds.Height <= itemY);
     };
 
-    if (CurrentlyFocusedElement != prevFocus && checkScrollBounds()) {
-      if (CurrentlyFocusedElement == MainItems->GetFirstFocusableChild()) {
+    const bool focusChanged = CurrentlyFocusedElement != prevFocus;
+    const bool currentItemOOB = currentItemOutOfBounds();
+    const bool changedToOOB = focusChanged && currentItemOOB;
+    const bool navByButtons =
+        focusChanged && !currentItemOOB &&
+        Input::CurrentInputDevice != Input::Device::Mouse &&
+        (PADinputButtonIsDown & (FDIR_DOWN | FDIR_UP | FDIR_LEFT | FDIR_RIGHT));
+
+    if (changedToOOB) {
+      auto* firstFocusable = MainItems->GetFirstFocusableChild();
+
+      if (CurrentlyFocusedElement == firstFocusable) {
         ScrollY = 0;
       } else if (CurrentlyFocusedElement == MainItems->Children.back()) {
         ScrollY = MainScrollbar.EndValue;
+      } else {
+        // if focused item is out of bounds, then scroll to it
+        float targetScroll =
+            CurrentlyFocusedElement->Bounds.Y - firstFocusable->Bounds.Y;
+        ScrollY = (targetScroll <= ScrollY)
+                      ? targetScroll
+                      : targetScroll - SelectableItemsPerPage * TrackOffset.y;
+        MainScrollbar.ClampValue();
       }
-    }
-
-    // imitate gamepad's d-pad/keyboard controls behavior, when scrolling out of
-    // bounds
-    bool dirButtonPressed =
-        PADinputButtonIsDown & (FDIR_DOWN | FDIR_UP | FDIR_LEFT | FDIR_RIGHT);
-    if (Input::CurrentInputDevice != Input::Device::Mouse && dirButtonPressed) {
-      int currentLowerBound = (int)(ScrollY / TrackOffset.y);
-      int currentUpperBound = currentLowerBound + SelectableItemsPerPage;
-      auto btnId = static_cast<Widgets::CHLCC::TrackSelectButton*>(
-                       CurrentlyFocusedElement)
-                       ->Id;
-      if (btnId == currentLowerBound && btnId != 0) {
+    } else if (navByButtons) {
+      // imitate d-pad/keyboard behavior when scrolling out of bounds
+      int lowerBound = (int)(ScrollY / TrackOffset.y);
+      int upperBound = lowerBound + SelectableItemsPerPage;
+      int btnId = static_cast<Widgets::CHLCC::TrackSelectButton*>(
+                      CurrentlyFocusedElement)
+                      ->Id;
+      if (btnId == lowerBound && btnId != 0) {
         ScrollY -= TrackOffset.y;
       }
 
-      if (btnId == currentUpperBound && btnId != MusicTrackCount - 1) {
+      if (btnId == upperBound && btnId != MusicTrackCount - 1) {
         ScrollY += TrackOffset.y;
       }
       MainScrollbar.ClampValue();
