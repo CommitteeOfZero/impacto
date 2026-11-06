@@ -61,8 +61,15 @@ void TipsSystem::DataInit(uint32_t scriptBufferId, uint32_t tipsDataAdr,
         .IsUnread = true,
         .IsNew = true,
     };
-    ReadLE<uint16_t>(&stream);  // Reads in a padding space string
-    for (uint16_t i = 0; i < record.NumberOfContentStrings + 3; i++) {
+    if (Profile::Vm::GameInstructionSet != InstructionSet::LCCSwitch) {
+      ReadLE<uint16_t>(&stream);  // Reads in a padding space string
+    }
+    for (uint16_t i = 0;
+         i < record.NumberOfContentStrings +
+                 (Profile::Vm::GameInstructionSet == InstructionSet::LCCSwitch
+                      ? 4
+                      : 3);
+         i++) {
       uint32_t stringId = Profile::Vm::StringIdSize == 4
                               ? ReadLE<uint32_t>(&stream)
                               : ReadLE<uint16_t>(&stream);

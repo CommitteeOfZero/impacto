@@ -3,6 +3,7 @@
 #include "../../profile/ui/sysmesbox.h"
 #include "../../profile/games/chlcc/sysmesbox.h"
 #include "../../profile/dialogue.h"
+#include "../../profile/vm.h"
 #include "../../profile/scriptvars.h"
 #include "../../mem.h"
 #include "../../renderer/renderer.h"
@@ -195,6 +196,7 @@ void SysMesBox::AddMessage(Vm::BufferOffsetContext ctx) {
   Impacto::Vm::Sc3VmThread dummy;
   dummy.IpOffset = ctx.IpOffset;
   dummy.ScriptBufferId = ctx.BufferId;
+  dummy.UseMSBBuffers = Profile::Vm::UseMsbStrings;
   Messages[MessageCount] =
       TextLayoutPlainLine(&dummy, 255, *Profile::Dialogue::DialogueFont,
                           TextFontSize, Profile::Dialogue::ColorTable[0], 1.0f,
@@ -207,6 +209,7 @@ void SysMesBox::AddChoice(Vm::BufferOffsetContext ctx) {
   Impacto::Vm::Sc3VmThread dummy;
   dummy.IpOffset = ctx.IpOffset;
   dummy.ScriptBufferId = ctx.BufferId;
+  dummy.UseMSBBuffers = Profile::Vm::UseMsbStrings;
   Choices[ChoiceCount] =
       TextLayoutPlainLine(&dummy, 255, *Profile::Dialogue::DialogueFont,
                           TextFontSize, Profile::Dialogue::ColorTable[0], 1.0f,

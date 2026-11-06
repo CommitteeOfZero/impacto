@@ -108,6 +108,7 @@ inline float IntroExplodingStarAnimationDuration;
 inline float IntroExplodingStarRotationAnimationDuration;
 
 inline Sprite IntroBouncingStarSprite;
+inline float IntroBouncingStarBaseYOffset;
 inline float IntroStarBounceAnimationDuration;
 
 inline Sprite IntroFallingStarSprite;

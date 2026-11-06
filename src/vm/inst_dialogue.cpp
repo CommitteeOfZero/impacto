@@ -14,6 +14,7 @@
 #include "../hud/tipsnotification.h"
 #include "../data/savesystem.h"
 #include "../data/tipssystem.h"
+#include "../profile/data/tipssystem.h"
 #include "../ui/ui.h"
 #include "interface/input.h"
 #include "../text/dialoguepage.h"
@@ -1175,8 +1176,7 @@ VmInstruction(InstTips) {
       uint32_t tipsDataSize =
           ScriptGetLabelSize(thread->ScriptBufferId, tipsLabelNum);
       TipsSystem::DataInit(thread->ScriptBufferId, tipsDataAdr, tipsDataSize);
-      if (Profile::Vm::GameInstructionSet == InstructionSet::CC ||
-          Profile::Vm::GameInstructionSet == InstructionSet::LCCSwitch) {
+      if (Profile::TipsSystem::Type == TipsSystem::TipsSystemType::CCLCC) {
         UI::TipsMenuPtr->Init();
       }
     } break;
