@@ -96,6 +96,7 @@ void AlbumMenu::Init() {
 void AlbumMenu::Show() {
   if (State != Shown) {
     if (State != Showing) {
+      ShowButtonPrompt = true;
       MenuTransition.StartIn();
       SelectAnimation.StartIn(true);
     };
@@ -140,11 +141,13 @@ void AlbumMenu::Render() {
   if (MenuTransition.Progress < 0.22f) return;
 
   DrawPage();
-  CgViewerGroup->Render();
   // show only when CGViewer is hidden, hiding, showing
   if (!CgViewerWidget->IsShown()) {
     CommonMenu::DrawButtonPrompt(ButtonGuide, ButtonGuidePos);
   }
+  CgViewerGroup->Render();
+
+  if (!ShowButtonPrompt) return;
   if (CgViewerWidget->IsFadingBetweenVariations() &&
       CgViewerWidget->IsOnLastVariation()) {
     float progress = CgViewerWidget->GetVariationFadeProgress();
@@ -177,6 +180,9 @@ void AlbumMenu::UpdateInput(float dt) {
       } else {
         SetFlag(SF_ALBUMEND, true);
       }
+    }
+    if (PADinputButtonWentDown & PAD1L1) {
+      ShowButtonPrompt = !ShowButtonPrompt;
     }
     const auto updatePage = [&](int nextPage) {
       PrevPage = CurrentPage;
