@@ -272,6 +272,20 @@ void SaveMenu::UpdateInput(float dt) {
   if (IsFocused) {
     SavePages->at(*CurrentPage)->UpdateInput(dt);
 
+    if ((Input::CurrentInputDevice == Input::Device::Mouse ||
+         Input::CurrentInputDevice == Input::Device::Touch) &&
+        (PADinputMouseWentDown & PAD1A)) {
+      const auto& entries = SavePages->at(*CurrentPage)->Children;
+      const bool noEntriesHovered =
+          std::none_of(entries.begin(), entries.end(),
+                       [](const Widget* entry) { return entry->Hovered; });
+
+      if (noEntriesHovered) {
+        PADinputMouseWentDown &= ~PAD1A;
+        PADinputButtonWentDown &= ~PAD1A;
+      }
+    }
+
     const bool nextPage = Input::MouseWheelDeltaY < 0 ||
                           PADinputButtonWentDown & PADcustom[8] ||
                           Input::TouchFlickUp || Input::TouchFlickLeft;
