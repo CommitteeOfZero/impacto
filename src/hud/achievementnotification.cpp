@@ -6,7 +6,7 @@
 #include "../inputsystem.h"
 #include "../io/physicalfilestream.h"
 #include "../log.h"
-#include "../overlay.h"
+#include "../overlay/overlay.h"
 #include "../profile/game.h"
 #include "../profile/hud/achievementnotification.h"
 #include "../renderer/renderer.h"

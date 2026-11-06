@@ -1,6 +1,9 @@
+#pragma once
 
+#include <optional>
 
 namespace Impacto::Overlay {
+
 enum class OverlayTab : int8_t {
   Settings,
   Enhancements,
@@ -13,4 +16,5 @@ inline std::optional<OverlayTab> RequestedTab = OverlayTab::Settings;
 
 void Init();
 void Show();
+
 }  // namespace Impacto::Overlay

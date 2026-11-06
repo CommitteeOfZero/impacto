@@ -10,7 +10,7 @@
 #include "renderer/opengl/glc.h"
 
 #ifndef IMPACTO_DISABLE_IMGUI
-#include "overlay.h"
+#include "overlay/overlay.h"
 #endif
 
 #include "ui/ui.h"
