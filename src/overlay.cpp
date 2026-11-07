@@ -420,6 +420,10 @@ static void ShowGamePicker(std::string& selectedGame) {
     dispModeRadio("Fullscreen", DisplayMode::Fullscreen);
     ImGui::SameLine();
     dispModeRadio("Borderless", DisplayMode::Borderless);
+
+    if (ImGui::Checkbox("Vertical Synchronization", &gameSettings.UseVSync)) {
+      wasUpdated = true;
+    }
   }
 
   return wasUpdated;

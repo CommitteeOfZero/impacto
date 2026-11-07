@@ -98,6 +98,7 @@ TOML11_DEFINE_CONVERSION_NON_INTRUSIVE(
   Impacto::UserConfig::GameConfig,
   ResolutionWidth,
   ResolutionHeight,
+  UseVSync,
   PatchProfile,
   UsePatch,
   Display
@@ -267,6 +268,13 @@ void RestoreSettingsDefaults() {
 }
 
 GameConfig& ActiveGameSettings() { return GameSettings[GetActiveGame()]; }
+
+bool GetEffectiveVSync() {
+  if (!ActiveGame.empty()) {
+    return ActiveGameSettings().UseVSync;
+  }
+  return true;
+}
 
 std::string const& GetActiveGame() { return ActiveGame; }
 

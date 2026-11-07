@@ -38,6 +38,7 @@ class BaseWindow {
   virtual void Init() = 0;
   virtual void SetDimensions(int width, int height, int msaa,
                              float renderScale) = 0;
+  virtual void SetVSync(bool vsync) { VSync = vsync; }
   // Aspect ratio corrected viewport in pixel window coordinates
   RectF GetViewport();
   RectF GetLogicalViewport();
@@ -69,6 +70,7 @@ class BaseWindow {
   bool CreateSDLWindow(SDL_WindowFlags flags);
   virtual void UpdateDimensions() = 0;
   bool IsInit = false;
+  bool VSync = true;
 
   int lastWidth = -1;
   int lastHeight = -1;
