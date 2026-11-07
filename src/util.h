@@ -580,4 +580,14 @@ constexpr auto operator+(E e) noexcept {
   return to_underlying(e);
 }
 
+template <typename T>
+concept is_map_type =
+    is_any_of_v<typename T::value_type,
+                std::pair<const typename T::key_type, typename T::mapped_type>,
+                std::pair<typename T::key_type, typename T::mapped_type>>;
+
+template <typename T>
+concept is_vector_type = std::is_same_v<
+    T, std::vector<typename T::value_type, typename T::allocator_type>>;
+
 }  // namespace Impacto
