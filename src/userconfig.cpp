@@ -163,15 +163,46 @@ static void MergeToml(toml::value& base, const toml::value& other) {
 }
 
 template <typename T>
+static T LoadMerged(const toml::value& loadedCfgEntry, const T& defaultValue) {
+  if constexpr (is_map_type<T>) {
+    if (!loadedCfgEntry.is_table())
+      throw std::runtime_error("Expected a table for map type in user config");
+
+    using mapped_type = typename T::mapped_type;
+    T result;
+    for (const auto& [k, v] : loadedCfgEntry.as_table()) {
+      auto value = LoadMerged<mapped_type>(v, mapped_type{});
+      result.emplace(k, value);
+    }
+    return result;
+
+  } else if constexpr (is_vector_type<T>) {
+    if (!loadedCfgEntry.is_array())
+      throw std::runtime_error(
+          "Expected an array for vector type in user config");
+
+    using value_type = typename T::value_type;
+    T result;
+    for (const auto& v : loadedCfgEntry.as_array()) {
+      auto value = LoadMerged<typename T::value_type>(v, value_type{});
+      result.push_back(value);
+    }
+    return result;
+
+  } else {
+    toml::value result{defaultValue};
+    MergeToml(result, loadedCfgEntry);
+    return toml::get<T>(result);
+  }
+}
+
+template <typename T>
 static T LoadConfigValueOr(const toml::value& config, const std::string& key,
                            T defaultValue = T{}) {
-  toml::value result{defaultValue};
-  if (config.contains(key)) {
-    toml::value const& loadedCfgEntry = config.at(key);
-    MergeToml(result, loadedCfgEntry);
-  }
-
-  return toml::get<T>(result);
+  if (!config.contains(key))
+    return defaultValue;
+  else
+    return LoadMerged<T>(config.at(key), defaultValue);
 }
 
 static std::unique_ptr<Io::PhysicalFileStream> openTomlFile(
