@@ -1120,12 +1120,18 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
 
     list(APPEND Impacto_Src
         src/overlay/overlay.cpp
+        src/overlay/utils.cpp
+
+        src/overlay/aboutpage.cpp
         src/overlay/achievementspage.cpp
         src/overlay/enhancementspage.cpp
         src/overlay/settingspage.cpp
     )
     list(APPEND Impacto_Header
         src/overlay/overlay.h
+        src/overlay/utils.h
+
+        src/overlay/aboutpage.h
         src/overlay/achievementspage.h
         src/overlay/enhancementspage.h
         src/overlay/settingspage.h
