@@ -390,6 +390,7 @@ set(Impacto_Src
     src/audio/audiosystem.cpp
     src/audio/audiochannel.cpp
     src/audio/audiostream.cpp
+    src/audio/controlleraudio.cpp
     src/audio/vorbisaudiostream.cpp
     src/audio/atrac9audiostream.cpp
     src/audio/adxaudiostream.cpp
@@ -770,6 +771,7 @@ set(Impacto_Header
     src/audio/audiosystem.h
     src/audio/audiocommon.h
     src/audio/audiochannel.h
+    src/audio/controlleraudio.h
     src/audio/audiostream.h
     src/audio/buffering.h
     src/audio/ffmpegaudioplayer.h
