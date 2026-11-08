@@ -117,15 +117,11 @@ std::optional<T> TryGet();
 
 // generic map getter
 template <typename T>
-  requires is_any_of_v<
-      typename T::value_type,
-      std::pair<const typename T::key_type, typename T::mapped_type>,
-      std::pair<typename T::key_type, typename T::mapped_type>>
+  requires is_map_type<T>
 std::optional<T> TryGet();
 
 template <typename T>
-  requires std::is_same_v<
-      T, std::vector<typename T::value_type, typename T::allocator_type>>
+  requires is_vector_type<T>
 std::optional<T> TryGet();
 
 template <typename T>
@@ -422,10 +418,7 @@ inline std::optional<T> TryGet() {
 
 // generic map getter
 template <typename T>
-  requires is_any_of_v<
-      typename T::value_type,
-      std::pair<const typename T::key_type, typename T::mapped_type>,
-      std::pair<typename T::key_type, typename T::mapped_type>>
+  requires is_map_type<T>
 inline std::optional<T> TryGet() {
   if (!lua_istable(LuaState, -1)) return std::nullopt;
 
@@ -438,8 +431,7 @@ inline std::optional<T> TryGet() {
 }
 
 template <typename T>
-  requires std::is_same_v<
-      T, std::vector<typename T::value_type, typename T::allocator_type>>
+  requires is_vector_type<T>
 inline std::optional<T> TryGet() {
   if (!lua_istable(LuaState, -1)) return std::nullopt;
 
