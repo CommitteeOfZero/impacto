@@ -1,33 +1,33 @@
 #include "overlay.h"
 
 #include <imgui.h>
-#include <imgui_scroll_drag.h>
 #include <algorithm>
 #include <vector>
-#include <ankerl/unordered_dense.h>
 #include <magic_enum/magic_enum_containers.hpp>
 
 #ifdef __ANDROID__
 #include <jni.h>
+
+#include "../profile/profile.h"
 #endif
 
-#include "game.h"
-#include "log.h"
-#include "inputsystem.h"
-#include "mem.h"
-#include "profile/profile.h"
-#include "profile/game.h"
-#include "profile/gamedefinitions.h"
-#include "profile/basepaths.h"
-#include "profile/scriptvars.h"
-#include "profile/patch.h"
-#include "userconfig.h"
-#include "version.h"
-#include "io/physicalfilestream.h"
-#include "io/filemeta.h"
-#include "data/achievementsystem.h"
+#include "utils.h"
 
-using namespace Impacto::Profile::ScriptVars;
+#include "aboutpage.h"
+#include "achievementspage.h"
+#include "enhancementspage.h"
+#include "settingspage.h"
+
+#include "../game.h"
+#include "../log.h"
+#include "../inputsystem.h"
+#include "../profile/game.h"
+#include "../profile/gamedefinitions.h"
+#include "../profile/basepaths.h"
+#include "../userconfig.h"
+#include "../io/physicalfilestream.h"
+#include "../io/filemeta.h"
+#include "../data/achievementsystem.h"
 
 namespace Impacto::Overlay {
 
@@ -86,18 +86,6 @@ static void ShowDirectoryPickerButton() {
   ImGui::Spacing();
 }
 #endif
-
-static std::string GetGameDisplayName(std::string const& gameKey) {
-  auto const& name = Profile::GameDefinitions.at(gameKey).Name;
-  return name.empty() ? gameKey : name;
-}
-
-static void ShowPlayTime(char const* label, int totalSeconds) {
-  int hours = totalSeconds / 3600;
-  int minutes = (totalSeconds % 3600) / 60;
-  int seconds = totalSeconds % 60;
-  ImGui::Text("%s: %02d:%02d:%02d", label, hours, minutes, seconds);
-}
 
 static ImVec4 GetAccentColor(std::string const& gameKey) {
   auto gameDefIt = Profile::GameDefinitions.find(gameKey);
@@ -336,295 +324,6 @@ static void ShowGamePicker(std::string& selectedGame) {
   ImGui::Spacing();
 }
 
-[[maybe_unused]] static bool ShowDisplaySettings(
-    std::string const& selectedGame) {
-  auto& gameSettings = UserConfig::GameSettings.at(selectedGame);
-
-  const float comboWidth = 200.0f * Window->DpiScale;
-
-  constexpr static auto resolutionOptions = std::to_array({
-      std::pair{"1024x576", glm::ivec2{1024, 576}},
-      std::pair{"1280x720", glm::ivec2{1280, 720}},
-      std::pair{"1366x768", glm::ivec2{1366, 768}},
-      std::pair{"1600x900", glm::ivec2{1600, 900}},
-      std::pair{"1920x1080", glm::ivec2{1920, 1080}},
-      std::pair{"2560x1440", glm::ivec2{2560, 1440}},
-      std::pair{"3840x2160", glm::ivec2{3840, 2160}},
-  });
-
-  bool wasUpdated = false;
-  ImGui::Spacing();
-  if (ImGui::CollapsingHeader("Display Settings",
-                              ImGuiTreeNodeFlags_DefaultOpen)) {
-    static std::string currentResolution;
-
-    static std::optional<int> lastResWidth;
-    static std::optional<int> lastResHeight;
-
-    if (currentResolution.empty() ||
-        lastResWidth != gameSettings.ResolutionWidth ||
-        lastResHeight != gameSettings.ResolutionHeight) {
-      if (gameSettings.ResolutionWidth && gameSettings.ResolutionHeight) {
-        currentResolution = fmt::format("{}x{}", *gameSettings.ResolutionWidth,
-                                        *gameSettings.ResolutionHeight);
-      } else {
-        currentResolution = "Native Game Res";
-      }
-      wasUpdated = true;
-      lastResWidth = gameSettings.ResolutionWidth;
-      lastResHeight = gameSettings.ResolutionHeight;
-    }
-
-    SDL_DisplayMode maxRes{};
-    if (const SDL_DisplayMode* desktopMode =
-            SDL_GetDesktopDisplayMode(SDL_GetPrimaryDisplay())) {
-      maxRes = *desktopMode;
-    }
-
-    ImGui::AlignTextToFramePadding();
-    ImGui::Text("Game Resolution");
-    ImGui::SameLine();
-    ImGui::SetNextItemWidth(comboWidth);
-    if (ImGui::BeginCombo("##ChooseResolution", currentResolution.c_str())) {
-      bool isNativeRes =
-          !gameSettings.ResolutionWidth || !gameSettings.ResolutionHeight;
-      if (ImGui::Selectable("Native Game Res", isNativeRes)) {
-        gameSettings.ResolutionWidth.reset();
-        gameSettings.ResolutionHeight.reset();
-      }
-      if (isNativeRes) ImGui::SetItemDefaultFocus();
-      for (auto&& [display, value] : resolutionOptions) {
-        if (value.x > maxRes.w || value.y > maxRes.h) continue;
-        bool isSelected = gameSettings.ResolutionWidth == value.x &&
-                          gameSettings.ResolutionHeight == value.y;
-        if (ImGui::Selectable(display, isSelected)) {
-          gameSettings.ResolutionWidth = value.x;
-          gameSettings.ResolutionHeight = value.y;
-        }
-        if (isSelected) ImGui::SetItemDefaultFocus();
-      }
-      ImGui::EndCombo();
-    }
-
-    ImGui::SameLine();
-
-    auto dispModeRadio = [&](char const* const label, DisplayMode mode) {
-      if (ImGui::RadioButton(label, gameSettings.Display == mode)) {
-        wasUpdated = true;
-        gameSettings.Display = mode;
-      }
-    };
-
-    dispModeRadio("Windowed", DisplayMode::Windowed);
-    ImGui::SameLine();
-    dispModeRadio("Fullscreen", DisplayMode::Fullscreen);
-    ImGui::SameLine();
-    dispModeRadio("Borderless", DisplayMode::Borderless);
-
-    if (ImGui::Checkbox("Vertical Synchronization", &gameSettings.UseVSync)) {
-      wasUpdated = true;
-    }
-  }
-
-  return wasUpdated;
-}
-
-static void ShowPatchSettings(std::string const& selectedGame) {
-  const float comboWidth = 200.0f * Window->DpiScale;
-
-  auto& gameSettings = UserConfig::GameSettings.at(selectedGame);
-  auto const& gameDef = Profile::GameDefinitions.at(selectedGame);
-
-  if (ImGui::CollapsingHeader("Patch Settings",
-                              ImGuiTreeNodeFlags_DefaultOpen)) {
-    if (Profile::Game::HasInit) {
-      ImGui::SameLine();
-      ImGui::Text("(Will apply on next launch)");
-    }
-    ImGui::Spacing();
-
-    ImGui::Checkbox("Use Patch", &gameSettings.UsePatch);
-
-    ImGui::SameLine();
-    ImGui::SetNextItemWidth(comboWidth);
-
-    ImGui::BeginDisabled(!gameSettings.UsePatch);
-    if (ImGui::BeginCombo("Patch Profile", gameSettings.PatchProfile.c_str())) {
-      for (auto&& [patchProfile, _] : gameDef.Patch) {
-        const bool isSelected = patchProfile == gameSettings.PatchProfile;
-        if (ImGui::Selectable(patchProfile.c_str(), isSelected)) {
-          gameSettings.PatchProfile = patchProfile;
-        }
-        if (isSelected) ImGui::SetItemDefaultFocus();
-      }
-      ImGui::EndCombo();
-    }
-    ImGui::EndDisabled();
-  }
-}
-
-static void ShowCommonSettings() {
-  const float comboWidth = 200.0f * Window->DpiScale;
-
-  if (ImGui::CollapsingHeader("General Settings",
-                              ImGuiTreeNodeFlags_DefaultOpen)) {
-    ImGui::Spacing();
-
-    auto& commonSettings = UserConfig::CommonSettings;
-    ImGui::Checkbox("Swap Confirm/Cancel Buttons",
-                    &commonSettings.SwapConfirmCancelButtons);
-    ImGui::Checkbox("Log to Console", &commonSettings.LoggingToConsole);
-    if (ImGui::Checkbox("Log to File", &commonSettings.LoggingToFile)) {
-      LogInitFile();
-    }
-    if (ImGui::TreeNode("Log Channels")) {
-      for (auto&& [channelValue, channelName] :
-           magic_enum::enum_entries<LogChannel>()) {
-        bool isSelected = magic_enum::enum_flags_test(
-            commonSettings.LogChannels, channelValue);
-        ImGui::Checkbox(channelName.data(), &isSelected);
-        if (isSelected) commonSettings.LogChannels |= channelValue;
-        if (!isSelected) commonSettings.LogChannels &= ~channelValue;
-      }
-      ImGui::TreePop();
-    }
-
-    ImGui::AlignTextToFramePadding();
-    ImGui::Text("Log Level");
-    ImGui::SameLine();
-    ImGui::SetNextItemWidth(comboWidth);
-    if (ImGui::BeginCombo(
-            "##LogLevel",
-            magic_enum::enum_name(commonSettings.LogLvl).data())) {
-      for (auto&& logLevel : magic_enum::enum_values<LogLevel>()) {
-        const bool isSelected = logLevel == commonSettings.LogLvl;
-        if (ImGui::Selectable(magic_enum::enum_name(logLevel).data(),
-                              isSelected)) {
-          commonSettings.LogLvl = logLevel;
-        }
-        if (isSelected) ImGui::SetItemDefaultFocus();
-      }
-      ImGui::EndCombo();
-    }
-  }
-}
-
-static void ShowSettingsPage(std::string const& selectedGame) {
-  const float footerHeight = ImGui::GetStyle().ItemSpacing.y +
-                             ImGui::GetStyle().SeparatorSize +
-                             ImGui::GetFrameHeightWithSpacing();
-
-  static bool displayChanged = false;
-  if (ImGui::BeginChild("##SettingsContent", ImVec2(0, -footerHeight))) {
-    ShowCommonSettings();
-    ImGui::Spacing();
-    if (!selectedGame.empty()) {
-#if !defined(__ANDROID__) && !defined(__SWITCH__)
-      displayChanged |= ShowDisplaySettings(selectedGame);
-      ImGui::Spacing();
-#endif
-
-      ShowPatchSettings(selectedGame);
-    }
-    ImGui::ScrollWhenDraggingOnVoid(ImVec2{0.0f, -ImGui::GetIO().MouseDelta.y},
-                                    ImGuiMouseButton_Left);
-  }
-  ImGui::EndChild();
-
-  constexpr auto restoreDefaultsLabel = "Restore Defaults";
-  constexpr auto saveConfigLabel = "Save Config";
-  constexpr auto applyDisplayLabel = "Apply Display Changes";
-  float buttonsWidth = ImGui::CalcTextSize(restoreDefaultsLabel).x +
-                       ImGui::CalcTextSize(saveConfigLabel).x +
-                       ImGui::GetStyle().FramePadding.x * 4 +
-                       ImGui::GetStyle().ItemSpacing.x;
-
-  if (displayChanged && Profile::Game::HasInit) {
-    buttonsWidth += ImGui::CalcTextSize(applyDisplayLabel).x +
-                    ImGui::GetStyle().FramePadding.x * 2 +
-                    ImGui::GetStyle().ItemSpacing.x;
-  }
-
-  ImGui::SetCursorPosX(ImGui::GetCursorPosX() +
-                       ImGui::GetContentRegionAvail().x - buttonsWidth);
-  if (displayChanged && Profile::Game::HasInit) {
-    if (ImGui::Button(applyDisplayLabel)) {
-      Window->ApplyWindowSettings();
-      displayChanged = false;
-    }
-    ImGui::SameLine();
-  }
-  if (ImGui::Button(restoreDefaultsLabel)) {
-    UserConfig::RestoreSettingsDefaults();
-  }
-  ImGui::SameLine();
-  if (ImGui::Button(saveConfigLabel)) {
-    UserConfig::WriteUserConfig();
-  }
-}
-
-static void ShowEnhancementsPage(std::string const& selectedGame) {
-  const float footerHeight = ImGui::GetStyle().ItemSpacing.y +
-                             ImGui::GetStyle().SeparatorSize +
-                             ImGui::GetFrameHeightWithSpacing();
-  auto& enhancements = UserConfig::EnhancementsSettings;
-
-  if (ImGui::BeginChild("##EnhancementsContent", ImVec2(0, -footerHeight))) {
-    ImGui::Spacing();
-
-    if (ImGui::TreeNode("Subtitle Config")) {
-      using enum Profile::Subtitle::SubtitleConfigType;
-      bool tlOn =
-          magic_enum::enum_flags_test(enhancements.SubtitleConfig, Translation);
-      if (ImGui::Checkbox("Translation", &tlOn)) {
-        if (tlOn) enhancements.SubtitleConfig |= Translation;
-        if (!tlOn) enhancements.SubtitleConfig &= ~Translation;
-      }
-
-      bool karaOn =
-          magic_enum::enum_flags_test(enhancements.SubtitleConfig, Karaoke);
-      if (ImGui::Checkbox("Karaoke", &karaOn)) {
-        if (karaOn) enhancements.SubtitleConfig |= Karaoke;
-        if (!karaOn) enhancements.SubtitleConfig &= ~Karaoke;
-      }
-
-      ImGui::TreePop();
-    }
-
-    ImGui::Checkbox("Close Backlog on Scroll End",
-                    &enhancements.CloseBacklogWhenReachedEnd);
-
-    if (selectedGame == "cclcc") {
-      ImGui::Checkbox("Delusion Trigger Mouse Support",
-                      &enhancements.CCLCC.DelusionMousePatch);
-    } else if (selectedGame == "chlcc") {
-      ImGui::Checkbox("Delusion Trigger Mouse Support",
-                      &enhancements.CHLCC.DelusionMousePatch);
-    }
-  }
-  ImGui::ScrollWhenDraggingOnVoid(ImVec2{0.0f, -ImGui::GetIO().MouseDelta.y},
-                                  ImGuiMouseButton_Left);
-  ImGui::EndChild();
-
-  constexpr auto restoreDefaultsLabel = "Restore Defaults";
-  constexpr auto saveConfigLabel = "Save Config";
-  float buttonsWidth = ImGui::CalcTextSize(restoreDefaultsLabel).x +
-                       ImGui::CalcTextSize(saveConfigLabel).x +
-                       ImGui::GetStyle().FramePadding.x * 4 +
-                       ImGui::GetStyle().ItemSpacing.x;
-
-  ImGui::SetCursorPosX(ImGui::GetCursorPosX() +
-                       ImGui::GetContentRegionAvail().x - buttonsWidth);
-  if (ImGui::Button(restoreDefaultsLabel)) {
-    UserConfig::EnhancementsSettings =
-        decltype(UserConfig::EnhancementsSettings){};
-  }
-  ImGui::SameLine();
-  if (ImGui::Button(saveConfigLabel)) {
-    UserConfig::WriteUserConfig();
-  }
-}
-
 static void ShowCloseButton() {
   ImVec2 closeButtonSize(27 * Window->DpiScale, 27 * Window->DpiScale);
 
@@ -638,120 +337,6 @@ static void ShowCloseButton() {
 
   ImGui::PopStyleVar();
   ImGui::PopStyleVar();
-}
-
-static void ShowAchievementsPage() {
-  using namespace Impacto::AchievementSystem;
-
-  const float lineHeight = ImGui::GetTextLineHeightWithSpacing();
-  const float iconSize = lineHeight * 2.0f;
-  const float cardHeight = iconSize + ImGui::GetStyle().WindowPadding.y * 2.0f;
-
-  static ankerl::unordered_dense::set<int> peekedAchievements;
-
-  auto showCard = [&](int id, const Achievement* ach, bool unlocked) {
-    const bool hidden = ach->Hidden() && !unlocked;
-    const bool peeked = peekedAchievements.contains(id);
-    const bool revealed = !hidden || peeked;
-
-    ImGui::PushID(id);
-    ImGui::PushStyleColor(ImGuiCol_Border, ImVec4{1.0f, 1.0f, 1.0f, 1.0f});
-
-    const ImVec2 cardMin = ImGui::GetCursorScreenPos();
-    const float cardWidth = ImGui::GetContentRegionAvail().x;
-    const ImVec2 cardMax{cardMin.x + cardWidth, cardMin.y + cardHeight};
-    const bool cardHovered = ImGui::IsMouseHoveringRect(cardMin, cardMax);
-
-    if (ImGui::BeginChild("##AchievementCard", ImVec2(cardWidth, cardHeight),
-                          ImGuiChildFlags_Borders,
-                          ImGuiWindowFlags_NoScrollbar |
-                              ImGuiWindowFlags_NoScrollWithMouse)) {
-      Sprite const& icon = unlocked ? ach->Icon() : ach->LockedIcon();
-      if (icon.Sheet.Texture != 0) {
-        RectF uv = icon.NormalizedBounds();
-        ImVec4 tint = unlocked ? ImVec4{1.0f, 1.0f, 1.0f, 1.0f}
-                               : ImVec4{0.25f, 0.25f, 0.25f, 1.0f};
-        ImGui::Image((ImTextureID)(intptr_t)icon.Sheet.Texture,
-                     ImVec2{iconSize, iconSize}, ImVec2{uv.X, uv.Y},
-                     ImVec2{uv.Right(), uv.Bottom()}, tint,
-                     ImVec4{0.0f, 0.0f, 0.0f, 0.0f});
-      } else {
-        ImGui::Dummy(ImVec2{iconSize, iconSize});
-      }
-      ImGui::SameLine();
-
-      ImGui::BeginGroup();
-      ImGui::TextUnformatted(revealed ? ach->Name().c_str()
-                                      : "Hidden achievement");
-
-      if (revealed) {
-        if (!ach->Description().empty()) {
-          ImGui::TextWrapped("%s", ach->Description().c_str());
-        }
-      } else if (cardHovered) {
-        ImGui::TextWrapped("Click to show spoiler.");
-      } else {
-        ImGui::TextWrapped(
-            "Details for this achievement will be revealed once unlocked.");
-      }
-      ImGui::EndGroup();
-    }
-    ImGui::EndChild();
-
-    if (unlocked) {
-      tm const unlockDate = GetAchievementUnlockDate(id);
-      std::string dateText = fmt::format(
-          "{} {:%H:%M:%S}",
-          fmt::format(
-              fmt::runtime(Profile::Patch::DateFormat.FormattedString()),
-              unlockDate),
-          unlockDate);
-      const ImVec2 padding = ImGui::GetStyle().WindowPadding;
-      const ImVec2 dateSize = ImGui::CalcTextSize(dateText.c_str());
-      const ImVec2 datePos{cardMax.x - dateSize.x - padding.x,
-                           cardMin.y + padding.y};
-      ImGui::GetWindowDrawList()->AddText(
-          datePos, ImGui::GetColorU32(ImGuiCol_Text), dateText.c_str());
-    }
-
-    if (hidden && cardHovered) {
-      RequestCursor(CursorType::Pointer);
-      if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-        if (peeked) {
-          peekedAchievements.erase(id);
-        } else {
-          peekedAchievements.insert(id);
-        }
-      }
-    }
-
-    ImGui::PopStyleColor();
-    ImGui::PopID();
-
-    ImGui::Spacing();
-  };
-
-  if (ImGui::BeginChild("##AchievementsContent")) {
-    const size_t count = GetAchievementCount();
-
-    for (size_t id = 0; id < count; id++) {
-      const Achievement* ach = GetAchievement((int)id);
-      if (ach == nullptr || !IsAchievementUnlocked((int)id)) continue;
-      showCard((int)id, ach, true);
-    }
-
-    bool printedLockedHeader = false;
-    for (size_t id = 0; id < count; id++) {
-      const Achievement* ach = GetAchievement((int)id);
-      if (ach == nullptr || IsAchievementUnlocked((int)id)) continue;
-      if (!printedLockedHeader) {
-        ImGui::SeparatorText("Locked Achievements");
-        printedLockedHeader = true;
-      }
-      showCard((int)id, ach, false);
-    }
-  }
-  ImGui::EndChild();
 }
 
 void ShowOverlay() {
@@ -838,22 +423,7 @@ void ShowOverlay() {
 
         if (ImGui::BeginTabItem("About", nullptr,
                                 tabFlags[OverlayTab::About])) {
-          ImGui::Text("Committee of Zero");
-          ImGui::SameLine();
-          ImGui::TextLinkOpenURL("Technical Support",
-                                 "https://discord.gg/hRtvaYawg6");
-          ImGui::Text("Impacto Version %d.%d.%d", VERSION_MAJOR, VERSION_MINOR,
-                      VERSION_PATCH);
-          ImGui::Text("OS: %s", SDL_GetPlatform());
-          ImGui::Text("%.3f ms/frame (%.1f FPS)",
-                      1000.0f / ImGui::GetIO().Framerate,
-                      ImGui::GetIO().Framerate);
-          if (Profile::Game::HasInit) {
-            ImGui::Separator();
-            ImGui::Text("%s", GetGameDisplayName(selectedGame).c_str());
-            ShowPlayTime("Current Session Play Time", ScrWork[SW_PLAYTIME]);
-            ShowPlayTime("Total Play Time", ScrWork[SW_TOTALPLAYTIME]);
-          }
+          ShowAboutPage(selectedGame);
           ImGui::EndTabItem();
         }
         ImGui::EndTabBar();
