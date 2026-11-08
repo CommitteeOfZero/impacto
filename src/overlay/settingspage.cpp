@@ -55,6 +55,23 @@ static void ShowCommonSettings() {
   }
 }
 
+static void ShowControllerAudioSettings() {
+  if (ImGui::CollapsingHeader("DualShock 4 Audio",
+                              ImGuiTreeNodeFlags_DefaultOpen)) {
+    ImGui::SameLine();
+    ImGui::Text(
+        "(Played on headphones plugged into a DualShock 4 connected by USB)");
+    ImGui::Spacing();
+
+    auto& controllerAudio = UserConfig::CommonSettings.ControllerAudio;
+    ImGui::Checkbox("Music", &controllerAudio.BGM);
+    ImGui::Checkbox("Voices", &controllerAudio.Voice);
+    ImGui::Checkbox("Sound Effects", &controllerAudio.SE);
+    ImGui::Checkbox("System Sound Effects", &controllerAudio.SSE);
+    ImGui::Checkbox("Movies", &controllerAudio.Movie);
+  }
+}
+
 [[maybe_unused]] static bool ShowDisplaySettings(
     std::string const& selectedGame) {
   auto& gameSettings = UserConfig::GameSettings.at(selectedGame);
@@ -190,6 +207,8 @@ void ShowSettingsPage(std::string const& selectedGame) {
   static bool displayChanged = false;
   if (ImGui::BeginChild("##SettingsContent", ImVec2(0, -footerHeight))) {
     ShowCommonSettings();
+    ImGui::Spacing();
+    ShowControllerAudioSettings();
     ImGui::Spacing();
     if (!selectedGame.empty()) {
 #if !defined(__ANDROID__) && !defined(__SWITCH__)

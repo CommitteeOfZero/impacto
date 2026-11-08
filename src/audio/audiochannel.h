@@ -40,6 +40,9 @@ class AudioChannel {
   float GetVolume() const { return Volume; }
   void SetVolume(float volume) { Volume = volume; }
 
+  AudioOutputId GetOutput() const { return Output; }
+  virtual void SetOutput(AudioOutputId output) = 0;
+
   const AudioStream* GetStream() const { return Stream.get(); }
 
   // may be negative for no fixed duration, 0 for no audio
@@ -52,6 +55,7 @@ class AudioChannel {
   AudioChannelId Id;
   AudioChannelGroup Group;
   AudioChannelState State = ACS_Stopped;
+  AudioOutputId Output = AO_Main;
 
   float Volume = 1.0f;
   bool Looping = false;
@@ -84,6 +88,8 @@ class EmptyAudioChannel : public AudioChannel {
   }
 
   void Reinit() override {}
+
+  void SetOutput(AudioOutputId output) override { Output = output; }
 
   void Update(float dt) override {}
 
