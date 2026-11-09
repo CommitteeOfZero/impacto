@@ -210,6 +210,8 @@ void InitGameProfile() {
   }
 
   Profile::ClearProfile();
+
+  SessionPlayTimeSeconds = 0;
 }
 
 void Shutdown() {
@@ -266,6 +268,8 @@ void UpdateGameState(float dt) {
     ScrWork[SW_PLAYTIME] = std::min(ScrWork[SW_PLAYTIME] + 1, maxPlayTime);
     ScrWork[SW_TOTALPLAYTIME] =
         std::min(ScrWork[SW_TOTALPLAYTIME] + 1, maxTotalPlayTime);
+    SessionPlayTimeSeconds = std::min(SessionPlayTimeSeconds + 1,
+                                      static_cast<uint32_t>(maxPlayTime));
 
     UpdateSecondCounter -= 1.0f;
   }
