@@ -52,18 +52,12 @@ static void ShowPlayTime(char const* label, const uint32_t totalSeconds) {
   static_assert(false && "No uninstaller location defined for this target");
 #endif
 
-  std::filesystem::file_status status;
-  std::filesystem::file_type fileType;
-  while (true) {
-    status = std::filesystem::status(uninstallerPath);
-    fileType = status.type();
+  if (!std::filesystem::exists(uninstallerPath)) return std::nullopt;
+  uninstallerPath = std::filesystem::canonical(uninstallerPath);
 
-    if (fileType == std::filesystem::file_type::symlink) {
-      uninstallerPath = std::filesystem::read_symlink(uninstallerPath);
-    } else {
-      break;
-    }
-  }
+  const std::filesystem::file_status status =
+      std::filesystem::status(uninstallerPath);
+  const std::filesystem::file_type fileType = status.type();
 
   if (fileType == std::filesystem::file_type::regular) {
     cached.emplace(uninstallerPath);
