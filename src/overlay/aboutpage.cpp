@@ -22,10 +22,10 @@ namespace Impacto::Overlay {
 
 using namespace Impacto::Profile::ScriptVars;
 
-static void ShowPlayTime(char const* label, int totalSeconds) {
-  int hours = totalSeconds / 3600;
-  int minutes = (totalSeconds % 3600) / 60;
-  int seconds = totalSeconds % 60;
+static void ShowPlayTime(char const* label, const uint32_t totalSeconds) {
+  const uint32_t hours = totalSeconds / 3600;
+  const uint32_t minutes = (totalSeconds % 3600) / 60;
+  const uint32_t seconds = totalSeconds % 60;
   ImGui::Text("%s: %02d:%02d:%02d", label, hours, minutes, seconds);
 }
 
@@ -330,11 +330,21 @@ void ShowAboutPage(std::string const& selectedGame) {
   ImGui::Text("OS: %s", SDL_GetPlatform());
   ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate,
               ImGui::GetIO().Framerate);
+
   if (Profile::Game::HasInit) {
     ImGui::Separator();
     ImGui::Text("%s", GetGameDisplayName(selectedGame).c_str());
-    ShowPlayTime("Current Session Play Time", ScrWork[SW_PLAYTIME]);
-    ShowPlayTime("Total Play Time", ScrWork[SW_TOTALPLAYTIME]);
+
+    ShowPlayTime("Current Session Play Time", Game::SessionPlayTimeSeconds);
+
+    const bool inGame = ScrWork[SW_GAMESTATE] & 1;
+    if (inGame) {
+      ShowPlayTime("Current Save Play Time",
+                   static_cast<uint32_t>(ScrWork[SW_PLAYTIME]));
+    }
+
+    ShowPlayTime("Total Play Time",
+                 static_cast<uint32_t>(ScrWork[SW_TOTALPLAYTIME]));
   }
 }
 
