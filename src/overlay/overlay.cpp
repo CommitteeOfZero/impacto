@@ -324,19 +324,49 @@ static void ShowGamePicker(std::string& selectedGame) {
   ImGui::Spacing();
 }
 
-static void ShowCloseButton() {
-  ImVec2 closeButtonSize(27 * Window->DpiScale, 27 * Window->DpiScale);
+static void ShowCloseButtons() {
+  const ImGuiStyle& style = ImGui::GetStyle();
+
+  const bool showCloseButton = Profile::Game::HasInit;
+  const ImVec2 closeButtonSize(ImGui::GetFrameHeight(),
+                               ImGui::GetFrameHeight());
+
+  constexpr const char* quitText = "Quit";
+  const float quitButtonWidth =
+      ImGui::CalcTextSize(quitText).x + style.ItemInnerSpacing.x * 2;
 
   ImGui::SetCursorPos(
-      ImVec2(ImGui::GetContentRegionAvail().x - closeButtonSize.x, 0.0f));
-  ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
-  ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.5f, 0.0f));
-  if (ImGui::Button("×", closeButtonSize)) {
-    OverlayShown = false;
+      ImVec2(ImGui::GetContentRegionAvail().x -
+                 (closeButtonSize.x + style.ItemSpacing.x) * showCloseButton -
+                 quitButtonWidth,
+             0.0f));
+  if (ImGui::Button(quitText)) {
+    ImGui::OpenPopup("QuitDialogue");
+  }
+  if (ImGui::BeginPopup("QuitDialogue")) {
+    ImGui::SeparatorText("Quit Game?");
+    ImGui::Text("All unsaved progress will be lost.");
+
+    if (ImGui::Button("Quit")) {
+      Game::ShouldQuit = true;
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Cancel")) {
+      ImGui::CloseCurrentPopup();
+    }
+
+    ImGui::EndPopup();
   }
 
-  ImGui::PopStyleVar();
-  ImGui::PopStyleVar();
+  if (showCloseButton) {
+    ImGui::SetCursorPos(
+        ImVec2(ImGui::GetContentRegionAvail().x - closeButtonSize.x, 0.0f));
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
+    if (ImGui::Button("×", closeButtonSize)) {
+      OverlayShown = false;
+    }
+    ImGui::PopStyleVar();
+  }
 }
 
 void ShowOverlay() {
@@ -428,7 +458,8 @@ void ShowOverlay() {
         }
         ImGui::EndTabBar();
       }
-      if (Profile::Game::HasInit) ShowCloseButton();
+
+      ShowCloseButtons();
       ImGui::EndChild();
 
       const float footerStartY = ImGui::GetCursorScreenPos().y;
