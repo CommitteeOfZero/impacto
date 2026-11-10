@@ -405,8 +405,8 @@ void ShowOverlay() {
     ImGui::SetCursorScreenPos(windowPos);
 
     static std::string selectedGame;
-    if (ImGui::BeginChild("Overlay##DockArea", windowSize, ImGuiChildFlags_None,
-                          innerWindowFlags)) {
+    if (ImGui::BeginChild("Overlay##DockArea", windowSize,
+                          ImGuiChildFlags_NavFlattened, innerWindowFlags)) {
       bool isReady = true;
 #ifdef __ANDROID__
       if (!Profile::Game::HasInit) ShowDirectoryPickerButton();
@@ -425,7 +425,8 @@ void ShowOverlay() {
       static float cachedFooterHeight = ImGui::GetStyle().ItemSpacing.y +
                                         ImGui::GetStyle().SeparatorSize +
                                         ImGui::GetFrameHeightWithSpacing();
-      ImGui::BeginChild("TabRegion", ImVec2(0, -cachedFooterHeight), 0);
+      ImGui::BeginChild("TabRegion", ImVec2(0, -cachedFooterHeight),
+                        ImGuiChildFlags_NavFlattened);
       ImGui::SetNextItemAllowOverlap();
       if (ImGui::BeginTabBar("MainTabs")) {
         magic_enum::containers::array<OverlayTab, ImGuiTabItemFlags> tabFlags{};
