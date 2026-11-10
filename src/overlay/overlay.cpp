@@ -369,6 +369,11 @@ static void ShowCloseButtons() {
   }
 }
 
+static bool AchievementsTabSelectable() {
+  return !UserConfig::GetActiveGame().empty() &&
+         AchievementSystem::Implementation != nullptr;
+}
+
 void ShowOverlay() {
   constexpr ImGuiWindowFlags wrapperWindowFlags =
       ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDecoration |
@@ -425,34 +430,37 @@ void ShowOverlay() {
       if (ImGui::BeginTabBar("MainTabs")) {
         magic_enum::containers::array<OverlayTab, ImGuiTabItemFlags> tabFlags{};
 
-        if (RequestedTab != ActiveTab) {
+        if (RequestedTab.has_value() && RequestedTab != ActiveTab) {
           ActiveTab = RequestedTab;
-          if (ActiveTab.has_value())
-            tabFlags[*ActiveTab] |= ImGuiTabItemFlags_SetSelected;
+          tabFlags[*ActiveTab] |= ImGuiTabItemFlags_SetSelected;
         }
+        RequestedTab.reset();
 
         if (ImGui::BeginTabItem("Settings", nullptr,
                                 tabFlags[OverlayTab::Settings])) {
+          ActiveTab = OverlayTab::Settings;
           ShowSettingsPage(selectedGame);
           ImGui::EndTabItem();
         }
 
         if (ImGui::BeginTabItem("Enhancements", nullptr,
                                 tabFlags[OverlayTab::Enhancements])) {
+          ActiveTab = OverlayTab::Enhancements;
           ShowEnhancementsPage(selectedGame);
           ImGui::EndTabItem();
         }
 
-        if (!selectedGame.empty() &&
-            Impacto::AchievementSystem::Implementation != nullptr &&
+        if (AchievementsTabSelectable() &&
             ImGui::BeginTabItem("Achievements", nullptr,
                                 tabFlags[OverlayTab::Achievements])) {
+          ActiveTab = OverlayTab::Achievements;
           ShowAchievementsPage();
           ImGui::EndTabItem();
         }
 
         if (ImGui::BeginTabItem("About", nullptr,
                                 tabFlags[OverlayTab::About])) {
+          ActiveTab = OverlayTab::About;
           ShowAboutPage(selectedGame);
           ImGui::EndTabItem();
         }
@@ -512,6 +520,48 @@ void ShowOverlay() {
   ImGui::End();
 }
 
+static void AdvanceTab(const int8_t delta) {
+  if (RequestedTab.has_value()) return;
+  if (!ActiveTab.has_value()) {
+    RequestedTab = OverlayTab::Settings;
+    return;
+  }
+
+  using BooleanFunction = bool (*)();
+  constexpr auto isSelectable = []() {
+    using enum OverlayTab;
+    constexpr auto always = []() { return true; };
+
+    magic_enum::containers::array<OverlayTab, BooleanFunction> isSelectable;
+    isSelectable.fill(always);
+
+    isSelectable[Achievements] = AchievementsTabSelectable;
+
+    return isSelectable;
+  }();
+
+  RequestedTab = *ActiveTab;
+  do {
+    RequestedTab = magic_enum::enum_value<OverlayTab>(
+        (magic_enum::enum_underlying<OverlayTab>(*RequestedTab) + delta) %
+        magic_enum::enum_count<OverlayTab>());
+    if (*RequestedTab == *ActiveTab) break;  // Avoid infinite loop
+  } while (!isSelectable[*RequestedTab]());
+}
+
+static void UpdateInput() {
+  using namespace Impacto::Input;
+
+  if (ImGui::IsKeyPressed(ImGuiKey_GamepadL1) ||
+      ImGui::IsKeyPressed(ImGuiKey_Q)) {
+    AdvanceTab(-1);
+  }
+  if (ImGui::IsKeyPressed(ImGuiKey_GamepadR1) ||
+      ImGui::IsKeyPressed(ImGuiKey_E)) {
+    AdvanceTab(+1);
+  }
+}
+
 void Show() {
   ImGui::GetIO().ConfigNavSwapGamepadButtons = Input::FaceButtonsFlipped();
 
@@ -532,6 +582,7 @@ void Show() {
   }
 
   if (OverlayShown) {
+    UpdateInput();
     ShowOverlay();
   }
 }
