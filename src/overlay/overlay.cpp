@@ -358,6 +358,7 @@ static void ShowCloseButtons() {
     if (ImGui::Button("Cancel")) {
       ImGui::CloseCurrentPopup();
     }
+    ImGui::SetItemDefaultFocus();
 
     ImGui::EndPopup();
   }
