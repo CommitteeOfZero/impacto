@@ -436,30 +436,44 @@ void ShowOverlay() {
         }
         RequestedTab.reset();
 
-        if (ImGui::BeginTabItem("Settings", nullptr,
-                                tabFlags[OverlayTab::Settings])) {
+        ImGui::PushItemFlag(ImGuiItemFlags_NoNav, true);
+        const bool settingsTabActive = ImGui::BeginTabItem(
+            "Settings", nullptr, tabFlags[OverlayTab::Settings]);
+        ImGui::PopItemFlag();
+        if (settingsTabActive) {
           ActiveTab = OverlayTab::Settings;
           ShowSettingsPage(selectedGame);
           ImGui::EndTabItem();
         }
 
-        if (ImGui::BeginTabItem("Enhancements", nullptr,
-                                tabFlags[OverlayTab::Enhancements])) {
+        ImGui::PushItemFlag(ImGuiItemFlags_NoNav, true);
+        const bool enhancementsTabActive = ImGui::BeginTabItem(
+            "Enhancements", nullptr, tabFlags[OverlayTab::Enhancements]);
+        ImGui::PopItemFlag();
+        if (enhancementsTabActive) {
           ActiveTab = OverlayTab::Enhancements;
           ShowEnhancementsPage(selectedGame);
           ImGui::EndTabItem();
         }
 
-        if (AchievementsTabSelectable() &&
-            ImGui::BeginTabItem("Achievements", nullptr,
-                                tabFlags[OverlayTab::Achievements])) {
-          ActiveTab = OverlayTab::Achievements;
-          ShowAchievementsPage();
-          ImGui::EndTabItem();
+        if (AchievementsTabSelectable()) {
+          ImGui::PushItemFlag(ImGuiItemFlags_NoNav, true);
+          const bool achievementsTabActive = ImGui::BeginTabItem(
+              "Achievements", nullptr, tabFlags[OverlayTab::Achievements]);
+          ImGui::PopItemFlag();
+
+          if (achievementsTabActive) {
+            ActiveTab = OverlayTab::Achievements;
+            ShowAchievementsPage();
+            ImGui::EndTabItem();
+          }
         }
 
-        if (ImGui::BeginTabItem("About", nullptr,
-                                tabFlags[OverlayTab::About])) {
+        ImGui::PushItemFlag(ImGuiItemFlags_NoNav, true);
+        const bool aboutTabActive =
+            ImGui::BeginTabItem("About", nullptr, tabFlags[OverlayTab::About]);
+        ImGui::PopItemFlag();
+        if (aboutTabActive) {
           ActiveTab = OverlayTab::About;
           ShowAboutPage(selectedGame);
           ImGui::EndTabItem();
