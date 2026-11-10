@@ -483,7 +483,8 @@ void ShowOverlay() {
 
           ImGui::TableNextRow();
           ImGui::TableSetColumnIndex(1);
-          if (ImGui::Button("Start Game", ImVec2(buttonWidth, 0))) {
+          if (ImGui::Button("Start Game", ImVec2(buttonWidth, 0)) ||
+              ImGui::IsKeyPressed(ImGuiKey_GamepadStart)) {
             UserConfig::SetActiveGame(selectedGame);
             OverlayShown = false;
           }
