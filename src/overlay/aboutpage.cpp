@@ -46,7 +46,7 @@ static void ShowPlayTime(char const* label, const uint32_t totalSeconds) {
 #elif defined(SDL_PLATFORM_WINDOWS)
       "ImpactoUninstaller.exe";
 #elif defined(SDL_PLATFORM_MACOS)
-      "ImpactoUninstaller.app";
+      "ImpactoUninstaller.app/Contents/MacOS/ImpactoUninstaller";
 #else
       "";
   static_assert(false && "No uninstaller location defined for this target");
