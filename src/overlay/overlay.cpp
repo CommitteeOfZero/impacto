@@ -324,19 +324,55 @@ static void ShowGamePicker(std::string& selectedGame) {
   ImGui::Spacing();
 }
 
-static void ShowCloseButton() {
-  ImVec2 closeButtonSize(27 * Window->DpiScale, 27 * Window->DpiScale);
+static void ShowCloseButtons() {
+  const ImGuiStyle& style = ImGui::GetStyle();
+
+  const bool showCloseButton = Profile::Game::HasInit;
+  const ImVec2 closeButtonSize(ImGui::GetFrameHeight(),
+                               ImGui::GetFrameHeight());
+
+  constexpr const char* quitText = "Quit";
+  const float quitButtonWidth =
+      ImGui::CalcTextSize(quitText).x + style.ItemInnerSpacing.x * 2;
 
   ImGui::SetCursorPos(
-      ImVec2(ImGui::GetContentRegionAvail().x - closeButtonSize.x, 0.0f));
-  ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
-  ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.5f, 0.0f));
-  if (ImGui::Button("×", closeButtonSize)) {
-    OverlayShown = false;
+      ImVec2(ImGui::GetContentRegionAvail().x -
+                 (closeButtonSize.x + style.ItemSpacing.x) * showCloseButton -
+                 quitButtonWidth,
+             0.0f));
+  if (ImGui::Button(quitText)) {
+    ImGui::OpenPopup("QuitDialogue");
+  }
+  if (ImGui::BeginPopup("QuitDialogue")) {
+    ImGui::SeparatorText("Quit Game?");
+    ImGui::Text("All unsaved progress will be lost.");
+
+    if (ImGui::Button("Quit")) {
+      Game::ShouldQuit = true;
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Cancel")) {
+      ImGui::CloseCurrentPopup();
+    }
+    ImGui::SetItemDefaultFocus();
+
+    ImGui::EndPopup();
   }
 
-  ImGui::PopStyleVar();
-  ImGui::PopStyleVar();
+  if (showCloseButton) {
+    ImGui::SetCursorPos(
+        ImVec2(ImGui::GetContentRegionAvail().x - closeButtonSize.x, 0.0f));
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
+    if (ImGui::Button("×", closeButtonSize)) {
+      OverlayShown = false;
+    }
+    ImGui::PopStyleVar();
+  }
+}
+
+static bool AchievementsTabSelectable() {
+  return !UserConfig::GetActiveGame().empty() &&
+         AchievementSystem::Implementation != nullptr;
 }
 
 void ShowOverlay() {
@@ -370,8 +406,8 @@ void ShowOverlay() {
     ImGui::SetCursorScreenPos(windowPos);
 
     static std::string selectedGame;
-    if (ImGui::BeginChild("Overlay##DockArea", windowSize, ImGuiChildFlags_None,
-                          innerWindowFlags)) {
+    if (ImGui::BeginChild("Overlay##DockArea", windowSize,
+                          ImGuiChildFlags_NavFlattened, innerWindowFlags)) {
       bool isReady = true;
 #ifdef __ANDROID__
       if (!Profile::Game::HasInit) ShowDirectoryPickerButton();
@@ -390,45 +426,64 @@ void ShowOverlay() {
       static float cachedFooterHeight = ImGui::GetStyle().ItemSpacing.y +
                                         ImGui::GetStyle().SeparatorSize +
                                         ImGui::GetFrameHeightWithSpacing();
-      ImGui::BeginChild("TabRegion", ImVec2(0, -cachedFooterHeight), 0);
+      ImGui::BeginChild("TabRegion", ImVec2(0, -cachedFooterHeight),
+                        ImGuiChildFlags_NavFlattened);
       ImGui::SetNextItemAllowOverlap();
       if (ImGui::BeginTabBar("MainTabs")) {
         magic_enum::containers::array<OverlayTab, ImGuiTabItemFlags> tabFlags{};
 
-        if (RequestedTab != ActiveTab) {
+        if (RequestedTab.has_value() && RequestedTab != ActiveTab) {
           ActiveTab = RequestedTab;
-          if (ActiveTab.has_value())
-            tabFlags[*ActiveTab] |= ImGuiTabItemFlags_SetSelected;
+          tabFlags[*ActiveTab] |= ImGuiTabItemFlags_SetSelected;
         }
+        RequestedTab.reset();
 
-        if (ImGui::BeginTabItem("Settings", nullptr,
-                                tabFlags[OverlayTab::Settings])) {
+        ImGui::PushItemFlag(ImGuiItemFlags_NoNav, true);
+        const bool settingsTabActive = ImGui::BeginTabItem(
+            "Settings", nullptr, tabFlags[OverlayTab::Settings]);
+        ImGui::PopItemFlag();
+        if (settingsTabActive) {
+          ActiveTab = OverlayTab::Settings;
           ShowSettingsPage(selectedGame);
           ImGui::EndTabItem();
         }
 
-        if (ImGui::BeginTabItem("Enhancements", nullptr,
-                                tabFlags[OverlayTab::Enhancements])) {
+        ImGui::PushItemFlag(ImGuiItemFlags_NoNav, true);
+        const bool enhancementsTabActive = ImGui::BeginTabItem(
+            "Enhancements", nullptr, tabFlags[OverlayTab::Enhancements]);
+        ImGui::PopItemFlag();
+        if (enhancementsTabActive) {
+          ActiveTab = OverlayTab::Enhancements;
           ShowEnhancementsPage(selectedGame);
           ImGui::EndTabItem();
         }
 
-        if (!selectedGame.empty() &&
-            Impacto::AchievementSystem::Implementation != nullptr &&
-            ImGui::BeginTabItem("Achievements", nullptr,
-                                tabFlags[OverlayTab::Achievements])) {
-          ShowAchievementsPage();
-          ImGui::EndTabItem();
+        if (AchievementsTabSelectable()) {
+          ImGui::PushItemFlag(ImGuiItemFlags_NoNav, true);
+          const bool achievementsTabActive = ImGui::BeginTabItem(
+              "Achievements", nullptr, tabFlags[OverlayTab::Achievements]);
+          ImGui::PopItemFlag();
+
+          if (achievementsTabActive) {
+            ActiveTab = OverlayTab::Achievements;
+            ShowAchievementsPage();
+            ImGui::EndTabItem();
+          }
         }
 
-        if (ImGui::BeginTabItem("About", nullptr,
-                                tabFlags[OverlayTab::About])) {
+        ImGui::PushItemFlag(ImGuiItemFlags_NoNav, true);
+        const bool aboutTabActive =
+            ImGui::BeginTabItem("About", nullptr, tabFlags[OverlayTab::About]);
+        ImGui::PopItemFlag();
+        if (aboutTabActive) {
+          ActiveTab = OverlayTab::About;
           ShowAboutPage(selectedGame);
           ImGui::EndTabItem();
         }
         ImGui::EndTabBar();
       }
-      if (Profile::Game::HasInit) ShowCloseButton();
+
+      ShowCloseButtons();
       ImGui::EndChild();
 
       const float footerStartY = ImGui::GetCursorScreenPos().y;
@@ -444,7 +499,8 @@ void ShowOverlay() {
 
           ImGui::TableNextRow();
           ImGui::TableSetColumnIndex(1);
-          if (ImGui::Button("Start Game", ImVec2(buttonWidth, 0))) {
+          if (ImGui::Button("Start Game", ImVec2(buttonWidth, 0)) ||
+              ImGui::IsKeyPressed(ImGuiKey_GamepadStart)) {
             UserConfig::SetActiveGame(selectedGame);
             OverlayShown = false;
           }
@@ -481,6 +537,48 @@ void ShowOverlay() {
   ImGui::End();
 }
 
+static void AdvanceTab(const int8_t delta) {
+  if (RequestedTab.has_value()) return;
+  if (!ActiveTab.has_value()) {
+    RequestedTab = OverlayTab::Settings;
+    return;
+  }
+
+  using BooleanFunction = bool (*)();
+  constexpr auto isSelectable = []() {
+    using enum OverlayTab;
+    constexpr auto always = []() { return true; };
+
+    magic_enum::containers::array<OverlayTab, BooleanFunction> isSelectable;
+    isSelectable.fill(always);
+
+    isSelectable[Achievements] = AchievementsTabSelectable;
+
+    return isSelectable;
+  }();
+
+  RequestedTab = *ActiveTab;
+  do {
+    RequestedTab = magic_enum::enum_value<OverlayTab>(
+        (magic_enum::enum_underlying<OverlayTab>(*RequestedTab) + delta) %
+        magic_enum::enum_count<OverlayTab>());
+    if (*RequestedTab == *ActiveTab) break;  // Avoid infinite loop
+  } while (!isSelectable[*RequestedTab]());
+}
+
+static void UpdateInput() {
+  using namespace Impacto::Input;
+
+  if (ImGui::IsKeyPressed(ImGuiKey_GamepadL1) ||
+      ImGui::IsKeyPressed(ImGuiKey_Q)) {
+    AdvanceTab(-1);
+  }
+  if (ImGui::IsKeyPressed(ImGuiKey_GamepadR1) ||
+      ImGui::IsKeyPressed(ImGuiKey_E)) {
+    AdvanceTab(+1);
+  }
+}
+
 void Show() {
   ImGui::GetIO().ConfigNavSwapGamepadButtons = Input::FaceButtonsFlipped();
 
@@ -501,6 +599,7 @@ void Show() {
   }
 
   if (OverlayShown) {
+    UpdateInput();
     ShowOverlay();
   }
 }

@@ -188,7 +188,8 @@ void ShowSettingsPage(std::string const& selectedGame) {
                              ImGui::GetFrameHeightWithSpacing();
 
   static bool displayChanged = false;
-  if (ImGui::BeginChild("##SettingsContent", ImVec2(0, -footerHeight))) {
+  if (ImGui::BeginChild("##SettingsContent", ImVec2(0, -footerHeight),
+                        ImGuiChildFlags_NavFlattened)) {
     ShowCommonSettings();
     ImGui::Spacing();
     if (!selectedGame.empty()) {

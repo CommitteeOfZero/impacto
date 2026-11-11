@@ -28,42 +28,48 @@ void ShowAchievementsPage() {
     const ImVec2 cardMin = ImGui::GetCursorScreenPos();
     const float cardWidth = ImGui::GetContentRegionAvail().x;
     const ImVec2 cardMax{cardMin.x + cardWidth, cardMin.y + cardHeight};
-    const bool cardHovered = ImGui::IsMouseHoveringRect(cardMin, cardMax);
 
-    if (ImGui::BeginChild("##AchievementCard", ImVec2(cardWidth, cardHeight),
-                          ImGuiChildFlags_Borders,
-                          ImGuiWindowFlags_NoScrollbar |
-                              ImGuiWindowFlags_NoScrollWithMouse)) {
-      Sprite const& icon = unlocked ? ach->Icon() : ach->LockedIcon();
-      if (icon.Sheet.Texture != 0) {
-        RectF uv = icon.NormalizedBounds();
-        ImVec4 tint = unlocked ? ImVec4{1.0f, 1.0f, 1.0f, 1.0f}
-                               : ImVec4{0.25f, 0.25f, 0.25f, 1.0f};
-        ImGui::Image((ImTextureID)(intptr_t)icon.Sheet.Texture,
-                     ImVec2{iconSize, iconSize}, ImVec2{uv.X, uv.Y},
-                     ImVec2{uv.Right(), uv.Bottom()}, tint,
-                     ImVec4{0.0f, 0.0f, 0.0f, 0.0f});
-      } else {
-        ImGui::Dummy(ImVec2{iconSize, iconSize});
-      }
-      ImGui::SameLine();
+    bool selected = false;
+    ImGui::Selectable("", &selected, ImGuiSelectableFlags_None,
+                      ImVec2(cardWidth, cardHeight));
+    const bool cardHovered = ImGui::IsItemHovered();
 
-      ImGui::BeginGroup();
-      ImGui::TextUnformatted(revealed ? ach->Name().c_str()
-                                      : "Hidden achievement");
+    ImGui::SetCursorScreenPos(cardMin);
+    ImGui::BeginChild("##AchievementCard", ImVec2(cardWidth, cardHeight),
+                      ImGuiChildFlags_Borders,
+                      ImGuiWindowFlags_NoScrollbar |
+                          ImGuiWindowFlags_NoScrollWithMouse |
+                          ImGuiWindowFlags_NoMouseInputs);
 
-      if (revealed) {
-        if (!ach->Description().empty()) {
-          ImGui::TextWrapped("%s", ach->Description().c_str());
-        }
-      } else if (cardHovered) {
-        ImGui::TextWrapped("Click to show spoiler.");
-      } else {
-        ImGui::TextWrapped(
-            "Details for this achievement will be revealed once unlocked.");
-      }
-      ImGui::EndGroup();
+    Sprite const& icon = unlocked ? ach->Icon() : ach->LockedIcon();
+    if (icon.Sheet.Texture != 0) {
+      RectF uv = icon.NormalizedBounds();
+      ImVec4 tint = unlocked ? ImVec4{1.0f, 1.0f, 1.0f, 1.0f}
+                             : ImVec4{0.25f, 0.25f, 0.25f, 1.0f};
+      ImGui::Image((ImTextureID)(intptr_t)icon.Sheet.Texture,
+                   ImVec2{iconSize, iconSize}, ImVec2{uv.X, uv.Y},
+                   ImVec2{uv.Right(), uv.Bottom()}, tint,
+                   ImVec4{0.0f, 0.0f, 0.0f, 0.0f});
+    } else {
+      ImGui::Dummy(ImVec2{iconSize, iconSize});
     }
+    ImGui::SameLine();
+
+    ImGui::BeginGroup();
+    ImGui::TextUnformatted(revealed ? ach->Name().c_str()
+                                    : "Hidden achievement");
+
+    if (revealed) {
+      if (!ach->Description().empty()) {
+        ImGui::TextWrapped("%s", ach->Description().c_str());
+      }
+    } else if (cardHovered) {
+      ImGui::TextWrapped("Select to show spoiler.");
+    } else {
+      ImGui::TextWrapped(
+          "Details for this achievement will be revealed once unlocked.");
+    }
+    ImGui::EndGroup();
     ImGui::EndChild();
 
     if (unlocked) {
@@ -82,14 +88,11 @@ void ShowAchievementsPage() {
           datePos, ImGui::GetColorU32(ImGuiCol_Text), dateText.c_str());
     }
 
-    if (hidden && cardHovered) {
-      RequestCursor(CursorType::Pointer);
-      if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-        if (peeked) {
-          peekedAchievements.erase(id);
-        } else {
-          peekedAchievements.insert(id);
-        }
+    if (hidden && selected) {
+      if (peeked) {
+        peekedAchievements.erase(id);
+      } else {
+        peekedAchievements.insert(id);
       }
     }
 

@@ -13,7 +13,8 @@ void ShowEnhancementsPage(std::string const& selectedGame) {
                              ImGui::GetFrameHeightWithSpacing();
   auto& enhancements = UserConfig::EnhancementsSettings;
 
-  if (ImGui::BeginChild("##EnhancementsContent", ImVec2(0, -footerHeight))) {
+  if (ImGui::BeginChild("##EnhancementsContent", ImVec2(0, -footerHeight),
+                        ImGuiChildFlags_NavFlattened)) {
     ImGui::Spacing();
 
     if (ImGui::TreeNode("Subtitle Config")) {
