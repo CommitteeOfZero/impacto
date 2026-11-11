@@ -40,6 +40,7 @@ class AlbumMenu : public Menu, public CommonMenu {
   int MaxReachablePage;
 
   bool ShowCgViewer = false;
+  bool ShowButtonPrompt = true;
 };
 
 }  // namespace CHLCC
