@@ -185,12 +185,11 @@ void ShowAboutPage(std::string const& selectedGame) {
 
   if (GetUninstallerPath().has_value()) {
     static std::optional<bool> updatesAvailable = std::nullopt;
-    static std::optional<std::future<std::optional<bool>>>
-        updatesAvailableFuture = std::nullopt;
+    static std::future<std::optional<bool>> updatesAvailableFuture;
     static bool checkedForUpdates = false;
 
     if (!updatesAvailable.has_value() || *updatesAvailable == false) {
-      bool checkingForUpdates = updatesAvailableFuture.has_value();
+      bool checkingForUpdates = updatesAvailableFuture.valid();
 
       ImGui::SameLine();
       ImGui::PushItemFlag(ImGuiItemFlags_Disabled, checkingForUpdates);
@@ -203,10 +202,9 @@ void ShowAboutPage(std::string const& selectedGame) {
       ImGui::PopItemFlag();
 
       if (checkingForUpdates &&
-          updatesAvailableFuture->wait_for(std::chrono::seconds(0)) !=
+          updatesAvailableFuture.wait_for(std::chrono::seconds(0)) !=
               std::future_status::timeout) {
-        updatesAvailable = updatesAvailableFuture->get();
-        updatesAvailableFuture.reset();
+        updatesAvailable = updatesAvailableFuture.get();
         checkedForUpdates = true;
       }
 
