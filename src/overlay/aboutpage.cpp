@@ -189,11 +189,29 @@ void ShowAboutPage(std::string const& selectedGame) {
 
       ImGui::SameLine();
       if (ImGui::Button("Update")) {
-        const static std::string uninstallerPath =
-            GetUninstallerPath()->string();
-        const char* const args[]{uninstallerPath.c_str(), nullptr};
-        // Start the process but don't monitor it
-        SDL_DestroyProcess(SDL_CreateProcess(args, true));
+        ImGui::OpenPopup("UpdateDialogue");
+      }
+      if (ImGui::BeginPopup("UpdateDialogue")) {
+        ImGui::SeparatorText("Update?");
+        ImGui::Text(
+            "Selecting \"Update\" will close this application.\n"
+            "All unsaved progress will be lost. Are you sure?");
+
+        if (ImGui::Button("Update")) {
+          const static std::string uninstallerPath =
+              GetUninstallerPath()->string();
+          const char* const args[]{uninstallerPath.c_str(), nullptr};
+          // Start the process but don't monitor it
+          SDL_DestroyProcess(SDL_CreateProcess(args, true));
+
+          Game::Shutdown();
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Cancel")) {
+          ImGui::CloseCurrentPopup();
+        }
+
+        ImGui::EndPopup();
       }
 
       ImGui::SameLine();
