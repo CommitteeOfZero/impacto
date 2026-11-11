@@ -52,54 +52,18 @@ static void ShowPlayTime(char const* label, const uint32_t totalSeconds) {
   static_assert(false && "No uninstaller location defined for this target");
 #endif
 
-  if (!std::filesystem::exists(uninstallerPath)) return std::nullopt;
+  if (!std::filesystem::is_regular_file(uninstallerPath)) return std::nullopt;
   uninstallerPath = std::filesystem::canonical(uninstallerPath);
 
   const std::filesystem::file_status status =
       std::filesystem::status(uninstallerPath);
-  const std::filesystem::file_type fileType = status.type();
-
-  if (fileType == std::filesystem::file_type::regular) {
-    cached.emplace(uninstallerPath);
-  } else {
-    switch (fileType) {
-      using enum std::filesystem::file_type;
-      case not_found:
-        ImpLog(LogLevel::Error, LogChannel::Overlay,
-               "Uninstaller not found at {:s}", uninstallerPath.string());
-        break;
-
-      case none:
-      case unknown:
-        ImpLog(LogLevel::Error, LogChannel::Overlay,
-               "Failed to verify uninstaller file type ({:s})",
-               uninstallerPath.string());
-        break;
-
-      case directory:
-      case block:
-      case character:
-      case fifo:
-      case socket:
-        ImpLog(LogLevel::Error, LogChannel::Overlay,
-               "Uninstaller path does not point to a regular file ({:s})",
-               uninstallerPath.string());
-        break;
-
-      case regular:
-      case symlink:
-        assert(false && "Already ruled out with prior logic");
-        break;
-
-      default:
-        ImpLog(LogLevel::Error, LogChannel::Overlay,
-               "Unknown error occurred when checking the uninstaller's file "
-               "type ({:s})",
-               uninstallerPath.string());
-        break;
-    }
-
+  if ((status.permissions() & std::filesystem::perms::others_exec) ==
+      std::filesystem::perms::none) {
+    ImpLog(LogLevel::Error, LogChannel::Overlay,
+           "No permission to execute the uninstaller");
     cached.emplace(std::nullopt);
+  } else {
+    cached.emplace(std::move(uninstallerPath));
   }
 #endif
 
