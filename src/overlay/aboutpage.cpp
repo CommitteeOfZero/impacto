@@ -30,44 +30,44 @@ static void ShowPlayTime(char const* label, const uint32_t totalSeconds) {
 }
 
 [[nodiscard]] static std::optional<std::filesystem::path> GetUninstallerPath() {
-  static std::optional<std::optional<std::filesystem::path>> cached;
-  if (cached.has_value()) return *cached;
-
+  static const auto uninstallerPath =
+      []() -> std::optional<std::filesystem::path> {
 #if defined(SDL_PLATFORM_ANDROID) || defined(SDL_PLATFORM_SWITCH)
-  // Defined no uninstaller
-  ImpLog(LogLevel::Info, LogChannel::Overlay,
-         "This target does not have an uninstaller present (defined behavior)");
-  cached.emplace(std::nullopt);
+    // Defined no uninstaller
+    ImpLog(
+        LogLevel::Info, LogChannel::Overlay,
+        "This target does not have an uninstaller present (defined behavior)");
+    return std::nullopt;
 #else
-  std::filesystem::path uninstallerPath =
-      std::filesystem::path(Profile::BasePaths::RootInstallDir) /
+    std::filesystem::path path =
+        std::filesystem::path(Profile::BasePaths::RootInstallDir) /
 #if defined(SDL_PLATFORM_LINUX)
-      "ImpactoUninstaller";
+        "ImpactoUninstaller";
 #elif defined(SDL_PLATFORM_WINDOWS)
-      "ImpactoUninstaller.exe";
+        "ImpactoUninstaller.exe";
 #elif defined(SDL_PLATFORM_MACOS)
-      "ImpactoUninstaller.app/Contents/MacOS/ImpactoUninstaller";
+        "ImpactoUninstaller.app/Contents/MacOS/ImpactoUninstaller";
 #else
-      "";
-  static_assert(false && "No uninstaller location defined for this target");
+        "";
+    static_assert(false && "No uninstaller location defined for this target");
 #endif
 
-  if (!std::filesystem::is_regular_file(uninstallerPath)) return std::nullopt;
-  uninstallerPath = std::filesystem::canonical(uninstallerPath);
+    if (!std::filesystem::is_regular_file(path)) return std::nullopt;
+    path = std::filesystem::canonical(path);
 
-  const std::filesystem::file_status status =
-      std::filesystem::status(uninstallerPath);
-  if ((status.permissions() & std::filesystem::perms::others_exec) ==
-      std::filesystem::perms::none) {
-    ImpLog(LogLevel::Error, LogChannel::Overlay,
-           "No permission to execute the uninstaller");
-    cached.emplace(std::nullopt);
-  } else {
-    cached.emplace(std::move(uninstallerPath));
-  }
+    const std::filesystem::file_status status = std::filesystem::status(path);
+    if ((status.permissions() & std::filesystem::perms::others_exec) ==
+        std::filesystem::perms::none) {
+      ImpLog(LogLevel::Error, LogChannel::Overlay,
+             "No permission to execute the uninstaller");
+      return std::nullopt;
+    } else {
+      return path;
+    }
 #endif
+  }();
 
-  return *cached;
+  return uninstallerPath;
 }
 
 [[nodiscard]] static std::optional<bool> CheckUpdatesAvailable() {
