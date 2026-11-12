@@ -61,83 +61,136 @@ static void ShowPlayTime(char const* label, const uint32_t totalSeconds) {
       ImpLog(LogLevel::Error, LogChannel::Overlay,
              "No permission to execute the uninstaller");
       return std::nullopt;
-    } else {
-      return path;
     }
+
+    return path;
 #endif
   }();
 
   return uninstallerPath;
 }
 
-[[nodiscard]] static std::optional<bool> CheckUpdatesAvailable() {
-  const std::filesystem::path uninstallerPath = *GetUninstallerPath();
-  const std::string uninstallerPathString = uninstallerPath.string();
-
-  const char* const args[] = {
-      uninstallerPathString.c_str(), "check-updates", "-g", "js=false", nullptr,
+class CheckUpdateProcess {
+ public:
+  enum class UpdateCheckResult {
+    NoUpdates,
+    UpdatesAvailable,
+    Error,
   };
-  const std::unique_ptr<SDL_Process, decltype(&SDL_DestroyProcess)> process(
-      SDL_CreateProcess(args, true), SDL_DestroyProcess);
 
-  if (process == nullptr) {
-    ImpLog(LogLevel::Error, LogChannel::Overlay,
-           "Failed to start check-updates process: {:s}", SDL_GetError());
-    return std::nullopt;
+  static void StartCheckUpdate() {
+    if (Worker.valid()) {
+      ImpLog(LogLevel::Warning, LogChannel::Overlay,
+             "Update checker is already running");
+      return;
+    }
+
+    CachedResult.reset();
+    Cancel = false;
+    Worker = std::async(std::launch::async, RunCheck);
   }
 
-  auto waitStartTime = std::chrono::system_clock::now();
-  int exitCode = EXIT_SUCCESS;
-  while (!SDL_WaitProcess(process.get(), false, &exitCode)) {
-    const auto waitDuration = std::chrono::system_clock::now() - waitStartTime;
-    if (waitDuration >= std::chrono::seconds(5)) {
-      ImpLog(LogLevel::Error, LogChannel::Overlay,
-             "Update checker is not responding. Killing process");
+  [[nodiscard]] static std::optional<UpdateCheckResult> CheckUpdateStatus() {
+    // Async wait is blocking on destructor
+    if (Game::ShouldQuit && Worker.valid()) {
+      Cancel = true;
+      Worker.wait();
+    }
 
-      if (!SDL_KillProcess(process.get(), false)) {
-        ImpLog(
-            LogLevel::Error, LogChannel::Overlay,
-            "Failed to kill update-checker. Attempting force-kill. Error: {:s}",
-            SDL_GetError());
-
-        if (!SDL_KillProcess(process.get(), true)) {
-          ImpLog(LogLevel::Error, LogChannel::Overlay,
-                 "Failed to force-kill update checker: {:s}", SDL_GetError());
-        }
+    // std::future can only be read once. Cache the result so it can be read
+    // multiple times
+    if (!CachedResult.has_value()) {
+      if (!Worker.valid() || Worker.wait_for(std::chrono::seconds(0)) ==
+                                 std::future_status::timeout) {
+        return std::nullopt;
       }
 
-      return std::nullopt;
+      CachedResult = Worker.get();
     }
+
+    return CachedResult;
   }
 
-  if (exitCode != EXIT_SUCCESS) {
-    ImpLog(LogLevel::Error, LogChannel::Overlay,
-           "Update checker returned exit code {:d}", exitCode);
-    return std::nullopt;
+  [[nodiscard]] static bool CheckingForUpdates() { return Worker.valid(); }
+
+ private:
+  using ScopedProcess =
+      std::unique_ptr<SDL_Process, decltype(&SDL_DestroyProcess)>;
+
+  [[nodiscard]] static UpdateCheckResult RunCheck() {
+    const std::filesystem::path uninstallerPath = *GetUninstallerPath();
+    const std::string uninstallerPathString = uninstallerPath.string();
+
+    const char* const args[] = {
+        uninstallerPathString.c_str(),
+        "check-updates",
+        "-g",
+        "js=false",
+        nullptr,
+    };
+
+    ScopedProcess process(SDL_CreateProcess(args, true), SDL_DestroyProcess);
+    auto waitStartTime = std::chrono::steady_clock::now();
+
+    if (process == nullptr) {
+      ImpLog(LogLevel::Error, LogChannel::Overlay,
+             "Failed to start check-updates process: {:s}", SDL_GetError());
+      return UpdateCheckResult::Error;
+    }
+
+    SDL_IOStream* const stream = SDL_GetProcessOutput(process.get());
+    if (stream == nullptr) {
+      ImpLog(LogLevel::Error, LogChannel::Overlay,
+             "Failed to fetch update-checker output: {:s}", SDL_GetError());
+
+      if (!SDL_KillProcess(process.get(), true)) {
+        ImpLog(LogLevel::Error, LogChannel::Overlay,
+               "Failed to kill update-checker. Error: {:s}", SDL_GetError());
+      }
+      SDL_WaitProcess(process.get(), true, nullptr);
+      return UpdateCheckResult::Error;
+    }
+
+    uint8_t killCount = 0;
+
+    int exitCode = EXIT_SUCCESS;
+    while (!SDL_WaitProcess(process.get(), false, &exitCode)) {
+      SDL_Delay(100);
+      if (Cancel) {
+        SDL_KillProcess(process.get(), true);
+        return UpdateCheckResult::Error;
+      }
+
+      const auto waitDuration =
+          std::chrono::steady_clock::now() - waitStartTime;
+      if (waitDuration >= std::chrono::seconds(5)) {
+        if (killCount == 2) break;
+        ImpLog(LogLevel::Error, LogChannel::Overlay,
+               "Update checker is not responding. Killing process");
+        SDL_KillProcess(process.get(), killCount++ > 0);
+        waitStartTime = std::chrono::steady_clock::now();
+      }
+    }
+
+    if (killCount > 0 || exitCode != EXIT_SUCCESS) {
+      return UpdateCheckResult::Error;
+    }
+
+    if (SDL_GetIOStatus(stream) == SDL_IO_STATUS_ERROR) {
+      ImpLog(LogLevel::Error, LogChannel::Overlay,
+             "Failed to read from output stream: {:s}", SDL_GetError());
+      return UpdateCheckResult::Error;
+    }
+
+    const bool hasOutput = SDL_ReadU8(stream, nullptr);
+    return hasOutput ? UpdateCheckResult::UpdatesAvailable
+                     : UpdateCheckResult::NoUpdates;
   }
 
-  const std::unique_ptr<SDL_IOStream, decltype(&SDL_CloseIO)> outputStream(
-      SDL_GetProcessOutput(process.get()), SDL_CloseIO);
-  if (outputStream == nullptr) {
-    ImpLog(LogLevel::Error, LogChannel::Overlay,
-           "Failed to fetch update checker output: {:s}", SDL_GetError());
-    return std::nullopt;
-  }
-
-  std::vector<uint8_t> outputBuffer;
-  do {
-    outputBuffer.emplace_back(0);
-  } while (SDL_ReadU8(outputStream.get(), &outputBuffer.back()));
-
-  if (SDL_GetIOStatus(outputStream.get()) != SDL_IO_STATUS_EOF) {
-    ImpLog(LogLevel::Error, LogChannel::Overlay,
-           "Failed to read from output stream: {:s}", SDL_GetError());
-    return std::nullopt;
-  }
-
-  // There is no output iff there are no updates
-  return outputBuffer.size() > 1;
-}
+  inline static std::future<UpdateCheckResult> Worker;
+  inline static std::atomic<bool> Cancel = false;
+  inline static std::optional<UpdateCheckResult> CachedResult;
+};
 
 void ShowAboutPage(std::string const& selectedGame) {
   ImGui::Text("Committee of Zero");
@@ -148,45 +201,33 @@ void ShowAboutPage(std::string const& selectedGame) {
               VERSION_PATCH);
 
   if (GetUninstallerPath().has_value()) {
-    static std::optional<bool> updatesAvailable = std::nullopt;
-    static std::future<std::optional<bool>> updatesAvailableFuture;
-    static bool checkedForUpdates = false;
-
-    if (!updatesAvailable.has_value() || *updatesAvailable == false) {
-      bool checkingForUpdates = updatesAvailableFuture.valid();
+    const std::optional<CheckUpdateProcess::UpdateCheckResult>
+        updateCheckResult = CheckUpdateProcess::CheckUpdateStatus();
+    if (updateCheckResult !=
+        CheckUpdateProcess::UpdateCheckResult::UpdatesAvailable) {
+      const bool checkingForUpdates = CheckUpdateProcess::CheckingForUpdates();
 
       ImGui::SameLine();
       ImGui::PushItemFlag(ImGuiItemFlags_Disabled, checkingForUpdates);
       if (ImGui::Button("Check For Updates")) {
-        updatesAvailableFuture =
-            std::async(std::launch::async, CheckUpdatesAvailable);
-        updatesAvailable.reset();
-        checkingForUpdates = true;
+        CheckUpdateProcess::StartCheckUpdate();
       }
       ImGui::PopItemFlag();
-
-      if (checkingForUpdates &&
-          updatesAvailableFuture.wait_for(std::chrono::seconds(0)) !=
-              std::future_status::timeout) {
-        updatesAvailable = updatesAvailableFuture.get();
-        checkedForUpdates = true;
-      }
 
       if (checkingForUpdates) {
         ImGui::SameLine();
         ImGui::Text("Checking...");
-      } else if (updatesAvailable.has_value()) {
-        assert(*updatesAvailable == false);
+      } else if (updateCheckResult ==
+                 CheckUpdateProcess::UpdateCheckResult::NoUpdates) {
         ImGui::SameLine();
         ImGui::Text("Up to date");
-      } else if (checkedForUpdates) {
+      } else if (updateCheckResult ==
+                 CheckUpdateProcess::UpdateCheckResult::Error) {
         ImGui::SameLine();
         ImGui::Text("Failed checking for updates");
       }
 
-    } else if (updatesAvailable.has_value()) {
-      assert(*updatesAvailable);
-
+    } else {
       ImGui::SameLine();
       if (ImGui::Button("Update")) {
         ImGui::OpenPopup("UpdateDialogue");
