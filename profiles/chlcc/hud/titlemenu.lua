@@ -150,7 +150,26 @@ root.TitleMenu = {
     ExitSprite = "ExitSprite",
     ExitHighlightSprite = "ExitHighlightSprite",
     LineNum = 6,
-    LineEntriesSprites = {}
+    LineEntriesSprites = {},
+    -- Primary
+    NewButtonId = 0,
+    PrimLoadButtonId = 1,
+    ExtraButtonId = 2,
+    SystemButtonId = 3,
+    ExitButtonId = 4,
+    -- Secondary
+    LoadButtonId = 0,
+    QLoadButtonId = 1,
+    EndingListButtonId = 0,
+    CGButtonId = 1,
+    SoundButtonId = 2,
+    MovieButtonId = 3,
+    TipsButtonId = 4,
+    LockedTipsButtonId = 1,
+    TrophyButtonId = 5,
+    LockedTrophyButtonId = 2,
+    ConfigButtonId = 0,
+    SystemSaveButtonId = 1,
 };
 
 root.TitleMenu.IntroDelusionADVSpriteCount = #root.TitleMenu.IntroDelusionADVPositions;

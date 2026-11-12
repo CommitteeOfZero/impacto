@@ -7,6 +7,7 @@
 #include "../../inputsystem.h"
 #include "../../vm/interface/input.h"
 #include "../../ui/widgets/label.h"
+#include "../../ui/widgets/chlcc/titlebutton.h"
 #include "../../profile/ui/titlemenu.h"
 #include "../../profile/games/chlcc/titlemenu.h"
 #include "../../profile/scriptvars.h"
@@ -29,77 +30,71 @@ using namespace Impacto::Vm::Interface;
 
 using namespace Impacto::UI::Widgets::CHLCC;
 
-enum class TitleDispCtState : uint8_t {
-  IntroAnimation,
-  PressStart,
-  EmptyBackground,
-  MainEntriesFading,
-  MainEntriesControl,
-  LoadSubEntriesFading,
-  LoadSubEntriesControl,
-  ExtraSubEntriesFading,
-  ExtraSubEntriesControl,
-  SystemSubEntriesFading,
-  SystemSubEntriesControl,
-};
+// enum class TitleDispCtState : uint8_t {
+//   IntroAnimation,
+//   PressStart,
+//   EmptyBackground,
+//   MainEntriesFading,
+//   MainEntriesControl,
+//   LoadSubEntriesFading,
+//   LoadSubEntriesControl,
+//   ExtraSubEntriesFading,
+//   ExtraSubEntriesControl,
+//   SystemSubEntriesFading,
+//   SystemSubEntriesControl,
+// };
 
-static TitleDispCtState ResolveTitleDispCtState() {
-  if (Profile::Vm::GameInstructionSet ==
-      Impacto::Vm::InstructionSet::LCCSwitch) {
-    using namespace TitleMenuMode::Switch;
-    switch (ScrWork[SW_TITLEMODE]) {
-      case Mode::IntroAnimation:
-        return TitleDispCtState::IntroAnimation;
-      case Mode::PressStart:
-        return TitleDispCtState::PressStart;
-    }
-  } else {
-    using namespace TitleMenuMode::PS3;
-    switch (static_cast<Mode>(ScrWork[SW_TITLEDISPCT])) {
-      case Mode::IntroAnimation:
-        return TitleDispCtState::IntroAnimation;
-      case Mode::PressStart:
-        return TitleDispCtState::PressStart;
-      case Mode::EmptyBackground:
-        return TitleDispCtState::EmptyBackground;
-      case Mode::MainEntriesFading:
-        return TitleDispCtState::MainEntriesFading;
-      case Mode::MainEntriesControl:
-        return TitleDispCtState::MainEntriesControl;
-      case Mode::LoadSubEntriesFading:
-        return TitleDispCtState::LoadSubEntriesFading;
-      case Mode::LoadSubEntriesControl:
-        return TitleDispCtState::LoadSubEntriesControl;
-      case Mode::ExtraSubEntriesFading:
-        return TitleDispCtState::ExtraSubEntriesFading;
-      case Mode::ExtraSubEntriesControl:
-        return TitleDispCtState::ExtraSubEntriesControl;
-      case Mode::SystemSubEntriesFading:
-        return TitleDispCtState::SystemSubEntriesFading;
-      case Mode::SystemSubEntriesControl:
-        return TitleDispCtState::SystemSubEntriesControl;
-    }
-  }
-  ImpLog(
-      LogLevel::Error, LogChannel::General, "Unknown title menu state: {}\n",
-      Profile::Vm::GameInstructionSet == Impacto::Vm::InstructionSet::LCCSwitch
-          ? ScrWork[SW_TITLEMODE]
-          : ScrWork[SW_TITLEDISPCT]);
-  return TitleDispCtState::EmptyBackground;
-}
-
-void TitleMenu::MenuButtonOnClick(Widgets::Button* target) {
-  target->Hovered = false;
-  ScrWork[SW_TITLECUR1] = target->Id;
-  ChoiceMade = true;
-  // disable focus immediately, so MainItems couldn't get stuck being hovered
-  MainItems->HasFocus = false;
-}
-
-void TitleMenu::SecondaryButtonOnClick(Widgets::Button* target) {
-  ScrWork[SW_TITLECUR2] = target->Id;
-  ChoiceMade = true;
-}
+// static TitleDispCtState ResolveTitleDispCtState() {
+//   if (Profile::Vm::GameInstructionSet ==
+//       Impacto::Vm::InstructionSet::LCCSwitch) {
+//     using namespace TitleMenuMode::Switch;
+//     switch (ScrWork[SW_TITLEMODE]) {
+//       case Mode::IntroAnimation:
+//         return TitleDispCtState::IntroAnimation;
+//       case Mode::PressStart:
+//         return TitleDispCtState::PressStart;
+//       case Mode::EmptyBackground:
+//         return TitleDispCtState::EmptyBackground;
+//       case Mode::MainEntriesFading:
+//         return TitleDispCtState::MainEntriesFading;
+//       case Mode::MainEntriesControl:
+//         return TitleDispCtState::MainEntriesControl;
+//     }
+//   } else {
+//     using namespace TitleMenuMode::PS3;
+//     switch (static_cast<Mode>(ScrWork[SW_TITLEDISPCT])) {
+//       case Mode::IntroAnimation:
+//         return TitleDispCtState::IntroAnimation;
+//       case Mode::PressStart:
+//         return TitleDispCtState::PressStart;
+//       case Mode::EmptyBackground:
+//         return TitleDispCtState::EmptyBackground;
+//       case Mode::MainEntriesFading:
+//         return TitleDispCtState::MainEntriesFading;
+//       case Mode::MainEntriesControl:
+//         return TitleDispCtState::MainEntriesControl;
+//       case Mode::LoadSubEntriesFading:
+//         return TitleDispCtState::LoadSubEntriesFading;
+//       case Mode::LoadSubEntriesControl:
+//         return TitleDispCtState::LoadSubEntriesControl;
+//       case Mode::ExtraSubEntriesFading:
+//         return TitleDispCtState::ExtraSubEntriesFading;
+//       case Mode::ExtraSubEntriesControl:
+//         return TitleDispCtState::ExtraSubEntriesControl;
+//       case Mode::SystemSubEntriesFading:
+//         return TitleDispCtState::SystemSubEntriesFading;
+//       case Mode::SystemSubEntriesControl:
+//         return TitleDispCtState::SystemSubEntriesControl;
+//     }
+//   }
+//   ImpLog(
+//       LogLevel::Error, LogChannel::General, "Unknown title menu state: {}\n",
+//       Profile::Vm::GameInstructionSet ==
+//       Impacto::Vm::InstructionSet::LCCSwitch
+//           ? ScrWork[SW_TITLEMODE]
+//           : ScrWork[SW_TITLEDISPCT]);
+//   return TitleDispCtState::EmptyBackground;
+// }
 
 void TitleMenu::ExitButtonOnClick(Widgets::Button* target) {
   PADinputButtonWentDown = PADinputButtonWentDown & ~PAD1A;
@@ -114,49 +109,49 @@ TitleMenu::TitleMenu() {
   UnlockedExtraItems = new Widgets::Group(this);
   SystemItems = new Widgets::Group(this);
 
-  auto onClick = [this](auto* btn) { return MenuButtonOnClick(btn); };
-  auto secondaryOnClick = [this](auto* btn) {
-    return SecondaryButtonOnClick(btn);
+  const ButtonClickHandler primaryOnClick = [this](auto* btn) {
+    // virtual, depends on the realization
+    MenuButtonOnClick(btn);
   };
 
   // Start menu button
-  Start = new TitleButton(0, MenuEntriesSprites[0], MenuEntriesHSprites[0],
-                          ItemHighlightSprite,
+  Start = new TitleButton(NewButtonId, MenuEntriesSprites[0],
+                          MenuEntriesHSprites[0], ItemHighlightSprite,
                           glm::vec2(ItemHighlightOffset.x - 1.0f,
                                     ItemYBase - 1.0f + 0 * ItemPadding));
-  Start->OnClickHandler = onClick;
+  Start->OnClickHandler = primaryOnClick;
   MainItems->Add(Start, FDIR_DOWN);
 
   // Load menu button
-  Load = new TitleButton(1, MenuEntriesSprites[1], MenuEntriesHSprites[1],
-                         ItemHighlightSprite,
+  Load = new TitleButton(PrimLoadButtonId, MenuEntriesSprites[1],
+                         MenuEntriesHSprites[1], ItemHighlightSprite,
                          glm::vec2(ItemHighlightOffset.x - 1.0f,
                                    ItemYBase - 1.0f + 1 * ItemPadding));
-  Load->OnClickHandler = onClick;
+  Load->OnClickHandler = primaryOnClick;
   MainItems->Add(Load, FDIR_DOWN);
 
   // Extra menu button
-  Extra = new TitleButton(2, MenuEntriesSprites[2], MenuEntriesHSprites[2],
-                          ItemHighlightSprite,
+  Extra = new TitleButton(ExtraButtonId, MenuEntriesSprites[2],
+                          MenuEntriesHSprites[2], ItemHighlightSprite,
                           glm::vec2(ItemHighlightOffset.x - 1.0f,
                                     ItemYBase - 1.0f + 2 * ItemPadding));
-  Extra->OnClickHandler = onClick;
+  Extra->OnClickHandler = primaryOnClick;
   MainItems->Add(Extra, FDIR_DOWN);
 
   // System menu button
-  System = new TitleButton(3, MenuEntriesSprites[3], MenuEntriesHSprites[3],
-                           ItemHighlightSprite,
+  System = new TitleButton(SystemButtonId, MenuEntriesSprites[3],
+                           MenuEntriesHSprites[3], ItemHighlightSprite,
                            glm::vec2(ItemHighlightOffset.x - 1.0f,
                                      ItemYBase - 1.0f + 3 * ItemPadding));
-  System->OnClickHandler = onClick;
+  System->OnClickHandler = primaryOnClick;
   MainItems->Add(System, FDIR_DOWN);
 
   // Exit menu button (Configuration/Patch driven)
-  if (Patch::HasScriptedExitLogic) {
-    auto* const exitPtr =
-        new TitleButton(4, ExitSprite, ExitHighlightSprite, ItemHighlightSprite,
-                        glm::vec2(ItemHighlightOffset.x - 1.0f,
-                                  ItemYBase - 1.0f + 4 * ItemPadding));
+  if (Patch::HasScriptedExitLogic && ExitButtonId.has_value()) {
+    auto* const exitPtr = new TitleButton(
+        *ExitButtonId, ExitSprite, ExitHighlightSprite, ItemHighlightSprite,
+        glm::vec2(ItemHighlightOffset.x - 1.0f,
+                  ItemYBase - 1.0f + 4 * ItemPadding));
     exitPtr->OnClickHandler = [this](auto* btn) {
       return ExitButtonOnClick(btn);
     };
@@ -165,75 +160,91 @@ TitleMenu::TitleMenu() {
     MainItems->Add(exitPtr, FDIR_DOWN);
   }
 
+  SpinningCircleAnimation.LoopMode = AnimationLoopMode::Loop;
+  SpinningCircleAnimation.SetDuration(SpinningCircleAnimationDuration);
+  SpinningCircleFlashingAnimation.LoopMode =
+      AnimationLoopMode::ReverseDirection;
+  SpinningCircleFlashingAnimation.SetDuration(
+      SpinningCircleFlashingAnimationDuration);
+}
+
+void TitleMenu::CreateLoadItems(const ButtonClickHandler& onClick) {
   // Quick Load secondary Load menu button
-  QuickLoad = new TitleButton(0, MenuEntriesSprites[4], MenuEntriesHSprites[4],
-                              SecondaryItemHighlightSprite,
-                              glm::vec2(SecondaryItemX, ItemLoadQuickY));
-  QuickLoad->OnClickHandler = secondaryOnClick;
+  QuickLoad = new TitleButton(
+      LoadButtonId, MenuEntriesSprites[4], MenuEntriesHSprites[4],
+      SecondaryItemHighlightSprite, glm::vec2(SecondaryItemX, ItemLoadQuickY));
+  QuickLoad->OnClickHandler = onClick;
   QuickLoad->IsSubButton = true;
   QuickLoad->LineDecoration = LineSprites[2];
   QuickLoad->LineY = SecondaryMenuLoadLineY;
   LoadItems->Add(QuickLoad, FDIR_DOWN);
 
   // Sub Load secondary Load menu button
-  SubLoad = new TitleButton(1, MenuEntriesSprites[5], MenuEntriesHSprites[5],
-                            SecondaryItemHighlightSprite,
-                            glm::vec2(SecondaryItemX, ItemLoadY));
-  SubLoad->OnClickHandler = secondaryOnClick;
+  SubLoad = new TitleButton(
+      QLoadButtonId, MenuEntriesSprites[5], MenuEntriesHSprites[5],
+      SecondaryItemHighlightSprite, glm::vec2(SecondaryItemX, ItemLoadY));
+  SubLoad->OnClickHandler = onClick;
   SubLoad->IsSubButton = true;
   SubLoad->LineDecoration = LineSprites[3];
   SubLoad->LineY = SecondaryMenuLoadQuickLineY;
   LoadItems->Add(SubLoad, FDIR_DOWN);
+}
 
+void TitleMenu::CreateLockedExtraItems(const ButtonClickHandler& onClick) {
   // Locked Extra Menus
 
   // Clear List secondary Extra menu button
-  ClearList = new TitleButton(0, MenuEntriesSprites[6], MenuEntriesHSprites[6],
-                              SecondaryItemHighlightSprite,
-                              glm::vec2(SecondaryItemX, ItemSoundLibraryY));
-  ClearList->OnClickHandler = secondaryOnClick;
+  ClearList =
+      new TitleButton(EndingListButtonId, MenuEntriesSprites[6],
+                      MenuEntriesHSprites[6], SecondaryItemHighlightSprite,
+                      glm::vec2(SecondaryItemX, ItemSoundLibraryY));
+  ClearList->OnClickHandler = onClick;
   ClearList->IsSubButton = true;
   ClearList->LineDecoration = LineSprites[2];
   ClearList->LineY = SecondaryMenuExtraSoundY;
   LockedExtraItems->Add(ClearList, FDIR_DOWN);
 
   // Tips secondary Extra menu button
-  Tips = new TitleButton(1, MenuEntriesSprites[10], MenuEntriesHSprites[10],
-                         SecondaryItemHighlightSprite,
+  Tips = new TitleButton(LockedTipsButtonId, MenuEntriesSprites[10],
+                         MenuEntriesHSprites[10], SecondaryItemHighlightSprite,
                          glm::vec2(SecondaryItemX, ItemMovieLibraryY));
-  Tips->OnClickHandler = secondaryOnClick;
+  Tips->OnClickHandler = onClick;
   Tips->IsSubButton = true;
   Tips->LineDecoration = LineSprites[3];
   Tips->LineY = SecondaryMenuExtraMovieY;
   LockedExtraItems->Add(Tips, FDIR_DOWN);
 
   // Trophy secondary Extra menu button
-  Trophy = new TitleButton(2, MenuEntriesSprites[11], MenuEntriesHSprites[11],
-                           SecondaryItemHighlightSprite,
-                           glm::vec2(SecondaryItemX, ItemTipsY));
-  Trophy->OnClickHandler = secondaryOnClick;
-  Trophy->IsSubButton = true;
-  Trophy->LineDecoration = LineSprites[4];
-  Trophy->LineY = SecondaryMenuExtraTipsY;
-  LockedExtraItems->Add(Trophy, FDIR_DOWN);
 
+  if (LockedTrophyButtonId.has_value()) {
+    Trophy = new TitleButton(
+        *LockedTrophyButtonId, MenuEntriesSprites[11], MenuEntriesHSprites[11],
+        SecondaryItemHighlightSprite, glm::vec2(SecondaryItemX, ItemTipsY));
+    Trophy->OnClickHandler = onClick;
+    Trophy->IsSubButton = true;
+    Trophy->LineDecoration = LineSprites[4];
+    Trophy->LineY = SecondaryMenuExtraTipsY;
+    LockedExtraItems->Add(Trophy, FDIR_DOWN);
+  }
+}
+
+void TitleMenu::CreateUnlockedExtraItems(const ButtonClickHandler& onClick) {
   // Unlocked Extra Menus
-
   // Clear List secondary Extra menu button
-  ClearList = new TitleButton(0, MenuEntriesSprites[6], MenuEntriesHSprites[6],
-                              SecondaryItemHighlightSprite,
-                              glm::vec2(SecondaryItemX, ItemClearListY));
-  ClearList->OnClickHandler = secondaryOnClick;
+  ClearList = new TitleButton(
+      EndingListButtonId, MenuEntriesSprites[6], MenuEntriesHSprites[6],
+      SecondaryItemHighlightSprite, glm::vec2(SecondaryItemX, ItemClearListY));
+  ClearList->OnClickHandler = onClick;
   ClearList->IsSubButton = true;
   ClearList->LineDecoration = LineSprites[0];
   ClearList->LineY = SecondaryMenuExtraClearY;
   UnlockedExtraItems->Add(ClearList, FDIR_DOWN);
 
   // CG Library secondary Extra menu button
-  CGLibrary = new TitleButton(1, MenuEntriesSprites[7], MenuEntriesHSprites[7],
-                              SecondaryItemHighlightSprite,
-                              glm::vec2(SecondaryItemX, ItemCGLibraryY));
-  CGLibrary->OnClickHandler = secondaryOnClick;
+  CGLibrary = new TitleButton(
+      CGButtonId, MenuEntriesSprites[7], MenuEntriesHSprites[7],
+      SecondaryItemHighlightSprite, glm::vec2(SecondaryItemX, ItemCGLibraryY));
+  CGLibrary->OnClickHandler = onClick;
   CGLibrary->IsSubButton = true;
   CGLibrary->LineDecoration = LineSprites[1];
   CGLibrary->LineY = SecondaryMenuExtraCGY;
@@ -241,10 +252,10 @@ TitleMenu::TitleMenu() {
 
   // Sound Library secondary Extra menu button
   SoundLibrary =
-      new TitleButton(2, MenuEntriesSprites[8], MenuEntriesHSprites[8],
-                      SecondaryItemHighlightSprite,
+      new TitleButton(SoundButtonId, MenuEntriesSprites[8],
+                      MenuEntriesHSprites[8], SecondaryItemHighlightSprite,
                       glm::vec2(SecondaryItemX, ItemSoundLibraryY));
-  SoundLibrary->OnClickHandler = secondaryOnClick;
+  SoundLibrary->OnClickHandler = onClick;
   SoundLibrary->IsSubButton = true;
   SoundLibrary->LineDecoration = LineSprites[2];
   SoundLibrary->LineY = SecondaryMenuExtraSoundY;
@@ -252,63 +263,36 @@ TitleMenu::TitleMenu() {
 
   // Movie Library secondary Extra menu button
   MovieLibrary =
-      new TitleButton(3, MenuEntriesSprites[9], MenuEntriesHSprites[9],
-                      SecondaryItemHighlightSprite,
+      new TitleButton(MovieButtonId, MenuEntriesSprites[9],
+                      MenuEntriesHSprites[9], SecondaryItemHighlightSprite,
                       glm::vec2(SecondaryItemX, ItemMovieLibraryY));
-  MovieLibrary->OnClickHandler = secondaryOnClick;
+  MovieLibrary->OnClickHandler = onClick;
   MovieLibrary->IsSubButton = true;
   MovieLibrary->LineDecoration = LineSprites[3];
   MovieLibrary->LineY = SecondaryMenuExtraMovieY;
   UnlockedExtraItems->Add(MovieLibrary, FDIR_DOWN);
 
   // Tips secondary Extra menu button
-  Tips = new TitleButton(4, MenuEntriesSprites[10], MenuEntriesHSprites[10],
-                         SecondaryItemHighlightSprite,
+  Tips = new TitleButton(TipsButtonId, MenuEntriesSprites[10],
+                         MenuEntriesHSprites[10], SecondaryItemHighlightSprite,
                          glm::vec2(SecondaryItemX, ItemTipsY));
-  Tips->OnClickHandler = secondaryOnClick;
+  Tips->OnClickHandler = onClick;
   Tips->IsSubButton = true;
   Tips->LineDecoration = LineSprites[4];
   Tips->LineY = SecondaryMenuExtraTipsY;
   UnlockedExtraItems->Add(Tips, FDIR_DOWN);
 
   // Trophy secondary Extra menu button
-  Trophy = new TitleButton(5, MenuEntriesSprites[11], MenuEntriesHSprites[11],
-                           SecondaryItemHighlightSprite,
-                           glm::vec2(SecondaryItemX, ItemTrophyY));
-  Trophy->OnClickHandler = secondaryOnClick;
-  Trophy->IsSubButton = true;
-  Trophy->LineDecoration = LineSprites[5];
-  Trophy->LineY = SecondaryMenuExtraTrophyY;
-  UnlockedExtraItems->Add(Trophy, FDIR_DOWN);
-
-  // Option secondary System menu button
-  Config = new TitleButton(0, MenuEntriesSprites[12], MenuEntriesHSprites[12],
-                           SecondaryItemHighlightSprite,
-                           glm::vec2(SecondaryItemX, ItemConfigY));
-  Config->OnClickHandler = secondaryOnClick;
-  Config->IsSubButton = true;
-  Config->LineDecoration = LineSprites[2];
-  Config->LineY = SecondaryMenuSystemConfigY;
-  SystemItems->Add(Config, FDIR_DOWN);
-
-  // System Save secondary System menu button
-  SystemSave = new TitleButton(
-      1, MenuEntriesSprites[13], MenuEntriesHSprites[13],
-      SecondaryItemHighlightSprite, glm::vec2(SecondaryItemX, ItemSystemSaveY));
-  SystemSave->OnClickHandler = secondaryOnClick;
-  SystemSave->IsSubButton = true;
-  SystemSave->LineDecoration = LineSprites[3];
-  SystemSave->LineY = SecondaryMenuSystemSaveY;
-  SystemItems->Add(SystemSave, FDIR_DOWN);
-
-  CurrentExtraItems = LockedExtraItems;
-
-  SpinningCircleAnimation.LoopMode = AnimationLoopMode::Loop;
-  SpinningCircleAnimation.SetDuration(SpinningCircleAnimationDuration);
-  SpinningCircleFlashingAnimation.LoopMode =
-      AnimationLoopMode::ReverseDirection;
-  SpinningCircleFlashingAnimation.SetDuration(
-      SpinningCircleFlashingAnimationDuration);
+  if (TrophyButtonId.has_value()) {
+    Trophy = new TitleButton(
+        *TrophyButtonId, MenuEntriesSprites[11], MenuEntriesHSprites[11],
+        SecondaryItemHighlightSprite, glm::vec2(SecondaryItemX, ItemTrophyY));
+    Trophy->OnClickHandler = onClick;
+    Trophy->IsSubButton = true;
+    Trophy->LineDecoration = LineSprites[5];
+    Trophy->LineY = SecondaryMenuExtraTrophyY;
+    UnlockedExtraItems->Add(Trophy, FDIR_DOWN);
+  }
 }
 
 void TitleMenu::Show() {
@@ -356,247 +340,6 @@ void TitleMenu::ResetIntroSequence() {
   IntroSequence.Reset();
   SpinningCircleAnimation.Reset();
   SpinningCircleFlashingAnimation.Reset();
-}
-
-void TitleMenu::Update(float dt) {
-  const auto presentationState = ResolveTitleDispCtState();
-  UpdateInput(dt);
-  PressToStartAnimation.Update(dt);
-  SpinningCircleAnimation.Update(dt);
-  SpinningCircleFlashingAnimation.Update(dt);
-  PrimaryFadeAnimation.Update(dt);
-  SecondaryFadeAnimation.Update(dt);
-
-  if (GetFlag(SF_TITLEMODE)) {
-    Show();
-  } else if (State == Shown &&
-             presentationState != TitleDispCtState::ExtraSubEntriesControl) {
-    // when loading/starting a game from a submenu
-    Hide();
-  }
-
-  // CHLCC has "congrats" screen that is rendered as a BG on top of the title
-  // menu while it's still focused, and it's possible to hover extraSubItems
-  const bool hasVisibleBGs =
-      std::ranges::any_of(Impacto::Backgrounds2D,
-                          [](const auto& pair) { return pair.second->Show; });
-  if (State == Shown && IsFocused && !hasVisibleBGs) {
-    MainItems->Tint.a =
-        glm::smoothstep(0.0f, 1.0f, PrimaryFadeAnimation.Progress);
-    MainItems->UpdateInput(dt);
-    MainItems->Update(dt);
-    const float secondarySmoothProgress =
-        glm::smoothstep(0.0f, 1.0f, SecondaryFadeAnimation.Progress);
-    LoadItems->Tint.a = secondarySmoothProgress;
-    LoadItems->UpdateInput(dt);
-    LoadItems->Update(dt);
-    CurrentExtraItems->Tint.a = secondarySmoothProgress;
-    CurrentExtraItems->UpdateInput(dt);
-    CurrentExtraItems->Update(dt);
-    SystemItems->Tint.a = secondarySmoothProgress;
-    SystemItems->UpdateInput(dt);
-    SystemItems->Update(dt);
-
-    switch (presentationState) {
-      case TitleDispCtState::IntroAnimation: {
-        if (IntroSequence.IntroAnimation.IsIn() && ScrWork[SW_TITLECT] == 0) {
-          ResetIntroSequence();
-        }
-        if (!IntroSequence.IntroAnimation.IsPlaying()) {
-          IntroSequence.IntroAnimation.StartIn();
-        }
-
-        // Skip the animation if requested
-        if (ScrWork[SW_TITLECT] >= 934 &&
-            IntroSequence.IntroAnimation.State == AnimationState::Playing) {
-          IntroSequence.IntroAnimation.Finish();
-        }
-
-        if (!IntroSequence.SeiraAnimation.IsOut() &&
-            SpinningCircleAnimation.State == AnimationState::Stopped) {
-          SpinningCircleAnimation.StartIn();
-          SpinningCircleFlashingAnimation.StartIn();
-        }
-
-        IntroSequence.Update(dt);
-
-        MainItems->Hide();
-        // When returning to title menu from loading a game we need to hide the
-        // load sub-menu
-        if (LoadItems->VisibilityState != Hidden) {
-          SecondaryFadeAnimation.StartOut();
-          MainItems->HasFocus = true;
-          LoadItems->Hide();
-        }
-      } break;
-      case TitleDispCtState::PressStart: {
-        MainItems->MoveTo({-ItemHighlightOffset.x, 0});
-        if (!GetFlag(SF_TITLEMODE)) {
-          Hide();
-          break;
-        }
-        if (PressToStartAnimation.State == AnimationState::Stopped) {
-          PressToStartAnimation.StartIn();
-        }
-      } break;
-      case TitleDispCtState::EmptyBackground: {
-        MainItems->MoveTo({-ItemHighlightOffset.x, 0});
-        PrimaryFadeAnimation.Reset(AnimationDirection::In);
-        SecondaryFadeAnimation.Reset(AnimationDirection::In);
-      } break;
-      case TitleDispCtState::MainEntriesFading: {
-        if (MainItems->VisibilityState == Hidden && ScrWork[SW_TITLECT] == 0) {
-          MainItems->Show();
-          MainItems->Tint.a = 0.0f;
-          CurrentlyFocusedElement = Start;
-          Start->HasFocus = true;
-          PrimaryFadeAnimation.StartIn();
-          const glm::vec2 mainItemsEndPos = {0, 0};
-          MainItems->MoveTo(mainItemsEndPos, PrimaryFadeAnimation.DurationIn);
-        } else if (MainItems->VisibilityState != Hidden &&
-                   ScrWork[SW_TITLECT] == 32) {
-          PrimaryFadeAnimation.StartOut();
-          const glm::vec2 mainItemsEndPos = {-ItemHighlightOffset.x, 0};
-          MainItems->MoveTo(mainItemsEndPos, PrimaryFadeAnimation.DurationOut);
-
-        } else if (ScrWork[SW_TITLECT] == 0) {
-          MainItems->Hide();
-        }
-
-      } break;
-      case TitleDispCtState::MainEntriesControl: {
-        MainItems->MoveTo({0, 0});
-        if (!GetFlag(SF_TITLEMODE)) {
-          Hide();
-        }
-      } break;
-      case TitleDispCtState::LoadSubEntriesFading: {
-        if (LoadItems->VisibilityState == Hidden && ScrWork[SW_TITLECT] == 0) {
-          LoadItems->Show();
-          LoadItems->Tint.a = 0.0f;
-          MainItems->HasFocus = false;
-          CurrentlyFocusedElement = QuickLoad;
-          QuickLoad->HasFocus = true;
-          SecondaryFadeAnimation.StartIn();
-
-        } else if (LoadItems->VisibilityState != Hidden &&
-                   ScrWork[SW_TITLECT] == 32) {
-          SecondaryFadeAnimation.StartOut();
-
-        } else if (ScrWork[SW_TITLECT] == 0) {
-          LoadItems->Hide();
-          MainItems->HasFocus = true;
-        }
-      } break;
-      case TitleDispCtState::ExtraSubEntriesFading: {
-        if (CurrentExtraItems->VisibilityState == Hidden &&
-            ScrWork[SW_TITLECT] == 0) {
-          CurrentExtraItems->Show();
-          CurrentExtraItems->Tint.a = 0.0f;
-          MainItems->HasFocus = false;
-          CurrentlyFocusedElement = ClearList;
-          ClearList->HasFocus = true;
-          SecondaryFadeAnimation.StartIn();
-
-        } else if (CurrentExtraItems->VisibilityState != Hidden &&
-                   ScrWork[SW_TITLECT] == 32) {
-          SecondaryFadeAnimation.StartOut();
-
-        } else if (ScrWork[SW_TITLECT] == 0) {
-          CurrentExtraItems->Hide();
-          MainItems->HasFocus = true;
-        }
-      } break;
-      case TitleDispCtState::SystemSubEntriesFading: {
-        if (SystemItems->VisibilityState == Hidden &&
-            ScrWork[SW_TITLECT] == 0) {
-          SystemItems->Show();
-          SystemItems->Tint.a = 0.0f;
-          MainItems->HasFocus = false;
-          CurrentlyFocusedElement = Config;
-          Config->HasFocus = true;
-          SecondaryFadeAnimation.StartIn();
-
-        } else if (SystemItems->VisibilityState != Hidden &&
-                   ScrWork[SW_TITLECT] == 32) {
-          SecondaryFadeAnimation.StartOut();
-
-        } else if (ScrWork[SW_TITLECT] == 0) {
-          SystemItems->Hide();
-          MainItems->HasFocus = true;
-        }
-      } break;
-      default:
-        break;
-    }
-  }
-}
-
-void TitleMenu::Render() {
-  const auto presentationState = ResolveTitleDispCtState();
-  if (State != Hidden && GetFlag(SF_TITLEMODE)) {
-    if (ScrWork[SW_MENUCT] < 64) {
-      switch (presentationState) {
-        case TitleDispCtState::IntroAnimation: {
-          if (IntroSequence.FallingStarsAnimation.IsIn()) {
-            Renderer->DrawSprite(BackgroundSprite, glm::vec2(0.0f));
-          }
-
-          if (SpinningCircleAnimation.State == AnimationState::Playing) {
-            DrawSpinningCircle(IntroSequence.SeiraAnimation.Progress);
-          }
-
-          IntroSequence.Render();
-        } break;
-        case TitleDispCtState::PressStart: {
-          DrawTitleMenuBackGraphics();
-          glm::vec4 col = glm::vec4(1.0f);
-          col.a = glm::smoothstep(0.0f, 1.0f, PressToStartAnimation.Progress);
-          Renderer->DrawSprite(PressToStartSprite, PressToStartPos, col);
-        } break;
-        case TitleDispCtState::EmptyBackground: {
-          DrawTitleMenuBackGraphics();
-        } break;
-        case TitleDispCtState::MainEntriesFading: {
-          DrawTitleMenuBackGraphics();
-          MainItems->Render();
-        } break;
-        case TitleDispCtState::MainEntriesControl: {
-          DrawTitleMenuBackGraphics();
-          MainItems->Render();
-        } break;
-        case TitleDispCtState::LoadSubEntriesFading:
-        case TitleDispCtState::LoadSubEntriesControl: {
-          DrawTitleMenuBackGraphics();
-          LoadItems->Render();
-          MainItems->Render();
-        } break;
-        case TitleDispCtState::ExtraSubEntriesFading:
-          [[fallthrough]];
-        case TitleDispCtState::ExtraSubEntriesControl: {
-          DrawTitleMenuBackGraphics();
-          CurrentExtraItems->Render();
-          MainItems->Render();
-        } break;
-        case TitleDispCtState::SystemSubEntriesFading:
-          [[fallthrough]];
-        case TitleDispCtState::SystemSubEntriesControl: {
-          DrawTitleMenuBackGraphics();
-          SystemItems->Render();
-          MainItems->Render();
-        } break;
-        default:
-          break;
-      }
-    }
-
-    int maskAlpha = ScrWork[SW_TITLEMASKALPHA];
-    glm::vec4 col = ScrWorkGetColor(SW_TITLEMASKCOLOR);
-    col.a = glm::min(maskAlpha / 255.0f, 1.0f);
-    Renderer->DrawQuad(RectF{0.0f, 0.0f, Profile::Game::DesignWidth,
-                             Profile::Game::DesignHeight},
-                       col);
-  }
 }
 
 void TitleMenu::DrawSpinningCircle(float alpha) const {
