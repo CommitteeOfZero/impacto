@@ -18,9 +18,12 @@
 #include "enhancementspage.h"
 #include "settingspage.h"
 
+#include "notification/toastnotification.h"
+
 #include "../game.h"
 #include "../log.h"
 #include "../inputsystem.h"
+#include "../profile/overlay.h"
 #include "../profile/game.h"
 #include "../profile/gamedefinitions.h"
 #include "../profile/basepaths.h"
@@ -258,6 +261,7 @@ void Init() {
   SetupStyle();
   SetupFonts();
   SetupIcons();
+
   HasInit = true;
 }
 

@@ -11,7 +11,9 @@
 
 #ifndef IMPACTO_DISABLE_IMGUI
 #include "overlay/overlay.h"
-#include "overlay/toastnotification.h"
+#include "overlay/notification/toastnotification.h"
+
+#include "profile/overlay.h"
 #endif
 
 #include "ui/ui.h"
@@ -35,7 +37,6 @@
 #include "hud/saveicondisplay.h"
 #include "hud/loadingdisplay.h"
 #include "hud/tipsnotification.h"
-#include "hud/achievementnotification.h"
 #include "games/cclcc/systemmenu.h"
 #include "effects/wave.h"
 #include "effects/blur.h"
@@ -126,6 +127,12 @@ void InitGameProfile() {
   std::fill(std::begin(DrawComponents), std::end(DrawComponents),
             DrawComponentType::None);
 
+#ifndef IMPACTO_DISABLE_IMGUI
+  if (+Profile::Game::GameFeatures & +GameFeature::Overlay) {
+    Profile::Overlay::Configure();
+  }
+#endif
+
   Profile::ConfigSystem::Configure();
 
   if (+Profile::Game::GameFeatures & +GameFeature::Audio) {
@@ -199,9 +206,6 @@ void InitGameProfile() {
     Profile::ExtraMenus::Configure();
     DateDisplay::Init();
     TipsNotification::Init();
-    if (+Profile::Game::GameFeatures & +GameFeature::Achievements) {
-      AchievementNotification::Init();
-    }
     // Default controls
     Vm::Interface::UpdatePADcustomType(0);
 
@@ -373,9 +377,6 @@ void UpdateSystem(float dt) {
     SaveIconDisplay::Update(updateInterval);
     LoadingDisplay::Update(updateInterval);
     DateDisplay::Update(updateInterval);
-    if (+Profile::Game::GameFeatures & +GameFeature::Achievements) {
-      AchievementNotification::Update(updateInterval);
-    }
     if (ScrWork[SW_GAMESTATE] & 5 && !GetFlag(SF_GAMEPAUSE)) {
       UI::GameSpecific::Update(updateInterval);
 
@@ -749,9 +750,6 @@ void Render() {
       for (auto const& menu : UI::Menus[DrawComponents[i]]) {
         menu->Render();
       }
-    }
-    if (+Profile::Game::GameFeatures & +GameFeature::Achievements) {
-      AchievementNotification::Render();
     }
   }
 
