@@ -1120,6 +1120,7 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
 
     list(APPEND Impacto_Src
         src/overlay/overlay.cpp
+        src/overlay/toastnotification.cpp
         src/overlay/uninstaller.cpp
         src/overlay/utils.cpp
 
@@ -1130,6 +1131,7 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
     )
     list(APPEND Impacto_Header
         src/overlay/overlay.h
+        src/overlay/toastnotification.h
         src/overlay/uninstaller.h
         src/overlay/utils.h
 

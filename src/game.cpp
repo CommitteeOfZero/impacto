@@ -11,6 +11,7 @@
 
 #ifndef IMPACTO_DISABLE_IMGUI
 #include "overlay/overlay.h"
+#include "overlay/toastnotification.h"
 #endif
 
 #include "ui/ui.h"
@@ -444,6 +445,12 @@ void Update(float dt) {
     AutoIconDisplay::Update(dt);
     SkipIconDisplay::Update(dt);
   }
+
+#ifndef IMPACTO_DISABLE_IMGUI
+  if (+Profile::Game::GameFeatures & +GameFeature::Overlay) {
+    Overlay::ToastNotificationHandlerInst.Update(dt);
+  }
+#endif
 }
 
 static void RenderMain() {
@@ -765,6 +772,7 @@ void Render() {
   }
 #ifndef IMPACTO_DISABLE_IMGUI
   if (+Profile::Game::GameFeatures & +GameFeature::Overlay) {
+    Overlay::ToastNotificationHandlerInst.Render();
     Overlay::Show();
   }
 #endif
