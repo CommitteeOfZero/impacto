@@ -70,84 +70,73 @@ static void ShowPlayTime(char const* label, const uint32_t totalSeconds) {
   return uninstallerPath;
 }
 
-[[nodiscard]] static std::future<std::optional<bool>> CheckUpdatesAvailable() {
+[[nodiscard]] static std::optional<bool> CheckUpdatesAvailable() {
   const std::filesystem::path uninstallerPath = *GetUninstallerPath();
   const std::string uninstallerPathString = uninstallerPath.string();
 
   const char* const args[] = {
       uninstallerPathString.c_str(), "check-updates", "-g", "js=false", nullptr,
   };
-  std::unique_ptr<SDL_Process, decltype(&SDL_DestroyProcess)> process(
+  const std::unique_ptr<SDL_Process, decltype(&SDL_DestroyProcess)> process(
       SDL_CreateProcess(args, true), SDL_DestroyProcess);
 
   if (process == nullptr) {
     ImpLog(LogLevel::Error, LogChannel::Overlay,
            "Failed to start check-updates process: {:s}", SDL_GetError());
-    std::promise<std::optional<bool>> promise;
-    promise.set_value(std::nullopt);
-    return promise.get_future();
+    return std::nullopt;
   }
 
-  return std::async(
-      std::launch::async,
-      [](const std::unique_ptr<SDL_Process, decltype(&SDL_DestroyProcess)>
-             process) -> std::optional<bool> {
-        int exitCode = EXIT_SUCCESS;
-        std::future<bool> waitThread =
-            std::async(std::launch::async, SDL_WaitProcess, process.get(), true,
-                       &exitCode);
+  auto waitStartTime = std::chrono::system_clock::now();
+  int exitCode = EXIT_SUCCESS;
+  while (!SDL_WaitProcess(process.get(), false, &exitCode)) {
+    const auto waitDuration = std::chrono::system_clock::now() - waitStartTime;
+    if (waitDuration >= std::chrono::seconds(5)) {
+      ImpLog(LogLevel::Error, LogChannel::Overlay,
+             "Update checker is not responding. Killing process");
 
-        if (waitThread.wait_for(std::chrono::seconds(5)) ==
-            std::future_status::timeout) {
+      if (!SDL_KillProcess(process.get(), false)) {
+        ImpLog(
+            LogLevel::Error, LogChannel::Overlay,
+            "Failed to kill update-checker. Attempting force-kill. Error: {:s}",
+            SDL_GetError());
+
+        if (!SDL_KillProcess(process.get(), true)) {
           ImpLog(LogLevel::Error, LogChannel::Overlay,
-                 "Update checker is not responding. Killing process");
-
-          if (!SDL_KillProcess(process.get(), false)) {
-            ImpLog(LogLevel::Error, LogChannel::Overlay,
-                   "Failed to kill update-checker. Attempting force-kill. "
-                   "Error: {:s}",
-                   SDL_GetError());
-
-            if (!SDL_KillProcess(process.get(), true)) {
-              ImpLog(LogLevel::Error, LogChannel::Overlay,
-                     "Failed to force-kill update checker: {:s}",
-                     SDL_GetError());
-            }
-          }
-
-          return std::nullopt;
+                 "Failed to force-kill update checker: {:s}", SDL_GetError());
         }
+      }
 
-        waitThread.get();
-        if (exitCode != EXIT_SUCCESS) {
-          ImpLog(LogLevel::Error, LogChannel::Overlay,
-                 "Update checker returned exit code {:d}", exitCode);
-          return std::nullopt;
-        }
+      return std::nullopt;
+    }
+  }
 
-        const std::unique_ptr<SDL_IOStream, decltype(&SDL_CloseIO)>
-            outputStream(SDL_GetProcessOutput(process.get()), SDL_CloseIO);
-        if (outputStream == nullptr) {
-          ImpLog(LogLevel::Error, LogChannel::Overlay,
-                 "Failed to fetch update checker output: {:s}", SDL_GetError());
-          return std::nullopt;
-        }
+  if (exitCode != EXIT_SUCCESS) {
+    ImpLog(LogLevel::Error, LogChannel::Overlay,
+           "Update checker returned exit code {:d}", exitCode);
+    return std::nullopt;
+  }
 
-        std::vector<uint8_t> outputBuffer;
-        do {
-          outputBuffer.emplace_back(0);
-        } while (SDL_ReadU8(outputStream.get(), &outputBuffer.back()));
+  const std::unique_ptr<SDL_IOStream, decltype(&SDL_CloseIO)> outputStream(
+      SDL_GetProcessOutput(process.get()), SDL_CloseIO);
+  if (outputStream == nullptr) {
+    ImpLog(LogLevel::Error, LogChannel::Overlay,
+           "Failed to fetch update checker output: {:s}", SDL_GetError());
+    return std::nullopt;
+  }
 
-        if (SDL_GetIOStatus(outputStream.get()) != SDL_IO_STATUS_EOF) {
-          ImpLog(LogLevel::Error, LogChannel::Overlay,
-                 "Failed to read from output stream: {:s}", SDL_GetError());
-          return std::nullopt;
-        }
+  std::vector<uint8_t> outputBuffer;
+  do {
+    outputBuffer.emplace_back(0);
+  } while (SDL_ReadU8(outputStream.get(), &outputBuffer.back()));
 
-        // There is no output iff there are no updates
-        return outputBuffer.size() > 1;
-      },
-      std::move(process));
+  if (SDL_GetIOStatus(outputStream.get()) != SDL_IO_STATUS_EOF) {
+    ImpLog(LogLevel::Error, LogChannel::Overlay,
+           "Failed to read from output stream: {:s}", SDL_GetError());
+    return std::nullopt;
+  }
+
+  // There is no output iff there are no updates
+  return outputBuffer.size() > 1;
 }
 
 void ShowAboutPage(std::string const& selectedGame) {
@@ -169,7 +158,8 @@ void ShowAboutPage(std::string const& selectedGame) {
       ImGui::SameLine();
       ImGui::PushItemFlag(ImGuiItemFlags_Disabled, checkingForUpdates);
       if (ImGui::Button("Check For Updates")) {
-        updatesAvailableFuture = CheckUpdatesAvailable();
+        updatesAvailableFuture =
+            std::async(std::launch::async, CheckUpdatesAvailable);
         updatesAvailable.reset();
         checkingForUpdates = true;
       }
