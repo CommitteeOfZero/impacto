@@ -18,6 +18,11 @@
 #include "io/physicalfilestream.h"
 #include "io/filemeta.h"
 
+#ifndef IMPACTO_DISABLE_IMGUI
+#include "overlay/uninstaller.h"
+#include "overlay/notification/toastnotification.h"
+#endif
+
 using namespace Impacto;
 
 static uint64_t t;
@@ -165,6 +170,26 @@ static void HandleArguments(std::vector<std::string_view> args) {
   }
 };
 
+#ifndef IMPACTO_DISABLE_IMGUI
+static void CheckForUpdates() {
+  Overlay::CheckUpdateProcess checkUpdateProcess;
+  checkUpdateProcess.StartCheckUpdate();
+
+  std::optional<Overlay::CheckUpdateProcess::UpdateCheckResult> result;
+  while (!result.has_value()) {
+    SDL_Delay(100);
+    result = checkUpdateProcess.CheckUpdateStatus();
+  }
+
+  if (*result ==
+      Overlay::CheckUpdateProcess::UpdateCheckResult::UpdatesAvailable) {
+    Overlay::ToastNotificationHandlerInst.Push(
+        std::make_unique<Overlay::TextToastNotification>(
+            "There is an update available."));
+  }
+}
+#endif
+
 int main(int argc, char* argv[]) {
 #ifdef EMSCRIPTEN
   EM_ASM(OnGameLoadStart(););
@@ -237,6 +262,10 @@ int main(int argc, char* argv[]) {
 
     if (!Game::ShouldQuit) {
       Game::InitGameProfile();
+
+#ifndef IMPACTO_DISABLE_IMGUI
+      std::thread(CheckForUpdates).detach();
+#endif
     }
     t = SDL_GetPerformanceCounter();
     while (!Game::ShouldQuit) {
