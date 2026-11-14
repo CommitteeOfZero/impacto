@@ -28,6 +28,8 @@ inline std::vector<ProcessedTextGlyph> BuildTextLine(std::string_view text,
 }
 
 struct ToastNotificationInterface {
+  virtual ~ToastNotificationInterface() = default;
+
   virtual void Render(const Animation& animation) = 0;
   virtual void UpdateInput(float dt, const Animation& animation) {}
 

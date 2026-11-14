@@ -92,4 +92,30 @@ void ToastNotificationHandler::Push(
   PendingNotifications.emplace_back(std::move(notification));
 }
 
+TextToastNotification::TextToastNotification(std::string_view text) {
+  const RectF rect = GetNotificationRect();
+
+  const float left = TextPadding * Scale;
+  const float baselineY = (TextPadding + TextSize) * Scale;
+  const float availableWidth = rect.Width - TextPadding * Scale * 2.0f;
+
+  BuildTextLine(ProcessedText, text, TextSize * Scale, left, baselineY,
+                availableWidth, TextColors.TextColor);
+}
+
+void TextToastNotification::Render(const Animation& animation) {
+  RectF rect = GetNotificationRect();
+  rect.Y += rect.Height * (1.0f - animation.Progress);
+
+  Renderer->DrawSprite(NotificationBackgroundSprite, rect);
+
+  if (!ProcessedText.empty()) {
+    NotificationFont->DrawProcessedText(ProcessedText, 1.0f, 1.0f,
+                                        RendererOutlineMode::BottomRight,
+                                        rect.GetPos());
+  }
+}
+
+void TextToastNotification::UpdateInput(float dt, const Animation& animation) {}
+
 }  // namespace Impacto::Overlay
