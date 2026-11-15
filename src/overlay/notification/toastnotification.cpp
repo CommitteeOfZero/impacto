@@ -92,15 +92,19 @@ void ToastNotificationHandler::Push(
   PendingNotifications.emplace_back(std::move(notification));
 }
 
-TextToastNotification::TextToastNotification(std::string_view text) {
+TextToastNotification::TextToastNotification(
+    const std::span<const std::string_view> lines) {
   const RectF rect = GetNotificationRect();
 
   const float left = TextPadding * Scale;
-  const float baselineY = (TextPadding + TextSize) * Scale;
+  float baselineY = (TextPadding + TextSize) * Scale;
   const float availableWidth = rect.Width - TextPadding * Scale * 2.0f;
 
-  BuildTextLine(ProcessedText, text, TextSize * Scale, left, baselineY,
-                availableWidth, TextColors.TextColor);
+  for (const std::string_view line : lines) {
+    BuildTextLine(ProcessedText, line, TextSize * Scale, left, baselineY,
+                  availableWidth, TextColors.TextColor);
+    baselineY += (TextSize + TextLineGap) * Scale;
+  }
 }
 
 void TextToastNotification::Render(const Animation& animation) {

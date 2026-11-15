@@ -38,7 +38,9 @@ struct ToastNotificationInterface {
 
 struct TextToastNotification final : public ToastNotificationInterface {
  public:
-  TextToastNotification(std::string_view text);
+  TextToastNotification(std::span<const std::string_view> lines);
+  TextToastNotification(std::string_view text)
+      : TextToastNotification(std::array<const std::string_view, 1>{text}) {}
 
   void Render(const Animation& animation) override;
   void UpdateInput(float dt, const Animation& animation) override;
