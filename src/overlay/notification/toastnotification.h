@@ -14,6 +14,14 @@
 
 namespace Impacto::Overlay {
 
+enum class NotificationType : uint8_t {
+  None = 0,
+  Hints = 1 << 0,
+  Updates = 1 << 1,
+  Achievements = 1 << 2,
+  All = (Achievements << 1) - 1,
+};
+
 void BuildTextLine(std::vector<ProcessedTextGlyph>& appendBuffer,
                    std::string_view text, float fontSize, float left,
                    float baselineY, float availableWidth, uint32_t color);
@@ -80,3 +88,8 @@ class ToastNotificationHandler {
 inline ToastNotificationHandler ToastNotificationHandlerInst;
 
 }  // namespace Impacto::Overlay
+
+template <>
+struct magic_enum::customize::enum_range<Impacto::Overlay::NotificationType> {
+  static constexpr bool is_flags = true;
+};

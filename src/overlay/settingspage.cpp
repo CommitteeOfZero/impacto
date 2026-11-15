@@ -9,6 +9,38 @@
 
 namespace Impacto::Overlay {
 
+static void ShowNotificationsOptions() {
+  auto& commonSettings = UserConfig::CommonSettings;
+
+  bool enableNotifications =
+      commonSettings.EnabledNotifications != NotificationType::None;
+  if (ImGui::Checkbox("##", &enableNotifications)) {
+    commonSettings.EnabledNotifications =
+        enableNotifications ? NotificationType::All : NotificationType::None;
+  }
+
+  ImGui::SameLine();
+  if (ImGui::TreeNodeEx("Show Notifications")) {
+    for (auto&& [notificationType, notificationName] :
+         magic_enum::enum_entries<NotificationType>()) {
+      bool isEnabled = magic_enum::enum_flags_test(
+          commonSettings.EnabledNotifications, notificationType);
+
+      if (ImGui::Checkbox(notificationName.data(), &isEnabled)) {
+        if (isEnabled) {
+          magic_enum::bitwise_operators::operator|=(
+              commonSettings.EnabledNotifications, notificationType);
+        } else {
+          magic_enum::bitwise_operators::operator&=(
+              commonSettings.EnabledNotifications,
+              magic_enum::bitwise_operators::operator~(notificationType));
+        }
+      }
+    }
+    ImGui::TreePop();
+  }
+}
+
 static void ShowCommonSettings() {
   const float comboWidth = 200.0f * Window->DpiScale;
 
@@ -19,6 +51,9 @@ static void ShowCommonSettings() {
     auto& commonSettings = UserConfig::CommonSettings;
     ImGui::Checkbox("Swap Confirm/Cancel Buttons",
                     &commonSettings.SwapConfirmCancelButtons);
+
+    ShowNotificationsOptions();
+
     ImGui::Checkbox("Log to Console", &commonSettings.LoggingToConsole);
     if (ImGui::Checkbox("Log to File", &commonSettings.LoggingToFile)) {
       LogInitFile();

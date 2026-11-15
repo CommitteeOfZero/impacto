@@ -264,13 +264,22 @@ int main(int argc, char* argv[]) {
       Game::InitGameProfile();
 
 #ifndef IMPACTO_DISABLE_IMGUI
-      Overlay::ToastNotificationHandlerInst.Push(
-          std::make_unique<Overlay::TextToastNotification>(
-              std::array<std::string_view, 2>{
-                  "Press Shift+0, L3, or tap with three fingers",
-                  "to open the Impacto overlay."},
-              Overlay::OverlayTab::Settings));
-      std::thread(CheckForUpdates).detach();
+      if (magic_enum::enum_flags_test(
+              UserConfig::CommonSettings.EnabledNotifications,
+              Overlay::NotificationType::Hints)) {
+        Overlay::ToastNotificationHandlerInst.Push(
+            std::make_unique<Overlay::TextToastNotification>(
+                std::array<std::string_view, 2>{
+                    "Press Shift+0, L3, or tap with three fingers",
+                    "to open the Impacto overlay."},
+                Overlay::OverlayTab::Settings));
+      }
+
+      if (magic_enum::enum_flags_test(
+              UserConfig::CommonSettings.EnabledNotifications,
+              Overlay::NotificationType::Updates)) {
+        std::thread(CheckForUpdates).detach();
+      }
 #endif
     }
     t = SDL_GetPerformanceCounter();

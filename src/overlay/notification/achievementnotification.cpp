@@ -3,6 +3,7 @@
 #include "toastnotification.h"
 #include "../overlay.h"
 
+#include "../../userconfig.h"
 #include "../../data/achievementsystem.h"
 #include "../../text/fonts/font.h"
 #include "../../inputsystem.h"
@@ -97,6 +98,12 @@ void AchievementNotification::Render(const Animation& animation) {
 }
 
 void AchievementNotification::Show(const size_t achievementId) {
+  if (!magic_enum::enum_flags_test(
+          UserConfig::CommonSettings.EnabledNotifications,
+          NotificationType::Achievements)) {
+    return;
+  }
+
   const AchievementSystem::Achievement* const achievement =
       AchievementSystem::GetAchievement(static_cast<int>(achievementId));
 
