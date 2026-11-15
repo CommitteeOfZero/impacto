@@ -812,24 +812,27 @@ SaveError SaveSystem::WriteSaveFile() {
   uint8_t fileThumbnailsChecksumSum = 0;
   uint8_t fileThumbnailsChecksumXor = 0;
 
-  for (auto& entryArray : {QuickSaveEntries, FullSaveEntries}) {
-    for (size_t i = 0; i < MaxSaveEntries; i++) {
-      SaveFileEntry* entry = static_cast<SaveFileEntry*>(entryArray[i]);
+  const auto writeThumbnail = [&](SaveFileEntry* entry) {
+    if (entry == nullptr || entry->Status == 0) {
+      Io::WriteLE<uint8_t>(thumbnailsStream, 0,
+                           SaveThumbnailSize + ThumbnailPaddingSize);
+    } else {
+      Io::WriteArrayLE<uint8_t>(entry->ThumbnailData.data(), thumbnailsStream,
+                                entry->ThumbnailData.size());
+      Io::WriteLE<uint8_t>(thumbnailsStream, 0, ThumbnailPaddingSize);
 
-      if (entry == nullptr || entry->Status == 0) {
-        Io::WriteLE<uint8_t>(thumbnailsStream, 0,
-                             SaveThumbnailSize + ThumbnailPaddingSize);
-      } else {
-        Io::WriteArrayLE<uint8_t>(entry->ThumbnailData.data(), thumbnailsStream,
-                                  entry->ThumbnailData.size());
-        Io::WriteLE<uint8_t>(thumbnailsStream, 0, ThumbnailPaddingSize);
-
-        std::tie(fileThumbnailsChecksumSum, fileThumbnailsChecksumXor) =
-            CalculateFileChecksum(entry->ThumbnailData,
-                                  fileThumbnailsChecksumSum,
-                                  fileThumbnailsChecksumXor);
-      }
+      std::tie(fileThumbnailsChecksumSum, fileThumbnailsChecksumXor) =
+          CalculateFileChecksum(entry->ThumbnailData, fileThumbnailsChecksumSum,
+                                fileThumbnailsChecksumXor);
     }
+  };
+
+  for (int i = 0; i < MaxSaveEntries; ++i) {
+    const int reverseI = MaxSaveEntries - i - 1;
+    writeThumbnail(GetSaveEntry<SaveFileEntry>(SaveType::Quick, reverseI));
+  }
+  for (int i = 0; i < MaxSaveEntries; ++i) {
+    writeThumbnail(GetSaveEntry<SaveFileEntry>(SaveType::Full, i));
   }
 
   stream->Seek(0x4, SEEK_SET);
