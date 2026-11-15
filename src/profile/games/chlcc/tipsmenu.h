@@ -36,7 +36,6 @@ inline int UnreadLabelStrIndex;
 inline uint16_t CategoryString[MaxCategoryString];
 inline glm::vec2 NumberLabelPosition;
 inline float NumberLabelFontSize;
-inline RectF NumberBounds;
 inline float NumberFontSize;
 inline int DefaultColorIndex;
 inline int UnreadColorIndex;

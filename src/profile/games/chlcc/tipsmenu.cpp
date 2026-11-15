@@ -50,7 +50,6 @@ void Configure() {
   }
   NumberLabelPosition = EnsureGetMember<glm::vec2>("NumberLabelPosition");
   NumberLabelFontSize = EnsureGetMember<float>("NumberLabelFontSize");
-  NumberBounds = EnsureGetMember<RectF>("NumberBounds");
   NumberFontSize = EnsureGetMember<float>("NumberFontSize");
 
   DefaultColorIndex = EnsureGetMember<int>("DefaultColorIndex");
