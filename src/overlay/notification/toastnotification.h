@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../overlay.h"
 #include "../../animation.h"
 #include "../../spritesheet.h"
 #include "../../text/processedtextglyph.h"
@@ -38,15 +39,25 @@ struct ToastNotificationInterface {
 
 struct TextToastNotification final : public ToastNotificationInterface {
  public:
-  TextToastNotification(std::span<const std::string_view> lines);
-  TextToastNotification(std::string_view text)
-      : TextToastNotification(std::array<const std::string_view, 1>{text}) {}
+  TextToastNotification(std::span<const std::string_view> lines,
+                        std::function<void()> OnClick = nullptr);
+  TextToastNotification(std::string_view text,
+                        std::function<void()> onClick = nullptr)
+      : TextToastNotification(std::array<const std::string_view, 1>{text},
+                              onClick) {}
+
+  TextToastNotification(std::span<const std::string_view> lines,
+                        OverlayTab openTabOnClick);
+  TextToastNotification(std::string_view text, OverlayTab openTabOnClick)
+      : TextToastNotification(std::array<const std::string_view, 1>{text},
+                              openTabOnClick) {}
 
   void Render(const Animation& animation) override;
   void UpdateInput(float dt, const Animation& animation) override;
 
  private:
   std::vector<ProcessedTextGlyph> ProcessedText;
+  std::function<void()> OnClick;
 };
 
 class ToastNotificationHandler {

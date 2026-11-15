@@ -185,7 +185,7 @@ static void CheckForUpdates() {
       Overlay::CheckUpdateProcess::UpdateCheckResult::UpdatesAvailable) {
     Overlay::ToastNotificationHandlerInst.Push(
         std::make_unique<Overlay::TextToastNotification>(
-            "There is an update available."));
+            "There is an update available.", Overlay::OverlayTab::About));
   }
 }
 #endif
@@ -268,7 +268,8 @@ int main(int argc, char* argv[]) {
           std::make_unique<Overlay::TextToastNotification>(
               std::array<std::string_view, 2>{
                   "Press Shift+0, L3, or tap with three fingers",
-                  "to open the Impacto overlay."}));
+                  "to open the Impacto overlay."},
+              Overlay::OverlayTab::Settings));
       std::thread(CheckForUpdates).detach();
 #endif
     }

@@ -1,6 +1,7 @@
 #include "toastnotification.h"
 
 #include "../overlay.h"
+#include "../../inputsystem.h"
 #include "../../profile/overlay.h"
 #include "../../profile/game.h"
 
@@ -93,7 +94,9 @@ void ToastNotificationHandler::Push(
 }
 
 TextToastNotification::TextToastNotification(
-    const std::span<const std::string_view> lines) {
+    const std::span<const std::string_view> lines,
+    std::function<void()> onClick)
+    : OnClick(onClick) {
   const RectF rect = GetNotificationRect();
 
   const float left = TextPadding * Scale;
@@ -106,6 +109,13 @@ TextToastNotification::TextToastNotification(
     baselineY += (TextSize + TextLineGap) * Scale;
   }
 }
+
+TextToastNotification::TextToastNotification(
+    const std::span<const std::string_view> lines, OverlayTab openTabOnClick)
+    : TextToastNotification(lines, [openTabOnClick]() {
+        Overlay::OverlayShown = true;
+        Overlay::RequestedTab = openTabOnClick;
+      }) {}
 
 void TextToastNotification::Render(const Animation& animation) {
   RectF rect = GetNotificationRect();
@@ -120,6 +130,19 @@ void TextToastNotification::Render(const Animation& animation) {
   }
 }
 
-void TextToastNotification::UpdateInput(float dt, const Animation& animation) {}
+void TextToastNotification::UpdateInput(float dt, const Animation& animation) {
+  if (OnClick == nullptr) return;
+
+  RectF rect = GetNotificationRect();
+  rect.Y += rect.Height * (1.0f - animation.Progress);
+
+  if (rect.ContainsPoint(Input::CurMousePos)) {
+    RequestCursor(CursorType::Pointer);
+    if (Input::MouseButtonWentDown[SDL_BUTTON_LEFT] ||
+        Input::TouchTapCount == 1) {
+      OnClick();
+    }
+  }
+}
 
 }  // namespace Impacto::Overlay
