@@ -1979,6 +1979,10 @@ void MapSystem::Render() {
   if (!GetFlag(SF_MAPENABLE)) {
     return;
   }
+
+  constexpr size_t mapSystemFrameBufferId = 3;
+  Renderer->SetFramebuffer(mapSystemFrameBufferId);
+
   // Render map bg
   MapBgSprite.Bounds =
       Rect(static_cast<int>(MapPosX), static_cast<int>(MapPosY),
@@ -2071,6 +2075,21 @@ void MapSystem::Render() {
       MapPoolDispPin(i);
     }
   }
+
+  Renderer->SetFramebuffer(0);
+
+  const RectF viewport = Window->GetViewport();
+  SpriteSheet frameBufferSheet(viewport.Width, viewport.Height);
+  frameBufferSheet.IsScreenCap = true;
+  frameBufferSheet.Texture =
+      Renderer->GetFramebufferTexture(mapSystemFrameBufferId);
+  Sprite frameBufferSprite(
+      frameBufferSheet, 0.0f, 0.0f, viewport.Width, viewport.Height,
+      glm::vec2(Profile::Game::DesignWidth, Profile::Game::DesignHeight) /
+          viewport.GetSize());
+
+  Renderer->DrawSprite(frameBufferSprite, {0.0f, 0.0f},
+                       {1.0f, 1.0f, 1.0f, ScrWork[SW_MAP_ALPHA] / 255.0f});
 }
 }  // namespace CCLCC
 }  // namespace UI
