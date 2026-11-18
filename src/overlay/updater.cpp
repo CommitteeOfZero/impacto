@@ -1,4 +1,4 @@
-#include "uninstaller.h"
+#include "updater.h"
 
 #include <SDL3/SDL_platform_defines.h>
 

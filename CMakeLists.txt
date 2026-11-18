@@ -1118,7 +1118,7 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
         src/profile/overlay.cpp
 
         src/overlay/overlay.cpp
-        src/overlay/uninstaller.cpp
+        src/overlay/updater.cpp
         src/overlay/utils.cpp
 
         src/overlay/aboutpage.cpp
@@ -1133,7 +1133,7 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
         src/profile/overlay.h
 
         src/overlay/overlay.h
-        src/overlay/uninstaller.h
+        src/overlay/updater.h
         src/overlay/utils.h
 
         src/overlay/aboutpage.h

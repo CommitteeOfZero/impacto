@@ -19,7 +19,7 @@
 #include "io/filemeta.h"
 
 #ifndef IMPACTO_DISABLE_IMGUI
-#include "overlay/uninstaller.h"
+#include "overlay/updater.h"
 #include "overlay/notification/toastnotification.h"
 #endif
 

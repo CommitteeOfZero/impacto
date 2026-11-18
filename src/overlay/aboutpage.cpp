@@ -5,7 +5,7 @@
 
 #include <version.h>
 #include "utils.h"
-#include "uninstaller.h"
+#include "updater.h"
 #include "../mem.h"
 #include "../profile/game.h"
 #include "../profile/scriptvars.h"
