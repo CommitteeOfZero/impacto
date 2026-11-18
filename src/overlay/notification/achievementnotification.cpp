@@ -34,23 +34,21 @@ void AchievementNotification::BuildTextGlyphs() {
   }
 
   const RectF rect = GetNotificationRect();
-  const float iconRight = (IconOffset.x + IconSize) * Scale;
-  const float textLeft = iconRight + TextGap * Scale;
-  const float textRight = rect.Width - TextPadding * Scale;
-  const float centerY = rect.Height / 2.0f;
+  TextGlyphsScale = GetScale();
 
-  const float titleFontSize = TitleFontSize * Scale;
-  const float descriptionFontSize = DescriptionFontSize * Scale;
-  const float textLineGap = TextLineGap * Scale;
-  const float titleBaseline =
-      centerY - (descriptionFontSize + textLineGap) / 2.0f;
+  const float iconRight = (IconOffset.x + IconSize) * TextGlyphsScale;
+
+  const float titleFontSize = TitleFontSize * TextGlyphsScale;
+  const float descriptionFontSize = DescriptionFontSize * TextGlyphsScale;
   const float descriptionBaseline =
-      centerY + (titleFontSize + textLineGap) / 2.0f;
-  const float availableWidth = textRight - textLeft;
+      (titleFontSize + descriptionFontSize) / 2.0f +
+      TextLineGap * TextGlyphsScale;
+  const float availableWidth =
+      rect.Width - iconRight - (TextPadding + TextGap) * TextGlyphsScale;
 
-  Overlay::BuildTextLine(TextGlyphs, title, titleFontSize, textLeft,
-                         titleBaseline, availableWidth, TextColors.TextColor);
-  Overlay::BuildTextLine(TextGlyphs, description, descriptionFontSize, textLeft,
+  Overlay::BuildTextLine(TextGlyphs, title, titleFontSize, 0.0f, 0.0f,
+                         availableWidth, TextColors.TextColor);
+  Overlay::BuildTextLine(TextGlyphs, description, descriptionFontSize, 0.0f,
                          descriptionBaseline, availableWidth,
                          TextColors.TextColor);
 }
@@ -79,21 +77,28 @@ void AchievementNotification::UpdateInput(const float dt,
 void AchievementNotification::Render(const Animation& animation) {
   RectF rect = GetNotificationRect();
   rect.Y += rect.Height * (1.0f - animation.Progress);
+  const float scale = GetScale();
 
   Renderer->DrawSprite(NotificationBackgroundSprite, rect);
 
   const Sprite& icon = AchievementData.get().Icon();
-  if (icon.ScaledWidth() > 0.0f && icon.ScaledHeight() > 0.0f) {
-    const RectF iconDest(rect.X + IconOffset.x * Scale,
-                         rect.Y + IconOffset.y * Scale, IconSize * Scale,
-                         IconSize * Scale);
-    Renderer->DrawSprite(icon, iconDest);
-  }
+  const RectF iconDest(rect.X + IconOffset.x * scale,
+                       rect.Y + IconOffset.y * scale, IconSize * scale,
+                       IconSize * scale);
+  Renderer->DrawSprite(icon, iconDest);
 
   if (!TextGlyphs.empty()) {
-    NotificationFont->DrawProcessedText(TextGlyphs, 1.0f, 1.0f,
+    const glm::vec2 offset = {
+        iconDest.Right() + TextGap * scale,
+        rect.Top() +
+            (rect.Height - (DescriptionFontSize + TextLineGap) * scale) / 2.0f};
+    const glm::mat4 transformation = TransformationMatrix(
+        glm::vec2(0.0f), glm::vec2(scale / TextGlyphsScale), glm::vec2(0.0f),
+        0.0f, offset);
+
+    NotificationFont->DrawProcessedText(TextGlyphs, 1.0f,
                                         RendererOutlineMode::BottomRight,
-                                        rect.GetPos());
+                                        nullptr, transformation);
   }
 }
 

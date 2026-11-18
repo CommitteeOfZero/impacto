@@ -43,8 +43,10 @@ void BuildTextLine(std::vector<ProcessedTextGlyph>& appendBuffer,
 }
 
 RectF ToastNotificationInterface::GetNotificationRect() {
-  const float width = NotificationBackgroundSprite.ScaledWidth() * Scale;
-  const float height = NotificationBackgroundSprite.ScaledHeight() * Scale;
+  const float scale = GetScale();
+
+  const float width = NotificationBackgroundSprite.ScaledWidth() * scale;
+  const float height = NotificationBackgroundSprite.ScaledHeight() * scale;
   return RectF(Profile::Game::DesignWidth - width,
                Profile::Game::DesignHeight - height, width, height);
 }
@@ -98,15 +100,16 @@ TextToastNotification::TextToastNotification(
     std::function<void()> onClick)
     : OnClick(onClick) {
   const RectF rect = GetNotificationRect();
+  ProcessedTextScale = GetScale();
 
-  const float left = TextPadding * Scale;
-  float baselineY = (TextPadding + TextSize) * Scale;
-  const float availableWidth = rect.Width - TextPadding * Scale * 2.0f;
+  const float availableWidth =
+      rect.Width - TextPadding * ProcessedTextScale * 2.0f;
 
+  float baselineY = 0.0f;
   for (const std::string_view line : lines) {
-    BuildTextLine(ProcessedText, line, TextSize * Scale, left, baselineY,
-                  availableWidth, TextColors.TextColor);
-    baselineY += (TextSize + TextLineGap) * Scale;
+    BuildTextLine(ProcessedText, line, TextSize * ProcessedTextScale, 0.0f,
+                  baselineY, availableWidth, TextColors.TextColor);
+    baselineY += (TextSize + TextLineGap) * ProcessedTextScale;
   }
 }
 
@@ -124,9 +127,16 @@ void TextToastNotification::Render(const Animation& animation) {
   Renderer->DrawSprite(NotificationBackgroundSprite, rect);
 
   if (!ProcessedText.empty()) {
-    NotificationFont->DrawProcessedText(ProcessedText, 1.0f, 1.0f,
+    const float scale = GetScale();
+    const glm::vec2 offset = {TextPadding * scale,
+                              (TextPadding + TextSize) * scale};
+    const glm::mat4 transformation = TransformationMatrix(
+        glm::vec2(0.0f), glm::vec2(GetScale() / ProcessedTextScale),
+        glm::vec2(0.0f), 0.0f, rect.GetPos() + offset);
+
+    NotificationFont->DrawProcessedText(ProcessedText, 1.0f,
                                         RendererOutlineMode::BottomRight,
-                                        rect.GetPos());
+                                        nullptr, transformation);
   }
 }
 

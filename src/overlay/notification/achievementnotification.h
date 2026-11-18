@@ -18,6 +18,7 @@ struct AchievementNotification final : public ToastNotificationInterface {
  private:
   std::reference_wrapper<const AchievementSystem::Achievement> AchievementData;
   std::vector<ProcessedTextGlyph> TextGlyphs;
+  float TextGlyphsScale;
 
   void BuildTextGlyphs();
 };

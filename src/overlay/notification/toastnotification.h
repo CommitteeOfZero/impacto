@@ -3,8 +3,11 @@
 #include "../overlay.h"
 #include "../../animation.h"
 #include "../../spritesheet.h"
+#include "../../profile/overlay.h"
+#include "../../profile/game.h"
 #include "../../text/processedtextglyph.h"
 #include "../../text/fonts/font.h"
+#include "../../renderer/renderer.h"
 
 #include <optional>
 #include <string_view>
@@ -43,6 +46,10 @@ struct ToastNotificationInterface {
   virtual void UpdateInput(float dt, const Animation& animation) {}
 
   [[nodiscard]] static RectF GetNotificationRect();
+  [[nodiscard]] static float GetScale() {
+    return Profile::Overlay::ToastNotification::Scale * Window->DpiScale *
+           Profile::Game::DesignHeight / Window->GetScaledViewport().Height;
+  }
 };
 
 struct TextToastNotification final : public ToastNotificationInterface {
@@ -65,6 +72,7 @@ struct TextToastNotification final : public ToastNotificationInterface {
 
  private:
   std::vector<ProcessedTextGlyph> ProcessedText;
+  float ProcessedTextScale;
   std::function<void()> OnClick;
 };
 
