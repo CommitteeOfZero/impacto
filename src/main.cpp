@@ -172,21 +172,44 @@ static void HandleArguments(std::vector<std::string_view> args) {
 
 #ifndef IMPACTO_DISABLE_IMGUI
 static void CheckForUpdates() {
-  Overlay::CheckUpdateProcess checkUpdateProcess;
-  checkUpdateProcess.StartCheckUpdate();
-
-  std::optional<Overlay::CheckUpdateProcess::UpdateCheckResult> result;
-  while (!result.has_value()) {
-    SDL_Delay(100);
-    result = checkUpdateProcess.CheckUpdateStatus();
+  if (!magic_enum::enum_flags_test(
+          UserConfig::CommonSettings.EnabledNotifications,
+          Overlay::NotificationType::Updates)) {
+    return;
   }
 
-  if (*result ==
-      Overlay::CheckUpdateProcess::UpdateCheckResult::UpdatesAvailable) {
-    Overlay::ToastNotificationHandlerInst.Push(
-        std::make_unique<Overlay::TextToastNotification>(
-            "There is an update available.", Overlay::OverlayTab::About));
+  std::thread([]() {
+    Overlay::CheckUpdateProcess checkUpdateProcess;
+    checkUpdateProcess.StartCheckUpdate();
+
+    std::optional<Overlay::CheckUpdateProcess::UpdateCheckResult> result;
+    while (!result.has_value()) {
+      SDL_Delay(100);
+      result = checkUpdateProcess.CheckUpdateStatus();
+    }
+
+    if (*result ==
+        Overlay::CheckUpdateProcess::UpdateCheckResult::UpdatesAvailable) {
+      Overlay::ToastNotificationHandlerInst.Push(
+          std::make_unique<Overlay::TextToastNotification>(
+              "There is an update available.", Overlay::OverlayTab::About));
+    }
+  }).detach();
+}
+
+static void ShowOverlayHint() {
+  if (!magic_enum::enum_flags_test(
+          UserConfig::CommonSettings.EnabledNotifications,
+          Overlay::NotificationType::Hints)) {
+    return;
   }
+
+  Overlay::ToastNotificationHandlerInst.Push(
+      std::make_unique<Overlay::TextToastNotification>(
+          std::array<std::string_view, 2>{
+              "Press Shift+0, L3, or tap with three fingers",
+              "to open the Impacto overlay."},
+          Overlay::OverlayTab::Settings));
 }
 #endif
 
@@ -264,22 +287,8 @@ int main(int argc, char* argv[]) {
       Game::InitGameProfile();
 
 #ifndef IMPACTO_DISABLE_IMGUI
-      if (magic_enum::enum_flags_test(
-              UserConfig::CommonSettings.EnabledNotifications,
-              Overlay::NotificationType::Hints)) {
-        Overlay::ToastNotificationHandlerInst.Push(
-            std::make_unique<Overlay::TextToastNotification>(
-                std::array<std::string_view, 2>{
-                    "Press Shift+0, L3, or tap with three fingers",
-                    "to open the Impacto overlay."},
-                Overlay::OverlayTab::Settings));
-      }
-
-      if (magic_enum::enum_flags_test(
-              UserConfig::CommonSettings.EnabledNotifications,
-              Overlay::NotificationType::Updates)) {
-        std::thread(CheckForUpdates).detach();
-      }
+      ShowOverlayHint();
+      CheckForUpdates();
 #endif
     }
     t = SDL_GetPerformanceCounter();
