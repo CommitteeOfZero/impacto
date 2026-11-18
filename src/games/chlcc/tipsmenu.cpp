@@ -288,6 +288,7 @@ void TipsMenu::TipOnClick(Button* target) {
 
 void TipsMenu::Init() {
   auto onClick = [this](auto* btn) { return TipOnClick(btn); };
+  bool hasNewTips = false;
   int currentCategoryId = -1;
 
   // String of characters by which tips are sorted, taken from _system script
@@ -392,6 +393,7 @@ void TipsMenu::Init() {
       currentY += TipListYPadding;
     }
     if (newTipsGroup->Children.size() > 1) {
+      hasNewTips = true;
       ItemsList.Add(newTipsGroup);
       newTipsGroup->Bounds = TipsListBounds;
       newTipsGroup->RenderingBounds = TipsListRenderBounds;
@@ -429,6 +431,9 @@ void TipsMenu::Init() {
     } else {
       delete unreadTipsGroup;
     }
+  }
+  if (!GetFlag(SF_TITLEMODE) && hasNewTips) {
+    ItemsList.Next();
   }
 
   TipsEntriesScrollbar =
@@ -624,7 +629,9 @@ void TipsMenu::SwitchToTipId(int id) {
 
   const int sortedTipId =
       static_cast<TipsEntryButton*>(CurrentlyFocusedElement)->Id;
-  Number->SetText(fmt::format("{:4d}", sortedTipId + 1), NumberBounds.GetPos(),
+  const glm::vec2 numberPosition =
+      NumberText->Bounds.GetPos() + glm::vec2{NumberText->Bounds.Width, 0.0f};
+  Number->SetText(fmt::format("{:4d}", sortedTipId + 1), numberPosition,
                   NumberFontSize, RendererOutlineMode::BottomRight,
                   DefaultColorIndex);
 
