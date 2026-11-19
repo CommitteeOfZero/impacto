@@ -155,15 +155,19 @@ void AlbumMenu::Render() {
 
     UI::DrawButtonPrompt(CgViewerButtonGuideVariation, CgViewerButtonGuidePos,
                          glm::vec4(1.0f, 1.0f, 1.0f, alpha));
-    UI::DrawButtonPrompt(CgViewerButtonGuideNoVariation, CgViewerButtonGuidePos,
+    UI::DrawButtonPrompt(CgViewerButtonGuideNoVariation,
+                         CgViewerButtonGuideNoVariationPos,
                          glm::vec4(1.0f, 1.0f, 1.0f, 1.0f - alpha));
   } else {
     float alpha = glm::smoothstep(0.0f, 1.0f, 1.0f - ButtonGuideFade.Progress);
-    const ButtonPrompt& prompt = CgViewerWidget->IsOnLastVariation()
+    const bool isOnLastVariation = CgViewerWidget->IsOnLastVariation();
+    const ButtonPrompt& prompt = isOnLastVariation
                                      ? CgViewerButtonGuideNoVariation
                                      : CgViewerButtonGuideVariation;
-    UI::DrawButtonPrompt(prompt, CgViewerButtonGuidePos,
-                         glm::vec4(1.0f, 1.0f, 1.0f, alpha));
+    const glm::vec2& position = isOnLastVariation
+                                    ? CgViewerButtonGuideNoVariationPos
+                                    : CgViewerButtonGuidePos;
+    UI::DrawButtonPrompt(prompt, position, glm::vec4(1.0f, 1.0f, 1.0f, alpha));
   }
 }
 
