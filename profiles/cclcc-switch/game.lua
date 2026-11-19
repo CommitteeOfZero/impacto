@@ -54,7 +54,7 @@ root.Vm = {
 root.PlatformId = 0x100000; -- switch, important for scripts
 
 include(root.BasePaths.RootProfilesDir .. '/common/animation.lua');
-include(root.BasePaths.RootProfilesDir .. '/common/achievementnotification.lua');
+include(root.BasePaths.RootProfilesDir .. '/common/overlay.lua');
 include(root.BasePaths.RootProfilesDir .. '/common/charset.lua');
 include(root.BasePaths.RootProfilesDir .. '/common/scriptinput.lua');
 include(root.BasePaths.RootProfilesDir .. '/common/scriptvars-switch.lua');

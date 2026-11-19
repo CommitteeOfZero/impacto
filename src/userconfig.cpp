@@ -21,11 +21,16 @@ struct from<T> {
 
     std::string errStr;
     if constexpr (magic_enum::is_flags_v<T>) {
-      enumOpt = magic_enum::enum_flags_cast<T>(enumStr);
-      if (!enumOpt)
-        errStr = fmt::format(
-            "Expected a combination of following flags (join with '|'): {}",
-            magic_enum::enum_values<T>());
+      if (enumStr.empty()) {
+        // Empty flag list would otherwise be flagged as an error by magic_enum
+        enumOpt = T{0};
+      } else {
+        enumOpt = magic_enum::enum_flags_cast<T>(enumStr);
+        if (!enumOpt)
+          errStr = fmt::format(
+              "Expected a combination of following flags (join with '|'): {}",
+              magic_enum::enum_values<T>());
+      }
     } else {
       enumOpt = magic_enum::enum_cast<T>(enumStr);
       if (!enumOpt)
@@ -108,6 +113,7 @@ TOML11_DEFINE_CONVERSION_NON_INTRUSIVE(
   Impacto::UserConfig::Config,
   ResolutionWidth,
   ResolutionHeight,
+  EnabledNotifications,
   LogFile,
   LogLvl,
   LogChannels,

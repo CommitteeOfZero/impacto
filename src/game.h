@@ -68,6 +68,8 @@ void LauncherRender();
 inline DrawComponentType DrawComponents[Vm::MaxThreads];
 
 inline bool ShouldQuit = false;
+inline uint32_t SessionPlayTimeSeconds = 0;
+
 }  // namespace Game
 
 }  // namespace Impacto

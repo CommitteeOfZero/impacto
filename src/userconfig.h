@@ -6,6 +6,10 @@
 #include "profile/subtitle.h"
 #include "log.h"
 
+#ifndef IMPACTO_DISABLE_IMGUI
+#include "overlay/notification/toastnotification.h"
+#endif
+
 namespace Impacto {
 
 enum class RendererType : int {
@@ -49,6 +53,11 @@ struct GameConfig {
 struct Config {
   int ResolutionWidth = 1280;
   int ResolutionHeight = 720;
+
+#ifndef IMPACTO_DISABLE_IMGUI
+  Overlay::NotificationType EnabledNotifications =
+      Overlay::NotificationType::All;
+#endif
 
   std::string LogFile = GetDefaultLogFile();
   LogLevel LogLvl = LogLevel::Warning;

@@ -17,7 +17,10 @@
 #include "../data/achievementsystem.h"
 #include "../audio/audiosystem.h"
 #include "../text/dialoguepage.h"
-#include "../hud/achievementnotification.h"
+
+#ifndef IMPACTO_DISABLE_IMGUI
+#include "../overlay/notification/achievementnotification.h"
+#endif
 
 #include "../profile/vm.h"
 #include "../games/cc/titlemenu.h"
@@ -61,13 +64,19 @@ VmInstruction(InstSetAchievement) {
     PopExpression(achievementId);
     if (+Profile::Game::GameFeatures & +GameFeature::Achievements) {
       if (AchievementSystem::UnlockAchievement(achievementId)) {
-        AchievementNotification::Show(achievementId);
+#ifndef IMPACTO_DISABLE_IMGUI
+        Overlay::AchievementNotification::Show(
+            static_cast<size_t>(achievementId));
+#endif
       }
     }
   } else {
-    if (+Profile::Game::GameFeatures & +GameFeature::Achievements) {
-      AchievementNotification::Show(type);
+#ifndef IMPACTO_DISABLE_IMGUI
+    if ((+Profile::Game::GameFeatures & +GameFeature::Achievements) &&
+        AchievementSystem::Implementation != nullptr) {
+      Overlay::AchievementNotification::Show(type);
     }
+#endif
   }
 }
 VmInstruction(InstSetPlayer) {

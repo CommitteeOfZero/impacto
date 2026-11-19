@@ -102,7 +102,6 @@ set(Impacto_Src
     src/profile/hud/loadingdisplay.cpp
     src/profile/hud/datedisplay.cpp
     src/profile/hud/tipsnotification.cpp
-    src/profile/hud/achievementnotification.cpp
 
     src/profile/ui/commonmenu.cpp
     src/profile/ui/systemmenu.cpp
@@ -268,7 +267,6 @@ set(Impacto_Src
     src/hud/skipicondisplay.cpp
     src/hud/waiticondisplay.cpp
     src/hud/tipsnotification.cpp
-    src/hud/achievementnotification.cpp
 
     src/hud/cc/dialoguebox.cpp
     src/hud/cc/nametagdisplay.cpp
@@ -481,7 +479,6 @@ set(Impacto_Header
     src/profile/hud/loadingdisplay.h
     src/profile/hud/datedisplay.h
     src/profile/hud/tipsnotification.h
-    src/profile/hud/achievementnotification.h
 
     src/profile/ui/commonmenu.h
     src/profile/ui/systemmenu.h
@@ -637,7 +634,6 @@ set(Impacto_Header
     src/hud/skipicondisplay.h
     src/hud/waiticondisplay.h
     src/hud/tipsnotification.h
-    src/hud/achievementnotification.h
 
     src/hud/cc/dialoguebox.h
     src/hud/cc/nametagdisplay.h
@@ -1119,22 +1115,34 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
     list(APPEND Impacto_Header src/debugmenu.h)
 
     list(APPEND Impacto_Src
+        src/profile/overlay.cpp
+
         src/overlay/overlay.cpp
+        src/overlay/updater.cpp
         src/overlay/utils.cpp
 
         src/overlay/aboutpage.cpp
         src/overlay/achievementspage.cpp
         src/overlay/enhancementspage.cpp
         src/overlay/settingspage.cpp
+
+        src/overlay/notification/toastnotification.cpp
+        src/overlay/notification/achievementnotification.cpp
     )
     list(APPEND Impacto_Header
+        src/profile/overlay.h
+
         src/overlay/overlay.h
+        src/overlay/updater.h
         src/overlay/utils.h
 
         src/overlay/aboutpage.h
         src/overlay/achievementspage.h
         src/overlay/enhancementspage.h
         src/overlay/settingspage.h
+
+        src/overlay/notification/toastnotification.h
+        src/overlay/notification/achievementnotification.h
     )
 
     if (NOT DEFINED IMPACTO_DISABLE_OPENGL)

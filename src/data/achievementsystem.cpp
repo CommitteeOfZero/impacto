@@ -232,18 +232,24 @@ static void SaveUnlockState() {
 }
 
 bool IsAchievementUnlocked(int id) {
+  if (Implementation == nullptr) return false;
+
   assert(UnlockStateLoaded);
   if (id < 0 || (size_t)id >= UnlockState.size()) return false;
   return UnlockState[id].Unlocked;
 }
 
 tm GetAchievementUnlockDate(int id) {
+  if (Implementation == nullptr) return tm{};
+
   assert(UnlockStateLoaded);
   if (id < 0 || (size_t)id >= UnlockState.size()) return tm{};
   return UnlockState[id].UnlockDate;
 }
 
 bool UnlockAchievement(int id) {
+  if (Implementation == nullptr) return false;
+
   assert(UnlockStateLoaded);
   if (id < 0) return false;
 

@@ -11,6 +11,9 @@
 
 #ifndef IMPACTO_DISABLE_IMGUI
 #include "overlay/overlay.h"
+#include "overlay/notification/toastnotification.h"
+
+#include "profile/overlay.h"
 #endif
 
 #include "ui/ui.h"
@@ -34,7 +37,6 @@
 #include "hud/saveicondisplay.h"
 #include "hud/loadingdisplay.h"
 #include "hud/tipsnotification.h"
-#include "hud/achievementnotification.h"
 #include "games/cclcc/systemmenu.h"
 #include "effects/wave.h"
 #include "effects/blur.h"
@@ -125,6 +127,12 @@ void InitGameProfile() {
   std::fill(std::begin(DrawComponents), std::end(DrawComponents),
             DrawComponentType::None);
 
+#ifndef IMPACTO_DISABLE_IMGUI
+  if (+Profile::Game::GameFeatures & +GameFeature::Overlay) {
+    Profile::Overlay::Configure();
+  }
+#endif
+
   Profile::ConfigSystem::Configure();
 
   if (+Profile::Game::GameFeatures & +GameFeature::Audio) {
@@ -198,9 +206,6 @@ void InitGameProfile() {
     Profile::ExtraMenus::Configure();
     DateDisplay::Init();
     TipsNotification::Init();
-    if (+Profile::Game::GameFeatures & +GameFeature::Achievements) {
-      AchievementNotification::Init();
-    }
     // Default controls
     Vm::Interface::UpdatePADcustomType(0);
 
@@ -210,6 +215,8 @@ void InitGameProfile() {
   }
 
   Profile::ClearProfile();
+
+  SessionPlayTimeSeconds = 0;
 }
 
 void Shutdown() {
@@ -266,6 +273,8 @@ void UpdateGameState(float dt) {
     ScrWork[SW_PLAYTIME] = std::min(ScrWork[SW_PLAYTIME] + 1, maxPlayTime);
     ScrWork[SW_TOTALPLAYTIME] =
         std::min(ScrWork[SW_TOTALPLAYTIME] + 1, maxTotalPlayTime);
+    SessionPlayTimeSeconds = std::min(SessionPlayTimeSeconds + 1,
+                                      static_cast<uint32_t>(maxPlayTime));
 
     UpdateSecondCounter -= 1.0f;
   }
@@ -368,9 +377,6 @@ void UpdateSystem(float dt) {
     SaveIconDisplay::Update(updateInterval);
     LoadingDisplay::Update(updateInterval);
     DateDisplay::Update(updateInterval);
-    if (+Profile::Game::GameFeatures & +GameFeature::Achievements) {
-      AchievementNotification::Update(updateInterval);
-    }
     if (ScrWork[SW_GAMESTATE] & 5 && !GetFlag(SF_GAMEPAUSE)) {
       UI::GameSpecific::Update(updateInterval);
 
@@ -440,6 +446,12 @@ void Update(float dt) {
     AutoIconDisplay::Update(dt);
     SkipIconDisplay::Update(dt);
   }
+
+#ifndef IMPACTO_DISABLE_IMGUI
+  if (+Profile::Game::GameFeatures & +GameFeature::Overlay) {
+    Overlay::ToastNotificationHandlerInst.Update(dt);
+  }
+#endif
 }
 
 static void RenderMain() {
@@ -739,9 +751,6 @@ void Render() {
         menu->Render();
       }
     }
-    if (+Profile::Game::GameFeatures & +GameFeature::Achievements) {
-      AchievementNotification::Render();
-    }
   }
 
   if (+Profile::Game::GameFeatures & +GameFeature::CharacterViewer) {
@@ -761,6 +770,7 @@ void Render() {
   }
 #ifndef IMPACTO_DISABLE_IMGUI
   if (+Profile::Game::GameFeatures & +GameFeature::Overlay) {
+    Overlay::ToastNotificationHandlerInst.Render();
     Overlay::Show();
   }
 #endif
