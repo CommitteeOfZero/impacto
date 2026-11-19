@@ -139,6 +139,7 @@ root.ExtraMenus = {
         CgViewerButtonGuideVariation = "CgViewerButtonGuideVariation",
         CgViewerButtonGuideNoVariation = "CgViewerButtonGuideNoVariation",
         CgViewerButtonGuidePos = { X = 208, Y = 648 },
+        CgViewerButtonGuideNoVariationPos = { X = 208, Y = 648 },
         SelectionMarkerSprite = "SelectionMarkerSprite",
         SelectionMarkerRelativePos = { X = -16, Y = 50 },
         CgFadeDuration = 16 / 60,
