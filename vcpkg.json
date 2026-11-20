@@ -1,6 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
-  "builtin-baseline": "fa9a5b330aed997a68310ed56418617b87a3b83d",
+  "builtin-baseline": "ea49500a3353603af1190ca9a786a9015d638ea0",
   "dependencies": [
     "sdl3",
     {
@@ -71,10 +71,6 @@
     {
       "name": "libass",
       "version": "0.17.4"
-    },
-    {
-      "name": "openal-soft",
-      "version": "1.25.1"
     }
   ]
 }

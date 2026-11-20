@@ -81,6 +81,12 @@ static std::string ReadString(int64_t stringsOffset, Stream* utfStream) {
   return output;
 }
 
+template <typename T>
+static T ReadOrDefault(CpkColumn::Storage storeType, Stream* s) {
+  if (storeType == CpkColumn::Storage::DEFAULT) return T{};
+  return Io::ReadBE<T>(s);
+}
+
 static bool ReadUtfBlock(
     std::vector<uint8_t>& utfBlock,
     std::vector<ankerl::unordered_dense::map<std::string, CpkCell, string_hash,
@@ -117,44 +123,38 @@ static bool ReadUtfBlock(
 
   const auto readCell = [&utfStream, &stringsOffset,
                          &dataOffset](CpkColumn const& column) {
-    const auto readOrDefaultT = []<typename T>(CpkColumn::Storage storeType,
-                                               Stream* s) {
-      if (storeType == CpkColumn::Storage::DEFAULT) return T{};
-      return Io::ReadBE<T>(s);
-    };
-
     CpkCell cell{};
     auto storeType = column.GetStorage();
     switch (column.GetType()) {
       case CpkColumn::Kind::U8:
-        cell = readOrDefaultT.operator()<uint8_t>(storeType, utfStream.get());
+        cell = ReadOrDefault<uint8_t>(storeType, utfStream.get());
         break;
       case CpkColumn::Kind::I8:
-        cell = readOrDefaultT.operator()<int8_t>(storeType, utfStream.get());
+        cell = ReadOrDefault<int8_t>(storeType, utfStream.get());
         break;
       case CpkColumn::Kind::U16:
-        cell = readOrDefaultT.operator()<uint16_t>(storeType, utfStream.get());
+        cell = ReadOrDefault<uint16_t>(storeType, utfStream.get());
         break;
       case CpkColumn::Kind::I16:
-        cell = readOrDefaultT.operator()<int16_t>(storeType, utfStream.get());
+        cell = ReadOrDefault<int16_t>(storeType, utfStream.get());
         break;
       case CpkColumn::Kind::U32:
-        cell = readOrDefaultT.operator()<uint32_t>(storeType, utfStream.get());
+        cell = ReadOrDefault<uint32_t>(storeType, utfStream.get());
         break;
       case CpkColumn::Kind::I32:
-        cell = readOrDefaultT.operator()<int32_t>(storeType, utfStream.get());
+        cell = ReadOrDefault<int32_t>(storeType, utfStream.get());
         break;
       case CpkColumn::Kind::U64:
-        cell = readOrDefaultT.operator()<uint64_t>(storeType, utfStream.get());
+        cell = ReadOrDefault<uint64_t>(storeType, utfStream.get());
         break;
       case CpkColumn::Kind::I64:
-        cell = readOrDefaultT.operator()<int64_t>(storeType, utfStream.get());
+        cell = ReadOrDefault<int64_t>(storeType, utfStream.get());
         break;
       case CpkColumn::Kind::Float:
-        cell = readOrDefaultT.operator()<float>(storeType, utfStream.get());
+        cell = ReadOrDefault<float>(storeType, utfStream.get());
         break;
       case CpkColumn::Kind::Double:
-        cell = readOrDefaultT.operator()<double>(storeType, utfStream.get());
+        cell = ReadOrDefault<double>(storeType, utfStream.get());
         break;
       case CpkColumn::Kind::String:
         if (storeType == CpkColumn::Storage::DEFAULT) {
