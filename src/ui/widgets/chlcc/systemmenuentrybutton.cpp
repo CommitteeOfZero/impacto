@@ -96,8 +96,17 @@ void SystemMenuEntryButton::UpdateInput(float dt) {
   const bool isClicked =
       GetControlState(ControlType::OK, InputDownType::WentDown);
 
-  if (OnClickHandler && HasFocus && isClicked &&
-      (!useCursor || (Hovered && bounds.ContainsPoint(Input::InitMousePos)))) {
+  if (!(OnClickHandler && HasFocus && isClicked)) {
+    return;
+  }
+
+  bool isClickedInitMouse = false;
+  if (Hovered) {
+    rotatedPos = RotatePoint(Input::InitMousePos, center, rotationAngle);
+    isClickedInitMouse = bounds.ContainsPoint(rotatedPos);
+  }
+
+  if (!useCursor || (Hovered && isClickedInitMouse)) {
     OnClickHandler(this);
     if (IsLocked) return;
     // reset animation only if it's not playing already
