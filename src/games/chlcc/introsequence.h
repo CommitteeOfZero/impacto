@@ -43,6 +43,7 @@ class IntroSequence {
   void DrawLCCLogo() const;
   void DrawDelusionADVText() const;
   void DrawSeira() const;
+  void ResetFallingStarsMask();
 
   std::array<std::pair<glm::vec2, float>, 20> FallingStarSeeds;
   Sprite FallingStarsMask;
