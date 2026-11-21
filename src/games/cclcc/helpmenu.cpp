@@ -3,6 +3,7 @@
 #include "../../profile/games/cclcc/helpmenu.h"
 #include "../../profile/games/cclcc/systemmenu.h"
 #include "../../profile/ui/backlogmenu.h"
+#include "../../profile/overlay/helpmenu.h"
 #include "../../profile/dialogue.h"
 #include "../../renderer/renderer.h"
 #include "../../mem.h"
@@ -11,6 +12,7 @@
 #include "../../profile/game.h"
 #include "../../inputsystem.h"
 #include "../../audio/audiosystem.h"
+#include "../../overlay/overlay.h"
 
 namespace Impacto {
 namespace UI {
@@ -22,6 +24,12 @@ using namespace Impacto::Profile::ScriptVars;
 using namespace Impacto::Vm::Interface;
 
 using namespace Impacto::UI::Widgets;
+
+static void SignalSubmenuExit() {
+  SetFlag(SF_SUBMENUEXIT, 1);
+  SetFlag(SF_MANUALLOAD_COMPLETE, 0);
+  SetFlag(SF_MANUALLOAD_END, 1);
+}
 
 HelpMenu::HelpMenu() : CommonMenu(FadeAnimation) {
   NextPageAnimation.DurationIn = NextPageInDuration;
@@ -63,7 +71,14 @@ void HelpMenu::Update(float dt) {
     Hide();
   } else if (ScrWork[SW_SYSSUBMENUCT] > 0 && State == Hidden &&
              (ScrWork[SW_SYSSUBMENUNO] == 11)) {
-    Show();
+    if (Profile::Overlay::HelpMenu::UseOverlayHelp) {
+      SignalSubmenuExit();
+      State = Shown;
+      Overlay::OverlayShown = true;
+      Overlay::RequestedTab = Overlay::OverlayTab::Help;
+    } else {
+      Show();
+    }
   }
 
   if (State != Hidden) {
@@ -92,9 +107,7 @@ void HelpMenu::UpdateInput(float dt) {
       (PADinputButtonWentDown | PADinputMouseWentDown) & PAD1B;
   if (State == Shown && backBtnPressed) {
     PreviousPage = -1;
-    SetFlag(SF_SUBMENUEXIT, 1);
-    SetFlag(SF_MANUALLOAD_COMPLETE, 0);
-    SetFlag(SF_MANUALLOAD_END, 1);
+    SignalSubmenuExit();
   }
 
   auto manualPages = ManualPages.size();
