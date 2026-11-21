@@ -1,9 +1,21 @@
+vcpkg_download_distfile(dereference_patch
+        URLS "https://github.com/kcat/openal-soft/commit/7f9c6de1162b1d4604b9a2f8bcd6c53021566221.patch?full_index=1"
+        FILENAME "openal-soft-7f9c6de1162b1d4604b9a2f8bcd6c53021566221.patch"
+        SHA512 538ada688d34e23edc3691ba953590f85f98b6b8cc5b34358f4549589ff9ab8abd9e3df720f0c0fdcc0d1f9ebc804ea23ebf32b766b406a799c2236b8be8a327
+)
+
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO kcat/openal-soft
     REF "1.25.2"
     SHA512 d3790aedce0bdb0b348b35f917dec0626de2486f5967c9160cf2d50d5c2a00ff264ff73133ac6a0aa9207e8e5042e5d4fcc663c1e733df8e733647e843c39b25
     HEAD_REF master
+    PATCHES
+        001-devendor-fmt.patch
+        002-fix-non-blocking.patch
+        003-fix-fmt-header.patch
+        004-fix-libcxx-compatibility.patch
+        "${dereference_patch}"
 )
 
 vcpkg_cmake_configure(
