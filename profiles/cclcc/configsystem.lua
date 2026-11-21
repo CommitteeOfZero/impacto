@@ -12,6 +12,8 @@ root.ConfigSystem = {
     SkipRead = true;
     SyncVoice = true;
     SkipVoice = false;
+    UseSpeaker = true;
+    SpeakerVolume = 0.5;
 
     VoiceCount = 13;
     VoiceMuted = {};

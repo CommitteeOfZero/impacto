@@ -1,6 +1,10 @@
 #include "openalaudiochannel.h"
 #include "../audiosystem.h"
 #include "../audiostream.h"
+#include "../controlleraudio.h"
+#include "../../profile/configsystem.h"
+
+#include <algorithm>
 
 namespace Impacto {
 namespace Audio {
@@ -25,30 +29,66 @@ OpenALAudioChannel::OpenALAudioChannel(AudioChannelId id,
       HostBuffer(std::vector(AudioBufferSize, (uint8_t)0)) {
   BufferStartPositions.fill(0);
 
-  alGenBuffers((ALsizei)AudioBuffers.size(), AudioBuffers.data());
-  alGenSources(1, &Source);
-
-  alSourcef(Source, AL_PITCH, 1);
-  alSource3f(Source, AL_POSITION, 0, 0, 0);
-  alSource3f(Source, AL_VELOCITY, 0, 0, 0);
-  alSourcei(Source, AL_LOOPING, AL_FALSE);
-  UpdateGain();
+  CreateSource();
 }
 
-void OpenALAudioChannel::Reinit() {
-  alGenBuffers((ALsizei)AudioBuffers.size(), AudioBuffers.data());
-  alGenSources(1, &Source);
-
-  alSourcef(Source, AL_PITCH, 1);
-  alSource3f(Source, AL_POSITION, 0, 0, 0);
-  alSource3f(Source, AL_VELOCITY, 0, 0, 0);
-  alSourcei(Source, AL_LOOPING, AL_FALSE);
-  UpdateGain();
-}
+void OpenALAudioChannel::Reinit() { CreateSource(); }
 
 OpenALAudioChannel::~OpenALAudioChannel() {
+  if (Output == AO_Controller) {
+    ControllerAudio::StopPlayback();
+  }
   alDeleteSources(1, &Source);
   alDeleteBuffers((ALsizei)AudioBuffers.size(), AudioBuffers.data());
+}
+
+void OpenALAudioChannel::CreateSource() {
+  alGenBuffers((ALsizei)AudioBuffers.size(), AudioBuffers.data());
+  alGenSources(1, &Source);
+
+  alSourcef(Source, AL_PITCH, 1);
+  alSource3f(Source, AL_POSITION, 0, 0, 0);
+  alSource3f(Source, AL_VELOCITY, 0, 0, 0);
+  alSourcei(Source, AL_LOOPING, AL_FALSE);
+  UpdateGain();
+}
+
+void OpenALAudioChannel::SetOutput(AudioOutputId output) {
+  if (output == Output) return;
+
+  const bool wasPlaybackStarted = PlaybackStarted;
+  const size_t position =
+      (Stream && wasPlaybackStarted) ? PlaybackPosition() : 0;
+
+  if (Output == AO_Controller) {
+    ControllerAudio::StopPlayback();
+  } else {
+    alSourceStop(Source);
+    ALint queuedBuffers = 0;
+    alGetSourcei(Source, AL_BUFFERS_QUEUED, &queuedBuffers);
+    UnqueueBuffers(queuedBuffers);
+  }
+
+  Output = output;
+  FirstQueuedBufferIndex = 0;
+  BufferStartPositions.fill(0);
+  PlaybackStarted = false;
+  ControllerStartSample = 0;
+  ControllerStreamFinished = false;
+  if (!Stream || !wasPlaybackStarted) return;
+
+  int samplePosition = (int)position;
+  if (Looping && samplePosition >= Stream->LoopEnd) {
+    samplePosition = Stream->LoopStart + (samplePosition - Stream->LoopEnd);
+  }
+  if (!Looping && Stream->Duration >= 0 && samplePosition >= Stream->Duration) {
+    EndPlayback();
+    return;
+  }
+  Stream->Seek(samplePosition);
+  if (Output == AO_Controller) {
+    ControllerStartSample = (size_t)samplePosition;
+  }
 }
 
 void OpenALAudioChannel::Play(std::unique_ptr<AudioStream> stream, bool loop,
@@ -72,16 +112,17 @@ void OpenALAudioChannel::Stop(float fadeOutDuration) {
     return;
   }
 
-  const float baseGain = MasterVolume * GroupVolumes[Group] * Volume;
-  float currentGain;
-  alGetSourcef(Source, AL_GAIN, &currentGain);
-  FadeStartFactor = baseGain > 0.0f ? currentGain / baseGain : 0.0f;
+  const float baseGain = BaseGain();
+  FadeStartFactor = baseGain > 0.0f ? CurrentGain / baseGain : 0.0f;
   State = ACS_FadingOut;
   FadeDuration = fadeOutDuration;
   FadeProgress = 0;
 }
 
 void OpenALAudioChannel::EndPlayback() {
+  if (Output == AO_Controller) {
+    ControllerAudio::StopPlayback();
+  }
   alSourceStop(Source);
 
   ALint queuedBuffers;
@@ -90,6 +131,8 @@ void OpenALAudioChannel::EndPlayback() {
 
   Stream = nullptr;
   PlaybackStarted = false;
+  ControllerStartSample = 0;
+  ControllerStreamFinished = false;
   State = ACS_Stopped;
   FadeProgress = 0;
   FirstQueuedBufferIndex = 0;
@@ -111,18 +154,39 @@ void OpenALAudioChannel::Resume() {
   State = ACS_Playing;
 }
 
-float OpenALAudioChannel::PositionInSeconds() const {
-  if (Stream == nullptr) return 0.0f;
+size_t OpenALAudioChannel::PlaybackPosition() const {
+  if (Output == AO_Controller) {
+    if (!Stream || !PlaybackStarted) return ControllerStartSample;
+    const uint64_t played32k = ControllerAudio::GetPlayedSamples32k();
+    size_t pos =
+        ControllerStartSample +
+        static_cast<size_t>(
+            (played32k * static_cast<uint64_t>(Stream->SampleRate)) / 32000ULL);
+    if (!Looping && Stream->Duration >= 0) {
+      pos = std::min(pos, static_cast<size_t>(Stream->Duration));
+    }
+    return pos;
+  }
 
   int offset;
   alGetSourcei(Source, AL_SAMPLE_OFFSET, &offset);
 
-  size_t position = BufferStartPositions[FirstQueuedBufferIndex] + offset;
-  return (float)position / Stream->SampleRate;
+  return BufferStartPositions[FirstQueuedBufferIndex] + offset;
+}
+
+float OpenALAudioChannel::PositionInSeconds() const {
+  if (Stream == nullptr) return 0.0f;
+
+  return (float)PlaybackPosition() / Stream->SampleRate;
 }
 
 void OpenALAudioChannel::Update(float dt) {
   UpdateFade(dt);
+
+  if (Output == AO_Controller) {
+    UpdateControllerPlayback();
+    return;
+  }
 
   if (State == ACS_Playing || State == ACS_FadingIn || State == ACS_FadingOut) {
     // Continuously update the gain
@@ -185,9 +249,66 @@ void OpenALAudioChannel::UpdatePlayback() {
   }
 }
 
+void OpenALAudioChannel::UpdateControllerPlayback() {
+  if (State == ACS_Stopped) {
+    if (PlaybackStarted || Stream) EndPlayback();
+    return;
+  }
+
+  if (State == ACS_Paused) {
+    ControllerAudio::SetPaused(true);
+    return;
+  }
+
+  UpdateGain();
+  ControllerAudio::SetPaused(false);
+  if (!Stream) {
+    EndPlayback();
+    return;
+  }
+
+  if (!PlaybackStarted) {
+    ControllerStartSample = static_cast<size_t>(Stream->ReadPosition);
+    ControllerStreamFinished = false;
+    PlaybackStarted = true;
+  }
+
+  const int bytesPerSample = Stream->BytesPerSample();
+  const int chunkSamples =
+      std::min(AudioBufferSize / bytesPerSample, Stream->SampleRate / 20);
+
+  while (!ControllerStreamFinished &&
+         ControllerAudio::GetQueuedDurationMs() < ControllerTargetQueueMs) {
+    const int samplesRead = ReadStreamSamples(chunkSamples);
+    if (samplesRead > 0) {
+      ControllerAudio::QueuePcm(HostBuffer.data(), samplesRead,
+                                Stream->SampleRate, Stream->ChannelCount,
+                                Stream->BitDepth);
+    }
+
+    if ((!Looping && Stream->ReadPosition >= Stream->Duration) ||
+        samplesRead == 0) {
+      ControllerStreamFinished = true;
+      ControllerAudio::FinishQueue();
+      break;
+    }
+  }
+
+  if (ControllerStreamFinished && ControllerAudio::IsFinished()) {
+    EndPlayback();
+  }
+}
+
+float OpenALAudioChannel::BaseGain() const {
+  const float groupVolume = Output == AO_Controller
+                                ? Profile::ConfigSystem::SpeakerVolume
+                                : GroupVolumes[Group];
+  return MasterVolume * groupVolume * Volume;
+}
+
 // TODO what easing functions do we want for this?
 void OpenALAudioChannel::UpdateGain() {
-  float gain = MasterVolume * GroupVolumes[Group] * Volume;
+  float gain = BaseGain();
   switch (State) {
     case ACS_Stopped:
       return;
@@ -203,7 +324,12 @@ void OpenALAudioChannel::UpdateGain() {
       break;
   }
 
-  alSourcef(Source, AL_GAIN, gain);
+  CurrentGain = gain;
+  if (Output == AO_Controller) {
+    ControllerAudio::SetGain(gain);
+  } else {
+    alSourcef(Source, AL_GAIN, gain);
+  }
 }
 
 // Unqueues `amount` buffers, starting at the first queued buffer
@@ -224,18 +350,18 @@ bool OpenALAudioChannel::CanQueueBuffer() {
   return Looping || Stream->ReadPosition < Stream->Duration;
 }
 
-void OpenALAudioChannel::QueueBuffer(size_t bufferIndex) {
-  BufferStartPositions[bufferIndex] = Stream->ReadPosition;
-
-  int maxSamples = AudioBufferSize / Stream->BytesPerSample();
+int OpenALAudioChannel::ReadStreamSamples(int maxSamples) {
+  const int bytesPerSample = Stream->BytesPerSample();
   int samplesRead = 0;
 
-  while (samplesRead < maxSamples && Stream->ReadPosition < Stream->Duration) {
+  while (samplesRead < maxSamples &&
+         (Looping || Stream->ReadPosition < Stream->Duration)) {
     int end = Looping ? Stream->LoopEnd : Stream->Duration;
     int samplesToRead =
         std::min(maxSamples - samplesRead, end - Stream->ReadPosition);
+    if (samplesToRead <= 0) break;
 
-    uint8_t* dest = &HostBuffer[samplesRead * Stream->BytesPerSample()];
+    uint8_t* dest = &HostBuffer[samplesRead * bytesPerSample];
     int samplesReadThisIteration = Stream->Read(dest, samplesToRead);
     samplesRead += samplesReadThisIteration;
 
@@ -245,6 +371,15 @@ void OpenALAudioChannel::QueueBuffer(size_t bufferIndex) {
 
     if (samplesReadThisIteration == 0) break;
   }
+
+  return samplesRead;
+}
+
+void OpenALAudioChannel::QueueBuffer(size_t bufferIndex) {
+  BufferStartPositions[bufferIndex] = Stream->ReadPosition;
+
+  int maxSamples = AudioBufferSize / Stream->BytesPerSample();
+  int samplesRead = ReadStreamSamples(maxSamples);
 
   ALuint buffer = AudioBuffers[bufferIndex];
   ALenum format = ToALFormat(Stream->ChannelCount, Stream->BitDepth);

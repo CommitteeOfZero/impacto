@@ -35,6 +35,7 @@ static constexpr CCLCC::SaveLayout Ps4Layout{
     .VoiceOffset = 0x8BE,
     .SkipVoiceOffset = 0x901,
     .AdvanceTextOffset = 0x905,
+    .SpeakerOffset = 0x908,
     .QuickSortedIdOffset = 0xBCE,
     .QuickSortedIdIsLoaded = true,
     .EVFlagsOffset = 0xC0E,

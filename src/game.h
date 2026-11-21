@@ -24,6 +24,7 @@ enum class GameFeature : int {
   DebugMenuMultiViewport = (1 << 10),
   Achievements = (1 << 11),
   Overlay = (1 << 12),
+  ControllerSpeaker = (1 << 13),
 };
 
 namespace Game {

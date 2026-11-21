@@ -1,4 +1,5 @@
 #include "audiosystem.h"
+#include "controlleraudio.h"
 #include "../userconfig.h"
 #include "../log.h"
 #include "../profile/game.h"
@@ -10,6 +11,7 @@
 #include "openal/audiobackend.h"
 #endif
 
+#include <algorithm>
 #include <utility>
 
 namespace Impacto {
@@ -148,11 +150,42 @@ void ResumeChannelGroup(AudioChannelGroup group) {
   }
 }
 
+static bool ShouldPlayOnController(AudioChannel const* channel) {
+  if (!Profile::ConfigSystem::UseSpeaker || !channel ||
+      channel->GetState() == ACS_Stopped) {
+    return false;
+  }
+
+  AudioStream const* stream = channel->GetStream();
+  if (!stream) return false;
+
+  Io::Stream const* baseStream = stream->GetBaseStream();
+  if (!baseStream || baseStream->Meta.ArchiveMountPoint != "voice") {
+    return false;
+  }
+
+  return std::ranges::find(Profile::Game::SpeakerVoiceLines,
+                           baseStream->Meta.Id) !=
+         Profile::Game::SpeakerVoiceLines.end();
+}
+
+static void UpdateControllerChannelOutput() {
+  AudioChannel* channel = Channels[AC_VOICE0].get();
+  if (!channel) return;
+
+  const AudioOutputId output =
+      (ControllerAudio::IsAvailable() && ShouldPlayOnController(channel))
+          ? AO_Controller
+          : AO_Main;
+  if (channel->GetOutput() != output) channel->SetOutput(output);
+}
+
 void AudioShutdown() {
   for (int i = 0; i < AC_Count; i++) {
     Channels[i] = nullptr;
   }
   IsInit = false;
+  ControllerAudio::Shutdown();
   Backend->Shutdown();
 }
 
@@ -176,6 +209,9 @@ void AudioInit() {
   }
 
   if (!Backend->Init()) return;
+  if (+Profile::Game::GameFeatures & +GameFeature::ControllerSpeaker) {
+    ControllerAudio::Init();
+  }
   for (int i = AC_SE0; i <= AC_SE2; i++)
     Channels[i] = AudioChannel::Create((AudioChannelId)i, ACG_SE);
   for (int i = AC_VOICE0; i <= AC_REV; i++)
@@ -251,6 +287,11 @@ void PlayInGroup(AudioChannelGroup group, std::string const& mountpoint,
 }
 
 void AudioUpdate(float dt) {
+  if (+Profile::Game::GameFeatures & +GameFeature::ControllerSpeaker) {
+    ControllerAudio::Update(Profile::ConfigSystem::UseSpeaker);
+    UpdateControllerChannelOutput();
+  }
+
   // Set voice modifier for each voice channel
   for (int i = AC_VOICE0; i <= AC_VOICE2; i++) {
     const int charId = DialoguePages[i - AC_VOICE0].CurrentVoiceCharacterId;

@@ -135,6 +135,22 @@ std::unique_ptr<Group> OptionsMenu::CreateSoundPage(
               glm::vec2(0.0f, SoundEntriesVerticalOffset * 5),
           highlightTint, select, highlight),
       FDIR_DOWN);
+  if (+Profile::Game::GameFeatures & +GameFeature::ControllerSpeaker) {
+    soundPage->Add(
+        new OptionsBinaryButton(
+            UseSpeaker, BinaryBoxSprite, YesSprite, NoSprite, LabelSprites[13],
+            SoundEntriesStartPosition +
+                glm::vec2(0.0f, SoundEntriesVerticalOffset * 6),
+            highlightTint, select, highlight),
+        FDIR_DOWN);
+    soundPage->Add(
+        new OptionsSlider(SpeakerVolume, 0.0f, 1.0f, SliderTrackSprite,
+                          LabelSprites[14],
+                          SoundEntriesStartPosition +
+                              glm::vec2(0.0f, SoundEntriesVerticalOffset * 7),
+                          highlightTint, SliderSpeed, select, highlight),
+        FDIR_DOWN);
+  }
 
   return soundPage;
 }
@@ -426,6 +442,10 @@ void OptionsMenu::ResetToDefault() {
       std::ranges::copy(Default::GroupVolumes, Audio::GroupVolumes.begin());
       SyncVoice = Default::SyncVoice;
       SkipVoice = Default::SkipVoice;
+      if (+Profile::Game::GameFeatures & +GameFeature::ControllerSpeaker) {
+        UseSpeaker = Default::UseSpeaker;
+        SpeakerVolume = Default::SpeakerVolume;
+      }
       break;
     }
     case +PageType::Voice: {
