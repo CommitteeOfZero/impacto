@@ -30,6 +30,8 @@ inline float AutoSpeed = 768.0f / 60.0f;
 inline bool SkipRead = true;
 inline bool SyncVoice = true;
 inline bool SkipVoice = false;
+inline bool UseSpeaker = true;
+inline float SpeakerVolume = 0.5f;
 
 inline std::array<bool, VoiceCount> VoiceMuted;
 inline std::array<float, VoiceCount> VoiceVolume;
@@ -76,6 +78,12 @@ inline bool SyncVoice = Default::SyncVoice;
 
 // Stop voice line after dialogue progression
 inline bool SkipVoice = Default::SkipVoice;
+
+// Play specific voice lines through the controller speaker
+inline bool UseSpeaker = Default::UseSpeaker;
+
+// Controller speaker volume
+inline float SpeakerVolume = Default::SpeakerVolume;
 
 // Individual character mute/volume settings
 inline std::array<bool, VoiceCount> VoiceMuted;
