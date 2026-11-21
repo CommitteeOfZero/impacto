@@ -14,16 +14,7 @@ namespace Impacto {
 namespace CHLCC {
 
 IntroSequence::IntroSequence() {
-  const RectF viewport = Window->GetViewport();
-  Texture fallingStarsMaskTexture{};
-  fallingStarsMaskTexture.LoadSolidColor(static_cast<int>(viewport.Width),
-                                         static_cast<int>(viewport.Height), 0);
-  SpriteSheet fallingStarsMaskSheet(viewport.Width, viewport.Height);
-  fallingStarsMaskSheet.Texture = fallingStarsMaskTexture.Submit();
-  fallingStarsMaskSheet.IsScreenCap = true;
-  FallingStarsMask =
-      Sprite(fallingStarsMaskSheet, 0, 0, viewport.Width, viewport.Height);
-
+  ResetFallingStarsMask();
   const float designScaleX = DesignWidth / 1280.0f;
   const float designScaleY = DesignHeight / 720.0f;
 
@@ -105,7 +96,26 @@ IntroSequence::~IntroSequence() {
   Renderer->FreeTexture(FallingStarsMask.Sheet.Texture);
 }
 
-void IntroSequence::Reset() { IntroAnimation.Reset(); }
+void IntroSequence::ResetFallingStarsMask() {
+  const RectF viewport = Window->GetViewport();
+  if (FallingStarsMask.Sheet.Texture != 0) {
+    Renderer->FreeTexture(FallingStarsMask.Sheet.Texture);
+  }
+
+  Texture fallingStarsMaskTexture{};
+  fallingStarsMaskTexture.LoadSolidColor(static_cast<int>(viewport.Width),
+                                         static_cast<int>(viewport.Height), 0);
+  SpriteSheet fallingStarsMaskSheet(viewport.Width, viewport.Height);
+  fallingStarsMaskSheet.Texture = fallingStarsMaskTexture.Submit();
+  fallingStarsMaskSheet.IsScreenCap = true;
+  FallingStarsMask =
+      Sprite(fallingStarsMaskSheet, 0, 0, viewport.Width, viewport.Height);
+}
+
+void IntroSequence::Reset() {
+  IntroAnimation.Reset();
+  ResetFallingStarsMask();
+}
 
 void IntroSequence::Update(float dt) {
   if (StarBounceAnimation.Progress >= 0.357f &&
