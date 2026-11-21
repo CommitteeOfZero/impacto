@@ -39,20 +39,31 @@ void Configure() {
 
     PressToStartPos = EnsureGetMember<glm::vec2>("PressToStartPos");
 
-    if (Type == TitleMenuType::RNE) {
-      RNE::TitleMenu::Configure();
-    } else if (Type == TitleMenuType::Dash) {
-      Dash::TitleMenu::Configure();
-    } else if (Type == TitleMenuType::CHLCC) {
-      CHLCC::TitleMenu::Configure();
-    } else if (Type == TitleMenuType::MO6TW) {
-      MO6TW::TitleMenu::Configure();
-    } else if (Type == TitleMenuType::MO8) {
-      MO8::TitleMenu::Configure();
-    } else if (Type == TitleMenuType::CC) {
-      CC::TitleMenu::Configure();
-    } else if (Type == TitleMenuType::CCLCC) {
-      CCLCC::TitleMenu::Configure();
+    switch (Type) {
+      case TitleMenuType::RNE:
+        RNE::TitleMenu::Configure();
+        break;
+      case TitleMenuType::Dash:
+        Dash::TitleMenu::Configure();
+        break;
+      case TitleMenuType::CHLCC:
+      case TitleMenuType::CHLCC_Switch:
+        CHLCC::TitleMenu::Configure();
+        break;
+      case TitleMenuType::MO6TW:
+        MO6TW::TitleMenu::Configure();
+        break;
+      case TitleMenuType::MO8:
+        MO8::TitleMenu::Configure();
+        break;
+      case TitleMenuType::CC:
+        CC::TitleMenu::Configure();
+        break;
+      case TitleMenuType::CCLCC:
+        CCLCC::TitleMenu::Configure();
+        break;
+      default:
+        break;
     }
 
     // if (Implementation != 0) {

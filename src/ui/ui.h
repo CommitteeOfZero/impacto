@@ -48,6 +48,7 @@ enum class TitleMenuType : int {
   RNE,
   Dash,
   CHLCC,
+  CHLCC_Switch,
   MO6TW,
   MO8,
   CC,
