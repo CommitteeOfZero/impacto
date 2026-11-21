@@ -160,6 +160,10 @@ std::string GetDefaultLogFile() {
     result = std::filesystem::path(prefPath);
     SDL_free(prefPath);
   }
+#if defined(__APPLE__)
+  // MacOS has Impacto.app as bundle instead of a whole folder
+  result = std::filesystem::weakly_canonical(result).parent_path();
+#endif
   return (result / logFileName).string();
 #endif
 }
