@@ -227,7 +227,7 @@ void SetupFonts() {
   constexpr const char* fontPath =
       "resources/common/font/NotoSansCJKjp-Bold.otf";
   ImFont* font =
-      io.Fonts->AddFontFromFileTTF(fontPath, 24.0f * Window->DpiScale, nullptr,
+      io.Fonts->AddFontFromFileTTF(fontPath, 18.0f * Window->DpiScale, nullptr,
                                    io.Fonts->GetGlyphRangesJapanese());
   if (font == nullptr) {
     ImpLog(LogLevel::Error, LogChannel::Overlay, "Failed to load font: {}",
