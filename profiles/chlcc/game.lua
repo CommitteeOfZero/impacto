@@ -70,5 +70,6 @@ include(root.BasePaths.RootProfilesDir .. '/chlcc/hud/tipsnotification.lua');
 include(root.BasePaths.RootProfilesDir .. '/chlcc/hud/optionsmenu.lua');
 include(root.BasePaths.RootProfilesDir .. '/chlcc/hud/extramenus.lua');
 include(root.BasePaths.RootProfilesDir .. '/chlcc/hud/trophymenu.lua');
+include(root.BasePaths.RootProfilesDir .. '/chlcc/hud/helpmenu.lua');
 include(root.BasePaths.RootProfilesDir .. '/chlcc/gamespecific.lua');
 include(root.BasePaths.RootProfilesDir .. '/chlcc/waveeffects.lua');

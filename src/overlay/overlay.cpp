@@ -16,6 +16,7 @@
 #include "aboutpage.h"
 #include "achievementspage.h"
 #include "enhancementspage.h"
+#include "helppage.h"
 #include "settingspage.h"
 
 #include "notification/toastnotification.h"
@@ -27,10 +28,12 @@
 #include "../profile/game.h"
 #include "../profile/gamedefinitions.h"
 #include "../profile/basepaths.h"
+#include "../profile/ui/helpmenu.h"
 #include "../userconfig.h"
 #include "../io/physicalfilestream.h"
 #include "../io/filemeta.h"
 #include "../data/achievementsystem.h"
+#include "../vm/interface/input.h"
 
 namespace Impacto::Overlay {
 
@@ -224,7 +227,7 @@ void SetupFonts() {
   constexpr const char* fontPath =
       "resources/common/font/NotoSansCJKjp-Bold.otf";
   ImFont* font =
-      io.Fonts->AddFontFromFileTTF(fontPath, 24.0f * Window->DpiScale, nullptr,
+      io.Fonts->AddFontFromFileTTF(fontPath, 18.0f * Window->DpiScale, nullptr,
                                    io.Fonts->GetGlyphRangesJapanese());
   if (font == nullptr) {
     ImpLog(LogLevel::Error, LogChannel::Overlay, "Failed to load font: {}",
@@ -379,6 +382,8 @@ static bool AchievementsTabSelectable() {
          AchievementSystem::Implementation != nullptr;
 }
 
+static bool HelpTabSelectable() { return Profile::Game::HasInit; }
+
 void ShowOverlay() {
   constexpr ImGuiWindowFlags wrapperWindowFlags =
       ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDecoration |
@@ -464,6 +469,13 @@ void ShowOverlay() {
           ImGui::EndTabItem();
         }
 
+        if (HelpTabSelectable() &&
+            ImGui::BeginTabItem("Help", nullptr, tabFlags[OverlayTab::Help])) {
+          ActiveTab = OverlayTab::Help;
+          ShowHelpPage();
+          ImGui::EndTabItem();
+        }
+
         if (ImGui::BeginTabItem("About", nullptr,
                                 tabFlags[OverlayTab::About])) {
           ActiveTab = OverlayTab::About;
@@ -543,6 +555,7 @@ static void AdvanceTab(const int8_t delta) {
     isSelectable.fill(always);
 
     isSelectable[Achievements] = AchievementsTabSelectable;
+    isSelectable[Help] = HelpTabSelectable;
 
     return isSelectable;
   }();
@@ -579,6 +592,15 @@ void Show() {
          Input::ControllerButtonWentDown[SDL_GAMEPAD_BUTTON_LEFT_STICK] ||
          Input::TouchTapCount == 3)) {
       OverlayShown = true;
+    } else if (!OverlayShown && Profile::HelpMenu::UseOverlayHelp &&
+               Profile::HelpMenu::OverlayHelpKbCustomId >= 0 &&
+               Vm::Interface::GetKbCustom(
+                   Profile::HelpMenu::OverlayHelpKbCustomId,
+                   [](Input::KeyboardScanCode sc) {
+                     return Input::KeyboardButtonWentDown[sc];
+                   })) {
+      OverlayShown = true;
+      RequestedTab = OverlayTab::Help;
     } else if (OverlayShown &&
                (ImGui::IsKeyChordPressed(ImGuiMod_Shift | ImGuiKey_0) ||
                 ImGui::IsKeyPressed(ImGuiKey_GamepadL3, false))) {

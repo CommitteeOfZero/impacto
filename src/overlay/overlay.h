@@ -8,6 +8,7 @@ enum class OverlayTab : int8_t {
   Settings,
   Enhancements,
   Achievements,
+  Help,
   About,
 };
 

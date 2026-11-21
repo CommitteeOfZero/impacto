@@ -1124,6 +1124,7 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
         src/overlay/aboutpage.cpp
         src/overlay/achievementspage.cpp
         src/overlay/enhancementspage.cpp
+        src/overlay/helppage.cpp
         src/overlay/settingspage.cpp
 
         src/overlay/notification/toastnotification.cpp
@@ -1139,6 +1140,7 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
         src/overlay/aboutpage.h
         src/overlay/achievementspage.h
         src/overlay/enhancementspage.h
+        src/overlay/helppage.h
         src/overlay/settingspage.h
 
         src/overlay/notification/toastnotification.h
