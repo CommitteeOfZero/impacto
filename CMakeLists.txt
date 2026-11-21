@@ -115,6 +115,7 @@ set(Impacto_Src
     src/profile/ui/extramenus.cpp
     src/profile/ui/trophymenu.cpp
     src/profile/ui/helpmenu.cpp
+    src/profile/overlay/helpmenu.cpp
     src/profile/ui/gamespecific.cpp
     src/profile/ui/buttonprompticons.cpp
 
@@ -492,6 +493,7 @@ set(Impacto_Header
     src/profile/ui/extramenus.h
     src/profile/ui/trophymenu.h
     src/profile/ui/helpmenu.h
+    src/profile/overlay/helpmenu.h
     src/profile/ui/gamespecific.h
     src/profile/ui/buttonprompticons.h
 
@@ -1115,7 +1117,7 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
     list(APPEND Impacto_Header src/debugmenu.h)
 
     list(APPEND Impacto_Src
-        src/profile/overlay.cpp
+        src/profile/overlay/overlay.cpp
 
         src/overlay/overlay.cpp
         src/overlay/updater.cpp
@@ -1124,13 +1126,14 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
         src/overlay/aboutpage.cpp
         src/overlay/achievementspage.cpp
         src/overlay/enhancementspage.cpp
+        src/overlay/helppage.cpp
         src/overlay/settingspage.cpp
 
         src/overlay/notification/toastnotification.cpp
         src/overlay/notification/achievementnotification.cpp
     )
     list(APPEND Impacto_Header
-        src/profile/overlay.h
+        src/profile/overlay/overlay.h
 
         src/overlay/overlay.h
         src/overlay/updater.h
@@ -1139,6 +1142,7 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
         src/overlay/aboutpage.h
         src/overlay/achievementspage.h
         src/overlay/enhancementspage.h
+        src/overlay/helppage.h
         src/overlay/settingspage.h
 
         src/overlay/notification/toastnotification.h

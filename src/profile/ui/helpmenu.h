@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../../ui/ui.h"
-#include "../../spritesheet.h"
 
 namespace Impacto {
 namespace Profile {

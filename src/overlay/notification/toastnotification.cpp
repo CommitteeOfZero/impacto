@@ -2,7 +2,7 @@
 
 #include "../overlay.h"
 #include "../../inputsystem.h"
-#include "../../profile/overlay.h"
+#include "../../profile/overlay/overlay.h"
 #include "../../profile/game.h"
 
 namespace Impacto::Overlay {

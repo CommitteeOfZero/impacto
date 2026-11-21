@@ -3,7 +3,7 @@
 #include "../overlay.h"
 #include "../../animation.h"
 #include "../../spritesheet.h"
-#include "../../profile/overlay.h"
+#include "../../profile/overlay/overlay.h"
 #include "../../profile/game.h"
 #include "../../text/processedtextglyph.h"
 #include "../../text/fonts/font.h"

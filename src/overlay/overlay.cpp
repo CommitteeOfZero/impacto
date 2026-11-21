@@ -16,6 +16,7 @@
 #include "aboutpage.h"
 #include "achievementspage.h"
 #include "enhancementspage.h"
+#include "helppage.h"
 #include "settingspage.h"
 
 #include "notification/toastnotification.h"
@@ -23,7 +24,7 @@
 #include "../game.h"
 #include "../log.h"
 #include "../inputsystem.h"
-#include "../profile/overlay.h"
+#include "../profile/overlay/helpmenu.h"
 #include "../profile/game.h"
 #include "../profile/gamedefinitions.h"
 #include "../profile/basepaths.h"
@@ -31,6 +32,7 @@
 #include "../io/physicalfilestream.h"
 #include "../io/filemeta.h"
 #include "../data/achievementsystem.h"
+#include "../vm/interface/input.h"
 
 namespace Impacto::Overlay {
 
@@ -379,6 +381,12 @@ static bool AchievementsTabSelectable() {
          AchievementSystem::Implementation != nullptr;
 }
 
+static bool HasGameInit() { return Profile::Game::HasInit; }
+
+static bool HelpTabSelectable() {
+  return HasGameInit() && !Profile::Overlay::HelpMenu::Sections.empty();
+}
+
 void ShowOverlay() {
   constexpr ImGuiWindowFlags wrapperWindowFlags =
       ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDecoration |
@@ -464,6 +472,13 @@ void ShowOverlay() {
           ImGui::EndTabItem();
         }
 
+        if (HelpTabSelectable() &&
+            ImGui::BeginTabItem("Input", nullptr, tabFlags[OverlayTab::Help])) {
+          ActiveTab = OverlayTab::Help;
+          ShowHelpPage();
+          ImGui::EndTabItem();
+        }
+
         if (ImGui::BeginTabItem("About", nullptr,
                                 tabFlags[OverlayTab::About])) {
           ActiveTab = OverlayTab::About;
@@ -543,6 +558,7 @@ static void AdvanceTab(const bool reverse = false) {
     isSelectable.fill(always);
 
     isSelectable[Achievements] = AchievementsTabSelectable;
+    isSelectable[Help] = HelpTabSelectable;
 
     return isSelectable;
   }();
@@ -581,6 +597,15 @@ void Show() {
          Input::ControllerButtonWentDown[SDL_GAMEPAD_BUTTON_LEFT_STICK] ||
          Input::TouchTapCount == 3)) {
       OverlayShown = true;
+    } else if (!OverlayShown &&
+               Profile::Overlay::HelpMenu::OverlayHelpKbCustomId.has_value() &&
+               Vm::Interface::GetKbCustom(
+                   *Profile::Overlay::HelpMenu::OverlayHelpKbCustomId,
+                   [](Input::KeyboardScanCode sc) {
+                     return Input::KeyboardButtonWentDown[sc];
+                   })) {
+      OverlayShown = true;
+      RequestedTab = OverlayTab::Help;
     } else if (OverlayShown &&
                (ImGui::IsKeyChordPressed(ImGuiMod_Shift | ImGuiKey_0) ||
                 ImGui::IsKeyPressed(ImGuiKey_GamepadL3, false))) {

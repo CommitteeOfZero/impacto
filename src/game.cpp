@@ -13,7 +13,7 @@
 #include "overlay/overlay.h"
 #include "overlay/notification/toastnotification.h"
 
-#include "profile/overlay.h"
+#include "profile/overlay/overlay.h"
 #endif
 
 #include "ui/ui.h"
