@@ -3,6 +3,7 @@
 #include "../../profile/games/cclcc/helpmenu.h"
 #include "../../profile/games/cclcc/systemmenu.h"
 #include "../../profile/ui/backlogmenu.h"
+#include "../../profile/ui/helpmenu.h"
 #include "../../profile/dialogue.h"
 #include "../../renderer/renderer.h"
 #include "../../mem.h"
@@ -11,6 +12,7 @@
 #include "../../profile/game.h"
 #include "../../inputsystem.h"
 #include "../../audio/audiosystem.h"
+#include "../../overlay/overlay.h"
 
 namespace Impacto {
 namespace UI {
@@ -63,7 +65,15 @@ void HelpMenu::Update(float dt) {
     Hide();
   } else if (ScrWork[SW_SYSSUBMENUCT] > 0 && State == Hidden &&
              (ScrWork[SW_SYSSUBMENUNO] == 11)) {
-    Show();
+    if (Profile::HelpMenu::UseOverlayHelp) {
+      SetFlag(SF_SUBMENUEXIT, 1);
+      SetFlag(SF_MANUALLOAD_COMPLETE, 0);
+      SetFlag(SF_MANUALLOAD_END, 1);
+      Overlay::OverlayShown = true;
+      Overlay::RequestedTab = Overlay::OverlayTab::Help;
+    } else {
+      Show();
+    }
   }
 
   if (State != Hidden) {
