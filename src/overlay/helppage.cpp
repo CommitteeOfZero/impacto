@@ -32,9 +32,12 @@ void ShowHelpPage() {
         std::string tableId = "##HelpTable" + std::to_string(sectionIndex++);
         tableOpen = ImGui::BeginTable(tableId.c_str(), 3, flags);
         if (tableOpen) {
-          ImGui::TableSetupColumn("Action");
-          ImGui::TableSetupColumn("Keyboard & Mouse");
-          ImGui::TableSetupColumn("Controller");
+          ImGui::TableSetupColumn("Action", ImGuiTableColumnFlags_WidthStretch,
+                                  1.3f);
+          ImGui::TableSetupColumn("Keyboard & Mouse",
+                                  ImGuiTableColumnFlags_WidthStretch, 1.1f);
+          ImGui::TableSetupColumn("Controller",
+                                  ImGuiTableColumnFlags_WidthStretch, 1.0f);
           ImGui::TableHeadersRow();
         }
       }
