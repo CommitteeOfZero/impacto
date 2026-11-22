@@ -40,21 +40,21 @@ void InitWindow() {
   }
   Window->SetVSync(UserConfig::GetEffectiveVSync());
   Window->Init();
+  SetWindowIcon(Window->SDLWindow);
 }
 
 void SetWindowIcon(SDL_Window* window) {
-  if (!Profile::Game::WindowIconPath.has_value()) {
-    return;
-  }
+  const char* const iconPath = (Profile::Game::WindowIconPath.has_value())
+                                   ? Profile::Game::WindowIconPath->c_str()
+                                   : "resources/common/icons/icon.png";
 
   Io::AssetPath asset;
-  asset.FileName = Profile::Game::WindowIconPath->c_str();
+  asset.FileName = iconPath;
   Io::Stream* streamPtr;
   IoError err = asset.Open(&streamPtr);
   if (err != IoError_OK) {
     ImpLog(LogLevel::Warning, LogChannel::General,
-           "Could not open window icon file {:s}\n",
-           Profile::Game::WindowIconPath->c_str());
+           "Could not open window icon file {:s}\n", iconPath);
     return;
   }
   std::unique_ptr<Io::Stream> stream(streamPtr);
@@ -64,8 +64,7 @@ void SetWindowIcon(SDL_Window* window) {
 
   if (bytesRead != (int64_t)fileSize) {
     ImpLog(LogLevel::Warning, LogChannel::General,
-           "Could not read window icon file {:s}\n",
-           Profile::Game::WindowIconPath->c_str());
+           "Could not read window icon file {:s}\n", iconPath);
     return;
   }
 
@@ -76,8 +75,7 @@ void SetWindowIcon(SDL_Window* window) {
 
   if (!image) {
     ImpLog(LogLevel::Warning, LogChannel::General,
-           "Could not load window icon from {:s}\n",
-           Profile::Game::WindowIconPath->c_str());
+           "Could not load window icon from {:s}\n", iconPath);
     return;
   }
 
@@ -86,7 +84,7 @@ void SetWindowIcon(SDL_Window* window) {
   if (!surface) {
     ImpLog(LogLevel::Error, LogChannel::General,
            "Could not create SDL surface for window icon from {:s}: {:s}\n",
-           Profile::Game::WindowIconPath->c_str(), SDL_GetError());
+           iconPath, SDL_GetError());
     stbi_image_free(image);
     return;
   }
