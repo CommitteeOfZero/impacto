@@ -35,6 +35,7 @@
 #include "../vm/interface/input.h"
 
 namespace Impacto::Overlay {
+constexpr static float OverlayUIScale = 1.3f;
 
 static bool HasInit = false;
 static std::optional<OverlayTab> ActiveTab;
@@ -96,7 +97,7 @@ static void ShowDirectoryPickerButton() {
 static float GetImguiScale() {
   const float windowDPIScale = Window->DpiScale;
   const float fbScale = ImGui::GetIO().DisplayFramebufferScale.x;
-  return windowDPIScale / fbScale * 1.3;
+  return windowDPIScale / fbScale * OverlayUIScale;
 }
 
 static ImVec4 GetAccentColor(std::string const& gameKey) {
