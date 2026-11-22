@@ -250,6 +250,7 @@ void LauncherUpdate(float dt) {
 #ifndef IMPACTO_DISABLE_IMGUI
     ImGui_ImplSDL3_ProcessEvent(&e);
 #endif
+    if (HandleWindowEvents(&e)) continue;
   }
 }
 

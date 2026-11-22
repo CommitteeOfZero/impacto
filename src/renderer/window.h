@@ -76,6 +76,7 @@ class BaseWindow {
   int lastHeight = -1;
   int lastMsaa = 0;
   float lastRenderScale = 1.0f;
+  float lastDpiScale = 1.0f;
 
  private:
   SDL_Rect GetDisplayBounds(

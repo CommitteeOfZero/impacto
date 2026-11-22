@@ -267,6 +267,7 @@ void BaseWindow::ClampAspectRatio(int boundW, int boundH) {
 void BaseWindow::SetWindowedSizing() {
   int top, left, bottom, right;
   SDL_SetWindowFullscreen(SDLWindow, false);
+  SDL_SyncWindow(SDLWindow);
   SDL_Rect bounds = GetDisplayBounds(0);
   ClampAspectRatio(bounds.w, bounds.h);
   bool hasWindowBorders =
@@ -390,7 +391,6 @@ void BaseWindow::ApplyWindowSettings() {
   SDL_SetWindowTitle(SDLWindow, Profile::Game::WindowName.c_str());
 
   if (dispMode == DisplayMode::Fullscreen) {
-    SDL_SetWindowSize(SDLWindow, WindowWidth, WindowHeight);
     SDL_DisplayMode closest{};
     if (SDL_GetClosestFullscreenDisplayMode(SDL_GetDisplayForWindow(SDLWindow),
                                             WindowWidth, WindowHeight, 0.0f,
@@ -399,13 +399,12 @@ void BaseWindow::ApplyWindowSettings() {
     }
     SDL_SetWindowFullscreen(SDLWindow, true);
   } else if (dispMode == DisplayMode::Borderless) {
-    SDL_SetWindowSize(SDLWindow, WindowWidth, WindowHeight);
     SDL_SetWindowFullscreenMode(SDLWindow, NULL);
     SDL_SetWindowFullscreen(SDLWindow, true);
   } else {
     SetWindowedSizing();
   }
-
+  SDL_SyncWindow(SDLWindow);
   ImpLog(LogLevel::Debug, LogChannel::General,
          "Window size (screen coords): {:d} x {:d}\n", WindowWidth,
          WindowHeight);
@@ -422,6 +421,10 @@ bool HandleWindowEvents(SDL_Event const* evt) {
     case SDL_EVENT_WINDOW_FOCUS_LOST:
     case SDL_EVENT_WINDOW_HIDDEN:
       Input::ClearTouch();
+      return true;
+    case SDL_EVENT_WINDOW_RESIZED:
+    case SDL_EVENT_WINDOW_DISPLAY_SCALE_CHANGED:
+      Window->ApplyWindowSettings();
       return true;
     default:
       return false;
