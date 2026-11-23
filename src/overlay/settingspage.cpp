@@ -90,10 +90,25 @@ static void ShowCommonSettings() {
   }
 }
 
-[[maybe_unused]] static bool ShowDisplaySettings(
-    std::string const& selectedGame) {
-  auto& gameSettings = UserConfig::GameSettings.at(selectedGame);
+static glm::ivec2 GetMaxRes(DisplayMode dispMode) {
+  SDL_DisplayMode maxRes{};
+  if (dispMode == DisplayMode::Fullscreen) {
+    if (SDL_DisplayMode** const desktopMode =
+            SDL_GetFullscreenDisplayModes(SDL_GetPrimaryDisplay(), nullptr)) {
+      maxRes = **desktopMode;
+      SDL_free(desktopMode);
+    }
+  } else {
+    if (const SDL_DisplayMode* const desktopMode =
+            SDL_GetDesktopDisplayMode(SDL_GetPrimaryDisplay())) {
+      maxRes = *desktopMode;
+    }
+  }
+  return {maxRes.w, maxRes.h};
+}
 
+static void ShowResolutionSettings(
+    Impacto::UserConfig::GameConfig& gameSettings, bool& wasUpdated) {
   const float comboWidth = 200.0f * Window->DpiScale;
 
   constexpr static auto resolutionOptions = std::to_array({
@@ -106,74 +121,88 @@ static void ShowCommonSettings() {
       std::pair{"3840x2160", glm::ivec2{3840, 2160}},
   });
 
+  static std::string currentResolution;
+
+  static std::optional<int> lastResWidth;
+  static std::optional<int> lastResHeight;
+
+  if (currentResolution.empty() ||
+      lastResWidth != gameSettings.ResolutionWidth ||
+      lastResHeight != gameSettings.ResolutionHeight) {
+    if (gameSettings.ResolutionWidth && gameSettings.ResolutionHeight) {
+      currentResolution = fmt::format("{}x{}", *gameSettings.ResolutionWidth,
+                                      *gameSettings.ResolutionHeight);
+    } else {
+      currentResolution = "Native Game Res";
+    }
+    wasUpdated = true;
+    lastResWidth = gameSettings.ResolutionWidth;
+    lastResHeight = gameSettings.ResolutionHeight;
+  }
+
+  ImGui::AlignTextToFramePadding();
+  ImGui::Text("Game Resolution");
+  ImGui::SameLine();
+  ImGui::SetNextItemWidth(comboWidth);
+  if (ImGui::BeginCombo("##ChooseResolution", currentResolution.c_str())) {
+    bool isNativeRes =
+        !gameSettings.ResolutionWidth || !gameSettings.ResolutionHeight;
+    if (ImGui::Selectable("Native Game Res", isNativeRes)) {
+      gameSettings.ResolutionWidth.reset();
+      gameSettings.ResolutionHeight.reset();
+    }
+    if (isNativeRes) ImGui::SetItemDefaultFocus();
+    const glm::ivec2 maxRes = GetMaxRes(gameSettings.Display);
+    for (auto&& [display, value] : resolutionOptions) {
+      if (value.x > maxRes.x || value.y > maxRes.y) continue;
+      bool isSelected = gameSettings.ResolutionWidth == value.x &&
+                        gameSettings.ResolutionHeight == value.y;
+      if (ImGui::Selectable(display, isSelected)) {
+        gameSettings.ResolutionWidth = value.x;
+        gameSettings.ResolutionHeight = value.y;
+      }
+      if (isSelected) ImGui::SetItemDefaultFocus();
+    }
+    ImGui::EndCombo();
+  }
+}
+
+static void ShowDisplayModes(Impacto::UserConfig::GameConfig& gameSettings,
+                             bool& wasUpdated) {
+  auto dispModeRadio = [&](char const* const label, DisplayMode mode) {
+    if (ImGui::RadioButton(label, gameSettings.Display == mode)) {
+      if (gameSettings.Display != mode) {
+        wasUpdated = true;
+        gameSettings.Display = mode;
+        gameSettings.ResolutionWidth.reset();
+        gameSettings.ResolutionHeight.reset();
+      }
+    }
+  };
+
+  dispModeRadio("Windowed", DisplayMode::Windowed);
+  ImGui::SameLine();
+#ifdef __APPLE__
+  // Exclusive fullscreen is really bad on macOS
+  dispModeRadio("Fullscreen", DisplayMode::Borderless);
+#else
+  dispModeRadio("Fullscreen", DisplayMode::Fullscreen);
+  ImGui::SameLine();
+  dispModeRadio("Borderless", DisplayMode::Borderless);
+#endif
+}
+
+[[maybe_unused]] static bool ShowDisplaySettings(
+    std::string const& selectedGame) {
+  auto& gameSettings = UserConfig::GameSettings.at(selectedGame);
+
   bool wasUpdated = false;
   ImGui::Spacing();
   if (ImGui::CollapsingHeader("Display Settings",
                               ImGuiTreeNodeFlags_DefaultOpen)) {
-    static std::string currentResolution;
-
-    static std::optional<int> lastResWidth;
-    static std::optional<int> lastResHeight;
-
-    if (currentResolution.empty() ||
-        lastResWidth != gameSettings.ResolutionWidth ||
-        lastResHeight != gameSettings.ResolutionHeight) {
-      if (gameSettings.ResolutionWidth && gameSettings.ResolutionHeight) {
-        currentResolution = fmt::format("{}x{}", *gameSettings.ResolutionWidth,
-                                        *gameSettings.ResolutionHeight);
-      } else {
-        currentResolution = "Native Game Res";
-      }
-      wasUpdated = true;
-      lastResWidth = gameSettings.ResolutionWidth;
-      lastResHeight = gameSettings.ResolutionHeight;
-    }
-
-    SDL_DisplayMode maxRes{};
-    if (const SDL_DisplayMode* desktopMode =
-            SDL_GetDesktopDisplayMode(SDL_GetPrimaryDisplay())) {
-      maxRes = *desktopMode;
-    }
-
-    ImGui::AlignTextToFramePadding();
-    ImGui::Text("Game Resolution");
-    ImGui::SameLine();
-    ImGui::SetNextItemWidth(comboWidth);
-    if (ImGui::BeginCombo("##ChooseResolution", currentResolution.c_str())) {
-      bool isNativeRes =
-          !gameSettings.ResolutionWidth || !gameSettings.ResolutionHeight;
-      if (ImGui::Selectable("Native Game Res", isNativeRes)) {
-        gameSettings.ResolutionWidth.reset();
-        gameSettings.ResolutionHeight.reset();
-      }
-      if (isNativeRes) ImGui::SetItemDefaultFocus();
-      for (auto&& [display, value] : resolutionOptions) {
-        if (value.x > maxRes.w || value.y > maxRes.h) continue;
-        bool isSelected = gameSettings.ResolutionWidth == value.x &&
-                          gameSettings.ResolutionHeight == value.y;
-        if (ImGui::Selectable(display, isSelected)) {
-          gameSettings.ResolutionWidth = value.x;
-          gameSettings.ResolutionHeight = value.y;
-        }
-        if (isSelected) ImGui::SetItemDefaultFocus();
-      }
-      ImGui::EndCombo();
-    }
-
-    ImGui::SameLine();
-
-    auto dispModeRadio = [&](char const* const label, DisplayMode mode) {
-      if (ImGui::RadioButton(label, gameSettings.Display == mode)) {
-        wasUpdated = true;
-        gameSettings.Display = mode;
-      }
-    };
-
-    dispModeRadio("Windowed", DisplayMode::Windowed);
-    ImGui::SameLine();
-    dispModeRadio("Fullscreen", DisplayMode::Fullscreen);
-    ImGui::SameLine();
-    dispModeRadio("Borderless", DisplayMode::Borderless);
+    ShowDisplayModes(gameSettings, wasUpdated);
+    if (gameSettings.Display != DisplayMode::Borderless)
+      ShowResolutionSettings(gameSettings, wasUpdated);
 
     if (ImGui::Checkbox("Vertical Synchronization", &gameSettings.UseVSync)) {
       wasUpdated = true;
