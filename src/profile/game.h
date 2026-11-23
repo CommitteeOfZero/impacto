@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <optional>
 #include <string>
+#include <vector>
 
 namespace Impacto {
 namespace Profile {
@@ -33,6 +34,8 @@ inline float DesignWidth;
 inline float DesignHeight;
 
 inline int PlatformId = 0;
+
+inline std::vector<uint32_t> SpeakerVoiceLines;
 
 inline bool HasInit = false;
 

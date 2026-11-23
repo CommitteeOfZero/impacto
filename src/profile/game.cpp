@@ -2,8 +2,6 @@
 #include "profile.h"
 #include "profile_internal.h"
 
-#include <cstdint>
-
 namespace Impacto {
 namespace Profile {
 
@@ -31,6 +29,7 @@ void Configure() {
   TryGetMember<bool>("UseWaveEffects", UseWaveEffects);
 
   TryGetMember<int>("PlatformId", PlatformId);
+  TryGetMember<std::vector<uint32_t>>("SpeakerVoiceLines", SpeakerVoiceLines);
 
   HasInit = true;
 }

@@ -16,6 +16,7 @@ struct SaveLayout {
   size_t VoiceOffset;
   size_t SkipVoiceOffset;
   size_t AdvanceTextOffset;
+  std::optional<size_t> SpeakerOffset;
   size_t QuickSortedIdOffset;
   bool QuickSortedIdIsLoaded;
   size_t EVFlagsOffset;

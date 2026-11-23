@@ -92,6 +92,13 @@ void SaveSystem::InitializeSystemData() {
   Io::WriteLE(&stream, Default::DirectionalInputForTrigger);
   Io::WriteLE(&stream, Default::TriggerStopSkip);
 
+  if (l.SpeakerOffset.has_value()) {
+    stream.Seek(*l.SpeakerOffset, SEEK_SET);
+    Io::WriteLE<uint8_t>(&stream, static_cast<uint8_t>(Default::UseSpeaker));
+    Io::WriteLE<uint8_t>(&stream,
+                         static_cast<uint8_t>(Default::SpeakerVolume * 128));
+  }
+
   InitSaveSlots();
 
   const RectF viewport = Window->GetViewport();
@@ -359,6 +366,12 @@ SaveError SaveSystem::LoadSystemData() {
   DirectionalInputForTrigger = Io::ReadLE<bool>(&stream);
   TriggerStopSkip = Io::ReadLE<bool>(&stream);
 
+  if (l.SpeakerOffset.has_value()) {
+    stream.Seek(*l.SpeakerOffset, SEEK_SET);
+    UseSpeaker = Io::ReadLE<uint8_t>(&stream) != 0;
+    SpeakerVolume = Io::ReadLE<uint8_t>(&stream) / 128.0f;
+  }
+
   if (l.QuickSortedIdIsLoaded) {
     stream.Seek(l.QuickSortedIdOffset, SEEK_SET);
     Io::ReadArrayLE<uint8_t>(QuickSaveRecentSortedId.data(), &stream,
@@ -451,6 +464,13 @@ void SaveSystem::SaveSystemData() {
   Io::WriteLE(&systemSaveStream, AdvanceTextOnDirectionalInput);
   Io::WriteLE(&systemSaveStream, DirectionalInputForTrigger);
   Io::WriteLE(&systemSaveStream, TriggerStopSkip);
+
+  if (l.SpeakerOffset.has_value()) {
+    systemSaveStream.Seek(*l.SpeakerOffset, SEEK_SET);
+    Io::WriteLE<uint8_t>(&systemSaveStream, static_cast<uint8_t>(UseSpeaker));
+    Io::WriteLE<uint8_t>(&systemSaveStream,
+                         static_cast<uint8_t>(SpeakerVolume * 128));
+  }
 
   systemSaveStream.Seek(l.QuickSortedIdOffset, SEEK_SET);
   Io::WriteArrayLE<uint8_t>(QuickSaveRecentSortedId.data(), &systemSaveStream,

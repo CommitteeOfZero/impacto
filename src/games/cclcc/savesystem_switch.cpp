@@ -38,6 +38,7 @@ static constexpr CCLCC::SaveLayout SwitchLayout{
     .VoiceOffset = 0x59E,
     .SkipVoiceOffset = 0x5E1,
     .AdvanceTextOffset = 0x5E5,
+    .SpeakerOffset = std::nullopt,
     .QuickSortedIdOffset = 0x90E,
     .QuickSortedIdIsLoaded = false,
     .EVFlagsOffset = 0x96E,
