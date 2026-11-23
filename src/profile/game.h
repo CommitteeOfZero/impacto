@@ -12,7 +12,7 @@ namespace Game {
 inline uint32_t LayerCount;
 inline GameFeature GameFeatures;
 
-inline std::string WindowName;
+inline std::string WindowName = "Impacto";
 inline std::optional<std::string> WindowIconPath;
 inline std::optional<std::string> CursorArrowPath;
 inline std::optional<std::string> CursorPointerPath;
