@@ -5,5 +5,10 @@
   ],
   "overlay-triplets": [
     "./triplets"
-  ]
+  ],
+  "default-registry": {
+    "kind": "git",
+    "repository": "https://github.com/microsoft/vcpkg",
+    "baseline": "ea49500a3353603af1190ca9a786a9015d638ea0"
+  }
 }

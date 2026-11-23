@@ -1,15 +1,58 @@
-# Build instructions based on Ubuntu 20.04 LTS
+# Build instructions based on Ubuntu 24.04 LTS
 
 You can use the following shell script for getting dependencies and setting up first time build on Ubuntu.
 
 First time setup for installing dependencies, vcpkg, and cloning impacto.   
 
 ```shell
-# Build instructions based on Ubuntu 20.04 LTS
+# Build instructions based on Ubuntu 24.04 LTS
 
 # Install required programs and dependencies
 sudo apt update
-sudo apt -y install git cmake ninja-build build-essential libstdc++6 nasm curl zip pkg-config autoconf autoconf-archive automake libtool libx11-dev libxft-dev libxext-dev libwayland-dev libxkbcommon-dev libegl1-mesa-dev libibus-1.0-dev xcb libxrandr-dev
+sudo apt -y install \
+  git \
+  cmake \
+  ninja-build \
+  build-essential \
+  libstdc++6 \
+  nasm \
+  curl \
+  zip \
+  pkg-config \
+  autoconf \
+  autoconf-archive \
+  automake \
+  libtool \
+  libx11-dev \
+  libxft-dev \
+  libxext-dev \
+  libwayland-dev \
+  libxkbcommon-dev \
+  libegl1-mesa-dev \
+  libgles2-mesa-dev \
+  libibus-1.0-dev \
+  xcb \
+  libxrandr-dev \
+  libdrm-dev \
+  libgbm-dev \
+  libxcursor-dev \
+  python3.12-venv \
+  gnome-desktop-testing \
+  libasound2-dev \
+  libpulse-dev \
+  libaudio-dev \
+  libfribidi-dev \
+  libjack-dev \
+  libsndio-dev \
+  libxfixes-dev \
+  libdbus-1-dev \
+  libudev-dev \
+  libthai-dev \
+  libusb-1.0-0-dev \
+  libxi-dev \
+  libxss-dev \
+  libxtst-dev
+
 # Note: The CMake version available from your system package manager may be out of date, check the version with "cmake --version", 
 # and if it's lower than the version in CMakeLists, update it to match.
 
