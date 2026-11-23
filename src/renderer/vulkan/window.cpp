@@ -61,7 +61,7 @@ void VulkanWindow::SetDimensions(int width, int height, int msaa,
 
 void VulkanWindow::SwapRTs() {}
 
-void VulkanWindow::Update() {}
+void VulkanWindow::UpdateImpl() {}
 
 void VulkanWindow::Draw() {
 #ifndef IMPACTO_DISABLE_IMGUI

@@ -182,27 +182,26 @@ static void ShowDisplayModes(Impacto::UserConfig::GameConfig& gameSettings,
 
   dispModeRadio("Windowed", DisplayMode::Windowed);
   ImGui::SameLine();
-#ifdef __APPLE__
-  // Exclusive fullscreen is really bad on macOS
-  dispModeRadio("Fullscreen", DisplayMode::Borderless);
-#else
   dispModeRadio("Fullscreen", DisplayMode::Fullscreen);
   ImGui::SameLine();
   dispModeRadio("Borderless", DisplayMode::Borderless);
-#endif
 }
 
 [[maybe_unused]] static bool ShowDisplaySettings(
     std::string const& selectedGame) {
   auto& gameSettings = UserConfig::GameSettings.at(selectedGame);
-
   bool wasUpdated = false;
   ImGui::Spacing();
   if (ImGui::CollapsingHeader("Display Settings",
                               ImGuiTreeNodeFlags_DefaultOpen)) {
     ShowDisplayModes(gameSettings, wasUpdated);
+#ifdef __APPLE__
+    if (gameSettings.Display == DisplayMode::Windowed)
+      ShowResolutionSettings(gameSettings, wasUpdated);
+#else
     if (gameSettings.Display != DisplayMode::Borderless)
       ShowResolutionSettings(gameSettings, wasUpdated);
+#endif
 
     if (ImGui::Checkbox("Vertical Synchronization", &gameSettings.UseVSync)) {
       wasUpdated = true;
@@ -285,7 +284,7 @@ void ShowSettingsPage(std::string const& selectedGame) {
                        ImGui::GetContentRegionAvail().x - buttonsWidth);
   if (displayChanged && Profile::Game::HasInit) {
     if (ImGui::Button(applyDisplayLabel)) {
-      Window->ApplyWindowSettings();
+      Window->ApplyWindowSettings(true);
       displayChanged = false;
     }
     ImGui::SameLine();

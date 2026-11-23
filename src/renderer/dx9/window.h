@@ -11,7 +11,7 @@ class DirectX9Window : public BaseWindow {
   void SetDimensions(int width, int height, int msaa,
                      float renderScale) override;
   void SwapRTs() override;
-  void Update() override;
+  void UpdateImpl() override;
   void Draw() override;
   void Shutdown() override;
 

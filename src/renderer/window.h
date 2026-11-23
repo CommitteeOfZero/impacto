@@ -14,7 +14,6 @@ void SetWindowIcon(SDL_Window* window);
 void InitCursors();
 void RequestCursor(CursorType type);
 void ApplyCursorForFrame();
-bool HandleWindowEvents(SDL_Event const* evt);
 
 constexpr DisplayMode GetDefaultDispMode() {
 #if defined(__ANDROID__)
@@ -45,15 +44,18 @@ class BaseWindow {
   // Aspect ratio corrected viewport in window coordinates scaled by RenderScale
   RectF GetScaledViewport();
   virtual void SwapRTs() = 0;
-  virtual void Update() = 0;
   virtual void Draw() = 0;
   virtual void Shutdown() = 0;
-  void ApplyWindowSettings();
+  void ApplyWindowSettings(bool loadSettings = false);
+  void Update();
+  bool HandleWindowEvents(SDL_Event const* evt);
 
   SDL_Window* SDLWindow;
 
   // Raw dimensions without aspect ratio correction. Only use for
   // setting/determining resolution and drawing to window framebuffer!
+  int LogicalWindowWidth = 0;
+  int LogicalWindowHeight = 0;
   int WindowWidth = 0;
   int WindowHeight = 0;
 
@@ -65,10 +67,16 @@ class BaseWindow {
   bool WindowDimensionsChanged;
 
   bool RecreateFBOs = false;
+  bool ReapplySettings = false;
 
  protected:
   bool CreateSDLWindow(SDL_WindowFlags flags);
+  void UpdateDisplayMode();
+  void LoadSettings();
+
   virtual void UpdateDimensions() = 0;
+  virtual void UpdateImpl() = 0;
+
   bool IsInit = false;
   bool VSync = true;
 
@@ -77,12 +85,14 @@ class BaseWindow {
   int lastMsaa = 0;
   float lastRenderScale = 1.0f;
   float lastDpiScale = 1.0f;
+  DisplayMode CurrentMode;
 
  private:
   SDL_Rect GetDisplayBounds(
       std::optional<SDL_WindowFlags> flags = std::nullopt);
   void ClampAspectRatio(int boundW, int boundH);
   void SetWindowedSizing();
+  void RequestFauxBorderless();
 };
 
 }  // namespace Impacto

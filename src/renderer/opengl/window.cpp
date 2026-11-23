@@ -24,6 +24,7 @@ namespace OpenGL {
 void GLWindow::UpdateDimensions() {
   WindowDimensionsChanged = false;
   SDL_GetWindowSizeInPixels(SDLWindow, &WindowWidth, &WindowHeight);
+  SDL_GetWindowSize(SDLWindow, &LogicalWindowWidth, &LogicalWindowHeight);
   DpiScale = SDL_GetWindowDisplayScale(SDLWindow);
 
   if (WindowWidth != lastWidth || WindowHeight != lastHeight ||
@@ -274,7 +275,7 @@ void GLWindow::SwapRTs() {
   GLC::BindFramebuffer(GL_READ_FRAMEBUFFER, ReadRT);
 }
 
-void GLWindow::Update() {
+void GLWindow::UpdateImpl() {
   UpdateDimensions();
 
   Rect viewport = GetViewport();

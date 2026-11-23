@@ -64,7 +64,7 @@ void DirectX9Window::SetDimensions(int width, int height, int msaa,
 
 void DirectX9Window::SwapRTs() {}
 
-void DirectX9Window::Update() {}
+void DirectX9Window::UpdateImpl() {}
 
 void DirectX9Window::Draw() {
 #ifndef IMPACTO_DISABLE_IMGUI

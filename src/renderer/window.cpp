@@ -15,6 +15,12 @@
 
 namespace Impacto {
 
+#ifdef __APPLE__
+namespace MacOS {
+void HideSystemUI(bool hide);
+}
+#endif
+
 void InitWindow() {
   switch (UserConfig::AdvancedSettings.ActiveRenderer) {
 #ifndef IMPACTO_DISABLE_OPENGL
@@ -249,51 +255,6 @@ SDL_Rect BaseWindow::GetDisplayBounds(std::optional<SDL_WindowFlags> flags) {
   return result;
 }
 
-void BaseWindow::ClampAspectRatio(int boundW, int boundH) {
-  if (WindowWidth > boundW || WindowHeight > boundH) {
-    const float aspect =
-        static_cast<float>(WindowWidth) / static_cast<float>(WindowHeight);
-    int fitW = boundW;
-    int fitH = static_cast<int>(boundW / aspect);
-    if (fitH > boundH) {
-      fitH = boundH;
-      fitW = static_cast<int>(boundH * aspect);
-    }
-    WindowWidth = fitW;
-    WindowHeight = fitH;
-  }
-}
-
-void BaseWindow::SetWindowedSizing() {
-  int top, left, bottom, right;
-  SDL_SetWindowFullscreen(SDLWindow, false);
-  SDL_SyncWindow(SDLWindow);
-  SDL_Rect bounds = GetDisplayBounds(0);
-  ClampAspectRatio(bounds.w, bounds.h);
-  bool hasWindowBorders =
-      SDL_GetWindowBordersSize(SDLWindow, &top, &left, &bottom, &right);
-
-#ifdef __APPLE__
-  hasWindowBorders = true;
-  top = 28;
-#endif
-
-  if (hasWindowBorders) {
-    const int targetWidth = bounds.w - (left + right);
-    const int targetHeight = bounds.h - (top + bottom);
-    ClampAspectRatio(targetWidth, targetHeight);
-    const int posX = bounds.x + left + (targetWidth - WindowWidth) / 2;
-    const int posY = bounds.y + top + (targetHeight - WindowHeight) / 2;
-
-    SDL_SetWindowSize(SDLWindow, WindowWidth, WindowHeight);
-    SDL_SetWindowPosition(SDLWindow, posX, posY);
-  } else {
-    SDL_SetWindowSize(SDLWindow, WindowWidth, WindowHeight);
-    SDL_SetWindowPosition(SDLWindow, SDL_WINDOWPOS_UNDEFINED,
-                          SDL_WINDOWPOS_UNDEFINED);
-  }
-}
-
 RectF BaseWindow::GetViewport() {
   RectF viewport;
 
@@ -313,15 +274,12 @@ RectF BaseWindow::GetViewport() {
 
 RectF BaseWindow::GetLogicalViewport() {
   RectF viewport;
-  int lgcWindowWidth, lgcWindowHeight;
-  SDL_GetWindowSize(SDLWindow, &lgcWindowWidth, &lgcWindowHeight);
-
-  float scale = fmin((float)lgcWindowWidth / Profile::Game::DesignWidth,
-                     (float)lgcWindowHeight / Profile::Game::DesignHeight);
+  float scale = fmin((float)LogicalWindowWidth / Profile::Game::DesignWidth,
+                     (float)LogicalWindowHeight / Profile::Game::DesignHeight);
   viewport.Width = Profile::Game::DesignWidth * scale;
   viewport.Height = Profile::Game::DesignHeight * scale;
-  viewport.X = ((float)lgcWindowWidth - viewport.Width) / 2.0f;
-  viewport.Y = ((float)lgcWindowHeight - viewport.Height) / 2.0f;
+  viewport.X = ((float)LogicalWindowWidth - viewport.Width) / 2.0f;
+  viewport.Y = ((float)LogicalWindowHeight - viewport.Height) / 2.0f;
   return viewport;
 }
 
@@ -334,16 +292,33 @@ RectF BaseWindow::GetScaledViewport() {
   return viewport;
 }
 
+void BaseWindow::RequestFauxBorderless() {
+  // Simulate borderless by making window take up full size of the display
+  SDL_Rect bounds = GetDisplayBounds(SDL_WINDOW_FULLSCREEN);
+
+  SDL_SetWindowBordered(SDLWindow, false);
+  SDL_SetWindowFullscreen(SDLWindow, false);
+  SDL_SetWindowSize(SDLWindow, bounds.w, bounds.h);
+  SDL_SetWindowPosition(SDLWindow, 0, 0);
+  SDL_SetWindowMaximumSize(SDLWindow, bounds.w, bounds.h);
+  SDL_SetWindowMinimumSize(SDLWindow, bounds.w, bounds.h);
+}
+
 bool BaseWindow::CreateSDLWindow(SDL_WindowFlags flags) {
   auto const& config = UserConfig::CommonSettings;
-  WindowWidth = config.ResolutionWidth;
-  WindowHeight = config.ResolutionHeight;
 
 #if IMPACTO_USE_SDL_HIGHDPI
   flags |= SDL_WINDOW_HIGH_PIXEL_DENSITY;
 #endif
 
-  SDLWindow = SDL_CreateWindow("Impacto", WindowWidth, WindowHeight, flags);
+#ifdef __ANDROID__
+  flags |= SDL_WINDOW_FULLSCREEN;
+#else
+  flags |= SDL_WINDOW_RESIZABLE;
+#endif
+
+  SDLWindow = SDL_CreateWindow("Impacto", config.ResolutionWidth,
+                               config.ResolutionHeight, flags);
 
   if (SDLWindow == NULL) {
     ImpLog(LogLevel::Error, LogChannel::General,
@@ -351,83 +326,152 @@ bool BaseWindow::CreateSDLWindow(SDL_WindowFlags flags) {
     return false;
   }
   SDL_GetWindowSizeInPixels(SDLWindow, &WindowWidth, &WindowHeight);
-#ifdef __ANDROID__
-  SDL_SetWindowFullscreen(SDLWindow, true);
-#else
-  SetWindowedSizing();
-#endif
-
+  SDL_GetWindowSize(SDLWindow, &LogicalWindowWidth, &LogicalWindowHeight);
   DpiScale = SDL_GetWindowDisplayScale(SDLWindow);
   return true;
 }
 
-void BaseWindow::ApplyWindowSettings() {
-  auto const& config = UserConfig::CommonSettings;
-  WindowWidth = config.ResolutionWidth;
-  WindowHeight = config.ResolutionHeight;
-  VSync = UserConfig::GetEffectiveVSync();
+void BaseWindow::Update() { UpdateImpl(); }
 
-  DisplayMode dispMode = GetDefaultDispMode();
+void BaseWindow::UpdateDisplayMode() {
+  SDL_SetWindowMaximumSize(SDLWindow, 0, 0);
+  SDL_SetWindowMinimumSize(SDLWindow, 0, 0);
+  SDL_DisplayID currentDisplay = SDL_GetDisplayForWindow(SDLWindow);
+  if (currentDisplay == 0) {
+    ImpLog(LogLevel::Error, LogChannel::General,
+           "Failed to get window current display \"{:s}\"\n"
+           "\tDefaulting to primary display.\n",
+           SDL_GetError());
+    currentDisplay = SDL_GetPrimaryDisplay();
+  }
+
+  if (CurrentMode == DisplayMode::Fullscreen) {
+#ifdef __APPLE__
+    SDL_SetWindowFullscreenMode(SDLWindow, NULL);
+    SDL_SetWindowFullscreen(SDLWindow, true);
+#else
+    SDL_DisplayMode closest{};
+    if (SDL_GetClosestFullscreenDisplayMode(
+            currentDisplay, WindowWidth, WindowHeight, 0.0f, false, &closest)) {
+      SDL_SetWindowFullscreenMode(SDLWindow, &closest);
+    }
+
+    SDL_SetWindowFullscreen(SDLWindow, true);
+#endif
+  } else if (CurrentMode == DisplayMode::Borderless) {
+#ifdef __APPLE__
+    RequestFauxBorderless();
+#else
+    SDL_SetWindowFullscreenMode(SDLWindow, NULL);
+    SDL_SetWindowFullscreen(SDLWindow, true);
+#endif
+  } else {
+    SDL_SetWindowBordered(SDLWindow, true);
+    SDL_SetWindowFullscreen(SDLWindow, false);
+    SDL_SetWindowSize(SDLWindow, LogicalWindowWidth, LogicalWindowHeight);
+    SDL_SetWindowPosition(SDLWindow,
+                          SDL_WINDOWPOS_CENTERED_DISPLAY(currentDisplay),
+                          SDL_WINDOWPOS_CENTERED_DISPLAY(currentDisplay));
+    SDL_SetWindowMaximumSize(SDLWindow, LogicalWindowWidth,
+                             LogicalWindowHeight);
+    SDL_SetWindowMinimumSize(SDLWindow, LogicalWindowWidth,
+                             LogicalWindowHeight);
+  }
+
+  if (!UserConfig::GetActiveGame().empty()) {
+    UserConfig::ActiveGameSettings().Display = CurrentMode;
+  }
+}
+
+void BaseWindow::LoadSettings() {
+  auto const& config = UserConfig::CommonSettings;
+  LogicalWindowWidth = config.ResolutionWidth;
+  LogicalWindowHeight = config.ResolutionHeight;
 
   if (!UserConfig::GetActiveGame().empty()) {
     auto const& gameConfig = UserConfig::ActiveGameSettings();
 
-    if (gameConfig.ResolutionHeight.has_value() ^
+    if (gameConfig.ResolutionWidth.has_value() ^
         gameConfig.ResolutionHeight.has_value()) {
       ImpLog(LogLevel::Warning, LogChannel::Render,
              "Only one of Resolution Height or Resolution Width is configured, "
              "defaulting to game resolution.");
     }
     if (gameConfig.ResolutionWidth && gameConfig.ResolutionHeight) {
-      WindowWidth = *gameConfig.ResolutionWidth;
-      WindowHeight = *gameConfig.ResolutionHeight;
+      LogicalWindowWidth = *gameConfig.ResolutionWidth;
+      LogicalWindowHeight = *gameConfig.ResolutionHeight;
     } else if (Profile::Game::HasInit) {
-      WindowWidth = static_cast<int>(Profile::Game::DesignWidth);
-      WindowHeight = static_cast<int>(Profile::Game::DesignHeight);
+      LogicalWindowWidth = static_cast<int>(Profile::Game::DesignWidth);
+      LogicalWindowHeight = static_cast<int>(Profile::Game::DesignHeight);
     }
-    dispMode = gameConfig.Display;
+    WindowWidth = static_cast<int>(std::round(DpiScale * LogicalWindowWidth));
+    WindowHeight = static_cast<int>(std::round(DpiScale * LogicalWindowHeight));
+    CurrentMode = gameConfig.Display;
   }
+  VSync = UserConfig::GetEffectiveVSync();
+  WindowDimensionsChanged = true;
+}
+
+void BaseWindow::ApplyWindowSettings(bool loadSettings) {
+  if (loadSettings) LoadSettings();
+  SetVSync(VSync);
 
   SDL_SetWindowTitle(SDLWindow, Profile::Game::WindowName.c_str());
-
-  if (dispMode == DisplayMode::Fullscreen) {
-    SDL_DisplayMode closest{};
-    if (SDL_GetClosestFullscreenDisplayMode(SDL_GetDisplayForWindow(SDLWindow),
-                                            WindowWidth, WindowHeight, 0.0f,
-                                            false, &closest)) {
-      SDL_SetWindowFullscreenMode(SDLWindow, &closest);
-    }
-    SDL_SetWindowFullscreen(SDLWindow, true);
-  } else if (dispMode == DisplayMode::Borderless) {
-    SDL_SetWindowFullscreenMode(SDLWindow, NULL);
-    SDL_SetWindowFullscreen(SDLWindow, true);
-  } else {
-    SetWindowedSizing();
-  }
-  SDL_SyncWindow(SDLWindow);
-  ImpLog(LogLevel::Debug, LogChannel::General,
-         "Window size (screen coords): {:d} x {:d}\n", WindowWidth,
-         WindowHeight);
-  SDL_ShowWindow(SDLWindow);
-  SDL_GetWindowSizeInPixels(SDLWindow, &WindowWidth, &WindowHeight);
-  SetVSync(VSync);
-  DpiScale = SDL_GetWindowDisplayScale(SDLWindow);
-  RecreateFBOs = true;
+  UpdateDisplayMode();
   Update();
 }
 
-bool HandleWindowEvents(SDL_Event const* evt) {
+bool BaseWindow::HandleWindowEvents(SDL_Event const* evt) {
+  auto updateState = [this] {
+    SDL_GetWindowSizeInPixels(SDLWindow, &WindowWidth, &WindowHeight);
+    SDL_GetWindowSize(SDLWindow, &LogicalWindowWidth, &LogicalWindowHeight);
+    DpiScale = SDL_GetWindowDisplayScale(SDLWindow);
+    RecreateFBOs = true;
+    WindowDimensionsChanged = true;
+
+    if (!UserConfig::GetActiveGame().empty()) {
+      UserConfig::ActiveGameSettings().Display = CurrentMode;
+    }
+#ifdef __APPLE__
+    MacOS::HideSystemUI(CurrentMode == DisplayMode::Borderless);
+#endif
+    Update();
+  };
   switch (evt->type) {
     case SDL_EVENT_WINDOW_FOCUS_LOST:
     case SDL_EVENT_WINDOW_HIDDEN:
       Input::ClearTouch();
       return true;
+    case SDL_EVENT_WINDOW_ENTER_FULLSCREEN: {
+#ifdef __APPLE__
+      CurrentMode = DisplayMode::Fullscreen;
+#else
+      auto const* sdlDispMode = SDL_GetWindowFullscreenMode(SDLWindow);
+      if (CurrentMode == DisplayMode::Windowed) {
+        CurrentMode = sdlDispMode != nullptr ? DisplayMode::Fullscreen
+                                             : DisplayMode::Borderless;
+      }
+#endif
+      updateState();
+      return true;
+    }
+    case SDL_EVENT_WINDOW_LEAVE_FULLSCREEN:
+      // Mac OS's simulated borderless can go from fullscreen to borderless, so
+      // don't change that
+      if (CurrentMode == DisplayMode::Fullscreen) {
+        CurrentMode = DisplayMode::Windowed;
+      }
+      updateState();
+      return true;
+    case SDL_EVENT_WINDOW_SAFE_AREA_CHANGED:
     case SDL_EVENT_WINDOW_RESIZED:
     case SDL_EVENT_WINDOW_DISPLAY_SCALE_CHANGED:
-      Window->ApplyWindowSettings();
+    case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
+      updateState();
       return true;
     default:
       return false;
   }
 }
+
 }  // namespace Impacto
