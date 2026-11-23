@@ -54,6 +54,8 @@ void Configure() {
   CgViewerButtonGuideNoVariation =
       EnsureGetMember<UI::ButtonPrompt>("CgViewerButtonGuideNoVariation");
   CgViewerButtonGuidePos = EnsureGetMember<glm::vec2>("CgViewerButtonGuidePos");
+  CgViewerButtonGuideNoVariationPos =
+      EnsureGetMember<glm::vec2>("CgViewerButtonGuideNoVariationPos");
   SelectionMarkerSprite = EnsureGetMember<Sprite>("SelectionMarkerSprite");
   SelectionMarkerRelativePos =
       EnsureGetMember<glm::vec2>("SelectionMarkerRelativePos");

@@ -41,6 +41,9 @@ root.Vm = {
     ScrWorkCaptureEffectInfoStructSize = 2,
 };
 
+include(root.BasePaths.RootProfilesDir .. '/chlcc/sprites.lua');
+
+include(root.BasePaths.RootProfilesDir .. '/common/buttonprompt.lua');
 include(root.BasePaths.RootProfilesDir .. '/common/scriptinput.lua');
 include(root.BasePaths.RootProfilesDir .. '/common/scriptvars.lua');
 include(root.BasePaths.RootProfilesDir .. '/chlcc/scriptinput.lua');
@@ -48,7 +51,6 @@ include(root.BasePaths.RootProfilesDir .. '/chlcc/scriptvars.lua');
 include(root.BasePaths.RootProfilesDir .. '/chlcc/savedata.lua');
 include(root.BasePaths.RootProfilesDir .. '/chlcc/tipssystem.lua');
 include(root.BasePaths.RootProfilesDir .. '/chlcc/vfs.lua');
-include(root.BasePaths.RootProfilesDir .. '/chlcc/sprites.lua');
 include(root.BasePaths.RootProfilesDir .. '/common/animation.lua');
 include(root.BasePaths.RootProfilesDir .. '/common/charset.lua');
 include(root.BasePaths.RootProfilesDir .. '/common/overlay.lua');

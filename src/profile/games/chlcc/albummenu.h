@@ -43,6 +43,7 @@ inline float AlbumMenuTitleAngle;
 inline UI::ButtonPrompt CgViewerButtonGuideVariation;
 inline UI::ButtonPrompt CgViewerButtonGuideNoVariation;
 inline glm::vec2 CgViewerButtonGuidePos;
+inline glm::vec2 CgViewerButtonGuideNoVariationPos;
 inline Sprite SelectionMarkerSprite;
 inline glm::vec2 SelectionMarkerRelativePos;
 inline float CgFadeDuration;

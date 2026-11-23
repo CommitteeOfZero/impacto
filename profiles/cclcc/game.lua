@@ -45,7 +45,10 @@ root.Vm = {
 
 root.PlatformId = 131072;
 
+include(root.BasePaths.RootProfilesDir .. '/cclcc/sprites.lua');
+
 include(root.BasePaths.RootProfilesDir .. '/common/animation.lua');
+include(root.BasePaths.RootProfilesDir .. '/common/buttonprompt.lua');
 include(root.BasePaths.RootProfilesDir .. '/common/charset.lua');
 include(root.BasePaths.RootProfilesDir .. '/common/scriptinput.lua');
 include(root.BasePaths.RootProfilesDir .. '/common/scriptvars.lua');
@@ -53,7 +56,6 @@ include(root.BasePaths.RootProfilesDir .. '/common/overlay.lua');
 
 include(root.BasePaths.RootProfilesDir .. '/cclcc/scriptinput.lua');
 include(root.BasePaths.RootProfilesDir .. '/cclcc/scriptvars.lua');
-include(root.BasePaths.RootProfilesDir .. '/cclcc/sprites.lua');
 include(root.BasePaths.RootProfilesDir .. '/cclcc/savedata.lua');
 include(root.BasePaths.RootProfilesDir .. '/cclcc/tipssystem.lua');
 include(root.BasePaths.RootProfilesDir .. '/cclcc/vfs.lua');
