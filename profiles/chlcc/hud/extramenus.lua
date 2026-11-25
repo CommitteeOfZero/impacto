@@ -82,13 +82,6 @@ root.ExtraMenus = {
             { X = 228, Y = 51 },
             { X = 233, Y = 51 },
         },
-        MovieExtraVideosEnabled = true,
-        MovieBoxExtra = "MovieBoxExtra",
-        MovieThumbnailExtraOp = "MovieThumbnailExtraOp",
-        MovieThumbnailExtraOp2 = "MovieThumbnailExtraOp2",
-        MovieButtonExtraPromptPosition = { X = 877, Y = 651 },
-        MovieButtonExtraPrompt = "MovieButtonExtraPrompt",
-        SelectedMovieExtraAnimation = "SelectedMovieExtraAnimDef",
     },
     AlbumMenu = {
         DrawType = DrawComponentType.SystemMenu,
@@ -315,26 +308,6 @@ root.Sprites["MovieBox"] = {
     Bounds = { X = 728, Y = 1, Width = 198, Height = 122 }
 }
 
-root.Sprites["MovieBoxExtra"] = {
-    Sheet = "Movie",
-    Bounds = { X = 1091, Y = 1, Width = 198, Height = 122 }
-}
-
-root.Sprites["MovieThumbnailExtraOp"] = {
-    Sheet = "Movie",
-    Bounds = { X = 1291, Y = 93, Width = 160, Height = 90 }
-}
-
-root.Sprites["MovieThumbnailExtraOp2"] = {
-    Sheet = "Movie",
-    Bounds = { X = 1291, Y = 185, Width = 160, Height = 90 }
-}
-
-root.Sprites["MovieButtonExtraPrompt"] = {
-    Sheet = "Movie",
-    Bounds = { X = 1, Y = 732, Width = 427, Height = 28 }
-}
-
 local thumbnailXOffset = 20;
 local thumbnailYOffset = 16;
 local bp = root.ExtraMenus.MovieMenu.BoxPositions;
@@ -420,22 +393,6 @@ MakeAnimation({
     Name = "SelectedMovieAnimDef",
     Sheet = "Movie",
     FirstFrameX = 728,
-    FirstFrameY = 125,
-    FrameWidth = 198,
-    ColWidth = 198,
-    FrameHeight = 124,
-    RowHeight = 124,
-    Frames = 7,
-    Duration = 0.2,
-    Rows = 7,
-    Columns = 1,
-    PrimaryDirection = AnimationDirections.Down,
-});
-
-MakeAnimation({
-    Name = "SelectedMovieExtraAnimDef",
-    Sheet = "Movie",
-    FirstFrameX = 1091,
     FirstFrameY = 125,
     FrameWidth = 198,
     ColWidth = 198,
