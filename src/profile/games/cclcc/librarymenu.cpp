@@ -177,8 +177,9 @@ void Configure() {
     MovieDiskExtraOpHighlight =
         EnsureGetMember<Sprite>("MovieDiskExtraOpHighlight");
     MovieDiskExtraOpPlayId = EnsureGetMember<int>("MovieDiskExtraOpPlayId");
-    LibraryMenuId = EnsureGetMember<int>("LibraryMenuId");
   }
+
+  LibraryMenuId = EnsureGetMember<int>("LibraryMenuId");
 
   AlbumMenuGuideSprite =
       EnsureGetMember<UI::ButtonPrompt>("AlbumMenuGuideSprite");
