@@ -1,8 +1,9 @@
 #include "overlay.h"
 
-#include "profile_internal.h"
-#include "../io/physicalfilestream.h"
-#include "../log.h"
+#include "helpmenu.h"
+#include "../profile_internal.h"
+#include "../../io/physicalfilestream.h"
+#include "../../log.h"
 
 namespace Impacto::Profile::Overlay {
 
@@ -75,6 +76,7 @@ void Configure() {
   EnsurePushMemberOfType("Overlay", LUA_TTABLE);
 
   ConfigureToastNotification();
+  HelpMenu::Configure();
 
   Pop();
 }

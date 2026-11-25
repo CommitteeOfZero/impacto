@@ -10,7 +10,7 @@
 #include "../../io/physicalfilestream.h"
 #include "../../log.h"
 #include "../../profile/game.h"
-#include "../../profile/overlay.h"
+#include "../../profile/overlay/overlay.h"
 #include "../../renderer/renderer.h"
 #include "../../texture/texture.h"
 

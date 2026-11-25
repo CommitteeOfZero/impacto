@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../spritesheet.h"
-#include "../text/fonts/font.h"
-#include "../text/processedtextglyph.h"
+#include "../../spritesheet.h"
+#include "../../text/fonts/font.h"
+#include "../../text/processedtextglyph.h"
 
 namespace Impacto::Profile::Overlay {
 namespace ToastNotification {
