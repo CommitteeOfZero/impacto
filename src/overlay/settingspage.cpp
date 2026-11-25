@@ -241,11 +241,9 @@ void ShowSettingsPage(std::string const& selectedGame) {
   ImGui::EndChild();
 
   constexpr auto restoreDefaultsLabel = "Restore Defaults";
-  constexpr auto saveConfigLabel = "Save Config";
   constexpr auto applyDisplayLabel = "Apply Display Changes";
   float buttonsWidth = ImGui::CalcTextSize(restoreDefaultsLabel).x +
-                       ImGui::CalcTextSize(saveConfigLabel).x +
-                       ImGui::GetStyle().FramePadding.x * 4 +
+                       ImGui::GetStyle().FramePadding.x * 2 +
                        ImGui::GetStyle().ItemSpacing.x;
 
   if (displayChanged && Profile::Game::HasInit) {
@@ -265,10 +263,6 @@ void ShowSettingsPage(std::string const& selectedGame) {
   }
   if (ImGui::Button(restoreDefaultsLabel)) {
     UserConfig::RestoreSettingsDefaults();
-  }
-  ImGui::SameLine();
-  if (ImGui::Button(saveConfigLabel)) {
-    UserConfig::WriteUserConfig();
   }
 }
 
