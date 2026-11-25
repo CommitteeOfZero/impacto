@@ -23,8 +23,8 @@ root.TrophyMenu = {
     BronzeTrophySprite = "BronzeTrophy",
     BronzeTrophyPos = { X = 777, Y = 91 },
 
-    RarityCountOffset = { X = 32, Y = 8 },
-    RarityCountFontSize = 12,
+    RarityCountOffset = { X = 32, Y = 4 },
+    RarityCountFontSize = 22,
 
     DefaultTrophyIconSprite = "DefaultTrophyIcon",
     TrophyEntryCardSprite = "TrophyEntryCard",
@@ -36,10 +36,10 @@ root.TrophyMenu = {
     FirstEntryPos = { X = 0, Y = 130 },
     EntryHeight = 74,
     EntryCardOffset = { X = 91, Y = 1 },
-    EntryNameOffset = { X = 218, Y = 12 },
-    EntryNameFontSize = 26,
-    EntryDescriptionOffset = { X = 218, Y = 42 },
-    EntryDescriptionFontSize = 18,
+    EntryNameOffset = { X = 218, Y = 9 },
+    EntryNameFontSize = 32,
+    EntryDescriptionOffset = { X = 218, Y = 39 },
+    EntryDescriptionFontSize = 24,
     EntryIconOffset = { X = 112, Y = 4 },
     EntryRarityIconOffset = { X = 161, Y = 42 },
     EntryDefaultNameTextTableId = 0,
@@ -55,8 +55,9 @@ root.TrophyMenu = {
 
     TrophyCountHintTextTableId = 0,
     TrophyCountHintStringNum = 20,
-    TrophyCountHintLabelPos = { X = 297, Y = 97 },
-    TrophyCountFontSize = 20
+    TrophyCountHintLabelPos = { X = 297, Y = 94 },
+    TrophyCountLabelOffset = { X = 12, Y = 0 }, 
+    TrophyCountFontSize = 22
 };
 
 root.Sprites["CircleTrophy"] = {

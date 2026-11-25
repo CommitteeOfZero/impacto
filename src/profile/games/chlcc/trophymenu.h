@@ -63,6 +63,7 @@ inline std::array<Sprite, 10> ReachablePageNums;
 inline uint32_t TrophyCountHintTextTableId;
 inline uint32_t TrophyCountHintStringNum;
 inline glm::vec2 TrophyCountHintLabelPos;
+inline glm::vec2 TrophyCountLabelOffset;
 inline float TrophyCountFontSize;
 
 void Configure();

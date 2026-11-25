@@ -1,11 +1,12 @@
 root.GameDefinitions = {
   chlcc = {
-    Name = "CHAOS;HEAD Love Chu☆Chu!",
+    Name = "CHAOS;HEAD Love Chu☆Chu! (PS3)",
     LauncherOrderId = 0,
     LauncherTheme = 0xF4C7CC,
     GameProfile = root.BasePaths.RootProfilesDir .. "/chlcc/game.lua",
     Patch = {
       English = root.BasePaths.RootPatchesDir .. "/english/profiles/chlcc/patch.lua",
+      Japanese = root.BasePaths.RootPatchesDir .. "/japanese/profiles/chlcc/patch.lua",
     }
   },
   ["chlcc-switch"] = {
@@ -20,9 +21,11 @@ root.GameDefinitions = {
     GameProfile = root.BasePaths.RootProfilesDir .. "/cclcc/game.lua",
     Patch = {
       English = root.BasePaths.RootPatchesDir .. "/english/profiles/cclcc/patch.lua",
+      Japanese = root.BasePaths.RootPatchesDir .. "/japanese/profiles/cclcc/patch.lua",
     }
   },
   ["cclcc-switch"] = {
+    Hidden = true,
     Name = "CHAOS;CHILD Love Chu☆Chu!! (Switch)",
     LauncherOrderId = 4,
     LauncherTheme = 0xFF7698,
