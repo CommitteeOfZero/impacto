@@ -590,6 +590,7 @@ static void UpdateInput() {
 void Show() {
   ImGui::GetIO().ConfigNavSwapGamepadButtons = Input::FaceButtonsFlipped();
 
+  bool overlayWasShown = OverlayShown;
   if (Profile::Game::HasInit) {
     if (!OverlayShown &&
         ((Input::KeyboardButtonWentDown[SDL_SCANCODE_0] &&
@@ -618,6 +619,10 @@ void Show() {
   if (OverlayShown) {
     UpdateInput();
     ShowOverlay();
+  }
+
+  if (overlayWasShown && !OverlayShown) {
+    UserConfig::WriteUserConfig();
   }
 }
 

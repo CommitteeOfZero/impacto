@@ -41,6 +41,7 @@
 #include "effects/wave.h"
 #include "effects/blur.h"
 #include "effects/mosaic.h"
+#include "userconfig.h"
 
 #include "profile/profile.h"
 #include "profile/game.h"
@@ -220,6 +221,7 @@ void InitGameProfile() {
 }
 
 void Shutdown() {
+  UserConfig::WriteUserConfig();
   if (+Profile::Game::GameFeatures & +GameFeature::Audio) {
     Audio::AudioShutdown();
   }
