@@ -285,7 +285,14 @@ void LoadUserConfig(toml::value& tomlConfig) {
 
   for (auto& [gameProfile, gameDef] : Profile::GameDefinitions) {
     if (gameDef.Hidden) continue;
-    GameSettings.try_emplace(gameProfile, UserConfig::GameConfig{});
+    auto&& [itr, wasInserted] =
+        GameSettings.try_emplace(gameProfile, UserConfig::GameConfig{});
+
+    // If not existing, add top patch.
+    if (wasInserted && !gameDef.Patch.Empty()) {
+      itr->second.UsePatch = true;
+      itr->second.PatchProfile = gameDef.Patch.begin()->Name;
+    }
   }
   ImpLog(LogLevel::Info, LogChannel::Config, "Loaded user config\n");
 };
