@@ -7,6 +7,15 @@
 #include "../profile/basepaths.h"
 
 namespace Impacto::Overlay {
+struct ScopedProperties {
+  ScopedProperties() = default;
+  ScopedProperties(ScopedProperties const&) = delete;
+  ~ScopedProperties() {
+    if (Id != 0) SDL_DestroyProperties(Id);
+  };
+
+  SDL_PropertiesID Id = SDL_CreateProperties();
+};
 
 std::optional<std::filesystem::path> GetUninstallerPath() {
   static const auto uninstallerPath =
@@ -98,7 +107,21 @@ CheckUpdateProcess::UpdateCheckResult CheckUpdateProcess::RunCheck() {
       uninstallerPathString.c_str(), "check-updates", "-g", "js=false", nullptr,
   };
 
-  ScopedProcess process(SDL_CreateProcess(args, true));
+  ScopedProperties properties;
+  if (properties.Id == 0) {
+    ImpLog(LogLevel::Error, LogChannel::Overlay,
+           "Failed to create properties: {:s}", SDL_GetError());
+    return UpdateCheckResult::Error;
+  }
+
+  SDL_SetPointerProperty(properties.Id, SDL_PROP_PROCESS_CREATE_ARGS_POINTER,
+                         (void*)(args));
+  SDL_SetBooleanProperty(properties.Id,
+                         SDL_PROP_PROCESS_CREATE_BACKGROUND_BOOLEAN, true);
+  SDL_SetNumberProperty(properties.Id, SDL_PROP_PROCESS_CREATE_STDOUT_NUMBER,
+                        SDL_PROCESS_STDIO_APP);
+
+  ScopedProcess process(SDL_CreateProcessWithProperties(properties.Id));
   auto waitStartTime = std::chrono::steady_clock::now();
 
   if (process == nullptr) {
