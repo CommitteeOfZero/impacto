@@ -14,6 +14,7 @@
 #include "../../profile/game.h"
 #include "../../profile/vm.h"
 #include "../../profile/patch.h"
+#include "../../data/achievementsystem.h"
 #include <vector>
 
 namespace Impacto {
@@ -207,15 +208,17 @@ TitleMenu::TitleMenu() {
   Tips->LineY = SecondaryMenuExtraMovieY;
   LockedExtraItems->Add(Tips, FDIR_DOWN);
 
-  // Trophy secondary Extra menu button
-  Trophy = new TitleButton(2, MenuEntriesSprites[11], MenuEntriesHSprites[11],
-                           SecondaryItemHighlightSprite,
-                           glm::vec2(SecondaryItemX, ItemTipsY));
-  Trophy->OnClickHandler = secondaryOnClick;
-  Trophy->IsSubButton = true;
-  Trophy->LineDecoration = LineSprites[4];
-  Trophy->LineY = SecondaryMenuExtraTipsY;
-  LockedExtraItems->Add(Trophy, FDIR_DOWN);
+  if (AchievementSystem::GetAchievementCount() != 0) {
+    // Trophy secondary Extra menu button
+    Trophy = new TitleButton(2, MenuEntriesSprites[11], MenuEntriesHSprites[11],
+                             SecondaryItemHighlightSprite,
+                             glm::vec2(SecondaryItemX, ItemTipsY));
+    Trophy->OnClickHandler = secondaryOnClick;
+    Trophy->IsSubButton = true;
+    Trophy->LineDecoration = LineSprites[4];
+    Trophy->LineY = SecondaryMenuExtraTipsY;
+    LockedExtraItems->Add(Trophy, FDIR_DOWN);
+  }
 
   // Unlocked Extra Menus
 
@@ -271,15 +274,17 @@ TitleMenu::TitleMenu() {
   Tips->LineY = SecondaryMenuExtraTipsY;
   UnlockedExtraItems->Add(Tips, FDIR_DOWN);
 
-  // Trophy secondary Extra menu button
-  Trophy = new TitleButton(5, MenuEntriesSprites[11], MenuEntriesHSprites[11],
-                           SecondaryItemHighlightSprite,
-                           glm::vec2(SecondaryItemX, ItemTrophyY));
-  Trophy->OnClickHandler = secondaryOnClick;
-  Trophy->IsSubButton = true;
-  Trophy->LineDecoration = LineSprites[5];
-  Trophy->LineY = SecondaryMenuExtraTrophyY;
-  UnlockedExtraItems->Add(Trophy, FDIR_DOWN);
+  if (AchievementSystem::GetAchievementCount() != 0) {
+    // Trophy secondary Extra menu button
+    Trophy = new TitleButton(5, MenuEntriesSprites[11], MenuEntriesHSprites[11],
+                             SecondaryItemHighlightSprite,
+                             glm::vec2(SecondaryItemX, ItemTrophyY));
+    Trophy->OnClickHandler = secondaryOnClick;
+    Trophy->IsSubButton = true;
+    Trophy->LineDecoration = LineSprites[5];
+    Trophy->LineY = SecondaryMenuExtraTrophyY;
+    UnlockedExtraItems->Add(Trophy, FDIR_DOWN);
+  }
 
   // Option secondary System menu button
   Config = new TitleButton(0, MenuEntriesSprites[12], MenuEntriesHSprites[12],
