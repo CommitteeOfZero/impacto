@@ -293,16 +293,15 @@ void ConfigureGameProfile() {
   std::string const& gameProfilePath = activeGameDef.GameProfile;
   RunLuaScript(gameProfilePath.c_str());
   if (activePatch) {
-    auto patchProfilePathItr = activeGameDef.Patch.find(*activePatch);
-    if (patchProfilePathItr == activeGameDef.Patch.end()) {
-      ImpLog(
-          LogLevel::Fatal, LogChannel::Profile,
-          "Patch is enabled but patch.lua path is missing for patch profile {} "
-          "in game {} definition\n",
-          *activePatch, UserConfig::GetActiveGame());
+    auto const* patchPath = activeGameDef.Patch.Find(*activePatch);
+    if (patchPath == nullptr) {
+      ImpLog(LogLevel::Fatal, LogChannel::Profile,
+             "\'{}\' Patch is enabled but patch.lua path is missing in game {} "
+             "definition\n",
+             *activePatch, UserConfig::GetActiveGame());
       exit(1);
     }
-    RunLuaScript(patchProfilePathItr->second.c_str());
+    RunLuaScript(patchPath->c_str());
   }
   ImpLog(LogLevel::Info, LogChannel::Profile,
          "Profile for {:s} loaded successfully.\n",
