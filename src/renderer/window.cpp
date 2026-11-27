@@ -198,6 +198,13 @@ void RequestCursor(CursorType type) {
 }
 
 void ApplyCursorForFrame() {
+  constexpr float cursorHideDuration = 5.0f;
+  if (Input::CursorStationaryTime >= cursorHideDuration) {
+    SDL_HideCursor();
+    return;
+  }
+  SDL_ShowCursor();
+
   SDL_Cursor* actualCursor = SDL_GetCursor();
 
   if (Input::CurrentInputDevice != PreviousInputDevice) {

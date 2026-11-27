@@ -208,6 +208,7 @@ bool HandleEvent(SDL_Event const* ev) {
       SDL_MouseMotionEvent const* evt = &ev->motion;
       CurMousePos = SDLMouseCoordsToDesign((int)evt->x, (int)evt->y);
       CurrentInputDevice = Device::Mouse;
+      CursorStationaryTime = 0.0f;
       return true;
     }
     case SDL_EVENT_MOUSE_BUTTON_DOWN:

@@ -615,6 +615,13 @@ static void UpdateInput() {
       ImGui::IsKeyPressed(ImGuiKey_E)) {
     AdvanceTab();
   }
+
+  const ImVec2 curMousePos = ImGui::GetMousePos();
+  static ImVec2 prevMousePos = curMousePos;
+  if (curMousePos != prevMousePos) {
+    prevMousePos = curMousePos;
+    Input::CursorStationaryTime = 0.0f;
+  }
 }
 
 void Show() {

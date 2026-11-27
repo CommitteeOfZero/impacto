@@ -1177,6 +1177,8 @@ if (NOT DEFINED IMPACTO_DISABLE_IMGUI)
     )
 
 
+    target_compile_definitions(imgui PUBLIC IMGUI_DEFINE_MATH_OPERATORS)
+
     if (NX)
         target_compile_definitions(imgui PRIVATE IMGUI_DISABLE_DEFAULT_SHELL_FUNCTIONS=1)
     endif ()

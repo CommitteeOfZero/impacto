@@ -99,6 +99,7 @@ void Init() {
   io.IniFilename = NULL;
   io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
   io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+  io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
   if ((+Profile::Game::GameFeatures & +GameFeature::DebugMenu &&
        +Profile::Game::GameFeatures & +GameFeature::DebugMenuMultiViewport) ||
       +Profile::Game::GameFeatures & +GameFeature::Overlay) {
@@ -455,6 +456,10 @@ void Update(float dt) {
     Overlay::ToastNotificationHandlerInst.Update(dt);
   }
 #endif
+
+  if (+Profile::Game::GameFeatures & +GameFeature::Input) {
+    Input::CursorStationaryTime += dt;
+  }
 }
 
 static void RenderMain() {
