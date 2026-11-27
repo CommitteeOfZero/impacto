@@ -174,8 +174,7 @@ IoError PhysicalFileStream::Duplicate(Stream** outStream) {
 int64_t PhysicalFileStream::Write(const void* buffer, int64_t sz, size_t cnt) {
   if (!(Flags & (WRITE | APPEND))) {
     ImpLog(LogLevel::Error, LogChannel::IO,
-           "Write failed for file \"{:s}\" with error: \"{:s}\"\n",
-           SourceFileName, std::generic_category().message(errno));
+           "Write not permitted for this stream");
     return IoError_Fail;
   }
   FileStream.write((char*)buffer, sz * cnt);
@@ -191,6 +190,22 @@ int64_t PhysicalFileStream::Write(const void* buffer, int64_t sz, size_t cnt) {
   Position += written;
   Meta.Size = std::max(Position, Meta.Size);
   return written;
+}
+
+IoError PhysicalFileStream::Flush() {
+  if (!(Flags & (WRITE | APPEND))) {
+    ImpLog(LogLevel::Error, LogChannel::IO,
+           "Flush not permitted for a nonwritable stream");
+    return IoError_Fail;
+  }
+  FileStream.flush();
+  if (!FileStream) {
+    ImpLog(LogLevel::Error, LogChannel::IO,
+           "Flush failed for file \"{:s}\" with error: \"{:s}\"\n",
+           SourceFileName, std::generic_category().message(errno));
+    return IoError_Fail;
+  }
+  return IoError_OK;
 }
 
 }  // namespace Io

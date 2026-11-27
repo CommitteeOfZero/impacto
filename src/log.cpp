@@ -12,7 +12,7 @@ namespace Impacto {
 // TODO Color output in console?
 
 static SDL_LogOutputFunction DefaultLoggingFunction = nullptr;
-static std::unique_ptr<Io::Stream> FileLogStream = nullptr;
+static std::unique_ptr<Io::PhysicalFileStream> FileLogStream = nullptr;
 
 bool CheckLogConfig(LogLevel level, LogChannel channel) {
   const auto& commonSettings = UserConfig::CommonSettings;
@@ -83,6 +83,7 @@ void LogToFile(void* userdata, [[maybe_unused]] int category,
   std::string logBuf =
       fmt::format("{:s}: {:s}\n", SDL_priority_prefixes[priority], message);
   FileLogStream->Write(logBuf.data(), logBuf.size());
+  if (priority >= SDL_LOG_PRIORITY_WARN) FileLogStream->Flush();
 }
 
 void SDLLogger(void* userdata, [[maybe_unused]] int category,
@@ -130,7 +131,7 @@ void LogInitFile() {
              "Failed to open save file for writing\n");
       return;
     }
-    FileLogStream.reset(stream);
+    FileLogStream.reset(static_cast<Io::PhysicalFileStream*>(stream));
   }
 }
 

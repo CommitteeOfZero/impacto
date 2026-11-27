@@ -7,6 +7,8 @@
 #include "utils.h"
 #include "updater.h"
 #include "../mem.h"
+#include "../userconfig.h"
+#include "../profile/basepaths.h"
 #include "../profile/game.h"
 #include "../profile/scriptvars.h"
 
@@ -79,12 +81,63 @@ static void ShowUpdatePrompt() {
   ImGui::Text("Update(s) available");
 }
 
-void ShowAboutPage(std::string const& selectedGame) {
-  ImGui::Text("Committee of Zero");
+void ShowCopyablePath(std::string const& path, const char* label,
+                      const char* id) {
+  std::string fixedPath = std::filesystem::path(path).make_preferred().string();
+  bool& cursorBlink = ImGui::GetIO().ConfigInputTextCursorBlink;
+  const bool oldCursorBlink = cursorBlink;
+  cursorBlink = false;
+  ImGui::TextDisabled("%s", label);
+  ImGui::InputText(
+      (std::string("##") + id).c_str(), const_cast<char*>(fixedPath.c_str()),
+      fixedPath.size() + 1,
+      ImGuiInputTextFlags_ReadOnly | ImGuiInputTextFlags_CharsNoBlank);
   ImGui::SameLine();
-  ImGui::TextLinkOpenURL("Technical Support", "https://discord.gg/hRtvaYawg6");
+  if (ImGui::SmallButton((std::string("Copy##Copy") + id).c_str())) {
+    ImGui::SetClipboardText(fixedPath.c_str());
+  }
+  ImGui::SameLine();
 
-  ImGui::Text("Impacto Version %d.%d.%d", VERSION_MAJOR, VERSION_MINOR,
+  if (ImGui::SmallButton((std::string("Open##Open") + id).c_str())) {
+    SDL_OpenURL((std::string("file:///") + fixedPath).c_str());
+  }
+  cursorBlink = oldCursorBlink;
+}
+
+void ShowAboutPage(
+    std::string const& selectedGame,
+    ankerl::unordered_dense::map<std::string, uint32_t> const& iconTextureMap,
+    const float imguiScale) {
+  if (auto cozTxtItr = iconTextureMap.find("_coz");
+      cozTxtItr != iconTextureMap.end()) {
+    auto const& img = cozTxtItr->second;
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
+    ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 0.0f);
+
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered,
+                          ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive,
+                          ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+
+    if (ImGui::ImageButton("##coz_logo", (ImTextureID)(intptr_t)img,
+                           ImVec2{48 * imguiScale, 48 * imguiScale})) {
+      SDL_OpenURL("https://sonome.dareno.me");
+    }
+    ImGui::SetItemTooltip("Open 'https://sonome.dareno.me'");
+    ImGui::PopStyleColor(3);
+    ImGui::PopStyleVar(3);
+    ImGui::SameLine();
+  }
+  ImGui::BeginGroup();
+  ImGui::TextUnformatted("Committee of Zero");
+  ImGui::TextLinkOpenURL("Technical Support", "https://discord.gg/U2GtuBJyD2");
+  ImGui::EndGroup();
+
+  ImGui::NewLine();
+
+  ImGui::Text("Impacto Version: %d.%d.%d", VERSION_MAJOR, VERSION_MINOR,
               VERSION_PATCH);
 
   if (GetUninstallerPath().has_value()) {
@@ -99,6 +152,21 @@ void ShowAboutPage(std::string const& selectedGame) {
   ImGui::Text("OS: %s", SDL_GetPlatform());
   ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate,
               ImGui::GetIO().Framerate);
+
+  ImGui::NewLine();
+
+  if (ImGui::TreeNode("Files and Directories")) {
+    ShowCopyablePath(Profile::BasePaths::RootInstallDir, "Install Directory",
+                     "InstallDir");
+    ShowCopyablePath(Io::GetPlatformConfigDir(), "Config Directory",
+                     "ConfigDir");
+    if (UserConfig::CommonSettings.LoggingToFile) {
+      ShowCopyablePath(UserConfig::CommonSettings.LogFile, "Log File",
+                       "LogFile");
+    }
+    ImGui::TreePop();
+  }
+  ImGui::NewLine();
 
   if (Profile::Game::HasInit) {
     ImGui::Separator();
