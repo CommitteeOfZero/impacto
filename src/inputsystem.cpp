@@ -183,8 +183,9 @@ static void HandleFlicks(SDL_TouchFingerEvent const& fingerUpEvent,
 static bool HandleKeyEvent(SDL_KeyboardEvent const* evt) {
   CurrentInputDevice = Device::Keyboard;
 #if !defined(__ANDROID__) && !defined(__SWITCH__)
-  // Alt+Enter fullscreen toggle
-  if (evt->mod & SDL_KMOD_ALT && evt->key == SDLK_RETURN && evt->down) {
+  // Fullscreen toggle: Alt-Enter or F11
+  if (evt->down && ((evt->mod & SDL_KMOD_ALT && evt->key == SDLK_RETURN) ||
+                    evt->key == SDLK_F11)) {
     Window->ToggleFullscreen();
     return true;
   }
