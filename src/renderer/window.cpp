@@ -308,8 +308,12 @@ RectF BaseWindow::GetScaledViewport() {
 void BaseWindow::RequestFauxBorderless() {
   // Simulate borderless by making window take up full size of the display
   SDL_Rect bounds = GetDisplayBounds(SDL_WINDOW_FULLSCREEN);
-
+#ifdef __APPLE__
+  SDL_SetWindowBordered(SDLWindow, false);
+#else
   SDL_SetWindowBordered(SDLWindow, true);
+#endif
+
   SDL_SetWindowFullscreen(SDLWindow, false);
   SDL_SetWindowSize(SDLWindow, bounds.w, bounds.h);
   SDL_SetWindowPosition(SDLWindow, 0, 0);
