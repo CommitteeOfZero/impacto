@@ -24,6 +24,7 @@ class PhysicalFileStream : public Stream {
   int64_t Seek(int64_t offset, int origin) override;
   IoError Duplicate(Stream** outStream) override;
   int64_t Write(const void* buffer, int64_t sz, size_t cnt = 1) override;
+  IoError Flush();
 
  protected:
   std::ios_base::openmode PrepareFileOpenMode(CreateFlags flags);
