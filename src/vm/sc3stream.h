@@ -2,14 +2,19 @@
 
 #include <cstdint>
 #include <span>
-#include "thread.h"
 
+#include "thread.h"
+#include "../profile/vm.h"
 namespace Impacto {
 namespace Vm {
 
 class Sc3Stream {
  public:
-  Sc3Stream(uint32_t* ptr) : Ptr(reinterpret_cast<uint8_t*>(ptr)) {}
+  Sc3Stream(uint32_t* ptr) : Ptr(reinterpret_cast<uint8_t*>(ptr)) {
+    assert(Profile::Vm::StringEncodingType ==
+               Profile::Vm::StringUnitEncoding::Uint16 &&
+           "Unexpected 32bit array on a 16 bit string encoded game.");
+  }
   Sc3Stream(uint16_t* ptr) : Ptr(reinterpret_cast<uint8_t*>(ptr)) {}
   Sc3Stream(uint8_t* ptr) : Ptr(ptr) {}
   Sc3Stream(std::nullptr_t ptr) : Ptr(ptr) {}
