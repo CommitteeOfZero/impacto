@@ -439,9 +439,15 @@ void ShowOverlay() {
     }
     ImGui::SetCursorScreenPos(windowPos);
 
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding,
+                        ImVec2(8.0f * GetImguiScale(), 8.0f * GetImguiScale()));
     static std::string selectedGame;
     if (ImGui::BeginChild("Overlay##DockArea", windowSize,
-                          ImGuiChildFlags_NavFlattened, innerWindowFlags)) {
+                          ImGuiChildFlags_NavFlattened |
+                              ImGuiChildFlags_AlwaysUseWindowPadding,
+                          innerWindowFlags)) {
+      ImGui::PopStyleVar();
+
       bool isReady = true;
 #ifdef __ANDROID__
       if (!Profile::Game::HasInit) ShowDirectoryPickerButton();
@@ -559,6 +565,8 @@ void ShowOverlay() {
       ImGui::PopStyleColor(accentColorCount);
     }
     ImGui::EndChild();
+  } else {
+    ImGui::PopStyleVar();
   }
   ImGui::PopStyleVar();
   ImGui::End();
