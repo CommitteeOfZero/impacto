@@ -41,10 +41,7 @@ static bool HasInit = false;
 static std::optional<OverlayTab> ActiveTab;
 static ImGuiStyle BaseStyle;
 
-struct ImgData {
-  uint32_t Texture;
-};
-static ankerl::unordered_dense::map<std::string, ImgData> iconTextureMap;
+static ankerl::unordered_dense::map<std::string, uint32_t> iconTextureMap;
 
 #ifdef __ANDROID__
 static void ShowDirectoryPicker() {
@@ -242,25 +239,35 @@ void SetupFonts() {
 }
 
 void SetupIcons() {
-  for (auto&& [gameKey, gameDef] : Profile::GameDefinitions) {
-    using std::filesystem::path;
-    auto iconPath = (path("resources") / gameKey / "icondata" / "icon.png");
-    if (Io::PathExists(iconPath.string()) == IoError_NotFound) continue;
+  using std::filesystem::path;
+  auto storeIcon = [](path iconPath) -> std::optional<uint32_t> {
+    if (Io::PathExists(iconPath.string()) == IoError_NotFound)
+      return std::nullopt;
 
     Io::Stream* stream;
     if (Io::PhysicalFileStream::Create(iconPath.string(), &stream) !=
         IoError_OK) {
       ImpLog(LogLevel::Error, LogChannel::Overlay, "Failed to open icon: {}",
              iconPath);
-      continue;
+      return std::nullopt;
     };
     Texture t;
     t.Load(stream);
-    ImgData img{
-        .Texture = t.Submit(),
-    };
-    iconTextureMap.try_emplace(gameKey, img);
+    uint32_t textureId = t.Submit();
+
     delete stream;
+    return textureId;
+  };
+
+  for (auto&& [gameKey, gameDef] : Profile::GameDefinitions) {
+    auto iconPath = (path("resources") / gameKey / "icondata" / "icon.png");
+    if (auto txt = storeIcon(iconPath)) {
+      iconTextureMap.try_emplace(gameKey, *txt);
+    }
+  }
+  if (auto txt =
+          storeIcon(path("resources") / "common" / "icons" / "icon.png")) {
+    iconTextureMap.try_emplace("_coz", *txt);
   }
 }
 
@@ -308,8 +315,7 @@ static void ShowGamePicker(std::string& selectedGame) {
       if (auto iconTxtItr = iconTextureMap.find(game);
           iconTxtItr != iconTextureMap.end()) {
         auto const& img = iconTxtItr->second;
-        ImGui::Image((ImTextureID)(intptr_t)img.Texture,
-                     ImVec2{iconSize, iconSize});
+        ImGui::Image((ImTextureID)(intptr_t)img, ImVec2{iconSize, iconSize});
         ImGui::SameLine();
       }
     };
@@ -498,7 +504,7 @@ void ShowOverlay() {
         if (ImGui::BeginTabItem("About", nullptr,
                                 tabFlags[OverlayTab::About])) {
           ActiveTab = OverlayTab::About;
-          ShowAboutPage(selectedGame);
+          ShowAboutPage(selectedGame, iconTextureMap, GetImguiScale());
           ImGui::EndTabItem();
         }
         ImGui::EndTabBar();
