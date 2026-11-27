@@ -116,8 +116,13 @@ CheckUpdateProcess::UpdateCheckResult CheckUpdateProcess::RunCheck() {
 
   SDL_SetPointerProperty(properties.Id, SDL_PROP_PROCESS_CREATE_ARGS_POINTER,
                          (void*)(args));
+#if defined(SDL_PLATFORM_WINDOWS)
   SDL_SetBooleanProperty(properties.Id,
                          SDL_PROP_PROCESS_CREATE_BACKGROUND_BOOLEAN, true);
+#else
+  SDL_SetNumberProperty(properties.Id, SDL_PROP_PROCESS_CREATE_STDERR_NUMBER,
+                        SDL_PROCESS_STDIO_NULL);
+#endif
   SDL_SetNumberProperty(properties.Id, SDL_PROP_PROCESS_CREATE_STDOUT_NUMBER,
                         SDL_PROCESS_STDIO_APP);
 
