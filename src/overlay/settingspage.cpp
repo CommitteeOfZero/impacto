@@ -4,6 +4,7 @@
 #include <imgui_scroll_drag.h>
 
 #include "../userconfig.h"
+#include "../util.h"
 #include "../profile/game.h"
 #include "../profile/gamedefinitions.h"
 
@@ -245,6 +246,13 @@ static void ShowPatchSettings(std::string const& selectedGame) {
   }
 }
 
+static void ShowAdvancedSettings() {
+  if (ImGui::CollapsingHeader("Advanced Settings")) {
+    auto& advancedSettings = UserConfig::AdvancedSettings;
+    ImGui::Checkbox("Force Borderless", &advancedSettings.ForceBorderless);
+  }
+}
+
 void ShowSettingsPage(std::string const& selectedGame) {
   const float footerHeight = ImGui::GetStyle().ItemSpacing.y +
                              ImGui::GetStyle().SeparatorSize +
@@ -263,6 +271,7 @@ void ShowSettingsPage(std::string const& selectedGame) {
 
       ShowPatchSettings(selectedGame);
     }
+    ShowAdvancedSettings();
     ImGui::ScrollWhenDraggingOnVoid(ImVec2{0.0f, -ImGui::GetIO().MouseDelta.y},
                                     ImGuiMouseButton_Left);
   }

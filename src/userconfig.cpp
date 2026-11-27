@@ -129,7 +129,8 @@ TOML11_DEFINE_CONVERSION_NON_INTRUSIVE(
   ActiveAudioBackend,
   SubtitleAssBackend,
   SubtitleTextBackend,
-  SubtitleBmpBackend
+  SubtitleBmpBackend,
+  ForceBorderless
 )
 
 TOML11_DEFINE_CONVERSION_NON_INTRUSIVE(

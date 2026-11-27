@@ -296,7 +296,7 @@ void BaseWindow::RequestFauxBorderless() {
   // Simulate borderless by making window take up full size of the display
   SDL_Rect bounds = GetDisplayBounds(SDL_WINDOW_FULLSCREEN);
 
-  SDL_SetWindowBordered(SDLWindow, false);
+  SDL_SetWindowBordered(SDLWindow, true);
   SDL_SetWindowFullscreen(SDLWindow, false);
   SDL_SetWindowSize(SDLWindow, bounds.w, bounds.h);
   SDL_SetWindowPosition(SDLWindow, 0, 0);
@@ -360,11 +360,16 @@ void BaseWindow::UpdateDisplayMode() {
 #endif
   } else if (CurrentMode == DisplayMode::Borderless) {
 #ifdef __APPLE__
-    RequestFauxBorderless();
+    const bool fauxBorderless = true;
 #else
-    SDL_SetWindowFullscreenMode(SDLWindow, NULL);
-    SDL_SetWindowFullscreen(SDLWindow, true);
+    const bool fauxBorderless = UserConfig::AdvancedSettings.ForceBorderless;
 #endif
+    if (fauxBorderless) {
+      RequestFauxBorderless();
+    } else {
+      SDL_SetWindowFullscreenMode(SDLWindow, NULL);
+      SDL_SetWindowFullscreen(SDLWindow, true);
+    }
   } else {
     SDL_SetWindowBordered(SDLWindow, true);
     SDL_SetWindowFullscreen(SDLWindow, false);
