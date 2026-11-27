@@ -155,7 +155,7 @@ namespace Impacto::UserConfig {
 
 static std::string ActiveGame;
 
-void LoadUserConfig(toml::value& tomlConfig);
+static void LoadUserConfig(toml::value& tomlConfig);
 
 static void MergeToml(toml::value& base, const toml::value& other) {
   if (base.is_table() && other.is_table()) {
