@@ -35,9 +35,11 @@
 #include "../vm/interface/input.h"
 
 namespace Impacto::Overlay {
+constexpr static float OverlayUIScale = 1.3f;
 
 static bool HasInit = false;
 static std::optional<OverlayTab> ActiveTab;
+static ImGuiStyle BaseStyle;
 
 struct ImgData {
   uint32_t Texture;
@@ -92,6 +94,12 @@ static void ShowDirectoryPickerButton() {
 }
 #endif
 
+static float GetImguiScale() {
+  const float windowDPIScale = Window->DpiScale;
+  const float fbScale = ImGui::GetIO().DisplayFramebufferScale.x;
+  return windowDPIScale / fbScale * OverlayUIScale;
+}
+
 static ImVec4 GetAccentColor(std::string const& gameKey) {
   auto gameDefIt = Profile::GameDefinitions.find(gameKey);
   uint32_t theme = gameDefIt != Profile::GameDefinitions.end()
@@ -128,7 +136,6 @@ static int PushAccentColors(std::string const& gameKey) {
 
 void SetupStyle() {
   ImGuiStyle& style = ImGui::GetStyle();
-  style.ScaleAllSizes(Window->DpiScale);
 
   style.WindowRounding = 0.0f;
   style.ChildRounding = 0.0f;
@@ -219,15 +226,15 @@ void SetupStyle() {
   colors[ImGuiCol_NavWindowingHighlight] = whiteFaint;
   colors[ImGuiCol_NavWindowingDimBg] = ImVec4{1.0f, 1.0f, 1.0f, 0.2f};
   colors[ImGuiCol_ModalWindowDimBg] = ImVec4{1.0f, 1.0f, 1.0f, 0.2f};
+  BaseStyle = style;
 }
 
 void SetupFonts() {
   ImGuiIO& io = ImGui::GetIO();
   constexpr const char* fontPath =
       "resources/common/font/NotoSansCJKjp-Bold.otf";
-  ImFont* font =
-      io.Fonts->AddFontFromFileTTF(fontPath, 24.0f * Window->DpiScale, nullptr,
-                                   io.Fonts->GetGlyphRangesJapanese());
+  ImFont* font = io.Fonts->AddFontFromFileTTF(
+      fontPath, 0.0f, nullptr, io.Fonts->GetGlyphRangesJapanese());
   if (font == nullptr) {
     ImpLog(LogLevel::Error, LogChannel::Overlay, "Failed to load font: {}",
            fontPath);
@@ -268,8 +275,8 @@ void Init() {
 }
 
 static void ShowGamePicker(std::string& selectedGame) {
-  const float comboWidth = 340.0f * Window->DpiScale;
-  const float iconSize = 36.0f * Window->DpiScale;
+  const float comboWidth = 340.0f * GetImguiScale();
+  const float iconSize = 36.0f * GetImguiScale();
   constexpr auto label = "Choose Game";
 
   std::vector<std::string> gameKeys;
@@ -388,6 +395,7 @@ static bool HelpTabSelectable() {
 }
 
 void ShowOverlay() {
+  if (!HasInit) return;
   constexpr ImGuiWindowFlags wrapperWindowFlags =
       ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDecoration |
       ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoSavedSettings;
@@ -395,6 +403,14 @@ void ShowOverlay() {
   ImGui::SetNextWindowPos(viewport->WorkPos);
   ImGui::SetNextWindowSize(viewport->WorkSize);
   ImGui::SetNextWindowViewport(viewport->ID);
+
+  if (float scale = GetImguiScale(); scale >= 1.0f) {
+    ImGuiStyle& style = ImGui::GetStyle();
+    style = BaseStyle;
+    style.FontScaleDpi = scale;
+    style.ScaleAllSizes(scale);
+  }
+
   ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
   if (ImGui::Begin("WindowWrapper", &OverlayShown, wrapperWindowFlags)) {
     constexpr ImGuiWindowFlags innerWindowFlags =
@@ -494,7 +510,7 @@ void ShowOverlay() {
       const float footerStartY = ImGui::GetCursorScreenPos().y;
       if (!Profile::Game::HasInit && !selectedGame.empty()) {
         ImGui::Separator();
-        float buttonWidth = 120.0f * Window->DpiScale;
+        float buttonWidth = 120.0f * GetImguiScale();
         if (ImGui::BeginTable("StartButtonCenterTable", 3)) {
           ImGui::TableSetupColumn("##left", ImGuiTableColumnFlags_WidthStretch);
           ImGui::TableSetupColumn("##mid", ImGuiTableColumnFlags_WidthFixed,

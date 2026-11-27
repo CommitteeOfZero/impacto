@@ -13,9 +13,16 @@
 namespace Impacto {
 
 enum class RendererType : int {
+  None,
+#ifndef IMPACTO_DISABLE_OPENGL
   OpenGL,
+#endif
+#ifndef IMPACTO_DISABLE_VULKAN
   Vulkan,
+#endif
+#ifndef IMPACTO_DISABLE_DX9
   DirectX9,
+#endif
 };
 
 enum class VideoPlayerType : int {
@@ -25,12 +32,16 @@ enum class VideoPlayerType : int {
 
 enum class AudioBackendType : int {
   None,
+#ifndef IMPACTO_DISABLE_OPENAL
   OpenAL,
+#endif
 };
 
 enum class SubtitleAssBackendType : int {
   None,
+#ifndef IMPACTO_DISABLE_LIBASS
   LibAss,
+#endif
 };
 
 enum class SubtitleTextBackendType : int {
@@ -73,6 +84,7 @@ struct AdvancedConfig {
   SubtitleAssBackendType SubtitleAssBackend = SubtitleAssBackendType::LibAss;
   SubtitleTextBackendType SubtitleTextBackend = SubtitleTextBackendType::None;
   SubtitleBmpBackendType SubtitleBmpBackend = SubtitleBmpBackendType::None;
+  bool ForceBorderless = false;
 };
 
 struct CHLCCEnhancements {

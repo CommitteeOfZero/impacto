@@ -46,7 +46,13 @@ void Camera::Recalculate() {
         CameraTransform.Matrix());  // move the world, not the camera
   }
 
-  if (UserConfig::AdvancedSettings.ActiveRenderer == RendererType::Vulkan) {
+#ifndef IMPACTO_DISABLE_VULKAN
+  const bool isVulkan =
+      UserConfig::AdvancedSettings.ActiveRenderer == RendererType::Vulkan;
+#else
+  const bool isVulkan = false;
+#endif
+  if (isVulkan) {
     Projection = glm::perspectiveRH_ZO(Fov, AspectRatio, Near, Far);
     Projection[1][1] *= -1.0f;
   } else {

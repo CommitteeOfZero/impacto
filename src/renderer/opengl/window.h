@@ -12,7 +12,7 @@ class GLWindow : public BaseWindow {
                      float renderScale) override;
   void SetVSync(bool vsync) override;
   void SwapRTs() override;
-  void Update() override;
+  void UpdateImpl() override;
   void Draw() override;
   void Shutdown() override;
 

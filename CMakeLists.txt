@@ -1315,6 +1315,20 @@ if (NOT DEFINED IMPACTO_DISABLE_DX9)
     )
 endif ()
 
+if (APPLE)
+    list(APPEND Impacto_Src
+        macos/renderer/window.mm
+    )
+    set_source_files_properties(
+        macos/renderer/window
+        PROPERTIES
+        SKIP_PRECOMPILE_HEADERS ON
+        COMPILE_FLAGS "-std=c++20" 
+    )
+    find_library(COCOA_LIBRARY Cocoa REQUIRED)
+    list(APPEND Impacto_Libs ${COCOA_LIBRARY})
+endif ()
+
 configure_file(src/version.h.in ${PROJECT_BINARY_DIR}/include/version.h)
 
 if(ANDROID)
@@ -1343,6 +1357,7 @@ if (APPLE)
         MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}"
         MACOSX_BUNDLE_GUI_IDENTIFIER "com.committeeofzero.impacto"
         MACOSX_BUNDLE_ICON_FILE "icon.icns"
+        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/macos/Impacto.plist.in"
         INSTALL_RPATH "@executable_path/../Frameworks"
         BUILD_WITH_INSTALL_RPATH TRUE
     )

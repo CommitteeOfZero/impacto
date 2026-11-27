@@ -17,8 +17,10 @@ namespace Vulkan {
 void VulkanWindow::UpdateDimensions() {
   WindowDimensionsChanged = false;
   SDL_GetWindowSizeInPixels(SDLWindow, &WindowWidth, &WindowHeight);
+  DpiScale = SDL_GetWindowDisplayScale(SDLWindow);
   if (WindowWidth != lastWidth || WindowHeight != lastHeight ||
-      MsaaCount != lastMsaa || RenderScale != lastRenderScale) {
+      MsaaCount != lastMsaa || RenderScale != lastRenderScale ||
+      DpiScale != lastDpiScale) {
     WindowDimensionsChanged = true;
     ImpLog(LogLevel::Debug, LogChannel::General,
            "Drawable size (pixels): {:d} x {:d} ({:d}x MSAA requested, render "
@@ -29,8 +31,8 @@ void VulkanWindow::UpdateDimensions() {
   lastHeight = WindowHeight;
   lastMsaa = MsaaCount;
   lastRenderScale = RenderScale;
+  lastDpiScale = DpiScale;
 
-  DpiScale = SDL_GetWindowDisplayScale(SDLWindow);
   // SDL_SetWindowInputFocus(SDLWindow);
   MainRendererInstance->RecreateSwapChain();
 }
@@ -59,7 +61,7 @@ void VulkanWindow::SetDimensions(int width, int height, int msaa,
 
 void VulkanWindow::SwapRTs() {}
 
-void VulkanWindow::Update() {}
+void VulkanWindow::UpdateImpl() {}
 
 void VulkanWindow::Draw() {
 #ifndef IMPACTO_DISABLE_IMGUI

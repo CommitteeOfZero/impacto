@@ -120,7 +120,7 @@ void InitGameProfile() {
   Profile::Game::Configure();
   Profile::Patch::Configure();
 
-  Window->ApplyWindowSettings();
+  Window->ApplyWindowSettings(true);
   Renderer->Init();
   Io::VfsInit();
 
@@ -250,6 +250,7 @@ void LauncherUpdate(float dt) {
 #ifndef IMPACTO_DISABLE_IMGUI
     ImGui_ImplSDL3_ProcessEvent(&e);
 #endif
+    if (Window->HandleWindowEvents(&e)) continue;
   }
 }
 
@@ -328,7 +329,7 @@ void UpdateSystem(float dt) {
       }
     }
 
-    if (HandleWindowEvents(&e)) continue;
+    if (Window->HandleWindowEvents(&e)) continue;
 #ifndef IMPACTO_DISABLE_IMGUI
     ImGuiIO& io = ImGui::GetIO();
     const bool isImguiEvent = [&e] {

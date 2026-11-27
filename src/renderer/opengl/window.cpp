@@ -24,8 +24,12 @@ namespace OpenGL {
 void GLWindow::UpdateDimensions() {
   WindowDimensionsChanged = false;
   SDL_GetWindowSizeInPixels(SDLWindow, &WindowWidth, &WindowHeight);
+  SDL_GetWindowSize(SDLWindow, &LogicalWindowWidth, &LogicalWindowHeight);
+  DpiScale = SDL_GetWindowDisplayScale(SDLWindow);
+
   if (WindowWidth != lastWidth || WindowHeight != lastHeight ||
-      MsaaCount != lastMsaa || RenderScale != lastRenderScale) {
+      MsaaCount != lastMsaa || RenderScale != lastRenderScale ||
+      DpiScale != lastDpiScale) {
     WindowDimensionsChanged = true;
     ImpLog(LogLevel::Debug, LogChannel::General,
            "Drawable size (pixels): {:d} x {:d} ({:d}x MSAA requested, render "
@@ -37,7 +41,7 @@ void GLWindow::UpdateDimensions() {
   lastHeight = WindowHeight;
   lastMsaa = MsaaCount;
   lastRenderScale = RenderScale;
-  DpiScale = SDL_GetWindowDisplayScale(SDLWindow);
+  lastDpiScale = DpiScale;
 
   // SDL_SetWindowInputFocus(SDLWindow);
 }
@@ -271,7 +275,7 @@ void GLWindow::SwapRTs() {
   GLC::BindFramebuffer(GL_READ_FRAMEBUFFER, ReadRT);
 }
 
-void GLWindow::Update() {
+void GLWindow::UpdateImpl() {
   UpdateDimensions();
 
   Rect viewport = GetViewport();

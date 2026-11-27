@@ -21,7 +21,8 @@ void DirectX9Window::UpdateDimensions() {
   WindowDimensionsChanged = false;
   // SDL_Vulkan_GetDrawableSize(SDLWindow, &WindowWidth, &WindowHeight);
   if (WindowWidth != lastWidth || WindowHeight != lastHeight ||
-      MsaaCount != lastMsaa || RenderScale != lastRenderScale) {
+      MsaaCount != lastMsaa || RenderScale != lastRenderScale ||
+      DpiScale != lastDpiScale) {
     WindowDimensionsChanged = true;
     ImpLog(LogLevel::Debug, LogChannel::General,
            "Drawable size (pixels): {:d} x {:d} ({:d}x MSAA requested, render "
@@ -33,6 +34,7 @@ void DirectX9Window::UpdateDimensions() {
   lastHeight = WindowHeight;
   lastMsaa = MsaaCount;
   lastRenderScale = RenderScale;
+  lastDpiScale = DpiScale;
 
   DpiScale = SDL_GetWindowDisplayScale(SDLWindow);
   // SDL_SetWindowInputFocus(SDLWindow);
@@ -62,7 +64,7 @@ void DirectX9Window::SetDimensions(int width, int height, int msaa,
 
 void DirectX9Window::SwapRTs() {}
 
-void DirectX9Window::Update() {}
+void DirectX9Window::UpdateImpl() {}
 
 void DirectX9Window::Draw() {
 #ifndef IMPACTO_DISABLE_IMGUI
