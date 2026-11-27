@@ -21,10 +21,10 @@ root.Sprites["ButtonIconRightStick"]     = GetButtonSprite(10, 2, "ControllerBut
 root.Sprites["ButtonIconBack"]           = GetButtonSprite(9, 3, "ControllerButtonIcons");
 root.Sprites["ButtonIconGuide"]          = GetButtonSprite(8, 10, "ControllerButtonIcons");
 root.Sprites["ButtonIconStart"]          = GetButtonSprite(0, 2, "ControllerButtonIcons");
-root.Sprites["ButtonIconLeftShoulder"]   = GetButtonSprite(6, 8, "ControllerButtonIcons");
-root.Sprites["ButtonIconRightShoulder"]  = GetButtonSprite(8, 8, "ControllerButtonIcons");
-root.Sprites["ButtonIconLeftTrigger"]    = GetButtonSprite(10, 10, "ControllerButtonIcons");
-root.Sprites["ButtonIconRightTrigger"]   = GetButtonSprite(5, 9, "ControllerButtonIcons");
+root.Sprites["ButtonIconLeftTrigger"]   = GetButtonSprite(6, 8, "ControllerButtonIcons");
+root.Sprites["ButtonIconRightTrigger"]  = GetButtonSprite(8, 8, "ControllerButtonIcons");
+root.Sprites["ButtonIconLeftShoulder"]    = GetButtonSprite(10, 10, "ControllerButtonIcons");
+root.Sprites["ButtonIconRightShoulder"]   = GetButtonSprite(5, 9, "ControllerButtonIcons");
 
 -- Keyboard Sprites
 root.Sprites["ButtonIconArrow"]          = GetButtonSprite(3, 13, "KeyboardButtonIcons");
