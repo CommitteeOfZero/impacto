@@ -209,11 +209,11 @@ jobs:
     - name: Archive Artifacts
       run: |
         mv ./release/${{ env.PresetName }} ./release/impacto
-        7z a -tzip -mm=Deflate -mx=9 impacto-${{ matrix.os_name }}-${{ env.VERSION }}${{ github.run_number }}-${{ github.sha }}.zip ./release/impacto
+        7z a -tzip -mm=Deflate -mx=9 impacto-${{ matrix.os_name }}-${{ env.VERSION }}-dev.${{ github.run_number }}-${{ github.sha }}.zip ./release/impacto
     - name: Upload Artifact
       uses: actions/upload-artifact@v7
       with:
-        path: impacto-${{ matrix.os_name }}-${{ env.VERSION }}${{ github.run_number }}-${{ github.sha }}.zip
+        path: impacto-${{ matrix.os_name }}-${{ env.VERSION }}-dev.${{ github.run_number }}-${{ github.sha }}.zip
         archive: false
 
   switch:
@@ -290,9 +290,9 @@ jobs:
       - name: Archive Artifacts
         run: |
           mv ./release/${{ env.PresetName }} ./release/impacto
-          7z a -tzip -mm=Deflate -mx=9 impacto-switch-${{ env.VERSION }}${{ github.run_number }}-${{ github.sha }}.zip ./release/impacto
+          7z a -tzip -mm=Deflate -mx=9 impacto-switch-${{ env.VERSION }}-dev.${{ github.run_number }}-${{ github.sha }}.zip ./release/impacto
       - name: Upload Artifact
         uses: actions/upload-artifact@v7
         with:
-          path: impacto-switch-${{ env.VERSION }}${{ github.run_number }}-${{ github.sha }}.zip
+          path: impacto-switch-${{ env.VERSION }}-dev.${{ github.run_number }}-${{ github.sha }}.zip
           archive: false

@@ -34,7 +34,7 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         Name: Latest ${{ env.BRANCH_NAME }} build
-        tag_name: ${{ steps.set-version.outputs.VERSION }}${{ github.event.workflow_run.run_number }}
+        tag_name: ${{ steps.set-version.outputs.VERSION }}-dev.${{ github.event.workflow_run.run_number }}
         files:
           ${{ github.workspace }}/release/*.zip
         prerelease: true
@@ -58,7 +58,7 @@ jobs:
           from branch `${{ github.event.workflow_run.head_branch }}` has been successfully built.
 
           Release URL:
-          https://github.com/CommitteeOfZero/impacto/releases/tag/${{ steps.set-version.outputs.VERSION }}${{ github.event.workflow_run.run_number }}
+          https://github.com/CommitteeOfZero/impacto/releases/tag/${{ steps.set-version.outputs.VERSION }}-dev.${{ github.event.workflow_run.run_number }}
 
           Details:
           - Build: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}
