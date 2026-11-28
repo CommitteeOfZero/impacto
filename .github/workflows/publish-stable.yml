@@ -1,0 +1,80 @@
+name: publish stable
+on:
+  workflow_run:
+    workflows: [impacto]
+    types: [completed]
+
+jobs:
+  publish_stable_release:
+    name: Publish Stable Release
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+      actions: read
+    env:
+      RELEASE_TAG: ${{ github.event.workflow_run.head_branch }}
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch != 'master'
+    steps:
+    - uses: actions/download-artifact@v8
+      with:
+        name: VERSION
+        path: "${{ github.workspace }}/version"
+        github-token: ${{ github.token }}
+        run-id: ${{ github.event.workflow_run.id }}
+    - name: Check release tag
+      id: check-version
+      run: |
+        version="$(tr -d '\r\n' < "${{ github.workspace }}/version/VERSION")"
+        if [[ "$RELEASE_TAG" == "$version" ]]; then
+          echo "matches=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "::notice::Skipping stable release: tag '$RELEASE_TAG' does not match VERSION '$version'."
+          echo "matches=false" >> "$GITHUB_OUTPUT"
+        fi
+    - uses: actions/download-artifact@v8
+      if: steps.check-version.outputs.matches == 'true'
+      with:
+        pattern: impacto-*
+        path: "${{ github.workspace }}/release"
+        merge-multiple: true
+        skip-decompress: true
+        github-token: ${{ github.token }}
+        run-id: ${{ github.event.workflow_run.id }}
+    - name: Upload Release
+      if: steps.check-version.outputs.matches == 'true'
+      uses: softprops/action-gh-release@v2
+      with:
+        Name: Impacto ${{ env.RELEASE_TAG }}
+        tag_name: ${{ env.RELEASE_TAG }}
+        files:
+          ${{ github.workspace }}/release/*.zip
+        prerelease: false
+        fail_on_unmatched_files: true
+        target_commitish: ${{ github.event.workflow_run.head_sha }}
+    - name: Get current date
+      id: date
+      if: steps.check-version.outputs.matches == 'true'
+      run: echo "NOW=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_ENV
+
+    - uses: tsickert/discord-webhook@v5.3.0
+      if: steps.check-version.outputs.matches == 'true'
+      with:
+        webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        username: IMPACTO
+        avatar-url: https://cdn.discordapp.com/emojis/766988033127481344.png
+        embed-title : "Impacto ${{ env.RELEASE_TAG }} Released"
+        embed-color: 3659647
+        embed-timestamp: ${{ env.NOW }}
+        embed-description: |
+          Release ${{ env.RELEASE_TAG }} has been successfully published.
+
+          Release URL:
+          https://github.com/CommitteeOfZero/impacto/releases/tag/${{ env.RELEASE_TAG }}
+
+          Details:
+          - Build: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}
+          - Publish: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
