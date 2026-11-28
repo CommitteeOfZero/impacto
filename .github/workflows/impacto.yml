@@ -106,7 +106,7 @@ jobs:
             || 'clear;nuget,https://nuget.pkg.github.com/committeeofzero/index.json,readwrite' }}
       vcpkgCommitId: 'ea49500a3353603af1190ca9a786a9015d638ea0'
       PresetName: ${{ (matrix.os_name == 'android') && 'ci-release-android' || 'ci-release' }}
-      VERSION: ${{ needs.get-version.outputs.VERSION }}
+      ARTIFACT_VERSION: ${{ github.ref_type == 'tag' && github.ref_name || format('{0}-dev.{1}', needs.get-version.outputs.VERSION, github.run_number) }}
       VCPKG_FORCE_DOWNLOADED_BINARIES: 1
 
     steps:
@@ -209,11 +209,11 @@ jobs:
     - name: Archive Artifacts
       run: |
         mv ./release/${{ env.PresetName }} ./release/impacto
-        7z a -tzip -mm=Deflate -mx=9 impacto-${{ matrix.os_name }}-${{ env.VERSION }}-dev.${{ github.run_number }}-${{ github.sha }}.zip ./release/impacto
+        7z a -tzip -mm=Deflate -mx=9 impacto-${{ matrix.os_name }}-${{ env.ARTIFACT_VERSION }}-${{ github.sha }}.zip ./release/impacto
     - name: Upload Artifact
       uses: actions/upload-artifact@v7
       with:
-        path: impacto-${{ matrix.os_name }}-${{ env.VERSION }}-dev.${{ github.run_number }}-${{ github.sha }}.zip
+        path: impacto-${{ matrix.os_name }}-${{ env.ARTIFACT_VERSION }}-${{ github.sha }}.zip
         archive: false
 
   switch:
@@ -228,7 +228,7 @@ jobs:
     container:
       image: ghcr.io/committeeofzero/impacto-switch:latest
     env:
-      VERSION: ${{ needs.get-version.outputs.VERSION }}
+      ARTIFACT_VERSION: ${{ github.ref_type == 'tag' && github.ref_name || format('{0}-dev.{1}', needs.get-version.outputs.VERSION, github.run_number) }}
       PresetName: ci-release-switch
       vcpkgCommitId: 'ea49500a3353603af1190ca9a786a9015d638ea0'
       VCPKG_FORCE_DOWNLOADED_BINARIES: 1
@@ -290,9 +290,9 @@ jobs:
       - name: Archive Artifacts
         run: |
           mv ./release/${{ env.PresetName }} ./release/impacto
-          7z a -tzip -mm=Deflate -mx=9 impacto-switch-${{ env.VERSION }}-dev.${{ github.run_number }}-${{ github.sha }}.zip ./release/impacto
+          7z a -tzip -mm=Deflate -mx=9 impacto-switch-${{ env.ARTIFACT_VERSION }}-${{ github.sha }}.zip ./release/impacto
       - name: Upload Artifact
         uses: actions/upload-artifact@v7
         with:
-          path: impacto-switch-${{ env.VERSION }}-dev.${{ github.run_number }}-${{ github.sha }}.zip
+          path: impacto-switch-${{ env.ARTIFACT_VERSION }}-${{ github.sha }}.zip
           archive: false
