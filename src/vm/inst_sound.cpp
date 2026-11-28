@@ -88,10 +88,18 @@ VmInstruction(InstSSEplay) {
     PopUint8(channel);
   }
   PopExpression(sysSeId);
+
+  if (Profile::Vm::GameInstructionSet == InstructionSet::CHLCC) {
+    return;
+  }
   Audio::PlayInGroup(Audio::ACG_SE, "sysse", sysSeId, false, 0.0f);
 }
 VmInstruction(InstSSEstop) {
   StartInstruction;
+
+  if (Profile::Vm::GameInstructionSet == InstructionSet::CHLCC) {
+    return;
+  }
   Audio::StopChannelGroup(Audio::ACG_SE, 1.0f);
 }
 VmInstruction(InstBGMflag) {

@@ -275,7 +275,22 @@ void TextParser::FinishLine(const size_t nextLineStart, const bool force) {
     if (chunk.FirstBaseCharacter >= nextLineStart) break;
     hasRuby = true;
 
-    Vm::Sc3Stream rubyText(chunk.RawText.data());
+    // TODO: Handle different text encodings more elegantly (UTF-8 style?)
+    Vm::Sc3Stream rubyText(nullptr);
+    std::vector<uint16_t> chunk16bit;
+
+    if (Profile::Vm::StringEncodingType ==
+        Profile::Vm::StringUnitEncoding::Uint16) {
+      chunk16bit.reserve(chunk.RawText.size());
+      std::transform(chunk.RawText.begin(), chunk.RawText.end(),
+                     std::back_inserter(chunk16bit), [](const uint32_t& elem) {
+                       return static_cast<uint16_t>(elem & 0xFFFF);
+                     });
+
+      rubyText = Vm::Sc3Stream(chunk16bit.data());
+    } else {
+      rubyText = Vm::Sc3Stream(chunk.RawText.data());
+    }
 
     const std::span<const ProcessedTextGlyph> base =
         std::span(Glyphs.begin() + chunk.FirstBaseCharacter, chunk.BaseLength);
