@@ -47,6 +47,10 @@ void Configure() {
         TryGetMember<bool>("SyncVoice").value_or(Default::SyncVoice);
     Default::SkipVoice =
         TryGetMember<bool>("SkipVoice").value_or(Default::SkipVoice);
+    Default::UseSpeaker =
+        TryGetMember<bool>("UseSpeaker").value_or(Default::UseSpeaker);
+    Default::SpeakerVolume =
+        TryGetMember<float>("SpeakerVolume").value_or(Default::SpeakerVolume);
 
     std::optional<uint32_t> optionalVoiceCount =
         TryGetMember<uint32_t>("VoiceCount");
@@ -83,6 +87,8 @@ void ResetToDefault() {
   SkipRead = Default::SkipRead;
   SyncVoice = Default::SyncVoice;
   SkipVoice = Default::SkipVoice;
+  UseSpeaker = Default::UseSpeaker;
+  SpeakerVolume = Default::SpeakerVolume;
 
   std::ranges::copy(Default::VoiceMuted, VoiceMuted.begin());
   std::ranges::copy(Default::VoiceVolume, VoiceVolume.begin());

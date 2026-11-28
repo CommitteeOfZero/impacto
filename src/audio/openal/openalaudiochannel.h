@@ -19,6 +19,7 @@ class OpenALAudioChannel : public Audio::AudioChannel {
   void Resume() override;
 
   void Reinit() override;
+  void SetOutput(AudioOutputId output) override;
   void Update(float dt) override;
 
   float PositionInSeconds() const override;
@@ -26,6 +27,7 @@ class OpenALAudioChannel : public Audio::AudioChannel {
  private:
   static int constexpr AudioBufferSize = 64 * 1024;
   static int constexpr AudioBufferCount = 3;
+  static int constexpr ControllerTargetQueueMs = 120;
 
   ALCuint Source = 0;
   std::array<ALuint, AudioBufferCount> AudioBuffers;
@@ -33,20 +35,28 @@ class OpenALAudioChannel : public Audio::AudioChannel {
   std::vector<uint8_t> HostBuffer;
 
   size_t FirstQueuedBufferIndex = 0;
+  size_t ControllerStartSample = 0;
 
   float FadeDuration = 0;
   float FadeProgress = 0;
   float FadeStartFactor = 0;
+  float CurrentGain = 1.0f;
 
   bool PlaybackStarted = false;
+  bool ControllerStreamFinished = false;
 
+  void CreateSource();
+  float BaseGain() const;
+  size_t PlaybackPosition() const;
   void EndPlayback();
   void UpdateGain();
   void UpdateFade(float dt);
   void UnqueueBuffers(size_t amount);
   bool CanQueueBuffer();
+  int ReadStreamSamples(int maxSamples);
   void QueueBuffer(size_t bufferIndex);
   void UpdatePlayback();
+  void UpdateControllerPlayback();
 };
 
 }  // namespace OpenAL

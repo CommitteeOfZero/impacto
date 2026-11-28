@@ -9,7 +9,8 @@ root.GameFeatures = GameFeature.Sc3VirtualMachine |
                     GameFeature.Subtitles |
                     GameFeature.DebugMenu |
                     GameFeature.Achievements |
-                    GameFeature.Overlay;
+                    GameFeature.Overlay |
+                    GameFeature.ControllerSpeaker;
 root.DesignWidth = 1920;
 root.DesignHeight = 1080;
 
@@ -64,6 +65,7 @@ include(root.BasePaths.RootProfilesDir .. '/cclcc/gamespecific.lua');
 include(root.BasePaths.RootProfilesDir .. '/cclcc/font.lua');
 include(root.BasePaths.RootProfilesDir .. '/cclcc/dialogue.lua');
 include(root.BasePaths.RootProfilesDir .. '/cclcc/configsystem.lua');
+include(root.BasePaths.RootProfilesDir .. '/cclcc/speakervoicelines.lua');
 include(root.BasePaths.RootProfilesDir .. '/cclcc/bgeff.lua');
 include(root.BasePaths.RootProfilesDir .. '/cclcc/waveeffects.lua');
 include(root.BasePaths.RootProfilesDir .. '/cclcc/hud/saveicon.lua');
