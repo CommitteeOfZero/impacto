@@ -29,6 +29,8 @@ inline glm::vec2 CurMousePos = glm::vec2(0.0f);
 inline float MouseWheelDeltaX = 0;
 inline float MouseWheelDeltaY = 0;
 
+inline float CursorStationaryTime = 0.0f;
+
 inline float ControllerAxisValue[SDL_GAMEPAD_AXIS_COUNT];
 
 inline bool MouseButtonWentDown[MouseButtonsMax] = {false};
